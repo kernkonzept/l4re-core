@@ -20,8 +20,6 @@
 #include <sched.h>
 #include <time.h>
 
-#define __need_sigset_t
-#include <signal.h>
 #include <bits/pthreadtypes.h>
 #include <bits/initspin.h>
 
@@ -86,7 +84,7 @@ enum
   PTHREAD_MUTEX_RECURSIVE_NP,
   PTHREAD_MUTEX_ERRORCHECK_NP,
   PTHREAD_MUTEX_TIMED_NP
-#ifdef __USE_UNIX98
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K8
   ,
   PTHREAD_MUTEX_NORMAL = PTHREAD_MUTEX_ADAPTIVE_NP,
   PTHREAD_MUTEX_RECURSIVE = PTHREAD_MUTEX_RECURSIVE_NP,
@@ -256,7 +254,6 @@ extern int pthread_attr_setscope (pthread_attr_t *__attr, int __scope)
 extern int pthread_attr_getscope (const pthread_attr_t *__restrict __attr,
 				  int *__restrict __scope) __THROW;
 
-#ifdef __USE_UNIX98
 /* Set the size of the guard area at the bottom of the thread.  */
 extern int pthread_attr_setguardsize (pthread_attr_t *__attr,
 				      size_t __guardsize) __THROW;
@@ -265,7 +262,6 @@ extern int pthread_attr_setguardsize (pthread_attr_t *__attr,
 extern int pthread_attr_getguardsize (const pthread_attr_t *__restrict
 				      __attr, size_t *__restrict __guardsize)
      __THROW;
-#endif
 
 #if 0 /* uClibc: deprecated stuff disabled. def __UCLIBC_SUSV3_LEGACY__ */
 /* Set the starting address of the stack of the thread to be created.
@@ -389,7 +385,7 @@ extern int pthread_mutexattr_getpshared (const pthread_mutexattr_t *
 extern int pthread_mutexattr_setpshared (pthread_mutexattr_t *__attr,
 					 int __pshared) __THROW;
 
-#ifdef __USE_UNIX98
+#if defined __USE_UNIX98 || defined __USE_XOPEN2K8
 /* Set the mutex kind attribute in *ATTR to KIND (either PTHREAD_MUTEX_NORMAL,
    PTHREAD_MUTEX_RECURSIVE, PTHREAD_MUTEX_ERRORCHECK, or
    PTHREAD_MUTEX_DEFAULT).  */
