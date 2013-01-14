@@ -36,6 +36,11 @@ extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 {
+#if __FDPIC__
+  /* FIXME: implement.  */
+  while(1) ;
+  return 0;
+#else
 	ELF_RELOC *this_reloc;
 	char *strtab;
 	char *symname;
@@ -88,6 +93,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 #endif
 
 	return new_addr;
+#endif
 }
 
 static int
@@ -181,7 +187,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 	struct elf_resolve *def_mod = 0;
 	int goof = 0;
 
-	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
+	reloc_addr = (unsigned long *) DL_RELOC_ADDR(tpnt->loadaddr, rpnt->r_offset);
 
 	reloc_type = ELF_R_TYPE(rpnt->r_info);
 	symtab_index = ELF_R_SYM(rpnt->r_info);
@@ -191,25 +197,30 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 	symname = strtab + symtab[symtab_index].st_name;
 
 	if (symtab_index) {
-		symbol_addr = (unsigned long)_dl_find_hash(symname, scope, tpnt,
-						elf_machine_type_class(reloc_type), &sym_ref);
+		if (ELF_ST_BIND (symtab[symtab_index].st_info) == STB_LOCAL) {
+			symbol_addr = (unsigned long) DL_RELOC_ADDR(tpnt->loadaddr, symtab[symtab_index].st_value);
+			def_mod = tpnt;
+		} else {
+			symbol_addr =  (unsigned long)_dl_find_hash(symname, scope, tpnt,
+							elf_machine_type_class(reloc_type), &sym_ref);
 
-		/*
-		 * We want to allow undefined references to weak symbols - this might
-		 * have been intentional.  We should not be linking local symbols
-		 * here, so all bases should be covered.
-		 */
-		if (!symbol_addr && (ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)
-			&& (ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
-			/* This may be non-fatal if called from dlopen.  */
-			return 1;
+			/*
+			 * We want to allow undefined references to weak symbols - this might
+			 * have been intentional.  We should not be linking local symbols
+			 * here, so all bases should be covered.
+			 */
+			if (!symbol_addr && (ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)
+				&& (ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
+				/* This may be non-fatal if called from dlopen.  */
+				return 1;
 
+			}
+			if (_dl_trace_prelink) {
+				_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
+						&sym_ref, elf_machine_type_class(reloc_type));
+			}
+			def_mod = sym_ref.tpnt;
 		}
-		if (_dl_trace_prelink) {
-			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
-					&sym_ref, elf_machine_type_class(reloc_type));
-		}
-		def_mod = sym_ref.tpnt;
 	} else {
 		/*
 		 * Relocs against STN_UNDEF are usually treated as using a
@@ -267,12 +278,42 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 				*reloc_addr = symbol_addr;
 				break;
 			case R_ARM_RELATIVE:
-				*reloc_addr += (unsigned long) tpnt->loadaddr;
+				*reloc_addr = DL_RELOC_ADDR(tpnt->loadaddr, *reloc_addr);
 				break;
 			case R_ARM_COPY:
 				_dl_memcpy((void *) reloc_addr,
 					   (void *) symbol_addr, symtab[symtab_index].st_size);
 				break;
+#ifdef __FDPIC__
+			case R_ARM_FUNCDESC_VALUE:
+				{
+					struct funcdesc_value funcval;
+					struct funcdesc_value *dst = (struct funcdesc_value *) reloc_addr;
+
+					funcval.entry_point = (void*)symbol_addr;
+					/* Add offset to section address for local symbols.  */
+					if (ELF_ST_BIND(symtab[symtab_index].st_info) == STB_LOCAL)
+					  funcval.entry_point += *reloc_addr;
+					funcval.got_value = def_mod->loadaddr.got_value;
+					*dst = funcval;
+				}
+				break;
+			case R_ARM_FUNCDESC:
+				{
+				  unsigned long reloc_value = *reloc_addr;
+
+				  if (symbol_addr)
+					reloc_value = (unsigned long) _dl_funcdesc_for(symbol_addr + reloc_value, sym_ref.tpnt->loadaddr.got_value);
+				  else
+					/* Relocation against an
+					   undefined weak symbol:
+					   set funcdesc to zero.  */
+					reloc_value = 0;
+
+				  *reloc_addr = reloc_value;
+				}
+				break;
+#endif
 #if defined USE_TLS && USE_TLS
 			case R_ARM_TLS_DTPMOD32:
 				*reloc_addr = def_mod->l_tls_modid;
@@ -334,7 +375,6 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 #endif
 	return 0;
-
 }
 
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
@@ -362,3 +402,6 @@ elf_machine_setup(ElfW(Addr) load_off, unsigned long const *dynamic_info,
 		INIT_GOT(lpnt, tpnt);
 }
 
+#ifndef IS_IN_libdl
+# include "../../libc/sysdeps/linux/arm/crtreloc.c"
+#endif

@@ -18,6 +18,23 @@
 #include <link.h>
 #include <unwind.h>
 
+#if __FDPIC__
+#include <bits/elf-fdpic.h>
+static __always_inline int
+__dl_addr_in_loadaddr(void *p, struct elf32_fdpic_loadaddr loadaddr)
+{
+ struct elf32_fdpic_loadmap *map = loadaddr.map;
+ int c;
+
+ for (c = 0; c < map->nsegs; c++)
+   if ((void *)map->segs[c].addr <= p &&
+       (char *)p < (char *)map->segs[c].addr + map->segs[c].p_memsz)
+     return 1;
+
+ return 0;
+}
+#endif
+
 struct unw_eh_callback_data
 {
   _Unwind_Ptr pc;
@@ -32,6 +49,26 @@ struct unw_eh_callback_data
 static int
 find_exidx_callback (struct dl_phdr_info * info, size_t size, void * ptr)
 {
+#if __FDPIC__
+  struct unw_eh_callback_data * data;
+  const ElfW(Phdr) *phdr;
+  int i;
+  int match = 0;
+
+  data = (struct unw_eh_callback_data *) ptr;
+  if (__dl_addr_in_loadaddr((void *) data->pc, info->dlpi_addr)) {
+    match = 1;
+    phdr = info->dlpi_phdr;
+    for (i = info->dlpi_phnum; i > 0; i--, phdr++) {
+      if (phdr->p_type == PT_ARM_EXIDX) {
+        data->exidx_start = (_Unwind_Ptr) __RELOC_POINTER(phdr->p_vaddr, info->dlpi_addr);
+        data->exidx_len = phdr->p_memsz;
+      }
+    }
+  }
+
+  return match;
+#else
   struct unw_eh_callback_data * data;
   const ElfW(Phdr) *phdr;
   int i;
@@ -59,6 +96,7 @@ find_exidx_callback (struct dl_phdr_info * info, size_t size, void * ptr)
     }
 
   return match;
+#endif
 }
 
 

@@ -7,6 +7,8 @@
 
 #include <inline-hashtab.h>
 
+static __always_inline void htab_delete(struct funcdesc_ht *htab);
+
 /* Initialize a DL_LOADADDR_TYPE given a got pointer and a complete load map. */
 static __always_inline void
 __dl_init_loadaddr_map(struct elf32_fdpic_loadaddr *loadaddr, Elf32_Addr dl_boot_got_pointer,

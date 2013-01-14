@@ -256,7 +256,8 @@ static __always_inline char * _dl_simple_ltoahex(char *local, unsigned long i)
 
 /* On some (wierd) arches, none of this stuff works at all, so
  * disable the whole lot... */
-#if defined(__mips__)
+/* The same applies for ARM FDPIC at least for the moment.  */
+#if defined(__mips__) || (__FDPIC__)
 
 # define SEND_STDERR(X)
 # define SEND_ADDRESS_STDERR(X, add_a_newline)

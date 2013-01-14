@@ -10,6 +10,19 @@
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 #include <elf.h>
+
+#ifdef __FDPIC__
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
+
+#define DL_CHECK_LIB_TYPE(epnt, piclib, _dl_progname, libname) \
+do \
+{ \
+  (piclib) = 2; \
+} \
+while (0)
+#endif /* __FDPIC__ */
+
 /* Initialization sequence for the GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE) \
 {				\
@@ -63,11 +76,25 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
    ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
    of the main executable's symbols, as for a COPY reloc.  */
+
+#ifdef __FDPIC__
+/* Avoid R_ARM_ABS32 to go through the PLT so that R_ARM_TARGET1
+   translated to R_ARM_ABS32 doesn't use the PLT: otherwise, this
+   breaks init_array because functions are referenced through the
+   PLT.  */
+#define elf_machine_type_class(type)					\
+  ((((type) == R_ARM_JUMP_SLOT || (type) == R_ARM_TLS_DTPMOD32		\
+     || (type) == R_ARM_FUNCDESC_VALUE || (type) == R_ARM_FUNCDESC || (type) == R_ARM_ABS32 \
+     || (type) == R_ARM_TLS_DTPOFF32 || (type) == R_ARM_TLS_TPOFF32)	\
+    * ELF_RTYPE_CLASS_PLT)						\
+   | (((type) == R_ARM_COPY) * ELF_RTYPE_CLASS_COPY))
+#else
 #define elf_machine_type_class(type)									\
   ((((type) == R_ARM_JUMP_SLOT || (type) == R_ARM_TLS_DTPMOD32			\
      || (type) == R_ARM_TLS_DTPOFF32 || (type) == R_ARM_TLS_TPOFF32)	\
     * ELF_RTYPE_CLASS_PLT)												\
    | (((type) == R_ARM_COPY) * ELF_RTYPE_CLASS_COPY))
+#endif /* __FDPIC__ */
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
    first element of the GOT.  We used to use the PIC register to do this
@@ -106,10 +133,24 @@ elf_machine_dynamic (void)
 
 extern char __dl_start[] __asm__("_dl_start");
 
+#ifdef __FDPIC__
+/* We must force strings used early in the bootstrap into the data
+   segment.  */
+#undef SEND_EARLY_STDERR
+#define SEND_EARLY_STDERR(S) \
+  do { /* FIXME: implement */; } while (0)
+
+#undef INIT_GOT
+#include "../fdpic/dl-sysdep.h"
+#endif /* __FDPIC__ */
+
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr __attribute__ ((unused))
 elf_machine_load_address (void)
 {
+#if defined(__FDPIC__)
+	return 0;
+#else
 	Elf32_Addr got_addr = (Elf32_Addr) &__dl_start;
 	Elf32_Addr pcrel_addr;
 #if defined __OPTIMIZE__ && !defined __thumb__
@@ -128,19 +169,33 @@ elf_machine_load_address (void)
 		 : "=r" (pcrel_addr), "=r" (tmp));
 #endif
 	return pcrel_addr - got_addr;
+#endif
 }
 
 static __always_inline void
+#ifdef __FDPIC__
+elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
+#else
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
+#endif
 		      Elf32_Word relative_count)
 {
-	 Elf32_Rel * rpnt = (void *) rel_addr;
-	--rpnt;
-	do {
-		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
+#if defined(__FDPIC__)
+    Elf32_Rel *rpnt = (void *) rel_addr;
 
-		*reloc_addr += load_off;
-	} while (--relative_count);
+    do {
+        unsigned long *reloc_addr = (unsigned long *) DL_RELOC_ADDR(load_off, rpnt->r_offset);
+
+        *reloc_addr = DL_RELOC_ADDR(load_off, *reloc_addr);
+        rpnt++;
+#else
+    Elf32_Rel * rpnt = (void *) rel_addr;
+    --rpnt;
+    do {
+      Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
+      *reloc_addr += load_off;
+#endif
+    } while(--relative_count);
 }
 #endif /* !_ARCH_DL_SYSDEP */
 

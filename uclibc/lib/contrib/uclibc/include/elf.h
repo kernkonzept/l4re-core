@@ -2710,6 +2710,8 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ARM_TLS_LDO12		109
 #define R_ARM_TLS_LE12		110
 #define R_ARM_TLS_IE12GP	111
+#define R_ARM_FUNCDESC		163
+#define R_ARM_FUNCDESC_VALUE	164
 #define R_ARM_RXPC25		249
 #define R_ARM_RSBREL32		250
 #define R_ARM_THM_RPC22		251
