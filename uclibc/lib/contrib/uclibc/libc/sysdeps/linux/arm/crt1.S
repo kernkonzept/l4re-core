@@ -95,6 +95,69 @@ ARM register quick reference:
 #include <features.h>
 #include <bits/arm_asm.h>
 
+#if defined(__FDPIC__)
+.text
+	.arm
+	.globl	_start
+
+_start:
+	/* Start by self relocation.  */
+	sub r4, pc, #8
+	ldr r1, .L__ROFIXUP_LIST__
+	add r1, r1, r4
+	ldr r2, .L__ROFIXUP_END__
+	add r2, r2, r4
+	mov r0, r7
+	push {r9, r10}
+	bl __self_reloc
+	pop {r9, r10}
+	mov r9, r0
+
+	/* Clear the frame pointer since this is the outermost frame.  */
+	mov r3, #0
+	mov fp, r3
+
+	/* Now fill __uClibc_main arguments.  */
+	sub sp, sp, #16			/* Reserve space for 3 args (keep aligment)  */
+	ldr r0, .L_main_got_funcdesc	/* r0 GOT FUNCDESC of main */
+	ldr r0, [r9, r0]
+	ldr r1, [sp, #16]		/* argc  */
+	add r2, sp, #20			/* argv  */
+	ldr r3, .L_init_got_funcdesc	/* r3 GOT init  */
+	ldr r3, [r9, r3]
+	ldr r4, .L_fini_got_funcdesc
+	ldr r4, [r9, r4]
+	str r4, [sp, #0]		/* sp + 0 GOT fini  */
+	movs r4, r8			/* Test if static binary (r8 is 0 as there is no interpreter).  */
+	movne r4, r10
+	moveq r4, #0
+	str r4, [sp, #4]		/* sp + 4 got rtld_fini  */
+	mov r4, r2			/* stack_end is unused.... */
+	str r4, [sp, #8]		/* sp + 8 got stack_end  */
+	bl __uClibc_main
+	/* We should never get here....  */
+	bl abort
+.L__ROFIXUP_LIST__:
+	.word __ROFIXUP_LIST__ - _start
+.L__ROFIXUP_END__:
+	.word __ROFIXUP_END__ - _start
+.L_main_got_funcdesc:
+	.word main(GOTFUNCDESC)
+.L_init_got_funcdesc:
+	.word _init(GOTFUNCDESC)
+.L_fini_got_funcdesc:
+	.word _fini(GOTFUNCDESC)
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start
+
+#else /* defined(__FDPIC__) */
+
 .text
 	.globl	_start
 	.type	_start,%function
@@ -269,3 +332,4 @@ __data_start:
 	.long 0
 	.weak data_start
 	data_start = __data_start
+#endif /* defined(__FDPIC__) */
