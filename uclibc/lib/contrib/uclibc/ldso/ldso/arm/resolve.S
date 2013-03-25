@@ -107,6 +107,27 @@
  .type _dl_linux_resolve,%function
  .align 4;
 
+#if __FDPIC__
+/*
+ *    _dl_linux_resolve() FDPIC version receives the following parameters from
+ *    lazy PLT entry:
+ *    R12: GOT address for the resolver GOT
+ *    SP[0]: funcdesc_value_reloc_offset(foo)
+ *    R9: GOT address for the caller GOT
+ *    _dl_linux_resolver() will return a function descriptor address in R0.
+ */
+_dl_linux_resolve:
+	push  {r0, r1, r2, r3, r14}
+	ldr   r0, [r9, #8]
+	ldr   r1, [sp, #20]
+	mov   r9, r12
+	blx   _dl_linux_resolver
+	ldr   r9, [r0, #4]
+	ldr   r12, [r0]
+	pop   {r0, r1, r2, r3, r14}
+	add   sp, sp, #4
+	bx    r12
+#else
 _dl_linux_resolve:
          @ _dl_linux_resolver is a standard subroutine call, therefore it
          @ preserves everything except r0-r3 (a1-a4), ip and lr.  This
@@ -129,6 +150,7 @@ _dl_linux_resolve:
         ldmia sp!, {r0, r1, r2, r3, r4, lr}
 
         BX(ip)
+#endif /* __FDPIC__ */
 #else
        @ In the thumb case _dl_linux_resolver is thumb.  If a bl is used
        @ from arm code the linker will insert a stub call which, with

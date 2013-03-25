@@ -34,13 +34,69 @@
 
 extern int _dl_linux_resolve(void);
 
+#if __FDPIC__
+unsigned long _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_offet)
+{
+	ELF_RELOC *this_reloc;
+	char *strtab;
+	ElfW(Sym) *symtab;
+	int symtab_index;
+	char *rel_addr;
+	char *new_addr;
+	struct funcdesc_value funcval;
+	struct funcdesc_value volatile *got_entry;
+	char *symname;
+	struct symbol_ref sym_ref;
+
+	rel_addr = (char *)tpnt->dynamic_info[DT_JMPREL];
+
+	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_offet);
+	symtab_index = ELF_R_SYM(this_reloc->r_info);
+
+	symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
+	symname= strtab + symtab[symtab_index].st_name;
+
+	/* Address of GOT entry fix up */
+	got_entry = (struct funcdesc_value *) DL_RELOC_ADDR(tpnt->loadaddr, this_reloc->r_offset);
+
+	/* Get the address to be used to fill in the GOT entry.  */
+	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope, NULL, 0, &sym_ref);
+	if (!new_addr) {
+		new_addr = _dl_find_hash(symname, NULL, NULL, 0, &sym_ref);
+		if (!new_addr) {
+			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n", _dl_progname, symname);
+			_dl_exit(1);
+		}
+	}
+
+	funcval.entry_point = new_addr;
+	funcval.got_value = sym_ref.tpnt->loadaddr.got_value;
+
+#if defined (__SUPPORT_LD_DEBUG__)
+	if (_dl_debug_bindings) {
+		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
+		if (_dl_debug_detail)
+			_dl_dprintf(_dl_debug_file,
+				    "\n\tpatched (%x,%x) ==> (%x,%x) @ %x\n",
+				    got_entry->entry_point, got_entry->got_value,
+				    funcval.entry_point, funcval.got_value,
+				    got_entry);
+	}
+	if (1 || !_dl_debug_nofixups) {
+		*got_entry = funcval;
+	}
+#else
+	*got_entry = funcval;
+#endif
+
+	return got_entry;
+}
+#else
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 {
-#if __FDPIC__
-  /* FIXME: implement.  */
-  while(1) ;
-  return 0;
-#else
 	ELF_RELOC *this_reloc;
 	char *strtab;
 	char *symname;
@@ -93,8 +149,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 #endif
 
 	return new_addr;
-#endif
 }
+#endif
 
 static int
 _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
@@ -352,7 +408,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	int reloc_type;
 	unsigned long *reloc_addr;
 
-	reloc_addr = (unsigned long *) (tpnt->loadaddr + (unsigned long) rpnt->r_offset);
+	reloc_addr = (unsigned long *) DL_RELOC_ADDR(tpnt->loadaddr, rpnt->r_offset);
 	reloc_type = ELF_R_TYPE(rpnt->r_info);
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -362,9 +418,20 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		switch (reloc_type) {
 			case R_ARM_NONE:
 				break;
+
 			case R_ARM_JUMP_SLOT:
-				*reloc_addr += (unsigned long) tpnt->loadaddr;
+				*reloc_addr = DL_RELOC_ADDR(tpnt->loadaddr, *reloc_addr);
 				break;
+#ifdef __FDPIC__
+			case R_ARM_FUNCDESC_VALUE:
+				{
+					struct funcdesc_value *dst = (struct funcdesc_value *) reloc_addr;
+
+					dst->entry_point = DL_RELOC_ADDR(tpnt->loadaddr, dst->entry_point);
+					dst->got_value = tpnt->loadaddr.got_value;
+				}
+				break;
+#endif
 			default:
 				return -1; /*call _dl_exit(1) */
 		}
