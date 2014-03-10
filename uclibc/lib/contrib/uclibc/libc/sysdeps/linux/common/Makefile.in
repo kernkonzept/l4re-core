@@ -81,7 +81,7 @@ CSRC-$(ARCH_USE_MMU) += msync.c
 CSRC-$(UCLIBC_BSD_SPECIFIC) += mincore.c setdomainname.c
 CSRC-$(UCLIBC_NTP_LEGACY) += ntp_gettime.c
 # aio_cancel|aio_error|aio_fsync|aio_read|aio_return|aio_suspend|aio_write|clock_getres|clock_gettime|clock_settime|clock_settime|fdatasync|lio_listio|mlockall|munlockall|mlock|munlock|mq_close|mq_getattr|mq_notify|mq_open|mq_receive|mq_timedreceive|mq_send|mq_timedsend|mq_setattr|mq_unlink|nanosleep|sched_getparam|sched_get_priority_max|sched_get_priority_min|sched_getscheduler|sched_rr_get_interval|sched_setparam|sched_setscheduler|sem_close|sem_destroy|sem_getvalue|sem_init|sem_open|sem_post|sem_trywait|sem_wait|sem_unlink|sem_wait|shm_open|shm_unlink|sigqueue|sigtimedwait|sigwaitinfo|timer_create|timer_delete|timer_getoverrun|timer_gettime|timer_settime
-CSRC-$(UCLIBC_HAS_REALTIME) += clock_getres.c clock_gettime.c clock_settime.c \
+CSRC-$(UCLIBC_HAS_REALTIME) += clock_adjtime.c clock_getres.c clock_gettime.c clock_settime.c \
 	fdatasync.c mlockall.c mlock.c munlockall.c munlock.c \
 	nanosleep.c __rt_sigtimedwait.c __rt_sigwaitinfo.c sched_getparam.c \
 	sched_get_priority_max.c sched_get_priority_min.c sched_getscheduler.c \

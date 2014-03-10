@@ -20,6 +20,7 @@
 
 #include <features.h>
 #include <sys/time.h>
+#include <time.h>
 
 /* These definitions from linux/timex.h as of 2.2.0.  */
 
@@ -125,7 +126,9 @@ libc_hidden_proto(adjtimex)
 extern int ntp_gettime (struct ntptimeval *__ntv) __THROW;
 extern int ntp_adjtime (struct timex *__tntx) __THROW;
 #endif
-
+#if defined __UCLIBC_HAS_REALTIME__
+extern int clock_adjtime (clockid_t __clock_id, struct timex *__ntx) __THROW;
+#endif
 __END_DECLS
 
 #endif /* sys/timex.h */
