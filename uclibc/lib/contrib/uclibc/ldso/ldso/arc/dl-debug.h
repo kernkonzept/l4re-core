@@ -65,4 +65,19 @@ static const char *_dl_reltypes_tab[] =
 	"R_ARC_GOTOFF",
 	"R_ARC_GOTPC",
 	"R_ARC_GOT32",
+	"",                     /* 60 */
+	"",
+	"",
+	"",
+	"",
+	"",                     /* 65 */
+        "R_ARC_TLS_DTPMOD",
+        "R_ARC_TLS_DTPOFF",
+        "R_ARC_TLS_TPOFF",
+        "R_ARC_TLS_GD_GOT",
+        "R_ARC_TLS_GD_LD",      /* 70 */
+        "R_ARC_TLS_GD_CALL",
+        "R_ARC_TLS_IE_GOT",
+        "",
+        "",
 };

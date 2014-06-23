@@ -3391,7 +3391,17 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ARC_GOTOFF		0x39
 #define R_ARC_GOTPC		0x3A
 #define R_ARC_GOT32		0x3B
-#define R_ARC_NUM		0x3C
+
+#define R_ARC_TLS_DTPMOD	0x42
+#define R_ARC_TLS_DTPOFF	0x43
+#define R_ARC_TLS_TPOFF		0x44
+#define R_ARC_TLS_GD_GOT	0x45
+#define R_ARC_TLS_GD_LD	        0x46
+#define R_ARC_TLS_GD_CALL	0x47
+#define R_ARC_TLS_IE_GOT	0x48
+#define R_ARC_TLS_DTPOFF_S9	0x4a
+#define R_ARC_TLS_LE_S9		0x4a
+#define R_ARC_TLS_LE_32		0x4b
 
 #ifdef	__cplusplus
 }

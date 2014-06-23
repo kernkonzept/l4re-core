@@ -30,8 +30,9 @@ typedef unsigned long elf_greg_t;
    user_regs' directly in the typedef, but tradition says that
    the register set is an array, which does have some peculiar
    semantics, so leave it that way.  */
-#define ELF_NGREG 20
+#define ELF_NGREG 40
 typedef elf_greg_t elf_gregset_t[ELF_NGREG];
+typedef struct { } elf_fpregset_t;
 
 /* Signal info.  */
 struct elf_siginfo
@@ -93,7 +94,7 @@ typedef void *psaddr_t;
 
 /* Register sets.  Linux has different names.  */
 typedef elf_gregset_t prgregset_t;
-typedef elf_gregset_t prfpregset_t;
+typedef elf_fpregset_t prfpregset_t;
 
 /* We don't have any differences between processes and threads,
    therefore have only one PID type.  */

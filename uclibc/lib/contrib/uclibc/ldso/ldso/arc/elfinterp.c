@@ -92,6 +92,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	unsigned long old_val = 0;
 #endif
 	struct symbol_ref sym_ref;
+	struct elf_resolve *tls_tpnt = NULL;
 
 	reloc_addr   = (unsigned long *)(tpnt->loadaddr + rpnt->r_offset);
 	reloc_type   = ELF_R_TYPE(rpnt->r_info);
@@ -118,14 +119,25 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		 */
 
 		if (unlikely(!symbol_addr
-		    && ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
+		    && ELF_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK
+		    && ELF_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)) {
 			/* Non-fatal if called from dlopen, hence different ret code */
 			return 1;
 		}
+
+		tls_tpnt = sym_ref.tpnt;
 	} else if (reloc_type == R_ARC_RELATIVE ) {
 		*reloc_addr += tpnt->loadaddr;
 		goto log_entry;
 	}
+
+#if defined USE_TLS && USE_TLS
+	/* In case of a TLS reloc, tls_tpnt NULL means we have an 'anonymous'
+	   symbol.  This is the case for a static tls variable, so the lookup
+	   module is just that one is referencing the tls variable. */
+	if (!tls_tpnt)
+		tls_tpnt = tpnt;
+#endif
 
 	switch (reloc_type) {
 	case R_ARC_32:
@@ -142,6 +154,18 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		_dl_memcpy((void *) reloc_addr,(void *) symbol_addr,
 				symtab[symtab_index].st_size);
 		break;
+#if defined USE_TLS && USE_TLS
+	case R_ARC_TLS_DTPMOD:
+		*reloc_addr = tls_tpnt->l_tls_modid;
+		break;
+	case R_ARC_TLS_DTPOFF:
+		*reloc_addr = symbol_addr;
+		break;
+	case R_ARC_TLS_TPOFF:
+		CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
+		*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend;
+		break;
+#endif
 	default:
 		return -1;
 	}

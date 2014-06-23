@@ -9,8 +9,10 @@ subdirs += ldso/ldso/$(TARGET_ARCH)
 
 CFLAGS-ldso := -DNOT_IN_libc -DIS_IN_rtld $(SSP_DISABLE_FLAGS)
 
+ifneq ($(TARGET_ARCH),arc)
 # This stuff will not work with -fomit-frame-pointer
 CFLAGS-ldso += -fno-omit-frame-pointer
+endif
 
 CFLAGS-ldso += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso
 CFLAGS-ldso += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"

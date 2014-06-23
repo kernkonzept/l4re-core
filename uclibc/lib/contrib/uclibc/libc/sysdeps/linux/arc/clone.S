@@ -19,25 +19,34 @@
 ;       Current (Jul 2012) upstream powerpc/clone.S assumes similarly.
 ;	Our LTP (from 2007) doesn't seem to have tests to prove otherwise
 
-; clone syscall in kernel
+; clone syscall in kernel (ABI: CONFIG_CLONE_BACKWARDS)
 ;
-; int sys_clone(unsigned long clone_flags, unsigned long newsp,
-;		int __user *parent_tidptr, void *tls,
+; int sys_clone(unsigned long clone_flags,
+;		unsigned long newsp,
+;		int __user *parent_tidptr,
+;		void *tls,
 ;		int __user *child_tidptr)
 
+#define CLONE_VM		0x00000100
+#define CLONE_THREAD		0x00010000
+#define CLONE_SETTLS		0x00080000
+#define CLONE_THREAD_N_VM	(CLONE_THREAD | CLONE_VM)
 
 ENTRY(clone)
 	cmp	r0, 0		; @fn can't be NULL
 	cmp.ne	r1, 0		; @child_stack can't be NULL
 	bz	.L__sys_err
 
-	; @fn and @args needed after the syscall for child
-	; However r3 containing @arg will be clobbered BEFORE syscall
+	; save some of the orig args
 	; r0 containg @fn will be clobbered AFTER syscall (with ret val)
-	mov	r10, r0
-	mov	r11, r3
+	; rest are clobbered BEFORE syscall due to different arg ordering
+	mov	r10, r0		; @fn
+	mov	r11, r3		; @args
+	mov	r12, r2		; @clone_flags
+	mov	r9,  r5		; @tls
 
 	; adjust libc args for syscall
+
 	mov 	r0, r2		; libc @flags is 1st syscall arg
 	mov	r2, r4		; libc @ptid
 	mov	r3, r5		; libc @tls
@@ -49,8 +58,31 @@ ENTRY(clone)
 	blt	.L__sys_err2	; < 0 (signed) error
 	jnz	[blink]		; Parent returns
 
-	; child jumps off to @fn with @arg as argument
-	j.d	[r10]
+	; ----- child starts here ---------
+
+#if defined(__UCLIBC_HAS_TLS__)
+	; Setup TP register (since kernel doesn't do that)
+	and.f	0, r12, CLONE_SETTLS
+	bz	.Lnext_clone_quirk
+	SET_TP	r9
+
+.Lnext_clone_quirk:
+#ifdef RESET_PID
+	mov_s	r2, CLONE_THREAD_N_VM
+	and_s	r2, r2, r12
+	brne	r2, r12, .Lgo_thread
+
+	mov	r8, __NR_clone
+	ARC_TRAP_INSN		; r0 has PID
+	THREAD_SELF r1		; Get to struct pthread (just before TCB)
+	st	r0, [r1, PTHREAD_PID]
+	st	r0, [r1, PTHREAD_TID]
+
+.Lgo_thread:
+#endif
+#endif
+	; child jumps off to @fn with @arg as argument, and returns here
+	jl.d	[r10]
 	mov	r0, r11
 
 	; falls thru to _exit() with result from @fn (already in r0)
