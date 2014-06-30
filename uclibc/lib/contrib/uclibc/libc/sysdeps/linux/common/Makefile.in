@@ -25,6 +25,8 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	capset.c \
 	dup3.c \
 	eventfd.c \
+	eventfd_read.c \
+	eventfd_write.c \
 	inotify.c \
 	ioperm.c \
 	iopl.c \
