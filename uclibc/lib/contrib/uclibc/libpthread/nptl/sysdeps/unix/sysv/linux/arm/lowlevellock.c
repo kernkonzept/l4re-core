@@ -23,6 +23,9 @@
 #include <tls.h>
 
 void
+#ifndef IS_IN_libpthread
+weak_function
+#endif
 __lll_lock_wait_private (int *futex)
 {
   do
