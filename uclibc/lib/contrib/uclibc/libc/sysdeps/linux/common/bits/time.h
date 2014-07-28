@@ -1,5 +1,5 @@
-/* System-dependent timing definitions.  Generic version.
-   Copyright (C) 1996,1997,1999-2002,2003 Free Software Foundation, Inc.
+/* System-dependent timing definitions.  Linux version.
+   Copyright (C) 1996-2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -59,6 +59,12 @@
 #   define CLOCK_REALTIME_COARSE	5
 /* Monotonic system-wide clock, updated only on ticks.  */
 #   define CLOCK_MONOTONIC_COARSE	6
+/* Monotonic system-wide clock that includes time spent in suspension.  */
+#   define CLOCK_BOOTTIME		7
+/* Like CLOCK_REALTIME but also wakes suspended system.  */
+#   define CLOCK_REALTIME_ALARM		8
+/* Like CLOCK_BOOTTIME but also wakes suspended system.  */
+#   define CLOCK_BOOTTIME_ALARM		9
 
 /* Flag to indicate time is absolute.  */
 #   define TIMER_ABSTIME		1
