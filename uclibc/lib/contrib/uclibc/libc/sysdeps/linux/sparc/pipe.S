@@ -35,8 +35,6 @@ pipe:
 	/* sanity check arguments */
 	tst	%i0
 	be	.Lerror
-	 orcc	%i1,%g0,%o1
-	be	.Lerror
 	 mov	%i2,%o0
 
 	/* Do the system call */
@@ -51,7 +49,7 @@ pipe:
 	 restore %g0,%g0,%o0
 
 .Lerror:
-	call	HIDDEN_JUMPTARGET(__errno_location)
+	call	__errno_location
 	 or	%g0,EINVAL,%i0
 	st	%i0,[%o0]
 	ret

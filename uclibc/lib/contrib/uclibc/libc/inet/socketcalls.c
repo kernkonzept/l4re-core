@@ -31,6 +31,27 @@
 #define SYS_ACCEPT4     18
 #endif
 
+#ifdef __sparc__
+#undef __NR_accept
+#undef __NR_accept4
+#undef __NR_bind
+#undef __NR_connect
+#undef __NR_getpeername
+#undef __NR_getsockname
+#undef __NR_getsockopt
+#undef __NR_listen
+#undef __NR_recv
+#undef __NR_recvfrom
+#undef __NR_recvmsg
+#undef __NR_send
+#undef __NR_sendmsg
+#undef __NR_sendto
+#undef __NR_setsockopt
+#undef __NR_shutdown
+#undef __NR_socket
+#undef __NR_socketpair
+#endif
+
 #ifdef L_accept
 static int __NC(accept)(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {

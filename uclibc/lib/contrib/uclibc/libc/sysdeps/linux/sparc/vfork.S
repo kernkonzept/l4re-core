@@ -37,7 +37,7 @@ __vfork:
 	bcc,a	9000f
 	nop
 	save    %sp,-96,%sp
-	call HIDDEN_JUMPTARGET(__errno_location)
+	call __errno_location
 	nop
 	st	%i0,[%o0]
 	jmpl	%i7+8,%g0

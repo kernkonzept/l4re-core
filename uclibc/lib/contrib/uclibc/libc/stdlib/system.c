@@ -18,13 +18,14 @@
 #include <sysdep-cancel.h>
 #endif
 
+#if !defined __UCLIBC_HAS_THREADS_NATIVE__
+/* uClinux-2.0 has vfork, but Linux 2.0 doesn't */
+#include <sys/syscall.h>
+#ifndef __NR_vfork
+# define vfork fork
+#endif
+
 extern __typeof(system) __libc_system;
-
-/* TODO: the cancellable version breaks on sparc currently,
- * need to figure out why still
- */
-#if !defined __UCLIBC_HAS_THREADS_NATIVE__ || defined __sparc__
-
 int __libc_system(const char *command)
 {
 	int wait_val, pid;
