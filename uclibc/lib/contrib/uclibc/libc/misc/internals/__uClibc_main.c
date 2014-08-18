@@ -40,6 +40,14 @@
 #include <locale.h>
 #endif
 
+/* Are we in a secure process environment or are we dealing
+ * with setuid stuff?  If we are dynamically linked, then we
+ * already have _dl_secure, otherwise we need to re-examine
+ * auxvt[] below.
+ */
+int _pe_secure = 0;
+libc_hidden_data_def(_pe_secure)
+
 #ifndef SHARED
 void *__libc_stack_end = NULL;
 
@@ -420,7 +428,10 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	__check_one_fd (STDIN_FILENO, O_RDONLY | O_NOFOLLOW);
 	__check_one_fd (STDOUT_FILENO, O_RDWR | O_NOFOLLOW);
 	__check_one_fd (STDERR_FILENO, O_RDWR | O_NOFOLLOW);
+	_pe_secure = 1 ;
     }
+    else
+	_pe_secure = 0 ;
 #endif
 
     __uclibc_progname = *argv;

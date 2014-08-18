@@ -1168,6 +1168,20 @@ extern long int syscall (long int __sysno, ...) __THROW;
 
 #endif	/* Use misc.  */
 
+/* Are we in a secure process environment or are we dealing with setuid
+ * stuff?  This value is returned by issetugid().
+ */
+extern int _pe_secure;
+libc_hidden_proto(_pe_secure)
+
+#ifdef __USE_BSD
+/* issetugid() returns 1 if the process environment or memory address space
+   is considered tainted, and returns 0 otherwise.  This happens, for example,
+   when a process's privileges are elevated by the setuid or setgid flags on
+   an executable belonging to root.
+*/
+extern int issetugid(void);
+#endif
 
 #if (defined __USE_MISC || defined __USE_XOPEN_EXTENDED) && !defined F_LOCK
 /* NOTE: These declarations also appear in <fcntl.h>; be sure to keep both
