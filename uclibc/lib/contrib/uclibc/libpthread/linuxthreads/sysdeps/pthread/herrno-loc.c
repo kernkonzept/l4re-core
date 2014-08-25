@@ -16,7 +16,9 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <netdb.h>
+#ifdef __UCLIBC_HAS_TLS__
 #include <tls.h>
+#endif
 #include <linuxthreads/internals.h>
 #include <sysdep-cancel.h>
 

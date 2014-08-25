@@ -28,12 +28,18 @@
 #endif
 
 /* Spinlock implementation; required.  */
+PT_EI long int testandset (int *spinlock);
 PT_EI long int
 testandset (int *spinlock)
 {
   char ret;
 
-  __asm__ __volatile__("tas %1; sne %0"
+  __asm__ __volatile__(
+#if !defined(__mcoldfire__) && !defined(__mcf5200__) && !defined(__m68000)
+	"tas %1; sne %0"
+#else
+	"bset #7,%1; sne %0"
+#endif
        : "=dm"(ret), "=m"(*spinlock)
        : "m"(*spinlock)
        : "cc");
@@ -50,6 +56,7 @@ register char * stack_pointer __asm__ ("%sp");
 
 /* Compare-and-swap for semaphores. */
 
+#if !defined(__mcoldfire__) && !defined(__mcf5200__) && !defined(__mc68000)
 #define HAS_COMPARE_AND_SWAP
 PT_EI int
 __compare_and_swap (long int *p, long int oldval, long int newval)
@@ -63,5 +70,5 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
 
   return ret;
 }
-
+#endif
 #endif /* pt-machine.h */

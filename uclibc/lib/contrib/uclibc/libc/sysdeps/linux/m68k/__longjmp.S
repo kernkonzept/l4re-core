@@ -15,7 +15,9 @@ __longjmp:
 	movel	#1, %d0
 1:
 	moveml	%a0@(JB_REGS), %d2-%d7/%a2-%a7
-#if defined __HAVE_68881__ || defined __UCLIBC_HAS_FPU__
+#if defined __mcffpu__ && defined __UCLIBC_HAS_FPU__
+	fmovem %a0@(JB_FPREGS), %fp2-%fp7
+#elif defined __HAVE_68881__ || defined __UCLIBC_HAS_FPU__
 	fmovemx %a0@(JB_FPREGS), %fp2-%fp7
 #endif
 	movel	%a0@(JB_PC), %sp@

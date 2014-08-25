@@ -27,10 +27,15 @@ __pthread_spin_lock (pthread_spinlock_t *lock)
   unsigned int val;
 
   do
-    __asm__ __volatile__ ("tas %1; sne %0"
-		  : "=dm" (val), "=m" (*lock)
-		  : "m" (*lock)
-		  : "cc");
+    __asm__ __volatile__ (
+#if !defined(__mcoldfire__) && !defined(__mcf5200__) && !defined(__m68000)
+		"tas %1; sne %0"
+#else
+		"bset #7,%1; sne %0"
+#endif
+		: "=dm" (val), "=m" (*lock)
+		: "m" (*lock)
+		: "cc");
   while (val);
 
   return 0;
@@ -43,7 +48,12 @@ __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   unsigned int val;
 
-  __asm__ __volatile__ ("tas %1; sne %0"
+  __asm__ __volatile__ (
+#if !defined(__mcoldfire__) && !defined(__mcf5200__) && !defined(__m68000)
+		"tas %1; sne %0"
+#else
+		"bset #7,%1; sne %0"
+#endif
 		: "=dm" (val), "=m" (*lock)
 		: "m" (*lock)
 		: "cc");
