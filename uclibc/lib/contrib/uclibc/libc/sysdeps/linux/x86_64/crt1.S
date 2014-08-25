@@ -54,7 +54,9 @@
 		...
 					NULL
 */
-
+#if defined NOT_IN_libc
+# error error in build framework
+#endif
 #include <features.h>
 
 .text

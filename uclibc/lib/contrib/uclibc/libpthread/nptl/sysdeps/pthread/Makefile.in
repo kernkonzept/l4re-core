@@ -34,7 +34,7 @@ libpthread_pthread_CSRC = \
 	pthread_spin_unlock.c \
 	pt-longjmp.c \
 	tpp.c
-CFLAGS-pthread = $(SSP_ALL_CFLAGS) -DNOT_IN_libc -DIS_IN_libpthread
+
 CFLAGS-pthread_barrier_wait.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_destroy.c = -D_GNU_SOURCE
 CFLAGS-pthread_spin_init.c = -D_GNU_SOURCE
@@ -54,7 +54,7 @@ librt-pt-routines-y = librt-cancellation.c
 librt-pt-shared-only-routines-y = rt-unwind-resume.c
 
 ifeq ($(UCLIBC_CTOR_DTOR),y)
-CFLAGS-OMIT-pt-initfini.c = $(CFLAGS-pthread)
+CFLAGS-OMIT-pt-initfini.c = $(CFLAGS-y-libpthread/nptl/sysdeps/pthread)
 CFLAGS-pt-initfini.c = -S -g0 $(PICFLAG) -fno-inline-functions	\
 			$(call check_gcc,-fno-unit-at-a-time,)	\
 			$(SSP_DISABLE_FLAGS) \

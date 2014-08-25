@@ -13,7 +13,7 @@ INET_DIR := $(top_srcdir)libc/inet
 INET_OUT := $(top_builddir)libc/inet
 V4_OR_V6 := $(findstring y,$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6))
 
-CFLAGS-inet := -DRESOLVER="\"resolv.c\""
+CFLAGS-y-libc/inet := -DRESOLVER="\"resolv.c\""
 CSRC-y :=
 # des uses ntohl
 CSRC-$(findstring y,$(UCLIBC_HAS_CRYPT_IMPL)$(V4_OR_V6)) += ntohl.c

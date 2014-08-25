@@ -8,7 +8,7 @@
 subdirs += libpthread/linuxthreads_db
 
 # Get the thread include dependencies and shared object name
-CFLAGS-linuxthreads_db := -DNOT_IN_libc -DLIBPTHREAD_SO="\"libpthread.so.$(ABI_VERSION)\""
+CFLAGS-libpthread/linuxthreads_db := -DNOT_IN_libc -DLIBPTHREAD_SO="\"libpthread.so.$(ABI_VERSION)\""
 
 LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) $(if $(call check_ld,--warn-unresolved-symbols),-Wl$(comma)--warn-unresolved-symbols)
 ifeq ($(DOSTRIP),y)

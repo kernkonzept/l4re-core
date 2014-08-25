@@ -26,6 +26,27 @@ $(lib-a-y): | $(top_builddir)lib
 endif
 objs: all_objs
 
+# apply unconditional per-directory flags
+define add_IS_IN_lib
+ifneq ($(strip $(2)),)
+__add_IS_IN_lib := $(subst $(top_builddir),,$(2))
+$$(__add_IS_IN_lib): CFLAGS-for-library-members:=$(CFLAGS-$(1)) -DIN_LIB=$(word 1,$(subst /, ,$(1)))
+endif
+endef
+$(eval $(call add_IS_IN_lib,rtld,$(ldso-y)))
+$(eval $(call add_IS_IN_lib,libc,$(libc-y) $(libc-static-y) $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y)))
+$(eval $(call add_IS_IN_lib,libcrypt,$(libcrypt-a-y) $(libcrypt-so-y)))
+$(eval $(call add_IS_IN_lib,libdl,$(libdl-a-y) $(libdl-so-y)))
+$(eval $(call add_IS_IN_lib,libintl,$(libintl-a-y) $(libintl-so-y)))
+$(eval $(call add_IS_IN_lib,libm,$(libm-a-y) $(libm-so-y)))
+$(eval $(call add_IS_IN_lib,libnsl,$(libnsl-a-y) $(libnsl-so-y)))
+$(eval $(call add_IS_IN_lib,libpthread/$(PTNAME),$(libpthread-a-y) $(libpthread-so-y) $(libpthread-nonshared-y)))
+$(eval $(call add_IS_IN_lib,libpthread/$(PTNAME)_db,$(libthread_db-a-y) $(libthread_db-so-y)))
+$(eval $(call add_IS_IN_lib,libresolv,$(libresolv-a-y) $(libresolv-so-y)))
+$(eval $(call add_IS_IN_lib,librt,$(librt-a-y) $(librt-so-y)))
+$(eval $(call add_IS_IN_lib,libutil,$(libutil-a-y) $(libutil-so-y)))
+$(eval $(call add_IS_IN_lib,libubacktrace,$(libubacktrace-a-y) $(libubacktrace-so-y)))
+
 shared_objs = $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y) \
 	$(libcrypt-so-y) $(libdl-so-y) \
 	$(libintl-so-y) $(libm-so-y) $(libnsl-so-y) \
@@ -228,19 +249,24 @@ maybe_exec = \
 #collect_multi_flags = $(CFLAGS-$(notdir $(d))) $(CFLAGS-$(notdir $(patsubst %/,%,$(dir $(d)))))
 collect_multi_flags = $(CFLAGS-$(notdir $(patsubst %/,%,$(dir $(d)))))
 
+#sub_srcdir = $(word 1,$(filter-out lib extra locale libpthread,$(wordlist 1,2,$(subst /, ,$(subst $(top_srcdir),,$(dir $<))))))
+
 CFLAGS_gen.dep = -MT $@ -MD -MP -MF $(dir $@).$(notdir $@).dep
 
-cmd_compile.c = $(CC) -c $< -o $@ $(CFLAGS) \
+cmd_compile.c = $(CC) -c $< -o $@ \
+    $(filter-out $(CFLAGS-OMIT-$(notdir $<)), \
+        $(CFLAGS) \
+        $(CFLAGS-for-library-members) \
 	$(CFLAGS-$(suffix $@)) \
-	$(filter-out $(CFLAGS-OMIT-$(notdir $<)),$(CFLAGS-$(notdir $(<D)))) \
-	$(CFLAGS-$(subst $(top_srcdir),,$(dir $<))) \
+	$(CFLAGS-y-$(subst $(top_srcdir),,$(<D))) \
 	$(CFLAGS-$(notdir $<)) \
 	$(CFLAGS-$(notdir $@)) \
+    ) \
 	$(CFLAGS_gen.dep)
 cmd_compile.i = $(cmd_compile.c:-c=-E -dD) $(UCLIBC_EXTRA_CPPFLAGS)
 cmd_compile.s = $(cmd_compile.c:-c=-S)
 cmd_compile.u = $(CC) $^ $(DEPS-$(notdir $@)) -o $@ $(CFLAGS) $(CFLAGS-$(notdir $(^D))) $(CFLAGS-$(notdir $@)) $(CFLAGS_gen.dep)
-cmd_compile.S = $(filter-out -std=gnu99, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
+cmd_compile.S = $(filter-out -std=%, $(cmd_compile.c)) -D__ASSEMBLER__ $(ASFLAGS) $(ARCH_ASFLAGS) $(ASFLAGS-$(suffix $@)) $(ASFLAGS-$(notdir $<)) $(ASFLAGS-$(notdir $@))
 cmd_compile.m = $(cmd_compile.c) -DL_$(patsubst %$(suffix $(notdir $@)),%,$(notdir $@))
 cmd_compile.mi= $(cmd_compile.m:-c=-E -dD) $(UCLIBC_EXTRA_CPPFLAGS)
 
@@ -303,7 +329,7 @@ define create-lds
 	$(Q)$(CC) -nostdlib -nostartfiles -shared -Wl,-z,combreloc \
 	-Wl,-z,relro -Wl,--hash-style=gnu -Wl,-z,defs \
 	-Wl,--verbose 2>&1 | LC_ALL=C \
-	sed -e '/^=========/,/^=========/!d;/^=========/d' \
+	$(SED) -e '/^=========/,/^=========/!d;/^=========/d' \
 	-e 's/\. = .* + SIZEOF_HEADERS;/& $(SYMBOL_PREFIX)_begin = . - SIZEOF_HEADERS;/' > $@.lds
 endef
 

@@ -16,16 +16,3 @@ libc_linux_arch_SSRC-OMIT = waitpid.S
 
 CFLAGS += $(SSP_ALL_CFLAGS)
 
-CFLAGS-pthread_once.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-pt-__syscall_rt_sigaction.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc -DIS_IN_libpthread
-ASFLAGS-vfork.S = -DIS_IN_libc -DNOT_IN_libpthread
-ASFLAGS-clone.S = -DIS_IN_libc -DNOT_IN_libpthread
-ASFLAGS-pt-vfork.S = -DNOT_IN_libc -DIS_IN_libpthread
-
-ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
-CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
-endif
-CFLAGS-OMIT-fork.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread

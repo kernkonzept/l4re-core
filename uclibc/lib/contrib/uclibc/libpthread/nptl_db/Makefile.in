@@ -8,9 +8,11 @@
 subdirs += libpthread/nptl_db
 
 # Get the thread include dependencies and shared object name
-CFLAGS-nptl_db := -DLIBPTHREAD_SO="\"libpthread.so.$(ABI_VERSION)\""
-CFLAGS-nptl_db += -I$(top_srcdir)libpthread/nptl -D_GNU_SOURCE
-CFLAGS-nptl_db += -DIS_IN_libthread_db=1 -DNOT_IN_libc -std=gnu99 -I$(top_srcdir)ldso/include
+CFLAGS-libpthread/nptl_db := -DNOT_IN_libc \
+	-DLIBPTHREAD_SO="\"libpthread.so.$(ABI_VERSION)\"" \
+	-std=gnu99 -D_GNU_SOURCE \
+	-I$(top_srcdir)libpthread/nptl \
+	-I$(top_srcdir)ldso/include
 
 LDFLAGS-libthread_db.so := $(LDFLAGS_NOSTRIP) $(if $(call check_ld,--warn-unresolved-symbols),-Wl$(comma)--warn-unresolved-symbols)
 LIBS-libthread_db.so := $(LIBS)

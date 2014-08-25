@@ -11,11 +11,7 @@ subdirs += libpthread/linuxthreads/sysdeps/unix/sysv/linux
 subdirs += libpthread/linuxthreads/sysdeps/pthread
 
 CFLAGS-dir_linuxthreads := -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-linuxthreads := $(CFLAGS-dir_linuxthreads) $(SSP_ALL_CFLAGS)
-
-CFLAGS-libpthread/linuxthreads/sysdeps/$(TARGET_ARCH)/ := $(CFLAGS-linuxthreads)
-CFLAGS-libpthread/linuxthreads/sysdeps/unix/sysv/linux/ := $(CFLAGS-linuxthreads)
-CFLAGS-libpthread/linuxthreads/sysdeps/pthread/         := $(CFLAGS-linuxthreads)
+CFLAGS-libpthread/linuxthreads := $(CFLAGS-dir_linuxthreads) $(SSP_ALL_CFLAGS)
 
 # This stuff will not compile without at least -O1
 # psm: can't handle this here, could maybe search for -O0 in CFLAGS

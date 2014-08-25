@@ -37,11 +37,6 @@ endif
 # -fasynchronous-unwind-tables is required for backtrace to work using dwarf2
 CFLAGS-backtrace.c := -fasynchronous-unwind-tables
 
-# pass common flags to arch dirs
-ifneq ($(strip $(libubacktrace_ARCH_OBJS)),)
-CFLAGS-libubacktrace/$(TARGET_ARCH)/ := $(CFLAGS-libubacktrace)
-endif
-
 libubacktrace_SRCS := $(patsubst %.c,$(libubacktrace_DIR)/%.c,$(libubacktrace_SRC-y))
 libubacktrace_OBJS := $(patsubst $(libubacktrace_DIR)/%.c,$(libubacktrace_OUT)/%.o,$(libubacktrace_SRCS))
 

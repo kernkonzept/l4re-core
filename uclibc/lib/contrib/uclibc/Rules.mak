@@ -201,7 +201,7 @@ check_as=$(shell \
 	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
 	then echo "-Wa,$(1)"; fi)
 check_ld=$(shell \
-	if $(CC) $(LDFLAG-fuse-ld) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
+	if $(CC) $(LDFLAG-fuse-ld) $(CFLAG_-Wl--no-warn-mismatch) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null -Wl,-b,binary /dev/null > /dev/null 2>&1; \
 	then echo "$(1)"; fi)
 
 # Use variable indirection here so that we can have variable
@@ -254,12 +254,23 @@ ARFLAGS:=cr
 
 # Note: The check for -nostdlib has to be before all calls to check_ld
 $(eval $(call check-gcc-var,-nostdlib))
-LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(EXTRA_UCLIBC_FLAGS))
 # deliberately not named CFLAG-fuse-ld since unchecked and from user
+LDFLAG-fuse-ld := $(filter -fuse-ld=%,$(call qstrip,$(UCLIBC_EXTRA_CFLAGS)))
+# failed to merge target specific data of file /dev/null
+# Could use -Wl,--script,$(top_srcdir)extra/scripts/none.lds as well.
+$(eval $(call check-ld-var,--no-warn-mismatch))
+
+$(eval $(call cache-output-var,GCC_VER,$(CC) -dumpversion))
+GCC_VER := $(subst ., ,$(GCC_VER))
+GCC_MAJOR_VER ?= $(word 1,$(GCC_VER))
+GCC_MINOR_VER ?= $(word 2,$(GCC_VER))
 
 # Flags in OPTIMIZATION are used only for non-debug builds
 
 OPTIMIZATION:=
+OPTIMIZATION-$(GCC_MAJOR_VER):=
+OPTIMIZATION-$(GCC_MAJOR_VER).$(GCC_MINOR_VER):=
+
 # Use '-Os' optimization if available, else use -O2, allow Config to override
 $(eval $(call check-gcc-var,-Os))
 ifneq ($(CFLAG_-Os),)
@@ -270,31 +281,9 @@ OPTIMIZATION += $(CFLAG_-O2)
 endif
 # Use the gcc 3.4 -funit-at-a-time optimization when available
 $(eval $(call check-gcc-var,-funit-at-a-time))
-OPTIMIZATION += $(CFLAG_-funit-at-a-time)
-# shrinks code by about 0.1%
-$(eval $(call check-gcc-var,-fmerge-all-constants))
+OPTIMIZATION-3.4 += $(CFLAG_-funit-at-a-time)
 $(eval $(call check-gcc-var,-fstrict-aliasing))
-OPTIMIZATION += $(CFLAG_-fmerge-all-constants) $(CFLAG_-fstrict-aliasing)
-
-$(eval $(call cache-output-var,GCC_VER,$(CC) -dumpversion))
-GCC_VER := $(subst ., ,$(GCC_VER))
-GCC_MAJOR_VER ?= $(word 1,$(GCC_VER))
-#GCC_MINOR_VER ?= $(word 2,$(GCC_VER))
-
-ifneq ($(TARGET_ARCH),arc)
-ifeq ($(GCC_MAJOR_VER),4)
-# shrinks code, results are from 4.0.2
-# 0.36%
-$(eval $(call check-gcc-var,-fno-tree-loop-optimize))
-OPTIMIZATION += $(CFLAG_-fno-tree-loop-optimize)
-# 0.34%
-$(eval $(call check-gcc-var,-fno-tree-dominator-opts))
-OPTIMIZATION += $(CFLAG_-fno-tree-dominator-opts)
-# 0.1%
-$(eval $(call check-gcc-var,-fno-strength-reduce))
-OPTIMIZATION += $(CFLAG_-fno-strength-reduce)
-endif
-endif
+OPTIMIZATION += $(CFLAG_-fstrict-aliasing)
 
 # CPU_CFLAGS-y contain options which are not warnings,
 # not include or library paths, and not optimizations.
@@ -415,14 +404,6 @@ endif
 
 ifeq ($(TARGET_ARCH),mips)
 	OPTIMIZATION+=-mno-split-addresses
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_1)+=-mips1
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_2)+=-mips2 -mtune=mips2
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_3)+=-mips3 -mtune=mips3
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_4)+=-mips4 -mtune=mips4
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32)+=-mips32 -mtune=mips32
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS32R2)+=-march=mips32r2 -mtune=mips32r2
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64)+=-mips64 -mtune=mips32
-	CPU_CFLAGS-$(CONFIG_MIPS_ISA_MIPS64R2)+=-mips64r2 -mtune=mips64r2
 	ifeq ($(strip $(ARCH_BIG_ENDIAN)),y)
 		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-Wl,-melf64btsmip
 		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-Wl,-melf32btsmip
@@ -630,7 +611,7 @@ WARNING_FLAGS += \
 	-Wshadow \
 	-Wundef
 # Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
-WARNING_FLAGS-gcc-4 += -Wdeclaration-after-statement
+#WARNING_FLAGS-gcc-4 += -Wdeclaration-after-statement
 endif
 WARNING_FLAGS += $(WARNING_FLAGS-gcc-$(GCC_MAJOR_VER))
 $(foreach w,$(WARNING_FLAGS),$(eval $(call check-gcc-var,$(w))))
@@ -661,9 +642,6 @@ CFLAGS := $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-I$(top_srcdir)libc/sysdeps/linux \
 	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) \
 	-I$(top_srcdir)ldso/include -I.
-ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
-CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
-endif
 
 # We need this to be checked within libc-symbols.h
 ifneq ($(HAVE_SHARED),y)
@@ -707,14 +685,13 @@ ifeq ($(DODEBUG),y)
 CFLAGS += -O0 -g3 -DDEBUG
 else
 CFLAGS += $(OPTIMIZATION)
+CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER))
+CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER).$(GCC_MINOR_VER))
 endif
 ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s
 else
 STRIPTOOL := true -Stripping_disabled
-endif
-ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
-CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
 endif
 
 ifeq ($(DOMULTI),y)
@@ -733,14 +710,21 @@ else
 DOMULTI:=n
 endif
 
+ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
+CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
+endif
 ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
 LDFLAGS += $(call qstrip,$(UCLIBC_EXTRA_LDFLAGS))
+endif
+
+ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
+CFLAGS += -D__USE_STDIO_FUTEXES__
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 	PTNAME := nptl
-	CFLAGS += -DHAVE_FORCED_UNWIND
+	CFLAGS += -DHAVE_FORCED_UNWIND -D_LIBC_REENTRANT
 else
 ifeq ($(LINUXTHREADS_OLD),y)
 	PTNAME := linuxthreads.old
@@ -814,7 +798,7 @@ endif
 ifeq ($(UCLIBC_BUILD_NOEXECSTACK),y)
 $(eval $(call check-as-var,--noexecstack))
 endif
-ASFLAGS = $(ASFLAG_--noexecstack)
+ASFLAGS += $(ASFLAG_--noexecstack)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 $(eval $(call cache-output-var,LIBGCC,$(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name))

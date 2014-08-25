@@ -92,19 +92,12 @@ $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-#
-# Create 'pthread-errnos.h' header file.
-#
-CFLAGS-gen_pthread-errnos.c = -S
-
-$(libpthread_OUT)/gen_pthread-errnos.c: $(libpthread_DIR)/pthread-errnos.sym | $(libpthread_OUT)
-	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
-
-$(libpthread_OUT)/gen_pthread-errnos.s: $(libpthread_OUT)/gen_pthread-errnos.c | headers
-	$(compile.c)
-libpthread-generated-y += $(libpthread_OUT)/gen_pthread-errnos.s
-$(libpthread_OUT)/pthread-errnos.h: $(libpthread_OUT)/gen_pthread-errnos.s
-	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
+$(libpthread_OUT)/pthread-errnos.h: $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(libpthread_OUT)/pthread-errnos.h: $(libpthread_DIR)/pthread-errnos.sym
+	@$(disp_gen)
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \
+	| $(CC) $(CFLAGS) -x c - -S -o - \
+	| $(SED) $(PTHREAD_GENERATE_MANGLE) > $@
 	@if test ! -s $@ ; then rm -f $@ ; false ; fi
 
 pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(libpthread_OUT)/pthread-errnos.h
@@ -132,7 +125,6 @@ headers_clean-y += HEADERCLEAN_libpthread/nptl
 
 HEADERCLEAN_libpthread/nptl:
 	$(do_rm) $(nptl_headers_bootstrap) \
-	      $(addprefix $(libpthread_OUT)/gen_pthread-errnos., c s) \
 	      $(libpthread_OUT)/pthread-errnos.h
 
 CLEAN_libpthread/nptl:
@@ -149,7 +141,8 @@ LDFLAGS-libpthread.so += $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so $(
 
 LIBS-libpthread.so := $(LIBS)
 
-CFLAGS-nptl = -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
+CFLAGS-dir_nptl := -DNOT_IN_libc -DIS_IN_libpthread
+CFLAGS-libpthread/nptl := $(CFLAGS-dir_nptl) $(SSP_ALL_CFLAGS)
 
 # Since cancellation handling is in large parts handled using exceptions
 # we have to compile some files with exception handling enabled, some
@@ -220,7 +213,7 @@ CFLAGS-pthread_barrierattr_getpshared.c = -D_GNU_SOURCE
 CFLAGS-pthread_barrierattr_setpshared.c = -D_GNU_SOURCE
 CFLAGS-sem_open.c = -D_GNU_SOURCE
 
-CFLAGS-OMIT-alloca_cutoff.c = $(CFLAGS-nptl)
-CFLAGS-OMIT-forward.c = $(CFLAGS-nptl)
-CFLAGS-OMIT-libc-lowlevelock.c = $(CFLAGS-nptl)
-CFLAGS-OMIT-libc-cancellation.c = $(CFLAGS-nptl)
+CFLAGS-OMIT-alloca_cutoff.c = $(CFLAGS-dir_nptl)
+CFLAGS-OMIT-forward.c = $(CFLAGS-dir_nptl)
+CFLAGS-OMIT-libc-lowlevelock.c = $(CFLAGS-dir_nptl)
+CFLAGS-OMIT-libc-cancellation.c = $(CFLAGS-dir_nptl)

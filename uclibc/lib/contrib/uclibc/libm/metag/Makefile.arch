@@ -9,7 +9,7 @@ ifeq ($(UCLIBC_HAS_FENV),y)
 ifeq ($(CONFIG_META_2_1),y)
 libm_ARCH_SRC:=$(wildcard $(libm_ARCH_DIR)/*.c)
 libm_ARCH_OBJ:=$(patsubst $(libm_ARCH_DIR)/%.c,$(libm_ARCH_OUT)/%.o,$(libm_ARCH_SRC))
-CFLAGS-libm += -Wa,-mfpu=metac21
+CFLAGS-y-libm/metag := -Wa,-mfpu=metac21
 endif
 endif
 

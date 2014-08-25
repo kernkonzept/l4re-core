@@ -110,6 +110,8 @@ ifneq ($(strip $(ARCH_OBJS-y)),)
 CSRC-y := $(filter-out $(notdir $(ARCH_OBJS-y:.o=.c)) $(ARCH_OBJ_FILTEROUT-y),$(CSRC-y))
 endif
 
+CFLAGS-OMIT-ssp.c := $(CFLAG_-fstack-protector) $(CFLAG_-fstack-protector-all) $(CFLAG_-fstack-protector-strong)
+CFLAGS-OMIT-ssp-local.c := $(CFLAG_-fstack-protector) $(CFLAG_-fstack-protector-all) $(CFLAG_-fstack-protector-strong)
 CFLAGS-ssp.c := $(SSP_DISABLE_FLAGS)
 CFLAGS-ssp-local.c := $(SSP_DISABLE_FLAGS)
 

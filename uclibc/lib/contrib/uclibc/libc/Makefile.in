@@ -15,11 +15,9 @@ ifneq ($(VERSION_SCRIPT),)
 VERSION_SCRIPT := -Wl,--version-script,$(VERSION_SCRIPT)
 endif
 
+CFLAGS-libc :=# intentionally left blank
 LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libc.so := -Wl,--dsbt-index=2
 LDFLAGS-libc.so := $(LDFLAGS) $(VERSION_SCRIPT) -Wl,-init,$(SYMBOL_PREFIX)__uClibc_init
-ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
-CFLAGS += -D__USE_STDIO_FUTEXES__
-endif
 LIBS-libc.so := $(interp) $(ldso) $(top_builddir)lib/$(NONSHARED_LIBNAME)
 
 # we have SHARED_LIBNAME=libc.so.$(ABI_VERSION) defined in Rules.mak

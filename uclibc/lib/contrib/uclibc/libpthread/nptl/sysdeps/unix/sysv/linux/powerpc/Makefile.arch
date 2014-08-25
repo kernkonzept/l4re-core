@@ -16,15 +16,3 @@ librt_linux_arch_CSRC = pt-__syscall_error.c
 
 ASFLAGS += -DUSE___THREAD
 
-CFLAGS-pthread_once.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-pt-__syscall_error.c =  -DNOT_IN_libc -DIS_IN_libpthread
-ASFLAGS-pt-vfork.S = -DNOT_IN_libc -DIS_IN_libpthread -D_LIBC_REENTRANT
-#ASFLAGS-lowlevellock.S = -DNOT_IN_libc -DIS_IN_libpthread -D_LIBC_REENTRANT
-
-#ASFLAGS-libc-lowlevellock.S = -D_LIBC_REENTRANT
-ASFLAGS-clone.S = -D_LIBC_REENTRANT
-ASFLAGS-vfork.S = -D_LIBC_REENTRANT
-ifeq ($(UCLIBC_HAS_STDIO_FUTEXES),y)
-CFLAGS-fork.c = -D__USE_STDIO_FUTEXES__
-endif

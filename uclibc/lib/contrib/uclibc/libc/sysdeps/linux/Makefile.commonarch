@@ -20,8 +20,16 @@ libc-y         += $(ARCH_OBJS-y)
 libc-nomulti-y += $(ARCH_SOBJ)
 objclean-y     += CLEAN_$(subst $(top_builddir),,$(ARCH_OUT))
 
-CFLAGS-crti.S+=$(PICFLAG)
-CFLAGS-crtn.S+=$(PICFLAG)
+CFLAGS-OMIT-crt1.S := -D_LIBC_REENTRANT
+CFLAGS-OMIT-crti.S := -D_LIBC_REENTRANT
+CFLAGS-OMIT-crtn.S := -D_LIBC_REENTRANT
+CFLAGS-OMIT-crtreloc.c := -D_LIBC_REENTRANT
+CFLAGS-crti.S += $(PICFLAG)
+CFLAGS-crtn.S += $(PICFLAG)
+# Due to a "bug" in make these order_only prereqs inherit per-target flags.
+# Attempt to workaround this inconvenient behaviour:
+CFLAGS-OMIT-crt1.S += $(CFLAGS-rtld) -DIN_LIB=%
+CFLAGS-OMIT-crtreloc.c += $(CFLAGS-rtld) -DIN_LIB=%
 
 CLEAN_$(subst $(top_builddir),,$(ARCH_OUT)):
 	$(do_rm) $(addprefix $(ARCH_OUT)/*., o os oS) $(CTOR_TARGETS) $(CRTS)

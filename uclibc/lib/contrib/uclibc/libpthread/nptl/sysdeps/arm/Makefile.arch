@@ -7,11 +7,4 @@
 #
 
 librt_arch_SSRC = aeabi_read_tp.S thumb_atomics.S
-
-CFLAGS-pt-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
-
-ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc -DIS_IN_libpthread
-ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc -DIS_IN_libpthread
-ASFLAGS-aeabi_read_tp.S = -DNOT_IN_libc=1
-
 libc_arch_a_CSRC = libc-tls.c

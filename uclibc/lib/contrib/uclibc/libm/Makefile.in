@@ -220,8 +220,6 @@ endif
 ifeq ($(UCLIBC_HAS_FPU),y)
 ifeq ($(DO_C99_MATH),y)
 ifneq ($(strip $(libm_ARCH_OBJS)),)
-CFLAGS-libm/$(TARGET_ARCH)/ := $(CFLAGS-libm)
-CFLAGS-libm/$(TARGET_ARCH)/$(TARGET_SUBARCH)/ := $(CFLAGS-libm)
 
 # remove generic sources, if arch specific version is present
 ifneq ($(strip $(libm_ARCH_SRC)),)

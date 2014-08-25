@@ -7,7 +7,7 @@
 
 subdirs += libc/inet/rpc
 
-CFLAGS-rpc := -fno-strict-aliasing
+CFLAGS-y-libc/inet/rpc := -fno-strict-aliasing
 
 # For now, only compile the stuff needed to do an NFS mount....
 CSRC_NFS = authunix_prot.c auth_none.c auth_unix.c bindresvport.c \

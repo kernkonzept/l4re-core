@@ -122,73 +122,27 @@ headers_clean-y += HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux
 CFLAGS-pthread_getcpuclockid.c = -I$(top_srcdir)librt
 CFLAGS-pt-pread_pwrite.c = -I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
 			    -I$(top_srcdir)libc/sysdeps/linux/common
-CFLAGS-mq_notify.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_create.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_delete.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_getoverr.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_gettime.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_routines.c = -I$(top_srcdir)librt -DIS_IN_librt
-CFLAGS-timer_settime.c = -I$(top_srcdir)librt -DIS_IN_librt
+CFLAGS-mq_notify.c = -I$(top_srcdir)librt
+CFLAGS-timer_create.c = -I$(top_srcdir)librt
+CFLAGS-timer_delete.c = -I$(top_srcdir)librt
+CFLAGS-timer_getoverr.c = -I$(top_srcdir)librt
+CFLAGS-timer_gettime.c = -I$(top_srcdir)librt
+CFLAGS-timer_routines.c = -I$(top_srcdir)librt
+CFLAGS-timer_settime.c = -I$(top_srcdir)librt
 
 ifneq ($(UCLIBC_HAS_BACKTRACE),)
 CFLAGS-raise.c = -fasynchronous-unwind-tables
 endif
 
-CFLAGS-linux = -DNOT_IN_libc -DIS_IN_libpthread $(SSP_ALL_CFLAGS)
-
-CFLAGS-OMIT-libc_pthread_init.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-libc_multiple_threads.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-register-atfork.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-unregister-atfork.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-getpid.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-sleep.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-jmp-unwind.c = -DNOT_IN_libc -DIS_IN_libpthread
-CFLAGS-OMIT-libc-lowlevellock.c = -DNOT_IN_libc -DIS_IN_libpthread
-
-#CFLAGS-OMIT-close.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-open.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-read.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-write.S = -DNOT_IN_libc -DIS_IN_libpthread
-#CFLAGS-OMIT-waitpid.S = -DNOT_IN_libc -DIS_IN_libpthread
-
-CFLAGS-OMIT-mq_notify.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_create.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_delete.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_getoverr.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_gettime.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_routines.c = -DIS_IN_libpthread
-CFLAGS-OMIT-timer_settime.c = -DIS_IN_libpthread
-
-#ASFLAGS-open.S = -D_LIBC_REENTRANT
-#ASFLAGS-close.S = -D_LIBC_REENTRANT
-#ASFLAGS-read.S = -D_LIBC_REENTRANT
-#ASFLAGS-write.S = -D_LIBC_REENTRANT
-#ASFLAGS-waitpid.S = -D_LIBC_REENTRANT
-
-#
-# Create header files.
-#
-CFLAGS-gen_lowlevelbarrier.c = -S
-CFLAGS-gen_lowlevelcond.c = -S
-CFLAGS-gen_lowlevelrobustlock.c = -S
-CFLAGS-gen_lowlevelrwlock.c = -S
-CFLAGS-gen_pthread-pi-defines.c = -S
-CFLAGS-gen_structsem.c = -S
-CFLAGS-gen_unwindbuf.c = -S
-
 PTHREAD_LINUX_SYM   := $(notdir $(wildcard $(libpthread_linux_DIR)/*.sym))
-PTHREAD_LINUX_SYM_C := $(addprefix $(libpthread_linux_OUT)/gen_,$(PTHREAD_LINUX_SYM:.sym=.c))
-PTHREAD_LINUX_SYM_S := $(PTHREAD_LINUX_SYM_C:.c=.s)
 PTHREAD_LINUX_SYM_H := $(addprefix $(libpthread_linux_OUT)/,$(PTHREAD_LINUX_SYM:.sym=.h))
 
-$(PTHREAD_LINUX_SYM_C): $(libpthread_linux_OUT)/gen_%.c: $(libpthread_linux_DIR)/%.sym | $(libpthread_linux_OUT)
-	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
-$(PTHREAD_LINUX_SYM_S): $(libpthread_linux_OUT)/gen_%.s: $(libpthread_linux_OUT)/gen_%.c | headers
-	$(compile.c)
-libpthread-generated-y += $(PTHREAD_LINUX_SYM_S)
-$(PTHREAD_LINUX_SYM_H): $(libpthread_linux_OUT)/%.h: $(libpthread_linux_OUT)/gen_%.s
-	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
+$(PTHREAD_LINUX_SYM_H): $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(PTHREAD_LINUX_SYM_H): $(libpthread_linux_OUT)/%.h: $(libpthread_linux_DIR)/%.sym
+	@$(disp_gen)
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \
+	| $(CC) $(CFLAGS) -x c - -S -o - \
+	| $(SED) $(PTHREAD_GENERATE_MANGLE) > $@
 	@if test ! -s $@ ; then rm -f $@ ; false ; fi
 
 pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(PTHREAD_LINUX_SYM_H)
@@ -200,8 +154,7 @@ $(ALL_HEADERS_BITS_PTHREAD): $(top_builddir)include/bits/%: | $(top_builddir)inc
 	$(do_ln) $(call rel_srcdir)$(libpthread_linux_DIR)/bits/$(@F) $@
 
 HEADERCLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
-	$(do_rm) $(PTHREAD_LINUX_SYM_C) $(PTHREAD_LINUX_SYM_S) \
-		$(PTHREAD_LINUX_SYM_H)
+	$(do_rm) $(PTHREAD_LINUX_SYM_H)
 
 CLEAN_libpthread/nptl/sysdeps/unix/sysv/linux:
 	$(do_rm) $(addprefix $(libpthread_linux_OUT)/*., o os oS)

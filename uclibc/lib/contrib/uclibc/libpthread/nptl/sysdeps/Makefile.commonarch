@@ -40,15 +40,12 @@ librt_arch_COBJ = $(patsubst %.c,$(libpthread_arch_OUT)/%.o,$(librt_arch_CSRC))
 librt_arch_SOBJ = $(patsubst %.S,$(libpthread_arch_OUT)/%.o,$(librt_arch_SSRC))
 librt_arch_OBJS = $(librt_arch_COBJ) $(librt_arch_SOBJ)
 
-CFLAGS-gen_tcb-offsets.c = -S
-$(libpthread_arch_OUT)/gen_tcb-offsets.c: $(libpthread_arch_DIR)/tcb-offsets.sym | $(libpthread_arch_OUT)
-	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
-
-$(libpthread_arch_OUT)/gen_tcb-offsets.s: $(libpthread_arch_OUT)/gen_tcb-offsets.c | headers
-	$(compile.c)
-libpthread-generated-y += $(libpthread_arch_OUT)/gen_tcb-offsets.s
-$(libpthread_arch_OUT)/tcb-offsets.h: $(libpthread_arch_OUT)/gen_tcb-offsets.s
-	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
+$(libpthread_arch_OUT)/tcb-offsets.h: $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(libpthread_arch_OUT)/tcb-offsets.h: $(libpthread_arch_DIR)/tcb-offsets.sym
+	@$(disp_gen)
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \
+	| $(CC) $(CFLAGS) -x c - -S -o - \
+	| $(SED) $(PTHREAD_GENERATE_MANGLE) > $@
 	@if test ! -s $@ ; then rm -f $@ ; false ; fi
 
 pregen-headers-$(UCLIBC_HAS_THREADS_NATIVE) += $(libpthread_arch_OUT)/tcb-offsets.h
@@ -59,8 +56,7 @@ headers_clean-y+= HEADERCLEAN_$(subst $(top_builddir),,$(libpthread_arch_OUT))
 CLEAN_$(subst $(top_builddir),,$(libpthread_arch_OUT)):
 	$(do_rm) $(addprefix $(libpthread_arch_OUT)/*., o os oS)
 HEADERCLEAN_$(subst $(top_builddir),,$(libpthread_arch_OUT)):
-	$(do_rm) $(libpthread_arch_OUT)/tcb-offsets.h \
-		$(addprefix $(libpthread_arch_OUT)/gen_tcb-offsets., c h s)
+	$(do_rm) $(libpthread_arch_OUT)/tcb-offsets.h
 ifneq ($(TARGET_SUBARCH),)
 objclean-y     +=       CLEAN_$(subst $(top_builddir),,$(libpthread_subarch_OUT))
 CLEAN_$(subst $(top_builddir),,$(libpthread_subarch_OUT)):

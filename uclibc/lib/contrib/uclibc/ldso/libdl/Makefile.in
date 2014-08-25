@@ -13,9 +13,7 @@ CFLAGS-libdl += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/incl
 
 CFLAGS-libdl += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\"
 
-ifeq ($(SUPPORT_LD_DEBUG),y)
-CFLAGS-libdl += -D__SUPPORT_LD_DEBUG__
-endif
+CFLAGS-$(SUPPORT_LD_DEBUG)-ldso/libdl := -D__SUPPORT_LD_DEBUG__
 
 CFLAGS-libdl.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
