@@ -33,7 +33,7 @@ extern int _test_and_set (int *p, int v) __THROW;
 #ifdef __USE_EXTERN_INLINES
 
 # ifndef _EXTERN_INLINE
-#  define _EXTERN_INLINE extern __inline
+#  define _EXTERN_INLINE __extern_inline
 # endif
 
 _EXTERN_INLINE int

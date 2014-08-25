@@ -301,7 +301,7 @@ __NTH (__cmsg_nxthdr (struct msghdr *__mhdr, struct cmsghdr *__cmsg))
     return (struct cmsghdr *) 0;
   return __cmsg;
 }
-#endif	/* Use `extern inline'.  */
+#endif	/* Use `__extern_inline'.  */
 
 /* Socket level message types.  This must match the definitions in
    <linux/socket.h>.  */

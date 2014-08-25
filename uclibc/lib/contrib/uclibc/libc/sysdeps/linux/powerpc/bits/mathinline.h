@@ -26,7 +26,7 @@
 #ifdef __cplusplus
 # define __MATH_INLINE __inline
 #else
-# define __MATH_INLINE extern __inline
+# define __MATH_INLINE __extern_inline
 #endif  /* __cplusplus */
 
 #if defined __GNUC__ && !defined _SOFT_FLOAT

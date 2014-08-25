@@ -130,7 +130,7 @@
 # ifdef __cplusplus
 #  define __MATH_INLINE __inline
 # else
-#  define __MATH_INLINE extern __inline
+#  define __MATH_INLINE __extern_inline
 # endif  /* __cplusplus */
 
 /* The gcc, version 2.7 or below, has problems with all this inlining
