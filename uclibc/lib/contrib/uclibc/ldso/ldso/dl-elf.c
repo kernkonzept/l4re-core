@@ -737,7 +737,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 				void *new_addr;
 				new_addr = map_writeable (infile, ppnt, piclib, flags, libaddr);
 				if (!new_addr) {
-					_dl_dprintf(_dl_debug_file, "Can't modify %s's text section.",
+					_dl_dprintf(2, "Can't modify %s's text section.",
 						    libname);
 					_dl_exit(1);
 				}
