@@ -26,10 +26,4 @@ config CONFIG_SPARC_V7
 config CONFIG_SPARC_V8
 	bool "SPARC v8"
 
-config CONFIG_SPARC_V9
-	bool "SPARC v9"
-
-config CONFIG_SPARC_V9B
-	bool "SPARC v9b"
-
 endchoice

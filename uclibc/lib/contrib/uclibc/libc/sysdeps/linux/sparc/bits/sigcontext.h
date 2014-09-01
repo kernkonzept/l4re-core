@@ -21,8 +21,6 @@
 
 #include <bits/wordsize.h>
 
-#if __WORDSIZE == 32
-
 /* It is quite hard to choose what to put here, because
    Linux/sparc32 had at least 3 totally incompatible
    signal stack layouts.
@@ -42,36 +40,3 @@ struct sigcontext
     int			si_mask;
   };
 
-#else /* sparc64 */
-
-typedef struct
-  {
-    unsigned int	si_float_regs [64];
-    unsigned long	si_fsr;
-    unsigned long	si_gsr;
-    unsigned long	si_fprs;
-  } __siginfo_fpu_t;
-
-struct sigcontext
-  {
-    char		sigc_info[128];
-    struct
-      {
-	unsigned long	u_regs[16]; /* globals and ins */
-	unsigned long	tstate;
-	unsigned long	tpc;
-	unsigned long	tnpc;
-	unsigned int	y;
-	unsigned int	fprs;
-      }			sigc_regs;
-    __siginfo_fpu_t *	sigc_fpu_save;
-    struct
-      {
-	void *		ss_sp;
-	int		ss_flags;
-	unsigned long	ss_size;
-      }			sigc_stack;
-    unsigned long	sigc_mask;
-};
-
-#endif /* sparc64 */

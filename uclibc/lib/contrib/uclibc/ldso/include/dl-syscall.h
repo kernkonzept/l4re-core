@@ -26,11 +26,7 @@ extern int _dl_errno;
 /* Pull in whatever this particular arch's kernel thinks the kernel version of
  * struct stat should look like.  It turns out that each arch has a different
  * opinion on the subject, and different kernel revs use different names... */
-#if defined(__sparc_v9__) && (__WORDSIZE == 64)
-#define kernel_stat64 stat
-#else
 #define kernel_stat stat
-#endif
 #include <bits/kernel_stat.h>
 #include <bits/kernel_types.h>
 

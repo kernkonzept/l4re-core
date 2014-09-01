@@ -25,37 +25,6 @@
 
 #include <bits/wordsize.h>
 
-#if 0 /*__WORDSIZE == 64*/
-
-typedef struct __sparc64_jmp_buf
-  {
-    struct __sparc64_jmp_buf	*uc_link;
-    unsigned long		uc_flags;
-    unsigned long		uc_sigmask;
-    struct __sparc64_jmp_buf_mcontext
-      {
-	unsigned long		mc_gregs[19];
-	unsigned long		mc_fp;
-	unsigned long		mc_i7;
-	struct __sparc64_jmp_buf_fpu
-	  {
-	    union
-	      {
-		unsigned int	sregs[32];
-		unsigned long	dregs[32];
-		long double	qregs[16];
-	      }			mcfpu_fpregs;
-	    unsigned long	mcfpu_fprs;
-	    unsigned long	mcfpu_gsr;
-	    void		*mcfpu_fq;
-	    unsigned char	mcfpu_qcnt;
-	    unsigned char	mcfpu_qentsz;
-	    unsigned char	mcfpu_enab;
-	  }			mc_fpregs;
-      }				uc_mcontext;
-  } __jmp_buf[1];
-#else
 typedef int __jmp_buf[3];
-#endif
 
 #endif  /* bits/setjmp.h */

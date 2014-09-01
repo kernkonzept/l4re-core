@@ -39,16 +39,9 @@
 #include <features.h>
 #include <bits/wordsize.h>
 
-/* macro out the 32 / 64 bit differences */
-#if __WORDSIZE == 32
 # define STACK_BIAS 0
 # define ELE_SIZE 4
 # define LD ld
-#else
-# define STACK_BIAS 2047 /* see glibc/sysdeps/unix/sysv/linux/sparc/sparc64/sysdep.h */
-# define ELE_SIZE 8
-# define LD ldx
-#endif
 
 .text
 .align 4
@@ -116,11 +109,7 @@ _start:
 	nop
 
 	/* Die very horribly if exit returns.  */
-#if __WORDSIZE == 32
 	unimp
-#else
-	illtrap 0
-#endif
 
 .size _start,.-_start
 

@@ -6,26 +6,19 @@
 #include <setjmp.h>
 #include <jmpbuf-offsets.h>
 
-#if __WORDSIZE == 64
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((unsigned long int) (address) < (jmpbuf)->uc_mcontext.mc_fp)
-
-#else
-
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
   ((int) (address) < (jmpbuf)[JB_SP])
 
-#endif
-
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#if defined(__arch64__)
-#include "sparc64/jmpbuf-unwind.h"
-#else
-#include "sparc32/jmpbuf-unwind.h"
-#endif
+#include <setjmp.h>
+#include <stdint.h>
+#include <unwind.h>
+
+#define _JMPBUF_CFA_UNWINDS_ADJ(_jmpbuf, _context, _adj) \
+  _JMPBUF_UNWINDS_ADJ (_jmpbuf, (void *) _Unwind_GetCFA (_context), _adj)
+
+#define _JMPBUF_UNWINDS_ADJ(_jmpbuf, _address, _adj) \
+  ((uintptr_t) (_address) - (_adj) < (uintptr_t) (_jmpbuf)[JB_SP] - (_adj))
 #endif
