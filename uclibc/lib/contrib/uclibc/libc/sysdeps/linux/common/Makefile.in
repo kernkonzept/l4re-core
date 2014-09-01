@@ -90,7 +90,8 @@ CSRC-$(UCLIBC_HAS_REALTIME) += clock_adjtime.c clock_getres.c clock_gettime.c cl
 CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise64.c posix_fadvise.c posix_madvise.c \
 	posix_fallocate.c posix_fallocate64.c
 CSRC-$(UCLIBC_SUSV4_LEGACY) += utime.c
-CSRC-$(UCLIBC_HAS_EPOLL) += epoll.c
+CSRC- += epoll.c # multi-source
+CSRC-$(UCLIBC_HAS_EPOLL) += epoll_create.c epoll_ctl.c epoll_wait.c epoll_pwait.c
 CSRC-$(UCLIBC_HAS_XATTR) += xattr.c
 CSRC-$(UCLIBC_HAS_PROFILING) += noophooks.c #pcprofile.c
 CSRC-$(UCLIBC_SV4_DEPRECATED) += ustat.c

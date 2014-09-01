@@ -11,36 +11,28 @@
 #include <sys/epoll.h>
 #include <cancel.h>
 
-#ifdef __NR_epoll_create
+#ifdef L_epoll_create
+# ifdef __NR_epoll_create
 _syscall1(int, epoll_create, int, size)
-#endif
+# endif
 
-#ifdef __NR_epoll_create1
+# ifdef __NR_epoll_create1
 _syscall1(int, epoll_create1, int, flags)
-#endif
+# endif
 
-#if defined __NR_epoll_create1 && !defined __NR_epoll_create
+# if defined __NR_epoll_create1 && !defined __NR_epoll_create
 int epoll_create(int size)
 {
 	return INLINE_SYSCALL(epoll_create1, 1, 0);
 }
-
+# endif
 #endif
 
-#ifdef __NR_epoll_ctl
+#if defined L_epoll_ctl && defined __NR_epoll_ctl
 _syscall4(int, epoll_ctl, int, epfd, int, op, int, fd, struct epoll_event *, event)
 #endif
 
-#ifdef __NR_epoll_wait
-static int __NC(epoll_wait)(int epfd, struct epoll_event *events, int maxevents, int timeout)
-{
-	return INLINE_SYSCALL(epoll_wait, 4, epfd, events, maxevents, timeout);
-}
-CANCELLABLE_SYSCALL(int, epoll_wait, (int epfd, struct epoll_event *events, int maxevents, int timeout),
-		    (epfd, events, maxevents, timeout))
-#endif
-
-#ifdef __NR_epoll_pwait
+#if defined L_epoll_pwait && defined __NR_epoll_pwait
 # include <signal.h>
 
 # define __NR___syscall_epoll_pwait __NR_epoll_pwait
@@ -55,11 +47,23 @@ static int __NC(epoll_pwait)(int epfd, struct epoll_event *events, int maxevents
 CANCELLABLE_SYSCALL(int, epoll_pwait, (int epfd, struct epoll_event *events, int maxevents, int timeout,
 				       const sigset_t *set),
 		    (epfd, events, maxevents, timeout, set))
+#endif
+
+#if defined L_epoll_wait
+# if defined __NR_epoll_wait
+static int __NC(epoll_wait)(int epfd, struct epoll_event *events, int maxevents, int timeout)
+{
+	return INLINE_SYSCALL(epoll_wait, 4, epfd, events, maxevents, timeout);
+}
+CANCELLABLE_SYSCALL(int, epoll_wait, (int epfd, struct epoll_event *events, int maxevents, int timeout),
+		    (epfd, events, maxevents, timeout))
+
+
+# elif /* !defined L_epoll_wait && */ defined __NR_epoll_pwait
 /*
  * If epoll_wait is not defined, then call epoll_pwait instead using NULL
  * for sigmask argument
  */
-# ifndef __NR_epoll_wait
 #  include <stddef.h>
 int epoll_wait(int epfd, struct epoll_event *events, int maxevents, int timeout)
 {
