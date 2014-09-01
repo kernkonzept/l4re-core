@@ -239,6 +239,38 @@ extern int posix_fallocate64 (int __fd, __off64_t __offset, __off64_t __len);
 # endif
 #endif
 
+#if (defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU) || defined _LIBC
+/* Reserve storage for the data of a file associated with FD.  This function
+   is Linux-specific.  For the portable version, use posix_fallocate().
+   Unlike the latter, fallocate can operate in different modes.  The default
+   mode = 0 is equivalent to posix_fallocate().
+
+   Note: These declarations are used in posix_fallocate.c and
+   posix_fallocate64.c, so we expose them internally.
+ */
+
+/* Flags for fallocate's mode.  */
+# define FALLOC_FL_KEEP_SIZE            1 /* Don't extend size of file
+                                             even if offset + len is
+                                             greater than file size.  */
+# define FALLOC_FL_PUNCH_HOLE           2 /* Create a hole in the file.  */
+
+# ifndef __USE_FILE_OFFSET64
+extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
+				   __off64_t __len),
+		       fallocate64);
+#  else
+#   define fallocate fallocate64
+#  endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int fallocate64 (int __fd, int __mode, __off64_t __offset, __off64_t __len);
+# endif
+#endif
+
 __END_DECLS
 
 #endif /* fcntl.h  */

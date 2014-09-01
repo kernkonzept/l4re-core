@@ -62,6 +62,10 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	vmsplice.c
 CSRC-$(if $(findstring yy,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_LFS)),y) += \
 	sendfile64.c
+# posix_fallocate() needs __libc_fallocate() from fallocate.c
+# posix_fallocate64() needs __libc_fallocate64() from fallocate64.c
+CSRC-$(if $(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_ADVANCED_REALTIME),y,) += \
+	fallocate.c $(filter fallocate64.c,$(CSRC-y))
 # NPTL needs these internally: madvise.c
 CSRC-$(findstring y,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_THREADS_NATIVE)) += madvise.c
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)

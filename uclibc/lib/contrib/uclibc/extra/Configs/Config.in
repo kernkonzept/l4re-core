@@ -1019,8 +1019,8 @@ config UCLIBC_LINUX_SPECIFIC
 	default y
 	help
 	  accept4(), bdflush(),
-	  capget(), capset(), eventfd(), fstatfs(),
-	  inotify_*(), ioperm(), iopl(),
+	  capget(), capset(), eventfd(), fallocate(),
+	  fstatfs(), inotify_*(), ioperm(), iopl(),
 	  madvise(), modify_ldt(), pipe2(), personality(),
 	  prctl()/arch_prctl(), pivot_root(), modify_ldt(),
 	  ppoll(), readahead(), reboot(), remap_file_pages(),
