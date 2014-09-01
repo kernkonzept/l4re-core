@@ -19,12 +19,17 @@
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
+#include <sysdep.h>
 #define _ERRNO_H
 #include <features.h>
 #include <bits/errno.h>
 #include <sys/syscall.h>
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
+#include <sysdep-cancel.h>
+
+#define CLONE_VM      0x00000100
+#define CLONE_THREAD  0x00010000
 
 #if defined(__NR_clone)
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
@@ -87,6 +92,8 @@ __error:
 .pool
 #else
 __clone:
+.fnstart
+.cantunwind
 	@ sanity check args
 	cmp	r0, #0
 	IT(te, ne)
@@ -95,28 +102,55 @@ __clone:
 	beq	__error
 
 	@ insert the args onto the new stack
-	sub	r1, r1, #8
-	str	r3, [r1, #4]
-	@ save the function pointer as the 0th element
-	str	r0, [r1]
+	str	r3, [r1, #-4]!
+	str	r0, [r1, #-4]!
 
 	@ do the system call
 	@ get flags
 	mov	r0, r2
+#ifdef RESET_PID
+	mov	ip, r2
+#endif
 	@ new sp is already in r1
-	@ load remaining arguments off the stack
-	stmfd	sp!, {r4}
-	ldr	r2, [sp, #4]
-	ldr	r3, [sp, #8]
-	ldr	r4, [sp, #12]
-	DO_CALL (clone)
-	movs	a1, a1
-	IT(t, ne)
-	ldmnefd	sp!, {r4}
+	push	{r4, r7}
+	cfi_adjust_cfa_offset (8)
+	cfi_rel_offset (r4, 0)
+	cfi_rel_offset (r7, 4)
+	ldr	r2, [sp, #8]
+	ldr	r3, [sp, #12]
+	ldr	r4, [sp, #16]
+	ldr	r7, =SYS_ify(clone)
+	swi	0x0
+	cfi_endproc
+	cmp	r0, #0
+	beq	1f
+	pop	{r4, r7}
 	blt	__error
 	IT(t, ne)
 	BXC(ne, lr)
 
+	cfi_startproc
+.fnend
+PSEUDO_END (__clone)
+
+1:
+	.fnstart
+	.cantunwind
+#ifdef RESET_PID
+	tst	ip, #CLONE_THREAD
+	bne	3f
+	GET_TLS (lr)
+	mov	r1, r0
+	tst	ip, #CLONE_VM
+	ldr	r7, =SYS_ify(getpid)
+	ite	ne
+	movne	r0, #-1
+	swieq	0x0
+	NEGOFF_ADJ_BASE (r1, TID_OFFSET)
+	str	r0, NEGOFF_OFF1 (r1, TID_OFFSET)
+	str	r0, NEGOFF_OFF2 (r1, PID_OFFSET, TID_OFFSET)
+3:
+#endif
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
 	mov	lr, pc

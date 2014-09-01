@@ -205,6 +205,42 @@ __local_syscall_error:						\
    sees the right arguments.
 
 */
+#if __ARM_ARCH > 6 || defined (__ARM_ARCH_6K__) || defined (__ARM_ARCH_6ZK__)
+# define ARCH_HAS_HARD_TP
+#endif
+
+# ifdef __thumb2__
+#  define NEGOFF_ADJ_BASE(R, OFF)	add R, R, $OFF
+#  define NEGOFF_ADJ_BASE2(D, S, OFF)	add D, S, $OFF
+#  define NEGOFF_OFF1(R, OFF)		[R]
+#  define NEGOFF_OFF2(R, OFFA, OFFB)	[R, $((OFFA) - (OFFB))]
+# else
+#  define NEGOFF_ADJ_BASE(R, OFF)
+#  define NEGOFF_ADJ_BASE2(D, S, OFF)	mov D, S
+#  define NEGOFF_OFF1(R, OFF)		[R, $OFF]
+#  define NEGOFF_OFF2(R, OFFA, OFFB)	[R, $OFFA]
+# endif
+
+# ifdef ARCH_HAS_HARD_TP
+/* If the cpu has cp15 available, use it.  */
+#  define GET_TLS(TMP)		mrc p15, 0, r0, c13, c0, 3
+# else
+/* At this generic level we have no tricks to pull.  Call the ABI routine.  */
+#  define GET_TLS(TMP)					\
+	push	{ r1, r2, r3, lr };			\
+	cfi_remember_state;				\
+	cfi_adjust_cfa_offset (16);			\
+	cfi_rel_offset (r1, 0);				\
+	cfi_rel_offset (r2, 4);				\
+	cfi_rel_offset (r3, 8);				\
+	cfi_rel_offset (lr, 12);			\
+	bl	__aeabi_read_tp;			\
+	pop	{ r1, r2, r3, lr };			\
+	cfi_restore_state
+# endif /* ARCH_HAS_HARD_TP */
+
+
+
 
 #undef	DO_CALL
 #if defined(__ARM_EABI__)
