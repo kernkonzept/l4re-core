@@ -124,9 +124,6 @@ _dl_realloc (void * __ptr, size_t __size)
  * the static TLS area already allocated for each running thread.  If this
  * object's TLS segment is too big to fit, we fail.  If it fits,
  * we set MAP->l_tls_offset and return.
- * This function intentionally does not return any value but signals error
- * directly, as static TLS should be rare and code handling it should
- * not be inlined as much as possible.
  */
 int
 internal_function __attribute_noinline__
@@ -193,12 +190,16 @@ _dl_try_allocate_static_tls(struct link_map *map)
 	return 0;
 }
 
+/*
+ * This function intentionally does not return any value but signals error
+ * directly, as static TLS should be rare and code handling it should
+ * not be inlined as much as possible.
+ */
 void
 internal_function __attribute_noinline__
 _dl_allocate_static_tls (struct link_map *map)
 {
-	if (_dl_try_allocate_static_tls(map))
-	{
+	if (_dl_try_allocate_static_tls (map)) {
 		_dl_dprintf(2, "cannot allocate memory in static TLS block");
 		_dl_exit(30);
 	}

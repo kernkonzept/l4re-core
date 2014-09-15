@@ -31,6 +31,8 @@
  */
 
 #include "ldso.h"
+#include "dl-tls.h"
+#include "tlsdeschtab.h"
 
 unsigned long
 _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
@@ -146,6 +148,9 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname;
+#if defined USE_TLS && USE_TLS
+	struct elf_resolve *tls_tpnt = NULL;
+#endif
 	struct symbol_ref sym_ref;
 	ElfW(Addr) *reloc_addr;
 	ElfW(Addr) symbol_addr;
@@ -172,15 +177,22 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		 * here, so all bases should be covered.
 		 */
 		if (unlikely (!symbol_addr &&
+					  ELF_ST_TYPE (sym_ref.sym->st_info) != STT_TLS &&
 					  ELF_ST_BIND (sym_ref.sym->st_info) != STB_WEAK)) {
-			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
-						 _dl_progname, symname);
-			_dl_exit (1);
+			return 1;
 		}
 		if (_dl_trace_prelink) {
 			_dl_debug_lookup (symname, tpnt, &symtab[symtab_index],
 						&sym_ref, elf_machine_type_class(reloc_type));
 		}
+#if defined USE_TLS && USE_TLS
+		tls_tpnt = sym_ref.tpnt;
+#endif
+	} else {
+		symbol_addr =symtab[symtab_index].st_value;
+#if defined USE_TLS && USE_TLS
+		tls_tpnt = tpnt;
+#endif
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -198,8 +210,8 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 	case R_XTENSA_RTLD:
 		if (rpnt->r_addend == 1) {
-			/* Grab the function pointer stashed at the beginning of the
-			   GOT by the GOT_INIT function.  */
+			/* Grab the function pointer stashed at the beginning
+			   of the GOT by the GOT_INIT function.  */
 			*reloc_addr = *(ElfW(Addr) *) tpnt->dynamic_info[DT_PLTGOT];
 		} else if (rpnt->r_addend == 2) {
 			/* Store the link map for the object.  */
@@ -212,6 +224,35 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	case R_XTENSA_RELATIVE:
 		*reloc_addr += tpnt->loadaddr + rpnt->r_addend;
 		break;
+
+#if defined USE_TLS && USE_TLS
+	case R_XTENSA_TLS_TPOFF:
+		CHECK_STATIC_TLS((struct link_map *) tls_tpnt);
+		*reloc_addr = symbol_addr + tls_tpnt->l_tls_offset + rpnt->r_addend;
+		break;
+	case R_XTENSA_TLSDESC_FN:
+#ifndef SHARED
+		CHECK_STATIC_TLS((struct link_map *) tls_tpnt);
+#else
+		if (!TRY_STATIC_TLS ((struct link_map *) tls_tpnt))
+			*reloc_addr = (ElfW(Addr)) _dl_tlsdesc_dynamic;
+		else
+#endif
+			*reloc_addr = (ElfW(Addr)) _dl_tlsdesc_return;
+		break;
+	case R_XTENSA_TLSDESC_ARG:
+#ifndef SHARED
+		CHECK_STATIC_TLS((struct link_map *) tls_tpnt);
+#else
+		if (!TRY_STATIC_TLS ((struct link_map *) tls_tpnt))
+			*reloc_addr = (ElfW(Addr))
+				_dl_make_tlsdesc_dynamic((struct link_map *) tls_tpnt,
+										 symbol_addr + *reloc_addr);
+		else
+#endif
+			*reloc_addr += symbol_addr + tls_tpnt->l_tls_offset;
+		break;
+#endif
 
 	default:
 		return -1; /* Calls _dl_exit(1).  */

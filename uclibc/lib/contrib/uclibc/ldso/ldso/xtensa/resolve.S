@@ -31,13 +31,6 @@
 	.global	_dl_linux_resolve
 	.type	_dl_linux_resolve, @function
 _dl_linux_resolve:
-	/* Fix up the high 2 bits of the return address.  */
-	movi	a13, 0f
-	slli	a12, a0, 2
-0:	extui	a13, a13, 30, 2
-	ssai	2
-	src	a12, a13, a12
-
 	/* Call the fixup function.  */
 	movi	a8, _dl_linux_resolver
 	callx8	a8

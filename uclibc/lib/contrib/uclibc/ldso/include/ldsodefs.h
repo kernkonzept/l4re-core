@@ -69,6 +69,8 @@ extern void _dl_get_tls_static_info (size_t *sizep, size_t *alignp)
 
 extern void _dl_allocate_static_tls (struct link_map *map)
      internal_function attribute_hidden;
+extern int _dl_try_allocate_static_tls (struct link_map* map)
+     internal_function attribute_hidden;
 
 extern int _dl_try_allocate_static_tls (struct link_map *map)
      internal_function attribute_hidden;
@@ -76,9 +78,12 @@ extern int _dl_try_allocate_static_tls (struct link_map *map)
 /* Taken from glibc/elf/dl-reloc.c */
 #define CHECK_STATIC_TLS(sym_map)											\
 	do {																	\
-		if (unlikely((sym_map)->l_tls_offset == NO_TLS_OFFSET))	\
+		if (__builtin_expect ((sym_map)->l_tls_offset == NO_TLS_OFFSET, 0))	\
 			_dl_allocate_static_tls (sym_map);								\
 	} while (0)
+#define TRY_STATIC_TLS(sym_map)												\
+	(__builtin_expect ((sym_map)->l_tls_offset != NO_TLS_OFFSET, 1)			\
+		 || _dl_try_allocate_static_tls (sym_map) == 0)
 
 #define TRY_STATIC_TLS(sym_map) \
        (__builtin_expect ((sym_map)->l_tls_offset != NO_TLS_OFFSET, 1) \

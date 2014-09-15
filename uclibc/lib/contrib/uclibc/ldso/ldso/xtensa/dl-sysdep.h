@@ -36,6 +36,7 @@ typedef struct xtensa_got_location_struct {
   do {									      \
     xtensa_got_location *got_loc;					      \
     Elf32_Addr l_addr = MODULE->loadaddr;				      \
+    Elf32_Addr prev_got_start = 0, prev_got_end = 0;			      \
     int x;								      \
 									      \
     got_loc = (xtensa_got_location *)					      \
@@ -47,7 +48,28 @@ typedef struct xtensa_got_location_struct {
 	got_start = got_loc[x].offset & ~(PAGE_SIZE - 1);		      \
 	got_end = ((got_loc[x].offset + got_loc[x].length + PAGE_SIZE - 1)    \
 		   & ~(PAGE_SIZE - 1));					      \
-	_dl_mprotect ((void *)(got_start + l_addr) , got_end - got_start,     \
+	if (got_end >= prev_got_start && got_start <= prev_got_end)	      \
+	  {								      \
+	    if (got_end > prev_got_end)					      \
+		prev_got_end = got_end;					      \
+	    if (got_start < prev_got_start)				      \
+		prev_got_start = got_start;				      \
+	    continue;							      \
+	  }								      \
+        else if (prev_got_start != prev_got_end)			      \
+	  {								      \
+	    _dl_mprotect ((void *)(prev_got_start + l_addr),		      \
+			  prev_got_end - prev_got_start,		      \
+			  PROT_READ | PROT_WRITE | PROT_EXEC);		      \
+          }								      \
+        prev_got_start = got_start;					      \
+        prev_got_end = got_end;						      \
+      }									      \
+									      \
+    if (prev_got_start != prev_got_end)					      \
+      {									      \
+        _dl_mprotect ((void *)(prev_got_start + l_addr),		      \
+		      prev_got_end - prev_got_start,			      \
 		      PROT_READ | PROT_WRITE | PROT_EXEC);		      \
       }									      \
 									      \
@@ -78,10 +100,13 @@ typedef struct xtensa_got_location_struct {
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 
-/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry, so
-   undefined references should not be allowed to define the value.  */
+/* ELF_RTYPE_CLASS_PLT iff TYPE describes relocation of a PLT entry or
+   TLS variable, so undefined references should not be allowed to define
+   the value.  */
 #define elf_machine_type_class(type) \
-  (((type) == R_XTENSA_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)
+  (((type) == R_XTENSA_JMP_SLOT || (type) == R_XTENSA_TLS_TPOFF \
+   || (type) == R_XTENSA_TLSDESC_FN || (type) == R_XTENSA_TLSDESC_ARG) \
+   * ELF_RTYPE_CLASS_PLT)
 
 /* Return the link-time address of _DYNAMIC.  */
 static __always_inline Elf32_Addr

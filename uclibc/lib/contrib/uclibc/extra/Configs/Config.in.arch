@@ -191,7 +191,7 @@ config UCLIBC_HAS_FENV
 config UCLIBC_HAS_LONG_DOUBLE_MATH
 	bool "Enable long double support"
 	depends on DO_C99_MATH
-	depends on TARGET_i386 || TARGET_m68k || TARGET_sparc || TARGET_x86_64 || TARGET_powerpc || TARGET_sh || TARGET_microblaze
+	depends on TARGET_i386 || TARGET_m68k || TARGET_sparc || TARGET_x86_64 || TARGET_powerpc || TARGET_sh || TARGET_microblaze || TARGET_xtensa
 	default y
 	help
 	  If you want the uClibc math library to contain the full set of C99

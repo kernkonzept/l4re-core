@@ -134,6 +134,8 @@ struct link_map
     size_t l_tls_modid;
     /* Nonzero if _dl_init_static_tls should be called for this module */
     unsigned int l_need_tls_init:1;
+    /* Address of TLS descriptor hash table.  */
+    void *l_tlsdesc_table;
 #endif
 #endif
   };
