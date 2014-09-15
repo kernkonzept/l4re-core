@@ -5,7 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_linux_arch_SSRC = pt-vfork.S clone.S
+libpthread_linux_arch_SSRC = clone.S
 libpthread_linux_arch_CSRC = pthread_once.c lowlevellock.c \
 	pthread_barrier_init.c pthread_barrier_wait.c pthread_barrier_destroy.c \
 	pt-__syscall_error.c
