@@ -66,14 +66,14 @@ config TARGET_c6x
 config TARGET_cris
 	bool "cris"
 
-config TARGET_e1
-	bool "e1 (BROKEN)"
+#config TARGET_e1
+#	bool "e1 (BROKEN)"
 
-config TARGET_frv
-	bool "frv (BROKEN)"
+#config TARGET_frv
+#	bool "frv (BROKEN)"
 
-config TARGET_h8300
-	bool "h8300 (BROKEN)"
+#config TARGET_h8300
+#	bool "h8300 (BROKEN)"
 
 config TARGET_hppa
 	bool "hppa"
@@ -81,8 +81,8 @@ config TARGET_hppa
 config TARGET_i386
 	bool "i386"
 
-config TARGET_i960
-	bool "i960 (BROKEN)"
+#config TARGET_i960
+#	bool "i960 (BROKEN)"
 
 config TARGET_ia64
 	bool "ia64"
@@ -99,8 +99,8 @@ config TARGET_microblaze
 config TARGET_mips
 	bool "mips"
 
-config TARGET_nios
-	bool "nios"
+#config TARGET_nios
+#	bool "nios"
 
 config TARGET_nios2
 	bool "nios2"
@@ -117,8 +117,8 @@ config TARGET_sh64
 config TARGET_sparc
 	bool "sparc"
 
-config TARGET_v850
-	bool "v850 (BROKEN)"
+#config TARGET_v850
+#	bool "v850 (BROKEN)"
 
 config TARGET_vax
 	bool "vax"
