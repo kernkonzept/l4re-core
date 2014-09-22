@@ -517,6 +517,16 @@ config LINUXTHREADS_OLD
 	bool "older (stable) version of linuxthreads"
 	# linuxthreads and linuxthreads.old need nanosleep()
 	select UCLIBC_HAS_REALTIME
+	depends on !TARGET_arc && \
+		   !TARGET_arm && \
+		   !TARGET_i386 && \
+		   !TARGET_metag && \
+		   !TARGET_mips && \
+		   !TARGET_powerpc && \
+		   !TARGET_sh && \
+		   !TARGET_sparc && \
+		   !TARGET_x86_64 && \
+		   !TARGET_xtensa
 	help
 	  There are two versions of linuxthreads.  The older (stable) version
 	  has been in uClibc for quite a long time but hasn't seen too many
@@ -526,6 +536,16 @@ config LINUXTHREADS_OLD
 config LINUXTHREADS_NEW
 	bool "slightly newer version of linuxthreads"
 	depends on ARCH_HAS_DEPRECATED_SYSCALLS
+	depends on !TARGET_arc && \
+		   !TARGET_arm && \
+		   !TARGET_i386 && \
+		   !TARGET_metag && \
+		   !TARGET_mips && \
+		   !TARGET_powerpc && \
+		   !TARGET_sh && \
+		   !TARGET_sparc && \
+		   !TARGET_x86_64 && \
+		   !TARGET_xtensa
 	help
 	  The new version has not been tested much, and lacks ports for arches
 	  which glibc does not support (like bfin/frv/etc...), but is based on
@@ -538,23 +558,20 @@ config UCLIBC_HAS_THREADS_NATIVE
 	select UCLIBC_HAS_STDIO_FUTEXES
 	select UCLIBC_HAS_REALTIME
 	# i386 has no lowlevellock support (yet) as opposed to i486 onward
-	depends on !CONFIG_386
+	depends on !CONFIG_386 && \
+		   !TARGET_alpha && \
+		   !TARGET_avr32 && \
+		   !TARGET_bfin && \
+		   !TARGET_c6x && \
+		   !TARGET_cris && \
+		   !TARGET_hppa && \
+		   !TARGET_ia64 && \
+		   !TARGET_m68k && \
+		   !TARGET_microblaze && \
+		   !TARGET_nios2 && \
+		   !TARGET_vax
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
-
-	  IMPORTANT NOTE!  NPTL requires a Linux 2.6 kernel, binutils
-	  at least version 2.16 and GCC with at least version 4.1.0. NPTL
-	  will not work with older versions of any above sources. If you
-	  ignore any of these guidelines, you do so at your own risk. Do
-	  not ask for help on any of the development mailing lists.
-
-	  !!!! WARNING !!!! BIG FAT WARNING !!!! REALLY BIG FAT WARNING !!!!
-
-	  This is experimental code and at times it may not even build and
-	  even if it does it might decide to do random damage. This code is
-	  potentially hazardous to your health and sanity. It will remain
-	  that way until further notice at which point this notice will
-	  disappear. Thank you for your support and for not smoking.
 
 endchoice
 
