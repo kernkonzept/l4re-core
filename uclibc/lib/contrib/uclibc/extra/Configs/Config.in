@@ -467,7 +467,7 @@ config LDSO_NO_CLEANUP
 	  Unless you know you need this, you should answer N.
 
 config UCLIBC_CTOR_DTOR
-	bool "Support global constructors and destructors"
+	boolean
 	default y
 	help
 	  If you wish to build uClibc with support for global constructor
