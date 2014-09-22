@@ -35,7 +35,7 @@ ENTRY (__syscall_error)
 	/* Note that __syscall_error is only visible within this library,
 	   and no-one passes it on as a pointer, so can assume that R0 (GOT
 	   pointer) is correctly set up.  */
-	PLTCALL	(HIDDEN_JUMPTARGET(__errno_location))
+	PLTCALL	(__errno_location)
 
 	move	[sp+],srp
 	move.d	[sp+],r11
