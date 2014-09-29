@@ -802,11 +802,7 @@ ASFLAGS += $(ASFLAG_--noexecstack)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
 $(eval $(call cache-output-var,LIBGCC,$(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name))
-$(eval $(call cache-output-var,LIBGCC_EH,$(CC) $(LIBGCC_CFLAGS) -print-file-name=libgcc_eh.a))
-# with -O0 we (e.g. lockf) might end up with references to
-# _Unwind_Resume, so pull in gcc_eh in this case..
 LIBGCC_DIR:=$(dir $(LIBGCC))
-LIBGCC += $(if $(DODEBUG),$(LIBGCC_EH))
 
 # moved from libpthread/linuxthreads
 ifeq ($(UCLIBC_CTOR_DTOR),y)
