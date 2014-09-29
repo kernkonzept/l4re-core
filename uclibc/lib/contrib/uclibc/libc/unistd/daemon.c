@@ -69,7 +69,6 @@
 /* use clone() to get fork() like behavior here -- we just want to disassociate
  * from the controlling terminal
  */
-static inline attribute_optimize("O3")
 pid_t _fork_parent(void)
 {
 	INTERNAL_SYSCALL_DECL(err);
