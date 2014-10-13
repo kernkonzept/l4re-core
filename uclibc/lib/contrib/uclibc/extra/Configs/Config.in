@@ -45,8 +45,8 @@ choice
 	help
 	  The architecture of your target.
 
-config TARGET_alpha
-	bool "alpha"
+#config TARGET_alpha
+#	bool "alpha"
 
 config TARGET_arc
 	bool "arc"
@@ -77,8 +77,8 @@ config TARGET_cris
 #config TARGET_h8300
 #	bool "h8300 (BROKEN)"
 
-config TARGET_hppa
-	bool "hppa"
+#config TARGET_hppa
+#	bool "hppa"
 
 config TARGET_i386
 	bool "i386"
@@ -86,17 +86,17 @@ config TARGET_i386
 #config TARGET_i960
 #	bool "i960 (BROKEN)"
 
-config TARGET_ia64
-	bool "ia64"
+#config TARGET_ia64
+#	bool "ia64"
 
 config TARGET_m68k
 	bool "m68k"
 
-config TARGET_metag
-	bool "metag"
+#config TARGET_metag
+#	bool "metag"
 
-config TARGET_microblaze
-	bool "microblaze"
+#config TARGET_microblaze
+#	bool "microblaze"
 
 config TARGET_mips
 	bool "mips"
@@ -104,8 +104,8 @@ config TARGET_mips
 #config TARGET_nios
 #	bool "nios"
 
-config TARGET_nios2
-	bool "nios2"
+#config TARGET_nios2
+#	bool "nios2"
 
 config TARGET_powerpc
 	bool "powerpc"
@@ -113,8 +113,8 @@ config TARGET_powerpc
 config TARGET_sh
 	bool "superh"
 
-config TARGET_sh64
-	bool "sh64"
+#config TARGET_sh64
+#	bool "sh64"
 
 config TARGET_sparc
 	bool "sparc"
@@ -122,8 +122,8 @@ config TARGET_sparc
 #config TARGET_v850
 #	bool "v850 (BROKEN)"
 
-config TARGET_vax
-	bool "vax"
+#config TARGET_vax
+#	bool "vax"
 
 config TARGET_x86_64
 	bool "x86_64"
