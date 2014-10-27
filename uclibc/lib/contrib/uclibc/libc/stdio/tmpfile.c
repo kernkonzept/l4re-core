@@ -35,7 +35,7 @@ FILE * tmpfile (void)
 
     if (__path_search (buf, FILENAME_MAX, NULL, "tmpf", 0))
 	return NULL;
-    fd = __gen_tempname (buf, __GT_FILE, S_IRUSR | S_IWUSR);
+    fd = __gen_tempname (buf, __GT_FILE, 0, S_IRUSR | S_IWUSR);
     if (fd < 0)
 	return NULL;
 

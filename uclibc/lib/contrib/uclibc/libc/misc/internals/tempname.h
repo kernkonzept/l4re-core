@@ -10,7 +10,7 @@ extern int ___path_search (char *tmpl, size_t tmpl_len, const char *dir,
 	        const char *pfx /*, int try_tmpdir */) attribute_hidden;
 #define __path_search(tmpl, tmpl_len, dir, pfx, try_tmpdir) ___path_search(tmpl, tmpl_len, dir, pfx)
 
-extern int __gen_tempname (char *__tmpl, int __kind, mode_t mode) attribute_hidden;
+extern int __gen_tempname (char *__tmpl, int __kind, int flags, mode_t mode) attribute_hidden;
 
 /* The __kind argument to __gen_tempname may be one of: */
 #define __GT_FILE     0       /* create a file */

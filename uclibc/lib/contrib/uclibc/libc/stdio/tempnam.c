@@ -35,7 +35,7 @@ tempnam (const char *dir, const char *pfx)
   if (__path_search (buf, FILENAME_MAX, dir, pfx, 1))
     return NULL;
 
-  if (__gen_tempname (buf, __GT_NOCREATE, 0))
+  if (__gen_tempname (buf, __GT_NOCREATE, 0, 0))
     return NULL;
 
   return strdup (buf);

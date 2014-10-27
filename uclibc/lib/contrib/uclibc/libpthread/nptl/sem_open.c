@@ -336,7 +336,7 @@ sem_open (const char *name, int oflag, ...)
       mempcpy (mempcpy (tmpfname, mountpoint.dir, mountpoint.dirlen),
 	"XXXXXX", 7);
 
-      fd = __gen_tempname (tmpfname, __GT_FILE, mode);
+      fd = __gen_tempname (tmpfname, __GT_FILE, 0, mode);
       if (fd == -1)
         return SEM_FAILED;
 

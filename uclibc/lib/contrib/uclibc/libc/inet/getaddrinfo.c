@@ -308,7 +308,7 @@ gaih_local(const char *name, const struct gaih_service *service,
 		char *buf = ((struct sockaddr_un *)ai->ai_addr)->sun_path;
 
 		if (__path_search(buf, L_tmpnam, NULL, NULL, 0) != 0
-		 || __gen_tempname(buf, __GT_NOCREATE, 0) != 0
+		 || __gen_tempname(buf, __GT_NOCREATE, 0, 0) != 0
 		) {
 			return -EAI_SYSTEM;
 		}

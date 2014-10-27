@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include "../misc/internals/tempname.h"
 
 /* Generate a unique temporary file name from TEMPLATE.
@@ -26,5 +27,6 @@
 int
 mkostemp (char *template, int flags)
 {
-  return __gen_tempname (template, __GT_FILE, flags);
+  flags -= flags & O_ACCMODE; /* Remove O_RDONLY, O_WRONLY, and O_RDWR. */
+  return __gen_tempname (template, __GT_FILE, flags, S_IRUSR | S_IWUSR);
 }

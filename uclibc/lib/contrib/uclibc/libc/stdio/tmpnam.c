@@ -40,7 +40,7 @@ tmpnam (char *s)
 			0))
     return NULL;
 
-  if (__builtin_expect (__gen_tempname (tmpbuf, __GT_NOCREATE, 0), 0))
+  if (__builtin_expect (__gen_tempname (tmpbuf, __GT_NOCREATE, 0, 0), 0))
     return NULL;
 
   if (s == NULL)

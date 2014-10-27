@@ -26,5 +26,5 @@
    Then open the file and return a fd. */
 int mkstemp (char *template)
 {
-    return __gen_tempname (template, __GT_FILE, S_IRUSR | S_IWUSR);
+    return __gen_tempname (template, __GT_FILE, 0, S_IRUSR | S_IWUSR);
 }

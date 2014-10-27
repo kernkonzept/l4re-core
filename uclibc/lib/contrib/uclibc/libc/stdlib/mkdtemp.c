@@ -29,7 +29,7 @@
    (This function comes from OpenBSD.) */
 char * mkdtemp (char *template)
 {
-  if (__gen_tempname (template, __GT_DIR, S_IRUSR | S_IWUSR | S_IXUSR))
+  if (__gen_tempname (template, __GT_DIR, 0, S_IRUSR | S_IWUSR | S_IXUSR))
     return NULL;
   else
     return template;
