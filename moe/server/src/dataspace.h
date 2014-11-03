@@ -141,20 +141,6 @@ public:
                    l4_addr_t offset, l4_size_t size)
   { return pre_allocate(offset, size, rights & 3); }
 
-  long op_phys(L4Re::Dataspace::Rights,
-               l4_addr_t offset, l4_addr_t &phys_addr,
-               l4_size_t &phys_size)
-  {
-    phys_size = (l4_size_t)~0;
-    L4Re::Dma_space::Dma_addr pa = phys_addr;
-    int r = dma_map(0, offset, &phys_size, Dma_attribs::None,
-                    L4Re::Dma_space::Bidirectional, &pa);
-    if (r < 0)
-      return r;
-    phys_addr = pa;
-    return r;
-  }
-
   long op_copy_in(L4Re::Dataspace::Rights rights, l4_addr_t dst_offs,
                   L4::Ipc::Snd_fpage const &src_cap,
                   l4_addr_t src_offs, unsigned long sz);

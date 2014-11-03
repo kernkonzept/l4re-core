@@ -223,26 +223,6 @@ public:
   L4_RPC(long, copy_in, (l4_addr_t dst_offs, L4::Ipc::Cap<Dataspace> src,
                          l4_addr_t src_offs, unsigned long size));
 
-
-  /**
-   * Get the physical addresses of a dataspace.
-   *
-   * \param  offset     Offset in dataspace
-   * \retval phys_addr  Physical address.
-   * \retval phys_size  Size of largest physically contiguous region
-   *                    in the dataspace after `phys_addr` (in bytes).
-   *
-   * \retval L4_EOK      Success
-   * \retval -L4_EINVAL  Dataspace is not pinned.
-   * \retval <0          IPC errors
-   *
-   * This call will only succeed on pinned memory dataspaces.
-   *
-   * \deprecated Use L4Re::Dma_space instead. This function will be removed
-   *             in future releases.
-   */
-  L4_RPC(long, phys, (l4_addr_t offset, l4_addr_t &phys_addr, l4_size_t &phys_size));
-
   /**
    * Get size of a dataspace.
    *
@@ -302,7 +282,7 @@ private:
 
 public:
   typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t, take_t,
-                           release_t, phys_t, allocate_t> Rpcs;
+                           release_t, allocate_t> Rpcs;
 
 };
 

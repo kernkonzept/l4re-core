@@ -26,7 +26,6 @@
 L4_RPC_DEF(L4Re::Dataspace::clear);
 L4_RPC_DEF(L4Re::Dataspace::allocate);
 L4_RPC_DEF(L4Re::Dataspace::copy_in);
-L4_RPC_DEF(L4Re::Dataspace::phys);
 L4_RPC_DEF(L4Re::Dataspace::info);
 L4_RPC_DEF(L4Re::Dataspace::take);
 L4_RPC_DEF(L4Re::Dataspace::release);

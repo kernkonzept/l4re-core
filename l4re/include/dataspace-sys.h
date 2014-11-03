@@ -31,7 +31,7 @@ namespace L4Re
      * \ingroup api_l4re_protocols
      * \internal
      */
-    enum Opcodes { Map, Clear, Stats, Copy, Take, Release, Phys, Allocate };
+    enum Opcodes { Map, Clear, Stats, Copy, Take, Release, Allocate };
   };
 };
 

@@ -120,10 +120,4 @@ Dataspace_svr::clear(l4_addr_t offs, unsigned long ds_size) const throw()
   return ds_size;
 }
 
-int
-Dataspace_svr::phys(l4_addr_t /*offset*/, l4_addr_t &/*phys_addr*/, l4_size_t &/*phys_size*/) throw()
-{
-  return -L4_EINVAL;
-}
-
 }}

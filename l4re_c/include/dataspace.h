@@ -140,27 +140,4 @@ l4re_ds_flags(const l4re_ds_t ds) L4_NOTHROW;
 L4_CV int
 l4re_ds_info(const l4re_ds_t ds, l4re_ds_stats_t *stats) L4_NOTHROW;
 
-/**
- * \ingroup api_l4re_c_ds
- * \brief Return physical address.
- *
- * \param ds         Dataspace
- * \param offset     Offset in bytes in dataspace
- * \retval phys_addr Physical address
- * \retval phys_size Size of physically contiguous region starting from
- *                   \a phys_addr (in bytes).
- * \return 0 for success, <0 on error
- *
- * The function returns the physical address of an offset in a dataspace.
- * Use multiple calls of the function to get all physical regions in case of
- * physically non-contiguous dataspaces.
- *
- *
- * \see L4Re::Dataspace::phys
- */
-L4_CV int
-l4re_ds_phys(const l4re_ds_t ds, l4_addr_t offset,
-             l4_addr_t *phys_addr, l4_size_t *phys_size) L4_NOTHROW;
-
-
 EXTERN_C_END

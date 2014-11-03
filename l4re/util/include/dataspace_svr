@@ -91,18 +91,6 @@ public:
   }
 
   /**
-   * Return physical address for a virtual address
-   *
-   * \param      offset     Offset into the dataspace
-   * \param[out] phys_addr  Physical address
-   * \param[out] phys_size  Size of continuous physical region
-   *
-   * \retval 0   Success
-   * \retval <0  Error
-   */
-  virtual int phys(l4_addr_t offset, l4_addr_t &phys_addr, l4_size_t &phys_size) throw();
-
-  /**
    * Take a reference to this dataspace
    *
    * Default does nothing.
@@ -229,10 +217,6 @@ public:
 
     return copy(dst_offs, src_cap.data(), src_offs, sz);
   }
-
-  long op_phys(L4Re::Dataspace::Rights, l4_addr_t offset,
-               l4_addr_t &phys_addr, l4_size_t &phys_size)
-  { return phys(offset, phys_addr, phys_size); }
 
   long op_info(L4Re::Dataspace::Rights rights, L4Re::Dataspace::Stats &s)
   {

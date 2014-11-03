@@ -65,15 +65,6 @@ l4re_ds_copy_in(const l4re_ds_t ds, l4_addr_t dst_offs, const l4re_ds_t src,
   return x->copy_in(dst_offs, srcds, src_offs, size);
 }
 
-
-int
-l4re_ds_phys(const l4re_ds_t ds, l4_addr_t offset,
-             l4_addr_t *phys_addr, l4_size_t *phys_size) L4_NOTHROW
-{
-  L4::Cap<L4Re::Dataspace> x(ds);
-  return x->phys(offset, *phys_addr, *phys_size);
-}
-
 unsigned long
 l4re_ds_size(const l4re_ds_t ds) L4_NOTHROW
 {
