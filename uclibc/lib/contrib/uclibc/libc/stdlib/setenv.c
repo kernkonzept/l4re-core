@@ -41,7 +41,7 @@ static char **last_environ;
    to reuse values once generated for a `setenv' call since we can never
    free the strings. [in uclibc, we do not]  */
 static int __add_to_environ(const char *name, const char *value,
- 		int replace)
+		int replace)
 {
 	register char **ep;
 	register size_t size;
@@ -116,6 +116,11 @@ static int __add_to_environ(const char *name, const char *value,
 
 int setenv(const char *name, const char *value, int replace)
 {
+	if (name == NULL || *name == '\0' || strchr (name, '=') != NULL) {
+		__set_errno(EINVAL);
+		return -1;
+	}
+
 	/* NB: setenv("VAR", NULL, 1) inserts "VAR=" string */
 	return __add_to_environ(name, value ? value : "", replace);
 }
