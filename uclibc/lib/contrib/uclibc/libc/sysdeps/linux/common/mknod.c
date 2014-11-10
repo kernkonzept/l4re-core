@@ -24,6 +24,10 @@ int mknod(const char *path, mode_t mode, dev_t dev)
 	/* We must convert the value to dev_t type used by the kernel.  */
 	k_dev = (dev) & ((1ULL << 32) - 1);
 
+	if (k_dev != dev) {
+		__set_errno (EINVAL);
+		return -1;
+	}
 	return INLINE_SYSCALL(mknod, 3, path, mode, (unsigned int)k_dev);
 }
 #endif
