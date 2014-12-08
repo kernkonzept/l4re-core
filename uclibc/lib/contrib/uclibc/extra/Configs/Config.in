@@ -1454,6 +1454,13 @@ config UCLIBC_HAS_STRING_ARCH_OPT
 	  These are small and fast, the only reason _not_ to say Y here is
 	  for debugging purposes.
 
+config UCLIBC_HAS_STDIO_FUTEXES
+	bool "Use futexes for multithreaded I/O locking"
+	depends on UCLIBC_HAS_THREADS_NATIVE
+	help
+	  If you want to compile uClibc to use futexes for low-level
+	  I/O locking, answer Y.  Otherwise, answer N.
+
 config UCLIBC_HAS_CTYPE_TABLES
 	bool "Use Table Versions Of 'ctype.h' Functions."
 	default y
@@ -1912,13 +1919,6 @@ config UCLIBC_HAS_GNU_GETOPT
 	  (much smaller) SUSv3 compatible getopt().
 
 	  Most people will answer Y.
-
-config UCLIBC_HAS_STDIO_FUTEXES
-	bool "Use futexes for multithreaded I/O locking"
-	depends on UCLIBC_HAS_THREADS_NATIVE
-	help
-	  If you want to compile uClibc to use futexes for low-level
-	  I/O locking, answer Y.  Otherwise, answer N.
 
 config UCLIBC_HAS_GETOPT_LONG
 	bool "Support getopt_long/getopt_long_only"
