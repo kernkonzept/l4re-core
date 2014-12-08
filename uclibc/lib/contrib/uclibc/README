@@ -1,73 +1,48 @@
+  uClibc-ng - a small C Library for Linux
 
-  uClibc - a Small C Library for Linux
-  Erik Andersen <andersen@codepoet.org>
+uClibc-ng (aka ÂµClibc-ng/pronounced yew-see-lib-see-next-generation) is a C
+library for developing embedded Linux systems. It is much smaller than the GNU
+C Library, but nearly all applications supported by glibc also work perfectly
+with uClibc-ng.
 
-uClibc (aka µClibc/pronounced yew-see-lib-see) is a C library for
-developing embedded Linux systems.  It is much smaller than the
-GNU C Library, but nearly all applications supported by glibc
-also work perfectly with uClibc.  Porting applications from glibc
-to uClibc typically involves just recompiling the source code.
-uClibc even supports shared libraries and threading.  It currently
-runs on standard Linux and MMU-less (also known as µClinux)
-systems with support for alpha, ARM, cris, e1, h8300, i386, i960,
-m68k, microblaze, mips/mipsel, PowerPC, SH, SPARC, and v850
-processors.
+uClibc-ng is a spin-off of uClibc from http://www.uclibc.org
+from Erik Andersen and others.
+
+Porting applications from glibc to uClibc-ng typically involves just
+recompiling the source code.  uClibc-ng even supports shared libraries and
+threading. It currently runs on standard Linux and MMU-less (also
+known as ÂµClinux) systems with support for ARC, ARM, Blackfin, i386, M68K/Coldfire
+MIPS, MIPS64, PowerPC, SH, Sparc, X86_64 and XTENSA processors.
 
 If you are building an embedded Linux system and you find that
 glibc is eating up too much space, you should consider using
-uClibc.  If you are building a huge fileserver with 12 Terabytes
+uClibc-ng.  If you are building a huge fileserver with 12 Terabytes
 of storage, then using glibc may make more sense.  Unless, for
 example, that 12 Terabytes will be Network Attached Storage and
 you plan to burn Linux into the system's firmware...
 
-uClibc is maintained by Erik Andersen and is licensed under the
+uClibc-ng is maintained by Waldemar Brodkorb and is licensed under the
 GNU LESSER GENERAL PUBLIC LICENSE.  This license allows you to
 make closed source commercial applications using an unmodified
-version of uClibc (Please consider sharing some of the money you
-make ;-).  You do not need to give away all your source code just
-because you use uClibc and/or run on Linux.  You should, however,
+version of uClibc-ng. You do not need to give away all your source code just
+because you use uClibc-ng and/or run on Linux.  You should, however,
 carefuly review the license and make certain you understand and
 abide by it strictly.
 
-
 For installation instructions, see the file INSTALL.
 
-uClibc strives to be standards compliant, which means that most
+uClibc-ng strives to be standards compliant, which means that most
 documentation written for SuSv3, or for glibc also applies to
-uClibc functions.  However, many GNU extensions are not supported
+uClibc-ng functions.  However, many GNU extensions are not supported
 because they have not been ported, or more importantly, would
-increase the size of uClibc disproportional to the added
-functionality.  There is some discussion of these differences
-in the "docs" directory.
+increase the size of uClibc-ng disproportional to the added
+functionality.
 
-Additional information (recent releases, FAQ, mailing list, bugs,
-etc.) can be found at http://www.uclibc.org/.
+Additional information can be found at http://www.uclibc-ng.org/.
 
-uClibc may be freely modified and distributed under the terms of
+uClibc-ng may be freely modified and distributed under the terms of
 the GNU Lesser General Public License, which can be found in the
-file COPYING.LIB.
-
-Please Note:
-
-	There is an unwholesomely huge amount of code out there
-	that depends on the presence of GNU libc header files.
-	We have GNU libc compatible header files.  So we have
-	committed a horrible sin in uClibc.  We _lie_ and claim
-	to be GNU libc in order to force these applications to
-	work as their developers intended.  This is IMHO,
-	pardonable, since these defines are not really intended
-	to check for the presence of a particular library, but
-	rather are used to define an _interface_.  Some programs
-	are especially chummy with glibc, and may need this
-	behavior disabled by adding CFLAGS+=-D__FORCE_NOGLIBC
-
-	If you want to make special exceptions in your code which are
-	specifically for uClibc, you can make certain to include features.h,
-	and then have your code check for uClibc as follows:
-
-	    #ifdef __UCLIBC__
-		    do_something_special();
-	    #endif
+file COPYING.
 
 And most of all, be sure to have some fun! :-)
- -Erik
+ -Waldemar

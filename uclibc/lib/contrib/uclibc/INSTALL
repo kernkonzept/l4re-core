@@ -1,21 +1,20 @@
 SOFTWARE REQUIREMENTS
 
-   Compiling uClibc requires Linux kernel header files.  uClibc will
+   Compiling uClibc-ng requires Linux kernel header files. uClibc-ng will
    be compiled to match the interfaces available in the provided
-   version of the Linux kernel headers.  Linux kernel version 2.0,
-   version 2.2, version 2.4 and version 2.6 are known to work.  Other
-   kernel versions may work but haven't been tested.  Its also helpful
-   to have a working version of GNU binutils, and GNU gcc -- using
-   excessively old versions of these packages can cause very strange
-   errors that are difficult to find and fix.
+   version of the Linux kernel headers. Linux kernel version 3.x is
+   supported.
+   Its also helpful to have a working version of GNU binutils, and 
+   GNU gcc -- using excessively old versions of these packages can 
+   cause very strange errors that are difficult to find and fix.
 
 
-CONFIGURING uClibc:
+CONFIGURING uClibc-ng:
 
- - Users must have a valid configuration file to compile uClibc.  Do not
+ - Users must have a valid configuration file to compile uClibc-ng.  Do not
     skip this step.  New configuration options are added in each
     release, and odd configuration options are sometimes removed.
-    To configure uClibc, you can run:
+    To configure uClibc-ng, you can run:
 
             make menuconfig
     or
@@ -39,10 +38,10 @@ CONFIGURING uClibc:
         "make allnoconfig"  Set all values to "no" for all options.
 
 
-COMPILING uClibc:
+COMPILING uClibc-ng:
 
- - uClibc does not have proper dependancy checking (yet) so if you
-    change your uClibc configuration, you must current rebuild the
+ - uClibc-ng does not have proper dependancy checking so if you
+    change your uClibc-ng configuration, you must current rebuild the
     entire library, by first running 
 
             make clean
@@ -51,30 +50,29 @@ COMPILING uClibc:
 
             make
 
-    to compile uClibc.  or if you are cross compiling, you would
+    to compile uClibc-ng.  or if you are cross compiling, you would
     instead run something like:
 
             make CROSS_COMPILE=arm-linux-
 
 
-INSTALLING the uClibc development environment:
+INSTALLING the uClibc-ng development environment:
 
  - As root, if necessary, run something like:
 
         make PREFIX=<some path> install
 
-    This will install the uClibc runtime and development system (i.e.
+    This will install the uClibc-ng runtime and development system (i.e.
     all the header files, libraries, etc) into the directories defined
     within your .config file.
 
 
-USING uClibc:
+USING uClibc-ng:
 
- - To compile programs with uClibc you will need a complete toolchain
-    (i.e. binutils, gcc, and uClibc) that was built expressly for use
-    with uClibc.
+ - To compile programs with uClibc-ng you will need a complete toolchain
+    (i.e. binutils, gcc and uClibc-ng) that was built expressly for use
+    with uClibc-ng.
 
- - Native and cross compiling toolchains, as well as makefiles for creating
-    uClibc toolchains, are available from the uClibc website.  You may want 
-    to check out "buildroot", which is available from the uClibc download area,
-    which provides examples of how to build your own uClibc based system.
+ - You have two choices at the moment:
+   - Use OpenADK from http://www.openadk.org
+   - Use your own build scripts or environment
