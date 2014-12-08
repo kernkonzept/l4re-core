@@ -149,6 +149,7 @@
 #define __UCLIBC_HAS_SIGNUM_MESSAGES__ 1
 #undef __UCLIBC_HAS_SYS_SIGLIST__
 #define __UCLIBC_HAS_GNU_GETOPT__ 1
+#define __UCLIBC_HAS_GETOPT_LONG__ 1
 #define __UCLIBC_HAS_GNU_GETSUBOPT__ 1
 
 /* Big and Tall */
@@ -213,6 +214,7 @@
 #define __UCLIBC_HAS_SIGNUM_MESSAGES__ 1
 #undef __UCLIBC_HAS_SYS_SIGLIST__
 #define __UCLIBC_HAS_GNU_GETOPT__ 1
+#define __UCLIBC_HAS_GETOPT_LONG__ 1
 #define __UCLIBC_HAS_GNU_GETSUBOPT__ 1
 
 /* Big and Tall */

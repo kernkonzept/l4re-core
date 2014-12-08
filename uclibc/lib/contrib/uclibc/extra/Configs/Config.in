@@ -1917,25 +1917,25 @@ config UCLIBC_HAS_GNU_GETOPT
 	help
 	  Answer Y if you want to include full gnu getopt() instead of a
 	  (much smaller) SUSv3 compatible getopt().
+	  Note that getopt_long, getopt_long_only as well as getsubopt
+	  are implemented on top of this choice.
 
 	  Most people will answer Y.
 
 config UCLIBC_HAS_GETOPT_LONG
-	bool "Support getopt_long/getopt_long_only"
-	depends on !UCLIBC_HAS_GNU_GETOPT
+	bool "Support getopt_long/getopt_long_only (glibc-compat)"
 	default y
 	help
-	  Answer Y if you want to include getopt_long[_only() used by many
-	  apps, even busybox.
+	  Answer Y if you want to include getopt_long[_only()] used by many
+	  apps.
 
 	  Most people will answer Y.
 
 config UCLIBC_HAS_GNU_GETSUBOPT
-	bool "Support glibc getsubopt"
+	bool "Support getsubopt"
 	default y
 	help
-	  Answer Y if you want to include glibc getsubopt() instead of a
-	  smaller SUSv3 compatible getsubopt().
+	  Answer Y if you want to include getsubopt().
 
 	  Most people will answer Y.
 endmenu

@@ -10,7 +10,6 @@
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <errno.h>
@@ -447,7 +446,7 @@ static void check_conf(struct menu *menu)
 }
 
 #if 00 // || !defined __UCLIBC__ || \
-	(defined UCLIBC_HAS_GETOPT_LONG || defined UCLIBC_HAS_GNU_GETOPT)
+	defined __UCLIBC_HAS_GETOPT_LONG__
 static struct option long_opts[] = {
 	{"oldaskconfig",    no_argument,       NULL, oldaskconfig},
 	{"oldconfig",       no_argument,       NULL, oldconfig},
@@ -526,7 +525,7 @@ int main(int ac, char **av)
 	tty_stdio = isatty(0) && isatty(1) && isatty(2);
 
 #if 00// !defined __UCLIBC__ || \
-	(defined UCLIBC_HAS_GETOPT_LONG || defined UCLIBC_HAS_GNU_GETOPT)
+	defined __UCLIBC_HAS_GETOPT_LONG__
 	while ((opt = getopt_long(ac, av, "", long_opts, NULL)) != -1)
 #else
 	char *gch = "asonymArDSld";

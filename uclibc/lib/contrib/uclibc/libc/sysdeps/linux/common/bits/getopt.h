@@ -126,7 +126,7 @@ extern int getopt (int ___argc, char *const *___argv, const char *__shortopts)
        __THROW;
 libc_hidden_proto(getopt)
 
-#if defined __UCLIBC_HAS_GNU_GETOPT__ || defined __UCLIBC_HAS_GETOPT_LONG__
+#if defined __UCLIBC_HAS_GETOPT_LONG__
 #ifndef __need_getopt
 extern int getopt_long (int ___argc, char *const *___argv,
 			const char *__shortopts,

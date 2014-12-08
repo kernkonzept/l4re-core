@@ -1162,6 +1162,7 @@ getopt (int argc, char *const *argv, const char *optstring)
 }
 libc_hidden_def(getopt)
 
+#if defined __UCLIBC_HAS_GETOPT_LONG__
 int
 getopt_long (int argc, char *const *argv, const char *options,
 	     const struct option *long_options, int *opt_index)
@@ -1180,5 +1181,6 @@ getopt_long_only (int argc, char *const *argv, const char *options,
 {
   return _getopt_internal (argc, argv, options, long_options, opt_index, 1);
 }
+#endif /* __UCLIBC_HAS_GETOPT_LONG__ */
 
 #endif	/* Not ELIDE_CODE.  */
