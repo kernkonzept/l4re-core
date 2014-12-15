@@ -45,11 +45,6 @@
  */
 #define isnan(x)             ((x) != (x))
 
-/* Without seminumerical functions to examine the sign bit, this is
- * about the best we can do to test for '-0'.
- */
-#define zeroisnegative(x)    ((1./(x)) < 0)
-
 /*****************************************************************************/
 /* Don't change anything that follows peroid!!!  ;-)                         */
 /*****************************************************************************/
@@ -262,7 +257,13 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 
 	if (x == 0) {				/* Handle 0 now to avoid false positive. */
 #ifdef __UCLIBC_HAVE_SIGNED_ZERO__
-		if (zeroisnegative(x)) { /* Handle 'signed' zero. */
+		union {
+			double x;
+			struct {
+				unsigned int l1, l2;
+			} i;
+		} u = {x};
+		if (u.i.l1 ^ u.i.l2) { /* Handle 'signed' zero. */
 			*sign_str = '-';
 		}
 #endif /* __UCLIBC_HAVE_SIGNED_ZERO__ */
