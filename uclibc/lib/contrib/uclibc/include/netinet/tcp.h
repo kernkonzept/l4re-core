@@ -51,6 +51,16 @@
 #define	TCP_QUICKACK	 12	/* Bock/reenable quick ACKs.  */
 #define TCP_CONGESTION	 13	/* Congestion control algorithm.  */
 #define TCP_MD5SIG	 14	/* TCP MD5 Signature (RFC2385) */
+#define TCP_COOKIE_TRANSACTIONS  15 /* TCP Cookie Transactions */
+#define TCP_THIN_LINEAR_TIMEOUTS 16 /* Use linear timeouts for thin streams*/
+#define TCP_THIN_DUPACK          17 /* Fast retrans. after 1 dupack */
+#define TCP_USER_TIMEOUT         18 /* How long for loss retry before timeout */
+#define TCP_REPAIR               19 /* TCP sock is under repair right now */
+#define TCP_REPAIR_QUEUE         20 /* Set TCP queue to repair */
+#define TCP_QUEUE_SEQ            21 /* Set sequence number of repaired queue. */
+#define TCP_REPAIR_OPTIONS       22 /* Repair TCP connection options */
+#define TCP_FASTOPEN             23 /* Enable FastOpen on listeners */
+#define TCP_TIMESTAMP            24 /* TCP time stamp */
 
 #ifdef __USE_MISC
 # include <sys/types.h>
