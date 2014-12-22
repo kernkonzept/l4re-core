@@ -243,12 +243,12 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 					case R_MIPS_TLS_DTPMOD64:
 					case R_MIPS_TLS_DTPMOD32:
 						if (tls_tpnt)
-							*(ElfW(Word) *)reloc_addr = tls_tpnt->l_tls_modid;
+							*(ElfW(Addr) *)reloc_addr = tls_tpnt->l_tls_modid;
 						break;
 
 					case R_MIPS_TLS_DTPREL64:
 					case R_MIPS_TLS_DTPREL32:
-						*(ElfW(Word) *)reloc_addr +=
+						*(ElfW(Addr) *)reloc_addr +=
 							TLS_DTPREL_VALUE (symbol_addr);
 						break;
 
