@@ -10,8 +10,16 @@
 #include <bits/wordsize.h>
 #include <sys/syscall.h>
 
+#if defined __mips__
+# include <sgidefs.h>
+#endif
+
 /* 64bit ports tend to favor newfstatat() */
 #if __WORDSIZE == 64 && defined __NR_newfstatat
+# define __NR_fstatat64 __NR_newfstatat
+#endif
+/* mips N32 ABI use newfstatat(), too */
+#if defined __mips__ && _MIPS_SIM == _ABIN32
 # define __NR_fstatat64 __NR_newfstatat
 #endif
 
