@@ -160,5 +160,6 @@ FORWARD2(__pthread_unwind,
 		       /* We cannot call abort() here.  */
 		       INTERNAL_SYSCALL_DECL (err);
 		       INTERNAL_SYSCALL (kill, err, 1, SIGKILL);
+		       __builtin_unreachable();
 		     })
 #undef return
