@@ -2488,11 +2488,4 @@ config DOMULTI
 
 	  If unsure, keep the default of N.
 
-config UCLIBC_MJN3_ONLY
-	bool "Manuel's hidden warnings"
-	help
-	  Answer Y here to see all Manuel's personal notes, warnings, and todos.
-
-	  Most people will answer N.
-
 endmenu
