@@ -105,7 +105,7 @@ inet_ntop6(const u_char *src, char *dst, size_t size)
 	 * to use pointer overlays.  All the world's not a VAX.
 	 */
 	char tmp[sizeof ("ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255")], *tp;
-	struct { int base, len; } best = { 0, 0 }, cur;
+	struct { int base, len; } best = { 0, 0 }, cur = { 0, 0 };
 	u_int words[8];
 	int i;
 
