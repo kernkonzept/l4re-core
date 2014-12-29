@@ -124,8 +124,6 @@ FILE *popen(const char *command, const char *modes)
 	return NULL;
 }
 
-#warning is pclose correct wrt the new mutex semantics?
-
 int pclose(FILE *stream)
 {
 	struct popen_list_item *p;

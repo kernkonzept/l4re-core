@@ -97,8 +97,6 @@ int fflush_unlocked(register FILE *stream)
 		while(stream) {
 			/* We only care about currently writing streams and do not want to
 			 * block trying to obtain mutexes on non-writing streams. */
-#warning fix for nonatomic
-#warning unnecessary check if no threads
 			if (__STDIO_STREAM_IS_WRITING(stream)) { /* ONLY IF ATOMIC!!! */
 				__MY_STDIO_THREADLOCK(stream);
 				/* Need to check again once we have the lock. */

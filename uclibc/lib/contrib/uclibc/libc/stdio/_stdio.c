@@ -195,7 +195,6 @@ void _stdio_term(void)
 	 * chain might be corrupt due to a partial store.
 	 */
 	STDIO_INIT_MUTEX(_stdio_openlist_add_lock);
-#warning check
 #ifdef __STDIO_BUFFERS
 	STDIO_INIT_MUTEX(_stdio_openlist_del_lock);
 #endif
