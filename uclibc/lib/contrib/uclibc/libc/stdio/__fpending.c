@@ -18,13 +18,6 @@
  * convert wide chars to their multibyte encodings and buffer _those_.
  */
 
-#ifdef __UCLIBC_HAS_WCHAR__
-#warning Note: Unlike the glibc version, this __fpending returns bytes in buffer for wide streams too!
-
-link_warning(__fpending, "This version of __fpending returns bytes remaining in buffer for both narrow and wide streams.  glibc's version returns wide chars in buffer for the wide stream case.")
-
-#endif
-
 size_t __fpending(register FILE * __restrict stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);

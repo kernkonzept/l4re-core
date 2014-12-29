@@ -68,10 +68,6 @@ typedef float __fpmax_t;
 
 #ifndef DECIMAL_DIG
 
-#ifdef L___strtofpmax
-/* Emit warning only once. */
-#warning DECIMAL_DIG is not defined! If you are using gcc, it may not be defining __STDC_VERSION__ as it should.
-#endif
 #if !defined(FLT_RADIX) || (FLT_RADIX != 2)
 #error unable to compensate for missing DECIMAL_DIG!
 #endif
