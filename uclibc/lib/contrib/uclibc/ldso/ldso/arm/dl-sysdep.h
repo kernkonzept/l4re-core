@@ -105,7 +105,7 @@ elf_machine_dynamic (void)
   return dynamic;
 }
 
-extern /*void*/ int __dl_start __asm__ ("_dl_start");
+extern char __dl_start[] __asm__("_dl_start");
 
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr __attribute__ ((unused))

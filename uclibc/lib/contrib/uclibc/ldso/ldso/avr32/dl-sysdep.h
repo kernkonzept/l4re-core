@@ -63,11 +63,12 @@ elf_machine_dynamic (void)
 	return *got;
 }
 
+extern char __dl_start[] __asm__("_dl_start");
+
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr
 elf_machine_load_address (void)
 {
-	extern void __dl_start __asm__("_dl_start");
 	Elf32_Addr got_addr = (Elf32_Addr) &__dl_start;
 	Elf32_Addr pcrel_addr;
 
