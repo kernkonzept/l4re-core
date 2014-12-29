@@ -553,9 +553,8 @@ enum {
 /**********************************************************************/
 
 #ifdef L_vfwscanf
-/* FIXME: "warning: the right operand of ">" changes sign when promoted" */
-#if WINT_MIN > EOF
-#error Unfortunately, we currently need wint_t to be able to store EOF.  Sorry.
+#if WINT_MIN > WEOF
+#error Unfortunately, we currently need wint_t to be able to store WEOF.  Sorry.
 #endif
 #define W_EOF WEOF
 #define Wint wint_t
