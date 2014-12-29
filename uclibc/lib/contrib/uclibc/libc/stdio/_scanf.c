@@ -1144,7 +1144,7 @@ int VFSCANF (FILE *__restrict fp, const Wchar *__restrict format, va_list arg)
 	unsigned char buf[MAX_DIGITS+2];
 #ifdef L_vfscanf
 	unsigned char scanset[UCHAR_MAX + 1];
-	unsigned char invert;		/* Careful!  Meaning changes. */
+	unsigned char invert = 0;	/* Careful!  Meaning changes. */
 #endif /* L_vfscanf */
 	unsigned char fail;
 	unsigned char zero_conversions = 1;
