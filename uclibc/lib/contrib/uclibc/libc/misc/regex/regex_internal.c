@@ -650,15 +650,8 @@ re_string_reconstruct (re_string_t *pstr, int idx, int eflags)
 			  mbstate_t cur_state;
 			  wchar_t wc2;
 			  int mlen = raw + pstr->len - p;
-			  unsigned char buf[6];
 			  size_t mbclen;
 
-			  if (BE (pstr->trans != NULL, 0))
-			    {
-			      int i = mlen < 6 ? mlen : 6;
-			      while (--i >= 0)
-				buf[i] = pstr->trans[p[i]];
-			    }
 			  /* XXX Don't use mbrtowc, we know which conversion
 			     to use (UTF-8 -> UCS4).  */
 			  memset (&cur_state, 0, sizeof (cur_state));
