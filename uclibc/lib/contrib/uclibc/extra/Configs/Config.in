@@ -95,8 +95,8 @@ config TARGET_m68k
 #config TARGET_metag
 #	bool "metag"
 
-#config TARGET_microblaze
-#	bool "microblaze"
+config TARGET_microblaze
+	bool "microblaze"
 
 config TARGET_mips
 	bool "mips"

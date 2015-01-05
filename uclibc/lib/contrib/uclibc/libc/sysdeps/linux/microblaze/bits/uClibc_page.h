@@ -20,7 +20,7 @@
 #ifndef _UCLIBC_PAGE_H
 #define _UCLIBC_PAGE_H
 
-#include <linux/autoconf.h>
+#include <generated/autoconf.h>
 
 #if   defined(CONFIG_MICROBLAZE_32K_PAGES)
 #define PAGE_SHIFT		15
