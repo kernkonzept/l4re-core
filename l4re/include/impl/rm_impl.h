@@ -25,6 +25,7 @@ L4_RPC_DEF(L4Re::Rm::detach);
 L4_RPC_DEF(L4Re::Rm::get_regions);
 L4_RPC_DEF(L4Re::Rm::get_areas);
 L4_RPC_DEF(L4Re::Rm::find);
+L4_RPC_DEF(L4Re::Rm::get_info);
 
 namespace L4Re
 {
@@ -32,12 +33,15 @@ namespace L4Re
 long
 Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
            L4::Ipc::Cap<Dataspace> mem, Rm::Offset offs,
-           unsigned char align, L4::Cap<L4::Task> const task) const noexcept
+           unsigned char align, L4::Cap<L4::Task> const task,
+           char const *name, Rm::Offset backing_offset) const noexcept
 {
   if (((flags & F::Rights_mask) == Flags(0)) || (flags & F::Reserved))
     mem = L4::Ipc::Cap<L4Re::Dataspace>();
 
-  long e = attach_t::call(c(), start, size, flags, mem, offs, align, mem.cap().cap());
+  char const n = '\0';
+  long e = attach_t::call(c(), start, size, flags, mem, offs, align,
+                          mem.cap().cap(), name ? name : &n, backing_offset);
   if (e < 0)
     return e;
 

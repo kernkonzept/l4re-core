@@ -15,6 +15,7 @@ class Elf_loader
   public Ldr::Elf_loader<L4Re_x_app_model, Dbg>
 {
 public:
-  bool launch(L4::Cap<L4Re::Dataspace> bin, L4::Cap<L4Re::Rm>) override;
+  bool launch(L4::Cap<L4Re::Dataspace> bin,
+              char const *binname, L4::Cap<L4Re::Rm>) override;
 };
 

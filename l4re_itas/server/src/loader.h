@@ -79,7 +79,9 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
 
   void prog_attach_ds(l4_addr_t addr, unsigned long size,
                       Const_dataspace ds, unsigned long offset,
-                      L4Re::Rm::Flags flags, char const *what);
+                      L4Re::Rm::Flags flags,
+                      char const *name, unsigned long file_offset,
+                      char const *what);
 
   static void copy_ds(Dataspace dst, unsigned long dst_offs,
                       Const_dataspace src, unsigned long src_offs,
@@ -139,6 +141,7 @@ class Loader
 {
 public:
   bool start(L4::Cap<L4Re::Dataspace> bin, Region_map *rm, l4re_aux_t *aux);
-  virtual bool launch(L4::Cap<L4Re::Dataspace> bin, L4::Cap<L4Re::Rm>) = 0;
+  virtual bool launch(L4::Cap<L4Re::Dataspace> bin,
+                      char const *binname, L4::Cap<L4Re::Rm>) = 0;
   virtual ~Loader() {}
 };

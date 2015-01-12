@@ -25,12 +25,36 @@ class Region
 {
 private:
   l4_addr_t _start, _end;
+#ifdef CONFIG_L4RE_REGION_INFO
+  char _dbg_name[40]; // Not a 0-terminating string
+  unsigned char _dbg_name_len = 0;
+  static_assert(sizeof(_dbg_name) < 256);
+  Rm::Offset _dbg_backing_offset = 0;
+#endif
 
 public:
   Region() noexcept : _start(~0UL), _end(~0UL) {}
   Region(l4_addr_t addr) noexcept : _start(addr), _end(addr) {}
   Region(l4_addr_t start, l4_addr_t end) noexcept
     : _start(start), _end(end) {}
+  Region(l4_addr_t start, l4_addr_t end,
+         char const *name, unsigned name_len,
+         Rm::Offset backing_offset) noexcept
+    : _start(start), _end(end)
+  {
+#ifdef CONFIG_L4RE_REGION_INFO
+    _dbg_name_len = name_len > sizeof(_dbg_name)
+                    ? sizeof(_dbg_name) : name_len;
+    for (unsigned i = 0; i < _dbg_name_len; ++i)
+      _dbg_name[i] = name[i];
+
+    _dbg_backing_offset = backing_offset;
+#else
+    (void)name;
+    (void)name_len;
+    (void)backing_offset;
+#endif
+ }
   l4_addr_t start() const noexcept { return _start; }
   l4_addr_t end() const noexcept { return _end; }
   unsigned long size() const noexcept { return end() - start() + 1; }
@@ -42,6 +66,16 @@ public:
   bool operator == (Region const &o) const noexcept
   { return o.start() == start() && o.end() == end(); }
   ~Region() noexcept {}
+
+#ifdef CONFIG_L4RE_REGION_INFO
+  char const *name() const { return _dbg_name; }
+  unsigned char name_len() const { return _dbg_name_len; }
+  Rm::Offset backing_offset() const { return _dbg_backing_offset; }
+#else
+  char const *name() const { return "N/A"; }
+  unsigned char name_len() const { return 3; }
+  Rm::Offset backing_offset() const { return 0; }
+#endif
 };
 
 template< typename DS, typename OPS >
@@ -246,7 +280,9 @@ public:
 
   void *attach(void *addr, unsigned long size, Hdlr const &hdlr,
                L4Re::Rm::Flags flags = L4Re::Rm::Flags(0),
-               unsigned char align = L4_PAGESHIFT) noexcept
+               unsigned char align = L4_PAGESHIFT,
+               char const *name = nullptr, unsigned name_len = 0,
+               L4Re::Rm::Offset backing_offset = 0) noexcept
   {
     if (size < 2)
       return L4_INVALID_PTR;
@@ -304,7 +340,9 @@ public:
     if (beg < min_addr() || beg + size - 1 > end)
       return L4_INVALID_PTR;
 
-    if (_rm.insert(Region(beg, beg + size - 1), hdlr).second == 0)
+    if (_rm.insert(Region(beg, beg + size - 1,
+                          name, name_len, backing_offset), hdlr).second
+        == 0)
       return reinterpret_cast<void*>(beg);
 
     return L4_INVALID_PTR;

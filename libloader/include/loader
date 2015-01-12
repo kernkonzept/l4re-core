@@ -171,20 +171,22 @@ public:
   typedef typename App_model::Const_dataspace Const_dataspace;
   typedef typename App_model::Stack Stack;
 
-  void launch(App_model *model, Const_dataspace bin, Dbg_ const &dbg);
+  void launch(App_model *model, Const_dataspace bin,
+              char const *binname, Dbg_ const &dbg);
 
   void launch(App_model *model, char const *prog, Dbg_ const &dbg)
   {
     typename App_model::Const_dataspace bin = model->open_file(prog);
-    launch(model, bin, dbg);
+    launch(model, bin, prog, dbg);
   }
 
   template< typename App_task, typename Prog >
-  void launch(App_task task, Prog prog, Const_dataspace bin, Dbg_ const &dbg)
+  void launch(App_task task, Prog prog, Const_dataspace bin,
+              char const *binname, Dbg_ const &dbg)
   {
     typedef App_model Am;
     Am am(task, prog);
-    launch(&am, bin, dbg);
+    launch(&am, bin, binname, dbg);
   }
 
   template< typename App_task, typename Prog >
@@ -192,17 +194,19 @@ public:
   {
     typedef App_model Am;
     Am am(task, prog);
-    launch(&am, bin, dbg);
+    launch(&am, bin, bin, dbg);
   }
 
   virtual void read_infos(App_model *, Const_dataspace bin, Dbg_log const &ldr) = 0;
-  virtual void load(App_model *, Const_dataspace bin, Dbg_log const &ldr) = 0;
+  virtual void load(App_model *, Const_dataspace bin,
+                    char const *binname, Dbg_log const &ldr) = 0;
   virtual  ~Loader() {}
 };
 
 template< typename App_model_, typename Dbg_ >
 void
-Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin, Dbg_ const &dbg)
+Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin,
+                                 char const *binname, Dbg_ const &dbg)
 {
   typedef App_model Am;
   typedef typename Am::Dataspace Dataspace;
@@ -223,7 +227,7 @@ Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin, Dbg_ const 
 
       // load the program into memory, prepare all the VMAs
       // and stuff on the application stack
-      load(am, bin, dbg);
+      load(am, bin, binname, dbg);
 
       am->prog_attach_stack(app_stack);
       am->prog_reserve_utcb_area();

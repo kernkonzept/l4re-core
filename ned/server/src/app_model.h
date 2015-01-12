@@ -61,7 +61,9 @@ struct App_model : public Ldr::Base_app_model<Stack>
 
   void prog_attach_ds(l4_addr_t addr, unsigned long size,
                       Const_dataspace ds, unsigned long offset,
-                      L4Re::Rm::Flags flags, char const *what);
+                      L4Re::Rm::Flags flags,
+                      char const *name, unsigned long file_offset,
+                      char const *what);
 
   static void copy_ds(Dataspace dst, unsigned long dst_offs,
                       Const_dataspace src, unsigned long src_offs,

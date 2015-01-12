@@ -485,9 +485,12 @@ public:
   cxx::Ref_ptr<Mount_tree> mount_tree() const noexcept
   { return _mount_tree; }
 
+  char const *path() const noexcept { return _path; }
+
 private:
   int _ref_cnt;
   cxx::Ref_ptr<Mount_tree> _mount_tree;
+  char _path[80] = "";
 };
 
 inline
@@ -738,15 +741,22 @@ File::openat(const char *path, int flags, mode_t mode,
 {
   cxx::Ref_ptr<File> dir;
   cxx::Ref_ptr<Mount_tree> mt;
-  path = get_mount(path, &dir, &mt);
+  char const *m_path = get_mount(path, &dir, &mt);
 
-  int res = dir->get_entry(path, flags, mode, f);
+  int res = dir->get_entry(m_path, flags, mode, f);
 
   if (res < 0)
     return res;
 
   if (!(*f)->_mount_tree && mt)
     (*f)->_mount_tree = mt;
+
+  // Debugging {
+  size_t i = 0;
+  for (; i < sizeof((*f)->_path) - 1 && path[i]; ++i)
+    (*f)->_path[i] = path[i];
+  (*f)->_path[i] = '\0';
+  // } Debugging
 
   return res;
 }

@@ -129,14 +129,18 @@ L4Re_app_model::open_file(char const *name)
 void
 L4Re_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                                Const_dataspace ds, unsigned long offset,
-                               L4Re::Rm::Flags flags, char const *what)
+                               L4Re::Rm::Flags flags,
+                               char const *name, unsigned long file_offset,
+                               char const *what)
 {
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_EAGER_MAP)
     flags |= L4Re::Rm::F::Eager_map;
 
   chksys(_rm->attach(&addr, size, flags,
                      L4::Ipc::make_cap(ds, flags.cap_rights()),
-                     offset), what);
+                     offset, L4_PAGESHIFT,
+                     L4::Cap<L4::Task>::Invalid,
+                     name, file_offset), what);
 }
 
 void
@@ -164,7 +168,8 @@ L4Re_app_model::local_attach_ds(Const_dataspace ds, unsigned long size,
   unsigned long pg_size = l4_round_page(size + in_pg_offset);
   l4_addr_t vaddr = 0;
   chksys(_rm->attach(&vaddr, pg_size, L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
-                     ds, pg_offset),
+                     ds, pg_offset, L4_PAGESHIFT, L4::Cap<L4::Task>::Invalid,
+                     "[local-ds]", pg_offset),
          "l4re_itas: ELF loader: attach temporary VMA");
   return vaddr + in_pg_offset;
 }
@@ -203,7 +208,9 @@ L4Re_app_model::alloc_app_stack()
   void *_s = nullptr;
 #endif
   chksys(_rm->attach(&_s, _stack.stack_size(), flags,
-                     L4::Ipc::make_cap_rw(stack), 0),
+                     L4::Ipc::make_cap_rw(stack), 0,
+                     L4_PAGESHIFT, L4::Cap<L4::Task>::Invalid,
+                     "[stack]"),
          "l4re_itas: Attach application stack.");
   _stack.set_target_stack(l4_addr_t(_s), _stack.stack_size());
   _stack.set_local_addr(l4_addr_t(_s));
@@ -274,7 +281,7 @@ static void
 loader_thread()
 #endif
 {
-  if (!__loader->launch(__binary, __loader_entry.rm))
+  if (!__loader->launch(__binary, Global::l4re_aux->binary, __loader_entry.rm))
     {
       Err(Err::Fatal).printf("Could not load binary '%s'.\n",
                              Global::l4re_aux->binary);
@@ -317,7 +324,9 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
   long ret
     = L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size,
                                      L4Re::Rm::F::RW,
-                                     L4::Ipc::make_cap_rw(__loader_stack), 0);
+                                     L4::Ipc::make_cap_rw(__loader_stack), 0,
+                                     L4_PAGESHIFT, L4::Cap<L4::Task>::Invalid,
+                                     "[loader-stack]");
   if (ret)
     {
       // The loader stack is already attached to the local region map. We

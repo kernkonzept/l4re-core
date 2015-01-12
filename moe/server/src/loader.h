@@ -42,7 +42,9 @@ struct Moe_app_model : public Ldr::Base_app_model<Moe::Stack>
 
   void prog_attach_ds(l4_addr_t addr, unsigned long size,
                       Const_dataspace ds, unsigned long offset,
-                      L4Re::Rm::Flags flags, char const *what);
+                      L4Re::Rm::Flags flags,
+                      char const *name, unsigned long file_offset,
+                      char const *what);
 
   l4_cap_idx_t push_initial_caps(l4_cap_idx_t s);
   void map_initial_caps(L4::Cap<L4::Task>, l4_cap_idx_t);

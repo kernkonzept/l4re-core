@@ -32,7 +32,8 @@ public:
   long op_attach(L4Re::Rm::Rights, l4_addr_t &_start,
                  unsigned long size, Rm::Flags flags,
                  L4::Ipc::Snd_fpage ds_cap, L4Re::Rm::Offset offs,
-                 unsigned char align, l4_cap_idx_t client_cap_idx)
+                 unsigned char align, l4_cap_idx_t client_cap_idx,
+                 L4::Ipc::String<> name, L4Re::Rm::Offset backing_offset)
   {
     typename DERIVED::Dataspace ds;
 
@@ -55,7 +56,8 @@ public:
 
     typename DERIVED::Region_handler handler(ds, client_cap_idx, offs, r_flags);
     start = l4_addr_t(rm()->attach(reinterpret_cast<void*>(start), size,
-                                   handler, a_flags, align));
+                                   handler, a_flags, align,
+                                   name.data, name.length, backing_offset));
 
     if (start == L4_INVALID_ADDR)
       return -L4_EADDRNOTAVAIL;
@@ -262,6 +264,30 @@ public:
 
     pager_set_result(&fp, map_res);
     return L4_EOK;
+  }
+
+  long op_get_info(L4Re::Rm::Rights, l4_addr_t addr,
+                   L4::Ipc::String<char> &name, L4Re::Rm::Offset &backing_offset)
+  {
+#ifdef CONFIG_L4RE_REGION_INFO
+    typename DERIVED::Node r = rm()->find(Region(addr));
+    if (!r)
+      return -L4_ENOENT;
+    backing_offset = r->first.backing_offset();
+    unsigned long i;
+    char const *src = r->first.name();
+    unsigned src_len = r->first.name_len();
+    for (i = 0; i < src_len && i < name.length - 1; ++i)
+      name.data[i] = src[i];
+    name.length = i + 1;
+    name.data[i] = '\0';
+    return L4_EOK;
+#else
+    (void)addr;
+    (void)name;
+    (void)backing_offset;
+    return -L4_ENOSYS;
+#endif
   }
 };
 

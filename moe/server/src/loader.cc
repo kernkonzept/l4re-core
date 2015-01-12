@@ -141,7 +141,9 @@ Moe_app_model::open_file(char const *name)
 void
 Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                               Const_dataspace ds, unsigned long offset,
-                              L4Re::Rm::Flags flags, char const *what)
+                              L4Re::Rm::Flags flags,
+                              char const *, unsigned long,
+                              char const *what)
 {
   void *x = _task->rm()->attach(reinterpret_cast<void*>(addr), size,
                                 Region_handler(ds, L4_INVALID_CAP,

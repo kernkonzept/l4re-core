@@ -77,3 +77,13 @@ l4re_rm_show_lists_srv(l4_cap_idx_t rm) L4_NOTHROW
   L4::Cap<L4Re::Debug_obj> d(rm);
   d->debug(0); // XXX: use enum
 }
+
+int
+l4re_rm_get_info_srv(l4_cap_idx_t rm, l4_addr_t addr,
+                     char *name, unsigned int len,
+                     l4re_rm_offset_t *backing_offset) L4_NOTHROW
+{
+  L4::Cap<L4Re::Rm> x(rm);
+  L4::Ipc::String<char> str(len, name);
+  return x->get_info(addr, str, *backing_offset);
+}

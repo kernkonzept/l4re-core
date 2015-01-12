@@ -327,7 +327,8 @@ public:
                            unsigned long size, Flags flags,
                            L4::Ipc::Opt<L4::Ipc::Cap<Dataspace> > mem,
                            Offset offs, unsigned char align,
-                           L4::Ipc::Opt<l4_cap_idx_t> client_cap));
+                           L4::Ipc::Opt<l4_cap_idx_t> client_cap,
+                           L4::Ipc::String<> name, Offset backing_offset));
 
   L4_RPC_NF(long, detach, (l4_addr_t addr, unsigned long size, unsigned flags,
                            l4_addr_t &start, l4_addr_t &rsize,
@@ -368,6 +369,9 @@ public:
    *                        mapping is established in the current task. This
    *                        parameter is only useful if the region manager is
    *                        for a foreign task.
+   * \param          name   Optional name of the region.
+   * \param          backing_offset Optional value describing an offset into
+   *                        the backing store of this region.
    *
    * \retval 0                  Success
    * \retval -L4_ENOENT         No area could be found (see
@@ -392,7 +396,9 @@ public:
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT,
               L4::Cap<L4::Task> const task
-                = L4::Cap<L4::Task>::Invalid) const noexcept;
+                = L4::Cap<L4::Task>::Invalid,
+              char const *name = nullptr,
+              Offset backing_offset = 0) const noexcept;
 
   /**
    * \copydoc L4Re::Rm::attach
@@ -402,11 +408,14 @@ public:
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT,
               L4::Cap<L4::Task> const task
-                = L4::Cap<L4::Task>::Invalid) const noexcept
+                = L4::Cap<L4::Task>::Invalid,
+              char const *name = nullptr,
+              Offset backing_offset = 0) const noexcept
   {
     union X { l4_addr_t a; T* t; };
     X *x = reinterpret_cast<X*>(start);
-    return attach(&x->a, size, flags, mem, offs, align, task);
+    return attach(&x->a, size, flags, mem, offs, align, task,
+                  name, backing_offset);
   }
 
 #if __cplusplus >= 201103L
@@ -550,11 +559,14 @@ public:
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT,
               L4::Cap<L4::Task> const task
-                = L4::Cap<L4::Task>::Invalid) const noexcept
+                = L4::Cap<L4::Task>::Invalid,
+              char const *name = nullptr,
+              Offset backing_offset = 0) const noexcept
   {
     l4_addr_t addr = reinterpret_cast<l4_addr_t>(start->get());
 
-    long res = attach(&addr, size, flags, mem, offs, align, task);
+    long res = attach(&addr, size, flags, mem, offs, align, task,
+                      name, backing_offset);
     if (res < 0)
       return res;
 
@@ -723,12 +735,29 @@ public:
 
   L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Range> areas));
 
+  /**
+   * Return auxiliary information of a region. This is a debugging feature
+   * and might not be available.
+   *
+   * \param       addr           Virtual address of the region.
+   * \param[out]  name           Name of the region.
+   * \param[out]  backing_offset Backing offset information.
+   *
+   * \retval 0           Success
+   * \retval -L4_ENOENT  Region not found.
+   * \retval -L4_ENOSYS  Function not available.
+   * \retval <0          IPC errors
+   */
+  L4_RPC(long, get_info, (l4_addr_t addr, L4::Ipc::String<char> &name,
+                          Offset &backing_offset));
+
   int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
              L4::Cap<L4::Task> task, unsigned flags) const noexcept;
 
   typedef L4::Typeid::Rpcs<attach_t, detach_t, find_t,
                            reserve_area_t, free_area_t,
-                           get_regions_t, get_areas_t> Rpcs;
+                           get_regions_t, get_areas_t,
+                           get_info_t> Rpcs;
 };
 
 

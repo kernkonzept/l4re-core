@@ -231,6 +231,19 @@ l4re_rm_find(l4_addr_t *addr, unsigned long *size,
 
 /**
  * \ingroup api_l4re_c_rm
+ * \copybrief L4Re::Rm::get_info
+ * \copydetails L4Re::Rm::get_info
+ * \param len Length of the name given in name argument, in bytes.
+ * \see L4Re::Rm::get_info
+ */
+L4_CV L4_INLINE int
+l4re_rm_get_info(l4_addr_t addr,
+                 char *name, unsigned int len,
+                 l4re_rm_offset_t *backing_offset) L4_NOTHROW;
+
+
+/**
+ * \ingroup api_l4re_c_rm
  * \brief Dump region map internal data structures.
  *
  * This function is using the L4::Env::env()->rm() service.
@@ -288,6 +301,16 @@ L4_CV int
 l4re_rm_find_srv(l4_cap_idx_t rm, l4_addr_t *addr,
                  unsigned long *size, l4re_rm_offset_t *offset,
                  l4re_rm_flags_t *flags, l4re_ds_t *m) L4_NOTHROW;
+
+
+/**
+ * \see L4Re::Rm::get_info
+ * \ingroup api_l4re_c_rm
+ */
+L4_CV int
+l4re_rm_get_info_srv(l4_cap_idx_t rm, l4_addr_t addr,
+                     char *name, unsigned int len,
+                     l4re_rm_offset_t *backing_offset) L4_NOTHROW;
 
 /**
  * \brief Dump region map internal data structures.
@@ -362,6 +385,16 @@ L4_CV L4_INLINE void
 l4re_rm_show_lists(void) L4_NOTHROW
 {
   l4re_rm_show_lists_srv(l4re_global_env->rm);
+}
+
+
+
+L4_CV L4_INLINE int
+l4re_rm_get_info(l4_addr_t addr, char *name, unsigned int len,
+                 l4re_rm_offset_t *backing_offset) L4_NOTHROW
+{
+  return l4re_rm_get_info_srv(l4re_global_env->rm, addr, name, len,
+                              backing_offset);
 }
 
 __END_DECLS

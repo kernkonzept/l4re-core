@@ -22,7 +22,8 @@ namespace L4Re
      */
     enum Opcodes
     {
-      Attach, Detach, Find, Attach_area, Detach_area, Get_regions, Get_areas
+      Attach, Detach, Find, Attach_area, Detach_area, Get_regions, Get_areas,
+      Get_info
     };
   };
 };

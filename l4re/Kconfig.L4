@@ -32,4 +32,13 @@ config L4RE_BITMAP_CAP_ALLOC
 
 endchoice
 
+config L4RE_REGION_INFO
+	bool "Enable additional region information"
+	default y
+	help
+	  Enable functionality for additional information for regions in the
+	  address space.
+
+	  Disabling this option will lead to a reduced debugging experience.
+
 endmenu

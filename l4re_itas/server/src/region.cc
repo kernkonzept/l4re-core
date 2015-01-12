@@ -112,10 +112,22 @@ Region_map::debug_dump(unsigned long /*function*/) const
 	   i->second.flags());
   printf(" Region map:\n");
   for (Region_map::Const_iterator i = begin(); i != end(); ++i)
-    printf("  [%10lx-%10lx] -> (offs=%llx, ds=%lx, flags=%x)\n",
-           i->first.start(), i->first.end(),
-	   i->second.offset(), i->second.memory().cap(),
-	   i->second.flags());
+    {
+      unsigned f = i->second.flags();
+      char r[7];
+      r[0] = f & L4Re::Rm::F::R ? 'r' : '-';
+      r[1] = f & L4Re::Rm::F::W ? 'w' : '-';
+      r[2] = f & L4Re::Rm::F::X ? 'x' : '-';
+      r[3] = f & L4Re::Rm::F::Detach_free ? 'D' : '-';
+      r[4] = f & L4Re::Rm::F::Pager       ? 'P' : '-';
+      r[5] = f & L4Re::Rm::F::Reserved    ? 'R' : '-';
+      r[6] = '\0';
+      printf("  %010lx-%010lx ds=%04lx@%07llx %s/%04x %07llx: %.*s \n",
+             i->first.start(), i->first.end(),
+             i->second.memory().cap() >> L4_CAP_SHIFT, i->second.offset(),
+             r, i->second.flags(),
+             i->first.backing_offset(), i->first.name_len(), i->first.name());
+    }
 }
 
 int

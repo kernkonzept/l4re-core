@@ -658,11 +658,15 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       });
     }
 
+  char const *region_name = "[unknown]";
+  l4_addr_t file_offset = 0;
   if (!(flags & MAP_ANONYMOUS))
     {
       Ref_ptr<L4Re::Vfs::File> fi = fds.get(fd);
       if (!fi)
         return -EBADF;
+
+      region_name = fi->path();
 
       L4::Cap<L4Re::Dataspace> fds = fi->data_space();
 
@@ -676,6 +680,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
         {
           DEBUG_LOG(debug_mmap, outstring("COW\n"););
           int err = ds->copy_in(anon_offset, fds, offset, len);
+          file_offset = offset;
           if (err == -L4_EINVAL)
             {
               L4::Cap<Rm> r = Env::env()->rm();
@@ -688,12 +693,15 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
                 return err;
 
               err = r->attach(&dst, len,
-                              L4Re::Rm::F::Search_addr| L4Re::Rm::F::RW,
+                              L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                               ds.get(), anon_offset);
               if (err < 0)
                 return err;
 
               memcpy(dst.get(), src.get(), len);
+
+              region_name = "[mmap-private]";
+              file_offset = (unsigned long)dst.get();
             }
           else if (err)
             return err;
@@ -707,7 +715,11 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
         }
     }
   else
-    offset = anon_offset;
+    {
+      offset = anon_offset;
+      region_name = "[anon]";
+      file_offset = offset;
+    }
 
 
   if (!(flags & MAP_FIXED) && start == 0)
@@ -749,7 +761,8 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
                   L4::Ipc::make_cap(ds.get(), (prot & PROT_WRITE)
                                         ? L4_CAP_FPAGE_RW
                                         : L4_CAP_FPAGE_RO),
-                  offset);
+                  offset, L4_PAGESHIFT, L4::Cap<L4::Task>::Invalid,
+                  region_name, file_offset);
 
   DEBUG_LOG(debug_mmap, {
             outstring("  MAPPED: 0x");

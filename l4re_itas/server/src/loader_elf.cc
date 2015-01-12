@@ -14,8 +14,10 @@ static Dbg ldr(Dbg::Loader, "ldr");
 
 
 bool
-Elf_loader::launch(L4::Cap<L4Re::Dataspace> bin, L4::Cap<L4Re::Rm> rm)
+Elf_loader::launch(L4::Cap<L4Re::Dataspace> bin,
+                   char const *binname, L4::Cap<L4Re::Rm> rm)
 {
-  Ldr::Elf_loader<L4Re_x_app_model, Dbg>::launch(rm, nullptr, bin, ldr);
+  Ldr::Elf_loader<L4Re_x_app_model, Dbg>::launch(rm, nullptr,
+                                                 bin, binname, ldr);
   return true;
 }

@@ -307,16 +307,19 @@ struct Phdr_load
   l4_addr_t base;
   L4Re::Rm::Flags r_flags;
   Const_dataspace bin;
+  char const *binname;
   App_model *mm;
   Dbg const &dbg;
   Elf_ehdr const *ehdr;
   Dataspace prealloc_mem;
   l4_addr_t prealloc_base;
 
-  Phdr_load(l4_addr_t base, Const_dataspace bin, App_model *mm,
-            L4Re::Rm::Flags r_flags, Dbg const &dbg, Elf_ehdr const *ehdr,
-            Dataspace prealloc_mem, l4_addr_t prealloc_base)
-  : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg), ehdr(ehdr),
+  Phdr_load(l4_addr_t base, Const_dataspace bin, char const *binname,
+            App_model *mm, L4Re::Rm::Flags r_flags, Dbg const &dbg,
+            Elf_ehdr const *ehdr, Dataspace prealloc_mem,
+            l4_addr_t prealloc_base)
+  : base(base), r_flags(r_flags), bin(bin), binname(binname),
+    mm(mm), dbg(dbg), ehdr(ehdr),
     prealloc_mem(prealloc_mem), prealloc_base(prealloc_base)
   {}
 
@@ -382,7 +385,8 @@ struct Phdr_load
     if (ph.flags() & PF_X)
       rf |= L4Re::Rm::F::X;
 
-    mm->prog_attach_ds(paddr, size, ds, o, rf, "attaching ELF segment");
+    mm->prog_attach_ds(paddr, size, ds, o, rf,binname, offs,
+                       "attaching ELF segment");
   }
 };
 
@@ -594,8 +598,8 @@ public:
     elf.iterate_phdr(Phdr_print<Dbg_log>(ldr));
   }
 
-  void load(App_model *mm, Const_dataspace bin, l4_addr_t *base, bool interpreter,
-            Dbg_log const &ldr)
+  void load(App_model *mm, Const_dataspace bin, char const *binname,
+            l4_addr_t *base, bool interpreter, Dbg_log const &ldr)
   {
     using L4Re::chksys;
 
@@ -669,8 +673,8 @@ public:
           ldr.printf("  relocate PIC/PIE binary by %lx\n", _base);
       }
 
-    elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags,
-                                                   ldr, elf.ehdr(),
+    elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, binname, mm,
+                                                   r_flags, ldr, elf.ehdr(),
                                                    prealloc_mem,
                                                    prealloc_start));
     elf.iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
@@ -692,7 +696,7 @@ public:
         Const_dataspace file = mm->open_file(dyn_info.interp);
         l4_addr_t base = 0x400000;
 
-        load(mm, file, &base, true, ldr);
+        load(mm, file, dyn_info.interp, &base, true, ldr);
 
         Prog_start_info *i = mm->prog_info();
 
@@ -704,9 +708,9 @@ public:
   }
 
   void load(App_model *mm, Const_dataspace bin,
-            Dbg_log const &ldr) override
+            char const *binname, Dbg_log const &ldr) override
   {
-    load(mm, bin, 0, false, ldr);
+    load(mm, bin, binname, 0, false, ldr);
   }
 
 

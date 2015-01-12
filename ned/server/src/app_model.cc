@@ -49,7 +49,9 @@ App_model::open_file(char const *name)
 void
 App_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                           Const_dataspace ds, unsigned long offset,
-                          L4Re::Rm::Flags flags, char const *what)
+                          L4Re::Rm::Flags flags,
+                          char const *name, unsigned long file_offset,
+                          char const *what)
 {
   auto rh_flags = flags;
 
@@ -63,7 +65,8 @@ App_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
   l4_addr_t _addr = addr;
   L4Re::chksys(_task->rm()->attach(&_addr, size, rh_flags,
                                    L4::Ipc::make_cap(ds.get(), flags.cap_rights()),
-                                   offset, 0, _task->task_cap()), what);
+                                   offset, 0, _task->task_cap(),
+                                   name, file_offset), what);
 }
 
 int
