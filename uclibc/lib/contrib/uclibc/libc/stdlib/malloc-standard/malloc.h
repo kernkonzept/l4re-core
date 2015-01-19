@@ -512,7 +512,7 @@ nextchunk-> +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 #define checked_request2size(req, sz)                             \
   if (REQUEST_OUT_OF_RANGE(req)) {                                \
-    errno = ENOMEM;                                               \
+    __set_errno(ENOMEM);                                          \
     return 0;                                                     \
   }                                                               \
   (sz) = request2size(req);

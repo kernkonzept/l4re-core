@@ -110,7 +110,7 @@ DIR *opendir(const char *name)
 
 	if (!ptr) {
 		close_not_cancel_no_status(fd);
-		__set_errno(ENOMEM);
+		/* __set_errno(ENOMEM); */
 	}
 	return ptr;
 }

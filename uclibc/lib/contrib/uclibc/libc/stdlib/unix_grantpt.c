@@ -68,7 +68,7 @@ pts_name (int fd, char **pts, size_t buf_len)
       if (! new_buf)
 	{
 	  rv = -1;
-	  errno = ENOMEM;
+	  /* __set_errno(ENOMEM); */
 	  break;
 	}
       buf = new_buf;

@@ -76,7 +76,7 @@ static int __add_to_environ(const char *name, const char *value,
 	/* We allocated this space; we can extend it.  */
 	new_environ = realloc(last_environ, (size + 2) * sizeof(char *));
 	if (new_environ == NULL) {
-		__set_errno(ENOMEM);
+		/* __set_errno(ENOMEM); */
 		goto DONE;
 	}
 	if (__environ != last_environ) {
@@ -97,7 +97,7 @@ static int __add_to_environ(const char *name, const char *value,
 
 		var_val = malloc(namelen + 1 + vallen);
 		if (var_val == NULL) {
-			__set_errno(ENOMEM);
+			/* __set_errno(ENOMEM); */
 			goto DONE;
 		}
 		memcpy(var_val, name, namelen);

@@ -367,7 +367,7 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 						if (cs->back_buf == cs->ibb) { /* was using internal buffer */
 							cs->bp = malloc(cs->bb_size + 128);
 							if (!cs->bp) {
-								__set_errno(ENOMEM);
+								/* __set_errno(ENOMEM); */
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning what to do here?
 #endif
@@ -379,7 +379,7 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 						} else {
 							cs->bp = realloc(cs->back_buf, cs->bb_size + 128);
 							if (!cs->bp) {
-								__set_errno(ENOMEM);
+								/* __set_errno(ENOMEM); */
 #ifdef __UCLIBC_MJN3_ONLY__
 #warning what to do here?
 #endif

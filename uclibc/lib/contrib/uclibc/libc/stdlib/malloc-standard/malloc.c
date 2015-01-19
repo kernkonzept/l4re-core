@@ -742,7 +742,7 @@ static void* __malloc_alloc(size_t nb, mstate av)
     }
 
     /* catch all failure paths */
-    errno = ENOMEM;
+    __set_errno(ENOMEM);
     return 0;
 }
 

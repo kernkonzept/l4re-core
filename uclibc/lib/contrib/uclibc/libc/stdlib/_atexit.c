@@ -257,7 +257,7 @@ struct exit_function attribute_hidden *__new_exitfn(void)
         efp = realloc(__exit_function_table,
                     (__exit_slots+20)*sizeof(struct exit_function));
         if (efp == NULL) {
-            __set_errno(ENOMEM);
+            /* __set_errno(ENOMEM); */
 	    goto DONE;
         }
         __exit_function_table = efp;
