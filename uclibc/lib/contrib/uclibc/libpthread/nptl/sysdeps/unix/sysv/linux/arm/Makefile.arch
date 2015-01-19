@@ -18,3 +18,6 @@ libc_linux_arch_SSRC-OMIT = waitpid.S
 # This macro should be alternatively implemented in THUMB
 # assembly.
 ASFLAGS-pt-vfork.S = -marm
+CFLAGS-OMIT-pt-vfork.S = -mthumb
+ASFLAGS-vfork.S = -marm
+CFLAGS-OMIT-vfork.S = -mthumb
