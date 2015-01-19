@@ -135,14 +135,10 @@ static __always_inline _syscall0(gid_t, _dl_getegid)
 #define __NR__dl_getpid __NR_getpid
 static __always_inline _syscall0(gid_t, _dl_getpid)
 
-#if defined __NR_readlinkat && !defined __NR_readlink
+#if defined __NR_readlinkat
 # define __NR__dl_readlink __NR_readlinkat
 static __always_inline _syscall4(int, _dl_readlink, int, id, const char *, path,
 						char *, buf, size_t, bufsiz)
-#elif defined __NR_readlink
-# define __NR__dl_readlink __NR_readlink
-static __always_inline _syscall3(int, _dl_readlink, const char *, path, char *, buf,
-                        size_t, bufsiz)
 #endif
 
 #ifdef __NR_pread64

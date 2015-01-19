@@ -204,7 +204,9 @@ static __always_inline char * _dl_get_last_path_component(char *path)
 # define _dl_strcat strcat
 # define _dl_strcpy strcpy
 # define _dl_strcmp strcmp
+# define _dl_strchr strchr
 # define _dl_strrchr strrchr
+# define _dl_strstr strstr
 # define _dl_memcpy memcpy
 # define _dl_memcmp memcmp
 # define _dl_memset memset

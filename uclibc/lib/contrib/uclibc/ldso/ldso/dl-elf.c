@@ -133,25 +133,18 @@ _dl_protect_relro (struct elf_resolve *l)
  * in uClibc/ldso/util/ldd.c */
 static struct elf_resolve *
 search_for_named_library(const char *name, unsigned rflags, const char *path_list,
-	struct dyn_elf **rpnt)
+	struct dyn_elf **rpnt, const char* origin)
 {
-	char *path, *path_n, *mylibname;
+	char *mylibname;
 	struct elf_resolve *tpnt;
-	int done;
+	const char *p, *pn;
+	int plen;
 
 	if (path_list==NULL)
 		return NULL;
 
-	/* We need a writable copy of this string, but we don't
-	 * need this allocated permanently since we don't want
-	 * to leak memory, so use alloca to put path on the stack */
-	done = _dl_strlen(path_list);
-	path = alloca(done + 1);
-
 	/* another bit of local storage */
 	mylibname = alloca(2050);
-
-	_dl_memcpy(path, path_list, done+1);
 
 	/* Unlike ldd.c, don't bother to eliminate double //s */
 
@@ -159,30 +152,41 @@ search_for_named_library(const char *name, unsigned rflags, const char *path_lis
 	/* : at the beginning or end of path maps to CWD */
 	/* :: anywhere maps CWD */
 	/* "" maps to CWD */
-	done = 0;
-	path_n = path;
-	do {
-		if (*path == 0) {
-			*path = ':';
-			done = 1;
+	for (p = path_list; p != NULL; p = pn) {
+		pn = _dl_strchr(p + 1, ':');
+		if (pn != NULL) {
+			plen = pn - p;
+			pn++;
+		} else
+			plen = _dl_strlen(p);
+
+		if (plen >= 7 && _dl_memcmp(p, "$ORIGIN", 7) == 0) {
+			int olen;
+			if (rflags && plen != 7)
+				continue;
+			if (origin == NULL)
+				continue;
+			for (olen = _dl_strlen(origin) - 1; olen >= 0 && origin[olen] != '/'; olen--)
+				;
+			if (olen <= 0)
+				continue;
+			_dl_memcpy(&mylibname[0], origin, olen);
+			_dl_memcpy(&mylibname[olen], p + 7, plen - 7);
+			mylibname[olen + plen - 7] = 0;
+		} else if (plen != 0) {
+			_dl_memcpy(mylibname, p, plen);
+			mylibname[plen] = 0;
+		} else {
+			_dl_strcpy(mylibname, ".");
 		}
-		if (*path == ':') {
-			*path = 0;
-			if (*path_n)
-				_dl_strcpy(mylibname, path_n);
-			else
-				_dl_strcpy(mylibname, "."); /* Assume current dir if empty path */
-			_dl_strcat(mylibname, "/");
-			_dl_strcat(mylibname, name);
+		_dl_strcat(mylibname, "/");
+		_dl_strcat(mylibname, name);
 #ifdef __LDSO_SAFE_RUNPATH__
-			if (*mylibname == '/')
+		if (*mylibname == '/')
 #endif
-				if ((tpnt = _dl_load_elf_shared_library(rflags, rpnt, mylibname)) != NULL)
-					return tpnt;
-			path_n = path+1;
-		}
-		path++;
-	} while (!done);
+		if ((tpnt = _dl_load_elf_shared_library(rflags, rpnt, mylibname)) != NULL)
+			return tpnt;
+	}
 	return NULL;
 }
 
@@ -235,8 +239,10 @@ struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rp
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
 		_dl_if_debug_dprint("\tsearching RPATH='%s'\n", pnt);
-		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt)) != NULL)
+		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt,
+						      tpnt->libname)) != NULL)
 			return tpnt1;
+
 	}
 #endif
 
@@ -244,7 +250,7 @@ struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rp
 	/* Check in LD_{ELF_}LIBRARY_PATH, if specified and allowed */
 	if (_dl_library_path) {
 		_dl_if_debug_dprint("\tsearching LD_LIBRARY_PATH='%s'\n", _dl_library_path);
-		if ((tpnt1 = search_for_named_library(libname, rflags, _dl_library_path, rpnt)) != NULL)
+		if ((tpnt1 = search_for_named_library(libname, rflags, _dl_library_path, rpnt, NULL)) != NULL)
 		{
 			return tpnt1;
 		}
@@ -258,7 +264,7 @@ struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rp
 	if (pnt) {
 		pnt += (unsigned long) tpnt->dynamic_info[DT_STRTAB];
 		_dl_if_debug_dprint("\tsearching RUNPATH='%s'\n", pnt);
-		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt)) != NULL)
+		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
 			return tpnt1;
 	}
 #endif
@@ -292,7 +298,7 @@ struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rp
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
 	_dl_if_debug_dprint("\tsearching ldso dir='%s'\n", _dl_ldsopath);
-	tpnt1 = search_for_named_library(libname, rflags, _dl_ldsopath, rpnt);
+	tpnt1 = search_for_named_library(libname, rflags, _dl_ldsopath, rpnt, NULL);
 	if (tpnt1 != NULL)
 		return tpnt1;
 #endif
@@ -305,7 +311,7 @@ struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rp
 #ifndef __LDSO_CACHE_SUPPORT__
 					":" UCLIBC_RUNTIME_PREFIX "usr/X11R6/lib"
 #endif
-					, rpnt);
+					, rpnt, NULL);
 	if (tpnt1 != NULL)
 		return tpnt1;
 

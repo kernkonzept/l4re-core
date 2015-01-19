@@ -472,6 +472,22 @@ void _dl_setup_malloc(ElfW(auxv_t) auxvt[AT_EGID + 1])
 }
 #endif
 
+#ifdef __NOT_FOR_L4__
+static void _dl_setup_progname(const char *argv0)
+{
+	char image[PATH_MAX];
+	ssize_t s;
+
+	s = _dl_readlink(AT_FDCWD, "/proc/self/exe", image, sizeof(image));
+	if (s > 0 && image[0] == '/') {
+		image[s] = 0;
+		_dl_progname = _dl_strdup(image);
+	} else if (argv0) {
+		_dl_progname = argv0;
+	}
+}
+#endif
+
 void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
 			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
@@ -526,9 +542,12 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 * been fixed up by now.  Still no function calls outside of this
 	 * library, since the dynamic resolver is not yet ready.
 	 */
-	if (argv[0]) {
-		_dl_progname = argv[0];
-	}
+#ifdef __NOT_FOR_L4__
+	_dl_setup_progname(argv[0]);
+#else
+	if (argv[0])
+	  _dl_progname = argv[0];
+#endif
 
 #ifdef __DSBT__
 	_dl_ldso_dsbt = (void *)tpnt->dynamic_info[DT_DSBT_BASE_IDX];
