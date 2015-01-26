@@ -28,7 +28,7 @@ static int __NC(sync_file_range)(int fd, off64_t offset, off64_t nbytes, unsigne
 	return INLINE_SYSCALL(sync_file_range, 7, fd, 0,
 			OFF64_HI_LO(offset), OFF64_HI_LO(nbytes), flags);
 #  elif defined __NR_sync_file_range2
-	return INLINE_SYSCALL(sync_file_range, 6, fd, flags
+	return INLINE_SYSCALL(sync_file_range, 6, fd, flags,
 			OFF64_HI_LO(offset), OFF64_HI_LO(nbytes));
 #  else
 	return INLINE_SYSCALL(sync_file_range, 6, fd,
