@@ -313,8 +313,10 @@ public:
                    l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_bind_u(cap(), irqnum, irq.cap(), utcb); }
 
-  L4_RPC_NF_OP(L4_ICU_OP_BIND,
-               l4_msgtag_t, bind, (l4_umword_t irqnum, Ipc::Cap<Irq> irq));
+  L4_RPC_NF_OP(
+    L4_ICU_OP_BIND,
+    l4_msgtag_t, bind, (l4_umword_t irqnum, Ipc::Cap<Irq> irq)
+  );
 
   /**
    * Remove binding of an interrupt line from the interrupt controller object.
@@ -329,8 +331,10 @@ public:
                      l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_unbind_u(cap(), irqnum, irq.cap(), utcb); }
 
-  L4_RPC_NF_OP(L4_ICU_OP_UNBIND,
-               l4_msgtag_t, unbind, (l4_umword_t irqnum, Ipc::Cap<Irq> irq));
+  L4_RPC_NF_OP(
+    L4_ICU_OP_UNBIND,
+    l4_msgtag_t, unbind, (l4_umword_t irqnum, Ipc::Cap<Irq> irq)
+  );
 
   /**
    * Get information about the capabilities of the ICU.
@@ -389,12 +393,18 @@ public:
                    l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_mask_u(cap(), irqnum, label, to, utcb); }
 
-  L4_RPC_NF_OP(L4_ICU_OP_MASK, l4_msgtag_t, mask, (l4_umword_t irqnum),
-               L4::Ipc::Send_only);
+  L4_RPC_NF_OP(
+    L4_ICU_OP_MASK,
+    l4_msgtag_t, mask, (l4_umword_t irqnum),
+    L4::Ipc::Send_only
+  );
 
 
-  L4_RPC_NF_OP(L4_ICU_OP_UNMASK, l4_msgtag_t, unmask, (l4_umword_t irqnum),
-               L4::Ipc::Send_only);
+  L4_RPC_NF_OP(
+    L4_ICU_OP_UNMASK,
+    l4_msgtag_t, unmask, (l4_umword_t irqnum),
+    L4::Ipc::Send_only
+  );
 
   /**
    * Set interrupt mode.
@@ -409,8 +419,10 @@ public:
                        l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_set_mode_u(cap(), irqnum, mode, utcb); }
 
-  L4_RPC_NF_OP(L4_ICU_OP_SET_MODE,
-               l4_msgtag_t, set_mode, (l4_umword_t irqnum, l4_umword_t mode));
+  L4_RPC_NF_OP(
+    L4_ICU_OP_SET_MODE,
+    l4_msgtag_t, set_mode, (l4_umword_t irqnum, l4_umword_t mode)
+  );
 
   typedef L4::Typeid::Rpcs_sys<
     bind_t, unbind_t, info_t, msi_info_t, unmask_t, mask_t, set_mode_t
