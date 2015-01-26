@@ -15,7 +15,6 @@ ARCH_SOBJ = $(patsubst %.s,%.o,$(patsubst %.S,%.o,$(addprefix $(ARCH_OUT)/,$(SSR
 
 ARCH_OBJS-y = $(ARCH_COBJ) $(ARCH_SOBJ)
 
-crt-y          := FORCE
 libc-y         += $(ARCH_OBJS-y)
 libc-nomulti-y += $(ARCH_SOBJ)
 objclean-y     += CLEAN_$(subst $(top_builddir),,$(ARCH_OUT))
@@ -47,16 +46,13 @@ HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT)):
 	$(do_rm) $(ARCH_HEADERS_OUT)
 endif
 
-CFLAGS-ucontext_i.c = -S
-
-$(ARCH_OUT)/ucontext_i.c: $(ARCH_DIR)/ucontext_i.sym
-	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< > $@
-
-$(ARCH_OUT)/ucontext_i.s: $(ARCH_OUT)/ucontext_i.c
-	$(compile.c)
-
-$(ARCH_OUT)/ucontext_i.h: $(ARCH_OUT)/ucontext_i.s
-	$(do_sed) $(PTHREAD_GENERATE_MANGLE) $< > $@
+$(ARCH_OUT)/ucontext_i.h: $(top_srcdir)extra/scripts/gen-as-const.awk
+$(ARCH_OUT)/ucontext_i.h: $(ARCH_OUT)/ucontext_i.sym
+	@$(disp_gen)
+	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \
+	| $(CC) $(CFLAGS) -x c - -S -o - \
+	| $(SED) $(PTHREAD_GENERATE_MANGLE) > $@
+	@if test ! -s $@ ; then rm -f $@ ; false ; fi
 
 pregen-headers-$(UCLIBC_HAS_CONTEXT_FUNCS) += $(ARCH_OUT)/ucontext_i.h
 

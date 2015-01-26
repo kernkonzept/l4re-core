@@ -40,7 +40,7 @@ librt_arch_COBJ = $(patsubst %.c,$(libpthread_arch_OUT)/%.o,$(librt_arch_CSRC))
 librt_arch_SOBJ = $(patsubst %.S,$(libpthread_arch_OUT)/%.o,$(librt_arch_SSRC))
 librt_arch_OBJS = $(librt_arch_COBJ) $(librt_arch_SOBJ)
 
-$(libpthread_arch_OUT)/tcb-offsets.h: $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(libpthread_arch_OUT)/tcb-offsets.h: $(top_srcdir)extra/scripts/gen-as-const.awk
 $(libpthread_arch_OUT)/tcb-offsets.h: $(libpthread_arch_DIR)/tcb-offsets.sym
 	@$(disp_gen)
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \

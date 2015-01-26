@@ -13,7 +13,7 @@ sub_headers := headers
 
 ifeq ($(HAVE_DOT_CONFIG),y)
 
-all: pregen libs
+all: pregen libs startfiles
 libs: pregen
 
 # In this section, we need .config
@@ -29,6 +29,7 @@ headers:
 
 endif # ifeq ($(HAVE_DOT_CONFIG),y)
 
+include $(top_srcdir)extra/locale/Makefile.in
 include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
 include $(top_srcdir)libintl/Makefile.in
@@ -39,7 +40,6 @@ include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
 include $(top_srcdir)librt/Makefile.in
 include $(top_srcdir)libubacktrace/Makefile.in
-include $(top_srcdir)extra/locale/Makefile.in
 
 # last included to catch all the objects added by others (locales/threads)
 include $(top_srcdir)libc/Makefile.in
@@ -57,8 +57,9 @@ ifeq ($(HAVE_DOT_CONFIG),y)
 $(top_builddir)include/bits/uClibc_config.h: $(conf) $(KCONFIG_CONFIG) $(top_srcdir)extra/scripts/conf-header.sh | $(top_builddir)include/bits
 	@$(disp_gen)
 	$(Q)$< -s $(Kconfig)
-	$(Q)$(top_srcdir)extra/scripts/conf-header.sh $(KCONFIG_CONFIG) > $@
+	$(Q)$(top_srcdir)extra/scripts/conf-header.sh $(KCONFIG_CONFIG) > $@.tmp
 	$(Q)$(MAKE) headers-y
+	$(Q)mv $@.tmp $@
 
 # The above doesn't work for threads, though. Just using check-symlinks for now.
 # XXX: FIXME: this is ugly
@@ -167,7 +168,7 @@ $(ALL_HEADERS_SYS_ARCH):
 	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/sys/$(@F) $@
 endif
 
-$(target-headers-sysdep) $(pregen-headers-y): | $(top_builddir)include/bits $(top_builddir)include/sys
+$(target-headers-sysdep) $(pregen-headers-y): | $(top_builddir)include/bits $(top_builddir)include/sys $(top_builddir)include/bits/sysnum.h 
 
 HEADERCLEAN_common:
 	$(do_rm) $(ALL_HEADERS_COMMON)
@@ -182,10 +183,12 @@ menuconfig-clean-y: HEADERCLEAN_config
 headers-y += $(target-headers-sysdep)
 
 headers: $(top_builddir)include/bits/uClibc_config.h | subdirs
-subdirs: $(addprefix $(top_builddir),$(subdirs))
-pregen-headers: $(top_builddir)include/bits/sysnum.h $(pregen-headers-y)
-pregen: headers pregen-headers
 	$(Q)$(if $(UCLIBC_HAS_LOCALE),$(MAKE) -C extra/locale locale_headers)
+
+subdirs: $(addprefix $(top_builddir),$(subdirs))
+
+$(pregen-headers-y): $(headers_dep)
+pregen: headers $(pregen-headers-y) $(headers_dep)
 
 $(top_builddir)include/bits/sysnum.h: $(top_srcdir)extra/scripts/gen_bits_syscall_h.sh | $(top_builddir)include/bits
 	@$(disp_gen)
@@ -214,8 +217,6 @@ install: install_runtime install_dev
 
 
 RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB=$(shell $(top_srcdir)extra/scripts/relative_path.sh $(DEVEL_PREFIX)$(MULTILIB_DIR) $(RUNTIME_PREFIX)$(MULTILIB_DIR))
-
-startfiles: $(crt-y)
 
 $(top_builddir)extra/scripts/unifdef: |$(top_builddir)extra/scripts
 $(top_builddir)extra/scripts/unifdef: $(top_srcdir)extra/scripts/unifdef.c

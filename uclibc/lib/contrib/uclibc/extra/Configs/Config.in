@@ -3,7 +3,7 @@
 # see extra/config/Kconfig-language.txt
 #
 
-mainmenu "uClibc $VERSION C Library Configuration"
+mainmenu "uClibc-ng $VERSION C Library Configuration"
 
 config DESIRED_TARGET_ARCH
 	string
@@ -92,8 +92,8 @@ config TARGET_i386
 config TARGET_m68k
 	bool "m68k"
 
-#config TARGET_metag
-#	bool "metag"
+config TARGET_metag
+	bool "metag"
 
 config TARGET_microblaze
 	bool "microblaze"
@@ -104,8 +104,8 @@ config TARGET_mips
 #config TARGET_nios
 #	bool "nios"
 
-#config TARGET_nios2
-#	bool "nios2"
+config TARGET_nios2
+	bool "nios2"
 
 config TARGET_powerpc
 	bool "powerpc"
@@ -253,6 +253,7 @@ config TARGET_SUBARCH
 	default "e500" if CONFIG_E500
 	default "classic" if CONFIG_CLASSIC
 	default "sh4" if CONFIG_SH4
+	default "sh4" if CONFIG_SH4A
 	default "" if CONFIG_386
 	default "i486" if CONFIG_486
 	default "i586" if CONFIG_586
@@ -530,14 +531,15 @@ config LINUXTHREADS_OLD
 	# linuxthreads and linuxthreads.old need nanosleep()
 	select UCLIBC_HAS_REALTIME
 	depends on !TARGET_arc && \
+		   !TARGET_arm && \
 		   !TARGET_i386 && \
 		   !TARGET_metag && \
 		   !TARGET_mips && \
 		   !TARGET_powerpc && \
-		   !TARGET_sh && \
 		   !TARGET_sparc && \
 		   !TARGET_x86_64 && \
-		   !TARGET_xtensa
+		   !TARGET_xtensa || \
+		   !ARCH_USE_MMU
 	help
 	  There are two versions of linuxthreads.  The older (stable) version
 	  has been in uClibc for quite a long time but hasn't seen too many
@@ -556,7 +558,8 @@ config LINUXTHREADS_NEW
 		   !TARGET_sh && \
 		   !TARGET_sparc && \
 		   !TARGET_x86_64 && \
-		   !TARGET_xtensa
+		   !TARGET_xtensa || \
+		   !ARCH_USE_MMU
 	help
 	  The new version has not been tested much, and lacks ports for arches
 	  which glibc does not support (like bfin/frv/etc...), but is based on
@@ -580,7 +583,8 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_m68k && \
 		   !TARGET_microblaze && \
 		   !TARGET_nios2 && \
-		   !TARGET_vax
+		   !TARGET_vax && \
+		   ARCH_USE_MMU
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 
@@ -1055,8 +1059,9 @@ config UCLIBC_LINUX_SPECIFIC
 	  sched_getaffinity(), sched_setaffinity(), sendfile(),
 	  setfsgid(), setfsuid(), setresgid(), setresuid(),
 	  splice(), vmsplice(), tee(), signalfd(), statfs(),
-	  swapoff(), swapon(), sync_file_range(), _sysctl(),
-	  sysinfo(), timerfd_*(), vhangup(), umount(), umount2()
+	  swapoff(), swapon(), sync_file_range(), syncfs(),
+	  _sysctl(), sysinfo(), timerfd_*(), vhangup(), umount(),
+	  umount2()
 
 config UCLIBC_HAS_GNU_ERROR
 	bool "Support GNU extensions for error-reporting"
@@ -1568,17 +1573,6 @@ config UCLIBC_BUILD_MINIMAL_LOCALE
 	  If you do not need all locales that are available on your
 	  host-box, then set this to 'Y'.
 
-config UCLIBC_PREGENERATED_LOCALE_DATA
-	bool "Use Pre-generated Locale Data"
-	depends on UCLIBC_HAS_LOCALE && !TARGET_metag
-	help
-	  Use pre-built locale data.
-
-	  Note that these pregenerated locales are sensitive to your
-	  target architecture (endianess, bitcount).
-
-	  Saying N here is highly recommended.
-
 endchoice
 
 config UCLIBC_BUILD_MINIMAL_LOCALES
@@ -1592,19 +1586,6 @@ config UCLIBC_BUILD_MINIMAL_LOCALES
 	      en_US en_GB de_AT
 	  default:
 	      en_US
-
-config UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA
-	bool "Automagically Download the Pre-generated Locale Data (if necessary)"
-	depends on UCLIBC_PREGENERATED_LOCALE_DATA
-	help
-	  If you would like the build process to use 'wget' to automatically
-	  download the pregenerated locale data, enable this option.  Otherwise
-	  you will need to obtain the locale data yourself from:
-		http://www.uclibc.org/downloads/uClibc-locale-*.tgz
-	  and place the uClibc-locale-*.tgz tarball in the extra/locale/
-	  directory.
-
-	  Note that the use of pregenerated locale data is discouraged.
 
 config UCLIBC_HAS_XLOCALE
 	bool "Extended Locale Support (experimental/incomplete)"

@@ -29,7 +29,8 @@ BUILD_CFLAGS-gen_collate := -D_GNU_SOURCE
 
 locale_headers-$(UCLIBC_HAS_LOCALE) := $(top_builddir)include/bits/uClibc_locale_data.h
 
-#DEPH-locale := $(top_builddir)include/bits/sysnum.h
+headers_dep += $(locale_headers-y)
+
 DEPH-locale := $(top_builddir)include/bits/uClibc_config.h
 DEPH-gen_collate := $(DEPH-locale)
 DEPH-gen_ldc := $(addprefix $(locale_OUT)/,c8tables.h wctables.h locale_tables.h locale_collate.h) $(DEPH-locale)
@@ -45,9 +46,6 @@ locale_SRC := $(locale_OUT)/locale_data.c
 locale_OBJ := $(locale_OUT)/locale_data.o
 
 CFLAGS-locale_data.c := -D__WCHAR_ENABLED -I$(locale_OUT) -I$(locale_DIR)
-
-#headers-$(UCLIBC_HAS_LOCALE) += $(locale_headers-y)
-headers: $(locale_headers-y)
 
 libc-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
 libc-nomulti-$(UCLIBC_HAS_LOCALE) += $(locale_OBJ)
@@ -68,7 +66,7 @@ $(locale_OUT)%.s:  $(locale_OUT)%.S FORCE ; $(compile.s)
 $(locale_OUT)%.dep:
 
 
-locale_headers: headers $(top_builddir)include/bits/uClibc_locale_data.h
+locale_headers: $(locale_headers-y)
 
 # make sure that the host system has locales (this check is ok for uClibc/glibc)
 # we do not know though which locales were really enabled for libc at build time
@@ -155,10 +153,10 @@ $(locale_OUT)/gen_wctype : $(locale_DIR)/gen_wctype.c
 
 ifneq ($(V),)
 ifeq ($(V),1)
-FLAG-locale-verbose := -v
+FLAG-locale-verbose := -v -v
 endif
 ifeq ($(V),2)
-FLAG-locale-verbose := -v -v
+FLAG-locale-verbose := -v
 endif
 endif
 
@@ -192,26 +190,6 @@ $(locale_OUT)/locale_collate.h: $(locale_OUT)/gen_collate $(locale_OUT)/locale_t
 		$(SED) -e "s/^.*COL_IDX_\([^, ]*\).*$$/\1/" | sort | uniq | \
 		xargs $< $(locale_DIR)/collation $(FLAG-locale-verbose) -o $@
 
-$(locale_OUT)/$(LOCALE_DATA_FILENAME):
-ifeq ($(UCLIBC_DOWNLOAD_PREGENERATED_LOCALE_DATA),y)
-	( cd $(@D); $(WGET) http://www.uclibc.org/downloads/$(@F) )
-endif
-
-ifeq ($(UCLIBC_PREGENERATED_LOCALE_DATA),y)
-
-$(locale_SRC): $(locale_OUT)/$(LOCALE_DATA_FILENAME)
-	zcat $< | $(TAR) -xv -C $(@D) -f -
-	touch $@
-	# we use the one in locale_DIR
-	#$(RM) $(locale_OUT)/locale_mmap.h
-
-# for arch specific versions we have to at least overwrite
-# lt_defines.h/locale_data.c/uClibc_locale_data.h
-
-$(locale_OUT)/uClibc_locale_data.h: $(locale_SRC)
-
-else
-
 $(locale_SRC): $(locale_OUT)/gen_ldc $(locale_OUT)/lt_defines.h
 	@$(disp_gen)
 	$(Q)$< $@
@@ -220,8 +198,6 @@ $(locale_OUT)/uClibc_locale_data.h: $(locale_OUT)/lt_defines.h $(locale_OUT)/c8t
 	@$(disp_gen)
 	$(Q)grep -v "define __LC" $< > $@
 	$(Q)cat $(wordlist 2,4,$^) >> $@
-
-endif
 
 $(top_builddir)include/bits/uClibc_locale_data.h: $(locale_OUT)/uClibc_locale_data.h | $(top_builddir)include/bits/uClibc_config.h
 	@$(disp_gen)

@@ -13,15 +13,14 @@ LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-librt.so := -Wl,--dsbt-index=9
 LDFLAGS-librt.so := $(LDFLAGS)
 LIBS-librt.so := $(LIBS)
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-LIBS-librt.so += $(top_builddir)lib/libdl.so $(top_builddir)lib/libpthread.so
+LIBS-librt.so += $(top_builddir)lib/libpthread.so \
+	$(CC_FLAG_ASNEEDED) $(top_builddir)lib/libdl.so $(CC_FLAG_NO_ASNEEDED)
 endif
 
 librt_FULL_NAME := librt-$(VERSION).so
 
 librt_DIR := $(top_srcdir)librt
 librt_OUT := $(top_builddir)librt
-
-ifeq ($(UCLIBC_HAS_REALTIME),y)
 
 librt_SRC := $(notdir $(wildcard $(librt_DIR)/*.c))
 librt_filter_SRC :=
@@ -42,8 +41,9 @@ librt_filter_SRC += $(if $(UCLIBC_HAS_ADVANCED_REALTIME),, \
 	spawn_faction_addopen.c \
 	spawn_faction_init.c)
 
-librt_SRC := $(filter-out $(librt_filter_SRC),$(librt_SRC))
+librt_filter_SRC += $(if $(UCLIBC_HAS_STUBS),,rt_stubs.c)
 
+librt_SRC := $(filter-out $(librt_filter_SRC),$(librt_SRC))
 librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_SRC))
 librt_OBJ += $(patsubst $(librt_DIR)/%.S,$(librt_OUT)/%.o,$(librt_SSRC))
 
@@ -57,15 +57,19 @@ librt-a-y += $(librt_OBJ)
 endif
 librt-so-y += $(librt_OBJ:.o=.oS)
 
+ifeq ($(UCLIBC_HAS_REALTIME),y)
 lib-a-y += $(top_builddir)lib/librt.a
 lib-so-y += $(top_builddir)lib/librt.so
 endif
 
+librt-dep-y := $(libc.depend)
+librt-dep-$(UCLIBC_HAS_THREADS_NATIVE) += $(libpthread.depend) $(libdl.depend)
 
-ifeq ($(DOPIC)$(UCLIBC_HAS_THREADS_NATIVE),yn)
-$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(libc.depend)
+# for NPTL we need SHARED regardless of DOPIC
+ifeq ($(if $(UCLIBC_HAS_THREADS_NATIVE),,$(DOPIC)),y)
+$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(librt-dep-y)
 else
-$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(libc.depend) $(libpthread.depend) $(libdl.depend)
+$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(librt-dep-y)
 endif
 	$(call link.so,$(librt_FULL_NAME),$(ABI_VERSION))
 
@@ -73,7 +77,7 @@ $(librt_OUT)/librt_so.a: $(librt-so-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(top_builddir)lib/librt.a: $(librt-a-y) | $(top_builddir)lib
+$(top_builddir)lib/librt.a: $(librt-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 

@@ -23,6 +23,7 @@ fi
 
 case $CC in
 *icc*) CC_SYSNUM_ARGS="-dM" ;;
+*clang*) CC_SYSNUM_ARGS="-dM" ;;
 *)     CC_SYSNUM_ARGS="-dN" ;;
 esac
 

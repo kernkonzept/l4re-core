@@ -165,7 +165,8 @@ libpthread.depend := $(top_builddir)lib/libpthread.so
 endif
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
-headers_dep := $(top_builddir)include/bits/sysnum.h
+headers_dep := $(top_builddir)include/bits/sysnum.h \
+	$(top_builddir)include/bits/uClibc_config.h
 sub_headers := $(headers_dep)
 
 #LIBS :=$(interp) -L$(top_builddir)lib -lc
@@ -291,6 +292,8 @@ CPU_CFLAGS-y := -funsigned-char -fno-builtin
 
 $(eval $(call check-gcc-var,-fno-asm))
 CPU_CFLAGS-y += $(CFLAG_-fno-asm)
+$(eval $(call check-gcc-var,-fmerge-all-constants))
+CPU_CFLAGS-y += $(CFLAG_-fmerge-all-constants)
 
 LDADD_LIBFLOAT=
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
@@ -327,6 +330,9 @@ PICFLAG-$(UCLIBC_FORMAT_FDPIC_ELF) := -mfdpic
 PICFLAG-$(UCLIBC_FORMAT_DSBT_ELF)  := -mdsbt -fpic
 PICFLAG := $(PICFLAG-y)
 PIEFLAG_NAME:=-fPIE
+
+$(eval $(call check-gcc-var,-fdata-sections))
+$(eval $(call check-gcc-var,-ffunction-sections))
 
 # Some nice CPU specific optimizations
 ifeq ($(TARGET_ARCH),i386)
@@ -401,17 +407,10 @@ endif
 
 ifeq ($(TARGET_ARCH),mips)
 	OPTIMIZATION+=-mno-split-addresses
-	ifeq ($(strip $(ARCH_BIG_ENDIAN)),y)
-		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-Wl,-melf64btsmip
-		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-Wl,-melf32btsmip
-	endif
-	ifeq ($(strip $(ARCH_LITTLE_ENDIAN)),y)
-		CPU_LDFLAGS-$(CONFIG_MIPS_N64_ABI)+=-Wl,-melf64ltsmip
-		CPU_LDFLAGS-$(CONFIG_MIPS_O32_ABI)+=-Wl,-melf32ltsmip
-	endif
 	CPU_CFLAGS-$(CONFIG_MIPS_N64_ABI)+=-mabi=64
 	CPU_CFLAGS-$(CONFIG_MIPS_O32_ABI)+=-mabi=32
 	CPU_CFLAGS-$(CONFIG_MIPS_N32_ABI)+=-mabi=n32
+	CPU_LDFLAGS-y += $(CPU_CFLAGS)
 endif
 
 ifeq ($(TARGET_ARCH),nios)
@@ -430,9 +429,11 @@ $(eval $(call check-gcc-var,-mprefergot))
 ifeq ($(UCLIBC_HAS_FPU),y)
 	CPU_CFLAGS-$(CONFIG_SH2A)+=-m2a
 	CPU_CFLAGS-$(CONFIG_SH4)+=-m4
+	CPU_CFLAGS-$(CONFIG_SH4A)+=-m4a
 else
 	CPU_CFLAGS-$(CONFIG_SH2A)+=-m2a-nofpu
 	CPU_CFLAGS-$(CONFIG_SH4)+=-m4-nofpu
+	CPU_CFLAGS-$(CONFIG_SH4A)+=-m4a-nofpu
 endif
 endif
 
@@ -655,9 +656,6 @@ LDFLAGS_NOSTRIP:=$(LDFLAG-fuse-ld) $(CPU_LDFLAGS-y) -shared \
 #$(eval $(call check-ld-var,--gc-sections))
 #LDFLAGS_NOSTRIP += $(LDFLAG_--gc-sections)
 
-$(eval $(call check-gcc-var,-fdata-sections))
-$(eval $(call check-gcc-var,-ffunction-sections))
-
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS_NOSTRIP+=-Wl,-z,relro
 endif
@@ -678,14 +676,18 @@ LDFLAGS_NOSTRIP += $(CFLAG_-Wl--hash-style=gnu)
 endif
 endif
 
-LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
 ifeq ($(DODEBUG),y)
 CFLAGS += -O0 -g3 -DDEBUG
 else
 CFLAGS += $(OPTIMIZATION)
 CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER))
 CFLAGS += $(OPTIMIZATION-$(GCC_MAJOR_VER).$(GCC_MINOR_VER))
+$(eval $(call check-ld-var,-O2))
+LDFLAGS_NOSTRIP += $(CFLAG_-Wl-O2)
 endif
+
+LDFLAGS:=$(LDFLAGS_NOSTRIP) -Wl,-z,defs
+
 ifeq ($(DOSTRIP),y)
 LDFLAGS += -Wl,-s
 else
@@ -799,8 +801,15 @@ endif
 ASFLAGS += $(ASFLAG_--noexecstack)
 
 LIBGCC_CFLAGS ?= $(CFLAGS) $(CPU_CFLAGS-y)
-$(eval $(call cache-output-var,LIBGCC,$(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name))
-LIBGCC_DIR:=$(dir $(LIBGCC))
+$(eval $(call cache-output-var,LIBGCC_A,$(CC) $(LIBGCC_CFLAGS) -print-libgcc-file-name))
+$(eval $(call cache-output-var,LIBGCC_EH,$(CC) $(LIBGCC_CFLAGS) -print-file-name=libgcc_eh.a))
+# with -O0 we (e.g. lockf) might end up with references to
+# _Unwind_Resume, so pull in gcc_eh in this case..
+# with a --disable-shared toolchain, libgcc_eh.a and libgcc.a are combined
+# in libgcc.a, so check if the printed file exist, before adding to the commandline
+LIBGCC_EH_FILE := $(shell if [ -f $(LIBGCC_EH) ]; then echo $(LIBGCC_EH); fi)
+LIBGCC_DIR := $(dir $(LIBGCC_A))
+LIBGCC := $(LIBGCC_A) $(if $(DODEBUG),$(LIBGCC_EH_FILE))
 
 # moved from libpthread/linuxthreads
 ifeq ($(UCLIBC_CTOR_DTOR),y)

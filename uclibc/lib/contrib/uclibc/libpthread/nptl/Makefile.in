@@ -21,7 +21,7 @@ libpthread-routines- += allocatestack.c # dummy included by pthread_create.c
 libpthread-routines- += pthread_mutex_getprioceiling.c pthread_mutex_setprioceiling.c # XXX: delete those or use them!
 libpthread-routines-$(UCLIBC_HAS_RESOLVER_SUPPORT) += res.c
 libpthread-routines-$(UCLIBC_SUSV4_LEGACY) += pthread_getconcurrency.c \
-	pthread_setconcurrency
+	pthread_setconcurrency.c
 libpthread_CSRC = $(filter-out $(libpthread-routines-) \
 		  		$(libc-shared-routines-y) \
 		  		$(libc-static-routines-y) \
@@ -92,7 +92,7 @@ $(top_builddir)lib/libpthread.a: $(libpthread-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 
-$(libpthread_OUT)/pthread-errnos.h: $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(libpthread_OUT)/pthread-errnos.h: $(top_srcdir)extra/scripts/gen-as-const.awk
 $(libpthread_OUT)/pthread-errnos.h: $(libpthread_DIR)/pthread-errnos.sym
 	@$(disp_gen)
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \
@@ -187,18 +187,51 @@ CFLAGS-sem_wait.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-sem_timedwait.c = -fexceptions -fasynchronous-unwind-tables
 
 # These are the function wrappers we have to duplicate here.
-CFLAGS-fcntl.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-accept.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-clock_nanosleep.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-close.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-connect.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-creat.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-fdatasync.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-fsync.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-lockf.c = -fexceptions
-CFLAGS-pread.c = -fexceptions -fasynchronous-unwind-tables
-CFLAGS-pread64.c = -fexceptions -fasynchronous-unwind-tables
-CFLAGS-pwrite.c = -fexceptions -fasynchronous-unwind-tables
-CFLAGS-pwrite64.c = -fexceptions -fasynchronous-unwind-tables
-CFLAGS-wait.c = -fexceptions -fasynchronous-unwind-tables
-CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables
-CFLAGS-sigwait.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-msgrcv.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-msgsnd.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-msync.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-nanosleep.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-open64.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-open.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pause.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-poll.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-ppoll.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pread_write.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-pselect.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-read.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-readv.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-recv.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-recvfrom.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-recvmsg.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-__rt_sigtimedwait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-__rt_sigwaitinfo.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-select.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-send.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sendmsg.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sendto.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sigpause.c = -fexceptions
+CFLAGS-sigsuspend.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sigtimedwait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sigwait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-sigwaitinfo.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-__syscall_fcntl64.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-__syscall_fcntl.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-tcdrain.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-usleep.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-wait4.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-wait.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-waitid.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-write.c = -fexceptions -fasynchronous-unwind-tables
+CFLAGS-writev.c = -fexceptions -fasynchronous-unwind-tables
 
 CFLAGS-pt-system.c = -fexceptions -I$(top_srcdir)libc/stdlib
 

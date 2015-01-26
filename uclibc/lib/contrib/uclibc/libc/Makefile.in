@@ -87,8 +87,7 @@ $(libc_OUT)/libc.oS: $(libc-multi-y) | $(top_builddir)lib/libc.a $(top_builddir)
 	$(Q)$(RM) $@
 	$(compile-m)
 
-$(top_builddir)lib/libc.a: $(libc-a-y) | $(crt-y)
-	$(Q)$(INSTALL) -d $(dir $@)
+$(top_builddir)lib/libc.a: $(libc-a-y)
 	$(Q)$(RM) $@
 	$(do_ar)
 

@@ -27,6 +27,7 @@ choice
 	  - "SH2" SuperH SH-2
 	  - "SH3" SuperH SH-3
 	  - "SH4" SuperH SH-4
+	  - "SH4A" SuperH SH-4a
 
 config CONFIG_SH2A
 	select ARCH_HAS_NO_MMU
@@ -43,6 +44,9 @@ config CONFIG_SH3
 
 config CONFIG_SH4
 	bool "SH4"
+
+config CONFIG_SH4A
+	bool "SH4A"
 
 endchoice
 

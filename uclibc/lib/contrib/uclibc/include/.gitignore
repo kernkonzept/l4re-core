@@ -38,6 +38,7 @@
 /sys/prctl.h
 /sys/procfs.h
 /sys/ptrace.h
+/sys/random.h
 /sys/reg.h
 /sys/regdef.h
 /sys/signalfd.h

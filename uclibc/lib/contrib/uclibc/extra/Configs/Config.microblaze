@@ -10,4 +10,5 @@ config TARGET_ARCH
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
+	select ARCH_ANY_ENDIAN
 	select ARCH_HAS_DEPRECATED_SYSCALLS

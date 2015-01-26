@@ -52,6 +52,7 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	swapoff.c \
 	swapon.c \
 	sync_file_range.c \
+	syncfs.c \
 	sysctl.c \
 	sysinfo.c \
 	tee.c \

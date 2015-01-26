@@ -137,7 +137,7 @@ endif
 PTHREAD_LINUX_SYM   := $(notdir $(wildcard $(libpthread_linux_DIR)/*.sym))
 PTHREAD_LINUX_SYM_H := $(addprefix $(libpthread_linux_OUT)/,$(PTHREAD_LINUX_SYM:.sym=.h))
 
-$(PTHREAD_LINUX_SYM_H): $(top_srcdir)extra/scripts/gen-as-const.awk | headers
+$(PTHREAD_LINUX_SYM_H): $(top_srcdir)extra/scripts/gen-as-const.awk
 $(PTHREAD_LINUX_SYM_H): $(libpthread_linux_OUT)/%.h: $(libpthread_linux_DIR)/%.sym
 	@$(disp_gen)
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \

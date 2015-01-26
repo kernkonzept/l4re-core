@@ -814,7 +814,8 @@ next:
 	fclose(out);
 
 	if (*tmpname) {
-		dirname = strndup(basename, strlen(basename) + 4);
+		dirname = malloc(strlen(basename) + 4 + 1);
+		strcpy(dirname, basename);
 		strcat(dirname, ".old");
 		rename(newname, dirname);
 		free(dirname);

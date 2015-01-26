@@ -78,7 +78,7 @@ $(libpthread_pthread_OUT)/pt-crti.o: $(libpthread_pthread_OUT)/pt-crti.S
 $(libpthread_pthread_OUT)/pt-crtn.o: $(libpthread_pthread_OUT)/pt-crtn.S
 	$(compile.S)
 
-$(libpthread_pthread_OUT)/pt-initfini.s: $(PTHREAD_INITFINI) | $(top_builddir)include/bits/uClibc_config.h
+$(libpthread_pthread_OUT)/pt-initfini.s: $(PTHREAD_INITFINI) | $(headers_dep)
 	$(compile.c)
 $(libpthread_pthread_OUT)/defs.h: $(PTHREAD_INITFINI)
 	$(do_sed) -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \

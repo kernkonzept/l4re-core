@@ -22,14 +22,16 @@ ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 libs: $(lib-gdb-y)
 endif
 libs: $(lib-a-y)
-$(lib-a-y): | $(top_builddir)lib
 endif
 objs: all_objs
+$(lib-so-y) $(lib-a-y): | $(top_builddir)lib
 
 # apply unconditional per-directory flags
 define add_IS_IN_lib
 ifneq ($(strip $(2)),)
-__add_IS_IN_lib := $(subst $(top_builddir),,$(2))
+__add_IS_IN_lib := $(2)
+__add_IS_IN_lib += $(2:.o=.i) $(2:.os=.i) $(2:.oS=.i)
+__add_IS_IN_lib += $(2:.o=.s) $(2:.os=.s) $(2:.oS=.s)
 $$(__add_IS_IN_lib): CFLAGS-for-library-members:=$(CFLAGS-$(1)) -DIN_LIB=$(word 1,$(subst /, ,$(1)))
 endif
 endef
@@ -92,7 +94,7 @@ else
 export MAKE_IS_SILENT := n
 SECHO := @echo
 ifneq ($(V)$(VERBOSE),)
-ifeq ($(V),1)
+ifeq ($(V),2)
 DISP := bri# brief, like pur but with defines
 Q := @
 else
@@ -326,9 +328,10 @@ cmd_hcompile.o = $(HOSTCC) $(filter-out $(PHONY),$<) $(DEPS-$(notdir $@)) -c -o 
 
 define create-lds
 	$(Q)$(RM) $@.lds
-	$(Q)$(CC) -nostdlib -nostartfiles -shared -Wl,-z,combreloc \
-	-Wl,-z,relro -Wl,--hash-style=gnu -Wl,-z,defs \
-	-Wl,--verbose 2>&1 | LC_ALL=C \
+	$(Q)$(CC) $(LDFLAG-fuse-ld) $(CPU_LDFLAGS-y) \
+	-nostdlib -nostartfiles -shared -Wl,-z,combreloc \
+	-Wl,-z,relro $(CFLAG_-Wl--hash-style=gnu) -Wl,-z,defs \
+	-x c /dev/null -Wl,--verbose 2>&1 | LC_ALL=C \
 	$(SED) -e '/^=========/,/^=========/!d;/^=========/d' \
 	-e 's/\. = .* + SIZEOF_HEADERS;/& $(SYMBOL_PREFIX)_begin = . - SIZEOF_HEADERS;/' > $@.lds
 endef
@@ -441,6 +444,9 @@ CTOR_TARGETS=$(top_builddir)lib/crti.o $(top_builddir)lib/crtn.o
 else
 CTOR_TARGETS:=
 endif
+ifeq ($(HAS_NO_THREADS)$(UCLIBC_HAS_THREADS_NATIVE),)
+$(lib-so-y): $(CTOR_TARGETS)
+endif
 
 ifeq ($(UCLIBC_FORMAT_FDPIC_ELF),y)
 CRTRELOC=$(top_builddir)lib/crtreloc.o
@@ -453,18 +459,18 @@ CFLAGS-initfini.s := -S -g0 $(PICFLAG) -fno-inline-functions -finhibit-size-dire
 $(top_builddir)lib/initfini.s: $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/initfini.c | $(top_builddir)lib
 	$(compile.c)
 
-$(top_builddir)lib/defs.h: $(top_builddir)lib/initfini.s | $(top_builddir)lib
-	$(Q)sed -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
-		gawk -f $(top_srcdir)extra/scripts/defs.awk > $@.tmp
+$(top_builddir)lib/defs.h: $(top_builddir)lib/initfini.s
+	$(do_sed) -n -e '/@TESTS_BEGIN/,/@TESTS_END/p' $< | \
+		$(AWK) -f $(top_srcdir)extra/scripts/defs.awk > $@.tmp
 	$(Q)mv $@.tmp $@
 
 $(top_builddir)lib/crti.S: $(top_builddir)lib/initfini.s $(top_builddir)lib/defs.h
-	$(Q)sed -n -e '1,/@HEADER_ENDS/p' \
+	$(do_sed) -n -e '1,/@HEADER_ENDS/p' \
 		-e '/@_.*_PROLOG_BEGINS/,/@_.*_PROLOG_ENDS/p' \
 		-e '/@TRAILER_BEGINS/,$$p' $< > $@
 
 $(top_builddir)lib/crtn.S: $(top_builddir)lib/initfini.s
-	$(Q)sed -n -e '1,/@HEADER_ENDS/p' \
+	$(do_sed) -n -e '1,/@HEADER_ENDS/p' \
 		-e '/@_.*_EPILOG_BEGINS/,/@_.*_EPILOG_ENDS/p' \
 		-e '/@TRAILER_BEGINS/,$$p' $< > $@
 
@@ -484,9 +490,10 @@ CRTS_COMPAT :=
 #endif
 
 startfiles = $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
-$(crt-y): $(startfiles)
+startfiles: $(startfiles)
 $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC): | headers
-$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC) $(LINK_FLAT_CRTS) $(SHARED_START_FILES) $(SHARED_END_FILES) : | $(top_builddir)lib
+$(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC) \
+	$(LINK_FLAT_CRTS) $(SHARED_START_FILES) $(SHARED_END_FILES): | $(top_builddir)lib
 
 $(top_builddir)lib/$(NONSHARED_LIBNAME): $(libc-nonshared-y)
 	$(Q)$(RM) $@

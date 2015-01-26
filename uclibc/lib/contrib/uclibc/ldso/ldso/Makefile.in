@@ -27,6 +27,11 @@ CFLAGS-$(DODEBUG)-ldso/ldso := -O2 -g
 
 CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
+# avoid ld.so linking error since gcc 4.9.x: undefined reference to abort
+ifeq ($(TARGET_ARCH),xtensa)
+CFLAGS-ldso.c += -fno-delete-null-pointer-checks
+endif
+
 LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-$(UCLIBC_LDSO_NAME).so := -Wl,--dsbt-index=1
 ifneq ($(SUPPORT_LD_DEBUG),y)
 LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS)
@@ -68,11 +73,14 @@ LDFLAGS-$(UCLIBC_LDSO_NAME).so += -T $(ldso:.$(ABI_VERSION)=).lds
 endif
 
 $(ldso): $(ldso:.$(ABI_VERSION)=)
+$(ldso:.$(ABI_VERSION)=): | $(top_builddir)lib
 $(ldso:.$(ABI_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
 ifeq ($(LDSO_PRELINK_SUPPORT),y)
 	$(call create-lds)
 endif
 	$(call link.so,$(ldso_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	(cd $(top_builddir)lib; ln -sf $(UCLIBC_LDSO_NAME).so.$(ABI_VERSION) $(UCLIBC_LDSO_NAME).so.0 )
 
 $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a: $(ldso-y)
 	$(Q)$(RM) $@

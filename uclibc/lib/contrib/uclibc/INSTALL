@@ -73,6 +73,9 @@ USING uClibc-ng:
     (i.e. binutils, gcc and uClibc-ng) that was built expressly for use
     with uClibc-ng.
 
- - You have two choices at the moment:
+ - You have following choices at the moment:
    - Use OpenADK from http://www.openadk.org
+   - Use Buildroot from http://www.buildroot.org
+   - Use OpenWrt from http://www.openwrt.org
+   - Use Crosstool-NG from http://crosstool-ng.org
    - Use your own build scripts or environment
