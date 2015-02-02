@@ -425,6 +425,15 @@ config LDSO_RUNPATH
 	  Usage of RUNPATH tags is not too common, so disabling this feature
 	  should be safe for most people.
 
+config LDSO_RUNPATH_OF_EXECUTABLE
+	bool "Use executables RPATH/RUNPATH when searching for libraries."
+	depends on LDSO_RUNPATH
+	default n
+	help
+	  Use the executables RPATH/RUNPATH to find to find libraries even
+	  though this behavour is not standard.  Setting this option causes
+	  the uclibc dynamic linker behavour to match the glibc dynamic linker.
+
 config LDSO_SAFE_RUNPATH
 	bool "Allow only RUNPATH beginning with /"
 	depends on LDSO_RUNPATH
