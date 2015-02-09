@@ -529,7 +529,6 @@ config LINUXTHREADS_OLD
 	# linuxthreads and linuxthreads.old need nanosleep()
 	select UCLIBC_HAS_REALTIME
 	depends on !TARGET_arc && \
-		   !TARGET_arm && \
 		   !TARGET_i386 && \
 		   !TARGET_metag && \
 		   !TARGET_mips && \

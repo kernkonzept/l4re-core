@@ -21,11 +21,49 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
-#include <features.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 
 #ifndef PT_EI
 # define PT_EI __extern_always_inline
 #endif
+
+#if defined(__thumb__)
+#if defined(__USE_LDREXSTREX__)
+PT_EI long int ldrex(int *spinlock)
+{
+	long int ret;
+	__asm__ __volatile__(
+		"ldrex %0, [%1]\n"
+		: "=r"(ret)
+		: "r"(spinlock) : "memory");
+	return ret;
+}
+
+PT_EI long int strex(int val, int *spinlock)
+{
+	long int ret;
+	__asm__ __volatile__(
+		"strex %0, %1, [%2]\n"
+		: "=r"(ret)
+		: "r" (val), "r"(spinlock) : "memory");
+	return ret;
+}
+
+/* Spinlock implementation; required.  */
+PT_EI long int
+testandset (int *spinlock)
+{
+  register unsigned int ret;
+
+  do {
+	  ret = ldrex(spinlock);
+  } while (strex(1, spinlock));
+
+  return ret;
+}
+
+#else /* __USE_LDREXSTREX__ */
 
 /* This will not work on ARM1 or ARM2 because SWP is lacking on those
    machines.  Unfortunately we have no way to detect this at compile
@@ -36,8 +74,6 @@ PT_EI long int testandset (int *spinlock);
 PT_EI long int testandset (int *spinlock)
 {
   register unsigned int ret;
-
-#if defined(__thumb__)
   void *pc;
   __asm__ __volatile__(
 	".align 0\n"
@@ -50,15 +86,21 @@ PT_EI long int testandset (int *spinlock)
 	"\t.force_thumb"
 	: "=r"(ret), "=r"(pc)
 	: "0"(1), "r"(spinlock));
-#else
+  return ret;
+}
+#endif
+#else /* __thumb__ */
+
+PT_EI long int testandset (int *spinlock);
+PT_EI long int testandset (int *spinlock)
+{
+  register unsigned int ret;
   __asm__ __volatile__("swp %0, %1, [%2]"
 		       : "=r"(ret)
 		       : "0"(1), "r"(spinlock));
-#endif
-
   return ret;
 }
-
+#endif
 
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */

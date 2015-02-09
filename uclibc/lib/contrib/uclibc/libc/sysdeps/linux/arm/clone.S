@@ -26,7 +26,10 @@
 #include <sys/syscall.h>
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
+
+#if defined __UCLIBC_HAS_THREADS__ && !defined __LINUXTHREADS_OLD__
 #include <sysdep-cancel.h>
+#endif
 
 #define CLONE_VM      0x00000100
 #define CLONE_THREAD  0x00010000
@@ -57,23 +60,22 @@ __clone:
 	@ get flags
 	mov	r0, r2
 	@ new sp is already in r1
-	@ load remaining arguments off the stack
-	stmfd	sp!, {r4}
-	ldr	r2, [sp, #4]
-	ldr	r3, [sp, #8]
-	ldr	r4, [sp, #12]
 	DO_CALL (clone)
 	movs	a1, a1
 	blt	__error
-	ldmnefd sp!, {r4}
 	beq	1f
 	bx	lr
 1:
 
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
+#if defined(__USE_BX__)
 	ldr	r1, [sp]
 	bl	2f	@ blx r1
+#else
+	mov     lr, pc
+	ldr     pc, [sp]
+#endif
 
 	@ and we are done, passing the return value through r0
 	bl	HIDDEN_JUMPTARGET(_exit)
