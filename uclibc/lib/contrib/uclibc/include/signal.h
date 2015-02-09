@@ -491,10 +491,7 @@ extern int __libc_current_sigrtmax (void) __THROW;
 
 #ifdef _LIBC
 extern sigset_t _sigintr attribute_hidden;
-/* simplified version without parameter checking */
 # include <string.h>
-# undef __sigemptyset
-# define __sigemptyset(ss) (memset(ss, '\0', sizeof(sigset_t)), 0)
 #endif
 #endif /* signal.h  */
 
