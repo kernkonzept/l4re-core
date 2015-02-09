@@ -257,6 +257,7 @@ config TARGET_SUBARCH
 	default "i486" if CONFIG_486
 	default "i586" if CONFIG_586
 	default "i686" if CONFIG_686
+	default "arcv2" if CONFIG_ARC_CPU_HS
 	default ""
 
 source "extra/Configs/Config.in.arch"

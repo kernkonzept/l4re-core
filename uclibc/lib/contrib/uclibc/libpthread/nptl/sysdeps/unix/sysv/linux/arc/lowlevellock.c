@@ -24,8 +24,10 @@
 #include <tls.h>
 #include <tcb-offsets.h>
 
-
 void
+#ifndef IS_IN_libpthread
+weak_function
+#endif
 __lll_lock_wait_private (int *futex)
 {
   if (*futex == 2)

@@ -98,7 +98,11 @@ extern int __syscall_error (int);
  * for syscall itself.
  *-------------------------------------------------------------------------*/
 
-#define ARC_TRAP_INSN  "trap0	\n\t"
+#ifdef __A7__
+#define ARC_TRAP_INSN	"trap0		\n\t"
+#elif defined(__HS__)
+#define ARC_TRAP_INSN	"trap_s 0	\n\t"
+#endif
 
 #define INTERNAL_SYSCALL_NCS(nm, err, nr_args, args...)	\
 ({							\
@@ -176,7 +180,11 @@ extern int __syscall_error (int);
 
 #else
 
+#ifdef __A7__
 #define ARC_TRAP_INSN	trap0
+#elif defined(__HS__)
+#define ARC_TRAP_INSN	trap_s 0
+#endif
 
 #endif /* __ASSEMBLER__ */
 

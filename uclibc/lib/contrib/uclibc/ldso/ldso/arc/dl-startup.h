@@ -33,9 +33,16 @@ __asm__(
     "   ; If ldso ran as cmd with executable file nm as arg     \n"
     "   ; skip the extra args calc by dl_start()                \n"
     "   ld_s    r1, [sp]       ; orig argc from aux-vec Tbl     \n"
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
     "   ld      r12, [pcl, _dl_skip_args@pcl]                   \n"
 
     "   add     r2, pcl, _dl_fini@pcl       ; finalizer         \n"
+#else
+    "   add     r12, pcl, _dl_skip_args-.+(.&2)                 \n"
+    "   ld      r12, [r12]                                      \n"
+    "   add     r2, pcl, _dl_fini-.+(.&2)   ; finalizer         \n"
+#endif
 
     "   add2    sp, sp, r12    ; discard argv entries from stack\n"
     "   sub_s   r1, r1, r12    ; adjusted argc, on stack        \n"

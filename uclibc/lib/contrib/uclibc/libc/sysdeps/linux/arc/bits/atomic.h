@@ -24,8 +24,11 @@ typedef uintmax_t uatomic_max_t;
 
 void __arc_link_error (void);
 
-#define atomic_full_barrier() \
-     __asm__ __volatile__("": : :"memory")
+#ifdef __A7__
+#define atomic_full_barrier() __asm__ __volatile__("": : :"memory")
+#else
+#define atomic_full_barrier() __asm__ __volatile__("dmb 3": : :"memory")
+#endif
 
 /* Atomic compare and exchange. */
 

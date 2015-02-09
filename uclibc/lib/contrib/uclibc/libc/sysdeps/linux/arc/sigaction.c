@@ -10,8 +10,14 @@
 #include <sys/syscall.h>
 #include <bits/kernel_sigaction.h>
 
-extern void __default_rt_sa_restorer(void);
-//libc_hidden_proto(__default_rt_sa_restorer);
+/*
+ * Default sigretrun stub if user doesn't specify SA_RESTORER
+ */
+static void attribute_optimize("Os") __attribute_noinline__
+__default_rt_sa_restorer(void)
+{
+	INTERNAL_SYSCALL_NCS(__NR_rt_sigreturn, , 0);
+}
 
 #define SA_RESTORER	0x04000000
 
@@ -22,23 +28,22 @@ __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
 	struct sigaction kact;
 
-	/* !act means caller only wants to know @oact
-	 * Hence only otherwise, do SA_RESTORER stuff
-	 *
-	 * For the normal/default cases (user not providing SA_RESTORER) use
-	 * a real sigreturn stub to avoid kernel synthesizing one on user stack
-	 * at runtime, which needs PTE permissions update (hence TLB entry
-	 * update) and costly cache line flushes for code modification
+	/*
+	 * SA_RESTORER is only relevant for act != NULL case
+	 * (!act means caller only wants to know @oact)
 	 */
 	if (act && !(act->sa_flags & SA_RESTORER)) {
-		memcpy(&kact, act, sizeof(kact));
 		kact.sa_restorer = __default_rt_sa_restorer;
-		kact.sa_flags |= SA_RESTORER;
+		kact.sa_flags = act->sa_flags | SA_RESTORER;
+
+		kact.sa_handler = act->sa_handler;
+		kact.sa_mask = act->sa_mask;
 
 		act = &kact;
 	}
 
-	return __syscall_rt_sigaction(sig, act, oact, sizeof(act->sa_mask));
+	return INLINE_SYSCALL(rt_sigaction, 4,
+			sig, act, oact, sizeof(act->sa_mask));
 }
 
 #ifndef LIBC_SIGACTION

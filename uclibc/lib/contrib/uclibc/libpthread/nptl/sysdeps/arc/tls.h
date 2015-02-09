@@ -104,8 +104,11 @@ typedef struct
    operation can cause a failure 'errno' must not be touched.  */
 # define TLS_INIT_TP(tcbp, secondcall)          \
   ({                                            \
-        __builtin_set_thread_pointer(tcbp);     \
-        NULL;                                   \
+	long result_var;			\
+	__builtin_set_thread_pointer(tcbp);     \
+	result_var = INTERNAL_SYSCALL (arc_settls, err, 1, (tcbp));	\
+	INTERNAL_SYSCALL_ERROR_P (result_var, err)			\
+	? "unknown error" : NULL;		\
    })
 
 /* Return the address of the dtv for the current thread.

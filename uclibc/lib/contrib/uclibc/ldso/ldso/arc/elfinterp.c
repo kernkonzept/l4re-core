@@ -11,7 +11,11 @@
  */
 #include "ldso.h"
 
+#ifdef __A7__
 #define ARC_PLT_SIZE	12
+#else
+#define ARC_PLT_SIZE	16
+#endif
 
 unsigned long
 _dl_linux_resolver(struct elf_resolve *tpnt, unsigned int plt_pc)
@@ -140,6 +144,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 #endif
 
 	switch (reloc_type) {
+	case R_ARC_NONE:
+		break;
 	case R_ARC_32:
 		*reloc_addr += symbol_addr + rpnt->r_addend;
 		break;
@@ -198,6 +204,8 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 #endif
 
 	switch (reloc_type) {
+	case R_ARC_NONE:
+		break;
 	case R_ARC_JMP_SLOT:
 		*reloc_addr += tpnt->loadaddr;
 		break;

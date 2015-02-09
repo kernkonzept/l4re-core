@@ -258,7 +258,6 @@ typedef struct
 #define EM_MN10200	90		/* Matsushita MN10200 */
 #define EM_PJ		91		/* picoJava */
 #define EM_OPENRISC	92		/* OpenRISC 32-bit embedded processor */
-#define EM_ARC_A5	93		/* ARC Cores Tangent-A5 */
 #define EM_ARCOMPACT	93		/* ARCompact ISA based Cores: ARC 700 */
 #define EM_XTENSA	94		/* Tensilica Xtensa Architecture */
 #define EM_IP2K		101		/* Ubicom IP2022 micro controller */
@@ -382,6 +381,7 @@ typedef struct
 
 /* Xilinx Microblaze (official) */
 #define EM_MICROBLAZE   189
+#define EM_ARCV2	195		/* ARCv2 Cores */
 
 /* Legal values for e_version (version).  */
 
