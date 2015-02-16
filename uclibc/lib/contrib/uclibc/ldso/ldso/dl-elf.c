@@ -275,7 +275,7 @@ struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rp
         if (pnt) {
                 pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
                 _dl_if_debug_dprint("\tsearching exe's RPATH='%s'\n", pnt);
-                if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt)) != NULL)
+                if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
                         return tpnt1;
         }
 #endif
@@ -326,6 +326,38 @@ struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rp
 					, rpnt, NULL);
 	if (tpnt1 != NULL)
 		return tpnt1;
+
+#ifdef __LDSO_RUNPATH_OF_EXECUTABLE__
+	/* Very last resort, try the executable's DT_RUNPATH and DT_RPATH */
+	/* http://www.sco.com/developers/gabi/latest/ch5.dynamic.html#shobj_dependencies
+	 * The set of directories specified by a given DT_RUNPATH entry is
+	 * used to find only the immediate dependencies of the executable or
+	 * shared object containing the DT_RUNPATH entry. That is, it is
+	 * used only for those dependencies contained in the DT_NEEDED
+	 * entries of the dynamic structure containing the DT_RUNPATH entry,
+	 * itself. One object's DT_RUNPATH entry does not affect the search
+	 * for any other object's dependencies.
+	 *
+	 * glibc (around 2.19) violates this and the usual suspects are
+	 * abusing this bug^Wrelaxed, user-friendly behaviour.
+	 */
+
+	pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RUNPATH];
+	if (pnt) {
+		pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
+		_dl_if_debug_dprint("\tsearching exe's RUNPATH='%s'\n", pnt);
+		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
+			return tpnt1;
+	}
+	pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RPATH];
+	if (pnt) {
+		pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
+		_dl_if_debug_dprint("\tsearching exe's RPATH='%s'\n", pnt);
+		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
+			return tpnt1;
+	}
+#endif
+
 
 goof:
 	/* Well, we shot our wad on that one.  All we can do now is punt */
