@@ -113,8 +113,6 @@ _dl_debug_lookup (const char *undef_name, struct elf_resolve *undef_map,
 					const ElfW(Sym) *ref, struct symbol_ref *value, int type_class)
 {
 #ifdef SHARED
-  unsigned long symbol_addr;
-
   if (_dl_trace_prelink)
     {
       int conflict = 0;
@@ -124,17 +122,14 @@ _dl_debug_lookup (const char *undef_name, struct elf_resolve *undef_map,
 	   || _dl_trace_prelink_map == _dl_loaded_modules)
 	  && undef_map != _dl_loaded_modules)
 	{
-		symbol_addr = (unsigned long)
-					  _dl_find_hash(undef_name, &undef_map->symbol_scope,
-									undef_map, type_class, &val);
+	  _dl_find_hash(undef_name, &undef_map->symbol_scope,
+			undef_map, type_class, &val);
 
 	  if (val.sym != value->sym || val.tpnt != value->tpnt)
 	    conflict = 1;
 	}
 
-      if (value->sym
-	  && (__builtin_expect (ELF_ST_TYPE(value->sym->st_info)
-				== STT_TLS, 0)))
+      if (unlikely(value->sym && ELF_ST_TYPE(value->sym->st_info) == STT_TLS))
 	type_class = 4;
 
       if (conflict
