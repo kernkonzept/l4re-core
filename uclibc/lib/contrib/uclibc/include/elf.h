@@ -266,12 +266,16 @@ typedef struct
 #define EM_BLACKFIN	106		/* Analog Devices Blackfin */
 #define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
 #define EM_CRX		114		/* National Semiconductor CRX */
+#define EM_TI_C6000	140
+#define EM_METAG	174		/* Imagination Technologies Meta */
 #define EM_AARCH64	183		/* ARM AARCH64 */
 #define EM_TILEPRO	188		/* Tilera TILEPro */
-#define EM_MICROBLAZE	189		/* Xilinx MicroBlaze */
+#define EM_MICROBLAZE	189	/* Xilinx Microblaze */
 #define EM_TILEGX	191		/* Tilera TILE-Gx */
-#define EM_NUM		192
-#define EM_TI_C6000	140
+#define EM_ARCV2	195		/* ARCv2 Cores */
+
+/* NEXT FREE NUMBER: Increment this after adding your official arch number */
+#define EM_NUM		196
 
 /* If it is necessary to assign new unofficial EM_* values, please pick large
    random numbers (0x8523, 0xa7f2, etc.) to minimize the chances of collision
@@ -285,21 +289,8 @@ typedef struct
    unofficial e_machine number should eventually ask registry@caldera.com for
    an officially blessed number to be added to the list above.  */
 
-/* Imagination Technologies Meta */
-#define EM_METAG        174
-
-/* picoJava */
-#define EM_PJ_OLD	99
-
 /* Cygnus PowerPC ELF backend.  Written in the absence of an ABI.  */
 #define EM_CYGNUS_POWERPC 0x9025
-
-/* Old version of Sparc v9, from before the ABI; this should be
-   removed shortly.  */
-#define EM_OLD_SPARCV9	11
-
-/* Old version of PowerPC, this should be removed shortly. */
-#define EM_PPC_OLD	17
 
 /* (Deprecated) Temporary number for the OpenRISC processor.  */
 #define EM_OR32		0x8472
@@ -378,10 +369,6 @@ typedef struct
  * magic number, but all the toolchains currently in existence use the old number
  */
 #define EM_MICROBLAZE_OLD   0xbaab
-
-/* Xilinx Microblaze (official) */
-#define EM_MICROBLAZE   189
-#define EM_ARCV2	195		/* ARCv2 Cores */
 
 /* Legal values for e_version (version).  */
 
