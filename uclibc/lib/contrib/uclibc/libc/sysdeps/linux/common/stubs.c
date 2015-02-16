@@ -346,6 +346,10 @@ make_stub(setfsgid)
 make_stub(setfsuid)
 #endif
 
+#if !defined __NR_setns && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(setns)
+#endif
+
 #if !defined __NR_setresgid32 && !defined __NR_setresgid && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(setresgid)
 #endif

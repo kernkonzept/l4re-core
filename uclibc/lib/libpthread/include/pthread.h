@@ -29,7 +29,6 @@
 /* Aw11: scheduling constants */
 enum
 {
-  SCHED_IDLE  = 5,
   SCHED_L4    = 6,
 };
 

@@ -45,6 +45,7 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	sendfile.c \
 	setfsgid.c \
 	setfsuid.c \
+	setns.c \
 	setresgid.c \
 	setresuid.c \
 	signalfd.c \
