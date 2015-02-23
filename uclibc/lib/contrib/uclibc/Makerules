@@ -333,7 +333,7 @@ define create-lds
 	-Wl,-z,relro $(CFLAG_-Wl--hash-style=gnu) -Wl,-z,defs \
 	-x c /dev/null -Wl,--verbose 2>&1 | LC_ALL=C \
 	$(SED) -e '/^=========/,/^=========/!d;/^=========/d' \
-	-e 's/\. = .* + SIZEOF_HEADERS;/& $(SYMBOL_PREFIX)_begin = . - SIZEOF_HEADERS;/' > $@.lds
+	-e 's/^\([ 	]*\)\. = .* + SIZEOF_HEADERS;/&\n\1$(SYMBOL_PREFIX)_begin = . - SIZEOF_HEADERS;/' > $@.lds
 endef
 
 define link.so

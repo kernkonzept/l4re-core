@@ -95,8 +95,8 @@
 #include "dl-startup.h"
 
 #ifdef __LDSO_PRELINK_SUPPORT__
-/* These defined magically in the linker script.  */
-extern char _begin[] attribute_hidden;
+/* This is defined by the linker script.  */
+extern ElfW(Addr) _begin[] attribute_hidden;
 #endif
 
 /* Static declarations */
@@ -196,7 +196,7 @@ DL_START(unsigned long args)
 	 */
 
 	if (!auxvt[AT_BASE].a_un.a_val)
-		auxvt[AT_BASE].a_un.a_val =  (Elf32_Addr) &_begin;
+		auxvt[AT_BASE].a_un.a_val =  (ElfW(Addr)) &_begin;
 	/* Note: if the dynamic linker itself is prelinked, the load_addr is 0 */
 	DL_INIT_LOADADDR_BOOT(load_addr, elf_machine_load_address());
 #else
