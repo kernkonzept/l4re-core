@@ -154,9 +154,9 @@ typedef struct {
 # if !defined __USE_EXTERN_INLINES || defined __PROVIDE_OUT_OF_LINE_SIGSETFN
 extern int __sigismember (const __sigset_t *, int);
 libc_hidden_proto(__sigismember)
-extern int __sigaddset (__sigset_t *, int);
+extern void __sigaddset (__sigset_t *, int);
 libc_hidden_proto(__sigaddset)
-extern int __sigdelset (__sigset_t *, int);
+extern void __sigdelset (__sigset_t *, int);
 libc_hidden_proto(__sigdelset)
 # endif
 
@@ -169,18 +169,19 @@ libc_hidden_proto(__sigdelset)
      * will have its own copy of out-of line function emitted. */
 #   define _EXTERN_INLINE /*extern*/ __always_inline
 #  endif
-#  define __SIGSETFN(NAME, BODY, CONST)					\
-_EXTERN_INLINE int							\
+#  define __SIGSETFN(RET_TYPE, NAME, BODY, CONST)			\
+_EXTERN_INLINE RET_TYPE							\
 NAME (CONST __sigset_t *__set, int __sig)				\
 {									\
 	unsigned long __mask = __sigmask (__sig);			\
 	unsigned __word = __sigword (__sig);				\
-	return BODY;							\
+	BODY;							\
 }
 
-__SIGSETFN (__sigismember, (__set->__val[__word] & __mask) ? 1 : 0, const)
-__SIGSETFN (__sigaddset, ((__set->__val[__word] |= __mask), 0), )
-__SIGSETFN (__sigdelset, ((__set->__val[__word] &= ~__mask), 0), )
+__SIGSETFN (int, __sigismember, return (__set->__val[__word] & __mask) ? 1 : 0,
+	const)
+__SIGSETFN (void, __sigaddset, (__set->__val[__word] |= __mask), )
+__SIGSETFN (void, __sigdelset, (__set->__val[__word] &= ~__mask), )
 
 #  undef __SIGSETFN
 # endif
@@ -207,7 +208,7 @@ const_sigaddset(__sigset_t *set, int sig)
 	set->__val[word] |= mask;
 }
 #  define __sigaddset(set, sig) \
-	(__builtin_constant_p(sig) ? (const_sigaddset(set, sig), 0)  : __sigaddset(set, sig))
+	(__builtin_constant_p(sig) ? const_sigaddset(set, sig)  : __sigaddset(set, sig))
 static __always_inline void
 const_sigdelset(__sigset_t *set, int sig)
 {
@@ -216,7 +217,7 @@ const_sigdelset(__sigset_t *set, int sig)
 	set->__val[word] &= ~mask;
 }
 #  define __sigdelset(set, sig) \
-	(__builtin_constant_p(sig) ? (const_sigdelset(set, sig), 0) : __sigdelset(set, sig))
+	(__builtin_constant_p(sig) ? const_sigdelset(set, sig) : __sigdelset(set, sig))
 # endif
 
 #endif /* ! _SIGSET_H_fns.  */

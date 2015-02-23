@@ -30,6 +30,7 @@ sigaddset (sigset_t *set, int signo)
       return -1;
     }
 
-  return __sigaddset (set, signo);
+  __sigaddset (set, signo);
+  return 0;
 }
 libc_hidden_def(sigaddset)
