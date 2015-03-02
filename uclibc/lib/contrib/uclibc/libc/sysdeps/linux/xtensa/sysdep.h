@@ -28,13 +28,24 @@
 #define ASM_TYPE_DIRECTIVE(name, typearg) .type name, typearg
 #define ASM_SIZE_DIRECTIVE(name) .size name, . - name
 
+#if defined(__XTENSA_WINDOWED_ABI__)
+#define abi_entry(reg, frame_size) entry reg, frame_size
+#define abi_ret retw
+#elif defined(__XTENSA_CALL0_ABI__)
+#define abi_entry(reg, frame_size)
+#define abi_ret ret
+#else
+#error Unsupported Xtensa ABI
+#endif
+
+
 #define	ENTRY(name)							\
   ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				\
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name), @function);			\
   .align ALIGNARG(2);							\
   LITERAL_POSITION;							\
   C_LABEL(name)								\
-  entry sp, FRAMESIZE;							\
+  abi_entry(sp, FRAMESIZE);						\
   CALL_MCOUNT
 
 #define	HIDDEN_ENTRY(name)						\
@@ -44,7 +55,7 @@
   .align ALIGNARG(2);							\
   LITERAL_POSITION;							\
   C_LABEL(name)								\
-  entry sp, FRAMESIZE;							\
+  abi_entry(sp, FRAMESIZE);						\
   CALL_MCOUNT
 
 #undef END
@@ -72,7 +83,15 @@
 #define JUMPTARGET(name) name
 #endif
 
+#ifndef FRAMESIZE
+#if defined(__XTENSA_WINDOWED_ABI__)
 #define FRAMESIZE 16
+#elif defined(__XTENSA_CALL0_ABI__)
+#define FRAMESIZE 0
+#else
+#error Unsupported Xtensa ABI
+#endif
+#endif
 #define CALL_MCOUNT		/* Do nothing.  */
 
 
@@ -116,7 +135,7 @@
   END (name)
 
 #undef	ret_NOERRNO
-#define ret_NOERRNO retw
+#define ret_NOERRNO abi_ret
 
 /* The function has to return the error code.  */
 #undef	PSEUDO_ERRVAL
@@ -129,6 +148,9 @@
 #undef	PSEUDO_END_ERRVAL
 #define	PSEUDO_END_ERRVAL(name)						      \
   END (name)
+
+#undef	ret_ERRVAL
+#define ret_ERRVAL abi_ret
 
 #if defined _LIBC_REENTRANT
 # if defined USE___THREAD
@@ -146,6 +168,8 @@
 	movi	a2, -1;							      \
 	j	.Lpseudo_end;
 # else /* !USE___THREAD */
+
+#if defined(__XTENSA_WINDOWED_ABI__)
 #  define SYSCALL_ERROR_HANDLER						      \
 0:	neg	a2, a2;							      \
 	mov	a6, a2;							      \
@@ -154,6 +178,24 @@
 	s32i	a2, a6, 0;						      \
 	movi	a2, -1;							      \
 	j	.Lpseudo_end;
+#elif defined(__XTENSA_CALL0_ABI__)
+#  define SYSCALL_ERROR_HANDLER						      \
+0:	neg	a2, a2;							      \
+	addi	a1, a1, -16;						      \
+	s32i	a0, a1, 0;						      \
+	s32i	a2, a1, 4;						      \
+	movi	a0, __errno_location@PLT;				      \
+	callx0	a0;						              \
+	l32i	a0, a1, 0;						      \
+	l32i	a3, a1, 4;						      \
+	addi	a1, a1, 16;						      \
+	s32i	a3, a2, 0;						      \
+	movi	a2, -1;							      \
+	j	.Lpseudo_end;
+#else
+#error Unsupported Xtensa ABI
+#endif
+
 # endif /* !USE___THREAD */
 #else /* !_LIBC_REENTRANT */
 #define SYSCALL_ERROR_HANDLER						      \

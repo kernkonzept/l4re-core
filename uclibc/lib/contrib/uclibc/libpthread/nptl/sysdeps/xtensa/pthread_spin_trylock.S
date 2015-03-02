@@ -18,14 +18,10 @@
 
 #define _ERRNO_H 1
 #include <bits/errno.h>
+#include <sysdep.h>
 
 	.text
-	.align 4
-
-	.globl pthread_spin_trylock
-pthread_spin_trylock:
-
-	entry	a1, 16
+ENTRY (pthread_spin_trylock)
 
 	movi	a3, 0
 	wsr 	a3, scompare1
@@ -34,7 +30,6 @@ pthread_spin_trylock:
 	movi	a2, EBUSY
 	moveqz	a2, a3, a3
 
-	retw
+	abi_ret
 
-	.type pthread_spin_trylock, @function
-	.size pthread_spin_trylock, .-pthread_spin_trylock
+END (pthread_spin_trylock)

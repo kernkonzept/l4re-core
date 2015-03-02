@@ -48,6 +48,7 @@
 
 ENTRY (__longjmp)
 
+#if defined(__XTENSA_WINDOWED_ABI__)
 	/* Invalidate all but the current window.  Reading and writing
 	   special registers WINDOWBASE and WINDOWSTART are
 	   privileged operations, so user processes must call the
@@ -120,6 +121,22 @@ ENTRY (__longjmp)
 	movnez	a2, a3, a3
 
 	retw
+#elif defined(__XTENSA_CALL0_ABI__)
+	l32i	a0, a2, 0
+	l32i	a1, a2, 4
+	l32i	a12, a2, 8
+	l32i	a13, a2, 12
+	l32i	a14, a2, 16
+	l32i	a15, a2, 20
+
+	/* Return v ? v : 1.  */
+	movi	a2, 1
+	movnez	a2, a3, a3
+
+	ret
+#else
+#error Unsupported Xtensa ABI
+#endif
 END (__longjmp)
 
 libc_hidden_def (__longjmp)

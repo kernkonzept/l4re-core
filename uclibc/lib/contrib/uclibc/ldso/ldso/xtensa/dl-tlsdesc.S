@@ -17,21 +17,17 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
+
+#if defined __UCLIBC_HAS_TLS__
 #include <tls.h>
 #include "tlsdesc.h"
 
-
 	.text
-	.align 4
-	.hidden _dl_tlsdesc_return
-	.global	_dl_tlsdesc_return
-	.type	_dl_tlsdesc_return, @function
-_dl_tlsdesc_return:
-	entry	a1, 16
+HIDDEN_ENTRY (_dl_tlsdesc_return)
 	rur.threadptr	a3
 	add		a2, a2, a3
-	retw
-	.size	_dl_tlsdesc_return, .-_dl_tlsdesc_return
+	abi_ret
+END (_dl_tlsdesc_return)
 
 #ifdef SHARED
 
@@ -56,12 +52,7 @@ _dl_tlsdesc_return:
 	   }
 	 */
 
-	.align 4
-	.hidden _dl_tlsdesc_dynamic
-	.global	_dl_tlsdesc_dynamic
-	.type	_dl_tlsdesc_dynamic, @function
-_dl_tlsdesc_dynamic:
-	entry	a1, 32
+HIDDEN_ENTRY (_dl_tlsdesc_dynamic)
 
 	/* dtv_t *dtv = (dtv_t *)THREAD_DTV(); */
 	rur.threadptr	a3
@@ -82,15 +73,31 @@ _dl_tlsdesc_dynamic:
 	     + td->tlsinfo.ti_offset - __builtin_thread_pointer(); */
 	l32i	a6, a2, TLSDESC_MODOFF
 	sub	a2, a6, a3
-	retw
+	abi_ret
 
 	/* return __tls_get_addr (&td->tlsinfo) - __builtin_thread_pointer(); */
 .Lslow:
-	mov	a10, a2
-	movi	a8, __tls_get_addr
-	callx8	a8
-	sub	a2, a10, a3
+#if defined(__XTENSA_WINDOWED_ABI__)
+	mov	a6, a2
+	movi	a4, __tls_get_addr
+	callx4	a4
+	sub	a2, a6, a3
 	retw
-	.size	_dl_tlsdesc_dynamic, .-_dl_tlsdesc_dynamic
+#elif defined(__XTENSA_CALL0_ABI__)
+	addi	a1, a1, -16
+	s32i	a0, a1, 0
+	s32i	a3, a1, 4
+	movi	a0, __tls_get_addr
+	callx0	a0
+	l32i	a3, a1, 4
+	l32i	a0, a1, 0
+	sub	a2, a2, a3
+	addi	a1, a1, 16
+	ret
+#else
+#error Unsupported Xtensa ABI
+#endif
+END (_dl_tlsdesc_dynamic)
 
 #endif /* SHARED */
+#endif

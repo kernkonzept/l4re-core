@@ -98,6 +98,8 @@ _dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset)
   test.tlsinfo.ti_module = map->l_tls_modid;
   test.tlsinfo.ti_offset = ti_offset;
   entry = htab_find_slot (ht, &test, 1, hash_tlsdesc, eq_tlsdesc);
+  if (entry == NULL)
+    _dl_exit(1);
   if (*entry)
     {
       td = *entry;

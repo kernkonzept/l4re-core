@@ -16,13 +16,10 @@
    Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
    02111-1307 USA.  */
 
+#include <sysdep.h>
+
 	.text
-	.align 4
-
-	.globl pthread_spin_lock
-pthread_spin_lock:
-
-	entry	a1, 16
+ENTRY (pthread_spin_lock)
 
 	movi	a3, 0
 	wsr 	a3, scompare1
@@ -31,7 +28,6 @@ pthread_spin_lock:
 	bnez	a3, 1b
 	movi	a2, 0
 
-	retw
+	abi_ret
 
-	.type pthread_spin_lock, @function
-	.size pthread_spin_lock, .-pthread_spin_lock
+END (pthread_spin_lock)

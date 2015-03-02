@@ -24,7 +24,17 @@
 #endif
 
 #if !defined NOT_IN_libc || defined IS_IN_libpthread || defined IS_IN_librt
-// FIXME: ENTRY includes an entry instruction, here we'd want entry sp, 48!
+
+#ifdef __ASSEMBLER__
+#if defined(__XTENSA_WINDOWED_ABI__)
+/* CENABLE/CDISABLE in PSEUDO below use call8, stack frame size must be
+ * at least 32.
+ */
+#if FRAMESIZE < 32
+#undef FRAMESIZE
+#define FRAMESIZE 32
+#endif
+
 # undef PSEUDO
 # define PSEUDO(name, syscall_name, args)				      \
   .text;								      \
@@ -50,6 +60,65 @@
     j        SYSCALL_ERROR_LABEL;					      \
   .Lpseudo_end:
 
+# define CENABLE	movi    a8, CENABLE_FUNC;		\
+			callx8  a8
+# define CDISABLE	movi    a8, CDISABLE_FUNC;		\
+			callx8  a8
+#elif defined(__XTENSA_CALL0_ABI__)
+
+# undef PSEUDO
+# define PSEUDO(name, syscall_name, args)				      \
+  .text;								      \
+  ENTRY (name)								      \
+    SINGLE_THREAD_P(a10);						      \
+    bnez     a10, .Lpseudo_cancel;					      \
+    DO_CALL (syscall_name, args);					      \
+    bgez     a2, .Lpseudo_done;						      \
+    movi     a4, -4095;							      \
+    blt      a2, a4, .Lpseudo_done;					      \
+    j        SYSCALL_ERROR_LABEL;					      \
+  .Lpseudo_done:							      \
+    ret;								      \
+  .Lpseudo_cancel:							      \
+    addi     a1, a1, -32;						      \
+    /* The syscall args are in a2...a7; save them */			      \
+    s32i     a0, a1, 0;							      \
+    s32i     a2, a1, 4;							      \
+    s32i     a3, a1, 8;							      \
+    s32i     a4, a1, 12;						      \
+    s32i     a5, a1, 16;						      \
+    s32i     a6, a1, 20;						      \
+    s32i     a7, a1, 24;						      \
+    CENABLE;								      \
+    /* Move return value to a10 preserved across the syscall */		      \
+    mov      a10, a2;							      \
+    l32i     a2, a1, 4;							      \
+    l32i     a3, a1, 8;							      \
+    l32i     a4, a1, 12;						      \
+    l32i     a5, a1, 16;						      \
+    l32i     a6, a1, 20;						      \
+    l32i     a7, a1, 24;						      \
+    DO_CALL (syscall_name, args);					      \
+    s32i     a2, a1, 4;							      \
+    mov      a2, a10;							      \
+    CDISABLE;								      \
+    l32i     a2, a1, 4;							      \
+    l32i     a0, a1, 0;							      \
+    addi     a1, a1, 32;						      \
+    bgez     a2, .Lpseudo_end;                                                \
+    movi     a4, -4095;							      \
+    blt      a2, a4, .Lpseudo_end;                                            \
+    j        SYSCALL_ERROR_LABEL;					      \
+  .Lpseudo_end:
+
+# define CENABLE	movi    a0, CENABLE_FUNC;		\
+			callx0  a0
+# define CDISABLE	movi    a0, CDISABLE_FUNC;		\
+			callx0  a0
+#else
+#error Unsupported Xtensa ABI
+#endif
+#endif
 
 # ifdef IS_IN_libpthread
 #  define CENABLE_FUNC	__pthread_enable_asynccancel
@@ -65,11 +134,6 @@
 # else
 #  error Unsupported library
 # endif
-
-# define CENABLE	movi    a8, CENABLE_FUNC;		\
-			callx8  a8
-# define CDISABLE	movi    a8, CDISABLE_FUNC;		\
-			callx8  a8
 
 # if defined IS_IN_libpthread || !defined NOT_IN_libc
 #  ifndef __ASSEMBLER__

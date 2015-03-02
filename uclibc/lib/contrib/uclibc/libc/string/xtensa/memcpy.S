@@ -91,7 +91,7 @@ __memcpy_aux:
 #if !XCHAL_HAVE_LOOPS
 	blt	a3, a7, 1b
 #endif
-2:	retw
+2:	abi_ret
 
 
 /* Destination is unaligned.  */
@@ -181,7 +181,7 @@ ENTRY (memcpy)
 3:	bbsi.l	a4, 2, 4f
 	bbsi.l	a4, 1, 5f
 	bbsi.l	a4, 0, 6f
-	retw
+	abi_ret
 
 	/* Copy 4 bytes.  */
 4:	l32i	a6, a3, 0
@@ -190,7 +190,7 @@ ENTRY (memcpy)
 	addi	a5, a5, 4
 	bbsi.l	a4, 1, 5f
 	bbsi.l	a4, 0, 6f
-	retw
+	abi_ret
 
 	/* Copy 2 bytes.  */
 5:	l16ui	a6, a3, 0
@@ -198,14 +198,14 @@ ENTRY (memcpy)
 	s16i	a6, a5, 0
 	addi	a5, a5, 2
 	bbsi.l	a4, 0, 6f
-	retw
+	abi_ret
 
 	/* Copy 1 byte.  */
 6:	l8ui	a6, a3, 0
 	s8i	a6, a5, 0
 
 .Ldone:
-	retw
+	abi_ret
 
 
 /* Destination is aligned; source is unaligned.  */
@@ -276,7 +276,7 @@ ENTRY (memcpy)
 #endif
 	bbsi.l	a4, 1, 5f
 	bbsi.l	a4, 0, 6f
-	retw
+	abi_ret
 
 	/* Copy 2 bytes.  */
 5:	l8ui	a6, a3, 0
@@ -286,11 +286,11 @@ ENTRY (memcpy)
 	s8i	a7, a5, 1
 	addi	a5, a5, 2
 	bbsi.l	a4, 0, 6f
-	retw
+	abi_ret
 
 	/* Copy 1 byte.  */
 6:	l8ui	a6, a3, 0
 	s8i	a6, a5, 0
-	retw
+	abi_ret
 
 libc_hidden_def (memcpy)

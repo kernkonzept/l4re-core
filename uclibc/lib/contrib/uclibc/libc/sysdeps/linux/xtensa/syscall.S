@@ -26,7 +26,7 @@
  */
 
 ENTRY (syscall)
-	l32i	a9, a1, 16	/* load extra argument from stack */
+	l32i	a9, a1, FRAMESIZE/* load extra argument from stack */
 	mov	a8, a7
 	mov	a7, a3		/* preserve a3 in a7 */
 	mov	a3, a4
@@ -37,5 +37,5 @@ ENTRY (syscall)
 	movi    a4, -4095
 	bgeu    a2, a4, SYSCALL_ERROR_LABEL
 .Lpseudo_end:
-	retw
+	abi_ret
 PSEUDO_END (syscall)

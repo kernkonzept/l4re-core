@@ -67,7 +67,7 @@ __strncpy_aux:
 	j	.Lfill
 
 .Lret:
-	retw
+	abi_ret
 
 
 ENTRY (strncpy)
@@ -129,7 +129,7 @@ ENTRY (strncpy)
 	addi	a10, a10, 1
 	bnez    a4, .Lfillcleanup
 
-2:	retw
+2:	abi_ret
 
 .Lfill1mod2: /* dst address is odd */
 	s8i	a9, a10, 0	/* store byte 0 */
@@ -235,6 +235,6 @@ ENTRY (strncpy)
 #endif
 2:	j	.Lfill
 
-3:	retw
+3:	abi_ret
 
 libc_hidden_def (strncpy)

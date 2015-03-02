@@ -108,7 +108,7 @@ ENTRY (strcmp)
 #endif
 .Lretdiff:
 	sub	a2, a8, a9
-	retw
+	abi_ret
 
 /* s1 is word-aligned; s2 is word-aligned.
 
@@ -229,7 +229,7 @@ ENTRY (strcmp)
 
 	/* Words are equal; some byte is zero.  */
 .Leq:	movi	a2, 0		/* return equal */
-	retw
+	abi_ret
 
 .Lwne2:	/* Words are not equal.  On big-endian processors, if none of the
 	   bytes are zero, the return value can be determined by a simple
@@ -239,10 +239,10 @@ ENTRY (strcmp)
 	bnall	a10, a7, .Lsomezero
 	bgeu	a8, a9, .Lposreturn
 	movi	a2, -1
-	retw
+	abi_ret
 .Lposreturn:
 	movi	a2, 1
-	retw
+	abi_ret
 .Lsomezero:	/* There is probably some zero byte. */
 #endif /* __XTENSA_EB__ */
 .Lwne:	/* Words are not equal.  */
@@ -263,14 +263,14 @@ ENTRY (strcmp)
 	   byte.  Just subtract words to get the return value.
 	   The high order equal bytes cancel, leaving room for the sign.  */
 	sub	a2, a8, a9
-	retw
+	abi_ret
 
 .Ldiff0:
 	/* Need to make room for the sign, so can't subtract whole words.  */
 	extui	a10, a8, 24, 8
 	extui	a11, a9, 24, 8
 	sub	a2, a10, a11
-	retw
+	abi_ret
 
 #else /* !__XTENSA_EB__ */
 	/* Little-endian is a little more difficult because can't subtract
@@ -281,28 +281,28 @@ ENTRY (strcmp)
 	extui	a10, a8, 24, 8
 	extui	a11, a9, 24, 8
 	sub	a2, a10, a11
-	retw
+	abi_ret
 
 .Ldiff0:
 	/* Byte 0 is different.  */
 	extui	a10, a8, 0, 8
 	extui	a11, a9, 0, 8
 	sub	a2, a10, a11
-	retw
+	abi_ret
 
 .Ldiff1:
 	/* Byte 0 is equal; byte 1 is different.  */
 	extui	a10, a8, 8, 8
 	extui	a11, a9, 8, 8
 	sub	a2, a10, a11
-	retw
+	abi_ret
 
 .Ldiff2:
 	/* Bytes 0-1 are equal; byte 2 is different.  */
 	extui	a10, a8, 16, 8
 	extui	a11, a9, 16, 8
 	sub	a2, a10, a11
-	retw
+	abi_ret
 
 #endif /* !__XTENSA_EB */
 

@@ -31,8 +31,11 @@
  */
 
 #include "ldso.h"
+
+#if defined(USE_TLS) && USE_TLS
 #include "dl-tls.h"
 #include "tlsdeschtab.h"
+#endif
 
 unsigned long
 _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)

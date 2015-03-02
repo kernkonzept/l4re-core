@@ -48,7 +48,7 @@ ENTRY (__mmap)
 	bltz	a2, SYSCALL_ERROR_LABEL
 
 .Lpseudo_end:
-	retw
+	abi_ret
 
 PSEUDO_END (__mmap)
 

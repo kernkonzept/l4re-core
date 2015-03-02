@@ -27,11 +27,6 @@ CFLAGS-$(DODEBUG)-ldso/ldso := -O2 -g
 
 CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
-# avoid ld.so linking error since gcc 4.9.x: undefined reference to abort
-ifeq ($(TARGET_ARCH),xtensa)
-CFLAGS-ldso.c += -fno-delete-null-pointer-checks
-endif
-
 LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-$(UCLIBC_LDSO_NAME).so := -Wl,--dsbt-index=1
 ifneq ($(SUPPORT_LD_DEBUG),y)
 LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS)

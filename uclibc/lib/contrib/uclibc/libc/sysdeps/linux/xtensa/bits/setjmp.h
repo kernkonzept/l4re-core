@@ -23,6 +23,7 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
+#if defined(__XTENSA_WINDOWED_ABI__)
 /* The jmp_buf structure for Xtensa holds the following (where "proc"
    is the procedure that calls setjmp): 4-12 registers from the window
    of proc, the 4 words from the save area at proc's $sp (in case a
@@ -30,5 +31,13 @@
    proc.  Everything else is saved on the stack in the normal save areas.  */
 
 typedef int __jmp_buf[17];
+#elif defined(__XTENSA_CALL0_ABI__)
+/* The jmp_buf structure for Xtensa Call0 ABI holds the return address,
+   the stack pointer and callee-saved registers (a12 - a15).  */
+
+typedef int __jmp_buf[6];
+#else
+#error Unsupported Xtensa ABI
+#endif
 
 #endif	/* bits/setjmp.h */

@@ -51,17 +51,21 @@
 
 
 HIDDEN_ENTRY (__vfork)
+
+#if defined(__XTENSA_WINDOWED_ABI__)
         .literal .Ljumptable, 0, .L4, .L8, .L12
 
 	mov	a3, a0			# move return address out of the way
 	movi	a0, .Ljumptable
 	extui	a2, a3, 30, 2		# call-size: call4/8/12 = 1/2/3
 	addx4	a0, a2, a0		# find return address in jumptable
-	slli	a2, a2, 30
 	l32i	a0, a0, 0
-
-	xor	a3, a3, a2		# remove call-size from return address
-	or	a0, a0, a2		# create temporary return address
+					# exchange top 2 bits of a0 and a3:
+	xor	a2, a0, a3
+	extui	a2, a2, 30, 2
+	slli	a2, a2, 30
+	xor	a0, a0, a2
+	xor	a3, a3, a2
 	retw
 
 	/* a7: return address */
@@ -163,6 +167,27 @@ HIDDEN_ENTRY (__vfork)
 	PSEUDO_END (__vfork)
 .Lpseudo_end:
 	retw
+#elif defined(__XTENSA_CALL0_ABI__)
+	SAVE_PID(a5, a8, a3, a4)
+
+	/* Use syscall 'clone'.  Set new stack pointer to the same address.  */
+	movi	a2, SYS_ify (clone)
+	movi	a3, 0
+	movi	a6, CLONE_VM | CLONE_VFORK | SIGCHLD
+	syscall
+
+	RESTORE_PID(a5, a8, a2)
+
+	movi	a3, -4096
+	bgeu	a2, a3, 1f
+	ret
+1:
+	PSEUDO_END (__vfork)
+.Lpseudo_end:
+	ret
+#else
+#error Unsupported Xtensa ABI
+#endif
 
 weak_alias (__vfork, vfork)
 libc_hidden_def(vfork)

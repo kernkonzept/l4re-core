@@ -63,7 +63,7 @@ __memset_aux:
 #if !XCHAL_HAVE_LOOPS
 	blt	a5, a6, 1b
 #endif
-2:	retw
+2:	abi_ret
 
 
 /* Destination is unaligned.  */
@@ -159,6 +159,6 @@ ENTRY (memset)
 
 	/* Set 1 byte.  */
 	s8i	a3, a5, 0
-6:	retw
+6:	abi_ret
 
 libc_hidden_def (memset)

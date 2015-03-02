@@ -76,6 +76,7 @@
 	.global	_start
 	.type	_start, @function
 _start:
+#if defined(__XTENSA_WINDOWED_ABI__)
 	/* Clear a0 to obviously mark the outermost frame.  */
 	movi	a0, 0
 
@@ -104,6 +105,35 @@ _start:
 	   But let the libc call main.    */
 	movi	a4, __uClibc_main
 	callx4	a4
+#elif defined(__XTENSA_CALL0_ABI__)
+	/* Setup the shared library termination function.  */
+	mov	a7, a2
+
+	/* Load up the user's main function.  */
+	movi	a2, main
+
+	/* Extract the arguments as encoded on the stack and set up
+	   the arguments for `main': argc, argv.  envp will be determined
+	   later in __uClibc_main.  */
+	l32i	a3, a1, 0	/* Load the argument count.  */
+	addi	a4, a1, 4	/* Compute the argv pointer.  */
+
+	/* Push address of our own entry points to .fini and .init.  */
+	movi	a5, _init
+	movi	a6, _fini
+
+	/* Provide the highest stack address to the user code (for stacks
+	   which grow downwards).  Note that we destroy the stack version
+	   of argc here.  */
+	s32i	a1, a1, 0
+
+	/* Call the user's main function, and exit with its value.
+	   But let the libc call main.    */
+	movi	a0, __uClibc_main
+	callx0	a0
+#else
+#error Unsupported Xtensa ABI
+#endif
 
 	/* Crash if somehow `exit' does return.  */
 	ill

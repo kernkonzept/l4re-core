@@ -59,7 +59,7 @@ ENTRY (strlen)
 	/* Byte 3 is zero.  */
 	addi	a3, a3, 3	/* point to zero byte */
 	sub	a2, a3, a2	/* subtract to get length */
-	retw
+	abi_ret
 
 
 /* String is word-aligned.  */
@@ -88,16 +88,16 @@ ENTRY (strlen)
 
 .Lz0:	/* Byte 0 is zero.  */
 	sub	a2, a3, a2	/* subtract to get length */
-	retw
+	abi_ret
 
 .Lz1:	/* Byte 1 is zero.  */
 	addi	a3, a3, 1	/* point to zero byte */
 	sub	a2, a3, a2	/* subtract to get length */
-	retw
+	abi_ret
 
 .Lz2:	/* Byte 2 is zero.  */
 	addi	a3, a3, 2	/* point to zero byte */
 	sub	a2, a3, a2	/* subtract to get length */
-	retw
+	abi_ret
 
 libc_hidden_def (strlen)

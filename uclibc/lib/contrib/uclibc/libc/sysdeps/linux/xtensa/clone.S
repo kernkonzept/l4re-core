@@ -51,7 +51,7 @@ ENTRY (__clone)
 	mov	a8, a6			/* use a8 as a temp */
 	mov	a6, a4
 	mov	a4, a8
-	l32i	a8, a1, 16		/* child_tid */
+	l32i	a8, a1, FRAMESIZE	/* child_tid */
 	movi	a2, SYS_ify(clone)
 
 	/* syscall(NR_clone,clone_flags, usp, parent_tid, child_tls, child_tid)
@@ -65,7 +65,7 @@ ENTRY (__clone)
 	/* fall through for parent */
 
 .Lpseudo_end:
-	retw
+	abi_ret
 
 .Leinval:
 	movi	a2, -EINVAL
@@ -94,17 +94,26 @@ ENTRY (__clone)
 
 	/* start child thread */
 	movi	a0, 0			/* terminate the stack frame */
+
+#if defined(__XTENSA_WINDOWED_ABI__)
 	mov	a6, a9			/* load up the 'arg' parameter */
 	callx4	a7			/* call the user's function */
 
 	/* Call _exit.  Note that any return parameter from the user's
 	   function in a6 is seen as inputs to _exit. */
-#ifdef	PIC
-	movi	a2, _exit@PLT
-#else
-	movi	a2, _exit
-#endif
+	movi	a2, JUMPTARGET(_exit)
 	callx4	a2
+#elif defined(__XTENSA_CALL0_ABI__)
+	mov	a2, a9			/* load up the 'arg' parameter */
+	callx0	a7			/* call the user's function */
+
+	/* Call _exit.  Note that any return parameter from the user's
+	   function in a2 is seen as inputs to _exit.  */
+	movi	a0, JUMPTARGET(_exit)
+	callx0	a0
+#else
+#error Unsupported Xtensa ABI
+#endif
 
 PSEUDO_END (__clone)
 

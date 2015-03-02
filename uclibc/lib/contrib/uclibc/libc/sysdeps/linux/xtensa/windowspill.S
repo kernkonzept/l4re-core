@@ -18,6 +18,7 @@
 
 #include <bits/xtensa-config.h>
 
+#ifdef __XTENSA_WINDOWED_ABI__
 	.text
 	.align  4
 	.literal_position
@@ -93,3 +94,5 @@ __window_spill:
 #endif
 #endif
 	retw
+
+#endif

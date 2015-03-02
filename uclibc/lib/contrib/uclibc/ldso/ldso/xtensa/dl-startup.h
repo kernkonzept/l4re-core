@@ -23,6 +23,7 @@ __asm__ (
     "	.align  4\n"
     "0:	movi    a3, _start+3\n"
     "	sub     a2, a0, a3\n"
+#if defined(__XTENSA_WINDOWED_ABI__)
     "	# Make sure a0 is cleared to mark the top of stack.\n"
     "	movi    a0, 0\n"
     "	# user_entry_point = _dl_start(pointer to argument block)\n"
@@ -32,6 +33,17 @@ __asm__ (
     "	callx4  a4\n"
     "	# Save user_entry_point so we can jump to it.\n"
     "	mov     a3, a6\n"
+#elif defined(__XTENSA_CALL0_ABI__)
+    "	# user_entry_point = _dl_start(pointer to argument block)\n"
+    "	movi    a0, _dl_start\n"
+    "	add     a0, a0, a2\n"
+    "	mov     a2, sp\n"
+    "	callx0  a0\n"
+    "	# Save user_entry_point so we can jump to it.\n"
+    "	mov     a3, a2\n"
+#else
+#error Unsupported Xtensa ABI
+#endif
     "	l32i    a7, sp, 0   # load argc\n"
     "	# Load _dl_skip_args into a4.\n"
     "	movi    a4, _dl_skip_args\n"

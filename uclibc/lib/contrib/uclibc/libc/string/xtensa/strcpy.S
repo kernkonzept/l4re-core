@@ -68,7 +68,7 @@ ENTRY (strcpy)
 	s8i	a8, a10, 1	/* store byte 0 */
 	addi	a10, a10, 2	/* advance dst pointer */
 	bnez	a8, .Lsrcaligned
-1:	retw
+1:	abi_ret
 
 
 /* dst is word-aligned; src is word-aligned.  */
@@ -102,21 +102,21 @@ ENTRY (strcpy)
 #endif /* !XCHAL_HAVE_LOOPS */
 
 .Lz3:	/* Byte 3 is zero.  */
-	retw
+	abi_ret
 
 .Lz0:	/* Byte 0 is zero.  */
 #ifdef __XTENSA_EB__
 	movi	a8, 0
 #endif
 	s8i	a8, a10, 0
-	retw
+	abi_ret
 
 .Lz1:	/* Byte 1 is zero.  */
 #ifdef __XTENSA_EB__
         extui   a8, a8, 16, 16
 #endif
 	s16i	a8, a10, 0
-	retw
+	abi_ret
 
 .Lz2:	/* Byte 2 is zero.  */
 #ifdef __XTENSA_EB__
@@ -125,7 +125,7 @@ ENTRY (strcpy)
 	s16i	a8, a10, 0
 	movi	a8, 0
 	s8i	a8, a10, 2
-	retw
+	abi_ret
 
 	.align	4
 	/* (2 mod 4) alignment for loop instruction */
@@ -144,6 +144,6 @@ ENTRY (strcpy)
 #else
 	bnez	a8, 1b
 #endif
-2:	retw
+2:	abi_ret
 
 libc_hidden_def (strcpy)

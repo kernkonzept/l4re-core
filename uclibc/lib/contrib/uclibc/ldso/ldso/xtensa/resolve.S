@@ -31,6 +31,7 @@
 	.global	_dl_linux_resolve
 	.type	_dl_linux_resolve, @function
 _dl_linux_resolve:
+#if defined(__XTENSA_WINDOWED_ABI__)
 	/* Call the fixup function.  */
 	movi	a8, _dl_linux_resolver
 	callx8	a8
@@ -47,4 +48,38 @@ _dl_linux_resolve:
 	/* Jump to the next instruction past the ENTRY.  */
 	addi	a10, a10, 3
 	jx	a10
+#elif defined(__XTENSA_CALL0_ABI__)
+	/* Reserve stack space and save incoming arguments.  */
+	addi	a1, a1, -32
+	s32i	a0, a1, 0
+	s32i	a2, a1, 8
+	s32i	a3, a1, 12
+	s32i	a4, a1, 16
+	s32i	a5, a1, 20
+	s32i	a6, a1, 24
+	s32i	a7, a1, 28
+
+	/* Move arguments for the _dl_linux_resolver to proper registers.  */
+	mov	a2, a10
+	mov	a3, a11
+	/* Call the fixup function.  */
+	movi	a0, _dl_linux_resolver
+	callx0	a0
+	mov	a10, a2
+
+	/* Restore incoming arguments from stack and deallocate reservation.  */
+	l32i	a0, a1, 0
+	l32i	a2, a1, 8
+	l32i	a3, a1, 12
+	l32i	a4, a1, 16
+	l32i	a5, a1, 20
+	l32i	a6, a1, 24
+	l32i	a7, a1, 28
+	addi	a1, a1, 32
+
+	/* Jump to the target function.  */
+	jx	a10
+#else
+#error Unsupported Xtensa ABI
+#endif
 	.size	_dl_linux_resolve, . - _dl_linux_resolve
