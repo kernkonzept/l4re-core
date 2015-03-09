@@ -37,9 +37,12 @@ void __xstat_conv(struct kernel_stat *kbuf, struct stat *buf)
 	buf->st_size = kbuf->st_size;
 	buf->st_blksize = kbuf->st_blksize;
 	buf->st_blocks = kbuf->st_blocks;
-	buf->st_atim = kbuf->st_atim;
-	buf->st_mtim = kbuf->st_mtim;
-	buf->st_ctim = kbuf->st_ctim;
+	buf->st_atim.tv_sec = kbuf->st_atim.tv_sec;
+	buf->st_atim.tv_nsec = kbuf->st_atim.tv_nsec;
+	buf->st_mtim.tv_sec = kbuf->st_mtim.tv_sec;
+	buf->st_mtim.tv_nsec = kbuf->st_mtim.tv_nsec;
+	buf->st_ctim.tv_sec = kbuf->st_ctim.tv_sec;
+	buf->st_ctim.tv_nsec = kbuf->st_ctim.tv_nsec;
 }
 
 void __xstat32_conv(struct kernel_stat64 *kbuf, struct stat *buf)
@@ -56,9 +59,12 @@ void __xstat32_conv(struct kernel_stat64 *kbuf, struct stat *buf)
 	buf->st_size = kbuf->st_size;
 	buf->st_blksize = kbuf->st_blksize;
 	buf->st_blocks = kbuf->st_blocks;
-	buf->st_atim = kbuf->st_atim;
-	buf->st_mtim = kbuf->st_mtim;
-	buf->st_ctim = kbuf->st_ctim;
+	buf->st_atim.tv_sec = kbuf->st_atim.tv_sec;
+	buf->st_atim.tv_nsec = kbuf->st_atim.tv_nsec;
+	buf->st_mtim.tv_sec = kbuf->st_mtim.tv_sec;
+	buf->st_mtim.tv_nsec = kbuf->st_mtim.tv_nsec;
+	buf->st_ctim.tv_sec = kbuf->st_ctim.tv_sec;
+	buf->st_ctim.tv_nsec = kbuf->st_ctim.tv_nsec;
 }
 
 #ifdef __UCLIBC_HAS_LFS__
@@ -80,9 +86,12 @@ void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 	buf->st_size = kbuf->st_size;
 	buf->st_blksize = kbuf->st_blksize;
 	buf->st_blocks = kbuf->st_blocks;
-	buf->st_atim = kbuf->st_atim;
-	buf->st_mtim = kbuf->st_mtim;
-	buf->st_ctim = kbuf->st_ctim;
+	buf->st_atim.tv_sec = kbuf->st_atim.tv_sec;
+	buf->st_atim.tv_nsec = kbuf->st_atim.tv_nsec;
+	buf->st_mtim.tv_sec = kbuf->st_mtim.tv_sec;
+	buf->st_mtim.tv_nsec = kbuf->st_mtim.tv_nsec;
+	buf->st_ctim.tv_sec = kbuf->st_ctim.tv_sec;
+	buf->st_ctim.tv_nsec = kbuf->st_ctim.tv_nsec;
 }
 
 #endif /* __UCLIBC_HAS_LFS__ */
