@@ -36,7 +36,7 @@ typedef void *iconv_t;
 /* Allocate descriptor for code conversion from codeset FROMCODE to
    codeset TOCODE.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern iconv_t iconv_open (const char *__tocode, const char *__fromcode);
 
@@ -50,7 +50,7 @@ extern size_t iconv (iconv_t __cd, char **__restrict __inbuf,
 
 /* Free resources allocated for descriptor CD for code conversion.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int iconv_close (iconv_t __cd);
 

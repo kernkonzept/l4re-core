@@ -28,10 +28,9 @@
 __BEGIN_DECLS
 
 #include <signal.h>
-#include <sys/resource.h>
 
 /* These macros could also be defined in <stdlib.h>.  */
-#if !defined _STDLIB_H || !defined __USE_XOPEN
+#if !defined _STDLIB_H || (!defined __USE_XOPEN && !defined __USE_XOPEN2K8)
 /* This will define the `W*' macros for the flag
    bits to `waitpid', `wait3', and `wait4'.  */
 # include <bits/waitflags.h>
@@ -97,7 +96,7 @@ typedef union
 #endif
 
 /* The following values are used by the `waitid' function.  */
-#if defined __USE_SVID || defined __USE_XOPEN
+#if defined __USE_SVID || defined __USE_XOPEN || defined __USE_XOPEN2K8
 typedef enum
 {
   P_ALL,		/* Wait for any child.  */
@@ -141,9 +140,15 @@ extern __typeof(waitpid) __waitpid_nocancel attribute_hidden;
 libc_hidden_proto(waitpid)
 #endif
 
-#if defined __USE_SVID || defined __USE_XOPEN
+#if defined __USE_SVID || defined __USE_XOPEN || defined __USE_XOPEN2K8
+# ifndef __id_t_defined
+#  include <bits/types.h>
+	typedef __id_t id_t;
+#  define __id_t_defined
+# endif
 # define __need_siginfo_t
 # include <bits/siginfo.h>
+
 /* Wait for a childing matching IDTYPE and ID to change the status and
    place appropriate information in *INFOP.
    If IDTYPE is P_PID, match any process whose process ID is ID.
@@ -160,19 +165,20 @@ extern int waitid (idtype_t __idtype, __id_t __id, siginfo_t *__infop,
 #endif
 
 #if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+struct rusage;
 /* Wait for a child to exit.  When one does, put its status in *STAT_LOC and
    return its process ID.  For errors return (pid_t) -1.  If USAGE is not
    nil, store information about the child's resource usage there.  If the
    WUNTRACED bit is set in OPTIONS, return status for stopped children;
    otherwise don't.  */
 extern __pid_t wait3 (__WAIT_STATUS __stat_loc, int __options,
-		      struct rusage * __usage) __THROW;
+		      struct rusage * __usage) __THROWNL;
 #endif
 
 #ifdef __USE_BSD
 /* PID is like waitpid.  Other args are like wait3.  */
 extern __pid_t wait4 (__pid_t __pid, __WAIT_STATUS __stat_loc, int __options,
-		      struct rusage *__usage) __THROW;
+		      struct rusage *__usage) __THROWNL;
 #endif /* Use BSD.  */
 
 #ifdef _LIBC

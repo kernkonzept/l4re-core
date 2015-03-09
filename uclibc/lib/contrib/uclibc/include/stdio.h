@@ -157,7 +157,7 @@ libc_hidden_proto(renameat)
 __BEGIN_NAMESPACE_STD
 /* Create a temporary file and open it read/write.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 #ifndef __USE_FILE_OFFSET64
 extern FILE *tmpfile (void) __wur;
@@ -345,8 +345,8 @@ extern int printf (const char *__restrict __format, ...);
 libc_hidden_proto(printf)
 /* Write formatted output to S.  */
 extern int sprintf (char *__restrict __s,
-		    const char *__restrict __format, ...)
-     __THROW __attribute__ ((__format__ (__printf__, 2, 3)));
+		    const char *__restrict __format, ...) __THROWNL
+     __attribute__ ((__format__ (__printf__, 2, 3)));
 libc_hidden_proto(sprintf)
 
 /* Write formatted output to S from argument list ARG.
@@ -363,8 +363,8 @@ libc_hidden_proto(vfprintf)
 extern int vprintf (const char *__restrict __format, __gnuc_va_list __arg);
 /* Write formatted output to S from argument list ARG.  */
 extern int vsprintf (char *__restrict __s, const char *__restrict __format,
-		     __gnuc_va_list __arg)
-     __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
+		     __gnuc_va_list __arg) __THROWNL
+     __attribute__ ((__format__ (__printf__, 2, 0)));
 __END_NAMESPACE_STD
 
 #if defined __USE_BSD || defined __USE_ISOC99 || defined __USE_UNIX98
@@ -372,12 +372,12 @@ __BEGIN_NAMESPACE_C99
 /* Maximum chars of output to write in MAXLEN.  */
 extern int snprintf (char *__restrict __s, size_t __maxlen,
 		     const char *__restrict __format, ...)
-     __THROW __attribute__ ((__format__ (__printf__, 3, 4)));
+     __THROWNL __attribute__ ((__format__ (__printf__, 3, 4)));
 libc_hidden_proto(snprintf)
 
 extern int vsnprintf (char *__restrict __s, size_t __maxlen,
 		      const char *__restrict __format, __gnuc_va_list __arg)
-     __THROW __attribute__ ((__format__ (__printf__, 3, 0)));
+     __THROWNL __attribute__ ((__format__ (__printf__, 3, 0)));
 libc_hidden_proto(vsnprintf)
 __END_NAMESPACE_C99
 #endif
@@ -387,26 +387,24 @@ __END_NAMESPACE_C99
    Store the address of the string in *PTR.  */
 extern int vasprintf (char **__restrict __ptr, const char *__restrict __f,
 		      __gnuc_va_list __arg)
-     __THROW __attribute__ ((__format__ (__printf__, 2, 0))) __wur;
+     __THROWNL __attribute__ ((__format__ (__printf__, 2, 0))) __wur;
 libc_hidden_proto(vasprintf)
 #if 0 /* uClibc: disabled */
 extern int __asprintf (char **__restrict __ptr,
 		       const char *__restrict __fmt, ...)
-     __THROW __attribute__ ((__format__ (__printf__, 2, 3))) __wur;
+     __THROWNL __attribute__ ((__format__ (__printf__, 2, 3))) __wur;
 #endif
 extern int asprintf (char **__restrict __ptr,
 		     const char *__restrict __fmt, ...)
-     __THROW __attribute__ ((__format__ (__printf__, 2, 3))) __wur;
+     __THROWNL __attribute__ ((__format__ (__printf__, 2, 3))) __wur;
 libc_hidden_proto(asprintf)
 #endif
 
 #ifdef __USE_XOPEN2K8
 /* Write formatted output to a file descriptor.
 
-   These functions are not part of POSIX and therefore no official
-   cancellation point.  But due to similarity with an POSIX interface
-   or due to the implementation they are cancellation points and
-   therefore not marked with __THROW.  */
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
 extern int vdprintf (int __fd, const char *__restrict __fmt,
 		     __gnuc_va_list __arg)
      __attribute__ ((__format__ (__printf__, 2, 0)));
@@ -570,12 +568,21 @@ extern char *fgets (char *__restrict __s, int __n, FILE *__restrict __stream)
      __wur;
 libc_hidden_proto(fgets)
 
+#if !defined __USE_ISOC11 \
+    || (defined __cplusplus && __cplusplus <= 201103L)
 /* Get a newline-terminated string from stdin, removing the newline.
    DO NOT USE THIS FUNCTION!!  There is no limit on how much it will read.
 
+   The function has been officially removed in ISO C11.  This opportunity
+   is used to also remove it from the GNU feature list.  It is now only
+   available when explicitly using an old ISO C, Unix, or POSIX standard.
+   GCC defines _GNU_SOURCE when building C++ code and the function is still
+   in C++11, so it is also available for C++.
+
    This function is a possible cancellation point and therefore not
    marked with __THROW.  */
-extern char *gets (char *__s) __wur;
+extern char *gets (char *__s) __wur __attribute_deprecated__;
+#endif
 __END_NAMESPACE_STD
 
 #ifdef __USE_GNU
@@ -628,21 +635,21 @@ libc_hidden_proto(getline)
 __BEGIN_NAMESPACE_STD
 /* Write a string to STREAM.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int fputs (const char *__restrict __s, FILE *__restrict __stream);
 libc_hidden_proto(fputs)
 
 /* Write a string, followed by a newline, to stdout.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int puts (const char *__s);
 
 
 /* Push a character back onto the input buffer of STREAM.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern int ungetc (int __c, FILE *__stream);
 libc_hidden_proto(ungetc)
@@ -650,14 +657,14 @@ libc_hidden_proto(ungetc)
 
 /* Read chunks of generic data from STREAM.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern size_t fread (void *__restrict __ptr, size_t __size,
 		     size_t __n, FILE *__restrict __stream) __wur;
 libc_hidden_proto(fread)
 /* Write chunks of generic data to STREAM.
 
-   This function is a possible cancellation points and therefore not
+   This function is a possible cancellation point and therefore not
    marked with __THROW.  */
 extern size_t fwrite (const void *__restrict __ptr, size_t __size,
 		      size_t __n, FILE *__restrict __s) __wur;
@@ -860,11 +867,11 @@ struct obstack;			/* See <obstack.h>.  */
 /* Write formatted output to an obstack.  */
 extern int obstack_printf (struct obstack *__restrict __obstack,
 			   const char *__restrict __format, ...)
-     __THROW __attribute__ ((__format__ (__printf__, 2, 3)));
+     __THROWNL __attribute__ ((__format__ (__printf__, 2, 3)));
 extern int obstack_vprintf (struct obstack *__restrict __obstack,
 			    const char *__restrict __format,
 			    __gnuc_va_list __args)
-     __THROW __attribute__ ((__format__ (__printf__, 2, 0)));
+     __THROWNL __attribute__ ((__format__ (__printf__, 2, 0)));
 libc_hidden_proto(obstack_vprintf)
 #endif /* USE_GNU && UCLIBC_HAS_OBSTACK.  */
 

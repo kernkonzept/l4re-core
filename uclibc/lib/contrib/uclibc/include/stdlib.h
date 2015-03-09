@@ -38,7 +38,7 @@ __BEGIN_DECLS
 #ifndef __need_malloc_and_calloc
 #define	_STDLIB_H	1
 
-#if defined __USE_XOPEN && !defined _SYS_WAIT_H
+#if (defined __USE_XOPEN || defined __USE_XOPEN2K8) && !defined _SYS_WAIT_H
 /* XPG requires a few symbols from <sys/wait.h> being defined.  */
 # include <bits/waitflags.h>
 # include <bits/waitstatus.h>

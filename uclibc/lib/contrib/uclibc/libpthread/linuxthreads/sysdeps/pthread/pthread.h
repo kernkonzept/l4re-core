@@ -163,7 +163,7 @@ enum
 extern int pthread_create (pthread_t *__restrict __threadp,
 			   const pthread_attr_t *__restrict __attr,
 			   void *(*__start_routine) (void *),
-			   void *__restrict __arg) __THROW;
+			   void *__restrict __arg) __THROWNL;
 
 /* Obtain the identifier of the current thread.  */
 extern pthread_t pthread_self (void) __THROW;
@@ -331,20 +331,20 @@ extern int pthread_mutex_init (pthread_mutex_t *__restrict __mutex,
 extern int pthread_mutex_destroy (pthread_mutex_t *__mutex) __THROW;
 
 /* Try to lock MUTEX.  */
-extern int pthread_mutex_trylock (pthread_mutex_t *__mutex) __THROW;
+extern int pthread_mutex_trylock (pthread_mutex_t *__mutex) __THROWNL;
 
 /* Wait until lock for MUTEX becomes available and lock it.  */
-extern int pthread_mutex_lock (pthread_mutex_t *__mutex) __THROW;
+extern int pthread_mutex_lock (pthread_mutex_t *__mutex) __THROWNL;
 
 #ifdef __USE_XOPEN2K
 /* Wait until lock becomes available, or specified time passes. */
 extern int pthread_mutex_timedlock (pthread_mutex_t *__restrict __mutex,
 				    const struct timespec *__restrict
-				    __abstime) __THROW;
+				    __abstime) __THROWNL;
 #endif
 
 /* Unlock MUTEX.  */
-extern int pthread_mutex_unlock (pthread_mutex_t *__mutex) __THROW;
+extern int pthread_mutex_unlock (pthread_mutex_t *__mutex) __THROWNL;
 
 
 /* Functions for handling mutex attributes.  */
@@ -390,10 +390,10 @@ extern int pthread_cond_init (pthread_cond_t *__restrict __cond,
 extern int pthread_cond_destroy (pthread_cond_t *__cond) __THROW;
 
 /* Wake up one thread waiting for condition variable COND.  */
-extern int pthread_cond_signal (pthread_cond_t *__cond) __THROW;
+extern int pthread_cond_signal (pthread_cond_t *__cond) __THROWNL;
 
 /* Wake up all threads waiting for condition variables COND.  */
-extern int pthread_cond_broadcast (pthread_cond_t *__cond) __THROW;
+extern int pthread_cond_broadcast (pthread_cond_t *__cond) __THROWNL;
 
 /* Wait for condition variable COND to be signaled or broadcast.
    MUTEX is assumed to be locked before.  */
@@ -440,33 +440,33 @@ extern int pthread_rwlock_init (pthread_rwlock_t *__restrict __rwlock,
 extern int pthread_rwlock_destroy (pthread_rwlock_t *__rwlock) __THROW;
 
 /* Acquire read lock for RWLOCK.  */
-extern int pthread_rwlock_rdlock (pthread_rwlock_t *__rwlock) __THROW;
+extern int pthread_rwlock_rdlock (pthread_rwlock_t *__rwlock) __THROWNL;
 
 /* Try to acquire read lock for RWLOCK.  */
-extern int pthread_rwlock_tryrdlock (pthread_rwlock_t *__rwlock) __THROW;
+extern int pthread_rwlock_tryrdlock (pthread_rwlock_t *__rwlock) __THROWNL;
 
 # ifdef __USE_XOPEN2K
 /* Try to acquire read lock for RWLOCK or return after specfied time.  */
 extern int pthread_rwlock_timedrdlock (pthread_rwlock_t *__restrict __rwlock,
 				       const struct timespec *__restrict
-				       __abstime) __THROW;
+				       __abstime) __THROWNL;
 # endif
 
 /* Acquire write lock for RWLOCK.  */
-extern int pthread_rwlock_wrlock (pthread_rwlock_t *__rwlock) __THROW;
+extern int pthread_rwlock_wrlock (pthread_rwlock_t *__rwlock) __THROWNL;
 
 /* Try to acquire write lock for RWLOCK.  */
-extern int pthread_rwlock_trywrlock (pthread_rwlock_t *__rwlock) __THROW;
+extern int pthread_rwlock_trywrlock (pthread_rwlock_t *__rwlock) __THROWNL;
 
 # ifdef __USE_XOPEN2K
 /* Try to acquire write lock for RWLOCK or return after specfied time.  */
 extern int pthread_rwlock_timedwrlock (pthread_rwlock_t *__restrict __rwlock,
 				       const struct timespec *__restrict
-				       __abstime) __THROW;
+				       __abstime) __THROWNL;
 # endif
 
 /* Unlock RWLOCK.  */
-extern int pthread_rwlock_unlock (pthread_rwlock_t *__rwlock) __THROW;
+extern int pthread_rwlock_unlock (pthread_rwlock_t *__rwlock) __THROWNL;
 
 
 /* Functions for handling read-write lock attributes.  */
@@ -508,13 +508,13 @@ extern int pthread_spin_init (pthread_spinlock_t *__lock, int __pshared)
 extern int pthread_spin_destroy (pthread_spinlock_t *__lock) __THROW;
 
 /* Wait until spinlock LOCK is retrieved.  */
-extern int pthread_spin_lock (pthread_spinlock_t *__lock) __THROW;
+extern int pthread_spin_lock (pthread_spinlock_t *__lock) __THROWNL;
 
 /* Try to lock spinlock LOCK.  */
-extern int pthread_spin_trylock (pthread_spinlock_t *__lock) __THROW;
+extern int pthread_spin_trylock (pthread_spinlock_t *__lock) __THROWNL;
 
 /* Release spinlock LOCK.  */
-extern int pthread_spin_unlock (pthread_spinlock_t *__lock) __THROW;
+extern int pthread_spin_unlock (pthread_spinlock_t *__lock) __THROWNL;
 
 
 /* Barriers are a also a new feature in 1003.1j-2000. */
@@ -536,7 +536,7 @@ extern int pthread_barrierattr_getpshared (const pthread_barrierattr_t *
 extern int pthread_barrierattr_setpshared (pthread_barrierattr_t *__attr,
 					   int __pshared) __THROW;
 
-extern int pthread_barrier_wait (pthread_barrier_t *__barrier) __THROW;
+extern int pthread_barrier_wait (pthread_barrier_t *__barrier) __THROWNL;
 #endif
 
 

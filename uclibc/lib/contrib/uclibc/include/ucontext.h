@@ -31,15 +31,15 @@
 __BEGIN_DECLS
 
 /* Get user context and store it in variable pointed to by UCP.  */
-extern int getcontext (ucontext_t *__ucp) __THROW;
+extern int getcontext (ucontext_t *__ucp) __THROWNL;
 
 /* Set user context from information of variable pointed to by UCP.  */
-extern int setcontext (const ucontext_t *__ucp) __THROW;
+extern int setcontext (const ucontext_t *__ucp) __THROWNL;
 
 /* Save current context in context variable pointed to by OUCP and set
    context from variable pointed to by UCP.  */
 extern int swapcontext (ucontext_t *__restrict __oucp,
-			const ucontext_t *__restrict __ucp) __THROW;
+			const ucontext_t *__restrict __ucp) __THROWNL;
 
 /* Manipulate user context UCP to continue with calling functions FUNC
    and the ARGC-1 parameters following ARGC when the context is used

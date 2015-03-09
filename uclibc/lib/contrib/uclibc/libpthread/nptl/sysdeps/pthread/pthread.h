@@ -229,7 +229,7 @@ __BEGIN_DECLS
 extern int pthread_create (pthread_t *__restrict __newthread,
 			   const pthread_attr_t *__restrict __attr,
 			   void *(*__start_routine) (void *),
-			   void *__restrict __arg) __THROW __nonnull ((1, 3));
+			   void *__restrict __arg) __THROWNL __nonnull ((1, 3));
 
 /* Terminate calling thread.
 
@@ -271,7 +271,8 @@ extern int pthread_detach (pthread_t __th) __THROW;
 extern pthread_t pthread_self (void) __THROW __attribute__ ((__const__));
 
 /* Compare two thread identifiers.  */
-extern int pthread_equal (pthread_t __thread1, pthread_t __thread2) __THROW;
+extern int pthread_equal (pthread_t __thread1, pthread_t __thread2)
+    __THROW __attribute__ ((__const__));
 
 
 /* Thread attribute handling.  */
@@ -308,8 +309,7 @@ extern int pthread_attr_setguardsize (pthread_attr_t *__attr,
 
 
 /* Return in *PARAM the scheduling parameters of *ATTR.  */
-extern int pthread_attr_getschedparam (const pthread_attr_t *__restrict
-				       __attr,
+extern int pthread_attr_getschedparam (const pthread_attr_t *__restrict __attr,
 				       struct sched_param *__restrict __param)
      __THROW __nonnull ((1, 2));
 
@@ -643,9 +643,9 @@ __pthread_cleanup_routine (struct __pthread_cleanup_frame *__frame)
     __pthread_unwind_buf_t __cancel_buf;				      \
     void (*__cancel_routine) (void *) = (routine);			      \
     void *__cancel_arg = (arg);						      \
-    int not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)	      \
+    int __not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)	      \
 				      __cancel_buf.__cancel_jmp_buf, 0);      \
-    if (__builtin_expect (not_first_call, 0))				      \
+    if (__builtin_expect (__not_first_call, 0))				      \
       {									      \
 	__cancel_routine (__cancel_arg);				      \
 	__pthread_unwind_next (&__cancel_buf);				      \
@@ -678,9 +678,9 @@ extern void __pthread_unregister_cancel (__pthread_unwind_buf_t *__buf)
     __pthread_unwind_buf_t __cancel_buf;				      \
     void (*__cancel_routine) (void *) = (routine);			      \
     void *__cancel_arg = (arg);						      \
-    int not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)	      \
+    int __not_first_call = __sigsetjmp ((struct __jmp_buf_tag *) (void *)	      \
 				      __cancel_buf.__cancel_jmp_buf, 0);      \
-    if (__builtin_expect (not_first_call, 0))				      \
+    if (__builtin_expect (__not_first_call, 0))				      \
       {									      \
 	__cancel_routine (__cancel_arg);				      \
 	__pthread_unwind_next (&__cancel_buf);				      \
@@ -717,7 +717,7 @@ extern void __pthread_unwind_next (__pthread_unwind_buf_t *__buf)
 
 /* Function used in the macros.  */
 struct __jmp_buf_tag;
-extern int __sigsetjmp (struct __jmp_buf_tag *__env, int __savemask) __THROW;
+extern int __sigsetjmp (struct __jmp_buf_tag *__env, int __savemask) __THROWNL;
 
 
 /* Mutex handling.  */
@@ -733,22 +733,22 @@ extern int pthread_mutex_destroy (pthread_mutex_t *__mutex)
 
 /* Try locking a mutex.  */
 extern int pthread_mutex_trylock (pthread_mutex_t *__mutex)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 /* Lock a mutex.  */
 extern int pthread_mutex_lock (pthread_mutex_t *__mutex)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 #ifdef __USE_XOPEN2K
 /* Wait until lock becomes available, or specified time passes. */
 extern int pthread_mutex_timedlock (pthread_mutex_t *__restrict __mutex,
 				    const struct timespec *__restrict
-				    __abstime) __THROW __nonnull ((1, 2));
+				    __abstime) __THROWNL __nonnull ((1, 2));
 #endif
 
 /* Unlock a mutex.  */
 extern int pthread_mutex_unlock (pthread_mutex_t *__mutex)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 
 /* Get the priority ceiling of MUTEX.  */
@@ -872,37 +872,37 @@ extern int pthread_rwlock_destroy (pthread_rwlock_t *__rwlock)
 
 /* Acquire read lock for RWLOCK.  */
 extern int pthread_rwlock_rdlock (pthread_rwlock_t *__rwlock)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 /* Try to acquire read lock for RWLOCK.  */
 extern int pthread_rwlock_tryrdlock (pthread_rwlock_t *__rwlock)
-  __THROW __nonnull ((1));
+  __THROWNL __nonnull ((1));
 
 # ifdef __USE_XOPEN2K
 /* Try to acquire read lock for RWLOCK or return after specfied time.  */
 extern int pthread_rwlock_timedrdlock (pthread_rwlock_t *__restrict __rwlock,
 				       const struct timespec *__restrict
-				       __abstime) __THROW __nonnull ((1, 2));
+				       __abstime) __THROWNL __nonnull ((1, 2));
 # endif
 
 /* Acquire write lock for RWLOCK.  */
 extern int pthread_rwlock_wrlock (pthread_rwlock_t *__rwlock)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 /* Try to acquire write lock for RWLOCK.  */
 extern int pthread_rwlock_trywrlock (pthread_rwlock_t *__rwlock)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 # ifdef __USE_XOPEN2K
 /* Try to acquire write lock for RWLOCK or return after specfied time.  */
 extern int pthread_rwlock_timedwrlock (pthread_rwlock_t *__restrict __rwlock,
 				       const struct timespec *__restrict
-				       __abstime) __THROW __nonnull ((1, 2));
+				       __abstime) __THROWNL __nonnull ((1, 2));
 # endif
 
 /* Unlock RWLOCK.  */
 extern int pthread_rwlock_unlock (pthread_rwlock_t *__rwlock)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 
 /* Functions for handling read-write lock attributes.  */
@@ -943,8 +943,8 @@ extern int pthread_rwlockattr_setkind_np (pthread_rwlockattr_t *__attr,
 /* Initialize condition variable COND using attributes ATTR, or use
    the default values if later is NULL.  */
 extern int pthread_cond_init (pthread_cond_t *__restrict __cond,
-			      const pthread_condattr_t *__restrict
-			      __cond_attr) __THROW __nonnull ((1));
+			      const pthread_condattr_t *__restrict __cond_attr)
+     __THROW __nonnull ((1));
 
 /* Destroy condition variable COND.  */
 extern int pthread_cond_destroy (pthread_cond_t *__cond)
@@ -952,11 +952,11 @@ extern int pthread_cond_destroy (pthread_cond_t *__cond)
 
 /* Wake up one thread waiting for condition variable COND.  */
 extern int pthread_cond_signal (pthread_cond_t *__cond)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 /* Wake up all threads waiting for condition variables COND.  */
 extern int pthread_cond_broadcast (pthread_cond_t *__cond)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 /* Wait for condition variable COND to be signaled or broadcast.
    MUTEX is assumed to be locked before.
@@ -976,8 +976,8 @@ extern int pthread_cond_wait (pthread_cond_t *__restrict __cond,
    __THROW.  */
 extern int pthread_cond_timedwait (pthread_cond_t *__restrict __cond,
 				   pthread_mutex_t *__restrict __mutex,
-				   const struct timespec *__restrict
-				   __abstime) __nonnull ((1, 2, 3));
+				   const struct timespec *__restrict __abstime)
+     __nonnull ((1, 2, 3));
 
 /* Functions for handling condition variable attributes.  */
 
@@ -1000,13 +1000,13 @@ extern int pthread_condattr_setpshared (pthread_condattr_t *__attr,
 					int __pshared) __THROW __nonnull ((1));
 
 #ifdef __USE_XOPEN2K
-/* Get the clock selected for the conditon variable attribute ATTR.  */
+/* Get the clock selected for the condition variable attribute ATTR.  */
 extern int pthread_condattr_getclock (const pthread_condattr_t *
 				      __restrict __attr,
 				      __clockid_t *__restrict __clock_id)
      __THROW __nonnull ((1, 2));
 
-/* Set the clock selected for the conditon variable attribute ATTR.  */
+/* Set the clock selected for the condition variable attribute ATTR.  */
 extern int pthread_condattr_setclock (pthread_condattr_t *__attr,
 				      __clockid_t __clock_id)
      __THROW __nonnull ((1));
@@ -1027,15 +1027,15 @@ extern int pthread_spin_destroy (pthread_spinlock_t *__lock)
 
 /* Wait until spinlock LOCK is retrieved.  */
 extern int pthread_spin_lock (pthread_spinlock_t *__lock)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 /* Try to lock spinlock LOCK.  */
 extern int pthread_spin_trylock (pthread_spinlock_t *__lock)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 /* Release spinlock LOCK.  */
 extern int pthread_spin_unlock (pthread_spinlock_t *__lock)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 
 /* Functions to handle barriers.  */
@@ -1053,7 +1053,7 @@ extern int pthread_barrier_destroy (pthread_barrier_t *__barrier)
 
 /* Wait on barrier BARRIER.  */
 extern int pthread_barrier_wait (pthread_barrier_t *__barrier)
-     __THROW __nonnull ((1));
+     __THROWNL __nonnull ((1));
 
 
 /* Initialize barrier attribute ATTR.  */
