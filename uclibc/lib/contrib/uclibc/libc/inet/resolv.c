@@ -1615,9 +1615,13 @@ int __read_etc_hosts_r(
 #endif
 							;
 	int ret = HOST_NOT_FOUND;
+	/* make sure pointer is aligned */
+	int i = ALIGN_BUFFER_OFFSET(buf);
+	buf += i;
+	buflen -= i;
 
 	*h_errnop = NETDB_INTERNAL;
-	if (buflen < aliaslen
+	if (/* (ssize_t)buflen < 0 || */ buflen < aliaslen
 		|| (buflen - aliaslen) < BUFSZ + 1)
 		return ERANGE;
 	if (parser == NULL)
