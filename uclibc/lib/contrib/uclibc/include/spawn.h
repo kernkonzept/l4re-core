@@ -66,15 +66,6 @@ typedef struct
 # define POSIX_SPAWN_USEVFORK		0x40
 #endif
 
-
-#define __POSIX_SPAWN_MASK (POSIX_SPAWN_RESETIDS		\
-			    | POSIX_SPAWN_SETPGROUP		\
-			    | POSIX_SPAWN_SETSIGDEF		\
-			    | POSIX_SPAWN_SETSIGMASK		\
-			    | POSIX_SPAWN_SETSCHEDPARAM		\
-			    | POSIX_SPAWN_SETSCHEDULER		\
-			    | POSIX_SPAWN_USEVFORK)
-
 __BEGIN_DECLS
 
 /* Spawn a new process executing PATH with the attributes describes in *ATTRP.
@@ -170,12 +161,27 @@ static inline
 int posix_spawnattr_setflags (posix_spawnattr_t *_attr,
 				     short int __flags)
 {
+#ifdef POSIX_SPAWN_USEVFORK
+# define __POSIX_SPAWN_USEVFORK POSIX_SPAWN_USEVFORK
+#else
+# define __POSIX_SPAWN_USEVFORK 0
+#endif
+#define __POSIX_SPAWN_MASK (POSIX_SPAWN_RESETIDS		\
+			    | POSIX_SPAWN_SETPGROUP		\
+			    | POSIX_SPAWN_SETSIGDEF		\
+			    | POSIX_SPAWN_SETSIGMASK		\
+			    | POSIX_SPAWN_SETSCHEDPARAM		\
+			    | POSIX_SPAWN_SETSCHEDULER		\
+			    | __POSIX_SPAWN_USEVFORK)
+
   /* Check no invalid bits are set.  */
   if (__flags & ~__POSIX_SPAWN_MASK)
     return EINVAL;
 
   _attr->__flags = __flags;
   return 0;
+#undef __POSIX_SPAWN_USEVFORK
+#undef __POSIX_SPAWN_MASK
 }
 
 /* Get process group ID from the attribute structure.  */
