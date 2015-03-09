@@ -2355,6 +2355,11 @@ typedef Elf32_Addr Elf32_Conflict;
 #define SHF_ARM_COMDEF     0x80000000   /* Section may be multiply defined
 					   in the input to a link step */
 
+#define SHT_ARM_EXIDX           (SHT_LOPROC + 1) /* ARM unwind section.  */
+#define SHT_ARM_PREEMPTMAP      (SHT_LOPROC + 2) /* Preemption details.  */
+#define SHT_ARM_ATTRIBUTES      (SHT_LOPROC + 3) /* ARM attributes section.  */
+
+
 /* ARM-specific program header flags */
 #define PF_ARM_SB          0x10000000   /* Segment contains the location
 					   addressed by the static base */
