@@ -132,6 +132,7 @@ extern __malloc_ptr_t valloc __MALLOC_P ((size_t __size)) __attribute_malloc__;
 
 #ifdef __MALLOC_STANDARD__
 
+# ifdef __USE_SVID
 /* SVID2/XPG mallinfo structure */
 struct mallinfo {
   int arena;    /* total space allocated from system */
@@ -149,10 +150,13 @@ struct mallinfo {
 /* Returns a copy of the updated current mallinfo. */
 extern struct mallinfo mallinfo __MALLOC_P ((void));
 libc_hidden_proto(mallinfo)
+# endif /* __USE_SVID */
 
+# ifdef __USE_GNU
 /* Release all but __pad bytes of freed top-most memory back to the
    system. Return 1 if successful, else 0. */
 extern int malloc_trim(size_t pad);
+# endif /* __USE_GNU */
 
 #include <stdio.h>
 /* Prints brief summary statistics to the specified file.
