@@ -104,9 +104,13 @@ static int __malloc_trim(size_t pad, mstate av)
 */
 int malloc_trim(size_t pad)
 {
+  int r;
+  __MALLOC_LOCK;
   mstate av = get_malloc_state();
   __malloc_consolidate(av);
-  return __malloc_trim(pad, av);
+  r = __malloc_trim(pad, av);
+  __MALLOC_UNLOCK;
+  return r;
 }
 
 /*
