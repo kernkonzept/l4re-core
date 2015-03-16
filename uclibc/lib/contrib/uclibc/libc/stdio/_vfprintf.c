@@ -121,18 +121,6 @@
 #error Apparently, LONG_LONG_MAX is defined but LLONG_MAX is not.  You need to fix your toolchain headers to support the standard macros for (unsigned) long long.
 #endif
 
-/**********************************************************************/
-/* These provide some control over printf's feature set */
-
-/* Now controlled by uClibc_config.h. */
-/* #define __UCLIBC_HAS_FLOATS__ 1 */
-
-/* Now controlled by uClibc_config.h. */
-/* #define __UCLIBC_HAS_PRINTF_M_SPEC__ */
-
-
-/**********************************************************************/
-
 #include "_fpmaxtostr.h"
 
 #undef __STDIO_HAS_VSNPRINTF
@@ -141,9 +129,6 @@
 #endif
 
 /**********************************************************************/
-
-/* Now controlled by uClibc_config.h. */
-/* #define __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__ */
 
 #ifdef __UCLIBC_MJN3_ONLY__
 # ifdef L_register_printf_function
