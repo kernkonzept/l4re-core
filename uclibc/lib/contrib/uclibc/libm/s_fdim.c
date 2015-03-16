@@ -6,13 +6,22 @@
 
 #include "math.h"
 #include "math_private.h"
+#include <errno.h>
 
 double fdim(double x, double y)
 {
-  int c = __fpclassify(x);
-  if (c == FP_NAN || c == FP_INFINITE)
-    return HUGE_VAL;
+  int cx = __fpclassify(x); /* need both NAN and INF */
+  int cy = __fpclassify(y); /* need both NAN and INF */
+  if (cx == FP_NAN || cy == NAN)
+    return x - y;
 
-  return x > y ? x - y : 0.0;
+  if (x <= y)
+	  return .0;
+
+  double z = x - y;
+  if (isinf(z) && cx != FP_INFINITE && cy != FP_INFINITE)
+	  __set_errno(ERANGE);
+
+  return z;
 }
 libm_hidden_def(fdim)

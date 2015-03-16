@@ -9,10 +9,10 @@
 
 double fmin(double x, double y)
 {
-  if (__fpclassify(x) == FP_NAN)
-    return x;
-  if (__fpclassify(y) == FP_NAN)
+  if (isnan(x))
     return y;
+  if (isnan(y))
+    return x;
 
   return x < y ? x : y;
 }

@@ -74,8 +74,22 @@ __MATHCALLI (atan2,, (_Mdouble_ __y, _Mdouble_ __x))
 
 /* Cosine of X.  */
 __MATHCALLI (cos,, (_Mdouble_ __x))
+# if defined _LIBC && defined _Mlong_double_
+libm_hidden_proto(cosl)
+# endif
+# if defined _LIBC && defined _Mfloat_
+libm_hidden_proto(cosf)
+# endif
+
 /* Sine of X.  */
 __MATHCALLI (sin,, (_Mdouble_ __x))
+# if defined _LIBC && defined _Mlong_double_
+libm_hidden_proto(sinl)
+# endif
+# if defined _LIBC && defined _Mfloat_
+libm_hidden_proto(sinf)
+# endif
+
 /* Tangent of X.  */
 __MATHCALLI (tan,, (_Mdouble_ __x))
 
@@ -111,6 +125,9 @@ __END_NAMESPACE_C99
 _Mdouble_BEGIN_NAMESPACE
 /* Exponential function of X.  */
 __MATHCALLI (exp,, (_Mdouble_ __x))
+# if defined _LIBC && defined _Mlong_double_
+libm_hidden_proto(expl)
+# endif
 
 /* Break VALUE into a normalized fraction and an integral power of 2.  */
 __MATHCALLI (frexp,, (_Mdouble_ __x, int *__exponent))
@@ -173,6 +190,9 @@ _Mdouble_END_NAMESPACE
 __BEGIN_NAMESPACE_C99
 /* Return `sqrt(X*X + Y*Y)'.  */
 __MATHCALLI (hypot,, (_Mdouble_ __x, _Mdouble_ __y))
+# if defined _LIBC && defined _Mlong_double_
+libm_hidden_proto(hypotl)
+# endif
 __END_NAMESPACE_C99
 #endif
 
@@ -298,6 +318,9 @@ __MATHCALLI (rint,, (_Mdouble_ __x))
 
 /* Return X + epsilon if X < Y, X - epsilon if X > Y.  */
 __MATHCALLX (nextafter,, (_Mdouble_ __x, _Mdouble_ __y), (__const__))
+# if defined _LIBC && defined _Mlong_double_
+libm_hidden_proto(nextafterl)
+# endif
 # if defined __USE_ISOC99 && !defined __LDBL_COMPAT
 __MATHCALLX (nexttoward,, (_Mdouble_ __x, long double __y), (__const__))
 # endif

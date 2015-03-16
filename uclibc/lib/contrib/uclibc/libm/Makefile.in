@@ -75,9 +75,6 @@ libm_CSRC := \
 	s_remquo.c w_exp2.c \
 	cexp.c sincos.c
 
-# Not implemented [yet?], see comment in float_wrappers.c:
-# fdimf.o fmaf.o fmaxf.o fminf.o
-# nearbyintf.o remquof.o scalblnf.o tgammaf.o
 FL_MOBJ := \
 	acosf.o \
 	acoshf.o \
@@ -98,7 +95,11 @@ FL_MOBJ := \
 	expf.o \
 	expm1f.o \
 	fabsf.o \
+	fdimf.o \
 	floorf.o \
+	fmaf.o \
+	fmaxf.o \
+	fminf.o \
 	fmodf.o \
 	frexpf.o \
 	gammaf.o \
@@ -116,11 +117,14 @@ FL_MOBJ := \
 	lrintf.o \
 	lroundf.o \
 	modff.o \
+	nearbyintf.o \
+	nexttowardf.o \
 	powf.o \
 	remainderf.o \
+	remquof.o \
 	rintf.o \
 	roundf.o \
-	scalbf.o \
+	scalblnf.o \
 	scalbnf.o \
 	significandf.o \
 	sinf.o \
@@ -128,9 +132,24 @@ FL_MOBJ := \
 	sqrtf.o \
 	tanf.o \
 	tanhf.o \
+	tgammaf.o \
 	truncf.o \
 
-# Not implemented [yet?]: nexttowardl.o
+ifeq ($(UCLIBC_SUSV3_LEGACY),y)
+FL_MOBJ += scalbf.o
+endif
+
+# Do not (yet?) implement the float variants of bessel functions
+ifeq (not-yet-implemented-$(DO_XSI_MATH),y)
+FL_MOBJ += \
+	j0f.o \
+	j1f.o \
+	jnf.o \
+	y0f.o \
+	y1f.o \
+	ynf.o
+endif
+
 LD_MOBJ := \
 	__finitel.o \
 	__fpclassifyl.o \
@@ -180,6 +199,7 @@ LD_MOBJ := \
 	modfl.o \
 	nearbyintl.o \
 	nextafterl.o \
+	nexttowardl.o \
 	powl.o \
 	remainderl.o \
 	remquol.o \
@@ -195,6 +215,17 @@ LD_MOBJ := \
 	tanl.o \
 	tgammal.o \
 	truncl.o \
+
+# Do not (yet?) implement the long double variants of bessel functions
+ifeq (not-yet-implemented-$(DO_XSI_MATH),y)
+LD_MOBJ += \
+	j0l.o \
+	j1l.o \
+	jnl.o \
+	y0l.o \
+	y1l.o \
+	ynl.o
+endif
 
 else
 

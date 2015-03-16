@@ -129,6 +129,7 @@ __BEGIN_DECLS
 # undef	_Mdouble_
 # undef _Mdouble_BEGIN_NAMESPACE
 # undef _Mdouble_END_NAMESPACE
+# undef _Mfloat_
 # undef	__MATH_PRECNAME
 # undef __MATH_maybe_libm_hidden_proto
 
@@ -176,6 +177,7 @@ extern long double __REDIRECT_NTH (nexttowardl, (long double __x, long double __
 #  undef _Mdouble_
 #  undef _Mdouble_BEGIN_NAMESPACE
 #  undef _Mdouble_END_NAMESPACE
+#  undef _Mlong_double_
 #  undef __MATH_PRECNAME
 #  undef __MATH_maybe_libm_hidden_proto
 

@@ -38,17 +38,14 @@ long long func##f (float x) \
 	return func((double)x); \
 }
 
-
-/* For the time being, do _NOT_ implement these functions
- * that are defined by SuSv3 [because we don't need them
- * and nobody asked to include them] */
-#undef L_fdimf         /*float       fdimf(float, float);*/
-#undef L_fmaf          /*float       fmaf(float, float, float);*/
-#undef L_nearbyintf    /*float       nearbyintf(float);*/
-#undef L_nexttowardf   /*float       nexttowardf(float, long double);*/
-#undef L_remquof       /*float       remquof(float, float, int *);*/
-#undef L_scalblnf      /*float       scalblnf(float, long);*/
-#undef L_tgammaf       /*float       tgammaf(float);*/
+#ifndef __DO_XSI_MATH__
+# undef L_j0f	/* float j0f(float x); */
+# undef L_j1f	/* float j1f(float x); */
+# undef L_jnf	/* float jnf(int n, float x); */
+# undef L_y0f	/* float y0f(float x); */
+# undef L_y1f	/* float y1f(float x); */
+# undef L_ynf	/* float ynf(int n, float x); */
+#endif
 
 /* Implement the following, as defined by SuSv3 */
 #if 0
@@ -153,6 +150,7 @@ float copysignf (float x, float y)
 
 #ifdef L_cosf
 WRAPPER1(cos)
+libm_hidden_def(cosf)
 #endif
 
 #ifdef L_coshf
@@ -240,6 +238,21 @@ float hypotf (float x, float y)
 int_WRAPPER1(ilogb)
 #endif
 
+#ifdef L_j0f
+WRAPPER1(j0)
+#endif
+
+#ifdef L_j1f
+WRAPPER1(j1)
+#endif
+
+#ifdef L_jnf
+float jnf(int n, float x)
+{
+	return (float) jn(n, (double)x);
+}
+#endif
+
 #ifdef L_ldexpf
 float ldexpf (float x, int _exp)
 {
@@ -304,7 +317,7 @@ WRAPPER1(nearbyint)
 #ifdef L_nexttowardf
 float nexttowardf (float x, long double y)
 {
-	return (float) nexttoward( (double)x, (double)y );
+	return (float) nexttoward( (double)x, (long double)y );
 }
 #endif
 
@@ -353,6 +366,7 @@ float scalbnf (float x, int _exp)
 
 #ifdef L_sinf
 WRAPPER1(sin)
+libm_hidden_def(sinf)
 #endif
 
 #ifdef L_sinhf
@@ -379,13 +393,6 @@ WRAPPER1(tgamma)
 WRAPPER1(trunc)
 #endif
 
-#ifdef L_fmaf
-float fmaf (float x, float y, float z)
-{
-	return (float) fma( (double)x, (double)y, (double)z );
-}
-#endif
-
 #if defined L_scalbf && defined __UCLIBC_SUSV3_LEGACY__
 float scalbf (float x, float y)
 {
@@ -399,4 +406,19 @@ WRAPPER1(gamma)
 
 #ifdef L_significandf
 WRAPPER1(significand)
+#endif
+
+#ifdef L_y0f
+WRAPPER1(y0)
+#endif
+
+#ifdef L_y1f
+WRAPPER1(y1)
+#endif
+
+#ifdef L_ynf
+float ynf(int n, float x)
+{
+	return (float) yn(n, (double)x);
+}
 #endif

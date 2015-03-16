@@ -79,6 +79,7 @@ __BEGIN_DECLS
 #endif
 #include <bits/cmathcalls.h>
 #undef	_Mdouble_
+#undef	_Mfloat_
 #undef	__MATH_PRECNAME
 
 /* And the long double versions.  It is non-critical to define them
@@ -97,6 +98,7 @@ __BEGIN_DECLS
 # include <bits/cmathcalls.h>
 #endif
 #undef	_Mdouble_
+#undef	_Mlong_double_
 #undef	__MATH_PRECNAME
 #undef	__MATHDECL_1
 #undef	__MATHDECL
