@@ -11,6 +11,7 @@ define SRC_libc/sysdeps/linux
   common/gethostname
   common/getdirname
   common/getpagesize
+  common/makedev
 endef
 
 define SRC_libc/sysdeps/linux_large_file
