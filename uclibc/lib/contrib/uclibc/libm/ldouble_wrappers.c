@@ -16,27 +16,28 @@
 #include "math.h"
 #include <complex.h>
 
-#define WRAPPER1(func) \
+#if !defined __NO_LONG_DOUBLE_MATH
+# define WRAPPER1(func) \
 long double func##l(long double x) \
 { \
 	return (long double) func((double) x); \
 }
-#define WRAPPER2(func) \
+# define WRAPPER2(func) \
 long double func##l(long double x, long double y) \
 { \
 	return (long double) func((double) x, (double) y); \
 }
-#define int_WRAPPER1(func) \
+# define int_WRAPPER1(func) \
 int func##l(long double x) \
 { \
 	return func((double) x); \
 }
-#define long_WRAPPER1(func) \
+# define long_WRAPPER1(func) \
 long func##l(long double x) \
 { \
 	return func((double) x); \
 }
-#define long_long_WRAPPER1(func) \
+# define long_long_WRAPPER1(func) \
 long long func##l(long double x) \
 { \
 	return func((double) x); \
@@ -447,4 +448,6 @@ int_WRAPPER1(__isinf)
 libm_hidden_def(__isinfl)
 # endif
 
-#endif
+#endif /* __DO_C99_MATH__ */
+
+#endif /* __NO_LONG_DOUBLE_MATH */

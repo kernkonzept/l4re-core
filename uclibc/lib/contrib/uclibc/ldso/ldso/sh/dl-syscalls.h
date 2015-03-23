@@ -1,4 +1,4 @@
-#if __GNUC_PREREQ (4, 1)
+#if __GNUC_PREREQ (4, 1) && !__GNUC_PREREQ (4, 9)
 #warning !!! gcc 4.1 and later have problems with __always_inline so redefined as inline
 # ifdef __always_inline
 # undef __always_inline
