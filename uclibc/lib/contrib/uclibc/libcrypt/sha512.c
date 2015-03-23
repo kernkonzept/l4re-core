@@ -139,12 +139,12 @@ sha512_process_block (const void *buffer, size_t len, struct sha512_ctx *ctx)
       uint64_t h_save = h;
 
       /* Operators defined in FIPS 180-2:4.1.2.  */
-#define Ch(x, y, z) ((x & y) ^ (~x & z))
-#define Maj(x, y, z) ((x & y) ^ (x & z) ^ (y & z))
-#define S0(x) (CYCLIC (x, 28) ^ CYCLIC (x, 34) ^ CYCLIC (x, 39))
-#define S1(x) (CYCLIC (x, 14) ^ CYCLIC (x, 18) ^ CYCLIC (x, 41))
-#define R0(x) (CYCLIC (x, 1) ^ CYCLIC (x, 8) ^ (x >> 7))
-#define R1(x) (CYCLIC (x, 19) ^ CYCLIC (x, 61) ^ (x >> 6))
+#define _Ch(x, y, z) ((x & y) ^ (~x & z))
+#define _Maj(x, y, z) ((x & y) ^ (x & z) ^ (y & z))
+#define _S0(x) (CYCLIC (x, 28) ^ CYCLIC (x, 34) ^ CYCLIC (x, 39))
+#define _S1(x) (CYCLIC (x, 14) ^ CYCLIC (x, 18) ^ CYCLIC (x, 41))
+#define _R0(x) (CYCLIC (x, 1) ^ CYCLIC (x, 8) ^ (x >> 7))
+#define _R1(x) (CYCLIC (x, 19) ^ CYCLIC (x, 61) ^ (x >> 6))
 
       /* It is unfortunate that C does not provide an operator for
 	 cyclic rotation.  Hope the C compiler is smart enough.  */
@@ -157,13 +157,13 @@ sha512_process_block (const void *buffer, size_t len, struct sha512_ctx *ctx)
 	  ++words;
 	}
       for (unsigned int t = 16; t < 80; ++t)
-	W[t] = R1 (W[t - 2]) + W[t - 7] + R0 (W[t - 15]) + W[t - 16];
+	W[t] = _R1 (W[t - 2]) + W[t - 7] + _R0 (W[t - 15]) + W[t - 16];
 
       /* The actual computation according to FIPS 180-2:6.3.2 step 3.  */
       for (unsigned int t = 0; t < 80; ++t)
 	{
-	  uint64_t T1 = h + S1 (e) + Ch (e, f, g) + K[t] + W[t];
-	  uint64_t T2 = S0 (a) + Maj (a, b, c);
+	  uint64_t T1 = h + _S1 (e) + _Ch (e, f, g) + K[t] + W[t];
+	  uint64_t T2 = _S0 (a) + _Maj (a, b, c);
 	  h = g;
 	  g = f;
 	  f = e;
