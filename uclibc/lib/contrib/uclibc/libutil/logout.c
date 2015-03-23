@@ -50,7 +50,7 @@ logout (const char *line)
       memset (ut->ut_host, 0, sizeof ut->ut_host);
 #endif
 #if _HAVE_UT_TV - 0
-# if !defined __WORDSIZE_COMPAT32 || __WORDSIZE_COMPAT32 == 0
+# if !defined __WORDSIZE_TIME64_COMPAT32
       gettimeofday (&ut->ut_tv, NULL);
 # else
       {
