@@ -40,7 +40,7 @@ __BEGIN_DECLS
 /* Make FD be the controlling terminal, stdin, stdout, and stderr;
    then close FD.  Returns 0 on success, nonzero on error.  */
 extern int login_tty (int __fd) __THROW;
-
+libutil_hidden_proto(login_tty)
 
 /* Write the given entry into utmp and wtmp.  */
 extern void login (const struct utmp *__entry) __THROW;
@@ -56,37 +56,29 @@ extern void logwtmp (const char *__ut_line, const char *__ut_name,
 /* Append entry UTMP to the wtmp-like file WTMP_FILE.  */
 extern void updwtmp (const char *__wtmp_file, const struct utmp *__utmp)
      __THROW;
-libc_hidden_proto(updwtmp)
 
 /* Change name of the utmp file to be examined.  */
 extern int utmpname (const char *__file) __THROW;
-libc_hidden_proto(utmpname)
 
 /* Read next entry from a utmp-like file.  */
 extern struct utmp *getutent (void) __THROW;
-libc_hidden_proto(getutent)
 
 /* Reset the input stream to the beginning of the file.  */
 extern void setutent (void) __THROW;
-libc_hidden_proto(setutent)
 
 /* Close the current open file.  */
 extern void endutent (void) __THROW;
-libc_hidden_proto(endutent)
 
 /* Search forward from the current point in the utmp file until the
    next entry with a ut_type matching ID->ut_type.  */
 extern struct utmp *getutid (const struct utmp *__id) __THROW;
-libc_hidden_proto(getutid)
 
 /* Search forward from the current point in the utmp file until the
    next entry with a ut_line matching LINE->ut_line.  */
 extern struct utmp *getutline (const struct utmp *__line) __THROW;
-libc_hidden_proto(getutline)
 
 /* Write out entry pointed to by UTMP_PTR into the utmp file.  */
 extern struct utmp *pututline (const struct utmp *__utmp_ptr) __THROW;
-libc_hidden_proto(pututline)
 
 
 #if 0 /* def	__USE_MISC */

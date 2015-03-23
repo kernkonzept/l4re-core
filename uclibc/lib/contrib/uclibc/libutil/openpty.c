@@ -84,7 +84,6 @@ pts_name (int fd, char **pts, size_t buf_len)
 /* Create pseudo tty master slave pair and set terminal attributes
    according to TERMP and WINP.  Return handles for both ends in
    AMASTER and ASLAVE, and return the name of the slave end in NAME.  */
-libutil_hidden_proto(openpty)
 int
 openpty (int *amaster, int *aslave, char *name, struct termios *termp,
 	 struct winsize *winp)

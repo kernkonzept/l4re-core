@@ -27,6 +27,14 @@ ifneq ($(UCLIBC_HAS_PTY),y)
 libutil_SRC := $(filter-out $(libutil_DIR)/openpty.c $(libutil_DIR)/forkpty.c \
 		,$(libutil_SRC))
 endif
+ifeq ($(UCLIBC_HAS_UTMP)$(UCLIBC_HAS_UTMPX),)
+libutil_SRC := $(filter-out \
+	$(libutil_DIR)/logwtmp.c \
+	$(libutil_DIR)/login.c \
+	$(libutil_DIR)/logout.c \
+		,$(libutil_SRC))
+endif
+
 libutil_OBJ := $(patsubst $(libutil_DIR)/%.c,$(libutil_OUT)/%.o,$(libutil_SRC))
 
 ifeq ($(DOPIC),y)

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <utmp.h>
+#include "internal/utmp.h"
 
 /* Write the given entry into utmp and wtmp.
  * Note: the match in utmp is done against ut_id field,
@@ -11,7 +11,7 @@
  */
 void login(const struct utmp *entry)
 {
-	struct utmp copy;
+	struct UT copy;
 	char tty_name[sizeof(copy.ut_line) + 6];
 	int fd;
 
@@ -20,7 +20,7 @@ void login(const struct utmp *entry)
 // (if there is such a field) with the value USER_PROCESS,
 // and fills the field ut->ut_pid (if there is such a field)
 // with the process ID of the calling process.
-	copy = *entry;
+	copy = *((const struct UT *)(entry));
 #if _HAVE_UT_TYPE - 0
 	copy.ut_type = USER_PROCESS;
 #endif

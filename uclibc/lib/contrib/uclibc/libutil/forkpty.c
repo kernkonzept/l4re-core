@@ -22,9 +22,6 @@
 #include <utmp.h>
 #include <pty.h>
 
-libutil_hidden_proto(openpty)
-libutil_hidden_proto(login_tty)
-
 int
 forkpty (int *amaster, char *name, struct termios *termp, struct winsize *winp)
 {

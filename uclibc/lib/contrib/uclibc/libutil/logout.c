@@ -18,14 +18,14 @@
 
 #include <errno.h>
 #include <string.h>
-#include <utmp.h>
 #include <sys/time.h>
+#include "internal/utmp.h"
 
 int
 logout (const char *line)
 {
-  struct utmp tmp;
-  struct utmp *ut;
+  struct UT tmp;
+  struct UT *ut;
   int result = 0;
 
   /* if (utmpname (_PATH_UTMP) == -1) return 0; - why?

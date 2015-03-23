@@ -68,6 +68,12 @@ typedef uintmax_t uatomic_max_t;
       r1:     saved stack pointer
 */
 
+#if __GNUC_PREREQ (4, 7)
+# define rNOSP "u"
+#else
+# define rNOSP "r"
+#endif
+
 /* Avoid having lots of different versions of compare and exchange,
    by having this one complicated version. Parameters:
       bwl:     b, w or l for 8, 16 and 32 bit versions.
@@ -94,7 +100,7 @@ typedef uintmax_t uatomic_max_t;
         movt %0\n\
      .endif\n"					\
 	: "=&r" (__arch_result)			\
-	: "r" (mem), "r" (newval), "r" (oldval)	\
+	: rNOSP (mem), rNOSP (newval), rNOSP (oldval)	\
 	: "r0", "r1", "t", "memory");		\
      __arch_result; })
 
@@ -150,7 +156,7 @@ typedef uintmax_t uatomic_max_t;
 	mov." #bwl " %1,@%2\n\
      1: mov r1,r15"			\
 	: "=&r" (old), "=&r"(new)	\
-	: "r" (mem), "r" (value)	\
+	: rNOSP (mem), rNOSP (value)	\
 	: "r0", "r1", "memory");	\
     })
 
@@ -194,7 +200,7 @@ typedef uintmax_t uatomic_max_t;
 	mov." #bwl " %0,@%1\n\
      1: mov r1,r15"			\
 	: "=&r" (__new)			\
-	: "r" (mem), "r" (__value)	\
+	: rNOSP (mem), rNOSP (__value)	\
 	: "r0", "r1", "memory");	\
      __new;				\
   })

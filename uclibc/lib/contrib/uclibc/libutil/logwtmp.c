@@ -9,13 +9,13 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include <utmp.h>
 #include <fcntl.h>
 #include <sys/file.h>
+#include "internal/utmp.h"
 
 void logwtmp(const char *line, const char *name, const char *host)
 {
-    struct utmp lutmp;
+    struct UT lutmp;
     memset(&lutmp, 0, sizeof(lutmp));
 
     lutmp.ut_type = (name && *name) ? USER_PROCESS : DEAD_PROCESS;
@@ -36,20 +36,3 @@ void logwtmp(const char *line, const char *name, const char *host)
 
     updwtmp(_PATH_WTMP, &lutmp);
 }
-
-#if 0
-/* This is enabled in uClibc/libc/misc/utmp/wtent.c */
-void updwtmp(const char *wtmp_file, const struct utmp *lutmp)
-{
-    int fd;
-
-    fd = open(wtmp_file, O_APPEND | O_WRONLY);
-    if (fd >= 0) {
-	if (lockf(fd, F_LOCK, 0) == 0) {
-	    write(fd, lutmp, sizeof(*lutmp));
-	    lockf(fd, F_ULOCK, 0);
-	    close(fd);
-	}
-    }
-}
-#endif

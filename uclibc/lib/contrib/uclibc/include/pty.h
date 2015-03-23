@@ -32,6 +32,7 @@ __BEGIN_DECLS
    ends in AMASTER and ASLAVE.  */
 extern int openpty (int *__amaster, int *__aslave, char *__name,
 		    struct termios *__termp, struct winsize *__winp) __THROW;
+libutil_hidden_proto(openpty)
 
 /* Create child process and establish the slave pseudo terminal as the
    child's controlling terminal.  */

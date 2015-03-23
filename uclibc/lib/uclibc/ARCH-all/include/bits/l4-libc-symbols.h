@@ -137,5 +137,8 @@
 #ifndef librt_hidden_proto
 #define librt_hidden_proto(x)
 #endif
+#ifndef libutil_hidden_proto
+#define libutil_hidden_proto(x)
+#endif
 
 #endif
