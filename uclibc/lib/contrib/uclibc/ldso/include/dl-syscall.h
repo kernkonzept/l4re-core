@@ -49,7 +49,15 @@ extern int _dl_errno;
    dynamic linking at all, so we cannot return any error codes.
    We just punt if there is an error. */
 #define __NR__dl_exit __NR_exit
-static __always_inline _syscall1(void, _dl_exit, int, status)
+static __always_inline attribute_noreturn __cold void _dl_exit(int status)
+{
+	INLINE_SYSCALL(_dl_exit, 1, status);
+#if defined __GNUC__
+	__builtin_unreachable(); /* shut up warning: 'noreturn' function does return*/
+#else
+	while (1);
+#endif
+}
 
 #define __NR__dl_close __NR_close
 static __always_inline _syscall1(int, _dl_close, int, fd)
