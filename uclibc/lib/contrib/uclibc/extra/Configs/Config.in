@@ -21,27 +21,21 @@ choice
 	default TARGET_avr32 if DESIRED_TARGET_ARCH = "avr32"
 	default TARGET_bfin if DESIRED_TARGET_ARCH = "bfin"
 	default TARGET_cris if DESIRED_TARGET_ARCH = "cris"
-	default TARGET_e1 if DESIRED_TARGET_ARCH = "e1"
 	default TARGET_frv if DESIRED_TARGET_ARCH = "frv"
 	default TARGET_h8300 if DESIRED_TARGET_ARCH = "h8300"
 	default TARGET_hppa if DESIRED_TARGET_ARCH = "hppa"
 	default TARGET_i386 if DESIRED_TARGET_ARCH = "i386"
-	default TARGET_i960 if DESIRED_TARGET_ARCH = "i960"
 	default TARGET_ia64 if DESIRED_TARGET_ARCH = "ia64"
 	default TARGET_lm32 if DESIRED_TARGET_ARCH = "lm32"
 	default TARGET_m68k if DESIRED_TARGET_ARCH = "m68k"
 	default TARGET_metag if DESIRED_TARGET_ARCH = "metag"
 	default TARGET_microblaze if DESIRED_TARGET_ARCH = "microblaze"
 	default TARGET_mips if DESIRED_TARGET_ARCH = "mips"
-	default TARGET_nios if DESIRED_TARGET_ARCH = "nios"
 	default TARGET_nios2 if DESIRED_TARGET_ARCH = "nios2"
 	default TARGET_or1k if DESIRED_TARGET_ARCH = "or1k"
 	default TARGET_powerpc if DESIRED_TARGET_ARCH = "powerpc"
 	default TARGET_sh if DESIRED_TARGET_ARCH = "sh"
-	default TARGET_sh64 if DESIRED_TARGET_ARCH = "sh64"
 	default TARGET_sparc if DESIRED_TARGET_ARCH = "sparc"
-	default TARGET_v850 if DESIRED_TARGET_ARCH = "v850"
-	default TARGET_vax if DESIRED_TARGET_ARCH = "vax"
 	default TARGET_x86_64 if DESIRED_TARGET_ARCH = "x86_64"
 	default TARGET_xtensa if DESIRED_TARGET_ARCH = "xtensa"
 	help
@@ -70,9 +64,6 @@ config TARGET_c6x
 config TARGET_cris
 	bool "cris"
 
-#config TARGET_e1
-#	bool "e1 (BROKEN)"
-
 #config TARGET_frv
 #	bool "frv (BROKEN)"
 
@@ -84,9 +75,6 @@ config TARGET_h8300
 
 config TARGET_i386
 	bool "i386"
-
-#config TARGET_i960
-#	bool "i960 (BROKEN)"
 
 config TARGET_ia64
 	bool "ia64"
@@ -106,9 +94,6 @@ config TARGET_microblaze
 config TARGET_mips
 	bool "mips"
 
-#config TARGET_nios
-#	bool "nios"
-
 config TARGET_nios2
 	bool "nios2"
 
@@ -121,17 +106,8 @@ config TARGET_powerpc
 config TARGET_sh
 	bool "superh"
 
-#config TARGET_sh64
-#	bool "sh64"
-
 config TARGET_sparc
 	bool "sparc"
-
-#config TARGET_v850
-#	bool "v850 (BROKEN)"
-
-#config TARGET_vax
-#	bool "vax"
 
 config TARGET_x86_64
 	bool "x86_64"
@@ -164,10 +140,6 @@ if TARGET_cris
 source "extra/Configs/Config.cris"
 endif
 
-if TARGET_e1
-source "extra/Configs/Config.e1"
-endif
-
 if TARGET_frv
 source "extra/Configs/Config.frv"
 endif
@@ -184,10 +156,6 @@ if TARGET_i386
 source "extra/Configs/Config.i386"
 endif
 
-if TARGET_i960
-source "extra/Configs/Config.i960"
-endif
-
 if TARGET_ia64
 source "extra/Configs/Config.ia64"
 endif
@@ -202,10 +170,6 @@ endif
 
 if TARGET_metag
 source "extra/Configs/Config.metag"
-endif
-
-if TARGET_nios
-source "extra/Configs/Config.nios"
 endif
 
 if TARGET_nios2
@@ -232,20 +196,8 @@ if TARGET_sh
 source "extra/Configs/Config.sh"
 endif
 
-if TARGET_sh64
-source "extra/Configs/Config.sh64"
-endif
-
 if TARGET_sparc
 source "extra/Configs/Config.sparc"
-endif
-
-if TARGET_v850
-source "extra/Configs/Config.v850"
-endif
-
-if TARGET_vax
-source "extra/Configs/Config.vax"
 endif
 
 if TARGET_x86_64
@@ -601,7 +553,6 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_microblaze && \
 		   !TARGET_nios2 && \
 		   !TARGET_or1k && \
-		   !TARGET_vax && \
 		   ARCH_USE_MMU
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.

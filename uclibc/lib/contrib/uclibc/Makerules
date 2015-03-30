@@ -472,13 +472,7 @@ $(CTOR_TARGETS): $(top_builddir)lib/%.o : $(top_srcdir)libc/sysdeps/linux/$(TARG
 	$(compile.S) $(PICFLAG) $(SSP_DISABLE_FLAGS)
 endif
 
-#ifeq ($(TARGET_ARCH),nios)
-#CRTS_COMPAT := $(top_builddir)lib/crt0.o
-#$(CRTS_COMPAT):
-#	ln -fs crt1.o $(top_builddir)lib/crt0.o
-#else
 CRTS_COMPAT :=
-#endif
 
 startfiles = $(CRTS) $(CTOR_TARGETS) $(CRTS_COMPAT) $(CRTRELOC)
 startfiles: $(startfiles)

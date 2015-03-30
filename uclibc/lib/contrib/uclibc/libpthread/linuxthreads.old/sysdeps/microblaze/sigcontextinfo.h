@@ -1,5 +1,5 @@
 /*
- * sysdeps/v850/sigcontextinfo.h -- v850-specific pthread signal definitions
+ * sysdeps/microblaze/sigcontextinfo.h -- microblaze-specific pthread signal definitions
  *
  *  Copyright (C) 2002  NEC Electronics Corporation
  *  Copyright (C) 2002  Miles Bader <miles@gnu.org>

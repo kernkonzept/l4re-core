@@ -409,12 +409,6 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_LDFLAGS-y += $(CPU_CFLAGS)
 endif
 
-ifeq ($(TARGET_ARCH),nios)
-	OPTIMIZATION+=-funaligned-struct-hack
-	CPU_LDFLAGS-y+=-Wl,-m32
-	CPU_CFLAGS-y+=-Wl,-m32
-endif
-
 ifeq ($(TARGET_ARCH),sh)
 $(eval $(call check-gcc-var,-mprefergot))
 	OPTIMIZATION += $(CFLAG_-mprefergot)
@@ -433,23 +427,9 @@ else
 endif
 endif
 
-ifeq ($(TARGET_ARCH),sh64)
-	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN):=-ml
-	CPU_CFLAGS-$(ARCH_BIG_ENDIAN):=-mb
-	CPU_CFLAGS-$(CONFIG_SH5)+=-m5-32media
-endif
-
 ifeq ($(TARGET_ARCH),h8300)
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
 	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32
-endif
-
-ifeq ($(TARGET_ARCH),i960)
-	OPTIMIZATION+=-mh -mint32 #-fsigned-char
-endif
-
-ifeq ($(TARGET_ARCH),e1)
-	OPTIMIZATION+=-mgnu-param
 endif
 
 ifeq ($(TARGET_ARCH),cris)
@@ -507,14 +487,6 @@ ifeq ($(strip $(TARGET_ARCH)),avr32)
        CPU_CFLAGS-$(CONFIG_AVR32_AP7)  += -march=ap
        CPU_CFLAGS-$(CONFIG_LINKRELAX)  += -mrelax
        CPU_LDFLAGS-$(CONFIG_LINKRELAX) += --relax
-endif
-
-ifeq ($(TARGET_ARCH),i960)
-      SYMBOL_PREFIX=_
-endif
-
-ifeq ($(TARGET_ARCH),v850)
-      SYMBOL_PREFIX=_
 endif
 
 ifeq ($(TARGET_ARCH),c6x)

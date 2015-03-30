@@ -14,7 +14,6 @@
 # TARGET_h8300 is not set
 # TARGET_hppa is not set
 # TARGET_i386 is not set
-# TARGET_i960 is not set
 # TARGET_ia64 is not set
 # TARGET_m68k is not set
 # TARGET_microblaze is not set
@@ -26,8 +25,6 @@ TARGET_or1k=y
 # TARGET_sh is not set
 # TARGET_sh64 is not set
 # TARGET_sparc is not set
-# TARGET_v850 is not set
-# TARGET_vax is not set
 # TARGET_x86_64 is not set
 # TARGET_xtensa is not set
 
