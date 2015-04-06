@@ -30,7 +30,7 @@ realloc (void *mem, size_t new_size)
   if (! new_size)
     {
       free (mem);
-      return malloc (new_size);
+      return NULL;
     }
   if (! mem)
     return malloc (new_size);
