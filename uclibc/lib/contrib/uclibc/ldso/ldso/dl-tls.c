@@ -988,8 +988,13 @@ static bool tls_init_tp_called;
 void ** __attribute__ ((const))
 _dl_initial_error_catch_tsd (void)
 {
-	static void *data;
-	return &data;
+	static
+#if 0 /* def ARCH_NEEDS_BOOTSTRAP_RELOCS */
+		/* If we have to do bootstrap relocs anyway we might as well */
+		__thread
+# endif
+		void *__tsd_data;
+	return &__tsd_data;
 }
 
 #ifdef SHARED
