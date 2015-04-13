@@ -1288,6 +1288,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	}
 #endif
 #ifdef __UCLIBC_HAS_SSP__
+	_dl_debug_early("Setting up SSP guards\n");
 	/* Set up the stack checker's canary.  */
 	stack_chk_guard = _dl_setup_stack_chk_guard ();
 # ifdef THREAD_SET_STACK_GUARD
@@ -1360,7 +1361,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 	}
 
-	_dl_debug_early ("\nprelink checking: %s\n", prelinked ? "ok" : "failed");
+	_dl_debug_early ("prelink checking: %s\n", prelinked ? "ok" : "failed");
 
 	if (prelinked) {
 		if (_dl_loaded_modules->dynamic_info[DT_GNU_CONFLICT_IDX]) {
