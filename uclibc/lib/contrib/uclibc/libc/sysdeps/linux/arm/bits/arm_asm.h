@@ -13,12 +13,12 @@
    unified assembly syntax.  */
 #define IT(t, cond)
 /* Code to return from a thumb function stub.  */
-#ifdef __ARM_ARCH_4T__
-#define POP_RET pop	{r2, pc}
-#else
-#define POP_RET pop	{r2, r3}; bx	r3
-#endif
-#endif
+# if defined __ARM_ARCH_4T__ && defined __THUMB_INTERWORK__
+#  define POP_RET pop   {r2, r3}; bx    r3
+# else
+#  define POP_RET pop   {r2, pc}
+# endif
+#endif /* __thumb2__ */
 
 #if defined(__ARM_ARCH_6M__)
 /* Force arm mode to flush out errors on M profile cores.  */
