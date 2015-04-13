@@ -326,22 +326,13 @@ endef
 cmd_hcompile.u = $(HOSTCC) $(filter-out $(PHONY),$^) $(DEPS-$(notdir $@)) -o $@ $(BUILD_LDFLAGS) $(BUILD_LDFLAGS-$(notdir $(^D))) $(BUILD_LDFLAGS-$(notdir $@)) $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 cmd_hcompile.o = $(HOSTCC) $(filter-out $(PHONY),$<) $(DEPS-$(notdir $@)) -c -o $@ $(BUILD_CFLAGS) $(BUILD_CFLAGS-$(notdir $(^D))) $(BUILD_CFLAGS-$(notdir $@))
 
-define create-lds
-	$(Q)$(RM) $@.lds
-	$(Q)$(CC) $(LDFLAG-fuse-ld) $(CPU_LDFLAGS-y) \
-	-nostdlib -nostartfiles -shared -Wl,-z,combreloc \
-	-Wl,-z,relro $(CFLAG_-Wl--hash-style=gnu) -Wl,-z,defs \
-	-x c /dev/null -Wl,--verbose 2>&1 | LC_ALL=C \
-	$(SED) -e '/^=========/,/^=========/!d;/^=========/d' \
-	-e 's/^\([ 	]*\)\. = .* + SIZEOF_HEADERS;/&\n\1$(SYMBOL_PREFIX)_begin = . - SIZEOF_HEADERS;/' > $@.lds
-endef
-
 define link.so
 	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
 	@$(disp_ld)
 	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) $(LDFLAGS-y-$(@F)) \
 		-Wl,-soname=$(notdir $@).$(2) \
-		$(CFLAG_-nostdlib) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
+		$(CFLAG_-nostdlib) $(CFLAG_-nostartfiles) \
+		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
 		-Wl,--whole-archive $(firstword $^) -Wl,--no-whole-archive \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)

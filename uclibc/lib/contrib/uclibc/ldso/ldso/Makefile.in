@@ -33,9 +33,12 @@ LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS)
 else
 LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 endif
-LDFLAGS-$(UCLIBC_LDSO_NAME).so += -Wl,-e,$(SYMBOL_PREFIX)_start -Wl,-z,now -Wl,-Bsymbolic \
+LDFLAGS-$(UCLIBC_LDSO_NAME).so += -Wl,-e,$(SYMBOL_PREFIX)_start \
+	-Wl,-z,now -Wl,-Bsymbolic \
 	-Wl,--export-dynamic $(CFLAG_-Wl--sort-common) -Wl,--discard-locals \
 	$(CFLAG_-Wl--discard-all) -Wl,--no-undefined
+
+LDFLAGS-$(LDSO_PRELINK_SUPPORT)-$(UCLIBC_LDSO_NAME).so += -Wl,-defsym=$(SYMBOL_PREFIX)_begin=0
 
 ldso_FULL_NAME := $(UCLIBC_LDSO_NAME)-$(VERSION).so
 
@@ -62,17 +65,9 @@ ldso-y := $($(UCLIBC_LDSO_NAME)_OBJS:.o=.oS)
 lib-so-y += $(ldso)
 objclean-y += CLEAN_ldso/ldso
 
-ifeq ($(LDSO_PRELINK_SUPPORT),y)
-# Use a specific linker script for ld.so
-LDFLAGS-$(UCLIBC_LDSO_NAME).so += -T $(ldso:.$(ABI_VERSION)=).lds
-endif
-
 $(ldso): $(ldso:.$(ABI_VERSION)=)
 $(ldso:.$(ABI_VERSION)=): | $(top_builddir)lib
 $(ldso:.$(ABI_VERSION)=): $($(UCLIBC_LDSO_NAME)_OUT)/$(UCLIBC_LDSO_NAME)_so.a
-ifeq ($(LDSO_PRELINK_SUPPORT),y)
-	$(call create-lds)
-endif
 	$(call link.so,$(ldso_FULL_NAME),$(ABI_VERSION))
 	# link for backward compatibility
 	(cd $(top_builddir)lib; ln -sf $(UCLIBC_LDSO_NAME).so.$(ABI_VERSION) $(UCLIBC_LDSO_NAME).so.0 )
