@@ -1084,7 +1084,25 @@ LOOP:
 
 	o_count = 1;
 	if ((*(o = (CHAR_T *)p) == '%') && (*++p != '%')) {
+#if 0 /* TODO, same for strptime */
+		/* POSIX.1-2008 allows %0xY %+nY %-nY etc. for certain formats.
+		 * Just accept these for all (for now) */
+		const int plus = *p == '+';
+		CHAR_T *q = (CHAR_T *)p;
+		long int o_width = __XL_NPP(strtol)(p, &q, 0 __LOCALE_ARG);
+		if (o_width > 0 && o_width < 256) { /* arbitrary upper limit */
+			o_count = o_width;
+			if (plus) {
+				*s++ = '+';
+				--count;
+			}
+			p = q;
+		} else {
+			o_count = 2;
+		}
+#else
 		o_count = 2;
+#endif
 		mod = ILLEGAL_SPEC;
 		if ((*p == 'O') || (*p == 'E')) { /* modifier */
 			mod |= ((*p == 'O') ? NO_O_MOD : NO_E_MOD);
@@ -1317,7 +1335,13 @@ ISO_LOOP:
 			ccp = __XL_NPP(nl_langinfo)(_NL_ITEM(LC_TIME, field_val)  __LOCALE_ARG);
 			fmt_to_wc(o, ccp);
 		} else {
+#if 0 /* TODO, same for strptime */
+			size_t min_count = ((i >> 1) & 3) + 1;
+			if (o_count < min_count)
+				o_count = min_count;
+#else
 			o_count = ((i >> 1) & 3) + 1;
+#endif
 			ccp = buf + o_count;
 			do {
 				*(char *)(--ccp) = '0' + (field_val % 10);
