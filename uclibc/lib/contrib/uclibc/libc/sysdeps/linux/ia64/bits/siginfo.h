@@ -102,6 +102,14 @@ typedef struct siginfo
 	    long int si_band;	/* Band event for SIGPOLL.  */
 	    int si_fd;
 	  } _sigpoll;
+
+	/* SIGSYS.  */
+	struct
+	  {
+	    void *_call_addr;   /* Calling user insn.  */
+	    int _syscall;       /* Triggering system call number.  */
+	    unsigned int _arch; /* AUDIT_ARCH_* of syscall.  */
+	  } _sigsys;
       } _sifields;
   } siginfo_t;
 
@@ -120,6 +128,9 @@ typedef struct siginfo
 # define si_addr	_sifields._sigfault.si_addr
 # define si_band	_sifields._sigpoll.si_band
 # define si_fd		_sifields._sigpoll.si_fd
+# define si_call_addr	_sifields._sigsys._call_addr
+# define si_syscall	_sifields._sigsys._syscall
+# define si_arch	_sifields._sigsys._arch
 
 # ifdef __USE_GNU
 #  define si_imm	_sifields._sigfault._si_imm
