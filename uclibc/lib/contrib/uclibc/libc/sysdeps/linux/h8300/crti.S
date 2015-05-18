@@ -10,8 +10,8 @@
 	.section .init
 ; #NO_APP
 	.align 1
-	.global __init
-__init:
+	.global _init
+_init:
 	mov.l	er6,@-er7
 	mov.l	er7,er6
 ; #APP
@@ -20,8 +20,8 @@ __init:
 	.section .fini
 ; #NO_APP
 	.align 1
-	.global __fini
-__fini:
+	.global _fini
+_fini:
 	mov.l	er6,@-er7
 	mov.l	er7,er6
 ; #APP

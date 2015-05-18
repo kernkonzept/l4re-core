@@ -301,7 +301,9 @@ ifneq ($(TARGET_ARCH),bfin)
 ifneq ($(TARGET_ARCH),nios2)
 ifneq ($(TARGET_ARCH),sh)
 ifneq ($(TARGET_ARCH),c6x)
+ifneq ($(TARGET_ARCH),h8300)
 CPU_CFLAGS-y += -msoft-float
+endif
 endif
 endif
 endif
@@ -436,9 +438,6 @@ ifeq ($(TARGET_ARCH),sh64)
 endif
 
 ifeq ($(TARGET_ARCH),h8300)
-	SYMBOL_PREFIX=_
-	CPU_LDFLAGS-$(CONFIG_H8300H)+= -Wl,-ms8300h
-	CPU_LDFLAGS-$(CONFIG_H8S)   += -Wl,-ms8300s
 	CPU_CFLAGS-$(CONFIG_H8300H) += -mh -mint32
 	CPU_CFLAGS-$(CONFIG_H8S)    += -ms -mint32
 endif

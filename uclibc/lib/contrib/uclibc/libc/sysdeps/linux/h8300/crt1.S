@@ -28,17 +28,39 @@ not, see <http://www.gnu.org/licenses/>.  */
 #else
 	.h8300h
 #endif
+/*
+void __uClibc_main(int (*main)(int, char **, char **), int argc,
+                    char **argv, void (*app_init)(void), void (*app_fini)(void),
+                    void (*rtld_fini)(void),void *stack_end attribute_unused)
+*/
 	.text
 
 _start: /* put here so that references to _start work with elf-PIC */
 
-	mov.l	@(0,sp),er0	/* argc */
-	mov.l	@(4,sp),er1	/* argv */
-	mov.l	@(8,sp),er2	/* envp */
+	mov.l	@sp+,er1	/* argc */
+	mov.l	@sp+,er2	/* argv */
+	add.l	#4,sp
+
 #if !defined(__PIC__)
-	jsr	@___uClibc_main
+	mov.l	sp, @-sp
+	sub.l	er0,er0
+	mov.l	er0,@-sp
+	mov.l	#_fini,er0
+	mov.l	er0,@-sp
+	mov.l	#_init,er0
+	mov.l	er0,@-sp
+	mov.l	#main,er0
+	jsr	@__uClibc_main
 #else
-	mov.l	@(___uClibc_main@GOTOFF,er5),er3
+	mov.l	sp, @-sp
+	sub.l	er0,er0
+	mov.l	er0,@-sp
+	mov.l	@(_fini@GOTOFF,er5),er0
+	mov.l	er0,@-sp
+	mov.l	@(_init@GOTOFF,er5),er0
+	mov.l	er0,@-sp
+	mov.l	@(main@GOTOFF,er5),er0
+	mov.l	@(__uClibc_main@GOTOFF,er5),er3
 	jsr	@er3
 #endif
 
@@ -61,9 +83,9 @@ empty_func:
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data
-	.globl __data_start
-__data_start:
+	.globl _data_start
+_data_start:
 	.long 0
 	.weak data_start
-	data_start = __data_start
+	data_start = _data_start
 

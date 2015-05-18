@@ -238,7 +238,6 @@ typedef unsigned long long int	uintmax_t;
 # endif
 
 
-#if !defined(__H8300H__) && !defined(__H8300S__)
 /* Minimum for largest signed integral type.  */
 # define INTMAX_MIN		(-__INT64_C(9223372036854775807)-1)
 /* Maximum for largest signed integral type.  */
@@ -246,15 +245,6 @@ typedef unsigned long long int	uintmax_t;
 
 /* Maximum for largest unsigned integral type.  */
 # define UINTMAX_MAX		(__UINT64_C(18446744073709551615))
-#else
-/* Minimum for largest signed integral type.  */
-# define INTMAX_MIN		(-LONG_LONG_MAX-1)
-/* Maximum for largest signed integral type.  */
-# define INTMAX_MAX		(LONG_LONG_MAX)
-
-/* Maximum for largest unsigned integral type.  */
-# define UINTMAX_MAX		(LONG_LONG_MAX<<1+1)
-#endif
 
 /* Limits of other integer types.  */
 

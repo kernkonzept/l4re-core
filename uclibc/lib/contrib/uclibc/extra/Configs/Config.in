@@ -74,8 +74,8 @@ config TARGET_cris
 #config TARGET_frv
 #	bool "frv (BROKEN)"
 
-#config TARGET_h8300
-#	bool "h8300 (BROKEN)"
+config TARGET_h8300
+	bool "h8300"
 
 #config TARGET_hppa
 #	bool "hppa"
@@ -578,6 +578,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_bfin && \
 		   !TARGET_c6x && \
 		   !TARGET_cris && \
+		   !TARGET_h8300 && \
 		   !TARGET_hppa && \
 		   !TARGET_ia64 && \
 		   !TARGET_m68k && \

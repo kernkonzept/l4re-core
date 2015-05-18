@@ -4,10 +4,10 @@
 	.h8300h
 #endif
 	.text
-	
-.global ___longjmp
 
-___longjmp:
+.global __longjmp
+
+__longjmp:
 	mov.l	er1,er1
 	bne	1f
 	sub.l	er1,er1

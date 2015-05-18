@@ -10,7 +10,7 @@
 	.section .init
 ; #NO_APP
 	.align 1
-	.global __init
+	.global _init
 ; #NO_APP
 	mov.l	@er7+,er6
 	rts
@@ -19,7 +19,7 @@
 	.section .fini
 ; #NO_APP
 	.align 1
-	.global __fini
+	.global _fini
 ; #NO_APP
 	mov.l	@er7+,er6
 	rts

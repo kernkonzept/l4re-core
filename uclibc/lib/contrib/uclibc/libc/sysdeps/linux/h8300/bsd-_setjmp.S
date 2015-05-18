@@ -1,4 +1,4 @@
-/* BSD `_setjmp' entry point to `sigsetjmp (..., 0)'.  H8/300 version. */
+/* BSD `_setjmp' entry point to `sigsetjmp (..., 0)'. H8/300 version. */
 
 #include <jmpbuf-offsets.h>
 
@@ -8,10 +8,10 @@
 	.h8300h
 #endif
 	.text
-	
-.global __setjmp
 
-__setjmp:
+.global _setjmp
+
+_setjmp:
 	add.l	#JB_SIZE,er0
 	mov.l	@sp,er1		; return PC
 	mov.l	er1,@-er0
@@ -23,3 +23,5 @@ __setjmp:
 	sub.l	er0,er0
 	mov.l	er0,@(JB_SIZE:16,er1)
 	rts
+
+	.end

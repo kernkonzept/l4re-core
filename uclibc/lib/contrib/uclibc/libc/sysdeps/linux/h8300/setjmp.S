@@ -7,9 +7,9 @@
 #endif
 	.text
 
-.global ___sigsetjmp
+.global __sigsetjmp
 
-___sigsetjmp:
+__sigsetjmp:
 	add.l	#JB_SIZE,er0
 	mov.l	@sp,er1		; return PC
 	mov.l	er1,@-er0
