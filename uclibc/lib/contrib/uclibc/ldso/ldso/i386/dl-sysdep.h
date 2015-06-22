@@ -37,31 +37,27 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
    | (((type) == R_386_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
-   first element of the GOT.  This must be inlined in a function which
-   uses global data.  */
-static __always_inline Elf32_Addr elf_machine_dynamic (void) attribute_unused;
-static __always_inline Elf32_Addr
+   first element of the GOT, a special entry that is never relocated.  */
+extern const Elf32_Addr _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
+static __always_inline Elf32_Addr __attribute__ ((unused, const))
 elf_machine_dynamic (void)
 {
-	register Elf32_Addr *got __asm__ ("%ebx");
-	return *got;
+	/* This produces a GOTOFF reloc that resolves to zero at link time, so in
+	   fact just loads from the GOT register directly.  By doing it without
+	   an asm we can let the compiler choose any register.  */
+	return _GLOBAL_OFFSET_TABLE_[0];
 }
 
 
+extern Elf32_Dyn bygotoff[] __asm__ ("_DYNAMIC") attribute_hidden;
 /* Return the run-time load address of the shared object.  */
-static __always_inline Elf32_Addr elf_machine_load_address (void) attribute_unused;
-static __always_inline Elf32_Addr
+static __always_inline Elf32_Addr attribute_unused
 elf_machine_load_address (void)
 {
-	/* It doesn't matter what variable this is, the reference never makes
-	   it to assembly.  We need a dummy reference to some global variable
-	   via the GOT to make sure the compiler initialized %ebx in time.  */
-	Elf32_Addr addr;
-	int tmp;
-	__asm__ ("leal _dl_start@GOTOFF(%%ebx), %0\n"
-	     "subl _dl_start@GOT(%%ebx), %0"
-	     : "=r" (addr) : "m" (tmp) : "cc");
-	return addr;
+	/* Compute the difference between the runtime address of _DYNAMIC as seen
+	   by a GOTOFF reference, and the link-time address found in the special
+	   unrelocated first GOT entry.  */
+	return (Elf32_Addr) &bygotoff - elf_machine_dynamic ();
 }
 
 static __always_inline void
