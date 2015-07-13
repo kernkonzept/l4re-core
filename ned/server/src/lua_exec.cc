@@ -60,13 +60,37 @@ Observer::op_wait(Obs_iface::Rights, l4_cap_idx_t thread, l4_addr_t task)
 class Am : public Rmt_app_model
 {
 private:
+  // simple container for NUM Ref_caps
+  template<unsigned NUM>
+  class Cap_stack
+  {
+  private:
+    unsigned _i = 0;
+    L4Re::Util::Ref_cap<void>::Cap _c[NUM];
+
+  public:
+    void push(L4Re::Util::Ref_cap<void>::Cap c)
+    {
+      if (_i >= NUM)
+        throw "internal error: too many temporary caps for stack";
+
+      _c[_i++] = c;
+    }
+  };
+
   lua_State *_lua;
   int _argc;
   int _env_idx;
   int _cfg_idx;
   int _arg_idx;
 
-  L4::Cap<L4::Factory> _rm_fab;
+  L4Re::Util::Ref_cap<L4::Factory>::Cap _rm_fab;
+
+  /**
+   * container to store some ref counted caps to make sure the Lua GC
+   * does not collect them before we map/use them for application.
+   */
+  Cap_stack<6> _cap_stack;
 
   l4_umword_t _cfg_integer(char const *f, l4_umword_t def = 0)
   {
@@ -79,21 +103,43 @@ private:
     return r;
   }
 
-  void _cfg_cap(char const *f, l4_fpage_t *r)
+  template<typename CT>
+  typename L4Re::Util::Ref_cap<CT>::Cap
+  _cfg_cap(char const *f, l4_fpage_t *r = 0)
   {
+    typedef typename L4Re::Util::Ref_cap<CT>::Cap R_cap;
+
     lua_getfield(_lua, _cfg_idx, f);
     while (lua_isfunction(_lua, -1))
       {
-	lua_pushvalue(_lua, _cfg_idx);
-	lua_call(_lua, 1, 1);
+        lua_pushvalue(_lua, _cfg_idx);
+        lua_call(_lua, 1, 1);
       }
 
-    if (!lua_isnil(_lua, -1))
+    if (lua_isnil(_lua, -1))
       {
-	Cap *c = Lua::check_cap(_lua, -1);
-	*r = c->cap<void>().fpage(c->rights());
+        //if (r)
+        //  *r = l4_fpage_invalid();
+
+        lua_pop(_lua, 1);
+        return R_cap();
       }
+
+    Cap *c = (Cap *)luaL_testudata(_lua, -1, Lua::CAP_TYPE);
+    if (!c)
+      {
+        lua_pop(_lua, 1);
+        luaL_error(_lua, "error: capability expected '%s'\n", f);
+        return R_cap();
+      }
+
+    if (r)
+      //*r = c->fpage();
+      *r = c ? c->fpage() : l4_fpage_invalid();
+
+    R_cap res = c->cap<CT>();
     lua_pop(_lua, 1);
+    return res;
   }
 
 public:
@@ -196,7 +242,10 @@ public:
 
   void parse_cfg()
   {
-    prog_info()->mem_alloc = L4Re::Env::env()->mem_alloc().fpage();
+    L4Re::Util::Ref_cap<L4::Factory>::Cap user_factory
+      = L4Re::Env::env()->user_factory();
+
+    prog_info()->mem_alloc = user_factory.fpage();
     prog_info()->log = L4Re::Env::env()->log().fpage();
     prog_info()->factory = L4Re::Env::env()->factory().fpage();
     prog_info()->scheduler = L4Re::Env::env()->scheduler().fpage();
@@ -211,17 +260,19 @@ public:
     prog_info()->ldr_flags = _cfg_integer("ldr_flags", prog_info()->ldr_flags);
     prog_info()->l4re_dbg = _cfg_integer("l4re_dbg", prog_info()->l4re_dbg);
 
-    _cfg_cap("log", &prog_info()->log);
-    _cfg_cap("mem", &prog_info()->mem_alloc);
-    _cfg_cap("factory", &prog_info()->factory);
-    _cfg_cap("scheduler", &prog_info()->scheduler);
+    _cap_stack.push(_cfg_cap<void>("log", &prog_info()->log));
+    _cap_stack.push(_cfg_cap<void>("mem", &prog_info()->mem_alloc));
+    _cap_stack.push(_cfg_cap<void>("factory", &prog_info()->factory));
+    _cap_stack.push(_cfg_cap<void>("scheduler", &prog_info()->scheduler));
 
-    l4_fpage_t fab = prog_info()->mem_alloc;
-    _cfg_cap("rm_fab", &fab);
-    _rm_fab = L4::Cap<L4::Factory>(fab.raw);
+    auto c = _cfg_cap<L4::Factory>("rm_fab");
+    if (c)
+      _rm_fab = c;
+    else
+      _rm_fab = user_factory;
   }
 
-  L4::Cap<L4::Factory> rm_fab() const { return _rm_fab; }
+  L4Re::Util::Ref_cap<L4::Factory>::Cap rm_fab() const { return _rm_fab; }
 
   void set_task(App_task *t) { _task = t; }
 

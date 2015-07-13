@@ -59,7 +59,7 @@ public:
   }
 
 
-  App_task(Ned::Registry *r, L4::Cap<L4::Factory> alloc);
+  App_task(Ned::Registry *r, L4Re::Util::Ref_cap<L4::Factory>::Cap const &alloc);
 
   //L4::Cap<L4Re::Mem_alloc> allocator() const { return _ma; }
 
