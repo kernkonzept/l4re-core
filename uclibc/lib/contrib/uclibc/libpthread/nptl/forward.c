@@ -160,7 +160,7 @@ FORWARD2(__pthread_unwind,
 		       /* We cannot call abort() here.  */
 		       INTERNAL_SYSCALL_DECL (err);
 		       INTERNAL_SYSCALL (kill, err, 1, SIGKILL);
-#if defined __GNUC__ && (!__GNUC_PREREQ (4, 4) && !__GNUC_PREREQ (4, 2))
+#if __GNUC_PREREQ(4, 5)
 		       __builtin_unreachable();
 #else
 			while(1);
