@@ -101,13 +101,13 @@ void __longjmp (__jmp_buf env, int val_arg)
     /* Restore the stack pointer and the FP.  They have to be restored
        last and in a single asm as gcc, depending on options used, may
        use either of them to access env.  */
-#if _MIPS_SIM == _MIPS_SIM_ABI64
+#if _MIPS_SIM != _MIPS_SIM_ABI32
     __asm__ __volatile__ ("ld $29, %0\n\t"
 	    "ld $30, %1\n\t" : : "m" (env[0].__sp), "m" (env[0].__fp));
-#else /* O32 || N32 */
+#else /* O32 */
     __asm__ __volatile__ ("lw $29, %0\n\t"
 	    "lw $30, %1\n\t" : : "m" (env[0].__sp), "m" (env[0].__fp));
-#endif /* O32 || N32 */
+#endif /* O32 */
 
     /* Give setjmp 1 if given a 0, or what they gave us if non-zero.  */
     if (val == 0)
