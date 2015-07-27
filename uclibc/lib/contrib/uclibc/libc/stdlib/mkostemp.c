@@ -28,5 +28,5 @@ int
 mkostemp (char *template, int flags)
 {
   flags -= flags & O_ACCMODE; /* Remove O_RDONLY, O_WRONLY, and O_RDWR. */
-  return __gen_tempname (template, __GT_FILE, flags, S_IRUSR | S_IWUSR);
+  return __gen_tempname (template, __GT_FILE, flags, 0, S_IRUSR | S_IWUSR);
 }

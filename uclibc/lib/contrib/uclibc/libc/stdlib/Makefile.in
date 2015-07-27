@@ -13,8 +13,8 @@ include $(top_srcdir)libc/stdlib/malloc-standard/Makefile.in
 
 CSRC-y := \
 	abort.c getenv.c mkdtemp.c realpath.c canonicalize.c mkstemp.c mkostemp.c \
-	rand.c random.c random_r.c setenv.c div.c ldiv.c lldiv.c \
-	getpt.c drand48-iter.c jrand48.c \
+	mkstemps.c mkostemps.c rand.c random.c random_r.c setenv.c div.c ldiv.c \
+	lldiv.c getpt.c drand48-iter.c jrand48.c \
 	jrand48_r.c lcong48.c lrand48.c lrand48_r.c mrand48.c mrand48_r.c nrand48.c \
 	nrand48_r.c rand_r.c srand48.c srand48_r.c seed48.c seed48_r.c \
 	a64l.c l64a.c __uc_malloc.c
@@ -22,7 +22,7 @@ CSRC-$(UCLIBC_SUSV2_LEGACY) += valloc.c
 CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_memalign.c
 CSRC-$(UCLIBC_HAS_PTY) += grantpt.c unlockpt.c ptsname.c
 CSRC-$(UCLIBC_HAS_ARC4RANDOM) += arc4random.c
-CSRC-$(UCLIBC_HAS_LFS) += mkstemp64.c mkostemp64.c
+CSRC-$(UCLIBC_HAS_LFS) += mkstemp64.c mkostemp64.c mkstemps64.c mkostemps64.c
 CSRC-$(UCLIBC_HAS_FLOATS) += drand48.c drand48_r.c erand48.c erand48_r.c
 CSRC-$(if $(findstring yy,$(UCLIBC_HAS_FLOATS)$(UCLIBC_SUSV3_LEGACY)),y) += \
 	gcvt.c

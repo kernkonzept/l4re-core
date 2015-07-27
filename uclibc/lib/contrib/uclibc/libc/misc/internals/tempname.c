@@ -163,10 +163,10 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
 	}
 }
 
-/* Generate a temporary file name based on TMPL.  TMPL must match the
-   rules for mk[s]temp (i.e. end in "XXXXXX").  The name constructed
-   does not exist at the time of the call to __gen_tempname.  TMPL is
-   overwritten with the result.
+/* Generate a temporary file name based on TMPL. TMPL must match the
+   rules for mk[s]temp[s] (i.e. end in "prefixXXXXXXsuffix"). The name
+   constructed does not exist at the time of the call to __gen_tempname.
+   TMPL is overwritten with the result.
 
    KIND may be one of:
    __GT_NOCREATE:       simply verify that the name does not exist
@@ -177,7 +177,8 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
    __GT_DIR:            create a directory with given mode.
 
 */
-int attribute_hidden __gen_tempname (char *tmpl, int kind, int flags, mode_t mode)
+int attribute_hidden __gen_tempname (char *tmpl, int kind, int flags,
+                                     int suffixlen, mode_t mode)
 {
     char *XXXXXX;
     unsigned int i;
@@ -187,8 +188,9 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind, int flags, mode_t mod
 
     len = strlen (tmpl);
     /* This is where the Xs start.  */
-    XXXXXX = tmpl + len - 6;
-    if (len < 6 || strcmp (XXXXXX, "XXXXXX"))
+    XXXXXX = tmpl + len - 6 - suffixlen;
+    if (len < 6 || suffixlen < 0 || suffixlen > len - 6
+        || strncmp (XXXXXX, "XXXXXX", 6))
     {
 	__set_errno (EINVAL);
 	return -1;

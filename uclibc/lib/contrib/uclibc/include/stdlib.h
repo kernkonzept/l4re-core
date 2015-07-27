@@ -644,6 +644,35 @@ extern int mkstemp64 (char *__template) __nonnull ((1)) __wur;
 # endif
 #endif
 
+#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
+# if defined __UCLIBC_SUSV3_LEGACY__
+extern char *mktemps (char *__template, int __suffixlen) __THROW __nonnull ((1)) __wur;
+# endif
+
+/* The mkstemps() function is like mkstemp(), except that  the  string  in
+   template  contains a suffix of suffixlen characters.  Thus, template is
+   of the form prefixXXXXXXsuffix, and the string XXXXXX  is  modified  as
+   for mkstemp().
+   Returns a file descriptor open on the file for reading and writing,
+   or -1 if it cannot create a uniquely-named file.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+# ifndef __USE_FILE_OFFSET64
+extern int mkstemps (char *__template, int __suffixlen) __nonnull ((1)) __wur;
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (mkstemps, (char *__template, int __suffixlen), mkstemps64)
+     __nonnull ((1)) __wur;
+#  else
+#   define mkstemps mkstemps64
+#  endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int mkstemps64 (char *__template, int __suffixlen) __nonnull ((1)) __wur;
+# endif
+#endif
+
 #if defined __USE_BSD || defined __USE_XOPEN2K8
 /* Create a unique temporary directory from TEMPLATE.
    The last six characters of TEMPLATE must be "XXXXXX";
@@ -673,7 +702,27 @@ extern int __REDIRECT (mkostemp, (char *__template, int __flags), mkostemp64)
 # ifdef __USE_LARGEFILE64
 extern int mkostemp64 (char *__template, int __flags) __nonnull ((1)) __wur;
 # endif
+#endif
 
+#ifdef __USE_GNU
+/* Generate a unique temporary file name from TEMPLATE similar to
+   mkostemp.  But allow the caller to pass additional file name suffix.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+# ifndef __USE_FILE_OFFSET64
+extern int mkostemps (char *__template, int __suffixlen, int __flags) __nonnull ((1)) __wur;
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (mkostemps, (char *__template, int __suffixlen, int __flags), mkostemps64)
+     __nonnull ((1)) __wur;
+#  else
+#   define mkostemps mkostemps64
+#  endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int mkostemps64 (char *__template, int __suffixlen, int __flags) __nonnull ((1)) __wur;
+# endif
 #endif
 
 

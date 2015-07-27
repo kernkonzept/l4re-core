@@ -1,4 +1,4 @@
-/* Copyright (C) 2000-2012 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2012 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -15,18 +15,19 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include "../misc/internals/tempname.h"
 
 /* Generate a unique temporary file name from TEMPLATE.
-   The last six characters of TEMPLATE must be "XXXXXX";
-   they are replaced with a string that makes the filename unique.
+   The TEMPLATE is of the form "XXXXXXsuffix" where six characters
+   after the TEMPLATE must be "XXXXXX" followed by the suffix.
+   The suffix length must be specified with suffixlen.
+   "XXXXXX" are replaced with a string that makes the filename unique.
    Then open the file and return a fd. */
-int
-mkostemp64 (char *template, int flags)
+int mkstemps (char *template, int suffixlen)
 {
-  return __gen_tempname (template, __GT_BIGFILE, flags | O_LARGEFILE, 0,
-                         S_IRUSR | S_IWUSR | S_IXUSR);
+    return __gen_tempname (template, __GT_FILE, 0, suffixlen,
+                           S_IRUSR | S_IWUSR);
 }
