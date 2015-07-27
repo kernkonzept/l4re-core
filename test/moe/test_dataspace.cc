@@ -904,58 +904,6 @@ TEST_P(TestAnyDs, MapRegionInsufficientRights)
 }
 
 /**
- * The address of the underlying physical address is not available
- * for regular dataspaces.
- *
- * \see L4Re->Dataspace.phys
- */
-TEST_P(TestRegDs, Phys)
-{
-  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.phys");
-
-  auto ds = create_ds();
-  l4_addr_t pa;
-  l4_size_t sz;
-  EXPECT_EQ(-L4_EINVAL, ds->phys(0, pa, sz));
-}
-
-/**
- * Continuous dataspaces have a physical address available and the
- * underlying physical memory covers the entire dataspace.
- *
- * \see L4Re->Dataspace.phys
- */
-TEST_F(TestContDs, Phys)
-{
-  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.phys");
-
-  auto ds = create_ds(1024);
-  l4_addr_t pa;
-  l4_size_t sz;
-  EXPECT_EQ(0, ds->phys(0, pa, sz));
-  EXPECT_LE(sz, 1024UL);
-}
-
-/**
- * When requesting the physical address of an arbitrary offset in
- * the dataspace, the returned physical address has the same page offset.
- *
- * \see L4Re::Dataspace.phys
- */
-TEST_F(TestContDs, PhysUnaligned)
-{
-  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.phys");
-
-  auto ds = create_ds(1024);
-  l4_addr_t pa;
-  l4_size_t sz;
-
-  EXPECT_EQ(0, ds->phys(123, pa, sz));
-  EXPECT_EQ(0U, (pa - 123) % L4_PAGESIZE);
-  EXPECT_EQ(1024U, (pa + sz) % L4_PAGESIZE);
-}
-
-/**
  * The dataspace reports the same size as was requested when creating
  * the dataspace.
  *
