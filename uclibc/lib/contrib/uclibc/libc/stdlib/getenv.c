@@ -27,4 +27,4 @@ char *getenv(const char *var)
     }
     return NULL;
 }
-libc_hidden_def(getenv)
+libc_hidden_weak(getenv)
