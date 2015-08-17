@@ -557,6 +557,19 @@ export UBACKTRACE_ASNEEDED:=$(shell $(CC) -Wl,--help 2>/dev/null | grep -q -- --
 else
 export UBACKTRACE_ASNEEDED:=""
 endif
+ifeq ($(UCLIBC_HAS_ARGP),y)
+ifeq ($(HARDWIRED_ABSPATH),y)
+# Only used in installed libc.so linker script
+UARGP_FULL_NAME := $(subst //,/,$(RUNTIME_PREFIX)$(MULTILIB_DIR)/libuargp.so.$(MAJOR_VERSION))
+else
+UARGP_FULL_NAME := libuargp.so.$(MAJOR_VERSION)
+endif
+export UARGP_ASNEEDED:=$(shell $(CC) -Wl,--help 2>/dev/null | grep -q -- --as-needed && \
+	echo "GROUP ( AS_NEEDED ( $(UARGP_FULL_NAME) ) )" || \
+	echo "GROUP ( $(UARGP_FULL_NAME) )")
+else
+export UARGP_ASNEEDED:=""
+endif
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks

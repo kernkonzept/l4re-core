@@ -105,7 +105,7 @@
    they can distinguish the relative order of options and other arguments.  */
 
 #include <getopt.h>
-#include "getopt_int.h"
+#include <bits/getopt_int.h>
 
 
 /* For communication from `getopt' to the caller.
@@ -1170,6 +1170,15 @@ getopt_long (int argc, char *const *argv, const char *options,
   return _getopt_internal (argc, argv, options, long_options, opt_index, 0);
 }
 
+int
+_getopt_long_r (int argc, char *const *argv, const char *options,
+               const struct option *long_options, int *opt_index,
+               struct _getopt_data *d)
+{
+  return _getopt_internal_r (argc, argv, options, long_options, opt_index,
+                            0, d);
+}
+
 /* Like getopt_long, but '-' as well as '--' can indicate a long option.
    If an option that starts with '-' (not '--') doesn't match a long option,
    but does match a short option, it is parsed as a short option
@@ -1182,5 +1191,13 @@ getopt_long_only (int argc, char *const *argv, const char *options,
   return _getopt_internal (argc, argv, options, long_options, opt_index, 1);
 }
 #endif /* __UCLIBC_HAS_GETOPT_LONG__ */
+
+int
+_getopt_long_only_r (int argc, char *const *argv, const char *options,
+                    const struct option *long_options, int *opt_index,
+                    struct _getopt_data *d)
+{
+  return _getopt_internal_r (argc, argv, options, long_options, opt_index, 1, d);
+}
 
 #endif	/* Not ELIDE_CODE.  */

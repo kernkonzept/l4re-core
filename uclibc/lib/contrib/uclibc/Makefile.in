@@ -39,6 +39,7 @@ include $(top_srcdir)libresolv/Makefile.in
 include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
 include $(top_srcdir)librt/Makefile.in
+include $(top_srcdir)libuargp/Makefile.in
 include $(top_srcdir)libubacktrace/Makefile.in
 
 # last included to catch all the objects added by others (locales/threads)
@@ -263,6 +264,7 @@ HEADERS_RM- += sgtty.h
 endif
 HEADERS_RM-$(HAVE_SHARED)                    += dlfcn.h bits/dlfcn.h
 HEADERS_RM-$(PTHREADS_DEBUG_SUPPORT)         += thread_db.h
+HEADERS_RM-$(UCLIBC_HAS_ARGP)                += argp.h
 HEADERS_RM-$(UCLIBC_HAS_BSD_ERR)             += err.h
 HEADERS_RM-$(UCLIBC_HAS_CRYPT)               += crypt.h
 HEADERS_RM-$(UCLIBC_HAS_EPOLL)               += sys/epoll.h
@@ -387,6 +389,13 @@ else
 	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 endif
 	echo "$(UBACKTRACE_ASNEEDED)" >> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so
+ifeq ($(UCLIBC_HAS_ARGP),y)
+# Add the AS_NEEDED entry for libuargp.so
+	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_MAJORNAME) ] ; then \
+		echo "GROUP ( $(UARGP_ASNEEDED) )" >> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
+	fi
+endif
+
 ifeq ($(UCLIBC_HAS_THREADS),y)
 ifneq ($(LINUXTHREADS_OLD),y)
 ifeq ($(HARDWIRED_ABSPATH),y)

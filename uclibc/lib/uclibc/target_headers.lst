@@ -26,6 +26,7 @@ bits/fcntl.h
 bits/fenv.h
 bits/fenvinline.h
 bits/getopt.h
+bits/getopt_int.h
 bits/huge_valf.h
 bits/huge_val.h
 bits/huge_vall.h
