@@ -171,7 +171,7 @@ typedef pthread_key_t __libc_key_t;
 /* Initialize the named lock variable, leaving it in a consistent, unlocked
    state.  */
 #if defined _LIBC && (!defined NOT_IN_libc || defined IS_IN_libpthread)
-# define __libc_lock_init(NAME) ((NAME) = LLL_LOCK_INITIALIZER, 0)
+# define __libc_lock_init(NAME) ((void)((NAME) = LLL_LOCK_INITIALIZER))
 #else
 # define __libc_lock_init(NAME) \
   __libc_maybe_call (__pthread_mutex_init, (&(NAME), NULL), 0)
