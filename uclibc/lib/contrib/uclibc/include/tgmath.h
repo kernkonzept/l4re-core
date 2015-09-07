@@ -47,7 +47,7 @@
 
 /* 1 if 'type' is a floating type, 0 if 'type' is an integer type.
    Allows for _Bool.  Expands to an integer constant expression.  */
-# if 0 /* __GNUC_PREREQ (3, 1) */
+# if __GNUC_PREREQ (3, 1)
 #  define __floating_type(type) \
   (__builtin_classify_type ((type) 0) == 8 \
    || (__builtin_classify_type ((type) 0) == 9 \
