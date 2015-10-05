@@ -34,6 +34,7 @@ choice
 	default TARGET_mips if DESIRED_TARGET_ARCH = "mips"
 	default TARGET_nios if DESIRED_TARGET_ARCH = "nios"
 	default TARGET_nios2 if DESIRED_TARGET_ARCH = "nios2"
+	default TARGET_or1k if DESIRED_TARGET_ARCH = "or1k"
 	default TARGET_powerpc if DESIRED_TARGET_ARCH = "powerpc"
 	default TARGET_sh if DESIRED_TARGET_ARCH = "sh"
 	default TARGET_sh64 if DESIRED_TARGET_ARCH = "sh64"
@@ -106,6 +107,9 @@ config TARGET_mips
 
 config TARGET_nios2
 	bool "nios2"
+
+config TARGET_or1k
+	bool "or1k"
 
 config TARGET_powerpc
 	bool "powerpc"
@@ -206,6 +210,10 @@ endif
 
 if TARGET_mips
 source "extra/Configs/Config.mips"
+endif
+
+if TARGET_or1k
+source "extra/Configs/Config.or1k"
 endif
 
 if TARGET_powerpc
@@ -480,7 +488,7 @@ config LDSO_NO_CLEANUP
 	  Unless you know you need this, you should answer N.
 
 config UCLIBC_CTOR_DTOR
-	boolean
+	bool
 	default y
 	help
 	  If you wish to build uClibc with support for global constructor
@@ -584,6 +592,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_m68k && \
 		   !TARGET_microblaze && \
 		   !TARGET_nios2 && \
+		   !TARGET_or1k && \
 		   !TARGET_vax && \
 		   ARCH_USE_MMU
 	help
