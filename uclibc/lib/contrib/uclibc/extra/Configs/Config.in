@@ -87,8 +87,8 @@ config TARGET_i386
 #config TARGET_i960
 #	bool "i960 (BROKEN)"
 
-#config TARGET_ia64
-#	bool "ia64"
+config TARGET_ia64
+	bool "ia64"
 
 config TARGET_m68k
 	bool "m68k"
