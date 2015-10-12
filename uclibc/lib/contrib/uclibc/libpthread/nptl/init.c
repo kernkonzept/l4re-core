@@ -60,14 +60,8 @@ int __have_futex_clock_realtime;
 /* Version of the library, used in libthread_db to detect mismatches.  */
 static const char nptl_version[] __attribute_used__ = VERSION;
 
-
-#ifndef SHARED
-extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
-#endif
-
 #ifdef SHARED
 static void nptl_freeres (void);
-
 
 static const struct pthread_functions pthread_functions =
   {
@@ -264,18 +258,6 @@ __pthread_initialize_minimal_internal (void)
   if (initialized)
     return;
   initialized = 1;
-
-#ifndef SHARED
-  /* Unlike in the dynamically linked case the dynamic linker has not
-     taken care of initializing the TLS data structures.  */
-  __libc_setup_tls (TLS_TCB_SIZE, TLS_TCB_ALIGN);
-
-  /* We must prevent gcc from being clever and move any of the
-     following code ahead of the __libc_setup_tls call.  This function
-     will initialize the thread register which is subsequently
-     used.  */
-  __asm__ __volatile__ ("");
-#endif
 
   /* Minimal initialization of the thread descriptor.  */
   struct pthread *pd = THREAD_SELF;

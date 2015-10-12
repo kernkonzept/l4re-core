@@ -32,6 +32,7 @@
 #include <pthread-functions.h>
 #include <not-cancel.h>
 #include <atomic.h>
+#include <tls.h>
 #endif
 #ifdef __UCLIBC_HAS_THREADS__
 #include <pthread.h>
@@ -135,6 +136,10 @@ extern void weak_function __pthread_initialize_minimal(void);
 #else
 extern void __pthread_initialize_minimal(void);
 #endif
+#endif
+
+#ifndef SHARED
+extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
 
 /* If __UCLIBC_FORMAT_SHARED_FLAT__, all array initialisation and finalisation
@@ -252,6 +257,13 @@ void __uClibc_init(void)
     __pagesize = PAGE_SIZE;
 
 #ifdef __UCLIBC_HAS_THREADS__
+
+#if defined (__UCLIBC_HAS_THREADS_NATIVE__) && !defined (SHARED)
+    /* Unlike in the dynamically linked case the dynamic linker has not
+       taken care of initializing the TLS data structures.  */
+    __libc_setup_tls (TLS_TCB_SIZE, TLS_TCB_ALIGN);
+#endif
+
     /* Before we start initializing uClibc we have to call
      * __pthread_initialize_minimal so we can use pthread_locks
      * whenever they are needed.
