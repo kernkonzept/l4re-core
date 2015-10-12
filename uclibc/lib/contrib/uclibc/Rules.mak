@@ -298,11 +298,13 @@ CPU_CFLAGS-y += $(CFLAG_-fmerge-all-constants)
 
 ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 ifneq ($(TARGET_ARCH),bfin)
+ifneq ($(TARGET_ARCH),lm32)
 ifneq ($(TARGET_ARCH),nios2)
 ifneq ($(TARGET_ARCH),sh)
 ifneq ($(TARGET_ARCH),c6x)
 ifneq ($(TARGET_ARCH),h8300)
 CPU_CFLAGS-y += -msoft-float
+endif
 endif
 endif
 endif

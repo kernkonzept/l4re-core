@@ -28,6 +28,7 @@ choice
 	default TARGET_i386 if DESIRED_TARGET_ARCH = "i386"
 	default TARGET_i960 if DESIRED_TARGET_ARCH = "i960"
 	default TARGET_ia64 if DESIRED_TARGET_ARCH = "ia64"
+	default TARGET_lm32 if DESIRED_TARGET_ARCH = "lm32"
 	default TARGET_m68k if DESIRED_TARGET_ARCH = "m68k"
 	default TARGET_metag if DESIRED_TARGET_ARCH = "metag"
 	default TARGET_microblaze if DESIRED_TARGET_ARCH = "microblaze"
@@ -89,6 +90,9 @@ config TARGET_i386
 
 config TARGET_ia64
 	bool "ia64"
+
+config TARGET_lm32
+	bool "lm32"
 
 config TARGET_m68k
 	bool "m68k"
@@ -186,6 +190,10 @@ endif
 
 if TARGET_ia64
 source "extra/Configs/Config.ia64"
+endif
+
+if TARGET_lm32
+source "extra/Configs/Config.lm32"
 endif
 
 if TARGET_m68k
