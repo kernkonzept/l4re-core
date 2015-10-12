@@ -1073,7 +1073,7 @@ extern char *getpass (const char *__prompt) __nonnull ((1));
 extern int fsync (int __fd);
 #endif /* Use BSD || X/Open || Unix98.  */
 
-#if 0 /*def __USE_GNU */
+#if defined __USE_GNU
 /* Make all changes done to all files on the file system associated
  *    with FD actually appear on disk.  */
 extern int syncfs (int __fd) __THROW;
