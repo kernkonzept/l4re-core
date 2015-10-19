@@ -47,8 +47,8 @@ choice
 	help
 	  The architecture of your target.
 
-#config TARGET_alpha
-#	bool "alpha"
+config TARGET_alpha
+	bool "alpha"
 
 config TARGET_arc
 	bool "arc"

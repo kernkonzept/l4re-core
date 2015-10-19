@@ -13,9 +13,9 @@ struct kernel_stat {
 	unsigned int	st_gid;
 	unsigned int	st_rdev;
 	long int		st_size;
-	unsigned long	st_atime;
-	unsigned long	st_mtime;
-	unsigned long	st_ctime;
+	struct timespec st_atim;
+	struct timespec st_mtim;
+	struct timespec st_ctim;
 	unsigned int	st_blksize;
 	int		st_blocks;
 	unsigned int	st_flags;

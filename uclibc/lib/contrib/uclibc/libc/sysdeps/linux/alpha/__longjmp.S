@@ -15,7 +15,7 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <setjmp-offsets.h>
+#include <jmpbuf-offsets.h>
 
 #define a0  $16
 
