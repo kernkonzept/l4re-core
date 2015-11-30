@@ -81,16 +81,12 @@ struct mallinfo mallinfo(void)
 }
 libc_hidden_def(mallinfo)
 
-void malloc_stats(FILE *file)
+void malloc_stats(void)
 {
     struct mallinfo mi;
 
-    if (file==NULL) {
-	file = stderr;
-    }
-
     mi = mallinfo();
-    fprintf(file,
+    fprintf(stderr,
 	    "total bytes allocated             = %10u\n"
 	    "total bytes in use bytes          = %10u\n"
 	    "total non-mmapped bytes allocated = %10d\n"

@@ -159,9 +159,8 @@ extern int malloc_trim(size_t pad);
 # endif /* __USE_GNU */
 
 #include <stdio.h>
-/* Prints brief summary statistics to the specified file.
- * Writes to stderr if file is NULL. */
-extern void malloc_stats(FILE *file);
+/* Prints brief summary statistics on the stderr. */
+extern void malloc_stats(void);
 
 /* SVID2/XPG mallopt options */
 #ifndef M_MXFAST
