@@ -40,7 +40,7 @@
 
 
 #define	ENTRY(name)							\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				\
+  .globl C_SYMBOL_NAME(name);				\
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name), @function);			\
   .align ALIGNARG(2);							\
   LITERAL_POSITION;							\
@@ -49,7 +49,7 @@
   CALL_MCOUNT
 
 #define	HIDDEN_ENTRY(name)						\
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				\
+  .globl C_SYMBOL_NAME(name);				\
   .hidden C_SYMBOL_NAME(name);						\
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name), @function);			\
   .align ALIGNARG(2);							\

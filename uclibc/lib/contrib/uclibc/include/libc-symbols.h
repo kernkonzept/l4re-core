@@ -38,7 +38,6 @@
    It should define for us the following symbols:
 
    * HAVE_ASM_SET_DIRECTIVE if we have `.set B, A' instead of `A = B'.
-   * ASM_GLOBAL_DIRECTIVE with `.globl' or `.global'.
    * ASM_TYPE_DIRECTIVE_PREFIX with `@' or `#' or whatever for .type,
      or leave it undefined if there is no .type directive.
    * HAVE_ELF if using ELF, which supports weak symbols using `.weak'.
@@ -118,12 +117,6 @@
 # define HAVE_ASM_SET_DIRECTIVE
 #else
 # undef HAVE_ASM_SET_DIRECTIVE
-#endif
-
-#ifdef __UCLIBC_ASM_GLOBAL_DIRECTIVE__
-# define ASM_GLOBAL_DIRECTIVE __UCLIBC_ASM_GLOBAL_DIRECTIVE__
-#else
-# define ASM_GLOBAL_DIRECTIVE .global
 #endif
 
 #ifdef __UCLIBC_HAVE_ASM_WEAK_DIRECTIVE__
@@ -217,12 +210,12 @@
 
 # ifdef HAVE_ASM_SET_DIRECTIVE
 #  define strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.globl C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
 #  define strong_data_alias(original, alias) strong_alias(original, alias)
 # else
 #  define strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.globl C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
 #  define strong_data_alias(original, alias) strong_alias(original, alias)
 # endif
@@ -452,12 +445,12 @@ FIXME! - ?
 
 #  ifdef HAVE_ASM_SET_DIRECTIVE
 #   define _hidden_strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.globl C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
 #  else /* dont have .set directive */
 #   define _hidden_strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
+	.globl C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
 #  endif

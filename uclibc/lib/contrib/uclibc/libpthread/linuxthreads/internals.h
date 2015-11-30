@@ -475,7 +475,7 @@ extern pid_t __pthread_fork (struct fork_block *b) attribute_hidden;
 
 #define asm_handle(name) _asm_handle(name)
 #define _asm_handle(name) #name
-#define ASM_GLOBAL asm_handle(ASM_GLOBAL_DIRECTIVE)
+#define ASM_GLOBAL asm_handle(.globl)
 #define ASM_CANCEL(name) asm_handle(C_SYMBOL_NAME(name))
 
 #if !defined NOT_IN_libc

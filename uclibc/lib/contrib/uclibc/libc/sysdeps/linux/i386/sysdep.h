@@ -43,7 +43,7 @@
    incomplete stabs information.  Fake some entries here which specify
    the current source file.  */
 #define	ENTRY(name)							      \
-  ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(name);				      \
+  .globl C_SYMBOL_NAME(name);				      \
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function)			      \
   .align ALIGNARG(4);							      \
   C_LABEL(name)								      \

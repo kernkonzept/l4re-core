@@ -28,9 +28,6 @@
 /* does your target have an asm .set ? */
 #define __UCLIBC_HAVE_ASM_SET_DIRECTIVE__
 
-/* define if target doesn't like .global */
-#undef __UCLIBC_ASM_GLOBAL_DIRECTIVE__
-
 /* define if target supports .weak */
 #define __UCLIBC_HAVE_ASM_WEAK_DIRECTIVE__
 

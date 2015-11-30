@@ -9,7 +9,7 @@ TOPDIR=../../../../
 include $(TOPDIR)Rules.mak
 
 CFLAGS += -I..
-ASFLAGS += -I.. -D__ASSEMBLER -DASM_GLOBAL_DIRECTIVE=.globl
+ASFLAGS += -I.. -D__ASSEMBLER
 
 TARGET_MACHINE_TYPE=$(shell $(CC) -dumpmachine)
 
