@@ -66,16 +66,6 @@
 name##: OPD_ENT (name);				\
 	.previous;
 
-#ifdef HAVE_ASM_GLOBAL_DOT_NAME
-# define DOT_LABEL(X) .##X
-# define BODY_LABEL(X) .##X
-# define ENTRY_2(name)	\
-	.globl BODY_LABEL(name);		\
-	ENTRY_1(name)				\
-	.size name, 24;
-# define END_2(name)	\
-	.size BODY_LABEL(name),.-BODY_LABEL(name);
-#else
 # define DOT_LABEL(X) X
 # define BODY_LABEL(X) .LY##X
 # define ENTRY_2(name)	\
@@ -84,7 +74,6 @@ name##: OPD_ENT (name);				\
 # define END_2(name)	\
 	.size name,.-BODY_LABEL(name);		\
 	.size BODY_LABEL(name),.-BODY_LABEL(name);
-#endif
 
 #define ENTRY(name)	\
 	ENTRY_2(name)				\
@@ -242,22 +231,12 @@ LT_LABELSUFFIX(name,_name_end): ; \
 # define OPD_ENT(name)	".quad " BODY_PREFIX #name ", .TOC.@tocbase, 0;"
 #endif
 
-#ifdef HAVE_ASM_GLOBAL_DOT_NAME
-# define DOT_PREFIX "."
-# define BODY_PREFIX "."
-# define ENTRY_2(name)	\
-	".globl " BODY_PREFIX #name ";\n"				\
-	".size  " #name ", 24;"
-# define END_2(name)	\
-	".size " BODY_PREFIX #name ",.-" BODY_PREFIX #name ";"
-#else
 # define DOT_PREFIX ""
 # define BODY_PREFIX ".LY"
 # define ENTRY_2(name) ".type " #name ",@function;"
 # define END_2(name)	\
 	".size " #name ",.-" BODY_PREFIX #name ";\n"			\
 	".size " BODY_PREFIX #name ",.-" BODY_PREFIX #name ";"
-#endif
 
 #endif	/* __ASSEMBLER__ */
 

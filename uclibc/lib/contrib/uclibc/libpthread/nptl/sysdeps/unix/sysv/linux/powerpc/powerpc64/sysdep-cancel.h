@@ -25,11 +25,7 @@
 
 #if !defined NOT_IN_libc || defined IS_IN_libpthread || defined IS_IN_librt
 
-# ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#  define DASHDASHPFX(str) .__##str
-# else
-#  define DASHDASHPFX(str) __##str
-# endif
+# define DASHDASHPFX(str) __##str
 
 # undef PSEUDO
 # define PSEUDO(name, syscall_name, args)				\

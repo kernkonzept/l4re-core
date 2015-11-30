@@ -37,9 +37,6 @@
 /* define if target supports .weakext */
 #undef __UCLIBC_HAVE_ASM_WEAKEXT_DIRECTIVE__
 
-/* needed probably only for ppc64 */
-#undef __UCLIBC_HAVE_ASM_GLOBAL_DOT_NAME__
-
 /* define if target supports IEEE signed zero floats */
 #define __UCLIBC_HAVE_SIGNED_ZERO__
 

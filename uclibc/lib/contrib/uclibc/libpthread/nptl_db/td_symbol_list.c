@@ -23,13 +23,6 @@
 #endif
 #include "thread_dbP.h"
 
-
-#ifdef HAVE_ASM_GLOBAL_DOT_NAME
-# define DOT "."		/* PPC64 requires . prefix on code symbols.  */
-#else
-# define DOT			/* No prefix.  */
-#endif
-
 static const char *symbol_list_arr[] =
 {
 # define DB_STRUCT(type) \
@@ -39,7 +32,7 @@ static const char *symbol_list_arr[] =
 # define DB_SYMBOL(name) \
   [SYM_##name] = #name,
 # define DB_FUNCTION(name) \
-  [SYM_##name] = DOT #name,
+  [SYM_##name] = #name,
 # define DB_VARIABLE(name) \
   [SYM_##name] = #name, \
   [SYM_DESC_##name] = "_thread_db_" #name,
@@ -73,14 +66,5 @@ td_lookup (struct ps_prochandle *ps, int idx, psaddr_t *sym_addr)
   assert (idx >= 0 && idx < SYM_NUM_MESSAGES);
   result = ps_pglobal_lookup (ps, LIBPTHREAD_SO, symbol_list_arr[idx],
 			      sym_addr);
-
-#ifdef HAVE_ASM_GLOBAL_DOT_NAME
-  /* For PowerPC, 64-bit uses dot symbols but 32-bit does not.
-     We could be a 64-bit libthread_db debugging a 32-bit libpthread.  */
-  if (result == PS_NOSYM && symbol_list_arr[idx][0] == '.')
-    result = ps_pglobal_lookup (ps, LIBPTHREAD_SO, &symbol_list_arr[idx][1],
-				sym_addr);
-#endif
-
   return result;
 }

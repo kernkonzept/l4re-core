@@ -138,12 +138,6 @@
 # undef HAVE_ASM_WEAKEXT_DIRECTIVE
 #endif
 
-#ifdef __UCLIBC_HAVE_ASM_GLOBAL_DOT_NAME__
-# define HAVE_ASM_GLOBAL_DOT_NAME
-#else
-# undef HAVE_ASM_GLOBAL_DOT_NAME
-#endif
-
 #ifdef __UCLIBC_HAVE_ASM_CFI_DIRECTIVES__
 # define HAVE_ASM_CFI_DIRECTIVES
 #else
@@ -173,17 +167,6 @@
 # define __attribute_copy__(arg) __attribute__ ((__copy__ (arg)))
 #else
 # define __attribute_copy__(arg)
-#endif
-
-#ifdef HAVE_ASM_GLOBAL_DOT_NAME
-# ifndef C_SYMBOL_DOT_NAME
-#  if defined __GNUC__ && defined __GNUC_MINOR__ \
-      && (__GNUC__ << 16) + __GNUC_MINOR__ >= (3 << 16) + 1
-#   define C_SYMBOL_DOT_NAME(name) .name
-#  else
-#   define C_SYMBOL_DOT_NAME(name) .##name
-#  endif
-# endif
 #endif
 
 #ifndef __ASSEMBLER__
@@ -233,78 +216,34 @@
 #else /* __ASSEMBLER__ */
 
 # ifdef HAVE_ASM_SET_DIRECTIVE
-#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
-	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
-	.set	C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
-#   define strong_data_alias(original, alias) \
+#  define strong_alias(original, alias) \
 	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
-#  else
-#   define strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
-	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
-#   define strong_data_alias(original, alias) strong_alias(original, alias)
-#  endif
+#  define strong_data_alias(original, alias) strong_alias(original, alias)
 # else
-#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
-	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)		ASM_LINE_SEP \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
-	C_SYMBOL_DOT_NAME(alias) = C_SYMBOL_DOT_NAME(original)
-#   define strong_data_alias(original, alias) \
+#  define strong_alias(original, alias) \
 	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
-#  else
-#   define strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
-	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
-#   define strong_data_alias(original, alias) strong_alias(original, alias)
-#  endif
+#  define strong_data_alias(original, alias) strong_alias(original, alias)
 # endif
 
-# ifdef HAVE_WEAK_SYMBOLS
-#  ifdef HAVE_ASM_WEAKEXT_DIRECTIVE
-#   ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#    define weak_alias(original, alias) \
-	.weakext C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
-	.weakext C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
-#   else
+#  ifdef HAVE_WEAK_SYMBOLS
+#   ifdef HAVE_ASM_WEAKEXT_DIRECTIVE
 #    define weak_alias(original, alias) \
 	.weakext C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
-#   endif
-#   define weak_extern(symbol) \
+#    define weak_extern(symbol) \
 	.weakext C_SYMBOL_NAME(symbol)
 
 #  else /* ! HAVE_ASM_WEAKEXT_DIRECTIVE */
 
 #   ifdef HAVE_ASM_SET_DIRECTIVE
-#    ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#     define weak_alias(original, alias) \
-	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
-	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
-	.weak	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
-	.set	C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
-#    else
-#     define weak_alias(original, alias) \
+#    define weak_alias(original, alias) \
 	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
-#    endif
 #   else /* ! HAVE_ASM_SET_DIRECTIVE */
-#    ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#     define weak_alias(original, alias) \
-	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
-	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)		ASM_LINE_SEP \
-	.weak	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
-	C_SYMBOL_DOT_NAME(alias) = C_SYMBOL_DOT_NAME(original)
-#    else
-#     define weak_alias(original, alias) \
+#    define weak_alias(original, alias) \
 	.weak	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
-#    endif
 #   endif
 #   define weak_extern(symbol) \
 	.weak	C_SYMBOL_NAME(symbol)
@@ -512,47 +451,20 @@ FIXME! - ?
 # else /* __ASSEMBLER__ */
 
 #  ifdef HAVE_ASM_SET_DIRECTIVE
-#   ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#    define _hidden_strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
-	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
-	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)	ASM_LINE_SEP \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
-	.hidden	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
-	.set	C_SYMBOL_DOT_NAME(alias),C_SYMBOL_DOT_NAME(original)
-#   else
-#    define _hidden_strong_alias(original, alias) \
+#   define _hidden_strong_alias(original, alias) \
 	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	.set	C_SYMBOL_NAME(alias),C_SYMBOL_NAME(original)
-#   endif
 #  else /* dont have .set directive */
-#   ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#    define _hidden_strong_alias(original, alias) \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
-	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
-	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)		ASM_LINE_SEP \
-	ASM_GLOBAL_DIRECTIVE C_SYMBOL_DOT_NAME(alias)		ASM_LINE_SEP \
-	.hidden	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
-	C_SYMBOL_DOT_NAME(alias) = C_SYMBOL_DOT_NAME(original)
-#   else
-#    define _hidden_strong_alias(original, alias) \
+#   define _hidden_strong_alias(original, alias) \
 	ASM_GLOBAL_DIRECTIVE C_SYMBOL_NAME(alias)		ASM_LINE_SEP \
 	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	C_SYMBOL_NAME(alias) = C_SYMBOL_NAME(original)
-#   endif
 #  endif
 
-#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define _hidden_weak_alias(original, alias) \
-	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
-	.hidden	C_SYMBOL_DOT_NAME(alias)			ASM_LINE_SEP \
-	weak_alias(original, alias)
-#  else
-#   define _hidden_weak_alias(original, alias) \
+#  define _hidden_weak_alias(original, alias) \
 	.hidden	C_SYMBOL_NAME(alias)				ASM_LINE_SEP \
 	weak_alias(original, alias)
-#  endif
 
 /* For assembly, we need to do the opposite of what we do in C:
    in assembly gcc __REDIRECT stuff is not in place, so functions
@@ -569,11 +481,7 @@ FIXME! - ?
 #  define hidden_data_def(name)	_hidden_strong_alias (name, __GI_##name)
 #  define hidden_data_weak(name)	_hidden_weak_alias (name, __GI_##name)
 #  define hidden_data_ver(local, name) strong_data_alias (local, __GI_##name)
-#  ifdef HAVE_ASM_GLOBAL_DOT_NAME
-#   define HIDDEN_JUMPTARGET(name) .__GI_##name
-#  else
-#   define HIDDEN_JUMPTARGET(name) __GI_##name
-#  endif
+#  define HIDDEN_JUMPTARGET(name) __GI_##name
 # endif /* __ASSEMBLER__ */
 
 #else /* not SHARED */

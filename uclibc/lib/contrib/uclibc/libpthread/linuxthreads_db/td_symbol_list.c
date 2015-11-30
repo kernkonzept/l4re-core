@@ -20,12 +20,6 @@
 #include <assert.h>
 #include "thread_dbP.h"
 
-#ifdef HAVE_ASM_GLOBAL_DOT_NAME
-# define DOT "."		/* PPC64 requires . prefix on code symbols.  */
-#else
-# define DOT			/* No prefix.  */
-#endif
-
 static const char *symbol_list_arr[] =
 {
   [PTHREAD_THREADS_EVENTS] = "__pthread_threads_events",
@@ -36,9 +30,9 @@ static const char *symbol_list_arr[] =
   [LINUXTHREADS_PTHREAD_THREADS_MAX] = "__linuxthreads_pthread_threads_max",
   [LINUXTHREADS_PTHREAD_KEYS_MAX] = "__linuxthreads_pthread_keys_max",
   [LINUXTHREADS_PTHREAD_SIZEOF_DESCR] = "__linuxthreads_pthread_sizeof_descr",
-  [LINUXTHREADS_CREATE_EVENT] = DOT "__linuxthreads_create_event",
-  [LINUXTHREADS_DEATH_EVENT] = DOT "__linuxthreads_death_event",
-  [LINUXTHREADS_REAP_EVENT] = DOT "__linuxthreads_reap_event",
+  [LINUXTHREADS_CREATE_EVENT] = "__linuxthreads_create_event",
+  [LINUXTHREADS_DEATH_EVENT] = "__linuxthreads_death_event",
+  [LINUXTHREADS_REAP_EVENT] = "__linuxthreads_reap_event",
   [LINUXTHREADS_INITIAL_REPORT_EVENTS] = "__linuxthreads_initial_report_events",
   [LINUXTHREADS_VERSION] = "__linuxthreads_version",
   [NUM_MESSAGES] = NULL
