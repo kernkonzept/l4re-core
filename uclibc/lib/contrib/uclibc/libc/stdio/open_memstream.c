@@ -17,6 +17,8 @@
 
 #define COOKIE ((__oms_cookie *) cookie)
 
+#define MEMSTREAM_BUFSIZ	256
+
 typedef struct {
 	char *buf;
 	size_t len;
@@ -134,7 +136,7 @@ FILE *open_memstream(char **bufloc, size_t *sizeloc)
 	register FILE *fp;
 
 	if ((cookie = malloc(sizeof(__oms_cookie))) != NULL) {
-		if ((cookie->buf = malloc(cookie->len = BUFSIZ)) == NULL) {
+		if ((cookie->buf = malloc(cookie->len = MEMSTREAM_BUFSIZ)) == NULL) {
 			goto EXIT_cookie;
 		}
 		*cookie->buf = 0;		/* Set nul terminator for buffer. */
