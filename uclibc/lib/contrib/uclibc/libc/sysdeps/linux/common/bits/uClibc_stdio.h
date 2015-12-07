@@ -245,10 +245,6 @@ struct __STDIO_FILE_STRUCT {
 #ifdef __STDIO_HAS_OPENLIST
 	struct __STDIO_FILE_STRUCT *__nextopen;
 #endif
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	void *__cookie;
-	_IO_cookie_io_functions_t __gcs;
-#endif
 #ifdef __UCLIBC_HAS_WCHAR__
 	wchar_t __ungot[2];
 #endif

@@ -202,15 +202,6 @@ int vsscanf(const char *sp, const char *fmt, va_list ap)
 {
 	FILE f;
 
-/* 	__STDIO_STREAM_RESET_GCS(&f); */
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	f.__cookie = &(f.__filedes);
-	f.__gcs.read = NULL;
-	f.__gcs.write = NULL;
-	f.__gcs.seek = NULL;
-	f.__gcs.close = NULL;
-#endif
-
 	f.__filedes = __STDIO_STREAM_FAKE_VSSCANF_FILEDES;
 	f.__modeflags = (__FLAG_NARROW|__FLAG_READONLY|__FLAG_READING);
 
@@ -248,15 +239,6 @@ int vsscanf(const char *sp, const char *fmt, va_list ap)
 
 	f.bufpos = (unsigned char *) ((void *) sp);
 	f.bufread = f.bufpos + strlen(sp);
-
-/* 	__STDIO_STREAM_RESET_GCS(&f.f); */
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	f.f.__cookie = &(f.f.__filedes);
-	f.f.__gcs.read = NULL;
-	f.f.__gcs.write = NULL;
-	f.f.__gcs.seek = NULL;
-	f.f.__gcs.close = NULL;
-#endif
 
 	f.f.__filedes = __STDIO_STREAM_FAKE_VSSCANF_FILEDES_NB;
 	f.f.__modeflags = (__FLAG_NARROW|__FLAG_READONLY|__FLAG_READING);
@@ -382,15 +364,6 @@ int vswscanf(const wchar_t * __restrict str, const wchar_t * __restrict format,
 	f.__bufend = (unsigned char *)(str + wcslen(str));
 	__STDIO_STREAM_DISABLE_GETC(&f);
 	__STDIO_STREAM_DISABLE_PUTC(&f);
-
-/* 	__STDIO_STREAM_RESET_GCS(&f); */
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	f.__cookie = &(f.__filedes);
-	f.__gcs.read = NULL;
-	f.__gcs.write = NULL;
-	f.__gcs.seek = NULL;
-	f.__gcs.close = NULL;
-#endif
 
 	f.__filedes = __STDIO_STREAM_FAKE_VSWSCANF_FILEDES;
 	f.__modeflags = (__FLAG_WIDE|__FLAG_READONLY|__FLAG_READING);

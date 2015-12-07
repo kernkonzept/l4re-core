@@ -36,7 +36,7 @@ size_t attribute_hidden __stdio_WRITE(register FILE *stream,
 	ssize_t rv, stodo;
 
 	__STDIO_STREAM_VALIDATE(stream);
-	assert(stream->__filedes >= -1);
+	assert(stream->__filedes >= -2);
 	assert(__STDIO_STREAM_IS_WRITING(stream));
 	assert(!__STDIO_STREAM_BUFFER_WUSED(stream)); /* Buffer must be empty. */
 

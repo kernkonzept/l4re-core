@@ -39,21 +39,34 @@ FILE *_fopencookie(void * __restrict cookie, const char * __restrict mode,
 #endif
 {
 	FILE *stream;
+	_IO_cookie_file_t *new_f;
 
+	new_f = malloc(sizeof(_IO_cookie_file_t));
+	if (new_f == NULL) {
+		return NULL;
+	}
+	new_f->__fp.__modeflags = __FLAG_FREEFILE;
+#ifdef __STDIO_BUFFERS
+	new_f->__fp.__bufstart = NULL; /* We allocate a buffer below. */
+#endif
+#ifdef __UCLIBC_HAS_THREADS__
+	/* We only initialize the mutex in the non-freopen case. */
+	STDIO_INIT_MUTEX(new_f->__fp.__lock);
+#endif
 	/* Fake an fdopen guaranteed to pass the _stdio_fopen basic agreement
 	 * check without an fcntl call. */
-	stream = _stdio_fopen(((intptr_t)(INT_MAX-1)), mode, NULL, INT_MAX);
+	stream = _stdio_fopen(((intptr_t)(INT_MAX-1)), mode, &new_f->__fp, INT_MAX);
 	if (stream) {
-		stream->__filedes = -1;
+		stream->__filedes = __STDIO_STREAM_GLIBC_CUSTOM_FILEDES;
 #ifndef __BCC__
-		stream->__gcs = io_functions;
+		new_f->__gcs = io_functions;
 #else
-		stream->__gcs.read  = io_functions->read;
-		stream->__gcs.write = io_functions->write;
-		stream->__gcs.seek  = io_functions->seek;
-		stream->__gcs.close = io_functions->close;
+		new_f->__gcs.read  = io_functions->read;
+		new_f->__gcs.write = io_functions->write;
+		new_f->__gcs.seek  = io_functions->seek;
+		new_f->__gcs.close = io_functions->close;
 #endif
-		stream->__cookie = cookie;
+		new_f->__cookie = cookie;
 
 		__STDIO_STREAM_VALIDATE(stream);
 	}

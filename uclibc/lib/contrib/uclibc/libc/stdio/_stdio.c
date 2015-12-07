@@ -51,13 +51,6 @@
 #define __STDIO_FILE_INIT_BUFFERS(buf,bufsize)
 #endif
 
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-#define __STDIO_FILE_INIT_CUSTOM_STREAM(stream) \
-	&((stream).__filedes), { _cs_read, _cs_write, _cs_seek, _cs_close },
-#else
-#define __STDIO_FILE_INIT_CUSTOM_STREAM(stream)
-#endif
-
 #ifdef __STDIO_MBSTATE
 #define __STDIO_FILE_INIT_MBSTATE \
 	{ 0, 0 },
@@ -92,7 +85,6 @@
 	__STDIO_FILE_INIT_BUFGETC((buf)) \
 	__STDIO_FILE_INIT_BUFPUTC((buf)) \
 	__STDIO_FILE_INIT_NEXT(next) \
-	__STDIO_FILE_INIT_CUSTOM_STREAM(stream) \
 	__STDIO_FILE_INIT_WUNGOT \
 	__STDIO_FILE_INIT_MBSTATE \
 	__STDIO_FILE_INIT_UNUSED \
@@ -240,7 +232,7 @@ void _stdio_term(void)
 #endif
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 		/* Actually close all custom streams to perform any special cleanup. */
-		if (ptr->__cookie != &ptr->__filedes) {
+		if (__STDIO_STREAM_IS_CUSTOM(ptr)) {
 			__CLOSE(ptr);
 		}
 #endif
@@ -298,14 +290,9 @@ void attribute_hidden _stdio_validate_FILE(const FILE *stream)
 #endif
 
 #warning Define a constant for minimum possible valid __filedes?
-	assert(stream->__filedes >= -3);
+	assert(stream->__filedes >= -4);
 
 	if (stream->__filedes < 0) {
-/* 		assert((stream->__filedes != -1) */
-/* #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
-/* 			   || (stream->__cookie == &stream->__filedes) /\* custom *\/ */
-/* #endif */
-/* 			   ); */
 /* 		assert((stream->__filedes == -1) || __STDIO_STREAM_IS_FBF(stream)); */
 
 		assert(!__STDIO_STREAM_IS_FAKE_VSNPRINTF(stream)
@@ -321,12 +308,6 @@ void attribute_hidden _stdio_validate_FILE(const FILE *stream)
 			   || __STDIO_STREAM_IS_WIDE(stream));
 #endif
 	}
-
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	if (stream->__cookie != &stream->__filedes) { /* custom */
-		assert(stream->__filedes == -1);
-	}
-#endif
 
 	/* Can not be both narrow and wide oriented at the same time. */
 	assert(!(__STDIO_STREAM_IS_NARROW(stream)

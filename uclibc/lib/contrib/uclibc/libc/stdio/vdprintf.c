@@ -26,15 +26,6 @@ int vdprintf(int filedes, const char * __restrict format, va_list arg)
 	__STDIO_STREAM_INIT_BUFREAD_BUFPOS(&f);
 #endif
 
-/* 	__STDIO_STREAM_RESET_GCS(&f); */
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	f.__cookie = &(f.__filedes);
-	f.__gcs.read = NULL;
-	f.__gcs.write = _cs_write;
-	f.__gcs.seek = NULL;
-	f.__gcs.close = NULL;
-#endif
-
 	f.__filedes = filedes;
 	f.__modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 

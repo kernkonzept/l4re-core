@@ -15,7 +15,7 @@ size_t fread_unlocked(void * __restrict ptr, size_t size, size_t nmemb,
 						FILE * __restrict stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);
-	assert(stream->__filedes >= -1);
+	assert(stream->__filedes >= -2);
 
 	/* Note: If nmbem * size > SIZE_MAX then there is an application
 	 * bug since no array can be larger than SIZE_MAX in size. */

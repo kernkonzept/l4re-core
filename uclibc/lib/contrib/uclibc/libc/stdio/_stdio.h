@@ -4,6 +4,8 @@
  *
  * Dedicated to Toni.  See uClibc/DEDICATION.mjn3 for details.
  */
+#ifndef __STDIO_H_I
+#define __STDIO_H_I 1
 
 #include <features.h>
 #include <assert.h>
@@ -96,48 +98,61 @@ do { \
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 
-extern __ssize_t _cs_read(void *cookie, char *buf, size_t bufsize) attribute_hidden;
-extern __ssize_t _cs_write(void *cookie, const char *buf, size_t bufsize) attribute_hidden;
-extern int _cs_seek(void *cookie, __offmax_t *pos, int whence) attribute_hidden;
-extern int _cs_close(void *cookie) attribute_hidden;
+#define __STDIO_STREAM_GLIBC_CUSTOM_FILEDES		(-2)
 
-#define __STDIO_STREAM_RESET_GCS(S) \
-	(S)->__cookie = &((S)->__filedes); \
-	(S)->__gcs.read = _cs_read; \
-	(S)->__gcs.write = _cs_write; \
-	(S)->__gcs.seek = _cs_seek; \
-	(S)->__gcs.close = _cs_close
+#define __STDIO_STREAM_IS_CUSTOM(S) \
+	((S)->__filedes == __STDIO_STREAM_GLIBC_CUSTOM_FILEDES)
 
+#define __STDIO_STREAM_CUSTOM_IO_FUNC(S, NAME, RC, ARGS...) \
+ if (__STDIO_STREAM_IS_CUSTOM((S))) { \
+	_IO_cookie_file_t *cfile = (_IO_cookie_file_t *) (S); \
+	return (cfile->__gcs.NAME == NULL) ? (RC) : \
+		cfile->__gcs.NAME(cfile->__cookie, ##ARGS); \
+ }
 
-#define __READ(STREAMPTR,BUF,SIZE) \
-	((((STREAMPTR)->__gcs.read) == NULL) ? -1 : \
-	(((STREAMPTR)->__gcs.read)((STREAMPTR)->__cookie,(BUF),(SIZE))))
-#define __WRITE(STREAMPTR,BUF,SIZE) \
-	((((STREAMPTR)->__gcs.write) == NULL) ? -1 : \
-	(((STREAMPTR)->__gcs.write)((STREAMPTR)->__cookie,(BUF),(SIZE))))
-#define __SEEK(STREAMPTR,PPOS,WHENCE) \
-	((((STREAMPTR)->__gcs.seek) == NULL) ? -1 : \
-	(((STREAMPTR)->__gcs.seek)((STREAMPTR)->__cookie,(PPOS),(WHENCE))))
-#define __CLOSE(STREAMPTR) \
-	((((STREAMPTR)->__gcs.close) == NULL) ? 0 : \
-	(((STREAMPTR)->__gcs.close)((STREAMPTR)->__cookie)))
+typedef struct {
+  struct __STDIO_FILE_STRUCT __fp;
+  void *__cookie;
+  _IO_cookie_io_functions_t __gcs;
+} _IO_cookie_file_t;
 
 #else  /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 
-extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence) attribute_hidden;
-
-#define __STDIO_STREAM_RESET_GCS(S) ((void)0)
-
-#define __READ(STREAMPTR,BUF,SIZE) \
-	(read((STREAMPTR)->__filedes,(BUF),(SIZE)))
-#define __WRITE(STREAMPTR,BUF,SIZE) \
-	(write((STREAMPTR)->__filedes,(BUF),(SIZE)))
-#define __SEEK(STREAMPTR,PPOS,WHENCE) \
-	(__stdio_seek((STREAMPTR),(PPOS),(WHENCE)))
-#define __CLOSE(STREAMPTR) \
-	(close((STREAMPTR)->__filedes))
+#undef __STDIO_STREAM_GLIBC_CUSTOM_FILEDES
+#define __STDIO_STREAM_IS_CUSTOM(S)	(0)
+#define __STDIO_STREAM_CUSTOM_IO_FUNC(S, NAME, RC, ARGS...)
 
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
+
+extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence) attribute_hidden;
+
+static inline ssize_t __READ(FILE *stream, char *buf, size_t bufsize)
+{
+	__STDIO_STREAM_CUSTOM_IO_FUNC(stream, read, -1, buf, bufsize);
+
+	return read(stream->__filedes, buf, bufsize);
+}
+
+static inline ssize_t __WRITE(FILE *stream, const char *buf, size_t bufsize)
+{
+	__STDIO_STREAM_CUSTOM_IO_FUNC(stream, write, -1, buf, bufsize);
+
+	return write(stream->__filedes, buf, bufsize);
+}
+
+static inline int __SEEK(FILE *stream, register __offmax_t *pos, int whence)
+{
+	__STDIO_STREAM_CUSTOM_IO_FUNC(stream, seek, -1, pos, whence);
+
+	return __stdio_seek(stream, pos, whence);
+}
+
+static inline int __CLOSE(FILE *stream)
+{
+	__STDIO_STREAM_CUSTOM_IO_FUNC(stream, close, 0);
+
+	return close(stream->__filedes);
+}
 
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_WCHAR__
@@ -254,12 +269,6 @@ extern int __stdio_seek(FILE *stream, register __offmax_t *pos, int whence) attr
 # define __STDIO_STREAM_CAN_USE_BUFFER_ADD(S)		(0)
 #endif
 
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-#define __STDIO_STREAM_IS_CUSTOM(S)		((S)->__cookie != &((S)->__filedes))
-#else
-#define __STDIO_STREAM_IS_CUSTOM(S)			(0)
-#endif
-
 /**********************************************************************/
 
 #ifdef __STDIO_BUFFERS
@@ -346,10 +355,10 @@ extern void _store_inttype(void *dest, int desttype, uintmax_t val) attribute_hi
 	(S)->__bufread = (S)->__bufpos = (S)->__bufstart
 
 
-#define __STDIO_STREAM_FAKE_VSNPRINTF_FILEDES		(-2)
-#define __STDIO_STREAM_FAKE_VSSCANF_FILEDES		(-2)
-#define __STDIO_STREAM_FAKE_VSWPRINTF_FILEDES		(-3)
-#define __STDIO_STREAM_FAKE_VSWSCANF_FILEDES		(-3)
+#define __STDIO_STREAM_FAKE_VSNPRINTF_FILEDES		(-3)
+#define __STDIO_STREAM_FAKE_VSSCANF_FILEDES		(-3)
+#define __STDIO_STREAM_FAKE_VSWPRINTF_FILEDES		(-4)
+#define __STDIO_STREAM_FAKE_VSWSCANF_FILEDES		(-4)
 
 #define __STDIO_STREAM_IS_FAKE_VSNPRINTF(S) \
 	((S)->__filedes == __STDIO_STREAM_FAKE_VSNPRINTF_FILEDES)
@@ -386,6 +395,7 @@ extern void _store_inttype(void *dest, int desttype, uintmax_t val) attribute_hi
 #define __STDIO_STREAM_IS_FAKE_VSNPRINTF(S)			(0)
 #define __STDIO_STREAM_IS_FAKE_VSSCANF(S)			(0)
 #undef __STDIO_STREAM_IS_FAKE_VSWPRINTF
+#undef __STDIO_STREAM_IS_FAKE_VSWSCANF
 
 # ifdef __USE_OLD_VFPRINTF__
 #  define __STDIO_STREAM_FAKE_VSNPRINTF_FILEDES_NB		(-2)
@@ -461,3 +471,5 @@ extern int _vfwprintf_internal (FILE * __restrict stream,
 #if defined(__STDIO_BUFFERS) || defined(__USE_OLD_VFPRINTF__) || defined(__UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__)
 #define __STDIO_HAS_VSNPRINTF 1
 #endif
+
+#endif /* __STDIO_H_I */

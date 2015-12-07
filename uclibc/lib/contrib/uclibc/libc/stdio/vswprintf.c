@@ -22,15 +22,6 @@ int vswprintf(wchar_t *__restrict buf, size_t size,
 	FILE f;
 	int rv;
 
-/* 	__STDIO_STREAM_RESET_GCS(&f); */
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	f.__cookie = &(f.__filedes);
-	f.__gcs.read = NULL;
-	f.__gcs.write = NULL;
-	f.__gcs.seek = NULL;
-	f.__gcs.close = NULL;
-#endif
-
 	f.__filedes = __STDIO_STREAM_FAKE_VSWPRINTF_FILEDES;
 	f.__modeflags = (__FLAG_WIDE|__FLAG_WRITEONLY|__FLAG_WRITING);
 

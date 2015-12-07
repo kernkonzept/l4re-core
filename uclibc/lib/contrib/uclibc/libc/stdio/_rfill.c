@@ -24,7 +24,7 @@ size_t attribute_hidden __stdio_rfill(register FILE *__restrict stream)
 	size_t rv;
 
 	__STDIO_STREAM_VALIDATE(stream);
-	assert(stream->__filedes >= -1);
+	assert(stream->__filedes >= -2);
 	assert(__STDIO_STREAM_IS_READING(stream));
 	assert(!__STDIO_STREAM_BUFFER_RAVAIL(stream)); /* Buffer must be empty. */
 	assert(__STDIO_STREAM_BUFFER_SIZE(stream));	/* Must have a buffer. */

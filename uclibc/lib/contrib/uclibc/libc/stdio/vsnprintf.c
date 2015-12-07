@@ -22,15 +22,6 @@ int vsnprintf(char *__restrict buf, size_t size,
 	FILE f;
 	int rv;
 
-/* 	__STDIO_STREAM_RESET_GCS(&f); */
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	f.__cookie = &(f.__filedes);
-	f.__gcs.read = NULL;
-	f.__gcs.write = NULL;
-	f.__gcs.seek = NULL;
-	f.__gcs.close = NULL;
-#endif
-
 	f.__filedes = __STDIO_STREAM_FAKE_VSNPRINTF_FILEDES;
 	f.__modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
@@ -96,15 +87,6 @@ int vsnprintf(char *__restrict buf, size_t size,
 	}
 	f.bufend = buf + size;
 
-/* 	__STDIO_STREAM_RESET_GCS(&f.f); */
-#ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
-	f.f.__cookie = &(f.f.__filedes);
-	f.f.__gcs.read = NULL;
-	f.f.__gcs.write = NULL;
-	f.f.__gcs.seek = NULL;
-	f.f.__gcs.close = NULL;
-#endif
-
 	f.f.__filedes = __STDIO_STREAM_FAKE_VSNPRINTF_FILEDES_NB;
 	f.f.__modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
@@ -137,7 +119,7 @@ libc_hidden_def(vsnprintf)
 typedef struct {
 	size_t pos;
 	size_t len;
-	unsigned char *buf;
+	char *buf;
 	FILE *fp;
 } __snpf_cookie;
 
@@ -175,34 +157,34 @@ static ssize_t snpf_write(register void *cookie, const char *buf,
 int vsnprintf(char *__restrict buf, size_t size,
 			  const char * __restrict format, va_list arg)
 {
-	FILE f;
+	_IO_cookie_file_t cf;
 	__snpf_cookie cookie;
 	int rv;
 
 	cookie.buf = buf;
 	cookie.len = size;
 	cookie.pos = 0;
-	cookie.fp = &f;
+	cookie.fp = &cf.__fp;
 
-	f.__cookie = &cookie;
-	f.__gcs.write = snpf_write;
-	f.__gcs.read = NULL;
-	f.__gcs.seek = NULL;
-	f.__gcs.close = NULL;
+	cf.__cookie = &cookie;
+	cf.__gcs.write = snpf_write;
+	cf.__gcs.read = NULL;
+	cf.__gcs.seek = NULL;
+	cf.__gcs.close = NULL;
 
-	f.__filedes = -1;			/* For debugging. */
-	f.__modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
+	cf.__fp.__filedes = __STDIO_STREAM_GLIBC_CUSTOM_FILEDES;
+	cf.__fp.__modeflags = (__FLAG_NARROW|__FLAG_WRITEONLY|__FLAG_WRITING);
 
 #ifdef __UCLIBC_HAS_WCHAR__
-	f.__ungot_width[0] = 0;
+	cf.__fp.__ungot_width[0] = 0;
 #endif /* __UCLIBC_HAS_WCHAR__ */
 #ifdef __STDIO_MBSTATE
-	__INIT_MBSTATE(&(f.__state));
+	__INIT_MBSTATE(&(cf.__fp.__state));
 #endif /* __STDIO_MBSTATE */
 
-	f.__nextopen = NULL;
+	cf.__fp.__nextopen = NULL;
 
-	rv = _vfprintf_internal(&f, format, arg);
+	rv = _vfprintf_internal(&cf.__fp, format, arg);
 
 	return rv;
 }

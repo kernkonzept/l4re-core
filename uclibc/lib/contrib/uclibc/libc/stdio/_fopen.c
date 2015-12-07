@@ -192,8 +192,6 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 	__STDIO_STREAM_INIT_BUFREAD_BUFPOS(stream);
 #endif
 
-	__STDIO_STREAM_RESET_GCS(stream);
-
 #ifdef __UCLIBC_HAS_WCHAR__
 	stream->__ungot_width[0] = 0;
 #endif
