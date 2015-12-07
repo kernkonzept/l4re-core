@@ -671,7 +671,8 @@ struct addrinfo
 # define NI_NOFQDN	4	/* Only return nodename portion.  */
 # define NI_NAMEREQD	8	/* Don't return numeric addresses.  */
 # define NI_DGRAM	16	/* Look up UDP service rather than TCP.  */
-# ifdef __USE_GNU
+#if 0 /* uClibc: not implemented */
+/* # ifdef __USE_GNU */
 #  define NI_IDN	32	/* Convert name from IDN format.  */
 #  define NI_IDN_ALLOW_UNASSIGNED 64 /* Don't reject unassigned Unicode
 					code points.  */
