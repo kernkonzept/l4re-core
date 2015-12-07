@@ -1410,6 +1410,10 @@ int __dns_lookup(const char *name,
 			 * to next nameserver */
 			goto try_next_server;
 		}
+		if (fds.revents & (POLLERR | POLLHUP | POLLNVAL)) {
+			DPRINTF("Bad event\n");
+			goto try_next_server;
+		}
 /*TODO: better timeout accounting?*/
 		reply_timeout -= 1000;
 #endif /* USE_SELECT */
