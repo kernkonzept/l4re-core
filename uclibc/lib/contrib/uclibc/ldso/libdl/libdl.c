@@ -981,8 +981,8 @@ static int do_dlclose(void *vhandle, int need_fini)
 
 					dtv_t *dtv = THREAD_DTV ();
 
-					_dl_assert(!(dtv[tls_lmap->l_tls_modid].pointer.is_static));
-					if (dtv[tls_lmap->l_tls_modid].pointer.val != TLS_DTV_UNALLOCATED) {
+					if (!(dtv[tls_lmap->l_tls_modid].pointer.is_static) &&
+					    dtv[tls_lmap->l_tls_modid].pointer.val != TLS_DTV_UNALLOCATED) {
 						/* Note that free is called for NULL is well.  We
 						deallocate even if it is this dtv entry we are
 						supposed to load.  The reason is that we call
