@@ -50,6 +50,7 @@
 # define O_DIRECT	0200000	/* Direct disk access.	*/
 # define O_NOATIME     01000000 /* Do not set atime.  */
 # define O_CLOEXEC     02000000 /* Set close_on_exec.  */
+# define O_PATH       010000000 /* Resolve pathname but do not open file.  */
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.
