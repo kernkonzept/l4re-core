@@ -225,10 +225,15 @@ elf_machine_load_address (void)
 {
 	ElfW(Addr) addr;
 	__asm__ ("        .set noreorder\n"
+# if !defined __mips_isa_rev || __mips_isa_rev < 6
 	     "        " STRINGXP (PTR_LA) " %0, 0f\n"
-	     "        bal 0f\n"
+	     "        bltzal $0, 0f\n"
 	     "        nop\n"
 	     "0:      " STRINGXP (PTR_SUBU) " %0, $31, %0\n"
+#else
+	     "0:      lapc $31, 0\n"
+	     "        " STRINGXP (PTR_SUBU) " %0, $31, %0\n"
+#endif
 	     "        .set reorder\n"
 	     :        "=r" (addr)
 	     :        /* No inputs */
