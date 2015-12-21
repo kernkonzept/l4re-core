@@ -36,18 +36,10 @@
 #endif
 
 /**********************************************************************/
-/* Sizes for statically allocated buffers. */
-
-/* If you change these values, also change _SC_GETPW_R_SIZE_MAX and
- * _SC_GETGR_R_SIZE_MAX in libc/unistd/sysconf.c to match */
-#define PWD_BUFFER_SIZE 256
-#define GRP_BUFFER_SIZE 256
-
-/**********************************************************************/
 /* Prototypes for internal functions. */
 
-#ifndef GETXXKEY_R_FUNC
-#error GETXXKEY_R_FUNC is not defined!
+#if !defined(GETXXKEY_R_FUNC) && !defined(GETXXKEY_FUNC)
+#error GETXXKEY_R_FUNC/GETXXKEY_FUNC are not defined!
 #endif
 /**********************************************************************/
 #ifdef GETXXKEY_R_FUNC
@@ -89,9 +81,44 @@ int GETXXKEY_R_FUNC(DO_GETXXKEY_R_KEYTYPE key,
 }
 libc_hidden_def(GETXXKEY_R_FUNC)
 
-#endif
+#endif /* GETXXKEY_R_FUNC */
+
 /**********************************************************************/
-#undef GETXXKEY_R_FUNC_HIDDEN
+#ifdef GETXXKEY_FUNC
+
+#define REENTRANT_NAME APPEND_R(GETXXKEY_FUNC)
+#define APPEND_R(name) APPEND_R1(name)
+#define APPEND_R1(name) name##_r
+
+GETXXKEY_ENTTYPE *GETXXKEY_FUNC(GETXXKEY_ADD_PARAMS)
+{
+	static char buffer[GETXXKEY_BUFLEN];
+	static GETXXKEY_ENTTYPE resultbuf;
+	GETXXKEY_ENTTYPE *result;
+
+# ifdef GETXXKEY_ADD_VARIABLES
+	REENTRANT_NAME(GETXXKEY_ADD_VARIABLES, &resultbuf, buffer, sizeof(buffer), &result);
+# else
+	REENTRANT_NAME(&resultbuf, buffer, sizeof(buffer), &result);
+# endif
+	return result;
+}
+#ifdef GETXXKEY_FUNC_HIDDEN
+libc_hidden_def(GETXXKEY_FUNC)
+#endif
+
+#undef REENTRANT_NAME
+#undef APPEND_R
+#undef APPEND_R1
+#endif /* GETXXKEY_FUNC */
+
+/**********************************************************************/
+#undef GETXXKEY_FUNC
+#undef GETXXKEY_ENTTYPE
+#undef GETXXKEY_BUFLEN
+#undef GETXXKEY_FUNC_HIDDEN
+#undef GETXXKEY_ADD_PARAMS
+#undef GETXXKEY_ADD_VARIABLES
 #undef GETXXKEY_R_FUNC
 #undef GETXXKEY_R_PARSER
 #undef GETXXKEY_R_ENTTYPE
