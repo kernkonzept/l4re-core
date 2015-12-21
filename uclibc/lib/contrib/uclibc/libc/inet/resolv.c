@@ -1596,7 +1596,7 @@ parser_t * __open_etc_hosts(void)
 
 #define MINTOKENS 2 /* ip address + canonical name */
 #define MAXTOKENS (MINTOKENS + MAXALIASES)
-#define HALISTOFF (sizeof(char*) * MAXTOKENS)
+#define HALISTOFF (sizeof(char*) * (MAXTOKENS + 1))	/* reserve space for list terminator */
 #define INADDROFF (HALISTOFF + 2 * sizeof(char*))
 
 int __read_etc_hosts_r(
