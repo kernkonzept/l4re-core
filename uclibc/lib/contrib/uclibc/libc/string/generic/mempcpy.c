@@ -16,4 +16,5 @@ void *mempcpy (void *dstpp, const void *srcpp, size_t len)
   return (void *)(((char *)dstpp) + len);
 }
 libc_hidden_weak(mempcpy)
+strong_alias(mempcpy,__mempcpy)
 #endif
