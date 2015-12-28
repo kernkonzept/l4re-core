@@ -192,6 +192,144 @@ int pthread_join(pthread_t thread_id, void ** thread_return)
   return 0;
 }
 
+int pthread_tryjoin_np(pthread_t thread_id, void ** thread_return)
+{
+  volatile pthread_descr self = thread_self();
+  struct pthread_request request;
+  pthread_handle handle = thread_handle(thread_id);
+  pthread_descr th;
+  int result = 0;
+
+  /* Make sure the descriptor is valid.  */
+  __pthread_lock(&handle->h_lock, self);
+  if (invalid_handle(handle, thread_id)) {
+    result = ESRCH;
+    goto err;
+  }
+  th = handle->h_descr;
+  /* Is the thread joinable?.  */
+  if (th->p_detached || th->p_joining != NULL) {
+    result = EINVAL;
+    goto err;
+  }
+  if (th == self) {
+    result = EDEADLK;
+    goto err;
+  }
+  /* Return right away if the thread hasn't terminated yet.  */
+  if (! th->p_terminated) {
+    result = EBUSY;
+    goto err;
+  }
+
+  /* Get return value */
+  if (thread_return != NULL) *thread_return = th->p_retval;
+  __pthread_unlock(&handle->h_lock);
+  /* Send notification to thread manager */
+  if (__pthread_manager_request >= 0) {
+    request.req_thread = self;
+    request.req_kind = REQ_FREE;
+    request.req_args.free.thread_id = thread_id;
+    TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		(char *) &request, sizeof(request)));
+  }
+  return 0;
+
+err:
+  __pthread_unlock(&handle->h_lock);
+  return result;
+}
+
+int pthread_timedjoin_np(pthread_t thread_id, void ** thread_return,
+			const struct timespec *abstime)
+{
+  volatile pthread_descr self = thread_self();
+  struct pthread_request request;
+  pthread_handle handle = thread_handle(thread_id);
+  pthread_descr th;
+  pthread_extricate_if extr;
+  int already_canceled = 0;
+  int result = 0;
+  PDEBUG("\n");
+
+  /* Set up extrication interface */
+  extr.pu_object = handle;
+  extr.pu_extricate_func = join_extricate_func;
+
+  __pthread_lock(&handle->h_lock, self);
+  if (invalid_handle(handle, thread_id)) {
+    result = ESRCH;
+    goto err;
+  }
+  th = handle->h_descr;
+  if (th == self) {
+    result = EDEADLK;
+    goto err;
+  }
+  /* If detached or already joined, error */
+  if (th->p_detached || th->p_joining != NULL) {
+    result = EINVAL;
+    goto err;
+  }
+  /* If not terminated yet, suspend ourselves. */
+  if (! th->p_terminated) {
+    /* Register extrication interface */
+    __pthread_set_own_extricate_if(self, &extr);
+    if (!(THREAD_GETMEM(self, p_canceled)
+	&& THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE))
+      th->p_joining = self;
+    else
+      already_canceled = 1;
+    __pthread_unlock(&handle->h_lock);
+
+    if (already_canceled) {
+      __pthread_set_own_extricate_if(self, 0);
+      __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
+    }
+
+  PDEBUG("before suspend\n");
+    result = (timedsuspend(self, abstime) == 0) ? ETIMEDOUT : 0;
+  PDEBUG("after suspend\n");
+    /* Deregister extrication interface */
+    __pthread_set_own_extricate_if(self, 0);
+
+    /* This is a cancellation point */
+    if (result == 0
+        && THREAD_GETMEM(self, p_woken_by_cancel)
+	&& THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
+      THREAD_SETMEM(self, p_woken_by_cancel, 0);
+      __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
+    }
+    __pthread_lock(&handle->h_lock, self);
+  }
+
+  /* We might have timed out. */
+  if (result == 0) {
+    /* Get return value */
+    if (thread_return != NULL) *thread_return = th->p_retval;
+  }
+  else
+    th->p_joining = NULL;
+
+  __pthread_unlock(&handle->h_lock);
+
+  if (result == 0) {
+    /* Send notification to thread manager */
+    if (__pthread_manager_request >= 0) {
+      request.req_thread = self;
+      request.req_kind = REQ_FREE;
+      request.req_args.free.thread_id = thread_id;
+      TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+		(char *) &request, sizeof(request)));
+    }
+  }
+  return result;
+
+err:
+  __pthread_unlock(&handle->h_lock);
+  return result;
+}
+
 int pthread_detach(pthread_t thread_id)
 {
   int terminated;
