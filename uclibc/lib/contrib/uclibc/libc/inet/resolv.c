@@ -297,6 +297,7 @@ Domain name in a message can be represented as either:
 #include <stdio.h>
 #include <stdio_ext.h>
 #include <signal.h>
+#include <malloc.h>
 #include <errno.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
@@ -2604,23 +2605,38 @@ libc_hidden_def(gethostent_r)
 #endif /* L_gethostent_r */
 
 
+#ifndef __UCLIBC_HAS_IPV6__
+ #define GETXX_BUFSZ 	(sizeof(struct in_addr) + sizeof(struct in_addr *) * 2 + \
+			/*sizeof(char *)*ALIAS_DIM */+ 384/*namebuffer*/ + 32/* margin */)
+#else
+ #define GETXX_BUFSZ 	(sizeof(struct in6_addr) + sizeof(struct in6_addr *) * 2 + \
+			/*sizeof(char *)*ALIAS_DIM */+ 384/*namebuffer*/ + 32/* margin */)
+#endif /* __UCLIBC_HAS_IPV6__ */
+
+#define __INIT_GETXX_BUF(sz)					\
+	if (buf == NULL)					\
+		buf = (char *)__uc_malloc((sz));
+
 #ifdef L_gethostent
 
 struct hostent *gethostent(void)
 {
 	static struct hostent hoste;
-	static char buf[
-#ifndef __UCLIBC_HAS_IPV6__
-			sizeof(struct in_addr) + sizeof(struct in_addr *) * 2 +
-#else
-			sizeof(struct in6_addr) + sizeof(struct in6_addr *) * 2 +
-#endif /* __UCLIBC_HAS_IPV6__ */
-			BUFSZ /*namebuffer*/ + 2 /* margin */];
+	static char *buf = NULL;
 	struct hostent *host;
+#ifndef __UCLIBC_HAS_IPV6__
+ #define HOSTENT_BUFSZ	(sizeof(struct in_addr) + sizeof(struct in_addr *) * 2 + \
+			BUFSZ /*namebuffer*/ + 2 /* margin */)
+#else
+ #define HOSTENT_BUFSZ	(sizeof(struct in6_addr) + sizeof(struct in6_addr *) * 2 + \
+			BUFSZ /*namebuffer*/ + 2 /* margin */)
+#endif /* __UCLIBC_HAS_IPV6__ */
 
-	gethostent_r(&hoste, buf, sizeof(buf), &host, &h_errno);
+	__INIT_GETXX_BUF(HOSTENT_BUFSZ);
+	gethostent_r(&hoste, buf, HOSTENT_BUFSZ, &host, &h_errno);
 	return host;
 }
+#undef HOSTENT_BUFSZ
 #endif /* L_gethostent */
 
 
@@ -2628,18 +2644,20 @@ struct hostent *gethostent(void)
 
 struct hostent *gethostbyname2(const char *name, int family)
 {
-#ifndef __UCLIBC_HAS_IPV6__
-	return family == AF_INET ? gethostbyname(name) : (struct hostent*)NULL;
-#else
 	static struct hostent hoste;
-	static char buf[sizeof(struct in6_addr) +
-			sizeof(struct in6_addr *) * 2 +
-			/*sizeof(char *)*ALIAS_DIM +*/ 384/*namebuffer*/ + 32/* margin */];
+	static char *buf = NULL;
 	struct hostent *hp;
 
-	gethostbyname2_r(name, family, &hoste, buf, sizeof(buf), &hp, &h_errno);
+	__INIT_GETXX_BUF(GETXX_BUFSZ);
+#ifndef __UCLIBC_HAS_IPV6__
+	if (family != AF_INET)
+		return (struct hostent*)NULL;
+	gethostbyname_r(name, &hoste, buf, GETXX_BUFSZ, &hp, &h_errno);
+#else
+	gethostbyname2_r(name, family, &hoste, buf, GETXX_BUFSZ, &hp, &h_errno);
+#endif /* __UCLIBC_HAS_IPV6__ */
+
 	return hp;
-#endif
 }
 libc_hidden_def(gethostbyname2)
 #endif /* L_gethostbyname2 */
@@ -2649,18 +2667,7 @@ libc_hidden_def(gethostbyname2)
 
 struct hostent *gethostbyname(const char *name)
 {
-#ifndef __UCLIBC_HAS_IPV6__
-	static struct hostent hoste;
-	static char buf[sizeof(struct in_addr) +
-			sizeof(struct in_addr *) * 2 +
-			/*sizeof(char *)*ALIAS_DIM +*/ 384/*namebuffer*/ + 32/* margin */];
-	struct hostent *hp;
-
-	gethostbyname_r(name, &hoste, buf, sizeof(buf), &hp, &h_errno);
-	return hp;
-#else
 	return gethostbyname2(name, AF_INET);
-#endif
 }
 libc_hidden_def(gethostbyname)
 #endif /* L_gethostbyname */
@@ -2671,16 +2678,11 @@ libc_hidden_def(gethostbyname)
 struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type)
 {
 	static struct hostent hoste;
-	static char buf[
-#ifndef __UCLIBC_HAS_IPV6__
-			sizeof(struct in_addr) + sizeof(struct in_addr *)*2 +
-#else
-			sizeof(struct in6_addr) + sizeof(struct in6_addr *)*2 +
-#endif /* __UCLIBC_HAS_IPV6__ */
-			/*sizeof(char *)*ALIAS_DIM +*/ 384 /*namebuffer*/ + 32 /* margin */];
+	static char *buf = NULL;
 	struct hostent *hp;
 
-	gethostbyaddr_r(addr, len, type, &hoste, buf, sizeof(buf), &hp, &h_errno);
+	__INIT_GETXX_BUF(GETXX_BUFSZ);
+	gethostbyaddr_r(addr, len, type, &hoste, buf, GETXX_BUFSZ, &hp, &h_errno);
 	return hp;
 }
 libc_hidden_def(gethostbyaddr)
