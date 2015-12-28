@@ -337,6 +337,8 @@ Domain name in a message can be represented as either:
 
 #define MAX_RECURSE    5
 #define MAXALIASES  (4)
+/* 1:ip + 1:full + MAX_ALIASES:aliases + 1:NULL */
+#define ALIAS_DIM   (2 + MAXALIASES + 1)
 #define BUFSZ       (80) /* one line */
 
 #define NS_TYPE_ELT					0x40 /*%< EDNS0 extended label type */
@@ -1650,9 +1652,8 @@ int __read_etc_hosts_r(
 		result_buf->h_aliases = tok+1;
 		if (action == GETHOSTENT) {
 			/* Return whatever the next entry happens to be. */
-			break;
-		}
-		if (action == GET_HOSTS_BYADDR) {
+			;
+		} else if (action == GET_HOSTS_BYADDR) {
 			if (strcmp(name, *tok) != 0)
 				continue;
 		} else { /* GET_HOSTS_BYNAME */
@@ -2623,13 +2624,13 @@ struct hostent *gethostent(void)
 {
 	static struct hostent hoste;
 	static char *buf = NULL;
-	struct hostent *host;
+	struct hostent *host = NULL;
 #ifndef __UCLIBC_HAS_IPV6__
  #define HOSTENT_BUFSZ	(sizeof(struct in_addr) + sizeof(struct in_addr *) * 2 + \
-			BUFSZ /*namebuffer*/ + 2 /* margin */)
+			sizeof(char *)*ALIAS_DIM + BUFSZ /*namebuffer*/ + 2 /* margin */)
 #else
  #define HOSTENT_BUFSZ	(sizeof(struct in6_addr) + sizeof(struct in6_addr *) * 2 + \
-			BUFSZ /*namebuffer*/ + 2 /* margin */)
+			sizeof(char *)*ALIAS_DIM + BUFSZ /*namebuffer*/ + 2 /* margin */)
 #endif /* __UCLIBC_HAS_IPV6__ */
 
 	__INIT_GETXX_BUF(HOSTENT_BUFSZ);
