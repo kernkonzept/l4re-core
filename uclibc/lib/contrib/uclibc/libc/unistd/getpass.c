@@ -19,6 +19,7 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_XOPEN2K)
 
@@ -38,8 +39,11 @@ char * getpass (const char *prompt)
   FILE *in, *out;
   struct termios s, t;
   int tty_changed;
-  static char buf[PWD_BUFFER_SIZE];
+  static char *buf = NULL;
   int nread;
+
+  if (buf == NULL)
+    buf = (char *)__uc_malloc(PWD_BUFFER_SIZE);
 
   /* Try to write to and read from the terminal if we can.
      If we can't open the terminal, use stderr and stdin.  */
@@ -74,7 +78,7 @@ char * getpass (const char *prompt)
   fflush(out);
 
   /* Read the password.  */
-  if (!fgets (buf, sizeof(buf), in))
+  if (!fgets (buf, PWD_BUFFER_SIZE, in))
     buf[0] = '\0';
   nread = strlen(buf);
   if (nread > 0 && buf[nread - 1] == '\n')

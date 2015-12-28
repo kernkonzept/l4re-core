@@ -18,6 +18,7 @@
 #include <fcntl.h>
 #include <paths.h>
 #include <errno.h>
+#include <malloc.h>
 #include <string.h>
 #include "internal/utmp.h"
 #include <not-cancel.h>
@@ -27,7 +28,7 @@ __UCLIBC_MUTEX_STATIC(utmplock, PTHREAD_MUTEX_INITIALIZER);
 
 /* Some global crap */
 static int static_fd = -1;
-static struct UT static_utmp;
+static struct UT *static_utmp = NULL;
 static const char default_file[] = __DEFAULT_PATH_UTMP;
 static const char *current_file = default_file;
 
@@ -72,9 +73,12 @@ static struct UT *__get_unlocked(void)
 			return NULL;
 	}
 
-	if (read_not_cancel(static_fd, &static_utmp,
-				sizeof(static_utmp)) == sizeof(static_utmp)) {
-		return &static_utmp;
+	if (static_utmp == NULL)
+		static_utmp = (struct UT *)__uc_malloc(sizeof(struct UT));
+
+	if (read_not_cancel(static_fd, static_utmp,
+			sizeof(struct UT)) == sizeof(struct UT)) {
+	return static_utmp;
 	}
 
 	return NULL;
