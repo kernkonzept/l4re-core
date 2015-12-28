@@ -138,7 +138,7 @@ extern int __malloc_mmb_debug;
    malloc and free, sbrk may be used several times in succession, and
    things will break if these multiple calls are interleaved with another
    thread's use of sbrk!).  */
-__UCLIBC_MUTEX_EXTERN(__malloc_sbrk_lock) attribute_hidden;
+__UCLIBC_MUTEX_EXTERN(__malloc_sbrk_lock);
 #  define __malloc_lock_sbrk()	__UCLIBC_MUTEX_LOCK_CANCEL_UNSAFE (__malloc_sbrk_lock)
 #  define __malloc_unlock_sbrk() __UCLIBC_MUTEX_UNLOCK_CANCEL_UNSAFE (__malloc_sbrk_lock)
 #else
