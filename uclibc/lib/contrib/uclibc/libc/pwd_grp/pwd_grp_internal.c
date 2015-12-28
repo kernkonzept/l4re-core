@@ -26,6 +26,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <errno.h>
+#include <malloc.h>
 #include <assert.h>
 #include <ctype.h>
 #include <pwd.h>
@@ -92,14 +93,17 @@ libc_hidden_def(GETXXKEY_R_FUNC)
 
 GETXXKEY_ENTTYPE *GETXXKEY_FUNC(GETXXKEY_ADD_PARAMS)
 {
-	static char buffer[GETXXKEY_BUFLEN];
+	static char *buffer = NULL;
 	static GETXXKEY_ENTTYPE resultbuf;
 	GETXXKEY_ENTTYPE *result;
 
+	if (buffer == NULL)
+		buffer = (char *)__uc_malloc(GETXXKEY_BUFLEN);
+
 # ifdef GETXXKEY_ADD_VARIABLES
-	REENTRANT_NAME(GETXXKEY_ADD_VARIABLES, &resultbuf, buffer, sizeof(buffer), &result);
+	REENTRANT_NAME(GETXXKEY_ADD_VARIABLES, &resultbuf, buffer, GETXXKEY_BUFLEN, &result);
 # else
-	REENTRANT_NAME(&resultbuf, buffer, sizeof(buffer), &result);
+	REENTRANT_NAME(&resultbuf, buffer, GETXXKEY_BUFLEN, &result);
 # endif
 	return result;
 }
