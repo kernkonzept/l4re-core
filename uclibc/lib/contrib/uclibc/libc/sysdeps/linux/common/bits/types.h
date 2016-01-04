@@ -188,6 +188,10 @@ typedef __off64_t __loff_t;	/* Type of file sizes and offsets (LFS).  */
 typedef __quad_t *__qaddr_t;
 typedef char *__caddr_t;
 
+/* Used in XTI.  */
+typedef long int __t_scalar_t;
+typedef unsigned long int __t_uscalar_t;
+
 /* Duplicates info from stdint.h but this is used in unistd.h.  */
 __STD_TYPE __SWORD_TYPE __intptr_t;
 
