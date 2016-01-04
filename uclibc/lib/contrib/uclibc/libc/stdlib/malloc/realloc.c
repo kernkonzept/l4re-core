@@ -26,14 +26,16 @@ realloc (void *mem, size_t new_size)
   size_t size;
   char *base_mem;
 
+  if (! mem)
+    return malloc (new_size);
+
   /* Check for special cases.  */
   if (! new_size)
     {
       free (mem);
       return NULL;
     }
-  if (! mem)
-    return malloc (new_size);
+
   /* This matches the check in malloc() */
   if (unlikely(((unsigned long)new_size > (unsigned long)(MALLOC_HEADER_SIZE*-2))))
     return NULL;
