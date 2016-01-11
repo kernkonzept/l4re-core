@@ -408,7 +408,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	memset(dyn_chain, 0, sizeof(struct dyn_elf));
 	dyn_chain->dyn = tpnt;
-	tpnt->rtld_flags |= (flag & RTLD_GLOBAL);
+	tpnt->rtld_flags |= (flag & (RTLD_GLOBAL|RTLD_NODELETE));
 
 	dyn_chain->next_handle = _dl_handles;
 	_dl_handles = dyn_ptr = dyn_chain;
@@ -421,7 +421,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 				dyn_chain->init_fini.init_fini = handle->init_fini.init_fini;
 				dyn_chain->init_fini.nlist = handle->init_fini.nlist;
 				for (i = 0; i < dyn_chain->init_fini.nlist; i++)
-					dyn_chain->init_fini.init_fini[i]->rtld_flags |= (flag & RTLD_GLOBAL);
+					dyn_chain->init_fini.init_fini[i]->rtld_flags |= (flag & (RTLD_GLOBAL|RTLD_NODELETE));
 				dyn_chain->next = handle->next;
 				break;
 			}
@@ -453,7 +453,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 				if (!tpnt1)
 					goto oops;
 
-				tpnt1->rtld_flags |= (flag & RTLD_GLOBAL);
+				tpnt1->rtld_flags |= (flag & (RTLD_GLOBAL|RTLD_NODELETE));
 
 				/* This list is for dlsym() and relocation */
 				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
