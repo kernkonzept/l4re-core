@@ -162,7 +162,9 @@ search_for_named_library(const char *name, unsigned rflags, const char *path_lis
 
 		if (plen >= 7 && _dl_memcmp(p, "$ORIGIN", 7) == 0) {
 			int olen;
-			if (rflags && plen != 7)
+			/* $ORIGIN is not expanded for SUID/GUID programs
+			   (except if it is $ORIGIN alone) */
+			if ((rflags & DL_RESOLVE_SECURE) && plen != 7)
 				continue;
 			if (origin == NULL)
 				continue;
