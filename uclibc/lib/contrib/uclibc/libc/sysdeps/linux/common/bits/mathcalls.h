@@ -145,11 +145,11 @@ __MATHCALLI (log10,, (_Mdouble_ __x))
 __MATHCALLI (modf,, (_Mdouble_ __x, _Mdouble_ *__iptr))
 _Mdouble_END_NAMESPACE
 
-#if 0 /*def __USE_GNU*/
+#if defined __USE_GNU
 /* A function missing in all standards: compute exponent to base ten.  */
-__MATHCALL (exp10,, (_Mdouble_ __x))
+__MATHCALLI (exp10,, (_Mdouble_ __x))
 /* Another name occasionally used.  */
-__MATHCALL (pow10,, (_Mdouble_ __x))
+__MATHCALLI (pow10,, (_Mdouble_ __x))
 #endif
 
 #if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC99

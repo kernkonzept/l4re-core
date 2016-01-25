@@ -158,6 +158,7 @@ extern double __ieee754_atanh (double) attribute_hidden;
 extern double __ieee754_asin (double) attribute_hidden;
 extern double __ieee754_atan2 (double,double) attribute_hidden;
 extern double __ieee754_exp (double) attribute_hidden;
+extern double __ieee754_exp10 (double) attribute_hidden;
 extern double __ieee754_cosh (double) attribute_hidden;
 extern double __ieee754_fmod (double,double) attribute_hidden;
 extern double __ieee754_pow (double,double) attribute_hidden;

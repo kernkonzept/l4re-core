@@ -55,7 +55,7 @@ LD_MSRC := ldouble_wrappers.c
 ifeq ($(DO_C99_MATH),y)
 libm_CSRC := \
 	e_acos.c e_acosh.c e_asin.c e_atan2.c e_atanh.c e_cosh.c \
-	e_exp.c e_fmod.c e_hypot.c \
+	e_exp.c e_exp10.c e_fmod.c e_hypot.c \
 	e_lgamma_r.c e_log.c e_log2.c e_log10.c \
 	e_pow.c e_remainder.c e_rem_pio2.c e_scalb.c e_sinh.c \
 	e_sqrt.c k_cos.c k_rem_pio2.c k_sin.c k_tan.c \
@@ -237,7 +237,7 @@ libm_CSRC := \
 	s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 	k_cos.c e_cosh.c e_exp.c e_fmod.c e_log.c e_log10.c e_pow.c \
 	k_sin.c e_sinh.c e_sqrt.c k_tan.c e_rem_pio2.c k_rem_pio2.c \
-	s_finite.c
+	s_finite.c e_exp10.c
 # We'll add sqrtf to avoid problems with libstdc++
 FL_MOBJ := sqrtf.o
 endif
