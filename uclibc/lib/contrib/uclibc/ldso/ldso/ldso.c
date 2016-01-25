@@ -668,7 +668,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 		 * but it could be also a shared object (when ld.so used for tracing)
 		 * We keep the misleading app_tpnt name to avoid variable pollution
 		 */
-		app_tpnt = _dl_load_elf_shared_library(_dl_secure, &rpnt, _dl_progname);
+		app_tpnt = _dl_load_elf_shared_library(_dl_secure ? __RTLD_SECURE : 0,
+							&rpnt, _dl_progname);
 		if (!app_tpnt) {
 			_dl_dprintf(2, "can't load '%s'\n", _dl_progname);
 			_dl_exit(16);
@@ -962,7 +963,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 				_dl_if_debug_dprint("\tfile='%s';  needed by '%s'\n", str, _dl_progname);
 
 				tpnt1 = _dl_load_shared_library(
-					_dl_secure ? DL_RESOLVE_SECURE : 0,
+					_dl_secure ? __RTLD_SECURE : 0,
 					&rpnt, NULL, str, trace_loaded_objects);
 				if (!tpnt1) {
 #ifdef __LDSO_LDD_SUPPORT__

@@ -60,8 +60,6 @@ extern struct link_map *_dl_update_slotinfo(unsigned long int req_modid);
  * and use a pile of symbols from ldso... */
 #include <dl-elf.h>
 #if 0
-extern struct elf_resolve * _dl_load_shared_library(unsigned, struct dyn_elf **,
-	struct elf_resolve *, char *, int);
 extern int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int lazy);
 extern void _dl_protect_relro(struct elf_resolve * tpnt);
 #endif
@@ -399,7 +397,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	_dl_if_debug_print("Trying to dlopen '%s', RTLD_GLOBAL:%d RTLD_NOW:%d\n",
 			(char*)libname, (flag & RTLD_GLOBAL ? 1:0), (now_flag & RTLD_NOW ? 1:0));
 
-	tpnt = _dl_load_shared_library((flag & RTLD_NOLOAD) ? DL_RESOLVE_NOLOAD : 0,
+	tpnt = _dl_load_shared_library(flag & (RTLD_NOLOAD | RTLD_GLOBAL | RTLD_NODELETE),
 					&rpnt, tfrom, (char*)libname, 0);
 	if (tpnt == NULL) {
 		_dl_unmap_cache();
@@ -408,7 +406,6 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	dyn_chain = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));
 	memset(dyn_chain, 0, sizeof(struct dyn_elf));
 	dyn_chain->dyn = tpnt;
-	tpnt->rtld_flags |= (flag & (RTLD_GLOBAL|RTLD_NODELETE));
 
 	dyn_chain->next_handle = _dl_handles;
 	_dl_handles = dyn_ptr = dyn_chain;
@@ -449,11 +446,10 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 						dpnt->d_un.d_val);
 				_dl_if_debug_print("Trying to load '%s', needed by '%s'\n",
 						lpntstr, runp->tpnt->libname);
-				tpnt1 = _dl_load_shared_library(0, &rpnt, runp->tpnt, lpntstr, 0);
+				tpnt1 = _dl_load_shared_library(flag & (RTLD_GLOBAL | RTLD_NODELETE),
+								&rpnt, runp->tpnt, lpntstr, 0);
 				if (!tpnt1)
 					goto oops;
-
-				tpnt1->rtld_flags |= (flag & (RTLD_GLOBAL|RTLD_NODELETE));
 
 				/* This list is for dlsym() and relocation */
 				dyn_ptr->next = (struct dyn_elf *) malloc(sizeof(struct dyn_elf));

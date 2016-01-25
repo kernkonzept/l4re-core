@@ -132,7 +132,7 @@ _dl_protect_relro (struct elf_resolve *l)
 /* This function's behavior must exactly match that
  * in uClibc/ldso/util/ldd.c */
 static struct elf_resolve *
-search_for_named_library(const char *name, unsigned rflags, const char *path_list,
+search_for_named_library(const char *name, unsigned int rflags, const char *path_list,
 	struct dyn_elf **rpnt, const char* origin)
 {
 	char *mylibname;
@@ -164,7 +164,7 @@ search_for_named_library(const char *name, unsigned rflags, const char *path_lis
 			int olen;
 			/* $ORIGIN is not expanded for SUID/GUID programs
 			   (except if it is $ORIGIN alone) */
-			if ((rflags & DL_RESOLVE_SECURE) && plen != 7)
+			if ((rflags & __RTLD_SECURE) && plen != 7)
 				continue;
 			if (origin == NULL)
 				continue;
@@ -196,7 +196,7 @@ search_for_named_library(const char *name, unsigned rflags, const char *path_lis
 unsigned long _dl_error_number;
 unsigned long _dl_internal_error_number;
 
-struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rpnt,
+struct elf_resolve *_dl_load_shared_library(unsigned int rflags, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname, int attribute_unused trace_loaded_objects)
 {
 	(void) tpnt;
@@ -496,7 +496,7 @@ map_writeable (int infile, ElfW(Phdr) *ppnt, int piclib, int flags,
  * are required.
  */
 
-struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
+struct elf_resolve *_dl_load_elf_shared_library(unsigned int rflags,
 	struct dyn_elf **rpnt, const char *libname)
 {
 	ElfW(Ehdr) *epnt;
@@ -534,7 +534,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	}
 	/* If we are in secure mode (i.e. a setuid/gid binary using LD_PRELOAD),
 	   we don't load the library if it isn't setuid. */
-	if (rflags & DL_RESOLVE_SECURE) {
+	if (rflags & __RTLD_SECURE) {
 		if (!(st.st_mode & S_ISUID)) {
 			_dl_close(infile);
 			return NULL;
@@ -554,7 +554,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 			return tpnt;
 		}
 	}
-	if (rflags & DL_RESOLVE_NOLOAD) {
+	if (rflags & RTLD_NOLOAD) {
 		_dl_close(infile);
 		return NULL;
 	}
@@ -823,7 +823,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 		DL_RELOC_ADDR(DL_GET_RUN_ADDR(tpnt->loadaddr, tpnt->mapaddr),
 		epnt->e_phoff);
 	tpnt->n_phent = epnt->e_phnum;
-	tpnt->rtld_flags |= rtld_flags;
+	tpnt->rtld_flags = rflags | rtld_flags;
 #ifdef __LDSO_STANDALONE_SUPPORT__
 	tpnt->l_entry = epnt->e_entry;
 #endif

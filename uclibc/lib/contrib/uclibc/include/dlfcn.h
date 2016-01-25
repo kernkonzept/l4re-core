@@ -26,6 +26,9 @@
 /* Collect various system dependent definitions and declarations.  */
 #include <bits/dlfcn.h>
 
+/* Internally used flag.  */
+#define __RTLD_SECURE	0x04000000 /* Apply additional security checks.  */
+
 
 #ifdef __USE_GNU
 /* If the first argument of `dlsym' or `dlvsym' is set to RTLD_NEXT
