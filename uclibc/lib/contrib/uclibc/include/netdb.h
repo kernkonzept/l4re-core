@@ -627,16 +627,6 @@ struct addrinfo
 # define AI_ALL		0x0010	/* Return IPv4 mapped and IPv6 addresses.  */
 # define AI_ADDRCONFIG	0x0020	/* Use configuration of this host to choose
 				   returned address type..  */
-# ifdef __USE_GNU
-#  define AI_IDN	0x0040	/* IDN encode input (assuming it is encoded
-				   in the current locale's character set)
-				   before looking it up. */
-#  define AI_CANONIDN	0x0080	/* Translate canonical name from IDN format. */
-#  define AI_IDN_ALLOW_UNASSIGNED 0x0100 /* Don't reject unassigned Unicode
-					    code points.  */
-#  define AI_IDN_USE_STD3_ASCII_RULES 0x0200 /* Validate strings according to
-						STD3 rules.  */
-# endif
 # define AI_NUMERICSERV	0x0400	/* Don't use name resolution.  */
 
 /* Error values for `getaddrinfo' function.  */
@@ -658,7 +648,6 @@ struct addrinfo
 #  define EAI_NOTCANCELED -102	/* Request not canceled.  */
 #  define EAI_ALLDONE	  -103	/* All requests done.  */
 #  define EAI_INTR	  -104	/* Interrupted by a signal.  */
-#  define EAI_IDN_ENCODE  -105	/* IDN encoding failed.  */
 # endif
 
 # ifdef __USE_MISC
