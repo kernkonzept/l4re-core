@@ -180,22 +180,7 @@ double __ieee754_sqrt(double x)
 	return z;
 }
 
-/*
- * wrapper sqrt(x)
- */
-#ifndef _IEEE_LIBM
-double sqrt(double x)
-{
-	double z = __ieee754_sqrt(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (x < 0.0)
-		return __kernel_standard(x, x, 26); /* sqrt(negative) */
-	return z;
-}
-#else
 strong_alias(__ieee754_sqrt, sqrt)
-#endif
 libm_hidden_def(sqrt)
 
 

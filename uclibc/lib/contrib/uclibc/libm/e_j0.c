@@ -123,22 +123,7 @@ double __ieee754_j0(double x)
 	}
 }
 
-/*
- * wrapper j0(double x)
- */
-#ifndef _IEEE_LIBM
-double j0(double x)
-{
-	double z = __ieee754_j0(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (fabs(x) > X_TLOSS)
-		return __kernel_standard(x, x, 34); /* j0(|x|>X_TLOSS) */
-	return z;
-}
-#else
 strong_alias(__ieee754_j0, j0)
-#endif
 
 static const double
 u00  = -7.38042951086872317523e-02, /* 0xBFB2E4D6, 0x99CBD01F */
@@ -205,29 +190,7 @@ double __ieee754_y0(double x)
 	return(u/v + tpi*(__ieee754_j0(x)*__ieee754_log(x)));
 }
 
-/*
- * wrapper y0(double x)
- */
-#ifndef _IEEE_LIBM
-double y0(double x)
-{
-	double z = __ieee754_y0(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (x <= 0.0) {
-		if (x == 0.0) /* d= -one/(x-x); */
-			return __kernel_standard(x, x, 8);
-		/* d = zero/(x-x); */
-		return __kernel_standard(x, x, 9);
-	}
-	if (x > X_TLOSS)
-		return __kernel_standard(x, x, 35); /* y0(x>X_TLOSS) */
-	return z;
-}
-#else
 strong_alias(__ieee754_y0, y0)
-#endif
-
 
 /* The asymptotic expansions of pzero is
  *	1 - 9/128 s^2 + 11025/98304 s^4 - ...,	where s = 1/x.

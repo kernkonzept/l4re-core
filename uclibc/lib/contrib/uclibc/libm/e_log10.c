@@ -79,23 +79,5 @@ double __ieee754_log10(double x)
 	return  z+y*log10_2hi;
 }
 
-/*
- * wrapper log10(X)
- */
-#ifndef _IEEE_LIBM
-double log10(double x)
-{
-	double z = __ieee754_log10(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (x <= 0.0) {
-		if(x == 0.0)
-			return __kernel_standard(x, x, 18); /* log10(0) */
-		return __kernel_standard(x, x, 19); /* log10(x<0) */
-	}
-	return z;
-}
-#else
 strong_alias(__ieee754_log10, log10)
-#endif
 libm_hidden_def(log10)

@@ -78,20 +78,5 @@ double __ieee754_cosh(double x)
 	return huge*huge;
 }
 
-/*
- * wrapper cosh(x)
- */
-#ifndef _IEEE_LIBM
-double cosh(double x)
-{
-	double z = __ieee754_cosh(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (fabs(x) > 7.10475860073943863426e+02)
-		return __kernel_standard(x, x, 5); /* cosh overflow */
-	return z;
-}
-#else
 strong_alias(__ieee754_cosh, cosh)
-#endif
 libm_hidden_def(cosh)

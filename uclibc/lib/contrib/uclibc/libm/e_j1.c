@@ -118,22 +118,7 @@ double __ieee754_j1(double x)
 	return(x*0.5+r/s);
 }
 
-/*
- * wrapper of j1
- */
-#ifndef _IEEE_LIBM
-double j1(double x)
-{
-	double z = __ieee754_j1(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (fabs(x) > X_TLOSS)
-		return __kernel_standard(x, x, 36); /* j1(|x|>X_TLOSS) */
-	return z;
-}
-#else
 strong_alias(__ieee754_j1, j1)
-#endif
 
 static const double U0[5] = {
  -1.96057090646238940668e-01, /* 0xBFC91866, 0x143CBC8A */
@@ -198,28 +183,7 @@ double __ieee754_y1(double x)
         return(x*(u/v) + tpi*(__ieee754_j1(x)*__ieee754_log(x)-one/x));
 }
 
-/*
- * wrapper of y1
- */
-#ifndef _IEEE_LIBM
-double y1(double x)
-{
-	double z = __ieee754_y1(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (x <= 0.0) {
-		if (x == 0.0) /* d = -one/(x-x); */
-			return __kernel_standard(x, x, 10);
-		/* d = zero/(x-x); */
-		return __kernel_standard(x, x, 11);
-	}
-	if (x > X_TLOSS)
-		return __kernel_standard(x, x, 37); /* y1(x>X_TLOSS) */
-	return z;
-}
-#else
 strong_alias(__ieee754_y1, y1)
-#endif
 
 /* For x >= 8, the asymptotic expansions of pone is
  *	1 + 15/128 s^2 - 4725/2^15 s^4 - ...,	where s = 1/x.

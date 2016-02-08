@@ -75,8 +75,6 @@ __UCLIBC_HAS_XXX__, __UCLIBC_HAVE_XXX__
     __UCLIBC_HAVE_XXX__ are booleans from bits/uClibc_arch_features.h
     (there are more __UCLIBC_XXX defines there)
 
-_IEEE_LIBM
-    Always defined at libm build time
 __LDBL_COMPAT
     Never defined, TODO: remove?
 

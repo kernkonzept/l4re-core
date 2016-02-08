@@ -64,22 +64,6 @@ double __ieee754_remainder(double x, double p)
 	return x;
 }
 
-/*
- * wrapper remainder(x,p)
- */
-#ifndef _IEEE_LIBM
-double remainder(double x, double y)
-{
-	double z = __ieee754_remainder(x, y);
-	if (_LIB_VERSION == _IEEE_ || isnan(y))
-		return z;
-	if (y == 0.0)
-		return __kernel_standard(x, y, 28); /* remainder(x,0) */
-	return z;
-}
-strong_alias(remainder, drem)
-#else
 strong_alias(__ieee754_remainder, remainder)
 strong_alias(__ieee754_remainder, drem)
-#endif
 libm_hidden_def(remainder)

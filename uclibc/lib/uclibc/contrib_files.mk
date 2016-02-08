@@ -652,7 +652,6 @@ define SRC_libm
   k_cos
   k_rem_pio2
   k_sin
-  k_standard
   k_tan
   s_asinh
   s_atan
@@ -686,7 +685,6 @@ define SRC_libm
   s_logb
   s_lrint
   s_lround
-  s_matherr
   s_modf
   s_nextafter
   s_nextafterf

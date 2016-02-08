@@ -300,39 +300,5 @@ double __ieee754_pow(double x, double y)
 	return s*z;
 }
 
-/*
- * wrapper pow(x,y) return x**y
- */
-#ifndef _IEEE_LIBM
-double pow(double x, double y)
-{
-	double z = __ieee754_pow(x, y);
-	if (_LIB_VERSION == _IEEE_|| isnan(y))
-		return z;
-	if (isnan(x)) {
-		if (y == 0.0)
-			return __kernel_standard(x, y, 42); /* pow(NaN,0.0) */
-		return z;
-	}
-	if (x == 0.0) {
-		if (y == 0.0)
-	    		return __kernel_standard(x, y, 20); /* pow(0.0,0.0) */
-		if (isfinite(y) && y < 0.0)
-			return __kernel_standard(x,y,23); /* pow(0.0,negative) */
-		return z;
-	}
-	if (!isfinite(z)) {
-		if (isfinite(x) && isfinite(y)) {
-			if (isnan(z))
-				return __kernel_standard(x, y, 24); /* pow neg**non-int */
-			return __kernel_standard(x, y, 21); /* pow overflow */
-		}
-	}
-	if (z == 0.0 && isfinite(x) && isfinite(y))
-		return __kernel_standard(x, y, 22); /* pow underflow */
-	return z;
-}
-#else
 strong_alias(__ieee754_pow, pow)
-#endif
 libm_hidden_def(pow)

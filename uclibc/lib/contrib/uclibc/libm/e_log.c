@@ -128,20 +128,5 @@ double __ieee754_log(double x)
 	}
 }
 
-/*
- * wrapper log(x)
- */
-#ifndef _IEEE_LIBM
-double log(double x)
-{
-	double z = __ieee754_log(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x) || x > 0.0)
-		return z;
-	if (x == 0.0)
-		return __kernel_standard(x, x, 16); /* log(0) */
-	return __kernel_standard(x, x, 17); /* log(x<0) */
-}
-#else
 strong_alias(__ieee754_log, log)
-#endif
 libm_hidden_def(log)

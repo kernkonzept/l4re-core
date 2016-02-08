@@ -55,25 +55,5 @@ double __ieee754_atanh(double x)
 	if(hx>=0) return t; else return -t;
 }
 
-/*
- * wrapper atanh(x)
- */
-#ifndef _IEEE_LIBM
-double atanh(double x)
-{
-	double z, y;
-	z = __ieee754_atanh(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	y = fabs(x);
-	if (y >= 1.0) {
-		if (y > 1.0)
-			return __kernel_standard(x, x, 30); /* atanh(|x|>1) */
-		return __kernel_standard(x, x, 31); /* atanh(|x|==1) */
-	}
-	return z;
-}
-#else
 strong_alias(__ieee754_atanh, atanh)
-#endif
 libm_hidden_def(atanh)

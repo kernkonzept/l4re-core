@@ -105,20 +105,5 @@ double __ieee754_asin(double x)
 	if(hx>0) return t; else return -t;
 }
 
-/*
- * wrapper asin(x)
- */
-#ifndef _IEEE_LIBM
-double asin(double x)
-{
-	double z = __ieee754_asin(x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (fabs(x) > 1.0)
-		return __kernel_standard(x, x, 2); /* asin(|x|>1) */
-	return z;
-}
-#else
 strong_alias(__ieee754_asin, asin)
-#endif
 libm_hidden_def(asin)

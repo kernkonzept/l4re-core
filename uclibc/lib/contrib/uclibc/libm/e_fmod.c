@@ -125,20 +125,5 @@ double __ieee754_fmod(double x, double y)
 	return x;		/* exact output */
 }
 
-/*
- * wrapper fmod(x,y)
- */
-#ifndef _IEEE_LIBM
-double fmod(double x, double y)
-{
-	double z = __ieee754_fmod(x, y);
-	if (_LIB_VERSION == _IEEE_ || isnan(y) || isnan(x))
-		return z;
-	if (y == 0.0)
-		return __kernel_standard(x, y, 27); /* fmod(x,0) */
-	return z;
-}
-#else
 strong_alias(__ieee754_fmod, fmod)
-#endif
 libm_hidden_def(fmod)

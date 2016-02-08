@@ -200,22 +200,7 @@ double __ieee754_jn(int n, double x)
 	if(sgn==1) return -b; else return b;
 }
 
-/*
- * wrapper jn(int n, double x)
- */
-#ifndef _IEEE_LIBM
-double jn(int n, double x)
-{
-	double z = __ieee754_jn(n, x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (fabs(x) > X_TLOSS)
-		return __kernel_standard((double)n, x, 38); /* jn(|x|>X_TLOSS,n) */
-	return z;
-}
-#else
 strong_alias(__ieee754_jn, jn)
-#endif
 
 double __ieee754_yn(int n, double x)
 {
@@ -274,25 +259,4 @@ double __ieee754_yn(int n, double x)
 	if(sign>0) return b; else return -b;
 }
 
-/*
- * wrapper yn(int n, double x)
- */
-#ifndef _IEEE_LIBM
-double yn(int n, double x)	/* wrapper yn */
-{
-	double z = __ieee754_yn(n, x);
-	if (_LIB_VERSION == _IEEE_ || isnan(x))
-		return z;
-	if (x <= 0.0) {
-		if(x == 0.0) /* d= -one/(x-x); */
-			return __kernel_standard((double)n, x, 12);
-		/* d = zero/(x-x); */
-		return __kernel_standard((double)n, x, 13);
-	}
-	if (x > X_TLOSS)
-		return __kernel_standard((double)n, x, 39); /* yn(x>X_TLOSS,n) */
-	return z;
-}
-#else
 strong_alias(__ieee754_yn, yn)
-#endif
