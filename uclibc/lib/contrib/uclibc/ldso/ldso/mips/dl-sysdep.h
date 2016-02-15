@@ -164,11 +164,6 @@ unsigned long __dl_runtime_pltresolve(struct elf_resolve *tpnt,
 
 void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy);
 
-/* 4096 bytes alignment */
-#if _MIPS_SIM == _MIPS_SIM_ABI64
-#define OFFS_ALIGN (0x10000000000UL-0x1000)
-#endif	/* O32 || N32 */
-
 #if defined USE_TLS
 # if _MIPS_SIM == _MIPS_SIM_ABI64
 # define elf_machine_type_class(type) 					\
