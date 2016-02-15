@@ -17,6 +17,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <paths.h>
 #include <errno.h>
 #include <unistd.h>
 #include <sys/wait.h>
@@ -91,7 +92,7 @@ FILE *popen(const char *command, const char *modes)
 			close(po->f->__filedes);
 		}
 
-		execl("/bin/sh", "sh", "-c", command, (char *)0);
+		execl(_PATH_BSHELL, "sh", "-c", command, (char *)0);
 
 		/* SUSv3 mandates an exit code of 127 for the child if the
 		 * command interpreter can not be invoked. */

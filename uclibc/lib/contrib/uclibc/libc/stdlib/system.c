@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <stdlib.h>
+#include <paths.h>
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <sched.h>
 #include <errno.h>
@@ -50,7 +51,7 @@ int __libc_system(const char *command)
 		sigaction(SIGINT, &save_int, NULL);
 		sigprocmask(SIG_SETMASK, &save_mask, NULL);
 
-		execl("/bin/sh", "sh", "-c", command, (char *) 0);
+		execl(_PATH_BSHELL, "sh", "-c", command, (char *) 0);
 		_exit(127);
 	}
 
@@ -169,7 +170,7 @@ do_system (const char *line)
     {
       /* Child side.  */
       const char *new_argv[4];
-      new_argv[0] = "/bin/sh";
+      new_argv[0] = _PATH_BSHELL;
       new_argv[1] = "-c";
       new_argv[2] = line;
       new_argv[3] = NULL;
@@ -181,7 +182,7 @@ do_system (const char *line)
       INIT_LOCK ();
 
       /* Exec the shell.  */
-      (void) execve ("/bin/sh", (char *const *) new_argv, __environ);
+      (void) execve (_PATH_BSHELL, (char *const *) new_argv, __environ);
       _exit (127);
     }
   else if (pid < (pid_t) 0)

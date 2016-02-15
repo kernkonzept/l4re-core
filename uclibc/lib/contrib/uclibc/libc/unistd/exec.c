@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <paths.h>
 #include <string.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -273,9 +274,9 @@ int execvpe(const char *path, char *const argv[], char *const envp[])
 			nargv[1] = (char *)path;
 			memcpy(nargv+2, argv+1, n*sizeof(char *));
 #if defined (L_execvp)
-			execve("/bin/sh", nargv, __environ);
+			execve(_PATH_BSHELL, nargv, __environ);
 #elif defined (L_execvpe)
-			execve("/bin/sh", nargv, envp);
+			execve(_PATH_BSHELL, nargv, envp);
 #endif
 			EXEC_FREE(nargv, size2);
 		}
