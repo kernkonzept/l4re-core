@@ -16,8 +16,4 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#ifdef __UCLIBC_HAS_FPU__
-#define __JMP_BUF_SP		20
-#else
 #define __JMP_BUF_SP		8
-#endif
