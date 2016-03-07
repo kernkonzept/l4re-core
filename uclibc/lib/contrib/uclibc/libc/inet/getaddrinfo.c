@@ -404,8 +404,7 @@ gaih_inet(const char *name, const struct gaih_service *service,
 	struct gaih_servtuple *st;
 	struct gaih_addrtuple *at;
 	int rc;
-	int v4mapped = (req->ai_family == PF_UNSPEC || req->ai_family == PF_INET6)
-			&& (req->ai_flags & AI_V4MAPPED);
+	int v4mapped = req->ai_family == PF_INET6 && (req->ai_flags & AI_V4MAPPED);
 	unsigned seen = 0;
 	if (req->ai_flags & AI_ADDRCONFIG) {
 		/* "seen" is only used when AI_ADDRCONFIG is specified.
