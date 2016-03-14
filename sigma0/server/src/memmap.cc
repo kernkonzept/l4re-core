@@ -250,7 +250,6 @@ pager(void)
   l4_msgtag_t tag;
 
   l4_utcb_t *utcb = l4_utcb();
-  l4_msg_regs_t *mr = l4_utcb_mr_u(utcb);
   Answer answer(utcb);
 
   /* now start serving the subtasks */
@@ -264,15 +263,17 @@ pager(void)
       //L4::cout << PROG_NAME << ": rcv: " << tag << "\n";
       while (!l4_msgtag_has_error(tag))
 	{
-	  l4_umword_t pfa = mr->mr[0];
+          l4_umword_t pfa;
+          if (debug_warnings)
+            pfa = l4_utcb_mr_u(utcb)->mr[0];
 	  t >>= 4;
 	  /* we received a paging request here */
 	  /* handle the sigma0 protocol */
 
 	  if (debug_ipc)
             {
-              l4_umword_t d1 = mr->mr[0];
-              l4_umword_t d2 = mr->mr[1];
+              l4_umword_t d1 = l4_utcb_mr_u(utcb)->mr[0];
+              l4_umword_t d2 = l4_utcb_mr_u(utcb)->mr[1];
               L4::cout << PROG_NAME": received " << tag << " d1=" << L4::hex
                        << d1 << " d2=" << d2 << L4::dec << " from thread="
                        << t << '\n';
@@ -307,7 +308,7 @@ pager(void)
                   L4::cout << PROG_NAME": can't handle label=" << L4::dec
                            << l4_msgtag_label(tag)
                            << " d1=" << L4::hex << pfa
-                           << " d2=" << mr->mr[1]
+                           << " d2=" << l4_utcb_mr_u(utcb)->mr[1]
                            << " from thread=" << L4::dec << t << '\n';
 	          if (tag.is_page_fault())
 		    Mem_man::ram()->dump();
@@ -318,8 +319,8 @@ pager(void)
 	    }
 
 	  if (debug_ipc)
-	    L4::cout << PROG_NAME": sending d1=" << L4::hex << mr->mr[0]
-	      << " d2=" << mr->mr[1]
+	    L4::cout << PROG_NAME": sending d1=" << L4::hex << l4_utcb_mr_u(utcb)->mr[0]
+	      << " d2=" << l4_utcb_mr_u(utcb)->mr[1]
 	      << " msg=" << answer.tag << L4::dec
 	      << " to thread=" << t << '\n';
 
