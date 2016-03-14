@@ -28,8 +28,7 @@
 # define PT_EI __extern_always_inline
 #endif
 
-#if defined(__thumb__)
-#if defined(__USE_LDREXSTREX__)
+#if defined(__thumb2__)
 PT_EI long int ldrex(int *spinlock)
 {
 	long int ret;
@@ -63,7 +62,7 @@ testandset (int *spinlock)
   return ret;
 }
 
-#else /* __USE_LDREXSTREX__ */
+#elif defined(__thumb__)
 
 /* This will not work on ARM1 or ARM2 because SWP is lacking on those
    machines.  Unfortunately we have no way to detect this at compile
@@ -88,7 +87,7 @@ PT_EI long int testandset (int *spinlock)
 	: "0"(1), "r"(spinlock));
   return ret;
 }
-#endif
+
 #else /* __thumb__ */
 
 PT_EI long int testandset (int *spinlock);

@@ -392,7 +392,6 @@ endif
 ifeq ($(TARGET_ARCH),arm)
 	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)+=-mlittle-endian
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)+=-mbig-endian
-	CPU_CFLAGS-$(COMPILE_IN_THUMB_MODE)+=-mthumb
 endif
 
 ifeq ($(TARGET_ARCH),metag)

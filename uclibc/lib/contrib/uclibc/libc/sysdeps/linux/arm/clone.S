@@ -69,7 +69,7 @@ __clone:
 
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
-#if defined(__USE_BX__)
+#if defined(ARCH_HAS_BX)
 	ldr	r1, [sp]
 	bl	2f	@ blx r1
 #else
