@@ -143,10 +143,6 @@ typedef unsigned long long int	uintmax_t;
 #endif
 
 
-/* The ISO C99 standard specifies that in C++ implementations these
-   macros should only be defined if explicitly requested.  */
-#if !defined __cplusplus || defined __STDC_LIMIT_MACROS
-
 # if __WORDSIZE == 64
 #  define __INT64_C(c)	c ## L
 #  define __UINT64_C(c)	c ## UL
@@ -281,12 +277,6 @@ typedef unsigned long long int	uintmax_t;
 # define WINT_MAX		(4294967295u)
 #endif /* __UCLIBC_HAS_WCHAR__ */
 
-#endif	/* C++ && limit macros */
-
-
-/* The ISO C99 standard specifies that in C++ implementations these
-   should only be defined if explicitly requested.  */
-#if !defined __cplusplus || defined __STDC_CONSTANT_MACROS
 
 /* Signed.  */
 # define INT8_C(c)	c
@@ -316,7 +306,5 @@ typedef unsigned long long int	uintmax_t;
 #  define INTMAX_C(c)	c ## LL
 #  define UINTMAX_C(c)	c ## ULL
 # endif
-
-#endif	/* C++ && constant macros */
 
 #endif /* stdint.h */
