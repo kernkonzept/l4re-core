@@ -16,29 +16,13 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <unistd.h>
-#include <features.h>
-#include <sys/param.h>
 
 /* Return the system page size.  */
 /* couldn't make __getpagesize hidden, because shm.h uses it in a macro */
 extern __typeof(getpagesize) __getpagesize;
 int __getpagesize(void)
 {
-  if (__pagesize != 0)
     return __pagesize;
-
-#ifdef	EXEC_PAGESIZE
-  return EXEC_PAGESIZE;
-#else	/* No EXEC_PAGESIZE.  */
-#ifdef	NBPG
-#ifndef	CLSIZE
-#define	CLSIZE	1
-#endif	/* No CLSIZE.  */
-  return NBPG * CLSIZE;
-#else	/* No NBPG.  */
-  return NBPC;
-#endif	/* NBPG.  */
-#endif	/* EXEC_PAGESIZE.  */
 }
 strong_alias(__getpagesize,getpagesize)
 libc_hidden_def(getpagesize)
