@@ -52,14 +52,14 @@ public:
 
   virtual ~Name_space() = default;
 
-  Names::Entry *alloc_dynamic_entry(Names::Name const &n, unsigned flags)
+  Names::Entry *alloc_dynamic_entry(Names::Name const &n, unsigned flags) override
   {
     char *namecpy = (char *) malloc(n.len());
     memcpy(namecpy, n.name(), n.len());
     return new Entry(Names::Name(namecpy, n.len()), Names::Obj(flags), true);
   }
 
-  void free_dynamic_entry(Names::Entry *e)
+  void free_dynamic_entry(Names::Entry *e) override
   {
     if (e->is_dynamic())
       delete static_cast<Entry *>(e);
