@@ -11,6 +11,7 @@ config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
 	select ARCH_BIG_ENDIAN
+	select ARCH_HAS_UCONTEXT
 	select ARCH_HAS_DEPRECATED_SYSCALLS
 
 choice

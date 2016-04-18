@@ -13,6 +13,9 @@ SSRC-y := \
 
 SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += fork.S vfork.S clone.S
 
+CSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.c
+SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += getcontext.S setcontext.S swapcontext.S
+
 # check weather __LONG_DOUBLE_128__ is defined (long double support)
 UCLIBC_SPARC_HAS_LONG_DOUBLE=$(shell if [ "x`$(CC) -E -dM -xc /dev/null 2>&1 | grep __LONG_DOUBLE_128__`" != "x" ]; then echo "y"; fi)
 ifeq ($(UCLIBC_SPARC_HAS_LONG_DOUBLE),y)
