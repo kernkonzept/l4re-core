@@ -221,17 +221,93 @@ Mem_man::alloc_get_rights(Region const &r, L4_fpage_rights *rights)
   return alloc_from(p, q);
 }
 
+/**
+ * Add a reserved memory region into the map.
+ *
+ * \return true if the region could be reserved, or false in the case
+ * of an error. Note, any error is considered fatal and might create
+ * an inconsistent / incorrect memory map.
+ */
 bool
 Mem_man::reserve(Region const &r)
 {
   if (!r.valid())
     return false;
 
-  Region const *r2 = find(r, true);
-  if (!r2)
-    return true;
+  for (;;)
+    {
+      auto r2 = _tree.find(r);
 
-  return alloc_from(r2, r);
+      //Region const *r2 = find(r, true);
+      if (r2 == _tree.end())
+        {
+          if (0)
+            L4::cout << this << ": ADD: " << r << "\n";
+          add(r);
+          return true;
+        }
+
+      if (0)
+        L4::cout << this << ":  RESERVE: " << r << " from " << (*r2) << "\n";
+
+      if (r2->owner() && r2->owner() != r.owner())
+        return false;
+
+      if (r2->contains(r) && r2->owner() == r.owner())
+        return true;
+
+      if (*r2 == r && !r2->owner())
+        {
+          r2->owner(r.owner());
+          return true;
+        }
+
+      if (r2->contains(r))
+        {
+          if (r2->start() == r.start())
+            r2->start(r.end() + 1);
+          else
+            {
+              Region const nr(r.end() + 1, r2->end(), r2->owner());
+              r2->end(r.start() - 1);
+              if (0)
+                L4::cout << this << ": ADDnr: " << nr << "\n";
+              if (nr.valid())
+                // FIXME: we could avoid the merge code for this add
+                //        because this regsion is per definition not mergable
+                add(nr);
+            }
+
+          if (0)
+            L4::cout << this << ": ADD: " << r << "\n";
+
+          add(r);
+          return true;
+        }
+
+      if (r.contains(*r2))
+        {
+          if (0)
+            L4::cout << this << ": REMOVE: " << *r2 << "\n";
+          _tree.remove(*r2);
+          continue;
+        }
+
+      if (r2->start() < r.start())
+        {
+          if (r2->owner())
+            r.start(r2->end() + 1);
+          else
+            r2->end(r.start() - 1);
+        }
+      else
+        {
+          if (r2->owner())
+            r.end(r2->start() - 1);
+          else
+            r2->start(r.end() + 1);
+        }
+    }
 }
 
 
