@@ -48,7 +48,9 @@ namespace L4Re { namespace Util {
  * the same way as IPC gates: a server object is responsible to process
  * the incoming interrupts.
  */
-class Object_registry : public L4::Basic_registry
+class Object_registry :
+  public L4::Basic_registry,
+  public L4::Registry_iface
 {
   /**
    * Handler class for stale requests from servers that have been
@@ -216,7 +218,7 @@ public:
    *
    * \return The capability the server object was registered with.
    */
-  L4::Cap<void> register_obj(L4::Epiface *o, char const *service)
+  L4::Cap<void> register_obj(L4::Epiface *o, char const *service) override
   {
     return _register_gate(o, service, _get_buffer_demand(o));
   }
@@ -230,7 +232,7 @@ public:
    *
    * The IPC gate will be allocated using the registry's factory.
    */
-  L4::Cap<void> register_obj(L4::Epiface *o)
+  L4::Cap<void> register_obj(L4::Epiface *o) override
   {
     return _register_gate(o, _get_buffer_demand(o));
   }
@@ -244,7 +246,7 @@ public:
    *
    * The IRQ will be newly allocated using the registry's factory object.
    */
-  L4::Cap<L4::Irq> register_irq_obj(L4::Epiface *o)
+  L4::Cap<L4::Irq> register_irq_obj(L4::Epiface *o) override
   {
     return _register_irq(o, _get_buffer_demand(o));
   }
@@ -261,7 +263,7 @@ public:
    */
 
   L4::Cap<L4::Irq> register_irq_obj(L4::Epiface *o,
-                                    L4::Cap<L4::Irq> const &irq)
+                                    L4::Cap<L4::Irq> const &irq) override
   {
     return _register_irq(o, irq, _get_buffer_demand(o));
   }
@@ -277,7 +279,7 @@ public:
    * The capability used by the server object will be unmapped if `unmap` is
    * true.
    */
-  void unregister_obj(L4::Epiface *o, bool unmap = true)
+  void unregister_obj(L4::Epiface *o, bool unmap = true) override
   {
     L4::Epiface::Stored_cap c;
 
