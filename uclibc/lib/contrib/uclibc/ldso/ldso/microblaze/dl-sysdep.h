@@ -30,10 +30,13 @@ do {														\
 
 /* Here we define the magic numbers that this dynamic loader should accept */
 
-#define MAGIC1 EM_MICROBLAZE_OLD
+#define MAGIC1 EM_MICROBLAZE
 #undef  MAGIC2
 /* Used for error messages */
 #define ELF_TARGET "microblaze"
+
+struct elf_resolve;
+unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
 
 #define elf_machine_type_class(type) \
   (((type) == R_MICROBLAZE_JUMP_SLOT) * ELF_RTYPE_CLASS_PLT \

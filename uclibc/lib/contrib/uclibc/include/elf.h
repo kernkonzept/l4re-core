@@ -365,11 +365,6 @@ typedef struct
 /* V850 backend magic number.  Written in the absense of an ABI.  */
 #define EM_CYGNUS_V850 0x9080
 
-/* Xilinx Microblaze (unofficial). Note that there is now an official microblaze
- * magic number, but all the toolchains currently in existence use the old number
- */
-#define EM_MICROBLAZE_OLD   0xbaab
-
 /* Legal values for e_version (version).  */
 
 #define EV_NONE		0		/* Invalid ELF version */

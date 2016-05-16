@@ -107,7 +107,7 @@
 #endif
 
 #if defined(__microblaze__)
-#define MATCH_MACHINE(x) (x == EM_MICROBLAZE_OLD)
+#define MATCH_MACHINE(x) (x == EM_MICROBLAZE)
 #define ELFCLASSM	ELFCLASS32
 #endif
 

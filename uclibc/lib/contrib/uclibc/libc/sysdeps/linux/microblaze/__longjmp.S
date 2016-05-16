@@ -1,45 +1,51 @@
-/*
- * libc/sysdeps/linux/microblaze/longjmp.S -- `longjmp' for microblaze
- *
- *  Copyright (C) 2003  John Williams <jwilliams@itee.uq.edu.au>
- *  Copyright (C) 2001  NEC Corporation
- *  Copyright (C) 2001  Miles Bader <miles@gnu.org>
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- *
- * Written by Miles Bader <miles@gnu.org>
- */
+/* Copyright (C) 1997-2016 Free Software Foundation, Inc.
 
-#include <libc-symbols.h>
+   This file is part of the GNU C Library.
 
-	.text
-	.globl C_SYMBOL_NAME(__longjmp)
-	.align 4
-C_SYMBOL_NAME(__longjmp):
-	/* load registers from memory to r5 (arg0) */
-	lwi	r1, r5, 0
-	lwi	r15, r5, 4
-	lwi	r2,  r5, 8
-	lwi	r13, r5, 12
-	lwi	r18, r5, 16
-	lwi	r19, r5, 20
-	lwi	r20, r5, 24
-	lwi	r21, r5, 28
-	lwi	r22, r5, 32
-	lwi	r23, r5, 36
-	lwi	r24, r5, 40
-	lwi	r25, r5, 44
-	lwi	r26, r5, 48
-	lwi	r27, r5, 52
-	lwi	r28, r5, 56
-	lwi	r29, r5, 60
-	lwi	r30, r5, 64
-	lwi	r31, r5, 68
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
-	addi	r3, r0, 1		/* return val */
-	rtsd	r15, 8			/* normal return */
-	nop
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library.  If not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#include <sysdep.h>
+
+ENTRY(__longjmp)
+
+    lwi     r1, r5, 0
+    lwi     r15, r5, 4
+    lwi     r2,  r5, 8
+    lwi     r13, r5, 12
+    lwi     r18, r5, 16
+    lwi     r19, r5, 20
+    lwi     r20, r5, 24
+    lwi     r21, r5, 28
+    lwi     r22, r5, 32
+    lwi     r23, r5, 36
+    lwi     r24, r5, 40
+    lwi     r25, r5, 44
+    lwi     r26, r5, 48
+    lwi     r27, r5, 52
+    lwi     r28, r5, 56
+    lwi     r29, r5, 60
+    lwi     r30, r5, 64
+    lwi     r31, r5, 68
+
+    addk  r3,r6,r0
+    beqi  r3,L(return_1)
+    rtsd  r15,8
+    nop
+L(return_1):
+    rtsd  r15,8
+    addik r3,r0,1	/* delay slot.  */
+
+END(__longjmp)
 libc_hidden_def(__longjmp)

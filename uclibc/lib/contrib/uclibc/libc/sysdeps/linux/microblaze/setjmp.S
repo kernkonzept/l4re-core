@@ -28,27 +28,21 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <libc-symbols.h>
+#include <sysdep.h>
 
-	.text
-	.globl C_SYMBOL_NAME(setjmp)
-	.align 4
-C_SYMBOL_NAME(setjmp):
-#ifdef __PIC__
-	brid	1f
-#else
-	braid	C_SYMBOL_NAME(__sigsetjmp)
-#endif
-	addi	r6, r0, 1			/* Save the signal mask.  */
+ENTRY(_setjmp)
+	addik   r6, r0, 0
+END(_setjmp)
+libc_hidden_def(_setjmp)
 
-	.globl C_SYMBOL_NAME(_setjmp)
-C_SYMBOL_NAME(_setjmp):
-	and	r6, r0, r0			/* Don't save the signal mask.  */
+ENTRY(setjmp)
+	brid    1f
+	addik   r6, r0, 1
+END(setjmp)
+libc_hidden_def(setjmp)
 
-	.globl C_SYMBOL_NAME(__sigsetjmp)
-C_SYMBOL_NAME(__sigsetjmp):
+ENTRY(__sigsetjmp)
 1:
-	/* Save registers relative to r5 (arg0)*/
 	swi	r1, r5, 0			/* stack pointer */
 	swi	r15, r5, 4			/* link register */
 	swi	r2,  r5, 8			/* SDA and SDA2 ptrs */
@@ -68,14 +62,7 @@ C_SYMBOL_NAME(__sigsetjmp):
 	swi	r30, r5, 64
 	swi	r31, r5, 68
 
-	/* Make a tail call to __sigjmp_save; it takes the same args.  */
-#ifdef __PIC__
-	mfs   r12,rpc
-	addik r12,r12,_GLOBAL_OFFSET_TABLE_+8
-	lwi   r12,r12,__sigjmp_save@GOT
-	brad  r12
-	nop
-#else
-	braid	C_SYMBOL_NAME(__sigjmp_save)
-	nop
-#endif
+	bri __sigjmp_save
+
+END(__sigsetjmp)
+libc_hidden_def(__sigsetjmp)
