@@ -21,11 +21,36 @@
 #include <dlfcn.h>
 
 /* psm: keep this before internals.h */
+#if 0
+vda: here is why:
+headers contain libc_hidden_proto(foo).
+In libpthread/linuxthreads/sysdeps/pthread/bits/libc-lock.h
+adding libc_hidden_proto(foo) just before weak_extern (__pthread_initialize)
+will not warn:
+    /* libc_hidden_proto(foo) */
+    weak_extern (__pthread_initialize)
+    /* libc_hidden_proto(foo) */
+but adding after will! Which is extremely strange -
+weak_extern expands into just "#pragma weak __pthread_initialize".
+TODO: determine whether it is a gcc bug or what
+(see gcc.gnu.org/PR36282).
+For now, just include all headers before internals.h
+(they are again included in internals.h - maybe remove them there later)
+#endif
+
+#include <string.h>
+#include <limits.h>
+#include <setjmp.h>
+#include <signal.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/time.h>
 
 #include "internals.h"
 
 /* Pointers to the libc functions.  */
-struct pthread_functions __libc_pthread_functions;
+struct pthread_functions __libc_pthread_functions attribute_hidden;
 
 
 # define FORWARD2(name, rettype, decl, params, defaction) \
@@ -137,8 +162,12 @@ FORWARD (pthread_setcancelstate, (int state, int *oldstate), (state, oldstate),
 
 FORWARD (pthread_setcanceltype, (int type, int *oldtype), (type, oldtype), 0)
 
+#if 0
 FORWARD2 (_pthread_cleanup_push, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
+#endif
 FORWARD2 (_pthread_cleanup_push_defer, void, (struct _pthread_cleanup_buffer * buffer, void (*routine)(void *), void * arg), (buffer, routine, arg), return)
 
+#if 0
 FORWARD2 (_pthread_cleanup_pop, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)
+#endif
 FORWARD2 (_pthread_cleanup_pop_restore, void, (struct _pthread_cleanup_buffer * buffer, int execute), (buffer, execute), return)

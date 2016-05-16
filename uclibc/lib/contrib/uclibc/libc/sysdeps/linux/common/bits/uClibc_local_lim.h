@@ -20,7 +20,7 @@
 /* glibc uses 16384 */
 # define PTHREAD_THREADS_MAX	1024
 # define TIMER_MAX		256
-# ifdef __LINUXTHREADS_OLD__
+# ifdef __UCLIBC_HAS_LINUXTHREADS__
 #  undef SEM_VALUE_MAX
 #  define SEM_VALUE_MAX	((int) ((~0u) >> 1))
 # endif

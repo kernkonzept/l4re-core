@@ -98,7 +98,7 @@
 #undef __HAS_NO_THREADS__
 #ifndef L4_MINIMAL_LIBC
 #define __UCLIBC_HAS_THREADS__ 1
-#define __LINUXTHREADS_OLD__ 1
+#define __UCLIBC_HAS_LINUXTHREADS__ 1
 #define __UCLIBC_HAS_TLS__ 1
 #define __UCLIBC_HAS_THREADS_NATIVE__ 1
 

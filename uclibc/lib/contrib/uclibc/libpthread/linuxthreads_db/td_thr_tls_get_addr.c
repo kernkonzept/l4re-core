@@ -20,24 +20,48 @@
 #include <link.h>
 #include "thread_dbP.h"
 
+/* Value used for dtv entries for which the allocation is delayed.  */
+# define TLS_DTV_UNALLOCATED	((void *) -1l)
+
+
 td_err_e
 td_thr_tls_get_addr (const td_thrhandle_t *th __attribute__ ((unused)),
 		     void *map_address __attribute__ ((unused)),
 		     size_t offset __attribute__ ((unused)),
 		     void **address __attribute__ ((unused)))
 {
-#ifdef __UCLIBC_HAS_TLS__
-  /* Read the module ID from the link_map.  */
+#if defined(USE_TLS) && USE_TLS
   size_t modid;
+  union dtv pdtv, *dtvp;
+
+  LOG ("td_thr_tls_get_addr");
+
+  /* Get the DTV pointer from the thread descriptor.  */
+  if (ps_pdread (th->th_ta_p->ph,
+		 &((struct _pthread_descr_struct *) th->th_unique)->p_header.data.dtvp,
+		 &dtvp, sizeof dtvp) != PS_OK)
+    return TD_ERR;	/* XXX Other error value?  */
+
+  /* Read the module ID from the link_map.  */
   if (ps_pdread (th->th_ta_p->ph,
 		 &((struct link_map *) map_address)->l_tls_modid,
 		 &modid, sizeof modid) != PS_OK)
     return TD_ERR;	/* XXX Other error value?  */
 
-  td_err_e result = td_thr_tlsbase (th, modid, address);
-  if (result == TD_OK)
-    *address += offset;
-  return result;
+  /* Get the corresponding entry in the DTV.  */
+  if (ps_pdread (th->th_ta_p->ph, dtvp + modid,
+		 &pdtv, sizeof (union dtv)) != PS_OK)
+    return TD_ERR;	/* XXX Other error value?  */
+
+  /* It could be that the memory for this module is not allocated for
+     the given thread.  */
+  if (pdtv.pointer == TLS_DTV_UNALLOCATED)
+    /* There is not much we can do.  */
+    return TD_NOTALLOC;
+
+  *address = (char *) pdtv.pointer + offset;
+
+  return TD_OK;
 #else
   return TD_ERR;
 #endif

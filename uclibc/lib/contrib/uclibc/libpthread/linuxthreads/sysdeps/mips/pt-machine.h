@@ -24,12 +24,39 @@
 #define _PT_MACHINE_H   1
 
 #include <features.h>
-#include <sgidefs.h>
-#include <sys/tas.h>
 
 #ifndef PT_EI
 # define PT_EI __extern_always_inline
 #endif
+
+/* Copyright (C) 2000, 2002 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+   Contributed by Maciej W. Rozycki <macro@ds2.pg.gda.pl>, 2000.  */
+static __inline__ int
+__NTH (_test_and_set (int *p, int v))
+{
+  int r, t;
+
+  __asm__ __volatile__
+    ("/* Inline test and set */\n"
+     "1:\n\t"
+     ".set	push\n\t"
+     ".set	mips2\n\t"
+     "ll	%0,%3\n\t"
+     "move	%1,%4\n\t"
+     "beq	%0,%4,2f\n\t"
+     "sc	%1,%2\n\t"
+     ".set	pop\n\t"
+     "beqz	%1,1b\n"
+     "2:\n\t"
+     "/* End test and set */"
+     : "=&r" (r), "=&r" (t), "=m" (*p)
+     : "m" (*p), "r" (v)
+     : "memory");
+
+  return r;
+}
+
 
 /* Spinlock implementation; required.  */
 
@@ -58,22 +85,12 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
     ("/* Inline compare & swap */\n"
      "1:\n\t"
      ".set	push\n\t"
-#if _MIPS_SIM == _ABIO32
      ".set	mips2\n\t"
-#endif
-#if _MIPS_SIM == _ABI64
-     "lld	%1,%5\n\t"
-#else
      "ll	%1,%5\n\t"
-#endif
      "move	%0,$0\n\t"
      "bne	%1,%3,2f\n\t"
      "move	%0,%4\n\t"
-#if _MIPS_SIM == _ABI64
-     "scd	%0,%2\n\t"
-#else
      "sc	%0,%2\n\t"
-#endif
      ".set	pop\n\t"
      "beqz	%0,1b\n"
      "2:\n\t"

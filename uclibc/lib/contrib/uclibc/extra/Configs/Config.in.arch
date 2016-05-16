@@ -43,7 +43,7 @@ config ARCH_HAS_DEPRECATED_SYSCALLS
 	bool
 	help
 	  New architectures do not support deprecated system calls. However,
-	  these system calls are needed to build linuxthreads (old and new) so
+	  these system calls are needed to build linuxthreads so
 	  this symbol controls whether there is support for these threading libraries
 	  or not.
 

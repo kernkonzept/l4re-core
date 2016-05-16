@@ -22,7 +22,7 @@ CANCELLABLE_SYSCALL(int, pause, (void), ())
 # include <signal.h>
 
 int
-# ifdef __LINUXTHREADS_OLD__
+# ifdef __UCLIBC_HAS_LINUXTHREADS__
 weak_function
 # endif
 __NC(pause)(void)

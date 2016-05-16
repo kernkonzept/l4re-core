@@ -32,7 +32,7 @@ static int current_rtmax = -1;
 #else
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
 static int current_rtmin = __SIGRTMIN + 2;
-# elif defined __UCLIBC_HAS_THREADS__ && !defined __LINUXTHREADS_OLD__
+# elif defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_HAS_LINUXTHREADS__
 /* psm: might be good for LT old as well, do not want to break it for now */
 /* Sanity check */
 #  if !defined __SIGRTMIN || (__SIGRTMAX - __SIGRTMIN) < 3

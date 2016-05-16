@@ -70,7 +70,7 @@ extern int __openat64_nocancel (int fd, const char *fname, int oflag,
 #define read_not_cancel(fd, buf, n) \
   INLINE_SYSCALL (read, 3, (fd), (buf), (n))
 
-#ifdef __LINUXTHREADS_NEW__
+#ifdef __UCLIBC_HAS_LINUXTHREADS__
 /* Uncancelable write.  */
 #define write_not_cancel(fd, buf, n) \
   INLINE_SYSCALL (write, 3, (fd), (buf), (n))
@@ -87,7 +87,7 @@ extern int __openat64_nocancel (int fd, const char *fname, int oflag,
   __fcntl_nocancel (fd, cmd, val)
 #endif
 
-#ifdef __LINUXTHREADS_NEW__
+#ifdef __UCLIBC_HAS_LINUXTHREADS__
 /* Uncancelable waitpid.  */
 #if 0 /*def __NR_waitpid*/
 # define waitpid_not_cancel(pid, stat_loc, options) \

@@ -6,23 +6,17 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-subdirs += libpthread/linuxthreads/sysdeps/$(TARGET_ARCH)
-subdirs += libpthread/linuxthreads/sysdeps/unix/sysv/linux
-subdirs += libpthread/linuxthreads/sysdeps/pthread
+subdirs += libpthread/linuxthreads
 
 CFLAGS-dir_linuxthreads := -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-libpthread/linuxthreads := $(CFLAGS-dir_linuxthreads) $(SSP_ALL_CFLAGS)
-
-# This stuff will not compile without at least -O1
-# psm: can't handle this here, could maybe search for -O0 in CFLAGS
-# and append -O1 if found
-#CFLAGS:=$(CFLAGS:-O0=-O1)
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 else
 LDFLAGS-libpthread.so := $(LDFLAGS)
 endif
+LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libpthread.so := -Wl,--dsbt-index=10
 
 LIBS-libpthread.so := $(LIBS) $(ldso)
 
@@ -36,63 +30,45 @@ libpthread_OUT := $(top_builddir)libpthread/linuxthreads
 
 -include $(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
 
-pthread_arch_SRC   := pspinlock
-pthread_arch_SRC   := $(patsubst %,$(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/%.c,$(pthread_arch_SRC))
-pthread_linux_SRC  := fork pt-sigsuspend register-atfork unregister-atfork
-pthread_linux_SRC  := $(patsubst %,$(libpthread_DIR)/sysdeps/unix/sysv/linux/%.c,$(pthread_linux_SRC))
-pthread_sysdep_SRC := errno-loc herrno-loc ptlongjmp
-pthread_sysdep_SRC := $(patsubst %,$(libpthread_DIR)/sysdeps/pthread/%.c,$(pthread_sysdep_SRC))
-pthread_SRC := \
-	attr barrier cancel condvar errno events join pthread \
-	lockfile manager mutex pt-machine ptcleanup \
-	ptclock_gettime ptclock_settime ptfork pthandles \
-	pthread_setegid pthread_seteuid pthread_setgid pthread_setregid \
-	pthread_setresgid pthread_setresuid pthread_setreuid pthread_setuid \
-	rwlock semaphore sighandler signals specific spinlock
-pthread_SRC := $(patsubst %,$(libpthread_DIR)/%.c,$(pthread_SRC))
+libpthread_SRC := \
+	attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
+	mutex.c pt-machine.c ptfork.c pthread.c ptlongjmp.c \
+	rwlock.c semaphore.c signals.c specific.c spinlock.c wrapsyscall.c
+ifeq ($(UCLIBC_HAS_XLOCALE),y)
+libpthread_SRC += locale.c
+endif
 
-libpthread_static_SRC := pthread_atfork
-libpthread_SRC := $(pthread_arch_SRC) $(pthread_linux_SRC) $(pthread_sysdep_SRC) $(pthread_SRC)
+# remove generic sources, if arch specific version is present
+ifneq ($(strip $(libpthread_ARCH_SRC)),)
+libpthread_SRC := $(filter-out $(patsubst %.c,$(libpthread_DIR)/%.c,$(notdir $(libpthread_ARCH_SRC))),$(libpthread_SRC))
+endif
+
+libpthread_SRC := $(patsubst %,$(libpthread_DIR)/%,$(libpthread_SRC))
+
 libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpthread_SRC))
 
 #
 # Stuff that goes into libc.so, not libpthread.so
 #
-#CFLAGS-OMIT-alloca_cutoff.c := $(CFLAGS-dir_linuxthreads)
 CFLAGS-OMIT-forward.c := $(CFLAGS-dir_linuxthreads)
-CFLAGS-OMIT-libc-cancellation.c := $(CFLAGS-dir_linuxthreads)
 CFLAGS-OMIT-libc_pthread_init.c := $(CFLAGS-dir_linuxthreads)
-libpthread_libc_CSRC := \
-	forward.c libc-cancellation.c libc_pthread_init.c # alloca_cutoff.c
+libpthread_libc_CSRC := forward.c libc_pthread_init.c
 libpthread_libc_OBJ  := $(patsubst %.c, $(libpthread_OUT)/%.o,$(libpthread_libc_CSRC))
-libc-static-y += $(libpthread_OUT)/libc_pthread_init.o $(libpthread_OUT)/libc-cancellation.o
+libc-static-y += $(libpthread_OUT)/libc_pthread_init.o
 libc-shared-y += $(libpthread_libc_OBJ:.o=.oS)
 
-libpthread-static-y += $(patsubst %,$(libpthread_OUT)/%.o,$(libpthread_static_SRC))
-
-libpthread-nonshared-y += $(patsubst %,$(libpthread_OUT)/%.oS,$(libpthread_static_SRC))
-
 ifeq ($(DOPIC),y)
-libpthread-a-y  += $(libpthread_OBJ:.o=.os) $(libpthread-static-y:.o=.os)
+libpthread-a-y  += $(libpthread_OBJ:.o=.os)
 else
-libpthread-a-y  += $(libpthread_OBJ) $(libpthread-static-y)
+libpthread-a-y  += $(libpthread_OBJ)
 endif
 libpthread-so-y += $(libpthread_OBJ:.o=.oS)
 
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
 
-#ifeq ($(DOMULTI),n)
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
+$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend)
 	$(call link.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
-#else
-#$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread.oS | $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
-#	$(call linkm.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
-#endif
-	$(Q)$(RM) $@
-	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp
-	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@.tmp
-	$(Q)mv $@.tmp $@
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 $(libpthread_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
@@ -135,4 +111,4 @@ HEADERCLEAN_libpthread/linuxthreads:
 	$(do_rm) $(linuxthreads_headers)
 
 CLEAN_libpthread/linuxthreads:
-	$(do_rm) $(addprefix $(libpthread_OUT)/,$(foreach e, o os oS a,$(foreach d, *. */*. */*/*. */*/*/*.,$(d)$(e))))
+	$(do_rm) $(addprefix $(libpthread_OUT)/*., o os oS a)

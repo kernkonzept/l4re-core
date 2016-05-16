@@ -30,11 +30,7 @@
 typedef union dtv
 {
   size_t counter;
-  struct
-  {
-    void *val;
-    bool is_static;
-  } pointer;
+  void *pointer;
 } dtv_t;
 
 
@@ -44,28 +40,15 @@ typedef struct
 			   thread descriptor used by libpthread.  */
   dtv_t *dtv;
   void *self;		/* Pointer to the thread descriptor.  */
-  int multiple_threads;
-  uintptr_t sysinfo;
 } tcbhead_t;
-
-#else /* __ASSEMBLER__ */
-# include <tcb-offsets.h>
 #endif
 
-/* We can support TLS only if the floating-stack support is available.
-   However, we want to compile in the support and test at runtime whether
-   the running kernel can support it or not.  To avoid bothering with the
-   TLS support code at all, use configure --without-tls.
 
-   We need USE_TLS to be consistently defined, for ldsodefs.h conditionals.
-   But some of the code below can cause problems in building libpthread
-   (e.g. useldt.h will defined FLOATING_STACKS when it shouldn't).  */
-
-#if defined HAVE_TLS_SUPPORT \
-    && (defined FLOATING_STACKS || !defined IS_IN_libpthread)
+/* We can support TLS only if the floating-stack support is available.  */
+#if defined FLOATING_STACKS && defined HAVE_TLS_SUPPORT
 
 /* Signal that TLS support is available.  */
-# define USE_TLS	1
+//# define USE_TLS	1
 
 # ifndef __ASSEMBLER__
 /* Get system call information.  */
@@ -114,20 +97,7 @@ typedef struct
 #   define TLS_LOAD_EBX
 #  endif
 
-#  if !defined IS_IN_libpthread && !defined DO_MODIFY_LDT
-#   include "useldt.h"		/* For the structure.  */
-#  endif
-#  if __ASSUME_LDT_WORKS > 0
-#   define TLS_DO_MODIFY_LDT_KERNEL_CHECK(doit) (doit) /* Nothing to check.  */
-#  else
-#   define TLS_DO_MODIFY_LDT_KERNEL_CHECK(doit)				      \
-  (__builtin_expect (GLRO(dl_osversion) < 131939, 0)			      \
-   ? "kernel too old for thread-local storage support\n"			      \
-   : (doit))
-#  endif
-
 #  define TLS_DO_MODIFY_LDT(descr, nr)					      \
-TLS_DO_MODIFY_LDT_KERNEL_CHECK(						      \
 ({									      \
   struct modify_ldt_ldt_s ldt_entry =					      \
     { nr, (unsigned long int) (descr), 0xfffff /* 4GB in pages */,	      \
@@ -143,10 +113,8 @@ TLS_DO_MODIFY_LDT_KERNEL_CHECK(						      \
 		   here.  */						      \
 		"m" (ldt_entry), TLS_EBX_ARG (1), "c" (&ldt_entry),	      \
 		"d" (sizeof (ldt_entry)));				      \
-  __builtin_expect (result, 0) == 0					      \
-  ? ({ __asm__ ("movw %w0, %%gs" : : "q" ((nr) * 8 + 7)); NULL; })		      \
-  : "cannot set up LDT for thread-local storage\n";			      \
-}))
+  __builtin_expect (result, 0) != 0 ? -1 : nr * 8 + 7;			      \
+})
 
 #  define TLS_DO_SET_THREAD_AREA(descr, secondcall)			      \
 ({									      \
@@ -167,60 +135,50 @@ TLS_DO_MODIFY_LDT_KERNEL_CHECK(						      \
 		   to let the compiler know that we are accessing LDT_ENTRY   \
 		   here.  */						      \
 		TLS_EBX_ARG (&ldt_entry), "m" (ldt_entry));		      \
-  if (__builtin_expect (result, 0) == 0)				      \
-    __asm__ ("movw %w0, %%gs" : : "q" (ldt_entry.entry_number * 8 + 3));	      \
-  result;								      \
+    __builtin_expect (result, 0) == 0 ? ldt_entry.entry_number * 8 + 3 : -1;  \
 })
 
 #  ifdef __ASSUME_SET_THREAD_AREA_SYSCALL
-#   define TLS_SETUP_GS_SEGMENT(descr, secondcall)			      \
-  (TLS_DO_SET_THREAD_AREA (descr, secondcall)				      \
-   ? "set_thread_area failed when setting up thread-local storage\n" : NULL)
+#   define TLS_SETUP_GS_SEGMENT(descr, secondcall) \
+  TLS_DO_SET_THREAD_AREA (descr, firstcall)
 #  elif defined __NR_set_thread_area
 #   define TLS_SETUP_GS_SEGMENT(descr, secondcall) \
-  (TLS_DO_SET_THREAD_AREA (descr, secondcall)				      \
-   ? TLS_DO_MODIFY_LDT (descr, 0) : NULL)
+  ({ int __seg = TLS_DO_SET_THREAD_AREA (descr, secondcall); \
+     __seg == -1 ? TLS_DO_MODIFY_LDT (descr, 0) : __seg; })
 #  else
 #   define TLS_SETUP_GS_SEGMENT(descr, secondcall) \
   TLS_DO_MODIFY_LDT ((descr), 0)
 #  endif
 
-#if defined NEED_DL_SYSINFO
-# define INIT_SYSINFO \
-  head->sysinfo = GLRO(dl_sysinfo)
-#else
-# define INIT_SYSINFO
-#endif
-
 /* Code to initially initialize the thread pointer.  This might need
    special attention since 'errno' is not yet available and if the
-   operation can cause a failure 'errno' must not be touched.
-
-   The value of this macro is null if successful, or an error string.  */
+   operation can cause a failure 'errno' must not be touched.  */
 #  define TLS_INIT_TP(descr, secondcall)				      \
   ({									      \
     void *_descr = (descr);						      \
     tcbhead_t *head = _descr;						      \
+    int __gs;								      \
 									      \
     head->tcb = _descr;							      \
     /* For now the thread descriptor is at the same address.  */	      \
     head->self = _descr;						      \
 									      \
-    INIT_SYSINFO;							      \
-    TLS_SETUP_GS_SEGMENT (_descr, secondcall);				      \
+    __gs = TLS_SETUP_GS_SEGMENT (_descr, secondcall);			      \
+    if (__builtin_expect (__gs, 7) != -1)				      \
+      {									      \
+	__asm__ ("movw %w0, %%gs" : : "q" (__gs));				      \
+	__gs = 0;							      \
+      }									      \
+    __gs;								      \
   })
 
-/* Indicate that dynamic linker shouldn't try to initialize TLS even
-   when no PT_TLS segments are found in the program and libraries
-   it is linked against.  */
-#  define TLS_INIT_TP_EXPENSIVE 1
 
 /* Return the address of the dtv for the current thread.  */
 #  define THREAD_DTV() \
   ({ struct _pthread_descr_struct *__descr;				      \
      THREAD_GETMEM (__descr, p_header.data.dtvp); })
 
-# endif	/* HAVE_TLS_SUPPORT && (FLOATING_STACKS || !IS_IN_libpthread) */
+# endif	/* FLOATING_STACKS && HAVE_TLS_SUPPORT */
 #endif /* __ASSEMBLER__ */
 
 #endif	/* tls.h */

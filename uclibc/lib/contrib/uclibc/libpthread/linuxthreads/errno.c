@@ -16,12 +16,10 @@
 
 #include <errno.h>
 #include <netdb.h>
-#include <resolv.h>
 #include "pthread.h"
 #include "internals.h"
+#include <stdio.h>
 
-#ifndef __UCLIBC_HAS_TLS__
-/* The definition in libc is sufficient if we use TLS.  */
 int *
 __errno_location (void)
 {
@@ -35,14 +33,3 @@ __h_errno_location (void)
   pthread_descr self = thread_self();
   return THREAD_GETMEM (self, p_h_errnop);
 }
-
-#if 0
-/* Return thread specific resolver state.  */
-struct __res_state *
-__res_state (void)
-{
-  pthread_descr self = thread_self();
-  return THREAD_GETMEM (self, p_resp);
-}
-#endif
-#endif

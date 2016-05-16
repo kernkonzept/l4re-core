@@ -16,36 +16,27 @@
    License along with the GNU C Library; see the file COPYING.LIB.  If
    not, see <http://www.gnu.org/licenses/>.  */
 
-#include <bits/libc-lock.h>
 #include <stdio.h>
 #include <pthread.h>
-#include "internals.h"
+
+extern __typeof(pthread_mutexattr_init) __pthread_mutexattr_init attribute_hidden;
+extern __typeof(pthread_mutexattr_settype) __pthread_mutexattr_settype attribute_hidden;
+extern __typeof(pthread_mutexattr_destroy) __pthread_mutexattr_destroy attribute_hidden;
 
 /* Note: glibc puts flockfile, funlockfile, and ftrylockfile in both
  * libc and libpthread.  In uClibc, they are now in libc only.  */
 
-void
-__flockfilelist(void)
-{
-}
-
-void
-__funlockfilelist(void)
-{
-}
-
-void
-__fresetlockfiles (void)
+void __fresetlockfiles (void);
+void __fresetlockfiles (void)
 {
   FILE *fp;
-
   pthread_mutexattr_t attr;
 
-  __pthread_mutexattr_init (&attr);
-  __pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE_NP);
+  __pthread_mutexattr_init(&attr);
+  __pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
 
   for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen)
-    pthread_mutex_init (&fp->__lock, &attr);
+    __pthread_mutex_init(&fp->__lock, &attr);
 
-  pthread_mutexattr_destroy(&attr);
+  __pthread_mutexattr_destroy(&attr);
 }

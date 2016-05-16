@@ -199,13 +199,13 @@ extern void __malloc_debug_printf (int indent, const char *fmt, ...) attribute_h
 extern struct heap_free_area *__malloc_heap attribute_hidden;
 #ifdef __UCLIBC_HAS_THREADS__
 __UCLIBC_MUTEX_EXTERN(__malloc_heap_lock)
-# ifndef __LINUXTHREADS_OLD__
+# ifndef __UCLIBC_HAS_LINUXTHREADS__
 	attribute_hidden
 # endif
 	;
 # ifdef __UCLIBC_UCLINUX_BROKEN_MUNMAP__
 __UCLIBC_MUTEX_EXTERN(__malloc_mmb_heap_lock)
-#  ifndef __LINUXTHREADS_OLD__
+#  ifndef __UCLIBC_HAS_LINUXTHREADS__
 	attribute_hidden
 #  endif
 	;

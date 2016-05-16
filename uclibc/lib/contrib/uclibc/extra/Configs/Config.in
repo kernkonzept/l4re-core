@@ -494,9 +494,9 @@ config HAS_NO_THREADS
 	help
 	  Disable thread support.
 
-config LINUXTHREADS_OLD
-	bool "older (stable) version of linuxthreads"
-	# linuxthreads and linuxthreads.old need nanosleep()
+config UCLIBC_HAS_LINUXTHREADS
+	bool "Linuxthreads"
+	# linuxthreads need nanosleep()
 	select UCLIBC_HAS_REALTIME
 	depends on !TARGET_arc && \
 		   !TARGET_arm && \
@@ -509,30 +509,7 @@ config LINUXTHREADS_OLD
 		   !TARGET_xtensa || \
 		   !ARCH_USE_MMU
 	help
-	  There are two versions of linuxthreads.  The older (stable) version
-	  has been in uClibc for quite a long time but hasn't seen too many
-	  updates other than bugfixes.
-
-
-config LINUXTHREADS_NEW
-	bool "slightly newer version of linuxthreads"
-	depends on ARCH_HAS_DEPRECATED_SYSCALLS
-	depends on !TARGET_arc && \
-		   !TARGET_arm && \
-		   !TARGET_i386 && \
-		   !TARGET_metag && \
-		   !TARGET_mips && \
-		   !TARGET_powerpc && \
-		   !TARGET_sh && \
-		   !TARGET_sparc && \
-		   !TARGET_x86_64 && \
-		   !TARGET_xtensa || \
-		   !ARCH_USE_MMU
-	help
-	  The new version has not been tested much, and lacks ports for arches
-	  which glibc does not support (like bfin/frv/etc...), but is based on
-	  the latest code from glibc, so it may be the only choice for the
-	  newer ports (like alpha/amd64/64bit arches and hppa).
+	  If you want to compile uClibc with Linuxthreads support, then answer Y.
 
 config UCLIBC_HAS_THREADS_NATIVE
 	bool "Native POSIX Threading (NPTL)"
@@ -2341,7 +2318,7 @@ config DODEBUG
 
 config DODEBUG_PT
 	bool "Build pthread with debugging output"
-	depends on UCLIBC_HAS_THREADS && LINUXTHREADS_OLD
+	depends on UCLIBC_HAS_THREADS && UCLIBC_HAS_LINUXTHREADS
 	help
 	  Enable debug output in libpthread.  This is only useful when doing
 	  development in libpthread itself.

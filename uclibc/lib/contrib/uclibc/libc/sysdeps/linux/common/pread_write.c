@@ -102,7 +102,7 @@ static ssize_t __NC(pwrite64)(int fd, const void *buf, size_t count, off64_t off
 CANCELLABLE_SYSCALL(ssize_t, pwrite64, (int fd, const void *buf, size_t count, off64_t offset),
 		    (fd, buf, count, offset))
 # else
-#  ifdef __LINUXTHREADS_OLD__
+#  ifdef __UCLIBC_HAS_LINUXTHREADS__
 weak_alias(pread,pread64)
 weak_alias(pwrite,pwrite64)
 lt_strong_alias(pread64)

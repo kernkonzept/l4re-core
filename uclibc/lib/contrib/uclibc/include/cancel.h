@@ -48,7 +48,7 @@
 #define __NC_PROTO(name) extern __typeof(name) __NC(name) attribute_hidden;
 #define __NC_OLD_PROTO(name) extern __typeof(name) __NC_OLD(name);
 
-#if defined __UCLIBC_HAS_THREADS__ && !defined __LINUXTHREADS_OLD__
+#if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_HAS_LINUXTHREADS__
 # define __NEW_THREADS 1
 #else
 # define SINGLE_THREAD_P 1
@@ -71,7 +71,7 @@ res_type weak_function name param_list					\
 # define lt_strong_alias(name)
 # define lt_libc_hidden(name) libc_hidden_def(name)
 
-#elif defined __LINUXTHREADS_OLD__
+#elif defined __UCLIBC_HAS_LINUXTHREADS__
 
 # define CANCELLABLE_SYSCALL(res_type, name, param_list, params)	\
 weak_alias(__NC(name),name)						\

@@ -18,7 +18,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include "thread_dbP.h"
-#include <linuxthreads/internals.h>
 
 
 td_err_e

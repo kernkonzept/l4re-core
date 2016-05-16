@@ -23,7 +23,7 @@
 
 
 td_err_e
-td_thr_clear_event(const td_thrhandle_t *th, td_thr_events_t *event)
+td_thr_clear_event(const td_thrhandle_t *th,td_thr_events_t *event)
 {
   td_thr_events_t old_event;
   int i;

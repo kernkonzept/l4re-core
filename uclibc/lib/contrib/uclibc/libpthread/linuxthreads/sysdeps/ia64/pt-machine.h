@@ -23,6 +23,10 @@
 #include <features.h>
 #include <ia64intrin.h>
 
+#include <sys/types.h>
+extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
+                     size_t __child_stack_size, int __flags, void *__arg, ...);
+
 #ifndef PT_EI
 # define PT_EI __extern_always_inline
 #endif
@@ -30,7 +34,7 @@
 /* Make sure gcc doesn't try to be clever and move things around on
    us. We need to use _exactly_ the address the user gave us, not some
    alias that contains the same information.  */
-#define __atomic_fool_gcc(x) (*(__volatile__ struct { int a[100]; } *)x)
+#define __atomic_fool_gcc(x) (*(volatile struct { int a[100]; } *)x)
 
 #ifndef ELF_MACHINE_NAME
 

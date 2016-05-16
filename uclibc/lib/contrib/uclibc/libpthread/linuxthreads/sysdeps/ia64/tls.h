@@ -111,9 +111,6 @@ typedef struct
 
 # define TLS_MULTIPLE_THREADS_IN_TCB 1
 
-/* Get the thread descriptor definition.  */
-#  include <linuxthreads/descr.h>
-
 # endif
 
 #else
@@ -127,9 +124,6 @@ typedef struct
   void *self;
   int multiple_threads;
 } tcbhead_t;
-
-/* Get the thread descriptor definition.  */
-#  include <linuxthreads/descr.h>
 
 #  define NONTLS_INIT_TP \
   do { 									\

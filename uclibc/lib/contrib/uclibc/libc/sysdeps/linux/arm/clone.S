@@ -27,7 +27,7 @@
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
 
-#if defined __UCLIBC_HAS_THREADS__ && !defined __LINUXTHREADS_OLD__
+#if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_HAS_LINUXTHREADS__
 #include <sysdep-cancel.h>
 #endif
 

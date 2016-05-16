@@ -1,24 +1,23 @@
 /* Read-write lock implementation.
-   Copyright (C) 1998, 2000 Free Software Foundation, Inc.
+   Copyright (C) 1998 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Contributed by Xavier Leroy <Xavier.Leroy@inria.fr>
    and Ulrich Drepper <drepper@cygnus.com>, 1998.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public License as
-   published by the Free Software Foundation; either version 2.1 of the
+   modify it under the terms of the GNU Library General Public License as
+   published by the Free Software Foundation; either version 2 of the
    License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
+   Library General Public License for more details.
 
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; see the file COPYING.LIB.  If
-   not, see <http://www.gnu.org/licenses/>.  */
+   You should have received a copy of the GNU Library General Public
+   License along with the GNU C Library; see the file COPYING.LIB.  If not,
+   see <http://www.gnu.org/licenses/>.  */
 
-#include <bits/libc-lock.h>
 #include <errno.h>
 #include <pthread.h>
 #include <stdlib.h>
@@ -26,33 +25,6 @@
 #include "queue.h"
 #include "spinlock.h"
 #include "restart.h"
-
-/* Function called by pthread_cancel to remove the thread from
-   waiting inside pthread_rwlock_timedrdlock or pthread_rwlock_timedwrlock. */
-
-static int rwlock_rd_extricate_func(void *obj, pthread_descr th)
-{
-  pthread_rwlock_t *rwlock = obj;
-  int did_remove = 0;
-
-  __pthread_lock(&rwlock->__rw_lock, NULL);
-  did_remove = remove_from_queue(&rwlock->__rw_read_waiting, th);
-  __pthread_unlock(&rwlock->__rw_lock);
-
-  return did_remove;
-}
-
-static int rwlock_wr_extricate_func(void *obj, pthread_descr th)
-{
-  pthread_rwlock_t *rwlock = obj;
-  int did_remove = 0;
-
-  __pthread_lock(&rwlock->__rw_lock, NULL);
-  did_remove = remove_from_queue(&rwlock->__rw_write_waiting, th);
-  __pthread_unlock(&rwlock->__rw_lock);
-
-  return did_remove;
-}
 
 /*
  * Check whether the calling thread already owns one or more read locks on the
@@ -65,8 +37,7 @@ rwlock_is_in_list(pthread_descr self, pthread_rwlock_t *rwlock)
 {
   pthread_readlock_info *info;
 
-  for (info = THREAD_GETMEM (self, p_readlock_list); info != NULL;
-       info = info->pr_next)
+  for (info = self->p_readlock_list; info != NULL; info = info->pr_next)
     {
       if (info->pr_lock == rwlock)
 	return info;
@@ -86,10 +57,10 @@ rwlock_is_in_list(pthread_descr self, pthread_rwlock_t *rwlock)
 static pthread_readlock_info *
 rwlock_add_to_list(pthread_descr self, pthread_rwlock_t *rwlock)
 {
-  pthread_readlock_info *info = THREAD_GETMEM (self, p_readlock_free);
+  pthread_readlock_info *info = self->p_readlock_free;
 
   if (info != NULL)
-    THREAD_SETMEM (self, p_readlock_free, info->pr_next);
+    self->p_readlock_free = info->pr_next;
   else
     info = malloc(sizeof *info);
 
@@ -98,8 +69,8 @@ rwlock_add_to_list(pthread_descr self, pthread_rwlock_t *rwlock)
 
   info->pr_lock_count = 1;
   info->pr_lock = rwlock;
-  info->pr_next = THREAD_GETMEM (self, p_readlock_list);
-  THREAD_SETMEM (self, p_readlock_list, info);
+  info->pr_next = self->p_readlock_list;
+  self->p_readlock_list = info;
 
   return info;
 }
@@ -189,12 +160,11 @@ rwlock_have_already(pthread_descr *pself, pthread_rwlock_t *rwlock,
   if (rwlock->__rw_kind == PTHREAD_RWLOCK_PREFER_WRITER_NP)
     {
       if (!self)
-	*pself = self = thread_self();
+	self = thread_self();
 
       existing = rwlock_is_in_list(self, rwlock);
 
-      if (existing != NULL
-	  || THREAD_GETMEM (self, p_untracked_readlock_count) > 0)
+      if (existing != NULL || self->p_untracked_readlock_count > 0)
 	have_lock_already = 1;
       else
 	{
@@ -206,13 +176,14 @@ rwlock_have_already(pthread_descr *pself, pthread_rwlock_t *rwlock,
 
   *pout_of_mem = out_of_mem;
   *pexisting = existing;
+  *pself = self;
 
   return have_lock_already;
 }
 
 int
-__pthread_rwlock_init (pthread_rwlock_t *rwlock,
-		       const pthread_rwlockattr_t *attr)
+pthread_rwlock_init (pthread_rwlock_t *rwlock,
+		     const pthread_rwlockattr_t *attr)
 {
   __pthread_init_lock(&rwlock->__rw_lock);
   rwlock->__rw_readers = 0;
@@ -233,11 +204,10 @@ __pthread_rwlock_init (pthread_rwlock_t *rwlock,
 
   return 0;
 }
-strong_alias (__pthread_rwlock_init, pthread_rwlock_init)
 
 
 int
-__pthread_rwlock_destroy (pthread_rwlock_t *rwlock)
+pthread_rwlock_destroy (pthread_rwlock_t *rwlock)
 {
   int readers;
   _pthread_descr writer;
@@ -252,23 +222,22 @@ __pthread_rwlock_destroy (pthread_rwlock_t *rwlock)
 
   return 0;
 }
-strong_alias (__pthread_rwlock_destroy, pthread_rwlock_destroy)
 
 int
-__pthread_rwlock_rdlock (pthread_rwlock_t *rwlock)
+pthread_rwlock_rdlock (pthread_rwlock_t *rwlock)
 {
   pthread_descr self = NULL;
   pthread_readlock_info *existing;
   int out_of_mem, have_lock_already;
 
   have_lock_already = rwlock_have_already(&self, rwlock,
-					  &existing, &out_of_mem);
-
-  if (self == NULL)
-    self = thread_self ();
+      &existing, &out_of_mem);
 
   for (;;)
     {
+      if (self == NULL)
+	self = thread_self ();
+
       __pthread_lock (&rwlock->__rw_lock, self);
 
       if (rwlock_can_rdlock(rwlock, have_lock_already))
@@ -285,88 +254,16 @@ __pthread_rwlock_rdlock (pthread_rwlock_t *rwlock)
   if (have_lock_already || out_of_mem)
     {
       if (existing != NULL)
-	++existing->pr_lock_count;
+	existing->pr_lock_count++;
       else
-	++self->p_untracked_readlock_count;
+	self->p_untracked_readlock_count++;
     }
 
   return 0;
 }
-strong_alias (__pthread_rwlock_rdlock, pthread_rwlock_rdlock)
 
 int
-__pthread_rwlock_timedrdlock (pthread_rwlock_t *rwlock,
-			      const struct timespec *abstime)
-{
-  pthread_descr self = NULL;
-  pthread_readlock_info *existing;
-  int out_of_mem, have_lock_already;
-  pthread_extricate_if extr;
-
-  if (abstime->tv_nsec < 0 || abstime->tv_nsec >= 1000000000)
-    return EINVAL;
-
-  have_lock_already = rwlock_have_already(&self, rwlock,
-					  &existing, &out_of_mem);
-
-  if (self == NULL)
-    self = thread_self ();
-
-  /* Set up extrication interface */
-  extr.pu_object = rwlock;
-  extr.pu_extricate_func = rwlock_rd_extricate_func;
-
-  /* Register extrication interface */
-  __pthread_set_own_extricate_if (self, &extr);
-
-  for (;;)
-    {
-      __pthread_lock (&rwlock->__rw_lock, self);
-
-      if (rwlock_can_rdlock(rwlock, have_lock_already))
-	break;
-
-      enqueue (&rwlock->__rw_read_waiting, self);
-      __pthread_unlock (&rwlock->__rw_lock);
-      /* This is not a cancellation point */
-      if (timedsuspend (self, abstime) == 0)
-	{
-	  int was_on_queue;
-
-	  __pthread_lock (&rwlock->__rw_lock, self);
-	  was_on_queue = remove_from_queue (&rwlock->__rw_read_waiting, self);
-	  __pthread_unlock (&rwlock->__rw_lock);
-
-	  if (was_on_queue)
-	    {
-	      __pthread_set_own_extricate_if (self, 0);
-	      return ETIMEDOUT;
-	    }
-
-	  /* Eat the outstanding restart() from the signaller */
-	  suspend (self);
-	}
-    }
-
-  __pthread_set_own_extricate_if (self, 0);
-
-  ++rwlock->__rw_readers;
-  __pthread_unlock (&rwlock->__rw_lock);
-
-  if (have_lock_already || out_of_mem)
-    {
-      if (existing != NULL)
-	++existing->pr_lock_count;
-      else
-	++self->p_untracked_readlock_count;
-    }
-
-  return 0;
-}
-strong_alias (__pthread_rwlock_timedrdlock, pthread_rwlock_timedrdlock)
-
-int
-__pthread_rwlock_tryrdlock (pthread_rwlock_t *rwlock)
+pthread_rwlock_tryrdlock (pthread_rwlock_t *rwlock)
 {
   pthread_descr self = thread_self();
   pthread_readlock_info *existing;
@@ -397,19 +294,18 @@ __pthread_rwlock_tryrdlock (pthread_rwlock_t *rwlock)
       if (have_lock_already || out_of_mem)
 	{
 	  if (existing != NULL)
-	    ++existing->pr_lock_count;
+	    existing->pr_lock_count++;
 	  else
-	    ++self->p_untracked_readlock_count;
+	    self->p_untracked_readlock_count++;
 	}
     }
 
   return retval;
 }
-strong_alias (__pthread_rwlock_tryrdlock, pthread_rwlock_tryrdlock)
 
 
 int
-__pthread_rwlock_wrlock (pthread_rwlock_t *rwlock)
+pthread_rwlock_wrlock (pthread_rwlock_t *rwlock)
 {
   pthread_descr self = thread_self ();
 
@@ -429,68 +325,10 @@ __pthread_rwlock_wrlock (pthread_rwlock_t *rwlock)
       suspend (self); /* This is not a cancellation point */
     }
 }
-strong_alias (__pthread_rwlock_wrlock, pthread_rwlock_wrlock)
 
 
 int
-__pthread_rwlock_timedwrlock (pthread_rwlock_t *rwlock,
-			      const struct timespec *abstime)
-{
-  pthread_descr self;
-  pthread_extricate_if extr;
-
-  if (abstime->tv_nsec < 0 || abstime->tv_nsec >= 1000000000)
-    return EINVAL;
-
-  self = thread_self ();
-
-  /* Set up extrication interface */
-  extr.pu_object = rwlock;
-  extr.pu_extricate_func =  rwlock_wr_extricate_func;
-
-  /* Register extrication interface */
-  __pthread_set_own_extricate_if (self, &extr);
-
-  while(1)
-    {
-      __pthread_lock (&rwlock->__rw_lock, self);
-
-      if (rwlock->__rw_readers == 0 && rwlock->__rw_writer == NULL)
-	{
-	  rwlock->__rw_writer = self;
-	  __pthread_set_own_extricate_if (self, 0);
-	  __pthread_unlock (&rwlock->__rw_lock);
-	  return 0;
-	}
-
-      /* Suspend ourselves, then try again */
-      enqueue (&rwlock->__rw_write_waiting, self);
-      __pthread_unlock (&rwlock->__rw_lock);
-      /* This is not a cancellation point */
-      if (timedsuspend (self, abstime) == 0)
-	{
-	  int was_on_queue;
-
-	  __pthread_lock (&rwlock->__rw_lock, self);
-	  was_on_queue = remove_from_queue (&rwlock->__rw_write_waiting, self);
-	  __pthread_unlock (&rwlock->__rw_lock);
-
-	  if (was_on_queue)
-	    {
-	      __pthread_set_own_extricate_if (self, 0);
-	      return ETIMEDOUT;
-	    }
-
-	  /* Eat the outstanding restart() from the signaller */
-	  suspend (self);
-	}
-    }
-}
-strong_alias (__pthread_rwlock_timedwrlock, pthread_rwlock_timedwrlock)
-
-
-int
-__pthread_rwlock_trywrlock (pthread_rwlock_t *rwlock)
+pthread_rwlock_trywrlock (pthread_rwlock_t *rwlock)
 {
   int result = EBUSY;
 
@@ -504,11 +342,10 @@ __pthread_rwlock_trywrlock (pthread_rwlock_t *rwlock)
 
   return result;
 }
-strong_alias (__pthread_rwlock_trywrlock, pthread_rwlock_trywrlock)
 
 
 int
-__pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
+pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
 {
   pthread_descr torestart;
   pthread_descr th;
@@ -524,9 +361,8 @@ __pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
 	}
       rwlock->__rw_writer = NULL;
 
-      if ((rwlock->__rw_kind == PTHREAD_RWLOCK_PREFER_READER_NP
-	   && !queue_is_empty(&rwlock->__rw_read_waiting))
-	  || (th = dequeue(&rwlock->__rw_write_waiting)) == NULL)
+      if (rwlock->__rw_kind == PTHREAD_RWLOCK_PREFER_READER_NP
+	  || (th = dequeue (&rwlock->__rw_write_waiting)) == NULL)
 	{
 	  /* Restart all waiting readers.  */
 	  torestart = rwlock->__rw_read_waiting;
@@ -573,22 +409,20 @@ __pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
 	    {
 	      if (victim->pr_lock_count == 0)
 		{
-		  victim->pr_next = THREAD_GETMEM (self, p_readlock_free);
-		  THREAD_SETMEM (self, p_readlock_free, victim);
+		  victim->pr_next = self->p_readlock_free;
+		  self->p_readlock_free = victim;
 		}
 	    }
 	  else
 	    {
-	      int val = THREAD_GETMEM (self, p_untracked_readlock_count);
-	      if (val > 0)
-		THREAD_SETMEM (self, p_untracked_readlock_count, val - 1);
+	      if (self->p_untracked_readlock_count > 0)
+		self->p_untracked_readlock_count--;
 	    }
 	}
     }
 
   return 0;
 }
-strong_alias (__pthread_rwlock_unlock, pthread_rwlock_unlock)
 
 
 
@@ -596,18 +430,17 @@ int
 pthread_rwlockattr_init (pthread_rwlockattr_t *attr)
 {
   attr->__lockkind = 0;
-  attr->__pshared = PTHREAD_PROCESS_PRIVATE;
+  attr->__pshared = 0;
 
   return 0;
 }
 
 
 int
-__pthread_rwlockattr_destroy (pthread_rwlockattr_t *attr)
+pthread_rwlockattr_destroy (pthread_rwlockattr_t *attr attribute_unused)
 {
   return 0;
 }
-strong_alias (__pthread_rwlockattr_destroy, pthread_rwlockattr_destroy)
 
 
 int
@@ -623,10 +456,6 @@ pthread_rwlockattr_setpshared (pthread_rwlockattr_t *attr, int pshared)
 {
   if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
     return EINVAL;
-
-  /* For now it is not possible to shared a conditional variable.  */
-  if (pshared != PTHREAD_PROCESS_PRIVATE)
-    return ENOSYS;
 
   attr->__pshared = pshared;
 
@@ -647,7 +476,6 @@ pthread_rwlockattr_setkind_np (pthread_rwlockattr_t *attr, int pref)
 {
   if (pref != PTHREAD_RWLOCK_PREFER_READER_NP
       && pref != PTHREAD_RWLOCK_PREFER_WRITER_NP
-      && pref != PTHREAD_RWLOCK_PREFER_WRITER_NONRECURSIVE_NP
       && pref != PTHREAD_RWLOCK_DEFAULT_NP)
     return EINVAL;
 

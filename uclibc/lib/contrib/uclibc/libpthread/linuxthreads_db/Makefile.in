@@ -36,17 +36,12 @@ endif
 lib-a-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.a
 lib-so-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.so
 
-#ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libthread_db.so: $(top_builddir)lib/libthread_db.a $(libc.depend)
 else
 $(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db_so.a $(libc.depend)
 endif
 	$(call link.so,$(libthread_db_FULL_NAME),1)
-#else
-#$(top_builddir)lib/libthread_db.so: $(libthread_db_OUT)/libthread_db.oS | $(libc.depend)
-#	$(call linkm.so,$(libthread_db_FULL_NAME),1)
-#endif
 
 $(libthread_db_OUT)/libthread_db_so.a: $(libthread_db-so-y)
 	$(Q)$(RM) $@

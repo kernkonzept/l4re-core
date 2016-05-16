@@ -28,7 +28,6 @@
 #endif
 
 /* Spinlock implementation; required.  */
-PT_EI long int testandset (int *spinlock);
 PT_EI long int
 testandset (int *spinlock)
 {
@@ -36,11 +35,11 @@ testandset (int *spinlock)
 
   __asm__ __volatile__(
 #if !defined(__mcoldfire__) && !defined(__mcf5200__) && !defined(__m68000)
-	"tas %1; sne %0"
+         "tas %1; sne %0"
 #else
-	"bset #7,%1; sne %0"
+         "bset #7,%1; sne %0"
 #endif
-       : "=dm"(ret), "=m"(*spinlock)
+       : "=&dm"(ret), "=m"(*spinlock)
        : "m"(*spinlock)
        : "cc");
 
@@ -71,4 +70,5 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
   return ret;
 }
 #endif
+
 #endif /* pt-machine.h */

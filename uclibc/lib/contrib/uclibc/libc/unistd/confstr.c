@@ -43,11 +43,8 @@ size_t confstr (int name, char *buf, size_t len)
       break;
 #ifdef __UCLIBC_HAS_THREADS__
     case _CS_GNU_LIBPTHREAD_VERSION:
-# if defined __LINUXTHREADS_OLD__
+# if defined __UCLIBC_HAS_LINUXTHREADS__
       string = "linuxthreads-0.01";
-      string_len = sizeof("linuxthreads-x.xx");
-# elif defined __LINUXTHREADS_NEW__
-      string = "linuxthreads-0.10";
       string_len = sizeof("linuxthreads-x.xx");
 # elif defined __UCLIBC_HAS_THREADS_NATIVE__
 #  define __NPTL_VERSION ("NPTL " \

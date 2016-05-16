@@ -397,7 +397,7 @@ ifeq ($(UCLIBC_HAS_ARGP),y)
 endif
 
 ifeq ($(UCLIBC_HAS_THREADS),y)
-ifneq ($(LINUXTHREADS_OLD),y)
+ifneq ($(UCLIBC_HAS_LINUXTHREADS),y)
 ifeq ($(HARDWIRED_ABSPATH),y)
 	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(ABI_VERSION) ] ; then \
 		$(RM) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
