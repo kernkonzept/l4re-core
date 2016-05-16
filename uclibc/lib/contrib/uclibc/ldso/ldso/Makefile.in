@@ -34,6 +34,10 @@ CFLAGS-$(DODEBUG)-ldso/ldso := -O2 -g
 
 CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
+ifeq ($(TARGET_ARCH),arc)
+CFLAGS-ldso.c += -mno-long-calls
+endif
+
 LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-$(UCLIBC_LDSO_NAME).so := -Wl,--dsbt-index=1
 ifneq ($(SUPPORT_LD_DEBUG),y)
 LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS)
