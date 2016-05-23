@@ -188,10 +188,16 @@ int __pthread_unlock(struct _pthread_fastlock * lock)
   WRITE_MEMORY_BARRIER();
 
 again:
-  while ((oldstatus = lock->__status) == 1) {
-    if (__compare_and_swap_with_release_semantics(&lock->__status,
+  oldstatus = lock->__status;
+  if (oldstatus == 0 || oldstatus == 1) {
+    /* No threads are waiting for this lock.  Please note that we also
+       enter this case if the lock is not taken at all.  If this wouldn't
+       be done here we would crash further down.  */
+    if (! __compare_and_swap_with_release_semantics(&lock->__status,
 	oldstatus, 0))
-      return 0;
+      goto again;
+
+    return 0;
   }
 
   /* Find thread in waiting queue with maximal priority */
