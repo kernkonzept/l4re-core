@@ -20,73 +20,6 @@
 
 #include <features.h>
 #include <signal.h>
-#include <bits/wordsize.h>
-
-#if __WORDSIZE == 64
-
-#define MC_TSTATE	0
-#define MC_PC		1
-#define MC_NPC		2
-#define MC_Y		3
-#define MC_G1		4
-#define MC_G2		5
-#define MC_G3		6
-#define MC_G4		7
-#define MC_G5		8
-#define MC_G6		9
-#define MC_G7		10
-#define MC_O0		11
-#define MC_O1		12
-#define MC_O2		13
-#define MC_O3		14
-#define MC_O4		15
-#define MC_O5		16
-#define MC_O6		17
-#define MC_O7		18
-#define MC_NGREG	19
-
-typedef unsigned long mc_greg_t;
-typedef mc_greg_t mc_gregset_t[MC_NGREG];
-
-#define MC_MAXFPQ	16
-struct mc_fq {
-	unsigned long	*mcfq_addr;
-	unsigned int	mcfq_insn;
-};
-
-struct mc_fpu {
-	union {
-		unsigned int	sregs[32];
-		unsigned long	dregs[32];
-		long double	qregs[16];
-	} mcfpu_fregs;
-	unsigned long	mcfpu_fsr;
-	unsigned long	mcfpu_fprs;
-	unsigned long	mcfpu_gsr;
-	struct mc_fq	*mcfpu_fq;
-	unsigned char	mcfpu_qcnt;
-	unsigned char	mcfpu_qentsz;
-	unsigned char	mcfpu_enab;
-};
-typedef struct mc_fpu mc_fpu_t;
-
-typedef struct {
-	mc_gregset_t	mc_gregs;
-	mc_greg_t	mc_fp;
-	mc_greg_t	mc_i7;
-	mc_fpu_t	mc_fpregs;
-} mcontext_t;
-
-typedef struct ucontext {
-	struct ucontext		*uc_link;
-	unsigned long		uc_flags;
-	unsigned long		__uc_sigmask;
-	mcontext_t		uc_mcontext;
-	stack_t			uc_stack;
-	__sigset_t		uc_sigmask;
-} ucontext_t;
-
-#endif /* __WORDISIZE == 64 */
 
 /*
  * Location of the users' stored registers relative to R0.
@@ -121,21 +54,8 @@ typedef struct ucontext {
  * but that the ABI defines it absolutely to be 21 (resp. 19).
  */
 
-#if __WORDSIZE == 64
-
-#define REG_ASI	(19)
-#define REG_FPRS (20)
-
-#define NGREG   21
-typedef long greg_t;
-
-#else /* __WORDSIZE == 32 */
-
 #define NGREG   19
 typedef int greg_t;
-
-#endif /* __WORDSIZE == 32 */
-
 typedef greg_t  gregset_t[NGREG];
 
 /*
@@ -196,24 +116,6 @@ struct fq
 #define V9_FPU_FSR_TYPE         unsigned long long
 #define V9_FPU_FPRS_TYPE        unsigned
 
-#if __WORDSIZE == 64
-
-typedef struct fpu
-  {
-    union {				/* FPU floating point regs */
-      unsigned		fpu_regs[32];	/* 32 singles */
-      double            fpu_dregs[16];	/* 32 doubles */
-      long double	fpu_qregs[16];  /* 16 quads */
-    } fpu_fr;
-    struct fq       *fpu_q;		/* ptr to array of FQ entries */
-    unsigned long   fpu_fsr;		/* FPU status register */
-    unsigned char   fpu_qcnt;		/* # of entries in saved FQ */
-    unsigned char   fpu_q_entrysize;	/* # of bytes per FQ entry */
-    unsigned char   fpu_en;		/* flag signifying fpu in use */
-  } fpregset_t;
-
-#else /* __WORDSIZE == 32 */
-
 typedef struct fpu
   {
     union {				/* FPU floating point regs */
@@ -265,5 +167,4 @@ typedef struct ucontext
     mcontext_t      uc_mcontext;
   } ucontext_t;
 
-#endif /* __WORDSIZE == 32 */
 #endif /* sys/ucontext.h */
