@@ -230,7 +230,7 @@ int pthread_tryjoin_np(pthread_t thread_id, void ** thread_return)
     request.req_thread = self;
     request.req_kind = REQ_FREE;
     request.req_args.free.thread_id = thread_id;
-    TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+    TEMP_FAILURE_RETRY(write(__pthread_manager_request,
 		(char *) &request, sizeof(request)));
   }
   return 0;
@@ -319,7 +319,7 @@ int pthread_timedjoin_np(pthread_t thread_id, void ** thread_return,
       request.req_thread = self;
       request.req_kind = REQ_FREE;
       request.req_args.free.thread_id = thread_id;
-      TEMP_FAILURE_RETRY(__libc_write(__pthread_manager_request,
+      TEMP_FAILURE_RETRY(write(__pthread_manager_request,
 		(char *) &request, sizeof(request)));
     }
   }
