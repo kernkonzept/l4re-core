@@ -535,7 +535,7 @@ ifdef LD_FLAG_NO_ASNEEDED
 export CC_FLAG_NO_ASNEEDED:=-Wl,$(LD_FLAG_NO_ASNEEDED)
 endif
 endif
-link.asneeded = $(if $(findstring yy,$(CC_FLAG_ASNEEDED)$(CC_FLAG_NO_ASNEEDED)),$(CC_FLAG_ASNEEDED) $(1) $(CC_FLAG_NO_ASNEEDED))
+link.asneeded = $(if $(CC_FLAG_ASNEEDED),$(if $(CC_FLAG_NO_ASNEEDED),$(CC_FLAG_ASNEEDED) $(1) $(CC_FLAG_NO_ASNEEDED)))
 
 # Check for AS_NEEDED support in linker script (binutils>=2.16.1 has it)
 ifndef ASNEEDED
