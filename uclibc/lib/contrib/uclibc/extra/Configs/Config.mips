@@ -31,3 +31,10 @@ config CONFIG_MIPS_N64_ABI
 	bool "N64 ABI"
 
 endchoice
+
+config UCLIBC_USE_MIPS_PREFETCH
+	bool "Use MIPS prefetch optimization for memcpy/memset"
+	default y
+	help
+	  You get better performance when you use Prefetch.
+	  https://gcc.gnu.org/projects/prefetch.html#mips
