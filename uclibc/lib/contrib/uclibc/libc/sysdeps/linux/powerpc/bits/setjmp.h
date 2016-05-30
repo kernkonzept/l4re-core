@@ -29,8 +29,6 @@
    assembler easier. Naturally, user code should not depend on
    either representation. */
 
-#include <bits/wordsize.h>
-
 /* The current powerpc 32-bit Altivec ABI specifies for SVR4 ABI and EABI
    the vrsave must be at byte 248 & v20 at byte 256.  So we must pad this
    correctly on 32 bit.  It also insists that vecregs are only gauranteed
@@ -38,12 +36,9 @@
    We have to version the code because members like  int __mask_was_saved
    in the jmp_buf will move as jmp_buf is now larger than 248 bytes.  We
    cannot keep the altivec jmp_buf backward compatible with the jmp_buf.  */
-#if __WORDSIZE == 64
-typedef long int __jmp_buf[64] __attribute__ ((__aligned__ (16)));
-#else
+
 /* The alignment is not essential, i.e.the buffer can be copied to a 4 byte
    aligned buffer as per the ABI it is just added for performance reasons.  */
 typedef long int __jmp_buf[64 + (12 * 4)] __attribute__ ((__aligned__ (16)));
-#endif
 
 #endif  /* bits/setjmp.h */

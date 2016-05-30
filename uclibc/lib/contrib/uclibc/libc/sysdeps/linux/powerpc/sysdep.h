@@ -16,6 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <common/sysdep.h>
+#include <sys/syscall.h>
 
 /* 
  * Powerpc Feature masks for the Aux Vector Hardware Capabilities (AT_HWCAP). 
@@ -169,9 +170,6 @@
 
 #define VRSAVE	256
 
-
-#ifdef __ELF__
-
 /* This seems to always be the case on PPC.  */
 #define ALIGNARG(log2) log2
 /* For ELF we need the `.type' directive to make shared libs work right.  */
@@ -182,14 +180,98 @@
 #undef	NO_UNDERSCORES
 #define NO_UNDERSCORES
 
-#endif /* __ELF__ */
+#define	ENTRY(name)							      \
+  .globl C_SYMBOL_NAME(name);				      \
+  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function)			      \
+  .align ALIGNARG(2);							      \
+  C_LABEL(name)								      \
+  cfi_startproc;							      \
 
-# include <sys/syscall.h>
-# if defined(__powerpc64__)
-#  include "powerpc64/sysdep.h"
-# else
-#  include "powerpc32/sysdep.h"
-# endif
+#define EALIGN_W_0  /* No words to insert.  */
+#define EALIGN_W_1  nop
+#define EALIGN_W_2  nop;nop
+#define EALIGN_W_3  nop;nop;nop
+#define EALIGN_W_4  EALIGN_W_3;nop
+#define EALIGN_W_5  EALIGN_W_4;nop
+#define EALIGN_W_6  EALIGN_W_5;nop
+#define EALIGN_W_7  EALIGN_W_6;nop
+
+#define EALIGN(name, alignt, words)					      \
+  .globl C_SYMBOL_NAME(name);				      \
+  ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function)			      \
+  .align ALIGNARG(alignt);						      \
+  EALIGN_W_##words;							      \
+  C_LABEL(name)								      \
+  cfi_startproc;
+
+#undef	END
+#define END(name)							      \
+  cfi_endproc;								      \
+  ASM_SIZE_DIRECTIVE(name)
+
+#define DO_CALL(syscall)				      		      \
+    li 0,syscall;						              \
+    sc
+
+#undef JUMPTARGET
+#ifdef PIC
+# define JUMPTARGET(name) name##@plt
+#else
+# define JUMPTARGET(name) name
+#endif
+
+#if defined SHARED && defined DO_VERSIONING && defined PIC \
+    && !defined NO_HIDDEN
+# undef HIDDEN_JUMPTARGET
+# define HIDDEN_JUMPTARGET(name) __GI_##name##@local
+#endif
+
+#define PSEUDO(name, syscall_name, args)				      \
+  .section ".text";							      \
+  ENTRY (name)								      \
+    DO_CALL (SYS_ify (syscall_name));
+
+#define PSEUDO_RET							      \
+    bnslr+;								      \
+    b __syscall_error@local
+#define ret PSEUDO_RET
+
+#undef	PSEUDO_END
+#define	PSEUDO_END(name)						      \
+  END (name)
+
+#define PSEUDO_NOERRNO(name, syscall_name, args)			      \
+  .section ".text";							      \
+  ENTRY (name)								      \
+    DO_CALL (SYS_ify (syscall_name));
+
+#define PSEUDO_RET_NOERRNO						      \
+    blr
+#define ret_NOERRNO PSEUDO_RET_NOERRNO
+
+#undef	PSEUDO_END_NOERRNO
+#define	PSEUDO_END_NOERRNO(name)					      \
+  END (name)
+
+#define PSEUDO_ERRVAL(name, syscall_name, args)				      \
+  .section ".text";							      \
+  ENTRY (name)								      \
+    DO_CALL (SYS_ify (syscall_name));
+
+#define PSEUDO_RET_ERRVAL						      \
+    blr
+#undef ret_ERRVAL
+#define ret_ERRVAL PSEUDO_RET_ERRVAL
+
+#undef	PSEUDO_END_ERRVAL
+#define	PSEUDO_END_ERRVAL(name)						      \
+  END (name)
+
+/* Local labels stripped out by the linker.  */
+#undef L
+#define L(x) .L##x
+
+/* Label in text section.  */
+#define C_TEXT(name) name
 
 #endif	/* __ASSEMBLER__ */
-

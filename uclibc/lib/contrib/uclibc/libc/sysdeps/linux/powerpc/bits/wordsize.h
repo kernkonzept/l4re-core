@@ -1,11 +1,6 @@
 /* Determine the wordsize from the preprocessor defines.  */
 
-#if defined __powerpc64__
-# define __WORDSIZE	64
-# define __WORDSIZE_TIME64_COMPAT32	1
-#else
-# define __WORDSIZE	32
-#endif
+#define __WORDSIZE	32
 
 #if !defined __NO_LONG_DOUBLE_MATH && !defined __LONG_DOUBLE_MATH_OPTIONAL
 

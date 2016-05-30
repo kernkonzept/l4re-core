@@ -57,30 +57,12 @@
 
 # endif /* __GNUC_PREREQ (2,97) */
 
-/* The gcc, version 2.7 or below, has problems with all this inlining
-   code.  So disable it for this version of the compiler.  */
-# if __GNUC_PREREQ (2, 8)
-/* Test for negative number.  Used in the signbit() macro.  */
-__MATH_INLINE int
-__NTH (__signbitf (float __x))
-{
-  __extension__ union { float __f; int __i; } __u = { __f: __x };
-  return __u.__i < 0;
-}
-__MATH_INLINE int
-__NTH (__signbit (double __x))
-{
-  __extension__ union { double __d; int __i[2]; } __u = { __d: __x };
-  return __u.__i[0] < 0;
-}
-# endif
 #endif /* __USE_ISOC99 */
 
 #if !defined __NO_MATH_INLINES && defined __OPTIMIZE__
 
 #ifdef __USE_ISOC99
 
-# ifndef __powerpc64__
 __MATH_INLINE long int lrint (double __x) __THROW;
 __MATH_INLINE long int
 __NTH (lrint (double __x))
@@ -104,7 +86,6 @@ __NTH (lrintf (float __x))
   __asm__ ("fctiw %0,%1" : "=f"(__u.__d) : "f"(__x));
   return __u.__ll[1];
 }
-# endif
 
 __MATH_INLINE double fdim (double __x, double __y) __THROW;
 __MATH_INLINE double
@@ -123,62 +104,5 @@ __NTH (fdimf (float __x, float __y))
 #endif /* __USE_ISOC99 */
 #endif /* !__NO_MATH_INLINES && __OPTIMIZE__ */
 
-/* This code is used internally in the GNU libc.  */
-#if 0 /*def __LIBC_INTERNAL_MATH_INLINES*/
-
-#include <sysdep.h>
-#include <ldsodefs.h>
-#include <dl-procinfo.h>
-
-# if __WORDSIZE == 64 || defined _ARCH_PWR4
-#  define __CPU_HAS_FSQRT 1
-# else
-#  define __CPU_HAS_FSQRT ((GLRO(dl_hwcap) & PPC_FEATURE_64) != 0)
-# endif
-
-extern double __slow_ieee754_sqrt (double);
-__MATH_INLINE double
-__NTH (__ieee754_sqrt (double __x))
-{
-  double __z;
-
-  /* If the CPU is 64-bit we can use the optional FP instructions.  */
-  if (__CPU_HAS_FSQRT)
-  {
-    /* Volatile is required to prevent the compiler from moving the
-       fsqrt instruction above the branch.  */
-     __asm__ __volatile__ (
-	"	fsqrt	%0,%1\n"
-		: "=f" (__z)
-		: "f" (__x));
-  }
-  else
-     __z = __slow_ieee754_sqrt(__x);
-
-  return __z;
-}
-
-extern float __slow_ieee754_sqrtf (float);
-__MATH_INLINE float
-__NTH (__ieee754_sqrtf (float __x))
-{
-  float __z;
-
-  /* If the CPU is 64-bit we can use the optional FP instructions.  */
-  if (__CPU_HAS_FSQRT)
-  {
-    /* Volatile is required to prevent the compiler from moving the
-       fsqrts instruction above the branch.  */
-     __asm__ __volatile__ (
-	"	fsqrts	%0,%1\n"
-		: "=f" (__z)
-		: "f" (__x));
-  }
-  else
-     __z = __slow_ieee754_sqrtf(__x);
-
-  return __z;
-}
-#endif /* __LIBC_INTERNAL_MATH_INLINES */
 #endif /* __GNUC__ && !_SOFT_FLOAT */
 
