@@ -1,6 +1,6 @@
-/* Copyright (C) 2003 Free Software Foundation, Inc.
+/* pthread_spin_trylock -- trylock a spin lock.  Generic version.
+   Copyright (C) 2012-2016 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
-   Contributed by Paul Mackerras <paulus@au.ibm.com>, 2003.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -9,12 +9,19 @@
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-/* No difference to lowlevellock.c, except we lose a couple of functions.  */
-#include "lowlevellock.c"
+#include <errno.h>
+#include <atomic.h>
+#include "pthreadP.h"
+
+int
+pthread_spin_trylock (pthread_spinlock_t *lock)
+{
+  return atomic_exchange_acq (lock, 1) ? EBUSY : 0;
+}

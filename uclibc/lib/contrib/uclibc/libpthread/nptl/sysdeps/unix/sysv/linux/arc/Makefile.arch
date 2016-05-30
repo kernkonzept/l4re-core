@@ -6,10 +6,10 @@
 #
 
 libpthread_linux_arch_SSRC =
-libpthread_linux_arch_CSRC = pthread_once.c lowlevellock.c \
+libpthread_linux_arch_CSRC = pthread_once.c \
 	pt-__syscall_rt_sigaction.c pt-__syscall_error.c
 
-libc_linux_arch_CSRC = fork.c libc-lowlevellock.c
+libc_linux_arch_CSRC = fork.c
 libc_linux_arch_SSRC = clone.S vfork.S
 libc_linux_arch_SSRC-OMIT = waitpid.S
 

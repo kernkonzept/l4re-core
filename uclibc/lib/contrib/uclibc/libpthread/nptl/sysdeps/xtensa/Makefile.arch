@@ -15,8 +15,6 @@
 # License along with the GNU C Library; see the file COPYING.LIB.  If
 # not, see <http://www.gnu.org/licenses/>.
 
-CFLAGS-pt-raise.c = -DNOT_IN_libc -DIS_IN_libpthread
-
 ASFLAGS-dl-tlsdesc.S = -DNOT_IN_libc=1
 ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc -DIS_IN_libpthread
 ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc -DIS_IN_libpthread

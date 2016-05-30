@@ -65,21 +65,18 @@ libpthread_linux_CSRC += pthread_attr_getaffinity.c pthread_attr_setaffinity.c \
 	pt-tempname.c \
 	pthread_sigqueue.c \
 	lowlevellock.c lowlevelrobustlock.c
-#	pt-sleep.c pt-fork.c sigtimedwait.c sigwaitinfo.c sigwait.c
 
 libpthread_linux_SSRC := #ptw-close.S ptw-open.S ptw-waitid.S ptw-waidpid.S ptw-write.S
 
 libc_linux_CSRC += libc_pthread_init.c libc_multiple_threads.c		\
 	register-atfork.c unregister-atfork.c getpid.c		\
 	raise.c jmp-unwind.c libc-lowlevellock.c
-	#sleep.c
 
 librt_linux_CSRC += mq_notify.c timer_create.c timer_delete.c		\
 	timer_getoverr.c timer_gettime.c timer_routines.c		\
 	timer_settime.c
 
-# These provide both a cancellable and a not cancellable implementation
-libc_linux_SSRC = #close.S open.S write.S read.S waitpid.S
+libc_linux_SSRC =
 libc_linux_SSRC := $(filter-out $(libc_linux_arch_SSRC-OMIT),$(libc_linux_SSRC))
 
 libpthread_linux_CSRC := $(filter-out $(notdir $(libpthread_linux_arch_OBJS:.o=.c)),$(libpthread_linux_CSRC))
@@ -98,8 +95,6 @@ endif
 
 libpthread-a-y += $(if $(DOPIC),$(libpthread_linux_OBJS:.o=.os),$(libpthread_linux_OBJS))
 libpthread-so-y += $(libpthread_linux_OBJS:.o=.oS)
-libpthread-so-y += $(libpthread_linux_OUT)/pt-raise.oS
-#libpthread-nomulti-y += $(libpthread_linux_OBJS)
 
 libc_linux_OBJS := $(libc_linux_arch_OBJS)
 libc_linux_OBJS += $(patsubst %.c,$(libpthread_linux_OUT)/%.o,$(libc_linux_CSRC))
@@ -110,7 +105,6 @@ endif
 
 libc-static-y += $(libc_linux_OBJS)
 libc-shared-y += $(libc_linux_OBJS:.o=.oS)
-#libc-nomulti-y += $(libc_linux_OBJS)
 
 librt_linux_OBJS := $(librt_linux_arch_OBJS)
 librt_linux_OBJS += $(patsubst %.c,$(libpthread_linux_OUT)/%.o,$(librt_linux_CSRC))

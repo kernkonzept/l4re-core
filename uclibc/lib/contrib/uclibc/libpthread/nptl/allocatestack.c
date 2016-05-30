@@ -996,18 +996,8 @@ setxid_signal_thread (struct xid_command *cmdp, struct pthread *t)
 
   int val;
   INTERNAL_SYSCALL_DECL (err);
-#if defined (__ASSUME_TGKILL) && __ASSUME_TGKILL
   val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
 			  t->tid, SIGSETXID);
-#else
-# ifdef __NR_tgkill
-  val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
-			  t->tid, SIGSETXID);
-  if (INTERNAL_SYSCALL_ERROR_P (val, err)
-      && INTERNAL_SYSCALL_ERRNO (val, err) == ENOSYS)
-# endif
-    val = INTERNAL_SYSCALL (tkill, err, 2, t->tid, SIGSETXID);
-#endif
 
   /* If this failed, it must have had not started yet or else exited.  */
   if (!INTERNAL_SYSCALL_ERROR_P (val, err))
