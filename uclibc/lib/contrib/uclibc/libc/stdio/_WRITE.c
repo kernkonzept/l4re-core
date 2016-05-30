@@ -46,9 +46,6 @@ size_t attribute_hidden __stdio_WRITE(register FILE *stream,
 		stodo = (todo <= SSIZE_MAX) ? todo : SSIZE_MAX;
 		rv = __WRITE(stream, (char *) buf, stodo);
 		if (rv >= 0) {
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Make custom stream write return check optional.
-#endif
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 			assert(rv <= stodo);
 			if (rv > stodo) {	/* Wrote more than stodo! */

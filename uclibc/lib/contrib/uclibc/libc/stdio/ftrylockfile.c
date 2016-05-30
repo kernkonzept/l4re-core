@@ -7,10 +7,6 @@
 
 #include "_stdio.h"
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: What should this return when not threading?
-#endif
-
 int ftrylockfile(FILE *stream)
 {
 	__STDIO_STREAM_VALIDATE(stream);

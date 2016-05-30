@@ -25,9 +25,6 @@ size_t attribute_hidden __stdio_fwrite(const unsigned char * __restrict buffer,
 	assert(bytes);
 
 	if (!__STDIO_STREAM_IS_NBF(stream)) { /* FBF or LBF. */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Try to consolidate some of the code?
-#endif
 		if (__STDIO_STREAM_IS_FAKE_VSNPRINTF(stream)) {
 			pending = __STDIO_STREAM_BUFFER_WAVAIL(stream);
 			if (pending > bytes) {
@@ -66,9 +63,6 @@ size_t attribute_hidden __stdio_fwrite(const unsigned char * __restrict buffer,
 			if (__STDIO_COMMIT_WRITE_BUFFER(stream)) { /* Commit failed! */
 				return 0;
 			}
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Do we want to try again if data now fits in buffer?
-#endif
 /* 			goto RETRY; */
 		}
 	}

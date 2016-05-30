@@ -93,13 +93,6 @@ enum {
 
 /*--------------------------------------------------------------------*/
 
-#ifdef __UCLIBC_MJN3_ONLY__
-# ifdef L_iswspace
-/* generates one warning */
-#  warning TODO: Fix WC* defines!
-# endif
-#endif
-
 #define ENCODING		(__UCLIBC_CURLOCALE->encoding)
 
 #define WCctype			(__UCLIBC_CURLOCALE->tblwctype)
@@ -459,10 +452,6 @@ libc_hidden_def(wctype)
 /**********************************************************************/
 #ifdef L_wctype_l
 
-#ifdef __UCLIBC_MJN3_ONLY__
-# warning REMINDER: Currently wctype_l simply calls wctype.
-#endif
-
 wctype_t wctype_l (const char *property, __locale_t locale)
 {
 	return wctype(property);
@@ -484,12 +473,6 @@ wctype_t wctype_l (const char *property, __locale_t locale)
 		 : ((__uwchar_t)(((c) | 0x20) - 'a') < 6) \
 	    ) \
 	)
-
-#ifdef __UCLIBC_MJN3_ONLY__
-# ifdef L_iswctype
-#  warning CONSIDER: Change to bit shift?  would need to sync with wctype.h
-# endif
-#endif
 
 #ifdef __UCLIBC_HAS_CTYPE_TABLES__
 # if !defined(__UCLIBC_HAS_XLOCALE__) || defined(L_iswctype_l)
@@ -570,12 +553,6 @@ int iswctype(wint_t wc, wctype_t desc)
 
 #else  /* __LOCALE_C_ONLY */
 
-#ifdef __UCLIBC_MJN3_ONLY__
-# ifdef L_iswctype
-#  warning CONSIDER: Handle combining class?
-# endif
-#endif
-
 #ifdef L_iswctype
 # define ISWCTYPE(w,d) iswctype(w,d)
 #else
@@ -629,9 +606,6 @@ int ISWCTYPE(wint_t wc, wctype_t desc)
 #endif
 		}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-# warning TODO: xdigit really needs to be handled better.  Remember only for ascii!
-#endif
 		/* TODO - Add locale-specific classifications. */
 		return (desc == _CTYPE_iswxdigit) ? __C_iswxdigit(wc) : 0;
 	}
@@ -741,9 +715,6 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 			}
 			wc += WCuplow_diff[i];
 			if (desc == _CTYPE_totitle) {
-#ifdef __UCLIBC_MJN3_ONLY__
-# warning TODO: Verify totitle special cases!
-#endif
 				/* WARNING! These special cases work for glibc 2.2.4.  Changes
 				 * may be needed if the glibc locale tables are updated. */
 				if ((__uwchar_t)(wc - 0x1c4) <= (0x1cc - 0x1c4)
@@ -781,9 +752,6 @@ wint_t TOWCTRANS(wint_t wc, wctrans_t desc)
 	if ((unsigned)(desc - _CTYPE_toupper) <= (_CTYPE_totitle - _CTYPE_toupper)) {
 		wc = TOWUPPER(wc, __UCLIBC_CURLOCALE);
 		if (desc == _CTYPE_totitle) {
-#ifdef __UCLIBC_MJN3_ONLY__
-# warning TODO: Verify totitle special cases!
-#endif
 			/* WARNING! These special cases work for glibc 2.2.4.  Changes
 			 * may be needed if the glibc locale tables are updated. */
 			if ((__uwchar_t)(wc - 0x1c4) <= (0x1cc - 0x1c4)
@@ -842,10 +810,6 @@ libc_hidden_def(wctrans)
 #endif
 /**********************************************************************/
 #ifdef L_wctrans_l
-
-# ifdef __UCLIBC_MJN3_ONLY__
-#  warning REMINDER: Currently wctrans_l simply calls wctrans.
-# endif
 
 wctrans_t wctrans_l(const char *property, __locale_t locale)
 {

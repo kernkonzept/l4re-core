@@ -8,11 +8,6 @@
 #include "_stdio.h"
 #include <stdarg.h>
 
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning WISHLIST: Implement vsnprintf for non-buffered and no custom stream case.
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
 #ifdef __STDIO_BUFFERS
 /* NB: we can still have __USE_OLD_VFPRINTF__ defined in this case! */
 

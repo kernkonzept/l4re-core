@@ -31,10 +31,6 @@
 
 __BEGIN_DECLS
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "mjn3 FIXME: None of these prototypes have implementations."
-#endif
-
 #ifndef __UCLIBC_STRICT_HEADERS__
 /* Message catalog descriptor type.  */
 typedef void *nl_catd;

@@ -173,9 +173,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 			goto POSITION_SKIP;
 		}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning should we walk pendings backwards?
-#endif
 		if (cs->cip) {			/* possible pending weight */
 			if ((r = *(cs->cip++)) == 0) {
 				cs->cip = NULL;
@@ -267,9 +264,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 				} while (1);
 			} else if (r == 0) {		/* illegal, undefined, or part of a range */
 				if ((CUR_COLLATE->range_count)
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning .. need to introduce range as a collating item?
-#endif
 					&& (((__uwchar_t)(WC - CUR_COLLATE->range_low)) <= CUR_COLLATE->range_count)
 					) {					/* part of a range */
 					/* Note: cs->colitem = 0 already. */
@@ -288,9 +282,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 					assert(ri != 0); /* implicit undefined isn't supported */
 
 					TRACE(("    found explicit UNDEFINED\n"));
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning right now single weight locales do not support ..
-#endif
 					if (CUR_COLLATE->num_weights == 1) {
 						TRACE(("    single weight UNDEFINED\n"));
 						cs->weightidx = RANGE_IDX;
@@ -333,9 +324,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 		FOUND:
 			ri = CUR_COLLATE->index2ruleidx[cs->colitem - 1];
 			TRACE((" ri=%d ", ri));
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning make sure this is correct
-#endif
 			if (!ri) {
 				TRACE(("NOT IN THIS LOCALE\n"));
 				goto UNDEFINED;
@@ -344,9 +332,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 
 		RANGE_SKIP_TO:
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning ignoreables probably should not interrupt backwards processing, but this is wrong
-#endif
 /* 			if (!(ru & WEIGHT_MASK)) { */
 /* 				TRACE(("IGNORE\n")); */
 /* 				cs->s += n; */
@@ -368,9 +353,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 							cs->bp = malloc(cs->bb_size + 128);
 							if (!cs->bp) {
 								/* __set_errno(ENOMEM); */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning what to do here?
-#endif
 								cs->weight = 0;
 								return;
 							}
@@ -380,9 +362,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 							cs->bp = realloc(cs->back_buf, cs->bb_size + 128);
 							if (!cs->bp) {
 								/* __set_errno(ENOMEM); */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning what to do here?
-#endif
 								cs->weight = 0;
 								return;
 							}
@@ -430,9 +409,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 						assert(ru & WEIGHT_MASK);
 						cs->ru_pushed = ru;
 						cs->weight = cs->position;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning devel code
-#endif
 						cs->position = 0;	/* reset to reduce size for strcoll? */
 						cs->s += n;
 						cs->weightidx = RANGE_IDX;
@@ -453,9 +429,6 @@ static void next_weight(col_state_t *cs, int pass   __LOCALE_PARAM )
 			cs->rule = ru & RULE_MASK;
 		}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning for pending we only want the weight... _not_ the rule
-#endif
 		if (!cs->weightidx) {	/* ignore */
 			continue;
 		}
@@ -547,10 +520,6 @@ size_t __XL_NPP(wcsxfrm)(wchar_t *__restrict ws1, const wchar_t *__restrict ws2,
 		return __wcslcpy(ws1, ws2, n);
 	}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning handle empty string as a special case
-#endif
-
 	count = pass = 0;
 	do {						/* loop through the weights levels */
 		init_col_state(&cs, ws2);
@@ -629,10 +598,6 @@ size_t __XL_NPP(strxfrm)(char *__restrict ws1, const char *__restrict ws2, size_
 	if (!CUR_COLLATE->num_weights) { /* C locale */
 		return strlcpy(ws1, ws2, n);
 	}
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning handle empty string as a special case
-#endif
 
 	inc = count = pass = 0;
 	do {						/* loop through the weights levels */

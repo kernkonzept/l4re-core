@@ -497,7 +497,6 @@ allyesconfig: $(conf)
 		-e "s/^DOASSERTS=.*/# DOASSERTS is not set/" \
 		-e "s/^SUPPORT_LD_DEBUG_EARLY=.*/# SUPPORT_LD_DEBUG_EARLY is not set/" \
 		-e "s/^SUPPORT_LD_DEBUG=.*/# SUPPORT_LD_DEBUG is not set/" \
-		-e "s/^UCLIBC_MJN3_ONLY=.*/# UCLIBC_MJN3_ONLY is not set/" \
 		$(KCONFIG_CONFIG)
 	$(Q)$< -o $(Kconfig)
 alldefconfig: $(conf)

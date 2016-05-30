@@ -62,16 +62,7 @@
 #endif /* __UCLIBC_HAS_CTYPE_SIGNED__ */
 
 #endif /* __UCLIBC_HAS_CTYPE_TABLES__ */
-/**********************************************************************/
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_isspace
-/* emit only once */
-#warning CONSIDER: Should we assert when debugging and __UCLIBC_HAS_CTYPE_CHECKED?
-#warning TODO: Fix asserts in to{upper|lower}{_l}.
-#warning TODO: Optimize the isx*() funcs.
-#endif
-#endif /* __UCLIBC_MJN3_ONLY__ */
-/**********************************************************************/
+
 #undef PASTE2
 #define PASTE2(X,Y)    X ## Y
 

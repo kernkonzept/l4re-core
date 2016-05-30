@@ -112,12 +112,6 @@
 
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_LOCALE__
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_iswspace
-/* generates one warning */
-#warning TODO: Fix Cc2wc* and Cwc2c* defines!
-#endif
-#endif /* __UCLIBC_MJN3_ONLY__ */
 
 #define ENCODING		(__UCLIBC_CURLOCALE->encoding)
 
@@ -133,13 +127,6 @@
 #endif
 
 #else  /* __UCLIBC_HAS_LOCALE__ */
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_btowc
-/* emit only once */
-#warning fix preprocessor logic testing locale settings
-#endif
-#endif
 
 #define ENCODING (__ctype_encoding_7_bit)
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
@@ -313,10 +300,6 @@ size_t mbrtowc(wchar_t *__restrict pwc, const char *__restrict s,
 	}
 #endif
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: This adds a trailing nul!
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
 	r = mbsnrtowcs(wcbuf, &p, SIZE_MAX, 1, ps);
 
 	if (((ssize_t) r) >= 0) {
@@ -339,9 +322,6 @@ libc_hidden_def(mbrtowc)
 size_t wcrtomb(register char *__restrict s, wchar_t wc,
 			   mbstate_t *__restrict ps)
 {
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Should wcsnrtombs nul-terminate unconditionally?  Check glibc.
-#endif /* __UCLIBC_MJN3_ONLY__ */
 	wchar_t wcbuf[1];
 	const wchar_t *pwc;
 	size_t r;
@@ -473,9 +453,6 @@ size_t attribute_hidden _wchar_utf8sntowcs(wchar_t *__restrict pwc, size_t wn,
 		--n;
 		if ((wc = ((unsigned char) *s++)) >= 0x80) { /* Not ASCII... */
 			mask = 0x40;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Fix range for 16 bit wchar_t case.
-#endif
 			if (( ((unsigned char)(s[-1] - 0xc0)) < (0xfe - 0xc0) ) &&
 			(((unsigned char)s[-1] != 0xc0 ) && ((unsigned char)s[-1] != 0xc1 ))) {
 				goto START;
@@ -910,12 +887,6 @@ libc_hidden_def(wcsnrtombs)
 #endif
 /**********************************************************************/
 #ifdef L_wcswidth
-
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: If we start doing translit, wcwidth and wcswidth will need updating.
-#warning TODO: Update wcwidth to match latest by Kuhn.
-#endif
 
 #if defined(__UCLIBC_HAS_LOCALE__) && \
 ( defined(__CTYPE_HAS_8_BIT_LOCALES) || defined(__CTYPE_HAS_UTF_8_LOCALES) )
@@ -1443,9 +1414,6 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 					}
 					return (size_t)(-1);
 				}
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: optimize this.
-#endif
 				if (p != NULL) { /* incomplete char case */
 					goto INVALID;
 				}
@@ -1520,9 +1488,6 @@ size_t weak_function iconv(iconv_t cd, char **__restrict inbuf,
 			do {
 				r = _wchar_wcsntoutf8s(*outbuf, *outbytesleft, &pw, 1);
 				if (r != (size_t)(-1)) {
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: What happens for a nul?
-#endif
 					if (r == 0) {
 						if (wc != 0) {
 							goto TOO_BIG;

@@ -19,9 +19,6 @@ char *fgets_unlocked(char *__restrict s, int n,
 
 	__STDIO_STREAM_VALIDATE(stream);
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: What should fgets do if n <= 0?
-#endif /* __UCLIBC_MJN3_ONLY__ */
 	/* Should we assert here?  Or set errno?  Or just fail... */
 	if (n <= 0) {
 /* 		__set_errno(EINVAL); */
@@ -48,9 +45,6 @@ char *fgets_unlocked(char *__restrict s, int n,
 		}
 	}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: If n==1 and not at EOF, should fgets return an empty string?
-#endif /* __UCLIBC_MJN3_ONLY__ */
 	if (p > s) {
 		*p = 0;
 		return s;

@@ -64,11 +64,6 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 		open_mode += (O_RDWR - (O_RDONLY | O_WRONLY));
 	}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Implement glibc ccs option to bind a codeset?
-#warning CONSIDER: Implement glibc mmap option for readonly files?
-#warning CONSIDER: Implement a text mode using custom read/write funcs?
-#endif
 #if defined(__UCLIBC_HAS_FOPEN_EXCLUSIVE_MODE__) || defined(__UCLIBC_HAS_FOPEN_LARGEFILE_MODE__) || \
     defined(__UCLIBC_HAS_FOPEN_CLOSEEXEC_MODE__)
 
@@ -109,10 +104,6 @@ FILE attribute_hidden *_stdio_fopen(intptr_t fname_or_mode,
 		STDIO_INIT_MUTEX(stream->__lock);
 #endif
 	}
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Verify fdopen append behavior of glibc.
-#endif
 
 	if (filedes >= 0) {			/* Handle fdopen trickery. */
 		stream->__filedes = filedes;

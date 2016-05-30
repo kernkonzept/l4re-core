@@ -10,10 +10,6 @@
 
 #ifdef __DO_UNLOCKED
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning WISHLIST: Add option to test for undefined behavior of fflush.
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
 /* Even if the stream is set to user-locking, we still need to lock
  * when all (lbf) writing streams are flushed. */
 
@@ -34,16 +30,10 @@ void attribute_hidden _stdio_openlist_dec_use(void)
 		FILE *n;
 		FILE *stream;
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: As an optimization, we could unlock after we move past the head.
-#endif
 		/* Grab the openlist add lock since we might change the head of the list. */
 		__STDIO_THREADLOCK_OPENLIST_ADD;
 		for (stream = _stdio_openlist; stream; stream = n) {
 			n = stream->__nextopen;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: fix for nonatomic
-#endif
 			if ((stream->__modeflags & (__FLAG_READONLY|__FLAG_WRITEONLY|__FLAG_FAILED_FREOPEN))
 				== (__FLAG_READONLY|__FLAG_WRITEONLY)
 				) {		 /* The file was closed and should be removed from the list. */
@@ -70,9 +60,6 @@ int fflush_unlocked(register FILE *stream)
 #ifdef __STDIO_BUFFERS
 
 	int retval = 0;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: should probably define a modeflags type
-#endif
 	unsigned short bufmask = __FLAG_LBF;
 
 #ifndef NDEBUG

@@ -7,11 +7,6 @@
 
 #include "_stdio.h"
 
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Increase buffer size for error message (non-%m case)?
-#endif
-
 void perror(register const char *s)
 {
 	/* If the program is calling perror, it's a safe bet that printf and

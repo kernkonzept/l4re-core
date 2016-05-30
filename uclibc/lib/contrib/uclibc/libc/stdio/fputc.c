@@ -41,9 +41,6 @@ int __fputc_unlocked(int c, register FILE *stream)
 				) {
 				goto BAD;
 			}
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Should we fail if the commit fails but we now have room?
-#endif
 
 			__STDIO_STREAM_BUFFER_ADD(stream, ((unsigned char) c));
 

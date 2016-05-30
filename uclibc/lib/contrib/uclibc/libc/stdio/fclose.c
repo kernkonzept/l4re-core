@@ -85,9 +85,6 @@ int fclose(register FILE *stream)
 	__STDIO_AUTO_THREADUNLOCK(stream);
 
 	__STDIO_STREAM_FREE_BUFFER(stream);
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: inefficient - locks and unlocks twice and walks whole list
-#endif
 #if defined(__UCLIBC_HAS_THREADS__) && defined(__STDIO_BUFFERS)
 	/* inefficient - locks/unlocks twice and walks whole list */
 	__STDIO_OPENLIST_INC_DEL_CNT;

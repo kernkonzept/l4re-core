@@ -31,9 +31,6 @@ int ungetc(int c, register FILE *stream)
 	__STDIO_AUTO_THREADLOCK(stream);
 	__STDIO_STREAM_VALIDATE(stream);
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Make fast ungetc an option?
-#endif
 #ifdef __UCLIBC_HAS_STDIO_GETC_MACRO__
 	/* If buffered narrow reading with no ungot slots filled, and if not
 	 * ungetting a different char than the one last read from the buffer,

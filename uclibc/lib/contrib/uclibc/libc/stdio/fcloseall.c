@@ -27,17 +27,11 @@ int fcloseall (void)
 
 	__STDIO_OPENLIST_INC_USE;
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: should probably have a get_head() operation
-#endif
 	__STDIO_THREADLOCK_OPENLIST_ADD;
 	f = _stdio_openlist;
 	__STDIO_THREADUNLOCK_OPENLIST_ADD;
 
 	while (f) {
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: should probably have a get_next() operation
-#endif
 		FILE *n = f->__nextopen;
 		__STDIO_AUTO_THREADLOCK_VAR;
 

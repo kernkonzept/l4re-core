@@ -2082,9 +2082,6 @@ int gethostbyname_r(const char *name,
 		return ERANGE;
 
 	/* we store only one "alias" - the name itself */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO -- generate the full list
-#endif
 	alias[0] = alias0;
 	alias[1] = NULL;
 
@@ -2283,9 +2280,6 @@ int gethostbyname2_r(const char *name,
 		return ERANGE;
 
 	/* we store only one "alias" - the name itself */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO -- generate the full list
-#endif
 	alias[0] = alias0;
 	alias[1] = NULL;
 

@@ -7,10 +7,6 @@
 
 #include "_stdio.h"
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Do we really need a seperate rfill function?
-#endif
-
 #ifdef __STDIO_BUFFERS
 
 /* Read some data into the buffer.

@@ -12,13 +12,7 @@
 #include <errno.h>
 #include <err.h>
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: Deal with wide oriented stderr case.
-#endif
-
 #if defined __USE_BSD
-
-
 
 static void vwarn_work(const char *format, va_list args, int showerr)
 {

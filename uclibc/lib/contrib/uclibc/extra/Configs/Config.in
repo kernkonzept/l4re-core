@@ -1853,20 +1853,6 @@ config UCLIBC_HAS_SYS_SIGLIST
 
 	  Most people will answer N.
 
-config UCLIBC_HAS_GETTEXT_AWARENESS
-	bool "Include gettext awareness"
-	depends on UCLIBC_HAS_LOCALE && UCLIBC_MJN3_ONLY
-	help
-	  NOTE!!!  Not yet integrated with strerror and strsignal.  NOTE!!!
-
-	  Answer Y if you want to include weak stub gettext support and
-	  make the *strerror*() and strsignal() functions gettext-aware.
-
-	  Currently, to get functional gettext functionality you will need
-	  to use gnu gettext.
-
-	  Most people will answer N.
-
 config UCLIBC_HAS_GNU_GETOPT
 	bool "Support gnu getopt"
 	default y

@@ -23,10 +23,6 @@
 #include <sys/wait.h>
 #include <bits/uClibc_mutex.h>
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "hmm... susv3 says Pipe streams are byte-oriented."
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
 #ifndef VFORK_LOCK
 __UCLIBC_MUTEX_STATIC(mylock, PTHREAD_MUTEX_INITIALIZER);
 # define VFORK_LOCK		__UCLIBC_MUTEX_LOCK(mylock)

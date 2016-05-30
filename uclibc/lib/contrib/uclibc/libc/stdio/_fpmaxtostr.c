@@ -210,9 +210,6 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 	intptr_t pc_fwi[3*MAX_CALLS];
 	intptr_t *ppc;
 	intptr_t *ppc_last;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: The size of exp_buf[] should really be determined by the float constants.
-#endif /* __UCLIBC_MJN3_ONLY__ */
 	char exp_buf[16];
 	char buf[BUF_SIZE];
 	char sign_str[6];			/* Last 2 are for 1st digit + nul. */
@@ -291,9 +288,6 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 
 	{
 		int i, j;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Clean up defines when hexadecimal float notation is unsupported.
-#endif /* __UCLIBC_MJN3_ONLY__ */
 
 #ifdef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 
@@ -375,9 +369,6 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 		do {
 			uint_fast32_t digit_block = (uint_fast32_t) x;
 			assert(digit_block < upper_bnd);
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Can rounding be a problem?
-#endif /* __UCLIBC_MJN3_ONLY__ */
 			x = (x - digit_block) * upper_bnd;
 			s += dpb;
 			j = 0;

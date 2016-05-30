@@ -58,11 +58,6 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_setlocale
-#warning TODO: Make the link_warning()s a config option?
-#endif
-#endif
 #undef link_warning
 #define link_warning(A,B)
 
@@ -77,13 +72,6 @@
 #include <locale.h>
 
 #else  /* __LOCALE_C_ONLY */
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_setlocale
-#warning TODO: Fix the __CTYPE_HAS_8_BIT_LOCALES define at the top of the file.
-#warning TODO: Fix __WCHAR_ENABLED.
-#endif
-#endif
 
 /* Need to include this before locale.h! */
 #include <bits/uClibc_locale.h>
@@ -107,9 +95,6 @@
 #define LOCALE_AT_MODIFIERS		(__locale_mmap->locale_at_modifiers)
 #define CATEGORY_NAMES			(__locale_mmap->lc_names)
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: redo the MAX_LOCALE_STR stuff...
-#endif
 #define MAX_LOCALE_STR			256 /* TODO: Only sufficient for current case. */
 #define MAX_LOCALE_CATEGORY_STR	32 /* TODO: Only sufficient for current case. */
 /* Note: Best if MAX_LOCALE_CATEGORY_STR is a power of 2. */
@@ -122,11 +107,6 @@ extern void _locale_init_l(__locale_t base) attribute_hidden;
 #undef LOCALE_STRING_SIZE
 #define LOCALE_SELECTOR_SIZE (2 * __LC_ALL + 2)
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_setlocale
-#warning TODO: Create a C locale selector string.
-#endif
-#endif
 #define C_LOCALE_SELECTOR "\x23\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80\x80"
 
 
@@ -163,15 +143,9 @@ link_warning(setlocale,"REMINDER: The 'setlocale' function is _not_ threadsafe e
 #error locales enabled, but not data other than for C locale!
 #endif
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Move posix and utf8 strings.
-#endif
 static const char posix[] = "POSIX";
 static const char utf8[] = "UTF-8";
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Fix dimensions of hr_locale.
-#endif
 /* Individual category strings start at hr_locale + category * MAX_LOCALE_CATEGORY.
  * This holds for LC_ALL as well.
  */
@@ -355,9 +329,6 @@ __locale_t __curlocale_var = &__global_locale_data;
 #endif
 
 /*----------------------------------------------------------------------*/
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Move utf8 and ascii strings.
-#endif
 static const char utf8[] = "UTF-8";
 static const char ascii[] = "ASCII";
 
@@ -413,9 +384,6 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 	size_t n;
 	uint16_t i, w;
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning kill of x86-specific asserts
-#endif
 #if 0
 	assert(sizeof(coldata_base_t) == 19*2);
 	assert(sizeof(coldata_der_t) == 4*2);
@@ -431,9 +399,6 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 
 	cdh = (coldata_header_t *) __locale_collate_tbl;
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Should we assert here?
-#endif
 #if 0
 	if (der_num >= cdh->num_der) {
 		return 0;
@@ -491,11 +456,6 @@ static int init_cur_collate(int der_num, __collate_t *cur_collate)
 /* 			+ cdb->wcs2colidt_offset_low); */
 
 	cur_collate->MAX_WEIGHTS = cdh->MAX_WEIGHTS;
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Fix the +1 by increasing max_col_index?
-#warning CONSIDER: Since this collate info is dependent only on LC_COLLATE ll_cc and not on codeset, we could just globally allocate this for each in a table
-#endif
 
 	cur_collate->index2weight = calloc(2*cur_collate->max_col_index+2,
 									   sizeof(uint16_t));
@@ -643,9 +603,6 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 					c -= 3;
 					base->codeset = (char *) (r + r[c]);
 					base->encoding = __ctype_encoding_8_bit;
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: update 8 bit mb_cur_max when translit implemented!
-#endif
 					/* TODO - update when translit implemented! */
 					base->mb_cur_max = 1;
 					c8b = __locale_mmap->codeset_8_bit + c;
@@ -775,9 +732,6 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 
 #endif /* __CTYPE_HAS_8_BIT_LOCALES */
 				}
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Put the outdigit string length in the locale_mmap object.
-#endif
 				d = base->outdigit_length;
 				x = &base->outdigit0_mb;
 				for (c = 0 ; c < 10 ; c++) {
@@ -798,9 +752,6 @@ int attribute_hidden _locale_set_l(const unsigned char *p, __locale_t base)
 						= __locale_mbrtowc_l(&base->thousands_sep_wc,
 											 base->thousands_sep, base);
 #if 1
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Remove hack involving grouping without a thousep char (bg_BG).
-#endif
 					assert(base->thousands_sep_len >= 0);
 					if (base->thousands_sep_len == 0) {
 						base->grouping = base->thousands_sep; /* empty string */
@@ -898,9 +849,6 @@ void attribute_hidden _locale_init_l(__locale_t base)
 	__ctype_toupper = __C_ctype_toupper;
 #endif /* __UCLIBC_HAS_XLOCALE__ */
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Initialize code2flag correctly based on locale_mmap.
-#endif
 	base->code2flag = __code2flag;
 
 	_locale_set_l((unsigned char*) C_LOCALE_SELECTOR, base);
@@ -1056,9 +1004,6 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 
 #warning mask defines for extra locale categories
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Move posix and utf8 strings.
-#endif
 static const char posix[] = "POSIX";
 static const char utf8[] = "UTF-8";
 
@@ -1073,9 +1018,6 @@ static int find_locale(int category_mask, const char *p,
 #if defined(__LOCALE_DATA_AT_MODIFIERS_LENGTH) && 1
 	/* Support standard locale handling for @-modifiers. */
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: Fix buf size in find_locale.
-#endif
 	char buf[18];	/* TODO: 7+{max codeset name length} */
 	const char *q;
 
@@ -1226,9 +1168,6 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 		return NULL; /* No locale or illegal/unsupported category. */
 	}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Rename cur_locale to locale_selector.
-#endif
 	strcpy((char *) new_selector,
 		   (base ? (char *) base->cur_locale : C_LOCALE_SELECTOR));
 
@@ -1272,15 +1211,9 @@ __locale_t newlocale(int category_mask, const char *locale, __locale_t base)
 		goto INVALID;
 	}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Do a compatible codeset check!
-#endif
 
 	/* If we get here, the new selector corresponds to a valid locale. */
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning CONSIDER: Probably want a _locale_new func to allow for caching of locales.
-#endif
 #if 0
 	if (base) {
 		_locale_set_l(new_selector, base);
@@ -1309,10 +1242,6 @@ libc_hidden_def(newlocale)
 #ifdef L_duplocale
 
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: When we allocate ctype tables, remember to dup them.
-#endif
-
 __locale_t duplocale(__locale_t dataset)
 {
 	__locale_t r;
@@ -1340,10 +1269,6 @@ __locale_t duplocale(__locale_t dataset)
 #endif
 /**********************************************************************/
 #ifdef L_freelocale
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning REMINDER: When we allocate ctype tables, remember to free them.
-#endif
 
 void freelocale(__locale_t dataset)
 {

@@ -70,12 +70,6 @@
 
 #else  /* __UCLIBC_HAS_LOCALE__ */
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#ifdef L_mblen
-/* emit only once */
-#warning devel checks
-#endif
-#endif
 #ifdef __CTYPE_HAS_8_BIT_LOCALES
 #error __CTYPE_HAS_8_BIT_LOCALES is defined!
 #endif
@@ -821,11 +815,6 @@ size_t _stdlib_mb_cur_max(void)
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
 	return __UCLIBC_CURLOCALE->mb_cur_max;
 #else
-#ifdef __CTYPE_HAS_8_BIT_LOCALES
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning need to change this when/if transliteration is implemented
-#endif
-#endif
 	return 1;
 #endif
 }

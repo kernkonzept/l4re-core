@@ -288,16 +288,6 @@ extern char *ctime_r (const time_t *__restrict __timer,
 		      char *__restrict __buf) __THROW;
 # endif	/* POSIX or misc */
 
-
-/* Defined in localtime.c.  */
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "mjn3 FIXME: __tzname, __daylight, and __timezone have a prototype but are not defined."
-extern char *__tzname[2];	/* Current timezone names.  */
-extern int __daylight;		/* If daylight-saving time is ever in use.  */
-extern long int __timezone;	/* Seconds west of UTC.  */
-#endif /* __UCLIBC_MJN3_ONLY__ */
-
-
 # ifdef	__USE_POSIX
 /* Same as above.  */
 extern char *tzname[2];
@@ -402,49 +392,6 @@ extern int timer_gettime (timer_t __timerid, struct itimerspec *__value)
 extern int timer_getoverrun (timer_t __timerid) __THROW;
 #  endif /* __UCLIBC_HAS_REALTIME__ */
 # endif /* __USE_POSIX199309 */
-
-
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning "mjn3 FIXME: a bunch of unimplemented function prototypes."
-# ifdef __USE_XOPEN_EXTENDED
-/* Set to one of the following values to indicate an error.
-     1  the DATEMSK environment variable is null or undefined,
-     2  the template file cannot be opened for reading,
-     3  failed to get file status information,
-     4  the template file is not a regular file,
-     5  an error is encountered while reading the template file,
-     6  memory allication failed (not enough memory available),
-     7  there is no line in the template that matches the input,
-     8  invalid input specification Example: February 31 or a time is
-        specified that can not be represented in a time_t (representing
-	the time in seconds since 00:00:00 UTC, January 1, 1970) */
-extern int getdate_err;
-
-/* Parse the given string as a date specification and return a value
-   representing the value.  The templates from the file identified by
-   the environment variable DATEMSK are used.  In case of an error
-   `getdate_err' is set.
-
-   This function is a possible cancellation points and therefore not
-   marked with __THROW.  */
-extern struct tm *getdate (const char *__string);
-# endif
-
-# ifdef __USE_GNU
-/* Since `getdate' is not reentrant because of the use of `getdate_err'
-   and the static buffer to return the result in, we provide a thread-safe
-   variant.  The functionality is the same.  The result is returned in
-   the buffer pointed to by RESBUFP and in case of an error the return
-   value is != 0 with the same values as given above for `getdate_err'.
-
-   This function is not part of POSIX and therefore no official
-   cancellation point.  But due to similarity with an POSIX interface
-   or due to the implementation it is a cancellation point and
-   therefore not marked with __THROW.  */
-extern int getdate_r (const char *__restrict __string,
-		      struct tm *__restrict __resbufp);
-# endif
-#endif /* __UCLIBC_MJN3_ONLY__ */
 
 __END_DECLS
 

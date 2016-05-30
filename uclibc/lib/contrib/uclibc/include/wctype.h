@@ -101,11 +101,6 @@ enum
   _ISwpunct = _ISwbit (__ISwpunct),	/* Punctuation.  */
   _ISwalnum = _ISwbit (__ISwalnum)	/* Alphanumeric.  */
 };
-# else
-#  if defined(__UCLIBC_MJN3_ONLY__) && defined(L_iswctype)
-#warning remove _ISwbit already defined check?
-#error _ISwbit already defined!
-#  endif
 # endif /* Not _ISwbit  */
 
 

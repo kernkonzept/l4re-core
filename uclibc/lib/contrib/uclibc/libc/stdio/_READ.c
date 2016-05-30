@@ -38,9 +38,6 @@ size_t attribute_hidden __stdio_READ(register FILE *stream,
 			bufsize = SSIZE_MAX;
 		}
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning EINTR?
-#endif
 /* 	RETRY: */
 		if ((rv = __READ(stream, (char *) buf, bufsize)) <= 0) {
 			if (rv == 0) {
@@ -50,9 +47,6 @@ size_t attribute_hidden __stdio_READ(register FILE *stream,
 				__STDIO_STREAM_SET_ERROR(stream);
 				rv = 0;
 			}
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Make custom stream read return check optional.
-#endif
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__
 		} else {
 			assert(rv <= bufsize);

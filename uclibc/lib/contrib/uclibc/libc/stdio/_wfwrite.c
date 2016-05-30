@@ -12,11 +12,6 @@
 #error wide function when no wide support!
 #endif
 
-#ifdef __UCLIBC_MJN3_ONLY__
-#warning TODO: Fix prototype.
-#endif
-
-
 size_t attribute_hidden _wstdio_fwrite(const wchar_t *__restrict ws, size_t n,
 					  register FILE *__restrict stream)
 {
