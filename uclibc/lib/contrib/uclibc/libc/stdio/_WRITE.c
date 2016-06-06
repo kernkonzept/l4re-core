@@ -76,6 +76,7 @@ size_t attribute_hidden __stdio_WRITE(register FILE *stream,
 			 */
 			if (errno != EINTR && errno != EAGAIN) {
 				/* do we have other "soft" errors? */
+				bufsize -= todo;
 				break;
 			}
 #ifdef __STDIO_BUFFERS
