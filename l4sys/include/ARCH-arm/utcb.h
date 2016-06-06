@@ -60,13 +60,13 @@ typedef struct l4_exc_regs_t
   l4_umword_t pfa;     /**< page fault address */
   l4_umword_t err;     /**< error code */
 
-  l4_umword_t tpidruro;/**< Thread-ID register */
   l4_umword_t r[13];   /**< registers */
   l4_umword_t sp;      /**< stack pointer */
   l4_umword_t ulr;     /**< ulr */
   l4_umword_t _dummy1; /**< dummy \internal */
   l4_umword_t pc;      /**< pc */
   l4_umword_t cpsr;    /**< cpsr */
+  l4_umword_t tpidruro;/**< Thread-ID register */
 } l4_exc_regs_t;
 
 #include_next <l4/sys/utcb.h>
