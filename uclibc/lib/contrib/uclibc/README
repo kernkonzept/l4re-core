@@ -12,7 +12,7 @@ Porting applications from glibc to uClibc-ng typically involves just
 recompiling the source code.  uClibc-ng even supports shared libraries and
 threading. It currently runs on standard Linux and MMU-less (also
 known as µClinux) systems with support for ARC, ARM, Blackfin, i386, M68K/Coldfire
-MIPS, MIPS64, PowerPC, SH, Sparc, X86_64 and XTENSA processors.
+MIPS, MIPS64, NDS32, PowerPC, SH, Sparc, X86_64 and XTENSA processors.
 
 If you are building an embedded Linux system and you find that
 glibc is eating up too much space, you should consider using
@@ -22,10 +22,10 @@ example, that 12 Terabytes will be Network Attached Storage and
 you plan to burn Linux into the system's firmware...
 
 uClibc-ng is maintained by Waldemar Brodkorb and is licensed under the
-GNU LESSER GENERAL PUBLIC LICENSE.  This license allows you to
+GNU LESSER GENERAL PUBLIC LICENSE. This license allows you to
 make closed source commercial applications using an unmodified
 version of uClibc-ng. You do not need to give away all your source code just
-because you use uClibc-ng and/or run on Linux.  You should, however,
+because you use uClibc-ng and/or run on Linux. You should, however,
 carefuly review the license and make certain you understand and
 abide by it strictly.
 
@@ -42,7 +42,7 @@ Additional information can be found at http://www.uclibc-ng.org/.
 
 uClibc-ng may be freely modified and distributed under the terms of
 the GNU Lesser General Public License, which can be found in the
-file COPYING.
+file COPYING.LIB.
 
 And most of all, be sure to have some fun! :-)
  -Waldemar

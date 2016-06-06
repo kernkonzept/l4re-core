@@ -41,11 +41,15 @@ __start:
 
 	mov_s	r5, r0		; rltd_fini
 	add_s	r2, sp, 4	; argv
-
+#ifdef L_Scrt1
+	ld	r0, [pcl, @main@gotpc]
+	ld	r3, [pcl, @_init@gotpc]
+	ld	r4, [pcl, @_fini@gotpc]
+#else
 	mov_s	r0, main
 	mov_s	r3, _init
 	mov	r4, _fini
-
+#endif
 	and	sp, sp, -8
 	mov	r6, sp
 
@@ -55,3 +59,18 @@ __start:
 	/* Should never get here....  */
 	flag    1
 .size __start,.-__start
+
+/* Implement a .note.ABI-tag section that is mandatory for Linux executables
+   according to LSB. See:
+   https://refspecs.linuxfoundation.org/LSB_1.2.0/gLSB/noteabitag.html.
+   Also: libc/sysdeps/linux/avr32/crt1.S. */
+.section ".note.ABI-tag", "a"
+	.align 4
+	.long 1f - 0f		/* Name length */
+	.long 3f - 2f		/* Data length */
+	.long 1			/* Note type */
+0:	.asciz "GNU"		/* Vendor name */
+1:	.align 4
+2:	.long 0			/* Note data: Linux executable */
+	.long 3,9,0		/* Earliest compatible kernel */
+3:	.align 4		/* Pad out section */

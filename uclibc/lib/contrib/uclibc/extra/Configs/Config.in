@@ -31,6 +31,7 @@ choice
 	default TARGET_metag if DESIRED_TARGET_ARCH = "metag"
 	default TARGET_microblaze if DESIRED_TARGET_ARCH = "microblaze"
 	default TARGET_mips if DESIRED_TARGET_ARCH = "mips"
+	default TARGET_nds32 if DESIRED_TARGET_ARCH = "nds32"
 	default TARGET_nios2 if DESIRED_TARGET_ARCH = "nios2"
 	default TARGET_or1k if DESIRED_TARGET_ARCH = "or1k"
 	default TARGET_powerpc if DESIRED_TARGET_ARCH = "powerpc"
@@ -93,6 +94,9 @@ config TARGET_microblaze
 
 config TARGET_mips
 	bool "mips"
+
+config TARGET_nds32
+	bool "nds32"
 
 config TARGET_nios2
 	bool "nios2"
@@ -170,6 +174,10 @@ endif
 
 if TARGET_metag
 source "extra/Configs/Config.metag"
+endif
+
+if TARGET_nds32
+source "extra/Configs/Config.nds32"
 endif
 
 if TARGET_nios2
@@ -481,7 +489,6 @@ config LDSO_GNU_HASH_SUPPORT
 
 choice
 	prompt "Thread support"
-	#default UCLIBC_HAS_THREADS_NATIVE if (TARGET_alpha || TARGET_arm || TARGET_i386 || TARGET_mips || TARGET_powerpc || TARGET_sh || TARGET_sh64)
 	default HAS_NO_THREADS
 	help
 	  If you want to compile uClibc with pthread support, then answer Y.
@@ -529,6 +536,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_ia64 && \
 		   !TARGET_m68k && \
 		   !TARGET_microblaze && \
+		   !TARGET_nds32 && \
 		   !TARGET_nios2 && \
 		   !TARGET_or1k && \
 		   ARCH_USE_MMU
@@ -2099,7 +2107,7 @@ menu "Security options"
 config UCLIBC_BUILD_PIE
 	bool "Build utilities as ET_DYN/PIE executables"
 	depends on HAVE_SHARED
-	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc
+	depends on TARGET_arm || TARGET_frv || TARGET_i386 || TARGET_mips || TARGET_powerpc || TARGET_nds32
 	select FORCE_SHAREABLE_TEXT_SEGMENTS
 	help
 	  If you answer Y here, ldd and iconv are built as ET_DYN/PIE

@@ -91,10 +91,10 @@ struct elf_prstatus
 	short	pr_cursig;		/* Current signal */
 	unsigned long pr_sigpend;	/* Set of pending signals */
 	unsigned long pr_sighold;	/* Set of held signals */
-	__kernel_pid_t	pr_pid;
-	__kernel_pid_t	pr_ppid;
-	__kernel_pid_t	pr_pgrp;
-	__kernel_pid_t	pr_sid;
+	__pid_t	pr_pid;
+	__pid_t	pr_ppid;
+	__pid_t	pr_pgrp;
+	__pid_t	pr_sid;
 	struct timeval pr_utime;	/* User time */
 	struct timeval pr_stime;	/* System time */
 	struct timeval pr_cutime;	/* Cumulative user time */
@@ -112,9 +112,9 @@ struct elf_prpsinfo
 	char	pr_zomb;	/* zombie */
 	char	pr_nice;	/* nice val */
 	unsigned long pr_flag;	/* flags */
-	__kernel_uid_t	pr_uid;
-	__kernel_gid_t	pr_gid;
-	__kernel_pid_t	pr_pid, pr_ppid, pr_pgrp, pr_sid;
+	unsigned short int pr_uid;
+	unsigned short int pr_gid;
+	int pr_pid, pr_ppid, pr_pgrp, pr_sid;
 	/* Lots missing */
 	char	pr_fname[16];	/* filename of executable */
 	char	pr_psargs[ELF_PRARGSZ];	/* initial part of arg list */
@@ -134,7 +134,7 @@ typedef elf_fpregset_t prfpregset_t;
 
 /* We don't have any differences between processes and threads,
    therefore have only one PID type.  */
-typedef __kernel_pid_t lwpid_t;
+typedef __pid_t lwpid_t;
 
 /* Process status and info.  In the end we do provide typedefs for them.  */
 typedef struct elf_prstatus prstatus_t;

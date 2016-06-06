@@ -5,8 +5,5 @@
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 
-CSRC-y := clone.c fixdfsi.c
-
+CSRC-y := clone.c
 SSRC-y := setjmp.S __longjmp.S vfork.S
-
-ARCH_HEADERS := floatlib.h

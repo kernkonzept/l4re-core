@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdbool.h>
+#include <sys/syscall.h>
 #include <fcntl.h>
 
 #include <sys/resource.h>

@@ -104,6 +104,7 @@ ifeq ($(TARGET_ARCH),)
 ARCH ?= $(shell uname -m | $(SED) -e s/i.86/i386/ \
 				  -e s/sun.*/sparc/ -e s/sparc.*/sparc/ \
 				  -e s/arm.*/arm/ -e s/sa110/arm/ \
+				  -e s/nds32.*/nds32/ \
 				  -e s/sh.*/sh/ \
 				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
@@ -299,10 +300,14 @@ ifeq ($(UCLIBC_HAS_SOFT_FLOAT),y)
 ifneq ($(TARGET_ARCH),bfin)
 ifneq ($(TARGET_ARCH),lm32)
 ifneq ($(TARGET_ARCH),nios2)
+ifneq ($(TARGET_ARCH),nds32)
 ifneq ($(TARGET_ARCH),sh)
 ifneq ($(TARGET_ARCH),c6x)
 ifneq ($(TARGET_ARCH),h8300)
+ifneq ($(TARGET_ARCH),arc)
 CPU_CFLAGS-y += -msoft-float
+endif
+endif
 endif
 endif
 endif
@@ -407,6 +412,12 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_NAN_LEGACY)+=-mnan=legacy
 	CPU_CFLAGS-$(CONFIG_MIPS_NAN_2008)+=-mnan=2008
 	CPU_LDFLAGS-y += $(CPU_CFLAGS)
+endif
+
+ifeq ($(TARGET_ARCH),nds32)
+	CPU_CFLAGS-$(CONFIG_NDS32_ISA)+=-march=nds32
+	CFLAGS-.os+= -DPIC
+	CFLAGS-.oS+= -DPIC
 endif
 
 ifeq ($(TARGET_ARCH),sh)

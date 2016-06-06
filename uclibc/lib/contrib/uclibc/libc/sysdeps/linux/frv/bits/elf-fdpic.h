@@ -91,7 +91,7 @@ __reloc_pointer (void *p,
       /* This should be computed as part of the pointer comparison
 	 above, but we want to use the carry in the comparison, so we
 	 can't convert it to an integer type beforehand.  */
-      unsigned long offset = p - (void*)map->segs[c].p_vaddr;
+      unsigned long offset = (char*)p - (char*)map->segs[c].p_vaddr;
       /* We only check for one-past-the-end for the last segment,
 	 assumed to be the data segment, because other cases are
 	 ambiguous in the absence of padding between segments, and

@@ -94,7 +94,7 @@ __reloc_pointer (void *p,
 
   for (c = 0; c < map->nsegs; c++)
     {
-      unsigned long offset = p - (void*)map->segs[c].p_vaddr;
+      unsigned long offset = (char*)p - (char*)map->segs[c].p_vaddr;
       /* We only check for one-past-the-end for the second segment,
 	 assumed to be the data segment, because other cases are
 	 ambiguous in the absence of padding between segments, and

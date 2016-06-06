@@ -27,10 +27,7 @@
 ;		void *tls,
 ;		int __user *child_tidptr)
 
-#define CLONE_VM		0x00000100
-#define CLONE_THREAD		0x00010000
 #define CLONE_SETTLS		0x00080000
-#define CLONE_THREAD_N_VM	(CLONE_THREAD | CLONE_VM)
 
 ENTRY(clone)
 	cmp	r0, 0		; @fn can't be NULL
@@ -68,11 +65,9 @@ ENTRY(clone)
 
 .Lnext_clone_quirk:
 #ifdef RESET_PID
-	mov_s	r2, CLONE_THREAD_N_VM
-	and_s	r2, r2, r12
-	brne	r2, r12, .Lgo_thread
+	bbit1	r12, 16, .Lgo_thread	; CLONE_THREAD = (1 << 16)
 
-	mov	r8, __NR_clone
+	mov	r8, __NR_getpid
 	ARC_TRAP_INSN		; r0 has PID
 	THREAD_SELF r1		; Get to struct pthread (just before TCB)
 	st	r0, [r1, PTHREAD_PID]

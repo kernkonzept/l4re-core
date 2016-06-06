@@ -68,6 +68,26 @@ enum __ptrace_request
   PTRACE_SINGLESTEP = 9,
 #define PT_STEP PTRACE_SINGLESTEP
 
+  /* Get all general purpose registers used by a processes.
+     This is not supported on all machines.  */
+   PTRACE_GETREGS = 12,
+#define PT_GETREGS PTRACE_GETREGS
+
+  /* Set all general purpose registers used by a processes.
+     This is not supported on all machines.  */
+   PTRACE_SETREGS = 13,
+#define PT_SETREGS PTRACE_SETREGS
+
+  /* Get all floating point registers used by a processes.
+     This is not supported on all machines.  */
+   PTRACE_GETFPREGS = 14,
+#define PT_GETFPREGS PTRACE_GETFPREGS
+
+  /* Set all floating point registers used by a processes.
+     This is not supported on all machines.  */
+   PTRACE_SETFPREGS = 15,
+#define PT_SETFPREGS PTRACE_SETFPREGS
+
   /* Attach to a process that is already running. */
   PTRACE_ATTACH = 16,
 #define PT_ATTACH PTRACE_ATTACH

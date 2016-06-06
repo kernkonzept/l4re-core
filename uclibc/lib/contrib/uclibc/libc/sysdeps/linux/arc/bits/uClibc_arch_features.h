@@ -41,8 +41,14 @@
 /* The default ';' is a comment on ARC. */
 #define __UCLIBC_ASM_LINE_SEP__ `
 
-/* does your target align 64bit values in register pairs ? (32bit arches only) */
-#if defined(__A7__)
+/* does your target align 64bit values in register pairs ? (32bit arches only)
+ *  - ARC700 never had any constraint on reg pairs (even if ABI v3)
+ *  - Inital HS ABI (v3: non upstream gcc) had 64-bit data aligned in even-odd
+ *     reg pairs (thus allowed reg holes when passing such args to calls)
+ *  - Upstream gcc (6.x) HS ABI doesn't have that restriction
+ */
+
+#if defined(__A7__) || (__GNUC__ > 4)
 #undef __UCLIBC_SYSCALL_ALIGN_64BIT__
 #else
 #define __UCLIBC_SYSCALL_ALIGN_64BIT__

@@ -132,7 +132,6 @@ static __always_inline Elf32_Addr elf_machine_dynamic(void)
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr elf_machine_load_address(void)
 {
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
     /* To find the loadaddr we subtract the runtime addr of a non-local symbol
      * say _DYNAMIC from it's build-time addr.
      * N.B., gotpc loads get optimized by the linker if it finds the symbol
@@ -150,15 +149,6 @@ static __always_inline Elf32_Addr elf_machine_load_address(void)
         "sub %0, %0, %1                ;delta"                    "\n"
         : "=&r" (addr), "=r"(tmp)
     );
-#else
-	Elf32_Addr addr, tmp;
-	__asm__ (
-        "ld  %1, [pcl, _dl_start@gotpc] ;build addr of _dl_start   \n"
-        "add %0, pcl, _dl_start-.+(.&2) ;runtime addr of _dl_start \n"
-        "sub %0, %0, %1                 ;delta                     \n"
-         : "=&r" (addr), "=r"(tmp)
-     );
-#endif
 	return addr;
 }
 

@@ -264,13 +264,14 @@ typedef struct
 #define EM_CR		103		/* National Semiconductor CompactRISC */
 #define EM_MSP430	105		/* TI msp430 micro controller */
 #define EM_BLACKFIN	106		/* Analog Devices Blackfin */
-#define EM_ALTERA_NIOS2	113	/* Altera Nios II soft-core processor */
+#define EM_ALTERA_NIOS2	113		/* Altera Nios II soft-core processor */
 #define EM_CRX		114		/* National Semiconductor CRX */
 #define EM_TI_C6000	140
+#define EM_NDS32	167		/* Andes Tech NDS32 */
 #define EM_METAG	174		/* Imagination Technologies Meta */
 #define EM_AARCH64	183		/* ARM AARCH64 */
 #define EM_TILEPRO	188		/* Tilera TILEPro */
-#define EM_MICROBLAZE	189	/* Xilinx Microblaze */
+#define EM_MICROBLAZE	189		/* Xilinx Microblaze */
 #define EM_TILEGX	191		/* Tilera TILE-Gx */
 #define EM_ARCV2	195		/* ARCv2 Cores */
 
@@ -3055,6 +3056,174 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_H8_ABS32     65
 #define R_H8_ABS32A16 127
 #define R_H8_NUM      128
+
+/* NDS32 relocs.  */
+#define R_NDS32_NONE			0
+/* REL relocations */
+#define R_NDS32_16			1
+#define R_NDS32_32			2
+#define R_NDS32_20			3
+#define R_NDS32_9_PCREL			4
+#define R_NDS32_15_PCREL			5
+#define R_NDS32_17_PCREL			6
+#define R_NDS32_25_PCREL			7
+#define R_NDS32_HI20			8
+#define R_NDS32_LO12S3			9
+#define R_NDS32_LO12S2			10
+#define R_NDS32_LO12S1			11
+#define R_NDS32_LO12S0			12
+#define R_NDS32_SDA15S3			13
+#define R_NDS32_SDA15S2			14
+#define R_NDS32_SDA15S1			15
+#define R_NDS32_SDA15S0			16
+#define R_NDS32_GNU_VTINHERIT			17
+#define R_NDS32_GNU_VTENTRY			18
+
+/* RELA relocations */
+#define R_NDS32_16_RELA			19
+#define R_NDS32_32_RELA			20
+#define R_NDS32_20_RELA			21
+#define R_NDS32_9_PCREL_RELA			22
+#define R_NDS32_15_PCREL_RELA			23
+#define R_NDS32_17_PCREL_RELA			24
+#define R_NDS32_25_PCREL_RELA			25
+#define R_NDS32_HI20_RELA			26
+#define R_NDS32_LO12S3_RELA			27
+#define R_NDS32_LO12S2_RELA			28
+#define R_NDS32_LO12S1_RELA			29
+#define R_NDS32_LO12S0_RELA			30
+#define R_NDS32_SDA15S3_RELA			31
+#define R_NDS32_SDA15S2_RELA			32
+#define R_NDS32_SDA15S1_RELA			33
+#define R_NDS32_SDA15S0_RELA			34
+#define R_NDS32_RELA_GNU_VTINHERIT			35
+#define R_NDS32_RELA_GNU_VTENTRY			36
+#define R_NDS32_GOT20			37
+#define R_NDS32_25_PLTREL			38
+#define R_NDS32_COPY			39
+#define R_NDS32_GLOB_DAT			40
+#define R_NDS32_JMP_SLOT			41
+#define R_NDS32_RELATIVE			42
+#define R_NDS32_GOTOFF			43
+#define R_NDS32_GOTPC20			44
+#define R_NDS32_GOT_HI20			45
+#define R_NDS32_GOT_LO12			46
+#define R_NDS32_GOTPC_HI20			47
+#define R_NDS32_GOTPC_LO12			48
+#define R_NDS32_GOTOFF_HI20			49
+#define R_NDS32_GOTOFF_LO12			50
+#define R_NDS32_INSN16			51
+#define R_NDS32_LABEL			52
+#define R_NDS32_LONGCALL1			53
+#define R_NDS32_LONGCALL2			54
+#define R_NDS32_LONGCALL3			55
+#define R_NDS32_LONGJUMP1			56
+#define R_NDS32_LONGJUMP2			57
+#define R_NDS32_LONGJUMP3			58
+#define R_NDS32_LOADSTORE			59
+#define R_NDS32_9_FIXED_RELA			60
+#define R_NDS32_15_FIXED_RELA			61
+#define R_NDS32_17_FIXED_RELA			62
+#define R_NDS32_25_FIXED_RELA			63
+#define R_NDS32_PLTREL_HI20			64
+#define R_NDS32_PLTREL_LO12			65
+#define R_NDS32_PLT_GOTREL_HI20			66
+#define R_NDS32_PLT_GOTREL_LO12			67
+
+/* Processor specific section indices.  These sections do not actually
+   exist.  Symbols with a st_shndx field corresponding to one of these
+   values have a special meaning.  */
+
+/* Small common symbol.  */
+#define SHN_NDS32_SCOMMON	0xff00
+
+/* Processor specific section flags.  */
+
+/* This section contains sufficient relocs to be relaxed.
+   When relaxing, even relocs of branch instructions the assembler could
+   complete must be present because relaxing may cause the branch target to
+   move.  */
+#define SHF_NDS32_CAN_RELAX	0x10000000
+
+/* ----------------------------------------------------------- */
+/* Processor specific flags for the ELF header e_flags field.  */
+/* ----------------------------------------------------------- */
+/* 31   28 27                 8 7   4 3       0  */
+/* ---------------------------------------------- */
+/* | ARCH | CONFUGURAION FIELD | ABI | VERSION | */
+/* ---------------------------------------------- */
+
+/* ----------------------------------------------------------- */
+/* ARCHITECHURE DEFINITION                                     */
+/* ----------------------------------------------------------- */
+/* 4-bit (b31-b28) nds32 architecture field.  */
+/* we can have up to 15 architectures; 0000 is for unknown */
+#define EF_NDS_ARCH            0xF0000000
+/* 0x80000000 is for no 16-bit */
+/* there could be more architectures. but for now, only n1 and n1h */
+#define E_NDS_ARCH_STAR_RESERVED	0x00000000  /* for future extension */
+#define E_NDS_ARCH_STAR_V1_0	         0x10000000
+#define E_NDS_ARCH_STAR_V0_9	         0x90000000	/* old arch */
+
+/* n1 code. */
+#define E_N1_ARCH                E_NDS_ARCH_STAR_V0_9
+/* n1h code. */
+#define E_N1H_ARCH               E_NDS_ARCH_STAR_V1_0
+
+/* ----------------------------------------------------------- */
+/* CONFIGURATION FIELD DEFINITION FOR EACH ARCHITECTURE        */
+/* ----------------------------------------------------------- */
+#define EF_NDS_INST            0x0FFFFF00
+
+/* E_NDS_ARCH_STAR_V1_0 configuration fields */
+
+/* MFUSR rt, PC and correct ISYNC, MSYNC instructions. */
+/* old N1213HC has no such instructions */
+#define E_NDS32_HAS_MFUSR_PC_INST     0x00000100
+/* C/C++ performance extension instructions. */
+#define E_NDS32_HAS_EXT_INST     0x00000200
+/* performance extension set II instructions. */
+#define E_NDS32_HAS_EXT2_INST     0x00000400
+/* Floating point processor instructions. */
+#define E_NDS32_HAS_FPU_INST     0x00000800
+/* audio instructions. */
+#define E_NDS32_HAS_AUDIO_INST     0x00001000
+/* DIV instructions. */
+#define E_NDS32_HAS_DIV_INST     0x00002000
+/* 16-bit instructions. */
+#define E_NDS32_HAS_16BIT_INST     0x00004000
+/* string operation instructions. */
+#define E_NDS32_HAS_STRING_INST        0x00008000
+/* reduced register file */
+#define E_NDS32_HAS_REDUCED_REGS	0x00010000
+/* video instructions */
+#define E_NDS32_HAS_VIDEO_INST     0x00020000
+/* encription instructions */
+#define E_NDS32_HAS_ENCRIPT_INST     0x00040000
+/* Single/Doulbe Precision Floating point processor instructions. */
+#define E_NDS32_HAS_FPU_DP_INST     0x00080000
+/* no MAC instruction used */
+#define E_NDS32_HAS_NO_MAC_INST     0x00100000
+/* L2 cache instruction */
+#define E_NDS32_HAS_L2C_INST    0x00200000
+
+
+/* 4-bit for ABI signature, allow up to 16 ABIs */
+/* 0 is for OLD ABI V0, 1 is for V1, the rest is reserved */
+/* only old N1213HC use V0 */
+/* New ABI is used due to return register is changed to r0 from r5 */
+#define EF_NDS_ABI		0x000000F0
+#define E_NDS_ABI_V0     0x00000000
+#define E_NDS_ABI_V1     0x00000010
+
+/* this flag signifies the version of Andes ELF */
+/* some more information may exist somewhere which is TBD */
+#define EF_NDS32_ELF_VERSION		0x0000000F
+
+/* Andes ELF Version 1.2 and before */
+#define E_NDS32_ELF_VER_1_2			0x0
+/* Andes ELF Version 1.3 and after */
+#define E_NDS32_ELF_VER_1_3			0x1
 
 /* NIOS relocations. */
 #define R_NIOS_NONE				0
