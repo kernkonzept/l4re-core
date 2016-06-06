@@ -125,9 +125,6 @@ static uintptr_t stack_chk_guard;
  * in local thread area.  */
 uintptr_t __stack_chk_guard attribute_relro;
 # endif
-# ifdef __UCLIBC_HAS_SSP_COMPAT__
-uintptr_t __guard attribute_relro;
-# endif
 #endif
 
 #ifdef __LDSO_SEARCH_INTERP_PATH__
@@ -1296,9 +1293,6 @@ of this helper program; chances are you did not intend to run this program.\n\
 	THREAD_SET_STACK_GUARD (stack_chk_guard);
 # else
 	__stack_chk_guard = stack_chk_guard;
-# endif
-# ifdef __UCLIBC_HAS_SSP_COMPAT__
-	__guard = stack_chk_guard;
 # endif
 #endif
 

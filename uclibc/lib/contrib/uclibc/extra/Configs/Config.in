@@ -2166,22 +2166,6 @@ config UCLIBC_HAS_SSP
 
 	  Most people will answer N.
 
-config UCLIBC_HAS_SSP_COMPAT
-	bool "Support for gcc-3.x propolice smashing stack protector"
-	depends on UCLIBC_HAS_SSP
-	help
-	  Add gcc-3.x propolice smashing stack protector to the library.
-
-	  This requires a patched version of GCC, supporting the
-	  -fstack-protector[-all] options, with the __guard and
-	  __stack_smash_handler functions removed from libgcc.
-	  These functions are added to ldso/libc instead.
-
-	  More information at:
-	  <http://www.research.ibm.com/trl/projects/security/ssp/>
-
-	  Most people will answer N.
-
 config SSP_QUICK_CANARY
 	bool "Use simple guard values without accessing /dev/urandom"
 	depends on UCLIBC_HAS_SSP

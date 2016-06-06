@@ -66,10 +66,6 @@ static uintptr_t stack_chk_guard;
 /* for gcc-4.1 non-TLS */
 uintptr_t __stack_chk_guard attribute_relro;
 #  endif
-/* for gcc-3.x + Etoh ssp */
-#  ifdef __UCLIBC_HAS_SSP_COMPAT__
-uintptr_t __guard attribute_relro;
-#  endif
 # endif
 
 /*
@@ -280,9 +276,6 @@ void __uClibc_init(void)
     THREAD_SET_STACK_GUARD (stack_chk_guard);
 #  else
     __stack_chk_guard = stack_chk_guard;
-#  endif
-#  ifdef __UCLIBC_HAS_SSP_COMPAT__
-    __guard = stack_chk_guard;
 #  endif
 # endif
 #endif

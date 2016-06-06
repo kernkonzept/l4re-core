@@ -51,18 +51,11 @@ static void __cold do_msg(const char *msg1, const char *msg2, const char *msg3)
 }
 
 static void __cold attribute_noreturn
-#ifdef __UCLIBC_HAS_SSP_COMPAT__
-ssp_handler(char func[])
-#else
 ssp_handler(void)
-#endif
 {
 	pid_t pid;
 	static const char msg_ssd[] = "*** stack smashing detected ***: ";
 	static const char msg_terminated[] = " terminated";
-#ifdef __UCLIBC_HAS_SSP_COMPAT__
-	static const char msg_ssa[] = ": stack smashing attack in function ";
-#endif
 
 #ifdef __DODEBUG__
 	struct sigaction sa;
@@ -73,12 +66,7 @@ ssp_handler(void)
 	sigprocmask(SIG_BLOCK, &mask, NULL);	/* except SSP_SIGTYPE */
 #endif
 
-#ifdef __UCLIBC_HAS_SSP_COMPAT__
-	if (func != NULL)
-		do_msg(__uclibc_progname, msg_ssa, func);
-	else
-#endif
-		do_msg(msg_ssd, __uclibc_progname, msg_terminated);
+	do_msg(msg_ssd, __uclibc_progname, msg_terminated);
 
 	pid = getpid();
 #ifdef __DODEBUG__
@@ -96,20 +84,7 @@ ssp_handler(void)
 		_exit(127);
 }
 
-#ifdef __UCLIBC_HAS_SSP_COMPAT__
-void __stack_smash_handler(char func[], int damaged) attribute_noreturn __cold;
-void __stack_smash_handler(char func[], int damaged attribute_unused)
-{
-	ssp_handler(func);
-}
-
-void __stack_chk_fail(void)
-{
-	ssp_handler(NULL);
-}
-#else
 strong_alias(ssp_handler,__stack_chk_fail)
-#endif
 
 #ifdef __UCLIBC_HAS_FORTIFY__
 /* should be redone when activated to use common code above.
