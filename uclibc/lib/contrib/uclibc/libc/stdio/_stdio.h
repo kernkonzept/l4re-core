@@ -110,6 +110,18 @@ do { \
 		cfile->__gcs.NAME(cfile->__cookie, ##ARGS); \
  }
 
+#define __STDIO_STREAM_CUSTOM_WRITE_FUNC(S, ARGS...) \
+ if (__STDIO_STREAM_IS_CUSTOM((S))) { \
+	_IO_cookie_file_t *cfile = (_IO_cookie_file_t *) (S); \
+	if (cfile->__gcs.write == NULL) { \
+		__set_errno(EINVAL); \
+		return -1; \
+	} \
+	__set_errno(EAGAIN); \
+	ssize_t w = cfile->__gcs.write(cfile->__cookie, ##ARGS); \
+	return (w == 0 ? -1 : w); \
+ }
+
 typedef struct {
   struct __STDIO_FILE_STRUCT __fp;
   void *__cookie;
@@ -121,6 +133,7 @@ typedef struct {
 #undef __STDIO_STREAM_GLIBC_CUSTOM_FILEDES
 #define __STDIO_STREAM_IS_CUSTOM(S)	(0)
 #define __STDIO_STREAM_CUSTOM_IO_FUNC(S, NAME, RC, ARGS...)
+#define __STDIO_STREAM_CUSTOM_WRITE_FUNC(S, ARGS...)
 
 #endif /* __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__ */
 
@@ -135,7 +148,7 @@ static inline ssize_t __READ(FILE *stream, char *buf, size_t bufsize)
 
 static inline ssize_t __WRITE(FILE *stream, const char *buf, size_t bufsize)
 {
-	__STDIO_STREAM_CUSTOM_IO_FUNC(stream, write, -1, buf, bufsize);
+	__STDIO_STREAM_CUSTOM_WRITE_FUNC(stream, buf, bufsize);
 
 	return write(stream->__filedes, buf, bufsize);
 }
