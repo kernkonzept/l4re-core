@@ -39,6 +39,8 @@ else
 $(top_builddir)lib/libresolv.so: $(libresolv_OUT)/libresolv_so.a $(libc.depend)
 endif
 	$(call link.so,$(libresolv_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libresolv_FULL_NAME),0)
 
 $(libresolv_OUT)/libresolv_so.a: $(libresolv-so-y)
 	$(Q)$(RM) $@

@@ -60,9 +60,13 @@ OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | $(SED) -n '/OUTPUT_FORMAT/,
 ifeq ($(DOMULTI),n)
 $(libc.depend): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
 	$(call link.so,$(libc_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libc_FULL_NAME),0)
 else
 $(libc.depend): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIBS-libc.so)
 	$(call linkm.so,$(libc_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call linkm.so,$(libc_FULL_NAME),0)
 endif
 	$(Q)$(RM) $@
 	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp

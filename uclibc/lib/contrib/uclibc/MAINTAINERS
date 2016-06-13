@@ -1,0 +1,11 @@
+Maintainer: Waldemar Brodkorb <wbx@uclibc-ng.org>
+
+Acrhitecture specific maintainers, Acked-By needed for any architecture
+specific changes:
+
+ARC:
+Alexey Brodkin <Alexey.Brodkin@synopsys.com>
+Vineet Gupta <Vineet.Gupta1@synopsys.com>
+
+Xtensa:
+Max Filippov <jcmvbkbc@gmail.com>

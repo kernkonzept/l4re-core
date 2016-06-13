@@ -46,9 +46,13 @@ else
 $(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt_so.a $(libc.depend)
 endif
 	$(call link.so,$(libcrypt_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libcrypt_FULL_NAME),0)
 else
 $(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc.depend)
 	$(call linkm.so,$(libcrypt_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call linkm.so,$(libcrypt_FULL_NAME),0)
 endif
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)

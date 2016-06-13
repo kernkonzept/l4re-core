@@ -16,8 +16,8 @@ my $files;
 my $encoding;
 my @copyright;
 my @copyrightout;
-my @ctext;
 my @uniqcpr;
+my @output;
 my $i;
 
 $encoding = ":encoding(UTF-8)";
@@ -28,7 +28,7 @@ $directory="./";
 $header  = "Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/\n";
 $header .= "Upstream-Name: uclibc-ng\n";
 $header .= 'Upstream-Contact: Waldemar Brodkorb <wbx@uclibc-ng.org>'."\n";
-$header .= "Source: git://uclibc-ng.org/git/uclibc-ng\n";
+$header .= "Source: git://uclibc-ng.org/git/uclibc-ng\n\n";
 
 # my $emailregex='\b[[:alnum:]._%+-]+@[[:alnum:].-]+.[[:alpha:]]{2,6}\b';
 
@@ -50,9 +50,9 @@ foreach $file (@files) {
       chomp $row;
       if ($row =~ m/[Cc]opyright / )
       {
-        $row =~ s/^[\s\/\*#!;.\"\\]*//;
-        $row =~ s/\s+$//;
-        push @copyright, { file => $file, text => $row};
+        $row =~ s/^[\s\/\*#!;.\"\\]*//; #remove leading
+        $row =~ s/\s+$//;               #remove trailing
+        push @copyright, { file => $file, raw => $row};
         last;
       }
     }
@@ -60,24 +60,30 @@ foreach $file (@files) {
   }
 }
 
-@copyrightout = sort { $a->{text} cmp $b->{text} } @copyright;
+#sort raw
+@copyrightout = sort { $a->{raw} cmp $b->{raw} } @copyright;
 
 $tmp="";
-$i=0;
+$i=-1;
 foreach (@copyrightout) {
-  if ( $tmp eq $_->{'text'} )
+  if ( $tmp eq $_->{'raw'} )
   {
-    print "       $_->{'file'}\n";
+    $output[$i]{"files"} .= "\n"."       $_->{'file'}";
   }
   else
   {
-    print "\n";
-    print $header;
-    print "Copyright: $_->{'text'}\n";
-    print "License: GNU Lesser General Public License 2.1\n";
-    print "Files: $_->{'file'}\n";
+    ++$i;
+    $output[$i]{"header"} .= "Copyright: $_->{'raw'}\n";
+    $output[$i]{"header"} .= "License: GNU Lesser General Public License 2.1\n";
+    $output[$i]{"files"} .= "Files: ".$_->{'file'};
   }
-  $tmp=$_->{'text'};
-  ++$i;
+  $tmp=$_->{'raw'};
 }
 
+print "$header";
+$i=0;
+foreach (@output) {
+  print "$output[$i]->{'files'}\n";
+  print "$output[$i]->{'header'}\n";
+  ++$i;
+}

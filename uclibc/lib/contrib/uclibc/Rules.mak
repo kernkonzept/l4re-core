@@ -1,4 +1,4 @@
-# Rules.make for uClibc
+# Rules.mak for uClibc
 #
 # Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
 #
@@ -169,7 +169,6 @@ headers_dep := $(top_builddir)include/bits/sysnum.h \
 	$(top_builddir)include/bits/uClibc_config.h
 sub_headers := $(headers_dep)
 
-#LIBS :=$(interp) -L$(top_builddir)lib -lc
 LIBS := $(interp) -L$(top_builddir)lib $(libc:.$(ABI_VERSION)=)
 
 # Make sure DESTDIR and PREFIX can be used to install
@@ -405,6 +404,8 @@ ifeq ($(TARGET_ARCH),mips)
 	CPU_CFLAGS-$(CONFIG_MIPS_N64_ABI)+=-mabi=64
 	CPU_CFLAGS-$(CONFIG_MIPS_O32_ABI)+=-mabi=32
 	CPU_CFLAGS-$(CONFIG_MIPS_N32_ABI)+=-mabi=n32
+	CPU_CFLAGS-$(CONFIG_MIPS_NAN_LEGACY)+=-mnan=legacy
+	CPU_CFLAGS-$(CONFIG_MIPS_NAN_2008)+=-mnan=2008
 	CPU_LDFLAGS-y += $(CPU_CFLAGS)
 endif
 
@@ -452,7 +453,7 @@ ifeq ($(TARGET_ARCH),powerpc)
 # faster code.
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie
-	PPC_HAS_REL16:=$(shell echo -e "\t.text\n\taddis 11,30,_GLOBAL_OFFSET_TABLE_-.@ha" | $(CC) -c -x assembler -o /dev/null -  2> /dev/null && echo -n y || echo -n n)
+	PPC_HAS_REL16:=$(shell printf "\t.text\n\taddis 11,30,_GLOBAL_OFFSET_TABLE_-.@ha\n" | $(CC) -c -x assembler -o /dev/null -  2> /dev/null && echo -n y || echo -n n)
 	CPU_CFLAGS-$(PPC_HAS_REL16)+= -DHAVE_ASM_PPC_REL16
 	CPU_CFLAGS-$(CONFIG_E500) += "-D__NO_MATH_INLINES"
 
@@ -582,10 +583,9 @@ WARNING_FLAGS += \
 	-Wnonnull \
 	-Wold-style-declaration \
 	-Wold-style-definition \
+	-Wdeclaration-after-statement \
 	-Wshadow \
 	-Wundef
-# Works only w/ gcc-3.4 and up, can't be checked for gcc-3.x w/ check_gcc()
-#WARNING_FLAGS-gcc-4 += -Wdeclaration-after-statement
 endif
 WARNING_FLAGS += $(WARNING_FLAGS-gcc-$(GCC_MAJOR_VER))
 $(foreach w,$(WARNING_FLAGS),$(eval $(call check-gcc-var,$(w))))
@@ -627,9 +627,6 @@ $(eval $(call check-ld-var,--sort-common))
 $(eval $(call check-ld-var,--discard-all))
 LDFLAGS_NOSTRIP:=$(LDFLAG-fuse-ld) $(CPU_LDFLAGS-y) -shared \
 	-Wl,--warn-common $(CFLAG_-Wl--warn-once) -Wl,-z,combreloc
-# binutils-2.16.1 warns about ignored sections, 2.16.91.0.3 and newer are ok
-#$(eval $(call check-ld-var,--gc-sections))
-#LDFLAGS_NOSTRIP += $(LDFLAG_--gc-sections)
 
 ifeq ($(UCLIBC_BUILD_RELRO),y)
 LDFLAGS_NOSTRIP+=-Wl,-z,relro

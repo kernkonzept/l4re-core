@@ -48,9 +48,13 @@ else
 $(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl_so.a $(libc.depend)
 endif
 	$(call link.so,$(libintl_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libintl_FULL_NAME),0)
 else
 $(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl.oS | $(libc.depend)
 	$(call linkm.so,$(libintl_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call linkm.so,$(libintl_FULL_NAME),0)
 endif
 
 $(libintl_OUT)/libintl_so.a: $(libintl-so-y)

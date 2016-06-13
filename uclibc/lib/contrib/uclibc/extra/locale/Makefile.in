@@ -5,6 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+.NOTPARALLEL:
+
 locale_DIR := $(top_srcdir)extra/locale
 locale_OUT := $(top_builddir)extra/locale
 

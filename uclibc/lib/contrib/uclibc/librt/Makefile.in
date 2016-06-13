@@ -73,6 +73,8 @@ else
 $(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(librt-dep-y)
 endif
 	$(call link.so,$(librt_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(librt_FULL_NAME),0)
 
 $(librt_OUT)/librt_so.a: $(librt-so-y)
 	$(Q)$(RM) $@

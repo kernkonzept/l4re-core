@@ -305,9 +305,13 @@ else
 $(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc.depend)
 endif
 	$(call link.so,$(libm_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libm_FULL_NAME),0)
 else
 $(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc.depend)
 	$(call linkm.so,$(libm_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call linkm.so,$(libm_FULL_NAME),0)
 endif
 
 $(libm_OUT)/libm_so.a: $(libm-so-y)

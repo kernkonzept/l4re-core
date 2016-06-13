@@ -67,8 +67,13 @@ libpthread-so-y += $(libpthread_OBJ:.o=.oS)
 lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
 lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
 
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend)
+$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
 	$(call link.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libpthread_FULL_NAME),0)
+	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp
+	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@.tmp
+	$(Q)mv $@.tmp $@
 
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 $(libpthread_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)

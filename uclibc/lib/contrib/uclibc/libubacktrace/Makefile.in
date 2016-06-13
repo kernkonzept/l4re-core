@@ -62,9 +62,13 @@ objclean-y += CLEAN_libubacktrace
 ifeq ($(DOMULTI),n)
 $(top_builddir)lib/libubacktrace.so: $(libubacktrace_OUT)/libubacktrace_so.a $(libdl.depend)
 	$(call link.so,$(libubacktrace_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libubacktrace_FULL_NAME),0)
 else
 $(top_builddir)lib/libubacktrace.so: $(libubacktrace_OUT)/libubacktrace.oS | $(libdl.depend)
 	$(call linkm.so,$(libubacktrace_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call linkm.so,$(libubacktrace_FULL_NAME),0)
 endif
 
 $(libubacktrace_OUT)/libubacktrace_so.a: $(libubacktrace-so-y)

@@ -32,6 +32,21 @@ config CONFIG_MIPS_N64_ABI
 
 endchoice
 
+choice
+	prompt "Target NAN Encoding"
+	default CONFIG_MIPS_NAN_LEGACY
+	help
+	  This is the NAN Encoding you want to use.  Chose either Legacy
+	  or 2008.
+
+config CONFIG_MIPS_NAN_LEGACY
+	bool "LEGACY"
+
+config CONFIG_MIPS_NAN_2008
+	bool "2008"
+
+endchoice
+
 config UCLIBC_USE_MIPS_PREFETCH
 	bool "Use MIPS prefetch optimization for memcpy/memset"
 	default y

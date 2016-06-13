@@ -39,6 +39,8 @@ else
 $(top_builddir)lib/libnsl.so: $(libnsl_OUT)/libnsl_so.a $(libc.depend)
 endif
 	$(call link.so,$(libnsl_FULL_NAME),$(ABI_VERSION))
+	# link for backward compatibility
+	$(call link.so,$(libnsl_FULL_NAME),0)
 
 $(libnsl_OUT)/libnsl_so.a: $(libnsl-so-y)
 	$(Q)$(RM) $@
