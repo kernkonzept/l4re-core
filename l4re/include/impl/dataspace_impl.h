@@ -102,13 +102,13 @@ Dataspace::map(l4_addr_t offset, unsigned long flags,
   return __map(offset, &order, flags, local_addr);
 }
 
-long
+unsigned long
 Dataspace::size() const throw()
 {
   Stats stats = Stats();
   int err = info(&stats);
   if (err < 0)
-    return err;
+    return 0;
   return stats.size;
 }
 

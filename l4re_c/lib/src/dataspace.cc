@@ -74,7 +74,7 @@ l4re_ds_phys(const l4re_ds_t ds, l4_addr_t offset,
   return x->phys(offset, *phys_addr, *phys_size);
 }
 
-long
+unsigned long
 l4re_ds_size(const l4re_ds_t ds) L4_NOTHROW
 {
   L4::Cap<L4Re::Dataspace> x(ds);

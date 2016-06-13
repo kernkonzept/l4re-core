@@ -214,10 +214,9 @@ public:
   /**
    * Get size of a dataspace.
    *
-   * \retval >0  Size of the dataspace (in bytes).
-   * \retval <0  IPC errors
+   * \return Size of the dataspace in bytes.
    */
-  long size() const throw();
+  unsigned long size() const throw();
 
   /**
    * Get flags of the dataspace.

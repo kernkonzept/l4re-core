@@ -110,10 +110,10 @@ l4re_ds_copy_in(const l4re_ds_t ds, l4_addr_t dst_offs, const l4re_ds_t src,
 
 /**
  * \ingroup api_l4re_c_ds
- * \return size of dataspace, <0 on errors
+ * \return Size of the dataspace in bytes.
  * \see L4Re::Dataspace::size
  */
-L4_CV long
+L4_CV unsigned long
 l4re_ds_size(const l4re_ds_t ds) L4_NOTHROW;
 
 /**
