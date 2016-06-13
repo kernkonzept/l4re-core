@@ -56,13 +56,11 @@ extern int sysinfo (struct sysinfo *__info) __THROW;
 #define get_nprocs() (sysconf(_SC_NPROCESSORS_ONLN))
 
 
-#if 0
 /* Return number of physical pages of memory in the system.  */
 extern long int get_phys_pages (void) __THROW;
 
 /* Return number of available physical pages of memory in the system.  */
 extern long int get_avphys_pages (void) __THROW;
-#endif
 
 __END_DECLS
 

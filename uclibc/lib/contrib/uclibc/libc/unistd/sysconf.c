@@ -43,6 +43,32 @@
 #include <dirent.h>
 #include "internal/parse_config.h"
 
+long int get_phys_pages(void)
+{
+	struct sysinfo si;
+	int ps = getpagesize();;
+
+	sysinfo(&si);
+
+	if (ps >= si.mem_unit)
+		return si.totalram / (ps / si.mem_unit);
+	else
+		return si.totalram * (si.mem_unit / ps);
+}
+
+long int get_avphys_pages(void)
+{
+	struct sysinfo si;
+	int ps = getpagesize();;
+
+	sysinfo(&si);
+
+	if (ps >= si.mem_unit)
+		return si.freeram / (ps / si.mem_unit);
+	else
+		return si.freeram * (si.mem_unit / ps);
+}
+
 static int nprocessors_onln(void)
 {
 	char **l = NULL;
@@ -747,18 +773,10 @@ long int sysconf(int name)
       RETURN_FUNCTION(nprocessors_onln());
 
     case _SC_PHYS_PAGES:
-#if 0
       RETURN_FUNCTION(get_phys_pages());
-#else
-      RETURN_NEG_1;
-#endif
 
     case _SC_AVPHYS_PAGES:
-#if 0
       RETURN_FUNCTION(get_avphys_pages());
-#else
-      RETURN_NEG_1;
-#endif
 
     case _SC_ATEXIT_MAX:
       return __UCLIBC_MAX_ATEXIT;
