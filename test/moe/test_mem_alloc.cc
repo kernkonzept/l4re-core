@@ -53,7 +53,7 @@ TEST_F(TestMemAlloc, Simple)
   // we have a valid cap
   ASSERT_NE(0, env->task()->cap_valid(ds.get()).label());
 
-  ASSERT_EQ(1024L, ds->size());
+  ASSERT_EQ(1024UL, ds->size());
 
   char *start;
   // read-only

@@ -50,7 +50,7 @@ TEST_F(TestNamespace, RegisterValid)
                                      L4::Ipc::make_cap_rws(ds.get())));
   ASSERT_EQ(L4_EOK, ns->query("example", lcap.get()));
   // check that this is our ds
-  ASSERT_EQ(12345, lcap->size());
+  ASSERT_EQ(12345UL, lcap->size());
 }
 
 TEST_F(TestNamespace, RegisterInvalid)
@@ -113,13 +113,13 @@ TEST_F(TestNamespace, RegisterOverwriteValid)
 
   ASSERT_EQ(L4_EOK, ns->register_obj("f", ds1.get()));
   ASSERT_EQ(L4_EOK, ns->query("f", cap.get()));
-  EXPECT_EQ(6543, cap->size());
+  EXPECT_EQ(6543UL, cap->size());
   ASSERT_EQ(-L4_EEXIST, ns->register_obj("f", ds2.get()));
   ASSERT_EQ(L4_EOK, ns->register_obj("f", ds2.get(),
                                      L4Re::Namespace::Overwrite |
                                      L4Re::Namespace::Rw));
   ASSERT_EQ(L4_EOK, ns->query("f", cap.get()));
-  EXPECT_EQ(1234, cap->size());
+  EXPECT_EQ(1234UL, cap->size());
 }
 
 TEST_F(TestNamespace, RegisterLooseSourceDataspace)
@@ -137,7 +137,7 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
   // if all references to the original cap are lost, the original
   // cap should remain accessible
   ASSERT_EQ(L4_EOK, ns->query("gone", cap.get()));
-  EXPECT_EQ(999, cap->size());
+  EXPECT_EQ(999UL, cap->size());
 }
 
 TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
@@ -166,7 +166,7 @@ TEST_F(TestNamespace, RegisterDeleteRomDataspace)
   // get the cap for our test dataspace
   auto rom = env->get_cap<L4Re::Namespace>("rom");
   ASSERT_EQ(L4_EOK, rom->query("moe_bootfs_example.txt", lcap.get()));
-  long dssz = lcap->size();
+  unsigned long dssz = lcap->size();
   // register it with the new namespace
   ASSERT_EQ(L4_EOK, ns->register_obj("new", lcap.get()));
   // now get the new cap

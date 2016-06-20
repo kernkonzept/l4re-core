@@ -625,15 +625,15 @@ TEST_F(TestContDs, PhysUnaligned)
 TEST_P(TestAnyDs, Size)
 {
   auto ds = create_ds();
-  EXPECT_EQ((long) defsize(), ds->size());
+  EXPECT_EQ(defsize(), ds->size());
 }
 
 TEST_F(TestGeneralDs, Size)
 {
   auto ds = create_ds(0, 1);
-  EXPECT_EQ(1, ds->size());
+  EXPECT_EQ(1UL, ds->size());
   ds = create_ds(0, INT_MAX - 1);
-  EXPECT_EQ(INT_MAX - 1, ds->size());
+  EXPECT_EQ((unsigned long) INT_MAX - 1, ds->size());
 }
 
 TEST_P(TestRegDs, ExhaustQuotaMoeStructures)
