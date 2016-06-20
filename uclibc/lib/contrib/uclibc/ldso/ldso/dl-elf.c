@@ -893,6 +893,8 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned int rflags,
 #endif
 	(*rpnt)->dyn = tpnt;
 	tpnt->usage_count++;
+	if (tpnt->rtld_flags & RTLD_NODELETE)
+		tpnt->usage_count++;
 #ifdef __LDSO_STANDALONE_SUPPORT__
 	tpnt->libtype = (epnt->e_type == ET_DYN) ? elf_lib : elf_executable;
 #else
