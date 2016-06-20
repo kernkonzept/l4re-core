@@ -1266,6 +1266,7 @@ int __dns_lookup(const char *name,
 	int local_id = local_id; /* for compiler */
 	int sdomains = 0;
 	bool ends_with_dot;
+	bool contains_dot;
 	sockaddr46_t sa;
 
 	fd = -1;
@@ -1277,12 +1278,14 @@ int __dns_lookup(const char *name,
 	if (!packet || !lookup || !name[0])
 		goto fail;
 	ends_with_dot = (name[name_len - 1] == '.');
+	contains_dot = strchr(name, '.') != NULL;
 	/* no strcpy! paranoia, user might change name[] under us */
 	memcpy(lookup, name, name_len);
 
 	DPRINTF("Looking up type %d answer for '%s'\n", type, name);
 	retries_left = 0; /* for compiler */
 	do {
+		unsigned act_variant;
 		int pos;
 		unsigned reply_timeout;
 
@@ -1306,11 +1309,16 @@ int __dns_lookup(const char *name,
 			sdomains = __searchdomains;
 		}
 		lookup[name_len] = '\0';
-		if ((unsigned)variant < sdomains) {
+		/* For qualified names, act_variant = MAX_UINT, 0, .., sdomains-1
+		 *  => Try original name first, then append search domains
+		 * For names without domain, act_variant = 0, 1, .., sdomains
+		 *  => Try search domains first, original name last */
+		act_variant = contains_dot ? variant : variant + 1;
+		if (act_variant < sdomains) {
 			/* lookup is name_len + 1 + MAXLEN_searchdomain + 1 long */
 			/* __searchdomain[] is not bigger than MAXLEN_searchdomain */
 			lookup[name_len] = '.';
-			strcpy(&lookup[name_len + 1], __searchdomain[variant]);
+			strcpy(&lookup[name_len + 1], __searchdomain[act_variant]);
 		}
 		/* first time? pick starting server etc */
 		if (local_ns_num < 0) {
