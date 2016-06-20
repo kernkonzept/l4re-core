@@ -410,7 +410,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	dyn_chain->next_handle = _dl_handles;
 	_dl_handles = dyn_ptr = dyn_chain;
 
-	if (tpnt->usage_count > 1) {
+	if (tpnt->init_flag & DL_OPENED2) {
 		_dl_if_debug_print("Lib: %s already opened\n", libname);
 		/* see if there is a handle from a earlier dlopen */
 		for (handle = _dl_handles->next_handle; handle; handle = handle->next_handle) {
@@ -425,8 +425,6 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 		}
 		return dyn_chain;
 	}
-
-	tpnt->init_flag |= DL_OPENED;
 
 	_dl_if_debug_print("Looking for needed libraries\n");
 	nlist = 0;

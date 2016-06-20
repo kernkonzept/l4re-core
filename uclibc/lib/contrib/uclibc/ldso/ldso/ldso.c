@@ -980,7 +980,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 #ifdef __LDSO_LDD_SUPPORT__
 					if (trace_loaded_objects && !_dl_trace_prelink &&
-					    tpnt1->usage_count == 1) {
+					    !(tpnt1->init_flag & DL_OPENED2)) {
 						/* This is a real hack to make
 						 * ldd not print the library
 						 * itself when run on a
@@ -1072,7 +1072,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 # ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects && !_dl_trace_prelink &&
-				    tpnt1->usage_count == 1) {
+				    !(tpnt1->init_flag & DL_OPENED2)) {
 					_dl_dprintf(1, "\t%s => %s (%x)\n",
 						    cp2, tpnt1->libname,
 						    DL_LOADADDR_BASE(tpnt1->loadaddr));
@@ -1109,6 +1109,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 							/* Insert the ld.so only once */
 							ldso_tpnt = add_ldso(tpnt, load_addr,
 												 ldso_mapaddr, auxvt, rpnt);
+						} else {
+							ldso_tpnt->init_flag |= DL_OPENED2;
 						}
 						ldso_tpnt->usage_count++;
 						tpnt1 = ldso_tpnt;
@@ -1139,7 +1141,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 
 #ifdef __LDSO_LDD_SUPPORT__
 				if (trace_loaded_objects && !_dl_trace_prelink &&
-				    tpnt1->usage_count == 1) {
+				    !(tpnt1->init_flag & DL_OPENED2)) {
 					_dl_dprintf(1, "\t%s => %s (%x)\n",
 						    lpntstr, tpnt1->libname,
 						    DL_LOADADDR_BASE(tpnt1->loadaddr));

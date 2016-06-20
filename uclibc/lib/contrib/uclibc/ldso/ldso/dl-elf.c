@@ -550,6 +550,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned int rflags,
 #endif
 			/* Already loaded */
 			tpnt->usage_count++;
+			tpnt->init_flag |= DL_OPENED2;
 			_dl_close(infile);
 			return tpnt;
 		}

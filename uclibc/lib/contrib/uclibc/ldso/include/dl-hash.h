@@ -156,7 +156,7 @@ struct elf_resolve {
 #define JMP_RELOCS_DONE	    0x000002
 #define INIT_FUNCS_CALLED   0x000004
 #define FINI_FUNCS_CALLED   0x000008
-#define DL_OPENED	    0x000010
+#define DL_OPENED2	    0x000010
 #define DL_RESERVED	    0x000020
 
 extern struct dyn_elf     * _dl_symbol_tables;
