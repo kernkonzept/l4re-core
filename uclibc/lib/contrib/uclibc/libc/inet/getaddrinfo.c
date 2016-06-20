@@ -391,6 +391,9 @@ static uint8_t __gai_precedence = 0;	/* =1 - IPv6, IPv4
 			memcpy((*pat)->addr, h->h_addr_list[i], sizeof(_type));	\
 			pat = &((*pat)->next);					\
 		}								\
+		if (_family == AF_INET6 && i > 0) {				\
+			got_ipv6 = true;					\
+		}								\
 	}									\
 }
 
@@ -404,6 +407,7 @@ gaih_inet(const char *name, const struct gaih_service *service,
 	struct gaih_servtuple *st;
 	struct gaih_addrtuple *at;
 	int rc;
+	bool got_ipv6 = false;
 	int v4mapped = req->ai_family == PF_INET6 && (req->ai_flags & AI_V4MAPPED);
 	unsigned seen = 0;
 	if (req->ai_flags & AI_ADDRCONFIG) {
@@ -586,7 +590,7 @@ gaih_inet(const char *name, const struct gaih_service *service,
 #endif
 			if (req->ai_family == AF_INET
 			 || (!v4mapped && req->ai_family == AF_UNSPEC)
-			 || (v4mapped && (no_inet6_data != 0 || (req->ai_flags & AI_ALL)))
+			 || (v4mapped && (!got_ipv6 || (req->ai_flags & AI_ALL)))
 			) {
 				if (!(req->ai_flags & AI_ADDRCONFIG) || (seen & SEEN_IPV4))
 					gethosts(AF_INET, struct in_addr);
@@ -705,6 +709,14 @@ gaih_inet(const char *name, const struct gaih_service *service,
 			if (at2->family == AF_INET6 || v4mapped) {
 				family = AF_INET6;
 				socklen = sizeof(struct sockaddr_in6);
+
+				/* If we looked up IPv4 mapped address discard them here if
+				   the caller isn't interested in all address and we have
+				   found at least one IPv6 address.  */
+				if (got_ipv6
+				  && (req->ai_flags & (AI_V4MAPPED|AI_ALL)) == AI_V4MAPPED
+				  && IN6_IS_ADDR_V4MAPPED (at2->addr))
+				goto ignore;
 			}
 #endif
 #if defined __UCLIBC_HAS_IPV4__ && defined __UCLIBC_HAS_IPV6__
@@ -781,7 +793,7 @@ gaih_inet(const char *name, const struct gaih_service *service,
 				(*pai)->ai_next = NULL;
 				pai = &((*pai)->ai_next);
 			}
-
+ignore:
 			at2 = at2->next;
 		}
 	}
