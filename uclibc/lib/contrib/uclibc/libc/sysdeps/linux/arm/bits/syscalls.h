@@ -83,6 +83,10 @@
      }									\
      (int) __internal_sys_result; }) \
 )
+
+#undef INTERNAL_SYSCALL_ARM
+#define INTERNAL_SYSCALL_ARM(name, err, nr, args...)           \
+	INTERNAL_SYSCALL_NCS(__ARM_NR_##name, err, nr, args)
 #endif
 
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \
