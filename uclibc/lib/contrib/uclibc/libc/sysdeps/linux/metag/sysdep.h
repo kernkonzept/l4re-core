@@ -53,7 +53,3 @@ __local_syscall_error:						\
 #endif
 
 #endif /* __ASSEMBLER __*/
-
-/* Pointer mangling is not yet supported for META.  */
-#define PTR_MANGLE(var) (void) (var)
-#define PTR_DEMANGLE(var) (void) (var)

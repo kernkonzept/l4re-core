@@ -277,9 +277,4 @@ __local_syscall_error:						\
 #define UNDOARGS_7 ldmfd sp!, {r4, r5, r6};
 
 #endif	/* __ASSEMBLER__ */
-
-/* Pointer mangling is not yet supported for ARM.  */
-#define PTR_MANGLE(var) (void) (var)
-#define PTR_DEMANGLE(var) (void) (var)
-
 #endif /* linux/arm/sysdep.h */

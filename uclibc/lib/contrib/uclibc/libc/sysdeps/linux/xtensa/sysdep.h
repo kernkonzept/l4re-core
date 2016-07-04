@@ -207,9 +207,4 @@
 #endif /* _LIBC_REENTRANT */
 
 #endif	/* __ASSEMBLER__ */
-
-/* Pointer mangling is not yet supported for Xtensa.  */
-#define PTR_MANGLE(var) (void) (var)
-#define PTR_DEMANGLE(var) (void) (var)
-
 #endif	/* _LINUX_XTENSA_SYSDEP_H */

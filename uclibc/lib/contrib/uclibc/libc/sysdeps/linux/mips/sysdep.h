@@ -128,11 +128,5 @@ L(syse1):
 # define SYSCALL_ERROR_LABEL 99b
 #endif
 
-#else   /* ! __ASSEMBLER__ */
-
-/* Pointer mangling is not yet supported for MIPS.  */
-#define PTR_MANGLE(var) (void) (var)
-#define PTR_DEMANGLE(var) (void) (var)
-
 #endif  /* __ASSEMBLER__ */
 #endif /* _LINUX_MIPS_SYSDEP_H */

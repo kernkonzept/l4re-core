@@ -18,9 +18,4 @@ nm:
 #endif /* __ASSEMBLER __*/
 
 #include <common/sysdep.h>
-
-/* Pointer mangling is not yet supported  */
-#define PTR_MANGLE(var) (void) (var)
-#define PTR_DEMANGLE(var) (void) (var)
-
 #endif

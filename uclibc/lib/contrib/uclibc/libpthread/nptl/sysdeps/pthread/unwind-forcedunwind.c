@@ -70,13 +70,9 @@ pthread_cancel_init (void)
     abort();
   }
 
-  PTR_MANGLE (resume);
   libgcc_s_resume = resume;
-  PTR_MANGLE (personality);
   libgcc_s_personality = personality;
-  PTR_MANGLE (forcedunwind);
   libgcc_s_forcedunwind = forcedunwind;
-  PTR_MANGLE (getcfa);
   libgcc_s_getcfa = getcfa;
   /* Make sure libgcc_s_handle is written last.  Otherwise,
      pthread_cancel_init might return early even when the pointer the
@@ -104,7 +100,6 @@ _Unwind_Resume (struct _Unwind_Exception *exc)
     pthread_cancel_init ();
 
   void (*resume) (struct _Unwind_Exception *exc) = libgcc_s_resume;
-  PTR_DEMANGLE (resume);
   resume (exc);
 }
 
@@ -125,7 +120,6 @@ __gcc_personality_v0 (int version, _Unwind_Action actions,
   _Unwind_Reason_Code (*personality)
     (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
      struct _Unwind_Context *) = libgcc_s_personality;
-  PTR_DEMANGLE (personality);
   return personality (version, actions, exception_class, ue_header, context);
 }
 
@@ -139,7 +133,6 @@ _Unwind_ForcedUnwind (struct _Unwind_Exception *exc, _Unwind_Stop_Fn stop,
   _Unwind_Reason_Code (*forcedunwind)
     (struct _Unwind_Exception *, _Unwind_Stop_Fn, void *)
     = libgcc_s_forcedunwind;
-  PTR_DEMANGLE (forcedunwind);
   return forcedunwind (exc, stop, stop_argument);
 }
 
@@ -150,6 +143,5 @@ _Unwind_GetCFA (struct _Unwind_Context *context)
     pthread_cancel_init ();
 
   _Unwind_Word (*getcfa) (struct _Unwind_Context *) = libgcc_s_getcfa;
-  PTR_DEMANGLE (getcfa);
   return getcfa (context);
 }

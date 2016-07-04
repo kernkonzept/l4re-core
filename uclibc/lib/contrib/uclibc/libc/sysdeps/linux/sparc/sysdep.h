@@ -61,9 +61,4 @@ ENTRY(name);					\
 
 
 #endif /* __ASSEMBLER__ */
-
-/* Pointer mangling is not yet supported for SPARC.  */
-#define PTR_MANGLE(var) (void) (var)
-#define PTR_DEMANGLE(var) (void) (var)
-
 #endif

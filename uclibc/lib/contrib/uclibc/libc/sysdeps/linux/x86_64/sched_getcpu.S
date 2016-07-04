@@ -37,7 +37,6 @@ ENTRY (sched_getcpu)
 
 #ifdef SHARED
 	movq	__vdso_getcpu(%rip), %rax
-	PTR_DEMANGLE (%rax)
 	callq	*%rax
 #else
 # ifdef __NR_getcpu

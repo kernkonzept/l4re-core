@@ -396,34 +396,4 @@ __x86.get_pc_thunk.reg:						      \
 			cfi_restore (ebp); L(POPBP1):
 
 #endif	/* __ASSEMBLER__ */
-
-
-/* Pointer mangling support.  */
-#if defined NOT_IN_libc && defined IS_IN_rtld
-/* We cannot use the thread descriptor because in ld.so we use setjmp
-   earlier than the descriptor is initialized.  Using a global variable
-   is too complicated here since we have no PC-relative addressing mode.  */
-#else
-# ifdef __ASSEMBLER__
-#  define PTR_MANGLE(reg)	xorl %gs:POINTER_GUARD, reg;		      \
-				roll $9, reg
-#  define PTR_DEMANGLE(reg)	rorl $9, reg;				      \
-				xorl %gs:POINTER_GUARD, reg
-# else
-#  include <stddef.h>
-#  define PTR_MANGLE(var)	__asm__ ("xorl %%gs:%c2, %0\n"		      \
-				     "roll $9, %0"			      \
-				     : "=r" (var)			      \
-				     : "0" (var),			      \
-				       "i" (offsetof (tcbhead_t,	      \
-						      pointer_guard)))
-#  define PTR_DEMANGLE(var)	__asm__ ("rorl $9, %0\n"			      \
-				     "xorl %%gs:%c2, %0"		      \
-				     : "=r" (var)			      \
-				     : "0" (var),			      \
-				       "i" (offsetof (tcbhead_t,	      \
-						      pointer_guard)))
-# endif
-#endif
-
 #endif /* linux/i386/sysdep.h */

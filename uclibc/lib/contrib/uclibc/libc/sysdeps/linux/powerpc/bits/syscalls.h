@@ -226,30 +226,4 @@ extern void __illegally_sized_syscall_arg6(void);
 # define ASM_INPUT_6 ASM_INPUT_5, "6" (r8)
 
 #endif /* __ASSEMBLER__ */
-
-
-/* Pointer mangling support.  */
-#if defined NOT_IN_libc && defined IS_IN_rtld
-/* We cannot use the thread descriptor because in ld.so we use setjmp
-   earlier than the descriptor is initialized.  */
-#else
-# ifdef __ASSEMBLER__
-#  define PTR_MANGLE(reg, tmpreg) \
-	lwz	tmpreg,POINTER_GUARD(r2); \
-	xor	reg,tmpreg,reg
-#  define PTR_MANGLE2(reg, tmpreg) \
-	xor	reg,tmpreg,reg
-#  define PTR_MANGLE3(destreg, reg, tmpreg) \
-	lwz	tmpreg,POINTER_GUARD(r2); \
-	xor	destreg,tmpreg,reg
-#  define PTR_DEMANGLE(reg, tmpreg) PTR_MANGLE (reg, tmpreg)
-#  define PTR_DEMANGLE2(reg, tmpreg) PTR_MANGLE2 (reg, tmpreg)
-#  define PTR_DEMANGLE3(destreg, reg, tmpreg) PTR_MANGLE3 (destreg, reg, tmpreg)
-# else
-#  define PTR_MANGLE(var) \
-  (var) = (__typeof (var)) ((uintptr_t) (var) ^ THREAD_GET_POINTER_GUARD ())
-#  define PTR_DEMANGLE(var)	PTR_MANGLE (var)
-# endif
-#endif
-
 #endif /* _BITS_SYSCALLS_H */
