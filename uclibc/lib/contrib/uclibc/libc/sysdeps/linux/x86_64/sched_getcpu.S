@@ -35,26 +35,21 @@ ENTRY (sched_getcpu)
 	movl	$VGETCPU_CACHE_OFFSET, %edx
 	addq	%fs:0, %rdx
 
-#ifdef SHARED
-	movq	__vdso_getcpu(%rip), %rax
-	callq	*%rax
-#else
-# ifdef __NR_getcpu
+#ifdef __NR_getcpu
 	movl	$__NR_getcpu, %eax
 	syscall
-#  ifndef __ASSUME_GETCPU_SYSCALL
+# ifndef __ASSUME_GETCPU_SYSCALL
 	cmpq	$-ENOSYS, %rax
 	jne	1f
-#  endif
 # endif
-# ifndef __ASSUME_GETCPU_SYSCALL
+#endif
+#ifndef __ASSUME_GETCPU_SYSCALL
 	movq	$VSYSCALL_ADDR_vgetcpu, %rax
 	callq	*%rax
 1:
-# else
-#  ifndef __NR_getcpu
-#   error "cannot happen"
-#  endif
+#else
+# ifndef __NR_getcpu
+#  error "cannot happen"
 # endif
 #endif
 
