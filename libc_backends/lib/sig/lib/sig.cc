@@ -114,6 +114,9 @@ asm(
 #elif defined(ARCH_arm)
 ".p2align 2                      \n\t"
 "word: .long                    0xe1600070 \n\t" // smc
+#elif defined(ARCH_arm64)
+".p2align 2                      \n\t"
+"brk #123                        \n\t"
 #elif defined(ARCH_ppc32)
 "trap                            \n\t"
 #elif defined(ARCH_sparc)
@@ -203,7 +206,7 @@ int Sig_handling::op_exception(L4::Exception::Rights, l4_exc_regs_t &exc,
   pc_delta = -4;
 #endif
 
-#ifdef ARCH_arm
+#if defined(ARCH_arm) || defined(ARCH_arm64)
   if ((u->err >> 26) == 0x3e)
 #elif defined(ARCH_mips)
   if ((u->cause & 0x1ff) == 0x101)

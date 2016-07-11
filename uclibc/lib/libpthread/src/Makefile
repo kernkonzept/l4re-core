@@ -14,6 +14,7 @@ LDSODIR    = $(CONTRIBDIR)/ldso/ldso
 DIR_amd64 := x86_64
 DIR_x86   := i386
 DIR_arm   := arm
+DIR_arm64 := arm64
 DIR_mips  := mips
 DIR_ppc32 := powerpc
 DIR_sparc := sparc
@@ -36,6 +37,7 @@ INCDIR-x86   = $(SRC_DIR)/sysdeps/i386/i686 $(SRC_DIR)/sysdeps/i386 \
                $(LDSODIR)/$(DIR_$(ARCH))
 INCDIR-amd64 = $(SRC_DIR)/sysdeps/$(DIR_$(ARCH))
 INCDIR-arm   = $(SRC_DIR)/sysdeps/arm
+INCDIR-arm64 = $(SRC_DIR)/sysdeps/arm64
 INCDIR-mips  = $(SRC_DIR)/sysdeps/mips
 INCDIR-ppc32 = $(SRC_DIR)/sysdeps/powerpc \
                $(CONTRIBDIR)/libpthread/linuxthreads/sysdeps/powerpc
@@ -51,6 +53,7 @@ DEFINES   := -DL4_THREAD_SAFE -D__USE_XOPEN2K -D_POSIX_C_SOURCE=200112L \
 DEFINES_x86-l4f   := -DUSE___THREAD=1 
 DEFINES_amd64-l4f := -DUSE___THREAD=1 
 DEFINES_arm-l4f   := -DUSE___THREAD=1 
+DEFINES_arm64-l4f := -DUSE___THREAD=1 
 DEFINES_mips-l4f  := -DUSE___THREAD=1 
 DEFINES_ppc32-l4f := -DUSE___THREAD=1 
 DEFINES_sparc-l4f := -DUSE___THREAD=1 

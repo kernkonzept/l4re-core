@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include_next <l4/util/l4_macros.h>
+
 #ifndef l4_addr_fmt
 #  define l4_addr_fmt		"%08lx"
 #endif

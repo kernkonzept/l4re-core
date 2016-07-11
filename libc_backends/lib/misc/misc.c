@@ -404,6 +404,8 @@ int uname(struct utsname *u)
 
 #ifdef ARCH_arm
   strncpy(u->machine, "arm", sizeof(u->machine));
+#elif defined(ARCH_arm64)
+  strncpy(u->machine, "aarch64", sizeof(u->machine));
 #elif defined(ARCH_x86)
   strncpy(u->machine, "i686", sizeof(u->machine));
 #elif defined(ARCH_amd64)

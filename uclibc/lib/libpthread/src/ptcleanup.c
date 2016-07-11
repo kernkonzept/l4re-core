@@ -15,7 +15,7 @@
 /* Redefine siglongjmp and longjmp so that they interact correctly
    with cleanup handlers */
 
-#ifndef ARCH_arm
+#if ! (defined(ARCH_arm) || defined(ARCH_arm64))
 #define NO_PTR_DEMANGLE
 #endif
 

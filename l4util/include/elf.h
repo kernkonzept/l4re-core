@@ -70,27 +70,27 @@ typedef	l4_int64_t	Elf64_Sxword; /**< size 8 align 8 \ingroup l4util_elf*/
 #define _ElfW(e,w,t)    __ElfW(e, w, _##t)
 #define __ElfW(e,w,t)   e##w##t
 
-#ifdef ARCH_x86
+#if defined(ARCH_x86)
 #define L4_ARCH_EI_DATA      ELFDATA2LSB
 #define L4_ARCH_E_MACHINE    EM_386
 #define L4_ARCH_EI_CLASS     ELFCLASS32
-#else
-#ifdef ARCH_amd64
+#elif defined(ARCH_amd64)
 #define L4_ARCH_EI_DATA      ELFDATA2LSB
 #define L4_ARCH_E_MACHINE    EM_X86_64
 #define L4_ARCH_EI_CLASS     ELFCLASS64
-#else
-#ifdef ARCH_arm
+#elif defined(ARCH_arm)
 #define L4_ARCH_EI_DATA      ELFDATA2LSB
 #define L4_ARCH_E_MACHINE    EM_ARM
 #define L4_ARCH_EI_CLASS     ELFCLASS32
-#else
-#ifdef ARCH_ppc32
+#elif defined(ARCH_arm64)
+#define L4_ARCH_EI_DATA      ELFDATA2LSB
+#define L4_ARCH_E_MACHINE    EM_AARCH64
+#define L4_ARCH_EI_CLASS     ELFCLASS64
+#elif defined(ARCH_ppc32)
 #define L4_ARCH_EI_DATA      ELFDATA2MSB
 #define L4_ARCH_E_MACHINE    EM_PPC
 #define L4_ARCH_EI_CLASS     ELFCLASS32
-#else
-#ifdef ARCH_sparc
+#elif defined(ARCH_sparc)
 #define L4_ARCH_EI_DATA      ELFDATA2MSB
 #define L4_ARCH_E_MACHINE    EM_SPARC
 #define L4_ARCH_EI_CLASS     ELFCLASS32
@@ -104,10 +104,6 @@ typedef	l4_int64_t	Elf64_Sxword; /**< size 8 align 8 \ingroup l4util_elf*/
 #endif
 #else
 #warning elf.h: Unsupported build architecture!
-#endif
-#endif
-#endif
-#endif
 #endif
 
 
@@ -240,7 +236,43 @@ typedef struct {
 #define EM_MIPS_X	51	/**< Stanford MIPS-X */
 #define EM_COLDFIRE	52	/**< Motorola Coldfire */
 #define EM_68HC12	53	/**< Motorola M68HC12 */
-#define EM_X86_64	62      /**< Advanced Micro Devices x86-64 */
+#define EM_X86_64	62	/**< Advanced Micro Devices x86-64 */
+#define EM_PDSP		63	/**< Sony DSP Processor */
+#define EM_FX66		66	/**< Siemens FX66 microcontroller */
+#define EM_ST9PLUS	67	/**< STMicroelectronics ST9+ 8/16 mc */
+#define EM_ST7		68	/**< STmicroelectronics ST7 8 bit mc */
+#define EM_68HC16	69	/**< Motorola MC68HC16 microcontroller */
+#define EM_68HC11	70	/**< Motorola MC68HC11 microcontroller */
+#define EM_68HC08	71	/**< Motorola MC68HC08 microcontroller */
+#define EM_68HC05	72	/**< Motorola MC68HC05 microcontroller */
+#define EM_SVX		73	/**< Silicon Graphics SVx */
+#define EM_ST19		74	/**< STMicroelectronics ST19 8 bit mc */
+#define EM_VAX		75	/**< Digital VAX */
+#define EM_CRIS		76	/**< Axis Communications 32-bit embedded processor */
+#define EM_JAVELIN	77	/**< Infineon Technologies 32-bit embedded processor */
+#define EM_FIREPATH	78	/**< Element 14 64-bit DSP Processor */
+#define EM_ZSP		79	/**< LSI Logic 16-bit DSP Processor */
+#define EM_MMIX		80	/**< Donald Knuth's educational 64-bit processor */
+#define EM_HUANY	81	/**< Harvard University machine-independent object files */
+#define EM_PRISM	82	/**< SiTera Prism */
+#define EM_AVR		83	/**< Atmel AVR 8-bit microcontroller */
+#define EM_FR30		84	/**< Fujitsu FR30 */
+#define EM_D10V		85	/**< Mitsubishi D10V */
+#define EM_D30V		86	/**< Mitsubishi D30V */
+#define EM_V850		87	/**< NEC v850 */
+#define EM_M32R		88	/**< Mitsubishi M32R */
+#define EM_MN10300	89	/**< Matsushita MN10300 */
+#define EM_MN10200	90	/**< Matsushita MN10200 */
+#define EM_PJ		91	/**< picoJava */
+#define EM_OPENRISC	92	/**< OpenRISC 32-bit embedded processor */
+#define EM_ARC_A5	93	/**< ARC Cores Tangent-A5 */
+#define EM_XTENSA	94	/**< Tensilica Xtensa Architecture */
+#define EM_ALTERA_NIOS2 113	/**< Altera Nios II */
+#define EM_AARCH64	183	/**< ARM AARCH64 */
+#define EM_TILEPRO	188	/**< Tilera TILEPro */
+#define EM_MICROBLAZE	189	/**< Xilinx MicroBlaze */
+#define EM_TILEGX	191	/**< Tilera TILE-Gx */
+#define EM_NUM		192
 
 #if 0
 #define EM_ALPHA	0x9026	/* interium value used by Linux until the
