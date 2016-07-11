@@ -50,22 +50,11 @@
   .globl C_SYMBOL_NAME(name);			\
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),function)		\
   .align ALIGNARG(4);						\
-  name##:							\
-  CALL_MCOUNT
+  name##:
 
 #undef	END
 #define END(name)						\
   ASM_SIZE_DIRECTIVE(name)
-
-/* If compiled for profiling, call `mcount' at the start of each function.  */
-#ifdef	PROF
-#define CALL_MCOUNT			\
-	str	lr,[sp, #-4]!	;	\
-	bl	PLTJMP(mcount)	;	\
-	ldr	lr, [sp], #4	;
-#else
-#define CALL_MCOUNT		/* Do nothing.  */
-#endif
 
 #ifdef	NO_UNDERSCORES
 /* Since C identifiers are not normally prefixed with an underscore

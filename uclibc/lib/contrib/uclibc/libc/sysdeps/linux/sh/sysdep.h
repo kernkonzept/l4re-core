@@ -42,33 +42,12 @@
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),function)			      \
   .align ALIGNARG(5);							      \
   C_LABEL(name)								      \
-  cfi_startproc;							      \
-  CALL_MCOUNT
+  cfi_startproc;
 
 #undef	END
 #define END(name)							      \
   cfi_endproc;								      \
   ASM_SIZE_DIRECTIVE(C_SYMBOL_NAME(name))
-
-/* If compiled for profiling, call `mcount' at the start of each function.  */
-#ifdef	PROF
-#define CALL_MCOUNT					\
-	mov.l	1f,r1;					\
-	sts.l	pr,@-r15;				\
-	cfi_adjust_cfa_offset (4);			\
-	cfi_rel_offset (pr, 0);				\
-	mova	2f,r0;					\
-	jmp	@r1;					\
-	 lds	r0,pr;					\
-	.align	2;					\
-1:	.long	mcount;					\
-2:	lds.l	@r15+,pr;				\
-	cfi_adjust_cfa_offset (-4);			\
-	cfi_restore (pr)
-
-#else
-#define CALL_MCOUNT		/* Do nothing.  */
-#endif
 
 #ifdef	__UCLIBC_UNDERSCORES__
 /* Since C identifiers are not normally prefixed with an underscore

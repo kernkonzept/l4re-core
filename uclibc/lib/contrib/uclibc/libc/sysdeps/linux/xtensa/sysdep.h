@@ -45,8 +45,7 @@
   .align ALIGNARG(2);							\
   LITERAL_POSITION;							\
   C_LABEL(name)								\
-  abi_entry(sp, FRAMESIZE);						\
-  CALL_MCOUNT
+  abi_entry(sp, FRAMESIZE);
 
 #define	HIDDEN_ENTRY(name)						\
   .globl C_SYMBOL_NAME(name);				\
@@ -55,8 +54,7 @@
   .align ALIGNARG(2);							\
   LITERAL_POSITION;							\
   C_LABEL(name)								\
-  abi_entry(sp, FRAMESIZE);						\
-  CALL_MCOUNT
+  abi_entry(sp, FRAMESIZE);
 
 #undef END
 #define END(name) ASM_SIZE_DIRECTIVE(name)
@@ -92,8 +90,6 @@
 #error Unsupported Xtensa ABI
 #endif
 #endif
-#define CALL_MCOUNT		/* Do nothing.  */
-
 
 /* Linux uses a negative return value to indicate syscall errors,
    unlike most Unices, which use the condition codes' carry flag.

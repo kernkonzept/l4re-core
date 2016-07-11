@@ -39,15 +39,12 @@
 #define C_LABEL(name)		name/**/:
 #endif
 
-#define CALL_MCOUNT
-
 #define ENTRY(name)				\
 	.text;					\
 	.align 32;				\
 	.proc C_SYMBOL_NAME(name);		\
 	.global C_SYMBOL_NAME(name);		\
-	C_LABEL(name)				\
-	CALL_MCOUNT
+	C_LABEL(name)
 
 #define HIDDEN_ENTRY(name)			\
 	.text;					\
@@ -55,8 +52,7 @@
 	.proc C_SYMBOL_NAME(name);		\
 	.global C_SYMBOL_NAME(name);		\
 	.hidden C_SYMBOL_NAME(name);		\
-	C_LABEL(name)				\
-	CALL_MCOUNT
+	C_LABEL(name)
 
 #define LEAF(name)				\
   .text;					\

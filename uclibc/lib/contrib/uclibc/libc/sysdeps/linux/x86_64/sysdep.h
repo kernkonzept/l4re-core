@@ -42,29 +42,12 @@
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name),@function)			      \
   .align ALIGNARG(4);							      \
   C_LABEL(name)								      \
-  cfi_startproc;							      \
-  CALL_MCOUNT
+  cfi_startproc;
 
 #undef	END
 #define END(name)							      \
   cfi_endproc;								      \
   ASM_SIZE_DIRECTIVE(name)
-
-/* If compiled for profiling, call `mcount' at the start of each function.  */
-#ifdef	PROF
-/* The mcount code relies on a normal frame pointer being on the stack
-   to locate our caller, so push one just for its benefit.  */
-#define CALL_MCOUNT                                                          \
-  pushq %rbp;                                                                \
-  cfi_adjust_cfa_offset(8);                                                  \
-  movq %rsp, %rbp;                                                           \
-  cfi_def_cfa_register(%rbp);                                                \
-  call JUMPTARGET(mcount);                                                   \
-  popq %rbp;                                                                 \
-  cfi_def_cfa(rsp,8);
-#else
-#define CALL_MCOUNT		/* Do nothing.  */
-#endif
 
 #ifdef	NO_UNDERSCORES
 /* Since C identifiers are not normally prefixed with an underscore
