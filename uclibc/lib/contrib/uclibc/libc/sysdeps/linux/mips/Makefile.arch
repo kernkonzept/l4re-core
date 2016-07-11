@@ -20,5 +20,4 @@ SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.S setcontext.S getcontext.S \
 
 ASFLAGS-syscall_error.S += -D_LIBC_REENTRANT
 
-ARCH_HEADERS := sgidefs.h
-# regdef.h
+ARCH_HEADERS := sgidefs.h regdef.h
