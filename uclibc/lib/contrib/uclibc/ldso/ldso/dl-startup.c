@@ -353,8 +353,6 @@ DL_START(unsigned long args)
 						SEND_STDERR_DEBUG(strtab + sym->st_name);
 						SEND_STDERR_DEBUG("\n");
 #endif
-					} else {
-						SEND_STDERR_DEBUG("relocating unknown symbol\n");
 					}
 					/* Use this machine-specific macro to perform the actual relocation.  */
 					PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
