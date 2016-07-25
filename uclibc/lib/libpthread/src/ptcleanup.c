@@ -15,32 +15,10 @@
 /* Redefine siglongjmp and longjmp so that they interact correctly
    with cleanup handlers */
 
-#if ! (defined(ARCH_arm) || defined(ARCH_arm64))
-#define NO_PTR_DEMANGLE
-#endif
-
 #include <setjmp.h>
 #include "pthread.h"
 #include "internals.h"
 #include <jmpbuf-unwind.h>
-#ifndef NO_PTR_DEMANGLE
-#define __JMPBUF_UNWINDS(a,b,c) _JMPBUF_UNWINDS(a,b,c)
-#else
-#define __JMPBUF_UNWINDS(a,b,c) _JMPBUF_UNWINDS(a,b)
-#endif
-
-#ifndef NO_PTR_DEMANGLE
-static __inline__ uintptr_t
-demangle_ptr (uintptr_t x)
-{
-#ifdef PTR_DEMANGLE
-  PTR_DEMANGLE (x);
-#endif
-  return x;
-}
-#else
-#define demangle_ptr(x) x
-#endif
 
 void
 attribute_hidden
@@ -50,7 +28,7 @@ __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
   struct _pthread_cleanup_buffer * c;
 
   for (c = THREAD_GETMEM(self, p_cleanup);
-       c != NULL && __JMPBUF_UNWINDS(target, c, demangle_ptr);
+       c != NULL && _JMPBUF_UNWINDS(target, c);
        c = c->__prev)
     {
 #if _STACK_GROWS_DOWN
@@ -73,8 +51,7 @@ __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
   THREAD_SETMEM(self, p_cleanup, c);
 #ifdef NOT_FOR_L4
   if (THREAD_GETMEM(self, p_in_sighandler)
-      && __JMPBUF_UNWINDS(target, THREAD_GETMEM(self, p_in_sighandler),
-			 demangle_ptr))
+      && _JMPBUF_UNWINDS(target, THREAD_GETMEM(self, p_in_sighandler)))
     THREAD_SETMEM(self, p_in_sighandler, NULL);
 #endif
 }

@@ -1,14 +1,16 @@
 /*
+ * Copyright (C) 2013, Imagination Technologies Ltd.
+ *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
 #include <setjmp.h>
+#include <jmpbuf-offsets.h>
 
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */
-#undef _JMPBUF_UNWINDS
-#define _JMPBUF_UNWINDS(jmpbuf, address, demangle) \
-  ((void *) (address) > (void *) demangle (jmpbuf[JB_SP]))
+#define _JMPBUF_UNWINDS(jmpbuf, address) \
+  ((void *) (address) > (void *) jmpbuf[JB_SP])
 
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include <stdint.h>

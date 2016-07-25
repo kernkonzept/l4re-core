@@ -28,17 +28,7 @@
    */
 
 #define _JBLEN 24
-#if     defined (__USE_MISC) || defined (_ASM)
-#define JB_SP 0
-#endif
 
-#ifndef	_ASM
 typedef int __jmp_buf[_JBLEN] __attribute__((aligned (8)));
-#endif
-
-/* Test if longjmp to JMPBUF would unwind the frame
-   containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address) \
-  ((void *) (address) > (void *) (jmpbuf)[JB_SP])
 
 #endif	/* bits/setjmp.h */
