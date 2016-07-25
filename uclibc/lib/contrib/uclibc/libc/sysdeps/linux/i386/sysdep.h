@@ -186,17 +186,7 @@ __x86.get_pc_thunk.reg:						      \
 # define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 #else
 
-# ifdef RTLD_PRIVATE_ERRNO
-#  define SYSCALL_ERROR_HANDLER						      \
-0:SETUP_PIC_REG(cx);							      \
-  addl $_GLOBAL_OFFSET_TABLE_, %ecx;					      \
-  xorl %edx, %edx;							      \
-  subl %eax, %edx;							      \
-  movl %edx, rtld_errno@GOTOFF(%ecx);					      \
-  orl $-1, %eax;							      \
-  jmp L(pseudo_end);
-
-# elif defined _LIBC_REENTRANT
+# if defined _LIBC_REENTRANT
 
 #  if defined USE___THREAD
 #   ifndef NOT_IN_libc

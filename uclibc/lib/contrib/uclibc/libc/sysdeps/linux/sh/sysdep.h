@@ -130,22 +130,7 @@
 
 #include <libc/sysdeps/linux/sh/syscall_error.S>
 #else
-# ifdef RTLD_PRIVATE_ERRNO
-
-#  define SYSCALL_ERROR_HANDLER	\
-	neg r0,r1; \
-	mov.l 0f,r12; \
-	mova 0f,r0; \
-	add r0,r12; \
-	mov.l 1f,r0; \
-	mov.l r1,@(r0,r12)
-	bra .Lpseudo_end; \
-	 mov _IMM1,r0; \
-	.align 2; \
-     0: .long _GLOBAL_OFFSET_TABLE_; \
-     1: .long rtld_errno@GOTOFF
-
-# elif defined _LIBC_REENTRANT
+# if defined _LIBC_REENTRANT
 
 #  if defined USE___THREAD
 

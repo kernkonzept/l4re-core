@@ -142,16 +142,6 @@
 
 #if defined NOT_IN_libc
 # define SYSCALL_ERROR __local_syscall_error
-# ifdef RTLD_PRIVATE_ERRNO
-#  define SYSCALL_ERROR_HANDLER					\
-__local_syscall_error:						\
-       ldr     r1, 1f;						\
-       rsb     r0, r0, #0;					\
-0:     str     r0, [pc, r1];					\
-       mvn     r0, #0;						\
-       DO_RET(lr);						\
-1:     .word C_SYMBOL_NAME(rtld_errno) - 0b - 8;
-# else
 #  define SYSCALL_ERROR_HANDLER					\
 __local_syscall_error:						\
 	str	lr, [sp, #-4]!;					\
@@ -162,7 +152,6 @@ __local_syscall_error:						\
 	str	r1, [r0];					\
 	mvn	r0, #0;						\
 	ldr	pc, [sp], #4;
-# endif
 #else
 # define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 # define SYSCALL_ERROR __syscall_error

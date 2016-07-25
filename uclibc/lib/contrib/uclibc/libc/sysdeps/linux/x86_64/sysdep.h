@@ -167,15 +167,6 @@ lose:									      \
 
 # ifndef __PIC__
 #  define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
-# elif defined(RTLD_PRIVATE_ERRNO)
-#  define SYSCALL_ERROR_HANDLER			\
-0:						\
-  leaq rtld_errno(%rip), %rcx;			\
-  xorl %edx, %edx;				\
-  subq %rax, %rdx;				\
-  movl %edx, (%rcx);				\
-  orq $-1, %rax;				\
-  jmp L(pseudo_end);
 # elif USE___THREAD
 #  ifndef NOT_IN_libc
 #   define SYSCALL_ERROR_ERRNO __libc_errno
