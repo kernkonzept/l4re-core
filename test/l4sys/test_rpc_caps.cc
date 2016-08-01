@@ -71,8 +71,8 @@ struct CapRpc
 : Atkins::Fixture::Epiface_thread<Test_handler>,
   ::testing::WithParamInterface<unsigned long>
 {
-  CapRpc()
-  { server.set_rcv_cap_flags(GetParam()); }
+  CapRpc() : Epiface_thread(GetParam())
+  {}
 
   void test_valid_cap()
   {
@@ -157,8 +157,8 @@ struct CapRpcRelease
 : Atkins::Fixture::Epiface_thread<Test_handler>,
   ::testing::WithParamInterface<bool>
 {
-  CapRpcRelease()
-  { server.set_rcv_cap_flags(0); }
+  CapRpcRelease() : Epiface_thread(0)
+  {}
 };
 
 static INSTANTIATE_TEST_CASE_P(Singleton, CapRpcRelease, ::testing::Bool());
