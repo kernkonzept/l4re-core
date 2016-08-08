@@ -203,9 +203,10 @@ __spawni(pid_t *pid, const char *file,
 		*--name = '/';
 	}
 
-	char *p;
+	char *p = (char *)path;
 	do {
 		char *startp;
+		path = p;
 		p = strchrnul(path, ':');
 
 		/* Two adjacent colons, or a colon at the beginning or the end
@@ -233,7 +234,6 @@ __spawni(pid_t *pid, const char *file,
 			goto error;
 		}
 
-		path = p;
 	} while (*p++ != '\0');
 
 error:
