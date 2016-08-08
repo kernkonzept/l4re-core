@@ -43,6 +43,9 @@
    })									\
 )
 
+#define INTERNAL_SYSCALL_ARM(name, err, nr, args...)           \
+	INTERNAL_SYSCALL_NCS(__ARM_NR_##name, err, nr, args)
+
 #if defined(__thumb__)
 /* We can't use push/pop inside the asm because that breaks
    unwinding (ie. thread cancellation).
@@ -83,10 +86,6 @@
      }									\
      (int) __internal_sys_result; }) \
 )
-
-#undef INTERNAL_SYSCALL_ARM
-#define INTERNAL_SYSCALL_ARM(name, err, nr, args...)           \
-	INTERNAL_SYSCALL_NCS(__ARM_NR_##name, err, nr, args)
 #endif
 
 #define INTERNAL_SYSCALL_ERROR_P(val, err) \
