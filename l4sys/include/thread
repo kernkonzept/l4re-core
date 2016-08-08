@@ -300,6 +300,14 @@ public:
   /**
    * Register an IRQ that will trigger upon deletion events.
    *
+   * \param irq  Capability selector for the IRQ object to be triggered.
+   * \utcb{u}
+   *
+   * \return System call return tag containing the return code.
+   *
+   * An example of a deletion event is the removal of an IPC gate
+   * that is bound to this thread.
+   *
    * \see l4_thread_register_del_irq
    */
   l4_msgtag_t register_del_irq(Cap<Irq> irq, l4_utcb_t *u = l4_utcb()) throw()

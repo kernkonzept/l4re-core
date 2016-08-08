@@ -500,13 +500,16 @@ l4_thread_vcpu_control_ext_u(l4_cap_idx_t thread, l4_addr_t ext_vcpu_state,
 
 
 /**
- * Register an IRQ that will trigger upon deletion events.
+ * \copybrief L4::Thread::register_del_irq
  * \ingroup l4_thread_api
  *
- * \param thread    Thread to register IRQ for.
- * \param irq       Irq to register.
+ * \param thread  Thread to register IRQ for.
+ * \param irq     Capability selector for the IRQ object to be triggered.
  *
- * \return System call result message tag.
+ * \return System call return tag containing the return code.
+ *
+ * An example of a deletion event is the removal of an IPC gate
+ * that is bound to this thread.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_register_del_irq(l4_cap_idx_t thread, l4_cap_idx_t irq) L4_NOTHROW;
