@@ -15,12 +15,17 @@
 #include <l4/sys/scheduler>
 #include <l4/re/error_helper>
 #include <l4/re/env>
+#include <l4/util/util.h>
 
 #include <pthread-l4.h>
+#include <thread>
+#include <thread-l4>
+#include <vector>
 
 #include <l4/atkins/tap/main>
 #include <l4/atkins/debug>
 #include <l4/atkins/l4_assert>
+#include <l4/atkins/ipc_helper>
 
 
 static Atkins::Dbg dbg{2};
@@ -141,3 +146,89 @@ TEST(Scheduler, SchedulerRunThread)
       EXPECT_L4OK(L4Re::Env::env()->scheduler()->run_thread(cap, sp));
     }
 }
+
+static void ping_thread(L4::Cap<L4::Thread> from, long terminate)
+{
+  float cnt = 0;
+  while (1)
+    {
+      // Do some time consuming counting before waiting.
+      cnt = 0;
+      for(; cnt < 30000; cnt+= 0.3)
+        cnt -= 0.1;
+
+      long rec = l4_error(l4_ipc_receive(from.cap(), l4_utcb(), L4_IPC_NEVER));
+
+      l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY, l4_utcb(),
+                  l4_msgtag(rec, 0, 0, 0), L4_IPC_NEVER);
+      if (rec == terminate)
+        break;
+    }
+}
+
+/**
+ * Migrates a thread to all online (max: sizeof(cs.map)*8) cores, sends an IPC
+ * and checks that it actually consumed time there via stats_time.
+ *
+ * \pre The kernel does not change the scheduling parameters.
+ * \pre The kernel schedules a thread on the first available CPU in the cpu set
+ *      map.
+ */
+TEST(Scheduler, SchedulerMigrateThread)
+{
+  using Atkins::Ipc_helper::ipc_call;
+
+  long terminate = 250;
+  auto t1 =
+    std::thread(ping_thread, L4Re::Env::env()->main_thread(), terminate);
+  L4::Cap<L4::Thread> cap1 = std::L4::thread_cap(t1);
+
+  l4_sched_cpu_set_t cs = l4_sched_cpu_set(0, 0);
+  l4_umword_t max_cpus = 0;
+  L4Re::chksys(L4Re::Env::env()->scheduler()->info(&max_cpus, &cs),
+               "Requesting scheduling information.");
+
+  l4_umword_t current_shift = 0;
+  l4_kernel_clock_t current = 0;
+  long tag_label = 170;
+
+  l4_umword_t max_cpu_shift =
+    (sizeof(cs.map) * 8) < max_cpus ? sizeof(cs.map) * 8 : max_cpus;
+
+  // find first online
+  while (!(cs.map & (1UL << current_shift)) && (current_shift < max_cpu_shift))
+    ++current_shift;
+
+  long ret;
+  while (current_shift < max_cpu_shift)
+    {
+      l4_sched_param_t sp = l4_sched_param(2);
+      sp.affinity = l4_sched_cpu_set(current_shift, 0);
+      EXPECT_L4OK(L4Re::Env::env()->scheduler()->run_thread(cap1, sp))
+        << "Update the scheduling parameters for a thread.";
+
+      if (tag_label != (ret = ipc_call(cap1, tag_label)))
+        dbg.printf(
+          "reply did not contain expected tag_label %li; received: %li\n",
+          tag_label, ret);
+
+      l4_kernel_clock_t us = 0;
+      EXPECT_L4OK(cap1->stats_time(&us)) << "Requesting thread statistics.";
+      EXPECT_LT(current, us) << "The thread consumed time on core "
+                             << current_shift << ".";
+      current = us;
+
+      ++current_shift; // increase counter and search for the next online one
+      while (!(cs.map & (1UL << current_shift))
+             && (current_shift < max_cpu_shift))
+        ++current_shift;
+    }
+
+  if (terminate != (ret = ipc_call(cap1, terminate)))
+    dbg.printf(
+      "reply did not contain expected termiante label %li; received: %li\n",
+      terminate, ret);
+
+  t1.join();
+}
+
