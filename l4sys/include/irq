@@ -309,7 +309,7 @@ public:
                l4_msgtag_t, unbind, (l4_umword_t irqnum, Ipc::Cap<Irq> irq));
 
   /**
-   * Get information about the capabilites of the ICU.
+   * Get information about the capabilities of the ICU.
    *
    * \param[out] info  Info structure to be filled with information.
    * \utcb{utcb}
