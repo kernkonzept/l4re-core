@@ -2421,16 +2421,4 @@ config EXTRA_WARNINGS
 	help
 	  If you wish to build with extra warnings enabled, say Y here.
 
-config DOMULTI
-	bool "Compile all sources at once into an object"
-	help
-	  Set this to compile all sources at once into an object (IMA).
-	  This mode of compilation uses alot of memory but may produce
-	  smaller binaries.
-
-	  Note that you need a very recent GCC for this to work, like
-	  gcc >= 4.3 plus eventually some patches.
-
-	  If unsure, keep the default of N.
-
 endmenu

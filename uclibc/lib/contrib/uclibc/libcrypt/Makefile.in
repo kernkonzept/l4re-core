@@ -39,7 +39,6 @@ lib-a-$(UCLIBC_HAS_CRYPT)  += $(top_builddir)lib/libcrypt.a
 lib-so-$(UCLIBC_HAS_CRYPT) += $(top_builddir)lib/libcrypt.so
 objclean-y += CLEAN_libcrypt
 
-ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libcrypt.so: $(top_builddir)lib/libcrypt.a $(libc.depend)
 else
@@ -48,12 +47,6 @@ endif
 	$(call link.so,$(libcrypt_FULL_NAME),$(ABI_VERSION))
 	# link for backward compatibility
 	$(call link.so,$(libcrypt_FULL_NAME),0)
-else
-$(top_builddir)lib/libcrypt.so: $(libcrypt_OUT)/libcrypt.oS | $(libc.depend)
-	$(call linkm.so,$(libcrypt_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call linkm.so,$(libcrypt_FULL_NAME),0)
-endif
 
 $(libcrypt_OUT)/libcrypt_so.a: $(libcrypt-so-y)
 	$(Q)$(RM) $@

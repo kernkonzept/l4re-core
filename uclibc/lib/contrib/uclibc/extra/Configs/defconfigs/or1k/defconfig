@@ -237,4 +237,3 @@ UCLIBC_EXTRA_CFLAGS=""
 # UCLIBC_HAS_BACKTRACE is not set
 WARNINGS="-Wall"
 # EXTRA_WARNINGS is not set
-# DOMULTI is not set

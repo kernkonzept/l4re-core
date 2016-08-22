@@ -42,14 +42,7 @@ else
 libc-a-y = $(libc-y) $(libc-static-y)
 endif
 
-ifeq ($(DOMULTI),n)
 libc-so-y = $(libc-y:.o=.os) $(libc-shared-y)
-else
-all_sources = $(libc-y:.o=.c)
-all_sources += $(libc-shared-y:.oS=.c)
-libc-multi-y = $(filter-out $(libc-nomulti-y:.o=.c),$(all_sources))
-endif
-
 lib-a-y += $(top_builddir)lib/libc.a
 lib-gdb-y += $(top_builddir)lib/libc.gdb
 lib-so-y += $(libc.depend)
@@ -57,17 +50,10 @@ objclean-y += CLEAN_libc
 
 OUTPUT_FORMAT = $(CC) $(CFLAGS) -Wl,--verbose 2>&1 | $(SED) -n '/OUTPUT_FORMAT/,/)/p'
 
-ifeq ($(DOMULTI),n)
 $(libc.depend): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
 	$(call link.so,$(libc_FULL_NAME),$(ABI_VERSION))
 	# link for backward compatibility
 	$(call link.so,$(libc_FULL_NAME),0)
-else
-$(libc.depend): $(libc_OUT)/libc.oS $(libc-nomulti-y:.o=.oS) | $(LIBS-libc.so)
-	$(call linkm.so,$(libc_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call linkm.so,$(libc_FULL_NAME),0)
-endif
 	$(Q)$(RM) $@
 	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp
 	$(Q)$(OUTPUT_FORMAT) >> $@.tmp

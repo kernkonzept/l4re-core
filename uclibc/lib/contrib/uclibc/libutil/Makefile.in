@@ -48,7 +48,6 @@ lib-a-$(UCLIBC_HAS_LIBUTIL) += $(top_builddir)lib/libutil.a
 lib-so-$(UCLIBC_HAS_LIBUTIL) += $(top_builddir)lib/libutil.so
 objclean-y += CLEAN_libutil
 
-ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libutil.so: $(top_builddir)lib/libutil.a $(libc.depend)
 else
@@ -57,12 +56,6 @@ endif
 	$(call link.so,$(libutil_FULL_NAME),$(ABI_VERSION))
 	# link for backward compatibility
 	$(call link.so,$(libutil_FULL_NAME),0)
-else
-$(top_builddir)lib/libutil.so: $(libutil_OUT)/libutil.oS | $(libc.depend)
-	$(call linkm.so,$(libutil_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call linkm.so,$(libutil_FULL_NAME),0)
-endif
 
 $(libutil_OUT)/libutil_so.a: $(libutil-so-y)
 	$(Q)$(RM) $@

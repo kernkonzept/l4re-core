@@ -26,10 +26,6 @@ libintl_OUT := $(top_builddir)libintl
 libintl_MSRC := $(libintl_DIR)/intl.c
 libintl_MOBJ := $(patsubst %.o,$(libintl_OUT)/%.o,$(MOBJ))
 
-ifneq ($(DOMULTI),n)
-CFLAGS-libintl += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libintl_MOBJ))))
-endif
-
 ifeq ($(DOPIC),y)
 libintl-a-y := $(libintl_MOBJ:.o=.os)
 else
@@ -41,7 +37,6 @@ lib-a-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.a
 lib-so-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(top_builddir)lib/libintl.so
 objclean-y += CLEAN_libintl
 
-ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libintl.so: $(top_builddir)lib/libintl.a $(libc.depend)
 else
@@ -50,12 +45,6 @@ endif
 	$(call link.so,$(libintl_FULL_NAME),$(ABI_VERSION))
 	# link for backward compatibility
 	$(call link.so,$(libintl_FULL_NAME),0)
-else
-$(top_builddir)lib/libintl.so: $(libintl_OUT)/libintl.oS | $(libc.depend)
-	$(call linkm.so,$(libintl_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call linkm.so,$(libintl_FULL_NAME),0)
-endif
 
 $(libintl_OUT)/libintl_so.a: $(libintl-so-y)
 	$(Q)$(RM) $@

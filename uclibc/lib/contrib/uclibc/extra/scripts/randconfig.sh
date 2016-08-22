@@ -10,7 +10,6 @@ test "x$AWK" = "x" && AWK=awk
 test "x$ARCH" = "x" && ARCH=`uname -m`
 KCONFIG_ALLCONFIG=.config.allconfig
 (echo TARGET_$ARCH=y
- echo '# DOMULTI is not set'
 ) > $KCONFIG_ALLCONFIG
 export KCONFIG_ALLCONFIG
 

@@ -365,18 +365,6 @@ define link-flat.so
 		$(top_builddir)/lib/crtn.o
 endef
 
-define linkm.so
-	$(Q)$(RM) $@ $@.$(2) $(dir $@)$(1)
-	$(do_strip)
-	@$(disp_ld)
-	$(Q)$(CC) $(LDFLAGS-$(notdir $@)) -Wl,-soname=$(notdir $@).$(2) \
-		$(CFLAG_-nostdlib) -o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
-		$^ \
-		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
-	$(Q)$(LN) -sf $(1) $@.$(2)
-	$(Q)$(LN) -sf $(1) $@
-endef
-
 CFLAGS-.os+=$(PICFLAG)
 CFLAGS-.oS+=$(PICFLAG) -DSHARED
 

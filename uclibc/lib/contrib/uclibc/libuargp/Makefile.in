@@ -44,17 +44,12 @@ lib-so-$(UCLIBC_HAS_ARGP) += $(top_builddir)lib/libuargp.so
 
 objclean-y += CLEAN_libuargp
 
-ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libuargp.so: $(top_builddir)lib/libuargp.a $(libc.depend)
 else
 $(top_builddir)lib/libuargp.so: $(libuargp_OUT)/libuargp_so.a $(libc.depend)
 endif
 	$(call link.so,$(libuargp_FULL_NAME),$(MAJOR_VERSION))
-else
-$(top_builddir)lib/libuargp.so: $(libuargp_OUT)/libuargp.oS $(libc.depend)
-	$(call linkm.so,$(libuargp_FULL_NAME),$(MAJOR_VERSION))
-endif
 
 $(libuargp_OUT)/libuargp_so.a: $(libuargp-so-y)
 	$(Q)$(RM) $@

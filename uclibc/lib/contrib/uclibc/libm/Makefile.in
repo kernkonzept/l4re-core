@@ -277,14 +277,6 @@ endif
 libm_MSRC_FL := $(libm_DIR)/$(FL_MSRC)
 libm_MOBJ_FL := $(patsubst %.o,$(libm_OUT)/%.o,$(FL_MOBJ))
 
-
-ifneq ($(DOMULTI),n)
-CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ_FL))))
-ifeq ($(strip $(UCLIBC_HAS_LONG_DOUBLE_MATH)),y)
-CFLAGS-libm += $(patsubst %,-DL_%,$(subst .o,,$(notdir $(libm_MOBJ_LD))))
-endif
-endif
-
 libm_OBJS := $(libm_OBJ) $(libm_MOBJ_FL) $(libm_MOBJ_LD)
 
 ifeq ($(DOPIC),y)
@@ -298,7 +290,6 @@ lib-a-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.a
 lib-so-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.so
 objclean-y += CLEAN_libm
 
-ifeq ($(DOMULTI),n)
 ifeq ($(DOPIC),y)
 $(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc.depend)
 else
@@ -307,12 +298,6 @@ endif
 	$(call link.so,$(libm_FULL_NAME),$(ABI_VERSION))
 	# link for backward compatibility
 	$(call link.so,$(libm_FULL_NAME),0)
-else
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm.oS | $(libc.depend)
-	$(call linkm.so,$(libm_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call linkm.so,$(libm_FULL_NAME),0)
-endif
 
 $(libm_OUT)/libm_so.a: $(libm-so-y)
 	$(Q)$(RM) $@
