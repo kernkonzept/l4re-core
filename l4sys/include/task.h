@@ -204,10 +204,14 @@ l4_task_cap_valid_u(l4_cap_idx_t task, l4_cap_idx_t cap, l4_utcb_t *utcb) L4_NOT
  * \param task         Capability selector of the destination task to do the
  *                     lookup in
  * \param cap          Capability selector to look up in the destination task
+ *
  * \return label contains 1 if it has at least one child, 0 if not or invalid
+ *
+ * \deprecated Do not use. Undetermined future, might be removed.
  */
 L4_INLINE l4_msgtag_t
-l4_task_cap_has_child(l4_cap_idx_t task, l4_cap_idx_t cap) L4_NOTHROW;
+l4_task_cap_has_child(l4_cap_idx_t task, l4_cap_idx_t cap) L4_NOTHROW
+  L4_DEPRECATED("Do not use. Future uncertain.");
 
 /**
  * \internal
