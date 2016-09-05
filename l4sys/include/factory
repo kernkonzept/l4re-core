@@ -315,6 +315,7 @@ public:
    */
   l4_msgtag_t create_thread(Cap<Thread> const &target_cap,
                             l4_utcb_t *utcb = l4_utcb()) throw()
+    L4_DEPRECATED("Call create() with Cap<Thread> as argument instead.")
   { return l4_factory_create_thread_u(cap(), target_cap.cap(), utcb); }
 
   /**
@@ -378,6 +379,7 @@ public:
    */
   l4_msgtag_t create_irq(Cap<Irq>const &target_cap,
                          l4_utcb_t *utcb = l4_utcb()) throw()
+    L4_DEPRECATED("Call create() with Cap<Irq> as argument instead.")
   { return l4_factory_create_irq_u(cap(), target_cap.cap(), utcb); }
 
   /**
@@ -393,6 +395,7 @@ public:
    */
   l4_msgtag_t create_vm(Cap<Vm>const &target_cap,
                         l4_utcb_t *utcb = l4_utcb()) throw()
+    L4_DEPRECATED("Call create() with Cap<Vm> as argument instead.")
   { return l4_factory_create_vm_u(cap(), target_cap.cap(), utcb); }
 
   typedef L4::Typeid::Rpc_nocode<create_t> Rpcs;
