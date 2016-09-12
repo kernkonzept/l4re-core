@@ -6,7 +6,6 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
-#include <l4/re/util/cap_alloc>
 #include <l4/re/env>
 #include <l4/sys/platform_control>
 
