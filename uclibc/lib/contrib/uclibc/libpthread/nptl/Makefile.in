@@ -12,14 +12,13 @@ libpthread_OUT = $(top_builddir)libpthread/nptl
 
 include $(libpthread_DIR)/sysdeps/Makefile.in
 
-libc-shared-routines-y = forward.c libc-cancellation.c
+libc-shared-routines-y = libc-cancellation.c
 libc-static-routines-y = alloca_cutoff.c libc-cancellation.c
 libpthread-shared-only-routines-y = version.c
 libpthread-static-only-routines-y = pthread_atfork.c
 libpthread-routines- += $(notdir $(wildcard $(libpthread_DIR)/gen_*.c)) # dummy generated files
 libpthread-routines- += allocatestack.c # dummy included by pthread_create.c
 libpthread-routines- += pthread_mutex_getprioceiling.c pthread_mutex_setprioceiling.c # XXX: delete those or use them!
-libpthread-routines-$(UCLIBC_HAS_RESOLVER_SUPPORT) += res.c
 libpthread-routines-$(UCLIBC_SUSV4_LEGACY) += pthread_getconcurrency.c \
 	pthread_setconcurrency.c
 libpthread_CSRC = $(filter-out $(libpthread-routines-) \
@@ -42,6 +41,8 @@ else
 libpthread-a-y := $(libpthread-static-y)
 endif
 
+libpthread-a-y += $(top_builddir)lib/libpthread_nonshared.a
+
 libc-shared-routines-y := $(filter-out $(notdir $(libpthread_libc_OBJS:.o=.c)), $(libc-shared-routines-y))
 libc-static-routines-y := $(filter-out $(notdir $(libpthread_libc_OBJS:.o=.c)), $(libc-static-routines-y))
 libc-shared-routines-y := $(addprefix $(libpthread_OUT)/,$(libc-shared-routines-y:.c=.oS))
@@ -62,37 +63,6 @@ else
 librt-a-y += $(librt_OBJS)
 endif
 librt-so-y += $(librt_OBJS:.o=.oS) $(librt-pt-shared-only-routines-y:.o=.oS)
-
-ifeq ($(UCLIBC_CTOR_DTOR),y)
-START_FILE-libpthread.so := $(top_builddir)libpthread/nptl/sysdeps/pthread/pt-crti.o
-END_FILE-libpthread.so := $(top_builddir)libpthread/nptl/sysdeps/pthread/pt-crtn.o
-LDFLAGS-libpthread.so += -nostartfiles
-$(top_builddir)lib/libpthread.so: | $(START_FILE-libpthread.so) $(END_FILE-libpthread.so)
-endif
-
-libpthread_FULL_NAME := libpthread-$(VERSION).so
-lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
-lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
-
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(libdl.depend) $(top_builddir)lib/libpthread_nonshared.a
-	$(call link.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call link.so,$(libpthread_FULL_NAME),0)
-	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp
-	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@.tmp
-	$(Q)mv $@.tmp $@
-
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-$(libpthread_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
-endif
-$(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
-	$(Q)$(RM) $@
-	$(do_ar)
-
-$(top_builddir)lib/libpthread.a: $(libpthread-a-y)
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 $(libpthread_OUT)/pthread-errnos.h: $(top_srcdir)extra/scripts/gen-as-const.awk
 $(libpthread_OUT)/pthread-errnos.h: $(libpthread_DIR)/pthread-errnos.sym
@@ -132,17 +102,6 @@ HEADERCLEAN_libpthread/nptl:
 CLEAN_libpthread/nptl:
 	$(do_rm) $(addprefix $(libpthread_OUT)/*., o os oS a)
 
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-LDFLAGS-libpthread.so += $(LDFLAGS_NOSTRIP) -Wl,-z,defs
-else
-LDFLAGS-libpthread.so += $(LDFLAGS)
-endif
-
-LDFLAGS-libpthread.so += $(top_builddir)lib/$(UCLIBC_LDSO_NAME)-$(VERSION).so $(top_builddir)lib/libdl-$(VERSION).so \
-	-Wl,-z,nodelete,-z,initfirst,-init=$(SYMBOL_PREFIX)__pthread_initialize_minimal_internal
-
-LIBS-libpthread.so := $(LIBS)
-
 CFLAGS-dir_nptl := -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-libpthread/nptl := $(CFLAGS-dir_nptl) $(SSP_ALL_CFLAGS)
 
@@ -170,10 +129,6 @@ CFLAGS-libc-cancellation.c = -fasynchronous-unwind-tables
 # be executed.  Therefore exceptions have to be thrown through this
 # function.
 CFLAGS-pthread_exit.c = -fexceptions
-
-# Among others, __pthread_unwind is forwarded.  This function must handle
-# exceptions.
-CFLAGS-forward.c = -fexceptions
 
 # The following are cancellation points.  Some of the functions can
 # block and therefore temporarily enable asynchronous cancellation.
@@ -235,8 +190,6 @@ CFLAGS-waitpid.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-write.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-writev.c = -fexceptions -fasynchronous-unwind-tables
 
-CFLAGS-pt-system.c = -fexceptions -I$(top_srcdir)libc/stdlib
-
 #
 # The rest of this file is uClibc specific.
 #
@@ -249,6 +202,5 @@ CFLAGS-pthread_barrierattr_setpshared.c = -D_GNU_SOURCE
 CFLAGS-sem_open.c = -D_GNU_SOURCE
 
 CFLAGS-OMIT-alloca_cutoff.c = $(CFLAGS-dir_nptl)
-CFLAGS-OMIT-forward.c = $(CFLAGS-dir_nptl)
 CFLAGS-OMIT-libc-lowlevelock.c = $(CFLAGS-dir_nptl)
 CFLAGS-OMIT-libc-cancellation.c = $(CFLAGS-dir_nptl)

@@ -60,77 +60,6 @@ int __have_futex_clock_realtime;
 /* Version of the library, used in libthread_db to detect mismatches.  */
 static const char nptl_version[] __attribute_used__ = VERSION;
 
-#ifdef SHARED
-static void nptl_freeres (void);
-
-static const struct pthread_functions pthread_functions =
-  {
-    .ptr_pthread_attr_destroy = __pthread_attr_destroy,
-    .ptr___pthread_attr_init_2_1 = __pthread_attr_init_2_1,
-    .ptr_pthread_attr_getdetachstate = __pthread_attr_getdetachstate,
-    .ptr_pthread_attr_setdetachstate = __pthread_attr_setdetachstate,
-    .ptr_pthread_attr_getinheritsched = __pthread_attr_getinheritsched,
-    .ptr_pthread_attr_setinheritsched = __pthread_attr_setinheritsched,
-    .ptr_pthread_attr_getschedparam = __pthread_attr_getschedparam,
-    .ptr_pthread_attr_setschedparam = __pthread_attr_setschedparam,
-    .ptr_pthread_attr_getschedpolicy = __pthread_attr_getschedpolicy,
-    .ptr_pthread_attr_setschedpolicy = __pthread_attr_setschedpolicy,
-    .ptr_pthread_attr_getscope = __pthread_attr_getscope,
-    .ptr_pthread_attr_setscope = __pthread_attr_setscope,
-    .ptr_pthread_condattr_destroy = __pthread_condattr_destroy,
-    .ptr_pthread_condattr_init = __pthread_condattr_init,
-    .ptr___pthread_cond_broadcast = __pthread_cond_broadcast,
-    .ptr___pthread_cond_destroy = __pthread_cond_destroy,
-    .ptr___pthread_cond_init = __pthread_cond_init,
-    .ptr___pthread_cond_signal = __pthread_cond_signal,
-    .ptr___pthread_cond_wait = __pthread_cond_wait,
-    .ptr___pthread_cond_timedwait = __pthread_cond_timedwait,
-    .ptr_pthread_equal = __pthread_equal,
-    .ptr___pthread_exit = __pthread_exit,
-    .ptr_pthread_getschedparam = __pthread_getschedparam,
-    .ptr_pthread_setschedparam = __pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = INTUSE(__pthread_mutex_destroy),
-    .ptr_pthread_mutex_init = INTUSE(__pthread_mutex_init),
-    .ptr_pthread_mutex_lock = INTUSE(__pthread_mutex_lock),
-    .ptr_pthread_mutex_unlock = INTUSE(__pthread_mutex_unlock),
-    .ptr_pthread_self = __pthread_self,
-    .ptr_pthread_setcancelstate = __pthread_setcancelstate,
-    .ptr_pthread_setcanceltype = __pthread_setcanceltype,
-    .ptr___pthread_cleanup_upto = __pthread_cleanup_upto,
-    .ptr___pthread_once = __pthread_once_internal,
-    .ptr___pthread_rwlock_rdlock = __pthread_rwlock_rdlock_internal,
-    .ptr___pthread_rwlock_wrlock = __pthread_rwlock_wrlock_internal,
-    .ptr___pthread_rwlock_unlock = __pthread_rwlock_unlock_internal,
-    .ptr___pthread_key_create = __pthread_key_create_internal,
-    .ptr___pthread_getspecific = __pthread_getspecific_internal,
-    .ptr___pthread_setspecific = __pthread_setspecific_internal,
-    .ptr__pthread_cleanup_push_defer = __pthread_cleanup_push_defer,
-    .ptr__pthread_cleanup_pop_restore = __pthread_cleanup_pop_restore,
-    .ptr_nthreads = &__nptl_nthreads,
-    .ptr___pthread_unwind = &__pthread_unwind,
-    .ptr__nptl_deallocate_tsd = __nptl_deallocate_tsd,
-    .ptr__nptl_setxid = __nptl_setxid,
-    /* For now only the stack cache needs to be freed.  */
-    .ptr_freeres = nptl_freeres
-  };
-# define ptr_pthread_functions &pthread_functions
-#else
-# define ptr_pthread_functions NULL
-#endif
-
-
-#ifdef SHARED
-/* This function is called indirectly from the freeres code in libc.  */
-static void
-__libc_freeres_fn_section
-nptl_freeres (void)
-{
-  __unwind_freeres ();
-  __free_stacks (0);
-}
-#endif
-
-
 /* For asynchronous cancellation we use a signal.  This is the handler.  */
 static void
 sigcancel_handler (int sig, siginfo_t *si, void *ctx)
@@ -410,8 +339,7 @@ __pthread_initialize_minimal_internal (void)
 #ifndef TLS_MULTIPLE_THREADS_IN_TCB
   __libc_multiple_threads_ptr =
 #endif
-    __libc_pthread_init (&__fork_generation, __reclaim_stacks,
-			 ptr_pthread_functions);
+    __libc_pthread_init (&__fork_generation, __reclaim_stacks);
 
   /* Determine whether the machine is SMP or not.  */
   __is_smp = is_smp_system ();

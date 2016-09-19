@@ -28,7 +28,6 @@
 #include <lowlevellock.h>
 #include <bits/stackinfo.h>
 #include <internaltypes.h>
-#include <pthread-functions.h>
 #include <atomic.h>
 #include <bits/kernel-features.h>
 
@@ -377,12 +376,10 @@ hidden_proto (__nptl_death_event)
 /* Register the generation counter in the libpthread with the libc.  */
 #ifdef TLS_MULTIPLE_THREADS_IN_TCB
 extern void __libc_pthread_init (unsigned long int *ptr,
-				 void (*reclaim) (void),
-				 const struct pthread_functions *functions);
+				 void (*reclaim) (void));
 #else
 extern int *__libc_pthread_init (unsigned long int *ptr,
-				 void (*reclaim) (void),
-				 const struct pthread_functions *functions);
+				 void (*reclaim) (void));
 
 /* Variable set to a nonzero value if more than one thread runs or ran.  */
 extern int __pthread_multiple_threads attribute_hidden;

@@ -363,12 +363,19 @@ else
 	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -f wchar-stub.h
 endif
 
+EMPTY_LIB_NAMES = m crypt nsl resolv util dl rt pthread intl
+EMPTY_LIBS = $(EMPTY_LIB_NAMES:%=lib/lib%.a)
+
+$(EMPTY_LIBS):
+	rm -f $(top_builddir)$@
+	$(AR) rc $(top_builddir)$@
+
 # Installs startfiles
 install_startfiles: startfiles | $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)
 	-$(INSTALL) -m 644 $(startfiles) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 
 # Installs development library links.
-install_dev: install_headers install_runtime install_startfiles | $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)
+install_dev: install_headers install_runtime install_startfiles $(EMPTY_LIBS) | $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)
 	-$(INSTALL) -m 644 $(top_builddir)lib/*.a $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 ifeq ($(HAVE_SHARED),y)
 	for i in `cd $(top_builddir) && find lib/ -type l -name 'lib[a-zA-Z]*.so' | \
@@ -389,28 +396,7 @@ else
 	-$(INSTALL) -m 755 $(top_builddir)lib/libc.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
 endif
 	echo "$(UBACKTRACE_ASNEEDED)" >> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so
-ifeq ($(UCLIBC_HAS_ARGP),y)
-# Add the AS_NEEDED entry for libuargp.so
-	if [ -f $(top_builddir)lib/libc.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/$(SHARED_MAJORNAME) ] ; then \
-		echo "GROUP ( $(UARGP_ASNEEDED) )" >> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libc.so; \
-	fi
-endif
 
-ifeq ($(UCLIBC_HAS_THREADS),y)
-ifneq ($(UCLIBC_HAS_LINUXTHREADS),y)
-ifeq ($(HARDWIRED_ABSPATH),y)
-	if [ -f $(top_builddir)lib/libpthread.so -a -f $(PREFIX)$(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(ABI_VERSION) ] ; then \
-		$(RM) $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
-		cp $(top_srcdir)extra/scripts/format.lds $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
-		echo "GROUP ( $(RUNTIME_PREFIX)$(MULTILIB_DIR)/libpthread.so.$(ABI_VERSION) $(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread_nonshared.a )" \
-			>> $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
-		$(SED) -i -e 's://:/:g' $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libpthread.so; \
-	fi
-else
-	-$(INSTALL) -m 755 $(top_builddir)lib/libpthread.so $(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/
-endif
-endif
-endif
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 	$(LN) -sf $(RUNTIME_PREFIX_LIB_FROM_DEVEL_PREFIX_LIB)libthread_db.so.1 \
 		$(PREFIX)$(DEVEL_PREFIX)$(MULTILIB_DIR)/libthread_db.so

@@ -159,7 +159,7 @@ eq_pointer(void *p, void *q)
 	return entry->entry_point == q;
 }
 
-void *
+static __always_inline void *
 _dl_funcdesc_for (void *entry_point, void *got_value)
 {
 	struct elf_resolve *tpnt = ((void**)got_value)[2];

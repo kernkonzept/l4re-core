@@ -6,13 +6,10 @@
 #
 
 libpthread_linux_arch_SSRC =
-libpthread_linux_arch_CSRC = pthread_once.c pt-__syscall_error.c
+libpthread_linux_arch_CSRC = pthread_once.c
 
 libc_linux_arch_CSRC = fork.c
 libc_linux_arch_SSRC = clone.S vfork.S
-
-# powerpc32's PSEUDO_RET needs __syscall_error@local
-librt_linux_arch_CSRC = pt-__syscall_error.c
 
 ASFLAGS += -DUSE___THREAD
 

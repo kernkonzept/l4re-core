@@ -26,8 +26,6 @@ endif
 
 LIBS-libdl.so := $(LIBS) $(ldso)
 
-libdl_FULL_NAME := libdl-$(VERSION).so
-
 libdl_DIR := $(top_srcdir)ldso/libdl
 libdl_OUT := $(top_builddir)ldso/libdl
 
@@ -42,23 +40,7 @@ libdl-a-y := $(libdl-a-y:.o=.os)
 endif
 libdl-so-y := $(libdl_OUT)/libdl.oS
 
-lib-a-$(HAVE_SHARED) += $(top_builddir)lib/libdl.a
-lib-so-y += $(top_builddir)lib/libdl.so
 objclean-y += CLEAN_ldso/libdl
-
-$(top_builddir)lib/libdl.so: $(libdl_OUT)/libdl_so.a $(libc.depend)
-	$(call link.so,$(libdl_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call link.so,$(libdl_FULL_NAME),0)
-
-$(libdl_OUT)/libdl_so.a: $(libdl-so-y)
-	$(Q)$(RM) $@
-	$(do_ar)
-
-$(top_builddir)lib/libdl.a: $(libdl-a-y)
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 CLEAN_ldso/libdl:
 	$(do_rm) $(addprefix $(libdl_OUT)/*., o os oS a)

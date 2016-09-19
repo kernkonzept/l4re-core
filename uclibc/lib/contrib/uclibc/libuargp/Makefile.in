@@ -11,12 +11,6 @@
 
 CFLAGS-libuargp := -DNOT_IN_libc -DIS_IN_libuargp $(SSP_ALL_CFLAGS)
 
-LDFLAGS-libuargp.so := $(LDFLAGS)
-
-LIBS-libuargp.so := $(LIBS)
-
-libuargp_FULL_NAME := libuargp-$(VERSION).so
-
 libuargp_DIR := $(top_srcdir)libuargp
 libuargp_OUT := $(top_builddir)libuargp
 
@@ -39,30 +33,11 @@ libuargp-a-y := $(libuargp_OBJS)
 endif
 libuargp-so-y := $(libuargp_OBJS:.o=.os)
 
-lib-a-$(UCLIBC_HAS_ARGP) += $(top_builddir)lib/libuargp.a
-lib-so-$(UCLIBC_HAS_ARGP) += $(top_builddir)lib/libuargp.so
-
 objclean-y += CLEAN_libuargp
-
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libuargp.so: $(top_builddir)lib/libuargp.a $(libc.depend)
-else
-$(top_builddir)lib/libuargp.so: $(libuargp_OUT)/libuargp_so.a $(libc.depend)
-endif
-	$(call link.so,$(libuargp_FULL_NAME),$(MAJOR_VERSION))
-
-$(libuargp_OUT)/libuargp_so.a: $(libuargp-so-y)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 $(libuargp_OUT)/libuargp.oS: $(libuargp_SRCS)
 	$(Q)$(RM) $@
 	$(compile-m)
-
-$(top_builddir)lib/libuargp.a: $(libuargp-a-y)
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 CLEAN_libuargp:
 	$(do_rm) $(addprefix $(libuargp_OUT)/*., o os oS a)

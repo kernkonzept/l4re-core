@@ -7,7 +7,7 @@
 
 subdirs += libc/signal
 
-CSRC-y := allocrtsig.c killpg.c raise.c sigaction.c sigaddset.c sigandset.c \
+CSRC-y := allocrtsig.c killpg.c sigaction.c sigaddset.c sigandset.c \
 	sigdelset.c sigempty.c sigfillset.c \
 	sigisempty.c sigismem.c sigjmp.c signal.c \
 	sigorset.c sigsetops.c sigwait.c
@@ -16,7 +16,10 @@ CSRC-$(UCLIBC_HAS_OBSOLETE_BSD_SIGNAL) += \
 CSRC-$(UCLIBC_HAS_OBSOLETE_SYSV_SIGNAL) += sysv_signal.c
 CSRC-$(UCLIBC_SUSV4_LEGACY) += sigintr.c sigpause.c
 
-CSRC-$(UCLIBC_HAS_THREADS_NATIVE):=$(filter-out raise.c,$(CSRC-y))
+# only use simple raise.c when threads are disabled
+ifeq ($(UCLIBC_HAS_THREADS),)
+CSRC-y += raise.c
+endif
 
 ifneq ($(strip $(ARCH_OBJS-y)),)
 CSRC-y := $(filter-out $(notdir $(ARCH_OBJS-y:.o=.c)),$(CSRC-y))

@@ -24,13 +24,6 @@ subdirs += libm libm/$(TARGET_ARCH)
 
 CFLAGS-libm := -DNOT_IN_libc -DIS_IN_libm $(SSP_ALL_CFLAGS)
 
-LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libm.so := -Wl,--dsbt-index=5
-LDFLAGS-libm.so := $(LDFLAGS)
-
-LIBS-libm.so := $(LIBS)
-
-libm_FULL_NAME := libm-$(VERSION).so
-
 libm_DIR:=$(top_srcdir)libm
 libm_OUT:=$(top_builddir)libm
 
@@ -286,31 +279,11 @@ libm-a-y += $(libm_OBJS)
 endif
 libm-so-y += $(libm_OBJS:.o=.os)
 
-lib-a-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.a
-lib-so-$(UCLIBC_HAS_FLOATS) += $(top_builddir)lib/libm.so
 objclean-y += CLEAN_libm
-
-ifeq ($(DOPIC),y)
-$(top_builddir)lib/libm.so: $(top_builddir)lib/libm.a $(libc.depend)
-else
-$(top_builddir)lib/libm.so: $(libm_OUT)/libm_so.a $(libc.depend)
-endif
-	$(call link.so,$(libm_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call link.so,$(libm_FULL_NAME),0)
-
-$(libm_OUT)/libm_so.a: $(libm-so-y)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 $(libm_OUT)/libm.oS: $(libm_SRC) $(libm_MSRC_FL) $(libm_MSRC_LD) $(libm_ARCH_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-
-$(top_builddir)lib/libm.a: $(libm-a-y)
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 $(libm_MOBJ_FL): $(libm_MSRC_FL)
 	$(compile.m)

@@ -446,7 +446,6 @@ static __inline__ pthread_descr thread_self (void)
 
 /* Defined and used in libc.so.  */
 extern int __libc_multiple_threads attribute_hidden;
-extern int __librt_multiple_threads;
 
 /* Internal global functions */
 
@@ -524,6 +523,6 @@ extern void __linuxthreads_create_event (void) attribute_hidden;
 extern void __linuxthreads_death_event (void) attribute_hidden;
 extern void __linuxthreads_reap_event (void) attribute_hidden;
 
-#include <pthread-functions.h>
+extern int * __libc_pthread_init (void);
 
 #endif /* internals.h */

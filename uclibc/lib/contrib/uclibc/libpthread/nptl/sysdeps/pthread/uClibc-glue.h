@@ -26,7 +26,6 @@
 #define __read read
 #define __close close
 #define __on_exit on_exit
-#define __libc_current_sigrtmin_private __libc_current_sigrtmin
 #define __clone clone
 
 extern void *__libc_stack_end;

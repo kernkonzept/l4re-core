@@ -14,7 +14,7 @@ PC_FILENAME       := libc
 PC_LIBS           := -luc_c -luc_c_nonshared.p
 PC_EXTRA          := Link_Libs= %{static|static-pie:-luc_c}
 
-REQUIRES_LIBS     := ldscripts
+REQUIRES_LIBS     := ldscripts libpthread
 
 PICFLAGS += -DSHARED=1
 

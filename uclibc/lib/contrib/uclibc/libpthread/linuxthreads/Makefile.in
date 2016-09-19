@@ -11,20 +11,6 @@ subdirs += libpthread/linuxthreads
 CFLAGS-dir_linuxthreads := -DNOT_IN_libc -DIS_IN_libpthread
 CFLAGS-libpthread/linuxthreads := $(CFLAGS-dir_linuxthreads) $(SSP_ALL_CFLAGS)
 
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-LDFLAGS-libpthread.so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
-else
-LDFLAGS-libpthread.so := $(LDFLAGS)
-endif
-LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-libpthread.so := -Wl,--dsbt-index=10
-
-LIBS-libpthread.so := $(LIBS) $(ldso)
-
-START_FILE-libpthread.so := $(SHARED_START_FILES)
-END_FILE-libpthread.so := $(SHARED_END_FILES)
-
-libpthread_FULL_NAME := libpthread-$(VERSION).so
-
 libpthread_DIR := $(top_srcdir)libpthread/linuxthreads
 libpthread_OUT := $(top_builddir)libpthread/linuxthreads
 
@@ -50,9 +36,8 @@ libpthread_OBJ := $(patsubst $(libpthread_DIR)/%.c,$(libpthread_OUT)/%.o,$(libpt
 #
 # Stuff that goes into libc.so, not libpthread.so
 #
-CFLAGS-OMIT-forward.c := $(CFLAGS-dir_linuxthreads)
 CFLAGS-OMIT-libc_pthread_init.c := $(CFLAGS-dir_linuxthreads)
-libpthread_libc_CSRC := forward.c libc_pthread_init.c
+libpthread_libc_CSRC := libc_pthread_init.c
 libpthread_libc_OBJ  := $(patsubst %.c, $(libpthread_OUT)/%.o,$(libpthread_libc_CSRC))
 libc-static-y += $(libpthread_OUT)/libc_pthread_init.o
 libc-shared-y += $(libpthread_libc_OBJ:.o=.oS)
@@ -64,38 +49,12 @@ libpthread-a-y  += $(libpthread_OBJ)
 endif
 libpthread-so-y += $(libpthread_OBJ:.o=.oS)
 
-lib-a-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.a
-lib-so-$(UCLIBC_HAS_THREADS) += $(top_builddir)lib/libpthread.so
-
-$(top_builddir)lib/libpthread.so: $(libpthread_OUT)/libpthread_so.a $(libc.depend) $(top_builddir)lib/libpthread_nonshared.a
-	$(call link.so,$(libpthread_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call link.so,$(libpthread_FULL_NAME),0)
-	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp
-	$(Q)echo "GROUP ( $(notdir $@).$(ABI_VERSION) libpthread_nonshared.a )" >> $@.tmp
-	$(Q)mv $@.tmp $@
-
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-$(libpthread_OUT)/libpthread_so.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
-endif
-$(libpthread_OUT)/libpthread_so.a: $(libpthread-so-y)
-	$(Q)$(RM) $@
-	$(do_ar)
-
 ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
 $(libpthread_OUT)/libpthread.oS: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
 endif
 $(libpthread_OUT)/libpthread.oS: $(libpthread_SRC)
 	$(Q)$(RM) $@
 	$(compile-m)
-
-ifeq ($(PTHREADS_DEBUG_SUPPORT),y)
-$(top_builddir)lib/libpthread.a: STRIP_FLAGS:=$(STRIP_FLAGS:-x=-X --strip-debug)
-endif
-$(top_builddir)lib/libpthread.a: $(libpthread-a-y)
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 $(top_builddir)include/pthread.h:
 	$(do_ln) $(call rel_srcdir)$(PTDIR)/sysdeps/pthread/$(@F) $@

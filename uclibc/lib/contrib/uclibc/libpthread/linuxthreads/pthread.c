@@ -36,9 +36,6 @@
 #include <sys/types.h>
 #include <sys/syscall.h>
 
-libpthread_hidden_proto(waitpid)
-libpthread_hidden_proto(raise)
-
 /* These variables are used by the setup code.  */
 extern int _errno;
 extern int _h_errno;
@@ -216,16 +213,12 @@ int __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstim
    values to some unreasonable value which will signal failing of all
    the functions below.  */
 #ifndef __NR_rt_sigaction
-static int current_rtmin = -1;
-static int current_rtmax = -1;
 int __pthread_sig_restart = SIGUSR1;
 int __pthread_sig_cancel = SIGUSR2;
 int __pthread_sig_debug;
 #else
 
 #if __SIGRTMAX - __SIGRTMIN >= 3
-static int current_rtmin = __SIGRTMIN + 3;
-static int current_rtmax = __SIGRTMAX;
 int __pthread_sig_restart = __SIGRTMIN;
 int __pthread_sig_cancel = __SIGRTMIN + 1;
 int __pthread_sig_debug = __SIGRTMIN + 2;
@@ -233,8 +226,6 @@ void (*__pthread_restart)(pthread_descr) = __pthread_restart_new;
 void (*__pthread_suspend)(pthread_descr) = __pthread_wait_for_restart_signal;
 int (*__pthread_timedsuspend)(pthread_descr, const struct timespec *) = __pthread_timedsuspend_new;
 #else
-static int current_rtmin = __SIGRTMIN;
-static int current_rtmax = __SIGRTMAX;
 int __pthread_sig_restart = SIGUSR1;
 int __pthread_sig_cancel = SIGUSR2;
 int __pthread_sig_debug;
@@ -242,32 +233,6 @@ void (*__pthread_restart)(pthread_descr) = __pthread_restart_old;
 void (*__pthread_suspend)(pthread_descr) = __pthread_suspend_old;
 int (*__pthread_timedsuspend)(pthread_descr, const struct timespec *) = __pthread_timedsuspend_old;
 
-#endif
-
-/* Return number of available real-time signal with highest priority.  */
-int __libc_current_sigrtmin (void)
-{
-    return current_rtmin;
-}
-
-/* Return number of available real-time signal with lowest priority.  */
-int __libc_current_sigrtmax (void)
-{
-    return current_rtmax;
-}
-
-#if 0
-/* Allocate real-time signal with highest/lowest available
-   priority.  Please note that we don't use a lock since we assume
-   this function to be called at program start.  */
-int __libc_allocate_rtsig (int high);
-int __libc_allocate_rtsig (int high)
-{
-    if (current_rtmin == -1 || current_rtmin > current_rtmax)
-	/* We don't have anymore signal available.  */
-	return -1;
-    return high ? current_rtmin++ : current_rtmax--;
-}
 #endif
 #endif
 
@@ -315,67 +280,6 @@ libpthread_hidden_proto(pthread_cond_timedwait)
 libpthread_hidden_proto(pthread_condattr_destroy)
 libpthread_hidden_proto(pthread_condattr_init)
 
-struct pthread_functions __pthread_functions =
-  {
-#if !defined __UCLIBC_HAS_TLS__ && defined __UCLIBC_HAS_RPC__
-    .ptr_pthread_internal_tsd_set = __pthread_internal_tsd_set,
-    .ptr_pthread_internal_tsd_get = __pthread_internal_tsd_get,
-    .ptr_pthread_internal_tsd_address = __pthread_internal_tsd_address,
-#endif
-/*
-    .ptr_pthread_fork = __pthread_fork,
-*/
-    .ptr_pthread_attr_destroy = pthread_attr_destroy,
-    .ptr_pthread_attr_init = pthread_attr_init,
-    .ptr_pthread_attr_getdetachstate = pthread_attr_getdetachstate,
-    .ptr_pthread_attr_setdetachstate = pthread_attr_setdetachstate,
-    .ptr_pthread_attr_getinheritsched = pthread_attr_getinheritsched,
-    .ptr_pthread_attr_setinheritsched = pthread_attr_setinheritsched,
-    .ptr_pthread_attr_getschedparam = pthread_attr_getschedparam,
-    .ptr_pthread_attr_setschedparam = pthread_attr_setschedparam,
-    .ptr_pthread_attr_getschedpolicy = pthread_attr_getschedpolicy,
-    .ptr_pthread_attr_setschedpolicy = pthread_attr_setschedpolicy,
-    .ptr_pthread_attr_getscope = pthread_attr_getscope,
-    .ptr_pthread_attr_setscope = pthread_attr_setscope,
-    .ptr_pthread_condattr_destroy = pthread_condattr_destroy,
-    .ptr_pthread_condattr_init = pthread_condattr_init,
-    .ptr_pthread_cond_broadcast = pthread_cond_broadcast,
-    .ptr_pthread_cond_destroy = pthread_cond_destroy,
-    .ptr_pthread_cond_init = pthread_cond_init,
-    .ptr_pthread_cond_signal = pthread_cond_signal,
-    .ptr_pthread_cond_wait = pthread_cond_wait,
-    .ptr_pthread_cond_timedwait = pthread_cond_timedwait,
-    .ptr_pthread_equal = pthread_equal,
-    .ptr___pthread_exit = pthread_exit,
-    .ptr_pthread_getschedparam = pthread_getschedparam,
-    .ptr_pthread_setschedparam = pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
-    .ptr_pthread_mutex_init = __pthread_mutex_init,
-    .ptr_pthread_mutex_lock = __pthread_mutex_lock,
-    .ptr_pthread_mutex_trylock = __pthread_mutex_trylock,
-    .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
-    .ptr_pthread_self = pthread_self,
-    .ptr_pthread_setcancelstate = pthread_setcancelstate,
-    .ptr_pthread_setcanceltype = pthread_setcanceltype,
-/*
-    .ptr_pthread_do_exit = pthread_do_exit,
-    .ptr_pthread_thread_self = pthread_thread_self,
-    .ptr_pthread_cleanup_upto = pthread_cleanup_upto,
-    .ptr_pthread_sigaction = pthread_sigaction,
-    .ptr_pthread_sigwait = pthread_sigwait,
-    .ptr_pthread_raise = pthread_raise,
-    .ptr__pthread_cleanup_push = _pthread_cleanup_push,
-    .ptr__pthread_cleanup_pop = _pthread_cleanup_pop,
-*/
-    .ptr__pthread_cleanup_push_defer = __pthread_cleanup_push_defer,
-    .ptr__pthread_cleanup_pop_restore = __pthread_cleanup_pop_restore
-  };
-#ifdef SHARED
-# define ptr_pthread_functions &__pthread_functions
-#else
-# define ptr_pthread_functions NULL
-#endif
-
 static int *__libc_multiple_threads_ptr;
 
  /* Do some minimal initialization which has to be done during the
@@ -388,7 +292,7 @@ void __pthread_initialize_minimal(void)
     INIT_THREAD_SELF(&__pthread_initial_thread, 0);
 #endif
 
-    __libc_multiple_threads_ptr = __libc_pthread_init (ptr_pthread_functions);
+    __libc_multiple_threads_ptr = __libc_pthread_init ();
 }
 
 

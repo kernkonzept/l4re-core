@@ -32,15 +32,11 @@
 # define INLINE_SETXID_SYSCALL(name, nr, args...) \
   ({									\
     int __result;							\
-    if (__builtin_expect (__libc_pthread_functions_init, 0))		\
-      {									\
 	struct xid_command __cmd;					\
 	__cmd.syscall_no = __NR_##name;					\
 	__SETXID_##nr (__cmd, args);					\
-	__result = PTHFCT_CALL (ptr__nptl_setxid, (&__cmd));		\
+	__result = PTHFCT_CALL (__nptl_setxid, (&__cmd));		\
 	}								\
-    else								\
-      __result = INLINE_SYSCALL (name, nr, args);			\
     __result;								\
    })
 #else

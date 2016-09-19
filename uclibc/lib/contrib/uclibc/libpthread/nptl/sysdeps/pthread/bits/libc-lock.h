@@ -34,7 +34,6 @@
 #ifdef _LIBC
 # include <lowlevellock.h>
 # include <tls.h>
-# include <pthread-functions.h>
 #endif
 
 /* Mutex type.  */
@@ -152,20 +151,11 @@ typedef pthread_key_t __libc_key_t;
   (FUNC != NULL ? FUNC ARGS : ELSE)
 #endif
 
-/* Call thread functions through the function pointer table.  */
-#if defined SHARED && !defined NOT_IN_libc
-# define PTFAVAIL(NAME) __libc_pthread_functions_init
-# define __libc_ptf_call(FUNC, ARGS, ELSE) \
-  (__libc_pthread_functions_init ? PTHFCT_CALL (ptr_##FUNC, ARGS) : ELSE)
-# define __libc_ptf_call_always(FUNC, ARGS) \
-  PTHFCT_CALL (ptr_##FUNC, ARGS)
-#else
 # define PTFAVAIL(NAME) (NAME != NULL)
 # define __libc_ptf_call(FUNC, ARGS, ELSE) \
   __libc_maybe_call (FUNC, ARGS, ELSE)
 # define __libc_ptf_call_always(FUNC, ARGS) \
   FUNC ARGS
-#endif
 
 
 /* Initialize the named lock variable, leaving it in a consistent, unlocked

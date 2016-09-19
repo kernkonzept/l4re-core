@@ -27,13 +27,6 @@ extern void __pthread_cleanup_upto (__jmp_buf env, char *targetframe);
 void
 _longjmp_unwind (jmp_buf env, int val)
 {
-#ifdef SHARED
-  if (__libc_pthread_functions_init)
-    PTHFCT_CALL (ptr___pthread_cleanup_upto, (env->__jmpbuf,
-					      CURRENT_STACK_FRAME));
-#else
-  if (__pthread_cleanup_upto != NULL)
     __pthread_cleanup_upto (env->__jmpbuf, CURRENT_STACK_FRAME);
-#endif
 }
 libc_hidden_def(_longjmp_unwind)

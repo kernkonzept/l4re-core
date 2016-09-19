@@ -9,8 +9,7 @@ CSRC-y := brk.c __syscall_error.c sigaction.c
 
 SSRC-y := \
 	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
-	sync_file_range.S syscall.S mmap.S \
-	copysign.S
+	sync_file_range.S syscall.S mmap.S
 
 SSRC-$(UCLIBC_HAS_LFS) += mmap64.S
 SSRC-$(if $(findstring yy,$(UCLIBC_HAS_ADVANCED_REALTIME)$(UCLIBC_HAS_LFS)),y) += posix_fadvise64.S

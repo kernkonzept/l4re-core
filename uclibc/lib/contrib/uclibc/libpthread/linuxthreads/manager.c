@@ -47,9 +47,6 @@
 # define USE_SELECT
 #endif
 
-libpthread_hidden_proto(waitpid)
-libpthread_hidden_proto(raise)
-
 /* Array of active threads. Entry 0 is reserved for the initial thread. */
 struct pthread_handle_struct __pthread_handles[PTHREAD_THREADS_MAX] =
 { { __LOCK_INITIALIZER, &__pthread_initial_thread, 0},

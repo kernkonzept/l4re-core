@@ -6,5 +6,4 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-librt_arch_SSRC = aeabi_read_tp.S thumb_atomics.S
 libc_arch_a_CSRC = libc-tls.c

@@ -9,16 +9,6 @@ subdirs += librt
 
 CFLAGS-librt := -DNOT_IN_libc -DIS_IN_librt $(SSP_ALL_CFLAGS)
 
-LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-librt.so := -Wl,--dsbt-index=9
-LDFLAGS-librt.so := $(LDFLAGS)
-LIBS-librt.so := $(LIBS)
-ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
-LIBS-librt.so += $(top_builddir)lib/libpthread.so \
-	$(CC_FLAG_ASNEEDED) $(top_builddir)lib/libdl.so $(CC_FLAG_NO_ASNEEDED)
-endif
-
-librt_FULL_NAME := librt-$(VERSION).so
-
 librt_DIR := $(top_srcdir)librt
 librt_OUT := $(top_builddir)librt
 
@@ -58,31 +48,7 @@ librt-a-y += $(librt_OBJ)
 endif
 librt-so-y += $(librt_OBJ:.o=.oS)
 
-ifeq ($(UCLIBC_HAS_REALTIME),y)
-lib-a-y += $(top_builddir)lib/librt.a
-lib-so-y += $(top_builddir)lib/librt.so
-endif
-
 librt-dep-y := $(libc.depend)
-librt-dep-$(UCLIBC_HAS_THREADS_NATIVE) += $(libpthread.depend) $(libdl.depend)
-
-# for NPTL we need SHARED regardless of DOPIC
-ifeq ($(if $(UCLIBC_HAS_THREADS_NATIVE),,$(DOPIC)),y)
-$(top_builddir)lib/librt.so: $(top_builddir)lib/librt.a $(librt-dep-y)
-else
-$(top_builddir)lib/librt.so: $(librt_OUT)/librt_so.a $(librt-dep-y)
-endif
-	$(call link.so,$(librt_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call link.so,$(librt_FULL_NAME),0)
-
-$(librt_OUT)/librt_so.a: $(librt-so-y)
-	$(Q)$(RM) $@
-	$(do_ar)
-
-$(top_builddir)lib/librt.a: $(librt-a-y)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 objclean-y += CLEAN_librt
 

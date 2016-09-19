@@ -105,13 +105,8 @@ typedef pthread_key_t __libc_key_t;
   (FUNC != NULL ? FUNC ARGS : ELSE)
 # endif
 #endif
-#if defined _LIBC && !defined NOT_IN_libc && defined SHARED
-# define __libc_maybe_call2(FUNC, ARGS, ELSE) \
-  ({__builtin_expect (__libc_pthread_functions.ptr_##FUNC != NULL, 0) \
-    ? __libc_pthread_functions.ptr_##FUNC ARGS : ELSE; })
-#else
-# define __libc_maybe_call2(FUNC, ARGS, ELSE) __libc_maybe_call (__##FUNC, ARGS, ELSE)
-#endif
+
+#define __libc_maybe_call2(FUNC, ARGS, ELSE) __libc_maybe_call (__##FUNC, ARGS, ELSE)
 
 /* Initialize the named lock variable, leaving it in a consistent, unlocked
    state.  */
@@ -350,63 +345,6 @@ extern int __pthread_atfork (void (*__prepare) (void),
 			     void (*__parent) (void),
 			     void (*__child) (void));
 
-
-
-/* Make the pthread functions weak so that we can elide them from
-   single-threaded processes.  */
-#ifndef __NO_WEAK_PTHREAD_ALIASES
-# ifdef weak_extern
-#   define BP_SYM(sym) sym
-weak_extern (BP_SYM (__pthread_mutex_init))
-weak_extern (BP_SYM (__pthread_mutex_destroy))
-weak_extern (BP_SYM (__pthread_mutex_lock))
-weak_extern (BP_SYM (__pthread_mutex_trylock))
-weak_extern (BP_SYM (__pthread_mutex_unlock))
-weak_extern (BP_SYM (__pthread_mutexattr_init))
-weak_extern (BP_SYM (__pthread_mutexattr_destroy))
-weak_extern (BP_SYM (__pthread_mutexattr_settype))
-weak_extern (BP_SYM (__pthread_rwlock_init))
-weak_extern (BP_SYM (__pthread_rwlock_destroy))
-weak_extern (BP_SYM (__pthread_rwlock_rdlock))
-weak_extern (BP_SYM (__pthread_rwlock_tryrdlock))
-weak_extern (BP_SYM (__pthread_rwlock_wrlock))
-weak_extern (BP_SYM (__pthread_rwlock_trywrlock))
-weak_extern (BP_SYM (__pthread_rwlock_unlock))
-weak_extern (BP_SYM (__pthread_key_create))
-weak_extern (BP_SYM (__pthread_setspecific))
-weak_extern (BP_SYM (__pthread_getspecific))
-weak_extern (BP_SYM (__pthread_once))
-weak_extern (__pthread_atfork)
-weak_extern (BP_SYM (_pthread_cleanup_push))
-weak_extern (BP_SYM (_pthread_cleanup_pop))
-weak_extern (BP_SYM (_pthread_cleanup_push_defer))
-weak_extern (BP_SYM (_pthread_cleanup_pop_restore))
-# else
-#  pragma weak __pthread_mutex_init
-#  pragma weak __pthread_mutex_destroy
-#  pragma weak __pthread_mutex_lock
-#  pragma weak __pthread_mutex_trylock
-#  pragma weak __pthread_mutex_unlock
-#  pragma weak __pthread_mutexattr_init
-#  pragma weak __pthread_mutexattr_destroy
-#  pragma weak __pthread_mutexattr_settype
-#  pragma weak __pthread_rwlock_destroy
-#  pragma weak __pthread_rwlock_rdlock
-#  pragma weak __pthread_rwlock_tryrdlock
-#  pragma weak __pthread_rwlock_wrlock
-#  pragma weak __pthread_rwlock_trywrlock
-#  pragma weak __pthread_rwlock_unlock
-#  pragma weak __pthread_key_create
-#  pragma weak __pthread_setspecific
-#  pragma weak __pthread_getspecific
-#  pragma weak __pthread_once
-#  pragma weak __pthread_atfork
-#  pragma weak _pthread_cleanup_push_defer
-#  pragma weak _pthread_cleanup_pop_restore
-#  pragma weak _pthread_cleanup_push
-#  pragma weak _pthread_cleanup_pop
-# endif
-#endif
 
 /* We need portable names for some functions.  E.g., when they are
    used as argument to __libc_cleanup_region_start.  */

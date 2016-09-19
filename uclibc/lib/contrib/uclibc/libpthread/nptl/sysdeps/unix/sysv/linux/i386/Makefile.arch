@@ -6,7 +6,7 @@
 #
 
 libpthread_linux_arch_SSRC = clone.S pthread_spin_unlock.S pthread_once.S
-libpthread_linux_arch_CSRC = pthread_spin_init.c pt-__syscall_error.c
+libpthread_linux_arch_CSRC = pthread_spin_init.c
 
 libc_linux_arch_CSRC = fork.c
 libc_linux_arch_SSRC = clone.S vfork.S

@@ -156,14 +156,10 @@ endif
 
 UCLIBC_LDSO := $(UCLIBC_LDSO_NAME).so.$(ABI_VERSION)
 NONSHARED_LIBNAME := uclibc_nonshared.a
+NONSHARED_LIBPTHREAD := libpthread_nonshared.a
+
 libc := $(top_builddir)lib/$(SHARED_LIBNAME)
 libc.depend := $(top_builddir)lib/$(SHARED_LIBNAME:.$(ABI_VERSION)=)
-ifneq ($(ARCH_HAS_NO_SHARED),y)
-libdl.depend := $(top_builddir)lib/libdl.so
-endif
-ifneq ($(HAS_NO_THREADS),y)
-libpthread.depend := $(top_builddir)lib/libpthread.so
-endif
 interp := $(top_builddir)lib/interp.os
 ldso := $(top_builddir)lib/$(UCLIBC_LDSO)
 headers_dep := $(top_builddir)include/bits/sysnum.h \

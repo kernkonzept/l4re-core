@@ -22,9 +22,10 @@
 /* We use the libc implementation but we tell it to not allow
    SIGCANCEL or SIGTIMER to be handled.  */
 
+libc_hidden_proto(sigaction)
 extern __typeof(sigaction) __libc_sigaction;
 int
-__sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
+sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
   if (unlikely (sig == SIGCANCEL || sig == SIGSETXID))
     {
@@ -34,6 +35,4 @@ __sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 
   return __libc_sigaction (sig, act, oact);
 }
-libc_hidden_proto(sigaction)
-weak_alias (__sigaction, sigaction)
-libc_hidden_weak(sigaction)
+libc_hidden_def(sigaction)

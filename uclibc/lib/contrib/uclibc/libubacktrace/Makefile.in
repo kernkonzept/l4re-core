@@ -10,12 +10,6 @@ subdirs += libubacktrace libubacktrace/$(TARGET_ARCH)
 
 CFLAGS-libubacktrace := -DNOT_IN_libc -DIS_IN_libubacktrace $(SSP_ALL_CFLAGS)
 
-LDFLAGS-libubacktrace.so := $(LDFLAGS) $(top_builddir)lib/libdl-$(VERSION).so
-
-LIBS-libubacktrace.so := $(LIBS)
-
-libubacktrace_FULL_NAME := libubacktrace-$(VERSION).so
-
 libubacktrace_DIR := $(top_srcdir)libubacktrace
 libubacktrace_OUT := $(top_builddir)libubacktrace
 
@@ -54,28 +48,11 @@ endif
 libubacktrace-so-y += $(libubacktrace_OBJS:.o=.os) $(libubacktrace-shared-y)
 
 
-lib-a-$(UCLIBC_HAS_BACKTRACE) += $(top_builddir)lib/libubacktrace.a
-lib-so-$(UCLIBC_HAS_BACKTRACE) += $(top_builddir)lib/libubacktrace.so
-
 objclean-y += CLEAN_libubacktrace
-
-$(top_builddir)lib/libubacktrace.so: $(libubacktrace_OUT)/libubacktrace_so.a $(libdl.depend)
-	$(call link.so,$(libubacktrace_FULL_NAME),$(ABI_VERSION))
-	# link for backward compatibility
-	$(call link.so,$(libubacktrace_FULL_NAME),0)
-
-$(libubacktrace_OUT)/libubacktrace_so.a: $(libubacktrace-so-y)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 $(libubacktrace_OUT)/libubacktrace.oS: $(libubacktrace_SRCS) $(libubacktrace_ARCH_SRCS) $(libubacktrace_SHARED_SRCS)
 	$(Q)$(RM) $@
 	$(compile-m)
-
-$(top_builddir)lib/libubacktrace.a: $(libubacktrace-a-y)
-	$(Q)$(INSTALL) -d $(dir $@)
-	$(Q)$(RM) $@
-	$(do_ar)
 
 CLEAN_libubacktrace:
 	$(do_rm) $(addprefix $(libubacktrace_OUT)/*., o os oS a)

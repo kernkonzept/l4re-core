@@ -7,7 +7,6 @@ libpthread_linux_arch_CSRC = pthread_once.c
 libpthread_linux_arch_SSRC =
 
 CFLAGS-OMIT-fork.c = -DNOT_IN_libc -DIS_IN_libpthread
-ASFLAGS-pt-vfork.S = -DNOT_IN_libc -DIS_IN_libpthread -D_LIBC_REENTRANT
 
 ASFLAGS-clone.S = -D_LIBC_REENTRANT
 ASFLAGS-vfork.S = -D_LIBC_REENTRANT
