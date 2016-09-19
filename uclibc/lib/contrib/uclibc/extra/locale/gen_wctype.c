@@ -682,7 +682,6 @@ int main(int argc, char **argv)
 		output_table("ctype", &cttable);
 		output_table("uplow", &ultable);
 
-#warning fix the upper bound on the upper/lower tables... save 200 bytes or so
 		printf("#define __LOCALE_DATA_WCuplow_diffs  %7u\n", ul_count);
 		printf("\n#ifdef WANT_WCuplow_diff_data\n\n");
 		printf("\nstatic const short __LOCALE_DATA_WCuplow_diff_data[%zu] = {",

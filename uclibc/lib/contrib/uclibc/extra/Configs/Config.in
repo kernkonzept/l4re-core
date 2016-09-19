@@ -1531,14 +1531,7 @@ choice
 
 prompt "Locale data"
 	depends on UCLIBC_HAS_LOCALE
-	default UCLIBC_BUILD_ALL_LOCALE
-
-config UCLIBC_BUILD_ALL_LOCALE
-	bool "All locales"
-	depends on UCLIBC_HAS_LOCALE
-	help
-	  This builds all the locales that are available on your
-	  host-box.
+	default UCLIBC_BUILD_MINIMAL_LOCALE
 
 config UCLIBC_BUILD_MINIMAL_LOCALE
 	bool "Only selected locales"
@@ -1546,6 +1539,13 @@ config UCLIBC_BUILD_MINIMAL_LOCALE
 	help
 	  If you do not need all locales that are available on your
 	  host-box, then set this to 'Y'.
+
+config UCLIBC_BUILD_ALL_LOCALE
+	bool "All locales"
+	depends on UCLIBC_HAS_LOCALE
+	help
+	  This builds all the locales that are available on your
+	  host-box.
 
 endchoice
 

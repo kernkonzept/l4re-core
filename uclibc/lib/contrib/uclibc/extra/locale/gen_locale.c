@@ -1080,8 +1080,6 @@ static void lc_monetary_C(int X, int k)
 	int j, m;
 	char c_buf[2];
 
-#warning fix the char entries for monetary... target signedness of char may be different!
-
 	c_buf[1] = 0;
 	c_buf[0] = *nl_langinfo(X);
 	j = addstring(c_buf);

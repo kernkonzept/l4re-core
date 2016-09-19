@@ -10,11 +10,6 @@
 locale_DIR := $(top_srcdir)extra/locale
 locale_OUT := $(top_builddir)extra/locale
 
-# command used to download source code
-WGET := wget --passive-ftp
-
-LOCALE_DATA_FILENAME := uClibc-locale-20081111-$(ARCH_NATIVE_BIT)-$(if $(ARCH_LITTLE_ENDIAN),el,eb).tgz
-
 BUILD_CFLAGS-locale-common := \
 	-D__UCLIBC_GEN_LOCALE \
 	-I$(top_builddir)
@@ -74,7 +69,7 @@ locale_headers: $(locale_headers-y)
 # we do not know though which locales were really enabled for libc at build time
 ifeq ($(wildcard /usr/include/iconv.h),)
 
-$(locale_OUT)/codesets.txt:
+$(locale_OUT)/codesets.txt: $(locale_OUT)/gen_wc8bit
 	@if [ ! -f $@ ] ; then \
 	    set -e; \
 	    echo " "; \
@@ -119,7 +114,7 @@ endif
 
 # the lines beginning w/ '#-' are mandatory
 # at least one conversion is needed (euro/cyrillic)
-$(locale_OUT)/locales.txt: $(locale_DIR)/LOCALES
+$(locale_OUT)/locales.txt: $(locale_DIR)/LOCALES $(locale_OUT)/gen_locale
 	@$(disp_gen)
 ifeq ($(UCLIBC_BUILD_MINIMAL_LOCALE),y)
 	$(Q)echo "@euro e" > $@

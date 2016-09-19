@@ -91,7 +91,7 @@ endif
 utils_LOCALE_OBJ :=
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 utils_OBJ += iconv
-#utils_LOCALE_OBJ += $(utils_OUT)/locale
+utils_LOCALE_OBJ += $(utils_OUT)/locale
 endif
 
 utils_OBJ := $(patsubst %,$(utils_OUT)/%,$(utils_OBJ))
@@ -130,7 +130,7 @@ ifeq ($(HAVE_SHARED),y)
 endif
 ifeq ($(UCLIBC_HAS_LOCALE),y)
 	$(Q)$(INSTALL) -D -m 755 $(utils_OUT)/iconv$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/iconv
-	#$(Q)$(INSTALL) -m 755 $(utils_OUT)/locale$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/locale
+	$(Q)$(INSTALL) -m 755 $(utils_OUT)/locale$(DOTHOST) $(PREFIX)$(DEVEL_PREFIX)bin/locale
 endif
 
 

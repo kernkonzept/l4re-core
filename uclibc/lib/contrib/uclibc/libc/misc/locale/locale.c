@@ -58,9 +58,6 @@
 #include <ctype.h>
 #include <stdio.h>
 
-#undef link_warning
-#define link_warning(A,B)
-
 #undef __LOCALE_C_ONLY
 #ifndef __UCLIBC_HAS_LOCALE__
 #define __LOCALE_C_ONLY
@@ -118,8 +115,6 @@ extern void _locale_init_l(__locale_t base) attribute_hidden;
 
 #ifdef __LOCALE_C_ONLY
 
-link_warning(setlocale,"REMINDER: The 'setlocale' function supports only C|POSIX locales.")
-
 static const char C_string[] = "C";
 
 char *setlocale(int category, register const char *locale)
@@ -134,10 +129,6 @@ char *setlocale(int category, register const char *locale)
 }
 
 #else /* ---------------------------------------------- __LOCALE_C_ONLY */
-
-#ifdef __UCLIBC_HAS_THREADS__
-link_warning(setlocale,"REMINDER: The 'setlocale' function is _not_ threadsafe except for simple queries.")
-#endif
 
 #if !defined(__LOCALE_DATA_NUM_LOCALES) || (__LOCALE_DATA_NUM_LOCALES <= 1)
 #error locales enabled, but not data other than for C locale!
@@ -262,8 +253,6 @@ char *setlocale(int category, const char *locale)
 
 
 #ifdef __LOCALE_C_ONLY
-
-link_warning(localeconv,"REMINDER: The 'localeconv' function is hardwired for C/POSIX locale only.")
 
 static struct lconv the_lconv;
 
@@ -1001,8 +990,6 @@ libc_hidden_def(__XL_NPP(nl_langinfo))
 #endif
 /**********************************************************************/
 #ifdef L_newlocale
-
-#warning mask defines for extra locale categories
 
 static const char posix[] = "POSIX";
 static const char utf8[] = "UTF-8";

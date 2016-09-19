@@ -326,11 +326,6 @@ extern int __locale_mbrtowc_l(wchar_t *__restrict dst,
 				__locale_t loc) attribute_hidden;
 #endif
 
-#ifdef L_setlocale
-/* so we only get the warning once... */
-#warning need thread version of CUR_LOCALE!
-#endif
-
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_XLOCALE__
 

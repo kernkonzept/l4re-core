@@ -339,7 +339,6 @@ static section_t *new_section(const char *name)
 		snprintf(buf, sizeof(buf), "%s %05d", cur_col->name, anonsection);
 		++anonsection;
 	}
-#warning devel code
 /* 	verbose_msg(VDETAIL, "section %s\n", name); */
 	p->name = xsymdup(name);
 	p->itm_list = NULL;
@@ -350,7 +349,6 @@ static section_t *new_section(const char *name)
 /* 	memset(p->rules, 0, MAX_COLLATION_WEIGHTS); */
 /* 	memset(cur_rule, R_FORWARD, 4); */
 
-#warning devel code
 	if (*p->name == 'a') {
 		cur_num_weights = p->num_rules = 4;
 		memset(p->rules, R_FORWARD, 4);
@@ -725,7 +723,6 @@ static void processfile(void)
 	const keyword_table_t *k;
 
 	order_state = 0;
-#warning devel code
 /* 	cur_num_weights = 0; */
 /* 	cur_num_weights = 4; */
 /* 	memset(cur_rule, R_FORWARD, 4); */
@@ -1289,7 +1286,6 @@ static int old_main(int argc, char **argv)
 			override_len, multistart_len, weightstr_len,
 			wcs2colidt_len, index2weight_len, index2ruleidx_len,
 			ruletable_len,
-#warning mult by 2 for rule indecies
 			(override_len + multistart_len + weightstr_len
 			 + wcs2colidt_len + index2weight_len + index2ruleidx_len + ruletable_len) * 2,
 			(override_len + multistart_len + weightstr_len
@@ -1515,7 +1511,6 @@ static void do_copy(void)
 			++s;
 			if (cur_base && !strcmp(cur_base->name,s)) {
 /* 				verbose_msg(VDETAIL, "skipping copy of base file %s\n", s); */
-#warning need to update last in order and position or check
 				return;
 			}
 /* 			verbose_msg(VDETAIL, "full copy of %s\n", s); */
@@ -1601,7 +1596,6 @@ static ll_item_t *find_section_list_item(const char *name, col_locale_t *loc)
 	p = loc->section_list;
 
 	while (p) {
-#warning devel code
 /* 		if (!((p->data_type == DT_SECTION) || (p->data_type == DT_REORDER))) { */
 /* 			verbose_msg(VDETAIL, "fsli = %d\n", p->data_type); */
 /* 		} */
@@ -1744,7 +1738,6 @@ static void add_colitem(char *item, char *def)
 
 	p = new_colitem(item, def);
 
-#warning devel code
 	if (superset) {
 		if (tfind(p, &cur_base->root_colitem, colitem_cmp)) {
 /* 			verbose_msg(VDETAIL, "skipping superset duplicate collating item \"%s\"\n", p->string); */
@@ -1865,7 +1858,6 @@ static void do_order_start(void)
 	cur_section = sect;
 /* 	fprintf(stdout, "cur_section now %s\n", cur_section->name); */
 
-#warning need to add section to weight list?
 
 	/* now do rules */
 	do {
@@ -1945,7 +1937,6 @@ static void do_reorder_after(void)
 		error_msg("currently reorder_after is not supported in supersets");
 	}
 
-#warning have to use rule for current section!!!
 
 	if (!(t = next_token())) {
 		error_msg("missing arg for reorder_after");
@@ -1996,10 +1987,8 @@ static void do_reorder_after(void)
 	memcpy(cur_section->rules, save_cur_rule, MAX_COLLATION_WEIGHTS);
 
 
-#warning devel code
 /* 	verbose_msg(VDETAIL, "reorder -- %s %d\n", ((weighted_item_t *)(lli->data))->symbol, w->num_weights); */
 
-#warning hack to get around hu_HU reorder-after problem
 /* 	if (!w->num_weights) { */
 
 /* 	} else { */
@@ -2406,7 +2395,6 @@ static ll_item_t *init_comm_ptr(void)
 		comm_cur_ptr = comm_cur_ptr->next;
 	}
 
-#warning devel code
 /* 	{ */
 /* 		ll_item_t *p = comm_cur_ptr; */
 /* 		verbose_msg(VDETAIL, "init_comm_ptr\n"); */
@@ -2672,7 +2660,6 @@ static void finalize_base(void)
 	base_locale_array[base_locale_len].index2weight_offset = index2weight_len;
 	base_locale_array[base_locale_len].index2ruleidx_offset = index2ruleidx_len;
 	if (!strcmp(cur_base->name,"ja_JP") || !strcmp(cur_base->name,"ko_KR")) {
-#warning fix the index2weight check!!
 		index2weight_len_inc = 0;
 	}
 /* 	printf("%s -- index2weight_len = %d\n", cur_base->name, index2weight_len); */
@@ -2709,14 +2696,12 @@ static void finalize_base(void)
 			if (lli->data_type & DT_RANGE) {
 				i += mr;
 				mr = 0;
-#warning check ko_kR and 9
 /* 				++i; */
 				lli->idx = i;
 				assert(!rli);
 				rli = lli;
 				verbose_msg(VDETAIL, "range pre = %d  after = ", i);
 				i += ((range_item_t *)(lli->data))->length + 1;
-#warning check ko_kR and 9
 /* 				++i; */
 				verbose_msg(VDETAIL, "%d\n", i);
 				if (!index2weight_len_inc) { /* ko_KR hack */
@@ -2740,7 +2725,6 @@ static void finalize_base(void)
 			} else {
 				assert(lli->data_type & DT_REORDER);
 				r = ll_len( ((section_t *)(lli->data))->itm_list );
-#warning check ko_kR and 9
 				if (r > mr) {
 					mr = r;
 				}
@@ -2762,7 +2746,6 @@ static void finalize_base(void)
 				i += mr;
 				mr = 0;
 				i = lli->idx + ((range_item_t *)(lli->data))->length + 1;
-#warning check
 			} else if ((lli->data_type & DT_WEIGHTED) && !(s->data_type & DT_REORDER)) {
 				i += mr;
 				mr = 0;
@@ -3247,7 +3230,6 @@ static void finalize_base(void)
 
 #endif
 
-#warning handle UNDEFINED idx specially?  what if in only some of derived?
 /* 	base_locale_array[base_locale_len].undefined_idx = final_index_val0("UNDEFINED"); */
 	base_locale_array[base_locale_len].undefined_idx = 0;
 
