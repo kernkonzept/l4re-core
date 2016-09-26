@@ -41,8 +41,6 @@ else
 libpthread-a-y := $(libpthread-static-y)
 endif
 
-libpthread-a-y += $(top_builddir)lib/libpthread_nonshared.a
-
 libc-shared-routines-y := $(filter-out $(notdir $(libpthread_libc_OBJS:.o=.c)), $(libc-shared-routines-y))
 libc-static-routines-y := $(filter-out $(notdir $(libpthread_libc_OBJS:.o=.c)), $(libc-static-routines-y))
 libc-shared-routines-y := $(addprefix $(libpthread_OUT)/,$(libc-shared-routines-y:.c=.oS))

@@ -86,10 +86,6 @@ make_stub(capset)
 make_stub(connect)
 #endif
 
-#if !defined __NR_create_module && defined __UCLIBC_LINUX_MODULE_24__
-make_stub(create_module)
-#endif
-
 #if !defined __NR_delete_module && defined __UCLIBC_LINUX_MODULE_26__
 make_stub(delete_module)
 #endif
@@ -271,10 +267,6 @@ make_stub(ppoll)
 
 #if !defined __NR_prctl && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(prctl)
-#endif
-
-#if !defined __NR_query_module && defined __UCLIBC_LINUX_MODULE_24__
-make_stub(query_module)
 #endif
 
 #if !defined __NR_readahead && defined __UCLIBC_LINUX_SPECIFIC__

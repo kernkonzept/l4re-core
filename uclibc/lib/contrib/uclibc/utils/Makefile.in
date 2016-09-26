@@ -25,6 +25,10 @@ else
 CFLAGS-utils-shared :=
 endif
 
+ifneq ($(HAVE_SHARED),y)
+CFLAGS-utils += -static
+endif
+
 CFLAGS-ldconfig := -DBUILDING_LINKAGE
 ifeq ($(UCLIBC_STATIC_LDCONFIG),y)
 CFLAGS-ldconfig += -static
@@ -64,10 +68,6 @@ BUILD_CFLAGS-ldd.host      := \
 				-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) \
 				-I$(top_srcdir)ldso/include \
 				-include $(top_srcdir)include/elf.h
-BUILD_CFLAGS-locale.host   := \
-				-DNOT_IN_libc \
-				-I$(top_srcdir)utils/ \
-				-I.
 BUILD_CFLAGS-iconv.host    := \
 			-include $(top_builddir)extra/locale/c8tables.h \
 			-I$(top_srcdir)libc/misc/wchar -DL_iconv_main
@@ -97,7 +97,6 @@ endif
 utils_OBJ := $(patsubst %,$(utils_OUT)/%,$(utils_OBJ))
 
 hostutils_OBJ := $(patsubst %,%.host,$(utils_OBJ))
-hostutils_LOCALE_OBJ := $(patsubst %,%.host,$(utils_LOCALE_OBJ))
 
 utils: $(utils_OBJ) $(utils_LOCALE_OBJ)
 
@@ -109,10 +108,7 @@ $(utils_OBJ): $(utils_OUT)/% : $(utils_DIR)/%.c | $(libc)
 $(utils_OUT)/locale: $(top_srcdir)extra/locale/programs/locale.c | $(libc)
 	$(compile.u)
 
-$(utils_OUT)/locale.host: $(top_srcdir)extra/locale/programs/locale.c | $(libc)
-	$(hcompile.u)
-
-hostutils: $(hostutils_OBJ) $(hostutils_LOCALE_OBJ)
+hostutils: $(hostutils_OBJ)
 
 $(hostutils_OBJ): $(utils_OUT)/%.host : $(utils_DIR)/%.c
 	$(hcompile.u)
