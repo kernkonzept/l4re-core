@@ -17,6 +17,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
+#include <sys/syscall.h>
 #include "pthread.h"
 #include "internals.h"
 #include "spinlock.h"
@@ -233,14 +234,13 @@ int sigwait(const sigset_t * set, int * sig)
 /* Redefine raise() to send signal to calling thread only,
    as per POSIX 1003.1c */
 libpthread_hidden_proto(raise)
-int raise (int sig)
-{
-  int retcode = pthread_kill(pthread_self(), sig);
-  if (retcode == 0)
-    return 0;
-  else {
-    errno = retcode;
-    return -1;
-  }
+int raise (int sig) {
+  int ret;
+  pid_t tid;
+
+  tid = INLINE_SYSCALL(gettid, 0);
+  ret = INLINE_SYSCALL(tkill, 2, tid, sig);
+
+  return ret;
 }
 libpthread_hidden_def(raise)
