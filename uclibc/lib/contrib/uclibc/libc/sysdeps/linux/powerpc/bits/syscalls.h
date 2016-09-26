@@ -137,7 +137,8 @@
    "sc; bnslr+" sequence) and CR (where only CR0.SO is clobbered to signal
    an error return status).  */
 
-# define INTERNAL_SYSCALL_DECL(err) long int err
+# undef INTERNAL_SYSCALL_DECL
+# define INTERNAL_SYSCALL_DECL(err) long int err __attribute__((unused))
 
 # define INTERNAL_SYSCALL_NCS(name, err, nr, args...)			\
 (__extension__ \
