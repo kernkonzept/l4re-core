@@ -503,7 +503,6 @@ ifeq ($(TARGET_ARCH),c6x)
 endif
 
 ifeq ($(TARGET_ARCH),arc)
-	CPU_CFLAGS-y += -mlock -mswape
 	CPU_CFLAGS-$(CONFIG_ARC_CPU_700) += -mA7
 	CPU_CFLAGS-$(CONFIG_ARC_CPU_HS) += -mcpu=archs
 	CPU_LDFLAGS-y += $(CPU_CFLAGS) -marclinux

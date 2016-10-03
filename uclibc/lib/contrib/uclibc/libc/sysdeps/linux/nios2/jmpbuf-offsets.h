@@ -6,12 +6,16 @@
 
 #include <features.h>
 
-#define JB_REGS		0
-#define JB_PC		32
-#define JB_SP		36
-#define JB_FP		40
-#define JB_GP		44
-#define JB_FPREGS 	48
+#define JB_R16 0
+#define JB_R17 1
+#define JB_R18 2
+#define JB_R19 3
+#define JB_R20 4
+#define JB_R21 5
+#define JB_R22 6
+#define JB_FP  7
+#define JB_RA  8
+#define JB_SP  9
 
 #ifdef __UCLIBC_HAS_FPU__
 # define JB_SIZE 304

@@ -38,6 +38,11 @@ void __arc_link_error (void);
 #define __arch_compare_and_exchange_val_16_acq(mem, newval, oldval) \
   ({ __arc_link_error (); oldval; })
 
+#define __arch_compare_and_exchange_val_64_acq(mem, newval, oldval)	\
+  ({ __arc_link_error (); oldval; })
+
+#ifdef __CONFIG_ARC_HAS_ATOMICS__
+
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval)     \
   ({									\
 	__typeof(oldval) prev;						\
@@ -56,5 +61,57 @@ void __arc_link_error (void);
 	prev;								\
   })
 
-#define __arch_compare_and_exchange_val_64_acq(mem, newval, oldval) \
-  ({ __arc_link_error (); oldval; })
+#else
+
+#ifndef __NR_arc_usr_cmpxchg
+#error "__NR_arc_usr_cmpxchg missing: Please upgrade to kernel 4.9+ headers"
+#endif
+
+/* With lack of hardware assist, use kernel to do the atomic operation
+   This will only work in a UP configuration
+ */
+#define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval)     \
+  ({									\
+	/* opecode INTERNAL_SYSCALL as it lacks cc clobber */		\
+	register int __ret __asm__("r0") = (int)(mem);			\
+	register int __a1 __asm__("r1") = (int)(oldval);		\
+	register int __a2 __asm__("r2") = (int)(newval);		\
+	register int _sys_num __asm__("r8") = __NR_arc_usr_cmpxchg;	\
+									\
+        __asm__ volatile (						\
+		ARC_TRAP_INSN						\
+		: "+r" (__ret)						\
+		: "r"(_sys_num), "r"(__ret), "r"(__a1), "r"(__a2)	\
+		: "memory", "cc");					\
+									\
+	/* syscall returns previous value */				\
+	/* Z bit is set if cmpxchg succeeded (we don't use that yet) */	\
+									\
+	(__typeof(oldval)) __ret;					\
+  })
+
+#endif
+
+/* Store NEWVALUE in *MEM and return the old value.
+   Atomic EX is present in all configurations
+ */
+
+#define __arch_exchange_32_acq(mem, newval)				\
+  ({									\
+	__typeof__(*(mem)) val = newval;				\
+									\
+	__asm__ __volatile__(						\
+	"ex %0, [%1]"							\
+	: "+r" (val)							\
+	: "r" (mem)							\
+	: "memory" );							\
+									\
+	val;								\
+  })
+
+#define atomic_exchange_acq(mem, newval)				\
+  ({									\
+	if (sizeof(*(mem)) != 4)					\
+		abort();						\
+	__arch_exchange_32_acq(mem, newval);				\
+  })

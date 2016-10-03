@@ -1,70 +1,94 @@
-/*
- * libc/sysdeps/linux/nios2/clone.S -- `clone' syscall for linux/nios2
- *
- *  Copyright (C) 2004  Microtronix Datacom Ltd
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- * 
- * Written by Wentao Xu <wentao@microtronix.com>
- */
+/* clone() implementation for Nios II.
+   Copyright (C) 2008-2016 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+   Contributed by Andrew Jenner <andrew@codesourcery.com>, 2008.
 
-#define _ERRNO_H
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+/* clone() is even more special than fork() as it mucks with stacks
+   and invokes a function in the right context after its all over.  */
+
+#include <sysdep.h>
+#define _ERRNO_H	1
 #include <bits/errno.h>
-#include <sys/syscall.h>
 
-#ifdef __NR_clone
-/* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <tcb-offsets.h>
+#endif
 
-.text
-.global clone
-.type   clone,%function
-.align 4
-clone:
-	addi    sp,sp,-8
-	mov     r8,r4
-	stw     ra,4(sp)
-	stw     r16,0(sp)
+#define CLONE_VM      0x00000100
 
-	mov     r4,r6
-	movi    r2,-EINVAL
-	
-	/* sanity check */
-	beq     r8,zero,CLONE_ERROR_LABEL
-	beq     r5,zero,CLONE_ERROR_LABEL
-	
-	/* system call */
-	movi    r2,TRAP_ID_SYSCALL
-	movi    r3,__NR_clone
+/* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
+	     void *parent_tidptr, void *tls, void *child_tidptr) */
+
+	.text
+ENTRY(__clone)
+	/* Sanity check arguments.  */
+	movi	r2, EINVAL
+
+	subi	r5, r5, 8	/* Reserve argument save space.  */
+	stw	r4, 4(r5)	/* Save function pointer.  */
+	stw	r7, 0(r5)	/* Save argument pointer.  */
+
+	/* Load arguments.  */
+	mov	r4, r6
+	ldw	r6, 0(sp)
+	ldw	r7, 8(sp)
+	ldw	r8, 4(sp)
+
+	/* Do the system call.  */
+	movi	r2, SYS_ify (clone)
+
 	trap
-	
-	/* child call the function */
-	mov     r4,r7
-	bne     r2,zero,CLONE_ERROR_LABEL
-	callr   r8
-	
-	/* exit if it returns */
-	mov     r4,r2
-	movi    r3,__NR_exit
-	trap
-	
-CLONE_ERROR_LABEL: 
-	movi    r3,-4096
-	sub     r16,zero,r2
-	bgeu    r3,r2,CLONE_OK
-	
-	/* store errno */
-	call    __errno_location
-	stw     r16,0(r2)
-	movi    r2,-1
 
-CLONE_OK:
-	ldw     ra,4(sp)
-	ldw     r16,0(sp)
-	addi    sp,sp,8
+	/* See if we're on the newly created thread.  */
+	beq	r2, zero, thread_start
+	/* Successful return from the parent */
 	ret
 
-.size clone,.-clone
-
+thread_start:
+	/* We expect the argument registers to be preserved across system
+	   calls and across task cloning, so flags should be in r4 here.  */
+	andi	r2, r4, CLONE_VM
+	bne	r2, zero, 2f
+        DO_CALL (getpid, 0)
+#ifdef RESET_PID
+	stw	r2, PID_OFFSET(r23)
+	stw	r2, TID_OFFSET(r23)
 #endif
+2:
+	ldw	r5, 4(sp)	/* Function pointer.  */
+	ldw	r4, 0(sp)	/* Argument pointer.  */
+	addi	sp, sp, 8
+
+        /* Call the user's function.  */
+	callr	r5
+
+	/* _exit with the result.  */
+	mov	r4, r2
+#ifdef __PIC__
+	nextpc	r22
+1:	movhi	r8, %hiadj(_gp_got - 1b)
+	addi	r8, r8, %lo(_gp_got - 1b)
+	add	r22, r22, r8
+	ldw	r8, %call(HIDDEN_JUMPTARGET(_exit))(r22)
+	jmp	r8
+#else
+	jmpi	_exit
+#endif
+
+END(__clone)
+libc_hidden_def (__clone)
+weak_alias (__clone, clone)

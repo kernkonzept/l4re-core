@@ -72,5 +72,9 @@ __start:
 0:	.asciz "GNU"		/* Vendor name */
 1:	.align 4
 2:	.long 0			/* Note data: Linux executable */
-	.long 3,9,0		/* Earliest compatible kernel */
+#if (__GNUC__ > 4)
+	.long 4,8,0		/* Earliest compatible kernel for ABI v4 */
+#else
+	.long 3,9,0		/* Earliest compatible kernel for ABI v3 */
+#endif
 3:	.align 4		/* Pad out section */

@@ -1,5 +1,5 @@
-/* Define the machine-dependent type `jmp_buf'.  Nios2 version.
-   Copyright (C) 1992,93,95,97,2000 Free Software Foundation, Inc.
+/* Define the machine-dependent type `jmp_buf'.  Nios II version.
+   Copyright (C) 1992-2016 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -13,7 +13,7 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
 #ifndef _BITS_SETJMP_H
@@ -23,27 +23,9 @@
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
-typedef struct
-{
-    /* Callee-saved registers r16 through r23.  */
-    unsigned long __regs[8];
+/* Saves r16-r22 (callee-saved, including GOT pointer), fp (frame pointer),
+   ra (return address), and sp (stack pointer).  */
 
-    /* Program counter.  */
-    unsigned long __pc;
-
-    /* Stack pointer.  */
-    unsigned long __sp;
-
-    /* The frame pointer.  */
-    unsigned long __fp;
-
-    /* The global pointer.  */
-    unsigned long __gp;
-
-	/* floating point regs, if any */
-#ifdef __UCLIBC_HAS_FPU__
-    unsigned long __fpregs[64];
-#endif
-} __jmp_buf[1];
+typedef int __jmp_buf[10];
 
 #endif	/* bits/setjmp.h */

@@ -11,6 +11,4 @@ config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y
 	select ARCH_LITTLE_ENDIAN
-	select ARCH_HAS_NO_MMU
 	select ARCH_HAS_NO_LDSO
-	select HAVE_NO_PIC

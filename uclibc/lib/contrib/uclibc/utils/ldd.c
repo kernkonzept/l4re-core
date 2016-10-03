@@ -103,6 +103,11 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__nios2__)
+#define MATCH_MACHINE(x) (x == EM_NIOS32)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
 #if defined(__powerpc__)
 #define MATCH_MACHINE(x) (x == EM_PPC)
 #define ELFCLASSM	ELFCLASS32

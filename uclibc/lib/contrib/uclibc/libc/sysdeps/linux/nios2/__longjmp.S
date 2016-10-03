@@ -1,48 +1,39 @@
-/*
- * libc/sysdeps/linux/nios2/__longjmp.S
- *
- *  Copyright (C) 2004,05,06  Microtronix Datacom Ltd
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- * 
- * Written by Wentao Xu <wentao@microtronix.com>
- * 
- */
+/* longjmp for Nios II.
+   Copyright (C) 2015-2016 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#include <features.h>
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library.  If not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#include <sysdep.h>
 #include <jmpbuf-offsets.h>
 
-.globl __longjmp
-.type  __longjmp,@function
-.balign 4
-
-__longjmp:
-    /* return value is in r5*/
+ENTRY (__longjmp)
     mov     r2,  r5
-  
-    /* jmp_buf in r4, restore regs.  */
-    ldw     r16, (JB_REGS+ 0)(r4)
-    ldw     r17, (JB_REGS+ 4)(r4)
-    ldw     r18, (JB_REGS+ 8)(r4)
-    ldw     r19, (JB_REGS+12)(r4)
-    ldw     r20, (JB_REGS+16)(r4)
-    ldw     r21, (JB_REGS+20)(r4)
-    ldw     r22, (JB_REGS+24)(r4)
-    ldw     r23, (JB_REGS+28)(r4)
-    
-    ldw     ra, JB_PC(r4)
-    ldw     fp, JB_FP(r4)
-    ldw     gp, JB_GP(r4)
-    ldw     sp, JB_SP(r4)
-    
-#ifdef __UCLIBC_HAS_FPU__
-    RESTORE_FPU r4 JB_FPREGS
-#endif
 
-  /* return to saved RA */    
+    ldw	    r16, (JB_R16*4)(r4)
+    ldw	    r17, (JB_R17*4)(r4)
+    ldw	    r18, (JB_R18*4)(r4)
+    ldw	    r19, (JB_R19*4)(r4)
+    ldw	    r20, (JB_R20*4)(r4)
+    ldw     r21, (JB_R21*4)(r4)
+    ldw	    r22, (JB_R22*4)(r4)
+    ldw	    fp,  (JB_FP*4)(r4)
+    ldw	    ra,  (JB_RA*4)(r4)
+    ldw	    sp,  (JB_SP*4)(r4)
+  
     ret
 
-.size __longjmp,.-__longjmp
+END (__longjmp)
 libc_hidden_def(__longjmp)

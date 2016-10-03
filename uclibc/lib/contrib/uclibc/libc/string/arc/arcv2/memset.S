@@ -52,7 +52,7 @@ ENTRY(memset)
 	lpnz	@.Lset64bytes
 	;; LOOP START
 	PREWRITE(r3, 64)	;Prefetch the next write location
-#ifdef __LL64__
+#if defined(__LL64__) || defined(__ARC_LL64__)
 	std.ab	r4, [r3, 8]
 	std.ab	r4, [r3, 8]
 	std.ab	r4, [r3, 8]
@@ -85,7 +85,7 @@ ENTRY(memset)
 	lpnz	.Lset32bytes
 	;; LOOP START
 	prefetchw [r3, 32]	;Prefetch the next write location
-#ifdef __LL64__
+#if defined(__LL64__) || defined(__ARC_LL64__)
 	std.ab	r4, [r3, 8]
 	std.ab	r4, [r3, 8]
 	std.ab	r4, [r3, 8]

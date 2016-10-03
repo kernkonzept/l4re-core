@@ -1,50 +1,54 @@
-/*
- * libc/sysdeps/linux/nios2/vfork.S -- `vfork' syscall for linux/nios2
- *
- *  Copyright (C) 2004  Microtronix Datacom Ltd
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- * 
- * Written by Wentao Xu <wentao@microtronix.com>
- */
+/* vfork for Nios II Linux.
+   Copyright (C) 2005-2016 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#include <sys/syscall.h>
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
 
-#define __NR_vfork 1071
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
 
-.text
-.global	__vfork
-.hidden	__vfork
-.type	__vfork,%function
-.align 4
-__vfork:
-    movui   r2, TRAP_ID_SYSCALL
-    movui   r3, __NR_vfork
-    trap
-    movi    r8, -4096
-    bltu    r8, r2, fix_errno
-    ret
-fix_errno:
-    sub     r8, r0, r2
-    
-    addi    sp, sp, -8
-    stw     ra, 4(sp)
-    stw     r8, 0(sp)
-#ifndef __PIC__
-    call    __errno_location
-#else
-    
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library; if not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#include <sysdep.h>
+
+#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#include <tcb-offsets.h>
 #endif
-    ldw     ra, 4(sp)
-    ldw     r8, 0(sp)
-    stw     r8, 0(r2)
-    
-    addi    r2, r0, -1
-    addi  sp, sp, 8
-    ret
 
-.size __vfork,.-__vfork
-weak_alias(__vfork,vfork)
+ENTRY(__vfork)
+
+#ifdef RESET_PID
+	ldw	r6, PID_OFFSET(r23)
+	sub	r7, zero, r6
+	bne	r7, zero, 2f
+	movhi	r7, %hi(0x80000000)
+2:
+	stw	r7, PID_OFFSET(r23)
+#endif
+
+	movi	r4, 0x4111 /* (CLONE_VM | CLONE_VFORK | SIGCHLD) */
+	mov	r5, zero
+
+	/* Do the system call.  */
+    	movi 	r2, SYS_ify(clone)
+
+    	trap
+
+	beq	r2, zero, 1f
+#ifdef RESET_PID
+	stw	r6, PID_OFFSET(r23)
+#endif
+1:
+	ret
+
+END(__vfork)
+
+weak_alias(__vfork, vfork)
 libc_hidden_def(vfork)

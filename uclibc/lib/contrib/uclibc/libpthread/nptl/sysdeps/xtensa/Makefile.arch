@@ -20,7 +20,7 @@ ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc -DIS_IN_libpthread
 ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc -DIS_IN_libpthread
 
 libc_arch_a_CSRC = libc-tls.c
-librt_arch_a_SSRC = dl-tlsdesc.S
+libc_arch_a_SSRC = libc-dl-tlsdesc.S
 
 CFLAGS-gen_tlsdesc.c = -S
 $(libpthread_arch_OUT)/gen_tlsdesc.c: $(libpthread_arch_DIR)/tlsdesc.sym | $(libpthread_arch_OUT)

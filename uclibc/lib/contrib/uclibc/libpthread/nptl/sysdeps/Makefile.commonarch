@@ -32,10 +32,11 @@ libpthread_arch_SOBJ = $(patsubst %.S,$(libpthread_arch_OUT)/%.o,$(libpthread_ar
 libpthread_arch_OBJS = $(libpthread_subarch_OBJS) $(libpthread_arch_COBJ) $(libpthread_arch_SOBJ)
 
 libc_arch_COBJ = $(patsubst %.c,$(libpthread_arch_OUT)/%.o,$(libc_arch_CSRC))
-libc_arch_SOBJ = $(patsubst %.c,$(libpthread_arch_OUT)/%.o,$(libc_arch_SSRC))
+libc_arch_SOBJ = $(patsubst %.S,$(libpthread_arch_OUT)/%.o,$(libc_arch_SSRC))
 libc_arch_OBJS = $(libc_arch_COBJ) $(libc_arch_SOBJ)
 libc_arch_a_COBJ = $(patsubst %.c,$(libpthread_arch_OUT)/%.o,$(libc_arch_a_CSRC))
-libc_arch_a_OBJS = $(libc_arch_a_COBJ)
+libc_arch_a_SOBJ = $(patsubst %.S,$(libpthread_arch_OUT)/%.o,$(libc_arch_a_SSRC))
+libc_arch_a_OBJS = $(libc_arch_a_COBJ) $(libc_arch_a_SOBJ)
 
 librt_arch_COBJ = $(patsubst %.c,$(libpthread_arch_OUT)/%.o,$(librt_arch_CSRC))
 librt_arch_SOBJ = $(patsubst %.S,$(libpthread_arch_OUT)/%.o,$(librt_arch_SSRC))

@@ -78,9 +78,6 @@ _dl_start_user:\n\
  */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*) ARGS)+1)
 
-/* The ld.so library requires relocations */
-#define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
 static __always_inline
 void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 	unsigned long symbol_addr, unsigned long load_addr, attribute_unused Elf32_Sym *symtab)

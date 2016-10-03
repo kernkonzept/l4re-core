@@ -93,6 +93,6 @@ static __always_inline void
 elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {
-	return 0;
+	return;
 }
 #endif

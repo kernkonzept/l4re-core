@@ -1,20 +1,40 @@
-/*
- * libc/sysdeps/linux/nios2/crt0.S -- entry point for linux/nios2
- *
- *  Copyright (C) 2004,05,06  Microtronix Datacom Ltd
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- * 
- * Written by Wentao Xu <wentao@microtronix.com>
- * Updated by Thomas Chou <thomas@wytron.com.tw> for crt1.S
- * 
- */
+/* Startup code for Nios II
+   Copyright (C) 1995-2016 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
+
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   In addition to the permissions in the GNU Lesser General Public
+   License, the Free Software Foundation gives you unlimited
+   permission to link the compiled version of this file with other
+   programs, and to distribute those programs without any restriction
+   coming from the use of this file. (The GNU Lesser General Public
+   License restrictions do apply in other respects; for example, they
+   cover modification of the file, and distribution when not linked
+   into another program.)
+
+   Note that people who make modified versions of this file are not
+   obligated to grant this special exception for their modified
+   versions; it is their choice whether to do so. The GNU Lesser
+   General Public License gives permission to release a modified
+   version without this exception; this exception also makes it
+   possible to release a modified version which carries forward this
+   exception.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library.  If not, see
+   <http://www.gnu.org/licenses/>.  */
 
 #include <features.h>
 #include <asm/unistd.h>
-#define TRAP_ID_SYSCALL        0
 
     .global _start
     .type   _start,@function
@@ -27,45 +47,64 @@
     .type   main,@function
     .type   __uClibc_main,@function
     .text
-	.balign 4
+
 _start:
-    nop
-    br 0f
-0:
-    /* load gp */
-    movhi gp, %hiadj(_gp)
-    addi gp, gp, %lo(_gp)
+	/* Set up the global pointer.  */
+	movhi	gp, %hiadj(_gp)
+	addi	gp, gp, %lo(_gp)
 
-    /* load main, argc, argv from stack */
-    movhi r4, %hi(main)
-    ori  r4, r4, %lo(main)	/* main */
-    ldw r5, 0(sp)		/* argc */
-    ldw r6, 4(sp)		/* argv */
+	/* Save the stack pointer.  */
+	mov	r2, sp
 
-    /* load the 4th arg */
-    movhi r7, %hi(_init)
-    ori  r7, r7, %lo(_init)
+	/* Create room on the stack for the fini, rtld_fini and stack_end args
+	   to __uClibc_main. */
+	subi	sp, sp, 12
 
-    /* Allocate space on the stack for 6-7th arg, reuse 5th space */
-    addi sp,sp,-8
-    /* push 5-7th args on stack */
-    movhi r8, %hi(_fini)
-    ori  r8, r8, %lo(_fini)
-    stw  r8, 0(sp)
+	/* Push stack_end */
+	stw	r2, 8(sp)
 
-    stw  r2, 4(sp)		/* rtld_fini */
-    stw  sp, 8(sp)		/* stack_end */
+	/* Push rtld_fini */
+	stw	r4, 4(sp)
 
-    /* call uClibc_main, shouldn't return */
-#ifdef __PIC__
-    /* just pray 16 bit offset is enough */
-    br __uClibc_main
-#else
-    call __uClibc_main
-#endif
+	/* Set up the GOT pointer.  */
+	nextpc	r22
+1:	movhi	r2, %hiadj(_gp_got - 1b)
+	addi	r2, r2, %lo(_gp_got - 1b)
+	add	r22, r22, r2
 
-    /* crash in the event of return */
-__exit:
-    movui r2, TRAP_ID_SYSCALL
-    movui r3, __NR_exit
-    trap
+	/* r6 == argv */
+	addi	r6, sp, 16
+
+	/* r5 == argc */
+	ldw	r5, 12(sp)
+
+	/* r4 == main */
+	movhi	r4, %call_hiadj(main)
+	addi	r4, r4, %call_lo(main)
+	add	r4, r4, r22
+	ldw	r4, 0(r4)
+
+	/* fp == 0 */
+	mov	fp, zero
+
+	/* Let the libc call main and exit with its return code.  */
+	movhi	r2, %call_hiadj(__uClibc_main)
+	addi	r2, r2, %call_lo(__uClibc_main)
+	add	r2, r2, r22
+	ldw	r2, 0(r2)
+	callr	r2
+
+	/* should never get here....*/
+	movhi	r2, %call_hiadj(abort)
+	addi	r2, r2, %call_lo(abort)
+	add	r2, r2, r22
+	ldw	r2, 0(r2)
+	callr	r2
+
+/* Define a symbol for the first piece of initialized data.  */
+	.data
+	.globl __data_start
+__data_start:
+	.long 0
+	.weak data_start
+	data_start = __data_start

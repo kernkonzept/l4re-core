@@ -3225,53 +3225,56 @@ typedef Elf32_Addr Elf32_Conflict;
 /* Andes ELF Version 1.3 and after */
 #define E_NDS32_ELF_VER_1_3			0x1
 
-/* NIOS relocations. */
-#define R_NIOS_NONE				0
-#define R_NIOS_32				1	/* A 32 bit absolute relocation.*/
-#define R_NIOS_LO16_LO5			2	/* A LO-16 5 bit absolute relocation.  */
-#define R_NIOS_LO16_HI11		3	/* A LO-16 top 11 bit absolute relocation.  */
-#define R_NIOS_HI16_LO5			4	/* A HI-16 5 bit absolute relocation.  */
-#define R_NIOS_HI16_HI11		5	/* A HI-16 top 11 bit absolute relocation.  */
-#define R_NIOS_PCREL6			6	/* A 6 bit relative relocation.  */
-#define R_NIOS_PCREL8			7	/* An 8 bit relative relocation.  */
-#define R_NIOS_PCREL11			8	/* An 11 bit relative relocation.  */
-#define R_NIOS_16				9	/* A 16 bit absolute relocation.  */
-#define R_NIOS_H_LO5			10	/* Low 5-bits of absolute relocation in halfwords.  */
-#define R_NIOS_H_HI11			11	/* Top 11 bits of 16-bit absolute relocation in halfwords.  */
-#define R_NIOS_H_XLO5			12	/* Low 5 bits of top 16-bits of 32-bit absolute relocation in halfwords.  */
-#define R_NIOS_H_XHI11			13	/* Top 11 bits of top 16-bits of 32-bit absolute relocation in halfwords.  */
-#define R_NIOS_H_16				14	/* Half-word @h value */
-#define R_NIOS_H_32				15	/* Word @h value */
-#define R_NIOS_GNU_VTINHERIT	200	/* GNU extension to record C++ vtable hierarchy */
-#define R_NIOS_GNU_VTENTRY		201	/* GNU extension to record C++ vtable member usage */
-/* Keep this the last entry.  */
-#define R_NIOS_NUM				202
+/* Legal values for d_tag (dynamic entry type).  */
+#define DT_NIOS2_GP             0x70000002 /* Address of _gp.  */
 
-/* NIOS II relocations */
-#define R_NIOS2_NONE			0
-#define R_NIOS2_S16				1
-#define R_NIOS2_U16				2
-#define R_NIOS2_PCREL16			3
-#define R_NIOS2_CALL26			4
-#define R_NIOS2_IMM5			5
-#define R_NIOS2_CACHE_OPX		6
-#define R_NIOS2_IMM6			7
-#define R_NIOS2_IMM8			8
-#define R_NIOS2_HI16			9
-#define R_NIOS2_LO16			10
-#define R_NIOS2_HIADJ16		11
-#define R_NIOS2_BFD_RELOC_32	12
-#define R_NIOS2_BFD_RELOC_16	13
-#define R_NIOS2_BFD_RELOC_8	14
-#define R_NIOS2_GPREL			15
-#define R_NIOS2_GNU_VTINHERIT	16
-#define R_NIOS2_GNU_VTENTRY	17
-#define R_NIOS2_UJMP			18
-#define R_NIOS2_CJMP			19
-#define R_NIOS2_CALLR			20
-#define R_NIOS2_ALIGN			21
-/* Keep this the last entry.  */
-#define R_NIOS2_NUM				22
+/* Nios II relocations.  */
+#define R_NIOS2_NONE		0	/* No reloc.  */
+#define R_NIOS2_S16		1	/* Direct signed 16 bit.  */
+#define R_NIOS2_U16		2	/* Direct unsigned 16 bit.  */
+#define R_NIOS2_PCREL16		3	/* PC relative 16 bit.  */
+#define R_NIOS2_CALL26		4	/* Direct call.  */
+#define R_NIOS2_IMM5		5	/* 5 bit constant expression.  */
+#define R_NIOS2_CACHE_OPX	6	/* 5 bit expression, shift 22.  */
+#define R_NIOS2_IMM6		7	/* 6 bit constant expression.  */
+#define R_NIOS2_IMM8		8	/* 8 bit constant expression.  */
+#define R_NIOS2_HI16		9	/* High 16 bit.  */
+#define R_NIOS2_LO16		10	/* Low 16 bit.  */
+#define R_NIOS2_HIADJ16		11	/* High 16 bit, adjusted.  */
+#define R_NIOS2_BFD_RELOC_32	12	/* 32 bit symbol value + addend.  */
+#define R_NIOS2_BFD_RELOC_16	13	/* 16 bit symbol value + addend.  */
+#define R_NIOS2_BFD_RELOC_8	14	/* 8 bit symbol value + addend.  */
+#define R_NIOS2_GPREL		15	/* 16 bit GP pointer offset.  */
+#define R_NIOS2_GNU_VTINHERIT	16	/* GNU C++ vtable hierarchy.  */
+#define R_NIOS2_GNU_VTENTRY	17	/* GNU C++ vtable member usage.  */
+#define R_NIOS2_UJMP		18	/* Unconditional branch.  */
+#define R_NIOS2_CJMP		19	/* Conditional branch.  */
+#define R_NIOS2_CALLR		20	/* Indirect call through register.  */
+#define R_NIOS2_ALIGN		21	/* Alignment requirement for linker relaxation.  */
+#define R_NIOS2_GOT16		22	/* 16 bit GOT entry.  */
+#define R_NIOS2_CALL16		23	/* 16 bit GOT entry for function.  */
+#define R_NIOS2_GOTOFF_LO	24	/* %lo of offset to GOT pointer.  */
+#define R_NIOS2_GOTOFF_HA	25	/* %hiadj of offset to GOT pointer.  */
+#define R_NIOS2_PCREL_LO	26	/* %lo of PC relative offset.  */
+#define R_NIOS2_PCREL_HA	27	/* %hiadj of PC relative offset.  */
+#define R_NIOS2_TLS_GD16	28	/* 16 bit GOT offset for TLS GD.  */
+#define R_NIOS2_TLS_LDM16	29	/* 16 bit GOT offset for TLS LDM.  */
+#define R_NIOS2_TLS_LDO16	30	/* 16 bit module relative offset.  */
+#define R_NIOS2_TLS_IE16	31	/* 16 bit GOT offset for TLS IE.  */
+#define R_NIOS2_TLS_LE16	32	/* 16 bit LE TP-relative offset.  */
+#define R_NIOS2_TLS_DTPMOD	33	/* Module number.  */
+#define R_NIOS2_TLS_DTPREL	34	/* Module-relative offset.  */
+#define R_NIOS2_TLS_TPREL	35	/* TP-relative offset.  */
+#define R_NIOS2_COPY		36	/* Copy symbol at runtime.  */
+#define R_NIOS2_GLOB_DAT	37	/* Create GOT entry.  */
+#define R_NIOS2_JUMP_SLOT	38	/* Create PLT entry.  */
+#define R_NIOS2_RELATIVE	39	/* Adjust by program base.  */
+#define R_NIOS2_GOTOFF		40	/* 16 bit offset to GOT pointer.  */
+#define R_NIOS2_CALL26_NOAT	41	/* Direct call in .noat section.  */
+#define R_NIOS2_GOT_LO		42	/* %lo() of GOT entry.  */
+#define R_NIOS2_GOT_HA		43	/* %hiadj() of GOT entry.  */
+#define R_NIOS2_CALL_LO		44	/* %lo() of function GOT entry.  */
+#define R_NIOS2_CALL_HA		45	/* %hiadj() of function GOT entry.  */
 
 /* Xtensa-specific declarations */
 
@@ -3378,30 +3381,37 @@ typedef Elf32_Addr Elf32_Conflict;
 
 #define DT_C6000_NUM    4
 
-/* microblaze specific relocs */
-#define R_MICROBLAZE_NONE 0
-#define R_MICROBLAZE_32 1
-#define R_MICROBLAZE_32_PCREL 2
-#define R_MICROBLAZE_64_PCREL 3
-#define R_MICROBLAZE_32_PCREL_LO 4
-#define R_MICROBLAZE_64 5
-#define R_MICROBLAZE_32_LO 6
-#define R_MICROBLAZE_SRO32 7
-#define R_MICROBLAZE_SRW32 8
-#define R_MICROBLAZE_64_NONE 9
-#define R_MICROBLAZE_32_SYM_OP_SYM 10
-#define R_MICROBLAZE_GNU_VTINHERIT 11
-#define R_MICROBLAZE_GNU_VTENTRY 12
-#define R_MICROBLAZE_GOTPC_64 13  /* PC-relative GOT offset */
-#define R_MICROBLAZE_GOT_64 14  /* GOT entry offset */
-#define R_MICROBLAZE_PLT_64 15  /* PLT offset (PC-relative  */
-#define R_MICROBLAZE_REL 16  /* adjust by program base */
-#define R_MICROBLAZE_JUMP_SLOT 17  /* create PLT entry */
-#define R_MICROBLAZE_GLOB_DAT 18  /* create GOT entry */
-#define R_MICROBLAZE_GOTOFF_64 19  /* offset relative to GOT */
-#define R_MICROBLAZE_GOTOFF_32 20  /* offset relative to GOT */
-#define R_MICROBLAZE_COPY 21  /* runtime copy */
-#define R_MICROBLAZE_NUM 22
+/* MicroBlaze relocations */
+#define R_MICROBLAZE_NONE		0	/* No reloc. */
+#define R_MICROBLAZE_32 		1	/* Direct 32 bit. */
+#define R_MICROBLAZE_32_PCREL		2	/* PC relative 32 bit. */
+#define R_MICROBLAZE_64_PCREL		3	/* PC relative 64 bit. */
+#define R_MICROBLAZE_32_PCREL_LO	4	/* Low 16 bits of PCREL32. */
+#define R_MICROBLAZE_64 		5	/* Direct 64 bit. */
+#define R_MICROBLAZE_32_LO		6	/* Low 16 bit. */
+#define R_MICROBLAZE_SRO32		7	/* Read-only small data area. */
+#define R_MICROBLAZE_SRW32		8	/* Read-write small data area. */
+#define R_MICROBLAZE_64_NONE		9	/* No reloc. */
+#define R_MICROBLAZE_32_SYM_OP_SYM	10	/* Symbol Op Symbol relocation. */
+#define R_MICROBLAZE_GNU_VTINHERIT	11	/* GNU C++ vtable hierarchy. */
+#define R_MICROBLAZE_GNU_VTENTRY	12	/* GNU C++ vtable member usage. */
+#define R_MICROBLAZE_GOTPC_64		13	/* PC-relative GOT offset.  */
+#define R_MICROBLAZE_GOT_64		14	/* GOT entry offset.  */
+#define R_MICROBLAZE_PLT_64		15	/* PLT offset (PC-relative).  */
+#define R_MICROBLAZE_REL		16	/* Adjust by program base.  */
+#define R_MICROBLAZE_JUMP_SLOT		17	/* Create PLT entry.  */
+#define R_MICROBLAZE_GLOB_DAT		18	/* Create GOT entry.  */
+#define R_MICROBLAZE_GOTOFF_64		19	/* 64 bit offset to GOT. */
+#define R_MICROBLAZE_GOTOFF_32		20	/* 32 bit offset to GOT. */
+#define R_MICROBLAZE_COPY		21	/* Runtime copy.  */
+#define R_MICROBLAZE_TLS		22	/* TLS Reloc. */
+#define R_MICROBLAZE_TLSGD		23	/* TLS General Dynamic. */
+#define R_MICROBLAZE_TLSLD		24	/* TLS Local Dynamic. */
+#define R_MICROBLAZE_TLSDTPMOD32	25	/* TLS Module ID. */
+#define R_MICROBLAZE_TLSDTPREL32	26	/* TLS Offset Within TLS Block. */
+#define R_MICROBLAZE_TLSDTPREL64	27	/* TLS Offset Within TLS Block. */
+#define R_MICROBLAZE_TLSGOTTPREL32	28	/* TLS Offset From Thread Pointer. */
+#define R_MICROBLAZE_TLSTPREL32 	29	/* TLS Offset From Thread Pointer. */
 
 /* Meta relocations */
 #define R_METAG_HIADDR16                 0

@@ -41,7 +41,7 @@ struct sigcontext{
 	unsigned long nds32_r25;
         unsigned long nds32_fp;   //r28
         unsigned long nds32_gp;   //r29
-        unsigned long nds32_lr;   //r30
+        unsigned long nds32_lp;   //r30
         unsigned long nds32_sp;   //r31
         unsigned long nds32_d1lo;
         unsigned long nds32_d1hi;

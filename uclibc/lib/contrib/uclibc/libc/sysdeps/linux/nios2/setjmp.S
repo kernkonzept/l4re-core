@@ -1,49 +1,56 @@
-/*
- * libc/sysdeps/linux/nios2/setjmp.S
- *
- *  Copyright (C) 2004,05,06  Microtronix Datacom Ltd
- *
- * This file is subject to the terms and conditions of the GNU Lesser
- * General Public License.  See the file COPYING.LIB in the main
- * directory of this archive for more details.
- * 
- * Written by Wentao Xu <wentao@microtronix.com>
- * 
- */
+/* setjmp for Nios II.
+   Copyright (C) 1991-2016 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
-#include <features.h>
+   The GNU C Library is free software; you can redistribute it and/or
+   modify it under the terms of the GNU Lesser General Public
+   License as published by the Free Software Foundation; either
+   version 2.1 of the License, or (at your option) any later version.
+
+   The GNU C Library is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+   Lesser General Public License for more details.
+
+   You should have received a copy of the GNU Lesser General Public
+   License along with the GNU C Library.  If not, see
+   <http://www.gnu.org/licenses/>.  */
+
+#include <sysdep.h>
 #include <jmpbuf-offsets.h>
 
-.globl __sigsetjmp
-.type  __sigsetjmp,@function
-.balign 4
+	.text
+ENTRY(setjmp)
+	movi	r5, 1
+	br	__sigsetjmp
+END(setjmp)
+libc_hidden_def(setjmp)
 
-__sigsetjmp:
-    stw     r16, (JB_REGS+ 0)(r4)
-    stw     r17, (JB_REGS+ 4)(r4)
-    stw     r18, (JB_REGS+ 8)(r4)
-    stw     r19, (JB_REGS+12)(r4)
-    stw     r20, (JB_REGS+16)(r4)
-    stw     r21, (JB_REGS+20)(r4)
-    stw     r22, (JB_REGS+24)(r4)
-    stw     r23, (JB_REGS+28)(r4)
-    
-    stw     ra, JB_PC(r4)
-    stw     sp, JB_SP(r4)
-    stw     fp, JB_FP(r4)
-    stw     gp, JB_GP(r4)
-    
-#ifdef __UCLIBC_HAS_FPU__
-    SAVE_FPU r4 JB_FPREGS
-#endif
+ENTRY(_setjmp)
+	mov	r5, zero
+	br	__sigsetjmp
+END(_setjmp)
+libc_hidden_def(_setjmp)
 
-#ifdef   __PIC__
-    /* just pray 16 bit offset is enough */
-    br __sigjmp_save
-#else
-    movhi r8, %hi(__sigjmp_save)
-    ori r8, r8, %lo(__sigjmp_save)    
-    jmp r8
-#endif
+/* Save the current program position in ENV and return 0.  */
+ENTRY(__sigsetjmp)
+	stw	r16, (JB_R16*4)(r4)
+	stw	r17, (JB_R17*4)(r4)
+	stw	r18, (JB_R18*4)(r4)
+	stw	r19, (JB_R19*4)(r4)
+	stw	r20, (JB_R20*4)(r4)
+	stw	r21, (JB_R21*4)(r4)
+	stw	r22, (JB_R22*4)(r4)
+	stw	fp,  (JB_FP*4)(r4)
+	stw	ra,  (JB_RA*4)(r4)
+	stw	sp,  (JB_SP*4)(r4)
+	/* Save the signal mask if requested.  */
+        nextpc r2
 
-.size __sigsetjmp,.-__sigsetjmp
+1:	movhi r3, %hiadj(__sigjmp_save - 1b)
+	addi r3, r3, %lo(__sigjmp_save - 1b)
+	add r2, r2, r3
+	jmp r2
+
+END(__sigsetjmp)
+libc_hidden_def(__sigsetjmp)

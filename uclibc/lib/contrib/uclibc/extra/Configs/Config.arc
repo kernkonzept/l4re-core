@@ -28,6 +28,14 @@ config CONFIG_ARC_CPU_HS
 
 endchoice
 
+config CONFIG_ARC_HAS_ATOMICS
+	bool "Support for LLOCK/SCOND instructions"
+	default y
+	help
+	  LLOCK/SCOND instructions are needed to implement atomic r-m-w
+	  Otherwise libc needs kernel assisted atomic cmpxchg available
+	  since v4.9 kernel
+
 choice
 	prompt "MMU Page Size"
 	default CONFIG_ARC_PAGE_SIZE_8K

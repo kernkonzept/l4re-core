@@ -23,7 +23,7 @@
 # define EXTRACT_2(RX,RY,IMM)	lsr	RX, RY, 0x08
 #endif
 
-#ifdef __LL64__
+#if defined(__LL64__) || defined(__ARC_LL64__)
 # define PREFETCH_READ(RX)	prefetch [RX, 56]
 # define PREFETCH_WRITE(RX)	prefetchw [RX, 64]
 # define LOADX(DST,RX)		ldd.ab	DST, [RX, 8]
