@@ -379,9 +379,9 @@ public:
   template< typename T >
   bool has_more(unsigned long count = 1)
   {
+    auto const max_bytes = L4_UTCB_GENERIC_DATA_SIZE * sizeof(l4_umword_t);
     unsigned apos = cxx::Type_traits<T>::align(_pos);
-    // be safe against integer overflows
-    return (count <= L4_UTCB_GENERIC_DATA_SIZE / sizeof(T))
+    return (count <= max_bytes / sizeof(T))
            && (apos + (sizeof(T) * count)
                <= _tag.words() * sizeof(l4_umword_t));
   }
