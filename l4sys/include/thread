@@ -117,7 +117,7 @@ public:
   /**
    * Thread attributes used for control_commit().
    *
-   * This class is responsible for initalizing various attributes of a
+   * This class is responsible for initializing various attributes of a
    * thread in a UTCB for the control_commit() method.
    *
    * \see \ref l4_thread_control_api for some more details.

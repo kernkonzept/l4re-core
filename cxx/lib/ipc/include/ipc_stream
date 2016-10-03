@@ -173,7 +173,7 @@ Internal::Buf_cp_in<T> buf_cp_in(T *v, unsigned long &size)
 { return Internal::Buf_cp_in<T>(v, size); }
 
 /**
- * Abstraction for extracting a zero-termintaed string from an Ipc::Istream.
+ * Abstraction for extracting a zero-terminated string from an Ipc::Istream.
  *
  * An instance of Str_cp_in can be used to extract a zero-terminated string
  * an Ipc::Istream. The data from the received message is thereby copied to the

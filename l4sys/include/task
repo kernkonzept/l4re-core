@@ -178,7 +178,7 @@ public:
    *
    * \param cap_a  First capability selector to compare.
    * \param cap_b  Second capability selector to compare.
-   * \param utcb   Optiona: UTCB pointer of the calling thread.
+   * \param utcb   Optional: UTCB pointer of the calling thread.
    *
    * \retval tag.label() = 1: `cap_a` and `cap_b` point to the same object.
    * \retval tag.label() = 0: The two caps do **not** point to the same
