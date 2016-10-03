@@ -187,6 +187,7 @@ int lua(int argc, char const *const *argv)
 
 #ifndef USE_READLINE
   fprintf(stderr, "Ned: Interactive mode not compiled in.\n");
+  (void)noexit;
 #else
   printf("Ned: Interactive mode.\n");
   const char *cmd;
