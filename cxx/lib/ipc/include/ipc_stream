@@ -380,7 +380,10 @@ public:
   bool has_more(unsigned long count = 1)
   {
     unsigned apos = cxx::Type_traits<T>::align(_pos);
-    return apos + (sizeof(T) * count) <= _tag.words() * sizeof(l4_umword_t);
+    // be safe against integer overflows
+    return (count <= L4_UTCB_GENERIC_DATA_SIZE / sizeof(T))
+           && (apos + (sizeof(T) * count)
+               <= _tag.words() * sizeof(l4_umword_t));
   }
 
   /**
@@ -1086,6 +1089,9 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, l4_msgtag_t &v)
  * returns a pointer into the message buffer itself. This means that the
  * data is only valid as long as there is no new data inserted into the stream.
  *
+ * \note If array does not fit into transmitted words size will be set to zero.
+ * Client has to implement check against zero.
+ *
  * See Ipc::Buf_in, Ipc::Buf_cp_in, and Ipc::Buf_cp_out.
  */
 template< typename T >
@@ -1094,8 +1100,10 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
     L4::Ipc::Internal::Buf_in<T> const &v)
 {
   unsigned long si;
-  s.get(si);
-  v.set_size(s.get(L4::Ipc::Msg_ptr<T>(v.buf()), si));
+  if (s.get(si) && s.has_more<T>(si))
+    v.set_size(s.get(L4::Ipc::Msg_ptr<T>(v.buf()), si));
+  else
+    v.set_size(0);
   return s;
 }
 
