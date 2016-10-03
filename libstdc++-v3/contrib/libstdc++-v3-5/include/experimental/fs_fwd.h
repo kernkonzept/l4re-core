@@ -46,10 +46,13 @@ namespace filesystem
 {
 inline namespace v1
 {
+#if _GLIBCXX_INLINE_VERSION
+inline namespace __7 { }
+#endif
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #if _GLIBCXX_USE_CXX11_ABI
-  inline namespace __cxx11 __attribute__((__abi_tag__ ("cxx11"))) { }
+inline namespace __cxx11 __attribute__((__abi_tag__ ("cxx11"))) { }
 #endif
 
   /**
@@ -93,7 +96,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   };
 
   constexpr copy_options
-  operator&(copy_options __x, copy_options __y)
+  operator&(copy_options __x, copy_options __y) noexcept
   {
     using __utype = typename std::underlying_type<copy_options>::type;
     return static_cast<copy_options>(
@@ -101,7 +104,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr copy_options
-  operator|(copy_options __x, copy_options __y)
+  operator|(copy_options __x, copy_options __y) noexcept
   {
     using __utype = typename std::underlying_type<copy_options>::type;
     return static_cast<copy_options>(
@@ -109,7 +112,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr copy_options
-  operator^(copy_options __x, copy_options __y)
+  operator^(copy_options __x, copy_options __y) noexcept
   {
     using __utype = typename std::underlying_type<copy_options>::type;
     return static_cast<copy_options>(
@@ -117,22 +120,22 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr copy_options
-  operator~(copy_options __x)
+  operator~(copy_options __x) noexcept
   {
     using __utype = typename std::underlying_type<copy_options>::type;
     return static_cast<copy_options>(~static_cast<__utype>(__x));
   }
 
   inline copy_options&
-  operator&=(copy_options& __x, copy_options __y)
+  operator&=(copy_options& __x, copy_options __y) noexcept
   { return __x = __x & __y; }
 
   inline copy_options&
-  operator|=(copy_options& __x, copy_options __y)
+  operator|=(copy_options& __x, copy_options __y) noexcept
   { return __x = __x | __y; }
 
   inline copy_options&
-  operator^=(copy_options& __x, copy_options __y)
+  operator^=(copy_options& __x, copy_options __y) noexcept
   { return __x = __x ^ __y; }
 
 
@@ -163,7 +166,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   };
 
   constexpr perms
-  operator&(perms __x, perms __y)
+  operator&(perms __x, perms __y) noexcept
   {
     using __utype = typename std::underlying_type<perms>::type;
     return static_cast<perms>(
@@ -171,7 +174,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr perms
-  operator|(perms __x, perms __y)
+  operator|(perms __x, perms __y) noexcept
   {
     using __utype = typename std::underlying_type<perms>::type;
     return static_cast<perms>(
@@ -179,7 +182,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr perms
-  operator^(perms __x, perms __y)
+  operator^(perms __x, perms __y) noexcept
   {
     using __utype = typename std::underlying_type<perms>::type;
     return static_cast<perms>(
@@ -187,22 +190,22 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr perms
-  operator~(perms __x)
+  operator~(perms __x) noexcept
   {
     using __utype = typename std::underlying_type<perms>::type;
     return static_cast<perms>(~static_cast<__utype>(__x));
   }
 
   inline perms&
-  operator&=(perms& __x, perms __y)
+  operator&=(perms& __x, perms __y) noexcept
   { return __x = __x & __y; }
 
   inline perms&
-  operator|=(perms& __x, perms __y)
+  operator|=(perms& __x, perms __y) noexcept
   { return __x = __x | __y; }
 
   inline perms&
-  operator^=(perms& __x, perms __y)
+  operator^=(perms& __x, perms __y) noexcept
   { return __x = __x ^ __y; }
 
   // Bitmask type
@@ -211,7 +214,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   };
 
   constexpr directory_options
-  operator&(directory_options __x, directory_options __y)
+  operator&(directory_options __x, directory_options __y) noexcept
   {
     using __utype = typename std::underlying_type<directory_options>::type;
     return static_cast<directory_options>(
@@ -219,7 +222,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr directory_options
-  operator|(directory_options __x, directory_options __y)
+  operator|(directory_options __x, directory_options __y) noexcept
   {
     using __utype = typename std::underlying_type<directory_options>::type;
     return static_cast<directory_options>(
@@ -227,7 +230,7 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr directory_options
-  operator^(directory_options __x, directory_options __y)
+  operator^(directory_options __x, directory_options __y) noexcept
   {
     using __utype = typename std::underlying_type<directory_options>::type;
     return static_cast<directory_options>(
@@ -235,22 +238,22 @@ _GLIBCXX_END_NAMESPACE_CXX11
   }
 
   constexpr directory_options
-  operator~(directory_options __x)
+  operator~(directory_options __x) noexcept
   {
     using __utype = typename std::underlying_type<directory_options>::type;
     return static_cast<directory_options>(~static_cast<__utype>(__x));
   }
 
   inline directory_options&
-  operator&=(directory_options& __x, directory_options __y)
+  operator&=(directory_options& __x, directory_options __y) noexcept
   { return __x = __x & __y; }
 
   inline directory_options&
-  operator|=(directory_options& __x, directory_options __y)
+  operator|=(directory_options& __x, directory_options __y) noexcept
   { return __x = __x | __y; }
 
   inline directory_options&
-  operator^=(directory_options& __x, directory_options __y)
+  operator^=(directory_options& __x, directory_options __y) noexcept
   { return __x = __x ^ __y; }
 
   typedef chrono::time_point<chrono::system_clock> file_time_type;
