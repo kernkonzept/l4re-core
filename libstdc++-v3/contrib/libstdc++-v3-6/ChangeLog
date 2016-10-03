@@ -1,3 +1,385 @@
+2016-10-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/70101
+	* include/bits/stl_queue.h (priority_queue): Fix allocator-extended
+	constructors.
+	* testsuite/23_containers/priority_queue/allocator.cc: New test.
+
+	PR libstdc++/77864
+	* include/bits/stl_map.h (map::map()): Use nothrow constructibility
+	of comparison function in conditional noexcept.
+	* include/bits/stl_multimap.h (multimap::multimap()): Likewise.
+	* include/bits/stl_multiset.h (multiset::multiset()): Likewise.
+	* include/bits/stl_set.h (set::set()): Likewise.
+	* testsuite/23_containers/map/cons/noexcept_default_construct.cc:
+	New test.
+	* testsuite/23_containers/multimap/cons/noexcept_default_construct.cc:
+	Likewise.
+	* testsuite/23_containers/multiset/cons/noexcept_default_construct.cc:
+	Likewise.
+	* testsuite/23_containers/set/cons/noexcept_default_construct.cc:
+	Likewise.
+
+	* include/bits/node_handle.h (_Node_handle): Remove invalid and unused
+	alias declaration.
+
+	PR libstdc++/70564
+	* include/experimental/functional (_Not_fn): Add second parameter to
+	disambiguate copying from initialization by not_fn.
+	(not_fn): Add second argument to initialization.
+	* testsuite/experimental/functional/not_fn.cc: Copy call wrapper using
+	direct-initialization. Test abstract class.
+
+2016-10-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/68323
+	PR libstdc++/77794
+	* config/abi/pre/gnu-versioned-namespace.ver: Add exports for
+	__cxa_thread_atexit and __gnu_cxx::__freeres.
+	* include/Makefile.am: Add <experimental/bits/lfts_config.h>
+	* include/Makefile.in: Regenerate.
+	* include.bits/basic_string.h: Fix nesting of versioned namespaces.
+	* include/bits/c++config: Declare versioned namespaces for literals.
+	* include/bits/regex.h (basic_regex, match_results): Add workarounds
+	for PR c++/59256.
+	* include/bits/uniform_int_dist.h: Fix nesting of versioned namespace.
+	* include/std/chrono: Likewise.
+	* include/std/complex: Likewise.
+	* include/experimental/bits/fs_fwd.h: Declare versioned namespace.
+	* include/experimental/bits/lfts_config.h: Declare versioned
+	namespaces.
+	* include/experimental/algorithm: Include
+	<experimental/bits/lfts_config.h>.
+	* include/experimental/any: Likewise.
+	* include/experimental/bits/erase_if.h: Likewise.
+	* include/experimental/chrono: Likewise.
+	* include/experimental/functional: Likewise.
+	* include/experimental/memory_resource: Likewise.
+	* include/experimental/optional: Likewise.
+	* include/experimental/propagate_const: Likewise.
+	* include/experimental/random: Likewise.
+	* include/experimental/ratio: Likewise.
+	* include/experimental/system_error: Likewise.
+	* include/experimental/tuple: Likewise.
+	* include/experimental/type_traits: Likewise.
+	* include/experimental/utility: Likewise.
+	* include/experimental/string_view: Likewise. Fix nesting of
+	versioned namespaces.
+	* include/experimental/bits/string_view.tcc: Reopen inline namespace
+	for non-inline function definitions.
+	* testsuite/17_intro/using_namespace_std_exp_neg.cc: New test.
+	* testsuite/20_util/duration/literals/range.cc: Adjust dg-error line.
+	* testsuite/experimental/any/misc/any_cast_neg.cc: Likewise.
+	* testsuite/experimental/propagate_const/assignment/move_neg.cc:
+	Likewise.
+	* testsuite/experimental/propagate_const/cons/move_neg.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements2.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements3.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements4.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements5.cc: Likewise.
+	* testsuite/ext/profile/mutex_extensions_neg.cc: Likewise.
+
+2016-09-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/77795
+	* acinclude.m4 (GLIBCXX_CHECK_STDIO_PROTO): Use -std=gnu++11 to check
+	for gets.
+	* config.h.in: Regenerate.
+	* configure: Regenerate.
+	* include/c_global/cstdio [!_GLIBCXX_HAVE_GETS] (gets): Only declare
+	for C++98 and C++11.
+	* include/c_std/cstdio [!_GLIBCXX_HAVE_GETS] (gets): Likewise.
+	* testsuite/27_io/headers/cstdio/functions_neg.cc: New test.
+
+	PR libstdc++/77801
+	* include/experimental/numeric: Include <numeric>.
+	(__abs): Define.
+	(gcd, lcm): Use __abs instead of std::abs.
+	* testsuite/experimental/numeric/77801.cc: New test.
+	* testsuite/experimental/numeric/gcd.cc: Test unsigned inputs.
+	* testsuite/experimental/numeric/lcm.cc: Likewise.
+
+2016-09-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/77686
+	* include/std/functional (_Any_data): Add may_alias attribute.
+
+2016-09-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/debug/safe_iterator.h (_Safe_iterator::operator++()): Fix
+	lifetime of lock.
+
+2015-09-27  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	Backport from mainline
+	2015-09-23  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	* config/cpu/m68k/atomicity.h: Adjust comment.
+	* acinclude.m4 (GLIBCXX_ENABLE_ATOMIC_BUILTINS): Honor
+	explicit atomicity_dir setup via configure.host.
+	* configure.host (rtems-*): Set atomicity_dir.
+	* configure: Regenerate.
+
+2016-09-26  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Backport from mainline
+	2016-09-21  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Implement LWG 2729 for pair.
+	* include/bits/stl_pair.h (_PCC): New.
+	(_ConstructiblePair, _ImplicitlyConvertiblePair):
+	Turn into static member functions of _PCC.
+	(_MoveConstructiblePair, _ImplicitlyMoveConvertiblePair): Likewise.
+	(_PCCP): New.
+	(pair(const _T1&, const _T2&)): Adjust.
+	(_PCCFP): New.
+	(pair(const pair<_U1, _U2>&)): Adjust.
+	(pair(_U1&&, const _T2&)): Likewise.
+	(pair(const _T1&, _U2&&)): Likewise.
+	(pair(_U1&&, _U2&&)): Likewise.
+	(pair(pair<_U1, _U2>&&)): Likewise.
+	(operator=(const pair&)): Make conditionally deleted.
+	(operator=(pair&&)): Make conditionally suppressed.
+	(operator=(const pair<_U1, _U2>&)): Constrain.
+	(operator=(pair<_U1, _U2>&&): Likewise.
+	* include/std/type_traits (__nonesuch): New.
+	* testsuite/20_util/pair/traits.cc: New.
+
+2016-09-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/xmethods.py (DequeWorkerBase.__init__)
+	(DequeWorkerBase.index, VectorWorkerBase.get): Use // for division.
+
+2016-09-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/77645
+	* python/libstdcxx/v6/xmethods.py (DequeWorkerBase.__init__)
+	(DequeWorkerBase.index, VectorWorkerBase.get): Cast results of
+	division to int to work with Python 3.
+
+	PR libstdc++/77645
+	* python/libstdcxx/v6/xmethods.py (DequeWorkerBase.index): Rename
+	argument.
+	(ListWorkerBase.get_value_from_node): Define new method.
+	(ListFrontWorker.__call__, ListBackWorker.__call__): Use it.
+
+2016-08-31  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	PR libstdc++/77395
+	* include/std/type_traits (is_constructible): Forward-declare...
+	(__is_base_to_derived_ref): ...and use here.
+	* testsuite/20_util/declval/requirements/1_neg.cc: Adjust.
+	* testsuite/20_util/is_constructible/77395.cc: New.
+	* testsuite/20_util/make_signed/requirements/typedefs_neg.cc: Adjust.
+	* testsuite/20_util/make_unsigned/requirements/typedefs_neg.cc:
+	Likewise.
+	* testsuite/20_util/tuple/77395.cc: New.
+
+2016-08-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2016-08-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* scripts/testsuite_flags.in: Add -fno-show-column to cxxflags.
+
+	Backport from mainline
+	2016-07-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/forward/1_neg.cc: Move dg-error to right line.
+
+2016-08-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/23_containers/map/77334.cc: Use dg-options for C++11.
+
+2016-08-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/77334
+	* include/bits/stl_tree.h (_Rb_tree::_M_move_assign): New functions.
+	(_Rb_tree::operator=(_Rb_tree&&)): Dispatch to _M_move_assign.
+	* testsuite/23_containers/map/77334.cc: New test.
+
+	* doc/xml/api.xml: Replace hardcoded links for specific versions with
+	link to docs for all releases.
+	* doc/html/*: Regenerate.
+
+	* include/bits/stl_iterator.h
+	(operator-(reverse_iterator<Iter>, reverse_iterator<Iter>): Constrain
+	for C++11 and later.
+	* testsuite/24_iterators/reverse_iterator/71771.cc: New test.
+
+2016-08-22  Release Manager
+
+	* GCC 6.2.0 released.
+
+2016-08-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2016-08-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/functional (function::_Callable): Use lvalue in
+	result_of expression.
+	* testsuite/20_util/function/cons/refqual.cc: New test.
+
+	Backport from mainline
+	2016-07-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/71964
+	* include/bits/stl_tree.h (_Rb_tree(_Rb_tree&&)): Move allocator.
+	* testsuite/23_containers/set/allocator/71964.cc: New test.
+
+	Backport from mainline
+	2016-08-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/21_strings/basic_string/allocator/wchar_t/copy.cc:
+	Remove reundant check for _GLIBCXX_USE_WCHAR_T and fix char type.
+	* testsuite/21_strings/basic_string/allocator/wchar_t/copy_assign.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/allocator/wchar_t/minimal.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/allocator/wchar_t/move.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/allocator/wchar_t/move_assign.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/allocator/wchar_t/noexcept.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/allocator/wchar_t/swap.cc:
+	Likewise.
+
+	Backport from mainline
+	2016-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/70940
+	* include/experimental/memory_resource
+	(__resource_adaptor_imp::do_allocate): Do not default-construct
+	rebound allocator.
+	(__resource_adaptor_imp::do_deallocate): Likewise. Use
+	allocator_traits to get pointer type.
+	(__null_memory_resource::do_allocate): Remove unused parameters.
+	(__null_memory_resource::do_deallocate): Likewise.
+	(__null_memory_resource::do_is_equal): Likewise. Add return statement.
+	* testsuite/experimental/type_erased_allocator/1.cc: Combine with ...
+	* testsuite/experimental/type_erased_allocator/1_neg.cc: This, and
+	move to ...
+	* testsuite/experimental/memory_resource/1.cc: Here.
+	* testsuite/experimental/memory_resource/null_memory_resource.cc: New.
+	* testsuite/experimental/memory_resource/resource_adaptor.cc: New.
+
+	Backport from mainline
+	2016-08-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/allocator.h (__cpp_lib_incomplete_container_elements):
+	Define feature-test macro.
+	* include/std/shared_mutex (__cpp_lib_shared_mutex): Uncomment.
+	* include/std/type_traits (__cpp_lib_logical_traits): Fix value.
+
+	Backport from mainline
+	2016-08-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/stl_function.h: Remove commented-out macro.
+	* include/bits/stl_tree.h (__cpp_lib_generic_associative_lookup):
+	Define feature-test macro.
+	* testsuite/experimental/feat-cxx14.cc: Add tests for more macros.
+
+	* testsuite/lib/libstdc++.exp (check_v3_target_filesystem_ts): Improve
+	comments.
+
+	* doc/xml/manual/status_cxx2011.xml: Change "mainline GCC SVN" to
+	refer to the release series.
+	* doc/xml/manual/status_cxx2014.xml: Likewise. Update TS status.
+	* doc/xml/manual/status_cxx2017.xml: Likewise.
+	* doc/html/manual/status.html: Regenerate.
+
+	* include/experimental/propagate_const (propagate_const::__t): Rename
+	to _M_t and remove comment. Qualify std::move and std::forward.
+	* testsuite/experimental/propagate_const/cons/default.cc: Fix test.
+
+2016-08-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/lib/libstdc++.exp (v3-build_support): Add
+	-fno-lto to additional flags for compiling libtestc++.a objects.
+
+2016-07-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/abi.xml: Document 6.0.22 library version.
+	* doc/html/manual/abi.html: Regenerate.
+
+2016-07-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2016-07-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/functional: Include <parallel/algorithm> in
+	Parallel Mode.
+
+	Backport from mainline
+	2016-07-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/experimental/functional/searchers.cc: Include <algorithm>
+	for std::search.
+
+	PR libstdc++/71856
+	* include/bits/c++config (_GLIBCXX_ASSERTIONS): Define to 1 not empty.
+	* include/parallel/balanced_quicksort.h: Include <unistd.h> for sleep.
+	* include/parallel/compiletime_settings.h (_GLIBCXX_ASSERTIONS):
+	Do not define here.
+
+	Backport from mainline
+	2016-06-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/71320
+	* src/filesystem/ops.cc (permissions(const path&, perms, error_code&)):
+	Add or remove permissions according to perms argument.
+	* testsuite/experimental/filesystem/operations/permissions.cc: New
+	test.
+
+2016-07-06  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Implement LWG 2451, optional<T> should 'forward' T's
+	implicit conversions.
+	* include/experimental/optional (__is_optional_impl, __is_optional):
+	New.
+	(optional()): Make constexpr and default.
+	(optional(_Up&&), optional(const optional<_Up>&),
+	optional(optional<_Up>&& __t): New.
+	(operator=(_Up&&)): Constrain.
+	(operator=(const optional<_Up>&), operator=(optional<_Up>&&)): New.
+	* testsuite/experimental/optional/cons/value.cc:
+	Add tests for the functionality added by LWG 2451.
+	* testsuite/experimental/optional/cons/value_neg.cc: New.
+
+2016-07-05  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Implement LWG 2509,
+	any_cast doesn't work with rvalue reference targets and cannot
+	move with a value target.
+	* include/experimental/any (any(_ValueType&&)): Constrain and
+	add an overload that doesn't forward.
+	(any_cast(any&&)): Constrain and add an overload that moves.
+	* testsuite/experimental/any/misc/any_cast.cc: Add tests for
+	the functionality added by LWG 2509.
+
+2016-07-04  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	PR libstdc++/71313
+	* src/filesystem/ops.cc (remove_all(const path&, error_code&)):
+	Call remove_all for children of a directory.
+	* testsuite/experimental/filesystem/operations/create_directories.cc:
+	Adjust.
+
+2016-06-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/71545
+	* include/bits/stl_algobase.h (lower_bound, lexicographical_compare):
+	Remove irreflexive checks.
+	* include/bits/stl_algo.h (lower_bound, upper_bound, equal_range,
+	binary_search): Likewise.
+	* testsuite/25_algorithms/equal_range/partitioned.cc: New test.
+	* testsuite/25_algorithms/lexicographical_compare/71545.cc: New test.
+	* testsuite/25_algorithms/lower_bound/partitioned.cc: New test.
+	* testsuite/25_algorithms/upper_bound/partitioned.cc: New test.
+	* testsuite/util/testsuite_iterators.h (__gnu_test::test_container):
+	Add constructor from array.
+
 2016-05-26  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backport from mainline

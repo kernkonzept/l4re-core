@@ -1084,6 +1084,28 @@ fs::permissions(const path& p, perms prms)
 
 void fs::permissions(const path& p, perms prms, error_code& ec) noexcept
 {
+  const bool add = is_set(prms, perms::add_perms);
+  const bool remove = is_set(prms, perms::remove_perms);
+  if (add && remove)
+    {
+      ec = std::make_error_code(std::errc::invalid_argument);
+      return;
+    }
+
+  prms &= perms::mask;
+
+  if (add || remove)
+    {
+      auto st = status(p, ec);
+      if (ec)
+	return;
+      auto curr = st.permissions();
+      if (add)
+	prms |= curr;
+      else
+	prms = curr & ~prms;
+    }
+
 #if _GLIBCXX_USE_FCHMODAT
   if (::fchmodat(AT_FDCWD, p.c_str(), static_cast<mode_t>(prms), 0))
 #else
@@ -1172,7 +1194,7 @@ fs::remove_all(const path& p, error_code& ec) noexcept
   uintmax_t count = 0;
   if (ec.value() == 0 && fs.type() == file_type::directory)
     for (directory_iterator d(p, ec), end; ec.value() == 0 && d != end; ++d)
-      count += fs::remove(d->path(), ec);
+      count += fs::remove_all(d->path(), ec);
   if (ec.value())
     return -1;
   return fs::remove(p, ec) ? ++count : -1;  // fs:remove() calls ec.clear()
