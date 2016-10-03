@@ -27,6 +27,7 @@ extern void __pthread_cleanup_upto (__jmp_buf env, char *targetframe);
 void
 _longjmp_unwind (jmp_buf env, int val)
 {
+  if (__pthread_cleanup_upto != NULL)
     __pthread_cleanup_upto (env->__jmpbuf, CURRENT_STACK_FRAME);
 }
 libc_hidden_def(_longjmp_unwind)

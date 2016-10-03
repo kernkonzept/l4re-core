@@ -70,7 +70,7 @@ extern int __openat64_nocancel (int fd, const char *fname, int oflag,
 #define read_not_cancel(fd, buf, n) \
   INLINE_SYSCALL (read, 3, (fd), (buf), (n))
 
-#ifdef __UCLIBC_HAS_LINUXTHREADS__
+#ifdef __UCLIBC_HAS_THREADS__
 /* Uncancelable write.  */
 #define write_not_cancel(fd, buf, n) \
   INLINE_SYSCALL (write, 3, (fd), (buf), (n))

@@ -428,6 +428,16 @@ extern int pthread_getschedparam (pthread_t __target_thread,
 extern int pthread_setschedprio (pthread_t __target_thread, int __prio)
      __THROW;
 
+#ifdef __USE_GNU
+/* Get thread name visible in the kernel and its interfaces.  */
+extern int pthread_getname_np (pthread_t __target_thread, char *__buf,
+			       size_t __buflen)
+     __THROW __nonnull ((2));
+
+/* Set thread name visible in the kernel and its interfaces.  */
+extern int pthread_setname_np (pthread_t __target_thread, const char *__name)
+     __THROW __nonnull ((2));
+#endif
 
 #if defined __USE_UNIX98 && defined __UCLIBC_SUSV4_LEGACY__
 /* Determine level of concurrency.  */

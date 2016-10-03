@@ -22,16 +22,16 @@
 #include <pthreadP.h>
 #include <sysdep.h>
 #include <libgcc_s.h>
+#include <unwind-resume.h>
 
 #define __libc_dlopen(x)        dlopen(x, (RTLD_LOCAL | RTLD_LAZY))
 #define __libc_dlsym            dlsym
 #define __libc_dlclose		dlclose
 
 static void *libgcc_s_handle;
-static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
-static _Unwind_Reason_Code (*libgcc_s_personality)
-  (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
-   struct _Unwind_Context *);
+void (*__libgcc_s_resume) (struct _Unwind_Exception *exc)
+  attribute_hidden __attribute__ ((noreturn));
+static _Unwind_Reason_Code (*libgcc_s_personality) PERSONALITY_PROTO;
 static _Unwind_Reason_Code (*libgcc_s_forcedunwind)
   (struct _Unwind_Exception *, _Unwind_Stop_Fn, void *);
 static _Unwind_Word (*libgcc_s_getcfa) (struct _Unwind_Context *);
@@ -66,11 +66,12 @@ pthread_cancel_init (void)
 #endif
       )
   {
-    printf (LIBGCC_S_SO " must be installed for pthread_cancel to work\n");
+    fprintf (stderr,
+	     LIBGCC_S_SO " must be installed for pthread_cancel to work\n");
     abort();
   }
 
-  libgcc_s_resume = resume;
+  __libgcc_s_resume = resume;
   libgcc_s_personality = personality;
   libgcc_s_forcedunwind = forcedunwind;
   libgcc_s_getcfa = getcfa;
@@ -93,55 +94,41 @@ __unwind_freeres (void)
     }
 }
 
-void
+#if !HAVE_ARCH_UNWIND_RESUME
+void attribute_hidden
 _Unwind_Resume (struct _Unwind_Exception *exc)
 {
   if (__builtin_expect (libgcc_s_handle == NULL, 0))
     pthread_cancel_init ();
 
-  void (*resume) (struct _Unwind_Exception *exc) = libgcc_s_resume;
-  resume (exc);
+  __libgcc_s_resume(exc);
 }
+#endif
 
-_Unwind_Reason_Code
-__gcc_personality_v0 (int version, _Unwind_Action actions,
-		      _Unwind_Exception_Class exception_class,
-                      struct _Unwind_Exception *ue_header,
-                      struct _Unwind_Context *context);
-_Unwind_Reason_Code
-__gcc_personality_v0 (int version, _Unwind_Action actions,
-		      _Unwind_Exception_Class exception_class,
-                      struct _Unwind_Exception *ue_header,
-                      struct _Unwind_Context *context)
+_Unwind_Reason_Code attribute_hidden
+__gcc_personality_v0 PERSONALITY_PROTO
 {
   if (__builtin_expect (libgcc_s_handle == NULL, 0))
     pthread_cancel_init ();
 
-  _Unwind_Reason_Code (*personality)
-    (int, _Unwind_Action, _Unwind_Exception_Class, struct _Unwind_Exception *,
-     struct _Unwind_Context *) = libgcc_s_personality;
-  return personality (version, actions, exception_class, ue_header, context);
+  return libgcc_s_personality PERSONALITY_ARGS;
 }
 
-_Unwind_Reason_Code
+_Unwind_Reason_Code attribute_hidden
 _Unwind_ForcedUnwind (struct _Unwind_Exception *exc, _Unwind_Stop_Fn stop,
 		      void *stop_argument)
 {
   if (__builtin_expect (libgcc_s_handle == NULL, 0))
     pthread_cancel_init ();
 
-  _Unwind_Reason_Code (*forcedunwind)
-    (struct _Unwind_Exception *, _Unwind_Stop_Fn, void *)
-    = libgcc_s_forcedunwind;
-  return forcedunwind (exc, stop, stop_argument);
+  return libgcc_s_forcedunwind (exc, stop, stop_argument);
 }
 
-_Unwind_Word
+_Unwind_Word attribute_hidden
 _Unwind_GetCFA (struct _Unwind_Context *context)
 {
   if (__builtin_expect (libgcc_s_handle == NULL, 0))
     pthread_cancel_init ();
 
-  _Unwind_Word (*getcfa) (struct _Unwind_Context *) = libgcc_s_getcfa;
-  return getcfa (context);
+  return libgcc_s_getcfa (context);
 }

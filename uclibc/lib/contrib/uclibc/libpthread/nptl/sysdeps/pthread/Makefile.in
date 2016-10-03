@@ -32,7 +32,6 @@ libpthread_pthread_CSRC = \
 	pthread_spin_destroy.c \
 	pthread_spin_init.c \
 	pthread_spin_unlock.c \
-	pt-longjmp.c \
 	pt-sigaction.c \
 	tpp.c
 
