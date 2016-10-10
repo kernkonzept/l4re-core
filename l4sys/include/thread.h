@@ -623,6 +623,7 @@ enum L4_thread_ops
   L4_THREAD_X86_GDT_OP                = 0x10UL, /**< Gdt */
   L4_THREAD_ARM_TPIDRURO_OP           = 0x10UL, /**< Set TPIDRURO register */
   L4_THREAD_AMD64_SET_SEGMENT_BASE_OP = 0x12UL, /**< Set segment base */
+  L4_THREAD_AMD64_GET_SEGMENT_INFO_OP = 0x13UL, /**< Get segment information */
   L4_THREAD_OPCODE_MASK               = 0xffff, /**< Mask for opcodes */
 };
 

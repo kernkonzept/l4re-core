@@ -111,6 +111,19 @@ L4_INLINE long
 fiasco_amd64_set_segment_base(l4_cap_idx_t thread, enum L4_sys_segment segr,
                               l4_umword_t base, l4_utcb_t *utcb);
 
+/**
+ * Get segment information.
+ * \param[in]  thread     Thread to get info from.
+ * \param[out] user_ds    DS segment selector.
+ * \param[out] user_cs    64-bit CS segment selector.
+ * \param[out] user32_cs  32-bit CS segment selector.
+ * \param[in]  utcb       UTCB of the caller.
+ * \return System call error
+ */
+L4_INLINE long
+fiasco_amd64_segment_info(l4_cap_idx_t thread, unsigned *user_ds,
+                          unsigned *user_cs, unsigned *user32_cs,
+                          l4_utcb_t *utcb);
 
 /*****************************************************************************
  *** Implementation
@@ -139,6 +152,28 @@ fiasco_gdt_get_entry_offset(l4_cap_idx_t thread, l4_utcb_t *utcb)
   if (l4_error_u(l4_ipc_call(thread, utcb, l4_msgtag(L4_PROTO_THREAD, 1, 0, 0), L4_IPC_NEVER), utcb))
     return -1;
   return l4_utcb_mr_u(utcb)->mr[0];
+}
+
+L4_INLINE long
+fiasco_amd64_segment_info(l4_cap_idx_t thread, unsigned *user_ds,
+                          unsigned *user_cs, unsigned *user32_cs,
+                          l4_utcb_t *utcb)
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  int r;
+
+  m->mr[0] = L4_THREAD_AMD64_GET_SEGMENT_INFO_OP;
+
+  r = l4_error_u(l4_ipc_call(thread, utcb, l4_msgtag(L4_PROTO_THREAD, 1, 0, 0),
+                             L4_IPC_NEVER), utcb);
+  if (r < 0)
+    return r;
+
+  *user_ds   = m->mr[0];
+  *user_cs   = m->mr[1];
+  *user32_cs = m->mr[2];
+
+  return 0;
 }
 
 #endif /* ! __L4_SYS__ARCH_X86__SEGMENT_H__ */
