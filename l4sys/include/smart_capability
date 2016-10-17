@@ -52,6 +52,11 @@ public:
     return Cap<T>(r);
   }
 
+  void reset()
+  {
+    _c = L4_INVALID_CAP;
+  }
+
   Smart_cap() throw() : Cap_base(Invalid) {}
 
   Smart_cap(Cap_base::Cap_type t) throw() : Cap_base(t) {}
@@ -111,6 +116,35 @@ public:
     this->SMART::operator = (o.smart());
     return *this;
   }
+
+#if __cplusplus >= 201103L
+  template< typename O >
+  Smart_cap(Smart_cap<O, SMART> &&o) throw()
+  : Cap_base(o.release()), SMART(o.smart())
+  { T* __t = ((O*)100); (void)__t; }
+
+  Smart_cap(Smart_cap &&o) throw()
+  : Cap_base(o.release()), SMART(o.smart())
+  { }
+
+  template< typename O >
+  void operator = (Smart_cap<O, SMART> &&o) throw()
+  {
+    _c = o.release().cap();
+    this->SMART::operator = (o.smart());
+    // return *this;
+  }
+
+  Smart_cap const &operator = (Smart_cap &&o) throw()
+  {
+    if (&o == this)
+      return *this;
+
+    _c = o.release().cap();
+    this->SMART::operator = (o.smart());
+    return *this;
+  }
+#endif
 
   /**
    * Member access of a `T`.
