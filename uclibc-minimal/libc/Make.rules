@@ -12,7 +12,7 @@ include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/make_rules.mk
 include $(LIBCSRC_DIR)/contrib_files.mk
 
-DIRS := libc/string libc/stdlib libc/stdio libc/signal \
+DIRS := libc/string libc/stdlib libc/stdio libc/unistd libc/signal \
         libc/misc libc/stdlib/malloc-standard libc/sysdeps/linux
 
 CFLAGS_clang += -mno-implicit-float
