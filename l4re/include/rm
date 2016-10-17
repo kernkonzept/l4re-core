@@ -201,6 +201,9 @@ public:
       _addr = addr;
     }
 
+    void reset() throw()
+    { reset(L4::Cap<Rm>::Invalid, 0); }
+
     /** \brief Dereference the pointer. */
     T operator * () const throw() { return _addr; }
 
