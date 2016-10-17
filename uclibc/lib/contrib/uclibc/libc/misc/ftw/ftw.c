@@ -558,19 +558,14 @@ fail:
   --data->ftw.level;
   data->ftw.base = previous_base;
 
-  /* Finally, if we process depth-first report the directory.  */
-  if (result == 0 && (data->flags & FTW_DEPTH))
-    result = (*data->func) (data->dirbuf, st, FTW_DP, &data->ftw);
-
-  if (old_dir
-      && (data->flags & FTW_CHDIR)
+  if ((data->flags & FTW_CHDIR)
       && (result == 0
 	  || ((data->flags & FTW_ACTIONRETVAL)
 	      && (result != -1 && result != FTW_STOP))))
     {
       /* Change back to the parent directory.  */
       int done = 0;
-      if (old_dir->stream != NULL)
+      if (old_dir && old_dir->stream != NULL)
 	if (__fchdir (dirfd (old_dir->stream)) == 0)
 	  done = 1;
 
@@ -586,6 +581,10 @@ fail:
 	      result = -1;
 	}
     }
+
+  /* Finally, if we process depth-first report the directory.  */
+  if (result == 0 && (data->flags & FTW_DEPTH))
+    result = (*data->func) (data->dirbuf, st, FTW_DP, &data->ftw);
 
   return result;
 }
