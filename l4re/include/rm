@@ -202,7 +202,7 @@ public:
     }
 
     void reset() throw()
-    { reset(L4::Cap<Rm>::Invalid, 0); }
+    { reset(0, L4::Cap<Rm>::Invalid); }
 
     /** \brief Dereference the pointer. */
     T operator * () const throw() { return _addr; }
