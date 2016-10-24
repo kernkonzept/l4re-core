@@ -518,7 +518,6 @@ include_clean:
 clean: include_clean
 	$(Q)$(RM) -r $(top_builddir)lib
 	@$(MAKE) -C utils CLEAN_utils
-	+$(MAKE) -s -C test clean
 	$(Q)$(RM) $(top_builddir)extra/scripts/unifdef
 	$(Q)$(RM) -r $(LOCAL_INSTALL_PATH)
 
@@ -535,11 +534,3 @@ dist release:
 	cat ../uClibc-$(VERSION).tar | bzip2 -c9 > ../uClibc-$(VERSION).tar.bz2
 	cat ../uClibc-$(VERSION).tar | xz -e -c8 > ../uClibc-$(VERSION).tar.xz
 	du -b ../uClibc-$(VERSION).tar.{bz2,xz}
-
-test check: test_compile
-	$(Q)$(MAKE) -C test \
-		$(if $(O),top_builddir=$(O)/)
-
-test_compile: $(LOCAL_INSTALL_PATH)
-	$(Q)$(MAKE) -C test compile \
-		$(if $(O),top_builddir=$(O)/)

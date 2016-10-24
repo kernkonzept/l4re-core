@@ -45,7 +45,7 @@ you are hacking on.
   version) if you wish to properly support shared libraries.
 
 - at this point, you should have enough to generate a working HELLO WORLD
-  static binary (see test/silly/*.c files)
+  static binary
 
 - if you want UCLIBC_CTOR_DTOR support, you will need to create crti.S and
   crtn.S files which define function prologues/epilogues.

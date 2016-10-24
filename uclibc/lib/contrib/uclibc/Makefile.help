@@ -46,8 +46,6 @@ help:
 	@echo '  install_hostutils	- install host utilities'
 	@echo
 	@echo 'Development:'
-	@echo '  check			- run testsuite'
-	@echo '  test_compile		- compile testsuite binaries'
 	@echo '  release		- create a distribution tarball'
 	@echo
 	@echo 'Environment variables:'
