@@ -254,6 +254,21 @@ public:
   bool operator >= (Ref_ptr const &o) const throw()
   { return _p >= o._p; }
 
+  bool operator == (T const *o) const throw()
+  { return _p == o; }
+
+  bool operator < (T const *o) const throw()
+  { return _p < o; }
+
+  bool operator <= (T const *o) const throw()
+  { return _p <= o; }
+
+  bool operator > (T const *o) const throw()
+  { return _p > o; }
+
+  bool operator >= (T const *o) const throw()
+  { return _p >= o; }
+
 private:
   void __drop_ref() throw()
   {
