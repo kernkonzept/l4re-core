@@ -20,6 +20,7 @@
 #include <sched.h>
 #include <time.h>
 
+#include <signal.h>
 #include <bits/pthreadtypes.h>
 #include <bits/initspin.h>
 
