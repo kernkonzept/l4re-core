@@ -44,6 +44,8 @@ enum l4_error_code_t
   L4_EPERM         =  1,     /**< No permission. */
   L4_ENOENT        =  2,     /**< No such entity. */
   L4_EIO           =  5,     /**< I/O error. */
+  L4_ENXIO         =  6,     /**< No such device or address */
+  L4_E2BIG         =  7,     /**< Argument value too big */
   L4_EAGAIN        = 11,     /**< Try again. */
   L4_ENOMEM        = 12,     /**< No memory. */
   L4_EACCESS       = 13,     /**< Permission denied. */
@@ -52,6 +54,7 @@ enum l4_error_code_t
   L4_EEXIST        = 17,     /**< Already exists. */
   L4_ENODEV        = 19,     /**< No such thing. */
   L4_EINVAL        = 22,     /**< Invalid argument. */
+  L4_ENOSPC        = 28,     /**< No space left on device */
   L4_ERANGE        = 34,     /**< Range error. */
   L4_ENAMETOOLONG  = 36,     /**< Name too long. */
   L4_ENOSYS        = 38,     /**< No sys. */
