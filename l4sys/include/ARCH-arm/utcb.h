@@ -112,4 +112,9 @@ L4_INLINE l4_addr_t l4_utcb_exc_pfa(l4_exc_regs_t const *u) L4_NOTHROW
   return (u->pfa & ~7) | ((u->err >> 5) & 2);
 }
 
+L4_INLINE int l4_utcb_exc_is_ex_regs_exception(l4_exc_regs_t const *u) L4_NOTHROW
+{
+  return l4_utcb_exc_typeval(u) == 0x3e;
+}
+
 #endif /* ! __L4_SYS__INCLUDE__ARCH_ARM__UTCB_H__ */

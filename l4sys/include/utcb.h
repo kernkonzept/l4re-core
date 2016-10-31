@@ -246,6 +246,19 @@ L4_INLINE int l4_utcb_exc_is_pf(l4_exc_regs_t const *u) L4_NOTHROW L4_PURE;
  */
 L4_INLINE l4_addr_t l4_utcb_exc_pfa(l4_exc_regs_t const *u) L4_NOTHROW L4_PURE;
 
+
+/**
+ * Check whether an exception IPC was triggered via l4_thread_ex_regs().
+ * \ingroup l4_utcb_exc_api
+ *
+ * \retval 0   Exception was not triggered through ex_regs.
+ * \retval !=0 Exception was triggered through ex_regs.
+ *
+ * This function checks if the exception was emitted by using the
+ * L4_THREAD_EX_REGS_TRIGGER_EXCEPTION flag in an l4_thread_ex_regs() call.
+ */
+L4_INLINE int l4_utcb_exc_is_ex_regs_exception(l4_exc_regs_t const *u) L4_NOTHROW L4_PURE;
+
 /**
  * Enable or disable inheritance of FPU state to receiver.
  * \ingroup l4_utcb_br_api
