@@ -150,18 +150,4 @@ static pid_t __fork(void)
 strong_alias(__fork,fork)
 strong_alias(__fork,vfork)
 
-#else
-
-/* We can't support pthread_atfork without MMU, since we don't have
-   fork(), and we can't offer the correct semantics for vfork().  */
-int pthread_atfork(void (*prepare)(void),
-		   void (*parent)(void),
-		   void (*child)(void))
-{
-  /* ENOMEM is probably pushing it a little bit.
-     Take it as `no *virtual* memory' :-)  */
-  errno = ENOMEM;
-  return -1;
-}
-
 #endif

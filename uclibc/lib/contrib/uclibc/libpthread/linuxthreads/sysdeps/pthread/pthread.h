@@ -697,6 +697,7 @@ extern int pthread_getcpuclockid (pthread_t __thread_id,
 
 /* Functions for handling process creation and process execution.  */
 
+#ifdef __ARCH_USE_MMU__
 /* Install handlers to be called when a new process is created with FORK.
    The PREPARE handler is called in the parent process just before performing
    FORK. The PARENT handler is called in the parent process just after FORK.
@@ -711,6 +712,7 @@ extern int pthread_getcpuclockid (pthread_t __thread_id,
 extern int pthread_atfork (void (*__prepare) (void),
 			   void (*__parent) (void),
 			   void (*__child) (void)) __THROW;
+#endif
 
 /* Terminate all threads in the program except the calling process.
    Should be called just before invoking one of the exec*() functions.  */
