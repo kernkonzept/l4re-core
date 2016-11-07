@@ -35,7 +35,7 @@ void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *a)
 {
   unsigned long port, size;
   l4_fpage_t fp = (l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[0];
-  port = l4_fpage_page(fp) << PORT_SHIFT;
+  port = l4_fpage_ioport(fp) << PORT_SHIFT;
   size = l4_fpage_size(fp) + PORT_SHIFT;
 
   unsigned long i = io_ports.alloc(Region::bs(port, 1UL << size, t));

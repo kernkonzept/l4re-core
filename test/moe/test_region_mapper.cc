@@ -79,7 +79,7 @@ struct TestRm : testing::Test
 
     l4_fpage_t utcbs = env->utcb_area();
 
-    l4_addr_t start = l4_fpage_page(utcbs);
+    l4_addr_t start = l4_fpage_memaddr(utcbs);
     rm->reserve_area(&start, l4_fpage_size(utcbs));
 
     return rm;

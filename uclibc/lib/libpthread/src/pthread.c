@@ -353,8 +353,8 @@ __pthread_initialize_minimal(void)
   /* initialize free list */
   l4_fpage_t utcb_area = l4re_env()->utcb_area;
   l4_addr_t free_utcb = l4re_env()->first_free_utcb;
-  l4_addr_t utcbs_end = ((l4_addr_t)l4_fpage_page(utcb_area) << L4_FPAGE_ADDR_SHIFT)
-                        + (1UL << (l4_addr_t)l4_fpage_size(utcb_area));
+  l4_addr_t utcbs_end =
+    l4_fpage_memaddr(utcb_area) + (1UL << (l4_addr_t)l4_fpage_size(utcb_area));
   __l4_add_utcbs(free_utcb, utcbs_end);
   /* All in the free pool now so indicate that first_free_utcb not available
    * anymore */
