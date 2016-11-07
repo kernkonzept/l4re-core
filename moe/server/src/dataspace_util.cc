@@ -41,8 +41,9 @@ __do_real_copy(Dataspace *dst, unsigned long &dst_offs,
       // and do the I cache coherence only in this case.
       // And we should change the cache API to allow for a single call to handle
       // I-cache coherency and D-cache writeback.
-      l4_cache_coherent((l4_addr_t)dst_a.adr(), (l4_addr_t)dst_a.adr() + b_sz - 1);
-      l4_cache_clean_data((l4_addr_t)dst_a.adr(), (l4_addr_t)dst_a.adr() + b_sz - 1);
+      assert(((l4_addr_t)dst_a.adr() + b_sz) > (l4_addr_t)dst_a.adr());
+      l4_cache_coherent((l4_addr_t)dst_a.adr(), (l4_addr_t)dst_a.adr() + b_sz);
+      l4_cache_clean_data((l4_addr_t)dst_a.adr(), (l4_addr_t)dst_a.adr() + b_sz);
 
       src_offs += b_sz;
       dst_offs += b_sz;
