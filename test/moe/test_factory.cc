@@ -17,6 +17,7 @@
 #include <l4/re/dataspace>
 #include <l4/re/dma_space>
 #include <l4/re/namespace>
+#include <l4/sys/thread>
 #include <l4/sys/vcon>
 #include <l4/sys/factory>
 #include <l4/sys/scheduler>
@@ -56,7 +57,7 @@ TEST_F(TestFactory, CreateCheckFactory)
   auto fab = make_auto_del_cap<L4::Factory>();
   EXPECT_EQ(0, l4_error(f->create(fab.get()) << l4_umword_t(100)));
   auto noob = L4Re::Util::make_auto_del_cap<L4::Thread>();
-  EXPECT_EQ(-L4_ENODEV, l4_error(fab->create_thread(noob.get())));
+  EXPECT_EQ(-L4_ENODEV, l4_error(fab->create(noob.get())));
 }
 
 TEST_F(TestFactory, CreateCheckLog)
@@ -112,7 +113,7 @@ TEST_F(TestFactory, NotASystemFactory)
             l4_error(f->create_task(L4::cap_cast<L4::Task>(dummy.get()),
                                     dummyfpage)));
   EXPECT_EQ(-L4_ENODEV,
-            l4_error(f->create_thread(L4::cap_cast<L4::Thread>(dummy.get()))));
+            l4_error(f->create(L4::cap_cast<L4::Thread>(dummy.get()))));
   EXPECT_EQ(-L4_ENODEV,
             l4_error(f->create_gate(L4::cap_cast<L4::Task>(dummy.get()),
                                     env->main_thread(), 0)));

@@ -137,7 +137,7 @@ public:
     this->get_task_caps(&factory, &ntask, &nthread);
 
     chksys(factory->create_task(ntask, env->utcb_area()));
-    chksys(factory->create_thread(nthread));
+    chksys(factory->create(nthread));
 
     chksys(ntask->map(L4Re::This_task, ntask.fpage(),
 	  Cap<L4::Task>(L4Re::This_task).snd_base()));

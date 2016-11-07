@@ -288,7 +288,7 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t * /*aux*/)
   __loader_entry.pager = L4::cap_reinterpret_cast<Rm>(env->main_thread());
 #endif
 
-  chksys(env->factory()->create_thread(app_thread), "create app thread");
+  chksys(env->factory()->create(app_thread), "create app thread");
 
   Thread::Attr attr;
   attr.pager(__loader_entry.pager);

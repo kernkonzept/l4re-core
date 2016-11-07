@@ -525,7 +525,7 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   if (!th_sem.is_valid())
     return -ENOMEM;
 
-  int err = l4_error(e->factory()->create_thread(_t.get()));
+  int err = l4_error(e->factory()->create(_t.get()));
   if (err < 0)
     return err;
 
