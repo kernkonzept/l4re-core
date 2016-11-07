@@ -23,6 +23,8 @@
 #include <l4/sys/scheduler>
 #include <l4/util/util.h>
 #include <l4/re/error_helper>
+#include <l4/sys/irq>
+#include <l4/sys/vm>
 
 #include <l4/atkins/tap/main>
 
@@ -118,9 +120,9 @@ TEST_F(TestFactory, NotASystemFactory)
             l4_error(f->create_gate(L4::cap_cast<L4::Task>(dummy.get()),
                                     env->main_thread(), 0)));
   EXPECT_EQ(-L4_ENODEV,
-            l4_error(f->create_irq(L4::cap_cast<L4::Irq>(dummy.get()))));
+            l4_error(f->create(L4::cap_cast<L4::Irq>(dummy.get()))));
   EXPECT_EQ(-L4_ENODEV,
-            l4_error(f->create_vm(L4::cap_cast<L4::Vm>(dummy.get()))));
+            l4_error(f->create(L4::cap_cast<L4::Vm>(dummy.get()))));
 }
 
 TEST_F(TestFactory, ZeroLimits)
