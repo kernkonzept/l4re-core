@@ -518,23 +518,23 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   Env const *e = Env::env();
   L4Re::Util::Auto_cap<L4::Thread>::Cap _t = L4Re::Util::cap_alloc.alloc<L4::Thread>();
   if (!_t.is_valid())
-    return ENOMEM;
+    return -ENOMEM;
 
   L4Re::Util::Auto_cap<Th_sem_cap>::Cap th_sem
     =  L4Re::Util::cap_alloc.alloc<Th_sem_cap>();
   if (!th_sem.is_valid())
-    return ENOMEM;
+    return -ENOMEM;
 
   int err = l4_error(e->factory()->create_thread(_t.get()));
   if (err < 0)
-    return -err;
+    return err;
 
   // needed by __alloc_thread_sem
   thread->p_th_cap = _t.cap();
 
   err = __alloc_thread_sem(thread, th_sem.get());
   if (err < 0)
-    return -err;
+    return err;
 
   thread->p_thsem_cap = th_sem.cap();
 
@@ -772,7 +772,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
                                      pthread_start_thread, prio,
                                      attr ? attr->create_flags : 0,
                                      attr ? attr->affinity : l4_sched_cpu_set(0, ~0, 1));
-  saved_errno = err;
+  saved_errno = -err;
 
   /* Check if cloning succeeded */
   if (err < 0) {
