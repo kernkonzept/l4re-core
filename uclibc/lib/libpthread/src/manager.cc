@@ -545,7 +545,10 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   attr.pager(e->rm());
   attr.exc_handler(e->rm());
   if ((err = l4_error(_t->control(attr))) < 0)
-    fprintf(stderr, "ERROR: l4 thread control returned: %d\n", err);
+   {
+     fprintf(stderr, "ERROR: l4 thread control returned: %d\n", err);
+     return err;
+   }
 
   l4_utcb_tcr_u(nt_utcb)->user[0] = l4_addr_t(thread);
 
