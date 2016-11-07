@@ -130,6 +130,7 @@ public:
   template< typename O >
   void operator = (Smart_cap<O, SMART> &&o) throw()
   {
+    _delete();
     _c = o.release().cap();
     this->SMART::operator = (o.smart());
     // return *this;
@@ -140,6 +141,7 @@ public:
     if (&o == this)
       return *this;
 
+    _delete();
     _c = o.release().cap();
     this->SMART::operator = (o.smart());
     return *this;
