@@ -21,9 +21,7 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-#ifndef __INCLUDE__ARCH_X86__VM_H__
-#define __INCLUDE__ARCH_X86__VM_H__
+#pragma once
 
-#include <l4/sys/__vm.h>
-
-#endif /* ! __INCLUDE__ARCH_X86__VM_H__ */
+#include <l4/sys/__vm-svm.h>
+#include <l4/sys/__vm-vmx.h>
