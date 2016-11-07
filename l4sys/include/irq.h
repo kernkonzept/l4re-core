@@ -291,8 +291,7 @@ l4_irq_detach_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
 L4_INLINE l4_msgtag_t
 l4_irq_trigger_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
 {
-  l4_utcb_mr_u(utcb)->mr[0] = L4_IRQ_OP_TRIGGER;
-  return l4_ipc_send(irq, utcb, l4_msgtag(L4_PROTO_IRQ, 1, 0, 0),
+  return l4_ipc_send(irq, utcb, l4_msgtag(L4_PROTO_IRQ, 0, 0, 0),
                      L4_IPC_BOTH_TIMEOUT_0);
 }
 
