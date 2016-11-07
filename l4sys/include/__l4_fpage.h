@@ -283,7 +283,7 @@ enum
  * \return  Memory flex page
  */
 L4_INLINE l4_fpage_t
-l4_fpage(unsigned long address, unsigned int size, unsigned char rights) L4_NOTHROW;
+l4_fpage(l4_addr_t address, unsigned int size, unsigned char rights) L4_NOTHROW;
 
 /**
  * Get a flex page, describing all address spaces at once.
@@ -430,15 +430,56 @@ L4_INLINE unsigned
 l4_fpage_size(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return page from a flex page.
+ * Return the page part from a flex page.
  * \ingroup l4_fpage_api
  *
  * \param f  Flex page
  *
  * \return Page part of the given flex page.
+ *
+ * \note The meaning of the page part depends on the flex-page type.
  */
 L4_INLINE unsigned long
 l4_fpage_page(l4_fpage_t f) L4_NOTHROW;
+
+/**
+ * Return the memory address from the memory flex page.
+ * \ingroup l4_fpage_api
+ *
+ * \param f  Flex page
+ *
+ * \return Page address from the given memory flex page.
+ *
+ * \pre `f` must be a memory flex page (`l4_fpage_type(f) == L4_FPAGE_MEMORY`)
+ */
+L4_INLINE l4_addr_t
+l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW;
+
+/**
+ * Return the capability index from the object flex page.
+ * \ingroup l4_fpage_api
+ *
+ * \param f  Flex page
+ *
+ * \return Capability index from the given object flex page.
+ *
+ * \pre `f` must be an object flex page (`l4_fpage_type(f) == L4_FPAGE_OBJ`)
+ */
+L4_INLINE l4_cap_idx_t
+l4_fpage_obj(l4_fpage_t f) L4_NOTHROW;
+
+/**
+ * Return the IO port number from the IO flex page.
+ * \ingroup l4_fpage_api
+ *
+ * \param f  Flex page
+ *
+ * \return IO port number from the given IO flex page.
+ *
+ * \pre `f` must be an IO flex page (`l4_fpage_type(f) == L4_FPAGE_IO`)
+ */
+L4_INLINE unsigned long
+l4_fpage_ioport(l4_fpage_t f) L4_NOTHROW;
 
 /**
  * Set new right in a flex page.
@@ -515,6 +556,24 @@ l4_fpage_page(l4_fpage_t f) L4_NOTHROW
   return (f.raw & L4_FPAGE_ADDR_MASK) >> L4_FPAGE_ADDR_SHIFT;
 }
 
+L4_INLINE unsigned long
+l4_fpage_ioport(l4_fpage_t f) L4_NOTHROW
+{
+  return (f.raw & L4_FPAGE_ADDR_MASK) >> L4_FPAGE_ADDR_SHIFT;
+}
+
+L4_INLINE l4_addr_t
+l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW
+{
+  return f.raw & L4_FPAGE_ADDR_MASK;
+}
+
+L4_INLINE l4_cap_idx_t
+l4_fpage_obj(l4_fpage_t f) L4_NOTHROW
+{
+  return f.raw & L4_FPAGE_ADDR_MASK;
+}
+
 /** \internal */
 L4_INLINE l4_fpage_t
 __l4_fpage_generic(unsigned long address, unsigned int type,
@@ -542,7 +601,7 @@ l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW
 }
 
 L4_INLINE l4_fpage_t
-l4_fpage(unsigned long address, unsigned int size, unsigned char rights) L4_NOTHROW
+l4_fpage(l4_addr_t address, unsigned int size, unsigned char rights) L4_NOTHROW
 {
   return __l4_fpage_generic(address, L4_FPAGE_MEMORY, size, rights);
 }
@@ -594,7 +653,7 @@ l4_map_obj_control(l4_umword_t snd_base, unsigned grant) L4_NOTHROW
 L4_INLINE int
 l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned log2size) L4_NOTHROW
 {
-  l4_addr_t fa = l4_fpage_page(fpage) << L4_FPAGE_ADDR_SHIFT;
+  l4_addr_t fa = l4_fpage_memaddr(fpage);
   return (fa <= addr)
          && (fa + (1UL << l4_fpage_size(fpage)) >= addr + (1UL << log2size));
 }
