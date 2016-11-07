@@ -5,12 +5,15 @@
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
+#include <l4/sys/thread>
 
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 
 #include <l4/re/util/cap_alloc>
 #include <l4/re/env>
 #include <l4/re/namespace>
+#include <l4/re/error_helper>
 
 static L4Re::Env const *env = L4Re::Env::env();
 static L4::Cap<L4Re::Namespace> rom_ns = env->get_cap<L4Re::Namespace>("rom");
@@ -112,4 +115,66 @@ TEST(CapAlloc, RefDelCap)
   ASSERT_EQ(-L4_EAGAIN, rom_ns->query("XXX", testcap.get(),
                                      L4Re::Namespace::To_non_blocking));
 
+}
+
+/**
+ * The move assignment of the auto_cap must delete the previous content of
+ * target and invalidate the source.
+ */
+TEST(AutoCap, MoveAssignment)
+{
+  auto autocap = L4Re::Util::make_auto_cap<L4::Thread>();
+  L4Re::chksys(env->factory()->create(autocap.get()),
+               "Factory creates a thread object.");
+  auto autocap_content = autocap.get();
+
+  ASSERT_EQ(autocap.get().cap(), autocap_content.cap())
+    << "The capability index of both capabilities is equal.";
+  ASSERT_L4CAP_PRESENT(autocap.get())
+    << "Kernel object of the capability stored in the auto_cap is present.";
+  ASSERT_L4CAP_PRESENT(autocap_content)
+    << "Kernel object of the capability content of the auto_cap is present.";
+
+  auto newautocap = L4Re::Util::make_auto_cap<L4::Thread>();
+  autocap = std::move(newautocap);
+  ASSERT_FALSE(newautocap.is_valid())
+    << "Capability was moved, the old auto_cap container must be "
+       "invalidated.";
+  ASSERT_NE(autocap.cap(), autocap_content.cap())
+    << "Capability index of the new capability in autocap is different than "
+       "the index of the old content.";
+  ASSERT_L4CAP_NOT_PRESENT(autocap_content)
+    << "Kernel object of the capability previously stored in the auto_cap is "
+       "not present.";
+}
+
+/**
+ * The copy assignment of the auto_cap must delete the previous content of
+ * target and invalidate the source.
+ */
+TEST(AutoCap, CopyAssignment)
+{
+  auto autocap = L4Re::Util::make_auto_cap<L4::Thread>();
+  L4Re::chksys(env->factory()->create(autocap.get()),
+               "Factory creates a thread object.");
+  auto autocap_content = autocap.get();
+
+  ASSERT_EQ(autocap.get().cap(), autocap_content.cap())
+    << "The capability index of both capabilities is equal.";
+  ASSERT_L4CAP_PRESENT(autocap.get())
+    << "Kernel object of the capability stored in the auto_cap is present.";
+  ASSERT_L4CAP_PRESENT(autocap_content)
+    << "Kernel object of the capability content of the auto_cap is present.";
+
+  auto newautocap = L4Re::Util::make_auto_cap<L4::Thread>();
+  autocap = newautocap;
+  ASSERT_FALSE(newautocap.is_valid())
+    << "Capability was moved, the old auto_cap container must be "
+       "invalidated.";
+  ASSERT_NE(autocap.cap(), autocap_content.cap())
+    << "Capability index of the new capability in autocap is different than "
+       "the index of the old content.";
+  ASSERT_L4CAP_NOT_PRESENT(autocap_content)
+    << "Kernel object of the capability previously stored in the auto_cap is "
+       "not present.";
 }
