@@ -178,13 +178,13 @@ List_alloc::sanity_check_list(char const *func, char const *info)
 	  if (c >= c->next)
 	    {
 	      L4::cerr << "List_alloc(FATAL): " << func << '(' << info 
-		<< "): list oerder violation\n";
+		<< "): list order violation\n";
 	    }
 
 	  if (((unsigned long)c) + c->size > (unsigned long)c->next)
 	    {
 	      L4::cerr << "List_alloc(FATAL): " << func << '(' << info 
-		<< "): list oerder violation\n";
+		<< "): list order violation\n";
 	    }
 	}
     }
