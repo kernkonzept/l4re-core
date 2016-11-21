@@ -309,7 +309,7 @@ l4_fpage_invalid(void) L4_NOTHROW;
  * \ingroup l4_fpage_api
  *
  * \param   port         I/O-flex-page port base
- * \param   size         I/O-flex-page size, #L4_WHOLE_IOADDRESS_SPACE to
+ * \param   size         I/O-flex-page size (log2), #L4_WHOLE_IOADDRESS_SPACE to
  *                       specify the whole I/O address space (with `port` 0)
  *
  * \return  I/O flex page
@@ -425,6 +425,8 @@ l4_fpage_type(l4_fpage_t f) L4_NOTHROW;
  * \param f  Flex page
  *
  * \return Size part of the given flex page.
+ *
+ * \see l4_fpage_memaddr(), l4_fpage_obj(), l4_fpage_ioport()
  */
 L4_INLINE unsigned
 l4_fpage_size(l4_fpage_t f) L4_NOTHROW;
@@ -450,7 +452,10 @@ l4_fpage_page(l4_fpage_t f) L4_NOTHROW;
  *
  * \return Page address from the given memory flex page.
  *
- * \pre `f` must be a memory flex page (`l4_fpage_type(f) == L4_FPAGE_MEMORY`)
+ * \pre `f` must be a memory flex page (`l4_fpage_type(f) == L4_FPAGE_MEMORY`).
+ *
+ * The function does not enforce size alignment of the read memory address. The
+ * caller must ensure the input fpage is correct.
  */
 L4_INLINE l4_addr_t
 l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW;
@@ -464,6 +469,9 @@ l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW;
  * \return Capability index from the given object flex page.
  *
  * \pre `f` must be an object flex page (`l4_fpage_type(f) == L4_FPAGE_OBJ`)
+ *
+ * The function does not enforce size alignment of the read memory address. The
+ * caller must ensure the input fpage is correct.
  */
 L4_INLINE l4_cap_idx_t
 l4_fpage_obj(l4_fpage_t f) L4_NOTHROW;
@@ -476,7 +484,10 @@ l4_fpage_obj(l4_fpage_t f) L4_NOTHROW;
  *
  * \return IO port number from the given IO flex page.
  *
- * \pre `f` must be an IO flex page (`l4_fpage_type(f) == L4_FPAGE_IO`)
+ * \pre `f` must be an IO flex page (`l4_fpage_type(f) == L4_FPAGE_IO`) and
+ *
+ * The function does not enforce size alignment of the read memory address. The
+ * caller must ensure the input fpage is correct.
  */
 L4_INLINE unsigned long
 l4_fpage_ioport(l4_fpage_t f) L4_NOTHROW;
