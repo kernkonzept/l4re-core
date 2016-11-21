@@ -137,9 +137,6 @@
 #define	PSEUDO_END_ERRVAL(name) \
   END (name)
 
-#undef ret_ERRVAL
-#define ret_ERRVAL PSEUDO_RET_NOERRNO
-
 #if defined NOT_IN_libc
 # define SYSCALL_ERROR __local_syscall_error
 #  define SYSCALL_ERROR_HANDLER					\
