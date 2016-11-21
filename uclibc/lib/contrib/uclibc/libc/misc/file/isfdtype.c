@@ -20,12 +20,7 @@
 #include <sys/stat.h>
 #include <sys/socket.h>
 #include <sys/types.h>
-#ifdef __UCLIBC_HAS_LFS__
-# include <_lfs_64.h>
-#else
-# define stat64 stat
-# define fstat64 fstat
-#endif
+#include <_lfs_64.h>
 
 int
 isfdtype (int fildes, int fdtype)

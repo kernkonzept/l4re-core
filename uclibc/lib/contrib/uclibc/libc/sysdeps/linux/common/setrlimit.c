@@ -63,6 +63,6 @@ int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlimits)
 #endif
 libc_hidden_def(setrlimit)
 
-#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+#if __WORDSIZE == 64
 strong_alias_untyped(setrlimit, setrlimit64)
 #endif

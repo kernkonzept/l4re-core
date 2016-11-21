@@ -15,10 +15,10 @@
 # include <stdint.h>
 int ftruncate(int fd, __off_t length)
 {
-# if defined __UCLIBC_HAS_LFS__
-	return ftruncate64(fd, length);
-# elif __WORDSIZE == 32
+# if __WORDSIZE == 32
 	return INLINE_SYSCALL(ftruncate64, 3, fd, OFF_HI_LO(length));
+# else
+	return ftruncate64(fd, length);
 # endif
 }
 libc_hidden_def(ftruncate);

@@ -20,7 +20,7 @@
 #include <bits/kernel_types.h>
 #include <bits/kernel-features.h>
 
-#if !(defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 && __WORDSIZE == 64)
+#if !(defined __NR_getdents64 && __WORDSIZE == 64)
 /* If the condition above is met, __getdents is defined as an alias
  * for __getdents64 (see getdents64.c). Otherwise...
  */
@@ -80,7 +80,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 	return retval;
 }
 
-#elif defined NOT_FOR_L4 && (! defined __UCLIBC_HAS_LFS__ || ! defined __NR_getdents64)
+#elif defined NOT_FOR_L4 && ! defined __NR_getdents64
 
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
 {
@@ -137,7 +137,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
     return (char *) dp - buf;
 }
 
-#elif __WORDSIZE == 32 && defined __UCLIBC_HAS_LFS__
+#elif __WORDSIZE == 32
 
 extern __typeof(__getdents) __getdents64 /* attribute_hidden*/;
 ssize_t __getdents (int fd, char *buf, size_t nbytes)
@@ -167,7 +167,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 
 #endif
 
-#if defined NOT_FOR_L4 && (defined __UCLIBC_HAS_LFS__ && ! defined __NR_getdents64)
+#if defined NOT_FOR_L4 && ! defined __NR_getdents64
 attribute_hidden strong_alias(__getdents,__getdents64)
 #endif
 

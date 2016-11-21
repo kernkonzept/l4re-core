@@ -10,9 +10,8 @@ CSRC-y := brk.c ioperm.c iopl.c __syscall_error.c sigaction.c
 SSRC-y := \
 	__longjmp.S setjmp.S bsd-setjmp.S \
 	bsd-_setjmp.S sigrestorer.S \
-	vfork.S clone.S
+	vfork.S clone.S mmap64.S
 
-SSRC-$(UCLIBC_HAS_LFS) += mmap64.S
 libc-nonshared-$(UCLIBC_HAS_THREADS_NATIVE) += $(ARCH_OUT)/libc-aeabi_read_tp.os
 libc-static-$(UCLIBC_HAS_THREADS_NATIVE) += $(ARCH_OUT)/libc-aeabi_read_tp.o
 CSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.c

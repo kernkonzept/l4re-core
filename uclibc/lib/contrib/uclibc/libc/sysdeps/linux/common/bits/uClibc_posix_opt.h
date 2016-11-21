@@ -110,13 +110,6 @@
 # undef _POSIX_MEMORY_PROTECTION
 #endif
 
-#ifndef __UCLIBC_HAS_LFS__
-# undef _LFS64_ASYNCHRONOUS_IO
-# undef _LFS_LARGEFILE
-# undef _LFS64_LARGEFILE
-# undef _LFS64_STDIO
-#endif
-
 #ifndef __UCLIBC_HAS_REALTIME__
 # undef _POSIX_SEMAPHORES
 #endif

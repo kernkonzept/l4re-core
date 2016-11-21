@@ -22,7 +22,7 @@
 # include <endian.h>
 # include <bits/wordsize.h>
 
-# if defined(__NR_fadvise64_64) && defined(__UCLIBC_HAS_LFS__)
+# if defined(__NR_fadvise64_64)
 #include <_lfs_64.h>
 
 int posix_fadvise64(int fd, off64_t offset, off64_t len, int advice);
@@ -73,7 +73,7 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 		return INTERNAL_SYSCALL_ERRNO (ret, err);
 	return 0;
 }
-# if defined __UCLIBC_HAS_LFS__ && (!defined __NR_fadvise64_64 || __WORDSIZE == 64)
+# if !defined __NR_fadvise64_64 || __WORDSIZE == 64
 strong_alias(posix_fadvise,posix_fadvise64)
 # endif
 #endif

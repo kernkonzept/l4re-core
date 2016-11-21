@@ -67,7 +67,7 @@ all_done:
 	return((de != NULL)? 0 : ret);
 }
 libc_hidden_def(__READDIR_R)
-#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+#if __WORDSIZE == 64
 strong_alias_untyped(readdir_r,readdir64_r)
 libc_hidden_def(readdir64_r)
 #endif

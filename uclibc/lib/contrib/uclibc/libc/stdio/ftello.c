@@ -14,7 +14,7 @@
 
 OFFSET_TYPE FTELL(register FILE *stream)
 {
-#if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
+#if !defined(__DO_LARGEFILE)
 
 	__offmax_t pos = ftello64(stream);
 

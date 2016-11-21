@@ -111,11 +111,7 @@ extern char *xgetcwd (void);
 # undef __opendir
 # define __opendir opendir
 # undef __readdir64
-# ifndef __UCLIBC_HAS_LFS__
-# define __readdir64 readdir
-# else
 # define __readdir64 readdir64
-# endif
 # undef __stpcpy
 # define __stpcpy stpcpy
 # undef __tdestroy
@@ -126,10 +122,6 @@ extern char *xgetcwd (void);
 # define __tsearch tsearch
 # undef internal_function
 # define internal_function /* empty */
-# ifndef __UCLIBC_HAS_LFS__
-# undef dirent64
-# define dirent64 dirent
-# endif
 # undef MAX
 # define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif

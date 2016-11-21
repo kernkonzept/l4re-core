@@ -19,8 +19,7 @@ CSRC-y := \
 	printf.c vprintf.c vsprintf.c fprintf.c snprintf.c dprintf.c \
 	asprintf.c sprintf.c vasprintf.c vdprintf.c vsnprintf.c \
 	tmpfile.c popen.c ctermid.c
-CSRC-$(UCLIBC_HAS_LFS) += fgetpos64.c fopen64.c freopen64.c \
-	fseeko64.c fsetpos64.c ftello64.c
+CSRC-y += fgetpos64.c fopen64.c freopen64.c fseeko64.c fsetpos64.c ftello64.c
 CSRC-$(UCLIBC_SUSV4_LEGACY) += tmpnam.c tmpnam_r.c tempnam.c
 
 # internal support functions

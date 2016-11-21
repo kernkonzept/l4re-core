@@ -8,7 +8,7 @@
  */
 
 #include <sys/syscall.h>
-#if defined __UCLIBC_HAS_LFS__ && defined __USE_GNU
+#if defined __USE_GNU
 # include <bits/wordsize.h>
 # include <endian.h>
 # include <fcntl.h>

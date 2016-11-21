@@ -151,7 +151,6 @@ typedef struct {
 #endif
 } __STDIO_fpos_t;
 
-#ifdef __UCLIBC_HAS_LFS__
 typedef struct {
 	__off64_t __pos;
 #ifdef __STDIO_MBSTATE
@@ -161,14 +160,9 @@ typedef struct {
 	int __mblen_pending;
 #endif
 } __STDIO_fpos64_t;
-#endif
 
 /**********************************************************************/
-#ifdef __UCLIBC_HAS_LFS__
 typedef __off64_t __offmax_t;		/* TODO -- rename this? */
-#else
-typedef __off_t __offmax_t;		/* TODO -- rename this? */
-#endif
 
 /**********************************************************************/
 #ifdef __UCLIBC_HAS_GLIBC_CUSTOM_STREAMS__

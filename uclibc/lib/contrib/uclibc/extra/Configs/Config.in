@@ -572,15 +572,6 @@ config UCLIBC_HAS_SYSLOG
 	  Support sending messages to the system logger.
 	  This requires socket-support.
 
-config UCLIBC_HAS_LFS
-	bool "Large File Support"
-	default y
-	help
-	  If you wish to build uClibc with support for accessing large files
-	  (i.e. files greater then 2 GiB) then answer Y.  Do not enable this
-	  if you are using an older Linux kernel (2.0.x) that lacks large file
-	  support.  Enabling this option will increase the size of uClibc.
-
 choice
 	prompt "Malloc Implementation"
 	default MALLOC if ! ARCH_USE_MMU
@@ -1741,7 +1732,6 @@ config UCLIBC_HAS_STDIO_AUTO_RW_TRANSITION
 
 config UCLIBC_HAS_FOPEN_LARGEFILE_MODE
 	bool "Support an fopen() 'F' flag for large file mode (uClibc-specific)"
-	depends on UCLIBC_HAS_LFS
 	help
 	  Answer Y to enable a uClibc-specific extension to allow passing an
 	  additional 'F' flag in the mode string for fopen() to specify that

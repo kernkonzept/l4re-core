@@ -31,7 +31,7 @@ CXXFLAGS_clang += -mno-implicit-float
 CFLAGS += $(CFLAGS_$(BID_COMPILER_TYPE))
 CXXFLAGS += $(CXXFLAGS_$(BID_COMPILER_TYPE))
 
-SUB_MODULES :=
+SUB_MODULES := large_file
 
 # process all sources for the libc
 $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))

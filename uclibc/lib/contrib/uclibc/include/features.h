@@ -223,16 +223,6 @@
 #  endif
 # endif
 
-# ifndef __UCLIBC_HAS_LFS__
-#  undef _LARGEFILE64_SOURCE
-/* NOTE: This is probably incorrect on a 64-bit arch... */
-#  if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS == 64
-#   error It appears you have defined _FILE_OFFSET_BITS=64.  Unfortunately, \
-uClibc was built without large file support enabled.
-#  endif
-# elif defined __BCC__
-#  error BCC does not support LFS, please disable it
-# endif
 #endif /* __UCLIBC__ */
 
 /* If nothing (other than _GNU_SOURCE) is defined,
@@ -431,9 +421,7 @@ uClibc was built without large file support enabled.
    __USE_FILE_OFFSET64 but not __USE_LARGEFILE[64]. */
 # if defined __USE_FILE_OFFSET64 && !defined __REDIRECT
 #  define __USE_LARGEFILE	1
-#  ifdef __UCLIBC_HAS_LFS__
 #  define __USE_LARGEFILE64	1
-#  endif
 # endif
 
 #endif	/* !ASSEMBLER */
@@ -452,10 +440,8 @@ uClibc was built without large file support enabled.
 #endif
 
 #ifdef _LIBC
-# ifdef __UCLIBC_HAS_LFS__
 #  undef _FILE_OFFSET_BITS
 #  undef __USE_FILE_OFFSET64
-# endif
 # include <libc-internal.h>
 #endif
 

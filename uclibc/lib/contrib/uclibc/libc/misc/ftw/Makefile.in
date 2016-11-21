@@ -7,8 +7,7 @@
 
 subdirs += libc/misc/ftw
 
-CSRC-y := ftw.c
-CSRC-$(UCLIBC_HAS_LFS) += ftw64.c
+CSRC-y := ftw.c ftw64.c
 
 MISC_FTW_DIR := $(top_srcdir)libc/misc/ftw
 MISC_FTW_OUT := $(top_builddir)libc/misc/ftw

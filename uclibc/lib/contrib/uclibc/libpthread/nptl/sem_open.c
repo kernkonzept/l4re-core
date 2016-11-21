@@ -42,14 +42,8 @@
 #define __setmntent                    setmntent
 #define __statfs                       statfs
 #define __libc_close                   close
-#ifdef __UCLIBC_HAS_LFS__
-# define __libc_open                    open64
-# define __fxstat64(vers, fd, buf)		fstat64(fd, buf)
-#else
-# define __libc_open                    open
-# define __fxstat64(vers, fd, buf)		fstat(fd, buf)
-# define stat64							stat
-#endif
+#define __libc_open                    open64
+#define __fxstat64(vers, fd, buf)      fstat64(fd, buf)
 #define __libc_write                   write
 
 

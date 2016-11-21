@@ -18,7 +18,7 @@
 
 int FSEEK(register FILE *stream, OFFSET_TYPE offset, int whence)
 {
-#if defined(__UCLIBC_HAS_LFS__) && !defined(__DO_LARGEFILE)
+#if !defined(__DO_LARGEFILE)
 
 	return fseeko64(stream, offset, whence);
 

@@ -16,14 +16,14 @@
 
 int truncate(const char *path, __off_t length)
 {
-# if defined __UCLIBC_HAS_LFS
-	return truncate64(path, length);
-# elif __WORDSIZE == 32
+# if __WORDSIZE == 32
 #  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
 	return INLINE_SYSCALL(truncate64, 4, path, 0, OFF_HI_LO(length));
 #  else
 	return INLINE_SYSCALL(truncate64, 3, path, OFF_HI_LO(length));
 #  endif
+# else
+	return truncate64(path, length);
 # endif
 }
 libc_hidden_def(truncate);

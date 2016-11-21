@@ -12,8 +12,7 @@ CSRC-y := \
 SSRC-y := bsd-_setjmp.S bsd-setjmp.S setjmp.S syscall.S pipe.S syscall_error.S
 
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += cacheflush.c sysmips.c
-CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise.c
-CSRC-$(if $(findstring yy,$(UCLIBC_HAS_LFS)$(UCLIBC_HAS_ADVANCED_REALTIME)),y) += posix_fadvise64.c
+CSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise.c posix_fadvise64.c
 SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += vfork.S clone.S
 SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.S setcontext.S getcontext.S \
 	swapcontext.S

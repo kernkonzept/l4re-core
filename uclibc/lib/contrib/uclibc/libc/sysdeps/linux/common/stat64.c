@@ -11,11 +11,9 @@
 #include <sys/syscall.h>
 #include <sys/stat.h>
 
-#if defined __UCLIBC_HAS_LFS__
-
-# if defined __NR_fstatat64 && !defined __NR_stat64
-# include <fcntl.h>
-# include <unistd.h>
+#if defined __NR_fstatat64 && !defined __NR_stat64
+#include <fcntl.h>
+#include <unistd.h>
 
 int stat64(const char *file_name, struct stat64 *buf)
 {
@@ -42,6 +40,4 @@ int stat64(const char *file_name, struct stat64 *buf)
 	return result;
 }
 libc_hidden_def(stat64)
-# endif
-
-#endif /* __UCLIBC_HAS_LFS__ */
+#endif

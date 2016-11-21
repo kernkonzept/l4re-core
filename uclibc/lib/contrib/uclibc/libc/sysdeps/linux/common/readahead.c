@@ -18,7 +18,7 @@
 
 #include <sys/syscall.h>
 
-#if defined __NR_readahead && defined __UCLIBC_HAS_LFS__ && defined __USE_GNU
+#if defined __NR_readahead && defined __USE_GNU
 
 # include <fcntl.h>
 # include <bits/wordsize.h>

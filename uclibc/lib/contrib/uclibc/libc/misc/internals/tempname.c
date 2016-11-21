@@ -224,11 +224,9 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind, int flags,
 	    case __GT_FILE:
 		fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL | flags, mode);
 		break;
-#if defined __UCLIBC_HAS_LFS__
 	    case __GT_BIGFILE:
 		fd = open64 (tmpl, O_RDWR | O_CREAT | O_EXCL | flags, mode);
 		break;
-#endif
 	    case __GT_DIR:
 		fd = mkdir (tmpl, mode);
 		break;

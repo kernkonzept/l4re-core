@@ -9,7 +9,7 @@ subdirs += libc/misc/glob
 
 VARIANT := $(if $(UCLIBC_HAS_GNU_GLOB),,-susv3)
 CSRC-y := glob$(VARIANT).c
-CSRC-$(UCLIBC_HAS_LFS) += glob64$(VARIANT).c
+CSRC-y += glob64$(VARIANT).c
 
 MISC_GLOB_DIR := $(top_srcdir)libc/misc/glob
 MISC_GLOB_OUT := $(top_builddir)libc/misc/glob

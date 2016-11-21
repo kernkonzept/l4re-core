@@ -370,20 +370,15 @@ __END_DECLS
 #ifdef _LIBC
 #  ifdef NOT_FOR_L4
 extern __ssize_t __getdents(int fd, char *buf, size_t count) attribute_hidden;
+extern __ssize_t __getdents64 (int fd, char *buf, size_t count) attribute_hidden;
 #  else
 #   if __WORDSIZE == 64
 extern __ssize_t __getdents(int fd, char *buf, size_t count);
 #   else
 extern __ssize_t __getdents(int fd, char *buf, size_t count) attribute_hidden;
 #   endif
-#  endif
-# ifdef __UCLIBC_HAS_LFS__
-#  ifdef NOT_FOR_L4
-extern __ssize_t __getdents64 (int fd, char *buf, size_t count) attribute_hidden;
-#  else
 extern __ssize_t __getdents64 (int fd, char *buf, size_t count);
 #  endif
-# endif
 #endif
 
 #endif /* dirent.h  */

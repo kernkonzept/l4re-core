@@ -7,7 +7,7 @@
 #include <sys/syscall.h>
 #include <bits/wordsize.h>
 
-#if !(defined __UCLIBC_HAS_LFS__ && defined __NR_getdents64 && __WORDSIZE == 64)
+#if !(defined __NR_getdents64 && __WORDSIZE == 64)
 
 #include <dirent.h>
 #include <string.h>
@@ -72,7 +72,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 	return retval;
 }
 
-# elif ! defined __UCLIBC_HAS_LFS__ || !defined __NR_getdents64
+# elif !defined __NR_getdents64
 
 #  include <assert.h>
 #  include <stddef.h>
@@ -187,7 +187,7 @@ ssize_t __getdents (int fd, char *buf, size_t nbytes)
 
 # endif
 
-# if defined __UCLIBC_HAS_LFS__ && ! defined __NR_getdents64
+# if ! defined __NR_getdents64
 strong_alias(__getdents,__getdents64)
 # endif
 

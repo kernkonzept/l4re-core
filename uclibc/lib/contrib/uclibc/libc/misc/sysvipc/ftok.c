@@ -18,11 +18,7 @@
 
 #include <sys/ipc.h>
 #include <sys/stat.h>
-#ifdef __UCLIBC_HAS_LFS__
-# include <_lfs_64.h>
-#else
-# define stat64 stat
-#endif
+#include <_lfs_64.h>
 
 key_t ftok (const char *pathname, int proj_id)
 {

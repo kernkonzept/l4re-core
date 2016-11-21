@@ -11,8 +11,8 @@ CSRC   := alphasort.c readdir.c scandir.c versionsort.c
 CSRC_R := readdir_r.c
 CSRC-y := closedir.c dirfd.c opendir.c rewinddir.c seekdir.c telldir.c $(CSRC) \
 		  $(CSRC_R)
-CSRC-$(UCLIBC_HAS_LFS) += $(patsubst %.c,%64.c,$(CSRC))
-CSRC-$(UCLIBC_HAS_LFS) += $(patsubst %_r.c,%64_r.c,$(CSRC_R))
+CSRC-y += $(patsubst %.c,%64.c,$(CSRC))
+CSRC-y += $(patsubst %_r.c,%64_r.c,$(CSRC_R))
 
 MISC_DIRENT_DIR := $(top_srcdir)libc/misc/dirent
 MISC_DIRENT_OUT := $(top_builddir)libc/misc/dirent

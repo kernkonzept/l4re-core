@@ -97,6 +97,6 @@ int __SCANDIR(const char *dir, __DIRENT_TYPE ***namelist,
     *namelist = names;
     return pos;
 }
-#if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+#if __WORDSIZE == 64
 strong_alias_untyped(scandir,scandir64)
 #endif

@@ -202,7 +202,7 @@ long int fpathconf(int fd, int name)
 #endif
 
 	case _PC_ASYNC_IO:
-#if defined _POSIX_ASYNC_IO && defined __UCLIBC_HAS_LFS__
+#if defined _POSIX_ASYNC_IO
 	    {
 		/* AIO is only allowed on regular files and block devices.  */
 		struct stat st;

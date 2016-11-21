@@ -297,11 +297,7 @@ static inline int __CLOSE(FILE *stream)
 	free((S)); } while (0)
 
 
-#ifdef __UCLIBC_HAS_LFS__
 #define __STDIO_WHEN_LFS(E) E
-#else
-#define __STDIO_WHEN_LFS(E) ((void)0)
-#endif
 
 /**********************************************************************/
 /* The following return 0 on success. */

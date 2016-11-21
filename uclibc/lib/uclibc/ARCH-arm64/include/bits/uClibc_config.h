@@ -94,7 +94,6 @@
 #define __UCLIBC_HAS_TLS__ 1
 #define __UCLIBC_HAS_THREADS_NATIVE__ 1
 
-#define __UCLIBC_HAS_LFS__ 1
 #define __UCLIBC_STATIC_LDCONFIG__ 1
 
 /*
@@ -159,7 +158,6 @@
 #else /* The minimal version, w/o threads etc. */
 
 #define __HAS_NO_THREADS__ 1
-#undef __UCLIBC_HAS_LFS__
 #undef __UCLIBC_STATIC_LDCONFIG__
 
 /*

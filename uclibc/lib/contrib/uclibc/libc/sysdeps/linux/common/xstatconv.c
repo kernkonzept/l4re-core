@@ -67,8 +67,6 @@ void __xstat32_conv(struct kernel_stat64 *kbuf, struct stat *buf)
 	buf->st_ctim.tv_nsec = kbuf->st_ctim.tv_nsec;
 }
 
-#ifdef __UCLIBC_HAS_LFS__
-
 void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 {
 	/* Convert to current kernel version of `struct stat64'. */
@@ -93,5 +91,3 @@ void __xstat64_conv(struct kernel_stat64 *kbuf, struct stat64 *buf)
 	buf->st_ctim.tv_sec = kbuf->st_ctim.tv_sec;
 	buf->st_ctim.tv_nsec = kbuf->st_ctim.tv_nsec;
 }
-
-#endif /* __UCLIBC_HAS_LFS__ */

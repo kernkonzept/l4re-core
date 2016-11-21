@@ -36,14 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-#ifdef __UCLIBC_HAS_LFS__
-/* this is wrong, either you include this header as first, or not at all */
-# include <_lfs_64.h>
-#else
-# define stat64 stat
-# define fstat64 fstat
-#endif
+#include <_lfs_64.h>
 
 /* Largest alignment size needed, minus one.
    Usually long double is the worst case.  */

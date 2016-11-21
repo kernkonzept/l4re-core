@@ -13,7 +13,7 @@ CSRC-  := ssp-local.c
 
 CSRC_LFS := $(notdir $(wildcard $(COMMON_DIR)/*64.c))
 CSRC-y := $(filter-out llseek.c $(CSRC_LFS),$(CSRC-y))
-CSRC-$(UCLIBC_HAS_LFS) += llseek.c $(CSRC_LFS)
+CSRC-y += llseek.c $(CSRC_LFS)
 CSRC-$(findstring y,$(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY)) += ssp.c
 CSRC-$(UCLIBC_LINUX_MODULE_26) += delete_module.c init_module.c
 # we need these internally: fstatfs.c statfs.c
@@ -65,8 +65,7 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	uselib.c \
 	vhangup.c \
 	vmsplice.c
-CSRC-$(if $(findstring yy,$(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_LFS)),y) += \
-	sendfile64.c
+CSRC-$(UCLIBC_LINUX_SPECIFIC) += sendfile64.c
 # posix_fallocate() needs __libc_fallocate() from fallocate.c
 # posix_fallocate64() needs __libc_fallocate64() from fallocate64.c
 CSRC-$(if $(UCLIBC_LINUX_SPECIFIC)$(UCLIBC_HAS_ADVANCED_REALTIME),y,) += \

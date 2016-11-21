@@ -232,9 +232,7 @@ make_stub(modify_ldt)
 
 #ifndef __NR_openat
 make_stub(openat)
-# ifdef __UCLIBC_HAS_LFS__
 make_stub(openat64)
-# endif
 #endif
 
 #if !defined __NR_personality && defined __UCLIBC_LINUX_SPECIFIC__
@@ -249,11 +247,11 @@ make_stub(pipe2)
 make_stub(pivot_root)
 #endif
 
-#if !defined __NR_fadvise64 && defined __UCLIBC_HAS_LFS__
+#if !defined __NR_fadvise64
 make_ret_stub(posix_fadvise)
 #endif
 
-#if !defined __NR_fadvise64_64 && defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 32
+#if !defined __NR_fadvise64_64 && __WORDSIZE == 32
 make_ret_stub(posix_fadvise64)
 #endif
 
@@ -322,7 +320,7 @@ make_stub(send)
 make_stub(sendfile)
 #endif
 
-#if !defined __NR_sendfile64 && !defined __NR_sendfile && defined __UCLIBC_LINUX_SPECIFIC__ && defined __UCLIBC_HAS_LFS__
+#if !defined __NR_sendfile64 && !defined __NR_sendfile && defined __UCLIBC_LINUX_SPECIFIC__
 make_stub(sendfile64)
 #endif
 

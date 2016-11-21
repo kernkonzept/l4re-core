@@ -6,9 +6,7 @@
 
 #include <features.h>
 
-#ifdef __UCLIBC_HAS_LFS__
-# define BUILD_GLOB64
-#endif
+#define BUILD_GLOB64
 
 #include <glob.h>
 #include <fnmatch.h>
@@ -39,14 +37,10 @@ extern int __glob_sort(const void *a, const void *b) attribute_hidden;
 extern int __glob_match_in_dir(const char *d, const char *p, int flags, int (*errfunc)(const char *path, int err), struct match **tail) attribute_hidden;
 #endif
 
-#ifdef __UCLIBC_HAS_LFS__
 # define stat stat64
 # define readdir_r readdir64_r
 # define dirent dirent64
 # define struct_stat struct stat64
-#else
-# define struct_stat struct stat
-#endif
 
 /* keep only one copy of these */
 #ifndef __GLOB64

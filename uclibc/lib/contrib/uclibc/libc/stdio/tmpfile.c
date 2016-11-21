@@ -48,6 +48,4 @@ FILE * tmpfile (void)
 
     return f;
 }
-#ifdef __UCLIBC_HAS_LFS__
 strong_alias(tmpfile,tmpfile64)
-#endif

@@ -18,11 +18,7 @@
  * However that requires more #ifndef in relevant wrappers,
  * further uglifying them
  */
-#if defined __UCLIBC_HAS_LFS__
-#define kernel_stat64	stat64
-#else
 #define kernel_stat64	stat
-#endif
 
 #endif	/*  _BITS_STAT_STRUCT_H */
 

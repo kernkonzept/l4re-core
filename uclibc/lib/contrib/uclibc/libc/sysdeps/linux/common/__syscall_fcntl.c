@@ -18,7 +18,7 @@ int __NC(fcntl)(int fd, int cmd, long arg)
 {
 #if __WORDSIZE == 32
 	if (cmd == F_GETLK64 || cmd == F_SETLK64 || cmd == F_SETLKW64) {
-# if (defined __UCLIBC_HAS_LFS__ && defined __NR_fcntl64) || !defined __NR_fcntl
+# if defined __NR_fcntl64 || !defined __NR_fcntl
 		return INLINE_SYSCALL(fcntl64, 3, fd, cmd, arg);
 # else
 		__set_errno(ENOSYS);
@@ -66,7 +66,7 @@ int fcntl(int fd, int cmd, ...)
 }
 lt_strong_alias(fcntl)
 lt_libc_hidden(fcntl)
-#if defined __UCLIBC_HAS_LFS__ && !defined __NR_fcntl64 && __WORDSIZE == 32
+#if !defined __NR_fcntl64 && __WORDSIZE == 32
 strong_alias_untyped(fcntl,fcntl64)
 lt_strong_alias(fcntl64)
 lt_libc_hidden(fcntl64)

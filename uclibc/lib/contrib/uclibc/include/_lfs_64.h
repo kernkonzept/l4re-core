@@ -5,8 +5,6 @@
  */
 #include <features.h>
 
-#ifdef __UCLIBC_HAS_LFS__
-
 #if defined _FILE_OFFSET_BITS && _FILE_OFFSET_BITS != 64
 #undef _FILE_OFFSET_BITS
 #define _FILE_OFFSET_BITS   64
@@ -20,10 +18,4 @@
  * renamed under us or very bad things will happen... */
 #ifdef __USE_FILE_OFFSET64
 # undef __USE_FILE_OFFSET64
-#endif
-
-#else
-
-# error Do not include this header in files not built when LFS is disabled
-
 #endif

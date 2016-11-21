@@ -53,13 +53,8 @@
 #include <sys/stat.h>
 #endif
 
-#ifdef __UCLIBC_HAS_LFS__
 #define STAT stat64
 #define FSTAT fstat64
-#else
-#define STAT stat
-#define FSTAT fstat
-#endif
 
 #if defined __USE_BSD || (defined __USE_XOPEN && !defined __USE_UNIX98)
 

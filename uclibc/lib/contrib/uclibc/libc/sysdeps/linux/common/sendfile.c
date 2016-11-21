@@ -15,7 +15,7 @@
 #if defined __NR_sendfile
 _syscall4(ssize_t, sendfile, int, out_fd, int, in_fd, __off_t *, offset,
 	  size_t, count)
-# if defined __UCLIBC_HAS_LFS__ && (!defined __NR_sendfile64 || __WORDSIZE == 64)
+# if !defined __NR_sendfile64 || __WORDSIZE == 64
 libc_hidden_def(sendfile64)
 strong_alias_untyped(sendfile,sendfile64)
 # endif

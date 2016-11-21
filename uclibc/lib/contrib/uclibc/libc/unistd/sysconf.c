@@ -99,10 +99,6 @@ static int nprocessors_onln(void)
 	return ret != 0 ? ret : 1;
 }
 
-#if defined __UCLIBC__ && !defined __UCLIBC_HAS_LFS__
-# define readdir64 readdir
-# define dirent64 dirent
-#endif
 static int nprocessors_conf(void)
 {
 	int ret = 0;

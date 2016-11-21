@@ -91,7 +91,7 @@ ssize_t __getdents64 (int fd, char *buf, size_t nbytes)
     return (char *) dp - buf;
 }
 
-#if __WORDSIZE == 64 || (defined __UCLIBC_HAS_LFS__ && !defined __NR_getdents)
+#if __WORDSIZE == 64 || !defined __NR_getdents
 /* since getdents doesnt give us d_type but getdents64 does, try and
  * use getdents64 as much as possible */
 strong_alias(__getdents64,__getdents)

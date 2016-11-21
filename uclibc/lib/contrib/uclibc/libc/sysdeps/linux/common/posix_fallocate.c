@@ -22,7 +22,7 @@ int posix_fallocate(int fd, __off_t offset, __off_t len)
 		return errno;
 	return 0;
 }
-# if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
+# if __WORDSIZE == 64
 strong_alias(posix_fallocate,posix_fallocate64)
 # endif
 #endif

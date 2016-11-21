@@ -51,8 +51,7 @@ int stat(const char *file_name, struct stat *buf)
 #endif /* __NR_fstat64 */
 libc_hidden_def(stat)
 
-#if ! defined __NR_stat64 && ! defined __NR_fstatat64 && \
-	defined __UCLIBC_HAS_LFS__
+#if ! defined __NR_stat64 && ! defined __NR_fstatat64
 strong_alias_untyped(stat,stat64)
 libc_hidden_def(stat64)
 #endif

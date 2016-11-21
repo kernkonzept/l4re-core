@@ -13,12 +13,12 @@ MISC_FILE_OUT := $(top_builddir)libc/misc/file
 CSRC-y := $(wildcard $(MISC_FILE_DIR)/*.c)
 CSRC_LFS := $(wildcard $(MISC_FILE_DIR)/*64.c)
 CSRC-y := $(filter-out $(CSRC_LFS),$(CSRC-y))
-CSRC-$(UCLIBC_HAS_LFS) += $(CSRC_LFS)
+CSRC-y += $(CSRC_LFS)
 
 MISC_FILE_OBJ := $(patsubst $(MISC_FILE_DIR)/%.c,$(MISC_FILE_OUT)/%.o,$(CSRC-y))
 libc-y += $(MISC_FILE_OBJ)
 
-libc-nomulti-$(UCLIBC_HAS_LFS) += $(MISC_FILE_OUT)/lockf64.o
+libc-nomulti-y += $(MISC_FILE_OUT)/lockf64.o
 
 objclean-y += CLEAN_libc/misc/file
 
