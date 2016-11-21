@@ -36,10 +36,6 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 	 */
 	struct timespec _ts;
 
-	if (timeout != NULL) {
-		_ts = *timeout;
-		timeout = &_ts;
-	}
 	/* Note: the system call expects 7 values but on most architectures
 	   we can only pass in 6 directly.  If there is an architecture with
 	   support for more parameters a new version of this file needs to
@@ -48,6 +44,11 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 		__kernel_ulong_t ss;
 		__kernel_size_t  ss_len;
 	} data;
+
+	if (timeout != NULL) {
+		_ts = *timeout;
+		timeout = &_ts;
+	}
 
 	if (sigmask != NULL) {
 		data.ss = (__kernel_ulong_t) sigmask;

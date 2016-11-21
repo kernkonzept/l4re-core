@@ -60,10 +60,12 @@
 # define CANCELLABLE_SYSCALL(res_type, name, param_list, params)	\
 res_type weak_function name param_list					\
 {									\
+	int oldtype;							\
+	res_type result;						\
 	if (SINGLE_THREAD_P)						\
 		return __NC(name) params;				\
-	int oldtype = LIBC_CANCEL_ASYNC();				\
-	res_type result = __NC(name) params;				\
+	oldtype = LIBC_CANCEL_ASYNC();					\
+	result = __NC(name) params;					\
 	LIBC_CANCEL_RESET(oldtype);					\
 	return result;							\
 }

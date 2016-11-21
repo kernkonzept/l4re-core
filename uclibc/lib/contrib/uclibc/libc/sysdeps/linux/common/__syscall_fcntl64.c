@@ -23,6 +23,9 @@ int fcntl64(int fd, int cmd, ...)
 {
 	long arg;
 	va_list list;
+# ifdef __NEW_THREADS
+	int oldtype, result;
+# endif
 
 	va_start(list, cmd);
 	arg = va_arg(list, long);
@@ -31,8 +34,8 @@ int fcntl64(int fd, int cmd, ...)
 	if (SINGLE_THREAD_P || (cmd != F_SETLKW64))
 		return __NC(fcntl64)(fd, cmd, arg);
 # ifdef __NEW_THREADS
-	int oldtype = LIBC_CANCEL_ASYNC();
-	int result = __NC(fcntl64)(fd, cmd, arg);
+	oldtype = LIBC_CANCEL_ASYNC();
+	result = __NC(fcntl64)(fd, cmd, arg);
 	LIBC_CANCEL_RESET(oldtype);
 	return result;
 # endif

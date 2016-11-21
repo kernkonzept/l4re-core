@@ -20,6 +20,9 @@ int ioctl(int fd, unsigned long int request, ...)
 {
 	void *arg;
 	va_list list;
+#ifdef __NEW_THREADS
+	int oldtype, result;
+#endif
 
 	va_start(list, request);
 	arg = va_arg(list, void *);
@@ -28,8 +31,8 @@ int ioctl(int fd, unsigned long int request, ...)
 	if (SINGLE_THREAD_P)
 		return __syscall_ioctl(fd, request, arg);
 #ifdef __NEW_THREADS
-	int oldtype = LIBC_CANCEL_ASYNC ();
-	int result = __syscall_ioctl(fd, request, arg);
+	oldtype = LIBC_CANCEL_ASYNC ();
+	result = __syscall_ioctl(fd, request, arg);
 	LIBC_CANCEL_RESET (oldtype);
 	return result;
 #endif

@@ -32,12 +32,13 @@ static size_t __kernel_cpumask_size;
 int sched_setaffinity(pid_t pid, size_t cpusetsize, const cpu_set_t *cpuset)
 {
 	size_t cnt;
-	if (unlikely (__kernel_cpumask_size == 0)) {
-		INTERNAL_SYSCALL_DECL (err);
-		int res;
-		size_t psize = 128;
-		void *p = alloca (psize);
+	int res;
+	size_t psize = 128;
+	void *p = alloca (psize);
 
+	if (unlikely (__kernel_cpumask_size == 0)) {
+
+		INTERNAL_SYSCALL_DECL (err);
 		while (res = INTERNAL_SYSCALL (sched_getaffinity, err, 3, getpid (),
 					       psize, p),
 		       INTERNAL_SYSCALL_ERROR_P (res, err)

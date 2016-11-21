@@ -28,6 +28,9 @@ int __open_nocancel(const char *, int, mode_t) __nonnull ((1)) attribute_hidden;
 int open(const char *file, int oflag, ...)
 {
 	mode_t mode = 0;
+#ifdef __NEW_THREADS
+	int oldtype, result;
+#endif
 
 	if (oflag & O_CREAT) {
 		va_list arg;
@@ -44,11 +47,11 @@ int open(const char *file, int oflag, ...)
 #endif
 
 #ifdef __NEW_THREADS
-	int oldtype = LIBC_CANCEL_ASYNC ();
+	oldtype = LIBC_CANCEL_ASYNC ();
 # if defined(__NR_open)
-	int result = __NC(open)(file, oflag, mode);
+	result = __NC(open)(file, oflag, mode);
 # else
-	int result = openat(AT_FDCWD, file, oflag, mode);
+	result = openat(AT_FDCWD, file, oflag, mode);
 # endif
 	LIBC_CANCEL_RESET (oldtype);
 	return result;

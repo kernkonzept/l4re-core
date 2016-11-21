@@ -39,6 +39,9 @@ int fcntl(int fd, int cmd, ...)
 {
 	va_list ap;
 	long arg;
+#ifdef __NEW_THREADS
+	int oldtype, result;
+#endif
 
 	va_start (ap, cmd);
 	arg = va_arg (ap, long);
@@ -51,11 +54,11 @@ int fcntl(int fd, int cmd, ...)
 		return INLINE_SYSCALL(fcntl64, 3, fd, cmd, arg);
 #endif
 #ifdef __NEW_THREADS
-	int oldtype = LIBC_CANCEL_ASYNC ();
+	oldtype = LIBC_CANCEL_ASYNC ();
 #if defined __NR_fcntl
-	int result = __NC(fcntl)(fd, cmd, arg);
+	result = __NC(fcntl)(fd, cmd, arg);
 #else
-	int result = INLINE_SYSCALL(fcntl64, 3, fd, cmd, arg);
+	result = INLINE_SYSCALL(fcntl64, 3, fd, cmd, arg);
 #endif
 	LIBC_CANCEL_RESET (oldtype);
 	return result;

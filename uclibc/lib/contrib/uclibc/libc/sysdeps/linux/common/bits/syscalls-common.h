@@ -42,10 +42,11 @@
 # define INLINE_SYSCALL_NCS(num, nr, args...)				\
 (__extension__								\
  ({									\
+	long __res;							\
 	INTERNAL_SYSCALL_DECL(__err);					\
 	(__extension__							\
 	 ({								\
-	   long __res = INTERNAL_SYSCALL_NCS(num, __err, nr, args);	\
+	   __res = INTERNAL_SYSCALL_NCS(num, __err, nr, args);		\
 	   if (unlikely(INTERNAL_SYSCALL_ERROR_P(__res, __err))) {	\
 		__set_errno(INTERNAL_SYSCALL_ERRNO(__res, __err));	\
 		__res = -1L;						\
@@ -59,8 +60,9 @@
 #ifndef INLINE_SYSCALL_NOERR_NCS
 # define INLINE_SYSCALL_NOERR_NCS(num, nr, args...)			\
 ({									\
+	long __res;							\
 	INTERNAL_SYSCALL_DECL(__err);					\
-	long __res = INTERNAL_SYSCALL_NCS(num, __err, nr, args);	\
+	__res = INTERNAL_SYSCALL_NCS(num, __err, nr, args);		\
 	__res;								\
 })
 #endif
