@@ -93,4 +93,5 @@ memalign (size_t alignment, size_t size)
 
   return MALLOC_SETUP (base, end_addr - (unsigned long)base);
 }
+weak_alias(memalign, aligned_alloc)
 libc_hidden_def(memalign)

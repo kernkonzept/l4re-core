@@ -127,4 +127,5 @@ void* memalign(size_t alignment, size_t bytes)
     __MALLOC_UNLOCK;
 	return retval;
 }
+weak_alias(memalign, aligned_alloc)
 libc_hidden_def(memalign)
