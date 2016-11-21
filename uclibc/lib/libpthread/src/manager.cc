@@ -357,7 +357,8 @@ static int pthread_l4_free_stack(void *stack_addr, void *guardaddr)
   if (err < 0)
     return err;
 
-  L4Re::Util::cap_alloc.free(ds);
+  if (err == L4Re::Rm::Detached_ds)
+    L4Re::Util::cap_alloc.free(ds, L4Re::This_task);
 
   return e->rm()->free_area((l4_addr_t)guardaddr);
 }
@@ -475,7 +476,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 
       if (err < 0)
 	{
-	  L4Re::Util::cap_alloc.free(ds);
+	  L4Re::Util::cap_alloc.free(ds, L4Re::This_task);
 	  e->rm()->free_area(l4_addr_t(map_addr));
 	  return -1;
 	}
