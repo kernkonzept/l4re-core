@@ -454,6 +454,24 @@ static ptrdiff_t _dl_build_local_scope (struct elf_resolve **list,
 	return p - list;
 }
 
+#ifndef __NOT_FOR_L4__
+/*
+ * This function is extracted from _dl_get_ready_to_run below
+ * so we can call it before running the init function of ldso
+ */
+void _dl_setup_malloc(ElfW(auxv_t) auxvt[AT_EGID + 1])
+{
+	/* Store the page size for later use */
+	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+	/* Make it so _dl_malloc can use the page of memory we have already
+	 * allocated.  We shouldn't need to grab any more memory.  This must
+	 * be first since things like _dl_dprintf() use _dl_malloc()...
+	 */
+	_dl_malloc_addr = (unsigned char *)_dl_pagesize;
+	_dl_mmap_zero = 0;
+}
+#endif
+
 void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
 			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
@@ -487,6 +505,9 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 
 	_dl_memset(app_tpnt, 0, sizeof(*app_tpnt));
 
+#ifdef __NOT_FOR_L4__
+	/* This code is moved to the function _dl_setup_malloc, so we can call
+	 * it before running the init functions of ldso */
 	/* Store the page size for later use */
 	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 	/* Make it so _dl_malloc can use the page of memory we have already
@@ -495,6 +516,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 */
 	_dl_malloc_addr = (unsigned char *)_dl_pagesize;
 	_dl_mmap_zero = 0;
+#endif
 
 	/* Wahoo!!! */
 	_dl_debug_early("Cool, ldso survived making function calls\n");

@@ -380,6 +380,8 @@ DL_START(unsigned long args)
 	__rtld_stack_end = (void *)(argv - 1);
 
 #ifndef __ONLY_FOR_L4__
+	_dl_setup_malloc(auxvt);
+
 	{
 		__rtld_l4re_global_env = l4re_env;
 		ElfW(Dyn) *dpnt = tpnt->dynamic_addr;
