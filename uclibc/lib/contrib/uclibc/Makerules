@@ -41,7 +41,6 @@ $(eval $(call add_IS_IN_lib,libcrypt,$(libcrypt-a-y) $(libcrypt-so-y)))
 $(eval $(call add_IS_IN_lib,libdl,$(libdl-a-y) $(libdl-so-y)))
 $(eval $(call add_IS_IN_lib,libintl,$(libintl-a-y) $(libintl-so-y)))
 $(eval $(call add_IS_IN_lib,libm,$(libm-a-y) $(libm-so-y)))
-$(eval $(call add_IS_IN_lib,libnsl,$(libnsl-a-y) $(libnsl-so-y)))
 $(eval $(call add_IS_IN_lib,libpthread/$(PTNAME),$(libpthread-a-y) $(libpthread-so-y) $(libpthread-nonshared-y)))
 $(eval $(call add_IS_IN_lib,libpthread/$(PTNAME)_db,$(libthread_db-a-y) $(libthread_db-so-y)))
 $(eval $(call add_IS_IN_lib,libresolv,$(libresolv-a-y) $(libresolv-so-y)))
@@ -52,14 +51,14 @@ $(eval $(call add_IS_IN_lib,libuargp,$(libuargp-a-y) $(libuargp-so-y)))
 
 shared_objs = $(libc-y:.o=.os) $(libc-shared-y) $(libc-nonshared-y) \
 	$(libcrypt-so-y) $(libdl-so-y) \
-	$(libintl-so-y) $(libm-so-y) $(libnsl-so-y) \
+	$(libintl-so-y) $(libm-so-y) \
 	$(libpthread-so-y) $(libpthread-nonshared-y) $(libthread_db-so-y) \
 	$(libresolv-so-y) $(librt-so-y) \
 	$(ldso-y) \
 	$(libutil-so-y) $(libubacktrace-so-y) $(libuargp-so-y)
 
 ar_objs =  $(libc-y) $(libc-static-y) $(libcrypt-a-y) \
-	$(libdl-a-y) $(libintl-a-y) $(libm-a-y) $(libnsl-a-y) \
+	$(libdl-a-y) $(libintl-a-y) $(libm-a-y) \
 	$(libpthread-a-y) $(libthread_db-a-y) \
 	$(libresolv-a-y) $(librt-a-y) $(libutil-a-y) $(libubacktrace-a-y) $(libuargp-a-y)
 ifeq ($(DOPIC),y)
@@ -485,7 +484,7 @@ files.dep := $(libc-a-y) $(libc-so-y) $(libc-nonshared-y) \
 	$(PTHREAD_INITFINI:.c=.s) \
 	$(librt-a-y) $(librt-so-y)  $(libresolv-a-y) $(libresolv-so-y) \
 	$(libcrypt-a-y) $(libcrypt-so-y) $(libutil-a-y) $(libutil-so-y) \
-	$(libnsl-a-y) $(libnsl-so-y) $(ldso-y) $(libdl-a-y) $(libdl-so-y) \
+	$(ldso-y) $(libdl-a-y) $(libdl-so-y) \
 	$(libubacktrace-a-y) $(libubacktrace-so-y) $(libuargp-so-y) $(libuargp-a-y)
 .depends.dep := \
 	$(patsubst %.s,%.s.dep,$(filter %.s,$(files.dep))) \

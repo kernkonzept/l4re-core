@@ -1386,11 +1386,6 @@ config UCLIBC_HAS_LIBRESOLV_STUB
 	help
 	  Provide a dummy resolv library.
 
-config UCLIBC_HAS_LIBNSL_STUB
-	bool "Provide libnsl stub"
-	help
-	  Provide a dummy nsl library.
-
 endif
 
 

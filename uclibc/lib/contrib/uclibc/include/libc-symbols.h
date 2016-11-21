@@ -627,24 +627,6 @@ FIXME! - ?
 # define libintl_hidden_data_ver(local, name)
 #endif
 
-#if defined NOT_IN_libc && defined IS_IN_libnsl
-# define libnsl_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
-# define libnsl_hidden_def(name) hidden_def (name)
-# define libnsl_hidden_weak(name) hidden_weak (name)
-# define libnsl_hidden_ver(local, name) hidden_ver (local, name)
-# define libnsl_hidden_data_def(name) hidden_data_def (name)
-# define libnsl_hidden_data_weak(name) hidden_data_weak (name)
-# define libnsl_hidden_data_ver(local, name) hidden_data_ver (local, name)
-#else
-# define libnsl_hidden_proto(name, attrs...)
-# define libnsl_hidden_def(name)
-# define libnsl_hidden_weak(name)
-# define libnsl_hidden_ver(local, name)
-# define libnsl_hidden_data_def(name)
-# define libnsl_hidden_data_weak(name)
-# define libnsl_hidden_data_ver(local, name)
-#endif
-
 #if defined NOT_IN_libc && defined IS_IN_libutil
 # define libutil_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
 # define libutil_hidden_def(name) hidden_def (name)

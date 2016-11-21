@@ -44,7 +44,6 @@ endif
 
 libc-a-$(HAVE_SHARED) += $(libdl-a-y)
 libc-a-$(DO_C99_MATH) += $(libm-a-y)
-libc-a-$(UCLIBC_HAS_LIBNSL_STUB) += $(libnsl-a-y)
 libc-a-$(UCLIBC_HAS_LIBRESOLV_STUB) += $(libresolv-a-y)
 libc-a-$(UCLIBC_HAS_LIBUTIL) += $(libutil-a-y)
 libc-a-$(UCLIBC_HAS_CRYPT) += $(libcrypt-a-y)
@@ -58,7 +57,6 @@ libc-so-y = $(libc-y:.o=.os) $(libc-shared-y)
 
 libc-so-y += $(libdl-so-y)
 libc-so-$(DO_C99_MATH) += $(libm-so-y)
-libc-so-$(UCLIBC_HAS_LIBNSL_STUB) += $(libnsl-so-y)
 libc-so-$(UCLIBC_HAS_LIBRESOLV_STUB) += $(libresolv-so-y)
 libc-so-$(UCLIBC_HAS_LIBUTIL) += $(libutil-so-y)
 libc-so-$(UCLIBC_HAS_CRYPT) += $(libcrypt-so-y)
