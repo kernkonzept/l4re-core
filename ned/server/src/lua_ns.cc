@@ -117,10 +117,11 @@ __register(lua_State *l)
            key, n ? n->cap<void>().cap() : ~0UL, ns->cap<void>().cap());
 
   int r;
+  L4::Cap<void> cap = n ? n->cap<void>().get() : L4::Cap<void>::Invalid;
+  unsigned rights = n ? n->rights() : L4_CAP_FPAGE_RO;
   r = ns->cap<L4Re::Namespace>()
-        ->register_obj(key,
-                       n ? n->cap<void>().get() : L4::Cap<void>::Invalid,
-                       L4Re::Namespace::Overwrite | (n ? n->rights() : 0x0f));
+        ->register_obj(key, L4::Ipc::make_cap(cap, rights),
+                       L4Re::Namespace::Overwrite | rights);
   if (r < 0)
     luaL_error(l, "runtime error %s (%d)", l4sys_errtostr(r), r);
 
