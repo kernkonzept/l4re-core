@@ -100,9 +100,14 @@ l4re_ma_alloc_align(long size, l4re_ds_t const mem,
  *
  * \see L4Re::Mem_alloc::free
  * \note This function is using the L4Re::Env::env()->mem_alloc() service.
+ * \deprecated This function is deprecated. Use l4_task_unmap() or similar means
+ *             to remove a dataspace.
  */
+/* Deprecation message added Q4 2016.
+ * Remove together with L4Re::Mem_alloc::free() */
 L4_CV L4_INLINE long
-l4re_ma_free(l4re_ds_t const mem) L4_NOTHROW;
+l4re_ma_free(l4re_ds_t const mem) L4_NOTHROW
+L4_DEPRECATED("This function is an empty stub and remains for backward compatibility only. See documentation for replacement options.");
 
 
 
@@ -139,15 +144,24 @@ l4re_ma_alloc_align_srv(l4_cap_idx_t srv, long size,
  * \return 0 on success, <0 on error
  *
  * \see L4Re::Mem_alloc::free
+ * \deprecated This function is deprecated. Use l4_task_unmap() or similar means
+ *             to remove a dataspace.
  */
+/* Deprecation message added Q4 2016.
+ * Remove together with L4Re::Mem_alloc::free() */
 L4_CV long
-l4re_ma_free_srv(l4_cap_idx_t srv, l4re_ds_t const mem) L4_NOTHROW;
+l4re_ma_free_srv(l4_cap_idx_t srv, l4re_ds_t const mem) L4_NOTHROW
+L4_DEPRECATED("This function is an empty stub and remains for backward compatibility only. See documentation for replacement options.");
 
 
 
 
 
 /***************** Implementation *****************/
+
+/* Just warn actual users, but not for internal implementations */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
 L4_CV L4_INLINE long
 l4re_ma_alloc(long size, l4re_ds_t const mem,
@@ -170,5 +184,7 @@ l4re_ma_free(l4re_ds_t const mem) L4_NOTHROW
 {
   return l4re_ma_free_srv(l4re_global_env->mem_alloc, mem);
 }
+
+#pragma GCC diagnostic pop
 
 EXTERN_C_END

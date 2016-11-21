@@ -35,6 +35,9 @@ l4re_ma_alloc_align_srv(l4_cap_idx_t srv, long size,
   return x->alloc(size, ds, flags, align);
 }
 
+/* Avoid warnings here for internals... */
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
 long
 l4re_ma_free_srv(l4_cap_idx_t srv, l4re_ds_t const mem) L4_NOTHROW
 {
