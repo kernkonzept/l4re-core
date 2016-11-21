@@ -221,11 +221,14 @@ __pthread_manager(void *arg)
                   auto th = request.req_thread;
                   /* Thread still waiting to be joined. Only release
                      L4 resources for now. */
-                  using L4Re::Util::Auto_cap;
-                  Auto_cap<void>::Cap s = L4::Cap<void>(th->p_thsem_cap);
-                  th->p_thsem_cap = L4_INVALID_CAP;
-                  Auto_cap<void>::Cap t = L4::Cap<void>(th->p_th_cap);
-                  th->p_th_cap = L4_INVALID_CAP;
+                  // Keep the cap slot allocated and let pthread_free() do the
+                  // final cleanup. This way, we can safely check the
+                  // thread cap index for kernel object presence until
+                  // pthread_join/detach() was called.
+                  L4Re::Env::env()->task()->delete_obj(
+                    L4::Cap<void>(th->p_thsem_cap));
+                  L4Re::Env::env()->task()->delete_obj(
+                    L4::Cap<void>(th->p_th_cap));
                 }
             }
           break;
