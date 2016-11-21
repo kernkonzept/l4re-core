@@ -83,26 +83,29 @@
 # define MREMAP_FIXED	2
 #endif
 
+/* only define for MMU targets, no-MMU does not support madvise.  */
+#ifdef __ARCH_USE_MMU__
 /* Advice to `madvise'.  */
-#ifdef __USE_BSD
-# define MADV_NORMAL	  0	/* No further special treatment.  */
-# define MADV_RANDOM	  1	/* Expect random page references.  */
-# define MADV_SEQUENTIAL  2	/* Expect sequential page references.  */
-# define MADV_WILLNEED	  3	/* Will need these pages.  */
-# define MADV_DONTNEED	  4	/* Don't need these pages.  */
-# define MADV_REMOVE	  9	/* Remove these pages and resources.  */
-# define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
-# define MADV_DOFORK	  11	/* Do inherit across fork.  */
-# define MADV_MERGEABLE	  12	/* KSM may merge identical pages.  */
-# define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
-# define MADV_HWPOISON	  100	/* Poison a page for testing.  */
-#endif
+# ifdef __USE_BSD
+#  define MADV_NORMAL	  0	/* No further special treatment.  */
+#  define MADV_RANDOM	  1	/* Expect random page references.  */
+#  define MADV_SEQUENTIAL 2	/* Expect sequential page references.  */
+#  define MADV_WILLNEED	  3	/* Will need these pages.  */
+#  define MADV_DONTNEED	  4	/* Don't need these pages.  */
+#  define MADV_REMOVE	  9	/* Remove these pages and resources.  */
+#  define MADV_DONTFORK	  10	/* Do not inherit across fork.  */
+#  define MADV_DOFORK	  11	/* Do inherit across fork.  */
+#  define MADV_MERGEABLE  12	/* KSM may merge identical pages.  */
+#  define MADV_UNMERGEABLE 13	/* KSM may not merge identical pages.  */
+#  define MADV_HWPOISON	  100	/* Poison a page for testing.  */
+# endif
 
 /* The POSIX people had to invent similar names for the same things.  */
-#ifdef __USE_XOPEN2K
-# define POSIX_MADV_NORMAL	0 /* No further special treatment.  */
-# define POSIX_MADV_RANDOM	1 /* Expect random page references.  */
-# define POSIX_MADV_SEQUENTIAL	2 /* Expect sequential page references.  */
-# define POSIX_MADV_WILLNEED	3 /* Will need these pages.  */
-# define POSIX_MADV_DONTNEED	4 /* Don't need these pages.  */
+# ifdef __USE_XOPEN2K
+#  define POSIX_MADV_NORMAL	0 /* No further special treatment.  */
+#  define POSIX_MADV_RANDOM	1 /* Expect random page references.  */
+#  define POSIX_MADV_SEQUENTIAL	2 /* Expect sequential page references.  */
+#  define POSIX_MADV_WILLNEED	3 /* Will need these pages.  */
+#  define POSIX_MADV_DONTNEED	4 /* Don't need these pages.  */
+# endif
 #endif
