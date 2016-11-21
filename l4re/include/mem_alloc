@@ -109,12 +109,12 @@ public:
    *
    * \deprecated This function is an empty stub which remains here
    *             for backward compatibility only.
-   *             Use `L4::Task::unmap(mem, L4_FP_DELETE_OBJ)` to remove
-   *             a dataspace.
+   *             Use `L4::Task::unmap(mem, L4_FP_DELETE_OBJ)` or other
+   *             similar means to remove a dataspace.
    */
   /* Deprecation message added Q4 2016 */
   long free(L4::Cap<Dataspace> mem) const throw()
-  L4_DEPRECATED("This function is an empty stub and remains for backward compatibility only. Use L4::Task::unmap.");
+  L4_DEPRECATED("This function is an empty stub and remains for backward compatibility only. Check documentation for details.");
 
 };
 
