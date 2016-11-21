@@ -1,0 +1,78 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/*
+ * Copyright (C) 2016 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include <l4/sys/cxx/ipc_epiface>
+#include <l4/sys/cxx/ipc_string>
+
+namespace L4Re { namespace Ned {
+
+/**
+ * Direct control interface for Ned.
+ */
+class Cmd_control : public L4::Kobject_0t<Cmd_control>
+{
+  L4_INLINE_RPC_NF(long, execute, (L4::Ipc::String<> cmd,
+                                   L4::Ipc::Array<char> &result));
+
+public:
+  /**
+   * Execute the given Lua code.
+   *
+   * \param[in]  cmd     String with Lua code to execute.
+   *
+   * \retval L4_EOK      Code was successfully executed.
+   * \retval -L4_EINVAL  Code could not be parsed.
+   * \retval -L4_EIO     Error during code execution.
+   *
+   * The code is executed using the global Lua state of ned
+   * which is retained between successive calls to execute.
+   * Thus you may define data in one call to execute and use
+   * it in a subsequent call.
+   *
+   * This function does not return any results from the execution
+   * of the Lua code itself.
+   */
+  long execute(L4::Ipc::String<> cmd) noexcept
+  {
+    L4::Ipc::Array<char> res(0, NULL);
+    return execute_t::call(c(), cmd, res);
+  }
+
+  /**
+   * Execute the given Lua code.
+   *
+   * \param[in]  cmd     String with Lua code to execute.
+   * \param[out] result  The first return value of the Lua code block
+   *                     as string.
+   *
+   * \retval L4_EOK      Code was successfully executed.
+   * \retval -L4_EINVAL  Code could not be parsed.
+   * \retval -L4_EIO     Error during code execution.
+   *
+   * The code is executed using the global Lua state of ned
+   * which is retained between successive calls to execute.
+   * Thus you may define data in one call to execute and use
+   * it in a subsequent call.
+   */
+  long execute(L4::Ipc::String<> cmd,
+               L4::Ipc::String<char> *result) noexcept
+  {
+    L4::Ipc::Array<char> res(result->length, result->data);
+    long r = execute_t::call(c(), cmd, res);
+    if (r >= 0)
+      result->length = res.length;
+    return r;
+  }
+
+  typedef L4::Typeid::Rpcs<execute_t> Rpcs;
+};
+
+} } // namespace

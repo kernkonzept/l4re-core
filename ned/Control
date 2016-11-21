@@ -1,2 +1,3 @@
 requires: stdlibs libc libsupc++ libloader l4re-util lua++
+provides: ned
 maintainer: warg@os.inf.tu-dresden.de

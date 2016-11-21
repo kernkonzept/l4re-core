@@ -1,3 +1,3 @@
-requires: stdlibs libstdc++ libpthread
+requires: stdlibs libstdc++ libpthread ned
 optional: atkins
 Maintainer: sarah.hoffmann@kernkonzept.com

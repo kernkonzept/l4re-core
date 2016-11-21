@@ -145,7 +145,7 @@ The main elements of the initial object table are:
 
 Ned's command line syntax is:
 
-    [--interactive|-i] [--noexit] [--execute|-e STATEMENT] <lua script> [options passed to lua script]
+    [--interactive|-i] [--cmdcap|-c CAP] [--noexit] [--execute|-e STATEMENT] <lua script> [options passed to lua script]
 
 Ned interprets the first non-option argument `<lua script>` as the Lua script
 which it should load and run. All arguments following the first non-option
@@ -154,7 +154,18 @@ table.
 
 - Interactive Option: **interactive**, **i**
 
-  Start ned in interactive mode
+  Start ned in interactive mode. After running the initial lua script,
+  ned will present a prompt, where Lua statements can be typed in interactively.
+
+  Must not be used together with server mode (-c).
+
+- Command Capability Option: **cmdcap**, **c**
+
+  Start ned in server mode. After running the initial Lua script, ned will
+  accept Lua statements via IPC on the given capability
+  (see L4Re::Ned::Cmd_control).
+
+  Must not be used together with interactive mode (-i).
 
 - No exit Option: **noexit**
 
