@@ -1,7 +1,7 @@
 /**
  * \internal
  * \file
- * \brief AMd64 virtualization interface.
+ * \brief AMD64 virtualization interface.
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>
