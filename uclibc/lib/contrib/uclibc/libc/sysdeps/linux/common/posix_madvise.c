@@ -4,6 +4,7 @@
 #include <sys/mman.h>
 #include <sys/syscall.h>
 
+#ifdef __ARCH_USE_MMU__
 #if defined __NR_madvise && defined __USE_XOPEN2K && defined __UCLIBC_HAS_ADVANCED_REALTIME__
 int posix_madvise(void *addr, size_t len, int advice)
 {
@@ -22,4 +23,5 @@ int posix_madvise(void *addr, size_t len, int advice)
 	result = INTERNAL_SYSCALL (madvise, err, 3, addr, len, advice);
 	return INTERNAL_SYSCALL_ERRNO (result, err);
 }
+#endif
 #endif
