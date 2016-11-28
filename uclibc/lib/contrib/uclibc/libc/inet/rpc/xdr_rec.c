@@ -154,7 +154,7 @@ xdrrec_create (XDR *xdrs, u_int sendsize,
 
   if (rstrm == NULL || buf == NULL)
     {
-      (void) fputs (_("xdrrec_create: out of memory\n"), stderr);
+      (void) fputs ("xdrrec_create: out of memory\n", stderr);
       mem_free (rstrm, sizeof (RECSTREAM));
       mem_free (buf, sendsize + recvsize + BYTES_PER_XDR_UNIT);
       /*

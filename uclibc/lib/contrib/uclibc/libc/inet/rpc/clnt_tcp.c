@@ -122,7 +122,7 @@ clnttcp_create (struct sockaddr_in *raddr, u_long prog, u_long vers,
   if (h == NULL || ct == NULL)
     {
       struct rpc_createerr *ce = &get_rpc_createerr ();
-      (void) fputs (_("clnttcp_create: out of memory\n"), stderr);
+      (void) fputs ("clnttcp_create: out of memory\n", stderr);
       ce->cf_stat = RPC_SYSTEMERROR;
       ce->cf_error.re_errno = ENOMEM;
       goto fooy;

@@ -146,7 +146,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
     {
       if ((sock = socket (AF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
 	{
-	  perror (_("svc_tcp.c - tcp socket creation problem"));
+	  perror ("svc_tcp.c - tcp socket creation problem");
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
@@ -161,7 +161,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
   if ((getsockname (sock, (struct sockaddr *) &addr, &len) != 0) ||
       (listen (sock, 2) != 0))
     {
-      perror (_("svc_tcp.c - cannot getsockname or listen"));
+      perror ("svc_tcp.c - cannot getsockname or listen");
       if (madesock)
 	(void) close (sock);
       return (SVCXPRT *) NULL;
@@ -170,7 +170,7 @@ svctcp_create (int sock, u_int sendsize, u_int recvsize)
   xprt = (SVCXPRT *) mem_alloc (sizeof (SVCXPRT));
   if (r == NULL || xprt == NULL)
     {
-      (void) fputs (_("svctcp_create: out of memory\n"), stderr);
+      (void) fputs ("svctcp_create: out of memory\n", stderr);
       mem_free (r, sizeof (*r));
       mem_free (xprt, sizeof (SVCXPRT));
       return NULL;
@@ -210,7 +210,7 @@ makefd_xprt (int fd, u_int sendsize, u_int recvsize)
   cd = (struct tcp_conn *) mem_alloc (sizeof (struct tcp_conn));
   if (xprt == (SVCXPRT *) NULL || cd == NULL)
     {
-      (void) fputs (_("svc_tcp: makefd_xprt: out of memory\n"), stderr);
+      (void) fputs ("svc_tcp: makefd_xprt: out of memory\n", stderr);
       mem_free (xprt, sizeof (SVCXPRT));
       mem_free (cd, sizeof (struct tcp_conn));
       return NULL;

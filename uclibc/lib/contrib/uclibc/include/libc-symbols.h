@@ -591,24 +591,6 @@ FIXME! - ?
 # define libdl_hidden_data_ver(local, name)
 #endif
 
-#if defined NOT_IN_libc && defined IS_IN_libintl
-# define libintl_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
-# define libintl_hidden_def(name) hidden_def (name)
-# define libintl_hidden_weak(name) hidden_weak (name)
-# define libintl_hidden_ver(local, name) hidden_ver (local, name)
-# define libintl_hidden_data_def(name) hidden_data_def (name)
-# define libintl_hidden_data_weak(name) hidden_data_weak (name)
-# define libintl_hidden_data_ver(local, name) hidden_data_ver(local, name)
-#else
-# define libintl_hidden_proto(name, attrs...)
-# define libintl_hidden_def(name)
-# define libintl_hidden_weak(name)
-# define libintl_hidden_ver(local, name)
-# define libintl_hidden_data_def(name)
-# define libintl_hidden_data_weak(name)
-# define libintl_hidden_data_ver(local, name)
-#endif
-
 #if defined NOT_IN_libc && defined IS_IN_libutil
 # define libutil_hidden_proto(name, attrs...) hidden_proto (name, ##attrs)
 # define libutil_hidden_def(name) hidden_def (name)

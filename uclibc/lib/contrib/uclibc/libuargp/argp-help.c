@@ -57,17 +57,7 @@ char *alloca ();
 
 #include <features.h>
 #ifndef _
-/* This is for other GNU distributions with internationalized messages.  */
-# if (defined HAVE_LIBINTL_H || defined _LIBC) && defined __UCLIBC_HAS_GETTEXT_AWARENESS__
-#  include <libintl.h>
-#  ifdef _LIBC
-#   undef dgettext
-#   define dgettext(domain, msgid) \
-  INTUSE(__dcgettext) (domain, msgid, LC_MESSAGES)
-#  endif
-# else
-#  define dgettext(domain, msgid) (msgid)
-# endif
+# define dgettext(domain, msgid) (msgid)
 #endif
 
 #ifndef _LIBC

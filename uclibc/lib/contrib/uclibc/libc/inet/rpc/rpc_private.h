@@ -1,7 +1,6 @@
 #ifndef _RPC_PRIVATE_H
 #define _RPC_PRIVATE_H
 #include <rpc/rpc.h>
-#include <libintl.h>
 
 /* Now define the internal interfaces.  */
 extern u_long _create_xid (void) attribute_hidden;

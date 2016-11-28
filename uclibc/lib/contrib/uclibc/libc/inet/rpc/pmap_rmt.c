@@ -176,7 +176,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
   ifc.ifc_buf = buf;
   if (ioctl (sock, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      perror (_("broadcast: ioctl (get interface configuration)"));
+      perror ("broadcast: ioctl (get interface configuration)");
       return (0);
     }
   ifr = ifc.ifc_req;
@@ -185,7 +185,7 @@ getbroadcastnets (struct in_addr *addrs, int sock, char *buf)
       ifreq = *ifr;
       if (ioctl (sock, SIOCGIFFLAGS, (char *) &ifreq) < 0)
 	{
-	  perror (_("broadcast: ioctl (get interface flags)"));
+	  perror ("broadcast: ioctl (get interface flags)");
 	  continue;
 	}
       if ((ifreq.ifr_flags & IFF_BROADCAST) &&
@@ -255,14 +255,14 @@ clnt_broadcast (
    */
   if ((sock = socket (AF_INET, SOCK_DGRAM, IPPROTO_UDP)) < 0)
     {
-      perror (_("Cannot create socket for broadcast rpc"));
+      perror ("Cannot create socket for broadcast rpc");
       stat = RPC_CANTSEND;
       goto done_broad;
     }
 #ifdef SO_BROADCAST
   if (setsockopt (sock, SOL_SOCKET, SO_BROADCAST, &on, sizeof (on)) < 0)
     {
-      perror (_("Cannot set socket option SO_BROADCAST"));
+      perror ("Cannot set socket option SO_BROADCAST");
       stat = RPC_CANTSEND;
       goto done_broad;
     }
@@ -313,7 +313,7 @@ clnt_broadcast (
 		      (struct sockaddr *) &baddr,
 		      sizeof (struct sockaddr)) != outlen)
 	    {
-	      perror (_("Cannot send broadcast packet"));
+	      perror ("Cannot send broadcast packet");
 	      stat = RPC_CANTSEND;
 	      goto done_broad;
 	    }
@@ -338,7 +338,7 @@ clnt_broadcast (
 	case -1:		/* some kind of error */
 	  if (errno == EINTR)
 	    goto recv_again;
-	  perror (_("Broadcast poll problem"));
+	  perror ("Broadcast poll problem");
 	  stat = RPC_CANTRECV;
 	  goto done_broad;
 
@@ -351,7 +351,7 @@ clnt_broadcast (
 	{
 	  if (errno == EINTR)
 	    goto try_again;
-	  perror (_("Cannot receive reply to broadcast"));
+	  perror ("Cannot receive reply to broadcast");
 	  stat = RPC_CANTRECV;
 	  goto done_broad;
 	}

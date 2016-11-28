@@ -119,7 +119,7 @@ clntunix_create (struct sockaddr_un *raddr, u_long prog, u_long vers,
   if (h == NULL || ct == NULL)
     {
       struct rpc_createerr *ce = &get_rpc_createerr ();
-      (void) fputs (_("clntunix_create: out of memory\n"), stderr);
+      (void) fputs ("clntunix_create: out of memory\n", stderr);
       ce->cf_stat = RPC_SYSTEMERROR;
       ce->cf_error.re_errno = ENOMEM;
       goto fooy;

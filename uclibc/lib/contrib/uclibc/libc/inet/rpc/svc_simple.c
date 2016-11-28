@@ -80,7 +80,7 @@ registerrpc (u_long prognum, u_long versnum, u_long procnum,
   if (procnum == NULLPROC)
     {
 
-      (void) asprintf (&buf, _("can't reassign procedure number %ld\n"),
+      (void) asprintf (&buf, "can't reassign procedure number %ld\n",
 			 NULLPROC);
       goto err_out;
     }
@@ -89,7 +89,7 @@ registerrpc (u_long prognum, u_long versnum, u_long procnum,
       transp = svcudp_create (RPC_ANYSOCK);
       if (transp == NULL)
 	{
-	  buf = strdup (_("couldn't create an rpc server\n"));
+	  buf = strdup ("couldn't create an rpc server\n");
 	  goto err_out;
 	}
     }
@@ -97,14 +97,14 @@ registerrpc (u_long prognum, u_long versnum, u_long procnum,
   if (!svc_register (transp, (u_long) prognum, (u_long) versnum,
 		     universal, IPPROTO_UDP))
     {
-      (void) asprintf (&buf, _("couldn't register prog %ld vers %ld\n"),
+      (void) asprintf (&buf, "couldn't register prog %ld vers %ld\n",
 			 prognum, versnum);
       goto err_out;
     }
   pl = (struct proglst_ *) malloc (sizeof (struct proglst_));
   if (pl == NULL)
     {
-      buf = strdup (_("registerrpc: out of memory\n"));
+      buf = strdup ("registerrpc: out of memory\n");
       goto err_out;
     }
   pl->p_progname = progname;
@@ -162,7 +162,7 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
 	if (!svc_sendreply (transp_l, pl->p_outproc, outdata))
 	  {
 	    (void) asprintf (&buf,
-			       _("trouble replying to prog %d\n"),
+			       "trouble replying to prog %d\n",
 			       pl->p_prognum);
 	    exit (1);
 	  }
@@ -170,7 +170,7 @@ universal (struct svc_req *rqstp, SVCXPRT *transp_l)
 	(void) svc_freeargs (transp_l, pl->p_inproc, xdrbuf);
 	return;
       }
-  (void) asprintf (&buf, _("never registered prog %d\n"), prog);
+  (void) asprintf (&buf, "never registered prog %d\n", prog);
   fputs (buf, stderr);
   free (buf);
   exit (1);

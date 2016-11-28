@@ -49,7 +49,6 @@ libc-a-$(UCLIBC_HAS_CRYPT) += $(libcrypt-a-y)
 libc-a-$(UCLIBC_HAS_ARGP) += $(libuargp-a-y)
 libc-a-$(UCLIBC_HAS_THREADS) += $(libpthread-a-y)
 libc-a-$(UCLIBC_HAS_REALTIME) += $(librt-a-y)
-libc-a-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(libintl-a-y)
 libc-a-$(UCLIBC_HAS_BACKTRACE) += $(libubacktrace-a-y)
 
 libc-so-y = $(libc-y:.o=.os) $(libc-shared-y)
@@ -61,7 +60,6 @@ libc-so-$(UCLIBC_HAS_CRYPT) += $(libcrypt-so-y)
 libc-so-$(UCLIBC_HAS_ARGP) += $(libuargp-so-y)
 libc-so-$(UCLIBC_HAS_THREADS) += $(libpthread-so-y)
 libc-so-$(UCLIBC_HAS_REALTIME) += $(librt-so-y)
-libc-so-$(UCLIBC_HAS_GETTEXT_AWARENESS) += $(libintl-so-y)
 libc-so-$(UCLIBC_HAS_BACKTRACE) += $(libubacktrace-so-y)
 
 lib-a-y += $(top_builddir)lib/libc.a

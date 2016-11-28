@@ -403,9 +403,7 @@ _obstack_memory_used (struct obstack *h)
 }
 
 /* Define the error handler.  */
-# ifdef _LIBC
-#  include <libintl.h>
-# else
+# ifndef _LIBC
 #  include "gettext.h"
 # endif
 # ifndef _

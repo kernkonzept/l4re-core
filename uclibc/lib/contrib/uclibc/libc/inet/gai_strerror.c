@@ -18,7 +18,6 @@
 
 #include <stdio.h>
 #include <netdb.h>
-#include <libintl.h>
 
 static const struct
   {
@@ -27,22 +26,22 @@ static const struct
   }
 values[] =
   {
-    { EAI_ADDRFAMILY, N_("Address family for hostname not supported") },
-    { EAI_AGAIN, N_("Temporary failure in name resolution") },
-    { EAI_BADFLAGS, N_("Bad value for ai_flags") },
-    { EAI_FAIL, N_("Non-recoverable failure in name resolution") },
-    { EAI_FAMILY, N_("ai_family not supported") },
-    { EAI_MEMORY, N_("Memory allocation failure") },
-    { EAI_NODATA, N_("No address associated with hostname") },
-    { EAI_NONAME, N_("Name or service not known") },
-    { EAI_SERVICE, N_("Servname not supported for ai_socktype") },
-    { EAI_SOCKTYPE, N_("ai_socktype not supported") },
-    { EAI_SYSTEM, N_("System error") },
-    { EAI_INPROGRESS, N_("Processing request in progress") },
-    { EAI_CANCELED, N_("Request canceled") },
-    { EAI_NOTCANCELED, N_("Request not canceled") },
-    { EAI_ALLDONE, N_("All requests done") },
-    { EAI_INTR, N_("Interrupted by a signal") }
+    { EAI_ADDRFAMILY, "Address family for hostname not supported" },
+    { EAI_AGAIN, "Temporary failure in name resolution" },
+    { EAI_BADFLAGS, "Bad value for ai_flags" },
+    { EAI_FAIL, "Non-recoverable failure in name resolution" },
+    { EAI_FAMILY, "ai_family not supported" },
+    { EAI_MEMORY, "Memory allocation failure" },
+    { EAI_NODATA, "No address associated with hostname" },
+    { EAI_NONAME, "Name or service not known" },
+    { EAI_SERVICE, "Servname not supported for ai_socktype" },
+    { EAI_SOCKTYPE, "ai_socktype not supported" },
+    { EAI_SYSTEM, "System error" },
+    { EAI_INPROGRESS, "Processing request in progress" },
+    { EAI_CANCELED, "Request canceled" },
+    { EAI_NOTCANCELED, "Request not canceled" },
+    { EAI_ALLDONE, "All requests done" },
+    { EAI_INTR, "Interrupted by a signal" }
   };
 
 const char *
@@ -51,7 +50,7 @@ gai_strerror (int code)
     size_t i;
     for (i = 0; i < sizeof (values) / sizeof (values[0]); ++i)
 	if (values[i].code == code)
-	    return _(values[i].msg);
+	    return values[i].msg;
 
-    return _("Unknown error");
+    return "Unknown error";
 }

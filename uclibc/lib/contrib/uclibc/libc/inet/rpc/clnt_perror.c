@@ -72,74 +72,74 @@ struct rpc_errtab
 static const char rpc_errstr[] =
 {
 #define RPC_SUCCESS_IDX		0
-  N_("RPC: Success")
+  "RPC: Success"
   "\0"
 #define RPC_CANTENCODEARGS_IDX	(RPC_SUCCESS_IDX + sizeof "RPC: Success")
-  N_("RPC: Can't encode arguments")
+  "RPC: Can't encode arguments"
   "\0"
 #define RPC_CANTDECODERES_IDX	(RPC_CANTENCODEARGS_IDX \
 				 + sizeof "RPC: Can't encode arguments")
-  N_("RPC: Can't decode result")
+  "RPC: Can't decode result"
   "\0"
 #define RPC_CANTSEND_IDX	(RPC_CANTDECODERES_IDX \
 				 + sizeof "RPC: Can't decode result")
-  N_("RPC: Unable to send")
+  "RPC: Unable to send"
   "\0"
 #define RPC_CANTRECV_IDX	(RPC_CANTSEND_IDX \
 				 + sizeof "RPC: Unable to send")
-  N_("RPC: Unable to receive")
+  "RPC: Unable to receive"
   "\0"
 #define RPC_TIMEDOUT_IDX	(RPC_CANTRECV_IDX \
 				 + sizeof "RPC: Unable to receive")
-  N_("RPC: Timed out")
+  "RPC: Timed out"
   "\0"
 #define RPC_VERSMISMATCH_IDX	(RPC_TIMEDOUT_IDX \
 				 + sizeof "RPC: Timed out")
-  N_("RPC: Incompatible versions of RPC")
+  "RPC: Incompatible versions of RPC"
   "\0"
 #define RPC_AUTHERROR_IDX	(RPC_VERSMISMATCH_IDX \
 				 + sizeof "RPC: Incompatible versions of RPC")
-  N_("RPC: Authentication error")
+  "RPC: Authentication error"
   "\0"
 #define RPC_PROGUNAVAIL_IDX		(RPC_AUTHERROR_IDX \
 				 + sizeof "RPC: Authentication error")
-  N_("RPC: Program unavailable")
+  "RPC: Program unavailable"
   "\0"
 #define RPC_PROGVERSMISMATCH_IDX (RPC_PROGUNAVAIL_IDX \
 				  + sizeof "RPC: Program unavailable")
-  N_("RPC: Program/version mismatch")
+  "RPC: Program/version mismatch"
   "\0"
 #define RPC_PROCUNAVAIL_IDX	(RPC_PROGVERSMISMATCH_IDX \
 				 + sizeof "RPC: Program/version mismatch")
-  N_("RPC: Procedure unavailable")
+  "RPC: Procedure unavailable"
   "\0"
 #define RPC_CANTDECODEARGS_IDX	(RPC_PROCUNAVAIL_IDX \
 				 + sizeof "RPC: Procedure unavailable")
-  N_("RPC: Server can't decode arguments")
+  "RPC: Server can't decode arguments"
   "\0"
 #define RPC_SYSTEMERROR_IDX	(RPC_CANTDECODEARGS_IDX \
 				 + sizeof "RPC: Server can't decode arguments")
-  N_("RPC: Remote system error")
+  "RPC: Remote system error"
   "\0"
 #define RPC_UNKNOWNHOST_IDX	(RPC_SYSTEMERROR_IDX \
 				 + sizeof "RPC: Remote system error")
-  N_("RPC: Unknown host")
+  "RPC: Unknown host"
   "\0"
 #define RPC_UNKNOWNPROTO_IDX	(RPC_UNKNOWNHOST_IDX \
 				 + sizeof "RPC: Unknown host")
-  N_("RPC: Unknown protocol")
+  "RPC: Unknown protocol"
   "\0"
 #define RPC_PMAPFAILURE_IDX	(RPC_UNKNOWNPROTO_IDX \
 				 + sizeof "RPC: Unknown protocol")
-  N_("RPC: Port mapper failure")
+  "RPC: Port mapper failure"
   "\0"
 #define RPC_PROGNOTREGISTERED_IDX (RPC_PMAPFAILURE_IDX \
 				   + sizeof "RPC: Port mapper failure")
-  N_("RPC: Program not registered")
+  "RPC: Program not registered"
   "\0"
 #define RPC_FAILED_IDX		(RPC_PROGNOTREGISTERED_IDX \
 				 + sizeof "RPC: Program not registered")
-  N_("RPC: Failed (unspecified error)")
+  "RPC: Failed (unspecified error)"
 };
 
 static const struct rpc_errtab rpc_errlist[] =
@@ -177,10 +177,10 @@ clnt_sperrno (enum clnt_stat stat)
     {
       if (rpc_errlist[i].status == stat)
 	{
-	  return (char*)_(rpc_errstr + rpc_errlist[i].message_off);
+	  return (char*)rpc_errstr + rpc_errlist[i].message_off;
 	}
     }
-  return N_("RPC: (unknown error code)");
+  return "RPC: (unknown error code)";
 }
 libc_hidden_def(clnt_sperrno)
 
@@ -238,14 +238,14 @@ clnt_sperror (CLIENT * rpch, const char *msg)
       break;
 
     case RPC_VERSMISMATCH:
-      len= sprintf (str, _("; low version = %lu, high version = %lu"),
+      len= sprintf (str, "; low version = %lu, high version = %lu",
 		    e.re_vers.low, e.re_vers.high);
       str += len;
       break;
 
     case RPC_AUTHERROR:
       err = auth_errmsg (e.re_why);
-      (void) strcpy(str, _("; why = "));
+      (void) strcpy(str, "; why = ");
       str += strlen(str);
 
       if (err != NULL)
@@ -255,14 +255,14 @@ clnt_sperror (CLIENT * rpch, const char *msg)
 	}
       else
 	{
-	  len = sprintf (str, _("(unknown authentication error - %d)"),
+	  len = sprintf (str, "(unknown authentication error - %d)",
 			 (int) e.re_why);
 	  str += len;
 	}
       break;
 
     case RPC_PROGVERSMISMATCH:
-      len = sprintf (str, _("; low version = %lu, high version = %lu"),
+      len = sprintf (str, "; low version = %lu, high version = %lu",
 		     e.re_vers.low, e.re_vers.high);
       str += len;
       break;
@@ -345,34 +345,34 @@ struct auth_errtab
 static const char auth_errstr[] =
 {
 #define AUTH_OK_IDX		0
-   N_("Authentication OK")
+   "Authentication OK"
    "\0"
 #define AUTH_BADCRED_IDX	(AUTH_OK_IDX + sizeof "Authentication OK")
-   N_("Invalid client credential")
+   "Invalid client credential"
    "\0"
 #define AUTH_REJECTEDCRED_IDX	(AUTH_BADCRED_IDX \
 				 + sizeof "Invalid client credential")
-   N_("Server rejected credential")
+   "Server rejected credential"
    "\0"
 #define AUTH_BADVERF_IDX	(AUTH_REJECTEDCRED_IDX \
 				 + sizeof "Server rejected credential")
-   N_("Invalid client verifier")
+   "Invalid client verifier"
    "\0"
 #define AUTH_REJECTEDVERF_IDX	(AUTH_BADVERF_IDX \
 				 + sizeof "Invalid client verifier")
-   N_("Server rejected verifier")
+   "Server rejected verifier"
    "\0"
 #define AUTH_TOOWEAK_IDX	(AUTH_REJECTEDVERF_IDX \
 				 + sizeof "Server rejected verifier")
-   N_("Client credential too weak")
+   "Client credential too weak"
    "\0"
 #define AUTH_INVALIDRESP_IDX	(AUTH_TOOWEAK_IDX \
 				 + sizeof "Client credential too weak")
-   N_("Invalid server verifier")
+   "Invalid server verifier"
    "\0"
 #define AUTH_FAILED_IDX		(AUTH_INVALIDRESP_IDX \
 				 + sizeof "Invalid server verifier")
-   N_("Failed (unspecified error)")
+   "Failed (unspecified error)"
 };
 
 static const struct auth_errtab auth_errlist[] =
@@ -397,7 +397,7 @@ auth_errmsg (enum auth_stat stat)
     {
       if (auth_errlist[i].status == stat)
 	{
-	  return (char*)_(auth_errstr + auth_errlist[i].message_off);
+	  return (char*)auth_errstr + auth_errlist[i].message_off;
 	}
     }
   return NULL;

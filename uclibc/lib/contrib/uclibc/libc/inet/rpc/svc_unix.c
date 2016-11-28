@@ -142,7 +142,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
     {
       if ((sock = socket (AF_UNIX, SOCK_STREAM, 0)) < 0)
 	{
-	  perror (_("svc_unix.c - AF_UNIX socket creation problem"));
+	  perror ("svc_unix.c - AF_UNIX socket creation problem");
 	  return (SVCXPRT *) NULL;
 	}
       madesock = TRUE;
@@ -158,7 +158,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
   if (getsockname (sock, (struct sockaddr *) &addr, &len) != 0
       || listen (sock, 2) != 0)
     {
-      perror (_("svc_unix.c - cannot getsockname or listen"));
+      perror ("svc_unix.c - cannot getsockname or listen");
       if (madesock)
 	close (sock);
       return (SVCXPRT *) NULL;
@@ -168,7 +168,7 @@ svcunix_create (int sock, u_int sendsize, u_int recvsize, char *path)
   xprt = (SVCXPRT *) mem_alloc (sizeof (SVCXPRT));
   if (r == NULL || xprt == NULL)
     {
-      fputs (_("svcunix_create: out of memory\n"), stderr);
+      fputs ("svcunix_create: out of memory\n", stderr);
       mem_free (r, sizeof (*r));
       mem_free (xprt, sizeof (SVCXPRT));
       return NULL;
@@ -208,7 +208,7 @@ makefd_xprt (int fd, u_int sendsize, u_int recvsize)
   cd = (struct unix_conn *) mem_alloc (sizeof (struct unix_conn));
   if (xprt == (SVCXPRT *) NULL || cd == (struct unix_conn *) NULL)
     {
-      (void) fputs (_("svc_unix: makefd_xprt: out of memory\n"), stderr);
+      (void) fputs ("svc_unix: makefd_xprt: out of memory\n", stderr);
       mem_free (xprt, sizeof (SVCXPRT));
       mem_free (cd, sizeof (struct unix_conn));
       return NULL;

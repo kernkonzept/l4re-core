@@ -74,7 +74,7 @@ svc_run (void)
 	  free (my_pollfd);
 	  if (errno == EINTR)
 	    continue;
-	  perror (_("svc_run: - poll failed"));
+	  perror ("svc_run: - poll failed");
 	  return;
 	case 0:
 	  free (my_pollfd);

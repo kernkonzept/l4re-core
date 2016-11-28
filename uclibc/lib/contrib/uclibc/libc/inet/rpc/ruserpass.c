@@ -41,7 +41,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <libintl.h>
 
 /* #include "ftp_var.h" */
 
@@ -163,7 +162,7 @@ next:
 				  newp = malloc((unsigned) strlen(tokval) + 1);
 				  if (newp == NULL)
 				    {
-				      printf(_("out of memory"));
+				      printf("out of memory");
 				      goto bad;
 				    }
 				  *aname = strcpy(newp, tokval);
@@ -177,8 +176,8 @@ next:
 			if (strcmp(*aname, "anonymous") &&
 			    fstat(fileno(cfile), &stb) >= 0 &&
 			    (stb.st_mode & 077) != 0) {
-	printf(_("Error: .netrc file is readable by others."));
-	printf(_("Remove password or make file unreadable by others."));
+	printf("Error: .netrc file is readable by others.");
+	printf("Remove password or make file unreadable by others.");
 				goto bad;
 			}
 			if (token() && *apass == 0) {
@@ -186,7 +185,7 @@ next:
 				newp = malloc((unsigned) strlen(tokval) + 1);
 				if (newp == NULL)
 				  {
-				    printf(_("out of memory"));
+				    printf("out of memory");
 				    goto bad;
 				  }
 				*apass = strcpy(newp, tokval);
@@ -270,7 +269,7 @@ next:
 #endif
 			break;
 		default:
-			printf(_("Unknown .netrc keyword %s"), tokval);
+			printf("Unknown .netrc keyword %s", tokval);
 			break;
 		}
 		goto done;

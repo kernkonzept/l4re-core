@@ -22,7 +22,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <getopt.h>
-#include <libintl.h>
 
 #ifdef __BCC__
 static const char missing[] = "option requires an argument";

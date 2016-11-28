@@ -76,14 +76,7 @@
 #  include <locale/coll-lookup.h>
 # endif
 
-/* This is for other GNU distributions with internationalized messages.  */
-# if defined HAVE_LIBINTL_H || defined _LIBC
-#  include <libintl.h>
-#  ifdef _LIBC
-#   undef gettext
-#   define gettext(msgid) __dcgettext ("libc", msgid, LC_MESSAGES)
-#  endif
-# else
+# ifndef gettext
 #  define gettext(msgid) (msgid)
 # endif
 

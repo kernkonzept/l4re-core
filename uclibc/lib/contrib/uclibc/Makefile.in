@@ -32,7 +32,6 @@ endif # ifeq ($(HAVE_DOT_CONFIG),y)
 include $(top_srcdir)extra/locale/Makefile.in
 include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
-include $(top_srcdir)libintl/Makefile.in
 include $(top_srcdir)libm/Makefile.in
 include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
@@ -273,7 +272,6 @@ HEADERS_RM-$(UCLIBC_HAS_FLOATS)              += complex.h fpu_control.h ieee754.
 	bits/math*.h
 HEADERS_RM-$(findstring y,$(UCLIBC_HAS_FTW)$(UCLIBC_HAS_NFTW))  += ftw.h
 HEADERS_RM-$(UCLIBC_HAS_FTS)                 += fts.h
-HEADERS_RM-$(UCLIBC_HAS_GETTEXT_AWARENESS)   += libintl.h
 HEADERS_RM-$(UCLIBC_HAS_GLIBC_CUSTOM_PRINTF) += printf.h
 HEADERS_RM-$(UCLIBC_HAS_GLOB)                += glob.h
 HEADERS_RM-$(UCLIBC_HAS_GNU_ERROR)           += error.h
@@ -376,9 +374,6 @@ EMPTY_LIB_NAMES += crypt
 endif
 ifeq ($(UCLIBC_HAS_LIBUTIL),y)
 EMPTY_LIB_NAMES += util
-endif
-ifeq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
-EMPTY_LIB_NAMES += intl
 endif
 EMPTY_LIBS = $(EMPTY_LIB_NAMES:%=lib/lib%.a)
 

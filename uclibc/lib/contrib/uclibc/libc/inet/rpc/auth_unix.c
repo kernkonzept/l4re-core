@@ -42,7 +42,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <libintl.h>
 #include <sys/param.h>
 
 #include <rpc/types.h>
@@ -105,7 +104,7 @@ authunix_create (char *machname, uid_t uid, gid_t gid, int len,
   if (auth == NULL || au == NULL)
     {
 no_memory:
-      (void) fputs (_("authunix_create: out of memory\n"), stderr);
+      (void) fputs ("authunix_create: out of memory\n", stderr);
       mem_free (auth, sizeof (*auth));
       mem_free (au, sizeof (*au));
       return NULL;
@@ -314,7 +313,7 @@ marshal_new_auth (AUTH *auth)
   xdrmem_create (xdrs, au->au_marshed, MAX_AUTH_BYTES, XDR_ENCODE);
   if ((!xdr_opaque_auth (xdrs, &(auth->ah_cred))) ||
       (!xdr_opaque_auth (xdrs, &(auth->ah_verf))))
-    perror (_("auth_unix.c - Fatal marshalling problem"));
+    perror ("auth_unix.c - Fatal marshalling problem");
   else
     au->au_mpos = XDR_GETPOS (xdrs);
 

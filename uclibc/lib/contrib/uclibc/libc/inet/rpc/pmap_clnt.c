@@ -69,7 +69,7 @@ __get_myaddress (struct sockaddr_in *addr)
   ifc.ifc_buf = buf;
   if (ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      perror (_("__get_myaddress: ioctl (get interface configuration)"));
+      perror ("__get_myaddress: ioctl (get interface configuration)");
       exit (1);
     }
 
@@ -133,7 +133,7 @@ pmap_set (u_long program, u_long version, int protocol, u_short port)
 		 (xdrproc_t)xdr_bool, (caddr_t)&rslt,
 		 tottimeout) != RPC_SUCCESS)
     {
-      clnt_perror (client, _("Cannot register service"));
+      clnt_perror (client, "Cannot register service");
       rslt = FALSE;
     }
   CLNT_DESTROY (client);

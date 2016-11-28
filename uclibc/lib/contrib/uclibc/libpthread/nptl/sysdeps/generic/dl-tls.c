@@ -19,7 +19,6 @@
 #if defined SHARED || defined NOT_IN_libc
 # error in buildsystem: This file is for libc.a
 #endif
-#include <libintl.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <sys/param.h>

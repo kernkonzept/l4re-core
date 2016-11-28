@@ -78,7 +78,6 @@ static char sccsid[] = "@(#)rcmd.c	8.3 (Berkeley) 3/26/94";
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
-#include <libintl.h>
 #include <stdlib.h>
 #ifdef __UCLIBC_HAS_WCHAR__
 #include <wchar.h>

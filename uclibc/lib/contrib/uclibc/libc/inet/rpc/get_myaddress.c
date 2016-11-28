@@ -44,7 +44,6 @@ static char sccsid[] = "@(#)get_myaddress.c 1.4 87/08/11 Copyr 1984 Sun Micro";
 #include <sys/socket.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <libintl.h>
 #include <net/if.h>
 #include <sys/ioctl.h>
 /* Order of following two #includes reversed by roland@gnu */
@@ -76,7 +75,7 @@ get_myaddress (struct sockaddr_in *addr)
   ifc.ifc_buf = buf;
   if (ioctl (s, SIOCGIFCONF, (char *) &ifc) < 0)
     {
-      perror (_("get_myaddress: ioctl (get interface configuration)"));
+      perror ("get_myaddress: ioctl (get interface configuration)");
       exit (1);
     }
 
