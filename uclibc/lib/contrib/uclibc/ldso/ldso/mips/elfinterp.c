@@ -140,6 +140,9 @@ __dl_runtime_pltresolve(struct elf_resolve *tpnt, int reloc_entry)
 void _dl_parse_lazy_relocation_information(struct dyn_elf *rpnt,
 	unsigned long rel_addr, unsigned long rel_size)
 {
+	(void) rpnt;
+	(void) rel_addr;
+	(void) rel_size;
 	/* Nothing to do */
 	return;
 }
@@ -154,7 +157,8 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 	unsigned long *got;
 	unsigned long *reloc_addr=NULL;
 	unsigned long symbol_addr;
-	int reloc_type, symtab_index;
+	int reloc_type;
+	unsigned symtab_index;
 	struct elf_resolve *tpnt = xpnt->dyn;
 	char *symname = NULL;
 #if defined (__SUPPORT_LD_DEBUG__)

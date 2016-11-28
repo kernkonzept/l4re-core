@@ -297,6 +297,7 @@ static int
 _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		  ELF_RELOC *rpnt, ElfW(Sym) *symtab, char *strtab)
 {
+	(void) symtab;
 	int reloc_type;
 	ElfW(Addr) *reloc_addr;
 #if defined (__SUPPORT_LD_DEBUG__)

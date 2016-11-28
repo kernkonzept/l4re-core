@@ -1028,7 +1028,7 @@ init_tls (void)
 
 	/* Fill in the information from the loaded modules.  No namespace
 	   but the base one can be filled at this time.  */
-	int i = 0;
+	unsigned i = 0;
 	struct link_map *l;
 	for (l =  (struct link_map *) _dl_loaded_modules; l != NULL; l = l->l_next)
 		if (l->l_tls_blocksize != 0)

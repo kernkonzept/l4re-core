@@ -503,13 +503,14 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 	local_scope = _dl_malloc(nlist * sizeof(struct elf_resolve *)); /* Could it allocated on stack? */
 	for (i = 0; i < nlist; i++)
 		if (init_fini_list[i]->symbol_scope.r_nlist == 0) {
-			int k, cnt;
+			int cnt;
 			cnt = _dl_build_local_scope(local_scope, init_fini_list[i]);
 			init_fini_list[i]->symbol_scope.r_list = _dl_malloc(cnt * sizeof(struct elf_resolve *));
 			init_fini_list[i]->symbol_scope.r_nlist = cnt;
 			_dl_memcpy (init_fini_list[i]->symbol_scope.r_list, local_scope,
 					cnt * sizeof (struct elf_resolve *));
 			/* Restoring the init_flag.*/
+			unsigned k;
 			for (k = 0; k < nlist; k++)
 				init_fini_list[k]->init_flag &= ~DL_RESERVED;
 		}
@@ -763,7 +764,7 @@ static void *do_dlsym(void *vhandle, const char *name, void *caller_address)
 	if (sym_ref.sym && (ELF_ST_TYPE(sym_ref.sym->st_info) == STT_TLS) && (sym_ref.tpnt)) {
 		/* The found symbol is a thread-local storage variable.
 		Return its address for the current thread.  */
-		ret = _dl_tls_symaddr ((struct link_map *)sym_ref.tpnt, (Elf32_Addr)ret);
+		ret = _dl_tls_symaddr ((struct link_map *)sym_ref.tpnt, (ElfW(Addr))ret);
 	}
 #endif
 

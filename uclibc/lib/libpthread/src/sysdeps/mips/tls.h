@@ -126,6 +126,7 @@ typedef struct
    operation can cause a failure 'errno' must not be touched.  */
 static inline char const *TLS_INIT_TP(void *tcbp, int secondcall)
 {
+  (void) secondcall;
   unsigned offset = sizeof(tcbhead_t) + sizeof(l4_umword_t);
   l4_umword_t *x = (l4_umword_t *)((char *)tcbp - offset);
   l4_utcb_t *u = l4_utcb();

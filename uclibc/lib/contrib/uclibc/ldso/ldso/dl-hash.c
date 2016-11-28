@@ -285,7 +285,6 @@ char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_res
 {
 	struct elf_resolve *tpnt = NULL;
 	ElfW(Sym) *symtab;
-	int i = 0;
 
 	unsigned long elf_hash_number = 0xffffffff;
 	const ElfW(Sym) *sym = NULL;
@@ -297,12 +296,13 @@ char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_res
 	unsigned long gnu_hash_number = _dl_gnu_hash((const unsigned char *)name);
 #endif
 
-	if ((sym_ref) && (sym_ref->sym) && (ELF32_ST_VISIBILITY(sym_ref->sym->st_other) == STV_PROTECTED)) {
+	if ((sym_ref) && (sym_ref->sym) && (ELFW(ST_VISIBILITY)(sym_ref->sym->st_other) == STV_PROTECTED)) {
 			sym = sym_ref->sym;
 		if (mytpnt)
 			tpnt = mytpnt;
 	} else
 	for (loop_scope = scope; loop_scope && !sym; loop_scope = loop_scope->next) {
+		unsigned i;
 		for (i = 0; i < loop_scope->r_nlist; i++) {
 			tpnt = loop_scope->r_list[i];
 

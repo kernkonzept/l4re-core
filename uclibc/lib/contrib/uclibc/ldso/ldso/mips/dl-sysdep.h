@@ -240,6 +240,9 @@ static __always_inline void
 elf_machine_relative (ElfW(Addr) load_off, const ElfW(Addr) rel_addr,
 		      ElfW(Word) relative_count)
 {
+	(void) load_off;
+	(void) rel_addr;
+	(void) relative_count;
 	/* No RELATIVE relocs in MIPS? */
 }
 

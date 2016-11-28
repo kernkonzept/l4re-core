@@ -193,6 +193,7 @@ unsigned long _dl_internal_error_number;
 struct elf_resolve *_dl_load_shared_library(unsigned rflags, struct dyn_elf **rpnt,
 	struct elf_resolve *tpnt, char *full_libname, int attribute_unused trace_loaded_objects)
 {
+	(void) tpnt;
 	char *pnt;
 	struct elf_resolve *tpnt1;
 	char *libname;
