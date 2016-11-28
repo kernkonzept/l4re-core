@@ -846,6 +846,7 @@ class File_factory_t : public File_factory
 {
 public:
   File_factory_t() : File_factory(IFACE::Protocol) {}
+  void operator delete (void *) {}
   cxx::Ref_ptr<File> create(L4::Cap<void> file)
   { return cxx::ref_ptr(new IMPL(L4::cap_cast<IFACE>(file))); }
 };
