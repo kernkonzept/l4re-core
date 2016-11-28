@@ -57,13 +57,13 @@ static const char *_dl_reltypes(int type)
 
 	return str;
 }
-static void debug_sym(ElfW(Sym) *symtab, char *strtab, int symtab_index)
+static void debug_sym(ElfW(Sym) const *symtab, char const *strtab, int symtab_index)
 {
 	if (!_dl_debug_symbols || !symtab_index)
 		return;
 
 	_dl_dprintf(_dl_debug_file,
-		"\n%s\n\tvalue=%x\tsize=%x\tinfo=%x\tother=%x\tshndx=%x",
+		"\n%s\n\tvalue=%zx\tsize=%zx\tinfo=%x\tother=%x\tshndx=%x",
 		strtab + symtab[symtab_index].st_name,
 		symtab[symtab_index].st_value,
 		symtab[symtab_index].st_size,
@@ -72,7 +72,8 @@ static void debug_sym(ElfW(Sym) *symtab, char *strtab, int symtab_index)
 		symtab[symtab_index].st_shndx);
 }
 
-static void debug_reloc(ElfW(Sym) *symtab, char *strtab, ELF_RELOC *rpnt)
+static void
+debug_reloc(ElfW(Sym) const *symtab, char const *strtab, ELF_RELOC const *rpnt)
 {
 	if (!_dl_debug_reloc)
 		return;
@@ -89,11 +90,11 @@ static void debug_reloc(ElfW(Sym) *symtab, char *strtab, ELF_RELOC *rpnt)
 		_dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
 	}
 
-	_dl_dprintf(_dl_debug_file, "%s\toffset=%x",
+	_dl_dprintf(_dl_debug_file, "%s\toffset=%zx",
 		_dl_reltypes(ELF_R_TYPE(rpnt->r_info)),
 		rpnt->r_offset);
 #ifdef ELF_USES_RELOCA
-	_dl_dprintf(_dl_debug_file, "\taddend=%x", rpnt->r_addend);
+	_dl_dprintf(_dl_debug_file, "\taddend=%zx", rpnt->r_addend);
 #endif
 	_dl_dprintf(_dl_debug_file, "\n");
 }

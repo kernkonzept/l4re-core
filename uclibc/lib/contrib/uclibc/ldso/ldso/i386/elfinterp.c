@@ -83,7 +83,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 			if (_dl_debug_detail)
 				_dl_dprintf(_dl_debug_file,
-				            "\n\tpatched: %x ==> %x @ %x",
+				            "\n\tpatched: %p ==> %p @ %p",
 				            *got_addr, new_addr, got_addr);
 		}
 	}
@@ -227,7 +227,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 #if defined (__SUPPORT_LD_DEBUG__)
 				if (_dl_debug_move)
 					_dl_dprintf(_dl_debug_file,
-						    "\n%s move %d bytes from %x to %x",
+						    "\n%s move %d bytes from %lx to %p",
 						    symname, symtab[symtab_index].st_size,
 						    symbol_addr, reloc_addr);
 #endif
@@ -263,7 +263,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\n\tpatched: %x ==> %x @ %x\n",
+		_dl_dprintf(_dl_debug_file, "\n\tpatched: %lx ==> %lx @ %p\n",
 			    old_val, *reloc_addr, reloc_addr);
 #endif
 
@@ -303,7 +303,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\n\tpatched: %x ==> %x @ %x\n",
+		_dl_dprintf(_dl_debug_file, "\n\tpatched: %lx ==> %lx @ %p\n",
 			    old_val, *reloc_addr, reloc_addr);
 #endif
 
