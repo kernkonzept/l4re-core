@@ -5,6 +5,7 @@
 #include <link.h>
 #include <features.h>
 #include <tls.h>
+#include <bits/libc-lock.h>
 
 #ifdef __mips__
 /* The MIPS ABI specifies that the dynamic section has to be read-only.  */
@@ -40,6 +41,12 @@
    platforms.  But this does not matter, ld.so can always use the local
    copy.  */
 extern void *__libc_stack_end;
+
+extern void (*_dl_rtld_lock_recursive) (pthread_mutex_t *l);
+extern void (*_dl_rtld_unlock_recursive) (pthread_mutex_t *l);
+
+__rtld_lock_define_recursive (EXTERN, _dl_load_lock);
+__rtld_lock_define_recursive (EXTERN, _dl_load_write_lock);
 
 /* Determine next available module ID.  */
 extern size_t _dl_next_tls_modid (void) internal_function attribute_hidden;

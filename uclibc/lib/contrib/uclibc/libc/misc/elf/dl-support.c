@@ -13,6 +13,9 @@
 
 #include <link.h>
 #include <elf.h>
+#if defined(__UCLIBC_HAS_THREADS__)
+#include <bits/libc-lock.h>
+#endif
 #if defined(USE_TLS) && USE_TLS
 #include <assert.h>
 #include <tls.h>
@@ -74,3 +77,7 @@ _dl_nothread_init_static_tls (struct link_map *map)
 
 #endif
 
+#if defined(__UCLIBC_HAS_THREADS__)
+__rtld_lock_define_initialized_recursive (, _dl_load_lock)
+__rtld_lock_define_initialized_recursive (, _dl_load_write_lock)
+#endif

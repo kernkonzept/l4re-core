@@ -34,6 +34,30 @@ void *(*_dl_calloc_function) (size_t __nmemb, size_t __size) = NULL;
 void *(*_dl_realloc_function) (void *__ptr, size_t __size) = NULL;
 void *(*_dl_memalign_function) (size_t __boundary, size_t __size) = NULL;
 
+#if defined SHARED && defined _LIBC_REENTRANT \
+    && defined __rtld_lock_default_lock_recursive
+static void
+rtld_lock_default_lock_recursive (void *lock)
+{
+  __rtld_lock_default_lock_recursive (lock);
+}
+
+static void
+rtld_lock_default_unlock_recursive (void *lock)
+{
+  __rtld_lock_default_unlock_recursive (lock);
+}
+
+void (*_dl_rtld_lock_recursive) (pthread_mutex_t *l) = rtld_lock_default_lock_recursive;
+void (*_dl_rtld_unlock_recursive) (pthread_mutex_t *l) = rtld_lock_default_unlock_recursive;
+
+#else
+
+void (*_dl_rtld_lock_recursive) (pthread_mutex_t *l);
+void (*_dl_rtld_unlock_recursive) (pthread_mutex_t *l);
+
+#endif
+
 void (*_dl_free_function) (void *__ptr);
 void *_dl_memalign (size_t __boundary, size_t __size);
 struct link_map *_dl_update_slotinfo (unsigned long int req_modid);
