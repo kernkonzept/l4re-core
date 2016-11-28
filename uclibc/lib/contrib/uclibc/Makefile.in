@@ -34,7 +34,6 @@ include $(top_srcdir)ldso/Makefile.in
 include $(top_srcdir)libcrypt/Makefile.in
 include $(top_srcdir)libintl/Makefile.in
 include $(top_srcdir)libm/Makefile.in
-include $(top_srcdir)libresolv/Makefile.in
 include $(top_srcdir)libutil/Makefile.in
 include $(top_srcdir)libpthread/Makefile.in
 include $(top_srcdir)librt/Makefile.in
@@ -362,7 +361,7 @@ else
 	$(Q)cd $(PREFIX)$(DEVEL_PREFIX)include && $(RM) -f wchar-stub.h
 endif
 
-EMPTY_LIB_NAMES = dl nsl
+EMPTY_LIB_NAMES = dl nsl resolv
 ifeq ($(DO_C99_MATH),y)
 EMPTY_LIB_NAMES += m
 endif
@@ -377,9 +376,6 @@ EMPTY_LIB_NAMES += crypt
 endif
 ifeq ($(UCLIBC_HAS_LIBUTIL),y)
 EMPTY_LIB_NAMES += util
-endif
-ifeq ($(UCLIBC_HAS_LIBRESOLV_STUB),y)
-EMPTY_LIB_NAMES += resolv
 endif
 ifeq ($(UCLIBC_HAS_GETTEXT_AWARENESS),y)
 EMPTY_LIB_NAMES += intl

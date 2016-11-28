@@ -1372,11 +1372,6 @@ config UCLIBC_HAS_RESOLVER_SUPPORT
 	  ns_name_pack, ns_name_compress, ns_name_skip, dn_skipname,
 	  ns_get16, ns_get32, ns_put16, ns_put32
 
-config UCLIBC_HAS_LIBRESOLV_STUB
-	bool "Provide libresolv stub"
-	help
-	  Provide a dummy resolv library.
-
 endif
 
 
