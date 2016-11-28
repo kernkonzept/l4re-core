@@ -399,6 +399,7 @@ static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
 									 ElfW(auxv_t) auxvt[AT_EGID + 1],
 									 struct dyn_elf *rpnt)
 {
+		(void) load_addr;
 		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *)
 				DL_RELOC_ADDR(DL_GET_RUN_ADDR(load_addr, ldso_mapaddr),
