@@ -348,7 +348,8 @@ extern int __pthread_atfork (void (*__prepare) (void),
 			     void (*__parent) (void),
 			     void (*__child) (void));
 
-
+/* This function is called to initialize the pthread library.  */
+extern void __pthread_initialize (void);
 
 /* Make the pthread functions weak so that we can elide them from
    single-threaded processes.  */
