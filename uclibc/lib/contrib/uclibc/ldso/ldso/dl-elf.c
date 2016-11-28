@@ -457,7 +457,6 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 #endif
 	char *status, *header;
 	unsigned long dynamic_info[DYNAMIC_SIZE];
-	unsigned long *lpnt;
 	unsigned long libaddr;
 	unsigned long minvma = 0xffffffff, maxvma = 0;
 	unsigned int rtld_flags;
@@ -853,12 +852,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	 * resolved.
 	 */
 
-	lpnt = (unsigned long *) dynamic_info[DT_PLTGOT];
-
-	if (lpnt) {
-		lpnt = (unsigned long *) (dynamic_info[DT_PLTGOT]);
-		INIT_GOT(lpnt, tpnt);
-	}
+	elf_machine_setup(tpnt->loadaddr, dynamic_info, tpnt, !(tpnt->rtld_flags & RTLD_NOW));
 
 #ifdef __DSBT__
 	/* Handle DSBT initialization */

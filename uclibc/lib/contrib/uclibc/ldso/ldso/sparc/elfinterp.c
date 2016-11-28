@@ -378,3 +378,16 @@ _dl_parse_relocation_information(struct dyn_elf *rpnt,
 {
 	return _dl_parse(rpnt->dyn, scope, rel_addr, rel_size, _dl_do_reloc);
 }
+
+static __always_inline void
+elf_machine_setup(ElfW(Addr) load_off, unsigned long const *dynamic_info,
+                  struct elf_resolve *tpnt, int lazy)
+{
+	(void) load_off;
+	(void) lazy;
+	unsigned long *lpnt = (unsigned long *) dynamic_info[DT_PLTGOT];
+#ifdef ALLOW_ZERO_PLTGOT
+	if (lpnt)
+#endif
+		INIT_GOT(lpnt, tpnt);
+}

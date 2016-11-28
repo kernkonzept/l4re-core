@@ -389,3 +389,16 @@ void _dl_perform_mips_global_got_relocations(struct elf_resolve *tpnt, int lazy)
 	}
 }
 
+static __always_inline void
+elf_machine_setup(ElfW(Addr) load_off, unsigned long const *dynamic_info,
+                  struct elf_resolve *tpnt, int lazy)
+{
+	(void) load_off;
+	(void) lazy;
+	unsigned long *lpnt = (unsigned long *) dynamic_info[DT_PLTGOT];
+#ifdef ALLOW_ZERO_PLTGOT
+	if (lpnt)
+#endif
+		INIT_GOT(lpnt, tpnt);
+}
+

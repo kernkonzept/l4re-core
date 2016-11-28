@@ -470,7 +470,6 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	struct elf_resolve app_tpnt_tmp;
 	struct elf_resolve *app_tpnt = &app_tpnt_tmp;
 	struct r_debug *debug_addr;
-	unsigned long *lpnt;
 	unsigned long *_dl_envp;		/* The environment address */
 	ElfW(Addr) relro_addr = 0;
 	size_t relro_size = 0;
@@ -752,11 +751,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 			_dl_memcpy(app_tpnt->dsbt_table, _dl_ldso_dsbt,
 				   app_tpnt->dsbt_size * sizeof(tpnt->dsbt_table[0]));
 #endif
-			lpnt = (unsigned long *) (app_tpnt->dynamic_info[DT_PLTGOT]);
-#ifdef ALLOW_ZERO_PLTGOT
-			if (lpnt)
-#endif
-				INIT_GOT(lpnt, _dl_loaded_modules);
+			elf_machine_setup(app_tpnt->loadaddr, app_tpnt->dynamic_info, _dl_loaded_modules, !(app_tpnt->rtld_flags & RTLD_NOW));
 		}
 
 		/* OK, fill this in - we did not have this before */
@@ -1186,7 +1181,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 #ifdef RERELOCATE_LDSO
 		/* Only rerelocate functions for now. */
 		tpnt->init_flag = RELOCS_DONE;
-		lpnt = (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT]);
+		unsigned long *lpnt
+			= (unsigned long *) (tpnt->dynamic_info[DT_PLTGOT]);
 # ifdef ALLOW_ZERO_PLTGOT
 		if (tpnt->dynamic_info[DT_PLTGOT])
 # endif
