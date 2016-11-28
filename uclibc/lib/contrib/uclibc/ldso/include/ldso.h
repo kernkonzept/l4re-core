@@ -151,7 +151,7 @@ extern char *_dl_getenv(const char *symbol, char **envp);
 extern void _dl_unsetenv(const char *symbol, char **envp);
 #ifdef IS_IN_rtld
 extern char *_dl_strdup(const char *string);
-extern void _dl_dprintf(int, const char *, ...);
+extern void _dl_dprintf(int, const char *, ...) __attribute__((format(printf, 2, 3)));
 #else
 # include <string.h>
 # define _dl_strdup strdup

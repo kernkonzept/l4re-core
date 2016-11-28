@@ -121,7 +121,7 @@ _dl_protect_relro (struct elf_resolve *l)
 	ElfW(Addr) base = (ElfW(Addr)) DL_RELOC_ADDR(l->loadaddr, l->relro_addr);
 	ElfW(Addr) start = (base & PAGE_ALIGN);
 	ElfW(Addr) end = ((base + l->relro_size) & PAGE_ALIGN);
-	_dl_if_debug_dprint("RELRO protecting %s:  start:%x, end:%x\n", l->libname, start, end);
+	_dl_if_debug_dprint("RELRO protecting %s:  start:%zx, end:%zx\n", l->libname, start, end);
 	if (start != end &&
 	    _dl_mprotect ((void *) start, end - start, PROT_READ) < 0) {
 		_dl_dprintf(2, "%s: cannot apply additional memory protection after relocation", l->libname);
@@ -931,8 +931,8 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned rflags,
 	}
 #endif
 	_dl_if_debug_dprint("\n\tfile='%s';  generating link map\n", libname);
-	_dl_if_debug_dprint("\t\tdynamic: %x  base: %x\n", dynamic_addr, DL_LOADADDR_BASE(lib_loadaddr));
-	_dl_if_debug_dprint("\t\t  entry: %x  phdr: %x  phnum: %x\n\n",
+	_dl_if_debug_dprint("\t\tdynamic: %lx  base: %zx\n", dynamic_addr, DL_LOADADDR_BASE(lib_loadaddr));
+	_dl_if_debug_dprint("\t\t  entry: %zx  phdr: %p  phnum: %lx\n\n",
 			DL_RELOC_ADDR(lib_loadaddr, epnt->e_entry), tpnt->ppnt, tpnt->n_phent);
 
 	_dl_munmap(header, _dl_pagesize);
@@ -1024,11 +1024,9 @@ int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int now_flag)
 /* Minimal printf which handles only %s, %d, and %x */
 void _dl_dprintf(int fd, const char *fmt, ...)
 {
-#if __WORDSIZE > 32
 	long int num;
-#else
-	int num;
-#endif
+
+	enum Size { INT, LONG } sz = INT;
 	va_list args;
 	char *start, *ptr, *string;
 	char *buf;
@@ -1071,8 +1069,20 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 		if (*ptr == '%') {
 			*ptr++ = '\0';
 			_dl_write(fd, start, _dl_strlen(start));
-
+next_fmt_char:
 			switch (*ptr++) {
+				case 'z':
+#if __WORDSIZE > 32
+					sz = INT;
+#else
+					sz = LONG;
+#endif
+					goto next_fmt_char;
+
+				case 'l':
+					sz = LONG;
+					goto next_fmt_char;
+
 				case 's':
 					string = va_arg(args, char *);
 
@@ -1086,11 +1096,11 @@ void _dl_dprintf(int fd, const char *fmt, ...)
 				case 'd':
 					{
 						char tmp[22];
-#if __WORDSIZE > 32
-						num = va_arg(args, long int);
-#else
-						num = va_arg(args, int);
-#endif
+						if (sz == LONG)
+							num = va_arg(args, long int);
+						else
+							num = va_arg(args, int);
+
 						string = _dl_simple_ltoa(tmp, num);
 						_dl_write(fd, string, _dl_strlen(string));
 						break;
