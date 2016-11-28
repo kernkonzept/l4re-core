@@ -402,14 +402,6 @@ _obstack_memory_used (struct obstack *h)
   return nbytes;
 }
 
-/* Define the error handler.  */
-# ifndef _LIBC
-#  include "gettext.h"
-# endif
-# ifndef _
-#  define _(msgid) gettext (msgid)
-# endif
-
 # if defined _LIBC && !defined __UCLIBC__
 #  include <libio/iolibio.h>
 # endif
@@ -431,9 +423,9 @@ print_and_abort (void)
      like this and the translation should be reused instead of creating
      a very similar string which requires a separate translation.  */
 # if defined _LIBC && !defined __UCLIBC__
-  (void) __fxprintf (NULL, "%s\n", _("memory exhausted"));
+  (void) __fxprintf (NULL, "%s\n", "memory exhausted");
 # else
-  fprintf (stderr, "%s\n", _("memory exhausted"));
+  fprintf (stderr, "%s\n", "memory exhausted");
 # endif
   exit (__obstack_exit_failure);
 }
