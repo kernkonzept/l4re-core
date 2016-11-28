@@ -193,9 +193,7 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 #endif
 		}
 #ifdef ARCH_DYNAMIC_INFO
-		else {
-			ARCH_DYNAMIC_INFO(dpnt, dynamic_info, debug_addr);
-		}
+		ARCH_DYNAMIC_INFO(dpnt, dynamic_info, debug_addr);
 #endif
 	}
 #define ADJUST_DYN_INFO(tag, load_off) \
