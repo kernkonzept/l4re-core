@@ -8,6 +8,8 @@
 #ifndef _DL_HASH_H
 #define _DL_HASH_H
 
+#include "dl-hash-arch.h"
+
 #ifndef RTLD_NEXT
 #define RTLD_NEXT	((void*)-1)
 #endif
@@ -145,6 +147,7 @@ struct elf_resolve {
   unsigned long dsbt_size;
   unsigned long dsbt_index;
 #endif
+  struct link_map_arch l_arch;
 };
 
 #define RELOCS_DONE	    0x000001
