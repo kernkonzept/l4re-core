@@ -30,6 +30,14 @@
  */
 
 
+/* When libdl is linked in statically into libc.a, we need to replace
+ * these symbols that otherwise would have been loaded in from ldso.
+ * This must be before including ldso.h */
+#ifndef SHARED
+#define _dl_malloc malloc
+#define _dl_free free
+#endif
+
 #include <ldso.h>
 #include <stdio.h>
 #include <string.h>
@@ -88,9 +96,6 @@ extern char *_dl_debug;
 #endif
 
 #else /* !SHARED */
-
-#define _dl_malloc malloc
-#define _dl_free free
 
 /* When libdl is linked as a static library, we need to replace all
  * the symbols that otherwise would have been loaded in from ldso... */
