@@ -25,6 +25,7 @@
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
+#include <sys/ttydefaults.h>
 
 namespace L4Re { namespace Core {
 Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) throw()
