@@ -21,16 +21,16 @@
 #include "redirect.h"
 
 #define L4B_REDIRECT(ret, func, ptlist, plist) \
-  ret func ptlist L4_NOTHROW                                    \
+  ret func ptlist noexcept(noexcept(func plist)) \
   {                          \
     ret r = L4B(func plist); \
     POST();                  \
   }
 
 void *mmap2(void *addr, size_t length, int prot, int flags,
-            int fd, off_t pgoffset) L4_NOTHROW;
+            int fd, off_t pgoffset) noexcept;
 void *mmap2(void *addr, size_t length, int prot, int flags,
-            int fd, off_t pgoffset) L4_NOTHROW
+            int fd, off_t pgoffset) noexcept
 {
   void *resptr;
   int r = L4B(mmap2(addr, length, prot, flags, fd, pgoffset, &resptr));
@@ -46,7 +46,8 @@ void *mmap2(void *addr, size_t length, int prot, int flags,
 
 /* Other versions of mmap */
 void *mmap64(void *addr, size_t length, int prot, int flags,
-             int fd, off64_t offset) L4_NOTHROW
+             int fd, off64_t offset)
+noexcept(noexcept(mmap64(addr, length, prot, flags, fd, offset)))
 {
   if (offset & ~L4_PAGEMASK)
     {
@@ -57,7 +58,8 @@ void *mmap64(void *addr, size_t length, int prot, int flags,
 }
 
 void *mmap(void *addr, size_t length, int prot, int flags,
-           int fd, off_t offset) L4_NOTHROW
+           int fd, off_t offset)
+noexcept(noexcept(mmap(addr, length, prot, flags, fd, offset)))
 {
   return mmap64(addr, length, prot, flags, fd, offset);
 }
@@ -68,7 +70,8 @@ L4B_REDIRECT_3(int, madvise, void *, size_t, int);
 L4B_REDIRECT_3(int, msync, void *, size_t, int);
 
 void *mremap(void *old_addr, size_t old_size, size_t new_size,
-             int flags, ...) L4_NOTHROW
+             int flags, ...)
+noexcept(noexcept(mremap(old_addr, old_size, new_size, flags)))
 {
   void *resptr;
   if (flags & MREMAP_FIXED)
