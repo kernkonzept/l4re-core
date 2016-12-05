@@ -310,7 +310,7 @@ Env_dir::faccessat(const char *path, int mode, int flags) throw()
 }
 
 bool
-Env_dir::check_type(Env::Cap_entry const *e, long protocol)
+Env_dir::check_type(Env::Cap_entry const *e, long protocol) throw()
 {
   L4::Cap<L4::Meta> m(e->cap);
   return m->supports(protocol).label();
