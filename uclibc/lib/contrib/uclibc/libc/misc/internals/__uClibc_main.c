@@ -73,6 +73,43 @@ uintptr_t __stack_chk_guard attribute_relro;
 
 void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 
+#ifdef __UCLIBC_HAS_THREADS__
+/*
+ * uClibc internal locking requires that we have weak aliases
+ * for dummy functions in case a single threaded application is linked.
+ * This needs to be in compilation unit that is pulled always
+ * in or linker will disregard these weaks.
+ */
+
+static int __pthread_return_0 (pthread_mutex_t *unused) { (void)unused; return 0; }
+weak_alias (__pthread_return_0, __pthread_mutex_lock)
+weak_alias (__pthread_return_0, __pthread_mutex_trylock)
+weak_alias (__pthread_return_0, __pthread_mutex_unlock)
+
+int weak_function
+__pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
+{
+        (void)mutex; (void)attr;
+        return 0;
+}
+
+void weak_function
+_pthread_cleanup_push_defer(struct _pthread_cleanup_buffer *__buffer,
+                            void (*__routine) (void *), void *__arg)
+{
+        __buffer->__routine = __routine;
+        __buffer->__arg = __arg;
+}
+
+void weak_function
+_pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer *__buffer,
+                             int __execute)
+{
+        if (__execute)
+                __buffer->__routine(__buffer->__arg);
+}
+#endif /* __UCLIBC_HAS_THREADS__ */
+
 #endif /* !SHARED */
 
 /* Defeat compiler optimization which assumes function addresses are never NULL */

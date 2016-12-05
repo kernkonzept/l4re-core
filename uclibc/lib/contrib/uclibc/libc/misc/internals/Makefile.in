@@ -25,7 +25,9 @@ libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.oS
 else
 libc-shared-y += $(MISC_INTERNALS_OUT)/__uClibc_main.os
 endif
-libc-static-y += $(MISC_INTERNALS_OUT)/__uClibc_main.o
+# link order is important to not pull in pthread functions, when
+# a single threaded application is statically linked
+libc-static-y := $(MISC_INTERNALS_OUT)/__uClibc_main.o $(libc-static-y)
 libc-static-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += \
   $(MISC_INTERNALS_OUT)/shared_flat_initfini.o \
   $(MISC_INTERNALS_OUT)/shared_flat_add_library.o
