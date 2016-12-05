@@ -99,11 +99,6 @@ enum l4_msgtag_flags
    * \hideinitializer
    */
   L4_MSGTAG_ERROR        = 0x8000,
-  /**
-   * Cross-CPU invocation indicator flag.
-   * \hideinitializer
-   */
-  L4_MSGTAG_XCPU         = 0x4000,
 
   // flags for sending IPC
   /**
