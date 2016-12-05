@@ -488,7 +488,7 @@ static void init_env()
   my_env.scheduler(L4_BASE_SCHEDULER_CAP);
 }
 
-static __attribute__((used, section(".preinit_array")))
+static __attribute__((used, section(".init_array.0")))
    const void *pre_init_env = (void *)init_env;
 
 int main(int argc, char**argv)
