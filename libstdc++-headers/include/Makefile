@@ -5,6 +5,6 @@ CONTRIB_HEADERS = y
 INCSRC_DIR      = $(SRC_DIR)
 PKGNAME         = libstdc++-v3
 
-EXTRA_TARGET    = thread-l4
+EXTRA_TARGET    = thread-l4 make_unique-l4
 
 include $(L4DIR)/mk/include.mk
