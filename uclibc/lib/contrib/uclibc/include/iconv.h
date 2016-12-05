@@ -1,59 +1,32 @@
-/* Copyright (C) 1997, 1998, 1999, 2000, 2003 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
-
-   The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   The GNU C Library is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
-
 #ifndef _ICONV_H
-#define _ICONV_H	1
+#define _ICONV_H 1
 
-#include <features.h>
-#define __need_size_t
+#define _LIBICONV_VERSION 0x010B    /* version number: (major<<8) + minor */
+
 #include <stddef.h>
 
-#ifndef __UCLIBC_HAS_LOCALE__
-#error Attempted to include iconv.h when uClibc was built without locale support.
+#ifdef __cplusplus
+extern "C" {
 #endif
 
+extern int _libiconv_version; /* Likewise */
 
-__BEGIN_DECLS
+typedef long iconv_t;
 
-/* Identifier for conversion method from one codeset to another.  */
-typedef void *iconv_t;
+extern iconv_t
+iconv_open(const char *tocode, const char *fromcode);
 
+extern size_t
+iconv(iconv_t cd, char **inbuf, size_t *inbytesleft,
+                  char **outbuf, size_t *outbytesleft);
 
-/* Allocate descriptor for code conversion from codeset FROMCODE to
-   codeset TOCODE.
+extern int
+iconv_close(iconv_t cd);
 
-   This function is a possible cancellation point and therefore not
-   marked with __THROW.  */
-extern iconv_t iconv_open (const char *__tocode, const char *__fromcode);
+#define libiconv_set_relocation_prefix(...) do {} while(0)
 
-/* Convert at most *INBYTESLEFT bytes from *INBUF according to the
-   code conversion algorithm specified by CD and place up to
-   *OUTBYTESLEFT bytes in buffer at *OUTBUF.  */
-extern size_t iconv (iconv_t __cd, char **__restrict __inbuf,
-		     size_t *__restrict __inbytesleft,
-		     char **__restrict __outbuf,
-		     size_t *__restrict __outbytesleft);
+#ifdef __cplusplus
+}
+#endif
 
-/* Free resources allocated for descriptor CD for code conversion.
-
-   This function is a possible cancellation point and therefore not
-   marked with __THROW.  */
-extern int iconv_close (iconv_t __cd);
-
-__END_DECLS
-
-#endif /* iconv.h */
+#endif /* _ICONV_H */

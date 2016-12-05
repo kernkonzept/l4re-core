@@ -38,6 +38,7 @@ include $(top_srcdir)libpthread/Makefile.in
 include $(top_srcdir)librt/Makefile.in
 include $(top_srcdir)libuargp/Makefile.in
 include $(top_srcdir)libubacktrace/Makefile.in
+include $(top_srcdir)libiconv/Makefile.in
 
 # last included to catch all the objects added by others (locales/threads)
 include $(top_srcdir)libc/Makefile.in
@@ -278,6 +279,7 @@ HEADERS_RM-$(UCLIBC_HAS_GNU_ERROR)           += error.h
 HEADERS_RM-$(UCLIBC_HAS_GETOPT_LONG)         += getopt.h
 HEADERS_RM-$(UCLIBC_HAS_IPV6)                += netinet/ip6.h netinet/icmp6.h
 HEADERS_RM-$(UCLIBC_HAS_BACKTRACE)           += execinfo.h
+HEADERS_RM-$(UCLIBC_HAS_LIBICONV)            += iconv.h
 HEADERS_RM-$(UCLIBC_HAS_LOCALE)              += iconv.h bits/uClibc_ctype.h
 HEADERS_RM-$(UCLIBC_HAS_PTY)                 += pty.h
 HEADERS_RM-$(UCLIBC_HAS_REALTIME)            += mqueue.h bits/mqueue.h sched.h \
@@ -374,6 +376,9 @@ EMPTY_LIB_NAMES += crypt
 endif
 ifeq ($(UCLIBC_HAS_LIBUTIL),y)
 EMPTY_LIB_NAMES += util
+endif
+ifeq ($(UCLIBC_HAS_LIBICONV),y)
+EMPTY_LIB_NAMES += iconv
 endif
 EMPTY_LIBS = $(EMPTY_LIB_NAMES:%=lib/lib%.a)
 

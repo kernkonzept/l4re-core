@@ -1467,6 +1467,11 @@ config UCLIBC_HAS_WCHAR
 
 	  Most people will answer N.
 
+config UCLIBC_HAS_LIBICONV
+	bool "Iconv Support"
+	help
+	  Add tiny iconv support for charset conversion from and to UTF-8.
+
 config UCLIBC_HAS_LOCALE
 	bool "Locale Support"
 	select UCLIBC_HAS_WCHAR
