@@ -79,7 +79,7 @@ public:
   { _c = c; }
 
   void trim_rights(L4_cap_fpage_rights keep)
-  { _rights = _rights & (keep | (~0 << 4)); }
+  { _rights = _rights & (keep | (~0U << 4)); }
 
   void set_flags(unsigned flags)
   { _flags |= flags; }
