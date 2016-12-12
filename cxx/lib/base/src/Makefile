@@ -6,6 +6,7 @@ SYSTEMS		= $(SYSTEMS_PLAIN)
 PC_FILENAME     = cxx_base
 SRC_CC		= cxa_pure_virtual.cc cxa_pure_delete.cc
 SRC_CC_arm     	= dso_handle.cc
+REQUIRES_LIBS  := cxx_io
 
 CXX_PKG_DIR=$(PKGDIR)
 include $(PKGDIR)/lib/Makefile.inc

@@ -17,6 +17,8 @@ MAXPAGESIZE_ppc32    := 0x1000
 COMMONPAGESIZE_ppc32 := 0x1000
 
 LD_SCRIPTS      = main_stat.ld main_rel.ld main_dyn.ld
+PC_FILENAME    := ldscripts
+PC_LIBS        :=
 
 # Create the wrapper binaries for programs and shared libs from uclibc
 # source files (assembly).
