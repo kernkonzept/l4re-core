@@ -50,6 +50,9 @@
 #endif
 
 #define __cpp_lib_incomplete_container_elements 201505
+#if __cplusplus >= 201103L
+# define __cpp_lib_allocator_is_always_equal 201411
+#endif
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {
@@ -80,8 +83,16 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       // 2103. std::allocator propagate_on_container_move_assignment
       typedef true_type propagate_on_container_move_assignment;
 
-#define __cpp_lib_allocator_is_always_equal 201411
       typedef true_type is_always_equal;
+
+      template<typename _Up, typename... _Args>
+	void
+	construct(_Up* __p, _Args&&... __args)
+	{ ::new((void *)__p) _Up(std::forward<_Args>(__args)...); }
+
+      template<typename _Up>
+	void
+	destroy(_Up* __p) { __p->~_Up(); }
 #endif
     };
 
@@ -113,6 +124,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       // _GLIBCXX_RESOLVE_LIB_DEFECTS
       // 2103. std::allocator propagate_on_container_move_assignment
       typedef true_type propagate_on_container_move_assignment;
+
+      typedef true_type is_always_equal;
 #endif
 
       allocator() throw() { }

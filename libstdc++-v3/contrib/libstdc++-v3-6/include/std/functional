@@ -185,31 +185,23 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { };
 
   template<typename _Tp, typename _Up = typename decay<_Tp>::type>
-    struct _Unwrap
+    struct __inv_unwrap
     {
-      using type = _Tp&&;
-
-      // Equivalent to std::forward<_Tp>
-      static constexpr _Tp&&
-      _S_fwd(_Tp& __t) noexcept { return static_cast<_Tp&&>(__t); }
+      using type = _Tp;
     };
 
   template<typename _Tp, typename _Up>
-    struct _Unwrap<_Tp, reference_wrapper<_Up>>
+    struct __inv_unwrap<_Tp, reference_wrapper<_Up>>
     {
       using type = _Up&;
-
-      // Get an lvalue-reference from a reference_wrapper.
-      static _Up&
-      _S_fwd(const _Tp& __t) noexcept { __t.get(); }
     };
 
   // Used by __invoke_impl instead of std::forward<_Tp> so that a
   // reference_wrapper is converted to an lvalue-reference.
-  template<typename _Tp>
-    inline typename _Unwrap<_Tp>::type
+  template<typename _Tp, typename _Up = typename __inv_unwrap<_Tp>::type>
+    inline _Up&&
     __invfwd(typename remove_reference<_Tp>::type& __t) noexcept
-    { return _Unwrap<_Tp>::_S_fwd(__t); }
+    { return static_cast<_Up&&>(__t); }
 
   template<typename _Res, typename _Fn, typename... _Args>
     inline _Res
@@ -235,16 +227,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       return ((*std::forward<_Tp>(__t)).*__f)(std::forward<_Args>(__args)...);
     }
 
-  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+  template<typename _Res, typename _MemPtr, typename _Tp>
     inline _Res
-    __invoke_impl(__invoke_memobj_ref, _MemFun&& __f, _Tp&& __t)
+    __invoke_impl(__invoke_memobj_ref, _MemPtr&& __f, _Tp&& __t)
     noexcept(noexcept(__invfwd<_Tp>(__t).*__f))
     { return __invfwd<_Tp>(__t).*__f; }
 
-  template<typename _Res, typename _MemFun, typename _Tp, typename... _Args>
+  template<typename _Res, typename _MemPtr, typename _Tp>
     inline _Res
-    __invoke_impl(__invoke_memobj_deref, _MemFun&& __f, _Tp&& __t,
-		  _Args&&... __args)
+    __invoke_impl(__invoke_memobj_deref, _MemPtr&& __f, _Tp&& __t)
     noexcept(noexcept((*std::forward<_Tp>(__t)).*__f))
     { return (*std::forward<_Tp>(__t)).*__f; }
 
@@ -1568,7 +1559,7 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
 	static void
 	_M_clone(_Any_data& __dest, const _Any_data& __source, true_type)
 	{
-	  new (__dest._M_access()) _Functor(__source._M_access<_Functor>());
+	  ::new (__dest._M_access()) _Functor(__source._M_access<_Functor>());
 	}
 
 	// Clone a function object that is not location-invariant or
@@ -1649,7 +1640,7 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
       private:
 	static void
 	_M_init_functor(_Any_data& __functor, _Functor&& __f, true_type)
-	{ new (__functor._M_access()) _Functor(std::move(__f)); }
+	{ ::new (__functor._M_access()) _Functor(std::move(__f)); }
 
 	static void
 	_M_init_functor(_Any_data& __functor, _Functor&& __f, false_type)
@@ -2020,7 +2011,7 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
        *  Swap the targets of @c this function object and @a __f. This
        *  function will not throw an %exception.
        */
-      void swap(function& __x)
+      void swap(function& __x) noexcept
       {
 	std::swap(_M_functor, __x._M_functor);
 	std::swap(_M_manager, __x._M_manager);
@@ -2233,9 +2224,11 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
    *
    *  This function will not throw an %exception.
    */
+  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+  // 2062. Effect contradictions w/o no-throw guarantee of std::function swaps
   template<typename _Res, typename... _Args>
     inline void
-    swap(function<_Res(_Args...)>& __x, function<_Res(_Args...)>& __y)
+    swap(function<_Res(_Args...)>& __x, function<_Res(_Args...)>& __y) noexcept
     { __x.swap(__y); }
 
 _GLIBCXX_END_NAMESPACE_VERSION

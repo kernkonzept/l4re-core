@@ -168,9 +168,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
        */
       explicit
       unique_ptr(pointer __p) noexcept
-      : _M_t(__p, deleter_type())
-      { static_assert(!is_pointer<deleter_type>::value,
-		     "constructed with null function pointer deleter"); }
+      : _M_t()
+      {
+	std::get<0>(_M_t) = __p;
+	static_assert(!is_pointer<deleter_type>::value,
+		     "constructed with null function pointer deleter");
+      }
 
       /** Takes ownership of a pointer.
        *
@@ -610,10 +613,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       void
       reset(_Up __p) noexcept
       {
+	pointer __ptr = __p;
 	using std::swap;
-	swap(std::get<0>(_M_t), __p);
-	if (__p != nullptr)
-	  get_deleter()(__p);
+	swap(std::get<0>(_M_t), __ptr);
+	if (__ptr != nullptr)
+	  get_deleter()(__ptr);
       }
 
       void reset(nullptr_t = nullptr) noexcept
