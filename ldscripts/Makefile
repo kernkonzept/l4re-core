@@ -3,6 +3,11 @@ L4DIR		?= $(PKGDIR)/../../..
 
 SYSTEMS		= $(SYSTEMS_PLAIN)
 
+define PC_EXTRA
+Link_Start= %{nocrt1|shared:; :%:search(crt1.o %(libdir))} %:search(crti%{shared:.s}.o %(libdir)) %{static:%:if-exists(%:search(crtbeginT.o %(gcclibdir)) %:search(crtbegin.o %(gcclibdir)));shared:%:search(crtbeginS.o %(gcclibdir));:%:search(crtbegin.o %(gcclibdir))}
+Link_End=   %:search(%{shared:crtendS.o;:crtend.o} %(gcclibdir)) %:search(crtn%{shared:.s}.o %(libdir))
+endef
+
 # Page sizes for linker
 MAXPAGESIZE_amd64    := 0x200000
 COMMONPAGESIZE_amd64 := 0x1000
@@ -37,10 +42,13 @@ UCLIBC_BASE       = $(PKGDIR)/../uclibc
 UCLIBC_SYSDEPS    = $(UCLIBC_BASE)/lib/contrib/uclibc/libc/sysdeps/linux/$(UCLIBC_ARCH_$(ARCH))
 
 PRIVATE_INCDIR    = $(PKGDIR) $(UCLIBC_SYSDEPS)
+TARGET            =
 
 vpath %.S $(UCLIBC_SYSDEPS)
 
 INSTALL_TARGET	= $(LD_SCRIPTS) crti.o crtn.o crt1.o crti.s.o crtn.s.o crt1.s.o
+
+REQUIRES_LIBS_all_lib :=
 
 include $(L4DIR)/mk/lib.mk
 

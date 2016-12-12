@@ -7,6 +7,7 @@ SUPCXX_PKG_DIR =  $(PKGDIR)/../libsupc++
 TARGET          = libsupc++_minimal.a
 PC_FILENAME     = libsupc++_minimal
 PC_LIBS		= -lsupc++_minimal
+PC_EXTRA        = Link_Libs= %{static:-lsupc++_minimal}
 REQUIRES_LIBS   = libc_minimal
 DEFINES        += -DL4_MINIMAL_LIBC
 

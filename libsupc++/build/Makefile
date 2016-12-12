@@ -4,6 +4,7 @@ L4DIR  ?= 	$(PKGDIR)/../../..
 TARGET         ?= libsupc++.a libsupc++.so
 PC_FILENAME    ?= libsupc++
 PC_LIBS        ?= -lsupc++
+PC_EXTRA       ?= Link_Libs= %{static:-lsupc++}
 REQUIRES_LIBS  ?= libc
 
 CONTRIB_INCDIR  = libstdc++-v3

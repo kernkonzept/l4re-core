@@ -1,3 +1,4 @@
 provides: libgcc-pure
 source-pkg: libgcc
+requires: ldscripts
 maintainer: adam@os.inf.tu-dresden.de

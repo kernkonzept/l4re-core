@@ -30,7 +30,8 @@ SRC_CC_sparc-l4f := ioports_none.cc
 SRC_C  := support.c
 SRC_S  := $(addprefix ARCH-$(ARCH)/, crt0.S)
 
+LDFLAGS += -nocrt1
+
 include $(L4DIR)/mk/prog.mk
-CRT1_stat_bin   =
 
 CXXFLAGS	+= -DL4_NO_RTTI -fno-rtti -fno-exceptions -Wall

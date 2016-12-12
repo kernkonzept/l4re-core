@@ -5,6 +5,10 @@ L4DIR		?= $(PKGDIR)/../..
 TARGET          := libuc_c_minimal.a libuc_c_minimal.p.a
 PC_FILENAME     := libc_minimal
 PC_LIBS         := -luc_c_minimal
+define PC_EXTRA
+Link_Libs=  %{static:-luc_c_minimal}
+endef
+
 DEFINES		+= -DL4_MINIMAL_LIBC
 LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
 

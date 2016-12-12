@@ -6,8 +6,11 @@ TARGET		             = libl4sys.a        libl4sys.so        \
                                libl4sys-l4x.a    libl4sys-l4x.so
 PC_FILENAMES                 = l4sys l4sys-direct l4sys-l4x
 PC_LIBS_l4sys                = -ll4sys
+PC_EXTRA_l4sys               = Link_Libs= %{static:-ll4sys}
 PC_LIBS_l4sys-direct         = -ll4sys-direct
+PC_EXTRA_l4sys-direct        = Link_Libs= %{static:-ll4sys-direct}
 PC_LIBS_l4sys-l4x            = -ll4sys-l4x
+PC_EXTRA_l4sys-l4x           = Link_Libs= %{static:-ll4sys-l4x}
 
 CXXFLAGS                    += -DL4_NO_RTTI -fno-rtti -fno-exceptions
 
