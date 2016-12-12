@@ -26,7 +26,7 @@ public:
   unsigned long end() const { return _h; }
 
   void owner(unsigned owner) const { _l = (_l & ~Owner_mask) | owner; }
-  void start(unsigned long _start) const 
+  void start(unsigned long _start) const
   { _l = (_l & Owner_mask) | (_start & ~Owner_mask); }
   void end(unsigned long _end) const { _h = _end; }
 
@@ -34,7 +34,7 @@ public:
   bool contains(Region const &r) const
   { return start() <= r.start() && end() >= r.end(); }
 
-  bool operator == (Region const &r) const 
+  bool operator == (Region const &r) const
   { return start() == r.start() && end() == r.end(); }
 
   bool valid() const { return end() >= start(); }
@@ -42,15 +42,15 @@ public:
   static Region invalid() { return Region(~0UL, 0); }
 
   static Region bs(unsigned long start, unsigned long size, unsigned owner = 0)
-  { 
+  {
     if (size == 0)
       return invalid();
 
-    return Region(start, start+size-1,owner); 
+    return Region(start, start + size - 1, owner);
   }
 
   static Region kr(unsigned long start, unsigned long end, unsigned owner = 0)
-  { return bs(start, end-start, owner); }
+  { return bs(start, end - start, owner); }
 
 };
 
@@ -58,7 +58,7 @@ public:
 template< typename OS >
 OS &operator << (OS &os, Region const &r)
 {
-  os << '[' << r.owner() << ':' << (void*)r.start() << ';' << (void*)r.end() << ']';
+  os << '[' << r.owner() << ':' << (void *)r.start() << ';' << (void *)r.end() << ']';
   return os;
 }
 #endif
