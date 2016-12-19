@@ -229,7 +229,8 @@ l4_factory_create_irq_u(l4_cap_idx_t factory,
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_vm(l4_cap_idx_t factory,
-                       l4_cap_idx_t target_cap) L4_NOTHROW;
+                     l4_cap_idx_t target_cap) L4_NOTHROW;
+
 /**
  * \ingroup l4_factory_api
  * \copybrief L4::Factory::create_vm
