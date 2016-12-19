@@ -180,13 +180,17 @@ l4_task_release_cap_u(l4_cap_idx_t task, l4_cap_idx_t cap,
 
 
 /**
- * Test whether a capability selector points to a valid capability.
+ * Check whether a capability is present (refers to an object).
  * \ingroup l4_task_api
  *
- * \param task         Capability selector of the destination task to do the
- *                     lookup in
- * \param cap          Capability selector to look up in the destination task
- * \return label contains >0 if valid, 0 if invalid
+ * \param task  Task to check the capability in.
+ * \param cap   Capability to check for presence..
+ *
+ * \retval tag.label() > 0   Capability is present (refers to an object).
+ * \retval tag.label() == 0  No capability present (void object).
+ *
+ * A capability is considered present when it refers to an existing
+ * kernel object.
  */
 L4_INLINE l4_msgtag_t
 l4_task_cap_valid(l4_cap_idx_t task, l4_cap_idx_t cap) L4_NOTHROW;

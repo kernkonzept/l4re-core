@@ -13,7 +13,6 @@ class Kobject;
 template< typename T > class L4_EXPORT Cap;
 
 /**
- * \internal
  * Base class for all kinds of capabilities.
  * \attention This class is not for direct use, use L4::Cap instead.
  * \headerfile l4/sys/capability
@@ -52,8 +51,8 @@ public:
   l4_cap_idx_t cap() const throw() { return _c; }
 
   /**
-   * \brief Test whether capability selector is not the invalid capability
-   *        selector.
+   * Test whether the capability is a valid capability index (i.e.,
+   * not L4_INVALID_CAP).
    *
    * \return True if capability is not invalid, false if invalid
    */
@@ -63,17 +62,21 @@ public:
   { return (Invalid_conversion*)(!(_c & L4_INVALID_CAP_BIT)); }
 
   /**
-   * \brief Returns flex-page of the capability selector.
+   * Return flex-page for the capability.
+   *
    * \param rights   Rights, defaults to 'rwx'
+   *
    * \return flex-page
    */
   l4_fpage_t fpage(unsigned rights = L4_FPAGE_RWX) const throw()
   { return l4_obj_fpage(_c, 0, rights); }
 
   /**
-   * \brief Returns send base.
+   * Return send base.
+   *
    * \param grant  True object should be granted.
-   * \param base   Base capability selector
+   * \param base   Base capability (first in a bundle of aligned capabilities)
+   *
    * \return Map object.
    */
   l4_umword_t snd_base(unsigned grant = 0,
@@ -86,54 +89,65 @@ public:
 
 
   /**
-   * \brief Test if two capability selectors are equal.
+   * Test if two capabilities are equal.
    */
   bool operator == (Cap_base const &o) const throw()
   { return _c == o._c; }
 
   /**
-   * \brief Test if two capability selectors are not equal.
+   * Test if two capabilities are not equal.
    */
   bool operator != (Cap_base const &o) const throw()
   { return _c != o._c; }
 
   /**
-   * \brief Check whether a capability selector points to a valid capability.
+   * Check whether a capability is present (refers to an object).
    *
-   * \param u     UTCB of the caller
-   * \return label > 0 valid, label == 0 invalid
+   * \utcb{u}
+   *
+   * \retval tag.label() > 0   Capability is present (refers to an object).
+   * \retval tag.label() == 0  No capability present (void object).
+   *
+   * A capability is considered present when it refers to an existing
+   * kernel object.
    */
   inline l4_msgtag_t validate(l4_utcb_t *u = l4_utcb()) const throw();
 
   /**
-   * \brief Check whether a capability selector points to a valid capability.
+   * Check whether a capability is present (refers to an object).
    *
-   * \param u     UTCB of the caller
-   * \param task  Task to check the capability in
+   * \param task  Task to check the capability in.
+   * \utcb{u}
    *
-   * \return label > 0 valid, label == 0 invalid
+   * \retval tag.label() > 0   Capability is present (refers to an object).
+   * \retval tag.label() == 0  No capability present (void object).
+   *
+   * A capability is considered present when it refers to an existing
+   * kernel object.
    */
   inline l4_msgtag_t validate(Cap<Task> task,
                               l4_utcb_t *u = l4_utcb()) const throw();
 
   /**
-   * \brief Set this selector to the invalid capability (L4_INVALID_CAP).
+   * Set this capability to invalid (L4_INVALID_CAP).
    */
   void invalidate() throw() { _c = L4_INVALID_CAP; }
 protected:
   /**
-   * \brief Generate a capability from its C representation.
-   * \param c the C capability selector
+   * Generate a capability from its C representation.
+   *
+   * \param c  The C capability
    */
   explicit Cap_base(l4_cap_idx_t c) throw() : _c(c) {}
   /**
-   * \brief Constructor to create an invalid capability selector.
+   * Constructor to create an invalid capability.
    */
   explicit Cap_base(Cap_type cap) throw() : _c(cap) {}
 
   /**
-   * \brief Initialize capability with one of the default capability selectors.
-   * \param cap  Capability selector.
+   * Initialize capability with one of the default capabilities.
+   *
+   * \param cap  Capability.
    */
   explicit Cap_base(l4_default_caps_t cap) throw() : _c(cap) {}
 
@@ -143,10 +157,13 @@ protected:
   explicit Cap_base() throw() {}
 
   /**
-   * \brief Move a capability to this cap slot.
-   * \param src the source capability slot.
+   * Replace this capability with the contents of `src`.
    *
-   * After this operation the source slot is no longer valid.
+   * \param src the source capability.
+   *
+   * After the operation this capability refers to the object formerly referd
+   * to by the source capability `src`, and the source capability no longer
+   * refers to an object.
    */
   void move(Cap_base const &src) const
   {
@@ -158,8 +175,11 @@ protected:
   }
 
   /**
-   * \brief Copy a capability to this cap slot.
-   * \param src the source capability slot.
+   * Copy a capability.
+   * \param src the source capability.
+   *
+   * After this operation this capability refers to the same object
+   * as `src`.
    */
   void copy(Cap_base const &src) const
   {
