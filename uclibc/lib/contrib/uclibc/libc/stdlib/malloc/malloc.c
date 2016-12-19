@@ -208,14 +208,8 @@ malloc (size_t size)
     __heap_check (__malloc_heap, "malloc");
 #endif
 
-#ifdef __MALLOC_GLIBC_COMPAT__
   if (unlikely (size == 0))
     size++;
-#else
-  /* Some programs will call malloc (0).  Lets be strict and return NULL */
-  if (unlikely (size == 0))
-    goto oom;
-#endif
 
   /* Check if they are doing something dumb like malloc(-1) */
   if (unlikely(((unsigned long)size > (unsigned long)(MALLOC_HEADER_SIZE*-2))))

@@ -26,13 +26,7 @@ void *malloc(size_t size)
 	void *result;
 
 	if (unlikely(size == 0)) {
-#if defined(__MALLOC_GLIBC_COMPAT__)
 		size++;
-#else
-		/* Some programs will call malloc (0).  Lets be strict and return NULL */
-		__set_errno(ENOMEM);
-		return NULL;
-#endif
 	}
 
 	/* prevent Undefined Behaviour for pointer arithmetic (substract) of too big pointers

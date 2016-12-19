@@ -824,13 +824,6 @@ void* malloc(size_t bytes)
     void *          sysmem;
     void *          retval;
 
-#if !defined(__MALLOC_GLIBC_COMPAT__)
-    if (!bytes) {
-        __set_errno(ENOMEM);
-        return NULL;
-    }
-#endif
-
     /*
        Convert request size to internal form by adding (sizeof(size_t)) bytes
        overhead plus possibly more to obtain necessary alignment and/or
