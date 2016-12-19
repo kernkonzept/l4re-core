@@ -5,9 +5,6 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-#DIRS:=assert ctype dirent error file fnmatch ftw glob gnu internals intl locale mntent \
-#	pthread regex search statfs syslog sysvipc time ttyent utmp wchar wctype wordexp
-
 include $(top_srcdir)libc/misc/assert/Makefile.in
 include $(top_srcdir)libc/misc/ctype/Makefile.in
 include $(top_srcdir)libc/misc/dirent/Makefile.in
@@ -18,7 +15,6 @@ include $(top_srcdir)libc/misc/fnmatch/Makefile.in
 include $(top_srcdir)libc/misc/ftw/Makefile.in
 include $(top_srcdir)libc/misc/fts/Makefile.in
 include $(top_srcdir)libc/misc/glob/Makefile.in
-include $(top_srcdir)libc/misc/gnu/Makefile.in
 include $(top_srcdir)libc/misc/internals/Makefile.in
 include $(top_srcdir)libc/misc/locale/Makefile.in
 include $(top_srcdir)libc/misc/mntent/Makefile.in
