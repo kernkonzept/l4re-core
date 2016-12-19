@@ -19,17 +19,6 @@
 namespace Lua {
 namespace {
 
-
-static void
-register_cap(lua_State *l, char const *name, L4::Cap<void> i, long proto = 0)
-{
-  lua_pushinteger(l, proto);
-  Cap *c = push_new_cap(l, true);
-  c->set(Cap::C<void>::Cap(i));
-  c->set_rights(L4_CAP_FPAGE_RWS);
-  lua_setfield(l, -2, name);
-}
-
 class Lib_env : public Lib
 {
 public:

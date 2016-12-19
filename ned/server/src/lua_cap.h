@@ -136,6 +136,9 @@ push_new_cap(lua_State *l, bool void_cap = false);
 Cap *
 push_void_cap(lua_State *l);
 
+void
+register_cap(lua_State *l, char const *name, L4::Cap<void> i, long proto = 0);
+
 inline
 Cap *
 check_cap(lua_State *l, int idx)

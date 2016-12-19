@@ -302,6 +302,16 @@ push_new_cap(lua_State *l, bool void_cap)
   return nc;
 }
 
+void
+register_cap(lua_State *l, char const *name, L4::Cap<void> i, long proto)
+{
+  lua_pushinteger(l, proto);
+  Cap *c = push_new_cap(l, true);
+  c->set(Cap::C<void>::Cap(i));
+  c->set_rights(L4_CAP_FPAGE_RWS);
+  lua_setfield(l, -2, name);
+}
+
 static int
 __cast(lua_State *l)
 {
