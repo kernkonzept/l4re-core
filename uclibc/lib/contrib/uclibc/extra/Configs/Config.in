@@ -1472,6 +1472,12 @@ config UCLIBC_HAS_LIBICONV
 	help
 	  Add tiny iconv support for charset conversion from and to UTF-8.
 
+config UCLIBC_HAS_LIBINTL
+	bool "Intl stubs support"
+	help
+	  If you enable this option you get stubs for the gettext family of
+	  functions.
+
 config UCLIBC_HAS_LOCALE
 	bool "Locale Support"
 	select UCLIBC_HAS_WCHAR

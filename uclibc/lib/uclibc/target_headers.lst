@@ -136,6 +136,7 @@ libc-symbols.h
 bits/l4-libc-symbols.h
 bits/l4-malloc.h
 libgen.h
+libintl.h
 limits.h
 link.h
 linux/errno.h
