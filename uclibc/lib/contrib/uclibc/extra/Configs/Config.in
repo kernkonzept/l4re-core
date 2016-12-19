@@ -955,15 +955,6 @@ config UCLIBC_GRP_BUFFER_SIZE
 
 comment "Support various families of functions"
 
-config UCLIBC_LINUX_MODULE_26
-	bool "Linux kernel module functions (2.6)"
-	default y
-	help
-	  delete_module, init_module
-	  are used in linux for loadable kernel modules.
-
-	  Say N if you do not use kernel modules.
-
 config UCLIBC_LINUX_SPECIFIC
 	bool "Linux specific functions"
 	default y

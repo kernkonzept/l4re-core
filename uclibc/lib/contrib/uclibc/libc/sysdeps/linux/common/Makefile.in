@@ -15,7 +15,6 @@ CSRC_LFS := $(notdir $(wildcard $(COMMON_DIR)/*64.c))
 CSRC-y := $(filter-out llseek.c $(CSRC_LFS),$(CSRC-y))
 CSRC-y += llseek.c $(CSRC_LFS)
 CSRC-$(findstring y,$(UCLIBC_HAS_SSP)$(UCLIBC_HAS_FORTIFY)) += ssp.c
-CSRC-$(UCLIBC_LINUX_MODULE_26) += delete_module.c init_module.c
 # we need these internally: fstatfs.c statfs.c
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	bdflush.c \

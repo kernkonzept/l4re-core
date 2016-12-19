@@ -86,10 +86,6 @@ make_stub(capset)
 make_stub(connect)
 #endif
 
-#if !defined __NR_delete_module && defined __UCLIBC_LINUX_MODULE_26__
-make_stub(delete_module)
-#endif
-
 #if !defined __NR_epoll_create && defined __UCLIBC_HAS_EPOLL__ \
 	&& !defined __NR_epoll_create1
 make_stub(epoll_create)
@@ -167,10 +163,6 @@ make_stub(getsockopt)
 
 #ifndef __NR_getxattr
 make_stub(getxattr)
-#endif
-
-#if !defined __NR_init_module && defined __UCLIBC_LINUX_MODULE_26__
-make_stub(init_module)
 #endif
 
 #if !defined __NR_inotify_add_watch && defined __UCLIBC_LINUX_SPECIFIC__
