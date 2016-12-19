@@ -860,22 +860,6 @@ extern char *ctermid (char *__s) __THROW;
 extern char *cuserid (char *__s);
 #endif /* Use X/Open, but not issue 6.  */
 
-
-#if defined __USE_GNU && defined __UCLIBC_HAS_OBSTACK__
-struct obstack;			/* See <obstack.h>.  */
-
-/* Write formatted output to an obstack.  */
-extern int obstack_printf (struct obstack *__restrict __obstack,
-			   const char *__restrict __format, ...)
-     __THROWNL __attribute__ ((__format__ (__printf__, 2, 3)));
-extern int obstack_vprintf (struct obstack *__restrict __obstack,
-			    const char *__restrict __format,
-			    __gnuc_va_list __args)
-     __THROWNL __attribute__ ((__format__ (__printf__, 2, 0)));
-libc_hidden_proto(obstack_vprintf)
-#endif /* USE_GNU && UCLIBC_HAS_OBSTACK.  */
-
-
 #if defined __USE_POSIX || defined __USE_MISC
 /* These are defined in POSIX.1:1996.  */
 

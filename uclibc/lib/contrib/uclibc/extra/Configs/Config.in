@@ -615,15 +615,6 @@ config MALLOC_STANDARD
 
 endchoice
 
-config UCLIBC_HAS_OBSTACK
-	bool "Obstack Support (gnu extension)"
-	help
-	  When this option is enabled, uClibc will provide support for obstacks.
-	  An obstack is a structure in which memory can be dynamically allocated
-	  as a 'stack of objects'.  Many programs need this GNU extention and
-	  you should say Y if you are using any.  Otherwise, say N to save some
-	  space.
-
 config UCLIBC_DYNAMIC_ATEXIT
 	bool "Dynamic atexit() Support"
 	default y

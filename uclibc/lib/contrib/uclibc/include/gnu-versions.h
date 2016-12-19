@@ -43,9 +43,6 @@
    remember, if any of these versions change, the libc.so major version
    number must change too (so avoid it)!  */
 
-#ifdef __UCLIBC_HAS_OBSTACK__
-#define _GNU_OBSTACK_INTERFACE_VERSION	1 /* vs malloc/obstack.c */
-#endif
 #define _GNU_REGEX_INTERFACE_VERSION	1 /* vs posix/regex.c */
 #ifdef __UCLIBC_HAS_GNU_GLOB__
 #define _GNU_GLOB_INTERFACE_VERSION	1 /* vs posix/glob.c */
