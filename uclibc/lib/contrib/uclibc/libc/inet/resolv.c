@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* resolv.c: DNS Resolver
  *
  * Copyright (C) 1998  Kenneth Albanowski <kjahds@kjahds.com>,
@@ -71,69 +70,6 @@
  * PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
  * SOFTWARE.
- */
-/*
- *  5-Oct-2000 W. Greathouse  wgreathouse@smva.com
- *   Fix memory leak and memory corruption.
- *   -- Every name resolution resulted in
- *      a new parse of resolv.conf and new
- *      copy of nameservers allocated by
- *      strdup.
- *   -- Every name resolution resulted in
- *      a new read of resolv.conf without
- *      resetting index from prior read...
- *      resulting in exceeding array bounds.
- *
- *   Limit nameservers read from resolv.conf.
- *   Add "search" domains from resolv.conf.
- *   Some systems will return a security
- *   signature along with query answer for
- *   dynamic DNS entries -- skip/ignore this answer.
- *   Include arpa/nameser.h for defines.
- *   General cleanup.
- *
- * 20-Jun-2001 Michal Moskal <malekith@pld.org.pl>
- *   partial IPv6 support (i.e. gethostbyname2() and resolve_address2()
- *   functions added), IPv6 nameservers are also supported.
- *
- * 6-Oct-2001 Jari Korva <jari.korva@iki.fi>
- *   more IPv6 support (IPv6 support for gethostbyaddr();
- *   address family parameter and improved IPv6 support for get_hosts_byname
- *   and read_etc_hosts; getnameinfo() port from glibc; defined
- *   defined ip6addr_any and in6addr_loopback)
- *
- * 2-Feb-2002 Erik Andersen <andersen@codepoet.org>
- *   Added gethostent(), sethostent(), and endhostent()
- *
- * 17-Aug-2002 Manuel Novoa III <mjn3@codepoet.org>
- *   Fixed __read_etc_hosts_r to return alias list, and modified buffer
- *   allocation accordingly.  See MAX_ALIASES and ALIAS_DIM below.
- *   This fixes the segfault in the Python 2.2.1 socket test.
- *
- * 04-Jan-2003 Jay Kulpinski <jskulpin@berkshire.rr.com>
- *   Fixed __decode_dotted to count the terminating null character
- *   in a host name.
- *
- * 02-Oct-2003 Tony J. White <tjw@tjw.org>
- *   Lifted dn_expand() and dependent ns_name_uncompress(), ns_name_unpack(),
- *   and ns_name_ntop() from glibc 2.3.2 for compatibility with ipsec-tools
- *   and openldap.
- *
- * 7-Sep-2004 Erik Andersen <andersen@codepoet.org>
- *   Added gethostent_r()
- *
- * 2008, 2009 Denys Vlasenko <vda.linux@googlemail.com>
- *   Cleanups, fixes, readability, more cleanups and more fixes.
- *
- * March 2010 Bernhard Reutner-Fischer
- *   Switch to common config parser
- */
-/* Nota bene:
- * The whole resolver code has several (severe) problems:
- * - it doesn't even build without IPv4, i.e. !UCLIBC_HAS_IPV4 but only IPv6
- * - it is way too big
- *
- * Both points above are considered bugs, patches/reimplementations welcome.
  */
 /* RFC 1035
 ...
