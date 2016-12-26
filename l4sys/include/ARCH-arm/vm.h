@@ -89,10 +89,10 @@ enum L4_vm_exit_reason
 };
 
 L4_INLINE int
-l4_vm_tz_irq_inject(l4_vm_tz_state *state, unsigned irq);
+l4_vm_tz_irq_inject(struct l4_vm_tz_state *state, unsigned irq);
 
 L4_INLINE int
-l4_vm_tz_irq_inject(l4_vm_tz_state *state, unsigned irq)
+l4_vm_tz_irq_inject(struct l4_vm_tz_state *state, unsigned irq)
 {
   if (irq > sizeof(state->irq_inject.irqs) * 8)
     return -L4_EINVAL;
