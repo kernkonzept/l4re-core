@@ -572,6 +572,11 @@ config UCLIBC_HAS_SYSLOG
 	  Support sending messages to the system logger.
 	  This requires socket-support.
 
+config UCLIBC_HAS_LFS
+	def_bool y
+	help
+	  Large file support (always enabled; config symbol retained for
+	  feature test to be compatible with uClibc).
 choice
 	prompt "Malloc Implementation"
 	default MALLOC if ! ARCH_USE_MMU
@@ -1434,6 +1439,7 @@ config UCLIBC_HAS_WCHAR
 
 config UCLIBC_HAS_LIBICONV
 	bool "Iconv Support"
+	select UCLIBC_HAS_WCHAR
 	help
 	  Add tiny iconv support for charset conversion from and to UTF-8.
 
@@ -1447,6 +1453,7 @@ config UCLIBC_HAS_LOCALE
 	bool "Locale Support"
 	select UCLIBC_HAS_WCHAR
 	select UCLIBC_HAS_CTYPE_TABLES
+	select UCLIBC_HAS_LIBICONV
 	help
 	  uClibc now has full ANSI/ISO C99 locale support (except for
 	  wcsftime() and collating items in regex).  Be aware that enabling
@@ -1825,9 +1832,10 @@ config UCLIBC_HAS_GNU_GETSUBOPT
 	  Most people will answer Y.
 
 config UCLIBC_HAS_ARGP
-	bool "Support argp (as standalone shared object)"
+	bool "Support argp"
 	select UCLIBC_HAS_GETOPT_LONG
 	select UCLIBC_HAS_GNU_GETOPT
+	select UCLIBC_HAS_WCHAR
 	default n
 	help
 	  Argp is an interface for parsing unix-style argument vectors. Unlike

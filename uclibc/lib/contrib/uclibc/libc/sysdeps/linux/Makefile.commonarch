@@ -47,7 +47,7 @@ HEADERCLEAN_$(subst $(top_builddir),,$(ARCH_OUT)):
 endif
 
 $(ARCH_OUT)/ucontext_i.h: $(top_srcdir)extra/scripts/gen-as-const.awk
-$(ARCH_OUT)/ucontext_i.h: $(ARCH_OUT)/ucontext_i.sym
+$(ARCH_OUT)/ucontext_i.h: $(ARCH_DIR)/ucontext_i.sym
 	@$(disp_gen)
 	$(do_awk) $(top_srcdir)extra/scripts/gen-as-const.awk $< \
 	| $(CC) $(CFLAGS) -x c - -S -o - \
