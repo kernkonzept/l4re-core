@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* Xtensa ELF shared library loader suppport
  *
  * Copyright (C) 2007 Tensilica Inc.
@@ -126,12 +125,7 @@ _dl_parse (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 		if (unlikely (res < 0)) {
 			int reloc_type = ELF_R_TYPE (rpnt->r_info);
-#if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf (2, "can't handle reloc type %s\n",
-						 _dl_reltypes (reloc_type));
-#else
 			_dl_dprintf (2, "can't handle reloc type %x\n", reloc_type);
-#endif
 			_dl_exit (-res);
 		}
 		if (unlikely (res > 0)) {

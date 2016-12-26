@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* sparc ELF shared library loader suppport
  *
  * Copyright (c) 1994-2000 Eric Youngdale, Peter MacDonald,
@@ -146,13 +145,8 @@ _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 		if (unlikely(res < 0)) {
 			int reloc_type = ELF_R_TYPE(rpnt->r_info);
-
 			_dl_dprintf(2, "can't handle reloc type "
-#if defined (__SUPPORT_LD_DEBUG__)
-				    "%s\n", _dl_reltypes(reloc_type));
-#else
 				    "%x\n", reloc_type);
-#endif
 			_dl_exit(-res);
 		} else if (unlikely(res > 0)) {
 			_dl_dprintf(2, "can't resolve symbol\n");

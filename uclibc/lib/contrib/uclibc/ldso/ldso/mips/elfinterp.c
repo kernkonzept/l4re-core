@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* mips/mipsel ELF shared library loader suppport
  *
    Copyright (C) 2002, Steven J. Hill (sjhill@realitydiluted.com)
@@ -309,11 +308,7 @@ int _dl_parse_relocation_information(struct dyn_elf *xpnt,
 				if (symtab_index)
 					_dl_dprintf(2, "symbol '%s': ", symname);
 
-#if defined (__SUPPORT_LD_DEBUG__)
-				_dl_dprintf(2, "can't handle reloc type '%s' in lib '%s'\n", _dl_reltypes(reloc_type), tpnt->libname);
-#else
 				_dl_dprintf(2, "can't handle reloc type %x in lib '%s'\n", reloc_type, tpnt->libname);
-#endif
 				_dl_exit(1);
 			}
 		}

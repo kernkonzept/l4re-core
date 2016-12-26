@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* powerpc shared library loader suppport
  *
  * Copyright (C) 2001-2002 David A. Schleef
@@ -317,9 +316,6 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 		goto out_nocode; /* No code modified */
 	default:
 		_dl_dprintf(2, "%s: can't handle reloc type ", _dl_progname);
-#if defined (__SUPPORT_LD_DEBUG__)
-		_dl_dprintf(2, "%s ", _dl_reltypes(reloc_type));
-#endif
 		if (symtab_index)
 			_dl_dprintf(2, "'%s'\n", symname);
 		return -1;
@@ -429,11 +425,7 @@ _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		if (unlikely(res <0))
 		{
 		        int reloc_type = ELF_R_TYPE(rpnt->r_info);
-#if defined (__SUPPORT_LD_DEBUG__)
-			_dl_dprintf(2, "can't handle reloc type '%s' in lib '%s'\n", _dl_reltypes(reloc_type), tpnt->libname);
-#else
 			_dl_dprintf(2, "can't handle reloc type %x in lib '%s'\n", reloc_type, tpnt->libname);
-#endif
 			return res;
 		}
 		if (unlikely(res >0))
