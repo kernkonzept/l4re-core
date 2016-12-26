@@ -35,15 +35,16 @@ static Dbg dbg(Dbg::Boot_fs, "fs");
 static void dump_mb_module(l4util_mb_mod_t const *mod)
 {
   printf("  cmdline: '%s'\n"
-         "  range: [%08x; %08x)\n", 
-         (char const *)mod->cmdline, mod->mod_start, mod->mod_end);
+         "    range: [%08x; %08x)\n",
+         (char const *)(unsigned long)mod->cmdline, mod->mod_start, mod->mod_end);
 }
 
 static void dump_mbi(l4util_mb_info_t const* mbi)
 {
   printf("MBI Version: %08x\n", mbi->flags);
-  printf("cmdline: '%s'\n", (char const*)mbi->cmdline);
-  l4util_mb_mod_t const *modules = (l4util_mb_mod_t const *)mbi->mods_addr;
+  printf("cmdline: '%s'\n", (char const *)(unsigned long)mbi->cmdline);
+  l4util_mb_mod_t const *modules
+    = (l4util_mb_mod_t const *)(unsigned long)mbi->mods_addr;
   for (unsigned i = 0; i < mbi->mods_count; ++i)
     dump_mb_module(modules +i);
 }
