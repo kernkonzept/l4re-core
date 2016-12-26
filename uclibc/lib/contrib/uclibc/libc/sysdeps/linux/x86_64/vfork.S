@@ -38,20 +38,12 @@ __vfork:
 	   is preserved by the syscall and that we're allowed to destroy. */
 	popq	%rdi
 
-#ifdef SAVE_PID
-	SAVE_PID
-#endif
-
 	/* Stuff the syscall number in RAX and enter into the kernel.  */
 	movl	$__NR_vfork, %eax
 	syscall
 
 	/* Push back the return PC.  */
 	pushq	%rdi
-
-#ifdef RESTORE_PID
-	RESTORE_PID
-#endif
 
 	cmpl	$-4095, %eax
 	jae __syscall_error		/* Branch forward if it failed.  */

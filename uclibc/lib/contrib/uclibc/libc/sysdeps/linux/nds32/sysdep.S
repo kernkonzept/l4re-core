@@ -26,15 +26,10 @@
 
 .text
 
-.globl C_SYMBOL_NAME(errno)
 .globl __syscall_error
 
 ENTRY (__syscall_error)
-#ifdef OLD_ABI
-	subri $r5, $r5, #0
-#else
 	subri $r0, $r0, #0
-#endif
 
 #define __syscall_error __syscall_error_1
 
@@ -48,17 +43,13 @@ syscall_error:
 #ifdef PIC
 	/* set GP register */
 	pushm	$gp, $lp
-#ifdef __NDS32_N1213_43U1H__
-	jal	2f
-	sethi	$gp,	hi20(_GLOBAL_OFFSET_TABLE_)
-	ori	$gp,	$gp,	lo12(_GLOBAL_OFFSET_TABLE_+4)
-	add	$gp,	$gp,	$lp
-#else
+        cfi_adjust_cfa_offset(8)
+        cfi_rel_offset(gp, 0)
+        cfi_rel_offset(lp, 4)
 	mfusr	$r15, $PC
 	sethi	$gp,	hi20(_GLOBAL_OFFSET_TABLE_+4)
 	ori	$gp,	$gp,	lo12(_GLOBAL_OFFSET_TABLE_+8)
 	add	$gp,	$gp,	$r15
-#endif
 #endif
 
 #if defined (EWOULDBLOCK_sys) && EWOULDBLOCK_sys != EAGAIN
@@ -66,38 +57,43 @@ syscall_error:
 	   The GNU C library always defines EWOULDBLOCK==EAGAIN.
 	   EWOULDBLOCK_sys is the original number.  */
 	   push	$t0
+           cfi_adjust_cfa_offset(4)
 	   li	$t0, EWOULDBLOCK_sys
 	   bne	$r0, $t0, 1f
 	   pop	$t0
+	   cfi_adjust_cfa_offset(-4)
 	   li	$r0, EAGAIN
 1:
 #endif
 
 #ifdef _LIBC_REENTRANT
 	push	$lp
+        cfi_adjust_cfa_offset(4)
+        cfi_rel_offset(lp, 0)
 	push	$r0
-#if defined(NDS32_ABI_2) || defined(NDS32_ABI_2FP)
-#else
-	addi	$sp,	$sp, -24
-#endif
+        cfi_adjust_cfa_offset(4)
+        cfi_rel_offset(r0, 0)
 
 #ifdef PIC
 	bal	C_SYMBOL_NAME(__errno_location@PLT)
 #else
 	bal	C_SYMBOL_NAME(__errno_location)
 #endif
-#if defined(NDS32_ABI_2) || defined(NDS32_ABI_2FP)
-#else
-	addi	$sp,	$sp, 24
-#endif
 	pop	$r1
+        cfi_adjust_cfa_offset(-4)
+        cfi_restore(r1)
 
 	swi	$r1, [$r0]
 	li	$r0, -1
 	pop	$lp
+        cfi_adjust_cfa_offset(-4)
+        cfi_restore(lp)
 #ifdef PIC
 	/* restore GP register */
 	popm	$gp, $lp
+        cfi_adjust_cfa_offset(-8)
+        cfi_restore(lp)
+        cfi_restore(gp)
 #endif
 2:
 	ret
@@ -115,6 +111,9 @@ syscall_error:
 	
 	/* restore GP register */
 	popm	$gp, $lp
+        cfi_adjust_cfa_offset(-8)
+        cfi_restore(lp)
+        cfi_restore(gp)
 2:
 	ret
 

@@ -21,14 +21,6 @@
 #include <sys/asm.h>
 #include <sysdep.h>
 
-#ifndef SAVE_PID
-#define SAVE_PID
-#endif
-
-#ifndef RESTORE_PID
-#define RESTORE_PID
-#endif
-
 #ifdef __NR_fork
 
 /* int vfork() */
@@ -50,16 +42,12 @@ NESTED(__vfork,FRAMESZ,sp)
 
 	PTR_ADDU	sp, FRAMESZ
 
-	SAVE_PID
-
 	li		a0, 0x4112	/* CLONE_VM | CLONE_VFORK | SIGCHLD */
 	move		a1, sp
 
 	/* Do the system call */
 	li		v0,__NR_clone
 	syscall
-
-	RESTORE_PID
 
 	bnez		a3,L(error)
 

@@ -2,7 +2,6 @@
 #include <tls.h>
 
 PTHREAD_TID		offsetof (struct pthread, tid)
-PTHREAD_PID		offsetof (struct pthread, pid)
 MULTIPLE_THREADS_OFFSET	offsetof (struct pthread, header.multiple_threads)
 TLS_PRE_TCB_SIZE	sizeof (struct pthread)
 TLS_TCB_SIZE            sizeof(tcbhead_t)

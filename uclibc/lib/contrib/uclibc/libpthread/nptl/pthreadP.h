@@ -30,6 +30,8 @@
 #include <internaltypes.h>
 #include <atomic.h>
 #include <bits/kernel-features.h>
+#include <errno.h>
+#include <nptl-signals.h>
 
 
 /* Atomic operations on TLS memory.  */
@@ -310,23 +312,6 @@ __do_cancel (void)
 # define LIBC_CANCEL_HANDLED()	/* Nothing.  */
 #endif
 
-/* The signal used for asynchronous cancellation.  */
-#define SIGCANCEL	__SIGRTMIN
-
-
-/* Signal needed for the kernel-supported POSIX timer implementation.
-   We can reuse the cancellation signal since we can distinguish
-   cancellation from timer expirations.  */
-#define SIGTIMER	SIGCANCEL
-
-
-/* Signal used to implement the setuid et.al. functions.  */
-#define SIGSETXID	(__SIGRTMIN + 1)
-
-/* Used to communicate with signal handler.  */
-extern struct xid_command *__xidcmd attribute_hidden;
-
-
 /* Internal prototypes.  */
 
 /* Thread list handling.  */
@@ -355,16 +340,10 @@ extern void __pthread_cleanup_upto (__jmp_buf target, char *targetframe);
 hidden_proto (__pthread_cleanup_upto)
 #endif
 
-
-/* Functions with versioned interfaces.  */
-extern int __pthread_create_2_1 (pthread_t *newthread,
+extern int pthread_create (pthread_t *newthread,
 				 const pthread_attr_t *attr,
 				 void *(*start_routine) (void *), void *arg);
-extern int __pthread_create_2_0 (pthread_t *newthread,
-				 const pthread_attr_t *attr,
-				 void *(*start_routine) (void *), void *arg);
-extern int __pthread_attr_init_2_1 (pthread_attr_t *attr);
-extern int __pthread_attr_init_2_0 (pthread_attr_t *attr);
+extern int pthread_attr_init (pthread_attr_t *attr);
 
 
 /* Event handlers for libthread_db interface.  */

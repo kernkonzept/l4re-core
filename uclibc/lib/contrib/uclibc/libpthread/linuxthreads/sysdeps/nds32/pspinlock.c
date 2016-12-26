@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Andes Technology, Inc.
+ * Copyright (C) 2016-2017 Andes Technology, Inc.
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 

@@ -44,6 +44,11 @@
 
 #include "ldso.h"
 
+#if defined(USE_TLS) && USE_TLS
+#include "dl-tls.h"
+#include "tlsdeschtab.h"
+#endif
+
 extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
@@ -95,7 +100,7 @@ unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
 		{
 			_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 			if (_dl_debug_detail) _dl_dprintf(_dl_debug_file,
-					"\tpatch %x ==> %x @ %x", *got_addr, new_addr, got_addr);
+					"\tpatch %x ==> %x @ %x", (unsigned int)*got_addr, (unsigned int)new_addr, (unsigned int)got_addr);
 		}
 	}
 	if (!_dl_debug_nofixups) {
@@ -168,6 +173,9 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	int reloc_type;
 	int symtab_index;
 	char *symname = NULL;
+#if defined USE_TLS && USE_TLS
+	struct elf_resolve *tls_tpnt = NULL;
+#endif
 	unsigned long *reloc_addr;
 	unsigned long symbol_addr;
 	int goof = 0;
@@ -190,40 +198,40 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		 * have been intentional.  We should not be linking local symbols
 		 * here, so all bases should be covered.
 		 */
-		if (!symbol_addr && ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK) {
+		if (!symbol_addr
+		    && (ELF32_ST_TYPE(symtab[symtab_index].st_info) != STT_TLS)
+		    && (ELF32_ST_BIND(symtab[symtab_index].st_info) != STB_WEAK)) {
 			_dl_dprintf (2, "%s: can't resolve symbol '%s'\n",
-				     _dl_progname, strtab + symtab[symtab_index].st_name);
+				     _dl_progname, symname);
 			_dl_exit (1);
 		}
+		if (_dl_trace_prelink) {
+			_dl_debug_lookup(symname, tpnt, &symtab[symtab_index],
+				&sym_ref, elf_machine_type_class(reloc_type));
+		}
+#if defined USE_TLS && USE_TLS
+		tls_tpnt = sym_ref.tpnt;
+#endif
 	}
 
-#define COPY_UNALIGNED_WORD(swp, twp, align) \
-  { \
-    void *__s = (swp), *__t = (twp); \
-    unsigned char *__s1 = __s, *__t1 = __t; \
-    unsigned short *__s2 = __s, *__t2 = __t; \
-    unsigned long *__s4 = __s, *__t4 = __t; \
-    switch ((align)) \
-    { \
-    case 0: \
-      *__t4 = *__s4; \
-      break; \
-    case 2: \
-      *__t2++ = *__s2++; \
-      *__t2 = *__s2; \
-      break; \
-    default: \
-      *__t1++ = *__s1++; \
-      *__t1++ = *__s1++; \
-      *__t1++ = *__s1++; \
-      *__t1 = *__s1; \
-      break; \
-    } \
-  }
+#if defined USE_TLS && USE_TLS
+	/* In case of a TLS reloc, tls_tpnt NULL means we have an 'anonymous'
+	   symbol.  This is the case for a static tls variable, so the lookup
+	   module is just that one is referencing the tls variable. */
+	if (!tls_tpnt)
+		tls_tpnt = tpnt;
+#endif
 
+#define COPY_UNALIGNED_WORD(swp, twp) \
+{ \
+	__typeof (swp) __tmp = __builtin_nds32_unaligned_load_w ((unsigned int*)&swp); \
+	__builtin_nds32_unaligned_store_w ((unsigned int *)twp, __tmp); \
+}
 #if defined (__SUPPORT_LD_DEBUG__)
 	{
-		unsigned long old_val = *reloc_addr;
+		unsigned long old_val = 0;
+		if(reloc_type != R_NDS32_NONE)
+			old_val = *reloc_addr;
 #endif
 		symbol_addr += rpnt->r_addend ;
 		switch (reloc_type) {
@@ -235,7 +243,7 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 				*reloc_addr = symbol_addr;
 				break;
 			case R_NDS32_32_RELA:
-				COPY_UNALIGNED_WORD (&symbol_addr, reloc_addr,(int) reloc_addr & 3);
+				COPY_UNALIGNED_WORD (symbol_addr, reloc_addr);
 				break;
 #undef COPY_UNALIGNED_WORD
 			case R_NDS32_RELATIVE:
@@ -245,12 +253,38 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 				_dl_memcpy((void *) reloc_addr,
 					   (void *) symbol_addr, symtab[symtab_index].st_size);
 				break;
+#if defined USE_TLS && USE_TLS
+			case R_NDS32_TLS_TPOFF:
+				CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
+				*reloc_addr = (symbol_addr + tls_tpnt->l_tls_offset);
+				break;
+			case R_NDS32_TLS_DESC:
+				{
+					struct tlsdesc volatile *td = 
+							(struct tlsdesc volatile *)reloc_addr;
+#ifndef SHARED
+					CHECK_STATIC_TLS((struct link_map *) tls_tpnt);
+#else
+					if (!TRY_STATIC_TLS ((struct link_map *) tls_tpnt))
+					{
+					        td->argument.pointer = _dl_make_tlsdesc_dynamic((struct link_map *) tls_tpnt, symbol_addr);
+					        td->entry = _dl_tlsdesc_dynamic;
+					}
+					else
+#endif
+					{
+					        td->argument.value = symbol_addr + tls_tpnt->l_tls_offset;
+					        td->entry = _dl_tlsdesc_return;
+					}
+				}
+				break;
+#endif
 			default:
 				return -1; /*call _dl_exit(1) */
 		}
 #if defined (__SUPPORT_LD_DEBUG__)
 		if (_dl_debug_reloc && _dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
+			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", (unsigned int)old_val, (unsigned int)*reloc_addr, (unsigned int)reloc_addr);
 	}
 
 #endif
@@ -283,7 +317,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		}
 #if defined (__SUPPORT_LD_DEBUG__)
 		if (_dl_debug_reloc && _dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", old_val, *reloc_addr, reloc_addr);
+			_dl_dprintf(_dl_debug_file, "\tpatch: %x ==> %x @ %x", (unsigned int)old_val, (unsigned int)*reloc_addr, (unsigned int)reloc_addr);
 	}
 
 #endif

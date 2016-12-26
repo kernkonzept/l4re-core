@@ -16,25 +16,12 @@
 #define CLONE_FLAGS_FOR_VFORK	(CLONE_VM|CLONE_VFORK|SIGCHLD)
 
 ENTRY(__vfork)
-#ifdef SAVE_PID
-	THREAD_SELF r1		; Get to struct pthread (just before TCB)
-	ld	r2, [r1, PTHREAD_PID]
-	neg.f	r3, r2
-	bset.z	r3, r3, 31
-	st	r3, [r1, PTHREAD_PID]
-#endif
 	mov	r0, CLONE_FLAGS_FOR_VFORK
 	mov_s	r1, sp
 	mov	r8, __NR_clone
 	ARC_TRAP_INSN
 
 	cmp	r0, 0
-#ifdef RESTORE_PID
-	bz	1f	; child continues
-	THREAD_SELF r1		; Get to struct pthread (just before TCB)
-	st	r2, [r1, PTHREAD_PID]
-1:
-#endif
 	jge	[blink]	; pid >=0 return, else detour via tailcall to errno
 
 	b   __syscall_error

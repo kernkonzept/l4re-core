@@ -3,5 +3,4 @@
 
 TLS_PRE_TCB_SIZE	sizeof (struct pthread)
 MULTIPLE_THREADS_OFFSET	offsetof (struct pthread, header.multiple_threads)
-PID			offsetof (struct pthread, pid)
 TID			offsetof (struct pthread, tid)

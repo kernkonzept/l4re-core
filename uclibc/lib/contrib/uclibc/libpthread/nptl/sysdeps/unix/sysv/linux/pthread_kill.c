@@ -57,9 +57,10 @@ __pthread_kill (
      function would have to be called while the thread is executing
      fork, it would have to happen in a signal handler.  But this is
      no allowed, pthread_kill is not guaranteed to be async-safe.  */
+
+  pid_t pid = getpid ();
   int val;
-  val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
-			  tid, signo);
+  val = INTERNAL_SYSCALL (tgkill, err, 3, pid, tid, signo);
 
   return (INTERNAL_SYSCALL_ERROR_P (val, err)
 	  ? INTERNAL_SYSCALL_ERRNO (val, err) : 0);

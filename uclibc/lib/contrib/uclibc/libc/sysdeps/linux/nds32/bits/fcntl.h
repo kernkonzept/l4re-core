@@ -1,7 +1,11 @@
+/*
+ * Copyright (C) 2016-2017 Andes Technology, Inc.
+ * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+ */
+
 /* O_*, F_*, FD_* bit values for Linux.
    Copyright (C) 1995, 1996, 1997, 1998, 2000, 2004, 2007
    Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public

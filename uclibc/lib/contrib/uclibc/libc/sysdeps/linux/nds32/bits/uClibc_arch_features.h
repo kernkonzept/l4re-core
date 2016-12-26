@@ -11,7 +11,7 @@
 #define _BITS_UCLIBC_ARCH_FEATURES_H
 
 /* instruction used when calling abort() to kill yourself */
-#undef __UCLIBC_ABORT_INSTRUCTION__
+#define __UCLIBC_ABORT_INSTRUCTION__ "bal abort"
 
 /* does your target align 64bit values in register pairs ? (32bit arches only) */
 #define __UCLIBC_SYSCALL_ALIGN_64BIT__

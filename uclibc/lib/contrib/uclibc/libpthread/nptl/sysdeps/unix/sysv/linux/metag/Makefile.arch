@@ -9,8 +9,5 @@ libpthread_linux_arch_SSRC =
 libpthread_linux_arch_CSRC = pthread_once.c
 
 libc_linux_arch_CSRC = fork.c
-libc_linux_arch_SSRC = clone.S vfork.S
-libc_linux_arch_SSRC-OMIT = waitpid.S
 
 CFLAGS += $(SSP_ALL_CFLAGS)
-

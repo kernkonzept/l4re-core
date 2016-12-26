@@ -375,13 +375,6 @@
 # define __ASSUME_AT_SECURE	1
 #endif
 
-/* Starting with the 2.5.75 kernel the kernel fills in the correct value
-   in the si_pid field passed as part of the siginfo_t struct to signal
-   handlers.  */
-#if __LINUX_KERNEL_VERSION >= 132427
-# define __ASSUME_CORRECT_SI_PID	1
-#endif
-
 /* The utimes syscall has been available for some architectures
    forever.  For x86 it was introduced after 2.5.75, for x86-64,
    ppc, and ppc64 it was introduced in 2.6.0-test3.  */

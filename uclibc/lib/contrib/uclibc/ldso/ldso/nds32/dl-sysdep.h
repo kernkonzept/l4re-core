@@ -57,7 +57,8 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
    ELF_RTYPE_CLASS_NOCOPY iff TYPE should not be allowed to resolve to one
    of the main executable's symbols, as for a COPY reloc.  */
 #define elf_machine_type_class(type) \
-  ((((type) == R_NDS32_JMP_SLOT) * ELF_RTYPE_CLASS_PLT)	\
+  ((((type) == R_NDS32_JMP_SLOT || (type) == R_NDS32_TLS_TPOFF \
+      || (type) == R_NDS32_TLS_DESC) * ELF_RTYPE_CLASS_PLT)	\
    | (((type) == R_NDS32_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
@@ -81,7 +82,7 @@ elf_machine_load_address (void)
      via the GOT to make sure the compiler initialized %ebx in time.  */
 
 	Elf32_Addr addr;
-	__asm__ ("la	%0, _dl_start@GOTOFF\n" : "=r" (addr) );
+	__asm__ ("la	%0, _DYNAMIC@GOTOFF\n" : "=r" (addr) );
 	return addr - elf_machine_dynamic();
 }
 

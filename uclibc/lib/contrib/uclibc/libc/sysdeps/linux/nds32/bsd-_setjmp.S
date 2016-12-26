@@ -21,8 +21,8 @@ ENTRY(_setjmp)
 	add     $r2, $r15, $r2
 
 	! la    $r3, __sigsetjmp@PLT
-	sethi   $r3, hi20(__sigsetjmp@PLT)
-	ori     $r3, $r3, lo12(__sigsetjmp@PLT)
+	sethi   $r3, hi20(HIDDEN_JUMPTARGET(__sigsetjmp)@PLT)
+	ori     $r3, $r3, lo12(HIDDEN_JUMPTARGET(__sigsetjmp)@PLT)
 	add     $r3, $r3, $r2
 
 	jr      $r3
@@ -32,4 +32,3 @@ ENTRY(_setjmp)
 #endif
 
 END(_setjmp)
-libc_hidden_def(_setjmp)

@@ -84,6 +84,7 @@ FTS *
 fts_open( char * const *argv, register int options,
 		int (*compar) (const FTSENT **, const FTSENT **))
 {
+	size_t maxarglen;
 	register FTS *sp;
 	register FTSENT *p, *root;
 	register int nitems;
@@ -114,7 +115,7 @@ fts_open( char * const *argv, register int options,
 #ifndef MAXPATHLEN
 #define MAXPATHLEN 1024
 #endif
-	size_t maxarglen = fts_maxarglen(argv);
+	maxarglen = fts_maxarglen(argv);
 	if (fts_palloc(sp, MAX(maxarglen, MAXPATHLEN)))
 		goto mem1;
 

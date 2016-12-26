@@ -110,9 +110,6 @@ __clone:
 	@ do the system call
 	@ get flags
 	mov	r0, r2
-#ifdef RESET_PID
-	mov	ip, r2
-#endif
 	@ new sp is already in r1
 	push	{r4, r7}
 	cfi_adjust_cfa_offset (8)
@@ -138,21 +135,6 @@ PSEUDO_END (__clone)
 1:
 	.fnstart
 	.cantunwind
-#ifdef RESET_PID
-	tst	ip, #CLONE_THREAD
-	bne	3f
-	GET_TLS (lr)
-	mov	r1, r0
-	tst	ip, #CLONE_VM
-	ldr	r7, =SYS_ify(getpid)
-	ite	ne
-	movne	r0, #-1
-	swieq	0x0
-	NEGOFF_ADJ_BASE (r1, TID_OFFSET)
-	str	r0, NEGOFF_OFF1 (r1, TID_OFFSET)
-	str	r0, NEGOFF_OFF2 (r1, PID_OFFSET, TID_OFFSET)
-3:
-#endif
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
 	mov	lr, pc

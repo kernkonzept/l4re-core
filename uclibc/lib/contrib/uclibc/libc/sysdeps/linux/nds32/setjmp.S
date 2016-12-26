@@ -106,4 +106,4 @@ ENTRY(__sigsetjmp)
 #endif
 
 END(__sigsetjmp)
-hidden_def(__sigsetjmp)
+libc_hidden_def(__sigsetjmp)

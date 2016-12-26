@@ -1,4 +1,6 @@
-/* Copyright 2015 Yoshinori Sato <ysato@users.sourceforge.jp> */
+/*
+  Copyright 2015 Yoshinori Sato <ysato@users.sourceforge.jp>
+*/
 
 /* clone is even more special than fork as it mucks with stacks
    and invokes a function in the right context after its all over.  */

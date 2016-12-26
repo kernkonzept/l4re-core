@@ -18,21 +18,7 @@
 
 #include <sysdep.h>
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <tcb-offsets.h>
-#endif
-
 ENTRY(__vfork)
-
-#ifdef RESET_PID
-	ldw	r6, PID_OFFSET(r23)
-	sub	r7, zero, r6
-	bne	r7, zero, 2f
-	movhi	r7, %hi(0x80000000)
-2:
-	stw	r7, PID_OFFSET(r23)
-#endif
-
 	movi	r4, 0x4111 /* (CLONE_VM | CLONE_VFORK | SIGCHLD) */
 	mov	r5, zero
 
@@ -42,9 +28,6 @@ ENTRY(__vfork)
     	trap
 
 	beq	r2, zero, 1f
-#ifdef RESET_PID
-	stw	r6, PID_OFFSET(r23)
-#endif
 1:
 	ret
 

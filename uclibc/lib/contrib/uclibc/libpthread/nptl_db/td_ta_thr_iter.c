@@ -29,6 +29,7 @@ iterate_thread_list (td_thragent_t *ta, td_thr_iter_f *callback,
   td_err_e err;
   psaddr_t next, ofs;
   void *copy;
+  int descr_pri;
 
   /* Test the state.
      XXX This is incomplete.  Normally this test should be in the loop.  */
@@ -89,7 +90,7 @@ iterate_thread_list (td_thragent_t *ta, td_thr_iter_f *callback,
       /* Now test whether this thread matches the specified conditions.  */
 
       /* Only if the priority level is as high or higher.  */
-      int descr_pri = ((uintptr_t) schedpolicy == SCHED_OTHER
+      descr_pri = ((uintptr_t) schedpolicy == SCHED_OTHER
 		       ? 0 : (uintptr_t) schedprio);
       if (descr_pri >= ti_pri)
 	{

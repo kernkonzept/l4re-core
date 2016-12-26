@@ -428,7 +428,7 @@ static const struct pthread_attr default_attr =
 
 
 int
-__pthread_create_2_1 (
+pthread_create (
      pthread_t *newthread,
      const pthread_attr_t *attr,
      void *(*start_routine) (void *),
@@ -558,7 +558,6 @@ __pthread_create_2_1 (
 
   return 0;
 }
-weak_alias(__pthread_create_2_1, pthread_create)
 
 /* Information for libthread_db.  */
 

@@ -47,14 +47,10 @@ __clone:
 	/* Set up stack frame for parent.  */
 	stwu	r1,-32(r1)
 	cfi_adjust_cfa_offset (32)
-#ifdef RESET_PID
-	stmw	r28,16(r1)
-#else
-# ifndef __ASSUME_FIXED_CLONE_SYSCALL
+#ifndef __ASSUME_FIXED_CLONE_SYSCALL
 	stmw	r29,16(r1)
-# else
+#else
 	stmw	r30,16(r1)
-# endif
 #endif
 
 	/* Set up stack frame for child.  */
@@ -66,9 +62,6 @@ __clone:
 	mr	r30,r3			/* Function in r30.  */
 #ifndef __ASSUME_FIXED_CLONE_SYSCALL
 	mr	r29,r4			/* Stack pointer in r29.  */
-#endif
-#ifdef RESET_PID
-	mr	r28,r5
 #endif
 	mr	r31,r6			/* Argument in r31.  */
 
@@ -101,17 +94,6 @@ __clone:
 	mr	r1,r29
 #endif
 
-#ifdef RESET_PID
-	andis.	r0,r28,CLONE_THREAD>>16
-	bne+	r0,.Loldpid
-	andi.	r0,r28,CLONE_VM
-	li	r3,-1
-	bne-	r0,.Lnomoregetpid
-.Lnomoregetpid:
-	stw	r3,TID(r2)
-	stw	r3,PID(r2)
-.Loldpid:
-#endif
 	/* Call procedure.  */
 	mtctr	r30
 	mr	r3,r31
@@ -121,14 +103,10 @@ __clone:
 
 .Lparent:
 	/* Parent.  Restore registers & return.  */
-#ifdef RESET_PID
-	lmw	r28,16(r1)
-#else
-# ifndef __ASSUME_FIXED_CLONE_SYSCALL
+#ifndef __ASSUME_FIXED_CLONE_SYSCALL
 	lmw	r29,16(r1)
-# else
+#else
 	lmw	r30,16(r1)
-# endif
 #endif
 	addi	r1,r1,32
 	bnslr+

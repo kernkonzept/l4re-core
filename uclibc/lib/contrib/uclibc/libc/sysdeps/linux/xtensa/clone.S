@@ -21,9 +21,6 @@
 #include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#ifdef RESET_PID
-#include <tls.h>
-#endif
 #define __ASSEMBLY__
 #include <linux/sched.h>
 
@@ -76,21 +73,6 @@ ENTRY (__clone)
 # error invalid values for CLONE_THREAD or CLONE_VM
 #endif
 
-#ifdef RESET_PID
-	bbsi.l	a6, 16, .Lskip_restore_pid	/* CLONE_THREAD = 0x00010000 */
-	movi	a2, -1
-	bbsi	a6, 8, .Lgotpid			/* CLONE_VM     = 0x00000100 */
-	movi	a2, SYS_ify(getpid)
-	syscall
-.Lgotpid:
-	rur	a3, threadptr
-	movi	a0, TLS_PRE_TCB_SIZE
-	sub	a3, a3, a0
-	s32i	a2, a3, PID
-	s32i	a2, a3, TID
-.Lskip_restore_pid:
-#endif
-
 	/* start child thread */
 	movi	a0, 0			/* terminate the stack frame */
 
@@ -115,5 +97,4 @@ ENTRY (__clone)
 #endif
 
 PSEUDO_END (__clone)
-
 weak_alias (__clone, clone)

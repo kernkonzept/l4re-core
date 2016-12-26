@@ -6,11 +6,9 @@
 #
 
 CSRC-y := brk.c __syscall_error.c sigaction.c
+SSRC-y := __longjmp.S setjmp.S syscall.S bsd-setjmp.S bsd-_setjmp.S \
+	  vfork.S clone.S
 
-SSRC-y := \
-	__longjmp.S setjmp.S syscall.S bsd-setjmp.S bsd-_setjmp.S
-
-SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += vfork.S clone.S
 ARCH_OBJ_FILTEROUT-$(UCLIBC_LINUX_SPECIFIC) := sched_getcpu.c
 ifeq ($(UCLIBC_LINUX_SPECIFIC),y)
 SSRC-$(UCLIBC_HAS_TLS) += sched_getcpu.S

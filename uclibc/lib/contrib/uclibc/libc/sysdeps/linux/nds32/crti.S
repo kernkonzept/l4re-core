@@ -11,8 +11,6 @@
 	.type	_init, @function
 _init:
 .LFB28:
-        ! Generate instructions for ABI: 1
-	! pretend args size: 0, auto vars size: 0, pushed regs size: 12, outgoing args size: 24
         ! Generate instructions for ABI: 2
 	! pretend args size: 0, auto vars size: 0, pushed regs size: 12, outgoing args size: 0
 	! frame pointer: $fp, needed: yes
@@ -22,22 +20,12 @@ _init:
 	smw.adm $sp,[$sp],$sp,#0x8
 	smw.adm $sp,[$sp],$sp,#0x6
 	.restore_16bit
-#ifdef __NDS32_N1213_43U1H__
-	sethi	$gp, hi20(_GLOBAL_OFFSET_TABLE_+8)
-	ori	$gp, $gp, lo12(_GLOBAL_OFFSET_TABLE_+12)
-#else
 	sethi	$gp, hi20(_GLOBAL_OFFSET_TABLE_-8)
 	ori	$gp, $gp, lo12(_GLOBAL_OFFSET_TABLE_-4)
 	mfusr	$ta, $pc
-#endif
 	add	$gp, $ta, $gp
-#if defined(NDS32_ABI_2) || defined(NDS32_ABI_2FP)
         addi    $sp, $sp, -4
         addi    $fp, $sp, 8
-#else
-        addi    $sp, $sp, -28
-        addi    $fp, $sp, 32
-#endif
 	! end of prologue
 #APP
 	.align	2
@@ -48,8 +36,6 @@ _init:
 	.type	_fini, @function
 _fini:
 .LFB29:
-        ! Generate instructions for ABI: 1
-	! pretend args size: 0, auto vars size: 0, pushed regs size: 12, outgoing args size: 24
         ! Generate instructions for ABI: 2
 	! pretend args size: 0, auto vars size: 0, pushed regs size: 12, outgoing args size: 0
 	! frame pointer: $fp, needed: yes
@@ -59,22 +45,12 @@ _fini:
 	smw.adm $sp,[$sp],$sp,#0x8
 	smw.adm $sp,[$sp],$sp,#0x6
 	.restore_16bit
-#ifdef __NDS32_N1213_43U1H__
-	sethi	$gp, hi20(_GLOBAL_OFFSET_TABLE_+8)
-	ori	$gp, $gp, lo12(_GLOBAL_OFFSET_TABLE_+12)
-#else
 	sethi	$gp, hi20(_GLOBAL_OFFSET_TABLE_-8)
 	ori	$gp, $gp, lo12(_GLOBAL_OFFSET_TABLE_-4)
 	mfusr	$ta, $pc
-#endif
 	add	$gp, $ta, $gp
-#if defined(NDS32_ABI_2) || defined(NDS32_ABI_2FP)
         addi    $sp, $sp, -4
         addi    $fp, $sp, 8
-#else
-        addi    $sp, $sp, -28
-        addi    $fp, $sp, 32
-#endif
 	! end of prologue
 #APP
 	.align  2

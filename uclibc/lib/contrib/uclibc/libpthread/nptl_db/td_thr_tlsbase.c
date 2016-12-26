@@ -24,12 +24,12 @@ td_thr_tlsbase (const td_thrhandle_t *th,
 		psaddr_t *base)
 {
   td_err_e err;
-  psaddr_t dtv, dtvslot, dtvptr;
+  psaddr_t dtv, dtvslot, dtvptr, pd;
 
   if (modid < 1)
     return TD_NOTLS;
 
-  psaddr_t pd = th->th_unique;
+  pd = th->th_unique;
   if (pd == 0)
     {
       /* This is the fake handle for the main thread before libpthread

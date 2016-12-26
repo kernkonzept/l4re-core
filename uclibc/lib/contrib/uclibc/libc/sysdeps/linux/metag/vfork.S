@@ -8,14 +8,6 @@
 #include <bits/errno.h>
 #include <sys/syscall.h>
 
-#ifndef SAVE_PID
-#define SAVE_PID
-#endif
-
-#ifndef RESTORE_PID
-#define RESTORE_PID
-#endif
-
 #ifdef __NR_vfork
 #define __VFORK_NR __NR_vfork
 #else
@@ -33,8 +25,6 @@
 	.type	___vfork, @function
 ___vfork:
 
-	SAVE_PID
-
 	MOV	D1Ar1, #0x4111	/* CLONE_VM | CLONE_VFORK | SIGCHLD */
 	MOV	D0Ar2, #0
 	MOV	D1Ar3, #0
@@ -43,8 +33,6 @@ ___vfork:
 	MOV	D0Ar6, #0
 	MOV	D1Re0, #__NR_clone
 	SWITCH  #0x440001
-
-	RESTORE_PID
 
 	MOVT	D1Re0, #HI(-4096)
 	ADD	D1Re0, D1Re0, #LO(-4096)

@@ -6,11 +6,8 @@
 #
 
 CSRC-y := brk.c __syscall_error.c sigaction.c
-
-SSRC-y := \
-	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
-	sync_file_range.S syscall.S mmap.S mmap64.S
+SSRC-y := __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S mmap.S mmap64.S \
+	  setjmp.S sync_file_range.S syscall.S syscall6.S vfork.S
 
 SSRC-$(UCLIBC_HAS_ADVANCED_REALTIME) += posix_fadvise64.S
-SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += vfork.S clone.S
 SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.S setcontext.S getcontext.S swapcontext.S

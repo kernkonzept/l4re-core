@@ -418,9 +418,6 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
       THREAD_SYSINFO(pd) = THREAD_SELF_SYSINFO;
 #endif
 
-      /* The process ID is also the same as that of the caller.  */
-      pd->pid = THREAD_GETMEM (THREAD_SELF, pid);
-
       /* Allocate the DTV for this thread.  */
       if (_dl_allocate_tls (TLS_TPADJ (pd)) == NULL)
 	{
@@ -555,9 +552,6 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	  /* Copy the sysinfo value from the parent.  */
 	  THREAD_SYSINFO(pd) = THREAD_SELF_SYSINFO;
 #endif
-
-	  /* The process ID is also the same as that of the caller.  */
-	  pd->pid = THREAD_GETMEM (THREAD_SELF, pid);
 
 	  /* Allocate the DTV for this thread.  */
 	  if (_dl_allocate_tls (TLS_TPADJ (pd)) == NULL)
@@ -833,9 +827,6 @@ __reclaim_stacks (void)
 	  /* This marks the stack as free.  */
 	  curp->tid = 0;
 
-	  /* The PID field must be initialized for the new process.  */
-	  curp->pid = self->pid;
-
 	  /* Account for the size of the stack.  */
 	  stack_cache_actsize += curp->stackblock_size;
 
@@ -860,13 +851,6 @@ __reclaim_stacks (void)
 		  }
 	    }
 	}
-    }
-
-  /* Reset the PIDs in any cached stacks.  */
-  list_for_each (runp, &stack_cache)
-    {
-      struct pthread *curp = list_entry (runp, struct pthread, list);
-      curp->pid = self->pid;
     }
 
   /* Add the stack of all running threads to the cache.  */
@@ -995,9 +979,9 @@ setxid_signal_thread (struct xid_command *cmdp, struct pthread *t)
     return 0;
 
   int val;
+  pid_t pid = getpid ();
   INTERNAL_SYSCALL_DECL (err);
-  val = INTERNAL_SYSCALL (tgkill, err, 3, THREAD_GETMEM (THREAD_SELF, pid),
-			  t->tid, SIGSETXID);
+  val = INTERNAL_SYSCALL (tgkill, err, 3, pid, t->tid, SIGSETXID);
 
   /* If this failed, it must have had not started yet or else exited.  */
   if (!INTERNAL_SYSCALL_ERROR_P (val, err))

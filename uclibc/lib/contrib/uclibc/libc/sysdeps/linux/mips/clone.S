@@ -24,9 +24,6 @@
 #include <sysdep.h>
 #define _ERRNO_H        1
 #include <bits/errno.h>
-#ifdef RESET_PID
-#include <tls.h>
-#endif
 
 #define CLONE_VM      0x00000100
 #define CLONE_THREAD  0x00010000
@@ -61,9 +58,6 @@ NESTED(clone,4*SZREG,sp)
 	PTR_SUBU	a1,32		/* Reserve argument save space.  */
 	PTR_S		a0,0(a1)	/* Save function pointer.  */
 	PTR_S		a3,PTRSIZE(a1)	/* Save argument pointer.  */
-#ifdef RESET_PID
-	LONG_S		a2,(PTRSIZE*2)(a1)	/* Save clone flags.  */
-#endif
 
 	move		a0,a2
 
@@ -122,14 +116,6 @@ L(thread_start):
 	SAVE_GP (GPOFF)
 	/* The stackframe has been created on entry of clone().  */
 
-#ifdef RESET_PID
-	/* Check and see if we need to reset the PID.  */
-	LONG_L		a0,(PTRSIZE*2)(sp)
-	and		a1,a0,CLONE_THREAD
-	beqz		a1,L(restore_pid)
-L(donepid):
-#endif
-
 	/* Restore the arg for user's function.  */
 	PTR_L		t9,0(sp)	/* Function pointer.  */
 	PTR_L		a0,PTRSIZE(sp)	/* Argument pointer.  */
@@ -144,20 +130,6 @@ L(donepid):
 	jalr		t9
 #else
 	jal		_exit
-#endif
-
-#ifdef RESET_PID
-L(restore_pid):
-	and		a1,a0,CLONE_VM
-	li		v0,-1
-	bnez		a1,L(gotpid)
-	li		v0,__NR_getpid
-	syscall
-L(gotpid):
-	READ_THREAD_POINTER(v1)
-	INT_S		v0,PID_OFFSET(v1)
-	INT_S		v0,TID_OFFSET(v1)
-	b		L(donepid)
 #endif
 
 	END(__thread_start)

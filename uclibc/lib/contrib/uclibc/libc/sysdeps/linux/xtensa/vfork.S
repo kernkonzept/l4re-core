@@ -34,16 +34,6 @@
 
 */
 
-#ifndef SAVE_PID
-#define SAVE_PID(a,b,c,d)
-#endif
-#ifndef RESTORE_PID
-#define RESTORE_PID(a,b,c)
-#endif
-#ifndef RESTORE_PID12
-#define RESTORE_PID12(a,b,c)
-#endif
-
 /*
    pid_t vfork(void);
    Implemented as __clone_syscall(CLONE_VFORK | CLONE_VM | SIGCHLD, 0)
@@ -73,8 +63,6 @@ HIDDEN_ENTRY (__vfork)
 .L4:	mov	a12, a2
 	mov	a13, a3
 
-	SAVE_PID(a5,a15,a2,a3)
-
 	/* use syscall 'clone' and set new stack pointer to the same address */
 
 	movi	a2, SYS_ify(clone)
@@ -82,8 +70,6 @@ HIDDEN_ENTRY (__vfork)
 	movi	a6, CLONE_VM | CLONE_VFORK | SIGCHLD
 
         syscall
-
-	RESTORE_PID(a5,a15,a2)
 
 	movi	a5, -4096
 
@@ -102,15 +88,11 @@ HIDDEN_ENTRY (__vfork)
 	mov	a13, a3
 	mov	a14, a6
 
-	SAVE_PID(a9,a15,a2,a3)
-
 	movi	a2, SYS_ify(clone)
 	movi	a3, 0
 	movi	a6, CLONE_VM | CLONE_VFORK | SIGCHLD
 
 	syscall
-
-	RESTORE_PID(a9,a15,a2)
 
 	movi	a9, -4096
 
@@ -131,15 +113,11 @@ HIDDEN_ENTRY (__vfork)
 	mov	a13, a3
 	mov	a14, a6
 
-	SAVE_PID (a2,a3,a2,a6)
-
 	movi	a2, SYS_ify(clone)
 	movi	a3, 0
 	movi	a6, CLONE_VM | CLONE_VFORK | SIGCHLD
 
 	syscall
-
-	RESTORE_PID12(a3,a6,a15)
 
 	mov	a3, a13
 	movi	a13, -4096
@@ -168,15 +146,12 @@ HIDDEN_ENTRY (__vfork)
 .Lpseudo_end:
 	retw
 #elif defined(__XTENSA_CALL0_ABI__)
-	SAVE_PID(a5, a8, a3, a4)
 
 	/* Use syscall 'clone'.  Set new stack pointer to the same address.  */
 	movi	a2, SYS_ify (clone)
 	movi	a3, 0
 	movi	a6, CLONE_VM | CLONE_VFORK | SIGCHLD
 	syscall
-
-	RESTORE_PID(a5, a8, a2)
 
 	movi	a3, -4096
 	bgeu	a2, a3, 1f

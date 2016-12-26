@@ -6,12 +6,8 @@
 #
 
 CSRC-y := brk.c __syscall_error.c sigaction.c
-
-SSRC-y := \
-	__longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
-	syscall.S urem.S udiv.S umul.S sdiv.S rem.S pipe.S
-
-SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += fork.S vfork.S clone.S
+SSRC-y := __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S \
+	syscall.S urem.S udiv.S umul.S sdiv.S rem.S pipe.S fork.S vfork.S clone.S
 
 CSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.c
 SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += getcontext.S setcontext.S swapcontext.S

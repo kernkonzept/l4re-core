@@ -22,9 +22,6 @@
 
 #include <asm/errno.h>
 #include <asm/unistd.h>
-#ifdef RESET_PID
-#include <tcb-offsets.h>
-#endif
 #include <sysdep.h>
 
 #define CLONE_VM	0x00000100
@@ -83,20 +80,6 @@ END(__clone)
 
 	.type	__thread_start,@function
 __thread_start:
-#ifdef RESET_PID
-	sethi	%hi(CLONE_THREAD), %l0
-	andcc	%g4, %l0, %g0
-	bne	1f
-	 andcc	%g4, CLONE_VM, %g0
-	bne,a	2f
-	 mov	-1,%o0
-	set	__NR_getpid,%g1
-	ta	0x10
-2:
-	st	%o0,[%g7 + PID]
-	st	%o0,[%g7 + TID]
-1:
-#endif
 	mov	%g0, %fp	/* terminate backtrace */
 	call	%g2
 	 mov	%g3,%o0

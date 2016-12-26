@@ -64,24 +64,13 @@ static const char nptl_version[] __attribute_used__ = VERSION;
 static void
 sigcancel_handler (int sig, siginfo_t *si, void *ctx)
 {
-#ifdef __ASSUME_CORRECT_SI_PID
-  /* Determine the process ID.  It might be negative if the thread is
-     in the middle of a fork() call.  */
-  pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
-  if (__builtin_expect (pid < 0, 0))
-    pid = -pid;
-#endif
 
   /* Safety check.  It would be possible to call this function for
      other signals and send a signal from another process.  This is not
      correct and might even be a security problem.  Try to catch as
      many incorrect invocations as possible.  */
   if (sig != SIGCANCEL
-#ifdef __ASSUME_CORRECT_SI_PID
-      /* Kernels before 2.5.75 stored the thread ID and not the process
-	 ID in si_pid so we skip this test.  */
-      || si->si_pid != pid
-#endif
+      || si->si_pid != getpid()
       || si->si_code != SI_TKILL)
     return;
 
@@ -125,24 +114,13 @@ struct xid_command *__xidcmd attribute_hidden;
 static void
 sighandler_setxid (int sig, siginfo_t *si, void *ctx)
 {
-#ifdef __ASSUME_CORRECT_SI_PID
-  /* Determine the process ID.  It might be negative if the thread is
-     in the middle of a fork() call.  */
-  pid_t pid = THREAD_GETMEM (THREAD_SELF, pid);
-  if (__builtin_expect (pid < 0, 0))
-    pid = -pid;
-#endif
 
   /* Safety check.  It would be possible to call this function for
      other signals and send a signal from another process.  This is not
      correct and might even be a security problem.  Try to catch as
      many incorrect invocations as possible.  */
   if (sig != SIGSETXID
-#ifdef __ASSUME_CORRECT_SI_PID
-      /* Kernels before 2.5.75 stored the thread ID and not the process
-	 ID in si_pid so we skip this test.  */
-      || si->si_pid != pid
-#endif
+      || si->si_pid != getpid()
       || si->si_code != SI_TKILL)
     return;
 
@@ -191,7 +169,7 @@ __pthread_initialize_minimal_internal (void)
   /* Minimal initialization of the thread descriptor.  */
   struct pthread *pd = THREAD_SELF;
   INTERNAL_SYSCALL_DECL (err);
-  pd->pid = pd->tid = INTERNAL_SYSCALL (set_tid_address, err, 1, &pd->tid);
+  pd->tid = INTERNAL_SYSCALL (set_tid_address, err, 1, &pd->tid);
   THREAD_SETMEM (pd, specific[0], &pd->specific_1stblock[0]);
   THREAD_SETMEM (pd, user_stack, true);
   if (LLL_LOCK_INITIALIZER != 0)

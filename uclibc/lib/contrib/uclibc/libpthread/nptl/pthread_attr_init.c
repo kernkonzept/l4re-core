@@ -29,7 +29,7 @@ int __attr_list_lock = LLL_LOCK_INITIALIZER;
 
 int
 attribute_protected
-__pthread_attr_init_2_1 (
+pthread_attr_init (
      pthread_attr_t *attr)
 {
   struct pthread_attr *iattr;
@@ -47,4 +47,3 @@ __pthread_attr_init_2_1 (
 
   return 0;
 }
-weak_alias(__pthread_attr_init_2_1, pthread_attr_init)

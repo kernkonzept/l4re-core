@@ -13,7 +13,5 @@ libpthread_linux_arch_SSRC = pthread_once.S pthread_rwlock_wrlock.S \
 			sem_post.S sem_timedwait.S sem_trywait.S sem_wait.S
 
 libc_linux_arch_CSRC = fork.c
-libc_linux_arch_SSRC = clone.S vfork.S
 
 ASFLAGS += -DUSE___THREAD
-

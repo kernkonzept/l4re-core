@@ -24,10 +24,6 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
-#include <tcb-offsets.h>
-#endif
-
 #define CLONE_VM      0x00000100
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
@@ -64,10 +60,6 @@ thread_start:
 	andi	r2, r4, CLONE_VM
 	bne	r2, zero, 2f
         DO_CALL (getpid, 0)
-#ifdef RESET_PID
-	stw	r2, PID_OFFSET(r23)
-	stw	r2, TID_OFFSET(r23)
-#endif
 2:
 	ldw	r5, 4(sp)	/* Function pointer.  */
 	ldw	r4, 0(sp)	/* Argument pointer.  */

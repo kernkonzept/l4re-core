@@ -5,13 +5,8 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_linux_arch_SSRC = clone.S
 libpthread_linux_arch_CSRC = pthread_once.c
 
 libc_linux_arch_CSRC = fork.c
-libc_linux_arch_SSRC = clone.S vfork.S
-ifneq ($(CONFIG_MIPS_O32_ABI),y)
-libc_linux_arch_SSRC-OMIT = waitpid.S
-endif
-ASFLAGS += -DUSE___THREAD
 
+ASFLAGS += -DUSE___THREAD

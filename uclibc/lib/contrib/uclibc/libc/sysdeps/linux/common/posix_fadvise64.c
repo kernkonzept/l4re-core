@@ -25,7 +25,7 @@ int posix_fadvise64(int fd, off64_t offset, off64_t len, int advice)
 	int ret;
 	INTERNAL_SYSCALL_DECL (err);
 	/* ARM has always been funky. */
-#if defined (__arm__) || \
+#if defined (__arm__) || defined (__nds32__) || \
     (defined(__UCLIBC_SYSCALL_ALIGN_64BIT__) && (defined(__powerpc__) || defined(__xtensa__)))
 	/* arch with 64-bit data in even reg alignment #1: [powerpc/xtensa]
 	 * custom syscall handler (rearranges @advice to avoid register hole punch) */

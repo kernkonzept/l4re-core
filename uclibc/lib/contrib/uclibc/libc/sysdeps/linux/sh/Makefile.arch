@@ -6,10 +6,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-CSRC-y := \
-	pipe.c __init_brk.c brk.c sbrk.c pread_write.c
-
-SSRC-y := setjmp.S __longjmp.S ___fpscr_values.S
+CSRC-y := pipe.c __init_brk.c brk.c sbrk.c pread_write.c
+SSRC-y := setjmp.S __longjmp.S ___fpscr_values.S clone.S vfork.S
 
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += cacheflush.c
-SSRC-$(if $(UCLIBC_HAS_THREADS_NATIVE),,y) += clone.S vfork.S

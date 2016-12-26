@@ -61,20 +61,9 @@ ENTRY(clone)
 	; Setup TP register (since kernel doesn't do that)
 	and.f	0, r12, CLONE_SETTLS
 	bz	.Lnext_clone_quirk
-	SET_TP	r9
+	mov	r25, r9
 
 .Lnext_clone_quirk:
-#ifdef RESET_PID
-	bbit1	r12, 16, .Lgo_thread	; CLONE_THREAD = (1 << 16)
-
-	mov	r8, __NR_getpid
-	ARC_TRAP_INSN		; r0 has PID
-	THREAD_SELF r1		; Get to struct pthread (just before TCB)
-	st	r0, [r1, PTHREAD_PID]
-	st	r0, [r1, PTHREAD_TID]
-
-.Lgo_thread:
-#endif
 #endif
 	; child jumps off to @fn with @arg as argument, and returns here
 	jl.d	[r10]

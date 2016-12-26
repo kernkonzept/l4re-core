@@ -74,7 +74,7 @@ do {									\
 		*REL += (unsigned long) LOAD;				\
 	else if (type == R_ARC_JMP_SLOT)                                \
 		*REL = SYMBOL;						\
-	else								\
+	else if (type != R_ARC_NONE)					\
 		_dl_exit(1);						\
 }while(0)
 

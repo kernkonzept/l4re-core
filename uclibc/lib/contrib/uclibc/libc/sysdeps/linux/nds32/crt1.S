@@ -45,17 +45,10 @@ _start:
 
 #ifdef SHARED
 	/* set gp register */
-#ifdef __NDS32_N1213_43U1H__
-	jal	1b
-	sethi	$gp,	HI20(_GLOBAL_OFFSET_TABLE_)
-	ori	$gp,	$gp, LO12(_GLOBAL_OFFSET_TABLE_ + 4)
-	add	$gp,	$lp,	$gp
-#else
 	mfusr 	$r15, 	$PC
 	sethi	$gp,	HI20(_GLOBAL_OFFSET_TABLE_+4)
 	ori	$gp,	$gp, LO12(_GLOBAL_OFFSET_TABLE_ + 8)
 	add	$gp,	$r15,	$gp
-#endif
 
 	la		$r3,	_init@GOTOFF
 	la		$r4,	_fini@GOTOFF

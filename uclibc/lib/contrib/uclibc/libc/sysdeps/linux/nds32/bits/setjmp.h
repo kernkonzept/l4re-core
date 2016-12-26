@@ -24,19 +24,25 @@
 #ifndef _BITS_SETJMP_H
 #define _BITS_SETJMP_H  1
 
-#ifndef _SETJMP_H
+#if !defined _SETJMP_H && !defined _PTHREAD_H
 # error "Never include <bits/setjmp.h> directly; use <setjmp.h> instead."
 #endif
 
 #ifndef _ASM
 typedef struct
   {
-    /* Callee-saved registers r6 - r14, r16 - r19 and r28 - r31.  */
-    int __regs[31];
+    /* Callee-saved registers: r6 - r14,
+ *      * fp, gp, lp, sp: r28 - r31.  */
+    int __regs[13];
 
-    /* Program counter.  */
-    void * __pc;
-  } __jmp_buf[1];
+    /* Floating-Point Configuration Register.  */
+    int __fpcfg;
+
+    /* Callee-saved fp registers pointer.  */
+    int __fpregs[32];
+
+  } __jmp_buf[1] __attribute__((__aligned__ (8)));
+
 #endif
 
 #endif  /* bits/setjmp.h */

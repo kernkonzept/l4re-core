@@ -3129,6 +3129,9 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_NDS32_PLTREL_LO12			65
 #define R_NDS32_PLT_GOTREL_HI20			66
 #define R_NDS32_PLT_GOTREL_LO12			67
+#define R_NDS32_TLS_TPOFF                       102
+#define R_NDS32_TLS_DESC                        119
+
 
 /* Processor specific section indices.  These sections do not actually
    exist.  Symbols with a st_shndx field corresponding to one of these

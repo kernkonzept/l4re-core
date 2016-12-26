@@ -1,4 +1,6 @@
-/* Copyright 2002, 2015 Yoshinori Sato <ysato@users.sourceforge.jp> */
+/*
+  Copyright 2002, 2015 Yoshinori Sato <ysato@users.sourceforge.jp>
+*/
 
 #include <sys/syscall.h>
 

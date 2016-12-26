@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Andes Technology, Inc.
+ * Copyright (C) 2016-2017 Andes Technology, Inc.
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
@@ -54,12 +54,32 @@ ENTRY(memcpy)
 	srli	$r3, $r2, #5
 	beqz	$r3, .Lword_copy_entry
 	pushm	$r6, $r13
+        cfi_adjust_cfa_offset(32)
+        cfi_rel_offset(r6, 0)
+        cfi_rel_offset(r7, 4)
+        cfi_rel_offset(r8, 8)
+        cfi_rel_offset(r9, 12)
+        cfi_rel_offset(r10, 16)
+        cfi_rel_offset(r11, 20)
+        cfi_rel_offset(r12, 24)
+        cfi_rel_offset(r13, 28)
+
 .L3:
 	lmw.bim	$r6, [$r1], $r13
 	addi	$r3, $r3, #-1
 	smw.bim	$r6, [$r0], $r13
 	bnez	$r3, .L3
 	popm	$r6, $r13
+        cfi_adjust_cfa_offset(-32)
+        cfi_restore(r6)
+        cfi_restore(r7)
+        cfi_restore(r8)
+        cfi_restore(r9)
+        cfi_restore(r10)
+        cfi_restore(r11)
+        cfi_restore(r12)
+        cfi_restore(r13)
+
 
 .Lword_copy_entry:
 	andi	$r2, $r2, #31

@@ -33,7 +33,6 @@ libdl_SRC := $(libdl_DIR)/libdl.c
 libdl_OBJ := $(patsubst $(libdl_DIR)/%.c,$(libdl_OUT)/%.o,$(libdl_SRC))
 
 resolve := $(top_builddir)ldso/ldso/$(TARGET_ARCH)/resolve.o
-
 libdl-a-y := $(libdl_OBJ) $(resolve)
 ifeq ($(DOPIC),y)
 libdl-a-y := $(libdl-a-y:.o=.os)

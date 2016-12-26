@@ -119,14 +119,14 @@ extern unsigned __udivmodsi4(unsigned, unsigned) attribute_hidden;
    | (((type) == R_ARC_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /*
- * Get the runtime address of GOT[0]
+ * Get build time address of .dynamic as setup in GOT[0]
+ * This is called very early in _dl_start() so it has not been relocated to
+ * runtime value
  */
 static __always_inline Elf32_Addr elf_machine_dynamic(void)
 {
-	Elf32_Addr dyn;
-
-	__asm__("ld %0,[pcl,_DYNAMIC@gotpc]\n\t" : "=r" (dyn));
-	return dyn;
+	extern const Elf32_Addr _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
+	return _GLOBAL_OFFSET_TABLE_[0];
 }
 
 /* Return the run-time load address of the shared object.  */
@@ -144,8 +144,8 @@ static __always_inline Elf32_Addr elf_machine_load_address(void)
      */
 	Elf32_Addr addr, tmp;
 	__asm__ (
-        "ld  %1, [pcl, _DYNAMIC@gotpc] ;build addr of _DYNAMIC"   "\n"
-        "add %0, pcl, _DYNAMIC@pcl     ;runtime addr of _DYNAMIC" "\n"
+        "ld  %1, [pcl, _dl_start@gotpc] ;build addr of _DYNAMIC"   "\n"
+        "add %0, pcl, _dl_start@pcl     ;runtime addr of _DYNAMIC" "\n"
         "sub %0, %0, %1                ;delta"                    "\n"
         : "=&r" (addr), "=r"(tmp)
     );
