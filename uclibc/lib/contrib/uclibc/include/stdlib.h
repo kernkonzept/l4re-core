@@ -575,12 +575,10 @@ extern char *getenv (const char *__name) __THROW __nonnull ((1)) __wur;
 libc_hidden_proto(getenv)
 __END_NAMESPACE_STD
 
-#if 0
 /* This function is similar to the above but returns NULL if the
    programs is running with SUID or SGID enabled.  */
-extern char *__secure_getenv (const char *__name)
+extern char *secure_getenv (const char *__name)
      __THROW __nonnull ((1)) __wur;
-#endif
 
 #if defined __USE_SVID || defined __USE_XOPEN
 /* The SVID says this is in <stdio.h>, but this seems a better place.	*/
