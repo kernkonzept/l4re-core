@@ -32,26 +32,6 @@
  */
 
 /**
- * \brief UTCB constants for ARM64
- * \ingroup l4_utcb_api_arm64
- * \hideinitializer
- */
-enum L4_utcb_consts_arm64
-{
-  L4_UTCB_EXCEPTION_REGS_SIZE    = 21,
-  L4_UTCB_GENERIC_DATA_SIZE      = 63,
-  L4_UTCB_GENERIC_BUFFERS_SIZE   = 58,
-
-  L4_UTCB_MSG_REGS_OFFSET        = 0,
-  L4_UTCB_BUF_REGS_OFFSET        = 64 * sizeof(l4_umword_t),
-  L4_UTCB_THREAD_REGS_OFFSET     = 123 * sizeof(l4_umword_t),
-
-  L4_UTCB_INHERIT_FPU            = 1UL << 24,
-
-  L4_UTCB_OFFSET                 = 1024,
-};
-
-/**
  * \brief UTCB structure for exceptions.
  * \ingroup l4_utcb_api_arm64
  */
@@ -64,8 +44,28 @@ typedef struct l4_exc_regs_t
   l4_umword_t r[31];   /**< registers */
   l4_umword_t sp;      /**< stack pointer */
   l4_umword_t pc;      /**< pc */
-  l4_umword_t pstate;  /**< cpsr */
+  l4_umword_t pstate;  /**< pstate */
 } l4_exc_regs_t;
+
+/**
+ * \brief UTCB constants for ARM64
+ * \ingroup l4_utcb_api_arm64
+ * \hideinitializer
+ */
+enum L4_utcb_consts_arm64
+{
+  L4_UTCB_EXCEPTION_REGS_SIZE    = sizeof(l4_exc_regs_t) / sizeof(l4_umword_t),
+  L4_UTCB_GENERIC_DATA_SIZE      = 63,
+  L4_UTCB_GENERIC_BUFFERS_SIZE   = 58,
+
+  L4_UTCB_MSG_REGS_OFFSET        = 0,
+  L4_UTCB_BUF_REGS_OFFSET        = 64 * sizeof(l4_umword_t),
+  L4_UTCB_THREAD_REGS_OFFSET     = 123 * sizeof(l4_umword_t),
+
+  L4_UTCB_INHERIT_FPU            = 1UL << 24,
+
+  L4_UTCB_OFFSET                 = 1024,
+};
 
 #include_next <l4/sys/utcb.h>
 
