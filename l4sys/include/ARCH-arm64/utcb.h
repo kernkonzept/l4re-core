@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief   UTCB definitions for ARM.
+ * \brief   UTCB definitions for ARM64.
  * \ingroup  l4_utcb_api
  */
 /*
@@ -21,22 +21,22 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-#ifndef __L4_SYS__INCLUDE__ARCH_ARM__UTCB_H__
-#define __L4_SYS__INCLUDE__ARCH_ARM__UTCB_H__
+#ifndef __L4_SYS__INCLUDE__ARCH_ARM64__UTCB_H__
+#define __L4_SYS__INCLUDE__ARCH_ARM64__UTCB_H__
 
 #include <l4/sys/types.h>
 
 /**
- * \defgroup l4_utcb_api_arm ARM Virtual Registers (UTCB)
+ * \defgroup l4_utcb_api_arm64 ARM64 Virtual Registers (UTCB)
  * \ingroup  l4_utcb_api
  */
 
 /**
- * \brief UTCB constants for ARM
- * \ingroup l4_utcb_api_arm
+ * \brief UTCB constants for ARM64
+ * \ingroup l4_utcb_api_arm64
  * \hideinitializer
  */
-enum L4_utcb_consts_arm
+enum L4_utcb_consts_arm64
 {
   L4_UTCB_EXCEPTION_REGS_SIZE    = 21,
   L4_UTCB_GENERIC_DATA_SIZE      = 63,
@@ -53,7 +53,7 @@ enum L4_utcb_consts_arm
 
 /**
  * \brief UTCB structure for exceptions.
- * \ingroup l4_utcb_api_arm
+ * \ingroup l4_utcb_api_arm64
  */
 typedef struct l4_exc_regs_t
 {
@@ -113,4 +113,4 @@ L4_INLINE int l4_utcb_exc_is_ex_regs_exception(l4_exc_regs_t const *u) L4_NOTHRO
   return (u->err >> 26) == 0x3e;
 }
 
-#endif /* ! __L4_SYS__INCLUDE__ARCH_ARM__UTCB_H__ */
+#endif /* ! __L4_SYS__INCLUDE__ARCH_ARM64__UTCB_H__ */
