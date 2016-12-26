@@ -43,7 +43,7 @@
 #include <fnmatch.h>
 #include <ctype.h>
 
-#if HAVE_STRING_H || defined _LIBC
+#if defined HAVE_STRING_H || defined _LIBC
 # include <string.h>
 #else
 # include <strings.h>
@@ -144,7 +144,7 @@ extern int fnmatch (const char *pattern, const char *string, int flags);
 #   define ISWCTYPE(WC, WT)	iswctype (WC, WT)
 #  endif
 
-#  if (HAVE_MBSTATE_T && HAVE_MBSRTOWCS) || _LIBC
+#  if (defined HAVE_MBSTATE_T && defined HAVE_MBSRTOWCS) || defined _LIBC
 /* In this case we are implementing the multibyte character handling.  */
 #   define HANDLE_MULTIBYTE	1
 #  endif
@@ -190,7 +190,7 @@ __strchrnul (s, c)
 }
 # endif
 
-# if HANDLE_MULTIBYTE && !defined HAVE___STRCHRNUL && !defined _LIBC
+# if defined HANDLE_MULTIBYTE && !defined HAVE___STRCHRNUL && !defined _LIBC
 static wchar_t *
 __wcschrnul (s, c)
      const wchar_t *s;
@@ -235,7 +235,7 @@ __wcschrnul (s, c)
 # include "fnmatch_loop.c"
 
 
-# if HANDLE_MULTIBYTE
+# if defined HANDLE_MULTIBYTE
 /* Note that this evaluates C many times.  */
 #  ifdef _LIBC
 #   define FOLD(c) ((flags & FNM_CASEFOLD) ? towlower (c) : (c))
@@ -332,7 +332,7 @@ is_char_class (const wchar_t *wcs)
 int
 fnmatch (const char *pattern, const char *string, int flags)
 {
-# if HANDLE_MULTIBYTE
+# if defined HANDLE_MULTIBYTE
   if (__builtin_expect (MB_CUR_MAX, 1) != 1)
     {
       mbstate_t ps;
