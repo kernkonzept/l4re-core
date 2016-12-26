@@ -1746,6 +1746,9 @@ int getnameinfo(const struct sockaddr *sa,
 	if (sa == NULL || addrlen < sizeof(sa_family_t))
 		return EAI_FAMILY;
 
+	if ((flags & NI_NAMEREQD) && host == NULL && serv == NULL)
+		return EAI_NONAME;
+
 	if (sa->sa_family == AF_LOCAL) /* valid */;
 #ifdef __UCLIBC_HAS_IPV4__
 	else if (sa->sa_family == AF_INET) {
