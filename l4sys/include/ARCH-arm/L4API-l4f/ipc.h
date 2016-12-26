@@ -40,7 +40,7 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
 {
   register l4_umword_t _dest     __asm__("r2") = dest | flags;
   register l4_umword_t _timeout  __asm__("r3") = timeout.raw;
-  register l4_umword_t _tag      __asm__("r0") = tag.raw;
+  register l4_mword_t _tag       __asm__("r0") = tag.raw;
   register l4_umword_t _label    __asm__("r4") = slabel;
   (void)utcb;
 
