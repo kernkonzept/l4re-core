@@ -48,7 +48,10 @@
  * \return Syscall return tag
  *
  * \note Size must not exceed #L4_VCON_WRITE_SIZE, a proper value of the
- *       `size` parameter is NOT checked.
+ *       `size` parameter is NOT checked. Also, this function is a send only
+ *       operation, this means there is no return value except for a failed
+ *       send operation. Use l4_ipc_error() to check for send errors, do not
+ *       use l4_error(), as l4_error() will always return an error.
  */
 L4_INLINE l4_msgtag_t
 l4_vcon_send(l4_cap_idx_t vcon, char const *buf, int size) L4_NOTHROW;
