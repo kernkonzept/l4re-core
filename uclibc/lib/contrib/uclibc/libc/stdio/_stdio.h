@@ -112,13 +112,14 @@ do { \
 
 #define __STDIO_STREAM_CUSTOM_WRITE_FUNC(S, ARGS...) \
  if (__STDIO_STREAM_IS_CUSTOM((S))) { \
+	ssize_t w; \
 	_IO_cookie_file_t *cfile = (_IO_cookie_file_t *) (S); \
 	if (cfile->__gcs.write == NULL) { \
 		__set_errno(EINVAL); \
 		return -1; \
 	} \
 	__set_errno(EAGAIN); \
-	ssize_t w = cfile->__gcs.write(cfile->__cookie, ##ARGS); \
+	w = cfile->__gcs.write(cfile->__cookie, ##ARGS); \
 	return (w == 0 ? -1 : w); \
  }
 
