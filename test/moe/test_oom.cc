@@ -11,6 +11,8 @@
  *
  * GCC 4.9: moe does not crash and returns error.
  * GCC 5.3: moe terminates with 127
+ * GCC 5.4: moe terminates with 127
+ * GCC 6.3.1: moe terminates with 127
  */
 
 #include <l4/re/dataspace>
