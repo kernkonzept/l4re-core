@@ -60,7 +60,7 @@ public:
    *       use l4_error(), as l4_error() will always return an error.
    */
   l4_msgtag_t
-  send(char const *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  send(char const *buf, unsigned size, l4_utcb_t *utcb = l4_utcb()) const throw()
   { return l4_vcon_send_u(cap(), buf, size, utcb); }
 
   /**
@@ -74,7 +74,7 @@ public:
    * \retval >=0  Number of bytes written to the virtual console.
    */
   long
-  write(char const *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  write(char const *buf, unsigned size, l4_utcb_t *utcb = l4_utcb()) const throw()
   { return l4_vcon_write_u(cap(), buf, size, utcb); }
 
   /**
@@ -91,7 +91,7 @@ public:
    * \note Size must not exceed #L4_VCON_READ_SIZE.
    */
   int
-  read(char *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  read(char *buf, unsigned size, l4_utcb_t *utcb = l4_utcb()) const throw()
   { return l4_vcon_read_u(cap(), buf, size, utcb); }
 
   /**
@@ -116,7 +116,7 @@ public:
    * \note Size must not exceed #L4_VCON_READ_SIZE.
    */
   int
-  read_with_flags(char *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  read_with_flags(char *buf, unsigned size, l4_utcb_t *utcb = l4_utcb()) const throw()
   { return l4_vcon_read_with_flags_u(cap(), buf, size, utcb); }
 
   /**
