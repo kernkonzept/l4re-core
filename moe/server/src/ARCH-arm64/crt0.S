@@ -30,7 +30,7 @@ _real_start:
 
 /*--- my stack -------------------------------------*/
 	.bss
-	.align 3
+	.align 4
 _stack_bottom:
 	.space 0x4000
 _stack_top:
