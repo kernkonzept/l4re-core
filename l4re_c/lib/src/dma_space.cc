@@ -43,6 +43,22 @@ l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
                   L4Re::Dma_space::Direction(dir));
 }
 
+L4_CV long
+l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t task,
+                         unsigned long attrs) L4_NOTHROW
+{
+  static_assert(L4RE_DMA_SPACE_COHERENT == 1 << L4Re::Dma_space::Coherent,
+                "enum mismatch");
+  static_assert(L4RE_DMA_SPACE_PHYS_SPACE == 1 << L4Re::Dma_space::Phys_space,
+                "enum mismatch");
+  L4::Cap<L4Re::Dma_space> d(dma);
+  return d->associate(L4::Ipc::Cap<L4::Task>::from_ci(task),
+                      L4Re::Dma_space::Space_attribs::from_raw(attrs));
+}
 
-
-
+L4_CV long
+l4re_dma_space_disassociate(l4re_dma_space_t dma)
+{
+  L4::Cap<L4Re::Dma_space> d(dma);
+  return d->disassociate();
+}

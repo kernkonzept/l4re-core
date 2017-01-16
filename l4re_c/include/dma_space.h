@@ -43,6 +43,15 @@ enum l4re_dma_space_direction
 };
 
 /**
+ * \copydoc L4Re::Dma_space::Space_attrib
+ */
+enum l4re_dma_space_space_attribs
+{
+  L4RE_DMA_SPACE_COHERENT   = 1 << 0, /**< \copydoc L4Re::Dma_space::Space_attrib::Coherent */
+  L4RE_DMA_SPACE_PHYS_SPACE = 1 << 1, /**< \copydoc L4Re::Dma_space::Space_attrib::Phys_space */
+};
+
+/**
  * \brief DMA space capability type
  * \copydoc L4Re::Dma_space
  * \ingroup api_l4re_c_dma
@@ -73,6 +82,23 @@ L4_CV long
 l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
                      l4_size_t size, unsigned long attrs,
                      enum l4re_dma_space_direction dir) L4_NOTHROW;
+
+/**
+ * \param dma  DMA space capability
+ * \copydoc L4Re::Dma_space::associate
+ * \ingroup api_l4re_c_dma
+ */
+L4_CV long
+l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t task,
+                         unsigned long attrs) L4_NOTHROW;
+
+/**
+ * \param dma  DMA space capability
+ * \copydoc L4Re::Dma_space::disassociate
+ * \ingroup api_l4re_c_dma
+ */
+L4_CV long
+l4re_dma_space_disassociate(l4re_dma_space_t dma);
 
 
 EXTERN_C_END
