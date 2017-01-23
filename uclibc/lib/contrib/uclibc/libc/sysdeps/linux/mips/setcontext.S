@@ -62,13 +62,6 @@ NESTED (__setcontext, FRAMESZ, ra)
 	SAVE_GP (GPOFF)
 #endif
 
-#ifdef PROF
-	.set	noat
-	move	AT, ra
-	jal	_mcount
-	.set	at
-#endif
-
 	/* Check for the magic flag.  */
 	li	v0, 1
 	REG_L	v1, (0 * SZREG + MCONTEXT_GREGS)(a0)	/* zero */

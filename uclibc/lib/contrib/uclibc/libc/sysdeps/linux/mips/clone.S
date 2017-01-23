@@ -52,13 +52,6 @@ NESTED(clone,4*SZREG,sp)
 #ifdef __PIC__
 	SAVE_GP (GPOFF)
 #endif
-#ifdef PROF
-	.set		noat
-	move		$1,ra
-	jal		_mcount
-	.set		at
-#endif
-
 
 	/* Sanity check arguments.  */
 	li		v0,EINVAL

@@ -47,21 +47,6 @@ NESTED(__vfork,FRAMESZ,sp)
 #ifdef __PIC__
 	SAVE_GP (GPOFF)
 #endif
-#ifdef PROF
-# if (_MIPS_SIM != _ABIO32)
-	PTR_S		a5, GPOFF(sp)
-# endif
-	.set		noat
-	move		$1, ra
-# if (_MIPS_SIM == _ABIO32)
-	subu		sp,sp,8
-# endif
-	jal		_mcount
-	.set		at
-# if (_MIPS_SIM != _ABIO32)
-	PTR_L		a5, GPOFF(sp)
-# endif
-#endif
 
 	PTR_ADDU	sp, FRAMESZ
 

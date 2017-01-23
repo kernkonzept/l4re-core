@@ -63,13 +63,6 @@ NESTED (__getcontext, FRAMESZ, ra)
 
 #endif /* ! __PIC__ */
 
-#ifdef PROF
-	.set	noat
-	move	AT, ra
-	jal	_mcount
-	.set	at
-#endif
-
 	/* Store a magic flag.	*/
 	li	v1, 1
 	REG_S	v1, (0 * SZREG + MCONTEXT_GREGS)(a0)	/* zero */

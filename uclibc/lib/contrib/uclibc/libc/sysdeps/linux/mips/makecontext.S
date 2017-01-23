@@ -69,13 +69,6 @@ NESTED (__makecontext, FRAMESZ, ra)
 	SAVE_GP (GPOFF)
 #endif
 
-#ifdef PROF
-	.set	noat
-	move	AT, ra
-	jal	_mcount
-	.set	at
-#endif
-
 	/* Store args to be passed.  */
 	REG_S	a3, A3OFF(sp)
 #if _MIPS_SIM != _ABIO32
