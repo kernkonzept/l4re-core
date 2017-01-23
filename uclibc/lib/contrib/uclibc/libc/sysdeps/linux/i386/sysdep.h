@@ -189,11 +189,7 @@ __x86.get_pc_thunk.reg:						      \
 # if defined _LIBC_REENTRANT
 
 #  if defined USE___THREAD
-#   ifndef NOT_IN_libc
-#    define SYSCALL_ERROR_ERRNO __libc_errno
-#   else
 #    define SYSCALL_ERROR_ERRNO errno
-#   endif
 #   define SYSCALL_ERROR_HANDLER					      \
 0:SETUP_PIC_REG (cx);							      \
   addl $_GLOBAL_OFFSET_TABLE_, %ecx;					      \

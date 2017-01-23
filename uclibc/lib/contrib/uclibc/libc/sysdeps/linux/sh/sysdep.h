@@ -134,11 +134,7 @@
 
 #  if defined USE___THREAD
 
-#   ifndef NOT_IN_libc
-#    define SYSCALL_ERROR_ERRNO __libc_errno
-#   else
 #    define SYSCALL_ERROR_ERRNO errno
-#   endif
 #   define SYSCALL_ERROR_HANDLER \
 	neg r0,r1; \
 	mov r12,r2; \

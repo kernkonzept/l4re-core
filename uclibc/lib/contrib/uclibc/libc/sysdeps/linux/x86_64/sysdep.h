@@ -168,11 +168,7 @@ lose:									      \
 # ifndef __PIC__
 #  define SYSCALL_ERROR_HANDLER	/* Nothing here; code in sysdep.S is used.  */
 # elif USE___THREAD
-#  ifndef NOT_IN_libc
-#   define SYSCALL_ERROR_ERRNO __libc_errno
-#  else
 #   define SYSCALL_ERROR_ERRNO errno
-#  endif
 #  define SYSCALL_ERROR_HANDLER			\
 0:						\
   movq SYSCALL_ERROR_ERRNO@GOTTPOFF(%rip), %rcx;\

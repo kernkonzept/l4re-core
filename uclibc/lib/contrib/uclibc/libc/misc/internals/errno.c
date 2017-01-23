@@ -3,8 +3,7 @@
 #undef errno
 
 #ifdef __UCLIBC_HAS_TLS__
-__thread int errno;
-extern __thread int __libc_errno __attribute__ ((alias ("errno"))) attribute_hidden;
+__thread int errno attribute_tls_model_ie;
 #else
 extern int errno;
 int errno = 0;
