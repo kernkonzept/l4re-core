@@ -8,7 +8,6 @@ DEPENDS_PKGS   := atkins
 
 EXTRA_TEST := test_sched_proxy
 
-MOE_CFG_test_iommu       := test_iommu.cfg
 MOE_CFG_test_sched_proxy := test_scheduler.cfg
 
 TEST_TARGET_test_sched_proxy := test_scheduler
