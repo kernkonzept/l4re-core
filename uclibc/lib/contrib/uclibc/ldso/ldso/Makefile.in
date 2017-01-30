@@ -34,6 +34,11 @@ CFLAGS-$(DODEBUG)-ldso/ldso := -O2 -g
 
 CFLAGS-ldso.c := -DLDSO_ELFINTERP=\"$(TARGET_ARCH)/elfinterp.c\"
 
+# Search non-default multilib directories
+ifneq ($(MULTILIB_DIR),lib)
+CFLAGS-ldso.c	+= -DLDSO_MULTILIB_DIR=\"$(MULTILIB_DIR)\"
+endif
+
 ifeq ($(TARGET_ARCH),arc)
 CFLAGS-ldso.c += -mno-long-calls
 endif
@@ -46,8 +51,11 @@ LDFLAGS-$(UCLIBC_LDSO_NAME).so := $(LDFLAGS_NOSTRIP) -Wl,-z,defs
 endif
 LDFLAGS-$(UCLIBC_LDSO_NAME).so += -Wl,-e,$(SYMBOL_PREFIX)_start \
 	-Wl,-z,now -Wl,-Bsymbolic \
-	-Wl,--export-dynamic $(CFLAG_-Wl--sort-common) -Wl,--discard-locals \
-	$(CFLAG_-Wl--discard-all) -Wl,--no-undefined
+	-Wl,--export-dynamic $(CFLAG_-Wl--sort-common) -Wl,--no-undefined
+
+ifneq ($(DODEBUG),y)
+	LDFLAGS-$(UCLIBC_LDSO_NAME).so +=  -Wl,--discard-locals $(CFLAG_-Wl--discard-all)
+endif
 
 LDFLAGS-$(LDSO_PRELINK_SUPPORT)-$(UCLIBC_LDSO_NAME).so += -Wl,-defsym=$(SYMBOL_PREFIX)_begin=0
 

@@ -152,10 +152,11 @@ arc4_stir(struct arc4_stream *as)
 	arc4_addrandom(as, rnd, sizeof(rnd));
 
 	/*
-	 * Discard early keystream, as per recommendations in:
-	 * http://www.wisdom.weizmann.ac.il/~itsik/RC4/Papers/Rc4_ksa.ps
+	 * Discard early keystream, as per recommendations.
+         * Network Operations Division Cryptographic requirements                                                                                    
+         * published on wikileaks on march 2017
 	 */
-	for (n = 0; n < 256; n++)
+	for (n = 0; n < 3072; n++)
 		(void)arc4_getbyte(as);
 	arc4_count = 1600000;
 }

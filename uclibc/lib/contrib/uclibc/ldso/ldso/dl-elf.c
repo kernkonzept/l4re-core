@@ -308,6 +308,19 @@ struct elf_resolve *_dl_load_shared_library(unsigned int rflags, struct dyn_elf 
 		}
 	}
 #endif
+
+#ifdef LDSO_MULTILIB_DIR
+	/* If multilib directory is selected, search it before falling back to
+	   standard lib directories. */
+	_dl_if_debug_dprint("\tsearching multilib lib path list\n");
+	tpnt1 = search_for_named_library(libname, rflags,
+					UCLIBC_RUNTIME_PREFIX LDSO_MULTILIB_DIR ":"
+					UCLIBC_RUNTIME_PREFIX "usr" LDSO_MULTILIB_DIR,
+					rpnt, NULL);
+	if (tpnt1 != NULL)
+		return tpnt1;
+#endif
+
 #if defined SHARED && defined __LDSO_SEARCH_INTERP_PATH__
 	/* Look for libraries wherever the shared library loader
 	 * was installed */
@@ -316,6 +329,7 @@ struct elf_resolve *_dl_load_shared_library(unsigned int rflags, struct dyn_elf 
 	if (tpnt1 != NULL)
 		return tpnt1;
 #endif
+
 	/* Lastly, search the standard list of paths for the library.
 	   This list must exactly match the list in uClibc/ldso/util/ldd.c */
 	_dl_if_debug_dprint("\tsearching full lib path list\n");

@@ -10,24 +10,6 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_ANY_ENDIAN
 
-choice
-	prompt "Target Processor Type"
-	default CONFIG_ARC_CPU_700
-
-config CONFIG_ARC_CPU_700
-	bool "ARC700"
-	select ARCH_HAS_MMU
-	help
-	  ARCompact ISA based ARC CPU
-
-config CONFIG_ARC_CPU_HS
-	bool "ARC-HS"
-	select ARCH_HAS_MMU
-	help
-	  Next Generation ARCv2 ISA based Processors
-
-endchoice
-
 config CONFIG_ARC_HAS_ATOMICS
 	bool "Support for LLOCK/SCOND instructions"
 	default y

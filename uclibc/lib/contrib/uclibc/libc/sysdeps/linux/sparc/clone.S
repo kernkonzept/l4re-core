@@ -49,7 +49,6 @@ ENTRY (__clone)
 	   expects.  */
 	sub	%o1, 96, %o1
 	mov	%i3, %g3
-	mov	%i2, %g4
 
 	/* ptid */
 	mov	%i4,%o2

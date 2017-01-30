@@ -99,6 +99,10 @@
 extern ElfW(Addr) _begin[] attribute_hidden;
 #endif
 
+#ifdef LDSO_NEED_DPNT
+ElfW(Dyn) *_dl_saved_dpnt = 0;
+#endif
+
 /* Static declarations */
 static int (*_dl_elf_main) (int, char **, char **);
 
@@ -375,6 +379,14 @@ DL_START(unsigned long args)
 	   fixed up by now.  Still no function calls outside of this library,
 	   since the dynamic resolver is not yet ready. */
 
+#ifdef LDSO_NEED_DPNT
+/*XXX TODO this crashes on nios2: it translates to
+ * [r5] := (value of the local variable dpnt)
+ * but r5 is a NULL pointer at this place, which was
+ * retrieved from the GOT a few instructions further above.
+ */
+	_dl_saved_dpnt = dpnt;
+#endif
 	__rtld_stack_end = (void *)(argv - 1);
 
 #ifndef __ONLY_FOR_L4__

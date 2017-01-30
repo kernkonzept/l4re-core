@@ -19,8 +19,10 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#ifdef __NR_pwritev
 ssize_t
 pwritev (int fd, const struct iovec *vector, int count, off_t offset)
 {
   return INLINE_SYSCALL (pwritev, 4, fd, vector, count, offset);
 }
+#endif
