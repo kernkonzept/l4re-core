@@ -40,8 +40,8 @@ public:
     tag = l4_msgtag(0, 0, 1, 0);
   }
 
-  void snd_fpage(unsigned long addr, unsigned size, bool ro = false,
-                 bool cache = true)
+  void snd_fpage(unsigned long addr, unsigned size, unsigned access,
+                 bool cache)
   {
     snd_base(addr);
     if (cache)
@@ -49,8 +49,7 @@ public:
     else
       l4_utcb_mr_u(utcb)->mr[0] |= L4_fpage_uncached;
 
-    l4_utcb_mr_u(utcb)->mr[1] = l4_fpage(addr, size,
-	ro ? L4_FPAGE_RX : L4_FPAGE_RWX).raw;
+    l4_utcb_mr_u(utcb)->mr[1] = l4_fpage(addr, size, access).raw;
 
     tag = l4_msgtag(0, 0, 1, 0);
   }

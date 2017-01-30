@@ -63,7 +63,7 @@ void dump_all()
 static
 void map_kip(Answer *a)
 {
-  a->snd_fpage((l4_umword_t) l4_info, L4_LOG2_PAGESIZE, true);
+  a->snd_fpage((l4_umword_t) l4_info, L4_LOG2_PAGESIZE, L4_FPAGE_RX, true);
 }
 
 static
@@ -82,7 +82,7 @@ void map_tbuf(Answer *a)
 {
   if (tbuf_status != 0x00000000 && tbuf_status != ~0UL)
     {
-      a->snd_fpage(tbuf_status, L4_LOG2_PAGESIZE, false);
+      a->snd_fpage(tbuf_status, L4_LOG2_PAGESIZE, L4_FPAGE_RW, true);
     }
 }
 
@@ -93,7 +93,7 @@ void map_free_page(unsigned size, l4_umword_t t, Answer *a)
   addr = Mem_man::ram()->alloc_first(1UL << size, t);
   if (addr != ~0UL)
     {
-      a->snd_fpage(addr, size);
+      a->snd_fpage(addr, size, L4_FPAGE_RWX, true);
 
       if (t < root_taskno) /* sender == kernel? */
 	a->do_grant(); /* kernel wants page granted */
@@ -107,13 +107,19 @@ static
 void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
 {
   Mem_man *m;
+  unsigned mem_flags;
+  bool cached = true;
   switch (fn)
     {
     case Ram:
       m = Mem_man::ram();
+      mem_flags = L4_FPAGE_RWX;
       break;
     case Io_mem:
+      cached = false;
+      /* fall through */
     case Io_mem_cached:
+      mem_flags = L4_FPAGE_RW;
       m = &iomem;
       break;
     default:
@@ -132,7 +138,7 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
 
   /* the Fiasco kernel makes the page non-cachable if the frame
    * address is greater than mem_high */
-  an->snd_fpage(addr, l4_fpage_size(fp), false, fn != Io_mem);
+  an->snd_fpage(addr, l4_fpage_size(fp), mem_flags, cached);
 
   return;
 }
@@ -150,7 +156,7 @@ handle_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 
   if (addr != ~0UL)
     {
-      answer->snd_fpage(addr, L4_LOG2_PAGESIZE);
+      answer->snd_fpage(addr, L4_LOG2_PAGESIZE, L4_FPAGE_RWX, true);
       return;
     }
   else if (debug_warnings)
