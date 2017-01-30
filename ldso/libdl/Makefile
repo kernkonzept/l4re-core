@@ -57,5 +57,3 @@ ldso.1.o: ldso.o
 	$(OBJCOPY) --weaken $< $@
 
 CXXFLAGS := -DL4_NO_RTTI -fno-rtti -fno-exceptions
-
-L4_LIBS :=
