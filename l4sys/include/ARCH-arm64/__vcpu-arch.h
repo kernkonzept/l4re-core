@@ -19,6 +19,7 @@
 #pragma once
 
 #include <l4/sys/types.h>
+#include <l4/sys/utcb.h>
 
 enum
 {
@@ -35,20 +36,7 @@ enum
  * \brief vCPU registers.
  * \ingroup l4_vcpu_api
  */
-typedef struct l4_vcpu_regs_t
-{
-  l4_umword_t pfa;
-  l4_umword_t err;
-
-  l4_umword_t reserved;
-  l4_umword_t r[31];
-
-  l4_umword_t sp;
-  l4_umword_t lr;
-  l4_umword_t _dummy;
-  l4_umword_t ip;
-  l4_umword_t flags;
-} l4_vcpu_regs_t;
+typedef l4_exc_regs_t l4_vcpu_regs_t;
 
 typedef struct l4_vcpu_arch_state_t
 {
@@ -65,5 +53,4 @@ typedef struct l4_vcpu_ipc_regs_t
   l4_msgtag_t tag;
   l4_umword_t _d1[3];
   l4_umword_t label;
-  l4_umword_t _d2[8];
 } l4_vcpu_ipc_regs_t;

@@ -37,14 +37,16 @@
  */
 typedef struct l4_exc_regs_t
 {
-  l4_umword_t pfa;     /**< page fault address */
-  l4_umword_t err;     /**< error code */
+  l4_umword_t eret_work;
+  l4_umword_t r[31];
+  l4_umword_t reserved;
+  l4_umword_t err;
 
-  l4_umword_t tpidrro_el0; /**< Thread-ID register */
-  l4_umword_t r[31];   /**< registers */
-  l4_umword_t sp;      /**< stack pointer */
-  l4_umword_t pc;      /**< pc */
-  l4_umword_t pstate;  /**< pstate */
+  l4_umword_t pfa;
+  l4_umword_t sp;
+  union { l4_umword_t ip; l4_umword_t pc; }; /* aliases for PC */
+  union { l4_umword_t flags; l4_umword_t pstate; }; /* aliases for PSTATE (PSR) */
+  l4_umword_t tpidruro;
 } l4_exc_regs_t;
 
 /**
