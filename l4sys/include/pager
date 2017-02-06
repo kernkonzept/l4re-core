@@ -29,6 +29,9 @@
 
 namespace L4 {
 
+/**
+ * Io_pager interface.
+ */
 class L4_EXPORT Io_pager :
   public Kobject_0t<Io_pager, L4_PROTO_IO_PAGE_FAULT>
 {
@@ -58,6 +61,9 @@ public:
   typedef L4::Typeid::Rpc_nocode<io_page_fault_t> Rpcs;
 };
 
+/**
+ * Pager interface including the Io_pager interface.
+ */
 class L4_EXPORT Pager :
   public Kobject_t<Pager, Io_pager, L4_PROTO_PAGE_FAULT>
 {
