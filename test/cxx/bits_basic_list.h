@@ -200,7 +200,7 @@ TYPED_TEST_P(BasicListTest, EraseEnd)
   for (int i = 2; i >= 0; --i)
     l.push_front(ele + i);
 
-    auto it = ++(++(l.begin()));
+  auto it = ++(++(l.begin()));
   it = l.erase(it);
   EXPECT_EQ(it, ++(++(l.begin())));
   it = ++l.begin();
