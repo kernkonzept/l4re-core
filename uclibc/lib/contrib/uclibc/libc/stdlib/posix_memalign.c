@@ -34,8 +34,10 @@ int posix_memalign(void **memptr, size_t alignment, size_t size)
 	     || alignment == 0
 	     */
 		return EINVAL;
-
-	*memptr = memalign(alignment, size);
-
-	return (*memptr != NULL ? 0 : ENOMEM);
+	void *mem = memalign(alignment, size);
+	if (mem != NULL) {
+		*memptr = mem;
+		return 0;
+	} else
+		return ENOMEM;
 }
