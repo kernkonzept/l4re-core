@@ -615,6 +615,8 @@ l4_iofpage(unsigned long port, unsigned int size) L4_NOTHROW
 L4_INLINE l4_fpage_t
 l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTHROW
 {
+  static_assert((unsigned long)L4_CAP_SHIFT >= L4_FPAGE_ADDR_SHIFT,
+                "Capability index does not fit into fpage.");
   return __l4_fpage_generic(obj, L4_FPAGE_OBJ, order, rights);
 }
 
