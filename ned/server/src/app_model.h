@@ -25,21 +25,6 @@ class Script;
 
 struct App_model : public Ldr::Base_app_model<Stack>
 {
-  enum
-  {
-    Task_cap               = 1,
-    Factory_cap            = 2,
-    Rm_thread_cap          = 3,
-    Log_cap                = 5,
-    External_rm_cap        = 6,
-    Allocator_cap          = 7,
-    Names_cap,
-    Parent_cap,
-    Kip_cap,
-    Scheduler_cap,
-    First_free,
-  };
-
   enum Prios
   {
     Default_base_prio = 0x00,
