@@ -107,8 +107,11 @@ public:
 
   /// \return the type field of the tag
   L4_varg_type type() const { return (L4_varg_type)(_tag & 0xff); }
-  /// \return the length field of the tag
-  int length() const { return _tag >> 16; }
+  /**
+   * Get the size of the RPC argument
+   * \return  The size of the RPC argument
+   */
+  unsigned length() const { return _tag >> 16; }
   /// \return the tag value (the Direct_data bit masked)
   Tag tag() const { return _tag & ~Direct_data; }
   /// Set Varg tag (usually from message)
@@ -348,7 +351,7 @@ struct Clnt_val_ops<Varg, Dir_in, Cls_data> :
         if (L4_UNLIKELY(!check_size<char>(offs, limit, i->length())))
           return -L4_EMSGTOOLONG;
         char const *d = i->data();
-        for (int x = 0; x < i->length(); ++x)
+        for (unsigned x = 0; x < i->length(); ++x)
           msg[offs++] = *d++;
       }
 
