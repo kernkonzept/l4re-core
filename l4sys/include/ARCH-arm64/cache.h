@@ -31,57 +31,48 @@
 
 #include_next <l4/sys/cache.h>
 
-/**
- * \internal
- */
-L4_INLINE void
-l4_cache_op_arm_call(unsigned long op,
-                     unsigned long start,
-                     unsigned long end);
+L4_INLINE unsigned long __attribute__((pure, always_inline))
+l4_cache_arm_ctr();
 
-L4_INLINE void
-l4_cache_op_arm_call(unsigned long op,
-                     unsigned long start,
-                     unsigned long end)
+L4_INLINE unsigned long __attribute__((pure, always_inline))
+l4_cache_arm_ctr()
 {
-  register unsigned long _op    __asm__ ("x0") = op;
-  register unsigned long _start __asm__ ("x1") = start;
-  register unsigned long _end   __asm__ ("x2") = end;
-return;
-  __asm__ __volatile__
-    ("bl     %[sc]	            \n\t"
-       :
-	"=r" (_op),
-	"=r" (_start),
-	"=r" (_end)
-       :
-       [sc] "i" (L4_SYSCALL_MEM_OP),
-	"0" (_op),
-	"1" (_start),
-	"2" (_end)
-       :
-	"cc", "memory", "x30"
-       );
+  unsigned long v;
+  asm ("mrs %0, CTR_EL0" : "=r"(v));
+  return v;
 }
 
-enum L4_mem_cache_ops
+L4_INLINE unsigned __attribute__((pure, always_inline))
+l4_cache_dmin_line();
+
+L4_INLINE unsigned __attribute__((pure, always_inline))
+l4_cache_dmin_line()
 {
-  L4_MEM_CACHE_OP_CLEAN_DATA        = 0,
-  L4_MEM_CACHE_OP_FLUSH_DATA        = 1,
-  L4_MEM_CACHE_OP_INV_DATA          = 2,
-  L4_MEM_CACHE_OP_COHERENT          = 3,
-  L4_MEM_CACHE_OP_DMA_COHERENT      = 4,
-  L4_MEM_CACHE_OP_DMA_COHERENT_FULL = 5,
-  L4_MEM_CACHE_OP_L2_CLEAN          = 6,
-  L4_MEM_CACHE_OP_L2_FLUSH          = 7,
-  L4_MEM_CACHE_OP_L2_INV            = 8,
-};
+  return 4U << ((l4_cache_arm_ctr() >> 16) & 0xf);
+}
+
+#define L4_ARM_CACHE_LOOP(op) \
+  if (start > end)            \
+    __builtin_unreachable();  \
+                              \
+  unsigned long const sz = end - start + 1;                 \
+  unsigned const s = l4_cache_dmin_line();                  \
+  asm volatile ("dsb ish" : : "m"(*((unsigned *)start)));   \
+  unsigned i;                                               \
+  unsigned long x = start;                                  \
+  for (i = 0; i < sz; i += s)                               \
+    {                                                       \
+      asm (op ", %1" : "+m"(*((unsigned *)x)) : "r"(x)); \
+      x += s;                                               \
+    }                                                       \
+  asm volatile ("dsb ish");
+
 
 L4_INLINE int
 l4_cache_clean_data(unsigned long start,
                     unsigned long end) L4_NOTHROW
 {
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_CLEAN_DATA, start, end);
+  L4_ARM_CACHE_LOOP("dc cvac");
   return 0;
 }
 
@@ -89,7 +80,7 @@ L4_INLINE int
 l4_cache_flush_data(unsigned long start,
                     unsigned long end) L4_NOTHROW
 {
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_FLUSH_DATA, start, end);
+  L4_ARM_CACHE_LOOP("dc civac");
   return 0;
 }
 
@@ -97,7 +88,7 @@ L4_INLINE int
 l4_cache_inv_data(unsigned long start,
                   unsigned long end) L4_NOTHROW
 {
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_INV_DATA, start, end);
+  L4_ARM_CACHE_LOOP("dc ivac");
   return 0;
 }
 
@@ -105,7 +96,7 @@ L4_INLINE int
 l4_cache_coherent(unsigned long start,
                   unsigned long end) L4_NOTHROW
 {
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_COHERENT, start, end);
+  L4_ARM_CACHE_LOOP("dc cvau, %1; ic ivau");
   return 0;
 }
 
@@ -113,39 +104,10 @@ L4_INLINE int
 l4_cache_dma_coherent(unsigned long start,
                       unsigned long end) L4_NOTHROW
 {
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_DMA_COHERENT, start, end);
+  L4_ARM_CACHE_LOOP("dc civac");
   return 0;
 }
 
-L4_INLINE int
-l4_cache_dma_coherent_full(void) L4_NOTHROW
-{
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_DMA_COHERENT_FULL, 0, 0);
-  return 0;
-}
-
-L4_INLINE int
-l4_cache_l2_clean(unsigned long start,
-                  unsigned long end) L4_NOTHROW
-{
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_L2_CLEAN, start, end);
-  return 0;
-}
-
-L4_INLINE int
-l4_cache_l2_flush(unsigned long start,
-                  unsigned long end) L4_NOTHROW
-{
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_L2_FLUSH, start, end);
-  return 0;
-}
-
-L4_INLINE int
-l4_cache_l2_inv(unsigned long start,
-                unsigned long end) L4_NOTHROW
-{
-  l4_cache_op_arm_call(L4_MEM_CACHE_OP_L2_INV, start, end);
-  return 0;
-}
+#undef L4_ARM_CACHE_LOOP
 
 #endif /* ! __L4SYS__INCLUDE__ARCH_ARM__CACHE_H__ */
