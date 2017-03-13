@@ -138,9 +138,13 @@ TYPED_TEST(CacheTest, DmaCoherentData)
                    "Make cache coherent with external memory in test region");
 }
 
+#ifdef L4RE_TEST_HACK_APIS
+
 TYPED_TEST(CacheTest, DmaCoherentFull)
 {
   TypeParam obj;
   obj.check_result(l4_cache_dma_coherent_full(),
                    "Make entire memory cache coherent");
 }
+
+#endif
