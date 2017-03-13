@@ -550,12 +550,11 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   attr.exc_handler(e->rm());
   if ((err = l4_error(_t->control(attr))) < 0)
    {
-     fprintf(stderr, "ERROR: l4 thread control returned: %d\n", err);
+     fprintf(stderr, "ERROR: thread control returned: %d\n", err);
      return err;
    }
 
   l4_utcb_tcr_u(nt_utcb)->user[0] = l4_addr_t(thread);
-
 
   l4_umword_t *&_tos = (l4_umword_t*&)*tos;
 
@@ -563,15 +562,28 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   *(--_tos) = 0; /* ret addr */
   *(--_tos) = l4_addr_t(f);
 
+  err = l4_error(_t->ex_regs(l4_addr_t(__pthread_new_thread_entry),
+                             l4_addr_t(_tos), 0));
 
-  _t->ex_regs(l4_addr_t(__pthread_new_thread_entry), l4_addr_t(_tos), 0);
+  if (err < 0)
+    {
+      fprintf(stderr, "ERROR: exregs returned error: %d\n", err);
+      return err;
+    }
 
   if (thread->p_start_args.start_routine
       && !(create_flags & PTHREAD_L4_ATTR_NO_START))
     {
       l4_sched_param_t sp = l4_sched_param(prio >= 0 ? prio : 2);
       sp.affinity = affinity;
-      e->scheduler()->run_thread(_t.get(), sp);
+      err = l4_error(e->scheduler()->run_thread(_t.get(), sp));
+      if (err < 0)
+        {
+          fprintf(stderr,
+                  "ERROR: could not start thread, run_thread returned %d\n",
+                  err);
+          return err;
+        }
     }
 
   // release the automatic capabilities
