@@ -31,6 +31,8 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, bool w,
       unsigned long l = qalloc()->quota()->limit();
       unsigned long a = Single_page_alloc_base::_avail();
 
+      a = cxx::min(l - qalloc()->quota()->used(), a);
+
       // not enough memory left
       if (a <= (unsigned long)(-_size))
         L4Re::chksys(-L4_ENOMEM);
