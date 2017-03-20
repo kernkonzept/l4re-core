@@ -410,11 +410,12 @@ l4_thread_vcpu_resume_start_u(l4_utcb_t *utcb) L4_NOTHROW;
  *
  * To resume into another address space the capability to the target task
  * must be set in the vCPU-state, with all lower bits in the task
- * capability cleared. The kernel adds the #L4_SYSF_SEND flag to this field
- * to indicate that the capability has been referenced in the kernel.
- * Consecutive resumes will not reference the task capability again until
- * all bits are cleared again. To release a task use the different task
- * capability or use an invalid capability with the #L4_SYSF_REPLY flag set.
+ * capability cleared (see #L4_CAP_MASK). The kernel adds the
+ * #L4_SYSF_SEND flag to this field to indicate that the capability has been
+ * referenced in the kernel. Consecutive resumes will not reference the task
+ * capability again until all bits are cleared again. To release a task use the
+ * different task capability or use an invalid capability with the
+ * #L4_SYSF_REPLY flag set.
  *
  * \see l4_vcpu_state_t
  */
