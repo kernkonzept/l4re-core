@@ -7,8 +7,6 @@
 
 subdirs += libc/inet
 
-include $(top_srcdir)libc/inet/rpc/Makefile.in
-
 INET_DIR := $(top_srcdir)libc/inet
 INET_OUT := $(top_builddir)libc/inet
 V4_OR_V6 := $(findstring y,$(UCLIBC_HAS_IPV4)$(UCLIBC_HAS_IPV6))

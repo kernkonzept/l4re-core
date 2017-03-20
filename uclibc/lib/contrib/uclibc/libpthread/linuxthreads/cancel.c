@@ -19,10 +19,6 @@
 #include "internals.h"
 #include "spinlock.h"
 #include "restart.h"
-#ifdef __UCLIBC_HAS_RPC__
-#include <rpc/rpc.h>
-extern void __rpc_thread_destroy(void);
-#endif
 #include <bits/stackinfo.h>
 
 #include <stdio.h>
@@ -202,12 +198,6 @@ void __pthread_perform_cleanup(char *currentframe)
 #endif
       c->__routine(c->__arg);
     }
-
-#ifdef __UCLIBC_HAS_RPC__
-  /* And the TSD which needs special help.  */
-  if (THREAD_GETMEM(self, p_libc_specific[_LIBC_TSD_KEY_RPC_VARS]) != NULL)
-      __rpc_thread_destroy ();
-#endif
 }
 
 #ifndef __PIC__

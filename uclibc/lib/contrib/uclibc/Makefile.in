@@ -254,10 +254,7 @@ HEADERS_RM- := \
 	bits/stackinfo.h \
 	atomic.h \
 	bits/atomic.h \
-	tls.h \
-	rpc/des_crypt.h \
-	rpc/key_prot.h \
-	rpc/rpc_des.h
+	tls.h
 ifeq ($(UCLIBC_STRICT_HEADERS),y)
 HEADERS_RM- += sgtty.h
 endif
@@ -288,7 +285,6 @@ HEADERS_RM-$(UCLIBC_HAS_REALTIME)            += mqueue.h bits/mqueue.h sched.h \
 	bits/sched.h \
 	semaphore.h
 HEADERS_RM-$(UCLIBC_HAS_REGEX)               += regex.h regexp.h
-HEADERS_RM-$(UCLIBC_HAS_RPC)                 += rpc
 HEADERS_RM-$(UCLIBC_HAS_SHADOW)              += shadow.h
 HEADERS_RM-$(UCLIBC_HAS_SOCKET)              += sys/socket.h bits/socket.h sys/socketvar.h bits/socket_type.h
 HEADERS_RM-$(UCLIBC_HAS_SYSLOG)              += syslog.h sys/syslog.h bits/syslog*.h

@@ -166,33 +166,3 @@ void __pthread_destroy_specifics(void)
     }
     __pthread_unlock(THREAD_GETMEM(self, p_lock));
 }
-
-#if !defined __UCLIBC_HAS_TLS__ && defined __UCLIBC_HAS_RPC__
-
-/* Thread-specific data for libc. */
-
-int
-__pthread_internal_tsd_set (int key, const void * pointer)
-{
-  pthread_descr self = thread_self();
-
-  THREAD_SETMEM_NC(self, p_libc_specific[key], (void *) pointer);
-  return 0;
-}
-
-void *
-__pthread_internal_tsd_get (int key)
-{
-  pthread_descr self = thread_self();
-
-  return THREAD_GETMEM_NC(self, p_libc_specific[key]);
-}
-
-void ** __attribute__ ((__const__))
-__pthread_internal_tsd_address (int key)
-{
-  pthread_descr self = thread_self();
-  return &self->p_libc_specific[key];
-}
-
-#endif

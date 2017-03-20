@@ -170,7 +170,6 @@ pty.h
 pwd.h
 regex.h
 resolv.h
-rpc/netdb.h
 sched.h
 search.h
 setjmp.h
