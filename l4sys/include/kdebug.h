@@ -189,11 +189,6 @@ L4_INLINE void outdec(l4_mword_t number)
   __kdebug_op_1(L4_KDEBUG_OUTDEC, number);
 }
 
-L4_INLINE int l4kd_inchar(void)
-{
-  return -1;
-}
-
 /**
  * Show message with L4 kernel debugger, but do not enter debugger
  * \ingroup l4_debugger_api
