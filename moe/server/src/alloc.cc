@@ -253,7 +253,7 @@ Allocator::op_debug(L4Re::Debug_obj::Rights, unsigned long)
   Dbg out(Dbg::Info, "mem_alloc");
   out.printf("quota: limit=%zd Byte, used=%zd Byte\n",
              _qalloc.quota()->limit(), _qalloc.quota()->used());
-  out.printf("global: avail=%ld Byte\n", Single_page_alloc_base::_avail());
+  out.printf("global: avail=%lu Byte\n", Single_page_alloc_base::_avail());
   out.printf("free list (start address/size):\n");
   Single_page_alloc_base::_dump_free(out);
   return L4_EOK;
