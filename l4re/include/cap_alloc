@@ -118,12 +118,12 @@ public:
 
   void free(L4::Cap_base &c)
   {
-    if (c.is_valid())
+    if (c.is_valid() && _ca)
       {
-	L4::Cap<L4::Task>(This_task)->unmap(c.fpage(), Unmap_flags);
-	_ca->free(L4::Cap<void>(c.cap()));
-	c.invalidate();
+        L4::Cap<L4::Task>(This_task)->unmap(c.fpage(), Unmap_flags);
+        _ca->free(L4::Cap<void>(c.cap()));
       }
+    invalidate(c);
   }
 
   static void invalidate(L4::Cap_base &c)
