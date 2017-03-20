@@ -251,10 +251,12 @@ long
 Allocator::op_debug(L4Re::Debug_obj::Rights, unsigned long)
 {
   Dbg out(Dbg::Info, "mem_alloc");
-  out.printf("quota: limit=%zd Byte, used=%zd Byte\n",
-             _qalloc.quota()->limit(), _qalloc.quota()->used());
-  out.printf("global: avail=%lu Byte\n", Single_page_alloc_base::_avail());
-  out.printf("free list (start address/size):\n");
+  out.printf("quota (bytes): limit=%zd, used=%zd avail=%zd\n",
+             _qalloc.quota()->limit(), _qalloc.quota()->used(),
+             _qalloc.quota()->limit() == ~0u
+             ? -1 : _qalloc.quota()->limit() - _qalloc.quota()->used());
+  out.printf("global: avail=%lu bytes\n", Single_page_alloc_base::_avail());
+  out.printf("global physical free list:\n");
   Single_page_alloc_base::_dump_free(out);
   return L4_EOK;
 }
