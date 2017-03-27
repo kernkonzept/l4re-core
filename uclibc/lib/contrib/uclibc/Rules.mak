@@ -1,6 +1,7 @@
-# Rules.mak for uClibc
+# Rules.mak for uClibc-ng
 #
 # Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
+# Copyright (C) 2015-2017 Waldemar Brodkorb <wbx@uclibc-ng.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -46,7 +47,7 @@ noconfig_targets := menuconfig config nconfig \
 #
 # Most people will set this stuff on the command line, i.e.
 #        make CROSS_COMPILE=arm-linux-
-# will build uClibc for 'arm'.
+# will build uClibc-ng for 'arm'.
 # CROSS is still supported for backward compatibily only
 
 CROSS_COMPILE ?= $(CROSS)
@@ -94,7 +95,7 @@ KCONFIG_AUTOHEADER := $(dir $(KCONFIG_CONFIG))include/generated/autoconf.h
 export KCONFIG_AUTOHEADER
 Kconfig := $(abspath $(top_srcdir)extra/Configs/Config.in)
 
-# Pull in the user's uClibc configuration
+# Pull in the user's uClibc-ng configuration
 ifeq ($(filter $(noconfig_targets) clean CLEAN_%,$(MAKECMDGOALS)),)
 -include $(KCONFIG_CONFIG)
 endif
@@ -127,7 +128,7 @@ export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS MULTILIB_DIR
 # Now config hard core
 MAJOR_VERSION := 1
 MINOR_VERSION := 0
-SUBLEVEL      := 21
+SUBLEVEL      := 23
 EXTRAVERSION  :=
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 ABI_VERSION   := $(MAJOR_VERSION)
@@ -686,9 +687,9 @@ GCC_HAS_TLS=$(shell \
 ifneq ($(GCC_HAS_TLS),)
 gcc_tls_test_fail:
 	@echo "####";
-	@echo "#### Your compiler does not support TLS and you are trying to build uClibc";
+	@echo "#### Your compiler does not support TLS and you are trying to build uClibc-ng";
 	@echo "#### with NPTL support. Upgrade your binutils and gcc to versions which";
-	@echo "#### support TLS for your architecture. Do not contact uClibc maintainers";
+	@echo "#### support TLS for your architecture. Do not contact uClibc-ng maintainers";
 	@echo "#### about this problem.";
 	@echo "####";
 	@echo "#### Exiting...";
