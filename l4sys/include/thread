@@ -266,8 +266,8 @@ public:
     * \return Syscall resturn tag.
     *
     * This function enables the vCPU feature of `this` thread if `vcpu_state`
-    * is set to a valid kernel-user-memory address, or disables the vCPU feature
-    * if `vcpu_state` is 0.
+    * is set to a valid kernel-user-memory address, or disables the vCPU
+    * feature if `vcpu_state` is 0. (Disable: optional, currently unsupported.)
     */
    l4_msgtag_t vcpu_control(l4_addr_t vcpu_state, l4_utcb_t *utcb = l4_utcb())
      throw()

@@ -446,8 +446,7 @@ l4_thread_vcpu_resume_commit_u(l4_cap_idx_t thread,
  *
  * This function enables the vCPU feature of the `thread` if `vcpu_state`
  * is set to a valid kernel-user-memory address, or disables the vCPU feature
- * if `vcpu_state` is 0.
- *
+ * if `vcpu_state` is 0. (Disable: optional, currently unsupported.)
  */
 L4_INLINE l4_msgtag_t
 l4_thread_vcpu_control(l4_cap_idx_t thread, l4_addr_t vcpu_state) L4_NOTHROW;
