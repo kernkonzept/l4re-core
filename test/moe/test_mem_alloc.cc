@@ -17,11 +17,25 @@
 #include <l4/re/error_helper>
 #include <l4/re/debug>
 
+#include <l4/atkins/l4_assert>
 #include <l4/atkins/tap/main>
 
 #include "moe_helpers.h"
 
-struct TestMemAlloc : ::testing::Test {};
+struct TestMemAlloc : ::testing::Test
+{
+  /**
+   * Return a large size that is still accepted by Moe for memory allocations.
+   */
+  l4_ssize_t huge_mem_size()
+  {
+    unsigned shiftwidth = sizeof(l4_addr_t) == 4
+                          ? 31    // less than 2GB for 32bit
+                          : 38;   // 256GB for 64bit
+
+    return (l4_ssize_t) ((1UL << shiftwidth) - L4_PAGESIZE);
+  }
+};
 
 #ifndef NDEBUG
 TEST_F(TestMemAlloc, Dump)
@@ -118,27 +132,37 @@ TEST_F(TestMemAlloc, ContinuousHuge)
 {
   // overcommit for continous memory is not possible
   auto ds = make_auto_cap<L4Re::Dataspace>();
-  ASSERT_EQ(-L4_ENOMEM, env->mem_alloc()->alloc(1UL << 30, ds.get(),
-                                                L4Re::Mem_alloc::Continuous));
+  auto ds2 = make_auto_cap<L4Re::Dataspace>();
+  auto ret = env->mem_alloc()->alloc(huge_mem_size(), ds.get(),
+                                     L4Re::Mem_alloc::Continuous);
+  if (ret == L4_EOK)
+    ret = env->mem_alloc()->alloc(huge_mem_size(), ds2.get(),
+                                  L4Re::Mem_alloc::Continuous);
+  ASSERT_L4ERR(L4_ENOMEM, ret)
+    << "Allocating more memory than physically available in a "
+       "contiguous region fails.";
 }
 
 TEST_F(TestMemAlloc, ContinuousMax)
 {
-  // this test assumes that the test environment is limited to 1GB of RAM
   auto ds = make_auto_cap<L4Re::Dataspace>();
-  l4_ssize_t size = -0x4000000;
+  l4_size_t left_size = 10 * L4_PAGESIZE;
+  l4_ssize_t size = -((l4_ssize_t) left_size);
 
-  ASSERT_EQ(0, env->mem_alloc()->alloc(size, ds.get(),
-                                                L4Re::Mem_alloc::Continuous));
+  ASSERT_L4OK(env->mem_alloc()->alloc(size, ds.get(),
+                                      L4Re::Mem_alloc::Continuous));
 
-  // at least 'size' bytes must be left after the allocation
-  l4_size_t mem = 1UL << 30;
-  ASSERT_GT(mem, ds->size() - size - 1UL);
+  // at least 'left_size' bytes must be left after the allocation
+  auto ds2 = make_auto_cap<L4Re::Dataspace>();
+  L4Re::Rm::Auto_region<char *> ds2_region;
+  ASSERT_L4OK(env->mem_alloc()->alloc(left_size, ds2.get()));
+  ASSERT_L4OK(env->rm()->attach(&ds2_region, left_size,
+                                L4Re::Rm::Search_addr | L4Re::Rm::Eager_map,
+                                ds2.get()));
 }
 
 TEST_F(TestMemAlloc, NoncontMax)
 {
-  // this test assumes that the test environment is limited to 1GB of RAM
   auto ds = make_auto_cap<L4Re::Dataspace>();
   l4_ssize_t size = -0x4000000;
 
