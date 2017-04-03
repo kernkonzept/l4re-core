@@ -136,7 +136,7 @@ public:
    * \caprights{R}
    * \param[in]     src      Source data space (that describes the memory).
    *                         Caller needs write rights to the data space.
-   * \param[in]     offset   The offset (bytes) with in `src`.
+   * \param[in]     offset   The offset (bytes) within `src`.
    * \param[in,out] size     The size (bytes) of the of the region to be mapped
    *                         to for DMA, after successful mapping the size
    *                         returned is the size mapped for DMA as single
