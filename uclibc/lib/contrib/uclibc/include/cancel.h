@@ -14,8 +14,8 @@
  * 2. if it is hidden, add the prototype to the appropiate header where NAME has
  * it's prototype (guarded by _LIBC)
  * 3. add a CANCELLABLE_SYSCALL(...) line at the end, this will create the function
- * NAME (as weak) with enabled cancellation for NPTL (and later for new LT), for
- * LT_OLD it will also create a strong_alias to __libc_NAME to be used in libpthread
+ * NAME (as weak) with enabled cancellation for NPTL, for
+ * LT it will also create a strong_alias to __libc_NAME to be used in libpthread
  * 4. if you need libc_hidden_(weak|def) line, use instead lt_libc_hidden, this will
  * take care of the correct type, weak or strong depending on the THREADS type
  * 5. If the implementation can't be done using CANCELLABLE_SYSCALL (like for fcntl)
@@ -36,8 +36,6 @@
  */
 
 #include <features.h>
-
-#ifndef NOT_IN_libc
 
 #define __NC(name) _NC(name)
 #define _NC(name) __##name##_nocancel
@@ -97,7 +95,5 @@ strong_alias(__NC(name),name)
 /* disable it, useless, glibc uses it only for tests */
 # undef LIBC_CANCEL_HANDLED
 # define LIBC_CANCEL_HANDLED()
-
-#endif /* NOT_IN_libc */
 
 #endif

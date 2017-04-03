@@ -20,6 +20,8 @@
 #include <sys/time.h>
 #include <tls.h>
 
+#define CPUCLOCK_PERTHREAD_MASK	4
+#define CPUCLOCK_SCHED		2
 
 int
 pthread_getcpuclockid (
@@ -46,7 +48,8 @@ pthread_getcpuclockid (
     return ERANGE;
 
   /* Store the number.  */
-  *clockid = CLOCK_THREAD_CPUTIME_ID | (pd->tid << CLOCK_IDFIELD_SIZE);
+  *clockid = ((~(clockid_t) (pd->tid)) << CLOCK_IDFIELD_SIZE)
+    | CPUCLOCK_SCHED | CPUCLOCK_PERTHREAD_MASK;
 
   return 0;
 #else

@@ -31,13 +31,6 @@
 References to symbols in sharable libraries can be resolved by either
 an ELF sharable library or a linux style of shared library. */
 
-/* Disclaimer:  I have never seen any AT&T source code for SVr4, nor have
-	 I ever taken any courses on internals.  This program was developed using
-	 information available through the book "UNIX SYSTEM V RELEASE 4,
-	 Programmers guide: Ansi C and Programming Support Tools", which did
-	 a more than adequate job of explaining everything required to get this
-	 working. */
-
 /* Some SPARC opcodes we need to use for self-modifying code.  */
 #define OPCODE_NOP	0x01000000 /* nop */
 #define OPCODE_CALL	0x40000000 /* call ?; add PC-rel word address */

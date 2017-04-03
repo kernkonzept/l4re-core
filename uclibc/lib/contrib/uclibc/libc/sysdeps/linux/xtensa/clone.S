@@ -22,7 +22,6 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 #define __ASSEMBLY__
-#include <linux/sched.h>
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
                     a2                    a3               a4        a5
@@ -68,10 +67,6 @@ ENTRY (__clone)
 	j	SYSCALL_ERROR_LABEL
 
 .Lthread_start:
-
-#if CLONE_THREAD != 0x00010000 || CLONE_VM != 0x00000100
-# error invalid values for CLONE_THREAD or CLONE_VM
-#endif
 
 	/* start child thread */
 	movi	a0, 0			/* terminate the stack frame */

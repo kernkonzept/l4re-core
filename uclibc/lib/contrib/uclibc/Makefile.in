@@ -108,7 +108,6 @@ ALL_HEADERS_COMMON       := $(top_builddir)include/fpu_control.h \
 				$(top_builddir)include/jmpbuf-offsets.h \
 				$(top_builddir)include/jmpbuf-unwind.h \
 				$(top_builddir)include/dl-osinfo.h \
-				$(top_builddir)include/hp-timing.h \
 				$(top_builddir)include/not-cancel.h
 ALL_HEADERS_BITS_COMMON  := $(addprefix $(top_builddir)include/bits/,$(HEADERS_BITS_COMMON))
 ALL_HEADERS_BITS_ARCH    := $(addprefix $(top_builddir)include/bits/,$(HEADERS_BITS_ARCH))
@@ -139,7 +138,7 @@ $(top_builddir)include/fpu_control.h $(top_builddir)include/jmpbuf-offsets.h $(t
 		$(LN) -fs $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(@F) $@ || \
 		$(LN) -fs $(call rel_srcdir)libc/sysdeps/linux/common/$(@F) $@
 
-$(top_builddir)include/dl-osinfo.h $(top_builddir)include/hp-timing.h $(top_builddir)include/not-cancel.h:
+$(top_builddir)include/dl-osinfo.h $(top_builddir)include/not-cancel.h:
 	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/common/$(@F) $@
 
 $(ALL_HEADERS_BITS_COMMON):
@@ -233,7 +232,6 @@ HEADERS_RM- := \
 	dl-osinfo.h \
 	jmpbuf-offsets.h \
 	jmpbuf-unwind.h \
-	hp-timing.h \
 	not-cancel.h \
 	_lfs_64.h \
 	bits/uClibc_arch_features.h \

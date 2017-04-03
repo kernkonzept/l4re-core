@@ -1,6 +1,5 @@
 /* Copyright (C) 1996, 1997, 1998, 2000, 2003, 2004, 2007
    Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@tamu.edu).
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,9 +22,6 @@
 #include <asm/errno.h>
 #include <asm/unistd.h>
 #include <sysdep.h>
-
-#define CLONE_VM	0x00000100
-#define CLONE_THREAD	0x00010000
 
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
 	     pid_t *ptid, void *tls, pid_t *ctid); */

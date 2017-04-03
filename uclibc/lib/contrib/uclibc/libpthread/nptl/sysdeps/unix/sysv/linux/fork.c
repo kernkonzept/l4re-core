@@ -24,7 +24,6 @@
 #include <sysdep.h>
 #include <tls.h>
 #include "fork.h"
-#include <hp-timing.h>
 #include <ldsodefs.h>
 #include <atomic.h>
 #include <errno.h>
@@ -151,14 +150,6 @@ fork (void)
 
       if (__fork_generation_pointer != NULL)
 	*__fork_generation_pointer += 4;
-
-#if HP_TIMING_AVAIL
-      /* The CPU clock of the thread and process have to be set to zero.  */
-      hp_timing_t now;
-      HP_TIMING_NOW (now);
-      THREAD_SETMEM (self, cpuclock_offset, now);
-      GL(dl_cpuclock_offset) = now;
-#endif
 
       /* Reset the file list.  These are recursive mutexes.  */
       fresetlockfiles ();

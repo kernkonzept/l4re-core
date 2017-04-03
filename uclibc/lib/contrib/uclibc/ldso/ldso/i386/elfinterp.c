@@ -34,13 +34,6 @@
    References to symbols in sharable libraries can be resolved by either
    an ELF sharable library or a linux style of shared library. */
 
-/* Disclaimer:  I have never seen any AT&T source code for SVr4, nor have
-   I ever taken any courses on internals.  This program was developed using
-   information available through the book "UNIX SYSTEM V RELEASE 4,
-   Programmers guide: Ansi C and Programming Support Tools", which did
-   a more than adequate job of explaining everything required to get this
-   working. */
-
 extern int _dl_linux_resolve(void);
 
 unsigned long

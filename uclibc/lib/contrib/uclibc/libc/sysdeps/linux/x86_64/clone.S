@@ -1,5 +1,4 @@
 /* Copyright (C) 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -22,9 +21,6 @@
 #define _ERRNO_H 1
 #include <bits/errno.h>
 #include <sys/syscall.h>
-
-#define CLONE_VM	0x00000100
-#define CLONE_THREAD	0x00010000
 
 /* The userland implementation is:
    int clone (int (*fn)(void *arg), void *child_stack, int flags, void *arg),

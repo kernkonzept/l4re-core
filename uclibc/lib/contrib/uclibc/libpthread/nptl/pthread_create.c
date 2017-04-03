@@ -21,7 +21,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "pthreadP.h"
-#include <hp-timing.h>
 #include <ldsodefs.h>
 #include <atomic.h>
 #include <resolv.h>
@@ -225,12 +224,6 @@ start_thread (void *arg)
 {
   struct pthread *pd = (struct pthread *) arg;
 
-#if HP_TIMING_AVAIL
-  /* Remember the time when the thread was started.  */
-  hp_timing_t now;
-  HP_TIMING_NOW (now);
-  THREAD_SETMEM (pd, cpuclock_offset, now);
-#endif
 #if defined __UCLIBC_HAS_RESOLVER_SUPPORT__
   /* Initialize resolver state pointer.  */
   __resp = &pd->res;
@@ -289,11 +282,7 @@ start_thread (void *arg)
 	}
 
       /* Run the code the user provided.  */
-#ifdef CALL_THREAD_FCT
-      THREAD_SETMEM (pd, result, CALL_THREAD_FCT (pd));
-#else
       THREAD_SETMEM (pd, result, pd->start_routine (pd->arg));
-#endif
     }
 
   /* Run the destructor for the thread-local data.  */

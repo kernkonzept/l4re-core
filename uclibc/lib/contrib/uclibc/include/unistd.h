@@ -852,11 +852,6 @@ extern __pid_t vfork (void) __THROW;
 libc_hidden_proto(vfork)
 #endif /* Use BSD. */
 
-#if 0 /* psm: seems unused , exit-thread.S is not compiled */
-/* Special exit function which only terminates the current thread.  */
-extern void __exit_thread (int val) __attribute__ ((__noreturn__));
-#endif
-
 /* Return the pathname of the terminal FD is open on, or NULL on errors.
    The returned storage is good only until the next call to this function.  */
 extern char *ttyname (int __fd) __THROW;

@@ -115,6 +115,7 @@ libc_hidden_weak(sigaction)
 /* The return code for realtime-signals.  */
 # define RESTORE2(name, syscall) \
 __asm__	(						\
+	"nop\n"						\
 	".text\n"					\
 	"__" #name ":\n"				\
 	"	movl	$" #syscall ", %eax\n"		\
@@ -128,6 +129,7 @@ RESTORE(restore_rt, __NR_rt_sigreturn)
 # undef RESTORE2
 # define RESTORE2(name, syscall) \
 __asm__ (						\
+	"nop\n"						\
 	".text\n"					\
 	"__" #name ":\n"				\
 	"	popl	%eax\n"				\

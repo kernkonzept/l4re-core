@@ -535,7 +535,6 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_hppa && \
 		   !TARGET_ia64 && \
 		   !TARGET_m68k && \
-		   !TARGET_or1k && \
 		   ARCH_USE_MMU
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
@@ -1860,21 +1859,6 @@ config UCLIBC_HAS_FNMATCH
 	default y
 	help
 	  POSIX fnmatch.
-
-config UCLIBC_HAS_FNMATCH_OLD
-	bool "Use the older (stable) fnmatch code"
-	depends on UCLIBC_HAS_FNMATCH
-	default y
-	help
-	  There are two versions of fnmatch.  The older (stable) version has
-	  been in uClibc for quite a long time but hasn't seen too many
-	  updates.  It also has some known issues when dealing with uncommon
-	  corner cases and multibyte/unicode strings.  However, it is quite
-	  a bit smaller than the newer version.
-
-	  If the older version has worked for you and you don't need unicode
-	  support, then stick with the old version (and say Y here).
-	  Otherwise, you should use the new version (and say N here).
 
 config UCLIBC_HAS_WORDEXP
 	bool "Support the wordexp() interface"

@@ -6,4 +6,4 @@
 #
 
 CSRC-y := __syscall_error.c __init_brk.c brk.c sbrk.c clone.c
-SSRC-y := __longjmp.S setjmp.S
+SSRC-y := __longjmp.S setjmp.S or1k_clone.S

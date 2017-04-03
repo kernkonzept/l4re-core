@@ -1,5 +1,4 @@
 /* Copyright (C) 1996-2000,02,03,04,2005 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
    Contributed by Richard Henderson (rth@tamu.edu)
 
    The GNU C Library is free software; you can redistribute it and/or

@@ -7,7 +7,7 @@
 
 subdirs += libc/misc/fnmatch
 
-CSRC-y := $(if $(UCLIBC_HAS_FNMATCH_OLD),fnmatch_old.c,fnmatch.c)
+CSRC-y := fnmatch.c
 
 MISC_FNMATCH_DIR := $(top_srcdir)libc/misc/fnmatch
 MISC_FNMATCH_OUT := $(top_builddir)libc/misc/fnmatch

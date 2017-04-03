@@ -29,7 +29,6 @@ config CONFIG_OR1K
 	select ARCH_HAS_MMU	
 	select UCLIBC_HAS_FPU
 	select ARCH_BIG_ENDIAN
-        select HAS_NO_THREADS
 	bool "or1k"
 
 endchoice

@@ -34,10 +34,9 @@ PT_EI long int testandset(int*);
 PT_EI long int
 testandset (int *spinlock)
 {
-	int err;
 	int oldvalue = 1;
 
-	err = INLINE_SYSCALL(or1k_atomic, 3, OR1K_ATOMIC_XCHG, spinlock, &oldvalue);
+	INLINE_SYSCALL(or1k_atomic, 3, OR1K_ATOMIC_XCHG, spinlock, &oldvalue);
 
 	return (oldvalue);
 }

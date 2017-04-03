@@ -179,8 +179,8 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 log_entry:
 #if defined __SUPPORT_LD_DEBUG__
 	if (_dl_debug_detail)
-		_dl_dprintf(_dl_debug_file,"\tpatched: %lx ==> %lx @ %pl: addend %x ",
-				old_val, *reloc_addr, reloc_addr, rpnt->r_addend);
+		_dl_dprintf(_dl_debug_file,"\tpatched: %x ==> %x @ %x",
+				old_val, *reloc_addr, reloc_addr);
 #endif
 
 	return 0;
@@ -215,7 +215,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 #if defined __SUPPORT_LD_DEBUG__
 	if (_dl_debug_reloc && _dl_debug_detail)
-		_dl_dprintf(_dl_debug_file, "\tpatched: %lx ==> %lx @ %pl\n",
+		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n",
 				old_val, *reloc_addr, reloc_addr);
 #endif
 

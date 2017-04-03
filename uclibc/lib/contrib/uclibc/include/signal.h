@@ -404,25 +404,8 @@ struct sigvec
 # define SV_RESETHAND	(1 << 2)/* Reset handler to SIG_DFL on receipt.  */
 #endif
 
-
-#if 0
-/* If VEC is non-NULL, set the handler for SIG to the `sv_handler' member
-   of VEC.  The signals in `sv_mask' will be blocked while the handler runs.
-   If the SV_RESETHAND bit is set in `sv_flags', the handler for SIG will be
-   reset to SIG_DFL before `sv_handler' is entered.  If OVEC is non-NULL,
-   it is filled in with the old information for SIG.  */
-extern int sigvec (int __sig, const struct sigvec *__vec,
-		   struct sigvec *__ovec) __THROW;
-#endif
-
-
 /* Get machine-dependent `struct sigcontext' and signal subcodes.  */
 # include <bits/sigcontext.h>
-
-#if 0
-/* Restore the state saved in SCP.  */
-extern int sigreturn (struct sigcontext *__scp) __THROW;
-#endif
 
 #endif /*  use BSD.  */
 

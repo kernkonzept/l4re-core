@@ -23,7 +23,7 @@
    replaced by a call to `execve'.  Return -1 for errors, 0 to the new process,
    and the process ID of the new process to the old process.  */
 
-ENTRY (vfork)
+ENTRY (__vfork)
 
 	mov	x0, #0x4111	/* CLONE_VM | CLONE_VFORK | SIGCHLD */
 	mov	x1, sp
@@ -33,5 +33,7 @@ ENTRY (vfork)
 	b.cs    .Lsyscall_error
 	RET
 
-PSEUDO_END (vfork)
-libc_hidden_def (vfork)
+PSEUDO_END (__vfork)
+libc_hidden_def(vfork)
+
+weak_alias (__vfork, vfork)

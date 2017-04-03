@@ -28,9 +28,6 @@
 #define _ERRNO_H	1
 #include <bits/errno.h>
 
-#define CLONE_VM      0x00000100
-#define CLONE_THREAD  0x00010000
-
 /* int clone(int (*fn)(void *), void *child_stack, int flags, void *arg);
    _syscall2(int, clone, int, flags, void *, child_stack)  */
 

@@ -17,11 +17,8 @@ librt_filter_SRC :=
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 librt_filter_SRC += mq_notify.c timer_create.c timer_delete.c \
 	timer_getoverr.c timer_gettime.c timer_settime.c
-# these should really be guarded by ADVANCED_REALTIME, we use them in mq_send.c/mq_receive.c
-librt_SSRC := $(wildcard $(librt_DIR)/*.S)
 else
 librt_filter_SRC += clock_nanosleep.c clock_getcpuclockid.c clock_gettime.c
-librt_SSRC :=
 endif
 
 librt_filter_SRC += $(if $(UCLIBC_HAS_ADVANCED_REALTIME),, \
@@ -36,17 +33,13 @@ librt_filter_SRC += $(if $(HAS_NO_THREADS),dso_handle.c)
 
 librt_SRC := $(filter-out $(librt_filter_SRC),$(librt_SRC))
 librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_SRC))
-librt_OBJ += $(patsubst $(librt_DIR)/%.S,$(librt_OUT)/%.o,$(librt_SSRC))
-
-ASFLAGS-mq_timedreceive.S = -D_LIBC_REENTRANT
-ASFLAGS-mq_timedsend.S = -D_LIBC_REENTRANT
 
 ifeq ($(DOPIC),y)
 librt-a-y += $(librt_OBJ:.o=.os)
 else
 librt-a-y += $(librt_OBJ)
 endif
-librt-so-y += $(librt_OBJ:.o=.oS)
+librt-so-y += $(librt_OBJ:.o=.os)
 
 librt-dep-y := $(libc.depend)
 

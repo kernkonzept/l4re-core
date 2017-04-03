@@ -15,14 +15,13 @@
 /bfin_sram.h
 /dl-osinfo.h
 /fpu_control.h
-/hp-timing.h
 /jmpbuf-offsets.h
 /jmpbuf-unwind.h
 /not-cancel.h
 /pthread.h
 /semaphore.h
-/thread_db.h
 /sgidefs.h
+/thread_db.h
 
 /sys/acct.h
 /sys/asm.h
@@ -31,6 +30,7 @@
 /sys/elf.h
 /sys/epoll.h
 /sys/eventfd.h
+/sys/fanotify.h
 /sys/fpregdef.h
 /sys/inotify.h
 /sys/io.h

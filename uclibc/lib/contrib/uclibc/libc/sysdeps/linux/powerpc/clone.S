@@ -21,9 +21,6 @@
 #include <bits/errno.h>
 #include <sysdep.h>
 
-#define CLONE_VM	0x00000100
-#define CLONE_THREAD	0x00010000
-
 /* This is the only really unusual system call in PPC linux, but not
    because of any weirdness in the system call itself; because of
    all the freaky stuff we have to do to make the call useful.  */

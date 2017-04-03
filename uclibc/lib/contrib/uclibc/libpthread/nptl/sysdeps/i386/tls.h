@@ -422,22 +422,6 @@ union user_desc_init
 	      abort (); })
 
 
-/* Call the user-provided thread function.  */
-#define CALL_THREAD_FCT(descr) \
-  ({ void *__res;							      \
-     int __ignore1, __ignore2;						      \
-     __asm__ __volatile__ ("pushl %%eax\n\t"					      \
-		   "pushl %%eax\n\t"					      \
-		   "pushl %%eax\n\t"					      \
-		   "pushl %%gs:%P4\n\t"					      \
-		   "call *%%gs:%P3\n\t"					      \
-		   "addl $16, %%esp"					      \
-		   : "=a" (__res), "=c" (__ignore1), "=d" (__ignore2)	      \
-		   : "i" (offsetof (struct pthread, start_routine)),	      \
-		     "i" (offsetof (struct pthread, arg)));		      \
-     __res; })
-
-
 /* Set the stack guard field in TCB head.  */
 #define THREAD_SET_STACK_GUARD(value) \
   THREAD_SETMEM (THREAD_SELF, header.stack_guard, value)

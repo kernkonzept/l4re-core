@@ -27,13 +27,6 @@
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
 
-#if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_HAS_LINUXTHREADS__
-#include <sysdep-cancel.h>
-#endif
-
-#define CLONE_VM      0x00000100
-#define CLONE_THREAD  0x00010000
-
 #if defined(__NR_clone)
 /* int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg); */
 
