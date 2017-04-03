@@ -153,10 +153,6 @@ L4_INLINE l4_kernel_info_t *l4re_kip(void) L4_NOTHROW;
 L4_INLINE l4_cap_idx_t
 l4re_env_get_cap(char const *name) L4_NOTHROW;
 
-EXTERN_C l4_cap_idx_t
-l4re_get_env_cap(char const *name) L4_NOTHROW
-L4_DEPRECATED("Please use l4re_env_get_cap() now.");
-
 /**
  * Get the capability selector for the object named \a name.
  * \ingroup api_l4re_env
@@ -167,10 +163,6 @@ L4_DEPRECATED("Please use l4re_env_get_cap() now.");
  */
 L4_INLINE l4_cap_idx_t
 l4re_env_get_cap_e(char const *name, l4re_env_t const *e) L4_NOTHROW;
-
-EXTERN_C l4_cap_idx_t
-l4re_get_env_cap_e(char const *name, l4re_env_t const *e) L4_NOTHROW
-L4_DEPRECATED("Please use l4re_env_get_cap_e() now.");
 
 /**
  * Get the full l4re_env_cap_entry_t for the object named \a name.
@@ -184,11 +176,6 @@ L4_DEPRECATED("Please use l4re_env_get_cap_e() now.");
  */
 L4_INLINE l4re_env_cap_entry_t const *
 l4re_env_get_cap_l(char const *name, unsigned l, l4re_env_t const *e) L4_NOTHROW;
-
-EXTERN_C l4re_env_cap_entry_t const *
-l4re_get_env_cap_l(char const *name, unsigned l, l4re_env_t const *e) L4_NOTHROW
-L4_DEPRECATED("Please use l4re_env_get_cap_l() now.");
-
 
 L4_INLINE
 l4re_env_t *l4re_env() L4_NOTHROW
