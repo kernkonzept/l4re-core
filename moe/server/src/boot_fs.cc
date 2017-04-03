@@ -20,7 +20,7 @@
 #include "globals.h"
 #include "name_space.h"
 #include "debug.h"
-
+#include "args.h"
 
 #include <cstring>
 #include <cstdlib>
@@ -50,7 +50,7 @@ static void dump_mbi(l4util_mb_info_t const* mbi)
 }
 #endif
 
-static inline cxx::String cmdline_to_name(char const *cmdl)
+static inline cxx::String cmdline_to_name(char const *cmdl, cxx::String *opts)
 {
   int len = strlen(cmdl);
   int i;
@@ -69,11 +69,20 @@ static inline cxx::String cmdline_to_name(char const *cmdl)
 
   ++s;
 
-  len = i - s;
+  *opts = cxx::String(cmdl + i, len - i);
 
-  return cxx::String(cmdl + s, len);
+  return cxx::String(cmdl + s, i - s);
 }
 
+static bool options_contains(cxx::String const &opts, cxx::String const &opt)
+{
+  cxx::Pair<cxx::String, cxx::String> a;
+  for (a = next_arg(opts); !a.first.empty(); a = next_arg(a.second))
+    if (opt == a.first)
+      return true;
+
+  return false;
+}
 
 void
 Moe::Boot_fs::init_stage1()
@@ -107,6 +116,11 @@ Moe::Boot_fs::init_stage2()
   L4::Cap<void> rom_ns_cap = object_pool.cap_alloc()->alloc(rom_ns);
   L4::cout << "MOE: rom name space cap -> " << rom_ns_cap << '\n';
   root_name_space()->register_obj("rom", 0, rom_ns);
+
+  auto *rwfs_ns = Moe::Moe_alloc::allocator()->make_obj<Moe::Name_space>();
+  L4::Cap<void> rwfs_ns_cap = object_pool.cap_alloc()->alloc(rwfs_ns);
+  L4::cout << "MOE: rwfs name space cap -> " << rwfs_ns_cap << '\n';
+  root_name_space()->register_obj("rwfs", 0, rwfs_ns);
 
   L4::Cap<void> object;
   l4util_mb_info_t const *mbi
@@ -142,14 +156,20 @@ Moe::Boot_fs::init_stage2()
       if (m_high < l4_round_page(end))
         m_high = l4_round_page(end);
 
-      cxx::String name = cmdline_to_name((char const *)(unsigned long)modules[mod].cmdline);
+      cxx::String opts;
+      cxx::String name = cmdline_to_name((char const *)(unsigned long)modules[mod].cmdline, &opts);
+      unsigned flags = Dataspace::Cow_enabled;
+      if (options_contains(opts, cxx::String(":rw")))
+        flags = Dataspace::Writable;
 
       Moe::Dataspace_static *rf;
       rf = new Moe::Dataspace_static((void*)(unsigned long)modules[mod].mod_start,
-                                     end - modules[mod].mod_start,
-                                     Dataspace::Cow_enabled);
+                                     end - modules[mod].mod_start, flags);
       object = object_pool.cap_alloc()->alloc(rf);
-      rom_ns->register_obj(name, 0, rf);
+      if (flags & Dataspace::Writable)
+        rwfs_ns->register_obj(name, Entry::F_rw, rf);
+      else
+        rom_ns->register_obj(name, 0, rf);
 
       do
         {
