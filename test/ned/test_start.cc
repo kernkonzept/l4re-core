@@ -210,10 +210,6 @@ TEST(ReceivedCapabilities, ReceivedNamespace)
       EXPECT_L4CAP_OBJ_EQ(reference_cap, query_cap.get())
         << "Compare capability returned by query with expected capability.";
     }
-
-  EXPECT_EQ(-L4_EAGAIN, ns_cap->query("name_ph", query_cap.get(),
-                                      L4Re::Namespace::To_non_blocking))
-    << "The namespace contains a placeholder entry for key 'name_ph'.";
 }
 
 /**

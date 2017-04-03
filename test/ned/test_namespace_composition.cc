@@ -64,8 +64,14 @@ TEST_F(NamespaceComposition, CheckTestNs)
   ASSERT_L4OK(test_ns->query("l4re", ds.get()))
     << "find 'l4re' in 'testns'";
 
-  ASSERT_L4CAP(ds.get())
+  ASSERT_L4CAP(L4::cap_dynamic_cast<L4Re::Dataspace>(ds.get()))
     << "'l4re' in 'testns' is a valid cap";
+
+  ASSERT_L4OK(test_ns->query("nested/child", ds.get()))
+    << "find 'nested/child' in 'testns'";
+
+  ASSERT_L4CAP(L4::cap_dynamic_cast<L4Re::Dataspace>(ds.get()))
+    << "'nested/child' in 'testns' is a valid cap";
 
   ASSERT_L4ERR(L4_ENOENT, test_ns->query("moe", ds.get()))
     << "'moe' must not be visible in 'testns'";

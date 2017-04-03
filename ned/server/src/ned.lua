@@ -139,6 +139,23 @@ end
 local ns_class = get_cap_class("L4Re::Namespace");
 if ns_class then
   ns_class.register = function (self, key, value, fab)
+    if type(value) == "string" then
+      local res = Env
+      for i in string.gmatch(value, "([^/]+)") do
+        if type(res) == "table" then
+          res = res[i]
+        elseif res then
+          res = res:query(i)()
+        else
+          break
+        end
+      end
+      if res == nil then
+        error("Could not resolve: '" .. value .. "'", 5)
+      end
+      value = res
+    end
+
     if type(value) == "function" then
       value = value(self, key);
     end
@@ -158,7 +175,7 @@ end
 
 ns_class = nil;
 
-function Loader.fill_namespace(ns, tmpl, fab)
+function Loader:fill_namespace(ns, tmpl, fab)
   local function cns(value)
     return self:create_namespace(value, fab);
   end
@@ -178,7 +195,7 @@ function Loader:create_namespace(n, fab)
 
   local ns_fab = fab or self.ns_fab;
   local ns = ns_fab:create(Proto.Namespace);
-  self.fill_namespace(ns, n, ns_fab);
+  self:fill_namespace(ns, n, ns_fab);
   return ns;
 end
 
