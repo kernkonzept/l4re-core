@@ -254,6 +254,12 @@ function Loader:startv(env, ...)
   local caps = env.caps or {};
 
   if (type(caps) == "table") then
+    for k, v in pairs(caps) do
+      if type(v) == "table" then
+        caps[k] = self:create_namespace(v)
+      end
+    end
+
     caps.rom = caps.rom or Env.rom;
   end
 
