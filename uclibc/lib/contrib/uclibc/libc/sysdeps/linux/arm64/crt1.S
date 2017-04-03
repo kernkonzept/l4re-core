@@ -148,23 +148,12 @@ _start:
 	mov x5, x0	/* rtld_fini */
 
 #ifdef __PIC__
-#warning "__PIC__ is experimental, and this code may break"
-/* We may need to use the special instructions that generate relocation information
- * the syntax has changed between ARM and AARCH64
- * see http://stackoverflow.com/questions/25663153/find-load-offset-from-global-offset-table
- */
-	ldr x9, .L_GOT
-	adr x10, .L_GOT
-	add x9, x9, x10		/* x9: final address of GLOBAL_OFFSET_TABLE */
-
-	ldr x10, .L_GOT+8	/* _fini */
-	ldr x4, [x9, x10]
-
-	ldr x10, .L_GOT+0x10	/* _init */
-	ldr x3, [x9, x10]
-	
-	ldr x10, .L_GOT+0x18	/* main */
-	ldr x0, [x9, x10]
+	adrp	x4, :pg_hi21:_fini
+	add	x4, x4, #:lo12:_fini
+	adrp	x3, :pg_hi21:_init
+	add	x3, x3, #:lo12:_init
+	adrp	x0, :pg_hi21:main
+	add	x0, x0, #:lo12:main
 
 	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
 	/* __uClibc_main has 7 arguments, that is why we can pass them all in registers and not use the stack */
@@ -186,14 +175,6 @@ _start:
 
 	/* should never get here....*/
 	bl abort
-
-#ifdef __PIC__
-.L_GOT:
-	.8byte _GLOBAL_OFFSET_TABLE_ - .L_GOT
-	.8byte _fini
-	.8byte _init
-	.8byte main
-#endif
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data
