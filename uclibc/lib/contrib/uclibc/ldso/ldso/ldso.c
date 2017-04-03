@@ -266,6 +266,8 @@ static void *_dl_zalloc(size_t size)
 	void *p = _dl_malloc(size);
 	if (p)
 		_dl_memset(p, 0, size);
+	else
+		_dl_exit(1);
 	return p;
 }
 
