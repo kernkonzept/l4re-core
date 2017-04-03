@@ -31,6 +31,7 @@
 #include <l4/re/parent>
 #include <l4/re/mem_alloc>
 #include <l4/re/log>
+#include <l4/re/consts>
 
 #include <l4/re/env.h>
 
@@ -139,7 +140,7 @@ namespace L4Re
      * \return Object-capability of the user task.
      */
     L4::Cap<L4::Task> task() const throw()
-    { return L4::Cap<L4::Task>(L4_BASE_TASK_CAP); }
+    { return L4::Cap<L4::Task>(L4RE_THIS_TASK_CAP); }
     /**
      * Object-capability to the factory object available to the task.
      * \return Factory object-capability
