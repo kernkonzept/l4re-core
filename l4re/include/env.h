@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief   Environment interface
+ * Environment interface
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
@@ -29,36 +29,46 @@
 #include <l4/re/consts.h>
 
 /**
- * \brief Entry in the L4Re environment array for the named inital objects.
+ * \defgroup api_l4re_env Initial Environment
+ * \ingroup api_l4re_c
+ *
+ * C interface of the initial environment that is provided to an L4 task.
+ *
+ * \includefile{l4/re/env.h}
+ *
+ * For the C++ interface refer to L4Re::Env.
+ */
+
+/**
+ * Entry in the L4Re environment array for the named inital objects.
  * \ingroup api_l4re_env
  */
 typedef struct l4re_env_cap_entry_t
 {
   /**
-   * \brief The capability selector for the obeject.
+   * The capability selector for the object.
    */
   l4_cap_idx_t cap;
 
   /**
-   * \brief Some flags for the object.
+   * Some flags for the object.
    * \note Currently unused.
    */
   l4_umword_t flags;
 
   /**
-   * \brief The name of the object.
+   * The name of the object.
    */
   char name[16];
 #ifdef __cplusplus
 
   /**
-   * \brief Create an invalid entry.
+   * Create an invalid entry.
    */
   l4re_env_cap_entry_t() : cap(L4_INVALID_CAP), flags(~0) {}
 
   /**
-   * \brief Create an entry with the name \a n, capability \a c, and
-   *        flags \a f.
+   * Create an entry with the name \a n, capability \a c, and flags \a f.
    *
    * \param n is the name of the initial object.
    * \param c is the capability selector that refers the initial object.
@@ -88,8 +98,7 @@ typedef struct l4re_env_cap_entry_t
 
 
 /**
- * \brief Initial Environment structure (C version)
- * \ingroup api_l4re_env
+ * Initial environment data structure
  *
  * \see \link api_l4re_env Initial environment \endlink
  */
@@ -110,16 +119,16 @@ typedef struct l4re_env_t
 
 /**
  * \internal
- * \brief Pointer to L4Re initial environment (C version).
+ * Pointer to L4Re initial environment.
  * \ingroup api_l4re_env
  */
 extern l4re_env_t *l4re_global_env;
 
 
 /**
- * \brief Get L4Re initial environment (C version).
+ * Get L4Re initial environment.
  * \ingroup api_l4re_env
- * \return Pointer to L4Re initial environment (C version).
+ * \return Pointer to L4Re initial environment.
  */
 L4_INLINE l4re_env_t *l4re_env(void) L4_NOTHROW;
 
@@ -127,7 +136,7 @@ L4_INLINE l4re_env_t *l4re_env(void) L4_NOTHROW;
  * FIXME: this seems to be at the wrong place here
  */
 /**
- * \brief Get Kernel Info Page.
+ * Get Kernel Info Page.
  * \ingroup api_l4re_env
  * \return Pointer to Kernel Info Page (KIP) structure.
  */
@@ -135,7 +144,7 @@ L4_INLINE l4_kernel_info_t *l4re_kip(void) L4_NOTHROW;
 
 
 /**
- * \brief Get the capability selector for the object named \a name.
+ * Get the capability selector for the object named \a name.
  * \ingroup api_l4re_env
  * \param name is the name of the object to lookup in the initial objects.
  * \return A valid capability selector if the object exists or an invalid
@@ -149,7 +158,7 @@ l4re_get_env_cap(char const *name) L4_NOTHROW
 L4_DEPRECATED("Please use l4re_env_get_cap() now.");
 
 /**
- * \brief Get the capability selector for the object named \a name.
+ * Get the capability selector for the object named \a name.
  * \ingroup api_l4re_env
  * \param name is the name of the object to lookup in the initial objects.
  * \param e is the environment structure to use for the operation.
@@ -164,7 +173,7 @@ l4re_get_env_cap_e(char const *name, l4re_env_t const *e) L4_NOTHROW
 L4_DEPRECATED("Please use l4re_env_get_cap_e() now.");
 
 /**
- * \brief Get the full l4re_env_cap_entry_t for the object named \a name.
+ * Get the full l4re_env_cap_entry_t for the object named \a name.
  * \ingroup api_l4re_env
  * \param name is the name of the object to lookup in the initial objects.
  * \param l is the length of the name string, thus \a name might not be zero
