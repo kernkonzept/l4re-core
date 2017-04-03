@@ -66,7 +66,7 @@
  *
  * \subsection l4re_moe_bootfs Boot FS
  *
- * The Boot FS subsystem provides read only access to the files loaded
+ * The Boot FS subsystem provides access to the files loaded
  * during the platform boot (or available in ROM). These files are either
  * linked into the boot image or loaded via a flexible boot loader,
  * such as GRUB.
@@ -74,6 +74,19 @@
  * The subsystem provides an L4Re::Namespace object as directory and an
  * L4Re::Dataspace object for each file.
  *
+ * By default all files are read only and visible in the namespace \em
+ * `rom`. As an option, files can be supplied with the argument `:rw` to mark
+ * them as writable modules. Moe will allow read and write access to these
+ * dataspaces and make them visible in a different namespace called \em `rwfs`.
+ *
+ * An example entry in 'modules.list' would look like this:
+ *
+ * ~~~~~~~~~~~~~~~~~~~~~~
+ * module somemodule :rw
+ * ~~~~~~~~~~~~~~~~~~~~~~
+ *
+ * \note In order for a client to receive write permissions to the dataspace,
+ * the corresponding cap also needs write permissions.
  *
  * \section l4re_moe_log Log Subsystem
  *
