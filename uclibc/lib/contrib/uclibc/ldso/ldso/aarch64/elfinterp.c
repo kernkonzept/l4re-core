@@ -278,13 +278,17 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			case R_AARCH64_JUMP_SLOT:
 				*reloc_addr += (unsigned long)tpnt->loadaddr;
 				break;
+#if defined USE_TLS && USE_TLS
 			case R_AARCH64_TLSDESC:
-			{
-				struct tlsdesc volatile *d = (struct tlsdesc volatile *)reloc_addr;
-				d->arg = (void *)rpnt;
-				d->entry = (void *)(tpnt->dynamic_info[DT_TLSDESC_PLT_IDX] + tpnt->loadaddr);
+				{
+					struct tlsdesc volatile *td =
+					  (struct tlsdesc volatile *)reloc_addr;
+
+					td->arg = (void*)rpnt;
+					td->entry = (void *)(tpnt->dynamic_info[DT_TLSDESC_PLT_IDX] + tpnt->loadaddr);
+				}
 				break;
-			}
+#endif
 			default:
 				return -1; /*call _dl_exit(1) */
 		}
