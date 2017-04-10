@@ -35,11 +35,7 @@ typedef double double_t;	/* `double' expressions are evaluated as
 #endif	/* ISO C99 */
 
 #ifdef L4_DISABLE_LONG_DOUBLE_MATH
-#ifndef __NO_LONG_DOUBLE_MATH
-/* Signal that we do not really have a `long double'.  This disables the
-   declaration of all the `long double' function variants.  */
-/* XXX The FPA does support this but the patterns in GCC are currently
-   turned off.  */
+#if !defined __NO_LONG_DOUBLE_MATH && !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
 # define __NO_LONG_DOUBLE_MATH	1
 #endif
 #endif

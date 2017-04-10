@@ -195,6 +195,7 @@ config UCLIBC_HAS_LONG_DOUBLE_MATH
 	help
 	  If you want the uClibc math library to contain the full set of C99
 	  long double math library features, then answer Y.
+	  Danger: These are only wrappers to the double library functions!
 
 config KERNEL_HEADERS
 	string "Linux kernel header location"

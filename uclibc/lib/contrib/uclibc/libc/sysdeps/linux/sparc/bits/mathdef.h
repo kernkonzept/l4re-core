@@ -20,8 +20,6 @@
 # error "Never use <bits/mathdef.h> directly; include <math.h> instead"
 #endif
 
-#include <bits/wordsize.h>
-
 /* FIXME! This file describes properties of the compiler, not the machine;
    it should not be part of libc!  */
 
@@ -39,16 +37,7 @@ typedef double double_t;
 #endif	/* ISO C99 */
 
 #ifdef L4_DISABLE_LONG_DOUBLE_MATH
-#ifndef __NO_LONG_DOUBLE_MATH
-
-# if __WORDSIZE == 32
-/* Signal that in 32bit ABI we do not really have a `long double'.
-   The disables the declaration of all the `long double' function
-   variants.  */
-#  define __NO_LONG_DOUBLE_MATH	1
-# elif !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
-#  define __NO_LONG_DOUBLE_MATH	1
-# endif
-
+#if !defined __NO_LONG_DOUBLE_MATH && !defined __UCLIBC_HAS_LONG_DOUBLE_MATH__
+# define __NO_LONG_DOUBLE_MATH	1
 #endif
 #endif
