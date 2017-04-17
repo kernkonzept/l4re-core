@@ -34,7 +34,7 @@
 #endif /* ! ENTRY */
 #endif /* __ASSEMBLY__ */
 
-#define L4_FASTCALL(x)
+#define L4_FASTCALL(x)  x
 #define l4_fastcall
 
 /**
