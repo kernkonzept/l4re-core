@@ -32,7 +32,7 @@
 # if defined __USE_XOPEN || defined __USE_XOPEN2K
 #  define __need_time_t
 # endif
-# if defined __USE_MISC || defined __USE_ATFILE
+# if defined __USE_MISC || defined __USE_ATFILE || defined __USE_XOPEN2K8
 #  define __need_timespec
 # endif
 # include <time.h>		/* For time_t resp. timespec.  */
