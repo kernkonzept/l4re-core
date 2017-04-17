@@ -304,7 +304,7 @@ define SRC_libc/misc
   locale/localeconv
   locale/nl_langinfo
   locale/setlocale
-  regex/regex_old
+  regex/regex
   search/hcreate_r
   search/hdestroy_r
   search/hsearch
@@ -369,6 +369,7 @@ SRC_libc/misc_libuc_c_minimal.a = $(SRC_libc/misc_libc.a)
 define SRC_libc/misc_wchar
   time/wcsftime
   wchar/btowc
+  wchar/mbsinit
   wchar/mbrlen
   wchar/mbrtowc
   wchar/mbsnrtowcs

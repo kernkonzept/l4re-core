@@ -7,8 +7,7 @@
 
 subdirs += libc/misc/regex
 
-VARIANT := $(if $(UCLIBC_HAS_REGEX_OLD),_old)
-CSRC-y := regex$(VARIANT).c
+CSRC-y := regex.c
 
 MISC_REGEX_DIR := $(top_srcdir)libc/misc/regex
 MISC_REGEX_OUT := $(top_builddir)libc/misc/regex

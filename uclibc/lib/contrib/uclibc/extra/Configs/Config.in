@@ -1839,21 +1839,6 @@ config UCLIBC_HAS_REGEX
 	  Of course, if you only statically link, leave this on, since it will
 	  only be included in your apps if you use regular expressions.
 
-config UCLIBC_HAS_REGEX_OLD
-	bool "Use the older (stable) regular expression code"
-	depends on UCLIBC_HAS_REGEX
-	default y
-	help
-	  There are two versions of regex.  The older (stable) version has
-	  been in uClibc for quite a long time but hasn't seen too many
-	  updates.  It also has some known issues when dealing with uncommon
-	  corner cases and multibyte/unicode strings.  However, it is quite
-	  a bit smaller than the newer version.
-
-	  If the older version has worked for you and you don't need unicode
-	  support, then stick with the old version (and say Y here).
-	  Otherwise, you should use the new version (and say N here).
-
 config UCLIBC_HAS_FNMATCH
 	bool "fnmatch Support"
 	default y
