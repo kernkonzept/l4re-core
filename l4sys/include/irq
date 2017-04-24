@@ -123,7 +123,9 @@ public:
    *
    * \return Syscall return tag
    *
-   * see Ipc_gate for a description of the *protected label*.
+   * The *protected label* is stored in the kernel and sent to the attached
+   * thread with the IRQ-triggered notification. It allows the receiver thread
+   * to securely identify the IRQ.
    */
   l4_msgtag_t attach(l4_umword_t label,
                      Cap<Thread> const &thread = Cap<Thread>::Invalid,
