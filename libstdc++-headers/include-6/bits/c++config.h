@@ -31,7 +31,7 @@
 #define _GLIBCXX_CXX_CONFIG_H 1
 
 // The current version of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20160605
+#define __GLIBCXX__ 20170514
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -179,8 +179,11 @@
     namespace placeholders { }
     namespace regex_constants { }
     namespace this_thread { }
-
-    namespace experimental { }
+    inline namespace literals {
+      inline namespace chrono_literals { }
+      inline namespace complex_literals { }
+      inline namespace string_literals { }
+    }
   }
 
   namespace abi { }
@@ -265,7 +268,11 @@ namespace std
   namespace regex_constants { inline namespace __7 { } }
   namespace this_thread { inline namespace __7 { } }
 
-  namespace experimental { inline namespace __7 { } }
+  inline namespace literals {
+    inline namespace chrono_literals { inline namespace __7 { } }
+    inline namespace complex_literals { inline namespace __7 { } }
+    inline namespace string_literals { inline namespace __7 { } }
+  }
 
   namespace __detail { inline namespace __7 { } }
 }
@@ -414,7 +421,7 @@ namespace std
 
 // Debug Mode implies checking assertions.
 #ifdef _GLIBCXX_DEBUG
-# define _GLIBCXX_ASSERTIONS
+# define _GLIBCXX_ASSERTIONS 1
 #endif
 
 // Disable std::string explicit instantiation declarations in order to assert.
@@ -424,9 +431,8 @@ namespace std
 #endif
 
 // Assert.
-#if !defined(_GLIBCXX_ASSERTIONS) && !defined(_GLIBCXX_PARALLEL)
-# define __glibcxx_assert(_Condition)
-#else
+#if defined(_GLIBCXX_ASSERTIONS) \
+  || defined(_GLIBCXX_PARALLEL) || defined(_GLIBCXX_PARALLEL_ASSERTIONS)
 namespace std
 {
   // Avoid the use of assert, because we're trying to keep the <cassert>
@@ -440,13 +446,19 @@ namespace std
     __builtin_abort();
   }
 }
-#define __glibcxx_assert(_Condition)				   	 \
+#define __glibcxx_assert_impl(_Condition)				 \
   do 									 \
   {							      		 \
     if (! (_Condition))                                                  \
       std::__replacement_assert(__FILE__, __LINE__, __PRETTY_FUNCTION__, \
 				#_Condition);				 \
   } while (false)
+#endif
+
+#if defined(_GLIBCXX_ASSERTIONS)
+# define __glibcxx_assert(_Condition) __glibcxx_assert_impl(_Condition)
+#else
+# define __glibcxx_assert(_Condition)
 #endif
 
 // Macros for race detectors.
@@ -773,7 +785,7 @@ namespace std
 /* Define if _Unwind_GetIPInfo is available. */
 #define _GLIBCXX_HAVE_GETIPINFO 1
 
-/* Define if gets is available in <stdio.h>. */
+/* Define if gets is available in <stdio.h> before C++14. */
 /* #undef _GLIBCXX_HAVE_GETS */
 
 /* Define to 1 if you have the `hypot' function. */
@@ -1544,7 +1556,7 @@ namespace std
 /* Define if _SC_NPROC_ONLN is available in <unistd.h>. */
 /* #undef _GLIBCXX_USE_SC_NPROC_ONLN */
 
-/* Define if sendfile is available in <sys/stat.h>. */
+/* Define if sendfile is available in <sys/sendfile.h>. */
 /* #undef _GLIBCXX_USE_SENDFILE */
 
 /* Define if struct stat has timespec members. */
@@ -1576,9 +1588,14 @@ namespace std
 /* Define to 1 if mutex_timedlock is available. */
 #define _GTHREAD_USE_MUTEX_TIMEDLOCK 1
 
-/* Define if all C++11 overloads are available in <math.h>.  */
+/* Define if all C++11 floating point overloads are available in <math.h>.  */
 #if __cplusplus >= 201103L
-/* #undef __CORRECT_ISO_CPP11_MATH_H_PROTO */
+/* #undef __CORRECT_ISO_CPP11_MATH_H_PROTO_FP */
+#endif
+
+/* Define if all C++11 integral type overloads are available in <math.h>.  */
+#if __cplusplus >= 201103L
+/* #undef __CORRECT_ISO_CPP11_MATH_H_PROTO_INT */
 #endif
 
 #if defined (_GLIBCXX_HAVE__ACOSF) && ! defined (_GLIBCXX_HAVE_ACOSF)

@@ -23,10 +23,10 @@ a copy of the GCC Runtime Library Exception along with this program;
 see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 <http://www.gnu.org/licenses/>.  */
 
-#ifndef GCC_GTHR_H
-#define GCC_GTHR_H
+#ifndef _GLIBCXX_GCC_GTHR_H
+#define _GLIBCXX_GCC_GTHR_H
 
-#ifndef HIDE_EXPORTS
+#ifndef _GLIBCXX_HIDE_EXPORTS
 #pragma GCC visibility push(default)
 #endif
 
@@ -132,31 +132,27 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 
 */
 
-#if SUPPORTS_WEAK
+#if __GXX_WEAK__
 /* The pe-coff weak support isn't fully compatible to ELF's weak.
    For static libraries it might would work, but as we need to deal
    with shared versions too, we disable it for mingw-targets.  */
 #ifdef __MINGW32__
-#undef GTHREAD_USE_WEAK
-#define GTHREAD_USE_WEAK 0
+#undef _GLIBCXX_GTHREAD_USE_WEAK
+#define _GLIBCXX_GTHREAD_USE_WEAK 0
 #endif
 
-#ifndef GTHREAD_USE_WEAK
-#define GTHREAD_USE_WEAK 1
+#ifndef _GLIBCXX_GTHREAD_USE_WEAK
+#define _GLIBCXX_GTHREAD_USE_WEAK 1
 #endif
 #endif
-#if 0
-#include "gthr-default.h"
-#else
 #ifdef L4_MINIMAL_LIBC
 #include <bits/gthr-single.h>
 #else
 #include <bits/gthr-default.h>
 #endif
-#endif
 
-#ifndef HIDE_EXPORTS
+#ifndef _GLIBCXX_HIDE_EXPORTS
 #pragma GCC visibility pop
 #endif
 
-#endif /* ! GCC_GTHR_H */
+#endif /* ! _GLIBCXX_GCC_GTHR_H */

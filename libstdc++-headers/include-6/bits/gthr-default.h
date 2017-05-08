@@ -23,8 +23,8 @@ a copy of the GCC Runtime Library Exception along with this program;
 see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 <http://www.gnu.org/licenses/>.  */
 
-#ifndef GCC_GTHR_POSIX_H
-#define GCC_GTHR_POSIX_H
+#ifndef _GLIBCXX_GCC_GTHR_POSIX_H
+#define _GLIBCXX_GCC_GTHR_POSIX_H
 
 /* POSIX threads specific definitions.
    Easy, since the interface is just one-to-one mapping.  */
@@ -82,7 +82,7 @@ typedef struct timespec __gthread_time_t;
 # define __GTHREAD_COND_INIT_FUNCTION __gthread_cond_init_function
 #endif
 
-#if SUPPORTS_WEAK && GTHREAD_USE_WEAK
+#if __GXX_WEAK__ && _GLIBCXX_GTHREAD_USE_WEAK
 # ifndef __gthrw_pragma
 #  define __gthrw_pragma(pragma)
 # endif
@@ -153,7 +153,7 @@ __gthrw(pthread_setschedparam)
 #endif /* _POSIX_THREAD_PRIORITY_SCHEDULING */
 #endif /* _LIBOBJC || _LIBOBJC_WEAK */
 
-#if SUPPORTS_WEAK && GTHREAD_USE_WEAK
+#if __GXX_WEAK__ && _GLIBCXX_GTHREAD_USE_WEAK
 
 /* On Solaris 2.6 up to 9, the libc exposes a POSIX threads interface even if
    -pthreads is not specified.  The functions are dummies and most return an
@@ -254,7 +254,7 @@ __gthread_active_p (void)
 
 #endif /* FreeBSD or Solaris */
 
-#else /* not SUPPORTS_WEAK */
+#else /* not __GXX_WEAK__ */
 
 /* Similar to Solaris, HP-UX 11 for PA-RISC provides stubs for pthread
    calls in shared flavors of the HP-UX C library.  Most of the stubs
@@ -304,7 +304,7 @@ __gthread_active_p (void)
 
 #endif /* hppa-hpux */
 
-#endif /* SUPPORTS_WEAK */
+#endif /* __GXX_WEAK__ */
 
 #ifdef _LIBOBJC
 
@@ -887,4 +887,4 @@ __gthread_cond_destroy (__gthread_cond_t* __cond)
 
 #endif /* _LIBOBJC */
 
-#endif /* ! GCC_GTHR_POSIX_H */
+#endif /* ! _GLIBCXX_GCC_GTHR_POSIX_H */
