@@ -31,7 +31,7 @@
 #define _GLIBCXX_CXX_CONFIG_H 1
 
 // The current version of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20160103
+#define __GLIBCXX__ 20170514
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -177,8 +177,11 @@
     namespace placeholders { }
     namespace regex_constants { }
     namespace this_thread { }
-
-    namespace experimental { }
+    inline namespace literals {
+      inline namespace chrono_literals { }
+      inline namespace complex_literals { }
+      inline namespace string_literals { }
+    }
   }
 
   namespace abi { }
@@ -263,7 +266,11 @@ namespace std
   namespace regex_constants { inline namespace __7 { } }
   namespace this_thread { inline namespace __7 { } }
 
-  namespace experimental { inline namespace __7 { } }
+  inline namespace literals {
+    inline namespace chrono_literals { inline namespace __7 { } }
+    inline namespace complex_literals { inline namespace __7 { } }
+    inline namespace string_literals { inline namespace __7 { } }
+  }
 
   namespace __detail { inline namespace __7 { } }
 }
@@ -1427,7 +1434,7 @@ namespace std
 /* Define if _SC_NPROC_ONLN is available in <unistd.h>. */
 /* #undef _GLIBCXX_USE_SC_NPROC_ONLN */
 
-/* Define if sendfile is available in <sys/stat.h>. */
+/* Define if sendfile is available in <sys/sendfile.h>. */
 /* #undef _GLIBCXX_USE_SENDFILE */
 
 /* Define if struct stat has timespec members. */
@@ -1459,9 +1466,14 @@ namespace std
 /* Define to 1 if mutex_timedlock is available. */
 #define _GTHREAD_USE_MUTEX_TIMEDLOCK 1
 
-/* Define if all C++11 overloads are available in <math.h>.  */
+/* Define if all C++11 floating point overloads are available in <math.h>.  */
 #if __cplusplus >= 201103L
-/* #undef __CORRECT_ISO_CPP11_MATH_H_PROTO */
+/* #undef __CORRECT_ISO_CPP11_MATH_H_PROTO_FP */
+#endif
+
+/* Define if all C++11 integral type overloads are available in <math.h>.  */
+#if __cplusplus >= 201103L
+/* #undef __CORRECT_ISO_CPP11_MATH_H_PROTO_INT */
 #endif
 
 #if defined (_GLIBCXX_HAVE__ACOSF) && ! defined (_GLIBCXX_HAVE_ACOSF)
