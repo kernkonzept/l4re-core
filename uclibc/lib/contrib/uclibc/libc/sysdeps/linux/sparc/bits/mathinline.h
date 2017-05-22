@@ -22,8 +22,6 @@
 # error "Never use <bits/mathinline.h> directly; include <math.h> instead."
 #endif
 
-#include <bits/wordsize.h>
-
 #ifdef __GNUC__
 
 #if defined __USE_ISOC99 && !__GNUC_PREREQ (3, 0)
@@ -33,8 +31,6 @@
 # undef islessequal
 # undef islessgreater
 # undef isunordered
-
-# if __WORDSIZE == 32
 
 #  ifndef __NO_LONG_DOUBLE_MATH
 
@@ -89,40 +85,6 @@
 #  define islessgreater(x, y) (((__unordered_cmp (x, y) + (1 << 10)) & (2 << 10)) != 0)
 #  define isunordered(x, y) ((__unordered_cmp (x, y) & (3 << 10)) == (3 << 10))
 
-# else /* sparc64 */
-
-#  define __unordered_v9cmp(x, y, op, qop) \
-  (__extension__							      \
-   ({ unsigned __r;							      \
-      if (sizeof (x) == 4 && sizeof (y) == 4)				      \
-	{								      \
-	  float __x = (x); float __y = (y);				      \
-	  __asm__ ("fcmps\t%%fcc3,%1,%2\n\tmov" op "\t%%fcc3,1,%0"	      \
-		   : "=r" (__r) : "f" (__x), "f" (__y), "0" (0) : "cc");      \
-	}								      \
-      else if (sizeof (x) <= 8 && sizeof (y) <= 8)			      \
-	{								      \
-	  double __x = (x); double __y = (y);				      \
-	  __asm__ ("fcmpd\t%%fcc3,%1,%2\n\tmov" op "\t%%fcc3,1,%0"	      \
-		   : "=r" (__r) : "f" (__x), "f" (__y), "0" (0) : "cc");      \
-	}								      \
-      else								      \
-	{								      \
-	  long double __x = (x); long double __y = (y);			      \
-	  extern int _Qp_cmp (const long double *a, const long double *b);    \
-	  __r = qop;							      \
-	}								      \
-      __r; }))
-
-#  define isgreater(x, y) __unordered_v9cmp(x, y, "g", _Qp_cmp (&__x, &__y) == 2)
-#  define isgreaterequal(x, y) __unordered_v9cmp(x, y, "ge", (_Qp_cmp (&__x, &__y) & 1) == 0)
-#  define isless(x, y) __unordered_v9cmp(x, y, "l", _Qp_cmp (&__x, &__y) == 1)
-#  define islessequal(x, y) __unordered_v9cmp(x, y, "le", (_Qp_cmp (&__x, &__y) & 2) == 0)
-#  define islessgreater(x, y) __unordered_v9cmp(x, y, "lg", ((_Qp_cmp (&__x, &__y) + 1) & 2) != 0)
-#  define isunordered(x, y) __unordered_v9cmp(x, y, "u", _Qp_cmp (&__x, &__y) == 3)
-
-# endif /* sparc64 */
-
 #endif /* __USE_ISOC99 */
 
 #if (!defined __NO_MATH_INLINES || defined __LIBC_INTERNAL_MATH_INLINES) && defined __OPTIMIZE__
@@ -147,8 +109,6 @@ __NTH (__signbitf (float __x))
   return __u.__i < 0;
 }
 
-#   if __WORDSIZE == 32
-
 __MATH_INLINE int
 __NTH (__signbit (double __x))
 {
@@ -171,24 +131,6 @@ __NTH (__signbitl (long double __x))
 }
 #    endif
 
-#   else /* sparc64 */
-
-__MATH_INLINE int
-__NTH (__signbit (double __x))
-{
-  __extension__ union { double __d; long int __i; } __u = { __d: __x };
-  return __u.__i < 0;
-}
-
-__MATH_INLINE int
-__NTH (__signbitl (long double __x))
-{
-  __extension__ union { long double __l; long int __i[2]; } __u = { __l: __x };
-  return __u.__i[0] < 0;
-}
-
-#   endif /* sparc64 */
-
 #  endif /* __USE_ISOC99 */
 
 #  if !defined __NO_MATH_INLINES && !__GNUC_PREREQ (3, 2)
@@ -208,24 +150,6 @@ __NTH (sqrtf (float __x))
   __asm__ ("fsqrts %1,%0" : "=f" (__r) : "f" (__x));
   return __r;
 }
-
-#   if __WORDSIZE == 64
-__MATH_INLINE long double
-__NTH (sqrtl (long double __x))
-{
-  long double __r;
-  extern void _Qp_sqrt (long double *, __const__ long double *);
-  _Qp_sqrt (&__r, &__x);
-  return __r;
-}
-#   elif !defined __NO_LONG_DOUBLE_MATH
-__MATH_INLINE long double
-sqrtl (long double __x) __THROW
-{
-  extern long double _Q_sqrt (__const__ long double);
-  return _Q_sqrt (__x);
-}
-#   endif /* sparc64 */
 
 #  endif /* !__NO_MATH_INLINES && !GCC 3.2+ */
 
@@ -247,23 +171,6 @@ __ieee754_sqrtf (float __x)
   return __r;
 }
 
-#   if __WORDSIZE == 64
-__MATH_INLINE long double
-__ieee754_sqrtl (long double __x)
-{
-  long double __r;
-  extern void _Qp_sqrt (long double *, __const__ long double *);
-  _Qp_sqrt(&__r, &__x);
-  return __r;
-}
-#   elif !defined __NO_LONG_DOUBLE_MATH
-__MATH_INLINE long double
-__ieee754_sqrtl (long double __x)
-{
-  extern long double _Q_sqrt (__const__ long double);
-  return _Q_sqrt (__x);
-}
-#   endif /* sparc64 */
 #  endif /* __LIBC_INTERNAL_MATH_INLINES */
 # endif /* gcc 2.8+ */
 

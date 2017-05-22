@@ -1,5 +1,4 @@
 /* Copyright (C) 1991, 1992, 1997, 2002 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -21,11 +20,7 @@
 .text
 .global syscall
 .type   syscall,%function
-#if __WORDSIZE == 32
 .align  4
-#else
-.align  2
-#endif
 
 syscall:
 	mov	%o0, %g1
@@ -35,14 +30,8 @@ syscall:
 	mov	%o4, %o3
 	mov	%o5, %o4
 
-#if __WORDSIZE == 32
 	ta	0x10
 	bcs	__syscall_error
-#else
-	ta	0x6d
-	bcs,pn %xcc,__syscall_error
-#endif
-
 	 nop
 	retl
 	 nop

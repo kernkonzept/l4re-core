@@ -1,6 +1,5 @@
 /* `ptrace' debugger support interface.  Linux/SPARC version.
    Copyright (C) 1996-2014 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -21,7 +20,6 @@
 
 #include <features.h>
 #include <bits/types.h>
-#include <bits/wordsize.h>
 
 /* Linux/SPARC kernels up to 2.3.18 do not care much
    about what namespace polution, so use a kludge now.  */
@@ -91,8 +89,6 @@ enum __ptrace_request
      trying to work around sparc-linux ptrace nastiness.  */
 #define PTRACE_SUNDETACH PTRACE_DETACH
 
-#if __WORDSIZE == 32
-
   /* Get all general purpose registers used by a processes.
      This is not supported on all machines.  */
    PTRACE_GETREGS = 12,
@@ -113,8 +109,6 @@ enum __ptrace_request
    PTRACE_SETFPREGS = 15,
 #define PT_SETFPREGS PTRACE_SETFPREGS
 
-#endif
-
   /* Attach to a process that is already running. */
   PTRACE_ATTACH = 16,
 #define PT_ATTACH PTRACE_ATTACH
@@ -132,37 +126,9 @@ enum __ptrace_request
   PTRACE_WRITETEXT = 19,
 #define PTRACE_WRITETEXT PTRACE_WRITETEXT
 
-#if __WORDSIZE == 64
-
-  /* Get all general purpose registers used by a processes.
-     This is not supported on all machines.  */
-   PTRACE_GETREGS = 22,
-#define PT_GETREGS PTRACE_GETREGS
-
-  /* Set all general purpose registers used by a processes.
-     This is not supported on all machines.  */
-   PTRACE_SETREGS = 23,
-#define PT_SETREGS PTRACE_SETREGS
-
-#endif
-
   /* Continue and stop at the next (return from) syscall.  */
   PTRACE_SYSCALL = 24,
 #define PTRACE_SYSCALL PTRACE_SYSCALL
-
-#if __WORDSIZE == 64
-
-  /* Get all floating point registers used by a processes.
-     This is not supported on all machines.  */
-   PTRACE_GETFPREGS = 25,
-#define PT_GETFPREGS PTRACE_GETFPREGS
-
-  /* Set all floating point registers used by a processes.
-     This is not supported on all machines.  */
-   PTRACE_SETFPREGS = 26,
-#define PT_SETFPREGS PTRACE_SETFPREGS
-
-#endif
 
   /* Set ptrace filter options.  */
   PTRACE_SETOPTIONS = 0x4200,

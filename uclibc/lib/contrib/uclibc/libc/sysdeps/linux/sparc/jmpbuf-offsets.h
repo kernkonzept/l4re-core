@@ -1,6 +1,5 @@
 /* Private macros for accessing __jmp_buf contents.  SPARC version.
    Copyright (C) 2006 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,14 +15,6 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <bits/wordsize.h>
-
-#if __WORDSIZE == 64
-#define O_mask_was_saved	512
-#define O_gregs			32
-#define O_g1			(O_gregs + 4*8)
-#else
 #define JB_SP	0
 #define JB_FP	1
 #define JB_PC	2
-#endif

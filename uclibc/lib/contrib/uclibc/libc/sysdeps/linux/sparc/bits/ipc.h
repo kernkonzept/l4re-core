@@ -1,5 +1,4 @@
 /* Copyright (C) 1995-1999, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -20,7 +19,6 @@
 #endif
 
 #include <bits/types.h>
-#include <bits/wordsize.h>
 
 /* Mode bits for `msgget', `semget', and `shmget'.  */
 #define IPC_CREAT	01000		/* Create key if key does not exist. */
@@ -47,14 +45,9 @@ struct ipc_perm
     __gid_t gid;			/* Owner's group ID.  */
     __uid_t cuid;			/* Creator's user ID.  */
     __gid_t cgid;			/* Creator's group ID.  */
-#if __WORDSIZE == 32
     unsigned short int __pad1;
     unsigned short int mode;		/* Read/write permission.  */
     unsigned short int __pad2;
-#else
-    __mode_t mode;			/* Read/write permission.  */
-    unsigned short int __pad1;
-#endif
     unsigned short int __seq;		/* Sequence number.  */
     unsigned long long int __unused1;
     unsigned long long int __unused2;

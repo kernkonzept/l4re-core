@@ -1,6 +1,5 @@
 /* FPU control word bits.  SPARC version.
    Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
    Contributed by Miguel de Icaza
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,7 +21,6 @@
 
 
 #include <features.h>
-#include <bits/wordsize.h>
 
 /* masking of interrupts */
 #define _FPU_MASK_IM  0x08000000
@@ -58,13 +56,8 @@
 /* Type of the control word.  */
 typedef unsigned long int fpu_control_t;
 
-#if __WORDSIZE == 64
-# define _FPU_GETCW(cw) __asm__ ("stx %%fsr,%0" : "=m" (*&cw))
-# define _FPU_SETCW(cw) __asm__ ("ldx %0,%%fsr" : : "m" (*&cw))
-#else
-# define _FPU_GETCW(cw) __asm__ ("st %%fsr,%0" : "=m" (*&cw))
-# define _FPU_SETCW(cw) __asm__ ("ld %0,%%fsr" : : "m" (*&cw))
-#endif
+#define _FPU_GETCW(cw) __asm__ ("st %%fsr,%0" : "=m" (*&cw))
+#define _FPU_SETCW(cw) __asm__ ("ld %0,%%fsr" : : "m" (*&cw))
 
 #if 0
 /* Default control word set at startup.  */

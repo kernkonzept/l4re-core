@@ -1,7 +1,6 @@
 /* O_*, F_*, FD_* bit values for Linux/SPARC.
    Copyright (C) 1995, 1996, 1997, 1998, 2000, 2003, 2004, 2006, 2007
    Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -22,7 +21,6 @@
 #endif
 
 #include <sys/types.h>
-#include <bits/wordsize.h>
 #ifdef __USE_GNU
 # include <bits/uio.h>
 #endif
@@ -53,11 +51,7 @@
 #endif
 
 #ifdef __USE_LARGEFILE64
-# if __WORDSIZE == 64
-#  define O_LARGEFILE	0
-# else
-#  define O_LARGEFILE	0x40000
-# endif
+# define O_LARGEFILE	0x40000
 #endif
 
 /* For now Linux has no synchronisity options for data and read
@@ -111,15 +105,9 @@
 # define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
 #endif
 
-#if __WORDSIZE == 64
-# define F_GETLK64	7	/* Get record locking info.  */
-# define F_SETLK64	8	/* Set record locking info (non-blocking).  */
-# define F_SETLKW64	9	/* Set record locking info (blocking).  */
-#else
-# define F_GETLK64	12	/* Get record locking info.  */
-# define F_SETLK64	13	/* Set record locking info (non-blocking).  */
-# define F_SETLKW64	14	/* Set record locking info (blocking).  */
-#endif
+#define F_GETLK64	12	/* Get record locking info.  */
+#define F_SETLK64	13	/* Set record locking info (non-blocking).  */
+#define F_SETLKW64	14	/* Set record locking info (blocking).  */
 
 /* for F_[GET|SET]FD */
 #define FD_CLOEXEC	1	/* actually anything with low bit set goes */

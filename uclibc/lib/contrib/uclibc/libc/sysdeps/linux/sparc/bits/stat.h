@@ -1,5 +1,4 @@
 /* Copyright (C) 1992, 1995-2002, 2006, 2009 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -35,12 +34,7 @@
 struct stat
   {
     __dev_t st_dev;			/* Device.  */
-#if __WORDSIZE == 64 || !defined __USE_FILE_OFFSET64
-    unsigned short int __pad1;
-    __ino_t st_ino;			/* File serial number.	*/
-#else
     __ino64_t st_ino;			/* File serial number.	*/
-#endif
     __mode_t st_mode;			/* File mode.  */
     __nlink_t st_nlink;			/* Link count.  */
     __uid_t st_uid;			/* User ID of the file's owner.	*/
@@ -88,9 +82,6 @@ struct stat
 struct stat64
   {
     __dev_t st_dev;			/* Device.  */
-#if __WORDSIZE == 64
-    unsigned short int __pad1;
-#endif
     __ino64_t st_ino;			/* File serial number.	*/
     __mode_t st_mode;			/* File mode.  */
     __nlink_t st_nlink;			/* Link count.  */

@@ -1,6 +1,5 @@
 /* siginfo_t, sigevent and constants.  Linux/SPARC version.
    Copyright (C) 1997-2002, 2003 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -21,8 +20,6 @@
 # error "Never include this file directly.  Use <signal.h> instead"
 #endif
 
-#include <bits/wordsize.h>
-
 #if (!defined __have_sigval_t \
      && (defined _SIGNAL_H || defined __need_siginfo_t \
 	 || defined __need_sigevent_t))
@@ -41,11 +38,7 @@ typedef union sigval
 # define __have_siginfo_t	1
 
 # define __SI_MAX_SIZE     128
-# if __WORDSIZE == 64
-#  define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 4)
-# else
-#  define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 3)
-# endif
+# define __SI_PAD_SIZE     ((__SI_MAX_SIZE / sizeof (int)) - 3)
 
 typedef struct siginfo
   {
@@ -283,11 +276,7 @@ enum
 
 /* Structure to transport application-defined values with signals.  */
 # define __SIGEV_MAX_SIZE	64
-# if __WORDSIZE == 64
-#  define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 4)
-# else
-#  define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 3)
-# endif
+# define __SIGEV_PAD_SIZE	((__SIGEV_MAX_SIZE / sizeof (int)) - 3)
 
 typedef struct sigevent
   {

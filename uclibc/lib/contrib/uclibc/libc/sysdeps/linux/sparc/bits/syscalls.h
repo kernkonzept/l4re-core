@@ -4,25 +4,14 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
-#include <bits/wordsize.h>
-
 #ifndef __ASSEMBLER__
 
-#if __WORDSIZE == 32
-# define __SYSCALL_STRING \
+#define __SYSCALL_STRING \
 	"t 0x10\n\t" \
 	"bcc 1f\n\t" \
 	"mov %%o0, %0\n\t" \
 	"sub %%g0, %%o0, %0\n\t" \
 	"1:\n\t"
-#elif __WORDSIZE == 64
-# define __SYSCALL_STRING \
-	"t 0x6d\n\t" \
-	"sub %%g0, %%o0, %0\n\t" \
-	"movcc %%xcc, %%o0, %0\n\t"
-#else
-# error unknown __WORDSIZE
-#endif
 
 #define __SYSCALL_CLOBBERS "cc", "memory"
 

@@ -24,43 +24,12 @@ SRC_libc/sysdeps/linux_arm += find_exidx
 SRC_libc/sysdeps/linux_mips += setjmp_aux
 SRC_libc/sysdeps/linux_mips += _test_and_set
 
-define SRC_libc/sysdeps/linux_sparc__with_soft_fp
-  soft-fp/q_add
-  soft-fp/q_cmp
-  soft-fp/q_cmpe
-  soft-fp/q_div
-  soft-fp/q_dtoq
-  soft-fp/q_feq
-  soft-fp/q_fge
-  soft-fp/q_fgt
-  soft-fp/q_fle
-  soft-fp/q_flt
-  soft-fp/q_fne
-  soft-fp/q_itoq
-  soft-fp/q_lltoq
-  soft-fp/q_mul
-  soft-fp/q_neg
-  soft-fp/q_qtod
-  soft-fp/q_qtoi
-  soft-fp/q_qtoll
-  soft-fp/q_qtos
-  soft-fp/q_qtou
-  soft-fp/q_qtoull
-  soft-fp/q_sqrt
-  soft-fp/q_stoq
-  soft-fp/q_sub
-  soft-fp/q_ulltoq
-  soft-fp/q_util
-  soft-fp/q_utoq
-endef
-
 ifeq ($(GCCIS_sparc_leon),)
   define SRC_libc/sysdeps/linux_sparc
     udiv
     umul
     urem
   endef
-  SRC_libc/sysdeps/linux_sparc += $(SRC_libc/sysdeps/linux_sparc__with_soft_fp)
 endif
 
 define SRC_libc/termios

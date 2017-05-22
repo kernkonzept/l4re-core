@@ -1,5 +1,4 @@
 /* Copyright (C) 1997, 1998, 1999, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -18,9 +17,6 @@
 #ifndef _FENV_H
 # error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
 #endif
-
-#include <bits/wordsize.h>
-
 
 /* Define bits representing the exception.  We use the bit positions
    of the appropriate accrued exception bits from the FSR.  */
@@ -75,10 +71,5 @@ typedef unsigned long int fenv_t;
 #endif
 
 /* For internal use only: access the fp state register.  */
-#if __WORDSIZE == 64
-# define __fenv_stfsr(X)   __asm__ ("stx %%fsr,%0" : "=m" (X))
-# define __fenv_ldfsr(X)   __asm__ __volatile__ ("ldx %0,%%fsr" : : "m" (X))
-#else
-# define __fenv_stfsr(X)   __asm__ ("st %%fsr,%0" : "=m" (X))
-# define __fenv_ldfsr(X)   __asm__ __volatile__ ("ld %0,%%fsr" : : "m" (X))
-#endif
+#define __fenv_stfsr(X)   __asm__ ("st %%fsr,%0" : "=m" (X))
+#define __fenv_ldfsr(X)   __asm__ __volatile__ ("ld %0,%%fsr" : : "m" (X))

@@ -5,9 +5,6 @@
  * struct kernel_stat should look like...  It turns out each arch has a
  * different opinion on the subject... */
 
-#if __WORDSIZE == 64
-#define kernel_stat kernel_stat64
-#else
 struct kernel_stat {
     unsigned short	st_dev;
     unsigned long	st_ino;
@@ -24,8 +21,6 @@ struct kernel_stat {
     long		st_blocks;
     unsigned long	__unused4[2];
 };
-
-#endif
 
 struct kernel_stat64 {
 	unsigned long long	st_dev;
@@ -48,4 +43,3 @@ struct kernel_stat64 {
 };
 
 #endif	/*  _BITS_STAT_STRUCT_H */
-

@@ -1,5 +1,4 @@
 /* Copyright (C) 1995, 1996, 1997, 1998, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -20,7 +19,6 @@
 #endif
 
 #include <sys/types.h>
-#include <bits/wordsize.h>
 
 /* Flags for `semop'.  */
 #define SEM_UNDO	0x1000		/* undo the operation on exit */
@@ -39,13 +37,9 @@
 struct semid_ds
 {
   struct ipc_perm sem_perm;		/* operation permission struct */
-#if __WORDSIZE == 32
   unsigned int __pad1;
-#endif
   __time_t sem_otime;			/* last semop() time */
-#if __WORDSIZE == 32
   unsigned int __pad2;
-#endif
   __time_t sem_ctime;			/* last time changed by semctl() */
   unsigned long int sem_nsems;		/* number of semaphores in set */
   unsigned long int __unused1;

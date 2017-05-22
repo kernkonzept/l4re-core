@@ -1,5 +1,4 @@
 /* Copyright (C) 1995, 1996, 1997, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -20,7 +19,6 @@
 #endif
 
 #include <bits/types.h>
-#include <bits/wordsize.h>
 
 /* Define options for message queue functions.  */
 #define MSG_NOERROR	010000	/* no error if message is too big */
@@ -38,17 +36,11 @@ typedef unsigned long int msglen_t;
 struct msqid_ds
 {
   struct ipc_perm msg_perm;	/* structure describing operation permission */
-#if __WORDSIZE == 32
   unsigned int __pad1;
-#endif
   __time_t msg_stime;		/* time of last msgsnd command */
-#if __WORDSIZE == 32
   unsigned int __pad2;
-#endif
   __time_t msg_rtime;		/* time of last msgrcv command */
-#if __WORDSIZE == 32
   unsigned int __pad3;
-#endif
   __time_t msg_ctime;		/* time of last change */
   unsigned long int __msg_cbytes; /* current number of bytes on queue */
   msgqnum_t msg_qnum;		/* number of messages currently on queue */
