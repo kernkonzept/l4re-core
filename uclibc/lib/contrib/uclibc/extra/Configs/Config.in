@@ -38,6 +38,7 @@ choice
 	default TARGET_powerpc if DESIRED_TARGET_ARCH = "powerpc"
 	default TARGET_sh if DESIRED_TARGET_ARCH = "sh"
 	default TARGET_sparc if DESIRED_TARGET_ARCH = "sparc"
+	default TARGET_sparc64 if DESIRED_TARGET_ARCH = "sparc64"
 	default TARGET_x86_64 if DESIRED_TARGET_ARCH = "x86_64"
 	default TARGET_xtensa if DESIRED_TARGET_ARCH = "xtensa"
 	help
@@ -116,6 +117,9 @@ config TARGET_sh
 
 config TARGET_sparc
 	bool "sparc"
+
+config TARGET_sparc64
+	bool "sparc64"
 
 config TARGET_x86_64
 	bool "x86_64"
@@ -214,6 +218,10 @@ endif
 
 if TARGET_sparc
 source "extra/Configs/Config.sparc"
+endif
+
+if TARGET_sparc64
+source "extra/Configs/Config.sparc64"
 endif
 
 if TARGET_x86_64
