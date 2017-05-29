@@ -40,6 +40,7 @@
    _SVID_SOURCE		ISO C, POSIX, and SVID things.
    _ATFILE_SOURCE	Additional *at interfaces.
    _GNU_SOURCE		All of the above, plus GNU extensions.
+   _DEFAULT_SOURCE	Equivalent to defining _BSD_SOURCE and _SVID_SOURCE.
    _REENTRANT		Select additionally reentrant object.
    _THREAD_SAFE		Same as _REENTRANT, often used by other systems.
    _FORTIFY_SOURCE	If set to numeric value > 0 additional security
@@ -152,6 +153,19 @@
 # define __CLANG_PREREQ(maj, min) 0
 #endif
 
+/* _DEFAULT_SOURCE is equivalent to defining _BSD_SOURCE and _SVID_SOURCE
+ * and vice versa. */
+#ifdef _DEFAULT_SOURCE
+# undef  _BSD_SOURCE
+# define _BSD_SOURCE	1
+# undef  _SVID_SOURCE
+# define _SVID_SOURCE	1
+#endif
+
+#if defined _BSD_SOURCE || defined _SVID_SOURCE
+# undef _DEFAULT_SOURCE
+# define _DEFAULT_SOURCE	1
+#endif
 
 /* If _BSD_SOURCE was defined by the user, favor BSD over POSIX.  */
 #if defined _BSD_SOURCE && \
