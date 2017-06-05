@@ -69,7 +69,7 @@ inet_network(const char *cp)
 		if (isdigit(c)) {
 			if (base == 8 && c > '7')
 				return (INADDR_NONE);
-				val = val * base + c - '0';
+			val = val * base + c - '0';
 		} else if (base == 16 && isxdigit(c))
 			val = (val << 4) + 10 - (islower(c) ? 'a' : 'A');
 		else
