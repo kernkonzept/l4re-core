@@ -76,23 +76,13 @@ __END_NAMESPACE_STD
 #ifndef __mbstate_t_defined
 # define __mbstate_t_defined	1
 /* Conversion state information.  */
-#if 1
+#define __need_wchar_t
+#include <stddef.h>
 typedef struct
 {
 	wchar_t __mask;
 	wchar_t __wc;
 } __mbstate_t;
-#else
-typedef struct
-{
-  int __count;
-  union
-  {
-    wint_t __wch;
-    char __wchb[4];
-  } __value;		/* Value so far.  */
-} __mbstate_t;
-#endif
 #endif
 #undef __need_mbstate_t
 
