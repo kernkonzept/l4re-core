@@ -223,7 +223,8 @@ typedef int register_t __attribute__ ((__mode__ (__word__)));
 #endif /* Use BSD.  */
 
 
-#if defined __USE_UNIX98 && !defined __blksize_t_defined
+#if (defined __USE_UNIX98 || defined __USE_XOPEN2K8) \
+    && !defined __blksize_t_defined
 typedef __blksize_t blksize_t;
 # define __blksize_t_defined
 #endif
