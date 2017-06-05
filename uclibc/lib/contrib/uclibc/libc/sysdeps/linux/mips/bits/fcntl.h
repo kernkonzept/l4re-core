@@ -45,12 +45,15 @@
 #define O_FSYNC		 O_SYNC
 #define O_ASYNC		 0x1000
 
-#ifdef __USE_GNU
+#ifdef __USE_XOPEN2K8
 # define O_NOFOLLOW	0x20000	/* Do not follow links.	 */
-# define O_DIRECT	0x8000	/* Direct disk access hint.  */
 # define O_DIRECTORY	0x10000	/* Must be a directory.	 */
-# define O_NOATIME	0x40000	/* Do not set atime.  */
 # define O_CLOEXEC     02000000 /* set close_on_exec */
+#endif
+
+#ifdef __USE_GNU
+# define O_DIRECT	0x8000	/* Direct disk access hint.  */
+# define O_NOATIME	0x40000	/* Do not set atime.  */
 # define O_PATH       010000000 /* Resolve pathname but do not open file.  */
 #endif
 

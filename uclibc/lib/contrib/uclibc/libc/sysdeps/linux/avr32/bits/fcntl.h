@@ -25,12 +25,15 @@
 #define O_SYNC		00010000
 #define O_ASYNC		00020000
 
-#ifdef __USE_GNU
-# define O_DIRECT	00040000	/* must be a directory */
+#ifdef __USE_XOPEN2K8
 # define O_DIRECTORY	00200000	/* direct disk access */
 # define O_NOFOLLOW	00400000	/* don't follow links */
-# define O_NOATIME	01000000	/* don't set atime */
 # define O_CLOEXEC      02000000	/* set close_on_exec */
+#endif
+
+#ifdef __USE_GNU
+# define O_DIRECT	00040000	/* must be a directory */
+# define O_NOATIME	01000000	/* don't set atime */
 # define O_PATH        010000000	/* Resolve pathname but do not open file.  */
 #endif
 

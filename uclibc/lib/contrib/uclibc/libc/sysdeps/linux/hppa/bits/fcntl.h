@@ -43,13 +43,15 @@
 #define O_NDELAY	O_NONBLOCK
 #define O_NOCTTY	00400000 /* not fcntl */
 
+#ifdef __USE_XOPEN2K8
+# define O_DIRECTORY	00010000 /* Must be a directory. */
+# define O_NOFOLLOW	00000200 /* Do not follow links. */
+# define O_CLOEXEC	010000000 /* set close_on_exec */
+#endif
 
 #ifdef __USE_GNU
 # define O_DIRECT	00040000 /* Direct disk access. */
-# define O_DIRECTORY	00010000 /* Must be a directory. */
-# define O_NOFOLLOW	00000200 /* Do not follow links. */
 # define O_NOATIME	04000000 /* Do not set atime. */
-# define O_CLOEXEC	010000000 /* set close_on_exec */
 # define O_PATH		020000000 /* Resolve pathname but do not open file.  */
 #endif
 

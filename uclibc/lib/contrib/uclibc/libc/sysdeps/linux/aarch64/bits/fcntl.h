@@ -42,12 +42,15 @@
 #define O_FSYNC		 O_SYNC
 #define O_ASYNC		 020000
 
-#ifdef __USE_GNU
+#ifdef __USE_XOPEN2K8
 # define O_DIRECTORY	 040000
 # define O_NOFOLLOW	0100000
+# define O_CLOEXEC     02000000
+#endif
+
+#ifdef __USE_GNU
 # define O_DIRECT	0200000
 # define O_NOATIME     01000000
-# define O_CLOEXEC     02000000
 # define O_PATH       010000000
 #endif
 
