@@ -78,7 +78,7 @@ libc_hidden_proto(gettimeofday)
    This call is restricted to the super-user.  */
 extern int settimeofday (const struct timeval *__tv,
 			 const struct timezone *__tz)
-     __THROW __nonnull ((1));
+     __THROW;
 libc_hidden_proto(settimeofday)
 
 /* Adjust the current time of day by the amount in DELTA.
