@@ -28,5 +28,5 @@ int
 mkostemp64 (char *template, int flags)
 {
   return __gen_tempname (template, __GT_BIGFILE, flags | O_LARGEFILE, 0,
-                         S_IRUSR | S_IWUSR | S_IXUSR);
+                         S_IRUSR | S_IWUSR);
 }
