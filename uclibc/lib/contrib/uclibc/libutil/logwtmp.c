@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * wtmp support rubbish (i.e. complete crap)
  * Copyright (C) 2000-2006 by Erik Andersen <andersen@uclibc.org>

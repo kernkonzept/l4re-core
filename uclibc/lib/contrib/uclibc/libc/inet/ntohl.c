@@ -1,4 +1,4 @@
-/* vi: set sw=4 ts=4:
+/*
  * Functions to convert between host and network byte order.
  *
  * Copyright (C) 2003-2006 by Erik Andersen <andersen@uclibc.org>

@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * fstat64() for uClibc
  *

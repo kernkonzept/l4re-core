@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * __syscall_rt_sigaction() for uClibc
  *

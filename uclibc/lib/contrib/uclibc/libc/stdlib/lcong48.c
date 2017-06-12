@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball. */
 
 #include <features.h>

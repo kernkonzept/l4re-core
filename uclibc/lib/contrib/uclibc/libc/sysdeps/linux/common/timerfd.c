@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * timerfd_create() / timerfd_settime() / timerfd_gettime() for uClibc
  *

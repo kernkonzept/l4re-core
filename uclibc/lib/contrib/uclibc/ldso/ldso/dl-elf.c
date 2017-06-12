@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * This file contains the helper routines to load an ELF shared
  * library into memory and add the symbol table info to the chain.

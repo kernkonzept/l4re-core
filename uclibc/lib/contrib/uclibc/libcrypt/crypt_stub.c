@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * crypt() for uClibc
  * Copyright (C) 2008 by Erik Andersen <andersen@uclibc.org>

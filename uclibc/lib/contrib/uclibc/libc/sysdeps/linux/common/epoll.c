@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * epoll_create() / epoll_ctl() / epoll_wait() / epoll_pwait() for uClibc
  *

@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* yoinked from glibc/sysdeps/x86_64/dl-machine.h */
 /* Machine-dependent ELF dynamic relocation inline functions.  x86-64 version.
    Copyright (C) 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.

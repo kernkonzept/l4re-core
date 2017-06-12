@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* uClibc internal malloc.
    Copyright (C) 2007 Denys Vlasenko
 

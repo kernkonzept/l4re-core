@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * Program to load an ELF binary on a linux system, and run it
  * after resolving ELF shared library symbols

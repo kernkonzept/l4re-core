@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* Handle locking of password file.
    Copyright (C) 1996,98,2000,02 Free Software Foundation, Inc.
    This file is part of the GNU C Library.

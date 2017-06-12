@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* posix_memalign for uClibc
  *
  * Copyright (C) 1996-2002, 2003, 2004, 2005 Free Software Foundation, Inc.

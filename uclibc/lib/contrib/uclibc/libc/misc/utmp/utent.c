@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* utent.c <ndf@linux.mit.edu> */
 /* Let it be known that this is very possibly the worst standard ever.  HP-UX
    does one thing, someone else does another, linux another... If anyone

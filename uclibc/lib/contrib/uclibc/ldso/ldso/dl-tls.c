@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * Thread-local storage handling in the ELF dynamic linker.
  *

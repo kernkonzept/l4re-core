@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * Copyright (C) 2000,2001,2003,2004	Manuel Novoa III <mjn3@codepoet.org>
  *

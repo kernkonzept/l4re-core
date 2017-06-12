@@ -1,5 +1,3 @@
-/* vi: set sw=8 ts=8: */
-
 /*
  * Various assembly language/system dependent hacks that are required
  * so that we can minimize the amount of platform specific code.

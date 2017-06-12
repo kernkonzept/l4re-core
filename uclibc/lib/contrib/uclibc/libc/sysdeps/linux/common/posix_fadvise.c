@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * posix_fadvise() for uClibc
  * http://www.opengroup.org/onlinepubs/009695399/functions/posix_fadvise.html

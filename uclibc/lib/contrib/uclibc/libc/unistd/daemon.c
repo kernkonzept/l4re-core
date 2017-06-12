@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* daemon implementation for uClibc
  *
  * Copyright (c) 1990, 1993

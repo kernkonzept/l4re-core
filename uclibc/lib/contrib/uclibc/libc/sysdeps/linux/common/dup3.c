@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * dup3() for uClibc
  *

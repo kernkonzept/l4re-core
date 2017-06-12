@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * Copyright (C) 2010 Bernhard Reutner-Fischer <uclibc@uclibc.org>
  *

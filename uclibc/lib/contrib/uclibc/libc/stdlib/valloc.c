@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* Allocate memory on a page boundary.
    Copyright (C) 1991, 1992 Free Software Foundation, Inc.
 

@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * posix_fallocate() for uClibc
  * http://www.opengroup.org/onlinepubs/9699919799/functions/posix_fallocate.html

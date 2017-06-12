@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* calloc for uClibc
  *
  * Copyright (C) 2002 by Erik Andersen <andersen@uclibc.org>

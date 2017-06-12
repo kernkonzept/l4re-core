@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  *
  * Copyright (c) 2008  STMicroelectronics Ltd

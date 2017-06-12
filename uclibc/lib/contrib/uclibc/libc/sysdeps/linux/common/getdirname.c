@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* Copyright (C) 1992, 1997, 1998, 2000 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 

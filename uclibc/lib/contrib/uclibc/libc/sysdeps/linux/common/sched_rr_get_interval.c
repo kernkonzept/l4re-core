@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * sched_rr_get_interval() for uClibc
  *

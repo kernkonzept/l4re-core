@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * This file contains the helper routines to run init and fini functions.
  *

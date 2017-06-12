@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /* sigwait
  *
  * Copyright (C) 2006 by Steven J. Hill <sjhill@realitydiluted.com>

@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * Copyright (C) 2006 Steven J. Hill <sjhill@realitydiluted.com>
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>

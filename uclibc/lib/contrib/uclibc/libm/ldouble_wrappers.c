@@ -1,4 +1,3 @@
-/* vi: set sw=4 ts=4: */
 /*
  * Wrapper functions implementing all the long double math functions
  * defined by SuSv3 by actually calling the double version of
