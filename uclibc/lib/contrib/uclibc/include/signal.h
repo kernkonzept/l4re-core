@@ -191,27 +191,15 @@ extern void psiginfo (const siginfo_t *__pinfo, const char *__s);
 /* The `sigpause' function has two different interfaces.  The original
    BSD definition defines the argument as a mask of the signal, while
    the more modern interface in X/Open defines it as the signal
-   number.  We go with the BSD version unless the user explicitly
-   selects the X/Open version.
+   number.  We go with the X/Open version.
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */
-/*extern int __sigpause (int __sig_or_mask, int __is_sig);*/
 
-#ifdef __FAVOR_BSD
-/* Set the mask of blocked signals to MASK,
-   wait for a signal to arrive, and then restore the mask.  */
-/*extern int sigpause (int __mask) __THROW __attribute_deprecated__;
-# define sigpause(mask) __sigpause ((mask), 0)*/
-/* uClibc note: BSD sigpause is available as __bsd_sigpause.
- * It is intentionally not prototyped */
-#else
-# ifdef __USE_XOPEN
+# ifdef __USE_XOPEN_EXTENDED
 /* Remove a signal from the signal mask and suspend the process.  */
 extern int sigpause(int __sig);
-/*#  define sigpause(sig) __sigpause ((sig), 1)*/
 # endif
-#endif
 #endif /* __UCLIBC_SUSV4_LEGACY__ */
 
 #if 0 /*def __USE_BSD*/

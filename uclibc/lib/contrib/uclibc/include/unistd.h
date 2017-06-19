@@ -673,17 +673,8 @@ libc_hidden_proto(getpid)
 /* Get the process ID of the calling process's parent.  */
 extern __pid_t getppid (void) __THROW;
 
-/* Get the process group ID of the calling process.
-   This function is different on old BSD. */
-#ifndef __FAVOR_BSD
+/* Get the process group ID of the calling process.  */
 extern __pid_t getpgrp (void) __THROW;
-#else
-# ifdef __REDIRECT_NTH
-extern __pid_t __REDIRECT_NTH (getpgrp, (__pid_t __pid), __getpgid);
-# else
-#  define getpgrp __getpgid
-# endif
-#endif
 
 /* Get the process group ID of process PID.  */
 extern __pid_t __getpgid (__pid_t __pid) __THROW;
@@ -698,7 +689,7 @@ extern __pid_t getpgid (__pid_t __pid) __THROW;
 extern int setpgid (__pid_t __pid, __pid_t __pgid) __THROW;
 libc_hidden_proto(setpgid)
 
-#if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+#if defined __USE_MISC || defined __USE_XOPEN_EXTENDED
 /* Both System V and BSD have `setpgrp' functions, but with different
    calling conventions.  The BSD function is the same as POSIX.1 `setpgid'
    (above).  The System V function takes no arguments and puts the calling
@@ -706,26 +697,13 @@ libc_hidden_proto(setpgid)
 
    New programs should always use `setpgid' instead.
 
-   The default in GNU is to provide the System V function.  The BSD
-   function is available under -D_BSD_SOURCE.  */
-
-# ifndef __FAVOR_BSD
+   GNU provides the POSIX.1 function.  */
 
 /* Set the process group ID of the calling process to its own PID.
    This is exactly the same as `setpgid (0, 0)'.  */
 extern int setpgrp (void) __THROW;
 
-# else
-
-/* Another name for `setpgid' (above).  */
-#  ifdef __REDIRECT_NTH
-extern int __REDIRECT_NTH (setpgrp, (__pid_t __pid, __pid_t __pgrp), setpgid);
-#  else
-#   define setpgrp setpgid
-#  endif
-
-# endif	/* Favor BSD.  */
-#endif	/* Use SVID or BSD.  */
+#endif	/* Use misc or X/Open.  */
 
 /* Create a new session with the calling process as its leader.
    The process group IDs of the session and the calling process
