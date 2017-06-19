@@ -54,7 +54,7 @@ l4_cache_dmin_line(void)
   if (start > end)            \
     __builtin_unreachable();  \
                               \
-  unsigned long const sz = end - start + 1;                 \
+  unsigned long const sz = end - start;                     \
   unsigned const s = l4_cache_dmin_line();                  \
   asm volatile ("dsb ish" : : "m"(*((unsigned *)start)));   \
   unsigned i;                                               \
