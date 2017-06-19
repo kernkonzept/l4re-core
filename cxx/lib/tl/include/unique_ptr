@@ -55,11 +55,14 @@ public:
 
   explicit unique_ptr(pointer p) : _ptr(p) {}
 
-  unique_ptr(unique_ptr &&o) : _ptr(o.release()) {}
+  template <typename Q, typename Q_Del = default_delete<Q> >
+  unique_ptr(unique_ptr<Q, Q_Del> &&o) : _ptr(o.release())
+  {}
 
   ~unique_ptr() { reset(); }
 
-  unique_ptr &operator = (unique_ptr &&o)
+  template <typename Q, typename Q_Del = default_delete<Q> >
+  unique_ptr &operator = (unique_ptr<Q, Q_Del> &&o)
   {
     reset(o.release());
     return *this;
