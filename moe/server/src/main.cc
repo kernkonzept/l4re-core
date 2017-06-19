@@ -485,6 +485,18 @@ static void init_env()
 static __attribute__((used, section(".preinit_array")))
    const void *pre_init_env = (void *)init_env;
 
+static void init_emergency_memory()
+{
+  // populate the page allocator with a few pages of static memory to allow for
+  // dynamic allocation of memory arena during static initialization of stdc++'s
+  // emergency_pool in GCC versions 5 and newer
+  static __attribute__((aligned(L4_PAGESIZE))) char buf[3 * L4_PAGESIZE];
+  Single_page_alloc_base::_free(buf, sizeof(buf), true);
+}
+
+static __attribute__((used, section(".preinit_array")))
+   const void *pre_init_emergency_memory = (void *)init_emergency_memory;
+
 int main(int argc, char**argv)
 {
   (void)argc; (void)argv;
