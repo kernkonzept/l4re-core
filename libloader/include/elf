@@ -68,12 +68,12 @@ public:
            && l4util_elf_check_arch((ElfW(Ehdr) *)this);
   }
 
-private:
   bool is_64() const
   {
     return e_ident[EI_CLASS] == ELFCLASS64;
   }
 
+private:
   Elf64_Ehdr const *hdr64() const { return (Elf64_Ehdr*)this; }
   Elf32_Ehdr const *hdr32() const { return (Elf32_Ehdr*)this; }
 
