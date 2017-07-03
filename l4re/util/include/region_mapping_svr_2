@@ -229,7 +229,7 @@ public:
     Dbg(Dbg::Server).printf("page fault: %lx pc=%lx\n", addr, pc);
 
     unsigned writable = addr & 2;
-    addr = addr & ~3UL;
+    addr = addr & ~7UL;
 
     typename DERIVED::Node n = rm()->find(addr);
 
