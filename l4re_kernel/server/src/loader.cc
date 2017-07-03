@@ -29,9 +29,11 @@
 #include <l4/re/util/env_ns>
 #include <l4/re/l4aux.h>
 #include <l4/re/error_helper>
+#include <l4/sys/debugger.h>
 
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 
 //#define L4RE_USE_LOCAL_PAGER_GATE 1
 
@@ -236,7 +238,7 @@ loader_thread()
     }
 }
 
-bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t * /*aux*/)
+bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 {
   __loader_stack = Global::cap_alloc->alloc<Dataspace>();
   Global::allocator->alloc(Loader_stack_size, __loader_stack);
@@ -289,6 +291,10 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t * /*aux*/)
 #endif
 
   chksys(env->factory()->create(app_thread), "create app thread");
+
+  l4_debugger_set_object_name(app_thread.cap(),
+                              strrchr(aux->binary, '/')
+                                ? strrchr(aux->binary, '/') + 1 : aux->binary);
 
   Thread::Attr attr;
   attr.pager(__loader_entry.pager);
