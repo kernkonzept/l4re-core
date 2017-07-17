@@ -184,14 +184,14 @@ Moe::Log::color_value(cxx::String const &col)
 
   switch (col[0])
     {
-    case 'N': bright = 1; case 'n': c = 0; break;
-    case 'R': bright = 1; case 'r': c = 1; break;
-    case 'G': bright = 1; case 'g': c = 2; break;
-    case 'Y': bright = 1; case 'y': c = 3; break;
-    case 'B': bright = 1; case 'b': c = 4; break;
-    case 'M': bright = 1; case 'm': c = 5; break;
-    case 'C': bright = 1; case 'c': c = 6; break;
-    case 'W': bright = 1; case 'w': c = 7; break;
+    case 'N': bright = 1; /* FALLTHRU */ case 'n': c = 0; break;
+    case 'R': bright = 1; /* FALLTHRU */ case 'r': c = 1; break;
+    case 'G': bright = 1; /* FALLTHRU */ case 'g': c = 2; break;
+    case 'Y': bright = 1; /* FALLTHRU */ case 'y': c = 3; break;
+    case 'B': bright = 1; /* FALLTHRU */ case 'b': c = 4; break;
+    case 'M': bright = 1; /* FALLTHRU */ case 'm': c = 5; break;
+    case 'C': bright = 1; /* FALLTHRU */ case 'c': c = 6; break;
+    case 'W': bright = 1; /* FALLTHRU */ case 'w': c = 7; break;
     default: c = 0;
     }
 
