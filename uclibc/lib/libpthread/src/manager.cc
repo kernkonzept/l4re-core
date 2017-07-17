@@ -863,8 +863,8 @@ static void pthread_free(pthread_descr th)
 
     {
       // free the semaphore and the thread
-      L4Re::Util::Auto_cap<void>::Cap s = L4::Cap<void>(th->p_thsem_cap);
-      L4Re::Util::Auto_cap<void>::Cap t = L4::Cap<void>(th->p_th_cap);
+      L4Re::Util::Auto_del_cap<void>::Cap s = L4::Cap<void>(th->p_thsem_cap);
+      L4Re::Util::Auto_del_cap<void>::Cap t = L4::Cap<void>(th->p_th_cap);
     }
 
   /* One fewer threads in __pthread_handles */
