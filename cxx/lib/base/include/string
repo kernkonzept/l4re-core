@@ -86,7 +86,7 @@ public:
   }
 
   template< typename F >
-  char const *find_match(F const &match) const
+  char const *find_match(F &&match) const
   {
     String::Index s = _start;
     while (1)
