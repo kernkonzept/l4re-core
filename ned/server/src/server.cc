@@ -10,6 +10,7 @@
 
 #include <pthread.h>
 #include <pthread-l4.h>
+#include <cassert>
 
 #include <l4/re/error_helper>
 #include <l4/re/env>
@@ -29,9 +30,8 @@ Server_object::List::~List()
   for (Server_object *o = _f; o;)
     {
       Server_object *n = o->_n;
-      if (o->_l != this)
-	throw ("This is a really dumb BUG");
-	
+      assert(o->_l == this);
+
       o->_l = 0;
       o->_p = 0;
       o->_n = 0;
