@@ -84,6 +84,8 @@ enum
 #define IPPROTO_COMP		IPPROTO_COMP
     IPPROTO_SCTP = 132,	   /* Stream Control Transmission Protocol.  */
 #define IPPROTO_SCTP		IPPROTO_SCTP
+    IPPROTO_MH = 135,      /* IPv6 mobility header.  */
+#define IPPROTO_MH		IPPROTO_MH
     IPPROTO_UDPLITE = 136, /* UDP-Lite protocol.  */
 #define IPPROTO_UDPLITE		IPPROTO_UDPLITE
     IPPROTO_RAW = 255,	   /* Raw IP packets.  */
