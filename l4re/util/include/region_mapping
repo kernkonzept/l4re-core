@@ -61,7 +61,7 @@ class Region_handler
 private:
   l4_addr_t _offs;
   DS _mem;
-  l4_cap_idx_t _client_cap;
+  l4_cap_idx_t _client_cap = L4_INVALID_CAP;
   unsigned short _flags;
 
 public:
