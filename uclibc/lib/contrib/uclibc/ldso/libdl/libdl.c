@@ -807,7 +807,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 	int (*dl_elf_fini) (void);
 	void (*dl_brk) (void);
 	struct dyn_elf *handle;
-	unsigned int end = 0, start = 0xffffffff;
+	unsigned int end;
 	unsigned int i, j;
 	struct r_scope_elem *ls, *ls_next = NULL;
 	struct elf_resolve **handle_rlist;
@@ -884,8 +884,6 @@ static int do_dlclose(void *vhandle, int need_fini)
 					i < tpnt->n_phent; ppnt++, i++) {
 				if (ppnt->p_type != PT_LOAD)
 					continue;
-				if (ppnt->p_vaddr < start)
-					start = ppnt->p_vaddr;
 				if (end < ppnt->p_vaddr + ppnt->p_memsz)
 					end = ppnt->p_vaddr + ppnt->p_memsz;
 			}
@@ -992,9 +990,7 @@ static int do_dlclose(void *vhandle, int need_fini)
 			}
 #endif
 
-			end = (end + ADDR_ALIGN) & PAGE_ALIGN;
-			start = start & ~ADDR_ALIGN;
-			DL_LIB_UNMAP (tpnt, end - start);
+			DL_LIB_UNMAP (tpnt, end - tpnt->mapaddr);
 			/* Free elements in RTLD_LOCAL scope list */
 			for (runp = tpnt->rtld_local; runp; runp = tmp) {
 				tmp = runp->next;
