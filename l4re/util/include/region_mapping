@@ -27,7 +27,7 @@
 #pragma once
 
 #include <l4/cxx/avl_map>
-#include <l4/sys/l4int.h>
+#include <l4/sys/types.h>
 #include <l4/re/rm>
 
 
