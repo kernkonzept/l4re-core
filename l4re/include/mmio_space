@@ -1,0 +1,75 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/*
+ * Copyright (C) 2017 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include <l4/re/protocols.h>
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4Re
+{
+
+/**
+ * Interface for memory-like address space accessible via IPC.
+ *
+ * \includefile{l4/re/mmio_space}
+ */
+struct L4_EXPORT Mmio_space
+: public L4::Kobject_t<Mmio_space, L4::Kobject, L4RE_PROTO_MMIO_SPACE>
+{
+  /// Actual size of the value to read or write.
+  enum Access_width
+  {
+    Wd_8bit = 0,  ///< Value is a byte.
+    Wd_16bit = 1, ///< Value is a 2-byte word.
+    Wd_32bit = 2, ///< Value is a 4-byte word.
+    Wd_64bit = 3  ///< Value is a 8-byte word.
+  };
+
+  /// Device address.
+  typedef l4_uint64_t Addr;
+
+  /**
+   * Read a value from the given address.
+   *
+   * \param      addr   Device virtual address to read from. The address
+   *                    must be aligned relative to the access width.
+   * \param      width  Access width of value to be read, see #Access_width.
+   * \param[out] value  Return value. If width is smaller than 64 bit,the
+   *                    upper bits are guaranteed to be 0.
+   *
+   * \retval L4_OK       Success.
+   * \retval -L4_EPERM   Insufficient read rights.
+   * \retval -L4_EINVAL  Address does not exist or cannot be accessed
+   *                     with the given width.
+   */
+  L4_INLINE_RPC(long, mmio_read, (Addr addr, char width, l4_uint64_t *value));
+
+  /**
+   * Write a value to the given address.
+   *
+   * \param addr   Device virtual address to write to. The address
+   *               must be aligned relative to the access width.
+   * \param width  Access width of value to write, see #Access_width.
+   * \param value  Value to write. If width is smaller than 64 bit,
+   *               the upper bits are ignored.
+   *
+   * \retval L4_OK       Success.
+   * \retval -L4_EPERM   Insufficient write rights.
+   * \retval -L4_EINVAL  Address does not exist or cannot be accessed
+   *                     with the given width.
+   */
+  L4_INLINE_RPC(long, mmio_write, (Addr addr, char width, l4_uint64_t value));
+
+  typedef L4::Typeid::Rpcs<mmio_read_t, mmio_write_t> Rpcs;
+};
+
+}

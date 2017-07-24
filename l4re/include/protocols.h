@@ -37,6 +37,7 @@ enum L4re_protocols
   L4RE_PROTO_EVENT,              /**< ID for L4Re::Event RPCs             */
   L4RE_PROTO_INHIBITOR,          /**< ID for L4Re::Inhibitor RPCs         */
   L4RE_PROTO_DMA_SPACE,          /**< ID for L4Re::Dma_space RPCs         */
+  L4RE_PROTO_MMIO_SPACE,         /**< ID for L4Re::Mmio_space             */
 
   L4RE_PROTO_DEBUG = ~0x7fffL    /**< ID for debugging RPCs               */
 };
