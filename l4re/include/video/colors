@@ -220,7 +220,7 @@ public:
   {}
 
   /**
-   * \brief Compare for complete equzality of the color sapce.
+   * \brief Compare for complete equality of the color space.
    * \param o    A Pixel_info to compare to.
    * \return true if the both Pixel_info's are equal, false if not.
    */
