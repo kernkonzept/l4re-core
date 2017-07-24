@@ -518,9 +518,11 @@ extern void cfree (void *__ptr) __THROW;
 # include <alloca.h>
 #endif /* Use GNU, BSD, or misc.  */
 
-#if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+#ifdef __UCLIBC_SUSV2_LEGACY__
+# if defined __USE_BSD || defined __USE_XOPEN_EXTENDED
 /* Allocate SIZE bytes on a page boundary.  The storage cannot be freed.  */
 extern void *valloc (size_t __size) __THROW __attribute_malloc__ __wur;
+# endif
 #endif
 
 #if defined __USE_XOPEN2K && defined __UCLIBC_HAS_ADVANCED_REALTIME__
