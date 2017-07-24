@@ -129,6 +129,20 @@ void out_i16(FILE *f, const int16_t *p, size_t n, char *comment)
 	fprintf(f, "\n},\n");
 }
 
+void out_i32(FILE *f, const int32_t *p, size_t n, char *comment)
+{
+	size_t i;
+
+	fprintf(f, "{\t/* %s */", comment);
+	for (i = 0 ; i < n ; i++) {
+		if (!(i & 7)) {
+			fprintf(f, "\n\t");
+		}
+		fprintf(f, "%11d, ", p[i]);
+	}
+	fprintf(f, "\n},\n");
+}
+
 void out_size_t(FILE *f, const size_t *p, size_t n, char *comment)
 {
 	size_t i;
@@ -194,7 +208,7 @@ int main(int argc, char **argv)
 #ifdef __WCHAR_ENABLED
 	out_uc(lso, __LOCALE_DATA_WCctype_data, __LOCALE_DATA_WCctype_TBL_LEN, "tblwctype");
 	out_uc(lso, __LOCALE_DATA_WCuplow_data, __LOCALE_DATA_WCuplow_TBL_LEN, "tblwuplow");
-	out_i16(lso, __LOCALE_DATA_WCuplow_diff_data, __LOCALE_DATA_WCuplow_diff_TBL_LEN, "tblwuplow_diff");
+	out_i32(lso, __LOCALE_DATA_WCuplow_diff_data, __LOCALE_DATA_WCuplow_diff_TBL_LEN, "tblwuplow_diff");
 /* 	const unsigned char tblwcomb[WCcomb_TBL_LEN]; */
 	/* width?? */
 #endif /* __WCHAR_ENABLED */

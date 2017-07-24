@@ -83,8 +83,8 @@
 #define mywxdigit(D,C) (mywdigit(D,C) || (unsigned)(((C) | 0x20) - 'a') <= 5)
 
 typedef struct {
-	short l;
-	short u;
+	int32_t l;
+	int32_t u;
 } uldiff_entry;
 
 typedef struct {
@@ -227,12 +227,11 @@ int main(int argc, char **argv)
 			++verbose;
 			continue;
 		}
-	/* setlocale might be just a stub */
-	/*	if (!setlocale(LC_CTYPE, *argv)) {
+		/* setlocale might be just a stub */
+		if (!setlocale(LC_CTYPE, *argv)) {
 			verbose_msg("setlocale(LC_CTYPE,%s) failed!  Skipping this locale...\n", *argv);
 			continue;
 		}
-	*/
 		if (!(totitle = wctrans("totitle"))) {
 			verbose_msg("no totitle transformation.\n");
 		}
@@ -402,7 +401,7 @@ int main(int argc, char **argv)
 				u = (long)(int) towupper(c) - c;
 				ult[c] = 0;
 				if (l || u) {
-					if ((l != (short)l) || (u != (short)u)) {
+					if ((l != (int32_t)l) || (u != (int32_t)u)) {
 						verbose_msg("range assumption error!  %x  %ld  %ld\n", c, l, u);
 						return EXIT_FAILURE;
 					}
@@ -684,7 +683,7 @@ int main(int argc, char **argv)
 
 		printf("#define __LOCALE_DATA_WCuplow_diffs  %7u\n", ul_count);
 		printf("\n#ifdef WANT_WCuplow_diff_data\n\n");
-		printf("\nstatic const short __LOCALE_DATA_WCuplow_diff_data[%zu] = {",
+		printf("\nstatic const int32_t __LOCALE_DATA_WCuplow_diff_data[%zu] = {",
 			   2 * (size_t) ul_count);
 		for (i = 0; i < ul_count; i++) {
 			if (i % 4 == 0) {

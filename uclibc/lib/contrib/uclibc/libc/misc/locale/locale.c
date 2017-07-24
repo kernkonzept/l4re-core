@@ -820,7 +820,7 @@ void attribute_hidden _locale_init_l(__locale_t base)
 	base->tblwuplow
 		= (const unsigned char *) &__locale_mmap->tblwuplow;
 	base->tblwuplow_diff
-		= (const int16_t *) &__locale_mmap->tblwuplow_diff;
+		= (const int32_t *) &__locale_mmap->tblwuplow_diff;
 /* 	base->tblwcomb */
 /* 		= (const unsigned char *) &__locale_mmap->tblwcomb; */
 	/* width?? */

@@ -45,7 +45,7 @@ typedef struct {
 #ifdef __WCHAR_ENABLED
 	const unsigned char tblwctype[__LOCALE_DATA_WCctype_TBL_LEN];
 	const unsigned char tblwuplow[__LOCALE_DATA_WCuplow_TBL_LEN];
-	const int16_t tblwuplow_diff[__LOCALE_DATA_WCuplow_diff_TBL_LEN];
+	const int32_t tblwuplow_diff[__LOCALE_DATA_WCuplow_diff_TBL_LEN];
 /* 	const unsigned char tblwcomb[WCcomb_TBL_LEN]; */
 	/* width?? */
 #endif

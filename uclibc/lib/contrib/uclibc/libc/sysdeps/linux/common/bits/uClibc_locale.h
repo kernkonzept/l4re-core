@@ -192,7 +192,7 @@ struct __uclibc_locale_struct {
 	const unsigned char *tblwctype;
 	const unsigned char *tblwuplow;
 /* 	const unsigned char *tblwcomb; */
-	const int16_t *tblwuplow_diff; /* yes... signed */
+	const int32_t *tblwuplow_diff; /* yes... signed */
 	/* width?? */
 
 	wchar_t decimal_point_wc;
