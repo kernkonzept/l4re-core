@@ -109,26 +109,27 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
   Mem_man *m;
   unsigned mem_flags;
   bool cached = true;
+  unsigned long addr;
   switch (fn)
     {
     case Ram:
       m = Mem_man::ram();
       mem_flags = L4_FPAGE_RWX;
+      addr = m->alloc(Region::bs(fp.raw & ~((1UL << 12) - 1),
+                                 1UL << l4_fpage_size(fp), t));
       break;
     case Io_mem:
       cached = false;
       /* fall through */
     case Io_mem_cached:
       mem_flags = L4_FPAGE_RW;
-      m = &iomem;
+      // there is no first-come, first-serve for IO memory
+      addr = fp.raw & ~((1UL << 12) - 1);
       break;
     default:
       an->error(L4_EINVAL);
       return;
     }
-
-  unsigned long addr = m->alloc(Region::bs(fp.raw & ~((1UL << 12) - 1),
-	1UL << l4_fpage_size(fp), t));
 
   if (addr == ~0UL)
     {
