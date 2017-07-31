@@ -75,6 +75,7 @@ init_memory(l4_kernel_info_t *info)
               || !Mem_man::ram()->reserve(Region(start, end, root_taskno)))
             mismatch = Region(start, end, root_taskno);
 	  break;
+	case Mem_desc::Info:
 	case Mem_desc::Arch:
 	case Mem_desc::Shared:
 	  iomem.add_free(Region(start, end));
