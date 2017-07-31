@@ -68,6 +68,15 @@ namespace L4
         Bootloader   = 0xe,  ///< Memory belongs to the boot loader
         Arch         = 0xf   ///< Architecture specific memory
       };
+
+      /**
+       * Memory sub types for the Mem_type::Info type
+       */
+      enum Info_sub_type
+      {
+        Info_acpi_rsdp = 0  ///< Physical address of the ACPI root pointer.
+      };
+
     private:
       unsigned long _l, _h;
 

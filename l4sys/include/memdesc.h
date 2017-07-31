@@ -49,8 +49,18 @@ enum l4_mem_type_t
   l4_mem_type_dedicated    = 0x3, ///< Dedicated memory (some device memory)
   l4_mem_type_shared       = 0x4, ///< Shared memory (not implemented)
 
+  l4_mem_type_info         = 0xd, ///< Info from the boot loader
   l4_mem_type_bootloader   = 0xe, ///< Memory owned by the boot loader
   l4_mem_type_archspecific = 0xf, ///< Architecture specific memory (e.g., ACPI memory)
+};
+
+/**
+ * Memory sub types for l4_mem_type_info descriptors
+ * \ingroup l4_kip_memdesc_api
+ */
+enum l4_mem_info_sub_type_t
+{
+  l4_mem_info_acpi_rsdp = 0 /**< Physical address of the ACPI root pointer. */
 };
 
 
