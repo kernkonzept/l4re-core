@@ -25,6 +25,7 @@
 
 #include <sys/resource.h>
 #include <not-cancel.h>
+#include <internal-signals.h>
 
 #include <spawn.h>
 #include "spawn_int.h"
@@ -153,13 +154,32 @@ __spawni(pid_t *pid, const char *file,
 		int sig;
 
 		memset(&sa, 0, sizeof(sa));
-		sa.sa_handler = SIG_DFL;
 
-		for (sig = 1; sig <= _NSIG; ++sig) {
-			if (sigismember(&attrp->__sd, sig)) {
-				if (sigaction(sig, &sa, NULL) != 0)
-					goto error;
-			}
+		sigset_t hset;
+		sigprocmask (SIG_BLOCK, 0, &hset);
+
+		for (sig = 1; sig < _NSIG; ++sig) {
+		  if ((flags & POSIX_SPAWN_SETSIGDEF)
+		  && sigismember (&attrp->__sd, sig))
+		  {
+		    sa.sa_handler = SIG_DFL;
+		  }
+	          else if (sigismember (&hset, sig))
+		  {
+		    if (__is_internal_signal (sig))
+		      sa.sa_handler = SIG_IGN;
+		    else
+		    {
+		      __libc_sigaction (sig, 0, &sa);
+		      if (sa.sa_handler == SIG_IGN)
+			continue;
+		      sa.sa_handler = SIG_DFL;
+		    }
+		  }
+	        else
+		  continue;
+
+		__libc_sigaction (sig, &sa, 0);
 		}
 	}
 

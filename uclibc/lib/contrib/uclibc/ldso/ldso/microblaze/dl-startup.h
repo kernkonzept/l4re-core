@@ -82,18 +82,15 @@ static __always_inline
 void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
 	unsigned long symbol_addr, unsigned long load_addr, attribute_unused Elf32_Sym *symtab)
 {
-
 	switch (ELF_R_TYPE(rpnt->r_info))
 	{
 		case R_MICROBLAZE_REL:
-
 			*reloc_addr = load_addr + rpnt->r_addend;
 			break;
-
+		case R_MICROBLAZE_NONE:
+			break;
 		default:
 			_dl_exit(1);
 			break;
-
 	}
-
 }

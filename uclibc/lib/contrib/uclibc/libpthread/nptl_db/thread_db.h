@@ -27,6 +27,9 @@
 #include <sys/types.h>
 #include <sys/procfs.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /* Error codes of the library.  */
 typedef enum
@@ -454,5 +457,9 @@ extern td_err_e td_thr_dbsuspend (const td_thrhandle_t *__th);
 
 /* Resume execution of thread TH.  */
 extern td_err_e td_thr_dbresume (const td_thrhandle_t *__th);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	/* thread_db.h */

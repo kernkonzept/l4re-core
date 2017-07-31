@@ -39,7 +39,7 @@ END (_dl_tlsdesc_return)
 	   The assembly code that follows is a rendition of the following
 	   C code, hand-optimized a little bit.
 
-	   ptrdiff_t
+	   void *
 	   _dl_tlsdesc_dynamic(struct tlsdesc_dynamic_arg *td)
 	   {
 	     dtv_t *dtv = (dtv_t *)THREAD_DTV();
@@ -47,8 +47,8 @@ END (_dl_tlsdesc_return)
 	         && dtv[td->tlsinfo.ti_module].pointer.val
 	            != TLS_DTV_UNALLOCATED)
 	       return dtv[td->tlsinfo.ti_module].pointer.val
-	              + td->tlsinfo.ti_offset - __builtin_thread_pointer();
-	     return __tls_get_addr (&td->tlsinfo) - __builtin_thread_pointer();
+	              + td->tlsinfo.ti_offset;
+	     return __tls_get_addr (&td->tlsinfo);
 	   }
 	 */
 
@@ -65,33 +65,30 @@ HIDDEN_ENTRY (_dl_tlsdesc_dynamic)
 
 	/* && dtv[td->tlsinfo.ti_module].pointer.val != TLS_DTV_UNALLOCATED) */
 	l32i	a6, a2, TLSDESC_MODID
-	addx8	a6, a3, a6
+	addx8	a6, a6, a4
 	l32i	a6, a6, 0
 	beqi	a6, -1, .Lslow
 
 	/* return dtv[td->tlsinfo.ti_module].pointer.val
-	     + td->tlsinfo.ti_offset - __builtin_thread_pointer(); */
-	l32i	a6, a2, TLSDESC_MODOFF
-	sub	a2, a6, a3
+	     + td->tlsinfo.ti_offset; */
+	l32i	a5, a2, TLSDESC_MODOFF
+	add	a2, a6, a5
 	abi_ret
 
-	/* return __tls_get_addr (&td->tlsinfo) - __builtin_thread_pointer(); */
+	/* return __tls_get_addr (&td->tlsinfo); */
 .Lslow:
 #if defined(__XTENSA_WINDOWED_ABI__)
 	mov	a6, a2
 	movi	a4, __tls_get_addr
 	callx4	a4
-	sub	a2, a6, a3
+	mov	a2, a6
 	retw
 #elif defined(__XTENSA_CALL0_ABI__)
 	addi	a1, a1, -16
 	s32i	a0, a1, 0
-	s32i	a3, a1, 4
 	movi	a0, __tls_get_addr
 	callx0	a0
-	l32i	a3, a1, 4
 	l32i	a0, a1, 0
-	sub	a2, a2, a3
 	addi	a1, a1, 16
 	ret
 #else

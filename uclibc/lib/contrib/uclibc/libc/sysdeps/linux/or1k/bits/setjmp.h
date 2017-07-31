@@ -1,4 +1,4 @@
-/* Copyright (C) 1997, 1998, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 2014 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 #endif
 
 #ifndef	_ASM
-typedef long int __jmp_buf[32];
+typedef long int __jmp_buf[13];
 #endif
 
 #endif

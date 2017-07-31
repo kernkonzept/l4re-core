@@ -5,13 +5,7 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
-libpthread_linux_arch_SSRC = pthread_once.S pthread_rwlock_wrlock.S \
-			pthread_rwlock_rdlock.S pthread_rwlock_unlock.S \
-			lowlevellock.S lowlevelrobustlock.S pthread_barrier_wait.S \
-			pthread_cond_broadcast.S pthread_cond_signal.S \
-			pthread_rwlock_timedwrlock.S pthread_rwlock_timedrdlock.S \
-			sem_post.S sem_timedwait.S sem_trywait.S sem_wait.S
-
+libpthread_linux_arch_CSRC = pthread_once.c
 libc_linux_arch_CSRC = fork.c
 
 ASFLAGS += -DUSE___THREAD

@@ -192,6 +192,13 @@ CANCELABLE_SYSCALL (int, accept, (int fd, __SOCKADDR_ARG addr,
 				  socklen_t *addr_len),
 		    (fd, addr, addr_len))
 
+#if defined __UCLIBC_LINUX_SPECIFIC__
+/* accept4(2).  */
+CANCELABLE_SYSCALL (int, accept4, (int fd, __SOCKADDR_ARG addr,
+				  socklen_t *addr_len, int flags),
+		    (fd, addr, addr_len, flags))
+#endif
+
 /* connect(2).  */
 CANCELABLE_SYSCALL (int, connect, (int fd, __CONST_SOCKADDR_ARG addr,
 				     socklen_t len),

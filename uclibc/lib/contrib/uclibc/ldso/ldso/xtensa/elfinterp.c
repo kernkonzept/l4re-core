@@ -244,10 +244,11 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		if (!TRY_STATIC_TLS ((struct link_map *) tls_tpnt))
 			*reloc_addr = (ElfW(Addr))
 				_dl_make_tlsdesc_dynamic((struct link_map *) tls_tpnt,
-										 symbol_addr + *reloc_addr);
+							 symbol_addr + rpnt->r_addend);
 		else
 #endif
-			*reloc_addr += symbol_addr + tls_tpnt->l_tls_offset;
+			*reloc_addr = symbol_addr + rpnt->r_addend +
+				tls_tpnt->l_tls_offset;
 		break;
 #endif
 

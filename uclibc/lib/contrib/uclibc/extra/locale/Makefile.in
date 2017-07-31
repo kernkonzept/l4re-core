@@ -166,9 +166,9 @@ $(locale_OUT)/c8tables.h: $(locale_OUT)/gen_wc8bit $(locale_OUT)/codesets.txt
 # Warning! Beware tr_TR toupper/tolower exceptions!
 $(locale_OUT)/wctables.h: $(locale_OUT)/gen_wctype
 	@$(disp_gen)
-	$(Q)for locale in $(call qstrip,$(UCLIBC_BUILD_MINIMAL_LOCALES)) en_US en_GB; do \
-		$< $(FLAG-locale-verbose) $$locale > $@ || \
+	$(Q)for locale in $(call qstrip,$(UCLIBC_BUILD_MINIMAL_LOCALES)) C; do \
 		$< $(FLAG-locale-verbose) $$locale.UTF-8 > $@ || \
+		$< $(FLAG-locale-verbose) $$locale > $@ || \
 		$< $(FLAG-locale-verbose) $$locale.iso8859-1 > $@ && break; \
 	done
 

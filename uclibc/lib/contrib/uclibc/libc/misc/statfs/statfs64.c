@@ -25,14 +25,16 @@
 
 extern __typeof(statfs) __libc_statfs;
 
-#if defined __NR_statfs
+#if !defined __NR_statfs64
 /* Return information about the filesystem on which FILE resides.  */
 int statfs64 (const char *file, struct statfs64 *buf)
 {
     struct statfs buf32;
 
-    if (__libc_statfs (file, &buf32) < 0)
+    if (__libc_statfs (file, (struct statfs *)buf) < 0)
 	return -1;
+
+    buf32 = *(struct statfs *)buf;
 
     buf->f_type = buf32.f_type;
     buf->f_bsize = buf32.f_bsize;

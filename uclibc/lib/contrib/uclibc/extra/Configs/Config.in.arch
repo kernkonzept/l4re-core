@@ -180,13 +180,15 @@ config DO_XSI_MATH
 config UCLIBC_HAS_FENV
 	bool "Enable C99 Floating-point environment"
 	depends on UCLIBC_HAS_FLOATS
+	depends on TARGET_i386 || \
+		   TARGET_metag || \
+		   TARGET_nds32 || \
+		   TARGET_powerpc || \
+		   TARGET_x86_64
 	help
 	  If you want the uClibc math library to contain the C99 floating
 	  point environment, rounding and exception handling functions then
 	  say Y here.
-
-	  NOTE: Supported architectures currently include:
-	        i386
 
 config UCLIBC_HAS_LONG_DOUBLE_MATH
 	bool "Enable long double support"

@@ -40,7 +40,7 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 #  if __WORDSIZE == 64
 	ret = INTERNAL_SYSCALL(fadvise64_64, err, 4, fd, offset, len, advice);
 #  else
-#   if defined (__arm__) || defined (__nds32__) || \
+#   if defined (__arm__) || defined (__nds32__) || defined(__csky__) || \
       (defined(__UCLIBC_SYSCALL_ALIGN_64BIT__) && (defined(__powerpc__) || defined(__xtensa__)))
 	/* arch with 64-bit data in even reg alignment #1: [powerpc/xtensa]
 	 * custom syscall handler (rearranges @advice to avoid register hole punch) */

@@ -148,13 +148,6 @@ enum __ptrace_request
   PTRACE_LISTEN = 0x4208
 };
 
-
-/* Flag for PTRACE_LISTEN.  */
-enum __ptrace_flags
-{
-  PTRACE_SEIZE_DEVEL = 0x80000000
-};
-
 /* Options set using PTRACE_SETOPTIONS.  */
 enum __ptrace_setoptions
 {

@@ -13,11 +13,7 @@
 /*
  * Default sigretrun stub if user doesn't specify SA_RESTORER
  */
-static void attribute_optimize("Os") __attribute_noinline__
-__default_rt_sa_restorer(void)
-{
-	INTERNAL_SYSCALL_NCS(__NR_rt_sigreturn, , 0);
-}
+extern void __default_rt_sa_restorer(void);
 
 #define SA_RESTORER	0x04000000
 

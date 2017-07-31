@@ -184,10 +184,9 @@ static char *readsoname(char *name, FILE *infile, int expected_type,
 		res = readsoname32(name, infile, expected_type, type);
 	else {
 		res = readsoname64(name, infile, expected_type, type);
-#if 0
-		/* relies on multilib support which we dont have ... */
-		*type |= LIB_ELF64;
-#endif
+
+		// For 64-bit glibc compatibility
+		*type |= FLAG_X8664_LIB64;
 	}
 
 	return res;
@@ -758,7 +757,7 @@ void cache_print(void)
 
 	for (fd = 0; fd < header->nlibs; fd++) {
 		printf("\t%s ", strs + libent[fd].sooffset);
-		switch (libent[fd].flags & ~LIB_ELF64) {
+		switch (libent[fd].flags & ~LIB_ELF64 & FLAG_TYPE_MASK) {
 		case LIB_DLL:
 			printf("(libc4)");
 			break;
@@ -771,7 +770,7 @@ void cache_print(void)
 		case LIB_ELF_LIBC5:
 		case LIB_ELF_LIBC6:
 			printf("(libc%d%s)",
-			       (libent[fd].flags & ~LIB_ELF64) + 3,
+			       (libent[fd].flags & ~LIB_ELF64 & FLAG_TYPE_MASK) + 3,
 			       libent[fd].flags & LIB_ELF64 ? "/64" : "");
 			break;
 		default:

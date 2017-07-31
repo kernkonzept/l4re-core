@@ -17,8 +17,6 @@ librt_filter_SRC :=
 ifeq ($(UCLIBC_HAS_THREADS_NATIVE),y)
 librt_filter_SRC += mq_notify.c timer_create.c timer_delete.c \
 	timer_getoverr.c timer_gettime.c timer_settime.c
-else
-librt_filter_SRC += clock_nanosleep.c clock_getcpuclockid.c clock_gettime.c
 endif
 
 librt_filter_SRC += $(if $(UCLIBC_HAS_ADVANCED_REALTIME),, \

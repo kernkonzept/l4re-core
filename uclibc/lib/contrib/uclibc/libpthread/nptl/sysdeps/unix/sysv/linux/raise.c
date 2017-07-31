@@ -1,5 +1,4 @@
 /* Copyright (C) 2002-2016 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -20,7 +19,7 @@
 #include <limits.h>
 #include <signal.h>
 #include <sysdep.h>
-#include <nptl-signals.h>
+#include <internal-signals.h>
 
 int
 raise (int sig)

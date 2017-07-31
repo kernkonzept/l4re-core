@@ -68,9 +68,8 @@
 #define INTERNAL_SYSCALL(name, err, nr, args...) internal_syscall##nr(__NR_##name, err, args)
 
 /*
-   The _NCS variant allows non-constant syscall numbers but it is not
-   possible to use more than four parameters.
-*/
+   The _NCS variant allows non-constant syscall numbers
+ */
 #undef INTERNAL_SYSCALL_NCS
 #define INTERNAL_SYSCALL_NCS(name, err, nr, args...) internal_syscall_ncs##nr(name, err, args)
 
@@ -296,6 +295,58 @@
        , "r" (__no)           /* input operands  */              	\
        : __SYSCALL_CLOBBERS); /* list of clobbered registers  */ 	\
         __res;                                                   	\
+  })
+
+#define internal_syscall_ncs5(name, err, arg1, arg2, arg3, arg4, arg5) 	\
+  ({                                                             	\
+       register long ___res __asm__("$r0");                         	\
+       register long __no   __asm__("$r0") = (long) (name);         	\
+       register long __arg1 __asm__("$r1") = (long) (arg1);         	\
+       register long __arg2 __asm__("$r2") = (long) (arg2);         	\
+       register long __arg3 __asm__("$r3") = (long) (arg3);         	\
+       register long __arg4 __asm__("$r4") = (long) (arg4);         	\
+       register long __arg5 __asm__("$r5") = (long) (arg5);         	\
+       __asm__ volatile (                                        	\
+       __issue_syscall (LIB_SYSCALL)                                   	\
+       : "=r" (___res)         /* output operands  */             	\
+       : "r" (__arg1)         /* input operands  */              	\
+       , "r" (__arg2)         /* input operands  */              	\
+       , "r" (__arg3)         /* input operands  */              	\
+       , "r" (__arg4)         /* input operands  */              	\
+       , "r" (__arg5)         /* input operands  */              	\
+       : __SYSCALL_CLOBBERS); /* list of clobbered registers  */ 	\
+        ___res;                                                   	\
+  })
+
+#define internal_syscall_ncs6(name, err, arg1, arg2, arg3, arg4, arg5, arg6)	\
+  ({                                                                            \
+       register long __res  __asm__("$r0");                                     \
+       register long __no   __asm__("$r0") = (long) (name);                     \
+       register long __arg1 __asm__("$r1") = (long) (arg1);                     \
+       register long __arg2 __asm__("$r2") = (long) (arg2);                     \
+       register long __arg3 __asm__("$r3") = (long) (arg3);                     \
+       register long __arg4 __asm__("$r4") = (long) (arg4);                     \
+       register long __arg5 __asm__("$r5") = (long) (arg5);                     \
+       __asm__ volatile (                                                       \
+        "addi10.sp\t  #-4\n\t"                                                  \
+        CFI_ADJUST_CFA_OFFSET(4)"\n\t"                                          \
+        "push\t %7\n\t"                                                         \
+        CFI_ADJUST_CFA_OFFSET(4)"\n\t"                                          \
+       __issue_syscall (LIB_SYSCALL)                                            \
+        "pop\t %7\n\t"                                                          \
+        CFI_ADJUST_CFA_OFFSET(-4)"\n\t"                                         \
+        "addi10.sp\t  #4\n\t"                                                   \
+        CFI_ADJUST_CFA_OFFSET(-4)"\n\t"                                         \
+       : "=r" (__res)         /* output operands  */                            \
+       : "r" (__no)           /* input operands  */                             \
+       , "r" (__arg1)         /* input operands  */                             \
+       , "r" (__arg2)         /* input operands  */                             \
+       , "r" (__arg3)         /* input operands  */                             \
+       , "r" (__arg4)         /* input operands  */                             \
+       , "r" (__arg5)         /* input operands  */                             \
+       , "r" (arg6)         /* input operands  */                               \
+       : __SYSCALL_CLOBBERS); /* list of clobbered registers  */                \
+        __res;                                                                  \
   })
 
 #define __SYSCALL_CLOBBERS "$lp", "memory"

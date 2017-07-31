@@ -92,8 +92,8 @@ ENTRY (strcmp)
 	/* (2 mod 4) alignment for loop instruction */
 .Lunaligned:
 #if XCHAL_HAVE_LOOPS
-	_movi.n	a8, 0		/* set up for the maximum loop count */
-	loop	a8, .Lretdiff	/* loop forever (almost anyway) */
+	movi	a11, 0		/* set up for the maximum loop count */
+	loop	a11, .Lretdiff	/* loop forever (almost anyway) */
 #endif
 .Lnextbyte:
 	l8ui	a8, a2, 0
@@ -131,11 +131,10 @@ ENTRY (strcmp)
 #if XCHAL_HAVE_LOOPS
 .Laligned:
 	.begin	no-transform
+	movi	a11, 0
 	l32r	a4, .Lmask0	/* mask for byte 0 */
 	l32r	a7, .Lmask4
-	/* Loop forever.  (a4 is more than than the maximum number
-	   of iterations) */
-	loop	a4, .Laligned_done
+	loop	a11, .Laligned_done /* Loop forever. */
 
 	/* First unrolled loop body.  */
 	l32i	a8, a2, 0	/* get word from s1 */
@@ -156,8 +155,6 @@ ENTRY (strcmp)
 	addi	a2, a2, 8	/* advance s1 pointer */
 	addi	a3, a3, 8	/* advance s2 pointer */
 .Laligned_done:
-	or	a1, a1, a1	/* nop */
-
 .Lprobeq2:
 	/* Adjust pointers to account for the loop unrolling.  */
 	addi	a2, a2, 4
@@ -198,7 +195,7 @@ ENTRY (strcmp)
 #if XCHAL_HAVE_LOOPS
 
 	/* align (1 mod 4) */
-	loop	a4, .Leq	/* loop forever (a4 is bigger than max iters) */
+	loop	a11, .Leq	/* loop forever */
 	.end	no-transform
 
 	l32i	a8, a2, 0	/* get word from s1 */

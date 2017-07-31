@@ -7,12 +7,18 @@ ARC:
 Alexey Brodkin <Alexey.Brodkin@synopsys.com>
 Vineet Gupta <Vineet.Gupta1@synopsys.com>
 
+CSKY:
+Guo Ren <ren_guo@c-sky.com>
+
 MIPS:
 Matthew Fortune <Matthew.Fortune@imgtec.com>
 
 NDS32:
 Vincent Ren-Wei Chen <vincentc@andestech.com>
 Che-Wei Chuang <cnoize@andestech.com>
+
+OpenRisc:
+Stafford Horne <shorne@gmail.com>
 
 Xtensa:
 Max Filippov <jcmvbkbc@gmail.com>

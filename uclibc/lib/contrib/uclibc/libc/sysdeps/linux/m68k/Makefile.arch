@@ -7,4 +7,5 @@
 
 CSRC-y := brk.c __syscall_error.c
 
-SSRC-y := __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S vfork.S
+SSRC-y := __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S vfork.S \
+	  m68k_read_tp.S

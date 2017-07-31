@@ -7,4 +7,5 @@
 
 CSRC-y := syscall.c sigaction.c __syscall_error.c cacheflush.c
 
-SSRC-y := __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S vfork.S clone.S
+SSRC-y := __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S vfork.S clone.S \
+	sigrestorer.S

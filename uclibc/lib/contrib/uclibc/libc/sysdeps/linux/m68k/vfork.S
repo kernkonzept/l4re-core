@@ -10,8 +10,6 @@
 #define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
 #endif
 
-#define IMM #
-
 	.text
 	.align 2
 	.globl	__vfork
@@ -19,26 +17,22 @@
 	.type	__vfork,@function
 
 __vfork:
-	movl	%sp@+, %a1               /* save the return address for later */
-	movl	IMM __NR_vfork,%d0
+	/* Pop the return PC value into A0.  */
+	movel	%sp@+, %a0
+
+	/* Stuff the syscall number in D0 and trap into the kernel.  */
+	movel	#SYS_ify (vfork), %d0
 	trap	#0
-	movl	%a1, -(%sp)
 
-	cmpil	#-4096,%d0
-	blss	1f
+	tstl	%d0
+	jmi	.Lerror		/* Branch forward if it failed.  */
 
-	neg.l	%d0
-#ifndef __PIC__					/* needs handling as the other archs */
-	movl	errno, %a0
-#else
-	movl	errno@GOT(%a5), %a0
-#endif
-	movl	%d0, %a0@
-	move.l	#-1, %d0
+	/* Jump to the return PC.  */
+	jmp	%a0@
 
-1:
-	move.l	%d0, %a0
-	rts
+.Lerror:
+	/* Push back the return PC.  */
+	movel	%a0,%sp@-
 
 .size __vfork,.-__vfork
 weak_alias(__vfork,vfork)

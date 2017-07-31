@@ -97,6 +97,15 @@ typedef union { __SOCKADDR_ALLTYPES
 # undef __SOCKADDR_ONETYPE
 #endif
 
+#ifdef __USE_GNU
+/* For `recvmmsg' and `sendmmsg'.  */
+struct mmsghdr
+  {
+    struct msghdr msg_hdr;	/* Actual message header.  */
+    unsigned int msg_len;	/* Number of received or sent bytes for the
+				   entry.  */
+  };
+#endif
 
 /* Create a new socket of type TYPE in domain DOMAIN, using
    protocol PROTOCOL.  If PROTOCOL is zero, one is chosen automatically.
@@ -190,6 +199,17 @@ extern ssize_t sendmsg (int __fd, const struct msghdr *__message,
 			int __flags);
 libc_hidden_proto(sendmsg)
 
+#ifdef __USE_GNU
+/* Send a VLEN messages as described by VMESSAGES to socket FD.
+   Returns the number of datagrams successfully written or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t sendmmsg (int __fd, struct mmsghdr *__vmessages,
+			 size_t __vlen, int __flags);
+libc_hidden_proto(sendmmsg)
+#endif
+
 /* Receive a message as described by MESSAGE from socket FD.
    Returns the number of bytes read or -1 for errors.
 
@@ -198,6 +218,16 @@ libc_hidden_proto(sendmsg)
 extern ssize_t recvmsg (int __fd, struct msghdr *__message, int __flags);
 libc_hidden_proto(recvmsg)
 
+#ifdef __USE_GNU
+/* Receive up to VLEN messages as described by VMESSAGES from socket FD.
+   Returns the number of messages received or -1 for errors.
+
+   This function is a cancellation point and therefore not marked with
+   __THROW.  */
+extern ssize_t recvmmsg (int __fd, struct mmsghdr *__vmessages,
+			 size_t vlen, int __flags, struct timespec *__tmo);
+libc_hidden_proto(recvmmsg)
+#endif
 
 /* Put the current value for socket FD's option OPTNAME at protocol level LEVEL
    into OPTVAL (which is *OPTLEN bytes long), and set *OPTLEN to the value's
@@ -239,6 +269,7 @@ libc_hidden_proto(accept)
    __THROW.  */
 extern int accept4 (int __fd, __SOCKADDR_ARG __addr,
 		    socklen_t *__restrict __addr_len, int __flags);
+libc_hidden_proto(accept4)
 #endif
 
 /* Shut down all or part of the connection open on socket FD.

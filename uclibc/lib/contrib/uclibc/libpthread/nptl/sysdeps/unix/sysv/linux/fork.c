@@ -144,9 +144,7 @@ fork (void)
 
   if (pid == 0)
     {
-      struct pthread *self = THREAD_SELF;
-
-      assert (THREAD_GETMEM (self, tid) != ppid);
+      assert (THREAD_GETMEM (THREAD_SELF, tid) != ppid);
 
       if (__fork_generation_pointer != NULL)
 	*__fork_generation_pointer += 4;

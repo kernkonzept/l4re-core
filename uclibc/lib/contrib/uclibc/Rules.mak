@@ -453,6 +453,15 @@ ifeq ($(TARGET_ARCH),cris)
 	PIEFLAG_NAME:=-fpie
 endif
 
+ifeq ($(TARGET_ARCH),csky)
+	# In csky gas implement, we use $t and $d to detect .text or literal pool.
+	# So we couldn't strip them for objdump.
+	STRIP_FLAGS += -K "$$"t -K "$$"d
+
+	CPU_CFLAGS-$(ARCH_LITTLE_ENDIAN)	+= -mlittle-endian
+	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)		+= -mbig-endian
+endif
+
 ifeq ($(TARGET_ARCH),m68k)
 	# -fPIC is only supported for 68020 and above.  It is not supported
 	# for 68000, 68010, or Coldfire.
@@ -553,6 +562,8 @@ endif
 WARNING_FLAGS = -Wstrict-prototypes -Wstrict-aliasing
 ifeq ($(EXTRA_WARNINGS),y)
 WARNING_FLAGS += \
+	-Wno-nonnull-compare \
+	-Wnodeclaration-after-statement \
 	-Wformat=2 \
 	-Wmissing-noreturn \
 	-Wmissing-format-attribute \
@@ -562,7 +573,6 @@ WARNING_FLAGS += \
 	-Wnonnull \
 	-Wold-style-declaration \
 	-Wold-style-definition \
-	-Wdeclaration-after-statement \
 	-Wshadow \
 	-Wundef
 endif

@@ -23,6 +23,11 @@
 ssize_t
 preadv (int fd, const struct iovec *vector, int count, off_t offset)
 {
-  return INLINE_SYSCALL (preadv, 4, fd, vector, count, offset);
+  unsigned long pos_l, pos_h;
+
+  pos_h = (unsigned long)((long long)offset >> 32);
+  pos_l = (unsigned long)((long long)offset);	
+
+  return INLINE_SYSCALL (preadv, 5, fd, vector, count, pos_l, pos_h);
 }
 #endif

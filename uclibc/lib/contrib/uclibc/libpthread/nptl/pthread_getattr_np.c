@@ -66,7 +66,6 @@ pthread_getattr_np (
     {
       /* No stack information available.  This must be for the initial
 	 thread.  Get the info in some magical way.  */
-      assert (abs (thread->pid) == thread->tid);
 
       /* Stack size limit.  */
       struct rlimit rl;

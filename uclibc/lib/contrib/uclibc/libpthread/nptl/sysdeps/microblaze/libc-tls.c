@@ -19,7 +19,7 @@
 #include <sysdeps/generic/libc-tls.c>
 #include <dl-tls.h>
 
-/* On Microblaze, linker optimizations are not required, so __tls_get_addr
+/* On OpenRISC, linker optimizations are not required, so __tls_get_addr
    can be called even in statically linked binaries.  In this case module
    must be always 1 and PT_TLS segment exist in the binary, otherwise it
    would not link.  */

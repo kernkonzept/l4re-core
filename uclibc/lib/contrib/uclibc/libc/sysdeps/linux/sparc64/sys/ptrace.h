@@ -171,13 +171,6 @@ enum __ptrace_request
 #define PTRACE_PEEKSIGINFO PTRACE_PEEKSIGINFO
 };
 
-
-/* Flag for PTRACE_LISTEN.  */
-enum __ptrace_flags
-{
-  PTRACE_SEIZE_DEVEL = 0x80000000
-};
-
 /* Options set using PTRACE_SETOPTIONS.  */
 enum __ptrace_setoptions
 {

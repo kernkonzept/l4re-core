@@ -54,6 +54,11 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__csky__)
+#define MATCH_MACHINE(x) (x == EM_MCORE)
+#define ELFCLASSM	ELFCLASS32
+#endif
+
 #if defined(__frv__)
 #define MATCH_MACHINE(x) (x == EM_CYGNUS_FRV)
 #define ELFCLASSM	ELFCLASS32

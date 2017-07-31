@@ -1,5 +1,4 @@
 /* Copyright (C) 2002-2007, 2009 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
    Contributed by Ulrich Drepper <drepper@redhat.com>, 2002.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -31,7 +30,7 @@
 #include <atomic.h>
 #include <bits/kernel-features.h>
 #include <errno.h>
-#include <nptl-signals.h>
+#include <internal-signals.h>
 
 
 /* Atomic operations on TLS memory.  */
