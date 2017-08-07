@@ -38,26 +38,23 @@ init_memory(l4_kernel_info_t *info)
 
   iomem.add_free(Region(0, ~0UL));
 
-  Mem_desc *md  = Mem_desc::first(info);
-  Mem_desc *end = md + Mem_desc::count(info);
-
   Region mismatch = Region::invalid();
-  for (; md < end && !mismatch.valid(); ++md)
+  for (auto const &md: L4::Kip::Mem_desc::all(info))
     {
-      if (md->is_virtual())
+      if (md.is_virtual())
         continue;
 
-      Mem_desc::Mem_type type = md->type();
+      Mem_desc::Mem_type type = md.type();
       unsigned long start, end;
       if (type == Mem_desc::Conventional)
         {
-          start = l4_round_page(md->start());
-          end = l4_trunc_page(md->end() + 1) - 1;
+          start = l4_round_page(md.start());
+          end = l4_trunc_page(md.end() + 1) - 1;
         }
       else
         {
-          start = l4_trunc_page(md->start());
-          end = l4_round_page(md->end()) - 1;
+          start = l4_trunc_page(md.start());
+          end = l4_round_page(md.end()) - 1;
         }
 
       switch (type)
@@ -87,13 +84,13 @@ init_memory(l4_kernel_info_t *info)
 	default:
 	  break;
 	}
-    }
 
-  if (mismatch.valid())
-    {
-      L4::cout << PROG_NAME": Could not reserve memory\n"
-               << mismatch << "\n";
-      dump_all();
-      abort();
+      if (mismatch.valid())
+        {
+          L4::cout << PROG_NAME": Could not reserve memory\n"
+            << mismatch << "\n";
+          dump_all();
+          abort();
+        }
     }
 }
