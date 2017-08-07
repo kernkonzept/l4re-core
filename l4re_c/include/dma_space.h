@@ -89,8 +89,8 @@ l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
  * \ingroup api_l4re_c_dma
  */
 L4_CV long
-l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t task,
-                         unsigned long attrs) L4_NOTHROW;
+l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t dma_task,
+                         unsigned long attr) L4_NOTHROW;
 
 /**
  * \param dma  DMA space capability
