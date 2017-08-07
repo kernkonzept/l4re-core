@@ -27,6 +27,8 @@
 #ifndef L4_SYS_KIP_H__
 #define L4_SYS_KIP_H__
 
+#include <l4/cxx/static_vector>
+
 /* C++ version of memory descriptors */
 
 /**
@@ -118,6 +120,28 @@ namespace L4
       {
         unsigned long &mi = memory_info(kip);
         mi = (mi & ~((1UL << ((sizeof(unsigned long) / 2) * 8)) - 1)) | count;
+      }
+
+      /**
+       * Return enumerable list of memory descriptors
+       *
+       * \param kip  Pointer to the kernel info page.
+       */
+      static inline cxx::static_vector<Mem_desc const> all(void const *kip)
+      {
+        return cxx::static_vector<Mem_desc const>(Mem_desc::first(kip),
+                                                  Mem_desc::count(kip));
+      }
+
+      /**
+       * Return enumerable list of memory descriptors
+       *
+       * \param kip  Pointer to the kernel info page.
+       */
+      static inline cxx::static_vector<Mem_desc> all(void *kip)
+      {
+        return cxx::static_vector<Mem_desc>(Mem_desc::first(kip),
+                                            Mem_desc::count(kip));
       }
 
       /**
