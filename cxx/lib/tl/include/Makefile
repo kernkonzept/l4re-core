@@ -18,6 +18,7 @@ EXTRA_TARGET := \
   ref_ptr     \
   slab_alloc  \
   static_container \
+  static_vector \
   std_alloc   \
   std_ops     \
   type_traits \
