@@ -416,7 +416,7 @@ public:
 
   /**
    * Skip size elements of type T in the stream.
-   * \param size  Number of elements to skip.
+   * \param elems  Number of elements to skip.
    */
   template< typename T >
   void skip(unsigned long elems)
