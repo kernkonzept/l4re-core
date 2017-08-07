@@ -35,11 +35,16 @@ namespace L4 {
   class String
   {
   public:
-    String( char const *str = "" ) : _str(str) 
+    String(char const *str = "") : _str(str)
     {}
 
-    unsigned length() const 
-    { unsigned l; for( l=0; _str[l] ; l++); return l; }
+    unsigned length() const
+    {
+      unsigned l;
+      for (l = 0; _str[l]; l++)
+        ;
+      return l;
+    }
 
     char const *p_str() const { return _str; }
 
