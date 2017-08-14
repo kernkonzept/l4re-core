@@ -52,7 +52,7 @@ l4util_create_thread(l4_cap_idx_t id, l4_utcb_t *thread_utcb,
 
 EXTERN_C_END
 
-#ifndef L4UTIL_THREAD_START_FUNC
+#ifndef L4UTIL_THREAD_FUNC
 /**
  * Defines a wrapper function that sets up the registers according
  * to the calling conventions for the architecture.
@@ -62,14 +62,17 @@ EXTERN_C_END
  *
  * Example:
  *
- * L4UTIL_THREAD_START_FUNC(helper_thread)
+ * L4UTIL_THREAD_FUNC(helper_thread)
  * {
  *   for(;;);
  * }
  *
  * thread_cap->ex_regs((l4_umword_t)helper_thread, stack_addr);
  */
-#define L4UTIL_THREAD_START_FUNC(name) static void name(void)
+#define __L4UTIL_THREAD_FUNC(name) void L4_NORETURN name(void)
+#define L4UTIL_THREAD_FUNC(name) __L4UTIL_THREAD_FUNC(name)
+#define __L4UTIL_THREAD_STATIC_FUNC(name) static L4_NORETURN void name(void)
+#define L4UTIL_THREAD_STATIC_FUNC(name) __L4UTIL_THREAD_STATIC_FUNC(name)
 #endif
 
 #endif /* __L4_THREAD_H */

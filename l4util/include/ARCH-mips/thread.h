@@ -25,10 +25,29 @@
 " .cpsetup $31, $25, 10b \n"
 #endif
 
-#define L4UTIL_THREAD_START_FUNC(name) \
+
+#define __L4UTIL_THREAD_FUNC(name) \
+EXTERN_C_BEGIN \
+static void  __attribute__((used)) name##_worker_function(void); \
+asm ( \
+  ".type " #name ", function \n" \
+  ".global " #name " \n" \
+  #name ": \n .set push; .set noreorder;" \
+  L4UTIL_THREAD_START_SETUP_GP \
+  L4UTIL_THREAD_START_LOAD_FUNC_ADDR(#name "_worker_function") \
+  "  jal $t9 \n" \
+  "   nop    \n"\
+  ".set pop" \
+); \
+EXTERN_C_END \
+static L4_NORETURN void name##_worker_function(void)
+
+#define L4UTIL_THREAD_FUNC(name) __L4UTIL_THREAD_FUNC(name)
+
+#define __L4UTIL_THREAD_STATIC_FUNC(name) \
 EXTERN_C_BEGIN \
 void __attribute__((visibility("internal"))) name(void); \
-void __attribute__((visibility("internal"))) name##_worker_function(void); \
+static void __attribute__((used)) name ##_worker_function(void); \
 asm ( \
   ".type " #name ", function \n" \
   #name ": \n .set push; .set noreorder;" \
@@ -39,7 +58,9 @@ asm ( \
   ".set pop" \
 ); \
 EXTERN_C_END \
-void name##_worker_function(void)
+static L4_NORETURN void name##_worker_function(void)
+
+#define L4UTIL_THREAD_STATIC_FUNC(name) __L4UTIL_THREAD_STATIC_FUNC(name)
+
 
 #include_next <l4/util/thread.h>
-
