@@ -56,15 +56,15 @@ namespace L4
        */
       enum Mem_type
       {
-        Undefined    = 0x0,  //< Undefined memory
-        Conventional = 0x1,  //< Conventional memory
-        Reserved     = 0x2,  //< Reserved region, do not use this memory
-        Dedicated    = 0x3,  //< Dedicated
-        Shared       = 0x4,  //< Shared
+        Undefined    = 0x0,  ///< Undefined memory
+        Conventional = 0x1,  ///< Conventional memory
+        Reserved     = 0x2,  ///< Reserved region, do not use this memory
+        Dedicated    = 0x3,  ///< Dedicated
+        Shared       = 0x4,  ///< Shared
 
-        Info         = 0xd,  //< Info by boot loader
-        Bootloader   = 0xe,  //< Memory belongs to the boot loader
-        Arch         = 0xf   //< Architecture specific memory
+        Info         = 0xd,  ///< Info by boot loader
+        Bootloader   = 0xe,  ///< Memory belongs to the boot loader
+        Arch         = 0xf   ///< Architecture specific memory
       };
     private:
       unsigned long _l, _h;
