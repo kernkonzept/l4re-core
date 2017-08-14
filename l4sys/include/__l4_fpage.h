@@ -228,13 +228,31 @@ enum L4_fpage_control
   L4_FPAGE_CONTROL_MASK = ~0UL << L4_FPAGE_CONTROL_OFFSET_SHIFT,
 };
 
-/** Flex-page map control for capabilities (snd_base)
+/**
+ * Flex-page map control for capabilities (snd_base)
+ *
+ * These rights need to be added to the snd_base when mapping and
+ * control internal behavior. The exact meaning depends on the type
+ * of capability (currently used only with IPC gates).
+ *
  * \ingroup l4_fpage_api
  */
 enum L4_obj_fpage_ctl
 {
-  L4_FPAGE_C_NO_REF_CNT = 0x10,  ///< Don't increase the reference counter
-  L4_FPAGE_C_REF_CNT    = 0x00,
+  L4_FPAGE_C_REF_CNT    = 0x00,  ///< Mapping is reference-counted (default).
+  L4_FPAGE_C_NO_REF_CNT = 0x10,  ///< Don't increase the reference counter.
+
+  L4_FPAGE_C_OBJ_RIGHT1 = 0x20,  ///< Object-type specific right.
+  L4_FPAGE_C_OBJ_RIGHT2 = 0x40,  ///< Object-type specific right.
+  L4_FPAGE_C_OBJ_RIGHT3 = 0x80,  ///< Object-type specific right.
+  L4_FPAGE_C_OBJ_RIGHTS = 0xe0,  ///< All Object-type specific right bits.
+
+  /**
+   * The receiver may invoke IPC-gate-specific functions on the capability,
+   * e.g. bind a thread to the gate and modify the label. Needed if the
+   * receiver implements the server side of an IPC gate.
+   */
+  L4_FPAGE_C_IPCGATE_SVR = L4_FPAGE_C_OBJ_RIGHT1
 };
 
 

@@ -52,7 +52,8 @@ public:
    * \param snd_fpage  Send flexpage that describes an area in the address
    *                   space or object space of the source task.
    * \param snd_base   Send base that describes an offset in the receive window
-   *                   of the destination task.
+   *                   of the destination task. The lower bits contain additional
+   *                   map control flags.
    * \param utcb       UTCB pointer of the calling thread.
    *
    * \return Syscall return tag.

@@ -549,8 +549,7 @@ public:
     /**
      * Mask for rights bits stored internally.
      *
-     * #L4_FPAGE_RIGHTS_MASK | 0xf0 (extended cap rights: USR1, USR2, USR3,
-     * and #L4_FPAGE_C_NO_REF_CNT).
+     * #L4_FPAGE_RIGHTS_MASK | #L4_FPAGE_C_NO_REF_CNT | #L4_FPAGE_C_OBJ_RIGHTS).
      */
     Rights_mask = 0xff,
 
@@ -577,7 +576,13 @@ public:
   /// Make an invalid cap
   Cap() : _cap_n_rights(L4_INVALID_CAP) {}
 
-  /// Make c Cap from L4::Cap<T>, with the given rights
+  /**
+   *  Make a Cap from L4::Cap<T> with the given rights.
+   *
+   *  \param cap    Capability to be sent.
+   *  \param rights Rights to be sent. Consists of #L4_fpage_rights
+   *                and #L4_obj_fpage_ctl.
+   */
   Cap(L4::Cap<T> cap, unsigned char rights)
   : _cap_n_rights((cap.cap() & Cap_mask) | (rights & Rights_mask)) {}
 
@@ -635,6 +640,24 @@ Cap<T> make_cap_rw(L4::Cap<T> cap)
 template<typename T>
 Cap<T> make_cap_rws(L4::Cap<T> cap)
 { return Cap<T>(cap, L4_CAP_FPAGE_RWS); }
+
+/**
+ * Make an L4::IPC::Cap<T> for the given capability with full fpage
+ * and object-specific rights.
+ *
+ * \tparam T       (implicit) type of the referenced interface
+ * \param  cap     source capability (L4::Cap<T>)
+ *
+ * \see L4_cap_fpage_rights
+ * \see L4_obj_fpage_ctl
+ *
+ * \note Full rights (including object-specific rights) are required when mapping
+ *       an IPC gate where the receiver should become the server, i.e. where
+ *       the receiver wants to call L4::Ipc_gate::bind_thread().
+ */
+template<typename T>
+Cap<T> make_cap_full(L4::Cap<T> cap)
+{ return Cap<T>(cap, L4_CAP_FPAGE_RWSD | L4_FPAGE_C_OBJ_RIGHTS); }
 
 // caps are special the have an invalid representation
 template<typename T> struct L4_EXPORT Opt< Cap<T> >
