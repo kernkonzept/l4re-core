@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2015 Kernkonzept GmbH.
+ * Copyright (C) 2018 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *            Philipp Eppelt <philipp.eppelt@kernkonzept.com>
  *
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
@@ -35,6 +36,9 @@ static void *detaching_func(void *)
 }
 
 
+/**
+ * A pthread can be detached after it terminated.
+ */
 TEST(Pthread, DetachTerminated)
 {
   pthread_t t;
@@ -44,6 +48,10 @@ TEST(Pthread, DetachTerminated)
   ASSERT_EQ(0, pthread_detach(t));
 }
 
+/**
+ * A pthread can be joined after the thread exited presenting the correct
+ * exit value.
+ */
 TEST(Pthread, JoinAfterExit)
 {
   pthread_t t;
@@ -55,6 +63,10 @@ TEST(Pthread, JoinAfterExit)
   EXPECT_EQ(0x1234L, (long) ret);
 }
 
+/**
+ * Joining a pthread before it terminated, blocks the join until the pthread
+ * exited and presents the correct exit value.
+ */
 TEST(Pthread, JoinBeforeExit)
 {
   pthread_t t;
@@ -65,6 +77,9 @@ TEST(Pthread, JoinBeforeExit)
   EXPECT_EQ(0x9876L, (long) ret);
 }
 
+/**
+ * A pthread can detach itself.
+ */
 TEST(Pthread, ExitDetached)
 {
   pthread_t t;
@@ -79,6 +94,9 @@ enum { STACK_ALIGN = 32 };
 
 static char thread_stack[20000 + STACK_ALIGN];
 
+/**
+ * Pthread attributes support setting a non-default stack.
+ */
 TEST(Pthread, LocalStack)
 {
   l4_addr_t stack_base = (l4_addr_t)(thread_stack + STACK_ALIGN)

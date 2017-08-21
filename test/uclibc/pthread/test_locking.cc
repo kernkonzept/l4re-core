@@ -1,13 +1,14 @@
 /*
- * Copyright (C) 2015 Kernkonzept GmbH.
+ * Copyright (C) 2018 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *            Philipp Eppelt <philipp.eppelt@kernkonzept.com>
  *
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
 
 /*
- * Test mutexes and semaphores.
+ * Test mutexes.
  */
 
 #include <l4/re/env.h>
@@ -40,7 +41,10 @@ static void *mtx_thread(void *arg)
   return (void*)1;
 }
 
-
+/**
+ * A pthread mutex is owned by exactly one of two concurrent threads at the
+ * same point in time.
+ */
 TEST(Pthread, Mutex)
 {
   pthread_t t1, t2;
@@ -155,7 +159,9 @@ TEST_P(MutexCross, DISABLED_Communication)
 
 static INSTANTIATE_TEST_CASE_P(CpuVariants, MutexCross, ::testing::Bool());
 
-
+/**
+ * A pthread mutex supports initialization, lock, unlock, and destruction.
+ */
 TEST(Pthread, MutexSimple)
 {
   pthread_mutex_t m;
@@ -167,7 +173,10 @@ TEST(Pthread, MutexSimple)
   ASSERT_EQ(0, pthread_mutex_destroy(&m));
 }
 
-
+/**
+ * A statically initialized pthread mutex supports lock, unlock, and
+ * destruction.
+ */
 TEST(Pthread, MutexSimpleStatic)
 {
   pthread_mutex_t m = PTHREAD_MUTEX_INITIALIZER;
@@ -177,6 +186,9 @@ TEST(Pthread, MutexSimpleStatic)
   ASSERT_EQ(0, pthread_mutex_destroy(&m));
 }
 
+/**
+ * A recursive pthread mutex counts the number of lock and unlock operations.
+ */
 TEST(Pthread, MutexRecursive)
 {
   pthread_mutex_t m;
@@ -196,6 +208,10 @@ TEST(Pthread, MutexRecursive)
   ASSERT_EQ(0, pthread_mutexattr_destroy(&a));
 }
 
+/**
+ * An error-checking mutex returns an error when it is already locked by the
+ * thread calling the lock operation again. The same behavior applies to unlock.
+ */
 TEST(Pthread, MutexErrorcheck)
 {
   pthread_mutex_t m;
@@ -256,8 +272,10 @@ static void *condvar_thread_timed(void *)
   return NULL;
 }
 
-
-
+/**
+ * Conditional variables block thread execution until the condition signal is
+ * received.
+ */
 TEST(Pthread, CondvarSig)
 {
   pthread_t t1, t2;
@@ -281,7 +299,10 @@ TEST(Pthread, CondvarSig)
   ASSERT_EQ(0, pthread_cond_destroy(&_cv));
 }
 
-
+/**
+ * A broadcast signal of a condition reaches all threads blocking on the
+ * conditional variable.
+ */
 TEST(Pthread, CondvarBroad)
 {
   pthread_t t1, t2;
@@ -306,6 +327,12 @@ TEST(Pthread, CondvarBroad)
   ASSERT_EQ(0, pthread_cond_destroy(&_cv));
 }
 
+/**
+ * A timed wait on a conditional variable is a wait for a specified maximum
+ * time. If this time passes and the timed-wait receives the timeout error, no
+ * change in the conditional variable happens.  Another thread waiting for the
+ * conditional to change remains blocked.
+ */
 TEST(Pthread, CondvarTimed)
 {
   pthread_t t1, t2;
