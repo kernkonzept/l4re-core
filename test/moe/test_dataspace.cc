@@ -8,6 +8,11 @@
 
 /*
  * Test dataspace implementation of moe.
+ *
+ * \note When test descriptions refer to 'unallocated dataspaces' they mean
+ *       dataspaces that have neither been explicitly allocated yet
+ *       (via allocate()) nor have they been mapped and therefore are not
+ *       backed with physical memory yet.
  */
 
 #include <climits>
@@ -27,7 +32,9 @@ static Atkins::Dbg dbg{2};
 
 struct TestGeneralDs : testing::Test {};
 
-// Test for a given type of dataspace
+/**
+ *  Test for a given type of dataspace.
+ */
 struct TestDataspace : testing::Test
 {
   TestDataspace(unsigned long flags, unsigned long size)
@@ -60,8 +67,13 @@ private:
   unsigned long _size;
 };
 
-// Need to test different dataspace sizes, as they have different
-// implementations in moe (see moe/server/src/dataspace_noncont.cc).
+/**
+ * Different dataspace sizes to test.
+ *
+ * These are needed because they have different implementations in moe.
+ *
+ * \see moe/server/src/dataspace_noncont.cc
+ */
 const unsigned long DS_TESTSIZES[] = {
   L4_PAGESIZE >> 2,                                     // partial
   L4_PAGESIZE,                                          // Mem_one_page
@@ -69,7 +81,9 @@ const unsigned long DS_TESTSIZES[] = {
   L4_PAGESIZE * (L4_PAGESIZE/sizeof(unsigned long) + 1) // Mem_big
 };
 
-// Tests against normal dataspaces only
+/**
+ * Tests against normal dataspaces only.
+ */
 struct TestRegDs : TestDataspace, testing::WithParamInterface<unsigned long>
 {
   TestRegDs() : TestDataspace(0, GetParam()) {}
@@ -78,13 +92,17 @@ struct TestRegDs : TestDataspace, testing::WithParamInterface<unsigned long>
 static INSTANTIATE_TEST_CASE_P(RegDs, TestRegDs,
                                testing::ValuesIn(DS_TESTSIZES));
 
-// Tests against continuous dataspaces only
+/**
+ * Tests against continuous dataspaces only.
+ */
 struct TestContDs : TestDataspace
 {
   TestContDs() : TestDataspace(L4Re::Mem_alloc::Continuous, 0) {}
 };
 
-// Tests against both types
+/**
+ * Tests against both types of dataspaces.
+ */
 struct TestAnyDs
 : TestDataspace,
   testing::WithParamInterface<tuple<unsigned long, unsigned long> >
@@ -101,7 +119,11 @@ static INSTANTIATE_TEST_CASE_P(
                    testing::ValuesIn(DS_TESTSIZES))
 );
 
-// for copy, need to test against any combination of source and dest
+/**
+ * Tests for coping between dataspaces.
+ *
+ * This needs to test against any combination of source and destination.
+ */
 struct TestCrossDs
 : TestDataspace,
   testing::WithParamInterface<tuple<unsigned long, unsigned long, unsigned long, unsigned long> >
@@ -131,22 +153,37 @@ static INSTANTIATE_TEST_CASE_P(
                    testing::ValuesIn(DS_TESTSIZES))
 );
 
-/***********************************************************************
+/* **********************************************************************
  * TESTS
  */
 
+/**
+ * A dataspace can be allocated all at once.
+ *
+ * \see L4Re::Dataspace.allocate
+ */
 TEST_P(TestAnyDs, AllocateFull)
 {
   auto ds = create_ds();
   EXPECT_EQ(0, ds->allocate(0, defsize()));
 }
 
+/**
+ * Allocating 0 bytes of memory will be ignored.
+ *
+ * \see L4Re::Dataspace.allocate
+ */
 TEST_P(TestAnyDs, AllocateZeroSize)
 {
   auto ds = create_ds();
   EXPECT_EQ(0, ds->allocate(0, 0));
 }
 
+/**
+ * A dataspace can be partially allocated.
+ *
+ * \see L4Re::Dataspace.allocate
+ */
 TEST_P(TestAnyDs, AllocatePartial)
 {
   auto ds = create_ds();
@@ -156,6 +193,11 @@ TEST_P(TestAnyDs, AllocatePartial)
     EXPECT_EQ(0, ds->allocate(2 * L4_PAGESIZE - 1, 2));
 }
 
+/**
+ * Allocating memory outside the dataspace fails.
+ *
+ * \see L4Re::Dataspace.allocate
+ */
 TEST_P(TestRegDs, AllocateOutsideDs)
 {
   auto ds = create_ds();
@@ -163,6 +205,11 @@ TEST_P(TestRegDs, AllocateOutsideDs)
   EXPECT_EQ(-L4_ERANGE, ds->allocate(defsize() + L4_PAGESIZE, 2));
 }
 
+/**
+ * Calling allocate with illegal values fails.
+ *
+ * \see L4Re::Dataspace.allocate
+ */
 TEST_P(TestRegDs, AllocateIllegal)
 {
   auto ds = create_ds();
@@ -171,6 +218,11 @@ TEST_P(TestRegDs, AllocateIllegal)
   EXPECT_EQ(-L4_ERANGE, ds->allocate(LONG_MAX - 1, LONG_MAX - 1));
 }
 
+/**
+ * A single byte in a dataspace can be cleared.
+ *
+ * \see L4Re::Dataspace.clear
+ */
 TEST_P(TestAnyDs, ClearByte)
 {
   auto ds = create_ds();
@@ -184,18 +236,33 @@ TEST_P(TestAnyDs, ClearByte)
   EXPECT_EQ('\0', r.get()[100]);
 }
 
+/**
+ * Dataspace memory cannot be cleared when it has not been allocated yet.
+ *
+ * \see L4Re::Dataspace.allocate, L4Re::Dataspace.clear
+ */
 TEST_P(TestAnyDs, ClearUnallocated)
 {
   auto ds = create_ds();
   EXPECT_LE(0, ds->clear(0, 100));
 }
 
+/**
+ * Clearing 0 bytes of memory fails.
+ *
+ * \see L4Re::Dataspace.clear
+ */
 TEST_P(TestAnyDs, ClearEmpty)
 {
   auto ds = create_ds();
   EXPECT_LE(0, ds->clear(10, 0));
 }
 
+/**
+ * Clearing the complete dataspace sets the memory to 0.
+ *
+ * \see L4Re::Dataspace.clear
+ */
 TEST_P(TestAnyDs, ClearFull)
 {
   auto ds = create_ds();
@@ -218,6 +285,11 @@ TEST_P(TestAnyDs, ClearFull)
     }
 }
 
+/**
+ * Clearing memory outside the dataspace fails.
+ *
+ * \see L4Re::Dataspace.clear
+ */
 TEST_P(TestAnyDs, ClearOutsideRange)
 {
   auto ds = create_ds();
@@ -225,6 +297,11 @@ TEST_P(TestAnyDs, ClearOutsideRange)
   EXPECT_EQ(-L4_ERANGE, ds->clear(~0UL, 1));
 }
 
+/**
+ * Clearing memory partially outside the dataspace fails.
+ *
+ * \see L4Re::Dataspace.clear
+ */
 TEST_P(TestAnyDs, ClearOversized)
 {
   auto ds = create_ds();
@@ -233,6 +310,11 @@ TEST_P(TestAnyDs, ClearOversized)
   EXPECT_LE(0, ds->clear(0, ~0UL));
 }
 
+/**
+ * Clearing memory in the dataspace requires write rights.
+ *
+ * \see L4Re::Dataspace.clear
+ */
 TEST_P(TestAnyDs, ClearBadRights)
 {
   auto ds = create_ds();
@@ -241,7 +323,11 @@ TEST_P(TestAnyDs, ClearBadRights)
   EXPECT_EQ(-L4_EACCESS, ro_ds->clear(0,1));
 }
 
-
+/**
+ * Content can be copied from a dataspace with allocated memory.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestCrossDs, CopyInBytesFromNormal)
 {
   const char* cmpstr = "Bindlestitch\n";
@@ -268,6 +354,11 @@ TEST_P(TestCrossDs, CopyInBytesFromNormal)
   EXPECT_EQ('!', destptr.get()[20 + strlen(cmpstr) + 1]);
 }
 
+/**
+ * Content can be partially copied from an unallocated dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestCrossDs, CopyInBytesFromUnallocated)
 {
   auto src = create_src_ds();
@@ -281,6 +372,11 @@ TEST_P(TestCrossDs, CopyInBytesFromUnallocated)
   EXPECT_EQ(0, dest->copy_in(0, src.get(), 0, 20));
 }
 
+/**
+ * Content can be fully copied from an unallocated dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestAnyDs, CopyInBytesFromUnallocatedFull)
 {
   auto src = create_ds();
@@ -294,6 +390,11 @@ TEST_P(TestAnyDs, CopyInBytesFromUnallocatedFull)
   EXPECT_EQ(0, dest->copy_in(0, src.get(), 0, defsize()));
 }
 
+/**
+ * Content can be partially copied to an unallocated dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestCrossDs, CopyInBytesToUnallocated)
 {
   const char* teststr = "foobartuffy";
@@ -313,6 +414,11 @@ TEST_P(TestCrossDs, CopyInBytesToUnallocated)
   EXPECT_EQ(0, strncmp(destptr.get() + 2, teststr, strlen(teststr) + 1));
 }
 
+/**
+ * Content can be fully copied to an unallocated dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestAnyDs, CopyInBytesToUnallocatedFull)
 {
   const char* teststr = "laif9reido0geij8yu2thaePhahloo1DahTogei8wopa8ahthe";
@@ -332,6 +438,12 @@ TEST_P(TestAnyDs, CopyInBytesToUnallocatedFull)
   EXPECT_EQ(0, strncmp(destptr.get() + 100, teststr, strlen(teststr) + 1));
 }
 
+/**
+ * Copying content from one allocated dataspace to another works over
+ * hardware page boundaries in the source dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestCrossDs, CopyInBytesFromMultiplePages)
 {
   if (defsize_src() < 2 * L4_PAGESIZE)
@@ -360,6 +472,12 @@ TEST_P(TestCrossDs, CopyInBytesFromMultiplePages)
   EXPECT_EQ('!', destptr.get()[3 + strlen(cmpstr)]);
 }
 
+/**
+ * Copying content from one allocated dataspace to another works over
+ * hardware page boundaries in the destination dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestCrossDs, CopyInBytesToMultiplePages)
 {
   if (defsize() < 2 * L4_PAGESIZE)
@@ -389,6 +507,12 @@ TEST_P(TestCrossDs, CopyInBytesToMultiplePages)
   EXPECT_EQ('!', destptr.get()[L4_PAGESIZE + strlen(cmpstr) - 1]);
 }
 
+/**
+ * Content can be fully copied from one unallocated dataspace to another
+ * unallocated dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestAnyDs, CopyInFully)
 {
   auto src = create_ds();
@@ -397,6 +521,11 @@ TEST_P(TestAnyDs, CopyInFully)
   ASSERT_EQ(0, dest->copy_in(0, src.get(), 0, defsize()));
 }
 
+/**
+ * Content can be copied into the same dataspace.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestAnyDs, CopySelf)
 {
   auto dest = create_ds();
@@ -404,7 +533,11 @@ TEST_P(TestAnyDs, CopySelf)
   ASSERT_EQ(0, dest->copy_in(0, dest.get(), 0, defsize()));
 }
 
-
+/**
+ * Content of 0 byte size can be copied.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestAnyDs, CopyInEmpty)
 {
   auto src = create_ds();
@@ -413,6 +546,11 @@ TEST_P(TestAnyDs, CopyInEmpty)
   ASSERT_EQ(0, dest->copy_in(defsize() - 1, src.get(), defsize() - 1, 0));
 }
 
+/**
+ * Copying from sources that are not moe dataspaces fails.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestAnyDs, CopyInInvalidSrcCap)
 {
   auto src = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
@@ -424,13 +562,21 @@ TEST_P(TestAnyDs, CopyInInvalidSrcCap)
                                       0, 100));
 }
 
+/**
+ * Copying content from outside the dataspace does not crash the
+ * system.
+ *
+ * The behaviour of copy_in for areas outside the dataspaces is undefined
+ * and Moe chooses not return any useful information here. So just make sure
+ * these calls all pass without crashing Moe.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestAnyDs, CopyInDestOutOfBounds)
 {
   auto src = create_ds();
   auto dest = create_ds();
 
-  // Moe does not return any useful information here.
-  // Just run this and hope all is well if it doesn't crash.
   EXPECT_EQ(0, dest->copy_in(defsize() + 1, src.get(), 0, 2));
   EXPECT_EQ(0, dest->copy_in(~0UL - 1, src.get(), 0, 1));
   EXPECT_EQ(0, dest->copy_in(defsize() - 2, src.get(), 0, 4));
@@ -441,6 +587,11 @@ TEST_P(TestAnyDs, CopyInDestOutOfBounds)
   EXPECT_EQ(0, dest->copy_in(0, src.get(), ~0UL - 1, 1));
 }
 
+/**
+ * Copying into a read-only dataspace fails.
+ *
+ * \see L4Re::Dataspace.copy_in
+ */
 TEST_P(TestCrossDs, CopyInBadRights)
 {
   auto src = create_src_ds();
@@ -450,6 +601,12 @@ TEST_P(TestCrossDs, CopyInBadRights)
   EXPECT_EQ(-L4_EACCESS, ro_dest->copy_in(0, src.get(), 0, defsize()));
 }
 
+/**
+ * Normal dataspaces report to be copy-on-write, while all other
+ * types of moe dataspaces are not copy-on-write capable.
+ *
+ * \see L4Re::Dataspace.flags
+ */
 TEST_P(TestAnyDs, Flags)
 {
   auto ds = create_ds();
@@ -463,6 +620,12 @@ TEST_P(TestAnyDs, Flags)
   EXPECT_EQ(addflags, ro_ds->flags());
 }
 
+/**
+ * A freshly created dataspace can be partially mapped read-only and
+ * contains 0 content.
+ *
+ * \see L4Re->Dataspace.map
+ */
 TEST_P(TestAnyDs, AllocatedIsEmptyRo)
 {
   auto ds = create_ds();
@@ -477,6 +640,12 @@ TEST_P(TestAnyDs, AllocatedIsEmptyRo)
     EXPECT_EQ(0, reg.data<char>()[i]);
 }
 
+/**
+ * A freshly created dataspace can be partially mapped read-write and
+ * contains 0 content.
+ *
+ * \see L4Re->Dataspace.map
+ */
 TEST_P(TestAnyDs, AllocatedIsEmptyRw)
 {
   auto ds = create_ds();
@@ -490,7 +659,11 @@ TEST_P(TestAnyDs, AllocatedIsEmptyRw)
     EXPECT_EQ(0, reg.data<char>()[i]);
 }
 
-
+/**
+ * The freshly created dataspace can be mapped read-write and be written to.
+ *
+ * \see L4Re->Dataspace.map
+ */
 TEST_P(TestAnyDs, MapFull)
 {
   auto ds = create_ds();
@@ -506,6 +679,12 @@ TEST_P(TestAnyDs, MapFull)
     }
 }
 
+/**
+ * Every single page of a dataspace can be mapped read-write
+ * and be written to.
+ *
+ * \see L4Re->Dataspace.map
+ */
 TEST_P(TestAnyDs, MapMinimal)
 {
   auto ds = make_unique_cap<L4Re::Dataspace>();
@@ -522,6 +701,11 @@ TEST_P(TestAnyDs, MapMinimal)
     }
 }
 
+/**
+ * Bad parameters for mapping are ignored.
+ *
+ * \see L4Re->Dataspace.map
+ */
 TEST_F(TestGeneralDs, MapBadRegion)
 {
   auto ds = create_ds();
@@ -537,6 +721,11 @@ TEST_F(TestGeneralDs, MapBadRegion)
   EXPECT_TRUE(reg.check_fence());
 }
 
+/**
+ * Mapping from outside the dataspace fails.
+ *
+ * \see L4Re->Dataspace.map
+ */
 TEST_F(TestGeneralDs, MapBadOffset)
 {
   auto ds = create_ds(0, L4_PAGESIZE);
@@ -547,6 +736,12 @@ TEST_F(TestGeneralDs, MapBadOffset)
   EXPECT_TRUE(reg.check_fence());
 }
 
+/**
+ * Dataspaces cannot be mapped with write rights when the dataspace
+ * capability is read-only.
+ *
+ * \see L4Re->Dataspace.map
+ */
 TEST_P(TestAnyDs, MapInsufficientRights)
 {
   auto ds = create_ds();
@@ -558,6 +753,11 @@ TEST_P(TestAnyDs, MapInsufficientRights)
   EXPECT_TRUE(reg.check_fence());
 }
 
+/**
+ * A dataspace can be mapped fully with map_region().
+ *
+ * \see L4Re->Dataspace.map_region
+ */
 TEST_P(TestAnyDs, MapRegionFull)
 {
   auto ds = create_ds();
@@ -570,6 +770,11 @@ TEST_P(TestAnyDs, MapRegionFull)
     reg.data<char>()[off] = 'x';
 }
 
+/**
+ * Bad parameters to map_region() are ignored.
+ *
+ * \see L4Re->Dataspace.map_region
+ */
 TEST_F(TestGeneralDs, MapRegionBadRegion)
 {
   auto ds = create_ds();
@@ -583,6 +788,12 @@ TEST_F(TestGeneralDs, MapRegionBadRegion)
   EXPECT_TRUE(reg.check_fence());
 }
 
+/**
+ * Dataspaces cannot be mapped with map_region() with write rights when the
+ * dataspace capability is read-only.
+ *
+ * \see L4Re->Dataspace.map_region
+ */
 TEST_P(TestAnyDs, MapRegionInsufficientRights)
 {
   auto ds = create_ds();
@@ -594,7 +805,12 @@ TEST_P(TestAnyDs, MapRegionInsufficientRights)
   EXPECT_TRUE(reg.check_fence());
 }
 
-
+/**
+ * The address of the underlying physical address is not available
+ * for regular dataspaces.
+ *
+ * \see L4Re->Dataspace.phys
+ */
 TEST_P(TestRegDs, Phys)
 {
   auto ds = create_ds();
@@ -603,6 +819,12 @@ TEST_P(TestRegDs, Phys)
   EXPECT_EQ(-L4_EINVAL, ds->phys(0, pa, sz));
 }
 
+/**
+ * Continuous dataspaces have a physical address available and the
+ * underlying physical memory covers the entire dataspace.
+ *
+ * \see L4Re->Dataspace.phys
+ */
 TEST_F(TestContDs, Phys)
 {
   auto ds = create_ds(1024);
@@ -612,6 +834,12 @@ TEST_F(TestContDs, Phys)
   EXPECT_LE(sz, 1024UL);
 }
 
+/**
+ * When requesting the physical address of an arbitrary offset in
+ * the dataspace, the returned physical address has the same page offset.
+ *
+ * \see L4Re::Dataspace.phys
+ */
 TEST_F(TestContDs, PhysUnaligned)
 {
   auto ds = create_ds(1024);
@@ -623,13 +851,25 @@ TEST_F(TestContDs, PhysUnaligned)
   EXPECT_EQ(1024U, (pa + sz) % L4_PAGESIZE);
 }
 
+/**
+ * The dataspace reports the same size as was requested when creating
+ * the dataspace.
+ *
+ * \see L4Re::Dataspace.size
+ */
 TEST_P(TestAnyDs, Size)
 {
   auto ds = create_ds();
   EXPECT_EQ(defsize(), ds->size());
 }
 
-TEST_F(TestGeneralDs, Size)
+/**
+ * When creating a dataspace with a size not rounded to a page size
+ * the unaligned size is reported.
+ *
+ * \see L4Re::Dataspace.size
+ */
+TEST_F(TestGeneralDs, UnalignedSize)
 {
   auto ds = create_ds(0, 1);
   EXPECT_EQ(1UL, ds->size());
@@ -637,6 +877,12 @@ TEST_F(TestGeneralDs, Size)
   EXPECT_EQ((unsigned long) INT_MAX - 1, ds->size());
 }
 
+/**
+ * Dataspace memory can only be created up to the quota given
+ * in the dataspace's factory.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_P(TestRegDs, ExhaustQuotaMoeStructures)
 {
   auto cap = create_ma(3 * L4_PAGESIZE);

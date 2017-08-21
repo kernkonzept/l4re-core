@@ -8,6 +8,7 @@
 
 /*
  * Tests for the factory type.
+ *
  * Only covers tests related to using a custom factory type. Full tests
  * for object creation are in the test suite for the respective object type.
  */
@@ -33,7 +34,11 @@
 
 struct TestFactory : testing::Test {};
 
-
+/**
+ * Requesting a namespace yields a namespace object.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, CreateCheckNameSpace)
 {
   auto f = create_fab();
@@ -43,6 +48,11 @@ TEST_F(TestFactory, CreateCheckNameSpace)
   EXPECT_EQ(-L4_ENOENT, ns->unlink("foobar"));
 }
 
+/**
+ * Requesting a region manager yields a region manager object.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, CreateCheckRegionManager)
 {
   auto f = create_fab();
@@ -52,6 +62,11 @@ TEST_F(TestFactory, CreateCheckRegionManager)
   EXPECT_EQ(-L4_ENOENT, rm->free_area(0x123995));
 }
 
+/**
+ * Requesting a factory yields a factory object.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, CreateCheckFactory)
 {
   auto f = create_fab();
@@ -62,6 +77,11 @@ TEST_F(TestFactory, CreateCheckFactory)
   EXPECT_EQ(-L4_ENODEV, l4_error(fab->create(noob.get())));
 }
 
+/**
+ * Requesting a log yields a log object.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, CreateCheckLog)
 {
   auto f = create_fab();
@@ -74,7 +94,11 @@ TEST_F(TestFactory, CreateCheckLog)
   EXPECT_EQ(9, l->write(buf, 9));
 }
 
-// Moe does not support schedulers on user-created factories
+/**
+ * Requesting a scheduler is not supported on user-created factories.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, DISABLED_CreateCheckScheduler)
 {
   auto f = create_fab();
@@ -84,6 +108,11 @@ TEST_F(TestFactory, DISABLED_CreateCheckScheduler)
   EXPECT_FALSE(s->is_online(123456));
 }
 
+/**
+ * Requesting a dataspace yields a dataspace object.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, CreateCheckDataspace)
 {
   auto f = create_fab();
@@ -96,6 +125,11 @@ TEST_F(TestFactory, CreateCheckDataspace)
   EXPECT_EQ(L4_PAGESIZE, unsigned(ds->size()));
 }
 
+/**
+ * Requesting a DMA space yields a DMA space object.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, CreateCheckDmaspace)
 {
   auto f = create_fab();
@@ -105,6 +139,11 @@ TEST_F(TestFactory, CreateCheckDmaspace)
   EXPECT_EQ(0, ds->associate(env->task(), L4Re::Dma_space::Phys_space));
 }
 
+/**
+ * Requesting any kernel object type fails.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, NotASystemFactory)
 {
   auto f = create_fab();
@@ -125,6 +164,11 @@ TEST_F(TestFactory, NotASystemFactory)
             l4_error(f->create(L4::cap_cast<L4::Vm>(dummy.get()))));
 }
 
+/**
+ * A factory may not be created without any resource quota.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, ZeroLimits)
 {
   auto fab = make_unique_cap<L4::Factory>();
@@ -132,7 +176,12 @@ TEST_F(TestFactory, ZeroLimits)
             l4_error(env->user_factory()->create_factory(fab.get(), 0)));
 }
 
-//deleting a fab also deletes everything that was created by the fab
+/**
+ * Deleting a factory also deletes everything that was created by the
+ * factory.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, DeleteRecursively)
 {
   auto ns = make_unique_del_cap<L4Re::Namespace>();
@@ -148,6 +197,12 @@ TEST_F(TestFactory, DeleteRecursively)
   EXPECT_TRUE(ret < -L4_EIPC_LO || ret == -L4_EBADPROTO);
 }
 
+/**
+ * A factory cannot be created with an equal or bigger quota than the factory has
+ * that is creating it or with a quota of 0.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, InheritLimits)
 {
   auto f = create_fab(10 * L4_PAGESIZE);
@@ -161,6 +216,16 @@ TEST_F(TestFactory, InheritLimits)
                                  << l4_umword_t(0)));
 }
 
+/**
+ * A factory returns its quota to the creator after being deleted.
+ *
+ * Create a factory from a quota-restrained factory and then confirm
+ * that a second factory cannot be created due to being out of memory.
+ * Delete the first factory and confirm that the second factory now
+ * can be created.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, ReturnQuotaAfterDelete)
 {
   auto f = create_fab(10 * L4_PAGESIZE);
@@ -179,6 +244,11 @@ TEST_F(TestFactory, ReturnQuotaAfterDelete)
                                   << l4_umword_t(5 * L4_PAGESIZE)));
 }
 
+/**
+ * Multiple factories can be used in parallel.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, UseInterleaved)
 {
   auto f1 = create_fab(10 * L4_PAGESIZE);
@@ -194,6 +264,15 @@ TEST_F(TestFactory, UseInterleaved)
   auto rm2 = create_rm(f2.get());
 }
 
+/**
+ * When a factory is deleted, its allocated memory is freed.
+ *
+ * The test allocates factories until moe reports to be out of memory
+ * and then deletes exactly one factory. If the memory was freed correctly
+ * it should be possible to allocate a new factory.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, ExhaustQuotaCreate)
 {
   auto base = create_fab(2 * L4_PAGESIZE);
@@ -222,6 +301,16 @@ TEST_F(TestFactory, ExhaustQuotaCreate)
   ASSERT_EQ(L4_EOK, l4_error(base->create_factory(fab.get(), L4_PAGESIZE)));
 }
 
+/**
+ * When a recursively allocated factory is deleted, its allocated memory is
+ * freed.
+ *
+ * The test allocates factories recursively until moe reports to be out of memory
+ * and then deletes exactly one factory. If the memory was freed correctly
+ * it should be possible to allocate a new factory.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestFactory, ExhaustQuotaCreateRecursive)
 {
 

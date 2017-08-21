@@ -9,7 +9,6 @@
 
 /*
  * Test dma_space implementation of moe.
- * Only preliminary tests because Moe has only a stub implementation.
  */
 
 #include <l4/re/env>
@@ -62,6 +61,11 @@ L4Re::Dma_space::Space_attribs const Dma_types[] =
 static INSTANTIATE_TEST_CASE_P(DmaSpace, TestDmaSpace,
                                testing::ValuesIn(Dma_types));
 
+/**
+ * A full dataspace can be mapped and unmapped into a DMA space.
+ *
+ * \see L4Re::Dma_space.map, L4Re::Dma_space.unmap
+ */
 TEST_P(TestDmaSpace, MapUnmapSinglePage)
 {
   auto ds = create_cont_ds(L4_PAGESIZE);
@@ -79,7 +83,12 @@ TEST_P(TestDmaSpace, MapUnmapSinglePage)
                          L4Re::Dma_space::Bidirectional));
 }
 
-
+/**
+ * Arbitrary pages of a dataspace can be mapped and unmapped into
+ * a DMA space.
+ *
+ * \see L4Re::Dma_space.map, L4Re::Dma_space.unmap
+ */
 TEST_P(TestDmaSpace, MapUnmapWithOffset)
 {
   auto ds = create_cont_ds(4 * L4_PAGESIZE);
@@ -97,6 +106,13 @@ TEST_P(TestDmaSpace, MapUnmapWithOffset)
                          L4Re::Dma_space::Bidirectional));
 }
 
+/**
+ * When mapping a dataspace with an offset that is not a multiple of
+ * the current page size into a DMA space, then the returned address
+ * will be aligned with the given offset.
+ *
+ * \see L4Re::Dma_space.map, L4Re::Dma_space.unmap
+ */
 TEST_P(TestDmaSpace, MapUnmapUnevenOffset)
 {
   auto ds = create_cont_ds(4 * L4_PAGESIZE);
@@ -114,6 +130,11 @@ TEST_P(TestDmaSpace, MapUnmapUnevenOffset)
                          L4Re::Dma_space::Bidirectional));
 }
 
+/**
+ * A dataspace needs write rights to be mapped into a DMA space.
+ *
+ * \see L4Re::Dma_space.map
+ */
 TEST_P(TestDmaSpace, ReadOnlyDataspace)
 {
   auto ds = create_cont_ds(L4_PAGESIZE);
@@ -125,6 +146,11 @@ TEST_P(TestDmaSpace, ReadOnlyDataspace)
                                   L4Re::Dma_space::None, &addr));
 }
 
+/**
+ * A regular dataspace cannot be mapped into a DMA space.
+ *
+ * \see L4Re::Dma_space.map
+ */
 TEST_P(TestDmaSpace, RegularDataspace)
 {
   auto ds = create_ds(L4_PAGESIZE);
@@ -147,6 +173,13 @@ TEST_P(TestDmaSpace, RegularDataspace)
     }
 }
 
+/**
+ * Only dataspaces can be mapped into a DMA space.
+ *
+ * This test tries to map a factory capability.
+ *
+ * \see L4Re::Dma_space.map
+ */
 TEST_P(TestDmaSpace, InvalidDataspace)
 {
   l4_size_t sz = L4_PAGESIZE;
@@ -157,6 +190,15 @@ TEST_P(TestDmaSpace, InvalidDataspace)
                                    L4Re::Dma_space::None, &addr));
 }
 
+/**
+ * When a DMA space is deleted its allocated memory is freed.
+ *
+ * The test allocates DMA spaces until moe reports to be out of memory
+ * and then deletes exactly one DMA space. If the memory was freed correctly
+ * it should be possible to allocate a new DMA space.
+ *
+ * \see L4::Factory.create
+ */
 TEST_P(TestDmaSpace, ExhaustQuotaMoeStructures)
 {
   auto cap = create_fab(2 * L4_PAGESIZE);

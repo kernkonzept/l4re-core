@@ -23,8 +23,20 @@
 
 static Atkins::Dbg dbg{2};
 
+/**
+ * Fixture for region mapper tests.
+ */
 struct TestRm : testing::Test
 {
+  /**
+   * Send a page fault to the region mapper and check that it was answered
+   * positively.
+   *
+   * \param rm    Region mapper to use.
+   * \param pfa   Faulting address.
+   * \param start Send base of returned flex page.
+   * \param size  Size of the returned flex page.
+   */
   void good_pf(L4::Cap<L4Re::Rm> rm, l4_addr_t pfa,
                l4_addr_t start, unsigned long size)
   {
@@ -44,6 +56,12 @@ struct TestRm : testing::Test
     EXPECT_GE(start + size, sndfpage.snd_base() + (1 << sndfpage.rcv_order()));
   }
 
+  /**
+   * Send a page fault to the region mapper and check that it was denied.
+   *
+   * \param rm    Region mapper to use.
+   * \param pfa   Faulting address.
+   */
   l4_mword_t bad_pf(L4::Cap<L4Re::Rm> rm, l4_addr_t pfa)
   {
     L4::Ipc::Snd_fpage sndfpage;
@@ -58,6 +76,15 @@ struct TestRm : testing::Test
     return result;
   }
 
+  /**
+   * Create a region mapper where all areas that are used by the test
+   * are reserved.
+   *
+   * When testing page faults, we need to ensure that pages are mapped into
+   * areas that are free. The region mapper that is returned by this
+   * function has exactly the same free areas as the test's own
+   * region mapper.
+   */
   L4Re::Util::Unique_del_cap<L4Re::Rm>
   create_blocked_rm()
   {
@@ -88,7 +115,12 @@ struct TestRm : testing::Test
 
 };
 
-
+/**
+ * A region may be reserved at an address chosen by the server.
+ * The address will not be at 0.
+ *
+ * \see L4Re::Rm.reserve_area
+ */
 TEST_F(TestRm, ReservePageSearch)
 {
   auto rm = create_rm();
@@ -103,6 +135,11 @@ TEST_F(TestRm, ReservePageSearch)
                                 L4Re::Rm::Search_addr));
 }
 
+/**
+ * A region may be reserved at an address chosen by the caller.
+ *
+ * \see L4Re::Rm.reserve_area
+ */
 TEST_F(TestRm, ReservePageFixed)
 {
   auto rm = create_rm();
@@ -112,6 +149,12 @@ TEST_F(TestRm, ReservePageFixed)
   EXPECT_EQ(start, 0x1000000UL);
 }
 
+/**
+ * When a region address is chosen by the caller, it may not overlap
+ * with existing regions.
+ *
+ * \see L4Re::Rm.reserve_area
+ */
 TEST_F(TestRm, ReserveTwice)
 {
   auto rm = create_rm();
@@ -132,6 +175,12 @@ TEST_F(TestRm, ReserveTwice)
   EXPECT_EQ(-L4_EADDRNOTAVAIL, rm->reserve_area(&s, 2 * L4_PAGESIZE));
 }
 
+/**
+ * The start address of a region does not need to be aligned to a
+ * page boundary.
+ *
+ * \see L4Re::Rm.reserve_area
+ */
 TEST_F(TestRm, ReserveUnaligned)
 {
   auto rm = create_rm();
@@ -144,6 +193,11 @@ TEST_F(TestRm, ReserveUnaligned)
   EXPECT_EQ(0, rm->reserve_area(&start, 10));
 }
 
+/**
+ * A region may have a size that is less than a page.
+ *
+ * \see L4Re::Rm.reserve_area
+ */
 TEST_F(TestRm, ReserveTiny)
 {
   auto rm = create_rm();
@@ -154,6 +208,15 @@ TEST_F(TestRm, ReserveTiny)
   EXPECT_EQ(0, rm->reserve_area(&start, 10, L4Re::Rm::Search_addr, 1));
 }
 
+/**
+ * When a reserved area is deleted its allocated memory is freed.
+ *
+ * The test reserves areas until moe reports to be out of memory
+ * and then deletes exactly one area. If the memory was freed correctly
+ * it should be possible to reserve another area.
+ *
+ * \see L4Re:Rm.reserve_area, L4Re:Rm.free_area
+ */
 TEST_F(TestRm, ExhaustQuotaReserve)
 {
   auto fab = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4::Factory>());
@@ -181,6 +244,11 @@ TEST_F(TestRm, ExhaustQuotaReserve)
   ASSERT_EQ(0, rm->reserve_area(&prev_start, 10, L4Re::Rm::Search_addr, 1));
 }
 
+/**
+ * A previously reserved area may be freed.
+ *
+ * \see L4Re:Rm.reserve_area, L4Re:Rm.free_area
+ */
 TEST_F(TestRm, FreeAreaSimple)
 {
   auto rm = create_rm();
@@ -192,6 +260,11 @@ TEST_F(TestRm, FreeAreaSimple)
   EXPECT_EQ(0, rm->free_area(start));
 }
 
+/**
+ * Freeing an area that was not reserved fails.
+ *
+ * \see L4Re:Rm.free_area
+ */
 TEST_F(TestRm, FreeAreaNonExisting)
 {
   auto rm = create_rm();
@@ -199,6 +272,11 @@ TEST_F(TestRm, FreeAreaNonExisting)
   EXPECT_EQ(-L4_ENOENT, rm->free_area(100 * L4_PAGESIZE));
 }
 
+/**
+ * Region lookup is not permitted by moe.
+ *
+ * \see L4Re:Rm.find
+ */
 TEST_F(TestRm, FindNotAllowed)
 {
   auto rm = create_rm();
@@ -211,6 +289,11 @@ TEST_F(TestRm, FindNotAllowed)
   EXPECT_EQ(-L4_EPERM, rm->find(&addr, &size, &offset, &flags, &cap));
 }
 
+/**
+ * A complete dataspace may be attached to and detached from a region.
+ *
+ * \see L4Re:Rm.attach, L4Re::Rm.detach
+ */
 TEST_F(TestRm, AttachDetachFull)
 {
   unsigned long sz = L4_PAGESIZE;
@@ -238,6 +321,11 @@ TEST_F(TestRm, AttachDetachFull)
   env->rm()->free_area(sz);
 }
 
+/**
+ * A part of a dataspace may be attached to and detached from a region.
+ *
+ * \see L4Re:Rm.attach, L4Re::Rm.detach
+ */
 TEST_F(TestRm, AttachDetachPartial)
 {
   unsigned long sz = L4_PAGESIZE;
@@ -266,6 +354,11 @@ TEST_F(TestRm, AttachDetachPartial)
   env->rm()->free_area(sz);
 }
 
+/**
+ * A dataspace may be attached to a region that is larger than its size.
+ *
+ * \see L4Re:Rm.attach
+ */
 TEST_F(TestRm, AttachTooSmall)
 {
   unsigned long sz = L4_PAGESIZE;
@@ -293,6 +386,12 @@ TEST_F(TestRm, AttachTooSmall)
   env->rm()->free_area(sz);
 }
 
+/**
+ * When a dataspace is deleted after being attached to a region,
+ * subsequent page faults on the region will result in an error.
+ *
+ * \see L4Re:Rm.attach
+ */
 TEST_F(TestRm, AttachRemoveDataspace)
 {
   l4_addr_t start = 0;
@@ -314,6 +413,12 @@ TEST_F(TestRm, AttachRemoveDataspace)
   ASSERT_EQ(0, rm->detach(start, &oldds));
 }
 
+/**
+ * A dataspace remains attached to a region and accessible even when
+ * all other capabilities to the dataspace are removed.
+ *
+ * \see L4Re:Rm.attach
+ */
 TEST_F(TestRm, AttachLooseDataspace)
 {
   l4_addr_t start = 0;
@@ -340,7 +445,13 @@ TEST_F(TestRm, AttachLooseDataspace)
   EXPECT_EQ(-1, bad_pf(rm.get(), start + sz - 1));
 }
 
-
+/**
+ * When a region manager is deleted its allocated memory is freed.
+ *
+ * The test allocates region managers until moe reports to be out of memory
+ * and then deletes exactly one region manager. If the memory was freed correctly
+ * it should be possible to allocate a new region manager.
+ */
 TEST_F(TestRm, ExhaustQuotaWithCreate)
 {
   auto cap = create_fab(3 * L4_PAGESIZE);

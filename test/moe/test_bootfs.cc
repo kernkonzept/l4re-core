@@ -7,7 +7,10 @@
  */
 
 /*
- * Test namespace implementation of moe.
+ * Test the initial name spaces exported by moe to the initial task.
+ *
+ * Note that tests only check the content and behaviour of the rom
+ * name space, there are extra tests for name spaces in general.
  */
 
 #include <cstring>
@@ -25,7 +28,9 @@
 
 static const char *TESTFILE_CONTENT = "This is a test file.";
 
-// Check if the boot fs is correctly exported
+/**
+ * Moe exports the initial namespace via the rom capability.
+ */
 TEST(TestMoeEnv, BootFSIsExported)
 {
   auto cap = env->get_cap<L4Re::Namespace>("rom");
@@ -34,7 +39,6 @@ TEST(TestMoeEnv, BootFSIsExported)
   ASSERT_LT(cap.cap() >> L4_CAP_SHIFT, env->first_free_cap());
 }
 
-// Test use of boot fs namespace
 class TestMoeBootFs : public ::testing::Test
 {
 public:
@@ -46,7 +50,10 @@ public:
   L4::Cap<L4Re::Namespace> ns;
 };
 
-
+/**
+ * When querying the namespace, special characters and string length
+ * are handled correctly.
+ */
 TEST_F(TestMoeBootFs, QueryOurselves)
 {
   auto cap = make_unique_cap<void>();
@@ -62,6 +69,9 @@ TEST_F(TestMoeBootFs, QueryOurselves)
                       L4Re::Namespace::To_default, 0, false));
 }
 
+/**
+ * All modules in the rom namespace can be found.
+ */
 TEST_F(TestMoeBootFs, QueryAllowedModules)
 {
   auto cap = make_unique_cap<void>();
@@ -73,6 +83,10 @@ TEST_F(TestMoeBootFs, QueryAllowedModules)
   EXPECT_EQ(L4Re::Dataspace::Map_ro, c->flags() & 1);
 }
 
+/**
+ * Boot modules that have not been exported into the test's rom namespace
+ * cannot be found.
+ */
 TEST_F(TestMoeBootFs, QueryForbiddenModules)
 {
   auto cap = make_unique_cap<void>();
@@ -82,6 +96,9 @@ TEST_F(TestMoeBootFs, QueryForbiddenModules)
   EXPECT_EQ(-L4_ENOENT, ns->query("moe", cap.get()));
 }
 
+/**
+ * New entries can be registered and deleted in the rom namespace.
+ */
 TEST_F(TestMoeBootFs, RegisterDeleteEntry)
 {
   auto cap = make_unique_cap<void>();
@@ -92,64 +109,92 @@ TEST_F(TestMoeBootFs, RegisterDeleteEntry)
   EXPECT_EQ(L4_EOK, ns->unlink("foo"));
 }
 
+/**
+ * When querying the rom namespace, the returned capability is a
+ * dataspace whose content can be mapped into the test task and read.
+ */
 TEST_F(TestMoeBootFs, MapRomSpace)
 {
   auto ds = make_unique_cap<L4Re::Dataspace>();
 
-  ASSERT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", ds.get()));
+  ASSERT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", ds.get()))
+    << "Query rom namespace for test file";
   size_t sz = ds->size();
-  ASSERT_GT(sz, strlen(TESTFILE_CONTENT));
+  ASSERT_GT(sz, strlen(TESTFILE_CONTENT))
+    << "The returned dataspace has the expected content size.";
 
   L4Re::Rm::Unique_region<char *> reg;
   ASSERT_EQ(L4_EOK, env->rm()->attach(&reg, sz, L4Re::Rm::Search_addr,
-                                      ds.get(), 0, L4_PAGESHIFT));
+                                      ds.get(), 0, L4_PAGESHIFT))
+    << "Attach the dataspace locally.";
   ASSERT_EQ(0, memcmp(reg.get(), TESTFILE_CONTENT,
-                      strlen(TESTFILE_CONTENT)));
+                      strlen(TESTFILE_CONTENT)))
+    << "Reading from the attached memory yields the expected content.";
 
+  // the reminder of the file is 0
   for (unsigned i = strlen(TESTFILE_CONTENT) + 1; i < L4_PAGESIZE; ++i)
     EXPECT_EQ(0, reg.get()[i]);
 }
 
+/**
+ * Capabilities in the rom namespace are mapped without the delete right.
+ */
 TEST_F(TestMoeBootFs, FailToDeleteRomCapability)
 {
   auto cap = make_unique_cap<void>();
 
-  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
+  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()))
+    << "Query rom namespace for the test file";
   ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(cap.fpage(), L4_FP_DELETE_OBJ |
-                                                             L4_FP_ALL_SPACES)));
-  // Cap is gone in our task.
-  ASSERT_LE(cap.validate(L4_BASE_TASK_CAP).label(), 0);
-  // But we can still get it back, so delete failed.
-  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
+                                                             L4_FP_ALL_SPACES)))
+    << "Unmap the received capability with delete.";
+  ASSERT_LE(cap.validate(L4_BASE_TASK_CAP).label(), 0)
+    << "The capability is gone in the test task.";
+  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()))
+    << "But querying again works.";
+  ASSERT_GT(cap.validate(L4_BASE_TASK_CAP).label(), 0)
+    << "And a valid capability is returned, so delete failed.";
 }
 
+/**
+ * Capabilities cannot gain delete right when registering them
+ * in a new namespace.
+ */
 TEST_F(TestMoeBootFs, FailToDeleteRomCapabilityWhenRemapping)
 {
   auto cap = make_unique_cap<void>();
   auto newns = create_ns();
 
-  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
-  // register it with the new namespace
-  ASSERT_EQ(L4_EOK, newns->register_obj("new", cap.get()));
-  // now get that cap from the new namespace
+  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()))
+    << "Query rom namespace for the test file";
+  ASSERT_EQ(L4_EOK, newns->register_obj("new", cap.get()))
+    << "Register the received capability with the new namespace.";
   auto ds = make_unique_cap<L4Re::Dataspace>();
-  ASSERT_EQ(L4_EOK, newns->query("new", ds.get()));
+  ASSERT_EQ(L4_EOK, newns->query("new", ds.get()))
+    << "Get a capability back for the newly registered name.";
 
-  // unmapping still shouldn't have an effect
   ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(ds.fpage(), L4_FP_DELETE_OBJ |
-                                                             L4_FP_ALL_SPACES)));
-  // Cap is gone in our task.
-  ASSERT_LE(ds.validate(L4_BASE_TASK_CAP).label(), 0);
-  // But we can still get it back, so delete failed.
-  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
-  ASSERT_GT(cap.validate(L4_BASE_TASK_CAP).label(), 0);
+                                                             L4_FP_ALL_SPACES)))
+    << "Unmap the newly received capability.";
+  ASSERT_LE(ds.validate(L4_BASE_TASK_CAP).label(), 0)
+    << "The capability is gone in the test task.";
+  EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()))
+    << "But querying again works.";
+  ASSERT_GT(cap.validate(L4_BASE_TASK_CAP).label(), 0)
+    << "And a valid capability is returned, so delete failed.";
 }
 
+/**
+ * The initial set of modules cannot be deleted from the rom namespace.
+ */
 TEST_F(TestMoeBootFs, FailToDeleteInitialEntry)
 {
   EXPECT_EQ(-L4_EACCESS, ns->unlink("moe_bootfs_example.txt"));
 }
 
+/**
+ * The initial set of modules cannot be overwritten in the rom namespace.
+ */
 TEST_F(TestMoeBootFs, FailToOverwriteEntry)
 {
   auto cap = create_ds();
@@ -159,6 +204,11 @@ TEST_F(TestMoeBootFs, FailToOverwriteEntry)
                                          L4Re::Namespace::Overwrite));
 }
 
+/**
+ * The initial set of modules in the rom namespace is read-only.
+ *
+ * This is tested by trying to clear the content of the dataspace.
+ */
 TEST_F(TestMoeBootFs, FailToClearDataspace)
 {
   auto cap = make_unique_cap<L4Re::Dataspace>();
@@ -167,6 +217,10 @@ TEST_F(TestMoeBootFs, FailToClearDataspace)
   EXPECT_EQ(-L4_EACCESS, cap->clear(0, 10));
 }
 
+/**
+ * Allocating memory in initial boot modules has no effect. It will
+ * in particular not zero out the memory in question.
+ */
 TEST_F(TestMoeBootFs, FailToAllocateDataspace)
 {
   auto cap = make_unique_cap<L4Re::Dataspace>();

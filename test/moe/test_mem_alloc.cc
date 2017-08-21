@@ -38,6 +38,11 @@ struct TestMemAlloc : ::testing::Test
 };
 
 #ifndef NDEBUG
+/**
+ * Memory allocation statistics can be dumped for debug purposes.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, Dump)
 {
   auto dbg = L4::cap_reinterpret_cast<L4Re::Debug_obj>(env->mem_alloc());
@@ -45,6 +50,12 @@ TEST_F(TestMemAlloc, Dump)
 }
 #endif
 
+/**
+ * A regular dataspace can be created, mapped for reading and remapped
+ * for writing.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, Simple)
 {
   auto ds = make_unique_del_cap<L4Re::Dataspace>();
@@ -70,6 +81,11 @@ TEST_F(TestMemAlloc, Simple)
   // free dataspace by releasing cap
 }
 
+/**
+ * A dataspace may not be created with zero or infinitely large size.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, OutOfRange)
 {
   auto ds = make_unique_cap<L4Re::Dataspace>();
@@ -78,6 +94,17 @@ TEST_F(TestMemAlloc, OutOfRange)
   EXPECT_EQ(-L4_ERANGE, env->mem_alloc()->alloc(~0UL, ds.get()));
 }
 
+/**
+ * When a dataspace is deleted its allocated memory is freed.
+ *
+ * The test allocates pages of a dataspace until moe reports that
+ * the memory is used up, i.e. there is no more quota in the factory
+ * the dataspace belongs to. Then it deletes the dataspace.
+ * If the memory was freed correctly, it should be possible to create
+ * and allocate a new dataspace afterwards.
+ *
+ * \see L4::Factory, L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, ExhaustQuotaMemory)
 {
   auto cap = create_ma(10 * L4_PAGESIZE);
@@ -108,15 +135,20 @@ TEST_F(TestMemAlloc, ExhaustQuotaMemory)
                           L4Re::Mem_alloc::Continuous));
 }
 
-
+/**
+ * A continuous dataspace can be allocated and mapped.
+ *
+ * \note Currently there is only one way to test if a dataspace is
+ *       continuous and that is by mapping it into physical DMA space.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, Continuous)
 {
   auto ds = make_unique_del_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, env->mem_alloc()->alloc(10 * L4_PAGESIZE, ds.get(),
                                        L4Re::Mem_alloc::Continuous));
 
-  // continuous basically means that the memory is dma mappable,
-  // so let's test that
   auto d = create_dma();
   L4Re::Dma_space::Dma_addr phys = 0;
   l4_size_t size = 10 * L4_PAGESIZE;
@@ -128,6 +160,12 @@ TEST_F(TestMemAlloc, Continuous)
                         L4Re::Dma_space::Direction::Bidirectional));
 }
 
+/**
+ * A continuous dataspace cannot be created with a larger size than the
+ * available physical memory.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, ContinuousHuge)
 {
   // overcommit for continous memory is not possible
@@ -143,6 +181,12 @@ TEST_F(TestMemAlloc, ContinuousHuge)
        "contiguous region fails.";
 }
 
+/**
+ * When allocating a continuous dataspace with a negative size, then
+ * enough memory will be left to allocate a dataspace of that size.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, ContinuousMax)
 {
   auto ds = make_unique_cap<L4Re::Dataspace>();
@@ -161,6 +205,11 @@ TEST_F(TestMemAlloc, ContinuousMax)
                                 ds2.get()));
 }
 
+/**
+ * Regular dataspaces cannot be created with a negative size.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, NoncontMax)
 {
   auto ds = make_unique_cap<L4Re::Dataspace>();
@@ -169,6 +218,13 @@ TEST_F(TestMemAlloc, NoncontMax)
   ASSERT_EQ(-L4_ERANGE, env->mem_alloc()->alloc(size, ds.get()));
 }
 
+/**
+ * Dataspaces might be created to map super pages only.
+ *
+ * \todo confirm that only superpages are mapped.
+ *
+ * \see L4Re::Mem_alloc.alloc
+ */
 TEST_F(TestMemAlloc, Superpages)
 {
   auto ds = make_unique_del_cap<L4Re::Dataspace>();

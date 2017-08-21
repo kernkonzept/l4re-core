@@ -21,6 +21,12 @@
 
 class TestNamespace : public ::testing::Test {};
 
+/**
+ * An empty namespace can be queried with arbitrary names and lengths without
+ * returning a result.
+ *
+ * \see L4Re::Namespace.query
+ */
 TEST_F(TestNamespace, QueryEmptyNS)
 {
   auto ns = create_ns();
@@ -39,6 +45,12 @@ TEST_F(TestNamespace, QueryEmptyNS)
   EXPECT_EQ(-L4_EMSGTOOLONG, ns->query("a", 500, lcap.get()));
 }
 
+/**
+ * A valid capability may be registered under a given name and
+ * will afterwards be returned under the same name.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterValid)
 {
   auto ns = create_ns();
@@ -53,6 +65,13 @@ TEST_F(TestNamespace, RegisterValid)
   ASSERT_EQ(12345UL, lcap->size());
 }
 
+/**
+ * When registering a name with an invalid capability, queries on the
+ * name will block. A valid capability can be registered afterwards under
+ * the same name.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterInvalid)
 {
   auto ns = create_ns();
@@ -70,6 +89,12 @@ TEST_F(TestNamespace, RegisterInvalid)
   ASSERT_EQ(0, ns->query("pend", cap.get()));
 }
 
+/**
+ * A name that was registered with an invalid capability may be
+ * deleted.
+ *
+ * \see L4Re::Namespace.register_obj, L4Re::Namepsace.unlink
+ */
 TEST_F(TestNamespace, FreeInvalidEntry)
 {
   auto ns = create_ns();
@@ -78,16 +103,33 @@ TEST_F(TestNamespace, FreeInvalidEntry)
   EXPECT_EQ(L4_EOK, ns->unlink("inval"));
 }
 
+/**
+ * When registering an entry, the name must not contain the
+ * separation mark '/'.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterWithSlash)
 {
   EXPECT_EQ(-L4_EINVAL, create_ns()->register_obj("ping/pong", env->log()));
 }
 
+/**
+ * When registering an entry, the name may not be empty.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterEmpty)
 {
   ASSERT_EQ(-L4_EINVAL, create_ns()->register_obj("", env->log()));
 }
 
+/**
+ * An entry with valid capability may only be overwritten with an
+ * invalid capability, when the Overwrite flag is set.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterOverwriteInvalid)
 {
   auto ns = create_ns();
@@ -104,6 +146,12 @@ TEST_F(TestNamespace, RegisterOverwriteInvalid)
                                   L4Re::Namespace::To_non_blocking));
 }
 
+/**
+ * An entry with valid capability may only be overwritten with a
+ * valid capability, when the Overwrite flag is set.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterOverwriteValid)
 {
   auto ns = create_ns();
@@ -122,6 +170,12 @@ TEST_F(TestNamespace, RegisterOverwriteValid)
   EXPECT_EQ(1234UL, cap->size());
 }
 
+/**
+ * An entry keeps a valid capability even when all other copies
+ * of the capability in the system are removed.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterLooseSourceDataspace)
 {
   auto ns = create_ns();
@@ -140,6 +194,12 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
   EXPECT_EQ(999UL, cap->size());
 }
 
+/**
+ * When the capability of an entry is deleted by someone else,
+ * then the entry should become invalid.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
 {
   auto ns = create_ns();
@@ -157,7 +217,13 @@ TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
                                   L4Re::Namespace::To_non_blocking));
 }
 
-
+/**
+ * When a capability is registered in two different namespaces, it must
+ * not be possible to replace the capability in one namespace by deleting
+ * in the other namespace and reallocating a new capability.
+ *
+ * \see L4Re::Namespace.register_obj, L4Re::Namespace.unlink
+ */
 TEST_F(TestNamespace, RegisterDeleteRomDataspace)
 {
   auto ns = create_ns();
@@ -189,6 +255,12 @@ TEST_F(TestNamespace, RegisterDeleteRomDataspace)
   ASSERT_EQ(-L4_ENOENT, ns->unlink("new"));
 }
 
+/**
+ * A capability cannot be registered with more rights than the caller
+ * possesses for the capability.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterPropagateRights)
 {
   auto ns = create_ns();
@@ -209,6 +281,11 @@ TEST_F(TestNamespace, RegisterPropagateRights)
   ASSERT_EQ(-L4_EPERM, ncap->register_obj("foo", L4::Cap<void>()));
 }
 
+/**
+ * Unknown flag bits for the registration call are ignored.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, RegisterBadFlags)
 {
   auto ns = create_ns();
@@ -218,6 +295,15 @@ TEST_F(TestNamespace, RegisterBadFlags)
   ASSERT_EQ(L4_EOK, ns->register_obj("flagall2", L4::Cap<void>(), ~0U));
 }
 
+/**
+ * When a namespace entry is deleted its allocated memory is freed.
+ *
+ * The test registers namespace entries until moe reports to be out of memory
+ * and then deletes exactly one entry. If the memory was freed correctly
+ * it should be possible to register another name.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_F(TestNamespace, ExhaustQuotaWithRegister)
 {
   auto cap = create_fab(3 * L4_PAGESIZE);
@@ -243,7 +329,15 @@ TEST_F(TestNamespace, ExhaustQuotaWithRegister)
   EXPECT_EQ(0, ns->register_obj("x", cap.get()));
 }
 
-
+/**
+ * When a namespace is deleted its allocated memory is freed.
+ *
+ * The test allocates namespaces until moe reports to be out of memory
+ * and then deletes exactly one namespace. If the memory was freed correctly
+ * it should be possible to allocate a new namespace.
+ *
+ * \see L4::Factory.create
+ */
 TEST_F(TestNamespace, ExhaustQuotaWithCreate)
 {
   auto cap = create_fab(3 * L4_PAGESIZE);

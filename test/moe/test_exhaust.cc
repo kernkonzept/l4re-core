@@ -19,6 +19,12 @@
 
 struct TestExhaust : ::testing::Test {};
 
+/**
+ * Moe does not crash when all physical memory is exhaused.
+ *
+ * After freeing memory after an out-of-memory condition, allocations
+ * should work again.
+ */
 TEST_F(TestExhaust, ExhaustMemory)
 {
     {
