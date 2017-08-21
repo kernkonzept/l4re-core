@@ -55,6 +55,9 @@ struct VargRPC : Atkins::Fixture::Epiface_thread<Test_handler>
   }
 };
 
+/**
+ * A variable argument parameter without content is transferred correctly.
+ */
 TEST_F(VargRPC, InEmpty)
 {
   Varg v = Varg::nil();
@@ -62,6 +65,10 @@ TEST_F(VargRPC, InEmpty)
   cmp_handler_list(&v);
 }
 
+/**
+ * A variable argument parameter sending a signed word as reference
+ * is transferred correctly.
+ */
 TEST_F(VargRPC, InSimpleMword)
 {
   l4_mword_t const m = -0x453;
@@ -74,6 +81,10 @@ TEST_F(VargRPC, InSimpleMword)
   ASSERT_FALSE(out.is_nil());
 }
 
+/**
+ * A variable argument parameter sending an unsigned word as reference
+ * is transferred correctly.
+ */
 TEST_F(VargRPC, InSimpleUmword)
 {
   l4_umword_t const m = 0xaaa;
@@ -86,6 +97,9 @@ TEST_F(VargRPC, InSimpleUmword)
   ASSERT_FALSE(out.is_nil());
 }
 
+/**
+ * A variable argument parameter sending a string is transferred correctly.
+ */
 TEST_F(VargRPC, InSimpleString)
 {
   char const *s = "This ";
@@ -97,6 +111,9 @@ TEST_F(VargRPC, InSimpleString)
   ASSERT_FALSE(out.is_nil());
 }
 
+/**
+ * A variable argument parameter sending an empty string is transferred correctly.
+ */
 TEST_F(VargRPC, InEmptyString)
 {
   Varg v[2] = {Varg(""), Varg::nil()};
@@ -107,6 +124,10 @@ TEST_F(VargRPC, InEmptyString)
   ASSERT_FALSE(out.is_nil());
 }
 
+/**
+ * A variable argument parameter sending a signed word as value
+ * is transferred correctly.
+ */
 TEST_F(VargRPC, InDirectMword)
 {
   Varg v[2] = {Varg((l4_mword_t) -0xF3F4), Varg::nil()};
@@ -119,6 +140,10 @@ TEST_F(VargRPC, InDirectMword)
   ASSERT_FALSE(out.is_nil());
 }
 
+/**
+ * A variable argument parameter sending an unsigned word as value
+ * is transferred correctly.
+ */
 TEST_F(VargRPC, InDirectUmword)
 {
   Varg v[2] = {Varg((l4_umword_t) 1234, true), Varg::nil()};
@@ -131,6 +156,10 @@ TEST_F(VargRPC, InDirectUmword)
   ASSERT_FALSE(out.is_nil());
 }
 
+/**
+ * A variable argument parameter whose content does not fit into the UTCB
+ * yields an error.
+ */
 TEST_F(VargRPC, InOverlongMsg)
 {
   Varg v[1000];
@@ -142,6 +171,10 @@ TEST_F(VargRPC, InOverlongMsg)
 
 struct MixedVargRPC : VargRPC, ::testing::WithParamInterface<Varg const *> {};
 
+/**
+ * A variable argument parameter with content of mixed types is
+ * transferred correctly.
+ */
 TEST_P(MixedVargRPC, InMixedArgs)
 {
   ASSERT_EQ(0, scap()->in(GetParam()));
