@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2015 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *            Philipp Eppelt <philipp.eppelt@kernkonzept.com>
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>
@@ -26,6 +27,13 @@
 
 #include <l4/atkins/tap/main>
 
+/**
+ * Compare-and-exchange for various bit sizes does only exchange values, if
+ * the compare phase succeeds.
+ *
+ * \see l4util_cmpxchg(), l4util_cmpxchg8(), l4util_cmpxchg16(),
+ *      l4util_cmpxchg64()
+ */
 TEST(L4Util, Cmpxchg)
 {
   l4_umword_t val = 345;
@@ -58,6 +66,12 @@ TEST(L4Util, Cmpxchg)
 #endif
 }
 
+/**
+ * `l4util_set_bit()` sets the specified bit in a bitmap and does not clear an
+ * already set bit.
+ *
+ * \see l4util_set_bit()
+ */
 TEST(L4Util, SetBit)
 {
   l4_umword_t val     = 3;
@@ -73,6 +87,12 @@ TEST(L4Util, SetBit)
   EXPECT_EQ(0x02000000UL, vals[3]);
 }
 
+/**
+ * `l4util_clear_bit()` clears the specified bit in a bitmap and does not set an
+ * already cleared bit.
+ *
+ * \see l4util_clear_bit()
+ */
 TEST(L4Util, ClearBit)
 {
   l4_umword_t val = 16;
@@ -93,6 +113,11 @@ TEST(L4Util, ClearBit)
   EXPECT_EQ(0xffccbba2U, vals[7]);
 }
 
+/**
+ * `l4util_test_bit()` returns true if a specified bit in the bitmap is set.
+ *
+ * \see l4util_test_bit()
+ */
 TEST(L4Util, TestBit)
 {
   l4_umword_t val = 6;
@@ -103,6 +128,12 @@ TEST(L4Util, TestBit)
   EXPECT_TRUE(l4util_test_bit(sizeof(l4_umword_t) * 8, vals));
 }
 
+/**
+ * `l4util_test_and_set_bit()` returns the old value of the bit now set and
+ * updates the bit in the bitmap.
+ *
+ * \see l4util_test_and_set_bit()
+ */
 TEST(L4Util, TestAndSetBit)
 {
   l4_umword_t val = 8;
@@ -111,6 +142,12 @@ TEST(L4Util, TestAndSetBit)
   EXPECT_EQ(12U, val);
 }
 
+/**
+ * `l4util_test_and_clear_bit()` returns the old value of the bit now cleared
+ * and updates the bit in the bitmap.
+ *
+ * \see l4util_test_and_clear_bit()
+ */
 TEST(L4Util, TestAndClearBit)
 {
   l4_umword_t val = 8;
@@ -119,16 +156,32 @@ TEST(L4Util, TestAndClearBit)
   EXPECT_EQ(0U, val);
 }
 
+/**
+ * `l4util_bsr()` returns the highest bit set in a value.
+ *
+ * \see l4util_bsr()
+ */
 TEST(L4Util, TestbitScanReverse)
 {
   EXPECT_EQ(4, l4util_bsr(17));
 }
 
+/**
+ * `l4util_bsf()` returns the lowest bit set in a value.
+ *
+ * \see l4util_bsf()
+ */
 TEST(L4Util, TestBitScanForward)
 {
   EXPECT_EQ(12, l4util_bsf(0xbc123000));
 }
 
+/**
+ * `l4util_find_first_zero_bit()` returns the lowest cleared bit in the range
+ * [0, size - 1].
+ *
+ * \see l4util_find_first_zero_bit()
+ */
 TEST(L4Util, TestFindFirstZeroBit)
 {
   l4_umword_t val = 55;
