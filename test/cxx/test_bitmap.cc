@@ -5,6 +5,10 @@
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
+
+/**
+ * Unit tests for the C++ Bitmap class.
+ */
 #include <l4/cxx/bitmap>
 
 #include <l4/atkins/tap/main>
@@ -26,6 +30,11 @@ struct TestBitmap : public testing::Test
 
 };
 
+/**
+ * Test bit setting and clearing using the bit index and status.
+ *
+ * \see cxx::Bitmap.bit
+ */
 TEST_F(TestBitmap, SetBit)
 {
   cxx::Bitmap<18> bm;
@@ -47,6 +56,12 @@ TEST_F(TestBitmap, SetBit)
     }
 }
 
+/**
+ * Test bit setting and clearing using the bit index and specific
+ * member functions.
+ *
+ * \see cxx::Bitmap.set_bit, cxx::Bitmap.clear_bit
+ */
 TEST_F(TestBitmap, SetClearBit)
 {
   cxx::Bitmap<18> bm;
@@ -68,6 +83,11 @@ TEST_F(TestBitmap, SetClearBit)
     }
 }
 
+/**
+ * Test scanning for the first zero bit in a 1-byte bitmap.
+ *
+ * \see cxx::Bitmap.scan_zero
+ */
 TEST_F(TestBitmap, ScanZeroCharSize)
 {
   cxx::Bitmap<8> bm;
@@ -92,6 +112,11 @@ TEST_F(TestBitmap, ScanZeroCharSize)
   EXPECT_EQ(-1, bm.scan_zero(0));
 }
 
+/**
+ * Test scanning for the first zero bit in a multi-byte bitmap.
+ *
+ * \see cxx::Bitmap.scan_zero
+ */
 TEST_F(TestBitmap, ScanZeroMultiWord)
 {
   cxx::Bitmap<256> bm;

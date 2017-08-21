@@ -6,6 +6,9 @@
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
 
+/**
+ * Test AVL set properties.
+ */
 #include <map>
 #include <algorithm>
 #include <memory>
@@ -34,6 +37,11 @@ struct TestAvlSet : public Test_track_alloc
   }
 };
 
+/**
+ * AVL set error codes are compatible to L4Re error codes.
+ *
+ * \see cxx::Base_avl_set
+ */
 TEST_F(TestAvlSet, ErrorCodesAreCompatible)
 {
   EXPECT_EQ(l4_error_code_t(Int_set::E_noent), L4_ENOENT);
@@ -42,12 +50,23 @@ TEST_F(TestAvlSet, ErrorCodesAreCompatible)
   EXPECT_EQ(l4_error_code_t(Int_set::E_inval), L4_EINVAL);
 }
 
+/**
+ * begin() and end() iterators are equal for an empty AVL set.
+ *
+ * \see cxx::Avl_set.begin, cxx::Avl_set.end, cxx::Avl_set.rbegin,
+ *      cxx::Avl_set.rend
+ */
 TEST_F(TestAvlSet, IteratorsOnEmpty)
 {
   EXPECT_EQ(tree->begin(), tree->end());
   EXPECT_EQ(tree->rbegin(), tree->rend());
 }
 
+/**
+ * Elements can be inserted into an AVL set.
+ *
+ * \see cxx::Avl_set.insert
+ */
 TEST_F(TestAvlSet, Insert)
 {
   EXPECT_EQ(0, tree->insert(1).second);
@@ -55,6 +74,12 @@ TEST_F(TestAvlSet, Insert)
   EXPECT_EQ(0, tree->insert(0).second);
 }
 
+/**
+ * Elements can be inserted into an AVL set only once. If the element is
+ * already in the set -E_exist and the existing element is returned.
+ *
+ * \see cxx::Avl_set.insert
+ */
 TEST_F(TestAvlSet, InsertDuplicate)
 {
   auto ret = tree->insert(42);
@@ -68,6 +93,11 @@ TEST_F(TestAvlSet, InsertDuplicate)
   EXPECT_EQ(-Int_set::E_exist, ret.second);
 }
 
+/**
+ * Elements in the set can be removed.
+ *
+ * \see cxx::Avl_set.remove
+ */
 TEST_F(TestAvlSet, RemovePartial)
 {
   std::vector<int> ids { 6, 9, 0, 1, 4 };
@@ -79,6 +109,11 @@ TEST_F(TestAvlSet, RemovePartial)
     EXPECT_EQ(0, tree->remove(ids[i]));
 }
 
+/**
+ * When all elements in the set are removed the set is empty.
+ *
+ * \see cxx::Avl_set.remove
+ */
 TEST_F(TestAvlSet, RemoveAll)
 {
   std::vector<int> ids { 6, 9, 0, 1, 4 };
@@ -92,6 +127,12 @@ TEST_F(TestAvlSet, RemoveAll)
   EXPECT_EQ(tree->begin(), tree->end());
 }
 
+/**
+ * An element can only be removed once from an AVL set. Attempts to remove
+ * elements not in the set receive an -E_noent error.
+ *
+ * \see cxx::Avl_set.remove
+ */
 TEST_F(TestAvlSet, RemoveDuplicate)
 {
   EXPECT_EQ(-Int_set::E_noent, tree->remove(0));
@@ -103,6 +144,12 @@ TEST_F(TestAvlSet, RemoveDuplicate)
   EXPECT_EQ(-Int_set::E_noent, tree->remove(34));
 }
 
+/**
+ * Elements inserted into an AVL set are found via find_node() and valid().
+ * find_node() requests for elements not in the set receive an invalid node.
+ *
+ * \see cxx::Avl_set.find_node
+ */
 TEST_F(TestAvlSet, FindNode)
 {
   EXPECT_EQ(0, tree->insert(123).second);
@@ -117,6 +164,11 @@ TEST_F(TestAvlSet, FindNode)
   EXPECT_FALSE(n.valid());
 }
 
+/**
+ * An AVL set can be copied via the copy-constructor.
+ *
+ * \see cxx::Avl_set
+ */
 TEST_F(TestAvlSet, CopyTree)
 {
   std::unique_ptr<Int_set> copied;
@@ -139,6 +191,11 @@ TEST_F(TestAvlSet, CopyTree)
     }
 }
 
+/**
+ * An empty AVL set can be copied via the copy-constructor.
+ *
+ * \see cxx::Avl_set
+ */
 TEST_F(TestAvlSet, CopyEmptyTree)
 {
   std::unique_ptr<Int_set> p {new Int_set(*tree)};

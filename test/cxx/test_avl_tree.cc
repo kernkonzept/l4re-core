@@ -6,6 +6,9 @@
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
 
+/**
+ * Test AVL tree properties.
+ */
 #include <vector>
 #include <algorithm>
 
@@ -43,12 +46,24 @@ struct IntAvlTree : public ::testing::Test
   }
 };
 
+/**
+ * Begin and end iterators are equal for an empty AVL tree; rbegin and rend,
+ * respectively.
+ *
+ * \see cxx::Avl_tree.begin, cxx::Avl_tree.rbegin, cxx::Avl_tree.end,
+ *      cxx::Avl_tree.rend
+ */
 TEST_F(IntAvlTree, IteratorsOnEmpty)
 {
   EXPECT_EQ(tree.begin(), tree.end());
   EXPECT_EQ(tree.rbegin(), tree.rend());
 }
 
+/**
+ * Nodes can be inserted in, found in, and removed from an AVL tree.
+ *
+ * \see cxx::Avl_tree.insert, cxx::Avl_tree.find_node, cxx::Avl_tree.remove
+ */
 TEST_F(IntAvlTree, InsertRemove)
 {
   EXPECT_EQ(tree.begin(), tree.end());
@@ -93,6 +108,11 @@ TEST_F(IntAvlTree, InsertRemove)
   EXPECT_EQ(42, tree.remove(42)->value);
 }
 
+/**
+ * Node-keys can only be inserted once into an AVL tree.
+ *
+ * \see cxx::Avl_tree.insert
+ */
 TEST_F(IntAvlTree, InsertDuplicate)
 {
   EXPECT_EQ(tree.begin(), tree.end());
@@ -116,6 +136,12 @@ TEST_F(IntAvlTree, InsertDuplicate)
   EXPECT_EQ(r.second, false);
 }
 
+/**
+ * Node-keys can only be removed once from an AVL tree. Non-existing keys
+ * return `nullptr`.
+ *
+ * \see cxx::Avl_tree.remove
+ */
 TEST_F(IntAvlTree, RemoveDuplicate)
 {
   EXPECT_TRUE(tree.insert(node(555)).second);
@@ -130,6 +156,11 @@ TEST_F(IntAvlTree, RemoveDuplicate)
   EXPECT_EQ(nullptr, tree.remove(555));
 }
 
+/**
+ * After removing all nodes from an AVL tree the tree is empty.
+ *
+ * \see cxx::Avl_tree.remove
+ */
 TEST_F(IntAvlTree, RemoveAll)
 {
   std::vector<int> ids { 6, 9, 0, 1, 4 };
@@ -143,6 +174,11 @@ TEST_F(IntAvlTree, RemoveAll)
   EXPECT_EQ(tree.begin(), tree.end());
 }
 
+/**
+ * The AVL tree iterator iterates all nodes in natural order.
+ *
+ * \see cxx::Avl_tree.Iterator
+ */
 TEST_F(IntAvlTree, IteratorOrder)
 {
   std::vector<int> ids { 1, 5, 6, 100, 102, 103, 999 };
@@ -166,6 +202,11 @@ TEST_F(IntAvlTree, IteratorOrder)
   EXPECT_EQ(it, tree.end());
 }
 
+/**
+ * The constant AVL tree iterator iterates all nodes in natural order.
+ *
+ * \see cxx::Avl_tree.Const_iterator
+ */
 TEST_F(IntAvlTree, ConstIteratorOrder)
 {
   std::vector<int> ids { 1, 5, 6, 100, 102, 103, 999 };
@@ -189,6 +230,11 @@ TEST_F(IntAvlTree, ConstIteratorOrder)
   EXPECT_EQ(it, tree.end());
 }
 
+/**
+ * The reverse AVL tree iterator iterates all nodes in reverse natural order.
+ *
+ * \see cxx::Avl_tree.Rev_iterator
+ */
 TEST_F(IntAvlTree, ReverseIteratorOrder)
 {
   std::vector<int> ids { -45, 0, 2, 3, 10008, 80001, 80002 };
@@ -212,6 +258,12 @@ TEST_F(IntAvlTree, ReverseIteratorOrder)
   EXPECT_EQ(it, tree.rend());
 }
 
+/**
+ * The constant reverse AVL tree iterator iterates all nodes in reverse natural
+ * order.
+ *
+ * \see cxx::Avl_tree.Const_rev_iterator
+ */
 TEST_F(IntAvlTree, ReverseConstIteratorOrder)
 {
   std::vector<int> ids { -45, 0, 2, 3, 10008, 80001, 80002 };
@@ -235,6 +287,12 @@ TEST_F(IntAvlTree, ReverseConstIteratorOrder)
   EXPECT_EQ(it, tree.rend());
 }
 
+/**
+ * lower_bound_node() returns the next value equal or higher than the passed
+ * value or `nullptr` if no such node is in the tree.
+ *
+ * \see cxx::Bits::Bst.lower_bound_node
+ */
 TEST_F(IntAvlTree, LowerBoundNode)
 {
   std::vector<int> ids { 99999, -1, 985, 3, 1, -88, 0, -5 };
@@ -253,11 +311,22 @@ TEST_F(IntAvlTree, LowerBoundNode)
   EXPECT_EQ(nullptr, tree.lower_bound_node(999991));
 }
 
+/**
+ * An empty tree has no lower_bound_node().
+ *
+ * \see cxx::Bits::Bst.lower_bound_node
+ */
 TEST_F(IntAvlTree, LowerBoundNodeOnEmptyTree)
 {
   EXPECT_EQ(nullptr, tree.lower_bound_node(0));
 }
 
+/**
+ * A single-node tree returns the single node for requested values lower and
+ * equal to the node-key and `nullptr` otherwise.
+ *
+ * \see cxx::Bits::Bst.lower_bound_node
+ */
 TEST_F(IntAvlTree, LowerBoundNodeOnSingleNodeTree)
 {
   tree.insert(node(1));
