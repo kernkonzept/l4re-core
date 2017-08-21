@@ -88,7 +88,8 @@ L4_INLINE int
 l4_cache_inv_data(unsigned long start,
                   unsigned long end) L4_NOTHROW
 {
-  L4_ARM_CACHE_LOOP("dc ivac");
+  // DC IVAC is always privileged, use DC CIVAC instead
+  L4_ARM_CACHE_LOOP("dc civac");
   return 0;
 }
 
