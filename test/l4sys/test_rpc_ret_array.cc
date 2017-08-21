@@ -7,7 +7,8 @@
  */
 
 /*
- * Test capability ret_array parameter for RPC.
+ * Test handling of capability ret_array parameter when marshalling and
+ * unmarshalling RPC.
  */
 
 #include <l4/sys/cxx/ipc_iface>
@@ -78,6 +79,9 @@ struct RetArrayRPC : Atkins::Fixture::Epiface_thread<Test_handler>
   }
 };
 
+/**
+ * Return arrays with simple integers are correctly transferred.
+ */
 TEST_F(RetArrayRPC, SimpleIntArray)
 {
   auto &iarr = handler().p_int;
@@ -88,12 +92,18 @@ TEST_F(RetArrayRPC, SimpleIntArray)
   compare_result(ret, iarr);
 }
 
+/**
+ * An empty return array is correctly transferred.
+ */
 TEST_F(RetArrayRPC, EmptyIntArray)
 {
   int const *ret = 0;
   ASSERT_EQ(0L, scap()->get_int(&ret));
 }
 
+/**
+ * Return arrays with complex structs are correctly transferred.
+ */
 TEST_F(RetArrayRPC, SimpleFooArray)
 {
   auto &iarr = handler().p_foo;
@@ -104,12 +114,19 @@ TEST_F(RetArrayRPC, SimpleFooArray)
   compare_result(ret, iarr);
 }
 
+/**
+ * If the server tries to return an array that does not fit,
+ * an error is returned.
+ */
 TEST_F(RetArrayRPC, TooLargeReturnArray)
 {
   int const *ret = 0;
   EXPECT_EQ(-L4_EMSGTOOLONG, scap()->set_ret(10000, &ret));
 }
 
+/**
+ * Custom errors set by the server are mashalled correctly.
+ */
 TEST_F(RetArrayRPC, ReturnError)
 {
   int const *ret = 0;

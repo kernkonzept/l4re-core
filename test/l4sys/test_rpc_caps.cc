@@ -7,7 +7,7 @@
  */
 
 /*
- * Test capability transmission via RPC.
+ * Test capability transmission when marshalling and unmarshalling RPCs.
  */
 
 #include <l4/sys/capability>
@@ -61,6 +61,17 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
   }
 
 private:
+  /**
+   * Save a capability that comes in via an IPC call on the first allocated
+   * receive slot.
+   *
+   * \param release  If true, then a new capability slot will be allocated for
+   *                 the next incomming capability. When false, the next
+   *                 capability would overwrite the capability that was just
+   *                 received.
+   * \param fpage    Received fpage information, will be saved, so that the
+   *                 test code can inspect the content later.
+   */
   long handle_in_cap(bool release, L4::Ipc::Snd_fpage fpage)
   {
     p_fpage = fpage;
@@ -84,6 +95,10 @@ struct CapRpc
   CapRpc() : Epiface_thread(GetParam())
   {}
 
+  /**
+   *  Check that the received fpage reports that a capapbility of the correct
+   *  type was received.
+   */
   void test_valid_cap()
   {
     EXPECT_EQ(GetParam() == 0, handler().p_fpage.cap_received());
@@ -92,6 +107,12 @@ struct CapRpc
     EXPECT_TRUE(handler().p_fpage.is_valid());
   }
 
+  /**
+   *  Check that the received fpage contains an invalid capability.
+   *
+   *  This happens when the capability parameter was optional and no
+   *  capability was sent.
+   */
   void test_invalid_cap()
   {
     EXPECT_FALSE(handler().p_fpage.is_valid());
@@ -104,6 +125,9 @@ struct CapRpc
 static INSTANTIATE_TEST_CASE_P(LocalVsGlobal, CapRpc,
                                ::testing::Values(L4_RCV_ITEM_LOCAL_ID, 0));
 
+/**
+ * A capability with read-write rights is transferred correctly.
+ */
 TEST_P(CapRpc, SendRwCap)
 {
   ASSERT_EQ(0, scap()->in_cap(false, L4::Ipc::make_cap_rw(env->log())));
@@ -114,11 +138,18 @@ TEST_P(CapRpc, SendRwCap)
     }
 }
 
+/**
+ * An invalid capability is rejected during marshalling.
+ */
 TEST_P(CapRpc, SendInvalidCap)
 {
   ASSERT_EQ(-L4_EMSGMISSARG, scap()->in_cap(false, L4::Cap<void>()));
 }
 
+/**
+ * A capability that is not present is transferred and appears as
+ * not present to the server.
+ */
 TEST_P(CapRpc, SendEmptyCap)
 {
   auto cap = L4Re::Util::make_unique_cap<void>();
@@ -132,18 +163,30 @@ TEST_P(CapRpc, SendEmptyCap)
     }
 }
 
+/**
+ * An invalid capability parameter is ignored if the capability parameter is
+ * optional.
+ */
 TEST_P(CapRpc, SendOptCapInvalidCap)
 {
   ASSERT_EQ(L4_EOK, scap()->in_opt_cap(false, L4::Cap<void>()));
   test_invalid_cap();
 }
 
+/**
+ * An invalid IPC capability parameter is ignored if the capability parameter is
+ * optional.
+ */
 TEST_P(CapRpc, SendOptCapInvalid)
 {
   ASSERT_EQ(L4_EOK, scap()->in_opt_cap(false, L4::Ipc::Cap<void>()));
   test_invalid_cap();
 }
 
+/**
+ * A valid capability is transferred correctly if the capability parameter is
+ * optional.
+ */
 TEST_P(CapRpc, SendOptCapValid)
 {
   ASSERT_EQ(0, scap()->in_opt_cap(false, L4::Ipc::make_cap_rw<void>(env->log())));
@@ -154,6 +197,9 @@ TEST_P(CapRpc, SendOptCapValid)
     }
 }
 
+/**
+ * A valid capability sent by the server is transferred back correctly.
+ */
 TEST_P(CapRpc, RcvCap)
 {
   auto rcv_cap = L4Re::Util::make_unique_cap<L4Re::Namespace>();
@@ -167,6 +213,9 @@ TEST_P(CapRpc, RcvCap)
   ASSERT_EQ(L4_EOK, rcv_cap->query("l4re", test_cap.get()));
 }
 
+/**
+ * An invalid capability sent by the server is transferred back correctly.
+ */
 TEST_P(CapRpc, RcvCapInvalid)
 {
   auto rcv_cap = L4Re::Util::make_unique_cap<L4Re::Namespace>();
@@ -177,6 +226,10 @@ TEST_P(CapRpc, RcvCapInvalid)
   ASSERT_EQ(1U, res.items());
 }
 
+/**
+ * If an invalid capability and a valid capability is sent by the server
+ * then the valid capability arrives in the expected slot at the client.
+ */
 TEST_P(CapRpc, RcvCapOneOfTwoInvalid)
 {
   auto rcv_cap = L4Re::Util::make_unique_cap<L4Re::Namespace>();
@@ -201,6 +254,10 @@ struct CapRpcRelease
 
 static INSTANTIATE_TEST_CASE_P(Singleton, CapRpcRelease, ::testing::Bool());
 
+/**
+ * When a server reallocates the receive slot after receiving a capability,
+ * the next received capability does not overwrite the previous one.
+ */
 TEST_P(CapRpcRelease, SendCap)
 {
   auto cap = env->get_cap<L4Re::Namespace>("rom");

@@ -9,6 +9,9 @@
 
 /**
  * Tests for Cache-flush API
+ *
+ * Tests in this file only test that the API return the expected results.
+ * They do not check that the expected function was actually executed.
  */
 
 #include <l4/re/env>
@@ -43,7 +46,10 @@ struct Test_range
   l4_addr_t end;
 };
 
-// Test with memory already mapped.
+/**
+ * Fixture for cache tests against memory that has already been
+ * mapped to the user.
+ */
 class MappedDataspace : public Test_range<true>
 {
 public:
@@ -63,7 +69,10 @@ private:
   L4Re::Rm::Unique_region<void *> _region;
 };
 
-// Test with memory that needs to be mapped before flushing caches works.
+/**
+ * Fixture for cache tests against memory where a dataspace has been created
+ * but not yet mapped to the user.
+ */
 class UnmappedDataspace : public Test_range<true>
 {
 public:
@@ -82,8 +91,10 @@ private:
   L4Re::Rm::Unique_region<void *> _region;
 };
 
-
-// Test with memory where page faults cannot be resolved.
+/**
+ * Fixture for cache tests against memory regions where nothing is
+ * allocated and therefore a page fault cannot be resolved.
+ */
 struct ReservedRange : Test_range<false>
 {
   ReservedRange()
@@ -213,24 +224,44 @@ protected:
 
 TYPED_TEST_CASE(CacheTest, MemoryTypes);
 
+/**
+ * A memory region can be cleaned in the data cache.
+ *
+ * \see l4_cache_clean_data
+ */
 TYPED_TEST(CacheTest, CleanData)
 {
   this->obj.check_result(l4_cache_clean_data(this->obj.start, this->obj.end),
                          "Clean data cache in test region");
 }
 
+/**
+ * A memory region can be flushed from the data cache.
+ *
+ * \see l4_cache_flush_data
+ */
 TYPED_TEST(CacheTest, FlushData)
 {
   this->obj.check_result(l4_cache_flush_data(this->obj.start, this->obj.end),
                          "Flush data cache in test region");
 }
 
+/**
+ * A memory region can be invalidated in the data cache.
+ *
+ * \see l4_cache_inv_data
+ */
 TYPED_TEST(CacheTest, InvData)
 {
   this->obj.check_result(l4_cache_inv_data(this->obj.start, this->obj.end),
                          "Invalidate data cache in test region");
 }
 
+/**
+ * A memory region can be made coherent between instruction and data cache.
+ *
+ * \see l4_cache_coherent
+ */
 TYPED_TEST(CacheTest, CoherentCache)
 {
   if (!TypeParam::Mem_available)
@@ -240,6 +271,11 @@ TYPED_TEST(CacheTest, CoherentCache)
                          "Flush instruction cache in test region");
 }
 
+/**
+ * A memory region can be made coherent for use with external access.
+ *
+ * \see l4_cache_dma_coherent
+ */
 TYPED_TEST(CacheTest, DmaCoherentData)
 {
   this->obj
@@ -249,6 +285,11 @@ TYPED_TEST(CacheTest, DmaCoherentData)
 
 #ifdef L4RE_TEST_HACK_APIS
 
+/**
+ * The entire data cache can be made coherent for use with external access.
+ *
+ * \see l4_cache_dma_coherent_full
+ */
 TYPED_TEST(CacheTest, DmaCoherentFull)
 {
   this->obj.check_result(l4_cache_dma_coherent_full(),

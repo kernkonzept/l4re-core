@@ -101,6 +101,9 @@ struct SimpleTypesRPC : Atkins::Fixture::Epiface_thread<Test_handler>
   }
 };
 
+/**
+ * Return values are transferred correctly.
+ */
 TEST_F(SimpleTypesRPC, ReturnValues)
 {
   expect_retval(0);
@@ -112,12 +115,18 @@ TEST_F(SimpleTypesRPC, ReturnValues)
   expect_retval(0);
 }
 
+/**
+ * Send-only IPC is transferred correctly.
+ */
 TEST_F(SimpleTypesRPC, SendOnly)
 {
   EXPECT_EQ(0, scap()->send_only());
   EXPECT_EQ(0UL, l4_ipc_error(scap()->send_only_tag(), l4_utcb()));
 }
 
+/**
+ * Integer parameters are transferred correctly to and from the server.
+ */
 TEST_F(SimpleTypesRPC, IntValues)
 {
   int ret;
@@ -147,6 +156,9 @@ TEST_F(SimpleTypesRPC, IntValues)
   EXPECT_EQ(0, handler().p_int);
 }
 
+/**
+ * Unsigned integer parameters are transferred correctly to and from the server.
+ */
 TEST_F(SimpleTypesRPC, UIntValues)
 {
   unsigned int ret;
@@ -172,6 +184,9 @@ TEST_F(SimpleTypesRPC, UIntValues)
   EXPECT_EQ(0U, handler().p_uint);
 }
 
+/**
+ * Char parameters are transferred correctly to and from the server.
+ */
 TEST_F(SimpleTypesRPC, CharValues)
 {
   signed char ret;
@@ -201,6 +216,9 @@ TEST_F(SimpleTypesRPC, CharValues)
   EXPECT_EQ(0, handler().p_char);
 }
 
+/**
+ * Unsigned char parameters are transferred correctly to and from the server.
+ */
 TEST_F(SimpleTypesRPC, UCharValues)
 {
   unsigned char ret;
@@ -226,6 +244,9 @@ TEST_F(SimpleTypesRPC, UCharValues)
   EXPECT_EQ(0U, handler().p_uchar);
 }
 
+/**
+ * Unsigned 64bit integers are transferred correctly to and from the server.
+ */
 TEST_F(SimpleTypesRPC, UInt64Values)
 {
   l4_uint64_t ret;
@@ -251,6 +272,9 @@ TEST_F(SimpleTypesRPC, UInt64Values)
   EXPECT_EQ(0U, handler().p_uint64);
 }
 
+/**
+ * Calls using a capability that is not present fail.
+ */
 TEST_F(SimpleTypesRPC, InvalidCapCall)
 {
   ASSERT_EQ(L4_EOK, l4_error(L4Re::Env::env()->task()->unmap(scap().fpage(),

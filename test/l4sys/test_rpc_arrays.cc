@@ -64,17 +64,36 @@ struct Test_iface : L4::Kobject_0t<Test_iface>
                           > Rpcs;
 };
 
+/**
+ * Harness for testing array parameters in RPC.
+ *
+ * The server interface defines functions `in_*` that take arrays as
+ * input parameters and `out_*` functions with arrays as output parameters
+ * which are populated with the content of `p_string`.
+ *
+ * Functions with input parameters also check that the received parameter is
+ * still valid and return the result of this check to the client.
+ */
 struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
 {
+  /// Error codes for failed checks (returned by functions with input parameters).
+  enum Check_errors
+  {
+    Err_ok = 0,
+    Err_start,   ///< String starts before the beginning of the UTCB area.
+    Err_end,     ///< String ends after the end of the UTCB area.
+    Err_not_ext, ///< An array that should have been copied still points to the UTCB.
+  };
+
   long op_in_simple_str(Test_iface::Rights, L4::Ipc::Array_ref<char const> var)
   {
     p_string = std::string(var.data, var.length);
 
-    // Check that the string is still on the UTB.
+    // Check that the string is still on the UTCB.
     if ((l4_addr_t) var.data < (l4_addr_t) l4_utcb_mr())
-      return 1;
+      return Err_start;
     if ((l4_addr_t) var.data > (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t))
-      return 2;
+      return Err_end;
 
     return 0;
   }
@@ -88,7 +107,7 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
     l4_addr_t daddr = (l4_addr_t) var.data;
     if (daddr >= (l4_addr_t) l4_utcb_mr()
         && daddr <= (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t))
-      return 1;
+      return Err_not_ext;
 
     return 0;
   }
@@ -102,7 +121,7 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
     l4_addr_t daddr = (l4_addr_t) var.data;
     if (daddr >= (l4_addr_t) l4_utcb_mr()
         && daddr <= (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t))
-      return 1;
+      return Err_not_ext;
 
     return 0;
   }
@@ -115,11 +134,11 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
 
     p_string = std::string(var.data, var.length);
 
-    // Check that the string is still on the UTB.
+    // Check that the string is still on the UTCB.
     if ((l4_addr_t) var.data < (l4_addr_t) l4_utcb_mr())
-      return 1;
+      return Err_start;
     if ((l4_addr_t) var.data > (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t))
-      return 2;
+      return Err_end;
 
     return 0;
   }
@@ -147,11 +166,11 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
   long op_out_inutcb_opt(Test_iface::Rights, bool valid,
                          L4::Ipc::Opt<L4::Ipc::Array_ref<char>> &var)
   {
-    // Check that the string is still on the UTB.
+    // Check that the string is still on the UTCB.
     if ((l4_addr_t) var->data < (l4_addr_t) l4_utcb_mr())
-      return 1;
+      return Err_start;
     if ((l4_addr_t) var->data > (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t))
-      return 2;
+      return Err_end;
 
     if (valid)
       {
@@ -213,6 +232,14 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
 
 struct ArrayTypesRPC : Atkins::Fixture::Epiface_thread<Test_handler>
 {
+  /**
+   * Create an array type string parameter with arbitrary size and
+   * send it to the server.
+   *
+   * The marshalling code already rejects overlong strings during sending.
+   * To test if the receiving side can handle overlong strings correctly,
+   * the message needs to be put together manually.
+   */
   l4_msgtag_t manual_svrcpy_str(unsigned long arraysz)
   {
     // Hand-craft a message with an oversized string.
@@ -233,6 +260,9 @@ struct ArrayTypesRPC : Atkins::Fixture::Epiface_thread<Test_handler>
   }
 };
 
+/**
+ * Strings are transferred with the correct length and content.
+ */
 TEST_F(ArrayTypesRPC, InSimpleString)
 {
   char const *teststr = "Hello World";
@@ -242,12 +272,19 @@ TEST_F(ArrayTypesRPC, InSimpleString)
   EXPECT_EQ(11U, handler().p_string.size());
 }
 
+/**
+ * Empty strings are transferred correctly.
+ */
 TEST_F(ArrayTypesRPC, InEmptyString)
 {
   EXPECT_EQ(0, scap()->in_simple_str(L4::Ipc::Array<char const>(0, 0)));
   EXPECT_EQ(0U, handler().p_string.length());
 }
 
+/**
+ * String input that is longer than the capacity of the UTCB is rejected
+ * when marshalling.
+ */
 TEST_F(ArrayTypesRPC, InOverlongString)
 {
   char buf[L4_UTCB_GENERIC_DATA_SIZE * sizeof(l4_umword_t)];
@@ -257,19 +294,30 @@ TEST_F(ArrayTypesRPC, InOverlongString)
             scap()->in_simple_str(L4::Ipc::Array<char const>(sizeof(buf), buf)));
 }
 
+/**
+ * String input that is longer than the capacity of the UTCB is rejected
+ * when unmarshalling on the server side.
+ */
 TEST_F(ArrayTypesRPC, InOverlongStringServerSide)
 {
   l4_msgtag_t msg = manual_svrcpy_str(~0UL);
   ASSERT_EQ(-L4_EMSGTOOSHORT, l4_error(msg));
 }
 
+/**
+ * String input that is longer than the message size as stated in the
+ * message tag is rejected when unmarshalling on the server side.
+ */
 TEST_F(ArrayTypesRPC, InOverlongStringServerSideOverflowing)
 {
-  // Test for overflow in message size computation.
   l4_msgtag_t msg = manual_svrcpy_str(1UL << (sizeof(unsigned long) * 8 - 1));
   ASSERT_EQ(-L4_EMSGTOOSHORT, l4_error(msg));
 }
 
+/**
+ * Strings are copied out of the UTCB on server side when a buffer is
+ * provided.
+ */
 TEST_F(ArrayTypesRPC, InSvrCpyString)
 {
   char const *teststr = "The quick fox jumps.";
@@ -278,21 +326,32 @@ TEST_F(ArrayTypesRPC, InSvrCpyString)
   EXPECT_STREQ(teststr, handler().p_string.c_str());
 }
 
+/**
+ * Strings are truncated on the server side if a buffer was provided that
+ * was too short.
+ */
 TEST_F(ArrayTypesRPC, InSvrCpyServerBufferTooShort)
 {
   char const *teststr = "XYfhe 4237f 64";
   L4::Ipc::Array<char const, unsigned long> a(strlen(teststr), teststr);
   EXPECT_EQ(0, scap()->in_svrcpy_smallbuf(a));
-  // message is simply cut
   EXPECT_STREQ("XY", handler().p_string.c_str());
 }
 
+/**
+ * An empty string is not transmitted when the string parameter is optional.
+ *
+ * \note Currently does not test if the string really was not sent.
+ */
 TEST_F(ArrayTypesRPC, InOptStringInvalid)
 {
   L4::Ipc::Opt<L4::Ipc::Array<char const> > in;
   EXPECT_EQ(0, scap()->in_opt_str(false, in));
 }
 
+/**
+ * A string with content is transmitted when the string parameter is optional.
+ */
 TEST_F(ArrayTypesRPC, InOptStringValid)
 {
   char const *teststr = "maybe";
@@ -302,6 +361,9 @@ TEST_F(ArrayTypesRPC, InOptStringValid)
   EXPECT_EQ(5U, handler().p_string.size());
 }
 
+/**
+ * Strings returned from the server are transferred correctly.
+ */
 TEST_F(ArrayTypesRPC, OutSimpleString)
 {
   handler().p_string = "Goodbye Friends.";
@@ -313,6 +375,10 @@ TEST_F(ArrayTypesRPC, OutSimpleString)
   EXPECT_EQ(handler().p_string, std::string(buf, ret.length));
 }
 
+/**
+ * Returning the message fails if the string sent by the server
+ * exceeds the capacity of the UTCB.
+ */
 TEST_F(ArrayTypesRPC, OutStringServerMessageTooLong)
 {
   handler().p_string = std::string(4100, ' ');
@@ -321,16 +387,23 @@ TEST_F(ArrayTypesRPC, OutStringServerMessageTooLong)
   EXPECT_EQ(-L4_EMSGTOOLONG, scap()->out_simple_str(ret));
 }
 
+/**
+ * A string sent by the server is cut when the receive buffer of the
+ * client is too short.
+ */
 TEST_F(ArrayTypesRPC, OutStringClientBufferTooShort)
 {
   handler().p_string = std::string(100, ' ');
   char buf[60];
   L4::Ipc::Array<char, unsigned long> ret(sizeof(buf), buf);
-  // message is simply cut
   EXPECT_EQ(0, scap()->out_simple_str(ret));
   EXPECT_EQ(60U, ret.length);
 }
 
+/**
+ * The client may read a returned string directly from the UTCB
+ * when the parameter is a reference type.
+ */
 TEST_F(ArrayTypesRPC, OutInUtcbString)
 {
   handler().p_string = "Westward ho.";
@@ -343,6 +416,10 @@ TEST_F(ArrayTypesRPC, OutInUtcbString)
             (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t));
 }
 
+/**
+ * When an array out parameter is a reference type, then the data returned
+ * from the server is not copied even when a buffer is supplied.
+ */
 TEST_F(ArrayTypesRPC, OutInUtcbStringArray)
 {
   handler().p_string = "Westward ho.";
@@ -357,6 +434,10 @@ TEST_F(ArrayTypesRPC, OutInUtcbStringArray)
             (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t));
 }
 
+/**
+ * The client may read a returned string directly from the UTCB
+ * when the parameter is an optional reference array type.
+ */
 TEST_F(ArrayTypesRPC, OutInUtcbStringOptArray)
 {
   handler().p_string = "Westward ho.";
@@ -371,6 +452,10 @@ TEST_F(ArrayTypesRPC, OutInUtcbStringOptArray)
             (l4_addr_t) l4_utcb_mr() + sizeof(l4_msg_regs_t));
 }
 
+/**
+ * Strings may be sent by the client and returned by the server in
+ * the same call.
+ */
 TEST_F(ArrayTypesRPC, InOutString)
 {
   char const *teststr = "something short";
@@ -388,6 +473,9 @@ TEST_F(ArrayTypesRPC, InOutString)
             std::string(ret.data, ret.length));
 }
 
+/**
+ * Arrays of arbitrary types are transferred correctly when sent by the client.
+ */
 TEST_F(ArrayTypesRPC, InStruct)
 {
   Tuple buf[10]; // randomly filled
@@ -402,6 +490,9 @@ TEST_F(ArrayTypesRPC, InStruct)
 
 }
 
+/**
+ * Arrays of arbitrary types are transferred correctly when sent by the server.
+ */
 TEST_F(ArrayTypesRPC, OutStruct)
 {
   handler().p_vec.clear();
