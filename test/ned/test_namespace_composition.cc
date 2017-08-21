@@ -6,6 +6,9 @@
  * License, version 2. Please see the COPYING-GPL-2 file for details.
  */
 
+/**
+ * Test access to Ned's namespace hierarchy.
+ */
 #include <l4/atkins/tap/main>
 #include <l4/atkins/l4_assert>
 #include <l4/re/util/cap_alloc>
@@ -32,6 +35,9 @@ public:
   L4::Cap<L4Re::Namespace> rom_ns, test_ns;
 };
 
+/**
+ * A Ned namespace provides access by name to namespace members only.
+ */
 TEST_F(NamespaceComposition, CheckRomNs)
 {
   auto ds = chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>(), "cap alloc");
@@ -46,6 +52,10 @@ TEST_F(NamespaceComposition, CheckRomNs)
     << "'ned' need not be visible in 'rom' namespace";
 }
 
+/**
+ * A Ned namespace provides access to a local member which overlays a global
+ * name, but prevents access to global names.
+ */
 TEST_F(NamespaceComposition, CheckTestNs)
 {
   Unique_cap<L4Re::Dataspace> ds =

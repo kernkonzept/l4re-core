@@ -1,4 +1,15 @@
+/*
+ * Copyright (C) 2018 Kernkonzept GmbH.
+ * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
+ *            Philipp Eppelt <philipp.eppelt@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
 
+/**
+ * Test Ned's direct control interface.
+ */
 #include <l4/atkins/tap/main>
 #include <l4/ned/cmd_control>
 #include <l4/re/env>
@@ -20,21 +31,42 @@ public:
 };
 
 
+/**
+ * Ned returns an error when asked to execute a non-existing command.
+ *
+ * \see L4Re::Ned::Cmd_control::execute
+ */
 TEST_F(NedTest, nil_function)
 {
   ASSERT_EQ(-L4_EIO, cmd->execute("non_existing()"));
 }
 
+/**
+ * Ned returns an error when a command contains a syntax error.
+ *
+ * \see L4Re::Ned::Cmd_control::execute
+ */
 TEST_F(NedTest, syntax_error)
 {
   ASSERT_EQ(-L4_EINVAL, cmd->execute("syntax error"));
 }
 
+/**
+ * Ned executes a function present in its global Lua state without error.
+ *
+ * \see L4Re::Ned::Cmd_control::execute
+ */
 TEST_F(NedTest, test_func)
 {
   ASSERT_EQ(0, cmd->execute("test()"));
 }
 
+/**
+ * Ned's interface provides a string representation of the return value of the
+ * executed Lua code.
+ *
+ * \see L4Re::Ned::Cmd_control::execute
+ */
 TEST_F(NedTest, test_func_result_ret_1)
 {
   char buf[60];
@@ -43,6 +75,12 @@ TEST_F(NedTest, test_func_result_ret_1)
   ASSERT_EQ(0, memcmp(result.data, "1", result.length));
 }
 
+/**
+ * Ned's interface provides a string representation of the returned table of the
+ * executed Lua code.
+ *
+ * \see L4Re::Ned::Cmd_control::execute
+ */
 TEST_F(NedTest, test_func_result_ret_table)
 {
   char buf[60];
@@ -52,6 +90,13 @@ TEST_F(NedTest, test_func_result_ret_table)
   ASSERT_EQ(0, memcmp(result.data, "table:", 6));
 }
 
+/**
+ * Ned's interface provides access to variables in Ned's global Lua state.
+ * When the returned string does not fit into the UTCB, the error is silently
+ * ignored.
+ *
+ * \see L4Re::Ned::Cmd_control::execute
+ */
 TEST_F(NedTest, test_func_result_ret_long_string)
 {
   char buf[60];
@@ -59,6 +104,12 @@ TEST_F(NedTest, test_func_result_ret_long_string)
   ASSERT_EQ(0, cmd->execute("return overly_long_string", &result));
 }
 
+/**
+ * Ned's interface provides a string representation of the return value of the
+ * invoked function present in Ned's global Lua state.
+ *
+ * \see L4Re::Ned::Cmd_control::execute
+ */
 TEST_F(NedTest, test_func_result)
 {
   char buf[60];
