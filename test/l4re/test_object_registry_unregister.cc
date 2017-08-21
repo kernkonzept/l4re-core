@@ -9,7 +9,6 @@
 /*
  * Test if unregister correctly handles IPC that are still pending
  * for the server.
- *
  */
 #include <l4/re/util/object_registry>
 #include <l4/util/util.h>
@@ -55,7 +54,12 @@ private:
   Test_handler _handler;
 };
 
-
+/**
+ * A pending IPC for an object registered with an object registry should
+ * be canceled, when the object is unregistered from the registry.
+ *
+ * \see L4Re::Util::Object_register.unregister_obj
+ */
 TEST_F(SimpleObjectRegistry, UnregisterWithPending)
 {
   std::thread t(&call_thread, handler().obj_cap());

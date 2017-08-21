@@ -55,10 +55,22 @@ struct NamespaceSvr
   NamespaceSvr() : Namespace_fixture(GetParam()) {}
 };
 
+/**
+ * All tests run with two server configurations: first with
+ * L4_RCV_ITEM_LOCAL_ID, where the server requests to receive local capability
+ * indices whenever possible; second with always receiving newly mapped
+ * capabilities.
+ */
+static unsigned long const receive_cap_flags[] = { L4_RCV_ITEM_LOCAL_ID, 0 };
 static INSTANTIATE_TEST_CASE_P(LocalVsGlobal, NamespaceSvr,
-                               ::testing::Values(L4_RCV_ITEM_LOCAL_ID, 0));
+                               ::testing::ValuesIn(receive_cap_flags));
 
-
+/**
+ * query returns -L4_ENOENT for names not in the namespace and -L4_EINVAL for
+ * invalid names.
+ *
+ * \see L4Re::Namespace.query
+ */
 TEST_P(NamespaceSvr, QueryEmptyNameSpace)
 {
   EXPECT_EQ(-L4_ENOENT, query("foo"));
@@ -67,6 +79,12 @@ TEST_P(NamespaceSvr, QueryEmptyNameSpace)
   EXPECT_EQ(-L4_EINVAL, query(""));
 }
 
+/**
+ * An object can be registered with a namespace service and be queried under
+ * the registered name afterwards.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_P(NamespaceSvr, RegisterValid)
 {
   handler.reset_counters();
@@ -77,6 +95,11 @@ TEST_P(NamespaceSvr, RegisterValid)
   ASSERT_EQ(GetParam()?0:1, handler.reserve_cap_count);
 }
 
+/**
+ * Multiple names can be registered with a namespace service.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_P(NamespaceSvr, RegisterMultipleValid)
 {
   handler.reset_counters();
@@ -88,6 +111,13 @@ TEST_P(NamespaceSvr, RegisterMultipleValid)
   ASSERT_EQ(GetParam()?0:1, handler.reserve_cap_count);
 }
 
+/**
+ * A name can be reserved with a namespace service when an invalid capability
+ * is registered. A valid capability can be registered later for such a
+ * reserved entry.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_P(NamespaceSvr, RegisterInvalid)
 {
   ASSERT_EQ(-L4_ENOENT, query("pend"));
@@ -102,6 +132,11 @@ TEST_P(NamespaceSvr, RegisterInvalid)
   ASSERT_EQ(0, query("pend"));
 }
 
+/**
+ * A name reserved in a namespace service cannot be removed.
+ *
+ * \see L4Re::Namespace.unlink
+ */
 TEST_P(NamespaceSvr, FreeInvalidEntry)
 {
   handler.reset_counters();
@@ -113,16 +148,32 @@ TEST_P(NamespaceSvr, FreeInvalidEntry)
   ASSERT_EQ(0, handler.free_cap_count);
 }
 
+/**
+ * An object cannot be registered with a name containing slashes.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_P(NamespaceSvr, RegisterWithSlash)
 {
   ASSERT_EQ(-L4_EINVAL, scap()->register_obj("ping/pong", scap()));
 }
 
+/**
+ * An object cannot be registered with an empty name.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_P(NamespaceSvr, RegisterEmpty)
 {
   ASSERT_EQ(-L4_EINVAL, scap()->register_obj("", scap()));
 }
 
+/**
+ * An existing name with a valid object registration cannot be overwritten with
+ * an invalid capability without using the L4Re::Namespace::Overwrite flag.
+ *
+ * \see L4Re::Namespace.register_obj
+ */
 TEST_P(NamespaceSvr, RegisterOverwriteInvalid)
 {
   handler.reset_counters();
@@ -143,12 +194,23 @@ TEST_P(NamespaceSvr, RegisterOverwriteInvalid)
                                       L4Re::Namespace::To_non_blocking));
 }
 
-// Test that can only be run against mapped capabilities.
+// The following tests are only performed with newly mapped
+// capabilities. The test RegisterPropagateRights can only run with
+// newly mapped capabilities.
 struct MappedNamespaceSvr : Namespace_fixture
 {
   MappedNamespaceSvr() : Namespace_fixture(0) {}
 };
 
+/**
+ * When a client possesses only a read-only capability to an object it cannot
+ * register the capability with read-write rights.
+ *
+ * Note that query() is a member function in Namespace_fixture that
+ * saves the retrieved capability slot in the `cap` member.
+ *
+ * \see L4Re::namespace.register_obj
+ */
 TEST_F(MappedNamespaceSvr, RegisterPropagateRights)
 {
   // Register capability read-only.
@@ -157,16 +219,22 @@ TEST_F(MappedNamespaceSvr, RegisterPropagateRights)
   ASSERT_TRUE(cap.is_valid());
   // We should not be allowed to register on the returned capability.
   ASSERT_EQ(-L4_EPERM, cap->register_obj("foo", L4::Cap<void>()));
-  // Register the cap under a new name with full rights.
+  // Register the previously queried cap under a new name with full rights.
   ASSERT_EQ(L4_EOK, scap()->register_obj("second",
                                          L4::Ipc::make_cap_rw(cap.get()),
                                          L4Re::Namespace::Rw));
   ASSERT_EQ(L4_EOK, query("second"));
-  // We still shouldn't be able to register on that second cap.
+  // The second cap is missing the write permission.
   ASSERT_EQ(-L4_EPERM, cap->register_obj("foo", L4::Cap<void>()));
 }
 
-
+/**
+ * An object registered with a namespace service under a specific name is
+ * overwritten with a new object under the same name, if the
+ * L4Re::Namespace::Overwrite flag is specified.
+ *
+ * \see L4Re::namespace.register_obj
+ */
 TEST_F(MappedNamespaceSvr, RegisterOverwriteNew)
 {
   handler.reset_counters();
@@ -191,6 +259,12 @@ TEST_F(MappedNamespaceSvr, RegisterOverwriteNew)
   ASSERT_EQ(L4_EOK, cap->query("l4re", cap2.get()));
 }
 
+/**
+ * A registered name is removed from the namespace service when the object
+ * registered under the name is deleted.
+ *
+ * \see L4Re::namespace.register_obj
+ */
 TEST_F(MappedNamespaceSvr, RegisterAndUnmapDataspace)
 {
   handler.reset_counters();
@@ -207,6 +281,8 @@ TEST_F(MappedNamespaceSvr, RegisterAndUnmapDataspace)
   // Now delete the cap and there should be no entry.
   ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(ds.fpage(), L4_FP_DELETE_OBJ |
                                                 L4_FP_ALL_SPACES)));
+  // The namespace server only notes that the capability is gone
+  // during the query() call.
   ASSERT_EQ(0, handler.free_cap_count);
   EXPECT_LE(ds.validate(L4_BASE_TASK_CAP).label(), 0);
   EXPECT_EQ(-L4_ENOENT, query("gone"));
@@ -215,6 +291,12 @@ TEST_F(MappedNamespaceSvr, RegisterAndUnmapDataspace)
   EXPECT_EQ(true, L4Re::Util::cap_alloc.free(ds));
 }
 
+/**
+ * Namespaces are resolved recursively, when the query contains multiple
+ * elements separated by slash
+ *
+ * \see L4Re::namespace.register_obj
+ */
 TEST_F(MappedNamespaceSvr, Recursive)
 {
   ASSERT_EQ(0, scap()->register_obj("ping", scap()));

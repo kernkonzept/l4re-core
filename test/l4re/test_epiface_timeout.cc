@@ -6,6 +6,9 @@
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
 
+/**
+ * Test the timeout handling of the L4Re::Util::Registry_server.
+ */
 #include <l4/atkins/tap/main>
 
 #include <l4/re/util/object_registry>
@@ -218,30 +221,59 @@ static unsigned
 array_length(T (&)[N])
 { return N; }
 
+/**
+ * Add an already expired timeout to the timeout queue and expect to be
+ * notified, but don't expect an timeout error.
+ */
 TEST_F(EpifaceTimeout, TimeoutAlreadyExpired)
 {
   unsigned add[] = {0};
   run(add, array_length(add), 0, false, 0);
 }
 
+/**
+ * Add a sorted list of timeouts to the timeout queue and expect them to expire
+ * in natural order and to receive the one timeout error for each timeout value
+ * in the future exactly once. Expect an expired notification for each timeout
+ * passed.
+ */
 TEST_F(EpifaceTimeout, TimeoutSorted)
 {
   unsigned add[] = {0, 1, 2, 3, 4};
   run(add, array_length(add), 0, false, 3);
 }
 
+/**
+ * Add an unsorted list of timeouts to the timeout queue and expect them to
+ * expire in natural order and to receive the one timeout error for each
+ * timeout value in the future exactly once. Expect an expired notification for
+ * each timeout passed.
+ */
 TEST_F(EpifaceTimeout, TimeoutUnsorted)
 {
   unsigned add[] = {1, 0, 4, 3, 2};
   run(add, array_length(add), 0, false, 3);
 }
 
+/**
+ * Add a list of timeouts in reverse order to the timeout queue and expect them
+ * to expire in natural order and to receive the one timeout error for each
+ * timeout value in the future exactly once. Expect an expired notification for
+ * each timeout passed.
+ *
+ */
 TEST_F(EpifaceTimeout, TimeoutReverse)
 {
   unsigned add[] = {4, 3, 2, 1, 0};
   run(add, array_length(add), 0, false, 3);
 }
 
+/**
+ * Add a list of timeouts to the timeout queue and destruct an added timeout
+ * object. Expect that the destructed timeout does neither trigger an timeout
+ * error nor an expired notification. All other timeouts should raise timeout
+ * errors and notifications as usual.
+ */
 TEST_F(EpifaceTimeout, DeletedTimeout)
 {
   unsigned add[] = {1, 2, 3, 4};

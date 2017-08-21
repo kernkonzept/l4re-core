@@ -5,6 +5,10 @@
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
+
+/**
+ * Test for Auto_cap, Auto_del_cap, Ref_cap, Ref_del_cap.
+ */
 #include <l4/sys/thread>
 
 #include <l4/atkins/tap/main>
@@ -18,6 +22,12 @@
 static L4Re::Env const *env = L4Re::Env::env();
 static L4::Cap<L4Re::Namespace> rom_ns = env->get_cap<L4Re::Namespace>("rom");
 
+/**
+ * An Auto_cap allocates a cap slot on creation and unmaps the capability when
+ * it goes out of scope.
+ *
+ * \see L4Re::Util::Auto_cap
+ */
 TEST(CapAlloc, AutoCap)
 {
   L4::Cap<L4Re::Namespace> cap;
@@ -38,6 +48,11 @@ TEST(CapAlloc, AutoCap)
   ASSERT_EQ(0, env->task()->cap_valid(cap).label());
 }
 
+/**
+ * An Auto_del_cap deletes the referenced object when it goes out of scope.
+ *
+ * \see L4Re::Util::Auto_del_cap
+ */
 TEST(CapAlloc, AutoDelCap)
 {
   auto testcap = L4Re::Util::make_auto_cap<L4Re::Dataspace>();
@@ -58,6 +73,12 @@ TEST(CapAlloc, AutoDelCap)
                                       L4Re::Namespace::To_non_blocking));
 }
 
+/**
+ * A Ref_cap unmaps its managed capability when the reference count reaches
+ * zero due to itself going out of scope.
+ *
+ * \see L4Re::Util::Ref_cap
+ */
 TEST(CapAlloc, RefCap)
 {
   L4::Cap<L4Re::Namespace> cap;
@@ -88,6 +109,13 @@ TEST(CapAlloc, RefCap)
   ASSERT_EQ(0, env->task()->cap_valid(cap).label());
 }
 
+/**
+ * A Ref_cap deletes its managed capability when the reference count reaches
+ * zero due to itself going out of scope.
+ *
+ * \see L4Re::Util::Ref_del_cap
+ *
+ */
 TEST(CapAlloc, RefDelCap)
 {
   auto testcap = L4Re::Util::make_auto_cap<L4Re::Dataspace>();
@@ -120,6 +148,8 @@ TEST(CapAlloc, RefDelCap)
 /**
  * The move assignment of the auto_cap must delete the previous content of
  * target and invalidate the source.
+ *
+ * \see L4Re::Util::Auto_cap
  */
 TEST(AutoCap, MoveAssignment)
 {
@@ -129,7 +159,7 @@ TEST(AutoCap, MoveAssignment)
   auto autocap_content = autocap.get();
 
   ASSERT_EQ(autocap.get().cap(), autocap_content.cap())
-    << "The capability index of both capabilities is equal.";
+    << "The capability index of both cap objects is equal.";
   ASSERT_L4CAP_PRESENT(autocap.get())
     << "Kernel object of the capability stored in the auto_cap is present.";
   ASSERT_L4CAP_PRESENT(autocap_content)
@@ -138,7 +168,7 @@ TEST(AutoCap, MoveAssignment)
   auto newautocap = L4Re::Util::make_auto_cap<L4::Thread>();
   autocap = std::move(newautocap);
   ASSERT_FALSE(newautocap.is_valid())
-    << "Capability was moved, the old auto_cap container must be "
+    << "Capability was moved, the source auto_cap container must be "
        "invalidated.";
   ASSERT_NE(autocap.cap(), autocap_content.cap())
     << "Capability index of the new capability in autocap is different than "
@@ -151,6 +181,8 @@ TEST(AutoCap, MoveAssignment)
 /**
  * The copy assignment of the auto_cap must delete the previous content of
  * target and invalidate the source.
+ *
+ * \see L4Re::Util::Auto_cap
  */
 TEST(AutoCap, CopyAssignment)
 {
@@ -160,7 +192,7 @@ TEST(AutoCap, CopyAssignment)
   auto autocap_content = autocap.get();
 
   ASSERT_EQ(autocap.get().cap(), autocap_content.cap())
-    << "The capability index of both capabilities is equal.";
+    << "The capability index of both cap objects is equal.";
   ASSERT_L4CAP_PRESENT(autocap.get())
     << "Kernel object of the capability stored in the auto_cap is present.";
   ASSERT_L4CAP_PRESENT(autocap_content)
@@ -169,7 +201,7 @@ TEST(AutoCap, CopyAssignment)
   auto newautocap = L4Re::Util::make_auto_cap<L4::Thread>();
   autocap = newautocap;
   ASSERT_FALSE(newautocap.is_valid())
-    << "Capability was moved, the old auto_cap container must be "
+    << "Capability was copied, the source auto_cap container must be "
        "invalidated.";
   ASSERT_NE(autocap.cap(), autocap_content.cap())
     << "Capability index of the new capability in autocap is different than "

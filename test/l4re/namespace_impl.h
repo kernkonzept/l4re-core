@@ -36,7 +36,7 @@ public:
  * the standard cap_alloc mechanism.
  *
  * Local caps can be used if they point to an Epiface. For
- * other local caps the implemntation does not provide the
+ * other local caps the implementation does not provide the
  * right mechanism to mark them as local (and therefore not
  * deletable).
  */
