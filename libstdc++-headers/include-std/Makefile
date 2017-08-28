@@ -24,17 +24,11 @@ BASIC_FILE_H       := config/io/basic_file_stdio.h
 CSTDIO_H           := config/io/c_io_stdio.h
 CMATH_TCC          := include/c_std/cmath.tcc
 
-
-# FIX BID:
-
 include $(L4DIR)/mk/include.mk
 include $(STDCXX_PKG_DIR)/contrib.inc
 
-ifeq ("$(STDCXX_0x)", "y")
-  LIBSUPC_H            += initializer_list
-  LIBSUPC_H-4.6_PLUS-  += exception_ptr.h nested_exception.h
-  LIBSUPC_H-4.6_PLUS-y += bits/exception_ptr.h bits/nested_exception.h
-endif
+LIBSUPC_H           += initializer_list bits/exception_ptr.h bits/nested_exception.h
+
 STDCXX_CSTD_HEADERS := \
   cassert cctype cerrno cfloat ciso646 climits clocale cmath csetjmp csignal \
   cstdarg cstddef cstdio cstdlib cstring ctime cwchar cwctype cstdint
