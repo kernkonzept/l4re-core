@@ -13,6 +13,8 @@ all::
 
 include $(L4DIR)/mk/lib.mk
 
+export VERBOSE
+
 DEFS = -DARCH_$(ARCH) $(OPTS)
 
 liblua.a: $(SRC_DIR)/Makefile $(SRC_DIR)/Makefile.lua FORCE
