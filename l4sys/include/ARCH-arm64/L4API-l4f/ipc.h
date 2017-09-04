@@ -28,7 +28,6 @@
 #ifdef __GNUC__
 
 #include <l4/sys/compiler.h>
-#include <l4/sys/syscall_defs.h>
 
 L4_INLINE l4_msgtag_t
 l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
@@ -45,14 +44,13 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
   (void)utcb;
 
   __asm__ __volatile__
-    ("svc #0x0" //bl %[sc] \n"
+    ("svc #0x0"
      :
      "+r" (_dest),
      "+r" (_timeout),
      "+r" (_label),
      "+r" (_tag)
      :
-     [sc] "i" (L4_SYSCALL_INVOKE)
      :
      "cc", "memory", "x30");
 

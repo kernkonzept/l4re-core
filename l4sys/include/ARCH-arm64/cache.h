@@ -27,7 +27,6 @@
 #define __L4SYS__INCLUDE__ARCH_ARM__CACHE_H__
 
 #include <l4/sys/compiler.h>
-#include <l4/sys/syscall_defs.h>
 
 #include_next <l4/sys/cache.h>
 
