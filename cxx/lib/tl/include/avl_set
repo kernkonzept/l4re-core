@@ -117,12 +117,18 @@ template< typename ITEM_TYPE, class COMPARE,
 class Base_avl_set
 {
 public:
+  /**
+   * Return status constants.
+   *
+   * These constants are compatible with the L4 error codes, see
+   * #l4_error_code_t.
+   */
   enum
   {
-    E_noent =  2,
-    E_exist = 17,
-    E_nomem = 12,
-    E_inval = 22
+    E_noent =  2, ///< Item does not exist.
+    E_exist = 17, ///< Item exists already.
+    E_nomem = 12, ///< Memory allocation failed.
+    E_inval = 22  ///< Internal error.
   };
   /// Type for the items store in the set
   typedef ITEM_TYPE Item_type;
@@ -254,11 +260,12 @@ public:
    * \param item  The item to insert.
    *
    * \return A pair of iterator (`first`) and return value (`second`).
-   *         `second` will be 0 if the  element was inserted into the set
-   *         and `-E_exist` if an element is already in the set.
+   *         `second` will be 0 if the element was inserted into the set
+   *         and `-#E_exist` if the element was already in the set and
+   *         the set was therefore not updated.
    *         In both cases, `first` contains an iterator that points to
    *         the element.
-   *         `second` may also be `-E_nomem` in when memory for the node
+   *         `second` may also be `-#E_nomem` when memory for the node
    *         could not be allocated. `first` is then invalid.
    *
    * Insert a new item into the set, each item can only be once in

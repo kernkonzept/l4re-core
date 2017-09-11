@@ -99,11 +99,12 @@ public:
    * \param data  The data value to insert.
    *
    * \return A pair of iterator (`first`) and return value (`second`).
-   *         `second` will be 0 if the  element was inserted into the set
-   *         and `-E_exist` if an element is already in the set.
+   *         `second` will be 0 if the element was inserted into the set
+   *         and `-#E_exist` if the key was already in the set and the
+   *         set was therefore not updated.
    *         In both cases, `first` contains an iterator that points to
    *         the element.
-   *         `second` may also be `-E_nomem` when memory for the new node
+   *         `second` may also be `-#E_nomem` when memory for the new node
    *         could not be allocated. `first` is then invalid.
    */
   cxx::Pair<Iterator, int> insert(Key_type const &key, Data_type const &data)

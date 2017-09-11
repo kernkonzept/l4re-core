@@ -68,6 +68,7 @@ private:
   H_list_item_t *_n, **_pn;
 };
 
+/** Untyped list item. */
 typedef H_list_item_t<void> H_list_item;
 
 /**
@@ -205,6 +206,8 @@ public:
    *
    * \param p  Element in list to be replaced.
    * \param e  Replacement element, must not yet be in a list.
+   *
+   * \pre `p` and `e` must not be NULL.
    *
    * After the operation the p element is no longer in the
    * list and may be reused.

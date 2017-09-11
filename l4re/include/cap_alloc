@@ -146,7 +146,7 @@ public:
  *        unmap of the capability selector.
  * \param T the type of the object that is referred by the capability.
  *
- * This kind of automatic capability is useful for capabilities with
+ * This kind of automatic capability is useful for capabilities
  * that shall have a lifetime that is strictly coupled to one C++ scope.
  *
  * Usage:
@@ -177,7 +177,8 @@ struct Auto_cap
  *        unmap+delete of the capability selector.
  * \param T the type of the object that is referred by the capability.
  *
- * This kind of automatic capability is useful for capabilities with
+ * This kind of automatic capability is useful for capabilities
+ * pointing to objects
  * that shall have a lifetime that is strictly coupled to one C++ scope.
  * The main difference to Auto_cap is that the unmap is done with the
  * deletion flag enabled and this leads to the deletion of the object

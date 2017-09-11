@@ -155,6 +155,7 @@ protected:
   static typename POLICY::Type __get_internal(Iterator const &i) { return i._c; }
   static Iterator __iter(typename POLICY::Type c) { return Iterator(c); }
 
+  /// Pointer to front of the list.
   typename POLICY::Head_type _f;
 };
 
