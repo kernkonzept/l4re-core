@@ -30,26 +30,18 @@
 #include <l4/sys/types.h>
 #include <l4/sys/ktrace_events.h>
 
+/**
+ * Log event types
+ * \ingroup api_calls_fiasco
+ */
 enum
 {
-  LOG_EVENT_CONTEXT_SWITCH = 0,  /**< Event: context switch
-                                  **  \ingroup api_calls_fiasco
-                                  **/
-  LOG_EVENT_IPC_SHORTCUT   = 1,  /**< Event: IPC shortcut
-                                  **  \ingroup api_calls_fiasco
-                                  **/
-  LOG_EVENT_IRQ_RAISED     = 2,  /**< Event: IRQ occurred
-                                  **  \ingroup api_calls_fiasco
-                                  **/
-  LOG_EVENT_TIMER_IRQ      = 3,  /**< Event: Timer IRQ occurred
-                                  **  \ingroup api_calls_fiasco
-                                  **/
-  LOG_EVENT_THREAD_EX_REGS = 4,  /**< Event: thread_ex_regs
-                                  **  \ingroup api_calls_fiasco
-                                  **/
-  LOG_EVENT_MAX_EVENTS     = 16, /**< Maximum number of events
-                                  **  \ingroup api_calls_fiasco
-                                  **/
+  LOG_EVENT_CONTEXT_SWITCH = 0,  /**< Event: context switch */
+  LOG_EVENT_IPC_SHORTCUT   = 1,  /**< Event: IPC shortcut */
+  LOG_EVENT_IRQ_RAISED     = 2,  /**< Event: IRQ occurred */
+  LOG_EVENT_TIMER_IRQ      = 3,  /**< Event: Timer IRQ occurred */
+  LOG_EVENT_THREAD_EX_REGS = 4,  /**< Event: thread_ex_regs */
+  LOG_EVENT_MAX_EVENTS     = 16, /**< Maximum number of events */
 };
 
 /**
