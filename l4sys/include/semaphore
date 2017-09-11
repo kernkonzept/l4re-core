@@ -58,7 +58,9 @@ struct Semaphore : Kobject_t<Semaphore, Triggerable, L4_PROTO_SEMAPHORE>
    * \return Send-only IPC message return tag. Use l4_ipc_error() to check for
    *         errors, do **not** use l4_error().
    *
-   * Increases the semaphore counter by one.
+   * Increases the semaphore counter by one if it is smaller than an
+   * unspecified limit. The unspecified limit is guaranteed to be at
+   * least 2^31-1.
    */
   l4_msgtag_t up(l4_utcb_t *utcb = l4_utcb()) throw()
   { return trigger(utcb); }
