@@ -32,6 +32,7 @@
 #include_next <l4/sys/cache.h>
 #include <l4/sys/ipc.h>
 #include <l4/sys/consts.h>
+#include <l4/sys/compiler.h>
 
 EXTERN_C void syncICache(unsigned long start, unsigned long size);
 
@@ -84,8 +85,11 @@ l4_cache_coherent(unsigned long start,
   unsigned long step;
   unsigned long i;
   asm volatile ("rdhwr %0, $1" : "=r"(step));
-  for (i = start; i < end; i += step)
-    asm volatile ("synci (%0)" : : "r"(i));
+
+  // step may be 0 when instruction caches are disabled
+  if (L4_LIKELY(step > 0))
+    for (i = start; i < end; i += step)
+      asm volatile ("synci (%0)" : : "r"(i));
 
   asm volatile ("sync");
   asm volatile (".set push; .set noat; .set noreorder\n"
