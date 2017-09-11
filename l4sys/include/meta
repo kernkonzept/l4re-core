@@ -1,4 +1,4 @@
-// vi:ft=cpp
+// vi:set ft=cpp: -*- Mode: C++ -*-
 /**
  * \file
  * Meta interface for getting dynamic type information about objects behind

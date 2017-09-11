@@ -1,4 +1,4 @@
-// vi:ft=cpp
+// vi:set ft=cpp: -*- Mode: C++ -*-
 /*
  * (c) 2010 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
  *          Alexander Warg <warg@os.inf.tu-dresden.de>

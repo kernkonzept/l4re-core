@@ -1,4 +1,4 @@
-// vi:ft=cpp
+// vi:set ft=cpp: -*- Mode: C++ -*-
 /**
  * \file
  * The debugger interface specifies common debugging related definitions.

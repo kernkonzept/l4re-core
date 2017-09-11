@@ -1,4 +1,4 @@
-// vi:ft=cpp
+// vi:set ft=cpp: -*- Mode: C++ -*-
 /**
  * \file
  * Pager and Io_pager C++ interface.
