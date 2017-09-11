@@ -3,7 +3,7 @@
  * \brief  Low-level Thread Functions
  *
  * \date   1997
- * \author Sebastian Schönberg */
+ * \author Sebastian SchÃ¶nberg */
 
 /*
  * (c) 2003-2009 Author(s)
