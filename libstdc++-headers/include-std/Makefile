@@ -69,19 +69,19 @@ std_header_list = $(strip $(1)) std_$(strip $(1)).h
 
 choose_std_header = $(word 1, $(wildcard $(foreach DIR,$(STDCXX_STD_DIRS),$(addprefix $(INCSRC_DIR)/$(DIR)/, $(call std_header_list, $(1))))))
 
-$(STDCXX_CSTD_HEADERS_ABS): %: | $(INSTALL_INCDIR_X)
-	@$(INSTALL_LINK_MESSAGE)
+$(STDCXX_CSTD_HEADERS_ABS): %: $(BID_ROOT_CONF) | $(INSTALL_INCDIR_X)
+	@$(INSTALL_LINK_MESSAGE) $@
 	$(VERBOSE)$(LN) -sf $(call choose_std_header,$(notdir $@)) $@
 
-$(LIBSUPC_HI): %: | $(INSTALL_INCDIR_X)
-	@$(INSTALL_LINK_MESSAGE)
+$(LIBSUPC_HI): %: $(BID_ROOT_CONF) | $(INSTALL_INCDIR_X)
+	@$(INSTALL_LINK_MESSAGE) $@
 	$(VERBOSE)$(call install_header, libsupc++/$(notdir $@), $(patsubst $(INSTALL_INCDIR_X)/%,%,$@))
 
 $(INSTALL_INCDIR_X):
 	@$(INSTALL_LINK_MESSAGE) $(INSTALL_INCDIR_X)
 	$(VERBOSE)$(INSTALL) -d $(INSTALL_INCDIR_X)
 
-all:: $(LIBSUPC_HI) $(STDCXX_CSTD_HEADERS_ABS) | $(INSTALL_INCDIR_X)
+all:: $(LIBSUPC_HI) $(STDCXX_CSTD_HEADERS_ABS) $(BID_ROOT_CONF) | $(INSTALL_INCDIR_X)
 	@$(INSTALL_LINK_MESSAGE)
 	$(VERBOSE)$(call install_config_header, $(ALLOCATOR_H),     c++allocator.h)
 	$(VERBOSE)$(call install_config_header, $(CLOCALE_H),       c++locale.h)
