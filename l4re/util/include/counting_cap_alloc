@@ -1,8 +1,7 @@
-// -*- Mode: C++ -*-
-// vim:ft=cpp
+// vim:set ft=cpp: -*- Mode: C++ -*-
 /**
  * \file
- * \brief  Reference-counting capability allocator
+ * Reference-counting capability allocator
  */
 /*
  * (c) 2008-2010 Alexander Warg <warg@os.inf.tu-dresden.de>
@@ -30,6 +29,9 @@
 
 namespace L4Re { namespace Util {
 
+/**
+ * Counter for Counting_cap_alloc with variable data width
+ */
 template< typename COUNTER = unsigned char >
 struct Counter
 {
@@ -46,7 +48,24 @@ struct Counter
 };
 
 /**
- * \brief Reference-counting cap allocator
+ * Internal reference-counting cap allocator
+ *
+ * This is intended for internal use only. L4Re applications should
+ * use L4Re::Util::cap_alloc().
+ *
+ * Allocator for capability slots that automatically frees the slot
+ * and optionally unmaps the capability when the reference count goes
+ * down to zero. Reference counting must be done manually via take()
+ * and release(). The backing store for the reference counters must be
+ * provided in the setup() method. The allocator can recognize
+ * capability slots that are not managed by itself and does nothing on
+ * such slots.
+ *
+ * \note The user must ensure that the backing store is
+ * zero-initialized.
+ *
+ * \note The user must ensure that the capability slots managed by
+ * this allocator are not used by a different allocator, see setup().
  *
  * \note The operations in this class are not thread-safe.
  *
@@ -87,11 +106,17 @@ protected:
   {}
 
   /**
-   * Set up the backing memory for the allocator.
+   * Set up the backing memory for the allocator and the area of
+   * managed capability slots.
    *
    * \param m        Pointer to backing memory.
    * \param capacity Number of capabilities that can be stored.
    * \param bias     First capability id to use by this allocator.
+   *
+   * The allocator will manage the capability slots between `bias`
+   * and `bias` + `capacity` - 1 (inclusive). It is the
+   * responsibility of the user to ensure that these slots are not
+   * used otherwise.
    */
   void setup(void *m, long capacity, long bias) throw()
   {
@@ -102,9 +127,9 @@ protected:
 
 public:
   /**
-   * Allocated a new capability.
+   * Allocate a new capability slot.
    *
-   * \return The newly allocated capability, invalid if the allocator
+   * \return The newly allocated capability slot, invalid if the allocator
    *         was exhausted.
    */
   L4::Cap<void> alloc() throw()
@@ -164,8 +189,9 @@ public:
    * \param task If set, task to unmap the capability from.
    * \param unmap_flags  Flags for unmap, see l4_unmap_flags_t.
    *
-   * \pre The capability has been allocated. Calling free twice results
-   *      in undefined behaviour.
+   * \pre The capability has been allocated. Calling free twice on a
+   *      capability managed by this allocator results in undefined
+   *      behaviour.
    *
    * \return True, if the capability was managed by this allocator.
    */
@@ -206,7 +232,11 @@ public:
    *
    * \return True, if the capability was freed as a result of
    *         this operation. If false is returned the capability
-   *         is either still in use or was already free or invalid.
+   *         is either still in use or is not managed by this
+   *         allocator.
+   *
+   * Does nothing apart from returning false if the capability is not
+   * managed by this allocator.
    */
   bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
                unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
