@@ -51,6 +51,9 @@ EXTERN_C_BEGIN
  * \retval 0        on success
  * \retval -EFAULT  in the case of an unresolved page fault
  *                  in the given area
+ *
+ * Writes back any dirty cache lines in the range but leaves them
+ * in the cache.
  */
 L4_INLINE int
 l4_cache_clean_data(unsigned long start,
@@ -66,6 +69,9 @@ l4_cache_clean_data(unsigned long start,
  * \retval 0        on success
  * \retval -EFAULT  in the case of an unresolved page fault
  *                  in the given area
+ *
+ * Writes back any dirty cache lines and invalidates
+ * all cache entries in the range.
  */
 L4_INLINE int
 l4_cache_flush_data(unsigned long start,
@@ -81,6 +87,13 @@ l4_cache_flush_data(unsigned long start,
  * \retval 0        on success
  * \retval -EFAULT  in the case of an unresolved page fault
  *                  in the given area
+ *
+ * Invalidates all cache entries in the range but does not
+ * necessarily write back dirty cache lines.
+ *
+ * \note Implementations may choose to write back dirty
+ *       lines nonetheless if this is more efficient.
+ *
  */
 L4_INLINE int
 l4_cache_inv_data(unsigned long start,
