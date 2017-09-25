@@ -222,6 +222,10 @@ protected:
    * \param flags Entry flags, see Obj::Flags.
    *
    * \return A pointer to the newly allocated entry or NULL on error.
+   *
+   * This method is called when a new entry was received. It must
+   * allocate memory, copy `n` out of the receive buffer and wrap
+   * everything in an Entry.
    */
   virtual Entry *alloc_dynamic_entry(Name const &n, unsigned flags) = 0;
 
@@ -237,13 +241,19 @@ protected:
    *
    * \param[in]  data     Label or in the local case the capability slot of
    *                      the receiving capability.
-   * \param[in]  is_local If true, a truly local capability was supplied.
+   * \param[in]  is_local If true, a local capability slot was supplied, if
+   *                      false the label of a locally bound IPC gate.
    * \param[out] lo       Pointer to epiface responsible for the capability.
    *
-   * \return L4_OK if a valid interface could be found or an error message
+   * \return #L4_EOK if a valid interface could be found or an error message
    *         otherwise.
    *
-   * The caller must make sure that the epiface remains valid until
+   * This method is called when a new entry is registered and some
+   * local ID was received for the capability. In this case, the
+   * generic implementation needs to get the epiface in order to get
+   * the capability.
+   *
+   * The callee must make sure that the epiface remains valid until
    * free_epiface is called. In particular, the capability slot must
    * not be reallocated as long as the namespace server holds a
    * reference to the epiface.
@@ -255,6 +265,12 @@ protected:
    *
    * \param[out] cap Capability slot with the received capability. Must
    *                 be permanently available until free_capability() is called.
+   *
+   * This method is called when a new entry is registered together
+   * with a capability mapping. It must decide whether and where to
+   * store the capability and return the final capability slot.
+   * Typical implementations return the capability slot in the receive
+   * window and allocate a new receive window.
    */
   virtual int copy_receive_cap(L4::Cap<void> *cap) = 0;
 
@@ -262,6 +278,9 @@ protected:
    * Free a capability previously acquired with copy_receive_cap().
    *
    * \param[in] cap Capability to free.
+   *
+   * Counterpart of #copy_receive_cap. Free the capability slot when
+   * the entry is deleted or changed.
    */
   virtual void free_capability(L4::Cap<void> cap) = 0;
 

@@ -46,7 +46,7 @@ struct L4_EXPORT Mmio_space
    * \param[out] value  Return value. If width is smaller than 64 bit,the
    *                    upper bits are guaranteed to be 0.
    *
-   * \retval L4_OK       Success.
+   * \retval #L4_EOK       Success.
    * \retval -L4_EPERM   Insufficient read rights.
    * \retval -L4_EINVAL  Address does not exist or cannot be accessed
    *                     with the given width.
@@ -62,7 +62,7 @@ struct L4_EXPORT Mmio_space
    * \param value  Value to write. If width is smaller than 64 bit,
    *               the upper bits are ignored.
    *
-   * \retval L4_OK       Success.
+   * \retval #L4_EOK       Success.
    * \retval -L4_EPERM   Insufficient write rights.
    * \retval -L4_EINVAL  Address does not exist or cannot be accessed
    *                     with the given width.
