@@ -114,6 +114,8 @@ define SRC_libc/stdlib
   random_r
   realpath
   setenv
+  srand48
+  srand48_r
   stdlib
   strtol
   strtoll
