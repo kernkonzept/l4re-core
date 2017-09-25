@@ -17,6 +17,10 @@
  * the GNU General Public License.
  */
 
+/**
+ * Strings.
+ */
+
 #pragma once
 
 #include <l4/cxx/minmax>
@@ -26,30 +30,53 @@
 namespace cxx {
 
 /**
+ * Allocation free string class with explicit length field.
+ *
  * This class is used to group characters of a string which belong
  * to one syntactical token types number, identifier, string,
  * whitespace or another single character.
+ *
+ * Stings in this class can contain null bytes and may denote parts of
+ * other strings.
  */
 class String
 {
 public:
 
+  /// Character index type.
   typedef char const *Index;
 
+  /// Initialize from a zero-terminated string.
   String(char const *s) throw() : _start(s), _len(__builtin_strlen(s)) {}
+  /// Initialize from a pointer to first character and a length.
   String(char const *s, unsigned long len) throw() : _start(s), _len(len) {}
+
+  /**
+   * Initialize with start and end pointer.
+   *
+   * \param s  first character of the string
+   * \param e  pointer to first byte behind the string
+   */
   String(char const *s, char const *e) throw() : _start(s), _len(e-s) {}
 
+  /// Zero-initialize. Create an invalid string.
   String() : _start(0), _len(0) {}
 
+  /// Pointer to first character.
   Index start() const { return _start; }
+  /// Pointer to first byte behind the string.
   Index end() const { return _start + _len; }
+  /// Length.
   int len() const { return _len; }
 
+  /// Set start.
   void start(char const *s) { _start = s; }
+  /// Set length.
   void len(unsigned long len) { _len = len; }
+  /// Check if the string has length zero.
   bool empty() const { return !_len; }
 
+  /// Return prefix up to index.
   String head(Index end) const
   {
     if (end < _start)
@@ -61,9 +88,11 @@ public:
     return String(_start, end - _start);
   }
 
+  /// Prefix of length `end`.
   String head(unsigned long end) const
   { return head(start() + end); }
 
+  /// Substring of length `len` starting at `idx`.
   String substr(unsigned long idx, unsigned long len = ~0UL) const
   {
     if (idx >= _len)
@@ -72,6 +101,7 @@ public:
     return String(_start + idx, cxx::min(len, _len - idx));
   }
 
+  /// Substring of length `len` starting at `start`.
   String substr(char const *start, unsigned long len = 0) const
   {
     if (start >= _start && !eof(start))
@@ -85,6 +115,7 @@ public:
     return String(end(), 0UL);
   }
 
+  /// Find matching character. `match` should be a function such as `isspace`.
   template< typename F >
   char const *find_match(F &&match) const
   {
@@ -101,12 +132,15 @@ public:
       }
   }
 
+  /// Find character. Return end() if not found.
   char const *find(char const *c) const
   { return find(c, start());  }
 
+  /// Find character. Return end() if not found.
   char const *find(int c) const
   { return find(c, start());  }
 
+  /// Find right-most character. Return end() if not found.
   char const *rfind(char const *c) const
   {
     if (!_len)
@@ -124,6 +158,12 @@ public:
 
   }
 
+  /**
+   * Check if `c` is a prefix of string.
+   *
+   * \return 0 if `c` is not a prefix, if it is a prefix, return
+   *         first position not in `c` (which might be end()).
+   */
   Index starts_with(cxx::String const &c) const
   {
     unsigned long i;
@@ -133,6 +173,7 @@ public:
     return i == c._len ? start() + i : 0;
   }
 
+  /// Find character `c` starting at position `s`. Return end() if not found.
   char const *find(int c, char const *s) const
   {
     if (s<_start)
@@ -150,6 +191,15 @@ public:
       }
   }
 
+  /**
+   * Find character set at position.
+   *
+   * \param c  zero-terminated string of characters to search for
+   * \param s  start position of search in string
+   *
+   * \retval end()     if no char in `c` is contained in string at or behind `s`.
+   * \retval position  in string of some character in `c`.
+   */
   char const *find(char const *c, char const *s) const
   {
     if (s<_start)
@@ -168,12 +218,24 @@ public:
       }
   }
 
+  /// Get character at `idx`.
   char const &operator [] (unsigned long idx) const { return _start[idx]; }
+  /// Get character at `idx`.
   char const &operator [] (int idx) const { return _start[idx]; }
+  /// Get character at `idx`.
   char const &operator [] (Index idx) const { return *idx; }
 
+  /// Check if pointer `s` points behind string.
   bool eof(char const *s) const { return s >= _start + _len || !*s; }
 
+  /**
+   * Convert decimal string to integer.
+   *
+   * \tparam     INT  result integer type
+   * \param[out] v    conversion result
+   *
+   * \return position of first character not converted.
+   */
   template<typename INT>
   int from_dec(INT *v) const
   {
@@ -193,6 +255,16 @@ public:
     return c - start();
   }
 
+  /**
+   * Convert hex string to integer.
+   *
+   * \tparam     INT  result integer type
+   * \param[out] v    conversion result
+   *
+   * \retval -1        if the maximal amount of digits fitting into `INT` have
+   *                   been read,
+   * \retval position  of first character not converted otherwise.
+   */
   template<typename INT>
   int from_hex(INT *v) const
   {
@@ -220,6 +292,7 @@ public:
     return c - start();
   }
 
+  /// Equality.
   bool operator == (String const &o) const
   {
     if (len() != o.len())
@@ -232,6 +305,7 @@ public:
     return true;
   }
 
+  /// Inequality.
   bool operator != (String const &o) const
   { return ! (operator == (o)); }
 
@@ -244,6 +318,7 @@ private:
 
 }
 
+/// Write `str` on `s`.
 inline
 L4::BasicOStream &operator << (L4::BasicOStream &s, cxx::String const &str)
 {
