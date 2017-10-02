@@ -31,6 +31,31 @@
 
 using L4Re::chkcap;
 using L4Re::chksys;
+using L4Re::Util::make_unique_cap;
+
+/**
+ * Magic constants.
+ */
+enum { Svr_label = 0x51, Svr_label_ok = 0, Svr_label_not_ok = 1,
+       Echo_proto = 0x25 };
+
+static l4_timeout_t std_to =
+  l4_timeout(l4util_micros2l4to(50000), l4util_micros2l4to(50000));
+
+static l4_msgtag_t
+gate_bind_thread_timeout(l4_cap_idx_t ep, l4_cap_idx_t thread, l4_umword_t label,
+                         l4_timeout_t timeout)
+{
+  l4_utcb_t *utcb = l4_utcb();
+
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  m->mr[0] = L4_RCV_EP_BIND_OP;
+  m->mr[1] = label;
+  m->mr[2] = l4_map_obj_control(0, 0);
+  m->mr[3] = l4_obj_fpage(thread, 0, L4_FPAGE_RWX).raw;
+
+  return l4_ipc_call(ep, utcb, l4_msgtag(L4_PROTO_KOBJECT, 2, 1, 0), timeout);
+}
 
 /**
  * Check if a namespace capability has write rights.
@@ -104,6 +129,38 @@ has_permission_d(L4::Cap<void> cap)
          "Obtain validity of capability copy after deletion of original");
 
   return del_tag.label() != 1;
+}
+
+/**
+ * Main function of helper thread.
+ */
+static void
+receive_ipc_gate()
+{
+  // Allocate space for a capability in this thread's buffer-register block.
+  // This is necessary because when an IPC gate without server rights tries
+  // to bind itself to this thread, this thread must have a capability receive
+  // buffer set up to receive the capability included in the payload of the
+  // respective bind_thread() call. Otherwise an IPC error will occur.
+  auto cap = make_unique_cap<void>();
+
+  // Obtain pointer to buffer register block.
+  l4_buf_regs_t *br = l4_utcb_br();
+  br->bdr = 0;
+  br->br[0] = L4::Ipc::Small_buf(cap.get(), 0).raw();
+
+  l4_umword_t label;
+  auto recv_tag = l4_ipc_wait(l4_utcb(), &label, std_to);
+
+  if (l4_ipc_error(recv_tag, l4_utcb()) == L4_IPC_RETIMEOUT)
+    return;
+
+  l4_msg_regs_t *mr = l4_utcb_mr();
+  mr->mr[0] = (label == Svr_label) ? Svr_label_ok : Svr_label_not_ok;
+
+  l4_msgtag_t tag = l4_msgtag(Echo_proto, 1, 0, 0);
+
+  l4_ipc_send(L4_SYSF_REPLY, l4_utcb(), tag, L4_IPC_SEND_TIMEOUT_0);
 }
 
 /**
@@ -250,4 +307,74 @@ TEST(ReceivedCapabilities, CorrectDeletePermissions)
   ASSERT_L4CAP_PRESENT(test_no_d);
   EXPECT_FALSE(has_permission_d(test_no_d))
     << "Capability does not have delete permissions.";
+}
+
+/**
+ * IPC gate capabilities passed to this task via ned only have server rights if
+ * they were created using the svr() function.
+ *
+ * In the Ned-script belonging to this test, a channel is created using
+ * Loader:new_channel() and the resulting IPC gate capability as well as a copy
+ * of that capability with server permissions (created using the svr()
+ * function) are passed to this task by making them entries in the 'caps' table
+ * in the first argument to the Loader:start() function that spawns this task.
+ * In this test, a new 'echo' thread is created and both IPC gates are bound to
+ * it using bind_gate(). The server capability is bound first and it is expected
+ * that this succeeds. Subsequently binding the client capability, because it
+ * lacks server rights, should send a message to the echo thread instead.
+ * The echo thread receives this message and sends a reply indicating whether
+ * the message's label is equal to that which was specified when the server
+ * capability was bound to the echo thread. In addition an arbitrary identifier
+ * is included in this reply's message tag and it is verified that the main
+ * thread receives it correctly (i.e. the kernel has not interfered with it).
+ */
+TEST(ReceivedCapabilities, CorrectServerPermissions)
+{
+  L4::Cap<L4::Ipc_gate> svr_cap =
+    L4Re::Env::env()->get_cap<L4::Ipc_gate>("svr_cap");
+  ASSERT_L4CAP_PRESENT(svr_cap) << "Server IPC gate capability present.";
+
+  L4::Cap<L4::Ipc_gate> no_svr_cap =
+    L4Re::Env::env()->get_cap<L4::Ipc_gate>("no_svr_cap");
+  ASSERT_L4CAP_PRESENT(no_svr_cap) << "Client IPC gate capability present.";
+
+  // Start echo thread.
+  std::thread thr = std::thread(receive_ipc_gate);
+  L4::Cap<L4::Thread> echo_thr_cap = std::L4::thread_cap(thr);
+
+  // Bind capability with server rights. If the capability has server rights
+  // (as expected), this call will bind the corresponding IPC gate to the
+  // thread given as the first argument to the function. If the capability does
+  // not have server rights, this will block until the timeout hits.
+  l4_msgtag_t svr_tag = gate_bind_thread_timeout(
+    svr_cap.cap(), echo_thr_cap.cap(), Svr_label, std_to);
+
+  ASSERT_L4OK(svr_tag) << "Bind server IPC gate to echo thread";
+
+  // Bind capability without server rights. If the capability does not have
+  // server rights (as expected), this call will not bind the client capability
+  // to any thread but instead send an IPC message to the thread that the
+  // corresponding IPC gate object pointed to by the IPC gate capability with
+  // server rights is already bound to. If the capability does have server
+  // rights, this function call will succeed without an error but the subsequent
+  // EXPECT statements will fail as the expected values are not returned.
+  l4_cap_idx_t main_thr_cap = L4Re::Env::env()->main_thread().cap();
+  l4_msgtag_t no_svr_tag = gate_bind_thread_timeout(
+                             no_svr_cap.cap(), main_thr_cap, 0u, std_to);
+
+  long echo_proto = no_svr_tag.label();
+
+  l4_umword_t echo_ret = Svr_label_not_ok;
+  if (no_svr_tag.words() == 1)
+    echo_ret = l4_utcb_mr()->mr[0];
+
+  thr.join();
+
+  ASSERT_L4IPC_OK(no_svr_tag) << "Receive IPC message from echo thread.";
+
+  EXPECT_EQ(Svr_label_ok, echo_ret)
+    << "Capability with server rights successfully bound to echo thread.";
+
+  EXPECT_EQ(Echo_proto, echo_proto)
+    << "Echo thread IPC message untouched by kernel.";
 }
