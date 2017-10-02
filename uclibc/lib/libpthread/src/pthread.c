@@ -922,7 +922,9 @@ strong_alias (__pthread_create, pthread_create)
 
 /* Simple operations on thread identifiers */
 
-pthread_descr __pthread_thread_self(void)
+pthread_descr
+attribute_hidden
+__pthread_thread_self(void)
 {
   return thread_self();
 }

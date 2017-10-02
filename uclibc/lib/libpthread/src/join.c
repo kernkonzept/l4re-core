@@ -24,13 +24,17 @@
 
 #include <l4/util/util.h>
 
-void __pthread_exit(void * retval)
+void
+attribute_hidden
+__pthread_exit(void * retval)
 {
   __pthread_do_exit (retval, CURRENT_STACK_FRAME);
 }
 strong_alias (__pthread_exit, pthread_exit)
 
-void __pthread_do_exit(void *retval, char *currentframe)
+void
+attribute_hidden
+__pthread_do_exit(void *retval, char *currentframe)
 {
   pthread_descr self = thread_self();
   pthread_descr joining;

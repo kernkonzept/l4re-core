@@ -245,7 +245,9 @@ __pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
 }
 strong_alias (__pthread_cond_timedwait, pthread_cond_timedwait)
 
-int __pthread_cond_signal(pthread_cond_t *cond)
+int
+attribute_hidden
+__pthread_cond_signal(pthread_cond_t *cond)
 {
   pthread_descr th;
 
