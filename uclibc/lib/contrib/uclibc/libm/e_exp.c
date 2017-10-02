@@ -155,6 +155,3 @@ double __ieee754_exp(double x)	/* default IEEE double exp */
 	    return y*twom1000;
 	}
 }
-
-strong_alias(__ieee754_exp, exp)
-libm_hidden_def(exp)

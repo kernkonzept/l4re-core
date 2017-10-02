@@ -295,36 +295,11 @@ double __ieee754_lgamma_r(double x, int *signgamp)
 	return r;
 }
 
-strong_alias(__ieee754_lgamma_r, lgamma_r)
-libm_hidden_def(lgamma_r)
-
-/* __ieee754_lgamma(x)
- * Return the logarithm of the Gamma function of x.
- */
-double __ieee754_lgamma(double x)
-{
-	return __ieee754_lgamma_r(x, &signgam);
-}
-
-strong_alias(__ieee754_lgamma, lgamma);
-libm_hidden_def(lgamma)
-
-
-/* NB: gamma function is an old name for lgamma.
- * It is deprecated.
- * Some C math libraries redefine it as a "true gamma", i.e.,
- * not a ln(|Gamma(x)|) but just Gamma(x), but standards
- * introduced tgamma name for that.
- */
-strong_alias(__ieee754_lgamma_r, gamma_r)
-strong_alias(__ieee754_lgamma, gamma)
-libm_hidden_def(gamma)
-
 
 /* double tgamma(double x)
  * Return the Gamma function of x.
  */
-double tgamma(double x)
+double __ieee754_tgamma(double x)
 {
 	int sign_of_gamma;
 	int32_t hx;
@@ -352,4 +327,3 @@ double tgamma(double x)
 	x = exp(lgamma_r(x, &sign_of_gamma));
 	return sign_of_gamma >= 0 ? x : -x;
 }
-libm_hidden_def(tgamma)

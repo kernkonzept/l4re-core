@@ -184,6 +184,16 @@ extern double __kernel_sin (double,double,int) attribute_hidden;
 extern double __kernel_cos (double,double) attribute_hidden;
 extern double __kernel_tan (double,double,int) attribute_hidden;
 extern int    __kernel_rem_pio2 (double*,double*,int,int,int,const int*) attribute_hidden;
+extern double __kernel_standard(double x, double y, int type) attribute_hidden;
+extern float  __kernel_standard_f (float, float, int) attribute_hidden;
+#ifndef __NO_LONG_DOUBLE_MATH
+extern long double __kernel_standard_l (long double, long double, int) attribute_hidden;
+#endif
+/* wrappers functions for internal use */
+extern float __lgammaf_r (float, int*);
+extern double __lgamma_r (double, int*);
+extern long double __lgammal_r(long double, int*);
+extern double __ieee754_tgamma(double);
 
 /*
  * math_opt_barrier(x): safely load x, even if it was manipulated

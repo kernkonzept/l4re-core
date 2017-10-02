@@ -78,6 +78,3 @@ double __ieee754_log10(double x)
 	z  = y*log10_2lo + ivln10*__ieee754_log(x);
 	return  z+y*log10_2hi;
 }
-
-strong_alias(__ieee754_log10, log10)
-libm_hidden_def(log10)

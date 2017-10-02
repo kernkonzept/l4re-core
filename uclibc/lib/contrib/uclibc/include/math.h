@@ -192,6 +192,30 @@ extern long double __REDIRECT_NTH (nexttowardl, (long double __x, long double __
 #if defined __USE_MISC || defined __USE_XOPEN
 /* This variable is used by `gamma' and `lgamma'.  */
 extern int signgam;
+#else
+/* This is used when standart of libm
+ * should prevent lgamma(x) of modifying signgam variable.
+ */
+# define lgammaf(arg) \
+({ \
+int local_signgam = 0; \
+float result = lgammaf_r((float)arg, &local_signgam); \
+result; \
+}) 
+
+# define lgamma(arg) \
+({ \
+int local_signgam = 0; \
+double result = lgamma_r(arg, &local_signgam); \
+result; \
+}) 
+
+# define lgammal(arg) \
+({ \
+int local_signgam = 0; \
+long double result = lgammal_r(arg, &local_signgam); \
+result; \
+})
 #endif
 
 
@@ -361,7 +385,7 @@ struct exception
 # ifdef __cplusplus
 extern int matherr (struct __exception *__exc) throw ();
 # else
-extern int matherr (struct exception *__exc);
+extern int __attribute__ ((weak)) matherr (struct exception *__exc);
 # endif
 
 # define X_TLOSS	1.41484755040568800000e+16

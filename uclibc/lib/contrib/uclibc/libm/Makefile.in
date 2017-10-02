@@ -64,8 +64,37 @@ libm_CSRC := \
 	s_fpclassify.c s_fpclassifyf.c s_signbit.c s_signbitf.c \
 	s_isnan.c s_isnanf.c s_isinf.c s_isinff.c s_finitef.c \
 	s_fdim.c s_fma.c s_fmax.c s_fmin.c \
-	s_remquo.c w_exp2.c \
-	cexp.c sincos.c
+	s_remquo.c \
+	cexp.c sincos.c	\
+	w_acos.c w_acosf.c w_acosl.c \
+	w_asin.c w_asinf.c w_asinl.c \
+	w_atan2.c w_atan2f.c w_atan2l.c \
+	w_hypot.c w_hypotf.c w_hypotl.c \
+	w_cosh.c w_coshf.c w_coshl.c \
+	w_exp.c w_expf.c w_expl.c \
+	w_exp2.c w_exp2f.c w_exp2l.c \
+	w_exp10.c w_exp10f.c w_exp10l.c \
+	w_j0.c w_j0f.c w_j0l.c \
+	w_j1.c w_j1f.c w_j1l.c \
+	w_jn.c w_jnf.c w_jnl.c \
+	w_lgamma_r.c w_lgammaf_r.c w_lgammal_r.c \
+	w_lgamma.c w_lgammaf.c w_lgammal.c \
+	w_tgamma.c w_tgammaf.c w_tgammal.c \
+	w_log.c w_logf.c w_logl.c \
+	w_log2.c w_log2f.c w_log2l.c \
+	w_log10.c w_log10f.c w_log10l.c \
+	w_pow.c w_powf.c w_powl.c \
+	w_sinh.c w_sinhf.c w_sinhl.c \
+	w_fmod.c w_fmodf.c w_fmodl.c \
+	w_sqrt.c w_sqrtf.c w_sqrtl.c \
+	w_remainder.c w_remainderf.c w_remainderl.c \
+	w_acosh.c w_acoshf.c w_acoshl.c \
+	w_atanh.c w_atanhf.c w_atanhl.c \
+	w_scalb.c w_scalbf.c w_scalbl.c 
+
+ifeq ($(UCLIBC_HAS_FENV),y)
+	libm_CSRC += k_standard.c k_standardf.c k_standardl.c
+endif
 
 FL_MOBJ := \
 	acosf.o \
@@ -230,7 +259,9 @@ libm_CSRC := \
 	s_expm1.c s_scalbn.c s_copysign.c e_acos.c e_asin.c e_atan2.c \
 	k_cos.c e_cosh.c e_exp.c e_fmod.c e_log.c e_log10.c e_pow.c \
 	k_sin.c e_sinh.c e_sqrt.c k_tan.c e_rem_pio2.c k_rem_pio2.c \
-	s_finite.c e_exp10.c
+	s_finite.c e_exp10.c 	\
+	matherr_wrapers.c k_standart.c 
+
 # We'll add sqrtf to avoid problems with libstdc++
 FL_MOBJ := sqrtf.o
 endif

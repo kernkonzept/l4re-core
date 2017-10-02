@@ -300,14 +300,17 @@ __END_NAMESPACE_C99
 __MATHCALLI (gamma,, (_Mdouble_))
 #endif
 
-#ifdef __USE_MISC
+//#ifdef __USE_MISC
+/* To provide compatibility with finite-math-only in C99 and C11 
+ * standerts function lgamma_r should be declared, when defined __USE_MISC.
+ */
 /* Reentrant version of lgamma.  This function uses the global variable
    `signgam'.  The reentrant version instead takes a pointer and stores
    the value through it.  */
 __MATHCALL (lgamma,_r, (_Mdouble_, int *__signgamp))
 /* __MATHCALLI does not work here, probably due to ,_r, */
 libm_hidden_proto(lgamma_r)
-#endif
+//#endif
 
 
 #if defined __USE_MISC || defined __USE_XOPEN_EXTENDED || defined __USE_ISOC99

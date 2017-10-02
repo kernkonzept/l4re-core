@@ -77,6 +77,3 @@ double __ieee754_cosh(double x)
     /* |x| > overflowthresold, cosh(x) overflow */
 	return huge*huge;
 }
-
-strong_alias(__ieee754_cosh, cosh)
-libm_hidden_def(cosh)

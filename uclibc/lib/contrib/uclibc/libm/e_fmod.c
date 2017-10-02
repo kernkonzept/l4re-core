@@ -124,6 +124,3 @@ double __ieee754_fmod(double x, double y)
 	}
 	return x;		/* exact output */
 }
-
-strong_alias(__ieee754_fmod, fmod)
-libm_hidden_def(fmod)

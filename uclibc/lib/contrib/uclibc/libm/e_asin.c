@@ -104,6 +104,3 @@ double __ieee754_asin(double x)
 	}
 	if(hx>0) return t; else return -t;
 }
-
-strong_alias(__ieee754_asin, asin)
-libm_hidden_def(asin)

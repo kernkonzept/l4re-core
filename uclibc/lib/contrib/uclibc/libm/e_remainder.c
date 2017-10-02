@@ -63,7 +63,3 @@ double __ieee754_remainder(double x, double p)
 	SET_HIGH_WORD(x,hx^sx);
 	return x;
 }
-
-strong_alias(__ieee754_remainder, remainder)
-strong_alias(__ieee754_remainder, drem)
-libm_hidden_def(remainder)

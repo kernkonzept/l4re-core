@@ -95,6 +95,3 @@ double __ieee754_acos(double x)
 	    return 2.0*(df+w);
 	}
 }
-
-strong_alias(__ieee754_acos, acos)
-libm_hidden_def(acos)

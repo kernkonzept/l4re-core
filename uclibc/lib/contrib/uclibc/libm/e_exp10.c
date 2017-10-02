@@ -29,5 +29,3 @@ double __ieee754_exp10 (double arg)
        replaced sometime (soon?).  */
     return __ieee754_exp (M_LN10 * arg);
 }
-strong_alias(__ieee754_exp10, exp10)
-libm_hidden_def(exp10)

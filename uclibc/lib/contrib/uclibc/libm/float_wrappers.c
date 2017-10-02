@@ -37,92 +37,76 @@ long long func##f (float x) \
 	return func((double)x); \
 }
 
-#ifndef __DO_XSI_MATH__
-# undef L_j0f	/* float j0f(float x); */
-# undef L_j1f	/* float j1f(float x); */
-# undef L_jnf	/* float jnf(int n, float x); */
-# undef L_y0f	/* float y0f(float x); */
-# undef L_y1f	/* float y1f(float x); */
-# undef L_ynf	/* float ynf(int n, float x); */
-#endif
-
 /* Implement the following, as defined by SuSv3 */
 #if 0
-float       acosf(float);
-float       acoshf(float);
-float       asinf(float);
 float       asinhf(float);
-float       atan2f(float, float);
 float       atanf(float);
-float       atanhf(float);
 float       cargf(float complex);
 float       cbrtf(float);
 float       ceilf(float);
 float       copysignf(float, float);
 float       cosf(float);
-float       coshf(float);
 float       erfcf(float);
 float       erff(float);
-float       exp2f(float);
-float       expf(float);
 float       expm1f(float);
 float       fabsf(float);
 float       floorf(float);
-float       fmodf(float, float);
 float       frexpf(float value, int *);
-float       hypotf(float, float);
 int         ilogbf(float);
 float       ldexpf(float, int);
-float       lgammaf(float);
 long long   llroundf(float);
-float       log10f(float);
 float       log1pf(float);
-float       log2f(float);
 float       logbf(float);
-float       logf(float);
 long        lroundf(float);
 float       modff(float, float *);
-float       powf(float, float);
-float       remainderf(float, float);
 float       rintf(float);
 float       roundf(float);
 float       scalbnf(float, int);
 float       sinf(float);
-float       sinhf(float);
-float       sqrtf(float);
 float       tanf(float);
 float       tanhf(float);
 #endif
 
-#ifdef L_acosf
-WRAPPER1(acos)
-#endif
-
-#ifdef L_acoshf
-WRAPPER1(acosh)
-#endif
-
-#ifdef L_asinf
-WRAPPER1(asin)
+/* The following functions implemented as wrappers
+ * in separate files (w_funcf.c)
+ */
+#if 0
+float       acosf(float);
+float       acoshf(float);
+float       asinf(float);
+float       atan2f(float, float);
+float       atanhf(float);
+float       coshf(float);
+float       exp2f(float);
+float       expf(float);
+float       fmodf(float, float);
+float       hypotf(float, float);
+float       lgammaf(float);
+float       log10f(float);
+float       log2f(float);
+float       logf(float);
+float       powf(float, float);
+float       remainderf(float, float);
+float       sinhf(float);
+float       sqrtf(float);
+float		j0f(float x);
+float		j1f(float x);
+float		jnf(int n, float x);
+float		y0f(float x);
+float		y1f(float x);
+float		ynf(int n, float x);
+float 		tgammaf(float x);
+float 		scalbf(float x, float fn);
+float 		gammaf(float x);
+float	 	scalbl(float x, float fn);
 #endif
 
 #ifdef L_asinhf
 WRAPPER1(asinh)
 #endif
 
-#ifdef L_atan2f
-float atan2f (float x, float y)
-{
-	return (float) atan2( (double)x, (double)y );
-}
-#endif
-
 #ifdef L_atanf
 WRAPPER1(atan)
-#endif
-
-#ifdef L_atanhf
-WRAPPER1(atanh)
 #endif
 
 #ifdef L_cargf
@@ -152,24 +136,12 @@ WRAPPER1(cos)
 libm_hidden_def(cosf)
 #endif
 
-#ifdef L_coshf
-WRAPPER1(cosh)
-#endif
-
 #ifdef L_erfcf
 WRAPPER1(erfc)
 #endif
 
 #ifdef L_erff
 WRAPPER1(erf)
-#endif
-
-#ifdef L_exp2f
-WRAPPER1(exp2)
-#endif
-
-#ifdef L_expf
-WRAPPER1(exp)
 #endif
 
 #ifdef L_expm1f
@@ -212,13 +184,6 @@ float fminf (float x, float y)
 }
 #endif
 
-#ifdef L_fmodf
-float fmodf (float x, float y)
-{
-	return (float) fmod( (double)x, (double)y );
-}
-#endif
-
 #ifdef L_frexpf
 float frexpf (float x, int *_exp)
 {
@@ -226,30 +191,8 @@ float frexpf (float x, int *_exp)
 }
 #endif
 
-#ifdef L_hypotf
-float hypotf (float x, float y)
-{
-	return (float) hypot( (double)x, (double)y );
-}
-#endif
-
 #ifdef L_ilogbf
 int_WRAPPER1(ilogb)
-#endif
-
-#ifdef L_j0f
-WRAPPER1(j0)
-#endif
-
-#ifdef L_j1f
-WRAPPER1(j1)
-#endif
-
-#ifdef L_jnf
-float jnf(int n, float x)
-{
-	return (float) jn(n, (double)x);
-}
 #endif
 
 #ifdef L_ldexpf
@@ -257,10 +200,6 @@ float ldexpf (float x, int _exp)
 {
 	return (float) ldexp( (double)x, _exp );
 }
-#endif
-
-#ifdef L_lgammaf
-WRAPPER1(lgamma)
 #endif
 
 #ifdef L_llrintf
@@ -271,24 +210,12 @@ long_long_WRAPPER1(llrint)
 long_long_WRAPPER1(llround)
 #endif
 
-#ifdef L_log10f
-WRAPPER1(log10)
-#endif
-
 #ifdef L_log1pf
 WRAPPER1(log1p)
 #endif
 
-#ifdef L_log2f
-WRAPPER1(log2)
-#endif
-
 #ifdef L_logbf
 WRAPPER1(logb)
-#endif
-
-#ifdef L_logf
-WRAPPER1(log)
 #endif
 
 #ifdef L_lrintf
@@ -317,20 +244,6 @@ WRAPPER1(nearbyint)
 float nexttowardf (float x, long double y)
 {
 	return (float) nexttoward( (double)x, (long double)y );
-}
-#endif
-
-#ifdef L_powf
-float powf (float x, float y)
-{
-	return (float) pow( (double)x, (double)y );
-}
-#endif
-
-#ifdef L_remainderf
-float remainderf (float x, float y)
-{
-	return (float) remainder( (double)x, (double)y );
 }
 #endif
 
@@ -368,14 +281,6 @@ WRAPPER1(sin)
 libm_hidden_def(sinf)
 #endif
 
-#ifdef L_sinhf
-WRAPPER1(sinh)
-#endif
-
-#ifdef L_sqrtf
-WRAPPER1(sqrt)
-#endif
-
 #ifdef L_tanf
 WRAPPER1(tan)
 #endif
@@ -384,40 +289,10 @@ WRAPPER1(tan)
 WRAPPER1(tanh)
 #endif
 
-#ifdef L_tgammaf
-WRAPPER1(tgamma)
-#endif
-
 #ifdef L_truncf
 WRAPPER1(trunc)
 #endif
 
-#if defined L_scalbf && defined __UCLIBC_SUSV3_LEGACY__
-float scalbf (float x, float y)
-{
-	return (float) scalb( (double)x, (double)y );
-}
-#endif
-
-#ifdef L_gammaf
-WRAPPER1(gamma)
-#endif
-
 #ifdef L_significandf
 WRAPPER1(significand)
-#endif
-
-#ifdef L_y0f
-WRAPPER1(y0)
-#endif
-
-#ifdef L_y1f
-WRAPPER1(y1)
-#endif
-
-#ifdef L_ynf
-float ynf(int n, float x)
-{
-	return (float) yn(n, (double)x);
-}
 #endif

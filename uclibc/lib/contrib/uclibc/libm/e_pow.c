@@ -299,6 +299,3 @@ double __ieee754_pow(double x, double y)
 	else SET_HIGH_WORD(z,j);
 	return s*z;
 }
-
-strong_alias(__ieee754_pow, pow)
-libm_hidden_def(pow)

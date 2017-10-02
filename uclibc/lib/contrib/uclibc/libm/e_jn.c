@@ -200,8 +200,6 @@ double __ieee754_jn(int n, double x)
 	if(sgn==1) return -b; else return b;
 }
 
-strong_alias(__ieee754_jn, jn)
-
 double __ieee754_yn(int n, double x)
 {
 	int32_t i,hx,ix,lx;
@@ -258,5 +256,3 @@ double __ieee754_yn(int n, double x)
 	}
 	if(sign>0) return b; else return -b;
 }
-
-strong_alias(__ieee754_yn, yn)

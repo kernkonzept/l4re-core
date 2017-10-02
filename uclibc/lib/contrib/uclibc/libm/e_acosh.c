@@ -50,9 +50,6 @@ double __ieee754_acosh(double x)
 	    return __ieee754_log(2.0*x-one/(x+__ieee754_sqrt(t-one)));
 	} else {			/* 1<x<2 */
 	    t = x-one;
-	    return log1p(t+sqrt(2.0*t+t*t));
+	    return log1p(t+__ieee754_sqrt(2.0*t+t*t));
 	}
 }
-
-strong_alias(__ieee754_acosh, acosh)
-libm_hidden_def(acosh)

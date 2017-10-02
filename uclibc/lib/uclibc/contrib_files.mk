@@ -605,31 +605,35 @@ define SRC_libcrypt
   sha512-crypt
 endef
 
+define _MATH_FUNCTIONS
+  acos
+  acosh
+  asin
+  atan2
+  atanh
+  cosh
+  exp
+  exp10
+  fmod
+  hypot
+  j0
+  j1
+  jn
+  log
+  log2
+  log10
+  pow
+  remainder
+  scalb
+  sinh
+  sqrt
+endef
+
 define SRC_libm
   carg
   cexp
-  e_acos
-  e_acosh
-  e_asin
-  e_atan2
-  e_atanh
-  e_cosh
-  e_exp
-  e_fmod
-  e_hypot
-  e_j0
-  e_j1
-  e_jn
   e_lgamma_r
-  e_log
-  e_log10
-  e_log2
-  e_pow
-  e_remainder
   e_rem_pio2
-  e_scalb
-  e_sinh
-  e_sqrt
   k_cos
   k_rem_pio2
   k_sin
@@ -682,8 +686,17 @@ define SRC_libm
   s_tanh
   s_trunc
   w_cabs
-  w_exp2
   nan
+  $(foreach f,$(_MATH_FUNCTIONS),e_$(f) w_$(f) w_$(f)f w_$(f)l)
+  w_exp2
+  w_exp2f
+  w_exp2l
+  w_lgamma_r
+  w_lgammaf_r
+  w_lgammal_r
+  w_tgamma
+  w_tgammaf
+  w_tgammal
 endef
 
 define SRC_libm-amd64

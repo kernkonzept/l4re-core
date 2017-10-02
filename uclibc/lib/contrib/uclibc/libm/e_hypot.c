@@ -116,6 +116,3 @@ double __ieee754_hypot(double x, double y)
 	    return t1*w;
 	} else return w;
 }
-
-strong_alias(__ieee754_hypot, hypot)
-libm_hidden_def(hypot)

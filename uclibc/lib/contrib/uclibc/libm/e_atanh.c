@@ -54,6 +54,3 @@ double __ieee754_atanh(double x)
 	    t = 0.5*log1p((x+x)/(one-x));
 	if(hx>=0) return t; else return -t;
 }
-
-strong_alias(__ieee754_atanh, atanh)
-libm_hidden_def(atanh)

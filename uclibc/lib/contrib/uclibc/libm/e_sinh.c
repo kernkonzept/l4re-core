@@ -70,6 +70,3 @@ double __ieee754_sinh(double x)
     /* |x| > overflowthresold, sinh(x) overflow */
 	return x*shuge;
 }
-
-strong_alias(__ieee754_sinh, sinh)
-libm_hidden_def(sinh)

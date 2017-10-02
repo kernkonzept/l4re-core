@@ -114,6 +114,3 @@ double __ieee754_atan2(double y, double x)
 	    	    return  (z-pi_lo)-pi;/* atan(-,-) */
 	}
 }
-
-strong_alias(__ieee754_atan2, atan2)
-libm_hidden_def(atan2)

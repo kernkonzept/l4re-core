@@ -180,9 +180,6 @@ double __ieee754_sqrt(double x)
 	return z;
 }
 
-strong_alias(__ieee754_sqrt, sqrt)
-libm_hidden_def(sqrt)
-
 
 /*
 Other methods  (use floating-point arithmetic)
