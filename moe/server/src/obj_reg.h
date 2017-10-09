@@ -162,8 +162,8 @@ inline Object_pool::Object_pool(Cap_alloc *ca) : _cap_alloc(ca)
   L4::Epiface *self = this;
   auto c = L4Re::chkcap(cap_alloc()->alloc<L4::Irq>());
   L4Re::chksys(L4Re::Env::env()->factory()->create(c));
-  L4Re::chksys(c->attach(l4_umword_t(self),
-                         L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP)));
+  L4Re::chksys(c->bind_thread(L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP),
+                              l4_umword_t(self)));
   set_server(this, c, true);
   L4Re::chksys(L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP)->register_del_irq(c));
 }

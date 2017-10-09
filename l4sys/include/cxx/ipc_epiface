@@ -31,6 +31,7 @@ namespace L4 {
 
 // forward for Irqep_t
 class Irq;
+class Rcv_endpoint;
 
 namespace Ipc_svr {
 
@@ -357,15 +358,20 @@ public:
    * Register `o` as server-side object for asynchronous IRQs.
    * \param o    Pointer to an Epiface object that shall be registered as
    *             server-side object for IRQs.
-   * \param irq  Capability to an already allocated IRQ object where `o`
+   * \param ep   Capability to an already allocated IRQ object where `o`
    *             shall be attached as server-side handler.
    * \retval L4::Cap<L4::Irq>           Capability to the given IRQ object on success.
    * \retval L4::Cap<L4::Irq>::Invalid  The IRQ attach operation has failed.
    *
    * After successful registration `o->obj_cap()` will be equal to `irq`.
    */
-  virtual L4::Cap<L4::Irq>
-  register_irq_obj(L4::Epiface *o, L4::Cap<L4::Irq> const &irq) = 0;
+  virtual L4::Cap<L4::Rcv_endpoint>
+  register_obj(L4::Epiface *o, L4::Cap<L4::Rcv_endpoint> ep) = 0;
+
+  L4::Cap<L4::Irq>
+  register_irq_obj(L4::Epiface *o, L4::Cap<L4::Irq> irq)
+  L4_DEPRECATED("Use register_obj() instead")
+  { return cap_reinterpret_cast<L4::Irq>(register_obj(o, cap_reinterpret_cast<L4::Rcv_endpoint>(irq))); }
 
   /**
    * Unregister the given object `o` from the server.

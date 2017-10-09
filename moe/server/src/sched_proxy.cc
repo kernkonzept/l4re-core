@@ -207,7 +207,7 @@ public:
         return;
       }
 
-    if (l4_error(irq->attach(l4_umword_t(this), L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP))) < 0)
+    if (l4_error(irq->bind_thread(L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP), l4_umword_t(this))) < 0)
       {
         Err(Err::Fatal).printf("Could not attach to CPU hotplug IRQ\n");
         return;

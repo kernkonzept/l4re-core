@@ -98,33 +98,34 @@ private:
   typedef L4::Ipc_svr::Server_iface Server_iface;
   typedef Server_iface::Demand Demand;
 
-  int _register_gate(L4::Epiface *o, L4::Cap<L4::Ipc_gate> gate,
-                     Demand const &demand)
+  L4::Cap<L4::Rcv_endpoint>
+  _register_ep(L4::Epiface *o, L4::Cap<L4::Rcv_endpoint> ep,
+               Demand const &demand)
   {
     int err = _sif->alloc_buffer_demand(demand);
     if (err < 0)
-      return err;
+      return L4::Cap<L4::Rcv_endpoint>(err | L4_INVALID_CAP_BIT);
 
     l4_umword_t id = l4_umword_t(o);
-    err = l4_error(gate->bind_thread(_server, id));
+    err = l4_error(ep->bind_thread(_server, id));
     if (err < 0)
-      return err;
+      return L4::Cap<L4::Rcv_endpoint>(err | L4_INVALID_CAP_BIT);
 
-    return o->set_server(_sif, gate);
+    err = o->set_server(_sif, ep);
+    if (err < 0)
+      return L4::Cap<L4::Rcv_endpoint>(err | L4_INVALID_CAP_BIT);
+
+    return ep;
   }
 
-  L4::Cap<void> _register_gate(L4::Epiface *o, char const *service,
-                               Demand const &demand)
+  L4::Cap<void> _register_ep(L4::Epiface *o, char const *service,
+                             Demand const &demand)
   {
-    L4::Cap<L4::Ipc_gate> cap = L4Re::Env::env()->get_cap<L4::Ipc_gate>(service);
+    L4::Cap<L4::Rcv_endpoint> cap = L4Re::Env::env()->get_cap<L4::Rcv_endpoint>(service);
     if (!cap.is_valid())
       return cap;
 
-    int err = _register_gate(o, cap, demand);
-    if (err < 0)
-      return L4::Cap<void>(err | L4_INVALID_CAP_BIT);
-
-    return cap;
+    return _register_ep(o, cap, demand);
   }
 
   L4::Cap<void> _register_gate(L4::Epiface *o, Demand const &demand)
@@ -152,26 +153,6 @@ private:
   }
 
   L4::Cap<L4::Irq> _register_irq(L4::Epiface *o,
-                                 L4::Cap<L4::Irq> irq,
-                                 Demand const &demand)
-  {
-    int err = _sif->alloc_buffer_demand(demand);
-    if (err < 0)
-      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
-
-    l4_umword_t id = l4_umword_t(o);
-    err = l4_error(irq->attach(id, _server));
-    if (err < 0)
-      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
-
-    err = o->set_server(_sif, irq);
-    if (err < 0)
-      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
-
-    return irq;
-  }
-
-  L4::Cap<L4::Irq> _register_irq(L4::Epiface *o,
                                  Demand const &demand)
   {
     int err = _sif->alloc_buffer_demand(demand);
@@ -189,7 +170,7 @@ private:
     if (err < 0)
       return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
 
-    err = l4_error(cap->attach(id, _server));
+    err = l4_error(cap->bind_thread(_server, id));
     if (err < 0)
       return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
 
@@ -211,16 +192,16 @@ private:
 
 public:
   /**
-   * Register a new server object to a pre-allocated IPC gate.
+   * Register a new server object to a pre-allocated receive endpoint.
    *
    * \param o       Server object that handles IPC requests.
-   * \param service Name of a pre-allocated IPC gate.
+   * \param service Name of a pre-allocated receive endpoint.
    *
    * \return The capability the server object was registered with.
    */
   L4::Cap<void> register_obj(L4::Epiface *o, char const *service) override
   {
-    return _register_gate(o, service, _get_buffer_demand(o));
+    return _register_ep(o, service, _get_buffer_demand(o));
   }
 
   /**
@@ -251,21 +232,24 @@ public:
     return _register_irq(o, _get_buffer_demand(o));
   }
 
+  // pass access to deprecated register_irq_obj
+  using L4::Registry_iface::register_irq_obj;
+
   /**
    * Register a handler for an already existing interrupt.
    *
-   * \param o   Server object that handles the interrupts.
-   * \param irq Capability to an IRQ object, may be a hardware or software
-   *            interrupt.
+   * \param o    Server object that handles the IPC.
+   * \param irq  Capability to a receive endpoint, may be a hardware or
+   *             software interrupt or an IPC gate.
    *
    * \return The capability the server object was registered with.
    *
    */
 
-  L4::Cap<L4::Irq> register_irq_obj(L4::Epiface *o,
-                                    L4::Cap<L4::Irq> const &irq) override
+  L4::Cap<L4::Rcv_endpoint>
+  register_obj(L4::Epiface *o, L4::Cap<L4::Rcv_endpoint> ep) override
   {
-    return _register_irq(o, irq, _get_buffer_demand(o));
+    return _register_ep(o, ep, _get_buffer_demand(o));
   }
 
 
