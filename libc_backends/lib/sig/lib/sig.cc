@@ -31,8 +31,7 @@
 #include <l4/sys/cxx/ipc_server_loop>
 
 namespace {
-struct Base {};
-struct Sig_handling : L4::Epiface_t<Sig_handling, L4::Exception, Base>
+struct Sig_handling : L4::Epiface_t<Sig_handling, L4::Exception>
 {
   // handlers registered with 'signal'
   struct sigaction sigactions[_NSIG];
