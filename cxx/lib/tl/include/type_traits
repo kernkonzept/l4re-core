@@ -162,6 +162,8 @@ struct conditional< false, T_TRUE, T_FALSE > { typedef T_FALSE type; };
 template<typename T>
 struct is_enum : integral_constant<bool, __is_enum(T)> {};
 
+template<typename T>
+struct is_polymorphic : cxx::integral_constant<bool, __is_polymorphic(T)> {};
 
 template< typename T > struct is_integral : false_type {};
 
