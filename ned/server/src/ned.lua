@@ -265,7 +265,7 @@ function Loader:startv(env, ...)
       end
     end
 
-    caps.rom = caps.rom or Env.rom;
+    caps.rom = caps.rom or Env.rom:m("r");
   end
 
   env.loader = self;
