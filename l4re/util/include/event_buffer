@@ -126,7 +126,7 @@ public:
                CB const &cb, D data = D())
   {
 
-    if (l4_error(irq->attach(0, thread)))
+    if (l4_error(irq->bind_thread(thread, 0)))
       return;
 
     while (1)
