@@ -26,6 +26,7 @@
 
 #include <l4/sys/kernel_object.h>
 #include <l4/sys/ipc.h>
+#include <l4/sys/rcv_endpoint.h>
 
 /**
  * \defgroup l4_irq_api IRQs
@@ -64,7 +65,8 @@
  */
 L4_INLINE l4_msgtag_t
 l4_irq_attach(l4_cap_idx_t irq, l4_umword_t label,
-              l4_cap_idx_t thread) L4_NOTHROW;
+              l4_cap_idx_t thread) L4_NOTHROW
+  L4_DEPRECATED("Use l4_rcv_ep_bind_thread().");
 
 /**
  * \ingroup l4_irq_api
@@ -75,7 +77,8 @@ l4_irq_attach(l4_cap_idx_t irq, l4_umword_t label,
  */
 L4_INLINE l4_msgtag_t
 l4_irq_attach_u(l4_cap_idx_t irq, l4_umword_t label,
-                l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW;
+                l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW
+  L4_DEPRECATED("Use l4_rcv_ep_bind_thread_u().");
 
 /**
  * Chain an IRQ to another master IRQ source.
@@ -328,7 +331,10 @@ L4_INLINE l4_msgtag_t
 l4_irq_attach(l4_cap_idx_t irq, l4_umword_t label,
               l4_cap_idx_t thread) L4_NOTHROW
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   return l4_irq_attach_u(irq, label, thread, l4_utcb());
+#pragma GCC diagnostic pop
 }
 
 L4_INLINE l4_msgtag_t

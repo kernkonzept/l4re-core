@@ -27,6 +27,7 @@
 #include <l4/sys/icu.h>
 #include <l4/sys/irq.h>
 #include <l4/sys/capability>
+#include <l4/sys/rcv_endpoint>
 #include <l4/sys/cxx/ipc_iface>
 #include <l4/sys/cxx/ipc_types>
 
@@ -108,7 +109,7 @@ struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
  *
  * For the C interface refer to the \ref l4_irq_api API for an overview.
  */
-class Irq : public Kobject_t<Irq, Triggerable, L4_PROTO_IRQ_SENDER>
+class Irq : public Kobject_2t<Irq, Triggerable, Rcv_endpoint, L4_PROTO_IRQ_SENDER>
 {
 public:
   using Triggerable::unmask;
@@ -130,7 +131,13 @@ public:
   l4_msgtag_t attach(l4_umword_t label,
                      Cap<Thread> const &thread = Cap<Thread>::Invalid,
                      l4_utcb_t *utcb = l4_utcb()) throw()
-  { return l4_irq_attach_u(cap(), label, thread.cap(), utcb); }
+    L4_DEPRECATED("Use bind_thread(thread, label).")
+  {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+    return l4_irq_attach_u(cap(), label, thread.cap(), utcb);
+#pragma GCC diagnostic pop
+  }
 
   /**
    * Detach from this interrupt.

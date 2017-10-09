@@ -25,6 +25,7 @@
 
 #include <l4/sys/ipc_gate.h>
 #include <l4/sys/capability>
+#include <l4/sys/rcv_endpoint>
 #include <l4/sys/cxx/ipc_iface>
 
 namespace L4 {
@@ -53,28 +54,10 @@ class Thread;
  * For the C interface refer to the C \ref l4_kernel_object_gate_api.
  */
 class L4_EXPORT Ipc_gate :
-  public Kobject_t<Ipc_gate, Kobject, L4_PROTO_KOBJECT,
+  public Kobject_t<Ipc_gate, Rcv_endpoint, L4_PROTO_KOBJECT,
                    Type_info::Demand_t<1> >
 {
 public:
-
-  /**
-   * Bind a thread to an IPC gate.
-   *
-   * \param t      Thread object that shall be bound to this IPC gate.
-   * \param label  Label to assign to `this` IPC gate. The two least significant
-   *               bits should usually be set to zero.
-   *
-   * \return Syscall return tag containing one of the following return codes.
-   *
-   * \retval L4_EOK      Operation successful.
-   * \retval -L4_EINVAL  `t` is not a thread object or other arguments were
-   *                     malformed.
-   * \retval -L4_EPERM   `t` is missing #L4_CAP_FPAGE_S right.
-   */
-  L4_INLINE_RPC_OP(L4_IPC_GATE_BIND_OP,
-      l4_msgtag_t, bind_thread, (Ipc::Cap<Thread> t, l4_umword_t label));
-
   /**
    * Get information about the IPC-gate.
    *

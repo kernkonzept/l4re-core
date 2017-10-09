@@ -37,6 +37,7 @@
 
 #include <l4/sys/utcb.h>
 #include <l4/sys/types.h>
+#include <l4/sys/rcv_endpoint.h>
 
 /**
  * Bind the IPC gate to a thread.
@@ -56,7 +57,8 @@
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_gate_bind_thread(l4_cap_idx_t gate, l4_cap_idx_t thread,
-                        l4_umword_t label);
+                        l4_umword_t label)
+  L4_DEPRECATED("Use l4_rcv_ep_bind_thread().");
 
 /**
  * \internal
@@ -64,7 +66,8 @@ l4_ipc_gate_bind_thread(l4_cap_idx_t gate, l4_cap_idx_t thread,
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_gate_bind_thread_u(l4_cap_idx_t gate, l4_cap_idx_t thread,
-                          l4_umword_t label, l4_utcb_t *utcb);
+                          l4_umword_t label, l4_utcb_t *utcb)
+  L4_DEPRECATED("Use l4_rcv_ep_bind_thread_u().");
 
 /**
  * \ingroup l4_kernel_object_gate_api
@@ -104,13 +107,7 @@ l4_ipc_gate_bind_thread_u(l4_cap_idx_t gate,
                           l4_cap_idx_t thread, l4_umword_t label,
                           l4_utcb_t *utcb)
 {
-  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
-  m->mr[0] = L4_IPC_GATE_BIND_OP;
-  m->mr[1] = label;
-  m->mr[2] = l4_map_obj_control(0, 0);
-  m->mr[3] = l4_obj_fpage(thread, 0, L4_FPAGE_RWX).raw;
-  return l4_ipc_call(gate, utcb, l4_msgtag(L4_PROTO_KOBJECT, 2, 1, 0),
-                     L4_IPC_NEVER);
+  return l4_rcv_ep_bind_thread_u(gate, thread, label, utcb);
 }
 
 L4_INLINE l4_msgtag_t
@@ -133,7 +130,7 @@ L4_INLINE l4_msgtag_t
 l4_ipc_gate_bind_thread(l4_cap_idx_t gate, l4_cap_idx_t thread,
                         l4_umword_t label)
 {
-  return l4_ipc_gate_bind_thread_u(gate, thread, label, l4_utcb());
+  return l4_rcv_ep_bind_thread_u(gate, thread, label, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t

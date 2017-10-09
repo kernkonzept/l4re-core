@@ -9,6 +9,7 @@ EXTRA_TARGET	+= capability kip task factory irq icu thread vcon \
                    exception           \
                    kobject             \
                    pager               \
+                   rcv_endpoint        \
                    semaphore           \
                    iommu               \
                    cxx/ipc_array       \
