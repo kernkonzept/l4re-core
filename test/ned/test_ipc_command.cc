@@ -48,7 +48,7 @@ TEST_F(NedTest, test_func_result_ret_table)
   char buf[60];
   L4::Ipc::String<char> result(sizeof(buf), buf);
   ASSERT_EQ(0, cmd->execute("return { a = 'd' }", &result));
-  ASSERT_GT(result.length, 5);
+  ASSERT_GT(result.length, 5UL);
   ASSERT_EQ(0, memcmp(result.data, "table:", 6));
 }
 
