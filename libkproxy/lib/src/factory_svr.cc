@@ -74,7 +74,7 @@ public:
     {
       l4_umword_t label;
       L4::Ipc::Snd_fpage f;
-      L4::Cap<L4::Kobject> g = svr->cap_alloc<L4::Kobject>();
+      L4::Cap<void> g = svr->cap_alloc<void>();
       if (!g.is_valid())
         return -L4_ENOMEM;
 

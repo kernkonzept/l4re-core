@@ -46,7 +46,7 @@ public:
   virtual int create_factory(L4::Cap<L4::Factory> const &target_cap,
                              unsigned long limit) = 0;
 
-  virtual int create_gate(L4::Cap<L4::Kobject> const &target_cap,
+  virtual int create_gate(L4::Cap<void> const &target_cap,
                           L4::Cap<L4::Thread> const &thread_cap,
                           l4_umword_t label) = 0;
 

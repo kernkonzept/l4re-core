@@ -363,7 +363,7 @@ public:
    *
    * \see L4::Ipc_gate
    */
-  l4_msgtag_t create_gate(Cap<Kobject> const &target_cap,
+  l4_msgtag_t create_gate(Cap<void> const &target_cap,
                           Cap<Thread> const &thread_cap, l4_umword_t label,
                           l4_utcb_t *utcb = l4_utcb()) throw()
   { return l4_factory_create_gate_u(cap(), target_cap.cap(), thread_cap.cap(), label, utcb); }

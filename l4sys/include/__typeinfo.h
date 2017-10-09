@@ -673,6 +673,12 @@ template<typename T> struct Kobject_typeid
   // end: to be removed ---------------------------------------
 };
 
+/// Minimalistic ID for `void` interface.
+template<> struct Kobject_typeid<void>
+{
+  typedef Type_info::Demand_t<> Demand;
+};
+
 /**
  * Get the L4::Type_info for the L4Re interface given in `T`.
  * \ingroup l4_kobject_rtti

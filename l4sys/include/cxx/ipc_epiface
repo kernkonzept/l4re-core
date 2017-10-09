@@ -216,7 +216,7 @@ struct Epiface
    *                 the capability was internally allocated or not.
    * \return 0 on success, -L4_EINVAL if the srv and cap are not consistent.
    */
-  int set_server(Server_iface *srv, Cap<Kobject> cap, bool managed = false)
+  int set_server(Server_iface *srv, Cap<void> cap, bool managed = false)
   {
     if ((srv && cap) || (!srv && !cap))
       {
@@ -259,7 +259,7 @@ struct Epiface_t0 : BASE
 };
 
 template<typename Derived, typename BASE = Epiface>
-struct Irqep_t : Epiface_t0<Kobject, BASE>
+struct Irqep_t : Epiface_t0<void, BASE>
 {
   l4_msgtag_t dispatch(l4_msgtag_t, unsigned, l4_utcb_t *)
   {
