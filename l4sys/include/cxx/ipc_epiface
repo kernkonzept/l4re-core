@@ -25,6 +25,7 @@
 #include <l4/sys/utcb.h>
 #include <l4/sys/__typeinfo.h>
 #include <l4/sys/meta>
+#include <l4/cxx/type_traits>
 
 namespace L4 {
 
@@ -258,8 +259,26 @@ struct Epiface_t0 : BASE
   { return L4::cap_cast<RPC_IFACE>(BASE::obj_cap()); }
 };
 
-template<typename Derived, typename BASE = Epiface>
+template<typename Derived, typename BASE = Epiface,
+         bool = cxx::is_polymorphic<BASE>::value>
 struct Irqep_t : Epiface_t0<void, BASE>
+{
+  l4_msgtag_t dispatch(l4_msgtag_t, unsigned, l4_utcb_t *) final
+  {
+    static_cast<Derived*>(this)->handle_irq();
+    return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
+  }
+
+  /**
+   * Get the (typed) capability to this object.
+   * \return Capability for the kernel object behind the server.
+   */
+  Cap<L4::Irq> obj_cap() const
+  { return L4::cap_cast<L4::Irq>(BASE::obj_cap()); }
+};
+
+template<typename Derived, typename BASE>
+struct Irqep_t<Derived, BASE, false> : Epiface_t0<void, BASE>
 {
   l4_msgtag_t dispatch(l4_msgtag_t, unsigned, l4_utcb_t *)
   {
@@ -451,10 +470,24 @@ struct Dispatch : Detail::Dispatch<typename EPIFACE::Interface>
 
 } // namespace Ipc
 
-template<typename Derived, typename IFACE, typename BASE = L4::Epiface>
+
+template<typename Derived, typename IFACE, typename BASE = L4::Epiface,
+         bool = cxx::is_polymorphic<BASE>::value>
 struct Epiface_t : Epiface_t0<IFACE, BASE>
 {
-  l4_msgtag_t dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb)
+  l4_msgtag_t
+  dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb) final
+  {
+    typedef Ipc::Dispatch<Derived> Dispatch;
+    return Dispatch::f(static_cast<Derived*>(this), tag, rights, utcb);
+  }
+};
+
+template<typename Derived, typename IFACE, typename BASE>
+struct Epiface_t<Derived, IFACE, BASE, false> : Epiface_t0<IFACE, BASE>
+{
+  l4_msgtag_t
+  dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb)
   {
     typedef Ipc::Dispatch<Derived> Dispatch;
     return Dispatch::f(static_cast<Derived*>(this), tag, rights, utcb);
