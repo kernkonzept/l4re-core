@@ -37,7 +37,7 @@ cxx::Pair<cxx::String, cxx::String> next_arg(cxx::String const &cmdline)
   if (quote)
     e = cp.find(quote);
   else
-    e = cp.find_match(isspace);
+    e = cp.find_match([](int c) { return isspace(c); });
 
   // missing end quote
   if (quote && cp.eof(e))
