@@ -30,6 +30,6 @@ libgcc.a libgcc.so: $(GENERAL_D_LOC) $(LIBGCC_LIB_DIR)/Makefile.libgcc $(foreach
 	$(VERBOSE)$(call process_libgcc,$(GCCLIB_HOST),$@,$(filter libgcc.so,$@))
 
 clean cleanall::
-	$(RM) libgcc.a libgcc.so
+	$(VERBOSE)$(RM) libgcc.a libgcc.so
 
 GCCLIB_SO =
