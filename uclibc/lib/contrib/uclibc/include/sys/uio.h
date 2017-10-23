@@ -59,7 +59,7 @@ extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t preadv (int __fd, const struct iovec *__iovec, int __count,
-		       __off_t __offset) __wur;
+		       off_t __offset) __wur;
 
 /* Write data pointed by the buffers described by IOVEC, which is a
    vector of COUNT 'struct iovec's, to file descriptor FD at the given
@@ -71,7 +71,7 @@ extern ssize_t preadv (int __fd, const struct iovec *__iovec, int __count,
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t pwritev (int __fd, const struct iovec *__iovec, int __count,
-			__off_t __offset) __wur;
+			off_t __offset) __wur;
 #endif	/* Use misc.  */
 
 __END_DECLS
