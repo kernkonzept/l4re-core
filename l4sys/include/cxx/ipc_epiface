@@ -533,12 +533,7 @@ public:
   static l4_msgtag_t dispatch(l4_msgtag_t tag, l4_umword_t label,
                               l4_utcb_t *utcb)
   {
-    Value *o = find(label);
-
-    if (!o)
-      return l4_msgtag(-L4_ENOENT, 0, 0, 0);
-
-    return o->dispatch(tag, label, utcb);
+    return find(label)->dispatch(tag, label, utcb);
   }
 };
 
