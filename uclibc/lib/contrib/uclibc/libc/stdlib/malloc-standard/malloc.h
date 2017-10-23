@@ -138,7 +138,7 @@ __UCLIBC_MUTEX_EXTERN(__malloc_lock)
 */
 #ifndef malloc_getpagesize
 #  include <unistd.h>
-#  define malloc_getpagesize sysconf(_SC_PAGESIZE)
+#  define malloc_getpagesize getpagesize()
 #else /* just guess */
 #  define malloc_getpagesize (4096)
 #endif
