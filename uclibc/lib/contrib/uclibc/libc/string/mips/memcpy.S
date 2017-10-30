@@ -163,7 +163,13 @@ L(shb4):
 	PTR_ADDU	a1, a3
 	beq	t2, zero, L(shbend)
 	PTR_ADDU	a0, a3
-	lw	t0, -4(a1)
+	lb	t0, -4(a1)  # load the remaining word byte by byte
+	lb	t1, -3(a1)
+	dins	t0, t1, 8, 8
+	lb	t1, -2(a1)
+	dins	t0, t1, 16, 8
+	lb	t1, -1(a1)
+	dins	t0, t1, 24, 8
 	sw	t0, -4(a0)
 L(shbend):
 #else
