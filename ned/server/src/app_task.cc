@@ -84,9 +84,9 @@ App_task::App_task(Ned::Registry *r,
 void
 App_task::terminate()
 {
-  _task = L4::Cap_base::Invalid;
-  _thread = L4::Cap_base::Invalid;
-  _rm = L4::Cap_base::Invalid;
+  _task.reset();
+  _thread.reset();
+  _rm.reset();
 
   _r->unregister_obj(this);
 }

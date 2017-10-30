@@ -33,19 +33,15 @@ public:
   long ref_cnt() const { return _ref_cnt; }
 
 private:
-  // hm, missing template typedefs
-  template< typename T >
-  struct Auto_del_cap : public L4Re::Util::Auto_del_cap<T> {};
 
-  // hm, missing template typedefs
-  template< typename T >
-  struct Auto_cap : public L4Re::Util::Auto_cap<T> {};
+  template<typename T> using Unique_del_cap = L4Re::Util::Unique_del_cap<T>;
+  template<typename T> using Unique_cap = L4Re::Util::Unique_cap<T>;
 
   Ned::Registry *_r;
 
-  Auto_del_cap<L4::Task>::Cap _task;
-  Auto_del_cap<L4::Thread>::Cap _thread;
-  Auto_del_cap<L4Re::Rm>::Cap _rm;
+  Unique_del_cap<L4::Task> _task;
+  Unique_del_cap<L4::Thread> _thread;
+  Unique_del_cap<L4Re::Rm> _rm;
 
   State _state;
   unsigned long _exit_code;

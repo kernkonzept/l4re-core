@@ -13,6 +13,7 @@
 
 #include <l4/re/namespace>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/env>
 
 #include "lua_cap.h"
@@ -33,7 +34,7 @@ __lookup(lua_State *l)
 
   L4::Cap<L4Re::Namespace> ns(_ns->cap<L4Re::Namespace>().get());
 
-  L4Re::Util::Auto_cap<void>::Cap obj = L4Re::Util::cap_alloc.alloc<void>();
+  auto obj = L4Re::Util::make_unique_cap<void>();
   if (!obj.is_valid())
     luaL_error(l, "out of caps");
 

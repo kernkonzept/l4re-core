@@ -20,7 +20,7 @@ class Stack_base
 {
 protected:
   L4Re::Util::Ref_cap<L4Re::Dataspace>::Cap _stack_ds;
-  L4Re::Rm::Auto_region<char*> _vma;
+  L4Re::Rm::Unique_region<char*> _vma;
 
   l4_addr_t _last_checked;
 

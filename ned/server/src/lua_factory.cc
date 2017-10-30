@@ -11,6 +11,7 @@
 #include <lualib.h>
 
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/env>
 #include <l4/sys/factory>
 
@@ -30,8 +31,7 @@ __alloc(lua_State *l)
   Lua::Cap *n = check_cap(l, 1);
   int objt = luaL_checkinteger(l, 2);
 
-  L4Re::Util::Auto_cap<L4::Kobject>::Cap obj
-    = L4Re::Util::cap_alloc.alloc<L4::Kobject>();
+  auto obj = L4Re::Util::make_unique_cap<L4::Kobject>();
 
   if (!obj.is_valid())
     luaL_error(l, "out of caps");
