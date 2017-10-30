@@ -26,7 +26,7 @@ struct statfs
     long int f_type;
 #define f_fstyp f_type
     long int f_bsize;
-    long int f_frsize;	/* Fragment size - unsupported */
+    long int f_frsize;
 #ifndef __USE_FILE_OFFSET64
     __fsblkcnt_t f_blocks;
     __fsblkcnt_t f_bfree;
@@ -53,7 +53,7 @@ struct statfs64
     long int f_type;
 #define f_fstyp f_type
     long int f_bsize;
-    long int f_frsize;	/* Fragment size - unsupported */
+    long int f_frsize;
     __fsblkcnt64_t f_blocks;
     __fsblkcnt64_t f_bfree;
     __fsblkcnt64_t f_files;
