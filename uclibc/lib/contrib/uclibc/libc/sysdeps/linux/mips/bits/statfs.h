@@ -69,3 +69,4 @@ struct statfs64
 
 /* Tell code we have these members.  */
 #define _STATFS_F_NAMELEN
+#define _STATFS_F_FRSIZE
