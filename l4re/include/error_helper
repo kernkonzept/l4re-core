@@ -26,6 +26,7 @@
 
 #include <l4/sys/types.h>
 #include <l4/cxx/exceptions>
+#include <l4/cxx/type_traits>
 #include <l4/sys/err.h>
 
 namespace L4Re {
@@ -144,7 +145,11 @@ T chkcap(T cap, char const *extra = "", long err = -L4_ENOMEM)
   if (L4_UNLIKELY(!cap.is_valid()))
     Priv::__runtime_error(err ? err : cap.cap(), extra);
 
+#if __cplusplus >= 201103L
+  return cxx::forward<T>(cap);
+#else
   return cap;
+#endif
 }
 #endif
 
