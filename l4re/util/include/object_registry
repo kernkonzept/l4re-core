@@ -21,6 +21,7 @@
 #pragma once
 
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/consts>
 #include <l4/re/env>
 
@@ -134,8 +135,7 @@ private:
     if (err < 0)
       return L4::Cap<void>(err | L4_INVALID_CAP_BIT);
 
-    Auto_cap<L4::Kobject>::Cap cap
-      = cap_alloc.alloc<L4::Kobject>();
+   auto cap = L4Re::Util::make_unique_cap<L4::Kobject>();
 
     if (!cap.is_valid())
       return cap.get();
@@ -159,8 +159,7 @@ private:
     if (err < 0)
       return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
 
-    Auto_cap<L4::Irq>::Cap cap
-      = cap_alloc.alloc<L4::Irq>();
+    auto cap = L4Re::Util::make_unique_cap<L4::Irq>();
 
     if (!cap.is_valid())
       return cap.get();
