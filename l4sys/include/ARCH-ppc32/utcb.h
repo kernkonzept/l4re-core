@@ -115,7 +115,7 @@ L4_INLINE int l4_utcb_exc_is_pf(l4_exc_regs_t const *u) L4_NOTHROW
 
 L4_INLINE l4_addr_t l4_utcb_exc_pfa(l4_exc_regs_t const *u) L4_NOTHROW
 {
-  return (u->pfa & ~3UL) | (!(u->err & 0x00020000) << 1);
+  return (u->pfa & ~7UL) | (!(u->err & 0x00020000) << 1);
 }
 
 L4_INLINE int l4_utcb_exc_is_ex_regs_exception(l4_exc_regs_t const *u) L4_NOTHROW
