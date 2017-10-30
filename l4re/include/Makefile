@@ -18,6 +18,7 @@ EXTRA_TARGET += \
   namespace \
   parent    \
   rm        \
+  unique_cap \
   video/colors \
   video/goos \
   video/view

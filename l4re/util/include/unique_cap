@@ -1,0 +1,51 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * Unique_cap / Unique_del_cap
+ */
+/*
+ * (c) 2017 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/util/cap_alloc>
+#include <l4/sys/cxx/smart_capability_1x>
+
+namespace L4Re { namespace Util {
+
+template< typename T >
+using Unique_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_ALL_SPACES>>;
+template< typename T >
+using unique_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_ALL_SPACES>>;
+
+template< typename T >
+Unique_cap<T>
+make_unique_cap()
+{ return Unique_cap<T>(cap_alloc.alloc<T>()); }
+
+template< typename T >
+using Unique_del_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_DELETE_OBJ>>;
+template< typename T >
+using unique_del_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_DELETE_OBJ>>;
+
+template< typename T >
+Unique_del_cap<T>
+make_unique_del_cap()
+{ return Unique_del_cap<T>(cap_alloc.alloc<T>()); }
+
+}}
+

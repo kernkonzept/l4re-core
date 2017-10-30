@@ -1,0 +1,192 @@
+// vim:set ft=cpp: -*- Mode: C++ -*-
+/**
+ * \file
+ *
+ */
+/*
+ * (c) 2017 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/capability>
+
+namespace L4 { namespace Detail {
+
+template< typename T, typename IMPL >
+class Smart_cap_base : public Cap_base, protected IMPL
+{
+protected:
+  template<typename X>
+  static IMPL &impl(Smart_cap_base<X, IMPL> &o) { return o; }
+
+  template<typename X>
+  static IMPL const &impl(Smart_cap_base<X, IMPL> const &o) { return o; }
+
+public:
+  template<typename X, typename I>
+  friend class ::L4::Detail::Smart_cap_base;
+
+  Smart_cap_base(Smart_cap_base const &) = delete;
+  Smart_cap_base &operator = (Smart_cap_base const &) = delete;
+
+  Smart_cap_base() noexcept : Cap_base(Invalid) {}
+
+  explicit Smart_cap_base(Cap_base::Cap_type t) noexcept
+  : Cap_base(t)
+  {}
+
+  template<typename O>
+  explicit constexpr Smart_cap_base(Cap<O> c) noexcept
+  : Cap_base(c.cap())
+  {}
+
+  template<typename O>
+  explicit constexpr Smart_cap_base(Cap<O> c, IMPL const &impl) noexcept
+  : Cap_base(c.cap()), IMPL(impl)
+  {}
+
+  Cap<T> release() noexcept
+  {
+    l4_cap_idx_t c = this->cap();
+    IMPL::invalidate(*this);
+    return Cap<T>(c);
+  }
+
+  void reset()
+  { IMPL::free(*this); }
+
+  Cap<T> operator -> () const noexcept { return Cap<T>(this->cap()); }
+  Cap<T> get() const noexcept { return Cap<T>(this->cap()); }
+  ~Smart_cap_base() noexcept { IMPL::free(*this); }
+};
+
+
+template< typename T, typename IMPL >
+class Unique_cap_impl final :  public Smart_cap_base<T, IMPL>
+{
+private:
+  typedef Smart_cap_base<T, IMPL> Base;
+
+public:
+  using Base::Base;
+  Unique_cap_impl() noexcept = default;
+
+  Unique_cap_impl(Unique_cap_impl &&o) noexcept
+  : Base(o.release(), Base::impl(o))
+  {}
+
+  template<typename O>
+  Unique_cap_impl(Unique_cap_impl<O, IMPL> &&o) noexcept
+  : Base(o.release(), Base::impl(o))
+  { T* __t = ((O*)100); (void)__t; }
+
+  Unique_cap_impl &operator = (Unique_cap_impl &&o) noexcept
+  {
+    if (&o == this)
+      return *this;
+
+    IMPL::free(*this);
+    this->_c = o.release().cap();
+    this->IMPL::operator = (Base::impl(o));
+    return *this;
+  }
+
+  template<typename O>
+  Unique_cap_impl &operator = (Unique_cap_impl<O, IMPL> &&o) noexcept
+  {
+    T* __t = ((O*)100); (void)__t;
+
+    IMPL::free(*this);
+    this->_c = o.release().cap();
+    this->IMPL::operator = (Base::impl(o));
+    return *this;
+  }
+};
+
+template<typename T, typename IMPL>
+class Shared_cap_impl final : public Smart_cap_base<T, IMPL>
+{
+private:
+  typedef Smart_cap_base<T, IMPL> Base;
+
+public:
+  using Base::Base;
+  Shared_cap_impl() noexcept = default;
+
+  Shared_cap_impl(Shared_cap_impl &&o) noexcept
+  : Base(o.release())
+  {}
+
+  template<typename O>
+  Shared_cap_impl(Shared_cap_impl<O, IMPL> &&o) noexcept
+  : Base(o.release())
+  { T* __t = ((O*)100); (void)__t; }
+
+  Shared_cap_impl &operator = (Shared_cap_impl &&o) noexcept
+  {
+    if (&o == this)
+      return *this;
+
+    IMPL::free(*this);
+    this->_c = o.release().cap();
+    this->IMPL::operator = (Base::impl(o));
+    return *this;
+  }
+
+  template<typename O>
+  Shared_cap_impl &operator = (Shared_cap_impl<O, IMPL> &&o) noexcept
+  {
+    T* __t = ((O*)100); (void)__t;
+
+    IMPL::free(*this);
+    this->_c = o.release().cap();
+    this->IMPL::operator = (Base::impl(o));
+    return *this;
+  }
+
+  Shared_cap_impl(Shared_cap_impl const &o) noexcept
+  : Base(L4::Cap<T>(IMPL::copy(o).cap()))
+  {}
+
+  template<typename O>
+  Shared_cap_impl(Shared_cap_impl<O, IMPL> const &o) noexcept
+  : Base(IMPL::copy(o))
+  { T* __t = ((O*)100); (void)__t; }
+
+  Shared_cap_impl &operator = (Shared_cap_impl const &o) noexcept
+  {
+    if (&o == this)
+      return *this;
+
+    IMPL::free(*this);
+    this->_c = this->IMPL::copy(o).cap();
+    this->IMPL::operator = (static_cast<IMPL &>(o));
+    return *this;
+  }
+
+  template<typename O>
+  Shared_cap_impl &operator = (Shared_cap_impl<O, IMPL> const &o) noexcept
+  {
+    T* __t = ((O*)100); (void)__t;
+    IMPL::free(*this);
+    this->_c = this->IMPL::copy(o).cap();
+    this->IMPL::operator = (static_cast<IMPL &>(o));
+    return *this;
+  }
+};
+
+}} // L4::Detail

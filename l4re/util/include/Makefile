@@ -25,7 +25,9 @@ EXTRA_TARGET +=      \
   video/goos_svr     \
   video/goos_fb      \
   event              \
-  kumem_alloc
+  kumem_alloc        \
+  unique_cap         \
+  shared_cap         \
 
 
 include $(L4DIR)/mk/include.mk
