@@ -169,7 +169,7 @@ template< typename T >
 struct Auto_cap
 {
   typedef L4::Smart_cap<T, Smart_cap_auto<> > Cap;
-};
+} L4_DEPRECATED("use L4::Re::Unique_cap");
 
 /**
  * \internal the interface is not mature right now
@@ -205,7 +205,7 @@ template< typename T >
 struct Auto_del_cap
 {
   typedef L4::Smart_cap<T, Smart_cap_auto<L4_FP_DELETE_OBJ> > Cap;
-};
+} L4_DEPRECATED("use L4::Re::Unique_del_cap");
 /*@}*/
 
 }

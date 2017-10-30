@@ -161,7 +161,7 @@ template< typename T >
 struct Auto_cap
 {
   typedef L4::Smart_cap<T, Smart_cap_auto< L4_FP_ALL_SPACES> > Cap;
-};
+} L4_DEPRECATED("use L4::Re::Util::Unique_cap");
 
 /**
  * Automatic capability that implements automatic free and
@@ -196,7 +196,7 @@ template< typename T >
 struct Auto_del_cap
 {
   typedef L4::Smart_cap<T, Smart_cap_auto<L4_FP_DELETE_OBJ> > Cap;
-};
+} L4_DEPRECATED("use L4::Re::Util::Unique_cap");
 
 /**
  * Automatic capability that implements automatic free and
@@ -279,8 +279,11 @@ struct Ref_del_cap
  *
  * \tparam T  Type of capability the slot is used for.
  */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 template< typename T >
 typename Auto_cap<T>::Cap
+L4_DEPRECATED("use make_unique_cap")
 make_auto_cap()
 { return typename Auto_cap<T>::Cap(cap_alloc.alloc<T>()); }
 
@@ -293,6 +296,7 @@ template< typename T >
 typename Auto_del_cap<T>::Cap
 make_auto_del_cap()
 { return typename Auto_del_cap<T>::Cap(cap_alloc.alloc<T>()); }
+#pragma GCC diagnostic pop
 
 /**
  * Allocate a capability slot and wrap it in a Ref_cap.

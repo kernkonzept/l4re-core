@@ -210,7 +210,7 @@ public:
     /** \brief Member access for the object. */
     T operator -> () const throw() { return _addr; }
 
-  };
+  } L4_DEPRECATED("use L4Re::Rm::Unique_region");
 
   /**
    * \brief Reserve the given area in the region map.
@@ -351,6 +351,8 @@ public:
     return attach(&x->a, size, flags, mem, offs, align);
   }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   template< typename T >
   long attach(Auto_region<T> *start, unsigned long size, unsigned long flags,
               L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
@@ -365,6 +367,8 @@ public:
     start->reset((T)addr, L4::Cap<Rm>(cap()));
     return res;
   }
+#pragma GCC diagnostic pop
+
 #if __cplusplus >= 201103L
   template< typename T >
   class Unique_region
