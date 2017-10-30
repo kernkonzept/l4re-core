@@ -32,7 +32,7 @@
 
 #define L4_MWORD_BITS           64            /**< Size of machine words in bits */
 
-typedef unsigned long            l4_size_t;    /**< \brief Signed size type */
-typedef signed long              l4_ssize_t;   /**< \brief Unsigned size type */
+typedef unsigned long            l4_size_t;    /**< \brief Unsigned size type */
+typedef signed long              l4_ssize_t;   /**< \brief Signed size type */
 /*@}*/
 
