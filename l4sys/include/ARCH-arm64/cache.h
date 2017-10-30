@@ -31,10 +31,10 @@
 #include_next <l4/sys/cache.h>
 
 L4_INLINE unsigned long __attribute__((pure, always_inline))
-l4_cache_arm_ctr();
+l4_cache_arm_ctr(void);
 
 L4_INLINE unsigned long __attribute__((pure, always_inline))
-l4_cache_arm_ctr()
+l4_cache_arm_ctr(void)
 {
   unsigned long v;
   asm ("mrs %0, CTR_EL0" : "=r"(v));
@@ -42,10 +42,10 @@ l4_cache_arm_ctr()
 }
 
 L4_INLINE unsigned __attribute__((pure, always_inline))
-l4_cache_dmin_line();
+l4_cache_dmin_line(void);
 
 L4_INLINE unsigned __attribute__((pure, always_inline))
-l4_cache_dmin_line()
+l4_cache_dmin_line(void)
 {
   return 4U << ((l4_cache_arm_ctr() >> 16) & 0xf);
 }
