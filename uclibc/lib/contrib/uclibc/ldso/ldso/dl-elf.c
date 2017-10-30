@@ -314,7 +314,7 @@ struct elf_resolve *_dl_load_shared_library(unsigned int rflags, struct dyn_elf 
 	_dl_if_debug_dprint("\tsearching multilib lib path list\n");
 	tpnt1 = search_for_named_library(libname, rflags,
 					UCLIBC_RUNTIME_PREFIX LDSO_MULTILIB_DIR ":"
-					UCLIBC_RUNTIME_PREFIX "usr" LDSO_MULTILIB_DIR,
+					UCLIBC_RUNTIME_PREFIX "usr/" LDSO_MULTILIB_DIR,
 					rpnt, NULL);
 	if (tpnt1 != NULL)
 		return tpnt1;
