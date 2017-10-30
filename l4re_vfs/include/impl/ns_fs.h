@@ -21,6 +21,7 @@
 #include <l4/l4re_vfs/backend>
 #include <l4/sys/capability>
 #include <l4/re/namespace>
+#include <l4/re/unique_cap>
 
 namespace L4Re { namespace Core {
 
@@ -46,7 +47,7 @@ public:
   ~Env_dir() throw() {}
 
 private:
-  int get_ds(const char *path, L4Re::Auto_cap<L4Re::Dataspace>::Cap *ds) throw();
+  int get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw();
   bool check_type(Env::Cap_entry const *e, long protocol) throw();
 
   L4Re::Env const *_env;
@@ -73,7 +74,7 @@ public:
   ~Ns_dir() throw() {}
 
 private:
-  int get_ds(const char *path, L4Re::Auto_cap<L4Re::Dataspace>::Cap *ds) throw();
+  int get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw();
 
   L4::Cap<L4Re::Namespace> _ns;
   size_t _current_dir_pos;
