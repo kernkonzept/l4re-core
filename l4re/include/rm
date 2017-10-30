@@ -365,6 +365,94 @@ public:
     start->reset((T)addr, L4::Cap<Rm>(cap()));
     return res;
   }
+#if __cplusplus >= 201103L
+  template< typename T >
+  class Unique_region
+  {
+  private:
+    T _addr;
+    L4::Cap<Rm> _rm;
+
+  public:
+    Unique_region(Unique_region const &) = delete;
+    Unique_region &operator = (Unique_region const &) = delete;
+
+    Unique_region() noexcept
+    : _addr(0), _rm(L4::Cap<Rm>::Invalid) {}
+
+    explicit Unique_region(T addr) noexcept
+    : _addr(addr), _rm(L4::Cap<Rm>::Invalid) {}
+
+    Unique_region(T addr, L4::Cap<Rm> const &rm) noexcept
+    : _addr(addr), _rm(rm) {}
+
+    Unique_region(Unique_region &&o) noexcept : _addr(o.get()), _rm(o._rm)
+    { o.release(); }
+
+    Unique_region &operator = (Unique_region &&o) noexcept
+    {
+      if (&o != this)
+        {
+          if (_rm.is_valid())
+            _rm->detach(l4_addr_t(_addr), 0);
+          _rm = o._rm;
+          _addr = o.release();
+        }
+      return *this;
+    }
+
+    ~Unique_region() noexcept
+    {
+      if (_rm.is_valid())
+        _rm->detach(l4_addr_t(_addr), 0);
+    }
+
+    T get() const noexcept
+    { return _addr; }
+
+    T release() noexcept
+    {
+      _rm = L4::Cap<Rm>::Invalid;
+      return _addr;
+    }
+
+    void reset(T addr, L4::Cap<Rm> const &rm) noexcept
+    {
+      if (_rm.is_valid())
+        _rm->detach(l4_addr_t(_addr), 0);
+
+      _rm = rm;
+      _addr = addr;
+    }
+
+    void reset() noexcept
+    { reset(0, L4::Cap<Rm>::Invalid); }
+
+    bool is_valid() const noexcept
+    { return _rm.is_valid(); }
+
+    /** \brief Dereference the pointer. */
+    T operator * () const noexcept { return _addr; }
+
+    /** \brief Member access for the object. */
+    T operator -> () const noexcept { return _addr; }
+  };
+
+  template< typename T >
+  long attach(Unique_region<T> *start, unsigned long size, unsigned long flags,
+              L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
+              unsigned char align = L4_PAGESHIFT) const noexcept
+  {
+    l4_addr_t addr = (l4_addr_t)start->get();
+
+    long res = attach(&addr, size, flags, mem, offs, align);
+    if (res < 0)
+      return res;
+
+    start->reset((T)addr, L4::Cap<Rm>(cap()));
+    return res;
+  }
+#endif
 
   /**
    * \brief Detach a region from the address space.
