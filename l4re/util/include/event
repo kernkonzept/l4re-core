@@ -24,10 +24,12 @@
 
 #include <l4/re/cap_alloc>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/env>
 #include <l4/re/rm>
 #include <l4/re/util/event_buffer>
 #include <l4/sys/factory>
+#include <l4/cxx/type_traits>
 
 namespace L4Re { namespace Util {
 
@@ -69,14 +71,13 @@ public:
            L4Re::Env const *env = L4Re::Env::env(),
            L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
   {
-    Auto_cap<L4Re::Dataspace>::Cap ev_ds = ca->alloc<L4Re::Dataspace>();
+    Unique_cap<L4Re::Dataspace> ev_ds(ca->alloc<L4Re::Dataspace>());
     if (!ev_ds.is_valid())
       return -L4_ENOMEM;
 
     int r;
 
-    typename Auto_del_cap<IRQ_TYPE>::Cap ev_irq;
-    ev_irq = ca->alloc<IRQ_TYPE>();
+    Unique_del_cap<IRQ_TYPE> ev_irq(ca->alloc<IRQ_TYPE>());
     if (!ev_irq.is_valid())
       return -L4_ENOMEM;
 
@@ -93,16 +94,16 @@ public:
     if (sz < 0)
       return sz;
 
-    Rm::Auto_region<void*> buf;
+    Rm::Unique_region<void*> buf;
 
     if ((r = env->rm()->attach(&buf, sz, L4Re::Rm::Search_addr,
                                L4::Ipc::make_cap_rw(ev_ds.get()))))
       return r;
 
     _ev_buffer = L4Re::Event_buffer_t<PAYLOAD>(buf.get(), sz);
-    _ev_ds     = ev_ds;
-    _ev_irq    = ev_irq;
-    _buf       = buf;
+    _ev_ds     = cxx::move(ev_ds);
+    _ev_irq    = cxx::move(ev_irq);
+    _buf       = cxx::move(buf);
 
     return 0;
   }
@@ -122,7 +123,7 @@ public:
                 L4Re::Env const *env = L4Re::Env::env(),
                 L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
   {
-    Auto_cap<L4Re::Dataspace>::Cap ev_ds = ca->alloc<L4Re::Dataspace>();
+    Unique_cap<L4Re::Dataspace> ev_ds(ca->alloc<L4Re::Dataspace>());
     if (!ev_ds.is_valid())
       return -L4_ENOMEM;
 
@@ -135,15 +136,15 @@ public:
     if (sz < 0)
       return sz;
 
-    Rm::Auto_region<void*> buf;
+    Rm::Unique_region<void*> buf;
 
     if ((r = env->rm()->attach(&buf, sz, L4Re::Rm::Search_addr,
                                L4::Ipc::make_cap_rw(ev_ds.get()))))
       return r;
 
     _ev_buffer = L4Re::Event_buffer_t<PAYLOAD>(buf.get(), sz);
-    _ev_ds     = ev_ds;
-    _buf       = buf;
+    _ev_ds     = cxx::move(ev_ds);
+    _buf       = cxx::move(buf);
 
     return 0;
   }
@@ -163,10 +164,10 @@ public:
   L4::Cap<L4::Triggerable> irq() const { return _ev_irq.get(); }
 
 private:
-  Auto_cap<L4Re::Dataspace>::Cap _ev_ds;
-  Auto_del_cap<L4::Triggerable>::Cap _ev_irq;
+  Unique_cap<L4Re::Dataspace> _ev_ds;
+  Unique_del_cap<L4::Triggerable> _ev_irq;
   L4Re::Event_buffer_t<PAYLOAD> _ev_buffer;
-  Rm::Auto_region<void*> _buf;
+  Rm::Unique_region<void*> _buf;
 };
 
 typedef Event_t<Default_event_payload> Event;
