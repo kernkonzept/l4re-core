@@ -109,7 +109,7 @@ TEST_P(CapRpc, SendInvalidCap)
 
 TEST_P(CapRpc, SendEmptyCap)
 {
-  L4Re::Util::Auto_cap<void>::Cap cap = L4Re::Util::cap_alloc.alloc<void>();
+  auto cap = L4Re::Util::make_unique_cap<void>();
   ASSERT_EQ(0, scap()->in_cap(false, cap.get()));
   // the server still receives what looks like a standard cap
   test_valid_cap();
@@ -140,15 +140,13 @@ TEST_P(CapRpc, SendOptCapValid)
 
 TEST_P(CapRpc, RcvCap)
 {
-  L4Re::Util::Auto_cap<L4Re::Namespace>::Cap rcv_cap;
-  rcv_cap = L4Re::Util::cap_alloc.alloc<L4Re::Namespace>();
+  auto rcv_cap = L4Re::Util::make_unique_cap<L4Re::Namespace>();
   ASSERT_TRUE(rcv_cap);
   handler().p_cap = env->get_cap<L4Re::Namespace>("rom");
   l4_msgtag_t res = scap()->out_cap(rcv_cap.get());
   ASSERT_EQ(0, l4_error(res));
   ASSERT_EQ(1U, res.items());
-  L4Re::Util::Auto_cap<void>::Cap test_cap;
-  test_cap = L4Re::Util::cap_alloc.alloc<void>();
+  auto test_cap = L4Re::Util::make_unique_cap<void>();
   // test that we really got the rom cap back
   ASSERT_EQ(L4_EOK, rcv_cap->query("l4re", test_cap.get()));
 }

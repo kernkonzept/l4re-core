@@ -47,7 +47,7 @@ TEST_F(TestMemAlloc, Dump)
 
 TEST_F(TestMemAlloc, Simple)
 {
-  auto ds = make_auto_del_cap<L4Re::Dataspace>();
+  auto ds = make_unique_del_cap<L4Re::Dataspace>();
 
   ASSERT_EQ(0, env->mem_alloc()->alloc(1024, ds.get()));
   // we have a valid cap
@@ -72,7 +72,7 @@ TEST_F(TestMemAlloc, Simple)
 
 TEST_F(TestMemAlloc, OutOfRange)
 {
-  auto ds = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
 
   EXPECT_EQ(-L4_ERANGE, env->mem_alloc()->alloc(0, ds.get()));
   EXPECT_EQ(-L4_ERANGE, env->mem_alloc()->alloc(~0UL, ds.get()));
@@ -83,7 +83,7 @@ TEST_F(TestMemAlloc, ExhaustQuotaMemory)
   auto cap = create_ma(10 * L4_PAGESIZE);
 
     {
-      auto hd = make_auto_del_cap<L4Re::Dataspace>();
+      auto hd = make_unique_del_cap<L4Re::Dataspace>();
 
       EXPECT_EQ(0, cap->alloc(INT_MAX - 1, hd.get()));
 
@@ -103,7 +103,7 @@ TEST_F(TestMemAlloc, ExhaustQuotaMemory)
     }
 
   // after freeing, we should be able to get more memory
-  auto ds = make_auto_del_cap<L4Re::Dataspace>();
+  auto ds = make_unique_del_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, cap->alloc(L4_PAGESIZE, ds.get(),
                           L4Re::Mem_alloc::Continuous));
 }
@@ -111,7 +111,7 @@ TEST_F(TestMemAlloc, ExhaustQuotaMemory)
 
 TEST_F(TestMemAlloc, Continuous)
 {
-  auto ds = make_auto_del_cap<L4Re::Dataspace>();
+  auto ds = make_unique_del_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, env->mem_alloc()->alloc(10 * L4_PAGESIZE, ds.get(),
                                        L4Re::Mem_alloc::Continuous));
 
@@ -131,8 +131,8 @@ TEST_F(TestMemAlloc, Continuous)
 TEST_F(TestMemAlloc, ContinuousHuge)
 {
   // overcommit for continous memory is not possible
-  auto ds = make_auto_cap<L4Re::Dataspace>();
-  auto ds2 = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
+  auto ds2 = make_unique_cap<L4Re::Dataspace>();
   auto ret = env->mem_alloc()->alloc(huge_mem_size(), ds.get(),
                                      L4Re::Mem_alloc::Continuous);
   if (ret == L4_EOK)
@@ -145,7 +145,7 @@ TEST_F(TestMemAlloc, ContinuousHuge)
 
 TEST_F(TestMemAlloc, ContinuousMax)
 {
-  auto ds = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
   l4_size_t left_size = 10 * L4_PAGESIZE;
   l4_ssize_t size = -((l4_ssize_t) left_size);
 
@@ -153,8 +153,8 @@ TEST_F(TestMemAlloc, ContinuousMax)
                                       L4Re::Mem_alloc::Continuous));
 
   // at least 'left_size' bytes must be left after the allocation
-  auto ds2 = make_auto_cap<L4Re::Dataspace>();
-  L4Re::Rm::Auto_region<char *> ds2_region;
+  auto ds2 = make_unique_cap<L4Re::Dataspace>();
+  L4Re::Rm::Unique_region<char *> ds2_region;
   ASSERT_L4OK(env->mem_alloc()->alloc(left_size, ds2.get()));
   ASSERT_L4OK(env->rm()->attach(&ds2_region, left_size,
                                 L4Re::Rm::Search_addr | L4Re::Rm::Eager_map,
@@ -163,7 +163,7 @@ TEST_F(TestMemAlloc, ContinuousMax)
 
 TEST_F(TestMemAlloc, NoncontMax)
 {
-  auto ds = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
   l4_ssize_t size = -0x4000000;
 
   ASSERT_EQ(-L4_ERANGE, env->mem_alloc()->alloc(size, ds.get()));
@@ -171,7 +171,7 @@ TEST_F(TestMemAlloc, NoncontMax)
 
 TEST_F(TestMemAlloc, Superpages)
 {
-  auto ds = make_auto_del_cap<L4Re::Dataspace>();
+  auto ds = make_unique_del_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, env->mem_alloc()->alloc(2 * L4_SUPERPAGESIZE, ds.get(),
                                        L4Re::Mem_alloc::Super_pages));
 

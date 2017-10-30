@@ -38,7 +38,7 @@ TEST_F(TestFactory, CreateCheckNameSpace)
 {
   auto f = create_fab();
 
-  auto ns = make_auto_del_cap<L4Re::Namespace>();
+  auto ns = make_unique_del_cap<L4Re::Namespace>();
   EXPECT_EQ(0, l4_error(f->create(ns.get())));
   EXPECT_EQ(-L4_ENOENT, ns->unlink("foobar"));
 }
@@ -47,7 +47,7 @@ TEST_F(TestFactory, CreateCheckRegionManager)
 {
   auto f = create_fab();
 
-  auto rm = make_auto_del_cap<L4Re::Rm>();
+  auto rm = make_unique_del_cap<L4Re::Rm>();
   EXPECT_EQ(0, l4_error(f->create(rm.get())));
   EXPECT_EQ(-L4_ENOENT, rm->free_area(0x123995));
 }
@@ -56,9 +56,9 @@ TEST_F(TestFactory, CreateCheckFactory)
 {
   auto f = create_fab();
 
-  auto fab = make_auto_del_cap<L4::Factory>();
+  auto fab = make_unique_del_cap<L4::Factory>();
   EXPECT_EQ(0, l4_error(f->create(fab.get()) << l4_umword_t(100)));
-  auto noob = L4Re::Util::make_auto_del_cap<L4::Thread>();
+  auto noob = L4Re::Util::make_unique_del_cap<L4::Thread>();
   EXPECT_EQ(-L4_ENODEV, l4_error(fab->create(noob.get())));
 }
 
@@ -66,7 +66,7 @@ TEST_F(TestFactory, CreateCheckLog)
 {
   auto f = create_fab();
 
-  auto l = make_auto_del_cap<L4::Vcon>();
+  auto l = make_unique_del_cap<L4::Vcon>();
   EXPECT_EQ(0, l4_error(f->create(l.get())
                         << "foo"
                         << l4_umword_t(7)));
@@ -79,7 +79,7 @@ TEST_F(TestFactory, DISABLED_CreateCheckScheduler)
 {
   auto f = create_fab();
 
-  auto s = make_auto_del_cap<L4::Scheduler>();
+  auto s = make_unique_del_cap<L4::Scheduler>();
   EXPECT_EQ(0, l4_error(f->create(s.get(), L4::Scheduler::Protocol)));
   EXPECT_FALSE(s->is_online(123456));
 }
@@ -88,7 +88,7 @@ TEST_F(TestFactory, CreateCheckDataspace)
 {
   auto f = create_fab();
 
-  auto ds = make_auto_del_cap<L4Re::Dataspace>();
+  auto ds = make_unique_del_cap<L4Re::Dataspace>();
   EXPECT_EQ(0, l4_error(f->create(ds.get())
                         << l4_umword_t(L4_PAGESIZE)
                         << l4_umword_t(0)
@@ -100,7 +100,7 @@ TEST_F(TestFactory, CreateCheckDmaspace)
 {
   auto f = create_fab();
 
-  auto ds = make_auto_del_cap<L4Re::Dma_space>();
+  auto ds = make_unique_del_cap<L4Re::Dma_space>();
   EXPECT_EQ(0, l4_error(f->create(ds.get())));
   EXPECT_EQ(0, ds->associate(env->task(), L4Re::Dma_space::Phys_space));
 }
@@ -109,7 +109,7 @@ TEST_F(TestFactory, NotASystemFactory)
 {
   auto f = create_fab();
 
-  auto dummy = make_auto_cap<void>();
+  auto dummy = make_unique_cap<void>();
   l4_fpage_t dummyfpage;
   EXPECT_EQ(-L4_ENODEV,
             l4_error(f->create_task(L4::cap_cast<L4::Task>(dummy.get()),
@@ -127,7 +127,7 @@ TEST_F(TestFactory, NotASystemFactory)
 
 TEST_F(TestFactory, ZeroLimits)
 {
-  auto fab = make_auto_cap<L4::Factory>();
+  auto fab = make_unique_cap<L4::Factory>();
   EXPECT_EQ(-L4_EINVAL,
             l4_error(env->user_factory()->create_factory(fab.get(), 0)));
 }
@@ -135,7 +135,7 @@ TEST_F(TestFactory, ZeroLimits)
 //deleting a fab also deletes everything that was created by the fab
 TEST_F(TestFactory, DeleteRecursively)
 {
-  auto ns = make_auto_del_cap<L4Re::Namespace>();
+  auto ns = make_unique_del_cap<L4Re::Namespace>();
 
     {
       auto f = create_fab(10 * L4_PAGESIZE);
@@ -143,7 +143,7 @@ TEST_F(TestFactory, DeleteRecursively)
       EXPECT_EQ(0, ns->register_obj("foobar", env->rm()));
     }
 
-  auto dummy2 = make_auto_cap<L4Re::Dataspace>();
+  auto dummy2 = make_unique_cap<L4Re::Dataspace>();
   auto ret = ns->query("foobar", dummy2.get());
   EXPECT_TRUE(ret < -L4_EIPC_LO || ret == -L4_EBADPROTO);
 }
@@ -152,7 +152,7 @@ TEST_F(TestFactory, InheritLimits)
 {
   auto f = create_fab(10 * L4_PAGESIZE);
 
-  auto fab = make_auto_del_cap<L4::Factory>();
+  auto fab = make_unique_del_cap<L4::Factory>();
   EXPECT_EQ(-L4_ENOMEM, l4_error(f->create(fab.get(), L4::Factory::Protocol)
                                  << l4_umword_t(20 * L4_PAGESIZE)));
   EXPECT_EQ(-L4_ENOMEM, l4_error(f->create(fab.get(), L4::Factory::Protocol)
@@ -165,9 +165,9 @@ TEST_F(TestFactory, ReturnQuotaAfterDelete)
 {
   auto f = create_fab(10 * L4_PAGESIZE);
 
-  auto fab2 = make_auto_del_cap<L4::Factory>();
+  auto fab2 = make_unique_del_cap<L4::Factory>();
 
-  auto fab = make_auto_cap<L4::Factory>();
+  auto fab = make_unique_cap<L4::Factory>();
   EXPECT_EQ(0, l4_error(f->create(fab.get(), L4::Factory::Protocol)
                                   << l4_umword_t(5 * L4_PAGESIZE)));
   EXPECT_EQ(-L4_ENOMEM, l4_error(f->create(fab2.get(), L4::Factory::Protocol)

@@ -11,6 +11,7 @@
  */
 
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/shared_cap>
 #include <l4/re/error_helper>
 #include <l4/re/env>
 #include <l4/re/rm>
@@ -57,7 +58,7 @@ struct TestRm : testing::Test
     return result;
   }
 
-  L4Re::Util::Auto_del_cap<L4Re::Rm>::Cap
+  L4Re::Util::Unique_del_cap<L4Re::Rm>
   create_blocked_rm()
   {
     auto rm = create_rm();
@@ -321,7 +322,7 @@ TEST_F(TestRm, AttachLooseDataspace)
 
     {
       // Cap should be removed without explicitly deleting.
-      auto ds = L4Re::chkcap(L4Re::Util::make_auto_cap<L4Re::Dataspace>());
+      auto ds = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
       L4Re::chksys(env->mem_alloc()->alloc(L4_PAGESIZE, ds.get(), 0));
       sz = ds->size();
 
@@ -345,11 +346,11 @@ TEST_F(TestRm, ExhaustQuotaWithCreate)
   auto cap = create_fab(3 * L4_PAGESIZE);
 
   // Create dataspaces without deleting them until we are out of memory
-  std::vector<L4Re::Util::Ref_cap<L4Re::Rm>::Cap> nslist;
+  std::vector<L4Re::Util::Shared_cap<L4Re::Rm>> nslist;
 
   for (;;)
     {
-      auto ns = make_ref_cap<L4Re::Rm>();
+      auto ns = make_shared_cap<L4Re::Rm>();
 
       long ret = l4_error(cap->create(ns.get()));
       if (ret == L4_EOK)
@@ -366,6 +367,6 @@ TEST_F(TestRm, ExhaustQuotaWithCreate)
   nslist.pop_back();
 
   // after freeing, we should be able to allocate again
-  auto ns = make_auto_del_cap<L4Re::Rm>();
+  auto ns = make_unique_del_cap<L4Re::Rm>();
   ASSERT_EQ(0, l4_error(cap->create(ns.get())));
 }

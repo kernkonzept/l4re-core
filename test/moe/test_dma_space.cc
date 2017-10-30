@@ -15,6 +15,7 @@
 #include <l4/re/env>
 #include <l4/re/dma_space>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/error_helper>
 
 #include <l4/atkins/tap/main>
@@ -140,6 +141,6 @@ TEST_F(TestDmaSpace, ExhaustQuotaMoeStructures)
     }
 
   // after freeing, we should be able to get more memory
-  auto ds = make_auto_cap<L4Re::Dma_space>();
+  auto ds = make_unique_cap<L4Re::Dma_space>();
   ASSERT_EQ(0, l4_error(cap->create(ds.get())));
 }

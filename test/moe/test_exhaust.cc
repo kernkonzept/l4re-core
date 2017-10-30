@@ -22,7 +22,7 @@ struct TestExhaust : ::testing::Test {};
 TEST_F(TestExhaust, ExhaustMemory)
 {
     {
-      auto hd = make_auto_del_cap<L4Re::Dataspace>();
+      auto hd = make_unique_del_cap<L4Re::Dataspace>();
 
       EXPECT_EQ(0, env->mem_alloc()->alloc(INT_MAX - 1, hd.get()));
 
@@ -42,7 +42,7 @@ TEST_F(TestExhaust, ExhaustMemory)
     }
 
   // after freeing, we should be able to get more memory
-  auto ds = make_auto_del_cap<L4Re::Dataspace>();
+  auto ds = make_unique_del_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, env->mem_alloc()->alloc(L4_PAGESIZE, ds.get(),
                                        L4Re::Mem_alloc::Continuous));
 }

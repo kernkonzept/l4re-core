@@ -24,7 +24,7 @@ class TestNamespace : public ::testing::Test {};
 TEST_F(TestNamespace, QueryEmptyNS)
 {
   auto ns = create_ns();
-  auto lcap = make_auto_cap<void>();
+  auto lcap = make_unique_cap<void>();
 
   EXPECT_EQ(-L4_ENOENT, ns->query("foo", lcap.get()));
   EXPECT_EQ(-L4_ENOENT, ns->query("/foo", lcap.get()));
@@ -43,7 +43,7 @@ TEST_F(TestNamespace, RegisterValid)
 {
   auto ns = create_ns();
   auto ds = create_ds(0, 12345);
-  auto lcap = make_auto_cap<L4Re::Dataspace>();
+  auto lcap = make_unique_cap<L4Re::Dataspace>();
 
   ASSERT_EQ(-L4_ENOENT, ns->query("example", lcap.get()));
   ASSERT_EQ(L4_EOK, ns->register_obj("example",
@@ -56,7 +56,7 @@ TEST_F(TestNamespace, RegisterValid)
 TEST_F(TestNamespace, RegisterInvalid)
 {
   auto ns = create_ns();
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
 
   ASSERT_EQ(-L4_ENOENT, ns->query("pend", cap.get()));
   // Register just the name.
@@ -92,7 +92,7 @@ TEST_F(TestNamespace, RegisterOverwriteInvalid)
 {
   auto ns = create_ns();
   auto ds = create_ds();
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
 
   ASSERT_EQ(L4_EOK, ns->register_obj("f", ds.get()));
   ASSERT_EQ(L4_EOK, ns->query("f", cap.get()));
@@ -109,7 +109,7 @@ TEST_F(TestNamespace, RegisterOverwriteValid)
   auto ns = create_ns();
   auto ds1 = create_ds(0, 6543);
   auto ds2 = create_ds(0, 1234);
-  auto cap = make_auto_cap<L4Re::Dataspace>();
+  auto cap = make_unique_cap<L4Re::Dataspace>();
 
   ASSERT_EQ(L4_EOK, ns->register_obj("f", ds1.get()));
   ASSERT_EQ(L4_EOK, ns->query("f", cap.get()));
@@ -125,10 +125,10 @@ TEST_F(TestNamespace, RegisterOverwriteValid)
 TEST_F(TestNamespace, RegisterLooseSourceDataspace)
 {
   auto ns = create_ns();
-  auto cap = make_auto_cap<L4Re::Dataspace>();
+  auto cap = make_unique_cap<L4Re::Dataspace>();
 
     {
-      auto ds = make_auto_cap<L4Re::Dataspace>();
+      auto ds = make_unique_cap<L4Re::Dataspace>();
       L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
 
       ASSERT_EQ(L4_EOK, ns->register_obj("gone", ds.get()));
@@ -143,10 +143,10 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
 TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
 {
   auto ns = create_ns();
-  auto cap = make_auto_cap<L4Re::Dataspace>();
+  auto cap = make_unique_cap<L4Re::Dataspace>();
 
     {
-      auto ds = make_auto_del_cap<L4Re::Dataspace>();
+      auto ds = make_unique_del_cap<L4Re::Dataspace>();
       L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
 
       ASSERT_EQ(L4_EOK, ns->register_obj("_", ds.get()));
@@ -161,7 +161,7 @@ TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
 TEST_F(TestNamespace, RegisterDeleteRomDataspace)
 {
   auto ns = create_ns();
-  auto lcap = make_auto_cap<L4Re::Dataspace>();
+  auto lcap = make_unique_cap<L4Re::Dataspace>();
 
   // get the cap for our test dataspace
   auto rom = env->get_cap<L4Re::Namespace>("rom");
@@ -170,7 +170,7 @@ TEST_F(TestNamespace, RegisterDeleteRomDataspace)
   // register it with the new namespace
   ASSERT_EQ(L4_EOK, ns->register_obj("new", lcap.get()));
   // now get the new cap
-  auto ds = L4Re::chkcap(L4Re::Util::make_auto_cap<L4Re::Dataspace>());
+  auto ds = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
   ASSERT_EQ(L4_EOK, ns->query("new", ds.get()));
   // and delete it again
   ASSERT_EQ(L4_EOK, ns->unlink("new"));
@@ -180,7 +180,7 @@ TEST_F(TestNamespace, RegisterDeleteRomDataspace)
   ASSERT_EQ(L4_EOK, env->mem_alloc()->alloc(dssz * 2, ds.get()));
 
   // Now ask again for the test namespace.
-  auto ds2 = L4Re::chkcap(L4Re::Util::make_auto_cap<L4Re::Dataspace>());
+  auto ds2 = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
   ASSERT_EQ(L4_EOK, rom->query("moe_bootfs_example.txt", ds2.get()));
   // The size of the underlying dataspace should not have changed.
   ASSERT_GT(ds2.validate(L4_BASE_TASK_CAP).label(), 0);
@@ -196,7 +196,7 @@ TEST_F(TestNamespace, RegisterPropagateRights)
   // Register capability read-only.
   ASSERT_EQ(L4_EOK, ns->register_obj("first", ns.get(), L4Re::Namespace::Ro));
 
-  auto ncap = make_auto_cap<L4Re::Namespace>();
+  auto ncap = make_unique_cap<L4Re::Namespace>();
 
   ASSERT_EQ(L4_EOK, ns->query("first", ncap.get()));
   // We should not be allowed to register on the returned capability.
@@ -278,7 +278,7 @@ TEST_F(TestNamespace, ExhaustQuotaWithCreate)
   nslist.pop_back();
 
   // after freeing, we should be able to allocate again
-  auto ns = make_auto_del_cap<L4Re::Namespace>();
+  auto ns = make_unique_del_cap<L4Re::Namespace>();
   ASSERT_EQ(0, l4_error(cap->create(ns.get(), L4Re::Namespace::Protocol)));
   ASSERT_EQ(0, ns->register_obj("x", cap.get()));
 }

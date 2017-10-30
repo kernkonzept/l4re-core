@@ -15,6 +15,7 @@
 #include <l4/re/error_helper>
 #include <l4/re/env>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 
 #include <l4/atkins/tap/main>
 #include <l4/atkins/debug>
@@ -32,18 +33,18 @@ struct TestDataspace : testing::Test
   TestDataspace(unsigned long flags, unsigned long size)
   : _flags(flags), _size(size) {}
 
-  L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap
+  L4Re::Util::Unique_del_cap<L4Re::Dataspace>
   create_ds(unsigned long size = 0)
   {
-    auto ds = make_auto_del_cap<L4Re::Dataspace>();
+    auto ds = make_unique_del_cap<L4Re::Dataspace>();
     L4Re::chksys(env->mem_alloc()->alloc(size ? size : _size, ds.get(), _flags));
     return ds;
   }
 
-  L4Re::Util::Auto_cap<L4Re::Dataspace>::Cap
+  L4Re::Util::Unique_cap<L4Re::Dataspace>
   make_ds_ro(L4::Cap<L4Re::Dataspace> ds)
   {
-    auto ro_ds = make_auto_cap<L4Re::Dataspace>();
+    auto ro_ds = make_unique_cap<L4Re::Dataspace>();
     env->task()->map(env->task(), ds.fpage(L4_FPAGE_RO), ro_ds.snd_base());
     return ro_ds;
   }
@@ -109,10 +110,10 @@ struct TestCrossDs
   : TestDataspace(std::get<0>(GetParam()), std::get<1>(GetParam()))
   {}
 
-  L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap
+  L4Re::Util::Unique_del_cap<L4Re::Dataspace>
   create_src_ds(unsigned long size = 0)
   {
-    auto ds = make_auto_del_cap<L4Re::Dataspace>();
+    auto ds = make_unique_del_cap<L4Re::Dataspace>();
     L4Re::chksys(env->mem_alloc()->alloc(size ? size : std::get<3>(GetParam()),
                                          ds.get(), std::get<2>(GetParam())));
     return ds;
@@ -174,7 +175,7 @@ TEST_P(TestAnyDs, ClearByte)
 {
   auto ds = create_ds();
 
-  L4Re::Rm::Auto_region<char *> r;
+  L4Re::Rm::Unique_region<char *> r;
   ASSERT_EQ(0, env->rm()->attach(&r, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  ds.get(), 0));
 
@@ -198,7 +199,7 @@ TEST_P(TestAnyDs, ClearEmpty)
 TEST_P(TestAnyDs, ClearFull)
 {
   auto ds = create_ds();
-  L4Re::Rm::Auto_region<char *> reg;
+  L4Re::Rm::Unique_region<char *> reg;
 
   for (l4_addr_t off = 0; off < defsize(); off += L4_PAGESIZE)
     {
@@ -248,13 +249,13 @@ TEST_P(TestCrossDs, CopyInBytesFromNormal)
   auto src = create_src_ds();
   auto dest = create_ds();
 
-  L4Re::Rm::Auto_region<char *> srcptr;
+  L4Re::Rm::Unique_region<char *> srcptr;
   ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  src.get(), 0));
   memset(srcptr.get(), 'x', strlen(cmpstr) + 10);
   strcpy(srcptr.get() + 2, cmpstr);
 
-  L4Re::Rm::Auto_region<char *> destptr;
+  L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  dest.get(), 0));
   memset(destptr.get(), '!', defsize() < L4_PAGESIZE ? defsize() : L4_PAGESIZE);
@@ -272,7 +273,7 @@ TEST_P(TestCrossDs, CopyInBytesFromUnallocated)
   auto src = create_src_ds();
   auto dest = create_ds();
 
-  L4Re::Rm::Auto_region<char *> destptr;
+  L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  dest.get(), 0));
   memset(destptr.get(), 0, defsize() < L4_PAGESIZE ? defsize() : L4_PAGESIZE);
@@ -285,7 +286,7 @@ TEST_P(TestAnyDs, CopyInBytesFromUnallocatedFull)
   auto src = create_ds();
   auto dest = create_ds();
 
-  L4Re::Rm::Auto_region<char *> destptr;
+  L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, defsize(), L4Re::Rm::Search_addr,
                                  dest.get(), 0));
   memset(destptr.get(), 0, defsize());
@@ -299,14 +300,14 @@ TEST_P(TestCrossDs, CopyInBytesToUnallocated)
   auto src = create_src_ds();
   auto dest = create_ds();
 
-  L4Re::Rm::Auto_region<char *> srcptr;
+  L4Re::Rm::Unique_region<char *> srcptr;
   ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  src.get(), 0));
   strcpy(srcptr.get() + 2, teststr);
 
   ASSERT_EQ(0, dest->copy_in(0, src.get(), 0, 20));
 
-  L4Re::Rm::Auto_region<char *> destptr;
+  L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  dest.get(), 0));
   EXPECT_EQ(0, strncmp(destptr.get() + 2, teststr, strlen(teststr) + 1));
@@ -318,14 +319,14 @@ TEST_P(TestAnyDs, CopyInBytesToUnallocatedFull)
   auto src = create_ds();
   auto dest = create_ds();
 
-  L4Re::Rm::Auto_region<char *> srcptr;
+  L4Re::Rm::Unique_region<char *> srcptr;
   ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  src.get(), 0));
   strcpy(srcptr.get() + 100, teststr);
 
   ASSERT_EQ(0, dest->copy_in(0, src.get(), 0, defsize()));
 
-  L4Re::Rm::Auto_region<char *> destptr;
+  L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  dest.get(), 0));
   EXPECT_EQ(0, strncmp(destptr.get() + 100, teststr, strlen(teststr) + 1));
@@ -341,13 +342,13 @@ TEST_P(TestCrossDs, CopyInBytesFromMultiplePages)
   auto src = create_src_ds();
   auto dest = create_ds();
 
-  L4Re::Rm::Auto_region<char *> srcptr;
+  L4Re::Rm::Unique_region<char *> srcptr;
   ASSERT_EQ(0, env->rm()->attach(&srcptr, 2 * L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  src.get(), 0));
   memset(srcptr.get(), 'x', 2 * L4_PAGESIZE);
   strcpy(srcptr.get() + L4_PAGESIZE - 1, cmpstr);
 
-  L4Re::Rm::Auto_region<char *> destptr;
+  L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  dest.get(), 0));
   memset(destptr.get(), '!', defsize() < L4_PAGESIZE ? defsize() : L4_PAGESIZE);
@@ -369,14 +370,14 @@ TEST_P(TestCrossDs, CopyInBytesToMultiplePages)
   auto src = create_src_ds();
   auto dest = create_ds();
 
-  L4Re::Rm::Auto_region<char *> srcptr;
+  L4Re::Rm::Unique_region<char *> srcptr;
   ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                  src.get(), 0));
   memset(srcptr.get(), 'x',
          defsize_src() < L4_PAGESIZE ? defsize_src() : L4_PAGESIZE);
   strcpy(srcptr.get(), cmpstr);
 
-  L4Re::Rm::Auto_region<char *> destptr;
+  L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, 2 * L4_PAGESIZE,
                                  L4Re::Rm::Search_addr, dest.get(), 0));
   memset(destptr.get(), '!', 2 * L4_PAGESIZE);
@@ -414,7 +415,7 @@ TEST_P(TestAnyDs, CopyInEmpty)
 
 TEST_P(TestAnyDs, CopyInInvalidSrcCap)
 {
-  auto src = L4Re::chkcap(L4Re::Util::make_auto_cap<L4Re::Dataspace>());
+  auto src = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
   auto dest = create_ds();
 
   ASSERT_EQ(-L4_EINVAL, dest->copy_in(0, src.get(), 0, 100));
@@ -507,7 +508,7 @@ TEST_P(TestAnyDs, MapFull)
 
 TEST_P(TestAnyDs, MapMinimal)
 {
-  auto ds = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
   L4Re::chksys(env->mem_alloc()->alloc(defsize(), ds.get(), defflags()));
   Fenced_auto_area reg(defsize());
 
@@ -661,6 +662,6 @@ TEST_P(TestRegDs, ExhaustQuotaMoeStructures)
     }
 
   // after freeing, we should be able to get more memory
-  auto ds = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, cap->alloc(defsize(), ds.get()));
 }

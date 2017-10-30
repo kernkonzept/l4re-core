@@ -19,6 +19,7 @@
 #include <l4/re/error_helper>
 #include <l4/re/env>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 
 #include <l4/atkins/l4_assert>
 #include <l4/atkins/tap/main>
@@ -33,12 +34,12 @@ TEST(TestOom, OutOfMemory)
 {
   constexpr int MAX = 100;
   {
-    L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap caparr[MAX];
+    L4Re::Util::Unique_del_cap<L4Re::Dataspace> caparr[MAX];
     int i = 0;
     for (i = 0; i < MAX; ++i)
       {
         caparr[i] =
-          L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Dataspace>());
+          L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
         long ret =
           L4Re::Env::env()->mem_alloc()->alloc(-1, caparr[i].get(),
                                                L4Re::Mem_alloc::Continuous);
@@ -49,7 +50,7 @@ TEST(TestOom, OutOfMemory)
     ASSERT_LT(i, MAX) << "Out-of-memory situation not reached.";
   }
 
-  auto cap = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Dataspace>());
+  auto cap = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
   ASSERT_L4OK(L4Re::Env::env()->mem_alloc()->alloc(-1, cap.get(),
                                                    L4Re::Mem_alloc::Continuous));
 }

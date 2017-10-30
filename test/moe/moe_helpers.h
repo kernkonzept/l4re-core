@@ -22,21 +22,23 @@
 #include <l4/sys/scheduler>
 #include <l4/re/error_helper>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
+#include <l4/re/util/shared_cap>
 
 static L4Re::Env const * const env = L4Re::Env::env();
 
 template <typename T>
-typename L4Re::Util::Auto_del_cap<T>::Cap
-make_auto_del_cap()
+L4Re::Util::Unique_del_cap<T>
+make_unique_del_cap()
 {
-  return L4Re::chkcap(L4Re::Util::make_auto_del_cap<T>());
+  return L4Re::chkcap(L4Re::Util::make_unique_del_cap<T>());
 }
 
 template <typename T>
-typename L4Re::Util::Auto_cap<T>::Cap
-make_auto_cap()
+L4Re::Util::Unique_cap<T>
+make_unique_cap()
 {
-  return L4Re::chkcap(L4Re::Util::make_auto_cap<T>());
+  return L4Re::chkcap(L4Re::Util::make_unique_cap<T>());
 }
 
 template <typename T>
@@ -46,61 +48,68 @@ make_ref_cap()
   return L4Re::chkcap(L4Re::Util::make_ref_cap<T>());
 }
 
+template <typename T>
+L4Re::Util::Shared_cap<T>
+make_shared_cap()
+{
+  return L4Re::chkcap(L4Re::Util::make_shared_cap<T>());
+}
+
 
 inline
-L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap
+L4Re::Util::Unique_del_cap<L4Re::Dataspace>
 create_ds(unsigned long flags = 0, unsigned long size = L4_PAGESIZE,
           L4::Cap<L4Re::Mem_alloc> fab = env->mem_alloc())
 {
-  auto ds = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Dataspace>());
+  auto ds = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
   L4Re::chksys(fab->alloc(size, ds.get(), flags));
   return ds;
 }
 
 inline
-L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap
+L4Re::Util::Unique_del_cap<L4Re::Dataspace>
 create_cont_ds(unsigned long size = L4_PAGESIZE,
                L4::Cap<L4Re::Mem_alloc> fab = env->mem_alloc())
 {
-  auto ds = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Dataspace>());
+  auto ds = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
   L4Re::chksys(fab->alloc(size, ds.get(), L4Re::Mem_alloc::Continuous));
   return ds;
 }
 
 inline
-L4Re::Util::Auto_del_cap<L4::Factory>::Cap
+L4Re::Util::Unique_del_cap<L4::Factory>
 create_fab(unsigned long limit = 10 * L4_PAGESIZE,
            L4::Cap<L4::Factory> fab = env->user_factory())
 {
-  auto cap = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4::Factory>());
+  auto cap = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4::Factory>());
   L4Re::chksys(fab->create_factory(cap.get(), limit));
   return cap;
 }
 
 inline
-L4Re::Util::Auto_del_cap<L4Re::Mem_alloc>::Cap
+L4Re::Util::Unique_del_cap<L4Re::Mem_alloc>
 create_ma(unsigned long limit = 10 * L4_PAGESIZE,
           L4::Cap<L4::Factory> fab = env->user_factory())
 {
-  auto cap = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Mem_alloc>());
+  auto cap = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Mem_alloc>());
   L4Re::chksys(fab->create_factory(cap.get(), limit));
   return cap;
 }
 
 inline
-L4Re::Util::Auto_del_cap<L4Re::Namespace>::Cap
+L4Re::Util::Unique_del_cap<L4Re::Namespace>
 create_ns(L4::Cap<L4::Factory> fab = env->user_factory())
 {
-  auto cap = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Namespace>());
+  auto cap = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Namespace>());
   L4Re::chksys(fab->create(cap.get()));
   return cap;
 }
 
 inline
-L4Re::Util::Auto_del_cap<L4Re::Dma_space>::Cap
+L4Re::Util::Unique_del_cap<L4Re::Dma_space>
 create_dma(L4::Cap<L4::Factory> fab = env->user_factory())
 {
-  auto cap = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Dma_space>());
+  auto cap = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dma_space>());
   L4Re::chksys(fab->create(cap.get()));
   L4Re::chksys(cap->associate(L4::Ipc::Cap<L4::Task>(L4::Cap<void>::Invalid),
                               L4Re::Dma_space::Phys_space));
@@ -108,10 +117,10 @@ create_dma(L4::Cap<L4::Factory> fab = env->user_factory())
 }
 
 inline
-L4Re::Util::Auto_del_cap<L4Re::Rm>::Cap
+L4Re::Util::Unique_del_cap<L4Re::Rm>
 create_rm(L4::Cap<L4::Factory> fab = env->user_factory())
 {
-  auto cap = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Rm>());
+  auto cap = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Rm>());
   L4Re::chksys(fab->create(cap.get()));
   return cap;
 }
@@ -133,13 +142,13 @@ public:
     _back_region.reset((char *) _start + _size - fence_size,
                        L4::Cap<L4Re::Rm>::Invalid);
 
-    _front_fence = L4Re::chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>());
+    _front_fence = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(fence_size, _front_fence.get(), 0));
     L4Re::chksys(env->rm()->attach(&_front_region, fence_size,
                                    L4Re::Rm::In_area, _front_fence.get()));
     memset(_front_region.get(), '{', fence_size);
 
-    _back_fence = L4Re::chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>());
+    _back_fence = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(fence_size, _back_fence.get(), 0));
     L4Re::chksys(env->rm()->attach(&_back_region, fence_size,
                                    L4Re::Rm::In_area, _back_fence.get()));
@@ -186,9 +195,9 @@ private:
   l4_addr_t _start;
   unsigned long _size;
   unsigned long _fence_size;
-  L4Re::Rm::Auto_region<char *> _front_region;
-  L4Re::Rm::Auto_region<char *> _back_region;
-  L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap _front_fence;
-  L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap _back_fence;
+  L4Re::Rm::Unique_region<char *> _front_region;
+  L4Re::Rm::Unique_region<char *> _back_region;
+  L4Re::Util::Unique_del_cap<L4Re::Dataspace> _front_fence;
+  L4Re::Util::Unique_del_cap<L4Re::Dataspace> _back_fence;
 };
 

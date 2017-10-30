@@ -45,11 +45,11 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
 
 struct PermissionRPC : Atkins::Fixture::Epiface_thread<Test_handler>
 {
-  using Perm_cap = L4Re::Util::Auto_cap<Test_iface>::Cap;
+  using Perm_cap = L4Re::Util::Unique_cap<Test_iface>;
 
   Perm_cap get(unsigned int rights)
   {
-    Perm_cap ret = L4Re::chkcap(L4Re::Util::cap_alloc.alloc<Test_iface>());
+    auto ret = L4Re::chkcap(L4Re::Util::make_unique_cap<Test_iface>());
     auto task = L4Re::Env::env()->task();
 
     task->map(task, scap().fpage(rights), ret.snd_base(L4_MAP_ITEM_MAP) | 0xf0);

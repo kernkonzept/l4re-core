@@ -9,13 +9,14 @@
 #include <l4/atkins/tap/main>
 #include <l4/atkins/l4_assert>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/error_helper>
 #include <l4/re/namespace>
 #include <l4/re/dataspace>
 #include <l4/re/env>
 
 using L4Re::chkcap;
-using L4Re::Util::Auto_cap;
+using L4Re::Util::Unique_cap;
 
 class NamespaceComposition: public ::testing::Test
 {
@@ -33,8 +34,7 @@ public:
 
 TEST_F(NamespaceComposition, CheckRomNs)
 {
-  Auto_cap<L4Re::Dataspace>::Cap ds =
-    chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(), "cap alloc");
+  auto ds = chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>(), "cap alloc");
 
   ASSERT_L4OK(rom_ns->query("test1", ds.get()))
     << "find 'test1' in 'rom'";
@@ -48,8 +48,8 @@ TEST_F(NamespaceComposition, CheckRomNs)
 
 TEST_F(NamespaceComposition, CheckTestNs)
 {
-  Auto_cap<L4Re::Dataspace>::Cap ds =
-    chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(), "cap alloc");
+  Unique_cap<L4Re::Dataspace> ds =
+    chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>(), "cap alloc");
 
   ASSERT_L4OK(test_ns->query("l4re", ds.get()))
     << "find 'l4re' in 'testns'";

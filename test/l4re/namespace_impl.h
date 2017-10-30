@@ -12,6 +12,7 @@
 #include <l4/sys/cxx/ipc_epiface>
 #include <l4/re/util/name_space_svr>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/util/object_registry>
 #include <l4/atkins/debug>
 
@@ -104,7 +105,7 @@ public:
 
   void free_capability(L4::Cap<void> cap) override
   {
-    L4Re::Util::Auto_cap<void>::Cap s = cap;
+    L4Re::Util::Unique_cap<void> s(cap);
     ++free_cap_count;
   }
 

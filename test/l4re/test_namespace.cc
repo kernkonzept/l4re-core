@@ -34,7 +34,7 @@ struct Namespace_fixture : Atkins::Fixture::Server_thread
     start_loop();
 
     handler.registry = server.registry();
-    cap = L4Re::chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Namespace>());
+    cap = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Namespace>());
   }
 
   long query(char const *name)
@@ -43,7 +43,7 @@ struct Namespace_fixture : Atkins::Fixture::Server_thread
   L4::Cap<Name_space::Interface> scap() const
   { return handler.obj_cap(); }
 
-  L4Re::Util::Auto_cap<L4Re::Namespace>::Cap cap;
+  L4Re::Util::Unique_cap<L4Re::Namespace> cap;
   Name_space handler;
 };
 
@@ -254,8 +254,7 @@ TEST_F(MappedNamespaceSvr, RegisterOverwriteNew)
   ASSERT_EQ(2, handler.free_cap_count);
   ASSERT_EQ(L4_EOK, query("f"));
   // check for rom namespace
-  L4Re::Util::Auto_cap<L4Re::Dataspace>::Cap cap2;
-  cap2 = L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>();
+  auto cap2 = L4Re::Util::make_unique_cap<L4Re::Dataspace>();
   ASSERT_EQ(L4_EOK, cap->query("l4re", cap2.get()));
 }
 
@@ -303,8 +302,7 @@ TEST_F(MappedNamespaceSvr, Recursive)
   ASSERT_EQ(0, scap()->register_obj("pong", scap()));
   ASSERT_EQ(0, scap()->register_obj("r", env->get_cap<L4Re::Namespace>("rom")));
 
-  L4Re::Util::Auto_cap<L4Re::Namespace>::Cap tcap;
-  tcap = L4Re::Util::cap_alloc.alloc<L4Re::Namespace>();
+  auto tcap = L4Re::Util::make_unique_cap<L4Re::Namespace>();
 
   EXPECT_EQ(0, scap()->query("r", tcap.get()));
   ASSERT_EQ(L4_EOK, tcap->query("l4re", cap.get()));

@@ -14,6 +14,7 @@
 
 #include <l4/re/env>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/re/namespace>
 #include <l4/re/error_helper>
 #include <l4/sys/kdebug.h>
@@ -48,7 +49,7 @@ public:
 
 TEST_F(TestMoeBootFs, QueryOurselves)
 {
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
 
   EXPECT_EQ(L4_EOK, ns->query("test_bootfs", cap.get()));
   EXPECT_EQ(L4_EOK, ns->query("test_bootfsfoobar", 11, cap.get()));
@@ -63,7 +64,7 @@ TEST_F(TestMoeBootFs, QueryOurselves)
 
 TEST_F(TestMoeBootFs, QueryAllowedModules)
 {
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
 
   EXPECT_EQ(L4_EOK, ns->query("l4re", cap.get()));
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
@@ -74,7 +75,7 @@ TEST_F(TestMoeBootFs, QueryAllowedModules)
 
 TEST_F(TestMoeBootFs, QueryForbiddenModules)
 {
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
 
   EXPECT_EQ(-L4_ENOENT, ns->query("fiasco", cap.get()));
   EXPECT_EQ(-L4_ENOENT, ns->query("kernel", cap.get()));
@@ -83,7 +84,7 @@ TEST_F(TestMoeBootFs, QueryForbiddenModules)
 
 TEST_F(TestMoeBootFs, RegisterDeleteEntry)
 {
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
 
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
   EXPECT_EQ(L4_EOK, ns->register_obj("foo", cap.get()));
@@ -93,13 +94,13 @@ TEST_F(TestMoeBootFs, RegisterDeleteEntry)
 
 TEST_F(TestMoeBootFs, MapRomSpace)
 {
-  auto ds = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
 
   ASSERT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", ds.get()));
   size_t sz = ds->size();
   ASSERT_GT(sz, strlen(TESTFILE_CONTENT));
 
-  L4Re::Rm::Auto_region<char *> reg;
+  L4Re::Rm::Unique_region<char *> reg;
   ASSERT_EQ(L4_EOK, env->rm()->attach(&reg, sz, L4Re::Rm::Search_addr,
                                       ds.get(), 0, L4_PAGESHIFT));
   ASSERT_EQ(0, memcmp(reg.get(), TESTFILE_CONTENT,
@@ -111,7 +112,7 @@ TEST_F(TestMoeBootFs, MapRomSpace)
 
 TEST_F(TestMoeBootFs, FailToDeleteRomCapability)
 {
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
 
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
   ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(cap.fpage(), L4_FP_DELETE_OBJ |
@@ -124,14 +125,14 @@ TEST_F(TestMoeBootFs, FailToDeleteRomCapability)
 
 TEST_F(TestMoeBootFs, FailToDeleteRomCapabilityWhenRemapping)
 {
-  auto cap = make_auto_cap<void>();
+  auto cap = make_unique_cap<void>();
   auto newns = create_ns();
 
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
   // register it with the new namespace
   ASSERT_EQ(L4_EOK, newns->register_obj("new", cap.get()));
   // now get that cap from the new namespace
-  auto ds = make_auto_cap<L4Re::Dataspace>();
+  auto ds = make_unique_cap<L4Re::Dataspace>();
   ASSERT_EQ(L4_EOK, newns->query("new", ds.get()));
 
   // unmapping still shouldn't have an effect
@@ -160,7 +161,7 @@ TEST_F(TestMoeBootFs, FailToOverwriteEntry)
 
 TEST_F(TestMoeBootFs, FailToClearDataspace)
 {
-  auto cap = make_auto_cap<L4Re::Dataspace>();
+  auto cap = make_unique_cap<L4Re::Dataspace>();
 
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
   EXPECT_EQ(-L4_EACCESS, cap->clear(0, 10));
@@ -168,13 +169,13 @@ TEST_F(TestMoeBootFs, FailToClearDataspace)
 
 TEST_F(TestMoeBootFs, FailToAllocateDataspace)
 {
-  auto cap = make_auto_cap<L4Re::Dataspace>();
+  auto cap = make_unique_cap<L4Re::Dataspace>();
 
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
   EXPECT_EQ(0, cap->allocate(0, 10));
 
   // check that nothing was deleted
-  L4Re::Rm::Auto_region<char *> reg;
+  L4Re::Rm::Unique_region<char *> reg;
   ASSERT_EQ(L4_EOK, env->rm()->attach(&reg, L4_PAGESIZE, L4Re::Rm::Search_addr,
                                       cap.get(), 0));
   ASSERT_EQ(0, memcmp(reg.get(), TESTFILE_CONTENT, strlen(TESTFILE_CONTENT)));

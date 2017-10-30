@@ -13,6 +13,7 @@
 #include <l4/re/env>
 #include <l4/re/error_helper>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 #include <l4/sys/cache.h>
 
 #include <l4/atkins/tap/main>
@@ -44,7 +45,7 @@ class MappedDataspace : public Test_range<true>
 public:
   MappedDataspace()
   {
-    _ds = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Dataspace>());
+    _ds = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(L4_PAGESIZE, _ds.get()));
     L4Re::chksys(env->rm()->attach(&_region, L4_PAGESIZE,
                                    L4Re::Rm::Search_addr | L4Re::Rm::Eager_map,
@@ -54,8 +55,8 @@ public:
   }
 
 private:
-  L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap _ds;
-  L4Re::Rm::Auto_region<void *> _region;
+  L4Re::Util::Unique_del_cap<L4Re::Dataspace> _ds;
+  L4Re::Rm::Unique_region<void *> _region;
 };
 
 // Test with memory that needs to be mapped before flushing caches works.
@@ -64,7 +65,7 @@ class UnmappedDataspace : public Test_range<true>
 public:
   UnmappedDataspace()
   {
-    _ds = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4Re::Dataspace>());
+    _ds = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(L4_PAGESIZE, _ds.get()));
     L4Re::chksys(env->rm()->attach(&_region, L4_PAGESIZE,
                                    L4Re::Rm::Search_addr, _ds.get(), 0));
@@ -73,8 +74,8 @@ public:
   }
 
 private:
-  L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap _ds;
-  L4Re::Rm::Auto_region<void *> _region;
+  L4Re::Util::Unique_del_cap<L4Re::Dataspace> _ds;
+  L4Re::Rm::Unique_region<void *> _region;
 };
 
 // Test with memory where pagefaults cannot be resolved.

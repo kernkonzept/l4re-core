@@ -12,10 +12,11 @@
 #include <l4/re/dataspace>
 #include <l4/re/error_helper>
 #include <l4/re/util/cap_alloc>
+#include <l4/re/util/unique_cap>
 
 using L4Re::chksys;
 using L4Re::chkcap;
-using L4Re::Util::Auto_cap;
+using L4Re::Util::Unique_cap;
 
 auto *env = L4Re::Env::env();
 
@@ -33,8 +34,7 @@ public:
 
 TEST_F(Rw_module, WriteToModule)
 {
-  Auto_cap<L4Re::Dataspace>::Cap ds =
-    chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(), "cap alloc");
+  auto ds = chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>(), "cap alloc");
 
   ASSERT_L4OK(test_ns->query("rw_module", ds.get()))
     << "find 'rw_module.cfg' in testns";
@@ -46,7 +46,7 @@ TEST_F(Rw_module, WriteToModule)
   ASSERT_EQ(L4Re::Dataspace::Map_rw, (s.flags & L4Re::Dataspace::Map_rw))
     << "ds writable";
 
-  L4Re::Rm::Auto_region<void *> base;
+  L4Re::Rm::Unique_region<void *> base;
   ASSERT_L4OK(env->rm()->attach(&base, s.size, L4Re::Rm::Search_addr,
                                 L4::Ipc::make_cap_rw(ds.get())))
     << "attach ds to rm";
