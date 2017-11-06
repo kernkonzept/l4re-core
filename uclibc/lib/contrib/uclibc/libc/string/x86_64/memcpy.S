@@ -25,12 +25,6 @@
 #define MEMPCPY_P (defined memcpy)
 
         .text
-#if defined __PIC__ && !defined NOT_IN_libc && defined __UCLIBC_HAS_FORTIFY__
-ENTRY (__memcpy_chk)
-	cmpq	%rdx, %rcx
-	jb	HIDDEN_JUMPTARGET (__chk_fail)
-END (__memcpy_chk)
-#endif
 ENTRY (BP_SYM (memcpy))
 	/* Cutoff for the big loop is a size of 32 bytes since otherwise
 	   the loop will never be entered.  */

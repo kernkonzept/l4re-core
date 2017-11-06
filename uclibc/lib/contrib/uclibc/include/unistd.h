@@ -1248,12 +1248,6 @@ extern void swab (const void *__restrict __from, void *__restrict __to,
 extern char *ctermid (char *__s) __THROW;
 #endif
 
-
-/* Define some macros helping to catch buffer overflows.  */
-#if __USE_FORTIFY_LEVEL > 0 && defined __extern_always_inline
-# include <bits/unistd.h>
-#endif
-
 __END_DECLS
 
 

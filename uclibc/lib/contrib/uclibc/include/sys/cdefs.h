@@ -135,10 +135,6 @@
 #endif
 
 
-/* Fortify support.  */
-#define __bos(ptr) __builtin_object_size (ptr, __USE_FORTIFY_LEVEL > 1)
-#define __bos0(ptr) __builtin_object_size (ptr, 0)
-
 #if __GNUC_PREREQ (4,3)
 # define __warndecl(name, msg) \
   extern void name (void) __attribute__((__warning__ (msg)))
@@ -306,9 +302,6 @@
 #if __GNUC_PREREQ (3,4)
 # define __attribute_warn_unused_result__ \
    __attribute__ ((__warn_unused_result__))
-# if __USE_FORTIFY_LEVEL > 0
-#  define __wur __attribute_warn_unused_result__
-# endif
 #else
 # define __attribute_warn_unused_result__ /* empty */
 #endif

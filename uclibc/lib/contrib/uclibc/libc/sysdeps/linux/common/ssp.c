@@ -85,23 +85,3 @@ ssp_handler(void)
 }
 
 strong_alias(ssp_handler,__stack_chk_fail)
-
-#ifdef __UCLIBC_HAS_FORTIFY__
-/* should be redone when activated to use common code above.
- * for now, it works without debugging support */
-void __chk_fail(void)
-{
-	static const char msg_fail[] = "*** buffer overflow detected ***: ";
-	static const char msg_terminated[] = " terminated";
-	pid_t pid;
-
-	do_msg(msg_fail, __uclibc_progname, msg_terminated);
-
-	pid = getpid();
-	(void)kill(pid, SIGKILL);
-	/* The loop is added only to keep gcc happy. */
-	while(1)
-		_exit(127);
-}
-libc_hidden_def(__chk_fail)
-#endif
