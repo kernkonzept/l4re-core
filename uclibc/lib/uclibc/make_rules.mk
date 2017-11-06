@@ -7,7 +7,7 @@ CFLAGS          += -DUCLIBC_INTERNAL
 CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)
 # CFLAGS	+= -std=iso9899:199901
 DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__
-WARNINGS	= -Wall -Wstrict-prototypes
+WARNINGS	= -Wall -Wstrict-prototypes -Wno-nonnull-compare
 
 # for building the C library we access internal headers
 PRIVATE_INCDIR += $(CONTRIB_DIR)/libc/sysdeps/linux/$(UCLIBC_ARCH)
