@@ -54,7 +54,7 @@ public:
    * \brief The abstract handler for client requests to the object.
    * \param rights The rights bits in the invoked capability.
    * \param ios The Ipc::Iostream for reading the request and writing the reply.
-   * \retval -L4_ENOREPLY  No reply message is send.
+   * \retval -L4_ENOREPLY  Instructs the server loop to not send a reply.
    * \retval <0            Error, reply with error code.
    * \retval >=0           Success, reply with return value.
    *
@@ -113,7 +113,7 @@ struct Server_object_t : BASE
 
   /**
    * Implementation of protocol-based dispatch for this server object.
-   * \param self    The this pointer for teh object (inhertits from
+   * \param self    The this pointer for the object (inherits from
    *                Server_object_t).
    * \param rights  The rights from the received IPC (forwarded to p_dispatch()).
    * \param ios     The message stream for the incoming and the reply message.

@@ -44,7 +44,7 @@ namespace L4Re {
  * object. By this means name spaces can be constructed hierarchically.
  *
  * Name spaces play a central role in L4Re, because the implementation of the
- * name space objects determine the policy which capabilities (which objects)
+ * name space objects determines the policy which capabilities (which objects)
  * are accessible to a client of a name space.
  */
 /**
@@ -215,4 +215,3 @@ private:
 };
 
 };
-

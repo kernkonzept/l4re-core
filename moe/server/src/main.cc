@@ -313,7 +313,7 @@ public:
         catch (L4::Runtime_error &e)
           {
             int res = e.err_no();
-            dbg.printf("reply(excption) = %d\n", res);
+            dbg.printf("reply(exception) = %d\n", res);
             return l4_msgtag(res, 0, 0, 0);
           }
       }
@@ -385,7 +385,7 @@ static unsigned long parse_flags(cxx::String const &_args, Dbg_bits const *dbb,
 
       if (!b->tag)
         {
-          warn.printf("ignore unkown argument for %.*s: '%.*s'\n",
+          warn.printf("ignore unknown argument for %.*s: '%.*s'\n",
                       opt.len(), opt.start(), a.len(), a.start());
 
         }
@@ -610,4 +610,3 @@ int main(int argc, char**argv)
     }
   return 0;
 }
-

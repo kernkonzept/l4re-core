@@ -58,6 +58,6 @@ Rpc_call<OP, C, R (ARGS...), FLAGS>::
 /// \endcond
 
 } // namespace Msg
-} // namesapce Ipc
+} // namespace Ipc
 } // namespace L4
 
