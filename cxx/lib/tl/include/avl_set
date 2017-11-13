@@ -403,7 +403,10 @@ Base_avl_set<Item,Compare,Alloc,KEY_TYPE>::insert(Item const &item)
   new (n, Nothrow()) _Node(item);
   Pair<_Node *, bool> err = _tree.insert(n);
   if (!err.second)
-    _alloc.free(n);
+    {
+      n->~_Node();
+      _alloc.free(n);
+    }
 
   return cxx::pair(Iterator(typename Tree::Iterator(err.first, err.first)), err.second ? 0 : -E_exist);
 }
