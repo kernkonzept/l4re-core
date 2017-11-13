@@ -18,6 +18,7 @@
 #include <l4/sys/kdebug.h>
 
 #include <l4/atkins/fixtures/epiface_provider>
+#include <l4/atkins/l4_assert>
 #include <l4/atkins/tap/main>
 
 L4Re::Env const *env = L4Re::Env::env();
@@ -28,8 +29,10 @@ struct Test_iface
   L4_INLINE_RPC(long, in_cap, (bool, L4::Ipc::Cap<void>));
   L4_INLINE_RPC(long, in_opt_cap, (bool, L4::Ipc::Opt<L4::Ipc::Cap<void> >));
   L4_INLINE_RPC(l4_msgtag_t, out_cap, (L4::Ipc::Out<L4::Cap<void> >));
+  L4_INLINE_RPC(l4_msgtag_t, out_cap2, (L4::Ipc::Out<L4::Cap<void> >,
+                                        L4::Ipc::Out<L4::Cap<void> >));
 
-  typedef L4::Typeid::Rpcs<in_cap_t, in_opt_cap_t, out_cap_t> Rpcs;
+  typedef L4::Typeid::Rpcs<in_cap_t, in_opt_cap_t, out_cap_t, out_cap2_t> Rpcs;
 };
 
 struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
@@ -50,6 +53,13 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
     return 0;
   }
 
+  long op_out_cap2(Test_iface::Rights, L4::Ipc::Cap<void> &out_cap, L4::Ipc::Cap<void> &out_cap2)
+  {
+    out_cap = p_cap;
+    out_cap2 = p_cap2;
+    return 0;
+  }
+
 private:
   long handle_in_cap(bool release, L4::Ipc::Snd_fpage fpage)
   {
@@ -64,7 +74,7 @@ private:
 
 public:
   L4::Ipc::Snd_fpage p_fpage;
-  L4::Cap<void> p_cap;
+  L4::Cap<void> p_cap, p_cap2;
 };
 
 struct CapRpc
@@ -149,6 +159,30 @@ TEST_P(CapRpc, RcvCap)
   auto test_cap = L4Re::Util::make_unique_cap<void>();
   // test that we really got the rom cap back
   ASSERT_EQ(L4_EOK, rcv_cap->query("l4re", test_cap.get()));
+}
+
+TEST_P(CapRpc, RcvCapInvalid)
+{
+  auto rcv_cap = L4Re::Util::make_unique_cap<L4Re::Namespace>();
+  ASSERT_TRUE(rcv_cap);
+  handler().p_cap = L4::Cap<void>();
+  l4_msgtag_t res = scap()->out_cap(rcv_cap.get());
+  ASSERT_EQ(0, l4_error(res));
+  ASSERT_EQ(1U, res.items());
+}
+
+TEST_P(CapRpc, RcvCapOneOfTwoInvalid)
+{
+  auto rcv_cap = L4Re::Util::make_unique_cap<L4Re::Namespace>();
+  auto rcv_cap2 = L4Re::Util::make_unique_cap<L4Re::Namespace>();
+  ASSERT_TRUE(rcv_cap);
+  handler().p_cap = L4::Cap<void>();
+  handler().p_cap2 = env->get_cap<L4Re::Namespace>("rom");
+  l4_msgtag_t res = scap()->out_cap2(rcv_cap.get(), rcv_cap2.get());
+  ASSERT_EQ(0, l4_error(res));
+  EXPECT_EQ(2U, res.items());
+  EXPECT_L4CAP_NOT_PRESENT(rcv_cap.get());
+  EXPECT_L4CAP_OBJ_EQ(rcv_cap2.get(), env->get_cap<L4Re::Namespace>("rom"));
 }
 
 struct CapRpcRelease
