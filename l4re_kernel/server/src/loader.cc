@@ -261,8 +261,20 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
       return false;
     }
 
-  L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size, 0,
-                                 L4::Ipc::make_cap_rw(__loader_stack), 0);
+  long ret
+    = L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size, 0,
+                                     L4::Ipc::make_cap_rw(__loader_stack), 0);
+  if (ret)
+    {
+      // The loader stack is already attached to the local region map. We
+      // tried to attach it to the remote region map (e.g. moe) as well, and
+      // this failed. This means that there is an unexpected inconsistency
+      // between the actual remote region map and our model of it. Something
+      // running in the l4re_kernel must have attached a memory region there,
+      // which is a bug, and must be fixed.
+      Err(Err::Fatal).printf("could not attach loader stack to remote region map\n");
+      return false;
+    }
 
   l4_umword_t *sp = (l4_umword_t*)((char*)__loader_stack_p + Loader_stack_size);
 
