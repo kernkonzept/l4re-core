@@ -342,11 +342,11 @@ l4_iofpage(unsigned long port, unsigned int size) L4_NOTHROW;
  *
  * \param   obj       Base capability selector.
  * \param   order     Log2 size (number of capabilities).
- * \param   rights    Access rights
+ * \param   rights    Access rights, see #L4_cap_fpage_rights
  *
  * \return  Flex page for a set of kernel objects.
  *
- * \todo What are the possible values for the rights parameter?
+ * \note #L4_CAP_FPAGE_R is always required, otherwise no capability is mapped.
  */
 L4_INLINE l4_fpage_t
 l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTHROW;
