@@ -41,7 +41,8 @@ struct statfs
     __fsid_t f_fsid;
     __SWORD_TYPE f_namelen;
     __SWORD_TYPE f_frsize;
-    __SWORD_TYPE f_spare[5];
+    __SWORD_TYPE f_flags;
+    __SWORD_TYPE f_spare[4];
   };
 
 #ifdef __USE_LARGEFILE64
@@ -57,7 +58,8 @@ struct statfs64
     __fsid_t f_fsid;
     __SWORD_TYPE f_namelen;
     __SWORD_TYPE f_frsize;
-    __SWORD_TYPE f_spare[5];
+    __SWORD_TYPE f_flags;
+    __SWORD_TYPE f_spare[4];
   };
 #endif
 

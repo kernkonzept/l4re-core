@@ -44,7 +44,8 @@ struct statfs
 	/* Linux specials */
     __fsid_t f_fsid;
     long int f_namelen;
-    long int f_spare[6];
+    long int f_flags;
+    long int f_spare[5];
   };
 
 #ifdef __USE_LARGEFILE64
@@ -63,7 +64,8 @@ struct statfs64
 	/* Linux specials */
     __fsid_t f_fsid;
     long int f_namelen;
-    long int f_spare[6];
+    long int f_flags;
+    long int f_spare[5];
   };
 #endif
 
