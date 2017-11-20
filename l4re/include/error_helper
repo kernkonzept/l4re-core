@@ -151,6 +151,31 @@ T chkcap(T cap, char const *extra = "", long err = -L4_ENOMEM)
   return cap;
 #endif
 }
+
+/**
+ * Test a message tag for IPC errors.
+ *
+ * \param tag    Message tag returned by the IPC.
+ * \param extra  Exception message in case of error.
+ * \param utcb   The UTCB used in the IPC operation.
+ *
+ * \returns  On IPC error an exception is thrown, otherwise `tag` is returned.
+ * \throws L4::Runtime_exception with the translated IPC error code
+ *
+ * This function does not check the message tag's label value.
+ *
+ * \note This must be called on a message tag before the UTCB is changed.
+ */
+inline
+l4_msgtag_t
+chkipc(l4_msgtag_t tag, char const *extra = "",
+       l4_utcb_t *utcb = l4_utcb())
+{
+  if (L4_UNLIKELY(tag.has_error()))
+    chksys(l4_error_u(tag, utcb), extra);
+
+  return tag;
+}
 #endif
 
 }
