@@ -71,17 +71,6 @@ TEST_F(PermissionRPC, Read)
   EXPECT_EQ(-L4_EPERM, cap->write_strong());
 }
 
-TEST_F(PermissionRPC, Write)
-{
-  auto cap = get(L4_CAP_FPAGE_W);
-  EXPECT_EQ(1, cap->read());
-  EXPECT_EQ(1, cap->write());
-  EXPECT_EQ(1, cap->read_write());
-  EXPECT_EQ(-L4_EPERM, cap->strong());
-  EXPECT_EQ(-L4_EPERM, cap->read_strong());
-  EXPECT_EQ(-L4_EPERM, cap->write_strong());
-}
-
 TEST_F(PermissionRPC, ReadWrite)
 {
   auto cap = get(L4_CAP_FPAGE_RW);
@@ -95,7 +84,7 @@ TEST_F(PermissionRPC, ReadWrite)
 
 TEST_F(PermissionRPC, Strong)
 {
-  auto cap = get(L4_CAP_FPAGE_S);
+  auto cap = get(L4_CAP_FPAGE_RS);
   EXPECT_EQ(1, cap->read());
   EXPECT_EQ(-L4_EPERM, cap->write());
   EXPECT_EQ(-L4_EPERM, cap->read_write());
@@ -106,7 +95,7 @@ TEST_F(PermissionRPC, Strong)
 
 TEST_F(PermissionRPC, WriteStrong)
 {
-  auto cap = get(L4_CAP_FPAGE_W | L4_CAP_FPAGE_S);
+  auto cap = get(L4_CAP_FPAGE_RWS);
   EXPECT_EQ(1, cap->read());
   EXPECT_EQ(1, cap->write());
   EXPECT_EQ(1, cap->read_write());
