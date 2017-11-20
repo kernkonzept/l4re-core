@@ -566,11 +566,14 @@ public:
   { T *x = (O*)1; (void)x; }
 
   /// Make a Cap from L4::Cap<T>, with minimal rights
-  Cap(L4::Cap<T> cap) : _cap_n_rights(cap.cap() & Cap_mask) {}
+  Cap(L4::Cap<T> cap)
+  : _cap_n_rights((cap.cap() & Cap_mask) | (cap ? L4_CAP_FPAGE_R : 0))
+  {}
 
   /// Make IPC Cap from L4::Cap with conversion (and minimal rights).
   template<typename O>
-  Cap(L4::Cap<O> cap) : _cap_n_rights(cap.cap() & Cap_mask)
+  Cap(L4::Cap<O> cap)
+  : _cap_n_rights((cap.cap() & Cap_mask) | (cap ? L4_CAP_FPAGE_R : 0))
   { T *x = (O*)1; (void)x; }
 
   /// Make an invalid cap
