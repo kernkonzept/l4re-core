@@ -754,7 +754,8 @@ struct Svr_val_ops< L4::Ipc::Cap<A>, Dir_out, Cls_item > :
                       Cap<A> arg, Dir_out, Cls_item)
   {
     if (L4_UNLIKELY(!arg.is_valid()))
-      return offset; // do not map anything
+      // do not map anything
+      return msg_add(msg, offset, limit, L4::Ipc::Snd_fpage(arg.cap(), 0));
 
     return msg_add(msg, offset, limit, arg.fpage());
   }
