@@ -16,7 +16,9 @@ class Dataspace_anon : public Dataspace_cont
 {
 public:
   Dataspace_anon(long size, bool writable = true,
-                 unsigned char page_shift = L4_PAGESHIFT);
+                 unsigned char page_shift = L4_PAGESHIFT,
+                 Single_page_alloc_base::Config cfg
+                   = Single_page_alloc_base::Config());
   virtual ~Dataspace_anon();
 
   bool is_static() const throw() { return false; }

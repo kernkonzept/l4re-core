@@ -71,10 +71,15 @@ public:
    *
    * \param size  Size of the memory block
    * \param align Alignment constraint
+   * \param lower Lower bound of the physical region the memory block should be
+   *              allocated from.
+   * \param upper Upper bound of the physical region the memory block should be
+   *              allocated from.
    *
    * \return      Pointer to memory block
    */
-  inline void *alloc(unsigned long size, unsigned align);
+  inline void *alloc(unsigned long size, unsigned align,
+                     unsigned long lower = 0, unsigned long upper = ~0UL);
 
   /**
    * \brief Allocate a memory block of `min` <= size <=`max`.
@@ -84,11 +89,16 @@ public:
    *                             size is returned here.
    * \param         align        Alignment constraint.
    * \param         granularity  Granularity to use for the allocation.
+   * \param         lower        Lower bound of the physical region the memory
+   *                             block should be allocated from.
+   * \param         upper        Upper bound of the physical region the memory
+   *                             block should be allocated from.
    *
    * \return  Pointer to memory block
    */
   inline void *alloc_max(unsigned long min, unsigned long *max,
-                         unsigned align, unsigned granularity);
+                         unsigned align, unsigned granularity,
+                         unsigned long lower = 0, unsigned long upper = ~0UL);
 
   /**
    * \brief Get the amount of available memory.
@@ -255,7 +265,8 @@ List_alloc::free(void *block, unsigned long size, bool initial_free)
 
 void *
 List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
-                      unsigned granularity)
+                      unsigned granularity, unsigned long lower,
+                      unsigned long upper)
 {
   List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
 
@@ -286,10 +297,15 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
     {
       // address of free memory block
       unsigned long n_start = (unsigned long)(*c);
+      unsigned long a_lower = (lower + almask) & ~almask;
 
       // block too small, next
       // XXX: maybe we can skip this and just do the test below
       if ((*c)->size < min)
+        continue;
+
+      // block outside region, next
+      if (upper < n_start || a_lower > n_start + (*c)->size)
         continue;
 
       // aligned start address within the free block
@@ -297,6 +313,16 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
 
       // check if aligned start address is behind the block, next
       if (a_start - n_start >= (*c)->size)
+        continue;
+
+      a_start = a_start < a_lower ? a_lower : a_start;
+
+      // end address would overflow, next
+      if (min > ~0UL - a_start)
+        continue;
+
+      // block outside region, next
+      if (a_start + min > upper)
         continue;
 
       // remaining size after subtracting the padding for the alignment
@@ -325,7 +351,9 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
   if (fit)
     {
       unsigned long n_start = (unsigned long)(*fit);
+      unsigned long a_lower = (lower + almask) & ~almask;
       unsigned long a_start = (n_start + almask) & ~almask;
+      a_start = a_start < a_lower ? a_lower : a_start;
       unsigned long r_size = (*fit)->size - a_start + n_start;
 
       if (a_start > n_start)
@@ -351,7 +379,8 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
 }
 
 void *
-List_alloc::alloc(unsigned long size, unsigned align)
+List_alloc::alloc(unsigned long size, unsigned align, unsigned long lower,
+                  unsigned long upper)
 {
   List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
 
@@ -372,10 +401,15 @@ List_alloc::alloc(unsigned long size, unsigned align)
     {
       // address of free memory block
       unsigned long n_start = (unsigned long)(*c);
+      unsigned long a_lower = (lower + almask) & ~almask;
 
       // block too small, next
       // XXX: maybe we can skip this and just do the test below
       if ((*c)->size < size)
+        continue;
+
+      // block outside region, next
+      if (upper < n_start || a_lower > n_start + (*c)->size)
         continue;
 
       // aligned start address within the free block
@@ -383,6 +417,16 @@ List_alloc::alloc(unsigned long size, unsigned align)
 
       // hm, block too small after alignment, next
       if (a_start - n_start >= (*c)->size)
+        continue;
+
+      a_start = a_start < a_lower ? a_lower : a_start;
+
+      // end address would overflow, next
+      if (size > ~0UL - a_start)
+        continue;
+
+      // block outside region, next
+      if (a_start + size > upper)
         continue;
 
       // remaining size after subtracting the padding

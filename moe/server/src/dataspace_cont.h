@@ -16,7 +16,9 @@ class Dataspace_cont : public Dataspace
 {
 public:
   Dataspace_cont(void *start, unsigned long size, unsigned short flags,
-                 unsigned char page_shift);
+                 unsigned char page_shift,
+                 Single_page_alloc_base::Config cfg
+                   = Single_page_alloc_base::Config());
 
   Address address(l4_addr_t offset,
                   Ds_rw rw, l4_addr_t hot_spot = 0,

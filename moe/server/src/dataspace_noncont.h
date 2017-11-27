@@ -48,8 +48,10 @@ public:
 
   bool is_static() const throw() { return false; }
 
-  Dataspace_noncont(unsigned long size, unsigned long flags = Writable) throw()
-  : Dataspace(size, flags | Cow_enabled, L4_LOG2_PAGESIZE), _pages(0)
+  Dataspace_noncont(unsigned long size, unsigned long flags = Writable,
+                    Single_page_alloc_base::Config cfg
+                      = Single_page_alloc_base::Config()) throw()
+  : Dataspace(size, flags | Cow_enabled, L4_LOG2_PAGESIZE, cfg), _pages(0)
   {}
 
   virtual ~Dataspace_noncont() {}
@@ -88,6 +90,7 @@ public:
   long clear(unsigned long offs, unsigned long size) const throw();
 
   static Dataspace_noncont *create(Q_alloc *q, unsigned long size,
+                                   Single_page_alloc_base::Config cfg,
                                    unsigned long flags = Writable);
 
 protected:
@@ -96,6 +99,5 @@ protected:
     Page *_pages;
     Page _page;
   };
-
 };
 };
