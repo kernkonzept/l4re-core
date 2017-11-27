@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2015 Kernkonzept GmbH.
+ * Copyright (C) 2017 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *            Philipp Eppelt <philipp.eppelt@kernkonzept.com>
  *
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
@@ -12,13 +13,16 @@
 #include <map>
 #include <algorithm>
 #include <memory>
+#include <set>
 
 #include <l4/sys/err.h>
 #include <l4/cxx/avl_set>
 
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 
 #include "tracking_alloc.h"
+#include "item"
 
 typedef cxx::Avl_set<int, cxx::Lt_functor<int>, TrackingAlloc > Int_set;
 
@@ -201,4 +205,133 @@ TEST_F(TestAvlSet, CopyEmptyTree)
   std::unique_ptr<Int_set> p {new Int_set(*tree)};
 
   EXPECT_EQ(p->begin(), p->end());
+}
+
+// *** AVL set constructor, copy-constructor, and destructor tests ***********
+
+using Container_test::Item;
+using Item_set = cxx::Avl_set<Item, cxx::Lt_functor<Item>, TrackingAlloc>;
+
+/**
+ * Test fixture for AVL set tests using a non-trivial Item.
+ */
+class TestAvlCtors : public Test_track_alloc
+{
+protected:
+  Item_set *avl_items;
+
+public:
+  void SetUp()
+  {
+    Test_track_alloc::SetUp();
+    avl_items = new Item_set;
+
+    EXPECT_EQ(avl_items->begin(), avl_items->end())
+      << "Initial Item_set is empty.";
+
+    EXPECT_TRUE(Item::item_address.empty()) << "No item addresses are stored.";
+  }
+
+  void TearDown()
+  {
+    delete avl_items;
+    Test_track_alloc::TearDown();
+
+    EXPECT_TRUE(Item::item_address.empty())
+      << "All item addresses were removed.";
+  }
+};
+
+/**
+ * An AVL set creates a copy of the item to insert and maintains the copy
+ * independent of the original instance.
+ *
+ * \see cxx::Avl_set
+ */
+TEST_F(TestAvlCtors, InsertCopiesItem)
+{
+    {
+      Item ite;
+      EXPECT_EQ(0, avl_items->insert(ite).second)
+        << "The item is successfully inserted into the AVL set.";
+
+      EXPECT_EQ(2U, Item::item_address.size())
+        << "Avl_set.insert invoked the copy-constructor of Item.";
+
+      EXPECT_EQ(*avl_items->begin(), ite)
+        << "The item in the AVL set is a copy of the local item.";
+    }
+
+  EXPECT_EQ(1U, Item::item_address.size())
+    << "The original item was destroyed at the end of the scope, the copy is"
+       " still present.";
+}
+
+/**
+ * An AVL set creates a copy of the item to insert and deletes the copy, if the
+ * insertion fails.
+ *
+ * \see cxx::Avl_set
+ */
+TEST_F(TestAvlCtors, FailedInsertRemovesCopyAgain)
+{
+  Item ite;
+  EXPECT_EQ(0, avl_items->insert(ite).second)
+    << "The item is successfully inserted into the AVL set.";
+
+  EXPECT_EQ(2U, Item::item_address.size())
+    << "Avl_set.insert invoked the copy-constructor of Item.";
+
+  EXPECT_NE(avl_items->end(), avl_items->find(ite))
+    << "The inserted item is found in the AVL set.";
+
+  EXPECT_EQ(-Int_set::E_exist, avl_items->insert(ite).second)
+    << "The item is already in the AVL set.";
+
+  EXPECT_EQ(2U, Item::item_address.size())
+    << "The number of constructed items does not change after an unsuccessful"
+       " insertion in an AVL set.\n";
+}
+
+/**
+ * On removal of an element the AVL set invokes the destructor of said element.
+ *
+ * \see cxx::Avl_set
+ */
+TEST_F(TestAvlCtors, RemoveDestroysCopiedItem)
+{
+  Item ite;
+  EXPECT_EQ(0, avl_items->insert(ite).second)
+    << "The item is successfully inserted into the AVL set.";
+
+  EXPECT_EQ(2U, Item::item_address.size())
+    << "Avl_set.insert invoked the copy-constructor of Item.";
+
+  EXPECT_L4OK(avl_items->remove(ite)) << "Remove item from the AVL set.";
+  EXPECT_EQ(1U, Item::item_address.size())
+    << "Avl_set.remove invoked item's destructor.";
+}
+
+/**
+ * On destruction of an AVL set, the destructor of all stored elements is
+ * invoked.
+ *
+ * \see cxx::Avl_set
+ */
+TEST_F(TestAvlCtors, DestructorDeletesAllCopies)
+{
+  unsigned const Number_of_items = 5;
+  std::vector<Item> v_ite(Number_of_items);
+
+  for (auto &ite : v_ite)
+    EXPECT_EQ(0, avl_items->insert(ite).second)
+      << "The item is successfully inserted into the AVL set.";
+
+  EXPECT_EQ(Number_of_items * 2, Item::item_address.size())
+    << "Each item was copied on insertion.";
+
+  avl_items->~Avl_set();
+
+  EXPECT_EQ(Number_of_items, Item::item_address.size())
+    << "All copies were destroyed in the fire.";
 }

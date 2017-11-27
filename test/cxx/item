@@ -1,0 +1,122 @@
+/*
+ * Copyright (C) 2017 Kernkonzept GmbH.
+ * Author(s): Philipp Eppelt <philipp.eppelt@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#include <set>
+
+#include <l4/atkins/debug>
+#include <l4/atkins/l4_assert>
+
+namespace Container_test {
+
+/**
+ * Item to test the correctness of constructor and destructor calls of
+ * container implementations, e.g. AVL set.
+ *
+ * A zero-ID indicates that the Item instance was already removed from the
+ * address set.
+ *
+ * The copy and move constructors and assignments will record a non-fatal
+ * failure, if the ID of the object to copy or move from is invalid.
+ */
+class Item
+{
+public:
+  enum { Invalid_id = 0, };
+  static std::set<Item const *> item_address;
+
+private:
+  static unsigned _id_counter;
+  unsigned _id;
+
+  Atkins::Dbg trace() const { return Atkins::Dbg(Atkins::Dbg::Trace); }
+  void move(Item &&o)
+  {
+    EXPECT_NE(Invalid_id, o._id)
+      << "The object to move-from has valid content.";
+    EXPECT_EQ(1U, item_address.count(&o))
+      << "The item to move-from is in the address set.";
+
+    _id = o._id;
+    o._id = Invalid_id;
+  }
+
+public:
+  Item() : _id(_id_counter++)
+  {
+    trace().printf("Item Ctor %i\n", _id);
+    EXPECT_EQ(0U, item_address.count(this))
+      << "No item with this address is in the set.";
+
+    EXPECT_TRUE(item_address.insert(this).second)
+      << "Item successfully inserted into address set.";
+  }
+
+  Item(Item const &o) : _id(o._id)
+  {
+    trace().printf("Item Copy-Ctor %i - %p < %p\n", _id, this, &o);
+    EXPECT_EQ(1U, item_address.count(&o))
+      << "The item to copy is already in the address set.";
+
+    EXPECT_NE(Invalid_id, o._id)
+      << "The object to copy from has valid content.";
+
+    EXPECT_TRUE(item_address.insert(this).second)
+      << "Item successfully inserted into address set.";
+  }
+
+  Item(Item &&o)
+  {
+    trace().printf("Item Move-Ctor %i - %p\n", o._id, this);
+    move(std::move(o));
+
+    EXPECT_TRUE(item_address.insert(this).second)
+      << "Item successfully inserted into address set.";
+  }
+
+  ~Item()
+  {
+    trace().printf("Item Dtor %i - %p\n", _id, this);
+
+    auto it = item_address.find(this);
+    EXPECT_NE(item_address.end(), it)
+      << "This item's address is in the address set.";
+
+    if (it != item_address.end())
+      item_address.erase(it);
+  }
+
+  bool operator < (Item const &o) const { return _id < o._id; }
+  bool operator == (Item const &o) const { return _id == o._id; }
+
+  Item &operator = (Item const &o)
+  {
+    trace().printf("Item copy-assignment %i - %p\n", o._id, this);
+    if (&o == this)
+      return *this;
+
+    EXPECT_NE(Invalid_id, o._id)
+      << "The object to copy-assign from has valid content.";
+
+    _id = o._id;
+    return *this;
+  }
+
+  Item &operator = (Item &&o)
+  {
+    trace().printf("Item move-assignment %i - %p\n", o._id, this);
+    if (&o == this)
+      return *this;
+
+    move(std::move(o));
+
+    return *this;
+  }
+
+  unsigned id() const { return _id; }
+};
+
+} // namespace Container_test
