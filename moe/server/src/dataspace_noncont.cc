@@ -169,10 +169,10 @@ namespace {
     { free_page(page(0)); }
 
     Page &page(unsigned long /*offs*/) const throw()
-    { return const_cast<Page &>(reinterpret_cast<Page const &>(pages)); }
+    { return const_cast<Page &>(_page); }
 
     Page &alloc_page(unsigned long /*offs*/) const throw()
-    { return const_cast<Page &>(reinterpret_cast<Page const &>(pages)); }
+    { return const_cast<Page &>(_page); }
   };
 
   class Mem_small : public Moe::Dataspace_noncont
@@ -189,8 +189,8 @@ namespace {
     Mem_small(unsigned long size, unsigned long flags)
     : Moe::Dataspace_noncont(size, flags)
     {
-      pages = (unsigned long *)qalloc()->alloc_pages(meta_size(), Meta_align);
-      memset(pages, 0, meta_size());
+      _pages = (Page *)qalloc()->alloc_pages(meta_size(), Meta_align);
+      memset(_pages, 0, meta_size());
     }
 
     ~Mem_small() throw()
@@ -198,14 +198,14 @@ namespace {
       for (unsigned long i = num_pages(); i > 0; --i)
         free_page(page((i - 1) << page_shift()));
 
-      qalloc()->free_pages(pages, meta_size());
+      qalloc()->free_pages(_pages, meta_size());
     }
 
     Page &page(unsigned long offs) const throw()
-    { return (Page &)(pages[offs >> page_shift()]); }
+    { return _pages[offs >> page_shift()]; }
 
     Page &alloc_page(unsigned long offs) const throw()
-    { return (Page &)(pages[offs >> page_shift()]); }
+    { return _pages[offs >> page_shift()]; }
 
   };
 
@@ -238,7 +238,7 @@ namespace {
     };
 
     L1 &__p(unsigned long offs) const throw()
-    { return ((L1*)pages)[(offs >> page_shift()) / entries2()]; }
+    { return ((L1*)_pages)[(offs >> page_shift()) / entries2()]; }
 
     unsigned l2_idx(unsigned long offs) const
     { return (offs >> page_shift()) & (entries2() - 1); }
@@ -253,8 +253,8 @@ namespace {
     Mem_big(unsigned long size, unsigned long flags)
     : Moe::Dataspace_noncont(size, flags)
     {
-      pages = (unsigned long *)qalloc()->alloc_pages(meta1_size(), 1024);
-      memset(pages, 0, meta1_size());
+      _pages = (Page *)qalloc()->alloc_pages(meta1_size(), 1024);
+      memset(_pages, 0, meta1_size());
     }
 
     ~Mem_big() throw()
@@ -262,14 +262,14 @@ namespace {
       for (unsigned long i = 0; i < size(); i += page_size())
         free_page(page(i));
 
-      for (L1 *p = (L1 *)pages; p != (L1 *)pages + entries1(); ++p)
+      for (L1 *p = (L1 *)_pages; p != (L1 *)_pages + entries1(); ++p)
         {
           if (**p)
             qalloc()->free_pages(**p, meta2_size());
           p->set(0);
         }
 
-      qalloc()->free_pages(pages, meta1_size());
+      qalloc()->free_pages(_pages, meta1_size());
     }
 
     Page &page(unsigned long offs) const throw()

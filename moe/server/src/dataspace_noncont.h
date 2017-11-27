@@ -49,7 +49,7 @@ public:
   bool is_static() const throw() { return false; }
 
   Dataspace_noncont(unsigned long size, unsigned long flags = Writable) throw()
-  : Dataspace(size, flags | Cow_enabled, L4_LOG2_PAGESIZE), pages(0)
+  : Dataspace(size, flags | Cow_enabled, L4_LOG2_PAGESIZE), _pages(0)
   {}
 
   virtual ~Dataspace_noncont() {}
@@ -91,7 +91,11 @@ public:
                                    unsigned long flags = Writable);
 
 protected:
-  unsigned long *pages;
+  union
+  {
+    Page *_pages;
+    Page _page;
+  };
 
 };
 };
