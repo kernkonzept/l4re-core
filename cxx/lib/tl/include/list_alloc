@@ -111,11 +111,11 @@ public:
 };
 
 
-void 
+void
 List_alloc::check_overlap(void *, unsigned long )
 {}
 
-void 
+void
 List_alloc::sanity_check_list(char const *, char const *)
 {}
 
@@ -126,24 +126,24 @@ class List_alloc_sanity_guard
 private:
   List_alloc *a;
   char const *func;
-  
+
 public:
   List_alloc_sanity_guard(List_alloc *a, char const *func)
     : a(a), func(func)
   { a->sanity_check_list(func, "entry"); }
-  
+
   ~List_alloc_sanity_guard()
   { a->sanity_check_list(func, "exit"); }
 };
 
-void 
+void
 List_alloc::check_overlap(void *b, unsigned long s)
 {
   unsigned long const mb_align = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
   if ((unsigned long)b & mb_align)
     {
       L4::cerr << "List_alloc(FATAL): trying to free unaligned memory: "
-	       << b << " align=" << arith::Ld<sizeof(Mem_block)>::value << "\n";
+        << b << " align=" << arith::Ld<sizeof(Mem_block)>::value << "\n";
     }
 
   Mem_block *c = _first;
@@ -154,39 +154,39 @@ List_alloc::check_overlap(void *b, unsigned long s)
       unsigned long b_s = (unsigned long)c;
       unsigned long b_e = b_s + c->size;
 
-      if (   (x_s >= b_s && x_s < b_e)
-	  || (x_e > b_s && x_e <= b_e)
-	  || (b_s >= x_s && b_s < x_e)
-	  || (b_e > x_s && b_e <= x_e))
-	{
-	  L4::cerr << "List_alloc(FATAL): trying to free memory that "
-					  "is already free: \n  ["
-	    << (void*)x_s << '-' << (void*)x_e << ") overlaps ["
-	    << (void*)b_s << '-' << (void*)b_e << ")\n";
-	}
+      if ((x_s >= b_s && x_s < b_e)
+          || (x_e > b_s && x_e <= b_e)
+          || (b_s >= x_s && b_s < x_e)
+          || (b_e > x_s && b_e <= x_e))
+      {
+        L4::cerr << "List_alloc(FATAL): trying to free memory that "
+          "is already free: \n  ["
+          << (void*)x_s << '-' << (void*)x_e << ") overlaps ["
+          << (void*)b_s << '-' << (void*)b_e << ")\n";
+      }
     }
 }
 
-void 
+void
 List_alloc::sanity_check_list(char const *func, char const *info)
 {
   Mem_block *c = _first;
   for (;c ; c = c->next)
     {
       if (c->next)
-	{
-	  if (c >= c->next)
-	    {
-	      L4::cerr << "List_alloc(FATAL): " << func << '(' << info 
-		<< "): list order violation\n";
-	    }
+        {
+          if (c >= c->next)
+            {
+              L4::cerr << "List_alloc(FATAL): " << func << '(' << info
+                << "): list order violation\n";
+            }
 
-	  if (((unsigned long)c) + c->size > (unsigned long)c->next)
-	    {
-	      L4::cerr << "List_alloc(FATAL): " << func << '(' << info 
-		<< "): list order violation\n";
-	    }
-	}
+          if (((unsigned long)c) + c->size > (unsigned long)c->next)
+            {
+              L4::cerr << "List_alloc(FATAL): " << func << '(' << info
+                << "): list order violation\n";
+            }
+        }
     }
 }
 
@@ -202,19 +202,19 @@ List_alloc::merge()
       unsigned long f_start = (unsigned long)c;
       unsigned long f_end   = f_start + c->size;
       unsigned long n_start = (unsigned long)c->next;
-      
+
       if (f_end == n_start)
-	{
-	  c->size += c->next->size;
-	  c->next = c->next->next;
-	  continue;
-	}
+        {
+          c->size += c->next->size;
+          c->next = c->next->next;
+          continue;
+        }
 
       c = c->next;
     }
 }
 
-void 
+void
 List_alloc::free(void *block, unsigned long size, bool initial_free)
 {
   List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
@@ -233,20 +233,20 @@ List_alloc::free(void *block, unsigned long size, bool initial_free)
     size = (size + mb_align) & ~mb_align;
 
   check_overlap(block, size);
-  
+
   Mem_block **c = &_first;
   Mem_block *next = 0;
-  
+
   if (*c)
     {
       while (*c && *c < block)
-	c = &(*c)->next;
+        c = &(*c)->next;
 
       next = *c;
     }
-  
+
   *c = (Mem_block*)block;
-  
+
   (*c)->next = next;
   (*c)->size = size;
 
@@ -391,24 +391,24 @@ List_alloc::alloc(unsigned long size, unsigned align)
 
       // block too small
       if (r_size < size)
-	continue;
+        continue;
 
       if (a_start > n_start)
-	{
-	  // have free space before the allocated block
-	  // shrink the block and set c to the next pointer of that
-	  // block
-	  (*c)->size -= r_size;
-	  c = &(*c)->next;
-	}
+        {
+          // have free space before the allocated block
+          // shrink the block and set c to the next pointer of that
+          // block
+          (*c)->size -= r_size;
+          c = &(*c)->next;
+        }
       else
-	// drop the block, c remains the next pointer of the
-	// previous block
-	*c = (*c)->next;
+        // drop the block, c remains the next pointer of the
+        // previous block
+        *c = (*c)->next;
 
       // allocated the whole remaining space
       if (r_size == size)
-	return (void*)a_start;
+        return (void*)a_start;
 
       // add a new free block behind the allocated block
       Mem_block *m = (Mem_block*)(a_start + size);
