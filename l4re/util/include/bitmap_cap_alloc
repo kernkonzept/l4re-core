@@ -94,7 +94,7 @@ public:
       l4_task_unmap(task, cap.fpage(), unmap_flags | 2);
   }
 
-  // since we hav no counters assume couter always > 0
+  // since we have no counters assume counter always > 0
   void take(L4::Cap<void>) throw() {}
   bool release(L4::Cap<void>, l4_cap_idx_t task = L4_INVALID_CAP,
                unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
