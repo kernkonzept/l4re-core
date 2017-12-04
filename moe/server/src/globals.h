@@ -36,8 +36,5 @@ namespace Moe {
 
 enum
 {
-  My_task_cap    = L4_BASE_TASK_CAP,
-  My_factory_cap = L4_BASE_FACTORY_CAP,
-  My_self_cap    = L4_BASE_THREAD_CAP,
   Sigma0_cap     = L4_BASE_PAGER_CAP,
 };
