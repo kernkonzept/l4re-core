@@ -191,6 +191,12 @@ extern "C" int ioctl(int fd, unsigned long request, ...) L4_NOTHROW
   POST();
 }
 
+#if !(defined(__USE_LARGEFILE64) && !defined(__LP64__))
+// Duplicate here as uclibc only defines fcntl64
+// with __USE_LARGEFILE64 && !__LP64__
+extern "C" int fcntl64 (int __fd, int __cmd, ...);
+#endif
+
 extern "C" int fcntl64(int fd, int cmd, ...)
 {
   Ops *o = L4Re::Vfs::vfs_ops;
