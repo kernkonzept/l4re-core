@@ -334,7 +334,15 @@ int lua(int argc, char const *const *argv)
   printf("Ned: loading file: '%s'\n", argv[optind]);
   int e = luaL_dofile(L, argv[optind]);
   if (e)
-    fprintf(stderr, "lua error: %s.\n", lua_tostring(L, -1));
+    {
+      // errors during Factory::create() are returned as a table with
+      // { "msg" = message, "code" = return value }
+      // extract error message from table and push it on the stack
+      if (lua_istable(L, -1))
+          lua_getfield(L, -1, "msg");
+
+      fprintf(stderr, "lua error: %s.\n", lua_tostring(L, -1));
+    }
 
   lua_gc(L, LUA_GCCOLLECT, 0);
 
