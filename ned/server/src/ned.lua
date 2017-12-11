@@ -190,7 +190,7 @@ function App_env.new(proto)
   local f = proto or {};
 
   f.loader = f.loader or default_loader;
-  f.rm_fab = f.loader.rm_fab;
+  f.rm_fab = f.rm_fab or f.loader.rm_fab;
   f.factory = f.factory or f.loader.factory or Env.factory;
   --  f.scheduler = f.scheduler or f.loader.scheduler;
 
