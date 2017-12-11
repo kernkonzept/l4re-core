@@ -147,6 +147,14 @@ enum L4_vm_state_modified_bits
    * Stored in `gcp0`.
    */
   L4_VM_MOD_COMPARE = 1UL << 25,
+
+  /**
+   * Guest.LLbit.
+   *
+   * When this bit is set in the modified mask the LLBit in Guest.LLAddr
+   * will be cleared. Only available when Guest.Config5.LLB is set.
+   */
+  L4_VM_MOD_LLBIT = 1UL << 26,
 };
 
 enum L4_vm_cp0_regs
