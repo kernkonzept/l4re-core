@@ -226,10 +226,13 @@ __pthread_manager(void *arg)
                   // final cleanup. This way, we can safely check the
                   // thread cap index for kernel object presence until
                   // pthread_join/detach() was called.
-                  L4Re::Env::env()->task()->delete_obj(
-                    L4::Cap<void>(th->p_thsem_cap));
-                  L4Re::Env::env()->task()->delete_obj(
-                    L4::Cap<void>(th->p_th_cap));
+                  l4_fpage_t del_obj[2] =
+                    {
+                      L4::Cap<void>(th->p_thsem_cap).fpage(),
+                      L4::Cap<void>(th->p_th_cap).fpage()
+                    };
+                  L4Re::Env::env()->task()->unmap_batch(del_obj, 2,
+                                                        L4_FP_DELETE_OBJ);
                 }
             }
           break;
