@@ -260,7 +260,7 @@ function Loader:startv(env, ...)
 
   if (type(caps) == "table") then
     for k, v in pairs(caps) do
-      if type(v) == "table" then
+      if type(v) == "table" and getmetatable(v) == nil then
         caps[k] = self:create_namespace(v)
       end
     end
