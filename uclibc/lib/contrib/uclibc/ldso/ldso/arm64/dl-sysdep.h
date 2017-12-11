@@ -126,8 +126,7 @@ elf_machine_relative (ElfW(Addr) load_off, const ElfW(Addr) rel_addr,
 	--rpnt;
 	do {
 		ElfW(Addr) *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
-		if (load_off)
-			*reloc_addr += load_off;
+		*reloc_addr = load_off + rpnt->r_addend;
 	} while (--relative_count);
 }
 
