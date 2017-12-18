@@ -115,8 +115,8 @@ App_model::alloc_app_stack()
   L4Re::Util::Ref_cap<L4Re::Dataspace>::Cap stack
     = chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(),
              "allocate stack capability");
-  L4::Cap<L4Re::Mem_alloc> _ma(prog_info()->mem_alloc.raw & L4_FPAGE_ADDR_MASK);
-  chksys(_ma->alloc(_stack.stack_size(), stack.get()),
+  L4::Cap<L4Re::Mem_alloc> ma(prog_info()->mem_alloc.raw & L4_FPAGE_ADDR_MASK);
+  chksys(ma->alloc(_stack.stack_size(), stack.get()),
          "allocate stack");
 
   _stack.set_stack(stack, _stack.stack_size());
