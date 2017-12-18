@@ -291,16 +291,23 @@ Vfs::get_file_factory(int proto) throw()
 }
 
 Ref_ptr<L4Re::Vfs::File_factory>
-Vfs::get_file_factory(char const * /*proto_name*/) throw()
+Vfs::get_file_factory(char const *proto_name) throw()
 {
-#if 0 // strcmp not available in ldso so disable this for now
   for (auto p: _file_factories)
     {
       auto n = p->f->proto_name();
-      if (n && __builtin_strcmp(n, proto_name) == 0)
-        return p->f;
+      if (n)
+        {
+          char const *a = n;
+          char const *b = proto_name;
+          for (; *a && *b && *a == *b; ++a, ++b)
+            ;
+
+          if ((*a == 0) && (*b == 0))
+            return p->f;
+        }
     }
-#endif
+
   return Ref_ptr<L4Re::Vfs::File_factory>();
 }
 

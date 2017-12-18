@@ -41,10 +41,14 @@ cap_to_vfs_object(L4::Cap<void> o, int *err)
     return Ref_ptr<L4Re::Vfs::File>();
 
   *err = -EPROTO;
-  if (proto == 0)
-    return Ref_ptr<L4Re::Vfs::File>();
+  Ref_ptr<L4Re::Vfs::File_factory> factory;
 
-  auto factory = L4Re::Vfs::vfs_ops->get_file_factory(proto);
+  if (proto != 0)
+    factory = L4Re::Vfs::vfs_ops->get_file_factory(proto);
+
+  if (!factory)
+    factory = L4Re::Vfs::vfs_ops->get_file_factory(name.data);
+
   if (!factory)
     return Ref_ptr<L4Re::Vfs::File>();
 
