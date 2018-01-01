@@ -243,7 +243,7 @@ int (*__pthread_timedsuspend)(pthread_descr, const struct timespec *) = __pthrea
       mask with e.g. sigsetjmp before creating the first thread);
    - a regular function called from pthread_create when needed. */
 
-static void pthread_initialize(void) __attribute__((constructor));
+static void pthread_initialize(void);
 
 libpthread_hidden_proto(pthread_attr_destroy)
 libpthread_hidden_proto(pthread_attr_init)
