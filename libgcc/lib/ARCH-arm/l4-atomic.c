@@ -27,34 +27,16 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #ifdef IS_L4
 
 #include <l4/sys/atomic.h>
-#include <l4/sys/kip.h>
-#include <l4/sys/compiler.h>
-#include <stddef.h>
 
 static inline int __kernel_cmpxchg(int oldval, int newval, int *ptr)
 {
   return !l4_atomic_cmpxchg((long *)ptr, oldval, newval);
 }
 
-/* This is just a temporary way of doing it */
-static inline  void __kernel_dmb(void)
-{
-  extern char const __L4_KIP_ADDR__[];
-  l4_kernel_info_t *k = (l4_kernel_info_t *)__L4_KIP_ADDR__;
+/* Kernel helper for memory barrier.  */
+typedef void (__kernel_dmb_t) (void);
+#define __kernel_dmb (*(__kernel_dmb_t *) 0xffffff40)
 
-  static_assert(   (offsetof(l4_kernel_info_t, platform_info.is_mp) == 0x100)
-                && (offsetof(l4_kernel_info_t, platform_info.arch.cpuinfo.MIDR) == 0x104),
-                "Changed KIP layout, adapt");
-
-  if (k->platform_info.is_mp)
-    {
-      unsigned arch = (k->platform_info.arch.cpuinfo.MIDR >> 16) & 0xf;
-      if (arch == 0xf)
-        asm volatile(".inst 0xf57ff05f" : : : "memory");
-      else if (arch == 0x7)
-        asm volatile("mcr p15, 0, r0, c7, c10, 5" : : : "memory");
-    }
-}
 #else
 typedef int (__kernel_cmpxchg_t) (int oldval, int newval, int *ptr);
 #define __kernel_cmpxchg (*(__kernel_cmpxchg_t *) 0xffff0fc0)
