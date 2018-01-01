@@ -25,7 +25,7 @@
 float
 expf (float x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   float z = (float) __ieee754_exp ((double) x);
   if (__builtin_expect (!isfinite (z) || z == 0, 0)
       && isfinite (x) && _LIB_VERSION != _IEEE_)

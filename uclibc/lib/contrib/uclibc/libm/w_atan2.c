@@ -22,14 +22,14 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 #endif
 
 double
 atan2 (double y, double x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   double z;
 
   if (__builtin_expect (x == 0.0 && y == 0.0, 0) && _LIB_VERSION == _SVID_)

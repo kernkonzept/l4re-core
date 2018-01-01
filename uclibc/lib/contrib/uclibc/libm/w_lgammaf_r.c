@@ -24,7 +24,7 @@ libm_hidden_proto(lgammaf_r)
 float
 lgammaf_r (float x, int *signgamp)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 	float y = (float) __ieee754_lgamma_r ((double)x,signgamp);
 	if(__builtin_expect(!isfinite(y), 0)
 	   && isfinite(x) && _LIB_VERSION != _IEEE_)

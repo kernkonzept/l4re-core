@@ -18,7 +18,7 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <fenv.h>
 #endif
 
@@ -26,7 +26,7 @@
 float
 jnf (int n, float x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isgreater (fabsf (x), (float) X_TLOSS), 0)
       && _LIB_VERSION != _IEEE_ && _LIB_VERSION != _POSIX_)
     /* jn(n,|x|>X_TLOSS) */
@@ -40,7 +40,7 @@ jnf (int n, float x)
 float
 ynf (int n, float x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (islessequal (x, 0.0f)
 			|| isgreater (x, (float) X_TLOSS), 0)
       && _LIB_VERSION != _IEEE_)

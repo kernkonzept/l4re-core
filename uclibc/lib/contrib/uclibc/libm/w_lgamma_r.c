@@ -21,7 +21,7 @@ libm_hidden_proto(lgamma_r)
 double
 lgamma_r(double x, int *signgamp)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 	double y = __ieee754_lgamma_r(x,signgamp);
 	if(__builtin_expect(!isfinite(y), 0)
 	   && isfinite(x) && _LIB_VERSION != _IEEE_)

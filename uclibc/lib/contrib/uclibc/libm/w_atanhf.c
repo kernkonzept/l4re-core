@@ -24,7 +24,7 @@
 float
 atanhf (float x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isgreaterequal (fabsf (x), 1.0f), 0)
       && _LIB_VERSION != _IEEE_)
     return __kernel_standard_f (x, x,

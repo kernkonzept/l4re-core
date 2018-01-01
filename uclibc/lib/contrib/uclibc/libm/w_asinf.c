@@ -18,14 +18,14 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <fenv.h>
 #endif
 /* wrapper asinf */
 float
 asinf (float x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isgreater (fabsf (x), 1.0f), 0)
       && _LIB_VERSION != _IEEE_)
     {

@@ -25,7 +25,7 @@
 long double
 hypotl(long double x, long double y)
 {
-# if __UCLIBC_HAS_FENV__
+# if defined(__UCLIBC_HAS_FENV__)
 	long double z;
 	z = (long double) __ieee754_hypot((double) x, (double) y);
 	if(__builtin_expect(!isfinite(z), 0)

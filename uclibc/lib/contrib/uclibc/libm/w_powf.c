@@ -23,7 +23,7 @@
 float
 powf (float x, float y)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   float z = (float)  __ieee754_pow ((double) x, (double) y);
   if (__builtin_expect (!isfinite (z), 0))
     {

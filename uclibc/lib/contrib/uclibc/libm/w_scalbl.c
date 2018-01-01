@@ -18,12 +18,12 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 #endif
 
 #if !defined __NO_LONG_DOUBLE_MATH
-# if __UCLIBC_HAS_FENV__
+# if defined(__UCLIBC_HAS_FENV__)
 static long double
 __attribute__ ((noinline))
 sysv_scalbl (long double x, long double fn)
@@ -48,7 +48,7 @@ sysv_scalbl (long double x, long double fn)
 long double
 scalbl (long double x, long double fn)
 {
-# if __UCLIBC_HAS_FENV__
+# if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (_LIB_VERSION == _SVID_, 0))
     return sysv_scalbl (x, fn);
   else

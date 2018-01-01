@@ -20,7 +20,7 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 #endif
 
@@ -28,7 +28,7 @@
 long double
 tgammal(long double x)
 {
-# if __UCLIBC_HAS_FENV__
+# if defined(__UCLIBC_HAS_FENV__)
 	long double y = (long double) __ieee754_tgamma((long double)x);
 
 	if(__builtin_expect (!isfinite (y) || y == 0, 0)

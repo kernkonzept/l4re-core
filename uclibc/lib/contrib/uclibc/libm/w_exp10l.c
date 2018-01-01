@@ -28,7 +28,7 @@
 long double
 exp10l (long double x)
 {
-# if __UCLIBC_HAS_FENV__
+# if defined(__UCLIBC_HAS_FENV__)
   long double z = (long double) __ieee754_exp10 ((double) x);
   if (__builtin_expect (!isfinite (z) || z == 0, 0)
       && isfinite (x) && _LIB_VERSION != _IEEE_)

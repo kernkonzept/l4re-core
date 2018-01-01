@@ -23,7 +23,7 @@
 float
 fmodf (float x, float y)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isinf (x) || y == 0.0f, 0)
       && _LIB_VERSION != _IEEE_ && !isnan (y) && !isnan (x))
     /* fmod(+-Inf,y) or fmod(x,0) */

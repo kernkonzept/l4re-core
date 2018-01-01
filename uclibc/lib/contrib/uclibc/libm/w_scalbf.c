@@ -19,7 +19,7 @@
 #include <math.h>
 #include "math_private.h"
 
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 
 static float
@@ -46,7 +46,7 @@ sysv_scalbf (float x, float fn)
 float
 scalbf (float x, float fn)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (_LIB_VERSION == _SVID_, 0))
     return sysv_scalbf (x, fn);
   else

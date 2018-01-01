@@ -23,7 +23,7 @@
 float
 remainderf (float x, float y)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (((__builtin_expect (y == 0.0f, 0) && ! isnan (x))
        || (__builtin_expect (isinf (x), 0) && ! isnan (y)))
       && _LIB_VERSION != _IEEE_)

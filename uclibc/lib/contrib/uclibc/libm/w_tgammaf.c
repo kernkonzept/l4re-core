@@ -15,14 +15,14 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 #endif
 
 float
 tgammaf(float x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 	float y = (float) __ieee754_tgamma((double)x);
 
 	if(__builtin_expect (!isfinite (y) || y == 0, 0)

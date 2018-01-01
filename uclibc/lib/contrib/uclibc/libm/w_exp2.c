@@ -23,7 +23,7 @@
 double
 exp2 (double x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   double z = pow(2.0, x);
   if (__builtin_expect (!isfinite (z) || z == 0, 0)
       && isfinite (x) && _LIB_VERSION != _IEEE_)

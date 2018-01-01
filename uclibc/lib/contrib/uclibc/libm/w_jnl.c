@@ -52,7 +52,7 @@ static char rcsid[] = "$NetBSD: $";
 long double
 jnl(int n, long double x)	/* wrapper jnl */
 {
-#  if __UCLIBC_HAS_FENV__
+#  if defined(__UCLIBC_HAS_FENV__)
 	long double z;
 	z = (long double) __ieee754_jn(n, (double) x);
 	if (_LIB_VERSION == _IEEE_
@@ -71,7 +71,7 @@ jnl(int n, long double x)	/* wrapper jnl */
 long double
 ynl(int n, long double x)	/* wrapper ynl */
 {
-#  if __UCLIBC_HAS_FENV__
+#  if defined(__UCLIBC_HAS_FENV__)
 	long double z;
 	z = (long double) __ieee754_yn(n,(double) x);
 	if(_LIB_VERSION == _IEEE_ || isnan(x) ) return z;

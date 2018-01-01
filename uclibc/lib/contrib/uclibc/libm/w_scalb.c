@@ -19,7 +19,7 @@
 #include <math.h>
 #include "math_private.h"
 
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 
 static double
@@ -51,7 +51,7 @@ sysv_scalb (double x, double fn)
 double
 scalb (double x, double fn)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (_LIB_VERSION == _SVID_,0))
     return sysv_scalb (x, fn);
   else

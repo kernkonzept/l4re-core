@@ -24,7 +24,7 @@
 double
 atanh (double x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isgreaterequal (fabs (x), 1.0), 0)
       && _LIB_VERSION != _IEEE_)
     return __kernel_standard (x, x,

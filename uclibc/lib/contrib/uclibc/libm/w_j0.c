@@ -18,14 +18,14 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <fenv.h>
 #endif
 /* wrapper j0 */
 double
 j0 (double x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isgreater (fabs (x), X_TLOSS), 0)
       && _LIB_VERSION != _IEEE_ && _LIB_VERSION != _POSIX_)
     /* j0(|x|>X_TLOSS) */
@@ -38,7 +38,7 @@ j0 (double x)
 double
 y0 (double x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (islessequal (x, 0.0) || isgreater (x, X_TLOSS), 0)
       && _LIB_VERSION != _IEEE_)
     {

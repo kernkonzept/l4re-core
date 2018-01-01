@@ -18,7 +18,7 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <fenv.h>
 #endif
 
@@ -26,7 +26,7 @@
 double
 acos (double x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isgreater (fabs (x), 1.0), 0)
       && _LIB_VERSION != _IEEE_)
     {

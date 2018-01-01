@@ -17,14 +17,14 @@
 
 #include <math.h>
 #include "math_private.h"
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 #endif
 
 double
 tgamma(double x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 	double y = __ieee754_tgamma(x);
 
 	if(__builtin_expect (!isfinite (y) || y == 0, 0)

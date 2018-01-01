@@ -24,7 +24,7 @@
 float
 coshf (float x)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 	float z = (float) __ieee754_cosh ((double) x);
 	if (__builtin_expect (!isfinite (z), 0) && isfinite (x)
 	    && _LIB_VERSION != _IEEE_)

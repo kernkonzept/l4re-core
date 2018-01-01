@@ -24,7 +24,7 @@
 long double
 sqrtl (long double x)
 {
-# if __UCLIBC_HAS_FENV__
+# if defined(__UCLIBC_HAS_FENV__)
   if (__builtin_expect (isless (x, 0.0L), 0) && _LIB_VERSION != _IEEE_)
     return __kernel_standard_l (x, x, 226); /* sqrt(negative) */
 # endif /* __UCLIBC_HAS_FENV__ */

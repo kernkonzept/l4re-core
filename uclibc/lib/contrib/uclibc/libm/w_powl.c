@@ -24,7 +24,7 @@
 long double
 powl (long double x, long double y)
 {
-#if __UCLIBC_HAS_FENV__
+#if defined(__UCLIBC_HAS_FENV__)
 	long double z = (long double) __ieee754_pow ((double) x, (double) y);
   if (__builtin_expect (!isfinite (z), 0))
     {
