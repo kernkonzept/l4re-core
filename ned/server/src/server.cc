@@ -11,6 +11,7 @@
 #include <pthread.h>
 #include <pthread-l4.h>
 #include <cassert>
+#include <cstdio>
 
 #include <l4/re/error_helper>
 #include <l4/re/env>
@@ -85,7 +86,9 @@ Server::Server() : Base(0)
 {
   pthread_mutex_init(&_start_mutex, NULL);
   pthread_mutex_lock(&_start_mutex);
-  chksys(pthread_create(&_th, NULL, &__run, this), "creating server thread");
+  int r = pthread_create(&_th, NULL, &__run, this);
+  if (r)
+    fprintf(stderr, "error: could not start server thread: %d\n", r);
   pthread_mutex_lock(&_start_mutex);
   pthread_mutex_destroy(&_start_mutex);
 }
