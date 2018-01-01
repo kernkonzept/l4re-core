@@ -352,6 +352,13 @@ int getrlimit(__rlimit_resource_t resource, struct rlimit *rlim)
   return -1;
 }
 
+int getrlimit64(__rlimit_resource_t resource, struct rlimit64 *rlim)
+{
+  printf("Unimplemented: %s(%d, %p)\n", __func__, resource, rlim);
+  errno = EINVAL;
+  return -1;
+}
+
 int setrlimit(__rlimit_resource_t resource, const struct rlimit *rlim)
 {
   printf("Unimplemented: %s(%d, %p)\n", __func__,
@@ -459,4 +466,30 @@ int getrusage(int who, struct rusage* usage)
 	(void)who; (void)usage;
 	errno = EINVAL;
 	return -1;
+}
+
+
+int prctl(int option, unsigned long arg2, unsigned long arg3,
+          unsigned long arg4, unsigned long arg5);
+int prctl(int option, unsigned long arg2, unsigned long arg3,
+          unsigned long arg4, unsigned long arg5)
+{
+  printf("prctl(%d, %lx, %lx, %lx, %lx): void\n",
+         option, arg2, arg3, arg4, arg5);
+  return 0;
+}
+
+char *secure_getenv(const char *name);
+char *secure_getenv(const char *name)
+{
+  return getenv(name);
+}
+
+#include <fcntl.h>
+
+int posix_fadvise64(int fd, off64_t offset, off64_t len, int advice)
+{
+  printf("posix_fadvise64(%d, %lld, %lld, %d): void\n",
+         fd, (unsigned long long)offset, (unsigned long long)len, advice);
+  return 0;
 }
