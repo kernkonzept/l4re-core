@@ -80,11 +80,7 @@ $(libc.depend): $(libc_OUT)/libc_so.a $(LIBS-libc.so)
 	$(Q)$(RM) $@
 	$(Q)cat $(top_srcdir)extra/scripts/format.lds > $@.tmp
 	$(Q)$(OUTPUT_FORMAT) >> $@.tmp
-ifeq ($(COMPAT_ATEXIT),y)
-	$(Q)echo "GROUP ( $(NONSHARED_LIBNAME) $(NONSHARED_LIBPTHREAD) $(SHARED_LIBNAME) $(ASNEEDED) )" >> $@.tmp
-else
 	$(Q)echo "GROUP ( $(SHARED_LIBNAME) $(NONSHARED_LIBNAME) $(NONSHARED_LIBPTHREAD) $(ASNEEDED) )" >> $@.tmp
-endif
 	$(Q)mv $@.tmp $@
 
 $(libc_OUT)/libc_so.a: $(libc-so-y) | $(top_builddir)lib/libc.a $(top_builddir)lib/$(NONSHARED_LIBNAME)

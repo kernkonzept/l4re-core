@@ -97,9 +97,7 @@ extern struct exit_function *__new_exitfn(void) attribute_hidden;
 /* this is in the L___cxa_atexit object */
 extern int __cxa_atexit(cxaefuncp, void *arg, void *dso_handle);
 
-
-/* remove old_atexit after 0.9.29 */
-#if defined(L_atexit) || defined(L_old_atexit)
+#if defined(L_atexit)
 extern void *__dso_handle __attribute__ ((__weak__));
 
 /*
@@ -108,9 +106,6 @@ extern void *__dso_handle __attribute__ ((__weak__));
  */
 #ifdef L_atexit
 int attribute_hidden atexit(aefuncp func)
-#else
-int old_atexit(aefuncp func);
-int old_atexit(aefuncp func)
 #endif
 {
     /*
@@ -121,9 +116,6 @@ int old_atexit(aefuncp func)
     return __cxa_atexit((cxaefuncp)func, NULL,
                         &__dso_handle == NULL ? NULL : __dso_handle);
 }
-#ifndef L_atexit
-weak_alias(old_atexit,atexit)
-#endif
 #endif
 
 #ifdef L_on_exit
