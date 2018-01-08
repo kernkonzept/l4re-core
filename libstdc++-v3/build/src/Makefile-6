@@ -66,7 +66,9 @@ SRC_CC += \
   c++11/cow-sstream-inst.cc \
   c++11/cow-stdexcept.cc \
   c++11/cow-string-inst.cc \
+  c++11/cow-string-io-inst.cc \
   c++11/cow-wstring-inst.cc \
+  c++11/cow-wstring-io-inst.cc \
   c++11/ctype.cc \
   c++11/cxx11-hash_tr1.cc \
   c++11/cxx11-ios_failure.cc \
@@ -95,13 +97,16 @@ SRC_CC += \
   c++11/regex.cc \
   c++11/shared_ptr.cc \
   c++11/snprintf_lite.cc \
+  c++11/sso_string.cc \
   c++11/sstream-inst.cc \
   c++11/streambuf-inst.cc \
   c++11/string-inst.cc \
+  c++11/string-io-inst.cc \
   c++11/system_error.cc \
   c++11/thread.cc \
   c++11/wlocale-inst.cc \
   c++11/wstring-inst.cc \
+  c++11/wstring-io-inst.cc \
 
 
 CXXFLAGS_c++98/collate_members_cow.o    += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates

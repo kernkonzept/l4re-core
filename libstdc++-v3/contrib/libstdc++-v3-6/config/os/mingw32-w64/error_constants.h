@@ -41,17 +41,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 // replaced by Winsock WSA-prefixed equivalents.
   enum class errc
     {
-//    address_family_not_supported = 		EAFNOSUPPORT,
-//    address_in_use = 				EADDRINUSE,
-//    address_not_available = 			EADDRNOTAVAIL,
-//    already_connected = 			EISCONN,
+      address_family_not_supported = 		EAFNOSUPPORT,
+      address_in_use = 				EADDRINUSE,
+      address_not_available = 			EADDRNOTAVAIL,
+      already_connected = 			EISCONN,
       argument_list_too_long = 			E2BIG,
       argument_out_of_domain = 			EDOM,
       bad_address = 				EFAULT,
       bad_file_descriptor = 			EBADF,
 #ifdef _GLIBCXX_HAVE_EBADMSG
       bad_message = 				EBADMSG,
-//    bad_message = 				EBADMSG,
+#endif
       broken_pipe = 				EPIPE,
       connection_aborted = 			ECONNABORTED,
       connection_already_in_progress = 		EALREADY,

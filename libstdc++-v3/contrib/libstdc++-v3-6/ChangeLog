@@ -1,3 +1,252 @@
+2018-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/locale_conv.h (wbuffer_convert::_M_conv_get): Fix typo.
+	* testsuite/22_locale/conversions/buffer/3.cc: New test.
+
+	Backport from mainline
+	2017-10-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/experimental/filesystem/iterators/
+	recursive_directory_iterator.cc: Ensure that error_code arguments are
+	cleared when required.
+	* testsuite/experimental/filesystem/operations/create_directory.cc:
+	Remove redundant check.
+	* testsuite/experimental/filesystem/operations/temp_directory_path.cc:
+	Ensure that error_code argument is cleared when required.
+
+	Backport from mainline
+	2017-12-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83600
+	* include/bits/regex.h (match_results::end()): Return valid iterator
+	when not ready.
+	* testsuite/28_regex/match_results/ctors/char/default.cc: Check that
+	unready objects are empty and have equal begin and end iterators.
+	* testsuite/28_regex/match_results/ctors/wchar_t/default.cc: Likewise.
+
+	Backport from mainline
+	2017-12-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83598
+	* include/bits/regex.h (basic_regex): Don't modify flags passed to
+	constructors.
+	* testsuite/28_regex/basic_regex/ctors/83598.cc: New test.
+
+	Backport from mainline
+	2017-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83279
+	* src/filesystem/std-ops.cc (do_copy_file): Handle sendfile not
+	copying entire file.
+
+	Backport from mainline
+	2018-01-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/fs_ops.h (exists(const path&, error_code&))):
+	Only check status_known once.
+
+	Backport from mainline
+	2017-10-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/79283
+	* src/filesystem/ops.cc (read_symlink): Handle st_size being zero.
+
+2017-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/59568
+	* include/std/complex (operator>>): Only use putback if a character
+	was successfully extracted and only set the value if a number was
+	successfully extracted.
+	* testsuite/26_numerics/complex/inserters_extractors/char/59568.cc:
+	New test.
+
+2017-11-11  John David Anglin  <danglin@gcc.gnu.org>
+
+	Backport from mainline
+	2017-08-20  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR testsuite/81056
+	* testsuite/17_intro/names.cc: Undef 'd' and 'r' on __hpux__.
+
+2017-10-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx1998.xml: Correct statement about
+	what the doc covers.
+	* doc/xml/manual/status_cxxtr1.xml: Likewise.
+	* doc/xml/manual/status_cxxtr24733.xml: Likewise.
+	* doc/html/*: Regenerate.
+
+2017-10-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-07-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81395
+	* include/bits/fstream.tcc (basic_filebuf::xsgetn): Don't set buffer
+	pointers for write mode after reading.
+	* testsuite/27_io/basic_filebuf/sgetn/char/81395.cc: New.
+
+	Backport from mainline
+	2017-10-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/bits/fs_path.h (path::iterator++(int))
+	(path::iterator--(int)): Fix for paths with only one component.
+	* testsuite/experimental/filesystem/path/itr/traversal.cc: Test
+	post-increment and post-decrement.
+
+2017-09-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-02-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/60936
+	* src/c++11/snprintf_lite.cc (__concat_size_t): Calculate length
+	written to buffer, not length remaining in buffer.
+
+	Backport from mainline
+	2017-02-08  Gerald Pfeifer  <gerald@pfeifer.com>
+
+	* src/c++11/snprintf_lite.cc (__err): Update bug reporting URL.
+
+2017-09-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-02-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/60936
+	* src/c++11/Makefile.am: Add new files.
+	* src/c++11/Makefile.in: Regenerate.
+	* src/c++11/cow-string-inst.cc [!_GLIBCXX_USE_CXX11_ABI]
+	(operator<<, operator>>, getline): Move explicit instantiations to ...
+	* src/c++11/cow-string-io-inst.cc: ... new file.
+	* src/c++11/cow-wstring-inst.cc [!_GLIBCXX_USE_CXX11_ABI]
+	(operator<<, operator>>, getline): Move explicit instantiations to ...
+	* src/c++11/cow-wstring-io-inst.cc: ... new file.
+	* src/c++11/functexcept.cc (__throw_ios_failure, __throw_system_error)
+	(__throw_future_error, __throw_bad_function_call):
+	(__throw_regex_error): Move functions for C++11 exceptions to the
+	files that define the exception types.
+	* src/c++11/functional.cc (__throw_bad_function_call): Move here.
+	* src/c++11/future.cc (__throw_future_error): Likewise.
+	* src/c++11/ios.cc (__throw_ios_failure): Likewise.
+	* src/c++11/regex.cc (__throw_regex_error): Likewise.
+	* src/c++11/snprintf_lite.cc (__concat_size_t): Print decimal
+	representation directly instead of calling __int_to_char.
+	* src/c++11/sso_string.cc (__sso_string): New file for definition
+	of __sso_string type.
+	* src/c++11/string-io-inst.cc [_GLIBCXX_USE_CXX11_ABI]: New file for
+	explicit instantiations of narrow string I/O functions.
+	* src/c++11/system_error.cc (__throw_system_error): Move here.
+	(__sso_string): Move to new file.
+	* src/c++11/wstring-io-inst.cc [_GLIBCXX_USE_CXX11_ABI]: New file for
+	explicit instantiations of wide string I/O functions.
+	* src/c++98/misc-inst.cc [_GLIBCXX_USE_CXX11_ABI] (operator<<)
+	(operator>>, getline): Remove explicit instantiations from here.
+
+2017-09-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81468
+	* include/std/chrono (time_point(const time_point<_Dur2>&)): Add
+	missing constraint from LWG DR 1177.
+	* testsuite/20_util/duration/cons/dr1177.cc: New.
+	* testsuite/20_util/time_point/cons/81468.cc: New.
+	* testsuite/20_util/duration/literals/range.cc: Update dg-error line.
+
+	* doc/doxygen/mainpage.html: Fix broken URLs.
+
+	PR libstdc++/81835
+	* doc/xml/manual/extensions.xml: Replace unstable URL.
+	* doc/html/manual/ext_demangling.html: Regenerate.
+	* libsupc++/cxxabi.h (__cxa_demangle): Fix broken URL.
+
+2017-09-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/owner_less/noexcept.cc: Remove owner_less<void>
+	tests.
+
+2017-09-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/79820
+	PR libstdc++/81751
+	* config/io/basic_file_stdio.cc (sys_open(FILE*, ios_base::openmode)):
+	Call fflush on the stream instead of calling sync() while _M_cfile is
+	null. Restore original value of errno.
+	* testsuite/ext/stdio_filebuf/char/79820.cc: New.
+	* testsuite/ext/stdio_filebuf/char/81751.cc: New.
+
+	Backport from mainline
+	2017-07-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/53984
+	* include/bits/basic_ios.h (basic_ios::_M_setstate): Adjust comment.
+	* include/bits/istream.tcc (basic_istream::sentry): Handle exceptions
+	during construction.
+	* include/std/istream: Adjust comments for formatted input functions
+	and unformatted input functions.
+	* testsuite/27_io/basic_fstream/53984.cc: New.
+	* testsuite/27_io/basic_istream/sentry/char/53984.cc: New.
+
+	Backport from mainline
+	2017-06-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81017
+	* include/std/functional (function::function(function&&))
+	(function::operator=(function&&)): Add noexcept.
+	* testsuite/20_util/function/assign/move.cc: Check for noexcept.
+	* testsuite/20_util/function/cons/move.cc: Likewise.
+
+	Backport from mainline
+	2017-06-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_base.h (__shared_ptr::owner_before)
+	(__weak_ptr::owner_before, _Sp_owner_less::operator()): Add noexcept
+	specifiers as per LWG 2873 and LWG 2942.
+	* testsuite/20_util/owner_less/noexcept.cc: New.
+	* testsuite/20_util/shared_ptr/observers/owner_before.cc: Test
+	noexcept guarantees.
+	* testsuite/20_util/weak_ptr/observers/owner_before.cc: Likewise.
+
+	Backport from mainline
+	2017-08-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/82039
+	* include/ext/new_allocator.h (__gnu_cxx::new_allocator::allocate):
+	Adjust null pointer constant to avoid warning.
+
+	Backport from mainline
+	2017-08-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81891
+	* include/bits/hashtable.h (_Hashtable(_InputIterator, _InputIterator,
+	size_type, const _H1&, const _H2&, const _Hash&, const _Equal&,
+	const _ExtractKey&, const allocator_type&)): Let destructor do clean
+	up if an exception is thrown.
+	* testsuite/23_containers/unordered_map/cons/81891.cc: New.
+
+	Backport from mainline
+	2017-07-31  Marek Polacek  <polacek@redhat.com>
+
+	PR libstdc++/81599
+	* include/bits/stl_stack.h: Fix typo.
+
+	Backport from mainline
+	2017-07-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81338
+	* include/bits/basic_string.h [_GLIBCXX_USE_CXX11_ABI] (basic_string):
+	Declare basic_stringbuf to be a friend.
+	* include/bits/sstream.tcc (basic_stringbuf::overflow)
+	[_GLIBCXX_USE_CXX11_ABI]: Use unused capacity before reallocating.
+	* include/std/sstream (basic_stringbuf::__xfer_bufptrs): Update string
+	length to buffer length.
+	* testsuite/27_io/basic_stringstream/assign/81338.cc: New.
+
 2017-07-12  Jonathan Wakely  <jwakely@redhat.com>
 
 	* testsuite/30_threads/promise/members/at_thread_exit2.cc: Require
