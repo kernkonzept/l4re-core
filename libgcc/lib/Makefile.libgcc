@@ -1,5 +1,3 @@
-PKGDIR	?= ..
-L4DIR	?= $(PKGDIR)/../..
 
 INSTALL_TARGET += libgcc.a $(if $(LIBGCC_DO_SHARED),libgcc.so)
 
