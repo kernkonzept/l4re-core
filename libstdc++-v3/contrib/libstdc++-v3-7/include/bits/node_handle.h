@@ -37,7 +37,6 @@
 # define __cpp_lib_node_extract 201606
 
 #include <optional>
-#include <tuple>
 #include <bits/alloc_traits.h>
 #include <bits/ptr_traits.h>
 
@@ -200,7 +199,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       }
 
       template<typename _Tp>
-	using __pointer = __ptr_rebind<typename _AllocTraits::pointer, _Tp>;
+	using __pointer
+	  = __ptr_rebind<typename _AllocTraits::pointer,
+			 remove_reference_t<_Tp>>;
 
       __pointer<_Key>				_M_pkey = nullptr;
       __pointer<typename _Value::second_type>	_M_pmapped = nullptr;
@@ -283,26 +284,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _Iterator		position = _Iterator();
       bool		inserted = false;
       _NodeHandle	node;
-
-      template<size_t _Idx>
-	decltype(auto) get() &
-	{ return std::get<_Idx>(std::tie(inserted, position, node)); }
-
-      template<size_t _Idx>
-	decltype(auto) get() const &
-	{ return std::get<_Idx>(std::tie(inserted, position, node)); }
-
-      template<size_t _Idx>
-	decltype(auto) get() &&
-	{
-	  return std::move(std::get<_Idx>(std::tie(inserted, position, node)));
-	}
-
-      template<size_t _Idx>
-	decltype(auto) get() const &&
-	{
-	  return std::move(std::get<_Idx>(std::tie(inserted, position, node)));
-	}
     };
 
 _GLIBCXX_END_NAMESPACE_VERSION

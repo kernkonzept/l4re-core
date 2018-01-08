@@ -411,6 +411,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct _Sp_ebo_helper<_Nm, _Tp, true> : private _Tp
     {
       explicit _Sp_ebo_helper(const _Tp& __tp) : _Tp(__tp) { }
+      explicit _Sp_ebo_helper(_Tp&& __tp) : _Tp(std::move(__tp)) { }
 
       static _Tp&
       _S_get(_Sp_ebo_helper& __eboh) { return static_cast<_Tp&>(__eboh); }
@@ -421,6 +422,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct _Sp_ebo_helper<_Nm, _Tp, false>
     {
       explicit _Sp_ebo_helper(const _Tp& __tp) : _M_tp(__tp) { }
+      explicit _Sp_ebo_helper(_Tp&& __tp) : _M_tp(std::move(__tp)) { }
 
       static _Tp&
       _S_get(_Sp_ebo_helper& __eboh)
@@ -441,7 +443,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       public:
 	_Impl(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
-	: _M_ptr(__p), _Del_base(__d), _Alloc_base(__a)
+	: _M_ptr(__p), _Del_base(std::move(__d)), _Alloc_base(__a)
 	{ }
 
 	_Deleter& _M_del() noexcept { return _Del_base::_S_get(*this); }
@@ -455,11 +457,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       // __d(__p) must not throw.
       _Sp_counted_deleter(_Ptr __p, _Deleter __d) noexcept
-      : _M_impl(__p, __d, _Alloc()) { }
+      : _M_impl(__p, std::move(__d), _Alloc()) { }
 
       // __d(__p) must not throw.
       _Sp_counted_deleter(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
-      : _M_impl(__p, __d, __a) { }
+      : _M_impl(__p, std::move(__d), __a) { }
 
       ~_Sp_counted_deleter() noexcept { }
 
@@ -1083,7 +1085,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       template<typename _Yp, typename _Deleter, typename = _SafeConv<_Yp>>
 	__shared_ptr(_Yp* __p, _Deleter __d)
-	: _M_ptr(__p), _M_refcount(__p, __d)
+	: _M_ptr(__p), _M_refcount(__p, std::move(__d))
 	{
 	  static_assert(__is_invocable<_Deleter&, _Yp*&>::value,
 	      "deleter expression d(p) is well-formed");
@@ -1093,7 +1095,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       template<typename _Yp, typename _Deleter, typename _Alloc,
 	       typename = _SafeConv<_Yp>>
 	__shared_ptr(_Yp* __p, _Deleter __d, _Alloc __a)
-	: _M_ptr(__p), _M_refcount(__p, __d, std::move(__a))
+	: _M_ptr(__p), _M_refcount(__p, std::move(__d), std::move(__a))
 	{
 	  static_assert(__is_invocable<_Deleter&, _Yp*&>::value,
 	      "deleter expression d(p) is well-formed");
@@ -1102,12 +1104,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       template<typename _Deleter>
 	__shared_ptr(nullptr_t __p, _Deleter __d)
-	: _M_ptr(0), _M_refcount(__p, __d)
+	: _M_ptr(0), _M_refcount(__p, std::move(__d))
 	{ }
 
       template<typename _Deleter, typename _Alloc>
         __shared_ptr(nullptr_t __p, _Deleter __d, _Alloc __a)
-	: _M_ptr(0), _M_refcount(__p, __d, std::move(__a))
+	: _M_ptr(0), _M_refcount(__p, std::move(__d), std::move(__a))
 	{ }
 
       template<typename _Yp>
@@ -1244,12 +1246,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       template<typename _Yp, typename _Deleter>
 	_SafeConv<_Yp>
 	reset(_Yp* __p, _Deleter __d)
-	{ __shared_ptr(__p, __d).swap(*this); }
+	{ __shared_ptr(__p, std::move(__d)).swap(*this); }
 
       template<typename _Yp, typename _Deleter, typename _Alloc>
 	_SafeConv<_Yp>
 	reset(_Yp* __p, _Deleter __d, _Alloc __a)
-        { __shared_ptr(__p, __d, std::move(__a)).swap(*this); }
+        { __shared_ptr(__p, std::move(__d), std::move(__a)).swap(*this); }
 
       element_type*
       get() const noexcept
@@ -1275,12 +1277,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       template<typename _Tp1>
 	bool
-	owner_before(__shared_ptr<_Tp1, _Lp> const& __rhs) const
+	owner_before(__shared_ptr<_Tp1, _Lp> const& __rhs) const noexcept
 	{ return _M_refcount._M_less(__rhs._M_refcount); }
 
       template<typename _Tp1>
 	bool
-	owner_before(__weak_ptr<_Tp1, _Lp> const& __rhs) const
+	owner_before(__weak_ptr<_Tp1, _Lp> const& __rhs) const noexcept
 	{ return _M_refcount._M_less(__rhs._M_refcount); }
 
 #if __cpp_rtti
@@ -1693,12 +1695,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       template<typename _Tp1>
 	bool
-	owner_before(const __shared_ptr<_Tp1, _Lp>& __rhs) const
+	owner_before(const __shared_ptr<_Tp1, _Lp>& __rhs) const noexcept
 	{ return _M_refcount._M_less(__rhs._M_refcount); }
 
       template<typename _Tp1>
 	bool
-	owner_before(const __weak_ptr<_Tp1, _Lp>& __rhs) const
+	owner_before(const __weak_ptr<_Tp1, _Lp>& __rhs) const noexcept
 	{ return _M_refcount._M_less(__rhs._M_refcount); }
 
       void
@@ -1743,15 +1745,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct _Sp_owner_less : public binary_function<_Tp, _Tp, bool>
     {
       bool
-      operator()(const _Tp& __lhs, const _Tp& __rhs) const
+      operator()(const _Tp& __lhs, const _Tp& __rhs) const noexcept
       { return __lhs.owner_before(__rhs); }
 
       bool
-      operator()(const _Tp& __lhs, const _Tp1& __rhs) const
+      operator()(const _Tp& __lhs, const _Tp1& __rhs) const noexcept
       { return __lhs.owner_before(__rhs); }
 
       bool
-      operator()(const _Tp1& __lhs, const _Tp& __rhs) const
+      operator()(const _Tp1& __lhs, const _Tp& __rhs) const noexcept
       { return __lhs.owner_before(__rhs); }
     };
 
@@ -1760,7 +1762,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
       template<typename _Tp, typename _Up>
 	auto
-	operator()(const _Tp& __lhs, const _Up& __rhs) const
+	operator()(const _Tp& __lhs, const _Up& __rhs) const noexcept
 	-> decltype(__lhs.owner_before(__rhs))
 	{ return __lhs.owner_before(__rhs); }
 

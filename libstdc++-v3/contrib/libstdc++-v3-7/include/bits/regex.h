@@ -762,9 +762,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
       template<typename _FwdIter>
 	basic_regex(_FwdIter __first, _FwdIter __last, locale_type __loc,
 		    flag_type __f)
-	: _M_flags((__f & (ECMAScript | basic | extended | awk | grep | egrep))
-		   ? __f : (__f | ECMAScript)),
-	_M_loc(std::move(__loc)),
+	: _M_flags(__f), _M_loc(std::move(__loc)),
 	_M_automaton(__detail::__compile_nfa<_FwdIter, _Rx_traits>(
 	  std::move(__first), std::move(__last), _M_loc, _M_flags))
 	{ }
@@ -1753,7 +1751,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
        */
       const_iterator
       end() const
-      { return _Base_type::end() - 3; }
+      { return _Base_type::end() - (empty() ? 0 : 3); }
 
       /**
        * @brief Gets an iterator to one-past-the-end of the collection.

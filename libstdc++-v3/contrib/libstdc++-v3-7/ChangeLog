@@ -1,3 +1,743 @@
+2018-01-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (register_type_printers): Remove
+	printer for experimental::any. Fix printers for experimental::optional
+	and experimental::basic_string_view.
+
+	Backport from mainline
+	2018-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83626
+	* src/filesystem/ops.cc (remove(const path&, error_code&)): Remove
+	unnecessary symlink_status call.
+	(remove_all(const path&, error_code&)): Use filesystem::remove.
+
+2018-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-10-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/experimental/filesystem/iterators/
+	recursive_directory_iterator.cc: Ensure that error_code arguments are
+	cleared when required.
+	* testsuite/experimental/filesystem/operations/create_directory.cc:
+	Remove redundant check.
+	* testsuite/experimental/filesystem/operations/temp_directory_path.cc:
+	Ensure that error_code argument is cleared when required.
+
+	Backport from mainline
+	2017-12-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83600
+	* include/bits/regex.h (match_results::end()): Return valid iterator
+	when not ready.
+	* testsuite/28_regex/match_results/ctors/char/default.cc: Check that
+	unready objects are empty and have equal begin and end iterators.
+	* testsuite/28_regex/match_results/ctors/wchar_t/default.cc: Likewise.
+
+	Backport from mainline
+	2017-12-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83598
+	* include/bits/regex.h (basic_regex): Don't modify flags passed to
+	constructors.
+	* testsuite/28_regex/basic_regex/ctors/83598.cc: New test.
+
+	Backport from mainline
+	2017-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83279
+	* src/filesystem/std-ops.cc (do_copy_file): Handle sendfile not
+	copying entire file.
+
+	Backport from mainline
+	2018-01-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/fs_ops.h (exists(const path&, error_code&))):
+	Only check status_known once.
+
+	Backport from mainline
+	2018-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83626
+	* src/filesystem/ops.cc (remove(const path&, error_code&)): Do not
+	report an error for ENOENT.
+	(remove_all(const path&)): Fix type of result variable.
+	(remove_all(const path&, error_code&)): Use non-throwing increment
+	for directory iterator. Call POSIX remove directly to avoid redundant
+	calls to symlink_status. Do not report errors for ENOENT.
+	* testsuite/experimental/filesystem/operations/remove_all.cc: Test
+	throwing overload.
+
+	Backport from mainline
+	2018-01-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83626
+	* src/filesystem/ops.cc (remove(const path&, error_code&))): Remove
+	redundant call to ec.clear().
+	(remove_all(const path&, error_code&))): Do not return an error for
+	non-existent paths.
+	* testsuite/experimental/filesystem/operations/remove.cc: New test.
+	* testsuite/experimental/filesystem/operations/remove_all.cc: Fix
+	expected results for non-existent paths.
+
+	Backport from mainline
+	2017-10-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/79283
+	* src/filesystem/ops.cc (read_symlink): Handle st_size being zero.
+
+2018-01-04  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Backport from mainline
+	2018-01-03  Ville Voutilainen  <ville.voutilainen@gmail.com>
+
+	Protect optional's deduction guide with the feature macro
+	* include/std/optional: Use the feature macro.
+
+2017-12-28  François Dumont  <fdumont@gcc.gnu.org>
+
+	Backport from mainline
+	2017-12-20  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/82522
+	* include/debug/map.h (map::insert(value_type&&))
+	(map::insert(const_iterator, value_type&&)): Add overload for rvalues.
+	* include/debug/multimap.h (multimap::insert(value_type&&))
+	(multimap::insert(const_iterator, value_type&&)): Likewise.
+	* include/debug/unordered_map (unordered_map::insert(value_type&&))
+	(unordered_map::insert(const_iterator, value_type&&))
+	(unordered_multimap::insert(value_type&&))
+	(unordered_multimap::insert(const_iterator, value_type&&)): Likewise.
+	* testsuite/23_containers/map/modifiers/insert/dr2354.cc (test02): New.
+	* testsuite/23_containers/multimap/modifiers/insert/dr2354.cc (test02):
+	New.
+	* testsuite/23_containers/unordered_map/insert/dr2354.cc (test02): New.
+	* testsuite/23_containers/unordered_multimap/insert/dr2354.cc (test02):
+	New.
+
+2017-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83427
+	* include/bits/refwrap.h (_Weak_result_type_impl)
+	(_Reference_wrapper_base): Deduce noexcept for function types.
+	* testsuite/20_util/bind/83427.cc: New test.
+	* testsuite/20_util/reference_wrapper/83427.cc: New test.
+
+	PR libstdc++/59568
+	* include/std/complex (operator>>): Only use putback if a character
+	was successfully extracted and only set the value if a number was
+	successfully extracted.
+	* testsuite/26_numerics/complex/inserters_extractors/char/59568.cc:
+	New test.
+
+2017-12-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83395
+	* include/std/type_traits (__is_invocable_impl): Remove partial
+	specialization for INVOKE<void> and restore is_void<R> check in
+	primary template.
+	(__is_nt_invocable_impl): Likewise.
+	* testsuite/20_util/is_invocable/83395.cc: New test.
+	* testsuite/20_util/is_nothrow_invocable/83395.cc: New test.
+
+2017-12-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/82522
+	* doc/xml/manual/intro.xml: Document LWG 2354 changes.
+	* include/bits/stl_map.h (map::insert(value_type&&))
+	(map::insert(const_iterator, value_type&&)): Add overload for rvalues.
+	* include/bits/stl_multimap.h (multimap::insert(value_type&&))
+	(multimap::insert(const_iterator, value_type&&)): Likewise.
+	* include/bits/unordered_map.h (unordered_map::insert(value_type&&))
+	(unordered_map::insert(const_iterator, value_type&&))
+	(unordered_multimap::insert(value_type&&))
+	(unordered_multimap::insert(const_iterator, value_type&&)): Likewise.
+	* testsuite/23_containers/map/modifiers/insert/dr2354.cc: New test.
+	* testsuite/23_containers/multimap/modifiers/insert/dr2354.cc: New
+	test.
+	* testsuite/23_containers/unordered_map/insert/dr2354.cc: New test.
+	* testsuite/23_containers/unordered_multimap/insert/dr2354.cc: New
+	test.
+
+	Backport from mainline
+	2017-11-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83134
+	* include/std/type_traits (__not_): Explicitly convert to bool.
+	* testsuite/20_util/declval/requirements/1_neg.cc: Adjust dg-error.
+	* testsuite/20_util/logical_traits/83134.cc: New test.
+	* testsuite/20_util/make_signed/requirements/typedefs_neg.cc: Adjust
+	dg-error.
+	* testsuite/20_util/make_unsigned/requirements/typedefs_neg.cc:
+	Likewise.
+
+	Backport from mainline
+	2017-12-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/type_traits (integral_constant): Make member functions
+	noexcept (LWG 2346).
+	* include/std/utility (integer_sequence): Likewise.
+
+	Backport from mainline
+	2017-11-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/future (shared_future): Add noexcept to copy constructor
+	and copy-assignment operator (LWG 2799).
+
+	Backport from mainline
+	2017-11-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/range_access.h (size, empty, data): Add conditional
+	noexcept to generic overloads.
+
+	Backport from mainline
+	2017-10-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/82685
+	* include/experimental/string_view (operator""sv): Add noexcept.
+	* include/std/string_view (operator""sv): Likewise.
+
+	Backport from mainline
+	2017-11-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83226
+	* include/bits/node_handle.h (_Node_handle::__pointer): Avoid forming
+	pointer-to-reference types.
+	* testsuite/23_containers/map/modifiers/insert/83226.cc: New test.
+
+	Backport from mainline
+	2017-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/locale_conv.h (wbuffer_convert::_M_conv_get): Fix typo.
+	* testsuite/22_locale/conversions/buffer/3.cc: New test.
+
+	Backport from mainline
+	2017-11-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/node_handle.h (_Node_insert_return::get): Remove, as
+	per P0508R0.
+
+2017-10-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx1998.xml: Correct statement about
+	what the doc covers.
+	* doc/xml/manual/status_cxx2011.xml: Likewise.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Update C++17 status, and
+	information on feature-test macros.
+	* doc/xml/manual/status_cxxtr1.xml: Correct statement about what
+	the doc covers.
+	* doc/xml/manual/status_cxxtr24733.xml: Likewise.
+	* doc/html/*: Regenerate.
+
+2017-10-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-07-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81395
+	* include/bits/fstream.tcc (basic_filebuf::xsgetn): Don't set buffer
+	pointers for write mode after reading.
+	* testsuite/27_io/basic_filebuf/sgetn/char/81395.cc: New.
+
+2017-10-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/experimental/filesystem/path/itr/traversal.cc: Do not
+	increment past-the-end iterators.
+
+2017-10-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/chrono (__cpp_lib_chrono): Update macro value to
+	indicate support for P0505R0.
+	* testsuite/20_util/duration/arithmetic/constexpr_c++17.cc: Check
+	for updated macro.
+
+	* include/c_global/cstddef: Define __cpp_lib_byte feature-test macro.
+	* testsuite/18_support/byte/requirements.cc: Check macro.
+
+	Backport from mainline
+	2017-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/82481
+	* include/std/mutex (call_once): Suppress clang-tidy warnings about
+	dangling references.
+
+	Backport from mainline
+	2017-09-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/79433
+	* doc/xml/manual/status_cxx2017.xml: Update feature-test macros.
+	* doc/html/*: Regenerate.
+	* include/Makefile.am: Remove <bits/c++17_warning.h>.
+	* include/Makefile.in: Regenerate.
+	* include/bits/c++17_warning.h: Remove.
+	* include/bits/string_view.tcc: Do not include <bits/c++17_warning.h>
+	for pre-C++17 modes.
+	* include/std/any: Likewise.
+	(__cpp_lib_any): Define.
+	* include/std/mutex (__cpp_lib_scoped_lock): Adjust value as per new
+	SD-6 draft.
+	* include/std/numeric (__cpp_lib_gcd_lcm): Define as per new SD-6
+	draft.
+	* include/std/optional: Do not include <bits/c++17_warning.h>.
+	(__cpp_lib_optional): Define.
+	* include/std/shared_mutex: Do not include <bits/c++14_warning.h>.
+	* include/std/string_view: Do not include <bits/c++17_warning.h>.
+	(__cpp_lib_string_view): Define.
+	* include/std/variant: Do not include <bits/c++17_warning.h>.
+	(__cpp_lib_variant): Define.
+	* testsuite/20_util/optional/cons/value_neg.cc: Adjust dg-error line
+	numbers.
+	* testsuite/26_numerics/gcd/1.cc: Test for __cpp_lib_gcd_lcm.
+	* testsuite/26_numerics/gcd/gcd_neg.cc: Adjust dg-error line
+	numbers.
+	* testsuite/26_numerics/lcm/1.cc: Test for __cpp_lib_gcd_lcm.
+	* testsuite/26_numerics/lcm/lcm_neg.cc: Adjust dg-error line
+	numbers.
+	* testsuite/30_threads/scoped_lock/requirements/typedefs.cc: Adjust
+	expected value of __cpp_lib_scoped_lock.
+
+	Backport from mainline
+	2017-10-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/bits/fs_path.h (path::iterator++(int))
+	(path::iterator--(int)): Fix for paths with only one component.
+	* testsuite/experimental/filesystem/path/itr/traversal.cc: Test
+	post-increment and post-decrement.
+
+2017-09-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/25_algorithms/clamp/1.cc: Fix order of arguments and
+	expected results when using predicate defining reverse order.
+	* testsuite/25_algorithms/clamp/constexpr.cc: Likewise.
+
+2017-09-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/test.xml: Correct instructions on running tests.
+	* testsuite/27_io/basic_ios/copyfmt/char/1.cc: Adjust to pass when
+	-D_GLIBCXX_USE_CXX11_ABI=0 added to RUNTESTFLAGS.
+	* testsuite/27_io/basic_ios/exceptions/char/1.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_arithmetic/char/
+	exceptions_failbit.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_arithmetic/wchar_t/
+	exceptions_failbit.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_other/char/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/basic_istream/extractors_other/wchar_t/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/basic_istream/sentry/char/12297.cc: Likewise.
+	* testsuite/27_io/basic_istream/sentry/wchar_t/12297.cc: Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/char/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/wchar_t/
+	exceptions_null.cc: Likewise.
+	* testsuite/27_io/ios_base/storage/2.cc: Likewise.
+
+	PR libstdc++/79162
+	* include/bits/basic_string.h [!_GLIBCXX_USE_CXX11_ABI]
+	(basic_string::_If_sv): Remove from the overload set when the
+	argument is derived from basic_string.
+
+	PR libstdc++/79162
+	* include/bits/basic_string.h (basic_string::_If_sv): Remove from the
+	overload set when the argument is derived from basic_string.
+	* testsuite/21_strings/basic_string/cons/char/moveable2_c++17.cc: New
+	test.
+	* testsuite/21_strings/basic_string/cons/wchar_t/moveable2_c++17.cc:
+	New test.
+
+	* testsuite/24_iterators/range_access_cpp17.cc: Fix order of dg-do
+	and dg-options directives. Fix invalid test.
+
+	Backport from mainline
+	2017-09-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/82262
+	* include/std/optional (__optional_hash_call_base): Add template
+	parameter for remove_const_t<_Tp> and use it consistently.
+	* testsuite/20_util/optional/hash.cc: Test optional<const T>.
+
+	Backport from mainline
+	2017-09-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/82254
+	* include/std/type_traits (__is_invocable): Add partial specialization
+	for INVOKE<void> case and remove is_void<R> check from partial
+	specialization for INVOKE<R> case.
+	(__is_nt_invocable_impl): New helper for is_nothrow_invocable_r.
+	(is_nothrow_invocable_r): Use __is_nt_invocable_impl.
+	* testsuite/20_util/is_nothrow_invocable/value.cc: Add tests for
+	conversions that can throw or fail to convert. Use static assert
+	strings to explain negative results.
+	* testsuite/20_util/is_nothrow_invocable/value_ext.cc: Use
+	is_nothrow_constructible in is_nt_invocable_conv.
+
+2017-09-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-09-04  Daniel Kruegler  <daniel.kruegler@gmail.com>
+
+	PR libstdc++/79162
+	Implement LWG 2946, LWG 2758's resolution missed further corrections
+	* include/bits/basic_string.h (basic_string::compare): Add missing
+	required noexcept specifications.
+	(basic_string): Introduce internal _S_to_string_view and __sv_wrapper
+	for implicit string_view conversion.
+	(basic_string::basic_string): Fix explicit string_view conversion by
+	implicit conversion using _S_to_string_view and __sv_wrapper.
+	(basic_string): Introduce internal basic_string(__sv_wrapper, Alloc)
+	constructor.
+	(basic_string): Fix operator=(T) template by operator=(const T&)
+	template for uncopyable types (PR 79162).
+	(basic_string::operator+=, basic_string::append, basic_string::assign)
+	(basic_string::insert, basic_string::replace, basic_string::find)
+	(basic_string::rfind, basic_string::find_first_of)
+	(basic_string::find_last_of, basic_string::find_first_not_of)
+	(basic_string::find_last_not_of, basic_string::compare): Replace
+	__sv_type argument by template const T& (LWG 2946) and correct
+	documentation describing __sv_type argument.
+	(basic_string::find, basic_string::rfind, basic_string::find_first_of)
+	(basic_string::find_last_of, basic_string::find_first_not_of)
+	(basic_string::find_last_not_of, basic_string::compare): Replace
+	unconditional noexcept specification by conditional noexcept
+	specification to partially balance the removal of noexcept by LWG 2946.
+	* testsuite/21_strings/basic_string/79162.cc: New.
+	* testsuite/21_strings/basic_string/lwg2946.cc: New.
+
+2017-09-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81468
+	* include/std/chrono (time_point(const time_point<_Dur2>&)): Add
+	missing constraint from LWG DR 1177.
+	* testsuite/20_util/duration/cons/dr1177.cc: New.
+	* testsuite/20_util/time_point/cons/81468.cc: New.
+	* testsuite/20_util/duration/literals/range.cc: Update dg-error line.
+
+	* doc/doxygen/mainpage.html: Fix broken URLs.
+
+	PR libstdc++/81835
+	* doc/xml/manual/extensions.xml: Replace unstable URL.
+	* doc/html/manual/ext_demangling.html: Regenerate.
+	* libsupc++/cxxabi.h (__cxa_demangle): Fix broken URL.
+
+2017-09-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-09-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/70483
+	* include/experimental/bits/string_view.tcc (basic_string_view::find)
+	(basic_string_view::rfind, basic_string_view::find_first_of)
+	(basic_string_view::find_last_of, basic_string_view::find_first_not_of)
+	(basic_string_view::find_last_not_of): Add constexpr specifier.
+	* include/experimental/string_view (basic_string_view::remove_prefix)
+	(basic_string_view::remove_suffix, basic_string_view::swap)
+	(basic_string_view::compare, basic_string_view::find)
+	(basic_string_view::rfind, basic_string_view::find_first_of)
+	(basic_string_view::find_last_of, basic_string_view::find_first_not_of)
+	(basic_string_view::find_last_not_of, operator==, operator!=)
+	(operator<, operator>, operator<=, operator>=): Likewise.
+	* testsuite/experimental/string_view/operations/compare/char/70483.cc:
+	New.
+
+	Backport from mainline
+	2017-09-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/70483
+	* include/bits/string_view.tcc (basic_string_view::find)
+	(basic_string_view::rfind, basic_string_view::find_first_of)
+	(basic_string_view::find_last_of, basic_string_view::find_first_not_of)
+	(basic_string_view::find_last_not_of): Add constexpr specifier.
+	* include/std/string_view (basic_string_view::operator=)
+	(basic_string_view::rbegin, basic_string_view::rend)
+	(basic_string_view::crbegin, basic_string_view::crend)
+	(basic_string_view::remove_prefix, basic_string_view::remove_suffix)
+	(basic_string_view::swap, basic_string_view::compare)
+	(basic_string_view::find, basic_string_view::rfind)
+	(basic_string_view::find_first_of, basic_string_view::find_last_of)
+	(basic_string_view::find_first_not_of)
+	(basic_string_view::find_last_not_of, basic_string_view::_M_check)
+	(basic_string_view::_M_limit, operator==, operator!=, operator<)
+	(operator>, operator<=, operator>=): Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_prefix/
+	char/1.cc: Repeat tests in constexpr context.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_prefix/
+	wchar_t/1.cc: Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_suffix/
+	char/1.cc: Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_suffix/
+	wchar_t/1.cc: Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/wchar_t/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operators/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operators/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/range_access/char/1.cc: Test
+	cbegin, cend, rbegin, rend, crbegin and crend.
+	* testsuite/21_strings/basic_string_view/range_access/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/char/1.cc:
+	Remove trailing whitespace.
+	* testsuite/21_strings/basic_string_view/operations/compare/wchar_t/
+	1.cc: Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/swap/char/1.cc:
+	New.
+	* testsuite/21_strings/basic_string_view/modifiers/swap/wchar_t/1.cc:
+	New.
+	* testsuite/21_strings/basic_string_view/operations/compare/char/2.cc:
+	New.
+	* testsuite/21_strings/basic_string_view/operations/compare/wchar_t/
+	2.cc: New.
+
+	Backport from mainline
+	2017-06-12  Pedro Alves  <palves@redhat.com>
+
+	* doc/xml/manual/status_cxx2017.xml: Update C++17 constexpr
+	char_traits status.
+	* doc/html/*: Regenerate.
+
+	* include/bits/char_traits.h (_GLIBCXX_ALWAYS_INLINE): Define if
+	not already defined.
+	(__cpp_lib_constexpr_char_traits): Uncomment.
+	(__constant_string_p, __constant_char_array_p): New.
+	(std::char_traits<char>, std::char_traits<wchar_t>): Add
+	_GLIBCXX17_CONSTEXPR on compare, length and find and use
+	__constant_string_p, __constant_char_array_p and
+	__builtin_constant_p to defer to __gnu_cxx::char_traits at compile
+	time.
+
+	* testsuite/21_strings/char_traits/requirements/
+	constexpr_functions_c++17.cc: Uncomment
+	__cpp_lib_constexpr_char_traits tests.  Uncomment
+	test_compare<char>, test_length<char>, test_find<char>,
+	test_compare<wchar_t>, test_length<wchar_t> and test_find<wchar_t>
+	static_assert tests.
+
+2017-09-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-08-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/82039
+	* include/ext/new_allocator.h (__gnu_cxx::new_allocator::allocate):
+	Adjust null pointer constant to avoid warning.
+
+	Backport from mainline
+	2017-08-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81912
+	* include/bits/stl_iterator_base_types.h (__iterator_category): Add
+	constexpr for C++11 and later.
+	* testsuite/24_iterators/container_access.cc: Add target selector.
+	* testsuite/24_iterators/range_access.cc: Fix clause number in
+	comment.
+	* testsuite/24_iterators/range_access_cpp14.cc: Likewise.
+	* testsuite/24_iterators/range_access_cpp17.cc: New.
+
+	Backport from mainline
+	2017-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/type_traits (_GLIBCXX_NO_BUILTIN_HAS_UNIQ_OBJ_REP):
+	Replace with _GLIBCXX_HAVE_BUILTIN_HAS_UNIQ_OBJ_REP and use
+	__is_identifier to set it.
+
+	Backport from mainline
+	2017-08-09  Katsuhiko Nishimra  <ktns.87@gmail.com>
+
+	* include/std/type_traits (_GLIBCXX_HAVE_BUILTIN_IS_AGGREGATE): Use
+	__is_identifier instead of __has_builtin.
+
+	Backport from mainline
+	2017-08-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81891
+	* include/bits/hashtable.h (_Hashtable(_InputIterator, _InputIterator,
+	size_type, const _H1&, const _H2&, const _Hash&, const _Equal&,
+	const _ExtractKey&, const allocator_type&)): Let destructor do clean
+	up if an exception is thrown.
+	* testsuite/23_containers/unordered_map/cons/81891.cc: New.
+
+	Backport from mainline
+	2017-07-31  Marek Polacek  <polacek@redhat.com>
+
+	PR libstdc++/81599
+	* include/bits/stl_stack.h: Fix typo.
+
+	Backport from mainline
+	2017-07-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81338
+	* include/bits/basic_string.h [_GLIBCXX_USE_CXX11_ABI] (basic_string):
+	Declare basic_stringbuf to be a friend.
+	* include/bits/sstream.tcc (basic_stringbuf::overflow)
+	[_GLIBCXX_USE_CXX11_ABI]: Use unused capacity before reallocating.
+	* include/std/sstream (basic_stringbuf::__xfer_bufptrs): Update string
+	length to buffer length.
+	* testsuite/27_io/basic_stringstream/assign/81338.cc: New.
+
+2017-08-20  John David Anglin  <danglin@gcc.gnu.org>
+
+	PR testsuite/81056
+	* testsuite/17_intro/names.cc: Undef 'd' and 'r' on __hpux__.
+
+2017-08-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/79820
+	PR libstdc++/81751
+	* config/io/basic_file_stdio.cc (sys_open(FILE*, ios_base::openmode)):
+	Call fflush on the stream instead of calling sync() while _M_cfile is
+	null. Restore original value of errno.
+	* testsuite/ext/stdio_filebuf/char/79820.cc: New.
+	* testsuite/ext/stdio_filebuf/char/81751.cc: New.
+
+	Backport from mainline
+	2017-07-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/53984
+	* include/bits/basic_ios.h (basic_ios::_M_setstate): Adjust comment.
+	* include/bits/istream.tcc (basic_istream::sentry): Handle exceptions
+	during construction.
+	* include/std/istream: Adjust comments for formatted input functions
+	and unformatted input functions.
+	* testsuite/27_io/basic_fstream/53984.cc: New.
+	* testsuite/27_io/basic_istream/sentry/char/53984.cc: New.
+
+2017-08-14  Release Manager
+
+	* GCC 7.2.0 released.
+
+2017-07-26  Richard Biener  <rguenther@suse.de>
+
+	Backport from mainline
+	2017-06-02  Richard Biener  <rguenther@suse.de>
+		Markus Eisenmann  <meisenmann.lba@fh-salzburg.ac.at>
+
+	PR libstdc++/80721
+	* libsupc++/eh_alloc.cc (pool::free): Keep list properly
+	sorted and add missing freelist item merging cases.
+
+2017-07-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-06-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/intro.xml: Document LWG 2802, 2873 and 2942 changes.
+	* include/bits/shared_ptr.h (shared_ptr): Use rvalues for deleters
+	(LWG 2802).
+	* include/bits/shared_ptr_base.h (_Sp_ebo_helper, _Sp_counted_deleter
+	(_Sp_counted_deleter::_Impl, __shared_count, __shared_ptr): Likewise.
+	* testsuite/20_util/shared_ptr/cons/lwg2802.cc: New.
+
+	Backport from mainline
+	2017-06-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_base.h (__shared_ptr::owner_before)
+	(__weak_ptr::owner_before, _Sp_owner_less::operator()): Add noexcept
+	specifiers as per LWG 2873 and LWG 2942.
+	* testsuite/20_util/owner_less/noexcept.cc: New.
+	* testsuite/20_util/shared_ptr/observers/owner_before.cc: Test
+	noexcept guarantees.
+	* testsuite/20_util/weak_ptr/observers/owner_before.cc: Likewise.
+
+	Backport from mainline
+	2017-04-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80553
+	* include/bits/stl_construct.h (_Destroy, _Destroy_n): Add static
+	assertions to ensure type is destructible.
+	(destroy_at, destroy, destroy_n): Move from stl_uninitialized.h.
+	* include/bits/stl_uninitialized.h (destroy_at, destroy, destroy_n):
+	Move to stl_construct.h.
+	* testsuite/20_util/specialized_algorithms/memory_management_tools/
+	destroy_neg.cc: New test.
+	* testsuite/23_containers/vector/cons/destructible_neg.cc: New test.
+
+	Backport from mainline
+	2017-05-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* configure: Regenerate.
+	* doc/xml/manual/status_cxx2017.xml: Update status table.
+	* doc/html/*: Regenerate.
+	* include/Makefile.am: Add new header.
+	* include/Makefile.in: Regenerate.
+	* include/experimental/source_location: New header implementing N4519.
+	* testsuite/experimental/source_location/1.cc: New test.
+
+	Backport from mainline
+	2017-07-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/uses_allocator.h (__use_alloc(const _Alloc&&)): Add
+	deleted overload to prevent dangling references to rvalues.
+	* include/experimental/memory_resource
+	(polymorphic_allocator::construct): Do not call __use_alloc with
+	rvalue arguments.
+
+	Backport from mainline
+	2017-06-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81017
+	* include/bits/std_function.h (function::function(function&&))
+	(function::operator=(funtion&&)): Add noexcept.
+	* testsuite/20_util/function/assign/move.cc: Check for noexcept.
+	* testsuite/20_util/function/cons/move.cc: Likewise.
+
+	Backport from mainline
+	2017-07-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/mutex (scoped_lock): Reorder std::adopt_lock_t parameter
+	as per P0739R0.
+	* testsuite/30_threads/scoped_lock/cons/1.cc: Reorder arguments.
+	* testsuite/30_threads/scoped_lock/cons/deduction.cc: Test deduction
+	with std::adopt_lock_t.
+	* testsuite/30_threads/scoped_lock/requirements/typedefs.cc: Check
+	feature-test macro.
+
+	Backport from mainline
+	2017-07-14  Jason Merrill  <jason@redhat.com>
+	    Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/variant (variant::variant(_Tp&&)): Constrain to remove
+	the constructor for empty variants from the candidate functions
+	during class template argument deduction.
+	* testsuite/20_util/variant/deduction.cc: New.
+
+	Backport from mainline
+	2017-06-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80939
+	* include/std/variant (__erased_ctor, __erased_assign, __erased_swap)
+	(__erased_hash): Remove constexpr specifier and qualify calls to
+	__ref_cast.
+	(__erased_dtor): Remove constexpr specifier and use _Destroy.
+
+	Backport from mainline
+	2017-05-20  Tim Shen  <timshen@google.com>
+
+	PR libstdc++/80737
+	* include/std/variant(variant::variant): SFINAE on is_same first.
+	* testsuite/20_util/variant/any.cc: test case.
+
 2017-07-11  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backport from mainline

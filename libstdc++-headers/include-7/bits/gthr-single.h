@@ -23,8 +23,8 @@ a copy of the GCC Runtime Library Exception along with this program;
 see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 <http://www.gnu.org/licenses/>.  */
 
-#ifndef GCC_GTHR_SINGLE_H
-#define GCC_GTHR_SINGLE_H
+#ifndef _GLIBCXX_GCC_GTHR_SINGLE_H
+#define _GLIBCXX_GCC_GTHR_SINGLE_H
 
 /* Just provide compatibility for mutex handling.  */
 
@@ -38,7 +38,7 @@ typedef int __gthread_recursive_mutex_t;
 #define __GTHREAD_MUTEX_INIT_FUNCTION(mx) do {} while (0)
 #define __GTHREAD_RECURSIVE_MUTEX_INIT 0
 
-#define UNUSED __attribute__((__unused__))
+#define _GLIBCXX_UNUSED __attribute__((__unused__))
 
 #ifdef _LIBOBJC
 
@@ -67,7 +67,7 @@ __gthread_objc_close_thread_system (void)
 
 /* Create a new thread of execution.  */
 static inline objc_thread_t
-__gthread_objc_thread_detach (void (* func)(void *), void * arg UNUSED)
+__gthread_objc_thread_detach (void (* func)(void *), void * arg _GLIBCXX_UNUSED)
 {
   /* No thread support available */
   return NULL;
@@ -75,7 +75,7 @@ __gthread_objc_thread_detach (void (* func)(void *), void * arg UNUSED)
 
 /* Set the current thread's priority.  */
 static inline int
-__gthread_objc_thread_set_priority (int priority UNUSED)
+__gthread_objc_thread_set_priority (int priority _GLIBCXX_UNUSED)
 {
   /* No thread support available */
   return -1;
@@ -132,21 +132,21 @@ __gthread_objc_thread_get_data (void)
 
 /* Allocate a mutex.  */
 static inline int
-__gthread_objc_mutex_allocate (objc_mutex_t mutex UNUSED)
+__gthread_objc_mutex_allocate (objc_mutex_t mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 /* Deallocate a mutex.  */
 static inline int
-__gthread_objc_mutex_deallocate (objc_mutex_t mutex UNUSED)
+__gthread_objc_mutex_deallocate (objc_mutex_t mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 /* Grab a lock on a mutex.  */
 static inline int
-__gthread_objc_mutex_lock (objc_mutex_t mutex UNUSED)
+__gthread_objc_mutex_lock (objc_mutex_t mutex _GLIBCXX_UNUSED)
 {
   /* There can only be one thread, so we always get the lock */
   return 0;
@@ -154,7 +154,7 @@ __gthread_objc_mutex_lock (objc_mutex_t mutex UNUSED)
 
 /* Try to grab a lock on a mutex.  */
 static inline int
-__gthread_objc_mutex_trylock (objc_mutex_t mutex UNUSED)
+__gthread_objc_mutex_trylock (objc_mutex_t mutex _GLIBCXX_UNUSED)
 {
   /* There can only be one thread, so we always get the lock */
   return 0;
@@ -162,7 +162,7 @@ __gthread_objc_mutex_trylock (objc_mutex_t mutex UNUSED)
 
 /* Unlock the mutex */
 static inline int
-__gthread_objc_mutex_unlock (objc_mutex_t mutex UNUSED)
+__gthread_objc_mutex_unlock (objc_mutex_t mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
@@ -171,36 +171,36 @@ __gthread_objc_mutex_unlock (objc_mutex_t mutex UNUSED)
 
 /* Allocate a condition.  */
 static inline int
-__gthread_objc_condition_allocate (objc_condition_t condition UNUSED)
+__gthread_objc_condition_allocate (objc_condition_t condition _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 /* Deallocate a condition.  */
 static inline int
-__gthread_objc_condition_deallocate (objc_condition_t condition UNUSED)
+__gthread_objc_condition_deallocate (objc_condition_t condition _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 /* Wait on the condition */
 static inline int
-__gthread_objc_condition_wait (objc_condition_t condition UNUSED,
-			       objc_mutex_t mutex UNUSED)
+__gthread_objc_condition_wait (objc_condition_t condition _GLIBCXX_UNUSED,
+			       objc_mutex_t mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 /* Wake up all threads waiting on this condition.  */
 static inline int
-__gthread_objc_condition_broadcast (objc_condition_t condition UNUSED)
+__gthread_objc_condition_broadcast (objc_condition_t condition _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 /* Wake up one thread waiting on this condition.  */
 static inline int
-__gthread_objc_condition_signal (objc_condition_t condition UNUSED)
+__gthread_objc_condition_signal (objc_condition_t condition _GLIBCXX_UNUSED)
 {
   return 0;
 }
@@ -214,55 +214,55 @@ __gthread_active_p (void)
 }
 
 static inline int
-__gthread_once (__gthread_once_t *__once UNUSED, void (*__func) (void) UNUSED)
+__gthread_once (__gthread_once_t *__once _GLIBCXX_UNUSED, void (*__func) (void) _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
-static inline int UNUSED
-__gthread_key_create (__gthread_key_t *__key UNUSED, void (*__func) (void *) UNUSED)
+static inline int _GLIBCXX_UNUSED
+__gthread_key_create (__gthread_key_t *__key _GLIBCXX_UNUSED, void (*__func) (void *) _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
-static int UNUSED
-__gthread_key_delete (__gthread_key_t __key UNUSED)
+static int _GLIBCXX_UNUSED
+__gthread_key_delete (__gthread_key_t __key _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 static inline void *
-__gthread_getspecific (__gthread_key_t __key UNUSED)
+__gthread_getspecific (__gthread_key_t __key _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 static inline int
-__gthread_setspecific (__gthread_key_t __key UNUSED, const void *__v UNUSED)
+__gthread_setspecific (__gthread_key_t __key _GLIBCXX_UNUSED, const void *__v _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 static inline int
-__gthread_mutex_destroy (__gthread_mutex_t *__mutex UNUSED)
+__gthread_mutex_destroy (__gthread_mutex_t *__mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 static inline int
-__gthread_mutex_lock (__gthread_mutex_t *__mutex UNUSED)
+__gthread_mutex_lock (__gthread_mutex_t *__mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 static inline int
-__gthread_mutex_trylock (__gthread_mutex_t *__mutex UNUSED)
+__gthread_mutex_trylock (__gthread_mutex_t *__mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
 
 static inline int
-__gthread_mutex_unlock (__gthread_mutex_t *__mutex UNUSED)
+__gthread_mutex_unlock (__gthread_mutex_t *__mutex _GLIBCXX_UNUSED)
 {
   return 0;
 }
@@ -293,6 +293,6 @@ __gthread_recursive_mutex_destroy (__gthread_recursive_mutex_t *__mutex)
 
 #endif /* _LIBOBJC */
 
-#undef UNUSED
+#undef _GLIBCXX_UNUSED
 
-#endif /* ! GCC_GTHR_SINGLE_H */
+#endif /* ! _GLIBCXX_GCC_GTHR_SINGLE_H */
