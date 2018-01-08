@@ -294,8 +294,8 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
       // running in the l4re_kernel must have attached a memory region there,
       // which is a bug, and must be fixed.
       Err(Err::Fatal)
-        .printf("Could not attach loader stack to remote region map (%s).\n",
-                Global::l4re_aux->binary);
+        .printf("Could not attach loader stack to remote region map (%ld, %s).\n",
+                ret, Global::l4re_aux->binary);
       return false;
     }
 
