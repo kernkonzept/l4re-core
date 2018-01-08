@@ -174,7 +174,7 @@ public:
 
     IMPL::free(*this);
     this->_c = this->IMPL::copy(o).cap();
-    this->IMPL::operator = (static_cast<IMPL &>(o));
+    this->IMPL::operator = (static_cast<IMPL const &>(o));
     return *this;
   }
 
@@ -184,7 +184,7 @@ public:
     T* __t = ((O*)100); (void)__t;
     IMPL::free(*this);
     this->_c = this->IMPL::copy(o).cap();
-    this->IMPL::operator = (static_cast<IMPL &>(o));
+    this->IMPL::operator = (static_cast<IMPL const &>(o));
     return *this;
   }
 };
