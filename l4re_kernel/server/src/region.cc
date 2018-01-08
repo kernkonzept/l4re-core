@@ -171,9 +171,9 @@ Region_map::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
                          L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
 {
   Dbg w(Dbg::Warn);
-  w.printf("unhandled exception: pc=0x%lx (pfa=%lx)\n", l4_utcb_exc_pc(&u),
-           l4_utcb_exc_pfa(&u));
-  w.printf("Global::l4re_aux->ldr_flags=%lx\n", Global::l4re_aux->ldr_flags);
+  w.printf("%s: Unhandled exception: PC=0x%lx PFA=%lx LdrFlgs=%lx\n",
+           Global::l4re_aux->binary, l4_utcb_exc_pc(&u), l4_utcb_exc_pfa(&u),
+           Global::l4re_aux->ldr_flags);
 
   return -L4_ENOREPLY;
 }
