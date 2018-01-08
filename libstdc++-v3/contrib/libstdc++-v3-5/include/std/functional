@@ -448,17 +448,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<typename _Tp>
     void cref(const _Tp&&) = delete;
 
-  /// Partial specialization.
+  /// std::ref overload to prevent wrapping a reference_wrapper
   template<typename _Tp>
     inline reference_wrapper<_Tp>
     ref(reference_wrapper<_Tp> __t) noexcept
-    { return ref(__t.get()); }
+    { return std::ref(__t.get()); }
 
-  /// Partial specialization.
+  /// std::cref overload to prevent wrapping a reference_wrapper
   template<typename _Tp>
     inline reference_wrapper<const _Tp>
     cref(reference_wrapper<_Tp> __t) noexcept
-    { return cref(__t.get()); }
+    { return std::cref(__t.get()); }
 
   // @} group functors
 
@@ -2025,7 +2025,7 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
        *  The newly-created %function contains the target of @a __x
        *  (if it has one).
        */
-      function(function&& __x) : _Function_base()
+      function(function&& __x) noexcept : _Function_base()
       {
 	__x.swap(*this);
       }
@@ -2084,7 +2084,7 @@ _GLIBCXX_MEM_FN_TRAITS(&&, false_type, true_type)
        *  object, then this operation will not throw an %exception.
        */
       function&
-      operator=(function&& __x)
+      operator=(function&& __x) noexcept
       {
 	function(std::move(__x)).swap(*this);
 	return *this;

@@ -1,3 +1,307 @@
+2017-10-10  Release Manager
+
+	* GCC 5.5.0 released.
+
+2017-09-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/reference_wrapper/80504.cc: Do not use invalid
+	effective-target.
+	* testsuite/22_locale/conversions/buffer/2.cc: Likewise.
+	* testsuite/28_regex/basic_regex/ctors/basic/iter.cc: Likewise. Fix
+	use of test_container.
+
+	PR libstdc++/81468
+	* include/std/chrono (time_point(const time_point<_Dur2>&)): Add
+	missing constraint from LWG DR 1177.
+	* testsuite/20_util/duration/cons/dr1177.cc: New.
+	* testsuite/20_util/time_point/cons/81468.cc: New.
+	* testsuite/20_util/duration/literals/range.cc: Update dg-error line.
+
+	* doc/doxygen/mainpage.html: Fix broken URLs.
+
+	PR libstdc++/81835
+	* doc/xml/manual/extensions.xml: Replace unstable URL.
+	* doc/html/manual/ext_demangling.html: Regenerate.
+	* libsupc++/cxxabi.h (__cxa_demangle): Fix broken URL.
+
+2017-09-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/79820
+	PR libstdc++/81751
+	* config/io/basic_file_stdio.cc (sys_open(FILE*, ios_base::openmode)):
+	Call fflush on the stream instead of calling sync() while _M_cfile is
+	null. Restore original value of errno.
+	* testsuite/ext/stdio_filebuf/char/79820.cc: New.
+	* testsuite/ext/stdio_filebuf/char/81751.cc: New.
+
+	Backport from mainline
+	2017-07-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/53984
+	* include/bits/basic_ios.h (basic_ios::_M_setstate): Adjust comment.
+	* include/bits/istream.tcc (basic_istream::sentry): Handle exceptions
+	during construction.
+	* include/std/istream: Adjust comments for formatted input functions
+	and unformatted input functions.
+	* testsuite/27_io/basic_fstream/53984.cc: New.
+	* testsuite/27_io/basic_istream/sentry/char/53984.cc: New.
+
+	Backport from mainline
+	2017-06-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81017
+	* include/std/functional (function::function(function&&))
+	(function::operator=(function&&)): Add noexcept.
+	* testsuite/20_util/function/assign/move.cc: Check for noexcept.
+	* testsuite/20_util/function/cons/move.cc: Likewise.
+
+	Backport from mainline
+	2017-06-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_base.h (__shared_ptr::owner_before)
+	(__weak_ptr::owner_before, _Sp_owner_less::operator()): Add noexcept
+	specifiers as per LWG 2873 and LWG 2942.
+	* testsuite/20_util/owner_less/noexcept.cc: New.
+	* testsuite/20_util/shared_ptr/observers/owner_before.cc: Test
+	noexcept guarantees.
+	* testsuite/20_util/weak_ptr/observers/owner_before.cc: Likewise.
+
+	Backport from mainline
+	2017-08-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/82039
+	* include/ext/new_allocator.h (__gnu_cxx::new_allocator::allocate):
+	Adjust null pointer constant to avoid warning.
+
+	Backport from mainline
+	2017-08-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81891
+	* include/bits/hashtable.h (_Hashtable(_InputIterator, _InputIterator,
+	size_type, const _H1&, const _H2&, const _Hash&, const _Equal&,
+	const _ExtractKey&, const allocator_type&)): Let destructor do clean
+	up if an exception is thrown.
+	* testsuite/23_containers/unordered_map/cons/81891.cc: New.
+
+	Backport from mainline
+	2017-07-31  Marek Polacek  <polacek@redhat.com>
+
+	PR libstdc++/81599
+	* include/bits/stl_stack.h: Fix typo.
+
+	Backport from mainline
+	2017-07-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81338
+	* include/bits/basic_string.h [_GLIBCXX_USE_CXX11_ABI] (basic_string):
+	Declare basic_stringbuf to be a friend.
+	* include/bits/sstream.tcc (basic_stringbuf::overflow)
+	[_GLIBCXX_USE_CXX11_ABI]: Use unused capacity before reallocating.
+	* include/std/sstream (basic_stringbuf::__xfer_bufptrs): Update string
+	length to buffer length.
+	* testsuite/27_io/basic_stringstream/assign/81338.cc: New.
+
+2017-09-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2016-10-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2011.xml: Update status.
+	* doc/html/manual/status.html: Regenerate.
+	* include/std/scoped_allocator (__outer_allocator_t, __outermost_type):
+	New helpers for recursive OUTERMOST.
+	(__outermost): Use __outermost_type::_S_outermost.
+	(__do_outermost, scoped_allocator_adaptor::__outermost_type): Remove.
+	(scoped_allocator_adaptor::__outermost_alloc_traits): Use new
+	__outermost_type helper.
+	(scoped_allocator_adaptor::_Constructible): New alias template.
+	(scoped_allocator_adaptor::scoped_allocator_adaptor<_Outer2>):
+	Constrain template constructors.
+	* testsuite/20_util/scoped_allocator/3.cc: New test.
+	* testsuite/20_util/scoped_allocator/outermost.cc: New test.
+
+2017-06-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/locale_conv.h (wbuffer_convert::sync): Fix condition.
+	* testsuite/22_locale/conversions/buffer/2.cc: New.
+
+	* doc/xml/manual/appendix_contributing.xml: Link to the list of bad
+	names, and link to the test docs and note higher DejaGnu version
+	requirement.
+	* doc/xml/manual/allocator.xml: Fix ViewCVS URLs.
+	* doc/xml/manual/mt_allocator.xml: Likewise.
+	* doc/html/*: Regenerate.
+
+	* include/bits/locale_conv.h (wbuffer_convert::_M_put): Add missing
+	return statement.
+
+2017-06-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81002
+	* include/bits/regex_compiler.h (__compile_nfa): Add template argument
+	list to specify traits type.
+	* testsuite/28_regex/basic_regex/ctors/basic/iter.cc: New.
+
+2017-05-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/22_locale/codecvt/codecvt_utf16/79980.cc: Replace
+	effective-target with dg-options directive.
+	* testsuite/22_locale/codecvt/codecvt_utf16/80041.cc: Likewise.
+	* testsuite/22_locale/codecvt/codecvt_utf16/members.cc: Likewise.
+	* testsuite/22_locale/codecvt/codecvt_utf16/misaligned.cc: Likewise.
+	* testsuite/22_locale/codecvt/codecvt_utf8/79980.cc: Likewise.
+	* testsuite/22_locale/codecvt/codecvt_utf8/members.cc: Likewise.
+	* testsuite/22_locale/codecvt/codecvt_utf8_utf16/79511.cc: Likewise.
+	* testsuite/22_locale/codecvt/codecvt_utf8_utf16/members.cc: Likewise.
+
+	Backport from mainline
+	2016-08-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/18_support/bad_exception/23591_thread-1.c: Skip test if
+	options are present that aren't valid for C.
+	* testsuite/abi/header_cxxabi.c: Likewise.
+
+	Backport from mainline
+	2017-04-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80504
+	* include/std/functional (ref, cref): Qualify calls.
+	* testsuite/20_util/reference_wrapper/80504.cc: New test.
+
+	Backport from mainline
+	2017-04-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80448
+	* include/experimental/bits/fs_dir.h (directory_iterator)
+	(recursive_directory_iterator): Remove noexcept from defaulted
+	constructors.
+
+	Backport from mainline
+	2017-04-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/reference_wrapper/invoke.cc: Uncomment tests
+	that no longer fail.
+
+	Backport from mainline
+	2017-04-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ios_base.h: Correct comment.
+	* testsuite/util/testsuite_hooks.h: Likewise.
+
+	Backport from mainline
+	2017-03-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/67440
+	* python/libstdcxx/v6/printers.py (find_type): Avoid gdb.Type.name
+	for GDB 7.6 compatibility, use gdb.Type.unqualified instead.
+
+	Backport from mainline
+	2017-01-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/69699
+	* doc/xml/manual/abi.xml (abi.versioning.history): Explain why the
+	_GLIBCXX__ macro is not useful. Remove redundant date information
+	and link to the GCC release timeline.
+	(abi.versioning.active): Move partial sentence into the previous
+	paragraph.
+	* doc/html/*: Regenerate.
+
+	Backport from mainline
+	2016-12-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/71444
+	* config/os/mingw32-w64/error_constants.h
+	(address_family_not_supported, address_in_use, address_not_available)
+	(already_connected, connection_aborted, connection_already_in_progress)
+	connection_refused, connection_reset, cross_device_link)
+	(destination_address_required, host_unreachable, message_size)
+	(network_down, network_reset, network_unreachable, no_buffer_space)
+	(no_protocol_option, not_a_socket, not_connected, operation_canceled)
+	(operation_in_progress, operation_not_supported, protocol_error)
+	(protocol_not_supported, too_many_links, too_many_symbolic_link_levels)
+	(value_too_large, wrong_protocol_type): Define.
+	(bad_message, identifier_removed, no_link, no_message_available)
+	(no_message, no_stream_resources, not_a_stream, owner_dead)
+	(state_not_recoverable, stream_timeout, text_file_busy): Define
+	conditionally.
+	* testsuite/19_diagnostics/headers/system_error/errc_std_c++0x.cc:
+	Guard test for no_message with _GLIBCXX_HAVE_ENOMSG.
+
+	Backport from mainline
+	2016-11-09  Tim Shen  <timshen@google.com>
+
+	PR libstdc++/78236
+	* libstdc++-v3/include/bits/regex.h (regex_iterator::regex_iterator()):
+	Define end() as _M_pregex == nullptr.
+	* libstdc++-v3/include/bits/regex.tcc (regex_iterator::operator==(),
+	regex_iterator::operator++()): Fix operator==() and operator++() to
+	look at null-ness of _M_pregex on both sides.
+	* testsuite/28_regex/regression.cc: New testcase.
+
+	Backport from mainline
+	2016-12-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/59170
+	* python/libstdcxx/v6/printers.py (StdListIteratorPrinter.to_string)
+	(StdSlistIteratorPrinter.to_string, StdVectorIteratorPrinter.to_string)
+	(StdRbtreeIteratorPrinter.to_string)
+	(StdDequeIteratorPrinter.to_string): Add check for value-initialized
+	iterators.
+	* testsuite/libstdc++-prettyprinters/simple.cc: Test them.
+	* testsuite/libstdc++-prettyprinters/simple11.cc: Likewise.
+
+	Backport from mainline
+	2016-12-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/59161
+	* python/libstdcxx/v6/printers.py (StdListIteratorPrinter.to_string)
+	(StdSlistIteratorPrinter.to_string, StdVectorIteratorPrinter.to_string)
+	(StdRbtreeIteratorPrinter.to_string, StdDequeIteratorPrinter.to_string)
+	(StdDebugIteratorPrinter.to_string): Return string instead of
+	gdb.Value.
+	* testsuite/libstdc++-prettyprinters/59161.cc: New test.
+
+	Backport from mainline
+	2016-10-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (build_libstdcxx_dictionary):
+	Register printer for std::__cxx11::list.
+	* python/libstdcxx/v6/xmethods.py (ListMethodsMatcher.match): Match
+	std::__cxx11::list as well as std::list.
+
+2017-05-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-03-15  Xi Ruoyao  <ryxi@stu.xidian.edu.cn>
+
+	PR libstdc++/62045
+	* include/ext/pb_ds/detail/binary_heap_/binary_heap_.hpp
+	(is_heap): Remove.
+	(push_heap): Remove the wrong checking using is_heap.
+	(make_heap): Remove the assertion using is_heap.
+	* include/ext/pb_ds/detail/binary_heap_/insert_fn_imps.hpp
+	(modify): Ditto.
+	(resize_for_insert_if_needed): Add PB_DS_ASSERT_VALID after
+	calling make_heap.
+
+	Backport from mainline
+	2017-03-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/62045
+	* testsuite/ext/pb_ds/regression/priority_queue_binary_heap-62045.cc:
+	New test.
+	* testsuite/ext/pb_ds/regression/priority_queues.cc: Fix copy&paste
+	error in comment.
+
+	Backport from mainline
+	2015-11-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/66059
+	* include/std/utility (_Build_index_tuple): Optimise.
+
 2017-03-17  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backport from mainline

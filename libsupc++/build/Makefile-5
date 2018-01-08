@@ -1,4 +1,6 @@
 
+REQUIRES_LIBS += $(if $(findstring minimal,$(TARGET)),,libpthread)
+
 SRC_CC11 += \
 eh_aux_runtime.cc \
 eh_ptr.cc \
