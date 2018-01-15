@@ -75,23 +75,26 @@ public:
           L4::Ipc::Snd_fpage &memory);
 
   /**
-   * A hook that is called as the first operation in each map
-   *        request.
-   * \param offs  Offs param to map
-   * \param flags Flags param to map
-   * \param min   Min param to map
-   * \param max   Max param to map
+   * A hook that is called for acquiring the data to be mapped.
+   *
+   * \param offs        Offset in dataspace to supply
+   * \param order       Log2-size of data to supply
+   * \param flags       Flags for the mapping
+   * \param base        Start address of the flexpage to be mapped
+   * \param send_order  Order (log2 of size) of the flexpage to be mapped
+   *
    * \retval <0   Error and the map request will be aborted with that error.
    * \retval >=0  Success
    *
    * \see map
    */
   virtual int map_hook(Dataspace::Offset offs,
+                       unsigned order,
                        Dataspace::Flags flags,
-                       Dataspace::Map_addr min,
-                       Dataspace::Map_addr max)
+                       Dataspace::Map_addr *base,
+                       unsigned *send_order)
   {
-    (void)offs; (void)flags; (void)min; (void)max;
+    (void)offs; (void)flags; (void)order; (void)base; (void)send_order;
     return 0;
   }
 

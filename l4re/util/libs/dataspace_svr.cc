@@ -45,10 +45,6 @@ Dataspace_svr::map(Dataspace::Offset offs,
                    Dataspace::Map_addr max,
                    L4::Ipc::Snd_fpage &memory)
 {
-  int err = map_hook(offs, flags, min, max);
-  if (err < 0)
-    return err;
-
   memory = L4::Ipc::Snd_fpage();
 
   offs     = l4_trunc_page(offs);
@@ -92,9 +88,15 @@ Dataspace_svr::map(Dataspace::Offset offs,
     }
 
   l4_addr_t map_base = l4_trunc_size(addr, order);
-  //l4_addr_t map_offs = addr & ~(~0UL << order);
 
-  l4_fpage_t fpage = l4_fpage(map_base, order, flags.fpage_rights());
+  Dataspace::Map_addr b = map_base;
+  unsigned send_order = order;
+  int err = map_hook(offs /*map_base - _ds_start*/, order, flags,
+                     &b, &send_order);
+  if (err < 0)
+    return err;
+
+  l4_fpage_t fpage = l4_fpage(b, send_order, flags.fpage_rights());
 
   memory = L4::Ipc::Snd_fpage(fpage, hot_spot, _map_flags, _cache_flags);
 
