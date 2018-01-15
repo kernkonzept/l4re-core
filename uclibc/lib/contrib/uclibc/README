@@ -36,7 +36,7 @@ functions.  However, many GNU extensions are not supported because they have
 not been ported, or more importantly, would increase the size of uClibc-ng
 disproportional to the added functionality.
 
-Additional information can be found at http://www.uclibc-ng.org/.
+Additional information can be found at https://uclibc-ng.org/.
 
 uClibc-ng may be freely modified and distributed under the terms of the GNU
 Lesser General Public License, which can be found in the file COPYING.LIB.
