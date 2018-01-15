@@ -196,6 +196,49 @@ private:
   lua_State *_lua;
 };
 
+namespace Lua { namespace {
+
+static int __server_loop(lua_State *l)
+{
+  static bool once;
+
+  if (once)
+    return 0;
+  once = true;
+
+  Lua::Cap *n = check_cap(l, 1);
+
+  L4Re::Util::Registry_server<L4Re::Util::Br_manager_timeout_hooks> server;
+  Command_dispatcher cmd_dispatch(l);
+
+  server.registry()->register_obj(&cmd_dispatch,
+                                  n->cap<L4::Ipc_gate>().get());
+
+  server.loop();
+
+  return 0;
+}
+
+class Lib_server : public Lib
+{
+public:
+  Lib_server() : Lib(P_env) {}
+
+  void init(lua_State *l)
+  {
+    static const luaL_Reg _ops[] =
+    {
+      { "server_loop", __server_loop },
+      { NULL, NULL }
+    };
+    Lua::lua_require_module(l, "L4");
+    luaL_setfuncs(l, _ops, 0);
+  }
+};
+static Lib_server __libserver;
+
+}}
+
 int lua(int argc, char const *const *argv)
 {
   printf("Ned says: Hi World!\n");
