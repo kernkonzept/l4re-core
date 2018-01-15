@@ -127,16 +127,21 @@ public:
   /**
    * Copy from src dataspace to this destination dataspace
    *
-   * \param dst_offs Offset into the destination dataspace
-   * \param src_id   Local id of the source dataspace
-   * \param src_offs Offset into the source dataspace
-   * \param size     Number of bytes to copy
+   * \param dst_offs  Offset into the destination dataspace
+   * \param src_id    Local id of the source dataspace
+   * \param src_offs  Offset into the source dataspace
+   * \param size      Number of bytes to copy
    *
-   * \return Number of bytes copied
+   * \retval >=0  Number of bytes copied
+   * \retval <0   An error occured. The error code may depend on the
+   *              implementation.
    */
-  virtual unsigned long copy(l4_addr_t dst_offs, l4_umword_t src_id,
-                             l4_addr_t src_offs, unsigned long size) throw()
-  { (void)dst_offs; (void)src_id; (void)src_offs; (void)size; return -L4_ENODEV; }
+  virtual long copy(l4_addr_t dst_offs, l4_umword_t src_id,
+                    l4_addr_t src_offs, unsigned long size) throw()
+  {
+    (void)dst_offs; (void)src_id; (void)src_offs; (void)size;
+    return -L4_ENODEV;
+  }
 
   /**
    * Clear a region in the dataspace
@@ -226,9 +231,7 @@ public:
     if (sz == 0)
       return L4_EOK;
 
-    copy(dst_offs, src_cap.data(), src_offs, sz);
-
-    return L4_EOK;
+    return copy(dst_offs, src_cap.data(), src_offs, sz);
   }
 
   long op_phys(L4Re::Dataspace::Rights, l4_addr_t offset,
