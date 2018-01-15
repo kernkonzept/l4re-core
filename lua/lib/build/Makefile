@@ -5,7 +5,6 @@ LUA_VERSION_SUFFIX :=
 INSTALL_TARGET     := liblua$(LUA_VERSION_SUFFIX).a
 PC_LIBS            := -llua$(LUA_VERSION_SUFFIX)
 CONTRIB_INCDIR     := lua$(LUA_VERSION_SUFFIX)
-REQUIRES_LIBS      := l4re_c-util
 
 OPTS               :=
 
