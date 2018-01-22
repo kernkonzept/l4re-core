@@ -156,7 +156,7 @@ TEST_F(TestRm, ReserveTiny)
 
 TEST_F(TestRm, ExhaustQuotaReserve)
 {
-  auto fab = L4Re::chkcap(L4Re::Util::make_auto_del_cap<L4::Factory>());
+  auto fab = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4::Factory>());
   L4Re::chksys(env->user_factory()->create_factory(fab.get(), 3 * L4_PAGESIZE));
 
   auto rm = create_rm(fab.get());
