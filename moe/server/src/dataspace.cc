@@ -19,6 +19,7 @@
 
 #include <l4/sys/capability>
 #include <l4/sys/err.h>
+#include <l4/sys/cache.h>
 
 #include <cstring>
 using cxx::min;
@@ -124,6 +125,11 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long _size) const throw()
       unsigned long b_sz = min(dst_a.sz() - dst_a.of(), sz);
 
       memset(dst_a.adr(), 0, b_sz);
+
+      // No need for I cache coherence, as we just zero fill and assume that
+      // this is no executable code
+      l4_cache_clean_data((l4_addr_t)dst_a.adr(),
+                          (l4_addr_t)dst_a.adr() + b_sz - 1);
 
       offs += b_sz;
       sz -= b_sz;

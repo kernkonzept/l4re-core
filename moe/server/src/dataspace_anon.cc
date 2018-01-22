@@ -14,6 +14,8 @@
 #include <l4/cxx/exceptions>
 #include <l4/cxx/minmax>
 
+#include <l4/sys/cache.h>
+
 #include <cstring>
 #include <climits>
 
@@ -70,6 +72,10 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, bool w,
     }
 
   memset(m.get(), 0, m.size());
+  // No need for I cache coherence, as we just zero fill and assume that
+  // this is no executable code
+  l4_cache_clean_data((l4_addr_t)m.get(), (l4_addr_t)m.get() + m.size() - 1);
+
   start(m.release());
   size(_size);
   g.release();
