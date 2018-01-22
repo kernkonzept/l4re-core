@@ -185,8 +185,8 @@ public:
     if (0)
       printf("DMA %p: map: offs=%lx sz=%zx ...\n", this, offset, *_size);
 
-    // FIXME: do correct page alignment etc.
-    offset = l4_trunc_page(offset);
+    // Only full pages can be mapped, so work with a rounded offset internally.
+    l4_addr_t aligned_offset = l4_trunc_page(offset);
 
     unsigned long max_sz = ds->round_size();
     if (offset >= max_sz)
@@ -197,7 +197,7 @@ public:
     if (*_size > max_sz)
       *_size = max_sz;
 
-    l4_size_t size = *_size;
+    l4_size_t size = *_size + (offset - aligned_offset);
     l4_addr_t a = find_free(min, max, size, L4_SUPERPAGESHIFT); //ds->page_shift());
     if (a == L4_INVALID_ADDR)
       L4Re::chksys(-L4_ENOMEM);
@@ -215,11 +215,13 @@ public:
     node->attrs = attrs;
     node->dir = dir;
 
-    *dma_addr = a;
+    // Return the address of the requested offset. This works with unmap
+    // below because unmap accepts any address in the region for unmapping.
+    *dma_addr = a + (offset - aligned_offset);
     for (;;)
       {
         L4::Ipc::Snd_fpage fpage;
-        L4Re::chksys(ds->map(offset, a, Moe::Dataspace::Writable,
+        L4Re::chksys(ds->map(aligned_offset, a, Moe::Dataspace::Writable,
                              a, a + size - 1, fpage));
 
         L4::Cap<L4::Task> myself(L4_BASE_TASK_CAP);
@@ -232,7 +234,7 @@ public:
         if (size <= s)
           break;
 
-        offset += s;
+        aligned_offset += s;
         a += s;
         size -= s;
       }
