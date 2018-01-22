@@ -1,4 +1,5 @@
 /* Script for ld --shared: link shared library */
+/* From binutils-2.19 */
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
 	      "elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)

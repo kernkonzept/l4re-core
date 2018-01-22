@@ -1,4 +1,5 @@
 /* Script for ld --shared: link shared library */
+/* From binutils-2.19 */
 OUTPUT_FORMAT("elf32-sparc", "elf32-sparc",
 	      "elf32-sparc")
 OUTPUT_ARCH(sparc)

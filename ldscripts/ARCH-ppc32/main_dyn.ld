@@ -1,4 +1,5 @@
 /* Default linker script, for normal executables */
+/* From binutils-2.19 */
 OUTPUT_FORMAT("elf32-powerpc", "elf32-powerpc",
 	      "elf32-powerpc")
 OUTPUT_ARCH(powerpc:common)
