@@ -242,7 +242,7 @@ void *_dl_malloc(size_t size)
 
 		_dl_debug_early("mmapping more memory\n");
 		_dl_mmap_zero = _dl_malloc_addr = _dl_mmap((void *) 0, rounded_size,
-				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZED, -1, 0);
+				PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS | _MAP_UNINITIALIZED, -1, 0);
 		if (_dl_mmap_check_error(_dl_mmap_zero)) {
 			_dl_dprintf(2, "%s: mmap of a spare page failed!\n", _dl_progname);
 			_dl_exit(20);

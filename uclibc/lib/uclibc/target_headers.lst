@@ -47,6 +47,8 @@ bits/mathcalls.h
 bits/mathdef.h
 bits/mathinline.h
 bits/mman-common.h
+bits/mman-linux.h
+bits/mman-shared.h
 bits/mman.h
 bits/msq.h
 bits/nan.h

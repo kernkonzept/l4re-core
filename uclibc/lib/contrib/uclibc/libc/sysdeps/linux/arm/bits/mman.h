@@ -1,4 +1,4 @@
-/* Definitions for POSIX memory map interface.  Linux/MIPS version.
+/* Definitions for POSIX memory map interface.  Linux/ARM version.
    Copyright (C) 1997-2018 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -24,22 +24,17 @@
 
 /* These are Linux-specific.  */
 #ifdef __USE_MISC
-# define MAP_NORESERVE	0x0400		/* don't check for reservations */
-# define MAP_GROWSDOWN	0x1000		/* stack-like segment */
-# define MAP_DENYWRITE	0x2000		/* ETXTBSY */
-# define MAP_EXECUTABLE	0x4000		/* mark it as an executable */
-# define MAP_LOCKED	0x8000		/* pages are locked */
-# define MAP_POPULATE   0x10000         /* populate (prefault) pagetables */
-# define MAP_NONBLOCK   0x20000         /* do not block on IO */
-# define MAP_STACK	0x40000		/* Allocation is for a stack.  */
-# define MAP_HUGETLB	0x80000		/* Create huge page mapping.  */
+# define MAP_GROWSDOWN	0x00100		/* Stack-like segment.  */
+# define MAP_DENYWRITE	0x00800		/* ETXTBSY */
+# define MAP_EXECUTABLE	0x01000		/* Mark it as an executable.  */
+# define MAP_LOCKED	0x02000		/* Lock the mapping.  */
+# define MAP_NORESERVE	0x04000		/* Don't check for reservations.  */
+# define MAP_POPULATE	0x08000		/* Populate (prefault) pagetables.  */
+# define MAP_NONBLOCK	0x10000		/* Do not block on IO.  */
+# define MAP_STACK	0x20000		/* Allocation is for a stack.  */
+# define MAP_HUGETLB	0x40000		/* Create huge page mapping.  */
+# define MAP_UNINITIALIZED 0x4000000    /* For anonymous mmap, memory could -   					   be uninitialized. */
 #endif
-
-#define __MAP_ANONYMOUS 0x0800
 
 /* Include generic Linux declarations.  */
 #include <bits/mman-linux.h>
-
-#ifdef __USE_MISC
-# define MAP_RENAME	MAP_ANONYMOUS
-#endif

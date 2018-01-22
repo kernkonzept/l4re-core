@@ -9,6 +9,12 @@
 
 #include <features.h>
 
+#ifdef __ARCH_USE_MMU__
+# define _MAP_UNINITIALIZED 0
+#else
+# define _MAP_UNINITIALIZED MAP_UNINITIALIZED
+#endif
+
 /* Prepare for the case that `__builtin_expect' is not available.  */
 #if defined __GNUC__ && __GNUC__ == 2 && __GNUC_MINOR__ < 96
 #define __builtin_expect(x, expected_value) (x)

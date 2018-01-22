@@ -1,6 +1,5 @@
 /* Definitions for POSIX memory map interface.  Linux/HPPA version.
-   Copyright (C) 1997-2015 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+   Copyright (C) 1997-2018 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -58,6 +57,8 @@
 # define MAP_GROWSDOWN	0x8000		/* Stack-like segment */
 # define MAP_POPULATE	0x10000		/* Populate (prefault) pagetables */
 # define MAP_NONBLOCK	0x20000		/* Do not block on IO */
+# define MAP_STACK	0x40000		/* Create for process/thread stacks */
+# define MAP_HUGETLB	0x80000		/* Create a huge page mapping */
 #endif
 
 /* Flags to "msync"  */
@@ -68,6 +69,7 @@
 /* Flags to "mlockall"  */
 #define MCL_CURRENT	1		/* Lock all current mappings */
 #define MCL_FUTURE	2		/* Lock all future mappings */
+#define MCL_ONFAULT	4		/* Lock all pages that are faulted in */
 
 /* Flags for `mremap'.  */
 #ifdef __USE_GNU
@@ -82,27 +84,21 @@
 # define MADV_SEQUENTIAL  2	/* Expect sequential page references */
 # define MADV_WILLNEED	  3	/* Will need these pages */
 # define MADV_DONTNEED	  4	/* Dont need these pages */
-# define MADV_SPACEAVAIL  5	/* Insure that resources are reserved */
-# define MADV_VPS_PURGE	  6	/* Purge pages from VM page cache */
-# define MADV_VPS_INHERIT 7	/* Inherit parents page size */
+# define MADV_FREE	  8	/* Free pages only if memory pressure.  */
 # define MADV_REMOVE	  9	/* Remove these pages and resources.  */
 # define MADV_DONTFORK	 10	/* Do not inherit across fork.  */
 # define MADV_DOFORK	 11	/* Do inherit across fork.  */
 # define MADV_MERGEABLE   65	/* KSM may merge identical pages */
 # define MADV_UNMERGEABLE 66	/* KSM may not merge identical pages */
-#endif
-
-/* The range 12-64 is reserved for page size specification. */
-/* These are Linux-specific.  */
-#ifdef __USE_MISC
-# define MADV_4K_PAGES		12	/* Use 4K pages.  */
-# define MADV_16K_PAGES		14	/* Use 16K pages.  */
-# define MADV_64K_PAGES		16	/* Use 64K pages.  */
-# define MADV_256K_PAGES	18	/* Use 256K pages.  */
-# define MADV_1M_PAGES		20	/* Use 1 Megabyte pages.  */
-# define MADV_4M_PAGES		22	/* Use 4 Megabyte pages.  */
-# define MADV_16M_PAGES		24	/* Use 16 Megabyte pages.  */
-# define MADV_64M_PAGES		26	/* Use 64 Megabyte pages.  */
+# define MADV_HUGEPAGE	 67	/* Worth backing with hugepages */
+# define MADV_NOHUGEPAGE 68	/* Not worth backing with hugepages */
+# define MADV_DONTDUMP	 69	/* Explicity exclude from the core dump,
+				   overrides the coredump filter bits */
+# define MADV_DODUMP	 70	/* Clear the MADV_NODUMP flag */
+# define MADV_WIPEONFORK 71	/* Zero memory on fork, child only.  */
+# define MADV_KEEPONFORK 72	/* Undo MADV_WIPEONFORK.  */
+# define MADV_HWPOISON	 100	/* Poison a page for testing.  */
+# define MADV_SOFT_OFFLINE 101	/* Soft offline page for testing.  */
 #endif
 
 /* The POSIX people had to invent similar names for the same things.  */
@@ -113,3 +109,5 @@
 # define POSIX_MADV_WILLNEED	3 /* Will need these pages.  */
 # define POSIX_MADV_DONTNEED	4 /* Don't need these pages.  */
 #endif
+
+#include <bits/mman-shared.h>

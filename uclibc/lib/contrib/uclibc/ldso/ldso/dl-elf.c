@@ -573,7 +573,7 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned int rflags,
 		return NULL;
 	}
 	header = _dl_mmap((void *) 0, _dl_pagesize, PROT_READ | PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS | MAP_UNINITIALIZED, -1, 0);
+			MAP_PRIVATE | MAP_ANONYMOUS | _MAP_UNINITIALIZED, -1, 0);
 	if (_dl_mmap_check_error(header)) {
 		_dl_dprintf(2, "%s:%i: can't map '%s'\n", _dl_progname, __LINE__, libname);
 		_dl_internal_error_number = LD_ERROR_MMAP_FAILED;

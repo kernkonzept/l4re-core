@@ -1,4 +1,4 @@
-/* Definitions for POSIX memory map interface.  Linux/MIPS version.
+/* Definitions for POSIX memory map interface.  Linux/SH version.
    Copyright (C) 1997-2018 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,11 +12,11 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library.  If not, see
+   License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_MMAN_H
-# error "Never use <bits/mman.h> directly; include <sys/mman.h> instead."
+# error "Never include this file directly.  Use <sys/mman.h> instead"
 #endif
 
 /* The following definitions basically come from the kernel headers.
@@ -24,22 +24,17 @@
 
 /* These are Linux-specific.  */
 #ifdef __USE_MISC
-# define MAP_NORESERVE	0x0400		/* don't check for reservations */
-# define MAP_GROWSDOWN	0x1000		/* stack-like segment */
-# define MAP_DENYWRITE	0x2000		/* ETXTBSY */
-# define MAP_EXECUTABLE	0x4000		/* mark it as an executable */
-# define MAP_LOCKED	0x8000		/* pages are locked */
-# define MAP_POPULATE   0x10000         /* populate (prefault) pagetables */
-# define MAP_NONBLOCK   0x20000         /* do not block on IO */
-# define MAP_STACK	0x40000		/* Allocation is for a stack.  */
-# define MAP_HUGETLB	0x80000		/* Create huge page mapping.  */
+# define MAP_GROWSDOWN	0x0100		/* Stack-like segment.  */
+# define MAP_DENYWRITE	0x0800		/* ETXTBSY */
+# define MAP_EXECUTABLE	0x1000		/* Mark it as an executable.  */
+# define MAP_LOCKED	0x2000		/* Lock the mapping.  */
+# define MAP_NORESERVE	0x4000		/* Don't check for reservations.  */
+# define MAP_POPULATE	0x8000		/* Populate (prefault) pagetables.  */
+# define MAP_NONBLOCK	0x10000		/* Do not block on IO.  */
+# define MAP_STACK	0x20000		/* Allocation is for a stack.  */
+# define MAP_HUGETLB	0x40000		/* Create huge page mapping.  */
+# define MAP_UNINITIALIZED 0x4000000    /* For anonymous mmap, memory could -   					   be uninitialized. */
 #endif
-
-#define __MAP_ANONYMOUS 0x0800
 
 /* Include generic Linux declarations.  */
 #include <bits/mman-linux.h>
-
-#ifdef __USE_MISC
-# define MAP_RENAME	MAP_ANONYMOUS
-#endif
