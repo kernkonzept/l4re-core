@@ -26,6 +26,10 @@
 
 #include <sys/procfs.h>
 
+/* We need the signal context definitions even if they are not used
+   included in <signal.h>.  */
+#include <bits/sigcontext.h>
+
 typedef elf_greg_t greg_t;
 
 /* Container for all general registers.  */
