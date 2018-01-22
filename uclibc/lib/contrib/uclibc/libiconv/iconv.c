@@ -30,6 +30,7 @@
 #define LATIN_9     010
 #define TIS_620     011
 #define JIS_0201    012
+#define EUC_JP      013
 
 /* some programs like php need this */
 int _libiconv_version = _LIBICONV_VERSION;
@@ -51,12 +52,13 @@ static const unsigned char charsets[] =
 	"\011" "ISO-8859-11""\0"
 	"\011" "TIS-620"    "\0"
 	"\012" "JIS-0201"   "\0"
+	"\013" "EUC-JP"     "\0"
 	"\377";
 
 /* separate identifiers for sbcs/dbcs/etc map type */
 #define UCS2_8BIT   000
 #define UCS3_8BIT   001
-#define EUC         002
+#define EUC_JP      002
 #define EUC_TW      003
 #define SHIFT_JIS   004
 #define BIG5        005
@@ -71,7 +73,7 @@ static const unsigned char charsets[] =
 static const unsigned short maplen[] = {
 	[UCS2_8BIT] = 4+ 2* 128,
 	[UCS3_8BIT] = 4+ 3* 128,
-	[EUC]       = 4+ 2* 94*94,
+	[EUC_JP]    = 4+ 2* 94*94,
 	[SHIFT_JIS] = 4+ 2* 94*94,
 	[BIG5]      = 4+ 2* 94*157,
 	[GBK]       = 4+ 2* 126*190,
@@ -345,7 +347,7 @@ size_t iconv(iconv_t cd, char **in, size_t *inb, char **out, size_t *outb)
 			case UCS2_8BIT:
 				c -= 0x80;
 				break;
-			case EUC:
+			case EUC_JP:
 				if ((unsigned)c - 0xa1 >= 94) goto ilseq;
 				if ((unsigned)in[0][1] - 0xa1 >= 94) goto ilseq;
 				c = (c-0xa1)*94 + (in[0][1]-0xa1);
