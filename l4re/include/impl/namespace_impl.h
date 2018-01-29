@@ -118,6 +118,9 @@ long
 Namespace::query(char const *name, L4::Cap<void> const &target,
                  int timeout, l4_umword_t *local_id,
                  bool iterate) const throw()
-{ return query(name, strlen(name), target, timeout, local_id, iterate); }
+{
+  return query(name, __builtin_strlen(name), target,
+               timeout, local_id, iterate);
+}
 
 }

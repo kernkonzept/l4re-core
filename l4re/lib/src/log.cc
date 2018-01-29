@@ -49,7 +49,7 @@ Log::printn(char const *string, int len) const throw()
 void
 Log::print(char const *string) const throw()
 {
-  printn(string, strlen(string));
+  printn(string, __builtin_strlen(string));
 }
 
 }
