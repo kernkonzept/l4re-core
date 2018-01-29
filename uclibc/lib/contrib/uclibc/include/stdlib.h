@@ -987,13 +987,6 @@ extern int getloadavg (double __loadavg[], int __nelem)
      __THROW __nonnull ((1));
 #endif
 
-#ifdef __UCLIBC_HAS_ARC4RANDOM__
-# include <sys/types.h>
-extern u_int32_t arc4random(void);
-extern void arc4random_stir(void);
-extern void arc4random_addrandom(unsigned char *, int);
-#endif
-
 #ifdef _LIBC
 extern int __drand48_iterate (unsigned short int xsubi[3], struct drand48_data *buffer) attribute_hidden;
 
