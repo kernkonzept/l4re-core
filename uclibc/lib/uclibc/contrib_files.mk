@@ -136,6 +136,7 @@ define SRC_libc/stdlib/malloc-standard
   free
   mallinfo
   malloc
+	malloc_usable_size
   mallopt
   memalign
   realloc

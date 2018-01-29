@@ -162,6 +162,8 @@ extern int malloc_trim(size_t pad);
 /* Prints brief summary statistics on the stderr. */
 extern void malloc_stats(void);
 
+extern size_t malloc_usable_size(void *);
+
 /* SVID2/XPG mallopt options */
 #ifndef M_MXFAST
 # define M_MXFAST  1	/* UNUSED in this malloc */
