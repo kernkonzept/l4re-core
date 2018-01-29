@@ -238,3 +238,5 @@ void* realloc(void* oldmem, size_t bytes)
     return retval;
 }
 
+/* glibc compatibilty  */
+weak_alias(realloc, __libc_realloc)

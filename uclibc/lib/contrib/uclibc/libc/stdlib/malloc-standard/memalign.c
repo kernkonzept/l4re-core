@@ -129,3 +129,5 @@ void* memalign(size_t alignment, size_t bytes)
 }
 weak_alias(memalign, aligned_alloc)
 libc_hidden_def(memalign)
+/* glibc compatibilty  */
+weak_alias(memalign, __libc_memalign)

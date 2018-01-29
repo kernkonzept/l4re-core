@@ -91,3 +91,5 @@ void* calloc(size_t n_elements, size_t elem_size)
     return mem;
 }
 
+/* glibc compatibilty  */
+weak_alias(calloc, __libc_calloc)

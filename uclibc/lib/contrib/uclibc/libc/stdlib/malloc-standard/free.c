@@ -412,3 +412,5 @@ void free(void* mem)
     __MALLOC_UNLOCK;
 }
 
+/* glibc compatibilty  */
+weak_alias(free, __libc_free)
