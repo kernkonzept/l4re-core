@@ -28,8 +28,15 @@ public:
   virtual L4::Cap<void> alloc() throw()
   { return Vfs_config::cap_alloc.alloc<void>(); }
 
-  virtual void free(L4::Cap<void> cap) throw()
+  virtual void take(L4::Cap<void>) throw() {}
+
+  virtual void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+                    unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
   { Vfs_config::cap_alloc.free(cap); }
+
+  virtual bool release(L4::Cap<void> cap, l4_cap_idx_t = L4_INVALID_CAP,
+                       unsigned = L4_FP_ALL_SPACES) throw()
+  { return false; }
 
   virtual ~Default_cap_alloc() {}
 

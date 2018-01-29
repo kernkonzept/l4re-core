@@ -27,6 +27,7 @@
 #include <l4/sys/task>
 #include <l4/sys/smart_capability>
 #include <l4/re/consts>
+#include <l4/cxx/type_traits>
 
 namespace L4Re {
 
@@ -53,6 +54,7 @@ public:
    * \return Capability of type void
    */
   virtual L4::Cap<void> alloc() throw() = 0;
+  virtual void take(L4::Cap<void> cap) throw() = 0;
 
   /**
    * \brief Allocate a capability
@@ -66,7 +68,10 @@ public:
    * \brief Free a capability
    * \param cap  Capability to free.
    */
-  virtual void free(L4::Cap<void> cap) throw() = 0;
+  virtual void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+                       unsigned unmap_flags = L4_FP_ALL_SPACES) throw() = 0;
+  virtual bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+                       unsigned unmap_flags = L4_FP_ALL_SPACES) throw() = 0;
 
   /**
    * \brief Destructor.
@@ -85,8 +90,19 @@ public:
     struct CA : public L4Re::Cap_alloc
     {
       CAP_ALLOC &_ca;
-      L4::Cap<void> alloc() throw() { return _ca.alloc(); }
-      void free(L4::Cap<void> cap) throw() { _ca.free(cap); }
+      L4::Cap<void> alloc() throw() override { return _ca.alloc(); }
+      void take(L4::Cap<void> cap) throw() override { _ca.take(cap); }
+
+      void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+            unsigned unmap_flags = L4_FP_ALL_SPACES) throw() override
+      { _ca.free(cap, task, unmap_flags); }
+
+      bool release(L4::Cap<void> cap, l4_cap_idx_t task,
+                   unsigned unmap_flags) throw() override
+      { return _ca.release(cap, task, unmap_flags); }
+
+      void operator delete(void *) {}
+
       CA(CAP_ALLOC &ca) : _ca(ca) {}
     };
 
@@ -95,10 +111,31 @@ public:
   }
 };
 
+template<typename ALLOC>
+struct Cap_alloc_t : ALLOC, L4Re::Cap_alloc
+{
+  template<typename ...ARGS>
+  Cap_alloc_t(ARGS &&...args) : ALLOC(cxx::forward<ARGS>(args)...) {}
+
+  L4::Cap<void> alloc() throw() override { return ALLOC::alloc(); }
+  void take(L4::Cap<void> cap) throw() override { ALLOC::take(cap); }
+
+  void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+            unsigned unmap_flags = L4_FP_ALL_SPACES) throw() override
+  { ALLOC::free(cap, task, unmap_flags); }
+
+  bool release(L4::Cap<void> cap, l4_cap_idx_t task,
+               unsigned unmap_flags) throw() override
+  { return ALLOC::release(cap, task, unmap_flags); }
+
+  void operator delete(void *) {}
+};
+
 inline
 Cap_alloc::~Cap_alloc()
 {}
 
+extern Cap_alloc *virt_cap_alloc;
 
 /**
  * \brief Helper for Auto_cap and Auto_del_cap
@@ -117,10 +154,8 @@ public:
   void free(L4::Cap_base &c)
   {
     if (c.is_valid() && _ca)
-      {
-        L4::Cap<L4::Task>(This_task)->unmap(c.fpage(), Unmap_flags);
-        _ca->free(L4::Cap<void>(c.cap()));
-      }
+      _ca->free(L4::Cap<void>(c.cap()), This_task, Unmap_flags);
+
     invalidate(c);
   }
 
@@ -135,6 +170,51 @@ public:
     L4::Cap_base r = src;
     invalidate(const_cast<L4::Cap_base &>(src));
     return r;
+  }
+};
+
+/**
+ * Helper for Ref_cap and Ref_del_cap.
+ */
+template< unsigned long Unmap_flags = L4_FP_ALL_SPACES >
+class Smart_count_cap
+{
+private:
+  Cap_alloc *_ca;
+
+public:
+  Smart_count_cap() : _ca(nullptr) {}
+  Smart_count_cap(Cap_alloc *ca) : _ca(ca) {}
+  /**
+   * Free operation for L4::Smart_cap
+   * (decrement ref count and delete if 0).
+   */
+  void free(L4::Cap_base &c) throw()
+  {
+    if (c.is_valid())
+      {
+        if (_ca && _ca->release(L4::Cap<void>(c.cap()), This_task, Unmap_flags))
+          c.invalidate();
+      }
+  }
+
+  /**
+   * Invalidate operation for L4::Smart_cap.
+   */
+  static void invalidate(L4::Cap_base &c) throw()
+  {
+    if (c.is_valid())
+      c.invalidate();
+  }
+
+  /**
+   * Copy operation for L4::Smart_cap (increment ref count).
+   */
+  L4::Cap_base copy(L4::Cap_base const &src)
+  {
+    if (src.is_valid())
+      _ca->take(L4::Cap<void>(src.cap()));
+    return src;
   }
 };
 
