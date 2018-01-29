@@ -1,5 +1,4 @@
-/* Copyright (C) 1996, 1997, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+/* Copyright (C) 1996-2018 Free Software Foundation, Inc.
    Contributed by David Huggins-Daines <dhd@debian.org>, 2000.
    Based on the Alpha version by Richard Henderson <rth@tamu.edu>, 1996.
 
@@ -14,27 +13,35 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
 /* clone() is even more special than fork() as it mucks with stacks
    and invokes a function in the right context after its all over.  */
 
 #include <asm/unistd.h>
+#include <sysdep.h>
 #define _ERRNO_H	1
 #include <bits/errno.h>
-#include <sys/syscall.h>
 
 /* Non-thread code calls __clone with the following parameters:
-   int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg)
-   
+   int clone(int (*fn)(void *arg),
+	     void *child_stack,
+	     int flags,
+	     void *arg)
+
    NPTL Code will call __clone with the following parameters:
-   int clone(int (*fn)(void *arg), void *child_stack, int flags, void *arg,
-	     int *parent_tidptr, struct user_desc *newtls, int *child_pidptr)
-	
+   int clone(int (*fn)(void *arg),
+	     void *child_stack,
+	     int flags,
+	     void *arg,
+	     int *parent_tidptr,
+	     struct user_desc *newtls,
+	     int *child_pidptr)
+
    The code should not mangle the extra input registers.
    Syscall expects:				Input to __clone:
-	4(r25) - function pointer 		(r26, arg0) 
+	4(r25) - function pointer 		(r26, arg0)
 	0(r25) - argument			(r23, arg3)
 	r26 - clone flags.			(r24, arg2)
 	r25+64 - user stack pointer.		(r25, arg1)
@@ -42,93 +49,114 @@
 	r23 - struct user_desc newtls pointer.	(stack - 56)
 	r22 - child tid pointer.		(stack - 60)
 	r20 - clone syscall number		(constant)
+
+   Return:
+
+	On success the thread ID of the child process is returend in
+	the callers context.
+	On error return -1, and set errno to the value returned by
+	the syscall.
  */
 
-.text
-.global __clone
-.type   __clone,%function
-__clone:
+        .text
+ENTRY(__clone)
+	/* Prologue */
+	stwm	%r4, 64(%sp)
+	.cfi_def_cfa_offset -64
+	.cfi_offset 4, 0
+	stw	%sp, -4(%sp)
+#ifdef __PIC__
+	stw	%r19, -32(%sp)
+	.cfi_offset 19, 32
+#endif
 
 	/* Sanity check arguments.  */
-	ldi     -EINVAL,%ret0
-	comib,=,n  0,%arg0,.Lerror        /* no NULL function pointers */
-	comib,=,n  0,%arg1,.Lerror        /* no NULL stack pointers */
+	comib,=,n  0, %arg0, .LerrorSanity        /* no NULL function pointers */
+	comib,=,n  0, %arg1, .LerrorSanity        /* no NULL stack pointers */
 
-	/* Save the fn ptr and arg on the new stack.  */
-	stwm    %r26,64(%r25)
-	stw	%r23,-60(%r25)
+	/* Save the function pointer, arg, and flags on the new stack.  */
+	stwm    %r26, 64(%r25)
+	stw	%r23, -60(%r25)
+	stw     %r24, -56(%r25)
 	/* Clone arguments are (int flags, void * child_stack) */
-	copy	%r24,%r26	/* flags are first */
+	copy	%r24, %r26		/* flags are first */
 	/* User stack pointer is in the correct register already */
 
 	/* Load args from stack... */
-	ldw	-52(%sp), %r24	/* Load parent_tidptr */
-	ldw	-56(%sp), %r23 	/* Load newtls */
-	ldw	-60(%sp), %r22	/* Load child_tidptr */
-
-	/* Create frame to get r3 free */
-	copy	%sp, %r21
-	stwm	%r3, 64(%sp)
-	stw	%r21, -4(%sp)
+	ldw	-116(%sp), %r24		/* Load parent_tidptr */
+	ldw	-120(%sp), %r23 	/* Load newtls */
+	ldw	-124(%sp), %r22		/* Load child_tidptr */
 
 	/* Save the PIC register. */
 #ifdef __PIC__
-	copy	%r19, %r3		/* parent */
+	copy	%r19, %r4		/* parent */
 #endif
 
 	/* Do the system call */
-	ble     0x100(%sr2,%r0)
-	ldi	__NR_clone,%r20
+	ble     0x100(%sr2, %r0)
+	ldi	__NR_clone, %r20
 
-	ldi	-4096,%r1
-	comclr,>>= %r1,%ret0,%r0	/* Note: unsigned compare. */
+	ldi	-4096, %r1
+	comclr,>>= %r1, %ret0, %r0	/* Note: unsigned compare. */
 	b,n	.LerrorRest
 
-	comib,=,n 0,%ret0,thread_start
-
-	/* Successful return from the parent
-	   No need to restore the PIC register, 
-	   since we return immediately. */
-
-	bv	%r0(%rp)
-	ldwm	-64(%sp), %r3
-
-.LerrorRest:
-	/* Restore the PIC register on error */
+	/* Restore the PIC register.  */
 #ifdef __PIC__
-	copy	%r3, %r19		/* parent */ 
+	copy	%r4, %r19		/* parent */
 #endif
 
-	/* Something bad happened -- no child created */
-.Lerror:
+	comib,=,n 0, %ret0, .LthreadStart
 
-	/* Set errno, save ret0 so we return with that value. */
-	copy	%ret0, %r3
-	b	__syscall_error
-	sub     %r0,%ret0,%arg0
-	copy	%r3, %ret0
-	/* Return after setting errno, and restoring ret0 */
+	/* Successful return from the parent
+	   No need to restore the PIC register,
+	   since we return immediately. */
+
+	ldw	-84(%sp), %rp
 	bv	%r0(%rp)
-	ldwm	-64(%sp), %r3
+	ldwm	-64(%sp), %r4
 
-thread_start:
+.LerrorRest:
+	/* Something bad happened -- no child created */
+	bl	__syscall_error, %rp
+	sub     %r0, %ret0, %arg0
+	ldw	-84(%sp), %rp
+	/* Return after setting errno, ret0 is set to -1 by __syscall_error. */
+	bv	%r0(%rp)
+	ldwm	-64(%sp), %r4
 
+.LerrorSanity:
+	/* Sanity checks failed, return -1, and set errno to EINVAL. */
+	bl	__syscall_error, %rp
+	ldi     EINVAL, %arg0
+	ldw	-84(%sp), %rp
+	bv	%r0(%rp)
+	ldwm	-64(%sp), %r4
+
+.LthreadStart:
 	/* Load up the arguments.  */
-	ldw	-60(%sr0, %sp),%arg0
-	ldw     -64(%sr0, %sp),%r22
+	ldw	-60(%sp), %arg0
+	ldw     -64(%sp), %r22
 
-	/* $$dyncall fixes childs PIC register */
+	/* $$dyncall fixes child's PIC register */
 
 	/* Call the user's function */
-	bl	$$dyncall,%r31
-	copy	%r31,%rp
+#ifdef __PIC__
+	copy	%r19, %r4
+#endif
+	bl	$$dyncall, %r31
+	copy	%r31, %rp
+#ifdef __PIC__
+	copy	%r4, %r19
+#endif
+	copy	%r28, %r26
+	ble     0x100(%sr2, %r0)
+	ldi	__NR_exit, %r20
 
-	bl	HIDDEN_JUMPTARGET(_exit),%rp
-	copy	%ret0,%arg0
+	/* We should not return from exit.
+           We do not restore r4, or the stack state.  */
+	iitlbp	%r0, (%sr0, %r0)
 
-	/* Die horribly.  */
-	iitlbp	%r0,(%sr0,%r0)
+PSEUDO_END(__clone)
 
-.size clone,.-clone
-
+libc_hidden_def (__clone)
 weak_alias (__clone, clone)

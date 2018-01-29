@@ -183,7 +183,7 @@ config UCLIBC_HAS_FENV
 	depends on TARGET_i386 || \
 		   TARGET_metag || \
 		   TARGET_nds32 || \
-		   TARGET_powerpc || \
+		   (TARGET_powerpc && CONFIG_E500) || \
 		   TARGET_x86_64
 	help
 	  If you want the uClibc math library to contain the C99 floating

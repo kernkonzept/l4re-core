@@ -9,11 +9,12 @@
 # error "Never use <bits/fcntl.h> directly; include <fcntl.h> instead."
 #endif
 
-
 #include <sys/types.h>
 #ifdef __USE_GNU
 # include <bits/uio.h>
 #endif
+
+
 /* open/fcntl - O_SYNC is only implemented on blocks devices and on files
    located on an ext2 file system */
 #define O_ACCMODE	   0003
@@ -31,12 +32,16 @@
 #define O_FSYNC		 O_SYNC
 #define O_ASYNC		 020000
 
-#ifdef __USE_GNU
+#ifdef __USE_XOPEN2K8
 # define O_DIRECTORY	 040000	/* Must be a directory.	 */
 # define O_NOFOLLOW	0100000	/* Do not follow links.	 */
+# define O_CLOEXEC     02000000 /* Set close_on_exec.  */
+#endif
+
+#ifdef __USE_GNU
 # define O_DIRECT	0200000	/* Direct disk access.	*/
-# define O_STREAMING	04000000/* streaming access */
-# define O_CLOEXEC	02000000 /* set close_on_exec */
+# define O_NOATIME     01000000 /* Do not set atime.  */
+# define O_PATH       010000000 /* Resolve pathname but do not open file.  */
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.
@@ -70,7 +75,7 @@
 #define F_SETLK64	13	/* Set record locking info (non-blocking).  */
 #define F_SETLKW64	14	/* Set record locking info (blocking).	*/
 
-#if defined __USE_BSD || defined __USE_XOPEN2K
+#if defined __USE_BSD || defined __USE_UNIX98
 # define F_SETOWN	8	/* Get owner of socket (receiver of SIGIO).  */
 # define F_GETOWN	9	/* Set owner of socket (receiver of SIGIO).  */
 #endif
@@ -84,9 +89,13 @@
 # define F_SETLEASE	1024	/* Set a lease.	 */
 # define F_GETLEASE	1025	/* Enquire what lease is active.  */
 # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+# define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+				   close-on-exit set on new fd.  */
+# define F_SETPIPE_SZ	1031    /* Set pipe page size array.  */
+# define F_GETPIPE_SZ	1032    /* Get pipe page size array.  */
 #endif
 
-/* For F_[GET|SET]FL.  */
+/* For F_[GET|SET]FD.  */
 #define FD_CLOEXEC	1	/* actually anything with low bit set goes */
 
 /* For posix fcntl() and `l_type' field of a `struct flock' for lockf().  */
@@ -170,6 +179,28 @@ struct flock64
 # define POSIX_FADV_NOREUSE	5 /* Data will be accessed once.  */
 #endif
 
+
+#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
+/* Flags for SYNC_FILE_RANGE.  */
+# define SYNC_FILE_RANGE_WAIT_BEFORE	1 /* Wait upon writeout of all pages
+					     in the range before performing the
+					     write.  */
+# define SYNC_FILE_RANGE_WRITE		2 /* Initiate writeout of all those
+					     dirty pages in the range which are
+					     not presently under writeback.  */
+# define SYNC_FILE_RANGE_WAIT_AFTER	4 /* Wait upon writeout of all pages in
+					     the range after performing the
+					     write.  */
+
+/* Flags for SPLICE and VMSPLICE.  */
+# define SPLICE_F_MOVE		1	/* Move pages instead of copying.  */
+# define SPLICE_F_NONBLOCK	2	/* Don't block on the pipe splicing
+					   (but we may still block on the fd
+					   we splice from/to).  */
+# define SPLICE_F_MORE		4	/* Expect more data.  */
+# define SPLICE_F_GIFT		8	/* Pages passed in are a gift.  */
+#endif
+
 __BEGIN_DECLS
 
 #if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
@@ -178,23 +209,23 @@ __BEGIN_DECLS
 extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
     __THROW;
 
-
 /* Selective file content synch'ing.  */
 extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
-                            unsigned int __flags);
+			    unsigned int __flags);
 
 /* Splice address range into a pipe.  */
 extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,
-                         size_t __count, unsigned int __flags);
+			 size_t __count, unsigned int __flags);
 
 /* Splice two files together.  */
 extern ssize_t splice (int __fdin, __off64_t *__offin, int __fdout,
-                       __off64_t *__offout, size_t __len,
-                       unsigned int __flags);
+		       __off64_t *__offout, size_t __len,
+		       unsigned int __flags);
 
 /* In-kernel implementation of tee for pipe buffers.  */
 extern ssize_t tee (int __fdin, int __fdout, size_t __len,
-                    unsigned int __flags);
+		    unsigned int __flags);
 
 #endif
 __END_DECLS
+

@@ -20,7 +20,7 @@ int stat(const char *file_name, struct stat *buf)
 	return fstatat(AT_FDCWD, file_name, buf, 0);
 }
 
-#elif __WORDSIZE == 64 && defined __NR_newfstatat
+#elif __WORDSIZE == 64 && defined __NR_newfstatat && !defined __ARCH_HAS_DEPRECATED_SYSCALLS__
 # include <fcntl.h>
 
 int stat(const char *file_name, struct stat *buf)

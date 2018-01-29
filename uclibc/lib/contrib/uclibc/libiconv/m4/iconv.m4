@@ -6,33 +6,18 @@ dnl with or without modifications, as long as this notice is preserved.
 
 dnl From Bruno Haible.
 
-AC_DEFUN([AM_ICONV_LINKFLAGS_BODY],
-[
-  dnl Prerequisites of AC_LIB_LINKFLAGS_BODY.
-  AC_REQUIRE([AC_LIB_PREPARE_PREFIX])
-  AC_REQUIRE([AC_LIB_RPATH])
-
-  dnl Search for libiconv and define LIBICONV, LTLIBICONV and INCICONV
-  dnl accordingly.
-  AC_LIB_LINKFLAGS_BODY([iconv])
-])
-
 AC_DEFUN([AM_ICONV_LINK],
 [
   dnl Some systems have iconv in libc, some have it in libiconv (OSF/1 and
   dnl those with the standalone portable GNU libiconv installed).
   AC_REQUIRE([AC_CANONICAL_HOST]) dnl for cross-compiles
 
-  dnl Search for libiconv and define LIBICONV, LTLIBICONV and INCICONV
-  dnl accordingly.
-  AC_REQUIRE([AM_ICONV_LINKFLAGS_BODY])
-
   dnl Add $INCICONV to CPPFLAGS before performing the following checks,
   dnl because if the user has installed libiconv and not disabled its use
   dnl via --without-libiconv-prefix, he wants to use it. The first
   dnl AC_TRY_LINK will then fail, the second AC_TRY_LINK will succeed.
   am_save_CPPFLAGS="$CPPFLAGS"
-  AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCICONV])
+  dnl AC_LIB_APPENDTOVAR([CPPFLAGS], [$INCICONV])
 
   AC_CACHE_CHECK([for iconv], [am_cv_func_iconv], [
     am_cv_func_iconv="no, consider installing GNU libiconv"

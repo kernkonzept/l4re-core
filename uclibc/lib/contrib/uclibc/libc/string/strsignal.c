@@ -36,7 +36,7 @@
 
 extern const char _string_syssigmsgs[] attribute_hidden;
 
-#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+#if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
 static const unsigned char sstridx[] = {
 	0,
 	SIGHUP,
@@ -89,7 +89,7 @@ char *strsignal(int signum)
 		'U', 'n', 'k', 'n', 'o', 'w', 'n', ' ', 's', 'i', 'g', 'n', 'a', 'l', ' '
 	};
 
-#if defined(__alpha__) || defined(__mips__) || defined(__hppa__) || defined(__sparc__)
+#if defined(__alpha__) || defined(__mips__) || defined(__sparc__)
 	/* Need to translate signum to string index. */
 	for (i = 0; i < sizeof(sstridx)/sizeof(sstridx[0]); i++) {
 		if (sstridx[i] == signum) {

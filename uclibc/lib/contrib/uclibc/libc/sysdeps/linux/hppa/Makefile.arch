@@ -8,4 +8,4 @@
 CSRC-y := __syscall_error.c brk.c syscall.c
 
 SSRC-y := __longjmp.S bsd-_setjmp.S bsd-setjmp.S clone.S setjmp.S \
-	add_n.s lshift.s rshift.s sub_n.s udiv_qrnnd.s
+	add_n.s lshift.s rshift.s sub_n.s udiv_qrnnd.s vfork.S

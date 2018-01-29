@@ -20,7 +20,7 @@ int fstat(int fd, struct stat *buf)
 }
 libc_hidden_def(fstat)
 
-#elif __WORDSIZE == 64 && defined __NR_newfstatat && __aarch64__
+#elif __WORDSIZE == 64 && defined __NR_newfstatat && !defined __ARCH_HAS_DEPRECATED_SYSCALLS__
 #include <fcntl.h>
 
 int fstat(int fd, struct stat *buf)

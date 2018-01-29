@@ -19,8 +19,9 @@ off_t __NC(lseek)(int fd, off_t offset, int whence)
 {
 #if __WORDSIZE == 32
 	__off64_t result;
-	__off_t high = 0;
-	return INLINE_SYSCALL(llseek, 5, fd, high, offset, &result, whence) ?: result;
+	return INLINE_SYSCALL(llseek, 5, fd,
+			      (long) (((uint64_t) (offset)) >> 32),
+			      (long) offset, &result, whence) ?: result;
 #else
 	return lseek64(fd, offset, whence);
 #endif

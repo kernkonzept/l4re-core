@@ -560,10 +560,10 @@ export ASNEEDED:=$(shell $(CC) -Wl,--help 2>/dev/null | grep -q -- --as-needed &
 endif
 
 # Add a bunch of extra pedantic annoyingly strict checks
-WARNING_FLAGS = -Wstrict-prototypes -Wstrict-aliasing
+WARNING_FLAGS = -Wstrict-prototypes -Wstrict-aliasing -Wno-nonnull-compare
 ifeq ($(EXTRA_WARNINGS),y)
 WARNING_FLAGS += \
-	-Wno-nonnull-compare \
+	-Wnonnull-compare \
 	-Wnodeclaration-after-statement \
 	-Wformat=2 \
 	-Wmissing-noreturn \

@@ -40,7 +40,7 @@ ssize_t sendfile(int out_fd, int in_fd, __off_t *offset, size_t count)
 		return -1;
 	}
 
-	if (offset == NULL || (int)offset < 0) {
+	if ((int)offset < 0) {
 		__set_errno(EFAULT);
 		return -1;
 	}
@@ -54,7 +54,7 @@ ssize_t sendfile(int out_fd, int in_fd, __off_t *offset, size_t count)
 
 	res = INLINE_SYSCALL(sendfile64, 4, out_fd, in_fd, off, count);
 
-	if (res >= 0)
+	if (res >= 0 && offset != NULL)
 		*offset = off64;
 
 	return res;

@@ -7,7 +7,7 @@
 
 #include <sysdep.h>
 
-ENTRY(setjmp)
+ENTRY(__sigsetjmp)
 	stw     sp, (a0, 0)
 	stw     lr, (a0, 4)
 
@@ -43,8 +43,20 @@ ENTRY(setjmp)
 	ldw	lr, (sp, 0)
 	addi	sp, 8
 	rts
+END(__sigsetjmp)
+
+/* 
+ * Support bsd-setjmp and bsd-_setjmp with tail-call method.
+ * Use br to keep the lr-reg, we must return to the Caller not setjmp.
+ * And we will rts by __sigsetjmp.
+ */
+ENTRY(setjmp)
+	movi	a1, 1
+	br	__sigsetjmp
 END(setjmp)
 
-strong_alias(setjmp, __sigsetjmp)
-strong_alias(setjmp, _setjmp)
+ENTRY(_setjmp)
+	movi	a1, 0
+	br	__sigsetjmp
+END(_setjmp)
 
