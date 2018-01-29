@@ -131,6 +131,7 @@ getopt.h
 uchar.h
 glob.h
 gnu-versions.h
+gnu/libc-version.h
 grp.h
 iconv.h
 ieee754.h

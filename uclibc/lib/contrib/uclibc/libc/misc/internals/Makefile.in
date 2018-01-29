@@ -8,7 +8,7 @@
 subdirs += libc/misc/internals
 
 CSRC-y := tempname.c errno.c h_errno.c __errno_location.c __h_errno_location.c \
-	parse_config.c
+	parse_config.c version.c
 
 MISC_INTERNALS_DIR := $(top_srcdir)libc/misc/internals
 MISC_INTERNALS_OUT := $(top_builddir)libc/misc/internals

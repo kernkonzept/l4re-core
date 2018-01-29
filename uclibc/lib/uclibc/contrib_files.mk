@@ -329,6 +329,7 @@ define SRC_libc/misc
   internals/__uClibc_main
   internals/parse_config
   internals/tempname
+  internals/version
   mntent/mntent
   regex/regex
   search/hcreate_r
