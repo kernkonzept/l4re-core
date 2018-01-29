@@ -31,12 +31,6 @@ public:
   virtual void free(L4::Cap<void> cap) throw()
   { Vfs_config::cap_alloc.free(cap); }
 
-  virtual L4::Cap<void> next_allocated(l4_umword_t *refs, L4::Cap<void> pivot = L4::Cap<void>::Invalid) throw()
-  {
-    (void)refs;
-    return pivot;
-  }
-
   virtual ~Default_cap_alloc() {}
 
   void operator delete (void *) throw() {}

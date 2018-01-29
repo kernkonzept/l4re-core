@@ -68,8 +68,6 @@ public:
    */
   virtual void free(L4::Cap<void> cap) throw() = 0;
 
-  //virtual L4::Cap<void> next_allocated(l4_umword_t *refs, L4::Cap<void> pivot = L4::Cap<void>::Invalid) throw() = 0;
-
   /**
    * \brief Destructor.
    */
