@@ -739,7 +739,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
   if (!(flags & MREMAP_FIXED))
     na = oa;
   else
-    na = l4_trunc_page((l4_addr_t)new_addr);
+    na = l4_trunc_page((l4_addr_t)*new_addr);
 
   int err;
 
