@@ -161,8 +161,8 @@ static int run(int argc, char const *argv[], char const *envp[])
       char s[15];
       char *t = strstr(Global::l4re_aux->binary, "rom/");
       s[0] = '#';
-      strncpy(s + 1, t ? t + 4 : Global::l4re_aux->binary, sizeof(s)-1);
-      s[sizeof(s)-1] = 0;
+      strncpy(s + 1, t ? t + 4 : Global::l4re_aux->binary, sizeof(s) - 2);
+      s[sizeof(s) - 1] = 0;
       l4_debugger_set_object_name(L4_BASE_THREAD_CAP, s);
       l4_debugger_set_object_name(L4_BASE_TASK_CAP, s + 1);
     }
