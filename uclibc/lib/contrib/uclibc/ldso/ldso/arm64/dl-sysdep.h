@@ -104,18 +104,13 @@ elf_machine_dynamic (void)
 static inline ElfW(Addr) __attribute__ ((unused))
 elf_machine_load_address (void)
 {
-	ElfW(Addr) static_addr;
-	ElfW(Addr) dynamic_addr;
+    /* To figure out the load address we use the definition that for any symbol:
+       dynamic_addr(symbol) = static_addr(symbol) + load_addr
+       _DYNAMIC sysmbol is used here as its link-time address stored in
+       the special unrelocated first GOT entry.  */
 
-	__asm__ (
-			"	adrp    %1, _dl_start\n"
-			"	add     %1, %1, #:lo12:_dl_start\n"
-			"	ldr     %w0, 1f\n"
-			"	b       2f\n"
-			"1:	.word   _dl_start\n"
-			"2:\n"
-			: "=r" (static_addr),  "=r" (dynamic_addr));
-	return dynamic_addr - static_addr;
+    extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
+    return (ElfW(Addr)) &_DYNAMIC - elf_machine_dynamic ();
 }
 
 static __always_inline void
