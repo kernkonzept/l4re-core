@@ -17,7 +17,6 @@
  * the GNU General Public License.
  */
 #include "ns_fs.h"
-#include "vfs_api.h"
 
 #include <l4/re/dataspace>
 #include <l4/re/util/env_ns>
@@ -60,7 +59,7 @@ cap_to_vfs_object(L4::Cap<void> o, int *err)
 int
 Ns_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw()
 {
-  auto file = L4Re::make_unique_cap<L4Re::Dataspace>(cap_alloc());
+  auto file = L4Re::make_unique_cap<L4Re::Dataspace>(L4Re::virt_cap_alloc);
 
   if (!file.is_valid())
     return -ENOMEM;
@@ -104,7 +103,7 @@ int
 Ns_dir::faccessat(const char *path, int mode, int flags) throw()
 {
   (void)flags;
-  auto tmpcap = L4Re::make_unique_cap<void>(cap_alloc());
+  auto tmpcap = L4Re::make_unique_cap<void>(L4Re::virt_cap_alloc);
 
   if (!tmpcap.is_valid())
     return -ENOMEM;
@@ -236,7 +235,7 @@ Env_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw()
       return 0;
     }
 
-  auto file = L4Re::make_unique_cap<L4Re::Dataspace>(cap_alloc());
+  auto file = L4Re::make_unique_cap<L4Re::Dataspace>(L4Re::virt_cap_alloc);
 
   if (!file.is_valid())
     return -ENOMEM;
@@ -300,7 +299,7 @@ Env_dir::faccessat(const char *path, int mode, int flags) throw()
       return 0;
     }
 
-  auto tmpcap = L4Re::make_unique_cap<void>(cap_alloc());
+  auto tmpcap = L4Re::make_unique_cap<void>(L4Re::virt_cap_alloc);
 
   if (!tmpcap.is_valid())
     return -ENOMEM;

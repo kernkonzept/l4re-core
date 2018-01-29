@@ -18,11 +18,9 @@
  * the GNU General Public License.
  */
 
-#include "ds_util.h"
 #include "fd_store.h"
 #include "vcon_stream.h"
 #include "ns_fs.h"
-#include "vfs_api.h"
 
 #include <l4/re/env>
 #include <l4/re/rm>
@@ -31,6 +29,7 @@
 #include <l4/cxx/std_alloc>
 
 #include <l4/l4re_vfs/backend>
+#include <l4/re/shared_cap>
 
 #include <unistd.h>
 #include <cstdarg>
@@ -124,7 +123,6 @@ public:
   void set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) throw();
   Ref_ptr<L4Re::Vfs::File> get_file(int fd) throw();
   Ref_ptr<L4Re::Vfs::File> set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f = Ref_ptr<>::Nil) throw();
-  L4Re::Cap_alloc *cap_alloc() throw();
 
   int mmap2(void *start, size_t len, int prot, int flags, int fd,
             off_t offset, void **ptr) throw();
@@ -144,6 +142,7 @@ public:
   int unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw();
   Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(int proto) throw();
   Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(char const *proto_name) throw();
+  int mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) throw();
 
   void operator delete (void *) {}
 
@@ -172,10 +171,10 @@ private:
   cxx::H_list_t<File_factory_item> _file_factories;
 
   l4_addr_t _anon_offset;
-  L4::Cap<L4Re::Dataspace> _anon_ds;
+  L4Re::Shared_cap<L4Re::Dataspace> _anon_ds;
 
-  int alloc_ds(unsigned long size, L4::Cap<L4Re::Dataspace> *ds);
-  int alloc_anon_mem(l4_umword_t size, L4::Cap<L4Re::Dataspace> *ds,
+  int alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds);
+  int alloc_anon_mem(l4_umword_t size, L4Re::Shared_cap<L4Re::Dataspace> *ds,
                      l4_addr_t *offset);
 };
 
@@ -371,13 +370,6 @@ Vfs::set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f) throw()
   return old;
 }
 
-L4Re::Cap_alloc *
-Vfs::cap_alloc() throw()
-{
-  return L4Re::Core::cap_alloc();
-}
-
-
 
 #define GET_FILE_DBG(fd, err) \
   Ref_ptr<L4Re::Vfs::File> fi = fds.get(fd); \
@@ -418,10 +410,12 @@ Vfs::munmap(void *start, size_t len) L4_NOTHROW
       switch (err & Rm::Detach_result_mask)
 	{
 	case Rm::Split_ds:
+	  if (ds.is_valid())
+	    L4Re::virt_cap_alloc->take(ds);
 	  return 0;
 	case Rm::Detached_ds:
 	  if (ds.is_valid())
-	    L4Re::Core::release_ds(ds);
+	    L4Re::virt_cap_alloc->release(ds);
 	  break;
 	default:
 	  break;
@@ -433,15 +427,15 @@ Vfs::munmap(void *start, size_t len) L4_NOTHROW
 }
 
 int
-Vfs::alloc_ds(unsigned long size, L4::Cap<L4Re::Dataspace> *ds)
+Vfs::alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds)
 {
-  *ds = Vfs_config::cap_alloc.alloc<L4Re::Dataspace>();
+  *ds = L4Re::make_shared_cap<L4Re::Dataspace>(L4Re::virt_cap_alloc);
 
   if (!ds->is_valid())
     return -ENOMEM;
 
   int err;
-  if ((err = Vfs_config::allocator()->alloc(size, *ds)) < 0)
+  if ((err = Vfs_config::allocator()->alloc(size, ds->get())) < 0)
     return err;
 
   DEBUG_LOG(debug_mmap, {
@@ -456,7 +450,7 @@ Vfs::alloc_ds(unsigned long size, L4::Cap<L4Re::Dataspace> *ds)
 }
 
 int
-Vfs::alloc_anon_mem(l4_umword_t size, L4::Cap<L4Re::Dataspace> *ds,
+Vfs::alloc_anon_mem(l4_umword_t size, L4Re::Shared_cap<L4Re::Dataspace> *ds,
                     l4_addr_t *offset)
 {
 #ifdef USE_BIG_ANON_DS
@@ -489,9 +483,6 @@ Vfs::alloc_anon_mem(l4_umword_t size, L4::Cap<L4Re::Dataspace> *ds,
 
   if (!_anon_ds.is_valid() || _anon_offset + size >= ANON_MEM_DS_POOL_SIZE)
     {
-      if (_anon_ds.is_valid())
-        L4Re::Core::release_ds(_anon_ds);
-
       int err;
       if ((err = alloc_ds(ANON_MEM_DS_POOL_SIZE, ds)) < 0)
         return err;
@@ -544,7 +535,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
       return 0;
     }
 
-  L4::Cap<L4Re::Dataspace> ds;
+  L4Re::Shared_cap<L4Re::Dataspace> ds;
   l4_addr_t anon_offset = 0;
   unsigned rm_flags = 0;
 
@@ -593,7 +584,8 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
 	}
       else
 	{
-          ds = fds;
+          L4Re::virt_cap_alloc->take(fds);
+          ds = L4Re::Shared_cap<L4Re::Dataspace>(fds, L4Re::virt_cap_alloc);
 	}
     }
   else
@@ -627,7 +619,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
   if (!(prot & PROT_WRITE))  rm_flags |= Rm::Read_only;
 
   err = r->attach(&data, size, rm_flags,
-                  L4::Ipc::make_cap(ds, (prot & PROT_WRITE)
+                  L4::Ipc::make_cap(ds.get(), (prot & PROT_WRITE)
                                         ? L4_CAP_FPAGE_RW
                                         : L4_CAP_FPAGE_RO),
                   offset);
@@ -653,10 +645,10 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
   if (err < 0)
     return err;
 
+  l4_assert (!(start && !data));
 
-  if (start && !data)
-    return -EINVAL;
-
+  // release ownership of the attached DS
+  ds.release();
   *resptr = data;
 
   return 0;
@@ -674,6 +666,7 @@ namespace {
 
     int reserve(l4_addr_t _a, l4_size_t sz, unsigned flags)
     {
+      free();
       a = _a;
       int e = r->reserve_area(&a, sz, flags);
       if (e)
@@ -683,12 +676,14 @@ namespace {
 
     void free()
     {
-      if (a != L4_INVALID_ADDR)
+      if (is_valid())
         {
           r->free_area(a);
           a = L4_INVALID_ADDR;
         }
     }
+
+    bool is_valid() const { return a != L4_INVALID_ADDR; }
 
     ~Auto_area() { free(); }
   };
@@ -713,135 +708,167 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
   if (flags & MREMAP_FIXED && !(flags & MREMAP_MAYMOVE))
     return -EINVAL;
 
+  l4_addr_t oa = l4_trunc_page((l4_addr_t)old_addr);
+  if (oa != (l4_addr_t)old_addr)
+    return -EINVAL;
+
+  bool const fixed = flags & MREMAP_FIXED;
+  bool const maymove = flags & MREMAP_MAYMOVE;
+
   L4::Cap<Rm> r = Env::env()->rm();
 
   // sanitize input parameters to multiples of pages
-  l4_addr_t oa = l4_trunc_page((l4_addr_t)old_addr);
   old_size = l4_round_page(old_size);
   new_size = l4_round_page(new_size);
 
-  l4_addr_t na;
-
-  if (new_size < old_size)
+  if (!fixed)
     {
-      *new_addr = old_addr;
-      return munmap((void*)(oa + new_size), old_size - new_size);
+      if (new_size < old_size)
+        {
+          *new_addr = old_addr;
+          return munmap((void*)(oa + new_size), old_size - new_size);
+        }
+
+      if (new_size == old_size)
+        {
+          *new_addr = old_addr;
+          return 0;
+        }
     }
 
-  if (new_size == old_size)
+  Auto_area old_area(r);
+  int err = old_area.reserve(oa, old_size, 0);
+  if (err < 0)
+    return -EINVAL;
+
+  l4_addr_t pad_addr;
+  Auto_area new_area(r);
+  if (fixed)
     {
-      *new_addr = old_addr;
-      return 0;
-    }
-
-  Auto_area area(r);
-
-  if (!(flags & MREMAP_FIXED))
-    na = oa;
-  else
-    na = l4_trunc_page((l4_addr_t)*new_addr);
-
-  int err;
-
-  // check if the current virtual memory area can be expanded
-  err = area.reserve(oa, new_size, 0);
-  if (err)
-    return err;
-
-  l4_addr_t ta = oa + old_size;
-  unsigned long ts = new_size - old_size;
-  l4_addr_t toffs;
-  unsigned tflags;
-  L4::Cap<L4Re::Dataspace> tds;
-
-  err = r->find(&ta, &ts, &toffs, &tflags, &tds);
-
-  // there is enough space to expand the mapping in place
-  if (!(err == -ENOENT || (err == 0 && (tflags & Rm::In_area))))
-    {
-      if ((flags & (MREMAP_FIXED | MREMAP_MAYMOVE)) != MREMAP_MAYMOVE)
+      l4_addr_t na = l4_trunc_page((l4_addr_t)*new_addr);
+      if (na != (l4_addr_t)*new_addr)
         return -EINVAL;
 
-      // free our old reserved area, used for blocking the old memory region
-      area.free();
-
-      // move
-      err = area.reserve(0, new_size, Rm::Search_addr);
-      if (err)
-	return err;
-
-      na = area.a;
-
-      // move all the old regions to the new place ...
-      Auto_area block_area(r);
-      err = block_area.reserve(oa, old_size, 0);
-      if (err)
+      // check if the current virtual memory area can be expanded
+      int err = new_area.reserve(na, new_size, 0);
+      if (err < 0)
         return err;
 
-      while (1)
-	{
-          ta = oa;
-          ts = old_size;
+      pad_addr = na;
+      // unmap all stuff and remap ours ....
+    }
+  else
+    {
+      l4_addr_t ta = oa + old_size;
+      unsigned long ts = new_size - old_size;
+      // check if the current virtual memory area can be expanded
+      int err = new_area.reserve(ta, ts, 0);
+      if (!maymove && err)
+        return -ENOMEM;
 
-	  err = r->find(&ta, &ts, &toffs, &tflags, &tds);
-	  if (err == -ENOENT || (err == 0 && (tflags & Rm::In_area)))
-	    break;
+      l4_addr_t toffs;
+      unsigned tflags;
+      L4::Cap<L4Re::Dataspace> tds;
 
-	  if (err)
+      err = r->find(&ta, &ts, &toffs, &tflags, &tds);
+
+      // there is enough space to expand the mapping in place
+      if (err == -ENOENT || (err == 0 && (tflags & Rm::In_area)))
+        {
+          old_area.free(); // pad at the original address
+          pad_addr = oa + old_size;
+          *new_addr = old_addr;
+        }
+      else if (!maymove)
+        return -ENOMEM;
+      else
+        {
+          // search for a new area to remap
+          err = new_area.reserve(0, new_size, Rm::Search_addr);
+          if (err < 0)
+            return -ENOMEM;
+
+          pad_addr = new_area.a + old_size;
+          *new_addr = (void *)new_area.a;
+        }
+    }
+
+  if (old_area.is_valid())
+    {
+      l4_addr_t a = old_area.a;
+      unsigned long s = old_size;
+      l4_addr_t o;
+      unsigned f;
+      L4::Cap<L4Re::Dataspace> ds;
+
+      for (; r->find(&a, &s, &o, &f, &ds) >= 0 && (!(f & Rm::In_area));)
+        {
+          if (a < old_area.a)
+            {
+              auto d = old_area.a - a;
+              a = old_area.a;
+              s -= d;
+              o += d;
+            }
+
+          if (a + s > old_area.a + old_size)
+            s = old_area.a + old_size - a;
+
+          l4_addr_t x = a - old_area.a + new_area.a;
+
+          int err = r->attach(&x, s, Rm::In_area | f,
+                              L4::Ipc::make_cap(ds, (f & Rm::Read_only)
+                                                    ? L4_CAP_FPAGE_RO
+                                                    : L4_CAP_FPAGE_RW),
+                              o);
+          if (err < 0)
             return err;
 
-	  if (ta < oa)
-	    {
-	      toffs += oa - ta;
-	      ts -= oa - ta;
-	      ta = oa;
-	    }
+          // cout the new attached ds reference
+          L4Re::virt_cap_alloc->take(ds);
 
-	  l4_addr_t n = na + (ta - oa);
-	  unsigned long max_s = old_size - (ta - oa);
-
-	  if (ts > max_s)
-	    ts = max_s;
-
-	  err = r->attach(&n, ts, tflags | Rm::In_area,
-                          L4::Ipc::make_cap(tds, (tflags & Rm::Read_only)
-                                                 ? L4_CAP_FPAGE_RO
-                                                 : L4_CAP_FPAGE_RW),
-                          toffs);
-	  if (err)
-            return err;
-
-          err = r->detach(ta, ts, &tds, This_task, Rm::Detach_exact |  Rm::Detach_keep);
+          err = r->detach(a, s, &ds, This_task,
+                          Rm::Detach_exact |  Rm::Detach_keep);
           if (err < 0)
             return err;
 
           switch (err & Rm::Detach_result_mask)
             {
             case Rm::Split_ds:
+              // add a reference as we split up a mapping
+              if (ds.is_valid())
+                L4Re::virt_cap_alloc->take(ds);
               break;
             case Rm::Detached_ds:
-              if (tds.is_valid())
-                L4Re::Core::release_ds(tds);
+              if (ds.is_valid())
+                L4Re::virt_cap_alloc->release(ds);
               break;
             default:
               break;
             }
-	}
+        }
+      old_area.free();
     }
 
-  err = alloc_anon_mem(new_size - old_size, &tds, &toffs);
-  if (err)
-    return err;
+  if (old_size < new_size)
+    {
+      l4_addr_t const pad_sz = new_size - old_size;
+      l4_addr_t toffs;
+      L4Re::Shared_cap<L4Re::Dataspace> tds;
+      int err = alloc_anon_mem(pad_sz, &tds, &toffs);
+      if (err)
+        return err;
 
-  *new_addr = (void *)na;
-  na = na + old_size;
-  err = r->attach(&na, new_size - old_size, Rm::In_area | Rm::Detach_free,
-                  L4::Ipc::make_cap(tds, (tflags & Rm::Read_only)
-                                         ? L4_CAP_FPAGE_RO
-                                        : L4_CAP_FPAGE_RW),
-                  toffs);
+      err = r->attach(&pad_addr, pad_sz, Rm::In_area | Rm::Detach_free,
+                      L4::Ipc::make_cap_rw(tds.get()), toffs);
+      if (err < 0)
+        return err;
 
-  return err;
+      // release ownership of tds, the region map is now the new owner
+      tds.release();
+    }
+
+  return 0;
 }
 
 int
@@ -862,8 +889,67 @@ Vfs::madvise(void *, size_t, int) L4_NOTHROW
 
 }
 
-void *__rtld_l4re_env_posix_vfs_ops;
+L4Re::Vfs::Ops *__rtld_l4re_env_posix_vfs_ops;
 extern void *l4re_env_posix_vfs_ops __attribute__((alias("__rtld_l4re_env_posix_vfs_ops"), visibility("default")));
+
+namespace {
+  class Real_mount_tree : public L4Re::Vfs::Mount_tree
+  {
+  public:
+    explicit Real_mount_tree(char *n) : Mount_tree(n) {}
+
+    void *operator new (size_t size)
+    { return __rtld_l4re_env_posix_vfs_ops->malloc(size); }
+
+    void operator delete (void *mem)
+    { __rtld_l4re_env_posix_vfs_ops->free(mem); }
+  };
+}
+
+int
+Vfs::mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) throw()
+{
+  using L4Re::Vfs::File;
+  using L4Re::Vfs::Mount_tree;
+  using L4Re::Vfs::Path;
+
+  cxx::Ref_ptr<Mount_tree> root = get_root()->mount_tree();
+  if (!root)
+    return -EINVAL;
+
+  cxx::Ref_ptr<Mount_tree> base;
+  Path p = root->lookup(Path(path), &base);
+
+  while (!p.empty())
+    {
+      Path f = p.strip_first();
+
+      if (f.empty())
+        return -EEXIST;
+
+      char *name = __rtld_l4re_env_posix_vfs_ops->strndup(f.path(), f.length());
+      if (!name)
+        return -ENOMEM;
+
+      cxx::Ref_ptr<Mount_tree> nt(new Real_mount_tree(name));
+      if (!nt)
+        {
+          __rtld_l4re_env_posix_vfs_ops->free(name);
+          return -ENOMEM;
+        }
+
+      base->add_child_node(nt);
+      base = nt;
+
+      if (p.empty())
+        {
+          nt->mount(dir);
+          return 0;
+        }
+    }
+
+  return -EINVAL;
+}
 
 
 #undef DEBUG_LOG

@@ -7,6 +7,7 @@
 
 #include <l4/re/env>
 #include <l4/re/util/bitmap_cap_alloc>
+#include <l4/re/cap_alloc>
 
 #include <stddef.h>
 #include <dlfcn.h>
@@ -52,10 +53,13 @@ namespace Vfs_config {
 
   namespace
   {
-    L4Re::Util::Cap_alloc<256> __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC))) __cap_alloc(256); //L4Re::Env::env()->first_free_cap() - 256);
-  };
-  L4Re::Util::Cap_alloc_base &cap_alloc = __cap_alloc;
+    // small ldso-internal cap allocator for the first libs
+    typedef L4Re::Cap_alloc_t<L4Re::Util::Cap_alloc<256> > Cap_alloc;
 
+    // compiltime version
+    Cap_alloc __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC)))
+      __cap_alloc(256); //L4Re::Env::env()->first_free_cap() - 256);
+  }
 
   inline
   L4::Cap<L4Re::Mem_alloc> allocator()
@@ -86,7 +90,9 @@ namespace Vfs_config {
   inline void free(void *p) { _dl_free(p); }
 
 }
-
+namespace L4Re {
+L4Re::Cap_alloc *virt_cap_alloc = &Vfs_config::__cap_alloc;
+}
 
 extern "C" void __cxa_pure_virtual(void)
 {
@@ -105,7 +111,6 @@ extern "C" void __aeabi_atexit(void)
 #include <l4/l4re_vfs/impl/ro_file_impl.h>
 #include <l4/l4re_vfs/impl/fd_store_impl.h>
 #include <l4/l4re_vfs/impl/vcon_stream_impl.h>
-#include <l4/l4re_vfs/impl/vfs_api_impl.h>
 #include <l4/l4re_vfs/impl/vfs_impl.h>
 // must be the last
 #include <l4/l4re_vfs/impl/default_ops_impl.h>

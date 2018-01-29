@@ -20,7 +20,6 @@
 #include <l4/sys/factory>
 
 #include "vcon_stream.h"
-#include "vfs_api.h"
 
 #include <termios.h>
 #include <unistd.h>
@@ -29,7 +28,7 @@
 
 namespace L4Re { namespace Core {
 Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) throw()
-: Be_file_stream(), _s(s), _irq(cap_alloc()->alloc<L4::Semaphore>())
+: Be_file_stream(), _s(s), _irq(L4Re::virt_cap_alloc->alloc<L4::Semaphore>())
 {
   //printf("VCON: irq cap = %lx\n", _irq.cap());
   int res = l4_error(L4Re::Env::env()->factory()->create(_irq));
