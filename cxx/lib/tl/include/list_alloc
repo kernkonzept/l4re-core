@@ -462,7 +462,7 @@ List_alloc::dump_free_list(DBG &out)
           unit = "MB";
         }
 
-      out.printf("%10p - %10p (%u %s)\n", c, (char *) c + c->size - 1, sz, unit);
+      out.printf("%12p - %12p (%u %s)\n", c, (char *) c + c->size - 1, sz, unit);
 
       c = c->next;
     }
