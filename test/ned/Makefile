@@ -10,6 +10,7 @@ DEPENDS_PKGS   := atkins
 
 EXTRA_TEST := ipc_cmd_direct_loop
 
+MOE_CFG_test_arg := arg.cfg
 MOE_CFG_test_exit_wait := exit_wait.cfg
 MOE_CFG_test_ipc_command := ipc_command.cfg
 MOE_CFG_test_namespace_composition := namespace_composition.cfg
