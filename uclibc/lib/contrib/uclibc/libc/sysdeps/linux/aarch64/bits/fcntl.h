@@ -210,6 +210,22 @@ struct flock64
 					   we splice from/to).  */
 # define SPLICE_F_MORE		4	/* Expect more data.  */
 # define SPLICE_F_GIFT		8	/* Pages passed in are a gift.  */
+
+
+/* Flags for fallocate.  */
+# define FALLOC_FL_KEEP_SIZE		1 /* Don't extend size of file
+					     even if offset + len is
+					     greater than file size.  */
+# define FALLOC_FL_PUNCH_HOLE		2 /* Create a hole in the file.  */
+# define FALLOC_FL_COLLAPSE_RANGE	8 /* Remove a range of a file
+					     without leaving a
+					     hole.  */
+# define FALLOC_FL_ZERO_RANGE		16 /* Convert a range of a
+					      file to zeros.  */
+
+
+/* Maximum handle size (for now).  */
+# define MAX_HANDLE_SZ	128
 #endif
 
 __BEGIN_DECLS
@@ -251,6 +267,28 @@ extern ssize_t splice (int __fdin, __off64_t *__offin, int __fdout,
 extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 		    unsigned int __flags);
 
-#endif
+/* Reserve storage for the data of the file associated with FD.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+# ifndef __USE_FILE_OFFSET64
+extern int fallocate (int __fd, int __mode, __off_t __offset, __off_t __len);
+# else
+#  ifdef __REDIRECT
+extern int __REDIRECT (fallocate, (int __fd, int __mode, __off64_t __offset,
+				   __off64_t __len),
+		       fallocate64);
+#  else
+#   define fallocate fallocate64
+#  endif
+# endif
+# ifdef __USE_LARGEFILE64
+extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
+			__off64_t __len);
+# endif
+
+
+#endif	/* use GNU */
+
 __END_DECLS
 
