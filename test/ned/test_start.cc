@@ -130,7 +130,7 @@ TEST(CorrectInvocation, ReceiveParams)
   int i = 1;
   for (char const *param : exp_params)
     {
-      EXPECT_EQ(global_argv[i], param) << "Argument " << i << "is as expected.";
+      EXPECT_EQ(global_argv[i], param) << "Argument " << i << " is as expected.";
       ++i;
     }
 }
