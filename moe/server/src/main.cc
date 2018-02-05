@@ -551,7 +551,8 @@ int main(int argc, char**argv)
         root_name_space()->register_obj("iommu", Entry::F_rw, L4_BASE_IOMMU_CAP);
       root_name_space()->register_obj("sigma0", Entry::F_trusted | Entry::F_rw, L4_BASE_PAGER_CAP);
       root_name_space()->register_obj("mem", Entry::F_trusted | Entry::F_rw, Allocator::root_allocator());
-      root_name_space()->register_obj("jdb", Entry::F_trusted | Entry::F_rw, L4_BASE_DEBUGGER_CAP);
+      if (L4::Cap<void>(L4_BASE_DEBUGGER_CAP).validate().label())
+        root_name_space()->register_obj("jdb", Entry::F_trusted | Entry::F_rw, L4_BASE_DEBUGGER_CAP);
 
       char *cmdline = my_cmdline();
 
