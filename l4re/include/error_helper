@@ -122,7 +122,7 @@ long chksys(long ret, long err, char const *extra = "")
  * Check for valid capability or raise C++ exception
  *
  * \tparam T  Type of object to check, must be capability-like
- *            (L4::Cap, L4Re::Util::Auto_cap etc.)
+ *            (L4::Cap, L4Re::Util::Unique_cap etc.)
  *
  * \param cap    Capability value to check.
  * \param extra  Optional text for exception.

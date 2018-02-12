@@ -13,4 +13,10 @@
 /**
  * L4Re C++ Interfaces
  */
-namespace L4Re {}
+namespace L4Re
+{
+  /**
+   * Documentation of the L4 Runtime Environment utility functionality in C++.
+   */
+  namespace Util {}
+}

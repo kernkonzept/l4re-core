@@ -28,6 +28,7 @@ private:
   struct Invalid_conversion;
 
 public:
+  /// Special value for uninitialized capability objects.
   enum No_init_type
   {
      /**

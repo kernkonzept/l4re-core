@@ -238,13 +238,11 @@ public:
    * Register a handler for an already existing interrupt.
    *
    * \param o    Server object that handles the IPC.
-   * \param irq  Capability to a receive endpoint, may be a hardware or
+   * \param ep   Capability to a receive endpoint, may be a hardware or
    *             software interrupt or an IPC gate.
    *
    * \return The capability the server object was registered with.
-   *
    */
-
   L4::Cap<L4::Rcv_endpoint>
   register_obj(L4::Epiface *o, L4::Cap<L4::Rcv_endpoint> ep) override
   {

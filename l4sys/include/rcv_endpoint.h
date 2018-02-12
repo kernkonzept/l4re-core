@@ -52,6 +52,7 @@ L4_INLINE l4_msgtag_t
 l4_rcv_ep_bind_thread_u(l4_cap_idx_t ep, l4_cap_idx_t thread,
                         l4_umword_t label, l4_utcb_t *utcb);
 
+/// Receive endpoint operations.
 enum L4_rcv_ep_ops
 {
   L4_RCV_EP_BIND_OP     = 0x10, /**< Bind operation */
