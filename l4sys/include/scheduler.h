@@ -47,7 +47,8 @@ typedef struct l4_sched_cpu_set_t
    * Combination of granularity and offset.
    *
    * The granularity defines how many CPUs each bit in map describes. And the
-   * offset is the numer of the first CPU described by the first bit in the bitmap.
+   * offset is the number of the first CPU described by the first bit in the
+   * bitmap.
    * \pre offset must be a multiple of 2^granularity.
    *
    * | MSB              |                 LSB |
