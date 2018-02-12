@@ -19,6 +19,8 @@
 #include <math.h>
 #include "math_private.h"
 
+#if defined __UCLIBC_SUSV3_LEGACY__
+
 #if defined(__UCLIBC_HAS_FENV__)
 #include <errno.h>
 
@@ -41,11 +43,6 @@ sysv_scalb (double x, double fn)
   return z;
 }
 #endif /* __UCLIBC_HAS_FENV__ */
-
-/* Here might be a check like "#if defined __UCLIBC_SUSV3_LEGACY__"
- * but because there is a sysv_scalb() func, it was decided
- * not to check yhis macro.
- */
 
 /* Wrapper scalb */
 double
@@ -83,4 +80,6 @@ scalb (double x, double fn)
   return __ieee754_scalb (x, fn);
 #endif /* __UCLIBC_HAS_FENV__ */
 }
+
 libm_hidden_def(scalb)
+#endif
