@@ -1,6 +1,6 @@
-// -*- Mode: C++ -*-
-// vim:ft=cpp
+// vim:set ft=cpp: -*- Mode: C++ -*-
 /**
+ * \file
  * Unique_cap / Unique_del_cap
  */
 /*
@@ -27,21 +27,65 @@
 
 namespace L4Re {
 
+/**
+ * Unique capability that implements automatic free and unmap of the
+ * capability selector.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ *
+ * The ownership of the capability is managed in the same way as unique_ptr.
+ *
+ * \note This type is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::Unique_cap.
+ */
 template< typename T >
 using Unique_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_ALL_SPACES>>;
+/// \copydoc Unique_cap
 template< typename T >
 using unique_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_ALL_SPACES>>;
 
+/**
+ * Allocate a capability slot and wrap it in an Unique_cap.
+ *
+ * \tparam T   Type of the object the capability refers to.
+ * \param  ca  Capability allocator to use.
+ *
+ * \note This function is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::make_unique_cap<T>().
+ */
 template< typename T >
 Unique_cap<T>
 make_unique_cap(L4Re::Cap_alloc *ca)
 { return Unique_cap<T>(ca->alloc<T>(), ca); }
 
+/**
+ * Unique capability that implements automatic free and unmap+delete of the
+ * capability selector.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ *
+ * The main difference to Unique_cap is that the unmap is done with the
+ * deletion flag enabled and this leads to the deletion of the object
+ * if the current task holds appropriate deletion rights.
+ *
+ * \note This type is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::Unique_del_cap.
+ */
 template< typename T >
 using Unique_del_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_DELETE_OBJ>>;
+/// \copydoc Unique_del_cap
 template<typename T>
 using unique_del_cap = L4::Detail::Unique_cap_impl<T, Smart_cap_auto<L4_FP_DELETE_OBJ>>;
 
+/**
+ * Allocate a capability slot and wrap it in an Unique_del_cap.
+ *
+ * \tparam T   Type of the object the capability refers to.
+ * \param  ca  Capability allocator to use.
+ *
+ * \note This function is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::make_unique_del_cap<T>().
+ */
 template< typename T >
 Unique_del_cap<T>
 make_unique_del_cap(L4Re::Cap_alloc *ca)
