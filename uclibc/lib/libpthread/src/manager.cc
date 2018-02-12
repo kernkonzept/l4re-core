@@ -102,8 +102,12 @@ static int main_thread_exiting;
 static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *attr,
                                  void * (*start_routine)(void *), void *arg);
 static void pthread_handle_free(pthread_t th_id);
+#ifdef NOT_FOR_L4
 static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
      __attribute__ ((noreturn));
+#else
+static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
+#endif
 //l4/static void pthread_kill_all_threads(int main_thread_also);
 static void pthread_for_each_thread(void *arg,
     void (*fn)(void *, pthread_descr));
@@ -1028,7 +1032,7 @@ static void pthread_for_each_thread(void *arg,
 
 static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
 {
-  //l4/pthread_descr th;
+  pthread_descr th;
   __pthread_exit_requested = 1;
   __pthread_exit_code = exitcode;
 #if 0
@@ -1056,12 +1060,24 @@ static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
   }
   __fresetlockfiles();
 #endif
-  restart(issuing_thread);
 #ifdef THIS_IS_THE_ORIGINAL
+  restart(issuing_thread);
   _exit(0);
 #else
-  // we do not do the exit path with kill and waitpid, so give the code here
-  _exit(exitcode);
+  for (th = issuing_thread->p_nextlive;
+       th != issuing_thread;
+       th = th->p_nextlive)
+    {
+      __l4_kill_thread(th->p_th_cap);
+    }
+
+  // let caller continue
+  if (l4_error(l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY,
+                           l4_utcb(),
+                           l4_msgtag(0, 0, 0, 0),
+                           L4_IPC_SEND_TIMEOUT_0)))
+    // assume caller has quit (and will not continue exit())
+    _exit(0);
 #endif
 }
 

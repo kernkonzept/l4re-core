@@ -27,6 +27,9 @@
 #include <sys/time.h>
 
 #include <l4/re/env.h>
+#include <l4/sys/task.h>
+#include <l4/util/util.h>
+#include <l4/re/consts.h>
 
 #include "pthread.h"
 #include "internals.h"
@@ -1079,7 +1082,17 @@ static void pthread_onexit_process(int retcode, void *arg)
 					(char *) &request, sizeof(request)));
     suspend(self);
 #else
+    // let pthread-manager kill all pthreads except myself
+    // exclude the main thread
     __pthread_send_manager_rq(&request, 1);
+    // kill manager thread
+    __l4_kill_thread(__pthread_manager_request);
+    if (self != __pthread_main_thread)
+      {
+        // this was not called from the main thread, so kill it as well
+        __l4_kill_thread(__pthread_main_thread->p_th_cap);
+      }
+    return;
 #endif
     /* Main thread should accumulate times for thread manager and its
        children, so that timings for main thread account for all threads. */
@@ -1485,6 +1498,34 @@ __pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime)
   return was_signalled;
 }
 #endif
+
+
+/* trampoline function where threads are put before they are destroyed in
+   __l4_kill_thread */
+static void __l4_noop(void)
+{
+  l4_sleep_forever();
+}
+
+/*
+ * Kill a thread hard.
+ *
+ * This function may only be used from pthreads exit handler. It kills a
+ * thread hard. That means the thread does not get a chance to cleanup its
+ * resources, including locks. We rely on the microkernel to free kernel
+ * resources when the task object is destroyed.
+ *
+ * Ongoing IPC is canceled so that any locks the thread may hold in the
+ * microkernel are freed.
+ */
+void __l4_kill_thread(l4_cap_idx_t cap)
+{
+  /* cancel any ongoing IPC and put the thread into the __l4_noop function */
+  l4_thread_ex_regs(cap, (l4_addr_t)__l4_noop, ~0UL, L4_THREAD_EX_REGS_CANCEL);
+
+  /* delete it */
+  l4_task_delete_obj(L4RE_THIS_TASK_CAP, cap);
+}
 
 
 /* Debugging aid */

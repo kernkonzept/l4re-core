@@ -598,4 +598,6 @@ check_thread_self (void)
   return self;
 }
 
+void __l4_kill_thread(l4_cap_idx_t cap);
+
 #endif /* internals.h */
