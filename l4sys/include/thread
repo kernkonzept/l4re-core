@@ -228,10 +228,10 @@ public:
   /**
    * Get consumed time of thread in us.
    *
-   * \param      utcb  UTCB of the current thread.
    * \param[out] us    Consumed time in µs.
+   * \param      utcb  UTCB of the current thread.
    *
-   * \return Syscall resturn tag.
+   * \return Syscall return tag.
    */
   l4_msgtag_t stats_time(l4_kernel_clock_t *us,
                          l4_utcb_t *utcb = l4_utcb()) throw()
