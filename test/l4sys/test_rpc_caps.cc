@@ -109,7 +109,9 @@ TEST_P(CapRpc, SendRwCap)
   ASSERT_EQ(0, scap()->in_cap(false, L4::Ipc::make_cap_rw(env->log())));
   test_valid_cap();
   if (GetParam() == 0)
-    EXPECT_GT(handler().p_cap.validate().label(), 0);
+    {
+      EXPECT_GT(handler().p_cap.validate().label(), 0);
+    }
 }
 
 TEST_P(CapRpc, SendInvalidCap)
@@ -125,7 +127,9 @@ TEST_P(CapRpc, SendEmptyCap)
   test_valid_cap();
   // but there is nothing behind the cap
   if (GetParam() == 0)
-    EXPECT_EQ(0, handler().p_cap.validate().label());
+    {
+      EXPECT_EQ(0, handler().p_cap.validate().label());
+    }
 }
 
 TEST_P(CapRpc, SendOptCapInvalidCap)
@@ -145,7 +149,9 @@ TEST_P(CapRpc, SendOptCapValid)
   ASSERT_EQ(0, scap()->in_opt_cap(false, L4::Ipc::make_cap_rw<void>(env->log())));
   test_valid_cap();
   if (GetParam() == 0)
-    EXPECT_GT(handler().p_cap.validate().label(), 0);
+    {
+      EXPECT_GT(handler().p_cap.validate().label(), 0);
+    }
 }
 
 TEST_P(CapRpc, RcvCap)
