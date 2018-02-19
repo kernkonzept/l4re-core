@@ -1,6 +1,6 @@
-// -*- Mode: C++ -*-
-// vim:ft=cpp
+// vim:set ft=cpp: -*- Mode: C++ -*-
 /**
+ * \file
  * Shared_cap / Shared_del_cap
  */
 /*
@@ -27,25 +27,99 @@
 
 namespace L4Re { namespace Util {
 
+/**
+ * Shared capability that implements automatic free and unmap of the capability
+ * selector.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ *
+ * This shared capability implements a counted reference to a capability
+ * selector. The capability shall be unmapped and freed when the reference
+ * count in the allocator goes to zero.
+ *
+ * Usage:
+ *
+ *     L4Re::Util::Shared_cap<L4Re::Dataspace> global_ds_cap;
+ *
+ *     {
+ *       L4Re::Util::Shared_cap<L4Re::Dataspace>
+ *         ds_cap = make_shared_cap<L4Re::Dataspace>();
+ *       // reference count for the allocated cap selector is now 1
+ *
+ *       // use the dataspace cap
+ *       L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *       global_ds_cap = ds_cap;
+ *       // reference count is now 2
+ *       ...
+ *     }
+ *     // reference count dropped to 1 (ds_cap is no longer existing).
+ */
 template< typename T >
 using Shared_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_ALL_SPACES>>;
+/// \copydoc Shared_cap
 template< typename T >
 using shared_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_ALL_SPACES>>;
 
+/**
+ * Allocate a capability slot and wrap it in a Shared_cap.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ */
 template< typename T >
 Shared_cap<T>
 make_shared_cap()
 { return Shared_cap<T>(cap_alloc.alloc<T>()); }
 
+/**
+ * Shared capability that implements automatic free and unmap+delete of the
+ * capability selector.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ *
+ * This shared capability implements a counted reference to a capability
+ * selector. The capability shall be unmapped and freed when the reference
+ * count in the allocator goes to zero.
+ * The main difference to Shared_cap is that the unmap is done with the
+ * deletion flag enabled and this leads to the deletion of the object
+ * if the current task holds appropriate deletion rights.
+ *
+ * Usage:
+ *
+ *     L4Re::Util::Shared_del_cap<L4Re::Dataspace> global_ds_cap;
+ *
+ *     {
+ *       L4Re::Util::Shared_del_cap<L4Re::Dataspace>
+ *         ds_cap = make_shared_del_cap<L4Re::Dataspace>();
+ *       // reference count for the allocated cap selector is now 1
+ *
+ *       // use the dataspace cap
+ *       L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *       global_ds_cap = ds_cap;
+ *       // reference count is now 2
+ *       ...
+ *     }
+ *     // reference count dropped to 1 (ds_cap is no longer existing).
+ *     ...
+ *     global_ds_cap = L4_INVALID_CAP;
+ *     // reference count dropped to 0 (data space shall be deleted).
+ */
 template< typename T >
 using Shared_del_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_DELETE_OBJ>>;
+/// \copydoc Shared_del_cap
 template< typename T >
 using shared_del_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_DELETE_OBJ>>;
 
+/**
+ * Allocate a capability slot and wrap it in a Shared_del_cap.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ */
 template< typename T >
 Shared_del_cap<T>
 make_shared_del_cap()
 { return Shared_del_cap<T>(cap_alloc.alloc<T>()); }
 
-}}
+}} // namespace L4Re::Util
 

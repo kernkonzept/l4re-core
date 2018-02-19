@@ -1,6 +1,6 @@
-// -*- Mode: C++ -*-
-// vim:ft=cpp
+// vim:set ft=cpp: -*- Mode: C++ -*-
 /**
+ * \file
  * Shared_cap / Shared_del_cap
  */
 /*
@@ -27,24 +27,73 @@
 
 namespace L4Re {
 
+/**
+ * Shared capability that implements automatic free and unmap of the capability
+ * selector.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ *
+ * This shared capability implements a counted reference to a
+ * capability selector. The capability shall be unmapped and freed
+ * when the reference count in the allocator goes to zero.
+ *
+ * \note This type is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::Shared_cap.
+ */
 template< typename T >
 using Shared_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_ALL_SPACES>>;
+/// \copydoc Shared_cap
 template< typename T >
 using shared_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_ALL_SPACES>>;
 
+/**
+ * Allocate a capability slot and wrap it in a Shared_cap.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ * \param ca  Capability allocator to use.
+ *
+ * \note This function is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::make_shared_cap<T>().
+ */
 template< typename T >
 Shared_cap<T>
 make_shared_cap(L4Re::Cap_alloc *ca)
 { return Shared_cap<T>(ca->alloc<T>(), ca); }
 
+/**
+ * Shared capability that implements automatic free and unmap+delete of the
+ * capability selector.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ *
+ * This shared capability implements a counted reference to a capability
+ * selector. The capability shall be unmapped and freed when the reference
+ * count in the allocator goes to zero.
+ * The main difference to Shared_cap is that the unmap is done with the
+ * deletion flag enabled and this leads to the deletion of the object
+ * if the current task holds appropriate deletion rights.
+ *
+ * \note This type is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::Shared_del_cap.
+ */
 template< typename T >
 using Shared_del_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_DELETE_OBJ>>;
+/// \copydoc Shared_del_cap
 template<typename T>
 using shared_del_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_DELETE_OBJ>>;
 
+/**
+ * Allocate a capability slot and wrap it in a Shared_del_cap.
+ *
+ * \tparam T  Type of the object the capability refers to.
+ * \param ca  Capability allocator to use.
+ *
+ * \note This function is intended for users who implement a custom capability
+ *       allocator; otherwise use L4Re::Util::make_shared_del_cap<T>().
+ */
 template< typename T >
 Shared_del_cap<T>
 make_shared_del_cap(L4Re::Cap_alloc *ca)
 { return Shared_del_cap<T>(ca->alloc<T>(), ca); }
 
-}
+} // namespace L4Re
