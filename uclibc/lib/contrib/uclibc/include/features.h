@@ -151,6 +151,9 @@
 # define __CLANG_PREREQ(maj, min) 0
 #endif
 
+/* Whether to use feature set F.  */
+#define __GLIBC_USE(F)  __GLIBC_USE_ ## F
+
 /* _DEFAULT_SOURCE is equivalent to defining _BSD_SOURCE and _SVID_SOURCE
  * and vice versa. */
 #ifdef _DEFAULT_SOURCE
