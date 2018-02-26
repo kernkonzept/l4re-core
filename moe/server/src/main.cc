@@ -461,7 +461,7 @@ parse_option(cxx::String const &o)
       switch (o[s])
         {
         default:
-          warn.printf("unkown command-line option '%c'\n", o[s]);
+          warn.printf("unknown command-line option '%c'\n", o[s]);
           break;
         }
     }
