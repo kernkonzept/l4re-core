@@ -9,6 +9,7 @@
 #endif
 
 #include <bits/align64bit.h>
+#include <bits/wordsize.h>
 #include <endian.h>
 
 /* Versions of the `struct stat' data structure.  */
@@ -77,7 +78,11 @@ struct stat
     unsigned int st_gid;			/* Group ID of the file's group.*/
     unsigned long long st_rdev;			/* Device number, if device.  */
     unsigned long long _pad1;
+#if __WORDSIZE == 64
+    __off_t st_size;				/* SIze of file, in bytes. */
+#else
     long long st_size;				/* SIze of file, in bytes. */
+#endif
     int st_blksize;				/* Optimal block size for I/O. */
     int __pad2;
     long long st_blocks;			/* Number 512-byte blocks allocated */
