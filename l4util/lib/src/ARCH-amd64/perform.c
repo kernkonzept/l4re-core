@@ -34,5 +34,5 @@ strp6pmc_event(l4_uint32_t event)
     if (event_array[i].index == event)
       return event_array[i].string;
 
-  return "unkown";
+  return "unknown";
 }
