@@ -1,5 +1,5 @@
-/* Script for --shared -z combreloc: shared library, combine & sort relocs */
-/* Copyright (C) 2014-2017 Free Software Foundation, Inc.
+/* Script for ld --shared: link shared library */
+/* Copyright (C) 2014-2018 Free Software Foundation, Inc.
    Copying and distribution of this script, with or without modification,
    are permitted in any medium without royalty provided the copyright
    notice and this notice are preserved.  */
