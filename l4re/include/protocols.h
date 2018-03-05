@@ -1,4 +1,5 @@
 /**
+ * \file
  * L4Re Protocol Constants (C version)
  */
 

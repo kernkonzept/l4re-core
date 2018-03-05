@@ -1,4 +1,8 @@
 // vi:set ft=cpp: -*- Mode: C++ -*-
+/**
+ * \file
+ * Exception C++ interface.
+ */
 /*
  * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
  *
@@ -25,11 +29,24 @@
 
 namespace L4 {
 
+/**
+ * Exception interface.
+ */
 class L4_EXPORT Exception :
   public Kobject_0t<Exception, L4_PROTO_EXCEPTION>
 {
 public:
   // TODO: pass a reference/pointer to the UTCB not copy the regs
+  /**
+   * Exception call
+   *
+   * \param      regs  Register state of the faulting thread.
+   * \param      rwin  Receive window in the address space.
+   * \param[out] fp    Optional flex-page to resolve the exception.
+   *
+   * \return  Message tag containing error code.
+   *
+   */
   L4_INLINE_RPC(
       l4_msgtag_t, exception, (L4::Ipc::In_out<l4_exc_regs_t *> regs,
                                L4::Ipc::Rcv_fpage rwin,
