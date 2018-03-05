@@ -1,0 +1,30 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/**
+ * \file Implementation of a list of unique-ptr-managed objects.
+ */
+/*
+ * Copyright (C) 2018 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include <l4/cxx/unique_ptr>
+
+#include "bits/smart_ptr_list.h"
+
+namespace cxx {
+
+/// Item for list linked with cxx::unique_ptr.
+template <typename T>
+using Unique_ptr_list_item = Bits::Smart_ptr_list_item<T, cxx::unique_ptr<T> >;
+
+/**
+ * Single-linked list where elements are connected with a cxx::unqiue_ptr.
+ */
+template <typename T>
+using Unique_ptr_list = Bits::Smart_ptr_list<Unique_ptr_list_item<T> >;
+
+}

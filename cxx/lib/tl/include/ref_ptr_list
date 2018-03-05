@@ -1,0 +1,34 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/**
+ * \file Implementation of a list of ref-ptr-managed objects.
+ */
+/*
+ * Copyright (C) 2018 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include <l4/cxx/ref_ptr>
+
+#include "bits/smart_ptr_list.h"
+
+namespace cxx {
+
+/// Item for list linked with cxx::Ref_ptr.
+template <typename T>
+using Ref_ptr_list_item = Bits::Smart_ptr_list_item<T, cxx::Ref_ptr<T> >;
+
+/// Item for list linked via cxx::Ref_ptr with default refence counting.
+template <typename T>
+struct Ref_obj_list_item : public Ref_ptr_list_item<T>, public cxx::Ref_obj {};
+
+/**
+ * Single-linked list where elements are connected via a cxx::Ref_ptr.
+ */
+template <typename T>
+using Ref_ptr_list = Bits::Smart_ptr_list<Ref_ptr_list_item<T> >;
+
+}
