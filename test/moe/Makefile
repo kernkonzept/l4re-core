@@ -14,13 +14,13 @@ ALL_MODS := test_dataspace test_dma_space test_factory test_mem_alloc test_names
 
 TEST_TARGET_loop_moe_test_seq := test_bootfs
 REQUIRED_MODULES_loop_moe_test_seq := $(ALL_MODS) test_exhaust
-MOE_CFG_loop_moe_test_seq := loop_sequential.cfg
+NED_CFG_loop_moe_test_seq := loop_sequential.cfg
 TEST_EXPECTED_loop_moe_test_seq := tap_test_alive.output
 TEST_EXPECTED_REPEAT_loop_moe_test_seq := 0
 
 TEST_TARGET_loop_moe_test_par := test_bootfs
 REQUIRED_MODULES_loop_moe_test_par := $(ALL_MODS)
-MOE_CFG_loop_moe_test_par := loop_parallel.cfg
+NED_CFG_loop_moe_test_par := loop_parallel.cfg
 TEST_EXPECTED_loop_moe_test_par := tap_test_alive.output
 TEST_EXPECTED_REPEAT_loop_moe_test_par := 0
 TEST_TIMEOUT_loop_moe_test_par := 100
