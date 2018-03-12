@@ -20,7 +20,7 @@
  * \internal
  * Tests common for all list implementations based on Bits::Basic_list
  *
- * \tparam LIST Struct defining the types for the list and its elements.
+ * \tparam LIST_DESC  Struct defining the types for the list and its elements.
  */
 template <typename LIST_DESC>
 struct BasicListTest : public testing::Test
