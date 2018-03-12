@@ -1,0 +1,319 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ * Capability allocator
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/util/cap_alloc_impl.h>
+#include <l4/sys/smart_capability>
+#include <l4/sys/task>
+#include <l4/re/consts>
+
+namespace L4Re { namespace Util {
+
+/**
+ * \defgroup l4re_cap_api L4Re Capability API
+ * \ingroup api_l4re_util
+ */
+/*@{*/
+/**
+ * Capability allocator.
+ *
+ * This is the instance of the capability allocator that is used
+ * by usual applications.  The actual implementation of the allocator
+ * depends on the configuration of the system.
+ *
+ * Per default we use Counting_cap_alloc, a reference-counting
+ * capability allocator, that
+ * keeps a reference counter for each managed capability selector.
+ *
+ * \note This capability allocator is not thread-safe.
+ */
+extern _Cap_alloc &cap_alloc;
+
+/**
+ * Helper for Auto_cap and Auto_del_cap.
+ */
+template< unsigned long Unmap_flags = L4_FP_ALL_SPACES >
+class Smart_cap_auto
+{
+public:
+  /**
+   * Free operation for L4::Smart_cap.
+   */
+  static void free(L4::Cap_base &c)
+  {
+    if (c.is_valid())
+      {
+        cap_alloc.free(L4::Cap<void>(c.cap()), This_task, Unmap_flags);
+        c.invalidate();
+      }
+  }
+
+  /**
+   * Invalidate operation for L4::Smart_cap.
+   */
+  static void invalidate(L4::Cap_base &c)
+  {
+    if (c.is_valid())
+      c.invalidate();
+  }
+
+  /**
+   * Copy operation for L4::Smart_cap.
+   */
+  static L4::Cap_base copy(L4::Cap_base const &src)
+  {
+    L4::Cap_base r = src;
+    invalidate(const_cast<L4::Cap_base &>(src));
+    return r;
+  }
+};
+
+
+/**
+ * Helper for Ref_cap and Ref_del_cap.
+ */
+template< unsigned long Unmap_flags = L4_FP_ALL_SPACES >
+class Smart_count_cap
+{
+public:
+  /**
+   * Free operation for L4::Smart_cap
+   * (decrement ref count and delete if 0).
+   */
+  static void free(L4::Cap_base &c) throw()
+  {
+    if (c.is_valid())
+      {
+        if (cap_alloc.release(L4::Cap<void>(c.cap()), This_task, Unmap_flags))
+	  c.invalidate();
+      }
+  }
+
+  /**
+   * Invalidate operation for L4::Smart_cap.
+   */
+  static void invalidate(L4::Cap_base &c) throw()
+  {
+    if (c.is_valid())
+      c.invalidate();
+  }
+
+  /**
+   * Copy operation for L4::Smart_cap (increment ref count).
+   */
+  static L4::Cap_base copy(L4::Cap_base const &src)
+  {
+    cap_alloc.take(L4::Cap<void>(src.cap()));
+    return src;
+  }
+};
+
+
+/**
+ * Automatic capability that implements automatic free and
+ * unmap of the capability selector.
+ *
+ * \tparam T  Type of the object that is referred by the capability.
+ *
+ * This kind of automatic capability is useful for capabilities that
+ * shall have a lifetime that is strictly coupled to one C++ scope.
+ *
+ * Usage:
+ * ~~~
+ * {
+ *   L4Re::Util::Auto_cap<L4Re::Dataspace>::Cap
+ *     ds_cap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>());
+ *
+ *   // use the dataspace cap
+ *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *   ...
+ *
+ *   // At the end of the scope ds_cap is unmapped and the capability selector
+ *   // is freed.
+ * }
+ * ~~~
+ */
+template< typename T >
+struct Auto_cap
+{
+  typedef L4::Smart_cap<T, Smart_cap_auto< L4_FP_ALL_SPACES> > Cap;
+};
+
+/**
+ * Automatic capability that implements automatic free and
+ * unmap+delete of the capability selector.
+ *
+ * \tparam T  Type of the object that is referred by the capability.
+ *
+ * This kind of automatic capability is useful for capabilities with
+ * that shall have a lifetime that is strictly coupled to one C++ scope.
+ * The main difference to Auto_cap is that the unmap is done with the
+ * deletion flag enabled and this leads to the deletion of the object
+ * if the current task holds appropriate deletion rights.
+ *
+ * Usage:
+ * ~~~
+ * {
+ *   L4Re::Util::Auto_del_cap<L4Re::Dataspace>::Cap
+ *     ds_cap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>());
+ *
+ *   // use the dataspace cap
+ *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *   ...
+ *
+ *   // At the end of the scope ds_cap is unmapped and the capability selector
+ *   // is freed. Because the deletion flag is set the data space shall be
+ *   // also deleted (even if there are other references to this data space).
+ * }
+ * ~~~
+ */
+template< typename T >
+struct Auto_del_cap
+{
+  typedef L4::Smart_cap<T, Smart_cap_auto<L4_FP_DELETE_OBJ> > Cap;
+};
+
+/**
+ * Automatic capability that implements automatic free and
+ * unmap of the capability selector.
+ *
+ * \tparam T  Type of the object that is referred by the capability.
+ *
+ * This kind of automatic capability implements a counted reference to a
+ * capability selector. The capability shall be unmapped and freed
+ * when the reference count in the allocator goes to zero.
+ *
+ * Usage:
+ * ~~~
+ * L4Re::Util::Ref_cap<L4Re::Dataspace>::Cap global_ds_cap;
+ *
+ * {
+ *   L4Re::Util::Ref_cap<L4Re::Dataspace>::Cap
+ *     ds_cap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>());
+ *   // reference count for the allocated cap selector is now 1
+ *
+ *   // use the dataspace cap
+ *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *   global_ds_cap = ds_cap;
+ *   // reference count is now 2
+ *   ...
+ * }
+ * // reference count dropped to 1 (ds_cap is no longer existing).
+ * ~~~
+ */
+template< typename T >
+struct Ref_cap
+{
+  typedef L4::Smart_cap<T, Smart_count_cap<L4_FP_ALL_SPACES> > Cap;
+};
+
+/**
+ * Automatic capability that implements automatic free and
+ * unmap+delete of the capability selector.
+ *
+ * \tparam T  Type of the object that is referred by the capability.
+ *
+ * This kind of automatic capability implements a counted reference to a
+ * capability selector. The capability shall be unmapped and freed
+ * when the reference count in the allocator goes to zero.
+ * The main difference to Ref_cap is that the unmap is done with the
+ * deletion flag enabled and this leads to the deletion of the object
+ * if the current task holds appropriate deletion rights.
+ *
+ * Usage:
+ * ~~~
+ * L4Re::Util::Ref_del_cap<L4Re::Dataspace>::Cap global_ds_cap;
+ *
+ * {
+ *   L4Re::Util::Ref_del_cap<L4Re::Dataspace>::Cap
+ *     ds_cap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>());
+ *   // reference count for the allocated cap selector is now 1
+ *
+ *   // use the dataspace cap
+ *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *   global_ds_cap = ds_cap;
+ *   // reference count is now 2
+ *   ...
+ * }
+ * // reference count dropped to 1 (ds_cap is no longer existing).
+ * ...
+ * global_ds_cap = L4_INVALID_CAP;
+ * // reference count dropped to 0 (data space shall be deleted).
+ * ~~~
+ */
+template< typename T >
+struct Ref_del_cap
+{
+  typedef L4::Smart_cap<T, Smart_count_cap<L4_FP_DELETE_OBJ> > Cap;
+};
+
+/**
+ * Allocate a capability slot and wrap it in an Auto_cap.
+ *
+ * \tparam T  Type of capability the slot is used for.
+ */
+template< typename T >
+typename Auto_cap<T>::Cap
+make_auto_cap()
+{ return typename Auto_cap<T>::Cap(cap_alloc.alloc<T>()); }
+
+/**
+ * Allocate a capability slot and wrap it in an Auto_del_cap.
+ *
+ * \tparam T  Type of capability the slot is used for.
+ */
+template< typename T >
+typename Auto_del_cap<T>::Cap
+make_auto_del_cap()
+{ return typename Auto_del_cap<T>::Cap(cap_alloc.alloc<T>()); }
+
+/**
+ * Allocate a capability slot and wrap it in a Ref_cap.
+ *
+ * \tparam T  Type of capability the slot is used for.
+ */
+template< typename T >
+typename Ref_cap<T>::Cap
+make_ref_cap() { return typename Ref_cap<T>::Cap(cap_alloc.alloc<T>()); }
+
+/**
+ * Allocate a capability slot and wrap it in a Ref_del_cap.
+ *
+ * \tparam T  Type of capability the slot is used for.
+ */
+template< typename T >
+typename Ref_del_cap<T>::Cap
+make_ref_del_cap()
+{ return typename Ref_del_cap<T>::Cap(cap_alloc.alloc<T>()); }
+
+/*@}*/
+
+}}
+

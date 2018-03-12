@@ -1,0 +1,39 @@
+# vi:ft=make
+PKGDIR		?= ..
+L4DIR		?= $(PKGDIR)/../..
+
+TARGET          := libuc_c_minimal.a libuc_c_minimal.p.a
+PC_FILENAME     := libc_minimal
+PC_LIBS         := -luc_c_minimal
+DEFINES		+= -DL4_MINIMAL_LIBC
+LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
+
+include $(LIBCSRC_DIR)/make_vars.mk
+include $(LIBCSRC_DIR)/make_rules.mk
+include $(LIBCSRC_DIR)/contrib_files.mk
+
+DIRS := libc/string libc/stdlib libc/stdio libc/signal \
+        libc/misc libc/stdlib/malloc-standard libc/sysdeps/linux
+
+CFLAGS_clang += -mno-implicit-float
+CXXFLAGS_clang += -mno-implicit-float
+
+CFLAGS += $(CFLAGS_$(BID_COMPILER_TYPE))
+CXXFLAGS += $(CXXFLAGS_$(BID_COMPILER_TYPE))
+
+SUB_MODULES :=
+
+# process all sources for the libc
+$(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
+# libm stuff
+
+define GEN_SRC_VARS
+SRC_C_$(1)  += $(UCLIBC_SRC_C)  $(UCLIBC_SRC_C_libuc_c_minimal.a) \
+                    libc/stdlib/atexit.c
+SRC_CC_$(1) += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libuc_c_minimal.a)
+SRC_S_$(1)  += $(UCLIBC_SRC_S)  $(UCLIBC_SRC_S_libuc_c_minimal.a)
+endef
+
+$(foreach target,$(TARGET), $(eval $(call GEN_SRC_VARS,$(target))))
+
+$(GENERAL_D_LOC): $(SRC_DIR)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk

@@ -1,0 +1,5 @@
+requires: l4sys l4util
+provides: cxx_atexit cxx_atexit_e cxx_base cxx_base_e cxx_io
+          cxx_io_e cxx_io_kdebug cxx_io_kdebug_e cxx_util
+          cxx_util_e
+Maintainer: warg@os.inf.tu-dresden.de

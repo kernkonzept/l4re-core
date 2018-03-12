@@ -1,0 +1,1387 @@
+// vi:ft=cpp
+/**
+ * \file
+ * IPC stream
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/ipc.h>
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/cxx/ipc_varg>
+#include <l4/cxx/type_traits>
+#include <l4/cxx/minmax>
+
+#define L4_CXX_IPC_BACKWARD_COMPAT
+
+namespace L4 {
+namespace Ipc {
+
+class Ostream;
+class Istream;
+
+namespace Internal {
+/**
+ * Abstraction for inserting an array into an Ipc::Ostream.
+ * \internal
+ *
+ * An object of Buf_cp_out can be used to insert an array of arbitrary values,
+ * that can be inserted into an Ipc::Ostream individually.
+ * The array is therefore copied to the message buffer, in contrast to
+ * data handled with Msg_out_buffer or Msg_io_buffer.
+ *
+ * On insertion into the Ipc::Ostream exactly the given number of elements
+ * of type T are copied to the message buffer, this means the source buffer
+ * is no longer referenced after insertion into the stream.
+ *
+ * You should use buf_cp_out() to create instances of Buf_cp_out.
+ *
+ * The counterpart is either Buf_cp_in (buf_cp_in()) or Buf_in (buf_in()).
+ */
+template< typename T >
+class Buf_cp_out
+{
+public:
+  /**
+   * Create a buffer object for the given array.
+   *
+   * \param v     The pointer to the array with size elements of type T.
+   * \param size  The number of elements in the array.
+   */
+  Buf_cp_out(T const *v, unsigned long size) : _v(v), _s(size) {}
+
+  /**
+   * Get the number of elements in the array.
+   *
+   * \returns The number of elements in the array.
+   *
+   * \note This function is usually used by the Ipc::Ostream itself.
+   */
+  unsigned long size() const { return _s; }
+
+  /**
+   * Get the pointer to the array.
+   *
+   * \returns Pointer to the array.
+   *
+   * \note This function is usually used by the Ipc::Ostream itself.
+   */
+  T const *buf() const { return _v; }
+
+private:
+  friend class Ostream;
+  T const *_v;
+  unsigned long _s;
+};
+}
+
+/**
+ * Insert an array into an Ipc::Ostream.
+ *
+ * \param v     Pointer to the array that shall be inserted into an
+ *              Ipc::Ostream.
+ * \param size  Number of elements in the array.
+ *
+ * This function inserts an array (e.g. a string) into an Ipc::Ostream.
+ * The data is copied to the stream. On insertion into the Ipc::Ostream
+ * exactly the given number of elements of type T are copied to the message
+ * buffer, this means the source buffer is no longer referenced after
+ * insertion into the stream.
+ *
+ * \see The counterpart is either buf_cp_in() or buf_in().
+ */
+template< typename T >
+Internal::Buf_cp_out<T> buf_cp_out(T const *v, unsigned long size)
+{ return Internal::Buf_cp_out<T>(v, size); }
+
+
+namespace Internal {
+/**
+ * Abstraction for extracting array from an Ipc::Istream.
+ * \internal
+ *
+ * An instance of Buf_cp_in can be used to extract an array from
+ * an Ipc::Istream. This is the counterpart to the Buf_cp_out abstraction.
+ * The data from the received message is thereby copied to the given buffer
+ * and size is set to the number of elements found in the stream.
+ * To avoid the copy operation Buf_in may be used instead.
+ *
+ * \see buf_cp_in(), Buf_in, buf_in(), Buf_cp_out, and buf_cp_out().
+ */
+template< typename T >
+class Buf_cp_in
+{
+public:
+  /**
+   * Create a buffer for extracting an array from an Ipc::Istream.
+   *
+   * \param         v     The buffer for array (copy in).
+   * \param[in,out] size  Input: the number of elements the array can take at
+   *                      most <br>
+   *                      Output: the number of elements found in the stream.
+   */
+  Buf_cp_in(T *v, unsigned long &size) : _v(v), _s(&size) {}
+
+  unsigned long &size() const { return *_s; }
+  T *buf() const { return _v; }
+private:
+  friend class Istream;
+  T *_v;
+  unsigned long *_s;
+};
+}
+
+/**
+ * Extract an array from an Ipc::Istream.
+ *
+ * \param         v     Pointer to the array that shall receive the values from
+ *                      the Ipc::Istream.
+ * \param[in,out] size  Input: the number of elements the array can take at
+ *                      most <br>
+ *                      Output: the number of elements found in the stream.
+ *
+ * buf_cp_in() can be used to extract an array from an Ipc::Istream. This is
+ * the counterpart buf_cp_out(). The data from the received message is
+ * thereby copied to the given buffer and size is set to the number of
+ * elements found in the stream. To avoid the copy operation buf_in() may be
+ * used instead.
+ *
+ * \see buf_in() and buf_cp_out().
+ */
+template< typename T >
+Internal::Buf_cp_in<T> buf_cp_in(T *v, unsigned long &size)
+{ return Internal::Buf_cp_in<T>(v, size); }
+
+/**
+ * Abstraction for extracting a zero-termintaed string from an Ipc::Istream.
+ *
+ * An instance of Str_cp_in can be used to extract a zero-terminated string
+ * an Ipc::Istream. The data from the received message is thereby copied to the
+ * given buffer and size is set to the number of characters found in the
+ * stream.  The string is zero terminated in any circumstances. When the given
+ * buffer is smaller than the received string the last byte in the buffer will
+ * be the zero terminator. In the case the received string is shorter than the
+ * given buffer the zero termination will be placed behind the received data.
+ * This provides a zero-terminated result even in cases where the sender did
+ * not provide proper termination or in cases of too small receiver buffers.
+ *
+ * \see str_cp_in().
+ */
+template< typename T >
+class Str_cp_in
+{
+public:
+  /**
+   * Create a buffer for extracting an array from an Ipc::Istream.
+   *
+   * \param         v     The buffer for string.
+   * \param[in,out] size  Input: The number of bytes available in `v` <br>
+   *                      Output: The number of bytes received (including the
+   *                      terminator).
+   */
+  Str_cp_in(T *v, unsigned long &size) : _v(v), _s(&size) {}
+
+  unsigned long &size() const { return *_s; }
+  T *buf() const { return _v; }
+private:
+  friend class Istream;
+  T *_v;
+  unsigned long *_s;
+};
+
+/**
+ * Create a Str_cp_in for the given values.
+ *
+ * \param         v     Pointer to the array that shall receive the values from
+ *                      the Ipc::Istream.
+ * \param[in,out] size  Input: the number of elements the array can take at
+ *                      most <br>
+ *                      Output: the number of elements found in the stream.
+ *
+ * This function makes it more convenient to extract arrays from an
+ * Ipc::Istream (\see Str_cp_in.)
+ */
+template< typename T >
+Str_cp_in<T> str_cp_in(T *v, unsigned long &size)
+{ return Str_cp_in<T>(v, size); }
+
+/**
+ * Pointer to an element of type T in an Ipc::Istream.
+ *
+ * This wrapper can be used to extract an element of type T from an
+ * Ipc::Istream, whereas the data is not copied out, but a pointer into
+ * the message buffer itself is returned. With is mechanism it is possible
+ * to avoid an extra copy of large data structures from a received IPC
+ * message, instead the returned pointer gives direct access to the data
+ * in the message.
+ *
+ * See msg_ptr().
+ */
+template< typename T >
+class Msg_ptr
+{
+private:
+  T **_p;
+public:
+  /**
+   * Create a Msg_ptr object that set pointer p to point into the message
+   * buffer.
+   *
+   * \param p  The pointer that is adjusted to point into the message buffer.
+   */
+  explicit Msg_ptr(T *&p) : _p(&p) {}
+  void set(T *p) const { *_p = p; }
+};
+
+/**
+ * Create an Msg_ptr to adjust the given pointer.
+ *
+ * This function makes it more convenient to extract pointers to data in the
+ * message buffer itself from an Ipc::Istream.  This may be used to avoid copy
+ * out of large data structures.  (See Msg_ptr.)
+ */
+template< typename T >
+Msg_ptr<T> msg_ptr(T *&p)
+{ return Msg_ptr<T>(p); }
+
+
+namespace Internal {
+/**
+ * Abstraction to extract an array from an Ipc::Istream.
+ * \internal
+ *
+ * This wrapper provides a possibility to extract an array from an
+ * Ipc::Istream, without extra copy overhead. In contrast to Buf_cp_in
+ * the data is not copied to a buffer, but a pointer to the array is returned.
+ *
+ * The mechanism is comparable to that of Msg_ptr, however it handles arrays
+ * inserted with Buf_cp_out.
+ *
+ * See buf_in(), Buf_cp_out, buf_cp_out(), Buf_cp_in, and buf_cp_in().
+ */
+template< typename T >
+class Buf_in
+{
+public:
+  /**
+   * Create a Buf_in to adjust a pointer to the array and the size of the array.
+   *
+   * \param      v     The pointer to adjust to the first element of the array.
+   * \param[out] size  The number of elements found in the stream.
+   */
+  Buf_in(T *&v, unsigned long &size) : _v(&v), _s(&size) {}
+
+  void set_size(unsigned long s) const { *_s = s; }
+  T *&buf() const { return *_v; }
+private:
+  friend class Istream;
+  T **_v;
+  unsigned long *_s;
+};
+}
+
+/**
+ * Return a pointer to stream array data.
+ *
+ * \param[out] v     Pointer to the array within the Ipc::Istream.
+ * \param[out] size  The number of elements found in the stream.
+ *
+ * This routine provdes a possibility to extract an array from an
+ * Ipc::Istream, without extra copy overhead. In contrast to buf_cp_in()
+ * the data is not copied to a buffer, but a pointer to the array is returned.
+ * The user must make sure the UTCB is not used for other purposes while the
+ * returned pointer is still in use.
+ *
+ * The mechanism is comparable to that of Msg_ptr, however it handles arrays
+ * inserted with buf_cp_out().
+ *
+ * \see buf_cp_in() and buf_cp_out().
+ */
+template< typename T >
+Internal::Buf_in<T> buf_in(T *&v, unsigned long &size)
+{ return Internal::Buf_in<T>(v, size); }
+
+namespace Utcb_stream_check
+{
+  static bool check_utcb_data_offset(unsigned sz)
+  { return sz > sizeof(l4_umword_t) * L4_UTCB_GENERIC_DATA_SIZE; }
+}
+
+
+/**
+ * Input stream for IPC unmarshalling.
+ *
+ * Ipc::Istream is part of the dynamic IPC marshalling infrastructure, as well
+ * as Ipc::Ostream and Ipc::Iostream.
+ *
+ * Ipc::Istream is an input stream supporting extraction of values from an
+ * IPC message buffer. A received IPC message can be unmarshalled using the
+ * usual extraction operator (>>).
+ *
+ * There exist some special wrapper classes to extract arrays (see
+ * Ipc_buf_cp_in and Ipc_buf_in) and indirect strings (see Msg_in_buffer and
+ * Msg_io_buffer).
+ */
+class Istream
+{
+public:
+  /**
+   * Create an input stream for the given message buffer.
+   *
+   * The given message buffer is used for IPC operations wait()/receive()
+   * and received data can be extracted using the >> operator afterwards.
+   * In the case of indirect message parts a buffer of type Msg_in_buffer
+   * must be inserted into the stream before the IPC operation and contains
+   * received data afterwards.
+   *
+   * \param utcb  The message buffer to receive IPC messages.
+   */
+  Istream(l4_utcb_t *utcb)
+  : _tag(), _utcb(utcb),
+    _current_msg(reinterpret_cast<char*>(l4_utcb_mr_u(utcb)->mr)),
+    _pos(0), _current_buf(0)
+  {}
+
+  /**
+   * Reset the stream to empty, and ready for receive()/wait().
+   * The stream is reset to the same state as on its creation.
+   */
+  void reset()
+  {
+    _pos = 0;
+    _current_buf = 0;
+    _current_msg = reinterpret_cast<char*>(l4_utcb_mr_u(_utcb)->mr);
+  }
+
+  /**
+   * Check whether a value of type T can be obtained from the stream.
+   */
+  template< typename T >
+  bool has_more(unsigned long count = 1)
+  {
+    unsigned apos = cxx::Type_traits<T>::align(_pos);
+    return apos + (sizeof(T) * count) <= _tag.words() * sizeof(l4_umword_t);
+  }
+
+  /**
+   * \name Get/Put Functions.
+   */
+  //@{
+
+  /**
+   * Copy out an array of type `T` with `size` elements.
+   *
+   * \param buf    Pointer to a buffer for size elements of type T.
+   * \param elems  Number of elements of type T to copy out.
+   *
+   * See \ref Istream::operator>>()
+   */
+  template< typename T >
+  unsigned long get(T *buf, unsigned long elems)
+  {
+    if (L4_UNLIKELY(!has_more<T>(elems)))
+      return 0;
+
+    unsigned long size = elems * sizeof(T);
+    _pos = cxx::Type_traits<T>::align(_pos);
+
+    __builtin_memcpy(buf, _current_msg + _pos, size);
+    _pos += size;
+    return elems;
+  }
+
+
+  /**
+   * Skip size elements of type T in the stream.
+   * \param size  Number of elements to skip.
+   */
+  template< typename T >
+  void skip(unsigned long elems)
+  {
+    if (L4_UNLIKELY(!has_more<T>(elems)))
+      return;
+
+    unsigned long size = elems * sizeof(T);
+    _pos = cxx::Type_traits<T>::align(_pos);
+    _pos += size;
+  }
+
+  /**
+   * Read one size elements of type T from the stream and return a pointer.
+   *
+   * \param buf    A Msg_ptr that is actually set to point to the element in the
+   *               stream.
+   * \param elems  Number of elements to extract (default is 1).
+   *
+   * In contrast to a normal get, this version does actually not copy the data
+   * but returns a pointer to the data.
+   *
+   * See \ref Istream::operator>>()
+   */
+  template< typename T >
+  unsigned long get(Msg_ptr<T> const &buf, unsigned long elems = 1)
+  {
+    if (L4_UNLIKELY(!has_more<T>(elems)))
+      return 0;
+
+    unsigned long size = elems * sizeof(T);
+    _pos = cxx::Type_traits<T>::align(_pos);
+
+    buf.set(reinterpret_cast<T*>(_current_msg + _pos));
+    _pos += size;
+    return elems;
+  }
+
+
+  /**
+   * Extract a single element of type T from the stream.
+   *
+   * \param[out] v  The element.
+   *
+   * See \ref Istream::operator>>()
+   */
+  template< typename T >
+  bool get(T &v)
+  {
+    if (L4_UNLIKELY(!has_more<T>()))
+      {
+        v = T();
+        return false;
+      }
+
+    _pos = cxx::Type_traits<T>::align(_pos);
+    v = *(reinterpret_cast<T*>(_current_msg + _pos));
+    _pos += sizeof(T);
+    return true;
+  }
+
+
+  bool get(Ipc::Varg *va)
+  {
+    Ipc::Varg::Tag t;
+    if (!has_more<Ipc::Varg::Tag>())
+      {
+        va->tag(0);
+	return 0;
+      }
+    get(t);
+    va->tag(t);
+    char const *d;
+    get(msg_ptr(d), va->length());
+    va->data(d);
+
+    return 1;
+  }
+
+  /**
+   * Get the message tag of a received IPC.
+   *
+   * \return The L4 message tag for the received IPC.
+   *
+   * This is in particular useful for handling page faults or exceptions.
+   *
+   * See \ref Istream::operator>>()
+   */
+  l4_msgtag_t tag() const { return _tag; }
+
+
+  /**
+   * Get the message tag of a received IPC.
+   *
+   * \return A reference to the L4 message tag for the received IPC.
+   *
+   * This is in particular useful for handling page faults or exceptions.
+   *
+   * See \ref Istream::operator>>()
+   */
+  l4_msgtag_t &tag() { return _tag; }
+
+  //@}
+
+  /**
+   * \internal
+   * Put a receive item into the stream's buffer registers.
+   */
+  inline bool put(Buf_item const &);
+
+  /**
+   * \internal
+   * Put a small receive item into the stream's buffer registers.
+   */
+  inline bool put(Small_buf const &);
+
+
+  /**
+   * \name IPC operations.
+   */
+  //@{
+
+  /**
+   * Wait for an incoming message from any sender.
+   *
+   * \param[out] src  Contains the sender after a successful IPC operation.
+   *
+   * \return Syscall return tag.
+   *
+   * This wait is actually known as 'open wait'.
+   */
+  inline l4_msgtag_t wait(l4_umword_t *src)
+  { return wait(src, L4_IPC_NEVER); }
+
+  /**
+   * Wait for an incoming message from any sender.
+   *
+   * \param[out] src     Contains the sender after a successful IPC operation.
+   * \param      timeout Timeout used for IPC.
+   *
+   * \return The IPC result dope (l4_msgtag_t).
+   *
+   * This wait is actually known as 'open wait'.
+   */
+  inline l4_msgtag_t wait(l4_umword_t *src, l4_timeout_t timeout);
+
+  /**
+   * Wait for a message from the specified sender.
+   *
+   * \param src  The sender id to receive from.
+   *
+   * \return The IPC  result dope (l4_msgtag_t).
+   *
+   * This is commonly known as 'closed wait'.
+   */
+  inline l4_msgtag_t receive(l4_cap_idx_t src)
+  { return receive(src, L4_IPC_NEVER); }
+  inline l4_msgtag_t receive(l4_cap_idx_t src, l4_timeout_t timeout);
+
+  //@}
+
+  /**
+   * Return utcb pointer.
+   */
+  inline l4_utcb_t *utcb() const { return _utcb; }
+
+protected:
+  l4_msgtag_t _tag;
+  l4_utcb_t *_utcb;
+  char *_current_msg;
+  unsigned _pos;
+  unsigned char _current_buf;
+};
+
+class Istream_copy : public Istream
+{
+private:
+  l4_msg_regs_t _mrs;
+
+public:
+  Istream_copy(Istream const &o) : Istream(o), _mrs(*l4_utcb_mr_u(o.utcb()))
+  {
+    // do some reverse mr to utcb trickery
+    _utcb = (l4_utcb_t*)((l4_addr_t)&_mrs - (l4_addr_t)l4_utcb_mr_u((l4_utcb_t*)0));
+    _current_msg = reinterpret_cast<char*>(l4_utcb_mr_u(_utcb)->mr);
+  }
+
+};
+
+/**
+ * Output stream for IPC marshalling.
+ *
+ * Ipc::Ostream is part of the dynamic IPC marshalling infrastructure, as well
+ * as Ipc::Istream and Ipc::Iostream.
+ *
+ * Ipc::Ostream is an output stream supporting insertion of values into an
+ * IPC message buffer. A IPC message can be marshalled using the
+ * usual insertion operator <<, see \link ipc_stream IPC stream operators
+ * \endlink.
+ *
+ * There exist some special wrapper classes to insert arrays (see
+ * Ipc::Buf_cp_out) and indirect strings (see Msg_out_buffer and
+ * Msg_io_buffer). */
+class Ostream
+{
+public:
+  /**
+   * Create an IPC output stream using the given message buffer `utcb`.
+   */
+  Ostream(l4_utcb_t *utcb)
+  : _tag(), _utcb(utcb),
+    _current_msg(reinterpret_cast<char *>(l4_utcb_mr_u(_utcb)->mr)),
+    _pos(0), _current_item(0)
+  {}
+
+  /**
+   * Reset the stream to empty, same state as a newly created stream.
+   */
+  void reset()
+  {
+    _pos = 0;
+    _current_item = 0;
+    _current_msg = reinterpret_cast<char*>(l4_utcb_mr_u(_utcb)->mr);
+  }
+
+  /**
+   * \name Get/Put functions.
+   *
+   * These functions are basically used to implement the insertion operators
+   * (<<) and should not be called directly.
+   */
+  //@{
+
+  /**
+   * Put an array with `size` elements of type `T` into the stream.
+   *
+   * \param buf   A pointer to the array to insert into the buffer.
+   * \param size  The number of elements in the array.
+   */
+  template< typename T >
+  bool put(T *buf, unsigned long size)
+  {
+    size *= sizeof(T);
+    _pos = cxx::Type_traits<T>::align(_pos);
+    if (Utcb_stream_check::check_utcb_data_offset(_pos + size))
+      return false;
+
+    __builtin_memcpy(_current_msg + _pos, buf, size);
+    _pos += size;
+    return true;
+  }
+
+  /**
+   * Insert an element of type `T` into the stream.
+   *
+   * \param v  The element to insert.
+   */
+  template< typename T >
+  bool put(T const &v)
+  {
+    _pos = cxx::Type_traits<T>::align(_pos);
+    if (Utcb_stream_check::check_utcb_data_offset(_pos + sizeof(T)))
+      return false;
+
+    *(reinterpret_cast<T*>(_current_msg + _pos)) = v;
+    _pos += sizeof(T);
+    return true;
+  }
+
+  int put(Varg const &va)
+  {
+    put(va.tag());
+    put(va.data(), va.length());
+
+    return 0;
+  }
+
+  template< typename T >
+  int put(Varg_t<T> const &va)
+  { return put(static_cast<Varg const &>(va)); }
+
+  /**
+   * Extract the L4 message tag from the stream.
+   *
+   * \return the extracted L4 message tag.
+   */
+  l4_msgtag_t tag() const { return _tag; }
+
+  /**
+   * Extract a reference to the L4 message tag from the stream.
+   *
+   * \return A reference to the L4 message tag.
+   */
+  l4_msgtag_t &tag() { return _tag; }
+
+  //@}
+
+  /**
+   * \internal
+   * Put a send item into the stream's message buffer.
+   */
+  inline bool put_snd_item(Snd_item const &);
+
+
+  /**
+   * \name IPC operations.
+   */
+  //@{
+
+  /**
+   * Send the message via IPC to the given receiver.
+   *
+   * \param dst    The destination for the message.
+   * \param proto  Protocol to use.
+   * \param flags  Flags to use.
+   *
+   * \return Syscall return tag.
+   */
+  inline l4_msgtag_t send(l4_cap_idx_t dst, long proto = 0, unsigned flags = 0);
+
+  //@}
+
+  /**
+   * Return utcb pointer.
+   */
+  inline l4_utcb_t *utcb() const { return _utcb; }
+#if 0
+  /**
+   * Get the currently used bytes in the stream.
+   */
+  unsigned long tell() const
+  {
+    unsigned w = (_pos + sizeof(l4_umword_t)-1) / sizeof(l4_umword_t);
+    w -= _current_item * 2;
+    _tag = l4_msgtag(0, w, _current_item, 0);
+  }
+#endif
+public:
+  l4_msgtag_t prepare_ipc(long proto = 0, unsigned flags = 0)
+  {
+    unsigned w = (_pos + sizeof(l4_umword_t)-1) / sizeof(l4_umword_t);
+    w -= _current_item * 2;
+    return l4_msgtag(proto, w, _current_item, flags);
+  }
+
+  // XXX: this is a hack for <l4/sys/cxx/ipc_server> adaption
+  void set_ipc_params(l4_msgtag_t tag)
+  {
+    _pos = (tag.words() + tag.items()*2)*sizeof(l4_umword_t);
+    _current_item = tag.items();
+  }
+protected:
+  l4_msgtag_t _tag;
+  l4_utcb_t *_utcb;
+  char *_current_msg;
+  unsigned _pos;
+  unsigned char _current_item;
+};
+
+
+/**
+ * Input/Output stream for IPC [un]marshalling.
+ *
+ * The Ipc::Iostream is part of the AW Env IPC framework as well as
+ * Ipc::Istream and Ipc::Ostream.
+ * In particular an Ipc::Iostream is a combination of an Ipc::Istream and an
+ * Ipc::Ostream. It can use either a single message buffer for receiving and
+ * sending messages or a pair of a receive and a send buffer. The stream also
+ * supports combined IPC operations such as call() and reply_and_wait(), which
+ * can be used to implement RPC functionality.
+ */
+class Iostream : public Istream, public Ostream
+{
+public:
+
+  /**
+   * Create an IPC IO stream with a single message buffer.
+   *
+   * \param utcb  The message buffer used as backing store.
+   *
+   * The created IO stream uses the same message buffer for sending and
+   * receiving IPC messages.
+   */
+  explicit Iostream(l4_utcb_t *utcb)
+  : Istream(utcb), Ostream(utcb)
+  {}
+
+  // disambiguate those functions
+  l4_msgtag_t tag() const { return Istream::tag(); }
+  l4_msgtag_t &tag() { return Istream::tag(); }
+  l4_utcb_t *utcb() const { return Istream::utcb(); }
+
+  /**
+   * Reset the stream to its initial state.
+   *
+   * Input as well as the output stream are reset.
+   */
+  void reset()
+  {
+    Istream::reset();
+    Ostream::reset();
+  }
+
+
+  /**
+   * \name Get/Put functions.
+   *
+   * These functions are basically used to implement the insertion operators
+   * (<<) and should not be called directly.
+   */
+  //@{
+
+  using Istream::get;
+  using Istream::put;
+  using Ostream::put;
+
+  //@}
+
+  /**
+   * \name IPC operations.
+   */
+  //@{
+
+  /**
+   * Do an IPC call using the message in the output stream and receiving to
+   * the input stream.
+   *
+   * \param dst      The destination L4 UID (thread) to call.
+   * \param timeout  The IPC timeout for the call.
+   * \param proto    The protocol value to use in the message tag.
+   *
+   * \return  The result dope of the IPC operation.
+   *
+   * This is a combined IPC operation consisting of a send and a receive
+   * to/from the given destination `dst`.
+   *
+   * A call is usually used by clients for RPCs to a server.
+   */
+  inline l4_msgtag_t call(l4_cap_idx_t dst, l4_timeout_t timeout, long proto = 0);
+  inline l4_msgtag_t call(l4_cap_idx_t dst, long proto = 0);
+
+  /**
+   * Do an IPC reply and wait.
+   *
+   * \param[in,out] src_dst  Input: the destination for the send operation. <br>
+   *                         Output: the source of the received message.
+   * \param         proto    Protocol to use.
+   *
+   * \return the result dope of the IPC operation.
+   *
+   * This is a combined IPC operation consisting of a send operation and
+   * an open wait for any message.
+   *
+   * A reply and wait is usually used by servers that reply to a client
+   * and wait for the next request by any other client.
+   */
+  inline l4_msgtag_t reply_and_wait(l4_umword_t *src_dst, long proto = 0)
+  { return reply_and_wait(src_dst, L4_IPC_SEND_TIMEOUT_0, proto); }
+
+  inline l4_msgtag_t send_and_wait(l4_cap_idx_t dest, l4_umword_t *src,
+                                   long proto = 0)
+  { return send_and_wait(dest, src, L4_IPC_SEND_TIMEOUT_0, proto); }
+
+  /**
+   * Do an IPC reply and wait.
+   *
+   * \param[in,out] src_dst  Input: the destination for the send operation. <br>
+   *                         Output: the source of the received message.
+   * \param         timeout  Timeout used for IPC.
+   * \param         proto    Protocol to use.
+   *
+   * \return the result dope of the IPC operation.
+   *
+   * This is a combined IPC operation consisting of a send operation and
+   * an open wait for any message.
+   *
+   * A reply and wait is usually used by servers that reply to a client
+   * and wait for the next request by any other client.
+   */
+  inline l4_msgtag_t reply_and_wait(l4_umword_t *src_dst,
+                                    l4_timeout_t timeout, long proto = 0);
+  inline l4_msgtag_t send_and_wait(l4_cap_idx_t dest, l4_umword_t *src,
+                                   l4_timeout_t timeout, long proto = 0);
+  inline l4_msgtag_t reply(l4_timeout_t timeout, long proto = 0);
+  inline l4_msgtag_t reply(long proto = 0)
+  { return reply(L4_IPC_SEND_TIMEOUT_0, proto); }
+
+  //@}
+};
+
+
+inline bool
+Ostream::put_snd_item(Snd_item const &v)
+{
+  typedef Snd_item T;
+  _pos = cxx::Type_traits<Snd_item>::align(_pos);
+  if (Utcb_stream_check::check_utcb_data_offset(_pos + sizeof(T)))
+    return false;
+
+  *(reinterpret_cast<T*>(_current_msg + _pos)) = v;
+  _pos += sizeof(T);
+  ++_current_item;
+  return true;
+}
+
+
+inline bool
+Istream::put(Buf_item const &item)
+{
+  if (_current_buf >= L4_UTCB_GENERIC_BUFFERS_SIZE - 3)
+    return false;
+
+  l4_utcb_br_u(_utcb)->bdr &= ~L4_BDR_OFFSET_MASK;
+
+  reinterpret_cast<Buf_item&>(l4_utcb_br_u(_utcb)->br[_current_buf]) = item;
+  _current_buf += 2;
+  return true;
+}
+
+
+inline bool
+Istream::put(Small_buf const &item)
+{
+  if (_current_buf >= L4_UTCB_GENERIC_BUFFERS_SIZE - 2)
+    return false;
+
+  l4_utcb_br_u(_utcb)->bdr &= ~L4_BDR_OFFSET_MASK;
+
+  reinterpret_cast<Small_buf&>(l4_utcb_br_u(_utcb)->br[_current_buf]) = item;
+  _current_buf += 1;
+  return true;
+}
+
+
+inline l4_msgtag_t
+Ostream::send(l4_cap_idx_t dst, long proto, unsigned flags)
+{
+  l4_msgtag_t tag = prepare_ipc(proto, L4_MSGTAG_FLAGS & flags);
+  return l4_ipc_send(dst, _utcb, tag, L4_IPC_NEVER);
+}
+
+inline l4_msgtag_t
+Iostream::call(l4_cap_idx_t dst, l4_timeout_t timeout, long label)
+{
+  l4_msgtag_t tag = prepare_ipc(label);
+  tag = l4_ipc_call(dst, Ostream::_utcb, tag, timeout);
+  Istream::tag() = tag;
+  Istream::_pos = 0;
+  return tag;
+}
+
+inline l4_msgtag_t
+Iostream::call(l4_cap_idx_t dst, long label)
+{ return call(dst, L4_IPC_NEVER, label); }
+
+
+inline l4_msgtag_t
+Iostream::reply_and_wait(l4_umword_t *src_dst, l4_timeout_t timeout, long proto)
+{
+  l4_msgtag_t tag = prepare_ipc(proto);
+  tag = l4_ipc_reply_and_wait(Ostream::_utcb, tag, src_dst, timeout);
+  Istream::tag() = tag;
+  Istream::_pos = 0;
+  return tag;
+}
+
+
+inline l4_msgtag_t
+Iostream::send_and_wait(l4_cap_idx_t dest, l4_umword_t *src,
+                        l4_timeout_t timeout, long proto)
+{
+  l4_msgtag_t tag = prepare_ipc(proto);
+  tag = l4_ipc_send_and_wait(dest, Ostream::_utcb, tag, src, timeout);
+  Istream::tag() = tag;
+  Istream::_pos = 0;
+  return tag;
+}
+
+inline l4_msgtag_t
+Iostream::reply(l4_timeout_t timeout, long proto)
+{
+  l4_msgtag_t tag = prepare_ipc(proto);
+  tag = l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY, Ostream::_utcb, tag, timeout);
+  Istream::tag() = tag;
+  Istream::_pos = 0;
+  return tag;
+}
+
+inline l4_msgtag_t
+Istream::wait(l4_umword_t *src, l4_timeout_t timeout)
+{
+  l4_msgtag_t res;
+  res = l4_ipc_wait(_utcb, src, timeout);
+  tag() = res;
+  _pos = 0;
+  return res;
+}
+
+
+inline l4_msgtag_t
+Istream::receive(l4_cap_idx_t src, l4_timeout_t timeout)
+{
+  l4_msgtag_t res;
+  res = l4_ipc_receive(src, _utcb, timeout);
+  tag() = res;
+  _pos = 0;
+  return res;
+}
+
+} // namespace Ipc
+} // namespace L4
+
+/**
+ * Extract one element of type `T` from the stream `s`.
+ *
+ * \param      s  The stream to extract from.
+ * \param[out] v  Extracted value.
+ *
+ * \return The stream `s`.
+ */
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, bool &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, long int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, long long int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, unsigned int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, unsigned long int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, unsigned long long int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, short int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, unsigned short int &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, char &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, unsigned char &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, signed char &v) { s.get(v); return s; }
+inline L4::Ipc::Istream &operator << (L4::Ipc::Istream &s, L4::Ipc::Buf_item const &v) { s.put(v); return s; }
+inline L4::Ipc::Istream &operator << (L4::Ipc::Istream &s, L4::Ipc::Small_buf const &v) { s.put(v); return s; }
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Snd_item &v)
+{
+  l4_umword_t b, d;
+  s >> b >> d;
+  v = L4::Ipc::Snd_item(b, d);
+  return s;
+}
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Varg &v)
+{ s.get(&v); return s; }
+
+
+/**
+ * Extract the L4 message tag from the stream `s`.
+ *
+ * \param      s  The stream to extract from.
+ * \param[out] v  The extracted tag.
+ *
+ * \return The stream `s`.
+ */
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, l4_msgtag_t &v)
+{
+  v = s.tag();
+  return s;
+}
+
+/**
+ * Extract an array of `T` elements from the stream `s`.
+ *
+ * \param      s  The stream to extract from.
+ * \param[out] v  Pointer to the extracted array (ipc_buf_in()).
+ *
+ * \return The stream `s`.
+ *
+ * This operator actually does not copy out the data in the array, but
+ * returns a pointer into the message buffer itself. This means that the
+ * data is only valid as long as there is no new data inserted into the stream.
+ *
+ * See Ipc::Buf_in, Ipc::Buf_cp_in, and Ipc::Buf_cp_out.
+ */
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
+    L4::Ipc::Internal::Buf_in<T> const &v)
+{
+  unsigned long si;
+  s.get(si);
+  v.set_size(s.get(L4::Ipc::Msg_ptr<T>(v.buf()), si));
+  return s;
+}
+
+/**
+ * Extract an element of type `T` from the stream `s`.
+ *
+ * \param      s  The stream to extract from.
+ * \param[out] v  Pointer to the extracted element.
+ *
+ * \return the stream `s`.
+ *
+ * This operator actually does not copy out the data, but
+ * returns a pointer into the message buffer itself. This means that the
+ * data is only valid as long as there is no new data inserted into the stream.
+ *
+ * See Msg_ptr.
+ */
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
+    L4::Ipc::Msg_ptr<T> const &v)
+{
+  s.get(v);
+  return s;
+}
+
+/**
+ * Extract an array of `T` elements from the stream `s`.
+ *
+ * \param      s  The stream to extract from.
+ * \param[out] v  Buffer description to copy the array to (Ipc::Buf_cp_out()).
+ *
+ * \return The stream `s`.
+ *
+ * This operator does a copy out of the data into the given buffer.
+ *
+ * See Ipc::Buf_in, Ipc::Buf_cp_in, and Ipc::Buf_cp_out.
+ */
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
+                               L4::Ipc::Internal::Buf_cp_in<T> const &v)
+{
+  unsigned long sz;
+  s.get(sz);
+  v.size() = s.get(v.buf(), cxx::min(v.size(), sz));
+  return s;
+}
+
+/**
+ * Extract a zero-terminated string from the stream.
+ *
+ * \param      s  The stream to extract from.
+ * \param[out] v  Buffer description to copy the array to (Ipc::Str_cp_out()).
+ *
+ * \return the stream `s`.
+ *
+ * This operator does a copy out of the data into the given buffer.
+ */
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
+    L4::Ipc::Str_cp_in<T> const &v)
+{
+  unsigned long sz;
+  s.get(sz);
+  unsigned long rsz = s.get(v.buf(), cxx::min(v.size(), sz));
+  if (rsz < v.size() && v.buf()[rsz - 1])
+    ++rsz; // add the zero termination behind the received data
+
+  if (rsz != 0)
+    v.buf()[rsz - 1] = 0;
+
+  v.size() = rsz;
+  return s;
+}
+
+
+/**
+ * Insert an element to type `T` into the stream `s`.
+ *
+ * \param s  The stream to insert the element `v`.
+ * \param v  The element to insert.
+ *
+ * \return The stream `s`.
+ */
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, bool v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, long int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, long long int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, unsigned int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, unsigned long int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, unsigned long long int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, short int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, unsigned short int v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, char v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, unsigned char v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, signed char v) { s.put(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Snd_item const &v) { s.put_snd_item(v); return s; }
+template< typename T >
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Cap<T> const &v)
+{ s << L4::Ipc::Snd_fpage(v.fpage()); return s; }
+
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Varg const &v)
+{ s.put(v); return s; }
+template< typename T >
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Varg_t<T> const &v)
+{ s.put(v); return s; }
+
+/**
+ * Insert the L4 message tag into the stream `s`.
+ *
+ * \param s  The stream to insert the tag `v`.
+ * \param v  The L4 message tag to insert.
+ *
+ * \return The stream `s`.
+ *
+ * \note Only one message tag can be inserted into a stream. Multiple
+ *       insertions simply overwrite previous insertions.
+ */
+inline
+L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, l4_msgtag_t const &v)
+{
+  s.tag() = v;
+  return s;
+}
+
+/**
+ * Insert an array with elements of type `T` into the stream `s`.
+ *
+ * \param s  The stream to insert the array `v`.
+ * \param v  The array to insert (see Ipc::Buf_cp_out()).
+ *
+ * \return the stream `s`.
+ */
+template< typename T >
+inline
+L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s,
+    L4::Ipc::Internal::Buf_cp_out<T> const &v)
+{
+  s.put(v.size());
+  s.put(v.buf(), v.size());
+  return s;
+}
+
+/**
+ * Insert a zero terminated character string into the stream `s`.
+ *
+ * \param s  The stream to insert the string `v`.
+ * \param v  The string to insert.
+ *
+ * \return The stream `s`.
+ *
+ * This operator produces basically the same content as the array insertion,
+ * however the length of the array is calculated using `strlen(v) + 1`
+ * The string is copied into the message including the trailing zero.
+ */
+inline
+L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, char const *v)
+{
+  unsigned long l = __builtin_strlen(v) + 1;
+  s.put(l);
+  s.put(v, l);
+  return s;
+}
+
+
+#ifdef L4_CXX_IPC_BACKWARD_COMPAT
+namespace L4 {
+
+#if 0
+template< typename T > class Ipc_buf_cp_out : public Ipc::Buf_cp_out<T> {};
+template< typename T > class Ipc_buf_cp_in : public Ipc::Buf_cp_in<T> {};
+template< typename T > class Ipc_buf_in : public Ipc::Buf_in<T> {};
+template< typename T > class Msg_ptr : public Ipc::Msg_ptr<T> {};
+#endif
+
+template< typename T >
+Ipc::Internal::Buf_cp_out<T> ipc_buf_cp_out(T *v, unsigned long size)
+  L4_DEPRECATED("Use L4::Ipc::buf_cp_out() now");
+
+template< typename T >
+Ipc::Internal::Buf_cp_out<T> ipc_buf_cp_out(T *v, unsigned long size)
+{ return Ipc::Internal::Buf_cp_out<T>(v, size); }
+
+
+template< typename T >
+Ipc::Internal::Buf_cp_in<T> ipc_buf_cp_in(T *v, unsigned long &size)
+  L4_DEPRECATED("Use L4::Ipc::buf_cp_in() now");
+
+template< typename T >
+Ipc::Internal::Buf_cp_in<T> ipc_buf_cp_in(T *v, unsigned long &size)
+{ return Ipc::Internal::Buf_cp_in<T>(v, size); }
+
+
+template< typename T >
+Ipc::Internal::Buf_in<T> ipc_buf_in(T *&v, unsigned long &size)
+  L4_DEPRECATED("Use L4::Ipc::buf_in() now");
+
+template< typename T >
+Ipc::Internal::Buf_in<T> ipc_buf_in(T *&v, unsigned long &size)
+{ return Ipc::Internal::Buf_in<T>(v, size); }
+
+
+template< typename T >
+Ipc::Msg_ptr<T> msg_ptr(T *&p)
+  L4_DEPRECATED("Use L4::Ipc::msg_ptr() now");
+
+template< typename T >
+Ipc::Msg_ptr<T> msg_ptr(T *&p)
+{ return Ipc::Msg_ptr<T>(p); }
+
+typedef Ipc::Istream Ipc_istream L4_DEPRECATED("Use L4::Ipc::Istream now");
+typedef Ipc::Ostream Ipc_ostream L4_DEPRECATED("Use L4::Ipc::Ostream now");;
+typedef Ipc::Iostream Ipc_iostream L4_DEPRECATED("Use L4::Ipc::Iostream now");;
+typedef Ipc::Snd_fpage Snd_fpage L4_DEPRECATED("Use L4::Ipc::Snd_fpage now");;
+typedef Ipc::Rcv_fpage Rcv_fpage L4_DEPRECATED("Use L4::Ipc::Rcv_fpage now");;
+typedef Ipc::Small_buf Small_buf L4_DEPRECATED("Use L4::Ipc::Small_buf now");;
+
+
+namespace Ipc {
+template< typename T > class Buf_cp_in : public Internal::Buf_cp_in<T>
+{
+public:
+  Buf_cp_in(T *v, unsigned long &size) : Internal::Buf_cp_in<T>(v, size) {}
+};
+
+template< typename T >
+class Buf_cp_out : public Internal::Buf_cp_out<T>
+{
+public:
+  Buf_cp_out(T const *v, unsigned long size) : Internal::Buf_cp_out<T>(v, size) {}
+};
+
+template< typename T >
+class Buf_in : public Internal::Buf_in<T>
+{
+public:
+  Buf_in(T *&v, unsigned long &size) : Internal::Buf_in<T>(v, size) {}
+};
+} // namespace Ipc
+} // namespace L4
+
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_cp_in<T> const &v)
+  L4_DEPRECATED("Use L4::Ipc::buf_cp_in() now");
+
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_cp_in<T> const &v)
+{ return operator>>(s, static_cast<L4::Ipc::Internal::Buf_cp_in<T> >(v)); }
+
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_in<T> const &v)
+  L4_DEPRECATED("Use L4::Ipc::buf_in() now");
+
+template< typename T >
+inline
+L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_in<T> const &v)
+{ return operator>>(s, static_cast<L4::Ipc::Internal::Buf_in<T> >(v)); }
+
+template< typename T >
+inline
+L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Buf_cp_out<T> const &v)
+  L4_DEPRECATED("Use L4::Ipc::buf_cp_out() now");
+
+template< typename T >
+inline
+L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Buf_cp_out<T> const &v)
+{ return operator<<(s, static_cast<L4::Ipc::Internal::Buf_cp_out<T> >(v)); }
+#endif
+
+namespace L4 { namespace Ipc {
+/**
+ * Read a value out of a stream.
+ *
+ * \param s  An Istream.
+ * \return The value of type `T`.
+ *
+ * The stream position is progressed accordingly.
+ */
+template< typename T >
+inline
+T read(Istream &s) { T t; s >> t; return t; }
+
+} // namespace Ipc
+} // namespace L4

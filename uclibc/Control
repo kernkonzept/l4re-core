@@ -1,0 +1,3 @@
+Provides: libc libpthread libc_minimal_l4re
+requires: l4sys l4re
+Maintainer: adam@os.inf.tu-dresden.de

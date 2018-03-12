@@ -1,0 +1,34 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+subdirs += libc/unistd
+
+UNISTD_DIR := $(top_srcdir)libc/unistd
+UNISTD_OUT := $(top_builddir)libc/unistd
+
+CSRC-y := $(notdir $(wildcard $(UNISTD_DIR)/*.c))
+OMIT-y := exec.c # multi source
+OMIT-$(ARCH_USE_MMU) += __exec_alloc.c
+OMIT-$(if $(UCLIBC_SUSV3_LEGACY),,y) += ualarm.c usleep.c
+#OMIT-$(UCLIBC_HAS_THREADS_NATIVE) += sleep.c
+
+# XXX: GNU_GETOPT comes with getopt_long unconditionally, which is wrong
+GO_LONG := $(if $(UCLIBC_HAS_GNU_GETOPT),getopt_long-simple.c)
+OMIT-y += $(if $(UCLIBC_HAS_GNU_GETOPT),getopt-susv3.c $(GO_LONG),getopt.c)
+OMIT-y += $(if $(UCLIBC_HAS_GNU_GETSUBOPT),getsubopt-susv3.c,getsubopt.c)
+
+CSRC-y := $(filter-out $(OMIT-y),$(CSRC-y))
+
+UNISTD_SRC := $(patsubst %.c,$(UNISTD_DIR)/%.c,$(CSRC-y))
+UNISTD_OBJ := $(patsubst %.c,$(UNISTD_OUT)/%.o,$(CSRC-y))
+
+libc-y += $(UNISTD_OBJ)
+
+objclean-y += CLEAN_libc/unistd
+
+CLEAN_libc/unistd:
+	$(do_rm) $(addprefix $(UNISTD_OUT)/*., o os)

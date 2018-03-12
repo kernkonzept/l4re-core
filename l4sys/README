@@ -1,0 +1,10 @@
+Basic L4 IPC/Syscall Bindings and Type Definitions.
+
+This package defines the application binary interface (ABI) to the L4 kernel.
+Currently there are two versions supported: Version 2 as originally implemented
+by Jochen Liedtke and Version X.0 as defined in the appropriate specification
+and implemented by the L4Ka Hazelnut kernel. Note that the latter interface
+is emulated using a few assembler instructions. This makes it possible to use
+the same source code for the two different versions. To support plain X.0
+functionality we have to create additional IPC bindings which take three
+DWord arguments to be transferred.

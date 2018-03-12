@@ -1,0 +1,16 @@
+/* vim:set ft=c: */
+/**
+ * \defgroup api_l4re L4Re C++ Interface
+ *
+ * Documentation of the L4 Runtime Environment C++ API.
+ */
+/**
+ * \defgroup api_l4re_util L4Re Util C++ Interface
+ * \ingroup api_l4re
+ *
+ * Documentation of the L4 Runtime Environment utility functionality in C++.
+ */
+/**
+ * L4Re C++ Interfaces
+ */
+namespace L4Re {}

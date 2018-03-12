@@ -1,0 +1,164 @@
+
+SRC_CC += \
+  c++98/basic_file.cc \
+  c_locale.cc \
+  codecvt_members.cc \
+  ctype_configure_char.cc \
+  ctype_members.cc \
+  collate_members.cc \
+  c++98/collate_members_cow.cc \
+  messages_members.cc \
+  c++98/messages_members_cow.cc \
+  monetary_members.cc \
+  c++98/monetary_members_cow.cc \
+  numeric_members.cc \
+  c++98/numeric_members_cow.cc \
+  time_members.cc \
+  c++98/allocator-inst.cc \
+  c++98/bitmap_allocator.cc \
+  c++98/codecvt.cc \
+  c++98/compatibility-debug_list-2.cc \
+  c++98/compatibility-debug_list.cc \
+  c++98/compatibility-ldbl.cc \
+  c++98/compatibility.cc \
+  c++98/complex_io.cc \
+  c++98/concept-inst.cc \
+  c++98/cow-istream-string.cc \
+  c++98/ext-inst.cc \
+  c++98/globals_io.cc \
+  c++98/hash_tr1.cc \
+  c++98/hashtable_tr1.cc \
+  c++98/ios_failure.cc \
+  c++98/ios_init.cc \
+  c++98/ios_locale.cc \
+  c++98/istream.cc \
+  c++98/istream-string.cc \
+  c++98/list-aux-2.cc \
+  c++98/list-aux.cc \
+  c++98/list.cc \
+  c++98/list_associated-2.cc \
+  c++98/list_associated.cc \
+  c++98/locale.cc \
+  c++98/locale_facets.cc \
+  c++98/locale_init.cc \
+  c++98/localename.cc \
+  c++98/math_stubs_float.cc \
+  c++98/math_stubs_long_double.cc \
+  c++98/misc-inst.cc \
+  c++98/mt_allocator.cc \
+  c++98/parallel_settings.cc \
+  c++98/pool_allocator.cc \
+  c++98/stdexcept.cc \
+  c++98/streambuf.cc \
+  c++98/strstream.cc \
+  c++98/tree.cc \
+  c++98/valarray.cc \
+  c++11/chrono.cc \
+  c++11/codecvt.cc \
+  c++11/compatibility-atomic-c++0x.cc \
+  c++11/compatibility-c++0x.cc \
+  c++11/compatibility-condvar.cc \
+  c++11/compatibility-thread-c++0x.cc \
+  c++11/condition_variable.cc \
+  c++11/cow-fstream-inst.cc \
+  c++11/cow-locale_init.cc \
+  c++11/cow-shim_facets.cc \
+  c++11/cow-sstream-inst.cc \
+  c++11/cow-stdexcept.cc \
+  c++11/cow-string-inst.cc \
+  c++11/cow-wstring-inst.cc \
+  c++11/ctype.cc \
+  c++11/cxx11-hash_tr1.cc \
+  c++11/cxx11-ios_failure.cc \
+  c++11/cxx11-locale-inst.cc \
+  c++11/cxx11-shim_facets.cc \
+  c++11/cxx11-stdexcept.cc \
+  c++11/cxx11-wlocale-inst.cc \
+  c++11/debug.cc \
+  c++11/ext11-inst.cc \
+  c++11/fstream-inst.cc \
+  c++11/functexcept.cc \
+  c++11/functional.cc \
+  c++11/future.cc \
+  c++11/hash_c++0x.cc \
+  c++11/hashtable_c++0x.cc \
+  c++11/ios.cc \
+  c++11/ios-inst.cc \
+  c++11/iostream-inst.cc \
+  c++11/istream-inst.cc \
+  c++11/limits.cc \
+  c++11/locale-inst.cc \
+  c++11/mutex.cc \
+  c++11/ostream-inst.cc \
+  c++11/placeholders.cc \
+  c++11/random.cc \
+  c++11/regex.cc \
+  c++11/shared_ptr.cc \
+  c++11/snprintf_lite.cc \
+  c++11/sstream-inst.cc \
+  c++11/streambuf-inst.cc \
+  c++11/string-inst.cc \
+  c++11/system_error.cc \
+  c++11/thread.cc \
+  c++11/wlocale-inst.cc \
+  c++11/wstring-inst.cc \
+
+
+CXXFLAGS_c++98/collate_members_cow.o    += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/collate_members_cow.s.o  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/messages_members_cow.o   += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/messages_members_cow.s.o += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/monetary_members_cow.o   += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/monetary_members_cow.s.o += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/numeric_members_cow.o    += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/numeric_members_cow.s.o  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+
+CXXFLAGS_c++98/concept-inst.o      += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templates
+CXXFLAGS_c++98/concept-inst.s.o    += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templates
+CXXFLAGS_c++98/locale_init.o       += -std=gnu++11
+CXXFLAGS_c++98/locale_init.s.o     += -std=gnu++11
+CXXFLAGS_c++98/localename.o        += -std=gnu++11
+CXXFLAGS_c++98/localename.s.o      += -std=gnu++11
+PRIVATE_INCDIR_c++98/strstream.o   += $(STDCXX_CONTRIB_DIR)/include/backward
+PRIVATE_INCDIR_c++98/strstream.s.o += $(STDCXX_CONTRIB_DIR)/include/backward
+CXXFLAGS_c++98/strstream.o         += -Wno-deprecated
+CXXFLAGS_c++98/strstream.s.o       += -Wno-deprecated
+
+
+CXXFLAGS_c++11/hashtable_c++0x.o   += -fimplicit-templates
+CXXFLAGS_c++11/hashtable_c++0x.s.o += -fimplicit-templates
+
+# not all code is C++11
+SRC_CC_IS_CXX11 :=
+CXXFLAGS        += $(if $(filter c++11/%,$@),-std=gnu++11)
+
+# -Wmissing-declarations triggers
+WARNINGS = $(WARNINGS_MINIMAL)
+
+# Use atomicity.cc if the compiler does not support C++11 atomics
+SRC_CC       += $(if $(GCC_HAS_ATOMICS),,atomicity.cc)
+
+vpath %.cc $(STDCXX_CONTRIB_DIR)/config/os/generic
+
+$(OBJ_DIR)/atomicity.cc: $(call CPU_file,atomicity_mutex/atomicity.h)
+	$(VERBOSE)$(LN) -sf $< $@
+
+$(OBJ_DIR)/c++98/basic_file.cc: $(STDCXX_CONTRIB_DIR)/config/io/basic_file_stdio.cc
+	$(VERBOSE)$(MKDIR) $(@D)
+	$(VERBOSE)$(LN) -sf $< $@
+
+$(OBJ_DIR)/c++98/collate_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/collate_members.cc
+	$(VERBOSE)$(MKDIR) $(@D)
+	$(VERBOSE)$(LN) -sf $< $@
+
+$(OBJ_DIR)/c++98/messages_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/messages_members.cc
+	$(VERBOSE)$(MKDIR) $(@D)
+	$(VERBOSE)$(LN) -sf $< $@
+
+$(OBJ_DIR)/c++98/monetary_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/monetary_members.cc
+	$(VERBOSE)$(MKDIR) $(@D)
+	$(VERBOSE)$(LN) -sf $< $@
+
+$(OBJ_DIR)/c++98/numeric_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/numeric_members.cc
+	$(VERBOSE)$(MKDIR) $(@D)
+	$(VERBOSE)$(LN) -sf $< $@

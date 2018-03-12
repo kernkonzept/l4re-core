@@ -1,0 +1,370 @@
+// vi:ft=cpp
+/**
+ * \file
+ * Common thread related definitions.
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/thread.h>
+
+namespace L4 {
+
+/**
+ * C++ L4 kernel thread interface.
+ *
+ * The Thread class defines a thread of execution in the L4 context.
+ * Usually user-level and kernel threads are mapped 1:1 to each other.
+ * Thread kernel objects are created using a factory, see the L4::Factory API
+ * (L4::Factory::create()).
+ *
+ * Amongst other things an L4::Thread encapsulates:
+ * - CPU state
+ *   - General-purpose registers
+ *   - Program counter
+ *   - Stack pointer
+ * - FPU state
+ * - Scheduling parameters, see the L4::Scheduler API
+ * - Execution state
+ *   - Blocked, Runnable, Running
+ *
+ * Thread objects provide an API for
+ * - Thread configuration and manipulation
+ * - Thread switching.
+ *
+ * \includefile{l4/sys/thread}
+ *
+ * For the C interface see the \ref l4_thread_api API.
+ */
+class Thread :
+  public Kobject_t<Thread, Kobject, L4_PROTO_THREAD,
+                   Type_info::Demand_t<1> >
+{
+public:
+  /**
+   * Exchange basic thread registers.
+   *
+   * \param ip     New instruction pointer, use ~0UL to leave the
+   *               instruction pointer unchanged.
+   * \param sp     New stack pointer, use ~0UL to leave the stack
+   *               pointer unchanged.
+   * \param flags  Ex-regs flags, see #L4_thread_ex_regs_flags.
+   * \param utcb   UTCB to use for this operation.
+   *
+   * \return System call return tag
+   *
+   * This method allows to manipulate a thread. The basic functionality is to
+   * set the instruction pointer and the stack pointer of a thread.
+   * Additionally, this method allows also to cancel ongoing IPC operations and
+   * to force the thread to raise an artificial exception (see `flags`).
+   *
+   * The thread is started using L4::Scheduler::run_thread(). However, if at
+   * the time L4::Scheduler::run_thread() is called, the instruction pointer of
+   * the thread is invalid, a later call to ex_regs() with a valid instruction
+   * pointer might start the thread.
+   */
+  l4_msgtag_t ex_regs(l4_addr_t ip, l4_addr_t sp,
+                      l4_umword_t flags,
+                      l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_thread_ex_regs_u(cap(), ip, sp, flags, utcb); }
+
+  /**
+   * Exchange basic thread registers and return previous values.
+   *
+   * \param[in,out] ip     New instruction pointer, use ~0UL to leave the
+   *                       instruction pointer unchanged, return previous
+   *                       instruction pointer.
+   * \param[in,out] sp     New stack pointer, use ~0UL to leave the stack
+   *                       pointer unchanged, returns previous stack pointer.
+   * \param[in,out] flags  Ex-regs flags, see #L4_thread_ex_regs_flags, return
+   *                       previous CPU flags of the thread.
+   * \param         utcb   UTCB to use for this operation.
+   *
+   * \return System call return tag. [out] parameters are only valid if the
+   *         function returns successfully. Use l4_error() to check.
+   *
+   * This method allows to manipulate and start a thread. The basic
+   * functionality is to set the instruction pointer and the stack pointer of a
+   * thread. Additionally, this method allows also to cancel ongoing IPC
+   * operations and to force the thread to raise an artificial exception (see
+   * `flags`).
+   */
+  l4_msgtag_t ex_regs(l4_addr_t *ip, l4_addr_t *sp,
+                      l4_umword_t *flags,
+                      l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_thread_ex_regs_ret_u(cap(), ip, sp, flags, utcb); }
+
+
+  /**
+   * Thread attributes used for control_commit().
+   *
+   * This class is responsible for initalizing various attributes of a
+   * thread in a UTCB for the control_commit() method.
+   *
+   * \see \ref l4_thread_control_api for some more details.
+   */
+  class Attr
+  {
+  private:
+     friend class L4::Thread;
+     l4_utcb_t *_u;
+
+   public:
+     /**
+      * Create a thread-attribute object with the given UTCB.
+      *
+      * \param utcb  The UTCB to use for the later L4::Thread::control_commit()
+      *              function. Usually this is the UTCB of the calling thread.
+      */
+     explicit Attr(l4_utcb_t *utcb = l4_utcb()) throw() : _u(utcb)
+     { l4_thread_control_start_u(utcb); }
+
+     /**
+      * Set the pager capability selector.
+      *
+      * \param pager  The capability selector that shall be used for page-fault
+      *               messages. This capability selector must be valid within
+      *               the task the thread is bound to.
+      */
+     void pager(Cap<void> const &pager) throw()
+     { l4_thread_control_pager_u(pager.cap(), _u); }
+
+     /**
+      * Get the capability selector used for page-fault messages.
+      *
+      * \return The capability selector used to send page-fault messages. The
+      *         selector is valid in the task the thread is bound to.
+      */
+     Cap<void> pager() throw()
+     { return Cap<void>(l4_utcb_mr_u(_u)->mr[1]); }
+
+     /**
+      * Set the exception-handler capability selector.
+      *
+      * \param exc_handler  The capability selector that shall be used for
+      *                     exception messages. This capability selector must
+      *                     be valid within the task the thread is bound to.
+      */
+     void exc_handler(Cap<void> const &exc_handler) throw()
+     { l4_thread_control_exc_handler_u(exc_handler.cap(), _u); }
+
+     /**
+      * Get the capability selector used for exception messages.
+      *
+      * \return The capability selector used to send exception messages. The
+      *         selector is valid in the task the thread is bound to.
+      */
+     Cap<void> exc_handler() throw()
+     { return Cap<void>(l4_utcb_mr_u(_u)->mr[2]); }
+
+     /**
+      * Bind the thread to a task.
+      *
+      * \param thread_utcb  The UTCB address of the thread within the task
+      *                     specified by `task`.
+      * \param task         The capability selector for the task the thread
+      *                     shall be bound to.
+      *
+      * Binding a thread to a task means that the thread shall afterwards
+      * execute in the given task. To actually start execution you need
+      * to use L4::Thread::ex_regs().
+      */
+     void bind(l4_utcb_t *thread_utcb, Cap<Task> const &task) throw()
+     { l4_thread_control_bind_u(thread_utcb, task.cap(), _u); }
+
+     /**
+      * Set the thread to alien mode.
+      */
+     void alien(int on) throw()
+     { l4_thread_control_alien_u(_u, on); }
+
+     /**
+      * Allow host system calls on Fiasco-UX.
+      *
+      * \pre Running on Fiasco-UX.
+      */
+     void ux_host_syscall(int on) throw()
+     { l4_thread_control_ux_host_syscall_u(_u, on); }
+
+   };
+
+  /**
+   * Commit the given thread-attributes object.
+   *
+   * \param attr the attribute object to commit to the thread.
+   */
+  l4_msgtag_t control(Attr const &attr) throw()
+  { return l4_thread_control_commit_u(cap(), attr._u); }
+
+  /**
+   * Switch execution to this thread.
+   *
+   * \param utcb the UTCB of the current thread.
+   *
+   * \note The current time slice is inherited to this thread.
+   */
+  l4_msgtag_t switch_to(l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_thread_switch_u(cap(), utcb); }
+
+  /**
+   * Get consumed time of thread in us.
+   *
+   * \param      utcb  UTCB of the current thread.
+   * \param[out] us    Consumed time in µs.
+   *
+   * \return Syscall resturn tag.
+   */
+  l4_msgtag_t stats_time(l4_kernel_clock_t *us,
+                         l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_thread_stats_time_u(cap(), us, utcb); }
+
+  /**
+   * vCPU resume, start.
+   *
+   * \see l4_thread_vcpu_resume_start
+   */
+  l4_msgtag_t vcpu_resume_start(l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_thread_vcpu_resume_start_u(utcb); }
+
+  /**
+   * vCPU resume, commit.
+   *
+   * \see l4_thread_vcpu_resume_commit
+   */
+  l4_msgtag_t vcpu_resume_commit(l4_msgtag_t tag,
+                                 l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_thread_vcpu_resume_commit_u(cap(), tag, utcb); }
+
+   /**
+    * Enable or disable the vCPU feature for the thread.
+    *
+    * \param vcpu_state  The virtual address where the kernel shall store the
+    *                    vCPU state in case of vCPU exits. The address must be
+    *                    a valid kernel-user-memory address (see
+    *                    L4::Task::add_ku_mem()).
+    * \param utcb        UTCB to use for this operation.
+    *
+    * \return Syscall resturn tag.
+    *
+    * This function enables the vCPU feature of `this` thread if `vcpu_state`
+    * is set to a valid kernel-user-memory address, or disables the vCPU feature
+    * if `vcpu_state` is 0.
+    */
+   l4_msgtag_t vcpu_control(l4_addr_t vcpu_state, l4_utcb_t *utcb = l4_utcb())
+     throw()
+   { return l4_thread_vcpu_control_u(cap(), vcpu_state, utcb); }
+
+   /**
+    * Enable or disable the extended vCPU feature for the thread.
+    *
+    * \param ext_vcpu_state  The virtual address where the kernel shall store
+    *                        the vCPU state in case of vCPU exits. The address
+    *                        must be a valid kernel-user-memory address (see
+    *                        L4::Task::add_ku_mem()).
+    * \param utcb            UTCB to use for this operation.
+    *
+    * \return Syscall return tag.
+    *
+    * The extended vCPU feature allows the use of hardware-virtualization
+    * features such as Intel's VT or AMD's SVM.
+    *
+    * This function enables the extended vCPU feature of `this` thread
+    * if `ext_vcpu_state` is set to a valid kernel-user-memory address, or
+    * disables the vCPU feature if `ext_vcpu_state` is 0.
+    *
+    * \note The extended vCPU mode includes the normal vCPU mode.
+    */
+   l4_msgtag_t vcpu_control_ext(l4_addr_t ext_vcpu_state,
+                                l4_utcb_t *utcb = l4_utcb()) throw()
+   { return l4_thread_vcpu_control_ext_u(cap(), ext_vcpu_state, utcb); }
+
+  /**
+   * Register an IRQ that will trigger upon deletion events.
+   *
+   * \see l4_thread_register_del_irq
+   */
+  l4_msgtag_t register_del_irq(Cap<Irq> irq, l4_utcb_t *u = l4_utcb()) throw()
+  { return l4_thread_register_del_irq_u(cap(), irq.cap(), u); }
+
+  /**
+   * Wrapper class for modifying senders.
+   *
+   * Use the add() function to add modification rules, and use
+   * modify_senders() to commit. Do not use the UTCB inbetween as it is
+   * used by add() and modify_senders().
+   */
+  class Modify_senders
+  {
+  private:
+    friend class Thread;
+    l4_utcb_t *utcb;
+    unsigned cnt;
+
+  public:
+    explicit Modify_senders(l4_utcb_t *u = l4_utcb()) throw()
+    : utcb(u), cnt(1)
+    {
+      l4_utcb_mr_u(utcb)->mr[0] = L4_THREAD_MODIFY_SENDER_OP;
+    }
+
+    /**
+     * Add a rule.
+     *
+     * \param match_mask Bitmask of bits to match the label.
+     * \param match      Bitmask that must be equal to the label after applying
+     *                   match_mask.
+     * \param del_bits   Bits to be deleted from the label.
+     * \param add_bits   Bits to be added to the label.
+     *
+     * \return 0 on sucess, <0 on error
+     *
+     * Only the first match is applied.
+     *
+     * \see l4_thread_modify_sender_add()
+     */
+    int add(l4_umword_t match_mask, l4_umword_t match,
+            l4_umword_t del_bits, l4_umword_t add_bits) throw()
+    {
+      l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+      if (cnt >= L4_UTCB_GENERIC_DATA_SIZE - 4)
+        return -L4_ENOMEM;
+      m->mr[cnt++] = match_mask;
+      m->mr[cnt++] = match;
+      m->mr[cnt++] = del_bits;
+      m->mr[cnt++] = add_bits;
+      return 0;
+    }
+  };
+
+  /**
+   * Apply sender modifiction rules.
+   *
+   * \param todo  Prepared sender modification rules.
+   *
+   * \return System call return tag.
+   */
+  l4_msgtag_t modify_senders(Modify_senders const &todo) throw()
+  {
+    return l4_ipc_call(cap(), todo.utcb, l4_msgtag(L4_PROTO_THREAD, todo.cnt, 0, 0), L4_IPC_NEVER);
+  }
+};
+}

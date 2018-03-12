@@ -1,0 +1,111 @@
+// vi:ft=cpp
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include "types"
+#include "ipc_basics"
+#include "ipc_array"
+
+namespace L4 { namespace Ipc {
+
+template<typename CHAR = char const, typename LEN = unsigned long>
+struct String : Array<CHAR, LEN>
+{
+  static LEN strlength(CHAR *d) { LEN l = 0; while (d[l]) ++l; return l; }
+  String() {}
+  String(CHAR *d) : Array<CHAR, LEN>(strlength(d) + 1, d) {}
+  String(LEN len, CHAR *d) : Array<CHAR, LEN>(len, d) {}
+  void copy_in(CHAR const *s)
+  {
+    if (this->length < 1)
+      return;
+
+    LEN i;
+    for (i = 0; i < this->length - 1 && s[i]; ++i)
+      this->data[i] = s[i];
+    this->length = i + 1;
+    this->data[i] = CHAR();
+  }
+};
+
+namespace Msg {
+template<typename A, typename LEN>
+struct Clnt_xmit< String<A, LEN> > : Clnt_xmit< Array<A, LEN> > {};
+
+template<typename A, typename LEN, typename CLASS>
+struct Svr_val_ops< String<A, LEN>, Dir_in, CLASS >
+: Svr_val_ops< Array_ref<A, LEN>, Dir_in, CLASS >
+{
+  typedef Svr_val_ops< Array_ref<A, LEN>, Dir_in, CLASS > Base;
+  typedef typename Base::svr_type svr_type;
+  using Base::to_svr;
+  static int to_svr(char *msg, unsigned offset, unsigned limit,
+                    svr_type &a, Dir_in dir, Cls_data cls)
+  {
+    int r = Base::to_svr(msg, offset, limit, a, dir, cls);
+    if (r < 0)
+      return r;
+
+    // correct clients send at least the zero terminator
+    if (a.length < 1)
+      return -L4_EMSGTOOSHORT;
+
+    typedef typename L4::Types::Remove_const<A>::type elem_type;
+    const_cast<elem_type*>(a.data)[a.length - 1] = A();
+    return r;
+  }
+};
+
+template<typename A, typename LEN>
+struct Clnt_xmit<String<A, LEN> &> : Clnt_xmit<Array<A, LEN> &>
+{
+  typedef Array<A, LEN> &type;
+
+  using Clnt_xmit<type>::from_msg;
+  static int from_msg(char *msg, unsigned offset, unsigned limit, long ret,
+                      Array<A, LEN> &a, Dir_out dir, Cls_data cls)
+  {
+    int r = Clnt_xmit<type>::from_msg(msg, offset, limit, ret, a, dir, cls);
+    if (r < 0)
+      return r;
+
+    // check for a bad servers
+    if (a.length < 1)
+      return -L4_EMSGTOOSHORT;
+
+    a.data[a.length - 1] = A();
+    return r;
+  };
+};
+
+template<typename A, typename LEN>
+struct Clnt_xmit<String<A, LEN> *> : Clnt_xmit<String<A, LEN> &> {};
+
+template<typename A, typename LEN, typename CLASS>
+struct Svr_val_ops<String<A, LEN>, Dir_out, CLASS>
+: Svr_val_ops<Array_ref<A, LEN>, Dir_out, CLASS>
+{};
+
+template<typename A, typename LEN>
+struct Is_valid_rpc_type<String<A, LEN> const *> : L4::Types::False {};
+template<typename A, typename LEN>
+struct Is_valid_rpc_type<String<A, LEN> const &> : L4::Types::False {};
+
+} // namespace Msg
+
+}}

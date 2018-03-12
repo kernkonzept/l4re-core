@@ -1,0 +1,279 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/irq>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/ipc_array>
+#include <l4/re/dataspace>
+#include <l4/re/event.h>
+
+namespace L4Re {
+
+/**
+ * \defgroup api_l4re_event Event API
+ * \ingroup api_l4re
+ * \brief Event interface.
+ */
+
+typedef l4re_event_stream_id_t Event_stream_id;
+typedef l4re_event_absinfo_t Event_absinfo;
+
+class L4_EXPORT Event_stream_bitmap_h
+{
+protected:
+  static unsigned __get_idx(unsigned idx)
+  { return idx / (sizeof(unsigned long)*8); }
+
+  static unsigned long __get_mask(unsigned idx)
+  { return 1ul << (idx % (sizeof(unsigned long)*8)); }
+
+  static bool __get_bit(unsigned long const *bm, unsigned max, unsigned idx)
+  {
+    if (idx <= max)
+      return bm[__get_idx(idx)] & __get_mask(idx);
+    return false;
+  }
+
+  static void __set_bit(unsigned long *bm, unsigned max, unsigned idx, bool v)
+  {
+    if (idx > max)
+      return;
+
+    if (v)
+      bm[__get_idx(idx)] |= __get_mask(idx);
+    else
+      bm[__get_idx(idx)] &= ~__get_mask(idx);
+  }
+};
+
+class L4_EXPORT Event_stream_info
+: public l4re_event_stream_info_t,
+  private Event_stream_bitmap_h
+{
+public:
+  bool get_propbit(unsigned idx) const
+  { return __get_bit(propbits, L4RE_EVENT_PROP_MAX, idx); }
+
+  void set_propbit(unsigned idx, bool v)
+  { __set_bit(propbits, L4RE_EVENT_PROP_MAX, idx, v); }
+
+  bool get_evbit(unsigned idx) const
+  { return __get_bit(evbits, L4RE_EVENT_EV_MAX, idx); }
+
+  void set_evbit(unsigned idx, bool v)
+  { __set_bit(evbits, L4RE_EVENT_EV_MAX, idx, v); }
+
+  bool get_keybit(unsigned idx) const
+  { return __get_bit(keybits, L4RE_EVENT_KEY_MAX, idx); }
+
+  void set_keybit(unsigned idx, bool v)
+  { __set_bit(keybits, L4RE_EVENT_KEY_MAX, idx, v); }
+
+  bool get_relbit(unsigned idx) const
+  { return __get_bit(relbits, L4RE_EVENT_REL_MAX, idx); }
+
+  void set_relbit(unsigned idx, bool v)
+  { __set_bit(relbits, L4RE_EVENT_REL_MAX, idx, v); }
+
+  bool get_absbit(unsigned idx) const
+  { return __get_bit(absbits, L4RE_EVENT_ABS_MAX, idx); }
+
+  void set_absbit(unsigned idx, bool v)
+  { __set_bit(absbits, L4RE_EVENT_ABS_MAX, idx, v); }
+
+  bool get_swbit(unsigned idx) const
+  { return __get_bit(swbits, L4RE_EVENT_SW_MAX, idx); }
+
+  void set_swbit(unsigned idx, bool v)
+  { __set_bit(swbits, L4RE_EVENT_SW_MAX, idx, v); }
+};
+
+class L4_EXPORT Event_stream_state
+: public l4re_event_stream_state_t,
+  private Event_stream_bitmap_h
+{
+public:
+  bool get_keybit(unsigned idx) const
+  { return __get_bit(keybits, L4RE_EVENT_KEY_MAX, idx); }
+
+  void set_keybit(unsigned idx, bool v)
+  { __set_bit(keybits, L4RE_EVENT_KEY_MAX, idx, v); }
+
+  bool get_swbit(unsigned idx) const
+  { return __get_bit(swbits, L4RE_EVENT_SW_MAX, idx); }
+
+  void set_swbit(unsigned idx, bool v)
+  { __set_bit(swbits, L4RE_EVENT_SW_MAX, idx, v); }
+};
+
+/**
+ * \brief Event class.
+ * \ingroup api_l4re_event
+ */
+class L4_EXPORT Event :
+  public L4::Kobject_t<Event, L4::Icu, L4RE_PROTO_EVENT>
+{
+public:
+  /**
+   * \brief Get event signal buffer.
+   *
+   * \retval ds Event buffer.
+   *
+   * \return 0 on success, negative error code otherwise.
+   */
+  L4_RPC(long, get_buffer, (L4::Ipc::Out<L4::Cap<Dataspace> > ds));
+  L4_RPC(long, get_num_streams, ());
+  L4_RPC(long, get_stream_info, (int idx, Event_stream_info *info));
+  L4_RPC(long, get_stream_info_for_id, (l4_umword_t stream_id, Event_stream_info *info));
+  L4_RPC_NF(long, get_axis_info, (l4_umword_t stream_id,
+                                  L4::Ipc::Array<unsigned const, unsigned long> axes,
+                                  L4::Ipc::Array<Event_absinfo, unsigned long> &info));
+
+  long get_axis_info(l4_umword_t stream_id, unsigned naxes,
+                     unsigned const *axis, Event_absinfo *info) const throw()
+  {
+    L4::Ipc::Array<Event_absinfo, unsigned long> i(naxes, info);
+    return get_axis_info_t::call(c(), stream_id,
+        L4::Ipc::Array<unsigned const, unsigned long>(naxes, axis), i);
+  }
+
+  L4_RPC(long, get_stream_state_for_id, (l4_umword_t stream_id,
+                                         Event_stream_state *state));
+
+  typedef L4::Typeid::Rpcs<
+    get_buffer_t,
+    get_num_streams_t,
+    get_stream_info_t,
+    get_stream_info_for_id_t,
+    get_axis_info_t,
+    get_stream_state_for_id_t
+  > Rpcs;
+};
+
+struct L4_EXPORT Default_event_payload
+{
+  unsigned short type;    /**< Type of event */
+  unsigned short code;    /**< Code of event */
+  int value;              /**< Value of event */
+  l4_umword_t stream_id;  /**< Stream ID */
+};
+
+
+/**
+ * \brief Event buffer class.
+ * \ingroup api_l4re_event
+ */
+template< typename PAYLOAD = Default_event_payload >
+class L4_EXPORT Event_buffer_t
+{
+public:
+
+  /**
+   * \brief Event structure used in buffer.
+   */
+  struct Event
+  {
+    long long time;         /**< Event time stamp */
+    PAYLOAD payload;
+
+    /**
+     * \brief Free the entry.
+     */
+    void free() throw() { l4_mb(); time = 0; }
+  };
+
+private:
+  Event *_current;
+  Event *_begin;
+  Event const *_end;
+
+  void inc() throw()
+  {
+    ++_current;
+    if (_current == _end)
+      _current = _begin;
+  }
+
+public:
+
+  Event_buffer_t() : _current(0), _begin(0), _end(0) {}
+
+  void reset()
+  {
+    for (Event *i = _begin; i != _end; ++i)
+      i->time = 0;
+    _current = _begin;
+  }
+
+  /**
+   * \brief Initialize event buffer.
+   *
+   * \param buffer   Pointer to buffer.
+   * \param size     Size of buffer in bytes.
+   */
+  Event_buffer_t(void *buffer, l4_addr_t size)
+    : _current((Event*)buffer), _begin(_current),
+      _end(_begin + size / sizeof(Event))
+  { reset(); }
+
+  /**
+   * \brief Next event in buffer.
+   *
+   * \return 0 if no event available, event otherwise.
+   */
+  Event *next() throw()
+  {
+    Event *c = _current;
+    if (c->time)
+      {
+        inc();
+        return c;
+      }
+    return 0;
+  }
+
+  /**
+   * \brief Put event into buffer at current position.
+   *
+   * \param ev   Event to put into the buffer.
+   * \return false if buffer is full and entry could not be added.
+   */
+  bool put(Event const &ev) throw()
+  {
+    Event *c = _current;
+    if (c->time)
+      return false;
+
+    inc();
+    c->payload = ev.payload;
+    l4_wmb();
+    c->time = ev.time;
+    return true;
+  }
+};
+
+typedef Event_buffer_t<Default_event_payload> Event_buffer;
+
+}
+
+

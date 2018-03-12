@@ -1,0 +1,103 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/*!
+ * \file   item_alloc
+ * \brief  Item allocator
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/cxx/bitmap>
+
+namespace L4Re { namespace Util {
+
+using cxx::Bitmap_base;
+using cxx::Bitmap;
+
+/**
+ * \brief Item allocator.
+ */
+class Item_alloc_base
+{
+private:
+  long _capacity;
+  long _free_hint;
+  Bitmap_base _bits;
+
+public:
+  bool is_allocated(long item) const throw()
+  { return _bits[item]; }
+
+  long hint() const { return _free_hint; }
+
+  bool alloc(long item) throw()
+  {
+    if (!_bits[item])
+      {
+	_bits.set_bit(item);
+	return true;
+      }
+    return false;
+  }
+
+  void free(long item) throw()
+  {
+    if (item < _free_hint)
+      _free_hint = item;
+
+    _bits.clear_bit(item);
+  }
+
+  Item_alloc_base(long size, void *mem) throw()
+    : _capacity(size), _free_hint(0), _bits(mem)
+  {}
+
+  long alloc() throw()
+  {
+    if (_free_hint >= _capacity)
+      return -1;
+
+    long free = _bits.scan_zero(_capacity, _free_hint);
+    if (free >= 0)
+      {
+	_bits.set_bit(free);
+	_free_hint += 1;
+      }
+    return free;
+  }
+
+  long size() const throw()
+  {
+    return _capacity;
+  }
+};
+
+template< long Bits >
+class Item_alloc : public Item_alloc_base
+{
+private:
+  typename Bitmap_base::Word<Bits>::Type _bits[Bitmap_base::Word<Bits>::Size];
+
+public:
+  Item_alloc() throw() : Item_alloc_base(Bits, _bits) {}
+};
+
+}}

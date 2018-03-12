@@ -1,0 +1,3 @@
+provides: ldscripts
+source-pkg: uclibc
+maintainer: warg@os.inf.tu-dresden.de

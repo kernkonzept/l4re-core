@@ -1,0 +1,86 @@
+// vi:ft=c
+/* -*- c -*- */
+
+/**
+ * \defgroup l4_api Base API
+ * \brief Interfaces for all kinds of base functionality.
+ * 
+ * Some notes on Inter Process Communication (IPC)
+ *
+ * IPC in L4 is always synchronous and unbuffered: a message is
+ * transferred from the sender to the recipient if and only if the
+ * recipient has invoked a corresponding IPC operation. The sender blocks
+ * until this happens or a timeout specified by the sender elapsed
+ * without the destination becoming ready to receive.
+ */
+
+/**
+ * \defgroup l4_kernel_object_gate_api IPC-Gate API
+ * \ingroup l4_kernel_object_api
+ *
+ * Secure communication object.
+ *
+ * IPC-Gate objects provide a means to establish secure communication channels
+ * to L4 Threads (\ref l4_thread_api). An IPC-Gate object can be created using
+ * a \ref l4_factory_api (l4_factory_create_gate()) and get assigned a specific
+ * L4 thread and a \em label as protected payload. The \em label has the size
+ * of one machine word and can only be seen by the Task running the thread that
+ * is assigned of the IPC-gate. The \em label is received as part of the IPC
+ * message.  The \em label can thus be used to securely identify the IPC-gate
+ * that was used to send a message.
+ *
+ * An IPC-gate is usually used to represent an user-level object and may be
+ * the address of the data structure for the object in the server task.
+ *
+ * With client privileges an IPC-gate does not provide any direct API and
+ * thus an IPC-gate kernel object cannot be modified by invocations. Each
+ * invocation of an IPC-gate kernel object is translated into an IPC message
+ * to the assigned thread.
+ * \includefile{l4/sys/ipc_gate.h}
+ *
+ * For the C++ interface refer to the L4::Ipc_gate documentation.
+ *
+ * \see \ref l4_ipc_api
+ */
+
+
+/*
+ * IPC can be used to copy data as well as to map or grant flexpages from
+ * the sender to the recipient.
+ */
+
+/**
+ * \defgroup l4sys_defines Basic Macros
+ * \ingroup l4_api
+ * \brief L4 standard macros for header files, function definitions,
+ *        and public APIs etc.
+ */
+
+
+/*****************************************************************************
+ *** System calls
+ *****************************************************************************/
+
+/**
+ * \brief L4 low-level kernel interface.
+ */
+namespace L4 { };
+
+
+/**
+ * \defgroup api_calls_fiasco Fiasco extensions
+ * \ingroup  l4_api
+ * \brief    Kernel debugger extensions of the Fiasco L4 implementation
+ */
+
+/**
+ * \defgroup api_calls_rt_sched Fiasco real time scheduling extensions
+ * \ingroup  api_calls_fiasco
+ * \brief    Real time scheduling extension for the Fiasco L4 implementation
+ */
+
+/**
+ * \defgroup l4_protocol_ops L4 IPC Opcodes
+ * \brief    List of protocol specific opcodes used for communication with L4Re
+ *           and Kernel objects.
+ */

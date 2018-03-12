@@ -1,0 +1,412 @@
+// vi:ft=cpp
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include "types"
+#include <l4/sys/utcb.h>
+#include <l4/sys/err.h>
+
+namespace L4 {
+
+/// IPC related functionality
+namespace Ipc {
+
+/// IPC Message related functionality
+namespace Msg {
+
+using L4::Types::True;
+using L4::Types::False;
+
+/**
+ * Pad bytes to the given alignment \a align (in bytes)
+ * \param bytes  The input value in bytes
+ * \param align  The alignment value in bytes
+ * \return the result after padding \a bytes to \a align.
+ */
+inline unsigned long align_to(unsigned long bytes, unsigned long align)
+{ return (bytes + align - 1) & ~(align - 1); }
+
+/**
+ * Pad \a bytes to the alignment of the type \a T.
+ * \tparam T      The data type used for the alignment
+ * \param  bytes  The value to add the padding to
+ * \return \a bytes padded to achieve the alignment of \a T.
+ */
+template<typename T>
+inline unsigned long align_to(unsigned long bytes)
+{ return align_to(bytes, __alignof(T)); }
+
+/**
+ * Check if there is enough space for T from offset to limit.
+ * \tparam T       The data type that shall be fitted at \a offset
+ * \param  offset  The current offset in bytes (must already be padded
+ *                 if desired).
+ * \param  limit   The limit in bytes that must not be exceeded after adding
+ *                 the size of \a T.
+ * \return true if the limit will not be exceeded, false else.
+ */
+template<typename T>
+inline bool check_size(unsigned offset, unsigned limit)
+{
+  return offset + sizeof(T) <= limit;
+}
+
+/**
+ * Check if there is enough space for an array of T from offset to limit.
+ * \tparam T       The data type that shall be fitted at \a offset
+ * \tparam CTYPE   Type of the \a cnt parameter
+ * \param  offset  The current offset in bytes (must already be padded
+ *                 if desired).
+ * \param  limit   The limit in bytes that must not be exceeded after adding
+ *                 \a cnt times the size of \a T.
+ * \param  cnt     The number of elements of type \a T that shall be put
+ *                 at \a offset.
+ * \return true if the limit will not be exceeded, false else.
+ */
+template<typename T, typename CTYPE>
+inline bool check_size(unsigned offset, unsigned limit, CTYPE cnt)
+{
+  if (L4_UNLIKELY(sizeof(CTYPE) <= sizeof(unsigned) &&
+                  ~0U / sizeof(T) <= static_cast<unsigned>(cnt)))
+    return false;
+
+  if (L4_UNLIKELY(sizeof(CTYPE) > sizeof(unsigned) &&
+                  static_cast<CTYPE>(~0U / sizeof(T)) <= cnt))
+    return false;
+
+  return sizeof(T) * cnt <= limit - offset;
+}
+
+
+enum
+{
+  /// number of bytes for one message word
+  Word_bytes = sizeof(l4_umword_t),
+  /// number of message words for one message item
+  Item_words = 2,
+  /// number of bytes for one message item
+  Item_bytes = Word_bytes * Item_words,
+  /// number of message words available in the UTCB
+  Mr_words   = L4_UTCB_GENERIC_DATA_SIZE,
+  /// number of bytes available in the UTCB message registers
+  Mr_bytes   = Word_bytes * Mr_words,
+  /// number of bytes available in the UTCB buffer registers
+  Br_bytes   = Word_bytes * L4_UTCB_GENERIC_BUFFERS_SIZE,
+};
+
+
+/**
+ * Add some data to a message at offs.
+ * \tparam T      The type of the data to add
+ * \param  msg    pointer to the start of the message
+ * \param  offs   The current offset within the message, this shall be padded to
+ *                the alignment of \a T if \a v is added.
+ * \param  limit  The size limit in bytes that offset must not exceed.
+ * \param  v      The value to add to the message
+ * \return The new offset when successful, a negative value if the given
+ *         limit will be exceeded.
+ */
+template<typename T>
+inline int msg_add(char *msg, unsigned offs, unsigned limit, T v)
+{
+  offs = align_to<T>(offs);
+  if (L4_UNLIKELY(!check_size<T>(offs, limit)))
+    return -L4_EMSGTOOLONG;
+  *reinterpret_cast<typename L4::Types::Remove_const<T>::type *>(msg + offs) = v;
+  return offs + sizeof(T);
+}
+
+/**
+ * Get some data from a message at offs.
+ * \tparam T      The type of the data to read
+ * \param  msg    Pointer to the start of the message
+ * \param  offs   The current offset within the message, this shall be padded to
+ *                the alignment of \a T if a \a v can be read.
+ * \param  limit  The size limit in bytes that offset must not exceed.
+ * \param  v      A reference to receive the value from the message
+ * \return The new offset when successful, a negative value if the given
+ *         limit will be exceeded.
+ */
+template<typename T>
+inline int msg_get(char *msg, unsigned offs, unsigned limit, T &v)
+{
+  offs = align_to<T>(offs);
+  if (L4_UNLIKELY(!check_size<T>(offs, limit)))
+    return -L4_EMSGTOOSHORT;
+  v = *reinterpret_cast<T *>(msg + offs);
+  return offs + sizeof(T);
+}
+
+/// Marker type for input values
+struct Dir_in { typedef Dir_in type;   typedef Dir_in dir; };
+/// Marker type for output values
+struct Dir_out { typedef Dir_out type; typedef Dir_out dir; };
+
+/// Marker type for data values
+struct Cls_data { typedef Cls_data type;     typedef Cls_data cls; };
+/// Marker type for item values
+struct Cls_item { typedef Cls_item type;     typedef Cls_item cls; };
+/// Marker type for receive buffer values
+struct Cls_buffer { typedef Cls_buffer type; typedef Cls_buffer cls; };
+
+// Typical combinations
+/// Marker for Input data
+struct Do_in_data : Dir_in, Cls_data {};
+/// Marker for Output data
+struct Do_out_data : Dir_out, Cls_data {};
+/// Marker for Input items
+struct Do_in_items : Dir_in, Cls_item {};
+/// Marker for Output items
+struct Do_out_items : Dir_out, Cls_item {};
+/// Marker for receive buffers
+struct Do_rcv_buffers : Dir_in, Cls_buffer {};
+
+// implementation details
+namespace Detail {
+
+template<typename T> struct _Plain
+{
+  typedef T type;
+  static T deref(T v) { return v; }
+};
+
+template<typename T> struct _Plain<T *>
+{
+  typedef T type;
+  static T &deref(T *v) { return *v; }
+};
+
+template<typename T> struct _Plain<T &>
+{
+  typedef T type;
+  static T &deref(T &v) { return v; }
+
+};
+
+template<typename T> struct _Plain<T const &>
+{
+  typedef T type;
+  static T const &deref(T const &v) { return v; }
+};
+
+template<typename T> struct _Plain<T const *>
+{
+  typedef T type;
+  static T const &deref(T const *v) { return *v; }
+};
+}
+
+/**
+ * Defines client-side handling of `MTYPE' as RPC argument.
+ * \tparam MTYPE  Elem<T>::arg_type (where T is the type used in the RPC
+ *                definition)
+ * \tparam DIR    Dir_in (client -> server), or Dir_out (server -> client)
+ * \tparam CLASS  Cls_data, Cls_item, or Cls_buffer
+ */
+template<typename MTYPE, typename DIR, typename CLASS> struct Clnt_val_ops;
+
+template<typename T> struct Clnt_noops
+{
+  template<typename A, typename B>
+  static int to_msg(char *, unsigned offset, unsigned, T, A, B)
+  { return offset; }
+
+  /// copy data from the message to the client reference
+  template<typename A, typename B>
+  static int from_msg(char *, unsigned offset, unsigned, long, T const &, A, B)
+  { return offset; }
+};
+
+template<typename T> struct Svr_noops
+{
+  template<typename A, typename B>
+  static int from_svr(char *, unsigned offset, unsigned, long, T, A, B)
+  { return offset; }
+
+  /// copy data from the message to the client reference
+  template<typename A, typename B>
+  static int to_svr(char *, unsigned offset, unsigned, T, A, B)
+  { return offset; }
+};
+
+template<typename MTYPE, typename CLASS>
+struct Clnt_val_ops<MTYPE, Dir_in, CLASS> : Clnt_noops<MTYPE>
+{
+  using Clnt_noops<MTYPE>::to_msg;
+  /// Copy a T into the message
+  static int to_msg(char *msg, unsigned offset, unsigned limit,
+                    MTYPE arg, Dir_in, CLASS)
+  { return msg_add<MTYPE>(msg, offset, limit, arg); }
+};
+
+
+template<typename MTYPE, typename CLASS>
+struct Clnt_val_ops<MTYPE, Dir_out, CLASS> : Clnt_noops<MTYPE>
+{
+  using Clnt_noops<MTYPE>::from_msg;
+  /// copy data from the message to the client reference
+  static int from_msg(char *msg, unsigned offset, unsigned limit, long,
+                      MTYPE &arg, Dir_out, CLASS)
+  { return msg_get<MTYPE>(msg, offset, limit, arg); }
+};
+
+/**
+ * Defines server-side handling for `MTYPE` server arguments.
+ * \tparam MTYPE  Elem<T>::svr_type (where T is the type used in the RPC
+ *                definition)
+ * \tparam DIR    Dir_in (client -> server), or Dir_out (server -> client)
+ * \tparam CLASS  Cls_data, Cls_item, or Cls_buffer
+ */
+template<typename MTYPE, typename DIR, typename CLASS> struct Svr_val_ops;
+
+template<typename MTYPE, typename CLASS>
+struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
+{
+  using Svr_noops<MTYPE>::to_svr;
+  /// copy data from the message to the client reference
+  static int to_svr(char *msg, unsigned offset, unsigned limit,
+                    MTYPE &arg, Dir_in, CLASS)
+  { return msg_get<MTYPE>(msg, offset, limit, arg); }
+};
+
+template<typename MTYPE, typename CLASS>
+struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
+{
+  using Svr_noops<MTYPE>::to_svr;
+  static int to_svr(char *, unsigned offs, unsigned limit,
+                    MTYPE &, Dir_out, CLASS)
+  {
+    offs = align_to<MTYPE>(offs);
+    if (L4_UNLIKELY(!check_size<MTYPE>(offs, limit)))
+      return -L4_EMSGTOOLONG;
+    return offs + sizeof(MTYPE);
+  }
+
+  using Svr_noops<MTYPE>::from_svr;
+  /// Copy a T into the message
+  static int from_svr(char *msg, unsigned offset, unsigned limit, long,
+                      MTYPE arg, Dir_out, CLASS)
+  { return msg_add<MTYPE>(msg, offset, limit, arg); }
+};
+
+template<typename T> struct Elem
+{
+  /// The type used in client argument list
+  typedef T arg_type;
+  /// The data type used to store the T on the server-side
+  typedef T svr_type;
+  /// The argument type for the server-side function
+  typedef T svr_arg_type; // might by const & (depending on the size)
+
+  enum { Is_optional = false };
+
+};
+
+template<typename T> struct Elem<T &>
+{
+  typedef T &arg_type;
+  typedef T svr_type;
+  ///< pass a reference to the server-function too
+  typedef T &svr_arg_type;
+  enum { Is_optional = false };
+};
+
+template<typename T> struct Elem<T const &>
+{
+  typedef T const &arg_type;
+  typedef T svr_type;
+  // as the RPC uses a const reference we use it here too,
+  // we could also use pass by value depending on the size
+  typedef T const &svr_arg_type;
+  enum { Is_optional = false };
+};
+
+template<typename T> struct Elem<T *> : Elem<T &>
+{
+  typedef T *arg_type;
+};
+
+template<typename T> struct Elem<T const *> : Elem<T const &>
+{
+  typedef T const *arg_type;
+};
+
+/// Type trait defining a valid RPC parameter type.
+template<typename T> struct Is_valid_rpc_type : L4::Types::True {};
+
+// Static assertions outside functions work only properly from C++11
+// onewards. On earlier version make sure the compiler fails on an ugly
+// undefined struct instead.
+template<typename T, bool B> struct Error_invalid_rpc_parameter_used;
+template<typename T> struct Error_invalid_rpc_parameter_used<T, true> {};
+
+#if __cplusplus >= 201103L
+template<typename T>
+struct _Elem : Elem<T>
+{
+  static_assert(Is_valid_rpc_type<T>::value,
+                "L4::Ipc::Msg::_Elem<T>: type T is not a valid RPC parameter type.");
+};
+#else
+template<typename T>
+struct _Elem : Elem<T>,
+               Error_invalid_rpc_parameter_used<T, Is_valid_rpc_type<T>::value>
+{};
+#endif
+
+
+template<typename T> struct Class : Cls_data {};
+template<typename T> struct Direction : Dir_in {};
+template<typename T> struct Direction<T const &> : Dir_in {};
+template<typename T> struct Direction<T const *> : Dir_in {};
+template<typename T> struct Direction<T &> : Dir_out {};
+template<typename T> struct Direction<T *> : Dir_out {};
+
+template<typename T> struct _Clnt_noops :
+  Clnt_noops<typename Detail::_Plain<typename _Elem<T>::arg_type>::type>
+{};
+
+namespace Detail {
+
+template<typename T, typename DIR, typename CLASS>
+struct _Clnt_val_ops :
+  Clnt_val_ops<typename Detail::_Plain<T>::type, DIR, CLASS> {};
+
+template<typename T,
+         typename ELEM = _Elem<T>,
+         typename CLNT_OPS = _Clnt_val_ops<typename ELEM::arg_type,
+                                           typename Direction<T>::type,
+                                           typename Class<typename Detail::_Plain<T>::type>::type>
+         >
+struct _Clnt_xmit : CLNT_OPS {};
+
+template<typename T,
+         typename ELEM = _Elem<T>,
+         typename SVR_OPS = Svr_val_ops<typename ELEM::svr_type,
+                                        typename Direction<T>::type,
+                                        typename Class<typename Detail::_Plain<T>::type>::type>
+         >
+struct _Svr_xmit : SVR_OPS {};
+
+} //namespace Detail
+template<typename T> struct Clnt_xmit : Detail::_Clnt_xmit<T> {};
+template<typename T> struct Svr_xmit : Detail::_Svr_xmit<T> {};
+
+}}} // namespace Msg, Ipc, L4
+
+

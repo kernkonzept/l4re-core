@@ -1,0 +1,10 @@
+// vi:ft=cpp
+
+#pragma once
+
+#include <l4/sys/meta>
+#include <l4/sys/typeinfo_svr>
+
+namespace L4Re { namespace Util {
+using L4::Util::handle_meta_request;
+}}

@@ -1,0 +1,175 @@
+// vi:ft=cpp
+/**
+ * \file
+ * \brief IPC server loop
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/typeinfo_svr>
+#include <l4/sys/err.h>
+#include <l4/cxx/ipc_stream>
+#include <l4/sys/cxx/ipc_epiface>
+#include <l4/sys/cxx/ipc_server_loop>
+#include <l4/cxx/type_traits>
+#include <l4/cxx/exceptions>
+
+namespace L4 {
+
+/**
+ * \ingroup cxx_ipc_server
+ * \brief Abstract server object to be used with L4::Server and
+ *        L4::Basic_registry.
+ * \note Usually L4::Server_object_t is used as a base class when writing
+ *       server objects.
+ *
+ * This server object provides an abstract interface that is used by the
+ * L4::Registry_dispatcher model. You can derive subclasses from this
+ * interface and implement application specific server objects.
+ */
+class Server_object : public Epiface
+{
+public:
+  /**
+   * \brief The abstract handler for client requests to the object.
+   * \param rights The rights bits in the invoked capability.
+   * \param ios The Ipc::Iostream for reading the request and writing the reply.
+   * \retval -L4_ENOREPLY  No reply message is send.
+   * \retval <0            Error, reply with error code.
+   * \retval >=0           Success, reply with return value.
+   *
+   * This function must be implemented by application specific server
+   * objects. The implementation must unmarshall data from the stream (`ios`)
+   * and create a reply by marshalling to the stream (`ios`). For details
+   * about the IPC stream see [IPC stream operators](\ref ipc_stream).
+   *
+   * \note You need to extract the complete message from the \a ios stream
+   *       before inserting any reply data or before doing any function call
+   *       that may use the UTCB. Otherwise, the incoming message may get lost.
+   */
+  virtual int dispatch(unsigned long rights, Ipc::Iostream &ios) = 0;
+
+  l4_msgtag_t dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb)
+  {
+    L4::Ipc::Iostream ios(utcb);
+    ios.tag() = tag;
+    int r = dispatch(rights, ios);
+    return ios.prepare_ipc(r);
+  }
+
+  Cap<Kobject> obj_cap() const
+  { return cap_cast<Kobject>(Epiface::obj_cap()); }
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ * Base class (template) for server implementing server objects.
+ * \tparam IFACE  The IPC interface class that defines the interface that shall
+ *                be implemented.
+ * \tparam BASE   The server object base class (usually L4::Server_object).
+ */
+template<typename IFACE, typename BASE = L4::Server_object>
+struct Server_object_t : BASE
+{
+  /// Data type of the IPC interface definition
+  typedef IFACE Interface;
+
+  /// \return the server-side buffer demand based in \a IFACE.
+  typename BASE::Demand get_buffer_demand() const
+  { return typename L4::Kobject_typeid<IFACE>::Demand(); }
+
+  /**
+   * Implementation of the meta protocol based on \a IFACE.
+   * \param ios  The IO stream used for receiving the message.
+   *
+   * This function can be used to handle incoming #L4_PROTO_META protcol
+   * requests.  The implementation uses the L4::Type_info of \a IFACE
+   * to handle the requests.  Call this function in the implementation of
+   * Server_object::dispatch() when the received message tag has protocol
+   * #L4_PROTO_META (L4::Meta::Protocol).
+   */
+  int dispatch_meta_request(L4::Ipc::Iostream &ios)
+  { return L4::Util::handle_meta_request<IFACE>(ios); }
+
+  /**
+   * Implementation of protocol-based dispatch for this server object.
+   * \param self    The this pointer for teh object (inhertits from
+   *                Server_object_t).
+   * \param rights  The rights from the received IPC (forwarded to p_dispatch()).
+   * \param ios     The message stream for the incoming and the reply message.
+   *
+   * Server objects may call this function from their dispatch() function.
+   * This function reads the protocol ID from the message tag and uses the
+   * p_dispatch code to dispatch to overloaded p_dispatch functions of self.
+   */
+  template<typename THIS>
+  static int proto_dispatch(THIS *self, l4_umword_t rights, L4::Ipc::Iostream &ios)
+  {
+    l4_msgtag_t t;
+    ios >> t;
+    return Kobject_typeid<IFACE>::proto_dispatch(self, t.label(), rights, ios);
+  }
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ * Helper class to implement p_dispatch based server objects.
+ * \tparam Derived  The data type of your server object class.
+ * \tparam IFACE    The data type providing the interface definition
+ *                  for the object.
+ * \tparam BASE     Optional data-type of the base server object (usually
+ *                  L4::Server_object)
+ * \implements L4::Server_object
+ *
+ * This class implements the standard dispatch() function of L4::Server_object
+ * and forwards incoming messages to a set of overloaded p_dispatch() functions.
+ * There must be a p_dispatch() function in Derived for each interface provided
+ * by IFACE with the signature
+ * \code int p_dispatch(Iface *, unsigned rights, L4::Ipc::Iostream &) \endcode
+ * that is called for messages with protocol == Iface::Protocol.
+ *
+ * Example signature for L4Re::Dataspace is:
+ * \code int p_dispatch(L4Re::Dataspace *, unsigned, L4::Ipc::Iostream &) \endcode
+ */
+template<typename Derived, typename IFACE, typename BASE = L4::Server_object>
+struct Server_object_x : Server_object_t<IFACE, BASE>
+{
+  /// Implementation forwarding to p_dispatch().
+  int dispatch(l4_umword_t r, L4::Ipc::Iostream &ios)
+  {
+    return Server_object_t<IFACE, BASE>::proto_dispatch(static_cast<Derived *>(this),
+                                                        r, ios);
+  }
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ * Server object base class for handling IRQ messages.
+ *
+ * This server object base class implements the empty interface
+ * (L4::Kobject). The implementation of Server_object::dispatch() must
+ * return -#L4_ENOREPLY, because IRQ messages do not handle replies.
+ */
+struct Irq_handler_object : Server_object_t<Kobject> {};
+
+}

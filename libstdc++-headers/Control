@@ -1,0 +1,3 @@
+provides: libstdc++-headers
+source-pkg: libstdc++-v3
+maintainer: warg@os.inf.tu-dresden.de

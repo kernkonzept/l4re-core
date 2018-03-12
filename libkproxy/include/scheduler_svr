@@ -1,0 +1,124 @@
+// vi:ft=cpp
+/**
+ * \internal
+ * \file
+ * \brief L4::Scheduler server interface
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#include <l4/sys/scheduler>
+#include <l4/re/util/icu_svr>
+
+#include <l4/sys/cxx/ipc_legacy>
+
+namespace L4kproxy {
+
+class Scheduler_interface
+{
+public:
+  virtual int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus) = 0;
+
+  virtual int run_thread(L4::Cap<L4::Thread> thread,
+                         l4_sched_param_t const &sp) = 0;
+
+  virtual int idle_time(l4_sched_cpu_set_t const &cpus,
+                        l4_kernel_clock_t &us) = 0;
+
+  virtual ~Scheduler_interface() {}
+};
+
+
+template< typename SVR >
+class Scheduler_svr_t
+{
+public:
+  void hotplug_event() const
+  { this_svr()->scheduler_irq()->trigger(); }
+
+  long op_info(L4::Scheduler::Rights, l4_umword_t gran_offset,
+               l4_umword_t &map, l4_umword_t &cpu_max)
+  {
+    l4_sched_cpu_set_t cpus;
+    cpus.gran_offset = gran_offset;
+    cpus.map = 0;
+
+    int ret = this_svr()->info(&cpu_max, &cpus);
+    map = cpus.map;
+    return ret;
+  }
+
+  long op_idle_time(L4::Scheduler::Rights, l4_sched_cpu_set_t const &cpus,
+                    l4_kernel_clock_t &us)
+  {
+    return this_svr()->idle_time(cpus, us);
+  }
+
+  long op_run_thread(L4::Scheduler::Rights, L4::Ipc::Snd_fpage thread,
+                     l4_sched_param_t const &sp)
+  {
+    return this_svr()->run_thread(this_svr()->received_thread(thread), sp);
+  }
+
+protected:
+  SVR const *this_svr() const { return static_cast<SVR const *>(this); }
+  SVR *this_svr() { return static_cast<SVR *>(this); }
+
+};
+
+
+class Scheduler_svr :
+  public Scheduler_svr_t<Scheduler_svr>,
+  public L4Re::Util::Icu_cap_array_svr<Scheduler_svr>
+{
+  typedef L4Re::Util::Icu_cap_array_svr<Scheduler_svr> Icu;
+  typedef Scheduler_svr_t<Scheduler_svr> Scheduler;
+
+public:
+  L4_RPC_LEGACY_DISPATCH(L4::Scheduler);
+  template<typename IOS> int scheduler_dispatch(unsigned r, IOS &ios)
+  { return dispatch(r, ios); }
+
+  Scheduler_svr(Scheduler_interface *s) : Icu(1, &_scheduler_irq), _sched(s) {}
+  virtual L4::Cap<L4::Thread> received_thread(L4::Ipc::Snd_fpage const &fp) = 0;
+  virtual L4::Ipc_svr::Server_iface *server_iface() const = 0;
+  virtual ~Scheduler_svr() = 0;
+
+  using Icu_svr::op_info;
+  using Scheduler::op_info;
+
+  int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus)
+  { return _sched->info(cpu_max, cpus); }
+
+  int run_thread(L4::Cap<L4::Thread> thread, l4_sched_param_t const &sp)
+  { return _sched->run_thread(thread, sp); }
+
+  int idle_time(l4_sched_cpu_set_t const &cpus, l4_kernel_clock_t &us)
+  { return _sched->idle_time(cpus, us); }
+
+  Icu::Irq *scheduler_irq() { return &_scheduler_irq; }
+  Icu::Irq const *scheduler_irq() const { return &_scheduler_irq; }
+
+private:
+  Scheduler_interface *_sched;
+  Icu::Irq _scheduler_irq;
+};
+
+inline Scheduler_svr::~Scheduler_svr() {}
+
+}

@@ -1,0 +1,4 @@
+provides: libstdc++_minimal
+requires: libsupc++_minimal libstdc++-headers
+source-pkg: libstdc++-v3
+maintainer: warg@os.inf.tu-dresden.de

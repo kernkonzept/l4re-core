@@ -1,0 +1,34 @@
+// vi:ft=cpp
+/*
+ * (c) 2010 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include <l4/cxx/hlist>
+
+namespace cxx {
+
+class Observer : public H_list_item
+{
+public:
+  virtual void notify() = 0;
+};
+
+class Notifier : public H_list<Observer>
+{
+public:
+  void notify()
+  {
+    for (Iterator i = begin(); i != end(); ++i)
+      i->notify();
+  }
+};
+
+}
+
+

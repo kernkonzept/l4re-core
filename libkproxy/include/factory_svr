@@ -1,0 +1,85 @@
+// vi:ft=cpp
+/**
+ * \internal
+ * \file
+ * \brief L4::Factory server interface
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#include <l4/sys/factory.h>
+#include <l4/sys/types.h>
+#include <l4/cxx/ipc_stream>
+
+namespace L4kproxy {
+
+class Cap_allocator_interface
+{
+public:
+  virtual L4::Cap<void> cap_alloc() = 0;
+  virtual void cap_free(L4::Cap<void>) = 0;
+  virtual ~Cap_allocator_interface() {}
+};
+
+class Factory_interface
+{
+public:
+  virtual int create_task(L4::Cap<L4::Task> const &target_cap,
+                          l4_fpage_t const &utcb_area) = 0;
+
+  virtual int create_thread(L4::Cap<L4::Thread> const &target_cap) = 0;
+
+  virtual int create_factory(L4::Cap<L4::Factory> const &target_cap,
+                             unsigned long limit) = 0;
+
+  virtual int create_gate(L4::Cap<L4::Kobject> const &target_cap,
+                          L4::Cap<L4::Thread> const &thread_cap,
+                          l4_umword_t label) = 0;
+
+  virtual int create_irq(L4::Cap<L4::Irq>const &target_cap) = 0;
+
+  virtual int create_vm(L4::Cap<L4::Vm>const &target_cap) = 0;
+
+  virtual ~Factory_interface() {}
+};
+
+class Factory_svr
+{
+public:
+  Factory_svr(Factory_interface *factory, Cap_allocator_interface *capif)
+    : _factory(factory), _capif(capif) {}
+
+  int factory_dispatch(l4_umword_t, L4::Ipc::Iostream &ios);
+
+  virtual L4::Cap<L4::Thread> received_thread(L4::Ipc::Snd_fpage const &fp) = 0;
+
+  template< typename CT >
+  L4::Cap<CT> cap_alloc()
+  { return L4::cap_cast<CT>(_capif->cap_alloc()); }
+
+  template< typename CT >
+  void cap_alloc(L4::Cap<CT> x)
+  { _capif->cap_free(L4::cap_cast<CT>(x)); }
+
+  virtual ~Factory_svr() {}
+
+private:
+  Factory_interface *_factory;
+  Cap_allocator_interface *_capif;
+};
+
+}

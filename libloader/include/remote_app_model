@@ -1,0 +1,178 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU Lesser General Public License 2.1.
+ * Please see the COPYING-LGPL-2.1 file for details.
+ */
+
+#pragma once
+
+#include <l4/re/env>
+#include <l4/re/error_helper>
+#include <l4/sys/task>
+#include <l4/sys/thread>
+#include <l4/sys/scheduler>
+#include <l4/sys/factory>
+
+namespace Ldr {
+
+struct Remote_app_std_caps
+{
+  enum Base_cap
+  {
+    Task_cap               = 1,
+    Factory_cap            = 2,
+    Rm_thread_cap          = 3,
+    Log_cap                = 5,
+    Scheduler_cap          = 7,
+    // skip base caps
+    External_rm_cap        = 0x10,
+    Allocator_cap,
+    Names_cap,
+    Parent_cap,
+    Kip_cap,
+    First_free,
+  };
+};
+
+struct Remote_app_std_prios
+{
+  enum Prio
+  {
+    Default_thread_prio = 2
+  };
+};
+
+template< typename Base, typename STD_CAPS = Remote_app_std_caps,
+          typename PRIOS = Remote_app_std_prios >
+class Remote_app_model : public Base, protected STD_CAPS, protected PRIOS
+{
+public:
+  typedef STD_CAPS Caps;
+  typedef PRIOS Prios;
+
+  virtual ~Remote_app_model() throw() {}
+
+  template< typename A1, typename A2, typename A3 >
+  Remote_app_model(A1 const &a1, A2 const &a2, A3 const & a3)
+  : Base(a1, a2, a3) {}
+
+  template< typename A1, typename A2 >
+  Remote_app_model(A1 const &a1, A2 const &a2) : Base(a1, a2) {}
+
+  template< typename A1 >
+  explicit Remote_app_model(A1 const &a1) : Base(a1) {}
+
+  Remote_app_model() : Base() {}
+
+  L4Re::Env *add_env()
+  {
+    // the terminator
+    this->_stack.push(l4re_env_cap_entry_t());
+
+    l4_cap_idx_t first_free
+      = this->push_initial_caps(Caps::First_free << L4_CAP_SHIFT);
+
+    l4re_env_cap_entry_t *caps
+      = reinterpret_cast<l4re_env_cap_entry_t*>(this->_stack.ptr());
+
+    L4Re::Env *env = this->_stack.push(L4Re::Env());
+
+    env->mem_alloc(L4::Cap<L4Re::Mem_alloc>(Caps::Allocator_cap << L4_CAP_SHIFT));
+    env->parent(L4::Cap<L4Re::Parent>(Caps::Parent_cap << L4_CAP_SHIFT));
+    env->scheduler(L4::Cap<L4::Scheduler>(Caps::Scheduler_cap << L4_CAP_SHIFT));
+    env->rm(L4::Cap<L4Re::Rm>(Caps::External_rm_cap << L4_CAP_SHIFT));
+    env->log(L4::Cap<L4Re::Log>(Caps::Log_cap << L4_CAP_SHIFT));
+    env->main_thread(L4::Cap<L4::Thread>(Caps::Rm_thread_cap << L4_CAP_SHIFT));
+    env->factory(L4::Cap<L4::Factory>(Caps::Factory_cap << L4_CAP_SHIFT));
+    env->first_free_cap(first_free >> L4_CAP_SHIFT);
+    env->utcb_area(l4_fpage(this->_info.utcbs_start, this->_info.utcbs_log2size, 0));
+    env->first_free_utcb(this->_info.utcbs_start + L4_UTCB_OFFSET);
+    env->initial_caps(this->_stack.relocate(caps));
+    return env;
+  }
+
+  L4::Cap<void> prog_kip_ds() const
+  { return L4::Cap<void>(Caps::Kip_cap << L4_CAP_SHIFT); }
+
+  void const *generate_l4aux(char const *name)
+  {
+    this->_stack.push(l4_umword_t(this->prog_info()->ldr_flags));
+    this->_stack.push(l4_umword_t(this->prog_info()->l4re_dbg));
+    this->_stack.push(l4_umword_t(prog_kip_ds().cap()));
+    return this->_stack.push_local_ptr(name);
+  }
+
+  void prog_reserve_utcb_area()
+  {
+    this->prog_attach_ds(this->prog_info()->utcbs_start,
+                         1UL << this->prog_info()->utcbs_log2size,
+                         this->reserved_area(), 0, 0, "attaching utcb area");
+  }
+
+  void prog_attach_kip()
+  {
+    this->prog_attach_ds(this->prog_info()->kip, L4_PAGESIZE,
+                         this->local_kip_ds(), 0,
+                         L4Re::Rm::Read_only, "attaching KIP segment");
+  }
+
+  void prog_attach_stack(typename Base::Dataspace app_stack)
+  {
+    this->prog_attach_ds(this->_stack.target_addr(), this->_stack.stack_size(),
+                         app_stack, 0, 0, "attaching stack segment");
+  }
+
+  void start_prog(L4Re::Env const *env)
+  {
+    using L4Re::chksys;
+    using L4::Cap;
+
+    L4::Cap<L4::Task> ntask;
+    L4::Cap<L4::Thread> nthread;
+    L4::Cap<L4::Factory> factory;
+
+    this->get_task_caps(&factory, &ntask, &nthread);
+
+    chksys(factory->create_task(ntask, env->utcb_area()));
+    chksys(factory->create_thread(nthread));
+
+    chksys(ntask->map(L4Re::This_task, ntask.fpage(),
+	  Cap<L4::Task>(L4Re::This_task).snd_base()));
+    chksys(ntask->map(L4Re::This_task, this->_info.factory,
+	  env->factory().snd_base()));
+    chksys(ntask->map(L4Re::This_task, nthread.fpage(),
+	  env->main_thread().snd_base()));
+    chksys(ntask->map(L4Re::This_task, this->_info.scheduler,
+	  env->scheduler().snd_base()));
+    chksys(ntask->map(L4Re::This_task, this->_info.parent,
+	  env->parent().snd_base()));
+    chksys(ntask->map(L4Re::This_task, this->_info.log,
+	  env->log().snd_base()));
+    chksys(ntask->map(L4Re::This_task, this->_info.rm,
+	  env->rm().snd_base()));
+    chksys(ntask->map(L4Re::This_task, this->_info.mem_alloc,
+	  env->mem_alloc().snd_base()));
+    chksys(ntask->map(L4Re::This_task, this->local_kip_cap().fpage(),
+	  prog_kip_ds().snd_base()));
+
+    this->map_initial_caps(ntask, Caps::First_free << L4_CAP_SHIFT);
+
+    L4::Thread::Attr th_attr;
+    th_attr.pager(env->rm());
+    th_attr.exc_handler(env->rm());
+    th_attr.bind((l4_utcb_t*)this->_info.utcbs_start, ntask);
+    chksys(nthread->control(th_attr));
+
+    chksys(this->run_thread(nthread,
+                            l4_sched_param(Prios::Default_thread_prio)));
+
+    nthread->ex_regs(this->_info.entry, this->_stack.target_ptr(), 0);
+  }
+
+
+};
+
+}

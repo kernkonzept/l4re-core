@@ -1,0 +1,380 @@
+// vi:ft=cpp:
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/re/dataspace>
+#include <l4/re/video/colors>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4Re { namespace Video {
+
+class L4_EXPORT Goos;
+
+/**
+ * \brief View.
+ */
+class L4_EXPORT View
+{
+private:
+  friend class Goos;
+
+  L4::Cap<Goos> _goos;
+  unsigned _view_idx;
+
+  View(l4_cap_idx_t goos, unsigned idx)
+  : _goos(goos), _view_idx(_goos.is_valid() ? idx : ~0U) {}
+
+  unsigned view_index() const throw()
+  { return _goos.is_valid() ? _view_idx : ~0U; }
+
+public:
+  View() : _goos(L4::Cap<Goos>::Invalid), _view_idx(~0U) {}
+
+  /**
+   * \brief Flags on a view.
+   */
+  enum Flags
+  {
+    F_none               = 0x00, ///< everything for this view is static (the VESA-FB case)
+    F_set_buffer         = 0x01, ///< buffer object for this view can be changed
+    F_set_buffer_offset  = 0x02, ///< buffer offset can be set
+    F_set_bytes_per_line = 0x04, ///< bytes per line can be set
+    F_set_pixel          = 0x08, ///< pixel type can be set
+    F_set_position       = 0x10, ///< position on screen can be set
+    F_dyn_allocated      = 0x20, ///< View is dynamically allocated
+    F_set_background     = 0x40, ///< Set view as background for session
+    F_set_flags          = 0x80, ///< Set view flags (\see V_flags)
+
+    /** Flags for a fully dynamic view */
+    F_fully_dynamic      =   F_set_buffer | F_set_buffer_offset | F_set_bytes_per_line
+                           | F_set_pixel | F_set_position | F_dyn_allocated,
+  };
+
+  /**
+   * \brief Property flags of a view.
+   *
+   * Such flags can be set or deleted with the #F_set_flags operation using
+   * the `set_info()` method.
+   */
+  enum V_flags
+  {
+    F_above              = 0x1000,  ///< Flag the view as stay on top
+    F_flags_mask         = 0xff000, ///< Mask containing all possible property flags
+  };
+
+  /**
+   * \brief Information structure of a view.
+   */
+  struct Info
+  {
+    unsigned flags;                 ///< Flags, see #Flags and #V_flags
+    unsigned view_index;            ///< Index of the view
+
+    unsigned long xpos;             ///< X position in pixels of the view in the goos
+    unsigned long ypos;             ///< Y position in pixels of the view in the goos
+    unsigned long width;            ///< Width of the view in pixels
+    unsigned long height;           ///< Height of the view in pixels
+    unsigned long buffer_offset;    ///< Offset in the memory buffer in bytes
+    unsigned long bytes_per_line;   ///< Bytes per line
+    Pixel_info pixel_info;          ///< Pixel information
+    unsigned buffer_index;          ///< Number of the buffer used for this view
+
+    /** Return whether the view has a static buffer */
+    bool has_static_buffer() const { return !(flags & F_set_buffer); }
+    /** Return whether the static buffer offset is available */
+    bool has_static_buffer_offset() const { return !(flags & F_set_buffer_offset); }
+
+    /** Return whether a buffer is set */
+    bool has_set_buffer() const { return flags & F_set_buffer; }
+    /** Return whether the given buffer offset is valid */
+    bool has_set_buffer_offset() const { return flags & F_set_buffer_offset; }
+    /** Return whether the given bytes-per-line value is valid */
+    bool has_set_bytes_per_line() const { return flags & F_set_bytes_per_line; }
+    /** Return whether the given pixel information is valid */
+    bool has_set_pixel() const { return flags & F_set_pixel; }
+    /** Return whether the position information given is valid */
+    bool has_set_position() const { return flags & F_set_position; }
+
+    /** Dump information on the view information to a stream */
+    template< typename OUT >
+    void dump(OUT &s) const
+    {
+      s.printf("View::Info:\n"
+               "  flags: %x\n"
+               "  size:  %ldx%ld\n"
+               "  pos:   %ldx%ld\n"
+               "  bytes_per_line: %ld\n"
+               "  buffer_offset:  %lx\n"
+               "  ",
+               flags, width, height, xpos, ypos,
+               bytes_per_line, buffer_offset);
+      pixel_info.dump(s);
+      s.printf("\n");
+    }
+  };
+
+  /**
+   * \brief Return the view information of the view.
+   * \param[out] info   Information structure pointer.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  int info(Info *info) const throw();
+
+  /**
+   * \brief Set the information structure for this view.
+   * \param info  Information structure.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   *
+   * The function will also set the view port according to the values given
+   * in the information structure.
+   */
+  int set_info(Info const &info) const throw();
+
+  /**
+   * \brief Set the position of the view in the goos.
+   * \param scr_x      X position
+   * \param scr_y      Y position
+   * \param w          Width
+   * \param h          Height
+   * \param buf_offset Offset in the buffer in bytes
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  int set_viewport(int scr_x, int scr_y, int w, int h, unsigned long buf_offset) const throw();
+
+  /**
+   * \brief Move this view in the view stack.
+   * \param pivot   View to move relative to
+   * \param behind  When true move the view behind the pivot view, if false
+   *                move the view before the pivot view.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  int stack(View const &pivot, bool behind = true) const throw();
+
+  /** Make this view the top-most view */
+  int push_top() const throw()
+  { return stack(View(), true); }
+
+  /** Push this view the back */
+  int push_bottom() const throw()
+  { return stack(View(), false); }
+
+  /**
+   * \brief Refresh/Redraw the view.
+   * \param x  X position.
+   * \param y  Y position.
+   * \param w  Width.
+   * \param h  Height.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  int refresh(int x, int y, int w, int h) const throw();
+
+  /** \brief Return whether this view is valid */
+  bool valid() const { return _goos.is_valid(); }
+};
+
+
+/**
+ * \brief A goos.
+ */
+class L4_EXPORT Goos :
+  public L4::Kobject_t<Goos, L4::Kobject, L4RE_PROTO_GOOS>
+{
+public:
+  /** Flags for a goos */
+  enum Flags
+  {
+    F_auto_refresh    = 0x01, ///< The graphics display is automatically refreshed
+    F_pointer         = 0x02, ///< We have a mouse pointer
+    F_dynamic_views   = 0x04, ///< Supports dynamically allocated views
+    F_dynamic_buffers = 0x08, ///< Supports dynamically allocated buffers
+  };
+
+  /** Information structure of a goos */
+  struct Info
+  {
+    unsigned long width;          ///< Width
+    unsigned long height;         ///< Height
+    unsigned flags;               ///< Flags, see #Flags
+    unsigned num_static_views;    ///< Number of static view
+    unsigned num_static_buffers;  ///< Number of static buffers
+    Pixel_info pixel_info;        ///< Pixel information
+
+    /** Return whether this goos does auto refreshing or the view refresh
+     * functions must be used to make changes visible. */
+    bool auto_refresh() const { return flags & F_auto_refresh; }
+    /** Return whether a pointer is used by the provider of the goos */
+    bool has_pointer() const { return flags & F_pointer; }
+    /** Return whether dynamic view are supported */
+    bool has_dynamic_views() const { return flags & F_dynamic_views; }
+    /** Return whether dynamic buffers are supported */
+    bool has_dynamic_buffers() const { return flags & F_dynamic_buffers; }
+
+    Info()
+    : width(0), height(0), flags(0), num_static_views(0),
+      num_static_buffers(0) {}
+  };
+
+  /**
+   * \brief Return the goos information of the goos.
+   * \param[out] info   Goos information structure pointer.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  L4_INLINE_RPC(long, info, (Info *info));
+
+  /**
+   * \brief Return a static buffer of a goos.
+   * \param idx     Index of the static buffer.
+   * \param rbuf    Capability slot to point the buffer dataspace to.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  L4_RPC(long, get_static_buffer, (unsigned idx,
+                                   L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
+
+  /**
+   * \brief Create a buffer.
+   * \param size     Size of buffer in bytes.
+   * \param rbuf     Capability slot to point the buffer dataspace to.
+   *
+   * \retval >=0  Success, the value returned is the buffer index.
+   * \retval <0   Error
+   */
+  L4_RPC(long, create_buffer, (unsigned long size,
+                               L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
+
+  /**
+   * \brief Delete a buffer.
+   * \param idx      Buffer to delete.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  L4_INLINE_RPC(long, delete_buffer, (unsigned idx));
+
+  // Use a wrapper for this RPC as we enacapsulate the View
+  L4_INLINE_RPC_NF(long, create_view, ());
+
+  /**
+   * \brief Create a view.
+   * \param[out] view   A view object.
+   * \param  utcb  UTCB of the caller. This is a default parameter.
+   *
+   * \retval >=0  Success, the value returned is the view index.
+   * \retval <0  Error
+   */
+  int create_view(View *view, l4_utcb_t *utcb = l4_utcb()) const throw()
+  {
+    long r = create_view_t::call(c(), utcb);
+    if (r < 0)
+      return r;
+    *view = View(cap(), r);
+    return r;
+  }
+
+  // Use a wrapper as Views are encapsulated
+  L4_INLINE_RPC_NF(long, delete_view, (unsigned index));
+
+  /**
+   * \brief Delete a view.
+   * \param  v     The view object to delete.
+   * \param  utcb  UTCB of the caller. This is a default parameter.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  int delete_view(View const &v, l4_utcb_t *utcb = l4_utcb()) const throw()
+  {
+    return delete_view_t::call(c(), v._view_idx, utcb);
+  }
+
+  /**
+   * \brief Return a view.
+   * \param index   Index of the view to return.
+   * \return The view.
+   */
+  View view(unsigned index) const throw();
+
+  /**
+   * \brief Trigger refreshing of the given area on the virtual screen.
+   */
+  L4_INLINE_RPC(long, refresh, (int x, int y, int w, int h));
+
+  // those are used by the View
+  L4_INLINE_RPC(long, view_info, (unsigned index, View::Info *info));
+  L4_INLINE_RPC(long, set_view_info, (unsigned index, View::Info const &info));
+  L4_INLINE_RPC(long, view_stack, (unsigned index, unsigned pivit, bool behind));
+  L4_INLINE_RPC(long, view_refresh, (unsigned index, int x, int y, int w, int h));
+
+  typedef L4::Typeid::Rpcs<
+    info_t, get_static_buffer_t, create_buffer_t, create_view_t, delete_buffer_t,
+    delete_view_t, view_info_t, set_view_info_t, view_stack_t, view_refresh_t,
+    refresh_t
+  > Rpcs;
+};
+
+inline View
+Goos::view(unsigned index) const throw()
+{ return View(cap(), index); }
+
+inline int
+View::info(Info *info) const throw()
+{ return _goos->view_info(_view_idx, info); }
+
+inline int
+View::set_info(Info const &info) const throw()
+{ return _goos->set_view_info(_view_idx, info); }
+
+inline int
+View::stack(View const &pivot, bool behind) const throw()
+{ return _goos->view_stack(_view_idx, pivot._view_idx, behind); }
+
+inline int
+View::refresh(int x, int y, int w, int h) const throw()
+{ return _goos->view_refresh(_view_idx, x, y, w, h); }
+
+inline int
+View::set_viewport(int scr_x, int scr_y, int w, int h,
+                   unsigned long buf_offset) const throw()
+{
+  Info i;
+  i.flags = F_set_buffer_offset | F_set_position;
+  i.buffer_offset = buf_offset;
+  i.xpos = scr_x;
+  i.ypos = scr_y;
+  i.width = w;
+  i.height = h;
+  return set_info(i);
+}
+
+}}

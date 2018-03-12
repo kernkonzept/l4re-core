@@ -1,0 +1,3 @@
+provides: l4sys l4sys-l4x
+requires: ldscripts libgcc-pure
+Maintainer: adam@os.inf.tu-dresden.de warg@os.inf.tu-dresden.de

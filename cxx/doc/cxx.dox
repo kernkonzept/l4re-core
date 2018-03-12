@@ -1,0 +1,7 @@
+/**
+ * \defgroup cxx_api Small C++ Template Library
+ */
+/**
+ * Small Low-Level C++ Library
+ */
+namespace cxx {}

@@ -1,0 +1,3 @@
+lib/contrib/uclibc : LGPL
+lib/backends : TUD
+lib/include : TUD

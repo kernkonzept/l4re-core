@@ -1,0 +1,509 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ * \brief   Region mapper interface
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Björn Döbel <doebel@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/types.h>
+#include <l4/sys/l4int.h>
+#include <l4/sys/capability>
+#include <l4/re/protocols.h>
+#include <l4/sys/pager>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/ipc_ret_array>
+#include <l4/re/consts>
+#include <l4/re/dataspace>
+
+namespace L4Re {
+
+/**
+ * \defgroup api_l4re_rm Region map API
+ * \ingroup api_l4re
+ * \brief Virtual address-space management.
+ *
+ * The central purpose of the region-map API is to provide means to manage the
+ * virtual memory address space of an L4 task. A region-map object implements
+ * two protocols. The first protocol is the kernel page-fault protocol, to resolve
+ * page faults for threads running in an L4 task. The second protocol is
+ * the region-map protocol itself, that allows to attach a data-space object
+ * to a region of the virtual address space.
+ *
+ * There are two basic concepts provided by a region-map abstraction:
+ * - Regions provide a means to create a view to a data space (or parts of a
+ *   data space).
+ * - Areas provide a means to reserve areas in a virtual memory address space
+ *   for special purposes. A reserved area is skipped when searching for
+ *   an available range of virtual memory, or may be explicitly used to search
+ *   only within that area.
+ *
+ * \see L4Re::Dataspace, L4Re::Rm
+ */
+
+/**
+ * \brief Region map
+ * \headerfile rm l4/re/rm
+ * \ingroup api_l4re_rm
+ */
+class L4_EXPORT Rm :
+  public L4::Kobject_t<Rm, L4::Pager, L4RE_PROTO_RM,
+                       L4::Type_info::Demand_t<1> >
+{
+public:
+  /// Result values for detach operation.
+  enum Detach_result
+  {
+    Detached_ds  = 0,      ///< Detached data sapce.
+    Kept_ds      = 1,      ///< Kept data space.
+    Split_ds     = 2,      ///< Splitted data space, and done.
+    Detach_result_mask = 3,
+
+    Detach_again = 4,      ///< Detached data space, more to do.
+  };
+
+  /// Flags for regions.
+  enum Region_flags
+  {
+    Read_only        = 0x01, ///< Region is read-only
+    /// Free the portion of the data space after detach
+    Detach_free      = 0x02,
+    Pager            = 0x04, ///< Region has a pager
+    Reserved         = 0x08, ///< Region is reserved (blocked)
+
+    /// Start of Rm cache bits
+    Caching_shift    = 8,
+    /// Shift value for Dataspace to Rm cache bits
+    Caching_ds_shift = Caching_shift - Dataspace::Map_caching_shift,
+    /// Mask of all Rm cache bits
+    Caching          = Dataspace::Map_caching_mask << Caching_ds_shift,
+    /// Cache bits for normal cacheable memory
+    Cache_normal     = Dataspace::Map_normal << Caching_ds_shift,
+    /// Cache bits for buffered (write combining) memory
+    Cache_buffered   = Dataspace::Map_bufferable << Caching_ds_shift,
+    /// Cache bits for uncached memory
+    Cache_uncached   = Dataspace::Map_uncacheable << Caching_ds_shift,
+
+    Region_flags     = Caching | 0x0f, ///< Mask of all region flags
+  };
+
+  /// Flags for attach operation.
+  enum Attach_flags
+  {
+    Search_addr        = 0x20, ///< Search for a suitable address range.
+    In_area            = 0x40, ///< Search only in area, or map into area.
+    Eager_map          = 0x80, ///< Eagerly map the attached data space in.
+
+    Attach_flags       = 0xf0, ///< Mask of all attach flags.
+  };
+
+  /// Flags for detach operation
+  enum Detach_flags
+  {
+    /**
+     * \brief Do an unmap of the exact region given.
+     * \internal
+     *
+     * This flag is useful for _detach().
+     *
+     * Using this mode for detach, unmaps the exact region given.
+     * This has the effect that parts of regions may stay in the address space.
+     */
+    Detach_exact   = 1,
+    /**
+     * \brief Do an unmap of all overlapping regions.
+     * \internal
+     *
+     * This flag is useful for _detach().
+     *
+     * Using this mode for detach, unmaps all regions that overlap with
+     * the given region.
+     */
+    Detach_overlap = 2,
+
+    /**
+     * \brief Do not free the detached data space, ignore the #Detach_free
+     * \internal
+     *
+     * This flag is useful for _detach().
+     *
+     */
+    Detach_keep = 4,
+  };
+
+
+  template< typename T >
+  class Auto_region
+  {
+  private:
+    T _addr;
+    mutable L4::Cap<Rm> _rm;
+
+  public:
+    Auto_region() throw()
+    : _addr(0), _rm(L4::Cap<Rm>::Invalid) {}
+
+    explicit Auto_region(T addr) throw()
+    : _addr(addr), _rm(L4::Cap<Rm>::Invalid) {}
+
+    Auto_region(T addr, L4::Cap<Rm> const &rm) throw()
+    : _addr(addr), _rm(rm) {}
+
+    Auto_region(Auto_region const &o) throw() : _addr(o.get()), _rm(o._rm)
+    { o.release(); }
+
+    Auto_region &operator = (Auto_region const &o) throw()
+    {
+      if (&o != this)
+        {
+	  if (_rm.is_valid())
+	    _rm->detach(l4_addr_t(_addr), 0);
+	  _rm = o._rm;
+	  _addr = o.release();
+        }
+      return *this;
+    }
+
+    ~Auto_region() throw()
+    {
+      if (_rm.is_valid())
+	_rm->detach(l4_addr_t(_addr), 0);
+    }
+
+    T get() const throw() { return _addr; }
+    T release() const throw() { _rm = L4::Cap<Rm>::Invalid; return _addr; }
+    void reset(T addr, L4::Cap<Rm> const &rm) throw()
+    {
+      if (_rm.is_valid())
+	_rm->detach(l4_addr_t(_addr), 0);
+
+      _rm = rm;
+      _addr = addr;
+    }
+
+    /** \brief Dereference the pointer. */
+    T operator * () const throw() { return _addr; }
+
+    /** \brief Member access for the object. */
+    T operator -> () const throw() { return _addr; }
+
+  };
+
+  /**
+   * \brief Reserve the given area in the region map.
+   * \param[in,out] start  The virtual start address of the area to reserve.
+   *                       Returns the start address of the area.
+   * \param         size   The size of the area to reserve (in bytes).
+   * \param         flags  Flags for the reserved area (see
+   *                       #L4Re::Rm::Region_flags and #L4Re::Rm::Attach_flags).
+   * \param         align  Alignment of area if searched as bits (log2 value).
+   * \retval 0                  Success
+   * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
+   * \retval <0                 IPC errors
+   *
+   * This function reserves an area within the virtual address space implemented
+   * by the region map. There are two kinds of areas available:
+   * - Reserved areas (\a flags = #Reserved), where no data spaces can be
+   *   attached
+   * - Special purpose areas (\a flags = 0), where data spaces can be attached
+   *   to the area via the #In_area flag and a start address within the area
+   *   itself.
+   *
+   * \note When searching for a free place in the virtual address space
+   * (with \a flags = Search_addr), the space between \a start and the end of
+   * the virtual address space is searched.
+   */
+  long reserve_area(l4_addr_t *start, unsigned long size,
+                    unsigned flags = 0,
+                    unsigned char align = L4_PAGESHIFT) const throw()
+  { return reserve_area_t::call(c(), start, size, flags, align); }
+
+  L4_RPC_NF(long, reserve_area, (L4::Ipc::In_out<l4_addr_t *> start,
+                                 unsigned long size,
+                                 unsigned flags,
+                                 unsigned char align));
+
+  /**
+   * \brief Reserve the given area in the region map.
+   * \param[in,out] start  The virtual start address of the area to reserve.
+   *                       Returns the start address of the area.
+   * \param         size   The size of the area to reserve (in bytes).
+   * \param         flags  Flags for the reserved area (see #Region_flags and
+   *                       #Attach_flags).
+   * \param         align  Alignment of area if searched as bits (log2 value).
+   * \retval 0                  Success
+   * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
+   * \retval <0                 IPC errors
+   *
+   * For more information, please refer to the analogous function
+   * \see L4Re::Rm::reserve_area.
+   */
+  template< typename T >
+  long reserve_area(T **start, unsigned long size,
+                    unsigned flags = 0,
+                    unsigned char align = L4_PAGESHIFT) const throw()
+  { return reserve_area_t::call(c(), (l4_addr_t*)start, size, flags, align); }
+
+  /**
+   * \brief Free an area from the region map.
+   *
+   * \param addr  An address within the area to free.
+   * \retval 0           Success
+   * \retval -L4_ENOENT  No area found.
+   * \retval <0          IPC errors
+   *
+   * \note The data spaces that are attached to that area are not detached by
+   *       this operation.
+   * \see reserve_area() for more information about areas.
+   */
+  L4_RPC(long, free_area, (l4_addr_t addr));
+
+  L4_RPC_NF(long, attach, (L4::Ipc::In_out<l4_addr_t *> start,
+                           unsigned long size, unsigned long flags,
+                           L4::Ipc::Opt<L4::Ipc::Cap<Dataspace> > mem,
+                           l4_addr_t offs, unsigned char align,
+                           L4::Ipc::Opt<l4_cap_idx_t> client_cap));
+
+  L4_RPC_NF(long, detach, (l4_addr_t addr, unsigned long size, unsigned flags,
+                           l4_addr_t &start, l4_addr_t &rsize,
+                           l4_cap_idx_t &mem_cap));
+
+  /**
+   * \brief Attach a data space to a region.
+   *
+   * \param[in,out]  start  Virtual start address where the region manager
+   *                        shall attach the data space.
+   *                        If #L4Re::Rm::Search_addr is given this value is
+   *                        used as the start address to search for a free
+   *                        virtual memory region and the resulting address is
+   *                        returned here.
+   *                        If #L4Re::Rm::In_area is given the value is used as
+   *                        a selector for the area (see
+   *                        #L4Re::Rm::reserve_area) to attach the data space
+   *                        to.
+   * \param          size   Size of the data space to attach (in bytes)
+   * \param          flags  Flags, see #L4Re::Rm::Attach_flags and
+   *                        #L4Re::Rm::Region_flags. If the `Eager_map` flag is
+   *                        set this function may also return
+   *                        L4Re::Dataspace::map error codes if the mapping
+   *                        fails.
+   * \param          mem    Data space
+   * \param          offs   Offset into the data space to use
+   * \param          align  Alignment of the virtual region, log2-size, default:
+   *                        a page (#L4_PAGESHIFT). This is only meaningful if
+   *                        the #L4Re::Rm::Search_addr flag is used.
+   *
+   * \retval 0                  Success
+   * \retval -L4_ENOENT         No area could be found (see #L4Re::Rm::In_area)
+   * \retval -L4_EPERM          Operation not allowed.
+   * \retval -L4_EINVAL
+   * \retval -L4_EADDRNOTAVAIL  The given address is not available.
+   * \retval <0                 IPC errors
+   *
+   * Makes the whole or parts of a data space visible in the virtual memory
+   * of the corresponding task. The corresponding region in the virtual
+   * address space is backed with the contents of the dataspace.
+   *
+   * \note When searching for a free place in the virtual address space,
+   * the space between \a start and the end of the virtual address space is
+   * searched.
+   *
+   * \note There is no region object created, instead the region is
+   *       defined by a virtual address within this range (see #L4Re::Rm::find).
+   */
+  long attach(l4_addr_t *start, unsigned long size, unsigned long flags,
+              L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
+              unsigned char align = L4_PAGESHIFT) const throw();
+
+  /**
+   * \copydoc L4Re::Rm::attach
+   */
+  template< typename T >
+  long attach(T **start, unsigned long size, unsigned long flags,
+              L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
+              unsigned char align = L4_PAGESHIFT) const throw()
+  {
+    union X { l4_addr_t a; T* t; };
+    X *x = reinterpret_cast<X*>(start);
+    return attach(&x->a, size, flags, mem, offs, align);
+  }
+
+  template< typename T >
+  long attach(Auto_region<T> *start, unsigned long size, unsigned long flags,
+              L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
+              unsigned char align = L4_PAGESHIFT) const throw()
+  {
+    l4_addr_t addr = (l4_addr_t)start->get();
+
+    long res = attach(&addr, size, flags, mem, offs, align);
+    if (res < 0)
+      return res;
+
+    start->reset((T)addr, L4::Cap<Rm>(cap()));
+    return res;
+  }
+
+  /**
+   * \brief Detach a region from the address space.
+   *
+   * \param      addr  Virtual address of region, any address within the
+   *                   region is valid.
+   * \param[out] mem   Dataspace that is affected. Give 0 if not interested.
+   * \param      task  This argument specifies the task where the pages are
+   *                   unmapped. Provide L4::Cap<L4::Task>::Invalid for none.
+   *                   The default is the current task.
+   *
+   * \retval #Detach_result  On success.
+   * \retval -L4_ENOENT      No region found.
+   * \retval <0              IPC errors
+   *
+   * Frees a region in the virtual address space given by addr (address type).
+   * The corresponding part of the address space is now available again.
+   */
+  int detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
+             L4::Cap<L4::Task> const &task = This_task) const throw();
+
+  /**
+   * \copydoc L4Re::Rm::detach
+   */
+  int detach(void *addr, L4::Cap<Dataspace> *mem,
+             L4::Cap<L4::Task> const &task = This_task) const throw();
+
+  /**
+   * \brief Detach all regions of the specified interval.
+   *
+   * \param      start  Start of area to detach, must be within region.
+   * \param      size   Size of of area to detach (in bytes).
+   * \param[out] mem    Dataspace that is affected. Give 0 if not interested.
+   * \param      task   This argument specifies the task where the pages are
+   *                    unmapped. Provide L4::Cap<L4::Task>::Invalid for none.
+   *                    The default is the current task.
+   *
+   * \retval #Detach_result  On success.
+   * \retval -L4_ENOENT      No region found.
+   * \retval <0              IPC errors
+   *
+   * Frees all regions within the interval given by start and size. If a
+   * region overlaps the start or the end of the interval this region is only
+   * detached partly. If the interval is within one region the original region
+   * is split up into two separate regions.
+   */
+  int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
+             L4::Cap<L4::Task> const &task) const throw();
+
+  /**
+   * \brief Find a region given an address and size.
+   *
+   * \param      addr    Address to look for
+   * \param      size    Size of the area to look for (in bytes).
+   * \param[out] addr    Start address of the found region.
+   * \param[out] size    Size of the found region (in bytes).
+   * \param[out] offset  Offset at the beginning of the region within the
+   *                     associated dataspace.
+   * \param[out] flags   Region flags, see #Region_flags (and #In_area).
+   * \param[out] m       Associated dataspace or paging service.
+   *
+   * \retval 0           Success
+   * \retval -L4_EPERM   Operation not allowed.
+   * \retval -L4_ENOENT  No region found.
+   * \retval <0          IPC errors
+   *
+   * This function returns the properties of the region that contains the area
+   * described by the addr and size parameter. If no such region is found but
+   * a reserved area, the area is returned and #In_area is set in `flags`.
+   * Note, in the case of an area the `offset` and `m` return values are
+   * invalid.
+   *
+   * \verbatim
+                     size-out
+                   /           \
+                  /             \
+              addr-out           \
+                 ^________________\
+     ------------|----------------|------------------
+     |           | Region         |       Dataspace |
+     |           |_______|___|____|                 |
+     ------------|-------|---|-----------------------
+      \         /        |\ /
+       \       /         | |> size-in
+       offset-out        |
+                         |> addr-in
+     \endverbatim
+   *
+   *
+   * \note The value of the size input parameter should be 1 to assure that a
+   *       region can be determined unambiguously.
+   *
+   */
+  int find(l4_addr_t *addr, unsigned long *size, l4_addr_t *offset,
+           unsigned *flags, L4::Cap<Dataspace> *m) throw()
+  { return find_t::call(c(), addr, size, flags, offset, m); }
+
+  L4_RPC_NF(int, find, (L4::Ipc::In_out<l4_addr_t *> addr,
+                        L4::Ipc::In_out<unsigned long *> size,
+                        unsigned *flags, l4_addr_t *offset,
+                        L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
+
+  struct Region
+  {
+    l4_addr_t start;
+    l4_addr_t end;
+    l4_addr_t offset;
+    L4::Cap<Dataspace> ds;
+  };
+
+  struct Area
+  {
+    l4_addr_t start;
+    l4_addr_t end;
+  };
+
+  L4_RPC(long, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Region> regions));
+  L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Area> areas));
+
+  int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
+             L4::Cap<L4::Task> task, unsigned flags) const throw();
+
+  typedef L4::Typeid::Rpcs<attach_t, detach_t, find_t,
+                           reserve_area_t, free_area_t,
+                           get_regions_t, get_areas_t> Rpcs;
+};
+
+
+inline int
+Rm::detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
+           L4::Cap<L4::Task> const &task) const throw()
+{  return detach(addr, 1, mem, task, Detach_overlap); }
+
+inline int
+Rm::detach(void *addr, L4::Cap<Dataspace> *mem,
+           L4::Cap<L4::Task> const &task) const throw()
+{  return detach((l4_addr_t)addr, 1, mem, task, Detach_overlap); }
+
+inline int
+Rm::detach(l4_addr_t addr, unsigned long size, L4::Cap<Dataspace> *mem,
+           L4::Cap<L4::Task> const &task) const throw()
+{  return detach(addr, size, mem, task, Detach_exact); }
+
+};
+

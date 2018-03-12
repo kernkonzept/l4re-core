@@ -1,0 +1,275 @@
+// vi:ft=cpp
+/**
+ * \file
+ * \brief Basic IO stream
+ */
+/*
+ * (c) 2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+namespace L4 {
+
+  /**
+   * \brief Modifier class for the IO stream.
+   *
+   * An IO Modifier can be used to change properties of an IO stream
+   * for example the number format.
+   */
+  class IOModifier
+  {
+  public:
+    IOModifier( int x ) : mod(x) {}
+    bool operator == (IOModifier o) { return mod == o.mod; }
+    bool operator != (IOModifier o) { return mod != o.mod; }
+    int mod;
+  };
+
+  /**
+   * \internal
+   * \brief Backend to write or read stream data.
+   */
+  class IOBackend
+  {
+  public:
+    typedef int Mode;
+
+  protected:
+    friend class BasicOStream;
+
+    IOBackend() 
+      : int_mode(10) 
+    {}
+
+    virtual ~IOBackend() {}
+
+    virtual void write(char const *str, unsigned len) = 0;
+
+  private:
+    void write(IOModifier m);
+    void write(long long int c, int len);
+    void write(long long unsigned c, int len);
+    void write(long long unsigned c, unsigned char base = 10, 
+	       unsigned char len = 0, char pad = ' ');
+
+    Mode mode() const 
+    { return int_mode; }
+
+    void mode(Mode m) 
+    { int_mode = m; }
+
+    int int_mode;
+  };
+
+  /**
+   * \internal
+   * \brief Write-only backend for stream data.
+   */
+  class BasicOStream
+  {
+  public:
+    BasicOStream(IOBackend *b) 
+      : iob(b) 
+    {}
+
+    void write(char const *str, unsigned len) 
+    { if(iob) iob->write(str,len); }
+
+    void write(long long int c, int len) 
+    { if(iob) iob->write(c,len); }
+
+    void write(long long unsigned c, unsigned char base = 10,
+	       unsigned char len = 0, char pad = ' ')
+    { if(iob) iob->write(c, base, len, pad); }
+
+    void write(long long unsigned c, int len)
+    { if(iob) iob->write(c,len); }
+
+    void write(IOModifier m) 
+    { if(iob) iob->write(m); }
+
+    IOBackend::Mode be_mode() const 
+    { if(iob) return iob->mode(); return 0; }
+
+    void be_mode(IOBackend::Mode m) 
+    { if(iob) iob->mode(m); }
+
+  private:
+    IOBackend *iob;
+
+  };
+
+  /**
+   * \internal
+   * \brief Container class describing a the number format.
+   */
+  class IONumFmt
+  {
+  public:
+    IONumFmt(unsigned long long n, unsigned char base = 10, 
+	     unsigned char len = 0, char pad = ' ')
+      : n(n), base(base), len(len), pad(pad)
+    {}
+
+  BasicOStream &print(BasicOStream &o) const;
+
+  private:
+    unsigned long long n;
+    unsigned char base, len;
+    char pad;
+  };
+
+  inline IONumFmt n_hex(unsigned long long n) { return IONumFmt(n, 16); }
+
+  /**
+   * \brief Modifies the stream to print numbers as hexadecimal values.
+   */
+  extern IOModifier const hex;
+
+  /**
+   * \brief Modifies the stream to print numbers as decimal values.
+   */
+  extern IOModifier const dec;
+
+  inline
+  BasicOStream &IONumFmt::print(BasicOStream &o) const
+  {
+    o.write(n, base, len, pad);
+    return o;
+  }
+
+}
+
+
+// implementation
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, char const * const str)
+{
+  if (!str)
+    {
+      s.write("(NULL)", 6);
+      return s;
+    }
+
+  unsigned l=0;
+  for(; str[l]!=0; l++)
+    ;
+  s.write(str,l);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, signed short u)
+{
+  s.write((long long signed)u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, signed u)
+{
+  s.write((long long signed)u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, signed long u)
+{
+  s.write((long long signed)u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, signed long long u)
+{
+  s.write(u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, unsigned short u)
+{
+  s.write((long long unsigned)u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, unsigned u)
+{
+  s.write((long long unsigned)u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, unsigned long u)
+{
+  s.write((long long unsigned)u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, unsigned long long u)
+{
+  s.write(u,-1);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, void const *u)
+{
+  long unsigned x = (long unsigned)u;
+  L4::IOBackend::Mode mode = s.be_mode();
+  s.write(L4::hex);
+  s.write((long long unsigned)x,-1);
+  s.be_mode(mode);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, L4::IOModifier m)
+{
+  s.write(m);
+  return s;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &s, char c)
+{
+  s.write( &c, 1 );
+  return s;
+}
+
+
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &o, L4::IONumFmt const &n)
+{ return n.print(o); }
+

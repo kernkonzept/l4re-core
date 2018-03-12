@@ -1,0 +1,116 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2011 Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *               Adam Lackorzysnski <adam@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/types.h>
+#include <l4/sys/vcon>
+#include <l4/sys/cxx/ipc_legacy>
+
+namespace L4Re { namespace Util {
+
+/**
+ * \brief Console server template class.
+ * \ingroup api_l4re_util
+ *
+ * This template uses vcon_write() and vcon_read() to get and deliver data
+ * from the implementor.
+ *
+ * vcon_read() needs to update the status argument with the
+ * L4_vcon_read_stat flags, especially the L4_VCON_READ_STAT_DONE flag
+ * to indicate that there's nothing more to read for the other end.
+ *
+ * vcon_write() gets the live data from the UTCB. Make sure to copy out the
+ * data before using the UTCB again.
+ *
+ * The size parameter of both functions is given in bytes.
+ */
+template< typename SVR >
+class Vcon_svr
+{
+public:
+  L4_RPC_LEGACY_DISPATCH(L4::Vcon);
+
+  l4_msgtag_t op_dispatch(l4_utcb_t *utcb, l4_msgtag_t tag, L4::Vcon::Rights)
+  {
+    l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+    L4::Opcode op = m->mr[0];
+
+    switch (op)
+      {
+      case L4_VCON_WRITE_OP:
+        if (tag.words() < 3)
+          return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
+
+        this_vcon()->vcon_write((char const *)&m->mr[2], m->mr[1]);
+        return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
+
+      case L4_VCON_SET_ATTR_OP:
+        if (tag.words() < 4)
+          return l4_msgtag(-L4_EINVAL, 0, 0, 0);
+
+        return l4_msgtag(this_vcon()->vcon_set_attr((l4_vcon_attr_t const *)&m->mr[1]),
+                         0, 0, 0);
+
+      case L4_VCON_GET_ATTR_OP:
+        return l4_msgtag(this_vcon()->vcon_get_attr((l4_vcon_attr_t *)&m->mr[1]),
+                         4, 0, 0);
+
+      default:
+        break;
+      }
+
+    unsigned size = op >> 16;
+
+    if (size > (L4_UTCB_GENERIC_DATA_SIZE - 1) * sizeof(l4_utcb_mr()->mr[0]))
+      size = (L4_UTCB_GENERIC_DATA_SIZE - 1) * sizeof(l4_utcb_mr()->mr[0]);
+
+    char buf[size];
+    // Hmm, could we avoid the double copy here?
+    l4_umword_t v = this_vcon()->vcon_read(buf, size);
+    unsigned bytes = v & L4_VCON_READ_SIZE_MASK;
+
+    if (bytes < size)
+      v |= L4_VCON_READ_STAT_DONE;
+
+    m->mr[0] = v;
+    __builtin_memcpy(&m->mr[1], buf, bytes);
+
+    return l4_msgtag(0,
+                     (bytes + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t) + 1,
+                     0, 0);
+  }
+
+  unsigned vcon_read(char *buf, unsigned size) throw();
+  void vcon_write(const char *buf, unsigned size) throw();
+  int vcon_set_attr(l4_vcon_attr_t const *) throw()
+  { return -L4_EOK; }
+  int vcon_get_attr(l4_vcon_attr_t *attr) throw()
+  {
+    attr->l_flags = attr->o_flags = attr->i_flags = 0;
+    return -L4_EOK;
+  }
+
+private:
+  SVR const *this_vcon() const { return static_cast<SVR const *>(this); }
+  SVR *this_vcon() { return static_cast<SVR *>(this); }
+};
+
+}}

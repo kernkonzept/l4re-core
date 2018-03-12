@@ -1,0 +1,114 @@
+// vi:ft=c
+/**
+ * \page l4re_servers_moe Moe, the Root-Task
+ *
+ * Moe is the default root-task implementation for L4Re-based systems.
+ *
+ * \em Moe is the first task which is usually started in L4Re-based systems.
+ * The micro kernel starts \em Moe as the Root-Task.
+ *
+ * Moe provides a default implementation for the basic L4Re abstractions, such as
+ * data spaces (L4Re::Dataspace), region maps (L4Re::Rm), memory allocators
+ * (L4Re::Mem_alloc, L4::Factory), name spaces (L4Re::Namespace) and so on
+ * (see \link api_l4re L4Re Interface\endlink).
+ *
+ * Moe consists of the following subsystems:
+ * - \ref l4re_moe_names --- provides instances of name spaces
+ * - \ref l4re_moe_bootfs --- provides access to the files loaded during
+ *   platform boot (e.g., linked into the boot image or loaded via GRUB boot
+ *   loader)
+ * - \ref l4re_moe_log --- provides tagged log output for applications
+ * - \ref l4re_moe_scheduler --- provides simple scheduler
+ *   objects for scheduling policy enforcement
+ * - \ref l4re_moe_memory_alloc --- provides
+ *   allocation of physical RAM as data spaces, as well as allocation of
+ *   the other L4Re objects provided by Moe
+ *
+ * \section l4re_moe_memory_alloc Memory Allocator, Generic Factory
+ *
+ * The generic factory in Moe is responsible for all kinds of dynamic object
+ * allocation.  The interface is a combination of L4::Factory and, for
+ * traditional reasons, L4Re::Mem_alloc.
+ *
+ * The generic factory interface allows allocation of the following objects:
+ * - L4Re::Namespace
+ * - L4Re::Dataspace, RAM allocation
+ * - L4Re::Dma_space, memory management for DMA-capable devices
+ * - L4Re::Rm, Virtual memory management for application tasks
+ * - L4::Vcon (output only)
+ * - L4::Scheduler, to provide a restricted priority / CPU range for clients
+ * - L4::Factory, to provide a quota limited allocation for clients
+ *
+ * The memory allocator in Moe is the alternative interface for allocating
+ * memory (RAM) in terms of L4Re::Dataspace-s (see also L4Re::Mem_alloc).
+ *
+ * Dataspaces can be allocated with an arbitrary size. The granularity
+ * for memory allocation however is the machine page size (#L4_PAGESIZE).
+ * A dataspace user must be aware that, as a result of this page-size
+ * granularity, there may be padding memory at the end of a dataspace
+ * which is accessible to each client. Moe currently allows most dataspace
+ * operations on this padding area. Nonetheless, the client must not make any
+ * assumptions about the size or content of the padding area, as this
+ * behaviour might change in the future.
+ *
+ * The provided data spaces can have different characteristics:
+ * - Physically contiguous and pre-allocated
+ * - Non contiguous and on-demand allocated with possible copy on write (COW)
+ *
+ *
+ * \section l4re_moe_names Name-Space Provider
+ *
+ * Moe provides a name spaces conforming to the L4Re::Namespace
+ * interface (see \ref api_l4re_namespace). Per default Moe creates a single
+ * name space for the \ref l4re_moe_bootfs.  That is available as \c rom
+ * in the initial objects of the init process.
+ *
+ *
+ * \subsection l4re_moe_bootfs Boot FS
+ *
+ * The Boot FS subsystem provides read only access to the files loaded
+ * during the platform boot (or available in ROM). These files are either
+ * linked into the boot image or loaded via a flexible boot loader,
+ * such as GRUB.
+ *
+ * The subsystem provides an L4Re::Namespace object as directory and an
+ * L4Re::Dataspace object for each file.
+ *
+ *
+ * \section l4re_moe_log Log Subsystem
+ *
+ * The logging facility of Moe provides per application tagged and
+ * synchronized log output.
+ *
+ * \section l4re_moe_scheduler Scheduler Subsystem
+ *
+ * The scheduler subsystem provides a simple scheduler proxy.
+ *
+ *
+ * \section l4re_moe_options Command-Line Options
+ *
+ * Moe's command-line syntax is:
+ *
+ *     moe [--debug=<flags>] [--init=<binary>] [--l4re-dbg=<flags>] [--ldr-flags=<flags>] [-- <init options>]
+ *
+ * \par `--debug=<debug flags>`
+ * This option enables debug messages from Moe itself, the `<debug flags>`
+ * values are a combination of `info`, `warn`, `boot`, `server`, `loader`,
+ * `exceptions`, and `ns` (or `all` for full verbosity).
+ *
+ * \par `--init=<init process>`
+ * This options allows to override the default init process binary, which is
+ * 'rom/ned'.
+ *
+ * \par `--l4re-dbg=<debug flags>`
+ * This option allows to set the debug options for the L4Re runtime environment
+ * of the init process. The flags are the same as for `--debug=`.
+ *
+ * \par `--ldr-flags=<loader flags>`
+ * This option allows setting some loader options for the L4Re runtime
+ * environment. The flags are `pre_alloc`, `all_segs_cow`,and `pinned_segs`.
+ *
+ * \par `-- <init options>`
+ * All command-line parameters after the special `--` option are passed
+ * directly to the init process.
+ */

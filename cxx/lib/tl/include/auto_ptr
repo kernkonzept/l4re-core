@@ -1,0 +1,113 @@
+// vim:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+namespace cxx {
+
+/**
+ * \ingroup cxx_api
+ * \brief Smart pointer with automatic deletion.
+ * \tparam T The type of the referenced object.
+ *
+ * This smart pointer calls the delete operator when the destructor
+ * is called. This has the effect that the object the pointer points to
+ * will be deleted when the pointer goes out of scope, or a new value gets
+ * assigned. The smart pointer provides a release() method to get a normal
+ * pointer to the object and set the smart pointer to NULL.
+ */
+template< typename T>
+class Auto_ptr
+{
+private:
+  T *_p;
+
+  struct Priv_type;
+
+public:
+  /** \brief The referenced type. */
+  typedef T Ref_type;
+
+  /**
+   * \brief Construction by assignment of a normal pointer.
+   * \param p The pointer to the object
+   */
+  explicit Auto_ptr(T *p = 0) throw() : _p(p) {}
+
+  /**
+   * \brief Copy construction, releases the original pointer.
+   * \param o The smart pointer, which shall be copied and released.
+   */
+  Auto_ptr(Auto_ptr const &o) throw()
+  : _p(const_cast<Auto_ptr<T>&>(o).release())
+  {}
+
+  /**
+   * \brief Assignment from another smart pointer.
+   * \param o The source for the assignment (will be released).
+   */
+  Auto_ptr &operator = (Auto_ptr const &o) throw()
+  {
+    if (&o != this)
+      {
+	if (_p) delete _p;
+	_p = const_cast<Auto_ptr<T>&>(o).release();
+      }
+    return *this;
+  }
+
+  /** \brief Destruction, shall delete the object. */
+  ~Auto_ptr() throw()
+  { if (_p) delete _p; }
+
+  /** \brief Dereference the pointer. */
+  T &operator * () const throw() { return *_p; }
+
+  /** \brief Member access for the object. */
+  T *operator -> () const throw() { return _p; }
+
+  /**
+   * \brief Get the normal pointer.
+   * \attention This function will not release the object, the
+   *            object will be deleted by the smart pointer.
+   */
+  T *get() const throw() { return _p; }
+
+  /**
+   * \brief Release the object and get the normal pointer back.
+   * 
+   * After calling this function the smart pointer will point to NULL
+   * and the object will not be deleted by the pointer anymore.
+   */
+  T *release() throw() { T *t = _p; _p = 0; return t; }
+
+  /**
+   * \brief Delete the object and reset the smart pointer to NULL.
+   */
+  void reset(T *p = 0) throw()
+  {
+    if (_p) delete _p;
+    _p = p;
+  }
+
+  /** \brief Operator for `if (!ptr) ...`. */
+  operator Priv_type * () const throw()
+  { return reinterpret_cast<Priv_type*>(_p); }
+};
+}

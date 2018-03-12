@@ -1,0 +1,3 @@
+Provides: ldso libdl
+Requires: libl4re-vfs libc
+maintainer: warg@os.inf.tu-dresden.de

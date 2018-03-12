@@ -1,0 +1,184 @@
+// vi:ft=cpp:
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/util/cap_alloc>
+#include <l4/sys/cxx/ipc_server_loop>
+#include <l4/cxx/ipc_timeout_queue>
+#include <l4/sys/assert.h>
+
+namespace L4Re { namespace Util {
+
+/**
+ * \brief Buffer-register (BR) manager for L4::Server.
+ * \ingroup api_l4re_util
+ *
+ * Implementation of the L4::Ipc_svr::Server_iface API for managing the
+ * server-side receive buffers needed for a set of server objects running
+ * within a server.
+ */
+class Br_manager : public L4::Ipc_svr::Server_iface
+{
+private:
+  enum { _mem = 0, _ports = 0 };
+
+public:
+  /// Make a buffer-register (BR) manager
+  Br_manager() : _caps(0), _cap_flags(L4_RCV_ITEM_LOCAL_ID) {}
+
+  /*
+   * This implementation dynamically manages assignment of buffer registers for
+   * the necessary amount of receive buffers allocated by all calls to this
+   * function.
+   */
+  int alloc_buffer_demand(Demand const &d)
+  {
+    using L4::Ipc::Small_buf;
+
+    // memory and IO port receive windows currently not supported
+    if (d.mem || d.ports)
+      return -L4_EINVAL;
+
+    // take two extra buffers for a possible timeout and a zero terminator
+    if (d.caps + d.mem * 2 + d.ports * 2 + 3 >= L4_UTCB_GENERIC_BUFFERS_SIZE)
+      return -L4_ERANGE;
+
+    if (d.caps > _caps)
+      {
+        while (_caps < d.caps)
+          {
+            L4::Cap<void> cap = cap_alloc.alloc();
+            if (!cap)
+              return -L4_ENOMEM;
+
+            reinterpret_cast<Small_buf&>(_brs[_caps])
+              = Small_buf(cap.cap(), _cap_flags);
+            ++_caps;
+          }
+        _brs[_caps] = 0;
+      }
+
+    return L4_EOK;
+  }
+
+
+  L4::Cap<void> get_rcv_cap(int i) const
+  {
+    if (i < 0 || i >= _caps)
+      return L4::Cap<void>::Invalid;
+
+    return L4::Cap<void>(_brs[i] & L4_CAP_MASK);
+  }
+
+  int realloc_rcv_cap(int i)
+  {
+    using L4::Ipc::Small_buf;
+
+    if (i < 0 || i >= _caps)
+      return -L4_EINVAL;
+
+    L4::Cap<void> cap = cap_alloc.alloc();
+    if (!cap)
+      return -L4_ENOMEM;
+
+    reinterpret_cast<Small_buf&>(_brs[i])
+      = Small_buf(cap.cap(), _cap_flags);
+
+    return L4_EOK;
+  }
+
+  /**
+   * Set the receive flags for the buffers.
+   *
+   * \pre Must be called before any handlers are registered.
+   *
+   * \param flags New receive capability flags, see #l4_msg_item_consts_t.
+   */
+  void set_rcv_cap_flags(unsigned long flags)
+  {
+    l4_assert(_caps == 0);
+
+    _cap_flags = flags;
+  }
+
+  /// No timeouts handled by us.
+  int add_timeout(L4::Ipc_svr::Timeout *, l4_kernel_clock_t)
+  { return -L4_ENOSYS; }
+
+  /// No timeouts handled by us.
+  int remove_timeout(L4::Ipc_svr::Timeout *)
+  { return -L4_ENOSYS; }
+
+  /// setup_wait() used the server loop (L4::Server)
+  void setup_wait(l4_utcb_t *utcb, L4::Ipc_svr::Reply_mode)
+  {
+    l4_buf_regs_t *br = l4_utcb_br_u(utcb);
+    br->bdr = 0;
+    for (unsigned i = 0; i <= _caps; ++i)
+      br->br[i] = _brs[i];
+  }
+
+protected:
+  /// Used for assigning BRs for a timeout
+  unsigned first_free_br() const
+  {
+    // we take the last BR here (this is c constant),
+    return L4_UTCB_GENERIC_BUFFERS_SIZE - 1;
+    // could also take _caps + _mem +_ports + 1 (would be dynamic)
+    // return _caps + _mem + _ports + 1;
+  }
+
+private:
+  unsigned short _caps;
+  unsigned long _cap_flags;
+
+  l4_umword_t _brs[L4_UTCB_GENERIC_BUFFERS_SIZE];
+};
+
+/**
+ * Predefined server-loop hooks for a server loop using the Br_manager.
+ *
+ * This class can be used whenever a server loop including full management of
+ * receive  buffer resources is needed.
+ */
+struct Br_manager_hooks
+: L4::Ipc_svr::Ignore_errors,
+  L4::Ipc_svr::Default_timeout,
+  L4::Ipc_svr::Compound_reply,
+  Br_manager
+{};
+
+/**
+ * Predefined server-loop hooks for a server with using the Br_manager and
+ * a timeout queue.
+ *
+ * This class can be used for server loops that need the full package of
+ * buffer-register management and a timeout queue.
+ */
+struct Br_manager_timeout_hooks :
+  public L4::Ipc_svr::Timeout_queue_hooks<Br_manager_timeout_hooks, Br_manager>,
+  public L4::Ipc_svr::Ignore_errors
+{
+public:
+  static l4_kernel_clock_t now()
+  { return l4_kip_clock(l4re_kip()); }
+};
+
+}}
+

@@ -1,0 +1,68 @@
+# Format: (all on one line)
+#   Source file : Copyright Owner(s) : License
+# Please use "TUD" when referring to TU Dresden.
+# If sole owner is TUD, the license field defaults to GPL and can be
+# left empty.
+# Source-file spec can be a directory name or a wildcard like "src/*.c".
+doc : TUD
+include/ARCH-x86/L4API-l4f : TUD
+include/ARCH-x86/apic.h : GPL
+include/ARCH-x86/atomic_arch.h : TUD
+include/ARCH-x86/bitops.h : TUD
+include/ARCH-x86/cpu.h : TUD
+include/ARCH-x86/idt.h : TUD
+include/ARCH-x86/irq.h : TUD
+include/ARCH-x86/mb_info.h : GPL
+include/ARCH-x86/mbi_argv.h : GPL
+include/ARCH-x86/perform.h : GPL
+include/ARCH-x86/port_io.h : TUD
+include/ARCH-x86/rdtsc.h : TUD
+include/ARCH-x86/spin.h : TUD
+include/ARCH-x86/stack_impl.h : TUD
+include/ARCH-x86/util.h : TUD
+include/ARCH-arm/__libc_panic.h : TUD
+include/ARCH-arm/atomic_arch.h : TUD
+include/ARCH-arm/bitops.h : TUD
+include/ARCH-arm/cpu.h : TUD
+include/ARCH-arm/irq.h : TUD
+include/ARCH-arm/mb_info.h : TUD
+include/ARCH-arm/mbi_argv.h : TUD
+include/Makefile : TUD
+include/alloc.h : TUD
+include/atomic.h : TUD
+include/getopt.h : GPL
+include/kip.h : TUD
+include/lock.h : TUD
+include/macros.h : TUD
+include/memdesc.h : TUD
+include/parse_cmd.h : TUD
+include/rand.h : TUD
+include/reboot.h : TUD
+include/sll.h : TUD
+include/stack.h : TUD
+include/thread.h : TUD
+include/util.h : TUD
+lib/Makefile : TUD
+lib/src/ARCH-arm : TUD
+lib/src/ARCH-x86/apic.c : GPL
+lib/src/ARCH-x86/kip_area.S : TUD
+lib/src/ARCH-x86/perform.c : TUD
+lib/src/ARCH-x86/pmc_events.in : TUD
+lib/src/ARCH-x86/rdtsc.c : GPL
+lib/src/ARCH-x86/reboot.c : TUD
+lib/src/ARCH-x86/spin.c : TUD
+lib/src/Makefile : TUD
+lib/src/__main.c : TUD
+lib/src/alloc.c : TUD
+lib/src/base64.c : Trantor Standard Systems Inc. : MIT
+lib/src/getopt2.c : TUD
+lib/src/kip.c : TUD
+lib/src/memdesc.c : TUD
+lib/src/micros2l4to.c : TUD
+lib/src/parse_cmdline.c : TUD
+lib/src/rand.c : TUD
+lib/src/reboot.c : TUD
+lib/src/reboot_arch.h : TUD
+lib/src/setjmp.c : TUD
+lib/src/sleep.c : TUD
+lib/src/thread.c : TUD

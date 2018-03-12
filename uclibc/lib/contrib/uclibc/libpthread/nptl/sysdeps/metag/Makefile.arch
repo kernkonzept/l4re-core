@@ -1,0 +1,17 @@
+# Makefile for uClibc NPTL
+#
+# Copyright (C) 2005 Steven J. Hill <sjhill@uclibc.org>
+#
+# Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
+#
+
+CFLAGS-pthread_spin_init.c = -DNOT_IN_libc -DIS_IN_libpthread
+ASFLAGS-pthread_spin_lock.S = -DNOT_IN_libc -DIS_IN_libpthread
+ASFLAGS-pthread_spin_unlock.S = -DNOT_IN_libc -DIS_IN_libpthread
+ASFLAGS-pthread_spin_trylock.S = -DNOT_IN_libc -DIS_IN_libpthread
+
+ASFLAGS-pthread_spin_lock.c += -D_GNU_SOURCE
+
+CFLAGS-metag = $(SSP_ALL_CFLAGS)
+
+libc_arch_a_CSRC := libc-tls.c

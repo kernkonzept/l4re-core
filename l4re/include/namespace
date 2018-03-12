@@ -1,0 +1,218 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ * \brief   Namespace interface
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Björn Döbel <doebel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/re/protocols.h>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/ipc_array>
+#include <l4/sys/cxx/ipc_string>
+
+namespace L4Re {
+
+/**
+ * \defgroup api_l4re_namespace Name-space API
+ * \ingroup api_l4re
+ * \brief API for name spaces that store capabilities.
+ *
+ * This is a basic abstraction for managing a mapping from
+ * human-readable names to capabilities. In particular, a name
+ * can also be mapped to a capability that refers to another name space
+ * object. By this means name spaces can be constructed hierarchically.
+ *
+ * Name spaces play a central role in L4Re, because the implementation of the
+ * name space objects determine the policy which capabilities (which objects)
+ * are accessible to a client of a name space.
+ */
+/**
+ * \brief Name-space interface.
+ * \ingroup api_l4re_namespace
+ *
+ * All name space objects must provide this interface. However, it is not
+ * mandatory that a name space object allows to register new capabilities.
+ *
+ * The name lookup is done iteratively, this means the hierarchical names
+ * are resolved component wise by the client itself.
+ */
+class L4_EXPORT Namespace :
+  public L4::Kobject_t<Namespace, L4::Kobject, L4RE_PROTO_NAMESPACE,
+                       L4::Type_info::Demand_t<1> >
+{
+public:
+  /**
+   * Flags for registering name spaces.
+   */
+  enum Register_flags
+  {
+    Ro        = L4_CAP_FPAGE_RO,   ///< Read-only
+    Rw        = L4_CAP_FPAGE_RW,   ///< Read-write
+    Rs        = L4_CAP_FPAGE_RS,   ///< Read-only + strong
+    Rws       = L4_CAP_FPAGE_RWS,  ///< Read-write + strong
+    Strong    = L4_CAP_FPAGE_S,    ///< Strong
+    Trusted   = 0x008,             ///< Obsolete, do not use
+
+    Cap_flags = Ro | Rw | Strong | Trusted,
+
+    Link      = 0x100,             ///< Obsolete, do not use
+    Overwrite = 0x200,             ///< If entry already exists, overwrite it.
+  };
+
+  /**
+   * Flags returned by query IPC, only used internally.
+   *
+   * \internal
+   */
+  enum Query_result_flags
+  {
+    Partly_resolved = 0x020,      ///< Name was only partly resolved.
+  };
+
+  enum Query_timeout
+  {
+    To_default      = 3600000,
+    To_non_blocking = 0,
+    To_forever      = -1,
+  };
+
+  L4_RPC_NF(
+      long, query, (L4::Ipc::Array_ref<char const, unsigned long> name,
+                    L4::Ipc::Small_buf cap,
+                    L4::Ipc::Snd_fpage &snd_cap, L4::Ipc::Opt<L4::Opcode &> dummy,
+                    L4::Ipc::Opt<L4::Ipc::Array_ref<char const, unsigned long> &> out_name));
+
+  /**
+   * Query the name space for a named object.
+   *
+   * \param[in]  name      String to query (without any leading slashes).
+   * \param[in]  cap       Capability slot where the received capability will
+   *                       be put.
+   * \param[in]  timeout   Timeout of query in milliseconds. The client will only
+   *                       wait if a name has already been registered with the
+   *                       server but no object has yet been attached.
+   * \param[out] local_id  If given, #L4_RCV_ITEM_LOCAL_ID will be set for the
+   *                       IPC from the name space, so that if the capability
+   *                       that was received is a local item, the capability ID
+   *                       will be returned with this parameter.
+   * \param[in]  iterate   If true, the client will try to resolve
+   *                       names by iteratively calling the name spaces
+   *                       until the name is fully resolved.
+   *
+   * \retval 0           Name could be fully resolved.
+   * \retval >0          Name could only be partly resolved. The number of remaining
+   *                     characters is returned.
+   * \retval -L4_ENOENT  Entry could not be found.
+   * \retval -L4_EAGAIN  Entry exists but no object is yet attached.
+   *                     Try again later.
+   * \retval <0          IPC errors, see #l4_error_code_t.
+   */
+  long query(char const *name, L4::Cap<void> const &cap,
+             int timeout = To_default,
+             l4_umword_t *local_id = 0, bool iterate = true) const throw();
+
+  /**
+   *  Query the name space for a named object.
+   *
+   *  The query string does not necessarily need to be null-terminated.
+   *
+   * \param[in] len       Length of the string to query without any
+   *                      terminating null characters.
+   * \copydetails query()
+   */
+  long query(char const *name, unsigned len, L4::Cap<void> const &cap,
+             int timeout = To_default,
+             l4_umword_t *local_id = 0, bool iterate = true) const throw();
+
+  L4_RPC_NF(long, register_obj, (unsigned flags,
+                                L4::Ipc::Array<char const, unsigned long> name,
+                                L4::Ipc::Opt< L4::Ipc::Cap<void> > obj),
+            L4::Ipc::Call_t<L4_CAP_FPAGE_W>);
+
+  /**
+   * Register an object with a name.
+   *
+   * \param name    Name under which the object should be registered.
+   * \param obj     Capability to object to register. An invalid capability may
+   *                be given to only reserve the name for later use.
+   * \param flags   Flags to assign to the entry,
+   *                see #L4Re::Namespace::Register_flags. Note that the rights
+   *                that are assigned to a capability are not only determined
+   *                by the rights given in these flags but also by the rights
+   *                with which the `obj` capability was mapped to the name
+   *                space.
+   *
+   * \retval 0           Object was successfully registered with \a name.
+   * \retval -L4_EEXIST  Name already registered.
+   * \retval -L4_EPERM   Caller doesn't have necessary permissions.
+   * \retval -L4_ENOMEM  Server has insufficient resources.
+   * \retval -L4_EINVAL  Invalid parameter.
+   * \retval <0          IPC errors, see #l4_error_code_t.
+   *
+   * \caprights{RW}
+   *
+   */
+  long register_obj(char const *name, L4::Ipc::Cap<void> obj,
+                    unsigned flags = Rw) const throw()
+  {
+    return register_obj_t::call(c(), flags,
+                                L4::Ipc::Array<char const, unsigned long>(
+                                  __builtin_strlen(name), name),
+                                obj);
+  }
+
+  L4_RPC_NF_OP(3, // backward compatibility opcode
+               long, unlink, (L4::Ipc::Array<char const, unsigned long> name),
+               L4::Ipc::Call_t<L4_CAP_FPAGE_W>);
+
+  /**
+   * Remove an entry from the name space.
+   *
+   * \param name  Name of the entry to remove.
+   *
+   * \retval 0            Entry successfully removed.
+   * \retval -L4_ENOENT   Given name does not exist.
+   * \retval -L4_EPERM    Caller does not have write permission.
+   * \retval -L4_EACCESS  Name cannot be removed.
+   * \retval <0           IPC errors, see #l4_error_code_t.
+   *
+   * \caprights{RW}
+   */
+  long unlink(char const* name)
+  {
+    return unlink_t::call(c(), L4::Ipc::Array<char const, unsigned long>(
+                                 __builtin_strlen(name), name));
+  }
+
+  typedef L4::Typeid::Rpcs<query_t, register_obj_t, unlink_t> Rpcs;
+
+private:
+  long _query(char const *name, unsigned len,
+              L4::Cap<void> const &target, l4_umword_t *local_id,
+              bool iterate) const throw();
+
+};
+
+};
+

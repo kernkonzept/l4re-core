@@ -1,0 +1,215 @@
+// vi:ft=cpp
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+/// \file
+
+#pragma once
+
+// very simple type traits for basic L4 functions, for a more complete set
+// use <l4/cxx/type_traits> or the standard <type_traits>.
+
+namespace L4 {
+
+/**
+ * L4 basic type helpers for C++
+ */
+namespace Types {
+
+  /**
+   * Template for defining typical Flags bitmaps.
+   * \tparam BITS_ENUM   enum type that defines a name for each bit in
+   *                     the bitmap. The values of the enum members
+   *                     must be the number of the bit (_not_ a mask).
+   * \tparam UNDERLYING  The underlying data type used to represent the bitmap.
+   *
+   *
+   * The resulting data type provides a type-safe version that allows
+   * bitwise `and` and `or` operations with the BITS_ENUM members.
+   * As well as, test for `0`or !`0`.
+   *
+   * Example:
+   * ~~~~
+   * enum Test_flag
+   * {
+   *   Do_weak_tests,
+   *   Do_strong_tests
+   * };
+   *
+   * typedef L4::Types::Flags<Test_flag> Test_flags;
+   *
+   * Test_flags x = Do_weak_tests;
+   *
+   * if (x & Do_strong_tests) { ... }
+   * x |= Do_strong_tests;
+   * if (x & Do_strong_tests) { ... }
+   * ~~~~
+   */
+  template<typename BITS_ENUM, typename UNDERLYING = unsigned long>
+  class Flags
+  {
+  public:
+    /// type of the underlying value
+    typedef UNDERLYING value_type;
+    /// enum type defining a name for each bit
+    typedef BITS_ENUM bits_enum_type;
+    /// the Flags<> type itself
+    typedef Flags<BITS_ENUM, UNDERLYING> type;
+
+  private:
+    struct Private_bool;
+    value_type _v;
+    explicit Flags(value_type v) : _v(v) {}
+
+  public:
+    /// The none type to get an empty bitmap
+    enum None_type { None /**< Use this to get an empty bitmap */ };
+
+    /**
+     * Make an empty bitmap.
+     *
+     * Usually used for implicit conversion from `Flags::None`.
+     * ~~~
+     * Flags x = Flags::None;
+     * ~~~
+     */
+    Flags(None_type) : _v(0) {}
+
+    /// Make default Flags
+    Flags() : _v(0) {}
+
+    /**
+     * Make flags from bit name.
+     *
+     * Usually used for implicit conversion for a bit name.
+     * ~~~
+     * Test_flags f = Do_strong_tests;
+     * ~~~
+     */
+    Flags(BITS_ENUM e) : _v(((value_type)1) << e) {}
+
+    /**
+     * Make flags from a raw value of \a value_type.
+     *
+     * This function may be used for example in C wrapper code.
+     */
+    static type from_raw(value_type v) { return type(v); }
+
+    /// Support for `if (flags)` syntax (test for non-empty flags).
+    operator Private_bool * () const
+    { return _v != 0 ? (Private_bool *)1 : 0; }
+
+    /// Support for `if (!flags)` syntax (test for empty flags).
+    bool operator ! () const { return _v == 0; }
+
+    /// Support `|` of two compatible Flags types.
+    friend type operator | (type lhs, type rhs)
+    { return type(lhs._v | rhs._v); }
+
+    /// Support `|` of Flags type and bit name.
+    friend type operator | (type lhs, bits_enum_type rhs)
+    { return lhs | type(rhs); }
+
+    /// Support `&` of two compatible Flags types.
+    friend type operator & (type lhs, type rhs)
+    { return type(lhs._v & rhs._v); }
+
+    /// Support `&` of Flags type and bit name.
+    friend type operator & (type lhs, bits_enum_type rhs)
+    { return lhs & type(rhs); }
+
+    /// Support `|=` of two compatible Flags types.
+    type &operator |= (type rhs) { _v |= rhs._v; return *this; }
+    /// Support `|=` of Flags type and bit name.
+    type &operator |= (bits_enum_type rhs) { return operator |= (type(rhs)); }
+
+    /// Support `&=` of two compatible Flags types.
+    type &operator &= (type rhs) { _v &= rhs._v; return *this; }
+    /// Support `&=` of Flags type and bit name.
+    type &operator &= (bits_enum_type rhs) { return operator &= (type(rhs)); }
+
+    /// Support `~` for Flags types.
+    type operator ~ () const { return type(~_v); }
+
+    /**
+     * Clear the given flag.
+     * \param flag  The flag that shall be cleared.
+     *
+     * `flags.clear(The_flag)` is a shortcut for `flags &= ~Flags(The_flag)`.
+     */
+    type &clear(bits_enum_type flag) { return operator &= (~type(flag)); }
+
+    /// Get the underlying value.
+    value_type as_value() const { return _v; }
+  };
+
+  /**
+   * Boolean meta type
+   * \tparam V  The boolean value
+   * \ingroup l4_cxx_ipc_internal
+   */
+  template< bool V > struct Bool
+  {
+    typedef Bool<V> type; ///< The meta type itself
+    enum { value = V };   ///< The boolean value
+  };
+
+  /// False meta value
+  /// \ingroup l4_cxx_ipc_internal
+  struct False : Bool<false> {};
+
+  /// True meta value
+  /// \ingroup l4_cxx_ipc_internal
+  struct True : Bool<true> {};
+
+  /*********************/
+  /**
+   * Compare two data types for equality
+   * \tparam A  The first data type
+   * \tparam B  The second data type
+   * \ingroup l4_cxx_ipc_internal
+   *
+   * The result is the boolean True if A and B are the same types.
+   */
+  template<typename A, typename B>
+  struct Same : False {};
+
+  template<typename A>
+  struct Same<A, A> : True {};
+
+  template<bool EXP, typename T = void> struct Enable_if {};
+  template<typename T> struct Enable_if<true, T> { typedef T type; };
+
+  template<typename T1, typename T2, typename T = void>
+  struct Enable_if_same : Enable_if<Same<T1, T2>::value, T> {};
+
+  template<typename T> struct Remove_const { typedef T type; };
+  template<typename T> struct Remove_const<T const> { typedef T type; };
+  template<typename T> struct Remove_volatile { typedef T type; };
+  template<typename T> struct Remove_volatile<T volatile> { typedef T type; };
+  template<typename T> struct Remove_cv
+  { typedef typename Remove_const<typename Remove_volatile<T>::type>::type type; };
+
+  template<typename T> struct Remove_pointer { typedef T type; };
+  template<typename T> struct Remove_pointer<T*> { typedef T type; };
+  template<typename T> struct Remove_reference { typedef T type; };
+  template<typename T> struct Remove_reference<T&> { typedef T type; };
+  template<typename T> struct Remove_pr { typedef T type; };
+  template<typename T> struct Remove_pr<T&> { typedef T type; };
+  template<typename T> struct Remove_pr<T*> { typedef T type; };
+} // Types
+} // L4

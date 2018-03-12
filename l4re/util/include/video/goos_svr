@@ -1,0 +1,166 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/dataspace>
+#include <l4/re/video/goos>
+#include <l4/re/video/goos-sys.h>
+
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_legacy>
+
+namespace L4Re { namespace Util { namespace Video {
+
+/**
+ * \brief Goos server class.
+ * \ingroup api_l4re_util
+ */
+class Goos_svr
+{
+  typedef L4Re::Video::Goos::Rights Rights;
+protected:
+  /** Goos memory dataspace */
+  L4::Cap<L4Re::Dataspace> _fb_ds;
+  /** Goos information */
+  L4Re::Video::Goos::Info _screen_info;
+  /** View information */
+  L4Re::Video::View::Info _view_info;
+
+public:
+  L4_RPC_LEGACY_DISPATCH(L4Re::Video::Goos);
+  /**
+   * \brief Return framebuffer memory dataspace.
+   * \return Goos memory dataspace
+   */
+  L4::Cap<L4Re::Dataspace> get_fb() const { return _fb_ds; }
+
+  /**
+   * \brief Goos information structure.
+   * \return Return goos information structure.
+   */
+  L4Re::Video::Goos::Info const *screen_info() const { return &_screen_info; }
+
+  /**
+   * \brief View information structure.
+   * \return Return view information structure.
+   */
+  L4Re::Video::View::Info const *view_info() const { return &_view_info; }
+
+  /**
+   * \brief Refresh area of the framebuffer
+   *
+   * \param x X coordinate (pixels)
+   * \param y Y coordinate (pixels)
+   * \param w Width of area in pixels
+   * \param h Height of area in pixels
+   *
+   * \return 0 on success, negative error code otherwise
+   */
+  virtual int refresh(int x, int y, int w, int h)
+  { (void)x; (void)y; (void)w; (void)h; return -L4_ENOSYS; }
+
+
+  /**
+   * \brief Initialize the view information structure of this object.
+   *
+   * This function initializes the view info structure of this goos object
+   * based on the information in the goos information, i.e. the width,
+   * height and pixel_info of the goos information has to contain valid
+   * values before calling init_info().
+   */
+  void init_infos()
+  {
+    using L4Re::Video::View;
+
+    _view_info.flags = View::F_none;
+
+    _view_info.view_index = 0;
+    _view_info.xpos = 0;
+    _view_info.ypos = 0;
+    _view_info.width = _screen_info.width;
+    _view_info.height = _screen_info.height;
+    _view_info.pixel_info = _screen_info.pixel_info;
+    _view_info.buffer_index = 0;
+  }
+
+  /**
+   * \brief Destructor.
+   */
+  virtual ~Goos_svr() {}
+
+  long op_view_info(Rights, unsigned idx, L4Re::Video::View::Info &info)
+  {
+    if (idx != 0)
+      return -L4_ERANGE;
+
+    info = _view_info;
+    return L4_EOK;
+  }
+
+  long op_info(Rights, L4Re::Video::Goos::Info &info)
+  {
+    info = _screen_info;
+    return L4_EOK;
+  }
+
+  long op_get_static_buffer(Rights, unsigned idx,
+                            L4::Ipc::Cap<L4Re::Dataspace> &ds)
+  {
+    if (idx != 0)
+      return -L4_ERANGE;
+
+    ds = L4::Ipc::Cap<L4Re::Dataspace>(_fb_ds, L4_CAP_FPAGE_RW);
+    return L4_EOK;
+  }
+
+  long op_refresh(Rights, int x, int y, int w, int h)
+  { return refresh(x, y, w, h); }
+
+  long op_view_refresh(Rights, unsigned idx, int x, int y, int w, int h)
+  {
+    if (idx != 0)
+      return -L4_ERANGE;
+
+    return refresh(x, y, w, h);
+  }
+
+  long op_set_view_info(Rights, unsigned, L4Re::Video::View::Info)
+  { return -L4_ENOSYS; }
+
+  long op_view_stack(Rights, unsigned, unsigned, bool)
+  { return -L4_ENOSYS; }
+
+  long op_delete_view(Rights, unsigned)
+  { return -L4_ENOSYS; }
+
+  long op_create_view(Rights)
+  { return -L4_ENOSYS; }
+
+  long op_create_buffer(Rights, unsigned long,
+                        L4::Ipc::Cap<L4Re::Dataspace> &)
+  { return -L4_ENOSYS; }
+
+  long op_delete_buffer(Rights, unsigned)
+  { return -L4_ENOSYS; }
+};
+
+
+}}}

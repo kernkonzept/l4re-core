@@ -1,0 +1,40 @@
+
+REQUIRES_LIBS += $(if $(findstring minimal,$(TARGET)),,libpthread)
+
+SRC_CC11 += \
+eh_aux_runtime.cc \
+eh_ptr.cc \
+eh_throw.cc \
+guard.cc \
+nested_exception.cc \
+
+
+SRC_CC += \
+array_type_info.cc \
+atexit_arm.cc \
+bad_alloc.cc \
+bad_array_length.cc \
+bad_array_new.cc \
+bad_cast.cc \
+bad_typeid.cc \
+del_ops.cc \
+del_opvs.cc \
+class_type_info.cc \
+dyncast.cc \
+enum_type_info.cc \
+function_type_info.cc \
+fundamental_type_info.cc \
+pbase_type_info.cc \
+pmem_type_info.cc \
+pointer_type_info.cc \
+si_class_type_info.cc \
+vmi_class_type_info.cc \
+guard_error.cc \
+hash_bytes.cc \
+vtv_stubs.cc \
+
+SRC_CC := $(filter-out $(SRC_CC11),$(SRC_CC)) $(SRC_CC11)
+
+$(foreach t,$(SRC_CC11),$(eval CXXFLAGS_$(t) += -std=gnu++11))
+$(foreach t,$(SRC_CC),$(eval CXXFLAGS_$(t) += -std=gnu++11))
+

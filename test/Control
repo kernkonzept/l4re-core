@@ -1,0 +1,3 @@
+requires: stdlibs libstdc++ libpthread
+optional: atkins
+Maintainer: sarah.hoffmann@kernkonzept.com

@@ -1,0 +1,23 @@
+/*
+ * Copyright (C) 2015 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include <thread>
+#include <pthread-l4.h>
+
+namespace std { namespace L4 {
+
+/// Return the L4 thread capability for a given thread.
+inline ::L4::Cap< ::L4::Thread> thread_cap(std::thread &t)
+{ return Pthread::L4::cap(t.native_handle()); }
+
+/// Return a pointer to the UTCB of this thread.
+inline l4_utcb_t * thread_utcb(std::thread &t)
+{ return Pthread::L4::utcb(t.native_handle()); }
+
+}} // namespace L4, namespace std

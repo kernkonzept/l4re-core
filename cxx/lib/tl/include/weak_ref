@@ -1,0 +1,129 @@
+// vi:ft=cpp
+/*
+ * Copyright (C) 2015 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *            Alwexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include "hlist"
+
+namespace cxx {
+
+/**
+ * Generic (base) weak reference to some object.
+ *
+ * A weak reference is a reference that gets reset to NULL when the object
+ * shall be deleted.  All weak references to the same object are kept in a
+ * linked list of weak references.
+ *
+ * For typed weak references see `cxx::Weak_ref`.
+ */
+class Weak_ref_base : public H_list_item_t<Weak_ref_base>
+{
+protected:
+  Weak_ref_base(void const *ptr = nullptr) : _obj(ptr) {}
+  void reset_hard() { _obj = nullptr; }
+  void const *_obj;
+
+public:
+  struct List : H_list_t<Weak_ref_base>
+  {
+    void reset()
+    {
+      while (!empty())
+        pop_front()->reset_hard();
+    }
+
+    ~List()
+    { reset(); }
+  };
+
+  explicit operator bool () const
+  { return _obj ? true : false; }
+};
+
+
+/**
+ * Typed weak reference to an object of type `T`.
+ *
+ * \tparam T  The type of the referenced object.
+ *
+ * A weak reference is a reference that is invalidated when the referenced
+ * object is about to be deleted.  All weak references to an object are kept in
+ * a linked list and all the weak references are iterated and reset by the
+ * Weak_ref_base::List destructor or Weak_ref_base::reset().
+ *
+ * The type `T` must provide two methods that handle the housekeeping of weak
+ * references: remove_weak_ref(Weak_ref_base *) and add_weak_ref(Weak_ref_base *).
+ * These functions must handle the insertion and removal of the weak reference
+ * into the respective Weak_ref_base::List object.  For convenience one can use the
+ * cxx::Weak_ref_obj as a base class that handles weak references for you.
+ */
+template <typename T>
+class Weak_ref : public Weak_ref_base
+{
+public:
+  T *get() const
+  { return reinterpret_cast<T*>(const_cast<void *>(_obj)); }
+
+  T *reset(T *n)
+  {
+    T *r = get();
+    if (r)
+      r->remove_weak_ref(this);
+
+    _obj = n;
+    if (n)
+      n->add_weak_ref(this);
+
+    return r;
+  }
+
+  Weak_ref(T *s = nullptr) : Weak_ref_base(s)
+  {
+    if (s)
+      s->add_weak_ref(this);
+  }
+
+  ~Weak_ref() { reset(0); }
+
+  void operator = (T *n)
+  { reset(n); }
+
+  Weak_ref(Weak_ref const &o) : Weak_ref_base(o._obj)
+  {
+    if (T *x = get())
+      x->add_weak_ref(this);
+  }
+
+  Weak_ref &operator = (Weak_ref const &o)
+  {
+    if (&o == this)
+      return *this;
+
+    reset(o.get());
+    return *this;
+  }
+
+  T &operator * () const { return get(); }
+  T *operator -> () const { return get(); }
+};
+
+class Weak_ref_obj
+{
+protected:
+  template <typename T> friend class Weak_ref;
+  mutable Weak_ref_base::List weak_references;
+
+  void add_weak_ref(Weak_ref_base *ref) const
+  { weak_references.push_front(ref); }
+
+  void remove_weak_ref(Weak_ref_base *ref) const
+  { weak_references.remove(ref); }
+};
+
+}

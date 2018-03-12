@@ -1,0 +1,417 @@
+// vi:ft=cpp
+/*
+ * (c) 2014-2015 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+#pragma GCC system_header
+
+#include "capability.h"
+#include "ipc_server"
+#include "ipc_string"
+#include <l4/sys/types.h>
+#include <l4/sys/utcb.h>
+#include <l4/sys/__typeinfo.h>
+#include <l4/sys/meta>
+
+namespace L4 {
+
+// forward for Irqep_t
+class Irq;
+
+namespace Ipc_svr {
+
+class Timeout;
+
+/**
+ * \ingroup cxx_ipc_server
+ * \brief Interface for server-loop related functions.
+ *
+ * This interface provides access to high-level server-loop related functions,
+ * such as management of receive buffers and timeouts.
+ */
+class Server_iface
+{
+private:
+  Server_iface(Server_iface const &);
+  Server_iface const &operator = (Server_iface const &);
+
+public:
+  /// Data type expressing server-side demand for receive buffers.
+  typedef L4::Type_info::Demand Demand;
+
+  /// Make a server interface
+  Server_iface() {}
+
+  // Destroy the server interface
+  virtual ~Server_iface() = 0;
+
+  /**
+   * \brief Tells the server to allocate buffers for the given demand.
+   * \param demand  The total server-side demand of receive buffers needed for
+   *                a given interface, see Demand.
+   *
+   * This function is not called by user applications directly. Usually the
+   * server implementation or the registry implementation calls this function
+   * whenever a new object is registered at the server.
+   */
+  virtual int alloc_buffer_demand(Demand const &demand) = 0;
+
+  /**
+   * \brief Get capability slot allocated to the given receive buffer.
+   * \param index  The receive buffer index of the expected capability
+   *               argument (0 <= \c index < \c caps registered with
+   *               alloc_buffer_demand()).
+   * \pre 0 <= \c index < \c caps registered with alloc_buffer_demand()
+   * \return Capability slot currently allocated to the given receive buffer.
+   */
+  virtual L4::Cap<void> get_rcv_cap(int index) const = 0;
+
+  /**
+   * \brief Allocate a new capability for the given receive buffer.
+   * \param index  The receive buffer index of the expected capability
+   *               argument (0 <= \c index < \c caps registered with
+   *               alloc_buffer_demand()).
+   * \pre 0 <= \c index < \c caps registered with alloc_buffer_demand()
+   * \return 0 on success, < 0 on error.
+   */
+  virtual int realloc_rcv_cap(int index) = 0;
+
+  /**
+   * \brief Add a timeout to the server internal timeout queue.
+   * \param timeout  The timeout object to register.
+   * \param time     The time (absolute) at which the timeout shall expire.
+   * \pre timeout must not be in any queue.
+   * \return 0 on success, 1 if timeout is already expired, < 0 on error.
+   */
+  virtual int add_timeout(Timeout *timeout, l4_kernel_clock_t time) = 0;
+
+  /**
+   * \brief Remove the given timeout from the timer queue.
+   * \param timeout  The timout object to remove.
+   * \return 0 on success, < 0 on error.
+   */
+  virtual int remove_timeout(Timeout *timeout) = 0;
+
+  /**
+   * \brief Get given receive buffer as typed capability.
+   * \see get_rcv_cap()
+   * \param index  The receive buffer index of the expected capability
+   *               argument. (0 <= \c index < \c caps registered with
+   *               alloc_buffer_demand().)
+   * \pre 0 <= \c index < \c caps registered with alloc_buffer_demand()
+   * \return Capability slot currently allocated to the given receive buffer.
+   * \note This is a convenience wrapper for get_rcv_cap() to avoid
+   *       L4::cap_cast<>().
+   */
+  template<typename T>
+  L4::Cap<T> rcv_cap(int index) const
+  { return L4::cap_cast<T>(get_rcv_cap(index)); }
+
+  /**
+   * \brief Get receive cap with the given index as generic (void) type.
+   * \param index  The index of the cap receive buffer of the expected
+   *               capability. (0 <= \c index < \c caps registered with
+   *               alloc_buffer_demand().)
+   * \return Capability slot currently allocated to the given capability
+   *         buffer.
+   * \note This is a convenience wrapper for get_rcv_cap().
+   */
+  L4::Cap<void> rcv_cap(int index) const
+  { return get_rcv_cap(index); }
+};
+
+inline Server_iface::~Server_iface() {}
+
+} // namespace Ipc_svr
+
+struct Epiface
+{
+  Epiface(Epiface const &) = delete;
+  Epiface &operator = (Epiface const &) = delete;
+
+  /// Type for abstract server interface.
+  typedef Ipc_svr::Server_iface Server_iface;
+  /// Type for server-side receive buffer demand.
+  typedef Ipc_svr::Server_iface::Demand Demand;
+
+  class Stored_cap : public Cap<void>
+  {
+  private:
+    enum { Managed = 0x10 };
+
+  public:
+    Stored_cap() = default;
+    Stored_cap(Cap<void> const &c, bool managed = false)
+    : Cap<void>((c.cap() & L4_CAP_MASK) | (managed ? Managed : 0))
+    {
+      static_assert (!(L4_CAP_MASK & Managed), "conflicting bits used...");
+    }
+
+    bool managed() const { return cap() & Managed; }
+  };
+
+  /// Make a server object
+  Epiface() : _data(0) {}
+
+  /**
+   * The abstract handler for client requests to the object.
+   * \param tag The message tag for this invocation.
+   * \param rights The rights bits in the invoked capability.
+   * \param utcb The UTCB used for the invocation.
+   * \retval -L4_ENOREPLY  No reply message is send.
+   * \retval <0            Error, reply with error code.
+   * \retval >=0           Success, reply with return value.
+   *
+   * This function must be implemented by application specific server
+   * objects.
+   */
+  virtual l4_msgtag_t dispatch(l4_msgtag_t tag, unsigned rights,
+                               l4_utcb_t *utcb) = 0;
+
+  /**
+   * Get the server-side receive buffer demand for this object.
+   * \note This function is usually not implemented directly, but by using
+   *       Server_object_t template with an IPC interface definition.
+   * \return The needed server-side receive buffers for this object
+   */
+  virtual Demand get_buffer_demand() const = 0; //{ return Demand(0); }
+
+  /// Destroy the object
+  virtual ~Epiface() = 0;
+
+  /**
+   * Get the capability to the kernel object belonging to this object.
+   * \return Capability for the kernel object behind the server.
+   *
+   * This is usually either an Ipc_gate or an Irq.
+   */
+  Stored_cap obj_cap() const { return _cap; }
+
+  /**
+   * Get pointer to server interface at which the object is currently registered.
+   * \return Pointer to the server at which the object is currently registered,
+   *         NULL if the object is not registered at any server.
+   */
+  Server_iface *server_iface() const { return _data; }
+
+  /**
+   * Set server registration info for the object.
+   * \param srv      The server to register at
+   * \param cap      The capability that connects the object.
+   * \param managed  Mark the capability as managed or unmanaged. Typical
+   *                 server implementations use this flag to remember whether
+   *                 the capability was internally allocated or not.
+   * \return 0 on success, -L4_EINVAL if the srv and cap are not consistent.
+   */
+  int set_server(Server_iface *srv, Cap<Kobject> cap, bool managed = false)
+  {
+    if ((srv && cap) || (!srv && !cap))
+      {
+        _data = srv;
+        _cap  = Stored_cap(cap, managed);
+        return 0;
+      }
+
+    return -L4_EINVAL;
+  }
+
+  /**
+   * Deprecated server registration function.
+   */
+  void set_obj_cap(Cap<void> const &cap) { _cap = cap; }
+
+private:
+  Server_iface *_data;
+  Stored_cap _cap;
+};
+
+inline Epiface::~Epiface() {}
+
+template<typename RPC_IFACE, typename BASE = Epiface>
+struct Epiface_t0 : BASE
+{
+  /// Data type of the IPC interface definition
+  typedef RPC_IFACE Interface;
+
+  /// Get the server-side buffer demand based in \a IFACE.
+  typename Type_info::Demand get_buffer_demand() const
+  { return typename Kobject_typeid<RPC_IFACE>::Demand(); }
+
+  /**
+   * Get the (typed) capability to this object.
+   * \return Capability for the kernel object behind the server.
+   */
+  Cap<RPC_IFACE> obj_cap() const
+  { return L4::cap_cast<RPC_IFACE>(BASE::obj_cap()); }
+};
+
+template<typename Derived, typename BASE = Epiface>
+struct Irqep_t : Epiface_t0<Kobject, BASE>
+{
+  l4_msgtag_t dispatch(l4_msgtag_t, unsigned, l4_utcb_t *)
+  {
+    static_cast<Derived*>(this)->handle_irq();
+    return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
+  }
+
+  /**
+   * Get the (typed) capability to this object.
+   * \return Capability for the kernel object behind the server.
+   */
+  Cap<L4::Irq> obj_cap() const
+  { return L4::cap_cast<L4::Irq>(BASE::obj_cap()); }
+};
+
+namespace Ipc {
+namespace Detail {
+
+using namespace L4::Typeid;
+
+template<typename IFACE>
+struct Meta_svr
+{
+  long op_num_interfaces(L4::Meta::Rights)
+  { return 1; }
+
+  long op_interface(L4::Meta::Rights, l4_umword_t ifx, long &proto, L4::Ipc::String<char> &name)
+  {
+    if (ifx > 0)
+      return -L4_ERANGE;
+    proto = L4::kobject_typeid<IFACE>()->proto();
+    name.copy_in(L4::kobject_typeid<IFACE>()->name());
+    return 0;
+  }
+
+  long op_supports(L4::Meta::Rights, l4_mword_t proto)
+  { return L4::kobject_typeid<IFACE>()->has_proto(proto); }
+};
+
+template<typename IFACE, typename LIST>
+struct _Dispatch;
+
+// No match dispatcher found
+template<typename IFACE>
+struct _Dispatch<IFACE, Iface_list_end>
+{
+  template< typename THIS, typename A1, typename A2 >
+  static l4_msgtag_t f(THIS *, l4_msgtag_t, A1, A2 &)
+  { return l4_msgtag(-L4_EBADPROTO, 0, 0, 0); }
+};
+
+// call matching p_dispatch() function
+template<typename IFACE, typename I, typename LIST >
+struct _Dispatch<IFACE, Iface_list<I, LIST> >
+{
+  // special handling for the meta protocol, to avoid 'using' murx
+  template< typename THIS >
+  static l4_msgtag_t _f(THIS *, l4_msgtag_t tag, unsigned r,
+                        l4_utcb_t *utcb, True::type)
+  {
+    using L4::Ipc::Msg::dispatch_call;
+    typedef L4::Meta::Rpcs Meta;
+    typedef Meta_svr<IFACE> Msvr;
+    return dispatch_call<Meta>((Msvr *)0, utcb, tag, r);
+  }
+
+  // normal dispatch to the op_<func> methods of \a self.
+  template< typename THIS >
+  static l4_msgtag_t _f(THIS *self, l4_msgtag_t t, unsigned r,
+                        l4_utcb_t *utcb, False::type)
+  {
+    using L4::Ipc::Msg::dispatch_call;
+    return dispatch_call<typename I::iface_type::Rpcs>(self, utcb, t, r);
+  }
+
+  // dispatch function with switch for meta protocol
+  template< typename THIS >
+  static l4_msgtag_t f(THIS *self, l4_msgtag_t tag, unsigned r,
+                       l4_utcb_t *utcb)
+  {
+    if (I::Proto == tag.label())
+      return _f(self, tag, r, utcb, Bool<I::Proto == (long)L4_PROTO_META>());
+
+    return _Dispatch<IFACE, typename LIST::type>::f(self, tag, r, utcb);
+  }
+};
+
+template<typename IFACE>
+struct Dispatch :
+  _Dispatch<IFACE, typename L4::Kobject_typeid<IFACE>::Iface_list::type>
+{};
+
+} // namespace Detail
+
+template<typename EPIFACE>
+struct Dispatch : Detail::Dispatch<typename EPIFACE::Interface>
+{};
+
+} // namespace Ipc
+
+template<typename Derived, typename IFACE, typename BASE = L4::Epiface>
+struct Epiface_t : Epiface_t0<IFACE, BASE>
+{
+  l4_msgtag_t dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb)
+  {
+    typedef Ipc::Dispatch<Derived> Dispatch;
+    return Dispatch::f(static_cast<Derived*>(this), tag, rights, utcb);
+  }
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ * \brief This registry returns the corresponding server object
+ *        based on the label of an Ipc_gate.
+ */
+class Basic_registry
+{
+public:
+  typedef Epiface Value;
+  /**
+   * \brief Get the server object for an Ipc_gate label.
+   * \param label The label usually stored in an Ipc_gate.
+   * \return A pointer to the Epiface identified by the given label.
+   */
+  static Value *find(l4_umword_t label)
+  { return reinterpret_cast<Value*>(label & ~3UL); }
+
+  /**
+   * \brief The dispatch function called by the server loop.
+   *
+   * This function forwards the message to the server object identified by the
+   * given \a label.
+   *
+   * \param tag The message tag used for the invocation.
+   * \param label The label used to find the object including the rights bits
+   *              of the invoked capability.
+   * \param utcb The UTCB used for the invocation.
+   * \return The return code from the object's dispatch function or -L4_ENOENT
+   *         if the object does not exist.
+   */
+  static l4_msgtag_t dispatch(l4_msgtag_t tag, l4_umword_t label,
+                              l4_utcb_t *utcb)
+  {
+    Value *o = find(label);
+
+    if (!o)
+      return l4_msgtag(-L4_ENOENT, 0, 0, 0);
+
+    return o->dispatch(tag, label, utcb);
+  }
+};
+
+
+} // namespace L4
+

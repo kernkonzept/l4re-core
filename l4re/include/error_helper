@@ -1,0 +1,151 @@
+// vi:ft=cpp
+/**
+ * \file
+ * \brief   Error helper.
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/types.h>
+#include <l4/cxx/exceptions>
+#include <l4/sys/err.h>
+
+namespace L4Re {
+
+#ifdef __EXCEPTIONS
+namespace Priv {
+inline long __attribute__((__noreturn__)) __runtime_error(long err, char const *extra);
+
+inline long __runtime_error(long err, char const *extra)
+{
+  switch (err)
+    {
+    case -L4_ENOENT: throw (L4::Element_not_found(extra));
+    case -L4_ENOMEM: throw (L4::Out_of_memory(extra));
+    case -L4_EEXIST: throw (L4::Element_already_exists(extra));
+    case -L4_ERANGE: throw (L4::Bounds_error(extra));
+    default: throw (L4::Runtime_error(err, extra));
+    }
+}
+
+}
+
+/**
+ * \brief Generate C++ exception on error
+ *
+ * \param err   Error value, if negative exception will be thrown
+ * \param extra Optional text for exception (default "")
+ * \param ret   Optional value for exception, default is error value (err)
+ *
+ * This function throws an exception if the err is negative and
+ * otherwise returns err.
+ */
+inline
+long chksys(long err, char const *extra = "", long ret = 0)
+{
+  if (L4_UNLIKELY(err < 0))
+    Priv::__runtime_error(ret ? ret : err, extra);
+
+  return err;
+}
+
+/**
+ * \brief Generate C++ exception on error
+ *
+ * \param t     Message tag.
+ * \param extra Optional text for exception (default "")
+ * \param utcb  Option UTCB
+ * \param ret   Optional value for exception, default is error value (err)
+ *
+ * This function throws an exception if the message tag contains an error or
+ * the label in the message tag is negative. Otherwise the label in the
+ * message tag is returned.
+ */
+inline
+long chksys(l4_msgtag_t const &t, char const *extra = "",
+            l4_utcb_t *utcb = l4_utcb(), long ret = 0)
+{
+  if (L4_UNLIKELY(t.has_error()))
+    Priv::__runtime_error(ret ? ret : l4_error_u(t, utcb), extra);
+  else if (L4_UNLIKELY(t.label() < 0))
+    throw L4::Runtime_error(ret ? ret: t.label(), extra);
+
+  return t.label();
+}
+
+/**
+ * \brief Generate C++ exception on error
+ *
+ * \param t     Message tag.
+ * \param utcb  UTCB.
+ * \param extra Optional text for exception (default "")
+ *
+ * This function throws an exception if the message tag contains an error or
+ * the label in the message tag is negative. Otherwise the label in the
+ * message tag is returned.
+ */
+inline
+long chksys(l4_msgtag_t const &t, l4_utcb_t *utcb, char const *extra = "")
+{ return chksys(t, extra, utcb); }
+
+#if 0
+inline
+long chksys(long ret, long err, char const *extra = "")
+{
+  if (L4_UNLIKELY(ret < 0))
+    Priv::__runtime_error(err, extra);
+
+  return ret;
+}
+#endif
+
+/**
+ * Check for valid capability or raise C++ exception
+ *
+ * \tparam T  Type of object to check, must be capability-like
+ *            (L4::Cap, L4Re::Util::Auto_cap etc.)
+ *
+ * \param cap    Capability value to check.
+ * \param extra  Optional text for exception.
+ * \param err    Error value for exception or 0 if the capability value
+ *               should be used.
+ *
+ * This function checks whether the capability is valid. If the capability
+ * is invalid an C++ exception is generated, using err if err is not zero,
+ * otherwise the capability value is used. A valid capability will just be
+ * returned.
+ */
+template<typename T>
+inline
+#if __cplusplus >= 201103L
+T chkcap(T &&cap, char const *extra = "", long err = -L4_ENOMEM)
+#else
+T chkcap(T cap, char const *extra = "", long err = -L4_ENOMEM)
+#endif
+{
+  if (L4_UNLIKELY(!cap.is_valid()))
+    Priv::__runtime_error(err ? err : cap.cap(), extra);
+
+  return cap;
+}
+#endif
+
+}

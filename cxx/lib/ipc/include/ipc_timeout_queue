@@ -1,0 +1,225 @@
+// vim: ft=cpp:
+/*
+ * (c) 2014 Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
+ *
+ * This file is licensed under the terms of the GNU Lesser General Public
+ * License 2.1.
+ * See file COPYING-LGPL-2.1 for details.
+ */
+#pragma once
+
+#include <l4/cxx/hlist>
+#include <l4/sys/cxx/ipc_server_loop>
+
+namespace L4 { namespace Ipc_svr {
+
+/**
+ * \brief Callback interface for Timeout_queue
+ * \ingroup cxx_ipc_server
+ */
+class Timeout : public cxx::H_list_item
+{
+  friend class Timeout_queue;
+public:
+  /// Make a timeout
+  Timeout() : _timeout(0) {}
+
+  /// Destroy a timeout
+  virtual ~Timeout() = 0;
+
+  /**
+   * \brief callback function to be called when timeout happened
+   * \note The timeout object is already dequeued when this function is called,
+   * this means the timeout may be safely again within the expired() function.
+   */
+  virtual void expired() = 0;
+
+  /**
+   * \brief return absolute timeout of this callback.
+   * \return absolute timeout for this instance of the timeout.
+   * \pre The timeout object must have been in a queue before, otherwise the
+   *      timeout is not set.
+   */
+  l4_kernel_clock_t timeout() const
+  { return _timeout; }
+
+private:
+  l4_kernel_clock_t _timeout;
+};
+
+inline Timeout::~Timeout() {}
+
+/**
+ * \brief Timeout queue to be used in l4re server loop
+ * \ingroup cxx_ipc_server
+ */
+class Timeout_queue
+{
+public:
+  /// Provide a local definition of Timeout for backward compat.
+  typedef L4::Ipc_svr::Timeout Timeout;
+
+  /**
+   * \brief Get the time for the next timeout.
+   * \return the time for the next timeout or 0 if there is none
+   */
+  l4_kernel_clock_t next_timeout() const
+  {
+    if (auto e = _timeouts.front())
+      return e->timeout();
+
+    return 0;
+  }
+
+  /**
+   * \brief Determine if a timeout has happened.
+   *
+   * \param now  The current time.
+   *
+   * \retval true   There is at least one expired timeout in the queue.
+   *         false  No expired timeout in the queue.
+   */
+  bool timeout_expired(l4_kernel_clock_t now) const
+  {
+    l4_kernel_clock_t next = next_timeout();
+    return (next != 0) && (next <= now);
+  }
+
+  /**
+   * \brief run the callbacks of expired timeouts
+   * \param now the current time.
+   */
+  void handle_expired_timeouts(l4_kernel_clock_t now)
+  {
+    while (!_timeouts.empty())
+      {
+        Queue::Iterator top = _timeouts.begin();
+        if ((*top)->_timeout > now)
+          return;
+
+        Timeout *t = *top;
+        top = _timeouts.erase(top);
+        t->expired();
+      }
+  }
+
+  /**
+   * \brief Add a timeout to the queue
+   * \param timeout timeout object to add
+   * \param time the time when the timeout expires
+   * \pre \a timeout must not be in any queue already
+   */
+  void add(Timeout *timeout, l4_kernel_clock_t time)
+  {
+    timeout->_timeout = time;
+    Queue::Iterator i = _timeouts.begin();
+    while (i != _timeouts.end() && (*i)->timeout() < time)
+      ++i;
+
+    _timeouts.insert_before(timeout, i);
+  }
+
+  /**
+   * \brief Remove \a timeout from the queue.
+   * \param timeout  timeout to remove from timeout queue
+   * \pre \a timeout must be in this queue
+   */
+  void remove(Timeout *timeout)
+  {
+    _timeouts.remove(timeout);
+  }
+
+private:
+  typedef cxx::H_list<Timeout> Queue;
+  Queue _timeouts;
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ * \brief Loop hooks mixin for integrating a timeout queue into the server
+ *        loop.
+ * \tparam HOOKS   has to inherit from Timeout_queue_hooks<> and provide
+ *                 the functions now() that has to return the current time.
+ * \tparam BR_MAN  This used as a base class for and provides the API for
+ *                 selecting the buffer register (BR) that is used to store the
+ *                 timeout value. This is usually L4Re::Util::Br_manager or
+ *                 L4::Ipc_svr::Br_manager_no_buffers.
+ *
+ * \implements L4::Ipc_svr::Server_iface
+ */
+template< typename HOOKS, typename BR_MAN = Br_manager_no_buffers >
+class Timeout_queue_hooks : public BR_MAN
+{
+  l4_kernel_clock_t _now()
+  { return static_cast<HOOKS*>(this)->now(); }
+
+  unsigned _timeout_br()
+  { return this->first_free_br(); }
+
+public:
+  /// get the time for the next timeout
+  l4_timeout_t timeout()
+  {
+    l4_kernel_clock_t t = queue.next_timeout();
+    if (t)
+       return l4_timeout(L4_IPC_TIMEOUT_0, l4_timeout_abs(t, _timeout_br()));
+    return L4_IPC_SEND_TIMEOUT_0;
+  }
+
+  /// setup_wait() for the server loop
+  void setup_wait(l4_utcb_t *utcb, L4::Ipc_svr::Reply_mode mode)
+  {
+    // we must handle the timer only when called after a possible reply
+    // otherwise we probably destroy the reply message.
+    if (mode == L4::Ipc_svr::Reply_separate)
+      {
+        l4_kernel_clock_t now = _now();
+        if (queue.timeout_expired(now))
+          queue.handle_expired_timeouts(now);
+      }
+
+    BR_MAN::setup_wait(utcb, mode);
+  }
+
+  /// server loop hook
+  L4::Ipc_svr::Reply_mode before_reply(l4_msgtag_t, l4_utcb_t *)
+  {
+    // split up reply and wait when a timeout has expired
+    if (queue.timeout_expired(_now()))
+      return L4::Ipc_svr::Reply_separate;
+    return L4::Ipc_svr::Reply_compound;
+  }
+
+  /**
+   * Add a timout to the queue for time \a time.
+   * \param timeout  The timeout object to add into the queue (must not be in
+   *                 any queue currently).
+   * \param time     The time when the timeout shall expire.
+   * \pre timeout must not be in any queue.
+   *
+   * \note The timeout is automatically dequeued before the Timeout::expired()
+   *       function is called
+   */
+  int add_timeout(Timeout *timeout, l4_kernel_clock_t time)
+  {
+    queue.add(timeout, time);
+    return 0;
+  }
+
+  /**
+   * Remove timeout from the queue.
+   * \param timeout  The timeout object to be removed from the queue.
+   * \note This function may be safely called even if the timeout is not
+   *       currently enqueued.
+   * \note in Timeout::expired() the timeout is already dequeued!
+   */
+  int remove_timeout(Timeout *timeout)
+  {
+    queue.remove(timeout);
+    return 0;
+  }
+
+  Timeout_queue queue; ///< Use this timeout queue
+};
+
+}}

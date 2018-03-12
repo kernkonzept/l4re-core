@@ -1,0 +1,54 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ * \brief  Kumem allocator helper
+ */
+/*
+ * (c) 2010 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *          Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/env>
+
+namespace L4Re { namespace Util {
+
+/**
+ * \defgroup l4re_util_kumem Kumem utiltities
+ * \ingroup api_l4re_util
+ */
+/*@{*/
+
+/**
+ * \brief Allocate state area.
+ *
+ * \retval mem         Pointer to memory that has been allocated.
+ * \param  pages_order Size to allocate, in log2 pages.
+ * \param  task        Task to use for allocation.
+ * \param  rm          Region manager to use for allocation.
+ *
+ * \return 0 for success, error code otherwise
+ */
+int
+kumem_alloc(l4_addr_t *mem, unsigned pages_order,
+            L4::Cap<L4::Task> task = L4Re::Env::env()->task(),
+            L4::Cap<L4Re::Rm> rm = L4Re::Env::env()->rm()) throw();
+
+/*@}*/
+}}

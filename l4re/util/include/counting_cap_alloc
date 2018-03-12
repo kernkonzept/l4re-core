@@ -1,0 +1,249 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ * \brief  Reference-counting capability allocator
+ */
+/*
+ * (c) 2008-2010 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/task>
+#include <l4/sys/assert.h>
+#include <l4/re/consts>
+
+namespace L4Re { namespace Util {
+
+template< typename COUNTER = unsigned char >
+struct Counter
+{
+  typedef COUNTER Type;
+  Type _cnt;
+
+  static Type nil() { return 0; }
+
+  void free() { _cnt = 0; }
+  bool is_free() const { return _cnt == 0; }
+  void inc() { ++_cnt; }
+  Type dec() { return --_cnt; }
+  void alloc() { _cnt = 1; }
+};
+
+/**
+ * \brief Reference-counting cap allocator
+ *
+ * \note The operations in this class are not thread-safe.
+ *
+ * \ingroup api_l4re_util
+ */
+template <typename COUNTERTYPE = L4Re::Util::Counter<unsigned char> >
+class Counting_cap_alloc
+{
+private:
+  void operator = (Counting_cap_alloc const &) { }
+  typedef COUNTERTYPE Counter;
+
+  COUNTERTYPE *_items;
+  long _free_hint;
+  long _bias;
+  long _capacity;
+
+
+public:
+
+  template <unsigned COUNT>
+  struct Counter_storage
+  {
+    COUNTERTYPE _buf[COUNT];
+    typedef COUNTERTYPE Buf_type[COUNT];
+    enum { Size = COUNT };
+  };
+
+protected:
+
+  /**
+   * Create a new, empty allocator.
+   *
+   * Needs to be initialized with setup() before it can be used.
+   */
+  Counting_cap_alloc() throw()
+  : _items(0), _free_hint(0), _bias(0), _capacity(0)
+  {}
+
+  /**
+   * Set up the backing memory for the allocator.
+   *
+   * \param m        Pointer to backing memory.
+   * \param capacity Number of capabilities that can be stored.
+   * \param bias     First capability id to use by this allocator.
+   */
+  void setup(void *m, long capacity, long bias) throw()
+  {
+    _items = (Counter*)m;
+    _capacity = capacity;
+    _bias = bias;
+  }
+
+public:
+  /**
+   * Allocated a new capability.
+   *
+   * \return The newly allocated capability, invalid if the allocator
+   *         was exhausted.
+   */
+  L4::Cap<void> alloc() throw()
+  {
+    if (_free_hint >= _capacity)
+      return L4::Cap_base::Invalid;
+
+    for (long i = _free_hint; i < _capacity; ++i)
+      {
+	if (_items[i].is_free())
+	  {
+	    _items[i].alloc();
+	    _free_hint = i + 1;
+
+	    return L4::Cap<void>((i + _bias) << L4_CAP_SHIFT);
+	  }
+      }
+
+    return L4::Cap<void>::Invalid;
+  }
+
+  /// \copydoc alloc()
+  template <typename T>
+  L4::Cap<T> alloc() throw()
+  {
+    return L4::cap_cast<T>(alloc());
+  }
+
+
+  /**
+   * Increase the reference counter for the capability.
+   *
+   * \param cap Capability, whose reference counter should be increased.
+   *
+   * If the capability was still free, it will be automatically allocated.
+   * Silently does nothing if the capability is not
+   * managed by this allocator.
+   */
+  void take(L4::Cap<void> cap) throw()
+  {
+    long c = cap.cap() >> L4_CAP_SHIFT;
+    if (c < _bias)
+      return;
+
+    c -= _bias;
+    if (c >= _capacity)
+      return;
+
+    _items[c].inc();
+  }
+
+
+  /**
+   * Free the capability.
+   *
+   * \param cap  Capability to free.
+   * \param task If set, task to unmap the capability from.
+   * \param unmap_flags  Flags for unmap, see l4_unmap_flags_t.
+   *
+   * \pre The capability has been allocated. Calling free twice results
+   *      in undefined behaviour.
+   *
+   * \return True, if the capability was managed by this allocator.
+   */
+  bool free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+            unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
+  {
+    long c = cap.cap() >> L4_CAP_SHIFT;
+    if (c < _bias)
+      return false;
+
+    c -= _bias;
+
+    if (c >= _capacity)
+      return false;
+
+    l4_assert(!_items[c].is_free());
+
+    if (task != L4_INVALID_CAP)
+      l4_task_unmap(task, cap.fpage(), unmap_flags);
+
+    if (c < _free_hint)
+      _free_hint = c;
+
+    _items[c].free();
+
+    return true;
+  }
+
+  /**
+   * Decrease the reference counter for a capability.
+   *
+   * \param cap  Capability to release.
+   * \param task If set, task to unmap the capability from.
+   * \param unmap_flags  Flags for unmap, see l4_unmap_flags_t.
+   *
+   * \pre The capability has been allocated. Calling release on a free
+   *      capability results in undefined behaviour.
+   *
+   * \return True, if the capability was freed as a result of
+   *         this operation. If false is returned the capability
+   *         is either still in use or was already free or invalid.
+   */
+  bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+               unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
+  {
+    long c = cap.cap() >> L4_CAP_SHIFT;
+    if (c < _bias)
+      return false;
+
+    c -= _bias;
+
+    if (c >= _capacity)
+      return false;
+
+    l4_assert(!_items[c].is_free());
+
+    if (_items[c].dec() == Counter::nil())
+      {
+	if (task != L4_INVALID_CAP)
+	  l4_task_unmap(task, cap.fpage(), unmap_flags);
+
+	if (c < _free_hint)
+	  _free_hint = c;
+
+	return true;
+      }
+    return false;
+  }
+
+
+  /**
+   * Return highest capability id managed by this allocator.
+   */
+  long last() throw()
+  {
+    return _capacity + _bias - 1;
+  }
+};
+
+}}
+

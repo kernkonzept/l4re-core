@@ -1,0 +1,502 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU Lesser General Public License 2.1.
+ * Please see the COPYING-LGPL-2.1 file for details.
+ */
+
+#pragma once
+
+#include <l4/re/elf_aux.h>
+#include <l4/util/elf.h>
+#include <l4/sys/types.h>
+#include <l4/re/error_helper>
+#include <l4/libloader/loader>
+
+namespace Ldr {
+
+class Elf_phdr
+{
+private:
+  void const *_hdr;
+  bool _64;
+
+public:
+  Elf_phdr(void const *hdr, bool _64) : _hdr(hdr), _64(_64) {}
+  Elf32_Phdr const *hdr32() const { return (Elf32_Phdr const*)(_hdr); }
+  Elf64_Phdr const *hdr64() const { return (Elf64_Phdr const*)(_hdr); }
+
+  char const *phdr_type() const;
+  unsigned long type() const { return _64?hdr64()->p_type:hdr32()->p_type; }
+  unsigned long paddr() const { return _64?hdr64()->p_paddr:hdr32()->p_paddr; }
+  unsigned long vaddr() const { return _64?hdr64()->p_vaddr:hdr32()->p_vaddr; }
+  unsigned long memsz() const { return _64?hdr64()->p_memsz:hdr32()->p_memsz; }
+  unsigned long filesz() const
+  { return _64?hdr64()->p_filesz:hdr32()->p_filesz; }
+  unsigned long flags() const { return _64?hdr64()->p_flags:hdr32()->p_flags; }
+  unsigned long offset() const
+  { return _64?hdr64()->p_offset:hdr32()->p_offset; }
+
+};
+
+class Elf_ehdr
+{
+private:
+  char e_ident[16];
+  unsigned short e_type;
+  unsigned short e_machine;
+  unsigned e_version;
+public:
+  template< typename T >
+  T element(unsigned long offset) const
+  { return reinterpret_cast<T>((unsigned long)this + offset); }
+
+  template< typename F >
+  void iterate_phdr(F const &func) const
+  {
+    unsigned n = num_phdrs();
+    for (unsigned i = 0; i < n; ++i)
+      func(phdr(i));
+  }
+
+  bool is_valid() const
+  {
+    return    l4util_elf_check_magic((ElfW(Ehdr) *)this)
+           && l4util_elf_check_arch((ElfW(Ehdr) *)this);
+  }
+
+private:
+  bool is_64() const
+  {
+    return e_ident[EI_CLASS] == ELFCLASS64;
+  }
+
+  Elf64_Ehdr const *hdr64() const { return (Elf64_Ehdr*)this; }
+  Elf32_Ehdr const *hdr32() const { return (Elf32_Ehdr*)this; }
+
+public:
+
+  bool is_dynamic() const
+  {
+    if (is_64())
+      return hdr64()->e_type == ET_DYN;
+    else
+      return hdr32()->e_type == ET_DYN;
+  }
+
+
+  Elf_phdr phdr(unsigned idx) const
+  {
+    if (is_64())
+      return Elf_phdr(element<Elf_phdr const*>(hdr64()->e_phoff
+	  + hdr64()->e_phentsize * idx), is_64());
+    else
+      return Elf_phdr(element<Elf_phdr const*>(hdr32()->e_phoff
+	  + hdr32()->e_phentsize * idx), is_64());
+
+  }
+
+  unsigned num_phdrs() const
+  {
+    if (is_64())
+      return hdr64()->e_phnum;
+    else
+      return hdr32()->e_phnum;
+  }
+
+  unsigned long entry() const
+  {
+    if (is_64())
+      return hdr64()->e_entry;
+    else
+      return hdr32()->e_entry;
+  }
+};
+
+
+struct Phdr_load_min_max
+{
+  mutable l4_addr_t start;
+  mutable l4_addr_t end;
+
+  Phdr_load_min_max() : start(~0UL), end(0) {}
+  void operator () (Elf_phdr const &h) const
+  {
+    if (h.type() != PT_LOAD)
+      return;
+
+    l4_addr_t s = l4_trunc_page(h.paddr());
+    l4_addr_t e = l4_round_page(h.paddr() + h.memsz());
+    if (s < start) start = s;
+    if (e > end)   end   = e;
+  }
+};
+
+template< typename Dbg >
+struct Phdr_print
+{
+  Dbg const &ldr;
+  Phdr_print(Dbg const &ldr) : ldr(ldr) {}
+  void operator () (Elf_phdr const &ph) const
+  {
+    char const *pt = ph.phdr_type();
+    if (pt)
+      ldr.printf("   [%-12s]", pt);
+    else
+      ldr.printf("   [%12lx]", ph.type());
+
+    ldr.cprintf(" 0x%lx\t0x%lx\t0x%lx\t0x%lx\t0x%lx\t%c%c%c\n",
+                ph.offset(), ph.paddr(), ph.vaddr(), ph.filesz(),
+                ph.memsz(),
+                (ph.flags() & PF_R) ? 'r' : '-',
+                (ph.flags() & PF_W) ? 'w' : '-',
+                (ph.flags() & PF_X) ? 'x' : '-');
+
+  }
+};
+
+template< typename App_model, typename Dbg >
+struct Phdr_load
+{
+  typedef typename App_model::Dataspace Dataspace;
+  typedef typename App_model::Const_dataspace Const_dataspace;
+
+  l4_addr_t base;
+  unsigned r_flags;
+  Const_dataspace bin;
+  App_model *mm;
+  Dbg const &dbg;
+
+  Phdr_load(l4_addr_t base, Const_dataspace bin, App_model *mm,
+            unsigned r_flags, Dbg const &dbg)
+  : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg)
+  {}
+
+  void operator () (Elf_phdr const &ph) const
+  {
+    using L4Re::chksys;
+
+    if (ph.type() != PT_LOAD)
+      return;
+
+    if (!ph.memsz())
+      return;
+
+    char *paddr = (char*)(l4_trunc_page(ph.paddr()) + base);
+    l4_umword_t offs = l4_trunc_page(ph.offset());
+    l4_umword_t page_offs = ph.offset() & (L4_PAGESIZE-1);
+    l4_umword_t fsz  = ph.filesz();
+    if (fsz && page_offs != (ph.paddr() & (L4_PAGESIZE-1)))
+      {
+        dbg.printf("malformed ELF file, file offset and paddr mismatch\n");
+        chksys(-L4_EINVAL, "malformed elf file");
+      }
+
+    l4_umword_t size = l4_round_page(ph.memsz() + page_offs);
+
+    if ((ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow())
+      {
+        // copy section
+        Dataspace mem = mm->alloc_ds(size);
+        mm->prog_attach_ds(l4_addr_t(paddr), size, mem, 0, r_flags,
+                           "attaching rw ELF segment");
+        mm->copy_ds(mem, 0, bin, offs, fsz + page_offs);
+      }
+    else
+      {
+        // map from file
+        mm->prog_attach_ds(l4_addr_t(paddr), size, bin, offs,
+                           r_flags | L4Re::Rm::Read_only,
+                           "attaching ro ELF segment");
+      }
+  }
+};
+
+template< typename App_model >
+struct Phdr_l4re_elf_aux_infos
+{
+  mutable l4_size_t stack_size;
+  mutable l4_addr_t stack_addr;
+  mutable l4_addr_t kip_addr;
+
+  typedef typename App_model::Const_dataspace Const_dataspace;
+  App_model const *mm;
+  Const_dataspace bin;
+
+  explicit Phdr_l4re_elf_aux_infos(App_model const *mm, Const_dataspace bin,
+                                   l4_addr_t kip_addr)
+  : stack_size(sizeof(void*) * 0x2000), stack_addr(0x80000000),
+    kip_addr(kip_addr), mm(mm), bin(bin)
+  {}
+
+  void operator () (Elf_phdr const &h) const
+  {
+    if (h.type() != PT_L4_AUX)
+      return;
+
+
+    if (h.filesz())
+      {
+	l4_addr_t addr = mm->local_attach_ds(bin, h.filesz(), h.offset());
+
+	l4re_elf_aux_t const *e = (l4re_elf_aux_t const *)addr;
+	l4re_elf_aux_t const *end = (l4re_elf_aux_t const *)(addr + h.filesz());
+	while (e < end && e->type)
+	  {
+	    switch (e->type)
+	      {
+	      case L4RE_ELF_AUX_T_STACK_SIZE:
+		  {
+		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
+		    stack_size = v->value;
+		    break;
+		  }
+	      case L4RE_ELF_AUX_T_STACK_ADDR:
+		  {
+		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
+		    stack_addr = v->value;
+		    break;
+		  }
+	      case L4RE_ELF_AUX_T_KIP_ADDR:
+		  {
+		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
+		    kip_addr = v->value;
+		    break;
+		  }
+	      default:
+		break;
+	      }
+
+	    e = (l4re_elf_aux_t const *)((char const *)e + e->length);
+	  }
+
+	mm->local_detach_ds(addr, h.filesz());
+      }
+  }
+};
+
+template< typename App_model >
+struct Phdr_dynamic
+{
+  typedef typename App_model::Const_dataspace Const_dataspace;
+  App_model const *mm;
+  Const_dataspace bin;
+
+  l4_addr_t base;
+  mutable char interp[100];
+  mutable l4_addr_t phdrs;
+  mutable bool is_dynamic;
+
+  Phdr_dynamic(App_model const *mm, Const_dataspace bin, l4_addr_t base)
+  : mm(mm), bin(bin), base(base), phdrs(0),
+    is_dynamic(false)
+  {
+    static char const *const addr = "rom/libld-l4.so";
+    unsigned i;
+    for (i = 0; i < sizeof(interp)-1 && addr[i]; ++i)
+      interp[i] = addr[i];
+  }
+
+  void operator () (Elf_phdr const &ph) const
+  {
+    switch (ph.type())
+      {
+      default:
+	return;
+      case PT_INTERP:
+	  {
+	    char const *addr = (char const *)mm->local_attach_ds(bin, ph.filesz(), ph.offset());
+	    unsigned i;
+	    for (i = 0; i < sizeof(interp)-1 && addr[i]; ++i)
+	      interp[i] = addr[i];
+
+	    interp[i] = 0;
+	    mm->local_detach_ds(l4_addr_t(addr), ph.filesz());
+	    is_dynamic = true;
+	  }
+	//ldr.printf("  found interpreter PHDR: interp='%s'\n", interp);
+	break;
+      case PT_PHDR:
+	phdrs = base + ph.paddr();
+	break;
+      case PT_DYNAMIC:
+	//is_dynamic = true;
+	break;
+      }
+  }
+};
+
+template< typename App_model >
+struct Phdr_l4re_elf_aux
+{
+  typedef typename App_model::Const_dataspace Const_dataspace;
+  App_model *am;
+  Const_dataspace bin;
+
+  explicit Phdr_l4re_elf_aux(App_model *am, Const_dataspace bin)
+  : am(am), bin(bin)
+  {}
+
+  void operator () (Elf_phdr const &h) const
+  {
+    using L4Re::chksys;
+    if (h.type() != PT_L4_AUX)
+      return;
+
+    if (h.filesz())
+      {
+	l4_addr_t addr = am->local_attach_ds(bin, h.filesz(), h.offset());
+
+	l4re_elf_aux_t const *e = (l4re_elf_aux_t const *)addr;
+	l4re_elf_aux_t const *end = (l4re_elf_aux_t const *)(addr + h.filesz());
+
+	while (e < end && e->type)
+	  {
+	    switch (e->type)
+	      {
+	      case L4RE_ELF_AUX_T_VMA:
+		  {
+		    l4re_elf_aux_vma_t const *v = (l4re_elf_aux_vma_t const *)e;
+		    l4_addr_t start = v->start;
+		    chksys(am->prog_reserve_area(&start, v->end - v->start + 1, 0, 0));
+		    break;
+		  }
+	      default:
+		break;
+	      }
+
+	    e = (l4re_elf_aux_t const *)((char const *)e + e->length);
+	  }
+
+	am->local_detach_ds(addr, h.filesz());
+	// L4::cap_reinterpret_cast<L4Re::Debug_obj>(r)->debug(0);
+      }
+  }
+
+};
+
+template< typename App_model, typename Dbg_ >
+class Elf_loader : public Loader<App_model, Dbg_>
+{
+public:
+  typedef Loader<App_model, Dbg_> Base;
+public:
+  typedef typename Base::Const_dataspace Const_dataspace;
+  typedef typename Base::Dbg_log Dbg_log;
+
+  void read_infos(App_model *mm, Const_dataspace bin,
+                  Dbg_log const &ldr)
+  {
+    using L4Re::chksys;
+
+    Elf_ehdr const *eh = reinterpret_cast<Elf_ehdr const*>(mm->local_attach_ds(bin, L4_PAGESIZE, 0));
+
+    if (!eh->is_valid())
+      {
+	chksys(-L4_EINVAL, "not an ELF binary");
+      }
+
+    Phdr_l4re_elf_aux_infos<App_model> stack_info(mm, bin, mm->prog_info()->kip);
+    eh->iterate_phdr(stack_info);
+    mm->stack()->set_target_stack(stack_info.stack_addr, stack_info.stack_size);
+
+    mm->prog_info()->kip = stack_info.kip_addr;
+    ldr.printf("  STACK: %lx (%zx)    KIP: %lx\n", stack_info.stack_addr,
+               stack_info.stack_size, stack_info.kip_addr);
+
+    ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
+    eh->iterate_phdr(Phdr_print<Dbg_log>(ldr));
+    mm->local_detach_ds((l4_addr_t)eh, L4_PAGESIZE);
+  }
+
+  void load(App_model *mm, Const_dataspace bin, l4_addr_t *base, bool interpreter,
+            Dbg_log const &ldr)
+  {
+    using L4Re::chksys;
+
+    Elf_ehdr const *eh = reinterpret_cast<Elf_ehdr const*>(mm->local_attach_ds(bin, L4_PAGESIZE, 0));
+
+    if (!eh->is_valid())
+      {
+	ldr.printf("file is not an ELF binary\n");
+	chksys(-L4_EINVAL, "not an ELF binary");
+      }
+
+    unsigned r_flags = 0;
+    l4_addr_t _base = 0;
+    if (base)
+      {
+	Phdr_load_min_max b_func;
+	ldr.printf("  relocate PIC/PIE binary\n");
+	/* figure out size of the binary, if PIC */
+	eh->iterate_phdr(b_func);
+
+	ldr.printf("   all PHDRs: [0x%lx-0x%lx]\n", b_func.start, b_func.end);
+	_base = *base;
+
+	l4_addr_t lib = _base + b_func.start;
+	chksys(mm->prog_reserve_area(&lib, b_func.end - b_func.start,
+	      L4Re::Rm::Search_addr, L4_SUPERPAGESHIFT));
+
+	ldr.printf("   relocate to %p\n", (void*)lib);
+
+	_base = l4_addr_t(lib) - b_func.start;
+
+	ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
+	eh->iterate_phdr(Phdr_print<Dbg_log>(ldr));
+	*base = _base;
+	r_flags |= L4Re::Rm::In_area;
+      }
+
+    eh->iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags, ldr));
+    eh->iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
+
+    mm->prog_info()->entry = eh->entry() + _base;
+
+    Phdr_dynamic<App_model> dyn_info(mm, bin, _base);
+    eh->iterate_phdr(dyn_info);
+
+    if (!interpreter && dyn_info.phdrs)
+      {
+	Prog_start_info *i = mm->prog_info();
+	i->dyn_phdrs = dyn_info.phdrs;
+	i->dyn_num_phdrs = eh->num_phdrs();
+      }
+
+    // Load the interpreter
+    if (dyn_info.is_dynamic)
+      {
+	ldr.printf("  dynamically linked executable, load interpreter '%s'\n", dyn_info.interp);
+
+	Const_dataspace file = mm->open_file(dyn_info.interp);
+	l4_addr_t base = 0x400000;
+
+	load(mm, file, &base, true, ldr);
+
+	Prog_start_info *i = mm->prog_info();
+
+	i->dyn_exec_entry = eh->entry() + _base;
+	i->dyn_interp_base = base;
+      }
+
+    mm->local_detach_ds((l4_addr_t)eh, L4_PAGESIZE);
+
+    ldr.printf(" done...\n");
+  }
+
+  void load(App_model *mm, Const_dataspace bin,
+            Dbg_log const &ldr)
+  {
+    load(mm, bin, 0, false, ldr);
+  }
+
+
+
+};
+
+}
+
+

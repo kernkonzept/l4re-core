@@ -1,0 +1,35 @@
+PKGDIR	?= ..
+L4DIR	?= $(PKGDIR)/../..
+
+INSTALL_TARGET += libgcc.a $(if $(LIBGCC_DO_SHARED),libgcc.so)
+
+include $(L4DIR)/mk/lib.mk
+
+define process_libgcc_generic
+  cp $(1) $(2)
+endef
+
+define process_libgcc_arm
+  remove="$(filter linux-atomic.o linux-atomic-64bit.o, \
+                          $(shell $(AR) t $(1)))"; \
+  $(CP) $(1) $(2); \
+  $(AR) d $(2) $$remove; \
+  $(if $(L4API),$(AR) rs $(2) $(if $(3),ARCH-arm/l4-atomic.s.o ARCH-arm/l4-atomic-64bit.s.o,ARCH-arm/l4-atomic.o ARCH-arm/l4-atomic-64bit.o);)
+endef
+
+process_libgcc = $(if $(process_libgcc_$(ARCH)), \
+                      $(process_libgcc_$(ARCH)), \
+                      $(process_libgcc_generic))
+
+ifneq ($(SYSTEM),)
+all:: libgcc.a $(if $(LIBGCC_DO_SHARED),libgcc.so)
+endif
+
+libgcc.a libgcc.so: $(GENERAL_D_LOC) $(LIBGCC_LIB_DIR)/Makefile.libgcc $(foreach f,$(TARGET),$(OBJS_$(f))) $(GCCLIB_HOST)
+	@$(GEN_MESSAGE)
+	$(VERBOSE)$(call process_libgcc,$(GCCLIB_HOST),$@,$(filter libgcc.so,$@))
+
+clean cleanall::
+	$(RM) libgcc.a libgcc.so
+
+GCCLIB_SO =

@@ -1,0 +1,207 @@
+// vi:ft=cpp
+/**
+ * \file
+ * Common task related definitions.
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/task.h>
+#include <l4/sys/capability>
+
+namespace L4 {
+
+/**
+ * C++ interface of the Task kernel object.
+ *
+ * The L4::Task class represents a combination of the address spaces provided
+ * by the L4Re micro kernel. A task consists of at least a memory address space
+ * and an object address space. On IA32 there is also an IO-port address space
+ * associated with an L4::Task.
+ *
+ * L4::Task objects are created using the L4::Factory interface.
+ * \includefile{l4/sys/task}
+ */
+class Task :
+  public Kobject_t<Task, Kobject, L4_PROTO_TASK,
+                   Type_info::Demand_t<2> >
+{
+public:
+  /**
+   * Map resources available in the source task to a destination task.
+   *
+   * \param src_task   Capability selector of the source task.
+   * \param snd_fpage  Send flexpage that describes an area in the address
+   *                   space or object space of the source task.
+   * \param snd_base   Send base that describes an offset in the receive window
+   *                   of the destination task.
+   * \param utcb       UTCB pointer of the calling thread.
+   *
+   * \return Syscall return tag.
+   *
+   * This method allows for asynchronous rights delegation from one task to
+   * another. It can be used to share memory as well as to delegate access to
+   * objects.
+   */
+  l4_msgtag_t map(Cap<Task> const &src_task,
+                  l4_fpage_t const &snd_fpage, l4_addr_t snd_base,
+                  l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_map_u(cap(), src_task.cap(), snd_fpage, snd_base, utcb); }
+
+  /**
+   * Revoke rights from the task.
+   *
+   * \param fpage     Flexpage that describes an area in the address space or
+   *                  object space of `this` task
+   * \param map_mask  Unmap mask, see #l4_unmap_flags_t
+   * \param utcb      UTCB pointer of the calling thread.
+   *
+   * \return Syscall return tag
+   *
+   * This method allows to revoke rights from the destination task and from all the
+   * tasks that got the rights delegated from that task (i.e., this operation
+   * does a recursive rights revocation).
+   *
+   * \note If the capability possesses delete rights or if it is the last
+   *       capability pointing to the object, calling this function might
+   *       destroy the object itself.
+   */
+  l4_msgtag_t unmap(l4_fpage_t const &fpage,
+                    l4_umword_t map_mask,
+                    l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_unmap_u(cap(), fpage, map_mask, utcb); }
+
+  /**
+   * Revoke rights from a task.
+   *
+   * \param fpages      An array of flexpages. Each item describes an area in
+   *                    the address or object space of `this` task.
+   * \param num_fpages  Number of fpages in the `fpages` array.
+   * \param map_mask    Unmap mask, see #l4_unmap_flags_t.
+   * \param utcb        UTCB pointer of the calling thread.
+   *
+   * This method allows to revoke rights from the destination task and from all
+   * the tasks that got the rights delegated from that task (i.e., this
+   * operation does a recursive rights revocation).
+   *
+   * \pre The caller needs to take care that `num_fpages` is not bigger
+   *      than L4_UTCB_GENERIC_DATA_SIZE - 2.
+   *
+   * \note If the capability possesses delete rights or if it is the last
+   *       capability pointing to the object, calling this function might
+   *       destroy the object itself.
+   */
+  l4_msgtag_t unmap_batch(l4_fpage_t const *fpages,
+                          unsigned num_fpages,
+                          l4_umword_t map_mask,
+                          l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_unmap_batch_u(cap(), fpages, num_fpages, map_mask, utcb); }
+
+  /**
+   * Release capability and delete object.
+   *
+   * \param obj   Capability selector of the object to delete.
+   * \param utcb  UTCB pointer of the calling thread.
+   *
+   * \return Syscall return tag
+   *
+   * The object will be deleted if the `obj` has sufficient rights. No error
+   * will be reported if the rights are insufficient, however, the capability
+   * is removed in all cases.
+   */
+  l4_msgtag_t delete_obj(L4::Cap<void> obj,
+                         l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_delete_obj_u(cap(), obj.cap(), utcb); }
+
+  /**
+   * Release capability.
+   *
+   * \param cap   Capability selector to release.
+   * \param utcb  UTCB pointer of the calling thread.
+   *
+   * \return Syscall return tag.
+   *
+   * This operation unmaps the capability from `this` task.
+   */
+  l4_msgtag_t release_cap(L4::Cap<void> cap,
+                          l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_release_cap_u(this->cap(), cap.cap(), utcb); }
+
+  /**
+   * Test whether a capability selector points to a valid capability.
+   *
+   * \param cap   Capability selector to check for validity.
+   * \param utcb  UTCB pointer of the calling thread.
+   *
+   * \retval tag.label() > 0: The capability is valid.
+   * \retval tag.label() = 0: The capability is invalid.
+   */
+  l4_msgtag_t cap_valid(Cap<void> const &cap,
+                        l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_cap_valid_u(this->cap(), cap.cap(), utcb); }
+
+  /**
+   * Test whether a capability has child mappings (in another task).
+   *
+   * \param cap   Capability selector to look up in the destination task.
+   * \param utcb  UTCB pointer of the calling thread.
+   *
+   * \retval tag.label() = 1: The capability has at least on child mapping in
+   *         another task.
+   * \retval tag.label() = 0: No child mappings.
+   */
+  l4_msgtag_t cap_has_child(Cap<void> const &cap,
+                            l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_cap_has_child_u(this->cap(), cap.cap(), utcb); }
+
+  /**
+   * Test whether two capabilities point to the same object with the same
+   * rights.
+   *
+   * \param cap_a  First capability selector to compare.
+   * \param cap_b  Second capability selector to compare.
+   * \param utcb   Optiona: UTCB pointer of the calling thread.
+   *
+   * \retval tag.label() = 1: `cap_a` and `cap_b` point to the same object.
+   * \retval tag.label() = 0: The two caps do **not** point to the same
+   *         object.
+   */
+  l4_msgtag_t cap_equal(Cap<void> const &cap_a,
+                        Cap<void> const &cap_b,
+                        l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_cap_equal_u(cap(), cap_a.cap(), cap_b.cap(), utcb); }
+
+  /**
+   * Add kernel-user memory.
+   *
+   * \param fpage  Flexpage describing the virtual area the memory goes to.
+   * \param utcb   UTCP pointer of the calling thread.
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t add_ku_mem(l4_fpage_t const &fpage,
+                         l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_task_add_ku_mem_u(cap(), fpage, utcb); }
+
+};
+}
+
+

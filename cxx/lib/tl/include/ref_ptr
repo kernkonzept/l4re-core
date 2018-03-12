@@ -1,0 +1,330 @@
+// vim:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include "type_traits"
+#include <cstddef>
+
+namespace cxx {
+
+template< typename T >
+struct Default_ref_counter
+{
+  void h_drop_ref(T *p) throw()
+  {
+    if (p->remove_ref() == 0)
+      delete p;
+  }
+
+  void h_take_ref(T *p) throw()
+  {
+    p->add_ref();
+  }
+};
+
+struct Ref_ptr_base
+{
+  enum Default_value
+  { Nil = 0 };
+};
+
+template<typename T, template< typename X > class CNT = Default_ref_counter>
+class Weak_ptr;
+
+/**
+ * A reference-counting pointer with automatic cleanup.
+ *
+ * \tparam T   Type of object the pointer points to.
+ * \tparam CNT Type of management class that manages the life time of
+ *             the object.
+ *
+ * This pointer is similar to the standard C++-11 shared_ptr but it does
+ * the reference counting directly in the object being pointed to, so that
+ * no additional management structures need to be allocated from the heap.
+ *
+ * Classes that use this pointer type must implement two functions:
+ *
+ *     int remove_ref()
+ *
+ * is called when a reference is removed and must return 0 when there are no
+ * further references to the object.
+ *
+ *     void add_ref()
+ *
+ * is called when another ref_ptr to the object is created.
+ *
+ * Ref_obj provides a simple implementation of this interface from which
+ * classes may inherit.
+ */
+template <
+  typename T = void,
+  template< typename X > class CNT = Default_ref_counter
+>
+class Ref_ptr : public Ref_ptr_base, private CNT<T>
+{
+private:
+#if __cplusplus >= 201103L
+  typedef decltype(nullptr) Null_type;
+#else
+  typedef struct _Null_type const *Null_type;
+#endif
+  typedef Weak_ptr<T, CNT> Wp;
+
+public:
+  /// Default constructor creates a pointer with no managed object.
+  Ref_ptr() throw() : _p(0) {}
+
+  Ref_ptr(Ref_ptr_base::Default_value v) : _p((T*)v) {}
+
+  /**
+   * Create a shared pointer from a weak pointer.
+   *
+   * Increases references.
+   */
+  Ref_ptr(Wp const &o) throw() : _p(o.ptr())
+  { __take_ref(); }
+
+#if __cplusplus >= 201103L
+  /// allow creation from `nullptr`
+  Ref_ptr(decltype(nullptr) n) noexcept : _p(n) {}
+
+  /**
+   * Create a shared pointer from a raw pointer.
+   *
+   * In contrast to C++11 shared_ptr it is safe to use this constructor
+   * multiple times and have the same reference counter.
+   */
+  template<typename X>
+  explicit Ref_ptr(X *o) throw() : _p(o)
+  { __take_ref(); }
+#else
+  /**
+   * Create a shared pointer from a raw pointer.
+   *
+   * In contrast to C++11 shared_ptr it is safe to use this constructor
+   * multiple times and have the same reference counter.
+   */
+  explicit Ref_ptr(T *o) throw() : _p(o)
+  { __take_ref(); }
+#endif
+
+  /**
+   * Create a shared pointer from a raw pointer without creating a new
+   * reference.
+   *
+   * \param o  Pointer to the object.
+   * \param d  Dummy parameter to select this constructor at compile time.
+   *           The value may be true or false.
+   *
+   * This is the counterpart to release().
+   */
+  Ref_ptr(T *o, bool d) throw() : _p(o) { (void)d; }
+
+  /**
+   * Return a raw pointer to the object this shared pointer points to.
+   *
+   * This does not release the pointer or decrease the reference count.
+   */
+  T *get() const throw()
+  {
+    return _p;
+  }
+
+  /** \copydoc get() */
+  T *ptr() const throw()
+  {
+    return _p;
+  }
+
+  /**
+   * Release the shared pointer without removing the reference.
+   *
+   * \return A raw pointer to the managed object.
+   *
+   */
+  T *release() throw()
+  {
+    T *p = _p;
+    _p = 0;
+    return p;
+  }
+
+  ~Ref_ptr() throw()
+  { __drop_ref(); }
+
+  template<typename OT>
+  Ref_ptr(Ref_ptr<OT, CNT> const &o) throw()
+  {
+    _p = o.ptr();
+    __take_ref();
+  }
+
+  Ref_ptr(Ref_ptr<T> const &o) throw()
+  {
+    _p = o._p;
+    __take_ref();
+  }
+
+  template< typename OT >
+  void operator = (Ref_ptr<OT> const &o) throw()
+  {
+    __drop_ref();
+    _p = o.ptr();
+    __take_ref();
+  }
+
+  void operator = (Ref_ptr<T> const &o) throw()
+  {
+    if (&o == this)
+      return;
+
+    __drop_ref();
+    _p = o._p;
+    __take_ref();
+  }
+
+  void operator = (Null_type) throw()
+  {
+    __drop_ref();
+    _p = 0;
+  }
+
+#if __cplusplus >= 201103L
+  template<typename OT>
+  Ref_ptr(Ref_ptr<OT, CNT> &&o) throw()
+  { _p = o.release(); }
+
+  Ref_ptr(Ref_ptr<T> &&o) throw()
+  { _p = o.release(); }
+
+  template< typename OT >
+  void operator = (Ref_ptr<OT> &&o) throw()
+  {
+    __drop_ref();
+    _p = o.release();
+  }
+
+  void operator = (Ref_ptr<T> &&o) throw()
+  {
+    if (&o == this)
+      return;
+
+    __drop_ref();
+    _p = o.release();
+  }
+
+  explicit operator bool () const throw() { return _p; }
+#else
+  operator Null_type () const throw()
+  { return reinterpret_cast<Null_type>(_p); }
+#endif
+
+  T *operator -> () const throw ()
+  { return _p; }
+
+  bool operator == (Ref_ptr const &o) const throw()
+  { return _p == o._p; }
+
+  bool operator < (Ref_ptr const &o) const throw()
+  { return _p < o._p; }
+
+  bool operator <= (Ref_ptr const &o) const throw()
+  { return _p <= o._p; }
+
+  bool operator > (Ref_ptr const &o) const throw()
+  { return _p > o._p; }
+
+  bool operator >= (Ref_ptr const &o) const throw()
+  { return _p >= o._p; }
+
+private:
+  void __drop_ref() throw()
+  {
+    if (_p)
+      static_cast<CNT<T>*>(this)->h_drop_ref(_p);
+  }
+
+  void __take_ref() throw()
+  {
+    if (_p)
+      static_cast<CNT<T>*>(this)->h_take_ref(_p);
+  }
+
+  T *_p;
+};
+
+
+template<typename T, template< typename X > class CNT>
+class Weak_ptr
+{
+private:
+  struct Null_type;
+  typedef Ref_ptr<T, CNT> Rp;
+
+public:
+  Weak_ptr() throw() {}
+  Weak_ptr(Rp const &o) throw() : _p(o.ptr()) {}
+  explicit Weak_ptr(T *o) throw() : _p(o) {}
+
+  T *get() const throw() { return _p; }
+  T *ptr() const throw() { return _p; }
+
+  T *operator -> () const throw () { return _p; }
+  operator Null_type const * () const throw()
+  { return reinterpret_cast<Null_type const*>(_p); }
+
+private:
+  T *_p;
+};
+
+template<typename OT, typename T> inline
+Ref_ptr<OT> ref_ptr_static_cast(Ref_ptr<T> const &o)
+{ return ref_ptr(static_cast<OT*>(o.ptr())); }
+
+template< typename T >
+inline Ref_ptr<T> ref_ptr(T *t)
+{ return Ref_ptr<T>(t); }
+
+template< typename T >
+inline Weak_ptr<T> weak_ptr(T *t)
+{ return Weak_ptr<T>(t); }
+
+
+class Ref_obj
+{
+private:
+  mutable int _ref_cnt;
+
+public:
+  Ref_obj() : _ref_cnt(0)  {}
+  void add_ref() const throw() { ++_ref_cnt; }
+  int remove_ref() const throw() { return --_ref_cnt; }
+};
+
+#if __cplusplus >= 201103L
+
+template< typename T, typename... Args >
+Ref_ptr<T>
+make_ref_obj(Args &&... args)
+{ return cxx::Ref_ptr<T>(new T(cxx::forward<Args>(args)...)); }
+
+#endif
+
+}

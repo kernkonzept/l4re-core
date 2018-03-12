@@ -1,0 +1,3 @@
+provides: libgcc
+requires: l4sys
+maintainer: adam@os.inf.tu-dresden.de

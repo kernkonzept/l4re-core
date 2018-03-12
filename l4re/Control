@@ -1,0 +1,3 @@
+Provides: l4re-util l4re l4re-main
+requires: crtn l4util cxx_libc_io libstdc++-headers
+maintainer: warg@os.inf.tu-dresden.de

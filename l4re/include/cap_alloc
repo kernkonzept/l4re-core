@@ -1,0 +1,210 @@
+// vi:ft=cpp
+/**
+ * \file
+ * \brief Abstract capability-allocator interface
+ */
+/*
+ * (c) 2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *          Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/task>
+#include <l4/sys/smart_capability>
+#include <l4/re/consts>
+
+namespace L4Re {
+
+/**
+ * \addtogroup l4re_cap_api
+ */
+/*@{*/
+/**
+ * \brief Capability allocator interface.
+ */
+class Cap_alloc
+{
+private:
+  void operator = (Cap_alloc const &);
+
+protected:
+  Cap_alloc(Cap_alloc const &) {}
+  Cap_alloc() {}
+
+public:
+
+  /**
+   * \brief Allocate a capability
+   * \return Capability of type void
+   */
+  virtual L4::Cap<void> alloc() throw() = 0;
+
+  /**
+   * \brief Allocate a capability
+   * \return Capability of type T
+   */
+  template< typename T >
+  L4::Cap<T> alloc() throw()
+  { return L4::cap_cast<T>(alloc()); }
+
+  /**
+   * \brief Free a capability
+   * \param cap  Capability to free.
+   */
+  virtual void free(L4::Cap<void> cap) throw() = 0;
+
+  //virtual L4::Cap<void> next_allocated(l4_umword_t *refs, L4::Cap<void> pivot = L4::Cap<void>::Invalid) throw() = 0;
+
+  /**
+   * \brief Destructor.
+   */
+  virtual ~Cap_alloc() = 0;
+
+  /**
+   * \brief Construct an instance of a capability allocator.
+   * \param ca  Capability allocator
+   * \return Instance of a capability allocator.
+   */
+  template< typename CAP_ALLOC >
+  static inline L4Re::Cap_alloc *
+  get_cap_alloc(CAP_ALLOC &ca)
+  {
+    struct CA : public L4Re::Cap_alloc
+    {
+      CAP_ALLOC &_ca;
+      L4::Cap<void> alloc() throw() { return _ca.alloc(); }
+      void free(L4::Cap<void> cap) throw() { _ca.free(cap); }
+      CA(CAP_ALLOC &ca) : _ca(ca) {}
+    };
+
+    static CA _ca(ca);
+    return &_ca;
+  }
+};
+
+inline
+Cap_alloc::~Cap_alloc()
+{}
+
+
+/**
+ * \brief Helper for Auto_cap and Auto_del_cap
+ * \ingroup api_l4re_util
+ */
+template< unsigned long Unmap_flags = L4_FP_ALL_SPACES >
+class Smart_cap_auto
+{
+private:
+  Cap_alloc *_ca;
+
+public:
+  Smart_cap_auto() : _ca(0) {}
+  Smart_cap_auto(Cap_alloc *ca) : _ca(ca) {}
+
+  void free(L4::Cap_base &c)
+  {
+    if (c.is_valid())
+      {
+	L4::Cap<L4::Task>(This_task)->unmap(c.fpage(), Unmap_flags);
+	_ca->free(L4::Cap<void>(c.cap()));
+	c.invalidate();
+      }
+  }
+
+  static void invalidate(L4::Cap_base &c)
+  {
+    if (c.is_valid())
+      c.invalidate();
+  }
+
+  static L4::Cap_base copy(L4::Cap_base const &src)
+  {
+    L4::Cap_base r = src;
+    invalidate(const_cast<L4::Cap_base &>(src));
+    return r;
+  }
+};
+
+/**
+ * \internal the interface is not mature right now
+ * \brief Automatic capability that implements automatic free and
+ *        unmap of the capability selector.
+ * \param T the type of the object that is referred by the capability.
+ *
+ * This kind of automatic capability is useful for capabilities with
+ * that shall have a lifetime that is strictly coupled to one C++ scope.
+ *
+ * Usage:
+ * \code
+ * {
+ *   L4Re::Auto_cap<L4Re::Dataspace>::Cap
+ *     ds_cap(L4Re::cap_alloc.alloc<L4Re::Datasapce>));
+ *
+ *   // use the dataspace cap
+ *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *   ...
+ *
+ *   // At the end of the scope ds_cap is unmapped and the capability selector
+ *   // is freed.
+ * }
+ * \endcode
+ */
+template< typename T >
+struct Auto_cap
+{
+  typedef L4::Smart_cap<T, Smart_cap_auto<> > Cap;
+};
+
+/**
+ * \internal the interface is not mature right now
+ * \brief Automatic capability that implements automatic free and
+ *        unmap+delete of the capability selector.
+ * \param T the type of the object that is referred by the capability.
+ *
+ * This kind of automatic capability is useful for capabilities with
+ * that shall have a lifetime that is strictly coupled to one C++ scope.
+ * The main difference to Auto_cap is that the unmap is done with the
+ * deletion flag enabled and this leads to the deletion of the object
+ * if the current task holds appropriate deletion rights.
+ *
+ * Usage:
+ * \code
+ * {
+ *   L4Re::Auto_del_cap<L4Re::Dataspace>::Cap
+ *     ds_cap(L4Re::cap_alloc.alloc<L4Re::Datasapce>));
+ *
+ *   // use the dataspace cap
+ *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
+ *
+ *   ...
+ *
+ *   // At the end of the scope ds_cap is unmapped and the capability selector
+ *   // is freed. Because the deletion flag is set the data space shall be
+ *   // also deleted (even if there are other references to this data space).
+ * }
+ * \endcode
+ */
+template< typename T >
+struct Auto_del_cap
+{
+  typedef L4::Smart_cap<T, Smart_cap_auto<L4_FP_DELETE_OBJ> > Cap;
+};
+/*@}*/
+
+}

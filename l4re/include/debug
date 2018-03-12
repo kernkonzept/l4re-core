@@ -1,0 +1,73 @@
+// vi:ft=cpp
+/**
+ * \file
+ * \brief   Debug interface
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/re/protocols.h>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4Re {
+/**
+ * \defgroup api_l4re_debug Debugging API
+ * \ingroup api_l4re
+ * \brief Debugging Interface
+ *
+ * The debugging interface can be provided to retrieve, or log debugging
+ * information for an object.
+ * Each class may realize the debug interface to provide debugging
+ * functionality. For example, the region-map objects provide a facility to
+ * dump the currently established memory regions.
+ *
+ * \see L4::Debug_obj for more information.
+ */
+
+/**
+ * \brief Debug interface.
+ * \ingroup api_l4re_debug
+ *
+ * \see \link api_l4re_debug Debugging API \endlink.
+ */
+class L4_EXPORT Debug_obj :
+  public L4::Kobject_t<Debug_obj, L4::Kobject, L4RE_PROTO_DEBUG>
+{
+public:
+
+  /**
+   * \brief Debug call
+   *
+   * \param function Function to call.
+   * \return - L4_EOK
+   *         - IPC errors
+   */
+  L4_INLINE_RPC(long, debug, (unsigned long function));
+  typedef L4::Typeid::Rpc_nocode<debug_t> Rpcs;
+};
+
+template<typename BASE>
+class Debug_obj_t :
+  public L4::Kobject_2t<Debug_obj_t<BASE>, BASE, Debug_obj, L4::PROTO_EMPTY>
+{
+  typedef L4::Typeid::Rpcs<> Rpcs;
+};
+}

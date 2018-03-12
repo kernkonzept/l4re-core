@@ -1,0 +1,367 @@
+// vi:ft=cpp
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include "types"
+#include "ipc_basics"
+#include "ipc_types"
+
+namespace L4 { namespace Ipc L4_EXPORT {
+
+/// Default type for passing length of an array.
+typedef unsigned short Array_len_default;
+
+/**
+ * Array reference data type for arrays located in the message.
+ * \note Use Array for normal RPC interfaces, Array_ref is usually used
+ *       as server-side argument, see Array.
+ * \tparam ELEM_TYPE  The data type of an array element, should be 'const'
+ *                    when used as input.
+ * \tparam LEN_TYPE   Data type used to store the number of elements in
+ *                    the array.
+ */
+template< typename ELEM_TYPE, typename LEN_TYPE = Array_len_default >
+struct Array_ref
+{
+  typedef ELEM_TYPE *ptr_type;
+  typedef LEN_TYPE len_type;
+
+  len_type length;
+  ptr_type data;
+  Array_ref() {}
+  Array_ref(len_type length, ptr_type data)
+  : length(length), data(data)
+  {}
+
+  template<typename X> struct Non_const
+  { typedef Array_ref<X, LEN_TYPE> type; };
+
+  template<typename X> struct Non_const<X const>
+  { typedef Array_ref<X, LEN_TYPE> type; };
+
+  Array_ref(typename Non_const<ELEM_TYPE>::type const &other)
+  : length(other.length), data(other.data)
+  {}
+};
+
+/**
+ * Array data type for dynamically sized arrays in RPCs.
+ * \tparam ELEM_TYPE  The data type of an array element, should be 'const'
+ *                    when used as input.
+ * \tparam LEN_TYPE   Data type used to store the number of elements in
+ *                    the array.
+ *
+ * An Array generally encapsulates a data pointer and a length (number of
+ * elements). Array does \em not provide any storage for the data itself.
+ * The storage is either provided by a client-side caller or in the case
+ * of Array_ref is the message itself.
+ *
+ * Arrays can be used as input or as output arguments, when used as input
+ * ELEM_TYPE should be qualified \a const, when used as output a reference
+ * to an array must be used and the ELEM_TYPE must \em not be qualified
+ * \a const. It is the caller's responsibility to provide an array buffer
+ * of sufficient length. If a message from the server is too large it will
+ * be silently truncated.
+ *
+ * If backward compatibility with Ipc::Stream is required, then LEN_TYPE must
+ * be `unsigned long`.
+ */
+template<typename ELEM_TYPE, typename LEN_TYPE = Array_len_default>
+struct Array : Array_ref<ELEM_TYPE , LEN_TYPE>
+{
+  /// Make array
+  Array() {}
+  /// Make array from length and data pointer.
+  Array(LEN_TYPE length, ELEM_TYPE *data)
+  : Array_ref<ELEM_TYPE, LEN_TYPE>(length, data)
+  {}
+
+  template<typename X> struct Non_const
+  { typedef Array<X, LEN_TYPE> type; };
+
+  template<typename X> struct Non_const<X const>
+  { typedef Array<X, LEN_TYPE> type; };
+
+  /// Make a const array from a non-const array
+  Array(typename Non_const<ELEM_TYPE>::type const &other)
+  : Array_ref<ELEM_TYPE, LEN_TYPE>(other.length, other.data)
+  {}
+};
+
+/**
+ * Server-side copy in buffer for Array.
+ * \tparam ELEM_TYPE  Data type of an array element.
+ * \tparam LEN_TYPE   Data type for the number of elements in the array.
+ * \tparam MAX        The maximum number of elements in the buffer.
+ *                    If the actual message is longer than the buffer, it
+ *                    will be silently truncated.
+ *
+ * This type is assignment compatible to Array_ref<ELEM_TYPE, LEN_TYPE> and
+ * provides a transparent server-side copy-in mechanism for array parameters.
+ * The Array_in_buf provides the storage for the array data and receives a
+ * copy of the data passed to the server-function.
+ */
+template< typename ELEM_TYPE,
+          typename LEN_TYPE = Array_len_default,
+          LEN_TYPE MAX      = (L4_UTCB_GENERIC_DATA_SIZE *
+                                sizeof(l4_umword_t)) / sizeof(ELEM_TYPE) >
+struct Array_in_buf
+{
+  typedef Array_ref<ELEM_TYPE, LEN_TYPE> array;
+  typedef Array_ref<ELEM_TYPE const, LEN_TYPE> const_array;
+
+  /// The data elements
+  ELEM_TYPE data[MAX];
+  /// The length of the array
+  LEN_TYPE length;
+
+  /// copy in data from a source array
+  void copy_in(const_array a)
+  {
+    length = a.length;
+    if (length > MAX)
+      length = MAX;
+
+    for (LEN_TYPE i = 0; i < length; ++i)
+      data[i] = a.data[i];
+  }
+
+  /// Make Array_in_buf from a const array
+  Array_in_buf(const_array a)  { copy_in(a); }
+  /// Make Array_in_buf from a non-const array
+  Array_in_buf(array a)  { copy_in(a); }
+};
+
+// implementation details for transmission
+namespace Msg {
+
+/// Array as input arguments
+template<typename A, typename LEN>
+struct Elem< Array<A, LEN> >
+{
+  /// Array<> as argument at the interface
+  typedef Array<A, LEN> arg_type;
+  /// Array_ref<> at the server side
+  typedef Array_ref<A, LEN> svr_type;
+  typedef svr_type svr_arg_type;
+  enum { Is_optional = false };
+};
+
+/// Array as output argument
+template<typename A, typename LEN>
+struct Elem< Array<A, LEN> & >
+{
+  /// Array<> & at the interface
+  typedef Array<A, LEN> &arg_type;
+  /// Array_ref<> as server storage type
+  typedef Array_ref<A, LEN> svr_type;
+  /// Array_ref<> & at the server side
+  typedef svr_type &svr_arg_type;
+  enum { Is_optional = false };
+};
+
+/// Array_ref as output argument
+template<typename A, typename LEN>
+struct Elem< Array_ref<A, LEN> & >
+{
+  /// Array_ref<> at the interface
+  typedef Array_ref<A, LEN> &arg_type;
+  /// Array_ref<> as server storage
+  typedef Array_ref<typename L4::Types::Remove_const<A>::type, LEN> svr_type;
+  /// Array_ref<> & as server argument
+  typedef svr_type &svr_arg_type;
+  enum { Is_optional = false };
+};
+
+template<typename A> struct Class<Array<A> > : Class<A>::type {};
+template<typename A> struct Class<Array_ref<A> > : Class<A>::type {};
+
+namespace Detail {
+
+template<typename A, typename LEN, typename ARRAY, bool REF>
+struct Clnt_val_ops_d_in : Clnt_noops<ARRAY>
+{
+  using Clnt_noops<ARRAY>::to_msg;
+  static int to_msg(char *msg, unsigned offset, unsigned limit,
+                    ARRAY a, Dir_in, Cls_data)
+  {
+    offset = align_to<LEN>(offset);
+    if (L4_UNLIKELY(!check_size<LEN>(offset, limit)))
+      return -L4_EMSGTOOLONG;
+    *reinterpret_cast<LEN *>(msg + offset) = a.length;
+    offset = align_to<A>(offset + sizeof(LEN));
+    if (L4_UNLIKELY(!check_size<A>(offset, limit, a.length)))
+      return -L4_EMSGTOOLONG;
+    typedef typename L4::Types::Remove_const<A>::type elem_type;
+    elem_type *data = reinterpret_cast<elem_type*>(msg + offset);
+
+    // we do not correctly handle overlaps
+    if (!REF || data != a.data)
+      for (LEN i = 0; i < a.length; ++i)
+        data[i] = a.data[i];
+
+    return offset + a.length * sizeof(A);
+  }
+};
+} // namespace Detail
+
+template<typename A, typename LEN>
+struct Clnt_val_ops<Array<A, LEN>, Dir_in, Cls_data> :
+  Detail::Clnt_val_ops_d_in<A, LEN, Array<A, LEN>, false> {};
+
+template<typename A, typename LEN>
+struct Clnt_val_ops<Array_ref<A, LEN>, Dir_in, Cls_data> :
+  Detail::Clnt_val_ops_d_in<A, LEN, Array_ref<A, LEN>, true> {};
+
+template<typename A, typename LEN, typename CLASS>
+struct Svr_val_ops< Array_ref<A, LEN>, Dir_in, CLASS >
+: Svr_noops< Array_ref<A, LEN> >
+{
+  typedef Array_ref<A, LEN> svr_type;
+
+  using Svr_noops<svr_type>::to_svr;
+  static int to_svr(char *msg, unsigned offset, unsigned limit,
+                    svr_type &a, Dir_in, Cls_data)
+  {
+    offset = align_to<LEN>(offset);
+    if (L4_UNLIKELY(!check_size<LEN>(offset, limit)))
+      return -L4_EMSGTOOSHORT;
+    a.length = *reinterpret_cast<LEN *>(msg + offset);
+    offset = align_to<A>(offset + sizeof(LEN));
+    if (L4_UNLIKELY(!check_size<A>(offset, limit, a.length)))
+      return -L4_EMSGTOOSHORT;
+    a.data = reinterpret_cast<A*>(msg + offset);
+    return offset + a.length * sizeof(A);
+  }
+};
+
+template<typename A, typename LEN>
+struct Svr_xmit< Array<A, LEN> > : Svr_xmit< Array_ref<A, LEN> > {};
+
+template<typename A, typename LEN>
+struct Clnt_val_ops<Array<A, LEN>, Dir_out, Cls_data> : Clnt_noops<Array<A, LEN> >
+{
+  typedef Array<A, LEN> type;
+
+  using Clnt_noops<type>::from_msg;
+  static int from_msg(char *msg, unsigned offset, unsigned limit, long,
+                      type &a, Dir_out, Cls_data)
+  {
+    offset = align_to<LEN>(offset);
+    if (L4_UNLIKELY(!check_size<LEN>(offset, limit)))
+      return -L4_EMSGTOOSHORT;
+
+    LEN l = *reinterpret_cast<LEN *>(msg + offset);
+
+    offset = align_to<A>(offset + sizeof(LEN));
+    if (L4_UNLIKELY(!check_size<A>(offset, limit, l)))
+      return -L4_EMSGTOOSHORT;
+
+    A *data = reinterpret_cast<A*>(msg + offset);
+
+    if (l > a.length)
+      l = a.length;
+    else
+      a.length = l;
+
+    for (unsigned i = 0; i < l; ++i)
+      a.data[i] = data[i];
+
+    return offset + l * sizeof(A);
+  };
+};
+
+template<typename A, typename LEN>
+struct Clnt_val_ops<Array_ref<A, LEN>, Dir_out, Cls_data> :
+  Clnt_noops<Array_ref<A, LEN> >
+{
+  typedef Array_ref<A, LEN> type;
+
+  using Clnt_noops<type>::from_msg;
+  static int from_msg(char *msg, unsigned offset, unsigned limit, long,
+                      type &a, Dir_out, Cls_data)
+  {
+    offset = align_to<LEN>(offset);
+    if (L4_UNLIKELY(!check_size<LEN>(offset, limit)))
+      return -L4_EMSGTOOSHORT;
+
+    LEN l = *reinterpret_cast<LEN *>(msg + offset);
+
+    offset = align_to<A>(offset + sizeof(LEN));
+    if (L4_UNLIKELY(!check_size<A>(offset, limit, l)))
+      return -L4_EMSGTOOSHORT;
+
+    a.data = reinterpret_cast<A*>(msg + offset);
+    a.length = l;
+    return offset + l * sizeof(A);
+  };
+};
+
+template<typename A, typename LEN, typename CLASS>
+struct Svr_val_ops<Array_ref<A, LEN>, Dir_out, CLASS> :
+  Svr_noops<Array_ref<typename L4::Types::Remove_const<A>::type, LEN> &>
+{
+  typedef typename L4::Types::Remove_const<A>::type elem_type;
+  typedef Array_ref<elem_type, LEN> &svr_type;
+
+  using Svr_noops<svr_type>::to_svr;
+  static int to_svr(char *msg, unsigned offset, unsigned limit,
+                    svr_type a, Dir_out, Cls_data)
+  {
+    offset = align_to<LEN>(offset);
+    if (L4_UNLIKELY(!check_size<LEN>(offset, limit)))
+      return -L4_EMSGTOOLONG;
+
+    offset = align_to<A>(offset + sizeof(LEN));
+    a.data = reinterpret_cast<elem_type *>(msg + offset);
+    a.length = (limit-offset) / sizeof(A);
+    return offset;
+  }
+
+  using Svr_noops<svr_type>::from_svr;
+  static int from_svr(char *msg, unsigned offset, unsigned limit, long,
+                      svr_type a, Dir_out, Cls_data)
+  {
+    offset = align_to<LEN>(offset);
+    if (L4_UNLIKELY(!check_size<LEN>(offset, limit)))
+      return -L4_EMSGTOOLONG;
+
+    *reinterpret_cast<LEN *>(msg + offset) = a.length;
+
+    offset = align_to<A>(offset + sizeof(LEN));
+    if (L4_UNLIKELY(!check_size<A>(offset, limit, a.length)))
+      return -L4_EMSGTOOLONG;
+
+    return offset + a.length * sizeof(A);
+  }
+};
+
+template<typename A, typename LEN>
+struct Svr_xmit<Array<A, LEN> &> : Svr_xmit<Array_ref<A, LEN> &> {};
+
+// Pointer to array is not implemented.
+template<typename A, typename LEN>
+struct Is_valid_rpc_type< Array_ref<A, LEN> *> : L4::Types::False {};
+
+// Optional input arrays are not implemented.
+template<typename A, typename LEN>
+struct Is_valid_rpc_type< Opt<Array_ref<A, LEN> > > : L4::Types::False {};
+
+} // namespace Msg
+
+}}

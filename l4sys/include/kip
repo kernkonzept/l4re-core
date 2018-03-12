@@ -1,0 +1,204 @@
+// vim:set ft=cpp:
+/*!
+ * \file
+ * L4::Kip class, memory descriptors.
+ *
+ * \author Alexander Warg <alexander.warg@os.inf.tu-dresden.de>
+ * \ingroup l4_api
+ *
+ */
+/*
+ * (c) 2008-2009 Author(s)
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#ifndef L4_SYS_KIP_H__
+#define L4_SYS_KIP_H__
+
+/* C++ version of memory descriptors */
+
+/**
+ * \defgroup l4_kip_api Kernel Interface Page
+ * \ingroup l4_api
+ * Kernel Interface Page.
+ *
+ * C++ interface for the Kernel Interface Page:<br>
+ * \includefile{l4/sys/kip}
+ */
+
+namespace L4
+{
+  namespace Kip
+  {
+    /**
+     * Memory descriptors stored in the kernel interface page.
+     * \ingroup l4_kip_api
+     *
+     * \includefile{l4/sys/kip}
+     */
+    class Mem_desc
+    {
+    public:
+      /**
+       * Memory types.
+       */
+      enum Mem_type
+      {
+        Undefined    = 0x0,  //< Undefined memory
+        Conventional = 0x1,  //< Conventional memory
+        Reserved     = 0x2,  //< Reserved region, do not use this memory
+        Dedicated    = 0x3,  //< Dedicated
+        Shared       = 0x4,  //< Shared
+
+        Info         = 0xd,  //< Info by boot loader
+        Bootloader   = 0xe,  //< Memory belongs to the boot loader
+        Arch         = 0xf   //< Architecture specific memory
+      };
+    private:
+      unsigned long _l, _h;
+
+      static unsigned long &memory_info(void *kip) throw()
+      { return *((unsigned long *)kip + 21); }
+
+      static unsigned long memory_info(void const *kip) throw()
+      { return *((unsigned long const *)kip + 21); }
+
+    public:
+      /**
+       * Get first memory descriptor.
+       *
+       * \param kip  Pointer to the kernel info page
+       *
+       * \return First memory descriptor stored in the kernel info page
+       */
+      static Mem_desc *first(void *kip) throw()
+      {
+        return (Mem_desc *)((char *)kip
+               + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8)));
+      }
+
+      static Mem_desc const *first(void const *kip) throw()
+      {
+        return (Mem_desc const *)((char const *)kip
+               + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8)));
+      }
+
+      /**
+       * Return number of memory descriptors stored in the kernel info page.
+       *
+       * \param kip  Pointer to the kernel info page
+       *
+       * \return Number of memory descriptors in the kernel info page.
+       */
+      static unsigned long count(void const *kip) throw()
+      {
+        return memory_info(kip)
+               & ((1UL << ((sizeof(unsigned long) / 2) * 8)) - 1);
+      }
+
+      /**
+       * Set number of memory descriptors.
+       *
+       * \param kip    Pointer to the kernel info page
+       * \param count  Number of memory descriptors
+       */
+      static void count(void *kip, unsigned count) throw()
+      {
+        unsigned long &mi = memory_info(kip);
+        mi = (mi & ~((1UL << ((sizeof(unsigned long) / 2) * 8)) - 1)) | count;
+      }
+
+      /**
+       * Initialize memory descriptor.
+       *
+       * \param start  Start address
+       * \param end    End address
+       * \param t      Memory type
+       * \param st     Memory subtype, defaults to 0
+       * \param virt   True for virtual memory, false for physical memory,
+       *               defaults to physical
+       */
+      Mem_desc(unsigned long start, unsigned long end,
+               Mem_type t, unsigned char st = 0, bool virt = false) throw()
+      : _l((start & ~0x3ffUL) | (t & 0x0f) | ((st << 4) & 0x0f0)
+           | (virt ? 0x0200 : 0x0)), _h(end | 0x3ffUL)
+      {}
+
+      /**
+       * Return start address of memory descriptor.
+       *
+       * \return Start address of memory descriptor
+       */
+      unsigned long start() const throw() { return _l & ~0x3ffUL; }
+
+      /**
+       * Return end address of memory descriptor.
+       *
+       * \return End address of memory descriptor
+       */
+      unsigned long end() const throw() { return _h | 0x3ffUL; }
+
+      /**
+       * Return size of region described by the memory descriptor.
+       *
+       * \return Size of the region described by the memory descriptor
+       */
+      unsigned long size() const throw() { return end() + 1 - start(); }
+
+      /**
+       * Return type of the memory descriptor.
+       *
+       * \return Type of the memory descriptor
+       */
+      Mem_type type() const throw() { return (Mem_type)(_l & 0x0f); }
+
+      /**
+       * Return sub-type of the memory descriptor.
+       *
+       * \return Sub-type of the memory descriptor
+       */
+      unsigned char sub_type() const throw() { return (_l >> 4) & 0x0f; }
+
+      /**
+       * Return whether the memory descriptor describes a virtual or
+       * physical region.
+       *
+       * \return True for virtual region, false for physical region.
+       */
+      unsigned is_virtual() const throw() { return _l & 0x200; }
+
+      /**
+       * Set values of a memory descriptor.
+       *
+       * \param start  Start address
+       * \param end    End address
+       * \param t      Memory type
+       * \param st     Sub-type, defaults to 0
+       * \param virt   Virtual or physical memory region, defaults to physical
+       */
+      void set(unsigned long start, unsigned long end,
+               Mem_type t, unsigned char st = 0, bool virt = false) throw()
+      {
+        _l = (start & ~0x3ffUL) | (t & 0x0f) | ((st << 4) & 0x0f0)
+             | (virt?0x0200:0x0);
+
+        _h = end | 0x3ffUL;
+      }
+
+    };
+  };
+};
+
+#endif

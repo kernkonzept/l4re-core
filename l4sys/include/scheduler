@@ -1,0 +1,144 @@
+// vi:ft=cpp
+/**
+ * \file
+ * Scheduler object functions.
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/icu>
+#include <l4/sys/scheduler.h>
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4 {
+
+/**
+ * C++ interface of the Scheduler kernel object.
+ *
+ * The Scheduler interface allows a client to manage CPU resources. The API
+ * provides functions to query scheduler information, check the online state of
+ * CPUs, query CPU idle time and to start threads on defined CPU sets.
+ *
+ * \includefile{l4/sys/scheduler}
+ */
+class L4_EXPORT Scheduler :
+  public Kobject_t<Scheduler, Icu, L4_PROTO_SCHEDULER,
+                   Type_info::Demand_t<1> >
+{
+public:
+  // ABI function for 'info' call
+  L4_INLINE_RPC_NF_OP(L4_SCHEDULER_INFO_OP,
+      l4_msgtag_t, info, (l4_umword_t gran_offset, l4_umword_t *map,
+                          l4_umword_t *cpu_max));
+
+  /**
+   * Get scheduler information.
+   *
+   * \param[out]    cpu_max Maximum number of CPUs ever available.
+   * \param[in,out] cpus    \a cpus.offset is first CPU of interest.
+   *                        \a cpus.granularity (see l4_sched_cpu_set_t).
+   *                        \a cpus.map Bitmap of online CPUs.
+   * \param         utcb    UTCB pointer of the calling thread. This defaults
+   *                        to the UTCB of the current thread.
+   *
+   * \retval 0           Success.
+   * \retval -L4_ERANGE  The given CPU offset is larger than the maximum number
+   *                     of CPUs.
+   */
+  l4_msgtag_t info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
+                   l4_utcb_t *utcb = l4_utcb()) const throw()
+  {
+    l4_umword_t max = 0;
+    l4_msgtag_t t =
+      info_t::call(c(), cpus->gran_offset, &cpus->map, &max, utcb);
+    if (cpu_max) *cpu_max = max;
+    return t;
+  }
+
+  /**
+   * Run a thread on a Scheduler.
+   *
+   * \param thread  Capability of the thread to run.
+   * \param sp      Scheduling parameters.
+   *
+   * \retval 0           Success.
+   * \retval -L4_EINVAL  Invalid size of the scheduling parameter.
+   *
+   * This function launches a thread on a CPU determined by the scheduling
+   * parameter `sp.affinity`. A thread can be intentionally stopped by
+   * migrating it on an offline or an invalid CPU. The thread is only
+   * guaranteed to run if the CPU it is migrated to is currently online.
+   *
+   * \note A scheduler may impose a policy with regard to selecting CPUs.
+   * However the scheduler is required to ensure the following two properties:
+   * - Two threads with disjoint CPU sets must be scheduled to different
+   *   physical CPUs.
+   * - Two threads with a single identical CPU selected in the CPU set must be
+   *   scheduled to the same physical CPU.
+   */
+  L4_INLINE_RPC_OP(L4_SCHEDULER_RUN_THREAD_OP,
+      l4_msgtag_t, run_thread, (Ipc::Cap<Thread> thread, l4_sched_param_t const &sp));
+
+  /**
+   * Query the idle time (in µs) of a CPU.
+   *
+   * \param       cpus  Set of CPUs to query. Only the idle time of the first
+   *                    selected CPU in `cpus.map` is queried.
+   * \param[out]  us    Idle time of queried CPU in µs.
+   *
+   * \retval 0           Success.
+   * \retval -L4_EINVAL  Invalid CPU requested in cpu set.
+   *
+   * This function retrieves the idle time in µs of the first selected
+   * CPU in `cpus.map`. The idle time is the accumulated time a CPU has spent in
+   * the idle thread since its last reset. To calculate a load estimate `l` one
+   * has to retrieve the idle time at the beginning (`i1`) and the end (`i2`)
+   * of a known time interval `t`. The load is then calculated as
+   * l = 1 - (i2 - i1)/t.
+   *
+   * The idle time is only defined for online CPUs. Reading the idle time from
+   * offline CPUs is undefined and may result in either getting -L4_EINVAL or
+   * calculating an estimated (incorrect) load of 1.
+   *
+   * \note The idle time statistics of remote CPUs is updated on context switch
+   * events only, hence may not be up-to-date when requested cross-CPU.  To get
+   * up-to-date idle time you should use a thread running on the same CPU of
+   * which the idle time is requested.
+   */
+  L4_INLINE_RPC_OP(L4_SCHEDULER_IDLE_TIME_OP,
+      l4_msgtag_t, idle_time, (l4_sched_cpu_set_t const &cpus,
+                               l4_kernel_clock_t *us));
+
+  /**
+   * Query if a CPU is online.
+   *
+   * \param cpu   CPU number whose online status should be queried.
+   * \param utcb  UTCB pointer of the calling thread. Defaults to \a l4_utcb().
+   *
+   * \retval true   The CPU is online.
+   * \retval false  The CPU is offline
+   */
+  bool is_online(l4_umword_t cpu, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return l4_scheduler_is_online_u(cap(), cpu, utcb); }
+
+  typedef L4::Typeid::Rpcs_sys<info_t, run_thread_t, idle_time_t> Rpcs;
+};
+}

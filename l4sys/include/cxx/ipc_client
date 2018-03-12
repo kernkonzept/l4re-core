@@ -1,0 +1,63 @@
+// vi:ft=cpp
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+#pragma GCC system_header
+
+#include <l4/sys/cxx/ipc_basics>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/__typeinfo.h>
+#include <l4/sys/err.h>
+
+/**
+ * \file
+ */
+
+namespace L4 { namespace Ipc { namespace Msg {
+//-------------------------------------------------------------------------
+
+/**
+ * Generate the definition of an RPC stub.
+ *
+ * \param name  The fully qualified method name to be implemented, this means
+ *              `class::method`.
+ *
+ * This macro generates the definition (implementation) for the given RPC
+ * interface method.
+ */
+#define L4_RPC_DEF(name) \
+  template struct  L4::Ipc::Msg::Rpc_call \
+    <name##_t, name##_t::class_type, name##_t::ipc_type, name##_t::flags_type>
+
+
+/// \cond
+//----------------------------------------------------
+//Implementation of the RPC call
+template<typename OP, typename C, typename FLAGS, typename R, typename ...ARGS>
+R L4_EXPORT
+Rpc_call<OP, C, R (ARGS...), FLAGS>::
+  call(L4::Cap<C> cap, typename _Elem<ARGS>::arg_type ...a, l4_utcb_t *utcb) throw()
+{
+  return Rpc_inline_call<OP, C, R (ARGS...), FLAGS>::call(cap, a..., utcb);
+}
+/// \endcond
+
+} // namespace Msg
+} // namesapce Ipc
+} // namespace L4
+

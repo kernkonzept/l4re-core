@@ -1,0 +1,204 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ */
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/types.h>
+#include <l4/sys/l4int.h>
+#include <l4/sys/capability>
+#include <l4/re/dataspace>
+#include <l4/re/protocols.h>
+#include <l4/sys/cxx/types>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4Re
+{
+
+/**
+ * \defgroup api_l4re_dma DMA API for L4Re
+ */
+
+/**
+ * DMA Address Space.
+ *
+ * A Dma_space represents the DMA address space of a device.
+ * Whenever a device needs direct access to parts of an L4Re::Dataspace, that
+ * part of the data space must be mapped to the DMA address space that is
+ * assigned to that device. After the DMA accesses to the memory are finished
+ * the memory must be unmapped from the device's DMA address space.
+ *
+ * Mapping to a DMA address space, using map(), makes the given parts of
+ * the data space visible to the associated device at the returned
+ * DMA address.  As long as the memory is mapped into a DMA space it is 'pinned'
+ * and cannot be subject to dynamic memory management such as swapping.
+ * Additionally, map() is responsible for the necessary syncing operations before
+ * the DMA.
+ *
+ * unmap() is the reverse operation to map() and unmaps the given
+ * data-space part for the DMA address space. unmap() is responsible for the
+ * necessary sync operations after the DMA.
+ */
+class Dma_space :
+  public L4::Kobject_0t< Dma_space,
+                         L4RE_PROTO_DMA_SPACE,
+                         L4::Type_info::Demand_t<1> >
+{
+public:
+  /// Data type for DMA addresses.
+  typedef l4_uint64_t Dma_addr;
+
+  /**
+   * Direction of the DMA transfers
+   */
+  enum Direction
+  {
+    Bidirectional, ///< device reads and writes to the memory
+    To_device,     ///< device reads the memory
+    From_device,   ///< device writes to the memory
+    None           ///< device is coherently connected to the memory
+  };
+
+  /**
+   * Attributes used for the memory region during the transfer.
+   * \sa Attributes
+   */
+  enum Attribute
+  {
+    /**
+     * Do not sync the memory hierarchy.
+     *
+     * When this flag is _not set_ (default) the memory region shall be made
+     * coherent to the point-of-coherency of the device associated with this
+     * Dma_space.
+     * When using this attribute the client is responsible for syncing the
+     * memory hierarchy for DMA. This can either be done using the cache API
+     * or by another map() or unmap() operation of the same part of the data
+     * space (without the #No_sync attribute).
+     */
+    No_sync
+  };
+
+  /**
+   * Attributes for DMA mappings.
+   *
+   * \sa Attribute
+   */
+  typedef L4::Types::Flags<Attribute> Attributes;
+
+  /**
+   * Attributes assigned to the DMA space when associated with a
+   * specific device.
+   * \sa Space_attribs
+   */
+  enum Space_attrib
+  {
+    /**
+     * The device is connected coherently with the cache.
+     *
+     * This means that the map() and unmap() do not need to sync
+     * CPU caches before and after DMA.
+     */
+    Coherent,
+
+    /**
+     * The DMA space has no DMA task assigned and uses the CPUs
+     * physical memory.
+     */
+    Phys_space
+  };
+
+  /// Attributes used when configuring the DMA space.
+  typedef L4::Types::Flags<Space_attrib> Space_attribs;
+
+  /**
+   * Map the given part of this data space into the DMA address space.
+   *
+   * \caprights{R}
+   * \param[in]     src      Source data space (that describes the memory).
+   *                         Caller needs write rights to the data space.
+   * \param[in]     offset   The offset (bytes) with in `src`.
+   * \param[in,out] size     The size (bytes) of the of the region to be mapped
+   *                         to for DMA, after successful mapping the size
+   *                         returned is the size mapped for DMA as single
+   *                         block, this size might be smaller than the
+   *                         original input size, in this case the caller might
+   *                         call map() again with a new offset and the
+   *                         remaining size.
+   * \param[in]     attrs    The attributes used for this DMA mapping
+   *                         (a combination of Dma_space::Attribute values).
+   * \param[in]     dir      The direction of the DMA transfer issued with
+   *                         this mapping. The same value must later be passed
+   *                         to unmap().
+   * \param[out]    dma_addr The DMA address to use for DMA with the associated
+   *                         device.
+   *
+   * \return 0 in the case of success, a negative error code otherwise.
+   */
+  L4_INLINE_RPC(
+      long, map, (L4::Ipc::Cap<L4Re::Dataspace> src, l4_addr_t offset,
+                  L4::Ipc::In_out<l4_size_t *> size,
+                  Attributes attrs, Direction dir,
+                  Dma_addr *dma_addr));
+
+  /**
+   * Unmap the given part of this data space from the DMA address space.
+   * \caprights{R}
+   * \param dma_addr  The DMA address (returned by Dma_space::map()).
+   * \param size      The size (bytes) of the memory region to unmap.
+   * \param attrs     The attributes for the unmap (currently none).
+   * \param dir       The direction of the finished DMA operation.
+   */
+  L4_INLINE_RPC(
+      long, unmap, (Dma_addr dma_addr,
+                    l4_size_t size, Attributes attrs, Direction dir));
+
+  /**
+   * Associate a DMA task for a device to this Dma_space.
+   *
+   * \caprights{RW}
+   * \param[in]  dma_task  The DMA task used for the device that shall be
+   *                       associated with this DMA space. The dma_task might
+   *                       be an invalid capability when #Phys_space is set in
+   *                       `attr`, in this case the CPUs physical memory
+   *                       is used as DMA address space.
+   * \param[in]  attr      Attributes for this DMA space. See #Space_attrib.
+   */
+  L4_INLINE_RPC(
+      long, associate, (L4::Ipc::Opt<L4::Ipc::Cap<L4::Task> > dma_task,
+                        Space_attribs attr),
+      L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+
+  /**
+   * Disassociate the DMA task from this Dma_space.
+   *
+   * \caprights{RW}
+   */
+  L4_INLINE_RPC(
+      long, disassociate, (),
+      L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+
+  typedef L4::Typeid::Rpcs<map_t, unmap_t, associate_t, disassociate_t> Rpcs;
+};
+
+}
+

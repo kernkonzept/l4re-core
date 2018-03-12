@@ -1,0 +1,148 @@
+// vi:ft=cpp
+/**
+ * \file
+ * Virtual console interface.
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/icu>
+#include <l4/sys/vcon.h>
+#include <l4/sys/capability>
+
+namespace L4 {
+
+/**
+ * C++ L4 Vcon interface.
+ *
+ * L4::Vcon is a virtual console for simple character-based input and output.
+ * The interrupt for read events is provided by the virtual key interrupt.
+ *
+ * \includefile{l4/sys/vcon}
+ *
+ * See the \ref l4_vcon_api for the C interface.
+ */
+class Vcon :
+  public Kobject_t<Vcon, Icu, L4_PROTO_LOG>
+{
+public:
+  /**
+   * Send data to `this` virtual console.
+   *
+   * \param buf   Pointer to the data buffer.
+   * \param size  Size of the data buffer in bytes.
+   * \param utcb  UTBC pointer of the calling thread.
+   *
+   * \return Syscall return tag
+   *
+   * \note Size must not exceed #L4_VCON_WRITE_SIZE, a proper value of the
+   *       `size` parameter is NOT checked.
+   */
+  l4_msgtag_t
+  send(char const *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return l4_vcon_send_u(cap(), buf, size, utcb); }
+
+  /**
+   * Write data to `this` virtual console.
+   *
+   * \param buf   Pointer to the data buffer.
+   * \param size  Size of the data buffer in bytes.
+   * \param utcb  UTCB pointer of the calling thread.
+   *
+   * \retval <0   Error.
+   * \retval >=0  Number of bytes written to the virtual console.
+   */
+  long
+  write(char const *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return l4_vcon_write_u(cap(), buf, size, utcb); }
+
+  /**
+   * Read data from `this` virtual console.
+   *
+   * \param[out] buf   Pointer to data buffer.
+   * \param      size  Size of the data buffer in bytes.
+   * \param      utcb  UTCB pointer of the calling thread.
+   *
+   * \retval <0      Error code.
+   * \retval >size   More bytes to read, `size` bytes are in the buffer `buf`.
+   * \retval <=size  Number of bytes read.
+   *
+   * \note Size must not exceed #L4_VCON_READ_SIZE.
+   */
+  int
+  read(char *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return l4_vcon_read_u(cap(), buf, size, utcb); }
+
+  /**
+   * Read data from `this` virtual console which also returns flags.
+   *
+   * \param[out] buf   Pointer to data buffer.
+   * \param      size  Size of the data buffer in bytes.
+   * \param      utcb  UTCB pointer of the calling thread.
+   *
+   * \retval <0      Error code.
+   * \retval >size   More bytes to read, `size` bytes are in the buffer `buf`.
+   * \retval <=size  Number of bytes read.
+   *
+   * If this function returns a positive value the caller can check the
+   * #L4_VCON_READ_STAT_BREAK flag bit for a break condition. The bytes read
+   * can be obtained by masking the return value with #L4_VCON_READ_SIZE_MASK.
+   *
+   * If a break condition is signaled, it is always the first event in the
+   * transmitted content, i.e. all characters supplied by this read call follow
+   * the break condition.
+   *
+   * \note Size must not exceed #L4_VCON_READ_SIZE.
+   */
+  int
+  read_with_flags(char *buf, int size, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return l4_vcon_read_with_flags_u(cap(), buf, size, utcb); }
+
+  /**
+   * Set the attributes of `this` virtual console.
+   *
+   * \param attr  Attribute structure with the attributes for the virtual
+   *              console.
+   * \param utcb  UTCB pointer of the calling thread.
+   *
+   * \return Syscall return tag.
+   */
+  l4_msgtag_t
+  set_attr(l4_vcon_attr_t const *attr, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return l4_vcon_set_attr_u(cap(), attr, utcb); }
+
+  /**
+   * Get attributes of `this` virtual console.
+   *
+   * \param[out] attr  Attribute structure. Contains the attributes after a
+   *                   successfull call of this function.
+   * \param      utcb  UTCB pointer of the calling thread.
+   *
+   * \return Syscall return tag.
+   */
+  l4_msgtag_t
+  get_attr(l4_vcon_attr_t *attr, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return l4_vcon_get_attr_u(cap(), attr, utcb); }
+
+  typedef L4::Typeid::Raw_ipc<Vcon> Rpcs;
+};
+
+}

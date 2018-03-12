@@ -1,0 +1,412 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file   region_mapping
+ * \brief  Region handling
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Björn Döbel <doebel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/cxx/avl_map>
+#include <l4/sys/l4int.h>
+#include <l4/re/rm>
+
+
+namespace L4Re { namespace Util {
+class Region
+{
+private:
+  l4_addr_t _start, _end;
+
+public:
+  Region() throw() : _start(~0UL), _end(~0UL) {}
+  Region(l4_addr_t addr) throw() : _start(addr), _end(addr) {}
+  Region(l4_addr_t start, l4_addr_t end) throw()
+    : _start(start), _end(end) {}
+  l4_addr_t start() const throw() { return _start; }
+  l4_addr_t end() const throw() { return _end; }
+  unsigned long size() const throw() { return end() - start() + 1; }
+  bool invalid() const throw() { return _start == ~0UL && _end == ~0UL; }
+  bool operator < (Region const &o) const throw()
+  { return end() < o.start(); }
+  bool contains(Region const &o) const throw()
+  { return o.start() >= start() && o.end() <= end(); }
+  bool operator == (Region const &o) const throw()
+  { return o.start() == start() && o.end() == end(); }
+  ~Region() throw() {}
+};
+
+template< typename DS, typename OPS >
+class Region_handler
+{
+private:
+  l4_addr_t _offs;
+  DS _mem;
+  l4_cap_idx_t _client_cap;
+  unsigned short _flags;
+
+public:
+  typedef DS Dataspace;
+  typedef OPS Ops;
+  typedef typename OPS::Map_result Map_result;
+
+  Region_handler() throw() : _offs(0), _mem(), _flags() {}
+  Region_handler(Dataspace const &mem, l4_cap_idx_t client_cap,
+      l4_addr_t offset = 0, unsigned flags = 0) throw()
+    : _offs(offset), _mem(mem), _client_cap(client_cap), _flags(flags)
+  {}
+  Dataspace const &memory() const throw() { return _mem; }
+  l4_cap_idx_t client_cap_idx() const throw() { return _client_cap; }
+  l4_addr_t offset() const throw() { return _offs; }
+  l4_addr_t is_ro() const throw() { return _flags & L4Re::Rm::Read_only; }
+  unsigned long caching() const throw() { return _flags & L4Re::Rm::Caching; }
+  unsigned flags() const throw() { return _flags; }
+
+  Region_handler operator + (long offset) const throw()
+  { Region_handler n = *this; n._offs += offset; return n; }
+
+  void unmap(l4_addr_t va, l4_addr_t ds_offs, unsigned long size) const throw()
+  { Ops::unmap(this, va, ds_offs, size); }
+
+  void free(l4_addr_t start, unsigned long size) const throw()
+  { Ops::free(this, start, size); }
+
+  void take() const    { Ops::take(this); }
+  void release() const { Ops::release(this); }
+
+  int map(l4_addr_t addr, Region const &r, bool writable, Map_result *result) const
+  { return Ops::map(this, addr, r, writable, result); }
+
+};
+
+
+template< typename Hdlr, template<typename T> class Alloc >
+class Region_map
+{
+protected:
+  typedef cxx::Avl_map< Region, Hdlr, cxx::Lt_functor, Alloc > Tree;
+  Tree _rm; ///< Region Map
+  Tree _am; ///< Area Map
+
+private:
+  l4_addr_t _start;
+  l4_addr_t _end;
+
+protected:
+  void set_limits(l4_addr_t start, l4_addr_t end) throw()
+  {
+    _start = start;
+    _end = end;
+  }
+
+public:
+  typedef typename Tree::Item_type  Item;
+  typedef typename Tree::Node       Node;
+  typedef typename Tree::Key_type   Key_type;
+  typedef Hdlr Region_handler;
+
+  typedef typename Tree::Iterator Iterator;
+  typedef typename Tree::Const_iterator Const_iterator;
+  typedef typename Tree::Rev_iterator Rev_iterator;
+  typedef typename Tree::Const_rev_iterator Const_rev_iterator;
+
+  Iterator begin() throw() { return _rm.begin(); }
+  Const_iterator begin() const throw() { return _rm.begin(); }
+  Iterator end() throw() { return _rm.end(); }
+  Const_iterator end() const throw() { return _rm.end(); }
+
+  Iterator area_begin() throw() { return _am.begin(); }
+  Const_iterator area_begin() const throw() { return _am.begin(); }
+  Iterator area_end() throw() { return _am.end(); }
+  Const_iterator area_end() const throw() { return _am.end(); }
+  Node area_find(Key_type const &c) const throw() { return _am.find_node(c); }
+
+  enum Attach_flags
+  {
+    None      = 0,
+    Search    = L4Re::Rm::Search_addr,
+    In_area   = L4Re::Rm::In_area,
+  };
+
+  l4_addr_t min_addr() const throw() { return _start; }
+  l4_addr_t max_addr() const throw() { return _end; }
+
+
+  Region_map(l4_addr_t start, l4_addr_t end) throw() : _start(start), _end(end) {}
+
+  Node find(Key_type const &key) const throw()
+  {
+    Node n = _rm.find_node(key);
+    if (!n)
+      return Node();
+
+    // 'find' should find any region overlapping with the searched one, the
+    // caller should check for further requirements
+    if (0)
+      if (!n->first.contains(key))
+        return Node();
+
+    return n;
+  }
+
+  Node lower_bound(Key_type const &key) const throw()
+  {
+    Node n = _rm.lower_bound_node(key);
+    return n;
+  }
+
+  Node lower_bound_area(Key_type const &key) const throw()
+  {
+    Node n = _am.lower_bound_node(key);
+    return n;
+  }
+
+  l4_addr_t attach_area(l4_addr_t addr, unsigned long size,
+                        unsigned flags = None,
+                        unsigned char align = L4_PAGESHIFT) throw()
+  {
+    if (size < 2)
+      return L4_INVALID_ADDR;
+
+
+    Region c;
+
+    if (!(flags & Search))
+      {
+	c = Region(addr, addr + size - 1);
+	Node r = _am.find_node(c);
+	if (r)
+	  return L4_INVALID_ADDR;
+      }
+
+    while (flags & Search)
+      {
+	if (addr < min_addr() || (addr + size - 1) > max_addr())
+	  addr = min_addr();
+	addr = find_free(addr, max_addr(), size, align, flags);
+	if (addr == L4_INVALID_ADDR)
+	  return L4_INVALID_ADDR;
+
+	c = Region(addr, addr + size - 1);
+	Node r = _am.find_node(c);
+	if (!r)
+	  break;
+
+	if (r->first.end() >= max_addr())
+	  return L4_INVALID_ADDR;
+
+	addr = r->first.end() + 1;
+      }
+
+    if (_am.insert(c, Hdlr(typename Hdlr::Dataspace(), 0, flags)).second == 0)
+      return addr;
+
+    return L4_INVALID_ADDR;
+  }
+
+  bool detach_area(l4_addr_t addr) throw()
+  {
+    if (_am.remove(addr))
+      return false;
+
+    return true;
+  }
+
+  void *attach(void *addr, unsigned long size, Hdlr const &hdlr,
+               unsigned flags = None, unsigned char align = L4_PAGESHIFT) throw()
+  {
+    if (size < 2)
+      return L4_INVALID_PTR;
+
+    l4_addr_t end = max_addr();
+    l4_addr_t beg = (l4_addr_t)addr;
+
+    if (flags & In_area)
+      {
+	Node r = _am.find_node(Region(beg, beg + size - 1));
+	if (!r || (r->second.flags() & L4Re::Rm::Reserved))
+	  return L4_INVALID_PTR;
+
+	end = r->first.end();
+      }
+
+    if (flags & Search)
+      {
+	beg = find_free(beg, end, size, align, flags);
+	if (beg == L4_INVALID_ADDR)
+	  return L4_INVALID_PTR;
+      }
+
+    if (!(flags & (Search | In_area)) && _am.find_node(Region(beg, beg + size - 1)))
+      return L4_INVALID_PTR;
+
+    if (beg < min_addr() || beg + size -1 > end)
+      return L4_INVALID_PTR;
+
+    if (_rm.insert(Region(beg, beg + size -1), hdlr).second == 0)
+      return (void*)beg;
+
+    return L4_INVALID_PTR;
+  }
+
+  int detach(void *addr, unsigned long sz, unsigned flags,
+             Region *reg, Hdlr *hdlr) throw()
+  {
+    Region dr((l4_addr_t)addr, (l4_addr_t)addr + sz - 1);
+    Region res(~0UL,0);
+
+    Node r = find(dr);
+    if (!r)
+      return -L4_ENOENT;
+
+    Region g = r->first;
+    Hdlr const &h = r->second;
+
+    if (flags & L4Re::Rm::Detach_overlap || dr.contains(g))
+      {
+	if (_rm.remove(g))
+	  return -L4_ENOENT;
+
+	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::Detach_free))
+	  h.free(0, g.size());
+
+	if (hdlr) *hdlr = h;
+	if (reg) *reg = g;
+
+	if (find(dr))
+	  return Rm::Detached_ds | Rm::Detach_again;
+	else
+	  return Rm::Detached_ds;
+      }
+    else if (dr.start() <= g.start())
+      {
+	// move the start of a region
+
+	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::Detach_free))
+	  h.free(0, dr.end() + 1 - g.start());
+
+	unsigned long sz = dr.end() + 1 - g.start();
+	Item *cn = const_cast<Item*>((Item const *)r);
+	cn->first = Region(dr.end() + 1, g.end());
+	cn->second = cn->second + sz;
+	if (hdlr) *hdlr = Hdlr();
+	if (reg) *reg = Region(g.start(), dr.end());
+	if (find(dr))
+	  return Rm::Kept_ds | Rm::Detach_again;
+	else
+	  return Rm::Kept_ds;
+      }
+    else if (dr.end() >= g.end())
+      {
+	// move the end of a region
+
+	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::Detach_free))
+	  h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
+
+	Item *cn = const_cast<Item*>((Item const*)r);
+	cn->first = Region(g.start(), dr.start() -1);
+	if (hdlr) *hdlr = Hdlr();
+	if (reg) *reg = Region(dr.start(), g.end());
+
+	if (find(dr))
+	  return Rm::Kept_ds | Rm::Detach_again;
+	else
+	  return Rm::Kept_ds;
+      }
+    else if (g.contains(dr))
+      {
+	// split a single region that contains the new region
+
+	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::Detach_free))
+	  h.free(dr.start() - g.start(), dr.size());
+
+	// first move the end off the existing region before the new one
+	const_cast<Item*>((Item const *)r)->first = Region(g.start(), dr.start()-1);
+
+	int err;
+
+	// insert a second region for the remaining tail of
+	// the old existing region
+	err = _rm.insert(Region(dr.end() + 1, g.end()), h + (dr.end() + 1 - g.start())).second;
+
+	if (err)
+	  return err;
+
+	if (hdlr) *hdlr = h;
+	if (reg) *reg = dr;
+	return Rm::Split_ds;
+      }
+    return -L4_ENOENT;
+  }
+
+  l4_addr_t find_free(l4_addr_t start, l4_addr_t end, l4_addr_t size,
+                      unsigned char align, unsigned flags) const throw();
+
+};
+
+
+template< typename Hdlr, template<typename T> class Alloc >
+l4_addr_t
+Region_map<Hdlr, Alloc>::find_free(l4_addr_t start, l4_addr_t end,
+    unsigned long size, unsigned char align, unsigned flags) const throw()
+{
+  l4_addr_t addr = start;
+
+  if (addr == ~0UL || addr < min_addr() || addr >= end)
+    addr = min_addr();
+
+  addr = l4_round_size(addr, align);
+  Node r;
+
+  for(;;)
+    {
+      if (addr > 0 && addr - 1 > end - size)
+	return L4_INVALID_ADDR;
+
+      Region c(addr, addr + size - 1);
+      r = _rm.find_node(c);
+
+      if (!r)
+	{
+	  if (!(flags & In_area) && (r = _am.find_node(c)))
+	    {
+	      if (r->first.end() > end - size)
+		return L4_INVALID_ADDR;
+
+	      addr = l4_round_size(r->first.end() + 1, align);
+	      continue;
+	    }
+	  break;
+	}
+      else if (r->first.end() > end - size)
+	return L4_INVALID_ADDR;
+
+      addr = l4_round_size(r->first.end() + 1, align);
+    }
+
+  if (!r)
+    return addr;
+
+  return L4_INVALID_ADDR;
+}
+
+}}

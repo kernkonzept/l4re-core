@@ -1,0 +1,3 @@
+Provides: libl4re-vfs
+Requires: l4re l4re-util
+Maintainer: warg@os.inf.tu-dresden.de

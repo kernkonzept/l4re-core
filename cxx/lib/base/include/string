@@ -1,0 +1,252 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/cxx/minmax>
+#include <l4/cxx/basic_ostream>
+
+
+namespace cxx {
+
+/**
+ * This class is used to group characters of a string which belong
+ * to one syntactical token types number, identifier, string,
+ * whitespace or another single character.
+ */
+class String
+{
+public:
+
+  typedef char const *Index;
+
+  String(char const *s) throw() : _start(s), _len(__builtin_strlen(s)) {}
+  String(char const *s, unsigned long len) throw() : _start(s), _len(len) {}
+  String(char const *s, char const *e) throw() : _start(s), _len(e-s) {}
+
+  String() : _start(0), _len(0) {}
+
+  Index start() const { return _start; }
+  Index end() const { return _start + _len; }
+  int len() const { return _len; }
+
+  void start(char const *s) { _start = s; }
+  void len(unsigned long len) { _len = len; }
+  bool empty() const { return !_len; }
+
+  String head(Index end) const
+  {
+    if (end < _start)
+      return String();
+
+    if (eof(end))
+      return *this;
+
+    return String(_start, end - _start);
+  }
+
+  String head(unsigned long end) const
+  { return head(start() + end); }
+
+  String substr(unsigned long idx, unsigned long len = ~0UL) const
+  {
+    if (idx >= _len)
+      return String(end(), 0UL);
+
+    return String(_start + idx, cxx::min(len, _len - idx));
+  }
+
+  String substr(char const *start, unsigned long len = 0) const
+  {
+    if (start >= _start && !eof(start))
+      {
+	unsigned long nlen = _start + _len - start;
+	if (len != 0)
+	  nlen = cxx::min(nlen, len);
+	return String(start, nlen);
+      }
+
+    return String(end(), 0UL);
+  }
+
+  template< typename F >
+  char const *find_match(F const &match) const
+  {
+    String::Index s = _start;
+    while (1)
+      {
+	if (eof(s))
+	  return s;
+
+	if (match(*s))
+	  return s;
+
+	++s;
+      }
+  }
+
+  char const *find(char const *c) const
+  { return find(c, start());  }
+
+  char const *find(int c) const
+  { return find(c, start());  }
+
+  char const *rfind(char const *c) const
+  {
+    if (!_len)
+      return end();
+
+    char const *p = end();
+    --p;
+    while (p >= _start)
+      {
+	if (*p == *c)
+	  return p;
+	--p;
+      }
+    return end();
+
+  }
+
+  Index starts_with(cxx::String const &c) const
+  {
+    unsigned long i;
+    for (i = 0; i < c._len && i < _len; ++i)
+      if (_start[i] != c[i])
+	return 0;
+    return i == c._len ? start() + i : 0;
+  }
+
+  char const *find(int c, char const *s) const
+  {
+    if (s<_start)
+      return end();
+
+    while (1)
+      {
+	if (eof(s))
+	  return s;
+
+	if (*s == c)
+	  return s;
+
+	++s;
+      }
+  }
+
+  char const *find(char const *c, char const *s) const
+  {
+    if (s<_start)
+      return end();
+
+    while (1)
+      {
+	if (eof(s))
+	  return s;
+
+	for (char const *x = c; *x; ++x)
+	  if (*s == *x)
+	    return s;
+
+	++s;
+      }
+  }
+
+  char const &operator [] (unsigned long idx) const { return _start[idx]; }
+  char const &operator [] (int idx) const { return _start[idx]; }
+  char const &operator [] (Index idx) const { return *idx; }
+
+  bool eof(char const *s) const { return s >= _start + _len || !*s; }
+
+  template<typename INT>
+  int from_dec(INT *v) const
+  {
+    *v = 0;
+    Index c;
+    for (c = start(); !eof(c); ++c)
+      {
+	unsigned char n;
+	if (*c >= '0' && *c <= '9')
+	  n = *c - '0';
+	else
+	  return c - start();
+
+        *v *= 10;
+	*v += n;
+      }
+    return c - start();
+  }
+
+  template<typename INT>
+  int from_hex(INT *v) const
+  {
+    *v = 0;
+    unsigned shift = 0;
+    Index c;
+    for (c = start(); !eof(c); ++c)
+      {
+	shift += 4;
+	if (shift > sizeof(INT) * 8)
+	  return -1;
+	unsigned char n;
+	if (*c >= '0' && *c <= '9')
+	  n = *c - '0';
+	else if (*c >= 'A' && *c <= 'F')
+	  n = *c - 'A' + 10;
+	else if (*c >= 'a' && *c <= 'f')
+	  n = *c - 'a' + 10;
+	else
+	  return c - start();
+
+        *v <<= 4;
+	*v |= n;
+      }
+    return c - start();
+  }
+
+  bool operator == (String const &o) const
+  {
+    if (len() != o.len())
+      return false;
+
+    for (unsigned long i = 0; i < _len; ++i)
+      if (_start[i] != o._start[i])
+	return false;
+
+    return true;
+  }
+
+  bool operator != (String const &o) const
+  { return ! (operator == (o)); }
+
+private:
+
+  char const *_start;
+  unsigned long _len;
+
+};
+
+}
+
+inline
+L4::BasicOStream &operator << (L4::BasicOStream &s, cxx::String const &str)
+{
+  s.write(str.start(), str.len());
+  return s;
+}

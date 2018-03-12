@@ -1,0 +1,301 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU Lesser General Public License 2.1.
+ * Please see the COPYING-LGPL-2.1 file for details.
+ */
+
+#pragma once
+
+#include <l4/re/env>
+#include <l4/util/elf.h>
+#include <l4/libloader/adjust_stack>
+
+#include <cstring>
+
+namespace Ldr {
+
+
+struct Prog_start_info
+{
+  l4_umword_t dyn_exec_entry;
+  l4_umword_t dyn_phdrs;
+  l4_umword_t dyn_num_phdrs;
+  l4_umword_t dyn_interp_base;
+
+
+  l4_umword_t ldr_flags;
+  l4_umword_t l4re_dbg;
+
+  l4_addr_t entry;
+  l4_addr_t kip;
+  l4_addr_t stack_addr;
+  l4_size_t stack_size;
+  l4_addr_t utcbs_start;
+  unsigned char utcbs_log2size;
+
+  l4_fpage_t parent;
+  l4_fpage_t mem_alloc;
+  l4_fpage_t scheduler;
+  l4_fpage_t rm;
+  l4_fpage_t log;
+  l4_fpage_t factory;
+};
+
+template< typename STACK, typename PROG_INFO = Prog_start_info>
+class Base_app_model
+{
+public:
+  typedef STACK Stack;
+  typedef PROG_INFO Prog_info;
+
+protected:
+  Stack _stack;
+  Prog_info _info;
+
+  struct Arg_array
+  {
+    char const *a0, *al;
+    Arg_array() : a0(0) {}
+    int push(Base_app_model *am, bool basename);
+  };
+
+public:
+  Arg_array argv;
+  Arg_array envp;
+
+  Stack *stack() { return &_stack; }
+  Stack const *stack() const { return &_stack; }
+  Prog_info *prog_info() { return &_info; }
+  Prog_info const *prog_info() const { return &_info; }
+
+  void extra_elf_auxv() {}
+
+  void push_envp()
+  {
+    envp.push(this, false);
+  }
+
+  void push_argv()
+  {
+    l4_umword_t argc = argv.push(this, false);
+    _stack.push(argc);
+  }
+
+  /**
+   * Get the fixed capability index for fixed initial caps.
+   * \param  name  The name of the initial capability.
+   * \retval L4_INVALID_CAP if the given capability has no fixed location
+   *         in the target task.
+   * \retval A valid capability index corresponding to the fixed index
+   *         assigned to the initial capability with the given name.
+   */
+  l4_cap_idx_t get_fixed_cap(char const *name)
+  {
+    if (!strcmp(name, "jdb"))
+      return L4_BASE_DEBUGGER_CAP;
+
+    return L4_INVALID_CAP;
+  }
+
+  /**
+   * Get either a new capability index or the fixed index for
+   * the inital capability with the given name.
+   *
+   * \param name     The name of the initial capability.
+   * \param current  A pointer to the next free capability index
+   *                 that shall be used for dynamic assignment.
+   *                 The function increments `*current` to the next
+   *                 index if a dynamic index is assigned to the cap.
+   * \return The index that shall be used for the initial capability with the
+   *         given name.
+   */
+  l4_cap_idx_t get_initial_cap(char const *name, l4_cap_idx_t *current)
+  {
+    l4_cap_idx_t c = get_fixed_cap(name);
+    if (l4_is_valid_cap(c))
+      return c;
+
+    c = *current;
+    *current += L4_CAP_OFFSET;
+    return c;
+  }
+};
+
+template< typename STACK, typename PROG_INFO >
+int
+Base_app_model<STACK, PROG_INFO>::Arg_array::push(Base_app_model *am, bool basename)
+{
+  // push array terminator
+  am->stack()->push(l4_umword_t(0));
+  l4_umword_t argc = 0;
+  if (a0)
+    {
+      do
+	{
+	  if (basename && al == a0)
+	    {
+	      // just use the basename for ARGV[0]
+	      for (; *al; ++al)
+		;
+	      for (; al >= a0 && *al != '/'; --al)
+		;
+
+	      if (*al == '/')
+		++al;
+	    }
+	  am->stack()->push_local_ptr(al);
+	  ++argc;
+
+	  // scan for previous argument, remember the stack is top down
+	  for (; al < a0 && *al; ++al)
+	    ;
+
+	  ++al;
+	}
+      while (al <= a0);
+    }
+  return argc;
+}
+
+template< typename App_model_, typename Dbg_ >
+class Loader
+{
+public:
+  typedef Dbg_ Dbg_log;
+  typedef App_model_ App_model;
+  typedef typename App_model::Const_dataspace Const_dataspace;
+  typedef typename App_model::Stack Stack;
+
+  void launch(App_model *model, Const_dataspace bin, Dbg_ const &dbg);
+
+  void launch(App_model *model, char const *prog, Dbg_ const &dbg)
+  {
+    typename App_model::Const_dataspace bin = model->open_file(prog);
+    launch(model, bin, dbg);
+  }
+
+  template< typename App_task, typename Prog >
+  void launch(App_task task, Prog prog, Const_dataspace bin, Dbg_ const &dbg)
+  {
+    typedef App_model Am;
+    Am am(task, prog);
+    launch(&am, bin, dbg);
+  }
+
+  template< typename App_task, typename Prog >
+  void launch(App_task task, Prog prog, char const *bin, Dbg_ const &dbg)
+  {
+    typedef App_model Am;
+    Am am(task, prog);
+    launch(&am, bin, dbg);
+  }
+
+  virtual void read_infos(App_model *, Const_dataspace bin, Dbg_log const &ldr) = 0;
+  virtual void load(App_model *, Const_dataspace bin, Dbg_log const &ldr) = 0;
+  virtual  ~Loader() {}
+};
+
+template< typename App_model_, typename Dbg_ >
+void
+Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin, Dbg_ const &dbg)
+{
+  typedef App_model Am;
+  typedef typename Am::Dataspace Dataspace;
+
+  read_infos(am, bin, dbg);
+  Dataspace app_stack = am->alloc_app_stack();
+
+  // put args on stack
+  // put env strings on stack
+  am->init_prog();
+
+  Stack &stack = *am->stack();
+  stack.align(sizeof(l4_umword_t));
+
+  void const *l4aux_ptr;
+    {
+      // load the program into memory, prepare all the VMAs
+      // and stuff on the application stack
+      load(am, bin, dbg);
+
+      am->prog_attach_stack(app_stack);
+      am->prog_reserve_utcb_area();
+      am->prog_attach_kip();
+
+      l4aux_ptr = am->generate_l4aux(am->argv.a0);
+    }
+
+  L4Re::Env *env = am->add_env();
+
+  stack.align(sizeof(l4_umword_t));
+
+  const char *stack_before_auxv = stack.ptr();
+
+  // AUXV NULL
+  stack.push(l4_umword_t(0));
+  stack.push(l4_umword_t(0));
+
+  // L4Re Env Pointer
+  stack.push_local_ptr(env);
+  stack.push(l4_umword_t(0xF1));
+
+  if (l4aux_ptr)
+    {
+      stack.push_local_ptr(l4aux_ptr);
+      stack.push(l4_umword_t(0xF0));
+    }
+
+  am->extra_elf_auxv();
+
+  stack.push(l4_umword_t(L4_PAGESIZE));
+  stack.push(l4_umword_t(AT_PAGESZ));
+
+  stack.push(l4_umword_t(0));
+  stack.push(l4_umword_t(AT_UID));
+
+  stack.push(l4_umword_t(0));
+  stack.push(l4_umword_t(AT_EUID));
+
+  stack.push(l4_umword_t(0));
+  stack.push(l4_umword_t(AT_GID));
+
+  stack.push(l4_umword_t(0));
+  stack.push(l4_umword_t(AT_EGID));
+
+  if (am->prog_info()->dyn_phdrs)
+    {
+      stack.push(l4_umword_t(am->prog_info()->dyn_phdrs));
+      stack.push(l4_umword_t(AT_PHDR));
+
+      stack.push(l4_umword_t(am->prog_info()->dyn_num_phdrs));
+      stack.push(l4_umword_t(AT_PHNUM));
+    }
+
+  if (am->prog_info()->dyn_exec_entry)
+    {
+      stack.push(l4_umword_t(am->prog_info()->dyn_exec_entry));
+      stack.push(l4_umword_t(AT_ENTRY));
+
+      stack.push(l4_umword_t(am->prog_info()->dyn_interp_base));
+      stack.push(l4_umword_t(AT_BASE));
+    }
+
+  am->push_envp();
+  am->push_argv();
+
+  const char *p = stack.ptr();
+  l4_umword_t offs;
+  stack.ptr(adjust_sp((char *)p, &offs));
+
+  if (p != stack.ptr() + offs)
+    memmove((char *)stack.ptr() + offs, p, stack_before_auxv - p);
+
+  // the stack is now ready for the app
+  am->start_prog(env);
+}
+
+}

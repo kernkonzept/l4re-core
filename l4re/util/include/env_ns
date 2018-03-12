@@ -1,0 +1,70 @@
+// vi:ft=cpp
+
+#pragma once
+
+#include <l4/re/cap_alloc>
+#include <l4/re/util/cap_alloc>
+#include <l4/re/namespace>
+#include <l4/re/env>
+#include <cstring>
+
+namespace L4Re { namespace Util {
+
+class Env_ns
+{
+private:
+  L4Re::Cap_alloc *_ca;
+  Env const *_env;
+
+public:
+  explicit Env_ns(Env const *env = Env::env(),
+                  L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
+  : _ca(ca), _env(env) {}
+
+  L4::Cap<void>
+  query(char const *name, unsigned len, int timeout = Namespace::To_default,
+        l4_umword_t *local_id = 0, bool iterate = true) const throw()
+  {
+    typedef Env::Cap_entry Cap_entry;
+
+    char const *n = name;
+    for (; len && *n != '/'; ++n, --len)
+      ;
+
+    Cap_entry const *e = _env->get(name, n - name);
+    if (!e)
+      return L4::Cap<void>(-L4_ENOENT);
+
+    if (len > 0 && *n == '/')
+      {
+	L4::Cap<L4Re::Namespace> ns(e->cap);
+	L4::Cap<void> cap = _ca->alloc<void>();
+
+	if (!cap.is_valid())
+	  return L4::Cap<void>(-L4_ENOMEM);
+
+	long r = ns->query(n + 1, len - 1, cap, timeout, local_id, iterate);
+	if (r >= 0)
+	  return cap;
+
+	_ca->free(cap);
+
+	return L4::Cap<void>(r);
+      }
+
+    return L4::Cap<void>(e->cap);
+  }
+
+  L4::Cap<void>
+  query(char const *name, int timeout = Namespace::To_default,
+        l4_umword_t *local_id = 0, bool iterate = true) const throw()
+  { return query(name, strlen(name), timeout, local_id, iterate); }
+
+  template<typename T >
+  L4::Cap<T>
+  query(char const *name, int timeout = Namespace::To_default,
+        l4_umword_t *local_id = 0, bool iterate = true) const throw()
+  { return L4::cap_cast<T>(query(name, strlen(name), timeout, local_id, iterate)); }
+};
+
+}}

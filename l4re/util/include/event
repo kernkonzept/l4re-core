@@ -1,0 +1,174 @@
+// vi:ft=cpp:
+/**
+ * \file
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/re/cap_alloc>
+#include <l4/re/util/cap_alloc>
+#include <l4/re/env>
+#include <l4/re/rm>
+#include <l4/re/util/event_buffer>
+#include <l4/sys/factory>
+
+namespace L4Re { namespace Util {
+
+/**
+ * Convenience wrapper for getting access to an event object.
+ *
+ * After calling init() the class supplies the event-buffer and the
+ * associated IRQ object.
+ */
+template< typename PAYLOAD >
+class Event_t
+{
+public:
+  /**
+   * Modes of operation.
+   */
+  enum Mode
+  {
+    Mode_irq,      ///< Create an IRQ and attach, to get notifications.
+    Mode_polling,  ///< Do not use an IRQ.
+  };
+
+  /**
+   * Initialise an event object.
+   *
+   * \tparam IRQ_TYPE  Type used for handling notifications from the event
+   *                   provider. This must be derived from L4::Triggerable.
+   *
+   * \param event   Capability to event.
+   * \param env     Pointer to L4Re-Environment
+   * \param ca      Pointer to capability allocator.
+   *
+   * \retval 0           Success
+   * \retval -L4_ENOMEM  No memory to allocate required capabilities.
+   * \retval <0          Other IPC errors.
+   */
+  template<typename IRQ_TYPE>
+  int init(L4::Cap<L4Re::Event> event,
+           L4Re::Env const *env = L4Re::Env::env(),
+           L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
+  {
+    Auto_cap<L4Re::Dataspace>::Cap ev_ds = ca->alloc<L4Re::Dataspace>();
+    if (!ev_ds.is_valid())
+      return -L4_ENOMEM;
+
+    int r;
+
+    typename Auto_del_cap<IRQ_TYPE>::Cap ev_irq;
+    ev_irq = ca->alloc<IRQ_TYPE>();
+    if (!ev_irq.is_valid())
+      return -L4_ENOMEM;
+
+    if ((r = l4_error(env->factory()->create(ev_irq.get()))))
+      return r;
+
+    if ((r = l4_error(event->bind(0, ev_irq.get()))))
+      return r;
+
+    if ((r = event->get_buffer(ev_ds.get())))
+      return r;
+
+    long sz = ev_ds->size();
+    if (sz < 0)
+      return sz;
+
+    Rm::Auto_region<void*> buf;
+
+    if ((r = env->rm()->attach(&buf, sz, L4Re::Rm::Search_addr,
+                               L4::Ipc::make_cap_rw(ev_ds.get()))))
+      return r;
+
+    _ev_buffer = L4Re::Event_buffer_t<PAYLOAD>(buf.get(), sz);
+    _ev_ds     = ev_ds;
+    _ev_irq    = ev_irq;
+    _buf       = buf;
+
+    return 0;
+  }
+
+  /**
+   * Initialise an event object in polling mode.
+   *
+   * \param event   Capability to event.
+   * \param env     Pointer to L4Re-Environment
+   * \param ca      Pointer to capability allocator.
+   *
+   * \retval 0           Success
+   * \retval -L4_ENOMEM  No memory to allocate required capabilities.
+   * \retval <0          Other IPC errors.
+   */
+  int init_poll(L4::Cap<L4Re::Event> event,
+                L4Re::Env const *env = L4Re::Env::env(),
+                L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
+  {
+    Auto_cap<L4Re::Dataspace>::Cap ev_ds = ca->alloc<L4Re::Dataspace>();
+    if (!ev_ds.is_valid())
+      return -L4_ENOMEM;
+
+    int r;
+
+    if ((r = event->get_buffer(ev_ds.get())))
+      return r;
+
+    long sz = ev_ds->size();
+    if (sz < 0)
+      return sz;
+
+    Rm::Auto_region<void*> buf;
+
+    if ((r = env->rm()->attach(&buf, sz, L4Re::Rm::Search_addr,
+                               L4::Ipc::make_cap_rw(ev_ds.get()))))
+      return r;
+
+    _ev_buffer = L4Re::Event_buffer_t<PAYLOAD>(buf.get(), sz);
+    _ev_ds     = ev_ds;
+    _buf       = buf;
+
+    return 0;
+  }
+
+  /**
+   * Get event buffer.
+   *
+   * \return Event buffer object.
+   */
+  L4Re::Event_buffer_t<PAYLOAD> &buffer() { return _ev_buffer; }
+
+  /**
+   * Get event IRQ.
+   *
+   * \return Event IRQ.
+   */
+  L4::Cap<L4::Triggerable> irq() const { return _ev_irq.get(); }
+
+private:
+  Auto_cap<L4Re::Dataspace>::Cap _ev_ds;
+  Auto_del_cap<L4::Triggerable>::Cap _ev_irq;
+  L4Re::Event_buffer_t<PAYLOAD> _ev_buffer;
+  Rm::Auto_region<void*> _buf;
+};
+
+typedef Event_t<Default_event_payload> Event;
+
+}}

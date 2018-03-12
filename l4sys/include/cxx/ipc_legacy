@@ -1,0 +1,49 @@
+// vi:ft=cpp
+/*
+ * Copyright (C) 2015 Kernkonzept GmbH.
+ * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/cxx/ipc_epiface>
+#ifndef L4_RPC_DISABLE_LEGACY_DISPATCH
+#define L4_RPC_LEGACY_DISPATCH(IFACE)                                 \
+  template<typename IOS>                                              \
+  int dispatch(unsigned rights, IOS &ios)                             \
+  {                                                                   \
+    typedef ::L4::Ipc::Detail::Dispatch<IFACE> Dispatch;              \
+    l4_msgtag_t r = Dispatch::f(this, ios.tag(), rights, ios.utcb()); \
+    ios.set_ipc_params(r);                                            \
+    return r.label();                                                 \
+  }                                                                   \
+                                                                      \
+  template<typename IOS>                                              \
+  int p_dispatch(IFACE *, unsigned rights, IOS &ios)                  \
+  {                                                                   \
+    using ::L4::Ipc::Msg::dispatch_call;                              \
+    l4_msgtag_t r;                                                    \
+    r = dispatch_call<typename IFACE::Rpcs>(this, ios.utcb(),         \
+                                            ios.tag(), rights);       \
+    ios.set_ipc_params(r);                                            \
+    return r.label();                                                 \
+  }
+
+#define L4_RPC_LEGACY_USING(IFACE) \
+  using IFACE::p_dispatch
+
+#else
+#define L4_RPC_LEGACY_DISPATCH(IFACE)
+#define L4_RPC_LEGACY_USING(IFACE)
+#endif

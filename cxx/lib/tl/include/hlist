@@ -1,0 +1,279 @@
+// vi:ft=cpp
+/*
+ * (c) 2011 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include "bits/list_basics.h"
+#include "type_traits"
+
+namespace cxx {
+
+/**
+ * Basic element type for a double-linked H_list.
+ *
+ * \tparam ELEM_TYPE  Base class of the list element.
+ */
+template<typename ELEM_TYPE>
+class H_list_item_t
+{
+public:
+  /**
+   * Constructor.
+   *
+   * Creates an element that is not in any list.
+   */
+  H_list_item_t() : _pn(0) {}
+  /**
+   * Destructor.
+   *
+   * Automatically removes the element from any list it still might be
+   * enchained in.
+   */
+  ~H_list_item_t() noexcept { l_remove(); }
+
+private:
+  H_list_item_t(H_list_item_t const &) = delete;
+
+  template<typename T, typename P> friend class H_list;
+  template<typename T, typename X> friend struct Bits::Basic_list_policy;
+
+  void l_remove() noexcept
+  {
+    if (!_pn)
+      return;
+
+    *_pn = _n;
+    if (_n) 
+      _n->_pn = _pn;
+
+    _pn = 0;
+  }
+
+  H_list_item_t *_n, **_pn;
+};
+
+typedef H_list_item_t<void> H_list_item;
+
+/**
+ * General double-linked list of unspecified cxx::H_list_item elements.
+ *
+ * Most of the time, you want to use H_list_t.
+ */
+template< typename T, typename POLICY = Bits::Basic_list_policy< T, H_list_item> >
+class H_list : public Bits::Basic_list<POLICY>
+{
+private:
+  typedef typename POLICY::Item_type Item;
+  typedef Bits::Basic_list<POLICY> Base;
+  H_list(H_list const &);
+  void operator = (H_list const &);
+
+public:
+  typedef typename Base::Iterator Iterator;
+
+  // BSS allocation
+  explicit H_list(bool x) : Base(x) {}
+  H_list() : Base() {}
+
+  /**
+   *  Return an iterator for an arbitrary list element
+   *
+   *  \param c  List element to start the iteration.
+   *
+   *  \return A mutable forward iterator.
+   *
+   *  \pre The element must be in a list.
+   */
+  static Iterator iter(T *c) { return Base::__iter(c->Item::_pn); }
+
+  /// Check if the given element is currently part of a list.
+  static bool in_list(T const *e) { return e->Item::_pn; }
+
+  /// Add element to the front of the list.
+  void add(T *e)
+  {
+    if (this->_f)
+      this->_f->_pn = &e->Item::_n;
+    e->Item::_n = this->_f;
+    e->Item::_pn = &this->_f;
+    this->_f = static_cast<Item*>(e);
+  }
+
+  /// Add element to the front of the list.
+  void push_front(T *e) { add(e); }
+
+  /**
+   *  Remove and return the head element of the list.
+   *
+   *  \pre The list must not be empty or the behaviour will be undefined.
+   */
+  T *pop_front()
+  {
+    T *r = this->front();
+    remove(r);
+    return r;
+  }
+
+  /**
+   * Insert an element at the iterator position.
+   *
+   * \param e      New Element to be inserted
+   * \param pred   Iterator pointing to the element after which the
+   *               element will be inserted. If end() is given, the
+   *               element will be inserted at the beginning of the queue.
+   *
+   * \return Iterator pointing to the newly inserted element.
+   */
+  Iterator insert(T *e, Iterator const &pred)
+  {
+    Item **x = &this->_f;
+    if (pred != Base::end())
+      x = &(*pred)->_n;
+
+    e->Item::_n = *x;
+
+    if (*x)
+      (*x)->_pn = &(e->Item::_n);
+
+    e->Item::_pn = x;
+    *x = static_cast<Item*>(e);
+    return iter(e);
+  }
+
+  /**
+   * Insert an element after the iterator position.
+   *
+   * \param e      New element to be inserted.
+   * \param pred   Iterator pointing to the element after which the
+   *               element will be inserted. Must not be end().
+   *
+   * \return Iterator pointing to the newly inserted element.
+   *
+   * \pre The list must not be empty.
+   */
+  static Iterator insert_after(T *e, Iterator const &pred)
+  {
+    Item **x = &(*pred)->_n;
+    e->Item::_n = *x;
+
+    if (*x)
+      (*x)->_pn = &(e->Item::_n);
+
+    e->Item::_pn = x;
+    *x = static_cast<Item*>(e);
+    return iter(e);
+  }
+
+  /**
+   * Insert an element before the iterator position.
+   *
+   * \param e      New element to be inserted.
+   * \param succ   Iterator pointing to the element before which the
+   *               element will be inserted. Must not be end().
+   */
+  static void insert_before(T *e, Iterator const &succ)
+  {
+    Item **x = Base::__get_internal(succ);
+
+    e->Item::_n = *x;
+    e->Item::_pn = x;
+
+    if (*x)
+      (*x)->_pn = &e->Item::_n;
+
+    *x = static_cast<Item*>(e);
+  }
+
+  /**
+   * Replace an element in a list with a new element.
+   *
+   * \param p  Element in list to be replaced.
+   * \param e  Replacement element, must not yet be in a list.
+   *
+   * After the operation the p element is no longer in the
+   * list and may be reused.
+   */
+  static void replace(T *p, T *e)
+  {
+    e->Item::_n = p->Item::_n;
+    e->Item::_pn = p->Item::_pn;
+    *(p->Item::_pn) = static_cast<Item*>(e);
+    if (e->Item::_n)
+      e->Item::_n->_pn = &(e->Item::_n);
+
+    p->Item::_pn = 0;
+  }
+
+  /**
+   * Remove the given element from its list.
+   *
+   * \param e  Element to be removed. Must be in a list.
+   */
+  static void remove(T *e)
+  { e->Item::l_remove(); }
+
+  /**
+   * Remove the element at the given iterator position.
+   *
+   * \param e  Iterator pointing to the element to be removed. Must not
+   *           point to end().
+   *
+   * \return New iterator pointing to the element after the removed one.
+   *
+   * \note The hlist implementation guarantees that the original iterator
+   *       is still valid after the element has been removed. In fact, the
+   *       iterator returned is the same as the one supplied in the `e`
+   *       parameter.
+   */
+  static Iterator erase(Iterator const &e)
+  { e->Item::l_remove(); return e; }
+};
+
+/**
+ * Double-linked list of typed H_list_item_t elements.
+ *
+ * \note H_lists are not self-cleaning. Elements that are still chained
+ *       during destruction are not removed and will therefore be in an
+ *       undefined state after the destruction.
+ */
+template< typename T >
+struct H_list_t : H_list<T, Bits::Basic_list_policy< T, H_list_item_t<T> > >
+{
+  H_list_t() = default;
+  H_list_t(bool b)
+  : H_list<T, Bits::Basic_list_policy< T, H_list_item_t<T> > >(b)
+  {};
+};
+
+template< typename T >
+class H_list_bss : public H_list<T>
+{
+public:
+  H_list_bss() : H_list<T>(true) {}
+};
+
+template< typename T >
+class H_list_t_bss : public H_list_t<T>
+{
+public:
+  H_list_t_bss() : H_list_t<T>(true) {}
+};
+
+
+}

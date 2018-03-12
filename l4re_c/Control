@@ -1,0 +1,3 @@
+provides: l4re_c l4re_c-util
+requires: l4re
+maintainer: adam@os.inf.tu-dresden.de

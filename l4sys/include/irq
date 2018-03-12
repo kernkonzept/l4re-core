@@ -1,0 +1,396 @@
+// vi:ft=cpp
+/**
+ * \file
+ * C++ Irq interface
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/icu.h>
+#include <l4/sys/irq.h>
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/ipc_types>
+
+namespace L4 {
+
+/**
+ * Interface for sending an acknowledge message to an object.
+ *
+ * The object is usually an ICU or an IRQ.
+ */
+class Irq_eoi : public Kobject_0t<Irq_eoi, L4::PROTO_EMPTY>
+{
+public:
+  /**
+   * Acknowledge the given interrupt line.
+   *
+   * \param      irqnum  The interrupt line that shall be acknowledged.
+   * \param[out] label   If NULL this is a send-only unmask, if not
+   *                     NULL then this operation enters an open wait
+   *                     and the *protected label* shall be received here.
+   * \param      to      The timeout-pair (send and receive) that shall be
+   *                     used for this operation. The receive timeout
+   *                     is used with a non-NULL `label` only.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag.
+   *
+   * \note If `label` is NULL this function is a send-only operation
+   *       and there is no return value except for a failed send operation.
+   *       In this case use l4_ipc_error() to check for errors, **do not**
+   *       use l4_error(), because l4_error() will always return an error.
+   */
+  l4_msgtag_t unmask(unsigned irqnum, l4_umword_t *label = 0,
+                     l4_timeout_t to = L4_IPC_NEVER,
+                     l4_utcb_t *utcb = l4_utcb()) throw()
+  {
+    return l4_icu_control_u(cap(), irqnum, L4_ICU_CTL_UNMASK, label, to, utcb);
+  }
+};
+
+/**
+ * Interface that allows an object to be triggered by some source.
+ *
+ * This interface is usually used in conjunction with L4::Icu.
+ */
+struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
+{
+  /**
+   * Trigger.
+   *
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag for a send-only operation, use l4_ipc_error()
+   *         to check for errors (**do not** use l4_error()).
+   *
+   * \note This function is a send-only operation, this means there
+   *       is no return value except for a failed send operation. Use
+   *       l4_ipc_error() to check for errors, **do not** use l4_error(),
+   *       because l4_error() will always return an error.
+   */
+  l4_msgtag_t trigger(l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_irq_trigger_u(cap(), utcb); }
+};
+
+/**
+ * C++ Irq interface.
+ *
+ * The Irq class provides access to abstract interrupts provided by the
+ * microkernel. Interrupts may be
+ * - hardware interrupts provided by the platform interrupt controller,
+ * - virtual device interrupts provided by the microkernel's virtual devices
+ *   (virtual serial or trace buffer) or
+ * - virtual interrupts that can be triggered by user programs (IRQs)
+ *
+ * Irq objects can be created using a factory, see the L4::Factory API
+ * (L4::Factory::create()).
+ *
+ * \includefile{l4/sys/irq}
+ *
+ * For the C interface refer to the \ref l4_irq_api API for an overview.
+ */
+class Irq : public Kobject_t<Irq, Triggerable, L4_PROTO_IRQ_SENDER>
+{
+public:
+  using Triggerable::unmask;
+
+  /**
+   * Attach a thread to this interrupt.
+   *
+   * \param label   Identifier of the IRQ (*protected label* used for
+   *                messages)
+   * \param thread  Capability of the thread to attach the IRQ to.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   *
+   * see Ipc_gate for a description of the *protected label*.
+   */
+  l4_msgtag_t attach(l4_umword_t label,
+                     Cap<Thread> const &thread = Cap<Thread>::Invalid,
+                     l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_irq_attach_u(cap(), label, thread.cap(), utcb); }
+
+  /**
+   * Detach from this interrupt.
+   *
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t detach(l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_irq_detach_u(cap(), utcb); }
+
+
+  /**
+   * Unmask and wait for this IRQ.
+   *
+   * \param timeout    Timeout.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   *
+   * \note If this is the function normally used for your IRQs consider using
+   *       L4::Semaphore instead of L4::Irq.
+   */
+  l4_msgtag_t receive(l4_timeout_t timeout = L4_IPC_NEVER,
+                      l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_irq_receive_u(cap(), timeout, utcb); }
+
+  /**
+   * Unmask IRQ and (open) wait for any message.
+   *
+   * \param label    The *protected label* shall be received here.
+   * \param timeout  Timeout.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t wait(l4_umword_t *label, l4_timeout_t timeout = L4_IPC_NEVER,
+                   l4_utcb_t *utcb = l4_utcb()) throw()
+  { return unmask(-1, label, timeout, utcb); }
+
+  /**
+   * Unmask IRQ.
+   *
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag for a send-only operation, use l4_ipc_error()
+   *         to check for errors (**do not** use l4_error()).
+   *
+   * \note This function is a send-only operation, this means there is no
+   *       return value except for a failed send operation. Use l4_ipc_error()
+   *       to check for errors, **do not** use l4_error(), because l4_error()
+   *       will always return an error.
+   *
+   * Irq::wait() and Irq::receive() operations already include an unmask(), do
+   * not use an extra unmask() in these cases.
+   *
+   * \deprecated Use L4::Irq_eoi::unmask()
+   *
+   */
+  l4_msgtag_t unmask(l4_utcb_t *utcb = l4_utcb()) throw()
+  { return unmask(-1, 0, L4_IPC_NEVER, utcb); }
+};
+
+/**
+ * IRQ multiplexer for shared IRQs.
+ *
+ * This interface allows broadcasting of shared IRQs to multiple triggerables.
+ * The IRQ multiplexer is responsible for the correct mask and unmask logic for
+ * such shared IRQs.
+ *
+ * The semantics are that each of the slave IRQs is triggered whenever
+ * the multiplexer IRQ is triggered. As shared IRQs are usually
+ * level-triggered, the real IRQ source will be masked automatically
+ * when an IRQ is delivered and shall be unmasked when all attached slave
+ * IRQs are acknowledged.
+ */
+struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
+{
+  /**
+   * Attach an IRQ to this multiplexer.
+   *
+   * \param slave  The slave that shall be attached to the master.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   *
+   * The chaining feature of IRQ objects allows to deal with shared IRQs. For
+   * chaining IRQs there must be an IRQ multiplexer (Irq_mux) bound to
+   * the real IRQ source. This function allows to add slave IRQs to this
+   * multiplexer.
+   */
+  l4_msgtag_t chain(Cap<Triggerable> const &slave,
+                    l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_irq_mux_chain_u(cap(), slave.cap(), utcb); }
+};
+
+
+/**
+ * C++ Icu interface.
+ *
+ * To setup an IRQ line the following steps are required:
+ * 1. set_mode() (optional if IRQ has a default mode)
+ * 2. Irq::attach() to attach the IRQ capability to a thread
+ * 3. bind()
+ * 4. unmask() to receive the first IRQ
+ *
+ * \includefile{l4/sys/icu}
+ */
+class Icu :
+  public Kobject_t<Icu, Irq_eoi, L4_PROTO_IRQ,
+                   Type_info::Demand_t<1> >
+{
+public:
+  enum Mode
+  {
+    F_none         = L4_IRQ_F_NONE,
+    F_level_high   = L4_IRQ_F_LEVEL_HIGH,
+    F_level_low    = L4_IRQ_F_LEVEL_LOW,
+    F_pos_edge     = L4_IRQ_F_POS_EDGE,
+    F_neg_edge     = L4_IRQ_F_NEG_EDGE,
+    F_both_edge    = L4_IRQ_F_BOTH_EDGE,
+    F_mask         = L4_IRQ_F_MASK,
+
+    F_set_wakeup   = L4_IRQ_F_SET_WAKEUP,
+    F_clear_wakeup = L4_IRQ_F_CLEAR_WAKEUP,
+  };
+
+  enum Flags
+  {
+    F_msi = L4_ICU_FLAG_MSI
+  };
+
+  /**
+   * This class encapsulates information about an ICU.
+   */
+  class Info : public l4_icu_info_t
+  {
+  public:
+    bool supports_msi() const { return features & F_msi; }
+  };
+
+  /**
+   * Bind an interrupt line of an interrupt controller to an interrupt object.
+   *
+   * \param irqnum  IRQ line at the ICU.
+   * \param irq     IRQ object for the given IRQ line to bind to this ICU.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag. The caller should check the return value using
+   *         l4_error() to check for errors and to identify the correct method
+   *         for unmasking the interrupt.
+   *         Return values `< 0` indicate an error. A return value of `0` means
+   *         a direct unmask via the IRQ object using L4::Irq::unmask. A return
+   *         value of `1` means that the interrupt has to be unmasked via the
+   *         ICU using L4::Icu::unmask.
+   */
+  l4_msgtag_t bind(unsigned irqnum, L4::Cap<Triggerable> irq,
+                   l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_icu_bind_u(cap(), irqnum, irq.cap(), utcb); }
+
+  L4_RPC_NF_OP(L4_ICU_OP_BIND,
+               l4_msgtag_t, bind, (l4_umword_t irqnum, Ipc::Cap<Irq> irq));
+
+  /**
+   * Remove binding of an interrupt line from the interrupt controller object.
+   *
+   * \param irqnum  IRQ line at the ICU.
+   * \param irq     IRQ object to remove from the ICU.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t unbind(unsigned irqnum, L4::Cap<Triggerable> irq,
+                     l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_icu_unbind_u(cap(), irqnum, irq.cap(), utcb); }
+
+  L4_RPC_NF_OP(L4_ICU_OP_UNBIND,
+               l4_msgtag_t, unbind, (l4_umword_t irqnum, Ipc::Cap<Irq> irq));
+
+  /**
+   * Get information about the capabilites of the ICU.
+   *
+   * \param[out] info  Info structure to be filled with information.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t info(l4_icu_info_t *info, l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_icu_info_u(cap(), info, utcb); }
+
+  struct _Info { l4_umword_t features, nr_irqs, nr_msis; };
+  L4_RPC_NF_OP(L4_ICU_OP_INFO, l4_msgtag_t, info, (_Info *info));
+
+  /**
+   * Get MSI info about IRQ.
+   *
+   * \param      irqnum    IRQ line at the ICU.
+   * \param      source    Platform dependent requester ID for MSIs. On IA32 we
+   *                       use a 20bit source filter value as described in the
+   *                       Intel IRQ remapping specification.
+   * \param[out] msi_info  A l4_icu_msi_info_t structure receiving the address
+   *                       and the data value to trigger this MSI.
+   *
+   * \return Syscall return tag
+   */
+  L4_INLINE_RPC_OP(L4_ICU_OP_MSI_INFO,
+      l4_msgtag_t, msi_info, (l4_umword_t irqnum, l4_uint64_t source,
+                              l4_icu_msi_info_t *msi_info));
+
+  /**
+   * \internal
+   */
+  l4_msgtag_t control(unsigned irqnum, unsigned op, l4_umword_t *label,
+                      l4_timeout_t to, l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_icu_control_u(cap(), irqnum, op, label, to, utcb); }
+
+  /**
+   * Mask an IRQ line.
+   *
+   * \param irqnum  IRQ line at the ICU.
+   * \param label   If NULL this function is a send-only message to the ICU. If
+   *                not NULL this function will enter an open wait after sending
+   *                the mask message.
+   * \param to      The timeout-pair (send and receive) that shall be used for
+   *                this operation. The receive timeout is used with a non-NULL
+   *                `label` only.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t mask(unsigned irqnum,
+                   l4_umword_t *label = 0,
+                   l4_timeout_t to = L4_IPC_NEVER,
+                   l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_icu_mask_u(cap(), irqnum, label, to, utcb); }
+
+  L4_RPC_NF_OP(L4_ICU_OP_MASK, l4_msgtag_t, mask, (l4_umword_t irqnum),
+               L4::Ipc::Send_only);
+
+
+  L4_RPC_NF_OP(L4_ICU_OP_UNMASK, l4_msgtag_t, unmask, (l4_umword_t irqnum),
+               L4::Ipc::Send_only);
+
+  /**
+   * Set interrupt mode.
+   *
+   * \param irqnum  IRQ line at the ICU.
+   * \param mode    Mode, see #L4_irq_mode.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t set_mode(unsigned irqnum, l4_umword_t mode,
+                       l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_icu_set_mode_u(cap(), irqnum, mode, utcb); }
+
+  L4_RPC_NF_OP(L4_ICU_OP_SET_MODE,
+               l4_msgtag_t, set_mode, (l4_umword_t irqnum, l4_umword_t mode));
+
+  typedef L4::Typeid::Rpcs_sys<
+    bind_t, unbind_t, info_t, msi_info_t, unmask_t, mask_t, set_mode_t
+  > Rpcs;
+};
+
+}

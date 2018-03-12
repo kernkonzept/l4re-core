@@ -1,0 +1,4 @@
+provides: libc_minimal 
+requires: libc-headers
+source-pkg: uclibc
+Maintainer: adam@os.inf.tu-dresden.de

@@ -1,0 +1,3 @@
+provides: libgcc-pure
+source-pkg: libgcc
+maintainer: adam@os.inf.tu-dresden.de

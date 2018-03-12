@@ -1,0 +1,252 @@
+// vi:ft=cpp
+/**
+ * \internal
+ * \file
+ * \brief Region mapper server template.
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/types.h>
+#include <l4/re/rm-sys.h>
+
+#include <l4/re/util/region_mapping>
+
+namespace L4Re { namespace Util {
+
+template<typename Rm_server, typename SVR_DATA, typename RM, typename IOS>
+int region_map_server(SVR_DATA *sdata, RM *rm, IOS &ios)
+{
+  L4::Opcode op;
+  ios >> op;
+  switch (op)
+    {
+      case Rm_::Attach:
+	  {
+	    unsigned long size;
+	    l4_addr_t start;
+	    unsigned long flags;
+	    l4_cap_idx_t client_cap_idx = L4_INVALID_CAP;
+	    L4::Ipc::Snd_fpage ds_cap;
+	    typename Rm_server::Dataspace ds = typename Rm_server::Dataspace();
+	    l4_addr_t offs;
+	    unsigned char align;
+
+	    ios >> start >> size >> flags >> offs >> align;
+	    if (!(flags & Rm::Reserved))
+	      {
+		ios >> client_cap_idx >> ds_cap;
+
+		if (int r = Rm_server::validate_ds(sdata, ds_cap, flags, &ds))
+		  return r;
+	      }
+
+	    size  = l4_round_page(size);
+	    start = l4_trunc_page(start);
+
+	    if (size < L4_PAGESIZE)
+	      return -L4_EINVAL;
+
+	    unsigned r_flags = flags & Rm::Region_flags;
+	    unsigned a_flags = flags & Rm::Attach_flags;
+
+	    start = l4_addr_t(rm->attach((void*)start, size,
+	      typename RM::Region_handler(ds, client_cap_idx, offs, r_flags),
+	      a_flags, align));
+
+	    if (start == L4_INVALID_ADDR)
+	      return -L4_EADDRNOTAVAIL;
+
+	    ios << start;
+	    return L4_EOK;
+	  }
+      case Rm_::Detach:
+	  {
+	    l4_addr_t addr;
+	    unsigned long size;
+	    unsigned flags;
+	    ios >> addr >> size >> flags;
+
+	    Region r;
+	    typename RM::Region_handler h;
+	    int err = rm->detach((void*)addr, size, flags, &r, &h);
+	    if (err < 0)
+	      return err;
+
+	    if (r.invalid())
+	      return -L4_ENOENT;
+
+	    ios << l4_addr_t(r.start()) << (unsigned long)r.size()
+	        << h.client_cap_idx();
+
+	    return err;
+	  }
+      case Rm_::Attach_area:
+	  {
+	    l4_addr_t start;
+	    unsigned long size;
+	    unsigned flags;
+	    unsigned char align;
+
+	    ios >> start >> size >> flags >> align;
+	    start = rm->attach_area(start, size, flags, align);
+	    if (start == L4_INVALID_ADDR)
+	      return -L4_EADDRNOTAVAIL;
+
+	    ios << start;
+
+	    return L4_EOK;
+	  }
+      case Rm_::Detach_area:
+	  {
+	    l4_addr_t start;
+	    ios >> start;
+	    if (!rm->detach_area(start))
+	      return -L4_ENOENT;
+
+	    return L4_EOK;
+	  }
+      case Rm_::Find:
+	  {
+	    if (!Rm_server::Have_find)
+	      return -L4_EPERM;
+
+	    l4_addr_t addr;
+            unsigned flag_area = 0;
+	    unsigned long size;
+	    ios >> addr >> size;
+
+	    typename RM::Node r = rm->find(Region(addr, addr + size -1));
+	    if (!r)
+              {
+                r = rm->area_find(Region(addr, addr + size - 1));
+                if (!r)
+	          return -L4_ENOENT;
+                flag_area = Rm::In_area;
+              }
+
+	    addr = r->first.start();
+	    size = r->first.end() + 1 - addr;
+
+	    unsigned flags = r->second.flags() | flag_area;
+
+	    ios << addr << size << flags << r->second.offset()
+	        << Rm_server::find_res(r->second.memory());
+
+	    return L4_EOK;
+	  }
+      case Rm_::Get_regions:
+	  {
+	    l4_addr_t addr;
+	    ios >> addr;
+	    typename RM::Node r;
+	    int num = 0;
+	    while ((r = rm->lower_bound(Region(addr, addr +1))))
+	      {
+		Rm::Region x;
+		x.start  = r->first.start();
+		x.end    = r->first.end();
+		x.offset = r->second.offset();
+
+		if (!ios.put(x))
+		  break;
+
+		num++;
+		if (x.end >= rm->max_addr())
+		  break;
+		addr = x.end + 1;
+	      }
+
+	    return num;
+	  }
+      case Rm_::Get_areas:
+	  {
+	    l4_addr_t addr;
+	    ios >> addr;
+	    typename RM::Node r;
+	    int num = 0;
+	    while ((r = rm->lower_bound_area(Region(addr, addr +1))))
+	      {
+		Rm::Area x;
+		x.start  = r->first.start();
+		x.end    = r->first.end();
+
+		if (!ios.put(x))
+		  break;
+
+		num++;
+		if (x.end >= rm->max_addr())
+		  break;
+		addr = x.end + 1;
+	      }
+
+	    return num;
+	  }
+      default:
+	return -L4_ENOSYS;
+    }
+}
+
+template<typename Dbg, typename RM, typename IOS>
+int region_pf_handler(RM *rm, IOS &ios)
+{
+  l4_umword_t addr, pc, sp;
+  ios >> addr >> pc >> sp;
+  Dbg(Dbg::Server).printf("page fault: %lx pc=%lx\n", addr, pc);
+
+  unsigned writable = addr & 2;
+  addr = addr & ~3UL;
+
+  typename RM::Node n = rm->find(addr);
+
+  if (!n || !n->second.memory())
+    {
+      Dbg(Dbg::Warn, "rm").printf("unhandled %s page fault at 0x%lx pc=0x%lx\n",
+                                  writable ? "write" : "read", addr, pc);
+
+      // generate exception
+      ios << (l4_umword_t)~0;
+      return L4_EOK;
+    }
+
+  if (n->second.is_ro() && writable)
+    {
+      Dbg(Dbg::Warn, "rm").printf("write page fault in readonly region at 0x%lx pc=0x%lx\n",
+                                  addr, pc);
+      // generate exception
+      ios << (l4_umword_t)~0;
+      return L4_EOK;
+    }
+
+  typename RM::Region_handler::Ops::Map_result result;
+  if (int err = n->second.map(addr, n->first, writable, &result))
+    {
+      Dbg(Dbg::Warn, "rm").printf("mapping for page fault failed with error %d at 0x%lx pc=0x%lx\n",
+                                  err, addr, pc);
+      // generate exception
+      ios << (l4_umword_t)~0;
+      return L4_EOK;
+    }
+
+  ios << result;
+  return L4_EOK;
+}
+
+}}

@@ -1,0 +1,4 @@
+provides: libsupc++_minimal
+requires: libstdc++-headers libc_minimal l4sys
+source-pkg: libsupc++
+maintainer: warg@os.inf.tu-dresden.de

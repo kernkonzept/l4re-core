@@ -1,0 +1,15 @@
+crt0_x.S:
+  - entry point for L4 binaries 
+
+main_stat.ld:
+  - linker script for standard L4 applications
+
+main_rel.ld:
+  - linker script for Linux kernel modules and XFree86 drivers
+  - similar to elf_i386.xr except that we merge all .text.* sections
+
+main_dyn.ld:
+  - linker script for binaries depending on an interpreter (ld-l4.s.so)
+  - use LDSCRIPT = $(call findfile,main_dyn.ld,$(L4LIBDIR)) and omit
+    DEFAULT_RELOC!
+     

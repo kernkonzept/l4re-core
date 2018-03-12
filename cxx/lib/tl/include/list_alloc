@@ -1,0 +1,473 @@
+// vim:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/cxx/arith>
+#include <l4/cxx/minmax>
+
+namespace cxx {
+
+/**
+ * \brief Standard list-based allocator.
+ */
+class List_alloc
+{
+private:
+  friend class List_alloc_sanity_guard;
+
+  struct Mem_block
+  {
+    Mem_block *next;
+    unsigned long size;
+  };
+
+  Mem_block *_first;
+
+  inline void check_overlap(void *, unsigned long );
+  inline void sanity_check_list(char const *, char const *);
+  inline void merge();
+
+public:
+
+  /**
+   * \brief Initializes an empty list allocator.
+   *
+   * \note To initialize the allocator with available memory
+   *       use the #free() function.
+   */
+  List_alloc() : _first(0) {}
+
+  /**
+   * \brief Return a free memory block to the allocator.
+   *
+   * \param block pointer to memory block
+   * \param size  size of memory block
+   * \param initial_free Set to true for putting fresh memory
+   *                     to the allocator. This will enforce alignment on that
+   *                     memory.
+   */
+  inline void free(void *block, unsigned long size, bool initial_free = false);
+
+  /**
+   * \brief Alloc a memory block.
+   *
+   * \param size  Size of the memory block
+   * \param align Alignment constraint
+   *
+   * \return      Pointer to memory block
+   */
+  inline void *alloc(unsigned long size, unsigned align);
+
+  /**
+   * \brief Allocate a memory block of `min` <= size <=`max`.
+   *
+   * \param         min          Minimal size to allocate.
+   * \param[in,out] max          Maximum size to allocate. The actual allocated
+   *                             size is returned here.
+   * \param         align        Alignment constraint.
+   * \param         granularity  Granularity to use for the allocation.
+   *
+   * \return  Pointer to memory block
+   */
+  inline void *alloc_max(unsigned long min, unsigned long *max,
+                         unsigned align, unsigned granularity);
+
+  /**
+   * \brief Get the amount of available memory.
+   *
+   * \return Available memory in bytes
+   */
+  inline unsigned long avail();
+
+  template <typename DBG>
+  void dump_free_list(DBG &out);
+};
+
+#if !defined (CXX_LIST_ALLOC_SANITY)
+class List_alloc_sanity_guard
+{
+public:
+  List_alloc_sanity_guard(List_alloc *, char const *)
+  {}
+
+};
+
+
+void 
+List_alloc::check_overlap(void *, unsigned long )
+{}
+
+void 
+List_alloc::sanity_check_list(char const *, char const *)
+{}
+
+#else
+
+class List_alloc_sanity_guard
+{
+private:
+  List_alloc *a;
+  char const *func;
+  
+public:
+  List_alloc_sanity_guard(List_alloc *a, char const *func)
+    : a(a), func(func)
+  { a->sanity_check_list(func, "entry"); }
+  
+  ~List_alloc_sanity_guard()
+  { a->sanity_check_list(func, "exit"); }
+};
+
+void 
+List_alloc::check_overlap(void *b, unsigned long s)
+{
+  unsigned long const mb_align = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
+  if ((unsigned long)b & mb_align)
+    {
+      L4::cerr << "List_alloc(FATAL): trying to free unaligned memory: "
+	       << b << " align=" << arith::Ld<sizeof(Mem_block)>::value << "\n";
+    }
+
+  Mem_block *c = _first;
+  for (;c ; c = c->next)
+    {
+      unsigned long x_s = (unsigned long)b;
+      unsigned long x_e = x_s + s;
+      unsigned long b_s = (unsigned long)c;
+      unsigned long b_e = b_s + c->size;
+
+      if (   (x_s >= b_s && x_s < b_e)
+	  || (x_e > b_s && x_e <= b_e)
+	  || (b_s >= x_s && b_s < x_e)
+	  || (b_e > x_s && b_e <= x_e))
+	{
+	  L4::cerr << "List_alloc(FATAL): trying to free memory that "
+					  "is already free: \n  ["
+	    << (void*)x_s << '-' << (void*)x_e << ") overlaps ["
+	    << (void*)b_s << '-' << (void*)b_e << ")\n";
+	}
+    }
+}
+
+void 
+List_alloc::sanity_check_list(char const *func, char const *info)
+{
+  Mem_block *c = _first;
+  for (;c ; c = c->next)
+    {
+      if (c->next)
+	{
+	  if (c >= c->next)
+	    {
+	      L4::cerr << "List_alloc(FATAL): " << func << '(' << info 
+		<< "): list oerder violation\n";
+	    }
+
+	  if (((unsigned long)c) + c->size > (unsigned long)c->next)
+	    {
+	      L4::cerr << "List_alloc(FATAL): " << func << '(' << info 
+		<< "): list oerder violation\n";
+	    }
+	}
+    }
+}
+
+#endif
+
+void
+List_alloc::merge()
+{
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+  Mem_block *c = _first;
+  while (c && c->next)
+    {
+      unsigned long f_start = (unsigned long)c;
+      unsigned long f_end   = f_start + c->size;
+      unsigned long n_start = (unsigned long)c->next;
+      
+      if (f_end == n_start)
+	{
+	  c->size += c->next->size;
+	  c->next = c->next->next;
+	  continue;
+	}
+
+      c = c->next;
+    }
+}
+
+void 
+List_alloc::free(void *block, unsigned long size, bool initial_free)
+{
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+
+  unsigned long const mb_align = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
+
+  if (initial_free)
+    {
+      // enforce alignment constraint on initial memory
+      unsigned long nblock = ((unsigned long)block + mb_align) & ~mb_align;
+      size = (size - (nblock - (unsigned long)block)) & ~mb_align;
+      block = (void*)nblock;
+    }
+  else
+    // blow up size to the minimum aligned size
+    size = (size + mb_align) & ~mb_align;
+
+  check_overlap(block, size);
+  
+  Mem_block **c = &_first;
+  Mem_block *next = 0;
+  
+  if (*c)
+    {
+      while (*c && *c < block)
+	c = &(*c)->next;
+
+      next = *c;
+    }
+  
+  *c = (Mem_block*)block;
+  
+  (*c)->next = next;
+  (*c)->size = size;
+
+  merge();
+}
+
+void *
+List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
+                      unsigned granularity)
+{
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+
+  unsigned char const mb_bits = arith::Ld<sizeof(Mem_block)>::value;
+  unsigned long const mb_align = (1UL << mb_bits) - 1;
+
+  // blow minimum up to at least the minimum aligned size of a Mem_block
+  min = l4_round_size(min, mb_bits);
+  // truncate maximum to at least the size of a Mem_block
+  *max = l4_trunc_size(*max, mb_bits);
+  // truncate maximum size according to granularity
+  *max = *max & ~(granularity - 1UL);
+
+  if (min > *max)
+    return 0;
+
+  unsigned long almask = align ? (align - 1) : 0;
+
+  // minimum alignment is given by the size of a Mem_block
+  if (almask < mb_align)
+    almask = mb_align;
+
+  Mem_block **c = &_first;
+  Mem_block **fit = 0;
+  unsigned long max_fit = 0;
+
+  for (; *c; c = &(*c)->next)
+    {
+      // address of free memory block
+      unsigned long n_start = (unsigned long)(*c);
+
+      // block too small, next
+      // XXX: maybe we can skip this and just do the test below
+      if ((*c)->size < min)
+        continue;
+
+      // aligned start address within the free block
+      unsigned long a_start = (n_start + almask) & ~almask;
+
+      // check if aligned start address is behind the block, next
+      if (a_start - n_start >= (*c)->size)
+        continue;
+
+      // remaining size after subtracting the padding for the alignment
+      unsigned long r_size = (*c)->size - a_start + n_start;
+      // round down according to granularity
+      r_size &= ~(granularity - 1UL);
+
+      // block too small
+      if (r_size < min)
+        continue;
+
+      if (r_size > *max)
+        {
+          fit = c;
+          max_fit = *max;
+          break;
+        }
+
+      if (r_size > max_fit)
+        {
+          max_fit = r_size;
+          fit = c;
+        }
+    }
+
+  if (fit)
+    {
+      unsigned long n_start = (unsigned long)(*fit);
+      unsigned long a_start = (n_start + almask) & ~almask;
+      unsigned long r_size = (*fit)->size - a_start + n_start;
+
+      if (a_start > n_start)
+        {
+          (*fit)->size -= r_size;
+          fit = &(*fit)->next;
+        }
+      else
+        *fit = (*fit)->next;
+
+      *max = max_fit;
+      if (r_size == max_fit)
+          return (void *)a_start;
+
+      Mem_block *m = (Mem_block*)(a_start + max_fit);
+      m->next = *fit;
+      m->size = r_size - max_fit;
+      *fit = m;
+      return (void*)a_start;
+    }
+
+  return 0;
+}
+
+void *
+List_alloc::alloc(unsigned long size, unsigned align)
+{
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+
+  unsigned long const mb_align = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
+
+  // blow up size to the minimum aligned size
+  size = (size + mb_align) & ~mb_align;
+
+  unsigned long almask = align ? (align -1) : 0;
+
+  // minimum alignment is given by the size of a Mem_block
+  if (almask < mb_align)
+    almask = mb_align;
+
+  Mem_block **c = &_first;
+
+  for (; *c; c=&(*c)->next)
+    {
+      // address of free memory block
+      unsigned long n_start = (unsigned long)(*c);
+
+      // block too small, next
+      // XXX: maybe we can skip this and just do the test below
+      if ((*c)->size < size)
+        continue;
+
+      // aligned start address within the free block
+      unsigned long a_start = (n_start + almask) & ~almask;
+
+      // hm, block too small after alignment, next
+      if (a_start - n_start >= (*c)->size)
+        continue;
+
+      // remaining size after subtracting the padding
+      // for the alignment
+      unsigned long r_size = (*c)->size - a_start + n_start;
+
+      // block too small
+      if (r_size < size)
+	continue;
+
+      if (a_start > n_start)
+	{
+	  // have free space before the allocated block
+	  // shrink the block and set c to the next pointer of that
+	  // block
+	  (*c)->size -= r_size;
+	  c = &(*c)->next;
+	}
+      else
+	// drop the block, c remains the next pointer of the
+	// previous block
+	*c = (*c)->next;
+
+      // allocated the whole remaining space
+      if (r_size == size)
+	return (void*)a_start;
+
+      // add a new free block behind the allocated block
+      Mem_block *m = (Mem_block*)(a_start + size);
+      m->next = *c;
+      m->size = r_size - size;
+      *c = m;
+      return (void*)a_start;
+    }
+
+  return 0;
+}
+
+unsigned long
+List_alloc::avail()
+{
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __FUNCTION__);
+  Mem_block *c = _first;
+  unsigned long a = 0;
+  while (c)
+    {
+      a += c->size;
+      c = c->next;
+    }
+
+  return a;
+}
+
+template <typename DBG>
+void
+List_alloc::dump_free_list(DBG &out)
+{
+  Mem_block *c = _first;
+  while (c)
+    {
+      unsigned sz;
+      const char *unit;
+
+      if (c->size < 1024)
+        {
+          sz = c->size;
+          unit = "Byte";
+        }
+      else if (c->size < 1 << 20)
+        {
+          sz = c->size >> 10;
+          unit = "kB";
+        }
+      else
+        {
+          sz = c->size >> 20;
+          unit = "MB";
+        }
+
+      out.printf("%10p - %10p (%u %s)\n", c, (char *) c + c->size - 1, sz, unit);
+
+      c = c->next;
+    }
+}
+
+}
+
+

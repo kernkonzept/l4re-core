@@ -1,0 +1,422 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/cxx/type_traits>
+#include <l4/cxx/std_alloc>
+#include <l4/cxx/std_ops>
+
+namespace cxx {
+/*
+ * Classes: List_item, List<D, Alloc>
+ */
+
+/**
+ * \ingroup cxx_api
+ * \brief Basic list item.
+ *
+ * Basic item that can be member of a doubly linked, cyclic list.
+ */
+class List_item
+{
+public:
+  /**
+   * \brief Iterator for a list of ListItem-s.
+   *
+   * The Iterator iterates till it finds the first element again.
+   */
+  class Iter
+  {
+  public:
+    Iter(List_item *c, List_item *f) throw() : _c(c), _f(f) {}
+    Iter(List_item *f = 0) throw() : _c(f), _f(f) {}
+
+    List_item *operator * () const throw() { return _c; }
+    List_item *operator -> () const throw() { return _c; }
+    Iter &operator ++ () throw()
+    {
+      if (!_f)
+	_c = 0;
+      else
+        _c = _c->get_next_item();
+
+      if (_c == _f)
+	_c = 0;
+
+      return *this;
+    }
+
+    Iter operator ++ (int) throw()
+    { Iter o = *this; operator ++ (); return o; }
+
+    Iter &operator -- () throw()
+    {
+      if (!_f)
+	_c = 0;
+      else
+        _c = _c->get_prev_item();
+
+      if (_c == _f)
+	_c = 0;
+
+      return *this;
+    }
+
+    Iter operator -- (int) throw()
+    { Iter o = *this; operator -- (); return o; }
+
+    /** Remove item pointed to by iterator, and return pointer to element. */
+    List_item *remove_me() throw()
+    {
+      if (!_c)
+	return 0;
+
+      List_item *l = _c;
+      operator ++ ();
+      l->remove_me();
+
+      if (_f == l)
+	_f = _c;
+
+      return l;
+    }
+
+  private:
+    List_item *_c, *_f;
+  };
+
+  /**
+   * \brief Iterator for derived classes from ListItem.
+   *
+   * Allows direct access to derived classes by * operator.
+   *
+   * Example:
+   * class Foo : public ListItem
+   * {
+   * public:
+   *   typedef T_iter<Foo> Iter;
+   *   ...
+   * };
+   */
+  template< typename T, bool Poly = false>
+  class T_iter : public Iter
+  {
+  private:
+    static bool const P = !Conversion<const T*, const List_item *>::exists
+      || Poly;
+
+    static List_item *cast_to_li(T *i, Int_to_type<true>) throw()
+    { return dynamic_cast<List_item*>(i); }
+
+    static List_item *cast_to_li(T *i, Int_to_type<false>) throw()
+    { return i; }
+
+    static T *cast_to_type(List_item *i, Int_to_type<true>) throw()
+    { return dynamic_cast<T*>(i); }
+
+    static T *cast_to_type(List_item *i, Int_to_type<false>) throw()
+    { return static_cast<T*>(i); }
+
+  public:
+
+    template< typename O >
+    explicit T_iter(T_iter<O> const &o) throw()
+    : Iter(o) { dynamic_cast<T*>(*o); }
+
+    //TIter(CListItem *f) : Iter(f) {}
+    T_iter(T *f = 0) throw() : Iter(cast_to_li(f, Int_to_type<P>())) {}
+    T_iter(T *c, T *f) throw()
+    : Iter(cast_to_li(c, Int_to_type<P>()),
+	cast_to_li(f, Int_to_type<P>()))
+    {}
+
+    inline T *operator * () const throw()
+    { return cast_to_type(Iter::operator * (),Int_to_type<P>()); }
+    inline T *operator -> () const throw()
+    { return operator * (); }
+
+    T_iter<T, Poly> operator ++ (int) throw()
+    { T_iter<T, Poly> o = *this; Iter::operator ++ (); return o; }
+    T_iter<T, Poly> operator -- (int) throw()
+    { T_iter<T, Poly> o = *this; Iter::operator -- (); return o; }
+    T_iter<T, Poly> &operator ++ () throw()
+    { Iter::operator ++ (); return *this; }
+    T_iter<T, Poly> &operator -- () throw()
+    { Iter::operator -- (); return *this; }
+    inline T *remove_me() throw();
+  };
+
+  List_item() throw() : _n(this), _p(this) {}
+
+protected:
+  List_item(List_item const &) throw() : _n(this), _p(this) {}
+
+public:
+  /** Get previous item. */
+  List_item *get_prev_item() const throw() { return _p; }
+
+  /** Get next item. */
+  List_item *get_next_item() const throw() { return _n; }
+
+  /** Insert item p before this item. */
+  void insert_prev_item(List_item *p) throw()
+  {
+    p->_p->_n = this;
+    List_item *pr = p->_p;
+    p->_p = _p;
+    _p->_n = p;
+    _p = pr;
+  }
+
+  /** Insert item p after this item. */
+  void insert_next_item(List_item *p) throw()
+  {
+    p->_p->_n = _n;
+    p->_p = this;
+    _n->_p = p;
+    _n = p;
+  }
+
+  /** Remove this item from the list. */
+  void remove_me() throw()
+  {
+    if (_p != this)
+      {
+        _p->_n = _n;
+        _n->_p = _p;
+      }
+    _p = _n = this;
+  }
+
+  /**
+   * \brief Append item to a list.
+   *
+   * Convenience function for empty-head corner case.
+   * \param head  Pointer to the current list head.
+   * \param p     Pointer to new item.
+   * \return the pointer to the new head.
+   */
+  template< typename C, typename N >
+  static inline C *push_back(C *head, N *p) throw();
+
+  /**
+   * \brief Prepend item to a list.
+   *
+   * Convenience function for empty-head corner case.
+   * \param head pointer to the current list head.
+   * \param p pointer to new item.
+   * \return the pointer to the new head.
+   */
+  template< typename C, typename N >
+  static inline C *push_front(C *head, N *p) throw();
+
+  /**
+   * \brief Remove item from a list.
+   *
+   * Convenience function for remove-head corner case.
+   * \param head pointer to the current list head.
+   * \param p pointer to the item to remove.
+   * \return the pointer to the new head.
+   */
+  template< typename C, typename N >
+  static inline C *remove(C *head, N *p) throw();
+
+private:
+  List_item *_n, *_p;
+};
+
+
+/* IMPLEMENTATION -----------------------------------------------------------*/
+template< typename C, typename N >
+C *List_item::push_back(C *h, N *p) throw()
+{
+  if (!p)
+    return h;
+  if (!h)
+    return p;
+  h->insert_prev_item(p);
+  return h;
+}
+
+template< typename C, typename N >
+C *List_item::push_front(C *h, N *p) throw()
+{
+  if (!p)
+    return h;
+  if (h)
+    h->insert_prev_item(p);
+  return p;
+}
+
+template< typename C, typename N >
+C *List_item::remove(C *h, N *p) throw()
+{
+  if (!p)
+    return h;
+  if (!h)
+    return 0;
+  if (h == p)
+    {
+      if (p == p->_n)
+	h = 0;
+      else
+        h = static_cast<C*>(p->_n);
+    }
+  p->remove_me();
+
+  return h;
+}
+
+template< typename T, bool Poly >
+inline
+T *List_item::T_iter<T, Poly>::remove_me() throw()
+{ return cast_to_type(Iter::remove_me(), Int_to_type<P>()); }
+
+
+template< typename T >
+class T_list_item : public List_item
+{
+public:
+  T *next() const { return static_cast<T*>(List_item::get_next_item()); }
+  T *prev() const { return static_cast<T*>(List_item::get_prev_item()); }
+};
+
+
+template< typename LI >
+class L_list
+{
+private:
+  LI *_h;
+
+public:
+
+  L_list() : _h(0) {}
+
+  void push_front(LI *e) { _h = LI::push_front(_h, e); }
+  void push_back(LI *e) { _h = LI::push_back(_h, e); }
+  void insert_before(LI *e, LI *p)
+  {
+    p->insert_prev_item(e);
+    if (_h == p)
+      _h = e;
+  }
+  void insert_after(LI *e, LI *p) { p->insert_next_item(e); }
+
+  void remove(LI *e)
+  { _h = LI::remove(_h, e); }
+
+  LI *head() const { return _h; }
+};
+
+/**
+ * Doubly linked list, with internal allocation.
+ * Container for items of type D, implemented by a doubly linked list.
+ * Alloc defines the allocator policy.
+ */
+template< typename D, template<typename A> class Alloc = New_allocator >
+class List
+{
+private:
+  class E : public List_item
+  {
+  public:
+    E(D const &d) throw() : data(d) {}
+    D data;
+  };
+
+public:
+  class Node : private E
+  {};
+
+  typedef Alloc<Node> Node_alloc;
+
+  /**
+   * Iterator.
+   * Forward and backward iteratable.
+   */
+  class Iter
+  {
+  private:
+    List_item::T_iter<E> _i;
+
+  public:
+    Iter(E *e) throw() : _i(e) {}
+
+    D &operator * () const throw() { return (*_i)->data; }
+    D &operator -> () const throw() { return (*_i)->data; }
+
+    Iter operator ++ (int) throw()
+    { Iter o = *this; operator ++ (); return o; }
+    Iter operator -- (int) throw()
+    { Iter o = *this; operator -- (); return o; }
+    Iter &operator ++ () throw() { ++_i; return *this; }
+    Iter &operator -- () throw() { --_i; return *this; }
+
+    /** operator for testing validity (syntactically equal to pointers) */
+    operator E* () const throw() { return *_i; }
+  };
+
+  List(Alloc<Node> const &a = Alloc<Node>()) throw() : _h(0), _l(0), _a(a) {}
+
+  /** Add element at the end of the list. */
+  void push_back(D const &d) throw()
+  {
+    void *n = _a.alloc();
+    if (!n) return;
+    _h = E::push_back(_h, new (n) E(d));
+    ++_l;
+  }
+
+  /** Add element at the beginning of the list. */
+  void push_front(D const &d) throw()
+  {
+    void *n = _a.alloc();
+    if (!n) return;
+    _h = E::push_front(_h, new (n) E(d));
+    ++_l;
+  }
+
+  /** Remove element pointed to by the iterator. */
+  void remove(Iter const &i) throw()
+  { E *e = i; _h = E::remove(_h, e); --_l; _a.free(e); }
+
+  /** Get the length of the list. */
+  unsigned long size() const throw() { return _l; }
+
+  /** Random access. Complexity is O(n). */
+  D const &operator [] (unsigned long idx) const throw()
+  { Iter i = _h; for (; idx && *i; ++i, --idx) { } return *i; }
+
+  /** Random access. Complexity is O(n). */
+  D &operator [] (unsigned long idx) throw()
+  { Iter i = _h; for (; idx && *i; ++i, --idx) { } return *i; }
+
+  /** Get iterator for the list elements. */
+  Iter items() throw() { return Iter(_h); }
+
+private:
+  E *_h;
+  unsigned _l;
+  Alloc<Node> _a;
+};
+
+
+};
+

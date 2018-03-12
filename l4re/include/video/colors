@@ -1,0 +1,252 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/compiler.h>
+
+namespace L4Re { namespace Video {
+
+/**
+ * \brief A color component.
+ * \ingroup api_l4re_goos
+ */
+class L4_EXPORT Color_component
+{
+private:
+  unsigned char _bits;    ///< Number of bits used by the component
+  unsigned char _shift;   ///< Position in bits of the component in the pixel
+
+public:
+  /** Constructor */
+  Color_component() : _bits(0), _shift(0) {}
+
+  /**
+   * \brief Constructor
+   * \param bits   Number of bits used by the component
+   * \param shift  Position in bits of the component in the pixel
+   */
+  Color_component(unsigned char bits, unsigned char shift)
+  : _bits(bits), _shift(shift) {}
+
+  /**
+   * \brief  Return the number of bits used by the component.
+   * \return Number of bits used by the component
+   */
+  unsigned char size() const { return _bits; }
+
+  /**
+   * \brief  Return the position of the component in the pixel.
+   * \return Position in bits of the component in the pixel
+   */
+  unsigned char shift() const { return _shift; }
+
+  /**
+   * \brief Compare for equality.
+   * \return True if the same components are described, false if not.
+   */
+  bool operator == (Color_component const &o) const
+  { return _shift == o._shift && _bits == o._bits; }
+
+  /**
+   * \brief Get component from value (normalized to 16bits).
+   * \param v   Value
+   * \return Converted value
+   */
+  int get(unsigned long v) const
+  {
+    return ((v >> (unsigned long)_shift)
+      & ~(~0UL << (unsigned long)_bits)) << (unsigned long)(16 - _bits);
+  }
+
+  /**
+   * \brief Transform 16bit normalized value to the component in the color space.
+   * \param v  Value
+   * return Converted value.
+   */
+  long unsigned set(int v) const
+  { return (v >> (unsigned long)(16 - _bits)) << (unsigned long)_shift; }
+
+  /**
+   * \brief Dump information on the view information to a stream
+   * \param s  Stream
+   * \return The stream
+   */
+  template< typename OUT >
+  void dump(OUT &s) const
+  {
+    s.printf("%d(%d)", (int)size(), (int)shift());
+  }
+} __attribute__((packed));
+
+/**
+ * \brief Pixel information.
+ * \ingroup api_l4re_goos
+ *
+ * This class wraps the information on a pixel, such as the size and
+ * position of each color component in the pixel.
+ */
+class L4_EXPORT Pixel_info
+{
+private:
+  Color_component _r, _g, _b, _a;  ///< Red, green, blue and alpha color components
+  unsigned char _bpp;              ///< Size of the pixel in bytes.
+
+public:
+  /**
+   * \brief Return the red color compoment of the pixel.
+   * \return Red color component.
+   */
+  Color_component const &r() const { return _r; }
+
+  /**
+   * \brief Return the green color compoment of the pixel.
+   * \return Green color component.
+   */
+  Color_component const &g() const { return _g; }
+
+  /**
+   * \brief Return the blue color compoment of the pixel.
+   * \return Blue color component.
+   */
+  Color_component const &b() const { return _b; }
+
+  /**
+   * \brief Return the alpha color compoment of the pixel.
+   * \return Alpha color component.
+   */
+  Color_component const &a() const { return _a; }
+
+  /**
+   * \brief Query size of pixel in bytes.
+   * \return Size of pixel in bytes.
+   */
+  unsigned char bytes_per_pixel() const { return _bpp; }
+
+  /**
+   * \brief Number of bits of the pixel.
+   * \return Number of bits used by the pixel.
+   */
+  unsigned char bits_per_pixel() const
+  { return _r.size() + _g.size() + _b.size() +_a.size(); }
+
+  /**
+   * \brief Return whether the pixel has an alpha channel.
+   * \return True if the pixel has an alpha channel, false if not.
+   */
+  bool has_alpha() const { return _a.size() > 0; }
+
+  /**
+   * \brief Set the red color component of the pixel.
+   * \param c  Red color component.
+   */
+  void r(Color_component const &c) { _r = c; }
+
+  /**
+   * \brief Set the green color component of the pixel.
+   * \param c  Green color component.
+   */
+  void g(Color_component const &c) { _g = c; }
+
+  /**
+   * \brief Set the blue color component of the pixel.
+   * \param c  Blue color component.
+   */
+  void b(Color_component const &c) { _b = c; }
+
+  /**
+   * \brief Set the alpha color component of the pixel.
+   * \param c  Alpha color component.
+   */
+  void a(Color_component const &c) { _a = c; }
+
+  /**
+   * \brief Set the size of the pixel in bytes.
+   * \param bpp   Size of pixel in bytes.
+   */
+  void bytes_per_pixel(unsigned char bpp) { _bpp = bpp; }
+
+  /**
+   * \brief Constructor.
+   */
+  Pixel_info() : _r(), _g(), _b(), _a() {}
+
+  /**
+   * \brief Constructor.
+   * \param bpp   Size of pixel in bytes.
+   * \param r     Red component size.
+   * \param rs    Red component shift.
+   * \param g     Green component size.
+   * \param gs    Green component shift.
+   * \param b     Blue component size.
+   * \param bs    Blue component shift.
+   * \param a     Alpha component size, defaults to 0.
+   * \param as    Alpha component shift, defaults to 0.
+   */
+  Pixel_info(unsigned char bpp, char r, char rs, char g, char gs,
+             char b, char bs, char a = 0, char as = 0)
+  : _r(r, rs), _g(g, gs), _b(b, bs), _a(a, as), _bpp(bpp)
+  {}
+
+  /**
+   * \brief Convenience constructor.
+   * \param vbi   Suitable information structure.
+   * Convenience constructor to create the pixel info from
+   * a VESA Framebuffer Info.
+   */
+  template<typename VBI>
+  explicit Pixel_info(VBI const *vbi)
+  : _r(vbi->red_mask_size, vbi->red_field_position),
+    _g(vbi->green_mask_size, vbi->green_field_position),
+    _b(vbi->blue_mask_size, vbi->blue_field_position),
+    _bpp((vbi->bits_per_pixel + 7) / 8)
+  {}
+
+  /**
+   * \brief Compare for complete equzality of the color sapce.
+   * \param o    A Pixel_info to compare to.
+   * \return true if the both Pixel_info's are equal, false if not.
+   */
+  bool operator == (Pixel_info const &o) const
+  {
+    return _r == o._r && _g == o._g && _b == o._b && _a == o._a && _bpp == o._bpp;
+  }
+
+  /**
+   * \brief Dump information on the pixel to a stream
+   * \param s  Stream
+   * \return The stream
+   */
+  template< typename OUT >
+  void dump(OUT &s) const
+  {
+    s.printf("RGBA(%d):%d(%d):%d(%d):%d(%d):%d(%d)",
+             (int)bytes_per_pixel(),
+             (int)r().size(), (int)r().shift(),
+             (int)g().size(), (int)g().shift(),
+             (int)b().size(), (int)b().shift(),
+             (int)a().size(), (int)a().shift());
+  }
+};
+
+
+}}
+
+

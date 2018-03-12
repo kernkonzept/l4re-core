@@ -1,0 +1,148 @@
+// set vi:ft=cpp:
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/event>
+#include <l4/re/event-sys.h>
+#include <l4/re/rm>
+
+#include <cstring>
+
+namespace L4Re { namespace Util {
+
+/**
+ * \brief Event_buffer utility class.
+ * \ingroup api_l4re_util
+ */
+template< typename PAYLOAD >
+class Event_buffer_t : public L4Re::Event_buffer_t<PAYLOAD>
+{
+private:
+  void *_buf;
+public:
+  /**
+   * \brief Return the buffer.
+   *
+   * \return Pointer to the event buffer.
+   */
+  void *buf() const throw() { return _buf; }
+
+  /**
+   * \brief Attach event buffer from address space.
+   *
+   * \param ds   Dataspace of the event buffer.
+   * \param rm   Region manager to attach buffer to.
+   *
+   * \return 0 on success, negative error code otherwise.
+   */
+  long attach(L4::Cap<L4Re::Dataspace> ds, L4::Cap<L4Re::Rm> rm) throw()
+  {
+    l4_addr_t sz = ds->size();
+    _buf = 0;
+
+    long r = rm->attach(&_buf, sz, L4Re::Rm::Search_addr,
+                        L4::Ipc::make_cap_rw(ds));
+    if (r < 0)
+      return r;
+
+    *(L4Re::Event_buffer_t<PAYLOAD>*)this = L4Re::Event_buffer_t<PAYLOAD>(_buf, sz);
+    return 0;
+  }
+
+  /**
+   * \brief Detach event buffer from address space.
+   *
+   * \param rm   Region manager to detach buffer from.
+   *
+   * \return 0 on success, negative error code otherwise.
+   */
+  long detach(L4::Cap<L4Re::Rm> rm) throw()
+  {
+    L4::Cap<L4Re::Dataspace> ds;
+    if (_buf)
+      return rm->detach(_buf, &ds);
+    return 0;
+  }
+
+};
+
+/**
+ * \brief An event buffer consumer.
+ * \ingroup api_l4re_util
+ */
+template< typename PAYLOAD >
+class Event_buffer_consumer_t : public Event_buffer_t<PAYLOAD>
+{
+public:
+
+  /**
+   * \brief Call function on every available event.
+   *
+   * \param cb    Function callback.
+   * \param data  Data to pass as an argument to the callback.
+   */
+  template< typename CB, typename D >
+  void foreach_available_event(CB const &cb, D data = D())
+  {
+    typename Event_buffer_t<PAYLOAD>::Event *e;
+    while ((e = Event_buffer_t<PAYLOAD>::next()))
+      {
+        cb(e, data);
+        e->free();
+      }
+  }
+
+  /**
+   * \brief Continuously wait for events and process them.
+   *
+   * \param irq     Event signal to wait for.
+   * \param thread  Thread capability of the thread calling this function.
+   * \param cb      Callback function that is called for each received event.
+   * \param data    Data to pass as an argument to the processing callback.
+   *
+   * \note This function never returns.
+   */
+  template< typename CB, typename D >
+  void process(L4::Cap<L4::Irq> irq,
+               L4::Cap<L4::Thread> thread,
+               CB const &cb, D data = D())
+  {
+
+    if (l4_error(irq->attach(0, thread)))
+      return;
+
+    while (1)
+      {
+        long r;
+        r = l4_ipc_error(l4_irq_receive(irq.cap(), L4_IPC_NEVER),
+                         l4_utcb());
+        if (r)
+          continue;
+
+        foreach_available_event(cb, data);
+      }
+  }
+};
+
+typedef Event_buffer_t<Default_event_payload> Event_buffer;
+typedef Event_buffer_consumer_t<Default_event_payload> Event_buffer_consumer;
+
+}}

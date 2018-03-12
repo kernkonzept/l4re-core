@@ -1,0 +1,296 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/cxx/avl_tree>
+#include <l4/cxx/std_ops>
+#include <l4/sys/cxx/ipc_epiface>
+#include <l4/cxx/string>
+
+#include <l4/sys/capability>
+#include <l4/re/namespace>
+
+#include <cstddef>
+
+namespace L4Re { namespace Util {
+
+class Dbg;
+class Err;
+
+namespace Names {
+
+/**
+ * \brief Name class.
+ */
+class Name : public cxx::String
+{
+public:
+
+  Name(const char *name = "") : String(name, __builtin_strlen(name)) {}
+  Name(const char *name, unsigned long len) : String(name, len) {}
+  Name(cxx::String const &n) : String(n) {}
+  char const *name() const { return start(); }
+  bool operator < (Name const &r) const;
+};
+
+
+/**
+ * \internal
+ */
+class Obj
+{
+protected:
+  unsigned _f;
+  union
+  {
+    l4_cap_idx_t _cap;
+    L4::Epiface *_obj;
+  };
+
+
+public:
+  enum Flags
+  {
+    F_rw        = L4Re::Namespace::Rw,
+    F_strong    = L4Re::Namespace::Strong,
+
+    F_trusted   = L4Re::Namespace::Trusted,
+
+    F_rights_mask = F_rw | F_strong | F_trusted,
+
+    F_cap        = 0x100,
+    F_local      = 0x200,
+    F_replacable = 0x400,
+    F_base_mask  = 0xf00,
+  };
+
+
+  unsigned flags() const { return _f; }
+  void restrict_flags(unsigned max_rights)
+  { _f &= (~F_rights_mask | (max_rights & F_rights_mask)); }
+
+  bool is_rw() const { return (_f & F_rw) == F_rw; }
+  bool is_strong() const { return _f & F_strong; }
+
+  bool is_valid() const { return _f & F_cap; }
+  bool is_complete() const { return is_valid(); }
+  bool is_local() const { return _f & F_local; }
+  bool is_replacable() const { return _f & F_replacable; }
+  bool is_trusted() const { return _f & F_trusted; }
+
+  L4::Epiface *obj() const { if (is_local()) return _obj; return 0; }
+  L4::Cap<void> cap() const
+  {
+    if (!is_local())
+      return L4::Cap<void>(_cap);
+    if (!_obj)
+      return L4::Cap<void>::Invalid;
+    return _obj->obj_cap();
+  }
+
+
+  void set(Obj const &o, unsigned flags)
+  {
+    *this = o;
+    restrict_flags(flags);
+  }
+
+  explicit Obj(unsigned flags = 0)
+  : _f(flags), _cap(L4_INVALID_CAP)
+  {}
+
+  Obj(unsigned f, L4::Cap<void> const &cap)
+  : _f((f & ~F_base_mask) | F_cap), _cap(cap.cap())
+  {}
+
+  Obj(unsigned f, L4::Epiface *o)
+  : _f((f & ~F_base_mask) | F_cap | F_local), _obj(o)
+  {}
+
+  void reset(unsigned flags)
+  {
+    _f = (_f & F_replacable) | (flags & ~(F_cap | F_local));
+    _cap = L4_INVALID_CAP;
+  }
+
+
+};
+
+
+/**
+ * \internal
+ */
+class Entry : public cxx::Avl_tree_node
+{
+private:
+  friend class Name_space;
+  Name _n;
+  Obj  _o;
+
+  bool _dynamic;
+
+public:
+  Entry(Name const &n, Obj const &o, bool dynamic = false)
+  : _n(n), _o(o), _dynamic(dynamic) {}
+
+  Name const &name() const { return _n; }
+  Obj const *obj() const { return &_o; }
+  Obj *obj() { return &_o; }
+  void obj(Obj const &o) { _o = o; }
+
+  bool is_placeholder() const
+  { return !obj()->is_complete(); }
+
+  bool is_dynamic() const { return _dynamic; }
+
+  void set(Obj const &o);
+
+private:
+  void * operator new (size_t s);
+  void operator delete(void *b);
+
+};
+
+struct Names_get_key
+{
+  typedef Name Key_type;
+  static Key_type const &key_of(Entry const *e)
+  { return e->name(); }
+};
+
+
+/**
+ * Abstract server-side implementation of the L4::Namespace interface.
+ *
+ * \internal
+ */
+class Name_space
+{
+  friend class Entry;
+
+private:
+  typedef cxx::Avl_tree<Entry, Names_get_key> Tree;
+  Tree _tree;
+
+protected:
+  L4Re::Util::Dbg const &_dbg;
+  L4Re::Util::Err const &_err;
+
+public:
+
+  typedef Tree::Const_iterator Const_iterator;
+
+  Const_iterator begin() const { return _tree.begin(); }
+  Const_iterator end() const { return _tree.end(); }
+
+  Name_space(L4Re::Util::Dbg const &dbg, L4Re::Util::Err const &err)
+  : _dbg(dbg), _err(err)
+  {}
+
+  virtual ~Name_space() {}
+
+  Entry *find(Name const &name) const  { return _tree.find_node(name); }
+  Entry *remove(Name const &name) { return _tree.remove(name); }
+  Entry *find_iter(Name const &name) const;
+  bool insert(Entry *e)  { return _tree.insert(e).second; }
+
+  void dump(bool rec = false, int indent = 0) const;
+
+protected:
+  // server support --------------------------------------------
+  /**
+   * Allocate a new entry for the given name.
+   *
+   * \param n     Name of the entry, must be copied.
+   * \param flags Entry flags, see Obj::Flags.
+   *
+   * \return A pointer to the newly allocated entry or NULL on error.
+   */
+  virtual Entry *alloc_dynamic_entry(Name const &n, unsigned flags) = 0;
+
+  /**
+   * Free an entry previously allocated with alloc_dynamic_entry().
+   *
+   * \param e  Entry to free.
+   */
+  virtual void free_dynamic_entry(Entry *e) = 0;
+
+  /**
+   * Return a pointer to the epiface assigned to a given label.
+   *
+   * \param[in]  data     Label or in the local case the capability slot of
+   *                      the receiving capability.
+   * \param[in]  is_local If true, a truly local capability was supplied.
+   * \param[out] lo       Pointer to epiface responsible for the capability.
+   *
+   * \return L4_OK if a valid interface could be found or an error message
+   *         otherwise.
+   *
+   * The caller must make sure that the epiface remains valid until
+   * free_epiface is called. In particular, the capability slot must
+   * not be reallocated as long as the namespace server holds a
+   * reference to the epiface.
+   */
+  virtual int get_epiface(l4_umword_t data, bool is_local, L4::Epiface **lo) = 0;
+
+  /**
+   * Return the receive capability for permanent use.
+   *
+   * \param[out] cap Capability slot with the received capability. Must
+   *                 be permanently available until free_capability() is called.
+   */
+  virtual int copy_receive_cap(L4::Cap<void> *cap) = 0;
+
+  /**
+   * Free a capability previously acquired with copy_receive_cap().
+   *
+   * \param[in] cap Capability to free.
+   */
+  virtual void free_capability(L4::Cap<void> cap) = 0;
+
+  /**
+   * Free epiface previously acquired with get_epiface().
+   *
+   * \param[in] epiface Epiface to free.
+   *
+   * Called when an entry that points to an epiface is deleted
+   * allowing implementations that hold resources to free them.
+   */
+  virtual void free_epiface(L4::Epiface *epiface) = 0;
+
+  int insert_entry(Name const &name, unsigned flags, Entry **e);
+
+public:
+  // server interface ------------------------------------------
+  int op_query(L4Re::Namespace::Rights,
+               L4::Ipc::Array_in_buf<char, unsigned long> const &name,
+               L4::Ipc::Snd_fpage &snd_cap, L4::Ipc::Opt<L4::Opcode> &,
+               L4::Ipc::Opt<L4::Ipc::Array_ref<char, unsigned long> > &out_name);
+
+  int op_register_obj(L4Re::Namespace::Rights, unsigned flags,
+                      L4::Ipc::Array_in_buf<char, unsigned long> const &name,
+                      L4::Ipc::Snd_fpage &cap);
+
+  int op_unlink(L4Re::Namespace::Rights r,
+                L4::Ipc::Array_in_buf<char, unsigned long> const &name);
+};
+
+}}}
+

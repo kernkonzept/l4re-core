@@ -1,0 +1,113 @@
+// vi:ft=cpp
+/* \file
+ * Kobject C++ interface.
+ */
+/*
+ * Copyright (C) 2015 Kernkonzept GmbH.
+ * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include "kernel_object.h"
+#include "types.h"
+#include "__typeinfo.h"
+
+namespace L4 {
+
+/**
+ * \ingroup l4_kernel_object_api
+ * Base class for all kinds of kernel objects and remote objects, referenced by
+ * capabilities.
+ *
+ * \includefile{l4/sys/capability}
+ *
+ * This is the base class for all remote objects accessible using RPC.
+ * However, subclasses doe not directly inherit from L4::Kobject but _must_
+ * use L4::Kobject_t (L4::Kobject_0t, L4::Kobject_2t, L4::Kobject_3t,
+ * or L4::Kobject_x) for inheritance, otherwise these classes cannot be used
+ * as RPC interfaces.
+ *
+ * \attention Objects derived from Kobject *must* never add any data to
+ *            those objects. Kobjects can act only as proxy object
+ *            for encapsulating object invocations.
+ */
+class L4_EXPORT Kobject
+{
+private:
+  Kobject();
+  Kobject(Kobject const  &);
+  Kobject &operator = (Kobject const &);
+
+  template<typename T> friend struct Kobject_typeid;
+
+protected:
+  typedef Typeid::Iface<L4_PROTO_META, Kobject> __Iface;
+  typedef Typeid::Iface_list<__Iface> __Iface_list;
+
+ /**
+   * \internal
+   * Get a pointer to the L4Re dynamic type information for this class.
+   *
+   * \note This function is used by L4::kobject_typeid().
+   */
+  struct __Kobject_typeid
+  {
+    typedef Type_info::Demand_t<> Demand;
+    static Type_info const _m;
+  };
+
+  /**
+   * Return capability selector.
+   *
+   * \return Capability selector.
+   *
+   * This method is for derived classes to gain access to the actual
+   * capability selector.
+   */
+  l4_cap_idx_t cap() const throw() { return _c(); }
+
+private:
+
+  /**
+   * \internal
+   * Used to convert the `this` pointer to a capability selector.
+   */
+  l4_cap_idx_t _c() const throw()
+  { return reinterpret_cast<l4_cap_idx_t>(this) & L4_CAP_MASK; }
+
+public:
+  /**
+   * Decrement the in kernel reference counter for the object.
+   *
+   * \param diff  The delta that shall be subtracted from the reference count.
+   * \utcb{utcb}
+   *
+   * This function is intended for servers to be able to remove the servers
+   * own capability from the counted references.  This leads to the semantics
+   * that the kernel will delete the object even if the capability of the
+   * server is valid.  The server can detect the deletion by polling its
+   * capabilities or by using the IPC-gate deletion IRQs.  And to cleanup
+   * if the clients dropped the last reference (capability) to the object.
+   */
+  l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
+  { return l4_kobject_dec_refcnt_u(cap(), diff, utcb); }
+};
+
+template<typename Derived, long PROTO = L4::PROTO_ANY,
+         typename S_DEMAND = Type_info::Demand_t<> >
+struct Kobject_0t : Kobject_t<Derived, L4::Kobject, PROTO, S_DEMAND> {};
+
+}
+

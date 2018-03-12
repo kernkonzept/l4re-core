@@ -1,0 +1,166 @@
+// vi:ft=c
+/**
+
+\page l4re_servers_ned Ned, the Init Process
+
+Ned's job is to bootstrap the system running on L4Re.  The main thing to do
+here is to coordinate the startup of services and applications as well as to
+provide the communication channels for them.  The central facility in Ned is
+the Lua (http://www.lua.org) script interpreter with the L4Re and ELF-loader
+bindings.
+
+The boot process is based on the execution of one or more Lua scripts that
+create communication channels (IPC gates), instantiate other L4Re objects,
+organize capabilities to these objects in sets, and start application processes
+with access to those objects (or based on those objects).
+
+For starting applications, Ned depends on the services of \ref l4re_servers_moe or
+another \em loader, which must provide data spaces and region maps.
+Ned also uses the 'rom' capability as source for Lua scripts and at least
+the 'l4re' binary (the runtime environment core) running in each application.
+
+Each application Ned starts is equipped with an L4Re::Env environment that
+provides information about all the initial objects made accessible to this 
+application.
+
+
+\section l4re_ned_lua_l4re Lua Bindings for L4Re
+
+Ned provides various bindings for L4Re abstractions.  These bindings are
+located in the 'L4' package (\c require \c "L4").
+
+
+\subsection l4re_ned_lua_caps Capabilities in Lua
+
+Capabilities are handled as normal values in Lua. They can be stored in normal
+variables or Lua compound structures (tables).  A capability in Lua possesses
+additional information about the access rights that shall be transfered to
+other tasks when the capability is transfered. To support implementation of the
+Principle of Least Privilege, minimal rights are assigned by default.  Extended
+rights can be added using the method \c mode("...") (short \c m("...")) that
+returns a new reference to the capability with the given rights.
+\note It is generally impossible to elevate the real access rights to an
+object.  This means that if Ned has only restricted rights to an object it is
+not possible to upgrade the access rights with the \c mode method.
+
+The capabilities in Lua also carry dynamic type information about the
+referenced objects. They thereby provide type-specific operations on the
+objects, such as the \c create operation on a generic factory
+or the \c query and \c register operations on a name space.
+
+
+\subsection l4re_ned_lua_l4re_env Access to L4Re::Env Capabilities
+
+The initial objects provided to Ned itself are accessible via the table
+\c L4.Env.  The default (usually unnamed) capabilities are accessible
+as \c factory, \c log, \c mem_alloc, \c parent, \c rm, and \c scheduler in
+the \c L4.Env table.
+
+
+\subsection l4re_ned_lua_consts Constants
+
+\b Protocols
+
+The protocol constants are defined by default in the L4 package's
+table \c L4.Proto.  The definition is not complete and only covers 
+what is usually needed to configure and start applications.  The protocols
+are for example used as first argument to the \c Factory:create method.
+
+\dontinclude "ned.lua"
+\skipline Proto = {
+\until }
+
+\b Debugging \b Flags
+
+Debugging flags used for the applications L4Re core:
+
+\dontinclude "ned.lua"
+\skipline Dbg = {
+\until }
+
+
+\b Loader \b Flags
+
+Flags for configuring the loading process of an application.
+
+\dontinclude "ned.lua"
+\skipline Ldr_flags = {
+\until }
+
+\subsection l4re_ned_startup Application Startup Details
+
+The central facility for starting a new task with Ned is
+the class \c L4.Loader.  This class provides interfaces for conveniently
+configuring and starting programs.  It provides three operations:
+\li \c new_channel() Returns a new IPC gate that can be used to connect
+    two applications
+\li \c start() and \c startv() Start a new application process and return a
+    process object
+
+The \c new_channel() call is used to provide a service application with a
+communication channel to bind its initial service to.  The concrete behavior of
+the object and the number of IPC gates required by a server depends on the
+server implementation.  The channel can the be passed to client applications as
+well or can be used for operations within the script itself.
+
+\c start() and \c startv() always require at least two arguments. The first one
+is a table that contains information about the initial objects an application
+shall get.  The second argument is a string, which for \c start() is the
+program name plus a white-space-separated list of program arguments (argv). For
+\c startv() the second argument is just the program binary name -- which may
+contain spaces --, and the program arguments are provided as separate string
+arguments following the binary name (allowing spaces in arguments, too).  The
+last optional argument is a table containing the POSIX environment variables
+for the program.
+
+The Loader class uses reasonable defaults for most of the initial objects.
+However, you can override any initial object with some user-defined values.
+The main elements of the initial object table are:
+\li \c factory The factory used by the new process to create new kernel objects,
+       such as threads etc.  This must be a capability to an object implementing
+       the L4::Factory protocol and defaults to the factory object provided to
+       Ned.
+\li \c mem The memory allocator provided to the application and used by Ned
+       allocates data spaces for the process.  This defaults to Ned's
+       memory allocator object (see L4Re::Mem_alloc).
+\li \c rm_fab The generic factory object used to allocate the region-map
+       object for the process. (defaults to Ned's memory allocator).
+\li \c log_fab The generic factory to create the L4Re::Log object for the
+       application's output (defaults to Ned's memory allocator).
+       The \c create method of the \c log_fab object is called with
+       \c log_tag and \c log_color, from this table, as arguments.
+\li \c log_tag The string used for tagging log output of this process (defaults
+       to the program name) (see \c log_fab).
+\li \c log_color The color used for the log tag (defaults to "white").
+\li \c scheduler The scheduler object used for the process' threads (defaults
+       to Ned's own scheduler).
+\li \c caps The table with application-specific named capabilities (default is
+       an empty table).  If the table does not contain a capability with the
+       name 'rom', the 'rom' capability from Ned's initial caps is inserted
+       into the table.
+       
+\todo Write more documentation for application startup via Ned
+
+\section l4re_ned_options Command Line Options
+
+Ned's command line syntax is:
+
+    [--interactive|-i] [--noexit] [--execute|-e STATEMENT] <lua script> [options passed to lua script]
+
+Ned interprets the first non-option argument `<lua script>` as the Lua script
+which it should load and run. All arguments following the first non-option
+argument are passed as arguments to the Lua script via Lua's global `arg`
+table.
+
+- Interactive Option: **interactive**, **i**
+
+  Start ned in interactive mode
+
+- No exit Option: **noexit**
+
+  Ned does not terminate if only Return is entered at ned's prompt.
+
+- Execute Statement Option: **execute**, **e**
+
+  Execute the Lua statement `STATEMENT`.
+*/

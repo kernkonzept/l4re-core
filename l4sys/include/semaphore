@@ -1,0 +1,87 @@
+// vi:ft=cpp
+/**
+ * \file
+ * Semaphore class definition.
+ */
+/*
+ * (c) 2015 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/irq>
+#include <l4/sys/semaphore.h>
+
+namespace L4 {
+
+/**
+ * Kernel-provided semaphore object.
+ *
+ * This is the interface for kernel-provided semaphore objects. The
+ * object provides the classical functions `up()` and `down()` for
+ * counting the semaphore and blocking.  The semaphore is a
+ * Triggerable with respect to the `up()` function, this means that a
+ * semaphore can be bound to an interrupt line at an ICU (L4::Icu) and
+ * incoming interrupts increment the semaphore counter.
+ *
+ * The `down()` method decrements the semaphore counter and blocks
+ * if the counter is already zero.  Blocking on a semaphore may---as all
+ * blocking operations---either return sucessfully, or be aborted due to
+ * an expired timeout provided to the `down()` operation, or due to an
+ * L4::Thread::ex_regs() operation with the #L4_THREAD_EX_REGS_CANCEL
+ * flag set.
+ *
+ * The main reason for using a semaphore instead of an L4::Irq is to ensure
+ * that incoming trigger signals do not interfere with any open-wait
+ * operations, as used for example in a server loop.
+ */
+struct Semaphore : Kobject_t<Semaphore, Triggerable, L4_PROTO_SEMAPHORE>
+{
+  /**
+   * Semaphore up operation (wrapper for trigger()).
+   *
+   * \utcb{utcb}
+   *
+   * \return Send-only IPC message return tag. Use l4_ipc_error() to check for
+   *         errors, do **not** use l4_error().
+   *
+   * Increases the semaphore counter by one.
+   */
+  l4_msgtag_t up(l4_utcb_t *utcb = l4_utcb()) throw()
+  { return trigger(utcb); }
+
+  /**
+   * Semaphore down operation.
+   *
+   * \param timeout  Timeout for blocking the semaphore down operation.
+   *                 Note: The receive timeout of this timeout-pair is
+   *                 significant for blocking, the send part is usually
+   *                 non-blocking.
+   * \utcb{utcb}
+   *
+   * \return IPC message return tag. Use l4_ipc_error() to check for
+   *         a timeout or a cancel condition.
+   *
+   * This method decrements the semaphore counter by one, or blocks if the
+   * counter is already zero, until either a timeout or cancel condition hits
+   * or the counter is increased by an `up()` operation.
+   */
+  l4_msgtag_t down(l4_timeout_t timeout = L4_IPC_NEVER,
+                   l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_semaphore_down_u(cap(), timeout, utcb);  }
+};
+
+}

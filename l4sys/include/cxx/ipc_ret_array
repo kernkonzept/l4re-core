@@ -1,0 +1,116 @@
+// vi:ft=cpp
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include "types"
+#include "ipc_basics"
+
+namespace L4 { namespace Ipc L4_EXPORT L4_EXPORT {
+
+// ---------------------------------------------------------------
+/**
+ * Dynamically sized output array of type T.
+ * \tparam T  The data-type of each array element.
+ *
+ * Ret_array<> is a special dynamically sized output array
+ * where the number of transmitted elements is passed in
+ * the return value of the call (if positive)
+ */
+template<typename T> struct L4_EXPORT Ret_array
+{
+  typedef T const **ptr_type;
+
+  T *value;
+  unsigned max;
+  Ret_array() {}
+  Ret_array(T *v, unsigned max) : value(v), max(max) {}
+};
+
+namespace Msg {
+
+template<typename A> struct Elem< Ret_array<A> >
+{
+  enum { Is_optional = false };
+  typedef Ret_array<A> type;
+  typedef typename type::ptr_type arg_type;
+  typedef type svr_type;
+  typedef type svr_arg_type;
+};
+
+template<typename A>
+struct Is_valid_rpc_type<Ret_array<A> *> : L4::Types::False {};
+template<typename A>
+struct Is_valid_rpc_type<Ret_array<A> &> : L4::Types::False {};
+template<typename A>
+struct Is_valid_rpc_type<Ret_array<A> const &> : L4::Types::False {};
+template<typename A>
+struct Is_valid_rpc_type<Ret_array<A> const *> : L4::Types::False {};
+
+template<typename A> struct Class< Ret_array<A> > : Class<A>::type {};
+template<typename A> struct Direction< Ret_array<A> > : Dir_out {};
+
+template<typename A, typename CLASS>
+struct Clnt_val_ops<A const *, Dir_out, CLASS> : Clnt_noops<A const *>
+{
+  using Clnt_noops<A const *>::from_msg;
+  static int from_msg(char *msg, unsigned offset, unsigned limit, long ret,
+                      A const *&arg, Dir_out, Cls_data)
+  {
+    offset = align_to<A>(offset);
+    arg = reinterpret_cast<A const *>(msg + offset);
+    if (L4_UNLIKELY(!check_size<A>(offset, limit, ret)))
+      return -1;
+
+    return offset + ret * sizeof(A);
+  }
+};
+
+template<typename A, typename CLASS>
+struct Svr_val_ops<Ret_array<A>, Dir_out, CLASS> :
+  Svr_noops<Ret_array<A> >
+{
+  typedef Ret_array<A> ret_array;
+  using Svr_noops<ret_array>::from_svr;
+  static int from_svr(char *, unsigned offset, unsigned limit, long ret,
+                      ret_array const &, Dir_out, CLASS)
+  {
+    offset = align_to<A>(offset);
+    if (L4_UNLIKELY(!check_size<A>(offset, limit, ret)))
+      return -1;
+    offset += sizeof(A) * ret;
+    return offset;
+  }
+
+  using Svr_noops<ret_array>::to_svr;
+  static int to_svr(char *msg, unsigned offset, unsigned limit,
+                    ret_array &arg, Dir_out, CLASS)
+  {
+    // there can be actually no limit check here, as this
+    // is variably sized output array
+    // FIXME: we could somehow makesure that this is the last
+    //        output value...
+    offset = align_to<A>(offset);
+    arg = ret_array(reinterpret_cast<A*>(msg + offset),
+                    (limit - offset) / sizeof(A));
+    // FIXME: we dont know the length of the array here so, cheat
+    return offset;
+  }
+};
+} // namespace Msg
+
+}}

@@ -1,0 +1,380 @@
+// vi:ft=cpp
+/*
+ * Copyright (C) 2015 Kernkonzept GmbH.
+ * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include "ipc_epiface"
+
+namespace L4 {
+
+/**
+ * \ingroup client_server_ipc
+ *
+ * Server-Side framework for implementing object-oriented servers.´
+ * \defgroup cxx_ipc_server Server-Side IPC framework
+ */
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Helper classes for L4::Server instantiation.
+ */
+namespace Ipc_svr {
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Reply mode for server loop.
+ *
+ * The reply mode specifies if the server loop shall do a compound reply
+ * and wait operation (#Reply_compound), which is the most performant
+ * method.  Note, setup_wait() is called before the reply.  The other
+ * way is to call reply and wait separately and call setup_wait in between.
+ *
+ * The actual mode is determined by the return value of the before_reply()
+ * hook in the LOOP_HOOKS of L4::Server.
+ */
+enum Reply_mode
+{
+  Reply_compound, ///< Server shall use a compound reply and wait (fast).
+  Reply_separate  ///< Server shall call reply and wait separately.
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Mix in for LOOP_HOOKS to ignore IPC errors.
+ */
+struct Ignore_errors
+{ static void error(l4_msgtag_t, l4_utcb_t *) {} };
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Mix in for LOOP_HOOKS to use a 0 send and a infinite receive timeout.
+ */
+struct Default_timeout
+{ static l4_timeout_t timeout() { return L4_IPC_SEND_TIMEOUT_0; } };
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Mix in for LOOP_HOOKS to always use compound reply and wait.
+ */
+struct Compound_reply
+{
+  static Reply_mode before_reply(l4_msgtag_t, l4_utcb_t *)
+  { return Reply_compound; }
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Mix in for LOOP_HOOKS for setup_wait no op.
+ */
+struct Default_setup_wait
+{ static void setup_wait(l4_utcb_t *, Reply_mode) {} };
+
+/**
+ * DEPRECATED
+ * \ingroup cxx_ipc_server
+ * \deprecated Use L4::Ipc_svr::Timeout_queue_hooks
+ */
+template< typename HOOKS >
+class Timed_work : public HOOKS
+{
+protected:
+  l4_cpu_time_t _timeout;
+
+public:
+  Timed_work()
+  : _timeout(HOOKS::next_timeout(HOOKS::current_time())) {}
+
+  l4_timeout_t timeout()
+  {
+    return l4_timeout(L4_IPC_TIMEOUT_0,
+                      l4_timeout_abs(_timeout, this->timeout_br()));
+  }
+
+  void setup_wait(l4_utcb_t *utcb, Reply_mode mode)
+  {
+    if (_timeout <= this->current_time()
+        && mode == Reply_separate)
+      {
+	this->work();
+        _timeout = this->next_timeout(_timeout);
+      }
+    HOOKS::setup_wait(utcb, mode);
+  }
+
+  Reply_mode before_reply(l4_msgtag_t, l4_utcb_t *)
+  {
+    if (_timeout <= this->current_time())
+      return Reply_separate;
+    return Reply_compound;
+  }
+};
+
+/**
+ * Direct disptach helper, for forwarding dispatch calls
+ * a registry \a R.
+ * \tparam R  Data type of the registry that is used for dispatching to
+ *            different server objects, usually based on the protected IPC
+ *            label.
+ */
+template< typename R >
+struct Direct_dispatch
+{
+  /// stores a reference to the registry object
+  R &r;
+
+  /// Make a direct dispatcher
+  Direct_dispatch(R &r) : r(r) {}
+
+  /// call operator forwarding to r.dispatch()
+  l4_msgtag_t operator () (l4_msgtag_t tag, l4_umword_t obj, l4_utcb_t *utcb)
+  { return r.dispatch(tag, obj, utcb); }
+};
+
+/**
+ * Direct disptach helper, for forwarding dispatch calls via a pointer to
+ * a registry \a R.
+ * \tparam R  Data type of the registry that is used for dispatching to
+ *            different server objects, usually based on the protected IPC
+ *            label.
+ */
+template< typename R >
+struct Direct_dispatch<R*>
+{
+  /// stores a pointer to the registry object
+  R *r;
+
+  /// Make a direct dispatcher
+  Direct_dispatch(R *r) : r(r) {}
+
+  /// call operator forwarding to r->dispatch()
+  l4_msgtag_t operator () (l4_msgtag_t tag, l4_umword_t obj, l4_utcb_t *utcb)
+  { return r->dispatch(tag, obj, utcb); }
+};
+
+#ifdef __EXCEPTIONS
+/**
+ * Dispatch helper wrapping try {} catch {} around the dispatch call.
+ * \tparam R    Data type of the registry used for dispatching to objects.
+ * \tparam Exc  Data type of the exceptions that shall be catched.
+ *              This data type must provide a member err_no() that returns
+ *              the negative integer (int) error code for the exception.
+ *
+ * This dispatcher wraps Direct_dispatch<R> with a try-catch (Exc).
+ */
+template< typename R, typename Exc> // = L4::Runtime_error>
+struct Exc_dispatch : private Direct_dispatch<R>
+{
+  /// Make en exception handling dispatcher
+  Exc_dispatch(R r) : Direct_dispatch<R>(r) {}
+
+  /**
+   * Dispatch the call via Direct_dispatch<R>() and handle exceptions.
+   */
+  l4_msgtag_t operator () (l4_msgtag_t tag, l4_umword_t obj, l4_utcb_t *utcb)
+  {
+    try
+      {
+        return Direct_dispatch<R>::operator () (tag, obj, utcb);
+      }
+    catch (Exc &e)
+      {
+        return l4_msgtag(e.err_no(), 0, 0, 0);
+      }
+  }
+};
+#endif
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Empty implementation of Server_iface.
+ *
+ * This implementation of Server_iface provides no buffer or timeout management
+ * at all it just returns errors for all calls that express other than empty
+ * demands.  However, this may be useful for very simple servers that serve
+ * simple server objects only.
+ */
+class Br_manager_no_buffers : public Server_iface
+{
+public:
+  /**
+   * \copydoc  Server_iface::alloc_buffer_demand()
+   * \return success (0) if demand is empty, -L4_ENOMEM else.
+   */
+  int alloc_buffer_demand(Demand const &demand)
+  {
+    if (!demand.no_demand())
+      return -L4_ENOMEM;
+    return L4_EOK;
+  }
+
+  /// Returns L4::Cap<void>::Invalid, we have no buffer management
+  L4::Cap<void> get_rcv_cap(int) const
+  { return L4::Cap<void>::Invalid; }
+
+  /// Returns -L4_ENOMEM, we have no buffer management
+  int realloc_rcv_cap(int)
+  { return -L4_ENOMEM; }
+
+  /// Returns -L4_ENOSYS, we have no timeout queue
+  int add_timeout(Timeout *, l4_kernel_clock_t)
+  { return -L4_ENOSYS; }
+
+  /// Returns -L4_ENOSYS, we have no timeout queue
+  int remove_timeout(Timeout *)
+  { return -L4_ENOSYS; }
+
+protected:
+  /// Returns 1 as first free buffer
+  unsigned first_free_br() const
+  { return 1; }
+
+  /// Setup wait function for the server loop (Server<>).
+  void setup_wait(l4_utcb_t *utcb, L4::Ipc_svr::Reply_mode)
+  {
+    l4_buf_regs_t *br = l4_utcb_br_u(utcb);
+    br->bdr = 0;
+    br->br[0] = 0;
+  }
+};
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Default LOOP_HOOKS.
+ *
+ * Combination of Ignore_errors, Default_timeout, Compound_reply,
+ * and Br_manager_no_buffers.
+ */
+struct Default_loop_hooks :
+  public Ignore_errors, public Default_timeout, public Compound_reply,
+  Br_manager_no_buffers
+{};
+
+}
+
+/**
+ * \ingroup cxx_ipc_server
+ *
+ * Basic server loop for handling client requests.
+ * \param LOOP_HOOKS the server inherits from LOOP_HOOKS and calls the
+ *        hooks defined in LOOP_HOOKS in the server loop.
+ *        See Ipc_svr::Default_loop_hooks, Ipc_svr::Ignore_errors,
+ *        Ipc_svr::Default_timeout, Ipc_svr::Compound_reply, and
+ *        Ipc_svr::Br_manager_no_buffers.
+ *
+ * This is basically a simple server loop that uses a single message buffer
+ * for receiving requests and sending replies. The dispatcher determines
+ * how incoming messages are handled.
+ */
+template< typename LOOP_HOOKS = Ipc_svr::Default_loop_hooks >
+class Server :
+  public LOOP_HOOKS
+{
+public:
+  /**
+   * Initializes the server loop.
+   * \param utcb The UTCB of the thread running the server loop.
+   */
+  explicit Server(l4_utcb_t *utcb) : _utcb(utcb) {}
+
+  /**
+   * The server loop.
+   *
+   * This function usually never returns, it waits for
+   * incoming messages calls the dispatcher, sends a reply and waits again.
+   */
+  template< typename DISPATCH >
+  inline L4_NORETURN void internal_loop(DISPATCH dispatch);
+
+  /**
+   * Server loop without exception handling.
+   */
+  template< typename R >
+  inline L4_NORETURN void loop_noexc(R r)
+  { internal_loop(Ipc_svr::Direct_dispatch<R>(r)); }
+#ifdef __EXCEPTIONS
+  /**
+   * Server loop with internal exception handling.
+   *
+   * This server loop translates L4::Runtime_error exceptions
+   * into negative error return codes sent to the caller.
+   */
+  template< typename EXC, typename R >
+  inline L4_NORETURN void loop(R r)
+  { internal_loop(Ipc_svr::Exc_dispatch<R, EXC>(r)); while(1) ; }
+#endif
+protected:
+  /// Internal implementation for reply and wait
+  inline l4_msgtag_t reply_n_wait(l4_msgtag_t reply, l4_umword_t *p);
+
+public:
+  l4_utcb_t *_utcb;
+};
+
+template< typename L >
+inline l4_msgtag_t
+Server<L>::reply_n_wait(l4_msgtag_t reply, l4_umword_t *p)
+{
+  if (reply.label() != -L4_ENOREPLY)
+    {
+      Ipc_svr::Reply_mode m = this->before_reply(reply, _utcb);
+      if (m == Ipc_svr::Reply_compound)
+        {
+          this->setup_wait(_utcb, m);
+          return l4_ipc_reply_and_wait(_utcb, reply, p, this->timeout());
+        }
+      else
+        {
+          l4_msgtag_t res = l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY, _utcb, reply, this->timeout());
+          if (res.has_error())
+            return res;
+        }
+    }
+  this->setup_wait(_utcb, Ipc_svr::Reply_separate);
+  return l4_ipc_wait(_utcb, p, this->timeout());
+}
+
+template< typename L >
+template< typename DISPATCH >
+inline L4_NORETURN void
+Server<L>::internal_loop(DISPATCH dispatch)
+{
+  l4_msgtag_t res;
+  l4_umword_t p;
+  l4_msgtag_t r = l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
+
+  while (true)
+    {
+      res = reply_n_wait(r, &p);
+      if (res.has_error())
+        {
+          this->error(res, _utcb);
+          r = l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
+          continue;
+        }
+
+      r = dispatch(res, p, _utcb);
+    }
+}
+
+} // namespace L4

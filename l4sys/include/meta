@@ -1,0 +1,80 @@
+// vi:ft=cpp
+/**
+ * \file
+ * Meta interface for getting dynamic type information about objects behind
+ * capabilities.
+ */
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include "kobject"
+#include "cxx/ipc_iface"
+#include "cxx/ipc_string"
+
+namespace L4 {
+
+/**
+ * Meta interface that shall be implemented by each L4Re object
+ * and gives access to the dynamic type information for L4Re objects.
+ */
+class Meta : public Kobject_t<Meta, Kobject, L4_PROTO_META>
+{
+public:
+  /**
+   * Get the number of interfaces implemented by this object.
+   *
+   * \retval l4_msgtag_t::label() >= 0  The number of supported interfaces.
+   * \retval l4_msgtag_t::label() < 0   Error code of the occurred error.
+   */
+  L4_INLINE_RPC(l4_msgtag_t, num_interfaces, ());
+
+  /**
+   * Get the protocol number that must be used for the interface with
+   * the number `idx`.
+   *
+   * \param      idx    The index of the interface to get the protocol
+   *                    number for. `idx` must be >= 0 and < the return
+   *                    value of num_interfaces().
+   * \param[out] proto  The protocol number for interface `idx`.
+   * \param[out] name   The protocol name for interface `idx`.
+   *
+   * \retval l4_msgtag_t::label() == 0  Successful; see `proto` and `name`.
+   * \retval l4_msgtag_t::label() < 0   Error code.
+   */
+  L4_INLINE_RPC(l4_msgtag_t, interface, (l4_umword_t idx, long *proto,
+                                         L4::Ipc::String<char> *name));
+
+  /**
+   * Figure out if the object supports the given protocol (number).
+   *
+   * \param protocol  The protocol number to check for.
+   *
+   * \retval l4_msgtag_t::label() == 1  protocol is supported.
+   * \retval l4_msgtag_t::label() == 0  protocol is not supported.
+   *
+   * This method is intended to be used for statically assigned protocol
+   * numbers.
+   */
+  L4_INLINE_RPC(l4_msgtag_t, supports, (l4_mword_t protocol));
+
+  typedef L4::Typeid::Rpcs<num_interfaces_t, interface_t, supports_t> Rpcs;
+};
+
+}

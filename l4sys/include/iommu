@@ -1,0 +1,47 @@
+// vi:ft=cpp
+/* \file
+ * IO-MMU interface description.
+ */
+#pragma once
+
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4 {
+/**
+ * Interface for IO-MMUs used for DMA remapping.
+ *
+ * This interface allows to associate a DMA address space
+ * with a platform dependent set of devices.
+ */
+class Iommu :
+  public Kobject_x<Iommu, Proto_t<L4_PROTO_IOMMU>, Type_info::Demand_t<1> >
+{
+public:
+  /**
+   * Associate `dma_space` with the set of device(s) specified by `src_id`.
+   *
+   * \param src_id     Platform dependent source ID specifying the set of
+   *                   devices that shall use `dma_space` for DMA remapping.
+   * \param dma_space  The DMA space (L4::Task created with
+   *                   L4_PROTO_DMA_SPACE) providing the mappings that
+   *                   shall be used for the device(s).
+   */
+  L4_INLINE_RPC(
+      l4_msgtag_t, bind, (l4_uint64_t src_id, Ipc::Cap<Task> dma_space));
+
+  /**
+   * Remove the association of the given DMA address space from the
+   * device(s) specified by `src_id`.
+   *
+   * \param src_id     Platform dependent source ID specifying the set of
+   *                   devices that shall no longer use `dma_space` for
+   *                   DMA remapping.
+   * \param dma_space  The DMA space formerly associated with associate().
+   */
+  L4_INLINE_RPC(
+      l4_msgtag_t, unbind, (l4_uint64_t src_id, Ipc::Cap<Task> dma_space));
+
+  typedef Typeid::Rpcs_code<l4_umword_t>::F<bind_t, unbind_t> Rpcs;
+};
+
+}

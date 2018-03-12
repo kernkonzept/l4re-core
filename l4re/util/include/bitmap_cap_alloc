@@ -1,0 +1,122 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file   bitmap_cap_alloc
+ * \brief  Bitmap capability allocator
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/util/item_alloc>
+#include <l4/sys/capability>
+#include <l4/sys/task.h>
+
+namespace L4Re { namespace Util {
+
+/**
+ * \brief Capability allocator.
+ * \ingroup api_l4re_util
+ */
+class Cap_alloc_base
+{
+private:
+  long _bias;
+  Item_alloc_base _items;
+
+public:
+  enum State { Free = 0, Allocated, Unknown };
+  Cap_alloc_base(long max, void *mem, long bias = 0)
+    throw() : _bias(bias), _items(max, mem) {}
+
+  L4::Cap<void> alloc() throw()
+  {
+    long cap = _items.alloc();
+    if (cap < 0)
+      return L4::Cap<void>::Invalid;
+
+    return L4::Cap<void>((cap + _bias) << L4_CAP_SHIFT);
+  }
+
+  long hint() const { return _items.hint(); }
+
+  /**
+   * \brief Allocate a capability slot.
+   */
+  template< typename T >
+  L4::Cap<T> alloc() throw()
+  { return L4::Cap<T>(alloc().cap()); }
+
+  State is_allocated(L4::Cap<void> c) const throw()
+  {
+    long idx = (c.cap() >> L4_CAP_SHIFT);
+
+    if (idx < _bias)
+      return Unknown;
+
+    idx -= _bias;
+    return _items.is_allocated(idx) ? Allocated : Free;
+  }
+
+  /**
+   * \brief Free a capability slot.
+   */
+  template< typename T>
+  void free(L4::Cap<T> const &cap, l4_cap_idx_t task = -1UL,
+            l4_umword_t unmap_flags = L4_FP_ALL_SPACES) throw()
+  {
+    long idx = (cap.cap() >> L4_CAP_SHIFT);
+    if (idx < _bias)
+      return;
+
+    idx -= _bias;
+
+    _items.free(idx);
+
+    if (task != -1UL)
+      l4_task_unmap(task, cap.fpage(), unmap_flags | 2);
+  }
+
+  // since we hav no counters assume couter always > 0
+  void take(L4::Cap<void>) throw() {}
+  bool release(L4::Cap<void>, l4_cap_idx_t task = L4_INVALID_CAP,
+               unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
+  { (void)task; (void)unmap_flags; return false; }
+
+  long last() throw()
+  {
+    return _items.size() + _bias - 1;
+  }
+};
+
+template< long Size >
+class Cap_alloc : public Cap_alloc_base
+{
+private:
+  typename Bitmap_base::Word<Size>::Type _bits[Bitmap_base::Word<Size>::Size];
+
+public:
+  explicit Cap_alloc(long bias = 0) throw()
+    : Cap_alloc_base(Size, _bits, bias) {}
+
+};
+
+}
+}

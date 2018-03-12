@@ -1,0 +1,103 @@
+// vim: set ft=cpp :
+/*
+ * (c) 2014 Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
+ *
+ * This file is licensed under the terms of the GNU Lesser General
+ * Public License 2.1.
+ * See the file COPYING-LGPL-2.1 for details.
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/ipc_string>
+#include <l4/re/protocols.h>
+
+namespace L4Re {
+
+/**
+ * \brief Set of inhibitor locks, which inhibit specific actions when held.
+ *
+ * This interface provides access to a set of inhibitor locks, each determined
+ * by an ID that is specific to the Inhibitor object. Each individual lock
+ * shall prevent, a specific (implementation defined) action to be executed, as
+ * long as the lock is held.
+ *
+ * For example there can be an inhibitor lock to prevent a transition to
+ * suspend-to-RAM state and a different one to prevent shutdown.
+ *
+ * A client shall take an inhibitor lock if it needs to execute code
+ * before the action is taken. For example a lock-screen application shall grab
+ * an inhibitor lock for the suspend action to be able to lock the screen
+ * before the system goes to sleep.
+ *
+ * Inhibitor locks are usually closely related to specific events. Usually a
+ * server automatically subscribes a client holding a lock to the corresponding
+ * event. The server shall send the event to inform the client that an action
+ * is pending. Upon reception of the event, the client is supposed to release
+ * the corresponding inhibitor lock.
+ */
+class Inhibitor :
+  public L4::Kobject_t<Inhibitor, L4::Kobject, L4RE_PROTO_INHIBITOR>
+{
+public:
+  enum
+  {
+    Name_max = 20 ///< The maximum length of a lock's name.
+  };
+
+  /**
+   * \brief Acquire a specific inhibitor lock.
+   *
+   * \param id      ID of the inhibitor lock that the client intends to acquire
+   * \param reason  The reason why you need the lock. Used for informing the
+   *                user or debugging.
+   *
+   * \retval 0           Success
+   * \retval -L4_ENODEV  The specified `id` does not exist.
+   */
+  L4_INLINE_RPC(long, acquire, (l4_umword_t id, L4::Ipc::String<> reason));
+
+  /**
+   * \brief Release a specific inhibitor lock.
+   *
+   * \param id  The ID of the inhibitor lock to release.
+   *
+   * \retval 0           Success
+   * \retval -L4_ENODEV  Lock with the given `id` does not exist.
+   */
+  L4_INLINE_RPC(long, release, (l4_umword_t id));
+
+  /**
+   * \brief Get information for the next available inhibitor lock.
+   *
+   * \param name        A pointer to a buffer for the name of the lock.
+   * \param len         The length of the available buffer (usually #Name_max
+   *                    is used)
+   * \param current_id  The ID of the last available lock, use -1 to get the
+   *                    first lock.
+   * \param utcb        The UTCB to use for the message.
+   *
+   * \retval >0          The ID of the next available lock if there is one (in
+   *                     this case `name` shall contain the name of the
+   *                     inhibitor lock).
+   * \retval -L4_ENODEV  There are no more locks.
+   */
+  long next_lock_info(char *name, unsigned len, l4_mword_t current_id = -1,
+                      l4_utcb_t *utcb = l4_utcb())
+  {
+    L4::Ipc::String<char> name_buf(len , name);
+    long r = next_lock_info_t::call(c(), &current_id, name_buf, utcb);
+    if (r < 0)
+      return r;
+
+    return current_id;
+  }
+
+  L4_INLINE_RPC_NF(long, next_lock_info, (L4::Ipc::In_out<l4_mword_t *> current_id,
+                                          L4::Ipc::String<char> &name));
+
+  typedef L4::Typeid::Rpcs<acquire_t, release_t, next_lock_info_t> Rpcs;
+};
+
+}

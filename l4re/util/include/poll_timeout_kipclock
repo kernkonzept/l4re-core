@@ -1,0 +1,85 @@
+/*
+ * (c) 2012 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *     economic rights: Technische Universität Dresden (Germany)
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU Lesser General Public License 2.1.
+ * Please see the COPYING-LGPL-2.1 file for details.
+ */
+#pragma once
+
+#include <cassert>
+#include <l4/sys/kip.h>
+#include <l4/re/env.h>
+
+namespace L4 {
+
+/**
+ * \brief A polling timeout based on the L4Re clock.
+ *
+ * This class allows to conveniently add a timeout to a polling loop.
+ *
+ * The original
+ * ~~~{.cpp}
+ * while (device.read(State) & Busy)
+ *   ;
+ * ~~~
+ *
+ * is converted to
+ *
+ * ~~~{.cpp}
+ * Poll_timeout_kipclock timeout(10000);
+ * while (timeout.test(device.read(State) & Busy))
+ *   ;
+ * if (timeout.timed_out())
+ *   printf("ERROR: Device does not respond.\n");
+ * ~~~
+ */
+class Poll_timeout_kipclock
+{
+public:
+  /**
+   * \brief Initialise relative timeout in microseconds
+   * \param poll_time_us  Polling timeout in microseconds.
+   */
+  Poll_timeout_kipclock(unsigned poll_time_us)
+  {
+    set(poll_time_us);
+  }
+
+  /**
+   * \brief (Re-)Set relative timeout in microseconds
+   * \param poll_time_us  Polling timeout in microseconds.
+   */
+  void set(unsigned poll_time_us)
+  {
+    _timeout = l4_kip_clock(l4re_kip()) + poll_time_us;
+    _last_check = true;
+  }
+
+  /** \brief Test whether timeout has expired
+   * \param expression Optional expression.
+   *
+   * \retval false  The timeout has expired or the given expression returned
+   *                false.
+   * \retval true   The timeout has not expired and the optionally given
+   *                expression returns true.
+   */
+  bool test(bool expression = true)
+  {
+    if (!expression)
+      return false;
+
+    return _last_check = l4_kip_clock(l4re_kip()) < _timeout;
+  }
+
+  /**
+   * \brief Query whether timeout has expired
+   * \return Expiry state of timeout
+   */
+  bool timed_out() const { return !_last_check; }
+
+private:
+  l4_cpu_time_t _timeout;
+  bool _last_check;
+};
+}

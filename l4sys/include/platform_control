@@ -1,0 +1,101 @@
+// vi:ft=cpp
+/**
+ * \file
+ * Platform control object.
+ */
+/*
+ * (c) 2014 Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
+ *          Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *          Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/platform_control.h>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4 {
+
+/**
+ * L4 C++ interface for controlling platform-wide properties.
+ *
+ * Add
+ *
+ *     #include <l4/sys/platform_control>
+ *
+ * to your code to use the platform control functions. The API allows a
+ * client to suspend, reboot or shutdown the system.
+ *
+ * For the C interface refer to the \ref l4_platform_control_api.
+ */
+class L4_EXPORT Platform_control
+: public Kobject_t<Platform_control, Kobject, L4_PROTO_PLATFORM_CTL>
+{
+public:
+  /// Opcodes for platform-control object.
+  enum Opcode
+  {
+    Suspend  = L4_PLATFORM_CTL_SYS_SUSPEND_OP, ///< Opcode for suspend to RAM
+    Shutdown = L4_PLATFORM_CTL_SYS_SHUTDOWN_OP,///< Opcode for shutdown / reboot
+    Cpu_enable  = L4_PLATFORM_CTL_CPU_ENABLE_OP,  ///< Opcode to enable a CPU
+    Cpu_disable = L4_PLATFORM_CTL_CPU_DISABLE_OP  ///< Opcode to disable a CPU
+  };
+
+  /**
+   * Enter suspend to RAM.
+   *
+   * \param extras  some extra platform-specific information needed to enter
+   *                suspend to RAM.
+   */
+  L4_INLINE_RPC_OP(L4_PLATFORM_CTL_SYS_SUSPEND_OP,
+                   l4_msgtag_t, system_suspend, (l4_umword_t extras));
+
+  /**
+   * Shutdown/Reboot the system.
+   *
+   * \param reboot 1 for reboot, 0 for power off
+   */
+  L4_INLINE_RPC_OP(L4_PLATFORM_CTL_SYS_SHUTDOWN_OP,
+                   l4_msgtag_t, system_shutdown, (l4_umword_t reboot));
+
+  /**
+   * Enable an offline CPU.
+   *
+   * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to enable.
+   *
+   * \return System call message tag
+   */
+  L4_INLINE_RPC_OP(L4_PLATFORM_CTL_CPU_ENABLE_OP,
+                   l4_msgtag_t, cpu_enable, (l4_umword_t phys_id));
+
+  /**
+   * Disable an online CPU.
+   *
+   * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to disable.
+   *
+   * \return System call message tag
+   */
+  L4_INLINE_RPC_OP(L4_PLATFORM_CTL_CPU_DISABLE_OP,
+                   l4_msgtag_t, cpu_disable, (l4_umword_t phys_id));
+
+  typedef L4::Typeid::Rpcs_sys<system_suspend_t, system_shutdown_t,
+                               cpu_enable_t, cpu_disable_t> Rpcs;
+};
+
+}
+

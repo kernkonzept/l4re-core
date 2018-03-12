@@ -1,0 +1,787 @@
+// vi:ft=cpp
+/*
+ * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+#pragma GCC system_header
+
+#include <l4/sys/cxx/ipc_basics>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/__typeinfo.h>
+
+/**
+ * \file l4/sys/cxx/ipc_iface  Interface Definition Language
+ * \sa L4_RPC, L4_INLINE_RPC, L4::Ipc::Call L4::Ipc::Send_only,
+ *     L4::Ipc::Msg::Rpc_call, L4::Ipc::Msg::Rpc_inline_call
+ *
+ *
+ */
+
+/**
+ * \page l4_cxx_ipc_iface Interface Definition Language
+ *
+ * An interface definition in L4Re is normally declared as a class
+ * derived from L4::Kobject_t. For example, the simple calculator
+ * example declares its interface like that:
+ *
+ * ~~~{.cpp}
+ * struct Calc : L4::Kobject_t<Calc, L4::Kobject>
+ * {
+ *   L4_INLINE_RPC(int, sub, (l4_uint32_t a, l4_uint32_t b, l4_uint32_t *res));
+ *   L4_INLINE_RPC(int, neg, (l4_uint32_t a, l4_uint32_t *res));
+ *
+ *   typedef L4::Typeid::Rpcs<sub_t, neg_t> Rpcs;
+ * };
+ * ~~~
+ *
+ *
+ * The signature of each function is first declared using on of the RPC
+ * macros (see below) and then all the functions need to be listed in the
+ * Rpcs type.
+ *
+ * \section l4_cxx_ipc_iface_types Parameter types for RPC
+ *
+ * Generally all value parameters, const reference parameters,
+ * and const pointer parameters to an RPC interface are considered as input
+ * parameters for the RPC and are transmitted from the client to the server.
+ * \note This means that `char const *` is treated as an input `char` and not
+ *       as a zero terminated string value, for strings see L4::Ipc::String<>.
+ *
+ * Parameters that are non-const references or non-const pointers are treated
+ * as output parameters going from the server to the client.
+ *
+ * ~~~~~~{.cpp}
+ * L4_RPC(long, test, (int arg1, char const *arg2, unsigned *ret1));
+ * ~~~~~~
+ *
+ * The example shows the declaration of a method called `test` with `long`
+ * as return type, `arg1` is an `int` input, `arg2` a `char` input, and
+ * `ret1` an `unsigned` output parameter.
+ *
+ * | Type                             | Direction | Client-Type       | Server-Type            |
+ * |:---------------------------------|:----------|:------------------|:-----------------------|
+ * | `T`                              | Input     | `T`               | `T`                    |
+ * | `T const &`                      | Input     | `T const &`       | `T const &`            |
+ * | `T const *`                      | Input     | `T const *`       | `T const &`            |
+ * | `T &`                            | Output    | `T &`             | `T &`                  |
+ * | `T *`                            | Output    | `T *`             | `T &`                  |
+ * | `L4::Ipc::In_out<T &>`           | In/Out    | `T &`             | `T &`                  |
+ * | `L4::Ipc::In_out<T *>`           | In/Out    | `T *`             | `T &`                  |
+ * | `L4::Ipc::Cap<T>`                | Input     | `L4::Ipc::Cap<T>` | `L4::Ipc::Snd_fpage`   |
+ * | `L4::Ipc::Out<L4::Cap<T> >`      | Output    | `L4::Cap<T>`      | `L4::Ipc::Cap<T> &`    |
+ *
+ * Array types can be used to transmit arrays of variable length. They can
+ * either be stored in a client-provided buffer (L4::Ipc::Array), copied into
+ * a server-provided buffer (L4::Ipc::Array_in_buf) or directly read and written
+ * into the UTCB (L4::Ipc::Array_ref). For latter type, the start
+ * position of an array type needs to be known in advance. That implies that
+ * only one such array can be transmitted per direction and it must be the
+ * last part in the message.
+ *
+ * | Type                      | Direction | Client-Type               | Server-Type                       |
+ * |:--------------------------|:----------|:--------------------------|:----------------------------------|
+ * | `L4::Ipc::Array<const T>` | Input     | `L4::Ipc::Array<const T>` | `L4::Ipc::Array_ref<const T>`     |
+ * | `L4::Ipc::Array<const T>` | Input     | `L4::Ipc::Array<const T>` | `L4::Ipc::Array_in_buf<T> const &`|
+ * | `L4::Ipc::Array<T> &`     | Output    | `L4::Ipc::Array<T> &`     | `L4::Ipc::Array_ref<T> &`         |
+ * | `L4::Ipc::Array_ref<T> &` | Output    | `L4::Ipc::Array_ref<T> &` | `L4::Ipc::Array_ref<T> &`         |
+ *
+ *
+ * Finally, there are some optional types where the sender can choose
+ * if the parameter should be included in the message. These types are for
+ * the implementation of some legacy message formats and should generally
+ * not be needed for the definition of ordinary interfaces.
+ *
+ * | Type                           | Direction | Client-Type              | Server-Type                    |
+ * |:-------------------------------|:----------|:-------------------------|:-------------------------------|
+ * | `L4::Ipc::Opt<T>`              | Input     | `L4::Ipc::Opt<T>`        | `T`                            |
+ * | `L4::Ipc::Opt<const T*>`       | Input     | `L4::Ipc::Opt<const T*>` | `T`                            |
+ * | `L4::Ipc::Opt<T &>`            | Output    | `T &`                    | `L4::Ipc::Opt<T> &`            |
+ * | `L4::Ipc::Opt<T *>`            | Output    | `T *`                    | `L4::Ipc::Opt<T> &`            |
+ * | `L4::Ipc::Opt<Array_ref<T> &>` | Output    | `Array_ref<T> &`         | `L4::Ipc::Opt<Array_ref<T>> &` |
+ *
+ * \section l4_cxx_ipc_iface_return_types RPC Return Types
+ *
+ * On the server side, the return type of an RPC handling function is always
+ * `long`. The return value is transmitted via the label field in l4_msgtag_t
+ * and is therefore restricted to its length. Per convention, a negative
+ * return value is interpreted as an error condition. If the return value
+ * is negative, output parameters are not transmitted back to the client.
+ *
+ * \attention The client must never rely on the content of output parameters
+ *            when the return value is negative.
+ *
+ * On the client-side, the return value of the RPC is set as defined in
+ * the RPC macro. If `l4_msgtag_t` is given, then the client has access
+ * to the full message tag, otherwise the return type should be `long`.
+ * Note that the client might not only receive the server return value in
+ * response but also an IPC error code.
+ *
+ * \section l4_cxx_ipc_iface_members RPC Method Declaration
+ *
+ * RPC member functions can be declared using one of the following C++ macros.
+ *
+ * For inline RPC stubs, where the RPC stub code itself is `inline`:
+ *  *
+ *    ~~~{.cpp}
+ *    L4_INLINE_RPC(res, name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_INLINE_RPC
+ *  *
+ *    ~~~{.cpp}
+ *    L4_INLINE_RPC_OP(op, res, name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_INLINE_RPC_OP
+ *  *
+ *    ~~~{.cpp}
+ *    L4_INLINE_RPC_NF(res, name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_INLINE_RPC_NF
+ *  *
+ *    ~~~{.cpp}
+ *    L4_INLINE_RPC_NF_OP(opcode, Ret_type, func_name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_INLINE_RPC_NF_OP
+ *
+ * For external RPC stubs, where the RPC stub code must be defined in a
+ * separate compile unit (usually a `.cc` file):
+ *  *
+ *    ~~~{.cpp}
+ *    L4_RPC(Ret_type, func_name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_RPC
+ *
+ *  *
+ *    ~~~{.cpp}
+ *    L4_RPC_OP(opcode, Ret_type, func_name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_RPC_OP
+ *  *
+ *    ~~~{.cpp}
+ *    L4_RPC_NF(Ret_type, func_name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_RPC_NF
+ *  *
+ *    ~~~{.cpp}
+ *    L4_RPC_NF_OP(opcode, Ret_type, func_name, (args...), flags)
+ *    ~~~
+ *    \copybrief #L4_RPC_NF_OP
+ *
+ * To generate the implementation of an external RPC stub:
+ *  *
+ *    ~~~{.cpp}
+ *    L4_RPC_DEF(class_name::func_name)
+ *    ~~~
+ *    \copybrief #L4_RPC_DEF
+ *
+ * The `NF` versions of the macro generally do not generate a callable
+ * member function named `<name>` but do only generate the type `<name>_t`.
+ * This data type can be used to call the RPC stub explicitly using
+ * `<name>_t::call(L4::Cap<Iface_class> cap, args...)`.
+ *
+ */
+
+// TODO: add some more documentation
+namespace L4 { namespace Ipc {
+
+/**
+ * RPC attribute for a standard RPC call.
+ *
+ * This is the default for the \a FLAGS parameter for L4::Ipc::Msg::Rpc_call
+ * L4::Ipc::Msg::Rpc_inline_call templates and declares the RPC to have default
+ * call semantics and timeouts.
+ *
+ * Examples:
+ * ~~~~~~~~~~~{.cpp}
+ * L4_RPC(long, send, (unsigned value), L4::Ipc::Call);
+ * ~~~~~~~~~~~
+ * which is equvalent to:
+ * ~~~~~~~~~~~{.cpp}
+ * L4_RPC(long, send, (unsigned value));
+ * ~~~~~~~~~~~
+ */
+struct L4_EXPORT Call
+{
+  enum { Is_call = true };
+  enum { Rights = 0 };
+  static l4_timeout_t timeout() { return L4_IPC_NEVER; }
+};
+
+/**
+ * RPC attribute for an RPC call, with zero send timeout.
+ */
+struct L4_EXPORT Call_zero_send_timeout : Call
+{
+  static l4_timeout_t timeout() { return L4_IPC_SEND_TIMEOUT_0; }
+};
+
+/**
+ * RPC attribute for an RPC call with required rights.
+ * \tparam RIGHTS  The capability rights required for this call.
+ *                 #L4_CAP_FPAGE_W and #L4_CAP_FPAGE_S are checked within the
+ *                 server (and -#L4_EPERM shall be returned if the caller has
+ *                 insufficient rights).  #L4_CAP_FPAGE_R is always on but
+ *                 might be specified for documentation purposes. Other rights
+ *                 cannot be used in this context, because they cannot be
+ *                 checked at the server side.
+ *
+ * Examples:
+ * ~~~~~~~~~~~{.cpp}
+ * L4_RPC(long, func, (unsigned value), L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+ * ~~~~~~~~~~~
+ */
+template<unsigned RIGHTS>
+struct L4_EXPORT Call_t : Call
+{
+  enum { Rights = RIGHTS };
+};
+
+/**
+ * RPC attribute for a send-only RPC.
+ *
+ * This class can be used as FLAGS parameter to L4::Ipc::Msg::Rpc_call and
+ * L4::Ipc::Msg::Rpc_inline_call templates and declares the RPC to use send-only
+ * semantics and timeouts.
+ *
+ * Examples:
+ * ~~~~~~~~~~~{.cpp}
+ * L4_RPC(long, send, (unsigned value), L4::Ipc::Send_only);
+ * ~~~~~~~~~~~
+ */
+struct L4_EXPORT Send_only
+{
+  enum { Is_call = false };
+  enum { Rights = 0 };
+  static l4_timeout_t timeout() { return L4_IPC_NEVER; }
+};
+
+namespace Msg {
+
+/**
+ * \internal
+ * Callable data type for the given RPC signature \a SIG.
+ * \tparam OP          The type for the specific operation, usually this type
+ *                     inherits from Rpc_call<>.
+ * \tparam CLASS       The class that contains this callable. The class is
+ *                     used to determine the protocol ID for the IPC and
+ *                     \a CLASS plus \a OP are used to determine the op-code.
+ * \tparam SIG         The function signature for the RPC.
+ */
+template<typename OP, typename CLASS, typename SIG, typename FLAGS = Call>
+struct L4_EXPORT Rpc_inline_call;
+
+/**
+ * \internal
+ * The implementation for SIG == R (ARGS...)
+ */
+template<typename OP, typename CLASS, typename FLAGS, typename R,
+         typename ...ARGS>
+struct L4_EXPORT Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>
+{
+  template<typename T> struct Result { typedef T result_type; };
+  enum
+  {
+    Return_tag = L4::Types::Same<R, l4_msgtag_t>::value
+  };
+
+  /// Our type
+  typedef Rpc_inline_call type;
+  /// The type used to uniquely identify the operation
+  typedef OP op_type;
+  /// The class that contains this operation
+  typedef CLASS class_type;
+  /// The result type of the callable
+  typedef typename Result<R>::result_type result_type;
+  /// The original signature given to Rpc_call
+  typedef R ipc_type (ARGS...);
+  /// The signature of the client callable
+  typedef result_type func_type (typename _Elem<ARGS>::arg_type...);
+
+  /// The RPC flags type (specifying e.g. send-only or call operation)
+  typedef FLAGS flags_type;
+
+  template<typename RES>
+  static typename L4::Types::Enable_if< Return_tag, RES >::type
+  return_err(long err) { return l4_msgtag(err, 0, 0, 0); }
+
+  template<typename RES>
+  static typename L4::Types::Enable_if< Return_tag, RES >::type
+  return_ipc_err(l4_msgtag_t tag, l4_utcb_t const *) { return tag; }
+
+  template<typename RES>
+  static typename L4::Types::Enable_if< Return_tag, RES >::type
+  return_code(l4_msgtag_t tag) { return tag; }
+
+  template<typename RES>
+  static typename L4::Types::Enable_if< !Return_tag, RES >::type
+  return_err(long err) { return err; }
+
+  template<typename RES>
+  static typename L4::Types::Enable_if< !Return_tag, RES >::type
+  return_ipc_err(l4_msgtag_t, l4_utcb_t *utcb)
+  { return l4_ipc_to_errno(l4_ipc_error_code(utcb)); }
+
+  template<typename RES>
+  static typename L4::Types::Enable_if< !Return_tag, RES >::type
+  return_code(l4_msgtag_t tag) { return tag.label(); }
+
+  static R call(L4::Cap<class_type> cap,
+                typename _Elem<ARGS>::arg_type ...a,
+                l4_utcb_t *utcb = l4_utcb()) throw();
+};
+
+/**
+ * \internal
+ * non-inline version of Rpc_call
+ */
+template<typename OP, typename CLASS, typename SIG, typename FLAGS = Call>
+struct L4_EXPORT Rpc_call;
+
+/**
+ * \internal
+ * Helper to define a callable member of an RPC interface.
+ *
+ * \tparam IPC   Some type derived from Rpc_call or Rpc_inline_call
+ * \tparam SIG   signature of the method
+ */
+template<typename IPC, typename SIG> struct _Call;
+
+/// \internal
+template<typename IPC, typename R, typename ...ARGS>
+struct _Call<IPC, R (ARGS...)>
+{
+public:
+  typedef typename IPC::class_type class_type;
+  typedef typename IPC::result_type result_type;
+
+private:
+  L4::Cap<class_type> cap() const
+  {
+    return L4::Cap<class_type>(reinterpret_cast<l4_cap_idx_t>(this)
+                               & L4_CAP_MASK);
+  }
+
+public:
+  /// The implementation of this callable
+  result_type operator () (ARGS ...a, l4_utcb_t *utcb = l4_utcb()) const throw()
+  { return IPC::call(cap(), a..., utcb); }
+};
+
+/**
+ * \internal
+ * Helper to define a callable member of an RPC interface.
+ * \tparam IPC   The type defining the RPC method, usually derived from
+ *               Rpc_inline_call.
+ */
+template<typename IPC> struct Call : _Call<IPC, typename IPC::func_type> {};
+
+/**
+ * \internal
+ * non-inline version of Rpc_call (for SIG == R (ARGS...))
+ */
+template<typename OP,
+         typename CLASS,
+         typename FLAGS,
+         typename R,
+         typename ...ARGS>
+struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
+  Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>
+{
+  static R call(L4::Cap<CLASS> cap,
+                typename _Elem<ARGS>::arg_type ...a,
+                l4_utcb_t *utcb = l4_utcb()) throw();
+};
+
+#define L4_INLINE_RPC_SRV_FORWARD(name)                                    \
+  template<typename OBJ> struct fwd                                        \
+  {                                                                        \
+    OBJ *o;                                                                \
+    fwd(OBJ *o) : o(o) {}                                                  \
+    template<typename ...ARGS> long call(ARGS ...a)                        \
+    { return o->op_##name(a...); }                                         \
+  }
+
+
+/**
+ * Define an inline RPC call type (the type only, no callable).
+ * \param res   The result type of the RPC call
+ * \param name  The name of the function (`name`_t is used for the type.)
+ * \param args  The argument list of the RPC function, and RPC attributes
+ *              (L4::Ipc::Call, L4::Ipc::Call_t etc.).
+ *
+ * Stubs generated by this macro can be used explicitly in custom wrapper
+ * methods that need to use the underlying RPC code and provide some higher
+ * level abstraction, for example with default arguments or extra argument
+ * conversion.
+ */
+#define L4_INLINE_RPC_NF(res, name, args...)                                 \
+  struct name##_t : L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> \
+  {                                                                          \
+    typedef Rpc_inline_call type;                                            \
+    L4_INLINE_RPC_SRV_FORWARD(name);                                         \
+  }
+
+/**
+ * \brief Define an inline RPC call type with specific opcode (the type only,
+ *        no callable).
+ * \param op    The opcode number for this function
+ * \copydetails #L4_INLINE_RPC_NF
+ */
+#define L4_INLINE_RPC_NF_OP(op, res, name, args...)                          \
+  struct name##_t : L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> \
+  {                                                                          \
+    typedef Rpc_inline_call type; enum { Opcode = (op) };                    \
+    L4_INLINE_RPC_SRV_FORWARD(name);                                         \
+  }
+
+#ifdef DOXYGEN
+/**
+ * Define an inline RPC call (type and callable).
+ * \param res   The result type of the RPC call
+ * \param name  The name of the function (`name`_t is used for the type.)
+ * \param args  The argument list of the RPC function.
+ * \param attr  Optional RPC attributes (L4::Ipc::Call, L4::Ipc::Call_t etc.).
+ */
+#define L4_INLINE_RPC(res, name, args, attr...) res name args
+#else
+#define L4_INLINE_RPC(res, name, args...)                                    \
+  L4_INLINE_RPC_NF(res, name, args); L4::Ipc::Msg::Call<name##_t> name
+#endif
+
+#ifdef DOXYGEN
+/**
+ * Define an inline RPC call with specific opcode (type and callable).
+ * \param op    The opcode number for this function
+ * \param res   The result type of the RPC call
+ * \param name  The name of the function (`name`_t is used for the type.)
+ * \param args  The argument list of the RPC function.
+ * \param attr  Optional RPC attributes (L4::Ipc::Call, L4::Ipc::Call_t etc.).
+ */
+#define L4_INLINE_RPC_OP(op, res, name, args, attr...) res name args
+#else
+#define L4_INLINE_RPC_OP(op, res, name, args...)                             \
+  L4_INLINE_RPC_NF_OP(op, res, name, args); L4::Ipc::Msg::Call<name##_t> name
+#endif
+
+/**
+ * Define an RPC call type (the type only, no callable).
+ * \param res   The result type of the RPC call
+ * \param name  The name of the function (`name`_t is used for the type.)
+ * \param args  The argument list of the RPC function, and RPC attributes
+ *              (L4::Ipc::Call, L4::Ipc::Call_t etc.).
+ */
+#define L4_RPC_NF(res, name, args...)                                        \
+  struct name##_t : L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>        \
+  {                                                                          \
+    typedef Rpc_call type;                                                   \
+    L4_INLINE_RPC_SRV_FORWARD(name);                                         \
+  }
+
+/**
+ * Define an RPC call type with specific opcode (the type only, no callable).
+ * \param op    The opcode number for this function
+ * \param res   The result type of the RPC call
+ * \param name  The name of the function (`name`_t is used for the type.)
+ * \param args  The argument list of the RPC function, and RPC attributes
+ *              (L4::Ipc::Call, L4::Ipc::Call_t etc.).
+ */
+#define L4_RPC_NF_OP(op, res, name, args...)                                 \
+  struct name##_t : L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>        \
+  {                                                                          \
+    typedef Rpc_call type; enum { Opcode = (op) };                           \
+    L4_INLINE_RPC_SRV_FORWARD(name);                                         \
+  }
+
+#ifdef DOXYGEN
+/**
+ * Define an RPC call (type and callable).
+ * \param res   The result type of the RPC call
+ * \param name  The name of the function (`name`_t is used for the type.)
+ * \param args  The argument list of the RPC function.
+ * \param attr  Optional RPC attributes (L4::Ipc::Call, L4::Ipc::Call_t etc.).
+ */
+#define L4_RPC(res, name, args, attr...) res name args
+#else
+#define L4_RPC(res, name, args...)                                           \
+  L4_RPC_NF(res, name, args); L4::Ipc::Msg::Call<name##_t> name
+#endif
+
+#ifdef DOXYGEN
+/**
+ * Define an RPC call with specific opcode (type and callable).
+ * \param op    The opcode number for this function
+ * \param res   The result type of the RPC call
+ * \param name  The name of the function (`name`_t is used for the type.)
+ * \param args  The argument list of the RPC function.
+ * \param attr  Optional RPC attributes (L4::Ipc::Call, L4::Ipc::Call_t etc.).
+ */
+#define L4_RPC_OP(op, res, name, args, attr...) res name args
+#else
+#define L4_RPC_OP(op, res, name, args...)                                    \
+  L4_RPC_NF_OP(op, res, name, args); L4::Ipc::Msg::Call<name##_t> name
+#endif
+
+
+/**
+ * \internal
+ * Implementation details
+ */
+namespace Detail {
+
+/**
+ * \tparam ARGS  The list of arguments used for the RPC function.
+ */
+template<typename ...ARGS>
+struct Buf
+{
+public:
+  template<typename DIR>
+  static int write(char *, int offset, int)
+  { return offset; }
+
+  template<typename DIR>
+  static int read(char *, int offset, int, long)
+  { return offset; }
+
+  typedef void Base;
+};
+
+template<typename A, typename ...M>
+struct Buf<A, M...> : Buf<M...>
+{
+  typedef Buf<M...> Base;
+
+  typedef Clnt_xmit<A> xmit;
+  typedef typename _Elem<A>::arg_type arg_type;
+  typedef Detail::_Plain<arg_type> plain;
+
+  template<typename DIR>
+  static int
+  write(char *base, int offset, int limit,
+        arg_type a, typename _Elem<M>::arg_type ...m)
+  {
+    offset = xmit::to_msg(base, offset, limit, plain::deref(a),
+                          typename DIR::dir(), typename DIR::cls());
+    return Base::template write<DIR>(base, offset, limit, m...);
+  }
+
+  template<typename DIR>
+  static int
+  read(char *base, int offset, int limit, long ret,
+       arg_type a, typename _Elem<M>::arg_type ...m)
+  {
+    int r = xmit::from_msg(base, offset, limit, ret, plain::deref(a),
+                           typename DIR::dir(), typename DIR::cls());
+    if (L4_LIKELY(r >= 0))
+      return Base::template read<DIR>(base, r, limit, ret, m...);
+
+    if (_Elem<A>::Is_optional)
+      return Base::template read<DIR>(base, offset, limit, ret, m...);
+
+    return r;
+  }
+};
+
+template <typename ...ARGS> struct _Part
+{
+  /// The buffer type with op-code.
+  typedef Buf<ARGS...> Data;
+
+  template<typename DIR>
+  static int write(void *b, int offset, int limit,
+                        typename _Elem<ARGS>::arg_type ...m)
+  {
+    int r = Data::template write<DIR>((char *)b, offset, limit, m...);
+    if (L4_LIKELY(r >= offset))
+      return r - offset;
+    return r;
+  }
+
+  template<typename DIR>
+  static int read(void *b, int offset, int limit, long ret,
+                       typename _Elem<ARGS>::arg_type ...m)
+  {
+    int r = Data::template read<DIR>((char *)b, offset, limit, ret, m...);
+    if (L4_LIKELY(r >= offset))
+      return r - offset;
+    return r;
+  }
+};
+
+/**
+ * template declaration for message parts in message registers
+ * \tparam IPC_TYPE    The function signature intended for marshalling
+ * \tparam OPCODE      The opcode data type for the messages (use void for
+ *                     protocols without opcodes)
+ */
+template<typename IPC_TYPE, typename OPCODE = void>
+struct Part;
+
+// The version without an op-code
+template<typename R, typename ...ARGS>
+struct Part<R (ARGS...), void> : _Part<ARGS...>
+{
+  /// The buffer type with op-code.
+  typedef Buf<ARGS...> Data;
+
+  // write arguments, skipping the dummy opcode
+  template<typename DIR>
+  static int write_op(void *b, int offset, int limit,
+                      int /*placeholder for op*/,
+                      typename _Elem<ARGS>::arg_type ...m)
+  {
+    int r = Data::template write<DIR>((char *)b, offset, limit, m...);
+    if (L4_LIKELY(r >= offset))
+      return r - offset;
+    return r;
+  }
+};
+
+// Message part with additional opcode
+template<typename OPCODE, typename R, typename ...ARGS>
+struct Part<R (ARGS...), OPCODE> : _Part<ARGS...>
+{
+  typedef OPCODE opcode_type;
+  /// The buffer type with op-code.
+  typedef Buf<opcode_type, ARGS...> Data;
+
+  // write arguments, including the opcode
+  template<typename DIR>
+  static int write_op(void *b, int offset, int limit,
+                      opcode_type op, typename _Elem<ARGS>::arg_type ...m)
+  {
+    int r = Data::template write<DIR>((char *)b, offset, limit, op, m...);
+    if (L4_LIKELY(r >= offset))
+      return r - offset;
+    return r;
+  }
+};
+
+
+} // namespace Detail
+
+//----------------------------------------------------
+// Implementation of the RPC call
+// TODO: Add support for timeout via special RPC argument
+// TODO: Add support for passing the UTCB pointer as argument
+//
+template<typename OP, typename CLASS, typename FLAGS, typename R,
+         typename ...ARGS>
+inline R
+Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>::
+  call(L4::Cap<CLASS> cap,
+       typename _Elem<ARGS>::arg_type ...a,
+       l4_utcb_t *utcb) throw()
+{
+  using namespace Ipc::Msg;
+
+  typedef typename Kobject_typeid<CLASS>::Iface::Rpcs Rpcs;
+  typedef typename Rpcs::template Rpc<OP> Opt;
+  typedef Detail::Part<ipc_type, typename Rpcs::opcode_type> Args;
+
+  l4_msg_regs_t *mrs = l4_utcb_mr_u(utcb);
+
+  // handle in-data part of the arguments
+  int send_bytes =
+    Args::template write_op<Do_in_data>(mrs->mr, 0, Mr_bytes,
+                                        Opt::Opcode, a...);
+
+  if (L4_UNLIKELY(send_bytes < 0))
+    return return_err<R>(send_bytes);
+
+  send_bytes = align_to<l4_umword_t>(send_bytes);
+  int const send_words = send_bytes / Word_bytes;
+  // write the in-items part of the message if there is one
+  int item_bytes =
+    Args::template write<Do_in_items>(&mrs->mr[send_words], 0,
+                                      Mr_bytes - send_bytes, a...);
+
+  if (L4_UNLIKELY(item_bytes < 0))
+    return return_err<R>(item_bytes);
+
+  int send_items = item_bytes / Item_bytes;
+
+    {
+      // setup the receive buffers for the RPC call
+      l4_buf_regs_t *brs = l4_utcb_br_u(utcb);
+      // XXX: we currently support only one type of receive buffers per call
+      brs->bdr = 0; // we always start at br[0]
+
+      // the limit leaves us at least one register for the zero terminator
+      // add the buffers given as arguments to the buffer registers
+      int bytes =
+        Args::template write<Do_rcv_buffers>(brs->br, 0, Br_bytes - Word_bytes,
+                                             a...);
+
+      if (L4_UNLIKELY(bytes < 0))
+        return return_err<R>(bytes);
+
+      brs->br[bytes / Word_bytes] = 0;
+    }
+
+
+  // here we do the actual IPC ---------------------------------
+  l4_msgtag_t t;
+  t = l4_msgtag(CLASS::Protocol, send_words, send_items, 0);
+  // do the call (Q: do we need support for timeouts?)
+  if (flags_type::Is_call)
+    t = l4_ipc_call(cap.cap(), utcb, t, flags_type::timeout());
+  else
+    {
+      t = l4_ipc_send(cap.cap(), utcb, t, flags_type::timeout());
+      if (L4_UNLIKELY(t.has_error()))
+        return return_ipc_err<R>(t, utcb);
+
+      return return_code<R>(l4_msgtag(0, 0, 0, t.flags()));
+    }
+
+  // unmarshalling starts here ---------------------------------
+
+  // bail out early in the case of an IPC error
+  if (L4_UNLIKELY(t.has_error()))
+    return return_ipc_err<R>(t, utcb);
+
+  // take the label as return value
+  long r = t.label();
+
+  // bail out on negative error codes too
+  if (L4_UNLIKELY(r < 0))
+    return return_err<R>(r);
+
+  int const rcv_bytes = t.words() * Word_bytes;
+
+  // read the static out-data values to the arguments
+  int err = Args::template read<Do_out_data>(mrs->mr, 0, rcv_bytes, r, a...);
+
+  int const item_limit = t.items() * Item_bytes;
+
+  if (L4_UNLIKELY(err < 0 || item_limit > Mr_bytes))
+    return return_err<R>(-L4_EMSGTOOSHORT);
+
+  // read the static out-items to the arguments
+  err = Args::template read<Do_out_items>(&mrs->mr[t.words()], 0, item_limit,
+                                          r, a...);
+
+  if (L4_UNLIKELY(err < 0))
+    return return_err<R>(-L4_EMSGTOOSHORT);
+
+  return return_code<R>(t);
+}
+
+} // namespace Msg
+} // namesapce Ipc
+} // namespace L4
+
+

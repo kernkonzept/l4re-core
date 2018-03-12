@@ -1,0 +1,324 @@
+// vi:ft=cpp
+/**
+ * \file
+ * \brief Base exceptions
+ * \ingroup l4cxx_exceptions
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/cxx/l4types.h>
+#include <l4/cxx/basic_ostream>
+#include <l4/sys/err.h>
+#include <l4/sys/capability>
+
+
+/**
+ * \defgroup l4cxx_exceptions C++ Exceptions
+ * \ingroup api_l4re
+ */
+/*@{*/
+
+#ifndef L4_CXX_NO_EXCEPTION_BACKTRACE
+# define L4_CXX_EXCEPTION_BACKTRACE 20  ///< Number of instruction pointers in backtrace
+#endif
+
+#if defined(L4_CXX_EXCEPTION_BACKTRACE)
+#include <l4/util/backtrace.h>
+#endif
+
+/*@}*/
+namespace L4
+{
+  /**
+   * \addtogroup l4cxx_exceptions
+   */
+  /*@{*/
+  /**
+   * \brief Back-trace support for exceptions.
+   * \headerfile l4/cxx/exceptions
+   *
+   * This class holds an array of at most #L4_CXX_EXCEPTION_BACKTRACE
+   * instruction pointers containing the call trace at the instant when an
+   * exception was thrown.
+   */
+  class Exception_tracer
+  {
+#if defined(L4_CXX_EXCEPTION_BACKTRACE)
+  private:
+    void *_pc_array[L4_CXX_EXCEPTION_BACKTRACE];
+    int   _frame_cnt;
+
+  protected:
+    /**
+     * \brief Create a back trace.
+     */
+#if defined(__PIC__)
+    Exception_tracer() throw() : _frame_cnt(0) {}
+#else
+    Exception_tracer() throw() : _frame_cnt(l4util_backtrace(_pc_array, L4_CXX_EXCEPTION_BACKTRACE)) {}
+#endif
+
+  public:
+    /**
+     * \brief Get the array containing the call trace.
+     */
+    void const *const *pc_array() const throw() { return _pc_array; }
+    /**
+     * \brief Get the number of entries that are valid in the call trace.
+     */
+    int frame_count() const throw() { return _frame_cnt; }
+#else
+  protected:
+    /**
+     * \brief Create a back trace.
+     */
+    Exception_tracer() throw() {}
+
+  public:
+    /**
+     * \brief Get the array containing the call trace.
+     */
+    void const *const *pc_array() const throw() { return 0; }
+    /**
+     * \brief Get the number of entries that are valid in the call trace.
+     */
+    int frame_count() const throw() { return 0; }
+#endif
+  };
+
+  /**
+   * \brief Base class for all exceptions, thrown by the L4Re framework.
+   * \headerfile l4/cxx/exceptions
+   *
+   * This is the abstract base of all exceptions thrown within the
+   * L4Re framework. It is basically also a good idea to use it as base of
+   * all user defined exceptions.
+   */
+  class Base_exception : public Exception_tracer
+  {
+  protected:
+    /// Create a base exception.
+    Base_exception() throw() {}
+
+  public:
+    /**
+     * Return a human readable string for the exception.
+     */
+    virtual char const *str() const throw () = 0;
+
+    /// Destruction
+    virtual ~Base_exception() throw () {}
+  };
+
+  /**
+   * \brief Exception for an abstract runtime error.
+   * \headerfile l4/cxx/exceptions
+   *
+   * This is the base class for a set of exceptions that cover all errors
+   * that have a C error value (see #l4_error_code_t).
+   */
+  class Runtime_error : public Base_exception
+  {
+  private:
+    long _errno;
+    char _extra[80];
+
+  public:
+    /**
+     * Create a new Runtime_error.
+     *
+     * \param err_no  Error value for this runtime error.
+     * \param extra   Description of what was happening while the error occured.
+     */
+    explicit Runtime_error(long err_no, char const *extra = 0) throw ()
+      : _errno(err_no)
+    {
+      if (!extra)
+        _extra[0] = 0;
+      else
+        {
+          unsigned i = 0;
+          for (; i < sizeof(_extra) && extra[i]; ++i)
+            _extra[i] = extra[i];
+          _extra[i < sizeof(_extra) ? i : sizeof(_extra) - 1] = 0;
+        }
+    }
+    char const *str() const throw ()
+    { return l4sys_errtostr(_errno); }
+
+    /**
+     * Get the description text for this runtime error.
+     *
+     * \return  Pointer to the description string.
+     */
+    char const *extra_str() const { return _extra; }
+    ~Runtime_error() throw () {}
+
+    /**
+     * Get the error value for this runtime error.
+     *
+     * \return  Error value.
+     */
+    long err_no() const throw() { return _errno; }
+  };
+
+  /**
+   * \brief Exception signalling insufficient memory.
+   * \headerfile l4/cxx/exceptions
+   */
+  class Out_of_memory : public Runtime_error
+  {
+  public:
+    /// Create an out-of-memory exception.
+    explicit Out_of_memory(char const *extra = "") throw()
+    : Runtime_error(-L4_ENOMEM, extra) {}
+    /// Destruction
+    ~Out_of_memory() throw() {}
+  };
+
+
+  /**
+   * \brief Exception for duplicate element insertions.
+   * \headerfile l4/cxx/exceptions
+   */
+  class Element_already_exists : public Runtime_error
+  {
+  public:
+    explicit Element_already_exists(char const *e = "") throw()
+    : Runtime_error(-L4_EEXIST, e) {}
+    ~Element_already_exists() throw() {}
+  };
+
+  /**
+   * \brief Exception for an unknown condition.
+   * \headerfile l4/cxx/exceptions
+   *
+   * This error is usually used when a server returns an unknown return state
+   * to the client, this may indicate incompatible messages used by the client
+   * and the server.
+   */
+  class Unknown_error : public Base_exception
+  {
+  public:
+    Unknown_error() throw() {}
+    char const *str() const throw() { return "unknown error"; }
+    ~Unknown_error() throw() {}
+  };
+
+  
+  /**
+   * \brief Exception for a failed lookup (element not found).
+   * \headerfile l4/cxx/exceptions
+   */
+  class Element_not_found : public Runtime_error
+  {
+  public:
+    explicit Element_not_found(char const *e = "") throw()
+    : Runtime_error(-L4_ENOENT, e) {}
+  };
+
+  /**
+   * \brief Indicates that an invalid object was invoked.
+   * \headerfile l4/cxx/exceptions
+   *
+   * An Object is invalid if it has L4_INVALID_ID as server L4 UID,
+   * or if the server does not know the object ID.
+   */
+  class Invalid_capability : public Base_exception
+  {
+  private:
+    Cap<void> const _o;
+
+  public:
+    /**
+     * \brief Create an Invalid_obejct exception for the Object o.
+     * \param o The object that caused the server side error.
+     */
+    explicit Invalid_capability(Cap<void> const &o) throw() : _o(o) {}
+    template< typename T>
+    explicit Invalid_capability(Cap<T> const &o) throw() : _o(o.cap()) {}
+    char const *str() const throw() { return "invalid object"; }
+
+    /**
+     * \brief Get the object that caused the error.
+     * \return The object that caused the error on invocation.
+     */
+    Cap<void> const &cap() const throw() { return _o; }
+    ~Invalid_capability() throw() {}
+  };
+
+  /**
+   * \brief Error conditions during IPC.
+   * \headerfile l4/cxx/exceptions
+   *
+   * This exception encapsulates all IPC error conditions of L4 IPC.
+   */
+  class Com_error : public Runtime_error
+  {
+  public:
+    /**
+     * \brief Create a Com_error for the givel L4 IPC error code.
+     * \param err The L4 IPC error code (l4_ipc... return value).
+     */
+    explicit Com_error(long err) throw() : Runtime_error(err) {}
+
+    ~Com_error() throw() {}
+  };
+
+  /**
+   * \brief Access out of bounds.
+   */
+  class Bounds_error : public Runtime_error
+  {
+  public:
+    explicit Bounds_error(char const *e = "") throw()
+    : Runtime_error(-L4_ERANGE, e) {}
+    ~Bounds_error() throw() {}
+  };
+  /*@}*/
+};
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &o, L4::Base_exception const &e)
+{
+  o << "Exception: " << e.str() << ", backtrace ...\n";
+  for (int i = 0; i < e.frame_count(); ++i)
+    o << L4::n_hex(l4_addr_t(e.pc_array()[i])) << '\n';
+
+  return o;
+}
+
+inline
+L4::BasicOStream &
+operator << (L4::BasicOStream &o, L4::Runtime_error const &e)
+{
+  o << "Exception: " << e.str() << ": ";
+  if (e.extra_str())
+    o << e.extra_str() << ": ";
+  o << "backtrace ...\n";
+  for (int i = 0; i < e.frame_count(); ++i)
+    o << L4::n_hex(l4_addr_t(e.pc_array()[i])) << '\n';
+
+  return o;
+}
+

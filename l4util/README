@@ -1,0 +1,19 @@
+Miscellaneous functionality not belonging to other packages.
+
+This package implements some functionality which doesn't fit into other
+packages, mainly to support some features of a C library and to support some
+features of the L4 microkernel:
+
+- programming of the Local APIC of x86 processors (PPro+)
+- using the time stamp counter of x86 processors (Pentium+)
+- using the performance counters of x86 processors (Pentium+)
+- atomic operations (compare and exchange)
+- bit and bit field manipulation operations
+- x86 port I/O (in/out)
+- x86 cli/sti, irq_acknowledge for the fully special nested mode
+- comfortable parsing of command line arguments
+- a simple random number generator
+- touching memory to preclude later pagefaults
+- a very simple lock implementation (better use the L4env lock package)
+- a simple function for creating threads (better use the L4env thread package)
+- etc.

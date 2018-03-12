@@ -1,0 +1,349 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+#include <l4/re/util/cap_alloc>
+#include <l4/re/consts>
+#include <l4/re/env>
+
+#include <l4/sys/cxx/ipc_server_loop>
+#include <l4/sys/factory>
+#include <l4/sys/task>
+#include <l4/sys/thread>
+#include <l4/sys/ipc_gate>
+
+#include <l4/cxx/exceptions>
+
+namespace L4Re { namespace Util {
+
+/**
+ * A registry that manages server objects and their attached IPC gates for
+ * a single server loop for a specific thread.
+ *
+ * This class manages most of the setup of a server object. If necessary,
+ * an IPC gate is created, the specified thread is bound to the IPC gate.
+ * Incoming IPC is dispatched to the server object based on
+ * the label of the IPC gate.
+ *
+ * The object registry is also able to manage IRQ endpoints. They require a
+ * different method for the object creation. Otherwise they are handled in
+ * the same way as IPC gates: a server object is responsible to process
+ * the incoming interrupts.
+ */
+class Object_registry : public L4::Basic_registry
+{
+  /**
+   * Handler class for stale requests from servers that have been
+   * deregistered.
+   */
+  struct Null_handler : L4::Epiface_t<Null_handler, L4::Kobject>
+  {};
+
+protected:
+  L4::Cap<L4::Thread> _server;
+  L4::Cap<L4::Factory> _factory;
+  L4::Ipc_svr::Server_iface *_sif;
+
+private:
+  Null_handler _null_handler;
+
+public:
+  /**
+   * Create a registry for the main thread of the task using the default factory.
+   *
+   * \param sif   Server loop interface.
+   */
+  explicit
+  Object_registry(L4::Ipc_svr::Server_iface *sif)
+  : _server(L4Re::Env::env()->main_thread()),
+    _factory(L4Re::Env::env()->factory()),
+    _sif(sif)
+  {}
+
+  /**
+   * Create a registry for arbitrary threads.
+   *
+   * \param sif     Server loop interface.
+   * \param server  Capability to the thread that executes the server objects.
+   * \param factory Capability to a factory object capable of creating new
+   *                IPC gates.
+   */
+  Object_registry(L4::Ipc_svr::Server_iface *sif,
+                  L4::Cap<L4::Thread> server,
+                  L4::Cap<L4::Factory> factory)
+  : _server(server), _factory(factory), _sif(sif)
+  {}
+
+private:
+  typedef L4::Ipc_svr::Server_iface Server_iface;
+  typedef Server_iface::Demand Demand;
+
+  int _register_gate(L4::Epiface *o, L4::Cap<L4::Ipc_gate> gate,
+                     Demand const &demand)
+  {
+    int err = _sif->alloc_buffer_demand(demand);
+    if (err < 0)
+      return err;
+
+    l4_umword_t id = l4_umword_t(o);
+    err = l4_error(gate->bind_thread(_server, id));
+    if (err < 0)
+      return err;
+
+    return o->set_server(_sif, gate);
+  }
+
+  L4::Cap<void> _register_gate(L4::Epiface *o, char const *service,
+                               Demand const &demand)
+  {
+    L4::Cap<L4::Ipc_gate> cap = L4Re::Env::env()->get_cap<L4::Ipc_gate>(service);
+    if (!cap.is_valid())
+      return cap;
+
+    int err = _register_gate(o, cap, demand);
+    if (err < 0)
+      return L4::Cap<void>(err | L4_INVALID_CAP_BIT);
+
+    return cap;
+  }
+
+  L4::Cap<void> _register_gate(L4::Epiface *o, Demand const &demand)
+  {
+    int err = _sif->alloc_buffer_demand(demand);
+    if (err < 0)
+      return L4::Cap<void>(err | L4_INVALID_CAP_BIT);
+
+    Auto_cap<L4::Kobject>::Cap cap
+      = cap_alloc.alloc<L4::Kobject>();
+
+    if (!cap.is_valid())
+      return cap.get();
+
+    l4_umword_t id = l4_umword_t(o);
+    err = l4_error(_factory->create_gate(cap.get(), _server, id));
+    if (err < 0)
+      return L4::Cap<void>(err | L4_INVALID_CAP_BIT);
+
+    err = o->set_server(_sif, cap.get(), true);
+    if (err < 0)
+      return L4::Cap<void>(err | L4_INVALID_CAP_BIT);
+
+    return cap.release();
+  }
+
+  L4::Cap<L4::Irq> _register_irq(L4::Epiface *o,
+                                 L4::Cap<L4::Irq> irq,
+                                 Demand const &demand)
+  {
+    int err = _sif->alloc_buffer_demand(demand);
+    if (err < 0)
+      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
+
+    l4_umword_t id = l4_umword_t(o);
+    err = l4_error(irq->attach(id, _server));
+    if (err < 0)
+      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
+
+    err = o->set_server(_sif, irq);
+    if (err < 0)
+      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
+
+    return irq;
+  }
+
+  L4::Cap<L4::Irq> _register_irq(L4::Epiface *o,
+                                 Demand const &demand)
+  {
+    int err = _sif->alloc_buffer_demand(demand);
+    if (err < 0)
+      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
+
+    Auto_cap<L4::Irq>::Cap cap
+      = cap_alloc.alloc<L4::Irq>();
+
+    if (!cap.is_valid())
+      return cap.get();
+
+    l4_umword_t id = l4_umword_t(o);
+    err = l4_error(_factory->create(cap.get()));
+    if (err < 0)
+      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
+
+    err = l4_error(cap->attach(id, _server));
+    if (err < 0)
+      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
+
+    err = o->set_server(_sif, cap.get(), true);
+    if (err < 0)
+      return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
+
+    return cap.release();
+  }
+
+  static Demand _get_buffer_demand(L4::Epiface *o)
+  { return o->get_buffer_demand(); }
+
+  template<typename T>
+  static Demand _get_buffer_demand(T *,
+      typename L4::Kobject_typeid<typename T::Interface>::Demand
+        d = typename L4::Kobject_typeid<typename T::Interface>::Demand())
+  { return d; }
+
+public:
+  /**
+   * Register a new server object to a pre-allocated IPC gate.
+   *
+   * \param o       Server object that handles IPC requests.
+   * \param service Name of a pre-allocated IPC gate.
+   *
+   * \return The capability the server object was registered with.
+   */
+  L4::Cap<void> register_obj(L4::Epiface *o, char const *service)
+  {
+    return _register_gate(o, service, _get_buffer_demand(o));
+  }
+
+  /**
+   * Register a new server object on a newly allocated capability.
+   *
+   * \param o  Server object that handles IPC requests.
+   *
+   * \return The capability the server object was registered with.
+   *
+   * The IPC gate will be allocated using the registry's factory.
+   */
+  L4::Cap<void> register_obj(L4::Epiface *o)
+  {
+    return _register_gate(o, _get_buffer_demand(o));
+  }
+
+  /**
+   * Register a handler for an interrupt.
+   *
+   * \param o  Server object that handles IRQs.
+   *
+   * \return The capability the server object was registered with.
+   *
+   * The IRQ will be newly allocated using the registry's factory object.
+   */
+  L4::Cap<L4::Irq> register_irq_obj(L4::Epiface *o)
+  {
+    return _register_irq(o, _get_buffer_demand(o));
+  }
+
+  /**
+   * Register a handler for an already existing interrupt.
+   *
+   * \param o   Server object that handles the interrupts.
+   * \param irq Capability to an IRQ object, may be a hardware or software
+   *            interrupt.
+   *
+   * \return The capability the server object was registered with.
+   *
+   */
+
+  L4::Cap<L4::Irq> register_irq_obj(L4::Epiface *o,
+                                    L4::Cap<L4::Irq> const &irq)
+  {
+    return _register_irq(o, irq, _get_buffer_demand(o));
+  }
+
+
+  /**
+   * Remove a server object from the handler list.
+   *
+   * \param o      Server object to unbind.
+   * \param unmap  Specifies if the object capability shall be unmapped (true)
+   *               or not. The default (true) is to unmap the capability.
+   *
+   * The capability used by the server object will be unmapped if `unmap` is
+   * true.
+   */
+  void unregister_obj(L4::Epiface *o, bool unmap = true)
+  {
+    L4::Epiface::Stored_cap c;
+
+    if (!o || !o->obj_cap().is_valid())
+      return;
+
+    c = o->obj_cap();
+
+    // make sure unhandled ipc ends up with the null handler
+    L4::Thread::Modify_senders todo;
+    todo.add(~3UL, reinterpret_cast<l4_umword_t>(o),
+             ~0UL, reinterpret_cast<l4_umword_t>((L4::Epiface*)&_null_handler));
+    _server->modify_senders(todo);
+
+    if (unmap)
+      L4::Cap<L4::Task>(L4Re::This_task)->unmap(c.fpage(), L4_FP_ALL_SPACES);
+
+    // we use bit 4 to indicated an internally allocated cap
+    if (c.managed())
+      cap_alloc.free(c);
+
+    o->set_server(0, L4::Cap<void>::Invalid);
+  }
+};
+
+/**
+ * A server loop object which has a Object_registry included.
+ */
+template< typename LOOP_HOOKS = L4::Ipc_svr::Default_loop_hooks >
+class Registry_server : public L4::Server<LOOP_HOOKS>
+{
+private:
+  typedef L4::Server<LOOP_HOOKS> Base;
+  Object_registry _registry;
+
+public:
+  /**
+   * Create a new server loop object for the main thread of the task.
+   *
+   * \pre Must be called from the main thread or behaviour is undefined.
+   */
+  Registry_server() : Base(l4_utcb()), _registry(this)
+  {}
+
+  /**
+   * Create a new server loop object for an arbitrary thread and factory.
+   *
+   * \param utcb    The UTCB of the thread running the server loop.
+   * \param server  Capability to thread running the server loop.
+   * \param factory Capability to factory object used to create new IPC gates.
+   */
+  Registry_server(l4_utcb_t *utcb, L4::Cap<L4::Thread> server,
+                  L4::Cap<L4::Factory> factory)
+  : Base(utcb), _registry(this, server, factory)
+  {}
+
+  /** Return registry of this server loop. */
+  Object_registry const *registry() const { return &_registry; }
+  /** Return registry of this server loop. */
+  Object_registry *registry() { return &_registry; }
+
+  /**
+   * Start the server loop.
+   */
+  void L4_NORETURN loop()
+  { Base::template loop<L4::Runtime_error, Object_registry &>(_registry); }
+};
+
+}}

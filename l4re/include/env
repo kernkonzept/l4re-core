@@ -1,0 +1,300 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ * \brief   Environment interface
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Björn Döbel <doebel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/types.h>
+
+#include <l4/re/rm>
+#include <l4/re/parent>
+#include <l4/re/mem_alloc>
+#include <l4/re/log>
+
+#include <l4/re/env.h>
+
+namespace L4 {
+class Scheduler;
+}
+
+/**
+ * \brief L4 Runtime Environment.
+ */
+namespace L4Re
+{
+  /**
+   * \defgroup api_l4re_env Initial Environment
+   * \ingroup api_l4re
+   * \brief Environment that is initially provided to an L4 task.
+   *
+   * The initial environment is provided to each L4 task that is started
+   * by an L4Re conform loader, such as the Moe root task. The initial
+   * environment provides access to a set of initial capabilities and
+   * some additional information about the available resources, such as
+   * free UTCBs (see \link l4_utcb_api Virtual Registers \endlink) and
+   * available entries in capability table (provided by the micro kernel).
+   *
+   * The initial set of capabilities is:
+   * - C[parent:L4Re::Parent] --- parent object
+   * - C[mem_alloc:L4Re::Mem_alloc] --- initial memory allocator
+   * - C[log:L4Re::Log] --- logging facility
+   * - C[main_thread:L4::Thread] --- first application thread
+   * - C[rm:L4::Rm] --- region manager
+   * - C[factory:L4::Factory] --- factory to create kernel objects
+   * - C[task:L4::Task] --- the task itself
+   *
+   * Additional information is:
+   * - First free entry in capability table
+   * - The \link l4_utcb_api UTCB \endlink area (as flex page)
+   * - First free UTCB (address in the UTCB area)
+   *
+   * \see L4Re::Env, l4re_env_t for more information.
+   *
+   */
+
+  /**
+   * \brief Initial Environment (C++ version).
+   * \ingroup api_l4re_env
+   *
+   * This class provides an initial set of capabilities as well as
+   * information the first free UTCB and used capability slots.
+   *
+   * \see \link api_l4re_env Initial environment \endlink
+   */
+  class L4_EXPORT Env
+  {
+  private:
+    l4re_env_t _env;
+  public:
+
+    /**
+     * \brief C++ type for an entry in the initial objects array.
+     */
+    typedef l4re_env_cap_entry_t Cap_entry;
+
+    /**
+     * \brief Returns the initial environment for the current task.
+     *
+     * \return Pointer to the initial environment class.
+     *
+     * A typical use of this function is L4Re::Env::env()->\<member\>()
+     */
+    static Env const *env() throw()
+    { return reinterpret_cast<Env*>(l4re_global_env); }
+
+    /**
+     * \brief Object-capability to the parent.
+     * \return Parent object-capability
+     */
+    L4::Cap<Parent> parent() const throw()
+    { return L4::Cap<Parent>(_env.parent); }
+    /**
+     * \brief Object-capability to the memory allocator.
+     * \return Memory allocator object-capability
+     */
+    L4::Cap<Mem_alloc> mem_alloc() const throw()
+    { return L4::Cap<Mem_alloc>(_env.mem_alloc); }
+    /**
+     * Object-capability to the user-level object factory.
+     */
+    L4::Cap<L4::Factory> user_factory() const throw()
+    { return L4::Cap<L4::Factory>(_env.mem_alloc); }
+    /**
+     * \brief Object-capability to the region map.
+     * \return Region map object-capability
+     */
+    L4::Cap<Rm> rm() const throw()
+    { return L4::Cap<Rm>(_env.rm); }
+    /**
+     * \brief Object-capability to the logging service.
+     * \return Log object-capability
+     */
+    L4::Cap<Log> log() const throw()
+    { return L4::Cap<Log>(_env.log); }
+    /**
+     * \brief Object-capability of the first user thread.
+     * \return Object-capability of the first user thread.
+     */
+    L4::Cap<L4::Thread> main_thread() const throw()
+    { return L4::Cap<L4::Thread>(_env.main_thread); }
+    /**
+     * \brief Object-capability of the user task.
+     * \return Object-capability of the user task.
+     */
+    L4::Cap<L4::Task> task() const throw()
+    { return L4::Cap<L4::Task>(L4_BASE_TASK_CAP); }
+    /**
+     * \brief Object-capability to the factory object available to the task.
+     * \return Factory object-capability
+     */
+    L4::Cap<L4::Factory> factory() const throw()
+    { return L4::Cap<L4::Factory>(_env.factory); }
+    /**
+     * \brief First available capability selector.
+     * \return First capability selector.
+     *
+     * First capability selector available for use for in the application.
+     */
+    l4_cap_idx_t first_free_cap() const throw()
+    { return _env.first_free_cap; }
+    /**
+     * \brief UTCB area of the task.
+     * \return UTCB area
+     */
+    l4_fpage_t utcb_area() const throw()
+    { return _env.utcb_area; }
+    /**
+     * \brief First free UTCB.
+     * \return object-capability
+     *
+     * First free UTCB within the UTCB area available for the application to
+     * use.
+     */
+    l4_addr_t first_free_utcb() const throw()
+    { return _env.first_free_utcb; }
+
+    /**
+     * \brief Get a pointer to the first entry in the initial objects array.
+     * \return A pointer to the first entry in the initial objects array.
+     */
+    Cap_entry const *initial_caps() const throw()
+    { return _env.caps; }
+
+    /**
+     * \brief Get the Cap_entry for the object named \a name.
+     * \param name is the name of the object.
+     * \param l is the length of the name, thus \a name might not be
+     *          zero terminated.
+     * \return A pointer to the Cap_entry for the object named \a name,
+     *         or NULL if no such object was found.
+     */
+    Cap_entry const *get(char const *name, unsigned l) const throw()
+    { return l4re_env_get_cap_l(name, l, &_env); }
+
+    /**
+     * \brief Get the capability selector for the object named \a name.
+     * \param name is the name of the object.
+     * \param l is the length of the name, thus \a name might not be
+     *          zero terminated.
+     * \return A capability selector for the object named \a name,
+     *         or an invalid capability selector if no such object was found.
+     */
+    template< typename T >
+    L4::Cap<T> get_cap(char const *name, unsigned l) const throw()
+    {
+      if (Cap_entry const *e = get(name, l))
+	return L4::Cap<T>(e->cap);
+
+      return L4::Cap<T>(-L4_ENOENT);
+    }
+
+    /**
+     * \brief Get the capability selector for the object named \a name.
+     * \param name is the name of the object (zero terminated).
+     * \return A capability selector for the object named \a name,
+     *         or an invalid capability selector if no such object was found.
+     */
+    template< typename T >
+    L4::Cap<T> get_cap(char const *name) const throw()
+    { return get_cap<T>(name, __builtin_strlen(name)); }
+
+    /**
+     * \brief Set parent object-capability.
+     * \param c  Parent object-capability
+     */
+    void parent(L4::Cap<Parent> const &c) throw()
+    { _env.parent = c.cap(); }
+    /**
+     * \brief Set memory allocator object-capability.
+     * \param c  Memory allocator object-capability
+     */
+    void mem_alloc(L4::Cap<Mem_alloc> const &c) throw()
+    { _env.mem_alloc = c.cap(); }
+    /**
+     * \brief Set region map object-capability.
+     * \param c  Region map object-capability
+     */
+    void rm(L4::Cap<Rm> const &c) throw()
+    { _env.rm = c.cap(); }
+    /**
+     * \brief Set log object-capability.
+     * \param c  Log object-capability
+     */
+    void log(L4::Cap<Log> const &c) throw()
+    { _env.log = c.cap(); }
+    /**
+     * \brief Set object-capability of first user thread.
+     * \param c  First thread's object-capability
+     */
+    void main_thread(L4::Cap<L4::Thread> const &c) throw()
+    { _env.main_thread = c.cap(); }
+    /**
+     * \brief Set factory object-capability.
+     * \param c  Factory object-capability
+     */
+    void factory(L4::Cap<L4::Factory> const &c) throw()
+    { _env.factory = c.cap(); }
+    /**
+     * \brief Set first available capability selector.
+     * \param c First capability selector available to the application.
+     */
+    void first_free_cap(l4_cap_idx_t c) throw()
+    { _env.first_free_cap = c; }
+    /**
+     * \brief Set UTCB area of the task.
+     * \param utcbs  UTCB area
+     */
+    void utcb_area(l4_fpage_t utcbs) throw()
+    { _env.utcb_area = utcbs; }
+    /**
+     * \brief Set first free UTCB.
+     * \param u First UTCB available for the application to use.
+     */
+    void first_free_utcb(l4_addr_t u) throw()
+    { _env.first_free_utcb = u; }
+
+    /**
+     * \brief Get the scheduler capability for the task.
+     * \return The capability selector for the default scheduler used for this
+     *         task.
+     */
+    L4::Cap<L4::Scheduler> scheduler() const throw()
+    { return L4::Cap<L4::Scheduler>(_env.scheduler); }
+
+    /**
+     * \brief Set the scheduler capability.
+     * \param c is the capability to be set as scheduler.
+     */
+    void scheduler(L4::Cap<L4::Scheduler> const &c) throw()
+    { _env.scheduler = c.cap(); }
+
+    /**
+     * \brief Set the pointer to the first Cap_entry in the initial objects
+     *        array.
+     * \param first is the first element in the array.
+     */
+    void initial_caps(Cap_entry *first) throw()
+    { _env.caps = first; }
+  };
+};

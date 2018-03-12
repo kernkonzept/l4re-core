@@ -1,0 +1,109 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU Lesser General Public License 2.1.
+ * Please see the COPYING-LGPL-2.1 file for details.
+ */
+#pragma once
+
+#include <l4/sys/types.h>
+#include <l4/re/l4aux.h>
+#include <cstddef>
+#include <l4/libloader/stack>
+
+namespace Ldr {
+
+struct Mem_check_ok
+{ void check_access(char *, size_t) {} };
+
+template< typename Mem_check = Mem_check_ok>
+class Remote_stack : public Ldr::Stack, public Mem_check
+{
+public:
+
+  void access_ok(char *p, size_t sz)
+  {
+    // for downward growing stack first subtract the size
+    Mem_check::check_access(p - sz, sz);
+  }
+
+  explicit Remote_stack(char *p = 0) : _target_top(0), _top(p), _p(p) {}
+  char *ptr() const { return _p; }
+  void ptr(char *p) { _p = p; }
+  void set_target_stack(l4_addr_t addr, l4_size_t size)
+  { _target_top = addr + size; _size = size; }
+
+  template < typename T >
+  T relocate(T src) const
+  { return (T)(l4_addr_t(src) + (_target_top - l4_addr_t(_top))); }
+
+  char const *push_str(char const *s, size_t len);
+  char *push_object(void const *o, unsigned long size);
+
+  template< typename T >
+  T *push(T const &v)
+  {
+    access_ok(_p, sizeof(T));
+    T *p = reinterpret_cast<T*>(_p);
+    *(--p) = v;
+    _p = reinterpret_cast<char*>(p);
+    return p;
+  }
+
+  void align(unsigned long size)
+  {
+    l4_addr_t p = l4_addr_t(_p);
+    unsigned bits;
+    for (bits = 0; (1UL << bits) <= size; ++bits)
+      ;
+
+    p &= ~0UL << bits;
+    _p = (char *)p;
+  }
+
+  void const **push_local_ptr(void const *p)
+  {
+    void const *x = relocate(p);
+    return push(x);
+  }
+
+  l4_addr_t target_ptr() const { return relocate(l4_addr_t(_p)); }
+  l4_addr_t target_top() const { return _target_top; }
+  l4_addr_t target_addr() const { return _target_top - _size; }
+  l4_size_t stack_size() const { return _size; }
+  void set_local_top(char *top)
+  { _top = top; _p = top; }
+
+private:
+  l4_addr_t _target_top;
+  l4_size_t _size;
+  char *_top;
+  char *_p;
+};
+
+
+template<typename Mem_check>
+char const *
+Remote_stack<Mem_check>::push_str(char const *s, size_t len)
+{
+  access_ok(_p, len + 1);
+  _p -= len + 1;
+  __builtin_memcpy(_p, s, len);
+  _p[len] = 0;
+
+  return _p;
+}
+
+template<typename Mem_check>
+char *
+Remote_stack<Mem_check>::push_object(void const *o, unsigned long size)
+{
+  access_ok(_p, size);
+  _p -= size;
+  __builtin_memcpy(_p, o, size);
+  return _p;
+}
+
+};

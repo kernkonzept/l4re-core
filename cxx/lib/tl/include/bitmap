@@ -1,0 +1,291 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2014 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+
+#pragma once
+
+namespace cxx {
+
+/**
+ * \ingroup cxx_api
+ * \brief Basic bitmap abstraction.
+ *
+ * This abstraction keeps a pointer to a memory area that is used as bitmap.
+ */
+class Bitmap_base
+{
+protected:
+  /**
+   * \brief Data type for each element of the bit buffer.
+   */
+  typedef unsigned long word_type;
+
+  enum
+  {
+    W_bits = sizeof(word_type) * 8, ///< number of bits in word_type
+    C_bits = 8,                     ///< number of bits in char
+  };
+
+  /**
+   * \brief Pointer to the buffer storing the bits.
+   */
+  word_type *_bits;
+
+  /**
+   * \brief Get the word index for the given bit.
+   * \param bit the index of the bit in question.
+   * \return the index in Bitmap_base::_bits for the given bit (bit / W_bits).
+   */
+  static unsigned word_index(unsigned bit) { return bit / W_bits; }
+
+  /**
+   * \brief Get the bit index within word_type for the given bit.
+   * \param bit the bit index in the bitmap.
+   * \return the bit index within word_type (bit % W_bits).
+   */
+  static unsigned bit_index(unsigned bit) { return bit % W_bits; }
+
+  /**
+   * \brief A writeable bit in a bitmap.
+   */
+  class Bit
+  {
+    Bitmap_base *_bm;
+    long _bit;
+
+  public:
+    Bit(Bitmap_base *bm, long bit) : _bm(bm), _bit(bit) {}
+    Bit &operator = (bool val) { _bm->bit(_bit, val); return *this; }
+    operator bool () const { return _bm->bit(_bit); }
+  };
+
+public:
+  explicit Bitmap_base(void *bits) throw() : _bits((word_type *)bits) {}
+
+  /** \brief Get the number of \a Words that are used for the bitmap. */
+  static long words(long bits) throw() { return (bits + W_bits -1) / W_bits; }
+  static long bit_buffer_bytes(long bits) throw()
+  { return words(bits) * W_bits / 8; }
+
+  /** \brief Helper abstraction for a word contained in the bitmap. */
+  template< long BITS >
+  class Word
+  {
+  public:
+    typedef unsigned long Type;
+    enum
+    {
+      Size = (BITS + W_bits - 1) / W_bits
+    };
+  };
+
+  /** \brief Get the number of chars that are used for the bitmap. */
+  static long chars(long bits) throw ()
+  { return (bits + C_bits -1) / C_bits; }
+
+  /** \brief Helper abstraction for a byte contained in the bitmap. */
+  template< long BITS >
+  class Char
+  {
+  public:
+    typedef unsigned char Type;
+    enum
+    {
+      Size = (BITS + C_bits - 1) / C_bits
+    };
+  };
+
+  /**
+   * \brief Set the value of bit \a bit to \a on.
+   * \param bit the number of the bit
+   * \param on  the boolean value that shall be assigned to the bit.
+   */
+  void bit(long bit, bool on) throw();
+
+  /**
+   * \brief Clear bit \a bit.
+   * \param bit the number of the bit to clear.
+   */
+  void clear_bit(long bit) throw();
+  /**
+   * \brief Set bit \a bit.
+   * \param bit the number of the bit to set,
+   */
+  void set_bit(long bit) throw();
+
+  /**
+   * \brief Get the truth value of a bit.
+   * \param bit the number of the bit to read.
+   * \return 0 if \a bit is not set, != 0 if \a bit is set.
+   */
+  word_type bit(long bit) const throw();
+
+  /**
+   * \brief Get the bit at index \a bit.
+   * \param bit the number of the bit to read.
+   * \return 0 if \a bit is not set, != 0 if \a bit is set.
+   */
+  word_type operator [] (long bit) const throw()
+  { return this->bit(bit); }
+
+  /**
+   * \brief Get the lvalue for the bit at index \a bit.
+   * \param bit the number.
+   * \return lvalue for \a bit
+   */
+  Bit operator [] (long bit) throw()
+  { return Bit(this, bit); }
+
+  /**
+   * Scan for the first zero bit.
+   *
+   * \param max_bit    Upper bound (exclusive) for the scanning operation.
+   * \param start_bit  Hint at the number of the first bit to look at.
+   *                   Zero bits below `start_bit` may or may not be
+   *                   taken into account by the implementation.
+   *
+   * \retval >= 0  Number of first zero bit found.
+   * \retval -1    All bits between `start_bit` and `max_bit` are set.
+   */
+  long scan_zero(long max_bit, long start_bit = 0) const throw();
+
+  void *bit_buffer() const throw() { return _bits; }
+
+protected:
+  static int _bzl(unsigned long w) throw();
+};
+
+
+/**
+ * \ingroup cxx_api
+ * \brief A static bit map.
+ * \param BITS the number of bits that shall be in the bitmap.
+ */
+template<int BITS>
+class Bitmap : public Bitmap_base
+{
+private:
+  char _bits[Bitmap_base::Char<BITS>::Size];
+
+public:
+  /** \brief Create a bitmap with \a BITS bits. */
+  Bitmap() throw() : Bitmap_base(_bits) {}
+  Bitmap(Bitmap<BITS> const &o) throw() : Bitmap_base(_bits)
+  { __builtin_memcpy(_bits, o._bits, sizeof(_bits)); }
+  /**
+   * Scan for the first zero bit.
+   *
+   * \param start_bit  Hint at the number of the first bit to look at.
+   *                   Zero bits below `start_bit` may or may not be
+   *                   taken into account by the implementation.
+   *
+   * \retval >= 0  Number of first zero bit found.
+   * \retval -1    All bits at `start_bit` or higher are set.
+   *
+   * Compared to Bitmap_base::scan_zero(), the upper bound is set to BITS.
+   */
+  long scan_zero(long start_bit = 0) const throw();
+
+  void clear_all()
+  { __builtin_memset(_bits, 0, sizeof(_bits)); }
+};
+
+
+inline
+void
+Bitmap_base::bit(long bit, bool on) throw()
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  _bits[idx] = (_bits[idx] & ~(1UL << b)) | ((unsigned long)on << b);
+}
+
+inline
+void
+Bitmap_base::clear_bit(long bit) throw()
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  _bits[idx] &= ~(1UL << b);
+}
+
+inline
+void
+Bitmap_base::set_bit(long bit) throw()
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  _bits[idx] |= (1UL << b);
+}
+
+inline
+unsigned long
+Bitmap_base::bit(long bit) const throw()
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  return _bits[idx] & (1UL << b);
+}
+
+inline
+int
+Bitmap_base::_bzl(unsigned long w) throw()
+{
+  for (int i = 0; i < W_bits; ++i, w >>= 1)
+    {
+      if ((w & 1) == 0)
+        return i;
+    }
+  return -1;
+}
+
+inline
+long
+Bitmap_base::scan_zero(long max_bit, long start_bit) const throw()
+{
+  if (!(operator [] (start_bit)))
+    return start_bit;
+
+  long idx = word_index(start_bit);
+
+  max_bit -= start_bit & ~(W_bits - 1);
+
+  for (; max_bit > 0; max_bit -= W_bits, ++idx)
+    {
+      if (_bits[idx] == 0)
+        return idx * W_bits;
+
+      if (_bits[idx] != ~0UL)
+        {
+          long zbit = _bzl(_bits[idx]);
+          return zbit < max_bit ? idx * W_bits + zbit : -1;
+        }
+    }
+
+  return -1;
+}
+
+template<int BITS> inline
+long
+Bitmap<BITS>::scan_zero(long start_bit) const throw()
+{
+  return Bitmap_base::scan_zero(BITS, start_bit);
+}
+
+};
+

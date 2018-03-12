@@ -1,0 +1,41 @@
+// vi:ft=cpp
+/*
+ * (c) 2008-2009 Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU Lesser General Public License 2.1.
+ * Please see the COPYING-LGPL-2.1 file for details.
+ */
+
+#pragma once
+
+#include <l4/re/rm>
+
+extern char __L4_KIP_ADDR__[1];
+
+namespace Ldr {
+template< typename Base >
+class Local_app_model : public Base
+{
+public:
+  template< typename A1, typename A2 >
+  Local_app_model(A1 const &a1, A2 const &a2) : Base(a1, a2) {}
+
+  void prog_reserve_utcb_area()
+  {}
+
+  void prog_attach_kip()
+  {
+    if (Base::prog_info()->kip == l4_addr_t(__L4_KIP_ADDR__))
+      return;
+    Base::prog_attach_ds(Base::prog_info()->kip, L4_PAGESIZE,
+                         Base::local_kip_ds(), 0, L4Re::Rm::Read_only,
+                         "attaching KIP segment");
+  }
+
+  void prog_attach_stack(typename Base::Dataspace)
+  {}
+};
+
+
+}

@@ -1,0 +1,3 @@
+provides: libstdc++
+requires: libsupc++ libstdc++-headers
+maintainer: warg@os.inf.tu-dresden.de

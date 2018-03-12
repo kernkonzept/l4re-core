@@ -1,0 +1,46 @@
+// vi:ft=cpp
+
+#pragma once
+
+#include <l4/cxx/type_traits>
+#include <stddef.h>
+
+namespace cxx {
+
+template< typename T >
+class Static_container
+{
+private:
+  struct X : T
+  {
+    void *operator new (size_t, void *p) throw() { return p; }
+    void operator delete (void *) {}
+    X() = default;
+    template<typename ...Args>
+    X(Args && ...a) : T(cxx::forward<Args>(a)...) {}
+  };
+
+public:
+  void operator = (Static_container const &) = delete;
+  Static_container(Static_container const &) = delete;
+  Static_container() = default;
+
+  T *get() { return reinterpret_cast<X*>(_s); }
+  T *operator -> () { return get(); }
+  T &operator * () { return *get(); }
+  operator T* () { return get(); }
+
+  void construct()
+  { new (reinterpret_cast<void*>(_s)) X; }
+
+  template< typename ...Args >
+  void construct(Args && ...args)
+  { new (reinterpret_cast<void*>(_s)) X(cxx::forward<Args>(args)...); }
+
+private:
+  char _s[sizeof(X)] __attribute__((aligned(__alignof(X))));
+};
+
+}
+
+

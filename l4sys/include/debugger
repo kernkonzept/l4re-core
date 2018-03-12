@@ -1,0 +1,149 @@
+// vi:ft=cpp
+/**
+ * \file
+ * The debugger interface specifies common debugging related definitions.
+ */
+/*
+ * (c) 2010-2011 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/debugger.h>
+#include <l4/sys/kobject>
+
+namespace L4 {
+
+/**
+ * C++ debugger interface.
+ *
+ * \attention This API is subject to change! Do not rely on it in production
+ *            code.
+ *
+ * \includefile{l4/sys/debugger}
+ */
+class Debugger : public Kobject_t<Debugger, Kobject, L4_PROTO_DEBUGGER>
+{
+public:
+  enum
+  {
+    Switch_log_on  = L4_DEBUGGER_SWITCH_LOG_ON,
+    Switch_log_off = L4_DEBUGGER_SWITCH_LOG_OFF,
+  };
+
+  /**
+   * \copybrief l4_debugger_set_object_name()
+   *
+   * \param name  Name
+   * \param utcb  The UTCB to use for the operation.
+   *
+   * \return System call return tag.
+   */
+  l4_msgtag_t set_object_name(const char *name,
+                              l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_debugger_set_object_name_u(cap(), name, utcb); }
+
+  /**
+   * \copybrief l4_debugger_global_id()
+   *
+   * \param utcb  The UTCB to use for the operation.
+   *
+   * \retval ~0UL  The capability is invalid.
+   * \retval >=0   The global debugger id.
+   */
+  unsigned long global_id(l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_debugger_global_id_u(cap(), utcb); }
+
+  /**
+   * \copybrief l4_debugger_kobj_to_id()
+   *
+   * \param kobjp  Kobject pointer
+   * \param utcb   The UTCB to use for the operation.
+   *
+   * \retval ~0UL  The capability or the Kobject pointer are invalid.
+   * \retval >=0   The globally unique id.
+   */
+  unsigned long kobj_to_id(l4_addr_t kobjp,
+                           l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_debugger_kobj_to_id_u(cap(), kobjp, utcb); }
+
+  /**
+   * \copybrief l4_debugger_query_log_typeid()
+   *
+   * \param name   Name to query for.
+   * \param idx    Idx to start searching, start with 0
+   * \param utcb   The UTCB to use for the operation.
+   *
+   * \retval >=0  Id
+   * \retval <0   Error
+   */
+  int query_log_typeid(const char *name, unsigned idx,
+                      l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_debugger_query_log_typeid_u(cap(), name, idx, utcb); }
+
+  /**
+   * \copybrief l4_debugger_query_log_name()
+   *
+   * \param      idx           ID to query.
+   * \param[out] name          Buffer to copy name to. The buffer must be
+   *                           allocated by the caller.
+   * \param      namelen       Buffer length of name.
+   * \param[out] shortname     Buffer to copy `shortname` to. The buffer must
+   *                           be allocated by the caller.
+   * \param      shortnamelen  Buffer length of `shortname`.
+   * \param      utcb          The UTCB to use for the operation.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
+  int query_log_name(unsigned idx,
+                     char *name, unsigned namelen,
+                     char *shortname, unsigned shortnamelen,
+                     l4_utcb_t *utcb = l4_utcb()) throw()
+  {
+    return l4_debugger_query_log_name_u(cap(), idx, name, namelen,
+                                        shortname, shortnamelen, utcb);
+  }
+
+  /**
+   * \copybrief l4_debugger_switch_log()
+   * \param name    Name of the log type.
+   * \param on_off  1: turn log on, 0: turn log off
+   * \param utcb    The UTCB to use for the operation.
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t switch_log(const char *name, unsigned on_off,
+                         l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_debugger_switch_log_u(cap(), name, on_off, utcb); }
+
+  /**
+   * Get name of object with Id `id`.
+   *
+   * \param      id    Id of the object whose name is asked.
+   * \param[out] name  Buffer to copy the name into. The buffer must be
+   *                   allocated by the caller.
+   * \param      size  Length of the `name` buffer.
+   * \param      utcb  The UTCB to use for the operation.
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t get_object_name(unsigned id, char *name, unsigned size,
+                       l4_utcb_t *utcb = l4_utcb()) throw()
+  { return l4_debugger_get_object_name_u(cap(), id, name, size, utcb); }
+};
+}

@@ -1,0 +1,138 @@
+// vim:set ft=cpp:
+/**
+ * \file
+ * L4::Cap related definitions.
+ *
+ * \author Alexander Warg <alexander.warg@os.inf.tu-dresden.de>
+ *
+ */
+/*
+ * (c) 2008-2009,2015 Author(s)
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/consts.h>
+#include <l4/sys/types.h>
+#include <l4/sys/kobject>
+#include <l4/sys/task.h>
+
+namespace L4
+{
+
+/* Forward declarations for our kernel object classes. */
+class Task;
+class Thread;
+class Factory;
+class Irq;
+class Log;
+class Vm;
+class Kobject;
+
+/**
+ * Disable copy of a class.
+ *
+ * \param _class  Name of the class that shall not have value copy semantics.
+ *
+ * The typical use of this is:
+ * ~~~
+ * class Non_value
+ * {
+ *   L4_DISABLE_COPY(Non_value)
+ *
+ *   ...
+ * }
+ * ~~~
+ */
+#if __cplusplus >= 201103L
+#  define L4_DISABLE_COPY(_class)                \
+  public:                                        \
+    _class(_class const &) = delete;             \
+    _class operator = (_class const &) = delete; \
+  private:
+#else
+#  define L4_DISABLE_COPY(_class)       \
+  private:                              \
+    _class(_class const &);             \
+    _class operator = (_class const &);
+#endif
+
+
+#define L4_KOBJECT_DISABLE_COPY(_class) \
+  protected:                            \
+    _class();                           \
+  L4_DISABLE_COPY(_class)
+
+
+#define L4_KOBJECT(_class) L4_KOBJECT_DISABLE_COPY(_class)
+
+inline l4_msgtag_t
+Cap_base::validate(Cap<Task> task, l4_utcb_t *u) const throw()
+{ return l4_task_cap_valid_u(task.cap(), _c, u);  }
+
+inline l4_msgtag_t
+Cap_base::validate(l4_utcb_t *u) const throw()
+{ return l4_task_cap_valid_u(L4_BASE_TASK_CAP, _c, u);  }
+
+}; // namespace L4
+
+#include <l4/sys/meta>
+
+namespace L4 {
+
+/**
+ * `dynamic_cast` for capabilities.
+ *
+ * \tparam T  The target type of the capability.
+ * \tparam F  The source type (is usually implicitly set).
+ * \param  c  The source capability that shall be casted.
+ *
+ * \retval Cap<T>          Capability of target interface `T`.
+ * \retval L4_INVALID_CAP  `c` does not support the target interface `T` or the
+ *                         L4::Meta interface.
+ *
+ * The use of this cast operator is similar to the `dynamic_cast<>()` for
+ * C++ pointers.  It also induces overhead, because it uses the meta interface
+ * (L4::Meta) to do runtime type checking.
+ *
+ * Example code:
+ *
+ *     L4::Cap<L4::Kobject> obj = ... ;
+ *     L4::Cap<L4::Icu> icu = L4::cap_dynamic_cast<L4::Icu>(obj);
+ *
+ */
+template< typename T, typename F >
+inline
+Cap<T> cap_dynamic_cast(Cap<F> const &c) throw()
+{
+  if (!c.is_valid())
+    return Cap<T>::Invalid;
+
+  Cap<Meta> mc = cap_reinterpret_cast<Meta>(c);
+  Type_info const *m = kobject_typeid<T>();
+  if (m->proto() && l4_error(mc->supports(m->proto())) > 0)
+    return Cap<T>(c.cap());
+
+  // FIXME: use generic checker
+#if 0
+  if (l4_error(mc->supports(T::kobject_proto())) > 0)
+    return Cap<T>(c.cap());
+#endif
+
+  return Cap<T>::Invalid;
+}
+
+}

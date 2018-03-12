@@ -1,0 +1,106 @@
+# vi:ft=make
+LIBCSRC_DIR ?= $(SRC_DIR)
+
+DEFINES           += -DL4_THREAD_SAFE -DL4_NO_RTTI=1
+DEFINES_x86-l4f   += -DUSE_TLS=1
+DEFINES_amd64-l4f += -DUSE_TLS=1
+DEFINES_arm-l4f   += -DUSE_TLS=1
+DEFINES_mips-l4f  += -DUSE_TLS=1
+DEFINES_ppc32-l4f += -DUSE_TLS=1
+DEFINES_sparc-l4f += -DUSE_TLS=1
+TARGET            := libuc_c.a libuc_c.so libuc_c_nonshared.p.a libssp_nonshared.p.a
+PC_FILENAME       := libc
+PC_LIBS           := -luc_c -luc_c_nonshared.p
+
+PICFLAGS += -DSHARED=1
+
+include $(LIBCSRC_DIR)/make_vars.mk
+include $(LIBCSRC_DIR)/make_rules.mk
+include $(LIBCSRC_DIR)/contrib_files.mk
+
+# stack protector handling
+ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
+DEFINES           += -D__UCLIBC_HAS_SSP__=1
+PC_LIBS           += -lssp_nonshared.p
+# signal BID that uclibc implements infrastructure for stack protector
+PC_CFLAGS         := bid_allow_stack_protector
+endif
+
+LDFLAGS         = -z combreloc -z relro --sort-common \
+		  --warn-common 
+
+LDFLAGS_NONGOLD = --warn-once --sort-section=alignment
+LDFLAGS        += $(LDFLAGS_NONGOLD)
+
+LDFLAGS_libuc_c.so := -init __uClibc_init
+
+DIRS := libc/string libc/inet libc/pwd_grp libc/unistd libc/signal \
+        libc/stdlib libc/stdlib/malloc-standard libc/stdio \
+	libc/misc libc/sysdeps/linux libc/termios libm libcrypt
+
+SUB_MODULES := wchar large_file fp
+
+# process all sources for the libc
+$(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
+# libm stuff
+$(eval $(call PROCESS_template_src, libm, float double))
+
+# stack protector handling
+ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
+UCLIBC_SRC_C              += ssp-l4.c
+endif
+
+UCLIBC_SRC_CC             += _exit.cc
+
+SRC_C_libuc_c.so          += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libuc_c.so)
+SRC_C_libuc_c.a           += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libuc_c.a)
+SRC_S_libuc_c.so          += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libuc_c.so)
+SRC_S_libuc_c.a           += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libuc_c.a)
+SRC_CC_libuc_c.so         += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libuc_c.so)
+SRC_CC_libuc_c.a          += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libuc_c.a)
+
+SRC_C_libuc_c.so           += $(PTHOBJ_PFX)/forward.c $(PTHOBJ_PFX)/libc_pthread_init.c
+SRC_CC_libuc_c.a_x86-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libuc_c.a_x86-l4f    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libuc_c.a_amd64-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libuc_c.a_amd64-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libuc_c.a_arm-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libuc_c.a_arm-l4f    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libuc_c.a_mips-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libuc_c.a_mips-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libuc_c.a_ppc32-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libuc_c.a_ppc32-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libuc_c.a_sparc-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libuc_c.a_sparc-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+
+SRC_C_libuc_c_nonshared.p.a += libc/stdlib/atexit.c
+
+SRC_C_libuc_c.so_x86-l4f    += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.a_x86-l4f     += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.so_amd64-l4f  += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.a_amd64-l4f   += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.so_arm-l4f    += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.a_arm-l4f     += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.so_mips-l4f   += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.a_mips-l4f    += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.so_ppc32-l4f  += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.a_ppc32-l4f   += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.so_sparc-l4f  += libc/misc/pthread/tsd.c
+SRC_S_libuc_c.so_sparc-l4f  += libc/sysdeps/linux/sparc/sdiv.S
+SRC_C_libuc_c.a_sparc-l4f   += libc/misc/pthread/tsd.c
+
+SRC_C_libuc_c.so_arm-l4f    += ARCH-arm/aeabi_read_tp_generic.c
+SRC_C_libuc_c.a_arm-l4f     += ARCH-arm/aeabi_read_tp_generic.c
+#SRC_S_libuc_c.so_arm-l4f    += ARCH-arm/aeabi_read_tp-v6p.S
+#SRC_S_libuc_c.a_arm-l4f     += ARCH-arm/aeabi_read_tp-v6p.S
+
+SRC_C_libssp_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
+
+CXXFLAGS_libc-tls.cc += -fno-rtti -fno-exceptions
+
+CPPFLAGS_libc-tls.cc += $(LDSO_INC)
+CPPFLAGS_dl-tls.c += $(LDSO_INC)
+
+$(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
+                  $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk
+

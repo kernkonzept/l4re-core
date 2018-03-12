@@ -1,0 +1,22 @@
+/* vim:set ft=c: */
+/**
+ * \defgroup api_l4re_c  L4Re C Interface
+ *
+ * Documentation for the L4Re C Interface.
+ *
+ * The interface functions closely align with the C++ functions and add
+ * no further functionalities.
+ *
+ * For new programs it is advised to use the C++ interface.
+ */
+/**
+ * \defgroup api_l4re_c_util L4Re Util C Interface
+ * \ingroup api_l4re_c
+ *
+ * Documentation of the L4 Runtime Environment utility functionality in C.
+ *
+ * The interface functions closely align with the C++ functions and add
+ * no further functionalities.
+ *
+ * For new programs it is advised to use the C++ interface.
+ */

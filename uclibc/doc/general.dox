@@ -1,0 +1,55 @@
+/*!\file doc/general.dox
+ *
+ * \brief  Mainpage definition and some concept description
+ */
+
+/*!\mainpage uClibc - basic libc support for L4env
+
+\section p_overview Overview
+
+UClibc is the port of the uClibc to L4env. It enables you to use
+basic libc functionality in L4env-based programs. The supported
+functions are listed below.
+
+\section p_mem Memory allocation
+
+\par <stdlib.h>
+    malloc, free, calloc
+
+\par <alloca.h>
+    alloca
+
+\section p_string String functions
+
+\par  <string.h>
+    mem*, str*
+
+\par  <strings.h>
+    bcopy, bzero, bcmp
+
+\par  <stdio.h>
+    snprint, sprintf, vsprintf
+
+\section p_io I/O: (for debugging)
+
+\par  <stdio.h>
+    printf, vprintf
+
+\section p_type Type conversion functions
+
+  <stdlib.h>
+    ato*, strto*
+
+\section p_unsupported Functions, not supported by the core of L4env
+
+- File I/O
+- Networking
+- Math
+- Time
+- Pthreads
+- Signals
+
+Functions that are not listed here, may or may not work.
+
+\author Norman Feske
+*/

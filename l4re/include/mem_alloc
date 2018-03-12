@@ -1,0 +1,119 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
+/**
+ * \file
+ * \brief   Memory allocator interface
+ */
+/*
+ * Copyright (C) 2015 Kernkonzept GmbH.
+ * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
+ */
+/*
+ * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *               Alexander Warg <warg@os.inf.tu-dresden.de>,
+ *               Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/factory>
+
+namespace L4Re {
+class Dataspace;
+
+// MISSING:
+// * alignment constraints
+// * shall we support superpages in noncont memory?
+
+/**
+ * Memory allocation interface.
+ *
+ * The memory-allocator API is the basic API to allocate memory from the
+ * L4Re subsystem. The memory is allocated in terms of dataspaces (see
+ * L4Re::Dataspace). The provided dataspaces have at least the
+ * property that data written to such a dataspace is available as long
+ * as the dataspace is not freed or the data is not overwritten. In particular,
+ * the memory backing a dataspace from an allocator need not be allocated
+ * instantly, but may be allocated lazily on demand.
+ *
+ * A memory allocator can provide dataspaces with additional properties,
+ * such as physically contiguous memory, pre-allocated memory, or pinned
+ * memory. To request memory with an additional property the
+ * L4Re::Mem_alloc::alloc() method provides a flags parameter. If the
+ * concrete implementation of a memory allocator does not support or allow
+ * allocation of memory with a certain property, the allocation may be
+ * refused.
+ */
+class L4_EXPORT Mem_alloc :
+  public L4::Kobject_t<Mem_alloc, L4::Factory, L4::PROTO_EMPTY>
+{
+public:
+  /**
+   * Flags for the allocator.
+   *
+   * They describe requested properties of the allocated memory.
+   * Support of these properties by the dataspace provider is optional.
+   */
+  enum Mem_alloc_flags
+  {
+    Continuous   = 0x01,  ///< Allocate physically contiguous memory
+    Pinned       = 0x02,  ///< Deprecated, use L4Re::Dma_space instead
+    Super_pages  = 0x04,  ///< Allocate super pages
+  };
+
+  /**
+   * Allocate anonymous memory.
+   *
+   * \param      size   Size in bytes to be requested (granularity
+   *                    is (super)pages and the size is rounded up to this
+   *                    granularity). If `size` is a negative value and `flags`
+   *                    set the Mem_alloc_flags::Continuous bit the
+   *                    allocator tries to allocate as much memory as possible
+   *                    leaving an amount of at least `-size` bytes within the
+   *                    associated quota.
+   * \param[out] mem    Capability slot where the capability to the
+   *                    dataspace is received.
+   * \param      flags  Special dataspace properties, see #Mem_alloc_flags
+   * \param      align  Log2 alignment of dataspace if supported by allocator,
+   *                    will be at least L4_PAGESHIFT,
+   *                    with Super_pages flag set at least L4_SUPERPAGESHIFT
+   *
+   * \retval 0           Success
+   * \retval -L4_ERANGE  Given size not supported.
+   * \retval -L4_ENOMEM  Not enough memory available.
+   * \retval <0          IPC error
+   */
+  long alloc(long size, L4::Cap<Dataspace> mem,
+             unsigned long flags = 0, unsigned long align = 0) const throw();
+
+  /**
+   * Free dataspace.
+   *
+   * \param  mem  Dataspace to be released.
+   *
+   * \retval 0
+   *
+   * \deprecated This function is an empty stub which remains here
+   *             for backward compatibility only.
+   *             Use `L4::Task::unmap(mem, L4_FP_DELETE_OBJ)` to remove
+   *             a dataspace.
+   */
+  long free(L4::Cap<Dataspace> mem) const throw();
+
+};
+
+};

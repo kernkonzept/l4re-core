@@ -1,0 +1,343 @@
+// vi:ft=cpp
+/*
+ * (c) 2010 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
+ *          Alexander Warg <warg@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ *
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU General Public License 2.
+ * Please see the COPYING-GPL-2 file for details.
+ *
+ * As a special exception, you may use this file as part of a free software
+ * library without restriction.  Specifically, if other files instantiate
+ * templates or use macros or inline functions from this file, or you compile
+ * this file and link it with other files to produce an executable, this
+ * file does not by itself cause the resulting executable to be covered by
+ * the GNU General Public License.  This exception does not however
+ * invalidate any other reasons why the executable file might be covered by
+ * the GNU General Public License.
+ */
+#pragma once
+
+#include <l4/l4re_vfs/vfs.h>
+#include <l4/crtn/initpriorities.h>
+
+namespace L4Re { namespace Vfs {
+
+/// Reference to the applications L4Re::Vfs::Ops singleton.
+extern L4Re::Vfs::Ops *vfs_ops asm ("l4re_env_posix_vfs_ops");
+
+class Mount_tree;
+
+/**
+ * \brief Boiler plate class for implementing an open file for L4Re::Vfs.
+ *
+ * This class may be used as a base class for everything that a POSIX
+ * file descriptor may point to. This are things such as regular files,
+ * directories, special device files, streams, pipes, and so on.
+ */
+class Be_file : public File
+{
+public:
+  void *operator new (size_t size) throw()
+  { return vfs_ops->malloc(size); }
+
+  void *operator new (size_t, void *m) throw()
+  { return m; }
+
+  void operator delete (void *m)
+  { vfs_ops->free(m); }
+
+  // used in close, to unlock all locks of a file (as POSIX says)
+  int unlock_all_locks() throw()
+  { return 0; }
+
+  // for mmap
+  L4::Cap<L4Re::Dataspace> data_space() const throw()
+  { return L4::Cap<L4Re::Dataspace>::Invalid; }
+
+  /// Default backend for POSIX read and readv functions.
+  ssize_t readv(const struct iovec*, int) throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX write and writev functions.
+  ssize_t writev(const struct iovec*, int) throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX pwrite and pwritev functions.
+  ssize_t pwritev(const struct iovec*, int, off64_t) throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX pread and preadv functions.
+  ssize_t preadv(const struct iovec*, int, off64_t) throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX seek and lseek functions.
+  off64_t lseek64(off64_t, int) throw()
+  { return -ESPIPE; }
+
+  /// Default backend for the POSIX truncate, ftruncate and similar functions.
+  int ftruncate64(off64_t) throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX fsync.
+  int fsync() const throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX fdatasync.
+  int fdatasync() const throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX ioctl.
+  int ioctl(unsigned long, va_list) throw()
+  { return -EINVAL; }
+
+  int fstat64(struct stat64 *) const throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX chmod and fchmod.
+  int fchmod(mode_t) throw()
+  { return -EINVAL; }
+
+  /// Default backend for POSIX fcntl subfunctions.
+  int get_status_flags() const throw()
+  { return 0; }
+
+  /// Default backend for POSIX fcntl subfunctions.
+  int set_status_flags(long) throw()
+  { return 0; }
+
+  /// Default backend for POSIX fcntl subfunctions.
+  int get_lock(struct flock64 *) throw()
+  { return -ENOLCK; }
+
+  /// Default backend for POSIX fcntl subfunctions.
+  int set_lock(struct flock64 *, bool) throw()
+  { return -ENOLCK; }
+
+  /// Default backend for POSIX access and faccessat functions.
+  int faccessat(const char *, int, int) throw()
+  { return -ENOTDIR; }
+
+  /// Default backend for POSIX utime.
+  int utime(const struct utimbuf *) throw()
+  { return -EROFS; }
+
+  /// Default backend for POSIX utimes.
+  int utimes(const struct timeval [2]) throw()
+  { return -EROFS; }
+
+  /// Default backend for POSIX mkdir and mkdirat.
+  int mkdir(const char *, mode_t) throw()
+  { return -ENOTDIR; }
+
+  /// Default backend for POSIX unlink, unlinkat.
+  int unlink(const char *) throw()
+  { return -ENOTDIR; }
+
+  /// Default backend for POSIX rename, renameat.
+  int rename(const char *, const char *) throw()
+  { return -ENOTDIR; }
+
+  /// Default backend for POSIX link, linkat.
+  int link(const char *, const char *) throw()
+  { return -ENOTDIR; }
+
+  /// Default backend for POSIX symlink, symlinkat.
+  int symlink(const char *, const char *) throw()
+  { return -EPERM; }
+
+  /// Default backend for POSIX rmdir, rmdirat.
+  int rmdir(const char *) throw()
+  { return -ENOTDIR; }
+
+  /// Default backend for POSIX readlink, readlinkat.
+  ssize_t readlink(char *, size_t)
+  { return -EINVAL; }
+
+  ssize_t getdents(char *, size_t) throw()
+  { return -ENOTDIR; }
+
+
+
+  // Socket interface
+  int bind(sockaddr const *, socklen_t) throw()
+  { return -ENOTSOCK; }
+
+  int connect(sockaddr const *, socklen_t) throw()
+  { return -ENOTSOCK; }
+
+  ssize_t send(void const *, size_t, int) throw()
+  { return -ENOTSOCK; }
+
+  ssize_t recv(void *, size_t, int) throw()
+  { return -ENOTSOCK; }
+
+  ssize_t sendto(void const *, size_t, int, sockaddr const *, socklen_t) throw()
+  { return -ENOTSOCK; }
+
+  ssize_t recvfrom(void *, size_t, int, sockaddr *, socklen_t *) throw()
+  { return -ENOTSOCK; }
+
+  ssize_t sendmsg(msghdr const *, int) throw()
+  { return -ENOTSOCK; }
+
+  ssize_t recvmsg(msghdr *, int) throw()
+  { return -ENOTSOCK; }
+
+  int getsockopt(int, int, void *, socklen_t *) throw()
+  { return -ENOTSOCK; }
+
+  int setsockopt(int, int, void const *, socklen_t) throw()
+  { return -ENOTSOCK; }
+
+  int listen(int) throw()
+  { return -ENOTSOCK; }
+
+  int accept(sockaddr *, socklen_t *) throw()
+  { return -ENOTSOCK; }
+
+  int shutdown(int) throw()
+  { return -ENOTSOCK; }
+
+  int getsockname(sockaddr *, socklen_t *) throw()
+  { return -ENOTSOCK; }
+
+  int getpeername(sockaddr *, socklen_t *) throw()
+  { return -ENOTSOCK; }
+
+  ~Be_file() throw() = 0;
+
+private:
+  /// Default backend for POSIX openat, open.
+  int get_entry(const char *, int, mode_t, cxx::Ref_ptr<File> *) throw()
+  { return -ENOTDIR; }
+
+protected:
+  const char *get_mount(const char *path, cxx::Ref_ptr<File> *dir) throw();
+};
+
+inline
+Be_file::~Be_file() throw() {}
+
+class Be_file_pos : public Be_file
+{
+public:
+  Be_file_pos() throw() : Be_file(), _pos(0) {}
+
+  virtual off64_t size() const throw() = 0;
+
+  ssize_t readv(const struct iovec *v, int iovcnt) throw()
+  {
+    ssize_t r = preadv(v, iovcnt, _pos);
+    if (r > 0)
+      _pos += r;
+    return r;
+  }
+
+  ssize_t writev(const struct iovec *v, int iovcnt) throw()
+  {
+    ssize_t r = pwritev(v, iovcnt, _pos);
+    if (r > 0)
+      _pos += r;
+    return r;
+  }
+
+  ssize_t preadv(const struct iovec *v, int iovcnt, off64_t offset) throw() = 0;
+  ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t offset) throw() = 0;
+
+  off64_t lseek64(off64_t offset, int whence) throw()
+  {
+    off64_t r;
+    switch (whence)
+      {
+      case SEEK_SET: r = offset; break;
+      case SEEK_CUR: r = _pos + offset; break;
+      case SEEK_END: r = size() + offset; break;
+      default: return -EINVAL;
+      };
+
+    if (r < 0)
+      return -EINVAL;
+
+    _pos = r;
+    return _pos;
+  }
+
+  ~Be_file_pos() throw() = 0;
+
+protected:
+  off64_t pos() const throw() { return _pos; }
+
+private:
+  off64_t _pos;
+};
+
+inline Be_file_pos::~Be_file_pos() throw() {}
+
+class Be_file_stream : public Be_file
+{
+public:
+  ssize_t preadv(const struct iovec *v, int iovcnt, off64_t) throw()
+  { return readv(v, iovcnt); }
+
+  ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t) throw()
+  { return writev(v, iovcnt); }
+
+  ~Be_file_stream() throw () = 0;
+
+};
+
+inline Be_file_stream::~Be_file_stream() throw() {}
+
+/**
+ * \brief Boilerplate class for implementing a L4Re::Vfs::File_system.
+ *
+ * This class already takes care of registering and unregistering the
+ * file system in the global registry and implements the type() method.
+ */
+class Be_file_system : public File_system
+{
+private:
+  char const *const _fstype;
+
+public:
+
+  /**
+   * \brief Create a file-system object for the given \a fstype.
+   * \param fstype The type that type() shall return.
+   *
+   * This constructor takes care of registering the file system
+   * in the registry of L4Re::Vfs::vfs_ops.
+   */
+  explicit Be_file_system(char const *fstype) throw()
+  : File_system(), _fstype(fstype)
+  {
+    vfs_ops->register_file_system(this);
+  }
+
+  /**
+   * \brief Destroy a file-system object.
+   *
+   * This destructor takes care of removing this file system
+   * from the registry of L4Re::Vfs::vfs_ops.
+   */
+  ~Be_file_system() throw()
+  {
+    vfs_ops->unregister_file_system(this);
+  }
+
+  /**
+   * \brief Return the file-system type.
+   *
+   * Returns the file-system type given as \a fstype in the constructor.
+   */
+  char const *type() const throw() { return _fstype; }
+};
+
+/* Make sure filesystems can register before the constructor of libmount
+ * runs */
+#define L4RE_VFS_FILE_SYSTEM_ATTRIBUTE \
+     __attribute__((init_priority(INIT_PRIO_LATE)))
+
+}}
