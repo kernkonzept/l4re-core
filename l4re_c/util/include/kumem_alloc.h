@@ -34,18 +34,10 @@
 EXTERN_C_BEGIN
 
 /**
- * \brief Allocate state area.
- * \ingroup api_l4re_c_util_kumem_alloc
- *
- * \retval mem         Pointer to memory that has been allocated.
- * \retval pages_order Size to allocate, in log2 pages.
- * \param  task        Task to use for allocation.
- * \param  regmgr      Region manager to use for allocation.
- *
- * \return 0 for success, error code otherwise
+ * \copydoc L4Re::Util::kumem_alloc()
  */
 L4_CV int
 l4re_util_kumem_alloc(l4_addr_t *mem, unsigned pages_order,
-                      l4_cap_idx_t task, l4_cap_idx_t regmgr) L4_NOTHROW;
+                      l4_cap_idx_t task, l4_cap_idx_t rm) L4_NOTHROW;
 
 EXTERN_C_END

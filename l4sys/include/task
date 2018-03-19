@@ -204,6 +204,12 @@ public:
    * \param fpage  Flexpage describing the virtual area the memory goes to.
    * \param utcb   UTCP pointer of the calling thread.
    *
+   * \note
+   * The amount of kernel-user memory that can be allocated at once is limited
+   * by the used kernel implementation. The minimum allocatable amount is one
+   * page (`L4_PAGESIZE`). A portable implementation should not depend on
+   * allocations greater than 16KiB to succeed.
+   *
    * \return Syscall return tag
    */
   l4_msgtag_t add_ku_mem(l4_fpage_t const &fpage,

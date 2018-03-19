@@ -36,14 +36,21 @@ namespace L4Re { namespace Util {
 /*@{*/
 
 /**
- * \brief Allocate state area.
+ * Allocate state area.
  *
- * \retval mem         Pointer to memory that has been allocated.
- * \param  pages_order Size to allocate, in log2 pages.
- * \param  task        Task to use for allocation.
- * \param  rm          Region manager to use for allocation.
+ * \param[out] mem          Pointer to memory that has been allocated.
+ * \param      pages_order  Size to allocate, in log2 pages.
+ * \param      task         Task to use for allocation.
+ * \param      rm           Region manager to use for allocation.
  *
- * \return 0 for success, error code otherwise
+ * \retval 0   for success
+ * \retval <0  error code on failure
+ *
+ * \note
+ * The amount of kernel-user memory that can be allocated at once is limited by
+ * the used kernel implementation. The minmum allocatable amount is one page. A
+ * portable implementation should not depend on allocations greater than 16KiB
+ * to succeed.
  */
 int
 kumem_alloc(l4_addr_t *mem, unsigned pages_order,
