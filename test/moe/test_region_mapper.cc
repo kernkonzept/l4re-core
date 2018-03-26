@@ -90,17 +90,29 @@ struct TestRm : testing::Test
   {
     auto rm = create_rm();
 
+    enum
+    {
+      /// get_regions() transfers the region list via UTCB message registers
+      Region_list_size = sizeof(l4_msg_regs_t) / sizeof(L4Re::Rm::Region)
+    };
+    L4Re::Rm::Region region_list[Region_list_size];
     L4Re::Rm::Region const *rl;
     l4_addr_t addr = 0;
     long n;
+
     while ((n = env->rm()->get_regions(addr, &rl)) > 0)
     {
+      // copy data returned in the UTCB
+      assert(n <= Region_list_size);
+      memcpy(region_list, rl, n * sizeof(L4Re::Rm::Region));
+
       for (int i = 0; i < n; ++i)
       {
-        auto const *r = &rl[i];
+        auto const *r = &region_list[i];
         l4_addr_t start = r->start;
         long ret = rm->reserve_area(&start, r->end - r->start);
         printf("Reserve: 0x%lx/0x%lx -> %lu\n", r->start, r->end, ret);
+        L4Re::chksys(ret, "Reserve area in the new RM.");
         addr = r->end + 1;
       }
     }
