@@ -32,7 +32,15 @@ namespace Lua { namespace {
 
 struct Obs_iface : L4::Kobject_0t<Obs_iface>
 {
-  L4_INLINE_RPC(long, wait, (l4_cap_idx_t thread, l4_addr_t task));
+  struct Task
+  {
+    App_task *p;
+    Task() = default;
+    Task(App_task *p) : p(p) {}
+  };
+
+  L4_INLINE_RPC(long, wait, (l4_cap_idx_t thread, Task task));
+
   typedef L4::Typeid::Rpcs<wait_t> Rpcs;
 };
 
@@ -40,15 +48,15 @@ class Observer :
   public L4::Epiface_t<Observer, Obs_iface, Ned::Server_object>
 {
 public:
-  long op_wait(Obs_iface::Rights, l4_cap_idx_t thread, l4_addr_t task);
+  long op_wait(Obs_iface::Rights, l4_cap_idx_t thread, Obs_iface::Task task);
 };
 
 static Observer *observer;
 
 long
-Observer::op_wait(Obs_iface::Rights, l4_cap_idx_t thread, l4_addr_t task)
+Observer::op_wait(Obs_iface::Rights, l4_cap_idx_t thread, Obs_iface::Task task)
 {
-  App_task *t = (App_task*)task;
+  App_task *t = task.p;
 
   if (t->state() == App_task::Zombie)
     return 0;
@@ -383,7 +391,7 @@ static int __task_wait(lua_State *l)
       return 1;
     }
 
-  L4::cap_cast<Obs_iface>(observer->obj_cap())->wait(pthread_l4_cap(pthread_self()), l4_addr_t(t.get()));
+  L4::cap_cast<Obs_iface>(observer->obj_cap())->wait(pthread_l4_cap(pthread_self()), t.get());
   lua_pushinteger(l, t->exit_code());
 
   t = 0; // zap task
