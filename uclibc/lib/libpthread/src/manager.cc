@@ -37,6 +37,7 @@
 #include <l4/re/util/cap_alloc>
 #include <l4/re/util/unique_cap>
 #include <l4/sys/capability>
+#include <l4/sys/debugger.h>
 #include <l4/sys/factory>
 #include <l4/sys/scheduler>
 #include <l4/sys/thread>
@@ -652,6 +653,7 @@ int __pthread_start_manager(pthread_descr mgr)
     }
 
   __pthread_manager_request = mgr->p_th_cap;
+  l4_debugger_set_object_name(__pthread_manager_request, "pthread-mgr");
   return 0;
 }
 
