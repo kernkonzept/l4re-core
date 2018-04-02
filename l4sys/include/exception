@@ -31,6 +31,13 @@ namespace L4 {
 
 /**
  * Exception interface.
+ *
+ * This class defines the interface for handling exception IPC. When an
+ * exception occurs during program execution, for example due to a division by
+ * zero, the kernel will synthesise an exception IPC and send it to the
+ * thread's exception handler, who can then handle it.
+ *
+ * The exception handler is set with the L4::Thread::control interface.
  */
 class L4_EXPORT Exception :
   public Kobject_0t<Exception, L4_PROTO_EXCEPTION>

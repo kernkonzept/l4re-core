@@ -65,6 +65,8 @@ namespace L4Re {
  * \brief Region map
  * \headerfile rm l4/re/rm
  * \ingroup api_l4re_rm
+ *
+ * \see \link api_l4re_rm Region map API \endlink.
  */
 class L4_EXPORT Rm :
   public L4::Kobject_t<Rm, L4::Pager, L4RE_PROTO_RM,

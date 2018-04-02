@@ -37,6 +37,8 @@ namespace L4 {
  * Interface for sending an acknowledge message to an object.
  *
  * The object is usually an ICU or an IRQ.
+ *
+ * \see L4::Icu, L4::Irq
  */
 class Irq_eoi : public Kobject_0t<Irq_eoi, L4::PROTO_EMPTY>
 {
@@ -94,6 +96,9 @@ struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
 
 /**
  * C++ Irq interface.
+ *
+ * \note "IRQ" is short for "interrupt request". This is often used
+ * interchangeably for "interrupt"
  *
  * The Irq class provides access to abstract interrupts provided by the
  * microkernel. Interrupts may be
@@ -240,11 +245,17 @@ struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
 /**
  * C++ Icu interface.
  *
- * To setup an IRQ line the following steps are required:
- * 1. set_mode() (optional if IRQ has a default mode)
- * 2. Irq::attach() to attach the IRQ capability to a thread
+ * \note "ICU" is short for "interrupt control unit".
+ *
+ * This class defines the interface for interrupt controllers. It defines
+ * functions for binding L4::Irq objects to interrupt lines, as well as
+ * functions for masking and unmasking of interrupts.
+ *
+ * To setup an interrupt line the following steps are required:
+ * 1. set_mode() (optional if interrupt has a default mode)
+ * 2. Irq::attach() to attach the interrupt capability to a thread
  * 3. bind()
- * 4. unmask() to receive the first IRQ
+ * 4. unmask() to receive the first interrupt
  *
  * \includefile{l4/sys/icu}
  */

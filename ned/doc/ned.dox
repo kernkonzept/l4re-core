@@ -139,6 +139,17 @@ The main elements of the initial object table are:
        name 'rom', the 'rom' capability from Ned's initial caps is inserted
        into the table.
        
+\subsection l4re_ned_jdb Access to the kernel debugger
+
+Applications can enrich the kernel debugger with information using the API
+defined in \ref l4/sys/debugger. In order to do so, the developer has to
+assign access to the kernel debugger kernel object to the application. This
+can be done like this:
+
+\code{.lua}
+ L4.default_loader:start({ caps = { jdb = L4.Env.jdb; }}, "rom/example")
+\endcode
+
 \todo Write more documentation for application startup via Ned
 
 \section l4re_ned_options Command Line Options

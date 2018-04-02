@@ -25,6 +25,19 @@
  * \defgroup l4_vcpu_api vCPU API
  * \ingroup  l4_thread_api
  * vCPU API
+ *
+ * The vCPU API in L4Re implements virtual processors (vCPUs) on top of
+ * L4::Thread. This API can be used for user level threading, operating system
+ * rehosting (see L4Linux) and virtualization.
+ *
+ * You switch a thread into `vCPU` operation with L4::Thread::vcpu_control.
+ *
+ * Extended vCPU operation is used for hardware CPU virtualization. It can
+ * be enabled with L4::Thread::vcpu_control_ext.
+ *
+ * \ref api_libvcpu defines a convenience API for working with vCPUs.
+ *
+ * \see api_libvcpu
  */
 
 /**
@@ -90,7 +103,7 @@ enum L4_vcpu_state_offset
  * \param  vcpu  A pointer to an initialized vCPU state.
  *
  * \retval 1  If the vCPU state has a matching version ID for the current
- *            user-level structures.
+ *            vCPU user-level structures.
  * \retval 0  If the vCPU state has a different (incompatible) version ID than
  *            the current vCPU user-level structures.
  *

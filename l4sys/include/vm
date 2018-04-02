@@ -31,6 +31,11 @@ namespace L4 {
 
 /**
  * Virtual machine.
+ * \ingroup l4_kernel_object_api
+ *
+ * L4::Vm is a specialisation of L4::Task, used for virtual machines. The
+ * microkernel employs an appropriate page-table format for hosting VMs, such
+ * as ePT on VT-x.
  */
 class Vm : public Kobject_t<Vm, Task, L4_PROTO_VM>
 {

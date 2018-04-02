@@ -32,7 +32,16 @@ namespace L4Re {
 /**
  * \defgroup api_l4re_event Event API
  * \ingroup api_l4re
- * \brief Event interface.
+ * Event API.
+ *
+ * On top of a shared L4Re::Dataspace (and optionally using L4::Triggerable),
+ * the event API implements asynchronous event transmission from an event
+ * provider (server) to an event receiver (client). Events are put into an
+ * Event_buffer_t residing on the shared L4Re::Dataspace.
+ *
+ * This interface is not usually used directly. Instead use
+ * L4Re::Util::Event_t for clients. An example server portion is implemented
+ * in L4Re::Util::Event_svr.
  */
 
 typedef l4re_event_stream_id_t Event_stream_id;
@@ -129,6 +138,8 @@ public:
 /**
  * \brief Event class.
  * \ingroup api_l4re_event
+ *
+ * \see \link api_l4re_event L4Re Event API \endlink
  */
 class L4_EXPORT Event :
   public L4::Kobject_t<Event, L4::Icu, L4RE_PROTO_EVENT>

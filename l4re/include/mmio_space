@@ -20,6 +20,23 @@ namespace L4Re
 /**
  * Interface for memory-like address space accessible via IPC.
  *
+ * This interface defines methods for indirect access to MMIO regions.
+ *
+ * Memory mapped IO (MMIO) is used by device drivers to control hardware
+ * devices. Access to MMIO regions is assigned to user-level device drivers
+ * via mappings of memory pages.
+ *
+ * However, there are hardware platforms where MMIO regions for different
+ * devices share the same memory page.  With respect to security and safety,
+ * it is often not allowed to map a memory page to multiple device drivers
+ * because the driver of one device could then influence operation of another
+ * device, which violates security boundaries.
+ *
+ * A solution to that problem is to implement a third (trusted) component that
+ * gets exclusive access to the shared memory page, and that drivers can
+ * access via IPC with the Mmio_space protocol. This proxy-component can then
+ * enforce an access policy.
+ *
  * \includefile{l4/re/mmio_space}
  */
 struct L4_EXPORT Mmio_space

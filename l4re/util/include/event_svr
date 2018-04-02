@@ -30,6 +30,11 @@
 
 namespace L4Re { namespace Util {
 
+/**
+ * Convenience wrapper for implementing an event server.
+ *
+ * \see L4Re::Event, L4Re::Util::Event_t
+ */
 template< typename SVR >
 class Event_svr : public Icu_cap_array_svr<SVR>
 {

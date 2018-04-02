@@ -29,10 +29,24 @@
 namespace L4 {
 
 /**
- * C++ debugger interface.
+ * C++ kernel debugger API.
  *
  * \attention This API is subject to change! Do not rely on it in production
  *            code.
+ *
+ * This API is to be used for debugging exclusively.
+ *
+ * This is the API for accessing kernel-debugger functionality from user-level
+ * programs. Specifically, it provides functionality to enrich the kernel
+ * debugger with insights into the program. The purpose is to facilitate
+ * debugging with the kernel debugger. For instance, a developer might choose
+ * to name the threads of her program so that she can find them in the kernel
+ * debugger thread list.
+ *
+ * This API interacts with a kernel object that interfaces with the kernel
+ * debugger, the jdb-kernel object. The jdb-kernel object is fix and only
+ * available when the kernel debugger is built into the microkernel. The
+ * developer needs to pass the capability through to her program.
  *
  * \includefile{l4/sys/debugger}
  */

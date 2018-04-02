@@ -31,6 +31,32 @@ namespace L4 {
 
 /**
  * Io_pager interface.
+ *
+ * \note This interface is IA32 specific.
+ *
+ * This class defines the interface for handling IO page faults. IO page
+ * faults happen when a thread tries to access an IO port that it does not
+ * currently have access to.
+ *
+ * Depending on the microkernel's implementation, IO page faults can be
+ * handled in two ways.
+ *
+ * If the microkernel does not support IO page faults, this IO pagefault
+ * interface is not used. Instead, the microkernel sends an exception IPC to
+ * the thread's exception handler (L4::Exception), indicating a #GP (exception
+ * number 13). The exception handler must consult the faulting instruction to
+ * determine the cause of the exception. This is the default in Fiasco.OC.
+ *
+ * In contrast, if the the microkernel supports IO page faults, the
+ * microkernel will generate an IO page fault message and send it to the
+ * thread's page fault handler (pager). The page fault handler can implement
+ * this interface to handle the IO page faults.
+ *
+ * \note A program may use this mechanism to implement a lazy IO port access
+ * scheme.
+ *
+ * \note The page fault and exception handlers are set with the
+ * L4::Thread::control interface.
  */
 class L4_EXPORT Io_pager :
   public Kobject_0t<Io_pager, L4_PROTO_IO_PAGE_FAULT>
@@ -63,6 +89,13 @@ public:
 
 /**
  * Pager interface including the Io_pager interface.
+ *
+ * This class defines the interface for handling page fault IPC. If a thread
+ * causes a page fault, the microkernel synthesises a page fault IPC message
+ * and sends it to the thread's page fault handler (pager). The pager can then
+ * handle the message, for example by establishing a suitable page mapping.
+ *
+ * The page fault handler is set with the L4::Thread::control interface.
  */
 class L4_EXPORT Pager :
   public Kobject_t<Pager, Io_pager, L4_PROTO_PAGE_FAULT>
