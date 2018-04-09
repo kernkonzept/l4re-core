@@ -119,7 +119,6 @@ struct r_debug *_dl_debug_addr = NULL;
 #include "../ldso/dl-array.c"
 #include "../ldso/dl-debug.c"
 
-
 # if defined(USE_TLS) && USE_TLS
 /*
  * Giving this initialized value preallocates some surplus bytes in the
@@ -635,17 +634,25 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 			continue;
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
 
-		if (tpnt->dynamic_info[DT_INIT]) {
+		if (tpnt->dynamic_info[DT_INIT] != NULL) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_INIT]);
 			if (dl_elf_func) {
-				_dl_if_debug_print("running ctors for library %s at '%p'\n",
+				_dl_if_debug_print("running old-style ctors for library %s at '%p'\n",
 						tpnt->libname, dl_elf_func);
 				DL_CALL_FUNC_AT_ADDR (dl_elf_func, tpnt->loadaddr, (void(*)(void)));
 			}
 		}
 
-		_dl_run_init_array(tpnt);
+		if (tpnt->dynamic_info[DT_INIT_ARRAY] != NULL) {
+			void (*dl_elf_func) (void);
+			dl_elf_func = (void (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_INIT_ARRAY]);
+			if (dl_elf_func) {
+				_dl_if_debug_print("running ctors for library %s at '%p'\n",
+						tpnt->libname, dl_elf_func);
+				_dl_run_init_array(tpnt);
+			}
+		}
 	}
 
 	_dl_unmap_cache();
@@ -844,11 +851,17 @@ static int do_dlclose(void *vhandle, int need_fini)
 			 && !(tpnt->init_flag & FINI_FUNCS_CALLED)
 			) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
-				_dl_run_fini_array(tpnt);
 
-				if (tpnt->dynamic_info[DT_FINI]) {
-					dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI]);
+				if (tpnt->dynamic_info[DT_FINI_ARRAY] != NULL) {
+					dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI_ARRAY]);
 					_dl_if_debug_print("running dtors for library %s at '%p'\n",
+							tpnt->libname, dl_elf_fini);
+					_dl_run_fini_array(tpnt);
+				}
+
+				if (tpnt->dynamic_info[DT_FINI] != NULL) {
+					dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI]);
+					_dl_if_debug_print("running old-style dtors for library %s at '%p'\n",
 							tpnt->libname, dl_elf_fini);
 					DL_CALL_FUNC_AT_ADDR (dl_elf_fini, tpnt->loadaddr, (int (*)(void)));
 				}
