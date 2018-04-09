@@ -263,7 +263,7 @@ public:
     *                    L4::Task::add_ku_mem()).
     * \param utcb        UTCB to use for this operation.
     *
-    * \return Syscall resturn tag.
+    * \return Syscall return tag.
     *
     * This function enables the vCPU feature of `this` thread if `vcpu_state`
     * is set to a valid kernel-user-memory address, or disables the vCPU
