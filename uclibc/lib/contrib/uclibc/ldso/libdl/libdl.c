@@ -66,10 +66,6 @@ extern struct link_map *_dl_update_slotinfo(unsigned long int req_modid);
 /* When libdl is loaded as a shared library, we need to load in
  * and use a pile of symbols from ldso... */
 #include <dl-elf.h>
-#if 0
-extern int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int lazy);
-extern void _dl_protect_relro(struct elf_resolve * tpnt);
-#endif
 #ifndef _dl_errno
 extern int _dl_errno;
 #endif
@@ -778,13 +774,6 @@ void *dlsym(void *vhandle, const char *name)
 	return ret;
 }
 
-#if 0
-void *dlvsym(void *vhandle, const char *name, const char *version)
-{
-	return dlsym(vhandle, name);
-}
-#endif
-
 static int do_dlclose(void *vhandle, int need_fini)
 {
 	struct dyn_elf *rpnt, *rpnt1, *rpnt1_tmp;
@@ -1094,43 +1083,7 @@ char *dlerror(void)
 	return (char *)retval;
 }
 
-/*
- * Dump information to stderr about the current loaded modules
- */
 #ifdef __USE_GNU
-# if 0
-static const char type[][4] = { "Lib", "Exe", "Int", "Mod" };
-
-/* l4: */int dlinfo(void);
-/* reimplement this, being a GNU extension it should be the same as on glibc */
-int dlinfo(void)
-{
-	struct elf_resolve *tpnt;
-	struct dyn_elf *rpnt, *hpnt;
-
-	fprintf(stderr, "List of loaded modules\n");
-	/* First start with a complete list of all of the loaded files. */
-	for (tpnt = _dl_loaded_modules; tpnt; tpnt = tpnt->next) {
-		fprintf(stderr, "\t%p %p %p %s %d %s\n",
-		        (void *)DL_LOADADDR_BASE(tpnt->loadaddr), tpnt, tpnt->symbol_scope,
-		        type[tpnt->libtype],
-		        tpnt->usage_count, tpnt->libname);
-	}
-
-	/* Next dump the module list for the application itself */
-	fprintf(stderr, "\nModules for application (%p):\n", _dl_symbol_tables);
-	for (rpnt = _dl_symbol_tables; rpnt; rpnt = rpnt->next)
-		fprintf(stderr, "\t%p %s\n", rpnt->dyn, rpnt->dyn->libname);
-
-	for (hpnt = _dl_handles; hpnt; hpnt = hpnt->next_handle) {
-		fprintf(stderr, "Modules for handle %p\n", hpnt);
-		for (rpnt = hpnt; rpnt; rpnt = rpnt->next)
-			fprintf(stderr, "\t%p %s\n", rpnt->dyn, rpnt->dyn->libname);
-	}
-	return 0;
-}
-#endif
-
 static int do_dladdr(const void *__address, Dl_info * __info)
 {
 	struct elf_resolve *pelf;
