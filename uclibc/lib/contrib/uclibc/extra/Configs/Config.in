@@ -467,17 +467,6 @@ config LDSO_LD_LIBRARY_PATH
 
 	  If unsure, simply say Y here.
 
-config LDSO_NO_CLEANUP
-	bool "Disable automatic unloading of dynamically loaded shared objects"
-	depends on HAVE_SHARED
-	help
-	  If you need complete allocation traces when debugging memory leaks
-	  using Valgrind in a process that dynamically loads shared objects,
-	  then answer Y here. Unlike glibc, uClibc unloads all dynamically
-	  loaded shared objects when a process exits, which prevents Valgrind
-	  from correctly resolving the symbols from the unloaded shared objects.
-	  Unless you know you need this, you should answer N.
-
 config UCLIBC_CTOR_DTOR
 	bool
 	default y

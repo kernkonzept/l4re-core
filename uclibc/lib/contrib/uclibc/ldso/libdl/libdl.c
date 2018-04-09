@@ -273,19 +273,6 @@ remove_slotinfo(size_t idx, struct dtv_slotinfo_list *listp, size_t disp,
 }
 #endif
 
-#ifndef __LDSO_NO_CLEANUP__
-void dl_cleanup(void) attribute_hidden __attribute__ ((destructor));
-void dl_cleanup(void)
-{
-	struct dyn_elf *h, *n;
-
-	for (h = _dl_handles; h; h = n) {
-		n = h->next_handle;
-		do_dlclose(h, 1);
-	}
-}
-#endif
-
 static ptrdiff_t _dl_build_local_scope (struct elf_resolve **list,
 	struct elf_resolve *map)
 {
