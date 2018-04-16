@@ -634,7 +634,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 			continue;
 		tpnt->init_flag |= INIT_FUNCS_CALLED;
 
-		if (tpnt->dynamic_info[DT_INIT] != NULL) {
+		if (tpnt->dynamic_info[DT_INIT]) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_INIT]);
 			if (dl_elf_func) {
@@ -644,7 +644,7 @@ static void *do_dlopen(const char *libname, int flag, ElfW(Addr) from)
 			}
 		}
 
-		if (tpnt->dynamic_info[DT_INIT_ARRAY] != NULL) {
+		if (tpnt->dynamic_info[DT_INIT_ARRAY]) {
 			void (*dl_elf_func) (void);
 			dl_elf_func = (void (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_INIT_ARRAY]);
 			if (dl_elf_func) {
@@ -852,14 +852,14 @@ static int do_dlclose(void *vhandle, int need_fini)
 			) {
 				tpnt->init_flag |= FINI_FUNCS_CALLED;
 
-				if (tpnt->dynamic_info[DT_FINI_ARRAY] != NULL) {
+				if (tpnt->dynamic_info[DT_FINI_ARRAY]) {
 					dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI_ARRAY]);
 					_dl_if_debug_print("running dtors for library %s at '%p'\n",
 							tpnt->libname, dl_elf_fini);
 					_dl_run_fini_array(tpnt);
 				}
 
-				if (tpnt->dynamic_info[DT_FINI] != NULL) {
+				if (tpnt->dynamic_info[DT_FINI]) {
 					dl_elf_fini = (int (*)(void)) DL_RELOC_ADDR(tpnt->loadaddr, tpnt->dynamic_info[DT_FINI]);
 					_dl_if_debug_print("running old-style dtors for library %s at '%p'\n",
 							tpnt->libname, dl_elf_fini);
