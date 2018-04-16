@@ -1,0 +1,39 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2018 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *
+ * This file is distributed under the terms of the GNU General Public
+ * License, version 2.  Please see the COPYING-GPL-2 file for details.
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4 {
+
+/**
+ * Wrapper for function calls that follow the ARM SMC/HVC
+ * calling convention.
+ */
+class L4_EXPORT Arm_smccc : public Kobject_0t<Arm_smccc, L4_PROTO_SMCCC>
+{
+public:
+  /**
+   * ARM SMC/HVC function call.
+   *
+   * The input parameters consist of a function identifier, 6 arguments
+   * and a client id. Results are returned in 4 output parameters.
+   */
+  L4_INLINE_RPC(l4_msgtag_t, call,
+                (l4_umword_t func, l4_umword_t in0, l4_umword_t in1,
+                 l4_umword_t in2, l4_umword_t in3, l4_umword_t in4,
+                 l4_umword_t in5, l4_umword_t *out0, l4_umword_t *out1,
+                 l4_umword_t *out2, l4_umword_t *out3,
+                 l4_umword_t client_id));
+
+  typedef L4::Typeid::Rpc_nocode<call_t> Rpcs;
+};
+
+}
