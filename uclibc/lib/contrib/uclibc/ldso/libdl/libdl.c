@@ -873,8 +873,6 @@ static int do_dlclose(void *vhandle, int need_fini)
 					i < tpnt->n_phent; ppnt++, i++) {
 				if (ppnt->p_type != PT_LOAD)
 					continue;
-				if (ppnt->p_vaddr < start)
-					start = ppnt->p_vaddr;
 				if (end < ppnt->p_vaddr + ppnt->p_memsz)
 					end = ppnt->p_vaddr + ppnt->p_memsz;
 			}
@@ -981,8 +979,11 @@ static int do_dlclose(void *vhandle, int need_fini)
 			}
 #endif
 
+			start = tpnt->mapaddr;
+			_dl_if_debug_print("unmapping before alignment: %s start: '%p' end: '%p'\n", tpnt->libname, start, end);
 			end = (end + ADDR_ALIGN) & PAGE_ALIGN;
 			start = start & ~ADDR_ALIGN;
+			_dl_if_debug_print("unmapping: %s start: '%p' end: '%p'\n", tpnt->libname, start, end);
 			DL_LIB_UNMAP (tpnt, end - start);
 			/* Free elements in RTLD_LOCAL scope list */
 			for (runp = tpnt->rtld_local; runp; runp = tmp) {
