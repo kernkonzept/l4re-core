@@ -51,6 +51,25 @@
 # define THREAD_SETMEM_NC(descr, member, value) descr->member = (value)
 #endif
 
+/* Conditional variable attribute data structure.  */
+struct pthread_condattr
+{
+  /* Combination of values:
+
+     Bit 0  : flag whether coditional variable will be shareable between
+	      processes.
+
+     Bit 1-7: clock ID.  */
+  int value;
+};
+
+/* The __NWAITERS field is used as a counter and to house the number
+   of bits for other purposes.  COND_CLOCK_BITS is the number
+   of bits needed to represent the ID of the clock.  COND_NWAITERS_SHIFT
+   is the number of bits reserved for other purposes like the clock.  */
+#define COND_CLOCK_BITS		1
+#define COND_NWAITERS_SHIFT	1
+
 /* Arguments passed to thread creation routine */
 
 struct pthread_start_args {

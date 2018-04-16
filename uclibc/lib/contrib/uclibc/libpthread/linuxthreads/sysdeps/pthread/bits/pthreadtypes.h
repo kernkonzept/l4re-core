@@ -25,6 +25,8 @@
 #define __need_schedparam
 #include <bits/sched.h>
 
+#define __SIZEOF_PTHREAD_CONDATTR_T 4
+
 /* Fast locks (not abstract because mutexes and conditions aren't abstract). */
 struct _pthread_fastlock
 {
@@ -63,11 +65,12 @@ typedef struct
 } pthread_cond_t;
 
 
-/* Attribute for conditionally variables.  */
-typedef struct
+typedef union
 {
-  int __dummy;
+  char __size[__SIZEOF_PTHREAD_CONDATTR_T];
+  int __align;
 } pthread_condattr_t;
+
 
 /* Keys for thread-specific data */
 typedef unsigned int pthread_key_t;

@@ -275,6 +275,7 @@ libpthread_hidden_def(pthread_cond_broadcast)
 
 int pthread_condattr_init(pthread_condattr_t *attr attribute_unused)
 {
+  memset (attr, '\0', sizeof (*attr));
   return 0;
 }
 libpthread_hidden_def(pthread_condattr_init)
@@ -299,6 +300,53 @@ int pthread_condattr_setpshared (pthread_condattr_t *attr attribute_unused, int 
   /* For now it is not possible to shared a conditional variable.  */
   if (pshared != PTHREAD_PROCESS_PRIVATE)
     return ENOSYS;
+
+  return 0;
+}
+
+int pthread_condattr_getclock (const pthread_condattr_t *attr, clockid_t *clock_id)
+{
+  *clock_id = (((((const struct pthread_condattr *) attr)->value) >> 1)
+	       & ((1 << COND_NWAITERS_SHIFT) - 1));
+  return 0;
+}
+
+int pthread_condattr_setclock (pthread_condattr_t *attr, clockid_t clock_id)
+{
+  /* Only a few clocks are allowed.  CLOCK_REALTIME is always allowed.
+     CLOCK_MONOTONIC only if the kernel has the necessary support.  */
+  if (clock_id == CLOCK_MONOTONIC)
+    {
+#ifndef __ASSUME_POSIX_TIMERS
+# ifdef __NR_clock_getres
+      /* Check whether the clock is available.  */
+      static int avail;
+
+      if (avail == 0)
+	{
+	  struct timespec ts;
+
+	  INTERNAL_SYSCALL_DECL (err);
+	  int val;
+	  val = INTERNAL_SYSCALL (clock_getres, err, 2, CLOCK_MONOTONIC, &ts);
+	  avail = INTERNAL_SYSCALL_ERROR_P (val, err) ? -1 : 1;
+	}
+
+      if (avail < 0)
+# endif
+	/* Not available.  */
+	return EINVAL;
+#endif
+    }
+  else if (clock_id != CLOCK_REALTIME)
+    /* If more clocks are allowed some day the storing of the clock ID
+       in the pthread_cond_t structure needs to be adjusted.  */
+    return EINVAL;
+
+  int *valuep = &((struct pthread_condattr *) attr)->value;
+
+  *valuep = ((*valuep & ~(((1 << COND_NWAITERS_SHIFT) - 1) << 1))
+	     | (clock_id << 1));
 
   return 0;
 }
