@@ -242,6 +242,9 @@ public:
   bool operator == (Ref_ptr const &o) const throw()
   { return _p == o._p; }
 
+  bool operator != (Ref_ptr const &o) const throw()
+  { return _p != o._p; }
+
   bool operator < (Ref_ptr const &o) const throw()
   { return _p < o._p; }
 
@@ -339,6 +342,22 @@ template< typename T, typename... Args >
 Ref_ptr<T>
 make_ref_obj(Args &&... args)
 { return cxx::Ref_ptr<T>(new T(cxx::forward<Args>(args)...)); }
+
+template<typename T, typename U>
+Ref_ptr<T>
+dynamic_pointer_cast(Ref_ptr<U> const &p) noexcept
+{
+  // our constructor from a naked pointer increments the counter
+  return Ref_ptr<T>(dynamic_cast<T *>(p.get()));
+}
+
+template<typename T, typename U>
+Ref_ptr<T>
+static_pointer_cast(Ref_ptr<U> const &p) noexcept
+{
+  // our constructor from a naked pointer increments the counter
+  return Ref_ptr<T>(static_cast<T *>(p.get()));
+}
 
 #endif
 
