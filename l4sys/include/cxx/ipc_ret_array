@@ -20,7 +20,7 @@
 #include "types"
 #include "ipc_basics"
 
-namespace L4 { namespace Ipc L4_EXPORT L4_EXPORT {
+namespace L4 { namespace Ipc L4_EXPORT {
 
 // ---------------------------------------------------------------
 /**
