@@ -12,7 +12,7 @@ choice
 	prompt "Target File Format"
 config UCLIBC_FORMAT_FDPIC_ELF
 	bool "FDPIC ELF"
-	depends on !ARCH_USE_MMU && (TARGET_bfin || TARGET_frv)
+	depends on !ARCH_USE_MMU && (TARGET_bfin || TARGET_frv || TARGET_arm)
 	select DOPIC
 config UCLIBC_FORMAT_DSBT_ELF
 	bool "DBST ELF"

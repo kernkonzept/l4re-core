@@ -8,6 +8,7 @@
 #include <sys/syscall.h>
 #include <sys/socket.h>
 #include <cancel.h>
+#include <bits/kernel-features.h>
 
 #ifdef __NR_socketcall
 /* Various socketcall numbers */
@@ -267,6 +268,7 @@ lt_libc_hidden(recvmsg)
 #endif
 
 #ifdef L_recvmmsg
+#ifdef __ASSUME_RECVMMSG_SYSCALL
 static ssize_t __NC(recvmmsg)(int sockfd, struct mmsghdr *msg, size_t vlen,
 			      int flags, struct timespec *tmo)
 {
@@ -288,6 +290,7 @@ CANCELLABLE_SYSCALL(ssize_t, recvmmsg,
 		     struct timespec *tmo),
 		    (sockfd, msg, vlen, flags, tmo))
 lt_libc_hidden(recvmmsg)
+#endif
 #endif
 
 #ifdef L_send
@@ -332,6 +335,7 @@ lt_libc_hidden(sendmsg)
 #endif
 
 #ifdef L_sendmmsg
+#ifdef __ASSUME_SENDMMSG_SYSCALL
 static ssize_t __NC(sendmmsg)(int sockfd, struct mmsghdr *msg, size_t vlen,
 			      int flags)
 {
@@ -351,6 +355,7 @@ CANCELLABLE_SYSCALL(ssize_t, sendmmsg,
 		    (int sockfd, struct mmsghdr *msg, size_t vlen, int flags),
 		    (sockfd, msg, vlen, flags))
 lt_libc_hidden(sendmmsg)
+#endif
 #endif
 
 #ifdef L_sendto

@@ -24,6 +24,7 @@
 #include <tls.h>
 
 
+#ifdef __ARCH_USE_MMU__
 /* Lock to protect allocation and deallocation of fork handlers.  */
 int __fork_lock = LLL_LOCK_INITIALIZER;
 
@@ -118,6 +119,18 @@ __linkin_atfork (struct fork_handler *newp)
   while (catomic_compare_and_exchange_bool_acq (&__fork_handlers,
 						newp, newp->next) != 0);
 }
+#else
+int
+__register_atfork (
+     void (*prepare) (void),
+     void (*parent) (void),
+     void (*child) (void),
+     void *dso_handle)
+{
+    return EPERM;
+}
+libc_hidden_def (__register_atfork)
+#endif
 
 #if 0
 libc_freeres_fn (free_mem)
@@ -145,4 +158,3 @@ libc_freeres_fn (free_mem)
     }
 }
 #endif
-

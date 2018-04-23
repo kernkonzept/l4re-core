@@ -373,8 +373,12 @@ start_thread (void *arg)
   size_t freesize = ((char *) pd->stackblock - sp) & ~pagesize_m1;
 #endif
   assert (freesize < pd->stackblock_size);
+
+  /* madvise is not supported on MMU-less systems. */
+#ifdef  __ARCH_USE_MMU__
   if (freesize > PTHREAD_STACK_MIN)
     madvise (pd->stackblock, freesize - PTHREAD_STACK_MIN, MADV_DONTNEED);
+#endif
 
   /* If the thread is detached free the TCB.  */
   if (IS_DETACHED (pd))

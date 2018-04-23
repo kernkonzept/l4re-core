@@ -18,7 +18,6 @@ libpthread-shared-only-routines-y = version.c
 libpthread-static-only-routines-y = pthread_atfork.c
 libpthread-routines- += $(notdir $(wildcard $(libpthread_DIR)/gen_*.c)) # dummy generated files
 libpthread-routines- += allocatestack.c # dummy included by pthread_create.c
-libpthread-routines- += pthread_mutex_getprioceiling.c pthread_mutex_setprioceiling.c # XXX: delete those or use them!
 libpthread-routines-$(UCLIBC_SUSV4_LEGACY) += pthread_getconcurrency.c \
 	pthread_setconcurrency.c
 libpthread_CSRC = $(filter-out $(libpthread-routines-) \

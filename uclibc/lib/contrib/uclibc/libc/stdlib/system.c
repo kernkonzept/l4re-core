@@ -81,6 +81,7 @@ out:
 libc_hidden_proto(sigaction)
 libc_hidden_proto(waitpid)
 
+#ifdef __ARCH_USE_MMU__
 #if defined __ia64__
 # define FORK() \
   INLINE_SYSCALL (clone2, 6, CLONE_PARENT_SETTID | SIGCHLD, NULL, 0, \
@@ -91,6 +92,10 @@ libc_hidden_proto(waitpid)
 #else
 # define FORK() \
   INLINE_SYSCALL (clone, 3, CLONE_PARENT_SETTID | SIGCHLD, 0, &pid)
+#endif
+#else
+# define FORK() \
+    vfork()
 #endif
 
 static void cancel_handler (void *arg);

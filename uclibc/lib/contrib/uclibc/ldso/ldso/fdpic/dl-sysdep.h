@@ -96,7 +96,7 @@ struct funcdesc_ht;
    elfinterp.c.  */
 #define DL_SKIP_BOOTSTRAP_RELOC(SYMTAB, INDEX, STRTAB) 0
 
-#ifdef __NR_pread
+#if defined(__NR_pread) || defined(__NR_pread64)
 #define _DL_PREAD(FD, BUF, SIZE, OFFSET) \
   (_dl_pread((FD), (BUF), (SIZE), (OFFSET)))
 #endif

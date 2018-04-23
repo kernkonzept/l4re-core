@@ -14,11 +14,9 @@ ifneq ($(TARGET_ARCH),arc)
 CFLAGS-rtld += -fno-omit-frame-pointer
 endif
 
-ifeq ($(DODEBUG),y)
 ifeq ($(TARGET_ARCH),arm)
 # This stuff will not work with -funwind-tables / -fasynchronous-unwind-tables
 CFLAGS-rtld += -fno-unwind-tables -fno-asynchronous-unwind-tables
-endif
 endif
 
 CFLAGS-rtld += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso

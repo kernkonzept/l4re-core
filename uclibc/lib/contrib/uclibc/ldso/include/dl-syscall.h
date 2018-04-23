@@ -160,14 +160,25 @@ static __always_inline _syscall4(int, _dl_readlink, int, id, const char *, path,
 
 #ifdef __NR_pread64
 #define __NR___syscall_pread __NR_pread64
+#ifdef __UCLIBC_SYSCALL_ALIGN_64BIT__
+static __always_inline _syscall6(ssize_t, __syscall_pread, int, fd, void *, buf, size_t, dummy,
+			size_t, count, off_t, offset_hi, off_t, offset_lo)
+
+static __always_inline ssize_t
+_dl_pread(int fd, void *buf, size_t count, off_t offset)
+{
+	return __syscall_pread(fd, buf, count, 0, __LONG_LONG_PAIR((offset >> 32), (offset & 0xffffffff)));
+}
+#else
 static __always_inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,
 			size_t, count, off_t, offset_hi, off_t, offset_lo)
 
 static __always_inline ssize_t
 _dl_pread(int fd, void *buf, size_t count, off_t offset)
 {
-	return __syscall_pread(fd, buf, count, offset, offset >> 31);
+	return __syscall_pread(fd, buf, count, __LONG_LONG_PAIR(offset >> 31, offset));
 }
+#endif
 #elif defined __NR_pread
 #define __NR___syscall_pread __NR_pread
 static __always_inline _syscall5(ssize_t, __syscall_pread, int, fd, void *, buf,

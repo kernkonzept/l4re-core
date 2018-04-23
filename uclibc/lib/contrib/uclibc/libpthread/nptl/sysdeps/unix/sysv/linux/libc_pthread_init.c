@@ -40,10 +40,14 @@ __libc_pthread_init (
      void (*reclaim) (void))
 {
   /* Remember the pointer to the generation counter in libpthread.  */
+#ifdef __ARCH_USE_MMU__
   __fork_generation_pointer = ptr;
+#endif
 
   /* Called by a child after fork.  */
+#ifdef __ARCH_USE_MMU__
   __register_atfork (NULL, NULL, reclaim, NULL);
+#endif
 
 #ifndef TLS_MULTIPLE_THREADS_IN_TCB
   return &__libc_multiple_threads;

@@ -20,7 +20,9 @@ int rename(const char *oldpath, const char *newpath)
 # include <fcntl.h>
 int rename(const char *oldpath, const char *newpath)
 {
-	_syscall2(int, renameat2, const char *, oldpath, const char *, newpath)
+	_syscall5(int, renameat2, int, olddfd, const char *, oldpath,
+		  int, newdfd, const char *, newpath, int, flags)
+	return renameat2(AT_FDCWD, oldpath, AT_FDCWD, newpath, 0);
 }
 #else
 _syscall2(int, rename, const char *, oldpath, const char *, newpath)

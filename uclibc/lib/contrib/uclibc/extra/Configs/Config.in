@@ -554,7 +554,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_h8300 && \
 		   !TARGET_hppa && \
 		   !TARGET_ia64 && \
-		   ARCH_USE_MMU
+		   (ARCH_USE_MMU || TARGET_arm)
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 

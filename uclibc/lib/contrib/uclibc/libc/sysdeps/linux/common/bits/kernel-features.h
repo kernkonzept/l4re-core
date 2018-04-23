@@ -461,6 +461,12 @@
 # define __ASSUME_ACCEPT4       1
 #endif
 
+/* Support for the recvmmsg/sendmmsg syscall was added in 2.6.33  */
+#if __LINUX_KERNEL_VERSION >= 0x020621
+#define __ASSUME_RECVMMSG_SYSCALL       1
+#define __ASSUME_SENDMMSG_SYSCALL       1
+#endif
+
 /* Support for the FUTEX_CLOCK_REALTIME flag was added in 2.6.29.  */
 #if __LINUX_KERNEL_VERSION >= 0x02061d
 # define __ASSUME_FUTEX_CLOCK_REALTIME	1

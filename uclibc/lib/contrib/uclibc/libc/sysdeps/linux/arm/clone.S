@@ -130,8 +130,20 @@ PSEUDO_END (__clone)
 	.cantunwind
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]
+#if defined(__FDPIC__)
+	ldr	r12, [sp]
+	mov	r4, r9
+	ldr	r9, [r12, #4]
+	mov	lr, pc
+	ldr	pc, [r12]
+#else
 	mov	lr, pc
 	ldr 	pc, [sp]
+#endif
+
+#if defined(__FDPIC__)
+	mov	r9, r4
+#endif
 
 	@ and we are done, passing the return value through r0
 	b	HIDDEN_JUMPTARGET(_exit)

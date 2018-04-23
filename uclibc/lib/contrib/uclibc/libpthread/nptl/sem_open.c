@@ -72,7 +72,9 @@ __where_is_shmfs (void)
 
   /* The canonical place is /dev/shm.  This is at least what the
      documentation tells everybody to do.  */
-  if (__statfs (defaultmount, &f) == 0 && f.f_type == SHMFS_SUPER_MAGIC)
+  if (__statfs (defaultmount, &f) == 0
+      && (f.f_type == SHMFS_SUPER_MAGIC_WITH_MMU
+	  || f.f_type == SHMFS_SUPER_MAGIC_WITHOUT_MMU))
     {
       /* It is in the normal place.  */
       mountpoint.dir = (char *) defaultdir;
@@ -106,7 +108,9 @@ __where_is_shmfs (void)
 	/* First make sure this really is the correct entry.  At least
 	   some versions of the kernel give wrong information because
 	   of the implicit mount of the shmfs for SysV IPC.  */
-	if (__statfs (mp->mnt_dir, &f) != 0 || f.f_type != SHMFS_SUPER_MAGIC)
+	if (__statfs (mp->mnt_dir, &f) != 0
+	    || (f.f_type != SHMFS_SUPER_MAGIC_WITH_MMU
+		&& f.f_type != SHMFS_SUPER_MAGIC_WITHOUT_MMU))
 	  continue;
 
 	namelen = strlen (mp->mnt_dir);

@@ -28,6 +28,7 @@
 #include <atomic.h>
 #include <errno.h>
 
+#ifdef __ARCH_USE_MMU__
 unsigned long int *__fork_generation_pointer;
 
 
@@ -206,3 +207,5 @@ fork (void)
   return pid;
 }
 libc_hidden_def(fork)
+
+#endif /* __ARCH_USE_MMU__ */

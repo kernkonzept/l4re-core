@@ -64,7 +64,7 @@ _dl_linux_resolver(struct elf_resolve *tpnt, unsigned int plt_pc)
 	if (_dl_debug_bindings) {
 		_dl_dprintf(_dl_debug_file, "\nresolve function: %s", symname);
 		if (_dl_debug_detail)
-			_dl_dprintf(_dl_debug_file, "\n\tpatched %x ==> %pc @ %pl\n",
+			_dl_dprintf(_dl_debug_file, "\n\tpatched %x ==> %pc @ %p\n",
 					*got_addr, new_addr, got_addr);
 	}
 
@@ -165,7 +165,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 		*reloc_addr = tls_tpnt->l_tls_modid;
 		break;
 	case R_ARC_TLS_DTPOFF:
-		*reloc_addr = symbol_addr;
+		*reloc_addr += symbol_addr;
 		break;
 	case R_ARC_TLS_TPOFF:
 		CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
@@ -178,7 +178,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 log_entry:
 #if defined __SUPPORT_LD_DEBUG__
-	if (_dl_debug_detail)
+	if (_dl_debug_detail && (reloc_type != R_ARC_NONE))
 		_dl_dprintf(_dl_debug_file,"\tpatched: %x ==> %x @ %x",
 				old_val, *reloc_addr, reloc_addr);
 #endif
@@ -214,7 +214,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	}
 
 #if defined __SUPPORT_LD_DEBUG__
-	if (_dl_debug_reloc && _dl_debug_detail)
+	if (_dl_debug_reloc && _dl_debug_detail && (reloc_type != R_ARC_NONE))
 		_dl_dprintf(_dl_debug_file, "\tpatched: %x ==> %x @ %x\n",
 				old_val, *reloc_addr, reloc_addr);
 #endif
