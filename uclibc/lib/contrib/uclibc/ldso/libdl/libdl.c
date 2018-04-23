@@ -866,7 +866,12 @@ static int do_dlclose(void *vhandle, int need_fini)
 					DL_CALL_FUNC_AT_ADDR (dl_elf_fini, tpnt->loadaddr, (int (*)(void)));
 				}
 			}
+		}
+	}
 
+	for (j = 0; j < handle->init_fini.nlist; ++j) {
+		tpnt = handle->init_fini.init_fini[j];
+		if (tpnt->usage_count == 0) {
 			_dl_if_debug_print("unmapping: %s\n", tpnt->libname);
 			end = 0;
 			for (i = 0, ppnt = tpnt->ppnt;
