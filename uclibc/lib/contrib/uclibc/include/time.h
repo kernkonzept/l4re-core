@@ -356,7 +356,7 @@ extern int clock_settime (clockid_t __clock_id, const struct timespec *__tp)
 #  endif /* __UCLIBC_HAS_REALTIME__ */
 
 #  if defined __USE_XOPEN2K && defined __UCLIBC_HAS_ADVANCED_REALTIME__
-#   ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#   ifdef __UCLIBC_HAS_THREADS__
 /* High-resolution sleep with the specified clock.
 
    This function is a cancellation point and therefore not marked with
@@ -367,7 +367,7 @@ extern int clock_nanosleep (clockid_t __clock_id, int __flags,
 
 /* Return clock ID for CPU-time clock.  */
 extern int clock_getcpuclockid (pid_t __pid, clockid_t *__clock_id) __THROW;
-#   endif /* __UCLIBC_HAS_THREADS_NATIVE__ */
+#   endif /* __UCLIBC_HAS_THREADS__ */
 #  endif
 
 #  if defined __UCLIBC_HAS_REALTIME__
