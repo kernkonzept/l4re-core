@@ -147,6 +147,7 @@ static void libmount_init()
     {
       if (verbose)
         printf("libmount: Could not stat '%s'.\n", fstab_path);
+      close(fd);
       return;
     }
 
@@ -155,6 +156,7 @@ static void libmount_init()
     {
       if (verbose)
         printf("libmount: Could not mmap '%s'.\n", fstab_path);
+      close(fd);
       return;
     }
 
