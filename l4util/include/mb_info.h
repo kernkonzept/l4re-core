@@ -24,7 +24,7 @@
 
 /**
  * \anchor struct_l4util_mod_list
- *  The structure type "mod_list" is used by the 
+ *  The structure type "mod_list" is used by the
  *  \ref struct_l4util_mb_info "multiboot_info" structure.
  */
 
@@ -46,10 +46,10 @@ typedef struct
 
 typedef struct __attribute__((packed))
 {
-  l4_uint32_t struct_size;	/** <Size of structure */
-  l4_uint64_t addr;		/** <Start address */
-  l4_uint64_t size;		/** <Size of memory range */
-  l4_uint32_t type;		/** <type of memory range */
+  l4_uint32_t struct_size;	/**< Size of structure */
+  l4_uint64_t addr;		/**< Start address */
+  l4_uint64_t size;		/**< Size of memory range */
+  l4_uint32_t type;		/**< type of memory range */
   /* unspecified optional padding... */
 } l4util_mb_addr_range_t;
 
@@ -166,7 +166,7 @@ typedef struct
   l4_uint8_t direct_color_mode_info;
   /** @} */
 
-  /** @name >= VESA version 2.0 
+  /** @name >= VESA version 2.0
    * @{*/
   l4_uint32_t phys_base;
   l4_uint32_t reserved1;
@@ -224,7 +224,7 @@ typedef struct
       l4_uint32_t pad;
     }
     a;
-    
+
     struct
     {
       /** (ELF) Kernel section header table */
@@ -236,7 +236,7 @@ typedef struct
     e;
   }
   syms;
-  
+
   l4_uint32_t mmap_length;	/**< size of memory mapping buffer */
   l4_uint32_t mmap_addr;	/**< address of memory mapping buffer */
   l4_uint32_t drives_length;	/**< size of drive info buffer */
@@ -382,4 +382,3 @@ typedef struct
 #define L4UTIL_MB2_RSDP_NEW_INFO_TAG		15
 
 #endif
-
