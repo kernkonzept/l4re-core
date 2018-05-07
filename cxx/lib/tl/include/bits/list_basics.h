@@ -147,7 +147,7 @@ public:
    */
   static Const_iterator iter(Const_value_type c) { return Const_iterator(c); }
   /// Return a const iterator to the end of the list.
-  Const_iterator end() const { return Const_iterator(); }
+  Const_iterator end() const { return Const_iterator(nullptr); }
   /// Return an iterator to the end of the list.
   Iterator end() { return Iterator(); }
 
