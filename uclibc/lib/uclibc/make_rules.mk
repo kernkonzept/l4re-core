@@ -4,7 +4,7 @@ CPPFLAGS	+= -nostdinc -include \
 		  $(CONTRIB_DIR)/include/libc-symbols.h
 CFLAGS		+= -fno-builtin $(GCCNOSTACKPROTOPT)
 CFLAGS          += -DUCLIBC_INTERNAL
-CXXFLAGS        += -fno-builtin
+CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)
 # CFLAGS	+= -std=iso9899:199901
 DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__
 WARNINGS	= -Wall -Wstrict-prototypes
