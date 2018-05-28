@@ -266,10 +266,10 @@ public:
    * \brief Get an L4Re::Dataspace object for the file.
    *
    * This is used as a backend for POSIX mmap and mmap2 functions.
-   * \note mmap is not possible if the functions returns an invalid
+   * \note mmap is not possible if the function returns an invalid
    *       capability.
    *
-   * \return A capability to an L4Re::Dataspace, that represents the files
+   * \return A capability to an L4Re::Dataspace, that represents the file
    *         contents in an L4Re way.
    */
   virtual L4::Cap<L4Re::Dataspace> data_space() const throw() = 0;
