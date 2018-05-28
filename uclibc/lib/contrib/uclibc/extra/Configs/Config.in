@@ -37,6 +37,7 @@ choice
 	default TARGET_nios2 if DESIRED_TARGET_ARCH = "nios2"
 	default TARGET_or1k if DESIRED_TARGET_ARCH = "or1k"
 	default TARGET_powerpc if DESIRED_TARGET_ARCH = "powerpc"
+	default TARGET_riscv64 if DESIRED_TARGET_ARCH = "riscv64"
 	default TARGET_sh if DESIRED_TARGET_ARCH = "sh"
 	default TARGET_sparc if DESIRED_TARGET_ARCH = "sparc"
 	default TARGET_sparc64 if DESIRED_TARGET_ARCH = "sparc64"
@@ -116,6 +117,9 @@ config TARGET_or1k
 
 config TARGET_powerpc
 	bool "powerpc"
+
+config TARGET_riscv64
+	bool "riscv64"
 
 config TARGET_sh
 	bool "superh"
@@ -222,6 +226,10 @@ endif
 
 if TARGET_powerpc
 source "extra/Configs/Config.powerpc"
+endif
+
+if TARGET_riscv64
+source "extra/Configs/Config.riscv64"
 endif
 
 if TARGET_sh
