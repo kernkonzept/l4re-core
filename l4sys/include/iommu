@@ -36,7 +36,7 @@ public:
    * \param src_id     Platform dependent source ID specifying the set of
    *                   devices that shall no longer use `dma_space` for
    *                   DMA remapping.
-   * \param dma_space  The DMA space formerly associated with associate().
+   * \param dma_space  The DMA space formerly associated with bind().
    */
   L4_INLINE_RPC(
       l4_msgtag_t, unbind, (l4_uint64_t src_id, Ipc::Cap<Task> dma_space));
