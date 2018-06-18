@@ -555,6 +555,7 @@ int main(int argc, char**argv)
       root_name_space()->register_obj("mem", Entry::F_trusted | Entry::F_rw, Allocator::root_allocator());
       if (L4::Cap<void>(L4_BASE_DEBUGGER_CAP).validate().label())
         root_name_space()->register_obj("jdb", Entry::F_trusted | Entry::F_rw, L4_BASE_DEBUGGER_CAP);
+      root_name_space()->register_obj("kip", Entry::F_rw, kip_ds->obj_cap());
 
       char *cmdline = my_cmdline();
 
