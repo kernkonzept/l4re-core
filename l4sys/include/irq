@@ -127,6 +127,8 @@ public:
    * The *protected label* is stored in the kernel and sent to the attached
    * thread with the IRQ-triggered notification. It allows the receiver thread
    * to securely identify the IRQ.
+   *
+   * \deprecated Use bind_thread().
    */
   l4_msgtag_t attach(l4_umword_t label,
                      Cap<Thread> const &thread = Cap<Thread>::Invalid,
