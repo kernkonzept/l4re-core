@@ -7,8 +7,7 @@
  */
 
 /*
- * Test correct parameter alignment when marshalling and
- * unmarshalling IPC RPC.
+ * Test parameter alignment in RPC.
  */
 
 #include <l4/atkins/fixtures/epiface_provider>
@@ -89,9 +88,6 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
 
 typedef Atkins::Fixture::Epiface_thread<Test_handler> AlignmentRPC;
 
-/**
- * Input parameters of decreasing width are transferred correctly.
- */
 TEST_F(AlignmentRPC, In64In32In8)
 {
   ASSERT_EQ(0, scap()->in64_in32_in8(45, 87, 1));
@@ -100,9 +96,6 @@ TEST_F(AlignmentRPC, In64In32In8)
   EXPECT_EQ(1U,  handler().p8);
 }
 
-/**
- * Input parameters of increasing width are transferred correctly.
- */
 TEST_F(AlignmentRPC, In8In32In64)
 {
   ASSERT_EQ(0, scap()->in8_in32_in64(222, 689143, 45637346));
@@ -111,9 +104,6 @@ TEST_F(AlignmentRPC, In8In32In64)
   EXPECT_EQ(222U,  handler().p8);
 }
 
-/**
- * Input parameters of different types are transferred correctly.
- */
 TEST_F(AlignmentRPC, In8In32Ptr)
 {
   l4_uint8_t a = 73;
@@ -123,9 +113,6 @@ TEST_F(AlignmentRPC, In8In32Ptr)
   EXPECT_EQ(b, handler().p32);
 }
 
-/**
- * Output parameters of decreasing width are transferred correctly.
- */
 TEST_F(AlignmentRPC, Out64Out32Out8)
 {
   handler().p64 = 5732857;
@@ -140,9 +127,6 @@ TEST_F(AlignmentRPC, Out64Out32Out8)
   EXPECT_EQ(handler().p8, i8);
 }
 
-/**
- * Output parameters of increasing width are transferred correctly.
- */
 TEST_F(AlignmentRPC, Out8Out32Out64)
 {
   handler().p64 = 67;

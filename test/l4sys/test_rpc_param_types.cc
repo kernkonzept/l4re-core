@@ -7,8 +7,7 @@
  */
 
 /*
- * Test handling of different parameter types when marshalling and
- * unmarshalling RPC.
+ * Test parameter types of RPC.
  */
 
 #define CONFIG_ALLOW_REFS
@@ -141,18 +140,12 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
 
 typedef Atkins::Fixture::Epiface_thread<Test_handler> ParamTypesRPC;
 
-/**
- * Value parameters are transferred as input parameters.
- */
 TEST_F(ParamTypesRPC, ByValue)
 {
   ASSERT_EQ(0, scap()->by_value(34));
   EXPECT_EQ(34, handler().p_int);
 }
 
-/**
- * Const reference parameters are transferred as input parameters.
- */
 TEST_F(ParamTypesRPC, ByConstRef)
 {
   ASSERT_EQ(0, scap()->by_const_ref(Multi(9, 10)));
@@ -160,9 +153,6 @@ TEST_F(ParamTypesRPC, ByConstRef)
   EXPECT_EQ(10, handler().p_multi.y);
 }
 
-/**
- * Const pointer parameters are transferred as input parameters.
- */
 TEST_F(ParamTypesRPC, ByConstPtr)
 {
   Multi m(22, 33);
@@ -171,9 +161,6 @@ TEST_F(ParamTypesRPC, ByConstPtr)
   EXPECT_EQ(33, handler().p_multi.y);
 }
 
-/**
- * Non-const reference parameters are transferred as output parameters.
- */
 TEST_F(ParamTypesRPC, ByOutRef)
 {
   Multi m(1234567, 7654321);
@@ -182,9 +169,6 @@ TEST_F(ParamTypesRPC, ByOutRef)
   EXPECT_EQ(-444, m.y);
 }
 
-/**
- * Non-const pointer parameters are transferred as output parameters.
- */
 TEST_F(ParamTypesRPC, ByOutPtr)
 {
   Multi m(12567, 76521);
@@ -193,9 +177,6 @@ TEST_F(ParamTypesRPC, ByOutPtr)
   EXPECT_EQ(-888, m.y);
 }
 
-/**
- * Reference parameters marked as input/output are transferred correctly.
- */
 TEST_F(ParamTypesRPC, ByInoutRef)
 {
   Multi m(555, 901);
@@ -206,9 +187,6 @@ TEST_F(ParamTypesRPC, ByInoutRef)
   EXPECT_EQ(1, m.y);
 }
 
-/**
- * Pointer parameters marked as input/output are transferred correctly.
- */
 TEST_F(ParamTypesRPC, ByInoutPtr)
 {
   Multi m(55, 123);
@@ -219,10 +197,6 @@ TEST_F(ParamTypesRPC, ByInoutPtr)
   EXPECT_EQ(3, m.y);
 }
 
-/**
- * Optional values with valid content are transferred correctly
- * as input parameters.
- */
 TEST_F(ParamTypesRPC, ByOptValue)
 {
   ASSERT_EQ(0, scap()->by_opt_value(835));
@@ -232,10 +206,6 @@ TEST_F(ParamTypesRPC, ByOptValue)
   ASSERT_EQ(0, scap()->by_opt_value(val));
 }
 
-/**
- * Optional structs with valid content are transferred correctly
- * as input parameters.
- */
 TEST_F(ParamTypesRPC, ByOptValyueComplex)
 {
   L4::Ipc::Opt<Multi> val;
@@ -249,9 +219,6 @@ TEST_F(ParamTypesRPC, ByOptValyueComplex)
   EXPECT_EQ(0, handler().p_multi.y);
 }
 
-/**
- * Optional reference parameters are output parameters and transferred correctly.
- */
 TEST_F(ParamTypesRPC, ByOptRef)
 {
   int ret;
@@ -262,9 +229,6 @@ TEST_F(ParamTypesRPC, ByOptRef)
   EXPECT_EQ(3537, ret);
 }
 
-/**
- * Optional pointer parameters are output parameters and transferred correctly.
- */
 TEST_F(ParamTypesRPC, ByOptPtr)
 {
   Multi m(11, 22);
@@ -277,10 +241,7 @@ TEST_F(ParamTypesRPC, ByOptPtr)
   EXPECT_EQ(-99999, m.y);
 }
 
-/**
- * Optional constant pointer parameters are input parameters and transferred
- * correctly.
- */
+
 TEST_F(ParamTypesRPC, ByOptConstPtr)
 {
   Multi m(9, 10);

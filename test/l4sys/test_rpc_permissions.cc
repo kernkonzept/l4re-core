@@ -7,7 +7,7 @@
  */
 
 /*
- * Test automatic check of permissions when marshalling and unmarshalling RPC.
+ * Test automatic check of permissions in RPC.
  */
 
 #include <l4/atkins/fixtures/epiface_provider>
@@ -59,10 +59,7 @@ struct PermissionRPC : Atkins::Fixture::Epiface_thread<Test_handler>
 
 };
 
-/**
- * Calls through read-only capabilities are rejected iff the function
- * requires more than read rights.
- */
+
 TEST_F(PermissionRPC, Read)
 {
   auto cap = get(L4_CAP_FPAGE_R);
@@ -74,10 +71,6 @@ TEST_F(PermissionRPC, Read)
   EXPECT_EQ(-L4_EPERM, cap->write_strong());
 }
 
-/**
- * Calls through read-write capabilities are rejected iff the function
- * requires strong rights.
- */
 TEST_F(PermissionRPC, ReadWrite)
 {
   auto cap = get(L4_CAP_FPAGE_RW);
@@ -89,10 +82,6 @@ TEST_F(PermissionRPC, ReadWrite)
   EXPECT_EQ(-L4_EPERM, cap->write_strong());
 }
 
-/**
- * Calls through read-strong capabilities are rejected when the function
- * requires write rights.
- */
 TEST_F(PermissionRPC, Strong)
 {
   auto cap = get(L4_CAP_FPAGE_RS);
@@ -104,9 +93,6 @@ TEST_F(PermissionRPC, Strong)
   EXPECT_EQ(-L4_EPERM, cap->write_strong());
 }
 
-/**
- * Calls through read-write-strong capabilities are always permitted.
- */
 TEST_F(PermissionRPC, WriteStrong)
 {
   auto cap = get(L4_CAP_FPAGE_RWS);
