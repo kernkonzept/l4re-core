@@ -15,5 +15,5 @@ double complex csqrt(double complex z)
 	if (b < 0)
 		imagpart = -imagpart;
 
-	return realpart + imagpart * I;
+	return realpart + imagpart * (double complex) I;
 }
