@@ -10,6 +10,7 @@
 
 #include <unwind.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #if defined NOT_FOR_L4 && defined __PIC__
 
@@ -46,7 +47,6 @@ struct Bt_arg
   int  cnt, max;
 };
 
-
 static _Unwind_Reason_Code
 __bt_helper(struct _Unwind_Context *ctx, void *a)
 {
@@ -54,7 +54,7 @@ __bt_helper(struct _Unwind_Context *ctx, void *a)
 
   /* Skip first function, it is l4util_backtrace ... */
   if (arg->cnt != -1)
-    arg->pc_array[arg->cnt] = (void *)uw_getpc (ctx);
+    arg->pc_array[arg->cnt] = (void *)(uintptr_t)uw_getpc (ctx);
   if (++arg->cnt == arg->max)
     return _URC_END_OF_STACK;
 
