@@ -27,6 +27,11 @@ public:
   static_vector() = default;
   static_vector(value_type *v, index_type length) : _v(v), _l(length) {}
 
+  template<typename Z,
+           typename = typename enable_if<is_same<typename remove_extent<Z>::type, T>::value>::type>
+  constexpr static_vector(Z &v) : _v(v), _l(array_size(v))
+  {}
+
   /// Conversion from compatible arrays
   template<typename X,
            typename = typename enable_if<is_convertible<X, T>::value>::type>
