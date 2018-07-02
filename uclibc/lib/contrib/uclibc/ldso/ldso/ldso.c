@@ -846,7 +846,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 		char *tmp attribute_unused =
 			(char *) app_tpnt->l_tls_initimage;
 		app_tpnt->l_tls_initimage =
-			(char *) app_tpnt->l_tls_initimage + app_tpnt->loadaddr;
+			(char *) DL_RELOC_ADDR(app_tpnt->loadaddr, app_tpnt->l_tls_initimage);
 		_dl_debug_early("Relocated TLS initial image from %x to %x (size = %x)\n",
 			tmp, app_tpnt->l_tls_initimage, app_tpnt->l_tls_initimage_size);
 	}
