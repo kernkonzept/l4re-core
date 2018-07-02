@@ -26,4 +26,5 @@ int __isnan(double x)
 	hx = 0x7ff00000 - hx;
 	return (int)(((u_int32_t)hx)>>31);
 }
+weak_alias(__isnan, isnan)
 libm_hidden_def(__isnan)
