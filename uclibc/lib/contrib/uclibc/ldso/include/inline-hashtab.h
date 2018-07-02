@@ -107,7 +107,7 @@ htab_create(void)
 static __always_inline void
 htab_delete(struct funcdesc_ht *htab)
 {
-	size_t i;
+	int i;
 
 	for (i = htab->size - 1; i >= 0; i--)
 		if (htab->entries[i])
