@@ -982,6 +982,7 @@ _dl_add_to_slotinfo (struct link_map  *l)
 /* Taken from glibc/elf/rtld.c */
 static bool tls_init_tp_called;
 
+rtld_hidden_proto(_dl_initial_error_catch_tsd)
 /* _dl_error_catch_tsd points to this for the single-threaded case.
    It's reset by the thread library for multithreaded programs.  */
 void ** __attribute__ ((const))
