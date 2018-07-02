@@ -895,9 +895,13 @@ int mbtowc(wchar_t *__restrict pwc, register const char *__restrict s, size_t n)
 		return is_stateful(ENCODING);
 	}
 
-	if (*s == '\0')
+	if (*s == '\0') {
 		/* According to the ISO C 89 standard this is the expected behaviour.  */
+		/* Standard not very clear here, so do like glibc.  */
+        	if (pwc != NULL)
+	        	*pwc = L'\0';
 		return 0;
+    }
 
 	if ((r = mbrtowc(pwc, s, n, &state)) == (size_t) -2) {
 		/* TODO: Should we set an error state? */
