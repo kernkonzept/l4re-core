@@ -8,6 +8,71 @@
 #include <features.h>
 #include <bits/arm_bx.h>
 
+#if defined(__FDPIC__)
+#if !defined(__thumb__) || defined(__thumb2__)
+__asm__(
+	"	.arm\n"
+	"	.text\n"
+	"	.globl  _start\n"
+	"	.type   _start,%function\n"
+	"_start:\n"
+	/* We compute the parameters for __self_reloc:
+	   - r0 is a pointer to the loadmap (either from r8 or r7 if rtld is
+	   lauched in standalone mode)
+	   - r1 is a pointer to the start of .rofixup section
+	   - r2 is a pointer to the last word of .rofixup section
+
+	   __self_reloc will fix indirect addresses in .rofixup
+	   section and will return the relocated GOT value.
+	*/
+	"	sub	r4, pc, #8\n"
+	"	ldr	r1, .L__ROFIXUP_LIST__\n"
+	"	add	r1, r1, r4\n"
+	"	ldr	r2, .L__ROFIXUP_END__\n"
+	"	add	r2, r2, r4\n"
+	"	movs	r0, r8\n"
+	"	moveq	r0, r7\n"
+	"	push	{r7, r8, r9, r10}\n"
+	"	bl	__self_reloc;\n"
+	"	pop	{r7, r8, r9, r10}\n"
+	/* We compute the parameters for dl_start(). See DL_START()
+	   macro below.  The address of the user entry point is
+	   returned in dl_main_funcdesc (on stack).  */
+	"	mov	r1, r7\n"
+	"	mov	r2, r8\n"
+	"	mov	r3, r9\n"
+	"	mov	r4, sp\n"
+	"	sub	r5, sp, #8\n"
+	"	sub sp, sp, #16\n"
+	"	str	r4, [sp, #4]\n"
+	"	str	r5, [sp, #0]\n"
+	"	mov	r9, r0\n"
+	/* Save r9 into r4, to preserve the GOT pointer.  */
+	"	mov	r4, r9\n"
+	"	bl _dl_start;\n"
+	/* Now compute parameters for entry point according to FDPIC ABI.  */
+	"	ldr	r10, .L_dl_fini_gotofffuncdesc\n"
+	/* Save GOT value from r4.  */
+	"	add	r10, r10, r4\n"
+	"	ldr	r5, [sp, #8]\n"
+	"	ldr	r9, [sp, #12]\n"
+	"	add sp, sp, #16\n"
+	"	bx	r5\n"
+	".loopforever:\n"
+	"	b	.loopforever\n"
+	".L__ROFIXUP_LIST__:\n"
+	"	.word	__ROFIXUP_LIST__ - _start\n"
+	".L__ROFIXUP_END__:\n"
+	"	.word	__ROFIXUP_END__ - _start\n"
+	".L_dl_fini_gotofffuncdesc:\n"
+	"	.word	_dl_fini(GOTOFFFUNCDESC)\n"
+	"	.size	_start,.-_start\n"
+	"	.previous\n"
+);
+#else /* !defined(__thumb__) */
+#error Thumb-1 is not supported
+#endif /* !defined(__thumb__) */
+#else /* defined(__FDPIC__) */
 #if !defined(__thumb__)
 __asm__(
     "	.text\n"
@@ -121,7 +186,7 @@ __asm__(
 	".previous\n"
 );
 #endif
-
+#endif /* defined(__FDPIC__) */
 
 /* Get a pointer to the argv array.  On many platforms this can be just
  * the address of the first argument, on other platforms we need to
