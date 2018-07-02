@@ -10,7 +10,7 @@
 static void spin_gen(void*addr,int x,int y){
   unsigned char c,*p;
     
-  p=addr+(x+80*y)*2;
+  p=(unsigned char*)addr+(x+80*y)*2;
   c=*p;
   c=(c=='|')?'/':(c=='/')?'-':(c=='-')?'\\':(c=='\\')?'|':'-';
   *p=c;
@@ -34,12 +34,12 @@ static void spin_n_text_gen(void*addr, int x,int y, int len, const char*s){
   unsigned char c,*p;
   int i;
   
-  p=addr+(x+len+80*y)*2;
+  p=(unsigned char*)addr+(x+len+80*y)*2;
   c=*p;
   c=(c=='|')?'/':(c=='/')?'-':(c=='-')?'\\':(c=='\\')?'|':'.';
   if(c=='.'){
     if(s){
-      p=addr+(x+80*y)*2;
+      p=(unsigned char*)addr+(x+80*y)*2;
       for(i=0;i<len;i++){
         *p++ = *s++;p++;
       }
