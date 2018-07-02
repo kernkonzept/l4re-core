@@ -48,6 +48,39 @@
 int _pe_secure = 0;
 libc_hidden_data_def(_pe_secure)
 
+#if !defined(SHARED) && defined(__FDPIC__)
+struct funcdesc_value
+{
+	void *entry_point;
+	void *got_value;
+} __attribute__((__aligned__(8)));
+
+
+/* Prevent compiler optimization that removes GOT assignment.
+
+  Due to optimization passes (block split and move), in the rare case
+  where use r9 is the single instruction in a block we can have the
+  following behaviour:
+  - this block is marked as a forward block since use is not
+  considered as an active instruction after reload pass.
+
+  - In this case a jump in this block can be moved to the start of the
+  next one and so remove use in this flow of instructions which can
+  lead to a removal of r9 restoration after a call. */
+#define _dl_stabilize_funcdesc(val)			\
+	({ __asm__ ("" : "+m" (*(val))); (val); })
+
+static void fdpic_init_array_jump(void *addr)
+{
+	struct funcdesc_value *fm = (struct funcdesc_value *) fdpic_init_array_jump;
+	struct funcdesc_value fd = {addr, fm->got_value};
+
+	void (*pf)(void) = (void*) _dl_stabilize_funcdesc(&fd);
+
+	(*pf)();
+}
+#endif
+
 #ifndef SHARED
 void *__libc_stack_end = NULL;
 
@@ -316,7 +349,11 @@ void __uClibc_fini(void)
 # elif !defined (__UCLIBC_FORMAT_SHARED_FLAT__)
     size_t i = __fini_array_end - __fini_array_start;
     while (i-- > 0)
+#if !defined(SHARED) && defined(__FDPIC__)
+	fdpic_init_array_jump(__fini_array_start[i]);
+#else
 	(*__fini_array_start [i]) ();
+#endif
 # endif
     if (__app_fini != NULL)
 	(__app_fini)();
@@ -465,7 +502,11 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	const size_t size = __preinit_array_end - __preinit_array_start;
 	size_t i;
 	for (i = 0; i < size; i++)
+#if !defined(SHARED) && defined(__FDPIC__)
+	    fdpic_init_array_jump(__preinit_array_start[i]);
+#else
 	    (*__preinit_array_start [i]) ();
+#endif
     }
 # endif
     /* Run all the application's ctors now.  */
@@ -481,7 +522,11 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	const size_t size = __init_array_end - __init_array_start;
 	size_t i;
 	for (i = 0; i < size; i++)
+#if !defined(SHARED) && defined(__FDPIC__)
+	    fdpic_init_array_jump(__init_array_start[i]);
+#else
 	    (*__init_array_start [i]) ();
+#endif
     }
 # endif
 #endif
