@@ -289,7 +289,10 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	{
-		unsigned long old_val = *reloc_addr;
+		unsigned long old_val;
+
+		if (reloc_type != R_ARM_NONE)
+			old_val = *reloc_addr;
 #endif
 		switch (reloc_type) {
 			case R_ARM_NONE:
@@ -388,7 +391,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 				return -1; /*call _dl_exit(1) */
 		}
 #if defined (__SUPPORT_LD_DEBUG__)
-		if (_dl_debug_reloc && _dl_debug_detail)
+		if (_dl_debug_reloc && _dl_debug_detail && reloc_type != R_ARM_NONE)
 			_dl_dprintf(_dl_debug_file, "\tpatch: %lx ==> %lx @ %p", old_val, *reloc_addr, reloc_addr);
 	}
 
@@ -413,7 +416,10 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 
 #if defined (__SUPPORT_LD_DEBUG__)
 	{
-		unsigned long old_val = *reloc_addr;
+		unsigned long old_val;
+
+		if (reloc_type != R_ARM_NONE)
+			old_val = *reloc_addr;
 #endif
 		switch (reloc_type) {
 			case R_ARM_NONE:
@@ -436,7 +442,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 				return -1; /*call _dl_exit(1) */
 		}
 #if defined (__SUPPORT_LD_DEBUG__)
-		if (_dl_debug_reloc && _dl_debug_detail)
+		if (_dl_debug_reloc && _dl_debug_detail && reloc_type != R_ARM_NONE)
 			_dl_dprintf(_dl_debug_file, "\tpatch: %lx ==> %lx @ %p", old_val, *reloc_addr, reloc_addr);
 	}
 
