@@ -573,7 +573,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 		result = 0;
 		unsigned int *const ptr = &__nptl_nthreads;
 
-		if (! atomic_decrement_and_test (ptr))
+		if (ptr && ! atomic_decrement_and_test (ptr))
 			/* Not much left to do but to exit the thread, not the process.  */
 			__exit_thread_inline (0);
 	}
