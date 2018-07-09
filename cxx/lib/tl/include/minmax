@@ -16,8 +16,8 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
 #pragma once
+
 /**
  * \ingroup cxx_api
  * \brief Various kinds of C++ utilities.
@@ -32,7 +32,8 @@ namespace cxx
    */
   template< typename T1 >
   inline
-  T1 min(T1 a, T1 b) { return a<b?a:b;}
+  T1 min(T1 a, T1 b)
+  { return a < b ? a : b; }
 
   /**
    * \ingroup cxx_api
@@ -41,8 +42,7 @@ namespace cxx
    * \param b the second value.
    */
   template< typename T1 >
-  inline 
-  T1 max(T1 a, T1 b) { return a>b?a:b;}
+  inline
+  T1 max(T1 a, T1 b)
+  { return a > b ? a : b; }
 };
-
- 
