@@ -460,7 +460,7 @@ L4_INLINE int
 l4_factory_create_add_str_u(char const *s, l4_msgtag_t *tag,
                             l4_utcb_t *u) L4_NOTHROW
 {
-  return l4_factory_create_add_lstr_u(s, __builtin_strlen(s), tag, u);
+  return l4_factory_create_add_lstr_u(s, __builtin_strlen(s) + 1, tag, u);
 }
 
 L4_INLINE int

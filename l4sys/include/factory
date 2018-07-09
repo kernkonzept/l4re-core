@@ -180,6 +180,8 @@ public:
      * \param s  The string to add as next argument.
      *
      * \return  Reference to this stream.
+     *
+     * The string will be added with the zero-terminator.
      */
     S &operator << (char const *s)
     {
@@ -193,6 +195,10 @@ public:
      * \param s  The string to add as next argument.
      *
      * \return  Reference to this stream.
+     *
+     * The string will be added with the exact length given. It is the
+     * responsibility of the caller to make sure that the string is zero-
+     * terminated when that is required by the server.
      */
     S &operator << (Lstr const &s)
     {
