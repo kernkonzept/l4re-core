@@ -1,3 +1,96 @@
+2018-07-05  François Dumont  <fdumont@gcc.gnu.org>
+
+	Backport from mainline
+	2018-07-04  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/86272
+	* include/debug/string
+	(__gnu_debug::basic_string<>::insert<_Ite>(const_iterator, _Ite, _Ite)):
+	Use __glibcxx_check_insert_range.
+
+2018-05-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/67554
+	* include/bits/valarray_array.h (_Array_copy_ctor<_Tp, true>)
+	(_Array_copier<_Tp, true>): Do not pass null pointers to memcpy.
+
+2018-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/debug_mode.xml: Add array and forward_list to list
+	of C++11 containers with Debug Mode support.
+	* doc/xml/manual/using.xml: Document Dual ABI for ios_base::failure.
+	* doc/html/*: Regenerate.
+
+2018-05-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/85632 use uintmax_t for arithmetic
+	* src/filesystem/ops.cc (experimental::filesystem::space): Perform
+	arithmetic in result type.
+	* testsuite/experimental/filesystem/operations/space.cc: New.
+
+2018-03-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-03-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/84671
+	* include/bits/parse_numbers.h (_Number_help): Add partial
+	specialization to handle digit separators. Adjust partial
+	specialization for recursion temrination to require _Pow == 1ULL.
+	* testsuite/20_util/duration/literals/84671.cc: New
+
+2018-02-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-02-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/81797
+	* configure.ac (INCLUDE_DIR_NOTPARALLEL): Define.
+	* configure: Regenerate.
+	* include/Makefile.am (INCLUDE_DIR_NOTPARALLEL): Add .NOTPARALLEL when
+	defined.
+	* include/Makefile.in: Regenerate.
+
+2018-01-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-01-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83833
+	* include/bits/random.h (chi_squared_distribution::param): Update
+	gamma distribution parameter.
+	* testsuite/26_numerics/random/chi_squared_distribution/83833.cc: New
+	test.
+
+2018-01-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-01-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83834
+	* config/abi/pre/gnu.ver (GLIBCXX_3.4): Replace std::c[a-g]* wildcard
+	pattern with exact match for std::cerr.
+
+2018-01-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (register_type_printers): Remove
+	printer for experimental::any. Fix printers for experimental::optional
+	and experimental::basic_string_view.
+
+	Backport from mainline
+	2018-01-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/83626
+	* src/filesystem/ops.cc (remove(const path&, error_code&))): Do not
+	return an error for non-existent paths. Remove unnecessary
+	symlink_status call.
+	(remove_all(const path&)): Fix type of result variable.
+	(remove_all(const path&, error_code&))): Use non-throwing increment
+	for directory iterator. Do not return an error for non-existent paths.
+	* testsuite/experimental/filesystem/operations/remove.cc: New test.
+	* testsuite/experimental/filesystem/operations/remove_all.cc: Fix
+	expected results for non-existent paths.
+
 2018-01-05  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backport from mainline
