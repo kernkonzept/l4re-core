@@ -99,7 +99,7 @@ static int main_thread_exiting;
 
 /* Forward declarations */
 
-static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
+static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *attr,
                                  void * (*start_routine)(void *), void *arg);
 static void pthread_handle_free(pthread_t th_id);
 static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
@@ -164,7 +164,7 @@ __pthread_manager(void *arg)
 	{
 	case REQ_CREATE:
 	  request.req_thread->p_retcode =
-	    pthread_handle_create((pthread_t *) &request.req_thread->p_retval,
+	    pthread_handle_create(request.req_thread,
 		request.req_args.create.attr,
 		request.req_args.create.fn,
 		request.req_args.create.arg);
@@ -658,7 +658,7 @@ int __pthread_start_manager(pthread_descr mgr)
 }
 
 
-static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
+static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *attr,
 				 void * (*start_routine)(void *), void *arg)
 {
   int err;
@@ -745,13 +745,18 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 #endif
   new_thread->p_guardaddr = guardaddr;
   new_thread->p_guardsize = guardsize;
-  new_thread->p_inheritsched = attr ? attr->__inheritsched : 0;
+  new_thread->p_inheritsched = attr ? attr->__inheritsched : PTHREAD_INHERIT_SCHED;
   new_thread->p_alloca_cutoff = stksize / 4 > __MAX_ALLOCA_CUTOFF
 				 ? __MAX_ALLOCA_CUTOFF : stksize / 4;
   /* Initialize the thread handle */
   __pthread_init_lock(handle_to_lock(new_utcb));
   /* Determine scheduling parameters for the thread */
-  new_thread->p_sched_policy = -1;
+  // If no attributes are provided, pthread_create uses default values as
+  // described in pthread_attr_init. PTHREAD_INHERIT_SCHED is the default.
+
+  new_thread->p_sched_policy = creator->p_sched_policy;
+  new_thread->p_priority = creator->p_priority;
+
   if (attr != NULL)
     {
       new_thread->p_detached = attr->__detachstate;
@@ -789,7 +794,7 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
   /* Make the new thread ID available already now.  If any of the later
      functions fail we return an error value and the caller must not use
      the stored thread ID.  */
-  *thread = new_thread_id;
+  creator->p_retval = new_thread_id;
   /* Do the cloning.  We have to use two different functions depending
      on whether we are debugging or not.  */
   err =  __pthread_mgr_create_thread(new_thread, &stack_addr,

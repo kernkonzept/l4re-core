@@ -56,6 +56,11 @@ void pthread_l4_for_each_thread(void (*fn)(pthread_t))
   __pthread_send_manager_rq(&request, 1);
 }
 
+/**
+ * This function is called during libpthread initialization. That is, the main
+ * thread is running, and it runs this function, which sets up the pthread
+ * data structures for the main thread.
+ */
 int __pthread_l4_initialize_main_thread(pthread_descr th)
 {
   L4Re::Env *env = const_cast<L4Re::Env*>(L4Re::Env::env());
@@ -77,8 +82,10 @@ int __pthread_l4_initialize_main_thread(pthread_descr th)
 
   th->p_thsem_cap = s.cap();
 
+  // ideally we would try to get the current prio of the main thread, but the
+  // API doesn't currently allow us to
   th->p_sched_policy = SCHED_L4;
-  th->p_priority = 0x10;
+  th->p_priority = 2;
   th->p_affinity_mask[0] = ~0ul;
 
   th->p_lock = handle_to_lock(l4_utcb());
