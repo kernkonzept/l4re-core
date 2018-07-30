@@ -466,6 +466,9 @@ L4B_REDIRECT_2(int, truncate64, const char *, off64_t)
 
 //L4B_REDIRECT_3(int, unlinkat,  int, const char *, int)
 L4B_REDIRECT_4(int,       faccessat,   int, const char *, int, int)
+L4B_REDIRECT_4(int, fchmodat, int, const char *, mode_t, int)
+L4B_REDIRECT_4(int, utimensat, int, const char *,
+                               const struct timespec *, int)
 
 
 // ------------------------------------------------------

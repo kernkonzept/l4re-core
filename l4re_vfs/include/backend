@@ -120,12 +120,20 @@ public:
   int faccessat(const char *, int, int) throw()
   { return -ENOTDIR; }
 
+  /// Default backend for POSIX fchmodat function.
+  int fchmodat(const char *, mode_t, int) throw()
+  { return -ENOTDIR; }
+
   /// Default backend for POSIX utime.
   int utime(const struct utimbuf *) throw()
   { return -EROFS; }
 
   /// Default backend for POSIX utimes.
   int utimes(const struct timeval [2]) throw()
+  { return -EROFS; }
+
+  /// Default backend for POSIX utimensat.
+  int utimensat(const char *, const struct timespec [2], int) throw()
   { return -EROFS; }
 
   /// Default backend for POSIX mkdir and mkdirat.

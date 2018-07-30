@@ -242,6 +242,12 @@ public:
 
   virtual ssize_t getdents(char *buf, size_t sizebytes) throw() = 0;
 
+  virtual int fchmodat(const char *pathname,
+                       mode_t mode, int flags) throw() = 0;
+
+  virtual int utimensat(const char *pathname,
+                        const struct timespec times[2], int flags) throw() = 0;
+
   /**
    * \internal
    */
