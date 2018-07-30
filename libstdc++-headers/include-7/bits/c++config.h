@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 7
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20180114
+#define __GLIBCXX__ 20180722
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -1074,7 +1074,7 @@ namespace std
 #define _GLIBCXX_HAVE_SYS_SEM_H 1
 
 /* Define to 1 if you have the <sys/statvfs.h> header file. */
-#define _GLIBCXX_HAVE_SYS_STATVFS_H 1
+//l4/#define _GLIBCXX_HAVE_SYS_STATVFS_H 1
 
 /* Define to 1 if you have the <sys/stat.h> header file. */
 #define _GLIBCXX_HAVE_SYS_STAT_H 1

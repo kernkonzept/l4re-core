@@ -107,7 +107,12 @@ SRC_CC += \
   c++11/wlocale-inst.cc \
   c++11/wstring-inst.cc \
   c++11/wstring-io-inst.cc \
-
+  filesystem/dir.cc \
+  filesystem/ops.cc \
+  filesystem/path.cc \
+  filesystem/cow-dir.cc \
+  filesystem/cow-ops.cc \
+  filesystem/cow-path.cc
 
 CXXFLAGS_c++98/collate_members_cow.o    += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
 CXXFLAGS_c++98/collate_members_cow.s.o  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
@@ -137,6 +142,7 @@ CXXFLAGS_c++11/hashtable_c++0x.s.o += -fimplicit-templates
 SRC_CC_IS_CXX11 :=
 CXXFLAGS        += $(if $(filter c++11/%,$@),-std=gnu++11)
 CXXFLAGS        += $(if $(filter c++98/%,$@),-std=gnu++98)
+CXXFLAGS        += $(if $(filter filesystem/%,$@),-std=gnu++14)
 
 # -Wmissing-declarations triggers
 WARNINGS = $(WARNINGS_MINIMAL)
