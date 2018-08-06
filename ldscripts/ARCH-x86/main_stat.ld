@@ -22,7 +22,7 @@ SECTIONS
 
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x08048000)); . = SEGMENT_START("text-segment", 0x08048000) + SIZEOF_HEADERS;
-  .interp         : { *(.interp) } :ro :interp
+  .interp         : { *(.interp) } :ro
   .note.gnu.build-id : { *(.note.gnu.build-id) } :ro
   .hash           : { *(.hash) }
   .gnu.hash       : { *(.gnu.hash) }
