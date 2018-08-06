@@ -1,6 +1,5 @@
 #include <l4/sys/ipc.h>
 #include <l4/re/env>
-#include <stdlib.h>
 
 extern "C" void _exit(int code)  __attribute__ ((__noreturn__, __weak__));
 
