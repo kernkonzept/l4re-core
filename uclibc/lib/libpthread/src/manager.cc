@@ -648,7 +648,7 @@ int __pthread_start_manager(pthread_descr mgr)
                                     __pthread_manager, -1, 0, l4_sched_cpu_set(0, ~0, 1));
   if (err < 0)
     {
-      fprintf(stderr, "ERROR: could not start pthread manager thread\n");
+      fprintf(stderr, "ERROR: could not start pthread manager thread (err=%d)\n", err);
       exit(100);
     }
 
