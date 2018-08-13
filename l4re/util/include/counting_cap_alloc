@@ -209,7 +209,7 @@ public:
 
     l4_assert(!_items[c].is_free());
 
-    if (task != L4_INVALID_CAP)
+    if (l4_is_valid_cap(task))
       l4_task_unmap(task, cap.fpage(), unmap_flags);
 
     if (c < _free_hint)
