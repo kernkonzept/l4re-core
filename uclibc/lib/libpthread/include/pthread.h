@@ -26,7 +26,7 @@
 #include <bits/pthreadtypes.h>
 #include <bits/initspin.h>
 
-/* Aw11: schduling constants */
+/* Aw11: scheduling constants */
 enum
 {
   SCHED_IDLE  = 5,
