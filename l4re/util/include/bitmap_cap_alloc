@@ -79,7 +79,7 @@ public:
    * \brief Free a capability slot.
    */
   template< typename T>
-  void free(L4::Cap<T> const &cap, l4_cap_idx_t task = -1UL,
+  void free(L4::Cap<T> const &cap, l4_cap_idx_t task = L4_INVALID_CAP,
             l4_umword_t unmap_flags = L4_FP_ALL_SPACES) throw()
   {
     long idx = (cap.cap() >> L4_CAP_SHIFT);
@@ -90,7 +90,7 @@ public:
 
     _items.free(idx);
 
-    if (task != -1UL)
+    if (l4_is_valid_cap(task))
       l4_task_unmap(task, cap.fpage(), unmap_flags | 2);
   }
 
