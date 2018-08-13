@@ -36,7 +36,7 @@ EXTERN_C_BEGIN
  * \ingroup l4_api
  * \brief Operations for memory access.
  *
- * This modules provides functionality to access user task memory from the
+ * This module provides functionality to access user task memory from the
  * kernel. This is needed for some devices that are only accessible from
  * privileged processor mode. Only use this when absolutely required. This
  * functionality is only available on the ARM architecture.
@@ -56,7 +56,7 @@ enum L4_mem_op_widths
 };
 
 /**
- * \brief Read memory from kernel privilege level.
+ * \brief Read user task memory from kernel privilege level.
  * \ingroup l4_mem_op_api
  *
  * \param virtaddress  Virtual address in the calling task.
@@ -71,7 +71,7 @@ L4_INLINE unsigned long
 l4_mem_read(unsigned long virtaddress, unsigned width);
 
 /**
- * \brief Write memory from kernel privilege level.
+ * \brief Write user task memory from kernel privilege level.
  * \ingroup l4_mem_op_api
  *
  * \param virtaddress  Virtual address in the calling task.
