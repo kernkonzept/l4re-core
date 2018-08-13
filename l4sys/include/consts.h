@@ -245,19 +245,47 @@ enum l4_default_caps_t
   L4_BASE_FACTORY_CAP   = 2UL << L4_CAP_SHIFT,
   /// Capability selector for the first thread. \hideinitializer
   L4_BASE_THREAD_CAP    = 3UL << L4_CAP_SHIFT,
-  /// Capability selector for the pager gate.   \hideinitializer
+  /**
+   * Capability selector for the pager gate.
+   *
+   * \hideinitializer
+   * For Sigma0, the pager is not present since it never raises page faults.
+   * For Moe, the pager is set to Sigma0.
+   */
   L4_BASE_PAGER_CAP     = 4UL << L4_CAP_SHIFT,
-  /// Capability selector for the log object.   \hideinitializer
+  /**
+   * Capability selector for the log object.
+   *
+   * \hideinitializer
+   * Present if the corresponding feature is turned on in the microkernel
+   * configuration.
+   */
   L4_BASE_LOG_CAP       = 5UL << L4_CAP_SHIFT,
   /// Capability selector for the base icu object.   \hideinitializer
   L4_BASE_ICU_CAP       = 6UL << L4_CAP_SHIFT,
   /// Capability selector for the scheduler cap.   \hideinitializer
   L4_BASE_SCHEDULER_CAP = 7UL << L4_CAP_SHIFT,
-  /// Capability selector for the IO-MMU cap.   \hideinitializer
+  /**
+   * Capability selector for the IO-MMU cap.
+   *
+   * \hideinitializer
+   * Present if the microkernel detected an IO-MMU.
+   */
   L4_BASE_IOMMU_CAP     = 8UL << L4_CAP_SHIFT,
-  /// Capability selector for the debugger cap. \hideinitializer
+  /**
+   * Capability selector for the debugger cap.
+   *
+   * \hideinitializer
+   * Present if the corresponding feature is turned on in the microkernel
+   * configuration.
+   */
   L4_BASE_DEBUGGER_CAP  = 10UL << L4_CAP_SHIFT,
-  /// Capability selector for the ARM SMCCC cap. \hideinitializer
+  /** Capability selector for the ARM SMCCC cap.
+   *
+   * \hideinitializer
+   * Present if the microkernel detected an ARM SMC capable trusted execution
+   * environment.
+   */
   L4_BASE_ARM_SMCCC_CAP = 11UL << L4_CAP_SHIFT,
 
   /// \internal helper must be last before L4_BASE_CAPS_LAST

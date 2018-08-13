@@ -77,6 +77,9 @@ namespace L4Re
    *
    * \includefile{l4/re/env}
    *
+   * For an explanation of the default task capabilites see \ref
+   * l4_default_caps_t.
+   *
    * For the C interface refer to \ref api_l4re_env.
    */
   class L4_EXPORT Env

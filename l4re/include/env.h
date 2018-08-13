@@ -36,6 +36,9 @@
  *
  * \includefile{l4/re/env.h}
  *
+ * For an explanation of the default task capabilites see \ref
+ * l4_default_caps_t.
+ *
  * For the C++ interface refer to L4Re::Env.
  */
 
