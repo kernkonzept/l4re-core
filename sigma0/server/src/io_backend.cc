@@ -39,11 +39,11 @@ namespace L4 {
 
     while (len)
       {
-	l = len;
-	if (l > L4_VCON_WRITE_SIZE)
-	  l = L4_VCON_WRITE_SIZE;
-	log->write(str, l);
-	len -= l;
+        l = len;
+        if (l > L4_VCON_WRITE_SIZE)
+          l = L4_VCON_WRITE_SIZE;
+        log->write(str, l);
+        len -= l;
         str += l;
       }
 
@@ -67,9 +67,9 @@ namespace L4 {
     static l4_umword_t _initialized;
     if (l4util_xchg(&_initialized, 1) == 0)
       {
-	LogIOBackend *iob = new (&_iob) LogIOBackend();
-	new (&cerr) BasicOStream(iob);
-	new (&cout) BasicOStream(iob);
+        LogIOBackend *iob = new (&_iob) LogIOBackend();
+        new (&cerr) BasicOStream(iob);
+        new (&cout) BasicOStream(iob);
       }
   }
 };
