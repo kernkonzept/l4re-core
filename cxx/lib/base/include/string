@@ -20,7 +20,6 @@
 /**
  * Strings.
  */
-
 #pragma once
 
 #include <l4/cxx/minmax>
@@ -57,7 +56,7 @@ public:
    * \param s  first character of the string
    * \param e  pointer to first byte behind the string
    */
-  String(char const *s, char const *e) throw() : _start(s), _len(e-s) {}
+  String(char const *s, char const *e) throw() : _start(s), _len(e - s) {}
 
   /// Zero-initialize. Create an invalid string.
   String() : _start(0), _len(0) {}
@@ -176,7 +175,7 @@ public:
   /// Find character `c` starting at position `s`. Return end() if not found.
   char const *find(int c, char const *s) const
   {
-    if (s<_start)
+    if (s < _start)
       return end();
 
     while (1)
@@ -202,7 +201,7 @@ public:
    */
   char const *find(char const *c, char const *s) const
   {
-    if (s<_start)
+    if (s < _start)
       return end();
 
     while (1)
@@ -310,10 +309,8 @@ public:
   { return ! (operator == (o)); }
 
 private:
-
   char const *_start;
   unsigned long _len;
-
 };
 
 }

@@ -20,9 +20,7 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
-#ifndef L4_CXX_STRING_H__
-#define L4_CXX_STRING_H__
+#pragma once
 
 #include <l4/cxx/basic_ostream>
 
@@ -51,8 +49,7 @@ namespace L4 {
   private:
     char const *_str;
   };
-
-};
+}
 
 inline
 L4::BasicOStream &operator << (L4::BasicOStream &o, L4::String const &s)
@@ -60,5 +57,3 @@ L4::BasicOStream &operator << (L4::BasicOStream &o, L4::String const &s)
   o << s.p_str();
   return o;
 }
-
-#endif /* L4_CXX_STRING_H__ */

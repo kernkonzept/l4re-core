@@ -22,7 +22,6 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
 #pragma once
 
 #include <l4/cxx/l4types.h>
@@ -74,7 +73,8 @@ namespace L4
 #if defined(__PIC__)
     Exception_tracer() throw() : _frame_cnt(0) {}
 #else
-    Exception_tracer() throw() : _frame_cnt(l4util_backtrace(_pc_array, L4_CXX_EXCEPTION_BACKTRACE)) {}
+    Exception_tracer() throw()
+    : _frame_cnt(l4util_backtrace(_pc_array, L4_CXX_EXCEPTION_BACKTRACE)) {}
 #endif
 
   public:
@@ -224,7 +224,6 @@ namespace L4
     ~Unknown_error() throw() {}
   };
 
-  
   /**
    * \brief Exception for a failed lookup (element not found).
    * \headerfile l4/cxx/exceptions
@@ -321,4 +320,3 @@ operator << (L4::BasicOStream &o, L4::Runtime_error const &e)
 
   return o;
 }
-

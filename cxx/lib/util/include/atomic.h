@@ -20,9 +20,7 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
-#ifndef L4_CXX_ATOMIC_H__
-#define L4_CXX_ATOMIC_H__
+#pragma once
 
 #include <l4/util/atomic.h>
 
@@ -48,6 +46,4 @@ namespace L4
       }
     return 0;
   }
-};
-
-#endif // L4_CXX_ATOMIC_H__
+}

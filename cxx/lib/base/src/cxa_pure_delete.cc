@@ -20,6 +20,6 @@
 
 void operator delete (void *obj) throw()
 {
-  L4::cerr << "cxa pure delete operator called for object @" 
+  L4::cerr << "cxa pure delete operator called for object @"
            << L4::hex << obj << L4::dec << "\n";
 }

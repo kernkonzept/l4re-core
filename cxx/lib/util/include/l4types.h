@@ -19,9 +19,7 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
 #pragma once
 
 #include <l4/sys/types.h>
 #include <l4/cxx/basic_ostream>
-

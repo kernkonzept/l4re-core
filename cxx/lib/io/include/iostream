@@ -1,3 +1,5 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
 /**
  * \file
  * \brief IO Stream
@@ -20,9 +22,7 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
-#ifndef L4_IOSTREAM_H__
-#define L4_IOSTREAM_H__
+#pragma once
 
 #include <l4/cxx/basic_ostream>
 
@@ -38,12 +38,8 @@ namespace L4 {
    */
   extern BasicOStream cerr;
 
-
   extern void iostream_init();
 
   static void  __attribute__((used, constructor)) __iostream_init()
   { iostream_init(); }
-
 };
-
-#endif /* L4_IOSTREAM_H__ */

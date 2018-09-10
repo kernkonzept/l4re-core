@@ -20,9 +20,8 @@
 
 #include <l4/cxx/basic_ostream>
 
-namespace L4 
+namespace L4
 {
-
   IOModifier const hex(16);
   IOModifier const dec(10);
 
@@ -30,9 +29,9 @@ namespace L4
 
   void IOBackend::write(IOModifier m)
   {
-    if(m == dec)
+    if (m == dec)
       int_mode = 10;
-    else if(m == hex)
+    else if (m == hex)
       int_mode = 16;
   }
 
@@ -41,35 +40,36 @@ namespace L4
     char buffer[20];
     int  pos = 20;
     bool sign = u < 0;
-    if(sign) u=-u;
+    if (sign)
+      u = -u;
     buffer[19] = '0';
-    while(u)
+    while (u)
       {
-        buffer[--pos] = hex_chars[(u % int_mode)];
+        buffer[--pos] = hex_chars[u % int_mode];
         u /= int_mode;
       }
-    if(pos==20)
+    if (pos == 20)
       pos = 19;
-    if(sign)
+    if (sign)
       buffer[--pos] = '-';
 
-    write(buffer + pos, 20-pos);
+    write(buffer + pos, 20 - pos);
   }
-  
+
   void IOBackend::write(long long unsigned u, int /*len*/)
   {
     char buffer[20];
     int  pos = 20;
     buffer[19] = '0';
-    while(u)
+    while (u)
       {
-        buffer[--pos] = hex_chars[(u % int_mode)];
+        buffer[--pos] = hex_chars[u % int_mode];
         u /= int_mode;
       }
-    if(pos==20)
+    if (pos == 20)
       pos = 19;
 
-    write(buffer + pos, 20-pos);
+    write(buffer + pos, 20 - pos);
   }
 
   void IOBackend::write(long long unsigned u, unsigned char base,
@@ -77,25 +77,25 @@ namespace L4
   {
     char buffer[30];
     unsigned pos = sizeof(buffer);
-    buffer[sizeof(buffer)-1] = '0';
+    buffer[sizeof(buffer) - 1] = '0';
     while (pos > 0 && u)
       {
-        buffer[--pos] = hex_chars[(u % base)];
+        buffer[--pos] = hex_chars[u % base];
         u /= base;
       }
 
-    if (len >sizeof(buffer))
+    if (len > sizeof(buffer))
       len = sizeof(buffer);
 
-    if (len && sizeof(buffer)-pos > len)
+    if (len && sizeof(buffer) - pos > len)
       pos = sizeof(buffer) - len;
-    
-    while (sizeof(buffer)-pos < len)
+
+    while (sizeof(buffer) - pos < len)
       buffer[--pos] = pad;
-    
-    if (pos==sizeof(buffer))
+
+    if (pos == sizeof(buffer))
       pos--;
 
-    write(buffer + pos, sizeof(buffer)-pos);
+    write(buffer + pos, sizeof(buffer) - pos);
   }
 };

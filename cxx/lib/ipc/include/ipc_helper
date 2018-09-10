@@ -21,7 +21,6 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
 #pragma once
 
 #include <l4/cxx/exceptions>
@@ -29,8 +28,6 @@
 
 namespace L4
 {
-
-
 #ifdef __EXCEPTIONS
   /**
    * \brief Throw an L4 IPC error as exception.
@@ -63,4 +60,4 @@ namespace L4
   { throw_ipc_exception(L4::Cap<void>(o), err, utcb); }
 #endif
 
-};
+}

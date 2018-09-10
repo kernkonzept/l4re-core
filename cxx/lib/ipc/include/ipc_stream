@@ -22,7 +22,6 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
 #pragma once
 
 #include <l4/sys/ipc.h>
@@ -144,6 +143,7 @@ public:
 
   unsigned long &size() const { return *_s; }
   T *buf() const { return _v; }
+
 private:
   friend class Istream;
   T *_v;
@@ -203,6 +203,7 @@ public:
 
   unsigned long &size() const { return *_s; }
   T *buf() const { return _v; }
+
 private:
   friend class Istream;
   T *_v;
@@ -293,6 +294,7 @@ public:
 
   void set_size(unsigned long s) const { *_s = s; }
   T *&buf() const { return *_v; }
+
 private:
   friend class Istream;
   T **_v;
@@ -600,7 +602,7 @@ public:
   Istream_copy(Istream const &o) : Istream(o), _mrs(*l4_utcb_mr_u(o.utcb()))
   {
     // do some reverse mr to utcb trickery
-    _utcb = (l4_utcb_t*)((l4_addr_t)&_mrs - (l4_addr_t)l4_utcb_mr_u((l4_utcb_t*)0));
+    _utcb = (l4_utcb_t *)((l4_addr_t)&_mrs - (l4_addr_t)l4_utcb_mr_u((l4_utcb_t *)0));
     _current_msg = reinterpret_cast<char*>(l4_utcb_mr_u(_utcb)->mr);
   }
 
@@ -757,7 +759,7 @@ public:
 public:
   l4_msgtag_t prepare_ipc(long proto = 0, unsigned flags = 0)
   {
-    unsigned w = (_pos + sizeof(l4_umword_t)-1) / sizeof(l4_umword_t);
+    unsigned w = (_pos + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t);
     w -= _current_item * 2;
     return l4_msgtag(proto, w, _current_item, flags);
   }
@@ -765,7 +767,7 @@ public:
   // XXX: this is a hack for <l4/sys/cxx/ipc_server> adaption
   void set_ipc_params(l4_msgtag_t tag)
   {
-    _pos = (tag.words() + tag.items()*2)*sizeof(l4_umword_t);
+    _pos = (tag.words() + tag.items() * 2) * sizeof(l4_umword_t);
     _current_item = tag.items();
   }
 protected:
@@ -1097,7 +1099,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, l4_msgtag_t &v)
 template< typename T >
 inline
 L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
-    L4::Ipc::Internal::Buf_in<T> const &v)
+                               L4::Ipc::Internal::Buf_in<T> const &v)
 {
   unsigned long si;
   if (s.get(si) && s.has_more<T>(si))
@@ -1124,7 +1126,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
 template< typename T >
 inline
 L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
-    L4::Ipc::Msg_ptr<T> const &v)
+                               L4::Ipc::Msg_ptr<T> const &v)
 {
   s.get(v);
   return s;
@@ -1166,7 +1168,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
 template< typename T >
 inline
 L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
-    L4::Ipc::Str_cp_in<T> const &v)
+                               L4::Ipc::Str_cp_in<T> const &v)
 {
   unsigned long sz;
   s.get(sz);
@@ -1242,7 +1244,7 @@ L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, l4_msgtag_t const &v)
 template< typename T >
 inline
 L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s,
-    L4::Ipc::Internal::Buf_cp_out<T> const &v)
+                               L4::Ipc::Internal::Buf_cp_out<T> const &v)
 {
   s.put(v.size());
   s.put(v.buf(), v.size());

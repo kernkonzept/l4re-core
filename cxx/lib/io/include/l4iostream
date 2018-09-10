@@ -1,3 +1,5 @@
+// -*- Mode: C++ -*-
+// vim:ft=cpp
 /**
  * \file
  * \brief L4 IO stream
@@ -19,9 +21,7 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
-#ifndef L4_L4IOSTREAM_H__
-#define L4_L4IOSTREAM_H__
+#pragma once
 
 #include <l4/cxx/basic_ostream>
 #include <l4/sys/types.h>
@@ -44,6 +44,3 @@ L4::BasicOStream &operator << (L4::BasicOStream &o, L4::Cap<T> const &cap)
   o << "[C:" << L4::n_hex(cap.cap()) << "]";
   return o;
 }
-
-
-#endif

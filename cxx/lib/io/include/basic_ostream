@@ -33,7 +33,7 @@ namespace L4 {
   class IOModifier
   {
   public:
-    IOModifier( int x ) : mod(x) {}
+    IOModifier(int x) : mod(x) {}
     bool operator == (IOModifier o) { return mod == o.mod; }
     bool operator != (IOModifier o) { return mod != o.mod; }
     int mod;
@@ -51,8 +51,8 @@ namespace L4 {
   protected:
     friend class BasicOStream;
 
-    IOBackend() 
-      : int_mode(10) 
+    IOBackend()
+    : int_mode(10)
     {}
 
     virtual ~IOBackend() {}
@@ -63,13 +63,13 @@ namespace L4 {
     void write(IOModifier m);
     void write(long long int c, int len);
     void write(long long unsigned c, int len);
-    void write(long long unsigned c, unsigned char base = 10, 
-	       unsigned char len = 0, char pad = ' ');
+    void write(long long unsigned c, unsigned char base = 10,
+               unsigned char len = 0, char pad = ' ');
 
-    Mode mode() const 
+    Mode mode() const
     { return int_mode; }
 
-    void mode(Mode m) 
+    void mode(Mode m)
     { int_mode = m; }
 
     int int_mode;
@@ -82,35 +82,56 @@ namespace L4 {
   class BasicOStream
   {
   public:
-    BasicOStream(IOBackend *b) 
-      : iob(b) 
+    BasicOStream(IOBackend *b)
+    : iob(b)
     {}
 
-    void write(char const *str, unsigned len) 
-    { if(iob) iob->write(str,len); }
+    void write(char const *str, unsigned len)
+    {
+      if (iob)
+        iob->write(str, len);
+    }
 
-    void write(long long int c, int len) 
-    { if(iob) iob->write(c,len); }
+    void write(long long int c, int len)
+    {
+      if (iob)
+        iob->write(c, len);
+    }
 
     void write(long long unsigned c, unsigned char base = 10,
-	       unsigned char len = 0, char pad = ' ')
-    { if(iob) iob->write(c, base, len, pad); }
+               unsigned char len = 0, char pad = ' ')
+    {
+      if (iob)
+        iob->write(c, base, len, pad);
+    }
 
     void write(long long unsigned c, int len)
-    { if(iob) iob->write(c,len); }
+    {
+      if (iob)
+        iob->write(c, len);
+    }
 
-    void write(IOModifier m) 
-    { if(iob) iob->write(m); }
+    void write(IOModifier m)
+    {
+      if (iob)
+        iob->write(m);
+    }
 
-    IOBackend::Mode be_mode() const 
-    { if(iob) return iob->mode(); return 0; }
+    IOBackend::Mode be_mode() const
+    {
+      if (iob)
+        return iob->mode();
+      return 0;
+    }
 
-    void be_mode(IOBackend::Mode m) 
-    { if(iob) iob->mode(m); }
+    void be_mode(IOBackend::Mode m)
+    {
+      if (iob)
+        iob->mode(m);
+    }
 
   private:
     IOBackend *iob;
-
   };
 
   /**
@@ -120,8 +141,8 @@ namespace L4 {
   class IONumFmt
   {
   public:
-    IONumFmt(unsigned long long n, unsigned char base = 10, 
-	     unsigned char len = 0, char pad = ' ')
+    IONumFmt(unsigned long long n, unsigned char base = 10,
+             unsigned char len = 0, char pad = ' ')
       : n(n), base(base), len(len), pad(pad)
     {}
 
@@ -151,11 +172,10 @@ namespace L4 {
     o.write(n, base, len, pad);
     return o;
   }
-
 }
 
 
-// implementation
+// Implementation
 
 inline
 L4::BasicOStream &
@@ -167,10 +187,10 @@ operator << (L4::BasicOStream &s, char const * const str)
       return s;
     }
 
-  unsigned l=0;
-  for(; str[l]!=0; l++)
+  unsigned l = 0;
+  for (; str[l] != 0; l++)
     ;
-  s.write(str,l);
+  s.write(str, l);
   return s;
 }
 
@@ -178,7 +198,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, signed short u)
 {
-  s.write((long long signed)u,-1);
+  s.write((long long signed)u, -1);
   return s;
 }
 
@@ -186,7 +206,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, signed u)
 {
-  s.write((long long signed)u,-1);
+  s.write((long long signed)u, -1);
   return s;
 }
 
@@ -194,7 +214,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, signed long u)
 {
-  s.write((long long signed)u,-1);
+  s.write((long long signed)u, -1);
   return s;
 }
 
@@ -202,7 +222,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, signed long long u)
 {
-  s.write(u,-1);
+  s.write(u, -1);
   return s;
 }
 
@@ -210,7 +230,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, unsigned short u)
 {
-  s.write((long long unsigned)u,-1);
+  s.write((long long unsigned)u, -1);
   return s;
 }
 
@@ -218,7 +238,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, unsigned u)
 {
-  s.write((long long unsigned)u,-1);
+  s.write((long long unsigned)u, -1);
   return s;
 }
 
@@ -226,7 +246,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, unsigned long u)
 {
-  s.write((long long unsigned)u,-1);
+  s.write((long long unsigned)u, -1);
   return s;
 }
 
@@ -234,7 +254,7 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, unsigned long long u)
 {
-  s.write(u,-1);
+  s.write(u, -1);
   return s;
 }
 
@@ -245,7 +265,7 @@ operator << (L4::BasicOStream &s, void const *u)
   long unsigned x = (long unsigned)u;
   L4::IOBackend::Mode mode = s.be_mode();
   s.write(L4::hex);
-  s.write((long long unsigned)x,-1);
+  s.write((long long unsigned)x, -1);
   s.be_mode(mode);
   return s;
 }
@@ -262,14 +282,11 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &s, char c)
 {
-  s.write( &c, 1 );
+  s.write(&c, 1);
   return s;
 }
-
-
 
 inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &o, L4::IONumFmt const &n)
 { return n.print(o); }
-

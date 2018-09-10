@@ -28,4 +28,4 @@ namespace L4 {
       "aborted",
       "message cut"
     };
-};
+}

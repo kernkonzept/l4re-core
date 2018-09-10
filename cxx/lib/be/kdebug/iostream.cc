@@ -60,5 +60,4 @@ namespace L4 {
 	new (&cout) BasicOStream(iob);
       }
   }
-
 };

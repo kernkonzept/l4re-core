@@ -55,14 +55,13 @@ void __cxa_finalize(void *dso_handle)
   if (co > NUM_ATEXIT)
     co = NUM_ATEXIT;
 
-  while(co) 
+  while(co)
     {
       __exit_handler *h = &__atexitlist[--co];
       if (h->f && (dso_handle == 0 || h->dso_handle == dso_handle))
-	{
- 	  h->f(h->arg);
-	  h->f = 0;
-	}
+        {
+          h->f(h->arg);
+          h->f = 0;
+        }
     }
 }
-

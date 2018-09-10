@@ -20,28 +20,26 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-
-#ifndef L4_CXX_ALLOC_H__
-#define L4_CXX_ALLOC_H__
+#pragma once
 
 namespace L4 {
 
   /**
    * \brief A simple list-based allocator.
-   * \ingroup cxx_api 
+   * \ingroup cxx_api
    */
   class Alloc_list
   {
   public:
     Alloc_list() : _free(0) {}
-    Alloc_list( void *blk, unsigned long size ) : _free(0) 
-    { free( blk, size ); }
+    Alloc_list(void *blk, unsigned long size) : _free(0)
+    { free( blk, size); }
 
-    void free( void *blk, unsigned long size );
-    void *alloc( unsigned long size );
-    
+    void free(void *blk, unsigned long size);
+    void *alloc(unsigned long size);
+
   private:
-    struct Elem 
+    struct Elem
     {
       Elem *next;
       unsigned long size;
@@ -49,7 +47,4 @@ namespace L4 {
 
     Elem *_free;
   };
-};
-
-#endif // L4_CXX_ALLOC_H__
-
+}
