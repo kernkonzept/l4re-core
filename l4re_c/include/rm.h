@@ -42,7 +42,25 @@ enum l4re_rm_flags_t {
   L4RE_RM_NO_ALIAS     = 0x02, /**< \brief The region contains exclusive memory that is not mapped anywhere else */
   L4RE_RM_PAGER        = 0x04, /**< \brief Region has a pager */
   L4RE_RM_RESERVED     = 0x08, /**< \brief Region is reserved (blocked) */
-  L4RE_RM_REGION_FLAGS = 0x0f, /**< \brief Mask of all region flags */
+
+  L4RE_RM_CACHING_SHIFT    = 8, /**< Start of region mapper cache bits */
+
+  /** Shift value for Dataspace to Rm cache bits */
+  L4RE_RM_CACHING_DS_SHIFT = L4RE_RM_CACHING_SHIFT - L4RE_DS_MAP_CACHING_SHIFT,
+
+  /** Mask of all region manager cache bits */
+  L4RE_RM_CACHING          = L4RE_DS_MAP_CACHING_MASK << L4RE_RM_CACHING_DS_SHIFT,
+
+  L4RE_RM_REGION_FLAGS = L4RE_RM_CACHING | 0x0f, /**< \brief Mask of all region flags */
+
+  /** Cache bits for normal cacheable memory */
+  L4RE_RM_CACHE_NORMAL   = L4RE_DS_MAP_NORMAL << L4RE_RM_CACHING_DS_SHIFT,
+
+  /** Cache bits for buffered (write combining) memory */
+  L4RE_RM_CACHE_BUFFERED = L4RE_DS_MAP_BUFFERABLE << L4RE_RM_CACHING_DS_SHIFT,
+
+  /** Cache bits for uncached memory */
+  L4RE_RM_CACHE_UNCACHED = L4RE_DS_MAP_UNCACHEABLE << L4RE_RM_CACHING_DS_SHIFT,
 
   L4RE_RM_OVERMAP      = 0x10, /**< \brief Unmap memory already mapped in the region */
   L4RE_RM_SEARCH_ADDR  = 0x20, /**< \brief Search for a suitable address range */
