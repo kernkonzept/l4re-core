@@ -81,11 +81,17 @@ class Kobject;
 
 inline l4_msgtag_t
 Cap_base::validate(Cap<Task> task, l4_utcb_t *u) const throw()
-{ return l4_task_cap_valid_u(task.cap(), _c, u);  }
+{
+  return is_valid() ? l4_task_cap_valid_u(task.cap(), _c, u)
+                    : l4_msgtag(0, 0, 0, 0);
+}
 
 inline l4_msgtag_t
 Cap_base::validate(l4_utcb_t *u) const throw()
-{ return l4_task_cap_valid_u(L4_BASE_TASK_CAP, _c, u);  }
+{
+  return is_valid() ? l4_task_cap_valid_u(L4_BASE_TASK_CAP, _c, u)
+                    : l4_msgtag(0, 0, 0, 0);
+}
 
 }; // namespace L4
 
