@@ -151,7 +151,7 @@ public:
   /**
    * Check whether a capability is present (refers to an object).
    *
-   * \param cap   Capability to check for presence.
+   * \param cap   Valid capability to check for presence.
    * \utcb{utcb}
    *
    * \retval tag.label() > 0   Capability is present (refers to an object).
@@ -159,6 +159,10 @@ public:
    *
    * A capability is considered present when it refers to an existing
    * kernel object.
+   *
+   * \pre `cap` must be a valid capability (i.e. `cap.is_valid() == true`).
+   *      If you are unsure about the validity of your capability use
+   *      L4::Cap.validate() instead.
    */
   l4_msgtag_t cap_valid(Cap<void> const &cap,
                         l4_utcb_t *utcb = l4_utcb()) throw()

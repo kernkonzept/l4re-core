@@ -184,13 +184,16 @@ l4_task_release_cap_u(l4_cap_idx_t task, l4_cap_idx_t cap,
  * \ingroup l4_task_api
  *
  * \param task  Task to check the capability in.
- * \param cap   Capability to check for presence..
+ * \param cap   Valid capability to check for presence.
  *
  * \retval tag.label() > 0   Capability is present (refers to an object).
  * \retval tag.label() == 0  No capability present (void object).
  *
  * A capability is considered present when it refers to an existing
  * kernel object.
+ *
+ * \pre `cap` must be a valid capability index (i.e. not L4_INVALID_CAP or
+ *      the like).
  */
 L4_INLINE l4_msgtag_t
 l4_task_cap_valid(l4_cap_idx_t task, l4_cap_idx_t cap) L4_NOTHROW;
