@@ -45,7 +45,7 @@ typedef integral_constant<bool, false> false_type;
 
 template< typename T > struct remove_reference;
 
-template< typename T > struct idendity { typedef T type; };
+template< typename T > struct identity { typedef T type; };
 
 template< typename T1, typename T2 > struct is_same;
 
