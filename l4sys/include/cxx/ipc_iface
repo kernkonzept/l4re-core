@@ -429,7 +429,7 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_INLINE_RPC_NF(res, name, args...)                                 \
   struct name##_t : L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> \
   {                                                                          \
-    typedef Rpc_inline_call type;                                            \
+    typedef L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> type;   \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
 
@@ -442,7 +442,8 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_INLINE_RPC_NF_OP(op, res, name, args...)                          \
   struct name##_t : L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> \
   {                                                                          \
-    typedef Rpc_inline_call type; enum { Opcode = (op) };                    \
+    typedef L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> type;   \
+    enum { Opcode = (op) };                                                  \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
 
@@ -485,7 +486,7 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_RPC_NF(res, name, args...)                                        \
   struct name##_t : L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>        \
   {                                                                          \
-    typedef Rpc_call type;                                                   \
+    typedef L4::Ipc::Msg::Rpc_call<name##_t, Class, res args> type;          \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
 
@@ -500,7 +501,8 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_RPC_NF_OP(op, res, name, args...)                                 \
   struct name##_t : L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>        \
   {                                                                          \
-    typedef Rpc_call type; enum { Opcode = (op) };                           \
+    typedef L4::Ipc::Msg::Rpc_call<name##_t, Class, res args> type;          \
+    enum { Opcode = (op) };                                                  \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
 
