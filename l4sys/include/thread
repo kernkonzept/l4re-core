@@ -317,7 +317,7 @@ public:
    * Wrapper class for modifying senders.
    *
    * Use the add() function to add modification rules, and use
-   * modify_senders() to commit. Do not use the UTCB inbetween as it is
+   * modify_senders() to commit. Do not use the UTCB in between as it is
    * used by add() and modify_senders().
    */
   class Modify_senders
@@ -343,7 +343,7 @@ public:
      * \param del_bits   Bits to be deleted from the label.
      * \param add_bits   Bits to be added to the label.
      *
-     * \return 0 on sucess, <0 on error
+     * \return 0 on success, <0 on error
      *
      * Only the first match is applied.
      *
@@ -364,7 +364,7 @@ public:
   };
 
   /**
-   * Apply sender modifiction rules.
+   * Apply sender modification rules.
    *
    * \param todo  Prepared sender modification rules.
    *

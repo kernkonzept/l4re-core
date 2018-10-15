@@ -39,7 +39,7 @@ namespace L4 {
  *
  * The `down()` method decrements the semaphore counter and blocks
  * if the counter is already zero.  Blocking on a semaphore may---as all
- * blocking operations---either return sucessfully, or be aborted due to
+ * blocking operations---either return successfully, or be aborted due to
  * an expired timeout provided to the `down()` operation, or due to an
  * L4::Thread::ex_regs() operation with the #L4_THREAD_EX_REGS_CANCEL
  * flag set.

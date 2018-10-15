@@ -136,7 +136,7 @@ public:
    * Get attributes of `this` virtual console.
    *
    * \param[out] attr  Attribute structure. Contains the attributes after a
-   *                   successfull call of this function.
+   *                   successful call of this function.
    * \param      utcb  UTCB pointer of the calling thread.
    *
    * \return Syscall return tag.

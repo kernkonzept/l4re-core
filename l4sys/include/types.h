@@ -59,7 +59,7 @@ enum l4_msgtag_protocol
   L4_PROTO_EXCEPTION     =  -5L, ///< Exception
   L4_PROTO_SIGMA0        =  -6L, ///< Sigma0 protocol
   L4_PROTO_IO_PAGE_FAULT =  -8L, ///< I/O page fault message
-  L4_PROTO_KOBJECT       = -10L, ///< Protocol for messages to a a generic kobject
+  L4_PROTO_KOBJECT       = -10L, ///< Protocol for messages to a generic kobject
   L4_PROTO_TASK          = -11L, ///< Protocol for messages to a task object
   L4_PROTO_THREAD        = -12L, ///< Protocol for messages to a thread object
   L4_PROTO_LOG           = -13L, ///< Protocol for messages to a log object
@@ -72,7 +72,7 @@ enum l4_msgtag_protocol
   L4_PROTO_SEMAPHORE     = -20L, ///< Protocol for semaphore objects
   L4_PROTO_META          = -21L, ///< Meta information protocol
   L4_PROTO_IOMMU         = -22L, ///< Protocol ID for IO-MMUs
-  L4_PROTO_DEBUGGER      = -23L, ///< Protocol ID for the ddebugger
+  L4_PROTO_DEBUGGER      = -23L, ///< Protocol ID for the debugger
   L4_PROTO_SMCCC         = -24L, ///< Protocol ID for ARM SMCCC calls
 };
 
@@ -107,7 +107,7 @@ enum l4_msgtag_flags
    * \hideinitializer
    *
    * By enabling this flag when sending IPC, the sender indicates that the
-   * contents of the FPU shall be transfered to the receiving thread.
+   * contents of the FPU shall be transferred to the receiving thread.
    * However, the receiver has to indicate its willingness to receive
    * FPU context in its buffer descriptor register (BDR).
    */

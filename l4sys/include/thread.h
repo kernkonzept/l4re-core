@@ -523,7 +523,7 @@ l4_thread_register_del_irq_u(l4_cap_idx_t thread, l4_cap_idx_t irq,
                              l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
- * Start a thread sender modifiction sequence.
+ * Start a thread sender modification sequence.
  * \ingroup l4_thread_api
  *
  * Add modification rules with l4_thread_modify_sender_add() and commit with
