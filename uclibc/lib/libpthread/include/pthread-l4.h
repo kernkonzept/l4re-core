@@ -19,10 +19,6 @@ static inline l4_utcb_t *pthread_l4_utcb(pthread_t t);
 
 int pthread_l4_start(pthread_t thread, void *(*func)(void *), void *arg);
 
-/* Old-named version of pthread_l4_cap(), obsolete. */
-static inline l4_cap_idx_t pthread_getl4cap(pthread_t t)
-   L4_DEPRECATED("pthread_getl4cap() has been renamed to pthread_l4_cap()");
-
 __END_DECLS
 
 #ifdef __cplusplus
