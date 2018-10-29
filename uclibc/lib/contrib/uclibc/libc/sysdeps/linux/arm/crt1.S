@@ -97,12 +97,17 @@ ARM register quick reference:
 
 #if defined(__FDPIC__)
 .text
-	.arm
 	.globl	_start
+	.type	_start,%function
 
+	.align	2
 _start:
 	/* Start by self relocation.  */
+#if defined(__thumb2__)
+	sub r4, pc, #4
+#else
 	sub r4, pc, #8
+#endif
 	ldr r1, .L__ROFIXUP_LIST__
 	add r1, r1, r4
 	ldr r2, .L__ROFIXUP_END__
@@ -129,6 +134,7 @@ _start:
 	ldr r4, [r9, r4]
 	str r4, [sp, #0]		/* sp + 0 GOT fini  */
 	movs r4, r8			/* Test if static binary (r8 is 0 as there is no interpreter).  */
+	ite ne
 	movne r4, r10
 	moveq r4, #0
 	str r4, [sp, #4]		/* sp + 4 got rtld_fini  */

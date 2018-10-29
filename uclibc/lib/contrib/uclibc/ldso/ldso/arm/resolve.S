@@ -101,7 +101,15 @@
  .text
  .align 4      @ 16 byte boundary and there are 32 bytes below (arm case)
 #if 1 /*(!defined(__thumb__) || defined __THUMB_INTERWORK__) || defined(__thumb2__)*/
- .arm
+	/* On Thumb-only processors, force thumb encoding. These
+	processors support Thumb-2, so the same source code can be
+	used as in ARM mode. */
+#if !defined(__ARM_ARCH_ISA_ARM)
+	.thumb
+	.thumb_func
+#else
+	.arm
+#endif
  .hidden _dl_linux_resolve
  .globl _dl_linux_resolve
  .type _dl_linux_resolve,%function

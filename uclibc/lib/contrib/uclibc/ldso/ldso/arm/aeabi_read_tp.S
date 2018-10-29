@@ -53,9 +53,23 @@
 #else
 	.hidden __aeabi_read_tp
 #endif
+#if !defined(__ARM_ARCH_ISA_ARM)
+	.thumb_func
+	.thumb
+	.syntax unified
+	ENTRY (__aeabi_read_tp)
+	push	{r7}
+	mov	r7, #0x0f0000
+	orr	r7, r7, #6
+	svc	#0
+	pop	{r7}
+	bx	lr
+#else
+	.arm
 ENTRY (__aeabi_read_tp)
 	mov	r0, #0xffff0fff
 	sub	pc, r0, #31
+#endif
 END (__aeabi_read_tp)
 
 #endif /* __UCLIBC_HAS_THREADS_NATIVE__ */
