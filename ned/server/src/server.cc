@@ -103,6 +103,7 @@ Server::Server() : Base(0)
 
   l4_debugger_set_object_name(pthread_l4_cap(_th), "ned-svr");
 
+  pthread_attr_destroy(&attr);
   pthread_mutex_lock(&_start_mutex);
   pthread_mutex_destroy(&_start_mutex);
 }
