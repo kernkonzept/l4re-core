@@ -15,9 +15,9 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <fcntl.h>
 #include "../misc/internals/tempname.h"
 
 /* Generate a unique temporary file name from TEMPLATE.
@@ -27,6 +27,7 @@
 int
 mkostemp64 (char *template, int flags)
 {
+  flags -= flags & O_ACCMODE; /* Remove O_RDONLY, O_WRONLY, and O_RDWR. */
   return __gen_tempname (template, __GT_BIGFILE, flags | O_LARGEFILE, 0,
                          S_IRUSR | S_IWUSR);
 }
