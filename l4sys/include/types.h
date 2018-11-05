@@ -163,7 +163,7 @@ typedef struct l4_msgtag_t
   /// Get the protocol value.
   long label() const throw() { return raw >> 16; }
   /// Set the protocol value.
-  void label(long v) throw() { raw = (raw & 0x0ffff) | (v << 16); }
+  void label(long v) throw() { raw = (raw & 0x0ffff) | ((l4_umword_t)v << 16); }
   /// Get the number of untyped words.
   unsigned words() const throw() { return raw & 0x3f; }
   /// Get the number of typed items.
@@ -408,7 +408,8 @@ L4_INLINE
 l4_msgtag_t l4_msgtag(long label, unsigned words, unsigned items,
                       unsigned flags) L4_NOTHROW
 {
-  return (l4_msgtag_t){(label << 16) | (l4_mword_t)(words & 0x3f)
+  return (l4_msgtag_t){  (l4_mword_t)((l4_umword_t)label << 16)
+                       | (l4_mword_t)(words & 0x3f)
                        | (l4_mword_t)((items & 0x3f) << 6)
                        | (l4_mword_t)(flags & 0xf000)};
 }
