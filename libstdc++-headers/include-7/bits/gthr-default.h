@@ -232,7 +232,8 @@ __gthread_active_p (void)
    library does not provide pthread_cancel, so we do use pthread_create
    there (and interceptor libraries lose).  */
 
-#ifdef __GLIBC__
+/* L4Re added: "&& !defined(__UCLIBC__)" */
+#if defined(__GLIBC__) && !defined(__UCLIBC__)
 __gthrw2(__gthrw_(__pthread_key_create),
 	 __pthread_key_create,
 	 pthread_key_create)
