@@ -147,7 +147,7 @@ L4_CV int l4sigma0_map_iomem(l4_cap_idx_t sigma0, l4_addr_t phys,
  * whenever spare memory is needed, instead of requesting specific physical
  * memory with l4sigma0_map_mem().
  *
- * \param sigma0    usually the thread id of sigma0.
+ * \param sigma0    Capability selector for the sigma0 gate.
  * \param map_area the base address of the local virtual memory area where the
  *                 page should be mapped.
  * \param log2_map_size the size of the requested page log 2 (the size in
@@ -171,7 +171,7 @@ L4_CV int l4sigma0_map_anypage(l4_cap_idx_t sigma0, l4_addr_t map_area,
  * internal trace buffer for user-level evaluation. This is for special
  * debugging tools, such as Ferret.
  *
- * \param sigma0 as usual the sigma0 thread id.
+ * \param sigma0 Capability selector for the sigma0 gate.
  * \param virt the virtual address where the trace buffer should be mapped,
  *
  * \return 0 on success, !0 else (see l4sigma0_map_errstr()).
@@ -184,7 +184,7 @@ L4_CV int l4sigma0_map_tbuf(l4_cap_idx_t sigma0, l4_addr_t virt);
  * The debug information, such as internal memory maps, as well as
  * statistics about the internal allocators is dumped to the kernel debugger.
  *
- * \param sigma0 the sigma0 thread id.
+ * \param sigma0 Capability selector for the sigma0 gate.
  */
 L4_CV void l4sigma0_debug_dump(l4_cap_idx_t sigma0);
 
