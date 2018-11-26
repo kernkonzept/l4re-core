@@ -30,15 +30,6 @@ _syscall2(int, __libc_fstatfs, int, fd, struct statfs *, buf)
 int __libc_fstatfs (int __fildes, struct statfs *__buf)
 {
 	int err = INLINE_SYSCALL(fstatfs64, 3, __fildes, sizeof(*__buf), __buf);
-
-	if (err == 0) {
-		/* Did we overflow? */
-		if (__buf->__pad1 || __buf->__pad2 || __buf->__pad3 ||
-		    __buf->__pad4 || __buf->__pad5) {
-			__set_errno(EOVERFLOW);
-			return -1;
-		}
-	}
 	return err;
 };
 /* Redefined fstatfs because we need it for backwards compatibility */
