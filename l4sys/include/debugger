@@ -105,8 +105,8 @@ public:
    * \retval >=0  Id
    * \retval <0   Error
    */
-  int query_log_typeid(const char *name, unsigned idx,
-                      l4_utcb_t *utcb = l4_utcb()) throw()
+  long query_log_typeid(const char *name, unsigned idx,
+                        l4_utcb_t *utcb = l4_utcb()) throw()
   { return l4_debugger_query_log_typeid_u(cap(), name, idx, utcb); }
 
   /**
@@ -124,10 +124,10 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int query_log_name(unsigned idx,
-                     char *name, unsigned namelen,
-                     char *shortname, unsigned shortnamelen,
-                     l4_utcb_t *utcb = l4_utcb()) throw()
+  long query_log_name(unsigned idx,
+                      char *name, unsigned namelen,
+                      char *shortname, unsigned shortnamelen,
+                      l4_utcb_t *utcb = l4_utcb()) throw()
   {
     return l4_debugger_query_log_name_u(cap(), idx, name, namelen,
                                         shortname, shortnamelen, utcb);
