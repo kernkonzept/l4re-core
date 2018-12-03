@@ -164,7 +164,7 @@ protected:
    *
    * \param src the source capability.
    *
-   * After the operation this capability refers to the object formerly referd
+   * After the operation this capability refers to the object formerly referred
    * to by the source capability `src`, and the source capability no longer
    * refers to an object.
    */

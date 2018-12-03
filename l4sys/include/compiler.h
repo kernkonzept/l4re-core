@@ -105,8 +105,8 @@
  *
  * This macro shall be used to mark C and C++ functions that never
  * throw any exception.  Note that also C functions may throw exceptions
- * according to the compilers ABI and shall be marke with L4_NOTHROW
- * if they never do.  In C++ this is equvalent to \c throw().
+ * according to the compilers ABI and shall be marked with L4_NOTHROW
+ * if they never do.  In C++ this is equivalent to \c throw().
  *
  * \code
  * int foo() L4_NOTHROW;

@@ -232,7 +232,7 @@ enum l4_buffer_desc_consts_t
  * for the two initial tasks, the Root-Pager (Sigma0) and the Root-Task
  * (Moe).
  *
- * \attention This constants do not have any particular meaning for
+ * \attention These constants do not have any particular meaning for
  *            applications started by Moe, see \ref api_l4re_env for
  *            this kind of information.
  * \see \ref api_l4re_env for information useful for normal user applications.
