@@ -275,11 +275,12 @@ l4_task_cap_equal_u(l4_cap_idx_t task, l4_cap_idx_t cap_a,
  */
 enum L4_task_ops
 {
-  L4_TASK_MAP_OP         = 0UL,    /**< Map */
-  L4_TASK_UNMAP_OP       = 1UL,    /**< Unmap */
-  L4_TASK_CAP_INFO_OP    = 2UL,    /**< Cap info */
-  L4_TASK_ADD_KU_MEM_OP  = 3UL,    /**< Add kernel-user memory */
-  L4_TASK_LDT_SET_X86_OP = 0x11UL, /**< x86: LDT set */
+  L4_TASK_MAP_OP           = 0UL,    /**< Map */
+  L4_TASK_UNMAP_OP         = 1UL,    /**< Unmap */
+  L4_TASK_CAP_INFO_OP      = 2UL,    /**< Cap info */
+  L4_TASK_ADD_KU_MEM_OP    = 3UL,    /**< Add kernel-user memory */
+  L4_TASK_LDT_SET_X86_OP   = 0x11UL, /**< x86: LDT set */
+  L4_TASK_MAP_VGICC_ARM_OP = 0x12UL, /**< Arm: Map virtual GICC area */
 };
 
 
