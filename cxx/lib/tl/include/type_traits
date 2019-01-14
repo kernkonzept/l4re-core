@@ -132,7 +132,7 @@ forward(typename cxx::remove_reference<T>::type &&t)
 
 template< typename T >
 inline typename cxx::remove_reference<T>::type &&
-move(T &t) { return static_cast<typename cxx::remove_reference<T>::type &&>(t); }
+move(T &&t) { return static_cast<typename cxx::remove_reference<T>::type &&>(t); }
 #else
 template< typename T >
 inline T move(T t) { return t; }
