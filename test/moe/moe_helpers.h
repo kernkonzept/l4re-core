@@ -111,7 +111,7 @@ create_dma(L4::Cap<L4::Factory> fab = env->user_factory())
 {
   auto cap = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dma_space>());
   L4Re::chksys(fab->create(cap.get()));
-  L4Re::chksys(cap->associate(L4::Ipc::Cap<L4::Task>(L4::Cap<void>::Invalid),
+  L4Re::chksys(cap->associate(L4::Ipc::Cap<L4::Task>(),
                               L4Re::Dma_space::Phys_space));
   return cap;
 }
