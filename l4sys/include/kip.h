@@ -102,6 +102,10 @@ l4_kernel_info_version_offset(l4_kernel_info_t *kip) L4_NOTHROW;
  * \param kip  Pointer to the kernel info page (KIP).
  *
  * \return Value of the clock field in the KIP.
+ *
+ * The KIP clock always contains the current (relative) time in micro seconds
+ * independently of the CPU frequency. The clock is only guranteed to be accurate
+ * within the scheduling granularity announced in the KIP.
  */
 L4_INLINE l4_cpu_time_t
 l4_kip_clock(l4_kernel_info_t *kip) L4_NOTHROW;
