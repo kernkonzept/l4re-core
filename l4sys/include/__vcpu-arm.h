@@ -16,9 +16,9 @@
  */
 #pragma once
 
-L4_INLINE l4_addr_t l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW;
-L4_INLINE l4_addr_t l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW
-{ return (l4_addr_t)vcpu + 0x400 + (id & 0xfff); }
+L4_INLINE void *l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW;
+L4_INLINE void *l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW
+{ return (void *)((l4_addr_t)vcpu + 0x400 + (id & 0xfff)); }
 
 enum L4_vcpu_e_consts
 {
