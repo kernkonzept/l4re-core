@@ -58,33 +58,33 @@ init_memory(l4_kernel_info_t *info)
         }
 
       switch (type)
-	{
-	case Mem_desc::Conventional:
-	  Mem_man::ram()->add_free(Region(start, end));
-	  if (!iomem.reserve(Region(start, end, sigma0_taskno)))
+        {
+        case Mem_desc::Conventional:
+          Mem_man::ram()->add_free(Region(start, end));
+          if (!iomem.reserve(Region(start, end, sigma0_taskno)))
             mismatch = Region(start, end, sigma0_taskno);
-	  continue;
-	case Mem_desc::Reserved:
-	case Mem_desc::Dedicated:
-	  if (   !iomem.reserve(Region(start, end, sigma0_taskno))
+          continue;
+        case Mem_desc::Reserved:
+        case Mem_desc::Dedicated:
+          if (   !iomem.reserve(Region(start, end, sigma0_taskno))
               || !Mem_man::ram()->reserve(Region(start, end, sigma0_taskno)))
             mismatch = Region(start, end, sigma0_taskno);
-	  break;
-	case Mem_desc::Bootloader:
-	  if (   !iomem.reserve(Region(start, end, sigma0_taskno))
+          break;
+        case Mem_desc::Bootloader:
+          if (   !iomem.reserve(Region(start, end, sigma0_taskno))
               || !Mem_man::ram()->reserve(Region(start, end, root_taskno)))
             mismatch = Region(start, end, root_taskno);
-	  break;
-	case Mem_desc::Info:
-	case Mem_desc::Arch:
-	case Mem_desc::Shared:
-	  iomem.add_free(Region(start, end));
-	  if (!Mem_man::ram()->reserve(Region(start, end, sigma0_taskno)))
+          break;
+        case Mem_desc::Info:
+        case Mem_desc::Arch:
+        case Mem_desc::Shared:
+          iomem.add_free(Region(start, end));
+          if (!Mem_man::ram()->reserve(Region(start, end, sigma0_taskno)))
             mismatch = Region(start, end, root_taskno);
-	  break;
-	default:
-	  break;
-	}
+          break;
+        default:
+          break;
+        }
 
       if (mismatch.valid())
         {

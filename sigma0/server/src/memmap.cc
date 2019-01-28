@@ -29,7 +29,7 @@
 #include "ioports.h"
 
 
-l4_addr_t	 mem_high;
+l4_addr_t        mem_high;
 l4_kernel_info_t *l4_info;
 l4_addr_t        tbuf_status;
 
@@ -81,9 +81,7 @@ static
 void map_tbuf(Answer *a)
 {
   if (tbuf_status != 0x00000000 && tbuf_status != ~0UL)
-    {
-      a->snd_fpage(tbuf_status, L4_LOG2_PAGESIZE, L4_FPAGE_RW, true);
-    }
+    a->snd_fpage(tbuf_status, L4_LOG2_PAGESIZE, L4_FPAGE_RW, true);
 }
 
 static
@@ -96,7 +94,7 @@ void map_free_page(unsigned size, l4_umword_t t, Answer *a)
       a->snd_fpage(addr, size, L4_FPAGE_RWX, true);
 
       if (t < root_taskno) /* sender == kernel? */
-	a->do_grant(); /* kernel wants page granted */
+        a->do_grant(); /* kernel wants page granted */
     }
   else
     a->error(L4_ENOMEM);
@@ -190,22 +188,22 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
   switch (l4_utcb_mr_u(utcb)->mr[0] & 0x0f0)
     {
     case SIGMA0_REQ_ID_DEBUG_DUMP:
-	{
-	  Mem_man::Tree::Node_allocator alloc;
-	  L4::cout << PROG_NAME": Memory usage: a total of "
-	    << Page_alloc_base::total()
-	    << " byte are in the memory pool\n"
-	    << "  allocated "
-	    << alloc.total_objects() - alloc.free_objects()
-	    << " of " << alloc.total_objects() << " objects\n"
-	    << "  this are "
-	    << (alloc.total_objects() - alloc.free_objects())
-	    * alloc.object_size
-	    << " of " << alloc.total_objects() * alloc.object_size
-	    << " byte\n";
+        {
+          Mem_man::Tree::Node_allocator alloc;
+          L4::cout << PROG_NAME": Memory usage: a total of "
+            << Page_alloc_base::total()
+            << " byte are in the memory pool\n"
+            << "  allocated "
+            << alloc.total_objects() - alloc.free_objects()
+            << " of " << alloc.total_objects() << " objects\n"
+            << "  this are "
+            << (alloc.total_objects() - alloc.free_objects())
+            * alloc.object_size
+            << " of " << alloc.total_objects() * alloc.object_size
+            << " byte\n";
           dump_all();
-	  answer->error(0);
-	}
+          answer->error(0);
+        }
       break;
     case SIGMA0_REQ_ID_TBUF:
       map_tbuf(answer);
@@ -223,7 +221,8 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
       map_kip(answer);
       break;
     case SIGMA0_REQ_ID_FPAGE_ANY:
-      map_free_page(l4_fpage_size(*(l4_fpage_t*)(&l4_utcb_mr_u(utcb)->mr[1])), t, answer);
+      map_free_page(l4_fpage_size(*(l4_fpage_t*)(&l4_utcb_mr_u(utcb)->mr[1])),
+                    t, answer);
       break;
     case SIGMA0_REQ_ID_NEW_CLIENT:
       new_client(t, answer);
@@ -256,21 +255,18 @@ pager(void)
   for (;;)
     {
       tag = l4_ipc_wait(utcb, &t, L4_IPC_NEVER);
-#if 0
-	  L4::cout << "w: res=" << L4::MsgDope(result)
-	           << " tag=" << L4::dec << l4_msgtag_label(tag) << '\n';
-#endif
-      //L4::cout << PROG_NAME << ": rcv: " << tag << "\n";
+      if (0)
+        L4::cout << PROG_NAME << ": rcv: " << tag << "\n";
       while (!l4_msgtag_has_error(tag))
-	{
+        {
           l4_umword_t pfa;
           if (debug_warnings)
             pfa = l4_utcb_mr_u(utcb)->mr[0];
-	  t >>= 4;
-	  /* we received a paging request here */
-	  /* handle the sigma0 protocol */
+          t >>= 4;
+          /* we received a paging request here */
+          /* handle the sigma0 protocol */
 
-	  if (debug_ipc)
+          if (debug_ipc)
             {
               l4_umword_t d1 = l4_utcb_mr_u(utcb)->mr[0];
               l4_umword_t d2 = l4_utcb_mr_u(utcb)->mr[1];
@@ -279,63 +275,60 @@ pager(void)
                        << t << '\n';
             }
 
-	  switch(tag.label())
-	    {
-	    case L4_PROTO_SIGMA0:
-	      handle_sigma0_request(t, utcb, &answer);
-	      break;
-	    case L4::Meta::Protocol:
+          switch(tag.label())
+            {
+            case L4_PROTO_SIGMA0:
+              handle_sigma0_request(t, utcb, &answer);
+              break;
+            case L4::Meta::Protocol:
               {
                 L4::Ipc::Detail::Meta_svr<Sigma0> dummy;
-                answer.tag = L4::Ipc::Msg::dispatch_call<L4::Meta::Rpcs>(
-                    &dummy, utcb, tag, t);
+                answer.tag
+                  = L4::Ipc::Msg::dispatch_call<L4::Meta::Rpcs>(&dummy, utcb,
+                                                                tag, t);
               }
               break;
-	    case L4::Factory::Protocol:
-	      handle_service_request(t, utcb, &answer);
-	      break;
-	    case L4_PROTO_PAGE_FAULT:
-	      handle_page_fault(t, utcb, &answer);
-	      break;
-	    case L4_PROTO_IO_PAGE_FAULT:
-	      handle_io_page_fault(t, utcb, &answer);
-	      break;
-	    default:
-	      answer.error(L4_EBADPROTO);
-	      break;
-	    }
+            case L4::Factory::Protocol:
+              handle_service_request(t, utcb, &answer);
+              break;
+            case L4_PROTO_PAGE_FAULT:
+              handle_page_fault(t, utcb, &answer);
+              break;
+            case L4_PROTO_IO_PAGE_FAULT:
+              handle_io_page_fault(t, utcb, &answer);
+              break;
+            default:
+              answer.error(L4_EBADPROTO);
+              break;
+            }
 
-	  if (answer.failed())
-	    {
-	      if (debug_warnings)
+          if (answer.failed())
+            {
+              if (debug_warnings)
                 {
                   L4::cout << PROG_NAME": can't handle label=" << L4::dec
                            << l4_msgtag_label(tag)
                            << " d1=" << L4::hex << pfa
                            << " d2=" << l4_utcb_mr_u(utcb)->mr[1]
                            << " from thread=" << L4::dec << t << '\n';
-	          if (tag.is_page_fault())
-		    Mem_man::ram()->dump();
+                  if (tag.is_page_fault())
+                    Mem_man::ram()->dump();
                 }
 
-	      if (tag.is_exception())
+              if (tag.is_exception())
                 enter_kdebug("s1");
-	    }
+            }
 
-	  if (debug_ipc)
-	    L4::cout << PROG_NAME": sending d1=" << L4::hex << l4_utcb_mr_u(utcb)->mr[0]
-	      << " d2=" << l4_utcb_mr_u(utcb)->mr[1]
-	      << " msg=" << answer.tag << L4::dec
-	      << " to thread=" << t << '\n';
+          if (debug_ipc)
+            L4::cout << PROG_NAME": sending d1="
+                     << L4::hex << l4_utcb_mr_u(utcb)->mr[0]
+                     << " d2=" << l4_utcb_mr_u(utcb)->mr[1]
+                     << " msg=" << answer.tag << L4::dec
+                     << " to thread=" << t << '\n';
 
-	  /* send reply and wait for next message */
-	  tag = l4_ipc_reply_and_wait(utcb, answer.tag, &t, L4_IPC_SEND_TIMEOUT_0);
-#if 0
-	  L4::cout << "rplw: res=" << L4::MsgDope(result)
-	           << " tag=" << L4::dec << l4_msgtag_label(tag) << '\n';
-#endif
-
-	}
+          /* send reply and wait for next message */
+          tag = l4_ipc_reply_and_wait(utcb, answer.tag, &t,
+                                     L4_IPC_SEND_TIMEOUT_0);
+        }
     }
 }
-

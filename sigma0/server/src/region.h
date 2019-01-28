@@ -19,7 +19,7 @@ public:
   enum { Owner_mask = 0xfff };
   Region() : _l(0), _h(0) {}
   Region(unsigned long start, unsigned long end, unsigned owner = 0 /*free*/)
-    : _l((start & ~Owner_mask) | owner), _h(end) {}
+  : _l((start & ~Owner_mask) | owner), _h(end) {}
 
   unsigned owner() const { return _l & Owner_mask; }
   unsigned long start() const { return _l & ~Owner_mask; }
@@ -54,12 +54,11 @@ public:
 
 };
 
-
 template< typename OS >
 OS &operator << (OS &os, Region const &r)
 {
-  os << '[' << r.owner() << ':' << (void *)r.start() << ';' << (void *)r.end() << ']';
+  os << '[' << r.owner() << ':' << (void *)r.start()
+     << ';' << (void *)r.end() << ']';
   return os;
 }
 #endif
-

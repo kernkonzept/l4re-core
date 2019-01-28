@@ -29,7 +29,7 @@ public:
   l4_utcb_t *utcb;
   l4_msgtag_t tag;
 
-  Answer(l4_utcb_t *utcb) : utcb(utcb), tag(l4_msgtag(0,0,0,0)) {}
+  Answer(l4_utcb_t *utcb) : utcb(utcb), tag(l4_msgtag(0, 0, 0, 0)) {}
 
   void error(int err) { tag = l4_msgtag(-err, 0, 0, 0); }
 
@@ -60,4 +60,3 @@ public:
   void do_grant()
   { l4_utcb_mr_u(utcb)->mr[0] |= 2; }
 };
-

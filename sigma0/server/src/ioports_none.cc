@@ -26,4 +26,3 @@ void handle_io_page_fault(l4_umword_t /*t*/, l4_utcb_t * /*utcb*/, Answer *a)
 
 void dump_io_ports()
 {}
-

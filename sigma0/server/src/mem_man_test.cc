@@ -11,9 +11,9 @@
 #include <l4/cxx/iostream>
 #include "mem_man.h"
 
-#define ADD(a,b) \
+#define ADD(a, b) \
   L4::cout << "add_free("#a","#b")\n"; \
-  m.add_free(Region(a,b))
+  m.add_free(Region(a, b))
 
 void mem_man_test()
 {
