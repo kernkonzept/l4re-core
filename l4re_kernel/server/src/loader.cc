@@ -316,7 +316,7 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
   env->first_free_utcb(env->first_free_utcb() + L4_UTCB_OFFSET);
 
   chksys(app_thread->control(attr), "setup app thread");
-  chksys(env->scheduler()->run_thread(app_thread, l4_sched_param(2)));
+  chksys(env->scheduler()->run_thread(app_thread, l4_sched_param(L4RE_MAIN_THREAD_PRIO)));
   chksys(app_thread->ex_regs((unsigned long)&loader_thread,
                              (l4_addr_t)Ldr::adjust_sp((char *)__loader_stack_p), 0),
                              "start app thread");

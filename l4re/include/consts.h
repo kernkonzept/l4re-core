@@ -28,3 +28,16 @@ enum
   L4RE_THIS_TASK_CAP = 1UL << L4_CAP_SHIFT,
 };
 
+/**
+ * Defaults for local thread priorities
+ *
+ * Priorities are to be seen as local. These are used by the loader and
+ * libpthread. The are to be understood as 'local', which means the actual
+ * priority of the thread (as seen by the kernel) is the base priority as
+ * defined by the scheduler plus the local priority.
+ */
+enum
+{
+  L4RE_MAIN_THREAD_PRIO = 2, /* Priority of the main thread */
+};
+

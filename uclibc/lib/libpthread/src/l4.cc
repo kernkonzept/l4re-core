@@ -85,7 +85,7 @@ int __pthread_l4_initialize_main_thread(pthread_descr th)
   // ideally we would try to get the current prio of the main thread, but the
   // API doesn't currently allow us to
   th->p_sched_policy = SCHED_L4;
-  th->p_priority = 2;
+  th->p_priority = L4RE_MAIN_THREAD_PRIO;
   th->p_affinity_mask[0] = ~0ul;
 
   th->p_lock = handle_to_lock(l4_utcb());
