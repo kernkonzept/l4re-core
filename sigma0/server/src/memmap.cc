@@ -285,8 +285,12 @@ pager(void)
 	      handle_sigma0_request(t, utcb, &answer);
 	      break;
 	    case L4::Meta::Protocol:
-              answer.tag = L4::Ipc::Msg::dispatch_call<L4::Meta::Rpcs>((L4::Ipc::Detail::Meta_svr<Sigma0> *)0, utcb, tag, t);
-	      break;
+              {
+                L4::Ipc::Detail::Meta_svr<Sigma0> dummy;
+                answer.tag = L4::Ipc::Msg::dispatch_call<L4::Meta::Rpcs>(
+                    &dummy, utcb, tag, t);
+              }
+              break;
 	    case L4::Factory::Protocol:
 	      handle_service_request(t, utcb, &answer);
 	      break;
