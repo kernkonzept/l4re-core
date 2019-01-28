@@ -15,7 +15,7 @@
 
 static Mem_man io_ports;
 
-void init_io_ports(l4_kernel_info_t * /*info*/)
+void init_io_ports()
 {
 }
 

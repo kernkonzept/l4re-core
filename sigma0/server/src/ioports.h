@@ -13,7 +13,7 @@
 #include <l4/sys/kip.h>
 #include "memmap_internal.h"
 
-void init_io_ports(l4_kernel_info_t *info);
+void init_io_ports();
 void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *a);
 
 void dump_io_ports();

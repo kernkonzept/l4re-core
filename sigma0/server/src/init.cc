@@ -64,7 +64,7 @@ init(l4_kernel_info_t *info)
   Page_alloc_base::init();
 
   init_memory(info);
-  init_io_ports(info);
+  init_io_ports();
 
   //mem_man_test();
 

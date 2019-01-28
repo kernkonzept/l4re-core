@@ -20,7 +20,7 @@ enum { PORT_SHIFT = 12 };
 
 static Mem_man io_ports;
 
-void init_io_ports(l4_kernel_info_t * /*info*/)
+void init_io_ports()
 {
   io_ports.add_free(Region::kr(0, (64 * 1024) << PORT_SHIFT));
 }
