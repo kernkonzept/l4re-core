@@ -150,7 +150,7 @@ This statement does the following:
  2. Add the rom name-space into the new environment (thus shares Ned's
     'rom' directory with the new program).
  3. Creates all the building blocks for the new process and starts the
-    'l4re' support kernel in the new process which in turn start's 'rom/hello'
+    'l4re' support kernel in the new process which in turn starts 'rom/hello'
     in the new process.
 
 Using the app_spec parameter you can modify the behavior in two ways. There are
@@ -210,7 +210,6 @@ all building blocks. To set individual factories use the options:
   'log_fab'   for creating log objects.
   'ns_fab'    for creating name-space objects.
   'rm_fab'    for creating region-map objects.
-  'sched_fab' for creating scheduler objects.
 
 
 

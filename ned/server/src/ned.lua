@@ -78,7 +78,6 @@ Dbg = {
 --  * A factory used for name-space creation (ns_fab)
 --  * A factory used for region-map creation (rm_fab)
 --  * A Factory used for log creation (log_fab)
---  * A Scheduler factory (sched_fab)
 
 Loader = {};
 Loader.__index = Loader;
@@ -99,7 +98,6 @@ function Loader.new(proto)
     f.log_fab = f.log_fab or lfab;
     f.ns_fab = f.ns_fab or lfab;
     f.rm_fab = f.rm_fab or lfab;
-    f.sched_fab = f.sched_fab or lfab;
     f.factory = f.factory or Env.factory;
   end
 
