@@ -244,7 +244,7 @@ Avl_tree<Node, Get_key, Compare>::insert(Node *new_node)
       if (!static_cast<A const *>(p)->balanced())
 	s = t;
 
-      t = N::next_p(p, b);
+      t = A::next_p(p, b);
     }
 
   *static_cast<A*>(new_node) = A(true);
@@ -260,25 +260,25 @@ Avl_tree<Node, Get_key, Compare>::insert(Node *new_node)
 	  // ok we got in balance the shorter subtree go higher
 	  a->balance(Bal::N);
 	  // propagate the new balance down to the new node
-	  n = N::next(n, b);
+	  n = A::next(n, b);
 	}
-      else if (b == Bal(this->greater(new_key, N::next(n, b))))
+      else if (b == Bal(this->greater(new_key, A::next(n, b))))
 	{
 	  // left-left or right-right case -> single rotation
 	  A::rotate(s, b);
 	  a->balance(Bal::N);
 	  static_cast<A*>(*s)->balance(Bal::N);
-	  n = N::next(*s, b);
+	  n = A::next(*s, b);
 	}
       else
 	{
 	  // need a double rotation
-	  n = N::next(N::next(n, b), !b);
+	  n = A::next(A::next(n, b), !b);
 	  n = A::rotate2(s, b, n == new_node ? Bal::N : Bal(this->greater(new_key, n)));
 	}
     }
 
-  for (A::Bal b; n && n != new_node; static_cast<A*>(n)->balance(b), n = N::next(n, b))
+  for (A::Bal b; n && n != new_node; static_cast<A*>(n)->balance(b), n = A::next(n, b))
     b = Bal(this->greater(new_key, n));
 
   return pair(new_node, true);
@@ -300,18 +300,18 @@ Node *Avl_tree<Node, Get_key, Compare>::remove(Key_param_type key)
   Dir dir;
 
   // find target node and rebalancing entry
-  for (N *n; (n = *q); q = N::next_p(n, dir))
+  for (N *n; (n = *q); q = A::next_p(n, dir))
     {
       dir = Dir(this->greater(key, n));
       if (dir == Dir::L && !this->greater(k(n), key))
 	/* found node */
 	t = q;
 
-      if (!N::next(n, dir))
+      if (!A::next(n, dir))
 	break;
 
       A const *a = static_cast<A const *>(n);
-      if (a->balanced() || (a->balance() == !dir && N::next<A>(n, !dir)->balanced()))
+      if (a->balanced() || (a->balance() == !dir && A::next<A>(n, !dir)->balanced()))
 	s = q;
     }
 
@@ -321,11 +321,11 @@ Node *Avl_tree<Node, Get_key, Compare>::remove(Key_param_type key)
 
   A *i = static_cast<A*>(*t);
 
-  for (N *n; (n = *s); s = N::next_p(n, dir))
+  for (N *n; (n = *s); s = A::next_p(n, dir))
     {
       dir = Dir(this->greater(key, n));
 
-      if (!N::next(n, dir))
+      if (!A::next(n, dir))
 	break;
 
       A *a = static_cast<A*>(n);
@@ -337,9 +337,9 @@ Node *Avl_tree<Node, Get_key, Compare>::remove(Key_param_type key)
       else
 	{
 	  // we need rotations to get in balance
-	  Bal b = N::next<A>(n, !dir)->balance();
+	  Bal b = A::next<A>(n, !dir)->balance();
 	  if (b == dir)
-	    A::rotate2(s, !dir, N::next<A>(N::next(n, !dir), dir)->balance());
+	    A::rotate2(s, !dir, A::next<A>(A::next(n, !dir), dir)->balance());
 	  else
 	    {
 	      A::rotate(s, !dir);
@@ -355,13 +355,13 @@ Node *Avl_tree<Node, Get_key, Compare>::remove(Key_param_type key)
 		}
 	    }
 	  if (n == i)
-	    t = N::next_p(*s, dir);
+	    t = A::next_p(*s, dir);
 	}
     }
 
   A *n = static_cast<A*>(*q);
   *t = n;
-  *q = N::next(n, !dir);
+  *q = A::next(n, !dir);
   *n = *i;
 
   return static_cast<Node*>(i);
