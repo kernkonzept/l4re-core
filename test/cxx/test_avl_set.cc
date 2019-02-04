@@ -159,12 +159,14 @@ TEST_F(TestAvlSet, FindNode)
   EXPECT_EQ(0, tree->insert(123).second);
 
   auto n = tree->find_node(123);
-  EXPECT_TRUE(n);
+  EXPECT_NE(nullptr, static_cast<int const *>(n))
+    << "The cast to the node type pointer returns an valid pointer.";
   EXPECT_TRUE(n.valid());
   EXPECT_EQ(123, *n);
 
   n = tree->find_node(122);
-  EXPECT_FALSE(n);
+  EXPECT_EQ(nullptr, static_cast<int const *>(n))
+    << "The cast to the node type pointer returns an invalid pointer.";
   EXPECT_FALSE(n.valid());
 }
 
@@ -190,7 +192,7 @@ TEST_F(TestAvlSet, CopyTree)
   for (int i : ids)
     {
       auto n = copied->find_node(i);
-      EXPECT_TRUE(n);
+      EXPECT_TRUE(n.valid());
       EXPECT_EQ(i, *n);
     }
 }

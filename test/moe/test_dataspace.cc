@@ -27,7 +27,7 @@
 
 #include "moe_helpers.h"
 
-using std::tr1::tuple;
+using std::tuple;
 static Atkins::Dbg dbg{2};
 
 struct TestGeneralDs : testing::Test {};
