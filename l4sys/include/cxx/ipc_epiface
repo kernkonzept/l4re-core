@@ -408,7 +408,9 @@ struct Meta_svr
     if (ifx > 0)
       return -L4_ERANGE;
     proto = L4::kobject_typeid<IFACE>()->proto();
-    name.copy_in(L4::kobject_typeid<IFACE>()->name());
+    if (auto *n = L4::kobject_typeid<IFACE>()->name())
+      name.copy_in(n);
+
     return 0;
   }
 
