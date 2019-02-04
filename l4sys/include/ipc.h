@@ -234,10 +234,10 @@ l4_ipc_send(l4_cap_idx_t dest, l4_utcb_t *utcb, l4_msgtag_t tag,
  * Wait for an incoming message from any possible sender.
  * \ingroup l4_ipc_api
  *
- * \param   utcb     UTCB of the caller.
- * \retval  label    Label assigned to the source object (IPC gate or IRQ).
- * \param   timeout  Timeout pair (see #l4_timeout_t, only the receive part is
- *                   used).
+ * \param      utcb     UTCB of the caller.
+ * \param[out] label    Label assigned to the source object (IPC gate or IRQ).
+ * \param      timeout  Timeout pair (see #l4_timeout_t, only the receive part
+ *                      is used).
  *
  * \return  return tag
  *
@@ -303,8 +303,8 @@ l4_ipc_call(l4_cap_idx_t object, l4_utcb_t *utcb, l4_msgtag_t tag,
  * Reply and wait operation (uses the *reply* capability).
  * \ingroup l4_ipc_api
  *
- * \param      tag      Describes the message to be sent as reply.
  * \param      utcb     UTCB of the caller.
+ * \param      tag      Describes the message to be sent as reply.
  * \param[out] label    Label assigned to the source object of the received
  *                      message.
  * \param      timeout  Timeout pair (see #l4_timeout_t).
