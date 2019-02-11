@@ -19,10 +19,12 @@
 #include <l4/atkins/l4_assert>
 #include <l4/atkins/tap/main>
 #include <l4/atkins/tap/tap>
+#include <l4/atkins/ipc_helper>
 #include <l4/re/env>
 #include <l4/re/namespace>
 #include <l4/re/util/debug>
 #include <l4/sys/ipc_gate>
+#include <l4/sys/err.h>
 
 #include <map>
 #include <stdexcept>
@@ -32,15 +34,13 @@
 using L4Re::chkcap;
 using L4Re::chksys;
 using L4Re::Util::make_unique_cap;
+using Atkins::Ipc_helper::Default_test_timeout;
 
 /**
  * Magic constants.
  */
 enum { Svr_label = 0x51, Svr_label_ok = 0, Svr_label_not_ok = 1,
        Echo_proto = 0x25 };
-
-static l4_timeout_t std_to =
-  l4_timeout(l4util_micros2l4to(50000), l4util_micros2l4to(50000));
 
 static l4_msgtag_t
 gate_bind_thread_timeout(l4_cap_idx_t ep, l4_cap_idx_t thread, l4_umword_t label,
@@ -150,10 +150,15 @@ receive_ipc_gate()
   br->br[0] = L4::Ipc::Small_buf(cap.get(), 0).raw();
 
   l4_umword_t label;
-  auto recv_tag = l4_ipc_wait(l4_utcb(), &label, std_to);
+  int err = l4_ipc_error(l4_ipc_wait(l4_utcb(), &label, L4_IPC_NEVER),
+                         l4_utcb());
 
-  if (l4_ipc_error(recv_tag, l4_utcb()) == L4_IPC_RETIMEOUT)
-    return;
+  if (err)
+    {
+      printf("Await an IPC from main. IPC error: %s (%i)\n",
+             l4sys_errtostr(-(L4_EIPC_LO + err)), err);
+      return;
+    }
 
   l4_msg_regs_t *mr = l4_utcb_mr();
   mr->mr[0] = (label == Svr_label) ? Svr_label_ok : Svr_label_not_ok;
@@ -347,7 +352,7 @@ TEST(ReceivedCapabilities, CorrectServerPermissions)
   // thread given as the first argument to the function. If the capability does
   // not have server rights, this will block until the timeout hits.
   l4_msgtag_t svr_tag = gate_bind_thread_timeout(
-    svr_cap.cap(), echo_thr_cap.cap(), Svr_label, std_to);
+    svr_cap.cap(), echo_thr_cap.cap(), Svr_label, Default_test_timeout);
 
   ASSERT_L4OK(svr_tag) << "Bind server IPC gate to echo thread";
 
@@ -359,8 +364,9 @@ TEST(ReceivedCapabilities, CorrectServerPermissions)
   // rights, this function call will succeed without an error but the subsequent
   // EXPECT statements will fail as the expected values are not returned.
   l4_cap_idx_t main_thr_cap = L4Re::Env::env()->main_thread().cap();
-  l4_msgtag_t no_svr_tag = gate_bind_thread_timeout(
-                             no_svr_cap.cap(), main_thr_cap, 0u, std_to);
+  l4_msgtag_t no_svr_tag =
+    gate_bind_thread_timeout(no_svr_cap.cap(), main_thr_cap, 0u,
+                             Default_test_timeout);
 
   long echo_proto = no_svr_tag.label();
 
