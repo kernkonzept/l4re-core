@@ -105,6 +105,7 @@ Server::Server() : Base(0)
 
   pthread_attr_destroy(&attr);
   pthread_mutex_lock(&_start_mutex);
+  pthread_mutex_unlock(&_start_mutex);
   pthread_mutex_destroy(&_start_mutex);
 }
 void
