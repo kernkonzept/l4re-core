@@ -77,7 +77,7 @@ Dbg = {
 --  * A memory allocator
 --  * A factory used for name-space creation (ns_fab)
 --  * A factory used for region-map creation (rm_fab)
---  * A Factory used for log creation (log_fab)
+--  * A factory used for log creation (log_fab)
 
 Loader = {};
 Loader.__index = Loader;
