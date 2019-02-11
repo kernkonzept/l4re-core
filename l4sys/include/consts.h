@@ -52,7 +52,7 @@ enum l4_syscall_flags_t
    * \hideinitializer
    *
    * Setting this flag in a capability selector induces a send phase,
-   * this means a message is send to the object denoted by the capability.
+   * this means a message is sent to the object denoted by the capability.
    * For receive phase see #L4_SYSF_RECV.
    */
   L4_SYSF_SEND      = 0x01,
