@@ -48,7 +48,7 @@
  * ~~~
  *
  *
- * The signature of each function is first declared using on of the RPC
+ * The signature of each function is first declared using one of the RPC
  * macros (see below) and then all the functions need to be listed in the
  * Rpcs type.
  *
