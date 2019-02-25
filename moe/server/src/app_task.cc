@@ -7,6 +7,9 @@
  * GNU General Public License 2.
  * Please see the COPYING-GPL-2 file for details.
  */
+
+#include <l4/cxx/iostream>
+
 #include "app_task.h"
 #include "globals.h"
 
