@@ -194,6 +194,7 @@ Name_space::op_register_obj(L4Re::Namespace::Rights, unsigned flags,
 
   bool r = insert(n.get());
   assert(r);
+  (void)r;
   n.release();
 
   return L4_EOK;
