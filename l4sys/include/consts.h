@@ -184,8 +184,8 @@ enum l4_sched_consts_t
 enum l4_unmap_flags_t
 {
   /**
-   * Flag to tell the unmap operation to unmap all child mappings including the
-   * mapping in the invoked task.
+   * Flag to tell the unmap operation to revoke permissions from all child
+   * mappings including the mapping in the invoked task.
    *
    * \note Object capabilities are not hierarchical -- they have no children.
    *       The result of the map operation on an object capability is a copy of
@@ -199,14 +199,18 @@ enum l4_unmap_flags_t
 
   /**
    * Flag that indicates that an unmap operation on object capabilities shall
-   * try to delete the corresponding objects.
+   * try to delete the corresponding objects immediately. This flag implies the
+   * #L4_FP_ALL_SPACES flag. The concept of deletion is only applicable to
+   * kernel objects. Therefore, for memory and I/O port capabilites, this flag
+   * has the same effect as #L4_FP_ALL_SPACES alone.
    * \hideinitializer
    * \see L4::Task::unmap() l4_task_unmap()
    */
   L4_FP_DELETE_OBJ   = 0xc0000000UL,
 
   /**
-   * Counterpart to #L4_FP_ALL_SPACES, unmap only child mappings.
+   * Counterpart to #L4_FP_ALL_SPACES; revoke permissions from child mappings
+   * only.
    * \hideinitializer
    * \see L4::Task::unmap() l4_task_unmap()
    */
