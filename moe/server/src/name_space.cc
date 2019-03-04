@@ -16,6 +16,7 @@
 #include <l4/cxx/l4iostream>
 #include <l4/cxx/minmax>
 #include <l4/cxx/unique_ptr>
+#include <l4/sys/assert.h>
 
 #include <cstring>
 #include <cstdlib>
@@ -193,8 +194,7 @@ Name_space::op_register_obj(L4Re::Namespace::Rights, unsigned flags,
     }
 
   bool r = insert(n.get());
-  assert(r);
-  (void)r;
+  l4_check(r);
   n.release();
 
   return L4_EOK;
