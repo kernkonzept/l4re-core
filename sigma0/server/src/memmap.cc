@@ -275,7 +275,7 @@ pager(void)
                        << t << '\n';
             }
 
-          switch(tag.label())
+          switch (tag.label())
             {
             case L4_PROTO_SIGMA0:
               handle_sigma0_request(t, utcb, &answer);
@@ -328,7 +328,7 @@ pager(void)
 
           /* send reply and wait for next message */
           tag = l4_ipc_reply_and_wait(utcb, answer.tag, &t,
-                                     L4_IPC_SEND_TIMEOUT_0);
+                                      L4_IPC_SEND_TIMEOUT_0);
         }
     }
 }
