@@ -35,19 +35,6 @@ l4_addr_t        tbuf_status;
 
 Mem_man iomem;
 
-
-enum Requests
-{
-  None,
-  Map_free_page,
-  Map_kip,
-  Map_tbuf,
-  Map_ram,
-  Map_iomem,
-  Map_iomem_cached,
-  Debug_dump,
-};
-
 enum Memory_type { Ram, Io_mem, Io_mem_cached };
 
 void dump_all()
