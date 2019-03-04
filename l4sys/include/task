@@ -169,23 +169,6 @@ public:
   { return l4_task_cap_valid_u(this->cap(), cap.cap(), utcb); }
 
   /**
-   * Test whether a capability has child mappings (in another task).
-   *
-   * \param cap   Capability selector to look up in the destination task.
-   * \param utcb  UTCB pointer of the calling thread.
-   *
-   * \retval tag.label() = 1: The capability has at least on child mapping in
-   *         another task.
-   * \retval tag.label() = 0: No child mappings.
-   *
-   * \deprecated Do not use. Undetermined future, might be removed.
-   */
-  l4_msgtag_t cap_has_child(Cap<void> const &cap,
-                            l4_utcb_t *utcb = l4_utcb()) throw()
-    L4_DEPRECATED("Do not use. Future uncertain.")
-  { return l4_task_cap_has_child_u(this->cap(), cap.cap(), utcb); }
-
-  /**
    * Test whether two capabilities point to the same object with the same
    * rights.
    *

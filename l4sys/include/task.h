@@ -205,28 +205,6 @@ L4_INLINE l4_msgtag_t
 l4_task_cap_valid_u(l4_cap_idx_t task, l4_cap_idx_t cap, l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
- * Test whether a capability has child mappings (in another task).
- * \ingroup l4_task_api
- *
- * \param task         Capability selector of the destination task to do the
- *                     lookup in
- * \param cap          Capability selector to look up in the destination task
- *
- * \return label contains 1 if it has at least one child, 0 if not or invalid
- *
- * \deprecated Do not use. Undetermined future, might be removed.
- */
-L4_INLINE l4_msgtag_t
-l4_task_cap_has_child(l4_cap_idx_t task, l4_cap_idx_t cap) L4_NOTHROW
-  L4_DEPRECATED("Do not use. Future uncertain.");
-
-/**
- * \internal
- */
-L4_INLINE l4_msgtag_t
-l4_task_cap_has_child_u(l4_cap_idx_t task, l4_cap_idx_t cap, l4_utcb_t *utcb) L4_NOTHROW;
-
-/**
  * Test whether two capabilities point to the same object with the same
  *        rights.
  * \ingroup l4_task_api
@@ -335,15 +313,6 @@ l4_task_cap_valid_u(l4_cap_idx_t task, l4_cap_idx_t cap, l4_utcb_t *u) L4_NOTHRO
 }
 
 L4_INLINE l4_msgtag_t
-l4_task_cap_has_child_u(l4_cap_idx_t task, l4_cap_idx_t cap, l4_utcb_t *u) L4_NOTHROW
-{
-  l4_msg_regs_t *v = l4_utcb_mr_u(u);
-  v->mr[0] = L4_TASK_CAP_INFO_OP;
-  v->mr[1] = cap | 1UL;
-  return l4_ipc_call(task, u, l4_msgtag(L4_PROTO_TASK, 2, 0, 0), L4_IPC_NEVER);
-}
-
-L4_INLINE l4_msgtag_t
 l4_task_cap_equal_u(l4_cap_idx_t task, l4_cap_idx_t cap_a,
                     l4_cap_idx_t cap_b, l4_utcb_t *u) L4_NOTHROW
 {
@@ -421,12 +390,6 @@ L4_INLINE l4_msgtag_t
 l4_task_cap_valid(l4_cap_idx_t task, l4_cap_idx_t cap) L4_NOTHROW
 {
   return l4_task_cap_valid_u(task, cap, l4_utcb());
-}
-
-L4_INLINE l4_msgtag_t
-l4_task_cap_has_child(l4_cap_idx_t task, l4_cap_idx_t cap) L4_NOTHROW
-{
-  return l4_task_cap_has_child_u(task, cap, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t
