@@ -9,7 +9,7 @@
  */
 #include <l4/sys/types.h>
 #include <l4/sys/ipc.h>
-#include <l4/sys/kdebug.h>
+#include <l4/sys/assert.h>
 #include <l4/sys/factory.h>
 #include <l4/sys/capability>
 #include <l4/sys/cxx/ipc_epiface>
@@ -313,8 +313,7 @@ pager(void)
                     Mem_man::ram()->dump();
                 }
 
-              if (tag.is_exception())
-                enter_kdebug("s1");
+              l4_assert(!tag.is_exception());
             }
 
           if (debug_ipc)

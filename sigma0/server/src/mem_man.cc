@@ -12,7 +12,7 @@
 #include "globals.h"
 
 #include <l4/cxx/iostream>
-#include <l4/sys/kdebug.h>
+#include <l4/sys/assert.h>
 
 Mem_man Mem_man::_ram;
 
@@ -50,7 +50,7 @@ Mem_man::add(Region const &r)
             {
               L4::cout << "err=" << err << " dump:\n";
               dump();
-              enter_kdebug("BUG");
+              l4_assert(!"BUG");
             }
         }
     }
@@ -70,7 +70,7 @@ Mem_man::add(Region const &r)
             {
               L4::cout << "err=" << err << " dump:\n";
               dump();
-              enter_kdebug("BUG");
+              l4_assert(!"BUG");
             }
         }
     }
@@ -114,7 +114,7 @@ Mem_man::add_free(Region const &r)
         {
           L4::cout << "err=" << err << " dump:\n";
           dump();
-          enter_kdebug("BUG");
+          l4_assert(!"BUG");
         }
     }
 
@@ -143,7 +143,7 @@ Mem_man::alloc_from(Region const *r2, Region const &_r)
         {
           L4::cout << "err=" << err << " dump:\n";
           dump();
-          enter_kdebug("BUG");
+          l4_assert(!"BUG");
         }
       return add(r);
     }
