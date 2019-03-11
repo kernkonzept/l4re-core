@@ -63,8 +63,6 @@ path::remove_filename()
     }
   else if (_M_type == _Type::_Filename)
     clear();
-  if (!empty() && _M_pathname.back() != '/')
-    throw 1;
   return *this;
 }
 
@@ -87,10 +85,11 @@ path::replace_extension(const path& replacement)
 	_M_pathname.erase(ext.second);
       else
 	{
-	  const auto& back = _M_cmpts.back();
+	  auto& back = _M_cmpts.back();
 	  if (ext.first != &back._M_pathname)
 	    _GLIBCXX_THROW_OR_ABORT(
 		std::logic_error("path::replace_extension failed"));
+	  back._M_pathname.erase(ext.second);
 	  _M_pathname.erase(back._M_pos + ext.second);
 	}
     }
@@ -292,7 +291,7 @@ path::has_root_path() const
 bool
 path::has_relative_path() const
 {
-  if (_M_type == _Type::_Filename)
+  if (_M_type == _Type::_Filename && !_M_pathname.empty())
     return true;
   if (!_M_cmpts.empty())
     {
@@ -301,7 +300,7 @@ path::has_relative_path() const
         ++__it;
       if (__it != _M_cmpts.end() && __it->_M_type == _Type::_Root_dir)
         ++__it;
-      if (__it != _M_cmpts.end())
+      if (__it != _M_cmpts.end() && !__it->_M_pathname.empty())
         return true;
     }
   return false;
@@ -378,7 +377,7 @@ path::lexically_normal() const
     {
 #ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
       // Replace each slash character in the root-name
-      if (p.is_root_name())
+      if (p._M_type == _Type::_Root_name || p._M_type == _Type::_Root_dir)
 	{
 	  string_type s = p.native();
 	  std::replace(s.begin(), s.end(), L'/', L'\\');
@@ -398,7 +397,8 @@ path::lexically_normal() const
 	    }
 	  else if (!ret.has_relative_path())
 	    {
-	      if (!ret.is_absolute())
+	      // remove a dot-dot filename immediately after root-directory
+	      if (!ret.has_root_directory())
 		ret /= p;
 	    }
 	  else
@@ -406,15 +406,30 @@ path::lexically_normal() const
 	      // Got a path with a relative path (i.e. at least one non-root
 	      // element) and no filename at the end (i.e. empty last element),
 	      // so must have a trailing slash. See what is before it.
-	      auto elem = std::prev(ret.end(), 2);
+	      auto elem = ret._M_cmpts.end() - 2;
 	      if (elem->has_filename() && !is_dotdot(*elem))
 		{
 		  // Remove the filename before the trailing slash
 		  // (equiv. to ret = ret.parent_path().remove_filename())
-		  ret._M_pathname.erase(elem._M_cur->_M_pos);
-		  ret._M_cmpts.erase(elem._M_cur, ret._M_cmpts.end());
+
+		  if (elem == ret._M_cmpts.begin())
+		    ret.clear();
+		  else
+		    {
+		      ret._M_pathname.erase(elem->_M_pos);
+		      // Remove empty filename at the end:
+		      ret._M_cmpts.pop_back();
+		      // If we still have a trailing non-root dir separator
+		      // then leave an empty filename at the end:
+		      if (std::prev(elem)->_M_type == _Type::_Filename)
+			elem->clear();
+		      else // remove the component completely:
+			ret._M_cmpts.pop_back();
+		    }
 		}
-	      else // ???
+	      else
+		// Append the ".." to something ending in "../" which happens
+		// when normalising paths like ".././.." and "../a/../.."
 		ret /= p;
 	    }
 	}
@@ -460,10 +475,12 @@ path::lexically_relative(const path& base) const
       const path& p = *b;
       if (is_dotdot(p))
 	--n;
-      else if (!is_dot(p))
+      else if (!p.empty() && !is_dot(p))
 	++n;
     }
-    if (n >= 0)
+    if (n == 0 && (a == end() || a->empty()))
+      ret = ".";
+    else if (n >= 0)
     {
       const path dotdot("..");
       while (n--)
@@ -514,11 +531,13 @@ path::_M_find_extension() const
 void
 path::_M_split_cmpts()
 {
-  _M_type = _Type::_Multi;
   _M_cmpts.clear();
-
   if (_M_pathname.empty())
-    return;
+    {
+      _M_type = _Type::_Filename;
+      return;
+    }
+  _M_type = _Type::_Multi;
 
   size_t pos = 0;
   const size_t len = _M_pathname.size();
@@ -593,8 +612,7 @@ path::_M_split_cmpts()
       // An empty element, if trailing non-root directory-separator present.
       if (_M_cmpts.back()._M_type == _Type::_Filename)
 	{
-	  const auto& last = _M_cmpts.back();
-	  pos = last._M_pos + last._M_pathname.size();
+	  pos = _M_pathname.size();
 	  _M_cmpts.emplace_back(string_type(), _Type::_Filename, pos);
 	}
     }

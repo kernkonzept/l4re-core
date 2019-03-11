@@ -691,7 +691,13 @@ class StdBitsetPrinter:
         return '%s' % (self.typename)
 
     def children (self):
-        words = self.val['_M_w']
+        try:
+            # An empty bitset may not have any members which will
+            # result in an exception being thrown.
+            words = self.val['_M_w']
+        except:
+            return []
+
         wtype = words.type
 
         # The _M_w member can be either an unsigned long, or an
@@ -701,7 +707,7 @@ class StdBitsetPrinter:
             tsize = wtype.target ().sizeof
         else:
             words = [words]
-            tsize = wtype.sizeof 
+            tsize = wtype.sizeof
 
         nwords = wtype.sizeof / tsize
         result = []
@@ -837,7 +843,7 @@ class Tr1HashtableIterator(Iterator):
             self.node = self.buckets[self.bucket]
             if self.node:
                 break
-            self.bucket = self.bucket + 1        
+            self.bucket = self.bucket + 1
 
     def __iter__ (self):
         return self
@@ -940,7 +946,6 @@ class Tr1UnorderedMapPrinter:
         data = self.flatten (imap (self.format_one, StdHashtableIterator (self.hashtable())))
         # Zip the two iterators together.
         return izip (counter, data)
-        
 
     def display_hint (self):
         return 'map'
@@ -1040,7 +1045,7 @@ class StdExpAnyPrinter(SingleObjContainerPrinter):
             func = gdb.block_for_pc(int(mgr.cast(gdb.lookup_type('intptr_t'))))
             if not func:
                 raise ValueError("Invalid function pointer in %s" % self.typename)
-            rx = r"""({0}::_Manager_\w+<.*>)::_S_manage\({0}::_Op, {0} const\*, {0}::_Arg\*\)""".format(typename)
+            rx = r"""({0}::_Manager_\w+<.*>)::_S_manage""".format(typename)
             m = re.match(rx, func.function.name)
             if not m:
                 raise ValueError("Unknown manager function in %s" % self.typename)
@@ -1227,6 +1232,39 @@ class StdExpPathPrinter:
 
     def children(self):
         return self._iterator(self.val['_M_cmpts'])
+
+
+class StdPairPrinter:
+    "Print a std::pair object, with 'first' and 'second' as children"
+
+    def __init__(self, typename, val):
+        self.val = val
+
+    class _iter(Iterator):
+        "An iterator for std::pair types. Returns 'first' then 'second'."
+
+        def __init__(self, val):
+            self.val = val
+            self.which = 'first'
+
+        def __iter__(self):
+            return self
+
+        def __next__(self):
+            if self.which is None:
+                raise StopIteration
+            which = self.which
+            if which == 'first':
+                self.which = 'second'
+            else:
+                self.which = None
+            return (which, self.val[which])
+
+    def children(self):
+        return self._iter(self.val)
+
+    def to_string(self):
+        return None
 
 
 # A "regular expression" printer which conforms to the
@@ -1629,6 +1667,7 @@ def build_libstdcxx_dictionary ():
     libstdcxx_printer.add_container('std::', 'map', StdMapPrinter)
     libstdcxx_printer.add_container('std::', 'multimap', StdMapPrinter)
     libstdcxx_printer.add_container('std::', 'multiset', StdSetPrinter)
+    libstdcxx_printer.add_version('std::', 'pair', StdPairPrinter)
     libstdcxx_printer.add_version('std::', 'priority_queue',
                                   StdStackOrQueuePrinter)
     libstdcxx_printer.add_version('std::', 'queue', StdStackOrQueuePrinter)

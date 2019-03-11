@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 8
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20180729
+#define __GLIBCXX__ 20190317
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -607,6 +607,11 @@ namespace std
 # ifndef _GLIBCXX_USE_C99_WCHAR
 # define _GLIBCXX_USE_C99_WCHAR _GLIBCXX98_USE_C99_WCHAR
 # endif
+#endif
+
+/* Define if __float128 is supported on this host. */
+#if defined(__FLOAT128__) || defined(__SIZEOF_FLOAT128__)
+#define _GLIBCXX_USE_FLOAT128 1
 #endif
 
 // End of prewritten config; the settings discovered at configure time follow.
@@ -1452,7 +1457,7 @@ namespace std
 /* #undef _GLIBCXX_NO_C99_ROUNDING_FUNCS */
 
 /* Define if ptrdiff_t is int. */
-#define _GLIBCXX_PTRDIFF_T_IS_INT 1
+/* #undef _GLIBCXX_PTRDIFF_T_IS_INT */
 
 /* Define if using setrlimit to set resource limits during "make check" */
 //l4/#define _GLIBCXX_RES_LIMITS 1
@@ -1542,11 +1547,6 @@ namespace std
 
 /* Define if fchmodat is available in <sys/stat.h>. */
 #define _GLIBCXX_USE_FCHMODAT 1
-
-/* Define if __float128 is supported on this host. */
-#if defined(ARCH_x86) || defined(ARCH_amd64) || defined(ARCH_ia64)                           
-#define _GLIBCXX_USE_FLOAT128 1
-#endif
 
 /* Defined if gettimeofday is available. */
 #define _GLIBCXX_USE_GETTIMEOFDAY 1

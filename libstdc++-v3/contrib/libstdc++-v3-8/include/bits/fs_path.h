@@ -106,7 +106,8 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 
     template<typename _Tp1, typename _Tp2 = void>
       using _Path = typename
-	std::enable_if<__and_<__not_<is_same<_Tp1, path>>,
+	std::enable_if<__and_<__not_<is_same<remove_cv_t<_Tp1>, path>>,
+			      __not_<is_void<_Tp1>>,
 			      __constructible_from<_Tp1, _Tp2>>::value,
 		       path>::type;
 
@@ -497,7 +498,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
     struct _Cmpt;
     using _List = _GLIBCXX_STD_C::vector<_Cmpt>;
     _List _M_cmpts; // empty unless _M_type == _Type::_Multi
-    _Type _M_type = _Type::_Multi;
+    _Type _M_type = _Type::_Filename;
   };
 
   template<>
@@ -1076,7 +1077,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
   {
     if (_M_type == _Type::_Multi)
       return iterator(this, _M_cmpts.begin());
-    return iterator(this, false);
+    return iterator(this, empty());
   }
 
   inline path::iterator
