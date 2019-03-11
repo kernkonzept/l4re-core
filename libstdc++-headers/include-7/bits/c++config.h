@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 7
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20180722
+#define __GLIBCXX__ 20190317
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -634,6 +634,11 @@ namespace std
 # endif
 #endif
 
+/* Define if __float128 is supported on this host. */
+#if defined(__FLOAT128__) || defined(__SIZEOF_FLOAT128__)
+#define _GLIBCXX_USE_FLOAT128 1
+#endif
+
 // End of prewritten config; the settings discovered at configure time follow.
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
@@ -846,10 +851,10 @@ namespace std
 #define _GLIBCXX_HAVE_INT64_T 1
 
 /* Define if int64_t is a long. */
-#define _GLIBCXX_HAVE_INT64_T_LONG 1
+/* #undef _GLIBCXX_HAVE_INT64_T_LONG */
 
 /* Define if int64_t is a long long. */
-/* #undef _GLIBCXX_HAVE_INT64_T_LONG_LONG */
+#define _GLIBCXX_HAVE_INT64_T_LONG_LONG 1
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define _GLIBCXX_HAVE_INTTYPES_H 1

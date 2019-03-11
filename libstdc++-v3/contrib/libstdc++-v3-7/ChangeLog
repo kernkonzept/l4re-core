@@ -1,3 +1,471 @@
+2019-02-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/89446
+	* include/bits/char_traits.h (__constant_char_array): Check index is
+	in range before dereferencing.
+	* testsuite/21_strings/basic_string_view/operators/char/89446.cc:
+	New test.
+
+2018-12-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-12-06  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* scripts/make_exports.pl (check names): Don’t try to export
+	construction vtable symbols.
+
+2018-12-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-12-06  Jonathan Wakely  <jwakely@redhat.com>
+		    Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR libstdc++/64883
+	* testsuite/17_intro/headers/c++1998/all_attributes.cc: Don't test
+	always_inline on Darwin.
+	* testsuite/17_intro/headers/c++2011/all_attributes.cc: Likewise.
+	* testsuite/17_intro/headers/c++2014/all_attributes.cc: Likewise.
+	* testsuite/17_intro/headers/c++2017/all_attributes.cc: Likewise.
+	* testsuite/17_intro/headers/c++2020/all_attributes.cc: Likewise.
+
+2018-12-24  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backport from mainline
+	2018-08-25  Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR libstdc++/70694
+	* configure.host (OPT_LDFLAGS): Don't append
+	-fvisibility-inlines-hidden for newer Darwin.
+
+2018-12-06  Release Manager
+
+	* GCC 7.4.0 released.
+
+2018-11-28  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/88199
+	* include/bits/hashtable.h
+	(_Hashtable<>::_M_move_assign(_Hashtable&&, false_type)): Deallocate
+	former buckets after assignment.
+	* testsuite/23_containers/unordered_set/allocator/move_assign.cc
+	(test03): New.
+
+2018-10-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-10-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87822
+	* include/bits/stl_pair.h (__pair_base): Change to class template.
+	(pair): Make base class type depend on template parameters.
+	* testsuite/20_util/pair/87822.cc: New test.
+
+2018-10-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87749
+	* include/bits/basic_string.h [_GLIBCXX_USE_CXX11_ABI]
+	(basic_string::operator=(basic_string&&)): For short strings copy the
+	buffer inline. Only fall back to using assign(const basic_string&) to
+	do a deep copy when reallocation is needed.
+	* testsuite/21_strings/basic_string/modifiers/assign/char/87749.cc:
+	New test.
+	* testsuite/21_strings/basic_string/modifiers/assign/char/
+	move_assign_optim.cc: New test.
+	* testsuite/21_strings/basic_string/modifiers/assign/wchar_t/87749.cc:
+	New test.
+	* testsuite/21_strings/basic_string/modifiers/assign/wchar_t/
+	move_assign_optim.cc: New test.
+
+2018-10-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87704
+	* include/bits/unique_ptr.h (unique_ptr::unique_ptr(nullptr_t)): Do
+	not delegate to default constructor.
+	(unique_ptr<T[], D>::unique_ptr(nullptr_t)): Likewise.
+	* testsuite/20_util/unique_ptr/cons/incomplete.cc: New test.
+
+2018-10-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2017-09-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/79433
+	* include/Makefile.am: Remove <bits/c++14_warning.h>.
+	* include/Makefile.in: Regenerate.
+	* include/bits/c++14_warning.h: Remove.
+	* include/experimental/algorithm: Do not include <c++14_warning.h>.
+	* include/experimental/any: Likewise.
+	* include/experimental/array: Likewise.
+	* include/experimental/bits/erase_if.h: Likewise.
+	* include/experimental/bits/lfts_config.h: Likewise.
+	* include/experimental/bits/shared_ptr.h: Likewise.
+	* include/experimental/bits/string_view.tcc: Likewise.
+	* include/experimental/chrono: Likewise.
+	* include/experimental/deque: Likewise.
+	* include/experimental/filesystem: Do not include <c++0x_warning.h>.
+	* include/experimental/forward_list: Do not include <c++14_warning.h>.
+	* include/experimental/functional: Likewise.
+	* include/experimental/iterator: Likewise.
+	* include/experimental/list: Likewise.
+	* include/experimental/map: Likewise.
+	* include/experimental/memory: Likewise.
+	* include/experimental/numeric: Likewise.
+	* include/experimental/optional: Likewise.
+	* include/experimental/propagate_const: Likewise.
+	* include/experimental/ratio: Likewise.
+	* include/experimental/regex: Likewise.
+	* include/experimental/set: Likewise.
+	* include/experimental/string: Likewise.
+	* include/experimental/string_view: Likewise.
+	* include/experimental/system_error: Likewise.
+	* include/experimental/tuple: Likewise.
+	* include/experimental/type_traits: Likewise.
+	* include/experimental/unordered_map: Likewise.
+	* include/experimental/unordered_set: Likewise.
+	* include/experimental/vector: Likewise.
+	* testsuite/experimental/any/misc/any_cast_neg.cc: Adjust dg-error
+	line number.
+	* testsuite/experimental/array/neg.cc: Likewise.
+	* testsuite/experimental/propagate_const/assignment/move_neg.cc:
+	Likewise.
+	* testsuite/experimental/propagate_const/cons/move_neg.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements2.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements3.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements4.cc: Likewise.
+	* testsuite/experimental/propagate_const/requirements5.cc: Likewise.
+
+2018-10-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-10-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87641
+	* include/bits/valarray_array.h (__valarray_sum): Use first element
+	to initialize accumulator instead of value-initializing it.
+	* testsuite/26_numerics/valarray/87641.cc: New test.
+
+2018-10-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/22_locale/numpunct/members/char/3.cc: Adjust test to
+	account for change to glibc it_IT localedata (glibc bz#10797).
+
+2018-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-07-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/86751
+	* include/bits/stl_pair.h (__pair_base): New class with deleted copy
+	assignment operator.
+	(pair): Derive from __pair_base.
+	(pair::operator=): Remove deleted overload.
+	* python/libstdcxx/v6/printers.py (StdPairPrinter): New pretty printer
+	so that new base class isn't shown in GDB.
+	* testsuite/20_util/pair/86751.cc: New test.
+	* testsuite/20_util/pair/ref_assign.cc: New test.
+
+2018-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-09-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/78595
+	* include/bits/stl_map.h (map::insert(_Pair&&))
+	(map::insert(const_iterator, _Pair&&)): Do emplace instead of insert.
+	* include/bits/stl_multimap.h (multimap::insert(_Pair&&))
+	(multimap::insert(const_iterator, _Pair&&)): Likewise.
+	* include/bits/unordered_map.h (unordered_map::insert(_Pair&&))
+	(unordered_map::insert(const_iterator, _Pair&&))
+	(unordered_multimap::insert(_Pair&&))
+	(unordered_multimap::insert(const_iterator, _Pair&&)): Likewise.
+	* include/std/type_traits (__enable_if_t): Define for C++11.
+	* testsuite/23_containers/map/modifiers/insert/78595.cc: New test.
+	* testsuite/23_containers/multimap/modifiers/insert/78595.cc: New test.
+	* testsuite/23_containers/unordered_map/modifiers/78595.cc: New test.
+	* testsuite/23_containers/unordered_multimap/modifiers/78595.cc: New
+	test.
+
+2018-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-08-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/ext/pointer.h (_Pointer_adapter): Define operators for
+	pointer arithmetic using long long offsets.
+	* testsuite/ext/ext_pointer/1.cc: Test pointer arithmetic using
+	long long values.
+
+2018-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-08-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/21_strings/basic_string/init-list.cc:
+	Require cxx11-abi.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_match.cc:
+	Likewise.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_string.cc:
+	Likewise.
+
+	Backport from mainline
+	2018-08-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87061
+	* include/experimental/regex [!_GLIBCXX_USE_CXX11_ABI]
+	(experimental::pmr::match_results, experimental::pmr::cmatch)
+	(experimental::pmr::smatch, experimental::pmr::wcmatch)
+	(experimental::pmr::wsmatch): Do not declare for gcc4-compatible ABI,
+	because COW strings don't support C++11 allocator model.
+	* include/experimental/string [!_GLIBCXX_USE_CXX11_ABI]
+	(experimental::pmr::basic_string, experimental::pmr::string)
+	(experimental::pmr::u16string, experimental::pmr::u32string)
+	(experimental::pmr::wstring): Likewise.
+
+	Backport from mainline
+	2018-08-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/regex: Remove begin/end macros for namespace.
+	* include/experimental/string: Likewise.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_deque.cc:
+	New test.
+	* testsuite/experimental/polymorphic_allocator/
+	pmr_typedefs_forward_list.cc: New test.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_list.cc:
+	New test.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_map.cc:
+	New test.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_match.cc:
+	New test.
+	* testsuite/experimental/polymorphic_allocator/
+	pmr_typedefs_multimap.cc: New test.
+	* testsuite/experimental/polymorphic_allocator/
+	pmr_typedefs_multiset.cc: New test.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_set.cc:
+	New test.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_string.cc:
+	New test.
+	* testsuite/experimental/polymorphic_allocator/
+	pmr_typedefs_unordered_map.cc: New test.
+	* testsuite/experimental/polymorphic_allocator/
+	pmr_typedefs_unordered_multimap.cc: New test.
+	* testsuite/experimental/polymorphic_allocator/
+	pmr_typedefs_unordered_multiset.cc: New test.
+	* testsuite/experimental/polymorphic_allocator/
+	pmr_typedefs_unordered_set.cc: New test.
+	* testsuite/experimental/polymorphic_allocator/pmr_typedefs_vector.cc:
+	New test.
+
+2018-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-07-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/70966
+	* include/experimental/memory_resource (__get_default_resource): Use
+	placement new to create an object with dynamic storage duration.
+
+	Backport from mainline
+	2018-06-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/70966
+	* include/experimental/memory_resource (__resource_adaptor_imp): Add
+	static assertions to enforce requirements on pointer types.
+	(__resource_adaptor_imp::get_allocator()): Add noexcept.
+	(new_delete_resource, null_memory_resource): Return address of an
+	object with dynamic storage duration.
+	(__null_memory_resource): Remove.
+	* testsuite/experimental/memory_resource/70966.cc: New.
+
+2018-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/77854
+	* doc/xml/manual/status_cxx1998.xml: Document size_type and
+	difference_type for containers.
+	* doc/html/*: Regenerate.
+
+2018-10-08  Joseph Myers  <joseph@codesourcery.com>
+
+	Backport from mainline
+	2018-10-02  Joseph Myers  <joseph@codesourcery.com>
+
+	* testsuite/lib/libstdc++.exp (libstdc++_init): Use
+	-fno-show-column in default cxxflags.
+
+2018-10-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-10-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/87538
+	* include/std/functional (_Not_fn::operator()): Check value of
+	__is_nothrow_invocable as well.
+	* testsuite/20_util/function_objects/not_fn/87538.cc: New test.
+	* testsuite/experimental/functional/87538.cc: New test.
+
+2018-08-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Revert
+	2018-08-10  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	PR target/85904
+	* configure.ac: Define HAVE_ALIGNED_ALLOC if building for
+	Newlib.
+	* configure: Regenerate.
+
+2018-08-10  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	Backport from mainline
+	2018-08-10  Sebastian Huber  <sebastian.huber@embedded-brains.de>
+
+	PR target/85904
+	* configure.ac: Define HAVE_ALIGNED_ALLOC if building for
+	Newlib.
+	* configure: Regenerate.
+
+2018-08-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/new_opa.cc (aligned_alloc): Declare inside namespace to
+	avoid clashing with an ::aligned_alloc function that was not detected
+	by configure.
+
+	* doc/xml/manual/using.xml: Remove empty table cell.
+	* doc/html/*: Regenerate.
+
+	* doc/xml/manual/using.xml: Add missing header to table and fix typo.
+	Remove C++17 and C++2a headers not present on gcc-7-branch.
+	* doc/html/*: Regenerate.
+
+2018-08-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backport from mainline
+	2018-06-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/86138
+	* include/bits/basic_string.tcc: [_GLIBCXX_EXTERN_TEMPLATE < 0]
+	Declare explicit instantiations of COW empty reps and I/O functions.
+
+	Backport from mainline
+	2018-05-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/85672
+	* include/Makefile.am [!ENABLE_FLOAT128]: Change c++config.h entry
+	to #undef _GLIBCXX_USE_FLOAT128 instead of defining it to zero.
+	* include/Makefile.in: Regenerate.
+	* include/bits/c++config (_GLIBCXX_USE_FLOAT128): Move definition
+	within conditional block.
+
+	Backport from mainline
+	2018-05-01  Tulio Magno Quites Machado Filho  <tuliom@linux.vnet.ibm.com>
+
+	PR libstdc++/84654
+	* acinclude.m4: Set ENABLE_FLOAT128 instead of _GLIBCXX_USE_FLOAT128.
+	* config.h.in: Remove references to _GLIBCXX_USE_FLOAT128.
+	* configure: Regenerate.
+	* include/Makefile.am: Replace the value of _GLIBCXX_USE_FLOAT128
+	based on ENABLE_FLOAT128.
+	* include/Makefile.in: Regenerate.
+	* include/bits/c++config: Define _GLIBCXX_USE_FLOAT128.
+	[!defined(__FLOAT128__) && !defined(__SIZEOF_FLOAT128__)]: Undefine
+	_GLIBCXX_USE_FLOAT128.
+
+	Backport from mainline
+	2017-06-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80893
+	* testsuite/23_containers/vector/bool/80893.cc: Add { target c++11 }.
+
+	Backport from mainline
+	2017-05-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/80893
+	* include/bits/stl_bvector.h (vector<bool>::_M_initialize): Avoid
+	null pointer dereference when size is zero.
+	* testsuite/23_containers/vector/bool/80893.cc: New.
+	* testsuite/util/testsuite_allocator.h (PointerBase::PointerBase):
+	Add non-explicit constructor from nullptr.
+	(PointerBase::derived() const): Add const-qualified overload.
+
+	Backport from mainline
+	2017-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/68519
+	* include/std/condition_variable (condition_variable::wait_for):
+	Convert duration to native clock's duration before addition.
+	* testsuite/30_threads/condition_variable/members/68519.cc: New test.
+
+	Backport from mainline
+	2018-06-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/86292
+	* include/bits/stl_vector.h (vector::_M_range_initialize<InputIter>):
+	Add try-catch block.
+	* testsuite/23_containers/vector/cons/86292.cc: New.
+
+	Backport from mainline
+	2018-07-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/test.xml: Improve documentation on writing tests for
+	newer standards.
+	* doc/xml/manual/using.xml: Document all headers for C++11 and later.
+	* doc/html/*: Regenerate.
+
+	Backport from mainline
+	2018-08-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++11/system_error.cc
+	(system_error_category::default_error_condition): Add workaround for
+	ENOTEMPTY and EEXIST having the same value on AIX.
+	* testsuite/19_diagnostics/error_category/system_category.cc: Add
+	extra testcases for EDOM, EILSEQ, ERANGE, EEXIST and ENOTEMPTY.
+
+	Backport from mainline
+	2018-08-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/60555
+	* src/c++11/system_error.cc
+	(system_error_category::default_error_condition): New override to
+	check for POSIX errno values.
+	* testsuite/19_diagnostics/error_category/generic_category.cc: New
+	* testsuite/19_diagnostics/error_category/system_category.cc: New
+	test.
+
+	Backport from mainline
+	2018-08-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/86861
+	* libsupc++/new_opa.cc [_GLIBCXX_HAVE_MEMALIGN] (aligned_alloc):
+	Replace macro with inline function.
+	[__sun]: Increase alignment to meet memalign precondition.
+	[!HAVE__ALIGNED_MALLOC && !HAVE_POSIX_MEMALIGN && !HAVE_MEMALIGN]
+	(aligned_alloc): Move check for valid alignment to operator new.
+	Remove redundant check for non-zero size, it's enforced by the caller.
+	(operator new): Move check for valid alignment here. Use
+	__builtin_expect on check for zero size.
+
+	Backport from mainline
+	2018-07-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/new_opa.cc (operator new(size_t, align_val_t)): Add
+	workaround for aligned_alloc bug on AIX.
+	* testsuite/18_support/new_aligned.cc: New test.
+
+	Backport from mainline
+	2018-07-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/86734
+	* include/bits/stl_iterator.h (reverse_iterator::operator->): Use
+	addressof (LWG 2188).
+	* testsuite/24_iterators/reverse_iterator/dr2188.cc: New test.
+
+	Backport from mainline
+	2018-05-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++11/codecvt.cc (__codecvt_utf8_base<wchar_t>::do_in)
+	[__SIZEOF_WCHAR_T__==2 && __BYTE_ORDER__!=__ORDER_BIG_ENDIAN__]: Set
+	little_endian element in bitmask.
+	* testsuite/22_locale/codecvt/codecvt_utf8/69703.cc: Run all tests.
+	* testsuite/22_locale/codecvt/codecvt_utf8/wchar_t/1.cc: New.
+
 2018-07-05  François Dumont  <fdumont@gcc.gnu.org>
 
 	Backport from mainline
