@@ -35,10 +35,6 @@ namespace L4Re
 {
 
 /**
- * \defgroup api_l4re_dma DMA API for L4Re
- */
-
-/**
  * DMA Address Space.
  *
  * A Dma_space represents the DMA address space of a device.
