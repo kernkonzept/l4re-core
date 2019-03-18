@@ -81,21 +81,9 @@ SRC_C_libuc_c.a_sparc-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 
 SRC_C_libuc_c_nonshared.p.a += libc/stdlib/atexit.c
 
-SRC_C_libuc_c.so_x86-l4f    += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.a_x86-l4f     += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.so_amd64-l4f  += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.a_amd64-l4f   += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.so_arm-l4f    += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.a_arm-l4f     += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.so_arm64-l4f  += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.a_arm64-l4f   += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.so_mips-l4f   += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.a_mips-l4f    += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.so_ppc32-l4f  += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.a_ppc32-l4f   += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.so_sparc-l4f  += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.so    += libc/misc/pthread/tsd.c
+SRC_C_libuc_c.a     += libc/misc/pthread/tsd.c
 SRC_S_libuc_c.so_sparc-l4f  += libc/sysdeps/linux/sparc/sdiv.S
-SRC_C_libuc_c.a_sparc-l4f   += libc/misc/pthread/tsd.c
 
 SRC_C_libuc_c.so_arm-l4f    += ARCH-arm/aeabi_read_tp_generic.c
 SRC_C_libuc_c.a_arm-l4f     += ARCH-arm/aeabi_read_tp_generic.c
