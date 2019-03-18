@@ -32,6 +32,8 @@
  */
 TEST(TestOom, OutOfMemory)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
   constexpr int MAX = 100;
   {
     L4Re::Util::Unique_del_cap<L4Re::Dataspace> caparr[MAX];

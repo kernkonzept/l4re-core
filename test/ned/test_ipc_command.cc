@@ -11,6 +11,7 @@
  * Test Ned's direct control interface.
  */
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 #include <l4/ned/cmd_control>
 #include <l4/re/env>
 
@@ -38,6 +39,8 @@ public:
  */
 TEST_F(NedTest, nil_function)
 {
+  TAP_COMP_FUNC("Ned", "L4Re::Ned::Cmd_control.execute");
+
   ASSERT_EQ(-L4_EIO, cmd->execute("non_existing()"));
 }
 
@@ -48,6 +51,8 @@ TEST_F(NedTest, nil_function)
  */
 TEST_F(NedTest, syntax_error)
 {
+  TAP_COMP_FUNC("Ned", "L4Re::Ned::Cmd_control.execute");
+
   ASSERT_EQ(-L4_EINVAL, cmd->execute("syntax error"));
 }
 
@@ -58,6 +63,8 @@ TEST_F(NedTest, syntax_error)
  */
 TEST_F(NedTest, test_func)
 {
+  TAP_COMP_FUNC("Ned", "L4Re::Ned::Cmd_control.execute");
+
   ASSERT_EQ(0, cmd->execute("test()"));
 }
 
@@ -69,6 +76,8 @@ TEST_F(NedTest, test_func)
  */
 TEST_F(NedTest, test_func_result_ret_1)
 {
+  TAP_COMP_FUNC("Ned", "L4Re::Ned::Cmd_control.execute");
+
   char buf[60];
   L4::Ipc::String<char> result(sizeof(buf), buf);
   ASSERT_EQ(0, cmd->execute("return 1", &result));
@@ -83,6 +92,8 @@ TEST_F(NedTest, test_func_result_ret_1)
  */
 TEST_F(NedTest, test_func_result_ret_table)
 {
+  TAP_COMP_FUNC("Ned", "L4Re::Ned::Cmd_control.execute");
+
   char buf[60];
   L4::Ipc::String<char> result(sizeof(buf), buf);
   ASSERT_EQ(0, cmd->execute("return { a = 'd' }", &result));
@@ -99,6 +110,8 @@ TEST_F(NedTest, test_func_result_ret_table)
  */
 TEST_F(NedTest, test_func_result_ret_long_string)
 {
+  TAP_COMP_FUNC("Ned", "L4Re::Ned::Cmd_control.execute");
+
   char buf[60];
   L4::Ipc::String<char> result(sizeof(buf), buf);
   ASSERT_EQ(0, cmd->execute("return overly_long_string", &result));
@@ -112,6 +125,8 @@ TEST_F(NedTest, test_func_result_ret_long_string)
  */
 TEST_F(NedTest, test_func_result)
 {
+  TAP_COMP_FUNC("Ned", "L4Re::Ned::Cmd_control.execute");
+
   char buf[60];
   L4::Ipc::String<char> result(sizeof(buf), buf);
   ASSERT_EQ(0, cmd->execute("return test()", &result));

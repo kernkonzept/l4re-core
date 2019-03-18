@@ -45,6 +45,8 @@ struct TestMemAlloc : ::testing::Test
  */
 TEST_F(TestMemAlloc, Dump)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Debug_obj.debug");
+
   auto dbg = L4::cap_reinterpret_cast<L4Re::Debug_obj>(env->mem_alloc());
   EXPECT_EQ(L4_EOK, dbg->debug(0));
 }
@@ -58,6 +60,9 @@ TEST_F(TestMemAlloc, Dump)
  */
 TEST_F(TestMemAlloc, Simple)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Mem_alloc.alloc");
+  TAP_COMP_FUNC2("Moe", "L4Re::Rm.attach");
+
   auto ds = make_unique_del_cap<L4Re::Dataspace>();
 
   ASSERT_EQ(0, env->mem_alloc()->alloc(1024, ds.get()));
@@ -89,6 +94,8 @@ TEST_F(TestMemAlloc, Simple)
  */
 TEST_F(TestMemAlloc, OutOfRange)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
   auto ds = make_unique_cap<L4Re::Dataspace>();
 
   EXPECT_EQ(-L4_ERANGE, env->mem_alloc()->alloc(0, ds.get()));
@@ -108,6 +115,8 @@ TEST_F(TestMemAlloc, OutOfRange)
  */
 TEST_F(TestMemAlloc, ExhaustQuotaMemory)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
   auto cap = create_ma(10 * L4_PAGESIZE);
 
     {
@@ -146,6 +155,9 @@ TEST_F(TestMemAlloc, ExhaustQuotaMemory)
  */
 TEST_F(TestMemAlloc, Continuous)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Mem_alloc.alloc");
+  TAP_COMP_FUNC2("Moe", "L4Re::Dataspace.map");
+
   auto ds = make_unique_del_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, env->mem_alloc()->alloc(10 * L4_PAGESIZE, ds.get(),
                                        L4Re::Mem_alloc::Continuous));
@@ -169,6 +181,8 @@ TEST_F(TestMemAlloc, Continuous)
  */
 TEST_F(TestMemAlloc, ContinuousHuge)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
   // overcommit for continous memory is not possible
   auto ds = make_unique_cap<L4Re::Dataspace>();
   auto ds2 = make_unique_cap<L4Re::Dataspace>();
@@ -190,6 +204,8 @@ TEST_F(TestMemAlloc, ContinuousHuge)
  */
 TEST_F(TestMemAlloc, ContinuousMax)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
   auto ds = make_unique_cap<L4Re::Dataspace>();
   l4_size_t left_size = 10 * L4_PAGESIZE;
   l4_ssize_t size = -((l4_ssize_t) left_size);
@@ -213,6 +229,8 @@ TEST_F(TestMemAlloc, ContinuousMax)
  */
 TEST_F(TestMemAlloc, NoncontMax)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
   auto ds = make_unique_cap<L4Re::Dataspace>();
   l4_ssize_t size = -0x4000000;
 
@@ -228,6 +246,9 @@ TEST_F(TestMemAlloc, NoncontMax)
  */
 TEST_F(TestMemAlloc, Superpages)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Mem_alloc.alloc");
+  TAP_COMP_FUNC2("Moe", "L4Re::Rm.attach");
+
   auto ds = make_unique_del_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, env->mem_alloc()->alloc(2 * L4_SUPERPAGESIZE, ds.get(),
                                        L4Re::Mem_alloc::Super_pages));

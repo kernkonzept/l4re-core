@@ -12,6 +12,7 @@
 
 #include <l4/atkins/fixtures/epiface_provider>
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 
 #include <l4/re/env>
 
@@ -73,6 +74,8 @@ static INSTANTIATE_TEST_CASE_P(LocalVsGlobal, NamespaceSvr,
  */
 TEST_P(NamespaceSvr, QueryEmptyNameSpace)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.query");
+
   EXPECT_EQ(-L4_ENOENT, query("foo"));
   EXPECT_EQ(-L4_ENOENT, query("/foo"));
   EXPECT_EQ(-L4_ENOENT, query("foo/bar"));
@@ -87,6 +90,9 @@ TEST_P(NamespaceSvr, QueryEmptyNameSpace)
  */
 TEST_P(NamespaceSvr, RegisterValid)
 {
+  TAP_COMP_FUNC ("L4Re", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC2("L4Re", "L4Re::Namespace.query");
+
   handler.reset_counters();
   ASSERT_EQ(-L4_ENOENT, query("bar"));
   ASSERT_EQ(L4_EOK, scap()->register_obj("bar", L4::Ipc::make_cap_rws(scap())));
@@ -102,6 +108,8 @@ TEST_P(NamespaceSvr, RegisterValid)
  */
 TEST_P(NamespaceSvr, RegisterMultipleValid)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   handler.reset_counters();
   ASSERT_EQ(L4_EOK, scap()->register_obj("something",
                                          L4::Ipc::make_cap_rws(scap())));
@@ -120,6 +128,8 @@ TEST_P(NamespaceSvr, RegisterMultipleValid)
  */
 TEST_P(NamespaceSvr, RegisterInvalid)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   ASSERT_EQ(-L4_ENOENT, query("pend"));
   // Register just the name.
   ASSERT_EQ(0, scap()->register_obj("pend", L4::Cap<void>()));
@@ -139,6 +149,8 @@ TEST_P(NamespaceSvr, RegisterInvalid)
  */
 TEST_P(NamespaceSvr, FreeInvalidEntry)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.unlink");
+
   handler.reset_counters();
   ASSERT_EQ(0, scap()->register_obj("pend", L4::Cap<void>()));
   ASSERT_EQ(-L4_ENOENT, scap()->unlink("pend"));
@@ -155,6 +167,8 @@ TEST_P(NamespaceSvr, FreeInvalidEntry)
  */
 TEST_P(NamespaceSvr, RegisterWithSlash)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   ASSERT_EQ(-L4_EINVAL, scap()->register_obj("ping/pong", scap()));
 }
 
@@ -165,6 +179,8 @@ TEST_P(NamespaceSvr, RegisterWithSlash)
  */
 TEST_P(NamespaceSvr, RegisterEmpty)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   ASSERT_EQ(-L4_EINVAL, scap()->register_obj("", scap()));
 }
 
@@ -176,6 +192,8 @@ TEST_P(NamespaceSvr, RegisterEmpty)
  */
 TEST_P(NamespaceSvr, RegisterOverwriteInvalid)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   handler.reset_counters();
   ASSERT_EQ(-L4_ENOENT, query("f"));
   ASSERT_EQ(L4_EOK, scap()->register_obj("f", scap()));
@@ -213,6 +231,8 @@ struct MappedNamespaceSvr : Namespace_fixture
  */
 TEST_F(MappedNamespaceSvr, RegisterPropagateRights)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   // Register capability read-only.
   ASSERT_EQ(L4_EOK, scap()->register_obj("first", scap(), L4Re::Namespace::Ro));
   ASSERT_EQ(L4_EOK, query("first"));
@@ -237,6 +257,8 @@ TEST_F(MappedNamespaceSvr, RegisterPropagateRights)
  */
 TEST_F(MappedNamespaceSvr, RegisterOverwriteNew)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   handler.reset_counters();
   ASSERT_EQ(-L4_ENOENT, query("f"));
   ASSERT_EQ(L4_EOK, scap()->register_obj("f", scap()));
@@ -266,6 +288,8 @@ TEST_F(MappedNamespaceSvr, RegisterOverwriteNew)
  */
 TEST_F(MappedNamespaceSvr, RegisterAndUnmapDataspace)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.register_obj");
+
   handler.reset_counters();
   auto ds = L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>();
   ASSERT_TRUE(ds.is_valid());
@@ -297,6 +321,8 @@ TEST_F(MappedNamespaceSvr, RegisterAndUnmapDataspace)
  */
 TEST_F(MappedNamespaceSvr, Recursive)
 {
+  TAP_COMP_FUNC("L4Re", "L4Re::Namespace.query");
+
   ASSERT_EQ(0, scap()->register_obj("ping", scap()));
   ASSERT_EQ(0, scap()->register_obj("pong", scap()));
   ASSERT_EQ(0, scap()->register_obj("r", env->get_cap<L4Re::Namespace>("rom")));

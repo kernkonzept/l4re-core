@@ -13,6 +13,7 @@
 #include <climits>
 #include <l4/re/env>
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 
 #include "moe_helpers.h"
 
@@ -27,6 +28,8 @@ struct TestExhaust : ::testing::Test {};
  */
 TEST_F(TestExhaust, ExhaustMemory)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
     {
       auto hd = make_unique_del_cap<L4Re::Dataspace>();
 

@@ -18,6 +18,7 @@
 #include <l4/sys/pager>
 
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 
 #include "moe_helpers.h"
 
@@ -135,6 +136,8 @@ struct TestRm : testing::Test
  */
 TEST_F(TestRm, ReservePageSearch)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.reserve_area");
+
   auto rm = create_rm();
 
   unsigned long start = 0;
@@ -154,6 +157,8 @@ TEST_F(TestRm, ReservePageSearch)
  */
 TEST_F(TestRm, ReservePageFixed)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.reserve_area");
+
   auto rm = create_rm();
 
   unsigned long start = 0x1000000;
@@ -169,6 +174,8 @@ TEST_F(TestRm, ReservePageFixed)
  */
 TEST_F(TestRm, ReserveTwice)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.reserve_area");
+
   auto rm = create_rm();
 
   unsigned long start = 0;
@@ -195,6 +202,8 @@ TEST_F(TestRm, ReserveTwice)
  */
 TEST_F(TestRm, ReserveUnaligned)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.reserve_area");
+
   auto rm = create_rm();
 
   unsigned long start = 0x1000010;
@@ -212,6 +221,8 @@ TEST_F(TestRm, ReserveUnaligned)
  */
 TEST_F(TestRm, ReserveTiny)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.reserve_area");
+
   auto rm = create_rm();
 
   unsigned long start = 0;
@@ -231,6 +242,9 @@ TEST_F(TestRm, ReserveTiny)
  */
 TEST_F(TestRm, ExhaustQuotaReserve)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Rm.free_area");
+  TAP_COMP_FUNC2("Moe", "L4Re::Rm.reserve_area");
+
   auto fab = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4::Factory>());
   L4Re::chksys(env->user_factory()->create_factory(fab.get(), 3 * L4_PAGESIZE));
 
@@ -263,6 +277,8 @@ TEST_F(TestRm, ExhaustQuotaReserve)
  */
 TEST_F(TestRm, FreeAreaSimple)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.free_area");
+
   auto rm = create_rm();
 
   unsigned long start = 0;
@@ -279,6 +295,8 @@ TEST_F(TestRm, FreeAreaSimple)
  */
 TEST_F(TestRm, FreeAreaNonExisting)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.free_area");
+
   auto rm = create_rm();
 
   EXPECT_EQ(-L4_ENOENT, rm->free_area(100 * L4_PAGESIZE));
@@ -291,6 +309,8 @@ TEST_F(TestRm, FreeAreaNonExisting)
  */
 TEST_F(TestRm, FindNotAllowed)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.find");
+
   auto rm = create_rm();
 
   l4_addr_t addr = 0;
@@ -308,6 +328,9 @@ TEST_F(TestRm, FindNotAllowed)
  */
 TEST_F(TestRm, AttachDetachFull)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Rm.attach");
+  TAP_COMP_FUNC2("Moe", "L4Re::Rm.detach");
+
   unsigned long sz = L4_PAGESIZE;
   auto rm = create_rm();
   auto ds = create_ds(0, sz);
@@ -340,6 +363,9 @@ TEST_F(TestRm, AttachDetachFull)
  */
 TEST_F(TestRm, AttachDetachPartial)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Rm.attach");
+  TAP_COMP_FUNC2("Moe", "L4Re::Rm.detach");
+
   unsigned long sz = L4_PAGESIZE;
   auto rm = create_rm();
   auto ds = create_ds(0, sz * 4);
@@ -373,6 +399,8 @@ TEST_F(TestRm, AttachDetachPartial)
  */
 TEST_F(TestRm, AttachTooSmall)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Rm.attach");
+
   unsigned long sz = L4_PAGESIZE;
   auto rm = create_rm();
   auto ds = create_ds(sz);
@@ -406,6 +434,9 @@ TEST_F(TestRm, AttachTooSmall)
  */
 TEST_F(TestRm, AttachRemoveDataspace)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Rm.page_fault");
+  TAP_COMP_FUNC2("Moe", "L4Re::Rm.attach");
+
   l4_addr_t start = 0;
   unsigned long sz;
   auto rm = create_blocked_rm();
@@ -433,6 +464,9 @@ TEST_F(TestRm, AttachRemoveDataspace)
  */
 TEST_F(TestRm, AttachLooseDataspace)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Rm.page_fault");
+  TAP_COMP_FUNC2("Moe", "L4Re::Rm.attach");
+
   l4_addr_t start = 0;
   unsigned long sz;
   auto rm = create_blocked_rm();
@@ -466,6 +500,8 @@ TEST_F(TestRm, AttachLooseDataspace)
  */
 TEST_F(TestRm, ExhaustQuotaWithCreate)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto cap = create_fab(3 * L4_PAGESIZE);
 
   // Create region mappers without deleting them until we are out of memory

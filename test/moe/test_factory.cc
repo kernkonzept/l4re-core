@@ -28,6 +28,7 @@
 #include <l4/sys/vm>
 
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 
 #include "moe_helpers.h"
 
@@ -41,6 +42,8 @@ struct TestFactory : testing::Test {};
  */
 TEST_F(TestFactory, CreateCheckNameSpace)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto ns = make_unique_del_cap<L4Re::Namespace>();
@@ -55,6 +58,8 @@ TEST_F(TestFactory, CreateCheckNameSpace)
  */
 TEST_F(TestFactory, CreateCheckRegionManager)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto rm = make_unique_del_cap<L4Re::Rm>();
@@ -69,6 +74,8 @@ TEST_F(TestFactory, CreateCheckRegionManager)
  */
 TEST_F(TestFactory, CreateCheckFactory)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto fab = make_unique_del_cap<L4::Factory>();
@@ -84,6 +91,8 @@ TEST_F(TestFactory, CreateCheckFactory)
  */
 TEST_F(TestFactory, CreateCheckLog)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto l = make_unique_del_cap<L4::Vcon>();
@@ -101,6 +110,8 @@ TEST_F(TestFactory, CreateCheckLog)
  */
 TEST_F(TestFactory, DISABLED_CreateCheckScheduler)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto s = make_unique_del_cap<L4::Scheduler>();
@@ -115,6 +126,8 @@ TEST_F(TestFactory, DISABLED_CreateCheckScheduler)
  */
 TEST_F(TestFactory, CreateCheckDataspace)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto ds = make_unique_del_cap<L4Re::Dataspace>();
@@ -132,6 +145,8 @@ TEST_F(TestFactory, CreateCheckDataspace)
  */
 TEST_F(TestFactory, CreateCheckDmaspace)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto ds = make_unique_del_cap<L4Re::Dma_space>();
@@ -146,6 +161,8 @@ TEST_F(TestFactory, CreateCheckDmaspace)
  */
 TEST_F(TestFactory, NotASystemFactory)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab();
 
   auto dummy = make_unique_cap<void>();
@@ -171,6 +188,8 @@ TEST_F(TestFactory, NotASystemFactory)
  */
 TEST_F(TestFactory, ZeroLimits)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto fab = make_unique_cap<L4::Factory>();
   EXPECT_EQ(-L4_EINVAL,
             l4_error(env->user_factory()->create_factory(fab.get(), 0)));
@@ -184,6 +203,8 @@ TEST_F(TestFactory, ZeroLimits)
  */
 TEST_F(TestFactory, DeleteRecursively)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto ns = make_unique_del_cap<L4Re::Namespace>();
 
     {
@@ -205,6 +226,8 @@ TEST_F(TestFactory, DeleteRecursively)
  */
 TEST_F(TestFactory, InheritLimits)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab(10 * L4_PAGESIZE);
 
   auto fab = make_unique_del_cap<L4::Factory>();
@@ -228,6 +251,8 @@ TEST_F(TestFactory, InheritLimits)
  */
 TEST_F(TestFactory, ReturnQuotaAfterDelete)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f = create_fab(10 * L4_PAGESIZE);
 
   auto fab2 = make_unique_del_cap<L4::Factory>();
@@ -250,6 +275,8 @@ TEST_F(TestFactory, ReturnQuotaAfterDelete)
  */
 TEST_F(TestFactory, UseInterleaved)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto f1 = create_fab(10 * L4_PAGESIZE);
   auto f2 = create_fab(10 * L4_PAGESIZE);
 
@@ -274,6 +301,8 @@ TEST_F(TestFactory, UseInterleaved)
  */
 TEST_F(TestFactory, ExhaustQuotaCreate)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create_factory");
+
   auto base = create_fab(2 * L4_PAGESIZE);
 
   std::vector<L4Re::Util::Ref_cap<L4::Factory>::Cap> fablist;
@@ -312,6 +341,7 @@ TEST_F(TestFactory, ExhaustQuotaCreate)
  */
 TEST_F(TestFactory, ExhaustQuotaCreateRecursive)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create_factory");
 
   std::vector<L4Re::Util::Ref_cap<L4::Factory>::Cap> fablist;
 

@@ -68,6 +68,9 @@ static INSTANTIATE_TEST_CASE_P(DmaSpace, TestDmaSpace,
  */
 TEST_P(TestDmaSpace, MapUnmapSinglePage)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Dma_space.map");
+  TAP_COMP_FUNC2("Moe", "L4Re::Dma_space.unmap");
+
   auto ds = create_cont_ds(L4_PAGESIZE);
 
   l4_size_t sz = L4_PAGESIZE;
@@ -91,6 +94,9 @@ TEST_P(TestDmaSpace, MapUnmapSinglePage)
  */
 TEST_P(TestDmaSpace, MapUnmapWithOffset)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Dma_space.map");
+  TAP_COMP_FUNC2("Moe", "L4Re::Dma_space.unmap");
+
   auto ds = create_cont_ds(4 * L4_PAGESIZE);
 
   l4_size_t sz = L4_PAGESIZE;
@@ -115,6 +121,9 @@ TEST_P(TestDmaSpace, MapUnmapWithOffset)
  */
 TEST_P(TestDmaSpace, MapUnmapUnevenOffset)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Dma_space.map");
+  TAP_COMP_FUNC2("Moe", "L4Re::Dma_space.unmap");
+
   auto ds = create_cont_ds(4 * L4_PAGESIZE);
 
   l4_size_t sz = L4_PAGESIZE;
@@ -137,6 +146,8 @@ TEST_P(TestDmaSpace, MapUnmapUnevenOffset)
  */
 TEST_P(TestDmaSpace, ReadOnlyDataspace)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dma_space.map");
+
   auto ds = create_cont_ds(L4_PAGESIZE);
 
   l4_size_t sz = L4_PAGESIZE;
@@ -153,6 +164,8 @@ TEST_P(TestDmaSpace, ReadOnlyDataspace)
  */
 TEST_P(TestDmaSpace, RegularDataspace)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dma_space.map");
+
   auto ds = create_ds(L4_PAGESIZE);
 
   l4_size_t sz = L4_PAGESIZE;
@@ -182,6 +195,8 @@ TEST_P(TestDmaSpace, RegularDataspace)
  */
 TEST_P(TestDmaSpace, InvalidDataspace)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dma_space.map");
+
   l4_size_t sz = L4_PAGESIZE;
   L4Re::Dma_space::Dma_addr addr = 0;
   auto badcap = L4::cap_reinterpret_cast<L4Re::Dataspace>(env->factory());
@@ -201,6 +216,8 @@ TEST_P(TestDmaSpace, InvalidDataspace)
  */
 TEST_P(TestDmaSpace, ExhaustQuotaMoeStructures)
 {
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
+
   auto cap = create_fab(2 * L4_PAGESIZE);
 
   // Create dataspaces without deleting them until we are out of memory

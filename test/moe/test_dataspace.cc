@@ -24,6 +24,7 @@
 
 #include <l4/atkins/tap/main>
 #include <l4/atkins/debug>
+#include <l4/atkins/l4_assert>
 
 #include "moe_helpers.h"
 
@@ -164,6 +165,8 @@ static INSTANTIATE_TEST_CASE_P(
  */
 TEST_P(TestAnyDs, AllocateFull)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.allocate");
+
   auto ds = create_ds();
   EXPECT_EQ(0, ds->allocate(0, defsize()));
 }
@@ -175,6 +178,8 @@ TEST_P(TestAnyDs, AllocateFull)
  */
 TEST_P(TestAnyDs, AllocateZeroSize)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.allocate");
+
   auto ds = create_ds();
   EXPECT_EQ(0, ds->allocate(0, 0));
 }
@@ -186,6 +191,8 @@ TEST_P(TestAnyDs, AllocateZeroSize)
  */
 TEST_P(TestAnyDs, AllocatePartial)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.allocate");
+
   auto ds = create_ds();
   if (defsize() <= L4_PAGESIZE)
     EXPECT_EQ(0, ds->allocate(defsize() / 2 - 1, 2));
@@ -200,6 +207,8 @@ TEST_P(TestAnyDs, AllocatePartial)
  */
 TEST_P(TestRegDs, AllocateOutsideDs)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.allocate");
+
   auto ds = create_ds();
   EXPECT_EQ(-L4_ERANGE, ds->allocate(0, defsize() + 1));
   EXPECT_EQ(-L4_ERANGE, ds->allocate(defsize() + L4_PAGESIZE, 2));
@@ -212,6 +221,8 @@ TEST_P(TestRegDs, AllocateOutsideDs)
  */
 TEST_P(TestRegDs, AllocateIllegal)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.allocate");
+
   auto ds = create_ds();
   EXPECT_EQ(-L4_ERANGE, ds->allocate(~0UL, 1));
   EXPECT_EQ(-L4_ERANGE, ds->allocate(0, ~0UL));
@@ -225,6 +236,8 @@ TEST_P(TestRegDs, AllocateIllegal)
  */
 TEST_P(TestAnyDs, ClearByte)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.clear");
+
   auto ds = create_ds();
 
   L4Re::Rm::Unique_region<char *> r;
@@ -243,6 +256,8 @@ TEST_P(TestAnyDs, ClearByte)
  */
 TEST_P(TestAnyDs, ClearUnallocated)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.clear");
+
   auto ds = create_ds();
   EXPECT_LE(0, ds->clear(0, 100));
 }
@@ -254,6 +269,8 @@ TEST_P(TestAnyDs, ClearUnallocated)
  */
 TEST_P(TestAnyDs, ClearEmpty)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.clear");
+
   auto ds = create_ds();
   EXPECT_LE(0, ds->clear(10, 0));
 }
@@ -265,6 +282,8 @@ TEST_P(TestAnyDs, ClearEmpty)
  */
 TEST_P(TestAnyDs, ClearFull)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.clear");
+
   auto ds = create_ds();
   L4Re::Rm::Unique_region<char *> reg;
 
@@ -292,6 +311,8 @@ TEST_P(TestAnyDs, ClearFull)
  */
 TEST_P(TestAnyDs, ClearOutsideRange)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.clear");
+
   auto ds = create_ds();
   EXPECT_EQ(-L4_ERANGE, ds->clear(defsize() + L4_PAGESIZE, 1));
   EXPECT_EQ(-L4_ERANGE, ds->clear(~0UL, 1));
@@ -304,6 +325,8 @@ TEST_P(TestAnyDs, ClearOutsideRange)
  */
 TEST_P(TestAnyDs, ClearOversized)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.clear");
+
   auto ds = create_ds();
   EXPECT_LE(0, ds->clear(0, defsize() + L4_PAGESIZE));
   EXPECT_LE(0, ds->clear(defsize() - 1, 2 * L4_PAGESIZE));
@@ -317,6 +340,8 @@ TEST_P(TestAnyDs, ClearOversized)
  */
 TEST_P(TestAnyDs, ClearBadRights)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.clear");
+
   auto ds = create_ds();
   auto ro_ds = make_ds_ro(ds.get());
 
@@ -330,6 +355,8 @@ TEST_P(TestAnyDs, ClearBadRights)
  */
 TEST_P(TestCrossDs, CopyInBytesFromNormal)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   const char* cmpstr = "Bindlestitch\n";
 
   auto src = create_src_ds();
@@ -361,6 +388,8 @@ TEST_P(TestCrossDs, CopyInBytesFromNormal)
  */
 TEST_P(TestCrossDs, CopyInBytesFromUnallocated)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto src = create_src_ds();
   auto dest = create_ds();
 
@@ -379,6 +408,8 @@ TEST_P(TestCrossDs, CopyInBytesFromUnallocated)
  */
 TEST_P(TestAnyDs, CopyInBytesFromUnallocatedFull)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto src = create_ds();
   auto dest = create_ds();
 
@@ -397,6 +428,8 @@ TEST_P(TestAnyDs, CopyInBytesFromUnallocatedFull)
  */
 TEST_P(TestCrossDs, CopyInBytesToUnallocated)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   const char* teststr = "foobartuffy";
   auto src = create_src_ds();
   auto dest = create_ds();
@@ -421,6 +454,8 @@ TEST_P(TestCrossDs, CopyInBytesToUnallocated)
  */
 TEST_P(TestAnyDs, CopyInBytesToUnallocatedFull)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   const char* teststr = "laif9reido0geij8yu2thaePhahloo1DahTogei8wopa8ahthe";
   auto src = create_ds();
   auto dest = create_ds();
@@ -446,6 +481,8 @@ TEST_P(TestAnyDs, CopyInBytesToUnallocatedFull)
  */
 TEST_P(TestCrossDs, CopyInBytesFromMultiplePages)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   if (defsize_src() < 2 * L4_PAGESIZE)
     return;
 
@@ -480,6 +517,8 @@ TEST_P(TestCrossDs, CopyInBytesFromMultiplePages)
  */
 TEST_P(TestCrossDs, CopyInBytesToMultiplePages)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   if (defsize() < 2 * L4_PAGESIZE)
     return;
 
@@ -515,6 +554,8 @@ TEST_P(TestCrossDs, CopyInBytesToMultiplePages)
  */
 TEST_P(TestAnyDs, CopyInFully)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto src = create_ds();
   auto dest = create_ds();
 
@@ -528,6 +569,8 @@ TEST_P(TestAnyDs, CopyInFully)
  */
 TEST_P(TestAnyDs, CopySelf)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto dest = create_ds();
 
   ASSERT_EQ(0, dest->copy_in(0, dest.get(), 0, defsize()));
@@ -540,6 +583,8 @@ TEST_P(TestAnyDs, CopySelf)
  */
 TEST_P(TestAnyDs, CopyInEmpty)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto src = create_ds();
   auto dest = create_ds();
 
@@ -553,6 +598,8 @@ TEST_P(TestAnyDs, CopyInEmpty)
  */
 TEST_P(TestAnyDs, CopyInInvalidSrcCap)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto src = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
   auto dest = create_ds();
 
@@ -574,6 +621,8 @@ TEST_P(TestAnyDs, CopyInInvalidSrcCap)
  */
 TEST_P(TestAnyDs, CopyInDestOutOfBounds)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto src = create_ds();
   auto dest = create_ds();
 
@@ -594,6 +643,8 @@ TEST_P(TestAnyDs, CopyInDestOutOfBounds)
  */
 TEST_P(TestCrossDs, CopyInBadRights)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.copy_in");
+
   auto src = create_src_ds();
   auto dest = create_ds();
   auto ro_dest = make_ds_ro(dest.get());
@@ -609,6 +660,8 @@ TEST_P(TestCrossDs, CopyInBadRights)
  */
 TEST_P(TestAnyDs, Flags)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.flags");
+
   auto ds = create_ds();
   auto ro_ds = make_ds_ro(ds.get());
 
@@ -628,6 +681,8 @@ TEST_P(TestAnyDs, Flags)
  */
 TEST_P(TestAnyDs, AllocatedIsEmptyRo)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map");
+
   auto ds = create_ds();
   Fenced_auto_area reg(defsize());
 
@@ -648,6 +703,8 @@ TEST_P(TestAnyDs, AllocatedIsEmptyRo)
  */
 TEST_P(TestAnyDs, AllocatedIsEmptyRw)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map");
+
   auto ds = create_ds();
   Fenced_auto_area reg(defsize());
 
@@ -666,6 +723,8 @@ TEST_P(TestAnyDs, AllocatedIsEmptyRw)
  */
 TEST_P(TestAnyDs, MapFull)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map");
+
   auto ds = create_ds();
   Fenced_auto_area reg(defsize());
 
@@ -687,6 +746,8 @@ TEST_P(TestAnyDs, MapFull)
  */
 TEST_P(TestAnyDs, MapMinimal)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map");
+
   auto ds = make_unique_cap<L4Re::Dataspace>();
   L4Re::chksys(env->mem_alloc()->alloc(defsize(), ds.get(), defflags()));
   Fenced_auto_area reg(defsize());
@@ -708,6 +769,8 @@ TEST_P(TestAnyDs, MapMinimal)
  */
 TEST_F(TestGeneralDs, MapBadRegion)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map");
+
   auto ds = create_ds();
   Fenced_auto_area reg(L4_PAGESIZE);
 
@@ -728,6 +791,8 @@ TEST_F(TestGeneralDs, MapBadRegion)
  */
 TEST_F(TestGeneralDs, MapBadOffset)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map");
+
   auto ds = create_ds(0, L4_PAGESIZE);
   Fenced_auto_area reg(L4_PAGESIZE);
 
@@ -744,6 +809,8 @@ TEST_F(TestGeneralDs, MapBadOffset)
  */
 TEST_P(TestAnyDs, MapInsufficientRights)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map");
+
   auto ds = create_ds();
   auto ro_ds = make_ds_ro(ds.get());
   Fenced_auto_area reg(L4_PAGESIZE);
@@ -760,6 +827,8 @@ TEST_P(TestAnyDs, MapInsufficientRights)
  */
 TEST_P(TestAnyDs, MapRegionFull)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map_region");
+
   auto ds = create_ds();
   Fenced_auto_area reg(defsize());
   ASSERT_EQ(0, ds->map_region(0, L4Re::Dataspace::Map_rw,
@@ -777,6 +846,8 @@ TEST_P(TestAnyDs, MapRegionFull)
  */
 TEST_F(TestGeneralDs, MapRegionBadRegion)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map_region");
+
   auto ds = create_ds();
   Fenced_auto_area reg(L4_PAGESIZE);
 
@@ -796,6 +867,8 @@ TEST_F(TestGeneralDs, MapRegionBadRegion)
  */
 TEST_P(TestAnyDs, MapRegionInsufficientRights)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map_region");
+
   auto ds = create_ds();
   auto ro_ds = make_ds_ro(ds.get());
   Fenced_auto_area reg(L4_PAGESIZE);
@@ -813,6 +886,8 @@ TEST_P(TestAnyDs, MapRegionInsufficientRights)
  */
 TEST_P(TestRegDs, Phys)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.phys");
+
   auto ds = create_ds();
   l4_addr_t pa;
   l4_size_t sz;
@@ -827,6 +902,8 @@ TEST_P(TestRegDs, Phys)
  */
 TEST_F(TestContDs, Phys)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.phys");
+
   auto ds = create_ds(1024);
   l4_addr_t pa;
   l4_size_t sz;
@@ -842,6 +919,8 @@ TEST_F(TestContDs, Phys)
  */
 TEST_F(TestContDs, PhysUnaligned)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.phys");
+
   auto ds = create_ds(1024);
   l4_addr_t pa;
   l4_size_t sz;
@@ -859,6 +938,8 @@ TEST_F(TestContDs, PhysUnaligned)
  */
 TEST_P(TestAnyDs, Size)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.size");
+
   auto ds = create_ds();
   EXPECT_EQ(defsize(), ds->size());
 }
@@ -871,6 +952,8 @@ TEST_P(TestAnyDs, Size)
  */
 TEST_F(TestGeneralDs, UnalignedSize)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.size");
+
   auto ds = create_ds(0, 1);
   EXPECT_EQ(1UL, ds->size());
   ds = create_ds(0, INT_MAX - 1);
@@ -885,6 +968,8 @@ TEST_F(TestGeneralDs, UnalignedSize)
  */
 TEST_P(TestRegDs, ExhaustQuotaMoeStructures)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Mem_alloc.alloc");
+
   auto cap = create_ma(3 * L4_PAGESIZE);
 
   // Create dataspaces without deleting them until we are out of memory

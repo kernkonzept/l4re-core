@@ -16,6 +16,7 @@
 #include <l4/re/error_helper>
 
 #include <l4/atkins/tap/main>
+#include <l4/atkins/l4_assert>
 
 #include "moe_helpers.h"
 
@@ -29,6 +30,8 @@ class TestNamespace : public ::testing::Test {};
  */
 TEST_F(TestNamespace, QueryEmptyNS)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.query");
+
   auto ns = create_ns();
   auto lcap = make_unique_cap<void>();
 
@@ -53,6 +56,9 @@ TEST_F(TestNamespace, QueryEmptyNS)
  */
 TEST_F(TestNamespace, RegisterValid)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC2("Moe", "L4Re::Namespace.query");
+
   auto ns = create_ns();
   auto ds = create_ds(0, 12345);
   auto lcap = make_unique_cap<L4Re::Dataspace>();
@@ -74,6 +80,9 @@ TEST_F(TestNamespace, RegisterValid)
  */
 TEST_F(TestNamespace, RegisterInvalid)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.query");
+  TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
+
   auto ns = create_ns();
   auto cap = make_unique_cap<void>();
 
@@ -97,6 +106,9 @@ TEST_F(TestNamespace, RegisterInvalid)
  */
 TEST_F(TestNamespace, FreeInvalidEntry)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.unlink");
+  TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
+
   auto ns = create_ns();
 
   ASSERT_EQ(0, ns->register_obj("inval", L4::Cap<void>()));
@@ -111,6 +123,8 @@ TEST_F(TestNamespace, FreeInvalidEntry)
  */
 TEST_F(TestNamespace, RegisterWithSlash)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
+
   EXPECT_EQ(-L4_EINVAL, create_ns()->register_obj("ping/pong", env->log()));
 }
 
@@ -121,6 +135,8 @@ TEST_F(TestNamespace, RegisterWithSlash)
  */
 TEST_F(TestNamespace, RegisterEmpty)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
+
   ASSERT_EQ(-L4_EINVAL, create_ns()->register_obj("", env->log()));
 }
 
@@ -132,6 +148,8 @@ TEST_F(TestNamespace, RegisterEmpty)
  */
 TEST_F(TestNamespace, RegisterOverwriteInvalid)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
+
   auto ns = create_ns();
   auto ds = create_ds();
   auto cap = make_unique_cap<void>();
@@ -154,6 +172,8 @@ TEST_F(TestNamespace, RegisterOverwriteInvalid)
  */
 TEST_F(TestNamespace, RegisterOverwriteValid)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
+
   auto ns = create_ns();
   auto ds1 = create_ds(0, 6543);
   auto ds2 = create_ds(0, 1234);
@@ -178,6 +198,8 @@ TEST_F(TestNamespace, RegisterOverwriteValid)
  */
 TEST_F(TestNamespace, RegisterLooseSourceDataspace)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
+
   auto ns = create_ns();
   auto cap = make_unique_cap<L4Re::Dataspace>();
 
@@ -202,6 +224,9 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
  */
 TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC2("Moe", "L4Re::Namespace.query");
+
   auto ns = create_ns();
   auto cap = make_unique_cap<L4Re::Dataspace>();
 
@@ -226,6 +251,9 @@ TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
  */
 TEST_F(TestNamespace, RegisterDeleteRomDataspace)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC2("Moe", "L4Re::Namespace.unlink");
+
   auto ns = create_ns();
   auto lcap = make_unique_cap<L4Re::Dataspace>();
 
@@ -263,6 +291,8 @@ TEST_F(TestNamespace, RegisterDeleteRomDataspace)
  */
 TEST_F(TestNamespace, RegisterPropagateRights)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
+
   auto ns = create_ns();
 
   // Register capability read-only.
@@ -288,6 +318,8 @@ TEST_F(TestNamespace, RegisterPropagateRights)
  */
 TEST_F(TestNamespace, RegisterBadFlags)
 {
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
+
   auto ns = create_ns();
   auto ds = create_ds();
 
@@ -306,6 +338,9 @@ TEST_F(TestNamespace, RegisterBadFlags)
  */
 TEST_F(TestNamespace, ExhaustQuotaWithRegister)
 {
+  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC2("Moe", "L4Re::Namespace.unlink");
+
   auto cap = create_fab(3 * L4_PAGESIZE);
   auto ns = create_ns(cap.get());
 
@@ -340,6 +375,9 @@ TEST_F(TestNamespace, ExhaustQuotaWithRegister)
  */
 TEST_F(TestNamespace, ExhaustQuotaWithCreate)
 {
+  TAP_COMP_FUNC ("Moe", "L4::Factory.create");
+  TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
+
   auto cap = create_fab(3 * L4_PAGESIZE);
 
   // Create namespaces without deleting them until we are out of memory
