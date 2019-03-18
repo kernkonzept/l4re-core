@@ -104,29 +104,18 @@ SRC_CC += \
   c++11/wstring-inst.cc \
 
 
-CXXFLAGS_c++98/collate_members_cow.o    += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
-CXXFLAGS_c++98/collate_members_cow.s.o  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
-CXXFLAGS_c++98/messages_members_cow.o   += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
-CXXFLAGS_c++98/messages_members_cow.s.o += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
-CXXFLAGS_c++98/monetary_members_cow.o   += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
-CXXFLAGS_c++98/monetary_members_cow.s.o += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
-CXXFLAGS_c++98/numeric_members_cow.o    += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
-CXXFLAGS_c++98/numeric_members_cow.s.o  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/collate_members_cow.cc  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/messages_members_cow.cc += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/monetary_members_cow.cc += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
+CXXFLAGS_c++98/numeric_members_cow.cc  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
 
-CXXFLAGS_c++98/concept-inst.o      += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templates
-CXXFLAGS_c++98/concept-inst.s.o    += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templates
-CXXFLAGS_c++98/locale_init.o       += -std=gnu++11
-CXXFLAGS_c++98/locale_init.s.o     += -std=gnu++11
-CXXFLAGS_c++98/localename.o        += -std=gnu++11
-CXXFLAGS_c++98/localename.s.o      += -std=gnu++11
-PRIVATE_INCDIR_c++98/strstream.o   += $(STDCXX_CONTRIB_DIR)/include/backward
-PRIVATE_INCDIR_c++98/strstream.s.o += $(STDCXX_CONTRIB_DIR)/include/backward
-CXXFLAGS_c++98/strstream.o         += -Wno-deprecated
-CXXFLAGS_c++98/strstream.s.o       += -Wno-deprecated
+CXXFLAGS_c++98/concept-inst.cc    += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templates
+CXXFLAGS_c++98/locale_init.cc     += -std=gnu++11
+CXXFLAGS_c++98/localename.cc      += -std=gnu++11
+PRIVATE_INCDIR_c++98/strstream.cc += $(STDCXX_CONTRIB_DIR)/include/backward
+CXXFLAGS_c++98/strstream.cc       += -Wno-deprecated
 
-
-CXXFLAGS_c++11/hashtable_c++0x.o   += -fimplicit-templates
-CXXFLAGS_c++11/hashtable_c++0x.s.o += -fimplicit-templates
+CXXFLAGS_c++11/hashtable_c++0x.cc += -fimplicit-templates
 
 # not all code is C++11
 SRC_CC_IS_CXX11 :=

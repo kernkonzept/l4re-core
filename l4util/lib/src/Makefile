@@ -17,8 +17,7 @@ SRC_C                 = alloc.c getopt2.c micros2l4to.c rand.c sleep.c \
 SRC_CC                = llulc.cc
 CXXFLAGS              = -DL4_NO_RTTI -fno-exceptions -fno-rtti
 
-PRIVATE_INCDIR_ARCH-x86/perform.o = ARCH-x86
-PRIVATE_INCDIR_ARCH-x86/perform.s.o = ARCH-x86
+PRIVATE_INCDIR_ARCH-x86/perform.c = ARCH-x86
 
 include $(L4DIR)/mk/lib.mk
 
