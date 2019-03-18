@@ -468,8 +468,8 @@ TEST_F(TestRm, ExhaustQuotaWithCreate)
 {
   auto cap = create_fab(3 * L4_PAGESIZE);
 
-  // Create dataspaces without deleting them until we are out of memory
-  std::vector<L4Re::Util::Shared_cap<L4Re::Rm>> nslist;
+  // Create region mappers without deleting them until we are out of memory
+  std::vector<L4Re::Util::Shared_cap<L4Re::Rm>> rmlist;
 
   for (;;)
     {
@@ -477,7 +477,7 @@ TEST_F(TestRm, ExhaustQuotaWithCreate)
 
       long ret = l4_error(cap->create(ns.get()));
       if (ret == L4_EOK)
-        nslist.push_back(ns);
+        rmlist.push_back(ns);
       else
         {
           ASSERT_EQ(-L4_ENOMEM, ret);
@@ -485,11 +485,11 @@ TEST_F(TestRm, ExhaustQuotaWithCreate)
         }
     }
 
-  ASSERT_FALSE(nslist.empty());
-  // free the previously allocated namespace
-  nslist.pop_back();
+  ASSERT_FALSE(rmlist.empty());
+  // free the previously allocated region mappers
+  rmlist.pop_back();
 
   // after freeing, we should be able to allocate again
-  auto ns = make_unique_del_cap<L4Re::Rm>();
-  ASSERT_EQ(0, l4_error(cap->create(ns.get())));
+  auto rm = make_unique_del_cap<L4Re::Rm>();
+  ASSERT_EQ(0, l4_error(cap->create(rm.get())));
 }

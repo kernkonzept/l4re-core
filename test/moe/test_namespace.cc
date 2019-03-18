@@ -342,7 +342,7 @@ TEST_F(TestNamespace, ExhaustQuotaWithCreate)
 {
   auto cap = create_fab(3 * L4_PAGESIZE);
 
-  // Create dataspaces without deleting them until we are out of memory
+  // Create namespaces without deleting them until we are out of memory
   std::vector<L4Re::Util::Ref_cap<L4Re::Namespace>::Cap> nslist;
 
   for (;;)
