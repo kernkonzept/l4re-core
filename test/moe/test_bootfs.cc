@@ -145,8 +145,7 @@ TEST_F(TestMoeBootFs, FailToDeleteRomCapability)
 
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()))
     << "Query rom namespace for the test file";
-  ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(cap.fpage(), L4_FP_DELETE_OBJ |
-                                                             L4_FP_ALL_SPACES)))
+  ASSERT_EQ(L4_EOK, l4_error(env->task()->delete_obj(cap.get())))
     << "Unmap the received capability with delete.";
   ASSERT_LE(cap.validate(L4_BASE_TASK_CAP).label(), 0)
     << "The capability is gone in the test task.";
@@ -173,8 +172,7 @@ TEST_F(TestMoeBootFs, FailToDeleteRomCapabilityWhenRemapping)
   ASSERT_EQ(L4_EOK, newns->query("new", ds.get()))
     << "Get a capability back for the newly registered name.";
 
-  ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(ds.fpage(), L4_FP_DELETE_OBJ |
-                                                             L4_FP_ALL_SPACES)))
+  ASSERT_EQ(L4_EOK, l4_error(env->task()->delete_obj(ds.get())))
     << "Unmap the newly received capability.";
   ASSERT_LE(ds.validate(L4_BASE_TASK_CAP).label(), 0)
     << "The capability is gone in the test task.";

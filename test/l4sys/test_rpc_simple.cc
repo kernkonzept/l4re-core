@@ -277,8 +277,7 @@ TEST_F(SimpleTypesRPC, UInt64Values)
  */
 TEST_F(SimpleTypesRPC, InvalidCapCall)
 {
-  ASSERT_EQ(L4_EOK, l4_error(L4Re::Env::env()->task()->unmap(scap().fpage(),
-                             L4_FP_DELETE_OBJ | L4_FP_ALL_SPACES)));
+  ASSERT_EQ(L4_EOK, l4_error(L4Re::Env::env()->task()->delete_obj(scap())));
 
   EXPECT_EQ(-L4_EIPC_LO - L4_IPC_ENOT_EXISTENT, scap()->null());
   EXPECT_EQ(L4_IPC_ENOT_EXISTENT,

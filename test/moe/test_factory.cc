@@ -237,8 +237,7 @@ TEST_F(TestFactory, ReturnQuotaAfterDelete)
                                   << l4_umword_t(5 * L4_PAGESIZE)));
   EXPECT_EQ(-L4_ENOMEM, l4_error(f->create(fab2.get(), L4::Factory::Protocol)
                                   << l4_umword_t(5 * L4_PAGESIZE)));
-  ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(fab.fpage(), L4_FP_DELETE_OBJ |
-                                                             L4_FP_ALL_SPACES)));
+  ASSERT_EQ(L4_EOK, l4_error(env->task()->delete_obj(fab.get())));
 
   EXPECT_EQ(0, l4_error(f->create(fab2.get(), L4::Factory::Protocol)
                                   << l4_umword_t(5 * L4_PAGESIZE)));

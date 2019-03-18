@@ -278,8 +278,7 @@ TEST_F(MappedNamespaceSvr, RegisterAndUnmapDataspace)
   ASSERT_EQ(1, handler.reserve_cap_count);
   ASSERT_EQ(L4_EOK, query("gone"));
   // Now delete the cap and there should be no entry.
-  ASSERT_EQ(L4_EOK, l4_error(env->task()->unmap(ds.fpage(), L4_FP_DELETE_OBJ |
-                                                L4_FP_ALL_SPACES)));
+  ASSERT_EQ(L4_EOK, l4_error(env->task()->delete_obj(ds)));
   // The namespace server only notes that the capability is gone
   // during the query() call.
   ASSERT_EQ(0, handler.free_cap_count);
