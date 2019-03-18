@@ -53,7 +53,8 @@ Allocator::alloc(long size, unsigned long flags, unsigned long align,
       else
         align = cxx::max<unsigned long>(align, L4_PAGESHIFT);
 
-      mo = make_obj<Moe::Dataspace_anon>(size, true, align, cfg);
+      mo = make_obj<Moe::Dataspace_anon>(size, L4Re::Dataspace::Map_rwx, align,
+                                         cfg);
     }
   else
     {

@@ -37,7 +37,7 @@ Region_map::Region_map()
 }
 
 int Region_ops::map(Region_handler const *h, l4_addr_t adr,
-                    L4Re::Util::Region const &r, bool writable,
+                    L4Re::Util::Region const &r, unsigned short access,
                     L4::Ipc::Snd_fpage *result)
 {
   if (!h->memory())
@@ -46,10 +46,15 @@ int Region_ops::map(Region_handler const *h, l4_addr_t adr,
   using L4::Ipc::Snd_fpage;
   l4_addr_t offs = adr - r.start();
   offs = l4_trunc_page(offs);
-  Moe::Dataspace::Ds_rw rw = !h->is_ro() && writable
-                             ? Moe::Dataspace::Writable
-                             : Moe::Dataspace::Read_only;
-  if (h->is_ro() && writable)
+  L4_fpage_rights rights =
+    (!h->is_ro() && (access & L4Re::Dataspace::Map_w))
+      ? (h->is_executable() ? L4_FPAGE_RWX : L4_FPAGE_RW)
+      : (h->is_executable() ? L4_FPAGE_RX : L4_FPAGE_RO);
+  if (!h->is_executable() && (access & L4Re::Dataspace::Map_x))
+    Dbg(Dbg::Warn).printf("WARNING: "
+         "Executable mapping request on non-exec region at %lx!\n",
+         adr);
+  if (h->is_ro() && (access & L4Re::Dataspace::Map_w))
     Dbg(Dbg::Warn).printf("WARNING: "
          "Writable mapping request on read-only region at %lx!\n",
          adr);
@@ -58,8 +63,8 @@ int Region_ops::map(Region_handler const *h, l4_addr_t adr,
     { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
       Snd_fpage::None };
 
-  auto ds_fpage = h->memory()->address(offs + h->offset(), rw, adr,
-                                       r.start(), r.end());
+  auto ds_fpage =
+    h->memory()->address(offs + h->offset(), rights, adr, r.start(), r.end());
   if (ds_fpage.is_nil())
     return -L4_EADDRNOTAVAIL;
 

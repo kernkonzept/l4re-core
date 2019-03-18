@@ -30,8 +30,8 @@ __do_real_copy(Dataspace *dst, unsigned long &dst_offs,
 {
   while (sz)
     {
-      Dataspace::Address src_a = src->address(src_offs, Dataspace::Read_only);
-      Dataspace::Address dst_a = dst->address(dst_offs, Dataspace::Writable);
+      Dataspace::Address src_a = src->address(src_offs, L4_FPAGE_RO);
+      Dataspace::Address dst_a = dst->address(dst_offs, L4_FPAGE_RW);
 
       unsigned long b_sz = min(min(src_a.sz() - src_a.of(),
             dst_a.sz() - dst_a.of()), sz);
@@ -56,7 +56,7 @@ __do_cow_copy(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_s
 {
   while (sz)
     {
-      Dataspace::Address src_a = src->address(src_offs, Dataspace::Read_only);
+      Dataspace::Address src_a = src->address(src_offs, L4_FPAGE_RO);
       Dataspace_noncont::Page &dst_p = dst->alloc_page(dst_offs);
       dst->free_page(dst_p);
       void *src_p = (void*)trunc_page(dst_pg_sz,src_a.adr<unsigned long>());

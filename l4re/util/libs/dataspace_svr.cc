@@ -90,7 +90,8 @@ Dataspace_svr::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
   l4_addr_t map_base = l4_trunc_size(addr, order);
   //l4_addr_t map_offs = addr & ~(~0UL << order);
 
-  l4_fpage_t fpage = l4_fpage(map_base, order, flags && is_writable() ?  L4_FPAGE_RWX : L4_FPAGE_RX);
+  l4_fpage_t fpage =
+    l4_fpage(map_base, order, L4Re::Dataspace::get_fpage_rights(flags));
 
   memory = L4::Ipc::Snd_fpage(fpage, hot_spot, _map_flags, _cache_flags);
 

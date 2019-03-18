@@ -56,6 +56,8 @@ Rm::attach(l4_addr_t *start, unsigned long size, unsigned long flags,
       unsigned long fl = (flags & Read_only)
         ? Dataspace::Map_ro
         : Dataspace::Map_rw;
+      if (flags & Executable)
+        fl |= Dataspace::Map_rx;
       fl |= (flags & Caching) >> Caching_ds_shift;
       e = mem.cap()->map_region(offs, fl, *start, *start + size);
     }

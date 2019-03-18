@@ -43,7 +43,7 @@ TEST_F(Rw_module, WriteToModule)
   ASSERT_L4OK(ds->info(&s))
     << "ds info";
 
-  ASSERT_EQ(L4Re::Dataspace::Map_rw, (s.flags & L4Re::Dataspace::Map_rw))
+  ASSERT_EQ(L4Re::Dataspace::Map_w, (s.flags & L4Re::Dataspace::Map_w))
     << "ds writable";
 
   L4Re::Rm::Unique_region<void *> base;

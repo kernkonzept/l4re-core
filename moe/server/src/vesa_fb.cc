@@ -88,7 +88,10 @@ Vesa_fb::Vesa_fb(l4util_mb_info_t *mbi)
       break;
     }
 
-  Moe::Dataspace_static *fb = new Moe::Dataspace_static((void*)vaddr, map_size, Moe::Dataspace_static::Writable | L4Re::Dataspace::Map_bufferable);
+  Moe::Dataspace_static *fb =
+    new Moe::Dataspace_static((void *)vaddr, map_size,
+                              L4Re::Dataspace::Map_rw
+                                | L4Re::Dataspace::Map_bufferable);
 
   _screen_info.width = vbi->x_resolution;
   _screen_info.height = vbi->y_resolution;

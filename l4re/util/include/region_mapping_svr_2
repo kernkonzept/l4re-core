@@ -228,6 +228,7 @@ public:
   {
     Dbg(Dbg::Server).printf("page fault: %lx pc=%lx\n", addr, pc);
 
+    unsigned inst_fetch = addr & 4;
     unsigned writable = addr & 2;
     addr = addr & ~7UL;
 
@@ -242,6 +243,14 @@ public:
         return L4_EOK;
       }
 
+    if (!n->second.is_executable() && inst_fetch)
+      {
+        Dbg(Dbg::Warn, "rm").printf("exec page fault in non-exec region at 0x%lx pc=0x%lx\n",
+                                    addr, pc);
+        // generate exception
+        result = ~0;
+        return L4_EOK;
+      }
     if (n->second.is_ro() && writable)
       {
         Dbg(Dbg::Warn, "rm").printf("write page fault in readonly region at 0x%lx pc=0x%lx\n",
@@ -252,7 +261,13 @@ public:
       }
 
     typename DERIVED::Region_handler::Ops::Map_result map_res;
-    if (int err = n->second.map(addr, n->first, writable, &map_res))
+    if (int err =
+          n->second.map(addr, n->first,
+                        (inst_fetch ? (writable ? L4Re::Dataspace::Map_rwx
+                                                : L4Re::Dataspace::Map_rx)
+                                    : (writable ? L4Re::Dataspace::Map_rw
+                                                : L4Re::Dataspace::Map_ro)),
+                        &map_res))
       {
         Dbg(Dbg::Warn, "rm").printf("mapping for page fault failed with error %d at 0x%lx pc=0x%lx\n",
                                     err, addr, pc);

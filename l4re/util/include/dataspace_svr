@@ -46,15 +46,11 @@ public:
 
   typedef Snd_fpage::Map_type Map_type;
   typedef Snd_fpage::Cacheopt Cache_type;
-  enum Rw_type {
-      Read_only = 0,
-      Writable = 1,
-  };
 
 
   Dataspace_svr() throw()
   : _ds_start(0), _ds_size(0), _map_flags(Snd_fpage::Map),
-    _cache_flags(Snd_fpage::Cached)
+    _cache_flags(Snd_fpage::Cached), _rw_flags(0)
   {}
 
   virtual ~Dataspace_svr() throw() {}
@@ -191,10 +187,10 @@ public:
   {
     bool read_only = !is_writable() || !(rights & L4_CAP_FPAGE_W);
 
-    if (read_only && (flags & 1))
+    if (read_only && (flags & L4Re::Dataspace::Map_w))
       return -L4_EPERM;
 
-    return map(offset, spot, flags & 1, 0, ~0, fp);
+    return map(offset, spot, flags, 0, ~0, fp);
   }
 
   long op_take(L4Re::Dataspace::Rights)
@@ -242,9 +238,9 @@ public:
   {
     s.size = size();
     // only return writable if really writable
-    s.flags = rw_flags() & ~Writable;
+    s.flags = rw_flags() & ~L4Re::Dataspace::Map_w;
     if ((rights & L4_CAP_FPAGE_W) && is_writable())
-      s.flags |= Writable;
+      s.flags |= L4Re::Dataspace::Map_w;
     return L4_EOK;
   }
 
@@ -267,7 +263,7 @@ protected:
   unsigned long rw_flags() const throw()
   { return _rw_flags; }
   unsigned long is_writable() const throw()
-  { return _rw_flags & Writable; }
+  { return _rw_flags & L4Re::Dataspace::Map_w; }
   unsigned long page_size() const throw()
   { return 1UL << page_shift(); }
   unsigned long round_size() const throw()
@@ -282,7 +278,7 @@ protected:
   l4_size_t _ds_size;
   Map_type _map_flags;
   Cache_type _cache_flags;
-  Rw_type  _rw_flags;
+  unsigned short _rw_flags;
 };
 
 }}

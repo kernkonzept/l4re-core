@@ -67,8 +67,14 @@ public:
    */
   enum Map_flags
   {
-    Map_ro = 0,               ///< Request read-only mapping.
-    Map_rw = 1,               ///< Request writable mapping.
+    Map_r = 1,  ///< Request readable mapping.
+    Map_w = 2,  ///< Request writable mapping.
+    Map_x = 4,  ///< Request executable mapping.
+
+    Map_ro = Map_r,           ///< Request read-only mapping.
+    Map_rw = Map_r | Map_w,   ///< Request read-writable mapping.
+    Map_rx = Map_r | Map_x,   ///< Request read-executable mapping.
+    Map_rwx = Map_rw | Map_x, ///< Request read-write-executable maping.
 
     Map_normal        = 0x00, ///< request normal memory mapping
     Map_cacheable     = Map_normal, ///< request normal memory mapping
@@ -77,7 +83,23 @@ public:
 
     Map_caching_mask  = 0x30, ///< mask for caching flags
     Map_caching_shift = 4,    ///< shift value for caching flags
+
+    Map_impldef_shift = 8,    ///< Start of implementation specific bits.
+    Map_flags_mask = ((1U << Map_impldef_shift) - 1), ///< All common bits.
   };
+
+  /**
+   * Convert a combination of Map_flags to flex-page rights.
+   *
+   * \param flags  Combination of Map_flags bits.
+   *
+   * \return  Flex-page rights.
+   */
+  static L4_fpage_rights get_fpage_rights(unsigned short flags)
+  {
+    return (flags & Map_x) ? ((flags & Map_w) ? L4_FPAGE_RWX : L4_FPAGE_RX)
+                           : ((flags & Map_w) ? L4_FPAGE_RW : L4_FPAGE_RO);
+  }
 
   /**
    * Information about the dataspace.

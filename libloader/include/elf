@@ -197,11 +197,12 @@ struct Phdr_load
 
     l4_umword_t size = l4_round_page(ph.memsz() + page_offs);
 
+    unsigned xf = (ph.flags() & PF_X) ? L4Re::Rm::Executable : 0;
     if ((ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow())
       {
         // copy section
         Dataspace mem = mm->alloc_ds(size);
-        mm->prog_attach_ds(l4_addr_t(paddr), size, mem, 0, r_flags,
+        mm->prog_attach_ds(l4_addr_t(paddr), size, mem, 0, r_flags | xf,
                            "attaching rw ELF segment");
         mm->copy_ds(mem, 0, bin, offs, fsz + page_offs);
       }
@@ -209,7 +210,7 @@ struct Phdr_load
       {
         // map from file
         mm->prog_attach_ds(l4_addr_t(paddr), size, bin, offs,
-                           r_flags | L4Re::Rm::Read_only,
+                           r_flags | L4Re::Rm::Read_only | xf,
                            "attaching ro ELF segment");
       }
   }

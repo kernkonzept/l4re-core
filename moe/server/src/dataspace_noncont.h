@@ -48,16 +48,17 @@ public:
 
   bool is_static() const throw() { return false; }
 
-  Dataspace_noncont(unsigned long size, unsigned long flags = Writable,
-                    Single_page_alloc_base::Config cfg
-                      = Single_page_alloc_base::Config()) throw()
+  Dataspace_noncont(unsigned long size,
+                    unsigned long flags = L4Re::Dataspace::Map_rw,
+                    Single_page_alloc_base::Config cfg =
+                      Single_page_alloc_base::Config()) throw()
   : Dataspace(size, flags | Cow_enabled, L4_LOG2_PAGESIZE, cfg), _pages(0)
   {}
 
   virtual ~Dataspace_noncont() {}
 
   Address address(l4_addr_t offset,
-                  Ds_rw rw = Writable, l4_addr_t hot_spot = 0,
+                  L4_fpage_rights rights = L4_FPAGE_RW, l4_addr_t hot_spot = 0,
                   l4_addr_t min = 0, l4_addr_t max = ~0) const;
   void unmap(bool ro = false) const throw();
 
@@ -89,9 +90,9 @@ private:
 public:
   long clear(unsigned long offs, unsigned long size) const throw();
 
-  static Dataspace_noncont *create(Q_alloc *q, unsigned long size,
-                                   Single_page_alloc_base::Config cfg,
-                                   unsigned long flags = Writable);
+  static Dataspace_noncont *
+  create(Q_alloc *q, unsigned long size, Single_page_alloc_base::Config cfg,
+         unsigned long flags = L4Re::Dataspace::Map_rwx);
 
 protected:
   union

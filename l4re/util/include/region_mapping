@@ -78,6 +78,10 @@ public:
   l4_cap_idx_t client_cap_idx() const throw() { return _client_cap; }
   l4_addr_t offset() const throw() { return _offs; }
   l4_addr_t is_ro() const throw() { return _flags & L4Re::Rm::Read_only; }
+  l4_addr_t is_executable() const throw()
+  {
+    return _flags & L4Re::Rm::Executable;
+  }
   unsigned long caching() const throw() { return _flags & L4Re::Rm::Caching; }
   unsigned flags() const throw() { return _flags; }
 
@@ -93,8 +97,9 @@ public:
   void take() const    { Ops::take(this); }
   void release() const { Ops::release(this); }
 
-  int map(l4_addr_t addr, Region const &r, bool writable, Map_result *result) const
-  { return Ops::map(this, addr, r, writable, result); }
+  int map(l4_addr_t addr, Region const &r, unsigned short access,
+          Map_result *result) const
+  { return Ops::map(this, addr, r, access, result); }
 
 };
 

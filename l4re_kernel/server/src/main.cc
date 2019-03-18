@@ -89,9 +89,11 @@ static void insert_regions()
         {
           Rm::Region const *r = &rl[i];
           auto pager = L4::cap_reinterpret_cast<L4Re::Dataspace>(Env::env()->rm());
-          void *x = Global::local_rm
-            ->attach((void*)r->start, r->end - r->start +1,
-                     Region_handler(pager, L4_INVALID_CAP, 0, Rm::Pager), 0);
+          void *x =
+            Global::local_rm->attach((void *)r->start, r->end - r->start + 1,
+                                     Region_handler(pager, L4_INVALID_CAP, 0,
+                                                    Rm::Pager | Rm::Executable),
+                                     0);
           if (!x)
             {
               L4::cerr << "l4re: error while initializing region mapper\n";

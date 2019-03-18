@@ -15,7 +15,8 @@ namespace Moe {
 class Dataspace_static : public Dataspace_cont
 {
 public:
-  Dataspace_static(void *start, unsigned long size, unsigned short flags = 0,
+  Dataspace_static(void *start, unsigned long size,
+                   unsigned short flags = L4Re::Dataspace::Map_rx,
                    unsigned char page_shift = L4_PAGESHIFT)
   : Dataspace_cont(start, size, flags, page_shift) {}
   virtual ~Dataspace_static() throw() {}

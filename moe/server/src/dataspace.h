@@ -28,11 +28,9 @@ class Dataspace :
   public Q_object
 {
 public:
-  enum Ds_rw
+  enum
   {
-    Read_only   = L4Re::Dataspace::Map_ro,
-    Writable    = L4Re::Dataspace::Map_rw,
-    Cow_enabled = 0x100,
+    Cow_enabled   = 1U << L4Re::Dataspace::Map_impldef_shift,
   };
 
   struct Address
@@ -42,10 +40,11 @@ public:
 
     Address(long error) throw() : offs(-1UL) { fpage.raw = error; }
 
-    Address(l4_addr_t base, l4_addr_t size, Ds_rw rw = Read_only,
-            l4_addr_t offs = 0) throw()
-    : fpage(l4_fpage(base, size, rw ? L4_FPAGE_RWX : L4_FPAGE_RX)),
-      offs(offs) {}
+    Address(l4_addr_t base, l4_addr_t size,
+            L4_fpage_rights rights = L4_FPAGE_RO, l4_addr_t offs = 0) throw()
+    : fpage(l4_fpage(base, size, rights)), offs(offs)
+    {
+    }
 
     unsigned long bs() const throw() { return fpage.raw & L4_FPAGE_ADDR_MASK; }
     unsigned long sz() const throw() { return 1 << l4_fpage_size(fpage); }
@@ -66,21 +65,26 @@ public:
 
   };
 
-  Dataspace(unsigned long size, unsigned short flags,
-            unsigned char page_shift, Single_page_alloc_base::Config cfg) throw()
-    : _size(size), _flags(flags), _page_shift(page_shift), _cfg(cfg)
+  Dataspace(unsigned long size, unsigned short flags, unsigned char page_shift,
+            Single_page_alloc_base::Config cfg) throw()
+  : _size(size),
+    _flags(flags),
+    _page_shift(page_shift),
+    _cfg(cfg)
   {}
 
 
   unsigned long size() const throw() { return _size; }
   virtual void unmap(bool ro = false) const throw() = 0;
   virtual Address address(l4_addr_t ds_offset,
-                          Ds_rw rw = Writable, l4_addr_t hot_spot = 0,
-                          l4_addr_t min = 0, l4_addr_t max = ~0) const = 0;
+                          L4_fpage_rights rights = L4_FPAGE_RW,
+                          l4_addr_t hot_spot = 0, l4_addr_t min = 0,
+                          l4_addr_t max = ~0) const = 0;
 
   virtual int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
 
-  unsigned long is_writable() const throw() { return _flags & Writable; }
+  unsigned long is_writable() const throw()
+  { return _flags & L4Re::Dataspace::Map_w; }
   unsigned long can_cow() const throw() { return _flags & Cow_enabled; }
   unsigned long flags() const throw() { return _flags; }
   virtual ~Dataspace() {}
@@ -159,9 +163,9 @@ public:
   {
     s.size = size();
     // only return writable if really writable
-    s.flags = flags() & ~Writable;
+    s.flags = flags() & ~L4Re::Dataspace::Map_w;
     if ((rights & L4_CAP_FPAGE_W) && is_writable())
-      s.flags |= Writable;
+      s.flags |= L4Re::Dataspace::Map_w;
     return L4_EOK;
   }
 

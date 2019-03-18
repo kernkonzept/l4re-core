@@ -64,8 +64,8 @@ Region_map::init()
 
 
 int
-Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
-                Region const &r, bool writable, l4_umword_t *result)
+Region_ops::map(Region_handler const *h, l4_addr_t local_addr, Region const &r,
+                unsigned short access, l4_umword_t *result)
 {
   *result = 0;
   if ((h->flags() & Rm::Reserved) || !h->memory().is_valid())
@@ -76,7 +76,9 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
       l4_mword_t result;
       L4::Ipc::Snd_fpage rfp;
       L4::cap_reinterpret_cast<L4::Pager>(h->memory())
-        ->page_fault((local_addr | (writable ? 2 : 0)), -3UL, result,
+        ->page_fault((local_addr | ((access & L4Re::Dataspace::Map_x) ? 4 : 0)
+                      | ((access & L4Re::Dataspace::Map_w) ? 2 : 0)),
+                     -3UL, result,
                      L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE, 0),
                      rfp);
       return L4_EOK;
@@ -85,7 +87,11 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
     {
       l4_addr_t offset = local_addr - r.start() + h->offset();
       L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
-      unsigned flags = writable | (h->caching() >> Rm::Caching_ds_shift);
+      unsigned flags = h->caching() >> Rm::Caching_ds_shift;
+      if (h->is_executable())
+        flags |= L4Re::Dataspace::Map_rx;
+      if (access & L4Re::Dataspace::Map_w)
+        flags |= L4Re::Dataspace::Map_rw;
       return ds->map(offset, flags, local_addr, r.start(), r.end());
     }
 }

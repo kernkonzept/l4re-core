@@ -617,6 +617,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
 
   if (!(flags & MAP_FIXED))  rm_flags |= Rm::Search_addr;
   if (!(prot & PROT_WRITE))  rm_flags |= Rm::Read_only;
+  if (prot & PROT_EXEC)      rm_flags |= Rm::Executable;
 
   err = r->attach(&data, size, rm_flags,
                   L4::Ipc::make_cap(ds.get(), (prot & PROT_WRITE)

@@ -477,7 +477,8 @@ TEST_F(TestRm, AttachLooseDataspace)
       L4Re::chksys(env->mem_alloc()->alloc(L4_PAGESIZE, ds.get(), 0));
       sz = ds->size();
 
-      ASSERT_EQ(0, rm->attach(&start, sz, L4Re::Rm::Search_addr,
+      ASSERT_EQ(0, rm->attach(&start, sz,
+                              L4Re::Rm::Search_addr | L4Re::Rm::Executable,
                               L4::Ipc::make_cap_rw(ds.get())));
     }
 

@@ -28,10 +28,10 @@ Moe::Dataspace_cont::Dataspace_cont(void *start, unsigned long size,
 }
 
 
-Moe::Dataspace::Address 
-Moe::Dataspace_cont::address(l4_addr_t offset,
-                             Ds_rw rw, l4_addr_t hot_spot,
-                             l4_addr_t min, l4_addr_t max) const
+Moe::Dataspace::Address
+Moe::Dataspace_cont::address(l4_addr_t offset, L4_fpage_rights rights,
+                             l4_addr_t hot_spot, l4_addr_t min,
+                             l4_addr_t max) const
 {
   if (!check_limit(offset))
     return Address(-L4_ERANGE);
@@ -69,9 +69,9 @@ Moe::Dataspace_cont::address(l4_addr_t offset,
   l4_addr_t offs = adr & ~(~0UL << order);
 
   if (!is_writable())
-    rw = Read_only;
+    rights = (rights & L4_FPAGE_X) ? L4_FPAGE_RX : L4_FPAGE_RO;
 
-  return Address(map_base, order, rw, offs);
+  return Address(map_base, order, rights, offs);
 }
 
 void Moe::Dataspace_cont::unmap(bool ro) const throw()
@@ -81,9 +81,9 @@ void Moe::Dataspace_cont::unmap(bool ro) const throw()
 
   while (_size)
     {
-      Address addr = address(offs, Writable, ~0);
-      l4_fpage_t fp
-        = l4_fpage_set_rights(addr.fp(), ro ? L4_FPAGE_W : L4_FPAGE_RWX);
+      Address addr = address(offs, L4_FPAGE_RWX, ~0);
+      l4_fpage_t fp =
+        l4_fpage_set_rights(addr.fp(), ro ? L4_FPAGE_W : L4_FPAGE_RWX);
       l4_task_unmap(L4_BASE_TASK_CAP, fp, L4_FP_OTHER_SPACES);
       _size -= (1UL << l4_fpage_size(fp));
       offs  += (1UL << l4_fpage_size(fp));

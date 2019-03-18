@@ -21,6 +21,7 @@
 #include <l4/re/env>
 #include <l4/re/util/cap_alloc>
 #include <l4/re/util/unique_cap>
+#include <l4/re/util/dataspace_svr>
 
 #include <l4/atkins/tap/main>
 #include <l4/atkins/debug>
@@ -665,12 +666,10 @@ TEST_P(TestAnyDs, Flags)
   auto ds = create_ds();
   auto ro_ds = make_ds_ro(ds.get());
 
-  long addflags = 0;
-  if (!(defflags() & L4Re::Mem_alloc::Continuous))
-    addflags |= 0x100;  // cow flag, well hidden away in the Moe server code
-
-  EXPECT_EQ(L4Re::Dataspace::Map_rw | addflags, ds->flags());
-  EXPECT_EQ(addflags, ro_ds->flags());
+  EXPECT_EQ(L4Re::Dataspace::Map_rwx,
+            ds->flags() & L4Re::Dataspace::Map_flags_mask);
+  EXPECT_EQ(L4Re::Dataspace::Map_rx,
+            ro_ds->flags() & L4Re::Dataspace::Map_flags_mask);
 }
 
 /**

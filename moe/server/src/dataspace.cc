@@ -45,8 +45,9 @@ Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
       return -L4_ERANGE;
     }
 
-  Ds_rw rw = (flags & Writable) ? Writable : Read_only;
-  Address adr = address(offs, rw, hot_spot, min, max);
+  Address adr = address(offs, Dataspace::get_fpage_rights(flags), hot_spot, min,
+                        max);
+
   if (adr.is_nil())
     return -L4_EPERM;
 
@@ -73,15 +74,15 @@ Moe::Dataspace::op_map(L4Re::Dataspace::Rights obj,
     L4::cout << "MAPrq: " << L4::hex << offset << ", " << spot << ", "
       << flags << "\n";
 
-  if (read_only && (flags & Writable))
+  if (read_only && (flags & L4Re::Dataspace::Map_w))
     return -L4_EPERM;
 
   long ret = map(offset, spot, flags, 0, ~0, fp);
 
   if (0)
     L4::cout << "MAP: " << L4::hex << reinterpret_cast<unsigned long *>(&fp)[0]
-             << ", " << reinterpret_cast<unsigned long *>(&fp)[1]
-             << ", " << flags << ", " << (!read_only && (flags & Writable))
+             << ", " << reinterpret_cast<unsigned long *>(&fp)[1] << ", "
+             << flags << ", " << (!read_only && (flags & L4Re::Dataspace::Map_w))
              << ", ret=" << ret << '\n';
 
   return ret;
@@ -121,7 +122,7 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long _size) const throw()
 
   while (sz)
     {
-      Address dst_a = address(offs, Writable);
+      Address dst_a = address(offs, L4_FPAGE_RW);
       unsigned long b_sz = min(dst_a.sz() - dst_a.of(), sz);
 
       memset(dst_a.adr(), 0, b_sz);

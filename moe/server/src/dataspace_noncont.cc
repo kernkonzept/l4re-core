@@ -45,9 +45,8 @@ Moe::Dataspace_noncont::free_page(Page &p) const throw()
 }
 
 Moe::Dataspace::Address
-Moe::Dataspace_noncont::address(l4_addr_t offset,
-                                Ds_rw rw, l4_addr_t,
-                                l4_addr_t, l4_addr_t) const
+Moe::Dataspace_noncont::address(l4_addr_t offset, L4_fpage_rights rights,
+                                l4_addr_t, l4_addr_t, l4_addr_t) const
 {
   // XXX: There may be a problem with data spaces with
   //      page_size() > L4_PAGE_SIZE
@@ -58,9 +57,9 @@ Moe::Dataspace_noncont::address(l4_addr_t offset,
   Page &p = alloc_page(offset);
 
   if (!is_writable())
-    rw = Read_only;
+    rights = (rights & L4_FPAGE_X) ? L4_FPAGE_RX : L4_FPAGE_RO;
 
-  if ((rw == Writable) && (p.flags() & Page_cow))
+  if ((rights & L4_FPAGE_W) && (p.flags() & Page_cow))
     {
       if (Moe::Pages::ref_count(*p) == 1)
         p.set(*p, p.flags() & ~Page_cow);
@@ -94,7 +93,7 @@ Moe::Dataspace_noncont::address(l4_addr_t offset,
       l4_cache_clean_data((l4_addr_t)*p, (l4_addr_t)(*p) + page_size() - 1);
     }
 
-  return Address(l4_addr_t(*p), page_shift(), rw, offset & (page_size()-1));
+  return Address(l4_addr_t(*p), page_shift(), rights, offset & (page_size()-1));
 }
 
 int
@@ -108,7 +107,8 @@ Moe::Dataspace_noncont::pre_allocate(l4_addr_t offset, l4_size_t size, unsigned 
   l4_size_t ps = page_size();
   for (l4_addr_t o = l4_trunc_size(offset, page_shift()); o < end_off; o += ps)
     {
-      Address a = address(o, rights & L4_CAP_FPAGE_W ? Writable : Read_only);
+      Address a =
+        address(o, rights & L4_CAP_FPAGE_W ? L4_FPAGE_RWX : L4_FPAGE_RX);
       if (a.is_nil())
         return a.error();
     }

@@ -80,7 +80,7 @@ TEST_F(TestMoeBootFs, QueryAllowedModules)
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
 
   L4::Cap<L4Re::Dataspace> c(cap.get().cap());
-  EXPECT_EQ(L4Re::Dataspace::Map_ro, c->flags() & 1);
+  EXPECT_EQ(0, c->flags() & L4Re::Dataspace::Map_w);
 }
 
 /**

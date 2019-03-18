@@ -29,7 +29,7 @@ class Region_ops
 public:
   typedef l4_umword_t Map_result;
   static int map(Region_handler const *h, l4_addr_t addr,
-                 L4Re::Util::Region const &r, bool writable,
+                 L4Re::Util::Region const &r, unsigned short access,
                  l4_umword_t *result);
 
   static void unmap(Region_handler const *h, l4_addr_t vaddr,

@@ -158,15 +158,15 @@ Moe::Boot_fs::init_stage2()
 
       cxx::String opts;
       cxx::String name = cmdline_to_name((char const *)(unsigned long)modules[mod].cmdline, &opts);
-      unsigned flags = Dataspace::Cow_enabled;
+      unsigned flags = L4Re::Dataspace::Map_rx | Moe::Dataspace::Cow_enabled;
       if (options_contains(opts, cxx::String(":rw")))
-        flags = Dataspace::Writable;
+        flags |= L4Re::Dataspace::Map_w;
 
       Moe::Dataspace_static *rf;
       rf = new Moe::Dataspace_static((void*)(unsigned long)modules[mod].mod_start,
                                      end - modules[mod].mod_start, flags);
       object = object_pool.cap_alloc()->alloc(rf);
-      if (flags & Dataspace::Writable)
+      if (flags & L4Re::Dataspace::Map_w)
         rwfs_ns->register_obj(name, Entry::F_rw, rf);
       else
         rom_ns->register_obj(name, 0, rf);
@@ -203,9 +203,8 @@ Moe::Boot_fs::init_stage2()
     l4util_splitlog2_hdl(m_low, m_high, s0_request_ram);
 
   Moe::Dataspace_static *dirinfods;
-  dirinfods = new Moe::Dataspace_static((void *)dirinfo,
-                                        dirinfo_size,
-                                        Dataspace::Read_only);
+  dirinfods = new Moe::Dataspace_static((void *)dirinfo, dirinfo_size,
+                                        L4Re::Dataspace::Map_ro);
 
   object_pool.cap_alloc()->alloc(dirinfods);
   rom_ns->register_obj(".dirinfo", 0, dirinfods);

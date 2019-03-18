@@ -232,7 +232,7 @@ static void
 init_kip_ds()
 {
   kip_ds = new Moe::Dataspace_static(const_cast<l4_kernel_info_t *>(kip()),
-                                     L4_PAGESIZE, 0);
+                                     L4_PAGESIZE, L4Re::Dataspace::Map_ro);
   if (!kip_ds)
     {
       Err(Err::Fatal).printf("could not allocate dataspace for KIP!\n");
