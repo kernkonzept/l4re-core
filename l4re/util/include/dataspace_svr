@@ -34,8 +34,8 @@ namespace L4Re { namespace Util {
 /**
  * Dataspace server class.
  *
- * The default implementation of the interface provides a continuously
- * mapped dataspace.
+ * The default implementation of the interface provides a continuous dataspace
+ * with contiguous pages.
  */
 class Dataspace_svr
 {
@@ -99,7 +99,7 @@ public:
    *
    * \param      offset     Offset into the dataspace
    * \param[out] phys_addr  Physical address
-   * \param[out] phys_size  Size of continious physical region
+   * \param[out] phys_size  Size of continuous physical region
    *
    * \retval 0   Success
    * \retval <0  Error
