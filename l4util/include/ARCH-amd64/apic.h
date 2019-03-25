@@ -367,12 +367,11 @@ apic_test_present(void)
   unsigned int dummy;
   unsigned int capability;
 
-  asm volatile("pushl %%ebx ; cpuid ; popl %%ebx"
+  asm volatile("cpuid"
              : "=a" (dummy),
-               "=c" (dummy),
                "=d" (capability)
              : "a" (0x00000001)
-             : "cc");
+             : "cc", "rbx", "rcx");
 
   return ((capability & 1<<9) !=0);
 }
