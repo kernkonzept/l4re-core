@@ -1,0 +1,64 @@
+/**
+\page l4re_concepts Programming for L4Re
+- \subpage l4re_concepts_kernel_factory
+
+\page l4re_concepts_kernel_factory Kernel Factory
+
+The kernel factory is a kernel object that provides the ability to create new
+kernel objects dynamically.
+
+The kernel factory enforces a memory quota. This quota defines the maximum
+amount of memory the factory service can use to construct the requested
+objects. When the quota is depleted, the factory refuses the creation of new
+objects.
+
+The quota may be higher than the amount of physical memory available on a system;
+ultimately, the amount of physical memory available is the strict limit for
+the factory to remain operational.
+
+The kernel factory creates the following kinds of objects:
+
+- Dmar_space
+- L4::Factory
+- L4::Ipc_gate
+- L4::Irq
+- L4::Irq_mux
+- L4::Semaphore
+- L4::Task
+- L4::Thread
+- L4::Vm
+
+The protocol IDs for objects in this list are given in \ref l4_msgtag_protocol.
+The protocol ID shall be used as the second argument for
+L4::Factory.create(Cap<void>, long, l4_utcb_t *).
+
+For the C++ interface see L4::Factory, for the C interface see
+\ref l4_factory_api.
+
+\section kernel_factory_create Passing parameters for the create stream
+
+L4::Factory.create() returns a [create stream](\ref L4::Factory::S) that
+allows arguments to be forwarded to the constructor of the object to be
+created.
+
+Objects that support additional parameters on their creation are presented with
+a non-empty list of parameters. The parameters are listed in the order they
+should be provided to a create stream returned by L4::Factory.create().
+
+ - Dmar_space()
+ - L4::Factory(\ref l4_umword_t)
+   - Argument: factory quota (in bytes).
+   - See L4::Factory.create_factory() for details.
+ - L4::Ipc_gate()
+   - Creates an unbound IPC gate.
+   - Alternatively, an IPC gate can be immediately bound to a thread upon
+     creation using L4::Factory.create_gate().
+ - L4::Irq()
+ - L4::Irq_mux()
+ - L4::Semaphore()
+ - L4::Task(\ref l4_fpage_t)
+   - Argument: utcb_area
+   - See L4::Factory.create_task() for details.
+ - L4::Thread()
+ - L4::Vm()
+*/

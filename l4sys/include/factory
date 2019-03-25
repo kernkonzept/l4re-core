@@ -32,21 +32,14 @@
 namespace L4 {
 
 /**
- * C++ Factory interface to create kernel objects.
+ * C++ %Factory interface.
  *
- * A factory is used to create all kinds of kernel objects:
- * - L4::Task
- * - L4::Thread
- * - L4::Factory
- * - L4::Ipc_gate
- * - L4::Irq
- * - L4::Vm
+ * Factories provide an interface to create objects which are accessed via
+ * capabilities.
  *
- * The factory is equipped with a limit that limits the amount of kernel
- * memory available to that factory.
- *
- * \note The limit does not give any guarantee for the amount of available
- *  kernel memory.
+ * For additional information about which objects can be created via this
+ * interface, see server-specific information in
+ * \ref l4re_concepts_kernel_factory and \ref l4re_servers.
  *
  * \includefile{l4/sys/factory}
  *
@@ -244,17 +237,19 @@ public:
    *                     shall be created.
    * \param      utcb    The UTCB to use for the operation.
    *
-   * \return A create stream that allows adding additional arguments to the
-   *         create() call.
+   * \return A create stream that allows additional arguments to be passed to
+   *         the create() call via the left-shift (<<) operator.
    *
-   * This method does currently not directly invoke the factory. It returns a
-   * stream that shall invoke the factory after adding all additional arguments.
+   * This method does not directly invoke the factory. The factory is invoked
+   * when the create stream returned by this method is converted to an
+   * `l4_msgtag_t`, or otherwise when the stream goes out of scope.
    *
-   * Usage:
-   * ~~~
-   * L4::Cap<L4Re::Namespace> ns = L4Re::Util::cap_alloc.alloc<L4Re::Namespace>();
-   * factory->create(ns, L4Re::Namespace::Protocol) << "Argument text";
-   * ~~~
+   * \note The create stream uses the UTCB to store parameters for the service
+   *       call. During the lifetime of a create stream or, until it is
+   *       converted to a `l4_msgtag_t`, other UTCB-using operations must not
+   *       be used.
+   *
+   * \see create(Cap<OBJ>, l4_utcb_t *)
    */
   S create(Cap<void> target, long obj, l4_utcb_t *utcb = l4_utcb()) throw()
   {
@@ -268,9 +263,23 @@ public:
    * \param[out]  target  Capability of type OBJ.
    * \param       utcb    UTCB to use.
    *
-   * \return  Argument stream to call the factory.
+   * \return A create stream that allows additional arguments to be passed to
+   *         the create() call via the left-shift (<<) operator.
    *
-   * \see create
+   * This method does not directly invoke the factory. The factory is invoked
+   * when the create stream returned by this method is converted to an
+   * `l4_msgtag_t`, or otherwise when the stream goes out of scope.
+   *
+   * \note The create stream uses the UTCB to store parameters for the service
+   *       call. During the lifetime of a create stream or, until it is
+   *       converted to a `l4_msgtag_t`, other UTCB-using operations must not
+   *       be used.
+   *
+   * Usage:
+   * ~~~
+   * L4::Cap<L4Re::Dataspace> ds = L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>();
+   * factory->create(ds) << l4_mword_t(size_in_bytes);
+   * ~~~
    */
   template<typename OBJ>
   S create(Cap<OBJ> target, l4_utcb_t *utcb = l4_utcb()) throw()
@@ -300,6 +309,9 @@ public:
    * \note The size of the UTCB area specifies indirectly the number
    *       of UTCBs available for this task. Refer to L4::Task::add_ku_mem
    *       / l4_task_add_ku_mem() for adding more of this type of memory.
+   *
+   * \note This method is only guaranteed to work with the
+   *       \ref l4re_concepts_kernel_factory.
    *
    * \see L4::Task
    */
@@ -336,8 +348,14 @@ public:
    *
    * \return Syscall return tag
    *
-   * \note The limit of the new factory is subtracted from the available amount
-   *       of the factory used for creation.
+   * \note The `limit` (quota) of the new factory is subtracted from the limit
+   *       of the factory invoked on its creation.
+   *
+   * \note This method is only guaranteed to work with the
+   *       \ref l4re_concepts_kernel_factory. For other services, use the
+   *       generic create() method and consult the service documentation for
+   *       information on the arguments that need to be passed to the create
+   *       stream.
    */
   l4_msgtag_t create_factory(Cap<Factory> const &target_cap,
                              unsigned long limit,
@@ -366,6 +384,9 @@ public:
    *
    * An unbound IPC gate can be bound to a thread using
    * L4::Ipc_gate::bind_thread().
+   *
+   * \note This method is only guaranteed to work with the
+   *       \ref l4re_concepts_kernel_factory.
    *
    * \see L4::Ipc_gate
    */
