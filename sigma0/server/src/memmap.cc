@@ -94,7 +94,9 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
   Mem_man *m;
   unsigned mem_flags;
   bool cached = true;
-  unsigned long addr;
+  unsigned long addr = ~0UL;
+  Region r;
+
   switch (fn)
     {
     case Ram:
@@ -109,7 +111,9 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
     case Io_mem_cached:
       mem_flags = L4_FPAGE_RW;
       // there is no first-come, first-serve for IO memory
-      addr = fp.raw & ~((1UL << 12) - 1);
+      r = Region::bs(fp.raw & ~((1UL << 12) - 1), 1UL << l4_fpage_size(fp));
+      if (iomem.find(r, false))
+        addr = r.start();
       break;
     default:
       an->error(L4_EINVAL);
