@@ -16,15 +16,6 @@
 #include <l4/sys/ipc.h>
 #include <l4/sigma0/sigma0.h>
 
-/**
- * Map RAM.
- *
- * \param pager  pager implementing Sigma0 protocol
- * \return   #0  on success
- *          -#L4SIGMA0_NOTALIGNED phys, virt, or size not aligned
- *          -#L4SIGMA0_IPCERROR   IPC error
- *          -#L4SIGMA0_NOFPAGE    no fpage received
- */
 L4_CV int
 l4sigma0_map_mem(l4_cap_idx_t pager,
 		 l4_addr_t phys, l4_addr_t virt, l4_addr_t size)

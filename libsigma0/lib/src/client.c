@@ -9,15 +9,6 @@
 #include <l4/sys/ipc.h>
 #include <l4/sigma0/sigma0.h>
 
-/**
- * New client.
- *
- * \param pager  pager implementing Sigma0 protocol
- * \param gate   slot to attach to
- * \return           #0                 on success
- *                  -#L4SIGMA0_IPCERROR IPC error
- *                  -#L4SIGMA0_NOFPAGE  no fpage received
- */
 L4_CV int
 l4sigma0_new_client(l4_cap_idx_t pager, l4_cap_idx_t gate)
 {

@@ -17,9 +17,6 @@
 #include <l4/sys/ipc.h>
 #include <l4/sigma0/sigma0.h>
 
-/*
- * \return kip address, 0 on error
- */
 L4_CV l4_kernel_info_t *
 l4sigma0_map_kip(l4_cap_idx_t pager, void *adr, unsigned log2_size)
 {
@@ -41,8 +38,7 @@ l4sigma0_map_kip(l4_cap_idx_t pager, void *adr, unsigned log2_size)
   if (l4_msgtag_items(tag) != 1)
     return 0;
 
-  l4_addr_t a = addr + (m->mr[0] & (~0UL << L4_PAGESHIFT) & ((1ULL << log2_size)-1));
+  l4_addr_t a = addr + (m->mr[0] & (~0UL << L4_PAGESHIFT) & ((1ULL << log2_size) - 1));
 
   return (l4_kernel_info_t*)a;
 }
-

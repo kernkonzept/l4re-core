@@ -16,15 +16,6 @@
 #include <l4/sys/ipc.h>
 #include <l4/sigma0/sigma0.h>
 
-/**
- * Map the Fiasco tracebuffer status descriptor using the Sigma0 protocol.
- *
- * \param pager  pager implementing the Sigma0 protocol
- * \param virt   virtual address the descriptor should be mapped to
- * \return  #0                 on success
- *         -#L4SIGMA0_IPCERROR IPC error
- *         -#L4SIGMA0_NOFPAGE  no fpage received
- */
 L4_CV int
 l4sigma0_map_tbuf(l4_cap_idx_t pager, l4_addr_t virt)
 {

@@ -16,18 +16,6 @@
 #include <l4/sys/ipc.h>
 #include <l4/sigma0/sigma0.h>
 
-
-/**
- * Map one page anonymous memory.
- *
- * \param pager          pager implementing the Sigma0 protocol
- * \param map_area       virtual address of the map area
- * \param log2_map_size  size of the map area
- * \param sz             Size to map from the server, in log2.
- * \return           #0                 on success
- *                  -#L4SIGMA0_IPCERROR IPC error
- *                  -#L4SIGMA0_NOFPAGE  no fpage received
- */
 L4_CV int
 l4sigma0_map_anypage(l4_cap_idx_t pager, l4_addr_t map_area,
 		     unsigned log2_map_size, l4_addr_t *base, unsigned sz)

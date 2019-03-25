@@ -16,7 +16,6 @@
 #include <l4/sys/ipc.h>
 #include <l4/sigma0/sigma0.h>
 
-
 L4_CV int
 l4sigma0_map_iomem(l4_cap_idx_t pager,
                    l4_addr_t phys, l4_addr_t virt, l4_addr_t size, int cached)
