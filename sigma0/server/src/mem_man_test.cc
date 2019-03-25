@@ -10,6 +10,7 @@
 
 #include <l4/cxx/iostream>
 #include "mem_man.h"
+#include "mem_man_test.h"
 
 #define ADD(a, b) \
   L4::cout << "add_free("#a","#b")\n"; \
@@ -17,28 +18,28 @@
 
 void mem_man_test()
 {
-  static Mem_man m;
+  Mem_man m;
   L4::cout << "mem_man_test: ....\n";
   m.dump();
-  ADD(0,9);
-  ADD(15,20);
-  ADD(25,30);
-  ADD(35,40);
-  ADD(45,50);
+  ADD(0x0,      0x9000);
+  ADD(0x15000, 0x20000);
+  ADD(0x25000, 0x30000);
+  ADD(0x35000, 0x40000);
+  ADD(0x45000, 0x50000);
   m.dump();
-  ADD(10,11);
+  ADD(0x10000, 0x11000);
   m.dump();
-  ADD(14,14);
+  ADD(0x14000, 0x14000);
   m.dump();
-  ADD(12,13);
+  ADD(0x12000, 0x13000);
   m.dump();
-  ADD(24,31);
+  ADD(0x24000, 0x31000);
   m.dump();
-  ADD(21,25);
+  ADD(0x21000, 0x25000);
   m.dump();
-  ADD(8,37);
+  ADD(0x8000,  0x37000);
   m.dump();
-  ADD(0,44);
+  ADD(0x0,     0x44000);
   m.dump();
   L4::cout << "mem_man_test: done\n";
 }
