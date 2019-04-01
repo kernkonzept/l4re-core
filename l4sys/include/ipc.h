@@ -147,10 +147,13 @@ l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW;
 
 
 /**
- * Return error code of a system call return message tag.
+ * Return error code of a system call return message tag or the tag label.
  * \ingroup l4_ipc_err_api
- * \param tag   System call return message type
- * \return 0 for no error, error number in case of error
+ *
+ * \param tag  System call return message type.
+ *
+ * \return  In case of IPC error a negative error code in the range of
+ *          L4_EIPC_LO to L4_EIPC_HI, otherwise the tag label.
  */
 L4_INLINE long
 l4_error(l4_msgtag_t tag) L4_NOTHROW;
