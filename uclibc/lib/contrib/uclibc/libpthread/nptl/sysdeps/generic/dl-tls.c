@@ -48,6 +48,9 @@
 /* Value used for dtv entries for which the allocation is delayed.  */
 # define TLS_DTV_UNALLOCATED	((void *) -1l)
 
+#ifndef SHARED
+extern dtv_t static_dtv;
+#endif
 
 /* Out-of-memory handler.  */
 # ifdef SHARED
@@ -585,6 +588,8 @@ _dl_deallocate_tls (void *tcb, bool dealloc_tcb)
   /* The array starts with dtv[-1].  */
 #ifdef SHARED
   if (dtv != GL(dl_initial_dtv))
+#else
+  if ((dtv - 1) != &static_dtv)
 #endif
     free (dtv - 1);
 

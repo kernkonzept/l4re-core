@@ -42,7 +42,10 @@ extern size_t _dl_phnum;
 extern int __tdata_start;
 #endif
 
-static dtv_t static_dtv[2 + TLS_SLOTINFO_SURPLUS];
+#ifdef SHARED
+static
+#endif
+dtv_t static_dtv[2 + TLS_SLOTINFO_SURPLUS];
 
 
 static struct
