@@ -3,7 +3,7 @@ L4DIR  ?= $(PKGDIR)/../..
 
 TEST_GROUP := l4re-core/moe
 
-REQUIRES_LIBS  := libpthread atkins
+REQUIRES_LIBS  := libpthread atkins libsigma0
 DEPENDS_PKGS   := atkins
 
 REQUIRED_MODULES  := moe_bootfs_example.txt
