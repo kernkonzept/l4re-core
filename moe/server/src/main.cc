@@ -71,7 +71,7 @@ static Dbg warn(Dbg::Warn);
 static
 l4_kernel_info_t const *map_kip()
 {
-  // map the KIP 1:1, because moe hast all memory 1:1 and the kip would
+  // map the KIP 1:1, because moe has all memory 1:1 and the kip would
   // possibly overlap with 1:1 memory if we have lots of RAM.
   _current_kip = l4sigma0_map_kip(Sigma0_cap, 0, L4_WHOLE_ADDRESS_SPACE);
 
