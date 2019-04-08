@@ -58,7 +58,8 @@ namespace L4Re {
  *   an available range of virtual memory, or may be explicitly used to search
  *   only within that area.
  *
- * \see L4Re::Dataspace, L4Re::Rm
+ * \see L4Re::Dataspace, L4Re::Rm,
+ * \see \ref l4re_concepts_ds_rm
  */
 
 /**
@@ -561,21 +562,66 @@ public:
                         unsigned *flags, l4_addr_t *offset,
                         L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
 
+  /**
+   * A region is a range of virtual addresses which is backed by a dataspace.
+   *
+   * \see api_l4re_rm
+   */
   struct Region
   {
+    /// First address of the region.
     l4_addr_t start;
+    /// Last address of the region.
     l4_addr_t end;
     l4_addr_t offset;
     L4::Cap<Dataspace> ds;
   };
 
+  /**
+   * An area is a range of virtual addresses which is reserved,
+   * see L4Re::Rm::reserve_area().
+   *
+   * \see api_l4re_rm
+   */
   struct Area
   {
+    /// First address of the area.
     l4_addr_t start;
+    /// Last address of the area.
     l4_addr_t end;
   };
 
+  /**
+   * Return the list of regions whose starting addresses are higher or equal to
+   * `start` in the address space managed by this region map.
+   *
+   * \param       start   Virtual address from where to start searching.
+   * \param[out]  regions List of regions found in this region map.
+   *
+   * \retval >=0  Number of returned regions in the `regions` array.
+   * \retval <0   IPC errors
+   *
+   * \note The returned list of regions might not be complete and the caller
+   *       shall use the function repeatedly with a start address one larger
+   *       that the end address of the last region from the previous call.
+   */
   L4_RPC(long, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Region> regions));
+
+  /**
+   * Return the list of areas whose starting addresses are higher or equal to
+   * `start` in the address space managed by this region map.
+   *
+   * \param       start Virtual address from where to start searching.
+   * \param[out]  areas List of areas found in this region map.
+   *
+   * \retval >=0  Number of returned areas in the `areas` array.
+   * \retval <0   IPC errors
+   *
+   * \note The returned list of areas might not be complete and the caller
+   *       shall use the function repeatedly with a start address one larger
+   *       than the end address of the last area from the previous call.
+   */
+
   L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Area> areas));
 
   int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
