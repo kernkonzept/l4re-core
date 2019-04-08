@@ -243,6 +243,17 @@ init_kip_ds()
   object_pool.cap_alloc()->alloc(kip_ds);
 }
 
+static L4::Cap<void>
+new_sigma0_cap()
+{
+  L4::Cap<void> new_sigma0_cap = object_pool.cap_alloc()->alloc();
+
+  L4Re::chksys(
+    L4::Cap<L4::Factory>(Sigma0_cap)->create(new_sigma0_cap, L4_PROTO_SIGMA0),
+    "Create new sigma0 cap for the initial task.");
+
+  return new_sigma0_cap;
+}
 
 class Loop_hooks :
   public L4::Ipc_svr::Ignore_errors,
@@ -551,7 +562,8 @@ int main(int argc, char**argv)
         root_name_space()->register_obj("iommu", Entry::F_rw, L4_BASE_IOMMU_CAP);
       if (L4::Cap<void>(L4_BASE_ARM_SMCCC_CAP).validate().label())
         root_name_space()->register_obj("arm_smc", Entry::F_rw, L4_BASE_ARM_SMCCC_CAP);
-      root_name_space()->register_obj("sigma0", Entry::F_trusted | Entry::F_rw, L4_BASE_PAGER_CAP);
+      root_name_space()->register_obj("sigma0", Entry::F_trusted | Entry::F_rw,
+                                      new_sigma0_cap());
       root_name_space()->register_obj("mem", Entry::F_trusted | Entry::F_rw, Allocator::root_allocator());
       if (L4::Cap<void>(L4_BASE_DEBUGGER_CAP).validate().label())
         root_name_space()->register_obj("jdb", Entry::F_trusted | Entry::F_rw, L4_BASE_DEBUGGER_CAP);
