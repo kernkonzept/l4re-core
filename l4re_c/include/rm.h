@@ -62,7 +62,6 @@ enum l4re_rm_flags_t {
   /** Cache bits for uncached memory */
   L4RE_RM_CACHE_UNCACHED = L4RE_DS_MAP_UNCACHEABLE << L4RE_RM_CACHING_DS_SHIFT,
 
-  L4RE_RM_OVERMAP      = 0x10, /**< \brief Unmap memory already mapped in the region */
   L4RE_RM_SEARCH_ADDR  = 0x20, /**< \brief Search for a suitable address range */
   L4RE_RM_IN_AREA      = 0x40, /**< \brief Search only in area, or map into area */
   L4RE_RM_EAGER_MAP    = 0x80, /**< \brief Eagerly map the attached data space in. */
