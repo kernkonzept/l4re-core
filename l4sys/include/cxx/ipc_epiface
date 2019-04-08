@@ -139,6 +139,17 @@ inline Server_iface::~Server_iface() {}
 
 } // namespace Ipc_svr
 
+/**
+ * Base class for interface implementations.
+ *
+ * An Epiface is the base interface of objects registered in the server loop.
+ * Incomming IPC gets dispatched to the appropriate Epiface object where
+ * the call is then handled appropriately.
+ *
+ * \note Server loops are allowed to internally keep raw pointers to Epiface
+ *              objects for dispatching calls. Instances must therefore never
+ *              be copied or moved.
+ */
 struct Epiface
 {
   Epiface(Epiface const &) = delete;
@@ -242,6 +253,13 @@ private:
 
 inline Epiface::~Epiface() {}
 
+/**
+ * Epiface mixin for generic Kobject-based interfaces.
+ *
+ * \tparam RPC_IFACE  Data type of the IPC interface definition.
+ * \tparam BASE       Base Epiface class.
+ *
+ */
 template<typename RPC_IFACE, typename BASE = Epiface>
 struct Epiface_t0 : BASE
 {
@@ -260,6 +278,13 @@ struct Epiface_t0 : BASE
   { return L4::cap_cast<RPC_IFACE>(BASE::obj_cap()); }
 };
 
+/**
+ * Epiface implementation for interrupt handlers.
+ *
+ * \tparam Derived  Irq handler implementation class.
+ *                  The class must provide a single function handle_irq().
+ * \tparam BASE     Base Epiface class.
+ */
 template<typename Derived, typename BASE = Epiface,
          bool = cxx::is_polymorphic<BASE>::value>
 struct Irqep_t : Epiface_t0<void, BASE>
@@ -272,7 +297,7 @@ struct Irqep_t : Epiface_t0<void, BASE>
 
   /**
    * Get the (typed) capability to this object.
-   * \return Capability for the kernel object behind the server.
+   * \return Irq capability for the kernel object behind the server.
    */
   Cap<L4::Irq> obj_cap() const
   { return L4::cap_cast<L4::Irq>(BASE::obj_cap()); }
@@ -289,7 +314,7 @@ struct Irqep_t<Derived, BASE, false> : Epiface_t0<void, BASE>
 
   /**
    * Get the (typed) capability to this object.
-   * \return Capability for the kernel object behind the server.
+   * \return Irq capability for the kernel object behind the server.
    */
   Cap<L4::Irq> obj_cap() const
   { return L4::cap_cast<L4::Irq>(BASE::obj_cap()); }
@@ -479,7 +504,12 @@ struct Dispatch : Detail::Dispatch<typename EPIFACE::Interface>
 
 } // namespace Ipc
 
-
+/**
+ * Epiface implementation for Kobject-based interface implementations.
+ *
+ * \tparam Derived  Class providing the interface implementations.
+ * \tparam BASE     Epiface base class.
+ */
 template<typename Derived, typename IFACE, typename BASE = L4::Epiface,
          bool = cxx::is_polymorphic<BASE>::value>
 struct Epiface_t : Epiface_t0<IFACE, BASE>
