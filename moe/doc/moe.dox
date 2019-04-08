@@ -58,7 +58,7 @@
  *
  * \section l4re_moe_names Name-Space Provider
  *
- * Moe provides a name spaces conforming to the L4Re::Namespace
+ * Moe provides a name space conforming to the L4Re::Namespace
  * interface (see \ref api_l4re_namespace). Per default Moe creates a single
  * name space for the \ref l4re_moe_bootfs.  That is available as \c rom
  * in the initial objects of the init process.
