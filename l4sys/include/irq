@@ -289,6 +289,7 @@ public:
   class Info : public l4_icu_info_t
   {
   public:
+    /// True, if the ICU has support for MSIs.
     bool supports_msi() const { return features & F_msi; }
   };
 
