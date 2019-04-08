@@ -383,7 +383,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 		    char **argv, void (*app_init)(void), void (*app_fini)(void),
 		    void (*rtld_fini)(void), void *stack_end attribute_unused)
 {
-#if !defined __ARCH_HAS_NO_LDSO__ && !defined SHARED
+#ifndef SHARED
     unsigned long *aux_dat;
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
@@ -412,7 +412,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	__environ = &argv[argc];
     }
 
-#if !defined __ARCH_HAS_NO_LDSO__ && !defined SHARED
+#ifndef SHARED
     /* Pull stuff from the ELF header when possible */
     memset(auxvt, 0x00, sizeof(auxvt));
     aux_dat = (unsigned long*)__environ;
