@@ -162,7 +162,6 @@ public:
         Rm::Region &x = regions.value[num];
         x.start  = r->first.start();
         x.end    = r->first.end();
-        x.offset = r->second.offset();
 
         if (++num >= regions.max)
           break;

@@ -577,8 +577,6 @@ public:
     l4_addr_t start;
     /// Last address of the region.
     l4_addr_t end;
-    l4_addr_t offset;
-    L4::Cap<Dataspace> ds;
   };
 
   /**
