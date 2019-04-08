@@ -157,7 +157,7 @@ public:
   {
     typename DERIVED::Node r;
     unsigned num = 0;
-    while ((r = rm()->lower_bound(Region(addr, addr +1))))
+    while ((r = rm()->lower_bound(Region(addr))))
       {
         Rm::Region &x = regions.value[num];
         x.start  = r->first.start();
@@ -182,7 +182,7 @@ public:
   {
     typename DERIVED::Node r;
     unsigned num = 0;
-    while ((r = rm()->lower_bound_area(Region(addr, addr +1))))
+    while ((r = rm()->lower_bound_area(Region(addr))))
       {
         Rm::Area &x = areas.value[num];
         x.start  = r->first.start();

@@ -158,7 +158,7 @@ int region_map_server(SVR_DATA *sdata, RM *rm, IOS &ios)
 	    ios >> addr;
 	    typename RM::Node r;
 	    int num = 0;
-	    while ((r = rm->lower_bound(Region(addr, addr +1))))
+	    while ((r = rm->lower_bound(Region(addr))))
 	      {
 		Rm::Region x;
 		x.start  = r->first.start();
@@ -182,7 +182,7 @@ int region_map_server(SVR_DATA *sdata, RM *rm, IOS &ios)
 	    ios >> addr;
 	    typename RM::Node r;
 	    int num = 0;
-	    while ((r = rm->lower_bound_area(Region(addr, addr +1))))
+	    while ((r = rm->lower_bound_area(Region(addr))))
 	      {
 		Rm::Area x;
 		x.start  = r->first.start();
