@@ -26,7 +26,7 @@
 namespace L4 {
 
 /**
- * Virtual machine host address space
+ * Virtual machine host address space.
  * \ingroup l4_kernel_object_api
  *
  * L4::Vm is a specialisation of L4::Task, used for virtual machines.
