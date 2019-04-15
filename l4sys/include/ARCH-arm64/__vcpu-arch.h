@@ -82,10 +82,7 @@ enum L4_vcpu_e_field_ids
   L4_VCPU_E_GIC_ELSR0  = 0x0048,
   L4_VCPU_E_GIC_ELSR1  = 0x004c,
   L4_VCPU_E_GIC_APR    = 0x0050,
-  L4_VCPU_E_GIC_LR0    = 0x0054,
-  L4_VCPU_E_GIC_LR1    = 0x0058,
-  L4_VCPU_E_GIC_LR2    = 0x005c,
-  L4_VCPU_E_GIC_LR3    = 0x0060,
+  L4_VCPU_E_GIC_V2_LR0 = 0x0054,
 
   L4_VCPU_E_VPIDR      = 0x0064,
   L4_VCPU_E_VMPIDR     = 0x8068,
