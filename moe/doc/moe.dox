@@ -7,64 +7,86 @@
  * \em Moe is the first task which is usually started in L4Re-based systems.
  * The micro kernel starts \em Moe as the Root-Task.
  *
+ *
+ * \section l4re_moe_objects Moe objects
+ *
  * Moe provides a default implementation for the basic L4Re abstractions, such as
  * data spaces (L4Re::Dataspace), region maps (L4Re::Rm), memory allocators
- * (L4Re::Mem_alloc, L4::Factory), name spaces (L4Re::Namespace) and so on
- * (see \link api_l4re L4Re Interface\endlink).
+ * (L4::Factory, L4Re::Mem_alloc), name spaces (L4Re::Namespace) and so on
+ * (see \link api_l4re L4Re Interface\endlink). These are described in the
+ * following subsections.
  *
- * Moe consists of the following subsystems:
- * - \ref l4re_moe_names --- provides instances of name spaces
- * - \ref l4re_moe_bootfs --- provides access to the files loaded during
- *   platform boot (e.g., linked into the boot image or loaded via GRUB boot
- *   loader)
- * - \ref l4re_moe_log --- provides tagged log output for applications
- * - \ref l4re_moe_scheduler --- provides simple scheduler
- *   objects for scheduling policy enforcement
- * - \ref l4re_moe_memory_alloc --- provides
- *   allocation of physical RAM as data spaces, as well as allocation of
- *   the other L4Re objects provided by Moe
+ * \subsection l4re_moe_factory Factory
  *
- * \section l4re_moe_memory_alloc Memory Allocator, Generic Factory
+ * The factory in Moe is responsible for all kinds of dynamic object
+ * allocation.
  *
- * The generic factory in Moe is responsible for all kinds of dynamic object
- * allocation.  The interface is a combination of L4::Factory and, for
- * traditional reasons, L4Re::Mem_alloc.
- *
- * The generic factory interface allows allocation of the following objects:
+ * Moe's factory allows allocation of the following objects:
  * - L4Re::Namespace
  * - L4Re::Dataspace, RAM allocation
  * - L4Re::Dma_space, memory management for DMA-capable devices
- * - L4Re::Rm, Virtual memory management for application tasks
+ * - L4Re::Rm, virtual memory management for application tasks
  * - L4::Vcon (output only)
  * - L4::Scheduler, to provide a restricted priority / CPU range for clients
  * - L4::Factory, to provide a quota limited allocation for clients
  *
- * The memory allocator in Moe is the alternative interface for allocating
- * memory (RAM) in terms of L4Re::Dataspace-s (see also L4Re::Mem_alloc).
+ * \subsubsection l4re_moe_memory_alloc_factory Passing parameters to the create stream
  *
- * Dataspaces can be allocated with an arbitrary size. The granularity
- * for memory allocation however is the machine page size (#L4_PAGESIZE).
- * A dataspace user must be aware that, as a result of this page-size
- * granularity, there may be padding memory at the end of a dataspace
- * which is accessible to each client. Moe currently allows most dataspace
- * operations on this padding area. Nonetheless, the client must not make any
- * assumptions about the size or content of the padding area, as this
- * behaviour might change in the future.
+ * L4::Factory.create() returns a [create stream](\ref L4::Factory::S) that
+ * allows arguments to be forwarded to the the object creation in Moe.
  *
- * The provided data spaces can have different characteristics:
- * - Physically contiguous and pre-allocated
- * - Non contiguous and on-demand allocated with possible copy on write (COW)
+ * Objects that support additional parameters on their creation are presented
+ * next with a non-empty list of parameters. The parameters are listed in the
+ * order they should be provided to a create stream. Optional parameters are
+ * identified by their default values. Multiple entries in the next list
+ * denote different ways of initializing an object.
  *
+ * - L4Re::Namespace `()`
+ *    - For more details see \ref l4re_moe_names
+ * - L4Re::Dataspace `(l4_mword_t size, l4_umword_t flags = 0,
+                       l4_umword_t align = 0)`
+ *   - Argument `size`: size in bytes (mandatory)
+ *   - Argument `flags`: special dataspace properties, see
+ *     #L4Re::Mem_alloc::Mem_alloc_flags
+ *   - Argument `align`: Log2 alignment of dataspace if supported by allocator
+ *   - See detailed description of the parameters in L4Re::Mem_alloc::alloc()
+ *   - For details on the types of dataspaces provided by Moe, see
+ *     \ref l4re_moe_dataspace
+ * - L4Re::Dma_space `()`
+ *   - For more details see \ref l4re_moe_dma_space
+ * - L4Re::Rm `()`
+ *   - For more details see \ref l4re_moe_rm
+ * - L4::Vcon `(char const *label, l4_mword_t color = 7)`
+ *   - Argument `label`: label used as prefix for the console output
+ *   - Argument `color`: color code `0..15`
+ *   - For more details see \ref l4re_moe_log
+ * - L4::Vcon `(char const *label, char const *color = "w")`
+ *   - Argument `label`: label used as prefix for the console output
+ *   - Argument `color`: color code
+ *     - The color is identified by a single character
+ *     - Supported colors: `N`, `n`, `R`, `r`, `G`, `g`, `Y`, `y`, `B`, `b`,
+                           `M`, `m`, `C`, `c`, `W`, `w`
+ *   - For more details see \ref l4re_moe_log
+ * - L4::Scheduler `(l4_mword_t limit, l4_mword_t offset,
+                     l4_umword_t bitmap = ~0UL)`
+ *   - Argument `limit`: maximum priority
+ *   - Argument `offset`: priority offset
+ *   - Argument `bitmap`: bitmap of CPUs
+ *   - Argument `limit` must be greater than `offset`
+ *   - For more details see \ref l4re_moe_scheduler
+ * - L4::Factory `(l4_mword_t quota)`
+ *   - Argument `quota`: limit in bytes (not zero)
+ *   - The limit is deducted from the limit of the factory that creates
+ *     the new factory
  *
- * \section l4re_moe_names Name-Space Provider
+ * \subsection l4re_moe_names Namespace
  *
  * Moe provides a name space conforming to the L4Re::Namespace
  * interface (see \ref api_l4re_namespace). Per default Moe creates a single
- * name space for the \ref l4re_moe_bootfs.  That is available as \c rom
+ * name space for the \ref l4re_moe_bootfs. That is available as \c rom
  * in the initial objects of the init process.
  *
- *
- * \subsection l4re_moe_bootfs Boot FS
+ * \subsubsection l4re_moe_bootfs Boot FS
  *
  * The Boot FS subsystem provides access to the files loaded
  * during the platform boot (or available in ROM). These files are either
@@ -88,17 +110,41 @@
  * \note In order for a client to receive write permissions to the dataspace,
  * the corresponding cap also needs write permissions.
  *
- * \section l4re_moe_log Log Subsystem
+ * \subsection l4re_moe_dataspace Dataspace
+ *
+ * Dataspaces can be allocated with an arbitrary size. The granularity
+ * for memory allocation however is the machine page size (#L4_PAGESIZE).
+ * A dataspace user must be aware that, as a result of this page-size
+ * granularity, there may be padding memory at the end of a dataspace
+ * which is accessible to each client. Moe currently allows most dataspace
+ * operations on this padding area. Nonetheless, the client must not make any
+ * assumptions about the size or content of the padding area, as this
+ * behaviour might change in the future.
+ *
+ * The provided data spaces can have different characteristics:
+ * - Physically contiguous and pre-allocated
+ * - Non contiguous and on-demand allocated with possible copy on write (COW)
+ *
+ * \subsection l4re_moe_log Log Subsystem
  *
  * The logging facility of Moe provides per application tagged and
  * synchronized log output.
  *
- * \section l4re_moe_scheduler Scheduler Subsystem
+ * \subsection l4re_moe_dma_space DMA Space
  *
- * The scheduler subsystem provides a simple scheduler proxy.
+ * \subsection l4re_moe_scheduler Scheduler subsystem
  *
+ * The scheduler subsystem provides a simple scheduler proxy for scheduling
+ * policy enforcement.
  *
- * \section l4re_moe_options Command-Line Options
+ * The priority offset provided on the creation of a scheduler proxy defines
+ * the minimum priority assigned to threads which are scheduled by that
+ * instance of the scheduler proxy. The offset is implicitly added to priorities
+ * provided to L4::Scheduler.run_thread().
+ *
+ * \subsection l4re_moe_rm Region Map
+ *
+ * \section l4re_moe_options Command Line Options
  *
  * Moe's command-line syntax is:
  *

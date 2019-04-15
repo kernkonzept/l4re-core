@@ -1,0 +1,28 @@
+/**
+ * \page l4re_servers L4Re Servers
+ *  - \subpage l4re_servers_sigma0
+ *
+ * \page l4re_servers_sigma0 Sigma0, the Root-Pager
+ *
+ * Sigma0 is a special L4 server that serves as the origin for mapping the main
+ * memory. It is started by Fiasco.OC on the system boot and gets full access to
+ * all userland RAM and device memory. It functions as the pager (main memory
+ * provider) for Moe and as the provider for device memory for IO.
+ *
+ * \section Factory
+ *
+ * There is only one instance of Sigma0 in an L4Re system, which is made
+ * accessible to Moe via an IPC gate capability. Using this capability, Moe can
+ * request Sigma0 to create new communication channels to itself by creating
+ * additional IPC gate capabilities. This request is done using the L4::Factory
+ * interface. This is the only kind of object that can be created by the factory
+ * in Sigma0.
+ *
+ * List of objects that the Sigma0 Factory can create:
+ *
+ * - Sigma0 ()
+ *   - Use protocol id #L4_PROTO_SIGMA0 for creation
+ *   - No arguments supported
+ *
+ * \see l4sigma0_api
+ */
