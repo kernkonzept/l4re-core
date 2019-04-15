@@ -158,6 +158,141 @@ namespace Types {
   };
 
   /**
+   * Metafunction to get an unsigned integral type for the given size.
+   *
+   * \tparam SIZE  The size of the integer in bytes.
+   */
+  template<unsigned SIZE, bool = true> struct Int_for_size;
+
+  template<> struct Int_for_size<sizeof(unsigned char), true>
+  { typedef unsigned char type; };
+
+  template<> struct Int_for_size<sizeof(unsigned short),
+                                 (sizeof(unsigned short) > sizeof(unsigned char))>
+  { typedef unsigned short type; };
+
+  template<> struct Int_for_size<sizeof(unsigned),
+                                 (sizeof(unsigned) > sizeof(unsigned short))>
+  { typedef unsigned type; };
+
+  template<> struct Int_for_size<sizeof(unsigned long),
+                                 (sizeof(unsigned long) > sizeof(unsigned))>
+  { typedef unsigned long type; };
+
+  template<> struct Int_for_size<sizeof(unsigned long long),
+                                 (sizeof(unsigned long long) > sizeof(unsigned long))>
+  { typedef unsigned long long type; };
+
+  /**
+   * Metafunction to get an integral type of the same size as T.
+   *
+   * \tparam T  The type for which an unsigne dintegral type with
+   *            the same size is needed.
+   */
+  template<typename T> struct Int_for_type
+  {
+    /**
+     * The resulting unsigned integer type with the size like \a T.
+     */
+    typedef typename Int_for_size<sizeof(T)>::type type;
+  };
+
+  /**
+   * Helper macro to define a set of bitwise operators on an
+   * enum type.
+   *
+   * This allows to use the enum type as bitmask type with '&',
+   * '|', and '~' operators that keep the enum type as result.
+   */
+#define L4_TYPES_FLAGS_OPS_DEF(T)                                 \
+    friend constexpr T operator ~ (T f)                           \
+    {                                                             \
+      return T(~((typename L4::Types::Int_for_type<T>::type)f));  \
+    }                                                             \
+                                                                  \
+    friend constexpr T operator | (T l, T r)                      \
+    {                                                             \
+      return T(((typename L4::Types::Int_for_type<T>::type)l)     \
+               | ((typename L4::Types::Int_for_type<T>::type)r)); \
+    }                                                             \
+                                                                  \
+    friend constexpr T operator & (T l, T r)                      \
+    {                                                             \
+      return T(((typename L4::Types::Int_for_type<T>::type)l)     \
+               & ((typename L4::Types::Int_for_type<T>::type)r)); \
+    }
+
+  /**
+   * Mixin class to define a set of friend bitwise operators on DT.
+   *
+   * \tparam DT  The type usuailly inheriting from Flags_ops_t
+   *             with a member \a raw of enum or integral type.
+   */
+  template<typename DT>
+  struct Flags_ops_t
+  {
+    /// bitwise or for DT
+    friend constexpr DT operator | (DT l, DT r)
+    { return DT(l.raw | r.raw); }
+
+    /// bitwise and for DT
+    friend constexpr DT operator & (DT l, DT r)
+    { return DT(l.raw & r.raw); }
+
+    /// equality for DT
+    friend constexpr bool operator == (DT l, DT r)
+    { return l.raw == r.raw; }
+
+    /// inequality for DT
+    friend constexpr bool operator != (DT l, DT r)
+    { return l.raw != r.raw; }
+
+    /// bitwise or assignment for DT
+    DT operator |= (DT r)
+    {
+      static_cast<DT *>(this)->raw |= r.raw;
+      return *static_cast<DT *>(this);
+    }
+
+    /// bitwise and assignment for DT
+    DT operator &= (DT r)
+    {
+      static_cast<DT *>(this)->raw &= r.raw;
+      return *static_cast<DT *>(this);
+    }
+
+    /// explicit conversion to bool for tests
+    explicit constexpr operator bool () const
+    {
+      return static_cast<DT const *>(this)->raw != 0;
+    }
+
+    /// bitwise negation for DT
+    constexpr DT operator ~ () const
+    { return DT(~static_cast<DT const *>(this)->raw); }
+  };
+
+  /**
+   * Template type to define a flags type with bitwise operations.
+   *
+   * \tparam DT  determinator type to make the resulting type
+   *             unique (unused).
+   * \tparam T   underlying type used to store the bits, usually
+   *             an integral type.
+   */
+  template<typename DT, typename T>
+  struct Flags_t : Flags_ops_t<Flags_t<DT, T>>
+  {
+    /// Raw integral value.
+    T raw;
+    /// Default (uninitializing) costructor
+    Flags_t() = default;
+    /// Explicit initialization from the underlying type.
+    explicit constexpr Flags_t(T f) : raw(f) {}
+  };
+
+
+  /**
    * Boolean meta type
    * \tparam V  The boolean value
    * \ingroup l4_cxx_ipc_internal
