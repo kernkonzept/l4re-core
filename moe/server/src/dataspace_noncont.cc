@@ -45,8 +45,9 @@ Moe::Dataspace_noncont::free_page(Page &p) const throw()
 }
 
 Moe::Dataspace::Address
-Moe::Dataspace_noncont::address(l4_addr_t offset, L4_fpage_rights rights,
-                                l4_addr_t, l4_addr_t, l4_addr_t) const
+Moe::Dataspace_noncont::address(l4_addr_t offset,
+                                Flags flags, l4_addr_t,
+                                l4_addr_t, l4_addr_t) const
 {
   // XXX: There may be a problem with data spaces with
   //      page_size() > L4_PAGE_SIZE
@@ -56,10 +57,9 @@ Moe::Dataspace_noncont::address(l4_addr_t offset, L4_fpage_rights rights,
 
   Page &p = alloc_page(offset);
 
-  if (!is_writable())
-    rights = (rights & L4_FPAGE_X) ? L4_FPAGE_RX : L4_FPAGE_RO;
+  flags &= map_flags();
 
-  if ((rights & L4_FPAGE_W) && (p.flags() & Page_cow))
+  if (flags.w() && (p.flags() & Page_cow))
     {
       if (Moe::Pages::ref_count(*p) == 1)
         p.set(*p, p.flags() & ~Page_cow);
@@ -93,7 +93,7 @@ Moe::Dataspace_noncont::address(l4_addr_t offset, L4_fpage_rights rights,
       l4_cache_clean_data((l4_addr_t)*p, (l4_addr_t)(*p) + page_size() - 1);
     }
 
-  return Address(l4_addr_t(*p), page_shift(), rights, offset & (page_size()-1));
+  return Address(l4_addr_t(*p), page_shift(), flags, offset & (page_size()-1));
 }
 
 int
@@ -107,8 +107,7 @@ Moe::Dataspace_noncont::pre_allocate(l4_addr_t offset, l4_size_t size, unsigned 
   l4_size_t ps = page_size();
   for (l4_addr_t o = l4_trunc_size(offset, page_shift()); o < end_off; o += ps)
     {
-      Address a =
-        address(o, rights & L4_CAP_FPAGE_W ? L4_FPAGE_RWX : L4_FPAGE_RX);
+      Address a = address(o, map_flags(rights));
       if (a.is_nil())
         return a.error();
     }
@@ -161,7 +160,7 @@ namespace {
   class Mem_one_page : public Moe::Dataspace_noncont
   {
   public:
-    Mem_one_page(unsigned long size, unsigned long flags,
+    Mem_one_page(unsigned long size, Flags flags,
                  Single_page_alloc_base::Config cfg) throw()
     : Moe::Dataspace_noncont(size, flags, cfg)
     {}
@@ -187,7 +186,7 @@ namespace {
   public:
     unsigned long meta_size() const throw()
     { return (l4_round_size(num_pages()*sizeof(unsigned long), Meta_align_bits)); }
-    Mem_small(unsigned long size, unsigned long flags,
+    Mem_small(unsigned long size, Flags flags,
               Single_page_alloc_base::Config cfg)
     : Moe::Dataspace_noncont(size, flags, cfg)
     {
@@ -252,7 +251,7 @@ namespace {
     long meta1_size() const throw()
     { return l4_round_size(entries1() * sizeof(L1 *), 10); }
 
-    Mem_big(unsigned long size, unsigned long flags,
+    Mem_big(unsigned long size, Flags flags,
             Single_page_alloc_base::Config cfg)
     : Moe::Dataspace_noncont(size, flags, cfg)
     {
@@ -304,7 +303,7 @@ namespace {
 Moe::Dataspace_noncont *
 Moe::Dataspace_noncont::create(Moe::Q_alloc *q, unsigned long size,
                                Single_page_alloc_base::Config cfg,
-                               unsigned long flags)
+                               Flags flags)
 {
   if (size <= L4_PAGESIZE)
     return q->make_obj<Mem_one_page>(size, flags, cfg);

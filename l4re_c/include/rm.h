@@ -37,39 +37,42 @@ EXTERN_C_BEGIN
  * \brief Flags for region operations.
  * \ingroup api_l4re_c_rm
  */
-enum l4re_rm_flags_t {
-  L4RE_RM_READ_ONLY    = 0x01, /**< \brief Region is read-only */
-  L4RE_RM_NO_ALIAS     = 0x02, /**< \brief The region contains exclusive memory that is not mapped anywhere else */
-  L4RE_RM_PAGER        = 0x04, /**< \brief Region has a pager */
-  L4RE_RM_RESERVED     = 0x08, /**< \brief Region is reserved (blocked) */
-  L4RE_RM_EXECUTABLE   = 0x10, /**< \brief Region is executable */
+enum l4re_rm_flags_values {
+  L4RE_RM_F_R    = L4RE_DS_F_R, /**< Region is read-only */
+  L4RE_RM_F_W    = L4RE_DS_F_W,
+  L4RE_RM_F_X    = L4RE_DS_F_X,
+  L4RE_RM_F_RX   = L4RE_DS_F_RX,
+  L4RE_RM_F_RW   = L4RE_DS_F_RW,
+  L4RE_RM_F_RWX  = L4RE_DS_F_RWX,
 
-  L4RE_RM_CACHING_SHIFT    = 8, /**< Start of region mapper cache bits */
+  L4RE_RM_F_NO_ALIAS     = 0x200, /**< The region contains exclusive memory that is not mapped anywhere else */
+  L4RE_RM_F_PAGER        = 0x400, /**< Region has a pager */
+  L4RE_RM_F_RESERVED     = 0x800, /**< Region is reserved (blocked) */
 
-  /** Shift value for Dataspace to Rm cache bits */
-  L4RE_RM_CACHING_DS_SHIFT = L4RE_RM_CACHING_SHIFT - L4RE_DS_MAP_CACHING_SHIFT,
+  L4RE_RM_CACHING_SHIFT    = 4, /**< Start of region mapper cache bits */
 
   /** Mask of all region manager cache bits */
-  L4RE_RM_CACHING          = L4RE_DS_MAP_CACHING_MASK << L4RE_RM_CACHING_DS_SHIFT,
+  L4RE_RM_F_CACHING      = L4RE_DS_F_CACHING_MASK,
 
-  L4RE_RM_REGION_FLAGS = L4RE_RM_CACHING | 0x1f, /**< \brief Mask of all region flags */
+  L4RE_RM_REGION_FLAGS = 0xffff, /**< Mask of all region flags */
 
   /** Cache bits for normal cacheable memory */
-  L4RE_RM_CACHE_NORMAL   = L4RE_DS_MAP_NORMAL << L4RE_RM_CACHING_DS_SHIFT,
+  L4RE_RM_F_CACHE_NORMAL   = L4RE_DS_F_NORMAL,
 
   /** Cache bits for buffered (write combining) memory */
-  L4RE_RM_CACHE_BUFFERED = L4RE_DS_MAP_BUFFERABLE << L4RE_RM_CACHING_DS_SHIFT,
+  L4RE_RM_F_CACHE_BUFFERED = L4RE_DS_F_BUFFERABLE,
 
   /** Cache bits for uncached memory */
-  L4RE_RM_CACHE_UNCACHED = L4RE_DS_MAP_UNCACHEABLE << L4RE_RM_CACHING_DS_SHIFT,
+  L4RE_RM_F_CACHE_UNCACHED = L4RE_DS_F_UNCACHEABLE,
 
-  L4RE_RM_SEARCH_ADDR  = 0x20, /**< \brief Search for a suitable address range */
-  L4RE_RM_IN_AREA      = 0x40, /**< \brief Search only in area, or map into area */
-  L4RE_RM_EAGER_MAP    = 0x80, /**< \brief Eagerly map the attached data space in. */
-  L4RE_RM_ATTACH_FLAGS = 0xe0, /**< \brief Mask of all attach flags */
+  L4RE_RM_F_SEARCH_ADDR  = 0x20000, /**< Search for a suitable address range */
+  L4RE_RM_F_IN_AREA      = 0x40000, /**< Search only in area, or map into area */
+  L4RE_RM_F_EAGER_MAP    = 0x80000, /**< Eagerly map the attached data space in. */
+  L4RE_RM_F_ATTACH_FLAGS = 0xf0000, /**< Mask of all attach flags */
 };
 
-
+typedef l4_uint32_t l4re_rm_flags_t;
+typedef l4_uint64_t l4re_rm_offset_t;
 
 /**
  * \ingroup api_l4re_c_rm
@@ -80,7 +83,7 @@ enum l4re_rm_flags_t {
  */
 L4_CV L4_INLINE int
 l4re_rm_reserve_area(l4_addr_t *start, unsigned long size,
-                     unsigned flags, unsigned char align) L4_NOTHROW;
+                     l4re_rm_flags_t flags, unsigned char align) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_rm
@@ -101,8 +104,9 @@ l4re_rm_free_area(l4_addr_t addr) L4_NOTHROW;
  * This function is using the L4::Env::env()->rm() service.
  */
 L4_CV L4_INLINE int
-l4re_rm_attach(void **start, unsigned long size, unsigned long flags,
-               l4re_ds_t const mem, l4_addr_t offs,
+l4re_rm_attach(void **start, unsigned long size, l4re_rm_flags_t flags,
+               l4re_ds_t mem,
+               l4re_rm_offset_t offs,
                unsigned char align) L4_NOTHROW;
 
 
@@ -171,8 +175,9 @@ l4re_rm_detach_ds_unmap(void *addr, l4re_ds_t *ds,
  * \see L4Re::Rm::find
  */
 L4_CV L4_INLINE int
-l4re_rm_find(l4_addr_t *addr, unsigned long *size, l4_addr_t *offset,
-             unsigned *flags, l4re_ds_t *m) L4_NOTHROW;
+l4re_rm_find(l4_addr_t *addr, unsigned long *size,
+             l4re_rm_offset_t *offset,
+             l4re_rm_flags_t *flags, l4re_ds_t *m) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_rm
@@ -196,7 +201,7 @@ l4re_rm_show_lists(void) L4_NOTHROW;
  */
 L4_CV int
 l4re_rm_reserve_area_srv(l4_cap_idx_t rm, l4_addr_t *start, unsigned long size,
-                         unsigned flags, unsigned char align) L4_NOTHROW;
+                         l4re_rm_flags_t flags, unsigned char align) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_rm
@@ -211,7 +216,8 @@ l4re_rm_free_area_srv(l4_cap_idx_t rm, l4_addr_t addr) L4_NOTHROW;
  */
 L4_CV int
 l4re_rm_attach_srv(l4_cap_idx_t rm, void **start, unsigned long size,
-                   unsigned long flags, l4re_ds_t const mem, l4_addr_t offs,
+                   l4re_rm_flags_t flags, l4re_ds_t mem,
+                   l4re_rm_offset_t offs,
                    unsigned char align) L4_NOTHROW;
 
 
@@ -230,8 +236,8 @@ l4re_rm_detach_srv(l4_cap_idx_t rm, l4_addr_t addr,
  */
 L4_CV int
 l4re_rm_find_srv(l4_cap_idx_t rm, l4_addr_t *addr,
-                 unsigned long *size, l4_addr_t *offset,
-                 unsigned *flags, l4re_ds_t *m) L4_NOTHROW;
+                 unsigned long *size, l4re_rm_offset_t *offset,
+                 l4re_rm_flags_t *flags, l4re_ds_t *m) L4_NOTHROW;
 
 /**
  * \brief Dump region map internal data structures.
@@ -245,7 +251,7 @@ l4re_rm_show_lists_srv(l4_cap_idx_t rm) L4_NOTHROW;
 
 L4_CV L4_INLINE int
 l4re_rm_reserve_area(l4_addr_t *start, unsigned long size,
-                     unsigned flags, unsigned char align) L4_NOTHROW
+                     l4re_rm_flags_t flags, unsigned char align) L4_NOTHROW
 {
   return l4re_rm_reserve_area_srv(l4re_global_env->rm, start, size,
                                   flags, align);
@@ -258,8 +264,8 @@ l4re_rm_free_area(l4_addr_t addr) L4_NOTHROW
 }
 
 L4_CV L4_INLINE int
-l4re_rm_attach(void **start, unsigned long size, unsigned long flags,
-               l4re_ds_t const mem, l4_addr_t offs,
+l4re_rm_attach(void **start, unsigned long size, l4re_rm_flags_t flags,
+               l4re_ds_t mem, l4re_rm_offset_t offs,
                unsigned char align) L4_NOTHROW
 {
   return l4re_rm_attach_srv(l4re_global_env->rm, start, size,
@@ -295,8 +301,9 @@ l4re_rm_detach_ds_unmap(void *addr, l4re_ds_t *ds, l4_cap_idx_t task) L4_NOTHROW
 }
 
 L4_CV L4_INLINE int
-l4re_rm_find(l4_addr_t *addr, unsigned long *size, l4_addr_t *offset,
-             unsigned *flags, l4re_ds_t *m) L4_NOTHROW
+l4re_rm_find(l4_addr_t *addr, unsigned long *size,
+             l4re_rm_offset_t *offset,
+             l4re_rm_flags_t *flags, l4re_ds_t *m) L4_NOTHROW
 {
   return l4re_rm_find_srv(l4re_global_env->rm, addr, size, offset, flags, m);
 }

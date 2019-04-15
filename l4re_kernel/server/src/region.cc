@@ -51,7 +51,7 @@ Region_map::init()
 	  set_limits(start, end);
 	  break;
 	case L4::Kip::Mem_desc::Reserved:
-	  attach_area(start, end - start + 1, L4Re::Rm::Reserved);
+	  attach_area(start, end - start + 1, L4Re::Rm::F::Reserved);
 	  break;
 	default:
 	  break;
@@ -64,21 +64,23 @@ Region_map::init()
 
 
 int
-Region_ops::map(Region_handler const *h, l4_addr_t local_addr, Region const &r,
-                unsigned short access, l4_umword_t *result)
+Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
+                Region const &r, bool writable, l4_umword_t *result)
 {
   *result = 0;
-  if ((h->flags() & Rm::Reserved) || !h->memory().is_valid())
+  auto r_flags = h->flags();
+  if (!writable)
+    r_flags = r_flags & ~L4Re::Rm::F::W;
+
+  if ((r_flags & Rm::F::Reserved) || !h->memory().is_valid())
     return -L4_ENOENT;
 
-  if (h->flags() & Rm::Pager)
+  if (r_flags & Rm::F::Pager)
     {
       l4_mword_t result;
       L4::Ipc::Snd_fpage rfp;
       L4::cap_reinterpret_cast<L4::Pager>(h->memory())
-        ->page_fault((local_addr | ((access & L4Re::Dataspace::Map_x) ? 4 : 0)
-                      | ((access & L4Re::Dataspace::Map_w) ? 2 : 0)),
-                     -3UL, result,
+        ->page_fault((local_addr | (r_flags & L4Re::Rm::F::W ? 2 : 0)), -3UL, result,
                      L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE, 0),
                      rfp);
       return L4_EOK;
@@ -87,11 +89,7 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr, Region const &r,
     {
       l4_addr_t offset = local_addr - r.start() + h->offset();
       L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
-      unsigned flags = h->caching() >> Rm::Caching_ds_shift;
-      if (h->is_executable())
-        flags |= L4Re::Dataspace::Map_rx;
-      if (access & L4Re::Dataspace::Map_w)
-        flags |= L4Re::Dataspace::Map_rw;
+      L4Re::Dataspace::Flags flags = map_flags(r_flags);
       return ds->map(offset, flags, local_addr, r.start(), r.end());
     }
 }
@@ -123,10 +121,10 @@ void Region_ops::unmap(Region_handler const *h, l4_addr_t vaddr,
 void
 Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
 {
-  if ((h->flags() & Rm::Reserved) || !h->memory().is_valid())
+  if ((h->flags() & Rm::F::Reserved) || !h->memory().is_valid())
     return;
 
-  if (h->flags() & Rm::Pager)
+  if (h->flags() & Rm::F::Pager)
     return;
 
   L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());

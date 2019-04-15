@@ -97,15 +97,13 @@ L4Re_app_model::open_file(char const *name)
 void
 L4Re_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                                Const_dataspace ds, unsigned long offset,
-                               unsigned flags, char const *what)
+                               L4Re::Rm::Flags flags, char const *what)
 {
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_EAGER_MAP)
-    flags |= L4Re::Rm::Eager_map;
+    flags |= L4Re::Rm::F::Eager_map;
 
   chksys(_rm->attach(&addr, size, flags,
-                     L4::Ipc::make_cap(ds, (flags & L4Re::Rm::Read_only)
-                                           ? L4_CAP_FPAGE_RO
-                                           : L4_CAP_FPAGE_RW),
+                     L4::Ipc::make_cap(ds, flags.cap_rights()),
                      offset), what);
 }
 
@@ -127,7 +125,7 @@ L4Re_app_model::local_attach_ds(Const_dataspace ds, unsigned long size,
   unsigned long pg_size = l4_round_page(size + in_pg_offset);
   l4_addr_t vaddr = 0;
   chksys(_rm->attach(&vaddr, pg_size,
-                     L4Re::Rm::Search_addr | L4Re::Rm::Read_only,
+                     L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
                      ds, pg_offset),
          "ELF loader: attach temporary VMA");
   return vaddr + in_pg_offset;
@@ -141,7 +139,8 @@ L4Re_app_model::local_detach_ds(l4_addr_t addr, unsigned long /*size*/) const
 }
 
 int
-L4Re_app_model::prog_reserve_area(l4_addr_t *start, unsigned long size, unsigned flags, unsigned char align)
+L4Re_app_model::prog_reserve_area(l4_addr_t *start, unsigned long size,
+                                  L4Re::Rm::Flags flags, unsigned char align)
 {
   return _rm->reserve_area(start, size, flags, align);
 }
@@ -161,7 +160,7 @@ L4Re_app_model::alloc_app_stack()
   chksys(Global::allocator->alloc(_stack.stack_size(), stack));
 
   void *_s = (void*)(_stack.target_addr());
-  chksys(_rm->attach(&_s, _stack.stack_size(), Rm::Search_addr,
+  chksys(_rm->attach(&_s, _stack.stack_size(), Rm::F::Search_addr | Rm::F::RW,
                      L4::Ipc::make_cap_rw(stack), 0));
   _stack.set_target_stack(l4_addr_t(_s), _stack.stack_size());
   _stack.set_local_addr(l4_addr_t(_s));
@@ -253,7 +252,7 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
     = Global::local_rm->attach((void*)Mem_layout::Loader_vma_start,
                                Loader_stack_size,
                                Region_handler(__loader_stack, __loader_stack.cap()),
-                               Region_map::Search);
+                               L4Re::Rm::F::Search_addr);
 
   if (__loader_stack_p == L4_INVALID_PTR)
     {
@@ -262,7 +261,7 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
     }
 
   long ret
-    = L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size, 0,
+    = L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size, L4Re::Rm::F::RW,
                                      L4::Ipc::make_cap_rw(__loader_stack), 0);
   if (ret)
     {

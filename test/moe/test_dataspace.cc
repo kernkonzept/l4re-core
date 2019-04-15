@@ -242,7 +242,8 @@ TEST_P(TestAnyDs, ClearByte)
   auto ds = create_ds();
 
   L4Re::Rm::Unique_region<char *> r;
-  ASSERT_EQ(0, env->rm()->attach(&r, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&r, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  ds.get(), 0));
 
   r.get()[100] = 'x';
@@ -290,7 +291,8 @@ TEST_P(TestAnyDs, ClearFull)
 
   for (l4_addr_t off = 0; off < defsize(); off += L4_PAGESIZE)
     {
-      ASSERT_EQ(0, env->rm()->attach(&reg, L4_PAGESIZE, L4Re::Rm::Search_addr,
+      ASSERT_EQ(0, env->rm()->attach(&reg, L4_PAGESIZE,
+                                     L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                      ds.get(), off));
       reg.get()[0] = 'x';
     }
@@ -299,7 +301,8 @@ TEST_P(TestAnyDs, ClearFull)
 
   for (l4_addr_t off = 0; off < defsize(); off += L4_PAGESIZE)
     {
-      ASSERT_EQ(0, env->rm()->attach(&reg, L4_PAGESIZE, L4Re::Rm::Search_addr,
+      ASSERT_EQ(0, env->rm()->attach(&reg, L4_PAGESIZE,
+                                     L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                      ds.get(), off));
       EXPECT_EQ('\0', reg.get()[0]);
     }
@@ -364,13 +367,15 @@ TEST_P(TestCrossDs, CopyInBytesFromNormal)
   auto dest = create_ds();
 
   L4Re::Rm::Unique_region<char *> srcptr;
-  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  src.get(), 0));
   memset(srcptr.get(), 'x', strlen(cmpstr) + 10);
   strcpy(srcptr.get() + 2, cmpstr);
 
   L4Re::Rm::Unique_region<char *> destptr;
-  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  dest.get(), 0));
   memset(destptr.get(), '!', defsize() < L4_PAGESIZE ? defsize() : L4_PAGESIZE);
 
@@ -395,7 +400,8 @@ TEST_P(TestCrossDs, CopyInBytesFromUnallocated)
   auto dest = create_ds();
 
   L4Re::Rm::Unique_region<char *> destptr;
-  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  dest.get(), 0));
   memset(destptr.get(), 0, defsize() < L4_PAGESIZE ? defsize() : L4_PAGESIZE);
 
@@ -415,7 +421,8 @@ TEST_P(TestAnyDs, CopyInBytesFromUnallocatedFull)
   auto dest = create_ds();
 
   L4Re::Rm::Unique_region<char *> destptr;
-  ASSERT_EQ(0, env->rm()->attach(&destptr, defsize(), L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&destptr, defsize(),
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  dest.get(), 0));
   memset(destptr.get(), 0, defsize());
 
@@ -436,14 +443,16 @@ TEST_P(TestCrossDs, CopyInBytesToUnallocated)
   auto dest = create_ds();
 
   L4Re::Rm::Unique_region<char *> srcptr;
-  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  src.get(), 0));
   strcpy(srcptr.get() + 2, teststr);
 
   ASSERT_EQ(0, dest->copy_in(0, src.get(), 0, 20));
 
   L4Re::Rm::Unique_region<char *> destptr;
-  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  dest.get(), 0));
   EXPECT_EQ(0, strncmp(destptr.get() + 2, teststr, strlen(teststr) + 1));
 }
@@ -462,14 +471,16 @@ TEST_P(TestAnyDs, CopyInBytesToUnallocatedFull)
   auto dest = create_ds();
 
   L4Re::Rm::Unique_region<char *> srcptr;
-  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  src.get(), 0));
   strcpy(srcptr.get() + 100, teststr);
 
   ASSERT_EQ(0, dest->copy_in(0, src.get(), 0, defsize()));
 
   L4Re::Rm::Unique_region<char *> destptr;
-  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  dest.get(), 0));
   EXPECT_EQ(0, strncmp(destptr.get() + 100, teststr, strlen(teststr) + 1));
 }
@@ -493,13 +504,15 @@ TEST_P(TestCrossDs, CopyInBytesFromMultiplePages)
   auto dest = create_ds();
 
   L4Re::Rm::Unique_region<char *> srcptr;
-  ASSERT_EQ(0, env->rm()->attach(&srcptr, 2 * L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&srcptr, 2 * L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  src.get(), 0));
   memset(srcptr.get(), 'x', 2 * L4_PAGESIZE);
   strcpy(srcptr.get() + L4_PAGESIZE - 1, cmpstr);
 
   L4Re::Rm::Unique_region<char *> destptr;
-  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&destptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  dest.get(), 0));
   memset(destptr.get(), '!', defsize() < L4_PAGESIZE ? defsize() : L4_PAGESIZE);
 
@@ -529,7 +542,8 @@ TEST_P(TestCrossDs, CopyInBytesToMultiplePages)
   auto dest = create_ds();
 
   L4Re::Rm::Unique_region<char *> srcptr;
-  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(0, env->rm()->attach(&srcptr, L4_PAGESIZE,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                  src.get(), 0));
   memset(srcptr.get(), 'x',
          defsize_src() < L4_PAGESIZE ? defsize_src() : L4_PAGESIZE);
@@ -537,7 +551,8 @@ TEST_P(TestCrossDs, CopyInBytesToMultiplePages)
 
   L4Re::Rm::Unique_region<char *> destptr;
   ASSERT_EQ(0, env->rm()->attach(&destptr, 2 * L4_PAGESIZE,
-                                 L4Re::Rm::Search_addr, dest.get(), 0));
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
+                                 dest.get(), 0));
   memset(destptr.get(), '!', 2 * L4_PAGESIZE);
 
   ASSERT_EQ(0, dest->copy_in(L4_PAGESIZE - 2, src.get(), 0, strlen(cmpstr)));
@@ -654,10 +669,7 @@ TEST_P(TestCrossDs, CopyInBadRights)
 }
 
 /**
- * Normal dataspaces report to be copy-on-write, while all other
- * types of moe dataspaces are not copy-on-write capable.
- *
- * \see L4Re::Dataspace.flags
+ * \see L4Re::Dataspace::flags
  */
 TEST_P(TestAnyDs, Flags)
 {
@@ -666,10 +678,8 @@ TEST_P(TestAnyDs, Flags)
   auto ds = create_ds();
   auto ro_ds = make_ds_ro(ds.get());
 
-  EXPECT_EQ(L4Re::Dataspace::Map_rwx,
-            ds->flags() & L4Re::Dataspace::Map_flags_mask);
-  EXPECT_EQ(L4Re::Dataspace::Map_rx,
-            ro_ds->flags() & L4Re::Dataspace::Map_flags_mask);
+  EXPECT_EQ(L4Re::Dataspace::F::RWX, ds->flags() & L4Re::Dataspace::Flags(0xff));
+  EXPECT_EQ(L4Re::Dataspace::Flags(0), ro_ds->flags() & L4Re::Dataspace::F::W);
 }
 
 /**
@@ -686,7 +696,7 @@ TEST_P(TestAnyDs, AllocatedIsEmptyRo)
   Fenced_auto_area reg(defsize());
 
   for (l4_addr_t off = 0; off < defsize(); off += L4_PAGESIZE)
-    EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::Map_ro, reg.start() + off,
+    EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::F::Ro, reg.start() + off,
                          reg.start(), reg.end() - 1));
 
   EXPECT_TRUE(reg.check_fence());
@@ -708,7 +718,7 @@ TEST_P(TestAnyDs, AllocatedIsEmptyRw)
   Fenced_auto_area reg(defsize());
 
   for (l4_addr_t off = 0; off < defsize(); off += L4_PAGESIZE)
-    EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::Map_rw, reg.start() + off,
+    EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::F::RW, reg.start() + off,
                          reg.start(), reg.end() - 1));
   EXPECT_TRUE(reg.check_fence());
   for (size_t i = 0; i < defsize(); ++i)
@@ -729,7 +739,7 @@ TEST_P(TestAnyDs, MapFull)
 
   for (l4_addr_t off = 0; off < defsize(); off += L4_PAGESIZE)
     {
-      EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::Map_rw, reg.start() + off,
+      EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::F::RW, reg.start() + off,
                            reg.start(), reg.end() - 1));
       // that should allow us to write on the mapped address
       reg.data<char>()[off] = 'x';
@@ -753,7 +763,7 @@ TEST_P(TestAnyDs, MapMinimal)
 
   for (l4_addr_t off = 0; off < defsize(); off += L4_PAGESIZE)
     {
-      EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::Map_rw, reg.start() + off,
+      EXPECT_EQ(0, ds->map(off, L4Re::Dataspace::F::RW, reg.start() + off,
                            reg.start() + off, reg.start() + off));
       // that should allow us to write on the mapped address
       reg.data<char>()[off] = 'x';
@@ -773,13 +783,13 @@ TEST_F(TestGeneralDs, MapBadRegion)
   auto ds = create_ds();
   Fenced_auto_area reg(L4_PAGESIZE);
 
-  EXPECT_EQ(0, ds->map(0, 0, reg.start(), reg.end(), reg.start()));
+  EXPECT_EQ(0, ds->map(0, L4Re::Dataspace::Flags(0), reg.start(), reg.end(), reg.start()));
   EXPECT_TRUE(reg.check_fence());
-  EXPECT_EQ(0, ds->map(100, 0, reg.start(), reg.end(), reg.start()));
+  EXPECT_EQ(0, ds->map(100, L4Re::Dataspace::Flags(0), reg.start(), reg.end(), reg.start()));
   EXPECT_TRUE(reg.check_fence());
-  EXPECT_EQ(0, ds->map(0, 0, reg.start(), reg.start(), ~0UL));
+  EXPECT_EQ(0, ds->map(0, L4Re::Dataspace::Flags(0), reg.start(), reg.start(), ~0UL));
   EXPECT_TRUE(reg.check_fence());
-  EXPECT_EQ(0, ds->map(0, 0, reg.start(), ~0UL, reg.end() - 1));
+  EXPECT_EQ(0, ds->map(0, L4Re::Dataspace::Flags(0), reg.start(), ~0UL, reg.end() - 1));
   EXPECT_TRUE(reg.check_fence());
 }
 
@@ -795,7 +805,7 @@ TEST_F(TestGeneralDs, MapBadOffset)
   auto ds = create_ds(0, L4_PAGESIZE);
   Fenced_auto_area reg(L4_PAGESIZE);
 
-  EXPECT_EQ(-L4_ERANGE, ds->map(L4_PAGESIZE + 2, 0, reg.start(),
+  EXPECT_EQ(-L4_ERANGE, ds->map(L4_PAGESIZE + 2, L4Re::Dataspace::Flags(0), reg.start(),
                                 reg.start(), reg.end()));
   EXPECT_TRUE(reg.check_fence());
 }
@@ -814,7 +824,7 @@ TEST_P(TestAnyDs, MapInsufficientRights)
   auto ro_ds = make_ds_ro(ds.get());
   Fenced_auto_area reg(L4_PAGESIZE);
 
-  EXPECT_EQ(-L4_EPERM, ro_ds->map(0, L4Re::Dataspace::Map_rw, reg.start(),
+  EXPECT_EQ(-L4_EPERM, ro_ds->map(0, L4Re::Dataspace::F::RW, reg.start(),
                                   reg.start(), reg.end() - 1));
   EXPECT_TRUE(reg.check_fence());
 }
@@ -830,7 +840,7 @@ TEST_P(TestAnyDs, MapRegionFull)
 
   auto ds = create_ds();
   Fenced_auto_area reg(defsize());
-  ASSERT_EQ(0, ds->map_region(0, L4Re::Dataspace::Map_rw,
+  ASSERT_EQ(0, ds->map_region(0, L4Re::Dataspace::F::RW,
                               reg.start(), reg.end()));
   EXPECT_TRUE(reg.check_fence());
   // check that we can write to the entire area
@@ -851,7 +861,7 @@ TEST_F(TestGeneralDs, MapRegionTargetRegionTooLarge)
   auto ds = create_ds(0, L4_PAGESIZE);
   Fenced_auto_area reg(L4_PAGESIZE);
 
-  EXPECT_L4ERR(L4_ERANGE, ds->map_region(0, L4Re::Dataspace::Map_rw,
+  EXPECT_L4ERR(L4_ERANGE, ds->map_region(0, L4Re::Dataspace::F::RW,
                                          reg.start(), reg.end() + L4_PAGESIZE))
     << "Request mapping into an area that is twice as big as the datapsace.";
   EXPECT_TRUE(reg.check_fence())
@@ -871,13 +881,13 @@ TEST_F(TestGeneralDs, MapRegionMaxAddrSmallerMinAddr)
   auto ds = create_ds(0, L4_PAGESIZE);
   Fenced_auto_area reg(L4_PAGESIZE);
 
-  EXPECT_L4OK(ds->map_region(0, L4Re::Dataspace::Map_rw,
+  EXPECT_L4OK(ds->map_region(0, L4Re::Dataspace::F::RW,
                              reg.start(), reg.start()))
     << "Request mapping into an area where start and end address are the same.";
   EXPECT_TRUE(reg.check_fence())
     << "The memory around the target area is untouched.";
 
-  EXPECT_L4OK(ds->map_region(0, L4Re::Dataspace::Map_rw,
+  EXPECT_L4OK(ds->map_region(0, L4Re::Dataspace::F::RW,
                              reg.end(), reg.start()))
     << "Request mapping into an area with max_addr < min_addr.";
   EXPECT_TRUE(reg.check_fence())
@@ -898,7 +908,7 @@ TEST_P(TestAnyDs, MapRegionInsufficientRights)
   auto ro_ds = make_ds_ro(ds.get());
   Fenced_auto_area reg(L4_PAGESIZE);
 
-  EXPECT_EQ(-L4_EPERM, ro_ds->map_region(0, L4Re::Dataspace::Map_rw,
+  EXPECT_EQ(-L4_EPERM, ro_ds->map_region(0, L4Re::Dataspace::F::RW,
                                   reg.start(), reg.end() - 1));
   EXPECT_TRUE(reg.check_fence());
 }

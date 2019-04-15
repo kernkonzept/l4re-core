@@ -74,13 +74,13 @@ TEST_F(TestMemAlloc, Simple)
   // read-only
   L4Re::Rm::Unique_region<char const *> ro_region;
   ASSERT_EQ(0, env->rm()->attach(&ro_region, 1024,
-                                 L4Re::Rm::Search_addr | L4Re::Rm::Read_only,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
                                  ds.get()));
   char rd = ro_region.get()[1023];
   // read/write
   L4Re::Rm::Unique_region<char *> rw_region;
   ASSERT_EQ(0, env->rm()->attach(&rw_region, 1024,
-                                 L4Re::Rm::Search_addr,
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                                  L4::Ipc::make_cap_rw(ds.get())));
   rw_region.get()[1023] = rd;
 
@@ -218,7 +218,8 @@ TEST_F(TestMemAlloc, ContinuousMax)
   L4Re::Rm::Unique_region<char *> ds2_region;
   ASSERT_L4OK(env->mem_alloc()->alloc(left_size, ds2.get()));
   ASSERT_L4OK(env->rm()->attach(&ds2_region, left_size,
-                                L4Re::Rm::Search_addr | L4Re::Rm::Eager_map,
+                                L4Re::Rm::F::Search_addr | L4Re::Rm::F::Eager_map
+                                | L4Re::Rm::F::RWX,
                                 ds2.get()));
 }
 
@@ -255,5 +256,6 @@ TEST_F(TestMemAlloc, Superpages)
 
   L4Re::Rm::Unique_region<char *> ds_region;
   ASSERT_EQ(0, env->rm()->attach(&ds_region, L4_SUPERPAGESIZE,
-                                 L4Re::Rm::Search_addr, ds.get()));
+                                 L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
+                                 ds.get()));
 }

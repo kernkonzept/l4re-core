@@ -132,11 +132,11 @@ Moe_app_model::open_file(char const *name)
 void
 Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                               Const_dataspace ds, unsigned long offset,
-                              unsigned flags, char const *what)
+                              L4Re::Rm::Flags flags, char const *what)
 {
   void *x = _task->rm()->attach((void*)addr, size,
                                 Region_handler(ds, L4_INVALID_CAP,
-                                               offset, flags),
+                                               offset, flags.region_flags()),
                                 flags);
   if (x == L4_INVALID_PTR)
     chksys(-L4_ENOMEM, what);
@@ -144,7 +144,7 @@ Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
 
 int
 Moe_app_model::prog_reserve_area(l4_addr_t *start, unsigned long size,
-                                 unsigned flags, unsigned char align)
+                                 L4Re::Rm::Flags flags, unsigned char align)
 {
   l4_addr_t a = _task->rm()->attach_area(*start, size, flags, align);
   if (a == L4_INVALID_ADDR)

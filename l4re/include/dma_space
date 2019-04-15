@@ -151,7 +151,8 @@ public:
    * \return 0 in the case of success, a negative error code otherwise.
    */
   L4_INLINE_RPC(
-      long, map, (L4::Ipc::Cap<L4Re::Dataspace> src, l4_addr_t offset,
+      long, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
+                  L4Re::Dataspace::Offset offset,
                   L4::Ipc::In_out<l4_size_t *> size,
                   Attributes attrs, Direction dir,
                   Dma_addr *dma_addr));

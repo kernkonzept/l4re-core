@@ -132,12 +132,12 @@ extern char libc_be_sig_return_trap[];
 
 static bool range_ok(l4_addr_t start, unsigned long size)
 {
-  l4_addr_t offset;
-  unsigned flags;
+  L4Re::Rm::Offset offset;
+  L4Re::Rm::Flags flags;
   L4::Cap<L4Re::Dataspace> ds;
 
   return !L4Re::Env::env()->rm()->find(&start, &size, &offset, &flags, &ds)
-         && !(flags & L4Re::Rm::Read_only);
+         && (flags.w());
 }
 
 static void dump_rm()

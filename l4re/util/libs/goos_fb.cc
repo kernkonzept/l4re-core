@@ -111,7 +111,10 @@ Goos_fb::attach_buffer()
 {
   void *fb_addr = 0;
   L4Re::chkcap(_goos);
-  L4Re::chksys(L4Re::Env::env()->rm()->attach(&fb_addr, _buffer->size(), L4Re::Rm::Search_addr, _buffer, 0, L4_SUPERPAGESHIFT), "attaching frame-buffer memory");
+  L4Re::chksys(L4Re::Env::env()->rm()
+      ->attach(&fb_addr, _buffer->size(),
+               L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW, _buffer,
+               0, L4_SUPERPAGESHIFT), "attaching frame-buffer memory");
   return fb_addr;
 }
 

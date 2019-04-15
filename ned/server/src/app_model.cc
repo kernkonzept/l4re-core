@@ -35,28 +35,26 @@ App_model::open_file(char const *name)
 void
 App_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                           Const_dataspace ds, unsigned long offset,
-                          unsigned flags, char const *what)
+                          L4Re::Rm::Flags flags, char const *what)
 {
-  unsigned rh_flags = flags;
+  auto rh_flags = flags;
 
   if (0)
     printf("%s:%s: from ds:%lx+%lx... @%lx+%lx\n",
            __func__, what, ds.cap(), offset, addr, size);
 
   if (!ds.is_valid())
-    rh_flags |= L4Re::Rm::Reserved;
+    rh_flags |= L4Re::Rm::F::Reserved;
 
   l4_addr_t _addr = addr;
   L4Re::chksys(_task->rm()->attach(&_addr, size, rh_flags,
-                                   L4::Ipc::make_cap(ds.get(), (flags & L4Re::Rm::Read_only)
-                                                               ? L4_CAP_FPAGE_RO
-                                                               : L4_CAP_FPAGE_RW),
+                                   L4::Ipc::make_cap(ds.get(), flags.cap_rights()),
                                    offset, 0), what);
 }
 
 int
 App_model::prog_reserve_area(l4_addr_t *start, unsigned long size,
-                             unsigned flags, unsigned char align)
+                             L4Re::Rm::Flags flags, unsigned char align)
 {
   return _task->rm()->reserve_area(start, size, flags, align);
 }
@@ -82,8 +80,9 @@ App_model::local_attach_ds(Const_dataspace ds, unsigned long size,
   unsigned long pg_size = l4_round_page(size + in_pg_offset);
   l4_addr_t vaddr = 0;
   chksys(rm->attach(&vaddr, pg_size,
-	L4Re::Rm::Search_addr | L4Re::Rm::Read_only,
-	ds.get(), pg_offset), "attach temporary VMA");
+                    L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
+                    ds.get(), pg_offset),
+         "attach temporary VMA");
   return vaddr + in_pg_offset;
 }
 

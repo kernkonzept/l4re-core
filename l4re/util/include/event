@@ -96,7 +96,8 @@ public:
 
     Rm::Unique_region<void*> buf;
 
-    if ((r = env->rm()->attach(&buf, sz, L4Re::Rm::Search_addr,
+    if ((r = env->rm()->attach(&buf, sz,
+                               L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                                L4::Ipc::make_cap_rw(ev_ds.get()))))
       return r;
 
@@ -138,7 +139,8 @@ public:
 
     Rm::Unique_region<void*> buf;
 
-    if ((r = env->rm()->attach(&buf, sz, L4Re::Rm::Search_addr,
+    if ((r = env->rm()->attach(&buf, sz,
+                               L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                                L4::Ipc::make_cap_rw(ev_ds.get()))))
       return r;
 

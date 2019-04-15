@@ -132,7 +132,7 @@ class Fenced_auto_area
 {
 public:
   Fenced_auto_area(unsigned long size,
-                          unsigned flags = L4Re::Rm::Search_addr,
+                          L4Re::Rm::Flags flags = L4Re::Rm::F::Search_addr,
                           unsigned long fence_size = L4_PAGESIZE)
   : _size(2 * fence_size + l4_round_size(size, L4_PAGESHIFT)),
     _fence_size(fence_size)
@@ -145,13 +145,13 @@ public:
     _front_fence = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(fence_size, _front_fence.get(), 0));
     L4Re::chksys(env->rm()->attach(&_front_region, fence_size,
-                                   L4Re::Rm::In_area, _front_fence.get()));
+                                   L4Re::Rm::F::In_area | L4Re::Rm::F::RWX, _front_fence.get()));
     memset(_front_region.get(), '{', fence_size);
 
     _back_fence = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(fence_size, _back_fence.get(), 0));
     L4Re::chksys(env->rm()->attach(&_back_region, fence_size,
-                                   L4Re::Rm::In_area, _back_fence.get()));
+                                   L4Re::Rm::F::In_area | L4Re::Rm::F::RWX, _back_fence.get()));
     memset(_back_region.get(), '}', fence_size);
   }
 

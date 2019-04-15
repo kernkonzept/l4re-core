@@ -35,7 +35,7 @@ public:
   {
     L4Re::chksys(L4Re::Env::env()->rm()->reserve_area(
                    &vaddr, 0x10000000,
-                   L4Re::Rm::Reserved | L4Re::Rm::Search_addr),
+                   L4Re::Rm::F::Reserved | L4Re::Rm::F::Search_addr),
                  "Reserve a virtual address space for test mappings.");
 
     sigma0_cap = L4Re::chkcap(L4Re::Env::env()->get_cap<void>("sigma0"),

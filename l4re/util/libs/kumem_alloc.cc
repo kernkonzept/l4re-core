@@ -37,7 +37,7 @@ kumem_alloc(l4_addr_t *v, unsigned pages_order,
 
   *v = 0;
   if ((r = rm->reserve_area(v, sz,
-                            L4Re::Rm::Reserved | L4Re::Rm::Search_addr,
+                            L4Re::Rm::F::Reserved | L4Re::Rm::F::Search_addr,
                             sh)))
     return r;
 

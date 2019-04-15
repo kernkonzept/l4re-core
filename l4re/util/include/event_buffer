@@ -58,7 +58,8 @@ public:
     l4_addr_t sz = ds->size();
     _buf = 0;
 
-    long r = rm->attach(&_buf, sz, L4Re::Rm::Search_addr,
+    long r = rm->attach(&_buf, sz,
+                        L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                         L4::Ipc::make_cap_rw(ds));
     if (r < 0)
       return r;

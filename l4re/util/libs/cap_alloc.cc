@@ -55,7 +55,8 @@ namespace
       _ds = L4::Cap<L4Re::Dataspace>(e->first_free_cap() << L4_CAP_SHIFT);
       l4_check(e->mem_alloc()->alloc(sizeof(Storage), _ds) >= 0);
       void *a = 0;
-      l4_check(e->rm()->attach(&a, sizeof(Storage), L4Re::Rm::Search_addr,
+      l4_check(e->rm()->attach(&a, sizeof(Storage),
+                               L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                                L4::Ipc::make_cap_rw(_ds)) >= 0);
       setup(a, Caps, e->first_free_cap() + 1);
     }

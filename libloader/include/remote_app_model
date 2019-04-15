@@ -109,20 +109,23 @@ public:
   {
     this->prog_attach_ds(this->prog_info()->utcbs_start,
                          1UL << this->prog_info()->utcbs_log2size,
-                         this->reserved_area(), 0, 0, "attaching utcb area");
+                         this->reserved_area(), 0, L4Re::Rm::F::RW,
+                         "attaching utcb area");
   }
 
   void prog_attach_kip()
   {
     this->prog_attach_ds(this->prog_info()->kip, L4_PAGESIZE,
                          this->local_kip_ds(), 0,
-                         L4Re::Rm::Read_only, "attaching KIP segment");
+                         L4Re::Rm::F::RX,
+                         "attaching KIP segment");
   }
 
   void prog_attach_stack(typename Base::Dataspace app_stack)
   {
     this->prog_attach_ds(this->_stack.target_addr(), this->_stack.stack_size(),
-                         app_stack, 0, 0, "attaching stack segment");
+                         app_stack, 0, L4Re::Rm::F::RW,
+                         "attaching stack segment");
   }
 
   void start_prog(L4Re::Env const *env)

@@ -43,11 +43,12 @@ TEST_F(Rw_module, WriteToModule)
   ASSERT_L4OK(ds->info(&s))
     << "ds info";
 
-  ASSERT_EQ(L4Re::Dataspace::Map_w, (s.flags & L4Re::Dataspace::Map_w))
+  ASSERT_EQ(L4Re::Dataspace::Flags(L4Re::Dataspace::F::RW), (s.flags & L4Re::Dataspace::F::RW))
     << "ds writable";
 
   L4Re::Rm::Unique_region<void *> base;
-  ASSERT_L4OK(env->rm()->attach(&base, s.size, L4Re::Rm::Search_addr,
+  ASSERT_L4OK(env->rm()->attach(&base, s.size,
+                                L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                                 L4::Ipc::make_cap_rw(ds.get())))
     << "attach ds to rm";
 

@@ -37,14 +37,18 @@ EXTERN_C_BEGIN
  * \ingroup api_l4re_c_ds
  */
 typedef l4_cap_idx_t l4re_ds_t;
+typedef l4_uint64_t l4re_ds_size_t;
+typedef l4_uint64_t l4re_ds_offset_t;
+typedef l4_uint64_t l4re_ds_map_addr_t;
+typedef unsigned long l4re_ds_flags_t;
 
 /**
  * \brief Information about the data space.
  * \ingroup api_l4re_c_ds
  */
 typedef struct {
-  unsigned long size;   ///< size
-  unsigned long flags;  ///< flags
+  l4re_ds_size_t size;    ///< size
+  l4re_ds_flags_t flags;  ///< flags
 } l4re_ds_stats_t;
 
 /**
@@ -52,25 +56,21 @@ typedef struct {
  * \ingroup api_l4re_c_ds
  */
 enum l4re_ds_map_flags {
-  L4RE_DS_MAP_F_R = 1,  ///< Request readable mapping.
-  L4RE_DS_MAP_F_W = 2,  ///< Request writable mapping.
-  L4RE_DS_MAP_F_X = 4,  ///< Request executable mapping.
+  L4RE_DS_F_R   = L4_FPAGE_RO,
+  L4RE_DS_F_W   = L4_FPAGE_W,
+  L4RE_DS_F_X   = L4_FPAGE_X,
+  L4RE_DS_F_RW  = L4_FPAGE_RW,
+  L4RE_DS_F_RX  = L4_FPAGE_RX,
+  L4RE_DS_F_RWX = L4_FPAGE_RWX,
 
-  /** Request read-only mapping. */
-  L4RE_DS_MAP_F_RO  = L4RE_DS_MAP_F_R,
-  /** Request read-writable mapping. */
-  L4RE_DS_MAP_F_RW  = L4RE_DS_MAP_F_R | L4RE_DS_MAP_F_W,
-  /** Request read-executable mapping. */
-  L4RE_DS_MAP_F_RX  = L4RE_DS_MAP_F_R | L4RE_DS_MAP_F_X,
-  /** Request read-write-executable mapping. */
-  L4RE_DS_MAP_F_RWX = L4RE_DS_MAP_F_RW | L4RE_DS_MAP_F_X,
+  L4RE_DS_F_RIGHTS_MASK = 0x0f,
 
-  L4RE_DS_MAP_NORMAL        = 0x00, ///< request normal memory mapping
-  L4RE_DS_MAP_CACHEABLE     = L4RE_DS_MAP_NORMAL, ///< request normal memory mapping
-  L4RE_DS_MAP_BUFFERABLE    = 0x10, ///< request bufferable (write buffered) mappings
-  L4RE_DS_MAP_UNCACHEABLE   = 0x20, ///< request uncacheable memory mappings
-  L4RE_DS_MAP_CACHING_MASK  = 0x30, ///< mask for caching flags
-  L4RE_DS_MAP_CACHING_SHIFT = 4,    ///< shift value for caching flags
+  L4RE_DS_F_NORMAL        = 0x00, ///< request normal memory mapping
+  L4RE_DS_F_CACHEABLE     = L4RE_DS_F_NORMAL, ///< request normal memory mapping
+  L4RE_DS_F_BUFFERABLE    = 0x10, ///< request bufferable (write buffered) mappings
+  L4RE_DS_F_UNCACHEABLE   = 0x20, ///< request uncacheable memory mappings
+  L4RE_DS_F_CACHING_MASK  = 0x30, ///< mask for caching flags
+  L4RE_DS_F_CACHING_SHIFT = 4,    ///< shift value for caching flags
 };
 
 /**
@@ -79,8 +79,12 @@ enum l4re_ds_map_flags {
  * \see L4Re::Dataspace::map
  */
 L4_CV int
-l4re_ds_map(const l4re_ds_t ds, l4_addr_t offset, unsigned long flags,
-            l4_addr_t local_addr, l4_addr_t min_addr, l4_addr_t max_addr) L4_NOTHROW;
+l4re_ds_map(l4re_ds_t ds,
+            l4re_ds_offset_t offset,
+            l4re_ds_flags_t flags,
+            l4re_ds_map_addr_t local_addr,
+            l4re_ds_map_addr_t min_addr,
+            l4re_ds_map_addr_t max_addr) L4_NOTHROW;
 
 /**
  * \internal
@@ -88,8 +92,11 @@ l4re_ds_map(const l4re_ds_t ds, l4_addr_t offset, unsigned long flags,
  * \see L4Re::Dataspace::map_page
  */
 L4_CV int
-l4re_ds_map_region(const l4re_ds_t ds, l4_addr_t offset, unsigned long flags,
-                   l4_addr_t min_addr, l4_addr_t max_addr) L4_NOTHROW;
+l4re_ds_map_region(l4re_ds_t ds,
+                   l4re_ds_offset_t offset,
+                   l4re_ds_flags_t flags,
+                   l4re_ds_map_addr_t min_addr,
+                   l4re_ds_map_addr_t max_addr) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
@@ -98,7 +105,8 @@ l4re_ds_map_region(const l4re_ds_t ds, l4_addr_t offset, unsigned long flags,
  * \see L4Re::Dataspace::clear
  */
 L4_CV long
-l4re_ds_clear(const l4re_ds_t ds, l4_addr_t offset, unsigned long size) L4_NOTHROW;
+l4re_ds_clear(l4re_ds_t ds, l4re_ds_offset_t offset,
+              l4re_ds_size_t size) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
@@ -106,8 +114,9 @@ l4re_ds_clear(const l4re_ds_t ds, l4_addr_t offset, unsigned long size) L4_NOTHR
  * \see L4Re::Dataspace::allocate
  */
 L4_CV long
-l4re_ds_allocate(const l4re_ds_t ds,
-                 l4_addr_t offset, l4_size_t size) L4_NOTHROW;
+l4re_ds_allocate(l4re_ds_t ds,
+                 l4re_ds_offset_t offset,
+                 l4re_ds_size_t size) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
@@ -115,29 +124,30 @@ l4re_ds_allocate(const l4re_ds_t ds,
  * \see L4Re::Dataspace::copy_in
  */
 L4_CV int
-l4re_ds_copy_in(const l4re_ds_t ds, l4_addr_t dst_offs, const l4re_ds_t src,
-                l4_addr_t src_offs, unsigned long size) L4_NOTHROW;
+l4re_ds_copy_in(l4re_ds_t ds, l4re_ds_offset_t dst_offs,
+                l4re_ds_t src, l4re_ds_offset_t src_offs,
+                l4re_ds_size_t size) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
  * \return Size of the dataspace in bytes.
  * \see L4Re::Dataspace::size
  */
-L4_CV unsigned long
-l4re_ds_size(const l4re_ds_t ds) L4_NOTHROW;
+L4_CV l4re_ds_size_t
+l4re_ds_size(l4re_ds_t ds) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
  * \see L4Re::Dataspace::flags
  */
-L4_CV long
-l4re_ds_flags(const l4re_ds_t ds) L4_NOTHROW;
+L4_CV l4re_ds_flags_t
+l4re_ds_flags(l4re_ds_t ds) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
  * \see L4Re::Dataspace::info
  */
 L4_CV int
-l4re_ds_info(const l4re_ds_t ds, l4re_ds_stats_t *stats) L4_NOTHROW;
+l4re_ds_info(l4re_ds_t ds, l4re_ds_stats_t *stats) L4_NOTHROW;
 
 EXTERN_C_END

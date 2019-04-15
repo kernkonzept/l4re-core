@@ -30,14 +30,14 @@ Region_map::Region_map()
       l4_addr_t start = m.start();
       l4_addr_t end = m.end();
 
-      attach_area(start, end - start + 1, L4Re::Rm::Reserved);
+      attach_area(start, end - start + 1, L4Re::Rm::F::Reserved);
     }
 
   attach_area(0, L4_PAGESIZE);
 }
 
 int Region_ops::map(Region_handler const *h, l4_addr_t adr,
-                    L4Re::Util::Region const &r, unsigned short access,
+                    L4Re::Util::Region const &r, bool need_w,
                     L4::Ipc::Snd_fpage *result)
 {
   if (!h->memory())
@@ -46,25 +46,16 @@ int Region_ops::map(Region_handler const *h, l4_addr_t adr,
   using L4::Ipc::Snd_fpage;
   l4_addr_t offs = adr - r.start();
   offs = l4_trunc_page(offs);
-  L4_fpage_rights rights =
-    (!h->is_ro() && (access & L4Re::Dataspace::Map_w))
-      ? (h->is_executable() ? L4_FPAGE_RWX : L4_FPAGE_RW)
-      : (h->is_executable() ? L4_FPAGE_RX : L4_FPAGE_RO);
-  if (!h->is_executable() && (access & L4Re::Dataspace::Map_x))
-    Dbg(Dbg::Warn).printf("WARNING: "
-         "Executable mapping request on non-exec region at %lx!\n",
-         adr);
-  if (h->is_ro() && (access & L4Re::Dataspace::Map_w))
-    Dbg(Dbg::Warn).printf("WARNING: "
-         "Writable mapping request on read-only region at %lx!\n",
-         adr);
+  auto f = map_flags(h->flags());
+  if (!need_w)
+    f &= ~L4Re::Dataspace::F::W;
 
   static Snd_fpage::Cacheopt const cache_map[] =
     { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
       Snd_fpage::None };
 
-  auto ds_fpage =
-    h->memory()->address(offs + h->offset(), rights, adr, r.start(), r.end());
+  auto ds_fpage = h->memory()->address(offs + h->offset(), f, adr,
+                                       r.start(), r.end());
   if (ds_fpage.is_nil())
     return -L4_EADDRNOTAVAIL;
 
@@ -85,9 +76,9 @@ Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
 
 int
 Region_map::validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
-                        unsigned flags, Dataspace *ds)
+                        L4Re::Rm::Region_flags flags, Dataspace *ds)
 {
-  if (flags & L4Re::Rm::Pager)
+  if (flags & L4Re::Rm::F::Pager)
     return -L4_EINVAL;
 
   if (!ds_cap.id_received())
@@ -100,10 +91,7 @@ Region_map::validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
 
   *ds = moe_ds;
 
-  if (flags & L4Re::Rm::Read_only)
-    return L4_EOK;
-
-  if (!moe_ds->is_writable() || !(ds_cap.data() & L4_CAP_FPAGE_W))
+  if ((map_flags(flags) & moe_ds->map_flags(ds_cap.data())) != map_flags(flags))
     return -L4_EPERM;
 
   return L4_EOK;

@@ -33,6 +33,7 @@
 #include <l4/re/protocols.h>
 #include <l4/sys/cxx/ipc_types>
 #include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/types>
 
 namespace L4Re
 {
@@ -62,51 +63,72 @@ class L4_EXPORT Dataspace :
 {
 public:
 
-  /**
-   * Flags for map operations.
-   */
-  enum Map_flags
+  struct F
   {
-    Map_r = 1,  ///< Request readable mapping.
-    Map_w = 2,  ///< Request writable mapping.
-    Map_x = 4,  ///< Request executable mapping.
+    enum
+    {
+      Caching_shift = 4,    ///< shift value for caching flags
+    };
 
-    Map_ro = Map_r,           ///< Request read-only mapping.
-    Map_rw = Map_r | Map_w,   ///< Request read-writable mapping.
-    Map_rx = Map_r | Map_x,   ///< Request read-executable mapping.
-    Map_rwx = Map_rw | Map_x, ///< Request read-write-executable maping.
+    /**
+     * Flags for map operations.
+     */
+    enum Flags
+    {
+      /// Request read-only mapping.
+      R   = L4_FPAGE_RO,
+      /// Request read-only mapping.
+      Ro  = L4_FPAGE_RO,
+      /// Request writable mapping (R + W)
+      RW  = L4_FPAGE_RW,
+      /// Request write-only memory
+      W   = L4_FPAGE_W,
+      X   = L4_FPAGE_X,
+      RX  = L4_FPAGE_RX,
+      RWX = L4_FPAGE_RWX,
+      /// All rights bits availabel for mappings
+      Rights_mask = 0x0f,
 
-    Map_normal        = 0x00, ///< request normal memory mapping
-    Map_cacheable     = Map_normal, ///< request normal memory mapping
-    Map_bufferable    = 0x10, ///< request bufferable (write buffered) mappings
-    Map_uncacheable   = 0x20, ///< request uncacheable memory mappings
+      /// request normal memory mapping
+      Normal        = 0x00,
+      /// request normal memory mapping
+      Cacheable     = Normal,
+      /// request bufferable (write buffered) mappings
+      Bufferable    = 0x10,
+      /// request uncacheable memory mappings
+      Uncacheable   = 0x20,
+      /// mask for caching flags
+      Caching_mask  = 0x30,
+    };
 
-    Map_caching_mask  = 0x30, ///< mask for caching flags
-    Map_caching_shift = 4,    ///< shift value for caching flags
-
-    Map_impldef_shift = 8,    ///< Start of implementation specific bits.
-    Map_flags_mask = ((1U << Map_impldef_shift) - 1), ///< All common bits.
+    L4_TYPES_FLAGS_OPS_DEF(Flags);
   };
 
-  /**
-   * Convert a combination of Map_flags to flex-page rights.
-   *
-   * \param flags  Combination of Map_flags bits.
-   *
-   * \return  Flex-page rights.
-   */
-  static L4_fpage_rights get_fpage_rights(unsigned short flags)
+  struct Flags : L4::Types::Flags_ops_t<Flags>
   {
-    return (flags & Map_x) ? ((flags & Map_w) ? L4_FPAGE_RWX : L4_FPAGE_RX)
-                           : ((flags & Map_w) ? L4_FPAGE_RW : L4_FPAGE_RO);
-  }
+    unsigned long raw;
+    Flags() = default;
+    explicit constexpr Flags(unsigned long f) : raw(f) {}
+    constexpr Flags(F::Flags f) : raw(f) {}
+    constexpr bool r() const { return raw & L4_FPAGE_RO; }
+    constexpr bool w() const { return raw & L4_FPAGE_W; }
+    constexpr bool x() const { return raw & L4_FPAGE_X; }
+
+    constexpr unsigned long fpage_rights() const
+    { return raw & 0xf; }
+  };
+
+  typedef l4_uint64_t Size;
+  typedef l4_uint64_t Offset;
+  typedef l4_uint64_t Map_addr;
 
   /**
    * Information about the dataspace.
    */
-  struct Stats {
-    unsigned long size;   ///< size
-    unsigned long flags;  ///< flags
+  struct Stats
+  {
+    Size size;    ///< size
+    Flags flags;  ///< flags
   };
 
 
@@ -132,8 +154,8 @@ public:
    * invalid or does not overlap the local address, the smallest valid
    * page size is used.
    */
-  long map(l4_addr_t offset, unsigned long flags, l4_addr_t local_addr,
-           l4_addr_t min_addr, l4_addr_t max_addr) const throw();
+  long map(Offset offset, Flags flags, Map_addr local_addr,
+           Map_addr min_addr, Map_addr max_addr) const throw();
 
   /**
    * Map a part of a dataspace into a local memory area.
@@ -160,8 +182,8 @@ public:
    * to the page boundary. If the resulting maximum address is less or equal
    * than the minimum address, then the function is a noop.
    */
-  long map_region(l4_addr_t offset, unsigned long flags,
-                  l4_addr_t min_addr, l4_addr_t max_addr) const throw();
+  long map_region(Offset offset, Flags flags,
+                  Map_addr min_addr, Map_addr max_addr) const throw();
 
   /**
    * Clear parts of a dataspace.
@@ -180,7 +202,7 @@ public:
    * the memory could also be deallocated and replaced by
    * a shared zero-page.
    */
-  L4_RPC(long, clear, (l4_addr_t offset, unsigned long size));
+  L4_RPC(long, clear, (Offset offset, Size size));
 
   /**
    * Allocate a range in the dataspace.
@@ -201,7 +223,7 @@ public:
    * The memory is allocated with the same rights as the dataspace
    * capability.
    */
-  L4_RPC(long, allocate, (l4_addr_t offset, l4_size_t size));
+  L4_RPC(long, allocate, (Offset offset, Size size));
 
   /**
    * Copy contents from another dataspace.
@@ -220,15 +242,15 @@ public:
    * also fail if both dataspaces are not from the same dataspace manager
    * or the dataspace managers do not cooperate.
    */
-  L4_RPC(long, copy_in, (l4_addr_t dst_offs, L4::Ipc::Cap<Dataspace> src,
-                         l4_addr_t src_offs, unsigned long size));
+  L4_RPC(long, copy_in, (Offset dst_offs, L4::Ipc::Cap<Dataspace> src,
+                         Offset src_offs, Size size));
 
   /**
    * Get size of a dataspace.
    *
    * \return Size of the dataspace in bytes.
    */
-  unsigned long size() const throw();
+  Size size() const throw();
 
   /**
    * Get flags of the dataspace.
@@ -238,7 +260,7 @@ public:
    *
    * \see L4Re::Dataspace::Map_flags
    */
-  long flags() const throw();
+  Flags flags() const throw();
 
   /**
    * Get information on the dataspace.
@@ -250,42 +272,20 @@ public:
    */
   L4_RPC(long, info, (Stats *stats));
 
-  /**
-   * \internal
-   * Take operation.
-   * \return 0 on success, <0 on errors
-   *         - IPC errors
-   *
-   * \deprecated Dataspaces exist as long as a capability
-   *             on the dataspace exists.
-   */
-  L4_RPC(long, take, ());
-
-  /**
-   * \internal
-   * Release operation.
-   * \return 0 on success, <0 on errors
-   *         - IPC errors
-   *
-   * \deprecated Dataspaces exist as long as a capability
-   *             on the dataspace exists.
-   */
-  L4_RPC(long, release, ());
-
-  L4_RPC_NF(long, map, (unsigned long offset, l4_addr_t spot,
-                        unsigned long flags, L4::Ipc::Rcv_fpage r,
+  L4_RPC_NF(long, map, (Offset offset, Map_addr spot,
+                        Flags flags, L4::Ipc::Rcv_fpage r,
                         L4::Ipc::Snd_fpage &fp));
+
 private:
 
-  long __map(l4_addr_t offset, unsigned char *size, unsigned long flags,
-             l4_addr_t local_addr) const throw();
+  long __map(Offset offset, unsigned char *order, Flags flags,
+             Map_addr local_addr) const throw();
 
 public:
-  typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t, take_t,
-                           release_t, allocate_t> Rpcs;
+  typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t,
+                           allocate_t> Rpcs;
 
 };
-
 
 }
 

@@ -165,13 +165,13 @@ struct Phdr_load
   typedef typename App_model::Const_dataspace Const_dataspace;
 
   l4_addr_t base;
-  unsigned r_flags;
+  L4Re::Rm::Flags r_flags;
   Const_dataspace bin;
   App_model *mm;
   Dbg const &dbg;
 
   Phdr_load(l4_addr_t base, Const_dataspace bin, App_model *mm,
-            unsigned r_flags, Dbg const &dbg)
+            L4Re::Rm::Flags r_flags, Dbg const &dbg)
   : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg)
   {}
 
@@ -197,22 +197,30 @@ struct Phdr_load
 
     l4_umword_t size = l4_round_page(ph.memsz() + page_offs);
 
-    unsigned xf = (ph.flags() & PF_X) ? L4Re::Rm::Executable : 0;
+    L4Re::Rm::Flags rf(r_flags);
+    unsigned long o = offs;
+    Const_dataspace ds = bin;
+
     if ((ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow())
       {
         // copy section
         Dataspace mem = mm->alloc_ds(size);
-        mm->prog_attach_ds(l4_addr_t(paddr), size, mem, 0, r_flags | xf,
-                           "attaching rw ELF segment");
         mm->copy_ds(mem, 0, bin, offs, fsz + page_offs);
+        ds = mem;
+        o = 0;
       }
-    else
-      {
-        // map from file
-        mm->prog_attach_ds(l4_addr_t(paddr), size, bin, offs,
-                           r_flags | L4Re::Rm::Read_only | xf,
-                           "attaching ro ELF segment");
-      }
+
+    if (ph.flags() & PF_R)
+      rf |= L4Re::Rm::F::R;
+
+    if (ph.flags() & PF_W || mm->all_segs_cow())
+      rf |= L4Re::Rm::F::W;
+
+    if (ph.flags() & PF_X)
+      rf |= L4Re::Rm::F::X;
+
+    mm->prog_attach_ds(l4_addr_t(paddr), size, ds, o, rf,
+                       "attaching ELF segment");
   }
 };
 
@@ -362,7 +370,8 @@ struct Phdr_l4re_elf_aux
 		  {
 		    l4re_elf_aux_vma_t const *v = (l4re_elf_aux_vma_t const *)e;
 		    l4_addr_t start = v->start;
-		    chksys(am->prog_reserve_area(&start, v->end - v->start + 1, 0, 0));
+		    chksys(am->prog_reserve_area(&start, v->end - v->start + 1,
+                                                 L4Re::Rm::Flags(0), 0));
 		    break;
 		  }
 	      default:
@@ -426,7 +435,7 @@ public:
 	chksys(-L4_EINVAL, "not an ELF binary");
       }
 
-    unsigned r_flags = 0;
+    L4Re::Rm::Flags r_flags(0);
     l4_addr_t _base = 0;
     if (base)
       {
@@ -440,7 +449,7 @@ public:
 
 	l4_addr_t lib = _base + b_func.start;
 	chksys(mm->prog_reserve_area(&lib, b_func.end - b_func.start,
-	      L4Re::Rm::Search_addr, L4_SUPERPAGESHIFT));
+	      L4Re::Rm::F::Search_addr, L4_SUPERPAGESHIFT));
 
 	ldr.printf("   relocate to %p\n", (void*)lib);
 
@@ -449,7 +458,7 @@ public:
 	ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
 	eh->iterate_phdr(Phdr_print<Dbg_log>(ldr));
 	*base = _base;
-	r_flags |= L4Re::Rm::In_area;
+	r_flags |= L4Re::Rm::F::In_area;
       }
 
     eh->iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags, ldr));

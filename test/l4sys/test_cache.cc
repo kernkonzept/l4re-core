@@ -58,7 +58,8 @@ public:
     _ds = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(L4_PAGESIZE, _ds.get()));
     L4Re::chksys(env->rm()->attach(&_region, L4_PAGESIZE,
-                                   L4Re::Rm::Search_addr | L4Re::Rm::Eager_map,
+                                   L4Re::Rm::F::Search_addr | L4Re::Rm::F::Eager_map
+                                   | L4Re::Rm::F::RWX,
                                    _ds.get(), 0));
     start = reinterpret_cast<l4_addr_t>(_region.get()) + 8;
     end = start + 555;
@@ -81,7 +82,7 @@ public:
     _ds = L4Re::chkcap(L4Re::Util::make_unique_del_cap<L4Re::Dataspace>());
     L4Re::chksys(env->mem_alloc()->alloc(L4_PAGESIZE, _ds.get()));
     L4Re::chksys(env->rm()->attach(&_region, L4_PAGESIZE,
-                                   L4Re::Rm::Search_addr, _ds.get(), 0));
+                                   L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX, _ds.get(), 0));
     start = reinterpret_cast<l4_addr_t>(_region.get()) + 8;
     end = start + 555;
   }
@@ -100,7 +101,7 @@ struct ReservedRange : Test_range<false>
   ReservedRange()
   {
     L4Re::chksys(env->rm()->reserve_area(&start, L4_PAGESIZE,
-                                         L4Re::Rm::Search_addr));
+                                         L4Re::Rm::F::Search_addr));
     end = start + 456;
   }
 

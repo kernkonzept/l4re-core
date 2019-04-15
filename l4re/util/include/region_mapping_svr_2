@@ -41,15 +41,15 @@ public:
    * Implementation of L4Re::Rm::_attach
    */
   long op_attach(L4Re::Rm::Rights, l4_addr_t &_start,
-                 unsigned long size, unsigned long flags,
-                 L4::Ipc::Snd_fpage ds_cap, l4_addr_t offs,
+                 unsigned long size, Rm::Flags flags,
+                 L4::Ipc::Snd_fpage ds_cap, L4Re::Rm::Offset offs,
                  unsigned char align, l4_cap_idx_t client_cap_idx)
   {
     typename DERIVED::Dataspace ds;
 
-    if (!(flags & Rm::Reserved))
+    if (!(flags & Rm::F::Reserved))
       {
-        if (long r = rm()->validate_ds(static_cast<DERIVED*>(this)->server_iface(), ds_cap, flags, &ds))
+        if (long r = rm()->validate_ds(static_cast<DERIVED*>(this)->server_iface(), ds_cap, flags.region_flags(), &ds))
           return r;
       }
 
@@ -59,8 +59,8 @@ public:
     if (size < L4_PAGESIZE)
       return -L4_EINVAL;
 
-    unsigned r_flags = flags & Rm::Region_flags;
-    unsigned a_flags = flags & Rm::Attach_flags;
+    Rm::Region_flags r_flags = flags.region_flags();
+    Rm::Attach_flags a_flags = flags.attach_flags();
 
     start = l4_addr_t(rm()->attach((void*)start, size,
                                    typename DERIVED::Region_handler(ds, client_cap_idx, offs, r_flags),
@@ -88,13 +88,13 @@ public:
    * Implementation of L4Re::Rm::_find
    */
   long op_find(L4Re::Rm::Rights, l4_addr_t &addr, unsigned long &size,
-               unsigned &flags, l4_addr_t &offset,
+               L4Re::Rm::Flags &flags, L4Re::Rm::Offset &offset,
                L4::Cap<L4Re::Dataspace> &m)
   {
     if (!DERIVED::Have_find)
       return -L4_EPERM;
 
-    unsigned flag_area = 0;
+    Rm::Flags flag_area { 0 };
 
     typename DERIVED::Node r = rm()->find(Region(addr, addr + size -1));
     if (!r)
@@ -102,7 +102,7 @@ public:
         r = rm()->area_find(Region(addr, addr + size - 1));
         if (!r)
           return -L4_ENOENT;
-        flag_area = Rm::In_area;
+        flag_area = Rm::F::In_area;
       }
 
     addr = r->first.start();
@@ -141,7 +141,7 @@ public:
    * Implementation of L4Re::Rm::_reserve_area
    */
   long op_reserve_area(L4Re::Rm::Rights, l4_addr_t &start, unsigned long size,
-                       unsigned flags, unsigned char align)
+                       L4Re::Rm::Flags flags, unsigned char align)
   {
     start = rm()->attach_area(start, size, flags, align);
     if (start == L4_INVALID_ADDR)
@@ -228,8 +228,8 @@ public:
   {
     Dbg(Dbg::Server).printf("page fault: %lx pc=%lx\n", addr, pc);
 
-    unsigned inst_fetch = addr & 4;
-    unsigned writable = addr & 2;
+    bool need_w = addr & 2;
+    bool need_x = addr & 4;
     addr = addr & ~7UL;
 
     typename DERIVED::Node n = rm()->find(addr);
@@ -237,21 +237,13 @@ public:
     if (!n || !n->second.memory())
       {
         Dbg(Dbg::Warn, "rm").printf("unhandled %s page fault at 0x%lx pc=0x%lx\n",
-                                    writable ? "write" : "read", addr, pc);
+                                    need_w ? "write" : "read", addr, pc);
         // generate exception
         result = ~0;
         return L4_EOK;
       }
 
-    if (!n->second.is_executable() && inst_fetch)
-      {
-        Dbg(Dbg::Warn, "rm").printf("exec page fault in non-exec region at 0x%lx pc=0x%lx\n",
-                                    addr, pc);
-        // generate exception
-        result = ~0;
-        return L4_EOK;
-      }
-    if (n->second.is_ro() && writable)
+    if (!(n->second.flags() & L4Re::Rm::F::W) && need_w)
       {
         Dbg(Dbg::Warn, "rm").printf("write page fault in readonly region at 0x%lx pc=0x%lx\n",
                                     addr, pc);
@@ -260,14 +252,17 @@ public:
         return L4_EOK;
       }
 
+    if (!(n->second.flags() & L4Re::Rm::F::X) && need_x)
+      {
+        Dbg(Dbg::Warn, "rm").printf("instruction page fault in non-exec region at 0x%lx pc=0x%lx\n",
+                                    addr, pc);
+        // generate exception
+        result = ~0;
+        return L4_EOK;
+      }
+
     typename DERIVED::Region_handler::Ops::Map_result map_res;
-    if (int err =
-          n->second.map(addr, n->first,
-                        (inst_fetch ? (writable ? L4Re::Dataspace::Map_rwx
-                                                : L4Re::Dataspace::Map_rx)
-                                    : (writable ? L4Re::Dataspace::Map_rw
-                                                : L4Re::Dataspace::Map_ro)),
-                        &map_res))
+    if (int err = n->second.map(addr, n->first, need_w, &map_res))
       {
         Dbg(Dbg::Warn, "rm").printf("mapping for page fault failed with error %d at 0x%lx pc=0x%lx\n",
                                     err, addr, pc);

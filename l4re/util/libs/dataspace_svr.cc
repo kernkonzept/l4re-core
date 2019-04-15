@@ -38,8 +38,12 @@ L4::Ipc::Ostream &operator << (L4::Ipc_ostream &s,
 namespace L4Re { namespace Util {
 
 int
-Dataspace_svr::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
-                    l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory)
+Dataspace_svr::map(Dataspace::Offset offs,
+                   Dataspace::Map_addr hot_spot,
+                   Dataspace::Flags flags,
+                   Dataspace::Map_addr min,
+                   Dataspace::Map_addr max,
+                   L4::Ipc::Snd_fpage &memory)
 {
   int err = map_hook(offs, flags, min, max);
   if (err < 0)
@@ -90,8 +94,7 @@ Dataspace_svr::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
   l4_addr_t map_base = l4_trunc_size(addr, order);
   //l4_addr_t map_offs = addr & ~(~0UL << order);
 
-  l4_fpage_t fpage =
-    l4_fpage(map_base, order, L4Re::Dataspace::get_fpage_rights(flags));
+  l4_fpage_t fpage = l4_fpage(map_base, order, flags.fpage_rights());
 
   memory = L4::Ipc::Snd_fpage(fpage, hot_spot, _map_flags, _cache_flags);
 

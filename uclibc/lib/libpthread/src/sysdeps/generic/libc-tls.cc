@@ -128,7 +128,7 @@ void *__libc_alloc_initial_tls(unsigned long size) __THROW
     return NULL;
 
   void *addr = NULL;
-  if(Env::env()->rm()->attach(&addr, size, Rm::Search_addr,
+  if(Env::env()->rm()->attach(&addr, size, Rm::F::Search_addr | Rm::F::RW,
                               L4::Ipc::make_cap_rw(ds), 0, 0) < 0)
     return NULL;
 

@@ -28,10 +28,10 @@
 
 int
 l4re_rm_reserve_area_srv(l4_cap_idx_t rm, l4_addr_t *start, unsigned long size,
-                         unsigned flags, unsigned char align) L4_NOTHROW
+                         l4re_rm_flags_t flags, unsigned char align) L4_NOTHROW
 {
   L4::Cap<L4Re::Rm> x(rm);
-  return x->reserve_area(start, size, flags, align);
+  return x->reserve_area(start, size, L4Re::Rm::Flags(flags), align);
 }
 
 int
@@ -43,12 +43,13 @@ l4re_rm_free_area_srv(l4_cap_idx_t rm, l4_addr_t addr) L4_NOTHROW
 
 int
 l4re_rm_attach_srv(l4_cap_idx_t rm, void **start, unsigned long size,
-                   unsigned long flags, l4re_ds_t const mem, l4_addr_t offs,
+                   l4re_rm_flags_t flags, l4re_ds_t mem,
+                   l4re_rm_offset_t offs,
                    unsigned char align) L4_NOTHROW
 {
   L4::Cap<L4Re::Rm> x(rm);
   auto _mem = L4::Ipc::Cap<L4Re::Dataspace>::from_ci(mem);
-  return x->attach(start, size, flags, _mem, offs, align);
+  return x->attach(start, size, L4Re::Rm::Flags(flags), _mem, offs, align);
 }
 
 
@@ -68,12 +69,15 @@ l4re_rm_detach_srv(l4_cap_idx_t rm, l4_addr_t addr, l4re_ds_t *ds,
 
 int
 l4re_rm_find_srv(l4_cap_idx_t rm, l4_addr_t *addr,
-                 unsigned long *size, l4_addr_t *offset,
-                 unsigned *flags, l4_cap_idx_t *m) L4_NOTHROW
+                 unsigned long *size,
+                 l4re_rm_offset_t *offset,
+                 l4re_rm_flags_t *flags, l4_cap_idx_t *m) L4_NOTHROW
 {
   L4::Cap<L4Re::Rm> x(rm);
   L4::Cap<L4Re::Dataspace> mm(L4_INVALID_CAP);
-  int r = x->find(addr, size, offset, flags, &mm);
+  L4Re::Rm::Flags f;
+  int r = x->find(addr, size, offset, &f, &mm);
+  *flags = f.raw;
   *m = mm.cap();
   return r;
 }

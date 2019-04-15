@@ -78,7 +78,7 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
 
   void prog_attach_ds(l4_addr_t addr, unsigned long size,
                       Const_dataspace ds, unsigned long offset,
-                      unsigned flags, char const *what);
+                      L4Re::Rm::Flags flags, char const *what);
 
   static void copy_ds(Dataspace dst, unsigned long dst_offs,
                       Const_dataspace src, unsigned long src_offs,
@@ -91,7 +91,8 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
 
   void local_detach_ds(l4_addr_t addr, unsigned long size) const;
 
-  int prog_reserve_area(l4_addr_t *start, unsigned long size, unsigned flags, unsigned char align);
+  int prog_reserve_area(l4_addr_t *start, unsigned long size,
+                        L4Re::Rm::Flags flags, unsigned char align);
 
   Dataspace alloc_app_stack();
 

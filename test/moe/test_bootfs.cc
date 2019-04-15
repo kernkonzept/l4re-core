@@ -80,7 +80,7 @@ TEST_F(TestMoeBootFs, QueryAllowedModules)
   EXPECT_EQ(L4_EOK, ns->query("moe_bootfs_example.txt", cap.get()));
 
   L4::Cap<L4Re::Dataspace> c(cap.get().cap());
-  EXPECT_EQ(0, c->flags() & L4Re::Dataspace::Map_w);
+  EXPECT_EQ(false, c->flags().w());
 }
 
 /**
@@ -124,7 +124,7 @@ TEST_F(TestMoeBootFs, MapRomSpace)
     << "The returned dataspace has the expected content size.";
 
   L4Re::Rm::Unique_region<char *> reg;
-  ASSERT_EQ(L4_EOK, env->rm()->attach(&reg, sz, L4Re::Rm::Search_addr,
+  ASSERT_EQ(L4_EOK, env->rm()->attach(&reg, sz, L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
                                       ds.get(), 0, L4_PAGESHIFT))
     << "Attach the dataspace locally.";
   ASSERT_EQ(0, memcmp(reg.get(), TESTFILE_CONTENT,
@@ -228,7 +228,8 @@ TEST_F(TestMoeBootFs, FailToAllocateDataspace)
 
   // check that nothing was deleted
   L4Re::Rm::Unique_region<char *> reg;
-  ASSERT_EQ(L4_EOK, env->rm()->attach(&reg, L4_PAGESIZE, L4Re::Rm::Search_addr,
+  ASSERT_EQ(L4_EOK, env->rm()->attach(&reg, L4_PAGESIZE,
+                                      L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
                                       cap.get(), 0));
   ASSERT_EQ(0, memcmp(reg.get(), TESTFILE_CONTENT, strlen(TESTFILE_CONTENT)));
 

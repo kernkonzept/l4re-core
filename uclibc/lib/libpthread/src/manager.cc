@@ -464,7 +464,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       long err;
 
       if (e->rm()->reserve_area(&map_addr, stacksize + guardsize,
-	                        L4Re::Rm::Search_addr) < 0)
+	                        L4Re::Rm::F::Search_addr) < 0)
 	return -1;
 
       guardaddr = (char*)map_addr;
@@ -483,7 +483,8 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	}
 
       new_thread_bottom = (char *) map_addr + guardsize;
-      err = e->rm()->attach(&new_thread_bottom, stacksize, L4Re::Rm::In_area,
+      err = e->rm()->attach(&new_thread_bottom, stacksize,
+                            L4Re::Rm::F::In_area | L4Re::Rm::F::RW,
                             L4::Ipc::make_cap_rw(ds), 0);
 
       if (err < 0)
@@ -608,7 +609,7 @@ static int l4pthr_get_more_utcb()
   Env const *e = Env::env();
 
   if (e->rm()->reserve_area(&kumem, L4_PAGESIZE,
-                            Rm::Reserved | Rm::Search_addr))
+                            Rm::F::Reserved | Rm::F::Search_addr))
     return 1;
 
   if (l4_error(e->task()->add_ku_mem(l4_fpage(kumem, L4_PAGESHIFT,

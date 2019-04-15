@@ -146,7 +146,7 @@ public:
       return;
 
     Moe::Dataspace_static *ds;
-    ds = new Moe::Dataspace_static((void *)_buf, _size, L4Re::Dataspace::Map_ro);
+    ds = new Moe::Dataspace_static((void *)_buf, _size, L4Re::Dataspace::F::R);
 
     object_pool.cap_alloc()->alloc(ds);
     ns->register_obj(".dirinfo", 0, ds);
@@ -205,15 +205,15 @@ Moe::Boot_fs::init_stage2()
 
       cxx::String opts;
       cxx::String name = cmdline_to_name((char const *)(unsigned long)modules[mod].cmdline, &opts);
-      unsigned flags = L4Re::Dataspace::Map_rx | Moe::Dataspace::Cow_enabled;
+      Dataspace::Flags flags = Dataspace::Cow_enabled | L4Re::Dataspace::F::RX;
       if (options_contains(opts, cxx::String(":rw")))
-        flags |= L4Re::Dataspace::Map_w;
+        flags = L4Re::Dataspace::F::RWX;
 
       Moe::Dataspace_static *rf;
       rf = new Moe::Dataspace_static((void*)(unsigned long)modules[mod].mod_start,
                                      end - modules[mod].mod_start, flags);
       object = object_pool.cap_alloc()->alloc(rf);
-      if (flags & L4Re::Dataspace::Map_w)
+      if (flags.w())
         {
           rwfs_ns->register_obj(name, Entry::F_rw, rf);
           dirinfo_rw.add(name);

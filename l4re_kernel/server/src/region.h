@@ -29,7 +29,7 @@ class Region_ops
 public:
   typedef l4_umword_t Map_result;
   static int map(Region_handler const *h, l4_addr_t addr,
-                 L4Re::Util::Region const &r, unsigned short access,
+                 L4Re::Util::Region const &r, bool writable,
                  l4_umword_t *result);
 
   static void unmap(Region_handler const *h, l4_addr_t vaddr,
@@ -55,7 +55,8 @@ public:
   enum { Have_find = true };
   void *server_iface() const { return 0; }
   static int validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
-                         unsigned, L4::Cap<L4Re::Dataspace> *ds)
+                         L4Re::Rm::Region_flags,
+                         L4::Cap<L4Re::Dataspace> *ds)
   {
     // if no cap was sent then the region will be reserved
     if (ds_cap.local_id_received())

@@ -33,6 +33,7 @@
 #include <l4/sys/pager>
 #include <l4/sys/cxx/ipc_iface>
 #include <l4/sys/cxx/ipc_ret_array>
+#include <l4/sys/cxx/types>
 #include <l4/re/consts>
 #include <l4/re/dataspace>
 
@@ -74,6 +75,8 @@ class L4_EXPORT Rm :
                        L4::Type_info::Demand_t<1> >
 {
 public:
+  typedef L4Re::Dataspace::Offset Offset;
+
   /// Result values for detach operation.
   enum Detach_result
   {
@@ -85,41 +88,112 @@ public:
     Detach_again = 4,      ///< Detached data space, more to do.
   };
 
-  /// Flags for regions.
-  enum Region_flags
-  {
-    Read_only        = 0x01, ///< Region is read-only
-    /// Free the portion of the data space after detach
-    Detach_free      = 0x02,
-    Pager            = 0x04, ///< Region has a pager
-    Reserved         = 0x08, ///< Region is reserved (blocked)
-    Executable       = 0x10, ///< Region is executable
 
+  enum Region_flag_shifts
+  {
     /// Start of Rm cache bits
-    Caching_shift    = 8,
-    /// Shift value for Dataspace to Rm cache bits
-    Caching_ds_shift = Caching_shift - Dataspace::Map_caching_shift,
-    /// Mask of all Rm cache bits
-    Caching          = Dataspace::Map_caching_mask << Caching_ds_shift,
-    /// Cache bits for normal cacheable memory
-    Cache_normal     = Dataspace::Map_normal << Caching_ds_shift,
-    /// Cache bits for buffered (write combining) memory
-    Cache_buffered   = Dataspace::Map_bufferable << Caching_ds_shift,
-    /// Cache bits for uncached memory
-    Cache_uncached   = Dataspace::Map_uncacheable << Caching_ds_shift,
-
-    Region_flags     = Caching | 0x1f, ///< Mask of all region flags
+    Caching_shift    = Dataspace::F::Caching_shift,
   };
 
-  /// Flags for attach operation.
-  enum Attach_flags
+  struct F
   {
-    Search_addr        = 0x20, ///< Search for a suitable address range.
-    In_area            = 0x40, ///< Search only in area, or map into area.
-    Eager_map          = 0x80, ///< Eagerly map the attached data space in.
+    /// Flags for attach operation.
+    enum Attach_flags : l4_uint32_t
+    {
+      /// Search for a suitable address range.
+      Search_addr  = 0x20000,
+      /// Search only in area, or map into area.
+      In_area      = 0x40000,
+      /// Eagerly map the attached data space in.
+      Eager_map    = 0x80000,
+      /// Mask of all attach flags.
+      Attach_mask  = 0xf0000,
+    };
 
-    Attach_flags       = 0xe0, ///< Mask of all attach flags.
+    L4_TYPES_FLAGS_OPS_DEF(Attach_flags);
+
+    enum Region_flags : l4_uint16_t
+    {
+      /// Region rights
+      Rights_mask = 0x0f,
+      R         = Dataspace::F::R,
+      W         = Dataspace::F::W,
+      X         = Dataspace::F::X,
+      RW        = Dataspace::F::RW,
+      RX        = Dataspace::F::RX,
+      RWX       = Dataspace::F::RWX,
+
+      /// Free the portion of the data space after detach
+      Detach_free = 0x200,
+      /// Region has a pager
+      Pager       = 0x400,
+      /// Region is reserved (blocked)
+      Reserved    = 0x800,
+
+
+      /// Mask of all Rm cache bits
+      Caching_mask   = Dataspace::F::Caching_mask,
+      /// Cache bits for normal cacheable memory
+      Cache_normal   = Dataspace::F::Normal,
+      /// Cache bits for buffered (write combining) memory
+      Cache_buffered = Dataspace::F::Bufferable,
+      /// Cache bits for uncached memory
+      Cache_uncached = Dataspace::F::Uncacheable,
+
+      /// Mask for all bits for cache options and rights.
+      Ds_map_mask    = 0xff,
+
+      /// Mask of all region flags
+      Region_flags_mask = 0xffff,
+    };
+
+    L4_TYPES_FLAGS_OPS_DEF(Region_flags);
+
+    friend constexpr Dataspace::Flags map_flags(Region_flags rf)
+    {
+      return Dataspace::Flags((l4_uint16_t)rf & Ds_map_mask);
+    }
+
+    struct Flags : L4::Types::Flags_ops_t<Flags>
+    {
+      l4_uint32_t raw;
+      Flags() = default;
+      explicit constexpr Flags(l4_uint32_t f) : raw(f) {}
+      constexpr Flags(Attach_flags rf) : raw((l4_uint32_t)rf) {}
+      constexpr Flags(Region_flags rf) : raw((l4_uint32_t)rf) {}
+
+      friend constexpr Dataspace::Flags map_flags(Flags f)
+      {
+        return Dataspace::Flags(f.raw & Ds_map_mask);
+      }
+
+      constexpr Region_flags region_flags() const
+      {
+        return Region_flags(raw & Region_flags_mask);
+      }
+
+      constexpr Attach_flags attach_flags() const
+      {
+        return Attach_flags(raw & Attach_mask);
+      }
+
+      constexpr bool r() const { return raw & L4_FPAGE_RO; }
+      constexpr bool w() const { return raw & L4_FPAGE_W; }
+      constexpr bool x() const { return raw & L4_FPAGE_X; }
+      constexpr unsigned cap_rights() const
+      { return w() ? L4_CAP_FPAGE_RW : L4_CAP_FPAGE_RO; }
+    };
+
+    friend constexpr Flags operator | (Region_flags l, Attach_flags r)
+    { return Flags(l) | Flags(r); }
+
+    friend constexpr Flags operator | (Attach_flags l, Region_flags r)
+    { return Flags(l) | Flags(r); }
   };
+
+  using Attach_flags = F::Attach_flags;
+  using Region_flags = F::Region_flags;
+  using Flags = F::Flags;
 
   /// Flags for detach operation
   enum Detach_flags
@@ -181,13 +255,13 @@ public:
    * the virtual address space is searched.
    */
   long reserve_area(l4_addr_t *start, unsigned long size,
-                    unsigned flags = 0,
+                    Flags flags = Flags(0),
                     unsigned char align = L4_PAGESHIFT) const throw()
   { return reserve_area_t::call(c(), start, size, flags, align); }
 
   L4_RPC_NF(long, reserve_area, (L4::Ipc::In_out<l4_addr_t *> start,
                                  unsigned long size,
-                                 unsigned flags,
+                                 Flags flags,
                                  unsigned char align));
 
   /**
@@ -207,7 +281,7 @@ public:
    */
   template< typename T >
   long reserve_area(T **start, unsigned long size,
-                    unsigned flags = 0,
+                    Flags flags = Flags(0),
                     unsigned char align = L4_PAGESHIFT) const throw()
   { return reserve_area_t::call(c(), (l4_addr_t*)start, size, flags, align); }
 
@@ -226,9 +300,9 @@ public:
   L4_RPC(long, free_area, (l4_addr_t addr));
 
   L4_RPC_NF(long, attach, (L4::Ipc::In_out<l4_addr_t *> start,
-                           unsigned long size, unsigned long flags,
+                           unsigned long size, Flags flags,
                            L4::Ipc::Opt<L4::Ipc::Cap<Dataspace> > mem,
-                           l4_addr_t offs, unsigned char align,
+                           Offset offs, unsigned char align,
                            L4::Ipc::Opt<l4_cap_idx_t> client_cap));
 
   L4_RPC_NF(long, detach, (l4_addr_t addr, unsigned long size, unsigned flags,
@@ -278,16 +352,16 @@ public:
    * \note There is no region object created, instead the region is
    *       defined by a virtual address within this range (see #L4Re::Rm::find).
    */
-  long attach(l4_addr_t *start, unsigned long size, unsigned long flags,
-              L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
+  long attach(l4_addr_t *start, unsigned long size, Flags flags,
+              L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT) const throw();
 
   /**
    * \copydoc L4Re::Rm::attach
    */
   template< typename T >
-  long attach(T **start, unsigned long size, unsigned long flags,
-              L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
+  long attach(T **start, unsigned long size, Flags flags,
+              L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT) const throw()
   {
     union X { l4_addr_t a; T* t; };
@@ -369,8 +443,8 @@ public:
   };
 
   template< typename T >
-  long attach(Unique_region<T> *start, unsigned long size, unsigned long flags,
-              L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs = 0,
+  long attach(Unique_region<T> *start, unsigned long size, Flags flags,
+              L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT) const noexcept
   {
     l4_addr_t addr = (l4_addr_t)start->get();
@@ -476,13 +550,13 @@ public:
    *       region can be determined unambiguously.
    *
    */
-  int find(l4_addr_t *addr, unsigned long *size, l4_addr_t *offset,
-           unsigned *flags, L4::Cap<Dataspace> *m) throw()
+  int find(l4_addr_t *addr, unsigned long *size, Offset *offset,
+           L4Re::Rm::Flags *flags, L4::Cap<Dataspace> *m) throw()
   { return find_t::call(c(), addr, size, flags, offset, m); }
 
   L4_RPC_NF(int, find, (L4::Ipc::In_out<l4_addr_t *> addr,
                         L4::Ipc::In_out<unsigned long *> size,
-                        unsigned *flags, l4_addr_t *offset,
+                        L4Re::Rm::Flags *flags, Offset *offset,
                         L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
 
   /**

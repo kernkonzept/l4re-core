@@ -15,7 +15,7 @@ namespace Moe {
 class Dataspace_anon : public Dataspace_cont
 {
 public:
-  Dataspace_anon(long size, unsigned short flags = L4Re::Dataspace::Map_rw,
+  Dataspace_anon(long size, Flags flags = L4Re::Dataspace::F::RWX,
                  unsigned char page_shift = L4_PAGESHIFT,
                  Single_page_alloc_base::Config cfg
                    = Single_page_alloc_base::Config());

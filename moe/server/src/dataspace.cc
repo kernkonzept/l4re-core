@@ -24,8 +24,10 @@
 #include <cstring>
 using cxx::min;
 
+constexpr Moe::Dataspace::Flags Moe::Dataspace::Cow_enabled;
+
 int
-Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
+Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, Flags flags,
                     l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory)
 {
   using L4Re::Dataspace;
@@ -45,45 +47,48 @@ Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
       return -L4_ERANGE;
     }
 
-  Address adr = address(offs, Dataspace::get_fpage_rights(flags), hot_spot, min,
-                        max);
-
+  Address adr = address(offs, flags, hot_spot, min, max);
   if (adr.is_nil())
     return adr.error();
 
-  unsigned long cache_opt = cxx::max(_flags & Dataspace::Map_caching_mask,
-                                     (unsigned short)flags & Dataspace::Map_caching_mask);
+  unsigned long cache_opt = cxx::max((_flags & Dataspace::F::Caching_mask).raw,
+                                     (flags & Dataspace::F::Caching_mask).raw);
 
   static Snd_fpage::Cacheopt cache_map[] =
     { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
       Snd_fpage::None };
 
   memory = Snd_fpage(adr.fp(), hot_spot, Snd_fpage::Map,
-                     cache_map[cache_opt >> Dataspace::Map_caching_shift]);
+                     cache_map[cache_opt >> Dataspace::F::Caching_shift]);
 
   return L4_EOK;
 }
 
 long
-Moe::Dataspace::op_map(L4Re::Dataspace::Rights obj,
-                       unsigned long offset, l4_addr_t spot,
-                       unsigned long flags, L4::Ipc::Snd_fpage &fp)
+Moe::Dataspace::op_map(L4Re::Dataspace::Rights rights,
+                       L4Re::Dataspace::Offset offset,
+                       L4Re::Dataspace::Map_addr spot,
+                       L4Re::Dataspace::Flags flags,
+                       L4::Ipc::Snd_fpage &fp)
 {
-  bool read_only = !is_writable() || !(obj & L4_CAP_FPAGE_W);
+  auto mf = map_flags(rights);
 
   if (0)
     L4::cout << "MAPrq: " << L4::hex << offset << ", " << spot << ", "
-      << flags << "\n";
+      << flags.raw << "\n";
 
-  if (read_only && (flags & L4Re::Dataspace::Map_w))
+  if (!mf.w() && flags.w())
     return -L4_EPERM;
 
-  long ret = map(offset, spot, flags, 0, ~0, fp);
+  if (!mf.x() && flags.x())
+    return -L4_EPERM;
+
+  long ret = map(offset, spot, flags & mf, 0, ~0, fp);
 
   if (0)
     L4::cout << "MAP: " << L4::hex << reinterpret_cast<unsigned long *>(&fp)[0]
-             << ", " << reinterpret_cast<unsigned long *>(&fp)[1] << ", "
-             << flags << ", " << (!read_only && (flags & L4Re::Dataspace::Map_w))
+             << ", " << reinterpret_cast<unsigned long *>(&fp)[1]
+             << ", " << flags.raw << ", " << (mf.w() && flags.w())
              << ", ret=" << ret << '\n';
 
   return ret;
@@ -91,15 +96,17 @@ Moe::Dataspace::op_map(L4Re::Dataspace::Rights obj,
 
 long
 Moe::Dataspace::op_copy_in(L4Re::Dataspace::Rights obj,
-                           l4_addr_t dst_offs, L4::Ipc::Snd_fpage const &src_cap,
-                           l4_addr_t src_offs, unsigned long sz)
+                           L4Re::Dataspace::Offset dst_offs,
+                           L4::Ipc::Snd_fpage const &src_cap,
+                           L4Re::Dataspace::Offset src_offs,
+                           L4Re::Dataspace::Size sz)
 {
   Moe::Dataspace *src = 0;
 
   if (src_cap.id_received())
     src = dynamic_cast<Moe::Dataspace*>(object_pool.find(src_cap.data()));
 
-  if (!(obj & L4_CAP_FPAGE_W))
+  if (!map_flags(obj).w())
     return -L4_EACCESS;
 
   if (!src)
@@ -123,7 +130,7 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const throw()
 
   while (sz)
     {
-      Address dst_a = address(offs, L4_FPAGE_RW);
+      Address dst_a = address(offs, L4Re::Dataspace::F::RW);
       unsigned long b_sz = min(dst_a.sz() - dst_a.of(), sz);
 
       memset(dst_a.adr(), 0, b_sz);

@@ -28,10 +28,8 @@ class Dataspace :
   public Q_object
 {
 public:
-  enum
-  {
-    Cow_enabled   = 1U << L4Re::Dataspace::Map_impldef_shift,
-  };
+  using Flags = L4Re::Dataspace::Flags;
+  static constexpr Flags Cow_enabled { 0x100 };
 
   struct Address
   {
@@ -41,10 +39,10 @@ public:
     Address(long error) throw() : offs(-1UL) { fpage.raw = error; }
 
     Address(l4_addr_t base, l4_addr_t size,
-            L4_fpage_rights rights = L4_FPAGE_RO, l4_addr_t offs = 0) throw()
-    : fpage(l4_fpage(base, size, rights)), offs(offs)
-    {
-    }
+            Flags flags,
+            l4_addr_t offs = 0) throw()
+    : fpage(l4_fpage(base, size, flags.fpage_rights())),
+      offs(offs) {}
 
     unsigned long bs() const throw() { return fpage.raw & L4_FPAGE_ADDR_MASK; }
     unsigned long sz() const throw() { return 1 << l4_fpage_size(fpage); }
@@ -65,28 +63,33 @@ public:
 
   };
 
-  Dataspace(unsigned long size, unsigned short flags, unsigned char page_shift,
-            Single_page_alloc_base::Config cfg) throw()
-  : _size(size),
-    _flags(flags),
-    _page_shift(page_shift),
-    _cfg(cfg)
+  Dataspace(unsigned long size, Flags flags,
+            unsigned char page_shift, Single_page_alloc_base::Config cfg) throw()
+    : _size(size), _flags(flags), _page_shift(page_shift), _cfg(cfg)
   {}
 
 
   unsigned long size() const throw() { return _size; }
   virtual void unmap(bool ro = false) const throw() = 0;
   virtual Address address(l4_addr_t ds_offset,
-                          L4_fpage_rights rights = L4_FPAGE_RW,
-                          l4_addr_t hot_spot = 0, l4_addr_t min = 0,
-                          l4_addr_t max = ~0) const = 0;
+                          Flags flags = L4Re::Dataspace::F::RWX,
+                          l4_addr_t hot_spot = 0,
+                          l4_addr_t min = 0, l4_addr_t max = ~0) const = 0;
 
   virtual int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
 
-  unsigned long is_writable() const throw()
-  { return _flags & L4Re::Dataspace::Map_w; }
-  unsigned long can_cow() const throw() { return _flags & Cow_enabled; }
-  unsigned long flags() const throw() { return _flags; }
+  bool can_cow() const noexcept { return (bool)(_flags & Cow_enabled); }
+  Flags flags() const noexcept { return _flags; }
+
+  Flags map_flags(L4Re::Dataspace::Rights rights = L4_CAP_FPAGE_W) const noexcept
+  {
+    auto f = (_flags & Flags(0x0f)) | L4Re::Dataspace::F::Caching_mask;
+    if (!(rights & L4_CAP_FPAGE_W))
+      f &= ~L4Re::Dataspace::F::W;
+
+    return f;
+  }
+
   virtual ~Dataspace() {}
 
   unsigned long page_shift() const throw() { return _page_shift; }
@@ -108,7 +111,7 @@ public:
   { return offset < round_size() && size() - offset >= sz; }
 
 public:
-  int map(l4_addr_t offs, l4_addr_t spot, unsigned long flags,
+  int map(l4_addr_t offs, l4_addr_t spot, Flags flags,
           l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory);
   int stats(L4Re::Dataspace::Stats &stats);
   //int copy_in(unsigned long dst_offs, Dataspace *src, unsigned long src_offs,
@@ -122,44 +125,37 @@ public:
                         Dma_attribs dma_attrs, Dma_space::Direction dir);
 
   long op_map(L4Re::Dataspace::Rights rights,
-              unsigned long offset, l4_addr_t spot,
-              unsigned long flags, L4::Ipc::Snd_fpage &fp);
-
-  long op_take(L4Re::Dataspace::Rights)
-  {
-    L4::cout << "Warning: using deprecated take() operation. Ignored.\n";
-    return 0;
-  }
-
-  long op_release(L4Re::Dataspace::Rights)
-  {
-    L4::cout << "Warning: using deprecated release() operation. Ignored.\n";
-    return 0;
-  }
+              L4Re::Dataspace::Offset offset,
+              L4Re::Dataspace::Map_addr spot,
+              L4Re::Dataspace::Flags flags, L4::Ipc::Snd_fpage &fp);
 
   long op_allocate(L4Re::Dataspace::Rights rights,
-                   l4_addr_t offset, l4_size_t size)
+                   L4Re::Dataspace::Offset offset,
+                   L4Re::Dataspace::Size size)
   { return pre_allocate(offset, size, rights & 3); }
 
-  long op_copy_in(L4Re::Dataspace::Rights rights, l4_addr_t dst_offs,
+  long op_copy_in(L4Re::Dataspace::Rights rights,
+                  L4Re::Dataspace::Offset dst_offs,
                   L4::Ipc::Snd_fpage const &src_cap,
-                  l4_addr_t src_offs, unsigned long sz);
+                  L4Re::Dataspace::Offset src_offs,
+                  L4Re::Dataspace::Size sz);
 
   long op_info(L4Re::Dataspace::Rights rights, L4Re::Dataspace::Stats &s)
   {
     s.size = size();
+    s.flags = flags();
     // only return writable if really writable
-    s.flags = flags() & ~L4Re::Dataspace::Map_w;
-    if ((rights & L4_CAP_FPAGE_W) && is_writable())
-      s.flags |= L4Re::Dataspace::Map_w;
+    if (!(rights & L4_CAP_FPAGE_W))
+      s.flags &= ~L4Re::Dataspace::F::W;
+
     return L4_EOK;
   }
 
   long op_clear(L4Re::Dataspace::Rights rights,
-                l4_addr_t offset, unsigned long size)
+                L4Re::Dataspace::Offset offset,
+                L4Re::Dataspace::Size size)
   {
-    if (   !(rights & L4_CAP_FPAGE_W)
-        || !is_writable())
+    if (!map_flags(rights).w())
       return -L4_EACCESS;
 
     return clear(offset, size);
@@ -168,7 +164,7 @@ public:
 
 private:
   unsigned long  _size;
-  unsigned short _flags;
+  Flags _flags;
   unsigned char  _page_shift;
   Single_page_alloc_base::Config _cfg;
 };

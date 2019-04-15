@@ -30,7 +30,7 @@ class Region_ops
 public:
   typedef L4::Ipc::Snd_fpage Map_result;
   static int map(Region_handler const *h, l4_addr_t adr,
-                 L4Re::Util::Region const &r, unsigned short access,
+                 L4Re::Util::Region const &r, bool writable,
                  L4::Ipc::Snd_fpage *result);
   static void unmap(Region_handler const * /*h*/, l4_addr_t /*vaddr*/,
                     l4_addr_t /*offs*/, unsigned long /*size*/)
@@ -56,7 +56,7 @@ public:
   typedef cxx::Weak_ref<Moe::Dataspace const> Dataspace;
   enum { Have_find = false };
   static int validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
-                         unsigned flags, Dataspace *ds);
+                         L4Re::Rm::Region_flags flags, Dataspace *ds);
   static l4_umword_t find_res(Dataspace const &) { return 0; }
 
   Region_map();

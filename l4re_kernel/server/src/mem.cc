@@ -56,7 +56,7 @@ void *uclibc_morecore(long bytes)
         return mc_err_msg(bytes, "Failed to allocate memory");
 
       void *hp = __executable_start + 0x100000;
-      if (L4Re::Env::env()->rm()->attach(&hp, Heap_max, 0,
+      if (L4Re::Env::env()->rm()->attach(&hp, Heap_max, L4Re::Rm::F::RW,
                                          L4::Ipc::make_cap_rw(heap), 0) < 0)
         return mc_err_msg(bytes, "Failed to attach memory");
 

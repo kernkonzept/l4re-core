@@ -22,22 +22,24 @@
  */
 #include <l4/re/dataspace>
 #include <l4/sys/cxx/ipc_client>
+#include <l4/sys/cxx/consts>
 
 L4_RPC_DEF(L4Re::Dataspace::clear);
 L4_RPC_DEF(L4Re::Dataspace::allocate);
 L4_RPC_DEF(L4Re::Dataspace::copy_in);
 L4_RPC_DEF(L4Re::Dataspace::info);
-L4_RPC_DEF(L4Re::Dataspace::take);
-L4_RPC_DEF(L4Re::Dataspace::release);
 
 namespace L4Re {
 
+
 long
-Dataspace::__map(unsigned long offset, unsigned char *size, unsigned long flags,
-                 l4_addr_t local_addr) const throw()
+Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
+                 Dataspace::Flags flags,
+                 Dataspace::Map_addr local_addr) const throw()
 {
-  l4_addr_t spot = local_addr & ~(~0UL << l4_umword_t(*size));
-  l4_addr_t base = local_addr & (~0UL << l4_umword_t(*size));
+  l4_utcb_t *utcb = l4_utcb();
+  Map_addr spot = local_addr & ~(~0ULL << l4_umword_t(*size));
+  Map_addr base = local_addr & (~0ULL << l4_umword_t(*size));
   L4::Ipc::Rcv_fpage r;
   r = L4::Ipc::Rcv_fpage::mem(base, *size, 0);
 
@@ -51,11 +53,12 @@ Dataspace::__map(unsigned long offset, unsigned char *size, unsigned long flags,
 }
 
 long
-Dataspace::map_region(l4_addr_t offset, unsigned long flags,
-                      l4_addr_t min_addr, l4_addr_t max_addr) const throw()
+Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
+                      Dataspace::Map_addr min_addr,
+                      Dataspace::Map_addr max_addr) const throw()
 {
-  min_addr   = l4_trunc_page(min_addr);
-  max_addr   = l4_round_page(max_addr);
+  min_addr   = L4::trunc_page(min_addr);
+  max_addr   = L4::round_page(max_addr);
   unsigned char order = L4_LOG2_PAGESIZE;
 
   long err = 0;
@@ -64,23 +67,24 @@ Dataspace::map_region(l4_addr_t offset, unsigned long flags,
     {
       unsigned char order_mapped;
       order_mapped = order
-        = l4_fpage_max_order(order, min_addr, min_addr, max_addr, min_addr);
+        = L4::max_order(order, min_addr, min_addr, max_addr, min_addr);
+
       err = __map(offset, &order_mapped, flags, min_addr);
       if (L4_UNLIKELY(err < 0))
-	return err;
+        return err;
 
       if (order > order_mapped)
-	order = order_mapped;
+        order = order_mapped;
 
-      min_addr += 1UL << order;
-      offset   += 1UL << order;
+      min_addr += Map_addr(1) << order;
+      offset   += Map_addr(1) << order;
 
       if (min_addr >= max_addr)
-	return 0;
+        return 0;
 
-      while (min_addr != l4_trunc_size(min_addr, order)
-             || max_addr < l4_round_size(min_addr + 1,order))
-	--order;
+      while (min_addr != L4::trunc_order(min_addr, order)
+             || max_addr < L4::round_order(min_addr + 1, order))
+        --order;
     }
 
   return 0;
@@ -88,20 +92,21 @@ Dataspace::map_region(l4_addr_t offset, unsigned long flags,
 
 
 long
-Dataspace::map(l4_addr_t offset, unsigned long flags,
-               l4_addr_t local_addr,
-               l4_addr_t min_addr, l4_addr_t max_addr) const throw()
+Dataspace::map(Dataspace::Offset offset, Dataspace::Flags flags,
+               Dataspace::Map_addr local_addr,
+               Dataspace::Map_addr min_addr,
+               Dataspace::Map_addr max_addr) const throw()
 {
-  min_addr   = l4_trunc_page(min_addr);
-  max_addr   = l4_round_page(max_addr);
-  local_addr = l4_trunc_page(local_addr);
+  min_addr   = L4::trunc_page(min_addr);
+  max_addr   = L4::round_page(max_addr);
+  local_addr = L4::trunc_page(local_addr);
   unsigned char order
-    = l4_fpage_max_order(L4_LOG2_PAGESIZE, local_addr, min_addr, max_addr, local_addr);
+    = L4::max_order(L4_LOG2_PAGESIZE, local_addr, min_addr, max_addr, local_addr);
 
   return __map(offset, &order, flags, local_addr);
 }
 
-unsigned long
+Dataspace::Size
 Dataspace::size() const throw()
 {
   Stats stats = Stats();
@@ -111,13 +116,13 @@ Dataspace::size() const throw()
   return stats.size;
 }
 
-long
+Dataspace::Flags
 Dataspace::flags() const throw()
 {
   Stats stats = Stats();
   int err = info(&stats);
   if (err < 0)
-    return err;
+    return Flags(0);
   return stats.flags;
 }
 

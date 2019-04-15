@@ -19,10 +19,10 @@
 #include <cstring>
 #include <climits>
 
-Moe::Dataspace_anon::Dataspace_anon(long _size, unsigned short flags,
+Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
                                     unsigned char page_shift,
                                     Single_page_alloc_base::Config cfg)
-: Moe::Dataspace_cont(0, 0, flags, page_shift, cfg)
+: Moe::Dataspace_cont(0, 0, w, page_shift, cfg)
 {
   Quota_guard g;
   Single_page_unique_ptr m;

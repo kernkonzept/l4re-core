@@ -221,7 +221,7 @@ public:
     for (;;)
       {
         L4::Ipc::Snd_fpage fpage;
-        L4Re::chksys(ds->map(aligned_offset, a, L4Re::Dataspace::Map_rw,
+        L4Re::chksys(ds->map(aligned_offset, a, L4Re::Dataspace::F::RW,
                              a, a + size - 1, fpage));
 
         L4::Cap<L4::Task> myself(L4_BASE_TASK_CAP);

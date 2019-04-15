@@ -142,12 +142,12 @@ TEST_F(TestRm, ReservePageSearch)
 
   unsigned long start = 0;
 
-  EXPECT_EQ(0, rm->reserve_area(&start, L4_PAGESIZE, L4Re::Rm::Search_addr));
+  EXPECT_EQ(0, rm->reserve_area(&start, L4_PAGESIZE, L4Re::Rm::F::Search_addr));
   EXPECT_NE(start, 0UL);
 
   // large reserve
   EXPECT_EQ(0, rm->reserve_area(&start, 1024 * L4_PAGESIZE,
-                                L4Re::Rm::Search_addr));
+                                L4Re::Rm::F::Search_addr));
 }
 
 /**
@@ -180,7 +180,7 @@ TEST_F(TestRm, ReserveTwice)
 
   unsigned long start = 0;
 
-  EXPECT_EQ(0, rm->reserve_area(&start, 10 * L4_PAGESIZE, L4Re::Rm::Search_addr));
+  EXPECT_EQ(0, rm->reserve_area(&start, 10 * L4_PAGESIZE, L4Re::Rm::F::Search_addr));
   EXPECT_NE(start, 0UL);
 
   unsigned long s = start;
@@ -226,9 +226,9 @@ TEST_F(TestRm, ReserveTiny)
   auto rm = create_rm();
 
   unsigned long start = 0;
-  EXPECT_EQ(0, rm->reserve_area(&start, 10, L4Re::Rm::Search_addr));
+  EXPECT_EQ(0, rm->reserve_area(&start, 10, L4Re::Rm::F::Search_addr));
   EXPECT_EQ(0UL, start % L4_PAGESIZE);
-  EXPECT_EQ(0, rm->reserve_area(&start, 10, L4Re::Rm::Search_addr, 1));
+  EXPECT_EQ(0, rm->reserve_area(&start, 10, L4Re::Rm::F::Search_addr, 1));
 }
 
 /**
@@ -254,7 +254,7 @@ TEST_F(TestRm, ExhaustQuotaReserve)
   for (;;)
     {
       unsigned long start = 0;
-      long ret = rm->reserve_area(&start, 10, L4Re::Rm::Search_addr, 1);
+      long ret = rm->reserve_area(&start, 10, L4Re::Rm::F::Search_addr, 1);
       if (ret == -L4_EADDRNOTAVAIL)
         break;
 
@@ -267,7 +267,7 @@ TEST_F(TestRm, ExhaustQuotaReserve)
   ASSERT_GT(prev_start, 0UL);
   ASSERT_EQ(0, rm->free_area(prev_start));
   prev_start = 0;
-  ASSERT_EQ(0, rm->reserve_area(&prev_start, 10, L4Re::Rm::Search_addr, 1));
+  ASSERT_EQ(0, rm->reserve_area(&prev_start, 10, L4Re::Rm::F::Search_addr, 1));
 }
 
 /**
@@ -282,7 +282,7 @@ TEST_F(TestRm, FreeAreaSimple)
   auto rm = create_rm();
 
   unsigned long start = 0;
-  EXPECT_EQ(0, rm->reserve_area(&start, L4_PAGESIZE, L4Re::Rm::Search_addr));
+  EXPECT_EQ(0, rm->reserve_area(&start, L4_PAGESIZE, L4Re::Rm::F::Search_addr));
   EXPECT_NE(start, 0UL);
 
   EXPECT_EQ(0, rm->free_area(start));
@@ -315,8 +315,8 @@ TEST_F(TestRm, FindNotAllowed)
 
   l4_addr_t addr = 0;
   unsigned long size = L4_PAGESIZE;
-  l4_addr_t offset = 0;
-  unsigned flags = 0;
+  L4Re::Rm::Offset offset = 0;
+  L4Re::Rm::Flags flags {0};
   L4::Cap<L4Re::Dataspace> cap;
   EXPECT_EQ(-L4_EPERM, rm->find(&addr, &size, &offset, &flags, &cap));
 }
@@ -336,9 +336,9 @@ TEST_F(TestRm, AttachDetachFull)
   auto ds = create_ds(0, sz);
 
   l4_addr_t start = 0;
-  ASSERT_EQ(0, env->rm()->reserve_area(&start, sz, L4Re::Rm::Search_addr));
+  ASSERT_EQ(0, env->rm()->reserve_area(&start, sz, L4Re::Rm::F::Search_addr));
 
-  ASSERT_EQ(0, rm->attach(&start, sz, 0, L4::Ipc::make_cap_rw(ds.get())));
+  ASSERT_EQ(0, rm->attach(&start, sz, L4Re::Rm::F::RWX, L4::Ipc::make_cap_rw(ds.get())));
 
   good_pf(rm.get(), start, start, sz);
   good_pf(rm.get(), start + sz - 8, start, sz);
@@ -371,9 +371,9 @@ TEST_F(TestRm, AttachDetachPartial)
   auto ds = create_ds(0, sz * 4);
 
   l4_addr_t start = 0;
-  ASSERT_EQ(0, env->rm()->reserve_area(&start, sz, L4Re::Rm::Search_addr));
+  ASSERT_EQ(0, env->rm()->reserve_area(&start, sz, L4Re::Rm::F::Search_addr));
 
-  ASSERT_EQ(0, rm->attach(&start, sz, 0,
+  ASSERT_EQ(0, rm->attach(&start, sz, L4Re::Rm::F::RWX,
                           L4::Ipc::make_cap_rw(ds.get()), L4_PAGESIZE));
 
   good_pf(rm.get(), start, start, sz);
@@ -406,9 +406,9 @@ TEST_F(TestRm, AttachTooSmall)
   auto ds = create_ds(sz);
 
   l4_addr_t start = 0;
-  ASSERT_EQ(0, env->rm()->reserve_area(&start, 2 * sz, L4Re::Rm::Search_addr));
+  ASSERT_EQ(0, env->rm()->reserve_area(&start, 2 * sz, L4Re::Rm::F::Search_addr));
 
-  ASSERT_EQ(0, rm->attach(&start, 2 * sz, 0, L4::Ipc::make_cap_rw(ds.get())));
+  ASSERT_EQ(0, rm->attach(&start, 2 * sz, L4Re::Rm::F::RWX, L4::Ipc::make_cap_rw(ds.get())));
 
   good_pf(rm.get(), start, start, 2 * sz);
   EXPECT_EQ(-1, bad_pf(rm.get(), start + 2 * sz - 8));
@@ -445,7 +445,7 @@ TEST_F(TestRm, AttachRemoveDataspace)
       auto ds = create_ds();
       sz = ds->size();
 
-      ASSERT_EQ(0, rm->attach(&start, sz, L4Re::Rm::Search_addr,
+      ASSERT_EQ(0, rm->attach(&start, sz, L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                               L4::Ipc::make_cap_rw(ds.get())));
     }
 
@@ -477,8 +477,7 @@ TEST_F(TestRm, AttachLooseDataspace)
       L4Re::chksys(env->mem_alloc()->alloc(L4_PAGESIZE, ds.get(), 0));
       sz = ds->size();
 
-      ASSERT_EQ(0, rm->attach(&start, sz,
-                              L4Re::Rm::Search_addr | L4Re::Rm::Executable,
+      ASSERT_EQ(0, rm->attach(&start, sz, L4Re::Rm::F::Search_addr | L4Re::Rm::F::RWX,
                               L4::Ipc::make_cap_rw(ds.get())));
     }
 

@@ -71,7 +71,7 @@ Ro_file::preadv(const struct iovec *vec, int cnt, off64_t offset) throw()
     {
       void const *file = (void*)L4_PAGESIZE;
       long err = L4Re::Env::env()->rm()->attach(&file, _size,
-                                                Rm::Search_addr | Rm::Read_only,
+                                                Rm::F::Search_addr | Rm::F::R,
                                                 _ds, 0);
 
       if (err < 0)

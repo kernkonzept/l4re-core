@@ -40,27 +40,20 @@ namespace L4Re
 {
 
 long
-Rm::attach(l4_addr_t *start, unsigned long size, unsigned long flags,
-           L4::Ipc::Cap<Dataspace> mem, l4_addr_t offs,
+Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
+           L4::Ipc::Cap<Dataspace> mem, Rm::Offset offs,
            unsigned char align) const throw()
 {
-  if (flags & Reserved)
+  if (((flags & F::Rights_mask) == Flags(0)) || (flags & F::Reserved))
     mem = L4::Ipc::Cap<L4Re::Dataspace>();
 
   long e = attach_t::call(c(), start, size, flags, mem, offs, align, mem.cap().cap());
   if (e < 0)
     return e;
 
-  if (flags & Eager_map)
-    {
-      unsigned long fl = (flags & Read_only)
-        ? Dataspace::Map_ro
-        : Dataspace::Map_rw;
-      if (flags & Executable)
-        fl |= Dataspace::Map_rx;
-      fl |= (flags & Caching) >> Caching_ds_shift;
-      e = mem.cap()->map_region(offs, fl, *start, *start + size);
-    }
+  if (flags & F::Eager_map)
+    e = mem.cap()->map_region(offs, map_flags(flags), *start, *start + size);
+
   return e;
 }
 

@@ -15,14 +15,15 @@ namespace Moe {
 class Dataspace_cont : public Dataspace
 {
 public:
-  Dataspace_cont(void *start, unsigned long size, unsigned short flags,
+  Dataspace_cont(void *start, unsigned long size,
+                 Flags flags,
                  unsigned char page_shift,
                  Single_page_alloc_base::Config cfg
                    = Single_page_alloc_base::Config());
 
-  Address address(l4_addr_t offset, L4_fpage_rights rights,
-                  l4_addr_t hot_spot = 0, l4_addr_t min = 0,
-                  l4_addr_t max = ~0) const;
+  Address address(l4_addr_t offset,
+                  Flags flags, l4_addr_t hot_spot = 0,
+                  l4_addr_t min = 0, l4_addr_t max = ~0) const;
 
   void unmap(bool ro = false) const throw();
 
