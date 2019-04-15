@@ -1,0 +1,75 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+
+#pragma once
+
+#include <l4/sys/consts.h>
+
+namespace L4 {
+
+  /**
+   * Round a value down so the given number of lsb is zero.
+   *
+   * \tparam T     The type of the value (shall be some integral type.
+   * \param val    The value where the given lsb shall be masked.
+   * \param order  the number of least significant bits (lsb) to mask.
+   * \return val with order lsb masked to zero.
+   */
+  template<typename T>
+  constexpr T trunc_order(T val, unsigned char order)
+  {
+    return val & ((~T(0)) << order);
+  }
+
+  /**
+   * Round a value up so the given number of lsb is zero.
+   *
+   * \tparam T     The type of the value (shall be some integral type.
+   * \param val    The value to rund up to the next multiple of 2^order.
+   * \param order  order (2^order) to round up to.
+   * \return val rounded up to the next 2^order.
+   */
+  template<typename T>
+  constexpr T round_order(T val, unsigned char order)
+  {
+    return (val + (T(1) << order) - T(1)) & ((~T(0)) << order);
+  }
+
+  template<typename T>
+  constexpr T trunc_page(T val)
+  {
+    return trunc_order(val, L4_PAGESHIFT);
+  }
+
+  template<typename T>
+  constexpr T round_page(T val)
+  {
+    return round_order(val, L4_PAGESHIFT);
+  }
+
+  template<typename T>
+  inline unsigned char
+  max_order(unsigned char order, T addr,
+           T min_addr, T max_addr,
+           T hotspot = T(0))
+  {
+    while (order < 30 /* limit to 1GB flexpages */)
+      {
+        T mask;
+        T base = trunc_order(addr, order + 1);
+        if (base < min_addr)
+          return order;
+
+        if (base + (T(1) << (order + 1)) - T(1) > max_addr - T(1))
+          return order;
+
+        mask = ~((~T(0)) << (order + 1));
+        if (hotspot == ~T(0) || ((addr ^ hotspot) & mask))
+          break;
+
+        ++order;
+      }
+
+    return order;
+  }
+
+}

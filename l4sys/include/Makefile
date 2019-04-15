@@ -27,6 +27,7 @@ EXTRA_TARGET	+= capability kip task factory irq icu thread vcon \
                    cxx/ipc_legacy      \
                    cxx/smart_capability_1x \
                    cxx/types           \
+                   cxx/consts          \
 
 
 include $(L4DIR)/mk/include.mk
