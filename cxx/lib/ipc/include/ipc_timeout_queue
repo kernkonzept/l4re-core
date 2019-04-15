@@ -38,7 +38,8 @@ public:
   /**
    * \brief callback function to be called when timeout happened
    * \note The timeout object is already dequeued when this function is called,
-   * this means the timeout may be safely again within the expired() function.
+   * this means the timeout may be safely queued again within the expired()
+   * function.
    */
   virtual void expired() = 0;
 
