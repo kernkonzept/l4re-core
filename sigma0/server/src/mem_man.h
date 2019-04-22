@@ -14,6 +14,7 @@
 
 #include "page_alloc.h"
 #include "region.h"
+#include "globals.h"
 
 
 class Mem_man 
@@ -39,7 +40,7 @@ public:
   Region const *find(Region const &r, bool force = false) const;
 
   bool morecore();
-  unsigned long alloc_first(unsigned long size, unsigned owner = 2);
+  unsigned long alloc_first(unsigned long size, unsigned owner = sigma0_taskno);
 
   void dump();
 };
