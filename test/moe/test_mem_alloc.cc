@@ -66,17 +66,18 @@ TEST_F(TestMemAlloc, Simple)
 
   ASSERT_EQ(1024UL, ds->size());
 
-  char *start;
   // read-only
-  ASSERT_EQ(0, env->rm()->attach(&start, 1024,
+  L4Re::Rm::Unique_region<char const *> ro_region;
+  ASSERT_EQ(0, env->rm()->attach(&ro_region, 1024,
                                  L4Re::Rm::Search_addr | L4Re::Rm::Read_only,
                                  ds.get()));
-  char rd = start[1023];
+  char rd = ro_region.get()[1023];
   // read/write
-  ASSERT_EQ(0, env->rm()->attach(&start, 1024,
+  L4Re::Rm::Unique_region<char *> rw_region;
+  ASSERT_EQ(0, env->rm()->attach(&rw_region, 1024,
                                  L4Re::Rm::Search_addr,
                                  L4::Ipc::make_cap_rw(ds.get())));
-  start[1023] = rd;
+  rw_region.get()[1023] = rd;
 
   // free dataspace by releasing cap
 }
@@ -231,7 +232,7 @@ TEST_F(TestMemAlloc, Superpages)
   ASSERT_EQ(0, env->mem_alloc()->alloc(2 * L4_SUPERPAGESIZE, ds.get(),
                                        L4Re::Mem_alloc::Super_pages));
 
-  char *start;
-  ASSERT_EQ(0, env->rm()->attach(&start, L4_SUPERPAGESIZE,
+  L4Re::Rm::Unique_region<char *> ds_region;
+  ASSERT_EQ(0, env->rm()->attach(&ds_region, L4_SUPERPAGESIZE,
                                  L4Re::Rm::Search_addr, ds.get()));
 }
