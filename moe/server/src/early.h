@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include <l4/sys/vcon.h>
+#include <l4/sys/vcon>
 
 #include <stdlib.h>
 #include <string.h>
