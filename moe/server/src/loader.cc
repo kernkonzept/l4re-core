@@ -14,7 +14,6 @@
 #include "dataspace_anon.h"
 #include "dataspace_noncont.h"
 #include "debug.h"
-#include "exception.h"
 #include "app_task.h"
 #include "name_space.h"
 #include "dataspace_util.h"

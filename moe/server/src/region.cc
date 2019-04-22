@@ -9,7 +9,6 @@
  */
 #include "debug.h"
 #include "region.h"
-#include "exception.h"
 
 #include <l4/sys/kip>
 

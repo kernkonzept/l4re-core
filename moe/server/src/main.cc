@@ -33,7 +33,6 @@
 #include <cstdio>
 
 #include "boot_fs.h"
-#include "exception.h"
 #include "globals.h"
 #include "loader_elf.h"
 #include "log.h"

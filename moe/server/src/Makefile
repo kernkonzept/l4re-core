@@ -8,7 +8,7 @@ SRC_CC          = main.cc page_alloc.cc dataspace.cc dataspace_cont.cc \
                   dataspace_anon.cc globals.cc \
                   alloc.cc boot_fs.cc dataspace_util.cc \
                   region.cc debug.cc malloc.cc quota.cc \
-                  loader.cc loader_elf.cc exception.cc \
+                  loader.cc loader_elf.cc \
                   app_task.cc dataspace_noncont.cc pages.cc \
                   name_space.cc mem.cc log.cc sched_proxy.cc \
                   delete.cc vesa_fb.cc server_obj.cc \
