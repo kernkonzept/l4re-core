@@ -621,18 +621,18 @@ extern "C" char *getcwd(char *buf, size_t size) L4_NOTHROW
   if (buf == 0 && size == 0)
     size = len_cwd;
 
+  if (len_cwd > size)
+    {
+      errno = ERANGE;
+      return 0;
+    }
+
   if (buf == 0)
     buf = (char *)malloc(size);
 
   if (buf == 0)
     {
       errno = ENOMEM;
-      return 0;
-    }
-
-  if (len_cwd > size)
-    {
-      errno = ERANGE;
       return 0;
     }
 
