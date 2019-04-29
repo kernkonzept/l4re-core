@@ -17,7 +17,7 @@
 #include <l4/cxx/iostream>
 #include <l4/cxx/exceptions>
 
-#include <l4/re/util/region_mapping_svr>
+#include <l4/re/util/region_mapping_svr_2>
 
 Region_map::Region_map()
   : Base(Moe::Virt_limit::start, Moe::Virt_limit::end)
