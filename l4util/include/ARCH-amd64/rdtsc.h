@@ -108,7 +108,7 @@ l4_ns_to_tsc (l4_uint64_t ns);
 /**
  * \brief Wait busy for a small amount of time.
  * \param ns nano seconds to wait
- * \attention Not intendet for any use!
+ * \attention Not intended for any use!
  */
 L4_INLINE void
 l4_busy_wait_ns (l4_uint64_t ns);
@@ -116,7 +116,7 @@ l4_busy_wait_ns (l4_uint64_t ns);
 /**
  * \brief Wait busy for a small amount of time.
  * \param us micro seconds to wait
- * \attention Not intendet for any use!
+ * \attention Not intended for any use!
  */
 L4_INLINE void
 l4_busy_wait_us (l4_uint64_t us);
