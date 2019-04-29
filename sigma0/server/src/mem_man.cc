@@ -42,7 +42,7 @@ Mem_man::add(Region const &r)
       rs.start(rs.start()-1);
 
       Tree::Node n = _tree.find_node(rs);
-      if (n && n->owner() == r.owner())
+      if (n && n->owner() == r.owner() && n->rights() == r.rights())
         {
           r.start(n->start());
           int err = _tree.remove(*n);
@@ -62,7 +62,7 @@ Mem_man::add(Region const &r)
       rs.end(rs.end()+1);
 
       Tree::Node n = _tree.find_node(rs);
-      if (n && n->owner() == r.owner())
+      if (n && n->owner() == r.owner() && n->rights() == r.rights())
         {
           r.end(n->end());
           int err = _tree.remove(*n);
@@ -128,7 +128,7 @@ Mem_man::alloc_from(Region const *r2, Region const &_r)
   if (r2->owner() && r2->owner() != r.owner())
     return false;
 
-  if (r2->owner() == r.owner())
+  if (r2->owner() == r.owner() && r2->rights() == r.rights())
     return true;
 
   if (r == *r2)
@@ -166,7 +166,7 @@ Mem_man::alloc_from(Region const *r2, Region const &_r)
       return true;
     }
 
-  Region const nr(r.end() + 1, r2->end(), r2->owner());
+  Region const nr(r.end() + 1, r2->end(), r2->owner(), r2->rights());
   r2->end(r.start() - 1);
   if (0)
     L4::cout << "split to " << *r2 << "; " << nr << '\n';
@@ -193,6 +193,32 @@ Mem_man::alloc(Region const &r, bool force)
     return ~0UL;
 
   return r.start();
+}
+
+/**
+ * Allocate region from its containing region and inherit its rights.
+ *
+ * @param[in] r        Region to allocate. Its rights are the necessary minimal
+ *                     rights of the containing region.
+ * @param[out] rights  Address of the variable that will receive the full rights
+ *                     of the containing region.
+ *
+ * @retval true   The region was allocated.
+ * @retval false  The region was not allocated.
+ */
+bool
+Mem_man::alloc_get_rights(Region const &r, L4_fpage_rights *rights)
+{
+  Region q = r;
+  auto const *p = find(q);
+  if (!p)
+    return false;
+  if ((p->rights() & q.rights()) != q.rights())
+    return false;
+
+  *rights = p->rights();
+  q.rights(p->rights());
+  return alloc_from(p, q);
 }
 
 bool

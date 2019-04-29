@@ -92,28 +92,33 @@ static
 void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
 {
   Mem_man *m;
-  unsigned mem_flags;
+  L4_fpage_rights mem_flags;
   bool cached = true;
   unsigned long addr = ~0UL;
+  Region const *p;
   Region r;
 
   switch (fn)
     {
     case Ram:
       m = Mem_man::ram();
-      mem_flags = L4_FPAGE_RWX;
-      addr = m->alloc(Region::bs(fp.raw & ~((1UL << 12) - 1),
-                                 1UL << l4_fpage_size(fp), t));
+      r = Region::bs(fp.raw & ~((1UL << 12) - 1), 1UL << l4_fpage_size(fp), t,
+                     L4_FPAGE_RO);
+      if (m->alloc_get_rights(r, &mem_flags))
+          addr = r.start();
       break;
     case Io_mem:
       cached = false;
       /* fall through */
     case Io_mem_cached:
-      mem_flags = L4_FPAGE_RW;
       // there is no first-come, first-serve for IO memory
       r = Region::bs(fp.raw & ~((1UL << 12) - 1), 1UL << l4_fpage_size(fp));
-      if (iomem.find(r, false))
-        addr = r.start();
+      p = iomem.find(r);
+      if (p)
+        {
+          addr = r.start();
+          mem_flags = p->rights();
+        }
       break;
     default:
       an->error(L4_EINVAL);
@@ -138,20 +143,23 @@ static
 void
 handle_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 {
-  unsigned long pfa = l4_utcb_mr_u(utcb)->mr[0] & ~3UL;
+  unsigned long pfa = l4_utcb_mr_u(utcb)->mr[0] & ~7UL;
+  bool inst_fetch = l4_utcb_mr_u(utcb)->mr[0] & 4;
+  bool write = l4_utcb_mr_u(utcb)->mr[0] & 2;
 
+  L4_fpage_rights dr = inst_fetch ? (write ? L4_FPAGE_RWX : L4_FPAGE_RX)
+                                  : (write ? L4_FPAGE_RW : L4_FPAGE_RO);
 
-  unsigned long addr
-    = Mem_man::ram()->alloc(Region::bs(l4_trunc_page(pfa), L4_PAGESIZE, t));
-
-  if (addr != ~0UL)
+  L4_fpage_rights rights;
+  Region r = Region::bs(l4_trunc_page(pfa), L4_PAGESIZE, t, dr);
+  if (Mem_man::ram()->alloc_get_rights(r, &rights))
     {
-      answer->snd_fpage(addr, L4_LOG2_PAGESIZE, L4_FPAGE_RWX, true);
+      answer->snd_fpage(r.start(), L4_LOG2_PAGESIZE, rights, true);
       return;
     }
-  else if (debug_warnings)
-    L4::cout << PROG_NAME": Page fault, did not find page at "
-             << L4::hex << pfa << " for " << L4::dec << t << "\n";
+
+  if (debug_warnings)
+    L4::cout << PROG_NAME ": Page fault, did not find page " << r << "\n";
 
   answer->error(L4_ENOMEM);
 }

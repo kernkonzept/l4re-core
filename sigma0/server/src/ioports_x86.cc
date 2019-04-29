@@ -22,7 +22,7 @@ static Mem_man io_ports;
 
 void init_io_ports()
 {
-  io_ports.add_free(Region::kr(0, (64 * 1024) << PORT_SHIFT));
+  io_ports.add_free(Region::kr(0, (64 * 1024) << PORT_SHIFT, 0, L4_FPAGE_RW));
 }
 
 void dump_io_ports()
@@ -38,7 +38,8 @@ void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *a)
   port = l4_fpage_ioport(fp) << PORT_SHIFT;
   size = l4_fpage_size(fp) + PORT_SHIFT;
 
-  unsigned long i = io_ports.alloc(Region::bs(port, 1UL << size, t));
+  unsigned long i =
+    io_ports.alloc(Region::bs(port, 1UL << size, t, L4_FPAGE_RW));
   if (i == port)
     a->snd_fpage(l4_iofpage(port >> PORT_SHIFT, size - PORT_SHIFT));
   else

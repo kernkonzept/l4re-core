@@ -11,6 +11,7 @@
 #define SIGMA0_MEM_MAN_H__
 
 #include <l4/cxx/avl_set>
+#include <l4/sys/types.h>
 
 #include "page_alloc.h"
 #include "region.h"
@@ -34,6 +35,7 @@ public:
   static Mem_man *ram() { return &_ram; }
 
   unsigned long alloc(Region const &r, bool force = false);
+  bool alloc_get_rights(Region const &r, L4_fpage_rights *rights);
   bool reserve(Region const &r);
   bool add_free(Region const &r);
   bool add(Region const &r);
