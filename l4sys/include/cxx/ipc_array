@@ -43,7 +43,7 @@ struct Array_ref
 
   len_type length;
   ptr_type data;
-  Array_ref() {}
+  Array_ref() = default;
   Array_ref(len_type length, ptr_type data)
   : length(length), data(data)
   {}

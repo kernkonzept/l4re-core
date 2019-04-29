@@ -55,7 +55,7 @@ struct Pair
   : first(first), second(second) {}
 
   /// Default construction.
-  Pair() {}
+  Pair() = default;
 };
 
 template< typename F, typename S >

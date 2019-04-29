@@ -48,7 +48,7 @@ struct Direction
   unsigned char d;
 
   /// Uninitialized direction
-  Direction() {}
+  Direction() = default;
 
   /// Convert a literal direction (#L, #R, #N) to an object
   Direction(Direction_e d) : d(d) {}
