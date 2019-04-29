@@ -807,10 +807,12 @@ namespace std
 #define _GLIBCXX_HAVE_INT64_T 1
 
 /* Define if int64_t is a long. */
+#if __SIZEOF_POINTER__ == 8
 #define _GLIBCXX_HAVE_INT64_T_LONG 1
-
+#else
 /* Define if int64_t is a long long. */
-/* #undef _GLIBCXX_HAVE_INT64_T_LONG_LONG */
+#define _GLIBCXX_HAVE_INT64_T_LONG_LONG 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define _GLIBCXX_HAVE_INTTYPES_H 1
@@ -1417,13 +1419,17 @@ namespace std
 #define _GLIBCXX_MANGLE_SIZE_T m
 
 /* Define if ptrdiff_t is int. */
+#if __SIZEOF_POINTER__ == 4
 #define _GLIBCXX_PTRDIFF_T_IS_INT 1
+#endif
 
 /* Define if using setrlimit to set resource limits during "make check" */
 //l4/#define _GLIBCXX_RES_LIMITS 1
 
 /* Define if size_t is unsigned int. */
-/* #undef _GLIBCXX_SIZE_T_IS_UINT */
+#if __SIZEOF_POINTER__ == 4
+#define _GLIBCXX_SIZE_T_IS_UINT 1
+#endif
 
 /* Define to the value of the EOF integer constant. */
 #define _GLIBCXX_STDIO_EOF -1
@@ -1480,7 +1486,9 @@ namespace std
 
 /* Define if C99 functions or macros in <math.h> should be imported in
    <tr1/cmath> in namespace std::tr1. */
+#ifndef L4_MINIMAL_LIBC
 #define _GLIBCXX_USE_C99_MATH_TR1 1
+#endif
 
 /* Define if C99 types in <stdint.h> should be imported in <tr1/cstdint> in
    namespace std::tr1. */
@@ -1518,7 +1526,9 @@ namespace std
 //l4/#define _GLIBCXX_USE_GET_NPROCS 1
 
 /* Define if __int128 is supported on this host. */
-/* #undef _GLIBCXX_USE_INT128 */
+#if __SIZEOF_POINTER__ == 8
+#define _GLIBCXX_USE_INT128 1
+#endif
 
 #if !defined(L4_MINIMAL_LIBC)
 /* Define if LFS support is available. */

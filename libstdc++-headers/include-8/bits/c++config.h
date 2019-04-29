@@ -826,10 +826,12 @@ namespace std
 #define _GLIBCXX_HAVE_INT64_T 1
 
 /* Define if int64_t is a long. */
+#if __SIZEOF_POINTER__ == 8
 #define _GLIBCXX_HAVE_INT64_T_LONG 1
-
+#else
 /* Define if int64_t is a long long. */
-/* #undef _GLIBCXX_HAVE_INT64_T_LONG_LONG */
+#define _GLIBCXX_HAVE_INT64_T_LONG_LONG 1
+#endif
 
 /* Define to 1 if you have the <inttypes.h> header file. */
 #define _GLIBCXX_HAVE_INTTYPES_H 1
@@ -1457,13 +1459,17 @@ namespace std
 /* #undef _GLIBCXX_NO_C99_ROUNDING_FUNCS */
 
 /* Define if ptrdiff_t is int. */
-/* #undef _GLIBCXX_PTRDIFF_T_IS_INT */
+#if __SIZEOF_POINTER__ == 4
+#define _GLIBCXX_PTRDIFF_T_IS_INT 1
+#endif
 
 /* Define if using setrlimit to set resource limits during "make check" */
 //l4/#define _GLIBCXX_RES_LIMITS 1
 
 /* Define if size_t is unsigned int. */
-/* #undef _GLIBCXX_SIZE_T_IS_UINT */
+#if __SIZEOF_POINTER__ == 4
+#define _GLIBCXX_SIZE_T_IS_UINT 1
+#endif
 
 /* Define to the value of the EOF integer constant. */
 #define _GLIBCXX_STDIO_EOF -1
