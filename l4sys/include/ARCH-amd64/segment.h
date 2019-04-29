@@ -84,28 +84,46 @@ enum L4_task_ldt_x86_consts
 };
 
 /**
- * Set the FS register.
- * \param  thread    Thread to get info from.
+ * Set the base address for the FS segment.
+ * \param  thread    Thread for which the FS base address shall be modified.
  * \param  base      Base address.
  * \param  utcb      UTCB of the caller.
- * \return System call error
+ *
+ * \retval L4_EOK      Success.
+ * \retval -L4_EINVAL  Invalid base address (\p base).
+ * \retval -L4_ENOSYS  Operation not supported with current kernel
+ *                     configuration.
+ *
+ * \note
+ *   Calling this function is equivalent to calling
+ *   `fiasco_amd64_set_segment_base(thread, L4_AMD64_SEGMENT_FS, base, utcb)`.
  */
 L4_INLINE long
 fiasco_amd64_set_fs(l4_cap_idx_t thread, l4_umword_t base, l4_utcb_t *utcb);
 
+/**
+ * Constants for identifying segments.
+ */
 enum L4_sys_segment
 {
+  /// Constant identifying the FS segment.
   L4_AMD64_SEGMENT_FS = 0,
+  /// Constant identifying the GS segment.
   L4_AMD64_SEGMENT_GS = 1
 };
 
 /**
- * Set the FS register.
- * \param  thread    Thread to get info from.
- * \param  segr      Segment register to set (one of L4_sys_segment).
+ * Set the base address for a segment.
+ * \param  thread    Thread for which the base address of the selected segment
+ *                   shall be modified.
+ * \param  segr      Segment to modify (one of ::L4_sys_segment).
  * \param  base      Base address.
  * \param  utcb      UTCB of the caller.
- * \return System call error
+ *
+ * \retval L4_EOK      Success.
+ * \retval -L4_EINVAL  Invalid segment (\p segr) or base address (\p base).
+ * \retval -L4_ENOSYS  Operation not supported with current kernel
+ *                     configuration.
  */
 L4_INLINE long
 fiasco_amd64_set_segment_base(l4_cap_idx_t thread, enum L4_sys_segment segr,
