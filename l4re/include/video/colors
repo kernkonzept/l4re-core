@@ -186,7 +186,7 @@ public:
   /**
    * \brief Constructor.
    */
-  Pixel_info() : _r(), _g(), _b(), _a() {}
+  Pixel_info() = default;
 
   /**
    * \brief Constructor.
