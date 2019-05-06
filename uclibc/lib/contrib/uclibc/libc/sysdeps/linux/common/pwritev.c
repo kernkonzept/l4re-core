@@ -21,7 +21,7 @@
 
 #ifdef __NR_pwritev
 ssize_t
-pwritev (int fd, const struct iovec *vector, int count, off_t offset)
+pwritev (int fd, const struct iovec *vector, int count, __off64_t offset)
 {
   unsigned long pos_l, pos_h;
 

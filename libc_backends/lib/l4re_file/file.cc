@@ -689,15 +689,15 @@ int poll([[maybe_unused]] struct pollfd *fds, [[maybe_unused]] nfds_t nfds,
   }
 
 __BEGIN_DECLS
-ssize_t preadv(int, const struct iovec *, int, off_t);
-ssize_t pwritev(int, const struct iovec *, int, off_t);
+ssize_t preadv(int, const struct iovec *, int, __off64_t);
+ssize_t pwritev(int, const struct iovec *, int, __off64_t);
 __END_DECLS
 
 L4B_REDIRECT_2(int,       fstat64,     int, struct stat64 *)
 L4B_REDIRECT_3(ssize_t,   readv,       int, const struct iovec *, int)
 L4B_REDIRECT_3(ssize_t,   writev,      int, const struct iovec *, int)
-L4B_REDIRECT_4(ssize_t,   preadv,      int, const struct iovec *, int, off_t)
-L4B_REDIRECT_4(ssize_t,   pwritev,     int, const struct iovec *, int, off_t)
+L4B_REDIRECT_4(ssize_t,   preadv,      int, const struct iovec *, int, __off64_t)
+L4B_REDIRECT_4(ssize_t,   pwritev,     int, const struct iovec *, int, __off64_t)
 L4B_REDIRECT_3(__off64_t, lseek64,     int, __off64_t, int)
 L4B_REDIRECT_2(int,       ftruncate64, int, off64_t)
 L4B_REDIRECT_1(int,       fsync,       int)

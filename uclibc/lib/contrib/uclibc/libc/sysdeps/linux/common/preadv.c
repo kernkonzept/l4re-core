@@ -21,7 +21,7 @@
 
 #ifdef __NR_preadv
 ssize_t
-preadv (int fd, const struct iovec *vector, int count, off_t offset)
+preadv (int fd, const struct iovec *vector, int count, __off64_t offset)
 {
   unsigned long pos_l, pos_h;
 
