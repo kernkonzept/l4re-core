@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <string.h>
 
-/* Define all functions week so that real implementation can overwrite them */
+/* Define all functions weak so that real implementation can overwrite them */
 #define W __attribute__((weak))
 
 int W socket(int domain, int type, int protocol)
