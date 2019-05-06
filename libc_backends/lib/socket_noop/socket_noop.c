@@ -78,7 +78,7 @@ int W listen(int sockfd, int backlog)
   return -1;
 }
 
-int shutdown(int sockfd, int how)
+int W shutdown(int sockfd, int how)
 {
   printf("Unimplemented: %s(%d, %d)\n", __func__, sockfd, how);
   errno = EBADF;
@@ -117,7 +117,7 @@ ssize_t W sendto(int sockfd, const void *buf, size_t len, int flags,
   return -1;
 }
 
-int socketpair(int domain, int type, int protocol, int sv[2])
+int W socketpair(int domain, int type, int protocol, int sv[2])
 {
   printf("Unimplemented: %s(%d, %d, %d, %p)\n", __func__,
          domain, type, protocol, sv);
@@ -139,7 +139,7 @@ int W getpeername(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
   return -1;
 }
 
-int getnameinfo(const struct sockaddr *sa, socklen_t salen,
+int W getnameinfo(const struct sockaddr *sa, socklen_t salen,
                 char *host, socklen_t hostlen,
                 char *serv, socklen_t servlen, unsigned int flags)
 {
@@ -148,7 +148,7 @@ int getnameinfo(const struct sockaddr *sa, socklen_t salen,
   return EAI_FAIL;
 }
 
-int gethostent_r(struct hostent *ret, char *buf, size_t buflen,
+int W gethostent_r(struct hostent *ret, char *buf, size_t buflen,
                  struct hostent **result, int *h_errnop)
 {
   printf("Unimplemented: %s(%p, %p, %zd, %p, %p)\n", __func__,
