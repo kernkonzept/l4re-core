@@ -40,7 +40,9 @@
  * Basically a floating point number with 10 bits mantissa and
  * 5 bits exponent (t = m*2^e).
  *
- * The timeout can also specify an absolute point in time (bit 16 == 1).
+ * If bit 15 == 1 the timeout is absolute and the lower 6 bits encode the index
+ * of the UTCB buffer register(s) holding the absolute 64-bit timeout value. On
+ * 32-bit systems, two consecutive UTCB buffer registers are used.
  */
 typedef struct l4_timeout_s {
   l4_uint16_t t;                           /**< timeout value */
@@ -82,31 +84,6 @@ typedef union l4_timeout_t {
 #define L4_IPC_SEND_TIMEOUT_0 ((l4_timeout_t){0x04000000})  /**< 0 send timeout */
 #define L4_IPC_BOTH_TIMEOUT_0 ((l4_timeout_t){0x04000400})  /**< 0 receive and send timeout */
 /*@}*/
-
-/**
- * Intervals of validity for absolute timeouts
- * \ingroup l4_timeout_api
- *
- * Times are actually 2^x values (e.g. 2ms -> 2048µs)
- */
-enum l4_timeout_abs_validity {
-  L4_TIMEOUT_ABS_V1_ms = 0,
-  L4_TIMEOUT_ABS_V2_ms,
-  L4_TIMEOUT_ABS_V4_ms,
-  L4_TIMEOUT_ABS_V8_ms,    /* 5 */
-  L4_TIMEOUT_ABS_V16_ms,
-  L4_TIMEOUT_ABS_V32_ms,
-  L4_TIMEOUT_ABS_V64_ms,
-  L4_TIMEOUT_ABS_V128_ms,
-  L4_TIMEOUT_ABS_V256_ms,  /* 10 */
-  L4_TIMEOUT_ABS_V512_ms,
-  L4_TIMEOUT_ABS_V1_s,
-  L4_TIMEOUT_ABS_V2_s,
-  L4_TIMEOUT_ABS_V4_s,
-  L4_TIMEOUT_ABS_V8_s,
-  L4_TIMEOUT_ABS_V16_s,
-  L4_TIMEOUT_ABS_V32_s,
-};
 
 /**
  * Get relative timeout consisting of mantissa and exponent.
