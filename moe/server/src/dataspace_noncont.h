@@ -13,6 +13,12 @@
 
 namespace Moe {
 
+/**
+ * Dataspace with dynamic backing of physical memory.
+ *
+ * The dataspace is created in an empty state. Memory pages are allocated
+ * and freed dynamically as they are requested by the client.
+ */
 class Dataspace_noncont : public Dataspace
 {
 public:

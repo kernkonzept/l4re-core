@@ -12,6 +12,9 @@
 
 namespace Moe {
 
+/**
+ * Dataspace that exists over the lifetime of Moe.
+ */
 class Dataspace_static : public Dataspace_cont
 {
 public:

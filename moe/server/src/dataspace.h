@@ -23,6 +23,13 @@
 
 namespace Moe {
 
+/**
+ * Base class for all dataspace types.
+ *
+ * Provides common implementations of the Dataspace interface functions.
+ * The behaviour may be adapted by overwriting the provided virtual
+ * functions.
+ */
 class Dataspace :
   public L4::Epiface_t<Dataspace, L4Re::Dataspace, Server_object>,
   public Q_object

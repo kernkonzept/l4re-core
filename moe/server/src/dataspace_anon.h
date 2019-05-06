@@ -12,6 +12,11 @@
 
 namespace Moe {
 
+/**
+ * Dynamically allocatable dataspace based on a contiguous region of RAM.
+ *
+ * This type of dataspace is always fully preallocated.
+ */
 class Dataspace_anon : public Dataspace_cont
 {
 public:

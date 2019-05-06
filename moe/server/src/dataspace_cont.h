@@ -12,6 +12,9 @@
 
 namespace Moe {
 
+/**
+ * A dataspace serving a contiguous range of physical memory.
+ */
 class Dataspace_cont : public Dataspace
 {
 public:
