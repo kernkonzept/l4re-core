@@ -135,7 +135,7 @@ public:
   bool empty() const
   { return _size == 0; }
 
-  void create_ds_and_register(Moe::Name_space *ns)
+  void create_ds_and_register(Moe::Name_space *ns, const char *jdb_name)
   {
     if (empty())
       return;
@@ -143,7 +143,7 @@ public:
     Moe::Dataspace_static *ds;
     ds = new Moe::Dataspace_static(_buf, _size, L4Re::Dataspace::F::R);
 
-    object_pool.cap_alloc()->alloc(ds);
+    object_pool.cap_alloc()->alloc(ds, jdb_name);
     ns->register_obj(".dirinfo", Moe::Entry::Flags::F_allocated, ds);
   }
 
@@ -158,12 +158,12 @@ void
 Moe::Boot_fs::init_stage2()
 {
   auto *rom_ns = Moe::Moe_alloc::allocator()->make_obj<Moe::Name_space>();
-  L4::Cap<void> rom_ns_cap = object_pool.cap_alloc()->alloc(rom_ns);
+  L4::Cap<void> rom_ns_cap = object_pool.cap_alloc()->alloc(rom_ns, "moe-ns-rom");
   L4::cout << "MOE: rom name space cap -> " << rom_ns_cap << '\n';
   root_name_space()->register_obj("rom", 0, rom_ns);
 
   auto *rwfs_ns = Moe::Moe_alloc::allocator()->make_obj<Moe::Name_space>();
-  L4::Cap<void> rwfs_ns_cap = object_pool.cap_alloc()->alloc(rwfs_ns);
+  L4::Cap<void> rwfs_ns_cap = object_pool.cap_alloc()->alloc(rwfs_ns, "moe-rwfs");
   L4::cout << "MOE: rwfs name space cap -> " << rwfs_ns_cap << '\n';
   root_name_space()->register_obj("rwfs", 0, rwfs_ns);
 
@@ -221,7 +221,9 @@ Moe::Boot_fs::init_stage2()
       Moe::Dataspace_static *rf;
       rf = new Moe::Dataspace_static(reinterpret_cast<void*>(mod_start),
                                      mod_end - mod_start, flags);
-      object = object_pool.cap_alloc()->alloc(rf);
+      char const *jdb_name = flags == L4Re::Dataspace::F::RWX ? "moe-rw-file"
+                                                              : "moe-rom-file";
+      object = object_pool.cap_alloc()->alloc(rf, jdb_name);
       if (flags.w())
         {
           rwfs_ns->register_obj(name, Entry::F_rw, rf);
@@ -243,8 +245,8 @@ Moe::Boot_fs::init_stage2()
   if (m_low != (l4_addr_t)-1)
     l4util_splitlog2_hdl(m_low, m_high, s0_request_ram);
 
-  dirinfo_ro.create_ds_and_register(rom_ns);
-  dirinfo_rw.create_ds_and_register(rwfs_ns);
+  dirinfo_ro.create_ds_and_register(rom_ns, "dirinfo-ro");
+  dirinfo_rw.create_ds_and_register(rwfs_ns, "dirinfo-rw");
 }
 
 

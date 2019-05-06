@@ -13,6 +13,9 @@
 #include <l4/sys/factory.h>
 #include <l4/sys/types.h>
 #include <l4/sys/thread>
+#ifdef CONFIG_MOE_DEBUG_NAMES
+#include <l4/sys/debugger.h>
+#endif
 
 #include <l4/re/util/bitmap_cap_alloc>
 #include <l4/re/error_helper>
@@ -122,7 +125,7 @@ public:
   template< typename T >
   L4::Cap<T> alloc() { return L4::cap_cast<T>(alloc()); }
 
-  L4::Cap<L4::Kobject> alloc(Moe::Server_object *_o)
+  L4::Cap<L4::Kobject> alloc(Moe::Server_object *_o, [[maybe_unused]] const char *n)
   {
     extern Object_pool object_pool;
     // make sure we register an Epiface ptr
@@ -138,6 +141,9 @@ public:
     l4_factory_create_gate(L4_BASE_FACTORY_CAP, cap.cap(),
                            L4_BASE_THREAD_CAP, id);
 
+#ifdef CONFIG_MOE_DEBUG_NAMES
+    l4_debugger_set_object_name(cap.cap(), n);
+#endif
     _o->set_server(&object_pool, cap, true);
     return cap;
   }

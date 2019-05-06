@@ -251,7 +251,7 @@ init_kip_ds()
       exit(1);
     }
 
-  object_pool.cap_alloc()->alloc(kip_ds);
+  object_pool.cap_alloc()->alloc(kip_ds, "moe-ds-kip");
 }
 
 static L4::Cap<void>
@@ -563,11 +563,11 @@ int main(int /* argc */, char** /* argv */)
       Moe::Boot_fs::init_stage2();
       init_vesa_fb((l4util_l4mod_info *)kip()->user_ptr);
 
-      root_name_space_obj = object_pool.cap_alloc()->alloc(root_name_space());
+      root_name_space_obj = object_pool.cap_alloc()->alloc(root_name_space(), "moe-root-ns");
 
       init_kip_ds();
 
-      object_pool.cap_alloc()->alloc(Allocator::root_allocator());
+      object_pool.cap_alloc()->alloc(Allocator::root_allocator(), "moe-rootalloc");
 
       l4_debugger_set_object_name(L4_BASE_TASK_CAP,   "moe");
       l4_debugger_set_object_name(L4_BASE_THREAD_CAP, "moe");

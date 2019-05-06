@@ -42,7 +42,7 @@ App_task::App_task()
     _alloc(Allocator::root_allocator()),
     _rm(_alloc->make_obj<Region_map>())
 {
-  auto c = object_pool.cap_alloc()->alloc(_rm.get());
+  auto c = object_pool.cap_alloc()->alloc(_rm.get(), "moe-rm");
   c->dec_refcnt(1);
 }
 

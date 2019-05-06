@@ -113,9 +113,9 @@ Vesa_fb::Vesa_fb(l4util_l4mod_info *mbi)
 
   init_infos();
 
-  _fb_ds = L4::cap_cast<L4Re::Dataspace>(object_pool.cap_alloc()->alloc(fb));
+  _fb_ds = L4::cap_cast<L4Re::Dataspace>(object_pool.cap_alloc()->alloc(fb, "moe-fb-ds"));
 
-  object_pool.cap_alloc()->alloc(this);
+  object_pool.cap_alloc()->alloc(this, "moe-vesa");
   root_name_space()->register_obj("vesa", 0, this);
 
   L4::cout << "  VESAFB: " << obj_cap() << _fb_ds
