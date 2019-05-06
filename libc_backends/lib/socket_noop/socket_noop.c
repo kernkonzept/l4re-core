@@ -25,7 +25,7 @@ int W socket(int domain, int type, int protocol)
 int W connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %d)\n", __func__, sockfd, addr, addrlen);
-  errno = ECONNREFUSED;
+  errno = EBADF;
   return -1;
 }
 
@@ -48,7 +48,7 @@ int W accept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags)
 int W bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %d)\n", __func__, sockfd, addr, addrlen);
-  errno = EINVAL;
+  errno = EBADF;
   return -1;
 }
 
@@ -57,7 +57,7 @@ int W getsockopt(int sockfd, int level, int optname,
 {
   printf("Unimplemented: %s(%d, %d, %d, %p, %p)\n",
          __func__, sockfd, level, optname, optval, optlen);
-  errno = EINVAL;
+  errno = EBADF;
   return -1;
 }
 
@@ -67,7 +67,7 @@ int W setsockopt(int sockfd, int level, int optname,
   printf("Unimplemented: %s(%d, %d, %d, %p, ...)\n",
          __func__, sockfd, level, optname, optval);
   (void)optlen;
-  errno = EINVAL;
+  errno = EBADF;
   return -1;
 }
 
