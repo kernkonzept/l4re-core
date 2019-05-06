@@ -26,41 +26,37 @@
 EXTERN_C_BEGIN
 
 /**
- * \brief Return whether the kernel is running native or under UX.
+ * Return whether the kernel is running natively or under UX.
  *
- * Returns whether the kernel is running natively or under UX. The KIP will
- * be mapped if not already mapped. The KIP will not be unmapped again.
- *
- * \return 1 when running under UX, 0 if not running under UX
+ * \return  1 when running under UX, 0 if not running under UX.
  */
 L4_CV int l4util_kip_kernel_is_ux(l4_kernel_info_t *);
 
 /**
- * \brief Check if kernel supports a feature.
+ * Check if kernel supports a feature.
  *
- * \param str   Feature name to check.
+ * \param str  Feature name to check.
  *
- * \return 1 if the kernel supports the feature, 0 if not.
+ * \return  1 if the kernel supports the feature, 0 if not.
  *
- * Checks the feature field in the KIP for the given string. The KIP will be
- * mapped if not already mapped. The KIP will not be unmapped again.
+ * Checks the feature field in the KIP for the given string.
  */
 L4_CV int l4util_kip_kernel_has_feature(l4_kernel_info_t *, const char *str);
 
 /**
- * \brief Return kernel ABI version.
+ * Return kernel ABI version.
  *
- * \return Kernel ABI version.
+ * \return  Kernel ABI version.
  */
 L4_CV unsigned long l4util_kip_kernel_abi_version(l4_kernel_info_t *);
 
 EXTERN_C_END
 
 /**
- * \brief Cycle through kernel features given in the KIP.
+ * Cycle through kernel features given in the KIP.
  *
  * Cycles through all KIP kernel feature strings. s must be a character
- * pointer (char *) initialized with l4util_kip_version_string().
+ * pointer (char const *) initialized with l4_kip_version_string().
  */
 #define l4util_kip_for_each_feature(s)				\
 		for (s += strlen(s) + 1; *s; s += strlen(s) + 1)
