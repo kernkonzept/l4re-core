@@ -18,21 +18,21 @@
 int W socket(int domain, int type, int protocol)
 {
   printf("Unimplemented: %s(%d, %d, %d)\n", __func__, domain, type, protocol);
-  errno = -EINVAL;
+  errno = EINVAL;
   return -1;
 }
 
 int W connect(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %d)\n", __func__, sockfd, addr, addrlen);
-  errno = -ECONNREFUSED;
+  errno = ECONNREFUSED;
   return -1;
 }
 
 int W accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %p)\n", __func__, sockfd, addr, addrlen);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
@@ -41,14 +41,14 @@ int W accept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags)
 {
   printf("Unimplemented: %s(%d, %p, %p, %d)\n",
          __func__, sockfd, addr, addrlen, flags);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
 int W bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %d)\n", __func__, sockfd, addr, addrlen);
-  errno = -EINVAL;
+  errno = EINVAL;
   return -1;
 }
 
@@ -57,7 +57,7 @@ int W getsockopt(int sockfd, int level, int optname,
 {
   printf("Unimplemented: %s(%d, %d, %d, %p, %p)\n",
          __func__, sockfd, level, optname, optval, optlen);
-  errno = -EINVAL;
+  errno = EINVAL;
   return -1;
 }
 
@@ -67,28 +67,28 @@ int W setsockopt(int sockfd, int level, int optname,
   printf("Unimplemented: %s(%d, %d, %d, %p, ...)\n",
          __func__, sockfd, level, optname, optval);
   (void)optlen;
-  errno = -EINVAL;
+  errno = EINVAL;
   return -1;
 }
 
 int W listen(int sockfd, int backlog)
 {
   printf("Unimplemented: %s(%d, %d)\n", __func__, sockfd, backlog);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
 int shutdown(int sockfd, int how)
 {
   printf("Unimplemented: %s(%d, %d)\n", __func__, sockfd, how);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
 ssize_t W recv(int sockfd, void *buf, size_t len, int flags)
 {
   printf("Unimplemented: %s(%d, %p, %zd, %d)\n", __func__, sockfd, buf, len, flags);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
@@ -97,14 +97,14 @@ ssize_t W recvfrom(int sockfd, void *buf, size_t len, int flags,
 {
   printf("Unimplemented: %s(%d, %p, %zd, %d, %p, %p)\n",
          __func__, sockfd, buf, len, flags, src_addr, addrlen);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
 ssize_t W send(int sockfd, const void *buf, size_t len, int flags)
 {
   printf("Unimplemented: %s(%d, %p, %zd, %d)\n", __func__, sockfd, buf, len, flags);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
@@ -113,7 +113,7 @@ ssize_t W sendto(int sockfd, const void *buf, size_t len, int flags,
 {
   printf("Unimplemented: %s(%d, %p, %zd, %d, %p, %d)\n", __func__,
          sockfd, buf, len, flags, dest_addr, addrlen);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
@@ -121,21 +121,21 @@ int socketpair(int domain, int type, int protocol, int sv[2])
 {
   printf("Unimplemented: %s(%d, %d, %d, %p)\n", __func__,
          domain, type, protocol, sv);
-  errno = -EOPNOTSUPP;
+  errno = EOPNOTSUPP;
   return -1;
 }
 
 int W getsockname(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %p)\n", __func__, sockfd, addr, addrlen);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
 int W getpeername(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %p)\n", __func__, sockfd, addr, addrlen);
-  errno = -EBADF;
+  errno = EBADF;
   return -1;
 }
 
@@ -153,6 +153,6 @@ int gethostent_r(struct hostent *ret, char *buf, size_t buflen,
 {
   printf("Unimplemented: %s(%p, %p, %zd, %p, %p)\n", __func__,
          ret, buf, buflen, result, h_errnop);
-  errno = -EINVAL;
+  errno = EINVAL;
   return -1;
 }
