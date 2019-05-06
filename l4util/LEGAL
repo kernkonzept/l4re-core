@@ -48,7 +48,6 @@ lib/src/alloc.c : TUD
 lib/src/base64.c : Trantor Standard Systems Inc. : MIT
 lib/src/getopt2.c : TUD
 lib/src/kip.c : TUD
-lib/src/memdesc.c : TUD
 lib/src/micros2l4to.c : TUD
 lib/src/parse_cmdline.c : TUD
 lib/src/rand.c : TUD

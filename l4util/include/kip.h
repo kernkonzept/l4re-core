@@ -54,15 +54,6 @@ L4_CV int l4util_kip_kernel_has_feature(l4_kernel_info_t *, const char *str);
  */
 L4_CV unsigned long l4util_kip_kernel_abi_version(l4_kernel_info_t *);
 
-/**
- * \brief Return end of virtual memory.
- * \ingroup l4util_memdesc
- *
- * \return 0 if memory descriptor could not be found,
- *         last address of address space otherwise
- */
-L4_CV l4_addr_t l4util_memdesc_vm_high(l4_kernel_info_t *kinfo);
-
 EXTERN_C_END
 
 /**
