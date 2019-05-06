@@ -34,14 +34,8 @@ public:
   explicit Quota(size_t limit) : _limit(limit), _used(0) {}
   bool alloc(size_t s)
   {
-    if (_limit && (s > _limit))
+    if (_limit && (s > _limit || _used > _limit - s))
       return false;
-
-    if (_limit && (_used > _limit - s))
-      {
-        if (_used > _limit - s)
-          return false;
-      }
 
     _used += s;
     //printf("Q: alloc(%zx) -> %zx\n", s, _used);
