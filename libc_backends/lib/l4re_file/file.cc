@@ -624,6 +624,13 @@ extern "C" char *getcwd(char *buf, size_t size) L4_NOTHROW
 {
   unsigned len_cwd = strlen(_current_working_dir) + 1;
 
+  /* Posix mandates returning EINVAL if a buffer is supplied without a size */
+  if (buf != 0 && size == 0)
+    {
+      errno = EINVAL;
+      return 0;
+    }
+
   if (buf == 0 && size == 0)
     size = len_cwd;
 
