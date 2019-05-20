@@ -26,7 +26,7 @@
 L4_CV l4_timeout_s
 l4util_micros2l4to(unsigned int mus)
 {
-  static_assert(sizeof(mus <= 4),
+  static_assert(sizeof(mus) <= 4,
                 "Verify the correctness of log2(mus) and the number of bits for e!");
   l4_timeout_s t;
   if (mus == 0)
