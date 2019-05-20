@@ -642,13 +642,14 @@ extern "C" char *getcwd(char *buf, size_t size) L4_NOTHROW
 
 extern "C" int chroot(const char *) L4_NOTHROW
 {
-  errno = EINVAL;
+  errno = EIO;
   return -1;
 }
 
 extern "C" int mkfifo(const char *, mode_t) L4_NOTHROW
 {
-  errno = EINVAL;
+  /* mkfifo on Linux returns EPERM on unsupported file systems */
+  errno = EPERM;
   return -1;
 }
 
