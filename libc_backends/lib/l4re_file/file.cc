@@ -278,6 +278,12 @@ int lockf(int fd, int cmd, off_t len)
 
 extern "C" int dup2(int oldfd, int newfd) L4_NOTHROW
 {
+  if (newfd < 0)
+    {
+      errno = EBADF;
+      return -1;
+    }
+
   Ops *o = L4Re::Vfs::vfs_ops;
   Ref_ptr<File> oldf = o->get_file(oldfd);
   if (!oldf)
