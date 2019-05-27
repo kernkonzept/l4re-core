@@ -201,6 +201,13 @@ extern "C" int fcntl64(int fd, int cmd, ...)
 {
   Ops *o = L4Re::Vfs::vfs_ops;
   Ref_ptr<File> f = o->get_file(fd);
+
+  if (!f)
+    {
+      errno = EBADF;
+      return -1;
+    }
+
   switch (cmd)
     {
     case F_DUPFD:
