@@ -581,7 +581,7 @@ extern "C" int fchdir(int fd) L4_NOTHROW
 
   // would need to check whether 'f' is a directory
   o->set_cwd(f);
-  return -1;
+  return 0;
 }
 
 extern "C"
