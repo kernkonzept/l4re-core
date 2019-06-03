@@ -512,10 +512,10 @@ public:
   /**
    * \brief Find a region given an address and size.
    *
-   * \param      addr    Address to look for
-   * \param      size    Size of the area to look for (in bytes).
-   * \param[out] addr    Start address of the found region.
-   * \param[out] size    Size of the found region (in bytes).
+   * \param[in,out] addr  Address to look for. Returns the start address of the
+   *                      found region.
+   * \param[in,out] size  Size of the area to look for (in bytes). Returns the
+   *                      size of the found region (in bytes).
    * \param[out] offset  Offset at the beginning of the region within the
    *                     associated dataspace.
    * \param[out] flags   Region flags, see #Region_flags (and #In_area).
