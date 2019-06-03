@@ -14,6 +14,7 @@
 extern "C"
 sighandler_t signal(int, sighandler_t) L4_NOTHROW
 {
+  errno = EINVAL;
   return SIG_ERR;
 }
 
