@@ -107,7 +107,7 @@ public:
    * Query the name space for a named object.
    *
    * \param[in]  name      String to query (without any leading slashes).
-   * \param[in]  cap       Capability slot where the received capability will
+   * \param[out] cap       Capability slot where the received capability will
    *                       be put.
    * \param[in]  timeout   Timeout of query in milliseconds. The client will only
    *                       wait if a name has already been registered with the
