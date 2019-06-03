@@ -840,23 +840,49 @@ TEST_P(TestAnyDs, MapRegionFull)
 }
 
 /**
- * Bad parameters to map_region() are ignored.
+ * map_region() returns an error when the target area is larger than
+ * the dataspace.
  *
  * \see L4Re->Dataspace.map_region
  */
-TEST_F(TestGeneralDs, MapRegionBadRegion)
+TEST_F(TestGeneralDs, MapRegionTargetRegionTooLarge)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map_region");
 
-  auto ds = create_ds();
+  auto ds = create_ds(0, L4_PAGESIZE);
   Fenced_auto_area reg(L4_PAGESIZE);
 
-  EXPECT_EQ(0, ds->map_region(0, 0, reg.start(), ~0UL));
-  EXPECT_TRUE(reg.check_fence());
-  EXPECT_EQ(0, ds->map_region(0, 0, ~0UL, reg.end() - 1));
-  EXPECT_TRUE(reg.check_fence());
-  EXPECT_EQ(0, ds->map_region(0, 0, ~0UL, ~0UL));
-  EXPECT_TRUE(reg.check_fence());
+  EXPECT_L4ERR(L4_ERANGE, ds->map_region(0, L4Re::Dataspace::Map_rw,
+                                         reg.start(), reg.end() + L4_PAGESIZE))
+    << "Request mapping into an area that is twice as big as the datapsace.";
+  EXPECT_TRUE(reg.check_fence())
+    << "The memory around the target area is untouched.";
+}
+
+/**
+ * When map_region() receives a maximum address that is smaller or
+ * equal to the minimum address, then nothing happens.
+ *
+ * \see L4Re->Dataspace.map_region
+ */
+TEST_F(TestGeneralDs, MapRegionMaxAddrSmallerMinAddr)
+{
+  TAP_COMP_FUNC("Moe", "L4Re::Dataspace.map_region");
+
+  auto ds = create_ds(0, L4_PAGESIZE);
+  Fenced_auto_area reg(L4_PAGESIZE);
+
+  EXPECT_L4OK(ds->map_region(0, L4Re::Dataspace::Map_rw,
+                             reg.start(), reg.start()))
+    << "Request mapping into an area where start and end address are the same.";
+  EXPECT_TRUE(reg.check_fence())
+    << "The memory around the target area is untouched.";
+
+  EXPECT_L4OK(ds->map_region(0, L4Re::Dataspace::Map_rw,
+                             reg.end(), reg.start()))
+    << "Request mapping into an area with max_addr < min_addr.";
+  EXPECT_TRUE(reg.check_fence())
+    << "The memory around the target area is still untouched.";
 }
 
 /**

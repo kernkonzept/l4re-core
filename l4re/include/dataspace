@@ -114,19 +114,29 @@ public:
            l4_addr_t min_addr, l4_addr_t max_addr) const throw();
 
   /**
-   * Map a part of a dataspace completely.
+   * Map a part of a dataspace into a local memory area.
    *
-   * \param offset      Offset to start within dataspace
-   * \param flags       map flags, see #Map_flags.
-   * \param min_addr    Defines start of receive window.
-   *                    (Rounded down to page size.)
-   * \param max_addr    Defines end of receive window.
-   *                    (Rounded up to page size.)
+   * \param offset      Offset to start within dataspace.
+   * \param flags       Map flags, see #Map_flags.
+   * \param min_addr    (Inclusive) start of the receive area.
+   * \param max_addr    (Exclusive) end of receive area.
    *
    * \retval L4_EOK      Success
-   * \retval -L4_ERANGE  Invalid offset.
+   * \retval -L4_ERANGE  Invalid offset or receive area larger than
+   *                     the dataspace.
    * \retval -L4_EPERM   Insufficient permission to map with requested rights.
    * \retval <0          IPC errors
+   *
+   * This is a convenience function which maps flex-pages consecutively into
+   * the given memory area in the local task. The area is expected to be filled
+   * completely. If the dataspace is not large enough to provide the mappings
+   * for the entire size of the area, then an error is returned. Mappings may
+   * or may not have been already established at that point.
+   *
+   * `offset` and `min_addr` are rounded down to the
+   * next `L4_PAGESIZE` boundary when necessary. `max_addr` is rounded up
+   * to the page boundary. If the resulting maximum address is less or equal
+   * than the minimum address, then the function is a noop.
    */
   long map_region(l4_addr_t offset, unsigned long flags,
                   l4_addr_t min_addr, l4_addr_t max_addr) const throw();
