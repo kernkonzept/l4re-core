@@ -35,7 +35,7 @@ namespace L4Re {
 long
 Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
                  Dataspace::Flags flags,
-                 Dataspace::Map_addr local_addr) const throw()
+                 Dataspace::Map_addr local_addr) const noexcept
 {
   Map_addr spot = local_addr & ~(~0ULL << l4_umword_t(*size));
   Map_addr base = local_addr & (~0ULL << l4_umword_t(*size));
@@ -54,7 +54,7 @@ Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
 long
 Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
                       Dataspace::Map_addr min_addr,
-                      Dataspace::Map_addr max_addr) const throw()
+                      Dataspace::Map_addr max_addr) const noexcept
 {
   min_addr   = L4::trunc_page(min_addr);
   max_addr   = L4::round_page(max_addr);
@@ -94,7 +94,7 @@ long
 Dataspace::map(Dataspace::Offset offset, Dataspace::Flags flags,
                Dataspace::Map_addr local_addr,
                Dataspace::Map_addr min_addr,
-               Dataspace::Map_addr max_addr) const throw()
+               Dataspace::Map_addr max_addr) const noexcept
 {
   min_addr   = L4::trunc_page(min_addr);
   max_addr   = L4::round_page(max_addr);
@@ -106,7 +106,7 @@ Dataspace::map(Dataspace::Offset offset, Dataspace::Flags flags,
 }
 
 Dataspace::Size
-Dataspace::size() const throw()
+Dataspace::size() const noexcept
 {
   Stats stats = Stats();
   int err = info(&stats);
@@ -116,7 +116,7 @@ Dataspace::size() const throw()
 }
 
 Dataspace::Flags
-Dataspace::flags() const throw()
+Dataspace::flags() const noexcept
 {
   Stats stats = Stats();
   int err = info(&stats);

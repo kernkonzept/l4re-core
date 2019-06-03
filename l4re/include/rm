@@ -258,7 +258,7 @@ public:
    */
   long reserve_area(l4_addr_t *start, unsigned long size,
                     Flags flags = Flags(0),
-                    unsigned char align = L4_PAGESHIFT) const throw()
+                    unsigned char align = L4_PAGESHIFT) const noexcept
   { return reserve_area_t::call(c(), start, size, flags, align); }
 
   L4_RPC_NF(long, reserve_area, (L4::Ipc::In_out<l4_addr_t *> start,
@@ -284,7 +284,7 @@ public:
   template< typename T >
   long reserve_area(T **start, unsigned long size,
                     Flags flags = Flags(0),
-                    unsigned char align = L4_PAGESHIFT) const throw()
+                    unsigned char align = L4_PAGESHIFT) const noexcept
   { return reserve_area_t::call(c(), (l4_addr_t*)start, size, flags, align); }
 
   /**
@@ -357,7 +357,7 @@ public:
    */
   long attach(l4_addr_t *start, unsigned long size, Flags flags,
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT) const throw();
+              unsigned char align = L4_PAGESHIFT) const noexcept;
 
   /**
    * \copydoc L4Re::Rm::attach
@@ -365,7 +365,7 @@ public:
   template< typename T >
   long attach(T **start, unsigned long size, Flags flags,
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT) const throw()
+              unsigned char align = L4_PAGESHIFT) const noexcept
   {
     union X { l4_addr_t a; T* t; };
     X *x = reinterpret_cast<X*>(start);
@@ -479,13 +479,13 @@ public:
    * The corresponding part of the address space is now available again.
    */
   int detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> const &task = This_task) const throw();
+             L4::Cap<L4::Task> const &task = This_task) const noexcept;
 
   /**
    * \copydoc L4Re::Rm::detach
    */
   int detach(void *addr, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> const &task = This_task) const throw();
+             L4::Cap<L4::Task> const &task = This_task) const noexcept;
 
   /**
    * \brief Detach all regions of the specified interval.
@@ -507,7 +507,7 @@ public:
    * is split up into two separate regions.
    */
   int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> const &task) const throw();
+             L4::Cap<L4::Task> const &task) const noexcept;
 
   /**
    * \brief Find a region given an address and size.
@@ -554,7 +554,7 @@ public:
    *
    */
   int find(l4_addr_t *addr, unsigned long *size, Offset *offset,
-           L4Re::Rm::Flags *flags, L4::Cap<Dataspace> *m) throw()
+           L4Re::Rm::Flags *flags, L4::Cap<Dataspace> *m) noexcept
   { return find_t::call(c(), addr, size, flags, offset, m); }
 
   L4_RPC_NF(int, find, (L4::Ipc::In_out<l4_addr_t *> addr,
@@ -625,7 +625,7 @@ public:
   L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Area> areas));
 
   int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> task, unsigned flags) const throw();
+             L4::Cap<L4::Task> task, unsigned flags) const noexcept;
 
   typedef L4::Typeid::Rpcs<attach_t, detach_t, find_t,
                            reserve_area_t, free_area_t,
@@ -635,17 +635,17 @@ public:
 
 inline int
 Rm::detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
-           L4::Cap<L4::Task> const &task) const throw()
+           L4::Cap<L4::Task> const &task) const noexcept
 {  return detach(addr, 1, mem, task, Detach_overlap); }
 
 inline int
 Rm::detach(void *addr, L4::Cap<Dataspace> *mem,
-           L4::Cap<L4::Task> const &task) const throw()
+           L4::Cap<L4::Task> const &task) const noexcept
 {  return detach((l4_addr_t)addr, 1, mem, task, Detach_overlap); }
 
 inline int
 Rm::detach(l4_addr_t addr, unsigned long size, L4::Cap<Dataspace> *mem,
-           L4::Cap<L4::Task> const &task) const throw()
+           L4::Cap<L4::Task> const &task) const noexcept
 {  return detach(addr, size, mem, task, Detach_exact); }
 
 };

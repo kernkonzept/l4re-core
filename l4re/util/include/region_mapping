@@ -38,21 +38,21 @@ private:
   l4_addr_t _start, _end;
 
 public:
-  Region() throw() : _start(~0UL), _end(~0UL) {}
-  Region(l4_addr_t addr) throw() : _start(addr), _end(addr) {}
-  Region(l4_addr_t start, l4_addr_t end) throw()
+  Region() noexcept : _start(~0UL), _end(~0UL) {}
+  Region(l4_addr_t addr) noexcept : _start(addr), _end(addr) {}
+  Region(l4_addr_t start, l4_addr_t end) noexcept
     : _start(start), _end(end) {}
-  l4_addr_t start() const throw() { return _start; }
-  l4_addr_t end() const throw() { return _end; }
-  unsigned long size() const throw() { return end() - start() + 1; }
-  bool invalid() const throw() { return _start == ~0UL && _end == ~0UL; }
-  bool operator < (Region const &o) const throw()
+  l4_addr_t start() const noexcept { return _start; }
+  l4_addr_t end() const noexcept { return _end; }
+  unsigned long size() const noexcept { return end() - start() + 1; }
+  bool invalid() const noexcept { return _start == ~0UL && _end == ~0UL; }
+  bool operator < (Region const &o) const noexcept
   { return end() < o.start(); }
-  bool contains(Region const &o) const throw()
+  bool contains(Region const &o) const noexcept
   { return o.start() >= start() && o.end() <= end(); }
-  bool operator == (Region const &o) const throw()
+  bool operator == (Region const &o) const noexcept
   { return o.start() == start() && o.end() == end(); }
-  ~Region() throw() {}
+  ~Region() noexcept {}
 };
 
 template< typename DS, typename OPS >
@@ -69,30 +69,63 @@ public:
   typedef OPS Ops;
   typedef typename OPS::Map_result Map_result;
 
-  Region_handler() throw() : _offs(0), _mem(), _flags() {}
+  Region_handler() noexcept : _offs(0), _mem(), _flags() {}
   Region_handler(Dataspace const &mem, l4_cap_idx_t client_cap,
       L4Re::Rm::Offset offset = 0,
-      L4Re::Rm::Region_flags flags = L4Re::Rm::Region_flags(0)) throw()
+      L4Re::Rm::Region_flags flags = L4Re::Rm::Region_flags(0)) noexcept
     : _offs(offset), _mem(mem), _client_cap(client_cap), _flags(flags)
   {}
-  Dataspace const &memory() const throw() { return _mem; }
-  l4_cap_idx_t client_cap_idx() const throw() { return _client_cap; }
-  L4Re::Rm::Offset offset() const throw() { return _offs; }
-  constexpr bool is_ro() const throw() { return !(_flags & L4Re::Rm::F::W); }
-  L4Re::Rm::Region_flags caching() const throw() { return _flags & L4Re::Rm::F::Caching_mask; }
-  L4Re::Rm::Region_flags flags() const throw() { return _flags; }
 
-  Region_handler operator + (l4_int64_t offset) const throw()
-  { Region_handler n = *this; n._offs += offset; return n; }
+  Dataspace const &memory() const noexcept
+  {
+    return _mem;
+  }
 
-  void unmap(l4_addr_t va, l4_addr_t ds_offs, unsigned long size) const throw()
-  { Ops::unmap(this, va, ds_offs, size); }
+  l4_cap_idx_t client_cap_idx() const noexcept
+  {
+    return _client_cap;
+  }
 
-  void free(l4_addr_t start, unsigned long size) const throw()
-  { Ops::free(this, start, size); }
+  L4Re::Rm::Offset offset() const noexcept
+  {
+    return _offs;
+  }
 
-  int map(l4_addr_t addr, Region const &r, bool writable, Map_result *result) const
-  { return Ops::map(this, addr, r, writable, result); }
+  constexpr bool is_ro() const noexcept
+  {
+    return !(_flags & L4Re::Rm::F::W);
+  }
+
+  L4Re::Rm::Region_flags caching() const noexcept
+  {
+    return _flags & L4Re::Rm::F::Caching_mask;
+  }
+
+  L4Re::Rm::Region_flags flags() const noexcept
+  {
+    return _flags;
+  }
+
+  Region_handler operator + (l4_int64_t offset) const noexcept
+  {
+    Region_handler n = *this; n._offs += offset; return n;
+  }
+
+  void unmap(l4_addr_t va, l4_addr_t ds_offs, unsigned long size) const noexcept
+  {
+    Ops::unmap(this, va, ds_offs, size);
+  }
+
+  void free(l4_addr_t start, unsigned long size) const noexcept
+  {
+    Ops::free(this, start, size);
+  }
+
+  int map(l4_addr_t addr, Region const &r, bool writable,
+          Map_result *result) const
+  {
+    return Ops::map(this, addr, r, writable, result);
+  }
 
 };
 
@@ -127,24 +160,24 @@ public:
   typedef typename Tree::Rev_iterator Rev_iterator;
   typedef typename Tree::Const_rev_iterator Const_rev_iterator;
 
-  Iterator begin() throw() { return _rm.begin(); }
-  Const_iterator begin() const throw() { return _rm.begin(); }
-  Iterator end() throw() { return _rm.end(); }
-  Const_iterator end() const throw() { return _rm.end(); }
+  Iterator begin() noexcept { return _rm.begin(); }
+  Const_iterator begin() const noexcept { return _rm.begin(); }
+  Iterator end() noexcept { return _rm.end(); }
+  Const_iterator end() const noexcept { return _rm.end(); }
 
-  Iterator area_begin() throw() { return _am.begin(); }
-  Const_iterator area_begin() const throw() { return _am.begin(); }
-  Iterator area_end() throw() { return _am.end(); }
-  Const_iterator area_end() const throw() { return _am.end(); }
-  Node area_find(Key_type const &c) const throw() { return _am.find_node(c); }
+  Iterator area_begin() noexcept { return _am.begin(); }
+  Const_iterator area_begin() const noexcept { return _am.begin(); }
+  Iterator area_end() noexcept { return _am.end(); }
+  Const_iterator area_end() const noexcept { return _am.end(); }
+  Node area_find(Key_type const &c) const noexcept { return _am.find_node(c); }
 
-  l4_addr_t min_addr() const throw() { return _start; }
-  l4_addr_t max_addr() const throw() { return _end; }
+  l4_addr_t min_addr() const noexcept { return _start; }
+  l4_addr_t max_addr() const noexcept { return _end; }
 
 
-  Region_map(l4_addr_t start, l4_addr_t end) throw() : _start(start), _end(end) {}
+  Region_map(l4_addr_t start, l4_addr_t end) noexcept : _start(start), _end(end) {}
 
-  Node find(Key_type const &key) const throw()
+  Node find(Key_type const &key) const noexcept
   {
     Node n = _rm.find_node(key);
     if (!n)
@@ -159,13 +192,13 @@ public:
     return n;
   }
 
-  Node lower_bound(Key_type const &key) const throw()
+  Node lower_bound(Key_type const &key) const noexcept
   {
     Node n = _rm.lower_bound_node(key);
     return n;
   }
 
-  Node lower_bound_area(Key_type const &key) const throw()
+  Node lower_bound_area(Key_type const &key) const noexcept
   {
     Node n = _am.lower_bound_node(key);
     return n;
@@ -173,7 +206,7 @@ public:
 
   l4_addr_t attach_area(l4_addr_t addr, unsigned long size,
                         L4Re::Rm::Flags flags = L4Re::Rm::Flags(0),
-                        unsigned char align = L4_PAGESHIFT) throw()
+                        unsigned char align = L4_PAGESHIFT) noexcept
   {
     if (size < 2)
       return L4_INVALID_ADDR;
@@ -214,7 +247,7 @@ public:
     return L4_INVALID_ADDR;
   }
 
-  bool detach_area(l4_addr_t addr) throw()
+  bool detach_area(l4_addr_t addr) noexcept
   {
     if (_am.remove(addr))
       return false;
@@ -224,7 +257,7 @@ public:
 
   void *attach(void *addr, unsigned long size, Hdlr const &hdlr,
                L4Re::Rm::Flags flags = L4Re::Rm::Flags(0),
-               unsigned char align = L4_PAGESHIFT) throw()
+               unsigned char align = L4_PAGESHIFT) noexcept
   {
     if (size < 2)
       return L4_INVALID_PTR;
@@ -352,7 +385,7 @@ public:
   }
 
   l4_addr_t find_free(l4_addr_t start, l4_addr_t end, l4_addr_t size,
-                      unsigned char align, L4Re::Rm::Flags flags) const throw();
+                      unsigned char align, L4Re::Rm::Flags flags) const noexcept;
 
 };
 
@@ -360,7 +393,7 @@ public:
 template< typename Hdlr, template<typename T> class Alloc >
 l4_addr_t
 Region_map<Hdlr, Alloc>::find_free(l4_addr_t start, l4_addr_t end,
-    unsigned long size, unsigned char align, L4Re::Rm::Flags flags) const throw()
+    unsigned long size, unsigned char align, L4Re::Rm::Flags flags) const noexcept
 {
   l4_addr_t addr = start;
 

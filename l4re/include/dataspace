@@ -156,7 +156,7 @@ public:
    * page size is used.
    */
   long map(Offset offset, Flags flags, Map_addr local_addr,
-           Map_addr min_addr, Map_addr max_addr) const throw();
+           Map_addr min_addr, Map_addr max_addr) const noexcept;
 
   /**
    * Map a part of a dataspace into a local memory area.
@@ -184,7 +184,7 @@ public:
    * than the minimum address, then the function is a noop.
    */
   long map_region(Offset offset, Flags flags,
-                  Map_addr min_addr, Map_addr max_addr) const throw();
+                  Map_addr min_addr, Map_addr max_addr) const noexcept;
 
   /**
    * Clear parts of a dataspace.
@@ -251,7 +251,7 @@ public:
    *
    * \return Size of the dataspace in bytes.
    */
-  Size size() const throw();
+  Size size() const noexcept;
 
   /**
    * Get flags of the dataspace.
@@ -261,7 +261,7 @@ public:
    *
    * \see L4Re::Dataspace::F::Flags
    */
-  Flags flags() const throw();
+  Flags flags() const noexcept;
 
   /**
    * Get information on the dataspace.
@@ -280,7 +280,7 @@ public:
 private:
 
   long __map(Offset offset, unsigned char *order, Flags flags,
-             Map_addr local_addr) const throw();
+             Map_addr local_addr) const noexcept;
 
 public:
   typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t,
