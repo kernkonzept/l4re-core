@@ -17,10 +17,15 @@
 
 #include <l4/atkins/tap/main>
 #include <l4/atkins/l4_assert>
+#include <l4/atkins/factory>
 
 #include "moe_helpers.h"
 
-class TestNamespace : public ::testing::Test {};
+/**
+ * Parametrized test setup to test multiple name spaces.
+ */
+class MultiRegistration : public ::testing::TestWithParam<char> {};
+INSTANTIATE_TEST_CASE_P(MultiNS, MultiRegistration, ::testing::Values(0, 1));
 
 /**
  * An empty namespace can be queried with arbitrary names and lengths without
@@ -28,7 +33,7 @@ class TestNamespace : public ::testing::Test {};
  *
  * \see L4Re::Namespace.query
  */
-TEST_F(TestNamespace, QueryEmptyNS)
+TEST(TestNamespace, QueryEmptyNS)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.query");
 
@@ -47,7 +52,7 @@ TEST_F(TestNamespace, QueryEmptyNS)
   EXPECT_L4ERR(L4_ENOENT, ns->query("/", lcap.get()))
     << "Query for '/' as name.";
   EXPECT_L4ERR(L4_ENOENT, ns->query("////", lcap.get()))
-    << "Query for multible '/' as name.";
+    << "Query for multiple '/' as name.";
   EXPECT_L4ERR(L4_ENOENT, ns->query("\n", lcap.get()))
     << "Query for newline as name.";
   EXPECT_L4ERR(L4_ENOENT, ns->query("/rom\0bv", 7, lcap.get()))
@@ -64,7 +69,7 @@ TEST_F(TestNamespace, QueryEmptyNS)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterValid)
+TEST(TestNamespace, RegisterValid)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.query");
@@ -90,7 +95,7 @@ TEST_F(TestNamespace, RegisterValid)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterInvalid)
+TEST(TestNamespace, RegisterInvalid)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.query");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
@@ -117,7 +122,7 @@ TEST_F(TestNamespace, RegisterInvalid)
  *
  * \see L4Re::Namespace.register_obj, L4Re::Namespace.unlink
  */
-TEST_F(TestNamespace, FreeInvalidEntry)
+TEST(TestNamespace, FreeInvalidEntry)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.unlink");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
@@ -136,7 +141,7 @@ TEST_F(TestNamespace, FreeInvalidEntry)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterWithSlash)
+TEST(TestNamespace, RegisterWithSlash)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
@@ -149,7 +154,7 @@ TEST_F(TestNamespace, RegisterWithSlash)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterEmpty)
+TEST(TestNamespace, RegisterEmpty)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
@@ -163,7 +168,7 @@ TEST_F(TestNamespace, RegisterEmpty)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterOverwriteInvalid)
+TEST(TestNamespace, RegisterOverwriteInvalid)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
@@ -193,7 +198,7 @@ TEST_F(TestNamespace, RegisterOverwriteInvalid)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterOverwriteValid)
+TEST(TestNamespace, RegisterOverwriteValid)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
@@ -227,7 +232,7 @@ TEST_F(TestNamespace, RegisterOverwriteValid)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterLooseSourceDataspace)
+TEST(TestNamespace, RegisterLooseSourceDataspace)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
@@ -236,7 +241,8 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
 
   {
     auto ds = make_unique_cap<L4Re::Dataspace>();
-    L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
+    L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0),
+                 "Allocate memory into dataspace.");
 
     ASSERT_L4OK(ns->register_obj("gone", ds.get()))
       << "Register dataspace in the namespace.";
@@ -255,7 +261,7 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
+TEST(TestNamespace, RegisterDeleteSourceDataspace)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.query");
@@ -265,7 +271,8 @@ TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
 
   {
     auto ds = make_unique_del_cap<L4Re::Dataspace>();
-    L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
+    L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0),
+                 "Allocate memory into dataspace.");
 
     ASSERT_L4OK(ns->register_obj("_", ds.get()))
       << "Register dataspace in the namespace.";
@@ -276,45 +283,59 @@ TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
     << "After the capability was deleted, the namespace entry is invalid.";
 }
 
+
 /**
- * When a capability is registered in two different namespaces, it must
- * not be possible to replace the capability in one namespace by deleting
- * in the other namespace and reallocating a new capability.
+ * When a capability is registered under two names, it must not be possible to
+ * replace the capability under the first name by replacing the capability
+ * behind the second.
+ *
+ * This test first uses the same namespace (rom) and then a separate one.
  *
  * \see L4Re::Namespace.register_obj, L4Re::Namespace.unlink
  */
-TEST_F(TestNamespace, RegisterDeleteRomDataspace)
+TEST_P(MultiRegistration, ReRegisterSecondName)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.unlink");
 
-  auto ns = create_ns();
-  auto lcap = make_unique_cap<L4Re::Dataspace>();
-
   // get the cap for our test dataspace
+  auto lcap = make_unique_cap<L4Re::Dataspace>();
   auto rom = env->get_cap<L4Re::Namespace>("rom");
-  ASSERT_EQ(L4_EOK, rom->query("moe_bootfs_example.txt", lcap.get()));
-  unsigned long dssz = lcap->size();
-  // register it with the new namespace
-  ASSERT_EQ(L4_EOK, ns->register_obj("new", lcap.get()));
-  // now get the new cap
-  auto ds = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
-  ASSERT_EQ(L4_EOK, ns->query("new", ds.get()));
-  // and delete it again
-  ASSERT_EQ(L4_EOK, ns->unlink("new"));
-  // If the delete screwed up and the capability was freed, a new alloc
-  // should be able to reclaim the capability without the namespace noticing.
-  // Create a new dataspace to try reclaiming the capability.
-  ASSERT_EQ(L4_EOK, env->mem_alloc()->alloc(dssz * 2, ds.get()));
 
-  // Now ask again for the test namespace.
-  auto ds2 = L4Re::chkcap(L4Re::Util::make_unique_cap<L4Re::Dataspace>());
-  ASSERT_EQ(L4_EOK, rom->query("moe_bootfs_example.txt", ds2.get()));
-  // The size of the underlying dataspace should not have changed.
-  ASSERT_GT(ds2.validate(L4_BASE_TASK_CAP).label(), 0);
-  ASSERT_EQ(dssz, ds2->size());
-  // Sanity check that the unlink has worked.
-  ASSERT_EQ(-L4_ENOENT, ns->unlink("new"));
+  L4Re::Util::Unique_del_cap<L4Re::Namespace> new_ns;
+  switch (GetParam())
+    {
+    case 0:
+      new_ns = L4Re::Util::Unique_del_cap<L4Re::Namespace>(
+        env->get_cap<L4Re::Namespace>("rom"));
+      break;
+    case 1:
+      new_ns = create_ns();
+      break;
+    default:
+      L4Re::chksys(L4_EINVAL, "Invalid test parameter.");
+    }
+
+  ASSERT_L4OK(rom->query("moe_bootfs_example.txt", lcap.get()))
+    << "Looking up the test dataspace returns a capability.";
+  unsigned long dssz = lcap->size();
+  ASSERT_L4OK(new_ns->register_obj("new", lcap.get()))
+    << "Register the returned capability with a new name.";
+  // now get the new cap
+  auto ds = Atkins::Factory::cap<L4Re::Dataspace>();
+  ASSERT_EQ(L4_EOK, env->mem_alloc()->alloc(dssz * 2, ds.get()))
+    << "Create a new dataspace and bind it to the existing capability.";
+
+  ASSERT_L4OK(new_ns->register_obj(
+                "new", ds.get(),
+                L4Re::Namespace::Overwrite | L4Re::Namespace::Rw))
+    << "Re-register the new name to the new dataspace.";
+
+  auto ds2 = Atkins::Factory::cap<L4Re::Dataspace>();
+  ASSERT_EQ(L4_EOK, rom->query("moe_bootfs_example.txt", ds2.get()))
+    << "Look up the test dataspace again.";
+  ASSERT_EQ(dssz, ds2->size()) << "The returned dataspace is the original one.";
+  L4Re::chksys(new_ns->unlink("new"), "Clean up the new name.");
 }
 
 /**
@@ -323,7 +344,7 @@ TEST_F(TestNamespace, RegisterDeleteRomDataspace)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterPropagateRights)
+TEST(TestNamespace, RegisterPropagateRights)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
@@ -351,7 +372,7 @@ TEST_F(TestNamespace, RegisterPropagateRights)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, RegisterBadFlags)
+TEST(TestNamespace, RegisterBadFlags)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
@@ -375,7 +396,7 @@ TEST_F(TestNamespace, RegisterBadFlags)
  *
  * \see L4Re::Namespace.register_obj
  */
-TEST_F(TestNamespace, ExhaustQuotaWithRegister)
+TEST(TestNamespace, ExhaustQuotaWithRegister)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.unlink");
@@ -412,7 +433,7 @@ TEST_F(TestNamespace, ExhaustQuotaWithRegister)
  *
  * \see L4::Factory.create
  */
-TEST_F(TestNamespace, ExhaustQuotaWithCreate)
+TEST(TestNamespace, ExhaustQuotaWithCreate)
 {
   TAP_COMP_FUNC("Moe", "L4::Factory.create");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
