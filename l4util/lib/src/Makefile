@@ -9,11 +9,11 @@ ALL_SRC_C_only_x86    = $(addprefix ARCH-x86/, apic.c perform.c spin.c rdtsc.c)
 ALL_SRC_C_only_amd64  = $(ALL_SRC_C_only_x86)
 ALL_SRC_C_only_ppc32  = $(addprefix ARCH-ppc32/, rdtsc.c)
 ALL_SRC_C_only_sparc  = ARCH-sparc/atomics.c
-SRC_C                 = alloc.c getopt2.c micros2l4to.c rand.c sleep.c \
+SRC_C                 = getopt2.c micros2l4to.c rand.c sleep.c \
                         base64.c kprintf.c kip.c keymap.c \
-			ARCH-$(ARCH)/backtrace.c reboot.c thread.c \
+                        ARCH-$(ARCH)/backtrace.c reboot.c thread.c \
                         $(ALL_SRC_C_only_$(ARCH)) parse_cmdline.c \
-			list_alloc.c
+                        list_alloc.c
 SRC_CC                = llulc.cc
 CXXFLAGS              = -DL4_NO_RTTI -fno-exceptions -fno-rtti
 
