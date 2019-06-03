@@ -35,17 +35,27 @@ TEST_F(TestNamespace, QueryEmptyNS)
   auto ns = create_ns();
   auto lcap = make_unique_cap<void>();
 
-  EXPECT_EQ(-L4_ENOENT, ns->query("foo", lcap.get()));
-  EXPECT_EQ(-L4_ENOENT, ns->query("/foo", lcap.get()));
-  EXPECT_EQ(-L4_ENOENT, ns->query("foo/bar", lcap.get()));
-  EXPECT_EQ(-L4_ENOENT, ns->query("\0", 1, lcap.get()));
-  EXPECT_EQ(-L4_EINVAL, ns->query("", lcap.get()));
-  EXPECT_EQ(-L4_ENOENT, ns->query("/", lcap.get()));
-  EXPECT_EQ(-L4_ENOENT, ns->query("////", lcap.get()));
-  EXPECT_EQ(-L4_ENOENT, ns->query("\n", lcap.get()));
-  EXPECT_EQ(-L4_ENOENT, ns->query("ab\0bv", 5, lcap.get()));
-  EXPECT_EQ(-L4_EINVAL, ns->query("a", 0, lcap.get()));
-  EXPECT_EQ(-L4_EMSGTOOLONG, ns->query("a", 500, lcap.get()));
+  EXPECT_L4ERR(L4_ENOENT, ns->query("foo", lcap.get()))
+    << "Query for nonexistent name.";
+  EXPECT_L4ERR(L4_ENOENT, ns->query("/foo", lcap.get()))
+    << "Query for nonexistent name starting with '/'.";
+  EXPECT_L4ERR(L4_ENOENT, ns->query("foo/bar", lcap.get()))
+    << "Recursive query in nonexistent namespace.";
+  EXPECT_L4ERR(L4_ENOENT, ns->query("\0", 1, lcap.get()))
+    << "Query for null name.";
+  EXPECT_L4ERR(L4_EINVAL, ns->query("", lcap.get())) << "Query for empty name.";
+  EXPECT_L4ERR(L4_ENOENT, ns->query("/", lcap.get()))
+    << "Query for '/' as name.";
+  EXPECT_L4ERR(L4_ENOENT, ns->query("////", lcap.get()))
+    << "Query for multible '/' as name.";
+  EXPECT_L4ERR(L4_ENOENT, ns->query("\n", lcap.get()))
+    << "Query for newline as name.";
+  EXPECT_L4ERR(L4_ENOENT, ns->query("/rom\0bv", 7, lcap.get()))
+    << "Query for name with middle null byte and full length.";
+  EXPECT_L4ERR(L4_EINVAL, ns->query("a", 0, lcap.get()))
+    << "Query for name with length specified as 0.";
+  EXPECT_L4ERR(L4_EMSGTOOLONG, ns->query("a", 500, lcap.get()))
+    << "Query for name with a longer specified length.";
 }
 
 /**
@@ -56,19 +66,21 @@ TEST_F(TestNamespace, QueryEmptyNS)
  */
 TEST_F(TestNamespace, RegisterValid)
 {
-  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.query");
 
   auto ns = create_ns();
   auto ds = create_ds(0, 12345);
   auto lcap = make_unique_cap<L4Re::Dataspace>();
 
-  ASSERT_EQ(-L4_ENOENT, ns->query("example", lcap.get()));
-  ASSERT_EQ(L4_EOK, ns->register_obj("example",
-                                     L4::Ipc::make_cap_rws(ds.get())));
-  ASSERT_EQ(L4_EOK, ns->query("example", lcap.get()));
-  // check that this is our ds
-  ASSERT_EQ(12345UL, lcap->size());
+  ASSERT_L4ERR(L4_ENOENT, ns->query("example", lcap.get()))
+    << "Name to be registered does not yet exist.";
+  ASSERT_L4OK(ns->register_obj("example", L4::Ipc::make_cap_rws(ds.get())))
+    << "Register dataspace to new name.";
+  ASSERT_L4OK(ns->query("example", lcap.get()))
+    << "Looking up the name returns a capability.";
+  ASSERT_EQ(12345UL, lcap->size())
+    << "The returned capability points to our newly created dataspace.";
 }
 
 /**
@@ -80,39 +92,42 @@ TEST_F(TestNamespace, RegisterValid)
  */
 TEST_F(TestNamespace, RegisterInvalid)
 {
-  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.query");
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.query");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
 
   auto ns = create_ns();
   auto cap = make_unique_cap<void>();
 
-  ASSERT_EQ(-L4_ENOENT, ns->query("pend", cap.get()));
-  // Register just the name.
-  ASSERT_EQ(L4_EOK, ns->register_obj("pend", L4::Cap<void>()));
-  // Server should tell us to try again later.
-  ASSERT_EQ(-L4_EAGAIN, ns->query("pend", cap.get(),
-                                  L4Re::Namespace::To_non_blocking));
-  // Now register the correct one.
-  ASSERT_EQ(0, ns->register_obj("pend", env->log()));
-  // And we should get back the capability.
-  ASSERT_EQ(0, ns->query("pend", cap.get()));
+  ASSERT_L4ERR(L4_ENOENT, ns->query("pend", cap.get()))
+    << "Name to be registered does not yet exist.";
+  ASSERT_L4OK(ns->register_obj("pend", L4::Cap<void>()))
+    << "Register invalid capability in the namespace.";
+  ASSERT_L4ERR(L4_EAGAIN,
+               ns->query("pend", cap.get(), L4Re::Namespace::To_non_blocking))
+    << "Server responds to query for the name to try again later.";
+  ASSERT_EQ(0, ns->register_obj("pend", env->log()))
+    << "Register an object with the name.";
+  ASSERT_EQ(0, ns->query("pend", cap.get()))
+    << "Looking up the name returns a capability.";
 }
 
 /**
  * A name that was registered with an invalid capability may be
  * deleted.
  *
- * \see L4Re::Namespace.register_obj, L4Re::Namepsace.unlink
+ * \see L4Re::Namespace.register_obj, L4Re::Namespace.unlink
  */
 TEST_F(TestNamespace, FreeInvalidEntry)
 {
-  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.unlink");
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.unlink");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
 
   auto ns = create_ns();
 
-  ASSERT_EQ(0, ns->register_obj("inval", L4::Cap<void>()));
-  EXPECT_EQ(L4_EOK, ns->unlink("inval"));
+  ASSERT_EQ(0, ns->register_obj("inval", L4::Cap<void>()))
+    << "Register invalid capability in the namespace.";
+  ASSERT_L4OK(ns->unlink("inval"))
+    << "Delete name pointing to invalid capability.";
 }
 
 /**
@@ -125,7 +140,8 @@ TEST_F(TestNamespace, RegisterWithSlash)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
-  EXPECT_EQ(-L4_EINVAL, create_ns()->register_obj("ping/pong", env->log()));
+  ASSERT_L4ERR(L4_EINVAL, create_ns()->register_obj("ping/pong", env->log()))
+    << "A name containing a '/' cannot be registered.";
 }
 
 /**
@@ -137,7 +153,8 @@ TEST_F(TestNamespace, RegisterEmpty)
 {
   TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
 
-  ASSERT_EQ(-L4_EINVAL, create_ns()->register_obj("", env->log()));
+  ASSERT_L4ERR(L4_EINVAL, create_ns()->register_obj("", env->log()))
+    << "An empty name cannot be registered.";
 }
 
 /**
@@ -154,14 +171,20 @@ TEST_F(TestNamespace, RegisterOverwriteInvalid)
   auto ds = create_ds();
   auto cap = make_unique_cap<void>();
 
-  ASSERT_EQ(L4_EOK, ns->register_obj("f", ds.get()));
-  ASSERT_EQ(L4_EOK, ns->query("f", cap.get()));
-  ASSERT_EQ(-L4_EEXIST, ns->register_obj("f", L4::Cap<void>()));
-  ASSERT_EQ(L4_EOK, ns->register_obj("f", L4::Cap<void>(),
-                                     L4Re::Namespace::Overwrite |
-                                     L4Re::Namespace::Rw));
-  ASSERT_EQ(-L4_EAGAIN, ns->query("f", cap.get(),
-                                  L4Re::Namespace::To_non_blocking));
+  ASSERT_L4OK(ns->register_obj("f", ds.get()))
+    << "Register dataspace in the namespace.";
+  ASSERT_L4OK(ns->query("f", cap.get()))
+    << "Looking up the name returns a capability.";
+  ASSERT_L4ERR(L4_EEXIST, ns->register_obj("f", L4::Cap<void>()))
+    << "It is not possible to register the name twice.";
+  ASSERT_L4OK(ns->register_obj(
+                "f", L4::Cap<void>(),
+                L4Re::Namespace::Overwrite | L4Re::Namespace::Rw))
+    << "Explicitly overwrite an already existing name in the namespace with "
+       "the invalid capability.";
+  ASSERT_L4ERR(L4_EAGAIN,
+               ns->query("f", cap.get(), L4Re::Namespace::To_non_blocking))
+    << "The name is not bound to an object.";
 }
 
 /**
@@ -179,15 +202,23 @@ TEST_F(TestNamespace, RegisterOverwriteValid)
   auto ds2 = create_ds(0, 1234);
   auto cap = make_unique_cap<L4Re::Dataspace>();
 
-  ASSERT_EQ(L4_EOK, ns->register_obj("f", ds1.get()));
-  ASSERT_EQ(L4_EOK, ns->query("f", cap.get()));
-  EXPECT_EQ(6543UL, cap->size());
-  ASSERT_EQ(-L4_EEXIST, ns->register_obj("f", ds2.get()));
-  ASSERT_EQ(L4_EOK, ns->register_obj("f", ds2.get(),
-                                     L4Re::Namespace::Overwrite |
-                                     L4Re::Namespace::Rw));
-  ASSERT_EQ(L4_EOK, ns->query("f", cap.get()));
-  EXPECT_EQ(1234UL, cap->size());
+  ASSERT_L4OK(ns->register_obj("f", ds1.get()))
+    << "Register dataspace in the namespace.";
+  ASSERT_L4OK(ns->query("f", cap.get()))
+    << "Looking up the name returns a capability.";
+  EXPECT_EQ(6543UL, cap->size())
+    << "The returned capability points to the first dataspace.";
+  ASSERT_L4ERR(L4_EEXIST, ns->register_obj("f", ds2.get()))
+    << "It is not possible to register the name twice.";
+  ASSERT_L4OK(ns->register_obj(
+                "f", ds2.get(),
+                L4Re::Namespace::Overwrite | L4Re::Namespace::Rw))
+    << "Explicitly overwrite an already existing name in the namespace with "
+       "the invalid capability.";
+  ASSERT_L4OK(ns->query("f", cap.get()))
+    << "Looking up the name again returns a capability.";
+  ASSERT_EQ(1234UL, cap->size())
+    << "The name is now bound to the second dataspace.";
 }
 
 /**
@@ -203,17 +234,19 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
   auto ns = create_ns();
   auto cap = make_unique_cap<L4Re::Dataspace>();
 
-    {
-      auto ds = make_unique_cap<L4Re::Dataspace>();
-      L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
+  {
+    auto ds = make_unique_cap<L4Re::Dataspace>();
+    L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
 
-      ASSERT_EQ(L4_EOK, ns->register_obj("gone", ds.get()));
-    }
+    ASSERT_L4OK(ns->register_obj("gone", ds.get()))
+      << "Register dataspace in the namespace.";
+  }
 
-  // if all references to the original cap are lost, the original
-  // cap should remain accessible
-  ASSERT_EQ(L4_EOK, ns->query("gone", cap.get()));
-  EXPECT_EQ(999UL, cap->size());
+  ASSERT_L4OK(ns->query("gone", cap.get()))
+    << "The capability can still be retrieved when all other references are "
+       "gone.";
+  ASSERT_EQ(999UL, cap->size())
+    << "The capability returned points to the dataspace.";
 }
 
 /**
@@ -224,22 +257,23 @@ TEST_F(TestNamespace, RegisterLooseSourceDataspace)
  */
 TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
 {
-  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.query");
 
   auto ns = create_ns();
   auto cap = make_unique_cap<L4Re::Dataspace>();
 
-    {
-      auto ds = make_unique_del_cap<L4Re::Dataspace>();
-      L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
+  {
+    auto ds = make_unique_del_cap<L4Re::Dataspace>();
+    L4Re::chksys(env->mem_alloc()->alloc(999, ds.get(), 0));
 
-      ASSERT_EQ(L4_EOK, ns->register_obj("_", ds.get()));
-    }
+    ASSERT_L4OK(ns->register_obj("_", ds.get()))
+      << "Register dataspace in the namespace.";
+  }
 
-  // when the original cap is deleted, the entry should be set to invalid
-  ASSERT_EQ(-L4_EAGAIN, ns->query("_", cap.get(),
-                                  L4Re::Namespace::To_non_blocking));
+  ASSERT_L4ERR(L4_EAGAIN,
+               ns->query("_", cap.get(), L4Re::Namespace::To_non_blocking))
+    << "After the capability was deleted, the namespace entry is invalid.";
 }
 
 /**
@@ -251,7 +285,7 @@ TEST_F(TestNamespace, RegisterDeleteSourceDataspace)
  */
 TEST_F(TestNamespace, RegisterDeleteRomDataspace)
 {
-  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.unlink");
 
   auto ns = create_ns();
@@ -295,20 +329,21 @@ TEST_F(TestNamespace, RegisterPropagateRights)
 
   auto ns = create_ns();
 
-  // Register capability read-only.
-  ASSERT_EQ(L4_EOK, ns->register_obj("first", ns.get(), L4Re::Namespace::Ro));
+  ASSERT_L4OK(ns->register_obj("first", ns.get(), L4Re::Namespace::Ro))
+    << "Register a read-only namespace capability in the namespace.";
 
   auto ncap = make_unique_cap<L4Re::Namespace>();
 
-  ASSERT_EQ(L4_EOK, ns->query("first", ncap.get()));
-  // We should not be allowed to register on the returned capability.
-  ASSERT_EQ(-L4_EPERM, ncap->register_obj("foo", L4::Cap<void>()));
-  // Register the cap under a new name with full rights.
-  ASSERT_EQ(L4_EOK, ns->register_obj("second", L4::Ipc::make_cap_rw(ncap.get()),
-                                     L4Re::Namespace::Rw));
-  // We still shouldn't be able to register on that second cap.
-  ASSERT_EQ(L4_EOK, ns->query("second", ncap.get()));
-  ASSERT_EQ(-L4_EPERM, ncap->register_obj("foo", L4::Cap<void>()));
+  ASSERT_L4OK(ns->query("first", ncap.get()))
+    << "Look up the registered name into a new namespace capability slot.";
+  ASSERT_L4ERR(L4_EPERM, ncap->register_obj("foo", L4::Cap<void>()))
+    << "New objects cannot be registered in a namespace with read-only rights.";
+  ASSERT_L4OK(ns->register_obj("second", L4::Ipc::make_cap_rw(ncap.get()),
+                               L4Re::Namespace::Rw))
+    << "Try to increase rights by registering to a new name.";
+  ASSERT_L4OK(ns->query("second", ncap.get())) << "Look up the second name.";
+  ASSERT_L4ERR(L4_EPERM, ncap->register_obj("foo", L4::Cap<void>()))
+    << "The returned namespace has still the original read-only rights.";
 }
 
 /**
@@ -323,8 +358,12 @@ TEST_F(TestNamespace, RegisterBadFlags)
   auto ns = create_ns();
   auto ds = create_ds();
 
-  ASSERT_EQ(L4_EOK, ns->register_obj("flagall", ds.get(), ~0U));
-  ASSERT_EQ(L4_EOK, ns->register_obj("flagall2", L4::Cap<void>(), ~0U));
+  ASSERT_L4OK(ns->register_obj("flagall", ds.get(), ~0U))
+    << "Unknown registration flags are ignored when registering a valid "
+       "capability.";
+  ASSERT_L4OK(ns->register_obj("flagall2", L4::Cap<void>(), ~0U))
+    << "Unknown registration flags are ignored when registering an invalid "
+       "capability.";
 }
 
 /**
@@ -338,7 +377,7 @@ TEST_F(TestNamespace, RegisterBadFlags)
  */
 TEST_F(TestNamespace, ExhaustQuotaWithRegister)
 {
-  TAP_COMP_FUNC ("Moe", "L4Re::Namespace.register_obj");
+  TAP_COMP_FUNC("Moe", "L4Re::Namespace.register_obj");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.unlink");
 
   auto cap = create_fab(3 * L4_PAGESIZE);
@@ -351,17 +390,17 @@ TEST_F(TestNamespace, ExhaustQuotaWithRegister)
       long ret = ns->register_obj(name.c_str(), cap.get());
       if (ret != L4_EOK)
         {
-          ASSERT_EQ(-L4_ENOMEM, ret);
-          ASSERT_GT(i, 0);
-          // now delete the last created entry.
+          ASSERT_L4ERR(L4_ENOMEM, ret) << "Registering new names eventually "
+                                          "exhausts the available memory.";
+          ASSERT_GT(i, 0) << "At least one name entry was created.";
           name = std::to_string(i - 1);
-          ASSERT_EQ(0, ns->unlink(name.c_str()));
+          ASSERT_EQ(0, ns->unlink(name.c_str())) << "Delete the last entry.";
           break;
         }
     }
 
-  // after freeing, we should be able to register again
-  EXPECT_EQ(0, ns->register_obj("x", cap.get()));
+  EXPECT_EQ(0, ns->register_obj("x", cap.get()))
+    << "Space for registering a new name entry has been made available.";
 }
 
 /**
@@ -375,7 +414,7 @@ TEST_F(TestNamespace, ExhaustQuotaWithRegister)
  */
 TEST_F(TestNamespace, ExhaustQuotaWithCreate)
 {
-  TAP_COMP_FUNC ("Moe", "L4::Factory.create");
+  TAP_COMP_FUNC("Moe", "L4::Factory.create");
   TAP_COMP_FUNC2("Moe", "L4Re::Namespace.register_obj");
 
   auto cap = create_fab(3 * L4_PAGESIZE);
@@ -393,24 +432,30 @@ TEST_F(TestNamespace, ExhaustQuotaWithCreate)
           ret = ns->register_obj("x", cap.get());
           if (ret != L4_EOK)
             {
-              ASSERT_EQ(-L4_ENOMEM, ret);
+              ASSERT_L4ERR(L4_ENOMEM, ret)
+                << "Registering a new name exhausts the available memory.";
               break;
             }
           nslist.push_back(ns);
         }
       else
         {
-          ASSERT_EQ(-L4_ENOMEM, ret);
+          ASSERT_L4ERR(L4_ENOMEM, ret)
+            << "Registering new namespaces eventually exhausts the available "
+               "memory.";
           break;
         }
     }
 
-  ASSERT_FALSE(nslist.empty());
+  ASSERT_FALSE(nslist.empty())
+    << "At least one new namespace has been created.";
   // free the previously allocated namespace
   nslist.pop_back();
 
   // after freeing, we should be able to allocate again
   auto ns = make_unique_del_cap<L4Re::Namespace>();
-  ASSERT_EQ(0, l4_error(cap->create(ns.get(), L4Re::Namespace::Protocol)));
-  ASSERT_EQ(0, ns->register_obj("x", cap.get()));
+  ASSERT_EQ(0, l4_error(cap->create(ns.get(), L4Re::Namespace::Protocol)))
+    << "Space for creating a new namespace has been made available.";
+  ASSERT_EQ(0, ns->register_obj("x", cap.get()))
+    << "Register a name in the new namespace.";
 }
