@@ -55,7 +55,8 @@ int Region_ops::map(Region_handler const *h, l4_addr_t adr,
          adr);
 
   static Snd_fpage::Cacheopt const cache_map[] =
-    { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached };
+    { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
+      Snd_fpage::None };
 
   auto ds_fpage = h->memory()->address(offs + h->offset(), rw, adr,
                                        r.start(), r.end());
