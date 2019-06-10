@@ -77,6 +77,9 @@ namespace Vfs_config {
 	  return -1;
       }
 
+    if (fstype[0] == '\0')
+      return -1;
+
     char const prefix[] = "libl4revfs-fs-";
     char const suffix[] = ".so";
     char name[80];
