@@ -1,0 +1,62 @@
+// -*- Mode: C++ -*-
+/* SPDX-License-Identifier: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom) */
+/*
+ * Copyright (C) 2019-2020 Kernkonzept GmbH.
+ * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
+ *
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/icu>
+
+namespace L4Re
+{
+
+/**
+ * Low-bandwidth interface for random number generators.
+ *
+ * The interface offers an ICU interface where a client can register an
+ * interrupt to get notified when entropy is available. Support for
+ * notifications is optional. If a service does not implement notification,
+ * it must return 0 for the number of interrupts in the info() call.
+ * The notification interrupt must have index 0.
+ *
+ * \includefile{l4/re/random}
+ */
+struct L4_EXPORT Random
+: public L4::Kobject_t<Random, L4::Icu>
+{
+  /**
+   * Get a random number.
+   *
+   * \param size         Number of bytes of entropy requested.
+   * \param[out] buffer  Buffer containing the random number. Each byte in the
+   *                     buffer contains 8 bits of randomness.
+   *
+   * \retval >=0  Actual size of the returned random number in bytes. This may
+   *              be less than the requested size. The return value may also
+   *              be 0 if temporarily no entropy is available.
+   * \retval -L4_EIO  Source of randomness permanently unavailable.
+   * \retval <0       IPC error.
+   *
+   * This function should never block. It should immediately return as much
+   * entropy as is available. If the call returns less than the requested
+   * bytes and a notification interrupt was installed, then the service triggers
+   * an interrupt as soon as the remaining entropy is available. That means
+   * that when an interrupt is triggered, the service must guarantee that the
+   * next call to get_random() returns at least the number of missing bytes
+   * for the call that initially triggered the notification.
+   *
+   * If get_random() is called while a notification is pending, then the
+   * behaviour is implementation-defined.
+   */
+  L4_INLINE_RPC(long, get_random, (l4_size_t size,
+                                   L4::Ipc::Array<char, unsigned long> *buffer));
+
+  typedef L4::Typeid::Rpcs<get_random_t> Rpcs;
+};
+
+} // namespace
