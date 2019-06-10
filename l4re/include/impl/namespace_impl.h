@@ -93,7 +93,7 @@ Namespace::query(char const *name, unsigned len, L4::Cap<void> const &target,
       if (ret >= 0)
         return ret;
 
-      if (L4_UNLIKELY(ret < 0 && (ret != -L4_EAGAIN)))
+      if (L4_UNLIKELY(ret != -L4_EAGAIN))
         return ret;
 
       if (rem == to)
