@@ -91,13 +91,19 @@ static void parse_fstab_line(const char *fn, int line_nr,
   const char *s2 = mountpoint.dupnultermstr();
   const char *s3 = fsname.dupnultermstr();
   const char *s5 = data.dupnultermstr();
-  int r = mount(s1, *s2 == '/' ? s2 + 1 : s2, s3, 0, s5);
-  if (r < 0)
-    fprintf(stderr, "libmount: %s.%d: mount(\"%s\", \"%s\", \"%s\", %d, \"%s\"): %s\n",
-            fn, line_nr, s1, s2, s3, 0, s5, strerror(errno));
-  else if (verbose)
-    printf("libmount: Mounted '%s' to '%s' with file-system '%s'\n",
-           s1, s2, s3);
+  if (s1 && s2 && s3 && s5)
+    {
+      int r = mount(s1, *s2 == '/' ? s2 + 1 : s2, s3, 0, s5);
+      if (r < 0)
+        fprintf(stderr,
+                "libmount: %s.%d: mount(\"%s\", \"%s\", \"%s\", %d, \"%s\"): %s\n",
+                fn, line_nr, s1, s2, s3, 0, s5, strerror(errno));
+      else if (verbose)
+        printf("libmount: Mounted '%s' to '%s' with file-system '%s'\n",
+               s1, s2, s3);
+    }
+  else
+    fprintf(stderr, "libmount: %s.%d: memory allocation error\n", fn, line_nr);
   free((void *)s5);
   free((void *)s3);
   free((void *)s2);
