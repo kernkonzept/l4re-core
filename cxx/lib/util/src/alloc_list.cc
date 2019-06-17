@@ -46,7 +46,7 @@ namespace L4 {
         *c = n;
       }
 
-    while (*c && reinterpret_cast<char*>(*c)+(*c)->size == (char*)((*c)->next))
+    while (*c && (*c)->next && (char *)(*c)+(*c)->size == (char *)((*c)->next))
       {
         (*c)->size += (*c)->next->size;
         (*c)->next = (*c)->next->next;
