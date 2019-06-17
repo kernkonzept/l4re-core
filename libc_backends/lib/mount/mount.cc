@@ -152,7 +152,7 @@ static void libmount_init()
     }
 
   char *fstab = (char *)mmap(0, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-  if (!fstab)
+  if (fstab == MAP_FAILED)
     {
       if (verbose)
         printf("libmount: Could not mmap '%s'.\n", fstab_path);
