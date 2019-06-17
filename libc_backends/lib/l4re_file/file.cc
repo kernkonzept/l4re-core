@@ -559,21 +559,32 @@ extern "C" int chdir(const char *path) L4_NOTHROW
 
   if (*path == '/')
     {
+      char *new_cwd = strdup(path);
+      if (!new_cwd)
+        {
+          errno = ENOMEM;
+          return -1;
+        }
       free_cwd();
-      _current_working_dir = strdup(path);
+      _current_working_dir = new_cwd;
     }
   else
     {
       unsigned len_cwd = strlen(_current_working_dir);
       unsigned len_path = strlen(path);
-      char *tmp = (char *)malloc(len_cwd + len_path + 2);
-      memcpy(tmp, _current_working_dir, len_cwd);
-      if (tmp[len_cwd - 1] != '/')
-        tmp[len_cwd++] = '/';
-      memcpy(tmp + len_cwd, path, len_path + 1);
+      char *new_cwd = (char *)malloc(len_cwd + len_path + 2);
+      if (!new_cwd)
+        {
+          errno = ENOMEM;
+          return -1;
+        }
+      memcpy(new_cwd, _current_working_dir, len_cwd);
+      if (new_cwd[len_cwd - 1] != '/')
+        new_cwd[len_cwd++] = '/';
+      memcpy(new_cwd + len_cwd, path, len_path + 1);
 
       free_cwd();
-      _current_working_dir = tmp;
+      _current_working_dir = new_cwd;
     }
 
   // would need to check whether 'f' is a directory
