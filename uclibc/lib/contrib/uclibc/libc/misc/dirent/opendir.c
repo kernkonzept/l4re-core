@@ -16,6 +16,9 @@
 #include <dirent.h>
 #include "dirstream.h"
 
+#define STAT stat64
+#define FSTAT fstat64
+
 static DIR *fd_to_DIR(int fd, __blksize_t size)
 {
 	DIR *ptr;
@@ -43,9 +46,9 @@ static DIR *fd_to_DIR(int fd, __blksize_t size)
 DIR *fdopendir(int fd)
 {
 	int flags;
-	struct stat st;
+	struct STAT st;
 
-	if (fstat(fd, &st))
+	if (FSTAT(fd, &st))
 		return NULL;
 	if (!S_ISDIR(st.st_mode)) {
 		__set_errno(ENOTDIR);
@@ -69,12 +72,12 @@ DIR *fdopendir(int fd)
 DIR *opendir(const char *name)
 {
 	int fd;
-	struct stat statbuf;
+	struct STAT statbuf;
 	DIR *ptr;
 
 #ifndef O_DIRECTORY
 	/* O_DIRECTORY is linux specific and has been around since like 2.1.x */
-	if (stat(name, &statbuf))
+	if (STAT(name, &statbuf))
 		return NULL;
 	if (!S_ISDIR(statbuf.st_mode)) {
 		__set_errno(ENOTDIR);
@@ -90,7 +93,7 @@ DIR *opendir(const char *name)
 	 * defined and since Linux has supported it for like ever, i'm not going
 	 * to worry about it right now (if ever). */
 
-	if (fstat(fd, &statbuf) < 0) {
+	if (FSTAT(fd, &statbuf) < 0) {
 		/* this close() never fails
 		 *int saved_errno;
 		 *saved_errno = errno; */

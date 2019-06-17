@@ -31,6 +31,9 @@
 #include <dirent.h>
 #include <sys/stat.h>
 
+#define STAT stat64
+#define FSTAT fstat64
+#define LSTAT lstat64
 
 #define TTYNAME_BUFLEN		32
 
@@ -45,8 +48,8 @@ static const char dirlist[] =
 int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 {
 	struct dirent *d;
-	struct stat st;
-	struct stat dst;
+	struct STAT st;
+	struct STAT dst;
 	const char *p;
 	char *s;
 	DIR *fp;
@@ -54,7 +57,7 @@ int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 	size_t len;
 	char buf[TTYNAME_BUFLEN];
 
-	if (fstat(fd, &st) < 0) {
+	if (FSTAT(fd, &st) < 0) {
 		return errno;
 	}
 
@@ -86,7 +89,7 @@ int ttyname_r(int fd, char *ubuf, size_t ubuflen)
 
 			strcpy(s, d->d_name);
 
-			if ((lstat(buf, &dst) == 0)
+			if ((LSTAT(buf, &dst) == 0)
 #if 0
 				/* Stupid filesystems like cramfs fail to guarantee that
 				 * st_ino and st_dev uniquely identify a file, contrary to
