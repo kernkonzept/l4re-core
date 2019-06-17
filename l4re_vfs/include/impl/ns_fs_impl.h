@@ -157,6 +157,9 @@ Ns_dir::getdents(char *buf, size_t sz) throw()
   err = L4Re::Env::env()->rm()->attach(&infoaddr, infosz,
                                        Rm::Search_addr | Rm::Read_only,
                                        dirinfofile.get(), 0);
+  if (err < 0)
+    return 0;
+
   char *p   = (char *)infoaddr + _current_dir_pos;
   char *end = (char *)infoaddr + infosz;
 
