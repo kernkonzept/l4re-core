@@ -178,6 +178,7 @@ public:
 
   Quota_allocator() throw() {}
   Quota_allocator(Quota_allocator const &) throw() {}
+  Quota &operator = (Quota const &) = delete;
 
   ~Quota_allocator() throw() {}
 

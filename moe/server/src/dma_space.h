@@ -32,6 +32,7 @@ class Mapper : public cxx::Ref_obj
 public:
   Mapper(Mapper const &) = delete;
   Mapper() = default;
+  Mapper &operator = (Mapper const &) = delete;
 
   typedef L4Re::Dma_space::Attributes Attributes;
   typedef L4Re::Dma_space::Direction Direction;
@@ -78,6 +79,7 @@ struct Mapping : cxx::H_list_item_t<Mapping>, cxx::Avl_tree_node
   static Key_type key_of(Mapping const *m) { return m->key; }
 
   Mapping(Mapping const &) = delete;
+  Mapping &operator = (Mapping const &) = delete;
   Mapping() = default;
 
   ~Mapping()
