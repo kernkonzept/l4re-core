@@ -31,6 +31,7 @@
 # define MAP_HUGETLB	0x40000		/* Create huge page mapping.  */
 # define MAP_SYNC	0x80000		/* Perform synchronous page
 					   faults for the mapping.  */
+# define MAP_UNINITIALIZED 0x4000000    /* For anonymous mmap, memory could -   					   be uninitialized.  */
 #endif
 
 /* Include generic Linux declarations.  */
