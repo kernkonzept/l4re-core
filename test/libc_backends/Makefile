@@ -11,4 +11,6 @@ DEPENDS_PKGS  := atkins
 REQUIRED_MODULES_test_l4re_file += l4re_file_testfile_ro
 REQUIRED_MODULES_test_l4re_file += l4re_file_testfile_rw:rw
 
+REQUIRED_MODULES_test_l4re_mmap += l4re_file_testfile_ro
+
 include $(L4DIR)/mk/test.mk

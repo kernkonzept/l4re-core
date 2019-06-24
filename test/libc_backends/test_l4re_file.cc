@@ -15,32 +15,14 @@
  * - The supplied file l4re_file_testfile_rw writeable in /rwfs.
  * - A writeable namespace /new_rw.
  */
-#include <cstring>
-#include <cstdlib>
-#include <cerrno>
-
-#include <errno.h>
+#include "test_helpers.h"
 
 #include <sys/param.h>
-#include <sys/fcntl.h>
 #include <dirent.h>
 #include <utime.h>
 
-#include <l4/re/error_helper>
 #include <l4/atkins/l4_assert>
 #include <l4/atkins/tap/main>
-
-/**
- * Test file paths.
- */
-char const *Ro_test_file = "/rom/l4re_file_testfile_ro";
-char const *Rw_test_file = "/rwfs/l4re_file_testfile_rw";
-
-enum
-{
-  Ro_test_file_size = 9,
-  Rw_test_file_size = 10
-};
 
 // *** helper functions ********************************************************
 
@@ -71,98 +53,6 @@ successive_read(int fd, char *buf, ssize_t nbyte)
   while (result > 0);
 
   return bytes_read;
-}
-
-/**
- * File descriptor that is automatically closed when going out of scope.
- */
-class AutoCloseFd
-{
-public:
-  AutoCloseFd(int file_descriptor) : _fd(file_descriptor) {};
-
-  int get() const { return _fd; }
-
-  ~AutoCloseFd()
-  {
-    // We don't check for errors here because fd may be initialized with invalid
-    // file descriptors.
-    close(_fd);
-  }
-
-  bool operator == (AutoCloseFd const &f) const { return (_fd == f.get()); }
-  bool operator != (AutoCloseFd const &f) const { return !(_fd == f.get()); }
-  bool operator == (int i) const { return (_fd == i); }
-  bool operator >= (int i) const { return (_fd >= i); }
-
-  friend bool operator == (int i, AutoCloseFd const &fd) { return (fd == i); }
-  friend bool operator != (int i, AutoCloseFd const &fd) { return !(fd == i); }
-
-private:
-  int _fd;
-};
-
-/**
- * Return a file descriptor to the read only test file that closes automatically.
- */
-static AutoCloseFd
-open_ro_file()
-{
-  errno = 0;
-  int fd = open(Ro_test_file, O_RDONLY);
-
-  if (fd == -1)
-    {
-      Atkins::Dbg().printf("errno: %d\n", errno);
-      L4Re::chksys(L4_EINVAL, "Open /rom/l4re_file_testfile_ro.");
-    }
-
-  return AutoCloseFd(fd);
-}
-
-/**
- * Return a file descriptor to the writeable test file that closes automatically.
- */
-static AutoCloseFd
-open_rw_file()
-{
-  errno = 0;
-  int fd = open(Rw_test_file, O_RDWR);
-
-  if (fd == -1)
-    {
-      Atkins::Dbg().printf("errno: %d\n", errno);
-      L4Re::chksys(L4_EINVAL, "Open /rom/l4re_file_testfile_rw.");
-    }
-
-  return AutoCloseFd(fd);
-}
-
-/*
- * Return an invalid file descriptor.
- *
- * We invalidate the file descriptor by closing it.
- */
-static int
-invalid_fd()
-{
-  errno = 0;
-  int fd = open(Ro_test_file, O_RDONLY);
-  if (fd == -1)
-    {
-      Atkins::Dbg().printf("errno: %d\n", errno);
-      L4Re::chksys(L4_EINVAL, "Open /rom/l4re_file_testfile_ro.");
-    }
-
-  errno = 0;
-  close(fd);
-  if (errno > 0)
-    {
-      Atkins::Dbg().printf("errno: %d\n", errno);
-      L4Re::chksys(L4_EINVAL, "Close /rom/l4re_file_testfile_ro.");
-    }
-
-  return fd;
 }
 
 // *** open ********************************************************************
