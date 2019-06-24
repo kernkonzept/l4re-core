@@ -18,6 +18,7 @@
 
 #include <sys/param.h>
 #include <sys/fcntl.h>
+#include <dirent.h>
 
 #include <l4/re/error_helper>
 #include <l4/atkins/l4_assert>
@@ -28,6 +29,12 @@
  */
 char const *Ro_test_file = "/rom/l4re_file_testfile_ro";
 char const *Rw_test_file = "/rwfs/l4re_file_testfile_rw";
+
+enum
+{
+  Ro_test_file_size = 9,
+  Rw_test_file_size = 10
+};
 
 // *** helper functions ********************************************************
 
@@ -83,6 +90,7 @@ public:
   bool operator >= (int i) const { return (_fd >= i); }
 
   friend bool operator == (int i, AutoCloseFd const &fd) { return (fd == i); }
+  friend bool operator != (int i, AutoCloseFd const &fd) { return !(fd == i); }
 
 private:
   int _fd;
@@ -238,6 +246,18 @@ TEST(BeL4ReOpen, NonExistentPathError)
   ASSERT_EQ(ENOENT, errno) << "Errno is set as specified.";
 }
 
+// *** open64 ******************************************************************
+
+/**
+ * Opening a file using open64() returns a file descriptor.
+ */
+TEST(BeL4ReOpen64, ReadOnlyFileDescriptor)
+{
+  AutoCloseFd fd = open64(Ro_test_file, O_RDONLY);
+  ASSERT_GE(fd, 0)
+    << "The file descriptor returned by open64() is a non-negative number.";
+}
+
 // *** close *******************************************************************
 
 /**
@@ -279,6 +299,49 @@ TEST(BeL4ReClose, DoubleCloseError)
   errno = 0;
   ASSERT_EQ(-1, close(fd)) << "Closing the already closed file descriptor.";
   ASSERT_EQ(EBADF, errno) << "Errno is set as specified.";
+}
+
+// *** stat ********************************************************************
+
+/**
+ * stat() returns the size of the underlying dataspace.
+ */
+TEST(BeL4ReStat, RoFileInfo)
+{
+  struct stat buf;
+  ASSERT_EQ(0, stat(Ro_test_file, &buf))
+    << "Call stat() on the read only testfile.";
+  ASSERT_EQ(Ro_test_file_size, buf.st_size)
+    << "Compare to the known file size.";
+}
+
+// *** llstat *******************************************************************
+
+/**
+ * lstat() returns the size of the underlying dataspace.
+ */
+TEST(BeL4ReLstat, RoFileInfo)
+{
+  struct stat buf;
+  ASSERT_EQ(0, lstat(Ro_test_file, &buf))
+    << "Call lstat() on the read only testfile.";
+  ASSERT_EQ(Ro_test_file_size, buf.st_size)
+    << "Compare to the known file size.";
+}
+
+// *** fstat *******************************************************************
+
+/**
+ * fstat() returns the size of the underlying dataspace.
+ */
+TEST(BeL4ReFstat, RoFileInfo)
+{
+  AutoCloseFd fd = open_ro_file();
+  struct stat buf;
+  ASSERT_EQ(0, fstat(fd.get(), &buf))
+    << "Call fstat() on the read only testfile.";
+  ASSERT_EQ(Ro_test_file_size, buf.st_size)
+    << "Compare to the known file size.";
 }
 
 // *** dup *********************************************************************
@@ -378,14 +441,67 @@ TEST(BeL4ReDup2, BothFileDescriptorsAreInvalid)
 // *** fcntl *******************************************************************
 
 /**
- * Calling fcntl() on a valid file descriptor returns non-negative flags.
+ * Parametrized test setup for valid fcntl commands.
  */
-TEST(BeL4ReFcntl, ValidFlagsFromValidFileDescriptor)
+class BeL4ReFcntlFlagsValid : public ::testing::TestWithParam<int> {};
+INSTANTIATE_TEST_CASE_P(MultiFlags, BeL4ReFcntlFlagsValid,
+                        ::testing::Values(F_GETFD, F_GETFL, F_GETOWN,
+                                          F_GETSIG));
+
+/**
+ * Calling fcntl() with valid commands on a valid file descriptor returns
+ * non-negative flags.
+ */
+TEST_P(BeL4ReFcntlFlagsValid, ValidFlagsForValidFileDescriptor)
 {
   AutoCloseFd ro_fd = open_ro_file();
-  ASSERT_GE(fcntl(ro_fd.get(), F_GETFD), 0)
-    << "F_GETFD fnctl flags are non-negative.";
+  ASSERT_GE(fcntl(ro_fd.get(), GetParam()), 0)
+    << "Calling fnctl() on a valid file descriptor.";
 }
+
+/**
+ * Parametrized test setup for unimplemented fcntl commands.
+ */
+class BeL4ReFcntlFlagsUnimplemented : public ::testing::TestWithParam<int> {};
+INSTANTIATE_TEST_CASE_P(MultiFlags, BeL4ReFcntlFlagsUnimplemented,
+                        ::testing::Values(F_SETOWN, F_SETSIG));
+
+/**
+ * Calling fcntl() with commands not recognized by the backend returns an error.
+ */
+TEST_P(BeL4ReFcntlFlagsUnimplemented, UnimplementedFlagsForValidFileDescriptor)
+{
+  AutoCloseFd ro_fd = open_ro_file();
+  int third_param = 0;
+
+  errno = 0;
+  ASSERT_EQ(-1, fcntl(ro_fd.get(), GetParam(), third_param))
+    << "Calling fnctl() on a valid file descriptor.";
+  ASSERT_EQ(EINVAL, errno) << "Errno is set as specified.";
+}
+
+/**
+ * Parametrized test setup for fcntl lock commands.
+ */
+class BeL4ReFcntlLockFlags : public ::testing::TestWithParam<int> {};
+INSTANTIATE_TEST_CASE_P(MultiFlags, BeL4ReFcntlLockFlags,
+                        ::testing::Values(F_GETLK, F_SETLK, F_SETLKW, F_SETOWN,
+                                          F_SETSIG));
+
+/**
+ * Calling fcntl() on a normal file with lock flags returns an error.
+ */
+TEST_P(BeL4ReFcntlLockFlags, LockFlagsForValidFileDescriptor)
+{
+  AutoCloseFd ro_fd = open_ro_file();
+  struct flock lock;
+
+  errno = 0;
+  ASSERT_EQ(-1, fcntl(ro_fd.get(), GetParam(), &lock))
+    << "Calling fnctl() on a valid file descriptor.";
+  ASSERT_EQ(EINVAL, errno) << "Errno is set as specified.";
+}
+
 
 /**
  * Calling fcntl() on an invalid file descriptor returns an error.
@@ -475,6 +591,38 @@ TEST(BeL4ReRead, InvalidFileDescriptor)
   EXPECT_EQ(-1, read(invalid_fd(), buf, 0))
     << "Read on a closed file descriptor.";
   EXPECT_EQ(EBADF, errno) << "Errno indicates a bad file descriptor.";
+}
+
+// *** pread *******************************************************************
+
+/**
+ * The pread() function reads a file from an offset.
+ */
+TEST(BeL4RePread, PartiallyReadFileFromOffset)
+{
+  AutoCloseFd ro_fd = open_ro_file();
+  ssize_t const bufsize = 4;
+  off_t const offset = 4;
+  char buf[bufsize];
+  ssize_t bytes_read = pread(ro_fd.get(), buf, bufsize, offset);
+  ASSERT_GT(bytes_read, 0) << "Read bytes from offset.";
+  ASSERT_EQ(0, memcmp(buf, "only", bytes_read)) << "Data was read from offset.";
+}
+
+// *** pread64 *****************************************************************
+
+/**
+ * The pread64() function reads a file from an offset.
+ */
+TEST(BeL4RePread64, PartiallyReadFileFromOffset)
+{
+  AutoCloseFd ro_fd = open_ro_file();
+  ssize_t const bufsize = 4;
+  off_t const offset = 4;
+  char buf[bufsize];
+  ssize_t bytes_read = pread64(ro_fd.get(), buf, bufsize, offset);
+  ASSERT_GT(bytes_read, 0) << "Read bytes from offset.";
+  ASSERT_EQ(0, memcmp(buf, "only", bytes_read)) << "Data was read from offset.";
 }
 
 // *** lseek *******************************************************************
@@ -718,7 +866,7 @@ TEST(BeL4ReGetcwd, CorrectlyValidateCwd)
   char chdir_buf[newpathlen];
   char const *cwd = getcwd(chdir_buf, newpathlen);
   ASSERT_NE(nullptr, cwd) << "A working directory is returned.";
-  EXPECT_EQ(0, strncmp(newpath, cwd, newpathlen))
+  EXPECT_EQ(0, strcmp(newpath, cwd))
     << "Correct working directory is returned.";
 
   chdir(orig_cwd);
@@ -736,6 +884,37 @@ TEST(BeL4ReChdir, InvalidPath)
   ASSERT_EQ(-1, chdir(path)) << "Changing to a non-existent directory.";
   EXPECT_GT(errno, 0) << "Errno is set.";
 }
+
+/**
+ * The Posix chdir() function changes to a relative path.
+ */
+TEST(BeL4ReChdir, RelativePath)
+{
+  char origdir_buf[MAXPATHLEN];
+  char const *orig_cwd = getcwd(origdir_buf, MAXPATHLEN);
+  ASSERT_NE(nullptr, orig_cwd)
+    << "The getcwd() function returns a base directory.";
+
+  ASSERT_EQ(0, chdir("/")) << "Changing to the file system root.";
+
+  char const *relative_path = "rom";
+  ASSERT_EQ(0, chdir(relative_path)) << "Changing to a relative path.";
+
+  char const *returned_path = "/rom";
+  char const returned_path_len = strlen(returned_path) + 1;
+
+  char chdir_buf[returned_path_len];
+  char const *cwd = getcwd(chdir_buf, returned_path_len);
+  ASSERT_NE(nullptr, cwd) << "A working directory is returned.";
+  EXPECT_EQ(0, strcmp(returned_path, cwd))
+    << "Correct working directory is returned.";
+
+  AutoCloseFd fd = open("l4re_file_testfile_ro", O_RDONLY);
+  EXPECT_NE(0, fd) << "Open a file relative to the changed directory.";
+
+  chdir(orig_cwd);
+}
+
 
 // *** fchdir ******************************************************************
 
@@ -760,8 +939,6 @@ TEST(BeL4ReFchdir, ChangeToValidFileDescriptor)
 
 /**
  * The Posix fchdir() function indicates errors on an invalid file descriptor.
- *
- * This is tested by using an already closed file descriptor.
  */
 TEST(BeL4ReFchdir, InvalidFileDescriptor)
 {
@@ -769,6 +946,29 @@ TEST(BeL4ReFchdir, InvalidFileDescriptor)
   ASSERT_EQ(-1, fchdir(invalid_fd()))
     << "Changing to an invalid directory handle.";
   EXPECT_GT(errno, 0) << "Errno is set.";
+}
+
+// *** readdir *****************************************************************
+
+/**
+ * The Posix readdir() function returns a directory entry.
+ *
+ * This only works on namespaces that provide directory contents in .dirinfo.
+ */
+TEST(BeL4ReReaddir, GetEntry)
+{
+  char const *dirpath = "/rom";
+  DIR *dirp;
+  dirp = opendir(dirpath);
+  ASSERT_NE(nullptr, dirp) << "Open a directory path.";
+
+  struct dirent *entry;
+  char const *known_file = "l4re_file_testfile_ro";
+  while ((entry = readdir(dirp)))
+    if (!strcmp(known_file, entry->d_name))
+      break;
+
+  ASSERT_NE(nullptr, entry) << "Read an entry for a known file.";
 }
 
 // *** unimplemented functions *************************************************
