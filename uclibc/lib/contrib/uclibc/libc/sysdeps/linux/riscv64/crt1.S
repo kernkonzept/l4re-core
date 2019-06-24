@@ -52,6 +52,11 @@ _start:
 	la   a0, main
 	REG_L a1, 0(sp)      /* argc.  */
 	addi  a2, sp, SZREG  /* argv.  */
+	/*
+	 * No support fo app_init/app_fini as we don't support shared libraries.
+	 */
+	mv    a3, zero
+	mv    a4, zero
 	andi  sp, sp, ALMASK /* Align stack. */
 	mv    a6, sp  /* stack_end.  */
 
