@@ -21,68 +21,6 @@ namespace Ned {
 
 using L4Re::chksys;
 
-Server_object::List::List() : _f(0)
-{
-  pthread_mutex_init(&_lock, NULL);
-}
-
-Server_object::List::~List()
-{
-  pthread_mutex_lock(&_lock);
-  for (Server_object *o = _f; o;)
-    {
-      Server_object *n = o->_n;
-      assert(o->_l == this);
-
-      o->_l = 0;
-      o->_p = 0;
-      o->_n = 0;
-      o = n;
-    }
-  pthread_mutex_unlock(&_lock);
-
-  pthread_mutex_destroy(&_lock);
-}
-
-
-void Server_object::List::add(Server_object *o)
-{
-  if (o->_l) return;
-  pthread_mutex_lock(&_lock);
-  o->_l = this;
-  o->_n = _f;
-  o->_p = 0;
-  if (_f)
-    _f->_p = o;
-
-  _f = o;
-  pthread_mutex_unlock(&_lock);
-}
-
-Server_object *Server_object::List::remove(Server_object *o)
-{
-  Server_object *res = 0;
-  pthread_mutex_lock(&_lock);
-  if (!o) o = _f;
-  if (o && o->_l == this)
-    {
-      if (o->_p)
-	o->_p->_n = o->_n;
-      else
-	_f = o->_n;
-
-      if (o->_n)
-	o->_n->_p = o->_p;
-
-      o->_l = 0;
-      o->_n = 0;
-      o->_p = 0;
-      res = o;
-    }
-  pthread_mutex_unlock(&_lock);
-  return res;
-}
-
 Server::Server() : Base(0)
 {
   pthread_mutex_init(&_start_mutex, NULL);
