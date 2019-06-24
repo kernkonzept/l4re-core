@@ -8,7 +8,7 @@
  * Please see the COPYING-LGPL-2.1 file for details.
  */
 /**
- * \brief   lib for performance mesaurement counters. 
+ * \brief   lib for performance measurement counters.
  */
 
 #include <l4/sys/types.h>

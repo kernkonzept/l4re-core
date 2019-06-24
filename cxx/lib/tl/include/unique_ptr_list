@@ -22,7 +22,7 @@ template <typename T>
 using Unique_ptr_list_item = Bits::Smart_ptr_list_item<T, cxx::unique_ptr<T> >;
 
 /**
- * Single-linked list where elements are connected with a cxx::unqiue_ptr.
+ * Single-linked list where elements are connected with a cxx::unique_ptr.
  */
 template <typename T>
 using Unique_ptr_list = Bits::Smart_ptr_list<Unique_ptr_list_item<T> >;
