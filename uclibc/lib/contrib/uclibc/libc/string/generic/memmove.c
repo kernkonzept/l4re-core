@@ -23,8 +23,9 @@
 #include "memcopy.h"
 #include "pagecopy.h"
 
-#ifndef __ARCH_HAS_BWD_MEMCPY__
+#if defined(__ARCH_HAS_BWD_MEMCPY__) || defined(__mips__)
 /* generic-opt memmove assumes memcpy does forward copying! */
+/* also needed for MIPS as its memcpy does not support overlapping regions */
 #include "_memcpy_fwd.c"
 #endif
 
@@ -224,8 +225,11 @@ void *memmove (void *dest, const void *src, size_t len)
      Reduces the working set.  */
   if (dstp - srcp >= len)	/* *Unsigned* compare!  */
     {
-#ifdef __ARCH_HAS_BWD_MEMCPY__
-      /* Backward memcpy implementation can be used */
+      /*  Calling memcpy() from memmove() should be skipped in two cases:
+       *  a) if arch's memcpy uses a backward copying (SH4)
+       *  b) if arch's memcpy is not fully safe for overlapping regions (MIPS)
+       */
+#if !defined(__ARCH_HAS_BWD_MEMCPY_) && !defined(__mips__)
       memcpy(dest, src, len);
 #else
       /* Copy from the beginning to the end.  */
