@@ -77,14 +77,14 @@ TEST_F(TestIcuSvr, MsiInfo)
   l4_icu_msi_info_t info;
   for (unsigned i = 0; i < Num_irqs; ++i)
     {
-      // Icu_svr::msi_info() return -L4_EINVAL for 
+      // The behavior is undefined in this case so we check only for IPC error.
       ASSERT_L4IPC_OK(scap()->msi_info(i, 0, &info))
         << "Call Icu_svr::msi_info(" << i << ").";
     }
 }
 
 /**
- * Icu_svr ignores masking and unmasking of an IRQs.
+ * Icu_svr ignores masking and unmasking of IRQs.
  *
  * Go through the IRQ lines at the Icu_svr and first mask, then unmask the
  * corresponding line. Verify that the send-only IPC succeeds in both cases.
@@ -122,8 +122,17 @@ TEST_F(TestIcuSvr, BindUnbindIrq)
       ASSERT_L4OK(scap()->bind(i, irq.get()))
         << "Bind the Icu_svr IRQ line " << i << " to the IRQ object.";
 
+      EXPECT_L4CAP(handler().icu_get_irq(i)->cap())
+        << "The IRQ line " << i << " was successfully bound to a capability.";
+
+      EXPECT_L4CAP_OBJ_EQ(handler().icu_get_irq(i)->cap(), irq.get())
+        << "The IRQ line " << i << " was bound to the IRQ object.";
+
       ASSERT_L4OK(scap()->unbind(i, irq.get()))
         << "Unbind the Icu_svr IRQ line " << i << " from the IRQ object.";
+
+      EXPECT_FALSE(handler().icu_get_irq(i)->cap().is_valid())
+        << "The IRQ line " << i << " is not bound to a valid capability.";
     }
 }
 
@@ -153,7 +162,7 @@ TEST_F(TestIcuSvr, TriggerIrq)
   auto irq = Atkins::Factory::del_kobj<L4::Irq>("Emerge IRQ object.");
 
   L4Re::chksys(scap()->bind(0, irq.get()),
-               "Bind the Icu_svr to the IRQ object.");
+               "Bind the first IRQ line of Icu_svr to the IRQ object.");
 
   L4Re::chksys(irq->bind_thread(env->main_thread(), 0x0),
                "Bind the main thread to the IRQ object.");
@@ -166,4 +175,7 @@ TEST_F(TestIcuSvr, TriggerIrq)
   handler().trigger_irq(2);
   ASSERT_L4IPC_ERR(L4_IPC_RETIMEOUT, irq->receive(L4_IPC_RECV_TIMEOUT_0))
     << "Don't receive an interrupt from not triggered sources.";
+
+  L4Re::chksys(scap()->unbind(0, irq.get()),
+               "Unbind the first IRQ line of Icu_svr from the IRQ object.");
 }
