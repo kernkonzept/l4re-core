@@ -83,9 +83,15 @@ namespace Vfs_config {
     char const prefix[] = "libl4revfs-fs-";
     char const suffix[] = ".so";
     char name[80];
+    size_t fstype_len = strlen(fstype);
+
+    if (fstype_len > sizeof(name) - (sizeof(prefix) - 1)
+                                  - (sizeof(suffix) - 1) - 1)
+      return -1;
+
     memcpy(name, prefix, sizeof(prefix) - 1);
-    memcpy(name + sizeof(prefix) - 1, fstype, strlen(fstype));
-    memcpy(name + sizeof(prefix) + strlen(fstype) - 1, suffix, sizeof(suffix));
+    memcpy(name + sizeof(prefix) - 1, fstype, fstype_len);
+    memcpy(name + sizeof(prefix) - 1 + fstype_len, suffix, sizeof(suffix));
     return _dl_open(name, RTLD_LOCAL | RTLD_LAZY) ? 0 : -1;
   }
 
