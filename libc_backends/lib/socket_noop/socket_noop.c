@@ -153,6 +153,9 @@ int W gethostent_r(struct hostent *ret, char *buf, size_t buflen,
 {
   printf("Unimplemented: %s(%p, %p, %zd, %p, %p)\n", __func__,
          ret, buf, buflen, result, h_errnop);
-  errno = EINVAL;
+  if (h_errnop)
+    *h_errnop = HOST_NOT_FOUND;
+  if (result)
+    *result = NULL;
   return -1;
 }
