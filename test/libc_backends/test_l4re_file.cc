@@ -9,6 +9,11 @@
 /**
  * \file
  * Test Posix file functions of the L4Re libc backend.
+ *
+ * This file relies on the presence of the following test setup:
+ * - The supplied file l4re_file_testfile_ro in /rom.
+ * - The supplied file l4re_file_testfile_rw writeable in /rwfs.
+ * - A writeable namespace /new_rw.
  */
 #include <cstring>
 #include <cstdlib>
@@ -19,6 +24,7 @@
 #include <sys/param.h>
 #include <sys/fcntl.h>
 #include <dirent.h>
+#include <utime.h>
 
 #include <l4/re/error_helper>
 #include <l4/atkins/l4_assert>
@@ -1038,4 +1044,121 @@ TEST(BeL4ReUnimplemented, Lchown)
   errno = 0;
   EXPECT_EQ(-1, lchown(path, owner, group)) << "Function is callable.";
   EXPECT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix truncate() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Truncate)
+{
+  off_t length = 1;
+
+  EXPECT_EQ(-1, truncate(Ro_test_file, length)) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The truncate64() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Truncate64)
+{
+  off_t length = 1;
+
+  EXPECT_EQ(-1, truncate64(Ro_test_file, length)) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix ftruncate() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Ftruncate)
+{
+  AutoCloseFd fd = open_ro_file();
+  off_t length = 1;
+
+  EXPECT_EQ(-1, ftruncate(fd.get(), length)) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The ftruncate64() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Ftruncate64)
+{
+  AutoCloseFd fd = open_ro_file();
+  off_t length = 1;
+
+  EXPECT_EQ(-1, ftruncate64(fd.get(), length)) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix lockf() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Lockf)
+{
+  AutoCloseFd fd = open_ro_file();
+  off_t length = 1;
+
+  EXPECT_EQ(-1, lockf(fd.get(), F_TLOCK, length)) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix mknod() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Mknod)
+{
+  char const *path = "/dummy/path";
+  EXPECT_EQ(-1, mknod(path, 0, 0)) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix fsync() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Fsync)
+{
+  AutoCloseFd fd = open_ro_file();
+  EXPECT_EQ(-1, fsync(fd.get())) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix fsync() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Fdatasync)
+{
+  AutoCloseFd fd = open_ro_file();
+  EXPECT_EQ(-1, fdatasync(fd.get())) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix utime() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Utime)
+{
+  EXPECT_EQ(-1, utime(Rw_test_file, 0)) << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix rename() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Rename)
+{
+  EXPECT_EQ(-1, rename(Rw_test_file, "/rwfs/new_name"))
+   << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
+}
+
+/**
+ * The Posix link() function can be called.
+ */
+TEST(BeL4ReUnimplemented, Link)
+{
+  EXPECT_EQ(-1, link(Rw_test_file, "/rwfs/new_name"))
+    << "Function is callable.";
+  ASSERT_GT(errno, 0) << "Errno is set.";
 }
