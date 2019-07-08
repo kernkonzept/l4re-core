@@ -4,6 +4,7 @@ L4DIR ?= $(PKGDIR)/../..
 TEST_GROUP    := l4re-core/libc_backends
 
 NED_CFG_test_l4re_file = l4re_file.cfg
+NED_CFG_test_l4re_write = l4re_write.cfg
 REQUIRES_LIBS := atkins
 REQUIRES_LIBS += libc_be_fs_noop libc_be_sem_noop libc_be_sig_noop
 DEPENDS_PKGS  := atkins
