@@ -67,6 +67,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 // 2735. std::abs(short), std::abs(signed char) and others should return int
 
 #ifndef __CORRECT_ISO_CPP_MATH_H_PROTO
+#ifndef L4_MINIMAL_LIBC
   inline _GLIBCXX_CONSTEXPR double
   abs(double __x)
   { return __builtin_fabs(__x); }
@@ -78,6 +79,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   inline _GLIBCXX_CONSTEXPR long double
   abs(long double __x)
   { return __builtin_fabsl(__x); }
+#endif
 #endif
 
 #if defined(__GLIBCXX_TYPE_INT_N_0)
@@ -97,11 +99,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   abs(__GLIBCXX_TYPE_INT_N_3 __x) { return __x >= 0 ? __x : -__x; }
 #endif
 
+#ifndef L4_MINIMAL_LIBC
 #if !defined(__STRICT_ANSI__) && defined(_GLIBCXX_USE_FLOAT128)
   inline _GLIBCXX_CONSTEXPR
   __float128
   abs(__float128 __x)
   { return __x < 0 ? -__x : __x; }
+#endif
 #endif
 
 _GLIBCXX_END_NAMESPACE_VERSION
