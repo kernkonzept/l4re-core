@@ -253,7 +253,8 @@ struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
  *
  * To setup an interrupt line the following steps are required:
  * 1. set_mode() (optional if interrupt has a default mode)
- * 2. Irq::attach() to attach the interrupt capability to a thread
+ * 2. L4::Rcv_endpoint::bind_thread() to attach the interrupt capability to a
+ *    thread (Irq::attach() is deprecated).
  * 3. bind()
  * 4. unmask() to receive the first interrupt
  *
