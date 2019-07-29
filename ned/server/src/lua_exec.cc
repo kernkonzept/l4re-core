@@ -497,20 +497,6 @@ static int exec(lua_State *l)
 
   return 0;
 }
-#if 0
-void do_some_exc_tests()
-{
-  char _ta[333];
-  char const *const cont = "Das ist ein lustiger test";
-
-  for (unsigned i = 0; i < strlen(cont); ++i)
-    _ta[i] = cont[i];
-
-  volatile int *x = (int*)0x500;
-//printf("Test Exc\n");
-  int y = *x;
-}
-#endif
 
 
 static const luaL_Reg _task_meta_ops[] = {
