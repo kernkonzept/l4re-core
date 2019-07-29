@@ -198,6 +198,7 @@ Icu_cap_array_svr<ICU>::Irq::bind(ICU *cfb, L4::Ipc::Snd_fpage const &irq_fp)
   if (r < 0)
     return r;
 
+  ICU::free_irq_cap(_cap);
   _cap = irq;
   return 0;
 }
@@ -206,7 +207,7 @@ template< typename ICU >
 int
 Icu_cap_array_svr<ICU>::Irq::unbind(ICU *, L4::Ipc::Snd_fpage const &/*irq_fp*/)
 {
-  L4Re::Env::env()->task()->unmap(_cap.fpage(L4_FPAGE_RWX), L4_FP_ALL_SPACES);
+  ICU::free_irq_cap(_cap);
   _cap = L4::Cap<L4::Irq>::Invalid;
   return 0;
 }
