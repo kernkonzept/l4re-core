@@ -35,10 +35,10 @@ TEST(SignalNoop, Signal)
 TEST(SignalNoop, Sigaction)
 {
   int sig = 1;
-  struct sigaction sig_act;
+  struct sigaction sig_act, old_act;
 
   errno = 0;
-  EXPECT_EQ(-1, sigaction(sig, &sig_act, &sig_act)) << "Function is callable.";
+  EXPECT_EQ(-1, sigaction(sig, &sig_act, &old_act)) << "Function is callable.";
   EXPECT_LT(0, errno) << "An error is signalled via errno.";
 }
 
@@ -47,11 +47,11 @@ TEST(SignalNoop, Sigaction)
  */
 TEST(SignalNoop, Sigprocmask)
 {
-  int sig = 1;
-  sigset_t sig_set;
+  int how = 1;
+  sigset_t sig_set, old_set;
 
   errno = 0;
-  EXPECT_EQ(-1, sigprocmask(sig, &sig_set, &sig_set))
+  EXPECT_EQ(-1, sigprocmask(how, &sig_set, &old_set))
     << "Function is callable.";
   EXPECT_LT(0, errno) << "An error is signalled via errno.";
 }
