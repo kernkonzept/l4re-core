@@ -55,18 +55,21 @@ TEST_F(NonExecutable, ElfDataIsNotExecutable)
 TEST_F(NonExecutable, StackIsNotExecutable)
 {
   std::atomic<l4_addr_t> stack_func;
+  auto cb = Atkins::Factory::kobj<L4::Semaphore>("Allocating a semaphore.");
 
-  callback = [&stack_func](void) {
+  callback = [&stack_func, &cb](void) {
     uint8_t buf[execute_data_size] __attribute__((aligned(4)));
     memcpy(buf, (void *)execute_data, sizeof(buf));
 
     l4_cache_coherent((l4_addr_t)buf, (l4_addr_t)&buf[sizeof(buf)]);
 
     stack_func = (l4_addr_t) buf;
+    cb->up();
     ((void (*)(void))buf)();
   };
 
   sem->up();
+  cb->down();
 
   wait_for_pfa(stack_func);
 }
