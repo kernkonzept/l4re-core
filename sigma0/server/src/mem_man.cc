@@ -179,11 +179,11 @@ Mem_man::alloc_from(Region const *r2, Region const &_r)
 }
 
 unsigned long
-Mem_man::alloc(Region const &r, bool force)
+Mem_man::alloc(Region const &r)
 {
   if (!r.valid())
     return ~0UL;
-  Region const *r2 = find(r, force);
+  Region const *r2 = find(r);
   if (!r2)
     return ~0UL;
 

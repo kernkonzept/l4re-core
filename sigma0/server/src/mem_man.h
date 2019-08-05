@@ -34,7 +34,7 @@ private:
 public:
   static Mem_man *ram() { return &_ram; }
 
-  unsigned long alloc(Region const &r, bool force = false);
+  unsigned long alloc(Region const &r);
   bool alloc_get_rights(Region const &r, L4_fpage_rights *rights);
   bool reserve(Region const &r);
   bool add_free(Region const &r);
