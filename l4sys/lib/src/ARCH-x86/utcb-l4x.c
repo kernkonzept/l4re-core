@@ -26,7 +26,7 @@
 
 #include <l4/sys/utcb.h>
 
-L4_CV l4_utcb_t *l4_utcb_wrap(void)
+L4_CV l4_utcb_t *l4_utcb_wrap(void) L4_NOTHROW
 {
   l4_utcb_t *utcb;
   __asm__ __volatile__ ("mov %%fs:0, %0" : "=r" (utcb));
