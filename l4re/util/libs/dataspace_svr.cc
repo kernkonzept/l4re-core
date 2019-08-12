@@ -102,7 +102,7 @@ Dataspace_svr::map(Dataspace::Offset offs,
 }
 
 long
-Dataspace_svr::clear(l4_addr_t offs, unsigned long ds_size) const throw()
+Dataspace_svr::clear(l4_addr_t offs, unsigned long ds_size) const noexcept
 {
   if (!check_limit(offs))
     return -L4_ERANGE;

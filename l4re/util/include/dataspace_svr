@@ -47,12 +47,12 @@ public:
   typedef Snd_fpage::Map_type Map_type;
   typedef Snd_fpage::Cacheopt Cache_type;
 
-  Dataspace_svr() throw()
+  Dataspace_svr() noexcept
   : _ds_start(0), _ds_size(0), _map_flags(Snd_fpage::Map),
     _cache_flags(Snd_fpage::Cached)
   {}
 
-  virtual ~Dataspace_svr() throw() {}
+  virtual ~Dataspace_svr() noexcept {}
 
   /**
    * Map a region of the dataspace
@@ -100,7 +100,7 @@ public:
    *
    * Default does nothing.
    */
-  virtual void take() throw()
+  virtual void take() noexcept
   {}
 
   /**
@@ -110,7 +110,7 @@ public:
    *
    * Default does nothing and returns always zero.
    */
-  virtual unsigned long release() throw()
+  virtual unsigned long release() noexcept
   { return 0; }
 
   /**
@@ -126,7 +126,7 @@ public:
    *              implementation.
    */
   virtual long copy(l4_addr_t dst_offs, l4_umword_t src_id,
-                    l4_addr_t src_offs, unsigned long size) throw()
+                    l4_addr_t src_offs, unsigned long size) noexcept
   {
     (void)dst_offs; (void)src_id; (void)src_offs; (void)size;
     return -L4_ENODEV;
@@ -141,7 +141,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  virtual long clear(unsigned long offs, unsigned long size) const throw();
+  virtual long clear(unsigned long offs, unsigned long size) const noexcept;
 
   /**
    * Allocate a region within a dataspace
@@ -154,7 +154,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  virtual long allocate(l4_addr_t offset, l4_size_t size, unsigned access) throw()
+  virtual long allocate(l4_addr_t offset, l4_size_t size, unsigned access) noexcept
   { (void)offset; (void)size; (void)access; return -L4_ENODEV; }
 
   /**
@@ -162,7 +162,7 @@ public:
    *
    * \return flexpage size
    */
-  virtual unsigned long page_shift() const throw()
+  virtual unsigned long page_shift() const noexcept
   { return L4_LOG2_PAGESIZE; }
 
   /**
@@ -170,7 +170,7 @@ public:
    *
    * \return True if dataspace is static
    */
-  virtual bool is_static() const throw()
+  virtual bool is_static() const noexcept
   { return true; }
 
 
@@ -233,15 +233,15 @@ public:
 
 
 protected:
-  unsigned long size() const throw()
+  unsigned long size() const noexcept
   { return _ds_size; }
-  unsigned long map_flags() const throw()
+  unsigned long map_flags() const noexcept
   { return _map_flags; }
-  unsigned long page_size() const throw()
+  unsigned long page_size() const noexcept
   { return 1UL << page_shift(); }
-  unsigned long round_size() const throw()
+  unsigned long round_size() const noexcept
   { return l4_round_size(size(), page_shift()); }
-  bool check_limit(l4_addr_t offset) const throw()
+  bool check_limit(l4_addr_t offset) const noexcept
   { return offset < round_size(); }
 
   L4Re::Dataspace::Flags
@@ -255,7 +255,7 @@ protected:
   }
 
 protected:
-  void size(unsigned long size) throw() { _ds_size = size; }
+  void size(unsigned long size) noexcept { _ds_size = size; }
 
   l4_addr_t _ds_start;
   l4_size_t _ds_size;

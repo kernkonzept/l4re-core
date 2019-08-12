@@ -98,11 +98,11 @@ public:
                      0, 0);
   }
 
-  unsigned vcon_read(char *buf, unsigned size) throw();
-  void vcon_write(const char *buf, unsigned size) throw();
-  int vcon_set_attr(l4_vcon_attr_t const *) throw()
+  unsigned vcon_read(char *buf, unsigned size) noexcept;
+  void vcon_write(const char *buf, unsigned size) noexcept;
+  int vcon_set_attr(l4_vcon_attr_t const *) noexcept
   { return -L4_EOK; }
-  int vcon_get_attr(l4_vcon_attr_t *attr) throw()
+  int vcon_get_attr(l4_vcon_attr_t *attr) noexcept
   {
     attr->l_flags = attr->o_flags = attr->i_flags = 0;
     return -L4_EOK;
