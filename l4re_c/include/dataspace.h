@@ -52,8 +52,18 @@ typedef struct {
  * \ingroup api_l4re_c_ds
  */
 enum l4re_ds_map_flags {
-  L4RE_DS_MAP_FLAG_RO = 0,
-  L4RE_DS_MAP_FLAG_RW = 1,
+  L4RE_DS_MAP_F_R = 1,  ///< Request readable mapping.
+  L4RE_DS_MAP_F_W = 2,  ///< Request writable mapping.
+  L4RE_DS_MAP_F_X = 4,  ///< Request executable mapping.
+
+  /** Request read-only mapping. */
+  L4RE_DS_MAP_F_RO  = L4RE_DS_MAP_F_R,
+  /** Request read-writable mapping. */
+  L4RE_DS_MAP_F_RW  = L4RE_DS_MAP_F_R | L4RE_DS_MAP_F_W,
+  /** Request read-executable mapping. */
+  L4RE_DS_MAP_F_RX  = L4RE_DS_MAP_F_R | L4RE_DS_MAP_F_X,
+  /** Request read-write-executable mapping. */
+  L4RE_DS_MAP_F_RWX = L4RE_DS_MAP_F_RW | L4RE_DS_MAP_F_X,
 
   L4RE_DS_MAP_NORMAL        = 0x00, ///< request normal memory mapping
   L4RE_DS_MAP_CACHEABLE     = L4RE_DS_MAP_NORMAL, ///< request normal memory mapping
