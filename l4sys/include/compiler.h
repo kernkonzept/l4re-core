@@ -182,7 +182,11 @@
 #  endif
 #  define L4_DEFAULT_PARAM(x)
 #else /* __cplusplus */
-#  define L4_NOTHROW throw()
+#  if __cplusplus >= 201103L
+#    define L4_NOTHROW noexcept
+#  else /* C++ < 11 */
+#    define L4_NOTHROW throw()
+#  endif
 #  define EXTERN_C_BEGIN extern "C" {
 #  define EXTERN_C_END }
 #  define EXTERN_C extern "C"

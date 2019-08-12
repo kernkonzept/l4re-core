@@ -128,10 +128,10 @@ template<typename T> struct L4_EXPORT As_value
 {
   typedef T value_type;
   T v;
-  As_value() {}
-  As_value(T v) : v(v) {}
-  operator T () const { return v; }
-  operator T & () { return v; }
+  As_value() noexcept {}
+  As_value(T v) noexcept : v(v) {}
+  operator T () const noexcept { return v; }
+  operator T & () noexcept { return v; }
 };
 
 namespace Msg {
@@ -150,13 +150,13 @@ template<typename T> struct L4_EXPORT Opt
   bool _valid; ///< True if the optional argument is present, false else
 
   /// Make an absent optional argument
-  Opt() : _valid(false) {}
+  Opt() noexcept : _valid(false) {}
 
   /// Make a present optional argument with the given value
-  Opt(T value) : _value(value), _valid(true) {}
+  Opt(T value) noexcept : _value(value), _valid(true) {}
 
   /// Assign a value to the optional argument (makes the argument present)
-  Opt &operator = (T value)
+  Opt &operator = (T value) noexcept
   {
     this->_value = value;
     this->_valid = true;
@@ -164,18 +164,18 @@ template<typename T> struct L4_EXPORT Opt
   }
 
   /// Set the argument to present or absent
-  void set_valid(bool valid = true) { _valid = valid; }
+  void set_valid(bool valid = true) noexcept { _valid = valid; }
 
   /// Get the pointer to the value
-  T *operator -> () { return &this->_value; }
+  T *operator -> () noexcept { return &this->_value; }
   /// Get the const pointer to the value
-  T const *operator -> () const { return &this->_value; }
+  T const *operator -> () const noexcept { return &this->_value; }
   /// Get the value
-  T value() const { return this->_value; }
+  T value() const noexcept { return this->_value; }
   /// Get the value
-  T &value() { return this->_value; }
+  T &value() noexcept { return this->_value; }
   /// Get true if present, false if not
-  bool is_valid() const { return this->_valid; }
+  bool is_valid() const noexcept { return this->_valid; }
 };
 
 namespace Msg {
@@ -203,14 +203,14 @@ struct Svr_val_ops<Opt<T>, Dir_out, CLASS> : Svr_noops< Opt<T> >
 
   using Svr_noops< Opt<T> >::to_svr;
   static int to_svr(char *msg, unsigned offset, unsigned limit,
-                    Opt<T> &arg, Dir_out, CLASS)
+                    Opt<T> &arg, Dir_out, CLASS) noexcept
   {
     return Native::to_svr(msg, offset, limit, arg.value(), Dir_out(), CLASS());
   }
 
   using Svr_noops< Opt<T> >::from_svr;
   static int from_svr(char *msg, unsigned offset, unsigned limit, long ret,
-                      svr_type &arg, Dir_out, CLASS)
+                      svr_type &arg, Dir_out, CLASS) noexcept
   {
     if (arg.is_valid())
       return Native::from_svr(msg, offset, limit, ret, arg.value(),
@@ -242,7 +242,7 @@ struct Clnt_val_ops<Opt<T>, Dir_in, CLASS> : Clnt_noops< Opt<T> >
 
   using Clnt_noops< Opt<T> >::to_msg;
   static int to_msg(char *msg, unsigned offset, unsigned limit,
-                    arg_type arg, Dir_in, CLASS)
+                    arg_type arg, Dir_in, CLASS) noexcept
   {
     if (arg.is_valid())
       return Native::to_msg(msg, offset, limit,
@@ -275,17 +275,17 @@ public:
    * \param flags Receive buffer flags, see #l4_msg_item_consts_t.
    *              L4_RCV_ITEM_SINGLE_CAP will always be set.
    */
-  explicit Small_buf(L4::Cap<void> cap, unsigned long flags = 0)
+  explicit Small_buf(L4::Cap<void> cap, unsigned long flags = 0) noexcept
   : _data(cap.cap() | L4_RCV_ITEM_SINGLE_CAP | flags) {}
 
   /**
    * Create a receive item from a C cap.
    * \copydetails Small_buf
    */
-  explicit Small_buf(l4_cap_idx_t cap, unsigned long flags = 0)
+  explicit Small_buf(l4_cap_idx_t cap, unsigned long flags = 0) noexcept
   : _data(cap | L4_RCV_ITEM_SINGLE_CAP | flags) {}
 
-  l4_umword_t raw() const { return _data; }
+  l4_umword_t raw() const noexcept { return _data; }
 private:
   l4_umword_t _data;
 };
@@ -294,7 +294,7 @@ private:
 class Snd_item
 {
 public:
-  Snd_item(l4_umword_t base, l4_umword_t data) : _base(base), _data(data) {}
+  Snd_item(l4_umword_t base, l4_umword_t data) noexcept : _base(base), _data(data) {}
 
 protected:
   l4_umword_t _base;
@@ -305,7 +305,7 @@ protected:
 class Buf_item
 {
 public:
-  Buf_item(l4_umword_t base, l4_umword_t data) : _base(base), _data(data) {}
+  Buf_item(l4_umword_t base, l4_umword_t data) noexcept : _base(base), _data(data) {}
 
 protected:
   l4_umword_t _base;
@@ -355,29 +355,29 @@ public:
   };
 
 private:
-  Gen_fpage(l4_umword_t d, l4_umword_t fp) : T(d, fp) {}
+  Gen_fpage(l4_umword_t d, l4_umword_t fp) noexcept : T(d, fp) {}
 
   Gen_fpage(Type type, l4_addr_t base, int order,
             unsigned char rights,
             l4_addr_t snd_base,
             Map_type map_type,
-            Cacheopt cache, Continue cont)
+            Cacheopt cache, Continue cont) noexcept
   : T(L4_ITEM_MAP | (snd_base & (~0UL << 10)) | l4_umword_t(map_type) | l4_umword_t(cache)
       | l4_umword_t(cont),
       base | l4_umword_t(type) | rights | (l4_umword_t(order) << 6))
   {}
 
 public:
-  Gen_fpage() : T(0, 0) {}
+  Gen_fpage() noexcept : T(0, 0) {}
   Gen_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
             Map_type map_type = Map,
-            Cacheopt cache = None, Continue cont = Last)
+            Cacheopt cache = None, Continue cont = Last) noexcept
   : T(L4_ITEM_MAP | (snd_base & (~0UL << 10)) | l4_umword_t(map_type) | l4_umword_t(cache)
     | l4_umword_t(cont),
     fp.raw)
   {}
 
-  Gen_fpage(L4::Cap<void> cap, unsigned rights, Map_type map_type = Map)
+  Gen_fpage(L4::Cap<void> cap, unsigned rights, Map_type map_type = Map) noexcept
   : T(L4_ITEM_MAP | l4_umword_t(map_type) | (rights & 0xf0),
       cap.fpage(rights).raw)
   {}
@@ -386,7 +386,7 @@ public:
                           unsigned char rights,
                           l4_addr_t snd_base = 0,
                           Map_type map_type = Map,
-                          Continue cont = Last)
+                          Continue cont = Last) noexcept
   {
     return Gen_fpage<T>(Obj, base << 12, order, rights, snd_base, map_type, None, cont);
   }
@@ -395,14 +395,14 @@ public:
                           unsigned char rights,
                           l4_addr_t snd_base = 0,
                           Map_type map_type = Map,
-                          Cacheopt cache = None, Continue cont = Last)
+                          Cacheopt cache = None, Continue cont = Last) noexcept
   {
     return Gen_fpage<T>(Memory, base, order, rights, snd_base,
                         map_type, cache, cont);
   }
 
   static Gen_fpage<T> rmem(l4_addr_t base, int order, l4_addr_t snd_base,
-                           unsigned char rights, unsigned cap_br)
+                           unsigned char rights, unsigned cap_br) noexcept
   {
     return Gen_fpage<T>(
         L4_ITEM_MAP | (snd_base & (~0UL << 10)) | l4_umword_t(Map)
@@ -415,27 +415,27 @@ public:
                           unsigned char rights,
                           l4_addr_t snd_base = 0,
                           Map_type map_type = Map,
-                          Continue cont = Last)
+                          Continue cont = Last) noexcept
   {
     return Gen_fpage<T>(Io, base << 12, order, rights, snd_base, map_type, None, cont);
   }
 
-  unsigned order() const { return (T::_data >> 6) & 0x3f; }
-  unsigned snd_order() const { return (T::_data >> 6) & 0x3f; }
-  unsigned rcv_order() const { return (T::_base >> 6) & 0x3f; }
-  l4_addr_t base() const { return T::_data & (~0UL << 12); }
-  l4_addr_t snd_base() const { return T::_base & (~0UL << 10); }
-  void snd_base(l4_addr_t b) { T::_base = (T::_base & ~(~0UL << 10)) | (b & (~0UL << 10)); }
+  unsigned order() const noexcept { return (T::_data >> 6) & 0x3f; }
+  unsigned snd_order() const noexcept { return (T::_data >> 6) & 0x3f; }
+  unsigned rcv_order() const noexcept { return (T::_base >> 6) & 0x3f; }
+  l4_addr_t base() const noexcept { return T::_data & (~0UL << 12); }
+  l4_addr_t snd_base() const noexcept { return T::_base & (~0UL << 10); }
+  void snd_base(l4_addr_t b) noexcept { T::_base = (T::_base & ~(~0UL << 10)) | (b & (~0UL << 10)); }
 
   /// Check if the capability is valid.
-  bool is_valid() const { return T::_base & L4_ITEM_MAP; }
+  bool is_valid() const noexcept { return T::_base & L4_ITEM_MAP; }
   /**
    * Check if the capability has been mapped.
    *
    * The capability itself can then be retrieved from the cap slot
    * that has been provided in the receive operation.
    */
-  bool cap_received() const { return (T::_base & 0x3e) == 0x38; }
+  bool cap_received() const noexcept { return (T::_base & 0x3e) == 0x38; }
   /**
    * Check if a label was received instead of a mapping.
    *
@@ -447,7 +447,7 @@ public:
    *
    * The label can be retrieved with Gen_fpage::data().
    */
-  bool id_received() const { return (T::_base & 0x3e) == 0x3c; }
+  bool id_received() const noexcept { return (T::_base & 0x3e) == 0x3c; }
   /**
    * Check if a local capability id has been received.
    *
@@ -457,7 +457,7 @@ public:
    *
    * The capability can be retrieved with Gen_fpage::data().
    */
-  bool local_id_received() const { return (T::_base & 0x3e) == 0x3e; }
+  bool local_id_received() const noexcept { return (T::_base & 0x3e) == 0x3e; }
 
   /**
    * Check if the received item has the compound bit set.
@@ -465,11 +465,11 @@ public:
    * A set compound bit means the next message item of the same type
    * will be mapped to the same receive buffer as this message item.
    */
-  bool is_compound() const { return T::_base & 1; }
+  bool is_compound() const noexcept { return T::_base & 1; }
   /// Return the raw flex page descriptor.
-  l4_umword_t data() const { return T::_data; }
+  l4_umword_t data() const noexcept { return T::_data; }
   /// Return the raw base descriptor.
-  l4_umword_t base_x() const { return T::_base; }
+  l4_umword_t base_x() const noexcept { return T::_base; }
 };
 
 
@@ -483,12 +483,12 @@ template <typename T, typename B>
 class Gen_string : public T
 {
 public:
-  Gen_string() : T(0, 0) {}
-  Gen_string(B buf, unsigned long size)
+  Gen_string() noexcept : T(0, 0) {}
+  Gen_string(B buf, unsigned long size) noexcept
   : T(size << 10, l4_umword_t(buf))
   {}
 
-  unsigned long len() const { return T::_base >> 10; }
+  unsigned long len() const noexcept { return T::_base >> 10; }
 };
 
 typedef Gen_string<Snd_item, void const *> Snd_string;
@@ -562,22 +562,22 @@ public:
 
   /// Make copy with conversion
   template<typename O>
-  Cap(Cap<O> const &o) : _cap_n_rights(o._cap_n_rights)
+  Cap(Cap<O> const &o) noexcept : _cap_n_rights(o._cap_n_rights)
   { T *x = (O*)1; (void)x; }
 
   /// Make a Cap from L4::Cap<T>, with minimal rights
-  Cap(L4::Cap<T> cap)
+  Cap(L4::Cap<T> cap) noexcept
   : _cap_n_rights((cap.cap() & Cap_mask) | (cap ? L4_CAP_FPAGE_R : 0))
   {}
 
   /// Make IPC Cap from L4::Cap with conversion (and minimal rights).
   template<typename O>
-  Cap(L4::Cap<O> cap)
+  Cap(L4::Cap<O> cap) noexcept
   : _cap_n_rights((cap.cap() & Cap_mask) | (cap ? L4_CAP_FPAGE_R : 0))
   { T *x = (O*)1; (void)x; }
 
   /// Make an invalid cap
-  Cap() : _cap_n_rights(L4_INVALID_CAP) {}
+  Cap() noexcept : _cap_n_rights(L4_INVALID_CAP) {}
 
   /**
    *  Make a Cap from L4::Cap<T> with the given rights.
@@ -586,7 +586,7 @@ public:
    *  \param rights Rights to be sent. Consists of #L4_fpage_rights
    *                and #L4_obj_fpage_ctl.
    */
-  Cap(L4::Cap<T> cap, unsigned char rights)
+  Cap(L4::Cap<T> cap, unsigned char rights) noexcept
   : _cap_n_rights((cap.cap() & Cap_mask) | (rights & Rights_mask)) {}
 
   /**
@@ -594,23 +594,23 @@ public:
    * \param c  C capability index with the lowest 8 bits used as rights
    *           for the map operation (see #L4_fpage_rights).
    */
-  static Cap from_ci(l4_cap_idx_t c)
+  static Cap from_ci(l4_cap_idx_t c) noexcept
   { return Cap(L4::Cap<T>(c & Cap_mask), c & Rights_mask); }
 
   /// Return the L4::Cap<T> of this Cap
-  L4::Cap<T> cap() const
+  L4::Cap<T> cap() const noexcept
   { return L4::Cap<T>(_cap_n_rights & Cap_mask); }
 
   /// Return the rights bits stored in this IPC cap.
-  unsigned rights() const
+  unsigned rights() const noexcept
   { return _cap_n_rights & Rights_mask; }
 
   /// Return the send flexpage for this Cap (see #l4_fpage_t)
-  L4::Ipc::Snd_fpage fpage() const
+  L4::Ipc::Snd_fpage fpage() const noexcept
   { return L4::Ipc::Snd_fpage(cap(), rights()); }
 
   /// Return true if this Cap is valid
-  bool is_valid() const throw()
+  bool is_valid() const noexcept
   { return !(_cap_n_rights & L4_INVALID_CAP_BIT); }
 };
 
@@ -621,7 +621,7 @@ public:
  * \param  rights  rights mask that shall be applied on transfer.
  */
 template<typename T>
-Cap<T> make_cap(L4::Cap<T> cap, unsigned rights)
+Cap<T> make_cap(L4::Cap<T> cap, unsigned rights) noexcept
 { return Cap<T>(cap, rights); }
 
 /**
@@ -631,7 +631,7 @@ Cap<T> make_cap(L4::Cap<T> cap, unsigned rights)
  * \param  cap     source capability (L4::Cap<T>)
  */
 template<typename T>
-Cap<T> make_cap_rw(L4::Cap<T> cap)
+Cap<T> make_cap_rw(L4::Cap<T> cap) noexcept
 { return Cap<T>(cap, L4_CAP_FPAGE_RW); }
 
 /**
@@ -641,7 +641,7 @@ Cap<T> make_cap_rw(L4::Cap<T> cap)
  * \param  cap     source capability (L4::Cap<T>)
  */
 template<typename T>
-Cap<T> make_cap_rws(L4::Cap<T> cap)
+Cap<T> make_cap_rws(L4::Cap<T> cap) noexcept
 { return Cap<T>(cap, L4_CAP_FPAGE_RWS); }
 
 /**
@@ -659,23 +659,23 @@ Cap<T> make_cap_rws(L4::Cap<T> cap)
  *       the receiver wants to call L4::Ipc_gate::bind_thread().
  */
 template<typename T>
-Cap<T> make_cap_full(L4::Cap<T> cap)
+Cap<T> make_cap_full(L4::Cap<T> cap) noexcept
 { return Cap<T>(cap, L4_CAP_FPAGE_RWSD | L4_FPAGE_C_OBJ_RIGHTS); }
 
 // caps are special the have an invalid representation
 template<typename T> struct L4_EXPORT Opt< Cap<T> >
 {
   Cap<T> _value;
-  Opt() {}
-  Opt(Cap<T> value) : _value(value) {}
-  Opt(L4::Cap<T> value) : _value(value) {}
-  Opt &operator = (Cap<T> value)
+  Opt() noexcept {}
+  Opt(Cap<T> value) noexcept : _value(value) {}
+  Opt(L4::Cap<T> value) noexcept : _value(value) {}
+  Opt &operator = (Cap<T> value) noexcept
   { this->_value = value; }
-  Opt &operator = (L4::Cap<T> value)
+  Opt &operator = (L4::Cap<T> value) noexcept
   { this->_value = value; }
 
-  Cap<T> value() const { return this->_value; }
-  bool is_valid() const { return this->_value.is_valid(); }
+  Cap<T> value() const noexcept { return this->_value; }
+  bool is_valid() const noexcept { return this->_value.is_valid(); }
 };
 
 
@@ -706,7 +706,7 @@ struct Clnt_val_ops<Cap<A>, Dir_in, CLASS> :
   using Clnt_noops< Cap<A> >::to_msg;
 
   static int to_msg(char *msg, unsigned offset, unsigned limit,
-                    Cap<A> arg, Dir_in, Cls_item)
+                    Cap<A> arg, Dir_in, Cls_item) noexcept
   {
     // passing an invalid cap as mandatory argument is an error
     // XXX: This checks for a client calling error, we could
@@ -737,7 +737,7 @@ struct Clnt_val_ops< L4::Cap<A>, Dir_out, Cls_item > :
 {
   using Clnt_noops< L4::Cap<A> >::to_msg;
   static int to_msg(char *msg, unsigned offset, unsigned limit,
-                    L4::Cap<A> arg, Dir_in, Cls_buffer)
+                    L4::Cap<A> arg, Dir_in, Cls_buffer) noexcept
   {
     if (L4_UNLIKELY(!arg.is_valid()))
       return -L4_EMSGMISSARG; // no buffer inserted
@@ -751,7 +751,7 @@ struct Svr_val_ops< L4::Ipc::Cap<A>, Dir_out, Cls_item > :
 {
   using Svr_noops<Cap<A> &>::from_svr;
   static int from_svr(char *msg, unsigned offset, unsigned limit, long,
-                      Cap<A> arg, Dir_out, Cls_item)
+                      Cap<A> arg, Dir_out, Cls_item) noexcept
   {
     if (L4_UNLIKELY(!arg.is_valid()))
       // do not map anything

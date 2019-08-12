@@ -38,7 +38,7 @@ using L4::Types::False;
  * \param align  The alignment value in bytes
  * \return the result after padding \a bytes to \a align.
  */
-inline unsigned long align_to(unsigned long bytes, unsigned long align)
+constexpr unsigned long align_to(unsigned long bytes, unsigned long align) noexcept
 { return (bytes + align - 1) & ~(align - 1); }
 
 /**
@@ -48,7 +48,7 @@ inline unsigned long align_to(unsigned long bytes, unsigned long align)
  * \return \a bytes padded to achieve the alignment of \a T.
  */
 template<typename T>
-inline unsigned long align_to(unsigned long bytes)
+constexpr unsigned long align_to(unsigned long bytes) noexcept
 { return align_to(bytes, __alignof(T)); }
 
 /**
@@ -61,7 +61,7 @@ inline unsigned long align_to(unsigned long bytes)
  * \return true if the limit will not be exceeded, false else.
  */
 template<typename T>
-inline bool check_size(unsigned offset, unsigned limit)
+constexpr bool check_size(unsigned offset, unsigned limit) noexcept
 {
   return offset + sizeof(T) <= limit;
 }
@@ -79,7 +79,7 @@ inline bool check_size(unsigned offset, unsigned limit)
  * \return true if the limit will not be exceeded, false else.
  */
 template<typename T, typename CTYPE>
-inline bool check_size(unsigned offset, unsigned limit, CTYPE cnt)
+inline bool check_size(unsigned offset, unsigned limit, CTYPE cnt) noexcept
 {
   if (L4_UNLIKELY(sizeof(CTYPE) <= sizeof(unsigned) &&
                   ~0U / sizeof(T) <= static_cast<unsigned>(cnt)))
@@ -122,7 +122,7 @@ enum
  *         limit will be exceeded.
  */
 template<typename T>
-inline int msg_add(char *msg, unsigned offs, unsigned limit, T v)
+inline int msg_add(char *msg, unsigned offs, unsigned limit, T v) noexcept
 {
   offs = align_to<T>(offs);
   if (L4_UNLIKELY(!check_size<T>(offs, limit)))
@@ -143,7 +143,7 @@ inline int msg_add(char *msg, unsigned offs, unsigned limit, T v)
  *         limit will be exceeded.
  */
 template<typename T>
-inline int msg_get(char *msg, unsigned offs, unsigned limit, T &v)
+inline int msg_get(char *msg, unsigned offs, unsigned limit, T &v) noexcept
 {
   offs = align_to<T>(offs);
   if (L4_UNLIKELY(!check_size<T>(offs, limit)))
@@ -182,32 +182,32 @@ namespace Detail {
 template<typename T> struct _Plain
 {
   typedef T type;
-  static T deref(T v) { return v; }
+  static T deref(T v) noexcept { return v; }
 };
 
 template<typename T> struct _Plain<T *>
 {
   typedef T type;
-  static T &deref(T *v) { return *v; }
+  static T &deref(T *v) noexcept { return *v; }
 };
 
 template<typename T> struct _Plain<T &>
 {
   typedef T type;
-  static T &deref(T &v) { return v; }
+  static T &deref(T &v) noexcept { return v; }
 
 };
 
 template<typename T> struct _Plain<T const &>
 {
   typedef T type;
-  static T const &deref(T const &v) { return v; }
+  static T const &deref(T const &v) noexcept { return v; }
 };
 
 template<typename T> struct _Plain<T const *>
 {
   typedef T type;
-  static T const &deref(T const *v) { return *v; }
+  static T const &deref(T const *v) noexcept { return *v; }
 };
 }
 
@@ -223,24 +223,24 @@ template<typename MTYPE, typename DIR, typename CLASS> struct Clnt_val_ops;
 template<typename T> struct Clnt_noops
 {
   template<typename A, typename B>
-  static int to_msg(char *, unsigned offset, unsigned, T, A, B)
+  static constexpr int to_msg(char *, unsigned offset, unsigned, T, A, B) noexcept
   { return offset; }
 
   /// copy data from the message to the client reference
   template<typename A, typename B>
-  static int from_msg(char *, unsigned offset, unsigned, long, T const &, A, B)
+  static constexpr int from_msg(char *, unsigned offset, unsigned, long, T const &, A, B) noexcept
   { return offset; }
 };
 
 template<typename T> struct Svr_noops
 {
   template<typename A, typename B>
-  static int from_svr(char *, unsigned offset, unsigned, long, T, A, B)
+  static constexpr int from_svr(char *, unsigned offset, unsigned, long, T, A, B) noexcept
   { return offset; }
 
   /// copy data from the message to the client reference
   template<typename A, typename B>
-  static int to_svr(char *, unsigned offset, unsigned, T, A, B)
+  static constexpr int to_svr(char *, unsigned offset, unsigned, T, A, B) noexcept
   { return offset; }
 };
 
@@ -250,7 +250,7 @@ struct Clnt_val_ops<MTYPE, Dir_in, CLASS> : Clnt_noops<MTYPE>
   using Clnt_noops<MTYPE>::to_msg;
   /// Copy a T into the message
   static int to_msg(char *msg, unsigned offset, unsigned limit,
-                    MTYPE arg, Dir_in, CLASS)
+                    MTYPE arg, Dir_in, CLASS) noexcept
   { return msg_add<MTYPE>(msg, offset, limit, arg); }
 };
 
@@ -261,7 +261,7 @@ struct Clnt_val_ops<MTYPE, Dir_out, CLASS> : Clnt_noops<MTYPE>
   using Clnt_noops<MTYPE>::from_msg;
   /// copy data from the message to the client reference
   static int from_msg(char *msg, unsigned offset, unsigned limit, long,
-                      MTYPE &arg, Dir_out, CLASS)
+                      MTYPE &arg, Dir_out, CLASS) noexcept
   { return msg_get<MTYPE>(msg, offset, limit, arg); }
 };
 
@@ -280,7 +280,7 @@ struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
   using Svr_noops<MTYPE>::to_svr;
   /// copy data from the message to the client reference
   static int to_svr(char *msg, unsigned offset, unsigned limit,
-                    MTYPE &arg, Dir_in, CLASS)
+                    MTYPE &arg, Dir_in, CLASS) noexcept
   { return msg_get<MTYPE>(msg, offset, limit, arg); }
 };
 
@@ -289,7 +289,7 @@ struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
 {
   using Svr_noops<MTYPE>::to_svr;
   static int to_svr(char *, unsigned offs, unsigned limit,
-                    MTYPE &, Dir_out, CLASS)
+                    MTYPE &, Dir_out, CLASS) noexcept
   {
     offs = align_to<MTYPE>(offs);
     if (L4_UNLIKELY(!check_size<MTYPE>(offs, limit)))
@@ -300,7 +300,7 @@ struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
   using Svr_noops<MTYPE>::from_svr;
   /// Copy a T into the message
   static int from_svr(char *msg, unsigned offset, unsigned limit, long,
-                      MTYPE arg, Dir_out, CLASS)
+                      MTYPE arg, Dir_out, CLASS) noexcept
   { return msg_add<MTYPE>(msg, offset, limit, arg); }
 };
 

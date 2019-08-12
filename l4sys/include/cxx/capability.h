@@ -49,7 +49,7 @@ public:
    * \brief Return capability selector.
    * \return Capability selector.
    */
-  l4_cap_idx_t cap() const throw() { return _c; }
+  l4_cap_idx_t cap() const noexcept { return _c; }
 
   /**
    * Test whether the capability is a valid capability index (i.e.,
@@ -57,9 +57,9 @@ public:
    *
    * \return True if capability is not invalid, false if invalid
    */
-  bool is_valid() const throw() { return !(_c & L4_INVALID_CAP_BIT); }
+  bool is_valid() const noexcept { return !(_c & L4_INVALID_CAP_BIT); }
 
-  operator Invalid_conversion * () const throw()
+  operator Invalid_conversion * () const noexcept
   { return (Invalid_conversion*)(!(_c & L4_INVALID_CAP_BIT)); }
 
   /**
@@ -69,7 +69,7 @@ public:
    *
    * \return flex-page
    */
-  l4_fpage_t fpage(unsigned rights = L4_FPAGE_RWX) const throw()
+  l4_fpage_t fpage(unsigned rights = L4_FPAGE_RWX) const noexcept
   { return l4_obj_fpage(_c, 0, rights); }
 
   /**
@@ -81,7 +81,7 @@ public:
    * \return Map object.
    */
   l4_umword_t snd_base(unsigned grant = 0,
-                       l4_cap_idx_t base = L4_INVALID_CAP) const throw()
+                       l4_cap_idx_t base = L4_INVALID_CAP) const noexcept
   {
     if (base == L4_INVALID_CAP)
       base = _c;
@@ -92,13 +92,13 @@ public:
   /**
    * Test if two capabilities are equal.
    */
-  bool operator == (Cap_base const &o) const throw()
+  bool operator == (Cap_base const &o) const noexcept
   { return _c == o._c; }
 
   /**
    * Test if two capabilities are not equal.
    */
-  bool operator != (Cap_base const &o) const throw()
+  bool operator != (Cap_base const &o) const noexcept
   { return _c != o._c; }
 
   /**
@@ -113,7 +113,7 @@ public:
    * A capability is considered present when it refers to an existing
    * kernel object.
    */
-  inline l4_msgtag_t validate(l4_utcb_t *u = l4_utcb()) const throw();
+  inline l4_msgtag_t validate(l4_utcb_t *u = l4_utcb()) const noexcept;
 
   /**
    * Check whether a capability is present (refers to an object).
@@ -129,35 +129,35 @@ public:
    * kernel object.
    */
   inline l4_msgtag_t validate(Cap<Task> task,
-                              l4_utcb_t *u = l4_utcb()) const throw();
+                              l4_utcb_t *u = l4_utcb()) const noexcept;
 
   /**
    * Set this capability to invalid (L4_INVALID_CAP).
    */
-  void invalidate() throw() { _c = L4_INVALID_CAP; }
+  void invalidate() noexcept { _c = L4_INVALID_CAP; }
 protected:
   /**
    * Generate a capability from its C representation.
    *
    * \param c  The C capability
    */
-  explicit Cap_base(l4_cap_idx_t c) throw() : _c(c) {}
+  explicit Cap_base(l4_cap_idx_t c) noexcept : _c(c) {}
   /**
    * Constructor to create an invalid capability.
    */
-  explicit Cap_base(Cap_type cap) throw() : _c(cap) {}
+  explicit Cap_base(Cap_type cap) noexcept : _c(cap) {}
 
   /**
    * Initialize capability with one of the default capabilities.
    *
    * \param cap  Capability.
    */
-  explicit Cap_base(l4_default_caps_t cap) throw() : _c(cap) {}
+  explicit Cap_base(l4_default_caps_t cap) noexcept : _c(cap) {}
 
   /**
    * \brief Create an uninitialized instance.
    */
-  explicit Cap_base() throw() {}
+  explicit Cap_base() noexcept {}
 
   /**
    * Replace this capability with the contents of `src`.
@@ -231,7 +231,7 @@ private:
    *            from the `this` pointer of an object that is an L4::Kobject.
    *            Do **never** use this constructor for something else!
    */
-  explicit Cap(T const *p) throw()
+  explicit Cap(T const *p) noexcept
   : Cap_base(reinterpret_cast<l4_cap_idx_t>(p)) {}
 
 public:
@@ -241,31 +241,31 @@ public:
    * \param o  The source selector that shall be copied (and casted).
    */
   template< typename O >
-  Cap(Cap<O> const &o) throw() : Cap_base(o.cap())
+  Cap(Cap<O> const &o) noexcept : Cap_base(o.cap())
   { T* __t = ((O*)100); (void)__t; }
 
   /**
    * Constructor to create an invalid capability selector.
    * \param cap  Capability selector.
    */
-  Cap(Cap_type cap) throw() : Cap_base(cap) {}
+  Cap(Cap_type cap) noexcept : Cap_base(cap) {}
 
   /**
    * \brief Initialize capability with one of the default capability selectors.
    * \param cap  Capability selector.
    */
-  Cap(l4_default_caps_t cap) throw() : Cap_base(cap) {}
+  Cap(l4_default_caps_t cap) noexcept : Cap_base(cap) {}
 
   /**
    * \brief Initialize capability, defaults to the invalid capability selector.
    * \param idx  Capability selector.
    */
-  explicit Cap(l4_cap_idx_t idx = L4_INVALID_CAP) throw() : Cap_base(idx) {}
+  explicit Cap(l4_cap_idx_t idx = L4_INVALID_CAP) noexcept : Cap_base(idx) {}
 
   /**
    * \brief Create an uninitialized cap selector.
    */
-  explicit Cap(No_init_type) throw() {}
+  explicit Cap(No_init_type) noexcept {}
 
   /**
    * \brief Move a capability to this cap slot.
@@ -292,7 +292,7 @@ public:
   /**
    * \brief Member access of a `T`.
    */
-  T *operator -> () const throw() { return reinterpret_cast<T*>(_c); }
+  T *operator -> () const noexcept { return reinterpret_cast<T*>(_c); }
 };
 
 
@@ -311,26 +311,26 @@ class L4_EXPORT Cap<void> : public Cap_base
 {
 public:
 
-  explicit Cap(void const *p) throw()
+  explicit Cap(void const *p) noexcept
   : Cap_base(reinterpret_cast<l4_cap_idx_t>(p)) {}
 
   /**
    * \brief Constructor to create an invalid capability selector.
    */
-  Cap(Cap_type cap) throw() : Cap_base(cap) {}
+  Cap(Cap_type cap) noexcept : Cap_base(cap) {}
 
   /**
    * \brief Initialize capability with one of the default capability selectors.
    * \param cap  Capability selector.
    */
-  Cap(l4_default_caps_t cap) throw() : Cap_base(cap) {}
+  Cap(l4_default_caps_t cap) noexcept : Cap_base(cap) {}
 
   /**
    * \brief Initialize capability, defaults to the invalid capability selector.
    * \param idx  Capability selector.
    */
-  explicit Cap(l4_cap_idx_t idx = L4_INVALID_CAP) throw() : Cap_base(idx) {}
-  explicit Cap(No_init_type) throw() {}
+  explicit Cap(l4_cap_idx_t idx = L4_INVALID_CAP) noexcept : Cap_base(idx) {}
+  explicit Cap(No_init_type) noexcept {}
 
   /**
    * \brief Move a capability to this cap slot.
@@ -355,7 +355,7 @@ public:
   }
 
   template< typename T >
-  Cap(Cap<T> const &o) throw() : Cap_base(o.cap()) {}
+  Cap(Cap<T> const &o) noexcept : Cap_base(o.cap()) {}
 };
 
 /**
@@ -376,7 +376,7 @@ public:
  */
 template< typename T, typename F >
 inline
-Cap<T> cap_cast(Cap<F> const &c) throw()
+Cap<T> cap_cast(Cap<F> const &c) noexcept
 {
   (void)static_cast<T const *>(reinterpret_cast<F const *>(100));
   return Cap<T>(c.cap());
@@ -385,7 +385,7 @@ Cap<T> cap_cast(Cap<F> const &c) throw()
 // gracefully deal with L4::Kobject ambiguity
 template< typename T >
 inline
-Cap<T> cap_cast(Cap<L4::Kobject> const &c) throw()
+Cap<T> cap_cast(Cap<L4::Kobject> const &c) noexcept
 {
   return Cap<T>(c.cap());
 }
@@ -407,7 +407,7 @@ Cap<T> cap_cast(Cap<L4::Kobject> const &c) throw()
  */
 template< typename T, typename F >
 inline
-Cap<T> cap_reinterpret_cast(Cap<F> const &c) throw()
+Cap<T> cap_reinterpret_cast(Cap<F> const &c) noexcept
 {
   return Cap<T>(c.cap());
 }

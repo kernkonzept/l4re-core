@@ -51,7 +51,7 @@ namespace L4 { namespace Ipc { namespace Msg {
 template<typename OP, typename C, typename FLAGS, typename R, typename ...ARGS>
 R L4_EXPORT
 Rpc_call<OP, C, R (ARGS...), FLAGS>::
-  call(L4::Cap<C> cap, typename _Elem<ARGS>::arg_type ...a, l4_utcb_t *utcb) throw()
+  call(L4::Cap<C> cap, typename _Elem<ARGS>::arg_type ...a, l4_utcb_t *utcb) noexcept
 {
   return Rpc_inline_call<OP, C, R (ARGS...), FLAGS>::call(cap, a..., utcb);
 }

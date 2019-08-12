@@ -314,32 +314,32 @@ struct L4_EXPORT Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>
 
   template<typename RES>
   static typename L4::Types::Enable_if< Return_tag, RES >::type
-  return_err(long err) { return l4_msgtag(err, 0, 0, 0); }
+  return_err(long err) noexcept { return l4_msgtag(err, 0, 0, 0); }
 
   template<typename RES>
   static typename L4::Types::Enable_if< Return_tag, RES >::type
-  return_ipc_err(l4_msgtag_t tag, l4_utcb_t const *) { return tag; }
+  return_ipc_err(l4_msgtag_t tag, l4_utcb_t const *) noexcept { return tag; }
 
   template<typename RES>
   static typename L4::Types::Enable_if< Return_tag, RES >::type
-  return_code(l4_msgtag_t tag) { return tag; }
+  return_code(l4_msgtag_t tag) noexcept { return tag; }
 
   template<typename RES>
   static typename L4::Types::Enable_if< !Return_tag, RES >::type
-  return_err(long err) { return err; }
+  return_err(long err) noexcept { return err; }
 
   template<typename RES>
   static typename L4::Types::Enable_if< !Return_tag, RES >::type
-  return_ipc_err(l4_msgtag_t, l4_utcb_t *utcb)
+  return_ipc_err(l4_msgtag_t, l4_utcb_t *utcb) noexcept
   { return l4_ipc_to_errno(l4_ipc_error_code(utcb)); }
 
   template<typename RES>
   static typename L4::Types::Enable_if< !Return_tag, RES >::type
-  return_code(l4_msgtag_t tag) { return tag.label(); }
+  return_code(l4_msgtag_t tag) noexcept { return tag.label(); }
 
   static R call(L4::Cap<class_type> cap,
                 typename _Elem<ARGS>::arg_type ...a,
-                l4_utcb_t *utcb = l4_utcb()) throw();
+                l4_utcb_t *utcb = l4_utcb()) noexcept;
 };
 
 /**
@@ -367,7 +367,7 @@ public:
   typedef typename IPC::result_type result_type;
 
 private:
-  L4::Cap<class_type> cap() const
+  L4::Cap<class_type> cap() const noexcept
   {
     return L4::Cap<class_type>(reinterpret_cast<l4_cap_idx_t>(this)
                                & L4_CAP_MASK);
@@ -375,7 +375,7 @@ private:
 
 public:
   /// The implementation of this callable
-  result_type operator () (ARGS ...a, l4_utcb_t *utcb = l4_utcb()) const throw()
+  result_type operator () (ARGS ...a, l4_utcb_t *utcb = l4_utcb()) const noexcept
   { return IPC::call(cap(), a..., utcb); }
 };
 
@@ -401,15 +401,15 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 {
   static R call(L4::Cap<CLASS> cap,
                 typename _Elem<ARGS>::arg_type ...a,
-                l4_utcb_t *utcb = l4_utcb()) throw();
+                l4_utcb_t *utcb = l4_utcb()) noexcept;
 };
 
 #define L4_INLINE_RPC_SRV_FORWARD(name)                                    \
   template<typename OBJ> struct fwd                                        \
   {                                                                        \
     OBJ *o;                                                                \
-    fwd(OBJ *o) : o(o) {}                                                  \
-    template<typename ...ARGS> long call(ARGS ...a)                        \
+    fwd(OBJ *o) noexcept : o(o) {}                                         \
+    template<typename ...ARGS> long call(ARGS ...a) noexcept(noexcept(o->op_##name(a...)))   \
     { return o->op_##name(a...); }                                         \
   }
 
@@ -550,11 +550,11 @@ struct Buf
 {
 public:
   template<typename DIR>
-  static int write(char *, int offset, int)
+  static constexpr int write(char *, int offset, int) noexcept
   { return offset; }
 
   template<typename DIR>
-  static int read(char *, int offset, int, long)
+  static constexpr int read(char *, int offset, int, long) noexcept
   { return offset; }
 
   typedef void Base;
@@ -572,7 +572,7 @@ struct Buf<A, M...> : Buf<M...>
   template<typename DIR>
   static int
   write(char *base, int offset, int limit,
-        arg_type a, typename _Elem<M>::arg_type ...m)
+        arg_type a, typename _Elem<M>::arg_type ...m) noexcept
   {
     offset = xmit::to_msg(base, offset, limit, plain::deref(a),
                           typename DIR::dir(), typename DIR::cls());
@@ -582,7 +582,7 @@ struct Buf<A, M...> : Buf<M...>
   template<typename DIR>
   static int
   read(char *base, int offset, int limit, long ret,
-       arg_type a, typename _Elem<M>::arg_type ...m)
+       arg_type a, typename _Elem<M>::arg_type ...m) noexcept
   {
     int r = xmit::from_msg(base, offset, limit, ret, plain::deref(a),
                            typename DIR::dir(), typename DIR::cls());
@@ -603,7 +603,7 @@ template <typename ...ARGS> struct _Part
 
   template<typename DIR>
   static int write(void *b, int offset, int limit,
-                        typename _Elem<ARGS>::arg_type ...m)
+                        typename _Elem<ARGS>::arg_type ...m) noexcept
   {
     int r = Data::template write<DIR>((char *)b, offset, limit, m...);
     if (L4_LIKELY(r >= offset))
@@ -613,7 +613,7 @@ template <typename ...ARGS> struct _Part
 
   template<typename DIR>
   static int read(void *b, int offset, int limit, long ret,
-                       typename _Elem<ARGS>::arg_type ...m)
+                       typename _Elem<ARGS>::arg_type ...m) noexcept
   {
     int r = Data::template read<DIR>((char *)b, offset, limit, ret, m...);
     if (L4_LIKELY(r >= offset))
@@ -642,7 +642,7 @@ struct Part<R (ARGS...), void> : _Part<ARGS...>
   template<typename DIR>
   static int write_op(void *b, int offset, int limit,
                       int /*placeholder for op*/,
-                      typename _Elem<ARGS>::arg_type ...m)
+                      typename _Elem<ARGS>::arg_type ...m) noexcept
   {
     int r = Data::template write<DIR>((char *)b, offset, limit, m...);
     if (L4_LIKELY(r >= offset))
@@ -662,7 +662,7 @@ struct Part<R (ARGS...), OPCODE> : _Part<ARGS...>
   // write arguments, including the opcode
   template<typename DIR>
   static int write_op(void *b, int offset, int limit,
-                      opcode_type op, typename _Elem<ARGS>::arg_type ...m)
+                      opcode_type op, typename _Elem<ARGS>::arg_type ...m) noexcept
   {
     int r = Data::template write<DIR>((char *)b, offset, limit, op, m...);
     if (L4_LIKELY(r >= offset))
@@ -685,7 +685,7 @@ inline R
 Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>::
   call(L4::Cap<CLASS> cap,
        typename _Elem<ARGS>::arg_type ...a,
-       l4_utcb_t *utcb) throw()
+       l4_utcb_t *utcb) noexcept
 {
   using namespace Ipc::Msg;
 

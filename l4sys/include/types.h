@@ -161,34 +161,34 @@ typedef struct l4_msgtag_t
   l4_mword_t raw;   ///< raw value
 #ifdef __cplusplus
   /// Get the protocol value.
-  long label() const throw() { return raw >> 16; }
+  long label() const L4_NOTHROW { return raw >> 16; }
   /// Set the protocol value.
-  void label(long v) throw() { raw = (raw & 0x0ffff) | ((l4_umword_t)v << 16); }
+  void label(long v) L4_NOTHROW { raw = (raw & 0x0ffff) | ((l4_umword_t)v << 16); }
   /// Get the number of untyped words.
-  unsigned words() const throw() { return raw & 0x3f; }
+  unsigned words() const L4_NOTHROW { return raw & 0x3f; }
   /// Get the number of typed items.
-  unsigned items() const throw() { return (raw >> 6) & 0x3f; }
+  unsigned items() const L4_NOTHROW { return (raw >> 6) & 0x3f; }
   /**
    * Get the flags value.
    *
    * The flags are a combination of the flags defined by
    * #l4_msgtag_flags.
    */
-  unsigned flags() const throw() { return raw & 0xf000; }
+  unsigned flags() const L4_NOTHROW { return raw & 0xf000; }
   /// Test if protocol indicates page-fault protocol.
-  bool is_page_fault() const throw() { return label() == L4_PROTO_PAGE_FAULT; }
+  bool is_page_fault() const L4_NOTHROW { return label() == L4_PROTO_PAGE_FAULT; }
   /// Test if protocol indicates preemption protocol.
-  bool is_preemption() const throw() { return label() == L4_PROTO_PREEMPTION; }
+  bool is_preemption() const L4_NOTHROW { return label() == L4_PROTO_PREEMPTION; }
   /// Test if protocol indicates system-exception protocol.
-  bool is_sys_exception() const throw() { return label() == L4_PROTO_SYS_EXCEPTION; }
+  bool is_sys_exception() const L4_NOTHROW { return label() == L4_PROTO_SYS_EXCEPTION; }
   /// Test if protocol indicates exception protocol.
-  bool is_exception() const throw() { return label() == L4_PROTO_EXCEPTION; }
+  bool is_exception() const L4_NOTHROW { return label() == L4_PROTO_EXCEPTION; }
   /// Test if protocol indicates sigma0 protocol.
-  bool is_sigma0() const throw() { return label() == L4_PROTO_SIGMA0; }
+  bool is_sigma0() const L4_NOTHROW { return label() == L4_PROTO_SIGMA0; }
   /// Test if protocol indicates IO-page-fault protocol.
-  bool is_io_page_fault() const throw() { return label() == L4_PROTO_IO_PAGE_FAULT; }
+  bool is_io_page_fault() const L4_NOTHROW { return label() == L4_PROTO_IO_PAGE_FAULT; }
   /// Test if flags indicate an error.
-  unsigned has_error() const throw() { return raw & L4_MSGTAG_ERROR; }
+  unsigned has_error() const L4_NOTHROW { return raw & L4_MSGTAG_ERROR; }
 #endif
 } l4_msgtag_t;
 

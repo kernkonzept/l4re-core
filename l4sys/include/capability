@@ -80,14 +80,14 @@ class Kobject;
 #define L4_KOBJECT(_class) L4_KOBJECT_DISABLE_COPY(_class)
 
 inline l4_msgtag_t
-Cap_base::validate(Cap<Task> task, l4_utcb_t *u) const throw()
+Cap_base::validate(Cap<Task> task, l4_utcb_t *u) const noexcept
 {
   return is_valid() ? l4_task_cap_valid_u(task.cap(), _c, u)
                     : l4_msgtag(0, 0, 0, 0);
 }
 
 inline l4_msgtag_t
-Cap_base::validate(l4_utcb_t *u) const throw()
+Cap_base::validate(l4_utcb_t *u) const noexcept
 {
   return is_valid() ? l4_task_cap_valid_u(L4_BASE_TASK_CAP, _c, u)
                     : l4_msgtag(0, 0, 0, 0);
@@ -122,7 +122,7 @@ namespace L4 {
  */
 template< typename T, typename F >
 inline
-Cap<T> cap_dynamic_cast(Cap<F> const &c) throw()
+Cap<T> cap_dynamic_cast(Cap<F> const &c) noexcept
 {
   if (!c.is_valid())
     return Cap<T>::Invalid;

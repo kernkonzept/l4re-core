@@ -34,12 +34,12 @@
 #  include <typeinfo>
    typedef std::type_info const *L4_std_type_info_ptr;
 #  define L4_KOBJECT_META_RTTI(type) (&typeid(type))
-   inline char const *L4_kobject_type_name(L4_std_type_info_ptr n)
+   inline char const *L4_kobject_type_name(L4_std_type_info_ptr n) noexcept
    { return n ? n->name() : 0; }
 #else
    typedef void const *L4_std_type_info_ptr;
 #  define L4_KOBJECT_META_RTTI(type) (0)
-   inline char const *L4_kobject_type_name(L4_std_type_info_ptr)
+   inline char const *L4_kobject_type_name(L4_std_type_info_ptr) noexcept
    { return 0; }
 #endif
 
@@ -108,7 +108,7 @@ namespace Typeid {
   struct Iface_list_end
   {
     typedef Iface_list_end type;
-    static bool contains(long) { return false; }
+    static bool contains(long) noexcept { return false; }
   };
 
 
@@ -129,7 +129,7 @@ namespace Typeid {
 
     enum { Proto = I::Proto };
 
-    static bool contains(long proto)
+    static bool contains(long proto) noexcept
     { return (proto == Proto) || Next::contains(proto); }
   };
 
@@ -278,7 +278,7 @@ namespace Typeid {
   struct _P_dispatch<Iface_list_end>
   {
     template< typename THIS, typename A1, typename A2 >
-    static int f(THIS *, long, A1, A2 &)
+    static int f(THIS *, long, A1, A2 &) noexcept
     { return -L4_EBADPROTO; }
   };
 
@@ -478,8 +478,8 @@ namespace Typeid {
   struct Rights
   {
     unsigned rights;
-    Rights(unsigned rights) : rights(rights) {}
-    unsigned operator & (unsigned rhs) const { return rights & rhs; }
+    Rights(unsigned rights) noexcept : rights(rights) {}
+    unsigned operator & (unsigned rhs) const noexcept { return rights & rhs; }
   };
 
 } // namespace Typeid
@@ -517,7 +517,7 @@ struct L4_EXPORT Type_info
   {
   private:
     /// internal max helper
-    static unsigned char max(unsigned char a, unsigned char b)
+    static unsigned char max(unsigned char a, unsigned char b) noexcept
     { return a > b ? a : b; }
 
   public:
@@ -535,15 +535,15 @@ struct L4_EXPORT Type_info
      */
     explicit
     Demand(unsigned char caps = 0, unsigned char flags = 0,
-           unsigned char mem = 0,  unsigned char ports = 0)
+           unsigned char mem = 0,  unsigned char ports = 0) noexcept
     : caps(caps), flags(flags), mem(mem), ports(ports) {}
 
     /// \return true if there is no demand at all
-    bool no_demand() const
+    bool no_demand() const noexcept
     { return caps == 0 && mem == 0 && ports == 0 && flags == 0; }
 
     /// get the combined demand of this and rhs
-    Demand operator | (Demand const &rhs) const
+    Demand operator | (Demand const &rhs) const noexcept
     {
       return Demand(max(caps, rhs.caps), flags | rhs.flags,
                     max(mem, rhs.mem), max(ports, rhs.ports));
@@ -569,7 +569,7 @@ struct L4_EXPORT Type_info
       Mem   = MEM,   ///< number of memory receive windows.
       Ports = PORTS  ///< number of IO-port receive windows.
     };
-    Demand_t() : Demand(CAPS, FLAGS, MEM, PORTS) {}
+    Demand_t() noexcept : Demand(CAPS, FLAGS, MEM, PORTS) {}
   };
 
   /**
@@ -591,12 +591,12 @@ struct L4_EXPORT Type_info
   unsigned _num_bases;
   long _proto;
 
-  L4_std_type_info_ptr type() const { return _type; }
-  Type_info const *base(unsigned idx) const { return _bases[idx]; }
-  unsigned num_bases() const { return _num_bases; }
-  long proto() const { return _proto; }
-  char const *name() const { return L4_kobject_type_name(type()); }
-  bool has_proto(long proto) const
+  L4_std_type_info_ptr type() const noexcept { return _type; }
+  Type_info const *base(unsigned idx) const noexcept { return _bases[idx]; }
+  unsigned num_bases() const noexcept { return _num_bases; }
+  long proto() const noexcept { return _proto; }
+  char const *name() const noexcept { return L4_kobject_type_name(type()); }
+  bool has_proto(long proto) const noexcept
   {
     if (_proto && _proto == proto)
       return true;
@@ -637,7 +637,7 @@ template<typename T> struct Kobject_typeid
    * Get a pointer to teh Kobject type information of T.
    * \return a pointer to the Kobject typeinfor of T.
    */
-  static Type_info const *id() { return &T::__Kobject_typeid::_m; }
+  static Type_info const *id() noexcept { return &T::__Kobject_typeid::_m; }
 
   /**
    * Get the receive-buffer demand for the server providing the
@@ -646,7 +646,7 @@ template<typename T> struct Kobject_typeid
    * \return A demand value describing the minimum receive buffers
    *         needed for handling server side requests for interface T.
    */
-  static Type_info::Demand demand()
+  static Type_info::Demand demand() noexcept
   { return T::__Kobject_typeid::Demand(); }
 
   // to be removed ---------------------------------------
@@ -689,7 +689,7 @@ template<> struct Kobject_typeid<void>
  */
 template<typename T>
 inline
-Type_info const *kobject_typeid()
+Type_info const *kobject_typeid() noexcept
 { return Kobject_typeid<T>::id(); }
 
 /**
@@ -769,14 +769,14 @@ protected:
   > __Iface_list;
 
   /// Helper to check for protocol conflicts
-  static void __check_protocols__()
+  static void __check_protocols__() noexcept
   {
     typedef Typeid::Iface_conflict<__Iface, typename Base::__Iface_list> Base_conflict;
     static_assert(!Base_conflict::value, "ambiguous protocol ID: protocol also used by Base");
   }
 
   /// Get the capability to ourselves
-  L4::Cap<Class> c() const { return L4::Cap<Class>(this->cap()); }
+  L4::Cap<Class> c() const noexcept { return L4::Cap<Class>(this->cap()); }
 
   // Generate the remaining type information
   L4____GEN_TI_MEMBERS(typename Base::__Kobject_typeid::Demand)
@@ -849,7 +849,7 @@ protected:
   > __Iface_list;
 
   /// \copydoc L4::Kobject_t::__check_protocols__
-  static void __check_protocols__()
+  static void __check_protocols__() noexcept
   {
     typedef typename Base1::__Iface_list Base1_proto_list;
     typedef typename Base2::__Iface_list Base2_proto_list;
@@ -864,11 +864,11 @@ protected:
   }
 
   // disambiguate cap()
-  l4_cap_idx_t cap() const throw()
+  l4_cap_idx_t cap() const noexcept
   { return Base1::cap(); }
 
   /// \copydoc L4::Kobject_t::c()
-  L4::Cap<Class> c() const { return L4::Cap<Class>(this->cap()); }
+  L4::Cap<Class> c() const noexcept { return L4::Cap<Class>(this->cap()); }
 
   L4____GEN_TI_MEMBERS(Type_info::Demand_union_t<
     typename Base1::__Kobject_typeid::Demand,
@@ -877,11 +877,12 @@ protected:
 
 public:
   // Provide non-ambiguous conversion to Kobject
-  operator Kobject const & () const
+  operator Kobject const & () const noexcept
   { return *static_cast<Base1 const *>(this); }
 
   // Provide non-ambiguous access of dec_refcnt()
   l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
+    noexcept(noexcept(((Base1*)0)->dec_refcnt(diff, utcb)))
   { return Base1::dec_refcnt(diff, utcb); }
 };
 
@@ -952,7 +953,7 @@ protected:
   > __Iface_list;
 
   /// \copydoc L4::Kobject_t::__check_protocols__
-  static void __check_protocols__()
+  static void __check_protocols__() noexcept
   {
     typedef typename Base1::__Iface_list Base1_proto_list;
     typedef typename Base2::__Iface_list Base2_proto_list;
@@ -976,11 +977,11 @@ protected:
   }
 
   // disambiguate cap()
-  l4_cap_idx_t cap() const throw()
+  l4_cap_idx_t cap() const noexcept
   { return Base1::cap(); }
 
   /// \copydoc L4::Kobject_t::c()
-  L4::Cap<Class> c() const { return L4::Cap<Class>(this->cap()); }
+  L4::Cap<Class> c() const noexcept { return L4::Cap<Class>(this->cap()); }
 
   L4____GEN_TI_MEMBERS(Type_info::Demand_union_t<Type_info::Demand_union_t<
     typename Base1::__Kobject_typeid::Demand,
@@ -990,11 +991,12 @@ protected:
 
 public:
   // Provide non-ambiguous conversion to Kobject
-  operator Kobject const & () const
+  operator Kobject const & () const noexcept
   { return *static_cast<Base1 const *>(this); }
 
   // Provide non-ambiguous access of dec_refcnt()
   l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
+    noexcept(noexcept(((Base1*)0)->dec_refcnt(diff, utcb)))
   { return Base1::dec_refcnt(diff, utcb); }
 };
 
@@ -1112,7 +1114,7 @@ protected:
     typename BASES::__Iface_list...
   > __Iface_list;
 
-  static void __check_protocols__()
+  static void __check_protocols__() noexcept
   {
     typedef Typeid_xx::Iface_conflict<__Iface, typename BASES::__Iface_list...> Conflict;
     static_assert(!Conflict::value, "ambiguous protocol ID, protocol also used in base class");
@@ -1122,10 +1124,10 @@ protected:
   }
 
   // disambiguate cap()
-  l4_cap_idx_t cap() const throw()
+  l4_cap_idx_t cap() const noexcept
   { return Typeid_xx::First<BASES...>::type::cap(); }
 
-  L4::Cap<Class> c() const { return L4::Cap<Class>(this->cap()); }
+  L4::Cap<Class> c() const noexcept { return L4::Cap<Class>(this->cap()); }
 
   L4____GEN_TI_MEMBERS(Kobject_demand<BASES...>)
 
@@ -1135,11 +1137,12 @@ private:
 
 public:
   // Provide non-ambiguous conversion to Kobject
-  operator Kobject const & () const
+  operator Kobject const & () const noexcept
   { return *static_cast<typename Base1<BASES...>::type const *>(this); }
 
   // Provide non-ambiguous access of dec_refcnt()
   l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
+    noexcept(noexcept(((typename Base1<BASES...>::type *)0)->dec_refcnt(diff, utcb)))
   { return Base1<BASES...>::type::dec_refcnt(diff, utcb); }
 };
 
