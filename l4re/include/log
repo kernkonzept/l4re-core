@@ -51,13 +51,13 @@ public:
    * \param string     string to print
    * \param len        length of string
    */
-  void printn(char const *string, int len) const throw();
+  void printn(char const *string, int len) const noexcept;
 
   /**
    * \brief Print NULL-terminated string
    *
    * \param string     string to print
    */
-  void print(char const *string) const throw();
+  void print(char const *string) const noexcept;
 };
 }

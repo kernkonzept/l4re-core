@@ -66,7 +66,7 @@ public:
    */
   l4_msgtag_t map(Cap<Task> const &src_task,
                   l4_fpage_t const &snd_fpage, l4_addr_t snd_base,
-                  l4_utcb_t *utcb = l4_utcb()) throw()
+                  l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_map_u(cap(), src_task.cap(), snd_fpage, snd_base, utcb); }
 
   /**
@@ -89,7 +89,7 @@ public:
    */
   l4_msgtag_t unmap(l4_fpage_t const &fpage,
                     l4_umword_t map_mask,
-                    l4_utcb_t *utcb = l4_utcb()) throw()
+                    l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_unmap_u(cap(), fpage, map_mask, utcb); }
 
   /**
@@ -115,7 +115,7 @@ public:
   l4_msgtag_t unmap_batch(l4_fpage_t const *fpages,
                           unsigned num_fpages,
                           l4_umword_t map_mask,
-                          l4_utcb_t *utcb = l4_utcb()) throw()
+                          l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_unmap_batch_u(cap(), fpages, num_fpages, map_mask, utcb); }
 
   /**
@@ -131,7 +131,7 @@ public:
    * is removed in all cases.
    */
   l4_msgtag_t delete_obj(L4::Cap<void> obj,
-                         l4_utcb_t *utcb = l4_utcb()) throw()
+                         l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_delete_obj_u(cap(), obj.cap(), utcb); }
 
   /**
@@ -145,7 +145,7 @@ public:
    * This operation unmaps the capability from `this` task.
    */
   l4_msgtag_t release_cap(L4::Cap<void> cap,
-                          l4_utcb_t *utcb = l4_utcb()) throw()
+                          l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_release_cap_u(this->cap(), cap.cap(), utcb); }
 
   /**
@@ -165,7 +165,7 @@ public:
    *      L4::Cap.validate() instead.
    */
   l4_msgtag_t cap_valid(Cap<void> const &cap,
-                        l4_utcb_t *utcb = l4_utcb()) throw()
+                        l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_cap_valid_u(this->cap(), cap.cap(), utcb); }
 
   /**
@@ -182,7 +182,7 @@ public:
    */
   l4_msgtag_t cap_equal(Cap<void> const &cap_a,
                         Cap<void> const &cap_b,
-                        l4_utcb_t *utcb = l4_utcb()) throw()
+                        l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_cap_equal_u(cap(), cap_a.cap(), cap_b.cap(), utcb); }
 
   /**
@@ -200,7 +200,7 @@ public:
    * \return Syscall return tag
    */
   l4_msgtag_t add_ku_mem(l4_fpage_t const &fpage,
-                         l4_utcb_t *utcb = l4_utcb()) throw()
+                         l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_add_ku_mem_u(cap(), fpage, utcb); }
 
 };

@@ -42,7 +42,7 @@ private:
   View(l4_cap_idx_t goos, unsigned idx)
   : _goos(goos), _view_idx(_goos.is_valid() ? idx : ~0U) {}
 
-  unsigned view_index() const throw()
+  unsigned view_index() const noexcept
   { return _goos.is_valid() ? _view_idx : ~0U; }
 
 public:
@@ -138,7 +138,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int info(Info *info) const throw();
+  int info(Info *info) const noexcept;
 
   /**
    * \brief Set the information structure for this view.
@@ -150,7 +150,7 @@ public:
    * The function will also set the view port according to the values given
    * in the information structure.
    */
-  int set_info(Info const &info) const throw();
+  int set_info(Info const &info) const noexcept;
 
   /**
    * \brief Set the position of the view in the goos.
@@ -163,7 +163,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int set_viewport(int scr_x, int scr_y, int w, int h, unsigned long buf_offset) const throw();
+  int set_viewport(int scr_x, int scr_y, int w, int h, unsigned long buf_offset) const noexcept;
 
   /**
    * \brief Move this view in the view stack.
@@ -174,14 +174,14 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int stack(View const &pivot, bool behind = true) const throw();
+  int stack(View const &pivot, bool behind = true) const noexcept;
 
   /** Make this view the top-most view */
-  int push_top() const throw()
+  int push_top() const noexcept
   { return stack(View(), true); }
 
   /** Push this view the back */
-  int push_bottom() const throw()
+  int push_bottom() const noexcept
   { return stack(View(), false); }
 
   /**
@@ -194,7 +194,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int refresh(int x, int y, int w, int h) const throw();
+  int refresh(int x, int y, int w, int h) const noexcept;
 
   /** \brief Return whether this view is valid */
   bool valid() const { return _goos.is_valid(); }
@@ -293,7 +293,7 @@ public:
    * \retval >=0  Success, the value returned is the view index.
    * \retval <0  Error
    */
-  int create_view(View *view, l4_utcb_t *utcb = l4_utcb()) const throw()
+  int create_view(View *view, l4_utcb_t *utcb = l4_utcb()) const noexcept
   {
     long r = create_view_t::call(c(), utcb);
     if (r < 0)
@@ -313,7 +313,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int delete_view(View const &v, l4_utcb_t *utcb = l4_utcb()) const throw()
+  int delete_view(View const &v, l4_utcb_t *utcb = l4_utcb()) const noexcept
   {
     return delete_view_t::call(c(), v._view_idx, utcb);
   }
@@ -323,7 +323,7 @@ public:
    * \param index   Index of the view to return.
    * \return The view.
    */
-  View view(unsigned index) const throw();
+  View view(unsigned index) const noexcept;
 
   /**
    * \brief Trigger refreshing of the given area on the virtual screen.
@@ -344,28 +344,28 @@ public:
 };
 
 inline View
-Goos::view(unsigned index) const throw()
+Goos::view(unsigned index) const noexcept
 { return View(cap(), index); }
 
 inline int
-View::info(Info *info) const throw()
+View::info(Info *info) const noexcept
 { return _goos->view_info(_view_idx, info); }
 
 inline int
-View::set_info(Info const &info) const throw()
+View::set_info(Info const &info) const noexcept
 { return _goos->set_view_info(_view_idx, info); }
 
 inline int
-View::stack(View const &pivot, bool behind) const throw()
+View::stack(View const &pivot, bool behind) const noexcept
 { return _goos->view_stack(_view_idx, pivot._view_idx, behind); }
 
 inline int
-View::refresh(int x, int y, int w, int h) const throw()
+View::refresh(int x, int y, int w, int h) const noexcept
 { return _goos->view_refresh(_view_idx, x, y, w, h); }
 
 inline int
 View::set_viewport(int scr_x, int scr_y, int w, int h,
-                   unsigned long buf_offset) const throw()
+                   unsigned long buf_offset) const noexcept
 {
   Info i;
   i.flags = F_set_buffer_offset | F_set_position;

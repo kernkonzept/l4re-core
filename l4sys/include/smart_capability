@@ -37,14 +37,14 @@ class Smart_cap : public Cap_base, private SMART
 {
 public:
 
-  SMART const &smart() const { return *this; }
+  SMART const &smart() const noexcept { return *this; }
 
-  void _delete() throw()
+  void _delete() noexcept
   {
     SMART::free(const_cast<Smart_cap<T,SMART>&>(*this));
   }
 
-  Cap<T> release() const throw()
+  Cap<T> release() const noexcept
   {
     l4_cap_idx_t r = cap();
     SMART::invalidate(const_cast<Smart_cap<T,SMART>&>(*this));
@@ -52,14 +52,14 @@ public:
     return Cap<T>(r);
   }
 
-  void reset()
+  void reset() noexcept
   {
     _c = L4_INVALID_CAP;
   }
 
-  Smart_cap() throw() : Cap_base(Invalid) {}
+  Smart_cap() noexcept : Cap_base(Invalid) {}
 
-  Smart_cap(Cap_base::Cap_type t) throw() : Cap_base(t) {}
+  Smart_cap(Cap_base::Cap_type t) noexcept : Cap_base(t) {}
 
   /**
    * Internal constructor, use to generate a capability from a `this` pointer.
@@ -70,35 +70,35 @@ public:
    * \param p  The `this` pointer of the Kobject or derived object
    */
   template< typename O >
-  Smart_cap(Cap<O> const &p) throw() : Cap_base(p.cap())
+  Smart_cap(Cap<O> const &p) noexcept : Cap_base(p.cap())
   { T* __t = ((O*)100); (void)__t; }
 
   template< typename O >
-  Smart_cap(Cap<O> const &p, SMART const &smart) throw()
+  Smart_cap(Cap<O> const &p, SMART const &smart) noexcept
   : Cap_base(p.cap()), SMART(smart)
   { T* __t = ((O*)100); (void)__t; }
 
   template< typename O >
-  Smart_cap(Smart_cap<O, SMART> const &o) throw()
+  Smart_cap(Smart_cap<O, SMART> const &o) noexcept
   : Cap_base(SMART::copy(o)), SMART(o.smart())
   { T* __t = ((O*)100); (void)__t; }
 
-  Smart_cap(Smart_cap const &o) throw()
+  Smart_cap(Smart_cap const &o) noexcept
   : Cap_base(SMART::copy(o)), SMART(o.smart())
   { }
 
   template< typename O >
-  Smart_cap(typename Cap<O>::Cap_type cap) throw() : Cap_base(cap)
+  Smart_cap(typename Cap<O>::Cap_type cap) noexcept : Cap_base(cap)
   { T* __t = ((O*)100); (void)__t; }
 
-  void operator = (typename Cap<T>::Cap_type cap) throw()
+  void operator = (typename Cap<T>::Cap_type cap) noexcept
   {
     _delete();
     _c = cap;
   }
 
   template< typename O >
-  void operator = (Smart_cap<O, SMART> const &o) throw()
+  void operator = (Smart_cap<O, SMART> const &o) noexcept
   {
     _delete();
     _c = this->SMART::copy(o).cap();
@@ -106,7 +106,7 @@ public:
     // return *this;
   }
 
-  Smart_cap const &operator = (Smart_cap const &o) throw()
+  Smart_cap const &operator = (Smart_cap const &o) noexcept
   {
     if (&o == this)
       return *this;
@@ -119,16 +119,16 @@ public:
 
 #if __cplusplus >= 201103L
   template< typename O >
-  Smart_cap(Smart_cap<O, SMART> &&o) throw()
+  Smart_cap(Smart_cap<O, SMART> &&o) noexcept
   : Cap_base(o.release()), SMART(o.smart())
   { T* __t = ((O*)100); (void)__t; }
 
-  Smart_cap(Smart_cap &&o) throw()
+  Smart_cap(Smart_cap &&o) noexcept
   : Cap_base(o.release()), SMART(o.smart())
   { }
 
   template< typename O >
-  void operator = (Smart_cap<O, SMART> &&o) throw()
+  void operator = (Smart_cap<O, SMART> &&o) noexcept
   {
     _delete();
     _c = o.release().cap();
@@ -136,7 +136,7 @@ public:
     // return *this;
   }
 
-  Smart_cap const &operator = (Smart_cap &&o) throw()
+  Smart_cap const &operator = (Smart_cap &&o) noexcept
   {
     if (&o == this)
       return *this;
@@ -151,31 +151,31 @@ public:
   /**
    * Member access of a `T`.
    */
-  Cap<T> operator -> () const throw() { return Cap<T>(_c); }
+  Cap<T> operator -> () const noexcept { return Cap<T>(_c); }
 
-  Cap<T> get() const throw() { return Cap<T>(_c); }
+  Cap<T> get() const noexcept { return Cap<T>(_c); }
 
-  ~Smart_cap() throw() { _delete(); }
+  ~Smart_cap() noexcept { _delete(); }
 };
 
 template< typename T >
 class Weak_cap : public Cap_base
 {
 public:
-  Weak_cap() : Cap_base(Invalid) {}
+  Weak_cap() noexcept : Cap_base(Invalid) {}
 
   template< typename O >
-  Weak_cap(typename Cap<O>::Cap_type t) : Cap_base(t)
+  Weak_cap(typename Cap<O>::Cap_type t) noexcept : Cap_base(t)
   { T* __t = ((O*)100); (void)__t; }
 
   template< typename O, typename S >
-  Weak_cap(Smart_cap<O, S> const &c) : Cap_base(c.cap())
+  Weak_cap(Smart_cap<O, S> const &c) noexcept : Cap_base(c.cap())
   { T* __t = ((O*)100); (void)__t; }
 
-  Weak_cap(Weak_cap const &o) : Cap_base(o) {}
+  Weak_cap(Weak_cap const &o) noexcept : Cap_base(o) {}
 
   template< typename O >
-  Weak_cap(Weak_cap<O> const &o) : Cap_base(o)
+  Weak_cap(Weak_cap<O> const &o) noexcept : Cap_base(o)
   { T* __t = ((O*)100); (void)__t; }
 
 };
@@ -200,7 +200,7 @@ namespace Cap_traits {
  */
 template< typename T, typename F, typename SMART >
 inline
-Smart_cap<T, SMART> cap_cast(Smart_cap<F, SMART> const &c) throw()
+Smart_cap<T, SMART> cap_cast(Smart_cap<F, SMART> const &c) noexcept
 {
   (void)static_cast<T const *>(reinterpret_cast<F const *>(100));
   return Smart_cap<T, SMART>(Cap<T>(SMART::copy(c).cap()));
@@ -219,7 +219,7 @@ Smart_cap<T, SMART> cap_cast(Smart_cap<F, SMART> const &c) throw()
  */
 template< typename T, typename F, typename SMART >
 inline
-Smart_cap<T, SMART> cap_reinterpret_cast(Smart_cap<F, SMART> const &c) throw()
+Smart_cap<T, SMART> cap_reinterpret_cast(Smart_cap<F, SMART> const &c) noexcept
 {
   return Smart_cap<T, SMART>(Cap<T>(SMART::copy(c).cap()));
 }

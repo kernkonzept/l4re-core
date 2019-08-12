@@ -101,7 +101,7 @@ protected:
    *
    * Needs to be initialized with setup() before it can be used.
    */
-  Counting_cap_alloc() throw()
+  Counting_cap_alloc() noexcept
   : _items(0), _free_hint(0), _bias(0), _capacity(0)
   {}
 
@@ -118,7 +118,7 @@ protected:
    * responsibility of the user to ensure that these slots are not
    * used otherwise.
    */
-  void setup(void *m, long capacity, long bias) throw()
+  void setup(void *m, long capacity, long bias) noexcept
   {
     _items = (Counter*)m;
     _capacity = capacity;
@@ -132,7 +132,7 @@ public:
    * \return The newly allocated capability slot, invalid if the allocator
    *         was exhausted.
    */
-  L4::Cap<void> alloc() throw()
+  L4::Cap<void> alloc() noexcept
   {
     for (long i = _free_hint; i < _capacity; ++i)
       {
@@ -150,7 +150,7 @@ public:
 
   /// \copydoc alloc()
   template <typename T>
-  L4::Cap<T> alloc() throw()
+  L4::Cap<T> alloc() noexcept
   {
     return L4::cap_cast<T>(alloc());
   }
@@ -165,7 +165,7 @@ public:
    * Silently does nothing if the capability is not
    * managed by this allocator.
    */
-  void take(L4::Cap<void> cap) throw()
+  void take(L4::Cap<void> cap) noexcept
   {
     long c = cap.cap() >> L4_CAP_SHIFT;
     if (c < _bias)
@@ -193,7 +193,7 @@ public:
    * \return True, if the capability was managed by this allocator.
    */
   bool free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
-            unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
+            unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept
   {
     long c = cap.cap() >> L4_CAP_SHIFT;
     if (c < _bias)
@@ -236,7 +236,7 @@ public:
    * managed by this allocator.
    */
   bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
-               unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
+               unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept
   {
     long c = cap.cap() >> L4_CAP_SHIFT;
     if (c < _bias)
@@ -266,7 +266,7 @@ public:
   /**
    * Return highest capability id managed by this allocator.
    */
-  long last() throw()
+  long last() noexcept
   {
     return _capacity + _bias - 1;
   }

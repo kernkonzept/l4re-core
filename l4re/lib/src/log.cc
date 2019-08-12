@@ -27,7 +27,7 @@
 namespace L4Re {
 
 void
-Log::printn(char const *string, int len) const throw()
+Log::printn(char const *string, int len) const noexcept
 {
   l4_msg_regs_t store;
   l4_msg_regs_t *mr = l4_utcb_mr();
@@ -47,7 +47,7 @@ Log::printn(char const *string, int len) const throw()
 }
 
 void
-Log::print(char const *string) const throw()
+Log::print(char const *string) const noexcept
 {
   printn(string, __builtin_strlen(string));
 }

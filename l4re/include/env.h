@@ -25,6 +25,7 @@
 #include <l4/sys/consts.h>
 #include <l4/sys/types.h>
 #include <l4/sys/kip.h>
+#include <l4/sys/compiler.h>
 
 #include <l4/re/consts.h>
 
@@ -68,7 +69,7 @@ typedef struct l4re_env_cap_entry_t
   /**
    * Create an invalid entry.
    */
-  l4re_env_cap_entry_t() : cap(L4_INVALID_CAP), flags(~0) {}
+  l4re_env_cap_entry_t() L4_NOTHROW : cap(L4_INVALID_CAP), flags(~0) {}
 
   /**
    * Create an entry with the name \a n, capability \a c, and flags \a f.
@@ -77,7 +78,7 @@ typedef struct l4re_env_cap_entry_t
    * \param c is the capability selector that refers the initial object.
    * \param f are the additional flags for the object.
    */
-  l4re_env_cap_entry_t(char const *n, l4_cap_idx_t c, l4_umword_t f = 0)
+  l4re_env_cap_entry_t(char const *n, l4_cap_idx_t c, l4_umword_t f = 0) L4_NOTHROW
   : cap(c), flags(f)
   {
     for (unsigned i = 0; n && i < sizeof(name); ++i, ++n)
@@ -88,7 +89,7 @@ typedef struct l4re_env_cap_entry_t
       }
   }
 
-  static bool is_valid_name(char const *n)
+  static bool is_valid_name(char const *n) L4_NOTHROW
   {
     for (unsigned i = 0; *n; ++i, ++n)
       if (i > sizeof(name))

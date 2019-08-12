@@ -103,7 +103,7 @@ public:
    * Free operation for L4::Smart_cap
    * (decrement ref count and delete if 0).
    */
-  static void free(L4::Cap_base &c) throw()
+  static void free(L4::Cap_base &c) noexcept
   {
     if (c.is_valid())
       {
@@ -115,7 +115,7 @@ public:
   /**
    * Invalidate operation for L4::Smart_cap.
    */
-  static void invalidate(L4::Cap_base &c) throw()
+  static void invalidate(L4::Cap_base &c) noexcept
   {
     if (c.is_valid())
       c.invalidate();

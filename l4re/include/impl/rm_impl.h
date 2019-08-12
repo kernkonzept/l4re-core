@@ -42,7 +42,7 @@ namespace L4Re
 long
 Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
            L4::Ipc::Cap<Dataspace> mem, Rm::Offset offs,
-           unsigned char align) const throw()
+           unsigned char align) const noexcept
 {
   if (((flags & F::Rights_mask) == Flags(0)) || (flags & F::Reserved))
     mem = L4::Ipc::Cap<L4Re::Dataspace>();
@@ -59,7 +59,7 @@ Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
 
 int
 Rm::detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
-           L4::Cap<L4::Task> task, unsigned flags) const throw()
+           L4::Cap<L4::Task> task, unsigned flags) const noexcept
 {
   l4_addr_t rstart = 0, rsize = 0;
   l4_cap_idx_t mem_cap = L4_INVALID_CAP;

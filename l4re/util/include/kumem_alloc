@@ -55,7 +55,7 @@ namespace L4Re { namespace Util {
 int
 kumem_alloc(l4_addr_t *mem, unsigned pages_order,
             L4::Cap<L4::Task> task = L4Re::Env::env()->task(),
-            L4::Cap<L4Re::Rm> rm = L4Re::Env::env()->rm()) throw();
+            L4::Cap<L4Re::Rm> rm = L4Re::Env::env()->rm()) noexcept;
 
 /*@}*/
 }}

@@ -23,7 +23,7 @@ public:
 
   L4::Cap<void>
   query(char const *name, unsigned len, int timeout = Namespace::To_default,
-        l4_umword_t *local_id = 0, bool iterate = true) const throw()
+        l4_umword_t *local_id = 0, bool iterate = true) const noexcept
   {
     typedef Env::Cap_entry Cap_entry;
 
@@ -57,13 +57,13 @@ public:
 
   L4::Cap<void>
   query(char const *name, int timeout = Namespace::To_default,
-        l4_umword_t *local_id = 0, bool iterate = true) const throw()
+        l4_umword_t *local_id = 0, bool iterate = true) const noexcept
   { return query(name, __builtin_strlen(name), timeout, local_id, iterate); }
 
   template<typename T >
   L4::Cap<T>
   query(char const *name, int timeout = Namespace::To_default,
-        l4_umword_t *local_id = 0, bool iterate = true) const throw()
+        l4_umword_t *local_id = 0, bool iterate = true) const noexcept
   {
     return L4::cap_cast<T>(query(name, __builtin_strlen(name),
                                  timeout, local_id, iterate));

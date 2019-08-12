@@ -64,7 +64,7 @@ public:
    *                     of CPUs.
    */
   l4_msgtag_t info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
-                   l4_utcb_t *utcb = l4_utcb()) const throw()
+                   l4_utcb_t *utcb = l4_utcb()) const noexcept
   {
     l4_umword_t max = 0;
     l4_msgtag_t t =
@@ -136,7 +136,7 @@ public:
    * \retval true   The CPU is online.
    * \retval false  The CPU is offline
    */
-  bool is_online(l4_umword_t cpu, l4_utcb_t *utcb = l4_utcb()) const throw()
+  bool is_online(l4_umword_t cpu, l4_utcb_t *utcb = l4_utcb()) const noexcept
   { return l4_scheduler_is_online_u(cap(), cpu, utcb); }
 
   typedef L4::Typeid::Rpcs_sys<info_t, run_thread_t, idle_time_t> Rpcs;

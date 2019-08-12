@@ -76,7 +76,7 @@ protected:
    * This method is for derived classes to gain access to the actual
    * capability selector.
    */
-  l4_cap_idx_t cap() const throw() { return _c(); }
+  l4_cap_idx_t cap() const noexcept { return _c(); }
 
 private:
 
@@ -84,7 +84,7 @@ private:
    * \internal
    * Used to convert the `this` pointer to a capability selector.
    */
-  l4_cap_idx_t _c() const throw()
+  l4_cap_idx_t _c() const noexcept
   { return reinterpret_cast<l4_cap_idx_t>(this) & L4_CAP_MASK; }
 
 public:

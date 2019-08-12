@@ -53,15 +53,15 @@ public:
    * \brief Allocate a capability
    * \return Capability of type void
    */
-  virtual L4::Cap<void> alloc() throw() = 0;
-  virtual void take(L4::Cap<void> cap) throw() = 0;
+  virtual L4::Cap<void> alloc() noexcept = 0;
+  virtual void take(L4::Cap<void> cap) noexcept = 0;
 
   /**
    * \brief Allocate a capability
    * \return Capability of type T
    */
   template< typename T >
-  L4::Cap<T> alloc() throw()
+  L4::Cap<T> alloc() noexcept
   { return L4::cap_cast<T>(alloc()); }
 
   /**
@@ -71,9 +71,9 @@ public:
    * \param unmap_flags  Flags for unmap, see l4_unmap_flags_t.
    */
   virtual void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
-                       unsigned unmap_flags = L4_FP_ALL_SPACES) throw() = 0;
+                       unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept = 0;
   virtual bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
-                       unsigned unmap_flags = L4_FP_ALL_SPACES) throw() = 0;
+                       unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept = 0;
 
   /**
    * \brief Destructor.
@@ -92,15 +92,15 @@ public:
     struct CA : public L4Re::Cap_alloc
     {
       CAP_ALLOC &_ca;
-      L4::Cap<void> alloc() throw() override { return _ca.alloc(); }
-      void take(L4::Cap<void> cap) throw() override { _ca.take(cap); }
+      L4::Cap<void> alloc() noexcept override { return _ca.alloc(); }
+      void take(L4::Cap<void> cap) noexcept override { _ca.take(cap); }
 
       void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
-            unsigned unmap_flags = L4_FP_ALL_SPACES) throw() override
+            unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept override
       { _ca.free(cap, task, unmap_flags); }
 
       bool release(L4::Cap<void> cap, l4_cap_idx_t task,
-                   unsigned unmap_flags) throw() override
+                   unsigned unmap_flags) noexcept override
       { return _ca.release(cap, task, unmap_flags); }
 
       void operator delete(void *) {}
@@ -119,15 +119,15 @@ struct Cap_alloc_t : ALLOC, L4Re::Cap_alloc
   template<typename ...ARGS>
   Cap_alloc_t(ARGS &&...args) : ALLOC(cxx::forward<ARGS>(args)...) {}
 
-  L4::Cap<void> alloc() throw() override { return ALLOC::alloc(); }
-  void take(L4::Cap<void> cap) throw() override { ALLOC::take(cap); }
+  L4::Cap<void> alloc() noexcept override { return ALLOC::alloc(); }
+  void take(L4::Cap<void> cap) noexcept override { ALLOC::take(cap); }
 
   void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
-            unsigned unmap_flags = L4_FP_ALL_SPACES) throw() override
+            unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept override
   { ALLOC::free(cap, task, unmap_flags); }
 
   bool release(L4::Cap<void> cap, l4_cap_idx_t task,
-               unsigned unmap_flags) throw() override
+               unsigned unmap_flags) noexcept override
   { return ALLOC::release(cap, task, unmap_flags); }
 
   void operator delete(void *) {}
@@ -191,7 +191,7 @@ public:
    * Free operation for L4::Smart_cap
    * (decrement ref count and delete if 0).
    */
-  void free(L4::Cap_base &c) throw()
+  void free(L4::Cap_base &c) noexcept
   {
     if (c.is_valid())
       {
@@ -203,7 +203,7 @@ public:
   /**
    * Invalidate operation for L4::Smart_cap.
    */
-  static void invalidate(L4::Cap_base &c) throw()
+  static void invalidate(L4::Cap_base &c) noexcept
   {
     if (c.is_valid())
       c.invalidate();

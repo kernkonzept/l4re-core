@@ -64,7 +64,7 @@ public:
    */
   l4_msgtag_t unmask(unsigned irqnum, l4_umword_t *label = 0,
                      l4_timeout_t to = L4_IPC_NEVER,
-                     l4_utcb_t *utcb = l4_utcb()) throw()
+                     l4_utcb_t *utcb = l4_utcb()) noexcept
   {
     return l4_icu_control_u(cap(), irqnum, L4_ICU_CTL_UNMASK, label, to, utcb);
   }
@@ -90,7 +90,7 @@ struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
    *       l4_ipc_error() to check for errors, **do not** use l4_error(),
    *       because l4_error() will always return an error.
    */
-  l4_msgtag_t trigger(l4_utcb_t *utcb = l4_utcb()) throw()
+  l4_msgtag_t trigger(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_trigger_u(cap(), utcb); }
 };
 
@@ -137,7 +137,7 @@ public:
    */
   l4_msgtag_t attach(l4_umword_t label,
                      Cap<Thread> const &thread = Cap<Thread>::Invalid,
-                     l4_utcb_t *utcb = l4_utcb()) throw()
+                     l4_utcb_t *utcb = l4_utcb()) noexcept
     L4_DEPRECATED("Use bind_thread(thread, label).")
   {
 #pragma GCC diagnostic push
@@ -153,7 +153,7 @@ public:
    *
    * \return Syscall return tag
    */
-  l4_msgtag_t detach(l4_utcb_t *utcb = l4_utcb()) throw()
+  l4_msgtag_t detach(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_detach_u(cap(), utcb); }
 
 
@@ -169,7 +169,7 @@ public:
    *       L4::Semaphore instead of L4::Irq.
    */
   l4_msgtag_t receive(l4_timeout_t timeout = L4_IPC_NEVER,
-                      l4_utcb_t *utcb = l4_utcb()) throw()
+                      l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_receive_u(cap(), timeout, utcb); }
 
   /**
@@ -182,7 +182,7 @@ public:
    * \return Syscall return tag
    */
   l4_msgtag_t wait(l4_umword_t *label, l4_timeout_t timeout = L4_IPC_NEVER,
-                   l4_utcb_t *utcb = l4_utcb()) throw()
+                   l4_utcb_t *utcb = l4_utcb()) noexcept
   { return unmask(-1, label, timeout, utcb); }
 
   /**
@@ -204,7 +204,7 @@ public:
    * \deprecated Use L4::Irq_eoi::unmask()
    *
    */
-  l4_msgtag_t unmask(l4_utcb_t *utcb = l4_utcb()) throw()
+  l4_msgtag_t unmask(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return unmask(-1, 0, L4_IPC_NEVER, utcb); }
 };
 
@@ -237,7 +237,7 @@ struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
    * multiplexer.
    */
   l4_msgtag_t chain(Cap<Triggerable> const &slave,
-                    l4_utcb_t *utcb = l4_utcb()) throw()
+                    l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_mux_chain_u(cap(), slave.cap(), utcb); }
 };
 
@@ -291,7 +291,7 @@ public:
   {
   public:
     /// True, if the ICU has support for MSIs.
-    bool supports_msi() const { return features & F_msi; }
+    bool supports_msi() const noexcept { return features & F_msi; }
   };
 
   /**
@@ -310,7 +310,7 @@ public:
    *         ICU using L4::Icu::unmask.
    */
   l4_msgtag_t bind(unsigned irqnum, L4::Cap<Triggerable> irq,
-                   l4_utcb_t *utcb = l4_utcb()) throw()
+                   l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_bind_u(cap(), irqnum, irq.cap(), utcb); }
 
   L4_RPC_NF_OP(L4_ICU_OP_BIND,
@@ -326,7 +326,7 @@ public:
    * \return Syscall return tag
    */
   l4_msgtag_t unbind(unsigned irqnum, L4::Cap<Triggerable> irq,
-                     l4_utcb_t *utcb = l4_utcb()) throw()
+                     l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_unbind_u(cap(), irqnum, irq.cap(), utcb); }
 
   L4_RPC_NF_OP(L4_ICU_OP_UNBIND,
@@ -340,7 +340,7 @@ public:
    *
    * \return Syscall return tag
    */
-  l4_msgtag_t info(l4_icu_info_t *info, l4_utcb_t *utcb = l4_utcb()) throw()
+  l4_msgtag_t info(l4_icu_info_t *info, l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_info_u(cap(), info, utcb); }
 
   struct _Info { l4_umword_t features, nr_irqs, nr_msis; };
@@ -366,7 +366,7 @@ public:
    * \internal
    */
   l4_msgtag_t control(unsigned irqnum, unsigned op, l4_umword_t *label,
-                      l4_timeout_t to, l4_utcb_t *utcb = l4_utcb()) throw()
+                      l4_timeout_t to, l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_control_u(cap(), irqnum, op, label, to, utcb); }
 
   /**
@@ -386,7 +386,7 @@ public:
   l4_msgtag_t mask(unsigned irqnum,
                    l4_umword_t *label = 0,
                    l4_timeout_t to = L4_IPC_NEVER,
-                   l4_utcb_t *utcb = l4_utcb()) throw()
+                   l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_mask_u(cap(), irqnum, label, to, utcb); }
 
   L4_RPC_NF_OP(L4_ICU_OP_MASK, l4_msgtag_t, mask, (l4_umword_t irqnum),
@@ -406,7 +406,7 @@ public:
    * \return Syscall return tag
    */
   l4_msgtag_t set_mode(unsigned irqnum, l4_umword_t mode,
-                       l4_utcb_t *utcb = l4_utcb()) throw()
+                       l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_icu_set_mode_u(cap(), irqnum, mode, utcb); }
 
   L4_RPC_NF_OP(L4_ICU_OP_SET_MODE,

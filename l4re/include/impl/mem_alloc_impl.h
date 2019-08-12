@@ -34,7 +34,7 @@ namespace L4Re
 long
 Mem_alloc::alloc(long size,
                  L4::Cap<Dataspace> mem, unsigned long flags,
-                 unsigned long align) const throw()
+                 unsigned long align) const noexcept
 {
   L4::Cap<L4::Factory> f(cap());
   return l4_error(f->create(mem, L4Re::Dataspace::Protocol)
@@ -44,7 +44,7 @@ Mem_alloc::alloc(long size,
 }
 
 long
-Mem_alloc::free(L4::Cap<Dataspace>) const throw()
+Mem_alloc::free(L4::Cap<Dataspace>) const noexcept
 {
   return 0;
 }

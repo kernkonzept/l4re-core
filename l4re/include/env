@@ -100,55 +100,55 @@ namespace L4Re
      *
      * A typical use of this function is L4Re::Env::env()->\<member\>()
      */
-    static Env const *env() throw()
+    static Env const *env() noexcept
     { return reinterpret_cast<Env*>(l4re_global_env); }
 
     /**
      * Object-capability to the parent.
      * \return Parent object-capability
      */
-    L4::Cap<Parent> parent() const throw()
+    L4::Cap<Parent> parent() const noexcept
     { return L4::Cap<Parent>(_env.parent); }
     /**
      * Object-capability to the memory allocator.
      * \return Memory allocator object-capability
      */
-    L4::Cap<Mem_alloc> mem_alloc() const throw()
+    L4::Cap<Mem_alloc> mem_alloc() const noexcept
     { return L4::Cap<Mem_alloc>(_env.mem_alloc); }
     /**
      * Object-capability to the user-level object factory.
      */
-    L4::Cap<L4::Factory> user_factory() const throw()
+    L4::Cap<L4::Factory> user_factory() const noexcept
     { return L4::Cap<L4::Factory>(_env.mem_alloc); }
     /**
      * Object-capability to the region map.
      * \return Region map object-capability
      */
-    L4::Cap<Rm> rm() const throw()
+    L4::Cap<Rm> rm() const noexcept
     { return L4::Cap<Rm>(_env.rm); }
     /**
      * Object-capability to the logging service.
      * \return Log object-capability
      */
-    L4::Cap<Log> log() const throw()
+    L4::Cap<Log> log() const noexcept
     { return L4::Cap<Log>(_env.log); }
     /**
      * Object-capability of the first user thread.
      * \return Object-capability of the first user thread.
      */
-    L4::Cap<L4::Thread> main_thread() const throw()
+    L4::Cap<L4::Thread> main_thread() const noexcept
     { return L4::Cap<L4::Thread>(_env.main_thread); }
     /**
      * Object-capability of the user task.
      * \return Object-capability of the user task.
      */
-    L4::Cap<L4::Task> task() const throw()
+    L4::Cap<L4::Task> task() const noexcept
     { return L4::Cap<L4::Task>(L4RE_THIS_TASK_CAP); }
     /**
      * Object-capability to the factory object available to the task.
      * \return Factory object-capability
      */
-    L4::Cap<L4::Factory> factory() const throw()
+    L4::Cap<L4::Factory> factory() const noexcept
     { return L4::Cap<L4::Factory>(_env.factory); }
     /**
      * First available capability selector.
@@ -156,13 +156,13 @@ namespace L4Re
      *
      * First capability selector available for use for in the application.
      */
-    l4_cap_idx_t first_free_cap() const throw()
+    l4_cap_idx_t first_free_cap() const noexcept
     { return _env.first_free_cap; }
     /**
      * UTCB area of the task.
      * \return UTCB area
      */
-    l4_fpage_t utcb_area() const throw()
+    l4_fpage_t utcb_area() const noexcept
     { return _env.utcb_area; }
     /**
      * First free UTCB.
@@ -171,14 +171,14 @@ namespace L4Re
      * First free UTCB within the UTCB area available for the application to
      * use.
      */
-    l4_addr_t first_free_utcb() const throw()
+    l4_addr_t first_free_utcb() const noexcept
     { return _env.first_free_utcb; }
 
     /**
      * Get a pointer to the first entry in the initial objects array.
      * \return A pointer to the first entry in the initial objects array.
      */
-    Cap_entry const *initial_caps() const throw()
+    Cap_entry const *initial_caps() const noexcept
     { return _env.caps; }
 
     /**
@@ -189,7 +189,7 @@ namespace L4Re
      * \return A pointer to the Cap_entry for the object named \a name,
      *         or NULL if no such object was found.
      */
-    Cap_entry const *get(char const *name, unsigned l) const throw()
+    Cap_entry const *get(char const *name, unsigned l) const noexcept
     { return l4re_env_get_cap_l(name, l, &_env); }
 
     /**
@@ -201,7 +201,7 @@ namespace L4Re
      *         or an invalid capability selector if no such object was found.
      */
     template< typename T >
-    L4::Cap<T> get_cap(char const *name, unsigned l) const throw()
+    L4::Cap<T> get_cap(char const *name, unsigned l) const noexcept
     {
       if (Cap_entry const *e = get(name, l))
 	return L4::Cap<T>(e->cap);
@@ -216,62 +216,62 @@ namespace L4Re
      *         or an invalid capability selector if no such object was found.
      */
     template< typename T >
-    L4::Cap<T> get_cap(char const *name) const throw()
+    L4::Cap<T> get_cap(char const *name) const noexcept
     { return get_cap<T>(name, __builtin_strlen(name)); }
 
     /**
      * Set parent object-capability.
      * \param c  Parent object-capability
      */
-    void parent(L4::Cap<Parent> const &c) throw()
+    void parent(L4::Cap<Parent> const &c) noexcept
     { _env.parent = c.cap(); }
     /**
      * Set memory allocator object-capability.
      * \param c  Memory allocator object-capability
      */
-    void mem_alloc(L4::Cap<Mem_alloc> const &c) throw()
+    void mem_alloc(L4::Cap<Mem_alloc> const &c) noexcept
     { _env.mem_alloc = c.cap(); }
     /**
      * Set region map object-capability.
      * \param c  Region map object-capability
      */
-    void rm(L4::Cap<Rm> const &c) throw()
+    void rm(L4::Cap<Rm> const &c) noexcept
     { _env.rm = c.cap(); }
     /**
      * Set log object-capability.
      * \param c  Log object-capability
      */
-    void log(L4::Cap<Log> const &c) throw()
+    void log(L4::Cap<Log> const &c) noexcept
     { _env.log = c.cap(); }
     /**
      * Set object-capability of first user thread.
      * \param c  First thread's object-capability
      */
-    void main_thread(L4::Cap<L4::Thread> const &c) throw()
+    void main_thread(L4::Cap<L4::Thread> const &c) noexcept
     { _env.main_thread = c.cap(); }
     /**
      * Set factory object-capability.
      * \param c  Factory object-capability
      */
-    void factory(L4::Cap<L4::Factory> const &c) throw()
+    void factory(L4::Cap<L4::Factory> const &c) noexcept
     { _env.factory = c.cap(); }
     /**
      * Set first available capability selector.
      * \param c First capability selector available to the application.
      */
-    void first_free_cap(l4_cap_idx_t c) throw()
+    void first_free_cap(l4_cap_idx_t c) noexcept
     { _env.first_free_cap = c; }
     /**
      * Set UTCB area of the task.
      * \param utcbs  UTCB area
      */
-    void utcb_area(l4_fpage_t utcbs) throw()
+    void utcb_area(l4_fpage_t utcbs) noexcept
     { _env.utcb_area = utcbs; }
     /**
      * Set first free UTCB.
      * \param u First UTCB available for the application to use.
      */
-    void first_free_utcb(l4_addr_t u) throw()
+    void first_free_utcb(l4_addr_t u) noexcept
     { _env.first_free_utcb = u; }
 
     /**
@@ -279,21 +279,21 @@ namespace L4Re
      * \return The capability selector for the default scheduler used for this
      *         task.
      */
-    L4::Cap<L4::Scheduler> scheduler() const throw()
+    L4::Cap<L4::Scheduler> scheduler() const noexcept
     { return L4::Cap<L4::Scheduler>(_env.scheduler); }
 
     /**
      * Set the scheduler capability.
      * \param c is the capability to be set as scheduler.
      */
-    void scheduler(L4::Cap<L4::Scheduler> const &c) throw()
+    void scheduler(L4::Cap<L4::Scheduler> const &c) noexcept
     { _env.scheduler = c.cap(); }
 
     /**
      * Set the pointer to the first Cap_entry in the initial objects array.
      * \param first is the first element in the array.
      */
-    void initial_caps(Cap_entry *first) throw()
+    void initial_caps(Cap_entry *first) noexcept
     { _env.caps = first; }
   };
 };

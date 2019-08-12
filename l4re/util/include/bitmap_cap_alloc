@@ -44,9 +44,9 @@ private:
 public:
   enum State { Free = 0, Allocated, Unknown };
   Cap_alloc_base(long max, void *mem, long bias = 0)
-    throw() : _bias(bias), _items(max, mem) {}
+    noexcept : _bias(bias), _items(max, mem) {}
 
-  L4::Cap<void> alloc() throw()
+  L4::Cap<void> alloc() noexcept
   {
     long cap = _items.alloc();
     if (cap < 0)
@@ -61,10 +61,10 @@ public:
    * \brief Allocate a capability slot.
    */
   template< typename T >
-  L4::Cap<T> alloc() throw()
+  L4::Cap<T> alloc() noexcept
   { return L4::Cap<T>(alloc().cap()); }
 
-  State is_allocated(L4::Cap<void> c) const throw()
+  State is_allocated(L4::Cap<void> c) const noexcept
   {
     long idx = (c.cap() >> L4_CAP_SHIFT);
 
@@ -80,7 +80,7 @@ public:
    */
   template< typename T>
   void free(L4::Cap<T> const &cap, l4_cap_idx_t task = L4_INVALID_CAP,
-            l4_umword_t unmap_flags = L4_FP_ALL_SPACES) throw()
+            l4_umword_t unmap_flags = L4_FP_ALL_SPACES) noexcept
   {
     long idx = (cap.cap() >> L4_CAP_SHIFT);
     if (idx < _bias)
@@ -95,12 +95,12 @@ public:
   }
 
   // since we have no counters assume counter always > 0
-  void take(L4::Cap<void>) throw() {}
+  void take(L4::Cap<void>) noexcept {}
   bool release(L4::Cap<void>, l4_cap_idx_t task = L4_INVALID_CAP,
-               unsigned unmap_flags = L4_FP_ALL_SPACES) throw()
+               unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept
   { (void)task; (void)unmap_flags; return false; }
 
-  long last() throw()
+  long last() noexcept
   {
     return _items.size() + _bias - 1;
   }
@@ -113,7 +113,7 @@ private:
   typename Bitmap_base::Word<Size>::Type _bits[Bitmap_base::Word<Size>::Size];
 
 public:
-  explicit Cap_alloc(long bias = 0) throw()
+  explicit Cap_alloc(long bias = 0) noexcept
     : Cap_alloc_base(Size, _bits, bias) {}
 
 };

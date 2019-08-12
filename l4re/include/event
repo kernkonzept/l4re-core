@@ -161,7 +161,7 @@ public:
                                   L4::Ipc::Array<Event_absinfo, unsigned long> &info));
 
   long get_axis_info(l4_umword_t stream_id, unsigned naxes,
-                     unsigned const *axis, Event_absinfo *info) const throw()
+                     unsigned const *axis, Event_absinfo *info) const noexcept
   {
     L4::Ipc::Array<Event_absinfo, unsigned long> i(naxes, info);
     return get_axis_info_t::call(c(), stream_id,
@@ -210,7 +210,7 @@ public:
     /**
      * \brief Free the entry.
      */
-    void free() throw() { l4_mb(); time = 0; }
+    void free() noexcept { l4_mb(); time = 0; }
   };
 
 private:
@@ -218,7 +218,7 @@ private:
   Event *_begin;
   Event const *_end;
 
-  void inc() throw()
+  void inc() noexcept
   {
     ++_current;
     if (_current == _end)
@@ -252,7 +252,7 @@ public:
    *
    * \return 0 if no event available, event otherwise.
    */
-  Event *next() throw()
+  Event *next() noexcept
   {
     Event *c = _current;
     if (c->time)
@@ -269,7 +269,7 @@ public:
    * \param ev   Event to put into the buffer.
    * \return false if buffer is full and entry could not be added.
    */
-  bool put(Event const &ev) throw()
+  bool put(Event const &ev) noexcept
   {
     Event *c = _current;
     if (c->time)

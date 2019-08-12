@@ -130,7 +130,7 @@ public:
    */
   long query(char const *name, L4::Cap<void> const &cap,
              int timeout = To_default,
-             l4_umword_t *local_id = 0, bool iterate = true) const throw();
+             l4_umword_t *local_id = 0, bool iterate = true) const noexcept;
 
   /**
    *  Query the name space for a named object.
@@ -143,7 +143,7 @@ public:
    */
   long query(char const *name, unsigned len, L4::Cap<void> const &cap,
              int timeout = To_default,
-             l4_umword_t *local_id = 0, bool iterate = true) const throw();
+             l4_umword_t *local_id = 0, bool iterate = true) const noexcept;
 
   L4_RPC_NF(long, register_obj, (unsigned flags,
                                 L4::Ipc::Array<char const, unsigned long> name,
@@ -174,7 +174,7 @@ public:
    *
    */
   long register_obj(char const *name, L4::Ipc::Cap<void> obj,
-                    unsigned flags = Rw) const throw()
+                    unsigned flags = Rw) const noexcept
   {
     return register_obj_t::call(c(), flags,
                                 L4::Ipc::Array<char const, unsigned long>(
@@ -210,7 +210,7 @@ public:
 private:
   long _query(char const *name, unsigned len,
               L4::Cap<void> const &target, l4_umword_t *local_id,
-              bool iterate) const throw();
+              bool iterate) const noexcept;
 
 };
 

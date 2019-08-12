@@ -43,12 +43,12 @@ private:
   Bitmap_base _bits;
 
 public:
-  bool is_allocated(long item) const throw()
+  bool is_allocated(long item) const noexcept
   { return _bits[item]; }
 
   long hint() const { return _free_hint; }
 
-  bool alloc(long item) throw()
+  bool alloc(long item) noexcept
   {
     if (!_bits[item])
       {
@@ -58,7 +58,7 @@ public:
     return false;
   }
 
-  void free(long item) throw()
+  void free(long item) noexcept
   {
     if (item < _free_hint)
       _free_hint = item;
@@ -66,11 +66,11 @@ public:
     _bits.clear_bit(item);
   }
 
-  Item_alloc_base(long size, void *mem) throw()
+  Item_alloc_base(long size, void *mem) noexcept
     : _capacity(size), _free_hint(0), _bits(mem)
   {}
 
-  long alloc() throw()
+  long alloc() noexcept
   {
     if (_free_hint >= _capacity)
       return -1;
@@ -84,7 +84,7 @@ public:
     return free;
   }
 
-  long size() const throw()
+  long size() const noexcept
   {
     return _capacity;
   }
@@ -97,7 +97,7 @@ private:
   typename Bitmap_base::Word<Bits>::Type _bits[Bitmap_base::Word<Bits>::Size];
 
 public:
-  Item_alloc() throw() : Item_alloc_base(Bits, _bits) {}
+  Item_alloc() noexcept : Item_alloc_base(Bits, _bits) {}
 };
 
 }}

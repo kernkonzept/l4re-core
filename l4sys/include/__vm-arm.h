@@ -46,7 +46,7 @@ public:
    * \return Syscall return tag.
    */
   l4_msgtag_t vgicc_map(l4_fpage_t const vgicc_fpage,
-                        l4_utcb_t *utcb = l4_utcb()) throw()
+                        l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_vgicc_map_u(cap(), vgicc_fpage, utcb); }
 
 protected:

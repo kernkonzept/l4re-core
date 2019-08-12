@@ -77,7 +77,7 @@ public:
      * \param s    Pointer to the c-style string.
      * \param len  Length in number of characters of the string s.
      */
-    Lstr(char const *s, int len) : s(s), len(len) {}
+    Lstr(char const *s, int len) noexcept : s(s), len(len) {}
   };
 
   /**
@@ -99,7 +99,7 @@ public:
      *
      * \param o  Instance of S to copy.
      */
-    S(S const &o)
+    S(S const &o) noexcept
     : u(o.u), t(o.t), f(o.f)
     { const_cast<S&>(o).t.raw = 0; }
 
@@ -115,7 +115,7 @@ public:
      * \param      utcb    The UTCB to use for the operation.
      */
     S(l4_cap_idx_t f, long obj, L4::Cap<void> target,
-      l4_utcb_t *utcb) throw()
+      l4_utcb_t *utcb) noexcept
     : u(utcb), t(l4_factory_create_start_u(obj, target.cap(), u)), f(f)
     {}
 
@@ -123,7 +123,7 @@ public:
      * Commit the operation in the destructor to have a cool syntax for
      * create().
      */
-    ~S()
+    ~S() noexcept
     {
       if (t.raw)
 	l4_factory_create_commit_u(f, t, u);
@@ -134,7 +134,7 @@ public:
      *
      * \return The result of the create() operation.
      */
-    operator l4_msgtag_t ()
+    operator l4_msgtag_t () noexcept
     {
       l4_msgtag_t r = l4_factory_create_commit_u(f, t, u);
       t.raw = 0;
@@ -148,7 +148,7 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator  << (l4_mword_t i)
+    S &operator  << (l4_mword_t i) noexcept
     {
       l4_factory_create_add_int_u(i, &t, u);
       return *this;
@@ -161,7 +161,7 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator  << (l4_umword_t i)
+    S &operator  << (l4_umword_t i) noexcept
     {
       l4_factory_create_add_uint_u(i, &t, u);
       return *this;
@@ -176,7 +176,7 @@ public:
      *
      * The string will be added with the zero-terminator.
      */
-    S &operator << (char const *s)
+    S &operator << (char const *s) noexcept
     {
       l4_factory_create_add_str_u(s, &t, u);
       return *this;
@@ -193,7 +193,7 @@ public:
      * responsibility of the caller to make sure that the string is zero-
      * terminated when that is required by the server.
      */
-    S &operator << (Lstr const &s)
+    S &operator << (Lstr const &s) noexcept
     {
       l4_factory_create_add_lstr_u(s.s, s.len, &t, u);
       return *this;
@@ -204,7 +204,7 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator << (Nil)
+    S &operator << (Nil) noexcept
     {
       l4_factory_create_add_nil_u(&t, u);
       return *this;
@@ -217,7 +217,7 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator << (l4_fpage_t d)
+    S &operator << (l4_fpage_t d) noexcept
     {
       l4_factory_create_add_fpage_u(d, &t, u);
       return *this;
@@ -251,7 +251,7 @@ public:
    *
    * \see create(Cap<OBJ>, l4_utcb_t *)
    */
-  S create(Cap<void> target, long obj, l4_utcb_t *utcb = l4_utcb()) throw()
+  S create(Cap<void> target, long obj, l4_utcb_t *utcb = l4_utcb()) noexcept
   {
     return S(cap(), obj, target, utcb);
   }
@@ -282,7 +282,7 @@ public:
    * ~~~
    */
   template<typename OBJ>
-  S create(Cap<OBJ> target, l4_utcb_t *utcb = l4_utcb()) throw()
+  S create(Cap<OBJ> target, l4_utcb_t *utcb = l4_utcb()) noexcept
   {
     return S(cap(), OBJ::Protocol, target, utcb);
   }
@@ -317,7 +317,7 @@ public:
    */
   l4_msgtag_t create_task(Cap<Task> const & target_cap,
                           l4_fpage_t const &utcb_area,
-                          l4_utcb_t *utcb = l4_utcb()) throw()
+                          l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_factory_create_task_u(cap(), target_cap.cap(), utcb_area, utcb); }
 
   /**
@@ -334,7 +334,7 @@ public:
    * \see L4::Thread
    */
   l4_msgtag_t create_thread(Cap<Thread> const &target_cap,
-                            l4_utcb_t *utcb = l4_utcb()) throw()
+                            l4_utcb_t *utcb = l4_utcb()) noexcept
     L4_DEPRECATED("Call create with Cap<Thread> as argument instead.")
   { return l4_factory_create_thread_u(cap(), target_cap.cap(), utcb); }
 
@@ -359,7 +359,7 @@ public:
    */
   l4_msgtag_t create_factory(Cap<Factory> const &target_cap,
                              unsigned long limit,
-                             l4_utcb_t *utcb = l4_utcb()) throw()
+                             l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_factory_create_factory_u(cap(), target_cap.cap(), limit, utcb); }
 
   /**
@@ -392,7 +392,7 @@ public:
    */
   l4_msgtag_t create_gate(Cap<void> const &target_cap,
                           Cap<Thread> const &thread_cap, l4_umword_t label,
-                          l4_utcb_t *utcb = l4_utcb()) throw()
+                          l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_factory_create_gate_u(cap(), target_cap.cap(), thread_cap.cap(), label, utcb); }
 
   /**
@@ -427,7 +427,7 @@ public:
    * \see L4::Vm
    */
   l4_msgtag_t create_vm(Cap<Vm>const &target_cap,
-                        l4_utcb_t *utcb = l4_utcb()) throw()
+                        l4_utcb_t *utcb = l4_utcb()) noexcept
     L4_DEPRECATED("Call create with Cap<Vm> as argument instead.")
   { return l4_factory_create_vm_u(cap(), target_cap.cap(), utcb); }
 

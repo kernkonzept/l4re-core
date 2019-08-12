@@ -80,10 +80,10 @@ namespace L4
     private:
       unsigned long _l, _h;
 
-      static unsigned long &memory_info(void *kip) throw()
+      static unsigned long &memory_info(void *kip) noexcept
       { return *((unsigned long *)kip + 21); }
 
-      static unsigned long memory_info(void const *kip) throw()
+      static unsigned long memory_info(void const *kip) noexcept
       { return *((unsigned long const *)kip + 21); }
 
     public:
@@ -94,13 +94,13 @@ namespace L4
        *
        * \return First memory descriptor stored in the kernel info page
        */
-      static Mem_desc *first(void *kip) throw()
+      static Mem_desc *first(void *kip) noexcept
       {
         return (Mem_desc *)((char *)kip
                + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8)));
       }
 
-      static Mem_desc const *first(void const *kip) throw()
+      static Mem_desc const *first(void const *kip) noexcept
       {
         return (Mem_desc const *)((char const *)kip
                + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8)));
@@ -113,7 +113,7 @@ namespace L4
        *
        * \return Number of memory descriptors in the kernel info page.
        */
-      static unsigned long count(void const *kip) throw()
+      static unsigned long count(void const *kip) noexcept
       {
         return memory_info(kip)
                & ((1UL << ((sizeof(unsigned long) / 2) * 8)) - 1);
@@ -125,7 +125,7 @@ namespace L4
        * \param kip    Pointer to the kernel info page
        * \param count  Number of memory descriptors
        */
-      static void count(void *kip, unsigned count) throw()
+      static void count(void *kip, unsigned count) noexcept
       {
         unsigned long &mi = memory_info(kip);
         mi = (mi & ~((1UL << ((sizeof(unsigned long) / 2) * 8)) - 1)) | count;
@@ -164,7 +164,7 @@ namespace L4
        *               defaults to physical
        */
       Mem_desc(unsigned long start, unsigned long end,
-               Mem_type t, unsigned char st = 0, bool virt = false) throw()
+               Mem_type t, unsigned char st = 0, bool virt = false) noexcept
       : _l((start & ~0x3ffUL) | (t & 0x0f) | ((st << 4) & 0x0f0)
            | (virt ? 0x0200 : 0x0)), _h(end | 0x3ffUL)
       {}
@@ -174,35 +174,35 @@ namespace L4
        *
        * \return Start address of memory descriptor
        */
-      unsigned long start() const throw() { return _l & ~0x3ffUL; }
+      unsigned long start() const noexcept { return _l & ~0x3ffUL; }
 
       /**
        * Return end address of memory descriptor.
        *
        * \return End address of memory descriptor
        */
-      unsigned long end() const throw() { return _h | 0x3ffUL; }
+      unsigned long end() const noexcept { return _h | 0x3ffUL; }
 
       /**
        * Return size of region described by the memory descriptor.
        *
        * \return Size of the region described by the memory descriptor
        */
-      unsigned long size() const throw() { return end() + 1 - start(); }
+      unsigned long size() const noexcept { return end() + 1 - start(); }
 
       /**
        * Return type of the memory descriptor.
        *
        * \return Type of the memory descriptor
        */
-      Mem_type type() const throw() { return (Mem_type)(_l & 0x0f); }
+      Mem_type type() const noexcept { return (Mem_type)(_l & 0x0f); }
 
       /**
        * Return sub-type of the memory descriptor.
        *
        * \return Sub-type of the memory descriptor
        */
-      unsigned char sub_type() const throw() { return (_l >> 4) & 0x0f; }
+      unsigned char sub_type() const noexcept { return (_l >> 4) & 0x0f; }
 
       /**
        * Return whether the memory descriptor describes a virtual or
@@ -210,7 +210,7 @@ namespace L4
        *
        * \return True for virtual region, false for physical region.
        */
-      unsigned is_virtual() const throw() { return _l & 0x200; }
+      unsigned is_virtual() const noexcept { return _l & 0x200; }
 
       /**
        * Set values of a memory descriptor.
@@ -222,7 +222,7 @@ namespace L4
        * \param virt   Virtual or physical memory region, defaults to physical
        */
       void set(unsigned long start, unsigned long end,
-               Mem_type t, unsigned char st = 0, bool virt = false) throw()
+               Mem_type t, unsigned char st = 0, bool virt = false) noexcept
       {
         _l = (start & ~0x3ffUL) | (t & 0x0f) | ((st << 4) & 0x0f0)
              | (virt?0x0200:0x0);
