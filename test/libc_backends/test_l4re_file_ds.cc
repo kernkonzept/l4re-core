@@ -24,37 +24,6 @@
 #include <l4/atkins/l4_assert>
 #include <l4/atkins/tap/main>
 
-// *** helper functions ********************************************************
-
-/**
- * Helper function to handle partially successful reads of a requested file.
- */
-static ssize_t
-successive_read(int fd, char *buf, ssize_t nbyte)
-{
-  ssize_t bytes_read = 0, result = 0, bytes_remaining = nbyte;
-
-  do
-    {
-      result = read(fd, buf + bytes_read, bytes_remaining);
-
-      // So far we're not retrying on EINTR but simply fail.
-      if (result == -1)
-        return -1;
-
-      EXPECT_LE(result, bytes_remaining)
-        << "Not more bytes than requested have been read.";
-      if (result > bytes_remaining)
-        return -1;
-
-      bytes_read += result;
-      bytes_remaining -= result;
-    }
-  while (result > 0);
-
-  return bytes_read;
-}
-
 // *** open ********************************************************************
 
 /**

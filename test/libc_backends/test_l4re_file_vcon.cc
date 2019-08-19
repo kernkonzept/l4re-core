@@ -8,7 +8,7 @@
 
 /**
  * \file
- * Test Posix write functions of the L4Re libc backend using a virtual console.
+ * Test Posix file functions of the L4Re libc backend using a virtual console.
  */
 
 #include "test_helpers.h"
@@ -83,18 +83,17 @@ private:
 /**
  * Fixture setting up a Vcon mock thread.
  */
-class BeL4ReWriteFamily :
-  public Atkins::Fixture::Base_server_thread,
-  public ::testing::Test
+class BeL4ReVcon : public Atkins::Fixture::Base_server_thread,
+                   public ::testing::Test
 {
 public:
-  BeL4ReWriteFamily()
+  BeL4ReVcon()
   {
     register_handler(L4Re::Env::env()->get_cap<L4::Rcv_endpoint>("vcon"));
     start_loop();
   }
 
-  ~BeL4ReWriteFamily()
+  ~BeL4ReVcon()
   {
     // Don't unmap the external capability on destruction.
     server.registry()->unregister_obj(&_handler, false);
@@ -103,6 +102,11 @@ public:
   bool verify_write(const char *written)
   {
     return _handler.verify_write(written);
+  }
+
+  void fill_read_buffer(const char *text, unsigned size)
+  {
+    _handler.vcon_write(text, size);
   }
 
 private:
@@ -119,7 +123,7 @@ private:
 /**
  * Content written to a console file descriptor can be read back.
  */
-TEST_F(BeL4ReWriteFamily, WriteRegular)
+TEST_F(BeL4ReVcon, WriteRegular)
 {
   auto fd = open_vcon();
   char const *text = "boomerang";
@@ -127,21 +131,19 @@ TEST_F(BeL4ReWriteFamily, WriteRegular)
 
   ASSERT_EQ(textsize, write(fd.get(), text, textsize))
     << "Write to Vcon file descriptor.";
-  ASSERT_TRUE(this->verify_write(text))
-    << "Content written to backend.";
+  ASSERT_TRUE(this->verify_write(text)) << "Content written to backend.";
 }
 
 /**
  * A write with 0 length does not write to the file descriptor and returns 0.
  */
-TEST_F(BeL4ReWriteFamily, WriteZeroLength)
+TEST_F(BeL4ReVcon, WriteZeroLength)
 {
   auto fd = open_vcon();
-  char const *text = "BOOMERANG";
+  char const *text = "boomerang";
 
   ASSERT_EQ(0, write(fd.get(), text, 0)) << "Write with zero length.";
-  ASSERT_TRUE(this->verify_write(""))
-    << "Buffer was not written.";
+  ASSERT_TRUE(this->verify_write("")) << "Buffer was not written.";
 }
 
 // *** pwrite ******************************************************************
@@ -150,7 +152,7 @@ TEST_F(BeL4ReWriteFamily, WriteZeroLength)
  * The pwrite() Posix function can be called with offset 0 and the written
  * content read back.
  */
-TEST_F(BeL4ReWriteFamily, PWriteOffsetZero)
+TEST_F(BeL4ReVcon, PWriteOffsetZero)
 {
   auto fd = open_vcon();
   char const *text = "boomerang";
@@ -158,6 +160,65 @@ TEST_F(BeL4ReWriteFamily, PWriteOffsetZero)
 
   ASSERT_EQ(textsize, pwrite(fd.get(), text, textsize, 0))
     << "Call pwrite() on the Vcon file descriptor with offset 0.";
-  ASSERT_TRUE(this->verify_write(text))
-    << "Content written to backend.";
+  ASSERT_TRUE(this->verify_write(text)) << "Content written to backend.";
+}
+
+// *** read ********************************************************************
+
+/**
+ * Reading the complete buffer returns the correct result.
+ */
+TEST_F(BeL4ReVcon, ReadFull)
+{
+  auto fd = open_vcon();
+
+  char const *text = "boomerang";
+  ssize_t const textsize = strlen(text);
+  char buf[] = "xxxxxxxxx";
+
+  this->fill_read_buffer(text, textsize);
+  ASSERT_EQ(textsize, successive_read(fd.get(), buf, textsize))
+    << "Full content read back from Vcon file descriptor.";
+  ASSERT_EQ(0, strncmp(text, buf, textsize + 1)) << "String equals supplied string.";
+}
+
+/**
+ * Partially reading the buffer returns the correct result.
+ */
+TEST_F(BeL4ReVcon, ReadPartial)
+{
+  auto fd = open_vcon();
+
+  char const *text = "BOOMERANG";
+  ssize_t const textsize = strlen(text);
+  ssize_t const partsize = 4;
+  ssize_t const bufsize = textsize + 3;
+
+  char buf[] = "xxxxCANARY";
+
+  this->fill_read_buffer(text, textsize);
+  ASSERT_EQ(partsize, successive_read(fd.get(), buf, partsize))
+    << "Partial content read back from Vcon file descriptor.";
+  ASSERT_EQ(0, strncmp(buf, "BOOMCANARY", bufsize))
+    << "Buffer contents match the supplied content.";
+}
+
+/**
+ * Reading returns only the available data.
+ */
+TEST_F(BeL4ReVcon, ReadOver)
+{
+  auto fd = open_vcon();
+
+  char const *text = "petridish";
+  ssize_t const textsize = strlen(text);
+  ssize_t const bufsize = textsize + 3;
+
+  char buf[] = "xxxxxxxxxYZ";
+
+  this->fill_read_buffer(text, textsize);
+  ASSERT_EQ(textsize, read(fd.get(), buf, bufsize))
+    << "Available content read back from Vcon file descriptor.";
+  ASSERT_EQ(0, memcmp(buf, "petridishYZ", bufsize))
+    << "Buffer contains file content and canary.";
 }

@@ -113,3 +113,30 @@ invalid_fd()
 
   return fd;
 }
+
+/**
+ * Handle partially successful reads of a requested file.
+ */
+inline ssize_t
+successive_read(int fd, char *buf, ssize_t nbyte)
+{
+  ssize_t bytes_read = 0, result = 0, bytes_remaining = nbyte;
+
+  do
+    {
+      result = read(fd, buf + bytes_read, bytes_remaining);
+
+      // So far we're not retrying on EINTR but simply fail.
+      if (result == -1)
+        return -1;
+
+      if (result > bytes_remaining)
+        return -1;
+
+      bytes_read += result;
+      bytes_remaining -= result;
+    }
+  while (result > 0);
+
+  return bytes_read;
+}
