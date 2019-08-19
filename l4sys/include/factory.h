@@ -330,7 +330,7 @@ l4_factory_create_gate_u(l4_cap_idx_t factory,
     {
       items = 1;
       v->mr[3] = l4_map_obj_control(0,0);
-      v->mr[4] = l4_obj_fpage(thread_cap, 0, L4_FPAGE_RWX).raw;
+      v->mr[4] = l4_obj_fpage(thread_cap, 0, L4_CAP_FPAGE_RWS).raw;
     }
   t = l4_msgtag(l4_msgtag_label(t), l4_msgtag_words(t), items, l4_msgtag_flags(t));
   return l4_factory_create_commit_u(factory, t, u);

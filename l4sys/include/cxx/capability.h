@@ -65,11 +65,11 @@ public:
   /**
    * Return flex-page for the capability.
    *
-   * \param rights   Rights, defaults to 'rwx'
+   * \param rights   Rights, defaults to 'rws'
    *
    * \return flex-page
    */
-  l4_fpage_t fpage(unsigned rights = L4_FPAGE_RWX) const noexcept
+  l4_fpage_t fpage(unsigned rights = L4_CAP_FPAGE_RWS) const noexcept
   { return l4_obj_fpage(_c, 0, rights); }
 
   /**

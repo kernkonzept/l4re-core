@@ -274,7 +274,7 @@ l4_task_map_u(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
   l4_msg_regs_t *v = l4_utcb_mr_u(u);
   v->mr[0] = L4_TASK_MAP_OP;
   v->mr[3] = l4_map_obj_control(0,0);
-  v->mr[4] = l4_obj_fpage(src_task, 0, L4_FPAGE_RWX).raw;
+  v->mr[4] = l4_obj_fpage(src_task, 0, L4_CAP_FPAGE_RWS).raw;
   v->mr[1] = snd_base;
   v->mr[2] = snd_fpage.raw;
   return l4_ipc_call(dst_task, u, l4_msgtag(L4_PROTO_TASK, 3, 1, 0), L4_IPC_NEVER);

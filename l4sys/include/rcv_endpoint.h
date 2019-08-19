@@ -71,7 +71,7 @@ l4_rcv_ep_bind_thread_u(l4_cap_idx_t ep,
   m->mr[0] = L4_RCV_EP_BIND_OP;
   m->mr[1] = label;
   m->mr[2] = l4_map_obj_control(0, 0);
-  m->mr[3] = l4_obj_fpage(thread, 0, L4_FPAGE_RWX).raw;
+  m->mr[3] = l4_obj_fpage(thread, 0, L4_CAP_FPAGE_RWS).raw;
   return l4_ipc_call(ep, utcb, l4_msgtag(L4_PROTO_KOBJECT, 2, 1, 0),
                      L4_IPC_NEVER);
 }

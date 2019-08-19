@@ -270,7 +270,7 @@ l4_irq_attach_u(l4_cap_idx_t irq, l4_umword_t label,
     {
       items = 1;
       m->mr[2] = l4_map_obj_control(0, 0);
-      m->mr[3] = l4_obj_fpage(thread, 0, L4_FPAGE_RWX).raw;
+      m->mr[3] = l4_obj_fpage(thread, 0, L4_CAP_FPAGE_RWS).raw;
     }
   return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 2, items, 0),
                      L4_IPC_NEVER);
@@ -283,7 +283,7 @@ l4_irq_mux_chain_u(l4_cap_idx_t irq, l4_cap_idx_t slave,
   l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
   m->mr[0] = L4_IRQ_MUX_OP_CHAIN;
   m->mr[1] = l4_map_obj_control(0, 0);
-  m->mr[2] = l4_obj_fpage(slave, 0, L4_FPAGE_RWX).raw;
+  m->mr[2] = l4_obj_fpage(slave, 0, L4_CAP_FPAGE_RWS).raw;
   return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_MUX, 1, 1, 0),
                      L4_IPC_NEVER);
 }
