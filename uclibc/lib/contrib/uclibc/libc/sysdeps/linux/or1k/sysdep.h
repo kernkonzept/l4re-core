@@ -43,38 +43,6 @@ License along with the GNU C Library; if not, see
     l.sys 1; \
     l.nop
 
-#define PSEUDO(name, syscall_name, args) \
-  ENTRY (name); \
-  DO_CALL(syscall_name); \
-  /* if -4096 < ret < 0 holds, it's an error */ \
-  l.sfgeui r11, 0xf001; \
-  l.bf L(pseudo_end); \
-   l.nop
-
-#define PSEUDO_NOERRNO(name, syscall_name, args)  \
-  ENTRY (name);           \
-  DO_CALL(syscall_name)
-
-#define PSEUDO_END(name) \
-L(pseudo_end): \
-  l.j SYSCALL_ERROR_NAME; \
-  l.ori r3,r11,0; \
-  END (name)
-
-#define PSEUDO_END_NOERRNO(name) \
-  END (name)
-
-#ifndef PIC
-/* For static code, on error jump to __syscall_error directly. */
-# define SYSCALL_ERROR_NAME __syscall_error
-#elif NOT_IN_libc
-/* Use the internal name for libc/libpthread shared objects. */
-# define SYSCALL_ERROR_NAME __GI___syscall_error
-#else
-/* Otherwise, on error do a full PLT jump. */
-# define SYSCALL_ERROR_NAME plt(__syscall_error)
-#endif
-
 /* Make use of .size directive.  */
 #define ASM_SIZE_DIRECTIVE(name) .size name,.-name;
 

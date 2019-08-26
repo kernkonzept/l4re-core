@@ -19,12 +19,7 @@
    Linux/Sparc64.  */
 
 #include <sysdep.h>
-
-/* Offsets into the jmp_buf structure.  */
-
-#define O_mask_was_saved	512
-#define O_gregs			32
-#define O_g1			(O_gregs + 4*8)
+#include <jmpbuf-offsets.h>
 
 /* int _setjmp(jmp_buf) */
 

@@ -171,7 +171,7 @@ enum __ptrace_eventcodes
   PTRACE_EVENT_EXEC	= 4,
   PTRACE_EVENT_VFORK_DONE = 5,
   PTRACE_EVENT_EXIT	= 6,
-  PTRAVE_EVENT_SECCOMP  = 7
+  PTRACE_EVENT_SECCOMP  = 7
 };
 
 /* Perform process tracing functions.  REQUEST is one of the values

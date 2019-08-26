@@ -292,7 +292,12 @@ __pthread_initialize_minimal_internal (void)
 
   /* Make sure it meets the minimum size that allocate_stack
      (allocatestack.c) will demand, which depends on the page size.  */
+  #ifdef SHARED
+  extern size_t GLRO(dl_pagesize);
+  const uintptr_t pagesz = GLRO(dl_pagesize);
+  #else
   const uintptr_t pagesz = sysconf (_SC_PAGESIZE);
+  #endif
   const size_t minstack = pagesz + __static_tls_size + MINIMAL_REST_STACK;
   if (limit.rlim_cur < minstack)
     limit.rlim_cur = minstack;

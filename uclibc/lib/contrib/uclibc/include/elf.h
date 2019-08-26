@@ -274,9 +274,10 @@ typedef struct
 #define EM_TILEGX	191		/* Tilera TILE-Gx */
 #define EM_ARCV2	195		/* ARCv2 Cores */
 #define EM_RISCV	243		/** RISC-V */
+#define EM_CSKY		252		/* C-SKY Cores */
 
 /* NEXT FREE NUMBER: Increment this after adding your official arch number */
-#define EM_NUM		244
+#define EM_NUM		253
 
 /* If it is necessary to assign new unofficial EM_* values, please pick large
    random numbers (0x8523, 0xa7f2, etc.) to minimize the chances of collision

@@ -15,7 +15,11 @@
 int ftruncate(int fd, __off_t length)
 {
 # if __WORDSIZE == 32
+#  if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+	return INLINE_SYSCALL(ftruncate64, 4, fd, 0, OFF_HI_LO(length));
+#  else
 	return INLINE_SYSCALL(ftruncate64, 3, fd, OFF_HI_LO(length));
+#  endif
 # else
 	return ftruncate64(fd, length);
 # endif

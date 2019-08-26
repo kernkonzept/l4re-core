@@ -30,7 +30,7 @@ int fcntl64(int fd, int cmd, ...)
 	arg = va_arg(list, long);
 	va_end(list);
 
-	if (SINGLE_THREAD_P || (cmd != F_SETLKW64))
+	if (SINGLE_THREAD_P || (cmd != F_SETLKW && cmd != F_SETLKW64))
 		return __NC(fcntl64)(fd, cmd, arg);
 # ifdef __NEW_THREADS
 	oldtype = LIBC_CANCEL_ASYNC();

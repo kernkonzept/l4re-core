@@ -18,7 +18,7 @@ do {                                                        \
 
 /* Here we define the magic numbers that this dynamic loader should accept */
 #define MAGIC1 EM_MCORE
-#undef  MAGIC2
+#define MAGIC2 EM_CSKY
 
 /* Used for error messages */
 #define ELF_TARGET "csky"

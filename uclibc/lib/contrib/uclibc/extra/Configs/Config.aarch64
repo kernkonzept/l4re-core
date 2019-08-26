@@ -12,6 +12,7 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_ANY_ENDIAN
 	select ARCH_HAS_MMU
+	select ARCH_USE_MMU
 	select UCLIBC_HAS_FPU
 
 choice

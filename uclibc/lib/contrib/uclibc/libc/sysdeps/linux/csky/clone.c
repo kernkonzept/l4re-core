@@ -9,7 +9,7 @@
 #include <sysdep.h>
 #include <unistd.h>
 
-extern int __syscall_error(int err_no);
+extern long __syscall_error(int err_no);
 
 extern int __csky_clone (
   int flags,

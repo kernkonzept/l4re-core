@@ -144,13 +144,13 @@ $(top_builddir)include/dl-osinfo.h $(top_builddir)include/not-cancel.h:
 $(ALL_HEADERS_BITS_COMMON):
 	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/common/bits/$(@F) $@
 
-$(ALL_HEADERS_BITS_ARCH):
-	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(@F) $@
-
 ifneq ($(ARCH_HAS_DEPRECATED_SYSCALLS),y)
 $(ALL_HEADERS_BITS_COMMON_NO_LEGACY):
 	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/common-generic/bits/$(@F) $@
 endif
+
+$(ALL_HEADERS_BITS_ARCH):
+	$(do_ln) $(call rel_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/bits/$(@F) $@
 
 ifneq ($(TARGET_SUBARCH),)
 $(ALL_HEADERS_BITS_SUBARCH):

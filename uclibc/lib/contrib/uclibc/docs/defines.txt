@@ -10,11 +10,28 @@ __USE_GNU, __USE_BSD, __USE_XOPEN[2K], __USE_SVID, __USE_POSIX...
     If defined, user program which included us requests compat additions
     from relevant standard or Unix flavor. See features.h for full list.
 
-__USE_FILE_OFFSET64
+_LARGEFILE_SOURCE
+   If defined, headers will provide functions fseeko and ftello.
+_LARGEFILE64_SOURCE
+    If defined, headers will in addition to data types, constants and
+    functions named xxx (e.g. off_t, struct stat, F_SETLK, ftruncate())
+    supply data types, constants and functions named xxx64 (e.g. off64_t,
+    struct stat64, F_SETLK64, ftruncate64()) known as an interface for
+    64-bit file offsets.
 __USE_LARGEFILE[64]
-_LARGEFILE[64]_SOURCE
+    Defined to 1 and used internally when built with _LARGEFILE[64]_SOURCE.
+    Undefined otherwise.
+
 _FILE_OFFSET_BITS
-    ???
+    Select default filesystem interface. When defined as 64 the data types,
+    constants and functions mentioned in _LARGEFILE64_SOURCE as xxx are
+    aliased to the corresponding xxx64 data types, constants and functions.
+    _FILE_OFFSET_BITS=64 enables both __USE_LARGEFILE and __USE_LARGEFILE64.
+    This flag does not affect the way libc itself is built, it only affects
+    what declarations are provided to library user.
+__USE_FILE_OFFSET64
+    Defined to 1 and used internally when built with _FILE_OFFSET_BITS=64.
+    Undefined otherwise.
 
 __THROW
     Function annotation "I do not throw anything".

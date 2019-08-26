@@ -16,12 +16,7 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <sysdep.h>
-
-/* Offsets into the jmp_buf structure.  */
-
-#define O_mask_was_saved	512
-#define O_gregs			32
-#define O_g1			(O_gregs + 4*8)
+#include <jmpbuf-offsets.h>
 
 ENTRY(__longjmp)
 

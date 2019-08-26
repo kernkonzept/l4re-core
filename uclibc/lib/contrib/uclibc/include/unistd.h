@@ -585,13 +585,11 @@ extern int execve (const char *__path, char *const __argv[],
 		   char *const __envp[]) __THROW __nonnull ((1, 2));
 libc_hidden_proto(execve)
 
-#if 0 /*def __USE_XOPEN2K8*/
 /* Execute the file FD refers to, overlaying the running program image.
    ARGV and ENVP are passed to the new program, as for `execve'.  */
 extern int fexecve (int __fd, char *const __argv[], char *const __envp[])
      __THROW __nonnull ((2));
-#endif
-
+libc_hidden_proto(fexecve)
 
 /* Execute PATH with arguments ARGV and environment from `environ'.  */
 extern int execv (const char *__path, char *const __argv[])

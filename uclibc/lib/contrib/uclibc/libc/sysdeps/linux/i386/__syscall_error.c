@@ -25,8 +25,8 @@
 #include <errno.h>
 #include <features.h>
 
-int __syscall_error(void) attribute_hidden;
-int __syscall_error(void)
+long __syscall_error(void) attribute_hidden;
+long __syscall_error(void)
 {
 	register int eax __asm__ ("%eax");
 	int _errno = -eax;

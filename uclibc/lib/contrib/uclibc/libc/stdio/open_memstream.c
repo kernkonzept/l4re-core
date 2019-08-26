@@ -156,9 +156,10 @@ FILE *open_memstream(char **bufloc, size_t *sizeloc)
 			__STDIO_STREAM_VALIDATE(fp);
 			return fp;
 		}
+
+		free(cookie->buf);
 	}
 
-	free(cookie->buf);
  EXIT_cookie:
 	free(cookie);
 

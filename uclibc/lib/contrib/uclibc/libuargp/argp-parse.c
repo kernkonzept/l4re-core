@@ -112,7 +112,7 @@ argp_default_parser (int key, char *arg, struct argp_state *state)
       break;
 
     case OPT_PROGNAME:         /* Set the program name.  */
-#if defined _LIBC || HAVE_DECL_PROGRAM_INVOCATION_NAME
+#if defined _LIBC && defined(__UCLIBC_HAS_PROGRAM_INVOCATION_NAME__)
       program_invocation_name = arg;
 #endif
       /* [Note that some systems only have PROGRAM_INVOCATION_SHORT_NAME (aka
@@ -126,7 +126,7 @@ argp_default_parser (int key, char *arg, struct argp_state *state)
       else
        state->name = arg;
 
-#if defined _LIBC || HAVE_DECL_PROGRAM_INVOCATION_SHORT_NAME
+#if defined _LIBC && defined(__UCLIBC_HAS_PROGRAM_INVOCATION_NAME__)
       program_invocation_short_name = state->name;
 #endif
 

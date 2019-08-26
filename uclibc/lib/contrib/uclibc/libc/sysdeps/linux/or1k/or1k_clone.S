@@ -71,7 +71,11 @@ L(oldpid):
 	 l.ori r3, r11, 0
 
 L(error):
-	l.j SYSCALL_ERROR_NAME
+#ifdef __PIC__
+	l.j plt(__syscall_error)
+#else
+	l.j __syscall_error
+#endif
 	 l.ori r3,r11,0
 
-PSEUDO_END (__or1k_clone)
+END (__or1k_clone)

@@ -15,6 +15,6 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#define O_mask_was_saved	512
+#define O_mask_was_saved	496
 #define O_gregs			32
 #define O_g1			(O_gregs + 4*8)

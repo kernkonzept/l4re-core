@@ -37,11 +37,6 @@
 	.text
 	.align 4
 	.literal_position
-	.literal .Lmask0, MASK0
-	.literal .Lmask1, MASK1
-	.literal .Lmask2, MASK2
-	.literal .Lmask3, MASK3
-	.literal .Lmask4, MASK4
 ENTRY (strcmp)
 	/* a2 = s1, a3 = s2 */
 
@@ -130,10 +125,9 @@ ENTRY (strcmp)
 	.align	4
 #if XCHAL_HAVE_LOOPS
 .Laligned:
-	.begin	no-transform
 	movi	a11, 0
-	l32r	a4, .Lmask0	/* mask for byte 0 */
-	l32r	a7, .Lmask4
+	movi	a4, MASK0	/* mask for byte 0 */
+	movi	a7, MASK4
 	loop	a11, .Laligned_done /* Loop forever. */
 
 	/* First unrolled loop body.  */
@@ -184,10 +178,10 @@ ENTRY (strcmp)
 	   If not, loop over the rest of string using normal algorithm.  */
 
 	bnone	a8, a4, .Leq	/* if byte 0 is zero */
-	l32r	a5, .Lmask1	/* mask for byte 1 */
-	l32r	a6, .Lmask2	/* mask for byte 2 */
+	movi	a5, MASK1	/* mask for byte 1 */
+	movi	a6, MASK2	/* mask for byte 2 */
 	bnone	a8, a5, .Leq	/* if byte 1 is zero */
-	l32r	a7, .Lmask3	/* mask for byte 3 */
+	movi	a7, MASK3	/* mask for byte 3 */
 	bnone	a8, a6, .Leq	/* if byte 2 is zero */
 	bnone	a8, a7, .Leq	/* if byte 3 is zero */
 	addi.n	a2, a2, 4	/* advance s1 pointer */
@@ -196,7 +190,6 @@ ENTRY (strcmp)
 
 	/* align (1 mod 4) */
 	loop	a11, .Leq	/* loop forever */
-	.end	no-transform
 
 	l32i	a8, a2, 0	/* get word from s1 */
 	l32i	a9, a3, 0	/* get word from s2 */

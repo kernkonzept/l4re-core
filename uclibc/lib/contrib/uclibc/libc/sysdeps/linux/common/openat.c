@@ -9,6 +9,7 @@
 #include <sys/syscall.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <cancel.h>
 
 #ifdef __NR_openat
 # define __NR___syscall_openat __NR_openat
@@ -16,13 +17,25 @@ static __inline__ _syscall4(int, __syscall_openat, int, fd, const char *, file, 
 
 int __openat(int fd, const char *file, int o_flag, ...)
 {
+#ifdef __NEW_THREADS
+        int oldtype, result;
+#endif
 	va_list ap;
 	mode_t mode;
 
 	va_start(ap, o_flag);
 	mode = va_arg(ap, int);
 	va_end(ap);
-	return __syscall_openat(fd, file, o_flag, mode);
+
+	if (SINGLE_THREAD_P)
+		return __syscall_openat(fd, file, o_flag, mode);
+
+#ifdef __NEW_THREADS
+        oldtype = LIBC_CANCEL_ASYNC ();
+        result = __syscall_openat(fd, file, o_flag, mode);
+        LIBC_CANCEL_RESET (oldtype);
+        return result;
+#endif
 }
 
 strong_alias_untyped(__openat,openat)

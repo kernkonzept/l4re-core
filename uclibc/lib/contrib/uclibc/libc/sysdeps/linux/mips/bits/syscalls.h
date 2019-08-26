@@ -29,6 +29,16 @@
        }								\
      result_var; })
 
+#define INLINE_SYSCALL_NOERR_NCS(name, nr, args...)			\
+({									\
+	INTERNAL_SYSCALL_DECL(err);					\
+	long res = INTERNAL_SYSCALL_NCS(name, err, nr, args);		\
+	if (unlikely(INTERNAL_SYSCALL_ERROR_P(res, err))) {		\
+	    res = -res;							\
+	}								\
+        res;								\
+})
+
 #define INTERNAL_SYSCALL_DECL(err) long err attribute_unused
 
 #define INTERNAL_SYSCALL_ERROR_P(val, err)   ((long) (err))

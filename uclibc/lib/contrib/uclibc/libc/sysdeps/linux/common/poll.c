@@ -53,6 +53,7 @@ int __NC(poll)(struct pollfd *fds, nfds_t nfds, int timeout)
     fd_set *rset, *wset, *xset;
     struct pollfd *f;
     int ready;
+    int error_num;
     int maxfd = 0;
     int bytes;
 
@@ -142,6 +143,7 @@ int __NC(poll)(struct pollfd *fds, nfds_t nfds, int timeout)
 
 	    /* Reset the return value.  */
 	    ready = 0;
+	    error_num = 0;
 
 	    for (f = fds; f < &fds[nfds]; ++f)
 		if (f->fd != -1 && (f->events & (POLLIN|POLLOUT|POLLPRI))
@@ -178,8 +180,13 @@ int __NC(poll)(struct pollfd *fds, nfds_t nfds, int timeout)
 			    ++ready;
 		    }
 		    else if (errno == EBADF)
+		    {
 			f->revents |= POLLNVAL;
+			error_num++;
+		    }
 		}
+	    if (ready == 0)
+		return error_num;
 	    /* Try again.  */
 	    continue;
 	}

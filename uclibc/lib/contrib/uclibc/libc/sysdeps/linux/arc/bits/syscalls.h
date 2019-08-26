@@ -34,7 +34,7 @@
 /* ldso doesn't have real errno */
 #define ERRNO_ERRANDS(_sys_result)
 #else /* !IS_IN_rtld */
-extern int __syscall_error (int);
+extern long __syscall_error (int);
 #ifndef IS_IN_libc
 /* Inter-libc callers use PLT */
 #define CALL_ERRNO_SETTER   "bl   __syscall_error@plt    \n\t"

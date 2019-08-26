@@ -40,6 +40,7 @@ typedef struct __sparc64_jmp_buf
 		unsigned long	__dregs[32];
 		long double	__qregs[16];
 	      }			__mcfpu_fpregs;
+	    unsigned long	__mcfpu_fsr;
 	    unsigned long	__mcfpu_fprs;
 	    unsigned long	__mcfpu_gsr;
 	    void		*__mcfpu_fq;

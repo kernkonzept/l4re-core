@@ -33,7 +33,7 @@
             register long __g1 __asm__("g1") = sys_num;     \
             LOAD_ARGS_##nr(args)                            \
             __asm__ __volatile__( __SYSCALL_STRING          \
-                : "=r" (__res), "=&r" (__o0)                \
+                : "=r" (__res), "=r" (__o0)                \
                 : "1" (__o0) ASM_ARGS_##nr, "r" (__g1)     \
                 : __SYSCALL_CLOBBERS );                                   \
         }                                                   \
