@@ -199,30 +199,25 @@ public:
   }
 
 private:
-  static void pager_set_result(L4::Ipc::Opt<l4_mword_t> *,
-                               L4::Ipc::Opt<L4::Ipc::Snd_fpage> *fp,
+  static void pager_set_result(L4::Ipc::Opt<L4::Ipc::Snd_fpage> *fp,
                                L4::Ipc::Snd_fpage const &f)
   { *fp = f;  }
 
-  static void pager_set_result(L4::Ipc::Opt<l4_mword_t> *result,
-                               L4::Ipc::Opt<L4::Ipc::Snd_fpage> *, ...)
-  { *result = 0;  }
+  static void pager_set_result(L4::Ipc::Opt<L4::Ipc::Snd_fpage> *, ...)
+  {}
 public:
 
   /**
    * Pager API
    */
   long op_io_page_fault(L4::Io_pager::Rights, l4_fpage_t, l4_umword_t,
-                        L4::Ipc::Opt<l4_mword_t> &result,
                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
   {
     // generate exception
-    result = ~0;
-    return L4_EOK;
+    return -L4_ENOMEM;
   }
 
   long op_page_fault(L4::Pager::Rights, l4_umword_t addr, l4_umword_t pc,
-                     L4::Ipc::Opt<l4_mword_t> &result,
                      L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp)
   {
     Dbg(Dbg::Server).printf("page fault: %lx pc=%lx\n", addr, pc);
@@ -237,8 +232,7 @@ public:
         Dbg(Dbg::Warn, "rm").printf("unhandled %s page fault at 0x%lx pc=0x%lx\n",
                                     need_w ? "write" : "read", addr, pc);
         // generate exception
-        result = ~0;
-        return L4_EOK;
+        return -L4_ENOMEM;
       }
 
     if (!(n->second.flags() & L4Re::Rm::F::W) && need_w)
@@ -246,8 +240,7 @@ public:
         Dbg(Dbg::Warn, "rm").printf("write page fault in readonly region at 0x%lx pc=0x%lx\n",
                                     addr, pc);
         // generate exception
-        result = ~0;
-        return L4_EOK;
+        return -L4_EACCESS;
       }
 
     if (!(n->second.flags() & L4Re::Rm::F::X) && need_x)
@@ -255,8 +248,7 @@ public:
         Dbg(Dbg::Warn, "rm").printf("instruction page fault in non-exec region at 0x%lx pc=0x%lx\n",
                                     addr, pc);
         // generate exception
-        result = ~0;
-        return L4_EOK;
+        return -L4_EACCESS;
       }
 
     typename DERIVED::Region_handler::Ops::Map_result map_res;
@@ -265,11 +257,10 @@ public:
         Dbg(Dbg::Warn, "rm").printf("mapping for page fault failed with error %d at 0x%lx pc=0x%lx\n",
                                     err, addr, pc);
         // generate exception
-        result = ~0;
-        return L4_EOK;
+        return -L4_ENOMEM;
       }
 
-    pager_set_result(&result, &fp, map_res);
+    pager_set_result(&fp, map_res);
     return L4_EOK;
   }
 };

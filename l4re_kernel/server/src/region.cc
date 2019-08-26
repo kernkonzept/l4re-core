@@ -77,10 +77,9 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
 
   if (r_flags & Rm::F::Pager)
     {
-      l4_mword_t result;
       L4::Ipc::Snd_fpage rfp;
       L4::cap_reinterpret_cast<L4::Pager>(h->memory())
-        ->page_fault(local_addr, -3UL, result,
+        ->page_fault(local_addr, -3UL,
                      L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE, 0),
                      rfp);
       return L4_EOK;
@@ -142,12 +141,10 @@ Region_map::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
 long
 Region_map::op_io_page_fault(L4::Io_pager::Rights,
                              l4_fpage_t io_pfa, l4_umword_t pc,
-                             L4::Ipc::Opt<l4_mword_t> &result,
                              L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
 {
   Err().printf("IO-port-fault: port=0x%lx size=%d pc=0x%lx\n",
                l4_fpage_ioport(io_pfa), 1 << l4_fpage_size(io_pfa), pc);
-  result = ~0;
-  return -1;
+  return -L4_ENOMEM;
 }
 

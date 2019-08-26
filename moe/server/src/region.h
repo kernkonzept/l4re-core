@@ -56,7 +56,6 @@ public:
 
   long op_io_page_fault(L4::Io_pager::Rights,
                         l4_fpage_t io_pfa, l4_umword_t pc,
-                        L4::Ipc::Opt<l4_mword_t> &result,
                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
 };
 
