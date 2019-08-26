@@ -122,16 +122,17 @@ public:
    *
    * |       [63/31 .. 3]       | 2 | 1 | 0 |
    * |:------------------------:|:-:|:-:|:-:|
-   * |            PFA           | X | W | T |
+   * |            PFA           | X | W | r |
    *
    * - __PFA__ Bits 63/31..3 of `pfa` are the page fault address bits 63/31
    *           to 3, bits 2..0 are masked.
-   * - __X__   Bit 2 of `pfa` is set to 1 for a page fault during instruction
-   *           fetch.
+   * - __X__   Bit 2 of `pfa` if set, indicates a page fault during instruction
+   *           fetch. Note, this bit is implementation-defined and might be
+   *           always clear. This means, if this bit is clear it does not imply
+   *           the the page fault is not due to an instruction fetch.
    * - __W__   Bit 1 of `pfa` is set to 1 for a page fault due to a write
    *           operation.
-   * - __T__   Bit 0 of `pfa` is set for translation faults (no mapping
-   *           was present).
+   * - __r__   Bit0: reserved, undefined.
    */
   L4_INLINE_RPC(
       l4_msgtag_t, page_fault, (l4_umword_t pfa, l4_umword_t pc,
