@@ -52,6 +52,12 @@
  * macros (see below) and then all the functions need to be listed in the
  * Rpcs type.
  *
+ * Clients invoke these functions with the name given to the RPC macros, `sub`
+ * and `neg` above. Servers implement them by defining functions with an `op_`
+ * prepended, `op_sub` and `op_neg`. The types of the parameters in the macro
+ * definition, on the server side, and on the client side are not the same.
+ * The following section describes how they are related to each other.
+ *
  * \section l4_cxx_ipc_iface_types Parameter types for RPC
  *
  * Generally all value parameters, const reference parameters,
@@ -63,6 +69,9 @@
  * Parameters that are non-const references or non-const pointers are treated
  * as output parameters going from the server to the client.
  *
+ * There are special data types that appear on only one side (client or server)
+ * when used, see the following table for details.
+ *
  * ~~~~~~{.cpp}
  * L4_RPC(long, test, (int arg1, char const *arg2, unsigned *ret1));
  * ~~~~~~
@@ -71,17 +80,19 @@
  * as return type, `arg1` is an `int` input, `arg2` a `char` input, and
  * `ret1` an `unsigned` output parameter.
  *
- * | Type                             | Direction | Client-Type       | Server-Type            |
- * |:---------------------------------|:----------|:------------------|:-----------------------|
- * | `T`                              | Input     | `T`               | `T`                    |
- * | `T const &`                      | Input     | `T const &`       | `T const &`            |
- * | `T const *`                      | Input     | `T const *`       | `T const &`            |
- * | `T &`                            | Output    | `T &`             | `T &`                  |
- * | `T *`                            | Output    | `T *`             | `T &`                  |
- * | `L4::Ipc::In_out<T &>`           | In/Out    | `T &`             | `T &`                  |
- * | `L4::Ipc::In_out<T *>`           | In/Out    | `T *`             | `T &`                  |
- * | `L4::Ipc::Cap<T>`                | Input     | `L4::Ipc::Cap<T>` | `L4::Ipc::Snd_fpage`   |
- * | `L4::Ipc::Out<L4::Cap<T> >`      | Output    | `L4::Cap<T>`      | `L4::Ipc::Cap<T> &`    |
+ * | Type                        | Direction | Client-Type          | Server-Type          |
+ * |:----------------------------|:----------|:---------------------|:---------------------|
+ * | `T`                         | Input     | `T`                  | `T`                  |
+ * | `T const &`                 | Input     | `T const &`          | `T const &`          |
+ * | `T const *`                 | Input     | `T const *`          | `T const &`          |
+ * | `T &`                       | Output    | `T &`                | `T &`                |
+ * | `T *`                       | Output    | `T *`                | `T &`                |
+ * | `L4::Ipc::In_out<T &>`      | In/Out    | `T &`                | `T &`                |
+ * | `L4::Ipc::In_out<T *>`      | In/Out    | `T *`                | `T &`                |
+ * | `L4::Ipc::Cap<T>`           | Input     | `L4::Ipc::Cap<T>`    | `L4::Ipc::Snd_fpage` |
+ * | `L4::Ipc::Out<L4::Cap<T> >` | Output    | `L4::Cap<T>`         | `L4::Ipc::Cap<T> &`  |
+ * | `L4::Ipc::Rcv_fpage`        | Input     | `L4::Ipc::Rcv_fpage` | `void`               |
+ * | `L4::Ipc::Small_buf`        | Input     | `L4::Ipc::Small_buf` | `void`               |
  *
  * Array types can be used to transmit arrays of variable length. They can
  * either be stored in a client-provided buffer (L4::Ipc::Array), copied into
