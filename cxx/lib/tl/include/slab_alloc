@@ -150,8 +150,8 @@ private:
 
 public:
   Base_slab(Slab_alloc const &alloc = Slab_alloc()) throw()
-    : _alloc(alloc), _num_free(0), _num_slabs(0), _full_slabs(0), 
-      _partial_slabs(0), _empty_slabs(0)
+    : _alloc(alloc), _num_free(0), _num_slabs(0), _full_slabs(),
+      _partial_slabs(), _empty_slabs()
   {}
 
   ~Base_slab() throw()
