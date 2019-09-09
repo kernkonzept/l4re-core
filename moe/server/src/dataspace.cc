@@ -49,7 +49,7 @@ Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
                         max);
 
   if (adr.is_nil())
-    return -L4_EPERM;
+    return adr.error();
 
   unsigned long cache_opt = cxx::max(_flags & Dataspace::Map_caching_mask,
                                      (unsigned short)flags & Dataspace::Map_caching_mask);
