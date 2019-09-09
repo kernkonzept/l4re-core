@@ -106,7 +106,7 @@ private:
 
     // initialize free list
     Free_o *f = s->free = s->object(0);
-    for (unsigned i = 0; i < objects_per_slab; ++i)
+    for (unsigned i = 1; i < objects_per_slab; ++i)
       {
 	f->next = s->object(i);
 	f = f->next;
