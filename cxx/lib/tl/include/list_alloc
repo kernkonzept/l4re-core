@@ -78,7 +78,7 @@ public:
    *
    * \return      Pointer to memory block
    */
-  inline void *alloc(unsigned long size, unsigned align,
+  inline void *alloc(unsigned long size, unsigned long align,
                      unsigned long lower = 0, unsigned long upper = ~0UL);
 
   /**
@@ -97,7 +97,7 @@ public:
    * \return  Pointer to memory block
    */
   inline void *alloc_max(unsigned long min, unsigned long *max,
-                         unsigned align, unsigned granularity,
+                         unsigned long align, unsigned granularity,
                          unsigned long lower = 0, unsigned long upper = ~0UL);
 
   /**
@@ -264,7 +264,7 @@ List_alloc::free(void *block, unsigned long size, bool initial_free)
 }
 
 void *
-List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
+List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align,
                       unsigned granularity, unsigned long lower,
                       unsigned long upper)
 {
@@ -283,7 +283,7 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
   if (min > *max)
     return 0;
 
-  unsigned long almask = align ? (align - 1) : 0;
+  unsigned long almask = align ? (align - 1UL) : 0;
 
   // minimum alignment is given by the size of a Mem_block
   if (almask < mb_align)
@@ -379,7 +379,7 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned align,
 }
 
 void *
-List_alloc::alloc(unsigned long size, unsigned align, unsigned long lower,
+List_alloc::alloc(unsigned long size, unsigned long align, unsigned long lower,
                   unsigned long upper)
 {
   List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
@@ -389,7 +389,7 @@ List_alloc::alloc(unsigned long size, unsigned align, unsigned long lower,
   // blow up size to the minimum aligned size
   size = (size + mb_align) & ~mb_align;
 
-  unsigned long almask = align ? (align -1) : 0;
+  unsigned long almask = align ? (align - 1UL) : 0;
 
   // minimum alignment is given by the size of a Mem_block
   if (almask < mb_align)
