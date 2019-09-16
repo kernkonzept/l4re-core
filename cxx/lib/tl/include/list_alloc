@@ -74,7 +74,7 @@ public:
    * \param lower Lower bound of the physical region the memory block should be
    *              allocated from.
    * \param upper Upper bound of the physical region the memory block should be
-   *              allocated from.
+   *              allocated from, value is inclusive.
    *
    * \return      Pointer to memory block
    */
@@ -92,7 +92,8 @@ public:
    * \param         lower        Lower bound of the physical region the memory
    *                             block should be allocated from.
    * \param         upper        Upper bound of the physical region the memory
-   *                             block should be allocated from.
+   *                             block should be allocated from, value is
+   *                             inclusive.
    *
    * \return  Pointer to memory block
    */
@@ -322,7 +323,7 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
         continue;
 
       // block outside region, next
-      if (a_start + min > upper)
+      if (a_start + min - 1UL > upper)
         continue;
 
       // remaining size after subtracting the padding for the alignment
@@ -426,7 +427,7 @@ List_alloc::alloc(unsigned long size, unsigned long align, unsigned long lower,
         continue;
 
       // block outside region, next
-      if (a_start + size > upper)
+      if (a_start + size - 1UL > upper)
         continue;
 
       // remaining size after subtracting the padding
