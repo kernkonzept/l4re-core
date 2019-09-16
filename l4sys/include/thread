@@ -345,6 +345,10 @@ public:
      *
      * \return 0 on success, <0 on error
      *
+     * In pseudo code:
+     *   if ((sender_label & match_mask) == match)
+     *     { sender_label = (sender_label & ~del_bits) | add_bits; }
+     *
      * Only the first match is applied.
      *
      * \see l4_thread_modify_sender_add()
@@ -369,6 +373,12 @@ public:
    * \param todo  Prepared sender modification rules.
    *
    * \return System call return tag.
+   *
+   * The modification rules are applied to all IPCs to the thread (whether
+   * directly or by IPC gate) that are already in flight, that is that the sender
+   * is already blocking on.
+   *
+   * \see l4_thread_modify_sender_commit()
    */
   l4_msgtag_t modify_senders(Modify_senders const &todo) throw()
   {

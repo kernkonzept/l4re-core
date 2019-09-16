@@ -560,7 +560,7 @@ l4_thread_modify_sender_start_u(l4_utcb_t *u) L4_NOTHROW;
  *
  * In pseudo code:
  *   if ((sender_label & match_mask) == match)
- *     { label = (label & ~del_bits) | add_bits; }
+ *     { sender_label = (sender_label & ~del_bits) | add_bits; }
  *
  * Only the first match is applied.
  *
@@ -588,6 +588,10 @@ l4_thread_modify_sender_add_u(l4_umword_t match_mask,
 /**
  * Apply (commit) a sender modification sequence.
  * \ingroup l4_thread_api
+ *
+ * The modification rules are applied to all IPCs to the thread (whether
+ * directly or by IPC gate) that are already in flight, that is that the sender
+ * is already blocking on.
  *
  * \see l4_thread_modify_sender_start
  * \see l4_thread_modify_sender_add
