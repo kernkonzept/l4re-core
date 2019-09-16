@@ -292,12 +292,12 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
   Mem_block **c = &_first;
   Mem_block **fit = 0;
   unsigned long max_fit = 0;
+  unsigned long a_lower = (lower + almask) & ~almask;
 
   for (; *c; c = &(*c)->next)
     {
       // address of free memory block
       unsigned long n_start = (unsigned long)(*c);
-      unsigned long a_lower = (lower + almask) & ~almask;
 
       // block too small, next
       // XXX: maybe we can skip this and just do the test below
@@ -396,12 +396,12 @@ List_alloc::alloc(unsigned long size, unsigned long align, unsigned long lower,
     almask = mb_align;
 
   Mem_block **c = &_first;
+  unsigned long a_lower = (lower + almask) & ~almask;
 
   for (; *c; c=&(*c)->next)
     {
       // address of free memory block
       unsigned long n_start = (unsigned long)(*c);
-      unsigned long a_lower = (lower + almask) & ~almask;
 
       // block too small, next
       // XXX: maybe we can skip this and just do the test below
