@@ -53,7 +53,7 @@ namespace Internal {
  * of type T are copied to the message buffer, this means the source buffer
  * is no longer referenced after insertion into the stream.
  *
- * You should use buf_cp_out() to create instances of Buf_cp_out.
+ * The method buf_cp_out() should be used to create instances of Buf_cp_out.
  *
  * The counterpart is either Buf_cp_in (buf_cp_in()) or Buf_in (buf_in()).
  */
@@ -72,7 +72,7 @@ public:
   /**
    * Get the number of elements in the array.
    *
-   * \returns The number of elements in the array.
+   * \return  The number of elements in the array.
    *
    * \note This function is usually used by the Ipc::Ostream itself.
    */
@@ -81,7 +81,7 @@ public:
   /**
    * Get the pointer to the array.
    *
-   * \returns Pointer to the array.
+   * \return  Pointer to the array.
    *
    * \note This function is usually used by the Ipc::Ostream itself.
    */
@@ -399,6 +399,8 @@ public:
    * \param buf    Pointer to a buffer for size elements of type T.
    * \param elems  Number of elements of type T to copy out.
    *
+   * \return  The number of elements copied out.
+   *
    * See \ref Istream::operator>>()
    */
   template< typename T >
@@ -418,6 +420,7 @@ public:
 
   /**
    * Skip size elements of type T in the stream.
+   *
    * \param elems  Number of elements to skip.
    */
   template< typename T >
@@ -437,6 +440,8 @@ public:
    * \param buf    A Msg_ptr that is actually set to point to the element in the
    *               stream.
    * \param elems  Number of elements to extract (default is 1).
+   *
+   * \return  The number of elements extracted.
    *
    * In contrast to a normal get, this version does actually not copy the data
    * but returns a pointer to the data.
@@ -462,6 +467,9 @@ public:
    * Extract a single element of type T from the stream.
    *
    * \param[out] v  The element.
+   *
+   * \retval true   An element was successfully extracted.
+   * \retval false  An element could not be extracted.
    *
    * See \ref Istream::operator>>()
    */
@@ -501,7 +509,7 @@ public:
   /**
    * Get the message tag of a received IPC.
    *
-   * \return The L4 message tag for the received IPC.
+   * \return  The L4 message tag for the received IPC.
    *
    * This is in particular useful for handling page faults or exceptions.
    *
@@ -513,7 +521,7 @@ public:
   /**
    * Get the message tag of a received IPC.
    *
-   * \return A reference to the L4 message tag for the received IPC.
+   * \return  A reference to the L4 message tag for the received IPC.
    *
    * This is in particular useful for handling page faults or exceptions.
    *
@@ -546,7 +554,7 @@ public:
    *
    * \param[out] src  Contains the sender after a successful IPC operation.
    *
-   * \return Syscall return tag.
+   * \return  Syscall return tag.
    *
    * This wait is actually known as 'open wait'.
    */
@@ -556,10 +564,10 @@ public:
   /**
    * Wait for an incoming message from any sender.
    *
-   * \param[out] src     Contains the sender after a successful IPC operation.
-   * \param      timeout Timeout used for IPC.
+   * \param[out] src      Contains the sender after a successful IPC operation.
+   * \param      timeout  Timeout used for IPC.
    *
-   * \return The IPC result dope (l4_msgtag_t).
+   * \return  The IPC result tag (l4_msgtag_t).
    *
    * This wait is actually known as 'open wait'.
    */
@@ -570,7 +578,7 @@ public:
    *
    * \param src  The sender id to receive from.
    *
-   * \return The IPC  result dope (l4_msgtag_t).
+   * \return  The IPC result tag (l4_msgtag_t).
    *
    * This is commonly known as 'closed wait'.
    */
@@ -621,7 +629,8 @@ public:
  *
  * There exist some special wrapper classes to insert arrays (see
  * Ipc::Buf_cp_out) and indirect strings (see Msg_out_buffer and
- * Msg_io_buffer). */
+ * Msg_io_buffer).
+ */
 class Ostream
 {
 public:
@@ -703,14 +712,14 @@ public:
   /**
    * Extract the L4 message tag from the stream.
    *
-   * \return the extracted L4 message tag.
+   * \return  The extracted L4 message tag.
    */
   l4_msgtag_t tag() const { return _tag; }
 
   /**
    * Extract a reference to the L4 message tag from the stream.
    *
-   * \return A reference to the L4 message tag.
+   * \return  A reference to the L4 message tag.
    */
   l4_msgtag_t &tag() { return _tag; }
 
@@ -735,7 +744,7 @@ public:
    * \param proto  Protocol to use.
    * \param flags  Flags to use.
    *
-   * \return Syscall return tag.
+   * \return  The syscall return tag.
    */
   inline l4_msgtag_t send(l4_cap_idx_t dst, long proto = 0, unsigned flags = 0);
 
@@ -843,14 +852,14 @@ public:
   //@{
 
   /**
-   * Do an IPC call using the message in the output stream and receiving to
-   * the input stream.
+   * Do an IPC call using the message in the output stream and receive the
+   * reply in the input stream.
    *
-   * \param dst      The destination L4 UID (thread) to call.
+   * \param dst      The destination to call.
    * \param timeout  The IPC timeout for the call.
    * \param proto    The protocol value to use in the message tag.
    *
-   * \return  The result dope of the IPC operation.
+   * \return  The result tag of the IPC operation.
    *
    * This is a combined IPC operation consisting of a send and a receive
    * to/from the given destination `dst`.
@@ -867,7 +876,7 @@ public:
    *                         Output: the source of the received message.
    * \param         proto    Protocol to use.
    *
-   * \return the result dope of the IPC operation.
+   * \return  The result tag of the IPC operation.
    *
    * This is a combined IPC operation consisting of a send operation and
    * an open wait for any message.
@@ -890,7 +899,7 @@ public:
    * \param         timeout  Timeout used for IPC.
    * \param         proto    Protocol to use.
    *
-   * \return the result dope of the IPC operation.
+   * \return  The result tag of the IPC operation.
    *
    * This is a combined IPC operation consisting of a send operation and
    * an open wait for any message.
@@ -1037,7 +1046,7 @@ Istream::receive(l4_cap_idx_t src, l4_timeout_t timeout)
  * \param      s  The stream to extract from.
  * \param[out] v  Extracted value.
  *
- * \return The stream `s`.
+ * \return  The stream `s`.
  */
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, bool &v) { s.get(v); return s; }
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, int &v) { s.get(v); return s; }
@@ -1070,7 +1079,7 @@ inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Varg &v)
  * \param      s  The stream to extract from.
  * \param[out] v  The extracted tag.
  *
- * \return The stream `s`.
+ * \return  The stream `s`.
  */
 inline
 L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, l4_msgtag_t &v)
@@ -1085,7 +1094,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, l4_msgtag_t &v)
  * \param      s  The stream to extract from.
  * \param[out] v  Pointer to the extracted array (ipc_buf_in()).
  *
- * \return The stream `s`.
+ * \return  The stream `s`.
  *
  * This operator actually does not copy out the data in the array, but
  * returns a pointer into the message buffer itself. This means that the
@@ -1115,7 +1124,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
  * \param      s  The stream to extract from.
  * \param[out] v  Pointer to the extracted element.
  *
- * \return the stream `s`.
+ * \return  The stream `s`.
  *
  * This operator actually does not copy out the data, but
  * returns a pointer into the message buffer itself. This means that the
@@ -1138,7 +1147,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
  * \param      s  The stream to extract from.
  * \param[out] v  Buffer description to copy the array to (Ipc::Buf_cp_out()).
  *
- * \return The stream `s`.
+ * \return  The stream `s`.
  *
  * This operator does a copy out of the data into the given buffer.
  *
@@ -1161,7 +1170,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
  * \param      s  The stream to extract from.
  * \param[out] v  Buffer description to copy the array to (Ipc::Str_cp_out()).
  *
- * \return the stream `s`.
+ * \return  The stream `s`.
  *
  * This operator does a copy out of the data into the given buffer.
  */
@@ -1190,7 +1199,7 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
  * \param s  The stream to insert the element `v`.
  * \param v  The element to insert.
  *
- * \return The stream `s`.
+ * \return  The stream `s`.
  */
 inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, bool v) { s.put(v); return s; }
 inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, int v) { s.put(v); return s; }
@@ -1221,7 +1230,7 @@ inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Varg_t<T> co
  * \param s  The stream to insert the tag `v`.
  * \param v  The L4 message tag to insert.
  *
- * \return The stream `s`.
+ * \return  The stream `s`.
  *
  * \note Only one message tag can be inserted into a stream. Multiple
  *       insertions simply overwrite previous insertions.
@@ -1239,7 +1248,7 @@ L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, l4_msgtag_t const &v)
  * \param s  The stream to insert the array `v`.
  * \param v  The array to insert (see Ipc::Buf_cp_out()).
  *
- * \return the stream `s`.
+ * \return  The stream `s`.
  */
 template< typename T >
 inline
@@ -1257,7 +1266,7 @@ L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s,
  * \param s  The stream to insert the string `v`.
  * \param v  The string to insert.
  *
- * \return The stream `s`.
+ * \return  The stream `s`.
  *
  * This operator produces basically the same content as the array insertion,
  * however the length of the array is calculated using `strlen(v) + 1`
@@ -1385,7 +1394,8 @@ namespace L4 { namespace Ipc {
  * Read a value out of a stream.
  *
  * \param s  An Istream.
- * \return The value of type `T`.
+ *
+ * \return  The value of type `T`.
  *
  * The stream position is progressed accordingly.
  */
