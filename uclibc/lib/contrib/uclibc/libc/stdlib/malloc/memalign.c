@@ -77,7 +77,9 @@ memalign (size_t alignment, size_t size)
 	  init_size = addr - tot_addr;
 	}
 
+      __heap_lock (&__malloc_heap_lock);
       __heap_free (heap, base, init_size);
+      __heap_unlock (&__malloc_heap_lock);
 
       /* Remember that we've freed the initial part of MEM.  */
       base += init_size;
@@ -85,9 +87,11 @@ memalign (size_t alignment, size_t size)
 
   /* Return the end part of MEM to the heap, unless it's too small.  */
   end_addr = addr + size;
-  if (end_addr + MALLOC_REALLOC_MIN_FREE_SIZE < tot_end_addr)
+  if (end_addr + MALLOC_REALLOC_MIN_FREE_SIZE < tot_end_addr) {
+    __heap_lock (&__malloc_heap_lock);
     __heap_free (heap, (void *)end_addr, tot_end_addr - end_addr);
-  else
+    __heap_unlock (&__malloc_heap_lock);
+  } else
     /* We didn't free the end, so include it in the size.  */
     end_addr = tot_end_addr;
 
