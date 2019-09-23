@@ -55,7 +55,8 @@ Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, unsigned long flags,
                                      (unsigned short)flags & Dataspace::Map_caching_mask);
 
   static Snd_fpage::Cacheopt cache_map[] =
-    { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached };
+    { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
+      Snd_fpage::None };
 
   memory = Snd_fpage(adr.fp(), hot_spot, Snd_fpage::Map,
                      cache_map[cache_opt >> Dataspace::Map_caching_shift]);
