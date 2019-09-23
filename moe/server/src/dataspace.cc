@@ -113,12 +113,12 @@ Moe::Dataspace::op_copy_in(L4Re::Dataspace::Rights obj,
 }
 
 long
-Moe::Dataspace::clear(l4_addr_t offs, unsigned long _size) const throw()
+Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const throw()
 {
   if (!check_limit(offs))
     return -L4_ERANGE;
 
-  unsigned long sz = _size = min(_size, round_size()-offs);
+  unsigned long sz = min(size, round_size() - offs);
 
   while (sz)
     {
