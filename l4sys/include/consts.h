@@ -396,8 +396,8 @@ L4_INLINE l4_addr_t l4_round_page(l4_addr_t address) L4_NOTHROW
  * \param value   The value to round up to the next size-alignment.
  * \param bits    The size of the alignment (log2).
  */
-L4_INLINE l4_addr_t l4_round_size(l4_umword_t value, unsigned char bits) L4_NOTHROW;
-L4_INLINE l4_addr_t l4_round_size(l4_umword_t value, unsigned char bits) L4_NOTHROW
+L4_INLINE l4_addr_t l4_round_size(l4_addr_t value, unsigned char bits) L4_NOTHROW;
+L4_INLINE l4_addr_t l4_round_size(l4_addr_t value, unsigned char bits) L4_NOTHROW
 { return (value + (1UL << bits) - 1) & (~0UL << bits); }
 
 /**
