@@ -78,10 +78,14 @@ public:
   /**
    * Allocate anonymous memory.
    *
-   * \param      size   Size in bytes to be requested (granularity
-   *                    is (super)pages and the size is rounded up to this
-   *                    granularity). If `size` is a negative value and `flags`
-   *                    set the Mem_alloc_flags::Continuous bit the
+   * \param      size   Size in bytes to be requested. Allocation
+   *                    granularity is (super)pages, however, the allocator
+   *                    will store the byte-granular given size as the size
+   *                    of the dataspace and consecutively will use this
+   *                    byte-granular size for servicing the dataspace.
+   *                    Allocators may optionally also implement a maximum
+   *                    allocation strategy: if `size` is a negative value and
+   *                    `flags` set the Mem_alloc_flags::Continuous bit, the
    *                    allocator tries to allocate as much memory as possible
    *                    leaving an amount of at least `-size` bytes within the
    *                    associated quota.

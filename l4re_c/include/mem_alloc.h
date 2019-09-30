@@ -50,12 +50,25 @@ enum l4re_ma_flags {
  * \brief Allocate memory
  * \ingroup api_l4re_c_mem_alloc
  *
- * \param  size   Size to be requested in bytes (granularity
- *                 is (super)pages and the size is rounded up to this
- *                 granularity).
- * \param  mem    Capability slot to put the requested dataspace in
- * \param  flags  Flags, see #l4re_ma_flags
- * \return 0 on success, <0 on error
+ * \param size    Size in bytes to be requested. Allocation
+ *                granularity is (super)pages, however, the allocator
+ *                will store the byte-granular given size as the size
+ *                of the dataspace and consecutively will use this
+ *                byte-granular size for servicing the dataspace.
+ *                Allocators may optionally also implement a maximum allocation
+ *                strategy: if `size` is a negative value and `flags`
+ *                set the Mem_alloc_flags::Continuous bit, the
+ *                allocator tries to allocate as much memory as possible
+ *                leaving an amount of at least `-size` bytes within the
+ *                associated quota.
+ * \param  mem    Capability slot where the capability to the
+ *                dataspace is received.
+ * \param  flags  Special dataspace properties, see #l4re_ma_flags
+ *
+ * \retval 0           Success
+ * \retval -L4_ERANGE  Given size not supported.
+ * \retval -L4_ENOMEM  Not enough memory available.
+ * \retval <0          IPC error
  *
  * \see L4Re::Mem_alloc::alloc
  *
@@ -71,16 +84,28 @@ l4re_ma_alloc(long size, l4re_ds_t const mem,
  * \brief Allocate memory
  * \ingroup api_l4re_c_mem_alloc
  *
- * \param  size   Size to be requested in bytes (granularity
- *                 is (super)pages and the size is rounded up to this
- *                 granularity).
- * \param  mem    Capability slot to put the requested dataspace in
- * \param  flags  Flags, see #l4re_ma_flags
+ * \param size    Size in bytes to be requested. Allocation
+ *                granularity is (super)pages, however, the allocator
+ *                will store the byte-granular given size as the size
+ *                of the dataspace and consecutively will use this
+ *                byte-granular size for servicing the dataspace.
+ *                Allocators may optionally also implement a maximum allocation
+ *                strategy: if `size` is a negative value and `flags`
+ *                set the Mem_alloc_flags::Continuous bit, the
+ *                allocator tries to allocate as much memory as possible
+ *                leaving an amount of at least `-size` bytes within the
+ *                associated quota.
+ * \param  mem    Capability slot where the capability to the
+ *                dataspace is received.
+ * \param  flags  Special dataspace properties, see #l4re_ma_flags
  * \param  align  Log2 alignment of dataspace if supported by allocator,
  *                will be at least L4_PAGESHIFT,
- *                with Super_pages flag set at least L4_SUPERPAGESHIFT,
- *                default 0
- * \return 0 on success, <0 on error
+ *                with Super_pages flag set at least L4_SUPERPAGESHIFT
+ *
+ * \retval 0           Success
+ * \retval -L4_ERANGE  Given size not supported.
+ * \retval -L4_ENOMEM  Not enough memory available.
+ * \retval <0          IPC error
  *
  * \see L4Re::Mem_alloc::alloc and \see l4re_ma_alloc
  *
