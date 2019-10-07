@@ -179,14 +179,21 @@ public:
      /**
       * Bind the thread to a task.
       *
-      * \param thread_utcb  The UTCB address of the thread within the task
-      *                     specified by `task`.
-      * \param task         The capability selector for the task the thread
-      *                     shall be bound to.
+      * \param thread_utcb  The thread’s UTCB address within the task it shall
+      *                     be bound to. The address must be aligned
+      *                     (architecture dependent; at least word aligned) and
+      *                     it must point to at least #L4_UTCB_OFFSET bytes of
+      *                     kernel-user memory.
+      * \param task         The task the thread shall be bound to.
       *
-      * Binding a thread to a task means that the thread shall afterwards
-      * execute in the given task. To actually start execution you need
-      * to use L4::Thread::ex_regs().
+      * A thread may execute code in the context of a task if and only if the
+      * thread is bound to the task. To actually start execution,
+      * L4::Thread::ex_regs() needs to be used. Execution in the context of the
+      * task means that the code has access to all the task’s resources (and
+      * only those). The executed code itself must be one of those resources.
+      *
+      * \note The UTCBs of different threads in the same task should not overlap
+      *       in order to prevent data corruption.
       */
      void bind(l4_utcb_t *thread_utcb, Cap<Task> const &task) noexcept
      { l4_thread_control_bind_u(thread_utcb, task.cap(), _u); }

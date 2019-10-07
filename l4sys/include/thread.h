@@ -237,16 +237,21 @@ l4_thread_control_exc_handler_u(l4_cap_idx_t exc_handler,
  * Bind the thread to a task.
  * \ingroup l4_thread_control_api
  *
- * \param thread_utcb  The address of the UTCB in the target task.
- * \param task         The target task of the thread.
+ * \param thread_utcb  The thread’s UTCB address within the task it shall
+ *                     be bound to. The address must be aligned
+ *                     (architecture dependent; at least word aligned) and
+ *                     it must point to at least #L4_UTCB_OFFSET bytes of
+ *                     kernel-user memory.
+ * \param task         The task the thread shall be bound to.
  *
- * Binding a thread to a task has the effect that the thread
- * afterwards executes code within that task and has access to the
- * resources visible within that task.
+ * A thread may execute code in the context of a task if and only if the
+ * thread is bound to the task. To actually start execution,
+ * l4_thread_ex_regs() needs to be used. Execution in the context of the
+ * task means that the code has access to all the task’s resources (and
+ * only those). The executed code itself must be one of those resources.
  *
- * \note There should not be more than one thread use a UTCB to prevent
- *       data corruption.
- *
+ * \note The UTCBs of different threads in the same task should not overlap
+ *       in order to prevent data corruption.
  */
 L4_INLINE void
 l4_thread_control_bind(l4_utcb_t *thread_utcb,
