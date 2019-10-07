@@ -31,21 +31,54 @@ License along with the GNU C Library; if not, see
 #ifndef __ASSEMBLER__
 #include <errno.h>
 
-#define INTERNAL_SYSCALL_NCS(name, err, nr, args...)	\
+/* For Linux we can use the system call table in the header file
+ * 	/usr/include/asm/unistd.h
+ * 	   of the kernel.  But these symbols do not follow the SYS_* syntax
+ * 	      so we have to redefine the `SYS_ify' macro here.  */
+#undef SYS_ify
+#define SYS_ify(syscall_name)	(__NR_##syscall_name)
+
+/* Define a macro which expands into the inline wrapper code for a system
+   call.  */
+# undef INLINE_SYSCALL
+# define INLINE_SYSCALL(name, nr, args...)				\
+  ({ unsigned long _sys_result = INTERNAL_SYSCALL (name, , nr, args);	\
+     if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (_sys_result, ), 0))\
+       {								\
+	 __set_errno (INTERNAL_SYSCALL_ERRNO (_sys_result, ));		\
+	 _sys_result = (unsigned long) -1;				\
+       }								\
+     (long) _sys_result; })
+
+# undef INTERNAL_SYSCALL_DECL
+# define INTERNAL_SYSCALL_DECL(err) do { } while (0)
+
+#define INTERNAL_SYSCALL_RAW(name, err, nr, args...)	\
   ({ long _sys_result;					\
      {							\
-	register long _x8 __asm__ ("x8");		\
 	LOAD_ARGS_##nr (args)				\
-	_x8 = (name);					\
-							\
+	register long _x8 __asm__ ("x8") = (name);	\
         __asm__ volatile (				\
 		"svc       0       // syscall " # name  \
-		: "=r" (_x0) : "r"(_x8) ASM_ARGS_##nr  	\
-		: "memory"); 				\
-							\
+		: "=r" (_x0) : "r"(_x8) ASM_ARGS_##nr : "memory"); \
 	_sys_result = _x0;				\
      } 							\
      _sys_result; })
+
+# undef INTERNAL_SYSCALL
+# define INTERNAL_SYSCALL(name, err, nr, args...)		\
+	INTERNAL_SYSCALL_RAW(SYS_ify(name), err, nr, args)
+
+# undef INTERNAL_SYSCALL_AARCH64
+# define INTERNAL_SYSCALL_AARCH64(name, err, nr, args...)	\
+	INTERNAL_SYSCALL_RAW(__ARM_NR_##name, err, nr, args)
+
+# undef INTERNAL_SYSCALL_ERROR_P
+# define INTERNAL_SYSCALL_ERROR_P(val, err) \
+   ((unsigned long) (val) >= (unsigned long) -4095)
+ 
+# undef INTERNAL_SYSCALL_ERRNO
+# define INTERNAL_SYSCALL_ERRNO(val, err)       (-(val))
 
 /* Macros for setting up inline __asm__ input regs */
 # define ASM_ARGS_0
@@ -101,6 +134,10 @@ License along with the GNU C Library; if not, see
   LOAD_ARGS_6 (x0, x1, x2, x3, x4, x5)		\
   _x6tmp = (long) (x6);				\
   _x6 = _x6tmp;
+
+# undef INTERNAL_SYSCALL_NCS
+# define INTERNAL_SYSCALL_NCS(number, err, nr, args...)	\
+		INTERNAL_SYSCALL_RAW (number, err, nr, args)
 
 #endif /* ! __ASSEMBLER__  */
 #endif /* _BITS_SYSCALLS_H */
