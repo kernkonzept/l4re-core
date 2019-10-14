@@ -22,7 +22,7 @@
 #include "dispatcher.h"
 #include "debug.h"
 
-#include <cstdio>
+#include <stdio.h>
 
 using L4Re::Rm;
 using L4Re::Dataspace;

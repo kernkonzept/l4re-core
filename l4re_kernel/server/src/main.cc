@@ -24,9 +24,9 @@
 #include <l4/sys/thread>
 #include <l4/sys/cxx/ipc_server_loop>
 
-#include <cstdlib>
-#include <cstring>
-#include <cassert>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
 #include "region.h"
 #include "globals.h"

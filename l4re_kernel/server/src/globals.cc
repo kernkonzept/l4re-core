@@ -9,7 +9,7 @@
  */
 #include "region.h"
 #include "globals.h"
-#include <cstdlib>
+#include <stdlib.h>
 
 // internal uclibc symbol for ENV
 extern char const **__environ;

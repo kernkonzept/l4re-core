@@ -31,9 +31,9 @@
 #include <l4/re/error_helper>
 #include <l4/sys/debugger.h>
 
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 //#define L4RE_USE_LOCAL_PAGER_GATE 1
 

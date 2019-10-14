@@ -16,7 +16,7 @@
 #include <l4/re/util/region_mapping_svr_2>
 #include <l4/re/debug>
 #include "debug.h"
-#include <cstdlib>
+#include <stdlib.h>
 
 inline void *operator new (size_t s, cxx::Nothrow const &) throw() { return malloc(s); }
 
