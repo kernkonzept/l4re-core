@@ -78,7 +78,7 @@ void Moe::Dataspace_cont::unmap(bool ro) const throw()
 
   while (_size)
     {
-      Address addr = address(offs, L4Re::Dataspace::F::RW, ~0);
+      Address addr = address(offs, L4Re::Dataspace::F::RWX, ~0);
       l4_fpage_t fp
         = l4_fpage_set_rights(addr.fp(), ro ? L4_FPAGE_W : L4_FPAGE_RWX);
       l4_task_unmap(L4_BASE_TASK_CAP, fp, L4_FP_OTHER_SPACES);
