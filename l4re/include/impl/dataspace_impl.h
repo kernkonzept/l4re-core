@@ -37,7 +37,6 @@ Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
                  Dataspace::Flags flags,
                  Dataspace::Map_addr local_addr) const throw()
 {
-  l4_utcb_t *utcb = l4_utcb();
   Map_addr spot = local_addr & ~(~0ULL << l4_umword_t(*size));
   Map_addr base = local_addr & (~0ULL << l4_umword_t(*size));
   L4::Ipc::Rcv_fpage r;
