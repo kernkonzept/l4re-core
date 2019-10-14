@@ -205,7 +205,7 @@ Moe::Boot_fs::init_stage2()
 
       cxx::String opts;
       cxx::String name = cmdline_to_name((char const *)(unsigned long)modules[mod].cmdline, &opts);
-      Dataspace::Flags flags = Dataspace::Cow_enabled | L4Re::Dataspace::F::RX;
+      Dataspace::Flags flags = Dataspace::Flags(Dataspace::Cow_enabled) | L4Re::Dataspace::F::RX;
       if (options_contains(opts, cxx::String(":rw")))
         flags = L4Re::Dataspace::F::RWX;
 

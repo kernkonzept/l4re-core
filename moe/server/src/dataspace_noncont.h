@@ -52,7 +52,7 @@ public:
                     Flags flags = L4Re::Dataspace::F::RWX,
                     Single_page_alloc_base::Config cfg =
                       Single_page_alloc_base::Config()) throw()
-  : Dataspace(size, flags | Cow_enabled, L4_LOG2_PAGESIZE, cfg), _pages(0)
+  : Dataspace(size, flags | Flags(Cow_enabled), L4_LOG2_PAGESIZE, cfg), _pages(0)
   {}
 
   virtual ~Dataspace_noncont() {}

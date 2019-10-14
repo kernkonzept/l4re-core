@@ -29,7 +29,7 @@ class Dataspace :
 {
 public:
   using Flags = L4Re::Dataspace::Flags;
-  static constexpr Flags Cow_enabled { 0x100 };
+  enum { Cow_enabled = 0x100 };
 
   struct Address
   {
@@ -78,7 +78,7 @@ public:
 
   virtual int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
 
-  bool can_cow() const noexcept { return (bool)(_flags & Cow_enabled); }
+  bool can_cow() const noexcept { return (bool)(_flags & Flags(Cow_enabled)); }
   Flags flags() const noexcept { return _flags; }
 
   Flags map_flags(L4Re::Dataspace::Rights rights = L4_CAP_FPAGE_W) const noexcept

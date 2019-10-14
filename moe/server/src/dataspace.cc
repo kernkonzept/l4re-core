@@ -24,8 +24,6 @@
 #include <cstring>
 using cxx::min;
 
-constexpr Moe::Dataspace::Flags Moe::Dataspace::Cow_enabled;
-
 int
 Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, Flags flags,
                     l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory)
