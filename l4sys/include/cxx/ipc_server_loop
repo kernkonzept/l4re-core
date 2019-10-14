@@ -129,7 +129,7 @@ public:
 };
 
 /**
- * Direct disptach helper, for forwarding dispatch calls
+ * Direct dispatch helper, for forwarding dispatch calls to
  * a registry \a R.
  * \tparam R  Data type of the registry that is used for dispatching to
  *            different server objects, usually based on the protected IPC
@@ -150,7 +150,7 @@ struct Direct_dispatch
 };
 
 /**
- * Direct disptach helper, for forwarding dispatch calls via a pointer to
+ * Direct dispatch helper, for forwarding dispatch calls via a pointer to
  * a registry \a R.
  * \tparam R  Data type of the registry that is used for dispatching to
  *            different server objects, usually based on the protected IPC
@@ -183,7 +183,7 @@ struct Direct_dispatch<R*>
 template< typename R, typename Exc> // = L4::Runtime_error>
 struct Exc_dispatch : private Direct_dispatch<R>
 {
-  /// Make en exception handling dispatcher
+  /// Make an exception handling dispatcher
   Exc_dispatch(R r) : Direct_dispatch<R>(r) {}
 
   /**
