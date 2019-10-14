@@ -199,6 +199,14 @@ struct Exc_dispatch : private Direct_dispatch<R>
       {
         return l4_msgtag(e.err_no(), 0, 0, 0);
       }
+    catch (int err)
+      {
+        return l4_msgtag(err, 0, 0, 0);
+      }
+    catch (long err)
+      {
+        return l4_msgtag(err, 0, 0, 0);
+      }
   }
 };
 #endif
