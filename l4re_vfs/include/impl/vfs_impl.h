@@ -579,7 +579,11 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
       if (flags & MAP_PRIVATE)
 	{
 	  DEBUG_LOG(debug_mmap, outstring("COW\n"););
-	  ds->copy_in(anon_offset, fds, l4_trunc_page(offset), l4_round_page(size));
+          int err = ds->copy_in(anon_offset, fds, l4_trunc_page(offset),
+                                l4_round_page(size));
+          if (err < 0)
+            return err;
+
 	  offset = anon_offset;
 	}
       else
@@ -595,11 +599,11 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
   if (!(flags & MAP_FIXED) && start == 0)
     start = (void*)L4_PAGESIZE;
 
-  int err;
   char *data = (char *)start;
   L4::Cap<Rm> r = Env::env()->rm();
   l4_addr_t overmap_area = L4_INVALID_ADDR;
 
+  int err;
   if (flags & MAP_FIXED)
     {
       overmap_area = l4_addr_t(start);
