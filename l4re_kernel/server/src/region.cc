@@ -164,7 +164,7 @@ Region_map::debug_dump(unsigned long /*function*/) const
 	   i->second.flags());
   printf(" Region map:\n");
   for (Region_map::Const_iterator i = begin(); i != end(); ++i)
-    printf("  [%10lx-%10lx] -> (offs=%lx, ds=%lx, flags=%x)\n",
+    printf("  [%10lx-%10lx] -> (offs=%llx, ds=%lx, flags=%x)\n",
            i->first.start(), i->first.end(),
 	   i->second.offset(), i->second.memory().cap(),
 	   i->second.flags());
