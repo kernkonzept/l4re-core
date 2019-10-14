@@ -485,7 +485,7 @@ config LDSO_LD_LIBRARY_PATH
 
 config UCLIBC_CTOR_DTOR
 	bool
-	default y
+	default y if !TARGET_riscv64
 	help
 	  If you wish to build uClibc with support for global constructor
 	  (ctor) and global destructor (dtor) support, then answer Y here.

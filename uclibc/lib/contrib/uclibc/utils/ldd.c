@@ -122,6 +122,11 @@
 #define ELFCLASSM	ELFCLASS32
 #endif
 
+#if defined(__riscv)
+#define MATCH_MACHINE(x) (x == EM_RISCV)
+#define ELFCLASSM	ELFCLASS64
+#endif
+
 #if defined(__sh__)
 #define MATCH_MACHINE(x) (x == EM_SH)
 #define ELFCLASSM	ELFCLASS32
