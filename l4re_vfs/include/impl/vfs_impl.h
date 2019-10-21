@@ -605,7 +605,26 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 	{
 	  DEBUG_LOG(debug_mmap, outstring("COW\n"););
           int err = ds->copy_in(anon_offset, fds, offset, len);
-          if (err < 0)
+          if (err == -L4_EINVAL)
+            {
+              L4::Cap<Rm> r = Env::env()->rm();
+              Rm::Unique_region<char*> src;
+              Rm::Unique_region<char*> dst;
+              err = r->attach(&src, len,
+                              L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
+                              fds, offset);
+              if (err < 0)
+                return err;
+
+              err = r->attach(&dst, len,
+                              L4Re::Rm::F::Search_addr| L4Re::Rm::F::RW,
+                              ds.get(), anon_offset);
+              if (err < 0)
+                return err;
+
+              memcpy(dst.get(), src.get(), len);
+            }
+          else if (err)
             return err;
 
 	  offset = anon_offset;
