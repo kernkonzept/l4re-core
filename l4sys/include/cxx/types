@@ -184,15 +184,15 @@ namespace Types {
   { typedef unsigned long long type; };
 
   /**
-   * Metafunction to get an integral type of the same size as T.
+   * Metafunction to get an integral type of the same size as `T`.
    *
-   * \tparam T  The type for which an unsigne dintegral type with
+   * \tparam T  The type for which an unsigned integral type with
    *            the same size is needed.
    */
   template<typename T> struct Int_for_type
   {
     /**
-     * The resulting unsigned integer type with the size like \a T.
+     * The resulting unsigned integer type with the size like `T`.
      */
     typedef typename Int_for_size<sizeof(T)>::type type;
   };
@@ -223,9 +223,9 @@ namespace Types {
     }
 
   /**
-   * Mixin class to define a set of friend bitwise operators on DT.
+   * Mixin class to define a set of friend bitwise operators on `DT`.
    *
-   * \tparam DT  The type usuailly inheriting from Flags_ops_t
+   * \tparam DT  The type usually inheriting from Flags_ops_t
    *             with a member \a raw of enum or integral type.
    */
   template<typename DT>
