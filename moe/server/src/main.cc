@@ -12,6 +12,7 @@
 #include <l4/util/util.h>
 #include <l4/sigma0/sigma0.h>
 
+#include <l4/sys/assert.h>
 #include <l4/sys/kip>
 #include <l4/sys/utcb.h>
 #include <l4/sys/debugger.h>
@@ -502,6 +503,11 @@ static void init_emergency_memory()
   // emergency_pool in GCC versions 5 and newer
   static __attribute__((aligned(L4_PAGESIZE))) char buf[3 * L4_PAGESIZE];
   Single_page_alloc_base::_free(buf, sizeof(buf), true);
+  // make sure the emergency memory is RWX for future reuse
+  int err = l4sigma0_map_mem(Sigma0_cap, (l4_addr_t) buf, (l4_addr_t) buf,
+                             sizeof(buf));
+  l4_assert(!err);
+  (void)err;
 }
 
 static __attribute__((used, section(".preinit_array")))
