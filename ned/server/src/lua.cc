@@ -139,6 +139,12 @@ run_interactive(lua_State *lua, bool noexit)
         {
           if (lua_pcall(lua, 0, 1, 0))
             {
+              // errors during Factory::create() are returned as a table with
+              // { "msg" = message, "code" = return value }
+              // extract error message from table and push it on the stack
+              if (lua_istable(lua, -1))
+                lua_getfield(lua, -1, "msg");
+
               fprintf(stderr, "lua couldn't execute '%s': %s.\n",
                       cmd, lua_tostring(lua, -1));
               lua_pop(lua, 1);
@@ -171,6 +177,12 @@ public:
 
     if (lua_pcall(_lua, 0, 1, 0))
       {
+        // errors during Factory::create() are returned as a table with
+        // { "msg" = message, "code" = return value }
+        // extract error message from table and push it on the stack
+        if (lua_istable(_lua, -1))
+          lua_getfield(_lua, -1, "msg");
+
         fprintf(stderr, "lua couldn't execute '%.*s': %s.\n", (int)cmd.length,
                 cmd.data, lua_tostring(_lua, -1));
         lua_pop(_lua, 1);
