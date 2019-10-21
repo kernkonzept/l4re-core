@@ -140,7 +140,7 @@ Cap_alloc::~Cap_alloc()
 extern Cap_alloc *virt_cap_alloc;
 
 /**
- * \brief Helper for Auto_cap and Auto_del_cap
+ * \brief Helper for Unique_cap and Unique_del_cap
  * \ingroup api_l4re_util
  */
 template< unsigned long Unmap_flags = L4_FP_ALL_SPACES >
@@ -219,73 +219,6 @@ public:
     return src;
   }
 };
-
-/**
- * \internal the interface is not mature right now
- * \brief Automatic capability that implements automatic free and
- *        unmap of the capability selector.
- * \param T the type of the object that is referred by the capability.
- *
- * This kind of automatic capability is useful for capabilities
- * that shall have a lifetime that is strictly coupled to one C++ scope.
- *
- * Usage:
- * \code
- * {
- *   L4Re::Auto_cap<L4Re::Dataspace>::Cap
- *     ds_cap(L4Re::cap_alloc.alloc<L4Re::Datasapce>));
- *
- *   // use the dataspace cap
- *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
- *
- *   ...
- *
- *   // At the end of the scope ds_cap is unmapped and the capability selector
- *   // is freed.
- * }
- * \endcode
- */
-template< typename T >
-struct Auto_cap
-{
-  typedef L4::Smart_cap<T, Smart_cap_auto<> > Cap;
-} L4_DEPRECATED("use L4::Re::Unique_cap");
-
-/**
- * \internal the interface is not mature right now
- * \brief Automatic capability that implements automatic free and
- *        unmap+delete of the capability selector.
- * \param T the type of the object that is referred by the capability.
- *
- * This kind of automatic capability is useful for capabilities
- * pointing to objects
- * that shall have a lifetime that is strictly coupled to one C++ scope.
- * The main difference to Auto_cap is that the unmap is done with the
- * deletion flag enabled and this leads to the deletion of the object
- * if the current task holds appropriate deletion rights.
- *
- * Usage:
- * \code
- * {
- *   L4Re::Auto_del_cap<L4Re::Dataspace>::Cap
- *     ds_cap(L4Re::cap_alloc.alloc<L4Re::Datasapce>));
- *
- *   // use the dataspace cap
- *   L4Re::chksys(mem_alloc->alloc(4096, ds_cap.get()));
- *
- *   ...
- *
- *   // At the end of the scope ds_cap is unmapped and the capability selector
- *   // is freed. Because the deletion flag is set the data space shall be
- *   // also deleted (even if there are other references to this data space).
- * }
- * \endcode
- */
-template< typename T >
-struct Auto_del_cap
-{
-  typedef L4::Smart_cap<T, Smart_cap_auto<L4_FP_DELETE_OBJ> > Cap;
-} L4_DEPRECATED("use L4::Re::Unique_del_cap");
 /*@}*/
 
 }
