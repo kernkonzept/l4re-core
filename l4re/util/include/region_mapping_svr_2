@@ -230,7 +230,6 @@ public:
 
     bool need_w = addr & 2;
     bool need_x = addr & 4;
-    addr = addr & ~7UL;
 
     typename DERIVED::Node n = rm()->find(addr);
 

@@ -80,13 +80,16 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
       l4_mword_t result;
       L4::Ipc::Snd_fpage rfp;
       L4::cap_reinterpret_cast<L4::Pager>(h->memory())
-        ->page_fault((local_addr | (r_flags & L4Re::Rm::F::W ? 2 : 0)), -3UL, result,
+        ->page_fault(local_addr, -3UL, result,
                      L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE, 0),
                      rfp);
       return L4_EOK;
     }
   else
     {
+      // align to 16byte, some DS implementations are too picky about
+      // possible r/w etc. bits in the offset
+      local_addr &= ~0x0fUL;
       l4_addr_t offset = local_addr - r.start() + h->offset();
       L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
       L4Re::Dataspace::Flags flags = map_flags(r_flags);
