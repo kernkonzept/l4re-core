@@ -28,6 +28,23 @@ int lstat(const char *file_name, struct stat *buf)
 }
 libc_hidden_def(lstat)
 
+#elif defined __NR_statx && defined __UCLIBC_HAVE_STATX__
+# include <fcntl.h>
+# include <statx_cp.h>
+
+int lstat(const char *file_name, struct stat *buf)
+{
+      struct statx tmp;
+      int rc = INLINE_SYSCALL (statx, 5, AT_FDCWD, file_name,
+                               AT_NO_AUTOMOUNT | AT_SYMLINK_NOFOLLOW,
+                               STATX_BASIC_STATS, &tmp);
+      if (rc == 0)
+        __cp_stat_statx ((struct stat *)buf, &tmp);
+
+      return rc;
+}
+libc_hidden_def(lstat)
+
 /* For systems which have both, prefer the old one */
 #else
 # include "xstatconv.h"
@@ -57,7 +74,7 @@ int lstat(const char *file_name, struct stat *buf)
 }
 libc_hidden_def(lstat)
 
-# if ! defined __NR_fstatat64 && ! defined __NR_lstat64
+# if ! defined __NR_fstatat64 && ! defined __NR_lstat64 && ! defined __UCLIBC_HAS_STATX__
 strong_alias_untyped(lstat,lstat64)
 libc_hidden_def(lstat64)
 # endif

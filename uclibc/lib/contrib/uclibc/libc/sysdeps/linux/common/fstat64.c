@@ -28,9 +28,26 @@ int fstat64(int fd, struct stat64 *buf)
 		__xstat64_conv(&kbuf, buf);
 	}
 	return result;
+
 #else
 	return __syscall_fstat64(fd, buf);
 #endif
+}
+libc_hidden_def(fstat64)
+
+#elif __NR_statx && defined __UCLIBC_HAVE_STATX__
+# include <fcntl.h>
+# include <statx_cp.h>
+
+int fstat64(int fd, struct stat64 *buf)
+{
+      struct statx tmp;
+      int rc = INLINE_SYSCALL (statx, 5, fd, "", AT_EMPTY_PATH,
+                               STATX_BASIC_STATS, &tmp);
+      if (rc == 0)
+        __cp_stat_statx ((struct stat64 *)buf, &tmp);
+
+      return rc;
 }
 libc_hidden_def(fstat64)
 #endif

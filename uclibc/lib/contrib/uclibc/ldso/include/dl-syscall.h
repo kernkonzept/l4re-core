@@ -37,9 +37,37 @@ extern int _dl_errno;
 /* 1. common-generic ABI doesn't need kernel_stat translation
  * 3. S_IS?ID already provided by stat.h
  */
+#include <fcntl.h>
 #include <sys/stat.h>
+#include <dl-string.h>
+
+static __always_inline void
+__cp_stat_statx (struct stat *to, struct statx *from)
+{
+  _dl_memset (to, 0, sizeof (struct stat));
+  to->st_dev = ((from->stx_dev_minor & 0xff) | (from->stx_dev_major << 8)
+		| ((from->stx_dev_minor & ~0xff) << 12));
+  to->st_rdev = ((from->stx_rdev_minor & 0xff) | (from->stx_rdev_major << 8)
+		 | ((from->stx_rdev_minor & ~0xff) << 12));
+  to->st_ino = from->stx_ino;
+  to->st_mode = from->stx_mode;
+  to->st_nlink = from->stx_nlink;
+  to->st_uid = from->stx_uid;
+  to->st_gid = from->stx_gid;
+  to->st_atime = from->stx_atime.tv_sec;
+  to->st_atim.tv_nsec = from->stx_atime.tv_nsec;
+  to->st_mtime = from->stx_mtime.tv_sec;
+  to->st_mtim.tv_nsec = from->stx_mtime.tv_nsec;
+  to->st_ctime = from->stx_ctime.tv_sec;
+  to->st_ctim.tv_nsec = from->stx_ctime.tv_nsec;
+  to->st_size = from->stx_size;
+  to->st_blocks = from->stx_blocks;
+  to->st_blksize = from->stx_blksize;
+}
 #endif
 
+#define AT_NO_AUTOMOUNT       0x800
+#define AT_EMPTY_PATH         0x1000 
 
 /* Here are the definitions for some syscalls that are used
    by the dynamic linker.  The idea is that we want to be able
@@ -110,14 +138,48 @@ static __always_inline int _dl_stat(const char *file_name,
 # define __NR__dl_stat __NR_stat
 static __always_inline _syscall2(int, _dl_stat, const char *, file_name,
                         struct stat *, buf)
+
+#elif defined __NR_statx && defined __UCLIBC_HAVE_STATX__
+# define __NR__dl_statx __NR_statx
+# include <fcntl.h>
+# include <statx_cp.h>
+
+static __always_inline _syscall5(int, _dl_statx, int, fd, const char *, file_name, int, flags,
+			         unsigned int, mask, struct statx *, buf);
+
+static __always_inline int _dl_stat(const char *file_name,
+                        struct stat *buf)
+{
+	struct statx tmp;
+	int rc = _dl_statx(AT_FDCWD, file_name, AT_NO_AUTOMOUNT, STATX_BASIC_STATS, &tmp);
+	if (rc == 0)
+		__cp_stat_statx ((struct stat *)buf, &tmp);
+	return rc;
+}
 #endif
 
 #if defined __NR_fstat64 && !defined __NR_fstat
 # define __NR__dl_fstat __NR_fstat64
+static __always_inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf)
 #elif defined __NR_fstat
 # define __NR__dl_fstat __NR_fstat
-#endif
 static __always_inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf)
+#elif defined __NR_statx && defined __UCLIBC_HAVE_STATX__
+# define __NR__dl_fstatx __NR_statx
+static __always_inline _syscall5(int, _dl_fstatx, int, fd, const char *, file_name, int, flags, unsigned int, mask, struct stat *, buf);
+
+static __always_inline int _dl_fstat(int fd,
+                        struct stat *buf)
+{
+	struct statx tmp;
+	int rc = _dl_fstatx(fd, "", AT_EMPTY_PATH, STATX_BASIC_STATS, &tmp);
+	if (rc == 0)
+		__cp_stat_statx ((struct stat *)buf, &tmp);
+	return rc;
+}
+#else
+static __always_inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf)
+#endif
 
 #define __NR__dl_munmap __NR_munmap
 static __always_inline _syscall2(int, _dl_munmap, void *, start, unsigned long, length)

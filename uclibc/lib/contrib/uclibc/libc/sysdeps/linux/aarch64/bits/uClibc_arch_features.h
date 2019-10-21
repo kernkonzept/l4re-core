@@ -18,6 +18,9 @@
 #undef __UCLIBC_SYSCALL_ALIGN_64BIT__
 #endif
 
+/* does your target use statx */
+#undef __UCLIBC_HAVE_STATX__
+
 /* does your target have a broken create_module() ? */
 #define __UCLIBC_BROKEN_CREATE_MODULE__
 

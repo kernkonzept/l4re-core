@@ -27,7 +27,20 @@ int stat(const char *file_name, struct stat *buf)
 {
 	return fstatat64(AT_FDCWD, file_name, buf, 0);
 }
+#elif __NR_statx && defined __UCLIBC_HAVE_STATX__
+# include <fcntl.h>
+# include <statx_cp.h>
 
+int stat(const char *file_name, struct stat *buf)
+{
+	struct statx tmp;
+	int rc = INLINE_SYSCALL (statx, 5, AT_FDCWD, file_name, AT_NO_AUTOMOUNT,
+                                STATX_BASIC_STATS, &tmp);
+	if (rc == 0)
+		__cp_stat_statx ((struct stat *)buf, &tmp);
+
+	return rc;
+}
 #else
 # include "xstatconv.h"
 
@@ -58,7 +71,7 @@ int stat(const char *file_name, struct stat *buf)
 #endif /* __NR_fstat64 */
 libc_hidden_def(stat)
 
-#if ! defined __NR_stat64 && ! defined __NR_fstatat64
+#if ! defined __NR_stat64 && ! defined __NR_fstatat64 && ! defined __UCLIBC_HAVE_STATX__
 strong_alias_untyped(stat,stat64)
 libc_hidden_def(stat64)
 #endif

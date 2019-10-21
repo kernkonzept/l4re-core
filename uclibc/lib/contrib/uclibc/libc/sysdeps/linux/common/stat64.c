@@ -20,6 +20,22 @@ int stat64(const char *file_name, struct stat64 *buf)
 }
 libc_hidden_def(stat64)
 
+#elif __NR_statx && defined __UCLIBC_HAVE_STATX__
+# include <fcntl.h>
+# include <statx_cp.h>
+
+int stat64(const char *file_name, struct stat64 *buf)
+{
+	struct statx tmp;
+	int rc = INLINE_SYSCALL (statx, 5, AT_FDCWD, file_name, AT_NO_AUTOMOUNT,
+                                STATX_BASIC_STATS, &tmp);
+	if (rc == 0)
+		__cp_stat_statx ((struct stat64 *)buf, &tmp);
+
+	return rc;
+}
+libc_hidden_def(stat64)
+
 /* For systems which have both, prefer the old one */
 # elif defined __NR_stat64
 # define __NR___syscall_stat64 __NR_stat64

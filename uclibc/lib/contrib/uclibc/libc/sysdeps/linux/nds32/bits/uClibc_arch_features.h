@@ -13,6 +13,9 @@
 /* instruction used when calling abort() to kill yourself */
 #define __UCLIBC_ABORT_INSTRUCTION__ "bal abort"
 
+/* does your target use statx */
+#undef __UCLIBC_HAVE_STATX__
+
 /* does your target align 64bit values in register pairs ? (32bit arches only) */
 #define __UCLIBC_SYSCALL_ALIGN_64BIT__
 

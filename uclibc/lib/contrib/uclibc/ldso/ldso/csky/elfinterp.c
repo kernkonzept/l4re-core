@@ -79,17 +79,11 @@ _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem*scope,
                     strtab + symtab[symtab_index].st_name);
         if (unlikely(res < 0)) {
             int reloc_type = ELF32_R_TYPE(rpnt->r_info);
-
-#if defined (__SUPPORT_LD_DEBUG__)
-            _dl_dprintf(2, "2can't handle reloc type '%s' in lib '%s'\n",
-                    _dl_reltypes(reloc_type), tpnt->libname);
-#else
-            _dl_dprintf(2, "3can't handle reloc type %x in lib '%s'\n",
+            _dl_dprintf(2, "2can't handle reloc type %x in lib '%s'\n",
                     reloc_type, tpnt->libname);
-#endif
             return res;
         } else if (unlikely(res > 0)) {
-            _dl_dprintf(2, "4can't resolve symbol in lib '%s'.\n", tpnt->libname);
+            _dl_dprintf(2, "3can't resolve symbol in lib '%s'.\n", tpnt->libname);
             return res;
         }
     }

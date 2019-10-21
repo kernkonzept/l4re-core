@@ -10,6 +10,9 @@
 /* can your target use syscall6() for mmap ? */
 #undef __UCLIBC_MMAP_HAS_6_ARGS__
 
+/* does your target use statx */
+#undef __UCLIBC_HAVE_STATX__
+
 #define __UCLIBC_SYSCALL_ALIGN_64BIT__
 
 /* does your target have a broken create_module() ? */
