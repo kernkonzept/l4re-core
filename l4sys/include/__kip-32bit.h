@@ -85,10 +85,7 @@ typedef struct l4_kernel_info_t
   l4_umword_t            _res04[16];          ///< reserved \internal
 
   /* offset 0xA0 */
-  union {
-  volatile l4_cpu_time_t clock L4_DEPRECATED("Using kip.clock field is deprecated, use l4_kip_clock() and l4_kip_clock_lw() functions instead."); ///< \internal
   volatile l4_cpu_time_t _clock_val;          ///< \internal
-  };
   l4_umword_t            _res05[2];           ///< reserved \internal
 
   /* offset 0xB0 */
