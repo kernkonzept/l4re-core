@@ -102,10 +102,9 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
     {
     case Ram:
       m = Mem_man::ram();
-      r = Region::bs(fp.raw & ~((1UL << 12) - 1), 1UL << l4_fpage_size(fp), t,
-                     L4_FPAGE_RO);
-      if (m->alloc_get_rights(r, &mem_flags))
-          addr = r.start();
+      mem_flags = L4_FPAGE_RWX;
+      addr = m->alloc(Region::bs(fp.raw & ~((1UL << 12) - 1),
+                                 1UL << l4_fpage_size(fp), t));
       break;
     case Io_mem:
       cached = false;
