@@ -209,12 +209,6 @@ Cap::index(lua_State *l) const
   return 1;
 }
 
-int
-Cap::newindex(lua_State *) const
-{ return 0; }
-
-
-
 static int __index(lua_State *l)
 {
   Lua::Cap *n = Lua::check_cap(l, 1);

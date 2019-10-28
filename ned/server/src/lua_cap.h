@@ -90,7 +90,6 @@ public:
   virtual ~Cap();
 
   int index(lua_State *l) const;
-  int newindex(lua_State *l) const;
   int get_method_table(lua_State *l, char const *typ) const;
 
   void *operator new (size_t, void *p) throw() { return p; }
