@@ -39,12 +39,14 @@ public:
   };
 
   explicit Lib(Prio);
-  virtual ~Lib() {}
 
   virtual void init(lua_State *) = 0;
   Prio prio() const { return _prio; }
 
   static void run_init(lua_State *);
+
+protected:
+  ~Lib() = default;
 
 private:
   Prio _prio;
