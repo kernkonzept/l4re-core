@@ -1,4 +1,4 @@
-/* Definition for thread-local data handling.  NPTL/OR1K version.
+/* Definition for thread-local data handling.  NPTL/RISCV64 version.
    Copyright (C) 2005, 2007, 2011 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -70,7 +70,7 @@ register tcbhead_t *__thread_self __asm__("tp");
  *  ------------------------------------
  *  | PRE | TCB | TLS MEMORY ..        |
  *  ------------------------------------
- *              ^ r10 / TP
+ *              ^ x4 / TP
  *
  * PRE is the struct pthread described below
  * TCB is tcbhead_t
