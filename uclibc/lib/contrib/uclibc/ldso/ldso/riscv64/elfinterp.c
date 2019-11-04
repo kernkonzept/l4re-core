@@ -33,11 +33,6 @@
 
 #include "ldso.h"
 
-#if defined(USE_TLS) && USE_TLS
-#include "dl-tls.h"
-#include "tlsdeschtab.h"
-#endif
-
 extern int _dl_linux_resolve(void);
 
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
@@ -212,6 +207,18 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			_dl_memcpy((void *) reloc_addr,
 				   (void *) symbol_addr, sym_ref.sym->st_size);
 			break;
+#if defined USE_TLS && USE_TLS
+		case R_RISCV_TLS_DTPMOD64:
+			*reloc_addr = tls_tpnt->l_tls_modid;
+			break;
+		case R_RISCV_TLS_DTPREL64:
+			*reloc_addr = symbol_addr;
+			break;
+		case R_RISCV_TLS_TPREL64:
+			CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
+			*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend;
+			break;
+#endif
 		default:
 			return -1; /*call _dl_exit(1) */
 	}

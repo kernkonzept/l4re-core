@@ -21,6 +21,8 @@
 #define _SYS_UCONTEXT_H	1
 
 #include <features.h>
+#include <signal.h>
+#include <bits/sigcontext.h>
 
 typedef unsigned long int __riscv_mc_gp_state[32];
 

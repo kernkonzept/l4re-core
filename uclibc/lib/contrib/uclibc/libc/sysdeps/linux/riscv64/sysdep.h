@@ -20,6 +20,7 @@
 #define _LINUX_RISCV_SYSDEP_H 1
 
 #include <common/sysdep.h>
+#include <sys/syscall.h>
 
 #ifdef __ASSEMBLER__
 
