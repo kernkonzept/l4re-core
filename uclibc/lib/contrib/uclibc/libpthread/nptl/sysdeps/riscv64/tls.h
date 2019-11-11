@@ -160,7 +160,7 @@ register tcbhead_t *__thread_self __asm__("tp");
 
 /* Magic for libthread_db to know how to do THREAD_SELF.  */
 # define DB_THREAD_SELF \
-  CONST_THREAD_AREA (32, sizeof (struct pthread))
+  CONST_THREAD_AREA (64, sizeof (struct pthread))
 
 /* Access to data in the thread descriptor is easy.  */
 #define THREAD_GETMEM(descr, member) \
