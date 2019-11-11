@@ -59,6 +59,14 @@ private:
     {}
   };
 
+  // In an empty or partially filled slab, each free object stores a pointer to
+  // the next free object. Thus, the size of an object needs to be at least the
+  // size of a pointer.
+  static_assert(Obj_size >= sizeof(void *),
+                "Object size must be at least the size of a pointer.");
+  static_assert(Obj_size <= Slab_size - sizeof(Slab_head),
+                "Object_size exceeds slab capability.");
+
 public:
   enum
   {
