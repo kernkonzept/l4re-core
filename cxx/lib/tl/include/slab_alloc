@@ -28,12 +28,14 @@ namespace cxx {
 
 /**
  * \ingroup cxx_api
- * \brief Basic slab allocator.
- * \param Obj_size  The size of the objects managed by the allocator (in bytes).
- * \param Slab_size The size of a slab cache (in bytes).
- * \param Max_free  The maximum number of free slab caches. When this limit is
- *                  reached slab caches are freed.
- * \param Alloc     The allocator that is used to allocate the slab caches.
+ * Basic slab allocator.
+ *
+ * \tparam Obj_size  The size of the objects managed by the allocator (in bytes).
+ * \tparam Slab_size The size of a slab (in bytes).
+ * \tparam Max_free  The maximum number of free slabs. When this limit is reached
+ *                   slabs are freed, provided that the backend allocator
+ *                   supports allocated memory to be freed.
+ * \tparam Alloc     The backend allocator used to allocate slabs.
  */
 template< int Obj_size, int Slab_size = L4_PAGESIZE,
   int Max_free = 2, template<typename A> class Alloc = New_allocator >
@@ -51,8 +53,11 @@ protected:
 private:
   struct Slab_head : public H_list_item
   {
+    /// Number of free objects in the slab.
     unsigned num_free;
+    /// Pointer to the first free object in the slab.
     Free_o *free;
+    /// Pointer to the slab cache (instance of the slab allocator).
     Base_slab<Obj_size, Slab_size, Max_free, Alloc> *cache;
 
     inline Slab_head() throw() : num_free(0), free(0), cache(0) 
@@ -70,11 +75,13 @@ private:
 public:
   enum
   {
-    object_size      = Obj_size,   ///< size of an object.
-    slab_size        = Slab_size,  ///< size of a slab cache.
-    /// objects per slab cache.
+    /// Size of an object.
+    object_size      = Obj_size,
+    /// Size of a slab.
+    slab_size        = Slab_size,
+    /// Objects per slab.
     objects_per_slab = (Slab_size - sizeof(Slab_head)) / object_size,
-    /// maximum number of free slab caches.
+    /// Maximum number of free slabs.
     max_free_slabs   = Max_free,
   };
 
@@ -86,24 +93,31 @@ protected:
     { return reinterpret_cast<Free_o*>(_o + object_size * obj); }
   };
 
+  /// Type of a slab
   struct Slab_i : public Slab_store, public Slab_head
   {};
 
 public:
-  /// Type of the allocator for the slab caches.
+  /// Type of the backend allocator.
   typedef Alloc<Slab_i> Slab_alloc;
 
   typedef void Obj_type;
 
 private:
+  /// Allocator used for slabs.
   Slab_alloc _alloc;
+  /// Number of empty slabs.
   unsigned _num_free;
+  /// Total number of slabs.
   unsigned _num_slabs;
+  /// List of full slabs.
   H_list<Slab_i> _full_slabs;
+  /// List of partial slabs.
   H_list<Slab_i> _partial_slabs;
+  /// List of empty slabs.
   H_list<Slab_i> _empty_slabs;
 
-  /// Add a new slab cache.
+  /// Add a new slab.
   void add_slab(Slab_i *s) throw()
   {
     s->num_free = objects_per_slab;
@@ -127,7 +141,7 @@ private:
     ++_num_free;
   }
 
-  /// Grow the allocator, by adding a new slab cache.
+  /// Grow the slab cache, by adding a new slab.
   bool grow() throw()
   {
     Slab_i *s = _alloc.alloc();
@@ -140,7 +154,15 @@ private:
     return true;
   }
 
-  /// Shrink the allocator by freeing free slab caches.
+  /**
+   * Shrink the slab cache by freeing empty slabs.
+   *
+   * The flow of memory from the slab cache back to the system is regulated via
+   * the backend allocator's flag `can_free`. If this flag is set to true, the
+   * slab cache retains at maximum Max_free empty slabs; empty slabs exceeding
+   * this limit are freed. If `can_free` is set to false, the shrink operation
+   * does nothing.
+   */
   void shrink() throw()
   {
     if (!_alloc.can_free)
@@ -184,6 +206,15 @@ public:
       }
   }
 
+  /**
+   * Allocate a new object.
+   *
+   * \return A pointer to the new object if the allocation succeeds, or 0 on
+   *         failure to acquire memory from the backend allocator when the slab
+   *         cache memory is already exhausted.
+   *
+   * \note The user is responsible for initializing the object.
+   */
   void *alloc() throw()
   {
     H_list<Slab_i> *free = &_partial_slabs;
@@ -218,12 +249,19 @@ public:
     return o;
   }
 
+  /**
+   * Free the given object (`_o`).
+   *
+   * \pre The object must have been allocated with this allocator.
+   */
   void free(void *_o) throw()
   {
     if (!_o)
       return;
 
     unsigned long addr = (unsigned long)_o;
+
+    // find out the slab the object is in
     addr = (addr / slab_size) * slab_size;
     Slab_i *s = (Slab_i*)addr;
 
@@ -264,7 +302,8 @@ public:
   }
 
   /**
-   * \brief Get the total number of objects managed by the slab allocator.
+   * Get the total number of objects managed by the slab allocator.
+   *
    * \return The number of objects managed by the allocator (including the
    *         free objects).
    */
@@ -272,7 +311,8 @@ public:
   { return _num_slabs * objects_per_slab; }
 
   /**
-   * \brief Get the total number of objects managed by the slab allocator.
+   * Get the total number of objects managed by the slab allocator.
+   *
    * \return The number of objects managed by the allocator (including the
    *         free objects).
    */
@@ -294,11 +334,12 @@ public:
 
 /**
  * \ingroup cxx_api
- * \brief Slab allocator for object of type \a Type.
- * \param Type the type of the objects to manage.
- * \param Slab_size size of a slab cache.
- * \param Max_free the maximum number of free slab caches.
- * \param Alloc the allocator for the slab caches.
+ * Slab allocator for object of type `Type`.
+ *
+ * \tparam Type       The type of the objects to manage.
+ * \tparam Slab_size  Size of a slab.
+ * \tparam Max_free   The maximum number of free slabs.
+ * \tparam Alloc      The allocator for the slabs.
  */
 template<typename Type, int Slab_size = L4_PAGESIZE,
   int Max_free = 2, template<typename A> class Alloc = New_allocator > 
@@ -316,8 +357,11 @@ public:
 
 
   /**
-   * \brief Allocate an object of type \a Type.
+   * Allocate an object of type `Type`.
+   *
    * \return A pointer to the object just allocated, or 0 on failure.
+   *
+   * \note The user is responsible for initializing the object.
    */
   Type *alloc() throw()
   {
@@ -325,7 +369,8 @@ public:
   }
 
   /**
-   * \brief Free the object addressed by \a o.
+   * Free the object addressed by `o`.
+   *
    * \param o The pointer to the object to free.
    * \pre The object must have been allocated with this allocator.
    */
@@ -336,19 +381,18 @@ public:
 
 /**
  * \ingroup cxx_api
- * \brief Merged slab allocator (allocators for objects of the same size
- *        are merged together).
+ * Merged slab allocator (allocators for objects of the same size are merged
+ * together).
  *
- * \param Obj_size   The size of an object managed by the slab allocator.
- * \param Slab_size  The size of a slab cache.
- * \param Max_free   The maximum number of free slab caches.
- * \param Alloc      The allocator for the slab caches.
+ * \tparam Obj_size   The size of an object managed by the slab allocator.
+ * \tparam Slab_size  The size of a slab.
+ * \tparam Max_free   The maximum number of free slabs.
+ * \tparam Alloc      The allocator for the slabs.
  *
  * This slab allocator class is useful for merging slab allocators with the
- * same parameters (equal \a Obj_size, \a Slab_size, \a Max_free, and
- * \a Alloc parameters) together and share the overhead for the slab caches
+ * same parameters (equal `Obj_size`, `Slab_size`, `Max_free`, and
+ * `Alloc` parameters) together and share the overhead for the slab caches
  * among all equal-sized objects.
- *
  */
 template< int Obj_size, int Slab_size = L4_PAGESIZE,
   int Max_free = 2, template<typename A> class Alloc = New_allocator >
@@ -361,24 +405,34 @@ public:
   typedef void Obj_type;
   enum
   {
-    object_size      = Obj_size,  ///< size of an object.
-    slab_size        = Slab_size, ///< size of a slab cache.
-    /// number of objects per slab cache.
+    /// Size of an object.
+    object_size      = Obj_size,
+    /// Size of a slab.
+    slab_size        = Slab_size,
+    /// Number of objects per slab.
     objects_per_slab = _A::objects_per_slab,
-    max_free_slabs   = Max_free,  ///< maximum number of free slab caches.
+    /// Maximum number of free slabs.
+    max_free_slabs   = Max_free,
   };
 
-  /** \brief Allocate an object. */
-  void *alloc() throw() { return _a.alloc(); }
   /**
-   * \brief Free the given object (\a p).
+   * Allocate an object.
+   *
+   * \note The user is responsible for initializing the object.
+   */
+  void *alloc() throw() { return _a.alloc(); }
+
+  /**
+   * Free the given object (`p`).
+   *
    * \param p  The pointer to the object to free.
-   * \pre \a p must be a pointer to an object allocated by this allocator.
+   * \pre `p` must be a pointer to an object allocated by this allocator.
    */
   void free(void *p) throw() { _a.free(p); }
 
   /**
-   * \brief Get the total number of objects managed by the slab allocator.
+   * Get the total number of objects managed by the slab allocator.
+   *
    * \return The number of objects managed by the allocator (including the
    *         free objects).
    * \note The value is the merged value for all equal parameterized
@@ -387,9 +441,10 @@ public:
   unsigned total_objects() const throw() { return _a.total_objects(); }
 
   /**
-   * \brief Get the number of free objects in the slab allocator.
+   * Get the number of free objects in the slab allocator.
+   *
    * \return The number of free objects in all free and partially used
-   *         slab caches managed by this allocator.
+   *         slabs managed by this allocator.
    * \note The value is the merged value for all equal parameterized
    *       Base_slab_static instances.
    */
@@ -403,19 +458,18 @@ typename Base_slab_static<_O,_S,_M,Alloc>::_A
 
 /**
  * \ingroup cxx_api
- * \brief Merged slab allocator (allocators for objects of the same size
- *        are merged together).
+ * Merged slab allocator (allocators for objects of the same size are merged
+ * together).
  *
- * \param Type       The type of the objects to manage.
- * \param Slab_size  The size of a slab cache.
- * \param Max_free   The maximum number of free slab caches.
- * \param Alloc      The allocator for the slab caches.
+ * \tparam Type       The type of the objects to manage.
+ * \tparam Slab_size  The size of a slab.
+ * \tparam Max_free   The maximum number of free slabs.
+ * \tparam Alloc      The allocator for the slabs.
  *
  * This slab allocator class is useful for merging slab allocators with the
- * same parameters (equal \a sizeof(Type), \a Slab_size, \a Max_free, and
- * \a Alloc parameters) together and share the overhead for the slab caches
+ * same parameters (equal `sizeof(Type)`, `Slab_size`, `Max_free`, and
+ * `Alloc` parameters) together and share the overhead for the slab caches
  * among all equal-sized objects.
- *
  */
 template<typename Type, int Slab_size = L4_PAGESIZE,
   int Max_free = 2, template<typename A> class Alloc = New_allocator > 
@@ -426,8 +480,11 @@ public:
 
   typedef Type Obj_type;
   /**
-   * \brief Allocate an object of type \a Type.
-   * \return A pointer to the just allocated object, or 0 of failure.
+   * Allocate an object of type `Type`.
+   *
+   * \return A pointer to the just allocated object, or 0 on failure.
+   *
+   * \note The object is not zeroed out by the slab allocator.
    */
   Type *alloc() throw()
   {
