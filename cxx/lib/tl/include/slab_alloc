@@ -312,9 +312,8 @@ public:
    * \return A pointer to the object just allocated, or 0 on failure.
    */
   Type *alloc() throw()
-  { 
-    return (Type*)Base_slab<sizeof(Type), Slab_size,
-      Max_free, Alloc>::alloc(); 
+  {
+    return reinterpret_cast<Type *>(Base_type::alloc());
   }
 
   /**
@@ -423,9 +422,9 @@ public:
    * \return A pointer to the just allocated object, or 0 of failure.
    */
   Type *alloc() throw()
-  { 
-    return (Type*)Base_slab_static<sizeof(Type), Slab_size,
-      Max_free, Alloc>::alloc(); 
+  {
+    return reinterpret_cast<Type *>(
+      Base_slab_static<sizeof(Type), Slab_size, Max_free, Alloc>::alloc());
   }
 };
 
