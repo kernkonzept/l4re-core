@@ -86,6 +86,23 @@ l4_kernel_info_t const *map_kip()
 }
 
 static
+bool is_moe_cmdline(char const *cmdline)
+{
+  static unsigned proglen = strlen(PROG);
+  char const *ptr = strstr(cmdline, PROG);
+  while (ptr)
+    {
+      if ((ptr[proglen] == ' ' || ptr[proglen] == '\0')
+          && (ptr == cmdline || ptr[-1] == '/'))
+        return true;
+
+      ptr = strstr(ptr + 1, PROG);
+    }
+
+  return false;
+}
+
+static
 char *my_cmdline()
 {
   l4util_mb_info_t const *_mbi_ = (l4util_mb_info_t const *)(unsigned long)kip()->user_ptr;
@@ -95,7 +112,7 @@ char *my_cmdline()
   char *cmdline = 0;
 
   for (unsigned mod = 0; mod < num_modules; ++mod)
-    if (strstr((char const *)(unsigned long)modules[mod].cmdline, PROG))
+    if (is_moe_cmdline((char const *)(unsigned long)modules[mod].cmdline))
       {
         cmdline = (char *)(unsigned long)modules[mod].cmdline;
         break;
