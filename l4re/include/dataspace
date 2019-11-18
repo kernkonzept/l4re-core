@@ -63,6 +63,7 @@ class L4_EXPORT Dataspace :
 {
 public:
 
+  /** Dataspace flags definitions. */
   struct F
   {
     enum
@@ -136,7 +137,7 @@ public:
    * Request a flex-page mapping from the dataspace.
    *
    * \param offset      Offset to start within dataspace
-   * \param flags       map flags, see #Map_flags.
+   * \param flags       Dataspace flags, see #L4Re::Dataspace::F::Flags.
    * \param local_addr  Local address to map to.
    * \param min_addr    Defines start of receive window.
    *                    (Rounded down to page size.)
@@ -161,7 +162,7 @@ public:
    * Map a part of a dataspace into a local memory area.
    *
    * \param offset      Offset to start within dataspace.
-   * \param flags       Map flags, see #Map_flags.
+   * \param flags       Dataspace flags, see #L4Re::Dataspace::F::Flags.
    * \param min_addr    (Inclusive) start of the receive area.
    * \param max_addr    (Exclusive) end of receive area.
    *
@@ -258,7 +259,7 @@ public:
    * \retval >=0 Flags of the dataspace
    * \retval <0  IPC errors
    *
-   * \see L4Re::Dataspace::Map_flags
+   * \see L4Re::Dataspace::F::Flags
    */
   Flags flags() const throw();
 

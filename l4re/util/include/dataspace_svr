@@ -59,7 +59,7 @@ public:
    *
    * \param      offset      Offset to start within data space
    * \param      local_addr  Local address to map to.
-   * \param      flags       Map flags, see #L4Re::Dataspace::Map_flags.
+   * \param      flags       Dataspace flags, see #L4Re::Dataspace::F::Flags.
    * \param      min_addr    Defines start of receive window.
    * \param      max_addr    Defines end of receive window.
    * \param[out] memory      Send fpage to map

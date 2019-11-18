@@ -95,6 +95,7 @@ public:
     Caching_shift    = Dataspace::F::Caching_shift,
   };
 
+  /** Rm flags definitions. */
   struct F
   {
     /// Flags for attach operation.
@@ -220,7 +221,7 @@ public:
     Detach_overlap = 2,
 
     /**
-     * \brief Do not free the detached data space, ignore the #Detach_free
+     * \brief Do not free the detached data space, ignore the #F::Detach_free
      * \internal
      *
      * This flag is useful for _detach().
@@ -236,7 +237,8 @@ public:
    *                       Returns the start address of the area.
    * \param         size   The size of the area to reserve (in bytes).
    * \param         flags  Flags for the reserved area (see
-   *                       #L4Re::Rm::Region_flags and #L4Re::Rm::Attach_flags).
+   *                       #L4Re::Rm::F::Region_flags and
+   *                       #L4Re::Rm::F::Attach_flags).
    * \param         align  Alignment of area if searched as bits (log2 value).
    * \retval 0                  Success
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
@@ -244,14 +246,14 @@ public:
    *
    * This function reserves an area within the virtual address space implemented
    * by the region map. There are two kinds of areas available:
-   * - Reserved areas (\a flags = #Reserved), where no data spaces can be
+   * - Reserved areas (\a flags = #F::Reserved), where no data spaces can be
    *   attached
    * - Special purpose areas (\a flags = 0), where data spaces can be attached
-   *   to the area via the #In_area flag and a start address within the area
+   *   to the area via the #F::In_area flag and a start address within the area
    *   itself.
    *
    * \note When searching for a free place in the virtual address space
-   * (with \a flags = Search_addr), the space between \a start and the end of
+   * (with \a flags = F::Search_addr), the space between \a start and the end of
    * the virtual address space is searched.
    */
   long reserve_area(l4_addr_t *start, unsigned long size,
@@ -269,8 +271,8 @@ public:
    * \param[in,out] start  The virtual start address of the area to reserve.
    *                       Returns the start address of the area.
    * \param         size   The size of the area to reserve (in bytes).
-   * \param         flags  Flags for the reserved area (see #Region_flags and
-   *                       #Attach_flags).
+   * \param         flags  Flags for the reserved area (see #F::Region_flags and
+   *                       #F::Attach_flags).
    * \param         align  Alignment of area if searched as bits (log2 value).
    * \retval 0                  Success
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
@@ -314,28 +316,29 @@ public:
    *
    * \param[in,out]  start  Virtual start address where the region manager
    *                        shall attach the data space.
-   *                        If #L4Re::Rm::Search_addr is given this value is
+   *                        If #L4Re::Rm::F::Search_addr is given this value is
    *                        used as the start address to search for a free
    *                        virtual memory region and the resulting address is
    *                        returned here.
-   *                        If #L4Re::Rm::In_area is given the value is used as
-   *                        a selector for the area (see
+   *                        If #L4Re::Rm::F::In_area is given the value is used
+   *                        as a selector for the area (see
    *                        #L4Re::Rm::reserve_area) to attach the data space
    *                        to.
    * \param          size   Size of the data space to attach (in bytes)
-   * \param          flags  Flags, see #L4Re::Rm::Attach_flags and
-   *                        #L4Re::Rm::Region_flags. If the `Eager_map` flag is
-   *                        set this function may also return
+   * \param          flags  Flags, see #L4Re::Rm::F::Attach_flags and
+   *                        #L4Re::Rm::F::Region_flags. If the `F::Eager_map`
+   *                        flag is set this function may also return
    *                        L4Re::Dataspace::map error codes if the mapping
    *                        fails.
    * \param          mem    Data space
    * \param          offs   Offset into the data space to use
    * \param          align  Alignment of the virtual region, log2-size, default:
    *                        a page (#L4_PAGESHIFT). This is only meaningful if
-   *                        the #L4Re::Rm::Search_addr flag is used.
+   *                        the #L4Re::Rm::F::Search_addr flag is used.
    *
    * \retval 0                  Success
-   * \retval -L4_ENOENT         No area could be found (see #L4Re::Rm::In_area)
+   * \retval -L4_ENOENT         No area could be found (see
+   *                            #L4Re::Rm::F::In_area)
    * \retval -L4_EPERM          Operation not allowed.
    * \retval -L4_EINVAL
    * \retval -L4_EADDRNOTAVAIL  The given address is not available.
@@ -515,7 +518,7 @@ public:
    *                      size of the found region (in bytes).
    * \param[out] offset  Offset at the beginning of the region within the
    *                     associated dataspace.
-   * \param[out] flags   Region flags, see #Region_flags (and #In_area).
+   * \param[out] flags   Region flags, see #F::Region_flags (and #F::In_area).
    * \param[out] m       Associated dataspace or paging service.
    *
    * \retval 0           Success
@@ -525,7 +528,7 @@ public:
    *
    * This function returns the properties of the region that contains the area
    * described by the addr and size parameter. If no such region is found but
-   * a reserved area, the area is returned and #In_area is set in `flags`.
+   * a reserved area, the area is returned and #F::In_area is set in `flags`.
    * Note, in the case of an area the `offset` and `m` return values are
    * invalid.
    *
