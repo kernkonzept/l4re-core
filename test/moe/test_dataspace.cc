@@ -95,14 +95,6 @@ static INSTANTIATE_TEST_CASE_P(RegDs, TestRegDs,
                                testing::ValuesIn(DS_TESTSIZES));
 
 /**
- * Tests against continuous dataspaces only.
- */
-struct TestContDs : TestDataspace
-{
-  TestContDs() : TestDataspace(L4Re::Mem_alloc::Continuous, 0) {}
-};
-
-/**
  * Tests against both types of dataspaces.
  */
 struct TestAnyDs
