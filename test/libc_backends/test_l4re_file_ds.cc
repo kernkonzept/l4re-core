@@ -259,7 +259,7 @@ TEST(BeL4ReDup2, ValidDuplicateFileDescriptor)
     << "Read from original file descriptor.";
   ASSERT_EQ(0, memcmp(buf, "read", bufsize))
     << "First file part read correctly.";
-  ASSERT_EQ(bufsize, successive_read(ro_fd.get(), buf, bufsize))
+  ASSERT_EQ(bufsize, successive_read(rw_fd.get(), buf, bufsize))
     << "Read from second file descriptor.";
   ASSERT_EQ(0, memcmp(buf, "only", bufsize))
     << "Second file part read correctly.";
