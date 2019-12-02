@@ -231,10 +231,10 @@ public:
   Node *find_node(Key_param_type key) const;
 
   /**
-   * \brief find the first node with a key not less than the given \a key.
-   * \param key The key value of the element to search.
-   * \return A pointer to the node with the given \a key, or
-   *         NULL if \a key was not found.
+   * Find the first node with a key not less than the given `key`.
+   *
+   * \param key  The key used for the search.
+   * \return A pointer to the found node, or `NULL` if no node was found.
    */
   Node *lower_bound_node(Key_param_type key) const;
 
