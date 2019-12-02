@@ -54,14 +54,6 @@ public:
   T element(unsigned long offset) const
   { return reinterpret_cast<T>((unsigned long)this + offset); }
 
-  template< typename F >
-  void iterate_phdr(F const &func) const
-  {
-    unsigned n = num_phdrs();
-    for (unsigned i = 0; i < n; ++i)
-      func(phdr(i));
-  }
-
   bool is_valid() const
   {
     return    l4util_elf_check_magic((ElfW(Ehdr) *)this)
@@ -87,16 +79,20 @@ public:
       return hdr32()->e_type == ET_DYN;
   }
 
-
-  Elf_phdr phdr(unsigned idx) const
+  l4_addr_t phdrs_offset() const
   {
     if (is_64())
-      return Elf_phdr(element<Elf_phdr const*>(hdr64()->e_phoff
-	  + hdr64()->e_phentsize * idx), is_64());
+      return hdr64()->e_phoff;
     else
-      return Elf_phdr(element<Elf_phdr const*>(hdr32()->e_phoff
-	  + hdr32()->e_phentsize * idx), is_64());
+      return hdr32()->e_phoff;
+  }
 
+  l4_size_t phdr_size() const
+  {
+    if (is_64())
+      return hdr64()->e_phentsize;
+    else
+      return hdr32()->e_phentsize;
   }
 
   unsigned num_phdrs() const
@@ -116,6 +112,125 @@ public:
   }
 };
 
+template<typename APP_MODEL>
+class Elf_binary
+{
+private:
+  void detach_eh_ds()
+  {
+    if (!_eh)
+      return;
+
+    _mm->local_detach_ds((l4_addr_t)_eh, L4_PAGESIZE);
+    _eh = nullptr;
+  }
+
+public:
+  typedef APP_MODEL App_model;
+  typedef typename App_model::Const_dataspace Const_dataspace;
+
+  Elf_binary(Elf_binary const &) = delete;
+  Elf_binary(Elf_binary &&o)
+  : _mm(o._mm), _eh(o._eh), _ph(o._ph), _ph_size(o._ph_size), _64bit(o._64bit)
+  {
+    o._eh = nullptr;
+    o._ph = nullptr;
+    o._ph_size = 0;
+  }
+
+  Elf_binary(App_model *mm, Const_dataspace bin)
+  : _mm(mm)
+  {
+    _eh = reinterpret_cast<Elf_ehdr const*>(
+        mm->local_attach_ds(bin, L4_PAGESIZE, 0));
+
+    if (!_eh)
+      return;
+
+    if (!_eh->is_valid())
+      {
+        detach_eh_ds();
+        return;
+      }
+
+    l4_size_t phsize = _eh->phdr_size() * _eh->num_phdrs();
+    l4_addr_t phoffset = _eh->phdrs_offset();
+    if (phoffset + phsize > L4_PAGESIZE)
+      {
+        // need xtra mapping for the PHDRs
+        _ph = reinterpret_cast<char const *>(
+            mm->local_attach_ds(bin, phsize, phoffset));
+
+        if (!_ph)
+          {
+            detach_eh_ds();
+            return;
+          }
+
+        _ph_size = phsize;
+      }
+    else
+      _ph = reinterpret_cast<char const *>(_eh) + phoffset;
+
+    _64bit = _eh->is_64();
+  }
+
+  bool is_valid() const
+  {
+    return _eh;
+  }
+
+  bool is_64() const
+  {
+    return _64bit;
+  }
+
+  unsigned long entry() const
+  {
+    return _eh->entry();
+  }
+
+  unsigned num_phdrs() const
+  {
+    return _eh->num_phdrs();
+  }
+
+  Elf_phdr phdr(int index) const
+  {
+    return Elf_phdr(_ph + index * _eh->phdr_size(), _64bit);
+  }
+
+  template< typename F >
+  void iterate_phdr(F const &func) const
+  {
+    unsigned n = num_phdrs();
+    for (unsigned i = 0; i < n; ++i)
+      func(phdr(i));
+  }
+
+  ~Elf_binary()
+  {
+    if (!_eh)
+      return;
+
+    detach_eh_ds();
+
+    if (_ph_size)
+      {
+        _mm->local_detach_ds((l4_addr_t)_ph, _ph_size);
+        _ph_size = 0;
+      }
+
+    _ph = nullptr;
+  }
+
+private:
+  App_model *_mm;
+  Elf_ehdr const *_eh = nullptr;
+  char const *_ph = nullptr;
+  l4_size_t _ph_size = 0;
+  bool _64bit = false;
+};
 
 struct Phdr_load_min_max
 {
@@ -402,15 +517,13 @@ public:
   {
     using L4Re::chksys;
 
-    Elf_ehdr const *eh = reinterpret_cast<Elf_ehdr const*>(mm->local_attach_ds(bin, L4_PAGESIZE, 0));
+    Elf_binary<App_model> elf(mm, bin);
 
-    if (!eh->is_valid())
-      {
-	chksys(-L4_EINVAL, "not an ELF binary");
-      }
+    if (!elf.is_valid())
+      chksys(-L4_EINVAL, "not an ELF binary");
 
     Phdr_l4re_elf_aux_infos<App_model> stack_info(mm, bin, mm->prog_info()->kip);
-    eh->iterate_phdr(stack_info);
+    elf.iterate_phdr(stack_info);
     mm->stack()->set_target_stack(stack_info.stack_addr, stack_info.stack_size);
 
     mm->prog_info()->kip = stack_info.kip_addr;
@@ -418,8 +531,7 @@ public:
                stack_info.stack_size, stack_info.kip_addr);
 
     ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
-    eh->iterate_phdr(Phdr_print<Dbg_log>(ldr));
-    mm->local_detach_ds((l4_addr_t)eh, L4_PAGESIZE);
+    elf.iterate_phdr(Phdr_print<Dbg_log>(ldr));
   }
 
   void load(App_model *mm, Const_dataspace bin, l4_addr_t *base, bool interpreter,
@@ -427,9 +539,8 @@ public:
   {
     using L4Re::chksys;
 
-    Elf_ehdr const *eh = reinterpret_cast<Elf_ehdr const*>(mm->local_attach_ds(bin, L4_PAGESIZE, 0));
-
-    if (!eh->is_valid())
+    Elf_binary<App_model> elf(mm, bin);
+    if (!elf.is_valid())
       {
 	ldr.printf("file is not an ELF binary\n");
 	chksys(-L4_EINVAL, "not an ELF binary");
@@ -442,7 +553,7 @@ public:
 	Phdr_load_min_max b_func;
 	ldr.printf("  relocate PIC/PIE binary\n");
 	/* figure out size of the binary, if PIC */
-	eh->iterate_phdr(b_func);
+	elf.iterate_phdr(b_func);
 
 	ldr.printf("   all PHDRs: [0x%lx-0x%lx]\n", b_func.start, b_func.end);
 	_base = *base;
@@ -456,24 +567,24 @@ public:
 	_base = l4_addr_t(lib) - b_func.start;
 
 	ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
-	eh->iterate_phdr(Phdr_print<Dbg_log>(ldr));
+	elf.iterate_phdr(Phdr_print<Dbg_log>(ldr));
 	*base = _base;
 	r_flags |= L4Re::Rm::F::In_area;
       }
 
-    eh->iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags, ldr));
-    eh->iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
+    elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags, ldr));
+    elf.iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
 
-    mm->prog_info()->entry = eh->entry() + _base;
+    mm->prog_info()->entry = elf.entry() + _base;
 
     Phdr_dynamic<App_model> dyn_info(mm, bin, _base);
-    eh->iterate_phdr(dyn_info);
+    elf.iterate_phdr(dyn_info);
 
     if (!interpreter && dyn_info.phdrs)
       {
 	Prog_start_info *i = mm->prog_info();
 	i->dyn_phdrs = dyn_info.phdrs;
-	i->dyn_num_phdrs = eh->num_phdrs();
+	i->dyn_num_phdrs = elf.num_phdrs();
       }
 
     // Load the interpreter
@@ -488,11 +599,9 @@ public:
 
 	Prog_start_info *i = mm->prog_info();
 
-	i->dyn_exec_entry = eh->entry() + _base;
+	i->dyn_exec_entry = elf.entry() + _base;
 	i->dyn_interp_base = base;
       }
-
-    mm->local_detach_ds((l4_addr_t)eh, L4_PAGESIZE);
 
     ldr.printf(" done...\n");
   }
