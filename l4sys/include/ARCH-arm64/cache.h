@@ -50,18 +50,20 @@ l4_cache_dmin_line(void)
   return 4U << ((l4_cache_arm_ctr() >> 16) & 0xf);
 }
 
-#define L4_ARM_CACHE_LOOP(op) \
-  if (start > end)            \
-    __builtin_unreachable();  \
-                              \
-  unsigned long const sz = end - start;                     \
-  unsigned const s = l4_cache_dmin_line();                  \
+#define L4_ARM_CACHE_LOOP(op)                               \
+  unsigned long sz, x;                                      \
+  unsigned s, i;                                            \
+                                                            \
+  if (start > end)                                          \
+    __builtin_unreachable();                                \
+                                                            \
+  sz = end - start;                                         \
+  s = l4_cache_dmin_line();                                 \
   asm volatile ("dsb ish" : : "m"(*((unsigned *)start)));   \
-  unsigned i;                                               \
-  unsigned long x = start;                                  \
+  x = start;                                                \
   for (i = 0; i < sz; i += s)                               \
     {                                                       \
-      asm (op ", %1" : "+m"(*((unsigned *)x)) : "r"(x)); \
+      asm (op ", %1" : "+m"(*((unsigned *)x)) : "r"(x));    \
       x += s;                                               \
     }                                                       \
   asm volatile ("dsb ish");
