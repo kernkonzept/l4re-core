@@ -16,6 +16,7 @@
 #include <l4/cxx/ref_ptr>
 
 #include <l4/atkins/tap/main>
+#include <l4/re/error_helper>
 
 struct Int_node : public cxx::Avl_tree_node, cxx::Ref_obj
 {
@@ -190,16 +191,21 @@ TEST_F(IntAvlTree, IteratorOrder)
   // and insert them in random order
   std::random_shuffle(nodes.begin(), nodes.end());
   for (auto &n : nodes)
-    tree.insert(n.get());
+    if (!tree.insert(n.get()).second)
+      L4Re::chksys(-L4_EEXIST, "New key must not exist yet.");
 
   // iteration should return them in natural order
-  auto it = tree.begin();
-  for (int i: ids)
+  auto ids_it = ids.begin();
+  auto tree_it = tree.begin();
+  while (ids_it != ids.end() && tree_it != tree.end())
     {
-      EXPECT_EQ(i, it->value);
-      ++it;
+      EXPECT_EQ(*ids_it, tree_it->value)
+        << "Current tree entry has correct value.";
+      ++ids_it;
+      ++tree_it;
     }
-  EXPECT_EQ(it, tree.end());
+  EXPECT_EQ(ids_it, ids.end()) << "Vector iterator is exhausted.";
+  EXPECT_EQ(tree_it, tree.end()) << "Tree iterator is exhausted.";
 }
 
 /**
@@ -218,16 +224,21 @@ TEST_F(IntAvlTree, ConstIteratorOrder)
   // and insert them in random order
   std::random_shuffle(nodes.begin(), nodes.end());
   for (auto &n : nodes)
-    tree.insert(n.get());
+    if(!tree.insert(n.get()).second)
+      L4Re::chksys(-L4_EEXIST, "New key must not exist yet.");
 
   // iteration should return them in natural order
-  Int_tree::Const_iterator it = tree.begin();
-  for (int i: ids)
+  auto ids_it = ids.begin();
+  Int_tree::Const_iterator tree_it = tree.begin();
+  while (ids_it != ids.end() && tree_it != tree.end())
     {
-      EXPECT_EQ(i, it->value);
-      ++it;
+      EXPECT_EQ(*ids_it, tree_it->value)
+        << "Current tree entry has correct value.";
+      ++ids_it;
+      ++tree_it;
     }
-  EXPECT_EQ(it, tree.end());
+  EXPECT_EQ(ids_it, ids.end()) << "Vector iterator is exhausted.";
+  EXPECT_EQ(tree_it, tree.end()) << "Tree iterator is exhausted.";
 }
 
 /**
@@ -246,16 +257,21 @@ TEST_F(IntAvlTree, ReverseIteratorOrder)
   // and insert them in random order
   std::random_shuffle(nodes.begin(), nodes.end());
   for (auto &n : nodes)
-    tree.insert(n.get());
+    if (!tree.insert(n.get()).second)
+      L4Re::chksys(-L4_EEXIST, "New key must not exist yet.");
 
   // reverse iteration should return them in reverse natural order
-  auto it = tree.rbegin();
-  for (auto id = ids.rbegin(); id != ids.rend(); ++id)
+  auto ids_it = ids.rbegin();
+  auto tree_it = tree.rbegin();
+  while (ids_it != ids.rend() && tree_it != tree.rend())
     {
-      EXPECT_EQ(*id, it->value);
-      ++it;
+      EXPECT_EQ(*ids_it, tree_it->value)
+        << "Current tree entry has correct value.";
+      ++ids_it;
+      ++tree_it;
     }
-  EXPECT_EQ(it, tree.rend());
+  EXPECT_EQ(ids_it, ids.rend()) << "Vector iterator is exhausted.";
+  EXPECT_EQ(tree_it, tree.rend()) << "Tree iterator is exhausted.";
 }
 
 /**
@@ -275,16 +291,21 @@ TEST_F(IntAvlTree, ReverseConstIteratorOrder)
   // and insert them in random order
   std::random_shuffle(nodes.begin(), nodes.end());
   for (auto &n : nodes)
-    tree.insert(n.get());
+    if (!tree.insert(n.get()).second)
+      L4Re::chksys(-L4_EEXIST, "New key must not exist yet.");
 
   // reverse iteration should return them in reverse natural order
-  Int_tree::Const_rev_iterator it = tree.rbegin();
-  for (auto id = ids.rbegin(); id != ids.rend(); ++id)
+  auto ids_it = ids.rbegin();
+  Int_tree::Const_rev_iterator tree_it = tree.rbegin();
+  while (ids_it != ids.rend() && tree_it != tree.rend())
     {
-      EXPECT_EQ(*id, it->value);
-      ++it;
+      EXPECT_EQ(*ids_it, tree_it->value)
+        << "Current tree entry has correct value.";
+      ++ids_it;
+      ++tree_it;
     }
-  EXPECT_EQ(it, tree.rend());
+  EXPECT_EQ(ids_it, ids.rend()) << "Vector iterator is exhausted.";
+  EXPECT_EQ(tree_it, tree.rend()) << "Tree iterator is exhausted.";
 }
 
 /**
