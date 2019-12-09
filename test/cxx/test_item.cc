@@ -44,7 +44,12 @@ TEST(TestItem, CopyCtorDtor)
         << "Two items inserted their addresses.";
 
       auto it = Item::item_address.begin();
-      EXPECT_EQ(**it, **(++it)) << "The two items are copies of each other.";
+
+      Item const *item1_ptr = *it;
+      Item const *item2_ptr = *(++it);
+      EXPECT_EQ(*item1_ptr, *item2_ptr)
+        << "The two items are copies of each other.";
+
       EXPECT_EQ(Item::item_address.end(), ++it)
         << "The set contains exactly two items.";
     }
