@@ -93,15 +93,30 @@ public:
     l4_msgtag_t t;
     l4_cap_idx_t f;
 
+    template<typename T>
+    static T &&_move(T &c) { return static_cast<T &&>(c); }
+
   public:
+    S(S const &) = delete;
+    S &operator = (S const &) & = delete;
+
     /**
-     * Create a copy.
+     * Move ...
      *
-     * \param o  Instance of S to copy.
+     * \param o  Instance of S to move.
      */
-    S(S const &o) noexcept
+    S(S &&o) noexcept
     : u(o.u), t(o.t), f(o.f)
-    { const_cast<S&>(o).t.raw = 0; }
+    { o.t.raw = 0; }
+
+    S &operator = (S &&o) & noexcept
+    {
+      u = o.u;
+      t = o.t;
+      f = o.f;
+      o.t.raw = 0;
+      return *this;
+    }
 
     /**
      * Create a stream for a specific create() call.
@@ -148,10 +163,9 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator  << (l4_mword_t i) noexcept
+    void put(l4_mword_t i) noexcept
     {
       l4_factory_create_add_int_u(i, &t, u);
-      return *this;
     }
 
     /**
@@ -161,10 +175,9 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator  << (l4_umword_t i) noexcept
+    void put(l4_umword_t i) noexcept
     {
       l4_factory_create_add_uint_u(i, &t, u);
-      return *this;
     }
 
     /**
@@ -176,10 +189,9 @@ public:
      *
      * The string will be added with the zero-terminator.
      */
-    S &operator << (char const *s) noexcept
+    void put(char const *s) & noexcept
     {
       l4_factory_create_add_str_u(s, &t, u);
-      return *this;
     }
 
     /**
@@ -193,10 +205,9 @@ public:
      * responsibility of the caller to make sure that the string is zero-
      * terminated when that is required by the server.
      */
-    S &operator << (Lstr const &s) noexcept
+    void put(Lstr const &s) & noexcept
     {
       l4_factory_create_add_lstr_u(s.s, s.len, &t, u);
-      return *this;
     }
 
     /**
@@ -204,10 +215,9 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator << (Nil) noexcept
+    void put(Nil) & noexcept
     {
       l4_factory_create_add_nil_u(&t, u);
-      return *this;
     }
 
     /**
@@ -217,10 +227,23 @@ public:
      *
      * \return  Reference to this stream.
      */
-    S &operator << (l4_fpage_t d) noexcept
+    void put(l4_fpage_t d) & noexcept
     {
       l4_factory_create_add_fpage_u(d, &t, u);
+    }
+
+    template<typename T>
+    S &operator << (T const &d) & noexcept
+    {
+      put(d);
       return *this;
+    }
+
+    template<typename T>
+    S &&operator << (T const &d) && noexcept
+    {
+      put(d);
+      return _move(*this);
     }
   };
 
