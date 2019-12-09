@@ -71,13 +71,13 @@ public:
     /**
      * The number of characters in the buffer.
      */
-    int len;
+    unsigned len;
 
     /**
      * \param s    Pointer to the c-style string.
      * \param len  Length in number of characters of the string s.
      */
-    Lstr(char const *s, int len) noexcept : s(s), len(len) {}
+    Lstr(char const *s, unsigned len) noexcept : s(s), len(len) {}
   };
 
   /**

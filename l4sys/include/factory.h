@@ -262,7 +262,7 @@ l4_factory_create_add_str_u(char const *s, l4_msgtag_t *tag,
                             l4_utcb_t *utcb) L4_NOTHROW;
 
 L4_INLINE int
-l4_factory_create_add_lstr_u(char const *s, int len, l4_msgtag_t *tag,
+l4_factory_create_add_lstr_u(char const *s, unsigned len, l4_msgtag_t *tag,
                              l4_utcb_t *utcb) L4_NOTHROW;
 
 L4_INLINE int
@@ -464,14 +464,14 @@ l4_factory_create_add_str_u(char const *s, l4_msgtag_t *tag,
 }
 
 L4_INLINE int
-l4_factory_create_add_lstr_u(char const *s, int len, l4_msgtag_t *tag,
+l4_factory_create_add_lstr_u(char const *s, unsigned len, l4_msgtag_t *tag,
                              l4_utcb_t *u) L4_NOTHROW
 {
 
   l4_msg_regs_t *v = l4_utcb_mr_u(u);
-  int w = l4_msgtag_words(*tag);
+  unsigned w = l4_msgtag_words(*tag);
   char *c;
-  int i;
+  unsigned i;
 
   if (w + 1 + (len + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t)
       > L4_UTCB_GENERIC_DATA_SIZE)
