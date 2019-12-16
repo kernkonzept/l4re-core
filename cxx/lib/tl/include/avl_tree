@@ -58,18 +58,16 @@ private:
 
 protected:
   /// Create an uninitialized node, this is what you should do.
-  Avl_tree_node() {}
+  Avl_tree_node() = default;
 
 private:
-  /// Hide copy
-  Avl_tree_node(Avl_tree_node const &o);
+  Avl_tree_node(Avl_tree_node const &o) = delete;
+  Avl_tree_node(Avl_tree_node &&o) = delete;
 
-  /// private assignment for initialization and relinkage.
-  void operator = (Avl_tree_node const &o)
-  {
-    Bits::Bst_node::operator = (o);
-    _balance = o._balance;
-  }
+  /// default copy for friend Avl_tree
+  Avl_tree_node &operator = (Avl_tree_node const &o) = default;
+  /// default move for friend Avl_tree
+  Avl_tree_node &operator = (Avl_tree_node &&o) = default;
 
   /// Create an initialized node (for internal stuff).
   explicit Avl_tree_node(bool) : Bits::Bst_node(true), _balance(Dir::N) {}
@@ -122,11 +120,10 @@ private:
   /// Alias type for Direction values.
   typedef typename Avl_tree_node::Bal Dir;
 
-  /// Prohibit simple copy.
-  Avl_tree(Avl_tree const &o);
-
-  /// Prohibit simple copy.
-  void operator = (Avl_tree const &o);
+  Avl_tree(Avl_tree const &o) = delete;
+  Avl_tree &operator = (Avl_tree const &o) = delete;
+  Avl_tree(Avl_tree &&o) = delete;
+  Avl_tree &operator = (Avl_tree &&o) = delete;
 
 public:
   //@{
@@ -168,7 +165,8 @@ public:
   Node *erase(Key_param_type key) { return remove(key); }
 
   /// Create an empty AVL tree.
-  Avl_tree() : Bst() {}
+  Avl_tree() = default;
+
   /// Destroy the tree.
   ~Avl_tree() noexcept
   {

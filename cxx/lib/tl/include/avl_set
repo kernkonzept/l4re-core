@@ -46,25 +46,39 @@ private:
   /// Super-class type
   typedef __Bst_iter_b<Node, Node_op> Base;
 
+  /// our non-const key type
+  typedef typename Type_traits<Key>::Non_const_type Non_const_key;
+
+  /// our non-const iterator type
+  typedef Avl_set_iter<Node, Non_const_key, Node_op> Non_const_iter;
+
   using Base::_n;
   using Base::_r;
   using Base::inc;
 
 public:
   /// Create an invalid iterator (end marker)
-  Avl_set_iter() {}
+  Avl_set_iter() = default;
 
   /**
-   * \brief Create an iterator for the given tree.
+   * Create an iterator for the given tree.
    * \param t the root node of the tree to iterate.
-   * \param cmp the conmparison functor for tree elements.
    */
   Avl_set_iter(Node const *t) : Base(t) {}
 
+  /**
+   * Create an iterator from a BST iterator.
+   * \prarm o  The BST iterator that shall be copied.
+   */
   Avl_set_iter(Base const &o) : Base(o) {}
 
-  Avl_set_iter(Avl_set_iter<Node, typename Type_traits<Key>::Non_const_type, Node_op> const &o)
+  /// Allow copy of non-const iterator to const iterator versions.
+  Avl_set_iter(Non_const_iter const &o)
   : Base(o) {}
+
+  /// Allow assignment of non-const iterator to const iterator versions.
+  Avl_set_iter &operator = (Non_const_iter const &o)
+  { Base::operator = (o); return *this; }
 
   /**
    * \brief Dereference the iterator and get the item out of the tree.
@@ -149,7 +163,7 @@ private:
     /// The actual item stored in the node.
     Item_type  item;
 
-    _Node() : Avl_tree_node(), item() {}
+    _Node() = default;
 
     _Node(Item_type const &item) : Avl_tree_node(), item(item) {}
   };
@@ -169,9 +183,6 @@ public:
   public:
     /// Default construction for NIL pointer.
     Node() : _n(0) {}
-
-    /// Default assignment.
-    Node &operator = (Node const &o) { _n = o._n; return *this; }
 
     /**
      *  Dereference the pointer.
