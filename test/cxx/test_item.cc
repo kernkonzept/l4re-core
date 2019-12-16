@@ -40,7 +40,7 @@ TEST(TestItem, CopyCtorDtor)
     {
       Item ite;
       Item ite2(ite);
-      EXPECT_EQ(2U, Item::item_address.size())
+      ASSERT_EQ(2U, Item::item_address.size())
         << "Two items inserted their addresses.";
 
       auto it = Item::item_address.begin();
