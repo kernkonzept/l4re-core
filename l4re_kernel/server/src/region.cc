@@ -135,28 +135,6 @@ Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
 }
 
 void
-Region_ops::take(Region_handler const * /*h*/)
-{
-#if 0
-  if (h->flags() & (Rm::Pager | Rm::Reserved))
-    return;
-
-  L4::cap_cast<L4Re::Dataspace>(h->memory())->take();
-#endif
-}
-
-void
-Region_ops::release(Region_handler const * /*h*/)
-{
-#if 0
-  if (h->flags() & (Rm::Pager | Rm::Reserved))
-    return;
-
-  L4::cap_cast<L4Re::Dataspace>(h->memory())->release();
-#endif
-}
-
-void
 Region_map::debug_dump(unsigned long /*function*/) const
 {
   printf("Region mapping: limits [%lx-%lx]\n", min_addr(), max_addr());

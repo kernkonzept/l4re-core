@@ -36,9 +36,6 @@ public:
                     l4_addr_t offs, unsigned long size);
 
   static void free(Region_handler const *h, l4_addr_t start, unsigned long size);
-
-  static void take(Region_handler const *h);
-  static void release(Region_handler const *h);
 };
 
 
