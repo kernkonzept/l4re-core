@@ -49,7 +49,8 @@ struct mallinfo mallinfo(void)
     fastavail = 0;
 
     for (i = 0; i < NFASTBINS; ++i) {
-	for (p = av->fastbins[i]; p != 0; p = p->fd) {
+	for (p = av->fastbins[i]; p != 0; p = REVEAL_PTR(&p->fd, p->fd)) {
+	    CHECK_PTR(p);
 	    ++nfastblocks;
 	    fastavail += chunksize(p);
 	}

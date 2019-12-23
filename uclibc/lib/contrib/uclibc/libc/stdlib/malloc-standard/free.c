@@ -214,8 +214,9 @@ void attribute_hidden __malloc_consolidate(mstate av)
 		*fb = 0;
 
 		do {
+            CHECK_PTR(p);
 		    check_inuse_chunk(p);
-		    nextp = p->fd;
+		    nextp = REVEAL_PTR(&p->fd, p->fd);
 
 		    /* Slightly streamlined version of consolidation code in free() */
 		    size = p->size & ~PREV_INUSE;
@@ -308,7 +309,7 @@ void free(void* mem)
 
 	set_fastchunks(av);
 	fb = &(av->fastbins[fastbin_index(size)]);
-	p->fd = *fb;
+	p->fd = PROTECT_PTR(&p->fd, *fb);
 	*fb = p;
     }
 

@@ -260,12 +260,13 @@ void __do_check_malloc_state(void)
 	    assert(p == 0);
 
 	while (p != 0) {
+	    CHECK_PTR(p);
 	    /* each chunk claims to be inuse */
 	    __do_check_inuse_chunk(p);
 	    total += chunksize(p);
 	    /* chunk belongs in this bin */
 	    assert(fastbin_index(chunksize(p)) == i);
-	    p = p->fd;
+	    p = REVEAL_PTR(&p->fd, p->fd);
 	}
     }
 
@@ -854,7 +855,8 @@ void* malloc(size_t bytes)
     if ((unsigned long)(nb) <= (unsigned long)(av->max_fast)) {
 	fb = &(av->fastbins[(fastbin_index(nb))]);
 	if ( (victim = *fb) != 0) {
-	    *fb = victim->fd;
+	    CHECK_PTR(victim);
+	    *fb = REVEAL_PTR(&victim->fd, victim->fd);
 	    check_remalloced_chunk(victim, nb);
 	    retval = chunk2mem(victim);
 	    goto DONE;
