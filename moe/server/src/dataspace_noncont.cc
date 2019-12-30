@@ -191,7 +191,7 @@ namespace {
     : Moe::Dataspace_noncont(size, flags, cfg)
     {
       _pages = (Page *)qalloc()->alloc_pages(meta_size(), Meta_align, cfg);
-      memset(_pages, 0, meta_size());
+      memset((void *)_pages, 0, meta_size());
     }
 
     ~Mem_small() throw()
@@ -256,7 +256,7 @@ namespace {
     : Moe::Dataspace_noncont(size, flags, cfg)
     {
       _pages = (Page *)qalloc()->alloc_pages(meta1_size(), 1024, cfg);
-      memset(_pages, 0, meta1_size());
+      memset((void *)_pages, 0, meta1_size());
     }
 
     ~Mem_big() throw()
