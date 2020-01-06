@@ -22,7 +22,6 @@ TIME_MEMBERS_H     := config/locale/generic/time_members.h
 MESSAGES_MEMBERS_H := config/locale/generic/messages_members.h
 BASIC_FILE_H       := config/io/basic_file_stdio.h
 CSTDIO_H           := config/io/c_io_stdio.h
-CMATH_TCC          := include/c_std/cmath.tcc
 
 include $(L4DIR)/mk/include.mk
 include $(STDCXX_PKG_DIR)/contrib.inc
@@ -88,4 +87,3 @@ all:: $(LIBSUPC_HI) $(STDCXX_CSTD_HEADERS_ABS) $(BID_ROOT_CONF) | $(INSTALL_INCD
 	$(VERBOSE)$(call install_config_header, $(MESSAGES_MEMBERS_H),  messages_members.h)
 	$(VERBOSE)$(call install_config_header, $(BASIC_FILE_H), basic_file.h)
 	$(VERBOSE)$(call install_config_header, $(CSTDIO_H), c++io.h)
-	$(VERBOSE)$(call install_config_header, $(CMATH_TCC), cmath.tcc)
