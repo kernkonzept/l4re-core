@@ -38,6 +38,9 @@ __BEGIN_DECLS
    __THROW.  */
 extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count);
 
+extern ssize_t preadv (int __fd, const struct iovec *__iovec, int __count,
+                       off_t offset);
+
 /* Write data pointed by the buffers described by IOVEC, which
    is a vector of COUNT `struct iovec's, to file descriptor FD.
    The data is written in the order specified.
@@ -47,6 +50,9 @@ extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count);
    This function is a cancellation point and therefore not marked with
    __THROW.  */
 extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count);
+
+extern ssize_t pwritev (int __fd, const struct iovec *__iovec, int __count,
+                        off_t offset);
 
 __END_DECLS
 
