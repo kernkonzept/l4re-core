@@ -283,7 +283,11 @@ function Loader:startv(env, ...)
       end
     end
 
-    caps.rom = caps.rom or Env.rom:m("r");
+    local defcaps = self.default_caps or { rom = Env.rom:m("r") }
+
+    for k, v in pairs(defcaps) do
+      caps[k] = caps[k] or v
+    end
   end
 
   env.loader = self;
