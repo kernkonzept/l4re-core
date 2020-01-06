@@ -9,6 +9,8 @@ SRC_CC          := remote_mem.cc app_model.cc app_task.cc main.cc \
 		   lua_platform_control.cc lua_debug_obj.cc
 SRC_DATA        := ned.lua
 
+SRC_CC          += lua_sleep.cc
+
 REQUIRES_LIBS   := libloader l4re-util l4re lua++ libpthread cxx_libc_io cxx_io
 
 ifeq (1,0)
