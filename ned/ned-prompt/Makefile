@@ -1,6 +1,6 @@
-PKGDIR	?= .
+PKGDIR	?= ..
 L4DIR	?= $(PKGDIR)/../../..
 
-TARGET = lib server ned-prompt
+TARGET = src
 
 include $(L4DIR)/mk/subdir.mk
