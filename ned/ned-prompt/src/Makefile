@@ -3,7 +3,7 @@ L4DIR           ?= $(PKGDIR)/../../..
 
 TARGET        = ned-prompt
 SRC_CC        = ned-prompt.cc
-REQUIRES_LIBS = readline libc_be_file_stdin
+REQUIRES_LIBS = readline
 DEPENDS_PKG   = readline
 
 include $(L4DIR)/mk/prog.mk
