@@ -473,8 +473,7 @@ l4_factory_create_add_lstr_u(char const *s, unsigned len, l4_msgtag_t *tag,
   char *c;
   unsigned i;
 
-  if (w + 1 + (len + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t)
-      > L4_UTCB_GENERIC_DATA_SIZE)
+  if (w + 1 + l4_bytes_to_mwords(len) > L4_UTCB_GENERIC_DATA_SIZE)
     return 0;
 
   v->mr[w] = L4_VARG_TYPE_STRING | (len << 16);
@@ -482,7 +481,7 @@ l4_factory_create_add_lstr_u(char const *s, unsigned len, l4_msgtag_t *tag,
   for (i = 0; i < len; ++i)
     *c++ = *s++;
 
-  w = w + 1 + (len + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t);
+  w = w + 1 + l4_bytes_to_mwords(len);
 
   tag->raw = (tag->raw & ~0x3fUL) | (w & 0x3f);
   return 1;
