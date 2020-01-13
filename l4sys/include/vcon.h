@@ -279,10 +279,9 @@ l4_vcon_send_u(l4_cap_idx_t vcon, char const *buf, unsigned size, l4_utcb_t *utc
   mr->mr[1] = size;
   __builtin_memcpy(&mr->mr[2], buf, size);
   return l4_ipc_send(vcon, utcb,
-                     l4_msgtag(L4_PROTO_LOG,
-                               2 + (size + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t),
+                     l4_msgtag(L4_PROTO_LOG, 2 + l4_bytes_to_mwords(size),
                                0, L4_MSGTAG_SCHEDULE),
-                               L4_IPC_NEVER);
+                     L4_IPC_NEVER);
 }
 
 L4_INLINE l4_msgtag_t
