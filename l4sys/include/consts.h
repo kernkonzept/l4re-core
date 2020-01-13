@@ -401,6 +401,18 @@ L4_INLINE l4_addr_t l4_round_size(l4_addr_t value, unsigned char bits) L4_NOTHRO
 { return (value + (1UL << bits) - 1) & (~0UL << bits); }
 
 /**
+ * Determine how many machine words (l4_umword_t) are required to store a
+ * buffer of 'size' bytes.
+ *
+ * \ingroup l4_memory_api
+ *
+ * \param bytes   The number of bytes to be translated into machine words.
+ */
+L4_INLINE unsigned l4_bytes_to_mwords(unsigned size) L4_NOTHROW;
+L4_INLINE unsigned l4_bytes_to_mwords(unsigned size) L4_NOTHROW
+{ return (size + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t); }
+
+/**
  * Address related constants.
  * \ingroup l4_memory_api
  */
