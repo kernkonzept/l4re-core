@@ -215,20 +215,42 @@ enum
 
 #include <l4/sys/kernel_object.h>
 
+/**
+ * Copy a number of characters from the C string \b src to the C string \b dst.
+ *
+ * The resulting string \b dst is always '\0'-terminated unless \b maxlen is 0.
+ * If the C string in \b src is shorter than the buffer \b dst then the
+ * remaining bytes in \b dst are NOT initialized.
+ *
+ * \param dst     Target buffer.
+ * \param src     Source buffer.
+ * \param maxlen  Maximum number of bytes written to the target buffer.
+ * \return The number of bytes written (including the terminating '\0'.
+ */
+L4_INLINE unsigned
+__strcpy_maxlen(char *dst, char const *src, unsigned maxlen)
+{
+  unsigned i;
+  if (!maxlen)
+    return 0;
+
+  for (i = 0; i < maxlen - 1 && src[i]; ++i)
+    dst[i] = src[i];
+  dst[i] = '\0';
+
+  return i + 1;
+}
+
 L4_INLINE l4_msgtag_t
 l4_debugger_set_object_name_u(unsigned long cap,
                               const char *name, l4_utcb_t *utcb) L4_NOTHROW
 {
-  unsigned int i;
-  char *s = (char *)&l4_utcb_mr_u(utcb)->mr[1];
+  unsigned i;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_NAME_SET_OP;
-  for (i = 0;
-       *name && i < (L4_UTCB_GENERIC_DATA_SIZE - 2) * sizeof(l4_umword_t) - 1;
-       ++i, ++name, ++s)
-    *s = *name;
-  *s = 0;
-  i = (i + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t);
-  return l4_invoke_debugger(cap, l4_msgtag(0, i + 1, 0, 0), utcb);
+  i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[1], name,
+                      (L4_UTCB_GENERIC_DATA_SIZE - 2) * sizeof(l4_umword_t));
+  i = l4_bytes_to_mwords(i);
+  return l4_invoke_debugger(cap, l4_msgtag(0, 1 + i, 0, 0), utcb);
 }
 
 L4_INLINE unsigned long
@@ -255,15 +277,13 @@ l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
                                unsigned idx,
                                l4_utcb_t *utcb) L4_NOTHROW
 {
-  unsigned l;
+  unsigned i;
   long e;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_QUERY_LOG_TYPEID_OP;
   l4_utcb_mr_u(utcb)->mr[1] = idx;
-  l = __builtin_strlen(name);
-  l = l > 31 ? 31 : l;
-  __builtin_strncpy((char *)&l4_utcb_mr_u(utcb)->mr[2], name, 31);
-  l = (l + 1 + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t);
-  e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2 + l, 0, 0), utcb), utcb);
+  i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[2], name, 32);
+  i = l4_bytes_to_mwords(i);
+  e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2 + i, 0, 0), utcb), utcb);
   if (e < 0)
     return e;
   return l4_utcb_mr_u(utcb)->mr[0];
@@ -276,17 +296,15 @@ l4_debugger_query_log_name_u(l4_cap_idx_t cap, unsigned idx,
                              l4_utcb_t *utcb) L4_NOTHROW
 {
   long e;
-  char *n;
+  char const *n;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_QUERY_LOG_NAME_OP;
   l4_utcb_mr_u(utcb)->mr[1] = idx;
   e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb), utcb);
   if (e < 0)
     return e;
-  n = (char *)&l4_utcb_mr_u(utcb)->mr[0];
-  __builtin_strncpy(name, n, namelen);
-  name[namelen - 1] = 0;
-  __builtin_strncpy(shortname, n + __builtin_strlen(n) + 1, shortnamelen);
-  shortname[shortnamelen - 1] = 0;
+  n = (char const *)&l4_utcb_mr_u(utcb)->mr[0];
+  __strcpy_maxlen(name, n, namelen);
+  __strcpy_maxlen(shortname, n + __builtin_strlen(n) + 1, shortnamelen);
   return 0;
 }
 
@@ -295,14 +313,12 @@ L4_INLINE l4_msgtag_t
 l4_debugger_switch_log_u(l4_cap_idx_t cap, const char *name, int on_off,
                          l4_utcb_t *utcb) L4_NOTHROW
 {
-  unsigned l;
+  unsigned i;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_SWITCH_LOG_OP;
   l4_utcb_mr_u(utcb)->mr[1] = on_off;
-  l = __builtin_strlen(name);
-  l = l > 31 ? 31 : l;
-  __builtin_strncpy((char *)&l4_utcb_mr_u(utcb)->mr[2], name, 31);
-  l = (l + 1 + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t);
-  return l4_invoke_debugger(cap, l4_msgtag(0, 2 + l, 0, 0), utcb);
+  i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[2], name, 32);
+  i = l4_bytes_to_mwords(i);
+  return l4_invoke_debugger(cap, l4_msgtag(0, 2 + i, 0, 0), utcb);
 }
 
 L4_INLINE l4_msgtag_t
@@ -314,8 +330,7 @@ l4_debugger_get_object_name_u(l4_cap_idx_t cap, unsigned id,
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_NAME_GET_OP;
   l4_utcb_mr_u(utcb)->mr[1] = id;
   t = l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb);
-  __builtin_strncpy(name, (char *)&l4_utcb_mr_u(utcb)->mr[0], size);
-  name[size - 1] = 0;
+  __strcpy_maxlen(name, (char const *)&l4_utcb_mr_u(utcb)->mr[0], size);
   return t;
 }
 
