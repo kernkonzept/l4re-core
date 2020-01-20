@@ -103,7 +103,7 @@ __kdebug_3_text(unsigned op, char const *text, unsigned len,
   __builtin_memcpy(&mr->mr[5], text, len);
   res = l4_ipc_call(L4_BASE_DEBUGGER_CAP, u,
                     l4_msgtag(L4_PROTO_DEBUGGER,
-                             l4_bytes_to_mwords(len) + 5, 0, 0),
+                              l4_bytes_to_mwords(len) + 5, 0, 0),
                     L4_IPC_NEVER);
   __builtin_memcpy(mr, &store, sizeof(*mr));
   return res;
