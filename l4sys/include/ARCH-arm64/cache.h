@@ -57,8 +57,9 @@ l4_cache_dmin_line(void)
   if (start > end)                                          \
     __builtin_unreachable();                                \
                                                             \
-  sz = end - start;                                         \
   s = l4_cache_dmin_line();                                 \
+  start &= ~((unsigned long)s - 1);                         \
+  sz = end - start;                                         \
   asm volatile ("dsb ish" : : "m"(*((unsigned *)start)));   \
   x = start;                                                \
   for (i = 0; i < sz; i += s)                               \

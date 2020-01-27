@@ -88,7 +88,7 @@ l4_cache_coherent(unsigned long start,
 
   // step may be 0 when instruction caches are disabled
   if (L4_LIKELY(step > 0))
-    for (i = start; i < end; i += step)
+    for (i = start & ~(step - 1); i < end; i += step)
       asm volatile ("synci (%0)" : : "r"(i));
 
   asm volatile ("sync");
