@@ -136,7 +136,7 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const throw()
       // No need for I cache coherence, as we just zero fill and assume that
       // this is no executable code
       l4_cache_clean_data((l4_addr_t)dst_a.adr(),
-                          (l4_addr_t)dst_a.adr() + b_sz - 1);
+                          (l4_addr_t)dst_a.adr() + b_sz);
 
       offs += b_sz;
       sz -= b_sz;

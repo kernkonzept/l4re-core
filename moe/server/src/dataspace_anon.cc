@@ -76,7 +76,7 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
   memset(m.get(), 0, m.size());
   // No need for I cache coherence, as we just zero fill and assume that
   // this is no executable code
-  l4_cache_clean_data((l4_addr_t)m.get(), (l4_addr_t)m.get() + m.size() - 1);
+  l4_cache_clean_data((l4_addr_t)m.get(), (l4_addr_t)m.get() + m.size());
 
   start(m.release());
   size(_size);
