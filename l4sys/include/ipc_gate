@@ -43,11 +43,16 @@ class Thread;
  * The bind_thread() call allows to assign each IPC gate a kernel protected,
  * machine-word sized payload called a *label*. It securely identifies the
  * gate. The two least significant bits of the *label* are ORed with the
- * L4_CAP_FPAGE_S and L4_CAP_FPAGE_W bits stored in the capability when
+ * #L4_CAP_FPAGE_S and #L4_CAP_FPAGE_W bits stored in the capability when
  * transferred to the receiver. This means the *label* should usually have its
  * two least significant bits set to zero. The *label* is only visible in the
  * #L4::Task which is running the thread the IPC gate was bound to and cannot
  * be altered by the sender.
+ *
+ * The IPC gate's methods can only be invoked, if the gate was mapped with the
+ * #L4_FPAGE_C_IPCGATE_SVR right. To ensure that the *label* assigned to the
+ * gate cannot be altered by the client, the client should receive the gate
+ * capability without the #L4_FPAGE_C_IPCGATE_SVR right.
  *
  * \includefile{l4/sys/ipc_gate}
  *

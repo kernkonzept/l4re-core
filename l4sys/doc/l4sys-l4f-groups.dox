@@ -35,7 +35,8 @@
  * With client privileges an IPC-gate does not provide any direct API and
  * thus an IPC-gate kernel object cannot be modified by invocations. Each
  * invocation of an IPC-gate kernel object is translated into an IPC message
- * to the assigned thread.
+ * to the assigned thread. To invoke a method of the IPC-gate, it has to be
+ * mapped with the #L4_FPAGE_C_IPCGATE_SVR right.
  * \includefile{l4/sys/ipc_gate.h}
  *
  * For the C++ interface refer to the L4::Ipc_gate documentation.
