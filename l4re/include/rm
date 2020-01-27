@@ -325,11 +325,15 @@ public:
    *                        #L4Re::Rm::reserve_area) to attach the data space
    *                        to.
    * \param          size   Size of the data space to attach (in bytes)
-   * \param          flags  Flags, see #L4Re::Rm::F::Attach_flags and
-   *                        #L4Re::Rm::F::Region_flags. If the `F::Eager_map`
-   *                        flag is set this function may also return
-   *                        L4Re::Dataspace::map error codes if the mapping
-   *                        fails.
+   * \param          flags  The flags control how and with which rights the
+   *                        dataspace is attached to the region. See
+   *                        #L4Re::Rm::F::Attach_flags and
+   *                        #L4Re::Rm::F::Region_flags. The caller must specify
+   *                        the desired rights of the attached region
+   *                        explicitly. The default set of rights is empty. If
+   *                        the `F::Eager_map` flag is set this function may
+   *                        also return L4Re::Dataspace::map error codes if the
+   *                        mapping fails.
    * \param          mem    Data space
    * \param          offs   Offset into the data space to use
    * \param          align  Alignment of the virtual region, log2-size, default:
