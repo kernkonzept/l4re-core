@@ -196,7 +196,11 @@ public:
    * \param o       Server object that handles IPC requests.
    * \param service Name of a pre-allocated receive endpoint.
    *
-   * \return The capability the server object was registered with.
+   * \retval L4::Cap<void> The capability known as `service` on success.
+   * \retval L4::Cap<void>::Invalid No capability with the given name found.
+   *
+   * The interface must be freed with unregister_obj() by the caller
+   * to unbind the thread from the capability.
    */
   L4::Cap<void> register_obj(L4::Epiface *o, char const *service) override
   {
@@ -208,9 +212,12 @@ public:
    *
    * \param o  Server object that handles IPC requests.
    *
-   * \return The capability the server object was registered with.
+   * \retval L4::Cap<void> A valid capability to a new IPC gate.
+   * \retval L4::Cap<void>::Invalid  The allocation of the IPC gate
+   *                                 has failed.
    *
-   * The IPC gate will be allocated using the registry's factory.
+   * The IPC gate will be allocated using the registry's factory. The
+   * caller must call unregister_obj() to free all resources.
    */
   L4::Cap<void> register_obj(L4::Epiface *o) override
   {
@@ -222,9 +229,11 @@ public:
    *
    * \param o  Server object that handles IRQs.
    *
-   * \return The capability the server object was registered with.
+   * \retval L4::Cap<L4::Irq>           Capability to a new IRQ object on success.
+   * \retval L4::Cap<L4::Irq>::Invalid  The allocation of the IRQ has failed.
    *
-   * The IRQ will be newly allocated using the registry's factory object.
+   * The IRQ will be newly allocated using the registry's factory object. The
+   * caller must call unregister_obj() to free all resources.
    */
   L4::Cap<L4::Irq> register_irq_obj(L4::Epiface *o) override
   {
@@ -241,7 +250,11 @@ public:
    * \param ep   Capability to a receive endpoint, may be a hardware or
    *             software interrupt or an IPC gate.
    *
-   * \return The capability the server object was registered with.
+   * \retval L4::Cap<L4::Rcv_endpoint>           Capability `ep` on success.
+   * \retval L4::Cap<L4::Rcv_endpoint>::Invalid  The IRQ attach operation has failed.
+   *
+   * The interface must be freed with unregister_obj() by the caller
+   * to unbind the thread from the capability.
    */
   L4::Cap<L4::Rcv_endpoint>
   register_obj(L4::Epiface *o, L4::Cap<L4::Rcv_endpoint> ep) override
