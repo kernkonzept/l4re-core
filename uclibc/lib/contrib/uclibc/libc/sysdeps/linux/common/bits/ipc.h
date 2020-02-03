@@ -20,6 +20,7 @@
 #endif
 
 #include <bits/types.h>
+#include <bits/wordsize.h>
 
 /* Mode bits for `msgget', `semget', and `shmget'.  */
 #define IPC_CREAT	01000		/* Create key if key does not exist. */
@@ -46,8 +47,12 @@ struct ipc_perm
     __gid_t gid;			/* Owner's group ID.  */
     __uid_t cuid;			/* Creator's user ID.  */
     __gid_t cgid;			/* Creator's group ID.  */
+#if __WORDSIZE == 64
+    unsigned  int mode;
+#else
     unsigned short int mode;		/* Read/write permission.  */
     unsigned short int __pad1;
+#endif
     unsigned short int __seq;		/* Sequence number.  */
     unsigned short int __pad2;
     unsigned long int __unused1;
