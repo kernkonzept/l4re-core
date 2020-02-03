@@ -42,6 +42,20 @@ public:
   /// Make a buffer-register (BR) manager
   Br_manager() : _caps(0), _cap_flags(L4_RCV_ITEM_LOCAL_ID) {}
 
+  Br_manager(Br_manager const &) = delete;
+  Br_manager &operator = (Br_manager const &) = delete;
+
+  Br_manager(Br_manager &&) = default;
+  Br_manager &operator = (Br_manager &&) = default;
+
+  ~Br_manager()
+  {
+    // Slots for received capabilities are placed at the beginning of the
+    // (shadowed) buffer registers. Free those.
+    for (unsigned i = 0; i < _caps; ++i)
+      cap_alloc.free(L4::Cap<void>(_brs[i] & L4_CAP_MASK));
+  }
+
   /*
    * This implementation dynamically manages assignment of buffer registers for
    * the necessary amount of receive buffers allocated by all calls to this

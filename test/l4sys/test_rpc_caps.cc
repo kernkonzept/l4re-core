@@ -31,8 +31,10 @@ struct Test_iface
   L4_INLINE_RPC(l4_msgtag_t, out_cap, (L4::Ipc::Out<L4::Cap<void> >));
   L4_INLINE_RPC(l4_msgtag_t, out_cap2, (L4::Ipc::Out<L4::Cap<void> >,
                                         L4::Ipc::Out<L4::Cap<void> >));
+  L4_INLINE_RPC(long, unmap_receive_slot, ());
 
-  typedef L4::Typeid::Rpcs<in_cap_t, in_opt_cap_t, out_cap_t, out_cap2_t> Rpcs;
+  typedef L4::Typeid::Rpcs<in_cap_t, in_opt_cap_t, out_cap_t, out_cap2_t,
+                           unmap_receive_slot_t> Rpcs;
 };
 
 struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
@@ -58,6 +60,18 @@ struct Test_handler : L4::Epiface_t<Test_handler, Test_iface>
     out_cap = p_cap;
     out_cap2 = p_cap2;
     return 0;
+  }
+
+  /**
+   * Ensure that any present capability in the receive slot of the handler
+   * is unmapped.
+   */
+  long op_unmap_receive_slot(Test_iface::Rights)
+  {
+    auto c = L4::Epiface::server_iface()->rcv_cap<void>(0);
+    L4Re::Env::env()->task()->unmap(c.fpage(), L4_FP_ALL_SPACES);
+
+    return L4_EOK;
   }
 
 private:
@@ -130,11 +144,13 @@ static INSTANTIATE_TEST_CASE_P(LocalVsGlobal, CapRpc,
  */
 TEST_P(CapRpc, SendRwCap)
 {
+  ASSERT_L4OK(scap()->unmap_receive_slot());
+
   ASSERT_EQ(0, scap()->in_cap(false, L4::Ipc::make_cap_rw(env->log())));
   test_valid_cap();
   if (GetParam() == 0)
     {
-      EXPECT_GT(handler().p_cap.validate().label(), 0);
+      EXPECT_L4CAP_PRESENT(handler().p_cap);
     }
 }
 
@@ -153,13 +169,14 @@ TEST_P(CapRpc, SendInvalidCap)
 TEST_P(CapRpc, SendEmptyCap)
 {
   auto cap = L4Re::Util::make_unique_cap<void>();
+  ASSERT_L4OK(scap()->unmap_receive_slot());
   ASSERT_EQ(0, scap()->in_cap(false, cap.get()));
   // the server still receives what looks like a standard cap
   test_valid_cap();
   // but there is nothing behind the cap
   if (GetParam() == 0)
     {
-      EXPECT_EQ(0, handler().p_cap.validate().label());
+      EXPECT_L4CAP_NOT_PRESENT(handler().p_cap);
     }
 }
 
@@ -189,11 +206,13 @@ TEST_P(CapRpc, SendOptCapInvalid)
  */
 TEST_P(CapRpc, SendOptCapValid)
 {
+  ASSERT_L4OK(scap()->unmap_receive_slot());
+
   ASSERT_EQ(0, scap()->in_opt_cap(false, L4::Ipc::make_cap_rw<void>(env->log())));
   test_valid_cap();
   if (GetParam() == 0)
     {
-      EXPECT_GT(handler().p_cap.validate().label(), 0);
+      EXPECT_L4CAP_PRESENT(handler().p_cap);
     }
 }
 
@@ -264,6 +283,9 @@ TEST_P(CapRpcRelease, SendCap)
 
   ASSERT_EQ(0, scap()->in_cap(GetParam(), cap));
   auto outcap = handler().p_cap;
-  ASSERT_EQ(0, scap()->in_cap(GetParam(), cap));
-  ASSERT_EQ(!GetParam(), outcap.cap() == handler().p_cap.cap());
+  EXPECT_EQ(0, scap()->in_cap(false, cap));
+  EXPECT_EQ(!GetParam(), outcap.cap() == handler().p_cap.cap());
+
+  if (GetParam())
+    L4Re::Util::cap_alloc.free(outcap);
 }
