@@ -350,45 +350,13 @@ libc_hidden_proto(tolower_l)
 /* Return the uppercase version of C.  */
 extern int toupper_l (int __c, __locale_t __l) __THROW;
 
-# if __GNUC__ >= 2 && defined __OPTIMIZE__ && !defined __cplusplus
-#  define tolower_l(c, locale) __tobody(c, tolower_l, (locale)->__ctype_tolower, (c, locale))
-#  define toupper_l(c, locale) __tobody(c, toupper_l, (locale)->__ctype_toupper, (c, locale))
-# endif	/* Optimizing gcc */
-
-
 # define __isctype_l(c, type, locale) ((locale)->__ctype_b[(int) (c)] & (__ctype_mask_t) type)
 # ifndef __NO_CTYPE
-#  define __isalnum_l(c,l)	__isctype_l((c), _ISalnum, (l))
-#  define __isalpha_l(c,l)	__isctype_l((c), _ISalpha, (l))
-#  define __iscntrl_l(c,l)	__isctype_l((c), _IScntrl, (l))
-#  define __isdigit_l(c,l)	__isctype_l((c), _ISdigit, (l))
-#  define __islower_l(c,l)	__isctype_l((c), _ISlower, (l))
-#  define __isgraph_l(c,l)	__isctype_l((c), _ISgraph, (l))
-#  define __isprint_l(c,l)	__isctype_l((c), _ISprint, (l))
-#  define __ispunct_l(c,l)	__isctype_l((c), _ISpunct, (l))
-#  define __isspace_l(c,l)	__isctype_l((c), _ISspace, (l))
-#  define __isupper_l(c,l)	__isctype_l((c), _ISupper, (l))
-#  define __isxdigit_l(c,l)	__isctype_l((c), _ISxdigit, (l))
-#  define __isblank_l(c,l)	__isctype_l((c), _ISblank, (l))
-
 #  if (defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN) \
 	&& defined __UCLIBC_SUSV4_LEGACY__
 #   define __isascii_l(c,l)	((l), __isascii (c))
 #   define __toascii_l(c,l)	((l), __toascii (c))
 #  endif
-
-#  define isalnum_l(c,l)	__isalnum_l ((c), (l))
-#  define isalpha_l(c,l)	__isalpha_l ((c), (l))
-#  define iscntrl_l(c,l)	__iscntrl_l ((c), (l))
-#  define isdigit_l(c,l)	__isdigit_l ((c), (l))
-#  define islower_l(c,l)	__islower_l ((c), (l))
-#  define isgraph_l(c,l)	__isgraph_l ((c), (l))
-#  define isprint_l(c,l)	__isprint_l ((c), (l))
-#  define ispunct_l(c,l)	__ispunct_l ((c), (l))
-#  define isspace_l(c,l)	__isspace_l ((c), (l))
-#  define isupper_l(c,l)	__isupper_l ((c), (l))
-#  define isxdigit_l(c,l)	__isxdigit_l ((c), (l))
-#  define isblank_l(c,l)	__isblank_l ((c), (l))
 
 #  if (defined __USE_SVID || defined __USE_MISC || defined __USE_XOPEN) \
 	&& defined __UCLIBC_SUSV4_LEGACY__
