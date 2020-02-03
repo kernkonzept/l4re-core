@@ -142,7 +142,7 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
     case L4::Factory::Protocol:
         {
-          L4::Ipc::Varg tag = args.next();
+          L4::Ipc::Varg tag = args.pop_front();
 
           if (!tag.is_of_int() || tag.value<long>() == 0) // ignore sign
             return -L4_EINVAL;
@@ -159,12 +159,12 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
     case L4_PROTO_LOG:
         {
-          L4::Ipc::Varg tag = args.next();
+          L4::Ipc::Varg tag = args.pop_front();
 
           if (!tag.is_of<char const *>())
             return -L4_EINVAL;
 
-          L4::Ipc::Varg col = args.next();
+          L4::Ipc::Varg col = args.pop_front();
 
           int color;
           if (col.is_of<char const *>())
@@ -189,7 +189,9 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           if (!_sched_prio_limit)
             return -L4_ENODEV;
 
-          L4::Ipc::Varg p_max = args.next(), p_base = args.next(), cpus = args.next();
+          L4::Ipc::Varg p_max  = args.pop_front(),
+                        p_base = args.pop_front(),
+                        cpus   = args.pop_front();
 
           if (!p_max.is_of_int() || !p_base.is_of_int())
             return -L4_EINVAL;
@@ -218,8 +220,9 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
     case L4Re::Dataspace::Protocol:
         {
-          L4::Ipc::Varg size = args.next(), flags = args.next(),
-            align = args.next();
+          L4::Ipc::Varg size  = args.pop_front(),
+                        flags = args.pop_front(),
+                        align = args.pop_front();
 
           if (!size.is_of_int())
             return -L4_EINVAL;

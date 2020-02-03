@@ -254,12 +254,74 @@ class Varg_list_ref
 private:
   template<unsigned T>
   friend class Varg_list;
-  l4_umword_t const *_end;
-  l4_umword_t const *_current;
+
+  /// Iterator state of a Varg list
+  class Iter_state
+  {
+  private:
+    using M = l4_umword_t; ///< internal shortcut for msg words
+    using Mp = M const *;  ///< internal shortcut for msg pointer
+    Mp _c; ///< current position of an iterator
+    Mp _e; ///< end of the message (first word behind)
+
+    /// get pointer to the start of the next Varg
+    Mp next_arg(Varg const &a) const
+    {
+      return _c + 1 + (Msg::align_to<M>(a.length()) / sizeof(M));
+    }
+
+  public:
+    /// default (invalid/empty/end) state
+    Iter_state() : _c(nullptr) {}
+
+    /// create a state for varg at c, end at e
+    Iter_state(Mp c, Mp e) : _c(c), _e(e)
+    {}
+
+    /// return true if the state is valid (not end)
+    bool valid() const
+    { return _c && _c < _e; }
+
+    /// get the current position (of current Varg)
+    Mp begin() const { return _c; }
+
+    /// get the end of the message (behind last Varg)
+    Mp end() const { return _e; }
+
+    /**
+     * Pop the first Varg from the list
+     * (Varg::nil() if there are no more)
+     */
+    Varg pop()
+    {
+      if (!valid())
+        return Varg::nil();
+
+      Varg a;
+      a.tag(_c[0]);
+      a.data(reinterpret_cast<char const *>(&_c[1]));
+      _c = next_arg(a);
+      if (_c > _e)
+        return Varg::nil();
+
+      return a;
+    }
+
+    /// equality of two Iter_state objects
+    bool operator == (Iter_state const &o) const
+    { return _c == o._c; }
+
+    /// inequality of two Iter_state objects
+    bool operator != (Iter_state const &o) const
+    { return _c != o._c; }
+  };
+
+  Iter_state _s; ///< current state of the Valist
 
 public:
   /// Create an empty parameter list.
-  Varg_list_ref() : _end(0), _current(0) {}
+  Varg_list_ref() = default;
+
   /**
    *  Create a parameter list over a given memory region.
    *
@@ -267,24 +329,74 @@ public:
    *  \param end   Pointer to end of the list (inclusive).
    */
   Varg_list_ref(void const *start, void const *end)
-  : _end(reinterpret_cast<l4_umword_t const *>(end)),
-    _current(reinterpret_cast<l4_umword_t const *>(start))
+  : _s(reinterpret_cast<l4_umword_t const *>(start),
+       reinterpret_cast<l4_umword_t const *>(end))
   {}
+
+  /// Iterator for Valists
+  class Iterator
+  {
+  private:
+    Iter_state _s; ///< The current position (next unread arg)
+    Varg _a; ///< The current Varg read from the list
+
+  public:
+    /// Create a new iterator
+    Iterator(Iter_state const &s)
+    : _s(s)
+    {
+      _a = _s.pop();
+    }
+
+    /// validity check for the iterator
+    explicit operator bool () const
+    { return !_a.is_nil(); }
+
+    /// increment iterator to the next arg
+    Iterator &operator ++ ()
+    {
+      if (!_a.is_nil())
+        _a = _s.pop();
+
+      return *this;
+    }
+
+    /// dereference the iterator, get Varg
+    Varg operator * () const
+    { return _a; }
+
+    /// check for equality
+    bool equals(Iterator const &o) const
+    {
+      if (_a.is_nil() && o._a.is_nil())
+        return true;
+
+      return _s ==  o._s;
+    }
+
+    bool operator == (Iterator const &o) const
+    { return equals(o); }
+
+    bool operator != (Iterator const &o) const
+    { return !equals(o); }
+  };
+
+  /// Get the next parameter in the list.
+  Varg pop_front()
+  { return _s.pop(); }
 
   /// Get the next parameter in the list.
   Varg next()
-  {
-    if (_current >= _end)
-      return Varg::nil();
-    Varg a;
-    a.tag(*_current++);
-    a.data(reinterpret_cast<char const *>(_current));
-    _current += Msg::align_to<l4_umword_t>(a.length()) / sizeof(l4_umword_t);
-    if (_current > _end)
-      return Varg::nil();
+    L4_DEPRECATED("Use range for or pop_front.")
+  { return _s.pop(); }
 
-    return a;
-  }
+  /// Returns an interator to the first Varg
+  Iterator begin() const
+  { return Iterator(_s); }
+
+  /// Returns the end of the list
+  Iterator end() const
+  { return Iterator(Iter_state()); }
 };
 
 /**
@@ -304,11 +416,12 @@ public:
   /// Create a parameter list as a copy from a referencing list.
   Varg_list(Varg_list_ref const &r)
   {
-    for (unsigned i = 0; i < r._end - r._current; ++i)
-      data[i] = r._current[i];
+    l4_umword_t const *rs = r._s.begin();
+    unsigned c = r._s.end() - rs;
+    for (unsigned i = 0; i < c; ++i)
+      data[i] = rs[i];
 
-    this->_current = data;
-    this->_end = data + (r._end - r._current);
+    this->_s = Iter_state(data, data + c);
   }
 };
 

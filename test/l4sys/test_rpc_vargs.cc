@@ -46,12 +46,12 @@ struct VargRPC : Atkins::Fixture::Epiface_thread<Test_handler>
 
     for (; in->tag(); ++in)
       {
-        Varg o = vlist.next();
+        Varg o = vlist.pop_front();
         ASSERT_EQ(in->tag(), o.tag());
         EXPECT_EQ(0, memcmp(in->data(), o.data(), in->length()));
       }
 
-    EXPECT_EQ(L4_VARG_TYPE_NIL, vlist.next().tag());
+    EXPECT_EQ(L4_VARG_TYPE_NIL, vlist.pop_front().tag());
   }
 };
 
@@ -74,7 +74,7 @@ TEST_F(VargRPC, InSimpleMword)
   l4_mword_t const m = -0x453;
   Varg v[2] = {Varg(&m), Varg::nil()};
   ASSERT_EQ(0, scap()->in(v));
-  Varg out = handler().p_args.next();
+  Varg out = handler().p_args.pop_front();
   ASSERT_TRUE(out.is_of<l4_mword_t>());
   ASSERT_EQ(m, out.value<l4_mword_t>());
   ASSERT_EQ(sizeof(l4_mword_t), (size_t) out.length());
@@ -90,7 +90,7 @@ TEST_F(VargRPC, InSimpleUmword)
   l4_umword_t const m = 0xaaa;
   Varg v[2] = {Varg(&m), Varg::nil()};
   ASSERT_EQ(0, scap()->in(v));
-  Varg out = handler().p_args.next();
+  Varg out = handler().p_args.pop_front();
   ASSERT_TRUE(out.is_of<l4_umword_t>());
   ASSERT_EQ(m, out.value<l4_umword_t>());
   ASSERT_EQ(sizeof(l4_umword_t), (size_t) out.length());
@@ -105,7 +105,7 @@ TEST_F(VargRPC, InSimpleString)
   char const *s = "This ";
   Varg v[2] = {Varg(s), Varg::nil()};
   ASSERT_EQ(0, scap()->in(v));
-  Varg out = handler().p_args.next();
+  Varg out = handler().p_args.pop_front();
   ASSERT_TRUE(out.is_of<char const *>());
   ASSERT_STREQ(s, out.value<char const *>());
   ASSERT_FALSE(out.is_nil());
@@ -118,7 +118,7 @@ TEST_F(VargRPC, InEmptyString)
 {
   Varg v[2] = {Varg(""), Varg::nil()};
   ASSERT_EQ(0, scap()->in(v));
-  Varg out = handler().p_args.next();
+  Varg out = handler().p_args.pop_front();
   ASSERT_TRUE(out.is_of<char const *>());
   ASSERT_STREQ("", out.value<char const *>());
   ASSERT_FALSE(out.is_nil());
@@ -132,7 +132,7 @@ TEST_F(VargRPC, InDirectMword)
 {
   Varg v[2] = {Varg((l4_mword_t) -0xF3F4), Varg::nil()};
   ASSERT_EQ(0, scap()->in(v));
-  Varg out = handler().p_args.next();
+  Varg out = handler().p_args.pop_front();
   l4_mword_t val;
   ASSERT_TRUE(out.get_value<l4_mword_t>(&val));
   ASSERT_EQ(-0xF3F4, val);
@@ -148,7 +148,7 @@ TEST_F(VargRPC, InDirectUmword)
 {
   Varg v[2] = {Varg((l4_umword_t) 1234, true), Varg::nil()};
   ASSERT_EQ(0, scap()->in(v));
-  Varg out = handler().p_args.next();
+  Varg out = handler().p_args.pop_front();
   l4_umword_t val;
   ASSERT_TRUE(out.get_value<l4_umword_t>(&val));
   ASSERT_EQ(1234U, val);
