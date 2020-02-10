@@ -11,7 +11,7 @@ ALL_SRC_C_only_ppc32  = $(addprefix ARCH-ppc32/, rdtsc.c)
 ALL_SRC_C_only_sparc  = ARCH-sparc/atomics.c
 SRC_C                 = getopt2.c micros2l4to.c rand.c sleep.c \
                         base64.c kprintf.c kip.c keymap.c \
-                        ARCH-$(ARCH)/backtrace.c reboot.c thread.c \
+                        ARCH-$(ARCH)/backtrace.c thread.c \
                         $(ALL_SRC_C_only_$(ARCH)) parse_cmdline.c \
                         list_alloc.c
 SRC_CC                = llulc.cc
