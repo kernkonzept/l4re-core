@@ -26,7 +26,7 @@
 namespace cxx {
 
 /**
- * \brief Standard list-based allocator.
+ * Standard list-based allocator.
  */
 class List_alloc
 {
@@ -48,7 +48,7 @@ private:
 public:
 
   /**
-   * \brief Initializes an empty list allocator.
+   * Initializes an empty list allocator.
    *
    * \note To initialize the allocator with available memory
    *       use the #free() function.
@@ -56,39 +56,45 @@ public:
   List_alloc() : _first(0) {}
 
   /**
-   * \brief Return a free memory block to the allocator.
+   * Return a free memory block to the allocator.
    *
-   * \param block pointer to memory block
-   * \param size  size of memory block
+   * \param block        Pointer to memory block.
+   * \param size         Size of memory block.
    * \param initial_free Set to true for putting fresh memory
    *                     to the allocator. This will enforce alignment on that
    *                     memory.
+   *
+   * \pre `block` must not be NULL.
+   * \pre 0 < `size` <= `~0UL - 32`.
    */
   inline void free(void *block, unsigned long size, bool initial_free = false);
 
   /**
-   * \brief Allocate a memory block.
+   * Allocate a memory block.
    *
-   * \param size  Size of the memory block
-   * \param align Alignment constraint
+   * \param size  Size of the memory block.
+   * \param align Alignment constraint.
    * \param lower Lower bound of the physical region the memory block should be
    *              allocated from.
    * \param upper Upper bound of the physical region the memory block should be
    *              allocated from, value is inclusive.
    *
    * \return      Pointer to memory block
+   *
+   * \pre 0 < `size` <= `~0UL - 32`.
    */
   inline void *alloc(unsigned long size, unsigned long align,
                      unsigned long lower = 0, unsigned long upper = ~0UL);
 
   /**
-   * \brief Allocate a memory block of `min` <= size <= `max`.
+   * Allocate a memory block of `min` <= size <= `max`.
    *
-   * \param         min          Minimal size to allocate.
-   * \param[in,out] max          Maximum size to allocate. The actual allocated
-   *                             size is returned here.
+   * \param         min          Minimal size to allocate (in bytes).
+   * \param[in,out] max          Maximum size to allocate (in bytes). The actual
+   *                             allocated size is returned here.
    * \param         align        Alignment constraint.
-   * \param         granularity  Granularity to use for the allocation.
+   * \param         granularity  Granularity to use for the allocation (power
+   *                             of 2).
    * \param         lower        Lower bound of the physical region the memory
    *                             block should be allocated from.
    * \param         upper        Upper bound of the physical region the memory
@@ -96,13 +102,16 @@ public:
    *                             inclusive.
    *
    * \return  Pointer to memory block
+   *
+   * \pre 0 < `min` <= `~0UL - 32`.
+   * \pre 0 < `max`.
    */
   inline void *alloc_max(unsigned long min, unsigned long *max,
                          unsigned long align, unsigned granularity,
                          unsigned long lower = 0, unsigned long upper = ~0UL);
 
   /**
-   * \brief Get the amount of available memory.
+   * Get the amount of available memory.
    *
    * \return Available memory in bytes
    */
