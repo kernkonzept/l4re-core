@@ -229,8 +229,7 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
           Single_page_alloc_base::Config mem_cfg;
 
-          for (L4::Ipc::Varg opts = args.next(); !opts.is_nil();
-               opts = args.next())
+          for (L4::Ipc::Varg opts: args)
             {
               if (opts.is_of<char const *>())
                 {
