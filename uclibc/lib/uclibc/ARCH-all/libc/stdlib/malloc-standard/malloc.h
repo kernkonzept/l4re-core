@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <bits/uClibc_mutex.h>
+#include <bits/uClibc_page.h>
 #include <bits/l4-malloc.h>
 
 #include <l4/sys/consts.h>
