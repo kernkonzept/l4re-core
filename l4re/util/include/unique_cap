@@ -39,7 +39,7 @@ namespace L4Re { namespace Util {
  *
  *     {
  *       L4Re::Util::Unique_cap<L4Re::Dataspace>
- *         ds_cap = make_unique_cap<L4Re::Dataspace>();
+ *         ds_cap = L4Re::Util::make_unique_cap<L4Re::Dataspace>();
  *
  *       // use the dataspace cap
  *       L4Re::chksys(mem_alloc->alloc(L4_PAGESIZE, ds_cap.get()));
