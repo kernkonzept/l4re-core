@@ -1,0 +1,22 @@
+/* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
+/* vim:ft=cpp */
+/*
+ * Copyright (C) 2020 Kernkonzept GmbH.
+ * Author(s): Frank Mehnert <frank.mehnert@kernkonzept.com>
+ *
+ */
+#pragma once
+
+#include <exception>
+
+namespace std { namespace L4 {
+
+void terminate_handler();
+
+namespace {
+
+static const auto install_terminate_handler
+{
+  std::set_terminate(&terminate_handler)
+};
+} } }

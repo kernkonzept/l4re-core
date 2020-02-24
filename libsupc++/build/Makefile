@@ -45,7 +45,8 @@ tinfo2.cc \
 tinfo.cc \
 vec.cc \
 vterminate.cc \
-demangle.cc
+demangle.cc \
+l4_terminate_handler.cc
 
 SUPCXX_PKG_DIR ?= $(PKGDIR)
 
