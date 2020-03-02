@@ -32,10 +32,17 @@
 namespace L4Re {
 
 #ifdef __EXCEPTIONS
-namespace Priv {
-inline long __attribute__((__noreturn__)) __runtime_error(long err, char const *extra);
 
-inline long __runtime_error(long err, char const *extra)
+/**
+ * \brief Generate C++ exception
+ *
+ * \param err   Error value
+ * \param extra Optional text for exception (default "")
+ *
+ * This function throws an L4 exception. The exact exception type depends on
+ * the error value (err). This function does never return.
+ */
+[[noreturn]] inline void abort(long err, char const *extra = "")
 {
   switch (err)
     {
@@ -45,8 +52,6 @@ inline long __runtime_error(long err, char const *extra)
     case -L4_ERANGE: throw (L4::Bounds_error(extra));
     default: throw (L4::Runtime_error(err, extra));
     }
-}
-
 }
 
 /**
@@ -63,7 +68,7 @@ inline
 long chksys(long err, char const *extra = "", long ret = 0)
 {
   if (L4_UNLIKELY(err < 0))
-    Priv::__runtime_error(ret ? ret : err, extra);
+    abort(ret ? ret : err, extra);
 
   return err;
 }
@@ -85,7 +90,7 @@ long chksys(l4_msgtag_t const &t, char const *extra = "",
             l4_utcb_t *utcb = l4_utcb(), long ret = 0)
 {
   if (L4_UNLIKELY(t.has_error()))
-    Priv::__runtime_error(ret ? ret : l4_error_u(t, utcb), extra);
+    abort(ret ? ret : l4_error_u(t, utcb), extra);
   else if (L4_UNLIKELY(t.label() < 0))
     throw L4::Runtime_error(ret ? ret: t.label(), extra);
 
@@ -112,7 +117,7 @@ inline
 long chksys(long ret, long err, char const *extra = "")
 {
   if (L4_UNLIKELY(ret < 0))
-    Priv::__runtime_error(err, extra);
+    abort(err, extra);
 
   return ret;
 }
@@ -143,7 +148,7 @@ T chkcap(T cap, char const *extra = "", long err = -L4_ENOMEM)
 #endif
 {
   if (L4_UNLIKELY(!cap.is_valid()))
-    Priv::__runtime_error(err ? err : cap.cap(), extra);
+    abort(err ? err : cap.cap(), extra);
 
 #if __cplusplus >= 201103L
   return cxx::forward<T>(cap);
