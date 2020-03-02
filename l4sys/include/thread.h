@@ -253,6 +253,7 @@ l4_thread_control_exc_handler_u(l4_cap_idx_t exc_handler,
  *                     it must point to at least #L4_UTCB_OFFSET bytes of
  *                     kernel-user memory.
  * \param task         The task the thread shall be bound to.
+ * \pre The thread must not be bound to a task yet.
  *
  * A thread may execute code in the context of a task if and only if the
  * thread is bound to the task. To actually start execution,
