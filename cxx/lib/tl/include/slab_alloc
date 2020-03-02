@@ -311,10 +311,10 @@ public:
   { return _num_slabs * objects_per_slab; }
 
   /**
-   * Get the total number of objects managed by the slab allocator.
+   * Get the number of objects which can be allocated before a new empty slab
+   * needs to be added to the slab allocator.
    *
-   * \return The number of objects managed by the allocator (including the
-   *         free objects).
+   * \return The number of free objects in the slab allocator.
    */
   unsigned free_objects() const throw()
   {
