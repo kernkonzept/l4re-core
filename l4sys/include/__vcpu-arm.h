@@ -16,6 +16,16 @@
  */
 #pragma once
 
+typedef struct l4_arm_vcpu_e_info_t
+{
+  l4_uint8_t  version;     // must be 0
+  l4_uint8_t  gic_version;
+  l4_uint8_t  _rsvd0[2];
+  l4_uint32_t features;
+  l4_uint32_t _rsvd1[14];
+  l4_umword_t user[8];
+} l4_arm_vcpu_e_info_t;
+
 L4_INLINE void *l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW;
 L4_INLINE void *l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW
 { return (void *)((l4_addr_t)vcpu + 0x400 + (id & 0xfff)); }
@@ -24,6 +34,25 @@ enum L4_vcpu_e_consts
 {
   L4_VCPU_E_NUM_LR = 4, /**< Number of list registers (LRs) */
 };
+
+L4_INLINE l4_arm_vcpu_e_info_t const *
+l4_vcpu_e_info(void const *vcpu) L4_NOTHROW;
+
+L4_INLINE l4_arm_vcpu_e_info_t const *
+l4_vcpu_e_info(void const *vcpu) L4_NOTHROW
+{
+  return (l4_arm_vcpu_e_info_t const *)((l4_addr_t)vcpu + 0x200);
+}
+
+L4_INLINE l4_umword_t *
+l4_vcpu_e_info_user(void *vcpu) L4_NOTHROW;
+
+L4_INLINE l4_umword_t *
+l4_vcpu_e_info_user(void *vcpu) L4_NOTHROW
+{
+  return ((l4_arm_vcpu_e_info_t *)((l4_addr_t)vcpu + 0x200))->user;
+}
+
 
 /**
  * Read a 32bit field from the extended vCPU state.
