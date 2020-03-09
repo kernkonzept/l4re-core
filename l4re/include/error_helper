@@ -42,7 +42,7 @@ namespace L4Re {
  * This function throws an L4 exception. The exact exception type depends on
  * the error value (err). This function does never return.
  */
-[[noreturn]] inline void abort(long err, char const *extra = "")
+[[noreturn]] inline void throw_error(long err, char const *extra = "")
 {
   switch (err)
     {
@@ -68,7 +68,7 @@ inline
 long chksys(long err, char const *extra = "", long ret = 0)
 {
   if (L4_UNLIKELY(err < 0))
-    abort(ret ? ret : err, extra);
+    throw_error(ret ? ret : err, extra);
 
   return err;
 }
@@ -90,7 +90,7 @@ long chksys(l4_msgtag_t const &t, char const *extra = "",
             l4_utcb_t *utcb = l4_utcb(), long ret = 0)
 {
   if (L4_UNLIKELY(t.has_error()))
-    abort(ret ? ret : l4_error_u(t, utcb), extra);
+    throw_error(ret ? ret : l4_error_u(t, utcb), extra);
   else if (L4_UNLIKELY(t.label() < 0))
     throw L4::Runtime_error(ret ? ret: t.label(), extra);
 
@@ -117,7 +117,7 @@ inline
 long chksys(long ret, long err, char const *extra = "")
 {
   if (L4_UNLIKELY(ret < 0))
-    abort(err, extra);
+    throw_error(err, extra);
 
   return ret;
 }
@@ -148,7 +148,7 @@ T chkcap(T cap, char const *extra = "", long err = -L4_ENOMEM)
 #endif
 {
   if (L4_UNLIKELY(!cap.is_valid()))
-    abort(err ? err : cap.cap(), extra);
+    throw_error(err ? err : cap.cap(), extra);
 
 #if __cplusplus >= 201103L
   return cxx::forward<T>(cap);
