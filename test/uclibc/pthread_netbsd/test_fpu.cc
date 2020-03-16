@@ -70,6 +70,7 @@ recurse();
 
 int recursion_depth = 0;
 pthread_mutex_t recursion_depth_lock;
+unsigned volatile stop = 0;
 
 static void *
 stir(void *p)
@@ -79,7 +80,7 @@ stir(void *p)
   double y = *q++;
   double z = *q++;
 
-  for (;;)
+  while (!stop)
     {
       x = sin((y = cos(x + y + .4)) - (z = cos(x + z + .6)));
       EXPECT_EQ(0, sched_yield()) << "sched_yield failed: " << strerror(errno);
@@ -141,5 +142,10 @@ TEST(Pthread, Fpu)
 
   ASSERT_EQ(0, pthread_create(&s5, 0, stir, stirseed));
   recurse();
+
+  // Signal stop to stir thread
+  stop = 1;
+  ASSERT_EQ(0, pthread_join(s5, NULL));
+
   trace().printf("Exiting from main.\n");
 }
