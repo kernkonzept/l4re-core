@@ -38,6 +38,7 @@ SRC_CC := syscalls.cc vfs.cc
 SRC_C_arm-l4f   += aeabi_read_tp_generic.c
 SRC_S  := resolve.S
 
+CFLAGS += -ffreestanding
 CFLAGS_string.c = -fvisibility=hidden
 CFLAGS_fixup.c = -fvisibility=hidden
 
