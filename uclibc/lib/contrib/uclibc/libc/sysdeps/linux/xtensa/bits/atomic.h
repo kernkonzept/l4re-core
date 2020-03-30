@@ -18,6 +18,7 @@
 #ifndef _BITS_ATOMIC_H
 #define _BITS_ATOMIC_H  1
 
+#include <bits/xtensa-config.h>
 #include <inttypes.h>
 
 typedef int32_t atomic32_t;
@@ -50,24 +51,27 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_compare_and_exchange_bool_16_rel(mem, newval, oldval) \
       (abort (), 0)
 
+#if XCHAL_HAVE_EXCLUSIVE
+
 /* Atomically store NEWVAL in *MEM if *MEM is equal to OLDVAL.
    Return the old *MEM value.  */
 
 #define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval)  \
   ({__typeof__(*(mem)) __tmp, __value;                               \
     __asm__ __volatile__(                                            \
-      "1:     l32i    %1, %2, 0               \n"                    \
-      "       bne     %1, %4, 2f              \n"                    \
-      "       wsr     %1, SCOMPARE1           \n"                    \
-      "       mov     %0, %1                  \n"                    \
+      "       memw                            \n"                    \
+      "1:     l32ex   %0, %2                  \n"                    \
+      "       bne     %0, %4, 2f              \n"                    \
       "       mov     %1, %3                  \n"                    \
-      "       s32c1i  %1, %2, 0               \n"                    \
-      "       bne     %0, %1, 1b              \n"                    \
+      "       s32ex   %1, %2                  \n"                    \
+      "       getex   %1                      \n"                    \
+      "       beqz    %1, 1b                  \n"                    \
+      "       memw                            \n"                    \
       "2:                                     \n"                    \
       : "=&a" (__value), "=&a" (__tmp)                               \
       : "a" (mem), "a" (newval), "a" (oldval)                        \
       : "memory" );                                                  \
-    __tmp;                                                           \
+    __value;                                                         \
   })
 
 /* Atomically store NEWVAL in *MEM if *MEM is equal to OLDVAL.
@@ -76,19 +80,21 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_compare_and_exchange_bool_32_acq(mem, newval, oldval) \
   ({__typeof__(*(mem)) __tmp, __value;                               \
     __asm__ __volatile__(                                            \
-      "1:     l32i    %0, %2, 0               \n"                    \
-      "       sub     %1, %4, %0              \n"                    \
-      "       bnez    %1, 2f                  \n"                    \
-      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       memw                            \n"                    \
+      "1:     l32ex   %0, %2                  \n"                    \
+      "       sub     %0, %4, %0              \n"                    \
+      "       bnez    %0, 2f                  \n"                    \
       "       mov     %1, %3                  \n"                    \
-      "       s32c1i  %1, %2, 0               \n"                    \
-      "       bne     %0, %1, 1b              \n"                    \
-      "       movi    %1, 0                   \n"                    \
+      "       s32ex   %1, %2                  \n"                    \
+      "       getex   %1                      \n"                    \
+      "       beqz    %1, 1b                  \n"                    \
+      "       movi    %0, 0                   \n"                    \
+      "       memw                            \n"                    \
       "2:                                     \n"                    \
       : "=&a" (__value), "=&a" (__tmp)                               \
       : "a" (mem), "a" (newval), "a" (oldval)                        \
       : "memory" );                                                  \
-    __tmp != 0;                                                      \
+    __value != 0;                                                    \
   })
 
 /* Store NEWVALUE in *MEM and return the old value.  */
@@ -96,15 +102,17 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_exchange_32_acq(mem, newval)                          \
   ({__typeof__(*(mem)) __tmp, __value;                               \
     __asm__ __volatile__(                                            \
-      "1:     l32i    %0, %2, 0               \n"                    \
-      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       memw                            \n"                    \
+      "1:     l32ex   %0, %2                  \n"                    \
       "       mov     %1, %3                  \n"                    \
-      "       s32c1i  %1, %2, 0               \n"                    \
-      "       bne     %0, %1, 1b              \n"                    \
+      "       s32ex   %1, %2                  \n"                    \
+      "       getex   %1                      \n"                    \
+      "       beqz    %1, 1b                  \n"                    \
+      "       memw                            \n"                    \
       : "=&a" (__value), "=&a" (__tmp)                               \
       : "a" (mem), "a" (newval)                                      \
       : "memory" );                                                  \
-    __tmp;                                                           \
+    __value;                                                         \
   })
 
 /* Add VALUE to *MEM and return the old value of *MEM.  */
@@ -112,15 +120,17 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_exchange_and_add_32(mem, value)                \
   ({__typeof__(*(mem)) __tmp, __value;                               \
     __asm__ __volatile__(                                            \
-      "1:     l32i    %0, %2, 0               \n"                    \
-      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       memw                            \n"                    \
+      "1:     l32ex   %0, %2                  \n"                    \
       "       add     %1, %0, %3              \n"                    \
-      "       s32c1i  %1, %2, 0               \n"                    \
-      "       bne     %0, %1, 1b              \n"                    \
+      "       s32ex   %1, %2                  \n"                    \
+      "       getex   %1                      \n"                    \
+      "       beqz    %1, 1b                  \n"                    \
+      "       memw                            \n"                    \
       : "=&a" (__value), "=&a" (__tmp)                               \
       : "a" (mem), "a" (value)                                       \
       : "memory" );                                                  \
-    __tmp;                                                           \
+    __value;                                                         \
   })
 
 /* Subtract VALUE from *MEM and return the old value of *MEM.  */
@@ -128,11 +138,13 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_exchange_and_sub_32(mem, value)                \
   ({__typeof__(*(mem)) __tmp, __value;                               \
     __asm__ __volatile__(                                            \
-      "1:     l32i    %0, %2, 0               \n"                    \
-      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       memw                            \n"                    \
+      "1:     l32ex   %0, %2                  \n"                    \
       "       sub     %1, %0, %3              \n"                    \
-      "       s32c1i  %1, %2, 0               \n"                    \
-      "       bne     %0, %1, 1b              \n"                    \
+      "       s32ex   %1, %2                  \n"                    \
+      "       getex   %1                      \n"                    \
+      "       beqz    %1, 1b                  \n"                    \
+      "       memw                            \n"                    \
       : "=&a" (__value), "=&a" (__tmp)                               \
       : "a" (mem), "a" (value)                                       \
       : "memory" );                                                  \
@@ -144,12 +156,14 @@ typedef uintmax_t uatomic_max_t;
 #define __arch_atomic_decrement_if_positive_32(mem)                  \
   ({__typeof__(*(mem)) __tmp, __value;                               \
     __asm__ __volatile__(                                            \
-      "1:     l32i    %0, %2, 0               \n"                    \
+      "       memw                            \n"                    \
+      "1:     l32ex   %0, %2                  \n"                    \
       "       blti    %0, 1, 2f               \n"                    \
-      "       wsr     %0, SCOMPARE1           \n"                    \
       "       addi    %1, %0, -1              \n"                    \
-      "       s32c1i  %1, %2, 0               \n"                    \
-      "       bne     %0, %1, 1b              \n"                    \
+      "       s32ex   %1, %2                  \n"                    \
+      "       getex   %1                      \n"                    \
+      "       beqz    %1, 1b                  \n"                    \
+      "       memw                            \n"                    \
       "2:                                     \n"                    \
       : "=&a" (__value), "=&a" (__tmp)                               \
       : "a" (mem)                                                    \
@@ -157,6 +171,119 @@ typedef uintmax_t uatomic_max_t;
     __value;                                                         \
   })
 
+#elif XCHAL_HAVE_S32C1I
+
+/* Atomically store NEWVAL in *MEM if *MEM is equal to OLDVAL.
+   Return the old *MEM value.  */
+
+#define __arch_compare_and_exchange_val_32_acq(mem, newval, oldval)  \
+  ({__typeof__(*(mem)) __tmp, __value;                               \
+    __asm__ __volatile__(                                            \
+      "1:     l32i    %1, %2                  \n"                    \
+      "       bne     %1, %4, 2f              \n"                    \
+      "       wsr     %1, SCOMPARE1           \n"                    \
+      "       mov     %0, %1                  \n"                    \
+      "       mov     %1, %3                  \n"                    \
+      "       s32c1i  %1, %2                  \n"                    \
+      "       bne     %0, %1, 1b              \n"                    \
+      "2:                                     \n"                    \
+      : "=&a" (__value), "=&a" (__tmp), "+m" (*(mem))                \
+      : "a" (newval), "a" (oldval)                                   \
+      : "memory" );                                                  \
+    __tmp;                                                           \
+  })
+
+/* Atomically store NEWVAL in *MEM if *MEM is equal to OLDVAL.
+   Return zero if *MEM was changed or non-zero if no exchange happened.  */
+
+#define __arch_compare_and_exchange_bool_32_acq(mem, newval, oldval) \
+  ({__typeof__(*(mem)) __tmp, __value;                               \
+    __asm__ __volatile__(                                            \
+      "1:     l32i    %0, %2                  \n"                    \
+      "       sub     %1, %4, %0              \n"                    \
+      "       bnez    %1, 2f                  \n"                    \
+      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       mov     %1, %3                  \n"                    \
+      "       s32c1i  %1, %2                  \n"                    \
+      "       bne     %0, %1, 1b              \n"                    \
+      "       movi    %1, 0                   \n"                    \
+      "2:                                     \n"                    \
+      : "=&a" (__value), "=&a" (__tmp), "+m" (*(mem))                \
+      : "a" (newval), "a" (oldval)                                   \
+      : "memory" );                                                  \
+    __tmp != 0;                                                      \
+  })
+
+/* Store NEWVALUE in *MEM and return the old value.  */
+
+#define __arch_exchange_32_acq(mem, newval)                          \
+  ({__typeof__(*(mem)) __tmp, __value;                               \
+    __asm__ __volatile__(                                            \
+      "1:     l32i    %0, %2                  \n"                    \
+      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       mov     %1, %3                  \n"                    \
+      "       s32c1i  %1, %2                  \n"                    \
+      "       bne     %0, %1, 1b              \n"                    \
+      : "=&a" (__value), "=&a" (__tmp), "+m" (*(mem))                \
+      : "a" (newval)                                                 \
+      : "memory" );                                                  \
+    __tmp;                                                           \
+  })
+
+/* Add VALUE to *MEM and return the old value of *MEM.  */
+
+#define __arch_atomic_exchange_and_add_32(mem, value)                \
+  ({__typeof__(*(mem)) __tmp, __value;                               \
+    __asm__ __volatile__(                                            \
+      "1:     l32i    %0, %2                  \n"                    \
+      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       add     %1, %0, %3              \n"                    \
+      "       s32c1i  %1, %2                  \n"                    \
+      "       bne     %0, %1, 1b              \n"                    \
+      : "=&a" (__value), "=&a" (__tmp), "+m" (*(mem))                \
+      : "a" (value)                                                  \
+      : "memory" );                                                  \
+    __tmp;                                                           \
+  })
+
+/* Subtract VALUE from *MEM and return the old value of *MEM.  */
+
+#define __arch_atomic_exchange_and_sub_32(mem, value)                \
+  ({__typeof__(*(mem)) __tmp, __value;                               \
+    __asm__ __volatile__(                                            \
+      "1:     l32i    %0, %2                  \n"                    \
+      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       sub     %1, %0, %3              \n"                    \
+      "       s32c1i  %1, %2                  \n"                    \
+      "       bne     %0, %1, 1b              \n"                    \
+      : "=&a" (__value), "=&a" (__tmp), "+m" (*(mem))                \
+      : "a" (value)                                                  \
+      : "memory" );                                                  \
+    __tmp;                                                           \
+  })
+
+/* Decrement *MEM if it is > 0, and return the old value.  */
+
+#define __arch_atomic_decrement_if_positive_32(mem)                  \
+  ({__typeof__(*(mem)) __tmp, __value;                               \
+    __asm__ __volatile__(                                            \
+      "1:     l32i    %0, %2                  \n"                    \
+      "       blti    %0, 1, 2f               \n"                    \
+      "       wsr     %0, SCOMPARE1           \n"                    \
+      "       addi    %1, %0, -1              \n"                    \
+      "       s32c1i  %1, %2                  \n"                    \
+      "       bne     %0, %1, 1b              \n"                    \
+      "2:                                     \n"                    \
+      : "=&a" (__value), "=&a" (__tmp), "+m" (*(mem))                \
+      :: "memory" );                                                 \
+    __value;                                                         \
+  })
+
+#else
+
+#error No hardware atomic operations
+
+#endif
 
 /* These are the preferred public interfaces: */
 

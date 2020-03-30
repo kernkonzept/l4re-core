@@ -57,6 +57,10 @@ _start:
 	bl	_GLOBAL_OFFSET_TABLE_-4@local
 	mflr	r31
 # endif
+	/* in PIC/PIE, plt stubs need r30 to point to the GOT if using secure-plt */
+# ifdef PPC_HAS_SECUREPLT
+	mr	30,31
+# endif
 #endif
 	/* Set up the small data pointer in r13.  */
 #ifdef __PIC__

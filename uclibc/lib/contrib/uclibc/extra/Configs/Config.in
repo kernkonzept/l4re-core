@@ -28,6 +28,7 @@ choice
 	default TARGET_hppa if DESIRED_TARGET_ARCH = "hppa"
 	default TARGET_i386 if DESIRED_TARGET_ARCH = "i386"
 	default TARGET_ia64 if DESIRED_TARGET_ARCH = "ia64"
+	default TARGET_kvx if DESIRED_TARGET_ARCH = "kvx"
 	default TARGET_lm32 if DESIRED_TARGET_ARCH = "lm32"
 	default TARGET_m68k if DESIRED_TARGET_ARCH = "m68k"
 	default TARGET_metag if DESIRED_TARGET_ARCH = "metag"
@@ -90,6 +91,9 @@ config TARGET_i386
 
 config TARGET_ia64
 	bool "ia64"
+
+config TARGET_kvx
+	bool "kvx"
 
 config TARGET_lm32
 	bool "lm32"
@@ -190,6 +194,10 @@ endif
 
 if TARGET_ia64
 source "extra/Configs/Config.ia64"
+endif
+
+if TARGET_kvx
+source "extra/Configs/Config.kvx"
 endif
 
 if TARGET_lm32
@@ -502,7 +510,7 @@ config UCLIBC_CTOR_DTOR
 
 config LDSO_GNU_HASH_SUPPORT
 	bool "Enable GNU hash style support"
-	depends on HAVE_SHARED
+	depends on HAVE_SHARED && !TARGET_mips
 	help
 	  Newest binutils support a new hash style named GNU-hash. The dynamic
 	  linker will use the new GNU-hash section (.gnu.hash) for symbol lookup

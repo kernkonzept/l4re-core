@@ -32,6 +32,8 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	iopl.c \
 	modify_ldt.c \
 	module.c \
+	name_to_handle_at.c \
+	open_by_handle_at.c \
 	personality.c \
 	pipe2.c \
 	ppoll.c \

@@ -337,3 +337,9 @@ __pthread_initialize_minimal_internal (void)
 }
 strong_alias (__pthread_initialize_minimal_internal,
 	      __pthread_initialize_minimal)
+
+size_t
+__pthread_get_minstack (const pthread_attr_t *attr)
+{
+  return __static_tls_size + PTHREAD_STACK_MIN;
+}

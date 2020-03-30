@@ -5,6 +5,7 @@
 #ifndef	_SYS_RANDOM_H
 #define	_SYS_RANDOM_H	1
 #include <features.h>
+#include <stddef.h>
 
 __BEGIN_DECLS
 

@@ -144,7 +144,7 @@ SHARED_LIBNAME := $(LIBC).so.$(ABI_VERSION)
 
 UCLIBC_LDSO_NAME := ld-uClibc
 ARCH_NATIVE_BIT := 32
-ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 powerpc64 s390x sparc64 x86_64 ),)
+ifneq ($(findstring  $(TARGET_ARCH) , hppa64 ia64 powerpc64 s390x sparc64 x86_64 kvx ),)
 UCLIBC_LDSO_NAME := ld64-uClibc
 ARCH_NATIVE_BIT := 64
 else
@@ -189,11 +189,13 @@ endif
 
 # A nifty macro to make testing gcc features easier
 check_gcc=$(shell \
-	if $(CC) $(1) -S -o /dev/null -xc /dev/null > /dev/null 2>&1; \
-	then echo "$(1)"; else echo "$(2)"; fi)
+	tf="/tmp/cgccucl$$$$.o"; \
+	if $(CC) $(1) -S -o $$tf -xc /dev/null > /dev/null 2>&1; \
+	then echo "$(1)"; else echo "$(2)"; fi; rm -f $$tf )
 check_as=$(shell \
-	if $(CC) -Wa,$(1) -Wa,-Z -c -o /dev/null -xassembler /dev/null > /dev/null 2>&1; \
-	then echo "-Wa,$(1)"; fi)
+	tf="/tmp/casucl$$$$.o"; \
+	if $(CC) -Wa,$(1) -Wa,-Z -c -o $$tf -xassembler /dev/null > /dev/null 2>&1; \
+	then echo "-Wa,$(1)"; fi; rm -f $$tf )
 check_ld=$(shell \
 	tf="/tmp/clducl$$$$.c"; echo "int _start(){return 0;}int main(){return 0;}" >$$tf; \
 	if $(CC) $(LDFLAG-fuse-ld) $(CFLAG_-Wl--no-warn-mismatch) -Wl,$(1) $(CFLAG_-nostdlib) -o /dev/null $$tf > /dev/null 2>&1; \
@@ -286,7 +288,7 @@ OPTIMIZATION += $(CFLAG_-fstrict-aliasing)
 
 # Why -funsigned-char: I hunted a bug related to incorrect
 # sign extension of 'char' type for 10 hours straight. Not fun.
-CPU_CFLAGS-y := -funsigned-char -fno-builtin
+CPU_CFLAGS-y := -funsigned-char -fno-builtin -fcommon
 
 $(eval $(call check-gcc-var,-fno-asm))
 CPU_CFLAGS-y += $(CFLAG_-fno-asm)
@@ -463,6 +465,10 @@ ifeq ($(TARGET_ARCH),csky)
 	CPU_CFLAGS-$(ARCH_BIG_ENDIAN)		+= -mbig-endian
 endif
 
+ifeq ($(TARGET_ARCH),kvx)
+	CPU_CFLAGS-$(CONFIG_KVX) += -march=kvx
+endif
+
 ifeq ($(TARGET_ARCH),m68k)
 	# -fPIC is only supported for 68020 and above.  It is not supported
 	# for 68000, 68010, or Coldfire.
@@ -477,9 +483,10 @@ ifeq ($(TARGET_ARCH),powerpc)
 	PICFLAG:=-fpic
 	PIEFLAG_NAME:=-fpie
 	PPC_HAS_REL16:=$(shell printf "\t.text\n\taddis 11,30,_GLOBAL_OFFSET_TABLE_-.@ha\n" | $(CC) -c -x assembler -o /dev/null -  2> /dev/null && echo -n y || echo -n n)
+	PPC_HAS_SECUREPLT:=$(shell $(CC) --verbose 2>&1 | grep -- --enable-secureplt > /dev/null && echo -n y || echo -n n)
+	CPU_CFLAGS-$(PPC_HAS_SECUREPLT) += -DPPC_HAS_SECUREPLT
 	CPU_CFLAGS-$(PPC_HAS_REL16)+= -DHAVE_ASM_PPC_REL16
 	CPU_CFLAGS-$(CONFIG_E500) += "-D__NO_MATH_INLINES"
-
 endif
 
 ifeq ($(TARGET_ARCH),bfin)

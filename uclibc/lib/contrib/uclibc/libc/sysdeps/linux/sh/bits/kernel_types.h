@@ -21,6 +21,7 @@ typedef unsigned int	__kernel_size_t;
 typedef int		__kernel_ssize_t;
 typedef int		__kernel_ptrdiff_t;
 typedef long		__kernel_time_t;
+typedef long long	__kernel_time64_t;
 typedef long		__kernel_suseconds_t;
 typedef long		__kernel_clock_t;
 typedef int		__kernel_daddr_t;
@@ -33,6 +34,7 @@ typedef unsigned short	__kernel_old_uid_t;
 typedef unsigned short	__kernel_old_gid_t;
 typedef __kernel_dev_t	__kernel_old_dev_t;
 typedef long		__kernel_long_t;
+typedef __kernel_long_t	__kernel_old_time_t;
 typedef unsigned long	__kernel_ulong_t;
 typedef long long	__kernel_loff_t;
 

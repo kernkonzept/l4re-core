@@ -270,8 +270,13 @@
 	_sys_result;							\
 })
 
-#define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
-	"$14", "$15", "$24", "$25", "hi", "lo", "memory"
+#if __mips_isa_rev >= 6
+# define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
+	 "$14", "$15", "$24", "$25", "memory"
+#else
+# define __SYSCALL_CLOBBERS "$1", "$3", "$8", "$9", "$10", "$11", "$12", "$13", \
+	 "$14", "$15", "$24", "$25", "hi", "lo", "memory"
+#endif
 
 #else /* N32 || N64 */
 
@@ -327,8 +332,13 @@
 	_sys_result;							\
 })
 
-#define __SYSCALL_CLOBBERS "$1", "$3", "$10", "$11", "$12", "$13", \
-	"$14", "$15", "$24", "$25", "hi", "lo", "memory"
+#if __mips_isa_rev >= 6
+# define __SYSCALL_CLOBBERS "$1", "$3", "$10", "$11", "$12", "$13", \
+	 "$14", "$15", "$24", "$25", "memory"
+#else
+# define __SYSCALL_CLOBBERS "$1", "$3", "$10", "$11", "$12", "$13", \
+	 "$14", "$15", "$24", "$25", "hi", "lo", "memory"
+#endif
 
 #endif
 

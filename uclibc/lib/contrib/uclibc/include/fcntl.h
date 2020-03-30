@@ -281,7 +281,19 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset, __off64_t __le
 # endif
 #endif
 
+#if (defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU)
+struct file_handle {
+	unsigned handle_bytes;
+	int handle_type;
+	unsigned char f_handle[];
+};
+
 #define MAX_HANDLE_SZ  128
+
+int name_to_handle_at(int dirfd, const char *pathname,
+	struct file_handle *handle, int *mount_id, int flags);
+int open_by_handle_at(int mount_fd, struct file_handle *handle, int flags);
+#endif
 
 __END_DECLS
 

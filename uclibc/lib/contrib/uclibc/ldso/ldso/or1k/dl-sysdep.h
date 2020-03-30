@@ -36,8 +36,10 @@ do {									\
 #define ELF_TARGET "or1k"
 
 #define elf_machine_type_class(type) \
-  (((type) == R_OR1K_JMP_SLOT) * ELF_RTYPE_CLASS_PLT \
-   | ((type) == R_OR1K_COPY) * ELF_RTYPE_CLASS_COPY)
+  (((type) == R_OR1K_JMP_SLOT || (type) == R_OR1K_TLS_DTPMOD || \
+    (type) == R_OR1K_TLS_DTPOFF || \
+    (type) == R_OR1K_TLS_TPOFF) * ELF_RTYPE_CLASS_PLT \
+ | ((type) == R_OR1K_COPY) * ELF_RTYPE_CLASS_COPY)
 
 static inline Elf32_Addr *
 or1k_get_got (void)

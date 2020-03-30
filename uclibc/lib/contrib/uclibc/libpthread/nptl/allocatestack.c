@@ -599,7 +599,9 @@ allocate_stack (const struct pthread_attr *attr, struct pthread **pdp,
 	  if (mprotect (guard, guardsize, PROT_NONE) != 0)
 	    {
 	      int err;
+#ifdef NEED_SEPARATE_REGISTER_STACK
 	    mprot_error:
+#endif
 	      err = errno;
 
 	      lll_lock (stack_cache_lock, LLL_PRIVATE);

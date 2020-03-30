@@ -21,6 +21,7 @@
 #ifndef _PT_MACHINE_H
 #define _PT_MACHINE_H   1
 
+#include <bits/xtensa-config.h>
 #include <sys/syscall.h>
 #include <asm/unistd.h>
 
@@ -34,16 +35,24 @@
 extern long int testandset (int *spinlock);
 extern int __compare_and_swap (long int *p, long int oldval, long int newval);
 
+#if XCHAL_HAVE_EXCLUSIVE
+
 /* Spinlock implementation; required.  */
 PT_EI long int
 testandset (int *spinlock)
 {
 	unsigned long tmp;
 	__asm__ volatile (
-"	movi	%0, 0			\n"
-"	wsr	%0, SCOMPARE1		\n"
+"	memw				\n"
+"1:	l32ex	%0, %1			\n"
+"	bnez	%0, 2f			\n"
 "	movi	%0, 1			\n"
-"	s32c1i	%0, %1, 0		\n"
+"	s32ex	%0, %1			\n"
+"	getex	%0			\n"
+"	beqz	%0, 1b			\n"
+"	movi	%0, 0			\n"
+"	memw				\n"
+"2:					\n"
 	: "=&a" (tmp)
 	: "a" (spinlock)
 	: "memory"
@@ -57,13 +66,14 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
         unsigned long tmp;
         unsigned long value;
         __asm__ volatile (
-"1:     l32i    %0, %2, 0            \n"
+"       memw                         \n"
+"1:     l32ex   %0, %2               \n"
 "       bne     %0, %4, 2f           \n"
-"       wsr     %0, SCOMPARE1        \n"
-"       mov     %1, %0               \n"
-"       mov     %0, %3               \n"
-"       s32c1i  %0, %2, 0            \n"
-"       bne     %1, %0, 1b           \n"
+"       mov     %1, %3               \n"
+"       s32ex   %1, %2               \n"
+"       getex   %1                   \n"
+"       beqz    %1, 1b               \n"
+"       memw                         \n"
 "2:                                  \n"
           : "=&a" (tmp), "=&a" (value)
           : "a" (p), "a" (newval), "a" (oldval)
@@ -71,6 +81,51 @@ __compare_and_swap (long int *p, long int oldval, long int newval)
 
         return tmp == oldval;
 }
+
+#elif XCHAL_HAVE_S32C1I
+
+/* Spinlock implementation; required.  */
+PT_EI long int
+testandset (int *spinlock)
+{
+	unsigned long tmp;
+	__asm__ volatile (
+"	movi	%0, 0			\n"
+"	wsr	%0, SCOMPARE1		\n"
+"	movi	%0, 1			\n"
+"	s32c1i	%0, %1			\n"
+	: "=&a" (tmp), "+m" (*spinlock)
+	:: "memory"
+	);
+	return tmp;
+}
+
+PT_EI int
+__compare_and_swap (long int *p, long int oldval, long int newval)
+{
+        unsigned long tmp;
+        unsigned long value;
+        __asm__ volatile (
+"1:     l32i    %0, %2               \n"
+"       bne     %0, %4, 2f           \n"
+"       wsr     %0, SCOMPARE1        \n"
+"       mov     %1, %0               \n"
+"       mov     %0, %3               \n"
+"       s32c1i  %0, %2               \n"
+"       bne     %1, %0, 1b           \n"
+"2:                                  \n"
+          : "=&a" (tmp), "=&a" (value), "+m" (*p)
+          : "a" (newval), "a" (oldval)
+          : "memory" );
+
+        return tmp == oldval;
+}
+
+#else
+
+#error No hardware atomic operations
+
+#endif
 
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */

@@ -44,7 +44,9 @@ CFLAGS-unwind-forcedunwind.c = -fexceptions -fasynchronous-unwind-tables
 CFLAGS-OMIT-librt-cancellation.c = -DIS_IN_libpthread
 CFLAGS-librt-cancellation.c = -DIS_IN_librt				\
 			      -fexceptions -fasynchronous-unwind-tables
+ifneq ($(TARGET_ARCH),kvx)
 libpthread-so-y += $(patsubst %,$(libpthread_pthread_OUT)/%.oS, unwind-forcedunwind)
+endif
 
 librt-pt-routines-y = librt-cancellation.c
 

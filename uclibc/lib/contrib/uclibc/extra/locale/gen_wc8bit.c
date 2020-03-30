@@ -121,7 +121,8 @@ int main(int argc, char **argv)
 		}
 
  locale_failure:
-		printf("could not find a UTF8 locale ... please enable en_US.UTF-8\n");
+		fprintf(stderr,
+			"could not find a UTF8 locale ... please enable en_US.UTF-8\n");
 		return EXIT_FAILURE;
  locale_success:
 		pclose(fp);

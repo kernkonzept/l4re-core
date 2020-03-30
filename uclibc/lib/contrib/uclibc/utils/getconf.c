@@ -1154,7 +1154,6 @@ environment SPEC.\n\n");
 
   const char *spec = NULL;
   char buf[sizeof "POSIX_V6_LPBIG_OFFBIG"];
-  char *argv0 = argv[0];
   if (argc > 1 && strncmp (argv[1], "-v", 2) == 0)
     {
       if (argv[1][2] == '\0')
@@ -1199,42 +1198,56 @@ environment SPEC.\n\n");
 
       switch (specs[i].num)
 	{
+#undef DO_GETCONF_NAME
 #if !defined(_XBS5_ILP32_OFF32) && defined(_SC_XBS5_ILP32_OFF32)
+#define DO_GETCONF_NAME
 	case _SC_XBS5_ILP32_OFF32:
 #endif
 #if !defined(_XBS5_ILP32_OFFBIG) && defined(_SC_XBS5_ILP32_OFFBIG)
+#define DO_GETCONF_NAME
 	case _SC_XBS5_ILP32_OFFBIG:
 #endif
 #if !defined(_XBS5_LP64_OFF64) && defined(_SC_XBS5_LP64_OFF64)
+#define DO_GETCONF_NAME
 	case _SC_XBS5_LP64_OFF64:
 #endif
 #if !defined(_XBS5_LPBIG_OFFBIG) && defined(_SC_XBS5_LPBIG_OFFBIG)
+#define DO_GETCONF_NAME
 	case _SC_XBS5_LPBIG_OFFBIG:
 #endif
 #if !defined(_POSIX_V6_ILP32_OFF32) && defined(_SC_V6_ILP32_OFF32)
+#define DO_GETCONF_NAME
 	case _SC_V6_ILP32_OFF32:
 #endif
 #if !defined(_POSIX_V6_ILP32_OFFBIG) && defined(_SC_V6_ILP32_OFFBIG)
+#define DO_GETCONF_NAME
 	case _SC_V6_ILP32_OFFBIG:
 #endif
 #if !defined(_POSIX_V6_LP64_OFF64) && defined(_SC_V6_LP64_OFF64)
+#define DO_GETCONF_NAME
 	case _SC_V6_LP64_OFF64:
 #endif
 #if !defined(_POSIX_V6_LPBIG_OFFBIG) && defined(_SC_V6_LPBIG_OFFBIG)
+#define DO_GETCONF_NAME
 	case _SC_V6_LPBIG_OFFBIG:
 #endif
 #if !defined(_POSIX_V7_ILP32_OFF32) && defined(_SC_V7_ILP32_OFF32)
+#define DO_GETCONF_NAME
 	case _SC_V7_ILP32_OFF32:
 #endif
 #if !defined(_POSIX_V7_ILP32_OFFBIG) && defined(_SC_V7_ILP32_OFFBIG)
+#define DO_GETCONF_NAME
 	case _SC_V7_ILP32_OFFBIG:
 #endif
 #if !defined(_POSIX_V7_LP64_OFF64) && defined(_SC_V7_LP64_OFF64)
+#define DO_GETCONF_NAME
 	case _SC_V7_LP64_OFF64:
 #endif
 #if !defined(_POSIX_V7_LPBIG_OFFBIG) && defined(_SC_V7_LPBIG_OFFBIG)
+#define DO_GETCONF_NAME
 	case _SC_V7_LPBIG_OFFBIG:
 #endif
+#ifdef DO_GETCONF_NAME
 	    {
 	      const char *args[argc + 3];
 	      size_t spec_len = strlen (spec);
@@ -1242,14 +1255,15 @@ environment SPEC.\n\n");
 	      memcpy (mempcpy (mempcpy (getconf_name, getconf_dir,
 					getconf_dirlen),
 			       "/", 1), spec, spec_len + 1);
-	      args[0] = argv0;
+	      args[0] = argv[0];
 	      args[1] = "-v";
 	      args[2] = spec;
 	      memcpy (&args[3], &argv[1], argc * sizeof (argv[1]));
 	      execv (getconf_name, (char * const *) args);
 	      error (4, errno, _("Couldn't execute %s"), getconf_name);
 	    }
-	  default:
+#endif
+	default:
 	    break;
 	}
     }

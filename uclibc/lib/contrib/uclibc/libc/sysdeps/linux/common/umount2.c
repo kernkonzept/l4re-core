@@ -14,7 +14,7 @@ _syscall2(int, umount2, const char *, special_file, int, flags)
 libc_hidden_def(umount2)
 #endif
 
-#if defined __UCLIBC_LINUX_SPECIFIC__ && defined __NR_oldumount
+#if defined __UCLIBC_LINUX_SPECIFIC__ && defined __NR_oldumount && !defined __NR_umount2
 _syscall2(int, umount, const char *, special_file, int, flags)
 strong_alias(umount,umount2)
 #endif

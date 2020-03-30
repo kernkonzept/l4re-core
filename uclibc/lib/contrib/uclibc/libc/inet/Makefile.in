@@ -50,7 +50,7 @@ socketcalls_CSRC-y += \
 	sendto.c setsockopt.c shutdown.c socket.c socketpair.c \
 	recvmmsg.c sendmmsg.c
 socketcalls_CSRC-$(UCLIBC_LINUX_SPECIFIC) += accept4.c
-CSRC-$(UCLIBC_HAS_SOCKET) += $(socketcalls_CSRC-y) opensock.c
+CSRC-$(UCLIBC_HAS_SOCKET) += $(socketcalls_CSRC-y) opensock.c sockatmark.c
 
 CSRC-$(findstring y,$(UCLIBC_HAS_SOCKET)$(V4_OR_V6)) += ethers.c ether_addr.c
 

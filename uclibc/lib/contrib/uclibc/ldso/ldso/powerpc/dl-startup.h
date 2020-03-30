@@ -26,6 +26,10 @@ __asm__(
     "	bl	_GLOBAL_OFFSET_TABLE_-4@local\n" /*  Put our GOT pointer in r31, */
     "	mflr	31\n"
 #endif
+/* I'm quite sure this piece of code is always compiled as PIC but let's be sure */
+#if defined(PPC_HAS_SECUREPLT) && defined(__PIC__)
+    "   mr      30,31\n"
+#endif
     "	addi	1,1,16\n" /* Restore SP */
     "	lwz	7,_dl_skip_args@got(31)\n" /* load EA of _dl_skip_args */
     "	lwz	7,0(7)\n"	/* Load word from _dl_skip_args */

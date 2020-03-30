@@ -31,45 +31,6 @@
  */
 struct stat
   {
-#ifndef __USE_FILE_OFFSET64
-# if __BYTE_ORDER == __LITTLE_ENDIAN
-    unsigned long st_dev;			/* Device.  */
-    unsigned long __pad1;
-    unsigned long st_ino;			/* 32bit file serial number.	*/
-    unsigned long __pad2;
-    unsigned int st_mode;			/* File mode.  */
-    unsigned int st_nlink;			/* Link count.  */
-    unsigned int st_uid;			/* User ID of the file's owner.	*/
-    unsigned int st_gid;			/* Group ID of the file's group.*/
-    unsigned long st_rdev;			/* Device number, if device.  */
-    unsigned long __pad3;
-    unsigned long long __pad4;
-    long st_size;				/* SIze of file, in bytes.  */
-    long __pad5;
-    int st_blksize;				/* Optimal block size for I/O. */
-    int __pad6;
-    long st_blocks;				/* Number 512-byte blocks allocated */
-    long __pad7;
-# else
-    unsigned long __pad1;
-    unsigned long st_dev;			/* Device. */
-    unsigned long __pad2;
-    unsigned long st_ino;			/* 32bit file serial number. */
-    unsigned int st_mode;			/* File mode.  */
-    unsigned int st_nlink;			/* Link count.  */
-    unsigned int st_uid;			/* User ID of the file's owner.	*/
-    unsigned int st_gid;			/* Group ID of the file's group.*/
-    unsigned long __pad3;
-    unsigned long st_rdev;			/* Device number, if device.  */
-    unsigned long long __pad4;
-    long __pad5;
-    long st_size;				/* Size of file, in bytes. */
-    int st_blksize;				/* Optimal block size for I/O. */
-    int __pad6;
-    long __pad7;
-    long st_blocks;				/* Number 512-byte blocks allocated */
-# endif /* __LITTLE_ENDIAN */
-#else
     unsigned long long st_dev;			/* Device. */
     unsigned long long st_ino;			/* 32bit file serial number. */
     unsigned int st_mode;			/* File mode.  */
@@ -86,8 +47,7 @@ struct stat
     int st_blksize;				/* Optimal block size for I/O. */
     int __pad2;
     long long st_blocks;			/* Number 512-byte blocks allocated */
-#endif
-#ifdef __USE_MISC
+#if defined(__USE_MISC) || defined(__USE_XOPEN2K8)
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -101,21 +61,12 @@ struct stat
 # define st_mtime st_mtim.tv_sec
 # define st_ctime st_ctim.tv_sec
 #else
-# ifndef __USE_FILE_OFFSET64
-    long st_atime;				/* Time of last access. */
-    unsigned long st_atime_nsec;
-    long st_mtime;				/* Time of last modification. */
-    unsigned long st_mtime_nsec;
-    long st_ctime;				/* Time of last status change. */
-    unsigned long st_ctime_nsec;
-# else
     int st_atime;				/* Time of last access. */
     unsigned int st_atime_nsec;
     int st_mtime;				/* Time of last modification. */
     unsigned int st_mtime_nsec;
     int st_ctime;				/* Time of last status change. */
     unsigned int st_ctime_nsec;
-# endif
 #endif
     unsigned int __uclibc_unused4;
     unsigned int __uclibc_unused5;
@@ -137,7 +88,7 @@ struct stat64
     int st_blksize;				/* Optimal block size for I/O. */
     int __pad4;
     long long st_blocks;			/* Number 512-byte blocks allocated */
-# ifdef __USE_MISC
+# if defined(__USE_MISC) || defined(__USE_XOPEN2K8)
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the

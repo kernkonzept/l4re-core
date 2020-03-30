@@ -17,15 +17,32 @@
 
 #define _ERRNO_H 1
 #include <bits/errno.h>
+#include <bits/xtensa-config.h>
 #include <sysdep.h>
 
 	.text
 ENTRY (pthread_spin_trylock)
 
+#if XCHAL_HAVE_EXCLUSIVE
+	memw
+	l32ex	a3, a2
+	bnez	a3, 1f
+	movi	a3, 1
+	s32ex	a3, a2
+	getex	a3
+	addi	a3, a3, -1
+	memw
+1:
+#elif XCHAL_HAVE_S32C1I
 	movi	a3, 0
 	wsr 	a3, scompare1
 	movi	a3, 1
 	s32c1i	a3, a2, 0
+#else
+
+#error No hardware atomic operations
+
+#endif
 	movi	a2, EBUSY
 	moveqz	a2, a3, a3
 

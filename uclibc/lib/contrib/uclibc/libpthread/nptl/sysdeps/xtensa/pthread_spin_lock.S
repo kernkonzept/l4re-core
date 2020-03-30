@@ -15,16 +15,32 @@
    License along with the GNU C Library; see the file COPYING.LIB.  If
    not, see <http://www.gnu.org/licenses/>.  */
 
+#include <bits/xtensa-config.h>
 #include <sysdep.h>
 
 	.text
 ENTRY (pthread_spin_lock)
 
+#if XCHAL_HAVE_EXCLUSIVE
+	memw
+1:	l32ex	a3, a2
+	bnez	a3, 1b
+	movi	a3, 1
+	s32ex	a3, a2
+	getex	a3
+	beqz	a3, 1b
+	memw
+#elif XCHAL_HAVE_S32C1I
 	movi	a3, 0
 	wsr 	a3, scompare1
 	movi	a3, 1
 1:	s32c1i	a3, a2, 0
 	bnez	a3, 1b
+#else
+
+#error No hardware atomic operations
+
+#endif
 	movi	a2, 0
 
 	abi_ret

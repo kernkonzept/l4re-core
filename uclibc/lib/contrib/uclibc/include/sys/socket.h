@@ -281,7 +281,7 @@ libc_hidden_proto(accept4)
 extern int shutdown (int __fd, int __how) __THROW;
 
 
-#if 0 /*def __USE_XOPEN2K*/
+#ifdef __USE_XOPEN2K
 /* Determine wheter socket is at a out-of-band mark.  */
 extern int sockatmark (int __fd) __THROW;
 #endif

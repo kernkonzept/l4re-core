@@ -14,6 +14,11 @@
 
 #include "porting.h"
 
+#if defined(__kvx__)
+#define MATCH_MACHINE(x) (x == EM_KVX)
+#define ELFCLASSM	ELFCLASS64
+#endif
+
 #if defined(__aarch64__)
 #define MATCH_MACHINE(x) (x == EM_AARCH64)
 #define ELFCLASSM	ELFCLASS64
