@@ -334,7 +334,7 @@ char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_res
 			/* Prefer GNU hash style, if any */
 			if (tpnt->l_gnu_bitmask) {
 				sym = _dl_lookup_gnu_hash(tpnt, symtab, gnu_hash_number, name, type_class);
-				if (sym != NULL)
+				if (sym != NULL && (ELF_ST_BIND(sym->st_info) != STB_LOCAL))
 					/* If sym has been found, do not search further */
 					break;
 			} else {
@@ -346,7 +346,7 @@ char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_res
 					elf_hash_number = _dl_elf_hash((const unsigned char *)name);
 
 				sym = _dl_lookup_sysv_hash(tpnt, symtab, elf_hash_number, name, type_class);
-				if (sym != NULL)
+				if (sym != NULL && (ELF_ST_BIND(sym->st_info) != STB_LOCAL))
 					/* If sym has been found, do not search further */
 					break;
 #ifdef __LDSO_GNU_HASH_SUPPORT__
