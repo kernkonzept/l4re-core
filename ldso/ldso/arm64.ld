@@ -1,32 +1,30 @@
-/* Default linker script, for normal executables */
+/* Script for ld --shared: link shared library */
 /* Copyright (C) 2014-2018 Free Software Foundation, Inc.
    Copying and distribution of this script, with or without modification,
    are permitted in any medium without royalty provided the copyright
    notice and this notice are preserved.  */
-/* -*- Makefile -*- */
+OUTPUT_FORMAT("elf64-littleaarch64", "elf64-bigaarch64",
+	      "elf64-littleaarch64")
+OUTPUT_ARCH(aarch64)
 ENTRY(_start)
 
 PHDRS
 {
-  phdr PT_PHDR PHDRS;
-  interp PT_INTERP;
   ro PT_LOAD FILEHDR PHDRS;
   rw PT_LOAD;
   dyn PT_DYNAMIC;
-  tls PT_TLS;
+  kip 0x60000013;
   ehf PT_GNU_EH_FRAME;
-  L4_DEFINE_L4PHDRS
+  stack PT_GNU_STACK;
 }
-
 
 SECTIONS
 {
-  L4_DEFINE_ARM64_KERNEL_ENTRY_SYMS
+  /*PROVIDE_HIDDEN(__l4_sys_syscall = DEFINED(__L4_KIP_ADDR__) ? __L4_KIP_ADDR__ + 0xc0 : 0);*/
 
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x00400000)); . = SEGMENT_START("text-segment", 0x00400000) + SIZEOF_HEADERS;
-  .interp         : { *(.interp) } :ro :interp
-  .note.gnu.build-id : { *(.note.gnu.build-id) } :ro
+  . = SEGMENT_START("text-segment", 0) + SIZEOF_HEADERS;
+  .note.gnu.build-id : { *(.note.gnu.build-id) } : ro
   .hash           : { *(.hash) }
   .gnu.hash       : { *(.gnu.hash) }
   .dynsym         : { *(.dynsym) }
@@ -50,9 +48,7 @@ SECTIONS
   .rela.plt       :
     {
       *(.rela.plt)
-      PROVIDE_HIDDEN (__rela_iplt_start = .);
       *(.rela.iplt)
-      PROVIDE_HIDDEN (__rela_iplt_end = .);
     }
   .init           :
   {
@@ -68,7 +64,7 @@ SECTIONS
     *(.text .stub .text.* .gnu.linkonce.t.*)
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
-  } =0
+  } :ro =0
   .fini           :
   {
     KEEP (*(SORT_NONE(.fini)))
@@ -76,12 +72,9 @@ SECTIONS
   PROVIDE (__etext = .);
   PROVIDE (_etext = .);
   PROVIDE (etext = .);
-  .rol4re_elf_aux : {
-    KEEP (*(.rol4re_elf_aux))
-  } : ro : l4re_aux
-  .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) } : ro
+  .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) }
   .rodata1        : { *(.rodata1) }
-  .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) } :ehf :ro
+  .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) } :ro :ehf
   .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) *(.eh_frame.*) } :ro
   .gcc_except_table   : ONLY_IF_RO { *(.gcc_except_table
   .gcc_except_table.*) } :ro
@@ -98,27 +91,21 @@ SECTIONS
   .gcc_except_table   : ONLY_IF_RW { *(.gcc_except_table .gcc_except_table.*) } :rw
   .exception_ranges   : ONLY_IF_RW { *(.exception_ranges .exception_ranges*) } :rw
   /* Thread Local Storage sections  */
-  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) } :rw : tls
-  .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) }
+  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) } :rw
+  .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) } :rw
   .preinit_array     :
   {
-    PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array))
-    PROVIDE_HIDDEN (__preinit_array_end = .);
-  } : rw
+  }
   .init_array     :
   {
-    PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
     KEEP (*(.init_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .ctors))
-    PROVIDE_HIDDEN (__init_array_end = .);
   }
   .fini_array     :
   {
-    PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
     KEEP (*(.fini_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
-    PROVIDE_HIDDEN (__fini_array_end = .);
   }
   .ctors          :
   {
@@ -151,15 +138,15 @@ SECTIONS
   }
   .jcr            : { KEEP (*(.jcr)) }
   .data.rel.ro : { *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*) *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*) }
-  .dynamic        : { *(.dynamic) } :dyn :rw
-  .got            : { *(.got) *(.igot) }
+  .dynamic        : { *(.dynamic) } :rw :dyn
+  .got            : { *(.got) *(.igot) } :rw
   .got.plt        : { *(.got.plt)  *(.igot.plt) }
   .data           :
   {
     __data_start = . ;
     *(.data .data.* .gnu.linkonce.d.*)
     SORT(CONSTRUCTORS)
-  } :rw
+  }
   .data1          : { *(.data1) }
   _edata = .; PROVIDE (edata = .);
   . = .;
@@ -178,6 +165,13 @@ SECTIONS
    . = ALIGN(. != 0 ? 64 / 8 : 1);
   }
   _bss_end__ = . ; __bss_end__ = . ;
+
+  .kip  ALIGN( CONSTANT(COMMONPAGESIZE) )  :
+  {
+    __l4_sys_syscall = . + 0x800;
+    . = . + 0x1000;
+  } :kip
+
   . = ALIGN(64 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(64 / 8);
@@ -187,9 +181,10 @@ SECTIONS
   {
     _stack = .;
     *(.stack)
-  }
+  } :stack
+
   /* Stabs debugging sections.  */
-  .stab          0 : { *(.stab) }
+  .stab          0 : { *(.stab) } :NONE
   .stabstr       0 : { *(.stabstr) }
   .stab.excl     0 : { *(.stab.excl) }
   .stab.exclstr  0 : { *(.stab.exclstr) }

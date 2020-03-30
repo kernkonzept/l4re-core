@@ -44,7 +44,7 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
   (void)utcb;
 
   __asm__ __volatile__
-    ("svc #0x0"
+    ("bl __l4_sys_syscall"
      :
      "+r" (_dest),
      "+r" (_timeout),
@@ -52,7 +52,7 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
      "+r" (_tag)
      :
      :
-     "cc", "memory", "x30");
+     "cc", "memory", "x16", "x17", "x30");
 
   if (rlabel)
     *rlabel = _label;

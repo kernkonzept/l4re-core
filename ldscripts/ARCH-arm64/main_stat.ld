@@ -21,6 +21,8 @@ PHDRS
 
 SECTIONS
 {
+  L4_DEFINE_ARM64_KERNEL_ENTRY_SYMS
+
   /* Read-only sections, merged into text segment: */
   PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x00400000)); . = SEGMENT_START("text-segment", 0x00400000) + SIZEOF_HEADERS;
   .interp         : { *(.interp) } :ro

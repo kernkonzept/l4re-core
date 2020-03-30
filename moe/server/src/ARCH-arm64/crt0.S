@@ -22,12 +22,30 @@
 
 	.globl	_real_start
 _real_start:
+	cmp	x1, #0
+	b.eq	1f
+	adr	x9, __l4_sys_syscall
+	str	x1, [x9]
+	dmb ish
+	isb
+	dc cvac, x9
+	ic ivau, x9
+	isb
+1:
 	ldr 	x9, .LCstack
 	mov 	sp, x9
 	b	_start
 
 /* Mind the argc that is popped off the stack! */
 .LCstack: .8byte _stack_top-16
+
+.global __l4_sys_syscall
+.type __l4_sys_syscall, @function
+__l4_sys_syscall:
+	svc #0
+	ret
+.size __l4_sys_syscall, . - __l4_sys_syscall
+
 
 /*--- my stack -------------------------------------*/
 	.bss
