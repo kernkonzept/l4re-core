@@ -855,8 +855,11 @@ typedef struct malloc_chunk* mfastbinptr;
 */
 #define PROTECT_PTR(pos, ptr)     ((mchunkptr)((((size_t)pos) >> L4_PAGESHIFT) ^ ((size_t)ptr)))
 #define REVEAL_PTR(pos, ptr)      PROTECT_PTR(pos, ptr)
-#define CHECK_PTR(P)    \
-  if (!aligned_OK(P))   \
+#define PTR_FOR_ALIGNMENT_CHECK(P) \
+    (MALLOC_ALIGNMENT == 2*(sizeof(size_t)) ? (P) : chunk2mem(P))
+
+#define CHECK_PTR(P)                            \
+  if (!aligned_OK(PTR_FOR_ALIGNMENT_CHECK(P)))  \
       abort();
 
 /*
