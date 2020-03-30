@@ -15,9 +15,12 @@
    License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
+#include <bits/uClibc_arch_features.h>
 #include <stddef.h>
 #include <string.h>
 #include <sys/stat.h>
+
+#if defined __UCLIBC_HAVE_STATX__
 
 #include <statx_cp.h>
 
@@ -69,4 +72,5 @@ __cp_stat_statx (struct stat *to, struct statx *from)
   to->st_blocks = from->stx_blocks;
   to->st_blksize = from->stx_blksize;
 }
+#endif
 #endif

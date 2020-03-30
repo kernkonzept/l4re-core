@@ -41,6 +41,8 @@ extern int _dl_errno;
 #include <sys/stat.h>
 #include <dl-string.h>
 
+#include <bits/uClibc_arch_features.h>
+#if defined __UCLIBC_HAVE_STATX__
 static __always_inline void
 __cp_stat_statx (struct stat *to, struct statx *from)
 {
@@ -64,6 +66,7 @@ __cp_stat_statx (struct stat *to, struct statx *from)
   to->st_blocks = from->stx_blocks;
   to->st_blksize = from->stx_blksize;
 }
+#endif
 #endif
 
 #define AT_NO_AUTOMOUNT       0x800
