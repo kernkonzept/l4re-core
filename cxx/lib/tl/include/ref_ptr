@@ -21,19 +21,20 @@
 
 #include "type_traits"
 #include <cstddef>
+#include <l4/sys/compiler.h>
 
 namespace cxx {
 
 template< typename T >
 struct Default_ref_counter
 {
-  void h_drop_ref(T *p) throw()
+  void h_drop_ref(T *p) noexcept
   {
     if (p->remove_ref() == 0)
       delete p;
   }
 
-  void h_take_ref(T *p) throw()
+  void h_take_ref(T *p) noexcept
   {
     p->add_ref();
   }
@@ -80,16 +81,12 @@ template <
 class Ref_ptr : public Ref_ptr_base, private CNT<T>
 {
 private:
-#if __cplusplus >= 201103L
   typedef decltype(nullptr) Null_type;
-#else
-  typedef struct _Null_type const *Null_type;
-#endif
   typedef Weak_ptr<T, CNT> Wp;
 
 public:
   /// Default constructor creates a pointer with no managed object.
-  Ref_ptr() throw() : _p(0) {}
+  Ref_ptr() noexcept : _p(0) {}
 
   Ref_ptr(Ref_ptr_base::Default_value v) : _p((T*)v) {}
 
@@ -98,10 +95,9 @@ public:
    *
    * Increases references.
    */
-  Ref_ptr(Wp const &o) throw() : _p(o.ptr())
+  Ref_ptr(Wp const &o) noexcept : _p(o.ptr())
   { __take_ref(); }
 
-#if __cplusplus >= 201103L
   /// allow creation from `nullptr`
   Ref_ptr(decltype(nullptr) n) noexcept : _p(n) {}
 
@@ -112,18 +108,8 @@ public:
    * multiple times and have the same reference counter.
    */
   template<typename X>
-  explicit Ref_ptr(X *o) throw() : _p(o)
+  explicit Ref_ptr(X *o) noexcept : _p(o)
   { __take_ref(); }
-#else
-  /**
-   * Create a shared pointer from a raw pointer.
-   *
-   * In contrast to C++11 shared_ptr it is safe to use this constructor
-   * multiple times and have the same reference counter.
-   */
-  explicit Ref_ptr(T *o) throw() : _p(o)
-  { __take_ref(); }
-#endif
 
   /**
    * Create a shared pointer from a raw pointer without creating a new
@@ -135,20 +121,20 @@ public:
    *
    * This is the counterpart to release().
    */
-  Ref_ptr(T *o, bool d) throw() : _p(o) { (void)d; }
+  Ref_ptr(T *o, bool d) noexcept : _p(o) { (void)d; }
 
   /**
    * Return a raw pointer to the object this shared pointer points to.
    *
    * This does not release the pointer or decrease the reference count.
    */
-  T *get() const throw()
+  T *get() const noexcept
   {
     return _p;
   }
 
   /** \copydoc get() */
-  T *ptr() const throw()
+  T *ptr() const noexcept
   {
     return _p;
   }
@@ -159,38 +145,38 @@ public:
    * \return A raw pointer to the managed object.
    *
    */
-  T *release() throw()
+  T *release() noexcept
   {
     T *p = _p;
     _p = 0;
     return p;
   }
 
-  ~Ref_ptr() throw()
+  ~Ref_ptr() noexcept
   { __drop_ref(); }
 
   template<typename OT>
-  Ref_ptr(Ref_ptr<OT, CNT> const &o) throw()
+  Ref_ptr(Ref_ptr<OT, CNT> const &o) noexcept
   {
     _p = o.ptr();
     __take_ref();
   }
 
-  Ref_ptr(Ref_ptr<T> const &o) throw()
+  Ref_ptr(Ref_ptr<T> const &o) noexcept
   {
     _p = o._p;
     __take_ref();
   }
 
   template< typename OT >
-  void operator = (Ref_ptr<OT> const &o) throw()
+  void operator = (Ref_ptr<OT> const &o) noexcept
   {
     __drop_ref();
     _p = o.ptr();
     __take_ref();
   }
 
-  void operator = (Ref_ptr<T> const &o) throw()
+  void operator = (Ref_ptr<T> const &o) noexcept
   {
     if (&o == this)
       return;
@@ -200,28 +186,27 @@ public:
     __take_ref();
   }
 
-  void operator = (Null_type) throw()
+  void operator = (Null_type) noexcept
   {
     __drop_ref();
     _p = 0;
   }
 
-#if __cplusplus >= 201103L
   template<typename OT>
-  Ref_ptr(Ref_ptr<OT, CNT> &&o) throw()
+  Ref_ptr(Ref_ptr<OT, CNT> &&o) noexcept
   { _p = o.release(); }
 
-  Ref_ptr(Ref_ptr<T> &&o) throw()
+  Ref_ptr(Ref_ptr<T> &&o) noexcept
   { _p = o.release(); }
 
   template< typename OT >
-  void operator = (Ref_ptr<OT> &&o) throw()
+  void operator = (Ref_ptr<OT> &&o) noexcept
   {
     __drop_ref();
     _p = o.release();
   }
 
-  void operator = (Ref_ptr<T> &&o) throw()
+  void operator = (Ref_ptr<T> &&o) noexcept
   {
     if (&o == this)
       return;
@@ -230,56 +215,52 @@ public:
     _p = o.release();
   }
 
-  explicit operator bool () const throw() { return _p; }
-#else
-  operator Null_type () const throw()
-  { return reinterpret_cast<Null_type>(_p); }
-#endif
+  explicit operator bool () const noexcept { return _p; }
 
-  T *operator -> () const throw ()
+  T *operator -> () const noexcept
   { return _p; }
 
-  bool operator == (Ref_ptr const &o) const throw()
+  bool operator == (Ref_ptr const &o) const noexcept
   { return _p == o._p; }
 
-  bool operator != (Ref_ptr const &o) const throw()
+  bool operator != (Ref_ptr const &o) const noexcept
   { return _p != o._p; }
 
-  bool operator < (Ref_ptr const &o) const throw()
+  bool operator < (Ref_ptr const &o) const noexcept
   { return _p < o._p; }
 
-  bool operator <= (Ref_ptr const &o) const throw()
+  bool operator <= (Ref_ptr const &o) const noexcept
   { return _p <= o._p; }
 
-  bool operator > (Ref_ptr const &o) const throw()
+  bool operator > (Ref_ptr const &o) const noexcept
   { return _p > o._p; }
 
-  bool operator >= (Ref_ptr const &o) const throw()
+  bool operator >= (Ref_ptr const &o) const noexcept
   { return _p >= o._p; }
 
-  bool operator == (T const *o) const throw()
+  bool operator == (T const *o) const noexcept
   { return _p == o; }
 
-  bool operator < (T const *o) const throw()
+  bool operator < (T const *o) const noexcept
   { return _p < o; }
 
-  bool operator <= (T const *o) const throw()
+  bool operator <= (T const *o) const noexcept
   { return _p <= o; }
 
-  bool operator > (T const *o) const throw()
+  bool operator > (T const *o) const noexcept
   { return _p > o; }
 
-  bool operator >= (T const *o) const throw()
+  bool operator >= (T const *o) const noexcept
   { return _p >= o; }
 
 private:
-  void __drop_ref() throw()
+  void __drop_ref() noexcept
   {
     if (_p)
       static_cast<CNT<T>*>(this)->h_drop_ref(_p);
   }
 
-  void __take_ref() throw()
+  void __take_ref() noexcept
   {
     if (_p)
       static_cast<CNT<T>*>(this)->h_take_ref(_p);
@@ -297,15 +278,27 @@ private:
   typedef Ref_ptr<T, CNT> Rp;
 
 public:
-  Weak_ptr() throw() {}
-  Weak_ptr(Rp const &o) throw() : _p(o.ptr()) {}
-  explicit Weak_ptr(T *o) throw() : _p(o) {}
+  Weak_ptr() = default;
+  Weak_ptr(decltype(nullptr)) : _p(nullptr) {}
+  // backwards 0 ctor
+  explicit Weak_ptr(int x) noexcept
+  L4_DEPRECATED("Use initialization from 'nullptr'")
+  : _p(nullptr)
+  { if (x != 0) __builtin_trap(); }
 
-  T *get() const throw() { return _p; }
-  T *ptr() const throw() { return _p; }
+  Weak_ptr(Rp const &o) noexcept : _p(o.ptr()) {}
+  explicit Weak_ptr(T *o) noexcept : _p(o) {}
 
-  T *operator -> () const throw () { return _p; }
-  operator Null_type const * () const throw()
+  template<typename OT>
+  Weak_ptr(Weak_ptr<OT, CNT> const &o) noexcept : _p(o.ptr()) {}
+
+  Weak_ptr(Weak_ptr<T, CNT> const &o) noexcept : _p(o._p) {}
+
+  T *get() const noexcept { return _p; }
+  T *ptr() const noexcept { return _p; }
+
+  T *operator -> () const noexcept { return _p; }
+  operator Null_type const * () const noexcept
   { return reinterpret_cast<Null_type const*>(_p); }
 
 private:
@@ -332,11 +325,9 @@ private:
 
 public:
   Ref_obj() : _ref_cnt(0)  {}
-  void add_ref() const throw() { ++_ref_cnt; }
-  int remove_ref() const throw() { return --_ref_cnt; }
+  void add_ref() const noexcept { ++_ref_cnt; }
+  int remove_ref() const noexcept { return --_ref_cnt; }
 };
-
-#if __cplusplus >= 201103L
 
 template< typename T, typename... Args >
 Ref_ptr<T>
@@ -358,7 +349,5 @@ static_pointer_cast(Ref_ptr<U> const &p) noexcept
   // our constructor from a naked pointer increments the counter
   return Ref_ptr<T>(static_cast<T *>(p.get()));
 }
-
-#endif
 
 }
