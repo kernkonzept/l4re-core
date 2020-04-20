@@ -128,7 +128,7 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const throw()
 
   while (sz)
     {
-      Address dst_a = address(offs, L4Re::Dataspace::F::RW);
+      Address dst_a = address(offs);
       unsigned long b_sz = min(dst_a.sz() - dst_a.of(), sz);
 
       memset(dst_a.adr(), 0, b_sz);
