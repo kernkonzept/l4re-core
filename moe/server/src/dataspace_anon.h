@@ -21,8 +21,8 @@ public:
                    = Single_page_alloc_base::Config());
   virtual ~Dataspace_anon();
 
-  bool is_static() const throw() { return false; }
-  int pre_allocate(l4_addr_t, l4_size_t, unsigned) { return 0; }
+  bool is_static() const throw() override { return false; }
+  int pre_allocate(l4_addr_t, l4_size_t, unsigned) override { return 0; }
 };
 
 };

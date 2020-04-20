@@ -20,8 +20,9 @@ public:
                    unsigned char page_shift = L4_PAGESHIFT)
   : Dataspace_cont(start, size, flags, page_shift) {}
   virtual ~Dataspace_static() throw() {}
-  virtual int pre_allocate(l4_addr_t, l4_size_t, unsigned) { return 0; }
-  bool is_static() const throw() { return true; }
+  int pre_allocate(l4_addr_t, l4_size_t, unsigned) override
+  { return 0; }
+  bool is_static() const throw() override { return true; }
 };
 
 };
