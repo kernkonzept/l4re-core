@@ -113,9 +113,6 @@ public:
 public:
   int map(l4_addr_t offs, l4_addr_t spot, Flags flags,
           l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory);
-  int stats(L4Re::Dataspace::Stats &stats);
-  //int copy_in(unsigned long dst_offs, Dataspace *src, unsigned long src_offs,
-  //    unsigned long size);
 
   typedef Dma_space::Attributes Dma_attribs;
   virtual int dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
