@@ -168,10 +168,10 @@ namespace {
     ~Mem_one_page() throw()
     { free_page(page(0)); }
 
-    Page &page(unsigned long /*offs*/) const throw()
+    Page &page(unsigned long /*offs*/) const throw() override
     { return const_cast<Page &>(_page); }
 
-    Page &alloc_page(unsigned long /*offs*/) const throw()
+    Page &alloc_page(unsigned long /*offs*/) const throw() override
     { return const_cast<Page &>(_page); }
   };
 
@@ -202,10 +202,10 @@ namespace {
       qalloc()->free_pages(_pages, meta_size());
     }
 
-    Page &page(unsigned long offs) const throw()
+    Page &page(unsigned long offs) const throw() override
     { return _pages[offs >> page_shift()]; }
 
-    Page &alloc_page(unsigned long offs) const throw()
+    Page &alloc_page(unsigned long offs) const throw() override
     { return _pages[offs >> page_shift()]; }
 
   };
@@ -274,7 +274,7 @@ namespace {
       qalloc()->free_pages(_pages, meta1_size());
     }
 
-    Page &page(unsigned long offs) const throw()
+    Page &page(unsigned long offs) const throw() override
     {
       static Page invalid_page;
       if (!*__p(offs))
@@ -283,7 +283,7 @@ namespace {
       return __p(offs)[l2_idx(offs)];
     }
 
-    Page &alloc_page(unsigned long offs) const
+    Page &alloc_page(unsigned long offs) const override
     {
       L1 &_p = __p(offs);
       if (!*_p)
