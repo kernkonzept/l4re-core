@@ -65,7 +65,7 @@ public:
    *                     memory.
    *
    * \pre `block` must not be NULL.
-   * \pre 0 < `size` <= `~0UL - 32`.
+   * \pre `2 * sizeof(void *)` <= `size` <= `~0UL - 32`.
    */
   inline void free(void *block, unsigned long size, bool initial_free = false);
 
