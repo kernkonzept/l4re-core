@@ -26,6 +26,10 @@
 #include <l4/atkins/tap/main>
 #include <l4/atkins/debug>
 #include <l4/atkins/l4_assert>
+#include <l4/atkins/fixtures/epiface_provider>
+#include <l4/atkins/thread_helper>
+
+#include <thread>
 
 #include "moe_helpers.h"
 
@@ -970,4 +974,109 @@ TEST_P(TestRegDs, ExhaustQuotaMoeStructures)
   // after freeing, we should be able to get more memory
   auto ds = make_unique_cap<L4Re::Dataspace>();
   ASSERT_EQ(0, cap->alloc(defsize(), ds.get()));
+}
+
+/**
+ * A page fault handler that maps a landing page to a watched page.
+ */
+class Custom_pager : public L4::Epiface_t<Custom_pager, L4::Pager>
+{
+public:
+  Custom_pager() : _watched_page(0), _landing_page(0) {}
+
+  long op_page_fault(L4::Pager::Rights, l4_umword_t pfa, l4_umword_t pc,
+                     L4::Ipc::Opt<l4_mword_t> &result,
+                     L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp)
+  {
+    if (l4_trunc_page(pfa) == _watched_page)
+      {
+        L4Re::chksys(L4Re::Env::env()->task()->map(
+                       L4Re::Env::env()->task(),
+                       l4_fpage(_landing_page, L4_PAGESHIFT, L4_FPAGE_RWX),
+                       _watched_page),
+                     "Mapping the watched page to the landing page");
+      }
+    else
+      {
+        l4_mword_t fwd_res = 0;
+        L4::Ipc::Snd_fpage fwd_fp;
+        auto pf_res =
+          L4Re::Env::env()->rm()->page_fault(pfa, pc, fwd_res, l4_fpage_all(),
+                                             fwd_fp);
+        L4Re::chksys(pf_res, "Forwarding page fault to region mapper");
+
+        result = fwd_res;
+        fp = fwd_fp;
+      }
+
+    return L4_EOK;
+  }
+
+  long op_io_page_fault(L4::Io_pager::Rights, l4_fpage_t, l4_umword_t,
+                        L4::Ipc::Opt<l4_mword_t> &result,
+                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
+  {
+    result = -1;
+    return L4_EOK;
+  }
+
+  void set_pages(l4_addr_t wp, l4_addr_t lp)
+  { _watched_page = l4_trunc_page(wp); _landing_page = l4_trunc_page(lp); }
+
+private:
+  l4_umword_t _watched_page;
+  l4_umword_t _landing_page;
+};
+
+/** Dataspaces unmap their pages during destruction. */
+TEST_P(TestAnyDs, UnmapOnDestroy)
+{
+  /// Thread object for the custom pager to run in.
+  Atkins::Fixture::Base_epiface_thread<Custom_pager> pager;
+
+  L4Re::Rm::Unique_region<volatile char *> mapped_page;
+
+  static char volatile landing_page[L4_PAGESIZE]
+    __attribute__((aligned(L4_PAGESIZE)));
+
+  *landing_page = 42;
+
+  {
+    auto ds = create_ds();
+
+    ASSERT_L4OK(env->rm()->attach(&mapped_page, L4_PAGESIZE,
+                                  L4Re::Rm::F::Search_addr
+                                    | L4Re::Rm::F::Eager_map | L4Re::Rm::F::RWX,
+                                  ds.get()))
+      << "Mapping the dataspace page.";
+
+    pager.handler().set_pages((l4_addr_t)mapped_page.get(),
+                              (l4_addr_t)landing_page);
+
+    // Write to the page mapped to the dataspace
+    *mapped_page.get() = 0xff;
+
+    // ds goes out of scope and is about to be deleted soon
+  }
+
+  {
+    // Make a dummy allocation / deallocation to allow Moe process the
+    // deletion IRQ for the first dataspace and delete it.
+    auto dummy = create_ds();
+  }
+
+  std::thread t([&pager, &mapped_page] {
+    L4::Thread::Attr attr;
+    attr.pager(pager.scap());
+    ASSERT_L4OK(Atkins::Thread_helper::this_thread_cap()->control(attr))
+      << "Set custom pager on thread.";
+
+    // The following access is expected to fault because the dataspace must unmap
+    // all its mapped pages. If the access does not fault it means that the
+    // page is still mapped.
+    ASSERT_EQ(*mapped_page.get(), *landing_page)
+      << "The page access faulted and the landing page was mapped.";
+  });
+
+  t.join();
 }
