@@ -114,13 +114,6 @@ Moe::Dataspace_noncont::pre_allocate(l4_addr_t offset, l4_size_t size, unsigned 
   return 0;
 }
 
-void
-Moe::Dataspace_noncont::unmap(bool ro) const throw()
-{
-  for (unsigned long i = num_pages(); i > 0; --i)
-    unmap_page(page((i - 1) << page_shift()), ro);
-}
-
 long
 Moe::Dataspace_noncont::clear(unsigned long offs, unsigned long _size) const throw()
 {

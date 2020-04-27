@@ -60,7 +60,6 @@ public:
   Address address(l4_addr_t offset,
                   Flags flags = L4Re::Dataspace::F::RWX, l4_addr_t hot_spot = 0,
                   l4_addr_t min = 0, l4_addr_t max = ~0) const override;
-  void unmap(bool ro = false) const throw() override;
 
   int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) override;
 

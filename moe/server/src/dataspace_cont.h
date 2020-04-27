@@ -21,11 +21,11 @@ public:
                  Single_page_alloc_base::Config cfg
                    = Single_page_alloc_base::Config());
 
+  ~Dataspace_cont() { unmap(); }
+
   Address address(l4_addr_t offset,
                   Flags flags, l4_addr_t hot_spot = 0,
                   l4_addr_t min = 0, l4_addr_t max = ~0) const override;
-
-  void unmap(bool ro = false) const throw() override;
 
   int dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
               Dma_attribs dma_attrs, Dma_space::Direction dir,
@@ -36,6 +36,8 @@ protected:
   void *start() { return _start; }
 
 private:
+  void unmap() const throw();
+
   char *_start;
 };
 

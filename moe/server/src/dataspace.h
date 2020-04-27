@@ -70,7 +70,6 @@ public:
 
 
   unsigned long size() const throw() { return _size; }
-  virtual void unmap(bool ro = false) const throw() = 0;
   virtual Address address(l4_addr_t ds_offset,
                           Flags flags = L4Re::Dataspace::F::RWX,
                           l4_addr_t hot_spot = 0,
