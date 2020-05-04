@@ -72,6 +72,7 @@ void *__libc_alloc_initial_tls(unsigned long)
   // __libc_alloc_initial_tls must not be called here, this is just
   // a safety measure
   assert(0);
+  return nullptr;
 }
 
 static L4::Server<Loop_hooks> server(l4_utcb());
