@@ -85,7 +85,7 @@
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_task(l4_cap_idx_t factory,
-                       l4_cap_idx_t target_cap, l4_fpage_t const utcb_area) L4_NOTHROW;
+                       l4_cap_idx_t target_cap, l4_fpage_t utcb_area) L4_NOTHROW;
 
 /**
  * \ingroup l4_factory_api
@@ -95,7 +95,7 @@ l4_factory_create_task(l4_cap_idx_t factory,
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_task_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
-                         l4_fpage_t const utcb_area, l4_utcb_t *utcb) L4_NOTHROW;
+                         l4_fpage_t utcb_area, l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
  * \ingroup l4_factory_api
@@ -357,7 +357,7 @@ l4_factory_create_vm_u(l4_cap_idx_t factory,
 
 L4_INLINE l4_msgtag_t
 l4_factory_create_task(l4_cap_idx_t factory,
-                       l4_cap_idx_t target_cap, l4_fpage_t const utcb_area) L4_NOTHROW
+                       l4_cap_idx_t target_cap, l4_fpage_t utcb_area) L4_NOTHROW
 {
   return l4_factory_create_task_u(factory, target_cap, utcb_area, l4_utcb());
 }
