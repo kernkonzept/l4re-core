@@ -65,7 +65,7 @@ public:
    * and the receive window is the whole address space of said task.
    */
   l4_msgtag_t map(Cap<Task> const &src_task,
-                  l4_fpage_t const &snd_fpage, l4_addr_t snd_base,
+                  l4_fpage_t const &snd_fpage, l4_umword_t snd_base,
                   l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_map_u(cap(), src_task.cap(), snd_fpage, snd_base, utcb); }
 

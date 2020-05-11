@@ -59,14 +59,14 @@
  */
 L4_INLINE l4_msgtag_t
 l4_task_map(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
-            l4_fpage_t snd_fpage, l4_addr_t snd_base) L4_NOTHROW;
+            l4_fpage_t snd_fpage, l4_umword_t snd_base) L4_NOTHROW;
 
 /**
  * \internal
  */
 L4_INLINE l4_msgtag_t
 l4_task_map_u(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
-              l4_fpage_t snd_fpage, l4_addr_t snd_base, l4_utcb_t *utcb) L4_NOTHROW;
+              l4_fpage_t snd_fpage, l4_umword_t snd_base, l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
  * Revoke rights from the task.
@@ -122,14 +122,14 @@ l4_task_unmap_u(l4_cap_idx_t task, l4_fpage_t fpage,
  */
 L4_INLINE l4_msgtag_t
 l4_task_unmap_batch(l4_cap_idx_t task, l4_fpage_t const *fpages,
-                    unsigned num_fpages, unsigned long map_mask) L4_NOTHROW;
+                    unsigned num_fpages, l4_umword_t map_mask) L4_NOTHROW;
 
 /**
  * \internal
  */
 L4_INLINE l4_msgtag_t
 l4_task_unmap_batch_u(l4_cap_idx_t task, l4_fpage_t const *fpages,
-                      unsigned num_fpages, unsigned long map_mask,
+                      unsigned num_fpages, l4_umword_t map_mask,
                       l4_utcb_t *u) L4_NOTHROW;
 
 /**
@@ -269,7 +269,7 @@ enum L4_task_ops
 
 L4_INLINE l4_msgtag_t
 l4_task_map_u(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
-              l4_fpage_t snd_fpage, unsigned long snd_base, l4_utcb_t *u) L4_NOTHROW
+              l4_fpage_t snd_fpage, l4_umword_t snd_base, l4_utcb_t *u) L4_NOTHROW
 {
   l4_msg_regs_t *v = l4_utcb_mr_u(u);
   v->mr[0] = L4_TASK_MAP_OP;
@@ -282,7 +282,7 @@ l4_task_map_u(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
 
 L4_INLINE l4_msgtag_t
 l4_task_unmap_u(l4_cap_idx_t task, l4_fpage_t fpage,
-                unsigned long map_mask, l4_utcb_t *u) L4_NOTHROW
+                l4_umword_t map_mask, l4_utcb_t *u) L4_NOTHROW
 {
   l4_msg_regs_t *v = l4_utcb_mr_u(u);
   v->mr[0] = L4_TASK_UNMAP_OP;
@@ -293,7 +293,7 @@ l4_task_unmap_u(l4_cap_idx_t task, l4_fpage_t fpage,
 
 L4_INLINE l4_msgtag_t
 l4_task_unmap_batch_u(l4_cap_idx_t task, l4_fpage_t const *fpages,
-                      unsigned num_fpages, unsigned long map_mask,
+                      unsigned num_fpages, l4_umword_t map_mask,
                       l4_utcb_t *u) L4_NOTHROW
 {
   l4_msg_regs_t *v = l4_utcb_mr_u(u);
@@ -337,21 +337,21 @@ l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t ku_mem,
 
 L4_INLINE l4_msgtag_t
 l4_task_map(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
-            l4_fpage_t snd_fpage, unsigned long snd_base) L4_NOTHROW
+            l4_fpage_t snd_fpage, l4_umword_t snd_base) L4_NOTHROW
 {
   return l4_task_map_u(dst_task, src_task, snd_fpage, snd_base, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t
 l4_task_unmap(l4_cap_idx_t task, l4_fpage_t fpage,
-              unsigned long map_mask) L4_NOTHROW
+              l4_umword_t map_mask) L4_NOTHROW
 {
   return l4_task_unmap_u(task, fpage, map_mask, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t
 l4_task_unmap_batch(l4_cap_idx_t task, l4_fpage_t const *fpages,
-                    unsigned num_fpages, unsigned long map_mask) L4_NOTHROW
+                    unsigned num_fpages, l4_umword_t map_mask) L4_NOTHROW
 {
   return l4_task_unmap_batch_u(task, fpages, num_fpages, map_mask,
                                l4_utcb());
