@@ -242,7 +242,7 @@ __strcpy_maxlen(char *dst, char const *src, unsigned maxlen)
 }
 
 L4_INLINE l4_msgtag_t
-l4_debugger_set_object_name_u(unsigned long cap,
+l4_debugger_set_object_name_u(l4_cap_idx_t cap,
                               const char *name, l4_utcb_t *utcb) L4_NOTHROW
 {
   unsigned i;
@@ -336,7 +336,7 @@ l4_debugger_get_object_name_u(l4_cap_idx_t cap, unsigned id,
 
 
 L4_INLINE l4_msgtag_t
-l4_debugger_set_object_name(unsigned long cap,
+l4_debugger_set_object_name(l4_cap_idx_t cap,
                             const char *name) L4_NOTHROW
 {
   return l4_debugger_set_object_name_u(cap, name, l4_utcb());
