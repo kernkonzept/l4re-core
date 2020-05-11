@@ -187,7 +187,7 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size);
  * \return next-highest power of 2
  */
 L4_INLINE int
-l4util_next_power2(const unsigned long val);
+l4util_next_power2(unsigned long val);
 
 EXTERN_C_END
 
