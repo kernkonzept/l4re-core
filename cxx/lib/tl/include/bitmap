@@ -234,7 +234,7 @@ Bitmap_base::set_bit(long bit) throw()
 }
 
 inline
-unsigned long
+Bitmap_base::word_type
 Bitmap_base::bit(long bit) const throw()
 {
   long idx = word_index(bit);
