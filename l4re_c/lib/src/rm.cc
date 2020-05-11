@@ -71,7 +71,7 @@ int
 l4re_rm_find_srv(l4_cap_idx_t rm, l4_addr_t *addr,
                  unsigned long *size,
                  l4re_rm_offset_t *offset,
-                 l4re_rm_flags_t *flags, l4_cap_idx_t *m) L4_NOTHROW
+                 l4re_rm_flags_t *flags, l4re_ds_t *m) L4_NOTHROW
 {
   L4::Cap<L4Re::Rm> x(rm);
   L4::Cap<L4Re::Dataspace> mm(L4_INVALID_CAP);
