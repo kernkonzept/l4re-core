@@ -1,3 +1,0 @@
-requires: stdlibs libstdc++ libpthread ned
-optional: atkins
-Maintainer: sarah.hoffmann@kernkonzept.com
