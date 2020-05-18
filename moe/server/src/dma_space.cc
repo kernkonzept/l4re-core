@@ -121,12 +121,12 @@ private:
       }
   }
 
-  L4::Cap<L4::Task> dma_kern_space;
+  L4::Cap<L4::Task> _dma_kern_space;
 
   bool is_equal(L4::Cap<L4::Task> s) const
   {
     L4::Cap<L4::Task> myself(L4_BASE_TASK_CAP);
-    return myself->cap_equal(s, dma_kern_space).label();
+    return myself->cap_equal(s, _dma_kern_space).label();
   }
 
   void remove(Dma::Mapping *m) override
@@ -152,7 +152,7 @@ private:
          if (0)
            printf("DMA: unmap   %lx-%lx\n", a, a+(1UL << o)-1);
 
-         dma_kern_space->unmap(fp, L4_FP_ALL_SPACES);
+         _dma_kern_space->unmap(fp, L4_FP_ALL_SPACES);
          s -= (1UL << o);
          a += (1UL << o);
        }
@@ -160,13 +160,13 @@ private:
 
 public:
   explicit Task_mapper(L4::Cap<L4::Task> s)
-  : dma_kern_space(s)
+  : _dma_kern_space(s)
   { _mappers.add(this); }
 
   ~Task_mapper() noexcept
   {
-    if (dma_kern_space)
-      object_pool.cap_alloc()->free(dma_kern_space);
+    if (_dma_kern_space)
+      object_pool.cap_alloc()->free(_dma_kern_space);
   }
 
   static Task_mapper *find_mapper(L4::Cap<L4::Task> task)
@@ -227,7 +227,7 @@ public:
 
         l4_fpage_t f;
         f.raw = fpage.data();
-        L4Re::chksys(dma_kern_space->map(myself, f, a));
+        L4Re::chksys(_dma_kern_space->map(myself, f, a));
 
         unsigned long s = 1UL << fpage.order();
         if (size <= s)
