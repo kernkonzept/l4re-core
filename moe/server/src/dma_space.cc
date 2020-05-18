@@ -208,7 +208,11 @@ public:
 
     node->key = Region(a, a + size - 1);
     if (!_map.insert(node.get()).second)
-      L4Re::chksys(-L4_ENOMEM);
+      {
+        // This should not really happen if find_free() above found a free
+        // region.
+        L4Re::chksys(-L4_EEXIST);
+      }
 
     node->mapper = this;
     node->attrs = attrs;
