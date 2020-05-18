@@ -57,7 +57,6 @@ public:
     // XXX: think about splitting etc.
     delete m;
     return 0;
-    //return ds->dma_unmap(0, offset, size, attrs, dir);
   }
 
   void remove(Dma::Mapping *m) override
@@ -250,7 +249,6 @@ public:
 
     // XXX: think about node splitting, merging
     delete m;
-    //return ds->dma_unmap(0, offset, size, attrs, dir);
     return 0;
   }
 };

@@ -152,10 +152,3 @@ Moe::Dataspace::dma_map(Dma_space *, l4_addr_t, l4_size_t *,
 {
   return -L4_EINVAL;
 }
-
-int
-Moe::Dataspace::dma_unmap(Dma_space *, l4_addr_t, l4_size_t,
-                          Dma_attribs, Dma_space::Direction)
-{
-  return -L4_EINVAL;
-}

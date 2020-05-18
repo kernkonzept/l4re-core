@@ -103,10 +103,3 @@ Moe::Dataspace_cont::dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
   *size = cxx::min(*size, (l4_size_t)(this->size() - offset));
   return 0;
 }
-
-int
-Moe::Dataspace_cont::dma_unmap(Dma_space *, l4_addr_t, l4_size_t,
-                               Dma_attribs, Dma_space::Direction)
-{
-  return 0;
-}

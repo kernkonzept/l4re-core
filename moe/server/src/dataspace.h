@@ -118,8 +118,6 @@ public:
   virtual int dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
                       Dma_attribs dma_attrs, Dma_space::Direction dir,
                       Dma_space::Dma_addr *dma_addr);
-  virtual int dma_unmap(Dma_space *dma, l4_addr_t offset, l4_size_t size,
-                        Dma_attribs dma_attrs, Dma_space::Direction dir);
 
   long op_map(L4Re::Dataspace::Rights rights,
               L4Re::Dataspace::Offset offset,
