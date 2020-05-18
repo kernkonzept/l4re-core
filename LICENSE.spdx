@@ -361,16 +361,6 @@ PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
 
-PackageName: test
-SPDXID: SPDXRef-test
-PackageFileName: ./test
-PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageCopyrightText: NOASSERTION
-PackageDownloadLocation: NOASSERTION
-FilesAnalyzed: false
-
 PackageName: uclibc
 SPDXID: SPDXRef-uclibc
 PackageFileName: ./uclibc
@@ -433,7 +423,6 @@ Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-moe
 Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-ned
 Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-prj-config
 Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-sigma0
-Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-test
 Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc
 Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc-headers
 Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc-minimal
