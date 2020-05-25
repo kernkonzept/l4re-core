@@ -25,7 +25,7 @@
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
 
-#include <l4/util/mb_info.h>
+#include <l4/util/l4mod.h>
 #include <typeinfo>
 
 #include <cctype>
@@ -86,33 +86,16 @@ l4_kernel_info_t const *map_kip()
 }
 
 static
-bool is_moe_cmdline(char const *cmdline)
-{
-  static unsigned proglen = strlen(PROG);
-  char const *ptr = strstr(cmdline, PROG);
-  while (ptr)
-    {
-      if ((ptr[proglen] == ' ' || ptr[proglen] == '\0')
-          && (ptr == cmdline || ptr[-1] == '/'))
-        return true;
-
-      ptr = strstr(ptr + 1, PROG);
-    }
-
-  return false;
-}
-
-static
 char *my_cmdline()
 {
-  l4util_mb_info_t const *_mbi_ = (l4util_mb_info_t const *)(unsigned long)kip()->user_ptr;
+  l4util_l4mod_info const *_mbi_ = (l4util_l4mod_info const *)kip()->user_ptr;
   boot.printf("mbi @%p\n", _mbi_);
-  l4util_mb_mod_t const *modules = (l4util_mb_mod_t const *)(unsigned long)_mbi_->mods_addr;
+  l4util_l4mod_mod const *modules = (l4util_l4mod_mod const *)_mbi_->mods_addr;
   unsigned num_modules = _mbi_->mods_count;
   char *cmdline = 0;
 
   for (unsigned mod = 0; mod < num_modules; ++mod)
-    if (is_moe_cmdline((char const *)(unsigned long)modules[mod].cmdline))
+    if ((modules[mod].flags & L4util_l4mod_mod_flag_mask) == L4util_l4mod_mod_flag_roottask)
       {
         cmdline = (char *)(unsigned long)modules[mod].cmdline;
         break;
@@ -566,7 +549,7 @@ int main(int argc, char**argv)
       page_alloc_debug = 1;
 #endif
       Moe::Boot_fs::init_stage2();
-      init_vesa_fb((l4util_mb_info_t *)kip()->user_ptr);
+      init_vesa_fb((l4util_l4mod_info *)kip()->user_ptr);
 
       root_name_space_obj = object_pool.cap_alloc()->alloc(root_name_space());
 

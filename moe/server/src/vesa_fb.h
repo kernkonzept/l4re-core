@@ -8,7 +8,7 @@
  */
 #pragma once
 
-#include <l4/util/mb_info.h>
+#include <l4/util/l4mod.h>
 
-void init_vesa_fb(l4util_mb_info_t *mbi);
+void init_vesa_fb(l4util_l4mod_info *mbi);
 

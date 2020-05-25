@@ -7,7 +7,7 @@
  * GNU General Public License 2.
  * Please see the COPYING-GPL-2 file for details.
  */
-#include <l4/util/mb_info.h>
+#include <l4/util/l4mod.h>
 #include <l4/util/util.h>
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
@@ -29,19 +29,18 @@ static Dbg dbg(Dbg::Boot_fs, "fs");
 
 #if 0
 #include <cstdio>
-static void dump_mb_module(l4util_mb_mod_t const *mod)
+static void dump_mb_module(l4util_l4mod_mod const *mod)
 {
   printf("  cmdline: '%s'\n"
-         "    range: [%08x; %08x)\n",
-         (char const *)(unsigned long)mod->cmdline, mod->mod_start, mod->mod_end);
+         "    range: [%08llx; %08llx)\n",
+         (char const *)mod->cmdline, mod->mod_start, mod->mod_end);
 }
 
-static void dump_mbi(l4util_mb_info_t const* mbi)
+static void dump_mbi(l4util_l4mod_info const* mbi)
 {
-  printf("MBI Version: %08x\n", mbi->flags);
-  printf("cmdline: '%s'\n", (char const *)(unsigned long)mbi->cmdline);
-  l4util_mb_mod_t const *modules
-    = (l4util_mb_mod_t const *)(unsigned long)mbi->mods_addr;
+  printf("MBI Version: %08llx\n", mbi->flags);
+  printf("cmdline: '%s'\n", (char const *)mbi->cmdline);
+  l4util_l4mod_mod const *modules = (l4util_l4mod_mod const *)mbi->mods_addr;
   for (unsigned i = 0; i < mbi->mods_count; ++i)
     dump_mb_module(modules +i);
 }
@@ -84,8 +83,7 @@ static bool options_contains(cxx::String const &opts, cxx::String const &opt)
 void
 Moe::Boot_fs::init_stage1()
 {
-  l4util_mb_info_t const *mbi
-    = (l4util_mb_info_t const *)kip()->user_ptr;
+  l4util_l4mod_info const *mbi = (l4util_l4mod_info const *)kip()->user_ptr;
 
   l4_touch_ro(mbi,10);
 }
@@ -169,14 +167,13 @@ Moe::Boot_fs::init_stage2()
   root_name_space()->register_obj("rwfs", 0, rwfs_ns);
 
   L4::Cap<void> object;
-  l4util_mb_info_t const *mbi
-    = (l4util_mb_info_t const *)kip()->user_ptr;
+  l4util_l4mod_info const *mbi = (l4util_l4mod_info const *)kip()->user_ptr;
 
   //dump_mbi(mbi);
 
   Dirinfo dirinfo_ro, dirinfo_rw;
 
-  l4util_mb_mod_t const *modules = (l4util_mb_mod_t const *)(unsigned long)mbi->mods_addr;
+  l4util_l4mod_mod const *modules = (l4util_l4mod_mod const *)(unsigned long)mbi->mods_addr;
   unsigned num_modules = mbi->mods_count;
 
   l4_addr_t m_low = -1;

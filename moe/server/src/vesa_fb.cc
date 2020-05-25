@@ -40,24 +40,22 @@ private:
   unsigned long map_size;
 
 public:
-  Vesa_fb(l4util_mb_info_t *mbi);
+  Vesa_fb(l4util_l4mod_info *mbi);
   virtual ~Vesa_fb() {}
 };
 
 void
-init_vesa_fb(l4util_mb_info_t *mbi)
+init_vesa_fb(l4util_l4mod_info *mbi)
 {
   static Vesa_fb video(mbi);
   (void)video;
 }
 
-Vesa_fb::Vesa_fb(l4util_mb_info_t *mbi)
+Vesa_fb::Vesa_fb(l4util_l4mod_info *mbi)
 {
-  if (!(mbi->flags & L4UTIL_MB_VIDEO_INFO))
-    return;
   vbe = (l4util_mb_vbe_ctrl_t*)(unsigned long)mbi->vbe_ctrl_info;
   vbi = (l4util_mb_vbe_mode_t*)(unsigned long)mbi->vbe_mode_info;
-  if (!vbe || !vbi)
+  if (!vbe && !vbi)
     return;
 
   base_offset = vbi->phys_base & (L4_SUPERPAGESIZE - 1);
