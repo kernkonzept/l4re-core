@@ -878,58 +878,16 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     : public __is_nt_destructible_safe<_Tp>::type
     { };
 
-  struct __do_is_default_constructible_impl
-  {
-    template<typename _Tp, typename = decltype(_Tp())>
-      static true_type __test(int);
-
-    template<typename>
-      static false_type __test(...);
-  };
-
-  template<typename _Tp>
-    struct __is_default_constructible_impl
-    : public __do_is_default_constructible_impl
-    {
-      typedef decltype(__test<_Tp>(0)) type;
-    };
-
-  template<typename _Tp>
-    struct __is_default_constructible_atom
-    : public __and_<__not_<is_void<_Tp>>,
-                    __is_default_constructible_impl<_Tp>>
-    { };
-
-  template<typename _Tp, bool = is_array<_Tp>::value>
-    struct __is_default_constructible_safe;
-
-  // The following technique is a workaround for a current core language
-  // restriction, which does not allow for array types to occur in
-  // functional casts of the form T().  Complete arrays can be default-
-  // constructed, if the element type is default-constructible, but
-  // arrays with unknown bounds are not.
-  template<typename _Tp>
-    struct __is_default_constructible_safe<_Tp, true>
-    : public __and_<__is_array_known_bounds<_Tp>,
-		    __is_default_constructible_atom<typename
-                      remove_all_extents<_Tp>::type>>
-    { };
-
-  template<typename _Tp>
-    struct __is_default_constructible_safe<_Tp, false>
-    : public __is_default_constructible_atom<_Tp>::type
+  /// is_constructible
+  template<typename _Tp, typename... _Args>
+    struct is_constructible
+      : public __bool_constant<__is_constructible(_Tp, _Args...)>
     { };
 
   /// is_default_constructible
   template<typename _Tp>
     struct is_default_constructible
-    : public __is_default_constructible_safe<_Tp>::type
-    { };
-
-  /// is_constructible
-  template<typename _Tp, typename... _Args>
-    struct is_constructible
-      : public __bool_constant<__is_constructible(_Tp, _Args...)>
+    : public is_constructible<_Tp>::type
     { };
 
   template<typename _Tp, bool = __is_referenceable<_Tp>::value>
@@ -1404,6 +1362,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       using type = decltype(__test<_From, _To>(0));
     };
 
+#define __cpp_lib_is_nothrow_convertible 201806L
   /// is_nothrow_convertible
   template<typename _From, typename _To>
     struct is_nothrow_convertible
@@ -2704,13 +2663,48 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
   // __is_invocable (std::is_invocable for C++11)
 
-  template<typename _Result, typename _Ret, typename = void>
+  // The primary template is used for invalid INVOKE expressions.
+  template<typename _Result, typename _Ret,
+	   bool = is_void<_Ret>::value, typename = void>
     struct __is_invocable_impl : false_type { };
 
+  // Used for valid INVOKE and INVOKE<void> expressions.
   template<typename _Result, typename _Ret>
-    struct __is_invocable_impl<_Result, _Ret, __void_t<typename _Result::type>>
-    : __or_<is_void<_Ret>, is_convertible<typename _Result::type, _Ret>>::type
+    struct __is_invocable_impl<_Result, _Ret,
+			       /* is_void<_Ret> = */ true,
+			       __void_t<typename _Result::type>>
+    : true_type
     { };
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wctor-dtor-privacy"
+  // Used for INVOKE<R> expressions to check the implicit conversion to R.
+  template<typename _Result, typename _Ret>
+    struct __is_invocable_impl<_Result, _Ret,
+			       /* is_void<_Ret> = */ false,
+			       __void_t<typename _Result::type>>
+    {
+    private:
+      // The type of the INVOKE expression.
+      // Unlike declval, this doesn't add_rvalue_reference.
+      static typename _Result::type _S_get();
+
+      template<typename _Tp>
+	static void _S_conv(_Tp);
+
+      // This overload is viable if INVOKE(f, args...) can convert to _Tp.
+      template<typename _Tp, typename = decltype(_S_conv<_Tp>(_S_get()))>
+	static true_type
+	_S_test(int);
+
+      template<typename _Tp>
+	static false_type
+	_S_test(...);
+
+    public:
+      using type = decltype(_S_test<_Ret>(1));
+    };
+#pragma GCC diagnostic pop
 
   template<typename _Fn, typename... _ArgTypes>
     struct __is_invocable
@@ -3034,13 +3028,7 @@ template <typename _From, typename _To>
 #endif // C++17
 
 #if __cplusplus > 201703L
-  /// Byte order
-  enum class endian
-  {
-    little = __ORDER_LITTLE_ENDIAN__,
-    big    = __ORDER_BIG_ENDIAN__,
-    native = __BYTE_ORDER__
-  };
+#define __cpp_lib_remove_cvref 201711L
 
   /// Remove references and cv-qualifiers.
   template<typename _Tp>
@@ -3052,12 +3040,15 @@ template <typename _From, typename _To>
   template<typename _Tp>
     using remove_cvref_t = __remove_cvref_t<_Tp>;
 
+#define __cpp_lib_type_identity 201806L
   /// Identity metafunction.
   template<typename _Tp>
     struct type_identity { using type = _Tp; };
 
   template<typename _Tp>
     using type_identity_t = typename type_identity<_Tp>::type;
+
+#define __cpp_lib_unwrap_ref 201811L
 
   /// Unwrap a reference_wrapper
   template<typename _Tp>

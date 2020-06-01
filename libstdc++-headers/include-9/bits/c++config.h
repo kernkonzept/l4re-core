@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 9
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20190505
+#define __GLIBCXX__ 20200531
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -649,7 +649,7 @@ namespace std
 # if __GNUC__ >= 9
 #  define _GLIBCXX_HAVE_BUILTIN_IS_CONSTANT_EVALUATED 1
 # endif
-#elif defined(__is_identifier)
+#elif defined(__is_identifier) && defined(__has_builtin)
 // For non-GNU compilers:
 # if ! __is_identifier(__has_unique_object_representations)
 #  define _GLIBCXX_HAVE_BUILTIN_HAS_UNIQ_OBJ_REP 1
@@ -657,10 +657,10 @@ namespace std
 # if ! __is_identifier(__is_aggregate)
 #  define _GLIBCXX_HAVE_BUILTIN_IS_AGGREGATE 1
 # endif
-# if ! __is_identifier(__builtin_launder)
+# if __has_builtin(__builtin_launder)
 #  define _GLIBCXX_HAVE_BUILTIN_LAUNDER 1
 # endif
-# if ! __is_identifier(__builtin_is_constant_evaluated)
+# if __has_builtin(__builtin_is_constant_evaluated)
 #  define _GLIBCXX_HAVE_BUILTIN_IS_CONSTANT_EVALUATED 1
 # endif
 #endif // GCC
@@ -668,6 +668,8 @@ namespace std
 // PSTL configuration
 
 #if __cplusplus >= 201703L
+// This header is not installed for freestanding:
+#if __has_include(<pstl/pstl_config.h>)
 // Preserved here so we have some idea which version of upstream we've pulled in
 // #define PSTL_VERSION 104
 // #define PSTL_VERSION_MAJOR (PSTL_VERSION/100)
@@ -686,8 +688,9 @@ namespace std
 # define __PSTL_ASSERT_MSG(_Condition, _Message) __glibcxx_assert(_Condition)
 
 #include <pstl/pstl_config.h>
+#endif // __has_include
+#endif // C++17
 
-#endif
 // End of prewritten config; the settings discovered at configure time follow.
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.ac by autoheader.  */
@@ -1504,6 +1507,14 @@ namespace std
 /* Version number of package */
 /* #undef _GLIBCXX_VERSION */
 
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _GLIBCXX_DARWIN_USE_64_BIT_INODE
+# define _GLIBCXX_DARWIN_USE_64_BIT_INODE 1
+#endif
+
+/* Number of bits in a file offset, on hosts where this is settable. */
+/* #undef _GLIBCXX_FILE_OFFSET_BITS */
+
 /* Define if C99 functions in <complex.h> should be used in <complex> for
    C++11. Using compiler builtins for these functions requires corresponding
    C99 library functions to be present. */
@@ -1569,7 +1580,7 @@ namespace std
 /* Define if compatibility should be provided for -mlong-double-64. */
 
 /* Define to the letter to which size_t is mangled. */
-#define _GLIBCXX_MANGLE_SIZE_T j
+#define _GLIBCXX_MANGLE_SIZE_T m
 
 /* Define if C99 llrint and llround functions are missing from <math.h>. */
 /* #undef _GLIBCXX_NO_C99_ROUNDING_FUNCS */
@@ -1758,6 +1769,9 @@ namespace std
 
 /* Define to 1 if mutex_timedlock is available. */
 #define _GTHREAD_USE_MUTEX_TIMEDLOCK 1
+
+/* Define for large files, on AIX-style hosts. */
+/* #undef _GLIBCXX_LARGE_FILES */
 
 /* Define if all C++11 floating point overloads are available in <math.h>.  */
 #if __cplusplus >= 201103L

@@ -37,6 +37,10 @@ namespace std _GLIBCXX_VISIBILITY(default)
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 namespace pmr
 {
+  // This was defined inline in 9.1 and 9.2 so code compiled by those
+  // versions will not use this symbol.
+  memory_resource::~memory_resource() = default;
+
   namespace
   {
     class newdel_res_t final : public memory_resource
@@ -167,6 +171,10 @@ namespace pmr
 
   // Member functions for std::pmr::monotonic_buffer_resource
 
+  // This was defined inline in 9.1 and 9.2 so code compiled by those
+  // versions will not use this symbol.
+  monotonic_buffer_resource::~monotonic_buffer_resource() { release(); }
+
   // Memory allocated by the upstream resource is managed in a linked list
   // of _Chunk objects. A _Chunk object recording the size and alignment of
   // the allocated block and a pointer to the previous chunk is placed
@@ -220,8 +228,8 @@ namespace pmr
 	  if (__ch->_M_canary != (__ch->_M_size | __ch->_M_align))
 	    return; // buffer overflow detected!
 
-	  size_t __size = (1u << __ch->_M_size);
-	  size_t __align = (1u << __ch->_M_align);
+	  size_t __size = (size_t)1 << __ch->_M_size;
+	  size_t __align = (size_t)1 << __ch->_M_align;
 	  void* __start = (char*)(__ch + 1) - __size;
 	  __r->deallocate(__start, __size, __align);
 	}
