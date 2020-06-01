@@ -116,7 +116,7 @@ Moe::Malloc_container::alloc(size_t size, size_t align) throw()
     printf("Malloc[%p]: alloc(%zu, %zu)\n", this, size, align);
   // make sure alignment will be ok
   size = cxx::max(size, align);
-  // now find the next possible n^2 alignment
+  // now find the next possible 2^n alignment
   size_t outsz = 4;
   while ((1UL << outsz) < size)
     {
