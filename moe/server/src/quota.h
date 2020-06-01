@@ -132,11 +132,11 @@ public:
     quota()->free(size);
   }
 
-  void reparent(Malloc_container *new_container);
+  void reparent(Malloc_container *new_container) override;
 
 protected:
-  void *get_mem();
-  void free_mem(void *page);
+  void *get_mem() override;
+  void free_mem(void *page) override;
 
   Quota _quota;
 };
