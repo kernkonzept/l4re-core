@@ -37,10 +37,6 @@ public:
   {}
 
   static void free(Region_handler const *h, l4_addr_t start, unsigned long size);
-
-  static void take(Region_handler const * /*h*/) {}
-  static void release(Region_handler const * /*h*/) {}
-
 };
 
 class Region_map
