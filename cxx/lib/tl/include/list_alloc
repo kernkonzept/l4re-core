@@ -344,7 +344,7 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
       if (r_size < min)
         continue;
 
-      if (r_size > *max)
+      if (r_size >= *max)
         {
           fit = c;
           max_fit = *max;
