@@ -337,6 +337,11 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
 
       // remaining size after subtracting the padding for the alignment
       unsigned long r_size = (*c)->size - a_start + n_start;
+
+      // upper limit can limit maximum size
+      if (a_start + r_size - 1UL > upper)
+        r_size = upper - a_start + 1UL;
+
       // round down according to granularity
       r_size &= ~(granularity - 1UL);
 
