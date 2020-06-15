@@ -111,11 +111,6 @@ public:
     Region_handler n = *this; n._offs += offset; return n;
   }
 
-  void unmap(l4_addr_t va, l4_addr_t ds_offs, unsigned long size) const noexcept
-  {
-    Ops::unmap(this, va, ds_offs, size);
-  }
-
   void free(l4_addr_t start, unsigned long size) const noexcept
   {
     Ops::free(this, start, size);

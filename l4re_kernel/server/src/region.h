@@ -32,9 +32,6 @@ public:
                  L4Re::Util::Region const &r, bool writable,
                  l4_umword_t *result);
 
-  static void unmap(Region_handler const *h, l4_addr_t vaddr,
-                    l4_addr_t offs, unsigned long size);
-
   static void free(Region_handler const *h, l4_addr_t start, unsigned long size);
 };
 

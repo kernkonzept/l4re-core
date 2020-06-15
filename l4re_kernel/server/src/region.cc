@@ -97,30 +97,6 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
     }
 }
 
-void Region_ops::unmap(Region_handler const *h, l4_addr_t vaddr,
-                       l4_addr_t offs, unsigned long size)
-{
-  (void)h; (void)vaddr; (void)offs; (void)size;
-#if 0
-  for (l4_addr_t a = vaddr; a < vaddr + size; a += L4_PAGESIZE)
-    l4_task_unmap(L4Re::This_task,
-                  l4_fpage(a, L4_LOG2_PAGESIZE, L4_FPAGE_RWX),
-                  L4_FP_ALL_SPACES);
-
-  if (h->flags() & (Rm::Pager | Rm::Reserved))
-    return;
-
-  if (!(h->flags() & Rm::No_alias))
-    return;
-
-  L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
-
-  // swipe out memory pages if they are not aliasd somewhere else
-  // the DSM may free thoses pages
-  ds->clear(offs, size);
-#endif
-}
-
 void
 Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
 {
