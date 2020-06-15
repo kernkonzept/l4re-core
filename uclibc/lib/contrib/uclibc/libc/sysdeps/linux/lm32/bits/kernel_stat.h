@@ -22,8 +22,8 @@ struct kernel_stat
         struct timespec st_atim;        /* Time of last access. */
         struct timespec st_mtim;        /* Time of last modification. */
         struct timespec st_ctim;        /* Time of last status change. */
-        unsigned int    __unused4;
-        unsigned int    __unused5;
+        unsigned int    __uclibc_unused4;
+        unsigned int    __uclibc_unused5;
 };
 
 struct kernel_stat64
@@ -43,8 +43,8 @@ struct kernel_stat64
         struct timespec st_atim;        /* Time of last access. */
         struct timespec st_mtim;        /* Time of last modification. */
         struct timespec st_ctim;        /* Time of last status change. */
-        unsigned int    __unused4;
-        unsigned int    __unused5;
+        unsigned int    __uclibc_unused4;
+        unsigned int    __uclibc_unused5;
 };
 
 #endif  /*  _BITS_STAT_STRUCT_H */

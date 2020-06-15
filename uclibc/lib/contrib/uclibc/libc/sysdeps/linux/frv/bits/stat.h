@@ -84,16 +84,16 @@ struct stat
 # define st_mtime st_mtim.tv_sec
 # define st_ctime st_ctim.tv_sec
 #else
-    unsigned long int __unused1;
+    unsigned long int __uclibc_unused1;
     __time_t st_atime;			/* Time of last access.  */
 
-    unsigned long int __unused2;
+    unsigned long int __uclibc_unused2;
     __time_t st_mtime;			/* Time of last modification.  */
 
-    unsigned long int __unused3;
+    unsigned long int __uclibc_unused3;
     __time_t st_ctime;			/* Time of last status change.  */
 #endif
-    unsigned long long __unused4;
+    unsigned long long __uclibc_unused4;
 };
 
 #ifdef __USE_LARGEFILE64
@@ -131,16 +131,16 @@ struct stat64
 # define st_mtime st_mtim.tv_sec
 # define st_ctime st_ctim.tv_sec
 #else
-    unsigned long int __unused1;
+    unsigned long int __uclibc_unused1;
     __time_t st_atime;			/* Time of last access.  */
 
-    unsigned long int __unused2;
+    unsigned long int __uclibc_unused2;
     __time_t st_mtime;			/* Time of last modification.  */
 
-    unsigned long int __unused3;
+    unsigned long int __uclibc_unused3;
     __time_t st_ctime;			/* Time of last status change.  */
 #endif
-    unsigned long long __unused4;
+    unsigned long long __uclibc_unused4;
 };
 #endif
 

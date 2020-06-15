@@ -82,7 +82,7 @@ struct utmp
 #endif
 
   int32_t ut_addr_v6[4];	/* Internet address of remote host.  */
-  char __unused[20];		/* Reserved for future use.  */
+  char __uclibc_unused[20];	/* Reserved for future use.  */
 };
 
 /* Backwards compatibility hacks.  */

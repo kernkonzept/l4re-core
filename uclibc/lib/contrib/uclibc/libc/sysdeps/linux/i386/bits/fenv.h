@@ -65,18 +65,18 @@ typedef unsigned short int fexcept_t;
 typedef struct
   {
     unsigned short int __control_word;
-    unsigned short int __unused1;
+    unsigned short int __uclibc_unused1;
     unsigned short int __status_word;
-    unsigned short int __unused2;
+    unsigned short int __uclibc_unused2;
     unsigned short int __tags;
-    unsigned short int __unused3;
+    unsigned short int __uclibc_unused3;
     unsigned int __eip;
     unsigned short int __cs_selector;
     unsigned int __opcode:11;
-    unsigned int __unused4:5;
+    unsigned int __uclibc_unused4:5;
     unsigned int __data_offset;
     unsigned short int __data_selector;
-    unsigned short int __unused5;
+    unsigned short int __uclibc_unused5;
   }
 fenv_t;
 

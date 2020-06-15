@@ -99,11 +99,11 @@ struct stat
     unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
 #endif
 #if __WORDSIZE == 64
-    long int __unused[3];
+    long int __uclibc_unused[3];
 #else
 # ifndef __USE_FILE_OFFSET64
-    unsigned long int __unused4;
-    unsigned long int __unused5;
+    unsigned long int __uclibc_unused4;
+    unsigned long int __uclibc_unused5;
 # else
     __ino64_t st_ino;			/* File serial number.	*/
 # endif
@@ -160,7 +160,7 @@ struct stat64
     unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
 #endif
 #if __WORDSIZE == 64
-    long int __unused[3];
+    long int __uclibc_unused[3];
 #else
     __ino64_t st_ino;			/* File serial number.		*/
 #endif

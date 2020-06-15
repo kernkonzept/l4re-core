@@ -21,8 +21,8 @@ struct kernel_stat {
 	struct timespec st_atim;
 	struct timespec st_mtim;
 	struct timespec st_ctim;
-	unsigned long  __unused4;
-	unsigned long  __unused5;
+	unsigned long  __uclibc_unused4;
+	unsigned long  __uclibc_unused5;
 };
 
 struct kernel_stat64 {

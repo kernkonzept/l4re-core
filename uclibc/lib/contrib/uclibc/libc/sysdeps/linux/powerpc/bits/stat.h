@@ -80,8 +80,8 @@ struct stat
     __time_t st_ctime;			/* Time of last status change.  */
     unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
 #endif
-    unsigned long int __unused4;
-    unsigned long int __unused5;
+    unsigned long int __uclibc_unused4;
+    unsigned long int __uclibc_unused5;
   };
 
 
@@ -120,8 +120,8 @@ struct stat64
     __time_t st_ctime;			/* Time of last status change.  */
     unsigned long int st_ctimensec;	/* Nsecs of last status change.  */
 #endif
-    unsigned long int __unused4;
-    unsigned long int __unused5;
+    unsigned long int __uclibc_unused4;
+    unsigned long int __uclibc_unused5;
   };
 # endif /* __USE_LARGEFILE64 */
 

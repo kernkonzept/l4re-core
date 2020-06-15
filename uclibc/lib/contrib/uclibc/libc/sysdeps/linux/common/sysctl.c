@@ -17,7 +17,7 @@ struct __sysctl_args {
 	size_t *oldlenp;
 	void *newval;
 	size_t newlen;
-	unsigned long __unused[4];
+	unsigned long __uclibc_unused[4];
 };
 extern int sysctl (int *__name, int __nlen, void *__oldval,
 				   size_t *__oldlenp, void *__newval, size_t __newlen) __THROW;

@@ -38,19 +38,19 @@ struct msqid_ds
 {
   struct ipc_perm msg_perm;	/* structure describing operation permission */
 #if defined (__XTENSA_EB__)
-  unsigned long int __unused1;
+  unsigned long int __uclibc_unused1;
   __time_t msg_stime;		/* time of last msgsnd command */
-  unsigned long int __unused2;
+  unsigned long int __uclibc_unused2;
   __time_t msg_rtime;		/* time of last msgrcv command */
-  unsigned long int __unused3;
+  unsigned long int __uclibc_unused3;
   __time_t msg_ctime;		/* time of last change */
 #elif defined (__XTENSA_EL__)
   __time_t msg_stime;		/* time of last msgsnd command */
-  unsigned long int __unused1;
+  unsigned long int __uclibc_unused1;
   __time_t msg_rtime;		/* time of last msgrcv command */
-  unsigned long int __unused2;
+  unsigned long int __uclibc_unused2;
   __time_t msg_ctime;		/* time of last change */
-  unsigned long int __unused3;
+  unsigned long int __uclibc_unused3;
 #else
 # error endian order not defined
 #endif
@@ -59,8 +59,8 @@ struct msqid_ds
   msglen_t msg_qbytes;		/* max number of bytes allowed on queue */
   __pid_t msg_lspid;		/* pid of last msgsnd() */
   __pid_t msg_lrpid;		/* pid of last msgrcv() */
-  unsigned long int __unused4;
-  unsigned long int __unused5;
+  unsigned long int __uclibc_unused4;
+  unsigned long int __uclibc_unused5;
 };
 
 #ifdef __USE_MISC

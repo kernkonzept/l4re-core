@@ -117,8 +117,8 @@ struct stat
     unsigned int st_ctime_nsec;
 # endif
 #endif
-    unsigned int __unused4;
-    unsigned int __unused5;
+    unsigned int __uclibc_unused4;
+    unsigned int __uclibc_unused5;
   } __ARCH_64BIT_ALIGNMENT__;
 
 
@@ -155,8 +155,8 @@ struct stat64
     int st_ctime;				/* Time of last status change. */
     unsigned int st_ctime_nsec;
 # endif
-    unsigned int __unused4;
-    unsigned int __unused5;
+    unsigned int __uclibc_unused4;
+    unsigned int __uclibc_unused5;
 };
 #endif
 

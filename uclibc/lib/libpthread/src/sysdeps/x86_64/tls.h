@@ -73,7 +73,7 @@ typedef struct
 # ifndef __ASSUME_PRIVATE_FUTEX
   int private_futex;
 # else
-  int __unused1;
+  int __uclibc_unused1;
 # endif
 # if __WORDSIZE == 64
   int rtld_must_xmm_save;
@@ -81,14 +81,14 @@ typedef struct
   /* Reservation of some values for the TM ABI.  */
   void *__private_tm[5];
 # if __WORDSIZE == 64
-  long int __unused2;
+  long int __uclibc_unused2;
   // l4 -- rtld_savespace_sse is never used but don't change the layout of
   //       tcbhead_t to be on the safe side.
 # if 0
   /* Have space for the post-AVX register size.  */
   __m128 rtld_savespace_sse[8][4];
 # else
-  long int __unused3[16][4];
+  long int __uclibc_unused3[16][4];
 # endif
 
   void *__padding[8];

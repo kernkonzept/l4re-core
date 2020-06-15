@@ -42,8 +42,8 @@ struct kernel_stat64 {
 	struct timespec st_atim;	/* Time of last access.  */
 	struct timespec st_mtim;	/* Time of last modification.  */
 	struct timespec st_ctim;	/* Time of last status change.  */
-	unsigned long int __unused4;
-	unsigned long int __unused5;
+	unsigned long int __uclibc_unused4;
+	unsigned long int __uclibc_unused5;
 };
 
 #endif	/*  _BITS_STAT_STRUCT_H */

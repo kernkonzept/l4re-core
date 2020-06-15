@@ -42,8 +42,8 @@ struct semid_ds
   unsigned int __pad2;
   __time_t sem_ctime;			/* last time changed by semctl() */
   unsigned long int sem_nsems;		/* number of semaphores in set */
-  unsigned long int __unused1;
-  unsigned long int __unused2;
+  unsigned long int __uclibc_unused1;
+  unsigned long int __uclibc_unused2;
 };
 
 /* The user should define a union like the following to use it for arguments

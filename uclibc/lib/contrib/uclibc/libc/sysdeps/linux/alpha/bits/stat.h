@@ -89,7 +89,7 @@ struct stat
     __ST_TIME(a);		/* Time of last access.  */
     __ST_TIME(m);		/* Time of last modification.  */
     __ST_TIME(c);		/* Time of last status change.  */
-    long __unused[3];
+    long __uclibc_unused[3];
   };
 
 #ifdef __USE_LARGEFILE64
@@ -110,7 +110,7 @@ struct stat64
     __ST_TIME(a);		/* Time of last access.  */
     __ST_TIME(m);		/* Time of last modification.  */
     __ST_TIME(c);		/* Time of last status change.  */
-    long __unused[3];
+    long __uclibc_unused[3];
   };
 #endif
 

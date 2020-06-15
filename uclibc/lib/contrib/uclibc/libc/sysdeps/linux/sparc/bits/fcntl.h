@@ -163,7 +163,7 @@ struct flock
     __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
 #endif
     __pid_t l_pid;	/* Process holding the lock.  */
-    short int __unused;
+    short int __uclibc_unused;
   };
 
 #ifdef __USE_LARGEFILE64
@@ -174,7 +174,7 @@ struct flock64
     __off64_t l_start;	/* Offset where the lock begins.  */
     __off64_t l_len;	/* Size of the locked area; zero means until EOF.  */
     __pid_t l_pid;	/* Process holding the lock.  */
-    short int __unused;
+    short int __uclibc_unused;
   };
 #endif
 

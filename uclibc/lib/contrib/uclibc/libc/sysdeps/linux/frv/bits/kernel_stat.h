@@ -38,7 +38,7 @@ struct kernel_stat {
 	struct timespec st_mtim;
 	struct timespec st_ctim;
 
-	unsigned long long __unused4;
+	unsigned long long __uclibc_unused4;
 };
 
 struct kernel_stat64 {
@@ -68,7 +68,7 @@ struct kernel_stat64 {
 	struct timespec st_mtim;
 	struct timespec st_ctim;
 
-	unsigned long long __unused4;
+	unsigned long long __uclibc_unused4;
 };
 
 #endif	/*  _BITS_STAT_STRUCT_H */

@@ -64,8 +64,8 @@ struct msqid_ds
   msglen_t msg_qbytes;		/* max number of bytes allowed on queue */
   __pid_t msg_lspid;		/* pid of last msgsnd() */
   __pid_t msg_lrpid;		/* pid of last msgrcv() */
-  unsigned long int __unused4;
-  unsigned long int __unused5;
+  unsigned long int __uclibc_unused4;
+  unsigned long int __uclibc_unused5;
 };
 
 #ifdef __USE_MISC

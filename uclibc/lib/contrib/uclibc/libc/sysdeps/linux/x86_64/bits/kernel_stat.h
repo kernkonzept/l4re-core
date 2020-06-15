@@ -21,7 +21,7 @@ struct kernel_stat {
 	struct timespec st_atim;
 	struct timespec st_mtim;
 	struct timespec st_ctim;
-	long           __unused[3];
+	long           __uclibc_unused[3];
 };
 
 /* x86-64 stat64 is same as stat */

@@ -38,15 +38,15 @@ struct msqid_ds
 {
   struct ipc_perm msg_perm;    /* structure describing operation permission */
 #if __WORDSIZE == 32
-  unsigned int __unused1;
+  unsigned int __uclibc_unused1;
 #endif
   __time_t msg_stime;          /* time of last msgsnd command */
 #if __WORDSIZE == 32
-  unsigned int __unused2;
+  unsigned int __uclibc_unused2;
 #endif
   __time_t msg_rtime;          /* time of last msgrcv command */
 #if __WORDSIZE == 32
-  unsigned int __unused3;
+  unsigned int __uclibc_unused3;
 #endif
   __time_t msg_ctime;          /* time of last change */
   unsigned long __msg_cbytes; /* current number of bytes on queue */
@@ -54,8 +54,8 @@ struct msqid_ds
   msglen_t msg_qbytes;         /* max number of bytes allowed on queue */
   __pid_t msg_lspid;           /* pid of last msgsnd() */
   __pid_t msg_lrpid;           /* pid of last msgrcv() */
-  unsigned long __unused4;
-  unsigned long __unused5;
+  unsigned long __uclibc_unused4;
+  unsigned long __uclibc_unused5;
 };
 
 #ifdef __USE_MISC

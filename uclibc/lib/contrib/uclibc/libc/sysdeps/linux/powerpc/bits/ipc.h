@@ -50,12 +50,12 @@ struct ipc_perm
 #if 0
     unsigned long __seq;	/* Sequence number. */
     unsigned int __pad2;
-    unsigned long long int __unused1;
-    unsigned long long int __unused2;
+    unsigned long long int __uclibc_unused1;
+    unsigned long long int __uclibc_unused2;
 #else
     __uint32_t __seq;		/* Sequence number.  */
     __uint32_t __pad1;
-    __uint64_t __unused1;
-    __uint64_t __unused2;
+    __uint64_t __uclibc_unused1;
+    __uint64_t __uclibc_unused2;
 #endif
   };
