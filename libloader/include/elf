@@ -588,7 +588,7 @@ public:
       }
 
     // Load the interpreter
-    if (dyn_info.is_dynamic)
+    if (!interpreter && dyn_info.is_dynamic)
       {
 	ldr.printf("  dynamically linked executable, load interpreter '%s'\n", dyn_info.interp);
 
