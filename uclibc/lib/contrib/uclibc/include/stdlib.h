@@ -598,7 +598,7 @@ libc_hidden_proto(unsetenv)
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 # define __UCLIBC_MAX_ATEXIT     INT_MAX
 #else
-# define __UCLIBC_MAX_ATEXIT     20
+# define __UCLIBC_MAX_ATEXIT     32
 #endif
 
 
