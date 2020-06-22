@@ -15,16 +15,14 @@
 #include <cstdio>
 
 #include "lua.h"
+#include "foreign_server.h"
 #include "server.h"
 
 static Dbg info(Dbg::Info);
 static Dbg boot_info(Dbg::Boot);
 l4re_aux_t* l4re_aux;
 
-//static Ned::Server s(l4_utcb(), Ned::Registry(L4Re::Env::env()->main_thread(), L4Re::Env::env()->factory()));
-
-
-Ned::Server *Ned::server;// = &s;
+Ned::Foreign_server *Ned::foreign_server;
 
 static Dbg ldr(Dbg::Loader, "ldr");
 
@@ -54,15 +52,12 @@ run(int argc, char const *const *argv)
       auxp += 2;
     }
 
-  Ned::Server svr;
-  Ned::server = &svr;
-
+  Ned::Foreign_server svr;
+  Ned::foreign_server = &svr;
 
   lua(argc, argv);
 
-
-  while (1)
-    l4_sleep_forever();
+  Ned::server_loop();
 
   return 0;
 };

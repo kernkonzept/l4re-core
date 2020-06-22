@@ -9,6 +9,7 @@
 
 #include "app_model.h"
 
+#include <cstdio>
 #include <l4/re/error_helper>
 #include <l4/re/util/env_ns>
 
@@ -163,7 +164,7 @@ App_model::get_task_caps(L4::Cap<L4::Factory> *factory,
                              L4::Cap<L4::Thread> *thread)
 {
   prog_info()->rm = _task->rm().fpage();
-  prog_info()->parent = _task->obj_cap().fpage();
+  prog_info()->parent = _task->parent_cap().fpage();
   Dbg(Dbg::Info).printf("parent cap is %lx\n", prog_info()->parent.raw);
   *task = _task->task_cap();
   *thread = _task->thread_cap();

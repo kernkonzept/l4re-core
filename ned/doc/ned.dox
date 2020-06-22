@@ -152,7 +152,59 @@ The main elements of the initial object table are:
        an empty table).  If the table does not contain a capability with the
        name 'rom', the 'rom' capability from Ned's initial caps is inserted
        into the table.
-       
+
+The \c start() and \c startv() calls return a task object that supports a
+number of operations.
+\li \c state() returns a string with the current task state: "running" or
+    "zombie" if the task has terminated. If the task was alreay reaped (
+    \c wait() returned) or if \c kill() was called, then the function will
+    return \c nil.
+\li \c exit_code() returns the exit code if the task has terminated or \c nil
+    if it was either killed or has been reaped.
+\li \c kill() forcefully terminates the task. Returns "killed" if the task was
+    terminated or the exit code if the task was already gone. Returns \c nil
+    if the task was already reaped.
+\li \c exit_handler(function) registers a Lua function that is invoked when the
+    task terminates. If the task has already terminated, the function is called
+    immediately. Returns \c true if the callback is pending, otherwise \c
+    false. The callback function gets the exit code (\c nil if killed) of the
+    task as its only parameter. The return value of the function is ignored.
+    Only one callback can be registered.
+\li \c wait() suspends execution until the task has terminated. It's better
+    to use \c exit_handler() instead. While the Lua code executes \c wait(),
+    no \c exit_handler() will be dispatched.
+
+\subsection l4re_ned_exit_handler Reacting on task termination
+
+Ned can react on the termination of child tasks. The preferred mechanism is
+to register an \c exit_handler() for a task:
+
+\code{.lua}
+task = L4.default_loader:start(...)
+task:exit_handler(function(exit_code)
+  if exit_code == nil then
+    print("Task was killed")
+  else
+    print("Task has terminated w/ code [" .. exit_code .. "]")
+  end
+end)
+\endcode
+
+If the task did already terminate then the callback is invoked immediately. It
+is also possible to suspend execution of the Ned script until a task has
+terminated:
+
+\code{.lua}
+task = L4.default_loader:start(...)
+task:wait()
+\endcode
+
+This method should be used with caution, though. The Ned script will wait until
+the child task has terminated. Neither will any of the registered \c
+exit_handler() will be called during this time, nor will the \ref
+l4re_ned_interactive "remote command interface" be able to execute commands
+either.
+
 \subsection l4re_ned_jdb Access to the kernel debugger
 
 Applications can enrich the kernel debugger with information using the API

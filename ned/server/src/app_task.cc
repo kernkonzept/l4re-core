@@ -11,10 +11,9 @@
 #include <l4/re/error_helper>
 #include <l4/re/util/cap_alloc>
 
-#include <l4/cxx/iostream>
+#include "server.h"
 
 using L4Re::Util::cap_alloc;
-using L4Re::Dataspace;
 using L4Re::chkcap;
 using L4Re::chksys;
 
@@ -35,63 +34,116 @@ void App_task::operator delete (void *m) noexcept
 { alloc()->free((App_task*)m); }
 #endif
 
+App_task::Parent_receiver::Parent_receiver(App_task &parent)
+: parent(parent)
+{
+  wait = L4Re::Util::make_unique_cap<L4::Semaphore>();
+  chksys(L4Re::Env::env()->factory()->create(wait.get()),
+         "Parent_receiver wait sem");
+}
+
+/**
+ * Receiver of exit signals.
+ *
+ * This IPC handler is invoked in the context of the Foreign_server thread.
+ * Store the exit information and wake up the main thread to dispatch the exit
+ * signal handling there. See App_task::handle_irq().
+ */
 int
-App_task::op_signal(L4Re::Parent::Rights, unsigned long sig, unsigned long val)
+App_task::Parent_receiver::op_signal(L4Re::Parent::Rights, unsigned long sig,
+                                     unsigned long val)
 {
   switch (sig)
     {
     case 0: // exit
-        {
-          // kick the capability reference
-          // long refs = remove_ref();
-          _state = Zombie;
-          _exit_code = val;
-
-          terminate();
-
-          if (remove_ref() == 0)
-            {
-              delete this;
-              return -L4_ENOREPLY;
-            }
-
-          if (l4_cap_idx_t o = observer())
-            {
-              observer(0);
-              l4_ipc_send(o, l4_utcb(), l4_msgtag(0,0,0,0), L4_IPC_NEVER);
-            }
-
-          return -L4_ENOREPLY;
-        }
+      exit_code = val;
+      wait->up();
+      parent.obj_cap()->trigger();
+      return -L4_ENOREPLY;
     default: break;
     }
   return L4_EOK;
 }
 
-App_task::App_task(Ned::Registry *r,
-                   L4Re::Util::Ref_cap<L4::Factory>::Cap const &alloc)
-: _ref_cnt(0), _r(r),
+/**
+ * Signal handler in main thread for task termination.
+ *
+ * Task exit signals are received in the context of the Foreign_server thread.
+ * See App_task::Parent_receiver::op_signal(). They trigger the respective
+ * L4::Irq of the App_task to dispatch the exit signal handling in the main
+ * thread.
+ */
+void
+App_task::handle_irq()
+{
+  if (_state == Running)
+    {
+      _state = Zombie;
+      _exit_code = _parent_receiver.exit_code;
+      _exit_code_valid = true;
+      reset();
+      dispatch_exit_signal();
+
+      if (remove_ref() == 0)
+        delete this;
+    }
+}
+
+App_task::App_task(L4Re::Util::Ref_cap<L4::Factory>::Cap const &alloc)
+: _ref_cnt(0),
   _task(chkcap(cap_alloc.alloc<L4::Task>(), "allocating task cap")),
   _thread(chkcap(cap_alloc.alloc<L4::Thread>(), "allocating thread cap")),
   _rm(chkcap(cap_alloc.alloc<L4Re::Rm>(), "allocating region-map cap")),
-  _state(Initializing), _observer(0)
+  _state(Initializing), _exit_code_valid(false),
+  _parent_receiver(*this)
 {
   chksys(alloc->create(_rm.get()), "allocating new region map");
 
-  chkcap(_r->register_obj(this), "register App_task endpoint");
+  chkcap(Ned::server.registry()->register_obj(this),
+         "register App_task irq");
+
+  chkcap(Ned::foreign_server->registry()->register_obj(&_parent_receiver),
+         "register App_task parent rcv");
+}
+
+App_task::~App_task()
+{
+  reset();
 }
 
 void
-App_task::terminate()
+App_task::reset()
 {
   _task.reset();
   _thread.reset();
   _rm.reset();
 
-  _r->unregister_obj(this);
+  Ned::foreign_server->registry()->unregister_obj(&_parent_receiver);
+  Ned::server.registry()->unregister_obj(this);
 }
 
-App_task::~App_task()
+void
+App_task::dispatch_exit_signal()
+{}
+
+void
+App_task::terminate()
 {
-  _r->unregister_obj(this);
+  if (_state == Running)
+    {
+      _state = Zombie;
+      remove_ref(); // the caller of this method still holds a reference
+      reset();
+      dispatch_exit_signal();
+    }
+}
+
+void
+App_task::wait()
+{
+  if (_state == App_task::Running)
+    {
+      _parent_receiver.wait->down();
+      handle_irq();
+    }
 }

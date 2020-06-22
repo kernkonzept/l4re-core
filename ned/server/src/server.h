@@ -8,46 +8,15 @@
  */
 #pragma once
 
-#include <l4/cxx/exceptions>
-#include <l4/sys/cxx/ipc_epiface>
+#include <l4/cxx/ref_ptr>
+#include <l4/cxx/slist>
+#include <l4/re/util/br_manager>
 #include <l4/re/util/object_registry>
-#include <pthread.h>
-#include <cstdio>
 
 namespace Ned {
 
-class Server_object : public L4::Epiface
-{};
+extern L4Re::Util::Registry_server<L4Re::Util::Br_manager_timeout_hooks> server;
 
-class Registry : public L4Re::Util::Object_registry
-{
-public:
-  Registry(L4::Ipc_svr::Server_iface *sif,
-           L4::Cap<L4::Thread> t, L4::Cap<L4::Factory> f)
-  : L4Re::Util::Object_registry(sif, t, f) {}
-
-  ~Registry() { printf("destroy registry\n"); }
-};
-
-class Server : public L4::Server<>
-{
-private:
-  Registry *_r;
-  pthread_t _th;
-  pthread_mutex_t _start_mutex;
-  static void *__run(void *);
-
-  void run();
-public:
-  typedef L4::Server<> Base;
-
-  Server();
-
-  Registry *registry() { return _r; }
-};
-
-extern Server *server;
+void server_loop();
 
 }
-
-

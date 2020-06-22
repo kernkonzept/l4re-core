@@ -9,8 +9,6 @@
  */
 
 #include <l4/sys/err.h>
-#include <l4/re/util/br_manager>
-#include <l4/re/util/object_registry>
 #include <l4/re/error_helper>
 #include <l4/ned/cmd_control>
 
@@ -25,6 +23,7 @@
 
 #include "lua_cap.h"
 #include "lua.h"
+#include "server.h"
 
 static Lua::Lib *_lua_init;
 
@@ -154,22 +153,17 @@ namespace Lua { namespace {
 
 static int __server_loop(lua_State *l)
 {
-  static bool once;
-
-  if (once)
-    return 0;
-  once = true;
-
   Lua::Cap *n = check_cap(l, 1);
 
-  L4Re::Util::Registry_server<L4Re::Util::Br_manager_timeout_hooks> server;
   Command_dispatcher cmd_dispatch(l);
 
-  L4Re::chkcap(server.registry()->register_obj(&cmd_dispatch,
-                                               n->cap<L4::Ipc_gate>().get()),
+  L4Re::chkcap(Ned::server.registry()->register_obj(&cmd_dispatch,
+                                                    n->cap<L4::Ipc_gate>().get()),
                "Register command dispatcher endpoint.");
 
-  server.loop();
+  Ned::server_loop();
+
+  Ned::server.registry()->unregister_obj(&cmd_dispatch);
 
   return 0;
 }

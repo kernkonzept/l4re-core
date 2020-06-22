@@ -29,40 +29,70 @@ using L4Re::chksys;
 inline void *operator new (size_t, void *p) noexcept { return p; }
 namespace Lua { namespace {
 
-struct Obs_iface : L4::Kobject_0t<Obs_iface>
-{
-  struct Task
-  {
-    App_task *p;
-    Task() = default;
-    Task(App_task *p) : p(p) {}
-  };
-
-  L4_INLINE_RPC(long, wait, (l4_cap_idx_t thread, Task task));
-
-  typedef L4::Typeid::Rpcs<wait_t> Rpcs;
-};
-
-class Observer :
-  public L4::Epiface_t<Observer, Obs_iface, Ned::Server_object>
+class Lua_app_task : public App_task
 {
 public:
-  long op_wait(Obs_iface::Rights, l4_cap_idx_t thread, Obs_iface::Task task);
+  Lua_app_task(lua_State *lua,
+               L4Re::Util::Ref_cap<L4::Factory>::Cap const &alloc)
+  : App_task(alloc), _lua(lua), _cb(LUA_NOREF)
+  {}
+
+  ~Lua_app_task()
+  {
+    if (_cb != LUA_NOREF)
+      luaL_unref(_lua, LUA_REGISTRYINDEX, _cb);
+  }
+
+  void dispatch_exit_signal() override
+  {
+    if (_cb == LUA_NOREF)
+      return;
+
+    lua_rawgeti(_lua, LUA_REGISTRYINDEX, _cb);
+    if (exit_code_valid())
+      lua_pushinteger(_lua, exit_code());
+    else
+      lua_pushnil(_lua);
+    if (lua_pcall(_lua, 1, 0, 0))
+      {
+        Err().printf("lua error: %s.\n", lua_tostring(_lua, -1));
+        lua_pop(_lua, 1);
+      }
+  }
+
+  int register_exit_signal(lua_State *l)
+  {
+    luaL_checktype(l, 2, LUA_TFUNCTION);
+
+    // must only register one callback ever
+    if (_cb != LUA_NOREF)
+      {
+        luaL_error(l, "exit_handler callback already registered");
+        return 0;
+      }
+
+    // fire immediately if the task is already gone
+    if (state() == Zombie)
+      {
+        if (exit_code_valid())
+          lua_pushinteger(l, exit_code());
+        else
+          lua_pushnil(l);
+        lua_call(l, 1, 0);
+        lua_pushboolean(l, false);
+        return 1;
+      }
+
+    // push function to global table for later usage
+    _cb = luaL_ref(l, LUA_REGISTRYINDEX);
+    lua_pushboolean(l, true);
+    return 1;
+  }
+
+private:
+  lua_State *_lua;
+  int _cb;
 };
-
-static Observer *observer;
-
-long
-Observer::op_wait(Obs_iface::Rights, l4_cap_idx_t thread, Obs_iface::Task task)
-{
-  App_task *t = task.p;
-
-  if (t->state() == App_task::Zombie)
-    return 0;
-
-  t->observer(thread);
-  return -L4_ENOREPLY;
-}
 
 class Am : public Rmt_app_model
 {
@@ -328,7 +358,7 @@ public:
 
 
 static char const *const APP_TASK_TYPE = "L4_NED_APP_TASK";
-typedef cxx::Ref_ptr<App_task> App_ptr;
+typedef cxx::Ref_ptr<Lua_app_task> App_ptr;
 
 static
 App_ptr &check_at(lua_State *l, int i)
@@ -374,8 +404,10 @@ static int __task_exit_code(lua_State *l)
   App_ptr t = check_at(l, 1);
   if (!t)
     lua_pushnil(l);
-  else
+  else if (t->exit_code_valid())
     lua_pushinteger(l, t->exit_code());
+  else
+    lua_pushnil(l);
 
   return 1;
 }
@@ -390,7 +422,7 @@ static int __task_wait(lua_State *l)
       return 1;
     }
 
-  L4::cap_cast<Obs_iface>(observer->obj_cap())->wait(pthread_l4_cap(pthread_self()), t.get());
+  t->wait();
   lua_pushinteger(l, t->exit_code());
 
   t = 0; // zap task
@@ -419,6 +451,20 @@ static int __task_kill(lua_State *l)
   lua_pushstring(l, "killed");
 
   return 1;
+}
+
+static int __task_exit_handler(lua_State *l)
+{
+  App_ptr &t = check_at(l, 1);
+  if (!t)
+    {
+      lua_pushnil(l);
+      lua_call(l, 1, 0);
+      lua_pushboolean(l, false);
+      return 1;
+    }
+
+  return t->register_exit_signal(l);
 }
 
 static int __task_gc(lua_State *l)
@@ -457,6 +503,7 @@ static const luaL_Reg _task_ops[] = {
     { "exit_code", __task_exit_code },
     { "wait", __task_wait },
     { "kill", __task_kill },
+    { "exit_handler", __task_exit_handler },
     { NULL, NULL }
 };
 
@@ -468,7 +515,7 @@ static int exec(lua_State *l)
   Am am(l);
   am.parse_cfg();
 
-  App_ptr app_task(new App_task(Ned::server->registry(), am.rm_fab()));
+  App_ptr app_task(new Lua_app_task(l, am.rm_fab()));
 
   if (!app_task)
     {
@@ -528,10 +575,6 @@ public:
 	luaL_setfuncs(l, _task_meta_ops, 0);
       }
     lua_pop(l, 2);
-
-    observer = new Observer();
-    L4Re::chkcap(Ned::server->registry()->register_obj(observer),
-                 "Register observer endpoint.");
   }
 };
 
