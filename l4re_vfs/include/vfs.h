@@ -784,6 +784,10 @@ private:
 public:
   explicit File_factory(int proto) : _proto(proto) {}
   explicit File_factory(char const *proto_name) : _proto_name(proto_name) {}
+  File_factory(int proto, char const *proto_name)
+  : _proto(proto), _proto_name(proto_name)
+  {}
+
   File_factory(File_factory const &) = delete;
   File_factory &operator = (File_factory const &) = delete;
 
@@ -800,7 +804,10 @@ template<typename IFACE, typename IMPL>
 class File_factory_t : public File_factory
 {
 public:
-  File_factory_t() : File_factory(IFACE::Protocol) {}
+  File_factory_t()
+  : File_factory(IFACE::Protocol, L4::kobject_typeid<IFACE>()->name())
+  {}
+
   cxx::Ref_ptr<File> create(L4::Cap<void> file)
   { return cxx::ref_ptr(new IMPL(L4::cap_cast<IFACE>(file))); }
 };
