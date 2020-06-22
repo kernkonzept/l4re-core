@@ -178,16 +178,12 @@ input and output of ned and the prompt appear on the same console.
 
 Ned's command line syntax is:
 
-    [--noexit] [--execute|-e STATEMENT] <lua script> [options passed to lua script]
+    [--execute|-e STATEMENT] <lua script> [options passed to lua script]
 
 Ned interprets the first non-option argument `<lua script>` as the Lua script
 which it should load and run. All arguments following the first non-option
 argument are passed as arguments to the Lua script via Lua's global `arg`
 table.
-
-- No exit Option: **noexit**
-
-  Ned does not terminate if only Return is entered at ned's prompt.
 
 - Execute Statement Option: **execute**, **e**
 
