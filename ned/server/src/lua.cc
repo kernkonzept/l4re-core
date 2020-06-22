@@ -69,11 +69,10 @@ static const luaL_Reg libs[] =
   { NULL, NULL }
 };
 
-static char const *const options = "+e:c:";
+static char const *const options = "+e:";
 static struct option const loptions[] =
   {
     { "execute", 1, NULL, 'e' },
-    { "cmdcap", 1, NULL, 'c' },
     { 0, 0, 0, 0 }
   };
 
@@ -199,9 +198,6 @@ int lua(int argc, char const *const *argv)
 {
   printf("Ned says: Hi World!\n");
 
-  enum Mode { None, Cmd_channel };
-  Mode mode = None;
-
   lua_State *L;
   L = luaL_newstate();
 
@@ -223,7 +219,6 @@ int lua(int argc, char const *const *argv)
     return 0;
 
   int opt;
-  char const *cmd_client = 0;
   while ((opt = getopt_long(argc, const_cast<char *const*>(argv),
                             options, loptions, NULL)) != -1)
     {
@@ -236,10 +231,6 @@ int lua(int argc, char const *const *argv)
               fprintf(stderr, "Error executing cmdline statement\n");
             break;
           }
-        case 'c':
-          cmd_client = optarg;
-          mode = Cmd_channel;
-          break;
         default: break;
         }
     }
@@ -280,16 +271,6 @@ int lua(int argc, char const *const *argv)
     }
 
   lua_gc(L, LUA_GCCOLLECT, 0);
-
-  if (mode == Cmd_channel)
-    {
-      L4Re::Util::Registry_server<L4Re::Util::Br_manager_timeout_hooks> server;
-      Command_dispatcher cmd_dispatch(L);
-
-      server.registry()->register_obj(&cmd_dispatch, cmd_client);
-
-      server.loop();
-    }
 
   return 0;
 }

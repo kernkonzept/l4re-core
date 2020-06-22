@@ -178,18 +178,12 @@ input and output of ned and the prompt appear on the same console.
 
 Ned's command line syntax is:
 
-    [--cmdcap|-c CAP] [--noexit] [--execute|-e STATEMENT] <lua script> [options passed to lua script]
+    [--noexit] [--execute|-e STATEMENT] <lua script> [options passed to lua script]
 
 Ned interprets the first non-option argument `<lua script>` as the Lua script
 which it should load and run. All arguments following the first non-option
 argument are passed as arguments to the Lua script via Lua's global `arg`
 table.
-
-- Command Capability Option: **cmdcap**, **c**
-
-  Start ned in server mode. After running the initial Lua script, ned will
-  accept Lua statements via IPC on the given capability
-  (see L4Re::Ned::Cmd_control).
 
 - No exit Option: **noexit**
 
