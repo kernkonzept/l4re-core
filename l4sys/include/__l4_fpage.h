@@ -25,6 +25,8 @@
  */
 #pragma once
 
+#include <l4/sys/compiler.h>
+
 /**
  * \defgroup l4_fpage_api Flex pages
  * \ingroup l4_api
