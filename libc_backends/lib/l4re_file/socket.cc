@@ -1,6 +1,5 @@
 #include <features.h>
 
-#include <l4/util/atomic.h>
 #include <l4/re/log>
 #include <l4/re/env>
 

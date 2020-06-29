@@ -23,7 +23,6 @@
 #define _PT_MACHINE_H   1
 
 #include <features.h>
-#include <l4/util/atomic.h>
 
 /* This will not work on ARM1 or ARM2 because SWP is lacking on those
    machines.  Unfortunately we have no way to detect this at compile
