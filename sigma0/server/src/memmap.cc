@@ -30,7 +30,6 @@
 
 
 l4_kernel_info_t *l4_info;
-l4_addr_t        tbuf_status;
 
 Mem_man iomem;
 
@@ -61,13 +60,6 @@ void new_client(l4_umword_t, Answer *a)
   a->snd_fpage(l4_obj_fpage(_next_gate, 0, L4_CAP_FPAGE_RWS));
   _next_gate += L4_CAP_SIZE;
   return;
-}
-
-static
-void map_tbuf(Answer *a)
-{
-  if (tbuf_status != 0x00000000 && tbuf_status != ~0UL)
-    a->snd_fpage(tbuf_status, L4_LOG2_PAGESIZE, L4_FPAGE_RW, true);
 }
 
 static
@@ -201,7 +193,7 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
         }
       break;
     case SIGMA0_REQ_ID_TBUF:
-      map_tbuf(answer);
+      answer->error(L4_ENOSYS);
       break;
     case SIGMA0_REQ_ID_FPAGE_RAM:
       map_mem((l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[1], Ram, t, answer);

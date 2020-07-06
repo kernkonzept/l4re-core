@@ -27,8 +27,6 @@ init_memory(l4_kernel_info_t *info)
       enter_kdebug("FATAL");
     }
 
-  tbuf_status = 0; //fiasco_tbuf_get_status_phys();
-
 #ifdef ARCH_x86
   char kip_syscalls = l4_info->kip_sys_calls;
 
