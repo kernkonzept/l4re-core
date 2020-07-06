@@ -190,15 +190,15 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
           Mem_man::Tree::Node_allocator alloc;
           L4::cout << PROG_NAME": Memory usage: a total of "
             << Page_alloc_base::total()
-            << " byte are in the memory pool\n"
+            << " bytes are in the memory pool\n"
             << "  allocated "
             << alloc.total_objects() - alloc.free_objects()
             << " of " << alloc.total_objects() << " objects\n"
-            << "  this are "
+            << "  these are "
             << (alloc.total_objects() - alloc.free_objects())
             * alloc.object_size
             << " of " << alloc.total_objects() * alloc.object_size
-            << " byte\n";
+            << " bytes\n";
           dump_all();
           answer->error(0);
         }
