@@ -29,7 +29,6 @@
 #include "ioports.h"
 
 
-l4_addr_t        mem_high;
 l4_kernel_info_t *l4_info;
 l4_addr_t        tbuf_status;
 
@@ -130,8 +129,6 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
       return;
     }
 
-  /* the Fiasco kernel makes the page non-cachable if the frame
-   * address is greater than mem_high */
   an->snd_fpage(addr, l4_fpage_size(fp), mem_flags, cached);
 
   return;
