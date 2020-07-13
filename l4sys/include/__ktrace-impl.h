@@ -31,19 +31,6 @@
  *** Implementation
  *****************************************************************************/
 
-L4_INLINE l4_tracebuffer_status_t *
-fiasco_tbuf_get_status(void)
-{
-  return 0;
-  /* Not implemented */
-}
-
-L4_INLINE l4_addr_t
-fiasco_tbuf_get_status_phys(void)
-{
-  return ~0UL;
-}
-
 L4_INLINE l4_umword_t
 fiasco_tbuf_log(const char *text)
 {
