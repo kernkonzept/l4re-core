@@ -567,17 +567,22 @@ public:
                         L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
 
   /**
+   * A range of virtual addresses.
+   */
+  struct Range
+  {
+    /// First address of the range.
+    l4_addr_t start;
+    /// Last address of the range.
+    l4_addr_t end;
+  };
+
+  /**
    * A region is a range of virtual addresses which is backed by a dataspace.
    *
    * \see api_l4re_rm
    */
-  struct Region
-  {
-    /// First address of the region.
-    l4_addr_t start;
-    /// Last address of the region.
-    l4_addr_t end;
-  };
+  using Region = Range;
 
   /**
    * An area is a range of virtual addresses which is reserved,
@@ -585,13 +590,7 @@ public:
    *
    * \see api_l4re_rm
    */
-  struct Area
-  {
-    /// First address of the area.
-    l4_addr_t start;
-    /// Last address of the area.
-    l4_addr_t end;
-  };
+  using Area = Range;
 
   /**
    * Return the list of regions whose starting addresses are higher or equal to
@@ -607,7 +606,7 @@ public:
    *       shall use the function repeatedly with a start address one larger
    *       that the end address of the last region from the previous call.
    */
-  L4_RPC(long, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Region> regions));
+  L4_RPC(long, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Range> regions));
 
   /**
    * Return the list of areas whose starting addresses are higher or equal to
@@ -624,7 +623,7 @@ public:
    *       than the end address of the last area from the previous call.
    */
 
-  L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Area> areas));
+  L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Range> areas));
 
   int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
              L4::Cap<L4::Task> task, unsigned flags) const noexcept;
