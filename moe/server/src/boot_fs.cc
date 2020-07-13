@@ -183,7 +183,7 @@ Moe::Boot_fs::init_stage2()
   unsigned num_modules = mbi->mods_count;
 
   l4_addr_t m_low = -1;
-  l4_addr_t m_high = 0;
+  l4_addr_t m_high = 0; // inclusive!
   for (unsigned mod = 3; mod < num_modules; ++mod)
     {
       l4_addr_t s = modules[mod].mod_start;
@@ -200,8 +200,8 @@ Moe::Boot_fs::init_stage2()
       //l4_addr_t end = l4_round_page(modules[mod].mod_end);
       l4_addr_t end = modules[mod].mod_end;
 
-      if (m_high < l4_round_page(end))
-        m_high = l4_round_page(end);
+      if (m_high < l4_round_page(end) - 1)
+        m_high = l4_round_page(end) - 1;
 
       cxx::String opts;
       cxx::String name = cmdline_to_name((char const *)(unsigned long)modules[mod].cmdline, &opts);
