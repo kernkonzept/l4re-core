@@ -22,7 +22,12 @@
 
 namespace L4Re { namespace Util {
 
-static FILE *out = stdout;
+// 'stdout' is defined externally, hence a static variable 'out' cannot be
+// initialized at compile time. This is bad if the printf() functions below
+// should be usable from static initializers.
+static inline FILE *out()
+{ return stdout; }
+
 #ifndef NDEBUG
 unsigned long Dbg::level = 1;
 
@@ -50,7 +55,7 @@ Dbg::printf(char const *fmt, ...) const
   va_list args;
 
   va_start    (args, fmt);
-  n = vfprintf (out, fmt, args);
+  n = vfprintf (out(), fmt, args);
   va_end      (args);
 
   return n;
@@ -66,7 +71,7 @@ Dbg::cprintf(char const *fmt, ...) const
   va_list args;
 
   va_start    (args, fmt);
-  n = vfprintf (out, fmt, args);
+  n = vfprintf (out(), fmt, args);
   va_end      (args);
 
   return n;
@@ -86,7 +91,7 @@ Err::printf(char const *fmt, ...) const
   va_list args;
 
   va_start    (args, fmt);
-  n = vfprintf (out, fmt, args);
+  n = vfprintf (out(), fmt, args);
   va_end      (args);
 
   return n;
@@ -99,7 +104,7 @@ Err::cprintf(char const *fmt, ...) const
   va_list args;
 
   va_start    (args, fmt);
-  n = vfprintf (out, fmt, args);
+  n = vfprintf (out(), fmt, args);
   va_end      (args);
 
   return n;
