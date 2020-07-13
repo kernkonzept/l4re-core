@@ -29,7 +29,6 @@ Proto = {
   Vm         = -16,
   Dma_space  = -17,
   Irq_sender = -18,
-  Irq_muxer  = -19,
   Semaphore  = -20,
   Iommu      = -22,
   Ipc_gate  = 0,
