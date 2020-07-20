@@ -614,6 +614,10 @@ define SRC_libcrypt
   crypt
   des
   md5
+  sha256
+  sha256-crypt
+  sha512
+  sha512-crypt
 endef
 
 define SRC_libm
