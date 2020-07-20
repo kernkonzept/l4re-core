@@ -1,0 +1,41 @@
+
+REQUIRES_LIBS += $(if $(findstring minimal,$(TARGET)),,libpthread)
+
+SRC_CC += \
+array_type_info.cc \
+atexit_arm.cc \
+bad_alloc.cc \
+bad_array_length.cc \
+bad_array_new.cc \
+bad_cast.cc \
+bad_typeid.cc \
+class_type_info.cc \
+del_opa.cc \
+del_opant.cc \
+del_ops.cc \
+del_opsa.cc \
+del_opva.cc \
+del_opvant.cc \
+del_opvs.cc \
+del_opvsa.cc \
+dyncast.cc \
+eh_ptr.cc \
+enum_type_info.cc \
+function_type_info.cc \
+fundamental_type_info.cc \
+guard_error.cc \
+hash_bytes.cc \
+nested_exception.cc \
+new_opa.cc \
+new_opant.cc \
+new_opva.cc \
+new_opvant.cc \
+pbase_type_info.cc \
+pmem_type_info.cc \
+pointer_type_info.cc \
+si_class_type_info.cc \
+vmi_class_type_info.cc \
+vtv_stubs.cc \
+
+SRC_CC_IS_CXX11 :=
+CXXFLAGS += -std=gnu++17

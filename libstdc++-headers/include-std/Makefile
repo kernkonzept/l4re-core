@@ -13,6 +13,7 @@ LIBSUPC_H-4.6_PLUS-  := exception_defines.h cxxabi-forced.h
 LIBSUPC_H-4.6_PLUS-y := bits/exception_defines.h bits/cxxabi_forced.h cxxabi_forced.h bits/hash_bytes.h
 LIBSUPC_H-4.7_PLUS-y += bits/atomic_lockfree_defines.h
 LIBSUPC_H-7_PLUS-y   += bits/exception.h bits/cxxabi_init_exception.h
+LIBSUPC_H-10_PLUS-y  += compare
 
 ALLOCATOR_H        := config/allocator/new_allocator_base.h
 CLOCALE_H          := config/locale/generic/c_locale.h
