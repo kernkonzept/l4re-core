@@ -291,6 +291,7 @@ define SRC_libc/misc
   dirent/telldir
   error/err
   fnmatch/fnmatch
+  getauxval
   glob/glob
   internals/errno
   internals/h_errno
