@@ -9,4 +9,6 @@ vpath %.h $(SRC_DIR)/../contrib/src
 
 -include $(wildcard .*.d)
 include $(SRC_DIR)/../contrib/src/Makefile
-MYCFLAGS=-I$(SRC_DIR)/../contrib/src -DLUA_USE_L4RE $(L4_DEFINES) $(CFLAGS_L4_GENERIC) $(L4_INCLUDES)
+
+MYCFLAGS = -I$(SRC_DIR)/../contrib/src -DLUA_USE_L4RE $(L4_DEFINES) \
+           $(CFLAGS_L4_GENERIC) $(L4_INCLUDES)
