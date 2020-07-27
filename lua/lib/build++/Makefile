@@ -21,7 +21,7 @@ liblua.a: $(SRC_DIR)/Makefile $(SRC_DIR)/Makefile.lua FORCE
 	  L4_DEFINES="$(DEFS)" GENERAL_D_LOC=$(GENERAL_D_LOC) \
 	  L4_INCLUDES="$(LIBCINCDIR) $(addprefix -I, $(L4INCDIR))" \
 	  PLAT=l4re CXXFLAGS_L4_GENERIC="$(CXXFLAGS_L4_GENERIC)" \
-	  CC="$(CXX)" AR="$(AR) rcu" RANLIB="$(RANLIB)" liblua.a
+	  CC="$(CXX)" AR="$(AR) rc" RANLIB="$(RANLIB)" liblua.a
 
 ifneq ($(strip $(INSTALL_TARGET)),liblua.a)
 $(INSTALL_TARGET): liblua.a
