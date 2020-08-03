@@ -707,6 +707,9 @@ int __pthread_initialize_manager(void)
     return -1;
   __pthread_manager_thread_tos =
     __pthread_manager_thread_bos + THREAD_MANAGER_STACK_SIZE;
+  // L4: force 16-byte stack alignment
+  __pthread_manager_thread_tos =
+    (char *)((uintptr_t)__pthread_manager_thread_tos & ~0xfUL);
 #ifdef NOT_FOR_L4
   /* Setup pipe to communicate with thread manager */
   if (pipe(manager_pipe) == -1) {
