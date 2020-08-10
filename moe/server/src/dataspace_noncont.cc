@@ -45,9 +45,7 @@ Moe::Dataspace_noncont::free_page(Page &p) const throw()
 }
 
 Moe::Dataspace::Address
-Moe::Dataspace_noncont::address(l4_addr_t offset,
-                                Flags flags, l4_addr_t,
-                                l4_addr_t, l4_addr_t) const
+Moe::Dataspace_noncont::map_address(l4_addr_t offset, Flags flags) const
 {
   // XXX: There may be a problem with data spaces with
   //      page_size() > L4_PAGE_SIZE
@@ -94,6 +92,24 @@ Moe::Dataspace_noncont::address(l4_addr_t offset,
     }
 
   return Address(l4_addr_t(*p), page_shift(), flags, offset & (page_size()-1));
+}
+
+Moe::Dataspace::Address
+Moe::Dataspace_noncont::address(l4_addr_t offset, Flags flags, l4_addr_t,
+                                l4_addr_t, l4_addr_t) const
+{ return map_address(offset, flags); }
+
+int
+Moe::Dataspace_noncont::copy_address(l4_addr_t offset, Flags flags,
+                                     l4_addr_t *addr, unsigned long *size) const
+{
+  auto a = map_address(offset, flags);
+  if (a.is_nil())
+    return -L4_ERANGE;
+
+  *addr = (l4_addr_t)a.adr();
+  *size = a.sz() - a.of();
+  return 0;
 }
 
 int

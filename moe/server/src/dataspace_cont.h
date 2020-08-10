@@ -27,6 +27,8 @@ public:
   Address address(l4_addr_t offset,
                   Flags flags, l4_addr_t hot_spot = 0,
                   l4_addr_t min = 0, l4_addr_t max = ~0) const override;
+  int copy_address(l4_addr_t offset, Flags flags,
+                   l4_addr_t *addr, unsigned long *size) const override;
 
   int dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
               Dma_attribs dma_attrs, Dma_space::Direction dir,

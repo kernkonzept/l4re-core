@@ -70,6 +70,18 @@ Moe::Dataspace_cont::address(l4_addr_t offset,
   return Address(map_base, order, flags & map_flags(), offs);
 }
 
+int
+Moe::Dataspace_cont::copy_address(l4_addr_t offset, Flags, l4_addr_t *addr,
+                                  unsigned long *size) const
+{
+  if (!check_limit(offset))
+    return -L4_ERANGE;
+
+  *addr = l4_addr_t(_start) + offset;
+  *size = this->size() - offset;
+  return 0;
+}
+
 void Moe::Dataspace_cont::unmap() const throw()
 {
   unsigned long size = round_size();

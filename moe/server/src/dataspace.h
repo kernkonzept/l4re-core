@@ -81,6 +81,8 @@ public:
                           Flags flags = L4Re::Dataspace::F::RWX,
                           l4_addr_t hot_spot = 0,
                           l4_addr_t min = 0, l4_addr_t max = ~0) const = 0;
+  virtual int copy_address(l4_addr_t ds_offset, Flags flags,
+                           l4_addr_t *copy_addr, unsigned long *copy_size) const = 0;
 
   virtual int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
 

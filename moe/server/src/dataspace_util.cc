@@ -30,19 +30,25 @@ __do_real_copy(Dataspace *dst, unsigned long &dst_offs,
 {
   while (sz)
     {
-      Dataspace::Address src_a = src->address(src_offs, L4Re::Dataspace::F::R);
-      Dataspace::Address dst_a = dst->address(dst_offs, L4Re::Dataspace::F::W);
+      l4_addr_t src_addr, dst_addr;
+      unsigned long src_size, dst_size;
+      if (   src->copy_address(src_offs, L4Re::Dataspace::F::R,
+                               &src_addr, &src_size) < 0
+          || dst->copy_address(dst_offs, L4Re::Dataspace::F::W,
+                               &dst_addr, &dst_size) < 0)
+        return;
 
-      unsigned long b_sz = min(min(src_a.sz() - src_a.of(),
-            dst_a.sz() - dst_a.of()), sz);
+      unsigned long b_sz = min(min(src_size, dst_size), sz);
+      if (!b_sz)
+        return;
 
-      memcpy(dst_a.adr(), src_a.adr(), b_sz);
+      memcpy((void*)dst_addr, (void const *)src_addr, b_sz);
       // FIXME: we should change the API to pass a flag for executable target pages,
       // and do the I cache coherence only in this case.
       // And we should change the cache API to allow for a single call to handle
       // I-cache coherency and D-cache writeback.
-      l4_cache_coherent((l4_addr_t)dst_a.adr(), (l4_addr_t)dst_a.adr() + b_sz);
-      l4_cache_clean_data((l4_addr_t)dst_a.adr(), (l4_addr_t)dst_a.adr() + b_sz);
+      l4_cache_coherent(dst_addr, dst_addr + b_sz);
+      l4_cache_clean_data(dst_addr, dst_addr + b_sz);
 
       src_offs += b_sz;
       dst_offs += b_sz;
