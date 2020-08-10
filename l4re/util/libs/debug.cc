@@ -39,11 +39,8 @@ Dbg::tag() const
 
 
 int
-Dbg::printf(char const *fmt, ...) const
+Dbg::printf_impl(char const *fmt, ...) const
 {
-  if (!(level & _m))
-    return 0;
-
   tag();
 
   int n;
@@ -57,11 +54,8 @@ Dbg::printf(char const *fmt, ...) const
 }
 
 int
-Dbg::cprintf(char const *fmt, ...) const
+Dbg::cprintf_impl(char const *fmt, ...) const
 {
-  if (!(level & _m))
-    return 0;
-
   int n;
   va_list args;
 

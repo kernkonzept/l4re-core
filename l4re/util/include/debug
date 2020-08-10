@@ -67,6 +67,12 @@ private:
   char const *const _component;
   char const *const _subsys;
 
+  int printf_impl(char const *fmt, ...) const
+    __attribute__((format(printf, 2, 3)));
+
+  int cprintf_impl(char const *fmt, ...) const
+    __attribute__((format(printf, 2, 3)));
+
 public:
   static unsigned long level;
 
@@ -74,11 +80,23 @@ public:
 
   bool is_active() const { return _m & level; }
 
-  int printf(char const *fmt, ...) const
-    __attribute__((format(printf, 2, 3)));
+  int __attribute__((always_inline, format(printf, 2, 3)))
+  printf(char const *fmt, ...) const
+  {
+    if (!(level & _m))
+      return 0;
 
-  int cprintf(char const *fmt, ...) const
-    __attribute__((format(printf, 2, 3)));
+    return printf_impl(fmt, __builtin_va_arg_pack());
+  }
+
+  int __attribute__((always_inline, format(printf, 2, 3)))
+  cprintf(char const *fmt, ...) const
+  {
+    if (!(level & _m))
+      return 0;
+
+    return cprintf_impl(fmt, __builtin_va_arg_pack());
+  }
 
   explicit
   Dbg() : _m(1), _component(0), _subsys(0) { };
