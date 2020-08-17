@@ -1,35 +1,27 @@
 PKGDIR  ?= ../..
 L4DIR   ?= $(PKGDIR)/../../..
 
-LUA_VERSION_SUFFIX :=
-INSTALL_TARGET     := liblua$(LUA_VERSION_SUFFIX).a
-PC_LIBS            := -llua$(LUA_VERSION_SUFFIX)
-CONTRIB_INCDIR     := lua$(LUA_VERSION_SUFFIX)
+# ?= for inclusion from build++
+TARGET        ?= liblua.a liblua.so
+PC_FILENAME   ?= lua
+CONTRIB_DIR    = $(SRC_DIR)/../contrib/src
+CONTRIB_INCDIR = lua
+SRC_C         := lapi.c lcode.c lctype.c ldebug.c ldo.c ldump.c lfunc.c lgc.c \
+                 llex.c lmem.c lobject.c lopcodes.c lparser.c lstate.c \
+                 lstring.c ltable.c ltm.c lundump.c lvm.c lzio.c lauxlib.c \
+                 lbaselib.c lcorolib.c ldblib.c liolib.c lmathlib.c loadlib.c \
+                 loslib.c lstrlib.c ltablib.c lutf8lib.c linit.c
 
-OPTS               :=
-
-all::
+vpath %.c $(CONTRIB_DIR)
 
 include $(L4DIR)/mk/lib.mk
 
-export VERBOSE
+PKGNAME_DIRNAME = lua-c
 
-DEFS = -DARCH_$(ARCH) $(OPTS)
+WARNINGS := $(WARNINGS_MEDIUM)
 
-liblua.a: $(SRC_DIR)/Makefile $(SRC_DIR)/Makefile.lua FORCE
-	$(MAKE) -f $(SRC_DIR)/Makefile.lua SRC_DIR=$(SRC_DIR) \
-	  L4_DEFINES="$(DEFS)" GENERAL_D_LOC=$(GENERAL_D_LOC) \
-	  L4_INCLUDES="$(LIBCINCDIR) $(addprefix -I, $(L4INCDIR))" \
-	  PLAT=l4re CFLAGS_L4_GENERIC="$(CFLAGS_L4_GENERIC)" \
-	  CC="$(CC)" AR="$(AR) rc" RANLIB="$(RANLIB)" liblua.a
-
-ifneq ($(strip $(INSTALL_TARGET)),liblua.a)
-$(INSTALL_TARGET): liblua.a
-	$(LN) -sf $< $@
-endif
-
-clean::
-	$(MAKE) -f $(SRC_DIR)/Makefile.lua SRC_DIR=$(SRC_DIR) clean
-
-
-all:: $(PC_FILES)
+# convenience helper
+showluasrc:
+	$(VERBOSE)(cat $(CONTRIB_DIR)/Makefile; echo show:; \
+	  echo '$$(info SRC_C := $$(patsubst %.o,%.c,$$(BASE_O)))') \
+	  | env -i $(MAKE) -f - show

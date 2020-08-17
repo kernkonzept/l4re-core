@@ -1,35 +1,17 @@
 PKGDIR  ?= ../..
 L4DIR   ?= $(PKGDIR)/../../..
 
-LUA_VERSION_SUFFIX :=
-INSTALL_TARGET     := liblua$(LUA_VERSION_SUFFIX)++.a
-PC_LIBS            := -llua$(LUA_VERSION_SUFFIX)++
-CONTRIB_INCDIR     := lua$(LUA_VERSION_SUFFIX)
-PC_FILENAME        := lua$(LUA_VERSION_SUFFIX)++
-OPTS               :=
+TARGET       := liblua++.a liblua++.so
+PC_FILENAME  := lua++
 
-all::
+include $(PKGDIR)/lib/build/Makefile
 
-include $(L4DIR)/mk/lib.mk
+$(GENERAL_D_LOC): $(PKGDIR)/lib/build/Makefile
 
-export VERBOSE
+PKGNAME_DIRNAME := lua-c++
 
-DEFS = -DARCH_$(ARCH) $(OPTS)
+# Difference to other version
 
-liblua.a: $(SRC_DIR)/Makefile $(SRC_DIR)/Makefile.lua FORCE
-	$(MAKE) -f $(SRC_DIR)/Makefile.lua SRC_DIR=$(SRC_DIR) \
-	  L4_DEFINES="$(DEFS)" GENERAL_D_LOC=$(GENERAL_D_LOC) \
-	  L4_INCLUDES="$(LIBCINCDIR) $(addprefix -I, $(L4INCDIR))" \
-	  PLAT=l4re CXXFLAGS_L4_GENERIC="$(CXXFLAGS_L4_GENERIC)" \
-	  CC="$(CXX)" AR="$(AR) rc" RANLIB="$(RANLIB)" liblua.a
-
-ifneq ($(strip $(INSTALL_TARGET)),liblua.a)
-$(INSTALL_TARGET): liblua.a
-	$(LN) -sf $< $@
-endif
-
-clean::
-	$(MAKE) -f $(SRC_DIR)/Makefile.lua SRC_DIR=$(SRC_DIR) clean
-
-
-all:: $(PC_FILES)
+CFLAGS := $(filter-out $(CFLAGS_L4_GENERIC) $(CFLAGS_C99) \
+                       -Wstrict-prototypes -Wmissing-prototypes,$(CFLAGS))
+CFLAGS += $(CXXFLAGS_L4_GENERIC) -x c++
