@@ -120,33 +120,6 @@ public:
   using Triggerable::unmask;
 
   /**
-   * Attach a thread to this interrupt.
-   *
-   * \param label   Identifier of the IRQ (*protected label* used for
-   *                messages)
-   * \param thread  Capability of the thread to attach the IRQ to.
-   * \utcb{utcb}
-   *
-   * \return Syscall return tag
-   *
-   * The *protected label* is stored in the kernel and sent to the attached
-   * thread with the IRQ-triggered notification. It allows the receiver thread
-   * to securely identify the IRQ.
-   *
-   * \deprecated Use bind_thread().
-   */
-  l4_msgtag_t attach(l4_umword_t label,
-                     Cap<Thread> const &thread = Cap<Thread>::Invalid,
-                     l4_utcb_t *utcb = l4_utcb()) noexcept
-    L4_DEPRECATED("Use bind_thread(thread, label).")
-  {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-    return l4_irq_attach_u(cap(), label, thread.cap(), utcb);
-#pragma GCC diagnostic pop
-  }
-
-  /**
    * Detach from this interrupt.
    *
    * \utcb{utcb}
@@ -254,7 +227,7 @@ struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
  * To setup an interrupt line the following steps are required:
  * 1. set_mode() (optional if interrupt has a default mode)
  * 2. L4::Rcv_endpoint::bind_thread() to attach the interrupt capability to a
- *    thread (Irq::attach() is deprecated).
+ *    thread
  * 3. bind()
  * 4. unmask() to receive the first interrupt
  *

@@ -50,37 +50,6 @@
  */
 
 /**
- * Attach a thread to an interrupt source.
- * \ingroup l4_irq_api
- *
- * \param irq     IRQ object where `thread` is attached to.
- * \param label   Identifier of the IRQ.
- * \param thread  The thread object to attach `irq` to.
- *
- * \return Syscall return tag
- *
- * The *protected label* is stored in the kernel and sent to the attached
- * thread with the IRQ-triggered notification. It allows the receiver thread
- * to securely identify the IRQ.
- */
-L4_INLINE l4_msgtag_t
-l4_irq_attach(l4_cap_idx_t irq, l4_umword_t label,
-              l4_cap_idx_t thread) L4_NOTHROW
-  L4_DEPRECATED("Use l4_rcv_ep_bind_thread().");
-
-/**
- * \ingroup l4_irq_api
- * \copybrief L4::Irq::attach
- *
- * \param irq  IRQ object where `thread` is attached to.
- * \copydetails L4::Irq::attach
- */
-L4_INLINE l4_msgtag_t
-l4_irq_attach_u(l4_cap_idx_t irq, l4_umword_t label,
-                l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW
-  L4_DEPRECATED("Use l4_rcv_ep_bind_thread_u().");
-
-/**
  * Chain an IRQ to another master IRQ source.
  * \ingroup l4_irq_api
  *
@@ -91,7 +60,7 @@ l4_irq_attach_u(l4_cap_idx_t irq, l4_umword_t label,
  *
  * The chaining feature of IRQ objects allows to deal with shared IRQs. For
  * chaining IRQs there must be a master IRQ object, bound to the real IRQ
- * source. Note, the master IRQ must not have a thread attached to it.
+ * source. Note, the master IRQ must not have a thread bound to it.
  *
  * This function allows to add a limited number of slave IRQs to this master
  * IRQ, with the semantics that each of the slave IRQs is triggered whenever
@@ -232,7 +201,7 @@ l4_irq_unmask_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
  */
 enum L4_irq_sender_op
 {
-  L4_IRQ_SENDER_OP_ATTACH    = 0,
+  L4_IRQ_SENDER_OP_RESERVED1 = 0, // Ex ATTACH
   L4_IRQ_SENDER_OP_DETACH    = 1
 };
 
@@ -256,25 +225,6 @@ enum L4_irq_op
 /**************************************************************************
  * Implementations
  */
-
-L4_INLINE l4_msgtag_t
-l4_irq_attach_u(l4_cap_idx_t irq, l4_umword_t label,
-                l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW
-{
-  int items = 0;
-  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
-  m->mr[0] = L4_IRQ_SENDER_OP_ATTACH;
-  m->mr[1] = label;
-
-  if (!l4_is_invalid_cap(thread))
-    {
-      items = 1;
-      m->mr[2] = l4_map_obj_control(0, 0);
-      m->mr[3] = l4_obj_fpage(thread, 0, L4_CAP_FPAGE_RWS).raw;
-    }
-  return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 2, items, 0),
-                     L4_IPC_NEVER);
-}
 
 L4_INLINE l4_msgtag_t
 l4_irq_mux_chain_u(l4_cap_idx_t irq, l4_cap_idx_t slave,
@@ -326,16 +276,6 @@ l4_irq_unmask_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
   return l4_ipc_send(irq, utcb, l4_msgtag(L4_PROTO_IRQ, 1, 0, 0), L4_IPC_NEVER);
 }
 
-
-L4_INLINE l4_msgtag_t
-l4_irq_attach(l4_cap_idx_t irq, l4_umword_t label,
-              l4_cap_idx_t thread) L4_NOTHROW
-{
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-  return l4_irq_attach_u(irq, label, thread, l4_utcb());
-#pragma GCC diagnostic pop
-}
 
 L4_INLINE l4_msgtag_t
 l4_irq_mux_chain(l4_cap_idx_t irq, l4_cap_idx_t slave) L4_NOTHROW
