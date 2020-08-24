@@ -190,7 +190,7 @@ static const char *const dl_error_names[] = {
  */
 static void *
 internal_function
-_dl_tls_symaddr(struct link_map *map, const Elf32_Addr st_value)
+_dl_tls_symaddr(struct link_map *map, const ElfW(Addr) st_value)
 {
 # ifndef DONT_USE_TLS_INDEX
 	tls_index tmp =
