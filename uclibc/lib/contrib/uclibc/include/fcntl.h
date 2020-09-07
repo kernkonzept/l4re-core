@@ -281,6 +281,8 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset, __off64_t __le
 # endif
 #endif
 
+#define MAX_HANDLE_SZ  128
+
 __END_DECLS
 
 #endif /* fcntl.h  */
