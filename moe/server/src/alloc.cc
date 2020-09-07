@@ -291,6 +291,29 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
     }
 }
 
+long
+Allocator::op_info(L4Re::Mem_alloc::Rights, L4Re::Mem_alloc::Stats &stats)
+{
+  Moe::Quota const *q = _qalloc.quota();
+
+  stats.quota = q->limit();
+  stats.quota_used = q->reserved();
+
+  stats.mem_limit = cxx::min(stats.quota, Moe::Phys_limit::avail_ram);
+  stats.mem_used = q->committed();
+
+  // Clamp the reported amount of available memory to the factory quota limit
+  // minus the already reserved amount. One cannot allocate more than the
+  // remaining quota. Also, the globally remaining memory may be lower on
+  // over-committed systems.
+  size_t mem_avail = Single_page_alloc_base::_avail();
+  stats.mem_free = cxx::min(stats.mem_limit - stats.mem_used,
+                            stats.quota - stats.quota_used,
+                            mem_avail);
+
+  return L4_EOK;
+}
+
 #ifndef NDEBUG
 long
 Allocator::op_debug(L4Re::Debug_obj::Rights, unsigned long)

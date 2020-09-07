@@ -18,7 +18,9 @@
  */
 #pragma once
 
+#include <l4/re/protocols.h>
 #include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_iface>
 #include <l4/sys/factory>
 
 namespace L4Re {
@@ -48,7 +50,7 @@ class Dataspace;
  * refused.
  */
 class L4_EXPORT Mem_alloc :
-  public L4::Kobject_t<Mem_alloc, L4::Factory, L4::PROTO_EMPTY>
+  public L4::Kobject_t<Mem_alloc, L4::Factory, L4RE_PROTO_MEM_ALLOC>
 {
 public:
   /**
@@ -64,6 +66,64 @@ public:
     Super_pages  = 0x04,  ///< Allocate super pages
     Fixed_paddr  = 0x08,  ///< Allocate at fixed physical address. Only honored
                           ///< on no-MMU systems. Will fail on MMU systems.
+  };
+
+  /**
+   * Statistics about memory-allocator.
+   */
+  struct Stats
+  {
+    /**
+     * Memory quota of this allocator.
+     *
+     * Strictly limits the amount of memory that can be allocated. This may be
+     * larger than there is actual physical memory available. In particular,
+     * the root factory has an artificial quota and returns -1 in this field.
+     */
+    l4_size_t quota;
+
+    /**
+     * Amount of currently used quota of this allocator.
+     *
+     * The amount of used quota is not necessarily linked to the current
+     * memory usage. See `mem_used` for this information. The quota of a
+     * factory is immediately and fully accounted to the parent factory quota.
+     *
+     * This value may even exceed `mem_limit` if the system is over-committed.
+     */
+    l4_size_t quota_used;
+
+    /**
+     * Maximum amount of memory that can be allocated by this allocator.
+     *
+     * Will never exceed the `quota` but may be smaller if the system has less
+     * memory installed.
+     */
+    l4_size_t mem_limit;
+
+    /**
+     * Amount of currently allocated memory.
+     *
+     * This field represents the amount of memory that is in use by this
+     * allocator. It recursively includes the memory used by sub-factories, if
+     * any.
+     *
+     * Will never exceed `mem_limit` or `quota_used`.
+     *
+     * \note Dataspaces may allocate memory lazily! As such, the field will
+     *       increase only after pages have been allocated to a dataspace.
+     */
+    l4_size_t mem_used;
+
+    /**
+     * Amount of memory that is still available for allocation.
+     *
+     * This field can be lower than `mem_limit - mem_used`. In this case the
+     * system may be over-committed and there is globally not enough memory
+     * left. Also, if the quota is already used up for sub-factories (see
+     * `quota_used`), there may be not enough quota left.
+     */
+    l4_size_t mem_free;
   };
 
   /**
@@ -97,6 +157,18 @@ public:
   long alloc(long size, L4::Cap<Dataspace> mem,
              unsigned long flags = 0, unsigned long align = 0,
              l4_addr_t paddr = 0) const noexcept;
+
+  /**
+   * Get allocator information.
+   *
+   * \param[out] stats  Allocator information
+   *
+   * \retval 0    Success
+   * \retval <0   IPC error
+   */
+  L4_INLINE_RPC(long, info, (Stats &stats));
+
+  typedef L4::Typeid::Rpcs<info_t> Rpcs;
 };
 
 };

@@ -15,9 +15,9 @@
 
 #ifndef NDEBUG
 #include <l4/re/debug>
-typedef L4Re::Debug_obj_t<L4::Factory> Allocator_iface;
+typedef L4Re::Debug_obj_t<L4Re::Mem_alloc> Allocator_iface;
 #else
-typedef L4::Factory Allocator_iface;
+typedef L4Re::Mem_alloc Allocator_iface;
 #endif
 
 namespace Moe {
@@ -55,6 +55,8 @@ public:
 
   int op_create(L4::Factory::Rights rights, L4::Ipc::Cap<void> &, long,
                 L4::Ipc::Varg_list<> &&args);
+
+  long op_info(L4Re::Mem_alloc::Rights right, L4Re::Mem_alloc::Stats &stats);
 
 #ifndef NDEBUG
   long op_debug(L4Re::Debug_obj::Rights, unsigned long function);
