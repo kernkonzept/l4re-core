@@ -373,7 +373,6 @@ void libsig_be_set_dbg_name(const char *n)
 {
   char s[15];
   snprintf(s, sizeof(s) - 1, "&%s", n);
-  s[sizeof(s) - 1] = 0;
   l4_debugger_set_object_name(_sig_handling.thcap.cap(), s);
 }
 
