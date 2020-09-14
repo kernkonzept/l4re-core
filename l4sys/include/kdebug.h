@@ -155,6 +155,20 @@ L4_INLINE void outchar(char c)
   __kdebug_op_1(L4_KDEBUG_OUTCHAR, c);
 }
 
+L4_INLINE void outumword(l4_umword_t number)
+{
+  if (sizeof(l4_umword_t) == sizeof(l4_uint64_t))
+    __kdebug_op_1(L4_KDEBUG_OUTHEX32, (l4_uint64_t)number >> 32);
+
+  __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
+}
+
+L4_INLINE void outhex64(l4_uint64_t number)
+{
+  __kdebug_op_1(L4_KDEBUG_OUTHEX32, number >> 32);
+  __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
+}
+
 L4_INLINE void outhex32(l4_uint32_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
