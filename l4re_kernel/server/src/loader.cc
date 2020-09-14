@@ -251,7 +251,9 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
   __loader_stack_p
     = Global::local_rm->attach((void*)Mem_layout::Loader_vma_start,
                                Loader_stack_size,
-                               Region_handler(__loader_stack, __loader_stack.cap()),
+                               Region_handler(__loader_stack,
+                                              __loader_stack.cap(),
+                                              0, L4Re::Rm::F::RW),
                                L4Re::Rm::F::Search_addr);
 
   if (__loader_stack_p == L4_INVALID_PTR)
@@ -261,7 +263,8 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
     }
 
   long ret
-    = L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size, L4Re::Rm::F::RW,
+    = L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size,
+                                     L4Re::Rm::F::RW,
                                      L4::Ipc::make_cap_rw(__loader_stack), 0);
   if (ret)
     {
