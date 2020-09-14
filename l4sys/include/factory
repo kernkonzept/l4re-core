@@ -371,8 +371,11 @@ public:
    *
    * \return Syscall return tag
    *
-   * \note The `limit` (quota) of the new factory is subtracted from the limit
-   *       of the factory invoked on its creation.
+   * \note In addition to memory needed for internal data structures, the
+   *       `limit` (quota) of the new factory is counted towards the quota of
+   *       the creating factory. The `limit` must be within
+   *       `1 ≤ limit ≤ 2^(8 * sizeof(l4_umword_t) − 1) − 2` otherwise the
+   *       behavior is undefined.
    *
    * \note This method is only guaranteed to work with the
    *       \ref l4re_concepts_kernel_factory. For other services, use the

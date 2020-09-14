@@ -8,13 +8,13 @@ The kernel factory is a kernel object that provides the ability to create new
 kernel objects dynamically.
 
 The kernel factory enforces a memory quota. This quota defines the maximum
-amount of memory the factory service can use to construct the requested
+amount of kernel memory the factory service can use to construct the requested
 objects. When the quota is depleted, the factory refuses the creation of new
 objects.
 
-The quota may be higher than the amount of physical memory available on a system;
-ultimately, the amount of physical memory available is the strict limit for
-the factory to remain operational.
+The quota may be higher than the amount of available kernel memory; ultimately,
+the amount of available kernel memory is the strict limit for the factory to
+remain operational.
 
 The kernel factory creates the following kinds of objects:
 
