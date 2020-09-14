@@ -32,7 +32,6 @@ L4_CV int l4_kprintf(const char *fmt, ...)
 
   va_start(list, fmt);
   err = vsnprintf(buffer, sizeof(buffer), fmt, list);
-  buffer[sizeof(buffer) - 1] = 0;
   va_end(list);
 
   outstring(buffer);
