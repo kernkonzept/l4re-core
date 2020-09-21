@@ -87,7 +87,7 @@ public:
       X   = L4_FPAGE_X,
       RX  = L4_FPAGE_RX,
       RWX = L4_FPAGE_RWX,
-      /// All rights bits availabel for mappings
+      /// All rights bits available for mappings
       Rights_mask = 0x0f,
 
       /// request normal memory mapping
