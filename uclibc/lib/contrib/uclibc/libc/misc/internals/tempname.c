@@ -152,12 +152,12 @@ static void brain_damaged_fillrand(unsigned char *buf, unsigned int len)
 	for (i = 0; i < len; ++i) {
 		rh = high % NUM_LETTERS;
 		high /= NUM_LETTERS;
-#define L ((UINT32_MAX % NUM_LETTERS + 1) % NUM_LETTERS)
-		k = (low % NUM_LETTERS) + (L * rh);
-#undef L
-#define H ((UINT32_MAX / NUM_LETTERS) + ((UINT32_MAX % NUM_LETTERS + 1) / NUM_LETTERS))
-		low = (low / NUM_LETTERS) + (H * rh) + (k / NUM_LETTERS);
-#undef H
+#define _L ((UINT32_MAX % NUM_LETTERS + 1) % NUM_LETTERS)
+		k = (low % NUM_LETTERS) + (_L * rh);
+#undef _L
+#define _H ((UINT32_MAX / NUM_LETTERS) + ((UINT32_MAX % NUM_LETTERS + 1) / NUM_LETTERS))
+		low = (low / NUM_LETTERS) + (_H * rh) + (k / NUM_LETTERS);
+#undef _H
 		k %= NUM_LETTERS;
 		buf[i] = letters[k];
 	}
