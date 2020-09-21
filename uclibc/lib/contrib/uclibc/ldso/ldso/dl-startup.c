@@ -350,6 +350,10 @@ DL_START(unsigned long args)
 					sym = NULL;
 					if (symtab_index) {
 						ElfW(Sym) *symtab;
+#if !defined(EARLY_STDERR_SPECIAL) && defined(__SUPPORT_LD_DEBUG_EARLY__)
+						char *strtab;
+						strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
+#endif
 
 						symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
 						sym = &symtab[symtab_index];
