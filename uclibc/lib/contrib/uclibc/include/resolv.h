@@ -329,9 +329,11 @@ int		res_send (const u_char *, int, u_char *, int) __THROW;
 #endif
 __END_DECLS
 
-#if 0
+#ifdef __UCLIBC_HAS_BSD_B64_NTOP_B64_PTON__
 #define b64_ntop		__b64_ntop
 #define b64_pton		__b64_pton
+#endif
+#if 0
 #define dn_count_labels		__dn_count_labels
 #endif
 #define dn_comp			__dn_comp
@@ -384,8 +386,12 @@ int		res_dnok (const char *) __THROW;
 int		sym_ston (const struct res_sym *, const char *, int *) __THROW;
 const char *	sym_ntos (const struct res_sym *, int, int *) __THROW;
 const char *	sym_ntop (const struct res_sym *, int, int *) __THROW;
+#endif
+#ifdef __UCLIBC_HAS_BSD_B64_NTOP_B64_PTON__
 int		b64_ntop (u_char const *, size_t, char *, size_t) __THROW;
 int		b64_pton (char const *, u_char *, size_t) __THROW;
+#endif
+#if 0
 int		loc_aton (const char *ascii, u_char *binary) __THROW;
 const char *	loc_ntoa (const u_char *binary, char *ascii) __THROW;
 void		putlong (u_int32_t, u_char *) __THROW;
