@@ -28,7 +28,7 @@ size_t strlen (const char *str)
 {
   const char *char_ptr;
   const unsigned long int *longword_ptr;
-  unsigned long int longword, magic_bits, himagic, lomagic;
+  unsigned long int longword, himagic, lomagic;
 
   /* Handle the first few characters by reading one character at a time.
      Do this until CHAR_PTR is aligned on a longword boundary.  */
@@ -52,14 +52,12 @@ size_t strlen (const char *str)
 
      The 1-bits make sure that carries propagate to the next 0-bit.
      The 0-bits provide holes for carries to fall into.  */
-  magic_bits = 0x7efefeffL;
   himagic = 0x80808080L;
   lomagic = 0x01010101L;
   if (sizeof (longword) > 4)
     {
       /* 64-bit version of the magic.  */
       /* Do the shift in two steps to avoid a warning if long has 32 bits.  */
-      magic_bits = ((0x7efefefeL << 16) << 16) | 0xfefefeffL;
       himagic = ((himagic << 16) << 16) | himagic;
       lomagic = ((lomagic << 16) << 16) | lomagic;
     }
@@ -102,22 +100,7 @@ size_t strlen (const char *str)
 
       longword = *longword_ptr++;
 
-      if (
-#if 0
-	  /* Add MAGIC_BITS to LONGWORD.  */
-	  (((longword + magic_bits)
-
-	    /* Set those bits that were unchanged by the addition.  */
-	    ^ ~longword)
-
-	   /* Look at only the hole bits.  If any of the hole bits
-	      are unchanged, most likely one of the bytes was a
-	      zero.  */
-	   & ~magic_bits)
-#else
-	  ((longword - lomagic) & himagic)
-#endif
-	  != 0)
+      if (((longword - lomagic) & himagic) != 0)
 	{
 	  /* Which of the bytes was the zero?  If none of them were, it was
 	     a misfire; continue the search.  */
