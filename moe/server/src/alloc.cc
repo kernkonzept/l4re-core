@@ -10,7 +10,6 @@
 #include <l4/cxx/exceptions>
 #include <l4/cxx/unique_ptr>
 #include <l4/cxx/l4iostream>
-#include <l4/cxx/string>
 
 #include <l4/re/util/meta>
 #include <l4/sys/factory>
@@ -34,14 +33,10 @@
 static Dbg dbg(Dbg::Warn | Dbg::Server);
 
 Moe::Dataspace *
-Allocator::alloc(long size, unsigned long flags, unsigned long align,
-                 Single_page_alloc_base::Config cfg)
+Allocator::alloc(long size, unsigned long flags, unsigned long align)
 {
   if (size == 0)
     throw L4::Bounds_error("stack too small");
-
-  if (cfg.physmin >= cfg.physmax)
-    throw L4::Runtime_error(-L4_EINVAL, "malformed memory range");
 
   //L4::cout << "A: \n";
   Moe::Dataspace *mo;
@@ -53,15 +48,14 @@ Allocator::alloc(long size, unsigned long flags, unsigned long align,
       else
         align = cxx::max<unsigned long>(align, L4_PAGESHIFT);
 
-      mo = make_obj<Moe::Dataspace_anon>(size, L4Re::Dataspace::F::RWX, align,
-                                         cfg);
+      mo = make_obj<Moe::Dataspace_anon>(size, L4Re::Dataspace::F::RWX, align);
     }
   else
     {
       if (size < 0)
         throw L4::Bounds_error("invalid size");
 
-      mo = Moe::Dataspace_noncont::create(qalloc(), size, cfg);
+      mo = Moe::Dataspace_noncont::create(qalloc(), size);
       Obj_list::insert_after(mo, Obj_list::iter(this));
     }
 
@@ -227,27 +221,10 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           if (!size.is_of_int())
             return -L4_EINVAL;
 
-          Single_page_alloc_base::Config mem_cfg;
-
-          for (L4::Ipc::Varg opts: args)
-            {
-              if (opts.is_of<char const *>())
-                {
-                  cxx::String cs = cxx::String(opts.value<char const *>(),
-                                               opts.length() - 1);
-
-                  if (cxx::String::Index v = cs.starts_with("physmin="))
-                    cs.substr(v).from_hex(&mem_cfg.physmin);
-                  else if (cxx::String::Index v = cs.starts_with("physmax="))
-                    cs.substr(v).from_hex(&mem_cfg.physmax);
-                }
-            }
-
           // L4::cout << "MEM: alloc ... " << size.value<l4_mword_t>() << "; " << flags.value<l4_umword_t>() << "\n";
           cxx::unique_ptr<Moe::Dataspace> mo(alloc(size.value<l4_mword_t>(),
                 flags.is_of_int() ? flags.value<l4_umword_t>() : 0,
-                align.is_of_int() ? align.value<l4_umword_t>() : 0,
-                mem_cfg));
+                align.is_of_int() ? align.value<l4_umword_t>() : 0));
 
           // L4::cout << "MO=" << mo.get() << "\n";
           ko = object_pool.cap_alloc()->alloc(mo.get());

@@ -50,9 +50,7 @@ public:
   Moe::Q_alloc *qalloc() { return &_qalloc; }
 
   Moe::Dataspace *alloc(long size, unsigned long flags = 0,
-                        unsigned long align = 0,
-                        Single_page_alloc_base::Config cfg
-                          = Single_page_alloc_base::Config());
+                        unsigned long align = 0);
 
   /// Return the quota allocator that contains this factory.
   Moe::Q_alloc *parent_qalloc()

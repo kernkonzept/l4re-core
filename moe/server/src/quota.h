@@ -119,11 +119,10 @@ public:
 
   Quota *quota() { return &_quota; }
 
-  void *alloc_pages(unsigned long size, unsigned long align,
-                    Single_page_alloc_base::Config cfg)
+  void *alloc_pages(unsigned long size, unsigned long align)
   {
     Quota_guard g(quota(), size);
-    return g.release(Single_page_alloc_base::_alloc(size, align, cfg));
+    return g.release(Single_page_alloc_base::_alloc(size, align));
   }
 
   void free_pages(void *p, unsigned long size) throw()

@@ -14,9 +14,8 @@
 
 Moe::Dataspace_cont::Dataspace_cont(void *start, unsigned long size,
                                     Flags flags,
-                                    unsigned char page_shift,
-                                    Single_page_alloc_base::Config cfg)
-: Dataspace(size, flags, page_shift, cfg), _start((char*)start)
+                                    unsigned char page_shift)
+: Dataspace(size, flags, page_shift), _start((char*)start)
 {
   if (!can_cow())
     return;

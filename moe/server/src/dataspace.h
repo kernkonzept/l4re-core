@@ -64,8 +64,8 @@ public:
   };
 
   Dataspace(unsigned long size, Flags flags,
-            unsigned char page_shift, Single_page_alloc_base::Config cfg) throw()
-    : _size(size), _flags(flags), _page_shift(page_shift), _cfg(cfg)
+            unsigned char page_shift) throw()
+    : _size(size), _flags(flags), _page_shift(page_shift)
   {}
 
 
@@ -99,7 +99,6 @@ public:
 
 protected:
   void size(unsigned long size) throw() { _size = size; }
-  Single_page_alloc_base::Config cfg() const { return _cfg; }
 
 public:
   unsigned long round_size() const throw()
@@ -160,7 +159,6 @@ private:
   unsigned long  _size;
   Flags _flags;
   unsigned char  _page_shift;
-  Single_page_alloc_base::Config _cfg;
 };
 
 }

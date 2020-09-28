@@ -78,26 +78,24 @@ void Single_page_alloc_base::_free(void *p)
 {
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): free(PAGE) @" << p << '\n';
-  page_alloc()->free(p, L4_PAGESIZE);
+  page_alloc()->free(p, L4_PAGESIZE); 
 }
 
 void *Single_page_alloc_base::_alloc_max(unsigned long min,
                                          unsigned long *max,
                                          unsigned align,
-                                         unsigned granularity,
-                                         Config cfg)
+                                         unsigned granularity)
 {
-  void *ret = page_alloc()->alloc_max(min, max, align, granularity, cfg.physmin,
-                                      cfg.physmax);
+  void *ret = page_alloc()->alloc_max(min, max, align, granularity);
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): alloc(" << *max << ") @" << ret << '\n';
   return ret;
 }
 
 void *Single_page_alloc_base::_alloc(Nothrow, unsigned long size,
-                                     unsigned long align, Config cfg)
+                                     unsigned long align)
 {
-  void *ret = page_alloc()->alloc(size, align, cfg.physmin, cfg.physmax);
+  void *ret = page_alloc()->alloc(size, align);
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): alloc(" << size << ") @" << ret << '\n';
   return ret;

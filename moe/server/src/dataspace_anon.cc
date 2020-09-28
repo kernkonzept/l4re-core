@@ -20,9 +20,8 @@
 #include <climits>
 
 Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
-                                    unsigned char page_shift,
-                                    Single_page_alloc_base::Config cfg)
-: Moe::Dataspace_cont(0, 0, w, page_shift, cfg)
+                                    unsigned char page_shift)
+: Moe::Dataspace_cont(0, 0, w, page_shift)
 {
   Quota_guard g;
   Single_page_unique_ptr m;
@@ -54,8 +53,7 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
 
       unsigned long r_size = _size;
       void *_m = Single_page_alloc_base::_alloc_max(page_size(), &r_size,
-                                                    page_size(), page_size(),
-                                                    cfg);
+                                                    page_size(), page_size());
 
       if (!_m)
         L4Re::chksys(-L4_ENOMEM);
@@ -68,7 +66,7 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
     {
       unsigned long r_size = (_size + page_size() - 1) & ~(page_size() -1);
       g = Quota_guard(qalloc()->quota(), r_size);
-      void *_m = Single_page_alloc_base::_alloc(r_size, page_size(), cfg);
+      void *_m = Single_page_alloc_base::_alloc(r_size, page_size());
 
       m = Single_page_unique_ptr(_m, r_size);
     }
