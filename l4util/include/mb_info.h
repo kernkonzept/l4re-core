@@ -1,7 +1,7 @@
 /**
  * \file
- *
- * \brief	Multiboot info structure as defined by GRUB */
+ * \brief	Multiboot info structure as defined by GRUB
+ */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
  *               Frank Mehnert <fm3@os.inf.tu-dresden.de>
@@ -22,12 +22,15 @@
 
 #include <l4/sys/l4int.h>
 
-/**
- * \anchor struct_l4util_mod_list
- *  The structure type "mod_list" is used by the
- *  \ref struct_l4util_mb_info "multiboot_info" structure.
+/*
+ * \defgroup l4util_mb_mod Multiboot v1
+ * \ingroup l4util_api
  */
 
+/**
+ *  The structure type "mod_list" is used by the
+ *  \ref l4util_mb_info_t "multiboot_info" structure.
+ */
 typedef struct
 {
   l4_uint32_t mod_start;	/**< Starting address of module in memory. */
@@ -43,7 +46,6 @@ typedef struct
  *  pointing to the next one, up until the full buffer length of the memory
  *  map has been reached.
  */
-
 typedef struct __attribute__((packed))
 {
   l4_uint32_t struct_size;	/**< Size of structure */
@@ -196,11 +198,10 @@ typedef struct
 
 
 /**
- * \anchor struct_l4util_mb_info
- *  MultiBoot Info description
+ * \brief MultiBoot Info description
  *
- *  This is the struct passed to the boot image.  This is done by placing
- *  its address in the EAX register.
+ * This is the struct passed to the boot image.  This is done by placing
+ * its address in the EAX register.
  */
 
 typedef struct
