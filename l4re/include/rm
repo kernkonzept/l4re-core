@@ -221,7 +221,7 @@ public:
     Detach_overlap = 2,
 
     /**
-     * \brief Do not free the detached data space, ignore the #F::Detach_free
+     * \brief Do not free the detached data space, ignore the F::Detach_free
      * \internal
      *
      * This flag is useful for _detach().
@@ -246,10 +246,10 @@ public:
    *
    * This function reserves an area within the virtual address space implemented
    * by the region map. There are two kinds of areas available:
-   * - Reserved areas (\a flags = #F::Reserved), where no data spaces can be
+   * - Reserved areas (\a flags = F::Reserved), where no data spaces can be
    *   attached
    * - Special purpose areas (\a flags = 0), where data spaces can be attached
-   *   to the area via the #F::In_area flag and a start address within the area
+   *   to the area via the F::In_area flag and a start address within the area
    *   itself.
    *
    * \note When searching for a free place in the virtual address space
@@ -271,8 +271,8 @@ public:
    * \param[in,out] start  The virtual start address of the area to reserve.
    *                       Returns the start address of the area.
    * \param         size   The size of the area to reserve (in bytes).
-   * \param         flags  Flags for the reserved area (see #F::Region_flags and
-   *                       #F::Attach_flags).
+   * \param         flags  Flags for the reserved area (see F::Region_flags and
+   *                       F::Attach_flags).
    * \param         align  Alignment of area if searched as bits (log2 value).
    * \retval 0                  Success
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
@@ -522,7 +522,7 @@ public:
    *                      size of the found region (in bytes).
    * \param[out] offset  Offset at the beginning of the region within the
    *                     associated dataspace.
-   * \param[out] flags   Region flags, see #F::Region_flags (and #F::In_area).
+   * \param[out] flags   Region flags, see F::Region_flags (and F::In_area).
    * \param[out] m       Associated dataspace or paging service.
    *
    * \retval 0           Success
@@ -532,7 +532,7 @@ public:
    *
    * This function returns the properties of the region that contains the area
    * described by the addr and size parameter. If no such region is found but
-   * a reserved area, the area is returned and #F::In_area is set in `flags`.
+   * a reserved area, the area is returned and F::In_area is set in `flags`.
    * Note, in the case of an area the `offset` and `m` return values are
    * invalid.
    *
@@ -650,4 +650,3 @@ Rm::detach(l4_addr_t addr, unsigned long size, L4::Cap<Dataspace> *mem,
 {  return detach(addr, size, mem, task, Detach_exact); }
 
 };
-
