@@ -175,29 +175,40 @@ l4util_xchg(volatile l4_umword_t * dest, l4_umword_t val);
  */
 L4_INLINE void
 l4util_add8(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_add16(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_add32(volatile l4_uint32_t *dest, l4_uint32_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_sub8(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_sub16(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_sub32(volatile l4_uint32_t *dest, l4_uint32_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_and8(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_and16(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_and32(volatile l4_uint32_t *dest, l4_uint32_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_or8(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_or16(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8
 L4_INLINE void
 l4util_or32(volatile l4_uint32_t *dest, l4_uint32_t val);
-//@}
+///@}
 
 //!@name Atomic add/sub/and/or operations (8,16,32 bit) with result
 /** @{
@@ -209,29 +220,40 @@ l4util_or32(volatile l4_uint32_t *dest, l4_uint32_t val);
  */
 L4_INLINE l4_uint8_t
 l4util_add8_res(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint16_t
 l4util_add16_res(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint32_t
 l4util_add32_res(volatile l4_uint32_t *dest, l4_uint32_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint8_t
 l4util_sub8_res(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint16_t
 l4util_sub16_res(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint32_t
 l4util_sub32_res(volatile l4_uint32_t *dest, l4_uint32_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint8_t
 l4util_and8_res(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint16_t
 l4util_and16_res(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint32_t
 l4util_and32_res(volatile l4_uint32_t *dest, l4_uint32_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint8_t
 l4util_or8_res(volatile l4_uint8_t *dest, l4_uint8_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint16_t
 l4util_or16_res(volatile l4_uint16_t *dest, l4_uint16_t val);
+/// \copydoc l4util_add8_res
 L4_INLINE l4_uint32_t
 l4util_or32_res(volatile l4_uint32_t *dest, l4_uint32_t val);
-//@}
+///@}
 
 //!@name Atomic inc/dec (8,16,32 bit) without result
 /** @{
@@ -241,17 +263,22 @@ l4util_or32_res(volatile l4_uint32_t *dest, l4_uint32_t val);
  */
 L4_INLINE void
 l4util_inc8(volatile l4_uint8_t *dest);
+/// \copydoc l4util_inc8
 L4_INLINE void
 l4util_inc16(volatile l4_uint16_t *dest);
+/// \copydoc l4util_inc8
 L4_INLINE void
 l4util_inc32(volatile l4_uint32_t *dest);
+/// \copydoc l4util_inc8
 L4_INLINE void
 l4util_dec8(volatile l4_uint8_t *dest);
+/// \copydoc l4util_inc8
 L4_INLINE void
 l4util_dec16(volatile l4_uint16_t *dest);
+/// \copydoc l4util_inc8
 L4_INLINE void
 l4util_dec32(volatile l4_uint32_t *dest);
-//@}
+///@}
 
 //!@name Atomic inc/dec (8,16,32 bit) with result
 /** @{
@@ -262,17 +289,22 @@ l4util_dec32(volatile l4_uint32_t *dest);
  */
 L4_INLINE l4_uint8_t
 l4util_inc8_res(volatile l4_uint8_t *dest);
+/// \copydoc l4util_inc8_res
 L4_INLINE l4_uint16_t
 l4util_inc16_res(volatile l4_uint16_t *dest);
+/// \copydoc l4util_inc8_res
 L4_INLINE l4_uint32_t
 l4util_inc32_res(volatile l4_uint32_t *dest);
+/// \copydoc l4util_inc8_res
 L4_INLINE l4_uint8_t
 l4util_dec8_res(volatile l4_uint8_t *dest);
+/// \copydoc l4util_inc8_res
 L4_INLINE l4_uint16_t
 l4util_dec16_res(volatile l4_uint16_t *dest);
+/// \copydoc l4util_inc8_res
 L4_INLINE l4_uint32_t
 l4util_dec32_res(volatile l4_uint32_t *dest);
-//@}
+///@}
 
 /**
  * \brief Atomic add
