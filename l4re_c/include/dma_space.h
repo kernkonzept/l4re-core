@@ -47,8 +47,8 @@ enum l4re_dma_space_direction
  */
 enum l4re_dma_space_space_attribs
 {
-  L4RE_DMA_SPACE_COHERENT   = 1 << 0, /**< \copydoc L4Re::Dma_space::Space_attrib::Coherent */
-  L4RE_DMA_SPACE_PHYS_SPACE = 1 << 1, /**< \copydoc L4Re::Dma_space::Space_attrib::Phys_space */
+  L4RE_DMA_SPACE_COHERENT   = 1 << 0, ///< \copydoc L4Re::Dma_space::Coherent
+  L4RE_DMA_SPACE_PHYS_SPACE = 1 << 1, ///< \copydoc L4Re::Dma_space::Phys_space
 };
 
 /**
@@ -103,4 +103,3 @@ l4re_dma_space_disassociate(l4re_dma_space_t dma);
 
 
 EXTERN_C_END
-

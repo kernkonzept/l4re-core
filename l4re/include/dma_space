@@ -175,10 +175,12 @@ public:
    * \caprights{RW}
    * \param[in]  dma_task  The DMA task used for the device that shall be
    *                       associated with this DMA space. The dma_task might
-   *                       be an invalid capability when #Phys_space is set in
+   *                       be an invalid capability when
+   *                       L4Re::Dma_space::Phys_space is set in
    *                       `attr`, in this case the CPUs physical memory
    *                       is used as DMA address space.
-   * \param[in]  attr      Attributes for this DMA space. See #Space_attrib.
+   * \param[in]  attr      Attributes for this DMA space. See
+   *                       L4Re::Dma_space::Space_attrib.
    */
   L4_INLINE_RPC(
       long, associate, (L4::Ipc::Opt<L4::Ipc::Cap<L4::Task> > dma_task,
@@ -198,4 +200,3 @@ public:
 };
 
 }
-
