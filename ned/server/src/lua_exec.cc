@@ -531,7 +531,8 @@ public:
     lua_pop(l, 2);
 
     observer = new Observer();
-    Ned::server->registry()->register_obj(observer);
+    L4Re::chkcap(Ned::server->registry()->register_obj(observer),
+                 "Register observer endpoint.");
   }
 };
 

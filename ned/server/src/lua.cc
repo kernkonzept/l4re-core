@@ -11,6 +11,7 @@
 #include <l4/sys/err.h>
 #include <l4/re/util/br_manager>
 #include <l4/re/util/object_registry>
+#include <l4/re/error_helper>
 #include <l4/ned/cmd_control>
 
 #include <lua.h>
@@ -165,8 +166,9 @@ static int __server_loop(lua_State *l)
   L4Re::Util::Registry_server<L4Re::Util::Br_manager_timeout_hooks> server;
   Command_dispatcher cmd_dispatch(l);
 
-  server.registry()->register_obj(&cmd_dispatch,
-                                  n->cap<L4::Ipc_gate>().get());
+  L4Re::chkcap(server.registry()->register_obj(&cmd_dispatch,
+                                               n->cap<L4::Ipc_gate>().get()),
+               "Register command dispatcher endpoint.");
 
   server.loop();
 

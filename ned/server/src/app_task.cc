@@ -78,7 +78,7 @@ App_task::App_task(Ned::Registry *r,
 {
   chksys(alloc->create(_rm.get()), "allocating new region map");
 
-  _r->register_obj(this);
+  chkcap(_r->register_obj(this), "register App_task endpoint");
 }
 
 void
