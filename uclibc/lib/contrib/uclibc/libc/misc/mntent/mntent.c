@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2000-2006 Erik Andersen <andersen@uclibc.org>
+ * Copyright (C) 1995-2020 Free Software Foundation, Inc.
  *
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
@@ -92,9 +93,25 @@ int addmntent(FILE * filep, const struct mntent *mnt)
 		 mnt->mnt_type, mnt->mnt_opts, mnt->mnt_freq, mnt->mnt_passno) < 0 ? 1 : 0);
 }
 
-char *hasmntopt(const struct mntent *mnt, const char *opt)
+/* Search MNT->mnt_opts for an option matching OPT.
+   Returns the address of the substring, or null if none found.  */
+char *hasmntopt (const struct mntent *mnt, const char *opt)
 {
-	return strstr(mnt->mnt_opts, opt);
+    const size_t optlen = strlen(opt);
+    char *rest = mnt->mnt_opts, *p;
+
+    while ((p = strstr(rest, opt)) != NULL) {
+        if ((p == rest || p[-1] == ',')
+            && (p[optlen] == '\0' || p[optlen] == '=' || p[optlen] == ','))
+            return p;
+
+        rest = strchr(p, ',');
+        if (rest == NULL)
+            break;
+        ++rest;
+    }
+
+    return NULL;
 }
 
 FILE *setmntent(const char *name, const char *mode)
