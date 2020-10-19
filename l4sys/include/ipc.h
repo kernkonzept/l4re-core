@@ -524,7 +524,7 @@ l4_error(l4_msgtag_t tag) L4_NOTHROW
 
 
 L4_INLINE int l4_ipc_is_snd_error(l4_utcb_t *u) L4_NOTHROW
-{ return (l4_utcb_tcr_u(u)->error & 1) != 0; }
+{ return (l4_utcb_tcr_u(u)->error & 1) == 0; }
 
 L4_INLINE int l4_ipc_is_rcv_error(l4_utcb_t *u) L4_NOTHROW
 { return l4_utcb_tcr_u(u)->error & 1; }
