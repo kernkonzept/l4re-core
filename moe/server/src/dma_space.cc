@@ -129,6 +129,7 @@ private:
     return myself->cap_equal(s, _dma_kern_space).label();
   }
 
+public:
   void remove(Dma::Mapping *m) override
   {
     _map.remove(m->key);
@@ -158,7 +159,6 @@ private:
        }
   }
 
-public:
   explicit Task_mapper(L4::Cap<L4::Task> s)
   : _dma_kern_space(s)
   { _mappers.add(this); }
