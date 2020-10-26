@@ -1,3 +1,8 @@
+/* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
+/*
+ * Copyright (C) 2013 Technische Universität Dresden.
+ */
+
 #pragma once
 
 namespace cxx {

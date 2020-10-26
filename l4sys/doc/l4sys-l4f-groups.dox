@@ -1,6 +1,12 @@
 // vi:ft=c
 /* -*- c -*- */
 
+/* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
+/*
+ * Copyright (C) 2009-2010 Technische Universität Dresden.
+ * Copyright (C) 2015-2020 Kernkonzept GmbH.
+ */
+
 /**
  * \defgroup l4_api Base API
  * \brief Interfaces for all kinds of base functionality.
