@@ -30,6 +30,10 @@
  * - L4::Scheduler, to provide a restricted priority / CPU range for clients
  * - L4::Factory, to provide a quota limited allocation for clients
  *
+ * \note L4::Scheduler objects can be only created through the user factory
+ *       provided by Moe to the initial application. Other factory instances
+ *       cannot create this object.
+ *
  * \subsubsection l4re_moe_memory_alloc_factory Passing parameters to the create stream
  *
  * L4::Factory.create() returns a [create stream](\ref L4::Factory::S) that
