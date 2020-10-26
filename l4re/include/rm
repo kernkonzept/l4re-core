@@ -230,7 +230,6 @@ public:
     Detach_keep = 4,
   };
 
-
   /**
    * \brief Reserve the given area in the region map.
    * \param[in,out] start  The virtual start address of the area to reserve.
