@@ -122,6 +122,11 @@ public:
     return Ops::map(this, addr, r, writable, result);
   }
 
+  int map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const
+  {
+    return Ops::map_info(this, start_addr, end_addr);
+  }
+
 };
 
 
@@ -257,8 +262,35 @@ public:
     if (size < 2)
       return L4_INVALID_PTR;
 
-    l4_addr_t end = max_addr();
-    l4_addr_t beg = reinterpret_cast<l4_addr_t>(addr);
+    l4_addr_t beg, end;
+    int err = hdlr.map_info(&beg, &end);
+    if (err > 0)
+      {
+        // Mapping address determined by underlying dataspace. Make sure we
+        // prevent any additional alignment. We already know the place!
+        beg += hdlr.offset();
+        end = beg + size - 1U;
+        align = L4_PAGESHIFT;
+
+        // In case of exact mappings, the supplied address must match because
+        // we cannot remap.
+        if (!(flags & L4Re::Rm::F::Search_addr)
+            && reinterpret_cast<l4_addr_t>(addr) != beg)
+          return L4_INVALID_PTR;
+
+        // When searching for a suitable address, the start must cover the
+        // dataspace beginning to "find" the right spot.
+        if ((flags & L4Re::Rm::F::Search_addr)
+            && reinterpret_cast<l4_addr_t>(addr) > beg)
+          return L4_INVALID_PTR;
+      }
+    else if (err == 0)
+      {
+        beg = reinterpret_cast<l4_addr_t>(addr);
+        end = max_addr();
+      }
+    else if (err < 0)
+      return L4_INVALID_PTR;
 
     if (flags & L4Re::Rm::F::In_area)
       {

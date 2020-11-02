@@ -33,6 +33,8 @@ public:
                  L4Re::Util::Region const &r, bool writable,
                  L4::Ipc::Snd_fpage *result);
   static void free(Region_handler const *h, l4_addr_t start, unsigned long size);
+  static int map_info(Region_handler const *h,
+                      l4_addr_t *start_addr, l4_addr_t *end_addr);
 };
 
 class Region_map
