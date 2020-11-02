@@ -34,13 +34,16 @@ namespace L4Re
 long
 Mem_alloc::alloc(long size,
                  L4::Cap<Dataspace> mem, unsigned long flags,
-                 unsigned long align) const noexcept
+                 unsigned long align, l4_addr_t paddr) const noexcept
 {
   L4::Cap<L4::Factory> f(cap());
-  return l4_error(f->create(mem, L4Re::Dataspace::Protocol)
-                  << l4_mword_t(size)
-                  << l4_umword_t(flags)
-                  << l4_umword_t(align));
+  auto call = f->create(mem, L4Re::Dataspace::Protocol);
+  call << l4_mword_t(size)
+       << l4_umword_t(flags)
+       << l4_umword_t(align);
+  if (flags & Fixed_paddr)
+    call << l4_umword_t(paddr);
+  return l4_error(call);
 }
 
 };

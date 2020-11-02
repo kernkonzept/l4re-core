@@ -229,14 +229,36 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
         {
           L4::Ipc::Varg size  = args.pop_front(),
                         flags = args.pop_front(),
-                        align = args.pop_front();
+                        align = args.pop_front(),
+                        base  = args.pop_front();
 
           if (!size.is_of_int())
             return -L4_EINVAL;
 
           Single_page_alloc_base::Config mem_cfg(Single_page_alloc_base::default_mem_cfg);
 
-          // L4::cout << "MEM: alloc ... " << size.value<l4_mword_t>() << "; " << flags.value<l4_umword_t>() << "\n";
+#ifdef CONFIG_MMU
+          // On MMU systems, the physical address is none of the clients
+          // business.
+          if (!base.is_nil())
+            return -L4_EINVAL;
+#else
+          // On no-MMU systems, we must allow the caller to specify the base
+          // address of the allocated memory. Otherwise the ELF loader and
+          // guest RAM allocation won't work.
+          if (base.is_of_int())
+            {
+              mem_cfg.physmin = base.value<l4_umword_t>();
+              mem_cfg.physmax = mem_cfg.physmin + size.value<l4_umword_t>() - 1U;
+            }
+          else if (!base.is_nil())
+            return -L4_EINVAL;
+#endif
+
+          // L4::cout << "MEM: alloc ... " << size.value<l4_mword_t>()
+          //          << "; " << flags.value<l4_umword_t>()
+          //          << "; [" << L4::hex << mem_cfg.physmin
+          //          << " .. " << mem_cfg.physmax << "]\n";
           cxx::unique_ptr<Moe::Dataspace> mo(alloc(size.value<l4_mword_t>(),
                 flags.is_of_int() ? flags.value<l4_umword_t>() : 0,
                 align.is_of_int() ? align.value<l4_umword_t>() : 0,

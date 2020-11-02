@@ -73,6 +73,8 @@ public:
     Continuous   = 0x01,  ///< Allocate physically contiguous memory
     Pinned       = 0x02,  ///< Deprecated, use L4Re::Dma_space instead
     Super_pages  = 0x04,  ///< Allocate super pages
+    Fixed_paddr  = 0x08,  ///< Allocate at fixed physical address. Only honored
+                          ///< on no-MMU systems. Will fail on MMU systems.
   };
 
   /**
@@ -95,6 +97,8 @@ public:
    * \param      align  Log2 alignment of dataspace if supported by allocator,
    *                    will be at least L4_PAGESHIFT,
    *                    with Super_pages flag set at least L4_SUPERPAGESHIFT
+   * \param      paddr  The physical address where the dataspace should be
+   *                    allocated if Mem_alloc_flags::Fixed flag is set.
    *
    * \retval 0           Success
    * \retval -L4_ERANGE  Given size not supported.
@@ -102,7 +106,8 @@ public:
    * \retval <0          IPC error
    */
   long alloc(long size, L4::Cap<Dataspace> mem,
-             unsigned long flags = 0, unsigned long align = 0) const noexcept;
+             unsigned long flags = 0, unsigned long align = 0,
+             l4_addr_t paddr = 0) const noexcept;
 };
 
 };
