@@ -25,6 +25,7 @@
 # include <stdbool.h>
 # include <stddef.h>
 # include <stdint.h>
+# include <l4/sys/thread.h>
 
 /* Type for the dtv.  */
 typedef union dtv
@@ -105,17 +106,15 @@ typedef struct
      INTERNAL_SYSCALL_ERROR_P (result_var, err)				\
        ? "unknown error" : NULL; })
 
-# define TLS_INIT_TP_v6p(tcbp, secondcall) \
-  ({ asm volatile ("mcr p15, 0, %0, c13, c0, 2" : : "r" (tcbp)); NULL; })
-
 # define TLS_INIT_TP_generic(tcbp, secondcall) \
-  ({ l4_utcb_tcr()->user[0] = (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE; { void (*set_tls)(unsigned long tls); set_tls = (void (*)(unsigned long))0xffffff80; set_tls((l4_addr_t)tcbp - TLS_PRE_TCB_SIZE); } NULL; })
+  ({ \
+    l4_utcb_tcr()->user[0] = (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE; \
+    l4_thread_arm_set_tpidruro(L4_INVALID_CAP, (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE); \
+    NULL; \
+  })
 
 # define TLS_INIT_TP(tcbp, secondcall) TLS_INIT_TP_generic(tcbp, secondcall)
 
-
-# define TLS_get_thread_pointer_v6p() \
-  ({ tcbhead_t *x; asm volatile ("mrc p15, 0, %0, c13, c0, 2" : "=r" (x)); x; })
 
 # define TLS_get_thread_pointer_generic() \
   ({ (tcbhead_t *)(l4_utcb_tcr()->user[0] + TLS_PRE_TCB_SIZE); })
