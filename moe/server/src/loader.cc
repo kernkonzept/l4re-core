@@ -19,7 +19,7 @@
 #include "dataspace_util.h"
 #include "region.h"
 
-#include <l4/cxx/auto_ptr>
+#include <l4/cxx/unique_ptr>
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
 #include <l4/cxx/exceptions>
@@ -58,7 +58,7 @@ static
 Moe::Dataspace *
 __alloc_app_stack(Allocator *a, Moe::Stack *_stack, unsigned long size)
 {
-  cxx::Auto_ptr<Moe::Dataspace> stack(a->alloc(size));
+  cxx::unique_ptr<Moe::Dataspace> stack(a->alloc(size));
 
   _stack->set_local_top(stack->address(size - L4_PAGESIZE).adr<char*>() + L4_PAGESIZE);
   return stack.release();
