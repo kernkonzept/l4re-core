@@ -201,6 +201,11 @@ public:
     return _64bit;
   }
 
+  Elf_ehdr const *ehdr() const
+  {
+    return _eh;
+  }
+
   unsigned long entry() const
   {
     return _eh->entry();
@@ -302,10 +307,11 @@ struct Phdr_load
   Const_dataspace bin;
   App_model *mm;
   Dbg const &dbg;
+  Elf_ehdr const *ehdr;
 
   Phdr_load(l4_addr_t base, Const_dataspace bin, App_model *mm,
-            L4Re::Rm::Flags r_flags, Dbg const &dbg)
-  : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg)
+            L4Re::Rm::Flags r_flags, Dbg const &dbg, Elf_ehdr const *ehdr)
+  : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg), ehdr(ehdr)
   {}
 
   void operator () (Elf_phdr const &ph) const
@@ -333,11 +339,20 @@ struct Phdr_load
     L4Re::Rm::Flags rf(r_flags);
     unsigned long o = offs;
     Const_dataspace ds = bin;
+    bool cow = (ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow();
+#ifndef CONFIG_MMU
+    // Force copy if not XIP on no-MMU.
+    cow = cow || (reinterpret_cast<l4_addr_t>(ehdr) + offs) != paddr;
+#endif
 
-    if ((ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow())
+    if (cow)
       {
         // copy section
+#ifdef CONFIG_MMU
         Dataspace mem = mm->alloc_ds(size);
+#else
+        Dataspace mem = mm->alloc_ds(size, paddr);
+#endif
         mm->copy_ds(mem, 0, bin, offs, fsz + page_offs);
         ds = mem;
         o = 0;
@@ -594,7 +609,8 @@ public:
         r_flags |= L4Re::Rm::F::In_area;
       }
 
-    elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags, ldr));
+    elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags,
+                                                   ldr, elf.ehdr()));
     elf.iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
 
     mm->prog_info()->entry = elf.entry() + _base;

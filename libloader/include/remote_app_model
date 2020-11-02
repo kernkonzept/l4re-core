@@ -116,7 +116,13 @@ public:
   void prog_attach_kip()
   {
     this->prog_attach_ds(this->prog_info()->kip, L4_PAGESIZE,
-                         this->local_kip_ds(), 0,
+#ifdef CONFIG_MMU
+                         this->local_kip_ds(),
+#else
+                         // On no-MMU systems the KIP is always present
+                         this->reserved_area(),
+#endif
+                         0,
                          L4Re::Rm::F::RX,
                          "attaching KIP segment");
   }
