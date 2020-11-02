@@ -2,7 +2,6 @@ PKGDIR	= ../../..
 L4DIR	?= $(PKGDIR)/../../..
 EXTRA_TARGET := \
   arith       \
-  auto_ptr    \
   avl_tree    \
   avl_set     \
   avl_map     \
