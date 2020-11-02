@@ -10,7 +10,6 @@
 
 #include <l4/cxx/exceptions>
 #include <l4/sys/cxx/ipc_epiface>
-#include <l4/cxx/auto_ptr>
 #include <l4/re/util/object_registry>
 #include <pthread.h>
 #include <cstdio>

@@ -11,7 +11,6 @@
 #include "app_model.h"
 #include "debug.h"
 
-#include <l4/cxx/auto_ptr>
 #include <l4/cxx/ref_ptr>
 #include <l4/libloader/elf>
 #include <l4/util/bitops.h>
