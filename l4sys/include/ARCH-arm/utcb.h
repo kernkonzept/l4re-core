@@ -80,10 +80,15 @@ enum L4_utcb_consts_arm
 #ifdef __GNUC__
 L4_INLINE l4_utcb_t *l4_utcb_direct(void) L4_NOTHROW
 {
+# if defined(__ARM_ARCH) && __ARM_ARCH >= 7
+  l4_utcb_t *utcb;
+  __asm__ ("mrc p15, 0, %0, c13, c0, 2" : "=r" (utcb)); // TPIDRURW
+#else
   register l4_utcb_t *utcb __asm__ ("r0");
   __asm__ ("mov lr, pc    \n"
            "mvn pc, #0xff \n"      // write 0xffffff00 to pc
            : "=r"(utcb) : : "lr");
+#endif
   return utcb;
 }
 #endif
