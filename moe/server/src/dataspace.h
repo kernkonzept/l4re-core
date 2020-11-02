@@ -10,6 +10,7 @@
 #pragma once
 
 #include <cstddef>
+#include <l4/bid_config.h>
 #include <l4/sys/types.h>
 #include <l4/cxx/iostream>
 #include <l4/cxx/list>
@@ -36,7 +37,11 @@ class Dataspace :
 {
 public:
   using Flags = L4Re::Dataspace::Flags;
+#ifdef CONFIG_MMU
   enum { Cow_enabled = 0x100 };
+#else
+  enum { Cow_enabled = 0 }; // !MMU systems do not support CoW
+#endif
 
   struct Address
   {
