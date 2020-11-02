@@ -12,6 +12,7 @@
 #include <l4/cxx/l4iostream>
 #include <l4/cxx/string>
 
+#include <l4/bid_config.h>
 #include <l4/re/util/meta>
 #include <l4/sys/factory>
 
@@ -43,6 +44,10 @@ Allocator::alloc(long size, unsigned long flags, unsigned long align,
 
   if (cfg.physmin >= cfg.physmax)
     throw L4::Runtime_error(-L4_EINVAL, "malformed memory range");
+
+#if !defined(CONFIG_MMU)
+  flags |= L4Re::Mem_alloc::Continuous | L4Re::Mem_alloc::Pinned;
+#endif
 
   //L4::cout << "A: \n";
   Moe::Dataspace *mo;
