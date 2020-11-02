@@ -438,6 +438,13 @@ static void hdl_ldr_flags(cxx::String const &args)
   Moe::ldr_flags = lvl;
 }
 
+#ifndef CONFIG_MMU
+static void hdl_brk(cxx::String const &args)
+{
+  if (args.from_hex(&Single_page_alloc_base::default_mem_cfg.physmin) <= 0)
+    warn.printf("Invalid brk option: '%.*s'\n", args.len(), args.start());
+}
+#endif
 
 
 static Get_opt const _options[] = {
@@ -445,6 +452,9 @@ static Get_opt const _options[] = {
       {"--init=",      hdl_init },
       {"--l4re-dbg=",  hdl_l4re_dbg },
       {"--ldr-flags=", hdl_ldr_flags },
+#ifndef CONFIG_MMU
+      {"--brk=",       hdl_brk },
+#endif
       {0, 0}
 };
 

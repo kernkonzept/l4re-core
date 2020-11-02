@@ -234,7 +234,7 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           if (!size.is_of_int())
             return -L4_EINVAL;
 
-          Single_page_alloc_base::Config mem_cfg;
+          Single_page_alloc_base::Config mem_cfg(Single_page_alloc_base::default_mem_cfg);
 
           // L4::cout << "MEM: alloc ... " << size.value<l4_mword_t>() << "; " << flags.value<l4_umword_t>() << "\n";
           cxx::unique_ptr<Moe::Dataspace> mo(alloc(size.value<l4_mword_t>(),

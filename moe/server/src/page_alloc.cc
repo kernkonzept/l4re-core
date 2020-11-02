@@ -58,6 +58,7 @@ static LA *page_alloc()
 }
 
 bool Single_page_alloc_base::can_free = false;
+Single_page_alloc_base::Config Single_page_alloc_base::default_mem_cfg;
 
 Single_page_alloc_base::Single_page_alloc_base()
 {}

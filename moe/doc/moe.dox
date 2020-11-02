@@ -176,6 +176,13 @@
  * This option allows setting some loader options for the L4Re runtime
  * environment. The flags are `pre_alloc`, `all_segs_cow`,and `pinned_segs`.
  *
+ * \par `--brk=<address>`
+ * This option is only present on systems without MMU. It restricts dynamic
+ * allocations to addresses equal or higher than `<address>`. The argument is
+ * parsed as hexadecimal number without any `0x` prefix. Use it to prevent moe
+ * from allocating memory in regions that shall later be used by other
+ * applications or virtual machines.
+ *
  * \par `-- <init options>`
  * All command-line parameters after the special `--` option are passed
  * directly to the init process.
