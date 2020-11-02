@@ -116,8 +116,8 @@ l4_mem_arm_op_call(unsigned long op,
 
   __asm__ __volatile__
     ("@ l4_cache_op_arm_call(start) \n\t"
-     "mov     lr, pc	            \n\t"
-     "mov     pc, %[sc]	            \n\t"
+     "mov     r5, %[sc]             \n\t"
+     "blx     __l4_sys_syscall      \n\t"
      "@ l4_cache_op_arm_call(end)   \n\t"
        :
 	"=r" (_op),
@@ -131,7 +131,7 @@ l4_mem_arm_op_call(unsigned long op,
 	"2" (_width),
         "3" (_value)
        :
-	"cc", "memory", "lr"
+	"cc", "memory", "r5", "ip", "lr"
        );
 
   return _value;

@@ -45,17 +45,17 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
   (void)utcb;
 
   __asm__ __volatile__
-    ("mov lr, pc    \n"
-     "mvn pc, %[sc] \n"
+    ("mov r5, %[sc]         \n"
+     "blx __l4_sys_syscall  \n"
      :
      "+r" (_dest),
      "+r" (_timeout),
      "+r" (_label),
      "+r" (_tag)
      :
-     [sc] "i" (~(L4_SYSCALL_INVOKE))
+     [sc] "i" (L4_SYSCALL_INVOKE)
      :
-     "cc", "memory", "lr");
+     "cc", "memory", "r5", "ip", "lr");
 
   if (rlabel)
     *rlabel = _label;

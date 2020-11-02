@@ -50,20 +50,20 @@ l4_cache_op_arm_call(unsigned long op,
 
   __asm__ __volatile__
     ("@ l4_cache_op_arm_call(start) \n\t"
-     "mov     lr, pc	            \n\t"
-     "mvn     pc, %[sc]	            \n\t"
+     "mov     r5, %[sc]             \n\t"
+     "blx     __l4_sys_syscall      \n\t"
      "@ l4_cache_op_arm_call(end)   \n\t"
        :
 	"=r" (_op),
 	"=r" (_start),
 	"=r" (_end)
        :
-       [sc] "i" (~(L4_SYSCALL_MEM_OP)),
+       [sc] "i" (L4_SYSCALL_MEM_OP),
 	"0" (_op),
 	"1" (_start),
 	"2" (_end)
        :
-	"cc", "memory", "lr"
+	"cc", "memory", "r5", "ip", "lr"
        );
 }
 
