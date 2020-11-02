@@ -115,6 +115,9 @@ public:
   virtual bool is_static() const noexcept = 0;
   virtual long clear(unsigned long offs, unsigned long size) const noexcept;
 
+  virtual long map_info(l4_addr_t &start_addr,
+                        l4_addr_t &end_addr) const noexcept;
+
 protected:
   void size(unsigned long size) noexcept { _size = size; }
 
@@ -172,6 +175,9 @@ public:
     return clear(offset, size);
   }
 
+  long op_map_info(L4Re::Dataspace::Rights rights,
+                   l4_addr_t &start_addr,
+                   l4_addr_t &end_addr);
 
 private:
   unsigned long  _size;

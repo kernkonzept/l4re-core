@@ -157,4 +157,14 @@ l4re_ds_flags(l4re_ds_t ds) L4_NOTHROW;
 L4_CV int
 l4re_ds_info(l4re_ds_t ds, l4re_ds_stats_t *stats) L4_NOTHROW;
 
+/**
+ * \ingroup api_l4re_c_ds
+ * \copybrief L4Re::Dataspace::map_info
+ * \param ds  Dataspace capability.
+ * \copydetails L4Re::Dataspace::map_info
+ */
+L4_CV int
+l4re_ds_map_info(l4re_ds_t ds,
+                 l4_addr_t *start_addr, l4_addr_t *end_addr) L4_NOTHROW;
+
 EXTERN_C_END

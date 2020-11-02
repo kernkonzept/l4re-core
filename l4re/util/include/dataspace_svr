@@ -22,6 +22,7 @@
 
 #include <cstring>
 #include <cstddef>
+#include <l4/bid_config.h>
 #include <l4/sys/types.h>
 #include <l4/cxx/minmax>
 #include <l4/re/dataspace>
@@ -254,6 +255,22 @@ public:
   virtual bool is_static() const noexcept
   { return true; }
 
+  /**
+   * Return mapping information for no-MMU systems.
+   *
+   * The method is only called on no-MMU systems. It should return the address
+   * of the underlying backing buffer so that the caller might map the
+   * dataspace.
+   *
+   * The default implementation always returns an error because the derived
+   * class must provide the required information.
+   *
+   * \see L4Re::Dataspace::map_info()
+   */
+  virtual long map_info([[maybe_unused]] l4_addr_t &start_addr,
+                        [[maybe_unused]] l4_addr_t &end_addr) noexcept
+  { return -L4_EPERM; }
+
 
   long op_map(L4Re::Dataspace::Rights rights,
               L4Re::Dataspace::Offset offset,
@@ -312,6 +329,16 @@ public:
     return clear(offset, size);
   }
 
+  long op_map_info(L4Re::Dataspace::Rights,
+                   [[maybe_unused]] l4_addr_t &start_addr,
+                   [[maybe_unused]] l4_addr_t &end_addr)
+  {
+#ifdef CONFIG_MMU
+    return 0;
+#else
+    return map_info(start_addr, end_addr);
+#endif
+  }
 
 protected:
   unsigned long size() const noexcept

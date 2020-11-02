@@ -92,3 +92,11 @@ l4re_ds_flags(l4re_ds_t ds) L4_NOTHROW
   L4::Cap<L4Re::Dataspace> x(ds);
   return x->flags().raw;
 }
+
+int
+l4re_ds_map_info(l4re_ds_t ds,
+                 l4_addr_t *start_addr, l4_addr_t *end_addr) L4_NOTHROW
+{
+  L4::Cap<L4Re::Dataspace> x(ds);
+  return x->map_info(start_addr, end_addr);
+}
