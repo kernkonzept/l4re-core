@@ -22,6 +22,7 @@
 #include "vcon_stream.h"
 #include "ns_fs.h"
 
+#include <l4/bid_config.h>
 #include <l4/re/env>
 #include <l4/re/rm>
 #include <l4/re/dataspace>
@@ -458,7 +459,15 @@ int
 Vfs::alloc_anon_mem(l4_umword_t size, L4Re::Shared_cap<L4Re::Dataspace> *ds,
                     l4_addr_t *offset)
 {
-#ifdef USE_BIG_ANON_DS
+#if !defined(CONFIG_MMU)
+  // Small values for !MMU systems. These platforms do not have much memory
+  // typically and the memory must be instantly allocated.
+  enum
+  {
+    ANON_MEM_DS_POOL_SIZE = 256UL << 10, // size of a pool dataspace used for anon memory
+    ANON_MEM_MAX_SIZE     =  32UL << 10, // chunk size that will be allocate a dataspace
+  };
+#elif defined(USE_BIG_ANON_DS)
   enum
   {
     ANON_MEM_DS_POOL_SIZE = 256UL << 20, // size of a pool dataspace used for anon memory
