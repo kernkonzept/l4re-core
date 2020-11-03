@@ -16,7 +16,7 @@ using L4Re::chksys;
 using L4Re::chkcap;
 
 App_model::Dataspace
-App_model::alloc_ds(unsigned long size) const
+App_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 {
   Dataspace mem = chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(),
                          "allocate capability");

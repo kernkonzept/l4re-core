@@ -52,7 +52,7 @@ struct App_model : public Ldr::Base_app_model<Stack>
 
   explicit App_model();
 
-  Dataspace alloc_ds(unsigned long size) const;
+  Dataspace alloc_ds(unsigned long size, l4_addr_t paddr) const;
 
   static Const_dataspace open_file(char const *name);
 

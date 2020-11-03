@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <l4/bid_config.h>
 #include <l4/re/elf_aux.h>
 #include <l4/util/elf.h>
 #include <l4/sys/types.h>
@@ -324,11 +325,17 @@ struct Phdr_load
     L4Re::Rm::Flags rf(r_flags);
     unsigned long o = offs;
     Const_dataspace ds = bin;
+    bool cow =
+#ifdef CONFIG_MMU
+      (ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow();
+#else
+      true; // FIXME: revise for XIP
+#endif
 
-    if ((ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow())
+    if (cow)
       {
         // copy section
-        Dataspace mem = mm->alloc_ds(size);
+        Dataspace mem = mm->alloc_ds(size, l4_addr_t(paddr));
         mm->copy_ds(mem, 0, bin, offs, fsz + page_offs);
         ds = mem;
         o = 0;

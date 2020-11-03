@@ -19,6 +19,7 @@
 #include "dataspace_util.h"
 #include "region.h"
 
+#include <l4/bid_config.h>
 #include <l4/cxx/unique_ptr>
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
@@ -60,7 +61,14 @@ __alloc_app_stack(Allocator *a, Moe::Stack *_stack, unsigned long size)
 {
   cxx::unique_ptr<Moe::Dataspace> stack(a->alloc(size));
 
+#ifdef CONFIG_MMU
   _stack->set_local_top(stack->address(size - L4_PAGESIZE).adr<char*>() + L4_PAGESIZE);
+#else
+  char *base = stack->address(0).adr<char*>();
+  _stack->set_target_stack(l4_addr_t(base), size);
+  _stack->set_local_top(base + size);
+#endif
+
   return stack.release();
 }
 
@@ -76,9 +84,15 @@ bool Loader::start(cxx::String const &init_prog, cxx::String const &cmdline)
 }
 
 Moe_app_model::Dataspace
-Moe_app_model::alloc_ds(unsigned long size) const
+Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 {
-  Dataspace mem =_task->allocator()->alloc(size);
+#ifdef CONFIG_MMU
+  (void)paddr;
+  Single_page_alloc_base::Config cfg(Single_page_alloc_base::default_mem_cfg);
+#else
+  Single_page_alloc_base::Config cfg{paddr, paddr+size-1U};
+#endif
+  Dataspace mem =_task->allocator()->alloc(size, 0, 0, cfg);
   if (!mem)
     chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
   return mem;
@@ -121,8 +135,19 @@ Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                                 Region_handler(ds, L4_INVALID_CAP,
                                                offset, flags.region_flags()),
                                 flags);
+
   if (x == L4_INVALID_PTR)
     chksys(-L4_ENOMEM, what);
+
+#ifndef CONFIG_MMU
+  // Eagerly map region on systems without MMU to prevent MPU region
+  // fragmentation.
+  size >>= L4_PAGESHIFT;
+  for (l4_addr_t a = addr & L4_PAGEMASK; size; size--, a += L4_PAGESIZE)
+    _task->task_cap()->map(L4Re::Env::env()->task(),
+                           l4_fpage(a, L4_PAGESHIFT, flags.raw & 0xf),
+                           a);
+#endif
 }
 
 int
@@ -161,7 +186,7 @@ Moe_app_model::local_detach_ds(l4_addr_t /*addr*/, unsigned long /*size*/) const
 
 Moe_app_model::Moe_app_model(App_task *t, cxx::String const &prog,
                              cxx::String const &args)
-: _task(t), _prog(prog), _args(args)
+: _task(t), _prog(prog), _args(args), _utcb()
 {
   enum
   {
@@ -214,6 +239,14 @@ Moe_app_model::init_prog()
 
   _info.ldr_flags = Moe::ldr_flags;
   _info.l4re_dbg = Moe::l4re_dbg;
+
+#ifndef CONFIG_MMU
+  // MMU less systems must explicitly allocate the ku_mem area
+  _utcb =_task->allocator()->alloc(1UL << _info.utcbs_log2size);
+  if (!_utcb)
+    chksys(-L4_ENOMEM, "ELF loader could not allocate UTCB");
+  _info.utcbs_start = _utcb->address(0).adr<l4_addr_t>();
+#endif
 
   info.printf("loading '%s'\n", argv.a0);
 }

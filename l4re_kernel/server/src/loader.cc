@@ -15,6 +15,7 @@
 #include "mem_layout.h"
 #include "switch_stack.h"
 
+#include <l4/bid_config.h>
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
 #include <l4/sys/types.h>
@@ -72,12 +73,25 @@ void unmap_stack_and_start()
 
 }
 
+L4Re_app_model::L4Re_app_model(L4::Cap<L4Re::Rm> rm, void *)
+: _rm(rm)
+{
+  extern char __L4_KIP_ADDR__[];
+  // set default values for the application stack
+  _info.kip = (l4_addr_t)__L4_KIP_ADDR__;
+}
+
 L4Re_app_model::Dataspace
-L4Re_app_model::alloc_ds(unsigned long size) const
+L4Re_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 {
   Dataspace mem = chkcap(Global::cap_alloc->alloc<L4Re::Dataspace>(),
       "ELF loader: could not allocate capability");
+#ifdef CONFIG_MMU
+  (void)paddr;
   chksys(Global::allocator->alloc(size, mem, (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_PINNED_SEGS) ? L4Re::Mem_alloc::Pinned :0 ), "loading writable ELF segment");
+#else
+  chksys(Global::allocator->alloc_at(paddr, size, mem), "loading writable ELF segment");
+#endif
   return mem;
 }
 
@@ -163,7 +177,11 @@ L4Re_app_model::alloc_app_stack()
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_EAGER_MAP)
     flags |= L4Re::Rm::F::Eager_map;
 
+#ifdef CONFIG_MMU
   void *_s = (void*)(_stack.target_addr());
+#else
+  void *_s = (void*)0;
+#endif
   chksys(_rm->attach(&_s, _stack.stack_size(), flags,
                      L4::Ipc::make_cap_rw(stack), 0));
   _stack.set_target_stack(l4_addr_t(_s), _stack.stack_size());
@@ -253,7 +271,12 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
     }
 
   __loader_stack_p
-    = Global::local_rm->attach((void*)Mem_layout::Loader_vma_start,
+    = Global::local_rm->attach((void*)
+#ifdef CONFIG_MMU
+                                      Mem_layout::Loader_vma_start,
+#else
+                                      0,
+#endif
                                Loader_stack_size,
                                Region_handler(__loader_stack,
                                               __loader_stack.cap(),

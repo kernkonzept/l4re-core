@@ -33,10 +33,11 @@ struct Moe_app_model : public Ldr::Base_app_model<Moe::Stack>
   App_task *_task;
   cxx::String _prog;
   cxx::String _args;
+  Const_dataspace _utcb;
 
   Moe_app_model(App_task *t, cxx::String const &prog, cxx::String const &args);
 
-  Dataspace alloc_ds(unsigned long size) const;
+  Dataspace alloc_ds(unsigned long size, l4_addr_t paddr) const;
 
   static Const_dataspace open_file(char const *name);
 
@@ -65,8 +66,8 @@ struct Moe_app_model : public Ldr::Base_app_model<Moe::Stack>
 
   void init_prog();
 
-  static Const_dataspace reserved_area()
-  { return 0; }
+  Const_dataspace reserved_area()
+  { return _utcb; }
 
   static Dataspace local_kip_ds()
   {
