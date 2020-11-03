@@ -80,11 +80,16 @@ enum L4_utcb_consts_arm
 #ifdef __GNUC__
 L4_INLINE l4_utcb_t *l4_utcb_direct(void) L4_NOTHROW
 {
+# if defined(__ARM_ARCH) && __ARM_ARCH >= 6
+  l4_utcb_t *utcb;
+  __asm__ ("mrc p15, 0, %0, c13, c0, 2" : "=r" (utcb));
+  return utcb;
+#else
   register l4_utcb_t *utcb __asm__ ("r0");
   __asm__ ("mov lr, pc          \n"
            "mov pc, #0xffffff00 \n"
            : "=r"(utcb) : : "lr");
-  return utcb;
+#endif
 }
 #endif
 
