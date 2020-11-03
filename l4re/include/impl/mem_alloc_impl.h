@@ -43,4 +43,19 @@ Mem_alloc::alloc(long size,
                   << l4_umword_t(align));
 }
 
+#ifndef CONFIG_MMU
+long
+Mem_alloc::alloc_at(l4_addr_t paddr, long size,
+                    L4::Cap<Dataspace> mem, unsigned long flags,
+                    unsigned long align) const noexcept
+{
+  L4::Cap<L4::Factory> f(cap());
+  return l4_error(f->create(mem, L4Re::Dataspace::Protocol)
+                  << l4_mword_t(size)
+                  << l4_umword_t(flags)
+                  << l4_umword_t(align)
+                  << l4_umword_t(paddr));
+}
+#endif
+
 };

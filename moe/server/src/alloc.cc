@@ -230,7 +230,19 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
           Single_page_alloc_base::Config mem_cfg(Single_page_alloc_base::default_mem_cfg);
 
-          // L4::cout << "MEM: alloc ... " << size.value<l4_mword_t>() << "; " << flags.value<l4_umword_t>() << "\n";
+          for (L4::Ipc::Varg opts: args)
+            {
+              if (opts.is_of<l4_umword_t>())
+                {
+                  mem_cfg.physmin = opts.value<l4_umword_t>();
+                  mem_cfg.physmax = mem_cfg.physmin + size.value<l4_umword_t>() - 1U;
+                }
+            }
+
+          // L4::cout << "MEM: alloc ... " << size.value<l4_mword_t>()
+          //          << "; " << flags.value<l4_umword_t>()
+          //          << "; [" << L4::hex << mem_cfg.physmin
+          //          << " .. " << mem_cfg.physmax << "]\n";
           cxx::unique_ptr<Moe::Dataspace> mo(alloc(size.value<l4_mword_t>(),
                 flags.is_of_int() ? flags.value<l4_umword_t>() : 0,
                 align.is_of_int() ? align.value<l4_umword_t>() : 0,

@@ -29,6 +29,7 @@
  */
 #pragma once
 
+#include <l4/bid_config.h>
 #include <l4/sys/capability>
 #include <l4/sys/factory>
 
@@ -103,6 +104,19 @@ public:
    */
   long alloc(long size, L4::Cap<Dataspace> mem,
              unsigned long flags = 0, unsigned long align = 0) const noexcept;
+
+#ifndef CONFIG_MMU
+  /**
+   * \copydoc alloc()
+   *
+   * Allocate the memory at a dedicated physical address. The address must be
+   * properly aligned and will be pre-allocated.
+   *
+   * \param paddr The physical address where the dataspace should be allocated.
+   */
+  long alloc_at(l4_addr_t paddr, long size, L4::Cap<Dataspace> mem,
+                unsigned long flags = 0, unsigned long align = 0) const noexcept;
+#endif
 };
 
 };
