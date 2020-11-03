@@ -51,7 +51,7 @@ public:
   Moe::Dataspace *alloc(long size, unsigned long flags = 0,
                         unsigned long align = 0,
                         Single_page_alloc_base::Config cfg
-                          = Single_page_alloc_base::Config());
+                          = Single_page_alloc_base::default_mem_cfg);
 
   /// Return the quota allocator that contains this factory.
   Moe::Q_alloc *parent_qalloc()

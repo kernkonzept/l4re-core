@@ -57,6 +57,8 @@ static LA *page_alloc()
   return &pa;
 }
 
+Single_page_alloc_base::Config Single_page_alloc_base::default_mem_cfg;
+
 Single_page_alloc_base::Single_page_alloc_base()
 {}
 
