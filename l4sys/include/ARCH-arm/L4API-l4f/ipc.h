@@ -45,8 +45,12 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
   (void)utcb;
 
   __asm__ __volatile__
-    ("mov lr, pc    \n"
-     "mov pc, %[sc] \n"
+    ("mrs r1, cpsr  \n"
+     "mov r7, %[sc] \n"
+     "tst r1, #0xf  \n"
+     "add lr, pc, #4\n"
+     "svceq #0      \n"
+     ".word 0xe1400070 @ hvc #0\n"
      :
      "+r" (_dest),
      "+r" (_timeout),
@@ -55,7 +59,7 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
      :
      [sc] "i" (L4_SYSCALL_INVOKE)
      :
-     "cc", "memory", "lr");
+     "cc", "memory", "r1", "r7", "lr");
 
   if (rlabel)
     *rlabel = _label;
