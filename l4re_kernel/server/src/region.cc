@@ -108,6 +108,21 @@ Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
   ds->clear(h->offset() + start, size);
 }
 
+int
+Region_ops::map_info(Region_handler const *h,
+                     l4_addr_t *min_addr, l4_addr_t *max_addr)
+{
+  if ((h->flags() & Rm::F::Reserved) || !h->memory().is_valid())
+    return -L4_ENOENT;
+
+  if (h->flags() & Rm::F::Pager)
+    return -L4_EINVAL;
+
+  L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
+  return ds->map_info(min_addr, max_addr);
+}
+
+
 void
 Region_map::debug_dump(unsigned long /*function*/) const
 {

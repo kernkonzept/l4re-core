@@ -75,6 +75,17 @@ Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
 }
 
 int
+Region_ops::map_info(Region_handler const *h,
+                     l4_addr_t *min_addr, l4_addr_t *max_addr)
+{
+  if (!h->memory())
+    return 0;
+
+  return h->memory()->map_info(*min_addr, *max_addr);
+}
+
+
+int
 Region_map::validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
                         L4Re::Rm::Region_flags flags, Dataspace *ds)
 {
