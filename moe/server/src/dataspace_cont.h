@@ -34,6 +34,9 @@ public:
               Dma_attribs dma_attrs, Dma_space::Direction dir,
               Dma_space::Dma_addr *dma_addr) override;
 
+  bool map_info(l4_addr_t & /*min_addr*/,
+                l4_addr_t & /*max_addr*/) const noexcept override;
+
 protected:
   void start(void *start) { _start = (char*)start; }
   void *start() { return _start; }

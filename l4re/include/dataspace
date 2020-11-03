@@ -27,6 +27,7 @@
 
 #pragma once
 
+#include <l4/bid_config.h>
 #include <l4/sys/types.h>
 #include <l4/sys/l4int.h>
 #include <l4/sys/capability>
@@ -278,6 +279,37 @@ public:
                         Flags flags, L4::Ipc::Rcv_fpage r,
                         L4::Ipc::Snd_fpage &fp));
 
+  /**
+   * Get acceptable mapping range of dataspace.
+   *
+   * In case of a MMU-less system the dataspace must be mapped at the correct
+   * address in the task because virtual and physical address must match. This
+   * method returns the start and end address of the physically contiguous
+   * buffer backing the dataspace.
+   *
+   * On MMU-enabled system any page aligned address is permissible. On such
+   * systems the method is just a stub and returns the whole address range
+   * as allowed mapping address.
+   *
+   * \param[out] min_addr Minimum allowed virtual address to map dataspace
+   * \param[out] max_addr Maximum allowed virtual address to map dataspace
+   *
+   * \retval >0 Min and max address have been set and need to be obeyed.
+   * \retval 0  No constraint of mapping address
+   * \retval <0 IPC errors
+   */
+#ifdef CONFIG_MMU
+  L4_RPC_NF(long, map_info, (l4_addr_t *min_addr, l4_addr_t *max_addr));
+  inline long map_info(l4_addr_t *min_addr, l4_addr_t *max_addr)
+  {
+    *min_addr = 0;
+    *max_addr = ~(l4_addr_t)0U;
+    return 0;
+  }
+#else
+  L4_RPC(long, map_info, (l4_addr_t *min_addr, l4_addr_t *max_addr));
+#endif
+
 private:
 
   long __map(Offset offset, unsigned char *order, Flags flags,
@@ -285,7 +317,7 @@ private:
 
 public:
   typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t,
-                           allocate_t> Rpcs;
+                           allocate_t, map_info_t> Rpcs;
 
 };
 

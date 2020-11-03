@@ -118,6 +118,24 @@ Moe::Dataspace::op_copy_in(L4Re::Dataspace::Rights obj,
   return L4_EOK;
 }
 
+bool
+Moe::Dataspace::map_info(l4_addr_t & /*min_addr*/,
+                         l4_addr_t & /*max_addr*/) const noexcept
+{
+  return false;
+}
+
+long
+Moe::Dataspace::op_map_info(L4Re::Dataspace::Rights /*rights*/,
+                            l4_addr_t &min_addr,
+                            l4_addr_t &max_addr)
+{
+  if (!map_info(min_addr, max_addr))
+    return 0;
+
+  return 1;
+}
+
 long
 Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const throw()
 {

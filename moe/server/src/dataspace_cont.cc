@@ -112,3 +112,12 @@ Moe::Dataspace_cont::dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
   *size = cxx::min(*size, (l4_size_t)(this->size() - offset));
   return 0;
 }
+
+bool
+Moe::Dataspace_cont::map_info(l4_addr_t &min_addr,
+                              l4_addr_t &max_addr) const noexcept
+{
+  min_addr = (l4_addr_t)_start;
+  max_addr = (l4_addr_t)_start + round_size() - 1U;
+  return true;
+}
