@@ -25,6 +25,7 @@
 # include <stdbool.h>
 # include <stddef.h>
 # include <stdint.h>
+# include <l4/sys/thread.h>
 
 /* Type for the dtv.  */
 typedef union dtv
@@ -109,9 +110,27 @@ typedef struct
   ({ asm volatile ("mcr p15, 0, %0, c13, c0, 2" : : "r" (tcbp)); NULL; })
 
 # define TLS_INIT_TP_generic(tcbp, secondcall) \
-  ({ l4_utcb_tcr()->user[0] = (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE; { void (*set_tls)(unsigned long tls); set_tls = (void (*)(unsigned long))0xffffff80; set_tls((l4_addr_t)tcbp - TLS_PRE_TCB_SIZE); } NULL; })
+  ({ \
+    l4_utcb_tcr()->user[0] = (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE; \
+    { \
+      void (*set_tls)(unsigned long tls); \
+      set_tls = (void (*)(unsigned long))0xffffff80; \
+      set_tls((l4_addr_t)tcbp - TLS_PRE_TCB_SIZE); \
+    } NULL; \
+  })
 
-# define TLS_INIT_TP(tcbp, secondcall) TLS_INIT_TP_generic(tcbp, secondcall)
+# define TLS_INIT_TP_inline(tcbp, secondcall) \
+  ({ \
+    l4_utcb_tcr()->user[0] = (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE; \
+    l4_thread_arm_set_tpidruro(L4_INVALID_CAP, (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE); \
+    NULL; \
+  })
+
+# if defined(__ARM_ARCH) && __ARM_ARCH >= 6
+#  define TLS_INIT_TP(tcbp, secondcall) TLS_INIT_TP_inline(tcbp, secondcall)
+# else
+#  define TLS_INIT_TP(tcbp, secondcall) TLS_INIT_TP_generic(tcbp, secondcall)
+# endif
 
 
 # define TLS_get_thread_pointer_v6p() \
