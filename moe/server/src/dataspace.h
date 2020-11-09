@@ -89,7 +89,8 @@ public:
 
   Flags map_flags(L4Re::Dataspace::Rights rights = L4_CAP_FPAGE_W) const noexcept
   {
-    auto f = (_flags & Flags(0x0f)) | L4Re::Dataspace::F::Caching_mask;
+    auto f = (_flags & Flags(L4Re::Dataspace::F::Rights_mask))
+             | L4Re::Dataspace::F::Caching_mask;
     if (!(rights & L4_CAP_FPAGE_W))
       f &= ~L4Re::Dataspace::F::W;
 
