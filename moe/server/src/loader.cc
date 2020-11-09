@@ -75,23 +75,6 @@ bool Loader::start(cxx::String const &init_prog, cxx::String const &cmdline)
   return exec(init_prog, cmdline);
 }
 
-
-class Ldr_task : public App_task
-{
-public:
-
-private:
-  l4_umword_t _entry, _stack_ptr;
-
-public:
-  Ldr_task()
-  : _entry(0), _stack_ptr(0)
-  {}
-
-  void set_entry_data(l4_umword_t entry, l4_umword_t stack_ptr)
-  { _stack_ptr = stack_ptr; _entry = entry; }
-};
-
 Moe_app_model::Dataspace
 Moe_app_model::alloc_ds(unsigned long size) const
 {
@@ -157,7 +140,7 @@ Moe_app_model::prog_reserve_area(l4_addr_t *start, unsigned long size,
 bool
 Loader::exec(cxx::String const &prog, cxx::String const &args)
 {
-  static auto *_init_task = Moe::Moe_alloc::allocator()->make_obj<Ldr_task>();
+  static auto *_init_task = Moe::Moe_alloc::allocator()->make_obj<App_task>();
 
   launch(_init_task, prog, args);
   return 0;
