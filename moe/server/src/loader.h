@@ -76,7 +76,6 @@ struct Moe_app_model : public Ldr::Base_app_model<Moe::Stack>
   static L4::Cap<void> local_kip_cap()
   { return kip_ds->obj_cap(); }
 
-  L4Re::Env *add_env();
   void get_task_caps(L4::Cap<L4::Factory> *factory,
                      L4::Cap<L4::Task> *task,
                      L4::Cap<L4::Thread> *thread);
