@@ -115,12 +115,12 @@ Moe::Dataspace_noncont::pre_allocate(l4_addr_t offset, l4_size_t size, unsigned 
 }
 
 long
-Moe::Dataspace_noncont::clear(unsigned long offs, unsigned long _size) const throw()
+Moe::Dataspace_noncont::clear(unsigned long offs, unsigned long size) const throw()
 {
   if (!check_limit(offs))
     return -L4_ERANGE;
 
-  unsigned long sz = _size = min(_size, round_size()-offs);
+  unsigned long sz = min(size, round_size()-offs);
   unsigned long pg_sz = page_size();
   unsigned long pre_sz = offs & (pg_sz-1);
   if (pre_sz)

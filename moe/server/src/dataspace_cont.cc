@@ -72,14 +72,14 @@ Moe::Dataspace_cont::address(l4_addr_t offset,
 
 void Moe::Dataspace_cont::unmap() const throw()
 {
-  unsigned long _size = round_size();
+  unsigned long size = round_size();
   l4_addr_t offs = 0;
 
-  while (_size)
+  while (size)
     {
       Address addr = address(offs, L4Re::Dataspace::F::RWX, ~0);
       l4_task_unmap(L4_BASE_TASK_CAP, addr.fp(), L4_FP_OTHER_SPACES);
-      _size -= (1UL << l4_fpage_size(addr.fp()));
+      size -= (1UL << l4_fpage_size(addr.fp()));
       offs  += (1UL << l4_fpage_size(addr.fp()));
     }
 }

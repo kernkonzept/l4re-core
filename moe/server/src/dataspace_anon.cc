@@ -19,7 +19,7 @@
 #include <cstring>
 #include <climits>
 
-Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
+Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
                                     unsigned char page_shift)
 : Moe::Dataspace_cont(0, 0, w, page_shift)
 {
@@ -28,7 +28,7 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
 
   // test whether the client requested to max out his allocation and whether
   // the allocator can fulfill this request in theory
-  if (L4_UNLIKELY(_size < 0))
+  if (L4_UNLIKELY(size < 0))
     {
       unsigned long l = qalloc()->quota()->limit();
       unsigned long a = Single_page_alloc_base::_avail();
@@ -36,22 +36,22 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
       a = cxx::min(l - qalloc()->quota()->used(), a);
 
       // not enough memory left
-      if (a <= (unsigned long)(-_size))
+      if (a <= (unsigned long)(-size))
         L4Re::chksys(-L4_ENOMEM);
 
       if (l == ~0UL)
         l = LONG_MAX;
 
-      if (l <= (unsigned long)(-_size))
+      if (l <= (unsigned long)(-size))
         L4Re::chksys(-L4_ENOMEM);
 
-      _size = cxx::min(a + _size, l + _size);
-      _size = l4_trunc_size(_size, page_shift);
+      size = cxx::min(a + size, l + size);
+      size = l4_trunc_size(size, page_shift);
 
-      if (_size == 0L)
+      if (size == 0L)
         L4Re::chksys(-L4_ENOMEM);
 
-      unsigned long r_size = _size;
+      unsigned long r_size = size;
       void *_m = Single_page_alloc_base::_alloc_max(page_size(), &r_size,
                                                     page_size(), page_size());
 
@@ -60,11 +60,11 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
 
       m = Single_page_unique_ptr(_m, r_size);
       g = Quota_guard(qalloc()->quota(), r_size);
-      _size = r_size;
+      size = r_size;
     }
   else
     {
-      unsigned long r_size = (_size + page_size() - 1) & ~(page_size() -1);
+      unsigned long r_size = (size + page_size() - 1) & ~(page_size() -1);
       g = Quota_guard(qalloc()->quota(), r_size);
       void *_m = Single_page_alloc_base::_alloc(r_size, page_size());
 
@@ -77,7 +77,7 @@ Moe::Dataspace_anon::Dataspace_anon(long _size, Flags w,
   l4_cache_clean_data((l4_addr_t)m.get(), (l4_addr_t)m.get() + m.size());
 
   start(m.release());
-  size(_size);
+  this->size(size);
   g.release();
 }
 
