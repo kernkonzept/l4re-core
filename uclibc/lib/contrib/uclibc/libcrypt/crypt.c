@@ -6,6 +6,7 @@
 
 #include <unistd.h>
 #include <crypt.h>
+#include <errno.h>
 #include "libcrypt.h"
 
 char *crypt(const char *key, const char *salt)
@@ -26,7 +27,7 @@ char *crypt(const char *key, const char *salt)
 				return __sha512_crypt(ukey, usalt);
 #endif
 		}
-		/* __set_errno(EINVAL);*/ /* ENOSYS might be misleading */
+		__set_errno(EINVAL);
 		return NULL;
 	}
 	return __des_crypt(ukey, usalt);
