@@ -35,7 +35,6 @@ public:
   { object_pool.cap_alloc()->free(cap); }
 
   Sched_proxy();
-  ~Sched_proxy();
 
   int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus);
 

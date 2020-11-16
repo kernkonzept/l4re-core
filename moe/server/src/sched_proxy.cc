@@ -106,11 +106,6 @@ Sched_proxy::rescan_cpus()
   _cpus = _real_cpus & _cpu_mask;
 }
 
-Sched_proxy::~Sched_proxy()
-{
-  _list.remove(this);
-}
-
 int
 Sched_proxy::info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus)
 {
