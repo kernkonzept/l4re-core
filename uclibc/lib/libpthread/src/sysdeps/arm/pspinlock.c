@@ -28,10 +28,7 @@ __pthread_spin_lock (pthread_spinlock_t *lock)
   unsigned int val;
 
   do
-    __asm__ __volatile__ ("swp %0, %1, [%2]"
-		  : "=r" (val)
-		  : "0" (1), "r" (lock)
-		  : "memory");
+    val = __atomic_exchange_n(lock, 1, __ATOMIC_ACQUIRE);
   while (val != 0);
 
   return 0;
@@ -43,12 +40,7 @@ int
 __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   unsigned int val;
-
-  __asm__ __volatile__ ("swp %0, %1, [%2]"
-		: "=r" (val)
-		: "0" (1), "r" (lock)
-		: "memory");
-
+  val = __atomic_exchange_n(lock, 1, __ATOMIC_ACQUIRE);
   return val ? EBUSY : 0;
 }
 weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
@@ -57,7 +49,8 @@ weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
 int
 __pthread_spin_unlock (pthread_spinlock_t *lock)
 {
-  return *lock = 0;
+  __atomic_store_n(lock, 0, __ATOMIC_RELEASE);
+  return 0;
 }
 weak_alias (__pthread_spin_unlock, pthread_spin_unlock)
 
