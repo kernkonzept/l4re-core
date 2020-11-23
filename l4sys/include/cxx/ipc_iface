@@ -29,8 +29,8 @@
  * ~~~{.cpp}
  * struct Calc : L4::Kobject_t<Calc, L4::Kobject>
  * {
- *   L4_INLINE_RPC(int, sub, (l4_uint32_t a, l4_uint32_t b, l4_uint32_t *res));
- *   L4_INLINE_RPC(int, neg, (l4_uint32_t a, l4_uint32_t *res));
+ *   L4_INLINE_RPC(long, sub, (l4_uint32_t a, l4_uint32_t b, l4_uint32_t *res));
+ *   L4_INLINE_RPC(long, neg, (l4_uint32_t a, l4_uint32_t *res));
  *
  *   typedef L4::Typeid::Rpcs<sub_t, neg_t> Rpcs;
  * };
@@ -111,6 +111,24 @@
  * | `L4::Ipc::Opt<T &>`            | Output    | `T &`                    | `L4::Ipc::Opt<T> &`            |
  * | `L4::Ipc::Opt<T *>`            | Output    | `T *`                    | `L4::Ipc::Opt<T> &`            |
  * | `L4::Ipc::Opt<Array_ref<T> &>` | Output    | `Array_ref<T> &`         | `L4::Ipc::Opt<Array_ref<T>> &` |
+ *
+ *
+ * \section l4_cxx_ipc_iface_server_interface Server Side Interface
+ *
+ * The server side function signature for the Calc example above is
+ * ~~~~~~{.cpp}
+ * long op_sub(Calc::Rights, l4_uint32_t a, l4_uint32_t b, l4_uint32_t &res);
+ * ~~~~~~
+ *
+ * The first rights parameter is a bitfield encoding the rights the client has
+ * on the used capability in the lower two bits. Currently, the W-right and
+ * S-right are supported. The rest of the Rights-bitfield is reserved.
+ *
+ * The second and third arguments are input parameters as can be deduced from
+ * the tables above.
+ * The fourth parameter is an output parameter, delivered to the client with
+ * the return value of type long.
+ *
  *
  * \section l4_cxx_ipc_iface_return_types RPC Return Types
  *
