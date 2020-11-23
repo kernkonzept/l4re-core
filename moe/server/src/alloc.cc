@@ -136,19 +136,20 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
     case L4::Factory::Protocol:
         {
-          L4::Ipc::Varg tag = args.pop_front();
+          L4::Ipc::Varg quota = args.pop_front();
 
-          if (!tag.is_of_int() || tag.value<long>() == 0) // ignore sign
+          if (!quota.is_of_int() || quota.value<long>() == 0) // ignore sign
             return -L4_EINVAL;
-          Moe::Quota_guard g(_qalloc.quota(), tag.value<long>());
-          cxx::unique_ptr<Allocator> o(make_obj<Allocator>(tag.value<long>()));
+          Moe::Quota_guard g(_qalloc.quota(), quota.value<long>());
+          cxx::unique_ptr<Allocator>
+            o(make_obj<Allocator>(quota.value<long>()));
           ko = object_pool.cap_alloc()->alloc(o.get());
           ko->dec_refcnt(1);
           o.release();
           g.release();
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
 
-          return 0;
+          return L4_EOK;
         }
 
     case L4_PROTO_LOG:
