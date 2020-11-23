@@ -24,7 +24,7 @@ namespace {
 unsigned long trunc_page(unsigned page_size, unsigned long addr)
 { return addr & ~(page_size-1); }
 
-inline void 
+inline void
 __do_real_copy(Dataspace *dst, unsigned long &dst_offs,
     Dataspace const *src, unsigned long &src_offs, unsigned long sz)
 {
@@ -50,7 +50,7 @@ __do_real_copy(Dataspace *dst, unsigned long &dst_offs,
     }
 }
 
-inline void 
+inline void
 __do_cow_copy(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_sz,
     Dataspace const *src, unsigned long &src_offs, unsigned long sz)
 {
@@ -69,7 +69,7 @@ __do_cow_copy(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_s
     }
 }
 
-inline void 
+inline void
 __do_cow_copy2(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_sz,
     Dataspace_noncont const *src, unsigned long &src_offs, unsigned long sz)
 {
@@ -102,7 +102,7 @@ __do_cow_copy2(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_
     }
 }
 
-unsigned long 
+unsigned long
 __do_eager_copy(Dataspace *dst, unsigned long dst_offs,
     Dataspace const *src, unsigned long src_offs, unsigned long size)
 {
@@ -143,7 +143,7 @@ __do_lazy_copy(Dataspace_noncont *dst, unsigned long dst_offs,
   if (dst_align != (src_offs & (dst_pg_sz-1)))
     {
         if (0)
-          L4::cout << "alignment error " << L4::hex << src_offs 
+          L4::cout << "alignment error " << L4::hex << src_offs
                    << " " << dst_offs << L4::dec << '\n';
 
       return false;
@@ -151,7 +151,7 @@ __do_lazy_copy(Dataspace_noncont *dst, unsigned long dst_offs,
   if (0)
     L4::cout << "do copy on write\n";
 
-  unsigned long copy_sz = size 
+  unsigned long copy_sz = size
     = min(min(size, dst_sz - dst_offs), src_sz - src_offs);
 
   if (dst_align)
@@ -211,7 +211,7 @@ __do_lazy_copy2(Dataspace_noncont *dst, unsigned long dst_offs,
   if (0)
     L4::cout << "do copy on write\n";
 
-  unsigned long copy_sz = size 
+  unsigned long copy_sz = size
     = min(min(size, dst_sz - dst_offs), src_sz - src_offs);
 
   if (dst_align)
@@ -239,7 +239,7 @@ __do_lazy_copy2(Dataspace_noncont *dst, unsigned long dst_offs,
 
 }; // and local anon namespace
 
-unsigned long 
+unsigned long
 Dataspace_util::copy(Dataspace *dst, unsigned long dst_offs,
     Dataspace const *src, unsigned long src_offs, unsigned long size)
 {
@@ -255,7 +255,7 @@ Dataspace_util::copy(Dataspace *dst, unsigned long dst_offs,
         {
           Dataspace_noncont *dst_n = dynamic_cast<Dataspace_noncont*>(dst);
           Dataspace_noncont const *src_n = dynamic_cast<Dataspace_noncont const *>(src);
-          if (dst_n && src_n 
+          if (dst_n && src_n
               && __do_lazy_copy2(dst_n, dst_offs, src_n, src_offs, size))
             return size;
         }

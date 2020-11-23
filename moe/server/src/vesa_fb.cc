@@ -76,7 +76,7 @@ Vesa_fb::Vesa_fb(l4util_mb_info_t *mbi)
       return;
     }
 
-  switch (l4sigma0_map_iomem(Sigma0_cap, paddr, vaddr, map_size, 1)) 
+  switch (l4sigma0_map_iomem(Sigma0_cap, paddr, vaddr, map_size, 1))
     {
     case -2:
       L4::cerr << "IPC error mapping video memory\n";

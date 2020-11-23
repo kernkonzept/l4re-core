@@ -26,7 +26,7 @@ namespace Pages {
     return pages[(l4_addr_t(addr) - base_addr) >> L4_PAGESHIFT];
   }
 
-  inline 
+  inline
   unsigned long share(void *addr)
   { return l4util_inc32_res(&ref_count(addr)); }
 

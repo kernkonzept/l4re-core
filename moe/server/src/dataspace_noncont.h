@@ -83,7 +83,7 @@ private:
   void page(unsigned idx, void *page, unsigned flags = 0) const
   {
     pages[idx] = (unsigned long)page & Page_addr_mask | flags
-      & ~Page_addr_mask; 
+      & ~Page_addr_mask;
   }
 #endif
 

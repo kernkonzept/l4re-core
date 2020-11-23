@@ -44,7 +44,7 @@ public:
 public:
   void free(void *p, unsigned long size)
   {
-    L4::cout << "free: " << p << '(' << size << ") -> "; 
+    L4::cout << "free: " << p << '(' << size << ") -> ";
     cxx::List_alloc::free(p, size);
     L4::cout << avail() << "\n";
   }
@@ -78,7 +78,7 @@ void Single_page_alloc_base::_free(void *p)
 {
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): free(PAGE) @" << p << '\n';
-  page_alloc()->free(p, L4_PAGESIZE); 
+  page_alloc()->free(p, L4_PAGESIZE);
 }
 
 void *Single_page_alloc_base::_alloc_max(unsigned long min,
