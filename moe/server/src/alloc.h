@@ -32,11 +32,10 @@ class Allocator :
 private:
   Moe::Q_alloc _qalloc;
   long _sched_prio_limit;
-  l4_umword_t _sched_cpu_mask;
 
 public:
   explicit Allocator(size_t limit, unsigned prio_limit = 0)
-  : _qalloc(limit), _sched_prio_limit(prio_limit), _sched_cpu_mask(~0UL)
+  : _qalloc(limit), _sched_prio_limit(prio_limit)
   {}
 
   template<typename T, typename ...ARGS>
