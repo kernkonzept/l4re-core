@@ -186,7 +186,7 @@ Moe_app_model::local_detach_ds(l4_addr_t /*addr*/, unsigned long /*size*/) const
 
 Moe_app_model::Moe_app_model(App_task *t, cxx::String const &prog,
                              cxx::String const &args)
-: _task(t), _prog(prog), _args(args), _utcb()
+: _task(t), _prog(prog), _args(args)
 {
   enum
   {
@@ -239,14 +239,6 @@ Moe_app_model::init_prog()
 
   _info.ldr_flags = Moe::ldr_flags;
   _info.l4re_dbg = Moe::l4re_dbg;
-
-#ifndef CONFIG_MMU
-  // MMU less systems must explicitly allocate the ku_mem area
-  _utcb =_task->allocator()->alloc(1UL << _info.utcbs_log2size);
-  if (!_utcb)
-    chksys(-L4_ENOMEM, "ELF loader could not allocate UTCB");
-  _info.utcbs_start = _utcb->address(0).adr<l4_addr_t>();
-#endif
 
   info.printf("loading '%s'\n", argv.a0);
 }

@@ -29,6 +29,7 @@
 #include <sys/time.h>
 #include <locale.h>		/* for __uselocale */
 
+#include <l4/bid_config.h>
 #include <l4/sys/ipc.h>
 #include <l4/re/env>
 #include <l4/re/mem_alloc>
@@ -616,16 +617,24 @@ static l4_utcb_t *l4pthr_allocate_more_utcbs_and_claim_utcb()
   l4_addr_t kumem = 0;
   Env const *e = Env::env();
 
+#ifdef CONFIG_MMU
   if (e->rm()->reserve_area(&kumem, L4_PAGESIZE,
                             Rm::F::Reserved | Rm::F::Search_addr))
     return nullptr;
 
-  if (l4_error(e->task()->add_ku_mem(l4_fpage(kumem, L4_PAGESHIFT,
-                                              L4_FPAGE_RW))))
+  l4_fpage_t fp = l4_fpage(kumem, L4_PAGESHIFT, L4_FPAGE_RW);
+  if (l4_error(e->task()->add_ku_mem(fp)))
     {
       e->rm()->free_area(kumem);
       return nullptr;
     }
+#else
+  l4_fpage_t fp = l4_fpage(0, L4_PAGESHIFT, L4_FPAGE_RW);
+  if (l4_error(e->task()->add_ku_mem(fp)))
+    return nullptr;
+  kumem = l4_fpage_memaddr(fp);
+  e->rm()->reserve_area(&kumem, L4_PAGESIZE, Rm::F::Reserved);
+#endif
 
   __l4_add_utcbs(kumem, kumem + L4_PAGESIZE);
 

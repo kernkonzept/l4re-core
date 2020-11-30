@@ -128,54 +128,65 @@ public:
                          "attaching stack segment");
   }
 
+  void alloc_prog()
+  {
+    using L4Re::chksys;
+
+    L4::Cap<L4::Factory> factory;
+    this->get_task_caps(&factory, &_ntask, &_nthread);
+
+    // Creating the task on no-MMU systems will adjust the utcb flexpage to the
+    // allocated address.
+    l4_fpage_t utcb = l4_fpage(this->_info.utcbs_start,
+                               this->_info.utcbs_log2size, 0);
+    chksys(factory->create_task(_ntask, utcb));
+    this->_info.utcbs_start = l4_fpage_memaddr(utcb);
+    this->_info.utcbs_log2size = l4_fpage_size(utcb);
+
+    chksys(factory->create(_nthread));
+  }
+
   void start_prog(L4Re::Env const *env)
   {
     using L4Re::chksys;
     using L4::Cap;
 
-    L4::Cap<L4::Task> ntask;
-    L4::Cap<L4::Thread> nthread;
-    L4::Cap<L4::Factory> factory;
-
-    this->get_task_caps(&factory, &ntask, &nthread);
-
-    chksys(factory->create_task(ntask, env->utcb_area()));
-    chksys(factory->create(nthread));
-
-    chksys(ntask->map(L4Re::This_task, ntask.fpage(),
+    chksys(_ntask->map(L4Re::This_task, _ntask.fpage(),
 	  Cap<L4::Task>(L4Re::This_task).snd_base()));
-    chksys(ntask->map(L4Re::This_task, this->_info.factory,
+    chksys(_ntask->map(L4Re::This_task, this->_info.factory,
 	  env->factory().snd_base()));
-    chksys(ntask->map(L4Re::This_task, nthread.fpage(),
+    chksys(_ntask->map(L4Re::This_task, _nthread.fpage(),
 	  env->main_thread().snd_base()));
-    chksys(ntask->map(L4Re::This_task, this->_info.scheduler,
+    chksys(_ntask->map(L4Re::This_task, this->_info.scheduler,
 	  env->scheduler().snd_base()));
-    chksys(ntask->map(L4Re::This_task, this->_info.parent,
+    chksys(_ntask->map(L4Re::This_task, this->_info.parent,
 	  env->parent().snd_base()));
-    chksys(ntask->map(L4Re::This_task, this->_info.log,
+    chksys(_ntask->map(L4Re::This_task, this->_info.log,
 	  env->log().snd_base()));
-    chksys(ntask->map(L4Re::This_task, this->_info.rm,
+    chksys(_ntask->map(L4Re::This_task, this->_info.rm,
 	  env->rm().snd_base()));
-    chksys(ntask->map(L4Re::This_task, this->_info.mem_alloc,
+    chksys(_ntask->map(L4Re::This_task, this->_info.mem_alloc,
 	  env->mem_alloc().snd_base()));
-    chksys(ntask->map(L4Re::This_task, this->local_kip_cap().fpage(),
+    chksys(_ntask->map(L4Re::This_task, this->local_kip_cap().fpage(),
 	  prog_kip_ds().snd_base()));
 
-    this->map_initial_caps(ntask, Caps::First_free << L4_CAP_SHIFT);
+    this->map_initial_caps(_ntask, Caps::First_free << L4_CAP_SHIFT);
 
     L4::Thread::Attr th_attr;
     th_attr.pager(env->rm());
     th_attr.exc_handler(env->rm());
-    th_attr.bind((l4_utcb_t*)this->_info.utcbs_start, ntask);
-    chksys(nthread->control(th_attr));
+    th_attr.bind((l4_utcb_t*)this->_info.utcbs_start, _ntask);
+    chksys(_nthread->control(th_attr));
 
-    chksys(this->run_thread(nthread,
+    chksys(this->run_thread(_nthread,
                             l4_sched_param(Prios::Default_thread_prio)));
 
-    nthread->ex_regs(this->_info.entry, this->_stack.target_ptr(), 0);
+    _nthread->ex_regs(this->_info.entry, this->_stack.target_ptr(), 0);
   }
 
-
+private:
+    L4::Cap<L4::Task> _ntask;
+    L4::Cap<L4::Thread> _nthread;
 };
 
 }

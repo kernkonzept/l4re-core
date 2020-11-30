@@ -252,7 +252,7 @@ l4_task_cap_equal(l4_cap_idx_t task, l4_cap_idx_t cap_a,
  * \internal
  */
 L4_INLINE l4_msgtag_t
-l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t ku_mem,
+l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t *ku_mem,
                      l4_utcb_t *u) L4_NOTHROW;
 
 /**
@@ -275,7 +275,7 @@ l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t ku_mem,
  *       not depend on allocations greater than 16KiB to succeed.
  */
 L4_INLINE l4_msgtag_t
-l4_task_add_ku_mem(l4_cap_idx_t task, l4_fpage_t ku_mem) L4_NOTHROW;
+l4_task_add_ku_mem(l4_cap_idx_t task, l4_fpage_t *ku_mem) L4_NOTHROW;
 
 
 /**
@@ -362,13 +362,20 @@ l4_task_cap_equal_u(l4_cap_idx_t task, l4_cap_idx_t cap_a,
 }
 
 L4_INLINE l4_msgtag_t
-l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t ku_mem,
+l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t *ku_mem,
                      l4_utcb_t *u) L4_NOTHROW
 {
   l4_msg_regs_t *v = l4_utcb_mr_u(u);
   v->mr[0] = L4_TASK_ADD_KU_MEM_OP;
-  v->mr[1] = ku_mem.raw;
-  return l4_ipc_call(task, u, l4_msgtag(L4_PROTO_TASK, 2, 0, 0), L4_IPC_NEVER);
+  v->mr[1] = ku_mem->raw;
+  l4_msgtag_t ret = l4_ipc_call(task, u, l4_msgtag(L4_PROTO_TASK, 2, 0, 0),
+                                L4_IPC_NEVER);
+  if (!l4_msgtag_has_error(ret))
+    {
+      l4_msg_regs_t *v = l4_utcb_mr_u(u);
+      ku_mem->raw = v->mr[0];
+    }
+  return ret;
 }
 
 
@@ -438,7 +445,7 @@ l4_task_cap_equal(l4_cap_idx_t task, l4_cap_idx_t cap_a,
 }
 
 L4_INLINE l4_msgtag_t
-l4_task_add_ku_mem(l4_cap_idx_t task, l4_fpage_t ku_mem) L4_NOTHROW
+l4_task_add_ku_mem(l4_cap_idx_t task, l4_fpage_t *ku_mem) L4_NOTHROW
 {
   return l4_task_add_ku_mem_u(task, ku_mem, l4_utcb());
 }

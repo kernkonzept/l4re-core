@@ -33,7 +33,6 @@ struct Moe_app_model : public Ldr::Base_app_model<Moe::Stack>
   App_task *_task;
   cxx::String _prog;
   cxx::String _args;
-  Const_dataspace _utcb;
 
   Moe_app_model(App_task *t, cxx::String const &prog, cxx::String const &args);
 
@@ -67,7 +66,7 @@ struct Moe_app_model : public Ldr::Base_app_model<Moe::Stack>
   void init_prog();
 
   Const_dataspace reserved_area()
-  { return _utcb; }
+  { return 0; }
 
   static Dataspace local_kip_ds()
   {

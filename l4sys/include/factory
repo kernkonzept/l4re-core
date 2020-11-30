@@ -354,9 +354,9 @@ public:
    * \see L4::Task
    */
   l4_msgtag_t create_task(Cap<Task> const & target_cap,
-                          l4_fpage_t const &utcb_area,
+                          l4_fpage_t &utcb_area,
                           l4_utcb_t *utcb = l4_utcb()) noexcept
-  { return l4_factory_create_task_u(cap(), target_cap.cap(), utcb_area, utcb); }
+  { return l4_factory_create_task_u(cap(), target_cap.cap(), &utcb_area, utcb); }
 
   /**
    * Create a new factory.
