@@ -21,25 +21,16 @@
  * the GNU General Public License.
  */
 
-#include <l4/sys/assert.h>
+#include <l4/bid_config.h>
 #include <l4/crtn/initpriorities.h>
-#include <l4/re/env>
-#include <l4/re/util/cap_alloc>
 #include <l4/re/cap_alloc>
+#include <l4/re/dataspace>
+#include <l4/re/env>
+#include <l4/re/mem_alloc>
+#include <l4/re/util/cap_alloc>
+#include <l4/sys/assert.h>
 
 //#define L4RE_STATIC_CAP_ALLOC
-#if defined(L4RE_STATIC_CAP_ALLOC)
-
-namespace {
-L4Re::Cap_alloc_t<L4Re::Util::Cap_alloc<4096> >
-  __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC)))
-  __cap_alloc(L4Re::Env::env()->first_free_cap());
-}
-
-#else
-
-#include <l4/re/dataspace>
-#include <l4/re/mem_alloc>
 
 namespace
 {
@@ -48,6 +39,13 @@ namespace
     enum { Caps = 4096 };
     typedef L4Re::Util::_Cap_alloc::Counter_storage<Caps> Storage;
 
+#if defined(L4RE_STATIC_CAP_ALLOC) || !defined(CONFIG_MMU)
+    Ca()
+    {
+      static Storage __cap_storage;
+      setup(&__cap_storage, Caps, L4Re::Env::env()->first_free_cap());
+    }
+#else
     L4::Cap<L4Re::Dataspace> _ds;
     Ca() : _ds(L4::Cap<L4Re::Dataspace>::No_init)
     {
@@ -60,12 +58,11 @@ namespace
                                L4::Ipc::make_cap_rw(_ds)) >= 0);
       setup(a, Caps, e->first_free_cap() + 1);
     }
+#endif
   };
 
   Ca __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC))) __cap_alloc;
 }
-
-#endif
 
 namespace L4Re {
   namespace Util {
