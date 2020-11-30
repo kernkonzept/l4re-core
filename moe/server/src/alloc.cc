@@ -138,7 +138,7 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
         {
           L4::Ipc::Varg quota = args.pop_front();
 
-          if (!quota.is_of_int() || quota.value<long>() == 0) // ignore sign
+          if (!quota.is_of_int() || quota.value<long>() <= 0)
             return -L4_EINVAL;
           Moe::Quota_guard g(_qalloc.quota(), quota.value<long>());
           cxx::unique_ptr<Allocator>
