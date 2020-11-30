@@ -114,13 +114,15 @@ public:
     enum Attach_flags : l4_uint32_t
     {
       /// Search for a suitable address range.
-      Search_addr  = 0x20000,
+      Search_addr  =  0x20000,
       /// Search only in area, or map into area.
-      In_area      = 0x40000,
+      In_area      =  0x40000,
       /// Eagerly map the attached data space in.
-      Eager_map    = 0x80000,
+      Eager_map    =  0x80000,
+      /// Prevent eager mapping of the attached data space.
+      No_eager_map = 0x100000,
       /// Mask of all attach flags.
-      Attach_mask  = 0xf0000,
+      Attach_mask  = 0x1f0000,
     };
 
     L4_TYPES_FLAGS_OPS_DEF(Attach_flags);
