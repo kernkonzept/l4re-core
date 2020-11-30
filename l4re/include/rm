@@ -71,6 +71,13 @@ namespace L4Re {
  * fault IPC with a mapping from the backing dataspace. If not, an error is
  * returned.
  *
+ * Depending on the system type, an attached dataspace might or might not be
+ * mapped eagerly. MMU-based systems resort to lazy mapping while systems
+ * without MMU do eager mappings by default. The L4Re::Rm::F::Eager_map and
+ * L4Re::Rm::F::No_eager_map flags can be used to force the respective
+ * behaviour, independent of the underlying system. In case both flags are
+ * given, the L4Re::Rm::F::No_eager_map flag wins.
+ *
  * \see L4Re::Dataspace, L4Re::Rm,
  * \see \ref l4re_concepts_ds_rm
  */
@@ -115,13 +122,15 @@ public:
     enum Attach_flags : l4_uint32_t
     {
       /// Search for a suitable address range.
-      Search_addr  = 0x20000,
+      Search_addr  =  0x20000,
       /// Search only in area, or map into area.
-      In_area      = 0x40000,
+      In_area      =  0x40000,
       /// Eagerly map the attached data space in.
-      Eager_map    = 0x80000,
+      Eager_map    =  0x80000,
+      /// Prevent eager mapping of the attached data space.
+      No_eager_map = 0x100000,
       /// Mask of all attach flags.
-      Attach_mask  = 0xf0000,
+      Attach_mask  = 0x1f0000,
     };
 
     L4_TYPES_FLAGS_OPS_DEF(Attach_flags);

@@ -65,10 +65,11 @@ enum l4re_rm_flags_values {
   /** Cache bits for uncached memory */
   L4RE_RM_F_CACHE_UNCACHED = L4RE_DS_F_UNCACHEABLE,
 
-  L4RE_RM_F_SEARCH_ADDR  = 0x20000, /**< Search for a suitable address range */
-  L4RE_RM_F_IN_AREA      = 0x40000, /**< Search only in area, or map into area */
-  L4RE_RM_F_EAGER_MAP    = 0x80000, /**< Eagerly map the attached data space in. */
-  L4RE_RM_F_ATTACH_FLAGS = 0xf0000, /**< Mask of all attach flags */
+  L4RE_RM_F_SEARCH_ADDR  = 0x020000, /**< Search for a suitable address range */
+  L4RE_RM_F_IN_AREA      = 0x040000, /**< Search only in area, or map into area */
+  L4RE_RM_F_EAGER_MAP    = 0x080000, /**< Eagerly map the attached data space in. */
+  L4RE_RM_F_NO_EAGER_MAP = 0x100000, /**< Prevent eager mapping of the attached data space. */
+  L4RE_RM_F_ATTACH_FLAGS = 0x1f0000, /**< Mask of all attach flags */
 };
 
 typedef l4_uint32_t l4re_rm_flags_t;
