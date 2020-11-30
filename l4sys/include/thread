@@ -120,6 +120,10 @@ public:
    * This class is responsible for initializing various attributes of a
    * thread in a UTCB for the control_commit() method.
    *
+   * \note Instantiation of this class starts the preparation of the UTCB. Do
+   *       not invoke any non-Attr functions between the instantiation and the
+   *       call to `L4::Thread::control()`.
+   *
    * \see \ref l4_thread_control_api for some more details.
    */
   class Attr
