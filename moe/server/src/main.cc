@@ -82,6 +82,11 @@ l4_kernel_info_t const *map_kip()
     }
 
   boot.printf("KIP @%p\n", kip());
+
+#ifndef CONFIG_MMU
+  l4_global_kip = _current_kip;
+#endif
+
   return kip();
 }
 

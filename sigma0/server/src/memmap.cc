@@ -48,7 +48,11 @@ void dump_all()
 static
 void map_kip(Answer *a)
 {
+#ifdef CONFIG_MMU
   a->snd_fpage((l4_umword_t) l4_info, L4_LOG2_PAGESIZE, L4_FPAGE_RX, true);
+#else
+  a->snd_addr((l4_umword_t) l4_info);
+#endif
 }
 
 static

@@ -54,6 +54,12 @@ public:
     tag = l4_msgtag(0, 0, 1, 0);
   }
 
+  void snd_addr(unsigned long addr)
+  {
+    l4_utcb_mr_u(utcb)->mr[0] = addr;
+    tag = l4_msgtag(0, 1, 0, 0);
+  }
+
   bool failed() const
   { return tag.label() < 0; }
 };

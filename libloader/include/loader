@@ -245,6 +245,10 @@ Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin, Dbg_ const 
   stack.push_local_ptr(env);
   stack.push(l4_umword_t(0xF1));
 
+  // KIP Pointer
+  stack.push(l4_umword_t(am->prog_info()->kip));
+  stack.push(l4_umword_t(0xF2));
+
   if (l4aux_ptr)
     {
       stack.push_local_ptr(l4aux_ptr);

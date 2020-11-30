@@ -188,8 +188,7 @@ l4re_env_t *l4re_env() L4_NOTHROW
 L4_INLINE
 l4_kernel_info_t *l4re_kip() L4_NOTHROW
 {
-  extern char __L4_KIP_ADDR__[];
-  return (l4_kernel_info_t *)__L4_KIP_ADDR__;
+  return l4_kip();
 }
 
 L4_INLINE l4re_env_cap_entry_t const *

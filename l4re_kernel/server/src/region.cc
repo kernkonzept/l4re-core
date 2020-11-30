@@ -35,9 +35,7 @@ Region_map::Region_map()
 void
 Region_map::init()
 {
-  extern char __L4_KIP_ADDR__[];
-
-  for (auto const &m: L4::Kip::Mem_desc::all(__L4_KIP_ADDR__))
+  for (auto const &m: L4::Kip::Mem_desc::all(l4re_kip()))
     {
       if (!m.is_virtual())
 	continue;

@@ -103,8 +103,7 @@ App_model::App_model()
   _info.utcbs_log2size  = L4_PAGESHIFT;
 
   // set default values for the application stack
-  extern char __L4_KIP_ADDR__[];
-  _info.kip = (l4_addr_t)__L4_KIP_ADDR__;
+  _info.kip = (l4_addr_t)l4re_kip();
 }
 
 

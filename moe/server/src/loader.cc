@@ -142,11 +142,14 @@ Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
 #ifndef CONFIG_MMU
   // Eagerly map region on systems without MMU to prevent MPU region
   // fragmentation.
-  size >>= L4_PAGESHIFT;
-  for (l4_addr_t a = addr & L4_PAGEMASK; size; size--, a += L4_PAGESIZE)
-    _task->task_cap()->map(L4Re::Env::env()->task(),
-                           l4_fpage(a, L4_PAGESHIFT, flags.raw & 0xf),
-                           a);
+  if (ds)
+    {
+      size >>= L4_PAGESHIFT;
+      for (l4_addr_t a = addr & L4_PAGEMASK; size; size--, a += L4_PAGESIZE)
+        _task->task_cap()->map(L4Re::Env::env()->task(),
+                               l4_fpage(a, L4_PAGESHIFT, flags.raw & 0xf),
+                               a);
+    }
 #endif
 }
 
@@ -205,10 +208,8 @@ Moe_app_model::Moe_app_model(App_task *t, cxx::String const &prog,
   if (_info.utcbs_log2size < L4_PAGESHIFT)
     _info.utcbs_log2size  = L4_PAGESHIFT;
 
-  extern char __L4_KIP_ADDR__[];
   // set default values for the application stack
-  _info.kip = (l4_addr_t)__L4_KIP_ADDR__;
-
+  _info.kip = (l4_addr_t)l4re_kip();
 }
 
 

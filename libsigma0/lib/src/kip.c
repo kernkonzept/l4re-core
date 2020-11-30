@@ -35,8 +35,13 @@ l4sigma0_map_kip(l4_cap_idx_t pager, void *adr, unsigned log2_size)
   if (l4_ipc_error(tag, utcb))
     return 0;
 
+#ifdef CONFIG_MMU
   if (l4_msgtag_items(tag) != 1)
     return 0;
+#else
+  if (l4_msgtag_words(tag) != 1)
+    return 0;
+#endif
 
   l4_addr_t a = addr + (m->mr[0] & (~0UL << L4_PAGESHIFT) & ((1ULL << log2_size) - 1));
 
