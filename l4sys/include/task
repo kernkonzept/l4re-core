@@ -230,7 +230,9 @@ public:
   /**
    * Add kernel-user memory.
    *
-   * \param fpage  Flexpage describing the virtual area the memory goes to.
+   * \param fpage[in,out]  Flexpage describing the virtual area the memory goes
+   *                       to. On systems without MMU, the flexpage is adjusted
+   *                       to reflect the acually allocated physical address.
    * \utcb_def{utcb}
    *
    * \return Syscall return tag
@@ -250,7 +252,7 @@ public:
    *       objects but there is no practical use for adding kernel-user memory
    *       to L4::Vm objects or to L4Re::Dma_space objects.
    */
-  l4_msgtag_t add_ku_mem(l4_fpage_t const &fpage,
+  l4_msgtag_t add_ku_mem(l4_fpage_t *fpage,
                          l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_add_ku_mem_u(cap(), fpage, utcb); }
 

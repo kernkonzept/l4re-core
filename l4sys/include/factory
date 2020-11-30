@@ -318,13 +318,17 @@ public:
   /**
    * Create a new task.
    *
-   * \param[out] target_cap  The kernel stores the new task's capability into
-   *                         this slot.
-   * \param      utcb_area   Flexpage that describes an area in the address
-   *                         space of the new task, where the kernel should
-   *                         map the kernel-allocated kernel-user memory to.
-   *                         The kernel uses the kernel-user memory to store
-   *                         UTCBs and vCPU state-save-areas of the new task.
+   * \param[out] target_cap    The kernel stores the new task's capability into
+   *                           this slot.
+   * \param[in,out] utcb_area  Flexpage that describes an area in the address
+   *                           space of the new task, where the kernel should
+   *                           map the kernel-allocated kernel-user memory to.
+   *                           The kernel uses the kernel-user memory to store
+   *                           UTCBs and vCPU state-save-areas of the new task.
+   *
+   *                           On systems without MMU, the flexpage is adjusted
+   *                           to reflect the acually allocated physical
+   *                           address.
    * \utcb_def{utcb}
    *
    * \return Syscall return tag
@@ -342,7 +346,7 @@ public:
    * \see L4::Task
    */
   l4_msgtag_t create_task(Cap<Task> const & target_cap,
-                          l4_fpage_t const &utcb_area,
+                          l4_fpage_t *utcb_area,
                           l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_factory_create_task_u(cap(), target_cap.cap(), utcb_area, utcb); }
 

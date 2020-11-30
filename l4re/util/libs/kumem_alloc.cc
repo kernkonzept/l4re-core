@@ -43,7 +43,8 @@ kumem_alloc(l4_addr_t *v, unsigned pages_order,
                             sh)))
     return r;
 
-  if ((r = l4_error(task->add_ku_mem(l4_fpage(*v, sh, L4_FPAGE_RW)))))
+  auto fp = l4_fpage(*v, sh, L4_FPAGE_RW);
+  if ((r = l4_error(task->add_ku_mem(&fp))))
     {
       rm->free_area(*v);
       return r;

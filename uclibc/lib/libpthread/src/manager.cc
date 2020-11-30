@@ -665,8 +665,8 @@ static l4_utcb_t *l4pthr_allocate_more_utcbs_and_claim_utcb()
                             Rm::F::Reserved | Rm::F::Search_addr))
     return nullptr;
 
-  if (l4_error(e->task()->add_ku_mem(l4_fpage(kumem, L4_PAGESHIFT,
-                                              L4_FPAGE_RW))))
+  l4_fpage_t fp = l4_fpage(kumem, L4_PAGESHIFT, L4_FPAGE_RW);
+  if (l4_error(e->task()->add_ku_mem(&fp)))
     {
       e->rm()->free_area(kumem);
       return nullptr;
