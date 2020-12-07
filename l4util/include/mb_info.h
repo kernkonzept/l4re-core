@@ -55,11 +55,6 @@ typedef struct __attribute__((packed))
   /* unspecified optional padding... */
 } l4util_mb_addr_range_t;
 
-#define l4util_mb_for_each_mmap_entry(i, mbi) \
-  for (i = (l4util_mb_addr_range_t *)(unsigned long)mbi->mmap_addr; \
-       (unsigned long)i < (unsigned long)mbi->mmap_addr + mbi->mmap_length; \
-       i = (l4util_mb_addr_range_t *)((unsigned long)i + mmap->struct_size + sizeof (mmap->struct_size)))
-
 /** usable memory "Type", all others are reserved.  */
 #define MB_ARD_MEMORY		1
 
@@ -252,6 +247,46 @@ typedef struct
   l4_uint16_t vbe_interface_off; /**< VESA offset of prot BIOS interface */
   l4_uint16_t vbe_interface_len; /**< VESA lenght of prot BIOS interface */
 } l4util_mb_info_t;
+
+/**
+ * Get the first entry of the memory map provided through a multi boot
+ * information (MBI) structure.
+ *
+ * \return A pointer to the first entry of the memory map.
+ */
+static inline l4util_mb_addr_range_t *
+l4util_mb_first_mmap_entry(l4util_mb_info_t *mbi)
+{
+  return (l4util_mb_addr_range_t *)(l4_addr_t)mbi->mmap_addr;
+}
+
+/**
+ * Advance to the next entry of a memory map provided through a multi boot
+ * information (MBI) structure.
+ *
+ * \return A pointer to the next entry of the memory map.
+ *
+ * \note   This function performs no checking. The user must ensure that the
+ *         returned pointer does not point beyond the end of the memory map.
+ */
+static inline l4util_mb_addr_range_t *
+l4util_mb_next_mmap_entry(l4util_mb_addr_range_t *e)
+{
+  return (l4util_mb_addr_range_t *)((l4_addr_t)e + e->struct_size
+                                    + sizeof(e->struct_size));
+}
+
+/**
+ * Iterate over a memory map provided in a Multiboot info.
+ *
+ * \param i   Name of a variable of type l4util_mb_addr_range_t * that is
+ *            consecutively assigned pointers to the entries of the memory map.
+ * \param mbi Pointer to the l4util_mb_info_t where the memory map can be found.
+ * */
+#define l4util_mb_for_each_mmap_entry(i, mbi)                                  \
+  for (i = l4util_mb_first_mmap_entry(mbi);                                    \
+       (unsigned long)i < (unsigned long)mbi->mmap_addr + mbi->mmap_length;    \
+       i = l4util_mb_next_mmap_entry(i))
 
 #endif /* ! __ASSEMBLY__ */
 
