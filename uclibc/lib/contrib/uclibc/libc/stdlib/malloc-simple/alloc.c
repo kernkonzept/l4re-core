@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <errno.h>
 #include <sys/mman.h>
 #include <malloc.h>
@@ -32,6 +33,15 @@ void *malloc(size_t size)
 		__set_errno(ENOMEM);
 		return NULL;
 #endif
+	}
+
+	/* prevent Undefined Behaviour for pointer arithmetic (substract) of too big pointers
+	 * see: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=63303
+	 * No need to check for size + sizeof(size_t) integer overflow since we already check for PTRDIFF_MAX
+	 */
+	if (unlikely(size > PTRDIFF_MAX)) {
+		__set_errno(ENOMEM);
+		return 0;
 	}
 
 #ifdef __ARCH_USE_MMU__
@@ -151,6 +161,16 @@ void * memalign (size_t alignment, size_t size)
 {
 	void * result;
 	unsigned long int adj;
+
+	if (unlikely(size > PTRDIFF_MAX)) {
+		__set_errno(ENOMEM);
+		return NULL;
+	}
+
+	if (unlikely((size + alignment - 1 < size) && (alignment != 0))) {
+		__set_errno(ENOMEM);
+		return NULL;
+	}
 
 	result = malloc (size + alignment - 1);
 	if (result == NULL)
