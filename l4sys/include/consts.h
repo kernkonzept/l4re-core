@@ -354,7 +354,7 @@ enum l4_default_caps_t
  * Round an address down to the next lower page boundary.
  * \ingroup l4_memory_api
  *
- * The address is rounded down to the next lower mininmal page boundary. On
+ * The address is rounded down to the next lower minimal page boundary. On
  * most architectures this is a 4k page. Check #L4_PAGESIZE for the minimal
  * page size.
  *
