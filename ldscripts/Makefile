@@ -47,6 +47,7 @@ TARGET            =
 vpath %.S $(UCLIBC_SYSDEPS)
 
 INSTALL_TARGET	= $(LD_SCRIPTS) crti.o crtn.o crt1.o crti.s.o crtn.s.o crt1.s.o
+DEFINES_crt1.s.o = -DL_Scrt1
 
 REQUIRES_LIBS_all_lib :=
 
