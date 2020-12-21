@@ -880,14 +880,14 @@ typedef struct Elf64_Auxv
 } Elf64_Auxv;
 
 /* Some helpers */
-static inline int l4util_elf_check_magic(ElfW(Ehdr) *hdr);
-static inline int l4util_elf_check_arch(ElfW(Ehdr) *hdr);
-static inline ElfW(Phdr) *l4util_elf_phdr(ElfW(Ehdr) *hdr);
+static inline int l4util_elf_check_magic(ElfW(Ehdr) const *hdr);
+static inline int l4util_elf_check_arch(ElfW(Ehdr) const *hdr);
+static inline ElfW(Phdr) *l4util_elf_phdr(ElfW(Ehdr) const *hdr);
 
 
 /* Implemeantions */
 static inline
-int l4util_elf_check_magic(ElfW(Ehdr) *hdr)
+int l4util_elf_check_magic(ElfW(Ehdr) const *hdr)
 {
   return    hdr->e_ident[EI_MAG0] == ELFMAG0
          && hdr->e_ident[EI_MAG1] == ELFMAG1
@@ -896,7 +896,7 @@ int l4util_elf_check_magic(ElfW(Ehdr) *hdr)
 }
 
 static inline
-int l4util_elf_check_arch(ElfW(Ehdr) *hdr)
+int l4util_elf_check_arch(ElfW(Ehdr) const *hdr)
 {
   return    hdr->e_ident[EI_CLASS] == L4_ARCH_EI_CLASS
          && hdr->e_ident[EI_DATA]  == L4_ARCH_EI_DATA
@@ -904,7 +904,7 @@ int l4util_elf_check_arch(ElfW(Ehdr) *hdr)
 }
 
 static inline
-ElfW(Phdr) *l4util_elf_phdr(ElfW(Ehdr) *hdr)
+ElfW(Phdr) *l4util_elf_phdr(ElfW(Ehdr) const *hdr)
 {
   return (ElfW(Phdr) *)((char *)hdr + hdr->e_phoff);
 }
