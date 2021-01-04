@@ -97,7 +97,7 @@ public:
   /**
    * \brief Set the iterator to the next element (post increment).
    */
-  Avl_set_iter &operator ++ (int)
+  Avl_set_iter operator ++ (int)
   { Avl_set_iter tmp = *this; inc(); return tmp; }
 
 };
