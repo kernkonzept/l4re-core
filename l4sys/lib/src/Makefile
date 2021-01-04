@@ -13,22 +13,24 @@ PC_LIBS_l4sys-l4x            = -ll4sys-l4x
 PC_EXTRA_l4sys-l4x           = Link_Libs= %{static:-ll4sys-l4x}
 
 CXXFLAGS                    += -DL4_NO_RTTI -fno-rtti -fno-exceptions
+DEFINES                      = -DL4_KIP_ADDR=$(L4_KIP_ADDR)
 
 SRC_CC                       = kobject.cc
 SRC_C_libl4sys-ppc32        += ARCH-ppc32/atomic_ops.c
 SRC_S_libl4sys-sparc        += ARCH-sparc/atomic_ops.S
 
+SRC_C_libl4sys-direct.a      = kip.c
 SRC_S_libl4sys-direct.so     =
 SRC_S_libl4sys-direct.a-x86  = syscalls_direct.S
 SRC_S_libl4sys-direct.a      = $(SRC_S_libl4sys-direct.a-$(ARCH))
 vpath syscalls_direct.S $(SRC_DIR)/ARCH-$(ARCH)
 
-SRC_C_libl4sys.a             = utcb.c errtostr.c $(SRC_C_libl4sys-$(ARCH))
+SRC_C_libl4sys.a             = utcb.c errtostr.c kip.c $(SRC_C_libl4sys-$(ARCH))
 SRC_C_libl4sys.so            = utcb.c errtostr.c $(SRC_C_libl4sys-$(ARCH))
 SRC_S_libl4sys.a             = $(SRC_S_libl4sys-$(ARCH))
 SRC_S_libl4sys.so            = $(SRC_S_libl4sys-$(ARCH))
 
-SRC_C_libl4sys-l4x.a         = utcb.c errtostr.c $(SRC_C_libl4sys-$(ARCH))
+SRC_C_libl4sys-l4x.a         = utcb.c errtostr.c kip.c $(SRC_C_libl4sys-$(ARCH))
 SRC_C_libl4sys-l4x.so        = utcb.c errtostr.c $(SRC_C_libl4sys-$(ARCH))
 SRC_S_libl4sys-l4x.a         = $(SRC_S_libl4sys-$(ARCH))
 SRC_S_libl4sys-l4x.so        = $(SRC_S_libl4sys-$(ARCH))

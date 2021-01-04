@@ -86,9 +86,22 @@ enum
 };
 
 /**
+ * \internal
+ */
+extern l4_kernel_info_t const *l4_global_kip;
+
+/**
  * Kernel Info Page identifier ("L4µK").
  */
 #define L4_KERNEL_INFO_MAGIC (0x4BE6344CL) /* "L4µK" */
+
+
+/**
+ * Get Kernel Info Page.
+ *
+ * \return Pointer to Kernel Info Page (KIP) structure.
+ */
+L4_INLINE l4_kernel_info_t const *l4_kip(void) L4_NOTHROW;
 
 
 /**
@@ -174,6 +187,17 @@ l4_kip_clock_ns(l4_kernel_info_t const *kip) L4_NOTHROW;
 /*************************************************************************
  * Implementations
  *************************************************************************/
+
+L4_INLINE l4_kernel_info_t const*
+l4_kip(void) L4_NOTHROW
+{
+#ifdef __PIC__
+  return l4_global_kip;
+#else
+  extern char __L4_KIP_ADDR__[];
+  return (l4_kernel_info_t const *)__L4_KIP_ADDR__;
+#endif
+}
 
 L4_INLINE l4_umword_t
 l4_kip_version(l4_kernel_info_t const *kip) L4_NOTHROW

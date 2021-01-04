@@ -9,7 +9,7 @@
 kip_addr:
         .long   4
         .long   12
-        .long   __L4_KIP_ADDR__
+        .long   L4_KIP_ADDR
 
 #else
 
@@ -19,6 +19,6 @@ kip_addr:
 kip_addr:
         .quad   4
         .quad   24
-        .quad   __L4_KIP_ADDR__
+        .quad   L4_KIP_ADDR
 
 #endif
