@@ -6,8 +6,8 @@ TARGET          := libuc_c_minimal.a libuc_c_minimal.p.a
 PC_FILENAME     := libc_minimal
 PC_LIBS         := -luc_c_minimal
 define PC_EXTRA
-Link_Libs=  %{static:-luc_c_minimal}
-Link_Libs_pic=  %{static:-luc_c_minimal.p}
+Link_Libs=  %{static|static-pie:-luc_c_minimal}
+Link_Libs_pic=  %{static|static-pie:-luc_c_minimal.p}
 endef
 
 DEFINES		+= -DL4_MINIMAL_LIBC
@@ -16,6 +16,8 @@ LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
 include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/make_rules.mk
 include $(LIBCSRC_DIR)/contrib_files.mk
+
+DEFINES-$(CONFIG_BID_PIE) += -DSTATIC_PIE
 
 DIRS := libc/string libc/stdlib libc/stdio libc/unistd libc/signal \
         libc/misc libc/stdlib/malloc-standard libc/sysdeps/linux

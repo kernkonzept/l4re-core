@@ -4,11 +4,12 @@ L4DIR		?= $(PKGDIR)/../../..
 SYSTEMS		= $(SYSTEMS_PLAIN)
 
 define PC_EXTRA
-Link_Start= %{nocrt1|shared:; :%:search(crt1.o %(libdir))} %:search(crti%{shared:.s}.o %(libdir)) %{static:%:if-exists(%:search(crtbeginT.o %(gcclibdir)) %:search(crtbegin.o %(gcclibdir)));shared:%:search(crtbeginS.o %(gcclibdir));:%:search(crtbegin.o %(gcclibdir))}
-Link_End=   %:search(%{shared:crtendS.o;:crtend.o} %(gcclibdir)) %:search(crtn%{shared:.s}.o %(libdir))
+Link_Start= %{nocrt1|shared:; :%:search(crt1%{static:;static-pie:.p;:.s}.o %(libdir))} %:search(crti%{shared:.s}.o %(libdir)) %{static:%:if-exists(%:search(crtbeginT.o %(gcclibdir)) %:search(crtbegin.o %(gcclibdir)));shared|static-pie:%:search(crtbeginS.o %(gcclibdir));:%:search(crtbegin.o %(gcclibdir))}
+Link_End=   %:search(%{shared|static-pie:crtendS.o;:crtend.o} %(gcclibdir)) %:search(crtn%{shared:.s}.o %(libdir))
 endef
 
-LD_SCRIPTS      = main_stat.ld main_rel.ld main_dyn.ld
+LD_SCRIPTS      = main_stat.ld main_rel.ld main_dyn.ld \
+                  $(if $(CONFIG_BID_PIE),main_pie.ld)
 PC_FILENAME    := ldscripts
 PC_LIBS        :=
 
@@ -33,8 +34,9 @@ TARGET            =
 
 vpath %.S $(UCLIBC_SYSDEPS)
 
-INSTALL_TARGET	= $(LD_SCRIPTS) crti.o crtn.o crt1.o crti.s.o crtn.s.o crt1.s.o
-DEFINES_crt1.s.o = -DL_Scrt1
+INSTALL_TARGET	= $(LD_SCRIPTS) crti.o crtn.o crt1.o crti.s.o crtn.s.o crt1.s.o crt1.p.o
+DEFINES_crt1.s.o = -fPIE -DL_Scrt1
+DEFINES_crt1.p.o = -fPIE -DL_rcrt1
 
 REQUIRES_LIBS_all_lib :=
 
@@ -44,10 +46,12 @@ include $(L4DIR)/mk/lib.mk
 
 $(eval $(call BID_MAKE_RULE_template, crti_s.o, crti.S,AS))
 $(eval $(call BID_MAKE_RULE_template, kip_addr.o, kip_addr.S,AS))
+$(eval $(call BID_MAKE_RULE_template, crt1.p.o, crt1.S,AS))
 
 $(eval $(call make_per_obj_vars,crti.s.o,crti.s.o,crti.S))
 $(eval $(call make_per_obj_vars,crti_s.o,crti_s.o,crti.S))
 $(eval $(call make_per_obj_vars,crt1.o,crt1.o,crt1.S))
+$(eval $(call make_per_obj_vars,crt1.p.o,crt1.p.o,crt1.S))
 $(eval $(call make_per_obj_vars,crt1.s.o,crt1.s.o,crt1.S))
 $(eval $(call make_per_obj_vars,crtn.o,crtn.o,crtn.S))
 $(eval $(call make_per_obj_vars,crtn.s.o,crtn.s.o,crtn.S))

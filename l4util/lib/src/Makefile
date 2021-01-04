@@ -3,7 +3,7 @@ L4DIR	?= $(PKGDIR)/../../..
 
 TARGET                = libl4util.a libl4util.so
 REQUIRES_LIBS         = l4sys
-PC_EXTRA              = Link_Libs= %{static:-ll4util}
+PC_EXTRA              = Link_Libs= %{static|static-pie:-ll4util}
 
 ALL_SRC_C_only_x86    = $(addprefix ARCH-x86/, perform.c spin.c rdtsc.c)
 ALL_SRC_C_only_amd64  = $(ALL_SRC_C_only_x86)
