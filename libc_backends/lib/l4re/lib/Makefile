@@ -3,7 +3,7 @@ L4DIR  ?= $(PKGDIR)/../../..
 
 TARGET        = libc_be_l4re.a libc_be_l4re.so
 PC_FILENAME   = libc_be_l4re
-PC_EXTRA     := Link_Libs= %{static:-lc_be_l4re -l4re}
+PC_EXTRA     := Link_Libs= %{static|static-pie:-lc_be_l4re -l4re}
 PC_LIBS      := -lc_be_l4re
 REQUIRES_LIBS = l4re
 SRC_C         = nanosleep.c sched_yield.c usleep.c \

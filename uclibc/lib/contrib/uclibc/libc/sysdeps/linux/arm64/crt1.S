@@ -147,13 +147,22 @@ _start:
 	mov x6, x2	/* stack_end (unused) */
 	mov x5, x0	/* rtld_fini */
 
-#ifdef __PIC__
+#ifdef PIC
+#ifdef SHARED
+	adrp    x4, :got:_fini
+	ldr     x4, [x4, #:got_lo12:_fini]
+	adrp    x3, :got:_init
+	ldr     x3, [x3, #:got_lo12:_init]
+	adrp    x0, :got:main
+	ldr     x0, [x0, #:got_lo12:main]
+#else
 	adrp	x4, :pg_hi21:_fini
 	add	x4, x4, #:lo12:_fini
 	adrp	x3, :pg_hi21:_init
 	add	x3, x3, #:lo12:_init
 	adrp	x0, :pg_hi21:main
 	add	x0, x0, #:lo12:main
+#endif
 
 	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
 	/* __uClibc_main has 7 arguments, that is why we can pass them all in registers and not use the stack */
@@ -175,6 +184,13 @@ _start:
 
 	/* should never get here....*/
 	bl abort
+
+#if defined(__PIC__) && !defined(SHARED) && !defined(PIC)
+	.globl	_reloc_static_pie
+	.type	_reloc_static_pie,%function
+_reloc_static_pie:
+	ret
+#endif
 
 /* Define a symbol for the first piece of initialized data.  */
 	.data

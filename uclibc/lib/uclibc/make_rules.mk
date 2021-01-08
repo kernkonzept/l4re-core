@@ -1,7 +1,7 @@
 # vi:ft=make
 
 CPPFLAGS	+= -nostdinc -include \
-		  $(CONTRIB_DIR)/include/libc-symbols.h
+		  $(CONTRIB_DIR)/include/libc-symbols.h $(LDSO_INC)
 CFLAGS		+= -fno-builtin $(GCCNOSTACKPROTOPT)
 CFLAGS          += -DUCLIBC_INTERNAL
 CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)

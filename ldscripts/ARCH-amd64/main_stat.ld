@@ -12,6 +12,10 @@ PHDRS
   ro PT_LOAD FILEHDR PHDRS;
   rw PT_LOAD;
   tls PT_TLS;
+#if CONFIG_BID_PIE
+  dyn PT_DYNAMIC;
+  ehf PT_GNU_EH_FRAME;
+#endif
   L4_DEFINE_L4PHDRS
 }
 

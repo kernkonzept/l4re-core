@@ -8,6 +8,7 @@
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 #include <elf.h>
+#include <link.h>
 /* Initialization sequence for the GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE)							\
 do {														\
@@ -43,8 +44,8 @@ static __always_inline Elf32_Addr elf_machine_dynamic (void) attribute_unused;
 static __always_inline Elf32_Addr
 elf_machine_dynamic (void)
 {
-	register Elf32_Addr *got __asm__ ("%ebx");
-	return *got;
+  extern const Elf32_Addr _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
+  return _GLOBAL_OFFSET_TABLE_[0];
 }
 
 
@@ -53,15 +54,8 @@ static __always_inline Elf32_Addr elf_machine_load_address (void) attribute_unus
 static __always_inline Elf32_Addr
 elf_machine_load_address (void)
 {
-	/* It doesn't matter what variable this is, the reference never makes
-	   it to assembly.  We need a dummy reference to some global variable
-	   via the GOT to make sure the compiler initialized %ebx in time.  */
-	Elf32_Addr addr;
-	int tmp;
-	__asm__ ("leal _dl_start@GOTOFF(%%ebx), %0\n"
-	     "subl _dl_start@GOT(%%ebx), %0"
-	     : "=r" (addr) : "m" (tmp) : "cc");
-	return addr;
+  extern Elf32_Dyn _DYNAMIC[] attribute_hidden;
+  return (Elf32_Addr) &_DYNAMIC - elf_machine_dynamic ();
 }
 
 static __always_inline void

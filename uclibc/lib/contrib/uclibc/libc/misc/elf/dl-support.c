@@ -34,6 +34,11 @@ void (*_dl_init_static_tls) (struct link_map *) = &_dl_nothread_init_static_tls;
 ElfW(Phdr) *_dl_phdr;
 size_t _dl_phnum;
 size_t _dl_pagesize;
+#ifndef SHARED
+struct dl_phdr_info _dl_phdr_info = {
+	.dlpi_name = "",
+};
+#endif
 
 void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 void internal_function _dl_aux_init (ElfW(auxv_t) *av)
@@ -43,6 +48,11 @@ void internal_function _dl_aux_init (ElfW(auxv_t) *av)
 
    /* Get the number of program headers from the aux vect */
    _dl_phnum = (size_t) av[AT_PHNUM].a_un.a_val;
+
+#ifndef SHARED
+  _dl_phdr_info.dlpi_phdr = _dl_phdr;
+  _dl_phdr_info.dlpi_phnum = _dl_phnum;
+#endif
 
    /* Get the pagesize from the aux vect */
    _dl_pagesize = (av[AT_PAGESZ].a_un.a_val) ? (size_t) av[AT_PAGESZ].a_un.a_val : PAGE_SIZE;

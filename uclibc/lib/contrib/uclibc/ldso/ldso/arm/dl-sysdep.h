@@ -11,6 +11,7 @@
 /* Define this if the system uses RELOCA.  */
 #undef ELF_USES_RELOCA
 #include <elf.h>
+#include <link.h>
 /* Initialization sequence for the GOT.  */
 #define INIT_GOT(GOT_BASE,MODULE) \
 {				\
@@ -71,64 +72,21 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
    | (((type) == R_ARM_COPY) * ELF_RTYPE_CLASS_COPY))
 
 /* Return the link-time address of _DYNAMIC.  Conveniently, this is the
-   first element of the GOT.  We used to use the PIC register to do this
-   without a constant pool reference, but GCC 4.2 will use a pseudo-register
-   for the PIC base, so it may not be in r10.  */
+   first element of the GOT.  */
 static __always_inline Elf32_Addr __attribute__ ((unused))
 elf_machine_dynamic (void)
 {
-  Elf32_Addr dynamic;
-#if !defined __thumb__
-  __asm__ ("ldr %0, 2f\n"
-       "1: ldr %0, [pc, %0]\n"
-       "b 3f\n"
-       "2: .word _GLOBAL_OFFSET_TABLE_ - (1b+8)\n"
-       "3:" : "=r" (dynamic));
-#else
-  int tmp;
-  __asm__ (".align 2\n"
-       "bx     pc\n"
-       "nop\n"
-       ".arm\n"
-       "ldr %0, 2f\n"
-       "1: ldr %0, [pc, %0]\n"
-       "b 3f\n"
-       "2: .word _GLOBAL_OFFSET_TABLE_ - (1b+8)\n"
-       "3:"
-       ".align  2\n"
-        "orr     %1, pc, #1\n"
-        "bx      %1\n"
-        ".force_thumb\n"
-       : "=r" (dynamic), "=&r" (tmp));
-#endif
-
-  return dynamic;
+  extern const Elf32_Addr _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
+  return _GLOBAL_OFFSET_TABLE_[0];
 }
 
-extern /*void*/ int __dl_start __asm__ ("_dl_start");
 
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr __attribute__ ((unused))
 elf_machine_load_address (void)
 {
-	Elf32_Addr got_addr = (Elf32_Addr) &__dl_start;
-	Elf32_Addr pcrel_addr;
-#if defined __OPTIMIZE__ && !defined __thumb__
-	__asm__ ("adr %0, _dl_start" : "=r" (pcrel_addr));
-#else
-	/* A simple adr does not work in Thumb mode because the offset is
-	   negative, and for debug builds may be too large.  */
-	int tmp;
-	__asm__ ("adr %1, 1f\n\t"
-		 "ldr %0, [%1]\n\t"
-		 "add %0, %0, %1\n\t"
-		 "b 2f\n\t"
-		 ".align 2\n\t"
-		 "1: .word _dl_start - 1b\n\t"
-		 "2:"
-		 : "=r" (pcrel_addr), "=r" (tmp));
-#endif
-	return pcrel_addr - got_addr;
+    extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
+    return (Elf32_Addr) &_DYNAMIC - elf_machine_dynamic ();
 }
 
 static __always_inline void

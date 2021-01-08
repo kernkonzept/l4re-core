@@ -101,13 +101,31 @@ _start:
 	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%ebx
 
 	/* Push address of our own entry points to .fini and .init.  */
+#ifdef SHARED
 	pushl _fini@GOT(%ebx)
 	pushl _init@GOT(%ebx)
+#else
+	/* Avoid relocation in static PIE since */
+	movl _fini@GOT(%ebx), %eax
+	pushl %eax
+	movl _init@GOT(%ebx), %eax
+	pushl %eax
+#endif
 
 	pushl %ecx		/* Push second argument: argv.  */
 	pushl %esi		/* Push first argument: argc.  */
 
+#ifdef SHARED
 	pushl main@GOT(%ebx)
+#else
+	/* Avoid relocation in static PIE since _start is called before
+	   it is relocated.  Don't use "leal main@GOTOFF(%ebx), %eax"
+	   since main may be in a shared object.  Linker will convert
+	   "movl main@GOT(%ebx), %eax" to "leal main@GOTOFF(%ebx), %eax"
+	   if main is defined locally.  */
+	movl main@GOT(%ebx), %eax
+	pushl %eax
+#endif
 
 	/* Call the user's main function, and exit with its value.
 	   But let the libc call main.    */
@@ -129,6 +147,13 @@ _start:
 
 	hlt			/* Crash if somehow `exit' does return.  */
 .size _start,.-_start
+
+#if defined(__PIC__) && !defined(SHARED) && !defined(PIC)
+	.globl	_reloc_static_pie
+	.type	_reloc_static_pie,%function
+_reloc_static_pie:
+	ret
+#endif
 
 /* Define a symbol for the first piece of initialized data.  */
 .data

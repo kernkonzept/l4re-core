@@ -197,7 +197,8 @@ _start:
 	/* Push rtld_fini */
 	str a1, [sp, #-4]!
 
-#ifdef __PIC__
+#ifdef PIC
+#ifdef SHARED
 	ldr sl, .L_GOT
 	adr a4, .L_GOT
 	add sl, sl, a4
@@ -211,6 +212,22 @@ _start:
 	
 	ldr ip, .L_GOT+12	/* main */
 	ldr a1, [sl, ip]
+#else
+	adr sl, .L_LOT
+
+	/* Fetch address of fini */
+	ldr ip, [sl]
+	add ip, ip, sl
+
+	/* Push fini */
+	str ip, [sp, #-4]!
+
+	/* Set up the other arguments in registers */
+	ldr a4, [sl, #4] // _init
+	add a4, a4, sl
+	ldr a1, [sl, #8] // main
+	add a1, a1, sl
+#endif
 
 	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
 	/* Let the libc call main and exit with its return code.  */
@@ -234,13 +251,25 @@ _start:
 	/* should never get here....*/
 	bl abort
 
-#ifdef __PIC__
+#ifdef SHARED
 .L_GOT:
 	.word _GLOBAL_OFFSET_TABLE_ - .L_GOT
 	.word _fini(GOT)
 	.word _init(GOT)
 	.word main(GOT)
+#elif defined(PIC)
+.L_LOT:
+	.word _fini - .L_LOT
+	.word _init - .L_LOT
+	.word main - .L_LOT
 #endif
+#endif
+
+#if defined(__PIC__) && !defined(SHARED) && !defined(PIC)
+	.globl	_reloc_static_pie
+	.type	_reloc_static_pie,%function
+_reloc_static_pie:
+	bx lr
 #endif
 
 /* Define a symbol for the first piece of initialized data.  */

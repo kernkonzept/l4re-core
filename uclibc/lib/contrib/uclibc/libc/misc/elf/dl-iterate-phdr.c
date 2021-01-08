@@ -48,6 +48,7 @@ weak_alias(__dl_iterate_phdr, dl_iterate_phdr)
 /* dl-support.c defines these and initializes them early on.  */
 extern ElfW(Phdr) *_dl_phdr;
 extern size_t _dl_phnum;
+extern struct dl_phdr_info _dl_phdr_info;
 
 int
 dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
@@ -56,20 +57,8 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
   if (_dl_phnum != 0)
     {
       /* This entry describes this statically-linked program itself.  */
-      struct dl_phdr_info info;
       int ret;
-#if defined(__FDPIC__)
-      info.dlpi_addr.map = NULL;
-      info.dlpi_addr.got_value = NULL;
-#elif defined(__DSBT__)
-      info.dlpi_addr.map = NULL;
-#else
-      info.dlpi_addr = 0;
-#endif
-      info.dlpi_name = "";
-      info.dlpi_phdr = _dl_phdr;
-      info.dlpi_phnum = _dl_phnum;
-      ret = (*callback) (&info, sizeof (struct dl_phdr_info), data);
+      ret = (*callback) (&_dl_phdr_info, sizeof (struct dl_phdr_info), data);
       if (ret)
         return ret;
     }

@@ -6,8 +6,6 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
-#include <features.h>
-
 __asm__(
 	"	.text\n"
 	"	.globl  _start\n"
@@ -56,29 +54,4 @@ __asm__(
  * do something a little more subtle here.  */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long*)ARGS)+1)
 
-/* Handle relocation of the symbols in the dynamic loader. */
-static __always_inline
-void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
-	unsigned long symbol_addr, unsigned long load_addr, ElfW(Sym) *symtab)
-{
-	(void) symtab;
-
-	switch (ELF_R_TYPE(rpnt->r_info)) {
-		case R_AARCH64_NONE:
-			break;
-		case R_AARCH64_RELATIVE:
-			*reloc_addr = load_addr + rpnt->r_addend;
-			break;
-		case R_AARCH64_GLOB_DAT:
-		case R_AARCH64_JUMP_SLOT:
-		case R_AARCH64_ABS32:
-		case R_AARCH64_ABS64:
-			*reloc_addr = symbol_addr + rpnt->r_addend;
-			 break;
-		case R_AARCH64_COPY:
-			/* break; */
-		default:
-			SEND_STDERR("Unsupported relocation type\n");
-			_dl_exit(1);
-	}
-}
+#include "dl-bootstrap.h"

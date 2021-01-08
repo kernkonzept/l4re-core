@@ -343,6 +343,10 @@ define SRC_libc/misc
   elf/dl-iterate-phdr
 endef
 
+ifneq ($(CONFIG_BID_PIE),)
+  SRC_libc/misc += internals/_reloc_static_pie
+endif
+
 define SRC_libc/misc_fp
   time/difftime
 endef

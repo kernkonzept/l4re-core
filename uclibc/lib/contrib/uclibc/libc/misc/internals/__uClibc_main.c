@@ -324,6 +324,8 @@ extern void __nptl_deallocate_tsd (void) __attribute ((weak));
 extern unsigned int __nptl_nthreads __attribute ((weak));
 #endif
 
+void _reloc_static_pie(void) attribute_hidden;
+
 /* __uClibc_main is the new main stub for uClibc. This function is
  * called from crt1 (version 0.9.28 or newer), after ALL shared libraries
  * are initialized, just before we call the application's main function.
@@ -347,6 +349,10 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 #endif
 
 #ifndef SHARED
+#if defined(__PIC__) && defined(__UCLIBC_HAS_STATIC_PIE__)
+    // No global symbols until bootstrap relocation was done!
+    _reloc_static_pie();
+#endif
     __libc_stack_end = stack_end;
 #endif
 

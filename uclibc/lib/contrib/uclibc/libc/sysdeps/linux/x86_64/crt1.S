@@ -105,7 +105,7 @@ _start:
 	   which grow downwards).  */
 	pushq %rsp
 
-#if defined(L_Scrt1)
+#ifdef __PIC__
 	/* Give address for main() */
 	movq main@GOTPCREL(%rip), %rdi
 
@@ -129,6 +129,13 @@ _start:
 
 	hlt        /* Crash if somehow `exit' does return.  */
 .size _start,.-_start
+
+#if defined(__PIC__) && !defined(SHARED) && !defined(PIC)
+	.globl	_reloc_static_pie
+	.type	_reloc_static_pie,%function
+_reloc_static_pie:
+	retq
+#endif
 
 /* Define a symbol for the first piece of initialized data. */
 .data

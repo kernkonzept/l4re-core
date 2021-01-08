@@ -12,7 +12,7 @@ DEFINES_sparc-l4f += -DUSE_TLS=1
 TARGET            := libuc_c.a libuc_c.so libuc_c_nonshared.p.a libssp_nonshared.p.a
 PC_FILENAME       := libc
 PC_LIBS           := -luc_c -luc_c_nonshared.p
-PC_EXTRA          := Link_Libs= %{static:-luc_c}
+PC_EXTRA          := Link_Libs= %{static|static-pie:-luc_c}
 
 REQUIRES_LIBS     := ldscripts
 
@@ -28,6 +28,10 @@ DEFINES           += -D__UCLIBC_HAS_SSP__=1
 PC_LIBS           += -lssp_nonshared.p
 # signal BID that uclibc implements infrastructure for stack protector
 PC_CFLAGS         := bid_allow_stack_protector
+endif
+
+ifdef CONFIG_BID_PIE
+DEFINES           += -D__UCLIBC_HAS_STATIC_PIE__=1
 endif
 
 LDFLAGS         = -z combreloc -z relro --sort-common \
