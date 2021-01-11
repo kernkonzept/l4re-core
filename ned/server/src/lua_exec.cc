@@ -274,7 +274,8 @@ public:
     Loader _l;
 
     _l.launch(this, kernel, ldr);
-    l4_debugger_add_image_info(_task->task_cap().cap(), 0, "l4re");
+    l4_debugger_add_image_info(_task->task_cap().cap(), prog_info()->base,
+                               "l4re");
 
     lua_pop(_lua, 1);
   }
@@ -296,6 +297,8 @@ public:
     if (!_cfg_idx)
       return;
 
+    prog_info()->ldr_base = _cfg_integer("base", 0);
+    prog_info()->base = _cfg_integer("itas_base", prog_info()->ldr_base);
     prog_info()->ldr_flags = _cfg_integer("ldr_flags", prog_info()->ldr_flags);
     prog_info()->l4re_dbg = _cfg_integer("l4re_dbg", prog_info()->l4re_dbg);
 

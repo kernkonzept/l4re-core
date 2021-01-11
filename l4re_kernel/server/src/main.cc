@@ -197,7 +197,7 @@ int main(int argc, char const *argv[], char const *envp[])
 
   file = L4Re_app_model::open_file(Global::l4re_aux->binary);
 
-  l4_debugger_add_image_info(L4_BASE_TASK_CAP, 0,
+  l4_debugger_add_image_info(L4_BASE_TASK_CAP, Global::l4re_aux->ldr_base,
                              base_name(Global::l4re_aux->binary));
   loader.start(file, Global::local_rm, Global::l4re_aux);
 
