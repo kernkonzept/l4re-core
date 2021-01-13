@@ -238,6 +238,8 @@ Moe_app_model::init_prog()
   _info.factory = L4Re::Env::env()->factory().fpage();
   _info.scheduler = L4Re::Env::env()->scheduler().fpage();
 
+  _info.base = 0;
+  _info.ldr_base = 0;
   _info.ldr_flags = Moe::ldr_flags;
   _info.l4re_dbg = Moe::l4re_dbg;
 

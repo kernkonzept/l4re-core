@@ -99,6 +99,7 @@ public:
 
   void const *generate_l4aux(char const *name)
   {
+    this->_stack.push(l4_umword_t(this->prog_info()->ldr_base));
     this->_stack.push(l4_umword_t(this->prog_info()->ldr_flags));
     this->_stack.push(l4_umword_t(this->prog_info()->l4re_dbg));
     this->_stack.push(l4_umword_t(prog_kip_ds().cap()));

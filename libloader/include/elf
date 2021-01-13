@@ -425,14 +425,13 @@ struct Phdr_dynamic
   App_model const *mm;
   Const_dataspace bin;
 
-  l4_addr_t base;
   mutable char interp[100];
   mutable l4_addr_t phdrs;
   mutable bool is_dynamic;
+  mutable bool is_pie;
 
-  Phdr_dynamic(App_model const *mm, Const_dataspace bin, l4_addr_t base)
-  : mm(mm), bin(bin), base(base), phdrs(0),
-    is_dynamic(false)
+  Phdr_dynamic(App_model const *mm, Const_dataspace bin)
+  : mm(mm), bin(bin), phdrs(0), is_dynamic(false), is_pie(false)
   {
     static char const *const addr = "rom/libld-l4.so";
     unsigned i;
@@ -460,10 +459,10 @@ struct Phdr_dynamic
 	//ldr.printf("  found interpreter PHDR: interp='%s'\n", interp);
 	break;
       case PT_PHDR:
-	phdrs = base + ph.paddr();
+	phdrs = ph.paddr();
 	break;
       case PT_DYNAMIC:
-	//is_dynamic = true;
+	is_pie = true;
 	break;
       }
   }
@@ -562,9 +561,12 @@ public:
 	chksys(-L4_EINVAL, "not an ELF binary");
       }
 
+    Phdr_dynamic<App_model> dyn_info(mm, bin);
+    elf.iterate_phdr(dyn_info);
+
     L4Re::Rm::Flags r_flags(0);
     l4_addr_t _base = 0;
-    if (base)
+    if (base && dyn_info.is_pie)
       {
 	Phdr_load_min_max b_func;
 	ldr.printf("  relocate PIC/PIE binary\n");
@@ -587,19 +589,21 @@ public:
 	*base = _base;
 	r_flags |= L4Re::Rm::F::In_area;
       }
+    else if (mm->prog_info()->base && dyn_info.is_pie)
+      {
+        _base = mm->prog_info()->base;
+        ldr.printf("  relocate PIC/PIE binary by %lx\n", _base);
+      }
 
     elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags, ldr));
     elf.iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
 
     mm->prog_info()->entry = elf.entry() + _base;
 
-    Phdr_dynamic<App_model> dyn_info(mm, bin, _base);
-    elf.iterate_phdr(dyn_info);
-
     if (!interpreter && dyn_info.phdrs)
       {
 	Prog_start_info *i = mm->prog_info();
-	i->dyn_phdrs = dyn_info.phdrs;
+	i->dyn_phdrs = dyn_info.phdrs + _base;
 	i->dyn_num_phdrs = elf.num_phdrs();
       }
 

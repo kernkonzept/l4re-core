@@ -258,12 +258,16 @@ public:
     prog_info()->scheduler = L4Re::Env::env()->scheduler().fpage();
     //  parser.scheduler_cap.set_fpage(&am.prog_info()->scheduler);
 
+    prog_info()->base = 0;
+    prog_info()->ldr_base = 0;
     prog_info()->ldr_flags = 0;
     prog_info()->l4re_dbg = 0;
 
     if (!_cfg_idx)
       return;
 
+    prog_info()->base = _cfg_integer("base", prog_info()->base);
+    prog_info()->ldr_base = _cfg_integer("ldr_base", prog_info()->ldr_base);
     prog_info()->ldr_flags = _cfg_integer("ldr_flags", prog_info()->ldr_flags);
     prog_info()->l4re_dbg = _cfg_integer("l4re_dbg", prog_info()->l4re_dbg);
 

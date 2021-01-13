@@ -77,6 +77,7 @@ L4Re_app_model::L4Re_app_model(L4::Cap<L4Re::Rm> rm, void *)
 : _rm(rm)
 {
   _info.kip = (l4_addr_t)l4re_kip();
+  _info.base = Global::l4re_aux->ldr_base;
 }
 
 L4Re_app_model::Dataspace
