@@ -8,6 +8,7 @@
 #pragma once
 
 #include <exception>
+#include <initializer_list>
 
 namespace std { namespace L4 {
 
@@ -19,4 +20,5 @@ static const auto install_terminate_handler
 {
   std::set_terminate(&terminate_handler)
 };
+
 } } }
