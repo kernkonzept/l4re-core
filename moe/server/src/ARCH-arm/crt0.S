@@ -25,7 +25,8 @@ _real_start:
 	ldr 	sp, .LCstack
 	b	_start
 
-.LCstack: .word _stack_top
+/* Mind the argc that is popped off the stack! */
+.LCstack: .word _stack_top-8
 
 /*--- my stack -------------------------------------*/
 	.bss

@@ -26,7 +26,8 @@ _real_start:
 	mov 	sp, x9
 	b	_start
 
-.LCstack: .8byte _stack_top
+/* Mind the argc that is popped off the stack! */
+.LCstack: .8byte _stack_top-16
 
 /*--- my stack -------------------------------------*/
 	.bss

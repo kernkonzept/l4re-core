@@ -24,7 +24,8 @@
 _real_start:
 	/* Clear the base pointer so that stack backtraces will work.  */
 	xorl	%ebp,%ebp
-	mov 	$_stack_top, %esp
+	/* Mind the argc that is popped off the stack! */
+	mov 	$_stack_top-16, %esp
 	jmp _start
 /*--- my stack -------------------------------------*/
 	.bss

@@ -24,8 +24,9 @@
 .type _real_start, @function
 .globl _real_start
 _real_start:
-  lis   %r1, _stack_top@ha
-  addi  %r1, %r1, _stack_top@l
+  /* Mind the argc that is popped off the stack! */
+  lis   %r1, (_stack_top-16)@ha
+  addi  %r1, %r1, (_stack_top-16)@l
   b     _start
 
 /*--- my stack -------------------------------------*/

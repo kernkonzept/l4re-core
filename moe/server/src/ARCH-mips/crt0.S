@@ -23,7 +23,8 @@
 _real_start:
 	.cpload $25 /* load gp */
 	SETUP_GPX64($25, $0)
-	PTR_LA	$29, _stack_top
+	/* Mind the argc that is popped off the stack! */
+	PTR_LA	$29, _stack_top-8
 	PTR_LA	$25, __start
 	PTR_SUBU  $29, (NARGSAVE * SZREG)
 	jalr $25
