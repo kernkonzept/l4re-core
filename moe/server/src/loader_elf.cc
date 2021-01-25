@@ -20,7 +20,13 @@ Elf_loader::launch(App_task *t, cxx::String const &prog,
 {
   Dbg ldr(Dbg::Loader, "ldr");
   Moe_x_app_model am(t, prog, args);
+#if defined(CONFIG_MMU) || defined(CONFIG_BID_PIE)
   Ldr::Elf_loader<Moe_x_app_model, Dbg>::launch(&am, "rom/l4re", ldr);
+#else
+  // We're running position dependent code without an MMU. The l4re_kernel can
+  // thus be loaded only once. There's no point in using it.
+  Ldr::Elf_loader<Moe_x_app_model, Dbg>::launch(&am, prog.start(), ldr);
+#endif
   return true;
 }
 
