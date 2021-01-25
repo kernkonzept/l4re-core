@@ -31,6 +31,7 @@
 #include <l4/sys/types.h>
 #include <l4/sys/l4int.h>
 #include <l4/sys/capability>
+#include <l4/sys/task>
 #include <l4/re/protocols.h>
 #include <l4/sys/cxx/ipc_types>
 #include <l4/sys/cxx/ipc_iface>
@@ -158,6 +159,40 @@ public:
    */
   long map(Offset offset, Flags flags, Map_addr local_addr,
            Map_addr min_addr, Map_addr max_addr) const noexcept;
+
+  /**
+   * Do a flex-page mapping of the dataspace to a different task.
+   *
+   * \param dst         The task where the mapping is established
+   * \param offset      Offset to start within dataspace
+   * \param flags       Dataspace flags, see #L4Re::Dataspace::F::Flags.
+   * \param min_addr    (Inclusive) start of the receive area.
+   * \param max_addr    (Exclusive) end of receive area.
+   *
+   * \retval L4_EOK      Success
+   * \retval -L4_ERANGE  Invalid offset.
+   * \retval -L4_EPERM   Insufficient permission to map with requested rights.
+   * \retval <0          IPC errors
+   *
+   * This function maps flex-pages consecutively into the given memory area in
+   * the given task. The area is expected to be filled completely. If the
+   * dataspace is not large enough to provide the mappings for the entire size
+   * of the area, then an error is returned. Mappings may or may not have been
+   * already established at that point.
+   *
+   * `offset` and `min_addr` are rounded down to the
+   * next `L4_PAGESIZE` boundary when necessary. `max_addr` is rounded up
+   * to the page boundary. If the resulting maximum address is less or equal
+   * than the minimum address, then the function is a noop.
+   *
+   * The map call will attempt to map the largest possible flexpage that
+   * covers the given local address and still fits into the region
+   * defined by `min_addr` and `max_addr`. If the given region is
+   * invalid or does not overlap the local address, the smallest valid
+   * page size is used.
+   */
+  L4_RPC(long, map_to, (L4::Ipc::Cap<L4::Task> dst, Offset offset, Flags flags,
+                        Map_addr min_addr, Map_addr max_addr));
 
   /**
    * Map a part of a dataspace into a local memory area.
@@ -317,7 +352,7 @@ private:
 
 public:
   typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t,
-                           allocate_t, map_info_t> Rpcs;
+                           allocate_t, map_info_t, map_to_t> Rpcs;
 
 };
 

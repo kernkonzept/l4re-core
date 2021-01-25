@@ -20,6 +20,7 @@
 #include <l4/sys/capability>
 #include <l4/sys/err.h>
 #include <l4/sys/cache.h>
+#include <l4/sys/cxx/consts>
 
 #include <cstring>
 using cxx::min;
@@ -91,6 +92,71 @@ Moe::Dataspace::op_map(L4Re::Dataspace::Rights rights,
 
   return ret;
 };
+
+long
+Moe::Dataspace::op_map_to(L4Re::Dataspace::Rights rights,
+                          L4::Ipc::Snd_fpage const &dst_cap,
+                          L4Re::Dataspace::Offset offset,
+                          L4Re::Dataspace::Flags flags,
+                          L4Re::Dataspace::Map_addr min_addr,
+                          L4Re::Dataspace::Map_addr max_addr)
+{
+  auto mf = map_flags(rights);
+
+  if (0)
+    L4::cout << "MAPTOrq: " << L4::hex << offset << ", " << min_addr << ", "
+      << max_addr << ", " << flags.raw << ", " << mf.raw << "\n";
+
+  if (!dst_cap.cap_received())
+    return -L4_EINVAL;
+
+  L4::Cap<L4::Task> task = server_iface()->rcv_cap<L4::Task>(0);
+  if (!task)
+    return -L4_EINVAL;
+
+  if (!mf.w() && flags.w())
+    return -L4_EPERM;
+
+  if (!mf.x() && flags.x())
+    return -L4_EPERM;
+
+  min_addr   = L4::trunc_page(min_addr);
+  max_addr   = L4::round_page(max_addr);
+  unsigned char order = L4_LOG2_PAGESIZE;
+
+  long err = 0;
+
+  while (min_addr < max_addr)
+    {
+      order = L4::max_order(order, min_addr, min_addr, max_addr, min_addr);
+
+      L4::Ipc::Snd_fpage memory;
+      err = map(offset, min_addr, flags & mf, min_addr, max_addr, memory);
+      if (L4_UNLIKELY(err < 0))
+        return err;
+
+      l4_fpage_t fp;
+      fp.raw = memory.data();
+      err = l4_error(task->map(L4_BASE_TASK_CAP, fp, min_addr));
+      if (L4_UNLIKELY(err < 0))
+        return err;
+
+      if (order > l4_fpage_size(fp))
+        order = l4_fpage_size(fp);
+
+      min_addr += L4Re::Dataspace::Map_addr(1) << order;
+      offset   += L4Re::Dataspace::Map_addr(1) << order;
+
+      if (min_addr >= max_addr)
+        return 0;
+
+      while (min_addr != L4::trunc_order(min_addr, order)
+             || max_addr < L4::round_order(min_addr + 1, order))
+        --order;
+    }
+
+  return err;
+}
 
 long
 Moe::Dataspace::op_copy_in(L4Re::Dataspace::Rights obj,
