@@ -31,7 +31,7 @@ namespace
 {
   struct Ca : L4Re::Cap_alloc_t<L4Re::Util::_Cap_alloc>
   {
-    enum { Caps = 4096 };
+    enum { Caps = CONFIG_L4RE_CAP_MAX };
     typedef L4Re::Util::_Cap_alloc::Counter_storage<Caps> Storage;
 
     L4Re::Util::Dbg _dbg;

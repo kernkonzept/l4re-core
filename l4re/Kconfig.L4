@@ -1,0 +1,11 @@
+menu "L4Re"
+
+config L4RE_CAP_MAX
+	int "Maximum number of allocatable capabilities"
+	default 4096 if MMU
+	default 64 if !MMU
+	help
+	  The allocation of capability slots is managed in lib4re. It requires
+	  static storage proportional to the number of supported allocations.
+
+endmenu
