@@ -34,12 +34,17 @@
 /**
  * \internal
  */
-L4_INLINE void
+#ifdef __thumb__
+__attribute__((target("arm"), weak))
+#else
+L4_INLINE
+#endif
+void
 l4_cache_op_arm_call(unsigned long op,
                      unsigned long start,
                      unsigned long end);
 
-L4_INLINE void
+void
 l4_cache_op_arm_call(unsigned long op,
                      unsigned long start,
                      unsigned long end)

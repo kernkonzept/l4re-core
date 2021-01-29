@@ -30,19 +30,29 @@
 #include <l4/sys/compiler.h>
 #include <l4/sys/syscall_defs.h>
 
-L4_INLINE l4_msgtag_t
-l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
-       l4_umword_t flags,
-       l4_umword_t slabel,
-       l4_msgtag_t tag,
-       l4_umword_t *rlabel,
-       l4_timeout_t timeout) L4_NOTHROW
+#ifdef __thumb__
+__attribute__((target("arm"), weak))
+#else
+L4_ALWAYS_INLINE
+#endif
+l4_msgtag_t
+__l4_ipc(l4_mword_t r0,
+         l4_umword_t r4, // passed as r1 which is unused in kernel ABI
+         l4_umword_t r2,
+         l4_umword_t r3,
+         l4_umword_t *rlabel) L4_NOTHROW;
+
+l4_msgtag_t
+__l4_ipc(l4_mword_t r0,
+         l4_umword_t r4,
+         l4_umword_t r2,
+         l4_umword_t r3,
+         l4_umword_t *rlabel) L4_NOTHROW
 {
-  register l4_umword_t _dest     __asm__("r2") = dest | flags;
-  register l4_umword_t _timeout  __asm__("r3") = timeout.raw;
-  register l4_mword_t _tag       __asm__("r0") = tag.raw;
-  register l4_umword_t _label    __asm__("r4") = slabel;
-  (void)utcb;
+  register l4_umword_t _dest     __asm__("r2") = r2;
+  register l4_umword_t _timeout  __asm__("r3") = r3;
+  register l4_mword_t  _tag      __asm__("r0") = r0;
+  register l4_umword_t _label    __asm__("r4") = r4;
 
   __asm__ __volatile__
     ("mrs r1, cpsr  \n"
@@ -63,9 +73,22 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
 
   if (rlabel)
     *rlabel = _label;
-  tag.raw = _tag;
 
+  l4_msgtag_t tag;
+  tag.raw = _tag;
   return tag;
+}
+
+L4_INLINE l4_msgtag_t
+l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
+       l4_umword_t flags,
+       l4_umword_t slabel,
+       l4_msgtag_t tag,
+       l4_umword_t *rlabel,
+       l4_timeout_t timeout) L4_NOTHROW
+{
+  (void)utcb;
+  return __l4_ipc(tag.raw, slabel, dest | flags, timeout.raw, rlabel);
 }
 
 #endif //__GNUC__

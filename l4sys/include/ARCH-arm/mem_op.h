@@ -95,7 +95,12 @@ enum L4_mem_ops
 /**
  * \internal
  */
-L4_INLINE unsigned long
+#ifdef __thumb__
+__attribute__((target("arm"), weak))
+#else
+L4_INLINE
+#endif
+unsigned long
 l4_mem_arm_op_call(unsigned long op,
                    unsigned long va,
                    unsigned long width,
@@ -103,7 +108,7 @@ l4_mem_arm_op_call(unsigned long op,
 
 /** Implementations */
 
-L4_INLINE unsigned long
+unsigned long
 l4_mem_arm_op_call(unsigned long op,
                    unsigned long va,
                    unsigned long width,
