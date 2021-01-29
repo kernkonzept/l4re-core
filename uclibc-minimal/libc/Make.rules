@@ -10,6 +10,8 @@ Link_Libs=  %{static|static-pie:-luc_c_minimal}
 endef
 
 DEFINES		+= -DL4_MINIMAL_LIBC
+DEFINES_arm     += -D__USE_BX__=1
+
 LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
 
 include $(LIBCSRC_DIR)/make_vars.mk
