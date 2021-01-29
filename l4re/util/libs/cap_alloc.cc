@@ -36,7 +36,12 @@ namespace
 {
   struct Ca : L4Re::Cap_alloc_t<L4Re::Util::_Cap_alloc>
   {
+#ifdef CONFIG_MMU
     enum { Caps = 4096 };
+#else
+    enum { Caps = 64 };
+#endif
+
     typedef L4Re::Util::_Cap_alloc::Counter_storage<Caps> Storage;
 
 #if defined(L4RE_STATIC_CAP_ALLOC) || !defined(CONFIG_MMU)
