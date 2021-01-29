@@ -61,7 +61,7 @@
 /* The number of data keys per process.  */
 #define _POSIX_THREAD_KEYS_MAX	128
 /* This is the value this implementation supports.  */
-#define PTHREAD_KEYS_MAX	1024
+#define PTHREAD_KEYS_MAX	128
 
 /* Controlling the iterations of destructors for thread-specific data.  */
 #define _POSIX_THREAD_DESTRUCTOR_ITERATIONS	4
