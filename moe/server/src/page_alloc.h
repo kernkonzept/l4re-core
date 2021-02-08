@@ -24,19 +24,6 @@ public:
 
 protected:
   Single_page_alloc_base();
-  static void *_alloc(Nothrow);
-
-  static void *_alloc()
-  {
-    void *r = _alloc(nothrow);
-    if (!r)
-      throw L4::Out_of_memory();
-
-
-    return r;
-  }
-
-  static void _free(void *p);
 
 public:
   static void *_alloc_max(unsigned long min, unsigned long *max,
