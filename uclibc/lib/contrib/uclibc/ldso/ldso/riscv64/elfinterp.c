@@ -204,19 +204,21 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			*reloc_addr += tpnt->loadaddr + rpnt->r_addend;
 			break;
 		case R_RISCV_COPY:
-			_dl_memcpy((void *) reloc_addr,
-				   (void *) symbol_addr, sym_ref.sym->st_size);
+			if (symbol_addr) {
+				_dl_memcpy((char *)reloc_addr, (char *)symbol_addr,
+							sym_ref.sym->st_size);
+			}
 			break;
 #if defined USE_TLS && USE_TLS
 		case R_RISCV_TLS_DTPMOD64:
 			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;
 		case R_RISCV_TLS_DTPREL64:
-			*reloc_addr = symbol_addr;
+			*reloc_addr = symbol_addr + rpnt->r_addend;
 			break;
 		case R_RISCV_TLS_TPREL64:
 			CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
-			*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend;
+			*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend - TLS_TCB_SIZE;
 			break;
 #endif
 		default:
