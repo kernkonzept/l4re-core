@@ -102,8 +102,10 @@
 # define F_NOTIFY	1026	/* Request notifications on a directory.  */
 # define F_SETPIPE_SZ	1031	/* Set pipe page size array.  */
 # define F_GETPIPE_SZ	1032	/* Set pipe page size array.  */
+#endif
+#if defined __USE_XOPEN2K8 || defined __USE_GNU
 # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
-				   close-on-exit set.  */
+				   close-on-exit set on new fd.  */
 #endif
 
 /* For F_[GET|SET]FD.  */

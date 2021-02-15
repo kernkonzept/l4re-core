@@ -100,10 +100,12 @@
 # define F_SETLEASE	1024	/* Set a lease.	 */
 # define F_GETLEASE	1025	/* Enquire what lease is active.  */
 # define F_NOTIFY	1026	/* Request notfications on a directory.	 */
-# define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
-				   close-on-exit set on new fd.  */
 # define F_SETPIPE_SZ	1031	/* Set of pipe page size array */
 # define F_GETPIPE_SZ	1032	/* Get of pipe page size array */
+#endif
+#if defined __USE_XOPEN2K8 || defined __USE_GNU
+# define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
+				   close-on-exit set on new fd.  */
 #endif
 
 /* For F_[GET|SET]FL.  */
