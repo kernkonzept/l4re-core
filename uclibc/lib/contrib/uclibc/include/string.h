@@ -141,7 +141,8 @@ extern size_t strxfrm_l (char *__dest, const char *__src, size_t __n,
 libc_hidden_proto(strxfrm_l)
 #endif
 
-#if defined __USE_SVID || defined __USE_BSD || defined __USE_XOPEN_EXTENDED
+#if defined __USE_SVID || defined __USE_BSD || \
+	defined __USE_XOPEN_EXTENDED || defined __USE_XOPEN2K8
 /* Duplicate S, returning an identical malloc'd string.  */
 extern char *strdup (const char *__s)
      __THROW __attribute_malloc__ __nonnull ((1));
