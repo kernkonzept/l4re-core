@@ -14,7 +14,7 @@
 #include <l4/sys/cxx/ipc_epiface>
 
 #include <l4/sys/capability>
-#include <l4/re/util/name_space_svr>
+#include <l4/re/namespace>
 
 #include "server_obj.h"
 #include "quota.h"

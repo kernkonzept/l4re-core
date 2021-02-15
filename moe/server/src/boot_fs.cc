@@ -25,9 +25,6 @@
 #include <cstring>
 #include <cstdlib>
 
-using L4Re::Util::Names::Name_space;
-namespace Names { using namespace L4Re::Util::Names; }
-
 static Dbg dbg(Dbg::Boot_fs, "fs");
 
 #if 0
