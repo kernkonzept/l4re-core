@@ -23,7 +23,7 @@ struct Answer
 {
 private:
   void snd_base(unsigned long base)
-  { l4_utcb_mr_u(utcb)->mr[0] = (base & (~0UL << 10)) | 8; }
+  { l4_utcb_mr_u(utcb)->mr[0] = (base & L4_FPAGE_CONTROL_MASK) | L4_ITEM_MAP; }
 
 public:
   l4_utcb_t *utcb;
@@ -58,5 +58,5 @@ public:
   { return tag.label() < 0; }
 
   void do_grant()
-  { l4_utcb_mr_u(utcb)->mr[0] |= 2; }
+  { l4_utcb_mr_u(utcb)->mr[0] |= L4_MAP_ITEM_GRANT; }
 };
