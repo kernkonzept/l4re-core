@@ -102,10 +102,10 @@ public:
   /**
    * Page-fault protocol message.
    *
-   * \param      pfa     Faulting address including failure reason: bits [0:2]
+   * \param      pfa     Faulting address including failure reason: bits [0:2].
    * \param      pc      Faulting program counter.
    * \param      rwin    Receive window for a flex-page mapping resolving the
-   *                     page fault
+   *                     page fault.
    * \param[out] fp      Optional: flex-page descriptor to send to the task
    *                     raising the page fault.
    *
@@ -124,9 +124,9 @@ public:
    * - __PFA__ Bits 63/31..3 of `pfa` are the page fault address bits 63/31
    *           to 3, bits 2..0 are masked.
    * - __X__   Bit 2 of `pfa` if set, indicates a page fault during instruction
-   *           fetch. Note, this bit is implementation-defined and might be
-   *           always clear. This means, if this bit is clear it does not imply
-   *           the the page fault is not due to an instruction fetch.
+   *           fetch. Note, this bit is implementation-defined and might always
+   *           be clear. Therefore, if this bit is clear it does not imply
+   *           that the page fault is not due to an instruction fetch.
    * - __W__   Bit 1 of `pfa` is set to 1 for a page fault due to a write
    *           operation.
    * - __r__   Bit0: reserved, undefined.
