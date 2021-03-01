@@ -416,6 +416,9 @@ public:
   /// Create a parameter list as a copy from a referencing list.
   Varg_list(Varg_list_ref const &r)
   {
+    if (!r._s.valid())
+      return;
+
     l4_umword_t const *rs = r._s.begin();
     unsigned c = r._s.end() - rs;
     for (unsigned i = 0; i < c; ++i)
