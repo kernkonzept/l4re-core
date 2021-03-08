@@ -137,7 +137,7 @@ L4_INLINE l4_uint32_t
 l4_calibrate_tsc (l4_kernel_info_t *kip);
 
 /**
- * \brief Initialitze scaler for TSC calicaltions.
+ * \brief Initialize scaler for TSC calibrations.
  *
  * Initialize the scalers needed by l4_tsc_to_ns()/l4_ns_to_tsc() and so on.
  * Current versions of Fiasco export these scalers from kernel into userland.
@@ -175,7 +175,7 @@ l4_get_hz (void);
 
 EXTERN_C_END
 
-/* implementaion */
+/* implementation */
 
 L4_INLINE l4_uint32_t
 l4_calibrate_tsc (l4_kernel_info_t *kip)

@@ -112,7 +112,7 @@ l4_ns_to_tsc (l4_uint64_t ns);
 /**
  * \brief Wait busy for a small amount of time.
  * \param ns nano seconds to wait
- * \attention Not intendet for any use!
+ * \attention Not intended for any use!
  */
 L4_INLINE void
 l4_busy_wait_ns (l4_uint64_t ns);
@@ -139,7 +139,7 @@ L4_INLINE l4_uint32_t
 l4_calibrate_tsc (l4_kernel_info_t *kip);
 
 /**
- * \brief Initialitze scaler for TSC calicaltions.
+ * \brief Initialize scaler for TSC calibrations.
  *
  * Initialize the scalers needed by l4_tsc_to_ns()/l4_ns_to_tsc() and so on.
  * Current versions of Fiasco export these scalers from kernel into userland.
