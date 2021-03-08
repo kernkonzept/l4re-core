@@ -35,7 +35,6 @@ typedef void L4_ktrace_t__Rcu_item;
 typedef void L4_ktrace_t__Sched_context;
 typedef long L4_ktrace_t__Smword;
 typedef void L4_ktrace_t__Space;
-typedef unsigned short L4_ktrace_t__Unsigned16;
 typedef unsigned int L4_ktrace_t__Unsigned32;
 typedef unsigned long long L4_ktrace_t__Unsigned64;
 typedef unsigned char L4_ktrace_t__Unsigned8;
@@ -121,7 +120,8 @@ typedef struct __attribute__((packed))
       L4_ktrace_t__Mword id; /* 48+8 */
       L4_ktrace_t__Mword mask; /* 56+8 */
       L4_ktrace_t__Mword fpage; /* 64+8 */
-    } tunmap; /* 72 */
+      char map; /* 72+1 */
+    } tmap; /* 80 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
@@ -144,12 +144,12 @@ typedef struct __attribute__((packed))
     } context_switch; /* 104 */
     struct __attribute__((__packed__))
     {
-    } generic; /* 48 */
+    } empty; /* 48 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
       L4_ktrace_t__L4_msg_tag _tag; /* 48+8 */
-      unsigned long _dword[2]; /* 56+16 */
+      L4_ktrace_t__Mword _dword[2]; /* 56+16 */
       L4_ktrace_t__L4_obj_ref _dst; /* 72+8 */
       L4_ktrace_t__Mword _dbg_id; /* 80+8 */
       L4_ktrace_t__Mword _label; /* 88+8 */
@@ -159,7 +159,7 @@ typedef struct __attribute__((packed))
     {
       char __pre_pad[2];
       L4_ktrace_t__L4_msg_tag _tag; /* 48+8 */
-      unsigned long _dword[2]; /* 56+16 */
+      L4_ktrace_t__Mword _dword[2]; /* 56+16 */
       L4_ktrace_t__L4_error _result; /* 72+8 */
       L4_ktrace_t__Mword _from; /* 80+8 */
       L4_ktrace_t__Mword _pair_event; /* 88+8 */
@@ -186,7 +186,7 @@ typedef struct __attribute__((packed))
           char __pad_1[6];
           char *ptr; /* 8+8 */
         } mptr; /* 0+16 */
-      } _msg; /* 48+80 */
+      } msg; /* 48+80 */
     } ke; /* 128 */
     struct __attribute__((__packed__))
     {
@@ -195,7 +195,7 @@ typedef struct __attribute__((packed))
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
-      unsigned long v[3]; /* 48+24 */
+      L4_ktrace_t__Mword v[3]; /* 48+24 */
       union __attribute__((__packed__)) {
         char msg[56]; /* 0+56 */
         struct __attribute__((__packed__)) {
@@ -203,7 +203,7 @@ typedef struct __attribute__((packed))
           char __pad_1[6];
           char *ptr; /* 8+8 */
         } mptr; /* 0+16 */
-      } _msg; /* 72+56 */
+      } msg; /* 72+56 */
     } ke_reg; /* 128 */
     struct __attribute__((__packed__))
     {
@@ -223,16 +223,12 @@ typedef struct __attribute__((packed))
     } sched; /* 80 */
     struct __attribute__((__packed__))
     {
-      char _trapno; /* 46+1 */
-      L4_ktrace_t__Unsigned16 _error; /* 47+2 */
-      L4_ktrace_t__Mword _rbp; /* 49+8 */
-      L4_ktrace_t__Mword _cr2; /* 57+8 */
-      L4_ktrace_t__Mword _rax; /* 65+8 */
-      L4_ktrace_t__Mword _rflags; /* 73+8 */
-      L4_ktrace_t__Mword _rsp; /* 81+8 */
-      L4_ktrace_t__Unsigned16 _cs; /* 89+2 */
-      L4_ktrace_t__Unsigned16 _ds; /* 91+2 */
-    } trap; /* 96 */
+      char __pre_pad[2];
+      L4_ktrace_t__Unsigned32 _error; /* 48+4 */
+      char __pad_1[4];
+      L4_ktrace_t__Mword _cpsr; /* 56+8 */
+      L4_ktrace_t__Mword _sp; /* 64+8 */
+    } trap; /* 72 */
     struct __attribute__((__packed__))
     {
       char _padding[80]; /* 46+80 */
@@ -242,14 +238,14 @@ typedef struct __attribute__((packed))
     {
       char __pre_pad[2];
       L4_ktrace_t__Cap_index cap_idx; /* 48+8 */
-    } invexchdl; /* 56 */
+    } ieh; /* 56 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
       L4_ktrace_t__Mword pfa; /* 48+8 */
       L4_ktrace_t__Cap_index cap_idx; /* 56+8 */
       L4_ktrace_t__Mword err; /* 64+8 */
-    } invpfhdl; /* 72 */
+    } ipfh; /* 72 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
@@ -272,13 +268,5 @@ typedef struct __attribute__((packed))
       L4_ktrace_t__Irq_base *obj; /* 48+8 */
       L4_ktrace_t__Address user_ip; /* 56+8 */
     } timer; /* 64 */
-    struct __attribute__((__packed__))
-    {
-      char __pre_pad[2];
-      L4_ktrace_t__Mword exitcode; /* 48+8 */
-      L4_ktrace_t__Mword exitinfo1; /* 56+8 */
-      L4_ktrace_t__Mword exitinfo2; /* 64+8 */
-      L4_ktrace_t__Mword rip; /* 72+8 */
-    } svm; /* 80 */
   } m;
 } l4_tracebuffer_entry_t;

@@ -120,7 +120,8 @@ typedef struct __attribute__((packed))
       L4_ktrace_t__Mword id; /* 36+4 */
       L4_ktrace_t__Mword mask; /* 40+4 */
       L4_ktrace_t__Mword fpage; /* 44+4 */
-    } tunmap; /* 48 */
+      char map; /* 48+1 */
+    } tmap; /* 56 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
@@ -142,12 +143,12 @@ typedef struct __attribute__((packed))
     } context_switch; /* 64 */
     struct __attribute__((__packed__))
     {
-    } generic; /* 40 */
+    } empty; /* 40 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
       L4_ktrace_t__L4_msg_tag _tag; /* 36+4 */
-      unsigned long _dword[2]; /* 40+8 */
+      L4_ktrace_t__Mword _dword[2]; /* 40+8 */
       L4_ktrace_t__L4_obj_ref _dst; /* 48+4 */
       L4_ktrace_t__Mword _dbg_id; /* 52+4 */
       L4_ktrace_t__Mword _label; /* 56+4 */
@@ -157,7 +158,7 @@ typedef struct __attribute__((packed))
     {
       char __pre_pad[2];
       L4_ktrace_t__L4_msg_tag _tag; /* 36+4 */
-      unsigned long _dword[2]; /* 40+8 */
+      L4_ktrace_t__Mword _dword[2]; /* 40+8 */
       L4_ktrace_t__L4_error _result; /* 48+4 */
       L4_ktrace_t__Mword _from; /* 52+4 */
       L4_ktrace_t__Mword _pair_event; /* 56+4 */
@@ -184,7 +185,7 @@ typedef struct __attribute__((packed))
           char __pad_1[2];
           char *ptr; /* 4+4 */
         } mptr; /* 0+8 */
-      } _msg; /* 36+24 */
+      } msg; /* 36+24 */
     } ke; /* 64 */
     struct __attribute__((__packed__))
     {
@@ -193,7 +194,7 @@ typedef struct __attribute__((packed))
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
-      unsigned long v[3]; /* 36+12 */
+      L4_ktrace_t__Mword v[3]; /* 36+12 */
       union __attribute__((__packed__)) {
         char msg[12]; /* 0+12 */
         struct __attribute__((__packed__)) {
@@ -201,7 +202,7 @@ typedef struct __attribute__((packed))
           char __pad_1[2];
           char *ptr; /* 4+4 */
         } mptr; /* 0+8 */
-      } _msg; /* 48+12 */
+      } msg; /* 48+12 */
     } ke_reg; /* 64 */
     struct __attribute__((__packed__))
     {
@@ -240,14 +241,14 @@ typedef struct __attribute__((packed))
     {
       char __pre_pad[2];
       L4_ktrace_t__Cap_index cap_idx; /* 36+4 */
-    } invexchdl; /* 40 */
+    } ieh; /* 40 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
       L4_ktrace_t__Mword pfa; /* 36+4 */
       L4_ktrace_t__Cap_index cap_idx; /* 40+4 */
       L4_ktrace_t__Mword err; /* 44+4 */
-    } invpfhdl; /* 48 */
+    } ipfh; /* 48 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
