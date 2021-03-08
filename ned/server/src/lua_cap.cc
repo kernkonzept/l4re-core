@@ -127,9 +127,9 @@ __set_mode_call(lua_State *l)
 		case 'd':
 		case 'D': rights |= L4_CAP_FPAGE_D; break;
 		case 'n':
-		case 'N': rights |= 0x10; break;
+		case 'N': rights |= L4_FPAGE_C_NO_REF_CNT; break;
 		case 'c':
-		case 'C': rights |= 0x20; break;
+		case 'C': rights |= L4_FPAGE_C_OBJ_RIGHT1; break;
 		}
 	    }
 	}

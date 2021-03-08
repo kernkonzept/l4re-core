@@ -174,7 +174,7 @@ protected:
       return;
 
     l4_task_map(L4_BASE_TASK_CAP, L4_BASE_TASK_CAP, src.fpage(L4_CAP_FPAGE_RWSD),
-                snd_base(L4_MAP_ITEM_GRANT) | 0xe0);
+                snd_base(L4_MAP_ITEM_GRANT) | L4_FPAGE_C_OBJ_RIGHTS);
   }
 
   /**
@@ -190,7 +190,7 @@ protected:
       return;
 
     l4_task_map(L4_BASE_TASK_CAP, L4_BASE_TASK_CAP, src.fpage(L4_CAP_FPAGE_RWSD),
-                snd_base() | 0xe0);
+                snd_base() | L4_FPAGE_C_OBJ_RIGHTS);
   }
 
   /**
