@@ -55,6 +55,13 @@ static
 void new_client(l4_umword_t, Answer *a)
 {
   static l4_cap_idx_t _next_gate = L4_BASE_CAPS_LAST + L4_CAP_OFFSET;
+
+  if ((_next_gate >> L4_CAP_SHIFT) & ~Region::Owner_mask)
+    {
+      a->error(L4_ENOMEM);
+      return;
+    }
+
   l4_factory_create_gate_u(L4_BASE_FACTORY_CAP, _next_gate,
                            L4_BASE_THREAD_CAP, (_next_gate >> L4_CAP_SHIFT) << 4, a->utcb);
   a->snd_fpage(l4_obj_fpage(_next_gate, 0, L4_CAP_FPAGE_RWS));
