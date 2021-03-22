@@ -268,7 +268,7 @@ Mem_man::reserve(Region const &r)
             r2->start(r.end() + 1);
           else
             {
-              Region const nr(r.end() + 1, r2->end(), r2->owner());
+              Region const nr(r.end() + 1, r2->end(), r2->owner(), r2->rights());
               r2->end(r.start() - 1);
               if (0)
                 L4::cout << this << ": ADDnr: " << nr << "\n";
