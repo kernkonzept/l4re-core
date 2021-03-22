@@ -56,7 +56,4 @@ public:
 
   bool failed() const
   { return tag.label() < 0; }
-
-  void do_grant()
-  { l4_utcb_mr_u(utcb)->mr[0] |= L4_MAP_ITEM_GRANT; }
 };

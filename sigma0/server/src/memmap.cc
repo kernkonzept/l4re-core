@@ -75,12 +75,7 @@ void map_free_page(unsigned size, l4_umword_t t, Answer *a)
   unsigned long addr;
   addr = Mem_man::ram()->alloc_first(1UL << size, t);
   if (addr != ~0UL)
-    {
-      a->snd_fpage(addr, size, L4_FPAGE_RWX, true);
-
-      if (t < root_taskno) /* sender == kernel? */
-        a->do_grant(); /* kernel wants page granted */
-    }
+    a->snd_fpage(addr, size, L4_FPAGE_RWX, true);
   else
     a->error(L4_ENOMEM);
 }
