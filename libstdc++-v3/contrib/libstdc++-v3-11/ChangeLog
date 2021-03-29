@@ -1,0 +1,1298 @@
+2021-03-31  Alexandre Oliva  <oliva@adacore.com>
+
+	* testsuite/30_threads/future/members/poll.cc: Use faster
+	after-ready call in the calibration loop.
+
+2021-03-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2017.xml: Adjust link for PSTL.
+	* doc/html/manual/status.html: Regenerate.
+
+2021-03-28  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/debug/forward_list
+	(forward_list(forward_list&&, const allocator_type&)): Add noexcept qualification.
+	* include/debug/list (list(list&&, const allocator_type&)): Likewise and add
+	call to safe container allocator aware move constructor.
+	* include/debug/vector (vector(vector&&, const allocator_type&)):
+	Fix noexcept qualification.
+	* testsuite/23_containers/forward_list/cons/noexcept_move_construct.cc:
+	Add allocator-extended move constructor noexceot qualification check.
+	* testsuite/23_containers/list/cons/noexcept_move_construct.cc: Likewise.
+
+2021-03-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++11/random.cc (USE_LCG): Define when a pseudo-random
+	fallback is needed.
+	[USE_LCG] (bad_seed, construct_lcg_at, destroy_lcg_at, __lcg):
+	New helper functions and callback.
+	(random_device::_M_init): Add 'prng' and 'all' enumerators.
+	Replace switch with fallthrough with a series of 'if' statements.
+	[USE_LCG]: Construct an lcg_type engine and use __lcg when cpuid
+	checks fail.
+	(random_device::_M_init_pretr1) [USE_MT19937]: Accept "prng"
+	token.
+	(random_device::_M_getval): Check for callback unconditionally
+	and always pass _M_file pointer.
+	* testsuite/26_numerics/random/random_device/85494.cc: Remove
+	effective-target check. Use new random_device_available helper.
+	* testsuite/26_numerics/random/random_device/94087.cc: Likewise.
+	* testsuite/26_numerics/random/random_device/cons/default-cow.cc:
+	Remove effective-target check.
+	* testsuite/26_numerics/random/random_device/cons/default.cc:
+	Likewise.
+	* testsuite/26_numerics/random/random_device/cons/token.cc: Use
+	new random_device_available helper. Test "prng" token.
+	* testsuite/util/testsuite_random.h (random_device_available):
+	New helper function.
+
+2021-03-25  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/debug/string
+	(basic_string(const basic_string&, const _Alloc&)): Define even if !_GLIBCXX_USE_CXX11_ABI.
+	(basic_string(basic_string&&, const _Alloc&)): Likewise and add noexcept qualification.
+	(basic_string<>::erase): Adapt to take __const_iterator.
+	(basic_string(const _CharT*, const _Allocator&)): Remove assign call.
+	(basic_string<>::insert(const_iterator, _InputIte, _InputIte)): Try to
+	remove iterator debug layer even if !_GLIBCXX_USE_CXX11_ABI.
+	[_GLIBCXX_USE_CHAR8_T] (__gnu_debug::u8string): New.
+	(__gnu_debug::u16string, __gnu_debug::u32string): New.
+	(std::hash<__gnu_debug::basic_string<>>): New partial specialization.
+	(std::__is_fast_hash<__gnu_debug::basic_string<>>): Likewise.
+	* testsuite/util/exception/safety.h
+	(erase_base<__gnu_debug::basic_string<>>): New partial specialization.
+	(insert_base<__gnu_debug::basic_string<>>): Likewise.
+	* testsuite/util/testsuite_container_traits.h (traits<__gnu_debug::basic_string<>>):
+	New partial specialization.
+	* testsuite/21_strings/basic_string/hash/debug.cc: New test.
+	* testsuite/21_strings/basic_string/requirements/citerators.cc:
+	Add test on __gnu_debug::string.
+	* testsuite/21_strings/basic_string/requirements/dr438/constructor.cc: Likewise.
+	* testsuite/21_strings/basic_string/requirements/exception/basic.cc: Likewise.
+	* testsuite/21_strings/basic_string/requirements/exception/generation_prohibited.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/exception/propagation_consistent.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char16_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char32_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/char8_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/explicit_instantiation/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/requirements/typedefs.cc: Likewise.
+
+2021-03-25  Jakub Jelinek  <jakub@redhat.com>
+
+	PR c++/99672
+	* testsuite/18_support/source_location/consteval.cc (main): Adjust
+	expected column numbers.
+	* testsuite/18_support/source_location/1.cc (main): Likewise.
+
+2021-03-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/new_opa.cc [!_GLIBCXX_HOSTED]: Declare malloc.
+
+2021-03-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/exception/safety.h (setup_base::generate):
+	Support seeding random engine.
+	(erase_point, erase_range): Adjust range of random numbers to
+	ensure dereferenceable iterators are used where required.
+	(generation_prohibited::run): Do not try to erase from empty
+	containers.
+	* testsuite/util/testsuite_containergen.h (test_containers):
+	Support seeding random engine.
+
+2021-03-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/std/ranges/adaptors/reverse.cc: Replace duplicated
+	line with a check that uses the const being/end overloads.
+
+2021-03-23  Moritz Sichert  <sichert@in.tum.de>
+
+	* include/std/ranges (reverse_view::begin, reverse_view::end):
+	Qualify make_reverse_iterator calls to avoid ADL.
+	* testsuite/std/ranges/adaptors/reverse.cc: Test that
+	views::reverse works when make_reverse_iterator is defined
+	in an associated namespace.
+
+2021-03-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/c++config (_GLIBCXX_LONG_DOUBLE_ALT128_COMPAT):
+	Do not define when compiling with Clang.
+
+2021-03-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/string_view (basic_string_view(Range&&)): Define new
+	constructor and deduction guide.
+	* testsuite/21_strings/basic_string_view/cons/char/range_c++20.cc: New test.
+	* testsuite/21_strings/basic_string_view/cons/wchar_t/range_c++20.cc: New test.
+
+2021-03-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/range_access.h (begin(T (&)[N]), end(T (&)[N])):
+	Add missing 'noexcept' as per LWG 2280.
+	(rbegin(T (&)[N]), rend(T (&)[N]), rbegin(initializer_list<T>))
+	(rend(initializer_list<T>)): Add 'noexcept' as per LWG 3537.
+	* testsuite/24_iterators/range_access/range_access.cc: Check for
+	expected noexcept specifiers. Check result types of generic
+	std::begin and std::end overloads.
+	* testsuite/24_iterators/range_access/range_access_cpp14.cc:
+	Check for expected noexcept specifiers.
+	* testsuite/24_iterators/range_access/range_access_cpp17.cc:
+	Likewise.
+
+2021-03-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/type_traits (is_scoped_enum): Define.
+	* include/std/version (__cpp_lib_is_scoped_enum): Define.
+	* testsuite/20_util/is_scoped_enum/value.cc: New test.
+	* testsuite/20_util/is_scoped_enum/version.cc: New test.
+
+2021-03-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99341
+	* config/abi/post/aarch64-linux-gnu/baseline_symbols.txt: Remove
+	std::once_flag symbols.
+	* config/abi/post/ia64-linux-gnu/baseline_symbols.txt: Likewise.
+	* config/abi/post/m68k-linux-gnu/baseline_symbols.txt: Likewise.
+	* config/abi/post/riscv64-linux-gnu/baseline_symbols.txt:
+	Likewise.
+	* config/abi/pre/gnu.ver: Likewise.
+	* src/c++11/mutex.cc [_GLIBCXX_HAVE_LINUX_FUTEX]
+	(struct __once_flag_compat): Remove.
+	(_ZNSt9once_flag11_M_activateEv): Remove.
+	(_ZNSt9once_flag9_M_finishEb): Remove.
+
+2021-03-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99341
+	* include/std/mutex [_GLIBCXX_HAVE_LINUX_FUTEX] (once_flag):
+	Revert to pthread_once_t implementation.
+	[_GLIBCXX_HAVE_LINUX_FUTEX] (call_once): Likewise.
+	* src/c++11/mutex.cc [_GLIBCXX_HAVE_LINUX_FUTEX]
+	(struct __once_flag_compat): New type matching the reverted
+	implementation of once_flag using futexes.
+	(once_flag::_M_activate): Remove, replace with ...
+	(_ZNSt9once_flag11_M_activateEv): ... alias symbol.
+	(once_flag::_M_finish): Remove, replace with ...
+	(_ZNSt9once_flag9_M_finishEb): ... alias symbol.
+	* testsuite/30_threads/call_once/66146.cc: Removed.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* testsuite/17_intro/names.cc: Exclude j from the list
+	of test symbols for Darwin.
+
+2021-03-15  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/os/bsd/darwin/ppc-extra.ver: Add matching for
+	to_chars and from_chars for long double.
+
+2021-03-15  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/max_size_type.h (__max_size_type::operator _Tp):
+	Fix formatting.
+	(__max_size_type::operator++): Define.
+	(__max_size_type::operator--): Likewise.
+	(__max_size_type::operator<=>): Conditionally define (in place
+	of the other comparison operators).
+	(__max_diff_type::operator _Tp): Fix formatting.
+	(__max_diff_type::operator++): Define.
+	(__max_diff_type::operator--): Likewise.
+	(__max_diff_type::operator<=>): Conditionally define (in place
+	of the other comparison operators).
+	* testsuite/std/ranges/iota/max_size_type.cc (test01): Test
+	these operator overloads.
+
+2021-03-15  Caroline Tice  <cmtice@google.com>
+
+	PR libstdc++/99172
+	* src/Makefile.am (AM_CXXFLAGS_PRE, AM_CXXFLAGS): Add
+	AM_CXXFLAGS_PRE with the old definition of AM_CXXFLAGS; make
+	AM_CXXFLAGS to be AM_CXXFLAGS_PRE with '-fvtable-verify=std'
+	filtered out.
+	* src/Makefile.in: Regenerate.
+
+2021-03-11  Patrick Palka  <ppalka@redhat.com>
+
+	* src/c++17/floating_to_chars.cc: Simplify the file as if
+	__SIZEOF_INT128__ is always defined.
+	[!defined __SIZEOF_INT128__]: Include "uint128_t.h".  Define
+	a base-10 to_chars overload for the uint128_t class type.
+	* src/c++17/uint128_t.h: New file.
+	* testsuite/20_util/to_chars/long_double.cc: No longer expect an
+	execution FAIL on targets that have a large long double type
+	but lack __int128.
+
+2021-03-11  Patrick Palka  <ppalka@redhat.com>
+
+	* src/c++17/ryu/LOCAL_PATCHES: Update.
+	* src/c++17/ryu/d2s_intrinsics.h: Don't define uint128_t.
+	* src/c++17/ryu/generic_128.h: Likewise.
+	* src/c++17/ryu/ryu_generic_128.h (struct floating_decimal_128):
+	Use uint128_t instead of __uint128_t.
+	(generic_binary_to_decimal): Likewise.
+
+2021-03-11  Patrick Palka  <ppalka@redhat.com>
+
+	* src/c++17/ryu/LOCAL_PATCHES: New file.
+
+2021-03-11  Patrick Palka  <ppalka@redhat.com>
+
+	* src/c++17/floating_to_chars.cc (uint128_t): New conditionally
+	defined alias of unsigned __int128.
+	(floating_type_traits_binary128::mantissa_t): Use uint128_t
+	instead of unsigned __int128.
+	(floating_type_traits<long double>::mantissa_t)
+	[LONG_DOUBLE_KIND == LDK_IBM128]: Likewise.
+	(get_ieee_repr): Likewise.  Make casts from uint_t to mantissa_t
+	and uint32_t explicit.  Simplify the extraction of mantissa,
+	exponent and sign bit.
+
+2021-03-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/barrier (barrier::arrival_token): New move-only
+	class that encapsulates the underlying token value.
+
+2021-03-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (find_type): Use tag attribute
+	instead of unqualified() method.
+
+2021-03-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99537
+	* include/std/stop_token (_Stop_state_t::_M_release_ownership):
+	Use acq_rel memory ordering.
+
+2021-03-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99533
+	* src/c++17/fs_dir.cc (recursive_directory_iterator): Use new
+	helper function to check for permission denied errors.
+	* src/filesystem/dir.cc (recursive_directory_iterator):
+	Likewise.
+	* src/filesystem/dir-common.h (is_permission_denied_error): New
+	helper function.
+
+2021-03-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99536
+	* include/bits/random.h (normal_distribution): Use
+	default-initializer for _M_saved and _M_saved_available.
+
+2021-03-10  John David Anglin  <danglin@gcc.gnu.org>
+
+	* testsuite/29_atomics/atomic/wait_notify/bool.cc: Add options to
+	link with libatomic.
+	* testsuite/29_atomics/atomic/wait_notify/generic.cc: Likewise.
+	* testsuite/29_atomics/atomic/wait_notify/pointers.cc: Likewise.
+	* testsuite/29_atomics/atomic_flag/wait_notify/1.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive_and_drop.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive_and_wait.cc: Likewise.
+	* testsuite/30_threads/barrier/completion.cc: Likewise.
+	* testsuite/30_threads/latch/3.cc: Likewise.
+	* testsuite/30_threads/semaphore/try_acquire.cc: Likewise.
+	* testsuite/30_threads/semaphore/try_acquire_for.cc: Likewise.
+	* testsuite/30_threads/semaphore/try_acquire_until.cc: Likewise.
+
+2021-03-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99413
+	* include/bits/align.h: Include debug/assertions.h.
+	* include/bits/codecvt.h: Include bits/c++config.h.
+	* include/bits/enable_special_members.h: Likewise.
+	* include/bits/erase_if.h: Likewise.
+	* include/bits/functional_hash.h: Include <type_traits>.
+	* include/bits/invoke.h: Include bits/move.h.
+	* include/bits/ostream_insert.h: Include bits/exception_defines.h.
+	* include/bits/parse_numbers.h: Include <type_traits>.
+	* include/bits/predefined_ops.h: Include bits/c++config.h.
+	* include/bits/range_access.h: Include bits/stl_iterator.h.
+	* include/bits/stl_bvector.h: Do not include bits/stl_vector.h.
+	* include/bits/stl_iterator.h: Include bits/stl_iterator_base_types.h.
+	* include/bits/stl_uninitialized.h: Include bits/stl_algobase.h.
+	* include/bits/uniform_int_dist.h: Include bits/concept_check.h.
+	* include/bits/unique_lock.h: Include bits/std_mutex.h.
+	* include/debug/assertions.h: Include bits/c++config.h.
+
+2021-03-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_cmp.h (__eq_builtin_ptr_cmp): Remove.
+	(ranges::equal_to, ranges::not_equal_to): Do not constrain
+	with __eq_builtin_ptr_cmp.
+	(ranges::less, ranges::greater, ranges::less_equal)
+	(ranges::greater_equal): Do not constrain with
+	__less_builtin_ptr_cmp.
+	* libsupc++/compare (compare_three_way): Do not constrain with
+	__3way_builtin_ptr_cmp.
+	* testsuite/18_support/comparisons/object/builtin-ptr-three-way.cc: Moved to...
+	* testsuite/18_support/comparisons/object/lwg3530.cc: ...here.
+	* testsuite/20_util/function_objects/range.cmp/lwg3530.cc: New test.
+
+2021-03-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/std/time/syn_c++20.cc: Enable synopsis checks for
+	C++20 calendar types.
+
+2021-03-06  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/99396
+	* include/std/bit (__rotl, __rotr): Add optimized variants for power of
+	two _Nd which the compiler can pattern match the rotates.
+
+2021-03-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99382
+	* testsuite/20_util/specialized_algorithms/uninitialized_default_n/sizes.cc:
+	Make storage larger than required. Verify no write to the last
+	element.
+	* testsuite/20_util/specialized_algorithms/uninitialized_value_construct_n/sizes.cc:
+	Likewise.
+
+2021-03-03  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* config/abi/post/i386-solaris/baseline_symbols.txt: Regenerate.
+	* config/abi/post/i386-solaris/amd64/baseline_symbols.txt:
+	Likewise.
+	* config/abi/post/sparc-solaris/baseline_symbols.txt: Likewise.
+	* config/abi/post/sparc-solaris/sparcv9/baseline_symbols.txt:
+	Likewise.
+
+2021-03-03  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* include/experimental/bits/simd.h: Replace reserved _X, _B by
+	_Xp, _Bp.
+	* include/experimental/bits/simd_builtin.h: Likewise.
+	* include/experimental/bits/simd_x86.h: Likewise.
+
+2021-02-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99301
+	* include/std/chrono (year_month_day::_M_days_since_epoch()):
+	Convert chrono::month and chrono::day to unsigned before
+	converting to uint32_t.
+
+2021-02-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/chrono (year_month_day::_S_from_days): Perform
+	all calculations with type uint32_t.
+
+2021-02-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/abi.xml: Document versioning for GCC 11.
+	* doc/html/manual/abi.html: Regenerate.
+
+2021-02-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99270
+	* testsuite/27_io/headers/cstdio/types_std.cc: Use pointer to
+	FILE instead of FILE.
+
+2021-02-25  Andreas Schwab  <schwab@suse.de>
+
+	* config/abi/post/aarch64-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/ia64-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/m68k-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/riscv64-linux-gnu/baseline_symbols.txt: Update.
+
+2021-02-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99265
+	* include/std/chrono (year_month_day::_S_from_days): Cast long
+	to int explicitly.
+
+2021-02-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/utility (to_underlying): Define.
+	* include/std/version (__cpp_lib_to_underlying): Define.
+	* testsuite/20_util/to_underlying/1.cc: New test.
+	* testsuite/20_util/to_underlying/version.cc: New test.
+
+2021-02-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99261
+	* src/c++17/floating_to_chars.cc (sprintf_ld): Add extra args
+	before value to be printed.
+
+2021-02-24  Patrick Palka  <ppalka@redhat.com>
+
+	* src/c++17/floating_to_chars.cc (__floating_to_chars_precision):
+	Relax the condition that guards the printf code path to accept
+	F128_type as well as long double.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year_month_day_last:day): New
+	implementation.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year::is_leap): New implementation.
+	* testsuite/std/time/year/2.cc: New test.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year_month_day::_M_days_since_epoch):
+	New implementation.
+	* testsuite/std/time/year_month_day/4.cc: New test.
+
+2021-02-24  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year_month_day::_S_from_days): New
+	implementation.
+	* testsuite/std/time/year_month_day/3.cc: New test.
+
+2021-02-24  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/98384
+	* testsuite/20_util/to_chars/long_double.cc: Include <optional>.
+	(test01): Simplify verifying the nearby values by using a
+	2-iteration loop and a dedicated output buffer to check that the
+	nearby values are different.  Factor out the printf-based
+	verification into a local function, and check that the leading
+	hex digits agree before comparing to the output of printf.  Also
+	verify the output by round-tripping it through from_chars.
+
+2021-02-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/98389
+	* config/abi/pre/gnu.ver (GLIBCXX_3.4.29): Do not match to_chars
+	symbols for long double arguments mangled as 'g'.
+	* config/os/gnu-linux/ldbl-extra.ver: Likewise.
+	* config/os/gnu-linux/ldbl-ieee128-extra.ver: Likewise.
+	* src/c++17/Makefile.am [GLIBCXX_LDBL_ALT128_COMPAT_TRUE]:
+	Use -mabi=ibmlongdouble for floating_to_chars.cc.
+	* src/c++17/Makefile.in: Regenerate.
+	* src/c++17/floating_to_chars.cc (floating_type_traits_binary128):
+	New type defining type traits of IEEE binary128 format.
+	(floating_type_traits<__float128>): Define specialization.
+	(floating_type_traits<long double>): Define in terms of
+	floating_type_traits_binary128 when appropriate.
+	(floating_to_shortest_scientific): Handle __float128.
+	(sprintf_ld): New function template for printing a long double
+	or __ieee128 value using sprintf.
+	(__floating_to_chars_shortest, __floating_to_chars_precision):
+	Use sprintf_ld.
+	(to_chars): Define overloads for __float128.
+
+2021-02-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/names.cc: Undefine 'u' on powerpc*-linux*.
+
+2021-02-23  Martin Sebor  <msebor@redhat.com>
+
+	PR c++/99074
+	* libsupc++/dyncast.cc (__dynamic_cast): Return null when
+	first argument is null.
+
+2021-02-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/99181
+	* testsuite/21_strings/char_traits/requirements/char/99181.cc: New
+	test.
+
+2021-02-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/99181
+	* include/bits/char_traits.h (char_traits<char>::compare): For
+	constexpr evaluation don't call
+	__gnu_cxx::char_traits<char_type>::compare but do the comparison loop
+	directly.
+
+2021-02-23  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/97549
+	* include/pstl/parallel_backend_serial.h: Remove __pstl::__par_backend.
+
+2021-02-23  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/98384
+	* src/c++17/floating_to_chars.cc (get_ieee_repr): Extract
+	the high- and low-order parts from an IBM long double value
+	in an endian-agnostic way.
+
+2021-02-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_wait.h (__thread_relax()): Call
+	__thread_yield() not __gthread_yield().
+
+2021-02-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_wait.h (__thread_yield()): Check
+	_GLIBCXX_HAS_GTHREADS before using __gthread_yield.
+	(__thread_relax()): Use __thread_yield() instead of repeating
+	the preprocessor checks for __gthread_yield.
+
+2021-02-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/mutex (once_flag::_M_activate()): Add explicit
+	return statement for passive case.
+	(once_flag::_M_finish(bool)): Use reserved name for parameter.
+
+2021-02-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99096
+	* testsuite/util/testsuite_fs.h: Always include <unistd.h>.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/88881
+	* src/c++17/fs_ops.cc (fs::symlink_status): Re-enable workaround.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2014.xml: Document implementation
+	specific properties of std::experimental::filesystem::rename.
+	* doc/xml/manual/status_cxx2017.xml: Document implementation
+	specific properties of std::filesystem::rename.
+	* doc/html/*: Regenerate.
+	* src/c++17/fs_ops.cc (fs::rename): Implement correct behaviour
+	for directories on Windows.
+	* src/filesystem/ops-common.h (__gnu_posix::rename): Use
+	MoveFileExW on Windows.
+	* testsuite/27_io/filesystem/operations/rename.cc: New test.
+	* testsuite/experimental/filesystem/operations/rename.cc: New test.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/testsuite_fs.h (nonexistent_path): Add
+	random number to the path.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/internet (address_v6::to_string): Include
+	scope ID in string.
+	* testsuite/experimental/net/internet/address/v6/members.cc:
+	Test to_string() results.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/internet (address_v6::any): Avoid using
+	memcpy in constexpr function.
+	(address_v6::loopback): Likewise.
+	(make_address_v6): Fix missing return statements on error paths.
+	* include/experimental/io_context: Avoid -Wdangling-else
+	warning.
+	* testsuite/experimental/net/internet/address/v4/members.cc:
+	Remove unused variables.
+	* testsuite/experimental/net/internet/address/v6/members.cc:
+	New test.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_base.h (__shared_ptr::_M_get_deleter):
+	Add unused attribute to parameter.
+	* src/c++11/shared_ptr.cc (_Sp_make_shared_tag::_S_eq):
+	Likewise.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/basic_ostream/emit/1.cc: Expect test to fail
+	if -fno-rtti is used.
+	* testsuite/30_threads/async/forced_unwind.cc: Expect test
+	to abort if -fno-rtti is used.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/testsuite_allocator.h (memory_resource):
+	Remove requirement for RTTI and exceptions to be enabled.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/basic_istringstream/rdbuf/char/2832.cc: Use
+	static_cast when RTTI is disabled.
+	* testsuite/27_io/basic_istringstream/rdbuf/wchar_t/2832.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostringstream/rdbuf/char/2832.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostringstream/rdbuf/wchar_t/2832.cc:
+	Likewise.
+	* testsuite/27_io/basic_stringstream/str/char/2.cc:
+	Likewise.
+	* testsuite/27_io/basic_stringstream/str/wchar_t/2.cc:
+	Likewise.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/ostream (__syncbuf_base::_S_get): Mark parameter
+	as unused and only use dynamic_cast when RTTI is enabled.
+
+2021-02-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99077
+	* src/c++11/cxx11-ios_failure.cc (__ios_failure(const char*, int)):
+	Change int parameter to error_code, to match std::ios_failure.
+	(__throw_ios_failure(const char*, int)): Construct error_code
+	from int parameter.
+
+2021-02-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/eh_ptr.cc (_GLIBCXX_EH_PTR_RELOPS_COMPAT): Define
+	new macro.
+	* libsupc++/exception_ptr.h (_GLIBCXX_EH_PTR_USED): Check new
+	macro instead of _GLIBCXX_EH_PTR_COMPAT.
+	(operator==): Likewise.
+
+2021-02-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99058
+	* doc/xml/manual/status_cxx2011.xml: Document when support
+	became stable.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Likewise.
+	* doc/html/manual/status.html: Regenerate.
+
+2021-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/88881
+	* src/c++17/fs_ops.cc (fs::status): Re-enable workaround.
+
+2021-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++17/fs_ops.cc (fs::create_hard_link, fs::equivalent)
+	(fs::remove): Use std::system_category() for error codes from
+	GetLastError().
+	* src/filesystem/ops.cc (fs::create_hard_link, fs::remove):
+	Likewise.
+
+2021-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/filesystem/operations/proximate.cc: Fix typo
+	in __MINGW32__ macro name.
+	* testsuite/27_io/filesystem/path/compare/lwg2936.cc: Likewise.
+	* testsuite/27_io/filesystem/path/generation/proximate.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/generation/relative.cc:
+	Likewise.
+	* testsuite/util/testsuite_fs.h: Likewise.
+
+2021-02-09  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/bits/stl_tree.h
+	(__has_is_transparent, __has_is_transparent_t): Move...
+	* include/bits/stl_function.h: ...here.
+	* include/bits/hashtable_policy.h (_Hash_code_base<>::_M_hash_code_tr): New..
+	(_Hashtable_base<>::_M_equals_tr): New.
+	* include/bits/hashtable.h (_Hashtable<>::_M_find_tr, _Hashtable<>::_M_count_tr,
+	_Hashtable<>::_M_equal_range_tr): New member function templates to perform
+	heterogeneous lookup.
+	(_Hashtable<>::_M_find_before_node_tr): New.
+	(_Hashtable<>::_M_find_node_tr): New.
+	* include/bits/unordered_map.h (unordered_map::find<>, unordered_map::count<>,
+	unordered_map::contains<>, unordered_map::equal_range<>): New member function
+	templates to perform heterogeneous lookup.
+	(unordered_multimap::find<>, unordered_multimap::count<>,
+	unordered_multimap::contains<>, unordered_multimap::equal_range<>): Likewise.
+	* include/bits/unordered_set.h  (unordered_set::find<>, unordered_set::count<>,
+	unordered_set::contains<>, unordered_set::equal_range<>): Likewise.
+	(unordered_multiset::find<>, unordered_multiset::count<>,
+	unordered_multiset::contains<>, unordered_multiset::equal_range<>): Likewise.
+	* include/debug/unordered_map
+	(unordered_map::find<>, unordered_map::equal_range<>): Likewise.
+	(unordered_multimap::find<>, unordered_multimap::equal_range<>): Likewise.
+	* include/debug/unordered_set
+	(unordered_set::find<>, unordered_set::equal_range<>): Likewise.
+	(unordered_multiset::find<>, unordered_multiset::equal_range<>): Likewise.
+	* testsuite/23_containers/unordered_map/operations/1.cc: New test.
+	* testsuite/23_containers/unordered_multimap/operations/1.cc: New test.
+	* testsuite/23_containers/unordered_multiset/operations/1.cc: New test.
+	* testsuite/23_containers/unordered_set/operations/1.cc: New test.
+
+2021-02-09  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/bits/stl_deque.h
+	(std::operator-(deque::iterator, deque::iterator)): Replace if/then with
+	a null pointer test.
+
+2021-02-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/filesystem/operations/remove_all.cc: Remove
+	test directory after making it writable again.
+	* testsuite/experimental/filesystem/operations/remove_all.cc:
+	Likewise.
+
+2021-02-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99021
+	* include/std/coroutine (coroutine_handle<P>::from_address): Add
+	noexcept.
+
+2021-02-09  Vladimir Vishnevsky  <vv.os.swe@gmail.com>
+
+	* include/ext/stdio_sync_filebuf.h: Remove unused <unistd.h>.
+	* src/c++17/fs_ops.cc (fs::permissions): Qualify mode_t.
+
+2021-02-09  Jakub Jelinek  <jakub@redhat.com>
+
+	PR middle-end/98465
+	* include/bits/basic_string.tcc (basic_string::_M_replace): When __s
+	points to the characters moved by earlier _S_move, compute the source
+	address using expression based on the __p pointer rather than __s
+	pointer.
+
+2021-02-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/19_diagnostics/error_code/operators/not_equal.cc:
+	Add comparison with same category and different values.
+	* testsuite/19_diagnostics/error_code/operators/less.cc:
+	Likewise. Fix comparison involving different categories.
+	* testsuite/19_diagnostics/error_code/operators/three_way.cc:
+	Likewise.
+	* testsuite/19_diagnostics/error_condition/operators/less.cc:
+	Add comment.
+	* testsuite/19_diagnostics/error_condition/operators/three_way.cc:
+	Likewise.
+
+2021-02-03  yaozhongxiao  <yaozhongxiao@linux.alibaba.com>
+
+	* include/experimental/bits/simd_neon.h: Replace repeated vpadd
+	calls with a single vaddv for aarch64.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/Makefile.am: Warn about the workaround. Add
+	-fno-tree-vrp to CXXFLAGS passed to the check_simd script.
+	Improve initial user feedback from make check-simd.
+	* testsuite/Makefile.in: Regenerated.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* include/experimental/bits/simd.h: Add __detail::_Minimum and
+	__detail::_Maximum to use them as _BinaryOperation to _S_reduce.
+	Add hmin and hmax overloads for simd and const_where_expression.
+	* include/experimental/bits/simd_scalar.h
+	(_SimdImplScalar::_S_reduce): Make unused _BinaryOperation
+	parameter const-ref to allow calling _S_reduce with an rvalue.
+	* testsuite/experimental/simd/tests/reductions.cc: Add tests for
+	hmin and hmax. Since the compiler statically determined that all
+	tests pass, repeat the test after a call to make_value_unknown.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/tests/bits/verify.h (verify): Add
+	instruction pointer data member. Ensure that the `if (m_failed)`
+	branch is always inlined into the calling code. The body of the
+	conditional can still be a function call. Move the get_ip call
+	into the verify ctor to simplify the ctor calls.
+	(COMPARE): Don't mention the use of all_of for reduction of a
+	simd_mask. It only distracts from the real issue.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/driver.sh: Abstract reading test
+	options into read_src_option function. Read skip, only,
+	expensive, and xfail via read_src_option. Add timeout and
+	timeout-factor options and adjust timeout variable accordingly.
+	* testsuite/experimental/simd/tests/loadstore.cc: Set
+	timeout-factor 2.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/driver.sh: When handling the pipe
+	to log (and on verbose to stdout) count the lines. If it exceeds
+	1000 log the issue and exit 125, which is then handled as a
+	failure.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/tests/hypot3_fma.cc: Add skip:
+	markup for long double on powerpc64*.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* include/experimental/bits/simd.h: Add __have_power10vec
+	conditional on _ARCH_PWR10.
+	* include/experimental/bits/simd_builtin.h: Forward declare
+	_MaskImplPpc and use it as _MaskImpl when __ALTIVEC__ is
+	defined.
+	(_MaskImplBuiltin::_S_some_of): Call _S_popcount from the
+	_SuperImpl for optimizations and correctness.
+	* include/experimental/bits/simd_ppc.h: Add _MaskImplPpc.
+	(_MaskImplPpc::_S_popcount): Implement via vec_cntm for POWER10.
+	Otherwise, for >=int use -vec_sums divided by a sizeof factor.
+	For <int use -vec_sums(vec_sum4s(...)) to sum all mask entries.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/driver.sh: Remove executable on
+	SIGINT. Process compiler and test executable output: In verbose
+	mode print messages immediately, limited to 1000 lines and
+	breaking long lines to below $COLUMNS (or 1024 if not set).
+	Communicating the exit status of the compiler / test with the
+	necessary pipe is done via a message through stdout/-in.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/Makefile.am: Ensure .simd.summary is empty before
+	collecting a new summary.
+	* testsuite/Makefile.in: Regenerate.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/generate_makefile.sh: Use
+	different variables internally than documented for user
+	overrides. This makes internal append/prepend work as intended.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/driver.sh (verify_test): Print
+	test output on run xfail. Do not repeat lines from the log that
+	were already printed on stdout.
+	(test_selector): Make the compiler flags pattern usable as a
+	substring selector.
+	(toplevel): Trap on SIGINT and remove the log and sum files.
+	Call timout with --foreground to quickly terminate on SIGINT.
+	* testsuite/experimental/simd/generate_makefile.sh: Simplify run
+	targets via target patterns. Default DRIVEROPTS to -v for run
+	targets. Remove log and sum files after completion of the run
+	target (so that it's always recompiled).
+	Place help text into text file for reasonable 'make help'
+	performance.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* include/experimental/bits/simd.h: Remove unnecessary static
+	assertion. Allow sizeof(8) integer __intrinsic_type to enable
+	the necessary mask type.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* include/experimental/bits/simd.h: Let __intrinsic_type<long
+	double, N> be valid if sizeof(long double) == sizeof(double) and
+	use a __vector double as member type.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* include/experimental/bits/simd.h (__is_intrinsic_type): New
+	internal type trait. Alias for __is_vector_type on x86.
+	(_VectorTraitsImpl): Enable for __intrinsic_type in addition for
+	__vector_type.
+	(__intrin_bitcast): Allow casting to & from vector & intrinsic
+	types.
+	(__intrinsic_type): Explicitly specialize for NEON intrinsic
+	vector types.
+
+2021-02-03  Matthias Kretz  <kretz@kde.org>
+
+	* testsuite/experimental/simd/driver.sh: Implement skip, only,
+	expensive, and xfail markers. They can select on type, ABI tag
+	subset number, target-triplet, and compiler flags.
+	* testsuite/experimental/simd/generate_makefile.sh: The summary
+	now includes lines for unexpected passes and expected failures.
+	If the skip or only markers are only conditional on the type, do
+	not generate rules for those types.
+	* testsuite/experimental/simd/tests/abs.cc: Mark test expensive
+	for ABI tag subsets 1-9.
+	* testsuite/experimental/simd/tests/algorithms.cc: Ditto.
+	* testsuite/experimental/simd/tests/broadcast.cc: Ditto.
+	* testsuite/experimental/simd/tests/casts.cc: Ditto.
+	* testsuite/experimental/simd/tests/generator.cc: Ditto.
+	* testsuite/experimental/simd/tests/integer_operators.cc: Ditto.
+	* testsuite/experimental/simd/tests/loadstore.cc: Ditto.
+	* testsuite/experimental/simd/tests/mask_broadcast.cc: Ditto.
+	* testsuite/experimental/simd/tests/mask_conversions.cc: Ditto.
+	* testsuite/experimental/simd/tests/mask_implicit_cvt.cc: Ditto.
+	* testsuite/experimental/simd/tests/mask_loadstore.cc: Ditto.
+	* testsuite/experimental/simd/tests/mask_operator_cvt.cc: Ditto.
+	* testsuite/experimental/simd/tests/mask_operators.cc: Ditto.
+	* testsuite/experimental/simd/tests/mask_reductions.cc: Ditto.
+	* testsuite/experimental/simd/tests/operator_cvt.cc: Ditto.
+	* testsuite/experimental/simd/tests/operators.cc: Ditto.
+	* testsuite/experimental/simd/tests/reductions.cc: Ditto.
+	* testsuite/experimental/simd/tests/simd.cc: Ditto.
+	* testsuite/experimental/simd/tests/split_concat.cc: Ditto.
+	* testsuite/experimental/simd/tests/splits.cc: Ditto.
+	* testsuite/experimental/simd/tests/where.cc: Ditto.
+	* testsuite/experimental/simd/tests/fpclassify.cc: Ditto. In
+	addition replace "test only floattypes" marker by unconditional
+	"float|double|ldouble" only marker.
+	* testsuite/experimental/simd/tests/frexp.cc: Ditto.
+	* testsuite/experimental/simd/tests/hypot3_fma.cc: Ditto.
+	* testsuite/experimental/simd/tests/ldexp_scalbn_scalbln_modf.cc:
+	Ditto.
+	* testsuite/experimental/simd/tests/logarithm.cc: Ditto.
+	* testsuite/experimental/simd/tests/math_1arg.cc: Ditto.
+	* testsuite/experimental/simd/tests/math_2arg.cc: Ditto.
+	* testsuite/experimental/simd/tests/remqo.cc: Ditto.
+	* testsuite/experimental/simd/tests/trigonometric.cc: Ditto.
+	* testsuite/experimental/simd/tests/trunc_ceil_floor.cc: Ditto.
+	* testsuite/experimental/simd/tests/sincos.cc: Ditto. In
+	addition, xfail on run because the reference data is missing.
+
+2021-02-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2011.xml: Remove stray table cell.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Likewise.
+	* doc/html/manual/status.html: Regenerate.
+
+2021-02-01  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/70303
+	* include/bits/stl_deque.h (std::deque<>::operator-(iterator, iterator)):
+	Return 0 if both iterators are value-initialized.
+	* testsuite/23_containers/deque/70303.cc: New test.
+	* testsuite/23_containers/vector/70303.cc: New test.
+
+2021-02-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2011.xml: Update std::call_once
+	status.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Likewise. Update
+	std::from_chars and std::to_chars status. Fix formatting.
+	* doc/html/manual/status.html: Regenerate.
+
+2021-01-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/bits/numeric_traits.h: Update copyright
+	dates.
+	* include/experimental/bits/simd.h: Likewise.
+	* include/experimental/bits/simd_builtin.h: Likewise.
+	* include/experimental/bits/simd_converter.h: Likewise.
+	* include/experimental/bits/simd_detail.h: Likewise.
+	* include/experimental/bits/simd_fixed_size.h: Likewise.
+	* include/experimental/bits/simd_math.h: Likewise.
+	* include/experimental/bits/simd_neon.h: Likewise.
+	* include/experimental/bits/simd_ppc.h: Likewise.
+	* include/experimental/bits/simd_scalar.h: Likewise.
+	* include/experimental/bits/simd_x86.h: Likewise.
+	* include/experimental/bits/simd_x86_conversions.h: Likewise.
+	* include/experimental/simd: Likewise.
+	* testsuite/experimental/simd/*: Likewise.
+
+2021-01-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2017.xml: Replace invalid entity.
+	* doc/html/*: Regenerate.
+
+2021-01-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/experimental/simd/generate_makefile.sh: Use printf
+	instead of echo when printing escape characters.
+
+2021-01-27  Matthias Kretz  <kretz@kde.org>
+
+	* scripts/check_simd: New file. This script is called from the
+	the check-simd target. It determines a set of compiler flags and
+	simulator setups for calling generate_makefile.sh and passes the
+	information back to the check-simd target, which recurses to the
+	generated Makefiles.
+	* scripts/create_testsuite_files: Remove files below simd/tests/
+	from testsuite_files and place them in testsuite_files_simd.
+	* testsuite/Makefile.am: Add testsuite_files_simd. Add
+	check-simd target.
+	* testsuite/Makefile.in: Regenerate.
+	* testsuite/experimental/simd/driver.sh: New file. This script
+	compiles and runs a given simd test, logging its output and
+	status. It uses the timeout command to implement compile and
+	test timeouts.
+	* testsuite/experimental/simd/generate_makefile.sh: New file.
+	This script generates a Makefile which uses driver.sh to compile
+	and run the tests and collect the logs into a single log file.
+	* testsuite/experimental/simd/tests/abs.cc: New file. Tests
+	abs(simd).
+	* testsuite/experimental/simd/tests/algorithms.cc: New file.
+	Tests min/max(simd, simd).
+	* testsuite/experimental/simd/tests/bits/conversions.h: New
+	file. Contains functions to support tests involving conversions.
+	* testsuite/experimental/simd/tests/bits/make_vec.h: New file.
+	Support functions make_mask and make_vec.
+	* testsuite/experimental/simd/tests/bits/mathreference.h: New
+	file. Support functions to supply precomputed math function
+	reference data.
+	* testsuite/experimental/simd/tests/bits/metahelpers.h: New
+	file. Support code for SFINAE testing.
+	* testsuite/experimental/simd/tests/bits/simd_view.h: New file.
+	* testsuite/experimental/simd/tests/bits/test_values.h: New
+	file. Test functions to easily drive a test with simd objects
+	initialized from a given list of values and a range of random
+	values.
+	* testsuite/experimental/simd/tests/bits/ulp.h: New file.
+	Support code to determine the ULP distance of simd objects.
+	* testsuite/experimental/simd/tests/bits/verify.h: New file.
+	Test framework for COMPARE'ing simd objects and instantiating
+	the test templates with value_type and ABI tag.
+	* testsuite/experimental/simd/tests/broadcast.cc: New file. Test
+	simd broadcasts.
+	* testsuite/experimental/simd/tests/casts.cc: New file. Test
+	simd casts.
+	* testsuite/experimental/simd/tests/fpclassify.cc: New file.
+	Test floating-point classification functions.
+	* testsuite/experimental/simd/tests/frexp.cc: New file. Test
+	frexp(simd).
+	* testsuite/experimental/simd/tests/generator.cc: New file. Test
+	simd generator constructor.
+	* testsuite/experimental/simd/tests/hypot3_fma.cc: New file.
+	Test 3-arg hypot(simd,simd,simd) and fma(simd,simd,sim).
+	* testsuite/experimental/simd/tests/integer_operators.cc: New
+	file. Test integer operators.
+	* testsuite/experimental/simd/tests/ldexp_scalbn_scalbln_modf.cc:
+	New file. Test ldexp(simd), scalbn(simd), scalbln(simd), and
+	modf(simd).
+	* testsuite/experimental/simd/tests/loadstore.cc: New file. Test
+	(converting) simd loads and stores.
+	* testsuite/experimental/simd/tests/logarithm.cc: New file. Test
+	log*(simd).
+	* testsuite/experimental/simd/tests/mask_broadcast.cc: New file.
+	Test simd_mask broadcasts.
+	* testsuite/experimental/simd/tests/mask_conversions.cc: New
+	file. Test simd_mask conversions.
+	* testsuite/experimental/simd/tests/mask_implicit_cvt.cc: New
+	file. Test simd_mask implicit conversions.
+	* testsuite/experimental/simd/tests/mask_loadstore.cc: New file.
+	Test simd_mask loads and stores.
+	* testsuite/experimental/simd/tests/mask_operator_cvt.cc: New
+	file. Test simd_mask operators convert as specified.
+	* testsuite/experimental/simd/tests/mask_operators.cc: New file.
+	Test simd_mask compares, subscripts, and negation.
+	* testsuite/experimental/simd/tests/mask_reductions.cc: New
+	file. Test simd_mask reductions.
+	* testsuite/experimental/simd/tests/math_1arg.cc: New file. Test
+	1-arg math functions on simd.
+	* testsuite/experimental/simd/tests/math_2arg.cc: New file. Test
+	2-arg math functions on simd.
+	* testsuite/experimental/simd/tests/operator_cvt.cc: New file.
+	Test implicit conversions on simd binary operators behave as
+	specified.
+	* testsuite/experimental/simd/tests/operators.cc: New file. Test
+	simd compares, subscripts, not, unary minus, plus, minus,
+	multiplies, divides, increment, and decrement.
+	* testsuite/experimental/simd/tests/reductions.cc: New file.
+	Test reduce(simd).
+	* testsuite/experimental/simd/tests/remqo.cc: New file. Test
+	remqo(simd).
+	* testsuite/experimental/simd/tests/simd.cc: New file. Basic
+	sanity checks of simd types.
+	* testsuite/experimental/simd/tests/sincos.cc: New file. Test
+	sin(simd) and cos(simd).
+	* testsuite/experimental/simd/tests/split_concat.cc: New file.
+	Test split(simd) and concat(simd, simd).
+	* testsuite/experimental/simd/tests/splits.cc: New file. Test
+	split(simd_mask).
+	* testsuite/experimental/simd/tests/trigonometric.cc: New file.
+	Test remaining trigonometric functions on simd.
+	* testsuite/experimental/simd/tests/trunc_ceil_floor.cc: New
+	file. Test trunc(simd), ceil(simd), and floor(simd).
+	* testsuite/experimental/simd/tests/where.cc: New file. Test
+	masked operations using where.
+
+2021-01-27  Matthias Kretz  <kretz@kde.org>
+
+	* doc/xml/manual/status_cxx2017.xml: Add implementation status
+	of the Parallelism TS 2. Document implementation-defined types
+	and behavior.
+	* include/Makefile.am: Add new headers.
+	* include/Makefile.in: Regenerate.
+	* include/experimental/simd: New file. New header for
+	Parallelism TS 2.
+	* include/experimental/bits/numeric_traits.h: New file.
+	Implementation of P1841R1 using internal naming. Addition of
+	missing IEC559 functionality query.
+	* include/experimental/bits/simd.h: New file. Definition of the
+	public simd interfaces and general implementation helpers.
+	* include/experimental/bits/simd_builtin.h: New file.
+	Implementation of the _VecBuiltin simd_abi.
+	* include/experimental/bits/simd_converter.h: New file. Generic
+	simd conversions.
+	* include/experimental/bits/simd_detail.h: New file. Internal
+	macros for the simd implementation.
+	* include/experimental/bits/simd_fixed_size.h: New file. Simd
+	fixed_size ABI specific implementations.
+	* include/experimental/bits/simd_math.h: New file. Math
+	overloads for simd.
+	* include/experimental/bits/simd_neon.h: New file. Simd NEON
+	specific implementations.
+	* include/experimental/bits/simd_ppc.h: New file. Implement bit
+	shifts to avoid invalid results for integral types smaller than
+	int.
+	* include/experimental/bits/simd_scalar.h: New file. Simd scalar
+	ABI specific implementations.
+	* include/experimental/bits/simd_x86.h: New file. Simd x86
+	specific implementations.
+	* include/experimental/bits/simd_x86_conversions.h: New file.
+	x86 specific conversion optimizations. The conversion patterns
+	work around missing conversion patterns in the compiler and
+	should be removed as soon as PR85048 is resolved.
+	* testsuite/experimental/simd/standard_abi_usable.cc: New file.
+	Test that all (not all fixed_size<N>, though) standard simd and
+	simd_mask types are usable.
+	* testsuite/experimental/simd/standard_abi_usable_2.cc: New
+	file. As above but with -ffast-math.
+	* testsuite/libstdc++-dg/conformance.exp: Don't build simd tests
+	from the standard test loop. Instead use
+	check_vect_support_and_set_flags to build simd tests with the
+	relevant machine flags.
+
+2021-01-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/66414
+	* include/bits/string_view.tcc
+	(basic_string_view::find(const CharT*, size_type, size_type)):
+	Optimize.
+
+2021-01-27  Paul Fee  <paul.f.fee@gmail.com>
+
+	* include/bits/basic_string.h (basic_string::contains): New
+	member functions.
+	* include/std/string_view (basic_string_view::contains):
+	Likewise.
+	* include/std/version (__cpp_lib_string_contains): Define.
+	* testsuite/21_strings/basic_string/operations/starts_with/char/1.cc:
+	Remove trailing whitespace.
+	* testsuite/21_strings/basic_string/operations/starts_with/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/contains/char/1.cc: New test.
+	* testsuite/21_strings/basic_string/operations/contains/wchar_t/1.cc: New test.
+	* testsuite/21_strings/basic_string_view/operations/contains/char/1.cc: New test.
+	* testsuite/21_strings/basic_string_view/operations/contains/char/2.cc: New test.
+	* testsuite/21_strings/basic_string_view/operations/contains/wchar_t/1.cc: New test.
+
+2021-01-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++17/Makefile.in: Regenerate.
+
+2021-01-20  David Edelsohn  <dje.gcc@gmail.com>
+
+	* config/os/aix/ctype_inline.h (bool ctype<char>:: is): Cast
+	_OBJ_DATA subscript to unsigned char. Add _THREAD_SAFE access to
+	__lc_type.
+	(const char* ctype<char>:: is): Same.
+
+2021-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/98725
+	* testsuite/20_util/unique_ptr/io/lwg2948.cc:  Do not try to
+	write to a wide character stream if wide character support is
+	disabled in the library.
+
+2021-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/basic_stringstream/cons/char/1.cc: Use
+	stringbuf not wstringbuf.
+
+2021-01-18  Jakub Jelinek  <jakub@redhat.com>
+
+	PR debug/98708
+	* src/c++11/Makefile.am (cxx11-ios_failure-lt.s, cxx11-ios_failure.s):
+	Compile with -gno-as-loc-support.
+	* src/c++11/Makefile.in: Regenerated.
+
+2021-01-16  H.J. Lu  <hjl.tools@gmail.com>
+
+	* testsuite/29_atomics/atomic_flag/test_and_set/explicit-hle.cc:
+	Add -fcf-protection=none to -march=i486.
+
+2021-01-14  François Dumont  <fdumont@gcc.gnu.org>
+
+	* testsuite/23_containers/deque/debug/98466.cc: Make it pre-C++11
+	compliant.
+
+2021-01-14  Alexandre Oliva  <oliva@adacore.com>
+
+	* testsuite/30_threads/future/members/poll.cc: Calibrate
+	iteration count.
+
+2021-01-14  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/98466
+	* include/bits/hashtable_policy.h (_Node_iterator_base()): Set _M_cur to nullptr.
+	(_Node_iterator()): Make default.
+	(_Node_const_iterator()): Make default.
+	* include/debug/macros.h (__glibcxx_check_erae_range_after): Add _M_singular
+	iterator checks.
+	* include/debug/safe_iterator.h
+	(_GLIBCXX_DEBUG_VERIFY_OPERANDS): Accept if both iterator are value initialized.
+	* include/debug/safe_local_iterator.h (_GLIBCXX_DEBUG_VERIFY_OPERANDS):
+	Likewise.
+	* include/debug/safe_iterator.tcc (_Safe_iterator<>::_M_valid_range): Add
+	_M_singular checks on input iterators.
+	* src/c++11/debug.cc (_Safe_iterator_base::_M_can_compare): Remove _M_singular
+	checks.
+	* testsuite/23_containers/deque/debug/98466.cc: New test.
+	* testsuite/23_containers/unordered_map/debug/98466.cc: New test.
+
+2021-01-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/98471
+	* include/bits/fs_path.h (__throw_conversion_error): New
+	function to throw or abort on character conversion errors.
+	(__wstr_from_utf8): Move definition after filesystem_error has
+	been defined. Use __throw_conversion_error.
+	(path::_S_convert<_EcharT>): Use __throw_conversion_error.
+	(path::_S_str_convert<_CharT, _Traits, _Allocator>): Likewise.
+	(path::u8string): Likewise.
+
+2021-01-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/barrier: Update copyright years. Fix whitespace.
+	* include/std/version: Fix whitespace.
+	* testsuite/30_threads/barrier/1.cc: Update copyright years.
+	* testsuite/30_threads/barrier/2.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive_and_drop.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive_and_wait.cc: Likewise.
+	* testsuite/30_threads/barrier/completion.cc: Likewise.
+
+2021-01-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/doxygen/user.cfg.in (INPUT): Remove include/debug/array.
+
+2021-01-10  David Edelsohn  <dje.gcc@gmail.com>
+
+	PR libstdc++/98613
+	* testsuite/ext/vstring/cons/moveable.cc: Suppress false positive
+	warning.
+	* testsuite/ext/vstring/modifiers/assign/move_assign.cc: Same.
+
+2021-01-08  Olivier Hainque  <hainque@adacore.com>
+
+	* testsuite/20_util/bind/ref_neg.cc: Tweak the
+	dg-prune-output regex for out-of-build-tree contexts.
+
+2021-01-07  Thomas Rodgers  <trodgers@redhat.com>
+
+	* doc/doxygen/user.cfg.in: Add new header.
+	* include/Makefile.am (std_headers): likewise.
+	* include/Makefile.in: Regenerate.
+	* include/precompiled/stdc++.h: Add new header.
+	* include/std/barrier: New file.
+	* include/std/version: Add __cpp_lib_barrier feature test macro.
+	* testsuite/30_threads/barrier/1.cc: New test.
+	* testsuite/30_threads/barrier/2.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive_and_drop.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive_and_wait.cc: Likewise.
+	* testsuite/30_threads/barrier/arrive.cc: Likewise.
+	* testsuite/30_threads/barrier/completion.cc: Likewise.
+
+2021-01-07  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/98384
+	* testsuite/20_util/to_chars/long_double.cc: Use nexttowardl
+	instead of the non-standard nextupl and nextdownl.
+
+2021-01-05  Samuel Thibault  <samuel.thibault@ens-lyon.org>
+
+	* configure: Re-generate.
+
+2021-01-05  Ed Smith-Rowland  <3dw4rd@verizon.net>
+
+	* include/precompiled/stdc++.h: Add <source_location> to C++20 section.
+
+2021-01-01  Jakub Jelinek  <jakub@redhat.com>
+
+	* ChangeLog-2020: Rotate ChangeLog.  New file.
+
+
+Copyright (C) 2021 Free Software Foundation, Inc.
+
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
