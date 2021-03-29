@@ -3147,8 +3147,8 @@ _GLIBCXX_END_NAMESPACE_CXX11
       typedef _Traits					    traits_type;
       typedef typename _Traits::char_type		    value_type;
       typedef _Alloc					    allocator_type;
-      typedef typename _CharT_alloc_type::size_type	    size_type;
-      typedef typename _CharT_alloc_type::difference_type   difference_type;
+      typedef typename _CharT_alloc_traits::size_type	    size_type;
+      typedef typename _CharT_alloc_traits::difference_type difference_type;
 #if __cplusplus < 201103L
       typedef typename _CharT_alloc_type::reference	    reference;
       typedef typename _CharT_alloc_type::const_reference   const_reference;
@@ -3605,12 +3605,22 @@ _GLIBCXX_END_NAMESPACE_CXX11
        */
       basic_string(const _CharT* __s, size_type __n,
 		   const _Alloc& __a = _Alloc());
+
       /**
        *  @brief  Construct string as copy of a C string.
        *  @param  __s  Source C string.
        *  @param  __a  Allocator to use (default is default allocator).
        */
-      basic_string(const _CharT* __s, const _Alloc& __a = _Alloc());
+#if __cpp_deduction_guides && ! defined _GLIBCXX_DEFINING_STRING_INSTANTIATIONS
+      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+      // 3076. basic_string CTAD ambiguity
+      template<typename = _RequireAllocator<_Alloc>>
+#endif
+      basic_string(const _CharT* __s, const _Alloc& __a = _Alloc())
+      : _M_dataplus(_S_construct(__s, __s ? __s + traits_type::length(__s) :
+                                 __s + npos, __a), __a)
+      { }
+
       /**
        *  @brief  Construct string as multiple characters.
        *  @param  __n  Number of characters.

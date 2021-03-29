@@ -38,4 +38,15 @@ vmi_class_type_info.cc \
 vtv_stubs.cc \
 
 SRC_CC_IS_CXX11 :=
-CXXFLAGS += -std=gnu++17
+
+CXXFLAGS_new_opa.cc    += -std=gnu++1z
+CXXFLAGS_new_opant.cc  += -std=gnu++1z
+CXXFLAGS_new_opva.cc   += -std=gnu++1z
+CXXFLAGS_new_opvant.cc += -std=gnu++1z
+CXXFLAGS_del_opa.cc    += -std=gnu++1z
+CXXFLAGS_del_opant.cc  += -std=gnu++1z
+CXXFLAGS_del_opsa.cc   += -std=gnu++1z
+CXXFLAGS_del_opva.cc   += -std=gnu++1z
+CXXFLAGS_del_opvant.cc += -std=gnu++1z
+CXXFLAGS_del_opvsa.cc  += -std=gnu++1z
+

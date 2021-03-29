@@ -105,7 +105,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
 #if defined __i386__ || defined __x86_64__
       __builtin_ia32_pause();
-#elif defined _GLIBCXX_USE_SCHED_YIELD
+#elif defined _GLIBCXX_HAS_GTHREADS && defined _GLIBCXX_USE_SCHED_YIELD
       __gthread_yield();
 #endif
     }
@@ -162,11 +162,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       std::atomic<value_type> _M_owners{1};
       std::atomic<value_type> _M_value{_S_ssrc_counter_inc};
       _Stop_cb* _M_head = nullptr;
-#if _GLIBCXX_HAS_GTHREADS
+#ifdef _GLIBCXX_HAS_GTHREADS
       __gthread_t _M_requester;
 #endif
 
-      _Stop_state_t() = default;
+      _Stop_state_t() noexcept { }
 
       bool
       _M_stop_possible() noexcept
@@ -191,7 +191,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       void
       _M_release_ownership() noexcept
       {
-	if (_M_owners.fetch_sub(1, memory_order::release) == 1)
+	if (_M_owners.fetch_sub(1, memory_order::acq_rel) == 1)
 	  delete this;
       }
 
@@ -237,8 +237,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  }
 	while (!_M_try_lock_and_stop(__old));
 
-#if _GLIBCXX_HAS_GTHREADS
+#ifdef _GLIBCXX_HAS_GTHREADS
+#ifdef _GLIBCXX_NATIVE_THREAD_ID
+	_M_requester = _GLIBCXX_NATIVE_THREAD_ID;
+#else
 	_M_requester = __gthread_self();
+#endif
 #endif
 
 	while (_M_head)
@@ -266,7 +270,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    if (!__destroyed)
 	      {
 		__cb->_M_destroyed = nullptr;
-#if _GLIBCXX_HAS_GTHREADS
+#ifdef _GLIBCXX_HAS_GTHREADS
 		// synchronize with destructor of stop_callback that owns *__cb
 		__cb->_M_done.release();
 #endif
@@ -343,11 +347,16 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	// Callback is not in the list, so must have been removed by a call to
 	// _M_request_stop.
 
-#if _GLIBCXX_HAS_GTHREADS
+#ifdef _GLIBCXX_HAS_GTHREADS
+#ifdef _GLIBCXX_NATIVE_THREAD_ID
+	auto __tid = _GLIBCXX_NATIVE_THREAD_ID;
+#else
+	auto __tid = __gthread_self();
+#endif
 	// Despite appearances there is no data race on _M_requester. The only
 	// write to it happens before the callback is removed from the list,
 	// and removing it from the list happens before this read.
-	if (!__gthread_equal(_M_requester, __gthread_self()))
+	if (!__gthread_equal(_M_requester, __tid))
 	  {
 	    // Synchronize with completion of callback.
 	    __cb->_M_done.acquire();

@@ -17,8 +17,8 @@
 // permissions described in the GCC Runtime Library Exception, version
 // 3.1, as published by the Free Software Foundation.
 
-// You should have received __a copy of the GNU General Public License and
-// __a copy of the GCC Runtime Library Exception along with this program;
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
@@ -282,7 +282,7 @@ namespace ranges
 	  && convertible_to<sentinel_t<_Rng>, _Sent>
 	constexpr
 	subrange(_Rng&& __r) requires _S_store_size && sized_range<_Rng>
-	: subrange{__r, ranges::size(__r)}
+	: subrange(__r, ranges::size(__r))
 	{ }
 
       template<__detail::__not_same_as<subrange> _Rng>
@@ -494,10 +494,12 @@ namespace ranges
 
 	using std::optional<_Tp>::operator=;
 
+	// _GLIBCXX_RESOLVE_LIB_DEFECTS
+	// 3477. Simplify constraints for semiregular-box
 	__box&
 	operator=(const __box& __that)
 	noexcept(is_nothrow_copy_constructible_v<_Tp>)
-	requires (!assignable_from<_Tp&, const _Tp&>)
+	requires (!copyable<_Tp>)
 	{
 	  if ((bool)__that)
 	    this->emplace(*__that);
@@ -509,7 +511,7 @@ namespace ranges
 	__box&
 	operator=(__box&& __that)
 	noexcept(is_nothrow_move_constructible_v<_Tp>)
-	requires (!assignable_from<_Tp&, _Tp>)
+	requires (!movable<_Tp>)
 	{
 	  if ((bool)__that)
 	    this->emplace(std::move(*__that));
@@ -538,9 +540,11 @@ namespace ranges
       : _M_value(std::move(__t))
       { }
 
+      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+      // 3428. single_view's in place constructor should be explicit
       template<typename... _Args>
 	requires constructible_from<_Tp, _Args...>
-	constexpr
+	constexpr explicit
 	single_view(in_place_t, _Args&&... __args)
 	: _M_value{in_place, std::forward<_Args>(__args)...}
 	{ }
@@ -889,12 +893,13 @@ namespace ranges
       {
 	using __detail::__is_integer_like;
 	using __detail::__to_unsigned_like;
-	if constexpr (__is_integer_like<_Winc> && __is_integer_like<_Bound>)
-	  return (_M_value < 0)
-	    ? ((_M_bound < 0)
-		? __to_unsigned_like(-_M_value) - __to_unsigned_like(-_M_bound)
-		: __to_unsigned_like(_M_bound) + __to_unsigned_like(-_M_value))
-	    : __to_unsigned_like(_M_bound) - __to_unsigned_like(_M_value);
+	if constexpr (integral<_Winc> && integral<_Bound>)
+	  {
+	    using _Up = make_unsigned_t<decltype(_M_bound - _M_value)>;
+	    return _Up(_M_bound) - _Up(_M_value);
+	  }
+	else if constexpr (__is_integer_like<_Winc>)
+	  return __to_unsigned_like(_M_bound) - __to_unsigned_like(_M_value);
 	else
 	  return __to_unsigned_like(_M_bound - _M_value);
       }
@@ -1832,9 +1837,11 @@ namespace views
 	    requires random_access_range<_Base>
 	  { return {*__i._M_parent, __i._M_current - __n}; }
 
+	  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+	  // 3483. transform_view::iterator's difference is overconstrained
 	  friend constexpr difference_type
 	  operator-(const _Iterator& __x, const _Iterator& __y)
-	    requires random_access_range<_Base>
+	    requires sized_sentinel_for<iterator_t<_Base>, iterator_t<_Base>>
 	  { return __x._M_current - __y._M_current; }
 
 	  friend constexpr decltype(auto)
@@ -1864,7 +1871,7 @@ namespace views
 	  using _Base = __detail::__maybe_const_t<_Const, _Vp>;
 
 	  template<bool _Const2>
-	    constexpr range_difference_t<_Base>
+	    constexpr auto
 	    __distance_from(const _Iterator<_Const2>& __i) const
 	    { return _M_end - __i._M_current; }
 
@@ -1901,17 +1908,17 @@ namespace views
 	    operator==(const _Iterator<_Const2>& __x, const _Sentinel& __y)
 	    { return __y.__equal(__x); }
 
-	  template<bool _Const2>
-	    requires sized_sentinel_for<sentinel_t<_Base>,
-		       iterator_t<__detail::__maybe_const_t<_Const2, _Vp>>>
-	    friend constexpr range_difference_t<_Base>
+	  template<bool _Const2,
+		   typename _Base2 = __detail::__maybe_const_t<_Const2, _Vp>>
+	    requires sized_sentinel_for<sentinel_t<_Base>, iterator_t<_Base2>>
+	    friend constexpr range_difference_t<_Base2>
 	    operator-(const _Iterator<_Const2>& __x, const _Sentinel& __y)
 	    { return -__y.__distance_from(__x); }
 
-	  template<bool _Const2>
-	    requires sized_sentinel_for<sentinel_t<_Base>,
-		       iterator_t<__detail::__maybe_const_t<_Const2, _Vp>>>
-	    friend constexpr range_difference_t<_Base>
+	  template<bool _Const2,
+		   typename _Base2 = __detail::__maybe_const_t<_Const2, _Vp>>
+	    requires sized_sentinel_for<sentinel_t<_Base>, iterator_t<_Base2>>
+	    friend constexpr range_difference_t<_Base2>
 	    operator-(const _Sentinel& __y, const _Iterator<_Const2>& __x)
 	    { return __y.__distance_from(__x); }
 
@@ -1993,12 +2000,14 @@ namespace views
     {
     private:
       template<bool _Const>
+	using _CI = counted_iterator<
+	  iterator_t<__detail::__maybe_const_t<_Const, _Vp>>>;
+
+      template<bool _Const>
 	struct _Sentinel
 	{
 	private:
 	  using _Base = __detail::__maybe_const_t<_Const, _Vp>;
-	  using _CI = counted_iterator<iterator_t<_Base>>;
-
 	  sentinel_t<_Base> _M_end = sentinel_t<_Base>();
 
 	public:
@@ -2019,7 +2028,15 @@ namespace views
 	  base() const
 	  { return _M_end; }
 
-	  friend constexpr bool operator==(const _CI& __y, const _Sentinel& __x)
+	  friend constexpr bool
+	  operator==(const _CI<_Const>& __y, const _Sentinel& __x)
+	  { return __y.count() == 0 || __y.base() == __x._M_end; }
+
+	  template<bool _OtherConst = !_Const,
+		   typename _Base2 = __detail::__maybe_const_t<_OtherConst, _Vp>>
+	    requires sentinel_for<sentinel_t<_Base>, iterator_t<_Base2>>
+	  friend constexpr bool
+	  operator==(const _CI<_OtherConst>& __y, const _Sentinel& __x)
 	  { return __y.count() == 0 || __y.base() == __x._M_end; }
 
 	  friend _Sentinel<!_Const>;
@@ -2121,9 +2138,16 @@ namespace views
       }
     };
 
-  template<range _Range>
+  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+  // 3447. Deduction guides for take_view and drop_view have different
+  // constraints
+  template<typename _Range>
     take_view(_Range&&, range_difference_t<_Range>)
       -> take_view<views::all_t<_Range>>;
+
+  template<typename _Tp>
+    inline constexpr bool enable_borrowed_range<take_view<_Tp>>
+      = enable_borrowed_range<_Tp>;
 
   namespace views
   {
@@ -2169,6 +2193,13 @@ namespace views
 	  operator==(const iterator_t<_Base>& __x, const _Sentinel& __y)
 	  { return __y._M_end == __x || !std::__invoke(*__y._M_pred, *__x); }
 
+	  template<bool _OtherConst = !_Const,
+		   typename _Base2 = __detail::__maybe_const_t<_OtherConst, _Vp>>
+	    requires sentinel_for<sentinel_t<_Base>, iterator_t<_Base2>>
+	  friend constexpr bool
+	  operator==(const iterator_t<_Base2>& __x, const _Sentinel& __y)
+	  { return __y._M_end == __x || !std::__invoke(*__y._M_pred, *__x); }
+
 	  friend _Sentinel<!_Const>;
 	};
 
@@ -2202,6 +2233,7 @@ namespace views
 
       constexpr auto
       begin() const requires range<const _Vp>
+	&& indirect_unary_predicate<const _Pred, iterator_t<const _Vp>>
       { return ranges::begin(_M_base); }
 
       constexpr auto
@@ -2211,6 +2243,7 @@ namespace views
 
       constexpr auto
       end() const requires range<const _Vp>
+	&& indirect_unary_predicate<const _Pred, iterator_t<const _Vp>>
       { return _Sentinel<true>(ranges::end(_M_base),
 			       std::__addressof(*_M_pred)); }
     };
@@ -2235,7 +2268,10 @@ namespace views
       _Vp _M_base = _Vp();
       range_difference_t<_Vp> _M_count = 0;
 
-      static constexpr bool _S_needs_cached_begin = !random_access_range<_Vp>;
+      // ranges::next(begin(base), count, end(base)) is O(1) if _Vp satisfies
+      // both random_access_range and sized_range. Otherwise, cache its result.
+      static constexpr bool _S_needs_cached_begin
+	= !(random_access_range<const _Vp> && sized_range<const _Vp>);
       [[no_unique_address]]
 	__detail::__maybe_present_t<_S_needs_cached_begin,
 				    __detail::_CachedPosition<_Vp>>
@@ -2257,9 +2293,12 @@ namespace views
       base() &&
       { return std::move(_M_base); }
 
+      // This overload is disabled for simple views with constant-time begin().
       constexpr auto
-      begin() requires (!(__detail::__simple_view<_Vp>
-			  && random_access_range<_Vp>))
+      begin()
+	requires (!(__detail::__simple_view<_Vp>
+		    && random_access_range<const _Vp>
+		    && sized_range<const _Vp>))
       {
 	if constexpr (_S_needs_cached_begin)
 	  if (_M_cached_begin._M_has_value())
@@ -2272,8 +2311,11 @@ namespace views
 	return __it;
       }
 
+      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+      // 3482. drop_view's const begin should additionally require sized_range
       constexpr auto
-      begin() const requires random_access_range<const _Vp>
+      begin() const
+	requires random_access_range<const _Vp> && sized_range<const _Vp>
       {
 	return ranges::next(ranges::begin(_M_base), _M_count,
 			    ranges::end(_M_base));
@@ -2307,6 +2349,10 @@ namespace views
   template<typename _Range>
     drop_view(_Range&&, range_difference_t<_Range>)
       -> drop_view<views::all_t<_Range>>;
+
+  template<typename _Tp>
+    inline constexpr bool enable_borrowed_range<drop_view<_Tp>>
+      = enable_borrowed_range<_Tp>;
 
   namespace views
   {
@@ -2369,6 +2415,10 @@ namespace views
     drop_while_view(_Range&&, _Pred)
       -> drop_while_view<views::all_t<_Range>, _Pred>;
 
+  template<typename _Tp, typename _Pred>
+    inline constexpr bool enable_borrowed_range<drop_while_view<_Tp, _Pred>>
+      = enable_borrowed_range<_Tp>;
+
   namespace views
   {
     inline constexpr __adaptor::_RangeAdaptor drop_while
@@ -2414,9 +2464,9 @@ namespace views
 
 	    for (; _M_outer != ranges::end(_M_parent->_M_base); ++_M_outer)
 	      {
-		auto& inner = __update_inner(*_M_outer);
-		_M_inner = ranges::begin(inner);
-		if (_M_inner != ranges::end(inner))
+		auto& __inner = __update_inner(*_M_outer);
+		_M_inner = ranges::begin(__inner);
+		if (_M_inner != ranges::end(__inner))
 		  return;
 	      }
 
@@ -2497,10 +2547,12 @@ namespace views
 	  operator*() const
 	  { return *_M_inner; }
 
-	  constexpr _Outer_iter
+	  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+	  // 3500. join_view::iterator::operator->() is bogus
+	  constexpr _Inner_iter
 	  operator->() const
-	    requires __detail::__has_arrow<_Outer_iter>
-	      && copyable<_Outer_iter>
+	    requires __detail::__has_arrow<_Inner_iter>
+	      && copyable<_Inner_iter>
 	  { return _M_inner; }
 
 	  constexpr _Iterator&
@@ -2697,7 +2749,9 @@ namespace views
     inline constexpr __adaptor::_RangeAdaptorClosure join
       = [] <viewable_range _Range> (_Range&& __r)
       {
-	return join_view{std::forward<_Range>(__r)};
+	// _GLIBCXX_RESOLVE_LIB_DEFECTS
+	// 3474. Nesting join_views is broken because of CTAD
+	return join_view<views::all_t<_Range>>{std::forward<_Range>(__r)};
       };
   } // namespace views
 
@@ -3189,6 +3243,10 @@ namespace views
   template<typename _Range>
     common_view(_Range&&) -> common_view<views::all_t<_Range>>;
 
+  template<typename _Tp>
+    inline constexpr bool enable_borrowed_range<common_view<_Tp>>
+      = enable_borrowed_range<_Tp>;
+
   namespace views
   {
     inline constexpr __adaptor::_RangeAdaptorClosure common
@@ -3238,29 +3296,29 @@ namespace views
       {
 	if constexpr (_S_needs_cached_begin)
 	  if (_M_cached_begin._M_has_value())
-	    return make_reverse_iterator(_M_cached_begin._M_get(_M_base));
+	    return std::make_reverse_iterator(_M_cached_begin._M_get(_M_base));
 
 	auto __it = ranges::next(ranges::begin(_M_base), ranges::end(_M_base));
 	if constexpr (_S_needs_cached_begin)
 	  _M_cached_begin._M_set(_M_base, __it);
-	return make_reverse_iterator(std::move(__it));
+	return std::make_reverse_iterator(std::move(__it));
       }
 
       constexpr auto
       begin() requires common_range<_Vp>
-      { return make_reverse_iterator(ranges::end(_M_base)); }
+      { return std::make_reverse_iterator(ranges::end(_M_base)); }
 
       constexpr auto
       begin() const requires common_range<const _Vp>
-      { return make_reverse_iterator(ranges::end(_M_base)); }
+      { return std::make_reverse_iterator(ranges::end(_M_base)); }
 
       constexpr reverse_iterator<iterator_t<_Vp>>
       end()
-      { return make_reverse_iterator(ranges::begin(_M_base)); }
+      { return std::make_reverse_iterator(ranges::begin(_M_base)); }
 
       constexpr auto
       end() const requires common_range<const _Vp>
-      { return make_reverse_iterator(ranges::begin(_M_base)); }
+      { return std::make_reverse_iterator(ranges::begin(_M_base)); }
 
       constexpr auto
       size() requires sized_range<_Vp>
@@ -3273,6 +3331,10 @@ namespace views
 
   template<typename _Range>
     reverse_view(_Range&&) -> reverse_view<views::all_t<_Range>>;
+
+  template<typename _Tp>
+    inline constexpr bool enable_borrowed_range<reverse_view<_Tp>>
+      = enable_borrowed_range<_Tp>;
 
   namespace views
   {
@@ -3356,16 +3418,24 @@ namespace views
       { return _Iterator<false>(ranges::begin(_M_base)); }
 
       constexpr auto
-      begin() const requires __detail::__simple_view<_Vp>
+      begin() const requires range<const _Vp>
       { return _Iterator<true>(ranges::begin(_M_base)); }
 
       constexpr auto
-      end() requires (!__detail::__simple_view<_Vp>)
-      { return ranges::end(_M_base); }
+      end() requires (!__detail::__simple_view<_Vp> && !common_range<_Vp>)
+      { return _Sentinel<false>{ranges::end(_M_base)}; }
 
       constexpr auto
-      end() const requires __detail::__simple_view<_Vp>
-      { return ranges::end(_M_base); }
+      end() requires (!__detail::__simple_view<_Vp> && common_range<_Vp>)
+      { return _Iterator<false>{ranges::end(_M_base)}; }
+
+      constexpr auto
+      end() const requires range<const _Vp>
+      { return _Sentinel<true>{ranges::end(_M_base)}; }
+
+      constexpr auto
+      end() const requires common_range<const _Vp>
+      { return _Iterator<true>{ranges::end(_M_base)}; }
 
       constexpr auto
       size() requires sized_range<_Vp>
@@ -3376,6 +3446,9 @@ namespace views
       { return ranges::size(_M_base); }
 
     private:
+      template<bool _Const>
+	struct _Sentinel;
+
       template<bool _Const>
 	struct _Iterator
 	{
@@ -3479,10 +3552,6 @@ namespace views
 	  { return __x._M_current == __y._M_current; }
 
 	  friend constexpr bool
-	  operator==(const _Iterator& __x, const sentinel_t<_Base>& __y)
-	  { return __x._M_current == __y; }
-
-	  friend constexpr bool
 	  operator<(const _Iterator& __x, const _Iterator& __y)
 	    requires random_access_range<_Base>
 	  { return __x._M_current < __y._M_current; }
@@ -3525,24 +3594,76 @@ namespace views
 	    requires random_access_range<_Base>
 	  { return _Iterator{__x} -= __y; }
 
+	  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+	  // 3483. transform_view::iterator's difference is overconstrained
 	  friend constexpr difference_type
 	  operator-(const _Iterator& __x, const _Iterator& __y)
-	    requires random_access_range<_Base>
+	    requires sized_sentinel_for<iterator_t<_Base>, iterator_t<_Base>>
 	  { return __x._M_current - __y._M_current; }
 
-	  friend constexpr difference_type
-	  operator-(const _Iterator<_Const>& __x, const sentinel_t<_Base>& __y)
-	    requires sized_sentinel_for<sentinel_t<_Base>, iterator_t<_Base>>
-	  { return __x._M_current - __y; }
+	  friend _Sentinel<_Const>;
+	};
 
-	  friend constexpr difference_type
-	  operator-(const sentinel_t<_Base>& __x, const _Iterator<_Const>& __y)
-	    requires sized_sentinel_for<sentinel_t<_Base>, iterator_t<_Base>>
-	  { return -(__y - __x); }
+      template<bool _Const>
+	struct _Sentinel
+	{
+	private:
+	  constexpr bool
+	  _M_equal(const _Iterator<_Const>& __x) const
+	  { return __x._M_current == _M_end; }
+
+	  using _Base = __detail::__maybe_const_t<_Const, _Vp>;
+	  sentinel_t<_Base> _M_end = sentinel_t<_Base>();
+
+	public:
+	  _Sentinel() = default;
+
+	  constexpr explicit
+	  _Sentinel(sentinel_t<_Base> __end)
+	    : _M_end(std::move(__end))
+	  { }
+
+	  constexpr
+	  _Sentinel(_Sentinel<!_Const> __other)
+	    requires _Const
+	      && convertible_to<sentinel_t<_Vp>, sentinel_t<_Base>>
+	    : _M_end(std::move(__other._M_end))
+	  { }
+
+	  constexpr sentinel_t<_Base>
+	  base() const
+	  { return _M_end; }
+
+	  template<bool _Const2>
+	    requires sentinel_for<sentinel_t<_Base>,
+		       iterator_t<__detail::__maybe_const_t<_Const2, _Vp>>>
+	    friend constexpr bool
+	    operator==(const _Iterator<_Const2>& __x, const _Sentinel& __y)
+	    { return __y._M_equal(__x); }
+
+	  template<bool _Const2,
+		   typename _Base2 = __detail::__maybe_const_t<_Const2, _Vp>>
+	    requires sized_sentinel_for<sentinel_t<_Base>, iterator_t<_Base2>>
+	    friend constexpr range_difference_t<_Base2>
+	    operator-(const _Iterator<_Const2>& __x, const _Sentinel& __y)
+	    { return __x._M_current - __y._M_end; }
+
+	  template<bool _Const2,
+		   typename _Base2 = __detail::__maybe_const_t<_Const2, _Vp>>
+	    requires sized_sentinel_for<sentinel_t<_Base>, iterator_t<_Base2>>
+	    friend constexpr range_difference_t<_Base>
+	    operator-(const _Sentinel& __x, const _Iterator<_Const2>& __y)
+	    { return __x._M_end - __y._M_current; }
+
+	  friend _Sentinel<!_Const>;
 	};
 
       _Vp _M_base = _Vp();
     };
+
+  template<typename _Tp, size_t _Nm>
+    inline constexpr bool enable_borrowed_range<elements_view<_Tp, _Nm>>
+      = enable_borrowed_range<_Tp>;
 
   template<typename _Range>
     using keys_view = elements_view<views::all_t<_Range>, 0>;

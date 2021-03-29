@@ -578,7 +578,8 @@ namespace ranges
 	      }
 	  }
 
-	if constexpr (sized_sentinel_for<_Sent, _Iter>)
+	if constexpr (sized_sentinel_for<_Sent, _Iter>
+		      && random_access_iterator<_Iter>)
 	  {
 	    auto __tail_size = __last - __first;
 	    auto __remainder = __count;
@@ -593,6 +594,7 @@ namespace ranges
 		    if (--__remainder == 0)
 		      return {__first - __count, __first};
 		  }
+		__remainder = __count + 1 - (__first - __backtrack);
 	      }
 	    auto __i = __first + __tail_size;
 	    return {__i, __i};
@@ -3473,10 +3475,7 @@ namespace ranges
 		// This condition is consistent with the one in
 		// __lexicographical_compare_aux in <bits/stl_algobase.h>.
 		constexpr bool __use_memcmp
-		  = (__is_byte<_ValueType1>::__value
-		     && __is_byte<_ValueType2>::__value
-		     && !__gnu_cxx::__numeric_traits<_ValueType1>::__is_signed
-		     && !__gnu_cxx::__numeric_traits<_ValueType2>::__is_signed
+		  = (__is_memcmp_ordered_with<_ValueType1, _ValueType2>::__value
 		     && __ptr_to_nonvolatile<_Iter1>
 		     && __ptr_to_nonvolatile<_Iter2>
 		     && (is_same_v<_Comp, ranges::less>
@@ -3696,10 +3695,10 @@ namespace ranges
 } // namespace ranges
 
 #define __cpp_lib_shift 201806L
-  template<class ForwardIterator>
-    constexpr ForwardIterator
-    shift_left(ForwardIterator __first, ForwardIterator __last,
-	       typename iterator_traits<ForwardIterator>::difference_type __n)
+  template<typename _ForwardIterator>
+    constexpr _ForwardIterator
+    shift_left(_ForwardIterator __first, _ForwardIterator __last,
+	       typename iterator_traits<_ForwardIterator>::difference_type __n)
     {
       __glibcxx_assert(__n >= 0);
       if (__n == 0)
@@ -3711,16 +3710,17 @@ namespace ranges
       return std::move(std::move(__mid), std::move(__last), std::move(__first));
     }
 
-  template<class ForwardIterator>
-    constexpr ForwardIterator
-    shift_right(ForwardIterator __first, ForwardIterator __last,
-		typename iterator_traits<ForwardIterator>::difference_type __n)
+  template<typename _ForwardIterator>
+    constexpr _ForwardIterator
+    shift_right(_ForwardIterator __first, _ForwardIterator __last,
+		typename iterator_traits<_ForwardIterator>::difference_type __n)
     {
       __glibcxx_assert(__n >= 0);
       if (__n == 0)
 	return __first;
 
-      using _Cat = typename iterator_traits<ForwardIterator>::iterator_category;
+      using _Cat
+	= typename iterator_traits<_ForwardIterator>::iterator_category;
       if constexpr (derived_from<_Cat, bidirectional_iterator_tag>)
 	{
 	  auto __mid = ranges::next(__last, -__n, __first);

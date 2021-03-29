@@ -35,7 +35,7 @@
 #if __cplusplus >= 201103L
 #include <initializer_list>
 #include <bits/iterator_concepts.h>
-#include <bits/int_limits.h>
+#include <ext/numeric_traits.h>
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {
@@ -87,7 +87,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Tp, size_t _Nm>
     inline _GLIBCXX14_CONSTEXPR _Tp*
-    begin(_Tp (&__arr)[_Nm])
+    begin(_Tp (&__arr)[_Nm]) noexcept
     { return __arr; }
 
   /**
@@ -97,7 +97,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Tp, size_t _Nm>
     inline _GLIBCXX14_CONSTEXPR _Tp*
-    end(_Tp (&__arr)[_Nm])
+    end(_Tp (&__arr)[_Nm]) noexcept
     { return __arr + _Nm; }
 
 #if __cplusplus >= 201402L
@@ -178,7 +178,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Tp, size_t _Nm>
     inline _GLIBCXX17_CONSTEXPR reverse_iterator<_Tp*>
-    rbegin(_Tp (&__arr)[_Nm])
+    rbegin(_Tp (&__arr)[_Nm]) noexcept
     { return reverse_iterator<_Tp*>(__arr + _Nm); }
 
   /**
@@ -188,7 +188,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Tp, size_t _Nm>
     inline _GLIBCXX17_CONSTEXPR reverse_iterator<_Tp*>
-    rend(_Tp (&__arr)[_Nm])
+    rend(_Tp (&__arr)[_Nm]) noexcept
     { return reverse_iterator<_Tp*>(__arr); }
 
   /**
@@ -198,7 +198,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Tp>
     inline _GLIBCXX17_CONSTEXPR reverse_iterator<const _Tp*>
-    rbegin(initializer_list<_Tp> __il)
+    rbegin(initializer_list<_Tp> __il) noexcept
     { return reverse_iterator<const _Tp*>(__il.end()); }
 
   /**
@@ -208,7 +208,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    */
   template<typename _Tp>
     inline _GLIBCXX17_CONSTEXPR reverse_iterator<const _Tp*>
-    rend(initializer_list<_Tp> __il)
+    rend(initializer_list<_Tp> __il) noexcept
     { return reverse_iterator<const _Tp*>(__il.begin()); }
 
   /**
@@ -353,13 +353,23 @@ namespace ranges
   namespace __detail
   {
     template<integral _Tp>
-      constexpr make_unsigned_t<_Tp>
+      constexpr auto
       __to_unsigned_like(_Tp __t) noexcept
-      { return __t; }
+      { return static_cast<make_unsigned_t<_Tp>>(__t); }
 
-    template<typename _Tp, bool _MaxDiff = same_as<_Tp, __max_diff_type>>
+#if defined __STRICT_ANSI__ && defined __SIZEOF_INT128__
+    constexpr unsigned __int128
+    __to_unsigned_like(__int128 __t) noexcept
+    { return __t; }
+
+    constexpr unsigned __int128
+    __to_unsigned_like(unsigned __int128 __t) noexcept
+    { return __t; }
+#endif
+
+    template<typename _Tp>
       using __make_unsigned_like_t
-	= conditional_t<_MaxDiff, __max_size_type, make_unsigned_t<_Tp>>;
+	= decltype(__detail::__to_unsigned_like(std::declval<_Tp>()));
 
     // Part of the constraints of ranges::borrowed_range
     template<typename _Tp>
@@ -727,12 +737,12 @@ namespace ranges
 	{
 	  using __iter_type = decltype(_Begin{}(std::forward<_Tp>(__e)));
 	  using __diff_type = iter_difference_t<__iter_type>;
-	  using std::__detail::__int_limits;
+	  using __gnu_cxx::__int_traits;
 	  auto __size = _Size{}(std::forward<_Tp>(__e));
 	  if constexpr (integral<__diff_type>)
 	    {
-	      if constexpr (__int_limits<__diff_type>::digits
-			    < __int_limits<ptrdiff_t>::digits)
+	      if constexpr (__int_traits<__diff_type>::__digits
+			    < __int_traits<ptrdiff_t>::__digits)
 		return static_cast<ptrdiff_t>(__size);
 	    }
 	  return static_cast<__diff_type>(__size);

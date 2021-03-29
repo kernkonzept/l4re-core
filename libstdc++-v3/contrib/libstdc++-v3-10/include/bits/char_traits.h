@@ -196,7 +196,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       if (std::is_constant_evaluated())
 	{
 	  if (__s1 > __s2 && __s1 < __s2 + __n)
-	    std::copy_backward(__s2, __s2 + __n, __s1);
+	    std::copy_backward(__s2, __s2 + __n, __s1 + __n);
 	  else
 	    std::copy(__s2, __s2 + __n, __s1);
 	  return __s1;
@@ -236,7 +236,14 @@ namespace std _GLIBCXX_VISIBILITY(default)
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #if __cplusplus >= 201703L
-#define __cpp_lib_constexpr_char_traits 201611
+
+#if __cplusplus == 201703L
+// Unofficial macro indicating P0426R1 support
+# define __cpp_lib_constexpr_char_traits 201611L
+#else
+// Also support P1032R1 in C++20
+# define __cpp_lib_constexpr_char_traits 201811L
+#endif
 
   /**
    *  @brief Determine whether the characters of a NULL-terminated
@@ -342,7 +349,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	if (__builtin_constant_p(__n)
 	    && __constant_char_array_p(__s1, __n)
 	    && __constant_char_array_p(__s2, __n))
-	  return __gnu_cxx::char_traits<char_type>::compare(__s1, __s2, __n);
+	  {
+	    for (size_t __i = 0; __i < __n; ++__i)
+	      if (lt(__s1[__i], __s2[__i]))
+		return -1;
+	      else if (lt(__s2[__i], __s1[__i]))
+		return 1;
+	    return 0;
+	  }
 #endif
 	return __builtin_memcmp(__s1, __s2, __n);
       }

@@ -245,7 +245,7 @@ class UniquePointerPrinter:
 
     def __init__ (self, typename, val):
         self.val = val
-        impl_type = val.type.fields()[0].type.tag
+        impl_type = val.type.fields()[0].type.strip_typedefs()
         # Check for new implementations first:
         if is_specialization_of(impl_type, '__uniq_ptr_data') \
             or is_specialization_of(impl_type, '__uniq_ptr_impl'):
@@ -253,7 +253,7 @@ class UniquePointerPrinter:
         elif is_specialization_of(impl_type, 'tuple'):
             tuple_member = val['_M_t']
         else:
-            raise ValueError("Unsupported implementation for unique_ptr: %s" % impl_type)
+            raise ValueError("Unsupported implementation for unique_ptr: %s" % str(impl_type))
         tuple_impl_type = tuple_member.type.fields()[0].type # _Tuple_impl
         tuple_head_type = tuple_impl_type.fields()[1].type   # _Head_base
         head_field = tuple_head_type.fields()[0]
@@ -262,7 +262,7 @@ class UniquePointerPrinter:
         elif head_field.is_base_class:
             self.pointer = tuple_member.cast(head_field.type)
         else:
-            raise ValueError("Unsupported implementation for tuple in unique_ptr: %s" % impl_type)
+            raise ValueError("Unsupported implementation for tuple in unique_ptr: %s" % str(impl_type))
 
     def children (self):
         return SmartPtrIterator(self.pointer)
@@ -1107,6 +1107,29 @@ class SingleObjContainerPrinter(object):
             return self.visualizer.display_hint ()
         return self.hint
 
+def function_pointer_to_name(f):
+    "Find the name of the function referred to by the gdb.Value f, "
+    " which should contain a function pointer from the program."
+
+    # Turn the function pointer into an actual address.
+    # This is needed to unpack ppc64 function descriptors.
+    f = f.dereference().address
+
+    if sys.version_info[0] == 2:
+        # Older versions of GDB need to use long for Python 2,
+        # because int(f) on 64-bit big-endian values raises a
+        # gdb.error saying "Cannot convert value to int."
+        f = long(f)
+    else:
+        f = int(f)
+
+    try:
+        # If the function can't be found older versions of GDB raise a
+        # RuntimeError saying "Cannot locate object file for block."
+        return gdb.block_for_pc(f).function.name
+    except:
+        return None
+
 class StdExpAnyPrinter(SingleObjContainerPrinter):
     "Print a std::any or std::experimental::any"
 
@@ -1119,11 +1142,11 @@ class StdExpAnyPrinter(SingleObjContainerPrinter):
         visualizer = None
         mgr = self.val['_M_manager']
         if mgr != 0:
-            func = gdb.block_for_pc(int(mgr.cast(gdb.lookup_type('intptr_t'))))
+            func = function_pointer_to_name(mgr)
             if not func:
-                raise ValueError("Invalid function pointer in %s" % self.typename)
+                raise ValueError("Invalid function pointer in %s" % (self.typename))
             rx = r"""({0}::_Manager_\w+<.*>)::_S_manage\((enum )?{0}::_Op, (const {0}|{0} const) ?\*, (union )?{0}::_Arg ?\*\)""".format(typename)
-            m = re.match(rx, func.function.name)
+            m = re.match(rx, func)
             if not m:
                 raise ValueError("Unknown manager function in %s" % self.typename)
 
@@ -1275,6 +1298,7 @@ class StdExpPathPrinter:
 
     def __init__ (self, typename, val):
         self.val = val
+        self.typename = typename
         start = self.val['_M_cmpts']['_M_impl']['_M_start']
         finish = self.val['_M_cmpts']['_M_impl']['_M_finish']
         self.num_cmpts = int (finish - start)
@@ -1293,10 +1317,11 @@ class StdExpPathPrinter:
             t = self._path_type()
             if t:
                 path = '%s [%s]' % (path, t)
-        return "filesystem::path %s" % path
+        return "experimental::filesystem::path %s" % path
 
     class _iterator(Iterator):
-        def __init__(self, cmpts):
+        def __init__(self, cmpts, pathtype):
+            self.pathtype = pathtype
             self.item = cmpts['_M_impl']['_M_start']
             self.finish = cmpts['_M_impl']['_M_finish']
             self.count = 0
@@ -1312,13 +1337,13 @@ class StdExpPathPrinter:
             self.count = self.count + 1
             self.item = self.item + 1
             path = item['_M_pathname']
-            t = StdExpPathPrinter(item.type.name, item)._path_type()
+            t = StdExpPathPrinter(self.pathtype, item)._path_type()
             if not t:
                 t = count
             return ('[%s]' % t, path)
 
     def children(self):
-        return self._iterator(self.val['_M_cmpts'])
+        return self._iterator(self.val['_M_cmpts'], self.typename)
 
 class StdPathPrinter:
     "Print a std::filesystem::path"
@@ -1351,6 +1376,7 @@ class StdPathPrinter:
 
     class _iterator(Iterator):
         def __init__(self, impl, pathtype):
+            self.pathtype = pathtype
             if impl:
                 # We can't access _Impl::_M_size because _Impl is incomplete
                 # so cast to int* to access the _M_size member at offset zero,
@@ -1383,7 +1409,7 @@ class StdPathPrinter:
             self.count = self.count + 1
             self.item = self.item + 1
             path = item['_M_pathname']
-            t = StdPathPrinter(item.type.name, item)._path_type()
+            t = StdPathPrinter(self.pathtype, item)._path_type()
             if not t:
                 t = count
             return ('[%s]' % t, path)
