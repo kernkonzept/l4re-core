@@ -12,14 +12,14 @@ Moe::Server_object::~Server_object()
 
   if (obj_cap().is_valid())
     {
+      object_pool.cap_alloc()->free(obj_cap(), L4_FP_ALL_SPACES | L4_FP_DELETE_OBJ);
+
       L4::Thread::Modify_senders todo;
       todo.add(~3UL,
                reinterpret_cast<l4_umword_t>(static_cast<L4::Epiface *>(this)),
                ~0UL,
                reinterpret_cast<l4_umword_t>(static_cast<L4::Epiface *>(&null_handler)));
       L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP)->modify_senders(todo);
-
-      object_pool.cap_alloc()->free(obj_cap(), L4_FP_ALL_SPACES | L4_FP_DELETE_OBJ);
     }
 }
 
