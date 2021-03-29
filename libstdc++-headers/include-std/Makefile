@@ -8,10 +8,10 @@ PKGNAME         = libstdc++-v3
 INCSRC_DIR      = $(STDCXX_CONTRIB_DIR)/include
 TARGET          = $(shell (cd $(INCSRC_DIR) && find . -type f -not -name 'Make*' -print))
 
-LIBSUPC_H            := exception new typeinfo cxxabi.h
-LIBSUPC_H-4.6_PLUS-  := exception_defines.h cxxabi-forced.h
-LIBSUPC_H-4.6_PLUS-y := bits/exception_defines.h bits/cxxabi_forced.h cxxabi_forced.h bits/hash_bytes.h
-LIBSUPC_H-4.7_PLUS-y += bits/atomic_lockfree_defines.h
+LIBSUPC_H            := exception new typeinfo cxxabi.h \
+                        bits/exception_defines.h bits/cxxabi_forced.h \
+                        cxxabi_forced.h bits/hash_bytes.h \
+                        bits/atomic_lockfree_defines.h
 LIBSUPC_H-7_PLUS-y   += bits/exception.h bits/cxxabi_init_exception.h
 LIBSUPC_H-10_PLUS-y  += compare
 
