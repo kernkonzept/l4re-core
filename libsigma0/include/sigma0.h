@@ -48,7 +48,6 @@
 #define SIGMA0_REQ_ID_FPAGE_IOMEM_CACHED  0x80     /**< Cached I/O memory */
 #define SIGMA0_REQ_ID_FPAGE_ANY		  0x90     /**< Any */
 #define SIGMA0_REQ_ID_KIP		  0xA0     /**< KIP */
-#define SIGMA0_REQ_ID_TBUF		  0xB0     /**< TBUF */
 #define SIGMA0_REQ_ID_DEBUG_DUMP	  0xC0     /**< Debug dump */
 #define SIGMA0_REQ_ID_NEW_CLIENT	  0xD0     /**< New client */
 
@@ -64,7 +63,6 @@
 #define SIGMA0_REQ_FPAGE_IOMEM_CACHED   (SIGMA0_REQ(FPAGE_IOMEM_CACHED)) /**< Cache I/O memory*/
 #define SIGMA0_REQ_FPAGE_ANY            (SIGMA0_REQ(FPAGE_ANY))          /**< Any */
 #define SIGMA0_REQ_KIP                  (SIGMA0_REQ(KIP))                /**< KIP */
-#define SIGMA0_REQ_TBUF	                (SIGMA0_REQ(TBUF))               /**< TBUF */
 #define SIGMA0_REQ_DEBUG_DUMP           (SIGMA0_REQ(DEBUG_DUMP))         /**< Debug dump */
 #define SIGMA0_REQ_NEW_CLIENT           (SIGMA0_REQ(NEW_CLIENT))         /**< New client */
 /*@}*/
@@ -174,22 +172,6 @@ L4_CV int l4sigma0_map_iomem(l4_cap_idx_t sigma0, l4_addr_t phys,
 L4_CV int l4sigma0_map_anypage(l4_cap_idx_t sigma0, l4_addr_t map_area,
                                unsigned log2_map_size, l4_addr_t *base,
                                unsigned sz);
-
-/**
- * Request Fiasco trace buffer.
- *
- * \param sigma0  Capability selector for the sigma0 gate.
- * \param virt    The virtual address where the trace buffer should be mapped.
- *
- * \retval 0                   Success.
- * \retval -L4SIGMA0_IPCERROR  IPC error.
- * \retval -L4SIGMA0_NOFPAGE   No fpage received.
- *
- * This is a Fiasco specific feature. Where you can request the kernel internal
- * trace buffer for user-level evaluation. This is for special debugging tools
- * such as Ferret.
- */
-L4_CV int l4sigma0_map_tbuf(l4_cap_idx_t sigma0, l4_addr_t virt);
 
 /**
  * Request sigma0 to dump internal debug information.
