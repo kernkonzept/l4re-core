@@ -124,6 +124,9 @@ Mem_man::add_free(Region const &r)
 bool
 Mem_man::alloc_from(Region const *r2, Region const &_r)
 {
+  if (!_r.valid())
+    return false;
+
   Region r(_r);
   if (r2->owner() && r2->owner() != r.owner())
     return false;
@@ -148,32 +151,42 @@ Mem_man::alloc_from(Region const *r2, Region const &_r)
       return add(r);
     }
 
+  bool restore = false;
+  Region r2_orig = *r2;
+
   if (r.start() == r2->start())
     {
       r2->start(r.end() + 1);
       if (0)
         L4::cout << "move start to " << *r2 << '\n';
-      add(r);
-      return true;
     }
-
-  if (r.end() == r2->end())
+  else if (r.end() == r2->end())
     {
       r2->end(r.start() - 1);
       if (0)
         L4::cout << "shrink end to " << *r2 << '\n';
-      add(r);
-      return true;
+    }
+  else
+    {
+      Region const nr(r.end() + 1, r2->end(), r2->owner(), r2->rights());
+      r2->end(r.start() - 1);
+      if (0)
+        L4::cout << "split to " << *r2 << "; " << nr << '\n';
+      if (nr.valid())
+        if (!add(nr))
+          restore = true;
     }
 
-  Region const nr(r.end() + 1, r2->end(), r2->owner(), r2->rights());
-  r2->end(r.start() - 1);
-  if (0)
-    L4::cout << "split to " << *r2 << "; " << nr << '\n';
-  if (r.valid())
-    add(r);
-  if (nr.valid())
-    add(nr);
+  if (!restore)
+    if (!add(r))
+      restore = true;
+
+  if (restore)
+    {
+      r2->start(r2_orig.start());
+      r2->end(r2_orig.end());
+      return false;
+    }
 
   return true;
 }
