@@ -35,6 +35,7 @@
 # define O_DIRECT	00040000	/* must be a directory */
 # define O_NOATIME	01000000	/* don't set atime */
 # define O_PATH        010000000	/* Resolve pathname but do not open file.  */
+# define O_TMPFILE     020200000	/* Atomically create nameless file.  */
 #endif
 
 #ifdef __USE_LARGEFILE64

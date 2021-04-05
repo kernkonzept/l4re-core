@@ -54,6 +54,7 @@
 # define O_LARGEFILE	0100000
 # define O_NOATIME      01000000
 # define O_PATH        010000000/* Resolve pathname but do not open file.  */
+# define O_TMPFILE     020200000/* Atomically create nameless file.  */
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.

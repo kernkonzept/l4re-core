@@ -47,6 +47,7 @@
 # define O_NOATIME     0x200000 /* Do not set atime.  */
 # define O_CLOEXEC     0x400000 /* Set close_on_exit.  */
 # define O_PATH       0x1000000 /* Resolve pathname but do not open file.  */
+# define O_TMPFILE    0x2010000 /* Atomically create nameless file.  */
 #endif
 
 #ifdef __USE_LARGEFILE64

@@ -53,6 +53,7 @@
 # define O_DIRECT	 040000	/* Direct disk access.	*/
 # define O_NOATIME     01000000 /* Do not set atime.  */
 # define O_PATH       010000000 /* Resolve pathname but do not open file.  */
+# define O_TMPFILE    020200000 /* Atomically create nameless file.  */
 #endif
 
 #ifdef __USE_LARGEFILE64

@@ -104,8 +104,9 @@ libc_hidden_proto(fcntl64)
 #endif
 
 /* Open FILE and return a new file descriptor for it, or -1 on error.
-   OFLAG determines the type of access used.  If O_CREAT is on OFLAG,
-   the third argument is taken as a `mode_t', the mode of the created file.
+   OFLAG determines the type of access used.  If O_CREAT or O_TMPFILE
+   is on OFLAG, the third argument is taken as a `mode_t', the mode of
+   the created file.
 
    This function is a cancellation point and therefore not marked with
    __THROW.  */

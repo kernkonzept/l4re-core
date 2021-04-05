@@ -52,6 +52,7 @@
 # define O_DIRECT	0200000
 # define O_NOATIME     01000000
 # define O_PATH       010000000
+# define O_TMPFILE    020040000
 #endif
 
 /* For now Linux has synchronisity options for data and read operations.
