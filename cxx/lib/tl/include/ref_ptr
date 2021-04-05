@@ -294,6 +294,8 @@ public:
 
   Weak_ptr(Weak_ptr<T, CNT> const &o) noexcept : _p(o._p) {}
 
+  Weak_ptr<T, CNT> &operator = (const Weak_ptr<T, CNT> &o) = default;
+
   T *get() const noexcept { return _p; }
   T *ptr() const noexcept { return _p; }
 
