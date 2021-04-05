@@ -37,6 +37,9 @@ namespace L4 {
  * provides functions to query scheduler information, check the online state of
  * CPUs, query CPU idle time and to start threads on defined CPU sets.
  *
+ * The scheduler offers IRQ number 0, which triggers when the number of
+ * online cores changes, e.g. due to hotplug events.
+ *
  * \includefile{l4/sys/scheduler}
  */
 class L4_EXPORT Scheduler :
