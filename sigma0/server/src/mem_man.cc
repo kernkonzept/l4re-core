@@ -262,14 +262,22 @@ Mem_man::reserve(Region const &r)
       if (r2->owner() && r2->owner() != r.owner())
         return false;
 
+      // allow exact matches to update owner and rights of the reserved region
+      if (*r2 == r && (r2->owner() != r.owner() || r2->rights() != r.rights()))
+        {
+          int err = _tree.remove(*r2);
+          if (err < 0)
+            {
+              L4::cout << "err=" << err << " dump:\n";
+              dump();
+              l4_assert(!"BUG");
+            }
+          return add(r);
+        }
+
+      // contained region will not get any updated rights
       if (r2->contains(r) && r2->owner() == r.owner())
         return true;
-
-      if (*r2 == r && !r2->owner())
-        {
-          r2->owner(r.owner());
-          return true;
-        }
 
       if (r2->contains(r))
         {
