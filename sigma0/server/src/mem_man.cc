@@ -151,7 +151,6 @@ Mem_man::alloc_from(Region const *r2, Region const &_r)
       return add(r);
     }
 
-  bool restore = false;
   Region r2_orig = *r2;
 
   if (r.start() == r2->start())
@@ -172,19 +171,17 @@ Mem_man::alloc_from(Region const *r2, Region const &_r)
       r2->end(r.start() - 1);
       if (0)
         L4::cout << "split to " << *r2 << "; " << nr << '\n';
-      if (nr.valid())
-        if (!add(nr))
-          restore = true;
+
+      if (nr.valid() && !add(nr))
+        {
+          r2->restore_range_from(r2_orig);
+          return false;
+        }
     }
 
-  if (!restore)
-    if (!add(r))
-      restore = true;
-
-  if (restore)
+  if (!add(r))
     {
-      r2->start(r2_orig.start());
-      r2->end(r2_orig.end());
+      r2->restore_range_from(r2_orig);
       return false;
     }
 

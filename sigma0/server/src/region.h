@@ -31,6 +31,11 @@ public:
   L4_fpage_rights rights() const { return _rights; }
   unsigned long start() const { return _l & ~Owner_mask; }
   unsigned long end() const { return _h; }
+  void restore_range_from(Region const &r) const
+  {
+    start(r.start());
+    end(r.end());
+  }
 
   void owner(unsigned owner) const { _l = (_l & ~Owner_mask) | owner; }
   void rights(L4_fpage_rights rights) { _rights = rights; }
