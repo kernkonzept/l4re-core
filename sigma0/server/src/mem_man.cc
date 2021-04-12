@@ -398,7 +398,8 @@ Mem_man::alloc_first(unsigned long size, unsigned owner)
 
   Region a = Region::bs((n->start() + size - 1) & ~(size - 1), size, owner);
 
-  alloc_from(n, a);
+  if (!alloc_from(n, a))
+    return ~0UL;
 
   return a.start();
 }
