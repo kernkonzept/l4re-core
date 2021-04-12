@@ -30,7 +30,7 @@ namespace cxx {
  * \note The read might still be moved relative to other code.
  * \note The value might be read from a hardware cache, not from RAM.
  */
-template< typename T >
+template< typename T > inline
 T access_once(T const *a)
 {
 #if 1
