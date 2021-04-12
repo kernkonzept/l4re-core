@@ -273,7 +273,6 @@ Mem_man::reserve(Region const &r)
 
       if (r2->contains(r))
         {
-          bool restore = false;
           Region r2_orig = *r2;
 
           if (r2->start() == r.start())
@@ -284,23 +283,21 @@ Mem_man::reserve(Region const &r)
               r2->end(r.start() - 1);
               if (0)
                 L4::cout << this << ": ADDnr: " << nr << "\n";
-              if (nr.valid())
-                // FIXME: we could avoid the merge code for this add
-                //        because this region is per definition not mergable
-                if (!add(nr))
-                  restore = true;
+              // FIXME: we could avoid the merge code for this add
+              //        because this region is per definition not mergeable
+              if (nr.valid() && !add(nr))
+                {
+                  r2->restore_range_from(r2_orig);
+                  return false;
+                }
             }
 
           if (0)
             L4::cout << this << ": ADD: " << r << "\n";
 
-          if (!restore && !add(r))
-            restore = true;
-
-          if (restore)
+          if (!add(r))
             {
-              r2->start(r2_orig.start());
-              r2->end(r2_orig.end());
+              r2->restore_range_from(r2_orig);
               return false;
             }
           return true;
