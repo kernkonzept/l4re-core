@@ -50,3 +50,11 @@ CXXFLAGS_del_opva.cc   += -std=gnu++1z
 CXXFLAGS_del_opvant.cc += -std=gnu++1z
 CXXFLAGS_del_opvsa.cc  += -std=gnu++1z
 
+# Use atomicity.cc if the compiler does not support C++11 atomics
+SRC_CC       += $(if $(GCC_HAS_ATOMICS),,atomicity.cc)
+
+vpath %.cc $(OBJ_DIR)
+
+$(OBJ_DIR)/atomicity.cc: $(call CPU_file,atomicity_mutex/atomicity.h)
+	$(VERBOSE)$(LN) -sf $< $@
+

@@ -150,16 +150,10 @@ CXXFLAGS        += $(if $(filter filesystem/%,$@),-std=gnu++17)
 # -Wmissing-declarations triggers
 WARNINGS = $(WARNINGS_MINIMAL)
 
-# Use atomicity.cc if the compiler does not support C++11 atomics
-SRC_CC       += $(if $(GCC_HAS_ATOMICS),,atomicity.cc)
-
 # Only include the following in full libstdc++ builds
 SRC_CC       += $(if $(filter -DL4_MINIMAL_LIBC,$(DEFINES)),,c_locale.cc)
 
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/os/generic
-
-$(OBJ_DIR)/atomicity.cc: $(call CPU_file,atomicity_mutex/atomicity.h)
-	$(VERBOSE)$(LN) -sf $< $@
 
 $(OBJ_DIR)/c++98/basic_file.cc: $(STDCXX_CONTRIB_DIR)/config/io/basic_file_stdio.cc
 	$(VERBOSE)$(MKDIR) $(@D)

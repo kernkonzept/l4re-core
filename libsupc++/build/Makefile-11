@@ -39,3 +39,12 @@ vtv_stubs.cc \
 
 SRC_CC_IS_CXX11 :=
 CXXFLAGS += -std=gnu++17
+
+# Use atomicity.cc if the compiler does not support C++11 atomics
+SRC_CC       += $(if $(GCC_HAS_ATOMICS),,atomicity.cc)
+
+vpath %.cc $(OBJ_DIR)
+
+$(OBJ_DIR)/atomicity.cc: $(call CPU_file,atomicity_mutex/atomicity.h)
+	$(VERBOSE)$(LN) -sf $< $@
+
