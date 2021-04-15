@@ -112,6 +112,33 @@ L4_INLINE l4_msgtag_t
 l4_irq_detach_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
 
 
+L4_INLINE l4_msgtag_t
+l4_irq_bind_vcpu(l4_cap_idx_t irq, l4_cap_idx_t thread,
+                 l4_umword_t cfg) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_mask_vcpu(l4_cap_idx_t irq) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_unmask_vcpu(l4_cap_idx_t irq) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_clear_vcpu(l4_cap_idx_t irq) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_bind_vcpu_u(l4_cap_idx_t irq, l4_cap_idx_t thread, l4_umword_t cfg,
+                   l4_utcb_t *utcb) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_mask_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_unmask_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_clear_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
+
+
 /**
  * Trigger an IRQ.
  * \ingroup l4_irq_api
@@ -212,7 +239,11 @@ l4_irq_unmask_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
 enum L4_irq_sender_op
 {
   L4_IRQ_SENDER_OP_RESERVED1 = 0, // Ex ATTACH
-  L4_IRQ_SENDER_OP_DETACH    = 1
+  L4_IRQ_SENDER_OP_DETACH    = 1,
+  L4_IRQ_SENDER_OP_BIND_VCPU = 2,
+  L4_IRQ_SENDER_OP_MASK_VCPU = 3,
+  L4_IRQ_SENDER_OP_UNMASK_VCPU = 4,
+  L4_IRQ_SENDER_OP_CLEAR_VCPU = 5,
 };
 
 /**
@@ -252,6 +283,43 @@ L4_INLINE l4_msgtag_t
 l4_irq_detach_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
 {
   l4_utcb_mr_u(utcb)->mr[0] = L4_IRQ_SENDER_OP_DETACH;
+  return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 1, 0, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_bind_vcpu_u(l4_cap_idx_t irq, l4_cap_idx_t thread, l4_umword_t cfg,
+                   l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  m->mr[0] = L4_IRQ_SENDER_OP_BIND_VCPU;
+  m->mr[1] = cfg;
+  m->mr[2] = l4_map_obj_control(0, 0);
+  m->mr[3] = l4_obj_fpage(thread, 0, L4_CAP_FPAGE_RWS).raw;
+  return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 2, 1, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_mask_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_utcb_mr_u(utcb)->mr[0] = L4_IRQ_SENDER_OP_MASK_VCPU;
+  return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 1, 0, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_unmask_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_utcb_mr_u(utcb)->mr[0] = L4_IRQ_SENDER_OP_UNMASK_VCPU;
+  return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 1, 0, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_clear_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_utcb_mr_u(utcb)->mr[0] = L4_IRQ_SENDER_OP_CLEAR_VCPU;
   return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 1, 0, 0),
                      L4_IPC_NEVER);
 }
@@ -297,6 +365,31 @@ L4_INLINE l4_msgtag_t
 l4_irq_detach(l4_cap_idx_t irq) L4_NOTHROW
 {
   return l4_irq_detach_u(irq, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_bind_vcpu(l4_cap_idx_t irq, l4_cap_idx_t thread,
+                 l4_umword_t cfg) L4_NOTHROW
+{
+  return l4_irq_bind_vcpu_u(irq, thread, cfg, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_mask_vcpu(l4_cap_idx_t irq) L4_NOTHROW
+{
+  return l4_irq_mask_vcpu_u(irq, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_unmask_vcpu(l4_cap_idx_t irq) L4_NOTHROW
+{
+  return l4_irq_unmask_vcpu_u(irq, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_clear_vcpu(l4_cap_idx_t irq) L4_NOTHROW
+{
+  return l4_irq_clear_vcpu_u(irq, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t

@@ -150,6 +150,18 @@ public:
   l4_msgtag_t detach(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_detach_u(cap(), utcb); }
 
+  l4_msgtag_t bind_vcpu(L4::Cap<Thread> const &thread, l4_umword_t cfg,
+                        l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_irq_bind_vcpu_u(cap(), thread.cap(), cfg, utcb); }
+
+  l4_msgtag_t mask_vcpu(l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_irq_mask_vcpu_u(cap(), utcb); }
+
+  l4_msgtag_t unmask_vcpu(l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_irq_unmask_vcpu_u(cap(), utcb); }
+
+  l4_msgtag_t clear_vcpu(l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_irq_clear_vcpu_u(cap(), utcb); }
 
   /**
    * Unmask and wait for this IRQ.
