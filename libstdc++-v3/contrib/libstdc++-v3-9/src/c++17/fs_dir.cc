@@ -148,12 +148,8 @@ directory_iterator(const path& p, directory_options options, error_code* ecptr)
 }
 
 const fs::directory_entry&
-fs::directory_iterator::operator*() const
+fs::directory_iterator::operator*() const noexcept
 {
-  if (!_M_dir)
-    _GLIBCXX_THROW_OR_ABORT(filesystem_error(
-	  "non-dereferenceable directory iterator",
-	  std::make_error_code(errc::invalid_argument)));
   return _M_dir->entry;
 }
 
@@ -211,7 +207,7 @@ recursive_directory_iterator(const path& p, directory_options options,
   else
     {
       const int err = errno;
-      if (err == EACCES
+      if (fs::is_permission_denied_error(err)
 	  && is_set(options, fs::directory_options::skip_permission_denied))
 	{
 	  if (ecptr)

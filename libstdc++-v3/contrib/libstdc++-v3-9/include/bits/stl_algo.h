@@ -526,7 +526,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { return __last == _GLIBCXX_STD_A::find_if(__first, __last, __pred); }
 
   /**
-   *  @brief  Checks that a predicate is false for at least an element
+   *  @brief  Checks that a predicate is true for at least one element
    *          of a sequence.
    *  @ingroup non_mutating_algorithms
    *  @param  __first   An input iterator.
@@ -802,6 +802,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __glibcxx_function_requires(_InputIteratorConcept<_InputIterator>)
       __glibcxx_function_requires(_OutputIteratorConcept<_OutputIterator,
 	    typename iterator_traits<_InputIterator>::value_type>)
+
+      if (__n <= 0)
+	return __result;
+
+      __glibcxx_requires_can_increment(__first, __n);
+      __glibcxx_requires_can_increment(__result, __n);
 
       return std::__copy_n(__first, __n, __result,
 			   std::__iterator_category(__first));
