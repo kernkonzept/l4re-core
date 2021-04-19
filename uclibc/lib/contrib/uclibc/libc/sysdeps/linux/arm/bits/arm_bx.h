@@ -24,11 +24,17 @@
 #endif /* features.h not yet included */
 
 #if defined(__USE_BX__)
-# if (   defined (__ARM_ARCH_2__)  || defined (__ARM_ARCH_3__) \
-      || defined (__ARM_ARCH_3M__) || defined (__ARM_ARCH_4__) \
-     )
+# if (__ARM_ARCH <= 4 && !defined __ARM_ARCH_4T__)
 #  error Use of BX was requested, but is not available on the target processor.
 # endif /* ARCH level */
 #endif /* __USE_BX__ */
+
+#if defined(__USE_BX__) && (__ARM_ARCH > 4 || (__ARM_ARCH == 4 && defined __ARM_ARCH_4T__))
+# define BX(reg)	bx reg
+# define BXC(cond, reg)	bx##cond reg
+#else
+# define BX(reg)	mov pc, reg
+# define BXC(cond, reg)	mov##cond pc, reg
+#endif
 
 #endif /* _ARM_BX_H */

@@ -21,7 +21,6 @@
 
 #include <common/sysdep.h>
 #include <bits/arm_bx.h>
-
 #include <sys/syscall.h>
 /* For Linux we can use the system call table in the header file
 	/usr/include/asm/unistd.h
@@ -50,17 +49,10 @@
 #ifdef __APCS_32__
 #define LOADREGS(cond, base, reglist...)\
 	ldm##cond	base,reglist
-#ifdef __USE_BX__
-#define RETINSTR(cond, reg)	\
-	bx##cond	reg
+#define RETINSTR(cond, reg) \
+	BXC(cond, reg)
 #define DO_RET(_reg)		\
-	bx _reg
-#else
-#define RETINSTR(cond, reg)	\
-	mov##cond	pc, reg
-#define DO_RET(_reg)		\
-	mov pc, _reg
-#endif
+	BX(_reg)
 #else  /* APCS-26 */
 #define LOADREGS(cond, base, reglist...)	\
 	ldm##cond	base,reglist^

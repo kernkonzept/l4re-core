@@ -47,11 +47,7 @@ __asm__(
 	"	ldr	r0, .L_FINI_PROC\n"
 	"	ldr	r0, [sl, r0]\n"
 	"	@ jump to the user_s entry point\n"
-#if defined(__USE_BX__)
-	"	bx	r6\n"
-#else
-	"	mov	pc, r6\n"
-#endif
+	"	" __stringify(BX(r6)) "\n"
 	".L_GET_GOT:\n"
 	"	.word	_GLOBAL_OFFSET_TABLE_ - .L_GOT_GOT - 4\n"
 	".L_SKIP_ARGS:\n"
@@ -113,11 +109,7 @@ __asm__(
 	"	ldr	r0, .L_FINI_PROC\n"
 	"	ldr	r0, [r7, r0]\n"
 	"	@ jump to the user_s entry point\n"
-#if defined(__USE_BX__)
-	"	bx	r6\n"
-#else
-	"	mov	pc, r6\n"
-#endif
+	"	" __stringify(BX(r6)) "\n"
 	"\n\n"
 	".L_GET_GOT:\n"
 	"	.word	_GLOBAL_OFFSET_TABLE_ - .L_GOT_GOT - 4\n"

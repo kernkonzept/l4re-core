@@ -18,7 +18,6 @@
 
 #include <features.h>
 #include <endian.h>
-#include <sys/syscall.h>
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
 
@@ -99,11 +98,7 @@ Llastword:				@ drop through to here once we find a
 	IT(t, ne)
 	addne   r0, r0, $1              @  must be zero)
 #endif
-#if defined(__USE_BX__)
-        bx      lr
-#else
-  	mov	pc,lr
-#endif
+	BX(lr)
 #endif
 
 .size strlen,.-strlen

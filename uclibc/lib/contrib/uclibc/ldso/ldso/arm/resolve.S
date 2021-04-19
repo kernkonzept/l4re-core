@@ -90,11 +90,9 @@
  * dl-startup.c).
  */
 
-#include <sys/syscall.h>
+#include <features.h>
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
-
-#include <features.h>
 
 #define sl r10
 #define fp r11
@@ -114,8 +112,8 @@ _dl_linux_resolve:
          @ function must branch to the real function, and that expects
          @ r0-r3 and lr to be as they were before the whole PLT stuff -
          @ ip can be trashed.
-	 @ This routine is called after pushing lr, so we must push an odd
-	 @ number of words to keep the stack correctly aligned.
+         @ This routine is called after pushing lr, so we must push an odd
+         @ number of words to keep the stack correctly aligned.
 
          stmdb sp!, {r0, r1, r2, r3, r4}
          ldr r0, [lr, #-4]       @ r0 :        = [lr-4] (GOT_TABLE[1])
@@ -124,16 +122,12 @@ _dl_linux_resolve:
                                  @ ~x = -x-1, therefore ~(r1>>2) = (-((lr-ip)>>2)-1)
                                  @ = - ((lr-ip)/4) - 1 = (ip - lr - 4)/4, as required
 
-	bl _dl_linux_resolver
+        bl _dl_linux_resolver
 
-	mov ip, r0
+        mov ip, r0
         ldmia sp!, {r0, r1, r2, r3, r4, lr}
 
-#if defined(__USE_BX__)
-	bx ip
-#else
-	mov pc,ip
-#endif
+        BX(ip)
 #else
        @ In the thumb case _dl_linux_resolver is thumb.  If a bl is used
        @ from arm code the linker will insert a stub call which, with

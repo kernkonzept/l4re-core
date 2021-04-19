@@ -15,7 +15,7 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sys/syscall.h>
+#include <features.h>
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
 
@@ -62,11 +62,7 @@ syscall:
 	ldmfd	sp!, {r4, r5, r6, r7}
 	cmn	r0, #4096
 	IT(t, cc)
-#if defined(__USE_BX__)
-	bxcc	lr
-#else
-	movcc	pc, lr
-#endif
+	BXC(cc, lr)
 	b	__syscall_error
 #endif
 

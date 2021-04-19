@@ -74,11 +74,7 @@ __vfork:
 	RESTORE_PID
 	cmn	r0, #4096
 	IT(t, cc)
-#if defined(__USE_BX__)
-	bxcc	lr
-#else
-	movcc	pc, lr
-#endif
+	BXC(cc, lr)
 
 	/* Check if vfork even exists.  */
 	ldr     r1, =-ENOSYS
@@ -92,11 +88,7 @@ __vfork:
 
 	/* Syscall worked.  Return to child/parent */
 	IT(t, cc)
-#if defined(__USE_BX__)
-	bxcc	lr
-#else
-	movcc   pc, lr
-#endif
+	BXC(cc, lr)
 
 __error:
 	b	__syscall_error

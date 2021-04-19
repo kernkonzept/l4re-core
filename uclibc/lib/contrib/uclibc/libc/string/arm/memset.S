@@ -17,7 +17,6 @@
    <http://www.gnu.org/licenses/>.  */
 
 #include <features.h>
-#include <sys/syscall.h>
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
 
@@ -109,11 +108,7 @@ memset:
 2:
 	movs	a3, a3		@ anything left?
 	IT(t, eq)
-#if defined(__USE_BX__)
-        bxeq    lr
-#else
-        moveq	pc, lr		@ nope
-#endif
+	BXC(eq, lr)			@ nope
 #if defined (__thumb2__)
 1:
 	strb	a2, [a4], #1
@@ -131,11 +126,7 @@ memset:
 	strb	a2, [a4], $1
 	strb	a2, [a4], $1
 	strb	a2, [a4], $1
-#if defined(__USE_BX__)
-        bx      lr
-#else
- 	mov	pc, lr
-#endif
+	BX(lr)
 #endif
 #endif
 

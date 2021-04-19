@@ -115,11 +115,7 @@ __clone:
 	ldmnefd	sp!, {r4}
 	blt	__error
 	IT(t, ne)
-#if defined(__USE_BX__)
-	bxne	lr
-#else
-	movne	pc, lr
-#endif
+	BXC(ne, lr)
 
 	@ pick the function arg and call address off the stack and execute
 	ldr	r0, [sp, #4]

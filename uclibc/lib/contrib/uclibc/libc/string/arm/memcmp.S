@@ -67,11 +67,7 @@ memcmp:
 	subs	r2, r2, #1
 	IT(tt, mi)
 	movmi	r0, #0
-#if defined(__USE_BX__)
-        bxmi    lr
-#else
-	movmi	pc, lr
-#endif
+	BXC(mi, lr)
 	/* ip == last src address to compare */
 	add	ip, r0, r2
 1:
@@ -82,11 +78,7 @@ memcmp:
 	cmpcs	r2, r3
 	beq	1b
 	sub	r0, r2, r3
-#if defined(__USE_BX__)
-        bx      lr
-#else
- 	mov	pc, lr
-#endif
+	BX(lr)
 #endif
 
 .size memcmp,.-memcmp

@@ -98,12 +98,7 @@ __longjmp:
 	ldcl	p1, cr14, [r12], #8
 	ldcl	p1, cr15, [r12], #8
 #endif
-
-#if defined(__USE_BX__)
-	bx	lr
-#else
-	mov pc, lr
-#endif
+	BX(lr)
 #endif
 
 .size __longjmp,.-__longjmp

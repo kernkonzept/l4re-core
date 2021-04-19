@@ -111,11 +111,7 @@ _memcpy:
 	bcc	.Lmemcpy_backwards
 
 	IT(t, eq)			/* Quick abort for src=dst */
-#if defined(__USE_BX__)
-        bxeq    lr
-#else
-        moveq   pc, lr
-#endif
+	BXC(eq, lr)
 	stmdb	sp!, {r0, lr}		/* memcpy() returns dest addr */
 	subs	r2, r2, #4
 	blt	.Lmemcpy_fl4		/* less than 4 bytes */
@@ -455,11 +451,7 @@ _memcpy:
 	/* less than 4 bytes to go */
 	adds	r2, r2, #4
 	IT(t, eq)
-#if defined(__USE_BX__)
-        bxeq    lr
-#else
-	moveq	pc, lr			/* done */
-#endif
+	BXC(eq, lr)			/* done */
 	/* copy the crud byte at a time */
 	cmp	r2, #2
 	ldrb	r3, [r1, #-1]!
@@ -477,11 +469,7 @@ _memcpy:
 	ldrgtb	r3, [r1, #-1]!
 	strgtb	r3, [r0, #-1]!
 #endif
-#if defined(__USE_BX__)
-        bx      lr
-#else
-	mov	pc, lr
-#endif
+	BX(lr)
 	/* erg - unaligned destination */
 .Lmemcpy_bdestul:
 	cmp	r12, #2
