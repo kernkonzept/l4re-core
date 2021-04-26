@@ -15,6 +15,20 @@
 
 namespace std { namespace L4 {
 
+// Print hex value to a stream. Keep as simple as possible (no snprintf etc).
+static void fputs_hex(unsigned long x, FILE *stream, bool strip = true)
+{
+  enum { Digits = sizeof(unsigned long) * 2 };
+  for (unsigned i = 0; i < Digits; ++i)
+    {
+      unsigned digit = (x >> ((Digits - i - 1) * 4)) & 15;
+      if (!digit && strip)
+        continue;
+      strip = false;
+      fputc("0123456789abcdef"[digit], stream);
+    }
+}
+
 // Verbose terminate handler being aware of the std::L4 exceptions. We have to
 // consider the different layout of L4 exceptions depending on the definition of
 // L4_CXX_EXCEPTION_BACKTRACE.
@@ -47,7 +61,9 @@ void terminate_handler_no_exc_backtrace()
 
           dem = __cxxabiv1::__cxa_demangle(name, 0, 0, &status);
 
-          fputs("terminate called after throwing an instance of '", stderr);
+          fputs("terminate called from 0x", stderr);
+          fputs_hex((unsigned long)__builtin_return_address(0), stderr);
+          fputs(" after throwing an instance of '", stderr);
           if (status == 0)
             fputs(dem, stderr);
           else
@@ -88,7 +104,11 @@ void terminate_handler_no_exc_backtrace()
       __catch(...) { }
     }
   else
-    fputs("terminate called without an active exception\n", stderr);
+    {
+      fputs("terminate called from 0x", stderr);
+      fputs_hex((unsigned long)__builtin_return_address(0), stderr);
+      fputs(" without an active exception\n", stderr);
+    }
 
   abort();
 }
