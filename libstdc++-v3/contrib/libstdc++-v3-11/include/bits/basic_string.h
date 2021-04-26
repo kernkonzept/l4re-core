@@ -48,10 +48,17 @@
 # include <string_view>
 #endif
 
-
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
+
+#if __cplusplus == 201703L
+// Support P0426R1 changes to char_traits in C++17.
+# define __cpp_lib_constexpr_string 201611L
+#elif __cplusplus > 201703L
+// Also support P1032R1 in C++20 (but not P0980R1 yet).
+# define __cpp_lib_constexpr_string 201811L
+#endif
 
 #if _GLIBCXX_USE_CXX11_ABI
 _GLIBCXX_BEGIN_NAMESPACE_CXX11
@@ -4707,10 +4714,9 @@ _GLIBCXX_END_NAMESPACE_CXX11
 
       /**
        *  @brief  Insert a string_view.
-       *  @param __pos  Position in string to insert at.
-       *  @param __svt  The object convertible to string_view to insert from.
-       *  @param __pos  Position in string_view to insert
-       *  from.
+       *  @param __pos1  Position in string to insert at.
+       *  @param __svt   The object convertible to string_view to insert from.
+       *  @param __pos2  Position in string_view to insert from.
        *  @param __n    The number of characters to insert.
        *  @return  Reference to this string.
       */

@@ -472,10 +472,25 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	__hashtable_alloc(__node_alloc_type(__a))
       { }
 
+      template<bool _No_realloc = true>
+	static constexpr bool
+	_S_nothrow_move()
+	{
+#if __cplusplus <= 201402L
+	  return __and_<__bool_constant<_No_realloc>,
+			is_nothrow_copy_constructible<_Hash>,
+			is_nothrow_copy_constructible<_Equal>>::value;
+#else
+	  if constexpr (_No_realloc)
+	    if constexpr (is_nothrow_copy_constructible<_Hash>())
+	      return is_nothrow_copy_constructible<_Equal>();
+	  return false;
+#endif
+	}
+
       _Hashtable(_Hashtable&& __ht, __node_alloc_type&& __a,
 		 true_type /* alloc always equal */)
-	noexcept(std::is_nothrow_copy_constructible<_Hash>::value &&
-		 std::is_nothrow_copy_constructible<_Equal>::value);
+	noexcept(_S_nothrow_move());
 
       _Hashtable(_Hashtable&&, __node_alloc_type&&,
 		 false_type /* alloc always equal */);
@@ -508,19 +523,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       // Use delegating constructors.
       _Hashtable(_Hashtable&& __ht)
-	noexcept( noexcept(
-	  _Hashtable(std::declval<_Hashtable>(),
-		     std::declval<__node_alloc_type>(),
-		     true_type{})) )
+	noexcept(_S_nothrow_move())
       : _Hashtable(std::move(__ht), std::move(__ht._M_node_allocator()),
 		   true_type{})
       { }
 
       _Hashtable(_Hashtable&& __ht, const allocator_type& __a)
-	noexcept( noexcept(
-	  _Hashtable(std::declval<_Hashtable>(),
-		     std::declval<__node_alloc_type>(),
-		     typename __node_alloc_traits::is_always_equal{})) )
+	noexcept(_S_nothrow_move<__node_alloc_traits::_S_always_equal()>())
       : _Hashtable(std::move(__ht), __node_alloc_type(__a),
 		   typename __node_alloc_traits::is_always_equal{})
       { }
@@ -1400,8 +1409,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	       _Hash, _RangeHash, _Unused, _RehashPolicy, _Traits>::
     _Hashtable(_Hashtable&& __ht, __node_alloc_type&& __a,
 	       true_type /* alloc always equal */)
-    noexcept(std::is_nothrow_copy_constructible<_Hash>::value &&
-	     std::is_nothrow_copy_constructible<_Equal>::value)
+    noexcept(_S_nothrow_move())
     : __hashtable_base(__ht),
       __map_base(__ht),
       __rehash_base(__ht),
