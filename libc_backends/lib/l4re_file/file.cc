@@ -302,7 +302,14 @@ noexcept(noexcept(dup2(oldfd, newfd)))
       return -1;
     }
 
-  Ref_ptr<File> newf = o->set_fd(newfd, oldf);
+  cxx::Pair<Ref_ptr<File>, int> res = o->set_fd(newfd, oldf);
+  if (res.second)
+    {
+      errno = res.second;
+      return -1;
+    }
+
+  Ref_ptr<File> newf = res.first;
   if (!newf || newf == oldf)
     return newfd;
 

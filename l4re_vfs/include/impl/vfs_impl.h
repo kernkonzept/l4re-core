@@ -26,6 +26,7 @@
 #include <l4/re/rm>
 #include <l4/re/dataspace>
 #include <l4/cxx/hlist>
+#include <l4/cxx/pair>
 #include <l4/cxx/std_alloc>
 
 #include <l4/l4re_vfs/backend>
@@ -122,7 +123,8 @@ public:
   Ref_ptr<L4Re::Vfs::File> get_cwd() throw();
   void set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) throw();
   Ref_ptr<L4Re::Vfs::File> get_file(int fd) throw();
-  Ref_ptr<L4Re::Vfs::File> set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f = Ref_ptr<>::Nil) throw();
+  cxx::Pair<Ref_ptr<L4Re::Vfs::File>, int>
+    set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f = Ref_ptr<>::Nil) throw();
 
   int mmap2(void *start, size_t len, int prot, int flags, int fd,
             off_t offset, void **ptr) throw();
@@ -362,12 +364,15 @@ Vfs::get_file(int fd) throw()
   return fds.get(fd);
 }
 
-Ref_ptr<L4Re::Vfs::File>
+cxx::Pair<Ref_ptr<L4Re::Vfs::File>, int>
 Vfs::set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f) throw()
 {
+  if (!fds.check_fd(fd))
+    return cxx::pair(Ref_ptr<L4Re::Vfs::File>(Ref_ptr<>::Nil), EBADF);
+
   Ref_ptr<L4Re::Vfs::File> old = fds.get(fd);
   fds.set(fd, f);
-  return old;
+  return cxx::pair(old, 0);
 }
 
 

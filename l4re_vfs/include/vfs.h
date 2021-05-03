@@ -38,6 +38,7 @@
 #include <l4/sys/capability>
 #include <l4/re/cap_alloc>
 #include <l4/re/dataspace>
+#include <l4/cxx/pair>
 #include <l4/cxx/ref_ptr>
 
 namespace L4Re {
@@ -905,11 +906,16 @@ public:
 
   /**
    * \brief Set the file object referenced by the file descriptor \a fd.
-   * \param fd The file descriptor to set to \a f;
+   * \param fd The file descriptor to set to \a f.
    * \param f The file object to assign.
-   * \return A pointer to the file object that was previously assigned to fd.
+   * \return A pair of a pointer to the file object that was previously
+   *         assigned to fd (`first`) and a return value (`second`).
+   *         `second` contains `-#EBADF` if the passed file descriptor is
+   *         outside the valid range. `first` contains a Nil pointer in that
+   *         case. On success, `second` contains 0.
    */
-  virtual cxx::Ref_ptr<File> set_fd(int fd, cxx::Ref_ptr<File> const &f = cxx::Ref_ptr<>::Nil) throw() = 0;
+  virtual cxx::Pair<cxx::Ref_ptr<File>, int>
+    set_fd(int fd, cxx::Ref_ptr<File> const &f = cxx::Ref_ptr<>::Nil) throw() = 0;
 
   /**
    * \brief Free the file descriptor \a fd.
