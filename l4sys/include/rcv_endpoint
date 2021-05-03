@@ -54,7 +54,8 @@ public:
    * \retval L4_EOK      Operation successful.
    * \retval -L4_EINVAL  `t` is not a thread object or other arguments were
    *                     malformed.
-   * \retval -L4_EPERM   `t` is missing #L4_CAP_FPAGE_S right.
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `t` or the capability used
+   *                     to invoke this operation.
    */
   L4_INLINE_RPC_OP(L4_RCV_EP_BIND_OP,
       l4_msgtag_t, bind_thread, (Ipc::Opt<Ipc::Cap<Thread> > t, l4_umword_t label));

@@ -37,7 +37,7 @@
  * \retval L4_EOK      Operation successful.
  * \retval -L4_EINVAL  `thread` is not a thread object or other arguments were
  *                     malformed.
- * \retval -L4_EPERM   `thread` is missing #L4_CAP_FPAGE_S right.
+ * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `ep` or `thread`.
  */
 
 L4_INLINE l4_msgtag_t

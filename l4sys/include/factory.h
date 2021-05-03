@@ -167,7 +167,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
  * \retval -L4_ENOENT  `thread_cap` is void or points to something that is not
  *                     a thread.
- * \retval -L4_EPERM   No write rights on `thread_cap`.
+ * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `thread_cap`.
  *
  * An unbound IPC gate can be bound to a thread using #l4_ipc_gate_bind_thread.
  *
