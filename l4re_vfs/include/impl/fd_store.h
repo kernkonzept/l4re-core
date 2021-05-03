@@ -32,6 +32,7 @@ public:
 
   int alloc() throw();
   void free(int fd) throw();
+  bool check_fd(int fd) throw();
   Ref_ptr<L4Re::Vfs::File> get(int fd) throw();
   void set(int fd, Ref_ptr<L4Re::Vfs::File> const &f) throw();
 
@@ -40,12 +41,18 @@ private:
   Ref_ptr<L4Re::Vfs::File> _files[MAX_FILES];
 };
 
+inline
+bool
+Fd_store::check_fd(int fd) throw()
+{
+  return fd >= 0 && fd < MAX_FILES;
+}
 
 inline
 Ref_ptr<L4Re::Vfs::File>
 Fd_store::get(int fd) throw()
 {
-  if (fd >= 0 && fd < MAX_FILES)
+  if (check_fd(fd))
     return _files[fd];
 
   return Ref_ptr<>::Nil;
