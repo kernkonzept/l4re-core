@@ -8,19 +8,6 @@ Link_Start= %{nocrt1|shared:; :%:search(crt1.o %(libdir))} %:search(crti%{shared
 Link_End=   %:search(%{shared:crtendS.o;:crtend.o} %(gcclibdir)) %:search(crtn%{shared:.s}.o %(libdir))
 endef
 
-# Page sizes for linker
-MAXPAGESIZE_amd64    := 0x200000
-COMMONPAGESIZE_amd64 := 0x1000
-
-MAXPAGESIZE_x86      := 0x1000
-COMMONPAGESIZE_x86   := 0x1000
-
-MAXPAGESIZE_arm      := 0x1000
-COMMONPAGESIZE_arm   := 0x1000
-
-MAXPAGESIZE_ppc32    := 0x1000
-COMMONPAGESIZE_ppc32 := 0x1000
-
 LD_SCRIPTS      = main_stat.ld main_rel.ld main_dyn.ld
 PC_FILENAME    := ldscripts
 PC_LIBS        :=
@@ -61,7 +48,5 @@ crti.o: crti_s.o kip_addr.o
 
 %.ld: $(PKGDIR)/ARCH-$(ARCH)/%.ld $(SRC_DIR)/Makefile $(SRC_DIR)/generic.h
 	@$(GEN_MESSAGE)
-	$(VERBOSE)[ "$(LDVERSION)" -lt "218" ] && \
-	  CPP_ARGS="-DMAXPAGESIZE=$(MAXPAGESIZE_$(ARCH)) -DCOMMONPAGESIZE=$(COMMONPAGESIZE_$(ARCH)) -DCONSTANT(x)=x"; \
-	  $(CPP) -nostdinc -include $(SRC_DIR)/generic.h \
+	$(VERBOSE)$(CPP) -nostdinc -include $(SRC_DIR)/generic.h \
 	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P $$CPP_ARGS $< $@
