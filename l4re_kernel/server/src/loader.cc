@@ -159,8 +159,12 @@ L4Re_app_model::alloc_app_stack()
    // chksys(-L4_EINVAL, "ELF loader: no stack size specified in binary");
   chksys(Global::allocator->alloc(_stack.stack_size(), stack));
 
+  L4Re::Rm::Flags flags(Rm::F::Search_addr | Rm::F::RW);
+  if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_EAGER_MAP)
+    flags |= L4Re::Rm::F::Eager_map;
+
   void *_s = (void*)(_stack.target_addr());
-  chksys(_rm->attach(&_s, _stack.stack_size(), Rm::F::Search_addr | Rm::F::RW,
+  chksys(_rm->attach(&_s, _stack.stack_size(), flags,
                      L4::Ipc::make_cap_rw(stack), 0));
   _stack.set_target_stack(l4_addr_t(_s), _stack.stack_size());
   _stack.set_local_addr(l4_addr_t(_s));
