@@ -8,7 +8,8 @@
  */
 #include "pages.h"
 
+#ifdef CONFIG_MMU
 l4_addr_t Moe::Pages::base_addr;
 l4_addr_t Moe::Pages::max_addr;
 l4_uint32_t *Moe::Pages::pages;
-
+#endif

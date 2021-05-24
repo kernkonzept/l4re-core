@@ -8,6 +8,7 @@
  * Please see the COPYING-GPL-2 file for details.
  */
 
+#include <l4/bid_config.h>
 #include <l4/util/kip.h>
 #include <l4/util/util.h>
 #include <l4/sigma0/sigma0.h>
@@ -139,7 +140,6 @@ char *my_cmdline()
 
 static void find_memory()
 {
-  using Moe::Pages::pages;
   l4_addr_t addr;
   l4_addr_t min_addr = ~0UL;
   l4_addr_t max_addr = 0;
@@ -176,6 +176,8 @@ static void find_memory()
 
   info.printf("found %ld KByte free memory\n",
               Single_page_alloc_base::_avail() / 1024);
+  info.printf("found RAM from %lx to %lx\n",
+              min_addr, max_addr);
 
   // adjust min_addr and max_addr to also contain boot modules
   for (auto const &md: L4::Kip::Mem_desc::all(kip()))
@@ -209,6 +211,8 @@ static void find_memory()
 
   assert(total_pages);
 
+#ifdef CONFIG_MMU
+  using Moe::Pages::pages;
   pages = static_cast<__typeof(pages)>(
             Single_page_alloc_base::_alloc(sizeof(*pages) * total_pages));
 
@@ -223,10 +227,9 @@ static void find_memory()
   Moe::Pages::base_addr = min_addr;
   Moe::Pages::max_addr  = max_addr;
 
-  info.printf("found RAM from %lx to %lx\n",
-              min_addr, max_addr);
   info.printf("allocated %ld KByte for the page array @%p\n",
               sizeof(*pages) * total_pages / 1024, pages);
+#endif
 }
 
 l4_addr_t Moe::Virt_limit::start;
