@@ -204,7 +204,7 @@ Moe_app_model::Moe_app_model(App_task *t, cxx::String const &prog,
 #else
     Utcb_area_start        = 0xb3000000,
 #endif
-    Default_max_threads    = 16,
+    Default_max_threads    = 8,
   };
   // set default values for utcb area, values may be changed by loader
   _info.utcbs_start = Utcb_area_start;
