@@ -1,0 +1,3 @@
+config BID_CAN_STATIC_HEAP
+	bool
+	default y if BUILD_ARCH_arm || BUILD_ARCH_arm64
