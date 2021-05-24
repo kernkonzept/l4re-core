@@ -23,3 +23,5 @@ DEFINES        += -DL4_CXX_NO_EXCEPTION_BACKTRACE -DL4_MINIMAL_LIBC
 LDFLAGS        += --entry=_real_start
 
 include $(L4DIR)/mk/prog.mk
+
+DEFINES_arm64-l4f += $(if $(CONFIG_KERNEL_CPU_VIRT),-DCONFIG_KERNEL_CPU_VIRT=1)

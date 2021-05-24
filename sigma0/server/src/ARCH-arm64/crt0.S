@@ -34,7 +34,11 @@ _start:
 .global __l4_sys_syscall
 .type __l4_sys_syscall, @function
 __l4_sys_syscall:
+#ifdef CONFIG_KERNEL_CPU_VIRT
+	hvc #0
+#else
 	svc #0
+#endif
 	ret
 .size __l4_sys_syscall, . - __l4_sys_syscall
 

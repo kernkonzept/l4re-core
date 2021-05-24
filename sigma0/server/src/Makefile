@@ -34,3 +34,4 @@ LDFLAGS += -nocrt1
 include $(L4DIR)/mk/prog.mk
 
 CXXFLAGS	+= -DL4_NO_RTTI -fno-rtti -fno-exceptions -Wall
+DEFINES_arm64-l4f += $(if $(CONFIG_KERNEL_CPU_VIRT),-DCONFIG_KERNEL_CPU_VIRT=1)
