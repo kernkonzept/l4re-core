@@ -72,7 +72,7 @@ endif
 
 include $(L4DIR)/mk/lib.mk
 
-$(TARGET): $(SRC_DIR)/arm64.ld
+$(TARGET): $(if $(filter arm64,$(ARCH)),$(SRC_DIR)/arm64.ld)
 
 ldso.1.o: ldso.o
 	$(OBJCOPY) --weaken $< $@
