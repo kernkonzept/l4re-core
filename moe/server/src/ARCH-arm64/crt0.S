@@ -39,6 +39,8 @@ _real_start:
 /* Mind the argc that is popped off the stack! */
 .LCstack: .8byte _stack_top-16
 
+/* This is not a normal function and must not clobber any register.
+ * This is a special syscall stub -- do not add any code! */
 .global __l4_sys_syscall
 .type __l4_sys_syscall, @function
 __l4_sys_syscall:
