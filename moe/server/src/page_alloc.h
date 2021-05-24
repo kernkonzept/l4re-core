@@ -42,6 +42,8 @@ public:
 #ifndef NDEBUG
   static void _dump_free(Dbg &dbg);
 #endif
+
+  static bool can_free;
 };
 
 class Single_page_unique_ptr

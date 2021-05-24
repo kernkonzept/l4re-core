@@ -8,6 +8,7 @@
  * Please see the COPYING-GPL-2 file for details.
  */
 
+#include <l4/util/kip.h>
 #include <l4/util/util.h>
 #include <l4/sigma0/sigma0.h>
 
@@ -124,6 +125,11 @@ static void find_memory()
   l4_addr_t addr;
   l4_addr_t min_addr = ~0UL;
   l4_addr_t max_addr = 0;
+
+  Single_page_alloc_base::can_free = l4util_kip_kernel_has_feature(
+    const_cast<l4_kernel_info_t*>(kip()), "mapdb");
+  if (!Single_page_alloc_base::can_free)
+    info.printf("Fiasco mapdb not available! Memory cannot be given back!\n");
 
   for (unsigned order = 30 /*1G*/; order >= L4_LOG2_PAGESIZE; --order)
     {
