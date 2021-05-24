@@ -92,6 +92,8 @@ noexcept(noexcept(mremap(old_addr, old_size, new_size, flags)))
   return resptr;
 }
 
+/* Use mmap from VFS unless the heap is provided by libc_be_static_heap. */
+#ifndef CONFIG_BID_STATIC_HEAP
 static void *current_morecore_end;
 
 void *uclibc_morecore(long bytes)
@@ -111,6 +113,7 @@ void *uclibc_morecore(long bytes)
   current_morecore_end = static_cast<char *>(b) + s;
   return b;
 }
+#endif
 
 /* should be in mman.h -- will come with uclibc update */
 int mlock2(const void *__addr, size_t len, unsigned int flags) noexcept;
