@@ -28,6 +28,7 @@
 #include <l4/cxx/exceptions>
 #include <l4/cxx/type_traits>
 #include <l4/sys/err.h>
+#include <stdlib.h>
 
 namespace L4Re {
 
@@ -53,6 +54,15 @@ namespace L4Re {
     default: throw (L4::Runtime_error(err, extra));
     }
 }
+
+#else
+
+[[noreturn]] inline void throw_error(long, char const * = "")
+{
+  abort();
+}
+
+#endif
 
 /**
  * \brief Generate C++ exception on error
@@ -92,7 +102,11 @@ long chksys(l4_msgtag_t const &t, char const *extra = "",
   if (L4_UNLIKELY(t.has_error()))
     throw_error(ret ? ret : l4_error_u(t, utcb), extra);
   else if (L4_UNLIKELY(t.label() < 0))
+#ifdef __EXCEPTIONS
     throw_error(ret ? ret: t.label(), extra);
+#else
+    abort();
+#endif
 
   return t.label();
 }
@@ -181,6 +195,5 @@ chkipc(l4_msgtag_t tag, char const *extra = "",
 
   return tag;
 }
-#endif
 
 }
