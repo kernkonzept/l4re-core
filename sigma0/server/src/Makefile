@@ -38,6 +38,8 @@ SRC_S  := $(addprefix ARCH-$(ARCH)/, crt0.S)
 
 LDFLAGS += -nocrt1
 
+DEFAULT_HEAP_SIZE = 0
+
 include $(L4DIR)/mk/prog.mk
 
 CXXFLAGS	+= -DL4_NO_RTTI -fno-rtti -fno-exceptions -Wall
