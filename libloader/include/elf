@@ -206,7 +206,7 @@ public:
   {
     unsigned n = num_phdrs();
     for (unsigned i = 0; i < n; ++i)
-      func(phdr(i));
+      func(phdr(i), _eh);
   }
 
   ~Elf_binary()
@@ -239,7 +239,7 @@ struct Phdr_load_min_max
   mutable l4_addr_t end;
 
   Phdr_load_min_max() : start(~0UL), end(0) {}
-  void operator () (Elf_phdr const &h) const
+  void operator () (Elf_phdr const &h, void const *) const
   {
     if (h.type() != PT_LOAD && h.type() != PT_L4_KIP)
       return;
@@ -256,7 +256,7 @@ struct Phdr_print
 {
   Dbg const &ldr;
   Phdr_print(Dbg const &ldr) : ldr(ldr) {}
-  void operator () (Elf_phdr const &ph) const
+  void operator () (Elf_phdr const &ph, void const *) const
   {
     char const *pt = ph.phdr_type();
     if (pt)
@@ -291,7 +291,7 @@ struct Phdr_load
   : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg)
   {}
 
-  void operator () (Elf_phdr const &ph) const
+  void operator () (Elf_phdr const &ph, void const *elf_header) const
   {
     using L4Re::chksys;
 
@@ -329,7 +329,7 @@ struct Phdr_load
 #ifdef CONFIG_MMU
       (ph.flags() & PF_W) || ph.memsz() > fsz || mm->all_segs_cow();
 #else
-      true; // FIXME: revise for XIP
+      ((char const *)elf_header + offs) != paddr; // copy if not XIP
 #endif
 
     if (cow)
@@ -368,11 +368,11 @@ struct Phdr_l4re_elf_aux_infos
 
   explicit Phdr_l4re_elf_aux_infos(App_model const *mm, Const_dataspace bin,
                                    l4_addr_t kip_addr)
-  : stack_size(sizeof(void*) * 0x2000), stack_addr(0x80000000),
+  : stack_size(sizeof(void*) * 0x800), stack_addr(0x80000000),
     kip_addr(kip_addr), mm(mm), bin(bin)
   {}
 
-  void operator () (Elf_phdr const &h) const
+  void operator () (Elf_phdr const &h, void const *) const
   {
     if (h.type() != PT_L4_AUX)
       return;
@@ -439,7 +439,7 @@ struct Phdr_dynamic
       interp[i] = addr[i];
   }
 
-  void operator () (Elf_phdr const &ph) const
+  void operator () (Elf_phdr const &ph, void const *) const
   {
     switch (ph.type())
       {
@@ -479,7 +479,7 @@ struct Phdr_l4re_elf_aux
   : am(am), bin(bin)
   {}
 
-  void operator () (Elf_phdr const &h) const
+  void operator () (Elf_phdr const &h, void const *) const
   {
     using L4Re::chksys;
     if (h.type() != PT_L4_AUX)
