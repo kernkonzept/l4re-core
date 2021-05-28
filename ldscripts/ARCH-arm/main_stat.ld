@@ -212,6 +212,14 @@ SECTIONS
    . = ALIGN(. != 0 ? 32 / 8 : 1);
   }
   _bss_end__ = . ; __bss_end__ = . ;
+#if !CONFIG_MMU
+  .heap : {
+    . = ALIGN(16);
+    PROVIDE (__heap_start = .);
+    . = . + (DEFINED(__heap_size) ? __heap_size : 0);
+    PROVIDE (__heap_end = .);
+  }
+#endif
   . = ALIGN(32 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(32 / 8);

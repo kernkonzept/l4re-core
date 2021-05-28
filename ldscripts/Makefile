@@ -72,4 +72,5 @@ crti.o: crti_s.o $(if $(CONFIG_MMU),kip_addr.o)
 	@$(GEN_MESSAGE)
 	$(VERBOSE)$(CPP) -nostdinc -include $(SRC_DIR)/generic.h \
 	      -DCONFIG_BID_PIE=$(if $(CONFIG_BID_PIE),1,0) \
+	      -DCONFIG_MMU=$(if $(CONFIG_MMU),1,0) \
 	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P $$CPP_ARGS $< $@
