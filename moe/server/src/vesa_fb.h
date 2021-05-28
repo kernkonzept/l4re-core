@@ -10,5 +10,9 @@
 
 #include <l4/util/l4mod.h>
 
+#if defined(ARCH_x86) || defined(ARCH_amd64)
 void init_vesa_fb(l4util_l4mod_info *mbi);
-
+#else
+static inline void init_vesa_fb(l4util_l4mod_info *)
+{}
+#endif

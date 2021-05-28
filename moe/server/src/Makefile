@@ -11,8 +11,13 @@ SRC_CC          = main.cc page_alloc.cc dataspace.cc dataspace_cont.cc \
                   loader.cc loader_elf.cc \
                   app_task.cc dataspace_noncont.cc pages.cc \
                   name_space.cc mem.cc log.cc sched_proxy.cc \
-                  delete.cc vesa_fb.cc server_obj.cc \
+                  delete.cc server_obj.cc \
                   dma_space.cc
+
+SRC_CC-amd64    = vesa_fb.cc
+SRC_CC-x86      = vesa_fb.cc
+SRC_CC         += $(SRC_CC-$(ARCH))
+
 SRC_S          := ARCH-$(ARCH)/crt0.S
 MODE            = sigma0
 
