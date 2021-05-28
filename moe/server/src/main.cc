@@ -245,13 +245,13 @@ init_kip_ds()
       exit(1);
     }
 
-  object_pool.cap_alloc()->alloc(kip_ds);
+  L4Re::chkcap(object_pool.cap_alloc()->alloc(kip_ds));
 }
 
 static L4::Cap<void>
 new_sigma0_cap()
 {
-  L4::Cap<void> new_sigma0_cap = object_pool.cap_alloc()->alloc();
+  L4::Cap<void> new_sigma0_cap = L4Re::chkcap(object_pool.cap_alloc()->alloc());
 
   L4Re::chksys(
     L4::Cap<L4::Factory>(Sigma0_cap)->create(new_sigma0_cap, L4_PROTO_SIGMA0),
@@ -320,18 +320,9 @@ public:
           }
 
         dbg.cprintf(": object is a %s\n", typeid(*o).name());
-        try
-          {
-            l4_msgtag_t res = o->dispatch(tag, obj, utcb);
-            dbg.printf("reply = %ld\n", res.label());
-            return res;
-          }
-        catch (L4::Runtime_error &e)
-          {
-            int res = e.err_no();
-            dbg.printf("reply(exception) = %d\n", res);
-            return l4_msgtag(res, 0, 0, 0);
-          }
+        l4_msgtag_t res = o->dispatch(tag, obj, utcb);
+        dbg.printf("reply = %ld\n", res.label());
+        return res;
       }
 
     Dbg(Dbg::Warn).printf("Invalid message (tag.label=%ld)\n", tag.label());
@@ -508,22 +499,11 @@ static void init_env()
 static __attribute__((used, section(".preinit_array")))
    const void *pre_init_env = (void *)init_env;
 
-static void init_emergency_memory()
-{
-  // populate the page allocator with a few pages of static memory to allow for
-  // dynamic allocation of memory arena during static initialization of stdc++'s
-  // emergency_pool in GCC versions 5 and newer
-  static __attribute__((aligned(L4_PAGESIZE))) char buf[3 * L4_PAGESIZE];
-  Single_page_alloc_base::_free(buf, sizeof(buf), true);
-  // make sure the emergency memory is RWX for future reuse
-  int err = l4sigma0_map_mem(Sigma0_cap, (l4_addr_t) buf, (l4_addr_t) buf,
-                             sizeof(buf));
-  l4_assert(!err);
-  (void)err;
-}
+void *malloc(size_t)
+{ return 0; }
 
-static __attribute__((used, section(".preinit_array")))
-   const void *pre_init_emergency_memory = (void *)init_emergency_memory;
+void free(void *)
+{}
 
 int main(int argc, char**argv)
 {
@@ -549,8 +529,6 @@ int main(int argc, char**argv)
     }
 #endif
 
-  try
-    {
       map_kip();
       init_utcb();
       Moe::Boot_fs::init_stage1();
@@ -563,11 +541,11 @@ int main(int argc, char**argv)
       Moe::Boot_fs::init_stage2();
       init_vesa_fb((l4util_l4mod_info *)kip()->user_ptr);
 
-      root_name_space_obj = object_pool.cap_alloc()->alloc(root_name_space());
+      root_name_space_obj = L4Re::chkcap(object_pool.cap_alloc()->alloc(root_name_space()));
 
       init_kip_ds();
 
-      object_pool.cap_alloc()->alloc(Allocator::root_allocator());
+      L4Re::chkcap(object_pool.cap_alloc()->alloc(Allocator::root_allocator()));
 
       l4_debugger_set_object_name(L4_BASE_TASK_CAP,   "moe");
       l4_debugger_set_object_name(L4_BASE_THREAD_CAP, "moe");
@@ -628,18 +606,6 @@ int main(int argc, char**argv)
 
       // we handle our exceptions ourselves
       server.loop_noexc(My_dispatcher<L4::Basic_registry>());
-    }
-  catch (L4::Out_of_memory const &e)
-    {
-      Err(Err::Fatal).printf("Memory exhausted and not handled\n");
-      L4::cerr << "FATAL exception in MOE:\n"
-               << e << "... terminated\n";
-    }
-  catch (L4::Runtime_error const &e)
-    {
-      L4::cerr << "FATAL exception in MOE:\n"
-               << e << "... terminated\n";
-      abort();
-    }
+
   return 0;
 }

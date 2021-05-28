@@ -70,12 +70,12 @@ struct Quota_guard
   Quota_guard(Quota *q, size_t amount) : q(q), amount(amount)
   {
     if (!q->alloc(amount))
-      throw L4::Out_of_memory();
+      amount = 0;
   }
 
   ~Quota_guard()
   {
-    if (q)
+    if (q && amount)
       q->free(amount);
   }
 
@@ -107,6 +107,9 @@ struct Quota_guard
     q = 0;
     return t;
   }
+
+  explicit inline operator bool() const
+  { return amount != 0; }
 };
 
 /**
@@ -123,7 +126,7 @@ public:
                     Single_page_alloc_base::Config cfg)
   {
     Quota_guard g(quota(), size);
-    return g.release(Single_page_alloc_base::_alloc(size, align, cfg));
+    return g.release(Single_page_alloc_base::_alloc(Single_page_alloc_base::nothrow, size, align, cfg));
   }
 
   void free_pages(void *p, unsigned long size) throw()

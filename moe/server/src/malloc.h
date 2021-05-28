@@ -25,39 +25,6 @@ class Malloc_page;
 class Malloc_container
 {
 public:
-  class Guarded_alloc
-  {
-  public:
-    Guarded_alloc(Malloc_container* c, size_t sz, size_t align)
-    : _c(c)
-    {
-      _p = c->alloc(sz, align);
-      if (L4_UNLIKELY(!_p))
-        throw L4::Out_of_memory();
-    }
-
-    ~Guarded_alloc()
-    {
-      if (_p)
-        _c->free(_p);
-    }
-
-    template <typename T>
-    T *release()
-    {
-      T *ret = static_cast<T *>(_p);
-      _p = 0;
-      return ret;
-    }
-
-    void *get() const
-    { return _p; }
-
-  private:
-    void *_p;
-    Malloc_container* _c;
-  };
-
   void *alloc(size_t size, size_t align) throw();
   void free(void *block) throw();
   virtual void reparent(Malloc_container *new_container);
@@ -65,21 +32,22 @@ public:
   template <typename T, typename ...ARGS>
   T *make_obj(ARGS &&... args)
   {
-    Guarded_alloc q(this, sizeof(T), alignof(T));
+    void *obj = alloc(sizeof(T), alignof(T));
+    if (obj)
+      new (obj) T(cxx::forward<ARGS>(args)...);
 
-    new (q.get()) T(cxx::forward<ARGS>(args)...);
-
-    return q.release<T>();
+    return reinterpret_cast<T*>(obj);
   }
 
   template <typename T>
   T *alloc(size_t size)
   {
-    Guarded_alloc q(this, sizeof(T) * size, alignof(T));
+    // FIXME: check integer overflow
+    void *arr = alloc(sizeof(T) * size, alignof(T));
+    if (arr)
+      new (arr) T[size];
 
-    new (q.get()) T[size];
-
-    return q.release<T>();
+    return reinterpret_cast<T*>(arr);
   }
 
   static Malloc_container *from_ptr(void const *p) throw();

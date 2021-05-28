@@ -18,6 +18,7 @@
 #include "quota.h"
 #include "server_obj.h"
 #include "globals.h"
+#include "option.h"
 
 namespace Moe {
 
@@ -38,10 +39,10 @@ public:
   typedef L4Re::Dma_space::Direction Direction;
   typedef L4Re::Dma_space::Dma_addr Dma_addr;
 
-  virtual Mapping *map(Dataspace *ds, Q_alloc *,
-                       l4_addr_t offset, l4_size_t *size,
-                       Attributes attrs, Direction dir,
-                       Dma_addr *dma_addr) = 0;
+  virtual Opt_ptr<Mapping> map(Dataspace *ds, Q_alloc *,
+                              l4_addr_t offset, l4_size_t *size,
+                              Attributes attrs, Direction dir,
+                              Dma_addr *dma_addr) = 0;
 
   virtual int unmap(Dma_addr dma_addr, l4_size_t size,
                     Attributes attrs, Direction dir) = 0;

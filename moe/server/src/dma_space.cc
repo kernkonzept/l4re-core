@@ -27,20 +27,22 @@ private:
   Map _map;
 
 public:
-  Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               l4_size_t *size, Attributes attrs, Direction dir,
-               Dma_addr *dma_addr) override
+  Opt_ptr<Mapping> map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
+                      l4_size_t *size, Attributes attrs, Direction dir,
+                      Dma_addr *dma_addr) override
   {
-    L4Re::chksys(ds->dma_map(0, offset, size, attrs, dir, dma_addr));
+    int e = ds->dma_map(0, offset, size, attrs, dir, dma_addr);
+    if (e < 0)
+      return Opt_ptr<Mapping>::err(e);
 
     cxx::unique_ptr<Dma::Mapping> m(alloc->make_obj<Dma::Mapping>());
 
     if (!m)
-      L4Re::chksys(-L4_ENOMEM);
+      return Opt_ptr<Mapping>::err(-L4_ENOMEM);
 
     m->key = Dma::Region(*dma_addr, *dma_addr + *size -1);
     if (!_map.insert(m.get()).second)
-      L4Re::chksys(-L4_EEXIST);
+      return Opt_ptr<Mapping>::err(-L4_EEXIST);
 
     m->mapper = this;
     m->attrs = attrs;
@@ -177,9 +179,9 @@ public:
     return 0;
   }
 
-  Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               l4_size_t *_size, Attributes attrs, Direction dir,
-               Dma_space::Dma_addr *dma_addr) override
+  Opt_ptr<Mapping> map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
+                      l4_size_t *_size, Attributes attrs, Direction dir,
+                      Dma_space::Dma_addr *dma_addr) override
   {
     if (0)
       printf("DMA %p: map: offs=%lx sz=%zx ...\n", this, offset, *_size);
@@ -189,7 +191,7 @@ public:
 
     unsigned long max_sz = ds->round_size();
     if (offset >= max_sz)
-      L4Re::chksys(-L4_ERANGE);
+      return Opt_ptr<Mapping>::err(-L4_ERANGE);
 
     max_sz -= offset;
 
@@ -199,19 +201,19 @@ public:
     l4_size_t size = *_size + (offset - aligned_offset);
     l4_addr_t a = find_free(min, max, size, L4_SUPERPAGESHIFT); //ds->page_shift());
     if (a == L4_INVALID_ADDR)
-      L4Re::chksys(-L4_ENOMEM);
+      return Opt_ptr<Mapping>::err(-L4_ENOMEM);
 
     cxx::unique_ptr<Dma::Mapping> node(alloc->make_obj<Dma::Mapping>());
 
     if (!node)
-      L4Re::chksys(-L4_ENOMEM);
+      return Opt_ptr<Mapping>::err(-L4_ENOMEM);
 
     node->key = Region(a, a + size - 1);
     if (!_map.insert(node.get()).second)
       {
         // This should not really happen if find_free() above found a free
         // region.
-        L4Re::chksys(-L4_EEXIST);
+        return Opt_ptr<Mapping>::err(-L4_EEXIST);
       }
 
     node->mapper = this;
@@ -287,9 +289,12 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
   if (!_mapper)
     return -L4_EINVAL;
 
-  auto *m =_mapper->map(_get_ds(src_ds), this->qalloc(), offset, &size,
-                        attrs, dir, &dma_addr);
-  _mappings.add(m);
+  auto m =_mapper->map(_get_ds(src_ds), this->qalloc(), offset, &size,
+                       attrs, dir, &dma_addr);
+  if (!m)
+    return m.err();
+
+  _mappings.add(m.unwrap());
   return 0;
 }
 
@@ -319,6 +324,8 @@ Dma_space::op_associate(L4Re::Dma_space::Rights,
   if (attr & L4Re::Dma_space::Phys_space)
     {
       _mapper = cxx::Ref_ptr<Dma::Mapper>(qalloc()->make_obj<Dma::Phys_mapper>());
+      if (!_mapper)
+        return -L4_ENOMEM;
       return 0;
     }
   else

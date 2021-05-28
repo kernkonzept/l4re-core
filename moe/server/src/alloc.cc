@@ -38,18 +38,18 @@ Moe::Dataspace *
 Allocator::alloc(long size, unsigned long flags, unsigned long align,
                  Single_page_alloc_base::Config cfg)
 {
-  if (size == 0)
-    throw L4::Bounds_error("stack too small");
+  if (size <= 0)
+    return nullptr;
 
   if (cfg.physmin >= cfg.physmax)
-    throw L4::Runtime_error(-L4_EINVAL, "malformed memory range");
+    return nullptr;
 
 #if !defined(CONFIG_MMU)
   flags |= L4Re::Mem_alloc::Continuous | L4Re::Mem_alloc::Pinned;
 #endif
 
   //L4::cout << "A: \n";
-  Moe::Dataspace *mo;
+  Moe::Dataspace *mo = nullptr;
   if (flags & L4Re::Mem_alloc::Continuous
       || flags & L4Re::Mem_alloc::Pinned)
     {
@@ -58,15 +58,16 @@ Allocator::alloc(long size, unsigned long flags, unsigned long align,
       else
         align = cxx::max<unsigned long>(align, L4_PAGESHIFT);
 
-      mo = make_obj<Moe::Dataspace_anon>(size, L4Re::Dataspace::F::RWX, align,
-                                         cfg);
+      cxx::unique_ptr<Moe::Dataspace_anon> ds(make_obj<Moe::Dataspace_anon>(
+        L4Re::Dataspace::F::RWX, align, cfg));
+      if (ds && ds->alloc(size))
+        mo = ds.release();
     }
   else
     {
-      if (size < 0)
-        throw L4::Bounds_error("invalid size");
-
       mo = Moe::Dataspace_noncont::create(qalloc(), size, cfg);
+      if (!mo)
+        return nullptr;
       Obj_list::insert_after(mo, Obj_list::iter(this));
     }
 
@@ -128,7 +129,11 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
     case L4Re::Namespace::Protocol:
         {
           cxx::unique_ptr<Moe::Name_space> o(make_obj<Moe::Name_space>());
+          if (!o)
+            return -L4_ENOMEM;
           ko = object_pool.cap_alloc()->alloc(o.get());
+          if (!ko.is_valid())
+            return -L4_ENOMEM;
           ko->dec_refcnt(1);
           o.release();
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
@@ -138,7 +143,11 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
     case L4Re::Rm::Protocol:
         {
           cxx::unique_ptr<Region_map> o(make_obj<Region_map>());
+          if (!o)
+            return -L4_ENOMEM;
           ko = object_pool.cap_alloc()->alloc(o.get());
+          if (!ko.is_valid())
+            return -L4_ENOMEM;
           ko->dec_refcnt(1);
           o.release();
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
@@ -152,9 +161,15 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           if (!quota.is_of_int() || quota.value<long>() <= 0)
             return -L4_EINVAL;
           Moe::Quota_guard g(_qalloc.quota(), quota.value<long>());
+          if (!g)
+            return -L4_ENOMEM;
           cxx::unique_ptr<Allocator>
             o(make_obj<Allocator>(quota.value<long>()));
+          if (!o)
+            return -L4_ENOMEM;
           ko = object_pool.cap_alloc()->alloc(o.get());
+          if (!ko.is_valid())
+            return -L4_ENOMEM;
           ko->dec_refcnt(1);
           o.release();
           g.release();
@@ -183,7 +198,11 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
           cxx::unique_ptr<Moe::Log> l(make_obj<LLog>(tag.value<char const *>(),
                                                      tag.length() - 1, color));
+          if (!l)
+            return -L4_ENOMEM;
           ko = object_pool.cap_alloc()->alloc(l.get());
+          if (!ko.is_valid())
+            return -L4_ENOMEM;
           ko->dec_refcnt(1);
           l.release();
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
@@ -215,9 +234,13 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
             cpu_mask = cpus.value<l4_umword_t>();
 
           cxx::unique_ptr<Sched_proxy> o(make_obj<Sched_proxy>());
+          if (!o)
+            return -L4_ENOMEM;
           o->set_prio(p_base.value<l4_mword_t>(), p_max.value<l4_mword_t>());
           o->restrict_cpus(cpu_mask);
           ko = object_pool.cap_alloc()->alloc(o.get());
+          if (!ko.is_valid())
+            return -L4_ENOMEM;
           ko->dec_refcnt(1);
           o.release();
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
@@ -252,9 +275,13 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
                 flags.is_of_int() ? flags.value<l4_umword_t>() : 0,
                 align.is_of_int() ? align.value<l4_umword_t>() : 0,
                 mem_cfg));
+          if (!mo)
+            return -L4_ENOMEM;
 
           // L4::cout << "MO=" << mo.get() << "\n";
           ko = object_pool.cap_alloc()->alloc(mo.get());
+          if (!ko.is_valid())
+            return -L4_ENOMEM;
           ko->dec_refcnt(1);
           // L4::cout << "MO_CAP=" << mo->obj_cap() << "\n";
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
@@ -265,7 +292,11 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
     case L4Re::Dma_space::Protocol:
         {
           cxx::unique_ptr<Moe::Dma_space> o(make_obj<Moe::Dma_space>());
+          if (!o)
+            return -L4_ENOMEM;
           ko = object_pool.cap_alloc()->alloc(o.get());
+          if (!ko.is_valid())
+            return -L4_ENOMEM;
           ko->dec_refcnt(1);
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
           o.release();

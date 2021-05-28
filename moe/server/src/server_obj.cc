@@ -28,6 +28,7 @@ Moe::Server_object::add_weak_ref(cxx::Weak_ref_base *obj) const
 {
   if (_weak_ptrs.empty() && obj_cap())
     {
+      // FIXME: check error
       _weak_cap = object_pool.cap_alloc()->alloc<L4::Kobject>();
       // get a reference counted copy of the capability,
       // so that it does not disappear when all caps are released in user land

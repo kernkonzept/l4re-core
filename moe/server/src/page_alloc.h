@@ -44,14 +44,6 @@ public:
                           Config cfg);
   static void *_alloc(Nothrow, unsigned long size, unsigned long align = 0,
                       Config cfg = default_mem_cfg);
-  static void *_alloc(unsigned long size, unsigned long align = 0,
-                      Config cfg = default_mem_cfg)
-  {
-    void *r = _alloc(nothrow, size, align, cfg);
-    if (!r)
-      throw L4::Out_of_memory();
-    return r;
-  }
   static void _free(void *p, unsigned long size, bool initial_mem = false);
   static unsigned long _avail();
 

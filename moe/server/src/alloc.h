@@ -42,7 +42,8 @@ public:
   T *make_obj(ARGS &&...args)
   {
     T *o = qalloc()->make_obj<T>(cxx::forward<ARGS>(args)...);
-    Obj_list::insert_after(o, Obj_list::iter(this));
+    if (o)
+      Obj_list::insert_after(o, Obj_list::iter(this));
     return o;
   }
 

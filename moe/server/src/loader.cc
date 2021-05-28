@@ -251,9 +251,9 @@ Moe_app_model::get_task_caps(L4::Cap<L4::Factory> *factory,
                              L4::Cap<L4::Task> *task,
                              L4::Cap<L4::Thread> *thread)
 {
-  object_pool.cap_alloc()->alloc(_task);
-  _task->task_cap(object_pool.cap_alloc()->alloc<L4::Task>());
-  _task->thread_cap(object_pool.cap_alloc()->alloc<L4::Thread>());
+  L4Re::chkcap(object_pool.cap_alloc()->alloc(_task));
+  _task->task_cap(L4Re::chkcap(object_pool.cap_alloc()->alloc<L4::Task>()));
+  _task->thread_cap(L4Re::chkcap(object_pool.cap_alloc()->alloc<L4::Thread>()));
 
   prog_info()->rm = _task->rm()->obj_cap().fpage();
   prog_info()->parent = _task->obj_cap().fpage();

@@ -31,6 +31,7 @@ REQUIRES_LIBS  := libkproxy libloader l4re-util libsigma0 \
 EXTRA_LIBS     := -ll4sys-direct
 DEFINES        += -DL4_CXX_NO_EXCEPTION_BACKTRACE -DL4_MINIMAL_LIBC
 LDFLAGS        += --entry=_real_start
+CXXFLAGS       += -fno-exceptions
 
 include $(L4DIR)/mk/prog.mk
 

@@ -116,7 +116,8 @@ public:
                                     name.len(), name.len(), name.start());
         if (written > left)
           {
-            char *n = (char *)Single_page_alloc_base::_alloc(_space + L4_PAGESIZE,
+            char *n = (char *)Single_page_alloc_base::_alloc(Single_page_alloc_base::nothrow,
+                                                             _space + L4_PAGESIZE,
                                                              L4_PAGESHIFT);
             memcpy(n, _buf, _space);
             Single_page_alloc_base::_free(_buf, _space, true);
@@ -143,26 +144,26 @@ public:
     Moe::Dataspace_static *ds;
     ds = new Moe::Dataspace_static((void *)_buf, _size, L4Re::Dataspace::F::R);
 
-    object_pool.cap_alloc()->alloc(ds);
+    L4Re::chkcap(object_pool.cap_alloc()->alloc(ds));
     ns->register_obj(".dirinfo", 0, ds);
   }
 
 private:
   unsigned _space = L4_PAGESIZE;
   unsigned _size = 0;
-  char *_buf = (char *)Single_page_alloc_base::_alloc(_space, L4_PAGESHIFT);
+  char *_buf = (char *)Single_page_alloc_base::_alloc(Single_page_alloc_base::nothrow, _space, L4_PAGESHIFT);
 };
 
 void
 Moe::Boot_fs::init_stage2()
 {
   auto *rom_ns = Moe::Moe_alloc::allocator()->make_obj<Moe::Name_space>();
-  L4::Cap<void> rom_ns_cap = object_pool.cap_alloc()->alloc(rom_ns);
+  L4::Cap<void> rom_ns_cap = L4Re::chkcap(object_pool.cap_alloc()->alloc(rom_ns));
   L4::cout << "MOE: rom name space cap -> " << rom_ns_cap << '\n';
   root_name_space()->register_obj("rom", 0, rom_ns);
 
   auto *rwfs_ns = Moe::Moe_alloc::allocator()->make_obj<Moe::Name_space>();
-  L4::Cap<void> rwfs_ns_cap = object_pool.cap_alloc()->alloc(rwfs_ns);
+  L4::Cap<void> rwfs_ns_cap = L4Re::chkcap(object_pool.cap_alloc()->alloc(rwfs_ns));
   L4::cout << "MOE: rwfs name space cap -> " << rwfs_ns_cap << '\n';
   root_name_space()->register_obj("rwfs", 0, rwfs_ns);
 
@@ -216,7 +217,7 @@ Moe::Boot_fs::init_stage2()
       Moe::Dataspace_static *rf;
       rf = new Moe::Dataspace_static((void*)(unsigned long)modules[mod].mod_start,
                                      end - modules[mod].mod_start, flags);
-      object = object_pool.cap_alloc()->alloc(rf);
+      object = L4Re::chkcap(object_pool.cap_alloc()->alloc(rf));
       if (flags.w())
         {
           rwfs_ns->register_obj(name, Entry::F_rw, rf);

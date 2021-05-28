@@ -19,10 +19,14 @@
 #include <cstring>
 #include <climits>
 
-Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
+Moe::Dataspace_anon::Dataspace_anon(Flags w,
                                     unsigned char page_shift,
                                     Single_page_alloc_base::Config cfg)
 : Moe::Dataspace_cont(0, 0, w, page_shift, cfg)
+{}
+
+bool
+Moe::Dataspace_anon::alloc(long size)
 {
   Quota_guard g;
   Single_page_unique_ptr m;
@@ -38,37 +42,42 @@ Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
 
       // not enough memory left
       if (a <= (unsigned long)(-size))
-        L4Re::chksys(-L4_ENOMEM);
+        return false;
 
       if (l == ~0UL)
         l = LONG_MAX;
 
       if (l <= (unsigned long)(-size))
-        L4Re::chksys(-L4_ENOMEM);
+        return false;
 
       size = cxx::min(a + size, l + size);
-      size = l4_trunc_size(size, page_shift);
+      size = l4_trunc_size(size, page_shift());
 
       if (size == 0L)
-        L4Re::chksys(-L4_ENOMEM);
+        return false;
 
       unsigned long r_size = size;
       void *_m = Single_page_alloc_base::_alloc_max(page_size(), &r_size,
                                                     page_size(), page_size(),
-                                                    cfg);
+                                                    cfg());
 
       if (!_m)
-        L4Re::chksys(-L4_ENOMEM);
+        return false;
 
       m = Single_page_unique_ptr(_m, r_size);
       g = Quota_guard(qalloc()->quota(), r_size);
+      if (!g)
+        return false;
       size = r_size;
     }
   else
     {
       unsigned long r_size = (size + page_size() - 1) & ~(page_size() -1);
       g = Quota_guard(qalloc()->quota(), r_size);
-      void *_m = Single_page_alloc_base::_alloc(r_size, page_size(), cfg);
+      void *_m = Single_page_alloc_base::_alloc(Single_page_alloc_base::nothrow,
+                                                r_size, page_size(), cfg());
+      if (!_m)
+        return false;
 
       m = Single_page_unique_ptr(_m, r_size);
     }
@@ -81,6 +90,8 @@ Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
   start(m.release());
   this->size(size);
   g.release();
+
+  return true;
 }
 
 Moe::Dataspace_anon::~Dataspace_anon()

@@ -132,7 +132,7 @@ public:
     L4::cerr << "ACO->" << L4::n_hex(cap.cap()) << "\n";
 #endif
     if (!cap.is_valid())
-      throw(L4::Out_of_memory());
+      return cap;
 
     l4_umword_t id = l4_umword_t(o);
     l4_factory_create_gate(L4_BASE_FACTORY_CAP, cap.cap(),

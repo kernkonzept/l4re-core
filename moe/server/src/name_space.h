@@ -115,8 +115,8 @@ public:
   L4::Epiface *obj() const
   { return _obj.get(); }
 
-  void set_epiface(l4_umword_t data);
-  void set_cap_copy(L4::Cap<L4::Kobject> cap);
+  bool set_epiface(l4_umword_t data);
+  int set_cap_copy(L4::Cap<L4::Kobject> cap);
 };
 
 struct Entry_get_key
@@ -155,7 +155,7 @@ class Name_space :
   bool insert(Entry *e)
   { return _tree.insert(e).second; }
 
-  Entry *check_existing(Name_buffer const &name, unsigned flags);
+  bool check_existing(Name_buffer const &name, unsigned flags, Entry **e);
 
   Entry *create_entry(Name_buffer const &name, unsigned flags)
   {
@@ -187,6 +187,8 @@ public:
   {
     cxx::unique_ptr<Entry> n(qalloc()->make_obj<Entry>(name.start(), name.len(),
                                                        flags | Entry::F_static));
+    if (!n)
+      return -L4_ENOMEM;
     n->set(cap);
     if (!insert(n.get()))
       return -L4_EEXIST;

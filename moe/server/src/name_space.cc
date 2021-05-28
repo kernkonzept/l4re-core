@@ -60,7 +60,7 @@ Entry::set(Moe::Server_object *o)
   _flags |= F_local | F_cap;
 }
 
-void
+bool
 Entry::set_epiface(l4_umword_t data)
 {
   assert(!is_valid());
@@ -68,24 +68,28 @@ Entry::set_epiface(l4_umword_t data)
   auto *ef = static_cast<Moe::Server_object*>(object_pool.find(data));
 
   if (!ef)
-    throw L4::Runtime_error(-L4_EINVAL);
+    return false;
 
   set(ef);
 
   // make sure rights are restricted to the mapped rights
   _flags &= (data & 0x3UL) | ~0x3UL;
+  return true;
 }
 
-void
+int
 Entry::set_cap_copy(L4::Cap<L4::Kobject> cap)
 {
   assert(!is_valid());
 
   auto nc = object_pool.cap_alloc()->alloc();
+  if (!nc.is_valid())
+    return -L4_ENOMEM;
   nc.move(cap);
 
   set(nc);
   _flags |= F_allocated | F_cap;
+  return 0;
 }
 
 
@@ -94,26 +98,22 @@ Name_space::~Name_space()
   _tree.remove_all([](Entry *e) { delete e; });
 }
 
-Entry *
-Name_space::check_existing(Name_buffer const &name, unsigned flags)
+bool
+Name_space::check_existing(Name_buffer const &name, unsigned flags, Entry **e)
 {
   Entry *n = find(Entry::Name(name.data, name.length));
-  if (n)
+  if (n && n->is_valid())
     {
-      if (!n->is_valid())
-        return n;
-
       if (!n->is_dynamic())
-        throw L4::Element_already_exists();
+        return false;
 
       if (!(flags & L4Re::Namespace::Overwrite)
           && n->cap().validate(L4_BASE_TASK_CAP).label() > 0)
-        throw L4::Element_already_exists();
-
-      return n;
+        return false;
     }
 
-  return 0;
+  *e = n;
+  return true;
 }
 
 Entry *
@@ -173,14 +173,22 @@ Name_space::op_register_obj(L4Re::Namespace::Rights, unsigned flags,
 
 
   // check if we are are going to overwrite
-  Entry *existing = check_existing(name, flags);
+  Entry *existing;
+  if (!check_existing(name, flags, &existing))
+    return -L4_EEXIST;
+
   // make ourselves a new entry
   cxx::unique_ptr<Entry> n(create_entry(name, flags));
+  if (!n)
+    return -L4_ENOMEM;
 
   if (cap.id_received())
-    n->set_epiface(cap.data());
+    {
+      if (!n->set_epiface(cap.data()))
+        return -L4_EINVAL;
+    }
   else if (cap.cap_received())
-    n->set_cap_copy(L4::Cap<L4::Kobject>(Rcv_cap << L4_CAP_SHIFT));
+    return n->set_cap_copy(L4::Cap<L4::Kobject>(Rcv_cap << L4_CAP_SHIFT));
   else if (cap.is_valid())
     // received a valid cap we cannot handle
     return -L4_EINVAL;
