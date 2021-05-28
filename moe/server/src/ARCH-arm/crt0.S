@@ -34,5 +34,5 @@ _real_start:
 	.bss
 	.balign 16
 _stack_bottom:
-	.space 0x4000
+	.space 0x1000
 _stack_top:
