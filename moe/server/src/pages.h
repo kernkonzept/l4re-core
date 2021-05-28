@@ -14,6 +14,7 @@
 
 namespace Moe {
 namespace Pages {
+#ifdef CONFIG_MMU
   extern l4_addr_t base_addr;
   extern l4_addr_t max_addr;
   extern l4_uint32_t *pages;
@@ -33,6 +34,21 @@ namespace Pages {
   inline
   unsigned long unshare(void *addr)
   { return l4util_dec32_res(&ref_count(addr)); }
+#else
+  inline
+  l4_uint32_t &ref_count(void * /*addr*/)
+  {
+    return *(l4_uint32_t*)nullptr;
+  }
+
+  inline
+  unsigned long share(void * /* addr */)
+  { return 0; }
+
+  inline
+  unsigned long unshare(void * /*addr*/)
+  { return 1; }
+#endif
 };
 };
 
