@@ -218,7 +218,7 @@ namespace L4 { namespace Ipc {
  * ~~~~~~~~~~~{.cpp}
  * L4_RPC(long, send, (unsigned value), L4::Ipc::Call);
  * ~~~~~~~~~~~
- * which is equvalent to:
+ * which is equivalent to:
  * ~~~~~~~~~~~{.cpp}
  * L4_RPC(long, send, (unsigned value));
  * ~~~~~~~~~~~
@@ -794,7 +794,7 @@ Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>::
 }
 
 } // namespace Msg
-} // namesapce Ipc
+} // namespace Ipc
 } // namespace L4
 
 
