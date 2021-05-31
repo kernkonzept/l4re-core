@@ -34,6 +34,7 @@ _real_start:
 
 /*--- my stack -------------------------------------*/
 .section ".bss", "aw"
+	.p2align 3
 .global _stack_bottom
 _stack_bottom:
 	.space 0x4000
