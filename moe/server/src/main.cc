@@ -536,12 +536,42 @@ int main(int argc, char**argv)
                     l4_fpage(i, L4_PAGESHIFT, L4_FPAGE_W), L4_FP_ALL_SPACES);
     }
 #endif
-
       map_kip();
       init_utcb();
       Moe::Boot_fs::init_stage1();
       find_memory();
       init_virt_limits();
+
+      char *cmdline = my_cmdline();
+      cxx::String init_args("");
+
+      info.printf("cmdline: %s\n", cmdline);
+
+      bool skip_argv0 = true;
+      cxx::Pair<cxx::String, cxx::String> a;
+      for (a = next_arg(cmdline); !a.first.empty(); a = next_arg(a.second))
+        {
+          if (skip_argv0)
+            {
+              skip_argv0 = false;
+              continue;
+            }
+
+          if (a.first[0] != '-') // not an option start init
+            {
+              init_args = cxx::String(a.first.start(), a.second.end());
+              break;
+            }
+
+          if (a.first == "--")
+            {
+              init_args = a.second;
+              break;
+            }
+
+          parse_option(a.first);
+        }
+
 #if 0
       extern unsigned page_alloc_debug;
       page_alloc_debug = 1;
@@ -572,45 +602,14 @@ int main(int argc, char**argv)
         root_name_space()->register_obj("jdb", Entry::F_trusted | Entry::F_rw, L4_BASE_DEBUGGER_CAP);
       root_name_space()->register_obj("kip", Entry::F_rw, kip_ds->obj_cap());
 
-      char *cmdline = my_cmdline();
-
-      info.printf("cmdline: %s\n", cmdline);
-
-      bool skip_argv0 = true;
-      cxx::Pair<cxx::String, cxx::String> a;
-      for (a = next_arg(cmdline); !a.first.empty(); a = next_arg(a.second))
-        {
-          if (skip_argv0)
-            {
-              skip_argv0 = false;
-              continue;
-            }
-
-          if (a.first[0] != '-') // not an option start init
-            {
-              elf_loader.start(_init_prog, cxx::String(a.first.start(),
-                                                       a.second.end()));
-              break;
-            }
-
-          if (a.first == "--")
-            {
-              elf_loader.start(_init_prog, a.second);
-              break;
-            }
-
-          parse_option(a.first);
-        }
-
-      if (a.first.empty())
-        elf_loader.start(_init_prog, cxx::String(""));
-
       // dump name space information
       if (boot.is_active())
         {
           boot.printf("dump of root name space:\n");
           root_name_space()->dump(1);
         }
+
+      elf_loader.start(_init_prog, init_args);
 
       // we handle our exceptions ourselves
       server.loop_noexc(My_dispatcher<L4::Basic_registry>());
