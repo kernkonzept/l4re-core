@@ -61,6 +61,30 @@ enum l4_kernel_info_consts_t
   L4_KIP_VERSION_FIASCO_MASK = 0xff00ffff,
 };
 
+enum
+{
+  /**
+   * Offset of KIP code (provided by the kernel) for reading the KIP clock in
+   * microseconds. If the kernel is configured for a fine-grained KIP clock
+   * (CONFIG_SYNC_TSC enabled for IA32, ARM_SYNC_CLOCK for ARM), this code
+   * provides the KIP clock with microseconds granularity and accuracy by
+   * reading the hardware clock used by the kernel and transforming this value
+   * into microseconds. Otherwise this code just reads the KIP clock value.
+   */
+  L4_KIP_OFFS_READ_US        = 0x900,
+
+  /**
+   * Offset of KIP code (provided by the kernel) for reading the time stamp
+   * counter and transforming this value into nanoseconds. If the kernel is
+   * configured for fine-grained KIP clock (CONFIG_SYNC enabled for IA32,
+   * ARM_SYNC_CLOCK for ARM), this code provides the KIP clock with nanoseconds
+   * granularity and accuracy by reading the hardware clock used by the kernel
+   * and transforming this value into nanoseconds. Otherwise this code just
+   * reads the KIP clock value and multiplies it by 1000.
+   */
+  L4_KIP_OFFS_READ_NS        = 0x980,
+};
+
 /**
  * Kernel Info Page identifier ("L4µK").
  */
@@ -106,6 +130,12 @@ l4_kernel_info_version_offset(l4_kernel_info_t *kip) L4_NOTHROW;
  * The KIP clock always contains the current (relative) time in micro seconds
  * independently of the CPU frequency. The clock is only guaranteed to be
  * accurate within the scheduling granularity announced in the KIP.
+ *
+ * This function basically calls the KIP code for reading the KIP clock with
+ * microseconds resolution. The accuracy depends on the platform and the kernel
+ * configuration.
+ *
+ * \see L4_KIP_OFFS_READ_US.
  */
 L4_INLINE l4_cpu_time_t
 l4_kip_clock(l4_kernel_info_t *kip) L4_NOTHROW;
@@ -116,9 +146,28 @@ l4_kip_clock(l4_kernel_info_t *kip) L4_NOTHROW;
  * \param kip  Pointer to the kernel info page (KIP).
  *
  * \return Lower machine word of clock value from the KIP.
+ *
+ * This function will always provide the least significant machine word of the
+ * clock value from the KIP, regardless of the kernel configuration.
  */
 L4_INLINE l4_umword_t
 l4_kip_clock_lw(l4_kernel_info_t *kip) L4_NOTHROW;
+
+/**
+ * Return current clock using the KIP in nanoseconds.
+ *
+ * \param kip  Pointer to the kernel info page (KIP).
+ *
+ * \return Value of the current clock in nanoseconds.
+ *
+ * This function basically calls the KIP code for reading the KIP clock with
+ * nanoseconds resolution. The accuracy depends on the platform and the kernel
+ * configuration.
+ *
+ * \see L4_KIP_OFFS_READ_NS.
+ */
+L4_INLINE l4_uint64_t
+l4_kip_clock_ns(l4_kernel_info_t *kip) L4_NOTHROW;
 
 /*@}*/
 
@@ -141,23 +190,20 @@ l4_kernel_info_version_offset(l4_kernel_info_t *kip) L4_NOTHROW
 L4_INLINE l4_cpu_time_t
 l4_kip_clock(l4_kernel_info_t *kip) L4_NOTHROW
 {
-  unsigned long h1, l;
-  unsigned long *c;
+  // Use kernel-provided code to determine the current clock.
+  typedef l4_uint64_t (*kip_time_fn_read_us)(void);
+  kip_time_fn_read_us read_us =
+    (kip_time_fn_read_us)((l4_uint8_t*)kip + L4_KIP_OFFS_READ_US);
+  return read_us();
+}
 
-  if (sizeof(unsigned long) == 8)
-    return kip->_clock_val;
-
-  c = (unsigned long *)&kip->_clock_val;
-  do
-    {
-      h1 = c[1];
-      l4_mb();
-      l  = c[0];
-      l4_mb();
-    }
-  while (h1 != c[1]);
-
-  return ((unsigned long long)h1 << 32) | l;
+L4_INLINE l4_cpu_time_t
+l4_kip_clock_ns(l4_kernel_info_t *kip) L4_NOTHROW
+{
+  typedef l4_uint64_t (*kip_time_fn_read_ns)(void);
+  kip_time_fn_read_ns read_ns =
+    (kip_time_fn_read_ns)((l4_uint8_t*)kip + L4_KIP_OFFS_READ_NS);
+  return read_ns();
 }
 
 L4_INLINE l4_umword_t
