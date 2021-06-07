@@ -36,10 +36,9 @@
 
 #include <l4/re/elf_aux.h>
 
-extern char const __executable_start[];
 L4RE_ELF_AUX_ELEM_T(l4re_elf_aux_mword_t, __stack_addr,
                     L4RE_ELF_AUX_T_STACK_ADDR,
-                    (l4_addr_t)__executable_start + 0x1000000);
+                    L4_LOADER_RELOC_BASE + 0x1000000);
 
 using L4::Cap;
 using L4Re::Dataspace;
