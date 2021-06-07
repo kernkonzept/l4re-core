@@ -41,15 +41,12 @@
  * Move loader stack out of the way of the default stack address. On no-MMU
  * systems this is not required because there is no address remapping and the
  * stack address is tied to the allocated buffer physical address.
- *
- * FIXME: this still breaks static PIE because it will leave a relocation for
- * __executable_start in the read-only aux section.
  */
 #ifdef CONFIG_MMU
 extern char const __executable_start[];
 L4RE_ELF_AUX_ELEM_T(l4re_elf_aux_mword_t, __stack_addr,
                     L4RE_ELF_AUX_T_STACK_ADDR,
-                    (l4_addr_t)__executable_start + 0x1000000);
+                    L4_LOADER_RELOC_BASE + 0x1000000);
 #endif
 
 using L4::Cap;
