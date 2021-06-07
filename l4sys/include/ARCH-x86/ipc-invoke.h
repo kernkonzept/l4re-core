@@ -41,22 +41,19 @@
  */
 
 #ifdef __PIC__
-#  define L4S_PIC_SAVE "push %%ebx; "
-#  define L4S_PIC_RESTORE "pop %%ebx; "
-#  define L4S_PIC_CLOBBER
-#  define L4S_PIC_SYSCALL , [func] "m" (__l4sys_invoke_indirect)
-#if 1
-
-#ifdef __PIC__
+# define L4S_PIC_SAVE "push %%ebx; "
+# define L4S_PIC_RESTORE "pop %%ebx; "
+# define L4S_PIC_CLOBBER
+# define L4S_PIC_SYSCALL , [func] "m" (__l4sys_invoke_indirect)
+# if 1
 extern void (*__l4sys_invoke_indirect)(void);
-#endif
 #  define IPC_SYSENTER      "# indirect sys invoke \n\t" \
                             "call *%[func]    \n\t"
-#else
+# else
 #  define L4S_PIC_SYSCALL
 #  define IPC_SYSENTER      "call __l4sys_invoke_direct@plt    \n\t"
-#endif
-#  define IPC_SYSENTER_ASM   call __l4sys_invoke_direct@plt
+# endif
+# define IPC_SYSENTER_ASM   call __l4sys_invoke_direct@plt
 #else
 /**
  * \internal
