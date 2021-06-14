@@ -92,7 +92,7 @@ long chksys(l4_msgtag_t const &t, char const *extra = "",
   if (L4_UNLIKELY(t.has_error()))
     throw_error(ret ? ret : l4_error_u(t, utcb), extra);
   else if (L4_UNLIKELY(t.label() < 0))
-    throw L4::Runtime_error(ret ? ret: t.label(), extra);
+    throw_error(ret ? ret: t.label(), extra);
 
   return t.label();
 }
