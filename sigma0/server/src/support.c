@@ -9,11 +9,6 @@
  */
 #include <l4/sys/ipc.h>
 
-void __aeabi_unwind_cpp_pr0(void);
-void __aeabi_unwind_cpp_pr1(void);
-void __aeabi_unwind_cpp_pr0(void) {}
-void __aeabi_unwind_cpp_pr1(void) {}
-
 void _exit(int) __attribute__((noreturn));
 
 void _exit(int x)
