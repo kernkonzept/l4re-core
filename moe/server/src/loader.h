@@ -94,7 +94,6 @@ public:
 
   virtual bool check_file_type(Moe::Dataspace const *file) const = 0;
   bool start(cxx::String const &init_prog, cxx::String const &args);
-  bool exec(cxx::String const &prog, cxx::String const &args);
   virtual bool launch(App_task *, cxx::String const &, cxx::String const &) = 0;
   virtual ~Loader() {}
 };

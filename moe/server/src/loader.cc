@@ -67,12 +67,12 @@ __alloc_app_stack(Allocator *a, Moe::Stack *_stack, unsigned long size)
 bool Loader::start(cxx::String const &init_prog, cxx::String const &cmdline)
 {
   Dbg info(Dbg::Info);
-  Dbg ldr(Dbg::Loader);
+  static auto *_init_task = Moe::Moe_alloc::allocator()->make_obj<App_task>();
 
   info.printf("Starting: %.*s %.*s\n",
               init_prog.len(), init_prog.start(), cmdline.len(), cmdline.start());
 
-  return exec(init_prog, cmdline);
+  return launch(_init_task, init_prog, cmdline);
 }
 
 Moe_app_model::Dataspace
@@ -136,16 +136,6 @@ Moe_app_model::prog_reserve_area(l4_addr_t *start, unsigned long size,
   *start = a;
   return 0;
 }
-
-bool
-Loader::exec(cxx::String const &prog, cxx::String const &args)
-{
-  static auto *_init_task = Moe::Moe_alloc::allocator()->make_obj<App_task>();
-
-  launch(_init_task, prog, args);
-  return 0;
-}
-
 
 void
 Moe_app_model::copy_ds(Dataspace dst, unsigned long dst_offs,
