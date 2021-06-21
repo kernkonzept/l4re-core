@@ -126,7 +126,7 @@ public:
         if (lua_istable(_lua, -1))
           lua_getfield(_lua, -1, "msg");
 
-        fprintf(stderr, "lua couldn't execute '%.*s': %s.\n", (int)cmd.length,
+        fprintf(stderr, "lua couldn't execute '%.*s': %s.\n", (int)cmd.length - 1,
                 cmd.data, lua_tostring(_lua, -1));
         lua_pop(_lua, 1);
 
