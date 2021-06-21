@@ -249,7 +249,7 @@ namespace L4
 
   public:
     /**
-     * \brief Create an Invalid_obejct exception for the Object o.
+     * \brief Create an Invalid_object exception for the Object o.
      * \param o The object that caused the server side error.
      */
     explicit Invalid_capability(Cap<void> const &o) throw() : _o(o) {}
@@ -275,7 +275,7 @@ namespace L4
   {
   public:
     /**
-     * \brief Create a Com_error for the givel L4 IPC error code.
+     * \brief Create a Com_error for the given L4 IPC error code.
      * \param err The L4 IPC error code (l4_ipc... return value).
      */
     explicit Com_error(long err) throw() : Runtime_error(err) {}
