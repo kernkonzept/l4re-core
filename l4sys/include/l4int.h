@@ -43,7 +43,6 @@ typedef unsigned long long      l4_uint64_t;  /**< Unsigned 64bit value. \ingrou
 
 /* some common data types */
 typedef unsigned long           l4_addr_t;    /**< Address type \ingroup l4_basic_types */
-//do-we-need-this?//typedef unsigned long           l4_offs_t;    /**< Address offset type \ingroup l4_basic_types */
 
 
 typedef signed long             l4_mword_t;   /**< Signed machine word.
