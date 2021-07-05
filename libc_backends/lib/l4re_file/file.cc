@@ -309,12 +309,11 @@ noexcept(noexcept(dup2(oldfd, newfd)))
       return -1;
     }
 
-  Ref_ptr<File> newf = res.first;
-  if (!newf || newf == oldf)
+  if (!res.first || res.first == oldf)
     return newfd;
 
   // do the stuff for close;
-  newf->unlock_all_locks();
+  res.first->unlock_all_locks();
 
   return newfd;
 }
