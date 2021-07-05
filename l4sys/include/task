@@ -30,7 +30,8 @@
 namespace L4 {
 
 /**
- * C++ interface of the Task kernel object.
+ * C++ interface of the Task kernel object, see \ref l4_task_api for
+ * the C interface.
  *
  * The L4::Task class represents a combination of the address spaces provided
  * by the L4Re micro kernel. A task consists of at least a memory address space
@@ -76,20 +77,24 @@ public:
   /**
    * Revoke rights from the task.
    *
-   * \param fpage     Flexpage that describes an area in the address space or
-   *                  object space of `this` task
+   * \param fpage     Flexpage that describes an area in one capability space
+   *                  of `this` task
    * \param map_mask  Unmap mask, see #l4_unmap_flags_t
    * \param utcb      UTCB pointer of the calling thread.
    *
    * \return Syscall return tag
    *
-   * This method allows to revoke rights from the destination task and from all the
-   * tasks that got the rights delegated from that task (i.e., this operation
-   * does a recursive rights revocation).
+   * This method allows to revoke rights from the destination task. For a flex
+   * page describing IO ports or memory, it also revokes rights from all the
+   * tasks that got the rights delegated from the destination task (i.e., this
+   * operation does a recursive rights revocation). If the set of rights is
+   * empty after the revocation, the capability is unmapped.
    *
-   * \note If the capability possesses delete rights or if it is the last
-   *       capability pointing to the object, calling this function might
-   *       destroy the object itself.
+   * \note If the reference counter of a kernel object referenced in `fpage`
+   *       goes down to zero (as a result of deleting capabilities), the
+   *       deletion of the object is initiated. Objects are not destroyed until
+   *       all other kernel objects holding a reference to it drop the
+   *       reference.
    */
   l4_msgtag_t unmap(l4_fpage_t const &fpage,
                     l4_umword_t map_mask,
@@ -100,21 +105,15 @@ public:
    * Revoke rights from a task.
    *
    * \param fpages      An array of flexpages. Each item describes an area in
-   *                    the address or object space of `this` task.
+   *                    one capability space of `this` task.
    * \param num_fpages  Number of fpages in the `fpages` array.
    * \param map_mask    Unmap mask, see #l4_unmap_flags_t.
    * \param utcb        UTCB pointer of the calling thread.
    *
-   * This method allows to revoke rights from the destination task and from all
-   * the tasks that got the rights delegated from that task (i.e., this
-   * operation does a recursive rights revocation).
+   * Revoke rights for an array of flexpages, see #unmap for details.
    *
    * \pre The caller needs to take care that `num_fpages` is not bigger
    *      than L4_UTCB_GENERIC_DATA_SIZE - 2.
-   *
-   * \note If the capability possesses delete rights or if it is the last
-   *       capability pointing to the object, calling this function might
-   *       destroy the object itself.
    */
   l4_msgtag_t unmap_batch(l4_fpage_t const *fpages,
                           unsigned num_fpages,
@@ -130,23 +129,30 @@ public:
    *
    * \return Syscall return tag
    *
-   * The object will be deleted if the `obj` has sufficient rights. No error
-   * will be reported if the rights are insufficient, however, the capability
-   * is removed in all cases.
+   * Initiates the deletion of the object if `obj` has the delete permission.
+   * Objects are not destroyed until all other kernel objects holding a
+   * reference to it drop the reference. No error will be reported if the rights
+   * are insufficient, however, the capability is removed in all cases from the
+   * destination task.
    */
   l4_msgtag_t delete_obj(L4::Cap<void> obj,
                          l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_task_delete_obj_u(cap(), obj.cap(), utcb); }
 
   /**
-   * Release capability.
+   * Release object capability.
    *
-   * \param cap   Capability selector to release.
+   * \param obj   Capability selector of the object to release.
    * \param utcb  UTCB pointer of the calling thread.
    *
    * \return Syscall return tag.
    *
    * This operation unmaps the capability from `this` task.
+   *
+   * \note If the reference counter of the kernel object referenced by `cap`
+   *       goes down to zero, the deletion of the object is initiated. Objects
+   *       are not destroyed until all other kernel objects holding a reference
+   *       to it drop the reference.
    */
   l4_msgtag_t release_cap(L4::Cap<void> cap,
                           l4_utcb_t *utcb = l4_utcb()) noexcept

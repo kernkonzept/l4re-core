@@ -159,14 +159,20 @@ enum l4_unmap_flags_t
   /**
    * Flag to tell the unmap operation to unmap all child mappings including the
    * mapping in the invoked task.
+   *
+   * \note Object capabilities are not hierarchical -- they have no children.
+   *       The result of the map operation on an object capability is a copy of
+   *       that capability in the object space of the destination task. An
+   *       unmap operation on object capabilities is a no-op if this flag is
+   *       not specified.
    * \hideinitializer
    * \see L4::Task::unmap() l4_task_unmap()
    */
   L4_FP_ALL_SPACES   = 0x80000000UL,
 
   /**
-   * Flag that indicates that the unmap operation on a capability shall try to
-   * delete the corresponding objects immediately.
+   * Flag that indicates that an unmap operation on object capabilities shall
+   * try to delete the corresponding objects.
    * \hideinitializer
    * \see L4::Task::unmap() l4_task_unmap()
    */
