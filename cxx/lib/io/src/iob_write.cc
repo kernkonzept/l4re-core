@@ -76,7 +76,7 @@ namespace L4
                         unsigned char len, char pad)
   {
     char buffer[30];
-    unsigned pos = sizeof(buffer);
+    unsigned pos = sizeof(buffer) - !u;
     buffer[sizeof(buffer) - 1] = '0';
     while (pos > 0 && u)
       {
