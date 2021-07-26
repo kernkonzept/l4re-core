@@ -34,6 +34,7 @@ extern "C" void L4_NORETURN _exit(int);
 
 inline void L4_NORETURN abort()
 {
+  L4::cout << "FATAL: Sigma0 terminated!\n";
   _exit(1);
 }
 
