@@ -22,19 +22,6 @@
 
 	.globl	_real_start
 _real_start:
-	cmp	x1, #0
-	b.eq	1f
-	adr	x9, __l4_sys_syscall
-	ldr	x2, [x9]
-	cmp	x1, x2
-	b.eq	1f
-	str	x1, [x9]
-	dmb ish
-	isb
-	dc cvac, x9
-	ic ivau, x9
-	isb
-1:
 	ldr 	x9, .LCstack
 	mov 	sp, x9
 	b	_start
