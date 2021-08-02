@@ -654,13 +654,13 @@ l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTH
 L4_INLINE l4_fpage_t
 l4_fpage_all(void) L4_NOTHROW
 {
-  return __l4_fpage_generic(0, 0, L4_WHOLE_ADDRESS_SPACE, 0);
+  return __l4_fpage_generic(0, L4_FPAGE_SPECIAL, L4_WHOLE_ADDRESS_SPACE, 0);
 }
 
 L4_INLINE l4_fpage_t
 l4_fpage_invalid(void) L4_NOTHROW
 {
-  return __l4_fpage_generic(0, 0, 0, 0);
+  return __l4_fpage_generic(0, L4_FPAGE_SPECIAL, 0, 0);
 }
 
 
