@@ -21,7 +21,7 @@ using Moe::Dataspace_noncont;
 
 namespace {
 
-unsigned long trunc_page(unsigned page_size, unsigned long addr)
+unsigned long trunc_page(unsigned long page_size, unsigned long addr)
 { return addr & ~(page_size-1); }
 
 inline void
