@@ -122,6 +122,8 @@ asm(
 "ta 0x1                          \n\t"
 #elif defined(ARCH_mips)
 ".long 0x04170010 # sigrie 0x10  \n\t"
+#elif defined(ARCH_riscv)
+"unimp                           \n\t"
 #else
 #error Unsupported arch!
 #endif
@@ -215,6 +217,8 @@ int Sig_handling::op_exception(L4::Exception::Rights, l4_exc_regs_t &exc,
   if ((u->cause & 0x1ff) == 0x101)
 #elif defined(ARCH_ppc32)
   if ((u->err & 3) == 4)
+#elif defined(ARCH_riscv)
+  if (u->cause == L4_riscv_exc_illegal_inst)
 #else
   if (u->trapno == 0xff)
 #endif

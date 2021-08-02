@@ -250,7 +250,8 @@
  */
 #if defined(__i386__) || defined(__amd64__) || \
   defined(__arm__) || defined(__aarch64__) || \
-  defined(__mips__) || defined(__powerpc__) || defined(__sparc__)
+  defined(__mips__) || defined(__riscv) || \
+  defined(__powerpc__) || defined(__sparc__)
 # define L4_STACK_ALIGN         __BIGGEST_ALIGNMENT__
 #else
 # error Define L4_STACK_ALIGN for this target!

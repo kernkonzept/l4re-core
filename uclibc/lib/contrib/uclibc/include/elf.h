@@ -274,9 +274,10 @@ typedef struct
 #define EM_MICROBLAZE	189		/* Xilinx Microblaze */
 #define EM_TILEGX	191		/* Tilera TILE-Gx */
 #define EM_ARCV2	195		/* ARCv2 Cores */
+#define EM_RISCV	243		/** RISC-V */
 
 /* NEXT FREE NUMBER: Increment this after adding your official arch number */
-#define EM_NUM		196
+#define EM_NUM		244
 
 /* If it is necessary to assign new unofficial EM_* values, please pick large
    random numbers (0x8523, 0xa7f2, etc.) to minimize the chances of collision
@@ -3674,6 +3675,20 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_ARC_TLS_DTPOFF_S9	0x4a
 #define R_ARC_TLS_LE_S9		0x4a
 #define R_ARC_TLS_LE_32		0x4b
+
+/* RISC-V relocations.  */
+#define R_RISCV_NONE          0
+#define R_RISCV_32            1
+#define R_RISCV_64            2
+#define R_RISCV_RELATIVE      3
+#define R_RISCV_COPY          4
+#define R_RISCV_JUMP_SLOT     5
+#define R_RISCV_TLS_DTPMOD32  6
+#define R_RISCV_TLS_DTPMOD64  7
+#define R_RISCV_TLS_DTPREL32  8
+#define R_RISCV_TLS_DTPREL64  9
+#define R_RISCV_TLS_TPREL32  10
+#define R_RISCV_TLS_TPREL64  11
 
 #ifdef	__cplusplus
 }

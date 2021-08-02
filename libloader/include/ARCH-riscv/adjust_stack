@@ -1,0 +1,23 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * (c) 2010 Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+ *     economic rights: Technische Universität Dresden (Germany)
+ * This file is part of TUD:OS and distributed under the terms of the
+ * GNU Lesser General Public License 2.1.
+ * Please see the COPYING-LGPL-2.1 file for details.
+ */
+#pragma once
+
+#include <l4/sys/types.h>
+
+namespace Ldr {
+
+inline
+char *adjust_sp(char *old_sp, l4_umword_t *offs = 0)
+{
+  if (offs)
+    *offs = 0;
+  return reinterpret_cast<char *>(reinterpret_cast<l4_umword_t>(old_sp) & ~15);
+}
+
+}

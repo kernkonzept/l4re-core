@@ -14,6 +14,7 @@ DIR_arm64 := aarch64
 DIR_ppc32 := powerpc
 DIR_sparc := sparc
 DIR_mips  := mips
+DIR_riscv := riscv
 
 
 vpath %.c $(CON_DIR)/ldso
@@ -56,6 +57,7 @@ DEFINES_arm-l4f   += -DUSE_TLS=1 -DUSE___THREAD=1
 DEFINES_arm64-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
 DEFINES_sparc-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
 DEFINES_mips-l4f  += -DUSE_TLS=1 -DUSE___THREAD=1
+DEFINES_riscv-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
 
 LDFLAGS  =  -nocrt1 -Bsymbolic -Bstatic --warn-common --sort-common \
             --no-undefined -e _start -z defs -z now \

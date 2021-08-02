@@ -17,6 +17,7 @@ DIR_arm   := arm
 DIR_arm64 := aarch64
 DIR_mips  := mips
 DIR_ppc32 := powerpc
+DIR_riscv := riscv
 DIR_sparc := sparc
 
 SRC_CC      = manager.cc l4.cc
@@ -41,6 +42,7 @@ INCDIR-arm64 = $(SRC_DIR)/sysdeps/aarch64
 INCDIR-mips  = $(SRC_DIR)/sysdeps/mips
 INCDIR-ppc32 = $(SRC_DIR)/sysdeps/powerpc \
                $(CONTRIBDIR)/libpthread/linuxthreads/sysdeps/powerpc
+INCDIR-riscv = $(SRC_DIR)/sysdeps/riscv
 INCDIR-sparc = $(SRC_DIR)/sysdeps/sparc \
                $(CONTRIBDIR)/libpthread/linuxthreads/sysdeps/sparc
 
@@ -56,6 +58,7 @@ DEFINES_arm-l4f   := -DUSE___THREAD=1
 DEFINES_arm64-l4f := -DUSE___THREAD=1 
 DEFINES_mips-l4f  := -DUSE___THREAD=1 
 DEFINES_ppc32-l4f := -DUSE___THREAD=1 
+DEFINES_riscv-l4f := -DUSE___THREAD=1
 DEFINES_sparc-l4f := -DUSE___THREAD=1 
 
 CFLAGS    += -include $(CONTRIBDIR)/include/libc-symbols.h

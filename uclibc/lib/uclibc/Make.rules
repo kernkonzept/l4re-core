@@ -82,6 +82,8 @@ SRC_CC_libc.a_mips-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
 SRC_C_libc.a_mips-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 SRC_CC_libc.a_ppc32-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
 SRC_C_libc.a_ppc32-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libc.a_riscv-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_riscv-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 SRC_CC_libc.a_sparc-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
 SRC_C_libc.a_sparc-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 

@@ -101,6 +101,14 @@ typedef l4_int64_t      Elf64_Sxword; /**< size 8 align 8 \ingroup l4util_elf*/
 # else
 #  define L4_ARCH_EI_CLASS     ELFCLASS32
 # endif
+#elif defined(ARCH_riscv)
+# define L4_ARCH_EI_DATA      ELFDATA2LSB
+# define L4_ARCH_E_MACHINE    EM_RISCV
+# if __riscv_xlen == 64
+#  define L4_ARCH_EI_CLASS     ELFCLASS64
+# else
+#  define L4_ARCH_EI_CLASS     ELFCLASS32
+# endif
 #else
 # warning elf.h: Unsupported build architecture!
 #endif
@@ -247,7 +255,8 @@ enum Elf_EMs
   EM_TILEPRO            = 188,  /**< Tilera TILEPro */
   EM_MICROBLAZE         = 189,  /**< Xilinx MicroBlaze */
   EM_TILEGX             = 191,  /**< Tilera TILE-Gx */
-  EM_NUM                = 192,
+  EM_RISCV              = 243,   /**< RISC-V */
+  EM_NUM                = 244,
 };
 
 #if 0

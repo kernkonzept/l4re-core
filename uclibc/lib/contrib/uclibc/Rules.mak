@@ -109,7 +109,7 @@ ARCH ?= $(shell uname -m | $(SED) -e s/i.86/i386/ \
 				  -e s/sh.*/sh/ \
 				  -e s/s390x/s390/ -e s/parisc.*/hppa/ \
 				  -e s/ppc.*/powerpc/ -e s/mips.*/mips/ \
-				  -e s/xtensa.*/xtensa/ )
+				  -e s/xtensa.*/xtensa/ -e s/riscv.*/riscv/ )
 else
 ARCH = $(TARGET_ARCH)
 endif
