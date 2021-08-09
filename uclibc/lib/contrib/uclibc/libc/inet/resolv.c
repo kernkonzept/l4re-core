@@ -409,6 +409,7 @@ extern int __encode_answer(struct resolv_answer *a,
 		int maxlen) attribute_hidden;
 extern void __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
+extern int __hnbad(const char *dotted) attribute_hidden;
 
 #define __encode_dotted(dotted,dest,maxlen) \
 	dn_comp((dotted), (dest), (maxlen), NULL, NULL)
@@ -1093,6 +1094,7 @@ int __dns_lookup(const char *name,
 	bool ends_with_dot;
 	bool contains_dot;
 	sockaddr46_t sa;
+	int num_answers;
 
 	fd = -1;
 	lookup = NULL;
@@ -1335,6 +1337,7 @@ int __dns_lookup(const char *name,
 			goto fail1;
 		}
 		pos = HFIXEDSZ;
+		/*XXX TODO: check that question matches query (and qdcount==1?) */
 		for (j = 0; j < h.qdcount; j++) {
 			DPRINTF("Skipping question %d at %d\n", j, pos);
 			i = __length_question(packet + pos, packet_len - pos);
@@ -1349,6 +1352,7 @@ int __dns_lookup(const char *name,
 		DPRINTF("Decoding answer at pos %d\n", pos);
 
 		first_answer = 1;
+		num_answers = 0;
 		a->dotted = NULL;
 		for (j = 0; j < h.ancount; j++) {
 			i = __decode_answer(packet, pos, packet_len, &ma);
@@ -1356,12 +1360,15 @@ int __dns_lookup(const char *name,
 				DPRINTF("failed decode %d\n", i);
 				/* If the message was truncated but we have
 				 * decoded some answers, pretend it's OK */
-				if (j && h.tc)
+				if (num_answers && h.tc)
 					break;
 				goto try_next_server;
 			}
 			pos += i;
 
+			if (__hnbad(ma.dotted))
+				break;
+			++num_answers;
 			if (first_answer) {
 				ma.buf = a->buf;
 				ma.buflen = a->buflen;
@@ -1390,6 +1397,10 @@ int __dns_lookup(const char *name,
 				memcpy(a->buf + (a->add_count * ma.rdlength), ma.rdata, ma.rdlength);
 				++a->add_count;
 			}
+		}
+		if (!num_answers) {
+			h_errno = NO_RECOVERY;
+			goto fail1;
 		}
 
 		/* Success! */
@@ -2357,7 +2368,7 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen,
 		/* Decode CNAME into buf, feed it to __dns_lookup() again */
 		i = __decode_dotted(packet, a.rdoffset, packet_len, buf, buflen);
 		free(packet);
-		if (i < 0) {
+		if (i < 0 || __hnbad(buf)) {
 			*h_errnop = NO_RECOVERY;
 			return -1;
 		}
@@ -2366,6 +2377,10 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen,
 	if (a.atype == T_PTR) {	/* ADDRESS */
 		i = __decode_dotted(packet, a.rdoffset, packet_len, buf, buflen);
 		free(packet);
+		if (__hnbad(buf)) {
+			*h_errnop = NO_RECOVERY;
+			return -1;
+		}
 		result_buf->h_name = buf;
 		result_buf->h_addrtype = type;
 		result_buf->h_length = addrlen;
@@ -2929,6 +2944,51 @@ int ns_name_pton(const char *src, u_char *dst, size_t dstsiz)
 	return -1;
 }
 libc_hidden_def(ns_name_pton)
+
+/*
+ * __hnbad(dotted)
+ *	Check whether a name is valid enough for DNS. The rules, as
+ *	laid down by glibc, are:
+ *	- printable input string
+ *	- converts to label notation
+ *	- each label only contains [0-9a-zA-Z_-], up to 63 octets
+ *	- first label doesn’t begin with ‘-’
+ *	This both is weaker than Unix hostnames (e.g. it allows
+ *	underscores and leading/trailing hyphen-minus) and stronger
+ *	than general (e.g. a leading “*.” is valid sometimes), take care.
+ * return:
+ *	0 if the name is ok
+ */
+int __hnbad(const char *dotted)
+{
+	unsigned char c, n, *cp;
+	unsigned char buf[NS_MAXCDNAME];
+
+	cp = (unsigned char *)dotted;
+	while ((c = *cp++))
+		if (c < 0x21 || c > 0x7E)
+			return (1);
+	if (ns_name_pton(dotted, buf, sizeof(buf)) < 0)
+		return (2);
+	if (buf[0] > 0 && buf[1] == '-')
+		return (3);
+	cp = buf;
+	while ((n = *cp++)) {
+		if (n > 63)
+			return (4);
+		while (n--) {
+			c = *cp++;
+			if (c < '-' ||
+			    (c > '-' && c < '0') ||
+			    (c > '9' && c < 'A') ||
+			    (c > 'Z' && c < '_') ||
+			    (c > '_' && c < 'a') ||
+			    c > 'z')
+				return (5);
+		}
+	}
+	return (0);
+}
 
 /*
  * ns_name_unpack(msg, eom, src, dst, dstsiz)
