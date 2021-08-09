@@ -396,14 +396,6 @@ extern int __dns_lookup(const char *name,
 		int type,
 		unsigned char **outpacket,
 		struct resolv_answer *a) attribute_hidden;
-extern int __encode_dotted(const char *dotted,
-		unsigned char *dest,
-		int maxlen) attribute_hidden;
-extern int __decode_dotted(const unsigned char *packet,
-		int offset,
-		int packet_len,
-		char *dest,
-		int dest_len) attribute_hidden;
 extern int __encode_header(struct resolv_header *h,
 		unsigned char *dest,
 		int maxlen) attribute_hidden;
@@ -417,6 +409,12 @@ extern int __encode_answer(struct resolv_answer *a,
 		int maxlen) attribute_hidden;
 extern void __open_nameservers(void) attribute_hidden;
 extern void __close_nameservers(void) attribute_hidden;
+
+#define __encode_dotted(dotted,dest,maxlen) \
+	dn_comp((dotted), (dest), (maxlen), NULL, NULL)
+#define __decode_dotted(packet,offset,packet_len,dest,dest_len) \
+	dn_expand((packet), (packet) + (packet_len), (packet) + (offset), \
+	    (dest), (dest_len))
 
 /*
  * Theory of operation.
@@ -551,33 +549,6 @@ void __decode_header(unsigned char *data,
 	h->arcount = (data[10] << 8) | data[11];
 }
 #endif /* L_decodeh */
-
-
-#ifdef L_encoded
-
-/* Encode a dotted string into nameserver transport-level encoding.
-   This routine is fairly dumb, and doesn't attempt to compress
-   the data */
-int __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
-{
-	return (dn_comp(dotted, dest, maxlen, NULL, NULL));
-}
-#endif /* L_encoded */
-
-
-#ifdef L_decoded
-
-/* Decode a dotted string from nameserver transport-level encoding.
-   This routine understands compressed data. */
-int __decode_dotted(const unsigned char *packet,
-		int offset,
-		int packet_len,
-		char *dest,
-		int dest_len)
-{
-	return (dn_expand(packet, packet + packet_len, packet + offset, dest, dest_len));
-}
-#endif /* L_decoded */
 
 
 #ifdef L_encodeq

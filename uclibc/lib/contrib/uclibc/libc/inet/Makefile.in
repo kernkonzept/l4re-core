@@ -26,7 +26,7 @@ CSRC-$(V4_OR_V6) += \
 	inet_lnaof.c inet_netof.c
 # multi source resolv.c
 CSRC-$(V4_OR_V6) += \
-	encodeh.c decodeh.c encoded.c decoded.c \
+	encodeh.c decodeh.c \
 	encodeq.c encodea.c \
 	read_etc_hosts_r.c \
 	dnslookup.c opennameservers.c closenameservers.c \

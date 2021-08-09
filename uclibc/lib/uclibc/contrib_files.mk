@@ -627,13 +627,11 @@ define SRC_libc/inet
   addr
   closenameservers
   decodea
-  decoded
   decodeh
   decodep
   decodeq
   dnslookup
   encodea
-  encoded
   encodeh
   encodep
   encodeq
