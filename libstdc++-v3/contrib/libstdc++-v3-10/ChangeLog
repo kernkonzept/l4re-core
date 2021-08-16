@@ -1,3 +1,583 @@
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101866
+	* testsuite/experimental/random/randint.cc: Loop and retry if
+	reseed() produces the same sequence.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101510
+	* src/c++17/fs_ops.cc (fs::create_directories): Use status
+	instead of symlink_status.
+	* src/filesystem/ops.cc (fs::create_directories): Likewise.
+	* testsuite/27_io/filesystem/operations/create_directories.cc:
+	Check symlink to existing directory.
+	* testsuite/27_io/filesystem/operations/create_directory.cc: Do
+	not test with symlinks on Windows.
+	* testsuite/experimental/filesystem/operations/create_directories.cc:
+	Check symlink to existing directory.
+	* testsuite/experimental/filesystem/operations/create_directory.cc:
+	Do not test with symlinks on Windows.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101510
+	* src/c++17/fs_ops.cc (create_dir): Adjust whitespace.
+	* testsuite/27_io/filesystem/operations/create_directory.cc:
+	Test creating directory with name of existing symlink to
+	directory.
+	* testsuite/experimental/filesystem/operations/create_directory.cc:
+	Likewise.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101056
+	* libsupc++/compare (compare_partial_order_fallback): Add
+	constraint using reversed parameter order, as per LWG 3465.
+	* testsuite/18_support/comparisons/algorithms/fallback.cc:
+	Adjust expected result.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/compare (__decayed_same_as): New helper concept.
+	(strong_order, weak_order, partial_order): Constrain with new
+	concept instead of using static_assert.
+	(compare_strong_order_fallback, compare_weak_order_fallback)
+	(compare_partial_order_fallback): Likewise. Do not deduce return
+	types. Remove redundant if-constexpr checks.
+	* testsuite/18_support/comparisons/algorithms/fallback.cc: New test.
+
+2021-08-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100894
+	* include/std/type_traits (__common_ref_impl<X&, Y&>): Only
+	use the type if it's a reference.
+	* testsuite/20_util/common_reference/100894.cc: New test.
+
+2021-07-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-04-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/96657
+	* libsupc++/Makefile.am: Add atomicity.cc here.
+	* src/c++98/Makefile.am: Remove it from here.
+	* libsupc++/Makefile.in: Regenerate.
+	* src/c++98/Makefile.in: Regenerate.
+	* testsuite/18_support/exception_ptr/96657.cc: New test.
+
+2021-07-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/98842
+	* include/std/optional (operator<=>(const optional<T>& const U&)):
+	Add missing constraint and add workaround for template
+	recursion.
+	* testsuite/20_util/optional/relops/three_way.cc: Check that
+	type without equality comparison cannot be compared when wrapped
+	in std::optional.
+
+2021-07-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/101361
+	* include/std/string_view (ends_with): Use traits_type::compare
+	directly.
+
+2021-07-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101411
+	* include/std/span (as_writable_bytes): Add requires-clause.
+	* testsuite/23_containers/span/101411.cc: New test.
+
+2021-07-06  Avi Kivity  <avi@scylladb.com>
+
+	Backported from master:
+	2021-06-07  Avi Kivity  <avi@scylladb.com>
+
+	PR libstdc++/100900
+	* include/std/ranges (elements_view::__iter_cat::_S_iter_cat):
+	Add missing typename.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/95833
+	* include/std/numeric (reduce(Iter, Iter, T, BinaryOp)): Replace
+	incorrect static_assert with ones matching the 'Mandates'
+	conditions in the standard.
+	* testsuite/26_numerics/reduce/95833.cc: New test.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/variant (__same_types, __check_visitor_results):
+	Remove.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/future (promise::set_value): Check for existence
+	of shared state before dereferncing it.
+	(promise::set_exception, promise::set_value_at_thread_exit)
+	(promise::set_exception_at_thread_exit): Likewise.
+	(promise<R&>::set_value, promise<R&>::set_exception)
+	(promise<R&>::set_value_at_thread_exit)
+	(promise<R&>::set_exception_at_thread_exit): Likewise.
+	(promise<void>::set_value, promise<void>::set_exception)
+	(promise<void>::set_value_at_thread_exit)
+	(promise<void>::set_exception_at_thread_exit): Likewise.
+	* testsuite/30_threads/promise/members/at_thread_exit2.cc:
+	Remove unused variable.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/basic_string.h (basic_string(const CharT*, const A&)):
+	Do not do arithmetic on null pointer.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/ext/pb_ds/detail/cc_hash_table_map_/cc_ht_map_.hpp
+	(find_key_pointer(key_const_reference, false_type))
+	(find_key_pointer(key_const_reference, true_type)): Do not
+	dereference null pointer.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/from_chars/3.cc: Use unsigned type to avoid
+	overflow.
+	* testsuite/24_iterators/reverse_iterator/2.cc: Do not add
+	non-zero value to null pointer.
+	* testsuite/25_algorithms/copy_backward/move_iterators/69478.cc:
+	Use past-the-end iterator for result.
+	* testsuite/25_algorithms/move_backward/69478.cc: Likewise.
+	* testsuite/25_algorithms/move_backward/93872.cc: Likewise.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100384
+	* include/std/variant (__get_t): New alias template yielding the
+	return type of std::get<N> on a variant.
+	(__visit_result_t): New alias template yielding the result of
+	std::visit.
+	(__same_types): Move into namespace __detail::__variant.
+	(__check_visitor_results): Likewise. Use __invoke_result_t and
+	__get_t.
+	(__check_visitor_result): Remove.
+	(visit): Use __visit_result_t for return type.
+	* testsuite/20_util/variant/100384.cc: New test.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-04-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99006
+	* include/bits/shared_ptr.h (allocate_shared): Assert that _Tp
+	is not an array type.
+	* include/bits/shared_ptr_base.h (__allocate_shared): Likewise.
+	* testsuite/20_util/shared_ptr/creation/99006.cc: New test.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/allocator.h (allocator<void>) [C++20]: Add
+	missing noexcept to constructor. Restore missing POCMA and
+	is_always_equal_traits.
+	* include/bits/memoryfwd.h (allocator_traits): Declare.
+	* include/ext/malloc_allocator.h (malloc_allocator::allocate):
+	Add nodiscard attribute. Add static assertion for LWG 3307.
+	* include/ext/new_allocator.h (new_allocator::allocate): Add
+	static assertion for LWG 3307.
+	* testsuite/20_util/allocator/void.cc: Check that converting
+	constructor is noexcept. Check for propagation traits and
+	size_type and difference_type. Check that pointer and
+	const_pointer are gone in C++20.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_base.h (__shared_count(unique_ptr&&)):
+	Initialize a non-reference deleter from an rvalue, as per LWG
+	3548.
+	(__shared_ptr::_UniqCompatible): Add missing constraint.
+	* testsuite/20_util/shared_ptr/cons/lwg3548.cc: New test.
+	* testsuite/20_util/shared_ptr/cons/unique_ptr_deleter.cc: Check
+	constraints.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/91488
+	* include/bits/basic_string.h (__cpp_lib_constexpr_string): Only
+	define C++20 value when std::is_constant_evaluated is available.
+	* include/bits/char_traits.h (__cpp_lib_constexpr_char_traits):
+	Likewise.
+	(__constant_string_p, __constant_array_p): Give external
+	linkage.
+	* include/std/version (__cpp_lib_constexpr_char_traits)
+	(__cpp_lib_constexpr_string): Only define C++20 values when
+	is_constant_evaluated is available.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/scoped_allocator/69293_neg.cc: Add dg-error
+	for additional errors in C++20.
+	* testsuite/20_util/uses_allocator/69293_neg.cc: Likewise.
+	* testsuite/20_util/uses_allocator/cons_neg.cc: Likewise.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100982
+	* include/std/optional (optional::operator=(const optional<U>&)):
+	Fix value category used in is_assignable check.
+	* testsuite/20_util/optional/assignment/100982.cc: New test.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101034
+	* include/std/any (any(in_place_t<T>, initializer_list<U>, A&&...))
+	(any::emplace<T>(initializer_list<U>, A&&...)): Fix constraint
+	to use lvalue.
+	* testsuite/20_util/any/cons/101034.cc: New test.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100770
+	* include/bits/ranges_algo.h (__detail::__can_reread_output):
+	Factor out this concept from ...
+	(__unique_copy_fn::operator()): ... here.  Use the concept
+	throughout.
+	* testsuite/std/ranges/range.cc: Remove now ill-formed use
+	of range_value_t on an output_range.
+	* testsuite/util/testsuite_iterators.h (output_iterator_wrapper):
+	Define value_type, pointer and reference member types to void.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-21  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100690
+	* include/std/ranges (iota_view::_Sentinel::_M_distance_from):
+	Split out this member function from ...
+	(iota_view::_Sentinel::operator-): ... here, for sake of access
+	control.
+	* testsuite/std/ranges/iota/iota_view.cc (test05): New test.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-06  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (filter_view::_Iterator::base): Make the
+	const& overload unconstrained and return a const reference as
+	per LWG 3533.  Make unconditionally noexcept.
+	(transform_view::_Iterator::base): Likewise.
+	(elements_view::_Iterator::base): Likewise.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-06  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/stl_iterator.h (move_iterator::base): Make the
+	const& overload unconstrained and return a const reference as
+	per LWG 3391.  Make unconditionally noexcept.
+	(counted_iterator::base): Likewise.
+	* testsuite/24_iterators/move_iterator/lwg3391.cc: New test.
+	* testsuite/24_iterators/move_iterator/move_only.cc: Adjust
+	has_member_base concept to decay-copy the result of base().
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100631
+	* include/std/ranges (elements_view::_Sentinel::operator-): Use
+	_M_distance_from in the other operator- overload too.
+	* testsuite/std/ranges/adaptors/elements.cc (test06): Augment test.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100631
+	* include/std/ranges (elements_view::_Iterator): Also befriend
+	_Sentinel<!_Const>.
+	(elements_view::_Sentinel::_M_equal): Templatize.
+	(elements_view::_Sentinel::_M_distance_from): Split out from ...
+	(elements_view::_Sentinel::operator-): ... here.  Depend on
+	_Base2 instead of _Base in the return type.
+	* testsuite/std/ranges/adaptors/elements.cc (test06, test07):
+	New tests.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-20  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100639
+	* include/bits/stl_iterator.h (reverse_iterator::difference_type):
+	In C++20 mode, define in terms of iter_difference_t as per P0896R4.
+	(reverse_iterator::reference): Likewise, but with iter_reference_t.
+	(reverse_iterator::value_type): Likewise, but with iter_value_t.
+	* testsuite/std/ranges/adaptors/reverse.cc (test08): New test.
+	* testsuite/24_iterators/reverse_iterator/100639.cc: New test.
+
+2021-06-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100833
+	* include/bits/range_access.h (ranges::advance(iter, n, sentinel)):
+	Fix return value for no-op case.
+	* testsuite/24_iterators/range_operations/advance.cc: Test
+	return values of three-argument overload.
+
+2021-06-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100768
+	* include/bits/range_access.h (ranges::advance)
+	(ranges::distance, ranges::next, ranges::prev): Replace
+	function templates with function objects.
+	* testsuite/24_iterators/headers/iterator/synopsis_c++20.cc:
+	Adjust for changes to function objects.
+	* testsuite/std/ranges/adaptors/elements.cc: Add using
+	declarations for names from namespace ranges.
+	* testsuite/std/ranges/adaptors/transform.cc: Likewise.
+	* testsuite/24_iterators/range_operations/100768.cc: New test.
+
+2021-06-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99453
+	* python/Makefile.am: Use archive name for printer hook if no
+	dynamic library name is available.
+	* python/Makefile.in: Regenerate.
+
+2021-06-03  Philippe Blain  <levraiphilippeblain@gmail.com>
+
+	Backported from master:
+	2021-04-21  Philippe Blain  <levraiphilippeblain@gmail.com>
+		    Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99453
+	* python/Makefile.am: Install libstdc++*-gdb.py more robustly.
+	* python/Makefile.in: Regenerate.
+
+2021-05-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100630
+	* include/bits/fs_path.h (__is_constructible_from): Test
+	construction from a const lvalue, not an rvalue.
+	* include/experimental/bits/fs_path.h (__is_constructible_from):
+	Likewise.
+	* testsuite/27_io/filesystem/path/construct/100630.cc: New test.
+	* testsuite/experimental/filesystem/path/construct/100630.cc:
+	New test.
+
+2021-05-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-03-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (find_type): Use tag attribute
+	instead of unqualified() method.
+
+2021-05-05  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-05  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (transform_view::_Iterator::iter_swap):
+	Remove as per LWG 3520.
+	(join_view::_Iterator::iter_swap): Add indirectly_swappable
+	constraint as per LWG 3517.
+
+2021-05-04  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-30  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (split_view::_InnerIter::operator++):
+	Depend on _Base instead of _Vp directly, as per LWG 3532.
+
+2021-05-04  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-20  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/95983
+	* include/bits/stl_iterator.h (__detail::__move_iter_cat):
+	Define.
+	(move_iterator): Derive from the above in C++20 in order to
+	conditionally define iterator_category as per P2259.
+	(move_iterator::__base_cat): No longer used, so remove.
+	(move_iterator::iterator_category): Remove in C++20.
+	(__detail::__common_iter_use_postfix_proxy): Define.
+	(common_iterator::_Proxy): Rename to ...
+	(common_iterator:__arrow_proxy): ... this.
+	(common_iterator::__postfix_proxy): Define as per P2259.
+	(common_iterator::operator->): Adjust.
+	(common_iterator::operator++): Adjust as per P2259.
+	(iterator_traits<common_iterator>::_S_iter_cat): Define.
+	(iterator_traits<common_iterator>::iterator_category): Change as
+	per P2259.
+	(__detail::__counted_iter_value_type): Define.
+	(__detail::__counted_iter_concept): Define.
+	(__detail::__counted_iter_cat): Define.
+	(counted_iterator): Derive from the above three classes in order
+	to conditionally define value_type, iterator_concept and
+	iterator category respectively as per P2259.
+	(counted_iterator::operator->): Define as per P2259.
+	(incrementable_traits<counted_iterator>): Remove as per P2259.
+	(iterator_traits<counted_iterator>): Adjust as per P2259.
+	* include/std/ranges (__detail::__iota_view_iter_cat): Define.
+	(iota_view::_Iterator): Derive from the above in order to
+	conditionally define iterator_category as per P2259.
+	(iota_view::_S_iter_cat): Rename to ...
+	(iota_view::_S_iter_concept): ... this.
+	(iota_view::iterator_concept): Use it to apply LWG 3291 changes.
+	(iota_view::iterator_category): Remove.
+	(__detail::__filter_view_iter_cat): Define.
+	(filter_view::_Iterator): Derive from the above in order to
+	conditionally define iterator_category as per P2259.
+	(filter_view::_Iterator): Move to struct __filter_view_iter_cat.
+	(filter_view::_Iterator::iterator_category): Remove.
+	(transform_view::_Base): Define.
+	(transform_view::__iter_cat): Define.
+	(transform_view::_Iterator): Derive from the above in order to
+	conditionally define iterator_category as per P2259.
+	(transform_view::_Iterator::_Base): Just alias
+	transform_view::_Base.
+	(transform_view::_Iterator::_S_iter_cat): Move to struct
+	transform_view::__iter_cat.
+	(transform_view::_Iterator::iterator_category): Remove.
+	(transform_view::_Sentinel::_Base): Just alias
+	transform_view::_Base.
+	(join_view::_Base): Define.
+	(join_view::_Outer_iter): Define.
+	(join_view::_Inner_iter): Define.
+	(join_view::_S_ref_is_glvalue): Define.
+	(join_view::__iter_cat): Define.
+	(join_view::_Iterator): Derive from it in order to conditionally
+	define iterator_category as per P2259.
+	(join_view::_Iterator::_Base): Just alias join_view::_Base.
+	(join_view::_Iterator::_S_ref_is_glvalue): Just alias
+	join_view::_S_ref_is_glvalue.
+	(join_view::_Iterator::_S_iter_cat): Move to struct
+	transform_view::__iter_cat.
+	(join_view::_Iterator::_Outer_iter): Just alias
+	join_view::_Outer_iter.
+	(join_view::_Iterator::_Inner_iter): Just alias
+	join_view::_Inner_iter.
+	(join_view::_Iterator::iterator_category): Remove.
+	(join_view::_Sentinel::_Base): Just alias join_view::_Base.
+	(__detail::__split_view_outer_iter_cat): Define.
+	(__detail::__split_view_inner_iter_cat): Define.
+	(split_view::_Base): Define.
+	(split_view::_Outer_iter): Derive from __split_view_outer_iter_cat
+	in order to conditionally define iterator_category as per P2259.
+	(split_view::_Outer_iter::iterator_category): Remove.
+	(split_view::_Inner_iter): Derive from __split_view_inner_iter_cat
+	in order to conditionally define iterator_category as per P2259.
+	(split_view::_Inner_iter::_S_iter_cat): Move to
+	__split_view_inner_iter_cat.
+	(split_view::_Inner_iter::iterator_category): Remove.
+	(elements_view::_Base): Define.
+	(elements_view::__iter_cat): Define.
+	(elements_view::_Iterator): Derive from the above in order to
+	conditionall define iterator_category as per P2259.
+	(elements_view::_Iterator::_Base): Just alias
+	elements_view::_Base.
+	(elements_view::_Iterator::_S_iter_concept)
+	(elements_view::_Iterator::iterator_concept): Define as per
+	P2259.
+	(elements_view::_Iterator::iterator_category): Remove.
+	(elements_view::_Sentinel::_Base): Just alias
+	elements_view::_Base.
+	* testsuite/24_iterators/headers/iterator/synopsis_c++20.cc:
+	Adjust constraints on iterator_traits<counted_iterator>.
+	* testsuite/std/ranges/p2259.cc: New test.
+
+2021-05-03  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-27  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100290
+	* include/std/ranges (join_view::_Iterator::operator++): Correct
+	the return type of the lambda to avoid returning a copy of
+	_M_parent->_M_inner.
+	* testsuite/std/ranges/adaptors/join.cc (test10): New test.
+
 2021-04-30  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
