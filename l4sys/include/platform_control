@@ -59,8 +59,12 @@ public:
   /**
    * Enter suspend to RAM.
    *
-   * \param extras  some extra platform-specific information needed to enter
-   *                suspend to RAM.
+   * \param extras  Some extra platform-specific information needed to enter
+   *                suspend to RAM. On x86 platforms and when using the
+   *                Platform_control object provided by Fiasco, the value
+   *                defines the sleep state. The sleep states are defined in the
+   *                ACPI table. Other platforms as well as Io's Platform_control
+   *                object don't make use of this value at the moment.
    */
   L4_INLINE_RPC_OP(L4_PLATFORM_CTL_SYS_SUSPEND_OP,
                    l4_msgtag_t, system_suspend, (l4_umword_t extras));

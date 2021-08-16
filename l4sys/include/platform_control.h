@@ -43,8 +43,12 @@
  * Enter suspend to RAM.
  *
  * \param pfc     Capability selector for the platform-control object
- * \param extras  some extra platform-specific information needed to enter
- *                suspend to RAM.
+ * \param extras  Some extra platform-specific information needed to enter
+ *                suspend to RAM. On x86 platforms and when using the
+ *                Platform_control object provided by Fiasco, the value
+ *                defines the sleep state. The sleep states are defined in the
+ *                ACPI table. Other platforms as well as Io's Platform_control
+ *                object don't make use of this value at the moment.
  *
  * \return Syscall return tag
  */

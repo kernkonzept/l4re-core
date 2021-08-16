@@ -32,6 +32,23 @@
  *
  * You switch a thread into `vCPU` operation with L4::Thread::vcpu_control.
  *
+ * In vCPU mode, incoming IPC can be redirected to a handler function. If an
+ * IPC is sent to the vCPU, the thread's normal execution is interrupted and the
+ * handler called. Which kind of IPC is redirected is specified by the
+ * #L4_vcpu_state_flags set in the l4_vcpu_state_t::state field of `vcpu_state`.
+ * All events enabled in the `vcpu_state` field are redirected to the handler.
+ * The handler is set via l4_vcpu_state_t::entry_ip and
+ * l4_vcpu_state_t::entry_sp.
+ *
+ * Furthermore, the thread can execute in the context of different tasks,
+ * called the "kernel" and the "user" mode. The kernel task is the one to
+ * which the thread was originally bound via L4::Thread::control(). Execution
+ * starts in the kernel task and it is always switched to when the
+ * asynchronous IPC handler is invoked. When returning from the handler via
+ * vcpu_resume_start() and vcpu_resume_commit(), a different user task can
+ * be specified by setting l4_vcpu_state_t::user_task and enabling the
+ * #L4_VCPU_F_USER_MODE flag in l4_vcpu_state_t::state.
+ *
  * Extended vCPU operation is used for hardware CPU virtualization. It can
  * be enabled with L4::Thread::vcpu_control_ext.
  *

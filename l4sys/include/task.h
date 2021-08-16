@@ -53,9 +53,13 @@
  *
  * \return Syscall return tag
  *
- * This method allows for asynchronous rights delegation from one task to
- * another. It can be used to share memory as well as to delegate access to
- * objects.
+ * This method allows for asynchronous transfer of capabilities, memory
+ * mappings, and IO-port mappings (on IA32) from one task to another.
+ * The receive window is the whole address space of `dst_task`.
+ *
+ * For more information on spaces and mappings, see
+ * \ref l4re_concepts_mapping. The flexpage API is described in more detail at
+ * \ref l4_fpage_api.
  */
 L4_INLINE l4_msgtag_t
 l4_task_map(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,

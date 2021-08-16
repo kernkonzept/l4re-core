@@ -39,7 +39,8 @@
  * - hardware interrupts provided by the platform interrupt controller,
  * - virtual device interrupts provided by the microkernel's virtual devices
  *   (virtual serial or trace buffer) or
- * - virtual interrupts that can be triggered by user programs (IRQs)
+ * - virtual interrupts that can be triggered by user programs (IRQs) via
+ *   l4_irq_trigger().
  *
  * IRQ objects can be created using a factory, see the \ref l4_factory_api API
  * (use l4_factory_create_irq()).

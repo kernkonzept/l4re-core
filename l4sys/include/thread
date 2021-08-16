@@ -249,7 +249,9 @@ public:
   { return l4_thread_stats_time_u(cap(), us, utcb); }
 
   /**
-   * vCPU resume, start.
+   * Resume from vCPU asynchronous IPC handler, start.
+   *
+   * The asynchronous IPC handling is described at \ref l4_vcpu_api.
    *
    * \see l4_thread_vcpu_resume_start
    */
@@ -257,7 +259,9 @@ public:
   { return l4_thread_vcpu_resume_start_u(utcb); }
 
   /**
-   * vCPU resume, commit.
+   * Resume from vCPU asynchronous IPC handler, commit.
+   *
+   * The asynchronous IPC handling is described at \ref l4_vcpu_api.
    *
    * \see l4_thread_vcpu_resume_commit
    */
@@ -268,10 +272,9 @@ public:
    /**
     * Enable or disable the vCPU feature for the thread.
     *
-    * \param vcpu_state  The virtual address where the kernel shall store the
-    *                    vCPU state in case of vCPU exits. The address must be
-    *                    a valid kernel-user-memory address (see
-    *                    L4::Task::add_ku_mem()).
+    * \param vcpu_state  A virtual address pointing to a l4_vcpu_state_t or 0.
+    *                    If not 0, it must be a valid kernel-user-memory address
+    *                    (see L4::Task::add_ku_mem()).
     * \param utcb        UTCB to use for this operation.
     *
     * \return Syscall return tag.
@@ -279,6 +282,8 @@ public:
     * This function enables the vCPU feature of `this` thread if `vcpu_state`
     * is set to a valid kernel-user-memory address, or disables the vCPU
     * feature if `vcpu_state` is 0. (Disable: optional, currently unsupported.)
+    *
+    * The asynchronous IPC handling is described at \ref l4_vcpu_api.
     */
    l4_msgtag_t vcpu_control(l4_addr_t vcpu_state, l4_utcb_t *utcb = l4_utcb())
      noexcept
@@ -316,8 +321,8 @@ public:
    *
    * \return System call return tag containing the return code.
    *
-   * An example of a deletion event is the removal of an IPC gate
-   * that is bound to this thread.
+   * List of deletion events:
+   *   * deletion of an IPC gate bound to this thread.
    *
    * \see l4_thread_register_del_irq
    */
@@ -325,7 +330,8 @@ public:
   { return l4_thread_register_del_irq_u(cap(), irq.cap(), u); }
 
   /**
-   * Wrapper class for modifying senders.
+   * Class wrapping a list of rules which modify the sender label of IPC
+   * messages inbound to this thread.
    *
    * Use the add() function to add modification rules, and use
    * modify_senders() to commit. Do not use the UTCB in between as it is

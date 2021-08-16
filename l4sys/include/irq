@@ -34,9 +34,14 @@
 namespace L4 {
 
 /**
- * Interface for sending an acknowledge message to an object.
+ * Interface for sending an unmask message to an object.
  *
  * The object is usually an ICU or an IRQ.
+ *
+ * When the kernel receives an IRQ, it masks the interrupt line at the interrupt
+ * controller and immediately acknowledges the interrupt. This interface is used
+ * to let the kernel know that userspace has dealt with the IRQ. The kernel will
+ * unmask the interrupt line and further IRQs can then be delivered.
  *
  * \see L4::Icu, L4::Irq
  */
@@ -44,9 +49,15 @@ class Irq_eoi : public Kobject_0t<Irq_eoi, L4::PROTO_EMPTY>
 {
 public:
   /**
-   * Acknowledge the given interrupt line.
+   * Unmask the given interrupt line. When the object is an IRQ, the given
+   * interrupt line is ignored and instead the line which the IRQ is bound to
+   * (if any) is unmasked.
    *
-   * \param      irqnum  The interrupt line that shall be acknowledged.
+   * Its counterpart for explicitly masking an interrupt line is
+   * L4::Icu::mask().
+   *
+   * \param      irqnum  The interrupt line that shall be unmasked. Ignored if
+   *                     the object is an IRQ.
    * \param[out] label   If NULL this is a send-only unmask, if not
    *                     NULL then this operation enters an open wait
    *                     and the *protected label* shall be received here.
@@ -71,14 +82,16 @@ public:
 };
 
 /**
- * Interface that allows an object to be triggered by some source.
+ * Interface that allows an object to be triggered by some source. The interface
+ * specifies no semantics for the trigger operation, this is defined by derived
+ * objects.
  *
  * This interface is usually used in conjunction with L4::Icu.
  */
 struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
 {
   /**
-   * Trigger.
+   * Trigger the object.
    *
    * \utcb{utcb}
    *
@@ -105,7 +118,8 @@ struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
  * - hardware interrupts provided by the platform interrupt controller,
  * - virtual device interrupts provided by the microkernel's virtual devices
  *   (virtual serial or trace buffer) or
- * - virtual interrupts that can be triggered by user programs (IRQs)
+ * - virtual interrupts that can be triggered by user programs (IRQs) via the
+ *   inherited method L4::Triggerable::trigger().
  *
  * Irq objects can be created using a factory, see the L4::Factory API
  * (L4::Factory::create()).
@@ -192,7 +206,7 @@ public:
  * the multiplexer IRQ is triggered. As shared IRQs are usually
  * level-triggered, the real IRQ source will be masked automatically
  * when an IRQ is delivered and shall be unmasked when all attached slave
- * IRQs are acknowledged.
+ * IRQs are unmasked.
  */
 struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
 {

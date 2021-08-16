@@ -511,10 +511,10 @@ l4_thread_vcpu_control_ext_u(l4_cap_idx_t thread, l4_addr_t ext_vcpu_state,
  * \param thread  Thread to register IRQ for.
  * \param irq     Capability selector for the IRQ object to be triggered.
  *
- * \return System call return tag containing the return code.
+ * List of deletion events:
+ *   * deletion of an IPC gate bound to this thread.
  *
- * An example of a deletion event is the removal of an IPC gate
- * that is bound to this thread.
+ * \return System call return tag containing the return code.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_register_del_irq(l4_cap_idx_t thread, l4_cap_idx_t irq) L4_NOTHROW;
