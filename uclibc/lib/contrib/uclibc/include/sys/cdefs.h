@@ -341,6 +341,17 @@
 # endif
 #endif
 
+/* Undefine (also defined in libc-symbols.h).  */
+#undef __attribute_copy__
+#if __GNUC_PREREQ (9, 0)
+/* Copies attributes from the declaration or type referenced by
+   the argument.  */
+# define __attribute_copy__(arg) __attribute__ ((__copy__ (arg)))
+#else
+# define __attribute_copy__(arg)
+#endif
+
+
 /* GCC 4.3 and above allow passing all anonymous arguments of an
    __extern_always_inline function to some other vararg function.  */
 #if __GNUC_PREREQ (4,3)
