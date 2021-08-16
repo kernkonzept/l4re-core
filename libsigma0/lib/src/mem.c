@@ -16,9 +16,9 @@
 #include <l4/sys/ipc.h>
 #include <l4/sigma0/sigma0.h>
 
-L4_CV int
-l4sigma0_map_mem(l4_cap_idx_t pager,
-		 l4_addr_t phys, l4_addr_t virt, l4_addr_t size)
+static int
+map_mem(l4_cap_idx_t sigma0, l4_addr_t phys, l4_addr_t virt, l4_addr_t size,
+        l4_umword_t type)
 {
   l4_addr_t    d = L4_SUPERPAGESIZE;
   unsigned     l = L4_LOG2_SUPERPAGESIZE;
@@ -42,13 +42,13 @@ l4sigma0_map_mem(l4_cap_idx_t pager,
 	  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
 	  l4_buf_regs_t *b = l4_utcb_br_u(utcb);
 	  tag = l4_msgtag(L4_PROTO_SIGMA0, 2, 0, 0);
-	  m->mr[0] = SIGMA0_REQ_FPAGE_RAM;
+	  m->mr[0] = type;
 	  m->mr[1] = l4_fpage(phys, l, L4_FPAGE_RWX).raw;
 
 	  b->bdr   = 0;
 	  b->br[0] = L4_ITEM_MAP;
 	  b->br[1] = l4_fpage(virt, l, L4_FPAGE_RWX).raw;
-	  tag = l4_ipc_call(pager, utcb, tag, L4_IPC_NEVER);
+	  tag = l4_ipc_call(sigma0, utcb, tag, L4_IPC_NEVER);
 	  if (l4_msgtag_has_error(tag))
 	    error = l4_utcb_tcr_u(utcb)->error;
 	  else
@@ -64,4 +64,20 @@ l4sigma0_map_mem(l4_cap_idx_t pager,
     }
 
   return 0;
+}
+
+L4_CV int
+l4sigma0_map_mem(l4_cap_idx_t sigma0, l4_addr_t phys, l4_addr_t virt,
+                 l4_addr_t size)
+{
+  return map_mem(sigma0, phys, virt, size, SIGMA0_REQ_FPAGE_RAM);
+}
+
+L4_CV int
+l4sigma0_map_iomem(l4_cap_idx_t sigma0, l4_addr_t phys, l4_addr_t virt,
+                   l4_addr_t size, int cached)
+{
+  l4_umword_t type = cached ? SIGMA0_REQ_FPAGE_IOMEM_CACHED
+                            : SIGMA0_REQ_FPAGE_IOMEM;
+  return map_mem(sigma0, phys, virt, size, type);
 }
