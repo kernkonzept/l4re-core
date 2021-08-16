@@ -10,6 +10,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
+#include <l4/cxx/iostream>
 #include <l4/sys/types.h>
 
 /* Special options for compatibility reasons */
