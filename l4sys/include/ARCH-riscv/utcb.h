@@ -26,9 +26,14 @@ enum L4_riscv_exc_cause
   L4_riscv_exc_load_acesss            = 5,
   L4_riscv_exc_store_acesss           = 7,
   L4_riscv_exc_ecall                  = 8,
+  L4_riscv_exc_hcall                  = 10,
   L4_riscv_exc_inst_page_fault        = 12,
   L4_riscv_exc_load_page_fault        = 13,
   L4_riscv_exc_store_page_fault       = 15,
+  L4_riscv_exc_guest_inst_page_fault  = 20,
+  L4_riscv_exc_guest_load_page_fault  = 21,
+  L4_riscv_exc_virtual_inst           = 22,
+  L4_riscv_exc_guest_store_page_fault = 23,
 
   L4_riscv_ec_l4_ipc_upcall           = 0x18,
   L4_riscv_ec_l4_exregs_exception     = 0x19,
@@ -64,6 +69,8 @@ typedef struct l4_exc_regs_t
   l4_umword_t status;
   l4_umword_t cause;
   union { l4_umword_t tval; l4_umword_t pfa; };
+
+  l4_umword_t hstatus; // only if virtualization is enabled
 } l4_exc_regs_t;
 
 /**
