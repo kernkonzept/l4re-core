@@ -67,7 +67,7 @@ $(LUAC_T): $(LUAC_O) $(LUA_A)
 	$(CC) -o $@ $(LDFLAGS) $(LUAC_O) $(LUA_A) $(LIBS)
 
 test:
-	./lua -v
+	./$(LUA_T) -v
 
 clean:
 	$(RM) $(ALL_T) $(ALL_O)
@@ -108,6 +108,8 @@ c89:
 	$(MAKE) $(ALL) SYSCFLAGS="-DLUA_USE_C89" CC="gcc -std=c89"
 	@echo ''
 	@echo '*** C89 does not guarantee 64-bit integers for Lua.'
+	@echo '*** Make sure to compile all external Lua libraries'
+	@echo '*** with LUA_USE_C89 to ensure consistency'
 	@echo ''
 
 FreeBSD NetBSD OpenBSD freebsd:
@@ -142,15 +144,14 @@ SunOS solaris:
 .PHONY: all $(PLATS) help test clean default o a depend echo
 
 # Compiler modules may use special flags.
-# L4Re:: Don't interfere with the rules in Makefile.lua
-#llex.o:
-#	$(CC) $(CFLAGS) $(CMCFLAGS) -c llex.c
+llex.o:
+	$(CC) $(CFLAGS) $(CMCFLAGS) -c llex.c
 
-#lparser.o:
-#	$(CC) $(CFLAGS) $(CMCFLAGS) -c lparser.c
+lparser.o:
+	$(CC) $(CFLAGS) $(CMCFLAGS) -c lparser.c
 
-#lcode.o:
-#	$(CC) $(CFLAGS) $(CMCFLAGS) -c lcode.c
+lcode.o:
+	$(CC) $(CFLAGS) $(CMCFLAGS) -c lcode.c
 
 # DO NOT DELETE
 
