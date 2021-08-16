@@ -4,10 +4,13 @@
  *
  * \page l4re_servers_sigma0 Sigma0, the Root-Pager
  *
- * Sigma0 is a special L4 server that serves as the origin for mapping the main
- * memory. It is started by Fiasco.OC on the system boot and gets full access to
- * all userland RAM and device memory. It functions as the pager (main memory
- * provider) for Moe and as the provider for device memory for IO.
+ * Sigma0 is a special L4 server that serves as the origin for mapping memory.
+ * It is started by Fiasco.OC on the system boot and gets full access to all
+ * userland RAM and device memory. It functions as the pager (main memory
+ * provider) for Moe and as the provider for device memory for Io. Moe and Io
+ * are trusted and usually the only applications besides Ned that get a
+ * capability for Sigma0. Memory can be requested from Sigma0 directly via an
+ * IPC, or indirectly by causing page faults and having them resolved by Sigma0.
  *
  * \section Factory
  *

@@ -116,6 +116,16 @@ l4sigma0_map_kip(l4_cap_idx_t sigma0, void *addr, unsigned log2_size);
  * \retval -L4SIGMA0_IPCERROR    IPC error.
  * \retval -L4SIGMA0_NOFPAGE     No fpage received.
  *
+ * This function only maps normal RAM. To map other memory, use
+ * l4sigma0_map_iomem(). See also there for the distinction between both memory
+ * types.
+ *
+ * This is the direct method to request memory from sigma0. There is also the
+ * indirect method where sigma0 will answer page faults with a mapping that is
+ * one-to-one between the faulting virtual page and the backing physical page.
+ * See L4::Pager::page_fault(). For an overview of the memory hierarchy, see
+ * \ref l4re_concepts_ds_rm.
+ *
  * See l4sigma0_map_errstr() to get a description of the return value.
  */
 L4_CV int l4sigma0_map_mem(l4_cap_idx_t sigma0,

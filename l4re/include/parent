@@ -35,8 +35,10 @@ namespace L4Re {
  * \ingroup api_l4re
  * \brief Parent interface.
  *
- * The parent interface provides means for an L4 task to signal changes in
- * its execution state. The main purpose is to signal program termination.
+ * The parent interface provides means for an L4 task to signal changes in its
+ * execution state. The main purpose is to signal program termination to the
+ * program that started it, so that its resources can be reclaimed. In a typical
+ * L4Re system, this program will be Moe or Ned.
  *
  * \see L4Re::Parent for information about the concrete interface.
  */

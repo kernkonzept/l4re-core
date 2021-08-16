@@ -36,7 +36,7 @@ namespace L4Re {
  * The debugging interface can be provided to retrieve, or log debugging
  * information for an object.
  * Each class may realize the debug interface to provide debugging
- * functionality. For example, the region-map objects provide a facility to
+ * functionality. For example, the region map objects provide a facility to
  * dump the currently established memory regions.
  *
  * \see L4::Debug_obj for more information.
@@ -54,11 +54,15 @@ class L4_EXPORT Debug_obj :
 public:
 
   /**
-   * \brief Debug call
+   * \brief Debug call.
    *
    * \param function Function to call.
    * \return - L4_EOK
    *         - IPC errors
+   *
+   * An object can provide a number of debug functions, each identified by some
+   * integer. This method is used to fan out to these functions from a common
+   * entry point.
    */
   L4_INLINE_RPC(long, debug, (unsigned long function));
   typedef L4::Typeid::Rpc_nocode<debug_t> Rpcs;

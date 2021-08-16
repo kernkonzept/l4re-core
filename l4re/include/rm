@@ -44,20 +44,27 @@ namespace L4Re {
  * \ingroup api_l4re
  * \brief Virtual address-space management.
  *
- * The central purpose of the region-map API is to provide means to manage the
- * virtual memory address space of an L4 task. A region-map object implements
- * two protocols. The first protocol is the kernel page-fault protocol, to resolve
- * page faults for threads running in an L4 task. The second protocol is
- * the region-map protocol itself, that allows to attach a data-space object
- * to a region of the virtual address space.
+ * A region map object implements two protocols. The first protocol is the
+ * kernel page-fault protocol, to resolve page faults for threads running in an
+ * L4 task. The second protocol is the region map protocol itself, which allows
+ * managing the virtual memory address space of an L4 task.
  *
- * There are two basic concepts provided by a region-map abstraction:
- * - Regions provide a means to create a view to a data space (or parts of a
- *   data space).
- * - Areas provide a means to reserve areas in a virtual memory address space
- *   for special purposes. A reserved area is skipped when searching for
- *   an available range of virtual memory, or may be explicitly used to search
- *   only within that area.
+ * There are two basic concepts provided by the region map abstraction:
+ * - **Areas** are reserved ranges in the virtual memory address space.
+ * - **Regions** are areas that are backed by (part of) a dataspace, i.e.
+ *   accessing them results in access to the physical memory the dataspace
+ *   manages.
+ *
+ * Areas can be reserved for special use or for attaching a dataspace at a later
+ * time. When attaching a dataspace, the user can instruct the region map to
+ * search for an appropriate range to attach to. Regions are skipped in this
+ * search since they already have dataspaces attached to them, and areas are
+ * skipped because they are reserved.
+ *
+ * When a region map receives a page fault IPC, the region map will check if the
+ * faulting virtual address lies in a region. If yes, it will answer the page
+ * fault IPC with a mapping from the backing dataspace. If not, an error is
+ * returned.
  *
  * \see L4Re::Dataspace, L4Re::Rm,
  * \see \ref l4re_concepts_ds_rm
@@ -243,7 +250,7 @@ public:
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
    * \retval <0                 IPC errors
    *
-   * This function reserves an area within the virtual address space implemented
+   * This function reserves an area within the virtual address space managed
    * by the region map. There are two kinds of areas available:
    * - Reserved areas (\a flags = F::Reserved), where no data spaces can be
    *   attached
@@ -314,7 +321,8 @@ public:
    * \brief Attach a data space to a region.
    *
    * \param[in,out]  start  Virtual start address where the region manager
-   *                        shall attach the data space.
+   *                        shall attach the data space. Will be rounded down to
+   *                        the nearest start of a page.
    *                        If #L4Re::Rm::F::Search_addr is given this value is
    *                        used as the start address to search for a free
    *                        virtual memory region and the resulting address is
@@ -323,7 +331,8 @@ public:
    *                        as a selector for the area (see
    *                        #L4Re::Rm::reserve_area) to attach the data space
    *                        to.
-   * \param          size   Size of the data space to attach (in bytes)
+   * \param          size   Size of the data space to attach (in bytes). Will be
+   *                        rounded up to the nearest multiple of the page size.
    * \param          flags  The flags control how and with which rights the
    *                        dataspace is attached to the region. See
    *                        #L4Re::Rm::F::Attach_flags and
@@ -333,8 +342,8 @@ public:
    *                        the `F::Eager_map` flag is set this function may
    *                        also return L4Re::Dataspace::map error codes if the
    *                        mapping fails.
-   * \param          mem    Data space
-   * \param          offs   Offset into the data space to use
+   * \param          mem    Data space.
+   * \param          offs   Offset into the data space to use.
    * \param          align  Alignment of the virtual region, log2-size, default:
    *                        a page (#L4_PAGESHIFT). This is only meaningful if
    *                        the #L4Re::Rm::F::Search_addr flag is used.
