@@ -1,3 +1,2176 @@
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101866
+	* testsuite/experimental/random/randint.cc: Loop and retry if
+	reseed() produces the same sequence.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101510
+	* src/c++17/fs_ops.cc (fs::create_directories): Use status
+	instead of symlink_status.
+	* src/filesystem/ops.cc (fs::create_directories): Likewise.
+	* testsuite/27_io/filesystem/operations/create_directories.cc:
+	Check symlink to existing directory.
+	* testsuite/27_io/filesystem/operations/create_directory.cc: Do
+	not test with symlinks on Windows.
+	* testsuite/experimental/filesystem/operations/create_directories.cc:
+	Check symlink to existing directory.
+	* testsuite/experimental/filesystem/operations/create_directory.cc:
+	Do not test with symlinks on Windows.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101510
+	* src/c++17/fs_ops.cc (create_dir): Adjust whitespace.
+	* testsuite/27_io/filesystem/operations/create_directory.cc:
+	Test creating directory with name of existing symlink to
+	directory.
+	* testsuite/experimental/filesystem/operations/create_directory.cc:
+	Likewise.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101056
+	* libsupc++/compare (compare_partial_order_fallback): Add
+	constraint using reversed parameter order, as per LWG 3465.
+	* testsuite/18_support/comparisons/algorithms/fallback.cc:
+	Adjust expected result.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/compare (__decayed_same_as): New helper concept.
+	(strong_order, weak_order, partial_order): Constrain with new
+	concept instead of using static_assert.
+	(compare_strong_order_fallback, compare_weak_order_fallback)
+	(compare_partial_order_fallback): Likewise. Do not deduce return
+	types. Remove redundant if-constexpr checks.
+	* testsuite/18_support/comparisons/algorithms/fallback.cc: New test.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/doxygen/doxygroups.cc: Fix docs for std::literals.
+	* doc/doxygen/user.cfg.in: Exclude the Networking TS header.
+	Add some more predefined macros.
+	* include/bits/fs_fwd.h: Move @addtogroup commands inside
+	namespaces. Add better documentation.
+	* include/bits/fs_path.h: Likewise.
+	* include/experimental/bits/fs_fwd.h: Likewise.
+	* include/experimental/bits/fs_path.h: Likewise.
+	* include/ext/throw_allocator.h: Fix typo and improve docs.
+	* include/std/chrono: Move @addtogroup commands.
+	* include/std/system_error: Move @addtogroup commands.
+	* libsupc++/exception: Improve documentation.
+	* libsupc++/exception.h: Add @since documentation.
+
+2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101258
+	* doc/doxygen/user.cfg.in (INPUT): Add <experimental/simd>.
+	(COLS_IN_ALPHA_INDEX): Remove obsolete tag.
+	(PREDEFINED): Add/fix some more macros that need to be expanded.
+	* include/bits/random.h: Stop Doxygen from documenting internal
+	implementation details.
+	* include/bits/random.tcc: Likewise.
+	* include/bits/this_thread_sleep.h: Fix @file name.
+	* include/experimental/bits/simd.h: Add to Doxygen group. Do not
+	document internal implementation details.
+	* include/experimental/bits/simd_detail.h: Do not document
+	internal implementation details.
+	* include/experimental/simd: Define Doxygen groups.
+	* include/experimental/type_traits: Improve documentation for
+	the header file. Define groups. Use @since commands.
+	* include/std/scoped_allocator (scoped_allocator_adaptor): Move
+	declaration before undocumented region.
+	* include/std/type_traits (true_type, false_type): Use using
+	declaration instead of typedef.
+	(is_invocable_v, is_nothrow_invocable_v, is_invocable_r_v)
+	(is_nothrow_invocable_r_v): Move definitions next to other C++17
+	variable templates.
+	Do not document internal implementation details. Move misplaced
+	group-end command. Define group for variable templates.
+	* include/std/variant: Do not document internal implementation
+	details.
+	* testsuite/26_numerics/random/pr60037-neg.cc: Adjust dg-error
+	line number.
+
+2021-07-28  Release Manager
+
+	* GCC 11.2.0 released.
+
+2021-07-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/find_end.cc:
+	Increase dg-timeout-factor to 4. Fix -Wunused-parameter
+	warnings. Replace bitwise AND with logical AND in loop
+	condition.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/search_n.cc:
+	Replace bitwise AND with logical AND in loop condition.
+	* testsuite/util/pstl/test_utils.h: Remove unused parameter
+	names.
+
+2021-07-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_util.h (subrange): Add __size_type typedef
+	and use it to simplify declarations.
+	(subrange(i, s, n)): Remove assertion.
+	* testsuite/std/ranges/subrange/constexpr.cc: New test.
+
+2021-07-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101427
+	* include/std/tuple (tuple_element): Improve static_assert text.
+	(__get_helper): Add deleted overload.
+	(get<i>(tuple<T...>&&), get<i>(const tuple<T...>&&)): Use
+	__get_helper directly.
+	(__get_helper2): Remove.
+	(__find_uniq_type_in_pack): New constexpr helper function.
+	(get<T>): Use __find_uniq_type_in_pack and __get_helper instead
+	of __get_helper2.
+	* testsuite/20_util/tuple/element_access/get_neg.cc: Adjust
+	expected errors.
+	* testsuite/20_util/tuple/element_access/101427.cc: New test.
+
+2021-07-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/iterator_concepts.h (__cust_access::__decay_copy):
+	Replace with function object.
+	(__cust_access::__member_begin, ___cust_access::_adl_begin): Use
+	__decay_copy unqualified.
+	* include/bits/ranges_base.h (__member_end, __adl_end):
+	Likewise. Use __range_iter_t for type of ranges::begin.
+	(__member_rend): Use correct value category for rbegin argument.
+	(__member_data): Use __decay_copy unqualified.
+	(__begin_data): Use __range_iter_t for type of ranges::begin.
+
+2021-07-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_base.h (ranges::empty): Check whether
+	conversion to bool can throw.
+	* testsuite/std/ranges/access/empty.cc: Check for correct
+	noexcept-specifier.
+
+2021-07-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/simd: Do not define anything pre-C++17.
+
+2021-07-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/101361
+	* include/std/string_view (ends_with): Use traits_type::compare
+	directly.
+
+2021-07-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/string_view: Only include <bits/ranges_base.h>
+	once, and only for C++20 and later.
+
+2021-07-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101411
+	* include/std/span (as_writable_bytes): Add requires-clause.
+	* testsuite/23_containers/span/101411.cc: New test.
+
+2021-07-13  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100387
+	* include/bits/ranges_algo.h (__minmax_fn::operator()): Rewrite
+	to limit comparison complexity to 3*N/2.
+	(__minmax_element_fn::operator()): Likewise.
+	(shift_right): Avoid premature std::move of __result.
+	* testsuite/25_algorithms/minmax/constrained.cc (test04, test05):
+	New tests.
+	* testsuite/25_algorithms/minmax_element/constrained.cc (test02):
+	Likewise.
+
+2021-06-22  Thomas Rodgers  <rodgert@appliantology.com>
+
+	Backported from master:
+	2021-06-22  Thomas Rodgers  <rodgert@appliantology.com>
+
+	PR libstdc++/100806
+	* include/bits/semaphore_base.h (__atomic_semaphore::_M_release):
+	Force _M_release() to wake all waiting threads.
+	* testsuite/30_threads/semaphore/100806.cc: New test.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/95833
+	* include/std/numeric (reduce(Iter, Iter, T, BinaryOp)): Replace
+	incorrect static_assert with ones matching the 'Mandates'
+	conditions in the standard.
+	* testsuite/26_numerics/reduce/95833.cc: New test.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/21_strings/basic_string/cons/char/1.cc: Use
+	diagnostic pragma to suppress -Wstringop-overread error.
+
+2021-06-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/91488
+	* include/bits/basic_string.h (__cpp_lib_constexpr_string): Only
+	define C++20 value when std::is_constant_evaluated is available.
+	* include/bits/char_traits.h (__cpp_lib_constexpr_char_traits):
+	Likewise.
+	(__constant_string_p, __constant_array_p): Give external
+	linkage.
+	* include/std/version (__cpp_lib_constexpr_char_traits)
+	(__cpp_lib_constexpr_string): Only define C++20 values when
+	is_constant_evaluated is available.
+
+2021-06-18  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-17  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100940
+	* include/std/ranges (__adaptor::_Partial): For the "simple"
+	forwarding partial specializations, also require that
+	the extra arguments are trivially copyable.
+	* testsuite/std/ranges/adaptors/100577.cc (test04): New test.
+
+2021-06-18  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-17  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100940
+	* include/std/ranges (__adaptor::_RangeAdaptor): Document the
+	template form of _S_has_simple_extra_args.
+	(__adaptor::__adaptor_has_simple_extra_args): Add _Args template
+	parameter pack.  Try to treat _S_has_simple_extra_args as a
+	variable template parameterized by _Args.
+	(__adaptor::_Partial): Pass _Arg/_Args to the constraint
+	__adaptor_has_simple_extra_args.
+	(views::_Take::_S_has_simple_extra_args): Templatize according
+	to the type of the extra argument.
+	(views::_Drop::_S_has_simple_extra_args): Likewise.
+	(views::_Split::_S_has_simple_extra_args): Define.
+	* testsuite/std/ranges/adaptors/100577.cc (test01, test02):
+	Adjust after changes to _S_has_simple_extra_args mechanism.
+	(test03): Define.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100894
+	* include/std/type_traits (__common_ref_impl<X&, Y&>): Only
+	use the type if it's a reference.
+	* testsuite/20_util/common_reference/100894.cc: New test.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/random.tcc (__representable_as_double)
+	(__p1_representable_as_double): Add "" to static asserts.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/experimental/filesystem/path/native/conv_c++23.cc:
+	Add dg-require-filesystem-ts directive.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101034
+	* include/std/any (any(in_place_t<T>, initializer_list<U>, A&&...))
+	(any::emplace<T>(initializer_list<U>, A&&...)): Fix constraint
+	to use lvalue.
+	* testsuite/20_util/any/cons/101034.cc: New test.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/headers/c++2017/all_attributes.cc: Add
+	-std=gnu++17 option.
+
+2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101055
+	* include/std/tuple: Use reserved form of attribute name.
+	* testsuite/17_intro/headers/c++2011/all_attributes.cc: Add
+	check for no_unique_address.
+	* testsuite/17_intro/headers/c++2014/all_attributes.cc:
+	Likewise.
+	* testsuite/17_intro/headers/c++2017/all_attributes.cc:
+	Likewise.
+
+2021-06-14  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100475
+	* include/std/ranges (__box::__box): Use non-list-initialization
+	in member initializer list of in-place constructor of the
+	partial specialization for semiregular types.
+	(__box::operator->): Use std::__addressof.
+	* testsuite/std/ranges/adaptors/detail/semiregular_box.cc
+	(test02): New test.
+	* testsuite/std/ranges/single_view.cc (test04): New test.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/fs_path.h (operator==, operator<=>): Use new
+	_S_compare function.
+	(path::_S_compare): New function to call path::compare in a
+	context where path::iterator is complete.
+	* include/experimental/bits/fs_path.h (operator<, operator==):
+	Define after path::iterator is complete.
+	* testsuite/27_io/filesystem/path/native/conv_c++23.cc: New
+	test.
+	* testsuite/experimental/filesystem/path/native/conv_c++23.cc:
+	New test.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/propagate_const (swap): Constrain.
+	* testsuite/experimental/propagate_const/swap/lwg3413.cc: New test.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100982
+	* include/std/optional (optional::operator=(const optional<U>&)):
+	Fix value category used in is_assignable check.
+	* testsuite/20_util/optional/assignment/100982.cc: New test.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/98842
+	* include/std/optional (operator<=>(const optional<T>& const U&)):
+	Add missing constraint and add workaround for template
+	recursion.
+	* testsuite/20_util/optional/relops/three_way.cc: Check that
+	type without equality comparison cannot be compared when wrapped
+	in std::optional.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100824
+	* include/bits/ranges_base.h (_SSize): Return signed type.
+	* testsuite/std/ranges/access/ssize.cc: Check with __int128.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_base.h (_SSize): Return the result of
+	ranges::size converted to the wider of make-signed-like-t<S> and
+	ptrdiff_t, rather than the ranges different type.
+	* testsuite/std/ranges/access/ssize.cc: Adjust expected result
+	for an iota_view that uses an integer class type for its
+	difference_type.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100824
+	* include/bits/ranges_base.h (__member_data): Use __decay_copy.
+	* testsuite/std/ranges/access/data.cc: Add testcase from PR.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100824
+	* include/bits/iterator_concepts.h (__detail::__decay_copy)
+	(__detail::__member_begin, __detail::__adl_begin): Move to
+	namespace ranges::__cust_access.
+	(__detail::__ranges_begin): Likewise, and rename to __begin.
+	Remove redundant static assertion.
+	* include/bits/ranges_base.h (_Begin, _End, _RBegin, _REnd):
+	Use lvalue in noexcept specifier.
+	(__as_const): Add non-deduced parameter for value category.
+	(_CBegin, _CEnd, _CRBegin, _CREnd, _CData): Adjust uses of
+	__as_const.
+	(__member_size, __adl_size, __member_empty, __size0_empty):
+	(__eq_iter_empty, __adl_data): Use lvalue objects in
+	requirements.
+	(__sentinel_size): Likewise. Add check for conversion to
+	unsigned-like.
+	(__member_data): Allow non-lvalue types to satisfy the concept,
+	but use lvalue object in requirements.
+	(_Size, _SSize): Remove forwarding to always use an lvalue.
+	(_Data): Likewise. Add static assertion for arrays.
+	* testsuite/std/ranges/access/cdata.cc: Adjust expected
+	behaviour for rvalues. Add negative tests for ill-formed
+	expressions.
+	* testsuite/std/ranges/access/data.cc: Likewise.
+	* testsuite/std/ranges/access/empty.cc: Adjust expected
+	behaviour for rvalues.
+	* testsuite/std/ranges/access/size.cc: Likewise.
+
+2021-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2020.xml:
+	* doc/html/*: Regenerate.
+	* include/bits/hashtable.h (__cpp_lib_generic_unordered_lookup):
+	Define.
+	* include/std/version (__cpp_lib_generic_unordered_lookup):
+	Define.
+	* testsuite/23_containers/unordered_map/operations/1.cc: Check
+	feature test macro.
+	* testsuite/23_containers/unordered_set/operations/1.cc:
+	Likewise.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100577
+	* include/std/ranges (_RangeAdaptorClosure): Document
+	_S_has_simple_call_op mechanism.
+	(_RangeAdaptor): Document _S_has_simple_extra_args mechanism.
+	(__closure_has_simple_call_op): New concept.
+	(__adaptor_has_simple_extra_args): Likewise.
+	(_Partial<_Adaptor, _Args...>): New partial specialization.
+	(_Partial<_Adaptor, _Arg>): Likewise.
+	(_Pipe<_Lhs, _Rhs>): Likewise.
+	(views::_All::_S_has_simple_call_op): Define to true.
+	(views::_Filter::_S_has_simple_extra_args): Likewise.
+	(views::_Transform::_S_has_simple_extra_args): Likewise.
+	(views::_Take::_S_has_simple_extra_args): Likewise.
+	(views::_TakeWhile::_S_has_simple_extra_args): Likewise.
+	(views::_Drop::_S_has_simple_extra_args): Likewise.
+	(views::_DropWhile::_S_has_simple_extra_args): Likewise.
+	(views::_Join::_S_has_simple_call_op): Likewise.
+	(views::_Split): Document why we don't define
+	_S_has_simple_extra_args to true for this adaptor.
+	(views::_Common::_S_has_simple_call_op): Define to true.
+	(views::_Reverse::_S_has_simple_call_op): Likewise.
+	(views::_Elements::_S_has_simple_call_op): Likewise.
+	* testsuite/std/ranges/adaptors/100577.cc: New test.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100770
+	* include/bits/ranges_algo.h (__detail::__can_reread_output):
+	Factor out this concept from ...
+	(__unique_copy_fn::operator()): ... here.  Use the concept
+	throughout.
+	* testsuite/std/ranges/range.cc: Remove now ill-formed use
+	of range_value_t on an output_range.
+	* testsuite/util/testsuite_iterators.h (output_iterator_wrapper):
+	Define value_type, pointer and reference member types to void.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-21  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100690
+	* include/std/ranges (iota_view::_Sentinel::_M_distance_from):
+	Split out this member function from ...
+	(iota_view::_Sentinel::operator-): ... here, for sake of access
+	control.
+	* testsuite/std/ranges/iota/iota_view.cc (test05): New test.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-06  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (filter_view::_Iterator::base): Make the
+	const& overload unconstrained and return a const reference as
+	per LWG 3533.  Make unconditionally noexcept.
+	(transform_view::_Iterator::base): Likewise.
+	(elements_view::_Iterator::base): Likewise.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-06  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/stl_iterator.h (move_iterator::base): Make the
+	const& overload unconstrained and return a const reference as
+	per LWG 3391.  Make unconditionally noexcept.
+	(counted_iterator::base): Likewise.
+	* testsuite/24_iterators/move_iterator/lwg3391.cc: New test.
+	* testsuite/24_iterators/move_iterator/move_only.cc: Adjust
+	has_member_base concept to decay-copy the result of base().
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100631
+	* include/std/ranges (elements_view::_Sentinel::operator-): Use
+	_M_distance_from in the other operator- overload too.
+	* testsuite/std/ranges/adaptors/elements.cc (test06): Augment test.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100631
+	* include/std/ranges (elements_view::_Iterator): Also befriend
+	_Sentinel<!_Const>.
+	(elements_view::_Sentinel::_M_equal): Templatize.
+	(elements_view::_Sentinel::_M_distance_from): Split out from ...
+	(elements_view::_Sentinel::operator-): ... here.  Depend on
+	_Base2 instead of _Base in the return type.
+	* testsuite/std/ranges/adaptors/elements.cc (test06, test07):
+	New tests.
+
+2021-06-10  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-20  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100639
+	* include/bits/stl_iterator.h (reverse_iterator::difference_type):
+	In C++20 mode, define in terms of iter_difference_t as per P0896R4.
+	(reverse_iterator::reference): Likewise, but with iter_reference_t.
+	(reverse_iterator::value_type): Likewise, but with iter_value_t.
+	* testsuite/std/ranges/adaptors/reverse.cc (test08): New test.
+	* testsuite/24_iterators/reverse_iterator/100639.cc: New test.
+
+2021-06-09  Thomas Rodgers  <rodgert@appliantology.com>
+
+	Backported from master:
+	2021-06-09  Thomas Rodgers  <rodgert@appliantology.com>
+
+	* testsuite/29_atomics/atomic_ref/wait_notify.cc: Guard
+	test logic with constexpr check for is_always_lock_free.
+
+2021-06-08  Thomas Rodgers  <rodgert@appliantology.com>
+
+	Backported from master:
+	2021-06-08  Thomas Rodgers  <rodgert@appliantology.com>
+
+	PR libstdc++/100889
+	* include/bits/atomic_base.h (atomic_ref<_Tp*>::wait):
+	Change parameter type from _Tp to _Tp*.
+	* testsuite/29_atomics/atomic_ref/wait_notify.cc: Extend
+	coverage of types tested.
+
+2021-06-08  Thomas Rodgers  <rodgert@appliantology.com>
+
+	Backported from master:
+	2021-06-08  Thomas Rodgers  <rodgert@appliantology.com>
+
+	* include/std/barrier (__tree_barrier::_M_arrive): Remove
+	unnecessary hasher instantiation.
+
+2021-06-07  Avi Kivity  <avi@scylladb.com>
+
+	Backported from master:
+	2021-06-07  Avi Kivity  <avi@scylladb.com>
+
+	PR libstdc++/100900
+	* include/std/ranges (elements_view::__iter_cat::_S_iter_cat):
+	Add missing typename.
+
+2021-06-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100676
+	* include/bits/c++config (__glibcxx_assert_1): Rename to ...
+	(__glibcxx_constexpr_assert): ... this.
+	(__glibcxx_assert_impl): Use __glibcxx_constexpr_assert.
+	(__glibcxx_assert): Define as either __glibcxx_constexpr_assert
+	or __glibcxx_assert_impl.
+	(__glibcxx_assert_2): Remove
+	* include/debug/macros.h (_GLIBCXX_DEBUG_VERIFY_AT_F): Use
+	__glibcxx_constexpr_assert instead of __glibcxx_assert_1.
+	* testsuite/21_strings/basic_string_view/element_access/char/back_constexpr_neg.cc:
+	Adjust expected error.
+	* testsuite/21_strings/basic_string_view/element_access/char/constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/front_constexpr_neg.cc:
+	Likewise.
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/back_constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/front_constexpr_neg.cc:
+	Likewise.
+	* testsuite/23_containers/span/back_neg.cc: Likewise.
+	* testsuite/23_containers/span/front_neg.cc: Likewise.
+	* testsuite/23_containers/span/index_op_neg.cc: Likewise.
+
+2021-06-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100833
+	* include/bits/ranges_base.h (ranges::advance(iter, n, sentinel)):
+	Fix return value for no-op case.
+	* testsuite/24_iterators/range_operations/advance.cc: Test
+	return values of three-argument overload.
+
+2021-06-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100768
+	* include/bits/ranges_base.h (advance, distance, next, prev):
+	Replace function templates with function objects.
+	* testsuite/24_iterators/headers/iterator/synopsis_c++20.cc:
+	Adjust for changes to function objects.
+	* testsuite/std/ranges/adaptors/elements.cc: Add using
+	declarations for names from namespace ranges.
+	* testsuite/std/ranges/adaptors/transform.cc: Likewise.
+	* testsuite/24_iterators/range_operations/100768.cc: New test.
+
+2021-06-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99453
+	* python/Makefile.am: Use archive name for printer hook if no
+	dynamic library name is available.
+	* python/Makefile.in: Regenerate.
+
+2021-05-28  David Edelsohn  <dje.gcc@gmail.com>
+
+	Backported from master:
+	2021-04-24  David Edelsohn  <dje.gcc@gmail.com>
+
+	* testsuite/lib/dg-options.exp (atomic_link_flags): New.
+	(add_options_for_libatomic): Use atomic_link_flags.
+
+2021-05-28  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-30  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (__detail::__non_propating_cache): Define
+	as per P2328.
+	(join_view): Remove constraints on the value and reference types
+	of the wrapped iterator type as per P2328.
+	(join_view::_Iterator::_M_satisfy): Adjust as per P2328.
+	(join_view::_Iterator::operator++): Likewise.
+	(join_view::_M_inner): Use __non_propating_cache as per P2328.
+	Remove now-redundant use of __maybe_present_t.
+	* testsuite/std/ranges/adaptors/join.cc: Include <array>.
+	(test10): New test.
+
+2021-05-28  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-24  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100479
+	* include/std/ranges (__detail::__non_propagating_cache): Move
+	definition up to before that of _CachedPosition.  Make base
+	class _Optional_base protected instead of private.  Add const
+	overload for operator*.
+	(__detail::_CachedPosition): Rewrite the partial specialization
+	for forward ranges as a derived class of __non_propagating_cache.
+	Remove the size constraint on the partial specialization for
+	random access ranges.  Add copy/move/copy-assignment/move-assignment
+	members to the offset partial specialization for random
+	access ranges that propagate the cached value but additionally
+	invalidate it in the source object on move.
+	* testsuite/std/ranges/adaptors/100479.cc: New test.
+
+2021-05-20  Joern Rennecke  <joern.rennecke@riscy-ip.com>
+
+	PR libstdc++/100361
+	* include/std/charconv (to_chars): Hide the overloads for
+	floating-point types for 16 bit targets.
+	* src/c++17/floating_to_chars.cc: Don't compile for 16 bit targets.
+	* testsuite/20_util/to_chars/double.cc: Run this test only on
+	size32plus targets.
+	* testsuite/20_util/to_chars/float.cc: Likewise.
+	* testsuite/20_util/to_chars/long_double.cc: Likewise.
+
+2021-05-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100630
+	* include/experimental/bits/fs_path.h (__is_constructible_from):
+	Test construction from a const lvalue, not an rvalue.
+	* testsuite/27_io/filesystem/path/construct/100630.cc: New test.
+	* testsuite/experimental/filesystem/path/construct/100630.cc:
+	New test.
+
+2021-05-17  Thomas Rodgers  <rodgert@twrodgers.com>
+
+	Backported from master:
+	2021-05-17  Thomas Rodgers  <rodgert@twrodgers.com>
+
+	* include/bits/atomic_wait.h (__waiter::_M_do_wait_v): loop
+	until value change observed.
+	(__waiter_base::_M_laundered): New member.
+	(__waiter_base::_M_notify): Check _M_laundered to determine
+	whether to wake one or all.
+	(__detail::__atomic_compare): Return true if call to
+	__builtin_memcmp() == 0.
+	(__waiter_base::_S_do_spin_v): Adjust predicate.
+	* testsuite/29_atomics/atomic/wait_notify/100334.cc: New
+	test.
+
+2021-05-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-30  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/ranges_util.h (subrange::subrange): Avoid
+	list-initialization in delegating constructor.
+	* include/std/ranges (single_view): Replace implicit guide
+	with explicit deduction guide that decays its argument.
+	(_Single::operator()): Avoid CTAD when constructing the
+	single_view object.
+	(_Iota::operator()): Avoid list-initialization.
+	(__detail::__can_filter_view, _Filter::operator()): Likewise.
+	(__detail::__can_transform_view, _Transform::operator()): Likewise.
+	(take_view::begin): Likewise.
+	(__detail::__can_take_view, _Take::operator()): Likewise.
+	(__detail::__can_take_while_view, _TakeWhile::operator()): Likewise.
+	(__detail::__can_drop_view, _Drop::operator()): Likewise.
+	(__detail::__can_drop_while_view, _DropWhile::operator()): Likewise.
+	(split_view::split_view): Use views::single when initializing
+	_M_pattern.
+	(__detail::__can_split_view, _Split::operator()): Avoid
+	list-initialization.
+	(_Counted::operator()): Likewise.
+	* testsuite/std/ranges/p2367.cc: New test.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/headers/memory/synopsis.cc: Define C++98
+	alternative for macro.
+	* testsuite/20_util/shared_ptr/creation/99006.cc: Add effective
+	target keyword.
+	* testsuite/25_algorithms/copy/debug/99402.cc: Avoid C++11
+	syntax.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/allocator.h (allocator<void>) [C++20]: Add
+	missing noexcept to constructor. Restore missing POCMA and
+	is_always_equal_traits.
+	[C++17]: Make construct and destroy members private and
+	declare allocator_traits as a friend.
+	* include/bits/memoryfwd.h (allocator_traits): Declare.
+	* include/ext/malloc_allocator.h (malloc_allocator::allocate):
+	Add nodiscard attribute. Add static assertion for LWG 3307.
+	* include/ext/new_allocator.h (new_allocator::allocate): Add
+	static assertion for LWG 3307.
+	* testsuite/20_util/allocator/void.cc: Check that converting
+	constructor is noexcept. Check for propagation traits and
+	size_type and difference_type. Check that pointer and
+	const_pointer are gone in C++20.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/stop_token: Remove TODO comment.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_base.h (__shared_count(unique_ptr&&)):
+	Initialize a non-reference deleter from an rvalue, as per LWG
+	3548.
+	(__shared_ptr::_UniqCompatible): Add missing constraint.
+	* testsuite/20_util/shared_ptr/cons/lwg3548.cc: New test.
+	* testsuite/20_util/shared_ptr/cons/unique_ptr_deleter.cc: Check
+	constraints.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/headers/c++2017/all_attributes.cc: Remove
+	-std=gnu++17 from dg-options directive.
+	* testsuite/17_intro/headers/c++2017/all_no_exceptions.cc:
+	Likewise.
+	* testsuite/17_intro/headers/c++2017/all_pedantic_errors.cc:
+	Likewise.
+	* testsuite/17_intro/headers/c++2017/operator_names.cc:
+	Likewise.
+	* testsuite/17_intro/headers/c++2017/parallel_mode.cc: Likewise.
+	* testsuite/17_intro/headers/c++2017/stdc++.cc: Likewise.
+	* testsuite/17_intro/headers/c++2017/stdc++_multiple_inclusion.cc:
+	Likewise.
+	* testsuite/18_support/aligned_alloc/aligned_alloc.cc: Likewise.
+	* testsuite/18_support/byte/81076.cc: Likewise.
+	* testsuite/18_support/byte/global_neg.cc: Likewise.
+	* testsuite/18_support/byte/ops.cc: Likewise.
+	* testsuite/18_support/byte/requirements.cc: Likewise.
+	* testsuite/18_support/headers/cfloat/values_c++17.cc: Likewise.
+	* testsuite/18_support/launder/1.cc: Likewise.
+	* testsuite/18_support/launder/nodiscard.cc: Likewise.
+	* testsuite/18_support/launder/requirements.cc: Likewise.
+	* testsuite/18_support/launder/requirements_neg.cc: Likewise.
+	* testsuite/18_support/new_aligned.cc: Likewise.
+	* testsuite/18_support/uncaught_exceptions/uncaught_exceptions.cc:
+	Likewise.
+	* testsuite/19_diagnostics/error_code/is_error_code_v.cc:
+	Likewise.
+	* testsuite/19_diagnostics/error_condition/hash.cc: Likewise.
+	* testsuite/20_util/addressof/requirements/constexpr.cc:
+	Likewise.
+	* testsuite/20_util/as_const/1.cc: Likewise.
+	* testsuite/20_util/as_const/rvalue_neg.cc: Likewise.
+	* testsuite/20_util/bind/83427.cc: Likewise.
+	* testsuite/20_util/bind/is_placeholder_v.cc: Likewise.
+	* testsuite/20_util/bool_constant/requirements.cc: Likewise.
+	* testsuite/20_util/duration/arithmetic/constexpr_c++17.cc:
+	Likewise.
+	* testsuite/20_util/duration/requirements/treat_as_floating_point_v.cc:
+	Likewise.
+	* testsuite/20_util/duration_cast/rounding.cc: Likewise.
+	* testsuite/20_util/enable_shared_from_this/members/weak_from_this.cc:
+	Likewise.
+	* testsuite/20_util/from_chars/1_neg.cc: Likewise.
+	* testsuite/20_util/from_chars/requirements.cc: Likewise.
+	* testsuite/20_util/function/91456.cc: Likewise.
+	* testsuite/20_util/function/cons/deduction.cc: Likewise.
+	* testsuite/20_util/function_objects/83607.cc: Likewise.
+	* testsuite/20_util/function_objects/invoke/59768.cc: Likewise.
+	* testsuite/20_util/function_objects/mem_fn/80478.cc: Likewise.
+	* testsuite/20_util/function_objects/not_fn/1.cc: Likewise.
+	* testsuite/20_util/function_objects/not_fn/87538.cc: Likewise.
+	* testsuite/20_util/has_unique_object_representations/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/has_unique_object_representations/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/has_unique_object_representations/value.cc:
+	Likewise.
+	* testsuite/20_util/hash/nullptr.cc: Likewise.
+	* testsuite/20_util/in_place/requirements.cc: Likewise.
+	* testsuite/20_util/is_aggregate/incomplete_neg.cc: Likewise.
+	* testsuite/20_util/is_aggregate/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/is_aggregate/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/is_aggregate/value.cc: Likewise.
+	* testsuite/20_util/is_invocable/83395.cc: Likewise.
+	* testsuite/20_util/is_invocable/91456.cc: Likewise.
+	* testsuite/20_util/is_invocable/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/is_invocable/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/is_invocable/value.cc: Likewise.
+	* testsuite/20_util/is_literal_type/deprecated-1z.cc: Likewise.
+	* testsuite/20_util/is_nothrow_constructible/94003.cc: Likewise.
+	* testsuite/20_util/is_nothrow_invocable/83395.cc: Likewise.
+	* testsuite/20_util/is_nothrow_invocable/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/is_nothrow_invocable/requirements/typedefs.cc: Likewise.
+	* testsuite/20_util/is_nothrow_invocable/value.cc: Likewise.
+	* testsuite/20_util/is_nothrow_swappable/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/is_nothrow_swappable/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/is_nothrow_swappable/value.cc: Likewise.
+	* testsuite/20_util/is_nothrow_swappable_with/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/is_nothrow_swappable_with/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/is_nothrow_swappable_with/value.cc:
+	Likewise.
+	* testsuite/20_util/is_swappable/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/is_swappable/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/is_swappable/value.cc: Likewise.
+	* testsuite/20_util/is_swappable_with/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/is_swappable_with/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/is_swappable_with/value.cc: Likewise.
+	* testsuite/20_util/logical_traits/83134.cc: Likewise.
+	* testsuite/20_util/logical_traits/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/20_util/logical_traits/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/20_util/logical_traits/value.cc: Likewise.
+	* testsuite/20_util/pair/cons/deduction.cc: Likewise.
+	* testsuite/20_util/pair/swap_cxx17.cc: Likewise.
+	* testsuite/20_util/ratio/requirements/ratio_equal_v.cc:
+	Likewise.
+	* testsuite/20_util/reference_wrapper/83427.cc: Likewise.
+	* testsuite/20_util/reference_wrapper/deduction.cc: Likewise.
+	* testsuite/20_util/shared_ptr/casts/reinterpret.cc: Likewise.
+	* testsuite/20_util/shared_ptr/cons/deduction.cc: Likewise.
+	* testsuite/20_util/shared_ptr/requirements/weak_type.cc:
+	Likewise.
+	* testsuite/20_util/time_point/arithmetic/constexpr.cc:
+	Likewise.
+	* testsuite/20_util/time_point_cast/rounding.cc: Likewise.
+	* testsuite/20_util/to_chars/3.cc: Likewise.
+	* testsuite/20_util/to_chars/chars_format.cc: Likewise.
+	* testsuite/20_util/to_chars/lwg3266.cc: Likewise.
+	* testsuite/20_util/to_chars/requirements.cc: Likewise.
+	* testsuite/20_util/tuple/78939.cc: Likewise.
+	* testsuite/20_util/tuple/apply/1.cc: Likewise.
+	* testsuite/20_util/tuple/apply/2.cc: Likewise.
+	* testsuite/20_util/tuple/cons/deduction.cc: Likewise.
+	* testsuite/20_util/tuple/make_from_tuple/1.cc: Likewise.
+	* testsuite/20_util/tuple/make_from_tuple/2.cc: Likewise.
+	* testsuite/20_util/tuple/swap_cxx17.cc: Likewise.
+	* testsuite/20_util/tuple/tuple_size_v.cc: Likewise.
+	* testsuite/20_util/unique_ptr/cons/deduction_neg.cc: Likewise.
+	* testsuite/20_util/uses_allocator/requirements/uses_allocator_v.cc:
+	Likewise.
+	* testsuite/20_util/variable_templates_for_traits.cc: Likewise.
+	* testsuite/20_util/void_t/1.cc: Likewise.
+	* testsuite/20_util/weak_ptr/cons/deduction.cc: Likewise.
+	* testsuite/24_iterators/container_access.cc: Likewise.
+	* testsuite/24_iterators/headers/iterator/range_access_c++17.cc:
+	Likewise.
+	* testsuite/24_iterators/headers/iterator/synopsis_c++17.cc:
+	Likewise.
+	* testsuite/24_iterators/range_access/range_access_cpp17.cc:
+	Likewise.
+	* testsuite/24_iterators/range_access/range_access_cpp17_neg.cc:
+	Likewise.
+	* testsuite/26_numerics/gcd/gcd_neg.cc: Likewise.
+	* testsuite/26_numerics/headers/cmath/functions_std_c++17.cc:
+	Likewise.
+	* testsuite/26_numerics/headers/cmath/hypot.cc: Likewise.
+	* testsuite/26_numerics/headers/cmath/special_functions_global.cc:
+	Likewise.
+	* testsuite/26_numerics/lcm/1.cc: Likewise.
+	* testsuite/26_numerics/lcm/lcm_neg.cc: Likewise.
+	* testsuite/26_numerics/valarray/deduction.cc: Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/char/lwg2221.cc:
+	Likewise.
+	* testsuite/27_io/manipulators/standard/char/quoted_sv.cc:
+	Likewise.
+	* testsuite/27_io/manipulators/standard/wchar_t/quoted_sv.cc:
+	Likewise.
+	* testsuite/27_io/types/4.cc: Likewise.
+	* testsuite/28_regex/basic_regex/ctors/deduction.cc: Likewise.
+	* testsuite/libstdc++-prettyprinters/91997.cc: Likewise.
+	* testsuite/libstdc++-prettyprinters/cxx17.cc: Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/function_objects/searchers.cc: Remove
+	-std=gnu++17 from dg-options directive.
+	* testsuite/20_util/specialized_algorithms/memory_management_tools/1.cc:
+	Likewise.
+	* testsuite/20_util/specialized_algorithms/memory_management_tools/destroy_neg.cc:
+	Likewise.
+	* testsuite/20_util/specialized_algorithms/uninitialized_value_construct/94540.cc:
+	Likewise.
+	* testsuite/20_util/specialized_algorithms/uninitialized_value_construct/94831.cc:
+	Likewise.
+	* testsuite/20_util/specialized_algorithms/uninitialized_value_construct_n/94540.cc:
+	Likewise.
+	* testsuite/20_util/specialized_algorithms/uninitialized_value_construct_n/sizes.cc:
+	Likewise.
+	* testsuite/20_util/unique_ptr/specialized_algorithms/swap_cxx17.cc:
+	Likewise.
+	* testsuite/25_algorithms/clamp/1.cc: Likewise.
+	* testsuite/25_algorithms/clamp/2.cc: Likewise.
+	* testsuite/25_algorithms/clamp/constexpr.cc: Likewise.
+	* testsuite/25_algorithms/clamp/requirements/explicit_instantiation/1.cc:
+	Likewise.
+	* testsuite/25_algorithms/clamp/requirements/explicit_instantiation/pod.cc:
+	Likewise.
+	* testsuite/25_algorithms/for_each/for_each_n.cc: Likewise.
+	* testsuite/25_algorithms/for_each/for_each_n_debug.cc:
+	Likewise.
+	* testsuite/25_algorithms/sample/1.cc: Likewise.
+	* testsuite/25_algorithms/sample/2.cc: Likewise.
+	* testsuite/25_algorithms/sample/3.cc: Likewise.
+	* testsuite/25_algorithms/sample/81221.cc: Likewise.
+	* testsuite/25_algorithms/search/searcher.cc: Likewise.
+	* testsuite/26_numerics/exclusive_scan/1.cc: Likewise.
+	* testsuite/26_numerics/inclusive_scan/1.cc: Likewise.
+	* testsuite/26_numerics/reduce/1.cc: Likewise.
+	* testsuite/26_numerics/reduce/2.cc: Likewise.
+	* testsuite/26_numerics/transform_exclusive_scan/1.cc: Likewise.
+	* testsuite/26_numerics/transform_inclusive_scan/1.cc: Likewise.
+	* testsuite/26_numerics/transform_reduce/1.cc: Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/23_containers/array/cons/deduction.cc: Remove
+	-std=gnu++17 from dg-options directive.
+	* testsuite/23_containers/array/cons/deduction_neg.cc: Likewise.
+	* testsuite/23_containers/array/element_access/constexpr_c++17.cc:
+	Likewise.
+	* testsuite/23_containers/array/requirements/constexpr_iter.cc:
+	Likewise.
+	* testsuite/23_containers/array/specialized_algorithms/swap_cxx17.cc:
+	Likewise.
+	* testsuite/23_containers/deque/cons/deduction.cc: Likewise.
+	* testsuite/23_containers/deque/modifiers/emplace/cxx17_return.cc:
+	Likewise.
+	* testsuite/23_containers/forward_list/cons/deduction.cc:
+	Likewise.
+	* testsuite/23_containers/forward_list/modifiers/emplace_cxx17_return.cc:
+	Likewise.
+	* testsuite/23_containers/list/cons/deduction.cc: Likewise.
+	* testsuite/23_containers/list/modifiers/emplace/cxx17_return.cc:
+	Likewise.
+	* testsuite/23_containers/map/cons/deduction.cc: Likewise.
+	* testsuite/23_containers/map/modifiers/extract.cc: Likewise.
+	* testsuite/23_containers/map/modifiers/insert/83226.cc:
+	Likewise.
+	* testsuite/23_containers/map/modifiers/insert_or_assign/1.cc:
+	Likewise.
+	* testsuite/23_containers/map/modifiers/merge.cc: Likewise.
+	* testsuite/23_containers/map/modifiers/try_emplace/1.cc:
+	Likewise.
+	* testsuite/23_containers/multimap/cons/deduction.cc: Likewise.
+	* testsuite/23_containers/multimap/modifiers/extract.cc:
+	Likewise.
+	* testsuite/23_containers/multimap/modifiers/merge.cc: Likewise.
+	* testsuite/23_containers/multiset/cons/deduction.cc: Likewise.
+	* testsuite/23_containers/multiset/modifiers/extract.cc:
+	Likewise.
+	* testsuite/23_containers/multiset/modifiers/merge.cc: Likewise.
+	* testsuite/23_containers/priority_queue/deduction.cc: Likewise.
+	* testsuite/23_containers/queue/deduction.cc: Likewise.
+	* testsuite/23_containers/queue/members/emplace_cxx17_return.cc:
+	Likewise.
+	* testsuite/23_containers/set/cons/deduction.cc: Likewise.
+	* testsuite/23_containers/set/modifiers/extract.cc: Likewise.
+	* testsuite/23_containers/set/modifiers/merge.cc: Likewise.
+	* testsuite/23_containers/set/modifiers/node_swap.cc: Likewise.
+	* testsuite/23_containers/stack/deduction.cc: Likewise.
+	* testsuite/23_containers/stack/members/emplace_cxx17_return.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_map/cons/deduction.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_map/modifiers/extract.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_map/modifiers/insert_or_assign.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_map/modifiers/merge.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_map/modifiers/try_emplace.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multimap/cons/deduction.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multimap/modifiers/extract.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multimap/modifiers/merge.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multiset/cons/deduction.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multiset/modifiers/extract.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multiset/modifiers/merge.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_set/cons/deduction.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_set/modifiers/extract.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_set/modifiers/merge.cc:
+	Likewise.
+	* testsuite/23_containers/vector/bool/emplace_cxx17_return.cc:
+	Likewise.
+	* testsuite/23_containers/vector/cons/89164_c++17.cc: Likewise.
+	* testsuite/23_containers/vector/cons/deduction.cc: Likewise.
+	* testsuite/23_containers/vector/modifiers/emplace/cxx17_return.cc:
+	Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/21_strings/basic_string/79162.cc: Remove
+	-std=gnu++17 from dg-options directive.
+	* testsuite/21_strings/basic_string/cons/char/7.cc: Likewise.
+	* testsuite/21_strings/basic_string/cons/char/79162.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/cons/char/86138.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/cons/char/9.cc: Likewise.
+	* testsuite/21_strings/basic_string/cons/char/deduction.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/cons/char/moveable2_c++17.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/cons/wchar_t/7.cc: Likewise.
+	* testsuite/21_strings/basic_string/cons/wchar_t/79162.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/cons/wchar_t/86138.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/cons/wchar_t/9.cc: Likewise.
+	* testsuite/21_strings/basic_string/cons/wchar_t/deduction.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/cons/wchar_t/moveable2_c++17.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/hash/hash.cc: Likewise.
+	* testsuite/21_strings/basic_string/lwg2758.cc: Likewise.
+	* testsuite/21_strings/basic_string/lwg2946.cc: Likewise.
+	* testsuite/21_strings/basic_string/modifiers/append/char/4.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/modifiers/append/wchar_t/4.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/modifiers/assign/char/4.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/modifiers/assign/wchar_t/4.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/modifiers/insert/char/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/modifiers/insert/wchar_t/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/modifiers/replace/char/7.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/modifiers/replace/wchar_t/7.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/compare/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/compare/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/data/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/data/char/86169.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/data/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/find/char/5.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/find/wchar_t/5.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operators/char/5.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/operators/wchar_t/5.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/capacity/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/capacity/empty_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/char/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/char/nonnull.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/wchar_t/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/cons/wchar_t/nonnull.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/back_constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/constexpr.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/empty.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/front_back.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/front_back_constexpr.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/char/front_constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/back_constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/constexpr.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/empty.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/front_back.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/element_access/wchar_t/front_constexpr_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/include.cc: Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/94051.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/char/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/pod/10081-out.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/inserters/wchar_t/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/literals/types-char8_t.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/literals/types.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/literals/values-char8_t.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/literals/values.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_prefix/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_prefix/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_suffix/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_suffix/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/swap/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/modifiers/swap/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/char/13650.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/char/70483.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/char/nonnull.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/wchar_t/13650.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/compare/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/copy/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/copy/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/copy/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/copy/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/data/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/data/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/4.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/char/nonnull.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/wchar_t/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/find/wchar_t/4.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/rfind/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/rfind/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/rfind/char/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/rfind/char/nonnull.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/rfind/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/rfind/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/rfind/wchar_t/3.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/string_conversion/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/substr/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/substr/char/83511.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/substr/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operations/substr/wchar_t/83511.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operators/char/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operators/char/89446.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operators/wchar_t/2.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/operators/wchar_t/89446.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/range_access/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/range_access/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/explicit_instantiation/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/explicit_instantiation/char/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/explicit_instantiation/char16_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/explicit_instantiation/char32_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/explicit_instantiation/char8_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/explicit_instantiation/wchar_t/1.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/traits_neg.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string_view/typedefs.cc: Likewise.
+	* testsuite/21_strings/basic_string_view/types/1.cc: Likewise.
+	* testsuite/21_strings/char_traits/requirements/char/99181.cc:
+	Likewise.
+	* testsuite/21_strings/char_traits/requirements/constexpr_functions_c++17.cc:
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/memory_resource/1.cc: Remove -std=gnu++17
+	from dg-options directive.
+	* testsuite/20_util/memory_resource/2.cc: Likewise.
+	* testsuite/20_util/monotonic_buffer_resource/1.cc: Likewise.
+	* testsuite/20_util/monotonic_buffer_resource/93208.cc:
+	Likewise.
+	* testsuite/20_util/monotonic_buffer_resource/allocate.cc:
+	Likewise.
+	* testsuite/20_util/monotonic_buffer_resource/deallocate.cc:
+	Likewise.
+	* testsuite/20_util/monotonic_buffer_resource/release.cc:
+	Likewise.
+	* testsuite/20_util/monotonic_buffer_resource/upstream_resource.cc:
+	Likewise.
+	* testsuite/20_util/polymorphic_allocator/1.cc: Likewise.
+	* testsuite/20_util/polymorphic_allocator/construct_pair.cc:
+	Likewise.
+	* testsuite/20_util/polymorphic_allocator/resource.cc: Likewise.
+	* testsuite/20_util/polymorphic_allocator/select.cc: Likewise.
+	* testsuite/20_util/synchronized_pool_resource/allocate.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/allocate_single.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/cons.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/cons_single.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/is_equal.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/multithreaded.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/options.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/release.cc:
+	Likewise.
+	* testsuite/20_util/synchronized_pool_resource/release_single.cc:
+	Likewise.
+	* testsuite/20_util/unsynchronized_pool_resource/allocate-max-chunks.cc:
+	Likewise.
+	* testsuite/20_util/unsynchronized_pool_resource/allocate.cc:
+	Likewise.
+	* testsuite/20_util/unsynchronized_pool_resource/cons.cc:
+	Likewise.
+	* testsuite/20_util/unsynchronized_pool_resource/is_equal.cc:
+	Likewise.
+	* testsuite/20_util/unsynchronized_pool_resource/options.cc:
+	Likewise.
+	* testsuite/20_util/unsynchronized_pool_resource/release.cc:
+	Likewise.
+	* testsuite/21_strings/basic_string/types/pmr_typedefs.cc:
+	Likewise.
+	* testsuite/23_containers/deque/types/pmr_typedefs.cc: Likewise.
+	* testsuite/23_containers/deque/types/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/forward_list/pmr_typedefs.cc:
+	Likewise.
+	* testsuite/23_containers/forward_list/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/list/pmr_typedefs.cc: Likewise.
+	* testsuite/23_containers/list/pmr_typedefs_debug.cc: Likewise.
+	* testsuite/23_containers/map/pmr_typedefs.cc: Likewise.
+	* testsuite/23_containers/map/pmr_typedefs_debug.cc: Likewise.
+	* testsuite/23_containers/multimap/pmr_typedefs.cc: Likewise.
+	* testsuite/23_containers/multimap/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/multiset/pmr_typedefs.cc: Likewise.
+	* testsuite/23_containers/multiset/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/set/pmr_typedefs.cc: Likewise.
+	* testsuite/23_containers/set/pmr_typedefs_debug.cc: Likewise.
+	* testsuite/23_containers/unordered_map/pmr_typedefs.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_map/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multimap/pmr_typedefs.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multimap/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multiset/pmr_typedefs.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multiset/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_set/pmr_typedefs.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_set/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/23_containers/vector/pmr_typedefs.cc: Likewise.
+	* testsuite/23_containers/vector/types/pmr_typedefs_debug.cc:
+	Likewise.
+	* testsuite/28_regex/match_results/pmr_typedefs.cc: Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/29_atomics/atomic/69769.cc: Remove -std=gnu++17 from
+	dg-options.
+	* testsuite/29_atomics/atomic/is_always_lock_free.cc:
+	* testsuite/29_atomics/atomic/requirements/typedefs.cc:
+	* testsuite/29_atomics/atomic_integral/is_always_lock_free.cc:
+	* testsuite/29_atomics/atomic_integral/requirements/typedefs.cc:
+	* testsuite/30_threads/lock_guard/cons/deduction.cc: Likewise.
+	* testsuite/30_threads/scoped_lock/cons/1.cc: Likewise.
+	* testsuite/30_threads/scoped_lock/cons/deduction.cc: Likewise.
+	* testsuite/30_threads/scoped_lock/requirements/explicit_instantiation.cc:
+	Likewise.
+	* testsuite/30_threads/scoped_lock/requirements/typedefs.cc:
+	Likewise.
+	* testsuite/30_threads/shared_lock/70766.cc: Likewise.
+	* testsuite/30_threads/shared_mutex/cons/1.cc: Likewise.
+	* testsuite/30_threads/shared_mutex/cons/assign_neg.cc:
+	Likewise.
+	* testsuite/30_threads/shared_mutex/cons/copy_neg.cc: Likewise.
+	* testsuite/30_threads/shared_mutex/requirements/standard_layout.cc:
+	Likewise.
+	* testsuite/30_threads/shared_mutex/try_lock/1.cc: Likewise.
+	* testsuite/30_threads/shared_mutex/try_lock/2.cc: Likewise.
+	* testsuite/30_threads/shared_mutex/unlock/1.cc: Likewise.
+	* testsuite/30_threads/unique_lock/cons/deduction.cc: Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/any/assign/1.cc: Remove -std=gnu++17 from
+	dg-options directive.
+	* testsuite/20_util/any/assign/2.cc: Likewise.
+	* testsuite/20_util/any/assign/emplace.cc: Likewise.
+	* testsuite/20_util/any/assign/exception.cc: Likewise.
+	* testsuite/20_util/any/assign/self.cc: Likewise.
+	* testsuite/20_util/any/cons/1.cc: Likewise.
+	* testsuite/20_util/any/cons/2.cc: Likewise.
+	* testsuite/20_util/any/cons/90415.cc: Likewise.
+	* testsuite/20_util/any/cons/92156.cc: Likewise.
+	* testsuite/20_util/any/cons/aligned.cc: Likewise.
+	* testsuite/20_util/any/cons/explicit.cc: Likewise.
+	* testsuite/20_util/any/cons/in_place.cc: Likewise.
+	* testsuite/20_util/any/cons/nontrivial.cc: Likewise.
+	* testsuite/20_util/any/make_any.cc: Likewise.
+	* testsuite/20_util/any/misc/any_cast.cc: Likewise.
+	* testsuite/20_util/any/misc/any_cast_neg.cc: Likewise.
+	* testsuite/20_util/any/misc/any_cast_no_rtti.cc: Likewise.
+	* testsuite/20_util/any/misc/swap.cc: Likewise.
+	* testsuite/20_util/any/modifiers/1.cc: Likewise.
+	* testsuite/20_util/any/modifiers/83658.cc: Likewise.
+	* testsuite/20_util/any/modifiers/92156.cc: Likewise.
+	* testsuite/20_util/any/observers/type.cc: Likewise.
+	* testsuite/20_util/any/requirements.cc: Likewise.
+	* testsuite/20_util/any/typedefs.cc: Likewise.
+	* testsuite/20_util/optional/77288.cc: Likewise.
+	* testsuite/20_util/optional/84601.cc: Likewise.
+	* testsuite/20_util/optional/assignment/1.cc: Likewise.
+	* testsuite/20_util/optional/assignment/2.cc: Likewise.
+	* testsuite/20_util/optional/assignment/3.cc: Likewise.
+	* testsuite/20_util/optional/assignment/4.cc: Likewise.
+	* testsuite/20_util/optional/assignment/5.cc: Likewise.
+	* testsuite/20_util/optional/assignment/6.cc: Likewise.
+	* testsuite/20_util/optional/assignment/7.cc: Likewise.
+	* testsuite/20_util/optional/assignment/8.cc: Likewise.
+	* testsuite/20_util/optional/assignment/9.cc: Likewise.
+	* testsuite/20_util/optional/bad_access.cc: Likewise.
+	* testsuite/20_util/optional/cons/77727.cc: Likewise.
+	* testsuite/20_util/optional/cons/85642.cc: Likewise.
+	* testsuite/20_util/optional/cons/copy.cc: Likewise.
+	* testsuite/20_util/optional/cons/deduction.cc: Likewise.
+	* testsuite/20_util/optional/cons/default.cc: Likewise.
+	* testsuite/20_util/optional/cons/move.cc: Likewise.
+	* testsuite/20_util/optional/cons/trivial.cc: Likewise.
+	* testsuite/20_util/optional/cons/value.cc: Likewise.
+	* testsuite/20_util/optional/cons/value_neg.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/cons/default.cc:
+	Likewise.
+	* testsuite/20_util/optional/constexpr/cons/value.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/in_place.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/make_optional.cc:
+	Likewise.
+	* testsuite/20_util/optional/constexpr/nullopt.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/observers/1.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/observers/2.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/observers/3.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/observers/4.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/observers/5.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/relops/1.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/relops/2.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/relops/3.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/relops/4.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/relops/5.cc: Likewise.
+	* testsuite/20_util/optional/constexpr/relops/6.cc: Likewise.
+	* testsuite/20_util/optional/hash.cc: Likewise.
+	* testsuite/20_util/optional/in_place.cc: Likewise.
+	* testsuite/20_util/optional/make_optional.cc: Likewise.
+	* testsuite/20_util/optional/nullopt.cc: Likewise.
+	* testsuite/20_util/optional/observers/1.cc: Likewise.
+	* testsuite/20_util/optional/observers/2.cc: Likewise.
+	* testsuite/20_util/optional/observers/3.cc: Likewise.
+	* testsuite/20_util/optional/observers/4.cc: Likewise.
+	* testsuite/20_util/optional/observers/5.cc: Likewise.
+	* testsuite/20_util/optional/observers/6.cc: Likewise.
+	* testsuite/20_util/optional/relops/1.cc: Likewise.
+	* testsuite/20_util/optional/relops/2.cc: Likewise.
+	* testsuite/20_util/optional/relops/3.cc: Likewise.
+	* testsuite/20_util/optional/relops/4.cc: Likewise.
+	* testsuite/20_util/optional/relops/5.cc: Likewise.
+	* testsuite/20_util/optional/relops/6.cc: Likewise.
+	* testsuite/20_util/optional/relops/7.cc: Likewise.
+	* testsuite/20_util/optional/requirements.cc: Likewise.
+	* testsuite/20_util/optional/swap/1.cc: Likewise.
+	* testsuite/20_util/optional/swap/2.cc: Likewise.
+	* testsuite/20_util/optional/typedefs.cc: Likewise.
+	* testsuite/20_util/variant/80165.cc: Likewise.
+	* testsuite/20_util/variant/85183.cc: Likewise.
+	* testsuite/20_util/variant/86874.cc: Likewise.
+	* testsuite/20_util/variant/87431.cc: Likewise.
+	* testsuite/20_util/variant/87619.cc: Likewise.
+	* testsuite/20_util/variant/91807.cc: Likewise.
+	* testsuite/20_util/variant/any.cc: Likewise.
+	* testsuite/20_util/variant/compile.cc: Likewise.
+	* testsuite/20_util/variant/deduction.cc: Likewise.
+	* testsuite/20_util/variant/exception_safety.cc: Likewise.
+	* testsuite/20_util/variant/hash.cc: Likewise.
+	* testsuite/20_util/variant/index_type.cc: Likewise.
+	* testsuite/20_util/variant/relops/89851.cc: Likewise.
+	* testsuite/20_util/variant/relops/90008.cc: Likewise.
+	* testsuite/20_util/variant/run.cc: Likewise.
+	* testsuite/20_util/variant/visit.cc: Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/basic_filebuf/open/char/path.cc: Remove
+	-std=gnu++17 from dg-options directive.
+	* testsuite/27_io/basic_fstream/cons/char/path.cc: Likewise.
+	* testsuite/27_io/basic_fstream/open/char/path.cc: Likewise.
+	* testsuite/27_io/basic_ifstream/cons/char/path.cc: Likewise.
+	* testsuite/27_io/basic_ifstream/open/char/path.cc: Likewise.
+	* testsuite/27_io/basic_ofstream/cons/char/path.cc: Likewise.
+	* testsuite/27_io/basic_ofstream/open/char/path.cc: Likewise.
+	* testsuite/27_io/filesystem/directory_entry/86597.cc: Likewise.
+	* testsuite/27_io/filesystem/directory_entry/lwg3171.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/file_status/1.cc: Likewise.
+	* testsuite/27_io/filesystem/filesystem_error/cons.cc: Likewise.
+	* testsuite/27_io/filesystem/filesystem_error/copy.cc: Likewise.
+	* testsuite/27_io/filesystem/iterators/91067.cc: Likewise.
+	* testsuite/27_io/filesystem/iterators/caching.cc: Likewise.
+	* testsuite/27_io/filesystem/iterators/directory_iterator.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/iterators/pop.cc: Likewise.
+	* testsuite/27_io/filesystem/iterators/recursion_pending.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/absolute.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/all.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/canonical.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/copy.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/copy_file.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/create_directories.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/create_directory.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/create_symlink.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/current_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/equivalent.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/exists.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/file_size.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/is_empty.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/last_write_time.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/permissions.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/proximate.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/read_symlink.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/relative.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/remove.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/remove_all.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/rename.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/resize_file.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/space.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/status.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/symlink_status.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/temp_directory_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/weakly_canonical.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/append/path.cc: Likewise.
+	* testsuite/27_io/filesystem/path/append/source.cc: Likewise.
+	* testsuite/27_io/filesystem/path/assign/assign.cc: Likewise.
+	* testsuite/27_io/filesystem/path/assign/copy.cc: Likewise.
+	* testsuite/27_io/filesystem/path/compare/compare.cc: Likewise.
+	* testsuite/27_io/filesystem/path/compare/lwg2936.cc: Likewise.
+	* testsuite/27_io/filesystem/path/compare/path.cc: Likewise.
+	* testsuite/27_io/filesystem/path/compare/strings.cc: Likewise.
+	* testsuite/27_io/filesystem/path/concat/92853.cc: Likewise.
+	* testsuite/27_io/filesystem/path/concat/94063.cc: Likewise.
+	* testsuite/27_io/filesystem/path/concat/path.cc: Likewise.
+	* testsuite/27_io/filesystem/path/concat/strings.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/80762.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/90281.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/90634.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/copy.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/default.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/construct/format.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/locale.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/range.cc: Likewise.
+	* testsuite/27_io/filesystem/path/construct/string_view.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/extension.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/filename.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/parent_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/relative_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/root_directory.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/root_name.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/root_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/decompose/stem.cc: Likewise.
+	* testsuite/27_io/filesystem/path/factory/u8path-char8_t.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/factory/u8path.cc: Likewise.
+	* testsuite/27_io/filesystem/path/generation/normal.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/generation/normal2.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/generation/proximate.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/generation/relative.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/generic/94242.cc: Likewise.
+	* testsuite/27_io/filesystem/path/generic/generic_string.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/generic/utf.cc: Likewise.
+	* testsuite/27_io/filesystem/path/generic/wchar_t.cc: Likewise.
+	* testsuite/27_io/filesystem/path/io/dr2989.cc: Likewise.
+	* testsuite/27_io/filesystem/path/itr/components.cc: Likewise.
+	* testsuite/27_io/filesystem/path/itr/traversal.cc: Likewise.
+	* testsuite/27_io/filesystem/path/modifiers/clear.cc: Likewise.
+	* testsuite/27_io/filesystem/path/modifiers/make_preferred.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/modifiers/remove_filename.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/modifiers/replace_extension.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/modifiers/replace_filename.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/modifiers/swap.cc: Likewise.
+	* testsuite/27_io/filesystem/path/native/alloc.cc: Likewise.
+	* testsuite/27_io/filesystem/path/native/string-char8_t.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/native/string.cc: Likewise.
+	* testsuite/27_io/filesystem/path/nonmember/append.cc: Likewise.
+	* testsuite/27_io/filesystem/path/nonmember/cmp.cc: Likewise.
+	* testsuite/27_io/filesystem/path/nonmember/hash_value.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/empty.cc: Likewise.
+	* testsuite/27_io/filesystem/path/query/empty_neg.cc:
+	* testsuite/27_io/filesystem/path/query/has_extension.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/has_filename.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/has_parent_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/has_relative_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/has_root_directory.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/has_root_name.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/has_root_path.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/has_stem.cc: Likewise.
+	* testsuite/27_io/filesystem/path/query/is_absolute.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/query/is_relative.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/path/construct/string_view.cc:
+	Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/specialized_algorithms/pstl/uninitialized_construct.cc:
+	Remove -std=gnu++17 from dg-options.
+	* testsuite/20_util/specialized_algorithms/pstl/uninitialized_copy_move.cc:
+	Likewise.
+	* testsuite/20_util/specialized_algorithms/pstl/uninitialized_fill_destroy.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_merge/inplace_merge.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_merge/merge.cc: Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/copy_if.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/copy_move.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/fill.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/generate.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/is_partitioned.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/partition.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/partition_copy.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/remove.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/remove_copy.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/replace.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/replace_copy.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/rotate.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/rotate_copy.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/swap_ranges.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/transform_binary.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/transform_unary.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/unique.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_modifying_operations/unique_copy_equal.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/adjacent_find.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/all_of.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/any_of.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/count.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/equal.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/find.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/find_end.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/find_first_of.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/find_if.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/for_each.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/mismatch.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/none_of.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/nth_element.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/reverse.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/reverse_copy.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/search_n.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/includes.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/is_heap.cc: Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/is_sorted.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/lexicographical_compare.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/minmax_element.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/partial_sort.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/partial_sort_copy.cc:
+	Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/set.cc: Likewise.
+	* testsuite/25_algorithms/pstl/alg_sorting/sort.cc: Likewise.
+	* testsuite/25_algorithms/pstl/feature_test-2.cc: Likewise.
+	* testsuite/25_algorithms/pstl/feature_test-3.cc: Likewise.
+	* testsuite/25_algorithms/pstl/feature_test-4.cc: Likewise.
+	* testsuite/25_algorithms/pstl/feature_test-5.cc: Likewise.
+	* testsuite/25_algorithms/pstl/feature_test.cc: Likewise.
+	* testsuite/26_numerics/pstl/numeric_ops/adjacent_difference.cc:
+	Likewise.
+	* testsuite/26_numerics/pstl/numeric_ops/reduce.cc: Likewise.
+	* testsuite/26_numerics/pstl/numeric_ops/scan.cc: Likewise.
+	* testsuite/26_numerics/pstl/numeric_ops/transform_reduce.cc:
+	Likewise.
+	* testsuite/26_numerics/pstl/numeric_ops/transform_scan.cc:
+	Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/scoped_allocator/69293_neg.cc: Add dg-error
+	for additional errors in C++20.
+	* testsuite/20_util/specialized_algorithms/memory_management_tools/destroy_neg.cc:
+	Likewise.
+	* testsuite/20_util/uses_allocator/69293_neg.cc: Likewise.
+	* testsuite/27_io/filesystem/path/io/dr2989.cc: Likewise.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/variant/compile.cc: Rename 'any' to avoid
+	clash with std::any.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/type_traits (remove_cvref_t): Define in terms of
+	remove_cvref.
+	* testsuite/20_util/remove_cvref/value.cc: Check alias.
+
+2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-04-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99006
+	* include/bits/shared_ptr.h (allocate_shared): Assert that _Tp
+	is not an array type.
+	* include/bits/shared_ptr_base.h (__allocate_shared): Likewise.
+	* testsuite/20_util/shared_ptr/creation/99006.cc: New test.
+
+2021-05-11  Philippe Blain  <levraiphilippeblain@gmail.com>
+
+	Backported from master:
+	2021-04-21  Philippe Blain  <levraiphilippeblain@gmail.com>
+		    Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99453
+	* python/Makefile.am: Install libstdc++*-gdb.py more robustly.
+	* python/Makefile.in: Regenerate.
+
+2021-05-11  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-11  Patrick Palka  <ppalka@redhat.com>
+
+	* src/c++17/ryu/LOCAL_PATCHES: Update.
+	* src/c++17/ryu/ryu_generic_128.h: Remove extern "C".
+	Remove declarations for never-defined functions.
+	* testsuite/20_util/to_chars/4.cc: New test.
+
+2021-05-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/istream (__rvalue_stream_extraction_t): Replace
+	use of __rval_streamable.
+	* include/std/ostream (__rvalue_stream_insertion_t): Likewise.
+	(__rval_streamable): Remove.
+	(_Require_derived_from_ios_base, __derived_from_ios_base): New
+	helper for checking constraints.
+	* testsuite/27_io/basic_istream/extractors_other/char/4.cc: Fix
+	reference to the wrong subclause of the standard.
+	* testsuite/27_io/basic_istream/extractors_other/wchar_t/4.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/char/6.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/wchar_t/6.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/char/99692.cc:
+	New test.
+	* testsuite/27_io/filesystem/path/io/dr2989.cc: Adjust pruned
+	errors.
+
+2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-04-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/istream (operator>>(Istream&&, x&)): Simplify, as
+	per LWG 1203.
+	* include/std/ostream (operator<<(Ostream&&, const x&)):
+	Likewise.
+	* testsuite/27_io/basic_istream/extractors_character/char/lwg2499_neg.cc:
+	Adjust dg-error pattern.
+	* testsuite/27_io/basic_istream/extractors_character/wchar_t/lwg2499_neg.cc:
+	Likewise.
+	* testsuite/27_io/basic_istream/extractors_other/char/4.cc: Define
+	is_extractable trait to replace std::__is_extractable. Make it
+	work with rvalue streams as well as lvalues, to replace f() and
+	g() helper functions.
+	* testsuite/27_io/basic_istream/extractors_other/wchar_t/4.cc:
+	Likewise.
+	* testsuite/27_io/basic_ostream/inserters_other/char/6.cc:
+	Define is_insertable trait to replace std::__is_insertable. Make
+	it work with rvalue streams as well as lvalues, to replace f()
+	and g() helper functions.
+	* testsuite/27_io/basic_ostream/inserters_other/wchar_t/6.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/path/io/dr2989.cc: Prune additional
+	errors from new constraints.
+	* testsuite/27_io/rvalue_streams-2.cc: Remove PR 80675 checks,
+	which are no longer expected to compile.
+	* testsuite/27_io/rvalue_streams.cc: Adjust existing test.
+	Verify LWG 1203 changes.
+
+2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/function_objects/invoke/3.cc: Check feature
+	test macro.
+	* testsuite/20_util/function_objects/invoke/version.cc: New test.
+
+2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/future (promise::set_value): Check for existence
+	of shared state before dereferncing it.
+	(promise::set_exception, promise::set_value_at_thread_exit)
+	(promise::set_exception_at_thread_exit): Likewise.
+	(promise<R&>::set_value, promise<R&>::set_exception)
+	(promise<R&>::set_value_at_thread_exit)
+	(promise<R&>::set_exception_at_thread_exit): Likewise.
+	(promise<void>::set_value, promise<void>::set_exception)
+	(promise<void>::set_value_at_thread_exit)
+	(promise<void>::set_exception_at_thread_exit): Likewise.
+	* testsuite/30_threads/promise/members/at_thread_exit2.cc:
+	Remove unused variable.
+
+2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/basic_string.h (basic_string(const CharT*, const A&)):
+	Do not do arithmetic on null pointer.
+
+2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/ext/pb_ds/detail/cc_hash_table_map_/cc_ht_map_.hpp
+	(find_key_pointer(key_const_reference, false_type))
+	(find_key_pointer(key_const_reference, true_type)): Do not
+	dereference null pointer.
+
+2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/from_chars/3.cc: Use unsigned type to avoid
+	overflow.
+	* testsuite/24_iterators/reverse_iterator/2.cc: Do not add
+	non-zero value to null pointer.
+	* testsuite/25_algorithms/copy_backward/move_iterators/69478.cc:
+	Use past-the-end iterator for result.
+	* testsuite/25_algorithms/move_backward/69478.cc: Likewise.
+	* testsuite/25_algorithms/move_backward/93872.cc: Likewise.
+
+2021-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100384
+	* include/std/variant (__get_t): New alias template yielding the
+	return type of std::get<N> on a variant.
+	(__visit_result_t): New alias template yielding the result of
+	std::visit.
+	(__same_types): Move into namespace __detail::__variant.
+	(__check_visitor_results): Likewise. Use __invoke_result_t and
+	__get_t.
+	(__check_visitor_result): Remove.
+	(visit): Use __visit_result_t for return type.
+	* testsuite/20_util/variant/100384.cc: New test.
+
+2021-05-05  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-05  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (transform_view::_Iterator::iter_swap):
+	Remove as per LWG 3520.
+	(join_view::_Iterator::iter_swap): Add indirectly_swappable
+	constraint as per LWG 3517.
+
+2021-05-04  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-30  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (split_view::_InnerIter::operator++):
+	Depend on _Base instead of _Vp directly, as per LWG 3532.
+
 2021-04-30  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
