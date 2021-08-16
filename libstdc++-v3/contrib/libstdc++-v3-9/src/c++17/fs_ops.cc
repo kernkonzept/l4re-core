@@ -496,7 +496,7 @@ fs::create_directories(const path& p, error_code& ec)
       return false;
     }
 
-  file_status st = symlink_status(p, ec);
+  file_status st = status(p, ec);
   if (is_directory(st))
     return false;
   else if (ec && !status_known(st))
@@ -577,8 +577,7 @@ namespace
   {
     bool created = false;
 #ifdef _GLIBCXX_HAVE_SYS_STAT_H
-    posix::mode_t mode
-      = static_cast<std::underlying_type_t<fs::perms>>(perm);
+    posix::mode_t mode = static_cast<std::underlying_type_t<fs::perms>>(perm);
     if (posix::mkdir(p.c_str(), mode))
       {
 	const int err = errno;
@@ -1404,7 +1403,6 @@ fs::status(const fs::path& p, error_code& ec) noexcept
   auto str = p.c_str();
 
 #if _GLIBCXX_FILESYSTEM_IS_WINDOWS
-#if ! defined __MINGW64_VERSION_MAJOR || __MINGW64_VERSION_MAJOR < 6
   // stat() fails if there's a trailing slash (PR 88881)
   path p2;
   if (p.has_relative_path() && !p.has_filename())
@@ -1421,7 +1419,6 @@ fs::status(const fs::path& p, error_code& ec) noexcept
 	}
       str = p2.c_str();
     }
-#endif
 #endif
 
   stat_type st;
@@ -1451,7 +1448,6 @@ fs::symlink_status(const fs::path& p, std::error_code& ec) noexcept
   auto str = p.c_str();
 
 #if _GLIBCXX_FILESYSTEM_IS_WINDOWS
-#if ! defined __MINGW64_VERSION_MAJOR || __MINGW64_VERSION_MAJOR < 6
   // stat() fails if there's a trailing slash (PR 88881)
   path p2;
   if (p.has_relative_path() && !p.has_filename())
@@ -1468,7 +1464,6 @@ fs::symlink_status(const fs::path& p, std::error_code& ec) noexcept
 	}
       str = p2.c_str();
     }
-#endif
 #endif
 
   stat_type st;
