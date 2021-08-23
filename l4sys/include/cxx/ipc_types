@@ -373,8 +373,8 @@ public:
             Map_type map_type = Map,
             Cacheopt cache = None, Continue cont = Last) noexcept
   : T(L4_ITEM_MAP | (snd_base & (~0UL << 10)) | l4_umword_t(map_type) | l4_umword_t(cache)
-    | l4_umword_t(cont),
-    fp.raw)
+      | l4_umword_t(cont),
+      fp.raw)
   {}
 
   Gen_fpage(L4::Cap<void> cap, unsigned rights, Map_type map_type = Map) noexcept
