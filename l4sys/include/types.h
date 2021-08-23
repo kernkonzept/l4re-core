@@ -48,6 +48,7 @@ enum L4_msgtag_protocol
   L4_PROTO_EXCEPTION     =  -5L, ///< Exception
   L4_PROTO_SIGMA0        =  -6L, ///< Sigma0 protocol
   L4_PROTO_IO_PAGE_FAULT =  -8L, ///< I/O page fault message
+  L4_PROTO_THREAD_GROUP  =  -9L, ///< Protocol for messages to a thread group obj
   L4_PROTO_KOBJECT       = -10L, ///< Protocol for messages to a generic kobject
   L4_PROTO_TASK          = -11L, ///< Protocol for messages to a task object
   L4_PROTO_THREAD        = -12L, ///< Protocol for messages to a thread object

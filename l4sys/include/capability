@@ -25,6 +25,7 @@ namespace L4
 /* Forward declarations for our kernel object classes. */
 class Task;
 class Thread;
+class Thread_group;
 class Factory;
 class Irq;
 class Log;

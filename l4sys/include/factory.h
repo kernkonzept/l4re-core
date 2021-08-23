@@ -168,9 +168,9 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \param      factory      Capability selector for factory to use for creation.
  * \param[out] target_cap   The kernel stores the new IPC gate's capability into
  *                          this slot.
- * \param      snd_dst_cap  Optional capability selector of a thread to
- *                          bind the gate to. Use #L4_INVALID_CAP to create
- *                          an unbound IPC gate.
+ * \param      snd_dst_cap  Optional capability selector of a thread or thread
+ *                          group to bind the gate to. Use #L4_INVALID_CAP to
+ *                          create an unbound IPC gate.
  * \param      label        Optional label of the gate (precisely used if
  *                          `snd_dst_cap` is valid). If `snd_dst_cap` is valid,
  *                          `label` must be present.
@@ -180,7 +180,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \retval L4_EOK      No error occurred.
  * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
  * \retval -L4_EINVAL  `snd_dst_cap` is void or points to something that is not
- *                     a thread.
+ *                     a thread or thread group.
  * \retval -L4_EPERM   Insufficient permissions; see precondition.
  *
  * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S. Also
@@ -280,6 +280,38 @@ l4_factory_create_vcpu_context(l4_cap_idx_t factory,
                                l4_cap_idx_t target_cap) L4_NOTHROW;
 
 /**
+ * \ingroup l4_factory_api
+ * Create a new thread group.
+ *
+ * An IPC endpoint can be bound to a thread group. When a message arrives at the
+ * IPC endpoint, a specific thread of the thread group is selected to actually
+ * receive the message. A thread group is a send destination for an IPC
+ * endpoint.
+ *
+ * \param      factory     Capability selector for factory to use for creation.
+ * \param[out] target_cap  The kernel stores the new thread group's capability
+ *                         into this slot.
+ * \param      policy      Policy parameter for the thread group. See
+ *                         #L4_thread_group_policy for a list of supported
+ *                         values.
+ *
+ * \return Syscall return tag
+ *
+ * \retval L4_EOK      No error occurred.
+ * \retval -L4_ENOMEM  Out-of-memory during allocation of the thread group object.
+ * \retval -L4_EINVAL  Invalid policy parameter.
+ * \retval -L4_EPERM   The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                     `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0          Error code.
+ *
+ * \see \ref l4_thread_group_api
+ */
+L4_INLINE l4_msgtag_t
+l4_factory_create_thread_group(l4_cap_idx_t factory,
+                               l4_cap_idx_t target_cap,
+                               unsigned policy) L4_NOTHROW;
+
+/**
  * \internal
  * \ingroup l4_factory_api
  */
@@ -295,6 +327,16 @@ L4_INLINE l4_msgtag_t
 l4_factory_create_vcpu_context_u(l4_cap_idx_t factory,
                                  l4_cap_idx_t target_cap,
                                  l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
+L4_INLINE l4_msgtag_t
+l4_factory_create_thread_group_u(l4_cap_idx_t factory,
+                                 l4_cap_idx_t target_cap,
+                                 unsigned policy,
+                                 l4_utcb_t *u) L4_NOTHROW;
 
 /**
  * \internal
@@ -473,8 +515,16 @@ l4_factory_create_vcpu_context_u(l4_cap_idx_t factory,
   return l4_factory_create_u(factory, L4_PROTO_VCPU_CONTEXT, target_cap, u);
 }
 
-
-
+L4_INLINE l4_msgtag_t
+l4_factory_create_thread_group_u(l4_cap_idx_t factory,
+                                 l4_cap_idx_t target_cap,
+                                 unsigned policy,
+                                 l4_utcb_t *u) L4_NOTHROW
+{
+  l4_msgtag_t t = l4_factory_create_start_u(L4_PROTO_THREAD_GROUP, target_cap, u);
+  l4_factory_create_add_uint_u(policy, &t, u);
+  return l4_factory_create_commit_u(factory, t, u);
+}
 
 
 L4_INLINE l4_msgtag_t
@@ -527,6 +577,15 @@ l4_factory_create_vcpu_context(l4_cap_idx_t factory,
 {
   return l4_factory_create_vcpu_context_u(factory, target_cap, l4_utcb());
 }
+
+L4_INLINE l4_msgtag_t
+l4_factory_create_thread_group(l4_cap_idx_t factory,
+                               l4_cap_idx_t target_cap,
+                               unsigned policy) L4_NOTHROW
+{
+  return l4_factory_create_thread_group_u(factory, target_cap, policy, l4_utcb());
+}
+
 
 L4_INLINE l4_msgtag_t
 l4_factory_create_start_u(long obj, l4_cap_idx_t target_cap,

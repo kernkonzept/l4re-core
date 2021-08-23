@@ -92,7 +92,7 @@ l4_rcv_ep_bind_snd_destination_u(l4_cap_idx_t ep, l4_cap_idx_t snd_dst,
 /// Receive endpoint operations.
 enum L4_rcv_ep_ops
 {
-  L4_RCV_EP_BIND_OP     = 0x10, /**< Bind operation */
+  L4_RCV_EP_BIND_OP     = 0x10, /**< Bind to thread or thread group */
 };
 
 /* IMPLEMENTATION -----------------------------------------------------------*/

@@ -1,0 +1,71 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2022-2025 Kernkonzept GmbH.
+ * Author(s): Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+ *            Frank Mehnert <frank.mehnert@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+/**
+ * \file
+ */
+#pragma once
+
+#include <l4/sys/capability>
+#include <l4/sys/thread_group.h>
+
+namespace L4 {
+
+/**
+ * C++ L4 kernel thread group interface, see \ref l4_thread_group_api for the
+ * C interface.
+ *
+ * An L4 thread group is a collection of threads used as indirection for IPC
+ * gate and IRQ objects such that these objects can have multiple receivers,
+ * from which the kernel selects one according to a policy.
+ *
+ * The primary use case for thread groups are multi-threaded servers and
+ * CPU core local IRQ / IPC delivery.
+ *
+ * A thread can be bound to at most one thread group. Before binding a thread to
+ * a thread group, the thread must be bound to a task. All threads bound to the
+ * same thread group must belong to the same task.
+ */
+class L4_EXPORT Thread_group :
+  public Kobject_t<Thread_group, Snd_destination, L4_PROTO_THREAD_GROUP,
+                   Type_info::Demand_t<1>>
+{
+public:
+  /**
+   * Add thread to a thread group.
+   *
+   * \param thread  Thread to add to the thread group.
+   * \utcb_def{utcb}
+   *
+   * \return Syscall return tag containing one of the following return codes.
+   *
+   * \retval L4_EOK      No error occurred.
+   * \retval -L4_EINVAL  `thread` is not a thread object.
+   * \retval -L4_EEXIST  `thread` already bound to this thread group.
+   * \retval -L4_EBUSY   `thread` already bound to a different thread group.
+   * \retval -L4_ENOENT  Thread group doesn't exist.
+   */
+  l4_msgtag_t add(Cap<Thread> thread, l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_thread_group_add_u(cap(), thread.cap(), utcb); }
+
+  /**
+   * Remove thread from a thread group.
+   *
+   * \param thread  Thread to remove from the thread group.
+   * \utcb_def{utcb}
+   *
+   * \return Syscall return tag containing one of the following return codes.
+   *
+   * \retval L4_EOK      No error occurred.
+   * \retval -L4_EINVAL  `thread` is not a thread object.
+   */
+  l4_msgtag_t remove(Cap<Thread> thread, l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_thread_group_remove_u(cap(), thread.cap(), utcb); }
+};
+
+}

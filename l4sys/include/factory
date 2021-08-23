@@ -407,13 +407,14 @@ public:
   { return l4_factory_create_factory_u(cap(), target_cap.cap(), limit, utcb); }
 
   /**
-   * Create a new IPC gate, optionally bound to a send destination (a thread).
+   * Create a new IPC gate, optionally bound to a send destination (a thread
+   * or thread group).
    *
    * \param[out] target_cap   The kernel stores the new IPC gate's capability
    *                          into this slot.
-   * \param      snd_dst_cap  Optional capability selector of a thread to bind
-   *                          the gate to. Use #L4_INVALID_CAP to create an
-   *                          unbound IPC gate.
+   * \param      snd_dst_cap  Optional capability selector of a thread or thread
+   *                          group to bind the gate to. Use #L4_INVALID_CAP to
+   *                          create an unbound IPC gate.
    * \param      label        Optional label of the gate (precisely used if
    *                          `snd_dst_cap` is valid). If `snd_dst_cap` is
    *                          valid, `label` must be present.
@@ -424,14 +425,14 @@ public:
    * \retval L4_EOK      No error occurred.
    * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
    * \retval -L4_EINVAL  `snd_dst_cap` is void or points to something that is
-   *                     not a thread.
+   *                     not a thread or thread group.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
    *
    * \pre The invoked Factory capability must have the permission
    *      #L4_CAP_FPAGE_S. Also `snd_dst_cap` (if [valid](#L4::Cap::is_valid()))
    *      must have the permission #L4_CAP_FPAGE_S.
    *
-   * An unbound IPC gate can be bound to a thread using
+   * An unbound IPC gate can be bound to a thread or thread group using
    * L4::Ipc_gate::bind_thread() or bind_snd_destination().
    *
    * \see L4::Ipc_gate
@@ -443,6 +444,40 @@ public:
   {
     return l4_factory_create_gate_u(cap(), target_cap.cap(), snd_dst_cap.cap(),
                                     label, utcb);
+  }
+
+  /**
+   * Create a new thread group.
+   *
+   * An IPC endpoint can be bound to a thread group. When a message arrives at
+   * the IPC endpoint, a specific thread of the thread group is selected to
+   * actually receive the message. A thread group is a send destination for an
+   * IPC endpoint.
+   *
+   * \param[out] target_cap  The kernel stores the new thread group's capability
+   *                         into this slot.
+   * \param      policy      Policy parameter for the thread group. See
+   *                         #L4_thread_group_policy for a list of supported
+   *                         values.
+   *
+   * \utcb_def{utcb}
+   *
+   * \return Syscall return tag containing one of the following return codes.
+   *
+   * \retval L4_EOK      No error occurred.
+   * \retval -L4_ENOMEM  Out-of-memory during allocation of the Thread_group
+   *                     object.
+   * \retval -L4_EINVAL  Invalid policy parameter.
+   * \retval -L4_EPERM   The factory instance requires #L4_CAP_FPAGE_S rights on
+   *                     the invoked capability and #L4_CAP_FPAGE_S is not
+   *                     present.
+   */
+  l4_msgtag_t create_thread_group(Cap<Thread_group> const &target_cap,
+                                  unsigned policy,
+                                  l4_utcb_t *utcb = l4_utcb()) noexcept
+  {
+    return l4_factory_create_thread_group_u(cap(), target_cap.cap(),
+                                            policy, utcb);
   }
 
   typedef L4::Typeid::Rpc_nocode<create_t> Rpcs;
