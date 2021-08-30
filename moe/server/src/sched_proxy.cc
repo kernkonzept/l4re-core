@@ -81,33 +81,36 @@ Sched_proxy::List Sched_proxy::_list;
 Sched_proxy::Sched_proxy() :
   Icu(1, &_scheduler_irq),
   _real_cpus(l4_sched_cpu_set(0, 0, 0)), _cpu_mask(_real_cpus),
-  _max_cpus(0),
+  _max_cpus(0), _sched_classes(0),
   _prio_offset(0), _prio_limit(0)
 {
-  rescan_cpus();
+  rescan_cpus_and_classes();
   _list.push_front(this);
 }
 
 void
-Sched_proxy::rescan_cpus()
+Sched_proxy::rescan_cpus_and_classes()
 {
   l4_sched_cpu_set_t c;
   l4_umword_t max = 0;
   c.map = 0;
   c.gran_offset = 0;
+  l4_umword_t sc = 0;
 
-  int e = l4_error(L4Re::Env::env()->scheduler()->info(&max, &c));
+  int e = l4_error(L4Re::Env::env()->scheduler()->info(&max, &c, &sc));
   if (e < 0)
     return;
 
   _max_cpus = std::min<unsigned>(sizeof(l4_umword_t) * 8, max);
   _real_cpus = c;
+  _sched_classes = sc;
 
   _cpus = _real_cpus & _cpu_mask;
 }
 
 int
-Sched_proxy::info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus)
+Sched_proxy::info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
+                  l4_umword_t *sched_classes)
 {
   *cpu_max = _max_cpus;
   unsigned char g = cpus->granularity() & (sizeof(l4_umword_t) * 8 - 1);
@@ -127,6 +130,8 @@ Sched_proxy::info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus)
       if (!(i & ~(~0UL << g)))
 	++b;
     }
+
+  *sched_classes = _sched_classes;
 
   return L4_EOK;
 }
@@ -182,7 +187,7 @@ public:
   {
     for (auto i : Sched_proxy::_list)
       {
-        i->rescan_cpus();
+        i->rescan_cpus_and_classes();
         i->hotplug_event();
       }
   }

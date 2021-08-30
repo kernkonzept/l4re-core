@@ -36,7 +36,8 @@ public:
 
   Sched_proxy();
 
-  int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus);
+  int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
+           l4_umword_t *sched_classes);
 
   int run_thread(L4::Cap<L4::Thread> thread, l4_sched_param_t const &sp);
 
@@ -50,7 +51,7 @@ public:
   { return L4::Cap<L4::Thread>(Rcv_cap << L4_CAP_SHIFT); }
 
   void restrict_cpus(l4_umword_t cpus);
-  void rescan_cpus();
+  void rescan_cpus_and_classes();
 
   Icu::Irq *scheduler_irq() { return &_scheduler_irq; }
   Icu::Irq const *scheduler_irq() const { return &_scheduler_irq; }
@@ -60,6 +61,7 @@ private:
 
   l4_sched_cpu_set_t _cpus, _real_cpus, _cpu_mask;
   unsigned _max_cpus;
+  l4_umword_t _sched_classes;
   unsigned _prio_offset, _prio_limit;
   Icu::Irq _scheduler_irq;
 

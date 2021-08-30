@@ -57,30 +57,37 @@ public:
   // ABI function for 'info' call
   L4_INLINE_RPC_NF_OP(L4_SCHEDULER_INFO_OP,
       l4_msgtag_t, info, (l4_umword_t gran_offset, l4_umword_t *map,
-                          l4_umword_t *cpu_max));
+                          l4_umword_t *cpu_max, l4_umword_t *sched_classes));
 
   /**
    * Get scheduler information.
    *
-   * \param[out]    cpu_max Maximum number of CPUs ever available. Optional,
-   *                        can be nullptr.
-   * \param[in,out] cpus    \a cpus.offset is first CPU of interest.
-   *                        \a cpus.granularity (see l4_sched_cpu_set_t).
-   *                        \a cpus.map Bitmap of online CPUs.
-   * \param         utcb    UTCB pointer of the calling thread. This defaults
-   *                        to the UTCB of the current thread.
+   * \param[out]    cpu_max        Maximum number of CPUs ever available.
+   *                               Optional, can be nullptr.
+   * \param[in,out] cpus           \a cpus.offset is first CPU of interest.
+   *                               \a cpus.granularity (see l4_sched_cpu_set_t).
+   *                               \a cpus.map Bitmap of online CPUs.
+   *                               Pass nullptr to omit this information.
+   * \param[out]    sched_classes  A bitmap of available scheduling classes
+   *                               (see L4_scheduler_classes).
+   *                               Pass nullptr to omit this information.
+   * \param         utcb           UTCB pointer of the calling thread. This
+   *                               defaults to the UTCB of the current thread.
    *
    * \retval 0           Success.
    * \retval -L4_ERANGE  The given CPU offset is larger than the maximum number
    *                     of CPUs.
    */
   l4_msgtag_t info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
+                   l4_umword_t *sched_classes = nullptr,
                    l4_utcb_t *utcb = l4_utcb()) const noexcept
   {
     l4_umword_t max = 0;
+    l4_umword_t sc = 0;
     l4_msgtag_t t =
-      info_t::call(c(), cpus->gran_offset, &cpus->map, &max, utcb);
+      info_t::call(c(), cpus->gran_offset, &cpus->map, &max, &sc, utcb);
     if (cpu_max) *cpu_max = max;
+    if (sched_classes) *sched_classes = sc;
     return t;
   }
 

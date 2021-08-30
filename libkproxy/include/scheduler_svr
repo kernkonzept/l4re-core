@@ -32,7 +32,8 @@ namespace L4kproxy {
 class Scheduler_interface
 {
 public:
-  virtual int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus) = 0;
+  virtual int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
+                   l4_umword_t *sched_classes = nullptr) = 0;
 
   virtual int run_thread(L4::Cap<L4::Thread> thread,
                          l4_sched_param_t const &sp) = 0;
@@ -52,14 +53,16 @@ public:
   { this_svr()->scheduler_irq()->trigger(); }
 
   long op_info(L4::Scheduler::Rights, l4_umword_t gran_offset,
-               l4_umword_t &map, l4_umword_t &cpu_max)
+               l4_umword_t &map, l4_umword_t &cpu_max, l4_umword_t &sched_classes)
   {
     l4_sched_cpu_set_t cpus;
     cpus.gran_offset = gran_offset;
     cpus.map = 0;
+    l4_umword_t sc = 0;
 
-    int ret = this_svr()->info(&cpu_max, &cpus);
+    int ret = this_svr()->info(&cpu_max, &cpus, &sc);
     map = cpus.map;
+    sched_classes = sc;
     return ret;
   }
 
@@ -102,8 +105,9 @@ public:
   using Icu_svr::op_info;
   using Scheduler::op_info;
 
-  int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus)
-  { return _sched->info(cpu_max, cpus); }
+  int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
+           l4_umword_t *sched_classes = nullptr)
+  { return _sched->info(cpu_max, cpus, sched_classes); }
 
   int run_thread(L4::Cap<L4::Thread> thread, l4_sched_param_t const &sp)
   { return _sched->run_thread(thread, sp); }
