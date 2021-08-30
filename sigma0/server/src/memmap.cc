@@ -128,7 +128,7 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
   return;
 }
 
-/* handler for page fault fault requests */
+/* handler for page fault requests */
 static
 void
 handle_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
@@ -174,7 +174,7 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
       return;
     }
 
-  switch (l4_utcb_mr_u(utcb)->mr[0] & 0x0f0)
+  switch (l4_utcb_mr_u(utcb)->mr[0] & SIGMA0_REQ_ID_MASK)
     {
     case SIGMA0_REQ_ID_DEBUG_DUMP:
         {
