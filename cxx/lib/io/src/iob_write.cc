@@ -93,9 +93,6 @@ namespace L4
     while (sizeof(buffer) - pos < len)
       buffer[--pos] = pad;
 
-    if (pos == sizeof(buffer))
-      pos--;
-
     write(buffer + pos, sizeof(buffer) - pos);
   }
 };
