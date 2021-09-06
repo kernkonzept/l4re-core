@@ -18,7 +18,7 @@ the factory to remain operational.
 
 The kernel factory creates the following kinds of objects:
 
-- Dmar_space
+- \ref l4_kernel_object_dmar_space
 - L4::Factory
 - L4::Ipc_gate
 - L4::Irq
@@ -44,7 +44,7 @@ Objects that support additional parameters on their creation are presented with
 a non-empty list of parameters. The parameters are listed in the order they
 should be provided to a create stream returned by L4::Factory.create().
 
- - Dmar_space()
+ - \link l4_kernel_object_dmar_space Dmar_space\endlink()
  - L4::Factory(\ref l4_umword_t)
    - Argument: factory quota (in bytes).
    - See L4::Factory.create_factory() for details.

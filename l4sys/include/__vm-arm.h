@@ -25,14 +25,6 @@
 
 namespace L4 {
 
-/**
- * Virtual machine host address space.
- * \ingroup l4_kernel_object_api
- *
- * L4::Vm is a specialisation of L4::Task, used for virtual machines.
- * For Arm, it offers a call to make the virtual GICC area available
- * to the VM.
- */
 class Vm : public Kobject_t<Vm, Task, L4_PROTO_VM>
 {
 public:

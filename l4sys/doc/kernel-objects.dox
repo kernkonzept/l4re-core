@@ -1,0 +1,22 @@
+/* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
+/*
+ * Copyright (C) 2021 Kernkonzept GmbH.
+ */
+
+/**
+ * \defgroup l4_kernel_object_dmar_space DMAR space
+ * \ingroup l4_kernel_object_api
+ *
+ * A DMAR space represents a device memory address space managed by an IOMMU.
+ * That is, it manages the translation of virtual addresses used by devices to
+ * physical addresses. It is accessed via the L4::Task interface, but with the
+ * following caveats:
+ * - No threads can be bound to it.
+ * - No objects (and IO ports on IA32) can be mapped to it.
+ * - No kernel-user memory can be added to it.
+ * - It must be constructed by passing the L4_PROTO_DMA_SPACE protocoll constant
+ *   to the kernel factory's L4::Factory.create() call.
+ *
+ * A DMAR space must be bound to an L4::Iommu to enable the address translation
+ * for specific devices.
+ */
