@@ -47,15 +47,6 @@ class L4_EXPORT Platform_control
 : public Kobject_t<Platform_control, Kobject, L4_PROTO_PLATFORM_CTL>
 {
 public:
-  /// Opcodes for platform-control object.
-  enum Opcode
-  {
-    Suspend  = L4_PLATFORM_CTL_SYS_SUSPEND_OP, ///< Opcode for suspend to RAM
-    Shutdown = L4_PLATFORM_CTL_SYS_SHUTDOWN_OP,///< Opcode for shutdown / reboot
-    Cpu_enable  = L4_PLATFORM_CTL_CPU_ENABLE_OP,  ///< Opcode to enable a CPU
-    Cpu_disable = L4_PLATFORM_CTL_CPU_DISABLE_OP  ///< Opcode to disable a CPU
-  };
-
   /**
    * Enter suspend to RAM.
    *
@@ -78,6 +69,19 @@ public:
                    l4_msgtag_t, system_shutdown, (l4_umword_t reboot));
 
   /**
+   * Allow CPU shutdown.
+   *
+   * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to disable.
+   * \param enable   Allow shutdown when 1, disallow when 0.
+   *
+   * Sets or unsets a hint that a CPU that is not currently used may be powered
+   * down.
+   */
+  L4_INLINE_RPC_OP(L4_PLATFORM_CTL_CPU_ALLOW_SHUTDOWN_OP,
+                   l4_msgtag_t, cpu_allow_shutdown,
+                   (l4_umword_t phys_id, l4_umword_t enable));
+
+  /**
    * Enable an offline CPU.
    *
    * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to enable.
@@ -98,7 +102,8 @@ public:
                    l4_msgtag_t, cpu_disable, (l4_umword_t phys_id));
 
   typedef L4::Typeid::Rpcs_sys<system_suspend_t, system_shutdown_t,
-                               cpu_enable_t, cpu_disable_t> Rpcs;
+                               cpu_allow_shutdown_t, cpu_enable_t,
+                               cpu_disable_t> Rpcs;
 };
 
 }

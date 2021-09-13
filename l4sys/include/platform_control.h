@@ -42,7 +42,7 @@
 /**
  * Enter suspend to RAM.
  *
- * \param pfc     Capability selector for the platform-control object
+ * \param pfc     Capability selector for the platform-control object.
  * \param extras  Some extra platform-specific information needed to enter
  *                suspend to RAM. On x86 platforms and when using the
  *                Platform_control object provided by Fiasco, the value
@@ -68,7 +68,7 @@ l4_platform_ctl_system_suspend_u(l4_cap_idx_t pfc,
 /**
  * Shutdown or reboot the system.
  *
- * \param pfc     Capability selector for the platform-control object
+ * \param pfc     Capability selector for the platform-control object.
  * \param reboot  Shutdown when 0, or reboot when 1.
  *
  * \return Syscall return tag
@@ -85,6 +85,28 @@ l4_platform_ctl_system_shutdown_u(l4_cap_idx_t pfc,
                                   l4_umword_t reboot,
                                   l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * Allow a CPU to be shut down.
+ *
+ * \param pfc      Capability selector for the platform-control object.
+ * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to enable.
+ * \param enable   Allow shutdown when 1, disallow when 0.
+ *
+ * \return Syscall return tag
+ */
+L4_INLINE l4_msgtag_t
+l4_platform_ctl_cpu_allow_shutdown(l4_cap_idx_t pfc,
+                                   l4_umword_t phys_id,
+                                   l4_umword_t enable) L4_NOTHROW;
+
+/**
+ * \internal
+ */
+L4_INLINE l4_msgtag_t
+l4_platform_ctl_cpu_allow_shutdown_u(l4_cap_idx_t pfc,
+                                     l4_umword_t phys_id,
+                                     l4_umword_t enable,
+                                     l4_utcb_t *utcb) L4_NOTHROW;
 /**
  * Enable an offline CPU.
  *
@@ -138,10 +160,11 @@ l4_platform_ctl_cpu_disable_u(l4_cap_idx_t pfc,
  */
 enum L4_platform_ctl_ops
 {
-  L4_PLATFORM_CTL_SYS_SUSPEND_OP  = 0UL, /**< Suspend */
-  L4_PLATFORM_CTL_SYS_SHUTDOWN_OP = 1UL, /**< shutdown/reboot */
-  L4_PLATFORM_CTL_CPU_ENABLE_OP   = 3UL, /**< enable an offline CPU */
-  L4_PLATFORM_CTL_CPU_DISABLE_OP  = 4UL, /**< disable an online CPU */
+  L4_PLATFORM_CTL_SYS_SUSPEND_OP        = 0UL, /**< Suspend */
+  L4_PLATFORM_CTL_SYS_SHUTDOWN_OP       = 1UL, /**< shutdown/reboot */
+  L4_PLATFORM_CTL_CPU_ALLOW_SHUTDOWN_OP = 2UL, /**< allow CPU shutdown */
+  L4_PLATFORM_CTL_CPU_ENABLE_OP         = 3UL, /**< enable an offline CPU */
+  L4_PLATFORM_CTL_CPU_DISABLE_OP        = 4UL, /**< disable an online CPU */
 };
 
 /**
@@ -199,6 +222,28 @@ l4_platform_ctl_system_shutdown(l4_cap_idx_t pfc,
                                 l4_umword_t reboot) L4_NOTHROW
 {
   return l4_platform_ctl_system_shutdown_u(pfc, reboot, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_platform_ctl_cpu_allow_shutdown_u(l4_cap_idx_t pfc,
+                                     l4_umword_t phys_id,
+                                     l4_umword_t enable,
+                                     l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msg_regs_t *v = l4_utcb_mr_u(utcb);
+  v->mr[0] = L4_PLATFORM_CTL_CPU_ALLOW_SHUTDOWN_OP;
+  v->mr[1] = phys_id;
+  v->mr[2] = enable;
+  return l4_ipc_call(pfc, utcb, l4_msgtag(L4_PROTO_PLATFORM_CTL, 3, 0, 0),
+                                          L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_platform_ctl_cpu_allow_shutdown(l4_cap_idx_t pfc,
+                                   l4_umword_t phys_id,
+                                   l4_umword_t enable) L4_NOTHROW
+{
+  return l4_platform_ctl_cpu_allow_shutdown_u(pfc, phys_id, enable, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t
