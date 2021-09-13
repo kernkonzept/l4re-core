@@ -87,6 +87,8 @@ public:
    * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to enable.
    *
    * \return System call message tag
+   *
+   * This function is currently only supported on the ARM EXYNOS platform.
    */
   L4_INLINE_RPC_OP(L4_PLATFORM_CTL_CPU_ENABLE_OP,
                    l4_msgtag_t, cpu_enable, (l4_umword_t phys_id));
@@ -97,6 +99,8 @@ public:
    * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to disable.
    *
    * \return System call message tag
+   *
+   * This function is currently only supported on the ARM EXYNOS platform.
    */
   L4_INLINE_RPC_OP(L4_PLATFORM_CTL_CPU_DISABLE_OP,
                    l4_msgtag_t, cpu_disable, (l4_umword_t phys_id));

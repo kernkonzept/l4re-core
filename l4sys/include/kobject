@@ -94,12 +94,18 @@ public:
    * \param diff  The delta that shall be subtracted from the reference count.
    * \utcb{utcb}
    *
+   * \return Syscall return tag
+   *
    * This function is intended for servers to be able to remove the servers
    * own capability from the counted references.  This leads to the semantics
    * that the kernel will delete the object even if the capability of the
    * server is valid.  The server can detect the deletion by polling its
    * capabilities or by using the IPC-gate deletion IRQs.  And to cleanup
    * if the clients dropped the last reference (capability) to the object.
+   *
+   * This function only succeeds on a kernel object of type L4::Ipc_gate which
+   * has the server right (#L4_FPAGE_C_IPCGATE_SVR). For other kernel objects,
+   * -L4_ENOSYS is returned.
    */
   l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
   { return l4_kobject_dec_refcnt_u(cap(), diff, utcb); }

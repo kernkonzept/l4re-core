@@ -114,6 +114,8 @@ l4_platform_ctl_cpu_allow_shutdown_u(l4_cap_idx_t pfc,
  * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to enable.
  *
  * \return System call message tag
+ *
+ * This function is currently only supported on the ARM EXYNOS platform.
  */
 L4_INLINE l4_msgtag_t
 l4_platform_ctl_cpu_enable(l4_cap_idx_t pfc,
@@ -134,6 +136,8 @@ l4_platform_ctl_cpu_enable_u(l4_cap_idx_t pfc,
  * \param phys_id  Physical CPU id of CPU (e.g. local APIC id) to disable.
  *
  * \return System call message tag
+ *
+ * This function is currently only supported on the ARM EXYNOS platform.
  */
 L4_INLINE l4_msgtag_t
 l4_platform_ctl_cpu_disable(l4_cap_idx_t pfc,
