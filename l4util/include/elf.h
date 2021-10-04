@@ -759,6 +759,11 @@ typedef struct {
 /* Keep this the last entry.  */
 #define R_ARM_NUM		256
 
+/* AARCH64 relocations. */
+
+#define R_AARCH64_NONE          0       /* No reloc */
+#define R_AARCH64_RELATIVE      1027
+
 /* AMD x86-64 relocations.  */
 #define R_X86_64_NONE		0	/* No reloc */
 #define R_X86_64_64		1	/* Direct 64 bit  */
