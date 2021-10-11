@@ -45,6 +45,13 @@ inline void *operator new (size_t, void *mem, cxx::Nothrow const &) throw()
  */
 void *operator new (size_t, cxx::Nothrow const &) throw();
 
+/**
+ * \ingroup cxx_api
+ * \brief Delete operator complementing the new operator not throwing
+ *        exceptions.
+ */
+void operator delete (void *, cxx::Nothrow const &) throw();
+
 namespace cxx {
 
 
@@ -71,7 +78,7 @@ public:
   { return static_cast<_Type*>(::operator new(sizeof (_Type), cxx::Nothrow())); }
   
   void free(_Type *t) throw()
-  { ::operator delete(t); }
+  { ::operator delete(t, cxx::Nothrow()); }
 };
 
 }
