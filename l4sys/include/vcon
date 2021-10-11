@@ -36,6 +36,13 @@ namespace L4 {
  * L4::Vcon is a virtual console for simple character-based input and output.
  * The interrupt for read events is provided by the virtual key interrupt.
  *
+ * The Vcon interface inherits from L4::Icu and L4::Irq_eoi for managing the
+ * virtual key interrupt which, in contrast to hardware IRQs, implements a
+ * limited functionality:
+ *  - Only IRQ line 0 is supported, no MSI vectors.
+ *  - The IRQ is edge-triggered and the IRQ mode cannot be changed.
+ *  - As the IRQ is edge-triggered, it does not have to be explicitly unmasked.
+ *
  * \includefile{l4/sys/vcon}
  *
  * See the \ref l4_vcon_api for the C interface.
