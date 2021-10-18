@@ -21,7 +21,7 @@
 .globl _real_start
 .set noreorder
 _real_start:
-	.cpload $25 /* load gp */
+	SETUP_GPX($0)
 	SETUP_GPX64($25, $0)
 	/* Mind the argc that is popped off the stack! */
 	PTR_LA	$29, _stack_top-8

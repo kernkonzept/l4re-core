@@ -14,7 +14,7 @@
 .globl __start
 .set noreorder
 __start:
-	.cpload $25 /* load GP */
+	SETUP_GPX($0)
 	SETUP_GPX64($25, $0)
 	PTR_LA	$29, crt0_stack_high
 	PTR_LA	$25, init
