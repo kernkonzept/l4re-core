@@ -90,21 +90,30 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
   unsigned long addr = ~0UL;
   Region const *p;
   Region r;
+  unsigned long send_addr = l4_fpage_memaddr(fp);
+  unsigned send_order = l4_fpage_size(fp);
+
+  //Check if send_addr is correctly aligned to send_order since the kernel
+  //will otherwise truncate the send address. Fail in case it is not aligned.
+  if (l4_trunc_size(send_addr, send_order) != send_addr)
+    {
+      an->error(L4_EINVAL);
+      return;
+    }
 
   switch (fn)
     {
     case Ram:
       m = Mem_man::ram();
       mem_flags = L4_FPAGE_RWX;
-      addr = m->alloc(Region::bs(fp.raw & ~((1UL << 12) - 1),
-                                 1UL << l4_fpage_size(fp), t));
+      addr = m->alloc(Region::bs(send_addr, 1UL << send_order, t));
       break;
     case Io_mem:
       cached = false;
       /* fall through */
     case Io_mem_cached:
       // there is no first-come, first-serve for IO memory
-      r = Region::bs(fp.raw & ~((1UL << 12) - 1), 1UL << l4_fpage_size(fp));
+      r = Region::bs(send_addr, 1UL << send_order);
       p = iomem.find(r);
       if (p)
         {
@@ -123,7 +132,7 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
       return;
     }
 
-  an->snd_fpage(addr, l4_fpage_size(fp), mem_flags, cached);
+  an->snd_fpage(addr, send_order, mem_flags, cached);
 
   return;
 }
