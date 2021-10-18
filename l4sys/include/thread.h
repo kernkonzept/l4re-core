@@ -248,7 +248,8 @@ l4_thread_control_exc_handler_u(l4_cap_idx_t exc_handler,
  * thread is bound to the task. To actually start execution,
  * l4_thread_ex_regs() needs to be used. Execution in the context of the
  * task means that the code has access to all the task’s resources (and
- * only those). The executed code itself must be one of those resources.
+ * only those). The executed code itself must be one of those resources. A
+ * thread can be bound at most once to a task.
  *
  * \note The UTCBs of different threads in the same task should not overlap
  *       in order to prevent data corruption.
