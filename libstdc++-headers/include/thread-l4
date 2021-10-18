@@ -13,9 +13,18 @@
 
 namespace std { namespace L4 {
 
-/// Return the L4 thread capability for a given thread.
+/**
+ * Return the L4 thread capability for a given std::thread.
+ *
+ * If the std::thread is not joinable, the invalid capability (#L4_INVALID_CAP)
+ * is returned.
+ */
 inline ::L4::Cap< ::L4::Thread> thread_cap(std::thread &t)
-{ return Pthread::L4::cap(t.native_handle()); }
+{
+  if (t.joinable())
+    return Pthread::L4::cap(t.native_handle());
+  return ::L4::Cap< ::L4::Thread>();
+}
 
 /// Return a pointer to the UTCB of this thread.
 inline l4_utcb_t * thread_utcb(std::thread &t)
