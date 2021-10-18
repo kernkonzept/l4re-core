@@ -73,6 +73,13 @@ static
 void map_free_page(unsigned size, l4_umword_t t, Answer *a)
 {
   unsigned long addr;
+
+  if (size < L4_PAGESHIFT)
+    {
+      a->error(L4_EINVAL);
+      return;
+    }
+
   addr = Mem_man::ram()->alloc_first(1UL << size, t);
   if (addr != ~0UL)
     a->snd_fpage(addr, size, L4_FPAGE_RWX, true);
@@ -93,9 +100,16 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
   unsigned long send_addr = l4_fpage_memaddr(fp);
   unsigned send_order = l4_fpage_size(fp);
 
-  //Check if send_addr is correctly aligned to send_order since the kernel
-  //will otherwise truncate the send address. Fail in case it is not aligned.
+  // Check if send_addr is correctly aligned to send_order since the kernel
+  // will otherwise truncate the send address. Fail in case it is not aligned.
   if (l4_trunc_size(send_addr, send_order) != send_addr)
+    {
+      an->error(L4_EINVAL);
+      return;
+    }
+
+  // Isolation is only enforced at page granularity. Deny smaller requests.
+  if (send_order < L4_PAGESHIFT)
     {
       an->error(L4_EINVAL);
       return;
