@@ -49,11 +49,10 @@ Server::Server() : Base(0)
 void
 Server::run()
 {
-  _utcb = l4_utcb();
   _r = new Registry(this, Pthread::L4::cap(pthread_self()),
                     L4Re::Env::env()->factory());
   pthread_mutex_unlock(&_start_mutex);
-  loop<L4::Runtime_error>(_r);
+  loop<L4::Runtime_error>(_r, l4_utcb());
 }
 
 void *

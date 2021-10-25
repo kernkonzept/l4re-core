@@ -302,8 +302,18 @@ public:
   /**
    * Initializes the server loop.
    * \param utcb The UTCB of the thread running the server loop.
+   *
+   * Note that this variant is deprecated. The UTCB can be specified with
+   * the server loop function (l4_utcb() is the default). (2021-10)
    */
-  explicit Server(l4_utcb_t *utcb) : _utcb(utcb) {}
+  /* Internal note: After all users have been converted, remove this
+   * constructor. */
+  explicit Server(l4_utcb_t *) {}
+
+  /**
+   * Initializes the server loop.
+   */
+  Server() {}
 
   /**
    * The server loop.
@@ -312,14 +322,15 @@ public:
    * incoming messages calls the dispatcher, sends a reply and waits again.
    */
   template< typename DISPATCH >
-  inline L4_NORETURN void internal_loop(DISPATCH dispatch);
+  inline L4_NORETURN void internal_loop(DISPATCH dispatch, l4_utcb_t *);
 
   /**
    * Server loop without exception handling.
    */
   template< typename R >
-  inline L4_NORETURN void loop_noexc(R r)
-  { internal_loop(Ipc_svr::Direct_dispatch<R>(r)); }
+  inline L4_NORETURN void loop_noexc(R r, l4_utcb_t *u = l4_utcb())
+  { internal_loop(Ipc_svr::Direct_dispatch<R>(r), u); }
+
 #ifdef __EXCEPTIONS
   /**
    * Server loop with internal exception handling.
@@ -328,44 +339,45 @@ public:
    * into negative error return codes sent to the caller.
    */
   template< typename EXC, typename R >
-  inline L4_NORETURN void loop(R r)
-  { internal_loop(Ipc_svr::Exc_dispatch<R, EXC>(r)); while(1) ; }
+  inline L4_NORETURN void loop(R r, l4_utcb_t *u = l4_utcb())
+  {
+    internal_loop(Ipc_svr::Exc_dispatch<R, EXC>(r), u);
+    while(1)
+      ;
+  }
 #endif
 protected:
   /// Internal implementation for reply and wait
-  inline l4_msgtag_t reply_n_wait(l4_msgtag_t reply, l4_umword_t *p);
-
-public:
-  l4_utcb_t *_utcb;
+  inline l4_msgtag_t reply_n_wait(l4_msgtag_t reply, l4_umword_t *p, l4_utcb_t *);
 };
 
 template< typename L >
 inline l4_msgtag_t
-Server<L>::reply_n_wait(l4_msgtag_t reply, l4_umword_t *p)
+Server<L>::reply_n_wait(l4_msgtag_t reply, l4_umword_t *p, l4_utcb_t *utcb)
 {
   if (reply.label() != -L4_ENOREPLY)
     {
-      Ipc_svr::Reply_mode m = this->before_reply(reply, _utcb);
+      Ipc_svr::Reply_mode m = this->before_reply(reply, utcb);
       if (m == Ipc_svr::Reply_compound)
         {
-          this->setup_wait(_utcb, m);
-          return l4_ipc_reply_and_wait(_utcb, reply, p, this->timeout());
+          this->setup_wait(utcb, m);
+          return l4_ipc_reply_and_wait(utcb, reply, p, this->timeout());
         }
       else
         {
-          l4_msgtag_t res = l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY, _utcb, reply, this->timeout());
+          l4_msgtag_t res = l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY, utcb, reply, this->timeout());
           if (res.has_error())
             return res;
         }
     }
-  this->setup_wait(_utcb, Ipc_svr::Reply_separate);
-  return l4_ipc_wait(_utcb, p, this->timeout());
+  this->setup_wait(utcb, Ipc_svr::Reply_separate);
+  return l4_ipc_wait(utcb, p, this->timeout());
 }
 
 template< typename L >
 template< typename DISPATCH >
 inline L4_NORETURN void
-Server<L>::internal_loop(DISPATCH dispatch)
+Server<L>::internal_loop(DISPATCH dispatch, l4_utcb_t *utcb)
 {
   l4_msgtag_t res;
   l4_umword_t p;
@@ -373,15 +385,15 @@ Server<L>::internal_loop(DISPATCH dispatch)
 
   while (true)
     {
-      res = reply_n_wait(r, &p);
+      res = reply_n_wait(r, &p, utcb);
       if (res.has_error())
         {
-          this->error(res, _utcb);
+          this->error(res, utcb);
           r = l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
           continue;
         }
 
-      r = dispatch(res, p, _utcb);
+      r = dispatch(res, p, utcb);
     }
 }
 
