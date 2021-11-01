@@ -394,11 +394,6 @@ public:
   virtual L4::Cap<L4::Rcv_endpoint>
   register_obj(L4::Epiface *o, L4::Cap<L4::Rcv_endpoint> ep) = 0;
 
-  L4::Cap<L4::Irq>
-  register_irq_obj(L4::Epiface *o, L4::Cap<L4::Irq> irq)
-  L4_DEPRECATED("Use register_obj() instead")
-  { return cap_reinterpret_cast<L4::Irq>(register_obj(o, cap_reinterpret_cast<L4::Rcv_endpoint>(irq))); }
-
   /**
    * Unregister the given object `o` from the server.
    * \param o      Pointer to the Epiface object that shall be unregistered.
