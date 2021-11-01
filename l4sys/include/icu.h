@@ -207,7 +207,7 @@ l4_icu_bind(l4_cap_idx_t icu, unsigned irqnum, l4_cap_idx_t irq) L4_NOTHROW;
 /**
  * \ingroup l4_icu_api
  * \copybrief L4::Icu::bind
- * \param icu  The ICU objecte to bind `irq` to.
+ * \param icu  The ICU object to bind `irq` to.
  * \copydetails L4::Icu::bind
  */
 L4_INLINE l4_msgtag_t
@@ -261,13 +261,10 @@ l4_icu_set_mode_u(l4_cap_idx_t icu, unsigned irqnum, l4_umword_t mode,
                   l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
- * Get information about the capabilites of the ICU.
  * \ingroup l4_icu_api
- *
+ * \copybrief L4::Icu::info
  * \param      icu   The ICU object from which information shall be retrieved.
- * \param[out] info  Pointer to an info structure to be filled with information.
- *                   The memory for this structure has to be allocated by the
- *                   caller.
+ * \param[out] info  Info structure to be filled with information.
  *
  * \return Syscall return tag
  */

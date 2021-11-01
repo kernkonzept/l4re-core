@@ -324,7 +324,7 @@ public:
   );
 
   /**
-   * Get information about the capabilities of the ICU.
+   * Get information about the ICU features.
    *
    * \param[out] info  Info structure to be filled with information.
    * \utcb{utcb}
