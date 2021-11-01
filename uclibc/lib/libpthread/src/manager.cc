@@ -990,6 +990,8 @@ static int pthread_handle_thread_exit(pthread_descr th)
   if (th->p_exited)
     return 0;
 
+  ASSERT(th->p_terminated);
+
   int detached;
   /* Remove thread from list of active threads */
   th->p_nextlive->p_prevlive = th->p_prevlive;

@@ -176,7 +176,7 @@ int pthread_join(pthread_t thread_id, void ** thread_return)
 
 int pthread_detach(pthread_t thread_id)
 {
-  int terminated;
+  int exited;
   struct pthread_request request;
   pthread_handle handle = thread_handle(thread_id);
   pthread_descr th;
@@ -199,10 +199,10 @@ int pthread_detach(pthread_t thread_id)
   }
   /* Mark as detached */
   th->p_detached = 1;
-  terminated = th->p_terminated;
+  exited = th->p_exited;
   __pthread_unlock(handle_to_lock(handle));
   /* If already terminated, notify thread manager to reclaim resources */
-  if (terminated && __pthread_manager_request >= 0) {
+  if (exited && __pthread_manager_request >= 0) {
     request.req_thread = thread_self();
     request.req_kind = REQ_FREE;
     request.req_args.free.thread_id = thread_id;
