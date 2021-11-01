@@ -31,8 +31,6 @@
 #include <l4/cxx/type_traits>
 #include <l4/cxx/minmax>
 
-#define L4_CXX_IPC_BACKWARD_COMPAT
-
 namespace L4 {
 namespace Ipc {
 
@@ -1280,114 +1278,6 @@ L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, char const *v)
   s.put(v, l);
   return s;
 }
-
-
-#ifdef L4_CXX_IPC_BACKWARD_COMPAT
-namespace L4 {
-
-#if 0
-template< typename T > class Ipc_buf_cp_out : public Ipc::Buf_cp_out<T> {};
-template< typename T > class Ipc_buf_cp_in : public Ipc::Buf_cp_in<T> {};
-template< typename T > class Ipc_buf_in : public Ipc::Buf_in<T> {};
-template< typename T > class Msg_ptr : public Ipc::Msg_ptr<T> {};
-#endif
-
-template< typename T >
-Ipc::Internal::Buf_cp_out<T> ipc_buf_cp_out(T *v, unsigned long size)
-  L4_DEPRECATED("Use L4::Ipc::buf_cp_out() now");
-
-template< typename T >
-Ipc::Internal::Buf_cp_out<T> ipc_buf_cp_out(T *v, unsigned long size)
-{ return Ipc::Internal::Buf_cp_out<T>(v, size); }
-
-
-template< typename T >
-Ipc::Internal::Buf_cp_in<T> ipc_buf_cp_in(T *v, unsigned long &size)
-  L4_DEPRECATED("Use L4::Ipc::buf_cp_in() now");
-
-template< typename T >
-Ipc::Internal::Buf_cp_in<T> ipc_buf_cp_in(T *v, unsigned long &size)
-{ return Ipc::Internal::Buf_cp_in<T>(v, size); }
-
-
-template< typename T >
-Ipc::Internal::Buf_in<T> ipc_buf_in(T *&v, unsigned long &size)
-  L4_DEPRECATED("Use L4::Ipc::buf_in() now");
-
-template< typename T >
-Ipc::Internal::Buf_in<T> ipc_buf_in(T *&v, unsigned long &size)
-{ return Ipc::Internal::Buf_in<T>(v, size); }
-
-
-template< typename T >
-Ipc::Msg_ptr<T> msg_ptr(T *&p)
-  L4_DEPRECATED("Use L4::Ipc::msg_ptr() now");
-
-template< typename T >
-Ipc::Msg_ptr<T> msg_ptr(T *&p)
-{ return Ipc::Msg_ptr<T>(p); }
-
-typedef Ipc::Istream Ipc_istream L4_DEPRECATED("Use L4::Ipc::Istream now");
-typedef Ipc::Ostream Ipc_ostream L4_DEPRECATED("Use L4::Ipc::Ostream now");;
-typedef Ipc::Iostream Ipc_iostream L4_DEPRECATED("Use L4::Ipc::Iostream now");;
-typedef Ipc::Snd_fpage Snd_fpage L4_DEPRECATED("Use L4::Ipc::Snd_fpage now");;
-typedef Ipc::Rcv_fpage Rcv_fpage L4_DEPRECATED("Use L4::Ipc::Rcv_fpage now");;
-typedef Ipc::Small_buf Small_buf L4_DEPRECATED("Use L4::Ipc::Small_buf now");;
-
-
-namespace Ipc {
-template< typename T > class Buf_cp_in : public Internal::Buf_cp_in<T>
-{
-public:
-  Buf_cp_in(T *v, unsigned long &size) : Internal::Buf_cp_in<T>(v, size) {}
-};
-
-template< typename T >
-class Buf_cp_out : public Internal::Buf_cp_out<T>
-{
-public:
-  Buf_cp_out(T const *v, unsigned long size) : Internal::Buf_cp_out<T>(v, size) {}
-};
-
-template< typename T >
-class Buf_in : public Internal::Buf_in<T>
-{
-public:
-  Buf_in(T *&v, unsigned long &size) : Internal::Buf_in<T>(v, size) {}
-};
-} // namespace Ipc
-} // namespace L4
-
-template< typename T >
-inline
-L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_cp_in<T> const &v)
-  L4_DEPRECATED("Use L4::Ipc::buf_cp_in() now");
-
-template< typename T >
-inline
-L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_cp_in<T> const &v)
-{ return operator>>(s, static_cast<L4::Ipc::Internal::Buf_cp_in<T> >(v)); }
-
-template< typename T >
-inline
-L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_in<T> const &v)
-  L4_DEPRECATED("Use L4::Ipc::buf_in() now");
-
-template< typename T >
-inline
-L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Buf_in<T> const &v)
-{ return operator>>(s, static_cast<L4::Ipc::Internal::Buf_in<T> >(v)); }
-
-template< typename T >
-inline
-L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Buf_cp_out<T> const &v)
-  L4_DEPRECATED("Use L4::Ipc::buf_cp_out() now");
-
-template< typename T >
-inline
-L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Buf_cp_out<T> const &v)
-{ return operator<<(s, static_cast<L4::Ipc::Internal::Buf_cp_out<T> >(v)); }
-#endif
 
 namespace L4 { namespace Ipc {
 /**
