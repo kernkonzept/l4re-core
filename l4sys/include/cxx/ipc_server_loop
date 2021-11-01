@@ -307,12 +307,17 @@ public:
    * the server loop function (l4_utcb() is the default). (2021-10)
    */
   /* Internal note: After all users have been converted, remove this
-   * constructor. */
-  explicit Server(l4_utcb_t *) {}
+   * constructor. Also remove the constructor below then. */
+  explicit Server(l4_utcb_t *)
+    L4_DEPRECATED("Do not specify the UTCB with the constructor. "
+	          "Supply it on the loop function if needed.")
+  {}
 
   /**
    * Initializes the server loop.
    */
+  /* Internal note: Remove this constructor when the above deprecated
+   * constructor with the UTCB pointer is also removed. */
   Server() {}
 
   /**

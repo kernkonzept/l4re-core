@@ -480,7 +480,7 @@ parse_option(cxx::String const &o)
 
 static Elf_loader elf_loader;
 
-static L4::Server<Loop_hooks> server(l4_utcb());
+static L4::Server<Loop_hooks> server;
 
 
 static void init_env()

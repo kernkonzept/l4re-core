@@ -75,7 +75,7 @@ void *__libc_alloc_initial_tls(unsigned long)
   return nullptr;
 }
 
-static L4::Server<Loop_hooks> server(l4_utcb());
+static L4::Server<Loop_hooks> server;
 
 static void insert_regions()
 {

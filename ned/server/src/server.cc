@@ -21,7 +21,7 @@ namespace Ned {
 
 using L4Re::chksys;
 
-Server::Server() : Base(0)
+Server::Server()
 {
   pthread_mutex_init(&_start_mutex, NULL);
   pthread_mutex_lock(&_start_mutex);

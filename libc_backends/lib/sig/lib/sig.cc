@@ -346,7 +346,7 @@ struct Loop_hooks :
 
 static void *__handler_main(void *)
 {
-  L4::Server<Loop_hooks> srv(l4_utcb());
+  L4::Server<Loop_hooks> srv;
   srv.loop_noexc(&_sig_handling);
   return 0;
 }
