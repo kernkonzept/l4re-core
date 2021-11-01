@@ -112,7 +112,7 @@ static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
 static void pthread_for_each_thread(void *arg,
     void (*fn)(void *, pthread_descr));
 
-static int pthread_exited(pthread_descr th);
+static int pthread_handle_thread_exit(pthread_descr th);
 
 /* The server thread managing requests for thread creation and termination */
 
@@ -222,7 +222,7 @@ __pthread_manager(void *arg)
 	  break;
         case REQ_THREAD_EXIT:
             {
-              if (!pthread_exited(request.req_thread))
+              if (!pthread_handle_thread_exit(request.req_thread))
                 {
                   auto th = request.req_thread;
                   /* Thread still waiting to be joined. Only release
@@ -943,9 +943,13 @@ static void pthread_free(pthread_descr th)
 #endif
 }
 
-/* Handle threads that have exited */
+/*
+ * Handle threads that have exited
+ *
+ * Return true if the thread has been freed due to being detached.
+ */
 
-static int pthread_exited(pthread_descr th)
+static int pthread_handle_thread_exit(pthread_descr th)
 {
   if (th->p_exited)
     return 0;
@@ -991,7 +995,7 @@ static void pthread_handle_free(pthread_t th_id)
   }
   th = handle_to_descr(handle);
   __pthread_unlock(handle_to_lock(handle));
-  if (!pthread_exited(th))
+  if (!pthread_handle_thread_exit(th))
     pthread_free(th);
 }
 
