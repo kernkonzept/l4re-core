@@ -171,6 +171,10 @@ int pthread_setaffinity_np(pthread_t __th, size_t __cpusetsize,
 
   __pthread_lock(handle_to_lock(handle), NULL);
 
+  if (__builtin_expect (invalid_handle(handle, __th), 0)) {
+    __pthread_unlock(handle_to_lock(handle));
+    return ESRCH;
+  }
   pthread_descr th = handle_to_descr(handle);
 
   L4::Cap<L4::Thread> t(th->p_th_cap);
@@ -195,6 +199,10 @@ pthread_getaffinity_np(pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
     return EINVAL;
 
   __pthread_lock(handle_to_lock(handle), NULL);
+  if (__builtin_expect (invalid_handle(handle, th), 0)) {
+    __pthread_unlock(handle_to_lock(handle));
+    return ESRCH;
+  }
   cpuset->__bits[0] = handle_to_descr(handle)->p_affinity_mask[0];
   __pthread_unlock(handle_to_lock(handle));
 
