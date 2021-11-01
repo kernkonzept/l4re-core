@@ -344,24 +344,6 @@ public:
   { return l4_factory_create_task_u(cap(), target_cap.cap(), utcb_area, utcb); }
 
   /**
-   * Create a new thread.
-   *
-   * \param[out] target_cap  The kernel stores the new thread's capability into
-   *                         this slot.
-   * \param      utcb        The UTCB to use for the operation.
-   *
-   * \return Syscall return tag
-   *
-   * \deprecated  Use `create()` with `Cap<Thread>` as argument instead.
-   *
-   * \see L4::Thread
-   */
-  l4_msgtag_t create_thread(Cap<Thread> const &target_cap,
-                            l4_utcb_t *utcb = l4_utcb()) noexcept
-    L4_DEPRECATED("Call create with Cap<Thread> as argument instead.")
-  { return l4_factory_create_thread_u(cap(), target_cap.cap(), utcb); }
-
-  /**
    * Create a new factory.
    *
    * \param[out] target_cap  The kernel stores the new factory's capability into
@@ -420,42 +402,6 @@ public:
                           Cap<Thread> const &thread_cap, l4_umword_t label,
                           l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_factory_create_gate_u(cap(), target_cap.cap(), thread_cap.cap(), label, utcb); }
-
-  /**
-   * Create a new IRQ.
-   *
-   * \param[out] target_cap  The kernel stores the new IRQ's capability into
-   *                         this slot.
-   * \param      utcb        The UTCB to use for the operation.
-   *
-   * \return Syscall return tag
-   *
-   * \deprecated  Use `create()` with `Cap<Irq>` as argument instead.
-   *
-   * \see L4::Irq
-   */
-  l4_msgtag_t create_irq(Cap<Irq>const &target_cap,
-                         l4_utcb_t *utcb = l4_utcb()) throw()
-    L4_DEPRECATED("Call create with Cap<Irq> as argument instead.")
-  { return l4_factory_create_irq_u(cap(), target_cap.cap(), utcb); }
-
-  /**
-   * Create a new virtual machine.
-   *
-   * \param[out] target_cap  The kernel stores the new VM's capability into this
-   *                         slot.
-   * \param      utcb        The UTCB to use for the operation.
-   *
-   * \return Syscall return tag
-   *
-   * \deprecated  Use `create()` with `Cap<Vm>` as argument instead.
-   *
-   * \see L4::Vm
-   */
-  l4_msgtag_t create_vm(Cap<Vm>const &target_cap,
-                        l4_utcb_t *utcb = l4_utcb()) noexcept
-    L4_DEPRECATED("Call create with Cap<Vm> as argument instead.")
-  { return l4_factory_create_vm_u(cap(), target_cap.cap(), utcb); }
 
   typedef L4::Typeid::Rpc_nocode<create_t> Rpcs;
 };
