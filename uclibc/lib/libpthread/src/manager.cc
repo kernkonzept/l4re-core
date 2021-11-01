@@ -907,6 +907,8 @@ static void pthread_free(pthread_descr th)
   /* Make the handle invalid */
   handle =  thread_handle(th->p_tid);
   __pthread_lock(handle_to_lock(handle), NULL);
+  ASSERT(th->p_tid != NULL);
+  th->p_tid = NULL;
   mgr_free_utcb(handle);
   __pthread_unlock(handle_to_lock(handle));
 

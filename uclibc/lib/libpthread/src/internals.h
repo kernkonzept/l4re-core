@@ -114,6 +114,15 @@ struct pthread_request {
   } req_args;
 };
 
+/*
+ * L4Re UTCB.user[0..2] field usage:
+ * - user[0]: pthread_descr if UTCB is used. NULL if UTCB is not used.
+ *            See handle_to_descr().
+ * - user[1]: struct _pthread_fastlock of UTCB is used.
+ *            See handle_to_lock().
+ * - user[2]: pointer to the next free UTCB if UTCB is unused.
+ *            See __l4_utcb_get_next_free()/__l4_utcb_set_next_free().
+ */
 
 /* L4Re: Free UTCB list. Members of this list might be still claimed by the
  * kernel on UTCB.free_marker != 0. */
@@ -279,7 +288,10 @@ extern int __librt_multiple_threads;
 #define MSG(msg,arg...)
 #endif
 
-# define INIT_THREAD_SELF(descr, nr) do { l4_utcb_tcr()->user[0] = (l4_umword_t)descr; } while (0)
+# define INIT_THREAD_SELF(descr, nr) do {				\
+		l4_utcb_tcr()->user[0] = (l4_umword_t)descr;		\
+		l4_utcb_tcr()->user[2] = 0;				\
+	} while (0)
 
 
 
@@ -288,12 +300,12 @@ __BEGIN_DECLS
 extern int __pthread_l4_initialize_main_thread(pthread_descr th) attribute_hidden;
 extern void __l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end);
 
-/* L4Re: Interpret user[0] as pointer to the next free UTCB. */
+/* L4Re: Interpret user[2] as pointer to the next free UTCB. */
 static inline l4_utcb_t *__l4_utcb_get_next_free(l4_utcb_t *u)
-{ return  (l4_utcb_t *)l4_utcb_tcr_u(u)->user[0]; }
+{ return  (l4_utcb_t *)l4_utcb_tcr_u(u)->user[2]; }
 
 static inline void __l4_utcb_set_next_free(l4_utcb_t *u, l4_utcb_t *next_utcb)
-{ l4_utcb_tcr_u(u)->user[0] = (l4_addr_t)next_utcb; }
+{ l4_utcb_tcr_u(u)->user[2] = (l4_addr_t)next_utcb; }
 
 /* L4Re: The kernel sets UTCB.free_marker = 0 when the UTCB is definitely not
  * altered anymore. See ticket #CD-518. */

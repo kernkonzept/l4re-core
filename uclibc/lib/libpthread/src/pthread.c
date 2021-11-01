@@ -345,11 +345,12 @@ __l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end)
     {
       l4_utcb_t *u = (l4_utcb_t*)free_utcb;
       l4_thread_regs_t *tcr = l4_utcb_tcr_u(u);
+      tcr->user[0] = 0;
       __l4_utcb_set_next_free(u, 0);
       __l4_utcb_mark_unused(u);
       __pthread_init_lock(handle_to_lock(u));
       *last_free = u;
-      last_free = (l4_utcb_t**)(&tcr->user[0]);
+      last_free = (l4_utcb_t**)(&tcr->user[2]);
       free_utcb += L4_UTCB_OFFSET;
     }
 
