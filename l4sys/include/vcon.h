@@ -30,7 +30,11 @@
  * \ingroup  l4_kernel_object_api
  * Virtual console for simple character based input and output.
  *
- * The interrupt for read events is provided by the virtual key interrupt.
+ * The interrupt for read events is provided by the virtual key interrupt
+ * which, in contrast to hardware IRQs, implements a limited functionality:
+ *  - Only IRQ line 0 is supported, no MSI vectors.
+ *  - The IRQ is edge-triggered and the IRQ mode cannot be changed.
+ *  - As the IRQ is edge-triggered, it does not have to be explicitly unmasked.
  *
  * \includefile{l4/sys/vcon.h}
  *

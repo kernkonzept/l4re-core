@@ -34,6 +34,13 @@
  * provides functions to query scheduler information, check the online state
  * of CPUs, query CPU idle time and to start threads on defined CPU sets.
  *
+ * The scheduler offers a virtual device IRQ which triggers when the number of
+ * online cores changes, e.g. due to hotplug events. In contrast to hardware
+ * IRQs, this IRQ implements a limited functionality:
+ *  - Only IRQ line 0 is supported, no MSI vectors.
+ *  - The IRQ is edge-triggered and the IRQ mode cannot be changed.
+ *  - As the IRQ is edge-triggered, it does not have to be explicitly unmasked.
+ *
  * \includefile{l4/sys/scheduler.h}
  */
 
