@@ -71,36 +71,6 @@
 #include <l4/sys/rcv_endpoint.h>
 
 /**
- * Bind the IPC gate to a thread.
- * \ingroup l4_kernel_object_gate_api
- *
- * \param gate    The IPC gate object.
- * \param thread  The thread object that shall be bound to `gate`.
- * \param label   Label to assign to `gate`. The two least significant bits
- *                should usually be set to zero.
- *
- * \return Syscall return tag containing one of the following return codes.
- *
- * \retval L4_EOK      Operation successful.
- * \retval -L4_EINVAL  `thread` is not a thread object or other arguments were
- *                     malformed.
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `gate` or `thread`.
- */
-L4_INLINE l4_msgtag_t
-l4_ipc_gate_bind_thread(l4_cap_idx_t gate, l4_cap_idx_t thread,
-                        l4_umword_t label)
-  L4_DEPRECATED("Use l4_rcv_ep_bind_thread().");
-
-/**
- * \internal
- * \ingroup l4_kernel_object_gate_api
- */
-L4_INLINE l4_msgtag_t
-l4_ipc_gate_bind_thread_u(l4_cap_idx_t gate, l4_cap_idx_t thread,
-                          l4_umword_t label, l4_utcb_t *utcb)
-  L4_DEPRECATED("Use l4_rcv_ep_bind_thread_u().");
-
-/**
  * \ingroup l4_kernel_object_gate_api
  * \copybrief L4::Ipc_gate::get_infos
  * \param gate  The IPC gate object to get information about.
