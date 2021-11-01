@@ -103,23 +103,6 @@ public:
    */
   long alloc(long size, L4::Cap<Dataspace> mem,
              unsigned long flags = 0, unsigned long align = 0) const noexcept;
-
-  /**
-   * Free dataspace.
-   *
-   * \param  mem  Dataspace to be released.
-   *
-   * \retval 0
-   *
-   * \deprecated This function is an empty stub which remains here
-   *             for backward compatibility only.
-   *             Use `L4::Task::unmap(mem, L4_FP_DELETE_OBJ)` or other
-   *             similar means to remove a dataspace.
-   */
-  /* Deprecation message added Q4 2016 */
-  long free(L4::Cap<Dataspace> mem) const noexcept
-  L4_DEPRECATED("This function is an empty stub and remains for backward compatibility only. Check documentation for details.");
-
 };
 
 };

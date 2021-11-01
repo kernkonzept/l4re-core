@@ -43,10 +43,4 @@ Mem_alloc::alloc(long size,
                   << l4_umword_t(align));
 }
 
-long
-Mem_alloc::free(L4::Cap<Dataspace>) const noexcept
-{
-  return 0;
-}
-
 };
