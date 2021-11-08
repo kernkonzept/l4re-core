@@ -147,7 +147,7 @@ L4_CV void *
 l4la_alloc(l4la_free_t **first, l4_size_t size, unsigned align)
 {
   void *ret = 0;
-  l4_addr_t almask = (1 << align) - 1;
+  l4_addr_t almask = (1UL << align) - 1;
   l4la_free_t **c = first;
   void *b = 0;
 
