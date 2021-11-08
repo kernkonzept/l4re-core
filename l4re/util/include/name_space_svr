@@ -179,7 +179,9 @@ struct Names_get_key
 /**
  * Abstract server-side implementation of the L4::Namespace interface.
  *
- * \internal
+ * \note The derived class is resposible for resource management through the
+ *       provided interfaces. This includes freeing all resources on
+ *       destruction!
  */
 class Name_space
 {
@@ -204,6 +206,9 @@ public:
   : _dbg(dbg), _err(err)
   {}
 
+  /**
+   * The destructor of the derived class is responsible for freeing resources.
+   */
   virtual ~Name_space() {}
 
   Entry *find(Name const &name) const  { return _tree.find_node(name); }
