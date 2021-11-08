@@ -5,8 +5,10 @@ TARGET          = l4re
 SRC_CC         := main.cc globals.cc region.cc loader.cc \
                   loader_elf.cc mem.cc dispatcher.cc
 
+SRC_S_x86      := loader_x86.S
 SRC_S_mips     := loader_mips.S
-CXXFLAGS_mips += -mplt -mno-shared -DL4_LOADER_USE_ASM_STUB=1
+CXXFLAGS_x86   += -DL4_LOADER_USE_ASM_STUB=1
+CXXFLAGS_mips  += -mplt -mno-shared -DL4_LOADER_USE_ASM_STUB=1
 #CXXFLAGS_arm64 += -mcmodel=large
 
 DEFAULT_RELOC_x86   := 0xb0000000
