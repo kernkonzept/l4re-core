@@ -439,20 +439,23 @@ l4_thread_vcpu_resume_commit_u(l4_cap_idx_t thread,
 
 
 /**
- * Enable or disable the vCPU feature for the thread.
+ * Enable the vCPU feature for the thread.
  * \ingroup l4_thread_api
  *
  * \param thread      Capability selector of the thread for which the vCPU
- *                    feature shall be enabled or disabled.
+ *                    feature shall be enabled.
  * \param vcpu_state  The virtual address where the kernel shall store the vCPU
  *                    state in case of vCPU exits. The address must be a valid
  *                    kernel-user-memory address (see l4_task_add_ku_mem()).
  *
  * \return Syscall return tag.
  *
- * This function enables the vCPU feature of the `thread` if `vcpu_state`
- * is set to a valid kernel-user-memory address, or disables the vCPU feature
- * if `vcpu_state` is 0. (Disable: optional, currently unsupported.)
+ * This function enables the vCPU feature of the `thread`.
+ *
+ * The kernel-user memory area starting at `vcpu_state` must be at least
+ * 128-byte aligned and must cover the size of l4_vcpu_state_t.
+ *
+ * \note Disabling of the vCPU feature is optional and currently not supported.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_vcpu_control(l4_cap_idx_t thread, l4_addr_t vcpu_state) L4_NOTHROW;
@@ -461,7 +464,7 @@ l4_thread_vcpu_control(l4_cap_idx_t thread, l4_addr_t vcpu_state) L4_NOTHROW;
  * \ingroup l4_thread_api
  * \copybrief L4::Thread::vcpu_control
  * \param thread  Capability selector of the thread for which the vCPU feature
- *                shall be enabled or disabled.
+ *                shall be enabled.
  * \copydetails L4::Thread::vcpu_control
  */
 L4_INLINE l4_msgtag_t
@@ -469,26 +472,33 @@ l4_thread_vcpu_control_u(l4_cap_idx_t thread, l4_addr_t vcpu_state,
                          l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
- * Enable or disable the extended vCPU feature for the thread.
+ * Enable the extended vCPU feature for the thread.
  * \ingroup l4_thread_api
  *
  * \param thread          Capability selector of the thread for which the
- *                        extended vCPU feature shall be enabled or disabled.
+ *                        extended vCPU feature shall be enabled.
  * \param ext_vcpu_state  The virtual address where the kernel shall store the
  *                        vCPU state in case of vCPU exits. The address must be
  *                        a valid kernel-user-memory address (see
  *                        l4_task_add_ku_mem()).
  *
- * \return Systemcall result message tag.
+ * \return Syscall return tag.
  *
  * The extended vCPU feature allows the use of hardware-virtualization
  * features such as Intel's VT or AMD's SVM.
  *
- * This function enables the extended vCPU feature of the `thread`
- * if `ext_vcpu_state` is set to a valid kernel-user-memory address, or disables
- * the vCPU feature if `ext_vcpu_state` is 0.
+ * This function enables the extended vCPU feature of the `thread`. Enabling
+ * the extended vCPU feature also enables the vCPU feature.
  *
- * \note The extended vCPU mode includes the normal vCPU mode.
+ * The kernel-user memory area starting at `ext_vcpu_state` must be at least
+ * 4 KiB aligned and must cover a size of L4_PAGESIZE. It includes the data
+ * of l4_vcpu_state_t at offset 0, the extended vCPU state at offset
+ * L4_VCPU_OFFSET_EXT_STATE, and, on some platforms, the extended vCPU
+ * information at offset L4_VCPU_OFFSET_EXT_INFOS.
+ *
+ * \note Disabling of the extended vCPU feature is currently not supported.
+ * \note Upgrading from non-extended vCPU feature to extended vCPU feature is
+ *       currently not supported.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_vcpu_control_ext(l4_cap_idx_t thread, l4_addr_t ext_vcpu_state) L4_NOTHROW;
@@ -497,7 +507,7 @@ l4_thread_vcpu_control_ext(l4_cap_idx_t thread, l4_addr_t ext_vcpu_state) L4_NOT
  * \ingroup l4_thread_api
  * \copybrief L4::Thread::vcpu_control_ext
  * \param thread  Capability selector of the thread for which the extended vCPU
- *                feature shall be enabled or disabled.
+ *                feature shall be enabled.
  * \copydetails L4::Thread::vcpu_control_ext
  */
 L4_INLINE l4_msgtag_t

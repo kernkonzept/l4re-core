@@ -271,27 +271,31 @@ public:
   { return l4_thread_vcpu_resume_commit_u(cap(), tag, utcb); }
 
    /**
-    * Enable or disable the vCPU feature for the thread.
+    * Enable the vCPU feature for the thread.
     *
-    * \param vcpu_state  A virtual address pointing to a l4_vcpu_state_t or 0.
-    *                    If not 0, it must be a valid kernel-user-memory address
-    *                    (see L4::Task::add_ku_mem()).
+    * \param vcpu_state  A virtual address pointing to a l4_vcpu_state_t. It
+    *                    must be a valid kernel-user-memory address (see
+    *                    L4::Task::add_ku_mem()).
     * \param utcb        UTCB to use for this operation.
     *
     * \return Syscall return tag.
     *
-    * This function enables the vCPU feature of `this` thread if `vcpu_state`
-    * is set to a valid kernel-user-memory address, or disables the vCPU
-    * feature if `vcpu_state` is 0. (Disable: optional, currently unsupported.)
+    * This function enables the vCPU feature of `this` thread
+    *
+    * The kernel-user memory starting at `vcpu_state` must be at least 128-byte
+    * aligned and must cover the size of l4_vcpu_state_t.
     *
     * The asynchronous IPC handling is described at \ref l4_vcpu_api.
+    *
+    * \note Disabling of the vCPU feature is optional and currently not
+    *       supported.
     */
    l4_msgtag_t vcpu_control(l4_addr_t vcpu_state, l4_utcb_t *utcb = l4_utcb())
      noexcept
    { return l4_thread_vcpu_control_u(cap(), vcpu_state, utcb); }
 
    /**
-    * Enable or disable the extended vCPU feature for the thread.
+    * Enable the extended vCPU feature for the thread.
     *
     * \param ext_vcpu_state  The virtual address where the kernel shall store
     *                        the vCPU state in case of vCPU exits. The address
@@ -304,11 +308,18 @@ public:
     * The extended vCPU feature allows the use of hardware-virtualization
     * features such as Intel's VT or AMD's SVM.
     *
-    * This function enables the extended vCPU feature of `this` thread
-    * if `ext_vcpu_state` is set to a valid kernel-user-memory address, or
-    * disables the vCPU feature if `ext_vcpu_state` is 0.
+    * This function enables the extended vCPU feature of `this` thread.
+    * Enabling the extended vCPU feature also enables the vCPU feature.
     *
-    * \note The extended vCPU mode includes the normal vCPU mode.
+    * The kernel-user memory area starting at `ext_vcpu_state` must be at least
+    * 4 KiB aligned and must cover a size of L4_PAGESIZE. It includes the data
+    * of l4_vcpu_state_t at offset 0, the extended vCPU state at offset
+    * L4_VCPU_OFFSET_EXT_STATE, and, on some platforms, the extended vCPU
+    * information at offset L4_VCPU_OFFSET_EXT_INFOS.
+    *
+    * \note Disabling of the extended vCPU feature is currently not supported.
+    * \note Upgrading from non-extended vCPU feature to extended vCPU feature
+    *       is currently not supported.
     */
    l4_msgtag_t vcpu_control_ext(l4_addr_t ext_vcpu_state,
                                 l4_utcb_t *utcb = l4_utcb()) noexcept
