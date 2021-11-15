@@ -58,7 +58,7 @@ public:
    *                     to invoke this operation.
    */
   L4_INLINE_RPC_OP(L4_RCV_EP_BIND_OP,
-      l4_msgtag_t, bind_thread, (Ipc::Opt<Ipc::Cap<Thread> > t, l4_umword_t label));
+      l4_msgtag_t, bind_thread, (Ipc::Cap<Thread> t, l4_umword_t label));
 
   typedef L4::Typeid::Rpcs_sys<bind_thread_t> Rpcs;
 };
