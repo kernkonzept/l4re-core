@@ -55,7 +55,7 @@ Vesa_fb::Vesa_fb(l4util_l4mod_info *mbi)
 {
   vbe = (l4util_mb_vbe_ctrl_t*)(unsigned long)mbi->vbe_ctrl_info;
   vbi = (l4util_mb_vbe_mode_t*)(unsigned long)mbi->vbe_mode_info;
-  if (!vbe && !vbi)
+  if (!vbe || !vbi)
     return;
 
   base_offset = vbi->phys_base & (L4_SUPERPAGESIZE - 1);
