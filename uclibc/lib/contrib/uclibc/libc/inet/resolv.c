@@ -3344,7 +3344,7 @@ libc_hidden_def(dn_skipname)
 /* Will be called under __resolv_lock. */
 static void res_sync_func(void)
 {
-	struct __res_state *rp = &(_res);
+	struct __res_state *rp = __res_state();
 	int n;
 
 	/* If we didn't get malloc failure earlier... */
@@ -3897,7 +3897,7 @@ res_ninit(res_state statp)
 #endif /* L_res_init */
 
 #ifdef L_res_state
-# if defined __UCLIBC_HAS_TLS__
+# if !defined __UCLIBC_HAS_TLS__
 struct __res_state *
 __res_state (void)
 {

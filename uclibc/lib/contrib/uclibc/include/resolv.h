@@ -457,7 +457,7 @@ __END_DECLS
 #    ifndef NOT_IN_libc
 #     define __resp __libc_resp
 #    endif
-#    define _res (*__resp)
+#    define _res (*__res_state())
 extern __thread struct __res_state *__resp attribute_tls_model_ie;
 #   endif
 #  else
