@@ -184,6 +184,16 @@ typedef struct l4_vcon_attr_t
   l4_umword_t i_flags; ///< input flags
   l4_umword_t o_flags; ///< output flags
   l4_umword_t l_flags; ///< local flags
+
+#ifdef __cplusplus
+  /**
+   * Set terminal attributes to disable all special processing.
+   *
+   * Removes all flags that would mangle the read or written characters. Also
+   * disables echoing and any special processing of characters.
+   */
+  inline void set_raw();
+#endif
 } l4_vcon_attr_t;
 
 /**
@@ -259,6 +269,14 @@ l4_vcon_get_attr(l4_cap_idx_t vcon, l4_vcon_attr_t *attr) L4_NOTHROW;
 L4_INLINE l4_msgtag_t
 l4_vcon_get_attr_u(l4_cap_idx_t vcon, l4_vcon_attr_t *attr,
                    l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * \copydoc l4_vcon_attr_t::set_raw
+ * \ingroup l4_vcon_api
+ * \param[in,out] attr  Attribute structure to update.
+ */
+L4_INLINE void
+l4_vcon_set_attr_raw(l4_vcon_attr_t *attr) L4_NOTHROW;
 
 
 /**
@@ -413,3 +431,17 @@ l4_vcon_get_attr(l4_cap_idx_t vcon, l4_vcon_attr_t *attr) L4_NOTHROW
 {
   return l4_vcon_get_attr_u(vcon, attr, l4_utcb());
 }
+
+L4_INLINE void
+l4_vcon_set_attr_raw(l4_vcon_attr_t *attr) L4_NOTHROW
+{
+  attr->i_flags = 0;
+  attr->o_flags = 0;
+  attr->l_flags = 0;
+}
+
+#ifdef __cplusplus
+inline void
+l4_vcon_attr_t::set_raw()
+{ l4_vcon_set_attr_raw(this); }
+#endif
