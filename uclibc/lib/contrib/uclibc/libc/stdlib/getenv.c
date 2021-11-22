@@ -20,7 +20,7 @@ char *getenv(const char *var)
 	return NULL;
     len = strlen(var);
     while(*ep) {
-	if (memcmp(var, *ep, len) == 0 && (*ep)[len] == '=') {
+	if (strncmp(var, *ep, len) == 0 && (*ep)[len] == '=') {
 	    return *ep + len + 1;
 	}
 	ep++;
