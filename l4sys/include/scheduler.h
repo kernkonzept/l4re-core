@@ -74,7 +74,12 @@ typedef struct l4_sched_cpu_set_t
   unsigned char granularity() const { return gran_offset >> 24; }
   /// \return Get offset value
   unsigned offset() const { return gran_offset & 0x00ffffff; }
-  /// Set offset and granularity
+  /**
+   * Set offset and granularity.
+   *
+   * \param granularity  Granularity in log2 notation.
+   * \param offset       Offset. Must be a multiple of 2^granularity.
+   */
   void set(unsigned char granularity, unsigned offset)
   { gran_offset = ((l4_umword_t)granularity << 24) | (offset & 0x00ffffff); }
 #endif
@@ -84,8 +89,8 @@ typedef struct l4_sched_cpu_set_t
  *
  * \ingroup l4_scheduler_api
  *
- * \param offset       Offset.
- * \param granularity  Granularitry in log2 notation.
+ * \param offset       Offset. Must be a multiple of 2^granularity.
+ * \param granularity  Granularity in log2 notation.
  * \param map          Bitmap of CPUs, defaults to 1 in C++.
  *
  * \return CPU set.
