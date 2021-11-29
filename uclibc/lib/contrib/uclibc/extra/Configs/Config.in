@@ -145,6 +145,26 @@ config TARGET_xtensa
 
 endchoice
 
+config TARGET_LDSO_NAME
+	string
+	default "ld64-uClibc" if TARGET_ia64
+	default "ld64-uClibc" if TARGET_powerpc64
+	default "ld64-uClibc" if TARGET_sparc64
+	default "ld64-uClibc" if TARGET_x86_64
+	default "ld64-uClibc" if TARGET_kvx
+	default "ld64-uClibc" if CONFIG_MIPS_N64_ABI
+	default "ld-uClibc"
+
+config TARGET_ARCH_BITS
+	int
+	default 64 if TARGET_aarch64
+	default 64 if TARGET_ia64
+	default 64 if TARGET_powerpc64
+	default 64 if TARGET_sparc64
+	default 64 if TARGET_x86_64
+	default 64 if TARGET_kvx
+	default 64 if CONFIG_MIPS_N64_ABI
+	default 32
 
 menu "Target Architecture Features and Options"
 

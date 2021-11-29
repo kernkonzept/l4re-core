@@ -39,12 +39,15 @@
 #endif
 
 
-#define	ENTRY(name)							\
+#define	ENTRY_PREFIX(name)						\
   .globl C_SYMBOL_NAME(name);				\
   ASM_TYPE_DIRECTIVE (C_SYMBOL_NAME(name), @function);			\
   .align ALIGNARG(2);							\
   LITERAL_POSITION;							\
-  C_LABEL(name)								\
+  C_LABEL(name)
+
+#define	ENTRY(name)							\
+  ENTRY_PREFIX(name)							\
   abi_entry(sp, FRAMESIZE);
 
 #define	HIDDEN_ENTRY(name)						\

@@ -38,6 +38,7 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	pipe2.c \
 	ppoll.c \
 	prctl.c \
+	prlimit.c \
 	readahead.c \
 	reboot.c \
 	remap_file_pages.c \

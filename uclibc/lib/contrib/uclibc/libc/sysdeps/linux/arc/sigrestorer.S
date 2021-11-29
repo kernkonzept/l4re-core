@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2017-2022 Synopsys, Inc. (www.synopsys.com)
  *
  * Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
  */
@@ -22,4 +22,5 @@
 __default_rt_sa_restorer:
 	mov r8, __NR_rt_sigreturn
 	ARC_TRAP_INSN
+	j_s     [blink]
 

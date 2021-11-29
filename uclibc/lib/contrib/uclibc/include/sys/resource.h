@@ -101,6 +101,13 @@ extern int setpriority (__priority_which_t __which, id_t __who, int __prio)
      __THROW;
 libc_hidden_proto(setpriority)
 
+#ifdef __USE_GNU
+/* Modify and return resource limits of a process atomically.  */
+extern int prlimit (__pid_t __pid, enum __rlimit_resource __resource,
+		      const struct rlimit *__new_limit,
+		      struct rlimit *__old_limit) __THROW;
+#endif
+
 __END_DECLS
 
 #endif	/* sys/resource.h  */

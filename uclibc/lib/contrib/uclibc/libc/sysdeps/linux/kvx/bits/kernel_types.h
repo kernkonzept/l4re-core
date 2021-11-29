@@ -7,6 +7,8 @@
 #ifndef __ASM_GENERIC_POSIX_TYPES_H
 #define __ASM_GENERIC_POSIX_TYPES_H
 
+#include <asm/bitsperlong.h>
+
 typedef unsigned long		__kernel_dev_t;
 typedef unsigned long		__kernel_ino_t;
 typedef unsigned int		__kernel_mode_t;

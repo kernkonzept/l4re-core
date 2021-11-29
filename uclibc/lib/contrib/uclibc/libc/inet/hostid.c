@@ -61,8 +61,7 @@ long int gethostid(void)
 	 *						Mitch
 	 */
 	if (gethostname(host, HOST_NAME_MAX) >= 0 && *host) {
-		struct addrinfo hints, *results, *addr;
-		memset(&hints, 0, sizeof(struct addrinfo));
+		struct addrinfo hints = {.ai_family = AF_INET}, *results, *addr;
 		if (!getaddrinfo(host, NULL, &hints, &results)) {
 			for (addr = results; addr; addr = results->ai_next) {
 				/* Just so it doesn't look exactly like the

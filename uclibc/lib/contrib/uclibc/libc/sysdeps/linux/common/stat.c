@@ -25,7 +25,7 @@ int stat(const char *file_name, struct stat *buf)
 
 int stat(const char *file_name, struct stat *buf)
 {
-	return fstatat64(AT_FDCWD, file_name, buf, 0);
+	return fstatat64(AT_FDCWD, file_name, (struct stat64 *)buf, 0);
 }
 #elif __NR_statx && defined __UCLIBC_HAVE_STATX__
 # include <fcntl.h>
