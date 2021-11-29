@@ -58,7 +58,7 @@
 #define gettext(msgid)       (msgid)
 #define gettext_noop(String) String
 
-#if (defined MB_CUR_MAX && HAVE_LOCALE_H && HAVE_WCTYPE_H && HAVE_WCHAR_H && HAVE_WCRTOMB && HAVE_MBRTOWC && HAVE_WCSCOLL)
+#if (defined MB_CUR_MAX && defined HAVE_LOCALE_H && defined HAVE_WCTYPE_H && defined HAVE_WCHAR_H && defined HAVE_WCRTOMB && defined HAVE_MBRTOWC && defined HAVE_WCSCOLL)
 # define RE_ENABLE_I18N
 #endif
 

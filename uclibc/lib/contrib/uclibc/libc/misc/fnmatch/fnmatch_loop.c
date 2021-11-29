@@ -620,7 +620,7 @@ FCT (const CHAR *pattern, const CHAR *string, const CHAR *string_end,
 
 		    if (c == L('-') && *p != L(']'))
 		      {
-#if _LIBC
+#ifdef _LIBC
 			/* We have to find the collation sequence
 			   value for C.  Collation sequence is nothing
 			   we can regularly access.  The sequence

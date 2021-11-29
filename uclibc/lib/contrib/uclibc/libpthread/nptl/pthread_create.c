@@ -447,7 +447,7 @@ pthread_create (
      performed in 'get_cached_stack'.  This way we avoid doing this if
      the stack freshly allocated with 'mmap'.  */
 
-#if TLS_TCB_AT_TP
+#ifdef TLS_TCB_AT_TP
   /* Reference to the TCB itself.  */
   pd->header.self = pd;
 
