@@ -90,7 +90,13 @@ typedef union {
  */
 enum
 {
-  L4_WHOLE_ADDRESS_SPACE = 63 /**< Whole address space size */
+  /**
+   * Whole address space size. This value does not only specify the log2 size
+   * of the biggest possible memory flex page. It can be also used as size for
+   * a special flex page to define a flex page which completely covers all
+   * spaces.
+   */
+  L4_WHOLE_ADDRESS_SPACE = 63
 };
 
 /**
@@ -103,8 +109,15 @@ typedef struct {
 } l4_snd_fpage_t;
 
 
-/** Flex-page rights
+/**
+ * Memory and IO port flex-page rights
  * \ingroup l4_fpage_api
+ *
+ * For IO flexpages, bit 1 and bit 2 are a combined read/write right. In a map
+ * operation, the receiver receives the IO port capability when the sender
+ * possesses it and at least one of these bits is present. For an unmap
+ * operation, the absence of one of those bits is sufficient to unmap the IO
+ * port capability.
  */
 enum L4_fpage_rights
 {
@@ -215,10 +228,10 @@ enum L4_cap_fpage_rights
  */
 enum L4_fpage_type
 {
-  L4_FPAGE_SPECIAL = 0,
-  L4_FPAGE_MEMORY  = 1,
-  L4_FPAGE_IO      = 2,
-  L4_FPAGE_OBJ     = 3,
+  L4_FPAGE_SPECIAL = 0, ///< Special flex page, either invalid or all spaces.
+  L4_FPAGE_MEMORY  = 1, ///< Memory flex page.
+  L4_FPAGE_IO      = 2, ///< IO-port flex page.
+  L4_FPAGE_OBJ     = 3, ///< Object flex page (capabilities).
 };
 
 /** Flex-page map control flags
@@ -226,7 +239,11 @@ enum L4_fpage_type
  */
 enum L4_fpage_control
 {
+  /// Number of bits an index must be shifted or an address must be aligned to
+  /// in the control word.
   L4_FPAGE_CONTROL_OFFSET_SHIFT = 12,
+  /// Mask for truncating the lower bits of the send base or the index of the
+  /// control word.
   L4_FPAGE_CONTROL_MASK = ~0UL << L4_FPAGE_CONTROL_OFFSET_SHIFT,
 };
 
@@ -282,10 +299,12 @@ enum l4_fpage_cacheability_opt_t
  */
 enum
 {
-  /** Whole I/O address space size */
+  /**
+   * Whole I/O address space size. In contrast to #L4_WHOLE_ADDRESS_SPACE,
+   * this value forms the log2 size of the biggest possible I/O flex page. */
   L4_WHOLE_IOADDRESS_SPACE  = 16,
 
-  /** Maximum I/O port address */
+  /** Maximum I/O port address plus 1. */
   L4_IOPORT_MAX             = (1L << L4_WHOLE_IOADDRESS_SPACE)
 };
 
@@ -297,7 +316,10 @@ enum
  *
  * \param   address      Flex-page start address
  * \param   size         Flex-page size (log2), #L4_WHOLE_ADDRESS_SPACE to
- *                       specify the whole address space (with `address` 0)
+ *                       specify the whole address space (with `address` 0).
+ *                       The minimum log2 size of a memory flex page is defined
+ *                       by #L4_LOG_PAGESIZE according to the size of the
+ *                       smallest virtual page supported by the MMU.
  * \param   rights       Access rights, see #L4_fpage_rights
  *
  * \return  Memory flex page
@@ -310,6 +332,11 @@ l4_fpage(l4_addr_t address, unsigned int size, unsigned char rights) L4_NOTHROW;
  * \ingroup l4_fpage_api
  *
  * \return  Special \em all-spaces flex page.
+ *
+ * \note This flex page can be used to define a receive window where the sender
+ *       can send objects of any type, or for an unmap item completely covering
+ *       all spaces of the target task. It does not make sense to use this flex
+ *       page as send item.
  */
 L4_INLINE l4_fpage_t
 l4_fpage_all(void) L4_NOTHROW;
