@@ -39,6 +39,13 @@
  * \param	num_desc                Number of descriptors.
  * \param	entry_number_start	Entry number to start.
  * \param       utcb                    UTCB of the caller.
+ *
+ * \retval -L4_ENOSYS The kernel configuration doesn't support this feature.
+ * \retval -L4_EINVAL Invalid descriptor or invalid entry number.
+ * \retval L4_EOK Success.
+ *
+ * \note This feature is not available if the kernel is configured with page
+ *       table isolation.
  */
 L4_INLINE long
 fiasco_ldt_set(l4_cap_idx_t task, void *ldt, unsigned int num_desc,
@@ -55,7 +62,9 @@ fiasco_ldt_set(l4_cap_idx_t task, void *ldt, unsigned int num_desc,
  *				 (multiple of 8).
  * \param entry_number_start	Entry number to start (valid values: 0-2).
  * \param utcb                  UTCB of the caller.
- * \return System call error
+ *
+ * \retval <0 Error.
+ * \retval L4_EOK Success.
  */
 L4_INLINE long
 fiasco_gdt_set(l4_cap_idx_t thread, void *desc, unsigned int size,
