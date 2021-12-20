@@ -61,6 +61,7 @@
 #define _STL_ITERATOR_H 1
 
 #include <bits/cpp_type_traits.h>
+#include <bits/stl_iterator_base_types.h>
 #include <ext/type_traits.h>
 #include <bits/move.h>
 #include <bits/ptr_traits.h>
@@ -1633,7 +1634,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     template<typename _It>
       concept __common_iter_use_postfix_proxy
 	= (!requires (_It& __i) { { *__i++ } -> __can_reference; })
-	  && constructible_from<iter_value_t<_It>, iter_reference_t<_It>>;
+	  && constructible_from<iter_value_t<_It>, iter_reference_t<_It>>
+	  && move_constructible<iter_value_t<_It>>;
   } // namespace __detail
 
   /// An iterator/sentinel adaptor for representing a non-common range.
@@ -1676,7 +1678,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       iter_value_t<_It> _M_keep;
 
       __postfix_proxy(iter_reference_t<_It>&& __x)
-      : _M_keep(std::move(__x)) { }
+      : _M_keep(std::forward<iter_reference_t<_It>>(__x)) { }
 
       friend class common_iterator;
 

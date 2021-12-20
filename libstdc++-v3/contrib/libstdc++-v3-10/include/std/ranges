@@ -951,7 +951,8 @@ namespace views
 	= requires(basic_istream<_CharT, _Traits>& is, _Val& t) { is >> t; };
   } // namespace __detail
 
-  template<movable _Val, typename _CharT, typename _Traits>
+  template<movable _Val, typename _CharT,
+	   typename _Traits = char_traits<_CharT>>
     requires default_initializable<_Val>
       && __detail::__stream_extractable<_Val, _CharT, _Traits>
     class basic_istream_view
@@ -1695,11 +1696,11 @@ namespace views
 	  static auto
 	  _S_iter_concept()
 	  {
-	    if constexpr (random_access_range<_Vp>)
+	    if constexpr (random_access_range<_Base>)
 	      return random_access_iterator_tag{};
-	    else if constexpr (bidirectional_range<_Vp>)
+	    else if constexpr (bidirectional_range<_Base>)
 	      return bidirectional_iterator_tag{};
-	    else if constexpr (forward_range<_Vp>)
+	    else if constexpr (forward_range<_Base>)
 	      return forward_iterator_tag{};
 	    else
 	      return input_iterator_tag{};
@@ -2402,6 +2403,7 @@ namespace views
 	if (_M_cached_begin._M_has_value())
 	  return _M_cached_begin._M_get(_M_base);
 
+	__glibcxx_assert(_M_pred.has_value());
 	auto __it = __detail::find_if_not(ranges::begin(_M_base),
 					  ranges::end(_M_base),
 					  std::cref(*_M_pred));
@@ -2564,7 +2566,7 @@ namespace views
 	    requires _Const
 	      && convertible_to<iterator_t<_Vp>, _Outer_iter>
 	      && convertible_to<iterator_t<_InnerRange>, _Inner_iter>
-	    : _M_outer(std::move(__i._M_outer)), _M_inner(__i._M_inner),
+	    : _M_outer(std::move(__i._M_outer)), _M_inner(std::move(__i._M_inner)),
 	      _M_parent(__i._M_parent)
 	  { }
 
@@ -2899,13 +2901,7 @@ namespace views
 
 	    constexpr _InnerIter<_Const>
 	    begin() const
-	      requires copyable<_OuterIter>
 	    { return _InnerIter<_Const>{_M_i}; }
-
-	    constexpr _InnerIter<_Const>
-	    begin()
-	      requires (!copyable<_OuterIter>)
-	    { return _InnerIter<_Const>{std::move(_M_i)}; }
 
 	    constexpr default_sentinel_t
 	    end() const
@@ -3058,6 +3054,14 @@ namespace views
 	  _InnerIter(_OuterIter<_Const> __i)
 	    : _M_i(std::move(__i))
 	  { }
+
+	  constexpr const iterator_t<_Base>&
+	  base() const& noexcept
+	  { return _M_i_current(); }
+
+	  constexpr iterator_t<_Base>
+	  base() &&
+	  { return std::move(_M_i_current()); }
 
 	  constexpr decltype(auto)
 	  operator*() const
@@ -3469,8 +3473,8 @@ namespace views
 	: _M_base(std::move(base))
       { }
 
-      constexpr const _Vp&
-      base() const & noexcept
+      constexpr _Vp
+      base() const& requires copy_constructible<_Vp>
       { return _M_base; }
 
       constexpr _Vp
@@ -3564,11 +3568,11 @@ namespace views
 	  static auto
 	  _S_iter_concept()
 	  {
-	    if constexpr (random_access_range<_Vp>)
+	    if constexpr (random_access_range<_Base>)
 	      return random_access_iterator_tag{};
-	    else if constexpr (bidirectional_range<_Vp>)
+	    else if constexpr (bidirectional_range<_Base>)
 	      return bidirectional_iterator_tag{};
-	    else if constexpr (forward_range<_Vp>)
+	    else if constexpr (forward_range<_Base>)
 	      return forward_iterator_tag{};
 	    else
 	      return input_iterator_tag{};
@@ -3596,9 +3600,8 @@ namespace views
 	    : _M_current(std::move(i._M_current))
 	  { }
 
-	  constexpr iterator_t<_Base>
-	  base() const&
-	    requires copyable<iterator_t<_Base>>
+	  constexpr const iterator_t<_Base>&
+	  base() const& noexcept
 	  { return _M_current; }
 
 	  constexpr iterator_t<_Base>

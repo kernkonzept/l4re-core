@@ -1,3 +1,532 @@
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101571
+	* include/bits/ranges_uninitialized.h (_DestroyGuard): Change
+	constructor parameter to reference and use addressof.
+	* testsuite/util/testsuite_iterators.h: Define deleted operator&
+	overloads for test iterators.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101965
+	* include/std/charconv (__to_chars_i): Remove redundant check.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/102894
+	* include/std/any (make_any): Add SFINAE constraint.
+	* testsuite/20_util/any/102894.cc: New test.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/102270
+	* include/std/tuple (_Head_base, _Tuple_impl): Add
+	_GLIBCXX20_CONSTEXPR to allocator-extended constructors.
+	(tuple<>::swap(tuple&)): Add _GLIBCXX20_CONSTEXPR.
+	* testsuite/20_util/tuple/cons/102270.cc: New test.
+	* testsuite/util/testsuite_allocator.h (SimpleAllocator): Add
+	constexpr to constructor so it can be used for C++20 tests.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/23_containers/unordered_map/cons/default.cc: Add
+	equality comparison operators to allocator.
+	* testsuite/23_containers/unordered_set/cons/default.cc:
+	Likewise.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-07-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100863
+	* include/bits/hashtable.h (_Hashtable): Conditionally delete
+	default constructor by deriving from _Enable_default_constructor.
+	Construct that base-class explicitly in all non-forwarding,
+	non-defaulted constructors.
+	* testsuite/23_containers/unordered_map/cons/default.cc: New test.
+	* testsuite/23_containers/unordered_set/cons/default.cc: New test.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100863
+	PR libstdc++/65816
+	* include/bits/hashtable_policy.h (_Hashtable_ebo_helper):
+	Value-initialize subobject.
+	* testsuite/23_containers/unordered_map/allocator/default_init.cc:
+	Remove XFAIL.
+	* testsuite/23_containers/unordered_set/allocator/default_init.cc:
+	Remove XFAIL.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-09-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/move.h (forward(remove_reference_t<T>&&)):
+	Improve text of static_assert.
+	* testsuite/20_util/forward/c_neg.cc: Adjust dg-error.
+	* testsuite/20_util/forward/f_neg.cc: Likewise.
+
+2021-11-26  Antony Polukhin  <antoshkka@gmail.com>
+
+	Backported from master:
+	2021-08-17  Antony Polukhin  <antoshkka@gmail.com>
+		    Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/random.tcc (seed_seq::seed_seq): Reserve capacity
+	if distance is O(1).
+	* testsuite/26_numerics/random/pr60037-neg.cc: Adjust dg-error
+	line number.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101870
+	* include/c_global/cmath (hypot): Use __promoted_t.
+	(lerp): Add new overload accepting any arithmetic types.
+	* include/ext/type_traits.h (__promoted_t): New alias template.
+	* testsuite/26_numerics/lerp.cc: Moved to...
+	* testsuite/26_numerics/lerp/1.cc: ...here.
+	* testsuite/26_numerics/lerp/constexpr.cc: New test.
+	* testsuite/26_numerics/lerp/version.cc: New test.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/types/1.cc: Add c++11 target selector to
+	warnings.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/headers/memory/synopsis.cc: Define C++98
+	alternative for macro.
+	* testsuite/20_util/shared_ptr/creation/99006.cc: Add effective
+	target keyword.
+	* testsuite/25_algorithms/copy/debug/99402.cc: Avoid C++11
+	syntax.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/23_containers/array/comparison_operators/96851.cc:
+	Skip test in debug mode.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/stl_iterator.h: Include required header for
+	std::iterator class template and iterator category tags.
+
+2021-11-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-11-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101608
+	* include/bits/ranges_algobase.h (__fill_n_fn): Check for
+	constant evaluation before using memset.
+	* testsuite/25_algorithms/fill_n/constrained.cc: Check
+	byte-sized values as well.
+
+2021-11-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-11-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/103381
+	* include/ext/bitmap_allocator.h: Include <bits/stl_function.h>
+	instead of <functional>.
+
+2021-11-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/valarray (begin, end): Remove nodiscard attribute.
+
+2021-11-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-11-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/103022
+	* include/std/valarray (begin, end): Do not dereference an empty
+	valarray. Add noexcept and [[nodiscard]].
+	* testsuite/26_numerics/valarray/range_access.cc: Check empty
+	valarray. Check iterator properties. Run as well as compiling.
+	* testsuite/26_numerics/valarray/range_access2.cc: Likewise.
+	* testsuite/26_numerics/valarray/103022.cc: New test.
+
+2021-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/28_regex/match_results/102667.C: Moved to...
+	* testsuite/28_regex/match_results/102667.cc: ...here.
+
+2021-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/21_strings/basic_string_view/requirements/trivially_copyable.cc:
+	Use -std=gnu++17 option.
+
+2021-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/90787
+	* testsuite/27_io/filesystem/iterators/directory_iterator.cc:
+	Use new __gnu_test::permissions_are_testable() function.
+	* testsuite/27_io/filesystem/iterators/recursive_directory_iterator.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/exists.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/is_empty.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/remove.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/remove_all.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/status.cc: Likewise.
+	* testsuite/27_io/filesystem/operations/symlink_status.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/operations/temp_directory_path.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/iterators/directory_iterator.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/iterators/recursive_directory_iterator.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/operations/exists.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/operations/is_empty.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/operations/remove.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/operations/remove_all.cc:
+	Likewise.
+	* testsuite/experimental/filesystem/operations/temp_directory_path.cc:
+	Likewise.
+	* testsuite/util/testsuite_fs.h (__gnu_test::permissions_are_testable):
+	New function to guess whether testing permissions will work.
+
+2021-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/filesystem/operations/remove_all.cc: Remove
+	test directory after making it writable again.
+	* testsuite/experimental/filesystem/operations/remove_all.cc:
+	Likewise.
+
+2021-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/random.h (seed_seq): Constrain initializer-list
+	constructor.
+	* include/bits/random.tcc (seed_seq): Add template parameter.
+	* testsuite/26_numerics/random/seed_seq/cons/default.cc: Check
+	for noexcept.
+	* testsuite/26_numerics/random/seed_seq/cons/initlist.cc: Check
+	constraints.
+
+2021-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-05-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/find_end.cc:
+	Increase dg-timeout-factor to 4. Fix -Wunused-parameter
+	warnings. Replace bitwise AND with logical AND in loop
+	condition.
+	* testsuite/25_algorithms/pstl/alg_nonmodifying/search_n.cc:
+	Replace bitwise AND with logical AND in loop condition.
+	* testsuite/util/pstl/test_utils.h: Remove unused parameter
+	names.
+
+2021-10-13  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-04-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100187
+	PR libstdc++/100237
+	PR libstdc++/100249
+	PR libstdc++/100287
+	* include/bits/ranges_algo.h (__search_n_fn::operator()): Give
+	the __value_comp lambda an explicit bool return type.
+	(__is_permutation_fn::operator()): Give the __proj_scan local
+	variable auto&& return type.  Give the __comp_scan lambda an
+	explicit bool return type.
+	(__remove_fn::operator()): Give the __pred lambda an explicit
+	bool return type.
+	(__partition_fn::operator()): Don't std::move __first twice
+	when returning an empty subrange.
+	(__min_fn::operator()): Don't std::move __comp.
+	(__max_fn::operator()): Likewise.
+	(__minmax_fn::operator()): Likewise.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-08-02  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/101599
+	* include/bits/ranges_algo.h (__reverse_copy_fn::operator()):
+	Add missing std::move in return statement.
+	(__partition_copy_fn::operator()): Rename templtae parameter
+	_O2 to _Out2.  Uglify function parameters out_true and out_false.
+	* include/bits/ranges_algobase.h (__copy_or_move): Add missing
+	std::move to recursive call that unwraps a __normal_iterator
+	output iterator.
+	* testsuite/25_algorithms/copy/constrained.cc (test06): New test.
+	* testsuite/25_algorithms/move/constrained.cc (test05): New test.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-08-02  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/101589
+	* include/std/ranges (lazy_split_view::_InnerIter::base): Make
+	the const& overload unconstrained and return a const reference
+	as per LWG 3533.  Make unconditionally noexcept.
+	(elements_view::base): Revert accidental r12-569 change.
+	(elements_view::_Iterator::base): Make the const& overload
+	unconstrained and return a const reference as per LWG 3533.
+	Make unconditionally noexcept.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-08-02  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/101483
+	* include/std/ranges (join_view::_Iterator::_Iterator): Add
+	missing std::move.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-20  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (split_view::_InnerIter::base): Define as
+	per P2210.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-19  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (transform_view::_Iterator::_S_iter_concept):
+	Consider _Base instead of _Vp as per LWG 3555.
+	(elements_view::_Iterator::_S_iter_concept): Likewise.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-19  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (split_view::_OuterIter::value_type::begin):
+	Remove the non-const overload, and remove the copyable constraint
+	on the const overload as per LWG 3553.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-19  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/stl_iterator.h
+	(__detail::__common_iter_use_postfix_proxy): Add
+	move_constructible constraint as per LWG 3546.
+	(common_iterator::__postfix_proxy): Adjust initializer of
+	_M_keep as per LWG 3546.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100387
+	* include/bits/ranges_algo.h (__minmax_fn::operator()): Rewrite
+	to limit comparison complexity to 3*N/2.
+	(__minmax_element_fn::operator()): Likewise.
+	(shift_right): Avoid premature std::move of __result.
+	* testsuite/25_algorithms/minmax/constrained.cc (test04, test05):
+	New tests.
+	* testsuite/25_algorithms/minmax_element/constrained.cc (test02):
+	Likewise.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-06-18  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/concepts (convertible_to): Just use declval as per
+	LWG 3557.
+
+2021-10-12  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2021-05-21  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/100606
+	* include/std/ranges (drop_while_view::begin): Assert the
+	precondition added by LWG 3490.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/tuple/comparison_operators/overloaded.cc:
+	Restore test for operator<.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/basic_filebuf/close/81256.cc: Moved to...
+	* testsuite/27_io/basic_filebuf/close/wchar_t/81256.cc: ...here.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/21_strings/basic_string_view/requirements/trivially_copyable.cc:
+	New test.
+	* testsuite/23_containers/span/trivially_copyable.cc: New test.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/Makefile.am [GLIBCXX_BUILD_DEBUG] (install-data-local):
+	Install another copy of the GDB hook.
+	* python/Makefile.in: Regenerate.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (StdErrorCodePrinter): Define.
+	(build_libstdcxx_dictionary): Register printer for
+	std::error_code and std::error_condition.
+	* testsuite/libstdc++-prettyprinters/cxx11.cc: Test it.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-09-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/102425
+	* src/c++11/system_error.cc
+	(system_error_category::default_error_condition): Add 0 to
+	switch.
+	* testsuite/19_diagnostics/error_category/102425.cc: New test.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-09-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/fs_path.h (advance): Remove non-deducible
+	template parameter.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99876
+	* src/c++17/fs_ops.cc (fs::absolute): Call non-throwing form,
+	to avoid unnecessary current_path() call.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-09-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/26_numerics/valarray/dr630-3.C: Moved to...
+	* testsuite/26_numerics/valarray/dr630-3.cc: ...here.
+	* testsuite/27_io/basic_iostream/cons/16251.C: Moved to...
+	* testsuite/27_io/basic_iostream/cons/16251.cc: ...here.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-09-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/102280
+	* include/std/span (span(Range&&)): Add constraint to deduction
+	guide.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/25_algorithms/is_permutation/2.cc: Include <iterator>.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/integer_comparisons/greater.cc: New test.
+
+2021-10-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-10-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/102667
+	* include/bits/regex.h (match_result::empty()): Optimize by
+	calling the base function directly.
+	(match_results::end()): Check _Base_type::empty() not empty().
+	* testsuite/28_regex/match_results/102667.C: New test.
+
+2021-08-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/ranges (basic_istream_view): Add default template
+	argument.
+	* testsuite/std/ranges/istream_view.cc: Check it.
+
+2021-08-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100139
+	* doc/xml/manual/status_cxx2020.xml: Add P1739R4 to status table.
+	* doc/html/manual/status.html: Regenerate.
+
+2021-08-17  Thomas Schwinge  <thomas@codesourcery.com>
+
+	Backported from master:
+	2021-08-17  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* testsuite/lib/libstdc++.exp: Avoid illegal argument to verbose,
+	continued.
+
 2021-08-11  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
