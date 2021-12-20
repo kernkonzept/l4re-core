@@ -292,7 +292,7 @@ namespace __detail
     template<typename _InputIterator,
 	     typename _Require = __detail::_Path2<_InputIterator>>
       path(_InputIterator __first, _InputIterator __last, format = auto_format)
-      : _M_pathname(_S_convert(__first, __last))
+      : _M_pathname(_S_convert(__detail::__string_from_range(__first, __last)))
       { _M_split_cmpts(); }
 
     template<typename _Source,
@@ -358,7 +358,7 @@ namespace __detail
       __detail::_Path2<_InputIterator>&
       append(_InputIterator __first, _InputIterator __last)
       {
-	_M_append(_S_convert(__first, __last));
+	_M_append(_S_convert(__detail::__string_from_range(__first, __last)));
 	return *this;
       }
 
@@ -390,7 +390,7 @@ namespace __detail
       __detail::_Path2<_InputIterator>&
       concat(_InputIterator __first, _InputIterator __last)
       {
-	_M_concat(_S_convert(__first, __last));
+	_M_concat(_S_convert(__detail::__string_from_range(__first, __last)));
 	return *this;
       }
 
@@ -601,11 +601,6 @@ namespace __detail
     template<typename _EcharT>
       static auto
       _S_convert(const _EcharT* __first, const _EcharT* __last);
-
-    template<typename _Iter>
-      static auto
-      _S_convert(_Iter __first, _Iter __last)
-      { return _S_convert(__detail::__string_from_range(__first, __last)); }
 
     static string_type
     _S_convert_loc(const char* __first, const char* __last,
@@ -1357,7 +1352,7 @@ inline ptrdiff_t
 distance(filesystem::path::iterator __first, filesystem::path::iterator __last)
 { return __path_iter_distance(__first, __last); }
 
-template<typename _InputIterator, typename _Distance>
+template<typename _Distance>
   void
   advance(filesystem::path::iterator& __i, _Distance __n)
   { __path_iter_advance(__i, static_cast<ptrdiff_t>(__n)); }

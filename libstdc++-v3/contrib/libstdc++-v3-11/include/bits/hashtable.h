@@ -33,6 +33,7 @@
 #pragma GCC system_header
 
 #include <bits/hashtable_policy.h>
+#include <bits/enable_special_members.h>
 #if __cplusplus > 201402L
 # include <bits/node_handle.h>
 #endif
@@ -40,6 +41,7 @@
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
+/// @cond undocumented
 
   template<typename _Tp, typename _Hash>
     using __cache_default
@@ -47,6 +49,16 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		       __is_fast_hash<_Hash>,
 		       // Mandatory to have erase not throwing.
 		       __is_nothrow_invocable<const _Hash&, const _Tp&>>>;
+
+  // Helper to conditionally delete the default constructor.
+  // The _Hash_node_base type is used to distinguish this specialization
+  // from any other potentially-overlapping subobjects of the hashtable.
+  template<typename _Equal, typename _Hash, typename _Allocator>
+    using _Hashtable_enable_default_ctor
+      = _Enable_default_constructor<__and_<is_default_constructible<_Equal>,
+				       is_default_constructible<_Hash>,
+				       is_default_constructible<_Allocator>>{},
+				    __detail::_Hash_node_base>;
 
   /**
    *  Primary class template _Hashtable.
@@ -183,7 +195,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       private __detail::_Hashtable_alloc<
 	__alloc_rebind<_Alloc,
 		       __detail::_Hash_node<_Value,
-					    _Traits::__hash_cached::value>>>
+					    _Traits::__hash_cached::value>>>,
+      private _Hashtable_enable_default_ctor<_Equal, _Hash, _Alloc>
     {
       static_assert(is_same<typename remove_cv<_Value>::type, _Value>::value,
 	  "unordered container must have a non-const, non-volatile value_type");
@@ -215,6 +228,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 					      _Equal, _Hash,
 					      _RangeHash, _Unused,
 					      _RehashPolicy, _Traits>;
+      using __enable_default_ctor
+	= _Hashtable_enable_default_ctor<_Equal, _Hash, _Alloc>;
 
     public:
       typedef _Key						key_type;
@@ -469,7 +484,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _Hashtable(const _Hash& __h, const _Equal& __eq,
 		 const allocator_type& __a)
       : __hashtable_base(__h, __eq),
-	__hashtable_alloc(__node_alloc_type(__a))
+	__hashtable_alloc(__node_alloc_type(__a)),
+	__enable_default_ctor(_Enable_default_constructor_tag{})
       { }
 
       template<bool _No_realloc = true>
@@ -536,7 +552,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       explicit
       _Hashtable(const allocator_type& __a)
-      : __hashtable_alloc(__node_alloc_type(__a))
+      : __hashtable_alloc(__node_alloc_type(__a)),
+	__enable_default_ctor(_Enable_default_constructor_tag{})
       { }
 
       template<typename _InputIterator>
@@ -1394,6 +1411,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __rehash_base(__ht),
       __hashtable_alloc(
 	__node_alloc_traits::_S_select_on_copy(__ht._M_node_allocator())),
+      __enable_default_ctor(__ht),
       _M_buckets(nullptr),
       _M_bucket_count(__ht._M_bucket_count),
       _M_element_count(__ht._M_element_count),
@@ -1416,6 +1434,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __map_base(__ht),
       __rehash_base(__ht),
       __hashtable_alloc(std::move(__a)),
+      __enable_default_ctor(__ht),
       _M_buckets(__ht._M_buckets),
       _M_bucket_count(__ht._M_bucket_count),
       _M_before_begin(__ht._M_before_begin._M_nxt),
@@ -1446,6 +1465,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __map_base(__ht),
       __rehash_base(__ht),
       __hashtable_alloc(__node_alloc_type(__a)),
+      __enable_default_ctor(__ht),
       _M_buckets(),
       _M_bucket_count(__ht._M_bucket_count),
       _M_element_count(__ht._M_element_count),
@@ -1467,6 +1487,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __map_base(__ht),
       __rehash_base(__ht),
       __hashtable_alloc(std::move(__a)),
+      __enable_default_ctor(__ht),
       _M_buckets(nullptr),
       _M_bucket_count(__ht._M_bucket_count),
       _M_element_count(__ht._M_element_count),
@@ -2492,6 +2513,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       = __enable_if_t<!__or_<is_integral<_Hash>, __is_allocator<_Hash>>::value>;
 #endif
 
+/// @endcond
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace std
 

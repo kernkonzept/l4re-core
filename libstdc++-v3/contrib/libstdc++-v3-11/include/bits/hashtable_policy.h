@@ -38,6 +38,7 @@
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
+/// @cond undocumented
 
   template<typename _Key, typename _Value, typename _Alloc,
 	   typename _ExtractKey, typename _Equal,
@@ -1123,7 +1124,7 @@ namespace __detail
     struct _Hashtable_ebo_helper<_Nm, _Tp, true>
     : private _Tp
     {
-      _Hashtable_ebo_helper() = default;
+      _Hashtable_ebo_helper() noexcept(noexcept(_Tp())) : _Tp() { }
 
       template<typename _OtherTp>
 	_Hashtable_ebo_helper(_OtherTp&& __tp)
@@ -1149,7 +1150,7 @@ namespace __detail
       _Tp& _M_get() { return _M_tp; }
 
     private:
-      _Tp _M_tp;
+      _Tp _M_tp{};
     };
 
   /**
@@ -1207,6 +1208,7 @@ namespace __detail
       // We need the default constructor for the local iterators and _Hashtable
       // default constructor.
       _Hash_code_base() = default;
+
       _Hash_code_base(const _Hash& __hash) : __ebo_hash(__hash) { }
 
       __hash_code
@@ -1600,6 +1602,7 @@ namespace __detail
 
     protected:
       _Hashtable_base() = default;
+
       _Hashtable_base(const _Hash& __hash, const _Equal& __eq)
       : __hash_code_base(__hash), _EqualEBO(__eq)
       { }
@@ -1941,6 +1944,7 @@ namespace __detail
 
  ///@} hashtable-detail
 } // namespace __detail
+/// @endcond
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace std
 
