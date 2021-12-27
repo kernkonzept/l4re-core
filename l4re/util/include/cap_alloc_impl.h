@@ -40,7 +40,14 @@ typedef Cap_alloc_base _Cap_alloc;
 
 namespace L4Re { namespace Util {
 
+#if defined(__GCC_HAVE_SYNC_COMPARE_AND_SWAP_1) || defined(ARCH_arm)
+typedef Counting_cap_alloc<L4Re::Util::Counter_atomic<unsigned char> > _Cap_alloc;
+#elif defined(ARCH_sparc)
 typedef Counting_cap_alloc<L4Re::Util::Counter<unsigned char> > _Cap_alloc;
+#warning "Thread-safe capability allocator not available!"
+#else
+#error "Unsupported platform"
+#endif
 
 }}
 #endif

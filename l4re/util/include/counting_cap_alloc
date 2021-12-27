@@ -30,7 +30,9 @@
 namespace L4Re { namespace Util {
 
 /**
- * Counter for Counting_cap_alloc with variable data width
+ * Counter for Counting_cap_alloc with variable data width.
+ *
+ * This version is not thread safe.
  */
 template< typename COUNTER = unsigned char >
 struct Counter
@@ -39,12 +41,64 @@ struct Counter
   Type _cnt;
 
   static Type nil() { return 0; }
+  static Type unused() { return 0; }
 
   void free() { _cnt = 0; }
   bool is_free() const { return _cnt == 0; }
   void inc() { ++_cnt; }
   Type dec() { return --_cnt; }
-  void alloc() { _cnt = 1; }
+  bool try_alloc()
+  {
+    if (_cnt == 0)
+      {
+        _cnt = 1;
+        return true;
+      }
+    return false;
+  }
+};
+
+/**
+ * Thread safe version of counter for Counting_cap_alloc.
+ *
+ * Despite using atomic instructions, this version has to make sure that
+ * capability slots are not reused too early. If the last reference is gone,
+ * the capability slot has to be unmapped. The slot must only be allocated
+ * again when the unmap has completed. This is accomplished by starting with an
+ * initial count of 2. The last reference will decrease the counter to 1. Only
+ * then, after the slot was unmapped, will the counter be set to 0. This will
+ * allow other threads to reallocate the slot.
+ */
+template< typename COUNTER = unsigned char >
+struct Counter_atomic
+{
+  typedef COUNTER Type;
+  Type _cnt;
+
+  static Type nil() { return 0; }
+  static Type unused() { return 1; }
+
+  bool is_free() const { return __atomic_load_n(&_cnt, __ATOMIC_RELAXED) == 0; }
+
+  bool try_alloc()
+  {
+    Type expected = nil();
+    // Use "aquire" memory ordering. Any operations tied to the capability slot
+    // must only be observable after the slot has been occupied.
+    return __atomic_compare_exchange_n(&_cnt, &expected, 2, false,
+                                       __ATOMIC_ACQUIRE, __ATOMIC_RELAXED);
+  }
+
+  void inc() { __atomic_add_fetch(&_cnt, 1, __ATOMIC_RELAXED); }
+  Type dec() { return __atomic_sub_fetch(&_cnt, 1, __ATOMIC_RELAXED); }
+
+  void free()
+  {
+    // Use "release" memory ordering to make sure that any operations tied to
+    // the capability slot are observable by other threads before the slot can
+    // be reused.
+    __atomic_store_n(&_cnt, 0, __ATOMIC_RELEASE);
+  }
 };
 
 /**
@@ -71,7 +125,7 @@ struct Counter
  *
  * \ingroup api_l4re_util
  */
-template <typename COUNTERTYPE = L4Re::Util::Counter<unsigned char> >
+template <typename COUNTERTYPE>
 class Counting_cap_alloc
 {
 private:
@@ -134,16 +188,23 @@ public:
    */
   L4::Cap<void> alloc() noexcept
   {
-    for (long i = _free_hint; i < _capacity; ++i)
-      {
-	if (_items[i].is_free())
-	  {
-	    _items[i].alloc();
-	    _free_hint = i + 1;
+    long free_hint = __atomic_load_n(&_free_hint, __ATOMIC_RELAXED);
 
-	    return L4::Cap<void>((i + _bias) << L4_CAP_SHIFT);
-	  }
-      }
+    for (long i = free_hint; i < _capacity; ++i)
+      if (_items[i].try_alloc())
+        {
+          _free_hint = i + 1;
+          return L4::Cap<void>((i + _bias) << L4_CAP_SHIFT);
+        }
+
+    // _free_hint is not necessarily correct in case of multi-threading! Make
+    // sure we don't miss any potentially free slots.
+    for (long i = 0; i < free_hint && i < _capacity; ++i)
+      if (_items[i].try_alloc())
+        {
+          _free_hint = i + 1;
+          return L4::Cap<void>((i + _bias) << L4_CAP_SHIFT);
+        }
 
     return L4::Cap<void>::Invalid;
   }
@@ -235,13 +296,17 @@ public:
 
     l4_assert(!_items[c].is_free());
 
-    if (_items[c].dec() == Counter::nil())
+    if (_items[c].dec() == Counter::unused())
       {
 	if (task != L4_INVALID_CAP)
 	  l4_task_unmap(task, cap.fpage(), unmap_flags);
 
 	if (c < _free_hint)
 	  _free_hint = c;
+
+        // Let others allocate this slot only after the l4_task_unmap() has
+        // finished.
+        _items[c].free();
 
 	return true;
       }
