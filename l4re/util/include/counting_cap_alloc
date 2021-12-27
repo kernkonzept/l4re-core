@@ -167,12 +167,8 @@ public:
    */
   void take(L4::Cap<void> cap) noexcept
   {
-    long c = cap.cap() >> L4_CAP_SHIFT;
-    if (c < _bias)
-      return;
-
-    c -= _bias;
-    if (c >= _capacity)
+    long c;
+    if (!range_check_and_get_idx(cap, &c))
       return;
 
     _items[c].inc();
@@ -195,13 +191,8 @@ public:
   bool free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
             unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept
   {
-    long c = cap.cap() >> L4_CAP_SHIFT;
-    if (c < _bias)
-      return false;
-
-    c -= _bias;
-
-    if (c >= _capacity)
+    long c;
+    if (!range_check_and_get_idx(cap, &c))
       return false;
 
     l4_assert(!_items[c].is_free());
@@ -238,13 +229,8 @@ public:
   bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
                unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept
   {
-    long c = cap.cap() >> L4_CAP_SHIFT;
-    if (c < _bias)
-      return false;
-
-    c -= _bias;
-
-    if (c >= _capacity)
+    long c;
+    if (!range_check_and_get_idx(cap, &c))
       return false;
 
     l4_assert(!_items[c].is_free());
@@ -262,13 +248,24 @@ public:
     return false;
   }
 
-
   /**
    * Return highest capability id managed by this allocator.
    */
   long last() noexcept
   {
     return _capacity + _bias - 1;
+  }
+
+private:
+  bool range_check_and_get_idx(L4::Cap<void> cap, long *c)
+  {
+    *c = cap.cap() >> L4_CAP_SHIFT;
+    if (*c < _bias)
+      return false;
+
+    *c -= _bias;
+
+    return *c < _capacity;
   }
 };
 
