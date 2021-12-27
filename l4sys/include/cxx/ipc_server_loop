@@ -89,46 +89,6 @@ struct Default_setup_wait
 { static void setup_wait(l4_utcb_t *, Reply_mode) {} };
 
 /**
- * DEPRECATED
- * \ingroup cxx_ipc_server
- * \deprecated Use L4::Ipc_svr::Timeout_queue_hooks
- */
-template< typename HOOKS >
-class Timed_work : public HOOKS
-{
-protected:
-  l4_cpu_time_t _timeout;
-
-public:
-  Timed_work()
-  : _timeout(HOOKS::next_timeout(HOOKS::current_time())) {}
-
-  l4_timeout_t timeout()
-  {
-    return l4_timeout(L4_IPC_TIMEOUT_0,
-                      l4_timeout_abs(_timeout, this->timeout_br()));
-  }
-
-  void setup_wait(l4_utcb_t *utcb, Reply_mode mode)
-  {
-    if (_timeout <= this->current_time()
-        && mode == Reply_separate)
-      {
-	this->work();
-        _timeout = this->next_timeout(_timeout);
-      }
-    HOOKS::setup_wait(utcb, mode);
-  }
-
-  Reply_mode before_reply(l4_msgtag_t, l4_utcb_t *)
-  {
-    if (_timeout <= this->current_time())
-      return Reply_separate;
-    return Reply_compound;
-  }
-};
-
-/**
  * Direct dispatch helper, for forwarding dispatch calls to
  * a registry \a R.
  * \tparam R  Data type of the registry that is used for dispatching to
