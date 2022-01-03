@@ -104,7 +104,8 @@ l4_sched_cpu_set(l4_umword_t offset, unsigned char granularity,
  * \copybrief L4::Scheduler::info
  *
  * \param         scheduler  Scheduler object.
- * \param[out]    cpu_max    Maximum number of CPUs ever available.
+ * \param[out]    cpu_max    Maximum number of CPUs ever available. Optional,
+ *                           can be nullptr.
  * \param[in,out] cpus       \a cpus.offset is first CPU of interest.
  *                           \a cpus.granularity (see l4_sched_cpu_set_t).
  *                           \a cpus.map Bitmap of online CPUs.
