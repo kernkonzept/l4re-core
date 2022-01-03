@@ -63,6 +63,16 @@ enum l4_mem_info_sub_type_t
   l4_mem_info_acpi_rsdp = 0 /**< Physical address of the ACPI root pointer. */
 };
 
+/**
+ * Memory sub types for l4_mem_type_archspecific descriptors
+ * \ingroup l4_kip_memdesc_api
+ */
+enum l4_mem_archspecific_sub_type_common_t
+{
+  l4_mem_archspecific_acpi_tables = 3,  /**< Firmware ACPI tables. */
+  l4_mem_archspecific_acpi_nvs    = 4,  /**< Firmware reserved address space. */
+};
+
 
 /**
  * Memory descriptor data structure.

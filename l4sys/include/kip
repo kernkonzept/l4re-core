@@ -77,6 +77,15 @@ namespace L4
         Info_acpi_rsdp = 0  ///< Physical address of the ACPI root pointer.
       };
 
+      /**
+       * Common sub types across all architectures for the Mem_type::Arch type.
+       */
+      enum Arch_sub_type_common
+      {
+        Arch_acpi_tables  = 3,  ///< Firmware ACPI tables.
+        Arch_acpi_nvs     = 4,  ///< Firmware reserved address space.
+      };
+
     private:
       unsigned long _l, _h;
 
