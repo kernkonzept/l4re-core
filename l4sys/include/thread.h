@@ -496,6 +496,8 @@ l4_thread_vcpu_control_u(l4_cap_idx_t thread, l4_addr_t vcpu_state,
  * L4_VCPU_OFFSET_EXT_STATE, and, on some platforms, the extended vCPU
  * information at offset L4_VCPU_OFFSET_EXT_INFOS.
  *
+ * \note Enabling the extended vCPU feature for a thread running on a
+ *       different CPU core is currently not supported.
  * \note Disabling of the extended vCPU feature is currently not supported.
  * \note Upgrading from non-extended vCPU feature to extended vCPU feature is
  *       currently not supported.
