@@ -36,6 +36,12 @@
  *  - The IRQ is edge-triggered and the IRQ mode cannot be changed.
  *  - As the IRQ is edge-triggered, it does not have to be explicitly unmasked.
  *
+ * A server implementing the virtual console protocol has a queue for input
+ * events. When the first input event is added to the empty queue, the virtual
+ * key interrupt is triggered. Further events are added to the queue without
+ * generating further interrupts. The queue is emptied when a client reads all
+ * queued input events.
+ *
  * \includefile{l4/sys/vcon.h}
  *
  * See L4::Vcon for the C++ interface.
