@@ -129,6 +129,11 @@
  * - Physically contiguous and pre-allocated
  * - Non contiguous and on-demand allocated with possible copy on write (COW)
  *
+ * Dataspaces allocated via the Moe's factory allow mappings with any
+ * combination of the read-write-execute (RWX) rights, subject to a possible
+ * restriction of the writable right for client capabilities lacking the 'W'
+ * right.
+ *
  * \subsection l4re_moe_log Log Subsystem
  *
  * The logging facility of Moe provides per application tagged and
