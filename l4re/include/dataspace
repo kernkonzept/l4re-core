@@ -73,6 +73,9 @@ public:
 
     /**
      * Flags for map operations.
+     *
+     * A dataspace implementation must check the requested flags during the map
+     * and other operations against the dataspace rights.
      */
     enum Flags
     {
@@ -80,25 +83,28 @@ public:
       R   = L4_FPAGE_RO,
       /// Request read-only mapping.
       Ro  = L4_FPAGE_RO,
-      /// Request writable mapping (R + W)
+      /// Request read-write mapping.
       RW  = L4_FPAGE_RW,
-      /// Request write-only memory
+      /// Request write-only mapping.
       W   = L4_FPAGE_W,
+      /// Request execute-only mapping.
       X   = L4_FPAGE_X,
+      /// Request read-execute mapping.
       RX  = L4_FPAGE_RX,
+      /// Request read-write-execute mapping.
       RWX = L4_FPAGE_RWX,
-      /// All rights bits available for mappings
+      /// All rights bits available for mappings.
       Rights_mask = 0x0f,
 
-      /// request normal memory mapping
+      /// Request normal memory mapping.
       Normal        = 0x00,
-      /// request normal memory mapping
+      /// Request normal memory mapping.
       Cacheable     = Normal,
-      /// request bufferable (write buffered) mappings
+      /// Request bufferable (write buffered) mappings.
       Bufferable    = 0x10,
-      /// request uncacheable memory mappings
+      /// Request uncacheable memory mappings.
       Uncacheable   = 0x20,
-      /// mask for caching flags
+      /// Mask for caching flags.
       Caching_mask  = 0x30,
     };
 
