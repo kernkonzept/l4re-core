@@ -1,6 +1,6 @@
 // -*- C++ -*- Libstdc++ version details header.
 
-// Copyright (C) 2018-2021 Free Software Foundation, Inc.
+// Copyright (C) 2018-2022 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -51,7 +51,9 @@
 
 #if _GLIBCXX_HOSTED
 # define __cpp_lib_allocator_traits_is_always_equal 201411
+#if __cplusplus < 201703L // N.B. updated value in C++20
 # define __cpp_lib_shared_ptr_arrays 201611L
+#endif
 #endif
 
 #if !defined(__STRICT_ANSI__)
@@ -167,13 +169,14 @@
 # define __cpp_lib_scoped_lock 201703
 # define __cpp_lib_shared_mutex 201505L
 #endif
-#define __cpp_lib_shared_ptr_weak_type 201606
+#define __cpp_lib_shared_ptr_weak_type 201606L
 #define __cpp_lib_string_view 201803L
 #if _GLIBCXX_HAVE_USELOCALE
 # define __cpp_lib_to_chars 201611L
 #endif
 #define __cpp_lib_unordered_map_try_emplace 201411
-#if __cplusplus == 201703L || ! __cpp_concepts // N.B. updated value in C++20
+#ifndef _GLIBCXX_HAVE_COND_TRIVIAL_SPECIAL_MEMBERS
+// N.B. updated value in C++20
 # define __cpp_lib_variant 202102L
 #endif
 #endif
@@ -200,6 +203,9 @@
 #endif
 #define __cpp_lib_is_nothrow_convertible 201806L
 #define __cpp_lib_remove_cvref 201711L
+#if __has_builtin(__builtin_source_location)
+# define __cpp_lib_source_location 201907L
+#endif
 #if __cpp_impl_three_way_comparison >= 201907L && __cpp_lib_concepts
 # define __cpp_lib_three_way_comparison 201907L
 #endif
@@ -271,10 +277,9 @@
 #if __cpp_lib_atomic_wait || _GLIBCXX_HAVE_POSIX_SEMAPHORE
 # define __cpp_lib_semaphore 201907L
 #endif
+#define __cpp_lib_shared_ptr_arrays 201707L
 #define __cpp_lib_shift 201806L
-#if __has_builtin(__builtin_source_location)
-# define __cpp_lib_source_location 201907L
-#endif
+#define __cpp_lib_smart_ptr_for_overwrite 202002L
 #if __cpp_lib_concepts
 # define __cpp_lib_span 202002L
 #endif
@@ -286,7 +291,7 @@
 # endif
 #define __cpp_lib_to_address 201711L
 #define __cpp_lib_to_array 201907L
-#if __cpp_concepts
+#ifdef _GLIBCXX_HAVE_COND_TRIVIAL_SPECIAL_MEMBERS
 # define __cpp_lib_variant 202106L
 #endif
 #endif
@@ -295,6 +300,7 @@
 // c++2b
 #define __cpp_lib_adaptor_iterator_pair_constructor 202106L
 #define __cpp_lib_byteswap 202110L
+#define __cpp_lib_constexpr_typeinfo 202106L
 #define __cpp_lib_invoke_r 202106L
 #define __cpp_lib_ios_noreplace 202200L
 #define __cpp_lib_is_scoped_enum 202011L

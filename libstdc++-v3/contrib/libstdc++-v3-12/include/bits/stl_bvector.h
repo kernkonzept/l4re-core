@@ -1,6 +1,6 @@
 // vector<bool> specialization -*- C++ -*-
 
-// Copyright (C) 2001-2021 Free Software Foundation, Inc.
+// Copyright (C) 2001-2022 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -156,6 +156,9 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 #endif
   };
 
+// Ignore warnings about std::iterator.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
   struct _Bit_iterator_base
   : public std::iterator<std::random_access_iterator_tag, bool>
   {
@@ -255,6 +258,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	      + __x._M_offset - __y._M_offset);
     }
   };
+#pragma GCC diagnostic pop
 
   struct _Bit_iterator : public _Bit_iterator_base
   {

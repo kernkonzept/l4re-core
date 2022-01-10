@@ -1,6 +1,6 @@
 // C++11 <type_traits> -*- C++ -*-
 
-// Copyright (C) 2007-2021 Free Software Foundation, Inc.
+// Copyright (C) 2007-2022 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -2594,7 +2594,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<typename _Functor, typename... _ArgTypes>
     struct result_of<_Functor(_ArgTypes...)>
     : public __invoke_result<_Functor, _ArgTypes...>
-    { };
+    { } _GLIBCXX17_DEPRECATED_SUGGEST("std::invoke_result");
 
 #if __cplusplus >= 201402L
   /// Alias template for aligned_storage

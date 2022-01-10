@@ -1,6 +1,6 @@
 // Predefined symbols and macros -*- C++ -*-
 
-// Copyright (C) 1997-2021 Free Software Foundation, Inc.
+// Copyright (C) 1997-2022 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 12
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20211226
+#define __GLIBCXX__ 20220116
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -175,10 +175,18 @@
 #endif
 
 #ifndef _GLIBCXX20_CONSTEXPR
-# if __cplusplus > 201703L
+# if __cplusplus >= 202002L
 #  define _GLIBCXX20_CONSTEXPR constexpr
 # else
 #  define _GLIBCXX20_CONSTEXPR
+# endif
+#endif
+
+#ifndef _GLIBCXX23_CONSTEXPR
+# if __cplusplus >= 202100L
+#  define _GLIBCXX23_CONSTEXPR constexpr
+# else
+#  define _GLIBCXX23_CONSTEXPR
 # endif
 #endif
 
@@ -802,6 +810,11 @@ namespace std
 
 #undef _GLIBCXX_HAS_BUILTIN
 
+#if __cplusplus >= 202002L && __cpp_concepts && __GNUC__ >= 12
+// XXX workaround for missing feature test macro for P0848R3 (see P2493R0).
+# define _GLIBCXX_HAVE_COND_TRIVIAL_SPECIAL_MEMBERS 1
+#endif
+
 // PSTL configuration
 
 #if __cplusplus >= 201703L
@@ -1143,6 +1156,7 @@ namespace std
 
 /* Define to 1 if you have the `secure_getenv' function. */
 /* #undef _GLIBCXX_HAVE_SECURE_GETENV */
+
 /* Define to 1 if you have the `setenv' function. */
 #define _GLIBCXX_HAVE_SETENV 1
 
@@ -1552,9 +1566,6 @@ namespace std
    */
 #define LT_OBJDIR ".libs/"
 
-/* Defined if no way to sleep is available. */
-/* #undef NO_SLEEP */
-
 /* Name of package */
 /* #undef _GLIBCXX_PACKAGE */
 
@@ -1787,10 +1798,6 @@ namespace std
 /* Define if get_nprocs is available in <sys/sysinfo.h>. */
 //l4/#define _GLIBCXX_USE_GET_NPROCS 1
 
-/* Define if __int128 is supported on this host. */
-#if __SIZEOF_POINTER__ == 8
-#define _GLIBCXX_USE_INT128 1
-#endif
 
 /* Define if LFS support is available. */
 #if !defined(L4_MINIMAL_LIBC)
