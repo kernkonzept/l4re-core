@@ -124,11 +124,17 @@ public:
     {
       /// Region rights
       Rights_mask = 0x0f,
+      /// Readable region
       R         = Dataspace::F::R,
+      /// Writable region
       W         = Dataspace::F::W,
+      /// Executable region
       X         = Dataspace::F::X,
+      /// Readable and writable region
       RW        = Dataspace::F::RW,
+      /// Readable and executable region
       RX        = Dataspace::F::RX,
+      /// Readable, writable and executable region
       RWX       = Dataspace::F::RWX,
 
       /// Free the portion of the data space after detach
