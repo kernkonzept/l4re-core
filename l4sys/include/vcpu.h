@@ -90,7 +90,6 @@ enum L4_vcpu_state_flags
   L4_VCPU_F_IRQ         = 0x01, ///< IRQs (events) enabled
   L4_VCPU_F_PAGE_FAULTS = 0x02, ///< Page faults enabled
   L4_VCPU_F_EXCEPTIONS  = 0x04, ///< Exception enabled
-  L4_VCPU_F_DEBUG_EXC   = 0x08, ///< Debug exception enabled
   L4_VCPU_F_USER_MODE   = 0x20, ///< User task will be used
   L4_VCPU_F_FPU_ENABLED = 0x80, ///< FPU enabled
 };
