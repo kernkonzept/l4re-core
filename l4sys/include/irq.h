@@ -54,6 +54,8 @@
  * Chain an IRQ to another master IRQ source.
  * \ingroup l4_irq_api
  *
+ * \deprecated   IRQ muxer objects are no longer supported by the kernel.
+ *
  * \param irq    The master IRQ object.
  * \param slave  The slave that shall be attached to the master.
  *

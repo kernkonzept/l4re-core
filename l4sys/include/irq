@@ -198,6 +198,8 @@ public:
 /**
  * IRQ multiplexer for shared IRQs.
  *
+ * \deprecated IRQ muxer objects are no longer supported by the kernel.
+ *
  * This interface allows broadcasting of shared IRQs to multiple triggerables.
  * The IRQ multiplexer is responsible for the correct mask and unmask logic for
  * such shared IRQs.
