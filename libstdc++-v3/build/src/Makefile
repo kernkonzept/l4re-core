@@ -9,6 +9,14 @@ STDCXX_PKG_DIR ?= $(PKGDIR)
 
 PRIVATE_INCDIR += $(STDCXX_PKG_DIR)/private_inc
 
+# 1: target: will be prefixed with OBJ_DIR
+# 2: source
+define libstdcpp_link_rule
+$(OBJ_DIR)/$1: $(realpath $2) $(if $(filter $(realpath $(OBJ_DIR)/$1),$(realpath $2)),,FORCE)
+	$$(VERBOSE)$(MKDIR) $$(@D)
+	$$(VERBOSE)$(LN) -sf $$< $$@
+endef
+
 include $(STDCXX_PKG_DIR)/contrib.inc
 include $(STDCXX_PKG_DIR)/build/src/Makefile-$(STDCXX_CONTRIB_VERSION)
 include $(L4DIR)/mk/lib.mk

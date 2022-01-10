@@ -91,6 +91,4 @@ SRC_CC       += $(if $(GCC_HAS_ATOMICS),,atomicity.cc)
 
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/os/generic
 
-$(OBJ_DIR)/atomicity.cc: $(call CPU_file,atomicity_mutex/atomicity.h)
-	$(VERBOSE)$(LN) -sf $< $@
-
+$(eval $(call libstdcpp_link_rule,atomicity.cc,$(call CPU_file,atomicity_mutex/atomicity.h)))

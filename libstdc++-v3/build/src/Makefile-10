@@ -151,22 +151,8 @@ WARNINGS = $(WARNINGS_MINIMAL)
 
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/os/generic
 
-$(OBJ_DIR)/c++98/basic_file.cc: $(STDCXX_CONTRIB_DIR)/config/io/basic_file_stdio.cc
-	$(VERBOSE)$(MKDIR) $(@D)
-	$(VERBOSE)$(LN) -sf $< $@
-
-$(OBJ_DIR)/c++98/collate_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/collate_members.cc
-	$(VERBOSE)$(MKDIR) $(@D)
-	$(VERBOSE)$(LN) -sf $< $@
-
-$(OBJ_DIR)/c++98/messages_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/messages_members.cc
-	$(VERBOSE)$(MKDIR) $(@D)
-	$(VERBOSE)$(LN) -sf $< $@
-
-$(OBJ_DIR)/c++98/monetary_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/monetary_members.cc
-	$(VERBOSE)$(MKDIR) $(@D)
-	$(VERBOSE)$(LN) -sf $< $@
-
-$(OBJ_DIR)/c++98/numeric_members_cow.cc: $(STDCXX_CONTRIB_DIR)/config/locale/generic/numeric_members.cc
-	$(VERBOSE)$(MKDIR) $(@D)
-	$(VERBOSE)$(LN) -sf $< $@
+$(eval $(call libstdcpp_link_rule,c++98/basic_file.cc, $(STDCXX_CONTRIB_DIR)/config/io/basic_file_stdio.cc))
+$(eval $(call libstdcpp_link_rule,c++98/collate_members_cow.cc, $(STDCXX_CONTRIB_DIR)/config/locale/generic/collate_members.cc))
+$(eval $(call libstdcpp_link_rule,c++98/messages_members_cow.cc, $(STDCXX_CONTRIB_DIR)/config/locale/generic/messages_members.cc))
+$(eval $(call libstdcpp_link_rule,c++98/monetary_members_cow.cc, $(STDCXX_CONTRIB_DIR)/config/locale/generic/monetary_members.cc))
+$(eval $(call libstdcpp_link_rule,c++98/numeric_members_cow.cc, $(STDCXX_CONTRIB_DIR)/config/locale/generic/numeric_members.cc))
