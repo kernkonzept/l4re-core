@@ -667,6 +667,7 @@ define SRC_libm
   s_fma
   s_fmax
   s_fmin
+  s_fpclassifyf
   s_frexp
   s_ilogb
   s_isnan

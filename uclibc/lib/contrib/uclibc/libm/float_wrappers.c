@@ -44,8 +44,6 @@ long long func##f (float x) \
  * and nobody asked to include them] */
 #undef L_fdimf         /*float       fdimf(float, float);*/
 #undef L_fmaf          /*float       fmaf(float, float, float);*/
-#undef L_fmaxf         /*float       fmaxf(float, float);*/
-#undef L_fminf         /*float       fminf(float, float);*/
 #undef L_nearbyintf    /*float       nearbyintf(float);*/
 #undef L_nexttowardf   /*float       nexttowardf(float, long double);*/
 #undef L_remquof       /*float       remquof(float, float, int *);*/
