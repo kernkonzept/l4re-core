@@ -13,8 +13,6 @@
 #include <l4/sys/types.h>
 #include <l4/sys/ipc.h>
 
-static Mem_man io_ports;
-
 void init_io_ports()
 {
 }
