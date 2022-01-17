@@ -28,9 +28,9 @@ init_memory(l4_kernel_info_t *info)
     }
 
 #ifdef ARCH_x86
-  char kip_syscalls = l4_info->kip_sys_calls;
+  char kip_syscalls = info->kip_sys_calls;
 
-  L4::cout << "  Found Fiasco: KIP syscalls: " 
+  L4::cout << "  Found Fiasco: KIP syscalls: "
            << (kip_syscalls ? "yes\n" : "no\n");
 #endif
 
