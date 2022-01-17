@@ -3898,6 +3898,7 @@ res_ninit(res_state statp)
 
 #ifdef L_res_state
 # if !defined __UCLIBC_HAS_TLS__
+extern struct __res_state *__resp;
 struct __res_state *
 __res_state (void)
 {
