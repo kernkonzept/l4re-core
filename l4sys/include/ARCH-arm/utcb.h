@@ -47,6 +47,7 @@ typedef struct l4_exc_regs_t
   l4_umword_t pc;      /**< pc */
   l4_umword_t cpsr;    /**< cpsr */
   l4_umword_t tpidruro;/**< Thread-ID register */
+  l4_umword_t tpidrurw;/**< Thread-ID register */
 } l4_exc_regs_t;
 
 /**

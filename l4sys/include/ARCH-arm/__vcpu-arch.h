@@ -49,6 +49,7 @@ typedef struct l4_vcpu_regs_t
   l4_umword_t ip;
   l4_umword_t flags;
   l4_umword_t tpidruro; /**< Thread-ID register */
+  l4_umword_t tpidrurw; /**< Thread-ID register */
 } l4_vcpu_regs_t;
 
 typedef struct l4_vcpu_arch_state_t

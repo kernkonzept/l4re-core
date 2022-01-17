@@ -47,6 +47,7 @@ typedef struct l4_exc_regs_t
   union { l4_umword_t ip; l4_umword_t pc; }; /* aliases for PC */
   union { l4_umword_t flags; l4_umword_t pstate; }; /* aliases for PSTATE (PSR) */
   l4_umword_t tpidruro;
+  l4_umword_t tpidrurw;
 } l4_exc_regs_t;
 
 /**
