@@ -23,6 +23,9 @@ PHDRS
   ro PT_LOAD FILEHDR PHDRS;
   rw PT_LOAD;
   tls PT_TLS;
+#if CONFIG_BID_LD_EMIT_UNWIND
+  ehf PT_GNU_EH_FRAME;
+#endif
   L4_DEFINE_L4PHDRS
 }
 
@@ -131,7 +134,9 @@ SECTIONS
     *(.sdata2 .sdata2.* .gnu.linkonce.s2.*)
   }
   .sbss2          : { *(.sbss2 .sbss2.* .gnu.linkonce.sb2.*) }
-  .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) } :ro
+#if CONFIG_BID_LD_EMIT_UNWIND
+  .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) } :ehf :ro
+#endif
   .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) *(.eh_frame.*) } :ro
   .gcc_except_table   : ONLY_IF_RO { *(.gcc_except_table
   .gcc_except_table.*) } :ro

@@ -68,8 +68,14 @@ crti.o: crti_s.o kip_addr.o
 	@$(GEN_MESSAGE)
 	$(VERBOSE)$(LD) -r -o $@ $^
 
-%.ld: $(PKGDIR)/ARCH-$(ARCH)/%.ld $(SRC_DIR)/Makefile $(SRC_DIR)/generic.h
+# we need to track pre-processing flags of ldscripts manually
+.ldscripts-change-tracker: FORCE
+	$(VERBOSE)echo "$(CONFIG_BID_LD_EMIT_UNWIND) $(CFLAGS)" > $@.tmp
+	$(VERBOSE)$(call move_if_changed,$@,$@.tmp)
+
+%.ld: $(PKGDIR)/ARCH-$(ARCH)/%.ld $(SRC_DIR)/Makefile $(SRC_DIR)/generic.h .ldscripts-change-tracker
 	@$(GEN_MESSAGE)
 	$(VERBOSE)$(CPP) -nostdinc -include $(SRC_DIR)/generic.h \
+				-DCONFIG_BID_LD_EMIT_UNWIND=$(if $(CONFIG_BID_LD_EMIT_UNWIND),1,0) \
 	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P \
 	      $(if $(filter lld,$(BID_LD_TYPE)),-DLD_LLD=1) $< -o $@
