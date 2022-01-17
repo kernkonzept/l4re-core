@@ -377,7 +377,7 @@ bool Avl_tree<Node, Get_key, Compare>::rec_dump(Avl_tree_node *n, int depth, int
   int dpx[2] = {depth,depth};
   bool res = true;
 
-  res = rec_dump(n->next<A>(Dir::R), depth + 1, dpx + 1, print, '/');
+  res = rec_dump(A::next<A>(n, Dir::R), depth + 1, dpx + 1, print, '/');
 
   if (print)
     {
@@ -389,7 +389,7 @@ bool Avl_tree<Node, Get_key, Compare>::rec_dump(Avl_tree_node *n, int depth, int
       std::cerr << pfx << (static_cast<Node*>(n)->item) << std::endl;
     }
 
-  res = res & rec_dump(n->next<A>(Dir::L), depth + 1, dpx, print, '\\');
+  res = res & rec_dump(A::next<A>(n, Dir::L), depth + 1, dpx, print, '\\');
 
   int b = dpx[1] - dpx[0];
 

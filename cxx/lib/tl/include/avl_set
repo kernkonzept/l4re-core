@@ -387,6 +387,13 @@ public:
 
   Const_iterator find(Key_type const &item) const
   { return _tree.find(item); }
+
+#ifdef __DEBUG_L4_AVL
+  bool rec_dump(bool print)
+  {
+    return _tree.rec_dump(print);
+  }
+#endif
 };
 
 
