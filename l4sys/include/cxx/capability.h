@@ -75,12 +75,13 @@ public:
   /**
    * Return send base.
    *
-   * \param grant  True object should be granted.
+   * \param grant  Indicates if object shall be granted. Allowed values:
+   *               #L4_MAP_ITEM_MAP, #L4_MAP_ITEM_GRANT.
    * \param base   Base capability (first in a bundle of aligned capabilities)
    *
    * \return Map object.
    */
-  l4_umword_t snd_base(unsigned grant = 0,
+  l4_umword_t snd_base(unsigned grant = L4_MAP_ITEM_MAP,
                        l4_cap_idx_t base = L4_INVALID_CAP) const noexcept
   {
     if (base == L4_INVALID_CAP)

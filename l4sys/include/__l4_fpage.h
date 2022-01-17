@@ -422,7 +422,8 @@ l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
  * \param cache  Cacheability hints for memory flex pages. See
  *               \link l4_fpage_api::l4_fpage_cacheability_opt_t
  *               Cacheability options \endlink
- * \param grant  Indicates if it is a map or a grant item.
+ * \param grant  Indicates if it is a map or a grant item. Allowed values:
+ *               #L4_MAP_ITEM_MAP, #L4_MAP_ITEM_GRANT.
  *
  * \return The value to be used as first word in a map item for memory.
  */
@@ -435,7 +436,8 @@ l4_map_control(l4_umword_t spot, unsigned char cache, unsigned grant) L4_NOTHROW
  *
  * \param spot   Hot spot address, used to determine what is actually mapped
  *               when send and receive flex pages have different size.
- * \param grant  Indicates if it is a map item or a grant item.
+ * \param grant  Indicates if it is a map item or a grant item. Allowed values:
+ *               #L4_MAP_ITEM_MAP, #L4_MAP_ITEM_GRANT.
  *
  * \return The value to be used as first word in a map item for kernel objects
  *         or IO-ports.
