@@ -15,6 +15,11 @@ DEFAULT_RELOC_sparc := 0x01200000
 DEFAULT_RELOC_ppc32 := 0x00100000
 RELOC_PHYS          := y
 
+CAN_PIE_amd64   := y
+CAN_PIE_arm     := y
+CAN_PIE_arm64   := y
+BID_CAN_PIE      = $(CAN_PIE_$(ARCH))
+
 PRIVATE_INCDIR	= $(SRC_DIR)
 
 SRC_CC := init.cc memmap.cc page_alloc.cc mem_man.cc io_backend.cc \

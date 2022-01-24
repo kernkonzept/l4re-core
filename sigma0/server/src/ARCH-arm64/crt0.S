@@ -31,6 +31,24 @@ _start:
 	add     x9, x9, :lo12:crt0_stack_high
 
 	mov	sp, x9
+
+#ifdef CONFIG_BID_PIE
+	/* Save off the kip pointer */
+	mov     x19, x0
+
+	/* Calculate load address... subtract link address from real one */
+	adrp    x0, :got:_start
+	ldr     x0, [x0, #:got_lo12:_start]
+	adr     x1, _start
+	sub     x0, x1, x0
+
+	/* Do relocations */
+	bl reloc_static_pie
+
+	/* restore kip pointer */
+	mov     x0, x19
+#endif
+
 	adr	x30, _exit
 	b	init
 

@@ -9,6 +9,7 @@
  * Please see the COPYING-GPL-2 file for details.
  */
 #define __ASSEMBLY__
+#include <l4/bid_config.h>
 #include <l4/sys/compiler.h>
 	
 	.section .text.init
@@ -21,9 +22,22 @@ ENTRY(start)
 	jne	1f
 	pop	%rdi		/* ptr to kernel info page is on init stack */
 1:
-	lea	_stack,%rsp	/* reset stack */
-	pushq	$_exit
-	jmp	init
+	lea	_stack(%rip),%rsp	/* reset stack */
+
+#ifdef CONFIG_BID_PIE
+	movq %rdi, %r12                     /* save KIP ptr */
+	xorq %rcx, %rcx                     /* ensure rcx is 0 */
+	addq _start@GOTPCREL(%rip), %rcx    /* read link address of _start from GOT */
+	lea  _start(%rip), %rax             /* get run time address of _start */
+	subq %rcx, %rax                     /* calculate run time load offset */
+	movq %rax, %rdi                     /* load offset -> param 1 */
+	call reloc_static_pie               /* relocate dynamic addrs */
+	movq %r12, %rdi                     /* restore KIP ptr */
+#endif
+
+	lea	_exit(%rip),%rax
+	pushq	%rax
+	jmp	init@PLT
 
 ENTRY(__main)
 	ret
