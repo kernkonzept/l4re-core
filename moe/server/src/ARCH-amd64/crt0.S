@@ -25,8 +25,8 @@ _real_start:
 	/* Clear the base pointer so that stack backtraces will work.  */
 	xor	%rbp,%rbp
 	/* Mind the argc that is popped off the stack! */
-	mov 	$_stack_top-16, %rsp
-	jmp _start
+	lea	_stack_top-16(%rip),%rsp
+	jmp _start@PLT
 /*--- my stack -------------------------------------*/
 	.bss
 	.balign	16

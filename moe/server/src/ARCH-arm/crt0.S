@@ -23,10 +23,12 @@
 	.globl	_real_start
 _real_start:
 	ldr 	sp, .LCstack
+	adr	r12, _real_start
+	add	sp, sp, r12
 	b	_start
 
 /* Mind the argc that is popped off the stack! */
-.LCstack: .word _stack_top-8
+.LCstack: .word (_stack_top - _real_start - 8)
 
 /*--- my stack -------------------------------------*/
 	.bss
