@@ -31,6 +31,7 @@
 #ifdef __USE_GNU
 # define SCHED_BATCH		3
 # define SCHED_IDLE		5
+# define SCHED_DEADLINE	6
 
 # define SCHED_RESET_ON_FORK	0x40000000
 #endif
