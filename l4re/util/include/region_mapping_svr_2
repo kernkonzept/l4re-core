@@ -230,7 +230,8 @@ public:
     if (!n || !n->second.memory())
       {
         Dbg(Dbg::Warn, "rm").printf("unhandled %s page fault at 0x%lx pc=0x%lx\n",
-                                    need_w ? "write" : "read", addr, pc);
+                                    need_w ? "write" :
+                                    need_x ? "instruction" : "read", addr, pc);
         // generate exception
         return -L4_ENOMEM;
       }
