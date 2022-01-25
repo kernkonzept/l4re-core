@@ -43,6 +43,8 @@
 	.globl	_real_start
 _real_start:
 	ldr 	x9, .LCstack
+	adr	x10, _real_start
+	add	x9, x9, x10
 	mov 	sp, x9
 
 	adr	x16, __executable_start
@@ -61,7 +63,7 @@ _real_start:
 	b	_start
 
 /* Mind the argc/argv/env/auxv that needs to be on the stack! */
-.LCstack: .8byte _stack_top-64
+.LCstack: .8byte (_stack_top - _real_start - 64)
 
 /* This is not a normal function and must not clobber any register.
  * This is a special syscall stub -- do not add any code! */

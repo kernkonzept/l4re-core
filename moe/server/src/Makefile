@@ -16,6 +16,11 @@ SRC_CC          = main.cc page_alloc.cc dataspace.cc dataspace_cont.cc \
 SRC_S          := ARCH-$(ARCH)/crt0.S
 MODE            = sigma0
 
+CAN_PIE_amd64   := y
+CAN_PIE_arm     := y
+CAN_PIE_arm64   := y
+BID_CAN_PIE      = $(CAN_PIE_$(ARCH))
+
 REQUIRES_LIBS  := libkproxy libloader l4re-util libsigma0 \
                   cxx_io cxx_libc_io libc_be_minimal_log_io libsupc++_minimal
 EXTRA_LIBS     := -ll4sys-direct
