@@ -30,6 +30,7 @@
 /* started as the L4 sigma0 task from crt0.S */
 
 extern "C" void _init(void);
+extern "C" void _reloc_static_pie(void);
 
 typedef void Ctor();
 extern Ctor *__preinit_array_start[];
@@ -44,9 +45,17 @@ static void call_init_array(Ctor **start, Ctor **end)
       (*start)();
 }
 
+#if defined(__PIC__) && defined(RELOC_STATIC_PIE_STUB)
+void _reloc_static_pie(void)
+{}
+#endif
+
 void
 init(l4_kernel_info_t *info)
 {
+#ifdef __PIC__
+  _reloc_static_pie();
+#endif
   call_init_array(__preinit_array_start, __preinit_array_end);
   _init();
   call_init_array(__init_array_start, __init_array_end);

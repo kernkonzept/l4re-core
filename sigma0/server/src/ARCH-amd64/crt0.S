@@ -21,9 +21,10 @@ ENTRY(start)
 	jne	1f
 	pop	%rdi		/* ptr to kernel info page is on init stack */
 1:
-	lea	_stack,%rsp	/* reset stack */
-	push	$_exit
-	jmp	init
+	lea	_stack(%rip),%rsp	/* reset stack */
+	lea	_exit(%rip),%rax
+	push	%rax
+	jmp	init@PLT
 
 ENTRY(__main)
 	ret

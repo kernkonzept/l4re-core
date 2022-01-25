@@ -11,11 +11,14 @@
 .type _start,#function
 .globl _start
 _start:
-	ldr 	sp, .LCstack
+	adr	r12, _start
+	ldr	sp, .LCstack
+	add	sp, sp, r12
 	ldr	lr, .LCexit
+	add	lr, lr, r12
 	b	init
-.LCstack: .word crt0_stack_high
-.LCexit:  .word _exit
+.LCstack: .word (crt0_stack_high - _start)
+.LCexit:  .word (_exit - _start)
 
 .section ".bss"
 
