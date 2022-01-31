@@ -3312,8 +3312,8 @@ cleanup:
 		if (msg != NULL)
 			*lpp = NULL;
 
-			errno = EMSGSIZE;
-			return -1;
+		errno = EMSGSIZE;
+		return -1;
 	}
 
 	return dstp - dst;
