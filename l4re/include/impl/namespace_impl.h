@@ -80,12 +80,16 @@ Namespace::query(char const *name, unsigned len, L4::Cap<void> const &target,
   if (L4_UNLIKELY(len == 0))
     return -L4_EINVAL;
 
+  if (L4_UNLIKELY(timeout < 0))
+    return -L4_EINVAL;
+
   long ret;
   long rem = timeout;
   long to = 0;
 
   if (rem)
     to = 10;
+
   do
     {
       ret = _query(name, len, target, local_id, iterate);
@@ -104,8 +108,11 @@ Namespace::query(char const *name, unsigned len, L4::Cap<void> const &target,
       if (rem > 0)
         {
           rem -= to;
-          if (to > rem)
-            to = rem;
+          if (rem < 0)
+            {
+              to = rem = 0;
+              continue; // one final try
+            }
         }
 
       if (to < 100)
