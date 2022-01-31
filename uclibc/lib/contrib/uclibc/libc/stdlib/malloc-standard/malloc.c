@@ -227,7 +227,6 @@ void __do_check_malloc_state(void)
     mbinptr b;
     unsigned int binbit;
     int empty;
-    unsigned int idx;
     size_t size;
     unsigned long  total = 0;
     int max_fast_bin;
@@ -295,8 +294,7 @@ void __do_check_malloc_state(void)
 	    total += size;
 	    if (i >= 2) {
 		/* chunk belongs in bin */
-		idx = bin_index(size);
-		assert(idx == i);
+		assert(bin_index(size) == i);
 		/* lists are sorted */
 		if ((unsigned long) size >= (unsigned long)(FIRST_SORTED_BIN_SIZE)) {
 		    assert(p->bk == b ||
