@@ -766,6 +766,10 @@ double __kernel_standard(double x, double y, int type)
 			errno = EDOM;
 		}
 		break;
+	    default:
+		/* Assure the compiler that this internal function is not called
+		   with unhanded exception type. */
+		__builtin_unreachable();
 	}
 	return exc.retval;
 }
