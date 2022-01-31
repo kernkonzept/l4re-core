@@ -342,7 +342,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
 
-#ifdef __UCLIBC_HAS_THREADS_NATIVE__
+#if defined HAVE_CLEANUP_JMP_BUF && defined __UCLIBC_HAS_THREADS_NATIVE__
 	/* Result of the 'main' function.  */
 	int result;
 #endif
