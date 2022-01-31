@@ -62,7 +62,13 @@ char *strchrnul (const char *s, int c_in)
   switch (sizeof (longword))
     {
     case 4: magic_bits = 0x7efefeffL; break;
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wshift-overflow"
+    // Compiler warns about shift overflow, if ‘long int’ only has 32 bits,
+    // even though given that condition this case statement is never going
+    // to be executed.
     case 8: magic_bits = ((0x7efefefeL << 16) << 16) | 0xfefefeffL; break;
+# pragma GCC diagnostic pop
     default:
       abort ();
     }
