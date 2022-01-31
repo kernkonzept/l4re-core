@@ -204,7 +204,7 @@ public:
      { l4_thread_control_bind_u(thread_utcb, task.cap(), _u); }
 
      /**
-      * Set the thread to alien mode.
+      * \copydoc l4_thread_control_alien
       */
      void alien(int on) noexcept
      { l4_thread_control_alien_u(_u, on); }
