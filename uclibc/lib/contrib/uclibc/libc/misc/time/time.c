@@ -2461,7 +2461,7 @@ size_t __XL_NPP(wcsftime)(wchar_t *__restrict s, size_t maxsize,
 					  const wchar_t *__restrict format,
 					  const struct tm *__restrict timeptr   __LOCALE_PARAM )
 {
-#warning wcsftime always fails
+	/* TODO: Implement wcsftime */
 	return 0;					/* always fail */
 }
 #ifdef L_wcsftime_l
