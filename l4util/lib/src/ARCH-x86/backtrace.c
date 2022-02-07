@@ -101,7 +101,7 @@ l4util_backtrace(void **pc_array, int max)
     {
       struct Frame *fp = (struct Frame *)arg.last_frame;
 
-      while (arg.cnt < max)
+      while (fp && arg.cnt < max)
         {
           /* Check for out of range.  */
           if ((void *)fp < arg.last_sp
