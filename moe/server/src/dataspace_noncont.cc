@@ -63,7 +63,7 @@ Moe::Dataspace_noncont::map_address(l4_addr_t offset, Flags flags) const
         p.set(*p, p.flags() & ~Page_cow);
       else
         {
-          void *np = qalloc()->alloc_pages(page_size(), page_size());
+          void *np = qalloc()->alloc_pages(page_size(), page_size(), cfg());
           Moe::Pages::share(np);
 
           // L4::cout << "copy on write for " << *p << " to " << np << '\n';
@@ -85,7 +85,7 @@ Moe::Dataspace_noncont::map_address(l4_addr_t offset, Flags flags) const
 
   if (!*p)
     {
-      p.set(qalloc()->alloc_pages(page_size(), page_size()), 0);
+      p.set(qalloc()->alloc_pages(page_size(), page_size(), cfg()), 0);
       Moe::Pages::share(*p);
       memset(*p, 0, page_size());
       // No need for I cache coherence, as we just zero fill and assume that
@@ -172,8 +172,9 @@ namespace {
   class Mem_one_page : public Moe::Dataspace_noncont
   {
   public:
-    Mem_one_page(unsigned long size, Flags flags) noexcept
-    : Moe::Dataspace_noncont(size, flags)
+    Mem_one_page(unsigned long size, Flags flags,
+                 Single_page_alloc_base::Config cfg) noexcept
+    : Moe::Dataspace_noncont(size, flags, cfg)
     {}
 
     ~Mem_one_page() noexcept
@@ -197,10 +198,11 @@ namespace {
   public:
     unsigned long meta_size() const noexcept
     { return (l4_round_size(num_pages()*sizeof(unsigned long), Meta_align_bits)); }
-    Mem_small(unsigned long size, Flags flags)
-    : Moe::Dataspace_noncont(size, flags)
+    Mem_small(unsigned long size, Flags flags,
+              Single_page_alloc_base::Config cfg)
+    : Moe::Dataspace_noncont(size, flags, cfg)
     {
-      void *p = qalloc()->alloc_pages(meta_size(), Meta_align);
+      void *p = qalloc()->alloc_pages(meta_size(), Meta_align, cfg);
       memset(p, 0, meta_size());
       _pages = static_cast<Page *>(p);
     }
@@ -265,10 +267,11 @@ namespace {
     long meta1_size() const noexcept
     { return l4_round_size(entries1() * sizeof(L1 *), 10); }
 
-    Mem_big(unsigned long size, Flags flags)
-    : Moe::Dataspace_noncont(size, flags)
+    Mem_big(unsigned long size, Flags flags,
+            Single_page_alloc_base::Config cfg)
+    : Moe::Dataspace_noncont(size, flags, cfg)
     {
-      void *p = qalloc()->alloc_pages(meta1_size(), 1024);
+      void *p = qalloc()->alloc_pages(meta1_size(), 1024, cfg);
       memset(p, 0, meta1_size());
       _pages = static_cast<Page *>(p);
     }
@@ -303,7 +306,7 @@ namespace {
       L1 &_p = __p(offs);
       if (!*_p)
         {
-          void *a = qalloc()->alloc_pages(meta2_size(), meta2_size());
+          void *a = qalloc()->alloc_pages(meta2_size(), meta2_size(), cfg());
           assert (((l4_addr_t)a & 0xfff) == 0);
           _p.set(a);
           memset(a, 0, meta2_size());
@@ -317,13 +320,14 @@ namespace {
 
 Moe::Dataspace_noncont *
 Moe::Dataspace_noncont::create(Moe::Q_alloc *q, unsigned long size,
+                               Single_page_alloc_base::Config cfg,
                                Flags flags)
 {
   if (size <= L4_PAGESIZE)
-    return q->make_obj<Mem_one_page>(size, flags);
+    return q->make_obj<Mem_one_page>(size, flags, cfg);
   else if (size <= L4_PAGESIZE * (L4_PAGESIZE / sizeof(unsigned long)))
-    return q->make_obj<Mem_small>(size, flags);
+    return q->make_obj<Mem_small>(size, flags, cfg);
   else
-    return q->make_obj<Mem_big>(size, flags);
+    return q->make_obj<Mem_big>(size, flags, cfg);
 }
 

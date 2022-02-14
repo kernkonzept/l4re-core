@@ -62,8 +62,10 @@ public:
   bool is_static() const noexcept override { return false; }
 
   Dataspace_noncont(unsigned long size,
-                    Flags flags = L4Re::Dataspace::F::RWX) noexcept
-  : Dataspace(size, flags | Flags(Cow_enabled), L4_LOG2_PAGESIZE), _pages(0)
+                    Flags flags = L4Re::Dataspace::F::RWX,
+                    Single_page_alloc_base::Config cfg =
+                      Single_page_alloc_base::Config()) noexcept
+  : Dataspace(size, flags | Flags(Cow_enabled), L4_LOG2_PAGESIZE, cfg), _pages(0)
   {}
 
   virtual ~Dataspace_noncont() {}
@@ -103,6 +105,7 @@ public:
   long clear(unsigned long offs, unsigned long size) const noexcept override;
 
   static Dataspace_noncont *create(Q_alloc *q, unsigned long size,
+                                   Single_page_alloc_base::Config cfg,
                                    Flags flags = L4Re::Dataspace::F::RWX);
 
 protected:
