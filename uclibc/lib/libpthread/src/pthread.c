@@ -25,6 +25,7 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 #include <sys/time.h>
+#include <assert.h>
 
 #include <l4/re/env.h>
 #include <l4/sys/task.h>
@@ -327,9 +328,10 @@ void
 __l4_add_utcbs(l4_addr_t start, l4_addr_t utcbs_end)
 {
   l4_addr_t free_utcb = start;
-
   l4_utcb_t **last_free = &__pthread_first_free_handle;
-  while ((l4_addr_t)free_utcb + L4_UTCB_OFFSET <= utcbs_end)
+
+  assert(!__pthread_first_free_handle);
+  while (free_utcb + L4_UTCB_OFFSET <= utcbs_end)
     {
       l4_utcb_t *u = (l4_utcb_t*)free_utcb;
       l4_thread_regs_t *tcr = l4_utcb_tcr_u(u);
@@ -339,7 +341,6 @@ __l4_add_utcbs(l4_addr_t start, l4_addr_t utcbs_end)
       last_free = (l4_utcb_t**)(&tcr->user[0]);
       free_utcb += L4_UTCB_OFFSET;
     }
-
 }
 
 /* Do some minimal initialization which has to be done during the
