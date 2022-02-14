@@ -115,8 +115,9 @@ struct pthread_request {
 };
 
 
-/* First free thread */
-extern l4_utcb_t *__pthread_first_free_handle attribute_hidden;
+/* L4Re: Free UTCB list. Members of this list might be still claimed by the
+ * kernel on UTCB.free_marker != 0. */
+extern l4_utcb_t *__pthread_first_free_utcb attribute_hidden;
 
 /* Descriptor of the main thread */
 
@@ -285,7 +286,42 @@ extern int __librt_multiple_threads;
 /* Internal global functions */
 __BEGIN_DECLS
 extern int __pthread_l4_initialize_main_thread(pthread_descr th) attribute_hidden;
-extern void __l4_add_utcbs(l4_addr_t start, l4_addr_t utcbs_end);
+extern void __l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end);
+
+/* L4Re: Interpret user[0] as pointer to the next free UTCB. */
+static inline l4_utcb_t *__l4_utcb_get_next_free(l4_utcb_t *u)
+{ return  (l4_utcb_t *)l4_utcb_tcr_u(u)->user[0]; }
+
+static inline void __l4_utcb_set_next_free(l4_utcb_t *u, l4_utcb_t *next_utcb)
+{ l4_utcb_tcr_u(u)->user[0] = (l4_addr_t)next_utcb; }
+
+/* L4Re: The kernel sets UTCB.free_marker = 0 when the UTCB is definitely not
+ * altered anymore. See ticket #CD-518. */
+static inline bool __l4_utcb_is_usable_now(l4_utcb_t *u)
+{
+  // Prevent compiler optimization by doing read_once().
+  l4_umword_t free_marker;
+  __asm__ __volatile__("" : "=m"(l4_utcb_tcr_u(u)->free_marker));
+  free_marker = l4_utcb_tcr_u(u)->free_marker;
+  __asm__ __volatile__("" : "=m"(l4_utcb_tcr_u(u)->free_marker));
+  return free_marker == 0;
+}
+
+static inline void __l4_utcb_mark_used(l4_utcb_t *u)
+{
+  // Prevent compiler optimization by doing write_now().
+  __asm__ __volatile__("" : "=m"(l4_utcb_tcr_u(u)->free_marker));
+  l4_utcb_tcr_u(u)->free_marker = 1;
+  __asm__ __volatile__("" :: "m"(l4_utcb_tcr_u(u)->free_marker));
+}
+
+static inline void __l4_utcb_mark_unused(l4_utcb_t *u)
+{
+  // Prevent compiler optimization by doing write_now().
+  __asm__ __volatile__("" : "=m"(l4_utcb_tcr_u(u)->free_marker));
+  l4_utcb_tcr_u(u)->free_marker = 0;
+  __asm__ __volatile__("" :: "m"(l4_utcb_tcr_u(u)->free_marker));
+}
 
 
 extern int __pthread_sched_idle_prio;

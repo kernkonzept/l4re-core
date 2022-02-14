@@ -111,8 +111,8 @@ typedef struct l4_thread_regs_t
 {
   /// System call error codes
   l4_umword_t  error;
-  /// Message transfer timeout
-  l4_timeout_t xfer;
+  /// Kernel free marker
+  l4_umword_t  free_marker;
   /// User values (ignored and preserved by the kernel)
   l4_umword_t  user[3];
 } l4_thread_regs_t;

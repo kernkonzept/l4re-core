@@ -322,25 +322,38 @@ struct pthread_functions __pthread_functions =
 #endif
 
 static int *__libc_multiple_threads_ptr;
-l4_utcb_t *__pthread_first_free_handle attribute_hidden;
+l4_utcb_t *__pthread_first_free_utcb attribute_hidden;
 
+/*
+ * Add the memory area [utcbs_start, utcbs_end] as chunks of L4_UTCB_OFFSET to
+ * the UTCB free list.
+ *
+ * If (utcb_end - utcb_start >= L4_UTCB_OFFSET) then __pthread_first_free_utcb
+ * points to at least one usable UTCB when the function returns.
+ */
 void
-__l4_add_utcbs(l4_addr_t start, l4_addr_t utcbs_end)
+__l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end)
 {
-  l4_addr_t free_utcb = start;
-  l4_utcb_t **last_free = &__pthread_first_free_handle;
+  l4_addr_t free_utcb = utcbs_start;
+  l4_utcb_t **last_free = &__pthread_first_free_utcb;
 
-  assert(!__pthread_first_free_handle);
+  // __pthread_first_free_utcb is not necessarily NULL. There might be UTCBs on
+  // the list which are currently not usable (See __l4_utcb_is_usable_now()).
+  l4_utcb_t *old_first = __pthread_first_free_utcb;
+
   while (free_utcb + L4_UTCB_OFFSET <= utcbs_end)
     {
       l4_utcb_t *u = (l4_utcb_t*)free_utcb;
       l4_thread_regs_t *tcr = l4_utcb_tcr_u(u);
-      tcr->user[0] = 0;
+      __l4_utcb_set_next_free(u, 0);
+      __l4_utcb_mark_unused(u);
       __pthread_init_lock(handle_to_lock(u));
       *last_free = u;
       last_free = (l4_utcb_t**)(&tcr->user[0]);
       free_utcb += L4_UTCB_OFFSET;
     }
+
+  *last_free = old_first;
 }
 
 /* Do some minimal initialization which has to be done during the

@@ -123,6 +123,8 @@ __pthread_manager(void *arg)
   pthread_descr self = manager_thread = (pthread_descr)arg;
   struct pthread_request request;
 
+  __l4_utcb_mark_used(l4_utcb());
+
 #ifdef USE_TLS
 # if defined(TLS_TCB_AT_TP)
   TLS_INIT_TP(self, 0);
@@ -268,6 +270,8 @@ static int
 __attribute__ ((noreturn))
 pthread_start_thread(void *arg)
 {
+  __l4_utcb_mark_used(l4_utcb());
+
   pthread_descr self = (pthread_descr) arg;
 #ifdef USE_TLS
 # if defined(TLS_TCB_AT_TP)
@@ -601,7 +605,11 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   return 0;
 }
 
-static int l4pthr_get_more_utcb()
+/*
+ * Add more free UTCBs by allocating more KU memory. Return the first UTCB of
+ * the list to the caller. Return nullptr if the allocation failed.
+ */
+static l4_utcb_t *l4pthr_allocate_more_utcbs_and_claim_utcb()
 {
   using namespace L4Re;
 
@@ -610,44 +618,66 @@ static int l4pthr_get_more_utcb()
 
   if (e->rm()->reserve_area(&kumem, L4_PAGESIZE,
                             Rm::F::Reserved | Rm::F::Search_addr))
-    return 1;
+    return nullptr;
 
   if (l4_error(e->task()->add_ku_mem(l4_fpage(kumem, L4_PAGESHIFT,
                                               L4_FPAGE_RW))))
     {
       e->rm()->free_area(kumem);
-      return 1;
+      return nullptr;
     }
 
   __l4_add_utcbs(kumem, kumem + L4_PAGESIZE);
-  return 0;
+
+  l4_utcb_t *u = __pthread_first_free_utcb;
+  __pthread_first_free_utcb = __l4_utcb_get_next_free(u);
+  return u;
 }
 
 
-static inline l4_utcb_t *mgr_alloc_utcb()
+/*
+ * Return the pointer to the first unused UTCB in the UTCB free list. If no
+ * UTCB is currently unused, return nullptr.
+ */
+static inline l4_utcb_t *claim_unused_utcb()
 {
-  l4_utcb_t *new_utcb = __pthread_first_free_handle;
-  if (!new_utcb)
-    return 0;
+  l4_utcb_t *prev_u = nullptr;
 
-  __pthread_first_free_handle = (l4_utcb_t*)l4_utcb_tcr_u(new_utcb)->user[0];
-  return new_utcb;
+  for (l4_utcb_t *u = __pthread_first_free_utcb; u; u = __l4_utcb_get_next_free(u))
+    {
+      if (__l4_utcb_is_usable_now(u))
+        {
+          if (prev_u)
+            __l4_utcb_set_next_free(prev_u, __l4_utcb_get_next_free(u));
+          else
+            __pthread_first_free_utcb = __l4_utcb_get_next_free(u);
+          return u;
+        }
+
+      prev_u = u;
+    }
+
+  return nullptr;
 }
 
+/*
+ * Enqueue the UTCB as first element of the UTCB free list.
+ */
 static inline void mgr_free_utcb(l4_utcb_t *u)
 {
   if (!u)
     return;
 
-  l4_utcb_tcr_u(u)->user[0] = l4_addr_t(__pthread_first_free_handle);
-  __pthread_first_free_handle = u;
+  __l4_utcb_set_next_free(u, __pthread_first_free_utcb);
+  __pthread_first_free_utcb = u;
 }
 
 int __pthread_start_manager(pthread_descr mgr)
 {
   int err;
 
-  mgr->p_tid = mgr_alloc_utcb();
+  // This succeeds because of adding UTCBs in __pthread_initialize_minimal().
+  mgr->p_tid = claim_unused_utcb();
 
   err = __pthread_mgr_create_thread(mgr, &__pthread_manager_thread_tos,
                                     __pthread_manager, -1, 0, l4_sched_cpu_set(0, ~0, 1));
@@ -698,7 +728,10 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
 #endif
   /* Find a free segment for the thread, and allocate a stack if needed */
 
-  if (__pthread_first_free_handle == 0 && l4pthr_get_more_utcb())
+  l4_utcb_t *new_utcb = claim_unused_utcb();
+  if (!new_utcb)
+    new_utcb = l4pthr_allocate_more_utcbs_and_claim_utcb();
+  if (!new_utcb)
     {
 #ifdef USE_TLS
 # if defined(TLS_DTV_AT_TP)
@@ -706,13 +739,8 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
 # endif
 	  _dl_deallocate_tls (new_thread, true);
 #endif
-
       return EAGAIN;
     }
-
-  l4_utcb_t *new_utcb = mgr_alloc_utcb();
-  if (!new_utcb)
-    return EAGAIN;
 
   new_thread_id = new_utcb;
 
@@ -728,6 +756,12 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
     }
   else
     {
+#ifdef USE_TLS
+# if defined(TLS_DTV_AT_TP)
+	  new_thread = (pthread_descr) ((char *) new_thread + TLS_PRE_TCB_SIZE);
+# endif
+	  _dl_deallocate_tls (new_thread, true);
+#endif
       mgr_free_utcb(new_utcb);
       return EAGAIN;
     }
