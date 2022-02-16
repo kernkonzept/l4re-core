@@ -22,16 +22,27 @@ class Single_page_alloc_base
 public:
   enum Nothrow { nothrow };
 
+  struct Config
+  {
+    l4_addr_t physmin;
+    l4_addr_t physmax;
+
+    Config() : physmin(0), physmax(~0UL) {}
+  };
+
 protected:
   Single_page_alloc_base();
 
 public:
   static void *_alloc_max(unsigned long min, unsigned long *max,
-                          unsigned align, unsigned granularity);
-  static void *_alloc(Nothrow, unsigned long size, unsigned long align = 0);
-  static void *_alloc(unsigned long size, unsigned long align = 0)
+                          unsigned align, unsigned granularity,
+                          Config cfg);
+  static void *_alloc(Nothrow, unsigned long size, unsigned long align = 0,
+                      Config cfg = Config());
+  static void *_alloc(unsigned long size, unsigned long align = 0,
+                      Config cfg = Config())
   {
-    void *r = _alloc(nothrow, size, align);
+    void *r = _alloc(nothrow, size, align, cfg);
     if (!r)
       throw L4::Out_of_memory();
     return r;
