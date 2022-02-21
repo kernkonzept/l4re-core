@@ -158,7 +158,7 @@ typedef struct l4_sched_param_t
  */
 L4_INLINE l4_sched_param_t
 l4_sched_param(unsigned prio,
-               l4_cpu_time_t quantum L4_DEFAULT_PARAM(0)) L4_NOTHROW;
+               l4_umword_t quantum L4_DEFAULT_PARAM(0)) L4_NOTHROW;
 
 /**
  * \ingroup l4_scheduler_api
@@ -246,7 +246,7 @@ l4_sched_cpu_set(l4_umword_t offset, unsigned char granularity,
 }
 
 L4_INLINE l4_sched_param_t
-l4_sched_param(unsigned prio, l4_cpu_time_t quantum) L4_NOTHROW
+l4_sched_param(unsigned prio, l4_umword_t quantum) L4_NOTHROW
 {
   l4_sched_param_t sp;
   sp.prio     = prio;
