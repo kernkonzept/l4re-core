@@ -229,6 +229,51 @@
 #define L4__STRONG_ALIAS(name, aliasname) \
   extern __typeof (name) aliasname __attribute__ ((alias (#name)));
 
+/**
+ * Specify the desired alignment of the stack pointer.
+ *
+ * __BIGGEST_ALIGNMENT__ provides the largest alignment ever used for any data
+ * type on the target machine. This is normally identical to desired stack
+ * alignment.
+ */
+#if defined(ARCH_x86) || defined(ARCH_amd64) || \
+  defined(ARCH_arm) || defined(ARCH_arm64) || \
+  defined(ARCH_mips) || defined(ARCH_ppc32) || defined(ARCH_sparc)
+# define L4_STACK_ALIGN         __BIGGEST_ALIGNMENT__
+#else
+# error Define L4_STACK_ALIGN for this target!
+#endif
+
+/**
+ * Align stack pointer for directly invoked functions.
+ *
+ * The stack needs to be aligned to L4_STACK_ALIGN for being able to access
+ * certain data on the stack. On x86/AMD64, a function call is performed using
+ * the 'call' instruction decrementing the stack pointer and writing the return
+ * address onto the stack. The called function considers this when adapting the
+ * stack pointer after function entry. If the called function was not invoked
+ * by a 'call' instruction, the stack pointer is actually off by a machine word
+ * leading to stack alignment issues when executing SSE instructions.
+ *
+ * This function fixes the stack pointer for directly invoked functions. For
+ * architectures not automatically pushing the stack pointer during a function
+ * call, just enforce the L4_STACK_ALIGN alignment.
+ *
+ * \hideinitializer
+ */
+#if defined(ARCH_x86) || defined(ARCH_amd64)
+L4_INLINE unsigned long l4_align_stack_for_direct_fncall(unsigned long stack)
+{
+  if ((stack & (L4_STACK_ALIGN - 1)) == (L4_STACK_ALIGN - sizeof(unsigned long)))
+    return stack;
+  return (stack & ~(L4_STACK_ALIGN)) - sizeof(unsigned long);
+}
+#else
+L4_INLINE unsigned long l4_align_stack_for_direct_fncall(unsigned long stack)
+{
+  return stack & ~(L4_STACK_ALIGN);
+}
+#endif
 
 #endif /* !__ASSEMBLY__ */
 
