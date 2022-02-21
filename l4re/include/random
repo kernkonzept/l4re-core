@@ -5,6 +5,10 @@
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
  *
  */
+/**
+ * \file
+ * Random number generator interface definition.
+ */
 #pragma once
 
 #include <l4/sys/capability>

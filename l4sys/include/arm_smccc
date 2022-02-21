@@ -6,6 +6,10 @@
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
+/**
+ * \file
+ * ARM secure monitor call functions.
+ */
 #pragma once
 
 #include <l4/sys/capability>
