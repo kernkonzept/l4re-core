@@ -76,7 +76,8 @@ typedef l4_uint64_t l4re_rm_offset_t;
 
 /**
  * \ingroup api_l4re_c_rm
- * \return 0 on success, <0 on error
+ * \copybrief L4Re::Rm::reserve_area
+ * \copydetails L4Re::Rm::reserve_area
  * \see L4Re::Rm::reserve_area
  *
  * This function is using the L4::Env::env()->rm() service.
@@ -87,7 +88,8 @@ l4re_rm_reserve_area(l4_addr_t *start, unsigned long size,
 
 /**
  * \ingroup api_l4re_c_rm
- * \return 0 on success, <0 on error
+ * \copybrief L4Re::Rm::free_area
+ * \copydetails L4Re::Rm::free_area
  * \see L4Re::Rm::free_area
  *
  * This function is using the L4::Env::env()->rm() service.
@@ -97,8 +99,8 @@ l4re_rm_free_area(l4_addr_t addr) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_rm
+ * \copybrief L4Re::Rm::attach
  * \copydetails L4Re::Rm::attach
- * \return 0 on success, <0 on error
  * \see L4Re::Rm::attach
  *
  * This function is using the L4::Env::env()->rm() service.
@@ -112,9 +114,16 @@ l4re_rm_attach(void **start, unsigned long size, l4re_rm_flags_t flags,
 
 /**
  * \ingroup api_l4re_c_rm
- * \brief Detach and unmap in current task.
- * \param addr   Address of the region to detach.
- * \return 0 on success, <0 on error
+ * \brief Detach and unmap a region from the address space in the current task.
+ *
+ * \param addr  Address of the region to detach.
+ *
+ * \retval #L4Re::Rm::Detach_result  On success.
+ * \retval -L4_ENOENT                No region found.
+ * \retval <0                        IPC errors
+ *
+ * Frees a region in the virtual address space given by addr. The corresponding
+ * part of the address space is now available again.
  *
  * Also \see L4Re::Rm::detach
  *
@@ -125,11 +134,18 @@ l4re_rm_detach(void *addr) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_rm
- * \brief Detach, unmap and return affected dataspace in current task.
- * \param addr   Address of the region to detach.
- * \retval ds    Returns dataspace that is affected.
+ * \brief Detach and unmap a region and return affected dataspace in the
+ *        current task.
  *
- * \return 0 on success, <0 on error
+ * \param      addr  Address of the region to detach.
+ * \param[out] ds    Returns dataspace that is affected.
+ *
+ * \retval #L4Re::Rm::Detach_result  On success.
+ * \retval -L4_ENOENT                No region found.
+ * \retval <0                        IPC errors
+ *
+ * Frees a region in the virtual address space given by addr. The corresponding
+ * part of the address space is now available again.
  *
  * Also \see L4Re::Rm::detach
  *
@@ -171,7 +187,8 @@ l4re_rm_detach_ds_unmap(void *addr, l4re_ds_t *ds,
 
 /**
  * \ingroup api_l4re_c_rm
- * \return 0 on success, <0 on error
+ * \copybrief L4Re::Rm::find
+ * \copydetails L4Re::Rm::find
  * \see L4Re::Rm::find
  */
 L4_CV L4_INLINE int

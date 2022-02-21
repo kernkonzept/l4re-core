@@ -238,7 +238,8 @@ public:
   };
 
   /**
-   * \brief Reserve the given area in the region map.
+   * Reserve the given area in the region map.
+   *
    * \param[in,out] start  The virtual start address of the area to reserve.
    *                       Returns the start address of the area.
    * \param         size   The size of the area to reserve (in bytes).
@@ -252,15 +253,15 @@ public:
    *
    * This function reserves an area within the virtual address space managed
    * by the region map. There are two kinds of areas available:
-   * - Reserved areas (\a flags = F::Reserved), where no data spaces can be
-   *   attached
+   * - Reserved areas (\a flags = L4Re::Rm::F::Reserved), where no data spaces
+   *   can be attached
    * - Special purpose areas (\a flags = 0), where data spaces can be attached
-   *   to the area via the F::In_area flag and a start address within the area
-   *   itself.
+   *   to the area via the L4Re::Rm::F::In_area flag and a start address within
+   *   the area itself.
    *
    * \note When searching for a free place in the virtual address space
-   * (with \a flags = F::Search_addr), the space between \a start and the end of
-   * the virtual address space is searched.
+   * (with \a flags = L4Re::Rm::F::Search_addr), the space between \a start and
+   * the end of the virtual address space is searched.
    */
   long reserve_area(l4_addr_t *start, unsigned long size,
                     Flags flags = Flags(0),
@@ -294,7 +295,7 @@ public:
   { return reserve_area_t::call(c(), (l4_addr_t*)start, size, flags, align); }
 
   /**
-   * \brief Free an area from the region map.
+   * Free an area from the region map.
    *
    * \param addr  An address within the area to free.
    * \retval 0           Success
@@ -318,7 +319,7 @@ public:
                            l4_cap_idx_t &mem_cap));
 
   /**
-   * \brief Attach a data space to a region.
+   * Attach a data space to a region.
    *
    * \param[in,out]  start  Virtual start address where the region manager
    *                        shall attach the data space. Will be rounded down to
@@ -474,7 +475,7 @@ public:
 #endif
 
   /**
-   * \brief Detach a region from the address space.
+   * Detach and unmap a region from the address space.
    *
    * \param      addr  Virtual address of region, any address within the
    *                   region is valid.
@@ -483,9 +484,9 @@ public:
    *                   unmapped. Provide L4::Cap<L4::Task>::Invalid for none.
    *                   The default is the current task.
    *
-   * \retval #Detach_result  On success.
-   * \retval -L4_ENOENT      No region found.
-   * \retval <0              IPC errors
+   * \retval #L4Re::Rm::Detach_result  On success.
+   * \retval -L4_ENOENT                No region found.
+   * \retval <0                        IPC errors
    *
    * Frees a region in the virtual address space given by addr (address type).
    * The corresponding part of the address space is now available again.
@@ -500,7 +501,7 @@ public:
              L4::Cap<L4::Task> const &task = This_task) const noexcept;
 
   /**
-   * \brief Detach all regions of the specified interval.
+   * Detach and unmap all parts of the regions within the specified interval.
    *
    * \param      start  Start of area to detach, must be within region.
    * \param      size   Size of of area to detach (in bytes).
@@ -509,9 +510,9 @@ public:
    *                    unmapped. Provide L4::Cap<L4::Task>::Invalid for none.
    *                    The default is the current task.
    *
-   * \retval #Detach_result  On success.
-   * \retval -L4_ENOENT      No region found.
-   * \retval <0              IPC errors
+   * \retval #L4Re::Rm::Detach_result  On success.
+   * \retval -L4_ENOENT                No region found.
+   * \retval <0                        IPC errors
    *
    * Frees all regions within the interval given by start and size. If a
    * region overlaps the start or the end of the interval this region is only
@@ -522,7 +523,7 @@ public:
              L4::Cap<L4::Task> const &task) const noexcept;
 
   /**
-   * \brief Find a region given an address and size.
+   * Find a region given an address and size.
    *
    * \param[in,out] addr  Address to look for. Returns the start address of the
    *                      found region.
