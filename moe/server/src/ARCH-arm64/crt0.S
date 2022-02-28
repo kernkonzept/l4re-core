@@ -45,7 +45,7 @@ __l4_sys_syscall:
 
 /*--- my stack -------------------------------------*/
 	.bss
-	.align 4
+	.balign 16
 _stack_bottom:
 	.space 0x4000
 _stack_top:

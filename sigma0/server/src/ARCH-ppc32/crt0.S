@@ -16,7 +16,7 @@ _start:
 
 .section ".bss", "aw"
 
-.p2align 4
+.balign 16
 .global crt0_stack_low
 crt0_stack_low:
   .space 4096

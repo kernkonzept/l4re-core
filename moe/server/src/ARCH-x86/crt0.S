@@ -29,7 +29,7 @@ _real_start:
 	jmp _start
 /*--- my stack -------------------------------------*/
 	.bss
-	.align	16
+	.balign	16
 _stack_bottom:
 	.space 0x4000
 _stack_top:

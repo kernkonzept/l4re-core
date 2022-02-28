@@ -31,7 +31,7 @@ __l4_sys_syscall:
 
 .section ".bss"
 
-	.align	4
+	.balign	16
 	.global crt0_stack_low
 crt0_stack_low:
 	.space	2048

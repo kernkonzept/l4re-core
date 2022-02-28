@@ -30,6 +30,6 @@ ENTRY(__main)
 	
 	.bss
 
-	.align	16
+	.balign	16
 	.space	4096
 ENTRY(_stack)

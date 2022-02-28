@@ -19,7 +19,7 @@ _start:
 
 .section ".bss"
 
-	.align	3
+	.balign	16
 	.global crt0_stack_low
 crt0_stack_low:
 	.space	2048
