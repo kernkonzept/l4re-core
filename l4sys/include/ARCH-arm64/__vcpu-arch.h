@@ -42,7 +42,6 @@ typedef l4_exc_regs_t l4_vcpu_regs_t;
 typedef struct l4_vcpu_arch_state_t
 {
   l4_umword_t host_tpidruro;
-  l4_umword_t user_tpidruro;
 } l4_vcpu_arch_state_t;
 
 /**
