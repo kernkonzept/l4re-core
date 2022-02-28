@@ -182,7 +182,10 @@ search_for_named_library(const char *name, unsigned int rflags, const char *path
 		} else {
 			_dl_strcpy(mylibname, ".");
 		}
-		_dl_strcat(mylibname, "/");
+		plen = _dl_strlen(mylibname);
+		if ((plen == 0) || (mylibname[plen-1] != '/')) {
+			_dl_strcat(mylibname, "/");
+		}
 		_dl_strcat(mylibname, name);
 #ifdef __LDSO_SAFE_RUNPATH__
 		if (*mylibname == '/')
