@@ -44,14 +44,18 @@
  * Map resources available in the source task to a destination task.
  * \ingroup l4_task_api
  *
- * \param dst_task      Capability selector of destination task
- * \param src_task      Capability selector of source task
- * \param snd_fpage     Send flexpage that describes an area in the
- *                      address space or object space of the source task.
- * \param snd_base      Send base that describes an offset in the receive
- *                      window of the destination task.
+ * \param dst_task   Capability selector of the destination task.
+ * \param src_task   Capability selector of the source task.
+ * \param snd_fpage  Send flexpage that describes an area in the address
+ *                   space or object space of the source task.
+ * \param snd_base   Send base that describes an offset in the receive window
+ *                   of the destination task. The lower bits contain additional
+ *                   map control flags (see #l4_fpage_cacheability_opt_t for
+ *                   memory mappings, #L4_obj_fpage_ctl for object mappings,
+ *                   and #L4_MAP_ITEM_GRANT; also see l4_map_control() and
+ *                   l4_map_obj_control()).
  *
- * \return Syscall return tag
+ * \return Syscall return tag.
  *
  * This method allows for asynchronous transfer of capabilities, memory
  * mappings, and IO-port mappings (on IA32) from one task to another.
