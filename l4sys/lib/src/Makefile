@@ -16,6 +16,7 @@ CXXFLAGS                    += -DL4_NO_RTTI -fno-rtti -fno-exceptions
 DEFINES                      = -D__L4_KIP_ADDR__=$(L4_KIP_ADDR)
 
 SRC_S_libl4sys-arm          += ARCH-arm/atomic_ops_s.S
+SRC_S_libl4sys-arm64        += ARCH-arm64/ipc.S
 SRC_C_libl4sys-ppc32        += ARCH-ppc32/atomic_ops.c
 SRC_S_libl4sys-sparc        += ARCH-sparc/atomic_ops.S
 
