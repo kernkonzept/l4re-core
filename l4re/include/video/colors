@@ -21,6 +21,7 @@
 #pragma once
 
 #include <l4/sys/compiler.h>
+#include <l4/cxx/minmax>
 
 namespace L4Re { namespace Video {
 
@@ -135,6 +136,27 @@ public:
   Color_component const &a() const { return _a; }
 
   /**
+   * \brief Compute the padding pseudo component.
+   * The padding pseudo component represents the tailing bits that are reserved
+   * in RGB32 and similar pixel formats.
+   * \return Padding pseudo component.
+   */
+  Color_component const padding() const
+  {
+    unsigned char top_bit = cxx::max<unsigned char>(_r.size() + _r.shift(),
+                                                    _g.size() + _g.shift());
+    top_bit = cxx::max<unsigned char>(top_bit, _b.size() + _b.shift());
+    top_bit = cxx::max<unsigned char>(top_bit, _a.size() + _a.shift());
+
+    unsigned char bits = _bpp * 8;
+
+    if (top_bit < bits)
+      return Color_component(bits - top_bit, top_bit);
+
+    return Color_component(0, 0);
+  }
+
+  /**
    * \brief Query size of pixel in bytes.
    * \return Size of pixel in bytes.
    */
@@ -145,7 +167,7 @@ public:
    * \return Number of bits used by the pixel.
    */
   unsigned char bits_per_pixel() const
-  { return _r.size() + _g.size() + _b.size() +_a.size(); }
+  { return _r.size() + _g.size() + _b.size() + _a.size(); }
 
   /**
    * \brief Return whether the pixel has an alpha channel.
