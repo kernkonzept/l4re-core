@@ -24,6 +24,7 @@
 #include <l4/cxx/exceptions>
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
+#include <l4/cxx/static_container>
 
 #include <l4/util/l4mod.h>
 #include <typeinfo>
@@ -33,6 +34,7 @@
 #include <cstring>
 #include <cstdio>
 
+#include "dma_space.h"
 #include "boot_fs.h"
 #include "globals.h"
 #include "loader_elf.h"
@@ -291,7 +293,9 @@ public:
   {
     l4_utcb_br_u(utcb)->br[0] = L4::Ipc::Small_buf(Rcv_cap << L4_CAP_SHIFT,
                                                    L4_RCV_ITEM_LOCAL_ID).raw();
-    l4_utcb_br_u(utcb)->br[1] = 0;
+    l4_utcb_br_u(utcb)->br[1] = L4::Ipc::Small_buf(Rcv_cap2 << L4_CAP_SHIFT,
+                                                   L4_RCV_ITEM_LOCAL_ID).raw();
+    l4_utcb_br_u(utcb)->br[2] = 0;
     l4_utcb_br_u(utcb)->bdr = 0;
   }
 };
@@ -513,8 +517,8 @@ parse_option(cxx::String const &o)
     }
 }
 
+static cxx::Static_container<Moe::Dma_space_mgr> dma_space_mgr;
 static Elf_loader elf_loader;
-
 static L4::Server<Loop_hooks> server;
 
 
@@ -635,6 +639,9 @@ int main(int /* argc */, char** /* argv */)
 
       root_name_space()->register_obj("log", Entry::F_rw, L4_BASE_LOG_CAP);
       root_name_space()->register_obj("icu", Entry::F_rw, L4_BASE_ICU_CAP);
+
+      dma_space_mgr.construct(root_name_space(), "dma_mgr");
+
       if (L4::Cap<void>(L4_BASE_IOMMU_CAP).validate().label())
         root_name_space()->register_obj("iommu", Entry::F_rw, L4_BASE_IOMMU_CAP);
       if (L4::Cap<void>(L4_BASE_ARM_SMCCC_CAP).validate().label())

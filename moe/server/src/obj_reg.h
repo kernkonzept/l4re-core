@@ -35,7 +35,12 @@
 
 enum
 {
-  Rcv_cap = 0x100,
+  Rcv_caps_start = 0x100,
+
+  Rcv_cap        = Rcv_caps_start,
+  Rcv_cap2       = Rcv_cap + 1,
+
+  Rcv_caps_end   = Rcv_cap2 + 1,
 };
 
 class Cap_alloc;
@@ -53,7 +58,7 @@ public:
   cxx::H_list_t<Moe::Server_object> life;
   int alloc_buffer_demand(L4::Type_info::Demand const &demand) override
   {
-    if (demand.caps > 1
+    if (demand.caps > 2
         || demand.ports != 0
         || demand.mem != 0
         || demand.flags != 0)
@@ -64,8 +69,8 @@ public:
 
   L4::Cap<void> get_rcv_cap(int index) const override
   {
-    if (index == 0)
-      return L4::Cap<void>(Rcv_cap << L4_CAP_SHIFT);
+    if (index <= 1)
+      return L4::Cap<void>((Rcv_cap + index) << L4_CAP_SHIFT);
     else
       return L4::Cap<void>::Invalid;
   }
@@ -101,7 +106,7 @@ public:
   enum
   {
     Non_gc_caps = 8192,
-    Non_gc_cap_0 = Rcv_cap + 1,
+    Non_gc_cap_0 = Rcv_caps_end,
   };
 
 private:

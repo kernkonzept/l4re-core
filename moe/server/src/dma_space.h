@@ -20,6 +20,7 @@
 namespace Moe {
 
 class Dma_space;
+class Name_space;
 
 namespace Dma {
 
@@ -100,7 +101,7 @@ public:
   typedef L4Re::Dma_space::Dma_addr Dma_addr;
   typedef L4Re::Dma_space::Direction Direction;
   typedef L4Re::Dma_space::Attributes Attributes;
-  typedef L4Re::Dma_space::Space_attribs Space_attribs;
+  typedef L4Re::Dma_space_mgr::Space_attribs Space_attribs;
 
   l4_ret_t op_map(L4Re::Dma_space::Rights rights,
                   L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
@@ -111,10 +112,6 @@ public:
                     Dma_addr dma_addr,
                     l4_size_t size, Attributes attrs, Direction dir);
 
-  l4_ret_t op_associate(L4Re::Dma_space::Rights rights,
-                        L4::Ipc::Snd_fpage dma_task,
-                        Space_attribs attr);
-
   l4_ret_t op_disassociate(L4Re::Dma_space::Rights rights);
 
   /**
@@ -124,6 +121,10 @@ public:
   void delete_all_mappings();
 
   ~Dma_space() { delete_all_mappings(); }
+
+
+  // Dma_space_mgr internal interface
+  l4_ret_t associate(cxx::Ref_ptr<Dma::Mapper> const &mapper);
 
 private:
   Space_attribs _attr = Space_attribs::None;
@@ -138,5 +139,28 @@ private:
   /// instance.
   Dma::Mapping::List _mappings;
 };
+
+class Dma_space_mgr :
+  public L4::Epiface_t<Dma_space_mgr, L4Re::Dma_space_mgr, Server_object>
+{
+public:
+  Dma_space_mgr(Moe::Name_space *ns, char const *name);
+
+  typedef L4Re::Dma_space_mgr::Space_attribs Space_attribs;
+
+  l4_ret_t op_associate(L4Re::Dma_space_mgr::Rights rights,
+                        L4::Ipc::Snd_fpage dma_space,
+                        L4::Ipc::Snd_fpage dma_task,
+                        Space_attribs attr);
+
+  l4_ret_t op_associate_phys(L4Re::Dma_space_mgr::Rights rights,
+                             L4::Ipc::Snd_fpage dma_space,
+                             Space_attribs attr);
+
+private:
+  l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space, Moe::Dma_space **res);
+
+};
+
 
 }

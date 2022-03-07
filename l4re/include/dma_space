@@ -23,6 +23,7 @@
 namespace L4Re
 {
 
+
 /**
  * Managed DMA Address Space.
  *
@@ -97,31 +98,6 @@ public:
   typedef L4::Types::Flags<Attribute> Attributes;
 
   /**
-   * Attributes assigned to the DMA space when associated with a
-   * specific device.
-   * \sa Space_attribs
-   */
-  enum Space_attrib
-  {
-    /**
-     * The device is connected coherently with the cache.
-     *
-     * This means that the map() and unmap() do not need to sync
-     * CPU caches before and after DMA.
-     */
-    Coherent,
-
-    /**
-     * The DMA space has no DMA task assigned and uses the CPUs
-     * physical memory.
-     */
-    Phys_space
-  };
-
-  /// Attributes used when configuring the DMA space.
-  typedef L4::Types::Flags<Space_attrib> Space_attribs;
-
-  /**
    * Map the given part of this data space into the DMA address space.
    *
    * \param[in]     src      Source data space (that describes the memory).
@@ -178,6 +154,43 @@ public:
                         l4_size_t size, Attributes attrs, Direction dir));
 
   /**
+   * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
+   * Dma_space.
+   *
+   * \caprights{RW}
+   */
+  L4_INLINE_RPC(
+      l4_ret_t, disassociate, (), L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+
+
+  typedef L4::Typeid::Rpcs<map_t, unmap_t, disassociate_t> Rpcs;
+};
+
+class Dma_space_mgr :
+  public L4::Kobject_0t< Dma_space_mgr, L4::PROTO_ANY,
+                         L4::Type_info::Demand_t<2> >
+{
+public:
+  /**
+   * Attributes assigned to the DMA space when associated with a
+   * specific device.
+   * \sa Space_attribs
+   */
+  enum Space_attrib
+  {
+    /**
+     * The device is connected coherently with the cache.
+     *
+     * This means that the map() and unmap() do not need to sync
+     * CPU caches before and after DMA.
+     */
+    Coherent
+  };
+
+  /// Attributes used when configuring the DMA space.
+  typedef L4::Types::Flags<Space_attrib> Space_attribs;
+
+  /**
    * Associate a (kernel) \ref l4_kernel_object_dmar_space for a device to
    * this Dma_space.
    *
@@ -200,26 +213,17 @@ public:
    *      #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
-      l4_ret_t, associate, (L4::Ipc::Opt<L4::Ipc::Cap<L4::Task> > dma_task,
+      l4_ret_t, associate, (L4::Ipc::Cap<Dma_space> dma_space,
+                            L4::Ipc::Cap<L4::Task> dma_task,
                             Space_attribs attr),
       L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
-  /**
-   * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
-   * Dma_space.
-   *
-   * \retval L4_EOK      Operation successful.
-   * \retval -L4_EPERM   Insufficient permissions; see precondition.
-   * \retval -L4_ENOENT
-   *
-   * \pre The invoked Dma_space capability must have the permission
-   *      #L4_CAP_FPAGE_W.
-   */
   L4_INLINE_RPC(
-      l4_ret_t, disassociate, (),
+      l4_ret_t, associate_phys, (L4::Ipc::Cap<Dma_space> dma_space,
+                                 Space_attribs attr),
       L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
-  typedef L4::Typeid::Rpcs<map_t, unmap_t, associate_t, disassociate_t> Rpcs;
+  typedef L4::Typeid::Rpcs<associate_t, associate_phys_t> Rpcs;
 };
 
 }

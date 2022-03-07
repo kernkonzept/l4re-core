@@ -5,6 +5,7 @@
  */
 #include "dma_space.h"
 #include "dataspace.h"
+#include "name_space.h"
 #include <l4/re/error_helper>
 #include <l4/cxx/hlist>
 #include <l4/sys/task>
@@ -315,45 +316,16 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
 }
 
 l4_ret_t
-Dma_space::op_associate(L4Re::Dma_space::Rights,
-                        L4::Ipc::Snd_fpage dma_task,
-                        Space_attribs attr)
+Dma_space::associate(cxx::Ref_ptr<Dma::Mapper> const &mapper)
 {
-  _attr = attr;
   if (_mapper)
     {
       delete_all_mappings();
       _mapper = 0;
     }
 
-  if (attr & L4Re::Dma_space::Phys_space)
-    {
-      _mapper = cxx::Ref_ptr<Dma::Mapper>(qalloc()->make_obj<Dma::Phys_mapper>());
-      return 0;
-    }
-  else
-    {
-      L4::Cap<L4::Task> rcv_cap(Rcv_cap << L4_CAP_SHIFT);
-      if (!dma_task.cap_received())
-        return -L4_EINVAL;
-
-      Dma::Mapper *mapper = Dma::Task_mapper::find_mapper(rcv_cap);
-      if (!mapper)
-        {
-          if (0)
-            printf("new DMA task assigned, allocate new mapper\n");
-
-          L4::Cap<L4::Task> nc = object_pool.cap_alloc()->alloc<L4::Task>();
-          if (!nc.is_valid())
-            return -L4_ENOMEM;
-
-          nc.move(rcv_cap);
-          mapper = new Dma::Task_mapper(nc);
-        }
-
-      _mapper = cxx::Ref_ptr<Dma::Mapper>(mapper);
-      return 0;
-    }
+  _mapper = mapper;
+  return 0;
 }
 
 l4_ret_t
@@ -373,4 +345,76 @@ Dma_space::delete_all_mappings()
   while (!_mappings.empty())
     delete _mappings.pop_front();
 }
+
+l4_ret_t
+Dma_space_mgr::check_dma_space(L4::Ipc::Snd_fpage const &dma_space,
+                               Moe::Dma_space **res)
+{
+  if (!dma_space.id_received())
+    return -L4_ENOENT;
+
+  if (!(dma_space.data() & L4_CAP_FPAGE_W))
+    return -L4_EPERM;
+
+  auto *moe_dma_space = dynamic_cast<Moe::Dma_space*>(object_pool.find(dma_space.data()));
+
+  if (!moe_dma_space)
+    return -L4_ENOENT;
+
+  *res = moe_dma_space;
+  return L4_EOK;
+}
+
+
+l4_ret_t
+Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
+                            L4::Ipc::Snd_fpage dma_space_cap,
+                            L4::Ipc::Snd_fpage dma_task,
+                            Space_attribs)
+{
+  Dma_space *dma_space;
+  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  if (r != L4_EOK)
+    return r;
+
+  L4::Cap<L4::Task> rcv_cap(Rcv_cap2 << L4_CAP_SHIFT);
+  if (!dma_task.cap_received())
+    return -L4_EINVAL;
+
+  Dma::Mapper *mapper = Dma::Task_mapper::find_mapper(rcv_cap);
+  if (!mapper)
+    {
+      if (0)
+        printf("new DMA task assigned, allocate new mapper\n");
+
+      L4::Cap<L4::Task> nc = object_pool.cap_alloc()->alloc<L4::Task>();
+      if (!nc.is_valid())
+        return -L4_ENOMEM;
+
+      nc.move(rcv_cap);
+      mapper = new Dma::Task_mapper(nc);
+    }
+
+  return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(mapper));
+}
+
+l4_ret_t
+Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
+                                 L4::Ipc::Snd_fpage dma_space_cap,
+                                 Space_attribs)
+{
+  Dma_space *dma_space;
+  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  if (r != L4_EOK)
+    return r;
+
+  return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(dma_space->qalloc()->make_obj<Dma::Phys_mapper>()));
+}
+
+Dma_space_mgr::Dma_space_mgr(Moe::Name_space *ns, char const *name)
+{
+  object_pool.cap_alloc()->alloc(this, name);
+  ns->register_obj(name, Entry::F_rw, this);
+}
+
 }

@@ -76,24 +76,4 @@ l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
                      l4_size_t size, unsigned long attrs,
                      enum l4re_dma_space_direction dir) L4_NOTHROW;
 
-/**
- * \copybrief L4Re::Dma_space::associate
- * \param dma  DMA space capability
- * \copydetails L4Re::Dma_space::associate
- * \ingroup api_l4re_c_dma
- */
-L4_CV l4_ret_t
-l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t dma_task,
-                         unsigned long attr) L4_NOTHROW;
-
-/**
- * \copybrief L4Re::Dma_space::disassociate
- * \param dma  DMA space capability
- * \copydetails L4Re::Dma_space::disassociate
- * \ingroup api_l4re_c_dma
- */
-L4_CV l4_ret_t
-l4re_dma_space_disassociate(l4re_dma_space_t dma);
-
-
 L4_END_DECLS
