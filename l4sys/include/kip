@@ -174,9 +174,10 @@ namespace L4
        *               defaults to physical
        */
       Mem_desc(unsigned long start, unsigned long end,
-               Mem_type t, unsigned char st = 0, bool virt = false) noexcept
+               Mem_type t, unsigned char st = 0, bool virt = false,
+               bool eager = false) noexcept
       : _l((start & ~0x3ffUL) | (t & 0x0f) | ((st << 4) & 0x0f0)
-           | (virt ? 0x0200 : 0x0)), _h(end | 0x3ffUL)
+           | (virt ? 0x0200 : 0x0) | (eager ? 0x100 : 0x0)), _h(end | 0x3ffUL)
       {}
 
       /**
@@ -225,6 +226,8 @@ namespace L4
        */
       unsigned is_virtual() const noexcept { return _l & 0x200; }
 
+      unsigned eager_map() const noexcept { return _l & 0x100; }
+
       /**
        * Set values of a memory descriptor.
        *
@@ -235,10 +238,11 @@ namespace L4
        * \param virt   Virtual or physical memory region, defaults to physical
        */
       void set(unsigned long start, unsigned long end,
-               Mem_type t, unsigned char st = 0, bool virt = false) noexcept
+               Mem_type t, unsigned char st = 0, bool virt = false,
+               bool eager = false) noexcept
       {
         _l = (start & ~0x3ffUL) | (t & 0x0f) | ((st << 4) & 0x0f0)
-             | (virt?0x0200:0x0);
+             | (virt?0x0200:0x0) | (eager ? 0x0100 : 0x0);
 
         _h = end | 0x3ffUL;
       }
