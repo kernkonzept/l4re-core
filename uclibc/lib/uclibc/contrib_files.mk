@@ -340,7 +340,6 @@ define SRC_libc/misc
   time/timegm
   time/_time_mktime_tzi
   time/_time_localtime_tzi
-  wordexp/wordexp
   elf/dl-iterate-phdr
 endef
 

@@ -292,10 +292,8 @@ void attribute_hidden (*__app_fini)(void) = NULL;
 
 void attribute_hidden (*__rtld_fini)(void) = NULL;
 
-#ifndef L4_MINIMAL_LIBC
-extern int attribute_hidden __libc_argc;
-extern char attribute_hidden **__libc_argv;
-#endif
+int attribute_hidden __libc_argc;
+char attribute_hidden **__libc_argv;
 
 extern void __uClibc_fini(void) attribute_hidden;
 void __uClibc_fini(void)
@@ -353,13 +351,8 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 
     __rtld_fini = rtld_fini;
 
-#ifndef L4_MINIMAL_LIBC
-    // the availability of __libc_argc/__libc_argv seems to be
-    // a side effect of importing external functionality to uclibc
-    // by upstream. In our case this is only available in full builds.
     __libc_argc = argc;
     __libc_argv = argv;
-#endif
 
     /* The environment begins right after argv.  */
     __environ = &argv[argc + 1];
