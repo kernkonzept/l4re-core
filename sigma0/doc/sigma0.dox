@@ -26,6 +26,7 @@
  * - Sigma0 ()
  *   - Use protocol id #L4_PROTO_SIGMA0 for creation
  *   - No arguments supported
+ *   - identical to l4sigma0_new_client()
  *
  * \see l4sigma0_api
  */

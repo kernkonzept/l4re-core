@@ -196,12 +196,15 @@ L4_CV void l4sigma0_debug_dump(l4_cap_idx_t sigma0);
 /**
  * Create a new IPC gate for a new Sigma0 client.
  *
- * \param sigma0  Capability selector for the sigma0 gate.
- * \param gate    Capability selector to use for the new gate.
+ * \param      sigma0  Capability selector for the sigma0 gate.
+ * \param[out] gate    Capability selector to use for the new gate.
  *
  * \retval 0                   Success.
  * \retval -L4SIGMA0_IPCERROR  IPC error.
  * \retval -L4SIGMA0_NOFPAGE   No fpage received.
+ *
+ * The result is identical to sending a factory create message (see
+ * L4::Factory.create()) with object #L4_PROTO_SIGMA0 to `sigma0`.
  */
 L4_CV int l4sigma0_new_client(l4_cap_idx_t sigma0, l4_cap_idx_t gate);
 
