@@ -72,10 +72,14 @@ public:
    *
    * \return System call return tag
    *
-   * This method allows to manipulate a thread. The basic functionality is to
-   * set the instruction pointer and the stack pointer of a thread.
-   * Additionally, this method allows also to cancel ongoing IPC operations and
-   * to force the thread to raise an artificial exception (see `flags`).
+   * This method allows to manipulate and start a thread. The basic
+   * functionality is to set the instruction pointer and the stack pointer of a
+   * thread. Additionally, this method allows also to cancel ongoing IPC
+   * operations and to force the thread to raise an artificial exception (see
+   * `flags`). If the thread is in an IPC operation or if
+   * #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION forces an IPC then changes in IP and
+   * SP take effect directly after returning from this IPC.
+
    *
    * The thread is started using L4::Scheduler::run_thread(). However, if at
    * the time L4::Scheduler::run_thread() is called, the instruction pointer of
@@ -109,6 +113,11 @@ public:
    * `flags`). If the thread is in an IPC operation or if
    * #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION forces an IPC then changes in IP and
    * SP take effect directly after returning from this IPC.
+   *
+   * The thread is started using L4::Scheduler::run_thread(). However, if at
+   * the time L4::Scheduler::run_thread() is called, the instruction pointer of
+   * the thread is invalid, a later call to ex_regs() with a valid instruction
+   * pointer might start the thread.
    */
   l4_msgtag_t ex_regs(l4_addr_t *ip, l4_addr_t *sp,
                       l4_umword_t *flags,
