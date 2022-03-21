@@ -49,9 +49,8 @@ struct Basic_list_policy
 template< typename POLICY >
 class Basic_list
 {
-private:
-  Basic_list(Basic_list const &);
-  void operator = (Basic_list const &);
+  Basic_list(Basic_list const &) = delete;
+  void operator = (Basic_list const &) = delete;
 
 public:
   typedef typename POLICY::Value_type Value_type;
@@ -121,6 +120,18 @@ public:
   // BSS allocation
   explicit Basic_list(bool) {}
   Basic_list() : _f(0) {}
+
+  Basic_list(Basic_list &&o) : _f(o._f)
+  {
+    o.clear();
+  }
+
+  Basic_list &operator = (Basic_list &&o)
+  {
+    _f = o._f;
+    o.clear();
+    return *this;
+  }
 
   /// Check if the list is empty.
   bool empty() const { return !_f; }
