@@ -283,6 +283,7 @@ typedef enum __ns_type {
 	ns_t_dname = 39,	/* Non-terminal DNAME (for IPv6) */
 	ns_t_sink = 40,		/* Kitchen sink (experimentatl) */
 	ns_t_opt = 41,		/* EDNS0 option (meta-RR) */
+	ns_t_tkey = 249,	/* Transaction key */
 	ns_t_tsig = 250,	/* Transaction signature. */
 	ns_t_ixfr = 251,	/* Incremental zone transfer. */
 	ns_t_axfr = 252,	/* Transfer zone of authority. */
