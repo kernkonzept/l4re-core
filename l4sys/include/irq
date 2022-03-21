@@ -121,6 +121,10 @@ struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
  * - virtual interrupts that can be triggered by user programs (IRQs) via the
  *   inherited method L4::Triggerable::trigger().
  *
+ * For hardware and virtual device interrupts the Irq object must be bound to
+ * an interrupt source, see L4::Icu. To receive interrupts, the Irq object must
+ * be bound to a thread, see L4::Rcv_endpoint.
+ *
  * Irq objects can be created using a factory, see the L4::Factory API
  * (L4::Factory::create()).
  *
@@ -237,15 +241,21 @@ struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
  * \note "ICU" is short for "interrupt control unit".
  *
  * This class defines the interface for interrupt controllers. It defines
- * functions for binding L4::Irq objects to interrupt lines, as well as
- * functions for masking and unmasking of interrupts.
+ * functions for binding L4::Irq objects to interrupt lines and other interrupt
+ * sources, as well as functions for masking and unmasking of interrupts.
  *
  * To setup an interrupt line the following steps are required:
  * 1. set_mode() (optional if interrupt has a default mode)
- * 2. L4::Rcv_endpoint::bind_thread() to attach the interrupt capability to a
+ * 2. L4::Rcv_endpoint::bind_thread() to attach the L4::Irq object to a
  *    thread
  * 3. bind()
  * 4. unmask() to receive the first interrupt
+ *
+ * For certain interrupt sources only some of these steps are necessary and
+ * supported, see L4::Scheduler and L4::Vcon.
+ *
+ * At most one L4::Irq object can be bound to a certain interrupt source and a
+ * certain L4::Irq object can be bound to at most one interrupt source.
  *
  * \includefile{l4/sys/icu}
  */
@@ -297,6 +307,16 @@ public:
    *         a direct unmask via the IRQ object using L4::Irq::unmask. A return
    *         value of `1` means that the interrupt has to be unmasked via the
    *         ICU using L4::Icu::unmask.
+   *
+   * \retval L4_EINVAL `irq` is bound to an interrupt source.
+   * \retval L4_EPERM  The ICU instance requires #L4_CAP_FPAGE_W on `irq` and
+   *                   #L4_CAP_FPAGE_W was not present.
+   *
+   * In case the `irq` is already bound to an interrupt source, it is unbound
+   * first. In case the `irq` is bound and the interrupt source is bound to a
+   * different L4::Irq object, only the unbinding happens. An L4::Irq object
+   * that is bound to an interrupt source will get unbound if the L4::Irq
+   * object is deleted.
    */
   l4_msgtag_t bind(unsigned irqnum, L4::Cap<Triggerable> irq,
                    l4_utcb_t *utcb = l4_utcb()) noexcept

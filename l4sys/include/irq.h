@@ -42,6 +42,10 @@
  * - virtual interrupts that can be triggered by user programs (IRQs) via
  *   l4_irq_trigger().
  *
+ * For hardware and virtual device interrupts the Irq object must be bound to
+ * an interrupt source, see \ref l4_icu_api. To receive interrupts, the Irq
+ * object must be bound to a thread, see l4_rcv_ep_bind_thread().
+ *
  * IRQ objects can be created using a factory, see the \ref l4_factory_api API
  * (use l4_factory_create_irq()).
  *

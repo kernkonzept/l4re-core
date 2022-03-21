@@ -33,11 +33,24 @@
  *
  * The C Icu interface, see L4::Icu for the C++ interface.
  *
+ * \note "ICU" is short for "interrupt control unit".
+ *
+ * These functions define the interface for interrupt controllers, for binding
+ * IRQ objects to interrupt lines and other interrupt sources, as well as
+ * functions for masking and unmasking of interrupts.
+ *
  * To setup an IRQ line the following steps are required:
  * 1. #l4_icu_set_mode() (optional if IRQ has a default mode)
- * 2. #l4_rcv_ep_bind_thread() to bind the IRQ capability to a thread
+ * 2. #l4_rcv_ep_bind_thread() to attach the IRQ object to a thread
  * 3. #l4_icu_bind()
  * 4. #l4_icu_unmask() to receive the first IRQ
+ *
+ * For certain interrupt sources only some of these steps are necessary and
+ * supported, see \ref l4_scheduler_api and \ref l4_vcon_api.
+ *
+ * At most one \ref l4_irq_api object can be bound to a certain interrupt
+ * source and a certain \ref l4_irq_api object can be bound to at most one
+ * interrupt source.
  *
  * \includefile{l4/sys/icu.h}
  */
@@ -200,6 +213,16 @@ typedef struct l4_icu_msi_info_t
  *         direct unmask via the IRQ object using l4_irq_unmask(). A return
  *         value of `1` means that the interrupt has to be unmasked via the ICU
  *         using l4_icu_unmask().
+ *
+ * \retval L4_EINVAL `irq` is bound to an interrupt source.
+ * \retval L4_EPERM  The ICU instance requires #L4_CAP_FPAGE_W on `irq` and
+ *                   #L4_CAP_FPAGE_W was not present.
+ *
+ * In case the `irq` is already bound to an interrupt source, it is unbound
+ * first. In case the `irq` is bound and the interrupt source is bound to a
+ * different IRQ object, only the unbinding happens. An IRQ object that is
+ * bound to an interrupt source will get unbound if the IRQ object is
+ * deleted.
  */
 L4_INLINE l4_msgtag_t
 l4_icu_bind(l4_cap_idx_t icu, unsigned irqnum, l4_cap_idx_t irq) L4_NOTHROW;

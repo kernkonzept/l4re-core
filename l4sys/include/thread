@@ -337,8 +337,17 @@ public:
    *
    * \return System call return tag containing the return code.
    *
+   * \retval L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+   *
+   * In case the `irq` is already bound to an interrupt source, it is unbound
+   * first. When `irq` is deleted, it will be deregistered first. A registered
+   * deletion Irq can only be deregistered by deleting the Irq or the thread.
+   *
    * List of deletion events:
-   *   * deletion of an IPC gate bound to this thread.
+   *   * deletion of one or several IPC gates bound to this thread.
+   *
+   * When the deletion event is delivered, there is no indication about which
+   * IPC gate was deleted.
    *
    * \see l4_thread_register_del_irq
    */

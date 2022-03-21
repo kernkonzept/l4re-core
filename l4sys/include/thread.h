@@ -526,10 +526,19 @@ l4_thread_vcpu_control_ext_u(l4_cap_idx_t thread, l4_addr_t ext_vcpu_state,
  * \param thread  Thread to register IRQ for.
  * \param irq     Capability selector for the IRQ object to be triggered.
  *
- * List of deletion events:
- *   * deletion of an IPC gate bound to this thread.
- *
  * \return System call return tag containing the return code.
+ *
+ * \retval L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+ *
+ * In case the `irq` is already bound to an interrupt source, it is unbound
+ * first. When `irq` is deleted, it will be deregistered first. A registered
+ * deletion Irq can only be deregistered by deleting the Irq or the thread.
+ *
+ * List of deletion events:
+ *   * deletion of one or several IPC gates bound to this thread.
+ *
+ * When the deletion event is delivered, there is no indication about which IPC
+ * gate was deleted.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_register_del_irq(l4_cap_idx_t thread, l4_cap_idx_t irq) L4_NOTHROW;
