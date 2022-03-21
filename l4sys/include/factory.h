@@ -154,8 +154,9 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \param      thread_cap  Optional capability selector of the thread to
  *                         bind the gate to. Use #L4_INVALID_CAP to create
  *                         an unbound IPC gate.
- * \param      label       Optional label of the gate (is used if
- *                         `thread_cap` is valid).
+ * \param      label       Optional label of the gate (precisely used if
+ *                         `thread_cap` is valid). If `thread_cap` is valid,
+ *                         `label` must be present.
  *
  * \return Syscall return tag containing one of the following return codes.
  *
