@@ -47,6 +47,10 @@ namespace L4 {
  *  - The IRQ is edge-triggered and the IRQ mode cannot be changed.
  *  - As the IRQ is edge-triggered, it does not have to be explicitly unmasked.
  *
+ * It depends on the platform, which hotplug events actually trigger the IRQ.
+ * Many platforms only support triggering the IRQ when a CPU core different
+ * from the boot CPU goes online.
+ *
  * \includefile{l4/sys/scheduler}
  */
 class L4_EXPORT Scheduler :
