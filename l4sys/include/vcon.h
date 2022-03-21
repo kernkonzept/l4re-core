@@ -28,7 +28,8 @@
 /**
  * \defgroup l4_vcon_api Virtual Console
  * \ingroup  l4_kernel_object_api
- * Virtual console for simple character based input and output.
+ * C Virtual console interface for simple character based input and output, see
+ * L4::Vcon for the C++ interface.
  *
  * The interrupt for read events is provided by the virtual key interrupt
  * which, in contrast to hardware IRQs, implements a limited functionality:

@@ -30,7 +30,7 @@
 namespace L4 {
 
 /**
- * C++ L4 kernel thread interface.
+ * C++ L4 kernel thread interface, see \ref l4_thread_api for the C interface.
  *
  * The Thread class defines a thread of execution in the L4 context.
  * Usually user-level and kernel threads are mapped 1:1 to each other.

@@ -32,7 +32,7 @@
  * \defgroup l4_irq_api IRQs
  * \ingroup  l4_kernel_object_api
  *
- * C IRQ interface.
+ * C IRQ interface, see L4::Irq for the C++ interface.
  *
  * The IRQ interface provides access to abstract interrupts provided by the
  * microkernel. Interrupts may be

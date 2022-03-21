@@ -29,7 +29,8 @@
  * \{
  * \ingroup  l4_kernel_object_api
  *
- * C interface for controlling platform-wide properties.
+ * C interface for controlling platform-wide properties, see 
+ * L4::Platform_control for the C++ interface.
  *
  * \includefile{l4/sys/platform_control.h}
  *

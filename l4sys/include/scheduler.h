@@ -28,7 +28,8 @@
 /**
  * \defgroup l4_scheduler_api Scheduler
  * \ingroup  l4_kernel_object_api
- * C interface of the Scheduler kernel object.
+ * C interface of the Scheduler kernel object, see L4::Scheduler for the C 
+ * interface.
  *
  * The Scheduler interface allows a client to manage CPU resources. The API
  * provides functions to query scheduler information, check the online state

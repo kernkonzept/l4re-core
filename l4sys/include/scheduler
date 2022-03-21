@@ -31,7 +31,8 @@
 namespace L4 {
 
 /**
- * C++ interface of the Scheduler kernel object.
+ * C++ interface of the Scheduler kernel object, see \ref l4_scheduler_api for
+ * the C interface.
  *
  * The Scheduler interface allows a client to manage CPU resources. The API
  * provides functions to query scheduler information, check the online state of

@@ -32,7 +32,8 @@
 namespace L4 {
 
 /**
- * L4 C++ interface for controlling platform-wide properties.
+ * L4 C++ interface for controlling platform-wide properties, see \ref
+ * l4_platform_control_api for the C interface.
  *
  * Add
  *

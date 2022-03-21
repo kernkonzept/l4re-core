@@ -34,7 +34,8 @@
  * \defgroup l4_factory_api Factory
  * \ingroup  l4_kernel_object_api
  *
- * C factory interface to create kernel objects.
+ * C factory interface to create kernel objects, see L4::Factory for the C++
+ * interface.
  *
  * A factory is used to create all kinds of kernel objects:
  * - \ref l4_task_api

@@ -28,7 +28,8 @@
 namespace L4 {
 
 /**
- * Kernel-provided semaphore object.
+ * C++ Kernel-provided semaphore interface, see \ref l4_semaphore_api for the C
+ * interface.
  *
  * This is the interface for kernel-provided semaphore objects. The
  * object provides the classical functions `up()` and `down()` for

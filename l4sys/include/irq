@@ -108,7 +108,7 @@ struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
 };
 
 /**
- * C++ Irq interface.
+ * C++ Irq interface, see \ref l4_irq_api for the C interface.
  *
  * \note "IRQ" is short for "interrupt request". This is often used
  * interchangeably for "interrupt"
@@ -232,7 +232,7 @@ struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
 
 
 /**
- * C++ Icu interface.
+ * C++ Icu interface, see \ref l4_icu_api for the C interface.
  *
  * \note "ICU" is short for "interrupt control unit".
  *

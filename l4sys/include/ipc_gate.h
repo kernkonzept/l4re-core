@@ -19,7 +19,7 @@
 
 /**
  * \file
- * The C IPC gate interface.
+ * The C IPC gate interface, see L4::Ipc_gate for the C++ interface.
  *
  * IPC gates are used to create secure communication channels between protection
  * domains. An IPC gate can be created using the \ref l4_factory_api interface.

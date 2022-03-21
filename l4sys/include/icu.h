@@ -31,7 +31,7 @@
  * \defgroup l4_icu_api Interrupt controller
  * \ingroup  l4_kernel_object_api
  *
- * The C Icu interface.
+ * The C Icu interface, see L4::Icu for the C++ interface.
  *
  * To setup an IRQ line the following steps are required:
  * 1. #l4_icu_set_mode() (optional if IRQ has a default mode)

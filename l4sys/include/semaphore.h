@@ -1,4 +1,9 @@
 /**
+ * \file
+ * C semaphore interface
+ * \ingroup l4_api
+ */
+/*
  * (c) 2015 Alexander Warg <alexander.warg@kernkonzept.com>
  *
  * This file is part of TUD:OS and distributed under the terms of the
@@ -18,6 +23,15 @@
 #pragma once
 
 #include <l4/sys/irq.h>
+
+/**
+ * \defgroup l4_semaphore_api Kernel-provided semaphore
+ * \ingroup  l4_kernel_object_api
+ *
+ * C semaphore interface, see L4::Semaphore for the C++ interface.
+ *
+ * \includefile{l4/sys/semaphore.h}
+ */
 
 enum L4_semaphore_op
 {

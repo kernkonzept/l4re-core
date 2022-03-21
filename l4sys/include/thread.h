@@ -31,7 +31,7 @@
 /**
  * \defgroup l4_thread_api Thread
  * \ingroup  l4_kernel_object_api
- * Thread object.
+ * C Thread object interface, see L4::Thread for the C++ interface.
  *
  * An L4 thread is a thread of execution in the L4 context.
  * Usually user-level and kernel threads are mapped 1:1 to each other.

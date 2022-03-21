@@ -32,7 +32,7 @@
 namespace L4 {
 
 /**
- * C++ %Factory interface.
+ * C++ %Factory interface, see \ref l4_factory_api for the C interface.
  *
  * Factories provide an interface to create objects which are accessed via
  * capabilities.
