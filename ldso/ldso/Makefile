@@ -85,3 +85,5 @@ CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions -fvisibility=hidden \
 
 CPPFLAGS := $(filter-out -DL4SYS_USE_UTCB_WRAP=1, $(CPPFLAGS))
 
+# Suppress false-positive warnings
+CFLAGS   += -Wno-bad-function-cast

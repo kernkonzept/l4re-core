@@ -57,3 +57,6 @@ ldso.1.o: ldso.o
 	$(OBJCOPY) --weaken $< $@
 
 CXXFLAGS := -DL4_NO_RTTI -fno-rtti -fno-exceptions
+
+# Suppress false-positive warnings
+CFLAGS   += -Wno-bad-function-cast
