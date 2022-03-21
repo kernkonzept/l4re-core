@@ -89,10 +89,8 @@ l4_factory_create_task(l4_cap_idx_t factory,
                        l4_cap_idx_t target_cap, l4_fpage_t utcb_area) L4_NOTHROW;
 
 /**
+ * \internal
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_task
- * \param factory  Capability selector for factory to use for creation.
- * \copydetails L4::Factory::create_task
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_task_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
@@ -100,7 +98,8 @@ l4_factory_create_task_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
 
 /**
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_thread
+ * Create a new thread.
+ *
  * \param      factory     Capability selector for factory to use for creation.
  * \param[out] target_cap  The kernel stores the new thread's capability into
  *                         this slot.
@@ -114,10 +113,8 @@ l4_factory_create_thread(l4_cap_idx_t factory,
                          l4_cap_idx_t target_cap) L4_NOTHROW;
 
 /**
+ * \internal
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_thread
- * \param factory  Capability selector for factory to use for creation.
- * \copydetails  L4::Factory::create_thread
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_thread_u(l4_cap_idx_t factory,
@@ -141,10 +138,8 @@ l4_factory_create_factory(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
                           unsigned long limit) L4_NOTHROW;
 
 /**
+ * \internal
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_factory
- * \param factory  Capability selector for factory to use for creation.
- * \copydetails L4::Factory::create_factory
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
@@ -180,10 +175,8 @@ l4_factory_create_gate(l4_cap_idx_t factory,
                        l4_cap_idx_t thread_cap, l4_umword_t label) L4_NOTHROW;
 
 /**
+ * \internal
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_gate
- * \param factory  Capability selector for factory to use for creation.
- * \copydetails  L4::Factory::create_gate
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_gate_u(l4_cap_idx_t factory,
@@ -208,10 +201,8 @@ l4_factory_create_irq(l4_cap_idx_t factory,
                       l4_cap_idx_t target_cap) L4_NOTHROW;
 
 /**
+ * \internal
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_irq
- * \param factory  Factory to use for creation.
- * \copydetails L4::Factory::create_irq
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_irq_u(l4_cap_idx_t factory,
@@ -219,7 +210,8 @@ l4_factory_create_irq_u(l4_cap_idx_t factory,
 
 /**
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_vm
+ * Create a new virtual machine.
+ *
  * \param      factory     Capability selector for factory to use for creation.
  * \param[out] target_cap  The kernel stores the new VM's capability into this
  *                         slot.
@@ -233,51 +225,98 @@ l4_factory_create_vm(l4_cap_idx_t factory,
                      l4_cap_idx_t target_cap) L4_NOTHROW;
 
 /**
+ * \internal
  * \ingroup l4_factory_api
- * \copybrief L4::Factory::create_vm
- * \param factory  Capability selector for factory to use for creation.
- * \copydetails L4::Factory::create_vm
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_vm_u(l4_cap_idx_t factory,
                        l4_cap_idx_t target_cap, l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE l4_msgtag_t
 l4_factory_create_start_u(long obj, l4_cap_idx_t target,
                           l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE int
 l4_factory_create_add_fpage_u(l4_fpage_t d, l4_msgtag_t *tag,
                               l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE int
 l4_factory_create_add_int_u(l4_mword_t d, l4_msgtag_t *tag,
                             l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE int
 l4_factory_create_add_uint_u(l4_umword_t d, l4_msgtag_t *tag,
                             l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE int
 l4_factory_create_add_str_u(char const *s, l4_msgtag_t *tag,
                             l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE int
 l4_factory_create_add_lstr_u(char const *s, unsigned len, l4_msgtag_t *tag,
                              l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE int
 l4_factory_create_add_nil_u(l4_msgtag_t *tag, l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE l4_msgtag_t
 l4_factory_create_commit_u(l4_cap_idx_t factory, l4_msgtag_t tag,
                            l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
 L4_INLINE l4_msgtag_t
 l4_factory_create_u(l4_cap_idx_t factory, long obj, l4_cap_idx_t target,
                     l4_utcb_t *utcb) L4_NOTHROW;
 
 
+/**
+ * \ingroup l4_factory_api
+ *
+ * Create a new kernel object.
+ *
+ * \param      factory     Factory to use for creation.
+ * \param      obj         Protocol ID to describe the type of the object to
+ *                         create.
+ * \param[out] target_cap  The kernel stores the new objects's capability into
+ *                         this slot.
+ *
+ * \return Syscall return tag
+ */
 L4_INLINE l4_msgtag_t
 l4_factory_create(l4_cap_idx_t factory, long obj,
                   l4_cap_idx_t target) L4_NOTHROW;
