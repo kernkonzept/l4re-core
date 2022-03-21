@@ -282,14 +282,23 @@ l4_thread_control_bind_u(l4_utcb_t *thread_utcb,
  * \ingroup l4_thread_control_api
  * \param   on    Boolean value defining the state of the feature.
  *
- * Alien mode means the thread is not allowed to invoke L4 kernel objects
- * directly and it is also not allowed to allocate FPU state. All those
- * operations result in an exception IPC that gets sent through the pager
- * capability. The responsible pager can then selectively allow an object
- * invocation or allocate FPU state for the thread.
+ * For a thread in alien mode the kernel produces just an exception IPC for
+ * each IPC and exception caused by the alien thread instead of handling these
+ * events regularly. (Page faults of alien threads and interrupts occuring
+ * while the alien thread is running are always handled regularly.) While the
+ * alien thread is blocking, the execption handler can inspect and modify the
+ * state of the alien thread and potentially also the systemcall arguments. If
+ * the exception handler replies with #L4_PROTO_ALLOW_SYSCALL as message tag,
+ * the kernel handles the next IPC or exception of the alien thread in a
+ * regular way. If the exception handler leaves certain thread state unchanged
+ * (in particular the instruction pointer), this will be the IPC or exception
+ * that caused the call of the exception handler. For a regularly processed IPC
+ * or exception of the alien thread the kernel also performs an exception IPC
+ * on kernel exit.
  *
- * This feature can be used to attach a debugger to a thread and trace all
- * object invocations.
+ * This feature can be used to attach a debugger to a thread and trace
+ * all object invocations and their results. It could also be used to
+ * handle other systems that use the same syscall instruction as L4Re.
  */
 L4_INLINE void
 l4_thread_control_alien(int on) L4_NOTHROW;
