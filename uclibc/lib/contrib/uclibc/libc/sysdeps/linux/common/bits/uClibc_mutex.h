@@ -17,6 +17,9 @@
 #include <bits/uClibc_pthread.h>
 #endif
 
+static __attribute__((unused)) void __pthread_mutex_unlock_wrapper(void *m)
+{ __pthread_mutex_unlock((pthread_mutex_t *)m); };
+
 #define __UCLIBC_MUTEX_TYPE				pthread_mutex_t
 
 #define __UCLIBC_MUTEX(M)				pthread_mutex_t M
@@ -42,8 +45,7 @@
 		int __infunc_need_locking = (C);							\
 		if (__infunc_need_locking) {								\
 			_pthread_cleanup_push_defer(&__infunc_pthread_cleanup_buffer,			\
-					   (void (*) (void *))__pthread_mutex_unlock,			\
-										&(M));			\
+						    &__pthread_mutex_unlock_wrapper, &(M));		\
 			__pthread_mutex_lock(&(M));							\
 		}											\
 		((void)0)
