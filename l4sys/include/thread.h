@@ -77,7 +77,9 @@
  * This method allows to manipulate a thread. The basic functionality is to set
  * the instruction pointer and the stack pointer of a thread. Additionally,
  * this method allows also to cancel ongoing IPC operations and to force the
- * thread to raise an artificial exception (see `flags`).
+ * thread to raise an artificial exception (see `flags`). If the thread is in
+ * an IPC operation or if #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION forces an IPC
+ * then changes in IP and SP take effect directly after returning from this IPC.
  *
  * The thread is started using l4_scheduler_run_thread(). However, if at the
  * time l4_scheduler_run_thread() is called, the instruction pointer of the
