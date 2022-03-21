@@ -47,12 +47,8 @@
  */
 
 /* These variables are defined and initialized in the startup code.  */
-/*extern int __libc_argc;*/
-/*extern char **__libc_argv;*/
-
-/* FIXME!!!! */
-int attribute_hidden __libc_argc;
-char attribute_hidden **__libc_argv;
+extern int attribute_hidden __libc_argc;
+extern char attribute_hidden **__libc_argv;
 
 /* Some forward declarations */
 static int parse_dollars(char **word, size_t * word_length,
