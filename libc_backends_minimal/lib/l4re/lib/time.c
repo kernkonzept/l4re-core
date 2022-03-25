@@ -7,7 +7,7 @@
  */
 
 #include <time.h>
-#include <l4/libc_backends/clk.h>
+#include <l4/libc_backends_minimal/clk.h>
 
 time_t time(time_t *t)
 {

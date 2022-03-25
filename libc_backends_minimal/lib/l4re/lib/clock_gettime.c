@@ -12,7 +12,7 @@
 #include <time.h>
 #include <l4/re/env.h>
 #include <l4/sys/kip.h>
-#include <l4/libc_backends/clk.h>
+#include <l4/libc_backends_minimal/clk.h>
 
 #include "clocks.h"
 
