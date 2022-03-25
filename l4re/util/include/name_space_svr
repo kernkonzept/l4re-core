@@ -27,7 +27,7 @@
 #include <l4/sys/capability>
 #include <l4/re/namespace>
 
-#include <cstddef>
+#include <stddef.h>
 
 namespace L4Re { namespace Util {
 

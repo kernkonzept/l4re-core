@@ -26,7 +26,7 @@
 #include <l4/sys/cxx/ipc_client>
 #include <l4/sys/assert.h>
 
-#include <cstring>
+#include <string.h>
 
 L4_RPC_DEF(L4Re::Namespace::query);
 L4_RPC_DEF(L4Re::Namespace::register_obj);

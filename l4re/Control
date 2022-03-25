@@ -1,3 +1,3 @@
 Provides: l4re-util l4re
-requires: crtn l4util cxx_libc_io libstdc++-headers ldscripts
+requires: crtn l4util cxx_libc_io libc-headers ldscripts
 maintainer: warg@os.inf.tu-dresden.de

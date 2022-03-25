@@ -18,9 +18,9 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-#include <cstring>
-#include <cstddef>
-#include <cstdio>
+#include <string.h>
+#include <stddef.h>
+#include <stdio.h>
 #include <l4/sys/types.h>
 #include <l4/cxx/list>
 #include <l4/cxx/minmax>

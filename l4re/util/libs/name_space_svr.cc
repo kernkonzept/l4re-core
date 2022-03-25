@@ -21,8 +21,7 @@
 
 #include <l4/re/namespace>
 
-#include <cassert>
-#include <cstring>
+#include <string.h>
 
 namespace L4Re { namespace Util { namespace Names {
 

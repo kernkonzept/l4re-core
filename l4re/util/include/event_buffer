@@ -24,7 +24,7 @@
 #include <l4/re/event-sys.h>
 #include <l4/re/rm>
 
-#include <cstring>
+#include <string.h>
 
 namespace L4Re { namespace Util {
 

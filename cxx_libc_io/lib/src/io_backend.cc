@@ -6,10 +6,10 @@
  * Please see the COPYING-LGPL-2.1 file for details.
  */
 
-#include <cstdio>
 #include <l4/cxx/basic_ostream>
 #include <l4/util/atomic.h>
 #include <stddef.h>
+#include <stdio.h>
 
 inline void *operator new (size_t, void *p) throw() { return p; }
 

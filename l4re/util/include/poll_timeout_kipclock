@@ -8,7 +8,6 @@
  */
 #pragma once
 
-#include <cassert>
 #include <l4/sys/kip.h>
 #include <l4/re/env.h>
 
