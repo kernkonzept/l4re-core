@@ -4,10 +4,10 @@
  */
 
 /**
- * \defgroup l4_kernel_object_dmar_space DMAR space
+ * \defgroup l4_kernel_object_dmar_space DMA space
  * \ingroup l4_kernel_object_api
  *
- * A DMAR space represents a device memory address space managed by an IOMMU.
+ * A DMA space represents a device memory address space managed by an IOMMU.
  * That is, it manages the translation of virtual addresses used by devices to
  * physical addresses. It is accessed via the L4::Task interface, but with the
  * following caveats:
@@ -17,6 +17,9 @@
  * - It must be constructed by passing the L4_PROTO_DMA_SPACE protocoll constant
  *   to the kernel factory's L4::Factory.create() call.
  *
- * A DMAR space must be bound to an L4::Iommu to enable the address translation
+ * A DMA space must be bound to an L4::Iommu to enable the address translation
  * for specific devices.
+ *
+ * The kernel factory allows to create DMA spaces only if the kernel has been
+ * configured with IOMMU support and if an IOMMU was detected.
  */
