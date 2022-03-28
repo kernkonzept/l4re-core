@@ -20,6 +20,7 @@
 #ifdef NDEBUG
 
 #define DO_NOTHING              do {} while (0)
+#define ASSERT_ASSERT(x)        DO_NOTHING
 #define ASSERT_VALID(c)         DO_NOTHING
 #define ASSERT_EQUAL(a,b)       DO_NOTHING
 #define ASSERT_NOT_EQUAL(a,b)   DO_NOTHING
