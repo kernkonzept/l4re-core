@@ -184,6 +184,11 @@ SECTIONS
     PROVIDE (__heap_end = .);
   }
 #endif
+#if CONFIG_BID_STATIC_STACK
+  .stack : ALIGN(16) {
+    . = . + (DEFINED(__stack_size) ? __stack_size : 0);
+  } :rw :l4re_stack
+#endif
   . = ALIGN(64 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(64 / 8);

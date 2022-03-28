@@ -28,5 +28,6 @@ DEFINES        += -DL4_CXX_NO_EXCEPTION_BACKTRACE -DL4_MINIMAL_LIBC
 LDFLAGS        += --entry=_real_start
 
 DEFAULT_HEAP_SIZE = 0
+DEFAULT_STACK_SIZE = 0
 
 include $(L4DIR)/mk/prog.mk
