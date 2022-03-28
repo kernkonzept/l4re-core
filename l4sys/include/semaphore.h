@@ -39,20 +39,33 @@ enum L4_semaphore_op
   // semaphore up is IRQ_OP_TRIGGER with IRQ/Triggerable protocol
 };
 
+/**
+ * \ingroup l4_semaphore_api
+ * \param sem  Semaphore object.
+ * \copydoc L4::Semaphore::up()
+ */
 L4_INLINE l4_msgtag_t
 l4_semaphore_up(l4_cap_idx_t sem) L4_NOTHROW
 {
   return l4_irq_trigger(sem);
 }
 
+/**
+ * \internal
+ */
 L4_INLINE l4_msgtag_t
 l4_semaphore_up_u(l4_cap_idx_t sem, l4_utcb_t *utcb) L4_NOTHROW
 {
   return l4_irq_trigger_u(sem, utcb);
 }
 
+/**
+ * \ingroup l4_semaphore_api
+ * \param sem  Semaphore object.
+ * \copydoc L4::Semaphore::down()
+ */
 L4_INLINE l4_msgtag_t
-l4_semaphore_down(l4_cap_idx_t sem, l4_timeout_t to) L4_NOTHROW;
+l4_semaphore_down(l4_cap_idx_t sem, l4_timeout_t timeout) L4_NOTHROW;
 
 /**
  * \internal
