@@ -116,12 +116,10 @@ l4_busy_wait_ns (l4_uint64_t ns);
 /**
  * \brief Wait busy for a small amount of time.
  * \param us micro seconds to wait
- * \attention Not intendet for any use!
+ * \attention Not intended for any use!
  */
 L4_INLINE void
 l4_busy_wait_us (l4_uint64_t us);
-
-EXTERN_C_BEGIN
 
 /**
  * Determine scalers for time stamp calculations.
@@ -342,8 +340,6 @@ l4_busy_wait_us (l4_uint64_t us)
   while (l4_rdtsc() < stop)
     ;
 }
-
-EXTERN_C_END
 
 #endif /* __l4_rdtsc_h */
 

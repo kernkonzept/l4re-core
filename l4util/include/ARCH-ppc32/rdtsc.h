@@ -2,7 +2,7 @@
  * \file
  * \brief  time stamp counter related functions
  *
- * \date   Frank Mehnert <fm3@os.inf.tu-dresden.de>
+ * \author  Frank Mehnert <fm3@os.inf.tu-dresden.de>
  * \ingroup l4util_tsc
  */
 
@@ -60,8 +60,6 @@ l4_uint32_t l4_rdtsc_32(void);
 L4_INLINE l4_uint64_t
 l4_tsc_to_us (l4_cpu_time_t tsc);
 
-EXTERN_C_BEGIN
-
 /**
  * Calibrate scalers for time stamp calculations.
  *
@@ -89,8 +87,6 @@ l4_tsc_init (l4_kernel_info_t *kip);
 /*@}*/
 
 EXTERN_C_END
-
-EXTERN_C_BEGIN
 
 L4_INLINE l4_uint32_t
 l4_calibrate_tsc (l4_kernel_info_t *kip)
@@ -140,6 +136,5 @@ l4_tsc_to_us (l4_cpu_time_t tsc)
   return tsc / l4_scaler_tsc_to_us;
 }
 
-EXTERN_C_END
 #endif /* __l4_rdtsc_h */
 
