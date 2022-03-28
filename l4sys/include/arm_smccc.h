@@ -5,6 +5,10 @@
  * This file is distributed under the terms of the GNU General Public
  * License, version 2.  Please see the COPYING-GPL-2 file for details.
  */
+/**
+ * \file
+ * ARM secure monitor call functions.
+ */
 #pragma once
 
 #include <l4/sys/types.h>
@@ -28,6 +32,13 @@ l4_arm_smccc_call_u(l4_cap_idx_t pfc, l4_umword_t func, l4_umword_t in0,
 
 #include <l4/sys/ipc.h>
 
+/**
+ * C interface for calling the ARM secure monitor, see L4::Arm_smccc::call()
+ * for the C++ interface.
+ *
+ * \param pfc  Capability of the SMC kernel object.
+ * \copydetails L4::Arm_smccc::call
+ */
 L4_INLINE l4_msgtag_t
 l4_arm_smccc_call(l4_cap_idx_t pfc, l4_umword_t func,
                   l4_umword_t in0, l4_umword_t in1,

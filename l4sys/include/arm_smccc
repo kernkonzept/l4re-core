@@ -18,8 +18,8 @@
 namespace L4 {
 
 /**
- * Wrapper for function calls that follow the ARM SMC/HVC
- * calling convention.
+ * Wrapper for function calls that follow the ARM SMC/HVC calling convention.
+ * See l4_arm_smccc_call() for the corresponding C interface.
  */
 class L4_EXPORT Arm_smccc : public Kobject_0t<Arm_smccc, L4_PROTO_SMCCC>
 {
@@ -29,6 +29,36 @@ public:
    *
    * The input parameters consist of a function identifier, 6 arguments
    * and a client id. Results are returned in 4 output parameters.
+   *
+   * \param      func       Function identifier.
+   *                        - Bit 31 has to be set: This marks the call as
+   *                          <em>Fast Call</em>. <em>Yielding Calls</em>
+   *                          (bit 31 unset) are rejected by the kernel.
+   *                        - Bit 30 defines the calling convention:
+   *                        - Bit 30 == 1: 64-bit calling convention.
+   *                        - Bit 30 == 0: 32-bit calling convention.
+   *                        - Bits 24..29 determine the service call ID. Only
+   *                          service IDs >= 0x30000000
+   *                          (<em>Trusted Application Calls</em> and
+   *                          <em>Trusted OS Calls</em>) are allowed.
+   * \param[in]  in0        First input parameter.
+   * \param[in]  in1        Second input parameter.
+   * \param[in]  in2        Third input parameter.
+   * \param[in]  in3        Fourth input parameter.
+   * \param[in]  in4        Fifth input parameter.
+   * \param[in]  in5        Sixth input parameter.
+   * \param[out] out0       First output parameter.
+   * \param[out] out1       Second output parameter.
+   * \param[out] out2       Third output parameter.
+   * \param[out] out3       Fourth output parameter.
+   * \param[in]  client_id  Client ID. According to the specification, this
+   *                        value might be ignored by certain functions.
+   *
+   * \retval -L4_ENOSYS Either bit 31 of the function call not set or service
+   *                    ID < 0x30000000.
+   * \retval -L4_EINVAL Invalid number of parameters.
+   * \retval <0         Other L4 error.
+   * \retval 0          Success.
    */
   L4_INLINE_RPC(l4_msgtag_t, call,
                 (l4_umword_t func, l4_umword_t in0, l4_umword_t in1,
