@@ -186,76 +186,41 @@ l4_calibrate_tsc (l4_kernel_info_t *kip)
 L4_INLINE l4_cpu_time_t
 l4_rdtsc (void)
 {
-    l4_cpu_time_t v;
-    
-    __asm__ __volatile__ 
-	(".byte 0x0f, 0x31		\n\t"
-	 "mov   $0xffffffff, %%rcx      \n\t" /* clears the upper 32 bits! */
-	 "and   %%rcx,%%rax		\n\t"
-	 "shlq  $32,%%rdx		\n\t"
-	 "orq	%%rdx,%%rax		\n\t"
-	:
-	"=a" (v)
-	: /* no inputs */
-	:"rdx", "rcx"
-	);
-    
-    return v;
+  l4_umword_t lo, hi;
+
+  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+
+  return ((l4_cpu_time_t)hi << 32) | lo;
 }
 
 L4_INLINE l4_uint64_t
 l4_rdpmc (int ecx)
 {
-    l4_cpu_time_t v;
-    l4_uint64_t dummy;
+  l4_umword_t lo, hi;
 
-    __asm__ __volatile__ (
-	 "rdpmc				\n\t"
-	 "mov   $0xffffffff, %%rcx      \n\t" /* clears the upper 32 bits! */
-	 "and   %%rcx,%%rax		\n\t"
-	 "shlq  $32,%%rdx		\n\t"
-	 "orq	%%rdx,%%rax		\n\t"
-	:
-	"=a" (v), "=c"(dummy)
-	: "c" (ecx)
-        : "rdx"
-	);
+  __asm__ __volatile__ ("rdpmc" : "=a"(lo), "=d"(hi) : "c"(ecx));
 
-    return v;
+  return ((l4_cpu_time_t)hi << 32) | lo;
 }
 
-/* the same, but only 32 bit. Useful for smaller differences */
+L4_INLINE
+l4_uint32_t l4_rdtsc_32(void)
+{
+  l4_umword_t lo, hi;
+
+  __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
+
+  return lo;
+}
+
 L4_INLINE
 l4_uint32_t l4_rdpmc_32(int ecx)
 {
-  l4_uint32_t x;
-  l4_uint64_t dummy;
+  l4_umword_t lo, hi;
 
-  __asm__ __volatile__ (
-         "rdpmc				\n\t"
-	 "mov   $0xffffffff, %%rcx      \n\t" /* clears the upper 32 bits! */
-	 "and   %%rcx,%%rax		\n\t"
-       : "=a" (x), "=c"(dummy)
-       : "c" (ecx)
-       : "rdx");
+  __asm__ __volatile__ ("rdpmc" : "=a"(lo), "=d"(hi) : "c"(ecx));
 
-  return x;
-}
-
-/* the same, but only 32 bit. Useful for smaller differences, 
-   needs less cycles. */
-L4_INLINE 
-l4_uint32_t l4_rdtsc_32(void)
-{
-  l4_uint32_t x;
-
-  __asm__ __volatile__ (
-       ".byte 0x0f, 0x31\n\t"	// rdtsc
-       : "=a" (x)
-       :
-       : "rdx");
-    
-  return x;
+  return lo;
 }
 
 L4_INLINE l4_uint64_t
