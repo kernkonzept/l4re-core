@@ -38,10 +38,6 @@ extern l4_uint32_t l4_scaler_timer_to_tsc;
  */
 /*@{*/
 
-#define L4_TSC_INIT_AUTO             0 ///< Automatic init
-#define L4_TSC_INIT_KERNEL           1 ///< Initialized by kernel
-#define L4_TSC_INIT_CALIBRATE        2 ///< Initialized by user-level
-
 /**
  * \brief Read current value of CPU-internal time stamp counter.
  * \return 64-bit time stamp
@@ -67,12 +63,10 @@ l4_tsc_to_us (l4_cpu_time_t tsc);
 EXTERN_C_BEGIN
 
 /**
- * \brief Calibrate scalers for time stamp calculations.
+ * Calibrate scalers for time stamp calculations.
  *
  * Determine some scalers to be able to convert between real time and CPU
- * ticks. This test uses channel 0 of the PIT (i8254) or the kernel KIP,
- * depending on availability.
- * Just calls l4_tsc_init(L4_TSC_INIT_AUTO).
+ * ticks. Just calls l4_tsc_init().
  */
 L4_INLINE l4_uint32_t
 l4_calibrate_tsc (l4_kernel_info_t *kip);
@@ -84,26 +78,14 @@ l4_calibrate_tsc (l4_kernel_info_t *kip);
  * Current versions of Fiasco export these scalers from kernel into userland.
  * The programmer may decide whether he allows to use these scalers or if an
  * calibration should be performed.
- * \param   constraint   programmers constraint:
- *                       - #L4_TSC_INIT_AUTO if the kernel exports the scalers
- *                         then use them. If not, perform calibration using
- *                         channel 0 of the PIT (i8254). The latter case may
- *                         lead into short (unpredictable) periods where
- *                         interrupts are disabled.
- *                       - #L4_TSC_INIT_KERNEL depend on retrieving the scalers
- *                         from kernel. If the scalers are not available,
- *                         return 0.
- *                       - #L4_TSC_INIT_CALIBRATE Ignore possible scalers
- *                         exported by the scaler, instead insist on
- *                         calibration using the PIT.
- * \param kip            KIP pointer
- * \return 0 on error (no scalers exported by kernel, calibrating failed ...)
+ * \param kip  KIP pointer
+ * \return 0 on error (no scalers exported by kernel)
  *         otherwise returns (2^32 / (tsc per µsec)). This value has the
  *         same semantics as the value returned by the calibrate_delay_loop()
  *         function of the Linux kernel.
  */
 L4_CV l4_uint32_t
-l4_tsc_init (int constraint, l4_kernel_info_t *kip);
+l4_tsc_init (l4_kernel_info_t *kip);
 /*@}*/
 
 EXTERN_C_END
@@ -113,7 +95,7 @@ EXTERN_C_BEGIN
 L4_INLINE l4_uint32_t
 l4_calibrate_tsc (l4_kernel_info_t *kip)
 {
-  return l4_tsc_init(0, kip);
+  return l4_tsc_init(kip);
 }
 
 L4_INLINE l4_cpu_time_t
