@@ -24,7 +24,7 @@
 #include <l4/sys/types.h>
 
 /**
- * Bind the IPC gate to a thread.
+ * Bind the IPC receive endpoint to a thread.
  * \ingroup l4_kernel_object_gate_api
  *
  * \param ep      The IPC receive endpoint object.
@@ -38,6 +38,12 @@
  * \retval -L4_EINVAL  `thread` is not a thread object or other arguments were
  *                     malformed.
  * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `ep` or `thread`.
+ *
+ *  The specified `label` is passed to the receiver of the incoming IPC. It is
+ *  possible to re-bind a receive endpoint to the same or a different thread.
+ *  In this case, IPC already in flight will be delivered with the old label to
+ *  the previously bound thread unless l4_thread_modify_sender_start() is used
+ *  to change these labels.
  */
 
 L4_INLINE l4_msgtag_t

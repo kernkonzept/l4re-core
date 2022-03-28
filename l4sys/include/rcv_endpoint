@@ -56,6 +56,12 @@ public:
    *                     malformed.
    * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `t` or the capability used
    *                     to invoke this operation.
+   *
+   * The specified `label` is passed to the receiver of the incoming IPC. It is
+   * possible to re-bind a receive endpoint to the same or a different thread.
+   * In this case, IPC already in flight will be delivered with the old label
+   * to the previously bound thread unless L4::Thread::modify_senders() is
+   * used to change these labels.
    */
   L4_INLINE_RPC_OP(L4_RCV_EP_BIND_OP,
       l4_msgtag_t, bind_thread, (Ipc::Cap<Thread> t, l4_umword_t label));

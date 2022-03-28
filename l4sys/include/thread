@@ -370,6 +370,16 @@ public:
    * Use the add() function to add modification rules, and use
    * modify_senders() to commit. Do not use the UTCB in between as it is
    * used by add() and modify_senders().
+   *
+   * This mechanism shall be used to change the source object labels of every
+   * pending IPC of an IPC gate or an IRQ if the labels in such pending IPC
+   * become invalid for the receiving thread, potentially because:
+   *  - a thread was unbound from an IPC gate / IRQ, or
+   *  - an IPC gate / IRQ was removed, or
+   *  - the label of an IPC gate / IRQ bound to a thread was changed.
+   *
+   * It is not required to perform the modify_sender mechanism after an IPC
+   * gate or an IRQ was bound to a thread for the first time.
    */
   class Modify_senders
   {
@@ -426,8 +436,11 @@ public:
    * \return System call return tag.
    *
    * The modification rules are applied to all IPCs to the thread (whether
-   * directly or by IPC gate) that are already in flight, that is that the sender
-   * is already blocking on.
+   * directly or by IPC gate) that are already in flight, that is that the
+   * sender is already blocking on.
+   *
+   * See Modify_senders for a detailed description when applying sender
+   * modification rules is required.
    *
    * \see l4_thread_modify_sender_commit()
    */

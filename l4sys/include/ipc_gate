@@ -72,6 +72,14 @@ class Thread;
  * get_infos() if the capability used has the #L4_FPAGE_C_IPCGATE_SVR
  * permission.
  *
+ * When deleting an IPC gate or when unbinding it from a thread, the label of
+ * IPC already in flight won't be changed. To ensure that no IPC from this IPC
+ * gate is received by a thread with an unexpected label,
+ * L4::Thread::modify_senders() shall be used to change the labels of every
+ * pending IPC to that gate. This is also required if the label of an already
+ * bound IPC gate is changed. It is not necessary after binding the IPC gate to
+ * a thread for the first time.
+ *
  * \includefile{l4/sys/ipc_gate}
  *
  * For the C interface refer to the C \ref l4_kernel_object_gate_api.

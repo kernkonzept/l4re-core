@@ -567,6 +567,16 @@ l4_thread_register_del_irq_u(l4_cap_idx_t thread, l4_cap_idx_t irq,
  * l4_thread_modify_sender_commit(). Do not touch the UTCB between
  * l4_thread_modify_sender_start() and l4_thread_modify_sender_commit().
  *
+ * This mechanism shall be used to change the source object labels of every
+ * pending IPC of an IPC gate or an IRQ if the labels in such pending IPC
+ * become invalid for the receiving thread, potentially because:
+ *  - a thread was unbound from an IPC gate / IRQ, or
+ *  - an IPC gate /IRQ was removed, or
+ *  - the label of an IPC gate /IRQ bound to a thread was changed.
+ *
+ * It is not required to perform the modify_sender mechanism after an IPC gate
+ * or an IRQ was bound to a thread for the first time.
+ *
  * \see l4_thread_modify_sender_add
  * \see l4_thread_modify_sender_commit
  */
