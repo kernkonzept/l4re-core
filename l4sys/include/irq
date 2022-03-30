@@ -164,6 +164,21 @@ public:
   { return l4_irq_clear_vcpu_u(cap(), utcb); }
 
   /**
+   * Set interrupt priority.
+   *
+   * \param prio      Interrupt priority
+   * \utcb{utcb}
+   *
+   * By default the interrupt priority is the same as the thread priority of
+   * the thread that was first attached to this Irq. The interrupt priority is
+   * clamped implicitly to the bound thread priority and cannot be increased
+   * beyond this.
+   */
+  l4_msgtag_t set_priority(l4_uint8_t prio, l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_irq_set_priority_u(cap(), prio, utcb); }
+
+
+  /**
    * Unmask and wait for this IRQ.
    *
    * \param timeout    Timeout.

@@ -34,7 +34,7 @@ enum
    * This ID must match the version field in the l4_vcpu_state_t structure
    * after enabling vCPU mode or extended vCPU mode for a thread.
    */
-  L4_VCPU_STATE_VERSION = 0x36
+  L4_VCPU_STATE_VERSION = 0x37
 };
 
 /**
@@ -81,6 +81,7 @@ enum L4_vcpu_e_field_ids
 
   L4_VCPU_E_VMPIDR     = 0x8028,
   L4_VCPU_E_VPIDR      = 0x0030,
+  L4_VCPU_E_VTMR_CFG   = 0x0034,  ///< vtimer irq configuration
 
   L4_VCPU_E_GIC_HCR    = 0x0040,
   L4_VCPU_E_GIC_VTR    = 0x0044,
@@ -90,4 +91,5 @@ enum L4_vcpu_e_field_ids
   L4_VCPU_E_GIC_ELSR   = 0x0054,
   L4_VCPU_E_GIC_V2_LR0 = 0x0058,
   L4_VCPU_E_GIC_V3_LR0 = 0x8058,
+  L4_VCPU_E_GIC_PRIO   = 0x0098,
 };

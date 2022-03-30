@@ -138,6 +138,13 @@ l4_irq_unmask_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
 L4_INLINE l4_msgtag_t
 l4_irq_clear_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
 
+L4_INLINE l4_msgtag_t
+l4_irq_set_priority(l4_cap_idx_t irq, l4_uint8_t prio) L4_NOTHROW;
+
+L4_INLINE l4_msgtag_t
+l4_irq_set_priority_u(l4_cap_idx_t irq, l4_uint8_t prio,
+                      l4_utcb_t *utcb) L4_NOTHROW;
+
 
 /**
  * Trigger an IRQ.
@@ -244,6 +251,7 @@ enum L4_irq_sender_op
   L4_IRQ_SENDER_OP_MASK_VCPU = 3,
   L4_IRQ_SENDER_OP_UNMASK_VCPU = 4,
   L4_IRQ_SENDER_OP_CLEAR_VCPU = 5,
+  L4_IRQ_SENDER_OP_SET_PRIORITY = 6,
 };
 
 /**
@@ -325,6 +333,16 @@ l4_irq_clear_vcpu_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
 }
 
 L4_INLINE l4_msgtag_t
+l4_irq_set_priority_u(l4_cap_idx_t irq, l4_uint8_t prio,
+                      l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_utcb_mr_u(utcb)->mr[0] = L4_IRQ_SENDER_OP_SET_PRIORITY;
+  l4_utcb_mr_u(utcb)->mr[1] = prio;
+  return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_SENDER, 2, 0, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
 l4_irq_trigger_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
 {
   return l4_ipc_send(irq, utcb, l4_msgtag(L4_PROTO_IRQ, 0, 0, 0),
@@ -390,6 +408,12 @@ L4_INLINE l4_msgtag_t
 l4_irq_clear_vcpu(l4_cap_idx_t irq) L4_NOTHROW
 {
   return l4_irq_clear_vcpu_u(irq, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_irq_set_priority(l4_cap_idx_t irq, l4_uint8_t prio) L4_NOTHROW
+{
+  return l4_irq_set_priority_u(irq, prio, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t
