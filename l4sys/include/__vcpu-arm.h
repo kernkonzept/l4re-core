@@ -27,8 +27,6 @@ typedef struct l4_arm_vcpu_e_info_t
 } l4_arm_vcpu_e_info_t;
 
 L4_INLINE void *l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW;
-L4_INLINE void *l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW
-{ return (void *)((l4_addr_t)vcpu + 0x400 + (id & 0xfff)); }
 
 enum L4_vcpu_e_consts
 {
@@ -38,19 +36,13 @@ enum L4_vcpu_e_consts
 L4_INLINE l4_arm_vcpu_e_info_t const *
 l4_vcpu_e_info(void const *vcpu) L4_NOTHROW;
 
-L4_INLINE l4_arm_vcpu_e_info_t const *
-l4_vcpu_e_info(void const *vcpu) L4_NOTHROW
-{
-  return (l4_arm_vcpu_e_info_t const *)((l4_addr_t)vcpu + 0x200);
-}
-
 L4_INLINE l4_umword_t *
 l4_vcpu_e_info_user(void *vcpu) L4_NOTHROW;
 
 L4_INLINE l4_umword_t *
 l4_vcpu_e_info_user(void *vcpu) L4_NOTHROW
 {
-  return ((l4_arm_vcpu_e_info_t *)((l4_addr_t)vcpu + 0x200))->user;
+  return ((l4_arm_vcpu_e_info_t *)l4_vcpu_e_info(vcpu))->user;
 }
 
 
