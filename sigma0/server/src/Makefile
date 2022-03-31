@@ -39,6 +39,7 @@ SRC_S  := $(addprefix ARCH-$(ARCH)/, crt0.S)
 LDFLAGS += -nocrt1
 
 DEFAULT_HEAP_SIZE = 0
+DEFAULT_STACK_SIZE = 0
 
 include $(L4DIR)/mk/prog.mk
 

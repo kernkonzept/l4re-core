@@ -34,6 +34,7 @@ LDFLAGS        += --entry=_real_start
 CXXFLAGS       += -fno-exceptions
 
 DEFAULT_HEAP_SIZE = 0
+DEFAULT_STACK_SIZE = 0
 
 include $(L4DIR)/mk/prog.mk
 

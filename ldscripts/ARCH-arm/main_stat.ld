@@ -14,6 +14,9 @@ PHDRS
   phdr PT_PHDR PHDRS;
   ro PT_LOAD FILEHDR PHDRS;
   rw PT_LOAD;
+#if !CONFIG_MMU
+  stack 0x60000012;
+#endif
   tls PT_TLS;
 #if CONFIG_BID_PIE
   dyn PT_DYNAMIC;
@@ -126,7 +129,11 @@ SECTIONS
   /* Adjust the address for the data segment.  We want to adjust up to
      the same address within the page on the next page up.  */
   . = SEGMENT_START("data", .);
+#if CONFIG_MMU
   . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE));
+#else
+  . = ALIGN (CONSTANT(COMMONPAGESIZE));
+#endif
   /* Exception handling  */
   .eh_frame       : ONLY_IF_RW { KEEP (*(.eh_frame)) *(.eh_frame.*) } :rw
   .gnu_extab      : ONLY_IF_RW { *(.gnu_extab) } :rw
@@ -187,7 +194,9 @@ SECTIONS
   .jcr            : { KEEP (*(.jcr)) }
   .data.rel.ro : { *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*) *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*) }
   .dynamic        : { *(.dynamic) } :dyn :rw
+#if CONFIG_MMU
   . = DATA_SEGMENT_RELRO_END (0, .);
+#endif
   .got            : { *(.got.plt) *(.igot.plt) *(.got) *(.igot) } :rw
   .data           :
   {
@@ -226,7 +235,15 @@ SECTIONS
   . = ALIGN(32 / 8);
   __end__ = . ;
   _end = .; PROVIDE (end = .);
+#if CONFIG_MMU
   . = DATA_SEGMENT_END (.);
+#endif
+#if !CONFIG_MMU
+  . = ALIGN(DEFINED(__stack_size) ? CONSTANT(COMMONPAGESIZE) : 1);
+  .stack : {
+    . = . + (DEFINED(__stack_size) ? __stack_size : 0);
+  } :stack
+#endif
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) } :NONE
   .stabstr       0 : { *(.stabstr) }

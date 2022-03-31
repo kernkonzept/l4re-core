@@ -65,7 +65,7 @@ crti.o: crti_s.o $(if $(CONFIG_MMU),kip_addr.o)
 
 # we need to track pre-processing flags of ldscripts manually
 .ldscripts-change-tracker: FORCE
-	$(VERBOSE)echo "$(CONFIG_BID_PIE) $(CFLAGS)" > $@.tmp
+	$(VERBOSE)echo "$(CONFIG_BID_PIE) $(CONFIG_MMU) $(CFLAGS)" > $@.tmp
 	$(VERBOSE)$(call move_if_changed,$@,$@.tmp)
 
 %.ld: $(PKGDIR)/ARCH-$(ARCH)/%.ld $(SRC_DIR)/Makefile $(SRC_DIR)/generic.h .ldscripts-change-tracker
