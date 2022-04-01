@@ -125,6 +125,7 @@ SECTIONS
   .exception_ranges*) } :ro
   /* Adjust the address for the data segment.  We want to adjust up to
      the same address within the page on the next page up.  */
+  . = SEGMENT_START("data", .);
   . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE));
   /* Exception handling  */
   .eh_frame       : ONLY_IF_RW { KEEP (*(.eh_frame)) *(.eh_frame.*) } :rw
