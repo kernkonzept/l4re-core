@@ -46,7 +46,7 @@
  *
  * All predefined protocols used by the kernel.
  */
-enum l4_msgtag_protocol
+enum L4_msgtag_protocol
 {
   L4_PROTO_NONE          = 0,   ///< Default protocol tag to reply to kernel
   L4_PROTO_ALLOW_SYSCALL = 1,   ///< Allow an alien the system call
@@ -92,7 +92,7 @@ enum L4_varg_type
  * Flags for message tags.
  * \ingroup l4_msgtag_api
  */
-enum l4_msgtag_flags
+enum L4_msgtag_flags
 {
   // flags for received IPC
   /**
@@ -175,7 +175,7 @@ typedef struct l4_msgtag_t
    * Get the flags value.
    *
    * The flags are a combination of the flags defined by
-   * #l4_msgtag_flags.
+   * #L4_msgtag_flags.
    */
   unsigned flags() const L4_NOTHROW { return raw & 0xf000; }
   /// Test if protocol indicates page-fault protocol.
@@ -245,7 +245,7 @@ L4_INLINE unsigned l4_msgtag_items(l4_msgtag_t t) L4_NOTHROW;
  * Get the flags.
  * \ingroup l4_msgtag_api
  *
- * The flag are defined by #l4_msgtag_flags.
+ * The flag are defined by #L4_msgtag_flags.
  *
  * \param t  The tag
  *

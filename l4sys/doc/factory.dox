@@ -27,7 +27,7 @@ The kernel factory creates the following kinds of objects:
 - L4::Thread
 - L4::Vm
 
-The protocol IDs for objects in this list are given in \ref l4_msgtag_protocol.
+The protocol IDs for objects in this list are given in \ref L4_msgtag_protocol.
 The protocol ID shall be used as the second argument for
 L4::Factory.create(Cap<void>, long, l4_utcb_t *).
 

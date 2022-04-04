@@ -54,7 +54,7 @@
  * L4 flexpage structure
  * \ingroup l4_fpage_api
  */
-enum l4_fpage_consts
+enum L4_fpage_consts
 {
   L4_FPAGE_RIGHTS_SHIFT = 0,  ///< Access permissions shift
   L4_FPAGE_TYPE_SHIFT   = 4,  ///< Flexpage type shift (memory, IO port, obj...)
