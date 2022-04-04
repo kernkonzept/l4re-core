@@ -122,8 +122,11 @@ enum l4_msgtag_flags
    */
   L4_MSGTAG_SCHEDULE     = 0x2000,
   /**
+   * \internal
    * Enable IPC propagation.
    * \hideinitializer
+   *
+   * \note This is currently not supported by Fiasco.
    *
    * This flag enables IPC propagation, which means an IPC reply-connection
    * from the current caller will be propagated to the new IPC receiver.
