@@ -287,11 +287,13 @@ L4_INLINE unsigned long l4_align_stack_for_direct_fncall(unsigned long stack)
 #define L4_STICKY(x)     __attribute__((used)) x         ///< Mark symbol sticky (even not there) \hideinitializer
 #define L4_DEPRECATED(s) __attribute__((deprecated(s)))  ///< Mark symbol deprecated. \hideinitializer
 
-#ifndef __GXX_EXPERIMENTAL_CXX0X__
 #ifndef static_assert
-#define static_assert(x, y) \
-  do { (void)sizeof(char[-(!(x))]); } while (0)
-#endif
+# if !defined(__cplusplus)
+#  define static_assert(x, y) _Static_assert(x, y)
+# elif __cplusplus < 201103L
+#  define static_assert(x, y) \
+   extern int l4_static_assert[-(!(x))] __attribute__((unused))
+# endif
 #endif
 
 #define L4_stringify_helper(x) #x                       ///< stringify helper. \hideinitializer
