@@ -20,6 +20,7 @@
 
 #ifndef __ASSEMBLY__
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/l4int.h>
 
 /*
@@ -95,10 +96,12 @@ typedef struct
   l4_uint32_t offset;
   l4_uint16_t cseg_16;
   l4_uint16_t dseg_16;
+  l4_uint16_t flags;
   l4_uint16_t cseg_len;
   l4_uint16_t cseg_16_len;
   l4_uint16_t dseg_16_len;
-} l4util_mb_apm_t;
+} __attribute__((packed)) l4util_mb_apm_t;
+static_assert(sizeof(l4util_mb_apm_t) == 20, "Check l4util_mb_apm_t");
 
 
 /** VBE controller information. */
@@ -117,6 +120,7 @@ typedef struct
   l4_uint8_t reserved[222];
   l4_uint8_t oem_data[256];
 } __attribute__((packed)) l4util_mb_vbe_ctrl_t;
+static_assert(sizeof(l4util_mb_vbe_ctrl_t) == 512, "Check l4util_mb_vbe_ctrl_t");
 
 
 /** VBE mode information. */
@@ -124,72 +128,115 @@ typedef struct
 {
   /** @name all VESA versions
   * @{ */
+  /** Mode attributes. */
   l4_uint16_t mode_attributes;
+  /** Window A attributes. */
   l4_uint8_t win_a_attributes;
+  /** Window B attributes. */
   l4_uint8_t win_b_attributes;
+  /** Window granularity. */
   l4_uint16_t win_granularity;
+  /** Window size. */
   l4_uint16_t win_size;
+  /** Window A start segment. */
   l4_uint16_t win_a_segment;
+  /** Window B start segment. */
   l4_uint16_t win_b_segment;
+  /** Real mode pointer to window function. */
   l4_uint32_t win_func;
+  /** Bytes per scan line. */
   l4_uint16_t bytes_per_scanline;
   /** @} */
 
   /** @name >= VESA version 1.2
    * @{ */
+  /** Horizontal resolution in pixels or characters. */
   l4_uint16_t x_resolution;
+  /** Vertical resolution in pixels or characters. */
   l4_uint16_t y_resolution;
+  /** Character cell width in pixels. */
   l4_uint8_t x_char_size;
+  /** Character cell height in pixels. */
   l4_uint8_t y_char_size;
+  /** Number of memory planes. */
   l4_uint8_t number_of_planes;
+  /** Bits per pixel. */
   l4_uint8_t bits_per_pixel;
+  /** Number of banks. */
   l4_uint8_t number_of_banks;
+  /** Memory model type. */
   l4_uint8_t memory_model;
+  /** Bank size in KiB. */
   l4_uint8_t bank_size;
+  /** Number of images. */
   l4_uint8_t number_of_image_pages;
+  /** Reserved for page function. */
   l4_uint8_t reserved0;
   /** @} */
 
   /** @name direct color
    * @{ */
+  /** Size of direct color red mask in bits. */
   l4_uint8_t red_mask_size;
+  /** Bit position of LSB of red mask. */
   l4_uint8_t red_field_position;
+  /** Size of direct color green mask in bits. */
   l4_uint8_t green_mask_size;
+  /** Bit position of LSB of green mask. */
   l4_uint8_t green_field_position;
+  /** Size of direct color blue mask in bits. */
   l4_uint8_t blue_mask_size;
+  /** Bit position of LSB of blue mask. */
   l4_uint8_t blue_field_position;
+  /** Size of direct color reserved mask in bits. */
   l4_uint8_t reserved_mask_size;
+  /** Bit position of LSB of reserved mask. */
   l4_uint8_t reserved_field_position;
+  /** Direct color mode attributes. */
   l4_uint8_t direct_color_mode_info;
   /** @} */
 
   /** @name >= VESA version 2.0
    * @{*/
+  /** Physical address for flat memory memory frame buffer. */
   l4_uint32_t phys_base;
+  /** Reserved -- always set to 0. */
   l4_uint32_t reserved1;
+  /** Reserved -- always set to 0. */
   l4_uint16_t reversed2;
   /** @} */
 
   /** @name >= VESA version 3.0
    * @{*/
+  /** Bytes per scan line for linear modes. */
   l4_uint16_t linear_bytes_per_scanline;
+  /** Number of images for banked modes. */
   l4_uint8_t banked_number_of_image_pages;
+  /** Number of images for linear modes. */
   l4_uint8_t linear_number_of_image_pages;
+  /** Size of direct color red mask (linear modes). */
   l4_uint8_t linear_red_mask_size;
+  /** Bit position of LSB of red mask (linear modes). */
   l4_uint8_t linear_red_field_position;
+  /** Size of direct color green mask (linear modes). */
   l4_uint8_t linear_green_mask_size;
+  /** Bit position of LSB of green mask (linear modes). */
   l4_uint8_t linear_green_field_position;
+  /** Size of direct color blue mask (linear modes). */
   l4_uint8_t linear_blue_mask_size;
+  /** Bit position of LSB of blue mask (linear modes). */
   l4_uint8_t linear_blue_field_position;
+  /** Size of direct color reserved mask (linear modes). */
   l4_uint8_t linear_reserved_mask_size;
+  /** Bit position of LSB of reserved mask (linear modes). */
   l4_uint8_t linear_reserved_field_position;
+  /** Maximum pixel clock (in Hz) for graphics mode. */
   l4_uint32_t max_pixel_clock;
 
-  /* The VBE spec says this structure should have a size of 256 bytes but
-   * the described structure layout is only 255 bytes... */
-  l4_uint8_t reserved3[189 + 1];
+  l4_uint8_t reserved3[190];
   /** @} */
 } __attribute__ ((packed)) l4util_mb_vbe_mode_t;
+static_assert(sizeof(l4util_mb_vbe_mode_t) == 256, "Check l4util_mb_vbe_mode_t");
 
 
 /**
@@ -247,6 +294,7 @@ typedef struct
   l4_uint16_t vbe_interface_off; /**< VESA offset of prot BIOS interface */
   l4_uint16_t vbe_interface_len; /**< VESA lenght of prot BIOS interface */
 } l4util_mb_info_t;
+static_assert(sizeof(l4util_mb_info_t) == 88, "Check l4util_mb_info_t");
 
 /**
  * Get the first entry of the memory map provided through a multi boot
