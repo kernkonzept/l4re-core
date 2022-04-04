@@ -20,7 +20,7 @@
  * \defgroup l4util_kip_api Kernel Interface Page API
  * \ingroup l4util_api
  */
-/*@{*/
+/**@{*/
 
 
 EXTERN_C_BEGIN
@@ -61,5 +61,5 @@ EXTERN_C_END
 #define l4util_kip_for_each_feature(s)				\
 		for (s += strlen(s) + 1; *s; s += strlen(s) + 1)
 
-/*@}*/
+/**@}*/
 

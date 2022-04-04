@@ -63,12 +63,12 @@ struct Direction
   Direction operator ! () const { return Direction(!d); }
 
   /// \name Comparison operators (equality and inequality)
-  //@{
+  ///@{
   bool operator == (Direction_e o) const { return d == o; }
   bool operator != (Direction_e o) const { return d != o; }
   bool operator == (Direction o) const { return d == o.d; }
   bool operator != (Direction o) const { return d != o.d; }
-  //@}
+  ///@}
 };
 
 /**
@@ -88,7 +88,7 @@ protected:
    * Inherited nodes, such as AVL nodes should make these methods
    * private via 'using'
    */
-  /*@{*/
+  /**@{*/
 
   /// Get next node in direction \a d.
   static Bst_node *next(Bst_node const *p, Direction d)
@@ -109,7 +109,7 @@ protected:
 
   /// Rotate subtree \a t in the opposite direction of \a idir.
   static void rotate(Bst_node **t, Direction idir);
-  /*@}*/
+  /**@}*/
 
 private:
   Bst_node *_c[2];

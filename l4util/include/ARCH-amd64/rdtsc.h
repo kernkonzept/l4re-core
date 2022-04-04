@@ -34,7 +34,7 @@ EXTERN_C_BEGIN
 /**
  * \addtogroup l4util_tsc
  */
-/*@{*/
+/**@{*/
 
 extern l4_uint32_t l4_scaler_tsc_to_ns;
 extern l4_uint32_t l4_scaler_tsc_to_us;
@@ -151,7 +151,7 @@ l4_tsc_init (l4_kernel_info_t *kip);
 L4_CV l4_uint32_t
 l4_get_hz (void);
 
-/*@}*/
+/**@}*/
 
 EXTERN_C_END
 

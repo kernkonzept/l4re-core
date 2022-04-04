@@ -1,5 +1,6 @@
 /**
- * \file Implementation of a list of smart-pointer-managed objects.
+ * \file
+ * Implementation of a list of smart-pointer-managed objects.
  */
 /*
  * Copyright (C) 2018 Kernkonzept GmbH.

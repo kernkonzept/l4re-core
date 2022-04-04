@@ -145,7 +145,7 @@ public:
   /**
    * Release object capability.
    *
-   * \param obj   Capability selector of the object to release.
+   * \param cap   Capability selector of the object to release.
    * \param utcb  UTCB pointer of the calling thread.
    *
    * \return Syscall return tag.

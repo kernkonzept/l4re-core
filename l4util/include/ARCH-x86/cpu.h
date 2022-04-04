@@ -23,7 +23,7 @@ EXTERN_C_BEGIN
  * \defgroup l4util_cpu CPU related functions
  * \ingroup l4util_api
  */
-/*@{*/
+/**@{*/
 
 /**
  * Check whether the CPU supports the "cpuid" instruction.
@@ -55,7 +55,7 @@ l4util_cpu_cpuid(unsigned long mode,
                  unsigned long *eax, unsigned long *ebx,
                  unsigned long *ecx, unsigned long *edx);
 
-/*@}*/
+/**@}*/
 static inline void
 l4util_cpu_pause(void)
 {

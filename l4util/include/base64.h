@@ -26,7 +26,7 @@ EXTERN_C_BEGIN
  * \defgroup l4util_internal Internal functions
  * \ingroup l4util_api
  */
-/*@{*/
+/**@{*/
 
 /*!
  * \brief base-64-encode string \a infile
@@ -54,5 +54,5 @@ L4_CV void base64_decode(const char *infile, unsigned int in_size, char **outfil
 
 EXTERN_C_END
 
-/*@}*/
+/**@}*/
 #endif //B64_EN_DECODE

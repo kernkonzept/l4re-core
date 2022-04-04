@@ -318,7 +318,7 @@ enum
  * \param   size         Flex-page size (log2), #L4_WHOLE_ADDRESS_SPACE to
  *                       specify the whole address space (with `address` 0).
  *                       The minimum log2 size of a memory flex page is defined
- *                       by #L4_LOG_PAGESIZE according to the size of the
+ *                       by #L4_LOG2_PAGESIZE according to the size of the
  *                       smallest virtual page supported by the MMU.
  * \param   rights       Access rights, see #L4_fpage_rights
  *

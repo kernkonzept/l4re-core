@@ -92,7 +92,7 @@ enum l4_syscall_flags_t
    * Call flags (combines send and receive).
    * \hideinitializer
    *
-   * Combines #L4_SYSF_SEND and L4_SYSF_RECV.
+   * Combines #L4_SYSF_SEND and #L4_SYSF_RECV.
    */
   L4_SYSF_CALL           = L4_SYSF_SEND | L4_SYSF_RECV,
 
@@ -412,7 +412,7 @@ L4_INLINE l4_addr_t l4_round_size(l4_addr_t value, unsigned char bits) L4_NOTHRO
  *
  * \ingroup l4_memory_api
  *
- * \param bytes   The number of bytes to be translated into machine words.
+ * \param size    The number of bytes to be translated into machine words.
  */
 L4_INLINE unsigned l4_bytes_to_mwords(unsigned size) L4_NOTHROW;
 L4_INLINE unsigned l4_bytes_to_mwords(unsigned size) L4_NOTHROW

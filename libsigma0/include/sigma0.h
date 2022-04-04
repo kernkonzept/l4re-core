@@ -33,7 +33,7 @@
  * \ingroup l4sigma0_api
  * Internal sigma0 definitions.
  */
-/*@{*/
+/**@{*/
 #undef SIGMA0_REQ_MAGIC
 #undef SIGMA0_REQ_MASK
 
@@ -65,12 +65,12 @@
 #define SIGMA0_REQ_KIP                  (SIGMA0_REQ(KIP))                /**< KIP */
 #define SIGMA0_REQ_DEBUG_DUMP           (SIGMA0_REQ(DEBUG_DUMP))         /**< Debug dump */
 #define SIGMA0_REQ_NEW_CLIENT           (SIGMA0_REQ(NEW_CLIENT))         /**< New client */
-/*@}*/
+/**@}*/
 
 /**
  * \addtogroup l4sigma0_api
  */
-/*@{*/
+/**@{*/
 
 /**
  * Return flags of libsigma0 functions.
@@ -217,7 +217,7 @@ L4_CV int l4sigma0_new_client(l4_cap_idx_t sigma0, l4_cap_idx_t gate);
  */
 L4_INLINE char const *l4sigma0_map_errstr(int err);
 
-/*@}*/
+/**@}*/
 
 
 /* Implementations */

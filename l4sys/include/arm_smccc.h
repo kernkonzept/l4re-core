@@ -46,10 +46,10 @@ l4_arm_smccc_call(l4_cap_idx_t pfc, l4_umword_t func,
                   l4_umword_t in4, l4_umword_t in5,
                   l4_umword_t *out0, l4_umword_t *out1,
                   l4_umword_t *out2, l4_umword_t *out3,
-                  l4_umword_t client) L4_NOTHROW
+                  l4_umword_t client_id) L4_NOTHROW
 {
   return l4_arm_smccc_call_u(pfc, func, in0, in1, in2, in3, in4, in5,
-                             out0, out1, out2, out3, client, l4_utcb());
+                             out0, out1, out2, out3, client_id, l4_utcb());
 }
 
 

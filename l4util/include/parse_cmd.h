@@ -24,7 +24,7 @@
  * \defgroup l4util_parse_cmd Comfortable Command Line Parsing
  * \ingroup l4util_api
  */
-/*@{*/
+/**@{*/
 
 /**
  * \brief Types for parsing
@@ -143,7 +143,7 @@ L4_CV int parse_cmdline_extra(const char*argv0, const char*line, char delim,
 			      char arg0,...);
 
 EXTERN_C_END
-/*@}*/
+/**@}*/
 
 #endif
 

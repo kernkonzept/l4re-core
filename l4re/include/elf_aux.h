@@ -35,7 +35,7 @@
  * memory of an application and things such as the stack size to be allocated
  * for the first application thread.
  */
-/*@{*/
+/**@{*/
 
 /**
  * \brief Define an auxiliary vector element.
@@ -128,4 +128,4 @@ typedef struct l4re_elf_aux_mword_t
   l4_umword_t value;
 } l4re_elf_aux_mword_t;
 
-/*@}*/
+/**@}*/

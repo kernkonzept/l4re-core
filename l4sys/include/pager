@@ -43,7 +43,7 @@ namespace L4 {
  *
  * If the microkernel does not support IO page faults, this IO pagefault
  * interface is not used. Instead, the microkernel sends an exception IPC to
- * the thread's exception handler (L4::Exception), indicating a #GP (exception
+ * the thread's exception handler (L4::Exception), indicating a `GP` (exception
  * number 13). The exception handler must consult the faulting instruction to
  * determine the cause of the exception. This is the default in Fiasco.OC.
  *

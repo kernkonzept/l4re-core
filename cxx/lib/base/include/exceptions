@@ -34,7 +34,7 @@
  * \defgroup l4cxx_exceptions C++ Exceptions
  * \ingroup api_l4re
  */
-/*@{*/
+/**@{*/
 
 #ifndef L4_CXX_NO_EXCEPTION_BACKTRACE
 # define L4_CXX_EXCEPTION_BACKTRACE 20  ///< Number of instruction pointers in backtrace
@@ -44,13 +44,13 @@
 #include <l4/util/backtrace.h>
 #endif
 
-/*@}*/
+/**@}*/
 namespace L4
 {
   /**
    * \addtogroup l4cxx_exceptions
    */
-  /*@{*/
+  /**@{*/
   /**
    * \brief Back-trace support for exceptions.
    * \headerfile l4/cxx/exceptions
@@ -293,7 +293,7 @@ namespace L4
     : Runtime_error(-L4_ERANGE, e) {}
     ~Bounds_error() throw() {}
   };
-  /*@}*/
+  /**@}*/
 };
 
 inline

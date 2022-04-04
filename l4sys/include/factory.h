@@ -166,7 +166,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  *                     a thread.
  * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `thread_cap`.
  *
- * An unbound IPC gate can be bound to a thread using #l4_ipc_gate_bind_thread.
+ * An unbound IPC gate can be bound to a thread using l4_ipc_gate_bind_thread.
  *
  * \see  l4_kernel_object_gate_api
  */
@@ -313,7 +313,7 @@ l4_factory_create_u(l4_cap_idx_t factory, long obj, l4_cap_idx_t target,
  * \param      factory     Factory to use for creation.
  * \param      obj         Protocol ID to describe the type of the object to
  *                         create.
- * \param[out] target_cap  The kernel stores the new objects's capability into
+ * \param[out] target      The kernel stores the new objects's capability into
  *                         this slot.
  *
  * \return Syscall return tag

@@ -73,7 +73,7 @@ public:
   typedef Rev Rev_iter_ops;
 
   /// \name Iterators
-  //@{
+  ///@{
   /// Forward iterator.
   typedef __Bst_iter<Node, Node, Fwd> Iterator;
   /// Constant forward iterator.
@@ -82,7 +82,7 @@ public:
   typedef __Bst_iter<Node, Node, Rev> Rev_iterator;
   /// Constant backward.
   typedef __Bst_iter<Node, Node const, Rev> Const_rev_iterator;
-  //@}
+  ///@}
 
 protected:
   /**
@@ -92,7 +92,7 @@ protected:
    * to our interior, use 'using' to make this private in concrete
    * implementations.
    */
-  /*@{*/
+  /**@{*/
 
   /// The head pointer of the tree.
   Bst_node *_head;
@@ -146,7 +146,7 @@ protected:
   /// Is \a l greater than \a r.
   static bool greater(Bst_node const *l, Bst_node const *r)
   { return greater(k(l), k(r)); }
-  /*@}*/
+  /**@}*/
 
   /**
    *  Remove all elements in the subtree of head.
@@ -171,7 +171,7 @@ public:
   /**
    * \name Get default iterators for the ordered tree.
    */
-  /*@{*/
+  /**@{*/
   /**
    * \brief Get the constant forward iterator for the first element in the set.
    * \return Constant forward iterator for the first element in the set.
@@ -215,13 +215,13 @@ public:
    * \return The end marker for mutable backward iterator.
    */
   Rev_iterator rend() { return Rev_iterator(); }
-  /*@}*/
+  /**@}*/
 
 
   /**
    * \name Lookup functions.
    */
-  //@{
+  ///@{
   /**
    * \brief find the node with the given \a key.
    * \param key The key value of the element to search.
@@ -266,7 +266,7 @@ public:
   }
 
 
-  //@}
+  ///@}
 };
 
 /* find an element */

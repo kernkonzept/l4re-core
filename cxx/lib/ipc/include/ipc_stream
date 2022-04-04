@@ -389,7 +389,7 @@ public:
   /**
    * \name Get/Put Functions.
    */
-  //@{
+  ///@{
 
   /**
    * Copy out an array of type `T` with `size` elements.
@@ -527,7 +527,7 @@ public:
    */
   l4_msgtag_t &tag() { return _tag; }
 
-  //@}
+  ///@}
 
   /**
    * \internal
@@ -545,7 +545,7 @@ public:
   /**
    * \name IPC operations.
    */
-  //@{
+  ///@{
 
   /**
    * Wait for an incoming message from any sender.
@@ -584,7 +584,7 @@ public:
   { return receive(src, L4_IPC_NEVER); }
   inline l4_msgtag_t receive(l4_cap_idx_t src, l4_timeout_t timeout);
 
-  //@}
+  ///@}
 
   /**
    * Return utcb pointer.
@@ -657,7 +657,7 @@ public:
    * These functions are basically used to implement the insertion operators
    * (<<) and should not be called directly.
    */
-  //@{
+  ///@{
 
   /**
    * Put an array with `size` elements of type `T` into the stream.
@@ -721,7 +721,7 @@ public:
    */
   l4_msgtag_t &tag() { return _tag; }
 
-  //@}
+  ///@}
 
   /**
    * \internal
@@ -733,7 +733,7 @@ public:
   /**
    * \name IPC operations.
    */
-  //@{
+  ///@{
 
   /**
    * Send the message via IPC to the given receiver.
@@ -746,7 +746,7 @@ public:
    */
   inline l4_msgtag_t send(l4_cap_idx_t dst, long proto = 0, unsigned flags = 0);
 
-  //@}
+  ///@}
 
   /**
    * Return utcb pointer.
@@ -836,18 +836,18 @@ public:
    * These functions are basically used to implement the insertion operators
    * (<<) and should not be called directly.
    */
-  //@{
+  ///@{
 
   using Istream::get;
   using Istream::put;
   using Ostream::put;
 
-  //@}
+  ///@}
 
   /**
    * \name IPC operations.
    */
-  //@{
+  ///@{
 
   /**
    * Do an IPC call using the message in the output stream and receive the
@@ -913,7 +913,7 @@ public:
   inline l4_msgtag_t reply(long proto = 0)
   { return reply(L4_IPC_SEND_TIMEOUT_0, proto); }
 
-  //@}
+  ///@}
 };
 
 

@@ -43,7 +43,7 @@
 /** \name ELF types
  * \ingroup l4util_elf
  */
-/*@{*/
+/**@{*/
 typedef l4_uint32_t	Elf32_Addr;   /**< size 4 align 4 \ingroup l4util_elf*/
 typedef l4_uint32_t	Elf32_Off;    /**< size 4 align 4 \ingroup l4util_elf*/
 typedef l4_uint16_t	Elf32_Half;   /**< size 2 align 2 \ingroup l4util_elf*/
@@ -56,7 +56,7 @@ typedef	l4_uint32_t	Elf64_Word;   /**< size 4 align 4 \ingroup l4util_elf*/
 typedef	l4_int32_t	Elf64_Sword;  /**< size 4 align 4 \ingroup l4util_elf*/
 typedef	l4_uint64_t	Elf64_Xword;  /**< size 8 align 8 \ingroup l4util_elf*/
 typedef	l4_int64_t	Elf64_Sxword; /**< size 8 align 8 \ingroup l4util_elf*/
-/*@}*/
+/**@}*/
 
 #if L4_MWORD_BITS == 64
 /**
@@ -113,7 +113,7 @@ typedef	l4_int64_t	Elf64_Sxword; /**< size 8 align 8 \ingroup l4util_elf*/
 
 /** \addtogroup l4util_elf */
 
-/*@{*/
+/**@{*/
 
 #define EI_NIDENT 16			/**< \brief number of characters */
 /**
@@ -913,6 +913,6 @@ ElfW(Phdr) *l4util_elf_phdr(ElfW(Ehdr) const *hdr)
 {
   return (ElfW(Phdr) *)((char *)hdr + hdr->e_phoff);
 }
-/*@}*/
+/**@}*/
 
 #endif /* _L4_EXEC_ELF_H */

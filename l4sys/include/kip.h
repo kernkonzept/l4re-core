@@ -50,7 +50,7 @@ struct l4_kip_platform_info
  * C interface for the Kernel Interface Page:<br>
  * \includefile{l4/sys/kip.h}
  */
-/*@{*/
+/**@{*/
 
 /**
  * \internal
@@ -169,7 +169,7 @@ l4_kip_clock_lw(l4_kernel_info_t *kip) L4_NOTHROW;
 L4_INLINE l4_uint64_t
 l4_kip_clock_ns(l4_kernel_info_t *kip) L4_NOTHROW;
 
-/*@}*/
+/**@}*/
 
 /*************************************************************************
  * Implementations

@@ -30,7 +30,7 @@
 /**
  * \addtogroup l4_memory_api
  */
-/*@{*/
+/**@{*/
 /**
  * Size of a page, log2-based.
  */
@@ -41,7 +41,7 @@
  */
 #define L4_SUPERPAGESHIFT	21
 
-/*@}*/
+/**@}*/
 
 #include_next <l4/sys/consts.h>
 

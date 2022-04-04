@@ -36,7 +36,7 @@ namespace L4Re { namespace Util {
  * \defgroup l4re_cap_api L4Re Capability API
  * \ingroup api_l4re_util
  */
-/*@{*/
+/**@{*/
 /**
  * Capability allocator.
  *
@@ -227,7 +227,7 @@ typename Ref_del_cap<T>::Cap
 make_ref_del_cap()
 { return typename Ref_del_cap<T>::Cap(cap_alloc.alloc<T>()); }
 
-/*@}*/
+/**@}*/
 
 }}
 

@@ -27,11 +27,11 @@
 /**
  * \addtogroup l4_basic_types
  */
-/*@{*/
+/**@{*/
 
 #define L4_MWORD_BITS           32            /**< Size of machine words in bits */
 
 typedef unsigned int            l4_size_t;    /**< \brief Unsigned size type */
 typedef signed int              l4_ssize_t;   /**< \brief Signed size type */
-/*@}*/
+/**@}*/
 

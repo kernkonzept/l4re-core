@@ -47,11 +47,11 @@ private:
   typedef Bits::Direction Dir;
 
   // We are a final BST node, hide interior.
-  /*@{*/
+  /**@{*/
   using Bits::Bst_node::next;
   using Bits::Bst_node::next_p;
   using Bits::Bst_node::rotate;
-  /*@}*/
+  /**@}*/
 
   /// The balance value (#Direction::N is balanced).
   Bal _balance;
@@ -126,13 +126,13 @@ private:
   Avl_tree &operator = (Avl_tree &&o) = delete;
 
 public:
-  //@{
+  ///@{
   typedef typename Bst::Key_type Key_type;
   typedef typename Bst::Key_param_type Key_param_type;
-  //@}
+  ///@}
 
   // Grab iterator types from Bst
-  //@{
+  ///@{
   /// Forward iterator for the tree.
   typedef typename Bst::Iterator Iterator;
   /// Constant forward iterator for the tree.
@@ -141,7 +141,7 @@ public:
   typedef typename Bst::Rev_iterator Rev_iterator;
   /// Constant backward iterator for the tree.
   typedef typename Bst::Const_rev_iterator Const_rev_iterator;
-  //@}
+  ///@}
 
   /**
    * \brief Insert a new node into this AVL tree.

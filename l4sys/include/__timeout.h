@@ -75,15 +75,15 @@ typedef union l4_timeout_t {
  * Timeout constants.
  * \ingroup l4_timeout_api
  */
-/*@{*/
+/**@{*/
 #define L4_IPC_TIMEOUT_0 ((l4_timeout_s){0x0400})           /**< 0 timeout */
 #define L4_IPC_TIMEOUT_NEVER ((l4_timeout_s){0})            /**< never timeout */
-#define L4_IPC_NEVER_INITIALIZER {0}                        /**< never timeout, init */
+#define L4_IPC_NEVER_INITIALIZER {0}                        /**< never timeout, initializer */
 #define L4_IPC_NEVER ((l4_timeout_t){0})                    /**< never timeout */
 #define L4_IPC_RECV_TIMEOUT_0 ((l4_timeout_t){0x00000400})  /**< 0 receive timeout */
 #define L4_IPC_SEND_TIMEOUT_0 ((l4_timeout_t){0x04000000})  /**< 0 send timeout */
 #define L4_IPC_BOTH_TIMEOUT_0 ((l4_timeout_t){0x04000400})  /**< 0 receive and send timeout */
-/*@}*/
+/**@}*/
 
 /**
  * Get relative timeout consisting of mantissa and exponent.
@@ -127,8 +127,8 @@ l4_timeout_t l4_timeout(l4_timeout_s snd, l4_timeout_s rcv) L4_NOTHROW;
  * Set send timeout in given to timeout.
  * \ingroup l4_timeout_api
  *
- * \param  snd    Send timeout
- * \retval to     L4 timeout
+ * \param snd      Send timeout
+ * \param[out] to  L4 timeout
  */
 L4_INLINE
 void l4_snd_timeout(l4_timeout_s snd, l4_timeout_t *to) L4_NOTHROW;
@@ -137,8 +137,8 @@ void l4_snd_timeout(l4_timeout_s snd, l4_timeout_t *to) L4_NOTHROW;
  * Set receive timeout in given to timeout.
  * \ingroup l4_timeout_api
  *
- * \param  rcv    Receive timeout
- * \retval to     L4 timeout
+ * \param      rcv    Receive timeout
+ * \param[out] to     L4 timeout
  */
 L4_INLINE
 void l4_rcv_timeout(l4_timeout_s rcv, l4_timeout_t *to) L4_NOTHROW;

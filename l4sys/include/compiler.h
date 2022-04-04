@@ -36,7 +36,7 @@
  *
  * \includefile{l4/sys/compiler.h}
  */
-/*@{*/
+/**@{*/
 
 /**
  * L4 Inline function attribute.
@@ -331,6 +331,6 @@ L4_INLINE void l4_wmb(void)
 }
 #endif
 
-/*@}*/
+/**@}*/
 
 #endif /* !__L4_COMPILER_H__ */

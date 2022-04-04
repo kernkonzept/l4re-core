@@ -848,7 +848,7 @@ protected:
     >
   > __Iface_list;
 
-  /// \copydoc L4::Kobject_t::__check_protocols__
+  /// \copydoc L4::Kobject_t::\__check_protocols__()
   static void __check_protocols__() noexcept
   {
     typedef typename Base1::__Iface_list Base1_proto_list;
@@ -952,7 +952,7 @@ protected:
     >
   > __Iface_list;
 
-  /// \copydoc L4::Kobject_t::__check_protocols__
+  /// \copydoc L4::Kobject_t::\__check_protocols__()
   static void __check_protocols__() noexcept
   {
     typedef typename Base1::__Iface_list Base1_proto_list;

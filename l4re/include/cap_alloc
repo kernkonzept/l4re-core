@@ -34,7 +34,7 @@ namespace L4Re {
 /**
  * \addtogroup l4re_cap_api
  */
-/*@{*/
+/**@{*/
 /**
  * \brief Capability allocator interface.
  */
@@ -219,6 +219,6 @@ public:
     return src;
   }
 };
-/*@}*/
+/**@}*/
 
 }

@@ -1,6 +1,7 @@
 // vi:set ft=cpp: -*- Mode: C++ -*-
 /**
- * \file Implementation of a list of unique-ptr-managed objects.
+ * \file
+ * Implementation of a list of unique-ptr-managed objects.
  */
 /*
  * Copyright (C) 2018 Kernkonzept GmbH.

@@ -26,7 +26,7 @@ EXTERN_C_BEGIN
  * \defgroup l4util_idt Functions to manipulate the local IDT
  * \ingroup l4util_api
  */
-/*@{*/
+/**@{*/
 
 /** IDT entry.
  */
@@ -79,7 +79,7 @@ l4util_idt_load(l4util_idt_header_t *idt)
 {
   asm volatile ("lidt (%%rax) \n\t" : : "a" (idt));
 }
-/*@}*/
+/**@}*/
 EXTERN_C_END
 
 #endif

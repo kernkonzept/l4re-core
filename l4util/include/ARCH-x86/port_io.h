@@ -36,7 +36,7 @@ EXTERN_C_BEGIN
 /**
  * \addtogroup l4util_portio
  */
-/*@{*/
+/**@{*/
 /**
  * \brief Read byte from I/O port
  *
@@ -159,7 +159,7 @@ l4util_outs32(l4_uint16_t port, l4_umword_t addr, l4_umword_t count);
 L4_INLINE void
 l4util_iodelay(void);
 
-/*@}*/
+/**@}*/
 
 EXTERN_C_END
 

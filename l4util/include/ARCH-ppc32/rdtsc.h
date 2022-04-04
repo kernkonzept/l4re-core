@@ -36,7 +36,7 @@ extern l4_uint32_t l4_scaler_timer_to_tsc;
 /**
  * \addtogroup l4util_tsc
  */
-/*@{*/
+/**@{*/
 
 /**
  * \brief Read current value of CPU-internal time stamp counter.
@@ -84,7 +84,7 @@ l4_calibrate_tsc (l4_kernel_info_t *kip);
  */
 L4_CV l4_uint32_t
 l4_tsc_init (l4_kernel_info_t *kip);
-/*@}*/
+/**@}*/
 
 EXTERN_C_END
 
