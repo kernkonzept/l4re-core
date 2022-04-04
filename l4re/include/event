@@ -39,9 +39,13 @@ namespace L4Re {
  * provider (server) to an event receiver (client). Events are put into an
  * Event_buffer_t residing on the shared L4Re::Dataspace.
  *
- * This interface is not usually used directly. Instead use
+ * This interface is usually not used directly. Instead use
  * L4Re::Util::Event_t for clients. An example server portion is implemented
  * in L4Re::Util::Event_svr.
+ *
+ * This interface is usually used with L4Re::Default_event_payload which
+ * delivers HID events modeled on the Linux evdev API, and the interface's
+ * methods allow further querying of information about the HID event streams.
  */
 
 typedef l4re_event_stream_id_t Event_stream_id;
@@ -146,16 +150,57 @@ class L4_EXPORT Event :
 {
 public:
   /**
-   * \brief Get event signal buffer.
+   * Get event signal buffer.
    *
-   * \retval ds Event buffer.
+   * \param[out] ds  Event buffer.
    *
-   * \return 0 on success, negative error code otherwise.
+   * \retval 0   Success
+   * \retval <0  Error
    */
   L4_RPC(long, get_buffer, (L4::Ipc::Out<L4::Cap<Dataspace> > ds));
+
+  /**
+   * Get number of event streams.
+   *
+   * \retval >=0  Number of streams.
+   * \retval <0   Error code.
+   */
   L4_RPC(long, get_num_streams, ());
+
+  /**
+   * Get event stream infos.
+   *
+   * Deprecated. Use get_stream_info_for_id().
+   *
+   * \param      idx   ID of the event stream.
+   * \param[out] info  Event stream info.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
   L4_RPC(long, get_stream_info, (int idx, Event_stream_info *info));
+
+  /**
+   * Get event stream infos.
+   *
+   * \param      id    ID of the event stream.
+   * \param[out] info  Event stream info.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
   L4_RPC(long, get_stream_info_for_id, (l4_umword_t stream_id, Event_stream_info *info));
+
+  /**
+   * Get event stream axis infos.
+   *
+   * \param      id    ID of the event stream.
+   * \param      axes  Array of axis IDs.
+   * \param[out] info  Array of axis infos.
+   *
+   * \retval >=0  Number of returned axes infos.
+   * \retval <0   Error code.
+   */
   L4_RPC_NF(long, get_axis_info, (l4_umword_t stream_id,
                                   L4::Ipc::Array<unsigned const, unsigned long> axes,
                                   L4::Ipc::Array<Event_absinfo, unsigned long> &info));
@@ -168,6 +213,15 @@ public:
         L4::Ipc::Array<unsigned const, unsigned long>(naxes, axis), i);
   }
 
+  /**
+   * Get event stream state.
+   *
+   * \param      id    ID of the event stream.
+   * \param[out] info  Event stream state.
+   *
+   * \retval 0   Success
+   * \retval <0  Error
+   */
   L4_RPC(long, get_stream_state_for_id, (l4_umword_t stream_id,
                                          Event_stream_state *state));
 
@@ -181,6 +235,10 @@ public:
   > Rpcs;
 };
 
+/**
+ * Default event stream payload.
+ * \ingroup api_l4re_event
+ */
 struct L4_EXPORT Default_event_payload
 {
   unsigned short type;    /**< Type of event */

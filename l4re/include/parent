@@ -55,13 +55,19 @@ class L4_EXPORT Parent :
 {
 public:
   /**
-   * \brief Send a signal to the parent
+   * Send a signal to the parent.
+   *
    * \param sig Signal to send
    * \param val Value of the signal
    *
-   * \return 0 on success, <0 on error
-   *         - -#L4_ENOREPLY
-   *         - IPC errors
+   * \retval 0   Success
+   * \retval <0  IPC error
+   *
+   * \note The implementations of this interface in Moe and Ned only recognize
+   * the signal 0, in which case they will terminate the application from which
+   * the interface was invoked and not return. In this case, `val` is treated as
+   * the application's return code. For any other value of `sig`, the method
+   * just returns successfully.
    */
   L4_INLINE_RPC(long, signal, (unsigned long sig, unsigned long val));
   typedef L4::Typeid::Rpcs<signal_t> Rpcs;

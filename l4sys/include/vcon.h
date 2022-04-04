@@ -184,6 +184,12 @@ enum L4_vcon_read_flags
 
 /**
  * Vcon attribute structure.
+ *
+ * The flags members can be a combination of their respective enums.
+ *
+ * \see L4_vcon_i_flags
+ * \see L4_vcon_o_flags
+ * \see L4_vcon_l_flags
  * \ingroup l4_vcon_api
  */
 typedef struct l4_vcon_attr_t
