@@ -41,8 +41,8 @@ struct Basic_list_policy
   typedef TYPE *Head_type;
   typedef TYPE Item_type;
 
-  static Type next(Type c) { return static_cast<Type>(&(*c)->_n); }
-  static Const_type next(Const_type c) { return static_cast<Const_type>(c->_n); }
+  static Type next(Type c) { return &(*c)->_n; }
+  static Const_type next(Const_type c) { return c->_n; }
 };
 
 /// Internal: Common functions for all head-based list implementations.
@@ -106,7 +106,7 @@ public:
     friend bool operator != (Const_iterator const &lhs, Const_iterator const &rhs)
     { return lhs._c != rhs._c; }
 
-    Const_iterator() : _c(0) {}
+    Const_iterator() {}
     Const_iterator(Iterator const &o) : _c(*o) {}
 
   private:
