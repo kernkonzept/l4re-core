@@ -118,7 +118,13 @@ bool
 Moe::Dataspace_cont::map_info(l4_addr_t &min_addr,
                               l4_addr_t &max_addr) const noexcept
 {
+#ifndef CONFIG_MMU
   min_addr = (l4_addr_t)_start;
   max_addr = (l4_addr_t)_start + round_size() - 1U;
   return true;
+#else
+  (void)min_addr;
+  (void)max_addr;
+  return false;
+#endif
 }
