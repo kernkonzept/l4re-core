@@ -18,15 +18,14 @@
 #include <l4/re/util/cap_alloc>
 #include <l4/re/cap_alloc>
 
-#include <cstring>
-#include <cstdlib>
 #include <l4/re/env>
 #include <l4/crtn/initpriorities.h>
+#include <string.h>
+#include <stdlib.h>
 
 namespace Vfs_config {
 
 using L4Re::Util::cap_alloc;
-using ::memcpy;
 using ::malloc;
 using ::free;
 

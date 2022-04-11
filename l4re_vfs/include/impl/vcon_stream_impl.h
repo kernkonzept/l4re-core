@@ -96,7 +96,7 @@ Vcon_stream::writev(const struct iovec *iovec, int iovcnt) throw()
   l4_msg_regs_t store;
   l4_msg_regs_t *mr = l4_utcb_mr();
 
-  Vfs_config::memcpy(&store, mr, sizeof(store));
+  memcpy(&store, mr, sizeof(store));
 
   ssize_t written = 0;
   while (iovcnt)
@@ -115,7 +115,7 @@ Vcon_stream::writev(const struct iovec *iovec, int iovcnt) throw()
       ++iovec;
       --iovcnt;
     }
-  Vfs_config::memcpy(mr, &store, sizeof(store));
+  memcpy(mr, &store, sizeof(store));
   return written;
 }
 

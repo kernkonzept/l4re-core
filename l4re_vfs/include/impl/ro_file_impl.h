@@ -57,7 +57,7 @@ Ro_file::read_single(const struct iovec *vec, off64_t pos) throw()
 
   if (l > 0)
     {
-      Vfs_config::memcpy(vec->iov_base, _addr + pos, l);
+      memcpy(vec->iov_base, _addr + pos, l);
       return l;
     }
 
