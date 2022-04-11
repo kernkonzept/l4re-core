@@ -105,6 +105,7 @@ static void insert_regions()
 
     }
 
+  addr = 0;
   Rm::Area const *al;
   while ((n = L4Re::Env::env()->rm()->get_areas(addr, &al)) > 0)
     {
