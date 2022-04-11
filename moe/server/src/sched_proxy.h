@@ -27,6 +27,13 @@ public:
   using L4Re::Util::Icu_cap_array_svr<Sched_proxy>::op_info;
   using L4kproxy::Scheduler_svr_t<Sched_proxy>::op_info;
 
+  typedef L4::Cap<L4::Irq> Irq_cap;
+  static Irq_cap alloc_irq_cap()
+  { return object_pool.cap_alloc()->alloc<L4::Irq>(); }
+
+  static void free_irq_cap(Irq_cap cap)
+  { object_pool.cap_alloc()->free(cap); }
+
   Sched_proxy();
 
   int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
