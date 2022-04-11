@@ -26,3 +26,9 @@ void *uclibc_morecore(long bytes)
   heap_pos += bytes;
   return ret;
 }
+
+extern "C" void *__libc_alloc_initial_tls(unsigned long size) __attribute__ ((__nothrow__));
+void *__libc_alloc_initial_tls(unsigned long size)
+{
+  return uclibc_morecore(size);
+}
