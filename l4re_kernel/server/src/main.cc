@@ -94,7 +94,7 @@ static void insert_regions()
             ->attach((void*)r->start, r->end - r->start +1,
                      Region_handler(pager, L4_INVALID_CAP, 0,
                                     Rm::F::Pager | Rm::F::RWX), Rm::Flags(0));
-          if (!x)
+          if (x == L4_INVALID_PTR)
             {
               L4::cerr << "l4re: error while initializing region mapper\n";
               exit(1);
@@ -114,7 +114,7 @@ static void insert_regions()
           Rm::Area const *r = &al[i];
           l4_addr_t x
             = Global::local_rm->attach_area(r->start, r->end - r->start + 1);
-          if (!x)
+          if (x == L4_INVALID_ADDR)
             {
               L4::cerr << "l4re: error while initializing region mapper\n";
               exit(1);
