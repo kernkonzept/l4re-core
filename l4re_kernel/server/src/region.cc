@@ -35,29 +35,11 @@ Region_map::Region_map()
 void
 Region_map::init()
 {
+  // Only get virtual address space limits. Reserved regions are gathered from
+  // remote region manager and would collide otherwise.
   for (auto const &m: L4::Kip::Mem_desc::all(l4re_kip()))
-    {
-      if (!m.is_virtual())
-	continue;
-
-      l4_addr_t start = m.start();
-      l4_addr_t end = m.end();
-      
-      switch (m.type())
-	{
-	case L4::Kip::Mem_desc::Conventional:
-	  set_limits(start, end);
-	  break;
-	case L4::Kip::Mem_desc::Reserved:
-	  attach_area(start, end - start + 1, L4Re::Rm::F::Reserved);
-	  break;
-	default:
-	  break;
-	}
-    }
-
-  // reserve page at 0
-  attach_area(0, L4_PAGESIZE);
+    if (m.is_virtual() && m.type() == L4::Kip::Mem_desc::Conventional)
+      set_limits(m.start(), m.end());
 }
 
 
