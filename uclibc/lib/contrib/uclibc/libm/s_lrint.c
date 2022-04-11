@@ -49,19 +49,13 @@ lrint (double x)
 
   if (_j0 < 20)
     {
-      if (_j0 < -1)
-	return 0;
-      else
-	{
-	  w = two52[sx] + x;
-	  t = w - two52[sx];
-	  EXTRACT_WORDS (i0, i1, t);
-	  _j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
-	  i0 &= 0xfffff;
-	  i0 |= 0x100000;
-
-	  result = i0 >> (20 - _j0);
-	}
+      w = two52[sx] + x;
+      t = w - two52[sx];
+      EXTRACT_WORDS (i0, i1, t);
+      _j0 = ((i0 >> 20) & 0x7ff) - 0x3ff;
+      i0 &= 0xfffff;
+      i0 |= 0x100000;
+      result = (_j0 < 0 ? 0 : i0 >> (20 - _j0));
     }
   else if (_j0 < (int32_t) (8 * sizeof (long int)) - 1)
     {
