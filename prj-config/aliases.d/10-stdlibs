@@ -1,3 +1,6 @@
-stdlibs-all := l4sys l4re l4re-util libc_be_l4refile libc_be_l4re
-stdlibs     := stdlibs-all libl4re-vfs
+stdlibs-all-mmu := libc_be_l4refile
+stdlibs-all-nommu := libc_be_minimal_log_io libc_be_static_heap libc
+
+stdlibs-all := l4sys l4re l4re-util libc_be_l4re stdlibs-all-mmu[config(CONFIG_MMU)] stdlibs-all-nommu[!config(CONFIG_MMU)]
+stdlibs     := stdlibs-all libl4re-vfs[config(CONFIG_MMU)]
 stdlibs-sh  := stdlibs-all ldso libdl libc_support_misc libc_be_socket_noop
