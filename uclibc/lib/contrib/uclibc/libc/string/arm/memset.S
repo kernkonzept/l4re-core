@@ -34,6 +34,7 @@ memset:
 	cmp	r2, #8		@ at least 8 bytes to do?
 	bcc	2f
 
+	and	r1, r1, #0xFF
 	lsl	r3, r1, #8
 	orr	r1, r3
 	lsl	r3, r1, #16
@@ -70,6 +71,7 @@ memset:
 	mov	a4, a1
 	cmp	a3, #8		@ at least 8 bytes to do?
 	blo	2f
+	and	a2, a2, #0xFF
 	orr	a2, a2, a2, lsl #8
 	orr	a2, a2, a2, lsl #16
 1:
