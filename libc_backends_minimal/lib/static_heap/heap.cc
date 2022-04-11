@@ -39,3 +39,9 @@ void *mremap (void * /*addr*/, size_t /*old_len*/, size_t /*new_len*/,
   errno = ENOSYS;
   return MAP_FAILED;
 }
+
+extern "C" void *__libc_alloc_initial_tls(unsigned long size) __attribute__ ((__nothrow__));
+void *__libc_alloc_initial_tls(unsigned long size)
+{
+  return uclibc_morecore(size);
+}
