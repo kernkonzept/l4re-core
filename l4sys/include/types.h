@@ -338,9 +338,22 @@ L4_INLINE unsigned l4_msgtag_is_io_page_fault(l4_msgtag_t t) L4_NOTHROW;
  *
  * to your code to use the functions and definitions explained here.
  */
+
 /**
- * L4 Capability selector Type.
+ * Capability selector type.
  * \ingroup l4_cap_api
+ *
+ * A capability selector is either a (shifted) capability index or the invalid
+ * capability selector #L4_INVALID_CAP.
+ *
+ * Usage of the invalid capability selector is defined only for invoking IPC
+ * (see \ref l4_ipc_api "Object Invocation"): When IPC is invoked on
+ * #L4_INVALID_CAP, then it is resolved to a capability for the current thread
+ * with full permissions.
+ *
+ * Otherwise, the API assumes that each argument of type #l4_cap_idx_t is a
+ * capability index, i.e., `idx` `<<` #L4_CAP_SHIFT for arbitrary `idx`. The
+ * behavior for other arguments is then undefined.
  */
 typedef unsigned long l4_cap_idx_t;
 
