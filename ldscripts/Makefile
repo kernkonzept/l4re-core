@@ -41,6 +41,16 @@ REQUIRES_LIBS_all_lib :=
 include $(L4DIR)/mk/lib.mk
 
 $(eval $(call BID_MAKE_RULE_template, crti_s.o, crti.S,AS))
+$(eval $(call BID_MAKE_RULE_template, kip_addr.o, kip_addr.S,AS))
+
+$(eval $(call make_per_obj_vars,crti.s.o,crti.s.o,crti.S))
+$(eval $(call make_per_obj_vars,crti_s.o,crti_s.o,crti.S))
+$(eval $(call make_per_obj_vars,crt1.o,crt1.o,crt1.S))
+$(eval $(call make_per_obj_vars,crt1.s.o,crt1.s.o,crt1.S))
+$(eval $(call make_per_obj_vars,crtn.o,crtn.o,crtn.S))
+$(eval $(call make_per_obj_vars,crtn.s.o,crtn.s.o,crtn.S))
+
+$(eval $(call make_per_obj_vars,crti.o,kip_addr.o,kip_addr.S))
 
 crti.o: crti_s.o kip_addr.o
 	@$(GEN_MESSAGE)
