@@ -35,15 +35,38 @@
  *
  * These flags determine the concrete operation when a kernel object
  * is invoked.
+ *
+ * The following combinations of flags are supported when invoking IPC (see
+ * l4_ipc()); with other combinations, behavior is undefined:
+ *
+ * - #L4_SYSF_SEND:
+ *   send to specified partner
+ * - #L4_SYSF_RECV:
+ *   receive from specified partner
+ * - #L4_SYSF_RECV | #L4_SYSF_OPEN_WAIT:
+ *   receive from any sending partner; see #L4_SYSF_WAIT
+ * - #L4_SYSF_SEND | #L4_SYSF_RECV:
+ *   call specified partner; see #L4_SYSF_CALL
+ * - #L4_SYSF_SEND | #L4_SYSF_RECV | #L4_SYSF_OPEN_WAIT:
+ *   send to specified partner and receive from any sending partner;
+ *   see #L4_SYSF_SEND_AND_WAIT
+ * - #L4_SYSF_REPLY | #L4_SYSF_SEND:
+ *   reply to caller
+ * - #L4_SYSF_REPLY | #L4_SYSF_SEND | #L4_SYSF_RECV:
+ *   call the caller
+ * - #L4_SYSF_REPLY | #L4_SYSF_SEND | #L4_SYSF_RECV | #L4_SYSF_OPEN_WAIT:
+ *   reply to caller and receive from any sending partner;
+ *   see #L4_SYSF_REPLY_AND_WAIT
  */
 enum l4_syscall_flags_t
 {
   /**
-   * Default flags (call to a kernel object).
+   * Empty set of flags.
    * \hideinitializer
    *
-   * Using this value as flags in the capability selector for an
-   * invocation indicates a call (send and wait for a reply).
+   * \deprecated Default flags (call to a kernel object).
+   * \deprecated Using this value as flags in the capability selector for an
+   *             invocation indicates a call (send and wait for a reply).
    */
   L4_SYSF_NONE      = 0x00,
 
