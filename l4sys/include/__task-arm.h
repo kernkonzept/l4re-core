@@ -26,7 +26,8 @@ l4_task_vgicc_map_u(l4_cap_idx_t task, l4_fpage_t vgicc_fpage,
                    l4_utcb_t *u) L4_NOTHROW;
 
 /**
- * Map the GIC's virtual GICC page to the task.
+ * Map the GIC virtual CPU interface page to the task in case Fiasco
+ * detected a GIC version 2.
  * \ingroup l4_task_api
  *
  * \param task          Capability selector of destination task

@@ -29,7 +29,8 @@ class Vm : public Kobject_t<Vm, Task, L4_PROTO_VM>
 {
 public:
   /**
-   * Map the GIC's virtual GICC page to the task.
+   * Map the GIC virtual CPU interface page to the task in case Fiasco
+   * detected a GIC version 2.
    *
    * \param vgicc_fpage   Flexpage that describes an area in the address space
    *                      of the destination task to map the vGICC page to.
