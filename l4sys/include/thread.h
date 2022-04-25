@@ -434,6 +434,10 @@ l4_thread_vcpu_resume_start_u(l4_utcb_t *utcb) L4_NOTHROW;
  *   - Given task capability is invalid (-L4_ENOENT).
  *   - A supplied mapping failed.
  *
+ * All flex pages in the UTCB (added with l4_sndfpage_add() after
+ * l4_thread_vcpu_resume_start()) are unconditionally mapped into the
+ * user task configured in the vCPU state.
+ *
  * To resume into another address space the capability to the target task
  * must be set in the vCPU-state, with all lower bits in the task
  * capability cleared (see #L4_CAP_MASK). The kernel adds the
