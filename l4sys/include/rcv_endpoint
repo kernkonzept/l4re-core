@@ -34,7 +34,7 @@ class Thread;
  * Interface for kernel objects that allow to receive IPC from them.
  *
  * Such an object is for example an Ipc_gate (with server rights) or an
- * Irq_sender. Those objects allow to bind a thread that shall receive IPC from
+ * Irq. Those objects allow to bind a thread that shall receive IPC from
  * these object via bind_thread().
  */
 class L4_EXPORT Rcv_endpoint :
