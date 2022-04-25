@@ -201,6 +201,7 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
     {
     case SIGMA0_REQ_ID_DEBUG_DUMP:
         {
+#ifndef NDEBUG
           Mem_man::Tree::Node_allocator alloc;
           L4::cout << PROG_NAME": Memory usage: a total of "
             << Page_alloc_base::total()
@@ -214,6 +215,7 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
             << " of " << alloc.total_objects() * alloc.object_size
             << " bytes\n";
           dump_all();
+#endif
           answer->error(0);
         }
       break;
