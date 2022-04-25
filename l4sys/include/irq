@@ -143,6 +143,9 @@ public:
    * \utcb{utcb}
    *
    * \return Syscall return tag
+   *
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
+   *                     to invoke this operation.
    */
   l4_msgtag_t detach(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_detach_u(cap(), utcb); }
