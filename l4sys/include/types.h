@@ -367,14 +367,17 @@ L4_INLINE unsigned l4_is_invalid_cap(l4_cap_idx_t c) L4_NOTHROW;
 L4_INLINE unsigned l4_is_valid_cap(l4_cap_idx_t c) L4_NOTHROW;
 
 /**
- * Test if two capability selectors are equal.
+ * Test if the capability indices of two capability selectors are equal.
  * \ingroup l4_cap_api
  *
- * \param c1  Capability
- * \param c2  Capability
+ * \param c1  Capability selector.
+ * \param c2  Capability selector.
  *
- * \retval 0  The given capabilities are not in the same slot.
- * \retval 1  The given capabilities are in the same slot.
+ * \retval 0  The index parts of the capability selectors differ.
+ * \retval 1  The index parts of the capability selectors are equal.
+ *
+ * \pre Both capability selectors must be valid (cf. l4_is_valid_cap())
+ *      otherwise the return value is undefined.
  */
 L4_INLINE unsigned l4_capability_equal(l4_cap_idx_t c1, l4_cap_idx_t c2) L4_NOTHROW;
 
