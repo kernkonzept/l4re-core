@@ -28,7 +28,7 @@ namespace L4 {
 class Vm : public Kobject_t<Vm, Task, L4_PROTO_VM>
 {
 public:
-  /*
+  /**
    * Map the GIC's virtual GICC page to the task.
    *
    * \param vgicc_fpage   Flexpage that describes an area in the address space
