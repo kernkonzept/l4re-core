@@ -152,8 +152,9 @@ enum l4_cap_consts_t
 {
   /** Capability index shift. \hideinitializer */
   L4_CAP_SHIFT   = 12UL,
-  /** Offset of two consecutive capability selectors. \hideinitializer */
+  /** \deprecated Superseded by #L4_CAP_OFFSET. */
   L4_CAP_SIZE    = 1UL << L4_CAP_SHIFT,
+  /** Offset of two consecutive capability selectors. \hideinitializer */
   L4_CAP_OFFSET  = 1UL << L4_CAP_SHIFT,
   /**
    * Mask to get only the relevant bits of an l4_cap_idx_t.
