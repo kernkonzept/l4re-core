@@ -35,20 +35,26 @@ namespace L4Re
 {
 
 /**
- * DMA Address Space.
+ * Managed DMA Address Space.
  *
- * A Dma_space represents the DMA address space of a device.
- * Whenever a device needs direct access to parts of an L4Re::Dataspace, that
- * part of the data space must be mapped to the DMA address space that is
- * assigned to that device. After the DMA accesses to the memory are finished
- * the memory must be unmapped from the device's DMA address space.
+ * A managed Dma_space represents the L4Re abstraction of an DMA address space
+ * of one or several devices. Devices are assigned to a managed Dma_space by
+ * binding the Dma_space to the respective DMA domain (see
+ * L4vbus::Vbus::assign_dma_domain()), which might link the Dma_space with a
+ * kernel \ref l4_kernel_object_dmar_space. Note that several DMA domains can
+ * be bound to the same Dma_space. Whenever a device needs direct access to
+ * parts of an L4Re::Dataspace, that part of the data space must be mapped to
+ * the manged Dma_space that is assigned to that device. Binding to DMA
+ * domains must happen before mapping. After the DMA accesses to the memory
+ * are finished the memory must be unmapped from the device's DMA address
+ * space.
  *
- * Mapping to a DMA address space, using map(), makes the given parts of
- * the data space visible to the associated device at the returned
- * DMA address.  As long as the memory is mapped into a DMA space it is 'pinned'
+ * Mapping to a managed DMA address space, using map(), makes the given parts
+ * of the data space visible to the associated device at the returned DMA
+ * address. As long as the memory is mapped into a DMA space it is 'pinned'
  * and cannot be subject to dynamic memory management such as swapping.
- * Additionally, map() is responsible for the necessary syncing operations before
- * the DMA.
+ * Additionally, map() is responsible for the necessary syncing operations
+ * before the DMA.
  *
  * unmap() is the reverse operation to map() and unmaps the given
  * data-space part for the DMA address space. unmap() is responsible for the
@@ -149,6 +155,10 @@ public:
    *                         device.
    *
    * \return 0 in the case of success, a negative error code otherwise.
+   *
+   * \note associate() must be called prior to mapping memory. Usually this is
+   * done implicitely when binding the managed Dma_space to a DMA domain
+   * (see L4vbus::Vbus::assign_dma_domain()).
    */
   L4_INLINE_RPC(
       long, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
@@ -170,15 +180,17 @@ public:
                     l4_size_t size, Attributes attrs, Direction dir));
 
   /**
-   * Associate a DMA task for a device to this Dma_space.
+   * Associate a (kernel) \ref l4_kernel_object_dmar_space for a device to
+   * this Dma_space.
    *
    * \caprights{RW}
-   * \param[in]  dma_task  The DMA task used for the device that shall be
-   *                       associated with this DMA space. The dma_task might
-   *                       be an invalid capability when
-   *                       L4Re::Dma_space::Phys_space is set in
-   *                       `attr`, in this case the CPUs physical memory
-   *                       is used as DMA address space.
+   * \param[in]  dma_task  The (kernel) \ref l4_kernel_object_dmar_space used
+   *                       for the device that shall be associated with this
+   *                       DMA space. In case no IOMMU is present or
+   *                       configured, the dma_task might be an invalid
+   *                       capability when L4Re::Dma_space::Phys_space is set
+   *                       in `attr`, in this case the CPUs physical memory is
+   *                       used as DMA address space.
    * \param[in]  attr      Attributes for this DMA space. See
    *                       L4Re::Dma_space::Space_attrib.
    */
@@ -188,7 +200,8 @@ public:
       L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
   /**
-   * Disassociate the DMA task from this Dma_space.
+   * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
+   * Dma_space.
    *
    * \caprights{RW}
    */
