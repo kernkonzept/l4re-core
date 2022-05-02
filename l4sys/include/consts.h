@@ -238,6 +238,19 @@ enum l4_msg_item_consts_t
   /**
    * The receiver requests to receive a local ID instead of a mapping whenever
    * possible.
+   *
+   * This flag may only be used for small buffers, see #L4_RCV_ITEM_SINGLE_CAP.
+   *
+   * When this flag is set, then,
+   *
+   * - when sender and receiver are bound to the same task, then no mapping is
+   *   done for this item and just the capability index is transferred,
+   * - otherwise, when the sender specified an IPC gate for transfer that is
+   *   bound to a thread that is bound to the same task as the receiving thread,
+   *   then no mapping is done for this item and just the label bitwise disjoint
+   *   with the #L4_CAP_FPAGE_W and #L4_CAP_FPAGE_S permissions that would have
+   *   been mapped is transferred,
+   * - otherwise a regular mapping is done for this item.
    */
   L4_RCV_ITEM_LOCAL_ID   = 4,
 };
