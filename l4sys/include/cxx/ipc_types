@@ -258,10 +258,10 @@ template<typename T> struct Direction< Opt<T> > : Direction<T> {};
 }
 
 /**
- * \brief A receive item for receiving a single capability.
+ * \brief A receive item for receiving a single object capability.
  *
- * This class is the main abstraction for receiving capabilities
- * via Ipc::Istream. To receive a capability an instance of Small_buf
+ * This class is the main abstraction for receiving object capabilities
+ * via Ipc::Istream. To receive an object capability, an instance of Small_buf
  * that refers to an empty capability slot must be inserted into the
  * Ipc::Istream before the receive operation.
  */

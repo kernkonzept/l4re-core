@@ -231,7 +231,7 @@ enum l4_msg_item_consts_t
   // receive
   /**
    * Mark the receive buffer to be a small receive item that describes a buffer
-   * for a single capability.
+   * for a single object capability.
    */
   L4_RCV_ITEM_SINGLE_CAP = L4_ITEM_MAP | 2,
 
