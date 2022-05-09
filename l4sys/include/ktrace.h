@@ -31,8 +31,20 @@
 #include <l4/sys/ktrace_events.h>
 
 /**
- * Create new trace-buffer entry with describing \<text\>.
+ * \defgroup fiasco_trace_api Kernel Tracing
  * \ingroup api_calls_fiasco
+ * Kernel tracing related functionality.
+ * \attention This API is subject to change!
+ *
+ * This is a tracing facility for the Fiasco kernel trace buffer. Any call to
+ * any function might be invalid. Do not rely on it in any real code.
+ *
+ * \includefile{l4/sys/ktrace.h}
+ */
+
+/**
+ * Create new trace-buffer entry with describing \<text\>.
+ * \ingroup fiasco_trace_api
  *
  * \param  text   Logging text
  * \return Pointer to trace-buffer entry
@@ -43,7 +55,7 @@ fiasco_tbuf_log(const char *text);
 /**
  * Create new trace-buffer entry with describing \<text\> and three additional
  * values.
- * \ingroup api_calls_fiasco
+ * \ingroup fiasco_trace_api
  *
  * \param  text   Logging text
  * \param  v1     first value
@@ -56,7 +68,7 @@ fiasco_tbuf_log_3val(const char *text, l4_umword_t v1, l4_umword_t v2, l4_umword
 
 /**
  * Create new trace-buffer entry with binary data.
- * \ingroup api_calls_fiasco
+ * \ingroup fiasco_trace_api
  *
  * \param  data       binary data
  * \return Pointer to trace-buffer entry
@@ -66,14 +78,14 @@ fiasco_tbuf_log_binary(const unsigned char *data);
 
 /**
  * Clear trace-buffer.
- * \ingroup api_calls_fiasco
+ * \ingroup fiasco_trace_api
  */
 L4_INLINE void
 fiasco_tbuf_clear(void);
 
 /**
  * Dump trace-buffer to kernel console.
- * \ingroup api_calls_fiasco
+ * \ingroup fiasco_trace_api
  */
 L4_INLINE void
 fiasco_tbuf_dump(void);
