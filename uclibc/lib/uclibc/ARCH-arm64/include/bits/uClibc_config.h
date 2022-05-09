@@ -102,6 +102,7 @@
  */
 #define __UCLIBC_HAS_COMPAT_RES_STATE__ 1
 #define __UCLIBC_HAS_IPV4__ 1
+#define __UCLIBC_DNSRAND_MODE_PRNGPLUS__ 1
 
 /*
  * String and Stdio Support
@@ -167,6 +168,7 @@
  */
 #undef __UCLIBC_HAS_COMPAT_RES_STATE__
 #undef __UCLIBC_HAS_IPV4__
+#undef __UCLIBC_DNSRAND_MODE_PRNGPLUS__
 
 /*
  * String and Stdio Support

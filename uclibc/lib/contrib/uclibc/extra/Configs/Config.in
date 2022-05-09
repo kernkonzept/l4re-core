@@ -1349,6 +1349,57 @@ config UCLIBC_HAS_RESOLVER_SUPPORT
 	  ns_name_pack, ns_name_compress, ns_name_skip, dn_skipname,
 	  ns_get16, ns_get32, ns_put16, ns_put32
 
+choice
+	prompt "DNS Query ID generation"
+	default UCLIBC_DNSRAND_MODE_PRNGPLUS
+	help
+	  Control how successive dns query ids' are generated during
+	  dns lookup.
+
+config UCLIBC_DNSRAND_MODE_URANDOM
+	bool "urandom"
+	help
+	  "urandom" uses /dev/urandom available under many unix flavours
+	  to generate dns query id. This can generate good random ids,
+	  by dipping into the entropy pool maintained by the system.
+	  However this is relatively slow compared to the other options,
+	  as it may involve cryptographic operations internally and
+	  kernel-userspace handshake.
+
+config UCLIBC_DNSRAND_MODE_CLOCK
+	bool "clock"
+	depends on UCLIBC_HAS_REALTIME
+	help
+	  "clock" uses CLOCK_REALTIME of the system to generate plausibly
+	  random dns query id. Systems require to have clock source with
+	  nanosec granularity mapped to this clock id for this to generate
+	  plausibly random values. However has processor and io performances
+	  improve in future, its effectiveness can get impacted.
+
+config UCLIBC_DNSRAND_MODE_PRNGPLUS
+	bool "prngplus"
+	help
+	  "prngplus" uses random prng available within uclibc, to indirectly
+	  generate the dns query id. This tries to provide a good balance
+	  between speed and randomness to an extent. It periodically reseeds
+	  the prng using random value generated from either the urandom or
+	  else the clock, if either of them is available. Additionally applies
+	  transform (one way, if possible) on internal generated random values.
+	  These make it difficult to infer internal state of prng from unbroken
+	  sequences of exposed random values.
+	  This is the default.
+
+config UCLIBC_DNSRAND_MODE_SIMPLECOUNTER
+	bool "simplecounter"
+	help
+	  "simplecounter" uses a simple counter to generate dns query id.
+	  This is a very simple logic and can be subjected to dns poison
+	  attack relatively easily.
+	  It is recommended to avoid this option.
+
+endchoice
+
+
 endif
 
 

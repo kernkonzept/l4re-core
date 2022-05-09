@@ -255,6 +255,7 @@ Domain name in a message can be represented as either:
 #include <sys/stat.h>
 #include <sys/param.h>
 #include <bits/uClibc_mutex.h>
+#include <fcntl.h>
 #include "internal/parse_config.h"
 
 /* poll() is not supported in kernel <= 2.0, therefore if __NR_poll is
@@ -1045,6 +1046,236 @@ static int __decode_answer(const unsigned char *message, /* packet */
 	return i + RRFIXEDSZ + a->rdlength;
 }
 
+
+#if defined __UCLIBC_DNSRAND_MODE_URANDOM__ || defined __UCLIBC_DNSRAND_MODE_PRNGPLUS__
+
+/*
+ * Get a random int from urandom.
+ * Return 0 on success and -1 on failure.
+ *
+ * This will dip into the entropy pool maintaind by the system.
+ */
+int _dnsrand_getrandom_urandom(int *rand_value) {
+	static int urand_fd = -1;
+	static int errCnt = 0;
+	if (urand_fd == -1) {
+		urand_fd = open("/dev/urandom", O_RDONLY);
+		if (urand_fd == -1) {
+			if ((errCnt % 16) == 0) {
+				DPRINTF("uCLibC:WARN:DnsRandGetRand: urandom is unavailable...\n");
+			}
+			errCnt += 1;
+			return -1;
+		}
+	}
+	if (read(urand_fd, rand_value, sizeof(int)) == sizeof(int)) { /* small reads like few bytes here should be safe in general. */
+		DPRINTF("uCLibC:DBUG:DnsRandGetRand: URandom:0x%lx\n", *rand_value);
+		return 0;
+	}
+	return -1;
+}
+
+#endif
+
+#if defined __UCLIBC_DNSRAND_MODE_CLOCK__ || defined __UCLIBC_DNSRAND_MODE_PRNGPLUS__
+
+/*
+ * Try get a sort of random int by looking at current time in system realtime clock.
+ * Return 0 on success and -1 on failure.
+ *
+ * This requries the realtime related uclibc feature to be enabled and also
+ * the system should have a clock source with nanosec resolution to be mapped
+ * to CLOCK_REALTIME, for this to generate values that appear random plausibly.
+ */
+int _dnsrand_getrandom_clock(int *rand_value) {
+#if defined __USE_POSIX199309 && defined __UCLIBC_HAS_REALTIME__
+	struct timespec ts;
+	if (clock_gettime(CLOCK_REALTIME, &ts) == 0) {
+		*rand_value = (ts.tv_sec + ts.tv_nsec) % INT_MAX;
+		DPRINTF("uCLibC:DBUG:DnsRandGetRand: Clock:0x%lx\n", *rand_value);
+		return 0;
+	}
+#endif
+	return -1;
+}
+
+#endif
+
+#ifdef __UCLIBC_DNSRAND_MODE_PRNGPLUS__
+
+/*
+ * Try get a random int by first checking at urandom and then at realtime clock.
+ * Return 0 on success and -1 on failure.
+ *
+ * Chances are most embedded targets using linux/bsd/... could have urandom and
+ * also it can potentially give better random values, so try urandom first.
+ * However if there is failure wrt urandom, then try realtime clock based helper.
+ */
+int _dnsrand_getrandom_urcl(int *rand_value) {
+	if (_dnsrand_getrandom_urandom(rand_value) == 0) {
+		return 0;
+	}
+	if (_dnsrand_getrandom_clock(rand_value) == 0) {
+		return 0;
+	}
+	DPRINTF("uCLibC:DBUG:DnsRandGetRand: URCL:Nothing:0x%lx\n", *rand_value);
+	return -1;
+}
+
+#define DNSRAND_PRNGSTATE_INT32LEN 32
+#undef DNSRAND_PRNGRUN_SHORT
+#ifdef DNSRAND_PRNGRUN_SHORT
+#define DNSRAND_RESEED_OP1 (DNSRAND_PRNGSTATE_INT32LEN/2)
+#define DNSRAND_RESEED_OP2 (DNSRAND_PRNGSTATE_INT32LEN/4)
+#else
+#define DNSRAND_RESEED_OP1 (DNSRAND_PRNGSTATE_INT32LEN*6)
+#define DNSRAND_RESEED_OP2 DNSRAND_PRNGSTATE_INT32LEN
+#endif
+/*
+ * This logic uses uclibc's random PRNG to generate random int. This keeps the
+ * logic fast by not depending on a more involved CPRNG kind of logic nor on a
+ * kernel to user space handshake at the core.
+ *
+ * However to ensure that pseudo random sequences based on a given seeding of the
+ * PRNG logic, is not generated for too long so as to allow a advarsary to try guess
+ * the internal states of the prng logic and inturn the next number, srandom is
+ * used periodically to reseed PRNG logic, when and where possible.
+ *
+ * To help with this periodic reseeding, by default the logic will first try to
+ * see if it can get some relatively random number using /dev/urandom. If not it
+ * will try use the current time to generate plausibly random value as substitute.
+ * If neither of these sources are available, then the prng itself is used to seed
+ * a new state, so that the pseudo random sequence can continue, which is better
+ * than the fallback simple counter.
+ *
+ * Also to add bit more of variance wrt this periodic reseeding, the period interval
+ * at which this reseeding occurs keeps changing within a predefined window. The
+ * window is controlled based on how often this logic is called (which currently
+ * will depend on how often requests for dns query (and inturn dnsrand_next) occurs,
+ * as well as a self driven periodically changing request count boundry.
+ *
+ * The internally generated random values are not directly exposed, instead result
+ * of adjacent values large mult with mod is used to greatly reduce the possibility
+ * of trying to infer the internal values from externally exposed random values.
+ * This should also make longer run of prng ok to an extent.
+ *
+ * NOTE: The Random PRNG used here maintains its own internal state data, so that
+ * it doesnt impact any other users of random prng calls in the system/program
+ * compiled against uclibc.
+ *
+ * NOTE: If your target doesnt support int64_t, then the code uses XOR instead of
+ * mult with mod based transform on the internal random sequence, to generate the
+ * random number that is returned. However as XOR is not a one way transform, this
+ * is supported only in DNSRAND_PRNGRUN_SHORT mode by default, which needs to be
+ * explicitly enabled by the platform developer, by defining the same.
+ *
+ */
+int _dnsrand_getrandom_prng(int *rand_value) {
+	static int cnt = -1;
+	static int nextReSeedWindow = DNSRAND_RESEED_OP1;
+	static int32_t prngState[DNSRAND_PRNGSTATE_INT32LEN]; /* prng logic internally assumes int32_t wrt state array, so to help align if required */
+	static struct random_data prngData;
+	int32_t val, val2;
+	int calc;
+	int prngSeed = 0x19481869;
+
+	if (cnt == -1) {
+		_dnsrand_getrandom_urcl(&prngSeed);
+		memset(&prngData, 0, sizeof(prngData));
+		initstate_r(prngSeed, (char*)&prngState, DNSRAND_PRNGSTATE_INT32LEN*4, &prngData);
+	}
+	cnt += 1;
+	if ((cnt % nextReSeedWindow) == 0) {
+		if (_dnsrand_getrandom_urcl(&prngSeed) != 0) {
+			random_r(&prngData, &prngSeed);
+		}
+		srandom_r(prngSeed, &prngData);
+		random_r(&prngData, &val);
+		nextReSeedWindow = DNSRAND_RESEED_OP1 + (val % DNSRAND_RESEED_OP2);
+		DPRINTF("uCLibC:DBUG:DnsRandNext: PRNGWindow:%d\n", nextReSeedWindow);
+		cnt = 0;
+	}
+	random_r(&prngData, &val);
+	random_r(&prngData, &val2);
+#ifdef INT64_MAX
+	calc = ((int64_t)val * (int64_t)val2) % INT_MAX;
+#else
+# ifdef DNSRAND_PRNGRUN_SHORT
+	calc = val ^ val2;
+# warning "[No int64] using xor based random number transform logic in short prng run mode, bcas int64_t not supported on this target"
+# else
+# error "[No int64] using xor based random number transform logic only supported with short prng runs, you may want to define DNSRAND_PRNGRUN_SHORT"
+# endif
+#endif
+	*rand_value = calc;
+	DPRINTF("uCLibC:DBUG:DnsRandGetRand: PRNGPlus: %d, 0x%lx 0x%lx 0x%lx\n", cnt, val, val2, *rand_value);
+	return 0;
+}
+
+#endif
+
+/**
+ * If DNS query's id etal is generated using a simple counter, then it can be
+ * subjected to dns poisoning relatively easily, so adding some randomness can
+ * increase the difficulty wrt dns poisoning and is thus desirable.
+ *
+ * However given that embedded targets may or may not have different sources available
+ * with them to try generate random values, this logic tries to provides flexibility
+ * to the platform developer to decide, how they may want to handle this.
+ *
+ * If a given target doesnt support urandom nor realtime clock OR for some reason
+ * if the platform developer doesnt want to use random dns query id etal, then
+ * they can define __UCLIBC_DNSRAND_MODE_SIMPLECOUNTER__ so that a simple incrementing
+ * counter is used.
+ *
+ * However if the target has support for urandom or realtime clock, then the prngplus
+ * based random generation tries to give a good balance between randomness and performance.
+ * This is the default and is enabled when no other mode is defined. It is also indirectly
+ * enabled by defining __UCLIBC_DNSRAND_MODE_PRNGPLUS__ instead of the other modes.
+ *
+ * If urandom is available on the target and one wants to keep things simple and use
+ * it directly, then one can define __UCLIBC_DNSRAND_MODE_URANDOM__. Do note that this
+ * will be relatively slower compared to other options. But it can normally generate
+ * good random values/ids by dipping into the entropy pool available in the system.
+ *
+ * If system realtime clock is available on target and enabled, then if one wants to
+ * keep things simple and use it directly, then define __UCLIBC_DNSRAND_MODE_CLOCK__.
+ * Do note that this requires nanosecond resolution / granularity wrt the realtime
+ * clock source to generate plausibly random values/ids. As processor &/ io performance
+ * improves, the effectiveness of this strategy can be impacted in some cases.
+ *
+ * If either the URandom or Clock based get random fails, then the logic is setup to
+ * try fallback to the simple counter mode, with the help of the def_value, which is
+ * setup to be the next increment wrt the previously generated / used value, by the
+ * caller of dnsrand_next.
+ *
+ */
+int dnsrand_next(int def_value) {
+	int val = def_value;
+#if defined __UCLIBC_DNSRAND_MODE_SIMPLECOUNTER__
+	return val;
+#elif defined __UCLIBC_DNSRAND_MODE_URANDOM__
+	if (_dnsrand_getrandom_urandom(&val) == 0) {
+		return val;
+	}
+	return def_value;
+#elif defined __UCLIBC_DNSRAND_MODE_CLOCK__
+	if (_dnsrand_getrandom_clock(&val) == 0) {
+		return val;
+	}
+	return def_value;
+#else
+	if (_dnsrand_getrandom_prng(&val) == 0) {
+		return val;
+	}
+	return def_value;
+#endif
+}
+
+int dnsrand_setup(int def_value) {
+	return def_value;
+}
+
 /* On entry:
  *  a.buf(len) = auxiliary buffer for IP addresses after first one
  *  a.add_count = how many additional addresses are there already
@@ -1149,7 +1380,7 @@ int __dns_lookup(const char *name,
 		}
 		/* first time? pick starting server etc */
 		if (local_ns_num < 0) {
-			local_id = last_id;
+			local_id = dnsrand_setup(last_id);
 /*TODO: implement /etc/resolv.conf's "options rotate"
  (a.k.a. RES_ROTATE bit in _res.options)
 			local_ns_num = 0;
@@ -1159,7 +1390,7 @@ int __dns_lookup(const char *name,
 		}
 		if ((unsigned int)local_ns_num >= __nameservers)
 			local_ns_num = 0;
-		local_id++;
+		local_id = dnsrand_next(++local_id);
 		local_id &= 0xffff;
 		/* write new values back while still under lock */
 		last_id = local_id;
