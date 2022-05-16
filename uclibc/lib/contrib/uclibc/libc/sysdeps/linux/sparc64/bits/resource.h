@@ -98,7 +98,13 @@ enum __rlimit_resource
   __RLIMIT_RTPRIO = 14,
 #define RLIMIT_RTPRIO __RLIMIT_RTPRIO
 
-  __RLIMIT_NLIMITS = 15,
+  /* Maximum CPU time in µs that a process scheduled under a real-time
+     scheduling policy may consume without making a blocking system
+     call before being forcibly descheduled.  */
+  __RLIMIT_RTTIME = 15,
+#define RLIMIT_RTTIME __RLIMIT_RTTIME
+
+  __RLIMIT_NLIMITS = 16,
   __RLIM_NLIMITS = __RLIMIT_NLIMITS
 #define RLIMIT_NLIMITS __RLIMIT_NLIMITS
 #define RLIM_NLIMITS __RLIM_NLIMITS
