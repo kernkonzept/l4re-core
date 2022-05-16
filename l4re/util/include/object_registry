@@ -321,12 +321,11 @@ public:
   /**
    * Create a new server loop object for an arbitrary thread and factory.
    *
-   * \param utcb    The UTCB of the thread running the server loop.
    * \param server  Capability to thread running the server loop.
    * \param factory Capability to factory object used to create new IPC gates.
    *
-   * \deprecated{Note that this variant of the constructor is deprecated,
-   * please do not supply the UTCB pointer, it's not used.}
+   * \deprecated Note that this variant of the constructor is deprecated,
+   * please do not supply the UTCB pointer, it's not used.
    */
   Registry_server(l4_utcb_t *, L4::Cap<L4::Thread> server,
                   L4::Cap<L4::Factory> factory)
