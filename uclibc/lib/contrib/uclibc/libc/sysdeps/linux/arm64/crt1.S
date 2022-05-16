@@ -148,12 +148,12 @@ _start:
 	mov x5, x0	/* rtld_fini */
 
 #ifdef __PIC__
-	adrp	x4, :pg_hi21:_fini
-	add	x4, x4, #:lo12:_fini
-	adrp	x3, :pg_hi21:_init
-	add	x3, x3, #:lo12:_init
-	adrp	x0, :pg_hi21:main
-	add	x0, x0, #:lo12:main
+	adrp	x4, _fini
+	add	x4, x4, :lo12:_fini
+	adrp	x3, _init
+	add	x3, x3, :lo12:_init
+	adrp	x0, main
+	add	x0, x0, :lo12:main
 
 	/* __uClibc_main (main, argc, argv, init, fini, rtld_fini, stack_end) */
 	/* __uClibc_main has 7 arguments, that is why we can pass them all in registers and not use the stack */
