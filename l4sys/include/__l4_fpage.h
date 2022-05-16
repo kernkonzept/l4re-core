@@ -74,6 +74,8 @@ enum L4_fpage_consts
   L4_FPAGE_SIZE_MASK    = ((1UL << L4_FPAGE_SIZE_BITS)   - 1)
                           << L4_FPAGE_SIZE_SHIFT,
   L4_FPAGE_ADDR_MASK    = ~0UL << L4_FPAGE_ADDR_SHIFT,
+  /// Specify as flexpage rights during grant.
+  L4_FPAGE_RIGHTS_ALL   = L4_FPAGE_RIGHTS_MASK,
 };
 
 /**
