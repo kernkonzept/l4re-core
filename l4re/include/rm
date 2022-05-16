@@ -51,15 +51,20 @@ namespace L4Re {
  *
  * There are two basic concepts provided by the region map abstraction:
  * - **Areas** are reserved ranges in the virtual memory address space.
- * - **Regions** are areas that are backed by (part of) a dataspace, i.e.
+ * - **Regions** are ranges that are backed by (part of) a dataspace, i.e.
  *   accessing them results in access to the physical memory the dataspace
  *   manages.
+ *
+ * Note that regions may live outside of areas and that an area does not
+ * necessarily contain any region.
  *
  * Areas can be reserved for special use or for attaching a dataspace at a later
  * time. When attaching a dataspace, the user can instruct the region map to
  * search for an appropriate range to attach to. Regions are skipped in this
- * search since they already have dataspaces attached to them, and areas are
- * skipped because they are reserved.
+ * search since they already have dataspaces attached to them, and, depending
+ * on L4Re::Rm::F::In_area, areas are skipped because they are reserved.
+ * Amongst others, areas can be used to attach several dataspaces inside a
+ * certain range of addresses without interference from other threads.
  *
  * When a region map receives a page fault IPC, the region map will check if the
  * faulting virtual address lies in a region. If yes, it will answer the page
