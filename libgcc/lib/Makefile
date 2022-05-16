@@ -12,4 +12,6 @@ PC_LIBS_libgcc    = -lgcc
 PC_LIBS_libgcc-l4 = -lgcc-l4
 INSTALL_TARGET   += libgcc-l4.a
 
+CFLAGS_ARCH-arm/l4-atomic.c = -Wno-builtin-declaration-mismatch
+
 include $(PKGDIR)/lib/Makefile.libgcc
