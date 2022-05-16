@@ -427,12 +427,20 @@ l4_thread_vcpu_resume_start_u(l4_utcb_t *utcb) L4_NOTHROW;
  *                  for the current thread.
  * \param tag       Tag to use, returned by l4_thread_vcpu_resume_start()
  *
- * \return System call result message tag. In extended vCPU mode and when
- * the virtual interrupts are cleared, the return code 1 flags an incoming
- * IPC message, whereas 0 indicates a VM exit. An error is returned upon:
- *   - Insufficient rights on the given task capability (-L4_EPERM).
- *   - Given task capability is invalid (-L4_ENOENT).
- *   - A supplied mapping failed.
+ * \return Syscall return tag containing one of the following return codes.
+ *
+ * \retval 0           Indicates a VM exit, provided that `thread` is in
+ *                     extended vCPU mode with virtual interrupts cleared.
+ * \retval 1           Indicates an incoming IPC message, provided that the
+ *                     `thread` is in extended vCPU mode with virtual interrupts
+ *                     cleared.
+ * \retval -L4_EPERM   The user task capability set in the vCPU state is missing
+ *                     the #L4_CAP_FPAGE_S right.
+ * \retval -L4_ENOENT  The user task capability set in the vCPU state is
+ *                     invalid.
+ * \retval -L4_EINVAL  `thread` is not the current running thread, or does not
+ *                     have the vCPU feature enabled.
+ * \retval <0          A supplied mapping failed.
  *
  * All flex pages in the UTCB (added with l4_sndfpage_add() after
  * l4_thread_vcpu_resume_start()) are unconditionally mapped into the
@@ -443,9 +451,9 @@ l4_thread_vcpu_resume_start_u(l4_utcb_t *utcb) L4_NOTHROW;
  * with #L4_VCPU_F_USER_MODE. The capability selector must have all lower bits
  * clear (see #L4_CAP_MASK). The kernel adds the #L4_SYSF_SEND flag there to
  * indicate that the capability has been referenced in the kernel. Consecutive
- * resumes will not reference the task capability again until all bits are
- * cleared again. To release a task use the different task capability or use
- * an invalid capability with the #L4_SYSF_REPLY flag set.
+ * resumes will not reference the task capability again until all lower bits are
+ * cleared again. To release a task use a different task capability or use an
+ * invalid capability with the #L4_SYSF_REPLY flag set.
  *
  * \see l4_vcpu_state_t
  */
@@ -550,7 +558,7 @@ l4_thread_vcpu_control_ext_u(l4_cap_idx_t thread, l4_addr_t ext_vcpu_state,
  *
  * \return System call return tag containing the return code.
  *
- * \retval L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+ * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
  *
  * In case the `irq` is already bound to an interrupt source, it is unbound
  * first. When `irq` is deleted, it will be deregistered first. A registered
