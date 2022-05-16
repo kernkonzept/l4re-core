@@ -34,8 +34,7 @@
  * \defgroup l4_factory_api Factory
  * \ingroup  l4_kernel_object_api
  *
- * C factory interface to create kernel objects, see L4::Factory for the C++
- * interface.
+ * C factory interface to create objects, see L4::Factory for the C++ interface.
  *
  * A factory is used to create all kinds of kernel objects:
  * - \ref l4_task_api
@@ -78,9 +77,14 @@
  *
  * \return Syscall return tag.
  *
+ * \retval L4_EOK     No error occurred.
+ * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0         Error code.
+ *
  * \note The size of the UTCB area specifies indirectly the number
- *       of UTCBs available for this task. Refer to L4::Task::add_ku_mem
- *       / l4_task_add_ku_mem() for adding more of this type of memory.
+ *       of UTCBs available for this task. Refer to l4_task_add_ku_mem() for
+ *       adding more of this type of memory.
  *
  * \see \ref l4_task_api
  */
@@ -106,6 +110,11 @@ l4_factory_create_task_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  *
  * \return Syscall return tag
  *
+ * \retval L4_EOK     No error occurred.
+ * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0         Error code.
+ *
  * \see \ref l4_thread_api
  */
 L4_INLINE l4_msgtag_t
@@ -130,8 +139,19 @@ l4_factory_create_thread_u(l4_cap_idx_t factory,
  *
  * \return Syscall return tag
  *
+ * \retval L4_EOK     No error occurred.
+ * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0         Error code.
+ *
  * \note The limit of the new factory is subtracted from the available amount
  *       of the factory used for creation.
+ *
+ * \note This method is only guaranteed to work with the
+ *       \ref l4re_concepts_kernel_factory. For other services, use the
+ *       generic L4::Factory::create() method and consult the service documentation
+ *       for information on the arguments that need to be passed to the create
+ *       stream.
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_factory(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
@@ -151,7 +171,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \param      factory     Capability selector for factory to use for creation.
  * \param[out] target_cap  The kernel stores the new IPC gate's capability into
  *                         this slot.
- * \param      thread_cap  Optional capability selector of the thread to
+ * \param      thread_cap  Optional capability selector of a thread to
  *                         bind the gate to. Use #L4_INVALID_CAP to create
  *                         an unbound IPC gate.
  * \param      label       Optional label of the gate (precisely used if
@@ -164,7 +184,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
  * \retval -L4_ENOENT  `thread_cap` is void or points to something that is not
  *                     a thread.
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `thread_cap`.
+ * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `factory` or `thread_cap`.
  *
  * An unbound IPC gate can be bound to a thread using l4_rcv_ep_bind_thread().
  *
@@ -193,7 +213,10 @@ l4_factory_create_gate_u(l4_cap_idx_t factory,
  * \param[out] target_cap  The kernel stores the new IRQ's capability into this
  *                         slot.
  *
- * \return Syscall return tag
+ * \retval L4_EOK     No error occurred.
+ * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0         Error code.
  *
  * \see \ref l4_irq_api
  */
@@ -218,6 +241,11 @@ l4_factory_create_irq_u(l4_cap_idx_t factory,
  *                         slot.
  *
  * \return Syscall return tag
+ *
+ * \retval L4_EOK     No error occurred.
+ * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0         Error code.
  *
  * \see \ref l4_vm_api
  */
@@ -308,7 +336,7 @@ l4_factory_create_u(l4_cap_idx_t factory, long obj, l4_cap_idx_t target,
 /**
  * \ingroup l4_factory_api
  *
- * Create a new kernel object.
+ * Create a new object.
  *
  * \param      factory     Factory to use for creation.
  * \param      obj         Protocol ID to describe the type of the object to
@@ -316,7 +344,10 @@ l4_factory_create_u(l4_cap_idx_t factory, long obj, l4_cap_idx_t target,
  * \param[out] target      The kernel stores the new objects's capability into
  *                         this slot.
  *
- * \return Syscall return tag
+ * \retval L4_EOK     No error occurred.
+ * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0         Error code.
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create(l4_cap_idx_t factory, long obj,

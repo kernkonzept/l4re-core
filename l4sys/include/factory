@@ -148,6 +148,12 @@ public:
      * Explicitly commits the operation and returns the result.
      *
      * \return The result of the create() operation.
+     *
+     * \retval L4_EOK     No error occurred.
+     * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights
+     *                    on the invoked capability and #L4_CAP_FPAGE_S is not
+     *                    present.
+     * \retval <0         Error code.
      */
     operator l4_msgtag_t () noexcept
     {
@@ -267,6 +273,9 @@ public:
    * when the create stream returned by this method is converted to an
    * `l4_msgtag_t`, or otherwise when the stream goes out of scope.
    *
+   * \note Refer to `S::operator l4_msgtag_t ()` for description of error codes
+   *       in the returned create stream.
+   *
    * \note The create stream uses the UTCB to store parameters for the service
    *       call. During the lifetime of a create stream or, until it is
    *       converted to a `l4_msgtag_t`, other UTCB-using operations must not
@@ -292,6 +301,9 @@ public:
    * This method does not directly invoke the factory. The factory is invoked
    * when the create stream returned by this method is converted to an
    * `l4_msgtag_t`, or otherwise when the stream goes out of scope.
+   *
+   * \note Refer to `S::operator l4_msgtag_t ()` for description of error codes
+   *       in the returned create stream.
    *
    * \note The create stream uses the UTCB to store parameters for the service
    *       call. During the lifetime of a create stream or, until it is
@@ -329,12 +341,15 @@ public:
    *
    * \return Syscall return tag
    *
-   * \note The size of the UTCB area specifies indirectly the number
-   *       of UTCBs available for this task. Refer to L4::Task::add_ku_mem
-   *       / l4_task_add_ku_mem() for adding more of this type of memory.
+   * \retval L4_EOK     No error occurred.
+   * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+   *                    the invoked capability and #L4_CAP_FPAGE_S is not
+   *                    present.
+   * \retval <0         Error code.
    *
-   * \note This method is only guaranteed to work with the
-   *       \ref l4re_concepts_kernel_factory.
+   * \note The size of the UTCB area specifies indirectly the number
+   *       of UTCBs available for this task. Refer to L4::Task::add_ku_mem for
+   *       adding more of this type of memory.
    *
    * \see L4::Task
    */
@@ -352,6 +367,12 @@ public:
    * \param      utcb        The UTCB to use for the operation.
    *
    * \return Syscall return tag
+   *
+   * \retval L4_EOK     No error occurred.
+   * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+   *                    the invoked capability and #L4_CAP_FPAGE_S is not
+   *                    present.
+   * \retval <0         Error code.
    *
    * \note In addition to memory needed for internal data structures, the
    *       `limit` (quota) of the new factory is counted towards the quota of
@@ -375,7 +396,7 @@ public:
    *
    * \param[out] target_cap  The kernel stores the new IPC gate's capability
    *                         into this slot.
-   * \param      thread_cap  Optional capability selector of the thread to
+   * \param      thread_cap  Optional capability selector of a thread to
    *                         bind the gate to. Use #L4_INVALID_CAP to create
    *                         an unbound IPC gate.
    * \param      label       Optional label of the gate (precisely used if
@@ -389,13 +410,12 @@ public:
    * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
    * \retval -L4_ENOENT  `thread_cap` is void or points to something that is not
    *                     a thread.
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `thread_cap`.
+   * \retval -L4_EPERM   The factory instance requires #L4_CAP_FPAGE_S rights on
+   *                     the invoked capability or `thread_cap` and
+   *                     #L4_CAP_FPAGE_S is not present.
    *
    * An unbound IPC gate can be bound to a thread using
    * L4::Ipc_gate::bind_thread().
-   *
-   * \note This method is only guaranteed to work with the
-   *       \ref l4re_concepts_kernel_factory.
    *
    * \see L4::Ipc_gate
    */
