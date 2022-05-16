@@ -127,16 +127,22 @@ public:
   /**
    * Release capability and delete object.
    *
-   * \param obj   Capability selector of the object to delete.
+   * \param obj   Capability index of the object to delete.
    * \param utcb  UTCB pointer of the calling thread.
    *
    * \return Syscall return tag
    *
-   * Initiates the deletion of the object if `obj` has the delete permission.
-   * Objects are not destroyed until all other kernel objects holding a
-   * reference to it drop the reference. No error will be reported if the rights
-   * are insufficient, however, the capability is removed in all cases from the
-   * destination task.
+   * If `obj` has the delete permission, initiates the deletion of the object.
+   * This implies that all capabilities for that object are gone afterwards.
+   * However, kernel-internally, objects are not destroyed until all other
+   * kernel objects holding a reference to it drop the reference. Hence, quota
+   * used by that object might not be freed immediately.
+   *
+   * If `obj` does not have the delete permission, no error will be reported and
+   * only the capability `obj` is removed. (Note that, depending on the object’s
+   * reference counter, this might still imply initiation of deletion.)
+   *
+   * This operation is equivalent to unmap() with #L4_FP_DELETE_OBJ flag.
    */
   l4_msgtag_t delete_obj(L4::Cap<void> obj,
                          l4_utcb_t *utcb = l4_utcb()) noexcept

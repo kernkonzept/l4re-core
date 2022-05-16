@@ -144,18 +144,22 @@ l4_task_unmap_batch_u(l4_cap_idx_t task, l4_fpage_t const *fpages,
  * Release capability and delete object.
  * \ingroup l4_task_api
  *
- * \param task          Capability selector of destination task
- * \param obj           Capability selector of object to delete
+ * \param task  Capability selector of destination task.
+ * \param obj   Capability index of the object to delete.
  *
  * \return Syscall return tag
  *
- * Initiates the deletion of the object if `obj` has the delete permission.
- * Objects are not destroyed until all other kernel objects holding a reference
- * to it drop the reference. No error will be reported if the rights are
- * insufficient, however, the capability is removed in all cases from the
- * destination task.
+ * If `obj` has the delete permission, initiates the deletion of the object.
+ * This implies that all capabilities for that object are gone afterwards.
+ * However, kernel-internally, objects are not destroyed until all other
+ * kernel objects holding a reference to it drop the reference. Hence, quota
+ * used by that object might not be freed immediately.
  *
- * This operation calls l4_task_unmap() with #L4_FP_DELETE_OBJ.
+ * If `obj` does not have the delete permission, no error will be reported and
+ * only the capability `obj` is removed. (Note that, depending on the object’s
+ * reference counter, this might still imply initiation of deletion.)
+ *
+ * This operation is equivalent to l4_task_unmap() with #L4_FP_DELETE_OBJ flag.
  */
 L4_INLINE l4_msgtag_t
 l4_task_delete_obj(l4_cap_idx_t task, l4_cap_idx_t obj) L4_NOTHROW;
