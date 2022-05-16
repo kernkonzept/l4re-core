@@ -250,10 +250,20 @@ l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t ku_mem,
  * Add kernel-user memory.
  * \ingroup l4_task_api
  *
- * \param task    Capability selector of the task to add the memory to
+ * \param task    Capability selector of the task to add the memory to.
  * \param ku_mem  Flexpage describing the virtual area the memory goes to.
  *
  * \return Syscall return tag
+ *
+ * Kernel-user memory (ku_mem) is memory that is shared between the kernel and
+ * user-space. It is needed for the UTCB area of threads (see
+ * l4_thread_control_bind()) and for (extended) vCPU state. Note that existing
+ * kernel-user memory cannot be unmapped or mapped somewhere else.
+ *
+ * \note The amount of kernel-user memory that can be allocated at once is
+ *       limited by the used kernel implementation. The minimum allocatable
+ *       amount is one page (`L4_PAGESIZE`). A portable implementation should
+ *       not depend on allocations greater than 16KiB to succeed.
  */
 L4_INLINE l4_msgtag_t
 l4_task_add_ku_mem(l4_cap_idx_t task, l4_fpage_t ku_mem) L4_NOTHROW;
