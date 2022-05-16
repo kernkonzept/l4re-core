@@ -9,7 +9,7 @@
 
 /*#include <l4/sys/compiler.h>*/
 
-.section .text.init,#alloc,#execinstr
+.section .text.init,"ax"
 .type _start,#function
 .globl _start
 _start:
