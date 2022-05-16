@@ -977,7 +977,7 @@ extern int getpt (void);
 # endif
 #endif
 
-#if 0 /* def __USE_BSD */
+#ifdef __USE_BSD
 /* Put the 1 minute, 5 minute and 15 minute load averages into the first
    NELEM elements of LOADAVG.  Return the number written (never more than
    three, but may be less than NELEM), or -1 if an error occurred.  */
