@@ -26,7 +26,7 @@
  *
  * Depending on the permissions of the capability used, an IPC gate forwards IPC
  * to the \ref l4_thread_api that is *bound* to the IPC gate (cf.
- * l4_ipc_gate_bind_thread()). If the capability has the #L4_FPAGE_C_IPCGATE_SVR
+ * l4_rcv_ep_bind_thread()). If the capability has the #L4_FPAGE_C_IPCGATE_SVR
  * permission, only IPC using a protocol different from the #L4_PROTO_KOBJECT
  * protocol is forwarded. Without the #L4_FPAGE_C_IPCGATE_SVR permission, all
  * IPC is forwarded. The latter is the usual case for a client in a
@@ -46,12 +46,12 @@
  *
  * When binding a thread to an IPC gate, a user-defined, kernel protected,
  * machine-word sized payload called the IPC gate’s *label* is assigned to the
- * IPC gate (cf. l4_ipc_gate_bind_thread()). When a send-only IPC or call IPC is
- * forwarded via an IPC gate, the label provided by the sender is ignored and
- * replaced by the IPC gate’s label where the two least significant bits are the
- * result of bitwise disjunction of the corresponding label bits with the
- * #L4_CAP_FPAGE_S and #L4_CAP_FPAGE_W permissions of the capability used.
- * Hence, the label provided via l4_ipc_gate_bind_thread() should usually have
+ * IPC gate (cf. l4_rcv_ep_bind_thread()). When a send-only IPC or call IPC
+ * is forwarded via an IPC gate, the label provided by the sender is ignored
+ * and replaced by the IPC gate’s label where the two least significant bits
+ * are the result of bitwise disjunction of the corresponding label bits with
+ * the #L4_CAP_FPAGE_S and #L4_CAP_FPAGE_W permissions of the capability used.
+ * Hence, the label provided via l4_rcv_ep_bind_thread() should usually have
  * its two least significant bits set to zero. The replaced label is only
  * visible to the bound thread upon receive. However, the configured label of an
  * IPC gate can also be queried via l4_ipc_gate_get_infos() if the capability

@@ -166,7 +166,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  *                     a thread.
  * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `thread_cap`.
  *
- * An unbound IPC gate can be bound to a thread using l4_ipc_gate_bind_thread.
+ * An unbound IPC gate can be bound to a thread using l4_rcv_ep_bind_thread().
  *
  * \see  l4_kernel_object_gate_api
  */
