@@ -209,8 +209,12 @@ l4_kip_clock_ns(l4_kernel_info_t *kip) L4_NOTHROW
 L4_INLINE l4_umword_t
 l4_kip_clock_lw(l4_kernel_info_t *kip) L4_NOTHROW
 {
-  /* We do the casting because the clock field is volatile */
-  unsigned long *c = (unsigned long *)&kip->_clock_val;
+  union Clock_field
+  {
+    l4_cpu_time_t t;
+    unsigned long l;
+  };
+  union Clock_field c = { kip->_clock_val };
   l4_mb();
-  return c[0];
+  return c.l;
 }
