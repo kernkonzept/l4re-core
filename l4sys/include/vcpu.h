@@ -39,7 +39,7 @@
  * All events enabled in the `vcpu_state` field are redirected to the handler.
  * The handler is set via l4_vcpu_state_t::entry_ip and
  * l4_vcpu_state_t::entry_sp. IPC redirection works independent of "kernel"
- * and "user" mode, but see l4_vcpu_state::entry_sp. When the entry handler is
+ * and "user" mode, but see l4_vcpu_state_t::entry_sp. When the entry handler is
  * called, the UTCB contains the result of the IPC and content normally found
  * in CPU register is in l4_vcpu_state_t::i.
  *
@@ -48,9 +48,11 @@
  * the thread was originally bound via L4::Thread::control(). Execution starts
  * in the kernel task and it is always switched to when the asynchronous IPC
  * handler is invoked. When returning from the handler via
- * L4::Thread::vcpu_resume_start() and L4::Thread::vcpu_resume_commit(), a
+ * l4_thread_vcpu_resume_start() and l4_thread_vcpu_resume_commit(), a
  * different user task can be specified by setting l4_vcpu_state_t::user_task
  * and enabling the #L4_VCPU_F_USER_MODE flag in l4_vcpu_state_t::state.
+ * Note that the kernel may cache the user task internally, see
+ * l4_thread_vcpu_resume_commit().
  *
  * If the #L4_VCPU_F_USER_MODE flag is enabled, the following flags will be
  * automatically enabled in l4_vcpu_state_t::state on

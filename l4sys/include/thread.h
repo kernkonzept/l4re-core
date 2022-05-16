@@ -438,14 +438,14 @@ l4_thread_vcpu_resume_start_u(l4_utcb_t *utcb) L4_NOTHROW;
  * l4_thread_vcpu_resume_start()) are unconditionally mapped into the
  * user task configured in the vCPU state.
  *
- * To resume into another address space the capability to the target task
- * must be set in the vCPU-state, with all lower bits in the task
- * capability cleared (see #L4_CAP_MASK). The kernel adds the
- * #L4_SYSF_SEND flag to this field to indicate that the capability has been
- * referenced in the kernel. Consecutive resumes will not reference the task
- * capability again until all bits are cleared again. To release a task use the
- * different task capability or use an invalid capability with the
- * #L4_SYSF_REPLY flag set.
+ * To resume into another address space, the capability to the target \ref
+ * l4_task_api (or L4::Vm) must be set in l4_vcpu_state_t::user_task together
+ * with #L4_VCPU_F_USER_MODE. The capability selector must have all lower bits
+ * clear (see #L4_CAP_MASK). The kernel adds the #L4_SYSF_SEND flag there to
+ * indicate that the capability has been referenced in the kernel. Consecutive
+ * resumes will not reference the task capability again until all bits are
+ * cleared again. To release a task use the different task capability or use
+ * an invalid capability with the #L4_SYSF_REPLY flag set.
  *
  * \see l4_vcpu_state_t
  */

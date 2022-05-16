@@ -77,6 +77,9 @@ enum l4_syscall_flags_t
    * Setting this flag in a capability selector induces a send phase,
    * this means a message is sent to the object denoted by the capability.
    * For receive phase see #L4_SYSF_RECV.
+   *
+   * In l4_vcpu_state_t::user_task this flag means that the kernel has cached
+   * the user task capability internally, see l4_thread_vcpu_resume_commit().
    */
   L4_SYSF_SEND      = 0x01,
 

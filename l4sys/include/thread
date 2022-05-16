@@ -53,7 +53,8 @@ namespace L4 {
  *
  * \includefile{l4/sys/thread}
  *
- * For the C interface see the \ref l4_thread_api API.
+ * For the C interface see the \ref l4_thread_api API. For more elaborated
+ * documentation on the vCPU feature see \ref l4_vcpu_api.
  */
 class Thread :
   public Kobject_t<Thread, Kobject, L4_PROTO_THREAD,
