@@ -30,6 +30,10 @@
  * \param thread   Thread to manipulate
  * \param tpidruro The value to be set
  * \return System call return tag
+ *
+ * \note When this function is invoked for a thread currently executing on a
+ *       different core then the changed register content will not be visible
+ *       to that thread until a thread switch happens on that core.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_arm_set_tpidruro(l4_cap_idx_t thread, l4_addr_t tpidruro) L4_NOTHROW;
