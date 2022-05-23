@@ -49,7 +49,6 @@
 #define SIGMA0_REQ_ID_FPAGE_ANY		  0x90     /**< Any */
 #define SIGMA0_REQ_ID_KIP		  0xA0     /**< KIP */
 #define SIGMA0_REQ_ID_DEBUG_DUMP	  0xC0     /**< Debug dump */
-#define SIGMA0_REQ_ID_NEW_CLIENT	  0xD0     /**< New client */
 
 #define SIGMA0_IS_MAGIC_REQ(d1)	\
   ((d1 & SIGMA0_REQ_MASK) == SIGMA0_REQ_MAGIC)     /**< Check if magic */
@@ -64,7 +63,6 @@
 #define SIGMA0_REQ_FPAGE_ANY            (SIGMA0_REQ(FPAGE_ANY))          /**< Any */
 #define SIGMA0_REQ_KIP                  (SIGMA0_REQ(KIP))                /**< KIP */
 #define SIGMA0_REQ_DEBUG_DUMP           (SIGMA0_REQ(DEBUG_DUMP))         /**< Debug dump */
-#define SIGMA0_REQ_NEW_CLIENT           (SIGMA0_REQ(NEW_CLIENT))         /**< New client */
 /**@}*/
 
 /**
@@ -192,21 +190,6 @@ L4_CV int l4sigma0_map_anypage(l4_cap_idx_t sigma0, l4_addr_t map_area,
  * about the internal allocators is dumped to the kernel debugger.
  */
 L4_CV void l4sigma0_debug_dump(l4_cap_idx_t sigma0);
-
-/**
- * Create a new IPC gate for a new Sigma0 client.
- *
- * \param      sigma0  Capability selector for the sigma0 gate.
- * \param[out] gate    Capability selector to use for the new gate.
- *
- * \retval 0                   Success.
- * \retval -L4SIGMA0_IPCERROR  IPC error.
- * \retval -L4SIGMA0_NOFPAGE   No fpage received.
- *
- * The result is identical to sending a factory create message (see
- * L4::Factory.create()) with object #L4_PROTO_SIGMA0 to `sigma0`.
- */
-L4_CV int l4sigma0_new_client(l4_cap_idx_t sigma0, l4_cap_idx_t gate);
 
 /**
  * Get user readable error messages for the return codes.

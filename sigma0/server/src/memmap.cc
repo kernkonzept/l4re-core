@@ -235,9 +235,6 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
       map_free_page(l4_fpage_size(*(l4_fpage_t*)(&l4_utcb_mr_u(utcb)->mr[1])),
                     t, answer);
       break;
-    case SIGMA0_REQ_ID_NEW_CLIENT:
-      new_client(t, answer);
-      break;
     default:
       answer->error(L4_ENOSYS);
       break;
