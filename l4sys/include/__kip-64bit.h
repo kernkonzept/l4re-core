@@ -43,7 +43,8 @@ typedef struct l4_kernel_info_t
   l4_uint8_t             offset_version_strings; ///< offset to version string
   l4_uint8_t             fill2[7];            ///< reserved \internal
   l4_uint8_t             kip_sys_calls;       ///< pointer to system calls
-  l4_uint8_t             fill3[7];            ///< reserved \internal
+  l4_uint8_t             node;
+  l4_uint8_t             fill3[6];            ///< reserved \internal
 
   /* the following stuff is undocumented; we assume that the kernel
      info page is located at offset 0x1000 into the L4 kernel boot
