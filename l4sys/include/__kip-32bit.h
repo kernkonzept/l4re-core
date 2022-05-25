@@ -45,7 +45,8 @@ typedef struct l4_kernel_info_t
   l4_uint8_t             offset_version_strings; ///< offset to version string
   l4_uint8_t             fill0[3];            ///< reserved \internal
   l4_uint8_t             kip_sys_calls;       ///< pointer to system calls
-  l4_uint8_t             fill1[3];            ///< reserved \internal
+  l4_uint8_t             node;
+  l4_uint8_t             fill1[2];            ///< reserved \internal
 
   /* the following stuff is undocumented; we assume that the kernel
      info page is located at offset 0x1000 into the L4 kernel boot
@@ -57,32 +58,17 @@ typedef struct l4_kernel_info_t
   l4_umword_t            scheduler_granularity; ///< for rounding time slices
   l4_umword_t            _res00[3];           ///< default_kdebug_end
 
-  /* offset 0x20 */
+  /* offset 0x20 - 0x3f */
   /* Sigma0 */
-  l4_umword_t            sigma0_esp;          ///< Sigma0 start stack pointer
-  l4_umword_t            sigma0_eip;          ///< Sigma0 instruction pointer
-  l4_umword_t            _res01[2];           ///< reserved \internal
+  l4_umword_t            sigma0[8];           ///< Sigma0 instruction pointers
 
-  /* offset 0x30 */
-  /* Sigma1 */
-  l4_umword_t            sigma1_esp;          ///< Sigma1 start stack pointer
-  l4_umword_t            sigma1_eip;          ///< Sigma1 instruction pointer
-  l4_umword_t            _res02[2];           ///< reserved \internal
-
-  /* offset 0x40 */
+  /* offset 0x40 - 0x5f */
   /* Root task */
-  l4_umword_t            root_esp;            ///< Root task stack pointer
-  l4_umword_t            root_eip;            ///< Root task instruction pointer
-  l4_umword_t            _res03[2];           ///< reserved \internal
-
-  /* offset 0x50 */
-  /* L4 configuration */
-  l4_umword_t            _res50[1];           ///< reserved \internal
-  l4_umword_t            mem_info;            ///< memory information
-  l4_umword_t            _res58[2];           ///< reserved \internal
+  l4_umword_t            root[8];             ///< Root task instruction pointers
 
   /* offset 0x60 */
-  l4_umword_t            _res04[16];          ///< reserved \internal
+  l4_umword_t            mem_info;            ///< memory information
+  l4_umword_t            _res04[15];          ///< reserved \internal
 
   /* offset 0xA0 */
   volatile l4_cpu_time_t _clock_val;          ///< \internal

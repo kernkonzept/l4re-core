@@ -37,6 +37,7 @@ init_memory(l4_kernel_info_t *info)
   iomem.add_free(Region(0, ~0UL, 0, L4_FPAGE_RW));
 
   Region mismatch = Region::invalid();
+  unsigned nodes = 1U << info->node;
   for (auto const &md: L4::Kip::Mem_desc::all(info))
     {
       if (md.is_virtual())
@@ -58,12 +59,15 @@ init_memory(l4_kernel_info_t *info)
       switch (type)
         {
         case Mem_desc::Conventional:
-          Mem_man::ram()->add_free(Region(start, end));
+          if (md.nodes() & nodes)
+            Mem_man::ram()->add_free(Region(start, end));
           if (!iomem.reserve(Region(start, end, sigma0_taskno, L4_FPAGE_RW)))
             mismatch = Region(start, end, sigma0_taskno, L4_FPAGE_RW);
           continue;
         case Mem_desc::Reserved:
         case Mem_desc::Dedicated:
+          if (!(md.nodes() & nodes))
+            continue;
           if (!iomem.reserve(Region(start, end, sigma0_taskno, L4_FPAGE_RW))
               || !Mem_man::ram()->reserve(Region(start, end, sigma0_taskno)))
             mismatch = Region(start, end, sigma0_taskno, L4_FPAGE_RW);
