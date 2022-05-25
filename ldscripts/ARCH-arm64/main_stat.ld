@@ -14,6 +14,9 @@ PHDRS
   phdr PT_PHDR PHDRS;
   ro PT_LOAD FILEHDR PHDRS;
   rw PT_LOAD;
+#if !CONFIG_MMU
+  stack 0x60000012;
+#endif
   tls PT_TLS;
 #if CONFIG_BID_PIE
   dyn PT_DYNAMIC;
@@ -182,16 +185,31 @@ SECTIONS
    . = ALIGN(. != 0 ? 64 / 8 : 1);
   }
   _bss_end__ = . ; __bss_end__ = . ;
+#if !CONFIG_MMU
+  .heap : {
+    . = ALIGN(16);
+    PROVIDE (__heap_start = .);
+    . = . + (DEFINED(__heap_size) ? __heap_size : 0);
+    PROVIDE (__heap_end = .);
+  }
+#endif
   . = ALIGN(64 / 8);
   . = SEGMENT_START("ldata-segment", .);
   . = ALIGN(64 / 8);
   __end__ = . ;
   _end = .; PROVIDE (end = .);
+#if !CONFIG_MMU
+  . = ALIGN(DEFINED(__stack_size) ? CONSTANT(COMMONPAGESIZE) : 1);
+  .stack : {
+    . = . + (DEFINED(__stack_size) ? __stack_size : 0);
+  } :stack
+#else
   .stack         0x80000 :
   {
     _stack = .;
     *(.stack)
   }
+#endif
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
   .stabstr       0 : { *(.stabstr) }
