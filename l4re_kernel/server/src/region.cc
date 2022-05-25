@@ -95,6 +95,9 @@ Region_ops::map_info(Region_handler const *h,
   if ((h->flags() & Rm::F::Reserved) || !h->memory().is_valid())
     return -L4_ENOENT;
 
+  if (h->flags() & Rm::F::Pager)
+    return 0;
+
   L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
   return ds->map_info(min_addr, max_addr);
 }
