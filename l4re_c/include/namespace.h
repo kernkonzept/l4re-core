@@ -48,7 +48,7 @@ EXTERN_C_BEGIN
 
 /**
  * Namespace type
- * \ingroup api_l4re_c_ds
+ * \ingroup api_l4re_c_ns
  */
 typedef l4_cap_idx_t l4re_namespace_t;
 
