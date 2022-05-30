@@ -130,7 +130,7 @@ l4_sched_cpu_set(l4_umword_t offset, unsigned char granularity,
  *                           Pass NULL if this information is not required.
  *
  * \retval 0           Success.
- * \retval -L4_EINVAL  The given CPU offset is larger than the maximum number
+ * \retval -L4_ERANGE  The given CPU offset is larger than the maximum number
  *                     of CPUs.
  */
 L4_INLINE l4_msgtag_t
