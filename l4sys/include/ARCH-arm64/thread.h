@@ -32,7 +32,7 @@
  * \return System call return tag
  *
  * \note When this function is invoked for a thread currently executing on a
- *       different core then the changed register content will not be visible
+ *       different core, then the changed register content will not be visible
  *       to that thread until a thread switch happens on that core.
  */
 L4_INLINE l4_msgtag_t
