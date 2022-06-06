@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 9
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20211219
+#define __GLIBCXX__ 20220527
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -768,65 +768,8 @@ namespace std
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define _GLIBCXX_HAVE_DLFCN_H 1
 
-/* Define if EBADMSG exists. */
-#define _GLIBCXX_HAVE_EBADMSG 1
-
-/* Define if ECANCELED exists. */
-#define _GLIBCXX_HAVE_ECANCELED 1
-
-/* Define if ECHILD exists. */
-#define _GLIBCXX_HAVE_ECHILD 1
-
-/* Define if EIDRM exists. */
-#define _GLIBCXX_HAVE_EIDRM 1
-
 /* Define to 1 if you have the <endian.h> header file. */
 #define _GLIBCXX_HAVE_ENDIAN_H 1
-
-/* Define if ENODATA exists. */
-#define _GLIBCXX_HAVE_ENODATA 1
-
-/* Define if ENOLINK exists. */
-#define _GLIBCXX_HAVE_ENOLINK 1
-
-/* Define if ENOSPC exists. */
-#define _GLIBCXX_HAVE_ENOSPC 1
-
-/* Define if ENOSR exists. */
-#define _GLIBCXX_HAVE_ENOSR 1
-
-/* Define if ENOSTR exists. */
-#define _GLIBCXX_HAVE_ENOSTR 1
-
-/* Define if ENOTRECOVERABLE exists. */
-#define _GLIBCXX_HAVE_ENOTRECOVERABLE 1
-
-/* Define if ENOTSUP exists. */
-#define _GLIBCXX_HAVE_ENOTSUP 1
-
-/* Define if EOVERFLOW exists. */
-#define _GLIBCXX_HAVE_EOVERFLOW 1
-
-/* Define if EOWNERDEAD exists. */
-#define _GLIBCXX_HAVE_EOWNERDEAD 1
-
-/* Define if EPERM exists. */
-#define _GLIBCXX_HAVE_EPERM 1
-
-/* Define if EPROTO exists. */
-#define _GLIBCXX_HAVE_EPROTO 1
-
-/* Define if ETIME exists. */
-#define _GLIBCXX_HAVE_ETIME 1
-
-/* Define if ETIMEDOUT exists. */
-#define _GLIBCXX_HAVE_ETIMEDOUT 1
-
-/* Define if ETXTBSY exists. */
-#define _GLIBCXX_HAVE_ETXTBSY 1
-
-/* Define if EWOULDBLOCK exists. */
-#define _GLIBCXX_HAVE_EWOULDBLOCK 1
 
 /* Define to 1 if GCC 4.6 supported std::exception_ptr for the target */
 #define _GLIBCXX_HAVE_EXCEPTION_PTR_SINCE_GCC46 1
