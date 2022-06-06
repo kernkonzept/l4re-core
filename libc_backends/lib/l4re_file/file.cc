@@ -133,10 +133,10 @@ __internal_resolve(int dirfd, const char *path, int flags, mode_t mode,
 }
 
 static int
-__internal_open(const char *path, int flags, mode_t mode) L4_NOTHROW
+__internal_open(int dirfd, const char *path, int flags, mode_t mode) L4_NOTHROW
 {
   Ref_ptr<File> f;
-  int res = __internal_resolve(AT_FDCWD, path, flags, mode, &f);
+  int res = __internal_resolve(dirfd, path, flags, mode, &f);
 
   ERRNO_RET(res);
 
@@ -159,8 +159,7 @@ int open(const char *name, int flags, ...)
       va_end(v);
     }
 
-  return __internal_open(name, flags, mode);
-
+  return __internal_open(AT_FDCWD, name, flags, mode);
 }
 
 int open64(const char *name, int flags, ...)
@@ -175,7 +174,37 @@ int open64(const char *name, int flags, ...)
       va_end(v);
     }
 
-  return __internal_open(name, flags, mode);
+  return __internal_open(AT_FDCWD, name, flags, mode);
+}
+
+int openat(int dirfd, const char *name, int flags, ...)
+{
+  mode_t mode = 0;
+
+  if (flags & O_CREAT)
+    {
+      va_list v;
+      va_start(v, flags);
+      mode = va_arg(v, mode_t);
+      va_end(v);
+    }
+
+  return __internal_open(dirfd, name, flags, mode);
+}
+
+int openat64(int dirfd, const char *name, int flags, ...)
+{
+  mode_t mode = 0;
+
+  if (flags & O_CREAT)
+    {
+      va_list v;
+      va_start(v, flags);
+      mode = va_arg(v, mode_t);
+      va_end(v);
+    }
+
+  return __internal_open(dirfd, name, flags, mode);
 }
 
 extern "C" int ioctl(int fd, unsigned long request, ...)
