@@ -27,6 +27,10 @@
 # define NEED_DO_COPY_FILE
 # define NEED_DO_SPACE
 #endif
+#ifndef _GNU_SOURCE
+// Cygwin needs this for secure_getenv
+# define _GNU_SOURCE 1
+#endif
 
 #include <bits/largefile-config.h>
 #include <experimental/filesystem>
@@ -344,8 +348,12 @@ fs::copy(const path& from, const path& to, copy_options options,
       // set an unused bit in options to disable further recursion
       if (!is_set(options, copy_options::recursive))
 	options |= static_cast<copy_options>(4096);
-      for (const directory_entry& x : directory_iterator(from))
-	copy(x.path(), to/x.path().filename(), options, ec);
+      for (const directory_entry& x : directory_iterator(from, ec))
+	{
+	  copy(x.path(), to/x.path().filename(), options, ec);
+	  if (ec)
+	    return;
+	}
     }
   // _GLIBCXX_RESOLVE_LIB_DEFECTS
   // 2683. filesystem::copy() says "no effects"
@@ -366,7 +374,7 @@ fs::copy_file(const path& from, const path& to, copy_options option)
 
 bool
 fs::copy_file(const path& from, const path& to, copy_options options,
-	      error_code& ec) noexcept
+	      error_code& ec)
 {
 #ifdef _GLIBCXX_HAVE_SYS_STAT_H
   return do_copy_file(from.c_str(), to.c_str(), copy_file_options(options),
@@ -418,7 +426,7 @@ fs::create_directories(const path& p)
 }
 
 bool
-fs::create_directories(const path& p, error_code& ec) noexcept
+fs::create_directories(const path& p, error_code& ec)
 {
   if (p.empty())
     {
@@ -1092,7 +1100,7 @@ fs::remove_all(const path& p)
 }
 
 std::uintmax_t
-fs::remove_all(const path& p, error_code& ec) noexcept
+fs::remove_all(const path& p, error_code& ec)
 {
   const auto s = symlink_status(p, ec);
   if (!status_known(s))
@@ -1289,7 +1297,8 @@ fs::system_complete(const path& p, error_code& ec)
 #endif
 }
 
-fs::path fs::temp_directory_path()
+fs::path
+fs::temp_directory_path()
 {
   error_code ec;
   path tmp = temp_directory_path(ec);
@@ -1298,31 +1307,12 @@ fs::path fs::temp_directory_path()
   return tmp;
 }
 
-fs::path fs::temp_directory_path(error_code& ec)
+fs::path
+fs::temp_directory_path(error_code& ec)
 {
-  path p;
-#ifdef _GLIBCXX_FILESYSTEM_IS_WINDOWS
-  unsigned len = 1024;
-  std::wstring buf;
-  do
-    {
-      buf.resize(len);
-      len = GetTempPathW(buf.size(), buf.data());
-    } while (len > buf.size());
-
-  if (len == 0)
-    {
-      ec.assign((int)GetLastError(), std::system_category());
-      return p;
-    }
-  buf.resize(len);
-  p = std::move(buf);
-#else
-  const char* tmpdir = nullptr;
-  const char* env[] = { "TMPDIR", "TMP", "TEMP", "TEMPDIR", nullptr };
-  for (auto e = env; tmpdir == nullptr && *e != nullptr; ++e)
-    tmpdir = ::getenv(*e);
-  p = tmpdir ? tmpdir : "/tmp";
+  path p = fs::get_temp_directory_from_env(ec);
+  if (ec)
+    return p;
   auto st = status(p, ec);
   if (ec)
     p.clear();
@@ -1331,7 +1321,5 @@ fs::path fs::temp_directory_path(error_code& ec)
       p.clear();
       ec = std::make_error_code(std::errc::not_a_directory);
     }
-#endif
   return p;
 }
-

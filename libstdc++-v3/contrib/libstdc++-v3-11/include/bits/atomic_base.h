@@ -37,7 +37,7 @@
 #include <bits/atomic_lockfree_defines.h>
 #include <bits/move.h>
 
-#if __cplusplus > 201703L
+#if __cplusplus > 201703L && _GLIBCXX_HOSTED
 #include <bits/atomic_wait.h>
 #endif
 
@@ -119,6 +119,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   {
     return memory_order(__cmpexch_failure_order2(__m & __memory_order_mask)
       | __memory_order_modifier(__m & __memory_order_modifier_mask));
+  }
+
+  constexpr bool
+  __is_valid_cmpexch_failure_order(memory_order __m) noexcept
+  {
+    return (__m & __memory_order_mask) != memory_order_release
+	&& (__m & __memory_order_mask) != memory_order_acq_rel;
   }
 
   _GLIBCXX_ALWAYS_INLINE void
@@ -245,13 +252,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     // TODO add const volatile overload
 
     _GLIBCXX_ALWAYS_INLINE void
-    notify_one() const noexcept
+    notify_one() noexcept
     { std::__atomic_notify_address(&_M_i, false); }
 
     // TODO add const volatile overload
 
     _GLIBCXX_ALWAYS_INLINE void
-    notify_all() const noexcept
+    notify_all() noexcept
     { std::__atomic_notify_address(&_M_i, true); }
 
     // TODO add const volatile overload
@@ -511,13 +518,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       compare_exchange_weak(__int_type& __i1, __int_type __i2,
 			    memory_order __m1, memory_order __m2) noexcept
       {
-	memory_order __b2 __attribute__ ((__unused__))
-	  = __m2 & __memory_order_mask;
-	memory_order __b1 __attribute__ ((__unused__))
-	  = __m1 & __memory_order_mask;
-	__glibcxx_assert(__b2 != memory_order_release);
-	__glibcxx_assert(__b2 != memory_order_acq_rel);
-	__glibcxx_assert(__b2 <= __b1);
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__m2));
 
 	return __atomic_compare_exchange_n(&_M_i, &__i1, __i2, 1,
 					   int(__m1), int(__m2));
@@ -528,13 +529,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			    memory_order __m1,
 			    memory_order __m2) volatile noexcept
       {
-	memory_order __b2 __attribute__ ((__unused__))
-	  = __m2 & __memory_order_mask;
-	memory_order __b1 __attribute__ ((__unused__))
-	  = __m1 & __memory_order_mask;
-	__glibcxx_assert(__b2 != memory_order_release);
-	__glibcxx_assert(__b2 != memory_order_acq_rel);
-	__glibcxx_assert(__b2 <= __b1);
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__m2));
 
 	return __atomic_compare_exchange_n(&_M_i, &__i1, __i2, 1,
 					   int(__m1), int(__m2));
@@ -560,13 +555,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       compare_exchange_strong(__int_type& __i1, __int_type __i2,
 			      memory_order __m1, memory_order __m2) noexcept
       {
-	memory_order __b2 __attribute__ ((__unused__))
-	  = __m2 & __memory_order_mask;
-	memory_order __b1 __attribute__ ((__unused__))
-	  = __m1 & __memory_order_mask;
-	__glibcxx_assert(__b2 != memory_order_release);
-	__glibcxx_assert(__b2 != memory_order_acq_rel);
-	__glibcxx_assert(__b2 <= __b1);
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__m2));
 
 	return __atomic_compare_exchange_n(&_M_i, &__i1, __i2, 0,
 					   int(__m1), int(__m2));
@@ -577,14 +566,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      memory_order __m1,
 			      memory_order __m2) volatile noexcept
       {
-	memory_order __b2 __attribute__ ((__unused__))
-	  = __m2 & __memory_order_mask;
-	memory_order __b1 __attribute__ ((__unused__))
-	  = __m1 & __memory_order_mask;
-
-	__glibcxx_assert(__b2 != memory_order_release);
-	__glibcxx_assert(__b2 != memory_order_acq_rel);
-	__glibcxx_assert(__b2 <= __b1);
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__m2));
 
 	return __atomic_compare_exchange_n(&_M_i, &__i1, __i2, 0,
 					   int(__m1), int(__m2));
@@ -618,13 +600,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       // TODO add const volatile overload
 
       _GLIBCXX_ALWAYS_INLINE void
-      notify_one() const noexcept
+      notify_one() noexcept
       { std::__atomic_notify_address(&_M_i, false); }
 
       // TODO add const volatile overload
 
       _GLIBCXX_ALWAYS_INLINE void
-      notify_all() const noexcept
+      notify_all() noexcept
       { std::__atomic_notify_address(&_M_i, true); }
 
       // TODO add const volatile overload
@@ -869,13 +851,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      memory_order __m1,
 			      memory_order __m2) noexcept
       {
-	memory_order __b2 __attribute__ ((__unused__))
-	  = __m2 & __memory_order_mask;
-	memory_order __b1 __attribute__ ((__unused__))
-	  = __m1 & __memory_order_mask;
-	__glibcxx_assert(__b2 != memory_order_release);
-	__glibcxx_assert(__b2 != memory_order_acq_rel);
-	__glibcxx_assert(__b2 <= __b1);
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__m2));
 
 	return __atomic_compare_exchange_n(&_M_p, &__p1, __p2, 0,
 					   int(__m1), int(__m2));
@@ -886,14 +862,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      memory_order __m1,
 			      memory_order __m2) volatile noexcept
       {
-	memory_order __b2 __attribute__ ((__unused__))
-	  = __m2 & __memory_order_mask;
-	memory_order __b1 __attribute__ ((__unused__))
-	  = __m1 & __memory_order_mask;
-
-	__glibcxx_assert(__b2 != memory_order_release);
-	__glibcxx_assert(__b2 != memory_order_acq_rel);
-	__glibcxx_assert(__b2 <= __b1);
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__m2));
 
 	return __atomic_compare_exchange_n(&_M_p, &__p1, __p2, 0,
 					   int(__m1), int(__m2));
@@ -996,6 +965,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			    _Val<_Tp> __desired, memory_order __success,
 			    memory_order __failure) noexcept
       {
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__failure));
+
 	return __atomic_compare_exchange(__ptr, std::__addressof(__expected),
 					 std::__addressof(__desired), true,
 					 int(__success), int(__failure));
@@ -1007,6 +978,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			      _Val<_Tp> __desired, memory_order __success,
 			      memory_order __failure) noexcept
       {
+	__glibcxx_assert(__is_valid_cmpexch_failure_order(__failure));
+
 	return __atomic_compare_exchange(__ptr, std::__addressof(__expected),
 					 std::__addressof(__desired), false,
 					 int(__success), int(__failure));
