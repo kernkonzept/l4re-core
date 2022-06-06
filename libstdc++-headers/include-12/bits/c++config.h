@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 12
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20220116
+#define __GLIBCXX__ 20220605
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -302,6 +302,7 @@ namespace std
   typedef decltype(nullptr)	nullptr_t;
 #endif
 
+#pragma GCC visibility push(default)
   // This allows the library to terminate without including all of <exception>
   // and without making the declaration of std::terminate visible to users.
   extern "C++" __attribute__ ((__noreturn__, __always_inline__))
@@ -310,6 +311,7 @@ namespace std
     void terminate() _GLIBCXX_USE_NOEXCEPT __attribute__ ((__noreturn__));
     terminate();
   }
+#pragma GCC visibility pop
 }
 
 # define _GLIBCXX_USE_DUAL_ABI 1
@@ -505,6 +507,7 @@ namespace std
 
 namespace std
 {
+#pragma GCC visibility push(default)
   // Internal version of std::is_constant_evaluated().
   // This can be used without checking if the compiler supports the feature.
   // The macro _GLIBCXX_HAVE_IS_CONSTANT_EVALUATED can be used to check if
@@ -522,6 +525,7 @@ namespace std
     return false;
 #endif
   }
+#pragma GCC visibility pop
 }
 
 // Debug Mode implies checking assertions.
@@ -552,6 +556,7 @@ namespace std
 # ifdef _GLIBCXX_VERBOSE_ASSERT
 namespace std
 {
+#pragma GCC visibility push(default)
   // Avoid the use of assert, because we're trying to keep the <cassert>
   // include out of the mix.
   extern "C++" _GLIBCXX_NORETURN
@@ -559,6 +564,7 @@ namespace std
   __glibcxx_assert_fail(const char* __file, int __line,
 			const char* __function, const char* __condition)
   _GLIBCXX_NOEXCEPT;
+#pragma GCC visibility pop
 }
 #define __glibcxx_assert_impl(_Condition)				\
   if (__builtin_expect(!bool(_Condition), false))			\
@@ -810,11 +816,6 @@ namespace std
 
 #undef _GLIBCXX_HAS_BUILTIN
 
-#if __cplusplus >= 202002L && __cpp_concepts && __GNUC__ >= 12
-// XXX workaround for missing feature test macro for P0848R3 (see P2493R0).
-# define _GLIBCXX_HAVE_COND_TRIVIAL_SPECIAL_MEMBERS 1
-#endif
-
 // PSTL configuration
 
 #if __cplusplus >= 201703L
@@ -911,8 +912,15 @@ namespace std
 /* Define to 1 if you have the `cosl' function. */
 #define _GLIBCXX_HAVE_COSL 1
 
+/* Define to 1 if you have the declaration of `strnlen', and to 0 if you
+   don't. */
+#define _GLIBCXX_HAVE_DECL_STRNLEN 1
+
 /* Define to 1 if you have the <dirent.h> header file. */
 #define _GLIBCXX_HAVE_DIRENT_H 1
+
+/* Define if dirfd is available in <dirent.h>. */
+#define _GLIBCXX_HAVE_DIRFD 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define _GLIBCXX_HAVE_DLFCN_H 1
@@ -940,6 +948,9 @@ namespace std
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #define _GLIBCXX_HAVE_FCNTL_H 1
+
+/* Define if fdopendir is available in <dirent.h>. */
+#define _GLIBCXX_HAVE_FDOPENDIR 1
 
 /* Define to 1 if you have the <fenv.h> header file. */
 #define _GLIBCXX_HAVE_FENV_H 1
@@ -1057,6 +1068,9 @@ namespace std
 
 /* Define if link is available in <unistd.h>. */
 #define _GLIBCXX_HAVE_LINK 1
+
+/* Define to 1 if you have the <link.h> header file. */
+#define _GLIBCXX_HAVE_LINK_H 1
 
 /* Define if futex syscall is available. */
 //l4/#define _GLIBCXX_HAVE_LINUX_FUTEX 1
@@ -1193,6 +1207,9 @@ namespace std
 /* Define to 1 if you have the `sqrtl' function. */
 #define _GLIBCXX_HAVE_SQRTL 1
 
+/* Define if the <stacktrace> header is supported. */
+/* #undef _GLIBCXX_HAVE_STACKTRACE */
+
 /* Define to 1 if you have the <stdalign.h> header file. */
 #define _GLIBCXX_HAVE_STDALIGN_H 1
 
@@ -1250,6 +1267,9 @@ namespace std
 
 /* Define to 1 if you have the <sys/machine.h> header file. */
 /* #undef _GLIBCXX_HAVE_SYS_MACHINE_H */
+
+/* Define to 1 if you have the <sys/mman.h> header file. */
+/* #undef _GLIBCXX_HAVE_SYS_MMAN_H */
 
 /* Define to 1 if you have the <sys/param.h> header file. */
 #define _GLIBCXX_HAVE_SYS_PARAM_H 1
@@ -1321,6 +1341,9 @@ namespace std
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define _GLIBCXX_HAVE_UNISTD_H 1
+
+/* Define if unlinkat is available in <fcntl.h>. */
+//l4/#define _GLIBCXX_HAVE_UNLINKAT 1
 
 /* Define to 1 if you have the `uselocale' function. */
 #define _GLIBCXX_HAVE_USELOCALE 1
@@ -1862,6 +1885,14 @@ namespace std
 
 /* Define if obsolescent tmpnam is available in <stdio.h>. */
 //l4/#define _GLIBCXX_USE_TMPNAM 1
+
+/* Define if c8rtomb and mbrtoc8 functions in <uchar.h> should be imported
+   into namespace std in <cuchar> for C++20. */
+/* #undef _GLIBCXX_USE_UCHAR_C8RTOMB_MBRTOC8_CXX20 */
+
+/* Define if c8rtomb and mbrtoc8 functions in <uchar.h> should be imported
+   into namespace std in <cuchar> for -fchar8_t. */
+/* #undef _GLIBCXX_USE_UCHAR_C8RTOMB_MBRTOC8_FCHAR8_T */
 
 /* Define if utime is available in <utime.h>. */
 #define _GLIBCXX_USE_UTIME 1

@@ -42,6 +42,7 @@ std_headers = \
 	${std_srcdir}/coroutine \
 	${std_srcdir}/deque \
 	${std_srcdir}/execution \
+	${std_srcdir}/expected \
 	${std_srcdir}/filesystem \
 	${std_srcdir}/forward_list \
 	${std_srcdir}/fstream \
@@ -80,6 +81,7 @@ std_headers = \
 	${std_srcdir}/sstream \
 	${std_srcdir}/syncstream \
 	${std_srcdir}/stack \
+	${std_srcdir}/stacktrace \
 	${std_srcdir}/stdexcept \
 	${std_srcdir}/stop_token \
 	${std_srcdir}/streambuf \
@@ -849,6 +851,7 @@ c_compatibility_headers = \
 	${c_compatibility_srcdir}/fenv.h \
 	${c_compatibility_srcdir}/tgmath.h \
 	${c_compatibility_srcdir}/math.h \
+	${c_compatibility_srcdir}/stdatomic.h \
 	${c_compatibility_srcdir}/stdlib.h
 endif
 
@@ -1343,6 +1346,8 @@ ${host_builddir}/c++config.h: ${CONFIG_HEADER} \
 	    -e 's/PACKAGE/_GLIBCXX_PACKAGE/g' \
 	    -e 's/VERSION/_GLIBCXX_VERSION/g' \
 	    -e 's/WORDS_/_GLIBCXX_WORDS_/g' \
+	    -e 's/LT_OBJDIR/_GLIBCXX_LT_OBJDIR/g' \
+	    -e 's/STDC_HEADERS/_GLIBCXX_STDC_HEADERS/g' \
 	    -e 's/_DARWIN_USE_64_BIT_INODE/_GLIBCXX_DARWIN_USE_64_BIT_INODE/g' \
 	    -e 's/_FILE_OFFSET_BITS/_GLIBCXX_FILE_OFFSET_BITS/g' \
 	    -e 's/_LARGE_FILES/_GLIBCXX_LARGE_FILES/g' \

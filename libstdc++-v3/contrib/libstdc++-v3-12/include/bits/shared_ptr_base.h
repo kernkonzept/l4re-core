@@ -340,7 +340,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	      // we are releasing the last strong reference. No other
 	      // threads can observe the effects of this _M_release()
 	      // call (e.g. calling use_count()) without a data race.
-	      *(long long*)(&_M_use_count) = 0;
+	      _M_weak_count = _M_use_count = 0;
 	      _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(&_M_use_count);
 	      _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(&_M_weak_count);
 	      _M_dispose();
@@ -409,6 +409,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<_Lock_policy _Lp = __default_lock_policy>
     class __shared_count;
 
+#if __cplusplus >= 202002L
+  template<typename>
+    class _Sp_atomic;
+#endif
 
   // Counted ptr with no deleter or allocator support
   template<typename _Ptr, _Lock_policy _Lp>
@@ -758,6 +762,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    std::__uninitialized_fill_n_a(__p, _M_n, *__init, _M_alloc);
 	  else
 	    {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-local-typedefs"
 	      struct _Iter
 	      {
 		using value_type = _Up;
@@ -779,6 +785,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 		bool operator==(const _Iter& __i) const
 		{ return _M_pos == __i._M_pos; }
 	      };
+#pragma GCC diagnostic pop
 
 	      _Iter __first{_S_first_elem(__init), sizeof(_Tp) / sizeof(_Up)};
 	      _Iter __last = __first;
@@ -1121,6 +1128,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     private:
       friend class __weak_count<_Lp>;
+#if __cplusplus >= 202002L
+      template<typename> friend class _Sp_atomic;
+#endif
 
       _Sp_counted_base<_Lp>*  _M_pi;
     };
@@ -1218,6 +1228,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
     private:
       friend class __shared_count<_Lp>;
+#if __cplusplus >= 202002L
+      template<typename> friend class _Sp_atomic;
+#endif
 
       _Sp_counted_base<_Lp>*  _M_pi;
     };
@@ -1765,6 +1778,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       template<typename _Del, typename _Tp1>
 	friend _Del* get_deleter(const shared_ptr<_Tp1>&) noexcept;
 
+#if __cplusplus >= 202002L
+      friend _Sp_atomic<shared_ptr<_Tp>>;
+#endif
+
       element_type*	   _M_ptr;         // Contained pointer.
       __shared_count<_Lp>  _M_refcount;    // Reference counter.
     };
@@ -2097,6 +2114,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       template<typename _Tp1, _Lock_policy _Lp1> friend class __weak_ptr;
       friend class __enable_shared_from_this<_Tp, _Lp>;
       friend class enable_shared_from_this<_Tp>;
+#if __cplusplus >= 202002L
+      friend _Sp_atomic<weak_ptr<_Tp>>;
+#endif
 
       element_type*	 _M_ptr;         // Contained pointer.
       __weak_count<_Lp>  _M_refcount;    // Reference counter.
