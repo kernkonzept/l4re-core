@@ -55,6 +55,7 @@ UCLIBC_SRC_C              += ssp-l4.c
 endif
 
 UCLIBC_SRC_CC             += _exit.cc
+UCLIBC_SRC_CC             += _dl_find_object.cc
 
 SRC_C_libuc_c.so          += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libuc_c.so)
 SRC_C_libuc_c.a           += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libuc_c.a)

@@ -38,6 +38,9 @@ SRC_CC_$(1) += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libuc_c_minimal.a)
 SRC_S_$(1)  += $(UCLIBC_SRC_S)  $(UCLIBC_SRC_S_libuc_c_minimal.a)
 endef
 
+vpath _dl_find_object.cc $(LIBCSRC_DIR)
+SRC_CC += _dl_find_object.cc
+
 $(foreach target,$(TARGET), $(eval $(call GEN_SRC_VARS,$(target))))
 
 $(GENERAL_D_LOC): $(SRC_DIR)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk
