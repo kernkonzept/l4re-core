@@ -97,6 +97,12 @@ public:
    * \param[out] label  The label of the IPC gate is returned here.
    *
    * \return System call return tag.
+   *
+   * \pre If the IPC gate capability used to invoke this operation does not
+   *      possess the #L4_FPAGE_C_IPCGATE_SVR right, the kernel will not perform
+   *      the operation. Instead, the underlying IPC message will be forwarded
+   *      to the thread bound to the IPC gate, blocking the caller if no thread
+   *      is bound yet.
    */
   L4_INLINE_RPC_OP(L4_IPC_GATE_GET_INFO_OP,
       l4_msgtag_t, get_infos, (l4_umword_t *label));

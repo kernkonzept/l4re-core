@@ -37,7 +37,12 @@
  * \retval L4_EOK      Operation successful.
  * \retval -L4_EINVAL  `thread` is not a thread object or other arguments were
  *                     malformed.
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `ep` or `thread`.
+ * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on `ep` or `thread`.
+ *
+ * \pre If `ep` is an IPC gate capability without the #L4_FPAGE_C_IPCGATE_SVR
+ *      right, the kernel will not perform this operation. Instead, the
+ *      underlying IPC message will be forwarded to the thread bound to the IPC
+ *      gate, blocking the caller if no thread is bound yet.
  *
  *  The specified `label` is passed to the receiver of the incoming IPC. It is
  *  possible to re-bind a receive endpoint to the same or a different thread.

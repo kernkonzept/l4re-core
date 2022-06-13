@@ -81,8 +81,16 @@
 /**
  * \ingroup l4_kernel_object_gate_api
  * \copybrief L4::Ipc_gate::get_infos
+ *
  * \param gate  The IPC gate object to get information about.
- * \copydetails L4::Ipc_gate::get_infos
+ * \param[out] label  The label of the IPC gate is returned here.
+ *
+ * \return System call return tag.
+ *
+ * \pre If `gate` does not possess the #L4_FPAGE_C_IPCGATE_SVR right, the kernel
+ *      will not perform this operation. Instead, the underlying IPC message
+ *      will be forwarded to the thread bound to the IPC gate, blocking the
+ *      caller if no thread is bound yet.
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_gate_get_infos(l4_cap_idx_t gate, l4_umword_t *label);
