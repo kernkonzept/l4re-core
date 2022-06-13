@@ -1,7 +1,10 @@
 alloca.h
+arpa/ftp.h
 arpa/inet.h
 arpa/nameser_compat.h
 arpa/nameser.h
+arpa/telnet.h
+arpa/tftp.h
 asm/errno.h
 asm/socket.h
 asm/ioctls.h
