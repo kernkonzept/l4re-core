@@ -57,6 +57,10 @@
  *
  * \return Syscall return tag.
  *
+ * \retval L4_EOK      Operation successful.
+ * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on `dst_task`.
+ * \retval -L4_EINVAL
+ *
  * This method allows for asynchronous transfer of capabilities, memory
  * mappings, and IO-port mappings (on IA32) from one task to another.
  * The receive window is the whole address space of `dst_task`. By specifying

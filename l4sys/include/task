@@ -62,6 +62,11 @@ public:
    *
    * \return Syscall return tag.
    *
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on capability used to invoke
+   *                     this operation.
+   * \retval -L4_EINVAL
+   *
    * This method allows for asynchronous transfer of capabilities, memory
    * mappings, and IO-port mappings (on IA32) from one task to another.
    * The destination task is the task referenced by the capability on which the
