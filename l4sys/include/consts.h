@@ -201,7 +201,7 @@ enum l4_unmap_flags_t
    * Flag that indicates that an unmap operation on object capabilities shall
    * try to delete the corresponding objects immediately. This flag implies the
    * #L4_FP_ALL_SPACES flag. The concept of deletion is only applicable to
-   * kernel objects. Therefore, for memory and I/O port capabilites, this flag
+   * kernel objects. Therefore, for memory and I/O port capabilities, this flag
    * has the same effect as #L4_FP_ALL_SPACES alone.
    * \hideinitializer
    * \see L4::Task::unmap() l4_task_unmap()
@@ -232,7 +232,17 @@ enum l4_msg_item_consts_t
   L4_ITEM_CONT      = 1,
 
   // send
-  L4_MAP_ITEM_GRANT = 2, ///< Flag as \em grant instead of \em map operation.
+  /**
+   * Flag as \em grant instead of \em map operation. This means, the sender
+   * delegates access to the receiver and the kernel atomically removes the
+   * rights from the sender (basically a move operation). The mapping in the
+   * receiver gets the new parent of any child mappings of the mapping of the
+   * sender. Rights revocation via send item/flexpage is *not* guaranteed to be
+   * applied to descendant mappings in case of grant. See
+   * \ref l4re_concepts_mapping for more details on map/grant.
+   */
+  L4_MAP_ITEM_GRANT = 2,
+
   L4_MAP_ITEM_MAP   = 0, ///< Flag as usual \em map operation.
 
   // receive

@@ -66,7 +66,8 @@ public:
    * mappings, and IO-port mappings (on IA32) from one task to another.
    * The destination task is the task referenced by the capability on which the
    * map is invoked, and the receive window is the whole address space of that
-   * task.
+   * task. By specifying proper rights in the `snd_fpage` and `snd_base`, it is
+   * possible to remove rights during transfer.
    *
    * \note If the send flex page is of type #L4_FPAGE_OBJ, the #L4_CAP_FPAGE_S
    *       right is removed from the transferred capability unless both the
@@ -76,6 +77,8 @@ public:
    * For more information on spaces and mappings, see
    * \ref l4re_concepts_mapping. The flexpage API is described in more detail at
    * \ref l4_fpage_api.
+   *
+   * \note For peculiarities when using grant, see #L4_MAP_ITEM_GRANT.
    */
   l4_msgtag_t map(Cap<Task> const &src_task,
                   l4_fpage_t const &snd_fpage, l4_umword_t snd_base,
