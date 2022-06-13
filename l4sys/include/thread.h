@@ -337,7 +337,13 @@ l4_thread_control_ux_host_syscall_u(l4_utcb_t *utcb, int on) L4_NOTHROW;
  * \ingroup l4_thread_control_api
  *
  * \param thread  Capability selector of target thread to commit to.
- * \return system call return tag
+ *
+ * \return Syscall return tag containing one of the following return codes.
+ *
+ * \retval L4_EOK      Operation successful.
+ * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on `thread` or the task
+ *                     capability set in l4_thread_control_bind().
+ * \retval -L4_EINVAL  Malformed thread control parameters.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_control_commit(l4_cap_idx_t thread) L4_NOTHROW;

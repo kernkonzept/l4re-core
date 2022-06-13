@@ -71,7 +71,7 @@ public:
    * \param flags  Ex-regs flags, see #L4_thread_ex_regs_flags.
    * \param utcb   UTCB to use for this operation.
    *
-   * \return System call return tag
+   * \return System call return tag.
    *
    * This method allows to manipulate and start a thread. The basic
    * functionality is to set the instruction pointer and the stack pointer of a
@@ -127,14 +127,14 @@ public:
 
 
   /**
-   * Thread attributes used for control_commit().
+   * Thread attributes used for control().
    *
    * This class is responsible for initializing various attributes of a
-   * thread in a UTCB for the control_commit() method.
+   * thread in a UTCB for the control() method.
    *
    * \note Instantiation of this class starts the preparation of the UTCB. Do
    *       not invoke any non-Attr functions between the instantiation and the
-   *       call to `L4::Thread::control()`.
+   *       call to L4::Thread::control().
    *
    * \see \ref l4_thread_control_api for some more details.
    */
@@ -148,7 +148,7 @@ public:
      /**
       * Create a thread-attribute object with the given UTCB.
       *
-      * \param utcb  The UTCB to use for the later L4::Thread::control_commit()
+      * \param utcb  The UTCB to use for the later L4::Thread::control()
       *              function. Usually this is the UTCB of the calling thread.
       */
      explicit Attr(l4_utcb_t *utcb = l4_utcb()) noexcept : _u(utcb)
@@ -236,6 +236,14 @@ public:
    * Commit the given thread-attributes object.
    *
    * \param attr the attribute object to commit to the thread.
+   *
+   * \return Syscall return tag containing one of the following return codes.
+   *
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on the capability used to
+   *                     invoke this operation or the task capability set in
+   *                     Attr::bind().
+   * \retval -L4_EINVAL  Malformed thread-attributes.
    */
   l4_msgtag_t control(Attr const &attr) noexcept
   { return l4_thread_control_commit_u(cap(), attr._u); }
