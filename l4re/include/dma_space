@@ -44,7 +44,7 @@ namespace L4Re
  * kernel \ref l4_kernel_object_dmar_space. Note that several DMA domains can
  * be bound to the same Dma_space. Whenever a device needs direct access to
  * parts of an L4Re::Dataspace, that part of the data space must be mapped to
- * the manged Dma_space that is assigned to that device. Binding to DMA
+ * the managed Dma_space that is assigned to that device. Binding to DMA
  * domains must happen before mapping. After the DMA accesses to the memory
  * are finished the memory must be unmapped from the device's DMA address
  * space.
@@ -136,7 +136,7 @@ public:
    * Map the given part of this data space into the DMA address space.
    *
    * \param[in]     src      Source data space (that describes the memory).
-   *                         Caller needs write rights to the data space.
+   *                         Caller needs write right to the data space.
    * \param[in]     offset   The offset (bytes) within `src`.
    * \param[in,out] size     The size (bytes) of the region to be mapped
    *                         for DMA, after successful mapping the size
@@ -153,7 +153,12 @@ public:
    * \param[out]    dma_addr The DMA address to use for DMA with the associated
    *                         device.
    *
-   * \return 0 in the case of success, a negative error code otherwise.
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on `src` capability.
+   * \retval -L4_EINVAL
+   * \retval -L4_EEXIST
+   * \retval -L4_ENOMEM
+   * \retval -L4_ERANGE
    *
    * \caprights{R}
    *
@@ -170,6 +175,7 @@ public:
 
   /**
    * Unmap the given part of this data space from the DMA address space.
+   *
    * \param dma_addr  The DMA address (returned by Dma_space::map()).
    * \param size      The size (bytes) of the memory region to unmap.
    * \param attrs     The attributes for the unmap (currently none).
@@ -197,7 +203,10 @@ public:
    * \param[in]  attr      Attributes for this DMA space. See
    *                       L4Re::Dma_space::Space_attrib.
    *
-   * \return 0 in the case of success, a negative error code otherwise.
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on the Dma_space capability.
+   * \retval -L4_EINVAL
+   * \retval -L4_ENOENT
    *
    * \caprights{RW}
    */
@@ -210,7 +219,9 @@ public:
    * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
    * Dma_space.
    *
-   * \return 0 in the case of success, a negative error code otherwise.
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on the Dma_space capability.
+   * \retval -L4_ENOENT
    *
    * \caprights{RW}
    */
