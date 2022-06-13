@@ -11,10 +11,26 @@
  */
 
 #include <sys/cdefs.h>
-#include <stdio.h>
-#include <elf.h>
-#include <link.h>
+
+/*
+ * Unfortunately uclibc headers don't work well with C++ code. <link.h> pulls
+ * socket-specific functions (e.g. ntohl()) carrying the __THROW attribute but
+ * the corresponding hidden alias function does not carry it. All this doesn't
+ * matter here because we only need <link.h> for a structure definition so just
+ * disable the function attributes.
+ *
+ * Also undef _LIBC so that <link.h> doesn't drag <tls.h> and friends.
+ */
+#undef __THROW
+#define __THROW
+#undef __NTH
+#define __NTH(fct) fct
+#undef _LIBC
+
 #include <stddef.h>
+#include <elf.h>
+
+#include <link.h>
 
 struct Dl_find_object
 {
