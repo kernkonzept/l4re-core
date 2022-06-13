@@ -100,9 +100,9 @@ l4re_ds_map_region(l4re_ds_t ds,
 
 /**
  * \ingroup api_l4re_c_ds
- *
- * \return 0 on success, <0 on errors
- * \see L4Re::Dataspace::clear
+ * \copybrief L4Re::Dataspace::clear
+ * \param ds  Dataspace capability.
+ * \copydetails L4Re::Dataspace::clear
  */
 L4_CV long
 l4re_ds_clear(l4re_ds_t ds, l4re_ds_offset_t offset,
@@ -110,8 +110,9 @@ l4re_ds_clear(l4re_ds_t ds, l4re_ds_offset_t offset,
 
 /**
  * \ingroup api_l4re_c_ds
- * \return 0 on success, <0 on errors
- * \see L4Re::Dataspace::allocate
+ * \copybrief L4Re::Dataspace::allocate
+ * \param ds  Dataspace capability.
+ * \copydetails L4Re::Dataspace::allocate
  */
 L4_CV long
 l4re_ds_allocate(l4re_ds_t ds,
@@ -120,8 +121,9 @@ l4re_ds_allocate(l4re_ds_t ds,
 
 /**
  * \ingroup api_l4re_c_ds
- * \return 0 on success, <0 on errors
- * \see L4Re::Dataspace::copy_in
+ * \copybrief L4Re::Dataspace::copy_in
+ * \param ds  Destination dataspace.
+ * \copydetails L4Re::Dataspace::copy_in
  */
 L4_CV int
 l4re_ds_copy_in(l4re_ds_t ds, l4re_ds_offset_t dst_offs,
@@ -130,22 +132,27 @@ l4re_ds_copy_in(l4re_ds_t ds, l4re_ds_offset_t dst_offs,
 
 /**
  * \ingroup api_l4re_c_ds
- * \return Size of the dataspace in bytes.
- * \see L4Re::Dataspace::size
+ * \copybrief L4Re::Dataspace::size
+ * \param ds  Dataspace capability.
+ * \copydetails L4Re::Dataspace::size
  */
 L4_CV l4re_ds_size_t
 l4re_ds_size(l4re_ds_t ds) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
- * \see L4Re::Dataspace::flags
+ * \copybrief L4Re::Dataspace::flags
+ * \param ds  Dataspace capability.
+ * \copydetails L4Re::Dataspace::flags
  */
 L4_CV l4re_ds_flags_t
 l4re_ds_flags(l4re_ds_t ds) L4_NOTHROW;
 
 /**
  * \ingroup api_l4re_c_ds
- * \see L4Re::Dataspace::info
+ * \copybrief L4Re::Dataspace::info
+ * \param ds  Dataspace capability.
+ * \copydetails L4Re::Dataspace::info
  */
 L4_CV int
 l4re_ds_info(l4re_ds_t ds, l4re_ds_stats_t *stats) L4_NOTHROW;

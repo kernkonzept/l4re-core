@@ -196,7 +196,7 @@ public:
    * \retval -L4_ERANGE   Given range is outside the dataspace.
    *                      (A dataspace provider may also silently ignore areas
    *                      outside the dataspace.)
-   * \retval -L4_EACCESS  Dataspace is read-only.
+   * \retval -L4_EACCESS  No #L4_CAP_FPAGE_W right on dataspace capability.
    * \retval <0           IPC errors
    *
    * Zeroes out the memory. Depending on the type of memory
@@ -235,7 +235,8 @@ public:
    * \param size        Size to copy (in bytes).
    *
    * \retval L4_EOK       Success
-   * \retval -L4_EACCESS  Destination dataspace not writable.
+   * \retval -L4_EACCESS  No #L4_CAP_FPAGE_W right on the destination
+   *                      dataspace.
    * \retval -L4_EINVAL   Invalid parameter supplied.
    * \retval <0           IPC errors
    *
