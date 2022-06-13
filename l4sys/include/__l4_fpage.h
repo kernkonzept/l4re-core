@@ -161,11 +161,13 @@ enum L4_cap_fpage_rights
   /**
    * Interface specific 'S' right for capability flex-pages.
    *
-   * The semantics of the 'S' right is defined by the interface. The kernel
-   * masks this right with the 'S' right of the IPC gate over which the
-   * capability is mapped. That means that the receiver capability will only
-   * have the 'S' right set if both the flex-page and the IPC gate have the 'S'
-   * bit set.
+   * The semantics of the 'S' right is defined by the interface. When
+   * transferring object capabilities via IPC, the kernel masks this right with
+   * the 'S' right of the capability used to address the IPC partner. Thus, the
+   * 'S' right of sent capabilities is only transferred if both the flex-page
+   * and the IPC gate or thread capability specifying the IPC partner have the
+   * 'S' right. For L4::Task::map(), the 'S' right is only transferred if the
+   * flex-page, the source and destination task capabilities have the 'S' right.
    */
   L4_CAP_FPAGE_S     = 0x2,
   /**

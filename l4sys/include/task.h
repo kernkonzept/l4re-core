@@ -61,6 +61,11 @@
  * mappings, and IO-port mappings (on IA32) from one task to another.
  * The receive window is the whole address space of `dst_task`.
  *
+ * \note If the send flex page is of type #L4_FPAGE_OBJ, the #L4_CAP_FPAGE_S
+ *       right is removed from the transferred capability unless both the
+ *       source and destination task capabilities possess the #L4_CAP_FPAGE_S
+ *       right themselves.
+ *
  * For more information on spaces and mappings, see
  * \ref l4re_concepts_mapping. The flexpage API is described in more detail at
  * \ref l4_fpage_api.
