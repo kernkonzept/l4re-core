@@ -430,10 +430,14 @@ public:
   /// Check if the capability is valid.
   bool is_valid() const noexcept { return T::_base & L4_ITEM_MAP; }
   /**
-   * Check if the capability has been mapped.
+   * Check if at least one capability has been mapped.
    *
-   * The capability itself can then be retrieved from the cap slot
-   * that has been provided in the receive operation.
+   * The capabilities themselves can then be retrieved from the cap slots that
+   * have been provided in the receive operation.
+   *
+   * \note If this function returns `true` and the receive window covers more
+   *       than one capability slot, then it is not possible to determine which
+   *       slots actually got capabilities mapped from the sender.
    */
   bool cap_received() const noexcept { return (T::_base & 0x3e) == 0x38; }
   /**
