@@ -76,3 +76,8 @@ __END_DECLS
 # endif
 
 #endif /* NDEBUG.  */
+
+#if defined __USE_ISOC11 && !defined __cplusplus
+# undef static_assert
+# define static_assert _Static_assert
+#endif
