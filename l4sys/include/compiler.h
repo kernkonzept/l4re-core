@@ -190,10 +190,10 @@
 #  define EXTERN_C_BEGIN extern "C" {
 #  define EXTERN_C_END }
 #  define EXTERN_C extern "C"
-#  ifndef __BEGIN_DECLS
+#  if !defined __BEGIN_DECLS || defined DOXYGEN
 #    define __BEGIN_DECLS extern "C" {
 #  endif
-#  ifndef __END_DECLS
+#  if !defined __END_DECLS || defined DOXYGEN
 #    define __END_DECLS }
 #  endif
 #  define L4_DEFAULT_PARAM(x) = x
@@ -215,7 +215,7 @@
 #ifndef L4_HIDDEN
 #  define L4_HIDDEN __attribute__((visibility("hidden")))
 #endif
-#ifndef L4_EXPORT
+#if !defined L4_EXPORT || defined DOXYGEN
 #  define L4_EXPORT __attribute__((visibility("default")))
 #endif
 #ifndef L4_EXPORT_TYPE
