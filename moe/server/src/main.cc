@@ -8,7 +8,6 @@
  * Please see the COPYING-GPL-2 file for details.
  */
 
-#include <l4/crtn/crt0.h>
 #include <l4/util/util.h>
 #include <l4/sigma0/sigma0.h>
 

@@ -16,7 +16,6 @@
 #include <stdio.h>
 
 //#include <l4/util/mbi_argv.h>
-//#include <l4/crtn/crt0.h>
 
 #define MAXARGC 50
 #define MAXENVC 50
