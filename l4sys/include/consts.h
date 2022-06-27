@@ -240,6 +240,12 @@ enum l4_msg_item_consts_t
    * sender. Rights revocation via send item/flexpage is *not* guaranteed to be
    * applied to descendant mappings in case of grant. See
    * \ref l4re_concepts_mapping for more details on map/grant.
+   *
+   * \note The grant operation is not performed if the resulting rights of the
+   *       receiver mapping would not contain the #L4_CAP_FPAGE_R bit (for
+   *       object capabilities) or none of the #L4_FPAGE_RWX bits (memory and
+   *       IO ports). In that case, the mapping is not created in the receiver
+   *       space and not removed from the sender space.
    */
   L4_MAP_ITEM_GRANT = 2,
 
