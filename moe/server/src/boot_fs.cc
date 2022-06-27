@@ -178,8 +178,18 @@ Moe::Boot_fs::init_stage2()
 
   l4_addr_t m_low = -1;
   l4_addr_t m_high = 0; // inclusive!
-  for (unsigned mod = 3; mod < num_modules; ++mod)
+  for (unsigned mod = 0; mod < num_modules; ++mod)
     {
+      // Modules for boot task, root pager and kernel should not be added
+      switch (modules[mod].flags & L4util_l4mod_mod_flag_mask)
+        {
+        case L4util_l4mod_mod_flag_roottask:
+        case L4util_l4mod_mod_flag_sigma0:
+        case L4util_l4mod_mod_flag_kernel:
+          continue;
+        default: break;
+        }
+
       l4_addr_t s = modules[mod].mod_start;
       if (s != m_high + 1 && m_low != (l4_addr_t)-1)
         {
