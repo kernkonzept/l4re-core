@@ -2,7 +2,7 @@ PKGDIR          ?= ../..
 L4DIR           ?= $(PKGDIR)/../../..
 
 TARGET          = moe
-DEFAULT_RELOC   = 0x0140000
+DEFAULT_RELOC   = 0x00240000
 RELOC_PHYS      = y
 SRC_CC          = main.cc page_alloc.cc dataspace.cc dataspace_cont.cc \
                   dataspace_anon.cc globals.cc \
