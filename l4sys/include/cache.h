@@ -6,7 +6,6 @@
  * \author Adam Lackorzynski <adam@os.inf.tu-dresden.de>
  *
  * \ingroup l4_api
- *
  */
 /*
  * (c) 2007-2009 Author(s)
@@ -36,13 +35,20 @@
  * \ingroup l4_api
  * Various functions for cache consistency.
  *
- * \includefile{l4/sys/cache.h}
+ * These functions shall be used to ensure that
+ * - all blocks (e.g. CPU cores, devices, DMA engines) are guaranteed to see
+ *   the same copy of a memory location (Point of Coherency -- PoC),
+ * - instruction and data caches of a core are guaranteed to see the same copy
+ *   of a memory location (Point of Unification -- PoU).
+ *
+ * Certain functions are NOPs on certain architectures, for example on Intel
+ * it's not necessary to explicitly make caches coherent to PoU.
  */
 
 EXTERN_C_BEGIN
 
 /**
- * Cache clean a range in D-cache.
+ * Cache clean a range in D-cache; writes back to PoC.
  * \ingroup l4_cache_api
  *
  * \param start  Start of range (inclusive)
@@ -52,15 +58,15 @@ EXTERN_C_BEGIN
  * \retval -EFAULT  in the case of an unresolved page fault
  *                  in the given area
  *
- * Writes back any dirty cache lines in the range but leaves them
- * in the cache.
+ * Writes back any dirty cache lines in the range but leaves them in the cache
+ * and marks the cached copies clean.
  */
 L4_INLINE int
 l4_cache_clean_data(unsigned long start,
                     unsigned long end) L4_NOTHROW;
 
 /**
- * Cache flush a range.
+ * Cache flush a range; writes back to PoC.
  * \ingroup l4_cache_api
  *
  * \param start  Start of range (inclusive)
@@ -70,15 +76,15 @@ l4_cache_clean_data(unsigned long start,
  * \retval -EFAULT  in the case of an unresolved page fault
  *                  in the given area
  *
- * Writes back any dirty cache lines and invalidates
- * all cache entries in the range.
+ * Writes back any dirty cache lines and invalidates all cache entries in the
+ * range.
  */
 L4_INLINE int
 l4_cache_flush_data(unsigned long start,
                     unsigned long end) L4_NOTHROW;
 
 /**
- * Cache invalidate a range.
+ * Cache invalidate a range; might write back to PoC.
  * \ingroup l4_cache_api
  *
  * \param start  Start of range (inclusive)
@@ -88,8 +94,8 @@ l4_cache_flush_data(unsigned long start,
  * \retval -EFAULT  in the case of an unresolved page fault
  *                  in the given area
  *
- * Invalidates all cache entries in the range but does not
- * necessarily write back dirty cache lines.
+ * Invalidates all cache entries in the range but does not necessarily write
+ * back dirty cache lines.
  *
  * \note Implementations may choose to write back dirty
  *       lines nonetheless if this is more efficient.
@@ -100,7 +106,7 @@ l4_cache_inv_data(unsigned long start,
                   unsigned long end) L4_NOTHROW;
 
 /**
- * Make memory coherent between I-cache and D-cache.
+ * Make memory coherent between I-cache and D-cache; writes back to PoU.
  * \ingroup l4_cache_api
  *
  * \param start  Start of range (inclusive)
@@ -115,7 +121,7 @@ l4_cache_coherent(unsigned long start,
                   unsigned long end) L4_NOTHROW;
 
 /**
- * Make memory coherent for use with external memory.
+ * Make memory coherent for use with external memory; writes back to PoC.
  * \ingroup l4_cache_api
  *
  * \param start  Start of range (inclusive)
@@ -130,7 +136,7 @@ l4_cache_dma_coherent(unsigned long start,
                       unsigned long end) L4_NOTHROW;
 
 /**
- * Make memory coherent for use with external memory.
+ * Make memory coherent for use with external memory; writes back to PoC.
  * \ingroup l4_cache_api
  */
 L4_INLINE int
