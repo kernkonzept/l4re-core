@@ -234,12 +234,12 @@ enum l4_msg_item_consts_t
   // send
   /**
    * Flag as \em grant instead of \em map operation. This means, the sender
-   * delegates access to the receiver and the kernel atomically removes the
-   * rights from the sender (basically a move operation). The mapping in the
-   * receiver gets the new parent of any child mappings of the mapping of the
-   * sender. Rights revocation via send item/flexpage is *not* guaranteed to be
-   * applied to descendant mappings in case of grant. See
-   * \ref l4re_concepts_mapping for more details on map/grant.
+   * delegates access to the receiver and the kernel removes the rights from the
+   * sender (basically a move operation). The mapping in the receiver gets the
+   * new parent of any child mappings of the mapping of the sender. Rights
+   * revocation via send item/flexpage is *not* guaranteed to be applied to
+   * descendant mappings in case of grant. See \ref l4re_concepts_mapping for
+   * more details on map/grant.
    *
    * \note The grant operation is not performed if the resulting rights of the
    *       receiver mapping would not contain the #L4_CAP_FPAGE_R bit (for
