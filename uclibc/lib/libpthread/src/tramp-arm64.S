@@ -1,6 +1,8 @@
 .text
 .global __pthread_new_thread_entry
 __pthread_new_thread_entry:
+	bl __l4_setup_arm64_exception_vector /* clobbers x1, x2 */
+
 	sub sp, sp, #8   /* __pthread_mgr_create_thread puts 3 * 8 bytes
 	                  * onto the stack, make sure we run with a 16byte
 	                  * aligned stack pointer */

@@ -122,6 +122,8 @@ ARM register quick reference:
 #endif
 
 _start:
+	bl __l4_setup_arm64_exception_vector /* clobbers x1, x2 */
+
 	/* Clear the frame pointer and link register since this is the outermost frame.  */
 	mov x29, #0
 	mov x30, #0
