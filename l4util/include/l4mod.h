@@ -3,24 +3,29 @@
  * Copyright (C) 2021 Kernkonzept GmbH.
  * Author(s): Adam Lackorzynski <adam@l4re.org>
  */
+
+/**
+ * \file
+ * L4mod structures and constants
+ */
 #pragma once
 
 #include <l4/sys/l4int.h>
 
-/** Flags for \c l4util_l4mod_mod.flags */
-enum l4util_l4mod_mod_info_flag // aka bootstraps: Mod_info_flags
+/** Flags for #l4util_l4mod_mod.flags */
+enum l4util_l4mod_mod_info_flag
 {
-  L4util_l4mod_mod_flag_unspec    = 0,
-  L4util_l4mod_mod_flag_kernel    = 1,
-  L4util_l4mod_mod_flag_sigma0    = 2,
-  L4util_l4mod_mod_flag_roottask  = 3,
-  L4util_l4mod_mod_flag_mask      = 7 << 0,
+  L4util_l4mod_mod_flag_unspec    = 0,      /**< Flag for a generic module. */
+  L4util_l4mod_mod_flag_kernel    = 1,      /**< Flag for the kernel module. */
+  L4util_l4mod_mod_flag_sigma0    = 2,      /**< Flag for the sigma0 module. */
+  L4util_l4mod_mod_flag_roottask  = 3,      /**< Flag for the root task module. */
+  L4util_l4mod_mod_flag_mask      = 7 << 0, /**< Mask for specified flags. */
 };
 
 /** A single module. */
 typedef struct
 {
-  l4_uint64_t flags;       /**< Module flags (\c l4util_l4mod_mod_info_flag) */
+  l4_uint64_t flags;       /**< Module flags (#l4util_l4mod_mod_info_flag) */
   l4_uint64_t mod_start;   /**< Starting address of module in memory. */
   l4_uint64_t mod_end;     /**< End address of module in memory. */
   l4_uint64_t cmdline;     /**< Module command line */
