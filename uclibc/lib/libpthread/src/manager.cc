@@ -995,7 +995,6 @@ static int pthread_handle_thread_exit(pthread_descr th)
   /* Mark thread as exited, and if detached, free its resources */
   __pthread_lock(th->p_lock, NULL);
   th->p_exited = 1;
-  /* If we have to signal this event do it now.  */
   detached = th->p_detached;
   __pthread_unlock(th->p_lock);
   if (detached)
