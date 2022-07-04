@@ -246,6 +246,13 @@ enum l4_msg_item_consts_t
    *       object capabilities) or none of the #L4_FPAGE_RWX bits (memory and
    *       IO ports). In that case, the mapping is not created in the receiver
    *       space and not removed from the sender space.
+   *
+   * \note If the removal of the whole mapping from the sender is not possible
+   *       because the size of the mapped frame at the sender exceeds the size
+   *       defined by the send or receive flexpage, the grant operation is
+   *       turned into a regular map operation and the mapping is _not_ removed
+   *       from the sender. This would happen if, for example, a smaller part
+   *       of an L4 superpage mapping shall be granted.
    */
   L4_MAP_ITEM_GRANT = 2,
 
