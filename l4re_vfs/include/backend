@@ -26,7 +26,6 @@ namespace L4Re { namespace Vfs {
 
 /// Reference to the applications L4Re::Vfs::Ops singleton.
 extern L4Re::Vfs::Ops *vfs_ops asm ("l4re_env_posix_vfs_ops");
-extern L4Re::Cap_alloc *vfs_cap_alloc asm ("l4re_env_posix_vfs_cap_alloc");
 
 class Mount_tree;
 
