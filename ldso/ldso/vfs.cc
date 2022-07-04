@@ -100,7 +100,11 @@ namespace Vfs_config {
 
 }
 namespace L4Re {
-L4Re::Cap_alloc *virt_cap_alloc = &Vfs_config::__cap_alloc;
+  Cap_alloc *virt_cap_alloc asm ("l4re_vfs_virt_cap_alloc")
+    = &Vfs_config::__cap_alloc;
+
+  extern Cap_alloc *__rtld_l4re_virt_cap_alloc
+    __attribute__((alias("l4re_vfs_virt_cap_alloc"), visibility("default")));
 }
 
 extern "C" void __cxa_pure_virtual(void)

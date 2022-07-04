@@ -75,15 +75,15 @@ namespace L4Re {
   Cap_alloc *virt_cap_alloc = &__cap_alloc;
 #else
   // defined in ldso in the case of shared libs
-  extern Cap_alloc *virt_cap_alloc __attribute__((weak));
+  extern Cap_alloc *__rtld_l4re_virt_cap_alloc __attribute__((weak));
 
   // however, we have to set it to our cap allocator now
   // to enable the VFS to use the application cap allocator
   static void __attribute__((constructor))
   setup()
   {
-    if (&virt_cap_alloc)
-      virt_cap_alloc = &__cap_alloc;
+    if (&__rtld_l4re_virt_cap_alloc)
+      __rtld_l4re_virt_cap_alloc = &__cap_alloc;
   }
 #endif
 }
