@@ -6,7 +6,10 @@
  * Copyright (C) 2013 Imagination Technologies Ltd.
  * Author: Yann Le Du <ledu@kymasys.com>
  */
-
+/**
+ * \file
+ * MIPS-specific vCPU interface.
+ */
 #pragma once
 
 #include <l4/sys/types.h>
@@ -15,7 +18,7 @@
 enum
 {
   /**
-   * Architecture specific version ID.
+   * Architecture-specific version ID.
    *
    * This ID must match the version field in the l4_vcpu_state_t structure
    * after enabling vCPU mode or extended vCPU mode for a thread.
@@ -33,6 +36,9 @@ enum
  */
 typedef l4_exc_regs_t l4_vcpu_regs_t;
 
+/**
+ * Architecture-specific vCPU state.
+ */
 typedef struct l4_vcpu_arch_state_t
 {
   l4_umword_t ulr;

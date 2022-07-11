@@ -16,6 +16,10 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
+/**
+ * \file
+ * vCPU API
+ */
 #pragma once
 
 #include <l4/sys/types.h>
@@ -81,8 +85,10 @@
  */
 typedef struct l4_vcpu_state_t
 {
-  l4_umword_t          version;
-  l4_umword_t          user_data[7];
+  l4_umword_t          version;       ///< vCPU ABI version. Set by the kernel
+                                      ///< and must be checked by the user for
+                                      ///< equality with #L4_VCPU_STATE_VERSION.
+  l4_umword_t          user_data[7];  ///< User-specific data
   l4_vcpu_regs_t       r;             ///< Register state
   l4_vcpu_ipc_regs_t   i;             ///< IPC state
 
@@ -96,7 +102,7 @@ typedef struct l4_vcpu_state_t
   l4_umword_t          entry_sp;      ///< Stack pointer for entry (when coming from user task)
   l4_umword_t          entry_ip;      ///< IP for entry
   l4_umword_t          reserved_sp;   ///< \internal
-  l4_vcpu_arch_state_t arch_state;
+  l4_vcpu_arch_state_t arch_state;    ///< Architecture-specific state
 } l4_vcpu_state_t;
 
 /**
