@@ -16,6 +16,7 @@
 #define INIT_PRIO_VFS_INIT                  400
 #define INIT_PRIO_LIBIO_INIT                1100
 #define INIT_PRIO_RTC_L4LIBC_INIT           1200
+#define INIT_PRIO_TCPIP_INIT                1300
 #define INIT_PRIO_LATE                      5000
 
 
