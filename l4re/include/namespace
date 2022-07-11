@@ -90,11 +90,11 @@ public:
     Partly_resolved = 0x020,      ///< Name was only partly resolved.
   };
 
+  /** Timeout values for query operation */
   enum Query_timeout
   {
-    To_default      = 3600000,
-    To_non_blocking = 0,
-    To_forever      = -1,
+    To_default      = 3600000, ///< Default timeout.
+    To_non_blocking = 0,       ///< Expect callee to answer immediately.
   };
 
   L4_RPC_NF(
