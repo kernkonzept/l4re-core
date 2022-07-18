@@ -260,7 +260,7 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
           for (L4::Ipc::Varg opts: args)
             {
-              if (opts.is_of<l4_umword_t>())
+              if (opts.is_of_int())
                 {
                   mem_cfg.physmin = opts.value<l4_umword_t>();
                   mem_cfg.physmax = mem_cfg.physmin + size.value<l4_umword_t>() - 1U;
