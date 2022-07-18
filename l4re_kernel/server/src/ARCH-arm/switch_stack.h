@@ -14,7 +14,7 @@ switch_stack(unsigned long stack, void (*func)())
 {
   register unsigned long r0 asm("r0") = 0;
   asm volatile ( "mov sp, %[stack]   \n\t"
-                 "mov pc, %[func]    \n\t"
+                 "bx  %[func]        \n\t"
 		 : : [stack] "r" (stack), [func] "r" (func), "r" (r0)
 		 : "memory", "cc");
 }
