@@ -14,7 +14,7 @@ PHDRS
   phdr PT_PHDR PHDRS;
   ro PT_LOAD FILEHDR PHDRS;
   rw PT_LOAD;
-#if !CONFIG_MMU
+#if CONFIG_L4RE_STATIC_STACK
   stack 0x60000012;
 #endif
   tls PT_TLS;
@@ -185,7 +185,7 @@ SECTIONS
    . = ALIGN(. != 0 ? 64 / 8 : 1);
   }
   _bss_end__ = . ; __bss_end__ = . ;
-#if !CONFIG_MMU
+#if CONFIG_L4RE_STATIC_HEAP
   .heap : {
     . = ALIGN(16);
     PROVIDE (__heap_start = .);
@@ -198,7 +198,7 @@ SECTIONS
   . = ALIGN(64 / 8);
   __end__ = . ;
   _end = .; PROVIDE (end = .);
-#if !CONFIG_MMU
+#if CONFIG_L4RE_STATIC_STACK
   . = ALIGN(DEFINED(__stack_size) ? CONSTANT(COMMONPAGESIZE) : 1);
   .stack : {
     . = . + (DEFINED(__stack_size) ? __stack_size : 0);

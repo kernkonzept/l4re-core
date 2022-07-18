@@ -1,0 +1,21 @@
+menu "L4Re core"
+
+config L4RE_STATIC_HEAP
+	bool "Static heap allocation"
+	default y
+	depends on !MMU
+	help
+	  Statically allocate heap in bss section of executables.
+
+config L4RE_STATIC_STACK
+	bool "Static stack allocation"
+	default y
+	depends on !MMU
+	help
+	  Statically allocate stack next to bss section of executables.
+
+	  This will save the additional MPU region that would otherwise be
+	  necessary. Also relieves the loader from dynamically allocating any
+	  memory.
+
+endmenu

@@ -65,7 +65,7 @@ crti.o: crti_s.o $(if $(CONFIG_MMU),kip_addr.o)
 
 # we need to track pre-processing flags of ldscripts manually
 .ldscripts-change-tracker: FORCE
-	$(VERBOSE)echo "$(CONFIG_BID_PIE) $(CONFIG_MMU) $(CFLAGS)" > $@.tmp
+	$(VERBOSE)echo "$(CONFIG_BID_PIE) $(CONFIG_MMU) $(CONFIG_L4RE_STATIC_HEAP) $(CONFIG_L4RE_STATIC_STACK) $(CFLAGS)" > $@.tmp
 	$(VERBOSE)$(call move_if_changed,$@,$@.tmp)
 
 %.ld: $(PKGDIR)/ARCH-$(ARCH)/%.ld $(SRC_DIR)/Makefile $(SRC_DIR)/generic.h .ldscripts-change-tracker
@@ -73,4 +73,6 @@ crti.o: crti_s.o $(if $(CONFIG_MMU),kip_addr.o)
 	$(VERBOSE)$(CPP) -nostdinc -include $(SRC_DIR)/generic.h \
 	      -DCONFIG_BID_PIE=$(if $(CONFIG_BID_PIE),1,0) \
 	      -DCONFIG_MMU=$(if $(CONFIG_MMU),1,0) \
+	      -DCONFIG_L4RE_STATIC_HEAP=$(if $(CONFIG_L4RE_STATIC_HEAP),1,0) \
+	      -DCONFIG_L4RE_STATIC_STACK=$(if $(CONFIG_L4RE_STATIC_STACK),1,0) \
 	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P $$CPP_ARGS $< $@
