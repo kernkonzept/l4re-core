@@ -21,7 +21,13 @@ App_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
   Dataspace mem = chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(),
                          "allocate capability");
   L4::Cap<L4Re::Mem_alloc> _ma(prog_info()->mem_alloc.raw & L4_FPAGE_ADDR_MASK); 
+#ifdef CONFIG_MMU
+  (void)paddr;
   chksys(_ma->alloc(size, mem.get()), "allocate writable program segment");
+#else
+  chksys(_ma->alloc_at(paddr, size, mem.get()),
+         "allocate writable program segment");
+#endif
   return mem;
 }
 
@@ -37,7 +43,7 @@ App_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                           Const_dataspace ds, unsigned long offset,
                           L4Re::Rm::Flags flags, char const *what)
 {
-  auto rh_flags = flags;
+  auto rh_flags = flags | L4Re::Rm::F::No_eager_map;
 
   if (0)
     printf("%s:%s: from ds:%lx+%lx... @%lx+%lx\n",
@@ -50,6 +56,15 @@ App_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
   L4Re::chksys(_task->rm()->attach(&_addr, size, rh_flags,
                                    L4::Ipc::make_cap(ds.get(), flags.cap_rights()),
                                    offset, 0), what);
+
+#ifndef CONFIG_MMU
+  // Eagerly map region on systems without MMU to prevent MPU region
+  // fragmentation.
+  if (ds.is_valid())
+    L4Re::chksys(ds->map_to(L4::Ipc::make_cap_rw(_task->task_cap()),
+                            offset, L4Re::Dataspace::Flags(flags.raw & 0xff),
+                            addr, addr+size));
+#endif
 }
 
 int

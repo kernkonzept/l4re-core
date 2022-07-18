@@ -11,6 +11,8 @@ SRC_DATA        := ned.lua
 
 SRC_CC          += lua_sleep.cc
 
-REQUIRES_LIBS   := libloader l4re-util l4re lua++ libpthread cxx_libc_io cxx_io
+REQUIRES_LIBS   := libloader l4re-util l4re lua++ libpthread cxx_libc_io cxx_io libstdc++
+
+DEFAULT_HEAP_SIZE := 0x1000
 
 include $(L4DIR)/mk/prog.mk
