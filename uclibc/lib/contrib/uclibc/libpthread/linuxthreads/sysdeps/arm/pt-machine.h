@@ -29,35 +29,19 @@
 #endif
 
 #if defined(__thumb2__)
-PT_EI long int ldrex(int *spinlock)
-{
-	long int ret;
-	__asm__ __volatile__(
-		"ldrex %0, [%1]\n"
-		: "=r"(ret)
-		: "r"(spinlock) : "memory");
-	return ret;
-}
-
-PT_EI long int strex(int val, int *spinlock)
-{
-	long int ret;
-	__asm__ __volatile__(
-		"strex %0, %1, [%2]\n"
-		: "=r"(ret)
-		: "r" (val), "r"(spinlock) : "memory");
-	return ret;
-}
-
 /* Spinlock implementation; required.  */
 PT_EI long int
 testandset (int *spinlock)
 {
-  register unsigned int ret;
+  unsigned int ret, tmp, val = 1;
 
-  do {
-	  ret = ldrex(spinlock);
-  } while (strex(1, spinlock));
+  __asm__ __volatile__ (
+"0:    ldrex   %0, [%2]       \n"
+"      strex   %1, %3, [%2]   \n"
+"      cmp     %1, #0         \n"
+"      bne     0b"
+       : "=&r" (ret), "=&r" (tmp)
+       : "r" (spinlock), "r" (val) : "memory", "cc");
 
   return ret;
 }
