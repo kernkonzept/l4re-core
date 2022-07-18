@@ -469,6 +469,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       L4Re::Env const *e = L4Re::Env::env();
       long err;
 
+#ifdef CONFIG_MMU
       if (e->rm()->reserve_area(&map_addr, stacksize + guardsize,
 	                        L4Re::Rm::F::Search_addr) < 0)
 	return -1;
@@ -499,6 +500,30 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	  e->rm()->free_area(l4_addr_t(map_addr));
 	  return -1;
 	}
+#else
+      L4::Cap<L4Re::Dataspace> ds = L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>();
+      if (!ds.is_valid())
+        return -1;
+
+      err = e->mem_alloc()->alloc(stacksize, ds);
+      if (err < 0)
+        {
+          L4Re::Util::cap_alloc.free(ds);
+          return -1;
+        }
+
+      err = e->rm()->attach(&map_addr, stacksize,
+                            L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
+                            L4::Ipc::make_cap_rw(ds), 0);
+      if (err < 0)
+        {
+          L4Re::Util::cap_alloc.free(ds, L4Re::This_task);
+          return -1;
+        }
+
+      guardaddr = static_cast<char *>(map_addr) - guardsize;
+      new_thread_bottom = static_cast<char *>(map_addr);
+#endif
 #else
       map_addr = mmap(NULL, stacksize + guardsize,
                       PROT_READ | PROT_WRITE | PROT_EXEC,
