@@ -8,6 +8,7 @@
  */
 #include "remote_mem.h"
 
+#include <l4/bid_config.h>
 #include <l4/re/env>
 #include <l4/re/rm>
 #include <l4/re/error_helper>
@@ -21,5 +22,11 @@ Stack::set_stack(L4Re::Util::Ref_cap<L4Re::Dataspace>::Cap const &ds, unsigned s
                                               0),
                "attaching stack vma");
   _stack_ds = ds;
+#ifdef CONFIG_MMU
   set_local_top(_vma.get() + size);
+#else
+  char *base = (char*)_vma.get();
+  set_target_stack(l4_addr_t(base), size);
+  set_local_top(base + size);
+#endif
 }

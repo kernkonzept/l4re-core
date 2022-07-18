@@ -10,6 +10,7 @@
 #include "app_model.h"
 
 #include <cstdio>
+#include <l4/bid_config.h>
 #include <l4/re/error_helper>
 #include <l4/re/util/env_ns>
 
@@ -18,11 +19,21 @@ using L4Re::chkcap;
 
 App_model::Dataspace
 App_model::alloc_ds(unsigned long size) const
+{ return alloc_ds(size, 0, 0); }
+
+App_model::Dataspace
+App_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
+{ return alloc_ds(size, paddr, L4Re::Mem_alloc::Fixed_paddr); }
+
+App_model::Dataspace
+App_model::alloc_ds(unsigned long size, l4_addr_t paddr,
+                    unsigned long flags) const
 {
   Dataspace mem = chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(),
                          "allocate capability");
-  L4::Cap<L4Re::Mem_alloc> _ma(prog_info()->mem_alloc.raw & L4_FPAGE_ADDR_MASK); 
-  chksys(_ma->alloc(size, mem.get()), "allocate writable program segment");
+  L4::Cap<L4Re::Mem_alloc> _ma(prog_info()->mem_alloc.raw & L4_FPAGE_ADDR_MASK);
+  chksys(_ma->alloc(size, mem.get(), flags, 0, paddr),
+         "allocate writable program segment");
   return mem;
 }
 
@@ -50,7 +61,7 @@ App_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
   l4_addr_t _addr = addr;
   L4Re::chksys(_task->rm()->attach(&_addr, size, rh_flags,
                                    L4::Ipc::make_cap(ds.get(), flags.cap_rights()),
-                                   offset, 0), what);
+                                   offset, 0, _task->task_cap()), what);
 }
 
 int
