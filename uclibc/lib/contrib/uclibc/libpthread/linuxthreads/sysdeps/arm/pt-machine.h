@@ -28,7 +28,7 @@
 # define PT_EI __extern_always_inline
 #endif
 
-#if defined(__thumb2__)
+#if  __ARM_ARCH >= 7 || defined(__thumb2__)
 /* Spinlock implementation; required.  */
 PT_EI long int
 testandset (int *spinlock)
