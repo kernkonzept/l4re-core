@@ -43,7 +43,7 @@
 
 namespace L4Re {
 /**
- * \brief Virtual file system for interfaces POSIX libc.
+ * \brief Virtual file system for interfaces in POSIX libc.
  */
 namespace Vfs {
 
@@ -57,7 +57,7 @@ class File;
  * the file type (e.g., directory, regular file etc.).  However, in
  * the L4Re::Vfs the interface File is used for every real object.
  *
- * \see L4Re::Vfs::File for mor information.
+ * \see L4Re::Vfs::File for more information.
  */
 class Generic_file
 {
@@ -65,8 +65,8 @@ public:
   virtual ~Generic_file() throw() = 0;
   /**
    * \brief Unlock all locks on the file.
-   * \note All locks means all locks independent by which file
-   *       the locks were taken.
+   * \note All locks means all locks independent of which file
+   *       the locks were taken by.
    *
    * This method is called by the POSIX close implementation to
    * get the POSIX semantics of releasing all locks taken by this
@@ -87,7 +87,7 @@ public:
   virtual int fstat64(struct stat64 *buf) const throw() = 0;
 
   /**
-   * \brief Change POSIX access rights on that file.
+   * \brief Change POSIX access rights on the file.
    *
    * Backend for POSIX chmod and fchmod.
    */
@@ -134,7 +134,7 @@ Generic_file::~Generic_file() throw()
  * \brief Interface for a POSIX file that is a directory.
  *
  * This interface provides functionality for directory files
- * in the L4Re::Vfs. However, real objects use always the
+ * in the L4Re::Vfs. However, real objects always use the
  * combined L4Re::Vfs::File interface.
  */
 class Directory
@@ -167,7 +167,7 @@ public:
    *             may contain subdirectories.
    * \param mode The file mode to use for the new directory.
    * \return 0 on success, or <0 on error. -ENOTDIR if this or some component
-   *         in path is is not a directory.
+   *         in path is not a directory.
    */
   virtual int mkdir(const char *path, mode_t mode) throw() = 0;
 
@@ -176,7 +176,7 @@ public:
    *
    * Backend for the POSIX unlink and unlinkat functions.
    *
-   * \param path The name to the file to unlink. Note: \a path
+   * \param path The name of the file to unlink. Note: \a path
    *             is relative to this directory and may
    *             contain subdirectories.
    * \return 0 on success, or <0 on error.
@@ -188,7 +188,7 @@ public:
    *
    * Backend for the POSIX rename, renameat functions.
    *
-   * \param src_path The old name to the file to rename.
+   * \param src_path The old name of the file to rename.
    *                 Note: \a src_path is relative to this
    *                 directory and may contain subdirectories.
    * \param dst_path The new name for the file.
@@ -203,7 +203,7 @@ public:
    *
    * Backend for the POSIX link and linkat functions.
    *
-   * \param src_path The old name to the file.
+   * \param src_path The old name of the file.
    *                 Note: \a src_path is relative to this
    *                 directory and may contain subdirectories.
    * \param dst_path The new (second) name for the file.
@@ -218,7 +218,7 @@ public:
    *
    * Backend for the POSIX symlink and symlinkat functions.
    *
-   * \param src_path The old name to the file.
+   * \param src_path The old name of the file.
    *                 Note: \a src_path shall be an absolute path.
    * \param dst_path The name for symlink.
    *                 Note: \a dst_path is relative to this
@@ -262,7 +262,7 @@ Directory::~Directory() throw()
 /**
  * \brief Interface for a POSIX file that provides regular file semantics.
  *
- * Real objects use always the combined L4Re::Vfs::File interface.
+ * Real objects always use the combined L4Re::Vfs::File interface.
  */
 class Regular_file
 {
@@ -276,7 +276,7 @@ public:
    * \note mmap is not possible if the function returns an invalid
    *       capability.
    *
-   * \return A capability to an L4Re::Dataspace, that represents the file
+   * \return A capability to an L4Re::Dataspace that represents the file
    *         contents in an L4Re way.
    */
   virtual L4::Cap<L4Re::Dataspace> data_space() const throw() = 0;
@@ -285,10 +285,10 @@ public:
    * \brief Read one or more blocks of data from the file.
    *
    * This function acts as backend for POSIX read and readv calls and
-   * reads data starting for the f_pos pointer of that open file.
-   * The file pointer is advanced according to the number of red bytes.
+   * reads data starting from the f_pos pointer of that open file.
+   * The file pointer is advanced according to the number of bytes read.
    *
-   * \return The number of bytes red from the file. or <0 on error-
+   * \return The number of bytes read from the file, or <0 on error.
    */
   virtual ssize_t readv(const struct iovec*, int iovcnt) throw() = 0;
 
@@ -395,7 +395,7 @@ Socket::~Socket() throw()
 /**
  * \brief Interface for a POSIX file that provides special file semantics.
  *
- * Real objects use always the combined L4Re::Vfs::File interface.
+ * Real objects always use the combined L4Re::Vfs::File interface.
  */
 class Special_file
 {
@@ -423,13 +423,13 @@ Special_file::~Special_file() throw()
  * \brief The basic interface for an open POSIX file.
  *
  * An open POSIX file can be anything that hides behind a
- * POSIX file descriptor. This means that even a directories
+ * POSIX file descriptor. This means that even directories
  * are files.  An open file can be anything from a directory to a
  * special device file so see Generic_file, Regular_file, Directory,
  * and Special_file for more information.
  *
- * \note For implementing a backend for the L4Re::Vfs you may use
- *       L4Re::Vfs::Be_file as a base class.
+ * \note For implementing a backend for the L4Re::Vfs
+ *       L4Re::Vfs::Be_file may be used as a base class.
  *
  */
 class File :
@@ -538,7 +538,7 @@ public:
 /**
  * \internal
  * \brief Internal representation for a tree of mount points.
- * \note You should never need to deal with a Mount_tree objects
+ * \note It should never be required to deal with Mount_tree objects
  *       directly.
  */
 class Mount_tree
@@ -689,7 +689,6 @@ Mount_tree::add_child_node(cxx::Ref_ptr<Mount_tree> const &cld)
   _cld = cld;
 }
 
-
 inline
 const char *
 File::get_mount(const char *path, cxx::Ref_ptr<File> *dir,
@@ -735,8 +734,8 @@ File::openat(const char *path, int flags, mode_t mode,
 }
 
 /**
- * \brief Interface for the POSIX memory management.
- * \note This interface exists usually as a singleton as superclass
+ * \brief Interface for POSIX memory management.
+ * \note This interface usually exists as a singleton and as a superclass
  *       of L4Re::Vfs::Ops.
  *
  * An implementation for this interface is in l4/l4re_vfs/impl/vfs_impl.h
@@ -815,15 +814,15 @@ public:
 
 /**
  * \brief Basic interface for an L4Re::Vfs file system.
- * \note For implementing a special file system you may
- *       use L4Re::Vfs::Be_file_system as a base class.
+ * \note For implementing a special file system
+ *       L4Re::Vfs::Be_file_system may be used as a base class.
  *
- * The may purpose of this interface is that there is a
+ * The main purpose of this interface is to have a
  * single object for each supported file-system type (e.g., ext2, vfat)
- * exists in your application and is registered at the L4Re::Vfs::Fs
- * singleton available in via L4Re::Vfs::vfs_ops.
- * At the end the POSIX mount function call the File_system::mount method
- * for the given file-system type given in mount.
+ * that exists in the application and is registered at the L4Re::Vfs::Fs
+ * singleton available via L4Re::Vfs::vfs_ops.
+ * Ultimately, the POSIX mount function calls the File_system::mount method
+ * matching the file-system type given in mount.
  *
  */
 class File_system
@@ -834,7 +833,7 @@ protected:
 public:
   File_system() throw() : _next(0) {}
   /**
-   * \brief Returns the type of the file system, used in mount as fstype
+   * \brief Returns the type of the file system used in mount as fstype
    * argument.
    * \note This method is already provided by Be_file_system.
    */
@@ -875,7 +874,7 @@ File_system::~File_system() throw()
 
 /**
  * \brief POSIX File-system related functionality.
- * \note This class usually exists as a singleton as a superclass
+ * \note This class usually exists as a singleton and as a superclass
  *       of L4Re::Vfs::Ops (\see L4Re::Vfs::vfs_ops).
  */
 class Fs
@@ -888,10 +887,10 @@ public:
    */
   virtual cxx::Ref_ptr<File> get_file(int fd) throw() = 0;
 
-  /// Get the directory object for the applications root directory.
+  /// Get the directory object for the application's root directory.
   virtual cxx::Ref_ptr<File> get_root() throw() = 0;
 
-  /// Get the directory object for the applications current working directory.
+  /// Get the directory object for the application's current working directory.
   virtual cxx::Ref_ptr<File> get_cwd() throw() { return get_root(); }
 
   /// Set the current working directory for the application.
@@ -900,7 +899,7 @@ public:
   /**
    * \brief Allocate the next free file descriptor.
    * \param f The file to assign to that file descriptor.
-   * \return the allocated file descriptor, or -EMFILE on error.
+   * \return The allocated file descriptor, or -EMFILE on error.
    */
   virtual int alloc_fd(cxx::Ref_ptr<File> const &f = cxx::Ref_ptr<>::Nil) throw() = 0;
 
@@ -936,7 +935,7 @@ public:
   /**
    * \internal
    * \brief Register a file-system type in the global registry.
-   * \note this is done automatically by Be_file_system.
+   * \note This is done automatically by Be_file_system.
    * \param f A pointer to the file system to register.
    * \return 0 on success, or <0 on error.
    */
@@ -944,7 +943,7 @@ public:
 
   /**
    * \internal
-   * \brief Removed the given file system from the global registry.
+   * \brief Remove the given file system from the global registry.
    * \note This is done automatically by Be_file_system.
    * \param f The file system instance to remove from the registry.
    * \return 0 on success, <0 on error.
@@ -954,7 +953,7 @@ public:
   /**
    * \internal
    * \brief Find the file-system object for the given file-system type.
-   * \note This function is used by the mount.
+   * \note This function is used by the file-system mount call.
    * \param fstype The file-system type (e.g. ext, vfat).
    * \return A pointer to the file-system object, or 0 on error.
    */
@@ -999,7 +998,7 @@ Fs::~Fs()
 {}
 
 /**
- * \brief Interface for the POSIX backends for an application.
+ * \brief Interface for the POSIX backends of an application.
  * \note There usually exists a singe instance of this interface
  *       available via L4Re::Vfs::vfs_ops that is used for all
  *       kinds of C-Library functions.
