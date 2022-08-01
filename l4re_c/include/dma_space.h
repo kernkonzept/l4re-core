@@ -44,14 +44,42 @@ enum l4re_dma_space_attributes
 };
 
 /**
+ * \copydoc L4Re::Dma_space_mgr::Space_attrib
+ */
+enum l4re_dma_space_mgr_space_attribs
+{
+  /// \copydoc L4Re::Dma_space_mgr::Identity_map
+  L4RE_DMA_SPACE_MGR_IDENTITY_MAP = 1U << 0,
+};
+
+/**
+ * \copydoc L4Re::Dma_space_mgr::Block_flag
+ */
+enum l4re_dma_space_mgr_block_flags
+{
+  /// \copydoc L4Re::Dma_space_mgr::Search_addr
+  L4RE_DMA_SPACE_MGR_SEARCH_ADDR = 1U << 0,
+};
+
+/**
  * \brief DMA space capability type
  * \copydoc L4Re::Dma_space
  * \ingroup api_l4re_c_dma
  */
 typedef l4_cap_idx_t l4re_dma_space_t;
 
+/**
+ * \brief DMA space manager capability type
+ * \copydoc L4Re::Dma_space_mgr
+ * \ingroup api_l4re_c_dma
+ */
+typedef l4_cap_idx_t l4re_dma_space_mgr_t;
+
 /** Data type for DMA addresses. */
 typedef l4_uint64_t l4re_dma_space_dma_addr_t;
+
+/** Data type for DMA sizes. */
+typedef l4_uint64_t l4re_dma_space_dma_size_t;
 
 /**
  * \copybrief L4Re::Dma_space::map
@@ -77,5 +105,63 @@ L4_CV l4_ret_t
 l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
                      l4_size_t size, unsigned long attrs,
                      enum l4re_dma_space_direction dir) L4_NOTHROW;
+
+
+/**
+ * \copybrief L4Re::Dma_space_mgr::associate
+ * \param dma_mgr  DMA space manager capability
+ * \copydetails L4Re::Dma_space_mgr::associate
+ * \ingroup api_l4re_c_dma
+ */
+L4_CV l4_ret_t
+l4re_dma_space_mgr_associate(l4re_dma_space_mgr_t dma_mgr,
+                             l4re_dma_space_t dma_space,
+                             l4_cap_idx_t dma_task,
+                             enum l4re_dma_space_mgr_space_attribs attr) L4_NOTHROW;
+
+/**
+ * \copybrief L4Re::Dma_space_mgr::associate_phys
+ * \param dma_mgr  DMA space manager capability
+ * \copydetails L4Re::Dma_space_mgr::associate_phys
+ * \ingroup api_l4re_c_dma
+ */
+L4_CV l4_ret_t
+l4re_dma_space_mgr_associate_phys(l4re_dma_space_mgr_t dma_mgr,
+                                  l4re_dma_space_t dma_space,
+                                  enum l4re_dma_space_mgr_space_attribs attr) L4_NOTHROW;
+
+/**
+ * \param dma_mgr   DMA space manager capability
+ * \copydoc L4Re::Dma_space_mgr::disassociate
+ * \ingroup api_l4re_c_dma
+ */
+L4_CV l4_ret_t
+l4re_dma_space_mgr_disassociate(l4re_dma_space_mgr_t dma_mgr,
+                                l4re_dma_space_t dma_space) L4_NOTHROW;
+
+/**
+ * \param dma_mgr   DMA space manager capability
+ * \copydoc L4Re::Dma_space_mgr::block_area
+ * \ingroup api_l4re_c_dma
+ */
+L4_CV l4_ret_t
+l4re_dma_space_mgr_block_area(l4re_dma_space_mgr_t dma_mgr,
+                              l4re_dma_space_t dma_space,
+                              l4re_dma_space_dma_addr_t *addr,
+                              l4re_dma_space_dma_size_t size,
+                              l4re_dma_space_dma_addr_t max_addr,
+                              enum l4re_dma_space_mgr_block_flags flags,
+                              unsigned char align) L4_NOTHROW;
+
+/**
+ * \param dma_mgr   DMA space manager capability
+ * \copydoc L4Re::Dma_space_mgr::set_limits
+ * \ingroup api_l4re_c_dma
+ */
+L4_CV l4_ret_t
+l4re_dma_space_mgr_set_limits(l4re_dma_space_mgr_t dma_mgr,
+                              l4re_dma_space_t dma_space,
+                              l4re_dma_space_dma_addr_t min_addr,
+                              l4re_dma_space_dma_addr_t max_addr) L4_NOTHROW;
 
 L4_END_DECLS
