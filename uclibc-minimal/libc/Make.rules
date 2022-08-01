@@ -19,8 +19,8 @@ include $(LIBCSRC_DIR)/contrib_files.mk
 DIRS := libc/string libc/stdlib libc/stdio libc/unistd libc/signal \
         libc/misc libc/stdlib/malloc-standard libc/sysdeps/linux
 
-CFLAGS_aarch64-l4f += -mstrict-align
-CXXFLAGS_aarch64-l4f += -mstrict-align
+CFLAGS_arm64 += -mstrict-align
+CXXFLAGS_arm64 += -mstrict-align
 
 CFLAGS_clang += -mno-implicit-float
 CXXFLAGS_clang += -mno-implicit-float
