@@ -128,9 +128,10 @@ public:
    *
    * \pre The capability `src` must have the permission #L4_CAP_FPAGE_W.
    *
-   * \note associate() must be called prior to mapping memory. Usually this is
-   * done implicitly when binding the managed Dma_space to a DMA domain
-   * (see L4vbus::Vbus::assign_dma_domain()).
+   * \note Dma_space_mgr::associate() or Dma_space_mgr::associate_phys() must
+   * be called prior to mapping memory.  Usually this is done implicitly when
+   * binding the managed Dma_space to a DMA domain (see
+   * L4vbus::Vbus::assign_dma_domain()).
    */
   L4_INLINE_RPC(
       l4_ret_t, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
@@ -166,6 +167,11 @@ public:
   typedef L4::Typeid::Rpcs<map_t, unmap_t, disassociate_t> Rpcs;
 };
 
+/**
+ * A privileged interface to manage Dma_space associations for the clients.
+ *
+ * This interface is provided as a singleton by Moe.
+ */
 class Dma_space_mgr :
   public L4::Kobject_0t< Dma_space_mgr, L4::PROTO_ANY,
                          L4::Type_info::Demand_t<2> >
@@ -192,25 +198,24 @@ public:
 
   /**
    * Associate a (kernel) \ref l4_kernel_object_dmar_space for a device to
-   * this Dma_space.
+   * a Dma_space.
    *
+   * \param[in]  dma_space The Dma_space to associate the (kernel) \ref
+   *                       l4_kernel_object_dmar_space with.
    * \param[in]  dma_task  The (kernel) \ref l4_kernel_object_dmar_space used
    *                       for the device that shall be associated with this
-   *                       DMA space. In case no IOMMU is present or
-   *                       configured, the dma_task might be an invalid
-   *                       capability when L4Re::Dma_space::Phys_space is set
-   *                       in `attr`, in this case the CPUs physical memory is
-   *                       used as DMA address space.
+   *                       DMA space.
    * \param[in]  attr      Attributes for this DMA space. See
    *                       L4Re::Dma_space::Space_attrib.
    *
    * \retval L4_EOK      Operation successful.
+   * \retval -L4_EINVAL  No `dma_task` capability passed.
+   * \retval -L4_ENOENT  Invalid `dma_space` was passed.
+   * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
-   * \retval -L4_EINVAL
-   * \retval -L4_ENOENT
    *
-   * \pre The invoked Dma_space capability must have the permission
-   *      #L4_CAP_FPAGE_W.
+   * \pre The invoked Dma_space_mgr capability, `dma_space` and `dma_task` must
+   *      have the permission #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
       l4_ret_t, associate, (L4::Ipc::Cap<Dma_space> dma_space,
@@ -218,6 +223,25 @@ public:
                             Space_attribs attr),
       L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
+  /**
+   * Register a Dma_space to use for DMA.
+   *
+   * This function should be used, in case no IOMMU is present or configured.
+   * The CPU's physical memory is used as DMA address space.
+   *
+   * \param[in]  dma_space  The Dma_space to register.
+   * \param[in]  attr       Attributes for the provided DMA space. Currently
+   *                        not used; must be the default-constructed
+   *                        Space_attribs() value.
+   *
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_ENOENT  Invalid `dma_space` was passed.
+   * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
+   *
+   * \pre The invoked Dma_space_mgr capability and `dma_space` must have the
+   *      permission #L4_CAP_FPAGE_W.
+   */
   L4_INLINE_RPC(
       l4_ret_t, associate_phys, (L4::Ipc::Cap<Dma_space> dma_space,
                                  Space_attribs attr),
