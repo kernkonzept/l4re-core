@@ -73,7 +73,7 @@ public:
    *
    * \param name        A pointer to a buffer for the name of the lock.
    * \param len         The length of the available buffer (usually #Name_max
-   *                    is used)
+   *                    is used).
    * \param current_id  The ID of the last available lock, use -1 to get the
    *                    first lock.
    * \param utcb        The UTCB to use for the message.
