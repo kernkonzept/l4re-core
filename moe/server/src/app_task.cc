@@ -23,10 +23,13 @@ App_task::op_signal(L4Re::Parent::Rights, unsigned long sig, unsigned long val)
     {
     case 0: // exit
       {
-        object_pool.cap_alloc()->free(obj_cap());
         if (val != 0)
           L4::cout << "MOE: task " << this << " exited with " << val
                    << '\n';
+
+        // Invoke DTOR to remove init-task, its resources and redirect
+        // in-flight IPCs.
+        delete this;
 
         return -L4_ENOREPLY;
       }
@@ -50,6 +53,6 @@ App_task::~App_task()
   if (_rm)
     delete _rm.get();
 
-  object_pool.cap_alloc()->free(_thread);
-  object_pool.cap_alloc()->free(_task);
+  object_pool.cap_alloc()->free(_thread, L4_FP_DELETE_OBJ);
+  object_pool.cap_alloc()->free(_task, L4_FP_DELETE_OBJ);
 }
