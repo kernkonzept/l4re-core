@@ -38,6 +38,8 @@ DEFINES_crt1.s.o = -DL_Scrt1
 
 REQUIRES_LIBS_all_lib :=
 
+DEPS += $(foreach file,crti_s.o kip_addr.o, $(call BID_dot_fname,$(file)).cmd)
+
 include $(L4DIR)/mk/lib.mk
 
 $(eval $(call BID_MAKE_RULE_template, crti_s.o, crti.S,AS))
