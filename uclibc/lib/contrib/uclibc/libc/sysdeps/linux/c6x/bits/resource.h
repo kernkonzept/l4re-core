@@ -143,6 +143,15 @@ enum __rusage_who
   /* Both.  */
   RUSAGE_BOTH = -2
 #define RUSAGE_BOTH RUSAGE_BOTH
+
+#ifdef __USE_GNU
+  ,
+  /* The calling thread.  */
+  RUSAGE_THREAD = 1
+# define RUSAGE_THREAD RUSAGE_THREAD
+  /* Name for the same functionality on Solaris.  */
+# define RUSAGE_LWP RUSAGE_THREAD
+#endif
 };
 
 #define __need_timeval
