@@ -324,7 +324,7 @@ config DOPIC
 config STATIC_PIE
 	bool "Add support for Static Position Independent Executables (PIE)"
 	default n
-	depends on DOPIC && !UCLIBC_FORMAT_FDPIC_ELF && (TARGET_arm || TARGET_i386 || TARGET_x86_64 || TARGET_aarch64)
+	depends on DOPIC && !UCLIBC_FORMAT_FDPIC_ELF && (TARGET_arm || TARGET_i386 || TARGET_x86_64 || TARGET_aarch64 || TARGET_mips)
 
 config ARCH_HAS_NO_SHARED
 	bool

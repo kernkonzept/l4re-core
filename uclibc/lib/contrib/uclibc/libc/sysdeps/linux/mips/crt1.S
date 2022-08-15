@@ -78,6 +78,10 @@
 	.weak	_init
 	.weak	_fini
 #endif
+#ifdef L_rcrt1
+	.type	reloc_static_pie,@function
+	.hidden	.L0
+#endif
 	.type	    main,@function
 	.type	    __uClibc_main,@function
 	.ent	__start
@@ -89,6 +93,25 @@ __start:
 #else
 	PTR_LA $28, _gp             /* Setup GP correctly if we're non-PIC.  */
 	move $31, $0
+#endif
+#ifdef L_rcrt1
+	PTR_LA $4, _DYNAMIC           /* Place _DYNAMIC into the GOT */
+	REG_S $4, -0x7ff0($28)        /* offset to GOT stolen from dl-startup */
+	jal .L0                       /* Get the current $pc address */
+.L0:
+	PTR_SUBU $4, $31, $25         /* Calculate load addr */
+	move $31, $0                  /* Clear ra */
+	and $29, -2 * SZREG           /* Ensure stack is aligned */
+	PTR_ADDIU $29, (-2 * SZREG)   /* Allocate 2 register spaces on stack */
+	REG_S $2, SZREG($29)          /* Store atexit in case it exists */
+	PTR_LA $5, reloc_static_pie   /* function calls before relocation
+	                                 don't work unless we set $t9 manually */
+	PTR_ADDU $25, $4, $5          /* store reloc_static_pie in $t9 */
+	jalr $25                      /* call reloc_static_pie */
+	nop							  /* delay slot, just in case */
+	REG_L $2, SZREG($29)          /* cleanup stack */
+	PTR_ADDIU $29, $29, (2 * SZREG)
+
 #endif
 
 	PTR_LA $4, main		/* main */

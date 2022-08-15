@@ -7,6 +7,7 @@
 
 
 #include <sgidefs.h>
+#ifndef L_rcrt1
 __asm__(""
     "	.text\n"
     "	.globl	_start\n"
@@ -114,6 +115,7 @@ __asm__(""
     "\n\n"
     ".previous\n"
 );
+#endif
 
 /*
  * Get a pointer to the argv array.  On many platforms this can be just
@@ -191,6 +193,5 @@ do {										\
 	case R_MIPS_NONE:							\
 		break;								\
 	default:								\
-		SEND_STDERR("Aiieeee!");					\
 		_dl_exit(1);							\
 	}

@@ -15,10 +15,15 @@
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
-
+#define IS_IN_rtld      // force inline function calls
 #include <link.h>
 #include <elf.h>
 #include <dl-elf.h>
+
+#include <ldso.h>
+#ifdef __mips__
+#include <dl-startup.h>
+#endif
 
 ElfW(Addr) _dl_load_base = NULL;
 
@@ -26,22 +31,80 @@ void
 reloc_static_pie (ElfW(Addr) load_addr);
 
 void
-reloc_static_pie (ElfW(Addr) load_addr)
+reloc_static_pie(ElfW(Addr) load_addr)
 {
-    ElfW(Word) relative_count = 0;
-    ElfW(Addr) rel_addr = 0;
-    ElfW(Dyn) * dyn_addr = NULL;
-    unsigned long dynamic_info[DYNAMIC_SIZE] = {0};
+    int indx;
+    ElfW(Addr) got;
+    ElfW(Dyn) *dpnt;
+    struct elf_resolve tpnt_tmp;
+	struct elf_resolve *tpnt = &tpnt_tmp;
 
-    /* Read our own dynamic section and fill in the info array.  */
-    dyn_addr = ((void *) load_addr + elf_machine_dynamic ());
+    DL_BOOT_COMPUTE_GOT(got);
+    DL_BOOT_COMPUTE_DYN(dpnt, got, (DL_LOADADDR_TYPE)load_addr);
 
-    /* Use the underlying function to avoid TLS access before initialization */
-    __dl_parse_dynamic_info(dyn_addr, dynamic_info, NULL, load_addr);
+    _dl_memset(tpnt, 0, sizeof(struct elf_resolve));
+    tpnt->loadaddr = load_addr;
+    tpnt->dynamic_addr = dpnt;
 
-    /* Perform relocations */
-    relative_count = dynamic_info[DT_RELCONT_IDX];
-    rel_addr = dynamic_info[DT_RELOC_TABLE_ADDR];
-    elf_machine_relative(load_addr, rel_addr, relative_count);
+    __dl_parse_dynamic_info(dpnt, tpnt->dynamic_info, NULL, load_addr);
+
+#if defined(PERFORM_BOOTSTRAP_GOT)
+	/* some arches (like MIPS) we have to tweak the GOT before relocations */
+	PERFORM_BOOTSTRAP_GOT(tpnt);
+#endif
+
+
+#if defined(ELF_MACHINE_PLTREL_OVERLAP)
+# define INDX_MAX 1
+#else
+# define INDX_MAX 2
+#endif
+
+    for (indx = 0; indx < INDX_MAX; indx++) {
+        unsigned long rel_addr, rel_size;
+        ElfW(Word) relative_count = tpnt->dynamic_info[DT_RELCONT_IDX];
+
+        rel_addr = (indx ? tpnt->dynamic_info[DT_JMPREL] :
+                           tpnt->dynamic_info[DT_RELOC_TABLE_ADDR]);
+        rel_size = (indx ? tpnt->dynamic_info[DT_PLTRELSZ] :
+			               tpnt->dynamic_info[DT_RELOC_TABLE_SIZE]);
+
+        if (!rel_addr)
+            continue;
+
+        if((0 == indx) && relative_count) {
+			rel_size -= relative_count * sizeof(ELF_RELOC);
+            elf_machine_relative(load_addr, rel_addr, relative_count);
+			rel_addr += relative_count * sizeof(ELF_RELOC);
+        }
+
+#ifdef ARCH_NEEDS_BOOTSTRAP_RELOCS
+			{
+				ELF_RELOC *rpnt;
+				unsigned int i;
+				ElfW(Sym) *sym;
+				unsigned long symbol_addr;
+				int symtab_index;
+				unsigned long *reloc_addr;
+
+				/* Now parse the relocation information */
+				rpnt = (ELF_RELOC *) rel_addr;
+				for (i = 0; i < rel_size; i += sizeof(ELF_RELOC), rpnt++) {
+					reloc_addr = (unsigned long *) DL_RELOC_ADDR(load_addr, (unsigned long)rpnt->r_offset);
+					symtab_index = ELF_R_SYM(rpnt->r_info);
+					symbol_addr = 0;
+					sym = NULL;
+					if (symtab_index) {
+						ElfW(Sym) *symtab;
+						symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
+						sym = &symtab[symtab_index];
+						symbol_addr = (unsigned long) DL_RELOC_ADDR(load_addr, sym->st_value);
+					}
+					/* Use this machine-specific macro to perform the actual relocation.  */
+					PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
+				}
+			}
+#endif
+    }
     _dl_load_base = load_addr;
 }
