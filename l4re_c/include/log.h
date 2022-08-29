@@ -37,8 +37,6 @@ EXTERN_C_BEGIN
  *
  * \param string     Text to print, null terminated.
  *
- * \return 0 for success, <0 on error
- *
  * \see L4Re::Log::print
  */
 L4_CV L4_INLINE void
@@ -68,8 +66,6 @@ l4re_log_printn(char const *string, int len) L4_NOTHROW;
  * \param logcap     Log capability (service).
  * \param string     Text to print, null terminated.
  *
- * \return 0 for success, <0 on error
- *
  * \see L4Re::Log::print
  */
 L4_CV void
@@ -83,8 +79,6 @@ l4re_log_print_srv(const l4_cap_idx_t logcap,
  * \param logcap     Log capability (service).
  * \param string     Text to print, null terminated.
  * \param len        Length of string in bytes.
- *
- * \return 0 for success, <0 on error
  *
  * \see L4Re::Log::printn
  */
