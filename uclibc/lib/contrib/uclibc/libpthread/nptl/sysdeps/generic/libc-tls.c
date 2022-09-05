@@ -166,10 +166,13 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
      for FDPIC MMU-less platforms:
      fs/binfmt_elf_fdpic.c: fix brk area overlap with stack on NOMMU
      https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/fs/binfmt_elf_fdpic.c?id=4ac313111018cb44ecc250445de5ccb93026a980
+     Loading static PIE ELFs on noMMU is possible since the linux kernel commit
+     1bde925d2354 ("fs/binfmt_elf_fdpic.c: provide NOMMU loader for regular ELF binaries")
+     and it is subject to the same brk restriction.
    */
 # if defined(TLS_TCB_AT_TP)
   tcb_offset = roundup (memsz + GL(dl_tls_static_size), tcbalign);
-#  if defined(__FDPIC__)
+#  if defined(__FDPIC__) || (!defined(__ARCH_USE_MMU__) && defined(STATIC_PIE))
   tlsblock = mmap (NULL, tcb_offset + tcbsize + max_align,
                    PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #  else
@@ -177,7 +180,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 #  endif
 # elif defined(TLS_DTV_AT_TP)
   tcb_offset = roundup (tcbsize, align ?: 1);
-#  if defined(__FDPIC__)
+#  if defined(__FDPIC__) || (!defined(__ARCH_USE_MMU__) && defined(STATIC_PIE))
   tlsblock = mmap (NULL, tcb_offset + memsz + max_align + TLS_PRE_TCB_SIZE + GL(dl_tls_static_size),
                    PROT_READ|PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 #  else
