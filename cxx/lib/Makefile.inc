@@ -11,6 +11,10 @@ PC_LIBS_$(PC_FILENAME)_e := -l$(patsubst lib%,%,$(TARGET_BASENAME))_e
 
 $(foreach src,$(SRC_CC),$(eval CXXFLAGS_$$(src) += -DL4_NO_RTTI -fno-exceptions -fno-rtti))
 
+# Prevent the removal of the %.e.cc files. The build system shall not rebuild
+# an unchanged source tree.
+.SECONDARY: $(patsubst %.cc,%.e.cc,$(SRC_CC))
+
 SRC_CC_$(TARGET_BASENAME).a     := $(SRC_CC)
 SRC_CC_$(TARGET_BASENAME).p.a   := $(SRC_CC)
 SRC_CC_$(TARGET_BASENAME)_e.a   := $(patsubst %.cc,%.e.cc,$(SRC_CC))
