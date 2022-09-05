@@ -48,8 +48,6 @@ LDFLAGS = -lld-l4
 
 EXTRA_LIBS := -lld-l4
 
-CRT0 :=
-
 include $(L4DIR)/mk/lib.mk
 PICFLAGS += -DSHARED
 
