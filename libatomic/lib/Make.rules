@@ -1,0 +1,47 @@
+TARGET         ?= libatomic.a
+PC_FILENAME    ?= libatomic
+PC_LIBS        ?= -latomic
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+WARNINGS       := -Wall
+
+LIBATOMIC_CONTRIB_DIR = $(PKGDIR)/contrib
+
+PRIVATE_INCDIR += $(LIBATOMIC_CONTRIB_DIR)/config/posix $(LIBATOMIC_CONTRIB_DIR) \
+                  $(PKGDIR)/generated/ARCH-$(ARCH)$(CPU_BITS_riscv)
+
+SRC_C += gload.c gstore.c gcas.c gexch.c glfree.c lock.c init.c \
+         fenv.c fence.c flag.c lock.c
+
+# Hide global symbols to allow linking against shared objects without polluting
+# their exported functions.
+libatomic.a : CFLAGS += -fvisibility=hidden
+
+include $(L4DIR)/mk/Makeconf
+
+# Create symlink for source file in OBJ_DIR
+# 1: target: will be prefixed with OBJ_DIR
+# 2: source
+define libatomic_link_rule
+$(OBJ_DIR)/$1: $(realpath $2) $(if $(filter $(realpath $(OBJ_DIR)/$1),$(realpath $2)),,FORCE)
+	$$(VERBOSE)$(MKDIR) $$(@D)
+	$$(VERBOSE)$(LN) -sf $$< $$@
+endef
+
+LIBATOMIC_SIZES_32 =  1 2 4 8
+LIBATOMIC_SIZES_64 =  1 2 4 8 16
+LIBATOMIC_SIZEOBJS = load store cas exch fadd fsub fand fior fxor fnand tas
+
+$(foreach op,$(LIBATOMIC_SIZEOBJS),\
+  $(foreach size,$(LIBATOMIC_SIZES_$(CPU_BITS_riscv)),\
+    $(eval $(call libatomic_link_rule,$(op)_$(size)_.c,$(LIBATOMIC_CONTRIB_DIR)/$(op)_n.c)) \
+    $(eval SRC_C += $(op)_$(size)_.c) \
+    $(eval CFLAGS_$(op)_$(size)_.c += -DN=$(size)) \
+  ) \
+)
+
+vpath %.c $(OBJ_DIR)
+vpath %.c $(LIBATOMIC_CONTRIB_DIR)
+vpath %.c $(LIBATOMIC_CONTRIB_DIR)/config/posix

@@ -1,0 +1,3 @@
+provides: libatomic
+requires: libc-headers l4sys
+maintainer: georg.kotheimer@kernkonzept.com

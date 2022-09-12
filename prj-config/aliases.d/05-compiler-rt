@@ -1,7 +1,19 @@
+# RISC-V does not natively support subword atomics, such as __atomic_load_1 or
+# __atomic_load_2. The RISC-V gcc developers have decided to emulate these via
+# libatomic, which is suboptimal as it forces you to link against libatomic.
+# However, there are plans to solve this properly in the future, without
+# libatomic, analogous to how gcc does it on other architectures:
+# https://github.com/riscv/riscv-gcc/issues/12#issuecomment-542735796
+#
+# Until then, we need an interim solution for L4Re, because the official
+# workaround, which is that gcc on RISC-V just always automatically links
+# against libatomic, does not work for L4Re because we call the linker directly,
+# not through gcc.
+
 # libgcc_eh must be before libgcc in link order as it might reference hidden
 # symbols defined in libgcc (for example outline atomics). The order is
 # important for shared objects, as these are linked without library grouping,
 # i.e. libraries are searched only once in the order they are specified.
-compiler-rt      := libgcc_eh libgcc
+compiler-rt      := libgcc_eh libgcc libatomic[arch(riscv)]
 compiler-rt-pure := libgcc_eh-pure libgcc-pure
 compiler-rt-crt  := libgcc-crt[build-only]
