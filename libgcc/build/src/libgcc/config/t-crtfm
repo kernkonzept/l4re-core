@@ -1,0 +1,1 @@
+$(eval $(call libgcc_make_obj,crtfastmath.o,config/$(CPU_TYPE)/crtfastmath.c,$(LIBGCC2_CFLAGS)))

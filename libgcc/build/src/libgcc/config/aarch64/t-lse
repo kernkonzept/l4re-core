@@ -1,0 +1,4 @@
+# TODO: Required for outline atomics (-moutline-atomics), currently not
+# supported on L4 as __getauxval(AT_HWCAP) always returns 0 indicating that the
+# required atomic operations are not available, so no point in adding the
+# outline atomics support code here in libgcc.

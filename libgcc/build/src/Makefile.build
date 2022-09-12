@@ -1,0 +1,282 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Copyright (C) 2005-2022 Free Software Foundation, Inc.
+# Copyright (C) 2022 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+#
+# NOTE: This file is derived from libgcc/Makefile.in.
+
+GCC_CFLAGS = -g -O2 -DIN_GCC -DCROSS_DIRECTORY_STRUCTURE \
+             -W -Wall -Wno-narrowing -Wwrite-strings -Wcast-qual \
+             -Wstrict-prototypes -Wmissing-prototypes \
+             -Wold-style-definition
+
+# Make target libgcc version available in source files
+GCC_CFLAGS += -DL4_LIBGCC_VERSION=$(LIBGCC_CONTRIB_VERSION)
+
+# Do not include headers from libc.
+ifeq ($(LIBGCC_INHIBIT_LIBC),y)
+INHIBIT_LIBC_CFLAGS = -Dinhibit_libc
+endif
+
+# Options to use when compiling libgcc2.a.
+#
+LIBGCC2_DEBUG_CFLAGS = -g
+LIBGCC2_CFLAGS = -O2 $(GCC_CFLAGS) $(HOST_LIBGCC2_CFLAGS) \
+      $(LIBGCC2_DEBUG_CFLAGS) -DIN_LIBGCC2 \
+      -fbuilding-libgcc -fno-stack-protector \
+      $(INHIBIT_LIBC_CFLAGS)
+
+# Additional target-dependent options for compiling libgcc2.a.
+HOST_LIBGCC2_CFLAGS =
+
+# Taken from libgcc/config/t-libgcc-pic: We always compile libgcc as PIC code.
+# Compile libgcc2.a with pic.
+HOST_LIBGCC2_CFLAGS += -fPIC
+
+# Defined in libgcc2.c, included only in the static library.
+LIB2FUNCS_ST = _eprintf __gcc_bcmp
+
+# List of functions not to build from libgcc2.c.
+LIB2FUNCS_EXCLUDE =
+
+# List of extra C and assembler files to add to static and shared libgcc2.
+# Assembler files should have names ending in `.S'.
+LIB2ADD =
+
+# List of extra C and assembler files to add to static libgcc2.
+# Assembler files should have names ending in `.S'.
+LIB2ADD_ST =
+
+# Options to use when compiling crtbegin/end.
+CRTSTUFF_CFLAGS = -O2 $(GCC_CFLAGS) -g0 \
+  $(NO_PIE_CFLAGS) -finhibit-size-directive -fno-inline -fno-exceptions \
+  -fno-zero-initialized-in-bss -fno-toplevel-reorder -fno-tree-vectorize \
+  -fbuilding-libgcc -fno-stack-protector $(FORCE_EXPLICIT_EH_REGISTRY) \
+  $(INHIBIT_LIBC_CFLAGS)
+
+# Extra flags to use when compiling crt{begin,end}.o.
+CRTSTUFF_T_CFLAGS =
+
+# Compile crtbeginS.o and crtendS.o with pic.
+CRTSTUFF_T_CFLAGS_S = -fPIC
+
+# Additional sources to handle exceptions; overridden by targets as needed.
+LIB2ADDEH = $(LIBGCC_CONTRIB_SRC_DIR)/unwind-dw2.c $(LIBGCC_CONTRIB_SRC_DIR)/unwind-dw2-fde.c \
+  $(LIBGCC_CONTRIB_SRC_DIR)/unwind-sjlj.c $(LIBGCC_CONTRIB_SRC_DIR)/unwind-c.c
+
+# Create links to files specified in config.host.
+LIBGCC_LINKS = unwind.h md-unwind-support.h sfp-machine.h gthr-default.h
+
+# For -fvisibility=hidden.  We need both a -fvisibility=hidden on
+# the command line, and a #define to prevent libgcc2.h etc from
+# overriding that with #pragmas.
+# Must only be set for the static libgcc, the shared variant does not use the
+# hidden attribute!
+HIDE_FLAGS += -fvisibility=hidden -DHIDE_EXPORTS
+
+define gen-hide-list
+$(VERBOSE)$(NM) -pg $< | \
+            $(AWKP) 'NF == 3 && $$2 !~ /^[UN]$$/ && $$3 !~ /.*_compat/ \
+                   && $$3 !~ /.*@.*/ \
+             { print "\t.hidden", $$3 }' > $@T
+$(VERBOSE)mv -f $@T $@
+endef
+
+# Create a standalone object file
+# 1: target
+# 2: source file name
+# 3: object suffix
+# 4: flags
+define libgcc_src_generic
+SRC_$(call libgcc_ext_from_src,$2)_$1 += $2
+$(call libgcc_flags_from_src, $2)FLAGS_$(call libgcc_obj_from_src,$2,$3) += $4
+endef
+
+# Prepend LIBGCC2_CFLAGS for all source files of libgcc.a, libgcc_s.so and libgcc_eh.a
+# Prepend HIDE_FLAGS for all source files of libgcc.a and libgcc_eh.a
+# 1: source file name
+# 2: flags
+libgcc_src_st = $(call libgcc_src_generic,$(LIBGCC_A),$1,.o,$(LIBGCC2_CFLAGS) $(HIDE_FLAGS) $2)
+libgcc_src_so = $(call libgcc_src_generic,libgcc_s.so,$1,.s.o,$(LIBGCC2_CFLAGS) $2)
+libgcc_src_eh = $(call libgcc_src_generic,$(LIBGCC_EH_A),$1,.o,$(LIBGCC2_CFLAGS) $(HIDE_FLAGS) $2)
+define libgcc_src
+$(call libgcc_src_st,$1,$2)
+$(call libgcc_src_so,$1,$2)
+endef
+
+$(eval $(call libgcc_include,$(LIBGCC_PKG_DIR)/build/src/Makefile-$(CPU_TYPE)))
+$(eval $(call libgcc_include_versioned,$(LIBGCC_PKG_DIR)/build/src/Makevars))
+
+$(eval $(call libgcc_link_rule,enable-execute-stack.c,$(LIBGCC_CONTRIB_SRC_DIR)/$(enable_execute_stack)))
+$(eval $(call libgcc_link_rule,unwind.h,$(LIBGCC_CONTRIB_SRC_DIR)/$(unwind_header)))
+$(eval $(call libgcc_link_rule,md-unwind-support.h,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(md_unwind_header)))
+$(eval $(call libgcc_link_rule,sfp-machine.h,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(sfp_machine_header)))
+$(eval $(call libgcc_link_rule,gthr-default.h,$(LIBGCC_CONTRIB_SRC_DIR)/$(thread_header)))
+
+LIB2ADD += enable-execute-stack.c
+
+# While emutls.c has nothing to do with EH, it is in LIB2ADDEH*
+# instead of LIB2ADD because that's the way to be sure on some targets
+# (e.g. *-*-darwin*) only one copy of it is linked.
+LIB2ADDEH += emutls.c
+
+# Library members defined in libgcc2.c.
+# lib2funcs = Defined in Makevars-<version>
+
+# The floating-point conversion routines that involve a single-word integer.
+# XX stands for the integer mode.
+swfloatfuncs = $(patsubst %,_fixuns%XX,sf df xf)
+
+# Likewise double-word routines.
+dwfloatfuncs = $(patsubst %,_fix%XX,sf df xf tf) \
+               $(patsubst %,_fixuns%XX,sf df xf tf) \
+               $(patsubst %,_floatXX%,sf df xf tf) \
+               $(patsubst %,_floatunXX%,sf df xf tf)
+
+ifeq ($(LIB2_SIDITI_CONV_FUNCS),)
+  lib2funcs += $(subst XX,si,$(swfloatfuncs))
+  lib2funcs += $(subst XX,di,$(dwfloatfuncs))
+else
+  # Build libgcc2.c for each conversion function, with a specific
+  # L<func> definition and LIBGCC2_UNITS_PER_WORD setting.  The DImode
+  # functions are built with a wordsize of 4; the TImode functions are
+  # built with the same labels, but a wordsize of 8.
+  sifuncs := $(filter-out $(LIB2FUNCS_EXCLUDE),$(subst XX,si,$(swfloatfuncs)))
+  difuncs := $(filter-out $(LIB2FUNCS_EXCLUDE),$(subst XX,di,$(dwfloatfuncs)))
+  tifuncs := $(filter-out $(LIB2FUNCS_EXCLUDE),$(subst XX,ti,$(dwfloatfuncs)))
+  $(foreach func,$(sifuncs) $(difuncs),$(eval CFLAGS_$(func).c += -DLIBGCC2_UNITS_PER_WORD=4))
+  $(foreach func,$(tifuncs),$(eval CFLAGS_$(func).c += -DLIBGCC2_UNITS_PER_WORD=8))
+  lib2funcs += $(sifuncs) $(difuncs) $(tifuncs)
+endif
+
+# These might cause a divide overflow trap and so are compiled with
+# unwinder info.
+# LIB2_DIVMOD_FUNCS = Defined in Makevars-<version>
+
+# Remove any objects from lib2funcs and LIB2_DIVMOD_FUNCS that are
+# defined as optimized assembly code in LIB1ASMFUNCS or as C code
+# in LIB2FUNCS_EXCLUDE.
+lib2funcs := $(filter-out $(LIB2FUNCS_EXCLUDE) $(LIB1ASMFUNCS),$(lib2funcs))
+LIB2_DIVMOD_FUNCS := $(filter-out $(LIB2FUNCS_EXCLUDE) $(LIB1ASMFUNCS), \
+                       $(LIB2_DIVMOD_FUNCS))
+LIB2FUNCS_ST := $(filter-out $(LIB2FUNCS_EXCLUDE),$(LIB2FUNCS_ST))
+
+# Build "libgcc1" (assembly) components.
+$(foreach func,$(LIB1ASMFUNCS),\
+  $(eval $(call libgcc_link_rule,$(func).S,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(LIB1ASMSRC))) \
+  $(eval $(call libgcc_src,$(func).S,-DL$(func))) \
+)
+
+# Build lib2funcs.  For the static library also include LIB2FUNCS_ST.
+$(foreach func,$(lib2funcs) $(LIB2FUNCS_ST),\
+  $(eval $(call libgcc_link_rule,$(func).c,$(LIBGCC_CONTRIB_SRC_DIR)/libgcc2.c)) \
+  $(eval $(call libgcc_src,$(func).c,-DL$(func))) \
+)
+
+ifeq ($(LIB2_DIVMOD_EXCEPTION_FLAGS),)
+# Provide default flags for compiling divmod functions, if they haven't been
+# set already by a target-specific Makefile fragment.
+LIB2_DIVMOD_EXCEPTION_FLAGS := -fexceptions -fnon-call-exceptions
+endif
+
+# Build LIB2_DIVMOD_FUNCS.
+$(foreach func,$(LIB2_DIVMOD_FUNCS),\
+  $(eval $(call libgcc_link_rule,$(func).c,$(LIBGCC_CONTRIB_SRC_DIR)/libgcc2.c)) \
+  $(eval $(call libgcc_src,$(func).c,-DL$(func) $(LIB2_DIVMOD_EXCEPTION_FLAGS))) \
+)
+
+ifeq ($(SYNC),yes)
+SYNC_CFLAGS += -Wno-builtin-declaration-mismatch
+
+libgcc-sync-funcs := $(foreach op, add sub or and xor nand, \
+                       sync_fetch_and_$(op) \
+                       sync_$(op)_and_fetch) \
+                     sync_bool_compare_and_swap \
+                     sync_val_compare_and_swap \
+                     sync_lock_test_and_set
+
+$(foreach func,$(libgcc-sync-funcs), \
+  $(foreach size,1 2 4 8 16, \
+    $(eval $(call libgcc_link_rule,$(func)_$(size).c,$(LIBGCC_CONTRIB_SRC_DIR)/sync.c)) \
+    $(eval $(call libgcc_src,$(func)_$(size).c,$(SYNC_CFLAGS) -DFN=$(func) -DSIZE=$(size))) \
+  ) \
+)
+
+$(eval $(call libgcc_link_rule,sync_synchronize.c,$(LIBGCC_CONTRIB_SRC_DIR)/sync.c))
+$(eval $(call libgcc_src,sync_synchronize.c,$(SYNC_CFLAGS) -DLsync_synchronize))
+endif
+
+# Build LIB2ADD and LIB2ADD_ST.
+$(foreach file,$(LIB2ADD),$(eval $(call libgcc_src,$(file),)))
+$(foreach file,$(LIB2ADD_ST),$(eval $(call libgcc_src_st,$(file),)))
+
+# Build LIB2ADDEH.
+$(foreach file,$(LIB2ADDEH),$(eval $(call libgcc_src_eh,$(file),-fexceptions)))
+$(foreach file,$(LIB2ADDEH),$(eval $(call libgcc_src_so,$(file),-fexceptions)))
+
+# Ensure links are created.
+$(patsubst %.c,%.o,$(SRC_C_$(LIBGCC_A)) $(SRC_C_libgcc_s.so) $(SRC_C_$(LIBGCC_EH_A))): $(LIBGCC_LINKS)
+$(patsubst %.S,%.o,$(SRC_S_$(LIBGCC_A)) $(SRC_S_libgcc_s.so) $(SRC_S_$(LIBGCC_EH_A))): $(LIBGCC_LINKS)
+
+ifneq ($(HIDE_FLAGS),)
+# Assembler source files used in libgcc.a and libgcc_eh.a for which hiding lists
+# must be generated.
+libgcc_static_src_S = $(SRC_S_$(LIBGCC_A)) $(SRC_S_$(LIBGCC_EH_A))
+
+# Generate visibility hiding list for assembler files of static libraries.
+$(patsubst %.S,%.vis,$(libgcc_static_src_S)): %.vis: %.s.o
+	$(gen-hide-list)
+
+DEL_ON_CLEAN += $(patsubst %.S,%.vis,$(libgcc_static_src_S))
+
+# Add deppendency and include .vis for static object files.
+$(foreach src,$(libgcc_static_src_S),\
+  $(eval $(call BID_MAKE_RULE_template,$(src:.S=.o),$(src) $(src:.S=.vis),AS)) \
+  $(eval ASFLAGS_$(src:.S=.o) += -include $(src:.S=.vis)) \
+)
+
+# Generate explicit make rule for all source files that are not already built as
+# part of libgcc_s.so, i.e. BID does not generate make rules for them.
+$(foreach src,$(filter-out $(if $(filter libgcc_s.so,$(TARGET)),$(SRC_S_libgcc_s.so)), \
+                           $(libgcc_static_src_S)),\
+  $(eval $(call libgcc_make_obj,$(src:.S=.s.o),$(src))) \
+)
+endif
+
+# Build the standard GCC startfiles and endfiles.
+
+# We might have to define USE_PT_GNU_EH_FRAME manually, because the detection in
+# crtstuff.c excludes __UCLIBC__ from it if `inhibit_libc` is set, but our
+# uclibc uses it! When USE_PT_GNU_EH_FRAME is not defined, libgcc decides to use
+# USE_EH_FRAME_REGISTRY instead, which does not work.
+ifeq ($(LIBGCC_INHIBIT_LIBC),y)
+ifeq ($(call libgcc_is_predefined,__GLIBC__ __gnu_linux__ __GNU__),)
+CRTSTUFF_NON_STATIC = -DUSE_PT_GNU_EH_FRAME
+endif
+endif
+
+libgcc_make_crtstuff = $(call libgcc_make_obj,$1,$2,$(CRTSTUFF_CFLAGS) $3)
+
+# Compile two additional files that are linked with every program
+# linked using GCC on systems using COFF or ELF, for the sake of C++
+# constructors.
+$(eval $(call libgcc_make_crtstuff,crtbegin.o,crtstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_BEGIN $(CRTSTUFF_NON_STATIC)))
+$(eval $(call libgcc_make_crtstuff,crtend.o,crtstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_END $(CRTSTUFF_NON_STATIC)))
+
+# These are versions of crtbegin and crtend for shared libraries.
+$(eval $(call libgcc_make_crtstuff,crtbeginS.o,crtstuff.c,$(CRTSTUFF_T_CFLAGS_S) -DCRT_BEGIN -DCRTSTUFFS_O $(CRTSTUFF_NON_STATIC)))
+$(eval $(call libgcc_make_crtstuff,crtendS.o,crtstuff.c,$(CRTSTUFF_T_CFLAGS_S) -DCRT_END -DCRTSTUFFS_O $(CRTSTUFF_NON_STATIC)))
+
+# This is a version of crtbegin for -static links.
+$(eval $(call libgcc_make_crtstuff,crtbeginT.o,crtstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_BEGIN -DCRTSTUFFT_O))
+
+# crtoffloadbegin and crtoffloadend contain symbols, that mark the begin and
+# the end of tables with addresses, required for offloading.  crtoffloadtable
+# contains the array with addresses of those symbols.
+$(eval $(call libgcc_make_crtstuff,crtoffloadbegin.o,offloadstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_BEGIN))
+$(eval $(call libgcc_make_crtstuff,crtoffloadend.o,offloadstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_END))
+$(eval $(call libgcc_make_crtstuff,crtoffloadtable.o,offloadstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_TABLE))
+
+$(eval $(call libgcc_make_crtstuff,crti.o,config/$(CPU_TYPE)/crti.S))
+$(eval $(call libgcc_make_crtstuff,crtn.o,config/$(CPU_TYPE)/crtn.S))

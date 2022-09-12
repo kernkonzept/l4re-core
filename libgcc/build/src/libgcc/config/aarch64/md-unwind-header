@@ -1,0 +1,4 @@
+md_unwind_header = aarch64/aarch64-unwind.h
+
+# Suppress warning in aarch64_cie_signed_with_b_key() function in unwind header.
+CFLAGS += -Wno-discarded-qualifiers

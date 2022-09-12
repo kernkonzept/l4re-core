@@ -1,0 +1,95 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Copyright (C) 2005-2022 Free Software Foundation, Inc.
+# Copyright (C) 2022 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+# --- From libgcc/Makefile.in ---
+enable_execute_stack = enable-execute-stack-empty.c
+unwind_header = unwind-generic.h
+md_unwind_header = no-unwind.h
+sfp_machine_header = mips/sfp-machine.h
+thread_header = $(if $(L4API),gthr-posix.h,gthr-single.h)
+
+# List of extra object files that should be compiled for this target machine.
+# The rules for compiling them should be in the t-* file for the machine.
+EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o crtfastmath.o
+
+HARD_FLOAT:=$(call libgcc_is_predefined,__mips_hard_float)
+
+
+# --- From libgcc/config/mips/t-mips ---
+LIB2_SIDITI_CONV_FUNCS = yes
+
+softfp_float_modes :=
+softfp_int_modes := si di
+softfp_extensions :=
+softfp_truncations :=
+softfp_exclude_libgcc2 := n
+
+LIB2ADD_ST += config/mips/lib2funcs.c
+
+ifdef HARD_FLOAT
+# --- From libgcc/config/t-hardfp-sfdf ---
+$(eval $(call libgcc_include_config,t-hardfp-sfdf))
+
+# --- From libgcc/config/t-hardfp ---
+$(eval $(call libgcc_include_config,t-hardfp))
+else
+# --- From libgcc/config/t-softfp-sfdf ---
+$(eval $(call libgcc_include_config,t-softfp-sfdf))
+endif
+
+
+# --- From libgcc/config/mips/t-softfp-tf ---
+# TODO: Correct would be to check ${ac_cv_sizeof_long_double}" = 16
+ifeq ($(CPU_ABI),64)
+softfp_float_modes += tf
+softfp_extensions += sftf dftf
+softfp_truncations += tfsf tfdf
+endif
+
+
+# --- From libgcc/config/mips/t-mips64 ---
+ifeq ($(CPU_ABI),64)
+softfp_int_modes += ti
+endif
+
+
+# --- From libgcc/config/t-softfp ---
+$(eval $(call libgcc_include_config,t-softfp))
+
+
+# --- From libgcc/config/t-eh-dw2-dip ---
+$(eval $(call libgcc_include_config,t-eh-dw2-dip))
+
+
+# -- From libgcc/config/t-crtfm ---
+$(eval $(call libgcc_include_config,t-crtfm))
+
+
+# --- From libgcc/config/mips/t-mips16 ---
+LIB1ASMSRC = mips/mips16.S
+LIB1ASMFUNCS = _m16addsf3 _m16subsf3 _m16mulsf3 _m16divsf3 \
+               _m16eqsf2 _m16nesf2 _m16gtsf2 _m16gesf2 _m16lesf2 _m16ltsf2 \
+               _m16unordsf2 \
+               _m16fltsisf _m16fix_truncsfsi _m16fltunsisf \
+               _m16adddf3 _m16subdf3 _m16muldf3 _m16divdf3 \
+               _m16extsfdf2 _m16trdfsf2 \
+               _m16eqdf2 _m16nedf2 _m16gtdf2 _m16gedf2 _m16ledf2 _m16ltdf2 \
+               _m16unorddf2 \
+               _m16fltsidf _m16fix_truncdfsi _m16fltunsidf \
+               _m16retsf _m16retdf \
+               _m16retsc _m16retdc \
+               _m16stub1 _m16stub2 _m16stub5 _m16stub6 _m16stub9 _m16stub10 \
+               _m16stubsf0 _m16stubsf1 _m16stubsf2 _m16stubsf5 _m16stubsf6 \
+               _m16stubsf9 _m16stubsf10 \
+               _m16stubdf0 _m16stubdf1 _m16stubdf2 _m16stubdf5 _m16stubdf6 \
+               _m16stubdf9 _m16stubdf10 \
+               _m16stubsc0 _m16stubsc1 _m16stubsc2 _m16stubsc5 _m16stubsc6 \
+               _m16stubsc9 _m16stubsc10 \
+               _m16stubdc0 _m16stubdc1 _m16stubdc2 _m16stubdc5 _m16stubdc6 \
+               _m16stubdc9 _m16stubdc10
+
+SYNC = yes
+SYNC_CFLAGS = -mno-mips16

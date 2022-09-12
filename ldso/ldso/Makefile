@@ -61,7 +61,7 @@ LDFLAGS  =  -nocrt1 -Bsymbolic -Bstatic --warn-common --sort-common \
             --no-undefined -e _start -z defs -z now \
             --discard-locals --discard-all   \
             --gc-sections --whole-archive -ll4sys-direct --no-whole-archive \
-            $(GCCLIB)
+            -static-libgcc
 
 include $(L4DIR)/mk/Makeconf
 

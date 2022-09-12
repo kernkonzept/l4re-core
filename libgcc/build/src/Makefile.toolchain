@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom */
+#
+# Copyright (C) 2022 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+#            Frank Mehnert <frank.mehnert@kernkonzept.com>
+
+ifeq ($(L4API),l4f)
+  ifeq ($(ARCH),arm)
+    ifeq ($(BID_COMPILER_TYPE),gcc)
+      $(eval $(call libgcc_make_obj,l4-atomic.o,config/arm/l4-atomic.c,-Wno-builtin-declaration-mismatch))
+      LIBGCC_REPLACE_ARM_ATOMIC=1
+    else ifeq ($(BID_COMPILER_TYPE),clang)
+      # For Clang, overwriting builtin atomic functions doesn't work. But for
+      # ARMv6 and ARMv7 the atomic functions are not required, because there
+      # clang emits the atomic operations as inline instructions. Thus, disable
+      # the overwrite mechanism for Clang and require ARMv6 or ARMv7.
+      ifeq ($(filter armv6 armv7a,$(CPU)),)
+        $(error CPU '$(CPU)' not supported with Clang)
+      endif
+    endif
+  endif
+endif
+
+define process_libgcc_generic
+  $(CP) -f $1 $2
+endef
+
+define process_libgcc_arm
+  remove="$(filter linux-atomic.o linux-atomic-64bit.o, \
+                          $(shell $(AR) t $1))"; \
+  $(CP) -f $1 $2; \
+  $(AR) d $2 $$remove; \
+  $(if $(LIBGCC_REPLACE_ARM_ATOMIC),$(AR) rs $2 l4-atomic.o;)
+endef
+
+process_libgcc = $(if $(process_libgcc_$(ARCH)), \
+                      $(process_libgcc_$(ARCH)), \
+                      $(process_libgcc_generic))
+
+define libgcc_copy_file_rule
+$1: $(call GCCLIB_file_f,$1) $(GENERAL_D_LOC)
+	@$$(GEN_MESSAGE)
+	$$(VERBOSE)$$(call process_libgcc_generic,$$<,$$@)
+endef
+
+EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtendS.o crtend.o
+$(foreach obj,$(EXTRA_PARTS),$(eval $(call libgcc_copy_file_rule,$(obj))))
+
+INSTALL_TARGET := $(TARGET)
+TARGET         := $(filter-out %.o %.so %.a,$(TARGET))
+
+ifneq ($(SYSTEM),)
+all:: $(INSTALL_TARGET) unwind.h
+endif
+
+$(LIBGCC_A): $(GCCLIB_HOST) $(LIBGCC_MAKE_OBJS) $(GENERAL_D_LOC)
+	@$(GEN_MESSAGE)
+	$(VERBOSE)$(call process_libgcc,$(GCCLIB_HOST),$@)
+
+$(LIBGCC_EH_A): $(GCCLIB_EH_HOST) $(GENERAL_D_LOC)
+	@$(GEN_MESSAGE)
+	$(VERBOSE)$(call process_libgcc_generic,$(GCCLIB_EH_HOST),$@)
+
+$(eval $(call libgcc_link_rule,unwind.h,$(call GCCLIB_file_f,include/unwind.h)))
+
+DEL_ON_CLEAN += $(LIBGCC_A) $(LIBGCC_EH_A) unwind.h

@@ -1,0 +1,123 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom */
+#
+# Copyright (C) 2022 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+# Variable LIBGCC_PKG_DIR must be set correctly!
+
+# Default names for static libraries, might be overriden if multiple variants
+# are to be built.
+LIBGCC_A    ?= libgcc.a
+LIBGCC_EH_A ?= libgcc_eh.a
+
+include $(L4DIR)/mk/Makeconf
+include $(L4DIR)/mk/rules.inc
+
+$(GENERAL_D_LOC): $(LIBGCC_PKG_DIR)/build/src/Makefile.libgcc
+
+# Use warnings flags provided by libgcc build.
+WARNINGS       :=
+
+LIBGCC_LINK_DIR = $(OBJ_DIR)/src
+# Create symlink for source file in OBJ_DIR
+# 1: target: will be prefixed with OBJ_DIR
+# 2: source
+define libgcc_link_rule
+$(LIBGCC_LINK_DIR)/$1: $(realpath $2) $(if $(filter $(realpath $(LIBGCC_LINK_DIR)/$1),$(realpath $2)),,FORCE)
+	$$(VERBOSE)$(MKDIR) $$(@D)
+	$$(VERBOSE)$(LN) -sf $$< $$@
+endef
+
+vpath %.c $(LIBGCC_PKG_DIR)/build/src/libgcc
+vpath %.h $(LIBGCC_LINK_DIR)
+vpath %.c $(LIBGCC_LINK_DIR)
+vpath %.S $(LIBGCC_LINK_DIR)
+
+libgcc_flags_from_src = $(strip \
+                          $(if $(filter .c,$(suffix $1)),C, \
+                            $(if $(filter .S,$(suffix $1)),AS, \
+                              $(error Unsupported file type: $1))))
+
+libgcc_ext_from_src = $(strip \
+                        $(if $(filter .c,$(suffix $1)),C, \
+                          $(if $(filter .S,$(suffix $1)),S, \
+                            $(error Unsupported file type: $1))))
+
+libgcc_obj_from_src = $(patsubst %.c,%$2,$(patsubst %.S,%$2,$1))
+
+# Check whether any of the provided macros is predefined.
+# 1. macros to check
+libgcc_is_predefined = $(filter $1,$(shell $(callcc) -dM -E - </dev/null))
+
+# Create a standalone object file
+# 1: target
+# 2: source
+# 3: flags
+define libgcc_make_obj
+LIBGCC_MAKE_OBJS += $1
+LIBGCC_MAKE_OBJ_SRC_$1 += $2
+$(call BID_MAKE_RULE_template,$1,$2,$(call libgcc_flags_from_src, $2))
+$(call libgcc_flags_from_src, $2)FLAGS_$1 += $3
+endef
+
+define libgcc_include
+include $1
+$(GENERAL_D_LOC): $1
+endef
+
+# Build libgcc
+ifneq ($(CONFIG_BID_USE_TOOLCHAIN_LIBGCC),y)
+
+PRIVATE_INCDIR += $(LIBGCC_GENERATED_DIR)/$(CPU_TYPE)/gcc $(LIBGCC_GENERATED_DIR)/$(CPU_TYPE)/libgcc \
+                  $(LIBGCC_CONTRIB_DIR)/include $(LIBGCC_CONTRIB_DIR)/gcc $(LIBGCC_CONTRIB_DIR)/libgcc \
+                  $(LIBGCC_CONTRIB_DIR)/libgcc/config/$(CPU_TYPE) $(LIBGCC_LINK_DIR)
+
+# Selects the most recent version of a file by testing all -<version> suffixes
+# with the versions from $LIBGCC_CONTRIB_VERSIONS. If no sufficient versioned
+# file is found, instead fallback to the file base name without a version
+# suffix.
+# 1: file base name
+libgcc_versioned_file = $(firstword $(wildcard $(addprefix $1,$(LIBGCC_CONTRIB_SUFFIX_VERSIONS))) $1)
+
+libgcc_include_versioned = $(call libgcc_include,$(call libgcc_versioned_file,$1))
+libgcc_include_config = $(call libgcc_include_versioned,$(LIBGCC_PKG_DIR)/build/src/libgcc/config/$1)
+
+$(eval $(call libgcc_include,$(LIBGCC_PKG_DIR)/contrib.inc))
+$(eval $(call libgcc_include,$(LIBGCC_PKG_DIR)/build/src/Makefile.build))
+
+vpath %.c $(LIBGCC_CONTRIB_DIR)/libgcc
+vpath %.S $(LIBGCC_CONTRIB_DIR)/libgcc
+
+INSTALL_TARGET := $(TARGET)
+TARGET         := $(filter-out %.o,$(TARGET))
+
+# Use libgcc provided by toolchain
+else
+$(eval $(call libgcc_include,$(LIBGCC_PKG_DIR)/build/src/Makefile.toolchain))
+endif
+
+clean cleanall::
+	$(VERBOSE)$(RM) -r $(LIBGCC_LINK_DIR)
+
+DEL_ON_CLEAN += $(LIBGCC_MAKE_OBJS)
+
+# Manually add build info of object files that are not part of TARGET OR
+# INSTALL_TARGET to DEPS.
+$(foreach make_obj,$(LIBGCC_MAKE_OBJS),\
+  $(eval $(if $(filter $(make_obj),$(TARGET) $(INSTALL_TARGET)),,DEPS += $(call BID_dot_fname,$(make_obj)).cmd)) \
+)
+
+include $(L4DIR)/mk/lib.mk
+
+# libgcc_s.so must be linked against libgcc.a as certain functions are only part
+# of libgcc.a, but they must not be undefined in the libgcc_s.so shared object.
+ifneq ($(filter libgcc_s.so,$(TARGET)),)
+libgcc_s.so: $(LIBGCC_A)
+OBJS_libgcc_s.so += $(LIBGCC_A)
+# Prevent libgcc.a from being deleted during clean because it is part of the OBJS variable.
+KEEP_ON_CLEAN += $(LIBGCC_A)
+endif
+
+$(foreach make_obj,$(LIBGCC_MAKE_OBJS),\
+  $(eval $(call make_per_obj_vars,$(make_obj),$(make_obj),$(LIBGCC_MAKE_OBJ_SRC_$(make_obj)))) \
+)

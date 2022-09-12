@@ -1,0 +1,3 @@
+provides: libgcc-crt
+source-pkg: libgcc
+maintainer: georg.kotheimer@kernkonzept.com

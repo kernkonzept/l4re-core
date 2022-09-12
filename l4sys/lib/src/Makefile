@@ -54,7 +54,6 @@ SRC_C_l4lx-x86               = ARCH-x86/utcb-l4x.c
 SRC_C_libl4sys-l4x.a         = errtostr.c $(SRC_C_l4lx-$(ARCH))
 SRC_S_libl4sys-l4x.a         = $(SRC_S_l4lx-$(ARCH))
 
-include $(L4DIR)/mk/lib.mk
+COMPILER_RT                  = compiler-rt-pure
 
-GCCLIB    = $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/libgcc.a
-GCCLIB_SO = $(OBJ_BASE)/lib/$(ARCH)_$(CPU)/libgcc.a
+include $(L4DIR)/mk/lib.mk

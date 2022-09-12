@@ -1,0 +1,43 @@
+ABI_SINGLE:=$(call libgcc_is_predefined,__riscv_float_abi_single)
+ABI_DOUBLE:=$(call libgcc_is_predefined,__riscv_float_abi_double)
+ABI_QUAD:=$(call libgcc_is_predefined,__riscv_float_abi_quad)
+
+softfp_int_modes := si di
+softfp_exclude_libgcc2 := n
+
+ifndef ABI_QUAD
+ifdef ABI_DOUBLE
+
+softfp_float_modes := tf
+softfp_extensions := sftf dftf
+softfp_truncations := tfsf tfdf
+
+# Enable divide routines to make -mno-fdiv work.
+softfp_extras := divsf3 divdf3
+
+else
+# !ABI_DOUBLE
+
+softfp_float_modes := df tf
+softfp_extensions := sfdf sftf dftf
+softfp_truncations := dfsf tfsf tfdf
+
+ifndef ABI_SINGLE
+softfp_float_modes += sf
+else
+# ABI_SINGLE
+
+# Enable divide routines to make -mno-fdiv work.
+softfp_extras := divsf3
+
+endif
+
+endif
+
+else
+# ABI_QUAD
+
+# Enable divide routines to make -mno-fdiv work.
+softfp_extras := divsf3 divdf3 divtf3
+
+endif

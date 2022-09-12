@@ -1,0 +1,13 @@
+TARGET          = libgcc_eh.a
+CONTRIB_INCDIR  = libgcc_eh
+PC_FILENAME     = libgcc_eh
+PC_LIBS         =
+# When linking against shared libgcc do not link against libgcc_eh.a because
+# libgcc_s.so already contains the functions provided by libgcc_eh.a.
+PC_EXTRA        = Link_Libs= $(if $(CONFIG_BID_LIBGCC_SHARED),%{static|static-pie|static-libgcc:-lgcc_eh},-lgcc_eh)
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBGCC_PKG_DIR  = $(PKGDIR)/../libgcc
+include $(LIBGCC_PKG_DIR)/build/src/Makefile.libgcc

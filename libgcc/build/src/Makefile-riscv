@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Copyright (C) 2005-2022 Free Software Foundation, Inc.
+# Copyright (C) 2022 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+# --- From libgcc/Makefile.in ---
+enable_execute_stack = enable-execute-stack-empty.c
+unwind_header = unwind-generic.h
+md_unwind_header = no-unwind.h
+sfp_machine_header = riscv/sfp-machine.h
+thread_header = $(if $(L4API),gthr-posix.h,gthr-single.h)
+
+# List of extra object files that should be compiled for this target machine.
+# The rules for compiling them should be in the t-* file for the machine.
+# NOTE: Unlike a regular libgcc build, we do not build crti.o and crtn.o because
+#       they are already provided by ldscripts on L4.
+EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o
+
+
+# --- From libgcc/config/t-eh-dw2-dip ---
+$(eval $(call libgcc_include_config,t-eh-dw2-dip))
+
+
+# --- From libgcc/config/riscv/t-softfp32 ---
+$(eval $(call libgcc_include_config,riscv/t-softfp32))
+
+
+ifeq ($(CPU_BITS_riscv),64)
+# --- From libgcc/config/riscv/t-softfp64 ---
+$(eval $(call libgcc_include_config,riscv/t-softfp64))
+endif
+
+# --- From libgcc/config/t-softfp ---
+$(eval $(call libgcc_include_config,t-softfp))
+
+
+# --- From libgcc/config/riscv/t-elf ---
+$(eval $(call libgcc_include_config,riscv/t-elf))
+
+
+# --- From libgcc/config/riscv/t-elf32 or libgcc/config/riscv/t-elf64 ---
+LIB2FUNCS_EXCLUDE += _divsi3 _modsi3 _udivsi3 _umodsi3 _mulsi3 _muldi3

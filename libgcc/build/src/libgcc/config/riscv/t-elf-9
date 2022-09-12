@@ -1,0 +1,7 @@
+LIB2ADD += config/riscv/save-restore.S \
+           config/riscv/muldi3.S \
+           config/riscv/multi3.c \
+           config/riscv/div.S \
+           config/riscv/atomic.c \
+
+CFLAGS_config/riscv/atomic.c += -Wno-builtin-declaration-mismatch

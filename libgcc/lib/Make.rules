@@ -1,0 +1,13 @@
+TARGET          = libgcc.a $(if $(CONFIG_BID_LIBGCC_SHARED),libgcc_s.so)
+PC_FILENAME     = libgcc
+# Certain functions are only part of libgcc.a, so link shared objects against
+# both libgcc_s.so and libgcc.a.
+PC_LIBS         = %{static|static-pie|static-libgcc:; :$(if $(CONFIG_BID_LIBGCC_SHARED),-lgcc_s)} -lgcc
+PC_EXTRA        = Link_Libs= -lgcc
+
+REQUIRES_LIBS   = l4sys
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBGCC_PKG_DIR  = $(PKGDIR)
+include $(LIBGCC_PKG_DIR)/build/src/Makefile.libgcc

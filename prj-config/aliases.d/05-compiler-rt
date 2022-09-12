@@ -1,0 +1,3 @@
+compiler-rt      := libgcc libgcc_eh
+compiler-rt-pure := libgcc-pure libgcc_eh-pure
+compiler-rt-crt  := libgcc-crt[build-only]

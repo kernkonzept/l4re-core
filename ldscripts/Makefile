@@ -3,9 +3,13 @@ L4DIR		?= $(PKGDIR)/../../..
 
 SYSTEMS		= $(SYSTEMS_PLAIN)
 
+# Avoid circular dependency, the other parts of the compiler-runtime require
+# ldscripts, i.e. this package.
+COMPILER_RT = compiler-rt-crt
+
 define PC_EXTRA
-Link_Start= %{nocrt1|shared:; :%:search(crt1%{static:;static-pie:.p;:.s}.o %(libdir))} %:search(crti%{shared:.s}.o %(libdir)) %{static:%:if-exists(%:search(crtbeginT.o %(gcclibdir)) %:search(crtbegin.o %(gcclibdir)));shared|static-pie:%:search(crtbeginS.o %(gcclibdir));:%:search(crtbegin.o %(gcclibdir))}
-Link_End=   %:search(%{shared|static-pie:crtendS.o;:crtend.o} %(gcclibdir)) %:search(crtn%{shared:.s}.o %(libdir))
+Link_Start= %{nocrt1|shared:; :%:search(crt1%{static:;static-pie:.p;:.s}.o %(libdir))} %:search(crti%{shared:.s}.o %(libdir)) %{static:%:if-exists(%:search(crtbeginT.o %(libdir)) %:search(crtbegin.o %(libdir)));shared|static-pie:%:search(crtbeginS.o %(libdir));:%:search(crtbegin.o %(libdir))}
+Link_End=   %:search(%{shared|static-pie:crtendS.o;:crtend.o} %(libdir)) %:search(crtn%{shared:.s}.o %(libdir))
 endef
 
 LD_SCRIPTS      = main_stat.ld main_rel.ld main_dyn.ld \

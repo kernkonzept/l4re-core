@@ -33,7 +33,7 @@ endif
 DEFINES-$(CONFIG_BID_PIE) += -DSTATIC_PIE
 
 LDFLAGS         = -z combreloc -z relro --sort-common \
-		  --warn-common 
+		  --warn-common -static-libgcc
 
 LDFLAGS_NONGOLD = --warn-once --sort-section=alignment
 LDFLAGS        += $(LDFLAGS_NONGOLD)

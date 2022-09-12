@@ -1,0 +1,12 @@
+TARGET          = libgcc-pure.a
+PC_FILENAME     = libgcc-pure
+PC_LIBS         =
+PC_EXTRA        = Link_Libs= -lgcc-pure
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBGCC_A            := libgcc-pure.a
+LIBGCC_INHIBIT_LIBC := y
+LIBGCC_PKG_DIR       = $(PKGDIR)/../libgcc
+include $(LIBGCC_PKG_DIR)/build/src/Makefile.libgcc

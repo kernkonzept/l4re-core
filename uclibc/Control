@@ -1,3 +1,3 @@
 Provides: libc libpthread libc_minimal_l4re
-requires: l4sys l4re ldscripts
+requires: l4sys l4re ldscripts compiler-rt
 Maintainer: adam@os.inf.tu-dresden.de

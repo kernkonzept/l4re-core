@@ -1,0 +1,12 @@
+TARGET          = libgcc_eh-pure.a
+CONTRIB_INCDIR  = libgcc_eh
+PC_FILENAME     = libgcc_eh-pure
+PC_LIBS         =
+PC_EXTRA        = Link_Libs= -lgcc_eh-pure
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBGCC_EH_A    := libgcc_eh-pure.a
+LIBGCC_PKG_DIR  = $(PKGDIR)/../libgcc
+include $(LIBGCC_PKG_DIR)/build/src/Makefile.libgcc
