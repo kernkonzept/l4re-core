@@ -70,6 +70,20 @@ are for example used as first argument to the \c Factory:create method.
 \skipline Proto = {
 \until }
 
+\b Rights
+
+The rights of a Lua capability can be defined in two ways via the `:mode()`
+interface. Either via a string representation of the rights or via an integer
+value.
+An example for the former is `:mode("rsnc")` while the latter equivalent is
+`:mode(L4.Rights.r | L4.Rights.s | L4.Rights.n | L4.Rights.c)`.
+The following listing shows the integer constants. The constant names can be
+used in the string parameter to `:mode()`.
+
+\dontinclude "ned.lua"
+\skipline Rights = {
+\until }
+
 \b Debugging \b Flags
 
 Debugging flags used for the applications L4Re core:
