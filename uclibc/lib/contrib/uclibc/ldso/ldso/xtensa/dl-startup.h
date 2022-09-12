@@ -92,8 +92,6 @@ __asm__ (
 do { \
 	xtensa_got_location *got_loc; \
 	unsigned long l_addr = tpnt->loadaddr; \
-	Elf32_Word relative_count; \
-	unsigned long rel_addr; \
 	Elf32_Addr prev_got_start = 0, prev_got_end = 0; \
 	int x; \
 \
@@ -125,13 +123,4 @@ do { \
 					  prev_got_end - prev_got_start, \
 					  PROT_READ | PROT_WRITE | PROT_EXEC); \
 	} \
-\
-	/* The following is a stripped down version of the code following \
-	   the invocation of PERFORM_BOOTSTRAP_GOT in dl-startup.c.	 That \
-	   code is skipped when PERFORM_BOOTSTRAP_GOT is defined, so it has \
-	   to be done here instead.	 */ \
-	relative_count = tpnt->dynamic_info[DT_RELCONT_IDX]; \
-	rel_addr = tpnt->dynamic_info[DT_RELOC_TABLE_ADDR]; \
-	if (rel_addr) \
-	  elf_machine_relative(load_addr, rel_addr, relative_count); \
 } while (0)

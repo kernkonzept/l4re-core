@@ -294,8 +294,6 @@ DL_START(unsigned long args)
 	PERFORM_BOOTSTRAP_GOT(tpnt);
 #endif
 
-#if !defined(PERFORM_BOOTSTRAP_GOT) || defined(__avr32__) || defined(__mips__)
-
 	/* OK, now do the relocations.  We do not do a lazy binding here, so
 	   that once we are done, we have considerably more flexibility. */
 	SEND_EARLY_STDERR_DEBUG("About to do library loader relocations\n");
@@ -378,7 +376,6 @@ DL_START(unsigned long args)
 #endif
 		}
 	}
-#endif
 
 	SEND_STDERR_DEBUG("Done relocating ldso; we can now use globals and make function calls!\n");
 
