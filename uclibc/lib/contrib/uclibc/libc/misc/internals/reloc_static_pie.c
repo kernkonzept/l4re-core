@@ -25,7 +25,7 @@
 #include <dl-startup.h>
 #endif
 
-ElfW(Addr) _dl_load_base = NULL;
+extern ElfW(Addr) _dl_load_base;
 
 void
 reloc_static_pie (ElfW(Addr) load_addr);

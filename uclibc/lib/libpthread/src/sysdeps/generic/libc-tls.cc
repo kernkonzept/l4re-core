@@ -137,6 +137,11 @@ void *__libc_alloc_initial_tls(unsigned long size) __THROW
 
   return addr;
 }
+
+#if !defined(__FDPIC__) && !defined(SHARED) && defined(STATIC_PIE)
+ElfW(Addr) _dl_load_base;
+#endif
+
 extern "C"
 void
 __libc_setup_tls (size_t tcbsize, size_t tcbalign)
@@ -159,8 +164,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 	  filesz = phdr->p_filesz;
 	  initimage = (void *) phdr->p_vaddr;
 #if !defined(SHARED) && defined(STATIC_PIE)
-          extern ElfW(Addr) _dl_load_base;
-          initimage += _dl_load_base;
+	  initimage += _dl_load_base;
 #endif
 	  align = phdr->p_align;
 	  if (phdr->p_align > max_align)

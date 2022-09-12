@@ -117,6 +117,10 @@ init_static_tls (size_t memsz, size_t align)
   GL(dl_tls_static_nelem) = GL(dl_tls_max_dtv_idx);
 }
 
+#if !defined(__FDPIC__) && !defined(SHARED) && defined(STATIC_PIE)
+ElfW(Addr) _dl_load_base;
+#endif
+
 void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 void
 __libc_setup_tls (size_t tcbsize, size_t tcbalign)
@@ -143,8 +147,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 #else
 	  initimage = (void *) phdr->p_vaddr;
 #if !defined(SHARED) && defined(STATIC_PIE)
-    extern ElfW(Addr) _dl_load_base;
-    initimage += _dl_load_base;
+	  initimage += _dl_load_base;
 #endif
 #endif
 	  align = phdr->p_align;
