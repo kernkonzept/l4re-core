@@ -39,7 +39,7 @@
 /**@{*/
 
 /**
- * L4 Inline function attribute.
+ * %L4 Inline function attribute.
  * \hideinitializer
  */
 #ifndef L4_INLINE
@@ -58,6 +58,8 @@
 #else /* __cplusplus */
 #  define L4_INLINE inline
 #endif  /* __cplusplus */
+#elif defined DOXYGEN
+#  define L4_INLINE inline
 #endif  /* L4_INLINE */
 
 /**
