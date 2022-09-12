@@ -25,7 +25,6 @@
 #include "init.h"
 #include "init_mem.h"
 #include "ioports.h"
-#include "mem_man_test.h"
 #include <l4/sys/debugger.h>
 
 /* started as the L4 sigma0 task from crt0.S */
@@ -65,8 +64,6 @@ init(l4_kernel_info_t *info)
 
   init_memory(info);
   init_io_ports();
-
-  //mem_man_test();
 
   L4::cout << "  allocated " << Page_alloc_base::total()/1024
            << "KB for maintenance structures\n";
