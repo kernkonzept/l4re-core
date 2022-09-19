@@ -12,6 +12,7 @@
 #include "log.h"
 #include "alloc.h"
 #include "region.h"
+#include "server_obj.h"
 
 #include <l4/sys/cxx/ipc_epiface>
 #include <l4/sys/capability>
