@@ -170,6 +170,10 @@ private:
     _Node() = default;
 
     _Node(Item_type const &item) : Avl_tree_node(), item(item) {}
+
+    template<typename ...ARGS>
+    _Node(ARGS &&...args) : Avl_tree_node(), item(cxx::forward<ARGS>(args)...)
+    {}
   };
 
 public:
@@ -287,6 +291,9 @@ public:
    * the set.
    */
   cxx::Pair<Iterator, int> insert(Item_type const &item);
+
+  template<typename... Args>
+  cxx::Pair<Iterator, int> emplace(Args&&... args);
 
   /**
    * Remove an item from the set.
@@ -420,6 +427,27 @@ Base_avl_set<Item,Compare,Alloc,KEY_TYPE>::insert(Item const &item)
     return cxx::pair(end(), -E_nomem);
 
   new (n, Nothrow()) _Node(item);
+  Pair<_Node *, bool> err = _tree.insert(n);
+  if (!err.second)
+    {
+      n->~_Node();
+      _alloc.free(n);
+    }
+
+  return cxx::pair(Iterator(typename Tree::Iterator(err.first, err.first)), err.second ? 0 : -E_exist);
+}
+
+/* In-place insert new _Node. */
+template< typename Item, class Compare, template< typename A > class Alloc, typename KEY_TYPE>
+template<typename... Args>
+Pair<typename Base_avl_set<Item,Compare,Alloc,KEY_TYPE>::Iterator, int>
+Base_avl_set<Item,Compare,Alloc,KEY_TYPE>::emplace(Args&&... args)
+{
+  _Node *n = _alloc.alloc();
+  if (!n)
+    return cxx::pair(end(), -E_nomem);
+
+  new (n, Nothrow()) _Node(cxx::forward<Args>(args)...);
   Pair<_Node *, bool> err = _tree.insert(n);
   if (!err.second)
     {

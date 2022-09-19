@@ -110,6 +110,10 @@ public:
   cxx::Pair<Iterator, int> insert(Key_type const &key, Data_type const &data)
   { return Base_type::insert(Pair<Key_type, Data_type>(key, data)); }
 
+  template<typename... Args>
+  cxx::Pair<Iterator, int> emplace(Args &&...args)
+  { return Base_type::emplace(cxx::forward<Args>(args)...); }
+
   /**
    * \brief Get the data for the given key.
    * \param key The key value to use for lookup.
