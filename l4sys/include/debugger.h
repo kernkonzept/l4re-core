@@ -198,6 +198,27 @@ L4_INLINE l4_msgtag_t
 l4_debugger_switch_log_u(l4_cap_idx_t cap, const char *name, int on_off,
                          l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * Add loaded image information for a task.
+ * \ingroup l4_debugger_api
+ *
+ * \param cap     Capability which refers to the task object.
+ * \param base    Load base address of image.
+ * \param name    Image base name.
+ *
+ * This is a debugging facility, the call might be invalid.
+ */
+L4_INLINE l4_msgtag_t
+l4_debugger_add_image_info(l4_cap_idx_t cap, l4_addr_t base,
+                           const char *name) L4_NOTHROW;
+
+/**
+ * \internal
+ */
+L4_INLINE l4_msgtag_t
+l4_debugger_add_image_info_u(l4_cap_idx_t cap, l4_addr_t base, const char *name,
+                             l4_utcb_t *utcb) L4_NOTHROW;
+
 enum
 {
   L4_DEBUGGER_NAME_SET_OP         = 0UL,
@@ -207,6 +228,7 @@ enum
   L4_DEBUGGER_SWITCH_LOG_OP       = 4UL,
   L4_DEBUGGER_NAME_GET_OP         = 5UL,
   L4_DEBUGGER_QUERY_LOG_NAME_OP   = 6UL,
+  L4_DEBUGGER_ADD_IMAGE_INFO_OP   = 7UL,
 };
 
 enum
@@ -339,6 +361,19 @@ l4_debugger_get_object_name_u(l4_cap_idx_t cap, unsigned id,
   return t;
 }
 
+L4_INLINE l4_msgtag_t
+l4_debugger_add_image_info_u(l4_cap_idx_t cap, l4_addr_t base,
+                             const char *name, l4_utcb_t *utcb) L4_NOTHROW
+{
+  unsigned i;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_ADD_IMAGE_INFO_OP;
+  l4_utcb_mr_u(utcb)->mr[1] = base;
+  i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[2], name,
+                      (L4_UTCB_GENERIC_DATA_SIZE - 3) * sizeof(l4_umword_t));
+  i = l4_bytes_to_mwords(i);
+  return l4_invoke_debugger(cap, l4_msgtag(0, 2 + i, 0, 0), utcb);
+}
+
 
 L4_INLINE l4_msgtag_t
 l4_debugger_set_object_name(l4_cap_idx_t cap,
@@ -387,4 +422,11 @@ l4_debugger_get_object_name(l4_cap_idx_t cap, unsigned id,
                             char *name, unsigned size) L4_NOTHROW
 {
   return l4_debugger_get_object_name_u(cap, id, name, size, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_debugger_add_image_info(l4_cap_idx_t cap, l4_addr_t base,
+                           const char *name) L4_NOTHROW
+{
+  return l4_debugger_add_image_info_u(cap, base, name, l4_utcb());
 }

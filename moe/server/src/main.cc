@@ -68,6 +68,23 @@ static Dbg info(Dbg::Info);
 static Dbg boot(Dbg::Boot);
 static Dbg warn(Dbg::Warn);
 
+#ifdef CONFIG_BID_PIE
+static inline unsigned long elf_machine_dynamic()
+{
+  extern const unsigned long _GLOBAL_OFFSET_TABLE_[] __attribute__((visibility ("hidden")));
+  return _GLOBAL_OFFSET_TABLE_[0];
+}
+
+static inline unsigned long elf_machine_load_address()
+{
+  extern char _DYNAMIC[] __attribute__((visibility ("hidden")));
+    return (unsigned long)&_DYNAMIC - elf_machine_dynamic ();
+}
+#else
+static inline unsigned long elf_machine_load_address()
+{ return 0; }
+#endif
+
 static
 l4_kernel_info_t const *map_kip()
 {
@@ -583,6 +600,8 @@ int main(int /* argc */, char** /* argv */)
       l4_debugger_set_object_name(L4_BASE_TASK_CAP,   "moe");
       l4_debugger_set_object_name(L4_BASE_THREAD_CAP, "moe");
       l4_debugger_set_object_name(L4_BASE_PAGER_CAP,  "moe->s0");
+      l4_debugger_add_image_info(L4_BASE_TASK_CAP, elf_machine_load_address(),
+                                 "moe");
 
       root_name_space()->register_obj("log", Entry::F_rw, L4_BASE_LOG_CAP);
       root_name_space()->register_obj("icu", Entry::F_rw, L4_BASE_ICU_CAP);

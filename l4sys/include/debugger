@@ -159,5 +159,18 @@ public:
   l4_msgtag_t get_object_name(unsigned id, char *name, unsigned size,
                        l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_debugger_get_object_name_u(cap(), id, name, size, utcb); }
+
+  /**
+   * \copybrief l4_debugger_add_image_info()
+   *
+   * \param base  Image load base address
+   * \param name  Image name
+   * \param utcb  The UTCB to use for the operation.
+   *
+   * \return System call return tag.
+   */
+  l4_msgtag_t add_image_info(l4_addr_t base, const char *name,
+                             l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_debugger_add_image_info_u(cap(), base, name, utcb); }
 };
 }

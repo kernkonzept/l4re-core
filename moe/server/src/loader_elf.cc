@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <l4/libloader/elf>
+#include <l4/sys/debugger.h>
 
 
 bool
@@ -21,6 +22,7 @@ Elf_loader::launch(App_task *t, cxx::String const &prog,
   Dbg ldr(Dbg::Loader, "ldr");
   Moe_x_app_model am(t, prog, args);
   Ldr::Elf_loader<Moe_x_app_model, Dbg>::launch(&am, "rom/l4re", ldr);
+  l4_debugger_add_image_info(am._task->task_cap().cap(), 0, "l4re");
   return true;
 }
 

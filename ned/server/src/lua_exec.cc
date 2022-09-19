@@ -14,6 +14,7 @@
 #include <l4/cxx/ref_ptr>
 #include <l4/libloader/elf>
 #include <l4/util/bitops.h>
+#include <l4/sys/debugger.h>
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -273,6 +274,7 @@ public:
     Loader _l;
 
     _l.launch(this, kernel, ldr);
+    l4_debugger_add_image_info(_task->task_cap().cap(), 0, "l4re");
 
     lua_pop(_lua, 1);
   }

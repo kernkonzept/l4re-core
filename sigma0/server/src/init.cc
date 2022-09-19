@@ -45,6 +45,23 @@ static void call_init_array(Ctor **start, Ctor **end)
       (*start)();
 }
 
+#ifdef CONFIG_BID_PIE
+static inline unsigned long elf_machine_dynamic()
+{
+  extern const unsigned long _GLOBAL_OFFSET_TABLE_[] __attribute__((visibility ("hidden")));
+  return _GLOBAL_OFFSET_TABLE_[0];
+}
+
+static inline unsigned long elf_machine_load_address()
+{
+  extern char _DYNAMIC[] __attribute__((visibility ("hidden")));
+    return (unsigned long)&_DYNAMIC - elf_machine_dynamic ();
+}
+#else
+static inline unsigned long elf_machine_load_address()
+{ return 0; }
+#endif
+
 void
 init(l4_kernel_info_t *info)
 {
@@ -60,6 +77,7 @@ init(l4_kernel_info_t *info)
   l4_debugger_set_object_name(L4_BASE_TASK_CAP,    "sigma0");
   l4_debugger_set_object_name(L4_BASE_FACTORY_CAP, "root factory");
   l4_debugger_set_object_name(L4_BASE_THREAD_CAP,  "sigma0");
+  l4_debugger_add_image_info(L4_BASE_TASK_CAP, elf_machine_load_address(), "sigma0");
 
   Page_alloc_base::init();
 
