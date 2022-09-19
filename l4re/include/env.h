@@ -118,6 +118,11 @@ typedef struct l4re_env_t
   l4_cap_idx_t first_free_cap; /**< First capability index available to the application */
   l4_fpage_t utcb_area;        /**< UTCB area of the task */
   l4_addr_t first_free_utcb;   /**< First UTCB within the UTCB area available to the application */
+  /**
+   * Pointer to the first entry in the initial objects array which contains
+   * #l4re_env_cap_entry_t elements. The array is terminated by an invalid
+   * entry with a `flags` value of `~0`.
+   */
   l4re_env_cap_entry_t *caps;
 } l4re_env_t;
 
