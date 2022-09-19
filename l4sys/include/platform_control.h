@@ -170,6 +170,8 @@ enum L4_platform_ctl_ops
   L4_PLATFORM_CTL_CPU_ALLOW_SHUTDOWN_OP = 2UL, /**< allow CPU shutdown */
   L4_PLATFORM_CTL_CPU_ENABLE_OP         = 3UL, /**< enable an offline CPU */
   L4_PLATFORM_CTL_CPU_DISABLE_OP        = 4UL, /**< disable an online CPU */
+
+  L4_PLATFORM_CTL_SET_TASK_ASID_OP      = 0x10UL, /**< Arm: set task ASID */
 };
 
 /**
