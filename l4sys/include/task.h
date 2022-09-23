@@ -297,6 +297,7 @@ enum L4_task_ops
   L4_TASK_ADD_KU_MEM_OP    = 3UL,    /**< Add kernel-user memory */
   L4_TASK_LDT_SET_X86_OP   = 0x11UL, /**< x86: LDT set */
   L4_TASK_MAP_VGICC_ARM_OP = 0x12UL, /**< Arm: Map virtual GICC area */
+  L4_TASK_SET_ASID_ARM_OP  = 0x13UL, /**< Arm: set ASID */
 };
 
 

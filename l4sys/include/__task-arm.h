@@ -26,6 +26,13 @@ l4_task_vgicc_map_u(l4_cap_idx_t task, l4_fpage_t vgicc_fpage,
                    l4_utcb_t *u) L4_NOTHROW;
 
 /**
+ * \internal
+ */
+L4_INLINE l4_msgtag_t
+l4_task_set_asid_u(l4_cap_idx_t task, l4_umword_t asid,
+                   l4_utcb_t *u) L4_NOTHROW;
+
+/**
  * Map the GIC virtual CPU interface page to the task in case Fiasco
  * detected a GIC version 2.
  * \ingroup l4_task_api
@@ -38,6 +45,18 @@ l4_task_vgicc_map_u(l4_cap_idx_t task, l4_fpage_t vgicc_fpage,
  */
 L4_INLINE l4_msgtag_t
 l4_task_vgicc_map(l4_cap_idx_t task, l4_fpage_t vgicc_fpage) L4_NOTHROW;
+
+/**
+ * Set ASID of task.
+ * \ingroup l4_task_api
+ *
+ * \param task    Capability selector of destination task
+ * \param asid    New ASID value
+ *
+ * \return Syscall return tag
+ */
+L4_INLINE l4_msgtag_t
+l4_task_set_asid(l4_cap_idx_t task, l4_umword_t asid) L4_NOTHROW;
 
 /* IMPLEMENTATION -----------------------------------------------------------*/
 
@@ -57,4 +76,20 @@ L4_INLINE l4_msgtag_t
 l4_task_vgicc_map(l4_cap_idx_t task, l4_fpage_t vgicc_fpage) L4_NOTHROW
 {
   return l4_task_vgicc_map_u(task, vgicc_fpage, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_task_set_asid_u(l4_cap_idx_t task, l4_umword_t asid,
+                   l4_utcb_t *u) L4_NOTHROW
+{
+  l4_msg_regs_t *v = l4_utcb_mr_u(u);
+  v->mr[0] = L4_TASK_SET_ASID_ARM_OP;
+  v->mr[1] = asid;
+  return l4_ipc_call(task, u, l4_msgtag(L4_PROTO_TASK, 2, 0, 0), L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_task_set_asid(l4_cap_idx_t task, l4_umword_t asid) L4_NOTHROW
+{
+  return l4_task_set_asid_u(task, asid, l4_utcb());
 }
