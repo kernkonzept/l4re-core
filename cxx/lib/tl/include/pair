@@ -56,6 +56,14 @@ struct Pair
   Pair(A1 &&first, A2 &&second)
   : first(cxx::forward<A1>(first)), second(cxx::forward<A2>(second)) {}
 
+  /**
+   * \brief Create a pair, default constructing the second value.
+   * \param first The first value.
+   */
+  template<typename A1>
+  Pair(A1 &&first)
+  : first(cxx::forward<A1>(first)), second() {}
+
   /// Default construction.
   Pair() = default;
 };
