@@ -22,6 +22,8 @@
  */
 #pragma once
 
+#include <l4/cxx/type_traits>
+
 namespace cxx {
 
 /**
@@ -52,7 +54,7 @@ struct Pair
    */
   template<typename A1, typename A2>
   Pair(A1 &&first, A2 &&second)
-  : first(first), second(second) {}
+  : first(cxx::forward<A1>(first)), second(cxx::forward<A2>(second)) {}
 
   /// Default construction.
   Pair() = default;
