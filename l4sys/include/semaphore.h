@@ -41,8 +41,9 @@ enum L4_semaphore_op
 
 /**
  * \ingroup l4_semaphore_api
+ * \copybrief L4::Semaphore::up()
  * \param sem  Semaphore object.
- * \copydoc L4::Semaphore::up()
+ * \copydetails L4::Semaphore::up()
  */
 L4_INLINE l4_msgtag_t
 l4_semaphore_up(l4_cap_idx_t sem) L4_NOTHROW
@@ -61,8 +62,9 @@ l4_semaphore_up_u(l4_cap_idx_t sem, l4_utcb_t *utcb) L4_NOTHROW
 
 /**
  * \ingroup l4_semaphore_api
+ * \copybrief L4::Semaphore::down()
  * \param sem  Semaphore object.
- * \copydoc L4::Semaphore::down()
+ * \copydetails L4::Semaphore::down()
  */
 L4_INLINE l4_msgtag_t
 l4_semaphore_down(l4_cap_idx_t sem, l4_timeout_t timeout) L4_NOTHROW;

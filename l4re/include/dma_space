@@ -135,7 +135,6 @@ public:
   /**
    * Map the given part of this data space into the DMA address space.
    *
-   * \caprights{R}
    * \param[in]     src      Source data space (that describes the memory).
    *                         Caller needs write rights to the data space.
    * \param[in]     offset   The offset (bytes) within `src`.
@@ -156,6 +155,8 @@ public:
    *
    * \return 0 in the case of success, a negative error code otherwise.
    *
+   * \caprights{R}
+   *
    * \note associate() must be called prior to mapping memory. Usually this is
    * done implicitely when binding the managed Dma_space to a DMA domain
    * (see L4vbus::Vbus::assign_dma_domain()).
@@ -169,11 +170,14 @@ public:
 
   /**
    * Unmap the given part of this data space from the DMA address space.
-   * \caprights{R}
    * \param dma_addr  The DMA address (returned by Dma_space::map()).
    * \param size      The size (bytes) of the memory region to unmap.
    * \param attrs     The attributes for the unmap (currently none).
    * \param dir       The direction of the finished DMA operation.
+   *
+   * \return 0 in the case of success, a negative error code otherwise.
+   *
+   * \caprights{R}
    */
   L4_INLINE_RPC(
       long, unmap, (Dma_addr dma_addr,
@@ -183,7 +187,6 @@ public:
    * Associate a (kernel) \ref l4_kernel_object_dmar_space for a device to
    * this Dma_space.
    *
-   * \caprights{RW}
    * \param[in]  dma_task  The (kernel) \ref l4_kernel_object_dmar_space used
    *                       for the device that shall be associated with this
    *                       DMA space. In case no IOMMU is present or
@@ -193,6 +196,10 @@ public:
    *                       used as DMA address space.
    * \param[in]  attr      Attributes for this DMA space. See
    *                       L4Re::Dma_space::Space_attrib.
+   *
+   * \return 0 in the case of success, a negative error code otherwise.
+   *
+   * \caprights{RW}
    */
   L4_INLINE_RPC(
       long, associate, (L4::Ipc::Opt<L4::Ipc::Cap<L4::Task> > dma_task,
@@ -202,6 +209,8 @@ public:
   /**
    * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
    * Dma_space.
+   *
+   * \return 0 in the case of success, a negative error code otherwise.
    *
    * \caprights{RW}
    */
