@@ -282,14 +282,14 @@ public:
 
     c = o->obj_cap();
 
+    if (unmap)
+      L4::Cap<L4::Task>(L4Re::This_task)->unmap(c.fpage(), L4_FP_ALL_SPACES);
+
     // make sure unhandled ipc ends up with the null handler
     L4::Thread::Modify_senders todo;
     todo.add(~3UL, reinterpret_cast<l4_umword_t>(o),
              ~0UL, reinterpret_cast<l4_umword_t>((L4::Epiface*)&_null_handler));
     _server->modify_senders(todo);
-
-    if (unmap)
-      L4::Cap<L4::Task>(L4Re::This_task)->unmap(c.fpage(), L4_FP_ALL_SPACES);
 
     // we use bit 4 to indicated an internally allocated cap
     if (c.managed())
