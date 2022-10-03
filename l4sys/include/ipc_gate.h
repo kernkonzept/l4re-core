@@ -67,7 +67,8 @@
  *
  * When binding a new thread to an IPC gate that is currently bound, the same
  * label should be used that was used with the old thread. Otherwise the old
- * and the new thread need to synchronize to avoid inconsistent IPC messages.
+ * and the new thread need to synchronize to avoid IPC messages with unexpected
+ * labels.
  *
  * \includefile{l4/sys/ipc_gate.h}
  *
