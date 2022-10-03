@@ -65,7 +65,7 @@
  * bound IPC gate is changed. It is not necessary after binding the IPC gate to
  * a thread for the first time.
  *
- * When binding a new thread to an IPC gate that is currently bound the same
+ * When binding a new thread to an IPC gate that is currently bound, the same
  * label should be used that was used with the old thread. Otherwise the old
  * and the new thread need to synchronize to avoid inconsistent IPC messages.
  *
