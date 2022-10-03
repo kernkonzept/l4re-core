@@ -110,6 +110,9 @@ public:
    * migrating it on an offline or an invalid CPU. The thread is only
    * guaranteed to run if the CPU it is migrated to is currently online.
    *
+   * \note If the target CPU is currently not online, there is no guarantee that
+   *       the thread will ever run, even if the CPU comes online later on.
+   *
    * \note A scheduler may impose a policy with regard to selecting CPUs.
    * However the scheduler is required to ensure the following two properties:
    * - Two threads with disjoint CPU sets must be scheduled to different
