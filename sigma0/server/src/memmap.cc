@@ -147,8 +147,6 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t t, Answer *an)
     }
 
   an->snd_fpage(addr, send_order, mem_flags, cached);
-
-  return;
 }
 
 /* handler for page fault requests */
