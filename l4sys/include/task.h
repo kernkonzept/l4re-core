@@ -273,6 +273,11 @@ l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t ku_mem,
  *       limited by the used kernel implementation. The minimum allocatable
  *       amount is one page (`L4_PAGESIZE`). A portable implementation should
  *       not depend on allocations greater than 16KiB to succeed.
+ *
+ * \note This function is only guaranteed to work on L4::Task objects. It
+ *       might or might not work on L4::Vm objects or on L4Re::Dma_space
+ *       objects but there is no practical use for adding kernel-user memory
+ *       to L4::Vm objects or to L4Re::Dma_space objects.
  */
 L4_INLINE l4_msgtag_t
 l4_task_add_ku_mem(l4_cap_idx_t task, l4_fpage_t ku_mem) L4_NOTHROW;
