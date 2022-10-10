@@ -27,6 +27,8 @@ REQUIRES_LIBS  := libc_be_minimal_log_io cxx_io cxx_libc_io libc_minimal l4re \
 
 CXXFLAGS += $(CXXFLAGS_LOW_LEVEL)
 
+CXXFLAGS_globals.cc = -Wno-prio-ctor-dtor
+
 CXXFLAGS += $(CXXFLAGS_$(ARCH))
 SRC_S += $(SRC_S_$(ARCH))
 

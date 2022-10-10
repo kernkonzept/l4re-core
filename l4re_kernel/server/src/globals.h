@@ -33,20 +33,4 @@ namespace Global
   extern char const *const *envp;
   extern int argc;
   extern l4re_aux_t *l4re_aux;
-
-  struct Init_globals
-  {
-    static bool _initialized;
-    static void init();
-    Init_globals()
-    {
-      if (_initialized)
-        return;
-
-      _initialized = true;
-      init();
-    }
-  };
-
-  static Init_globals _globals_init;
 };

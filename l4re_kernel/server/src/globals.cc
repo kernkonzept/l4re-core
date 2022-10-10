@@ -10,6 +10,7 @@
 #include "region.h"
 #include "globals.h"
 #include <stdlib.h>
+#include <l4/sys/compiler.h>
 
 // internal uclibc symbol for ENV
 extern char const **__environ;
@@ -23,10 +24,16 @@ namespace Global
   char const *const *envp;
   int argc;
   l4re_aux_t *l4re_aux;
-  bool Init_globals::_initialized;
+  bool _initialized;
 
-  void Init_globals::init()
+  void init();
+  void init()
   {
+    if (_initialized)
+      return;
+
+    _initialized = true;
+
     envp = __environ;
     l4_umword_t const *auxp = reinterpret_cast<l4_umword_t const *>(envp);
     while (*auxp)
@@ -56,4 +63,9 @@ namespace Global
     local_rm.construct();
     local_rm->init();
   }
+
+  // Must be initialized as early as possible. Newer gcc versions require
+  // malloc() to be available during the initial frame_dummy() call which calls
+  // _register_frame_info(). Our malloc() implementation needs cap_alloc()
+  L4_DECLARE_CONSTRUCTOR(init, 0)
 };
