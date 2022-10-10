@@ -1,3 +1,209 @@
+2022-08-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-08-31  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/98421
+	* include/std/span (span(Iter, size_type), span(Iter, Iter)):
+	Add valid range checks.
+	* testsuite/23_containers/span/cons_1_assert_neg.cc: New test.
+	* testsuite/23_containers/span/cons_2_assert_neg.cc: New test.
+
+2022-08-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/list.tcc (list::merge) [!USE_CXX11_ABI]: Remove
+	call to size() and try-catch block.
+
+2022-08-03  Tim Adye  <Tim.Adye@cern.ch>
+
+	Backported from master:
+	2021-06-04  Tim Adye  <Tim.Adye@cern.ch>
+
+	* include/std/any (any::_Manager::_S_access): New static
+	function to access the contained value.
+	(any::emplace, __any_caster): Use _S_access member of the
+	manager type.
+
+2022-08-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/ranges (subrange(i, s, n)): Remove assertion.
+	* testsuite/std/ranges/subrange/constexpr.cc: New test.
+
+2022-08-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-11-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100748
+	PR libstdc++/103133
+	* config/os/gnu-linux/os_defines.h (_GLIBCXX_GTHREAD_USE_WEAK):
+	Define for glibc 2.34 and later.
+
+2022-07-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-07-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/106162
+	* include/Makefile.am (largefile-config.h): Add
+	stamp-${host_alias} prerequisite.
+	* include/Makefile.in: Regenerate.
+
+2022-07-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-11-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/range_access.h (begin(valarray), end(valarray)):
+	Add noexcept.
+
+2022-07-22  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2022-07-22  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/106320
+	* include/std/ranges (single_view): Relax constraints on
+	default constructor so as to preserve pre-P2325R3 behavior.
+	(filter_view): Likewise.
+	(transform_view): Likewise.
+	(take_while_view): Likewise.
+	(drop_while_view): Likewise.
+	* testsuite/std/ranges/adaptors/join.cc (test13): New test.
+	* testsuite/std/ranges/p2325.cc: Fix S to be only non default
+	constructible and not also non copy constructible.  XFAIL the
+	tests that verify a non default constructible functor makes a
+	view non default constructible (lines 94, 97 and 98).  XFAIL
+	the test that effectively verifies a non default constructible
+	element type makes single_view non default constructible (line
+	114).
+
+2022-06-28  Release Manager
+
+	* GCC 10.4.0 released.
+
+2022-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-06-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/atomic (__atomic_val_t): Use __type_identity_t
+	instead of atomic<T>::value_type, as per LWG 3220.
+	* testsuite/29_atomics/atomic/lwg3220.cc: New test.
+
+2022-06-15  Mark Mentovai  <mark@mentovai.com>
+
+	Backported from master:
+	2022-06-13  Mark Mentovai  <mark@mentovai.com>
+
+	* include/experimental/bits/fs_path.h (__detail::__null_terminated):
+	Rename to __nul_terminated to avoid colliding with a macro in
+	Apple's SDK.
+
+2022-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-05-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/104731
+	* testsuite/27_io/filesystem/iterators/error_reporting.cc:
+	Use a trailing char array as storage for dirent::d_name.
+
+2022-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-02-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/filesystem/iterators/error_reporting.cc: Use
+	autoconf macro to check whether d_type is present.
+	* testsuite/experimental/filesystem/iterators/error_reporting.cc:
+	Likewise.
+
+2022-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-02-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++17/fs_dir.cc (recursive_directory_iterator::increment):
+	Reset state to past-the-end iterator on error.
+	(fs::recursive_directory_iterator::pop(error_code&)): Likewise.
+	(fs::recursive_directory_iterator::pop()): Check _M_dirs before
+	it might get reset.
+	* src/filesystem/dir.cc (recursive_directory_iterator): Likewise,
+	for the TS implementation.
+	* testsuite/27_io/filesystem/iterators/error_reporting.cc: New test.
+	* testsuite/experimental/filesystem/iterators/error_reporting.cc: New test.
+
+2022-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/23_containers/map/allocator/move_cons.cc: New test.
+	* testsuite/23_containers/multimap/allocator/move_cons.cc: New test.
+	* testsuite/23_containers/multiset/allocator/move_cons.cc: New test.
+	* testsuite/23_containers/set/allocator/move_cons.cc: New test.
+
+2022-06-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-12-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/103501
+	* include/bits/stl_tree.h (_Rb_tree(_Rb_tree&&, false_type)):
+	Clear container if elements have been moved-from.
+	* testsuite/23_containers/multiset/allocator/103501.cc: New test.
+	* testsuite/23_containers/set/allocator/103501.cc: New test.
+
+2022-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/97944
+	* testsuite/30_threads/jthread/95989.cc: Mark XFAIL.
+
+2022-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2020-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/30_threads/jthread/95989.cc: Run all three test
+	functions, not just the first one twice.
+
+2022-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-04-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99290
+	* src/c++17/fs_ops.cc (fs::copy): Pass error_code to
+	directory_iterator constructor, and check on each iteration.
+	* src/filesystem/ops.cc (fs::copy): Likewise.
+	* testsuite/27_io/filesystem/operations/copy.cc: Check for
+	errors during recursion.
+	* testsuite/experimental/filesystem/operations/copy.cc:
+	Likewise.
+
+2022-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2021-11-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/lib/gdb-test.exp: Add target selector support to the
+	dg-final directives.
+	* testsuite/libstdc++-prettyprinters/80276.cc: Add xfail for
+	C++20.
+	* testsuite/libstdc++-prettyprinters/libfundts.cc: Likewise.
+	* testsuite/libstdc++-prettyprinters/prettyprinters.exp: Tweak
+	comment.
+
+2022-06-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-06-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/105915
+	* include/experimental/bits/fs_path.h (path::begin, path::end):
+	Remove noexcept from declarations.
+
 2022-05-31  Patrick Palka  <ppalka@redhat.com>
 
 	Backported from master:
