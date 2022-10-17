@@ -237,6 +237,13 @@ extern "C" int fcntl64(int fd, int cmd, ...)
       return -1;
     }
 
+  unsigned long arg;
+  va_list v;
+
+  va_start(v, cmd);
+  arg = va_arg(v, unsigned long);
+  va_end(v);
+
   switch (cmd)
     {
     case F_DUPFD:
@@ -252,7 +259,7 @@ extern "C" int fcntl64(int fd, int cmd, ...)
     case F_GETFL:
       return f->get_status_flags();
     case F_SETFL:
-      return 0;
+      return f->set_status_flags(arg);
 
     case F_GETLK:
     case F_SETLK:
