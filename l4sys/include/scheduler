@@ -115,10 +115,9 @@ public:
    *
    * \note A scheduler may impose a policy with regard to selecting CPUs.
    * However the scheduler is required to ensure the following two properties:
-   * - Two threads with disjoint CPU sets must be scheduled to different
-   *   physical CPUs.
-   * - Two threads with a single identical CPU selected in the CPU set must be
-   *   scheduled to the same physical CPU.
+   * - Two threads with disjoint CPU sets must be scheduled to different CPUs.
+   * - Two threads with identical CPU sets selecting only a single CPU must be
+   *   scheduled to the same CPU.
    */
   L4_INLINE_RPC_OP(L4_SCHEDULER_RUN_THREAD_OP,
       l4_msgtag_t, run_thread, (Ipc::Cap<Thread> thread, l4_sched_param_t const &sp));
