@@ -186,6 +186,8 @@ typedef struct l4_sched_param_t
 /**
  * Construct scheduler parameter.
  * \ingroup l4_scheduler_api
+ *
+ * The l4_sched_param_t::affinity of the returned value contains all CPUs.
  */
 L4_INLINE l4_sched_param_t
 l4_sched_param(unsigned prio,
