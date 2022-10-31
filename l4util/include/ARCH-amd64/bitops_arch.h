@@ -15,6 +15,21 @@
 
 #pragma once
 
+/*
+ * Note: The following Assembler statement may produce wrong code:
+ *   asm volatile ("btsl %1, %2" : "=@ccc"(r) : "Jr"(63), "m"(m) : "memory");
+ *
+ * The compiler might chose the first variant because the bit number is smaller
+ * than 64. However, 'bts' is encoded as 32-bit variant ('btsl') and thus only
+ * supports immediate bit values up to 31. Some assemblers support immediate
+ * offsets > 31 by adapting the memory address accordingly but GAS does not.
+ * With GAS, the instruction will encode an immediate value of 63 but the CPU
+ * will set bit 31 instead of bit 63!
+ *
+ * Therefore, if we would use 'btsl' instead of 'btsq', the correct constraint
+ * for the bit number parameter would be "Ir" instead of "Jr".
+ */
+
 EXTERN_C_BEGIN
 
 /* set bit */
@@ -24,11 +39,11 @@ l4util_set_bit(int b, volatile l4_umword_t * dest)
 {
   __asm__ __volatile__
     (
-     "lock; bts  %1,%0   \n\t"
+     "lock; btsq  %1,%0   \n\t"
      :
      :
      "m"   (*dest),   /* 0 mem, destination operand */
-     "Ir"  (b)       /* 1,     bit number */
+     "Jr"  ((l4_umword_t)b) /* 1, bit number */
      :
      "memory", "cc"
      );
@@ -41,11 +56,11 @@ l4util_clear_bit(int b, volatile l4_umword_t * dest)
 {
   __asm__ __volatile__
     (
-     "lock; btr  %1,%0   \n\t"
+     "lock; btrq  %1,%0   \n\t"
      :
      :
      "m"   (*dest),   /* 0 mem, destination operand */
-     "Ir"  (b)        /* 1,     bit number */
+     "Jr"  ((l4_umword_t)b) /* 1, bit number */
      :
      "memory", "cc"
      );
@@ -58,11 +73,11 @@ l4util_complement_bit(int b, volatile l4_umword_t * dest)
 {
   __asm__ __volatile__
     (
-     "lock; btc  %1,%0   \n\t"
+     "lock; btcq  %1,%0   \n\t"
      :
      :
      "m"   (*dest),   /* 0 mem, destination operand */
-     "Ir"  (b)        /* 1,     bit number */
+     "Jr"  ((l4_umword_t)b) /* 1, bit number */
      :
      "memory", "cc"
      );
@@ -77,13 +92,13 @@ l4util_test_bit(int b, const volatile l4_umword_t * dest)
 
   __asm__ __volatile__
     (
-     "bt    %2,%1   \n\t"
+     "btq   %2,%1   \n\t"
      "setc  %0      \n\t"
      :
      "=r"  (bit)      /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
-     "Ir"  (b)        /* 2,     bit number */
+     "Jr"  ((l4_umword_t)b) /* 2, bit number */
      :
      "memory", "cc"
      );
@@ -100,13 +115,13 @@ l4util_bts(int b, volatile l4_umword_t * dest)
 
   __asm__ __volatile__
     (
-     "lock; bts  %2,%1   \n\t"
+     "lock; btsq  %2,%1   \n\t"
      "setc  %0      \n\t"
      :
      "=r"  (bit)      /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
-     "Ir"  (b)        /* 2,     bit number */
+     "Jr"  ((l4_umword_t)b) /* 2, bit number */
      :
      "memory", "cc"
      );
@@ -123,13 +138,13 @@ l4util_btr(int b, volatile l4_umword_t * dest)
 
   __asm__ __volatile__
     (
-     "lock; btr  %2,%1   \n\t"
+     "lock; btrq  %2,%1   \n\t"
      "setc  %0      \n\t"
      :
      "=r"  (bit)      /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
-     "Ir"  (b)        /* 2,     bit number */
+     "Jr"  ((l4_umword_t)b) /* 2, bit number */
      :
      "memory", "cc"
      );
@@ -146,13 +161,13 @@ l4util_btc(int b, volatile l4_umword_t * dest)
 
   __asm__ __volatile__
     (
-     "lock; btc   %2,%1   \n\t"
+     "lock; btcq  %2,%1   \n\t"
      "setc  %0      \n\t"
      :
      "=r"  (bit)      /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
-     "Ir"  ((l4_umword_t)b)        /* 2,     bit number */
+     "Jr"  ((l4_umword_t)b) /* 2, bit number */
      :
      "memory", "cc"
      );
@@ -172,7 +187,7 @@ l4util_bsr(l4_umword_t word)
 
   __asm__ __volatile__
     (
-     "bsr %1,%0 \n\t"
+     "bsrq %1,%0 \n\t"
      :
      "=r" (tmp)       /* 0, index of most significant set bit */
      :
@@ -194,7 +209,7 @@ l4util_bsf(l4_umword_t word)
 
   __asm__ __volatile__
     (
-     "bsf %1,%0 \n\t"
+     "bsfq %1,%0 \n\t"
      :
      "=r" (tmp)       /* 0, index of least significant set bit */
      :
