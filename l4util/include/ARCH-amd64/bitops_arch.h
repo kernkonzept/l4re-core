@@ -1,27 +1,19 @@
-/*****************************************************************************/
-/**
- * \file
- * \brief   amd64 bit manipulation functions
- * \ingroup bitops
- *
- * \date    07/03/2001
- * \author  Lars Reuther <reuther@os.inf.tu-dresden.de>
- *          Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
- *          Frank Mehnert <fm3@os.inf.tu-dresden.de> */
+/* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
 /*
- * (c) 2000-2009 Author(s)
- *     economic rights: Technische Universität Dresden (Germany)
- * This file is part of TUD:OS and distributed under the terms of the
- * GNU Lesser General Public License 2.1.
- * Please see the COPYING-LGPL-2.1 file for details.
+ * Copyright (C) 2000-2009 Technische Universität Dresden (Germany)
+ * Copyright (C) 2022 Kernkonzept GmbH. All rights reserved.
+ * Author(s): Lars Reuther <reuther@os.inf.tu-dresden.de>
+ *            Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
+ *            Frank Mehnert <frank.mehnert@kernkonzept.com>
  */
 
-/*****************************************************************************/
-#pragma once
+/**
+ * \file
+ * amd64 bit manipulation functions
+ * \ingroup bitops
+ */
 
-/*****************************************************************************
- *** Implementation
- *****************************************************************************/
+#pragma once
 
 EXTERN_C_BEGIN
 
