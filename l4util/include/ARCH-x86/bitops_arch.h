@@ -209,12 +209,12 @@ l4util_find_first_set_bit(const void * dest, l4_size_t size)
     (
      "repe; scasl               \n\t"
      "jz    1f                  \n\t"
-     "leal  -4(%%edi),%%edi     \n\t"
-     "bsfl  (%%edi),%%eax       \n"
+     "lea  -4(%%edi),%%edi      \n\t"
+     "bsf  (%%edi),%%eax        \n"
      "1:                        \n\t"
-     "subl  %%esi,%%edi         \n\t"
-     "shll  $3,%%edi            \n\t"
-     "addl  %%edi,%%eax         \n\t"
+     "sub  %%esi,%%edi          \n\t"
+     "shl  $3,%%edi             \n\t"
+     "add  %%edi,%%eax          \n\t"
      :
      "=a" (res), "=c" (dummy0), "=D" (dummy1)
      :
@@ -238,13 +238,13 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
     (
      "repe;  scasl              \n\t"
      "je     1f                 \n\t"
-     "xorl   -4(%%edi),%%eax    \n\t"
-     "subl   $4,%%edi           \n\t"
-     "bsfl   %%eax,%%edx        \n"
+     "xor   -4(%%edi),%%eax     \n\t"
+     "sub   $4,%%edi            \n\t"
+     "bsf   %%eax,%%edx         \n"
      "1:                        \n\t"
-     "subl   %%esi,%%edi        \n\t"
-     "shll   $3,%%edi           \n\t"
-     "addl   %%edi,%%edx        \n\t"
+     "sub   %%esi,%%edi         \n\t"
+     "shl   $3,%%edi            \n\t"
+     "add   %%edi,%%edx         \n\t"
      :
      "=a" (dummy0), "=c" (dummy1), "=d" (res), "=D" (dummy2)
      :

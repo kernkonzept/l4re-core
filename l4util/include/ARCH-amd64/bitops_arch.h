@@ -226,7 +226,7 @@ l4util_find_first_set_bit(const void * dest, l4_size_t size)
      "repe; scasl               \n\t"
      "jz    1f                  \n\t"
      "lea  -4(%%rdi),%%rdi      \n\t"
-     "bsfq  (%%rdi),%%rax       \n"
+     "bsf  (%%rdi),%%rax        \n"
      "1:                        \n\t"
      "sub  %%rbx,%%rdi          \n\t"
      "shl  $3,%%rdi             \n\t"
