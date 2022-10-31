@@ -99,7 +99,7 @@ l4util_test_bit(int b, const volatile l4_umword_t * dest)
 
 /* bit test and set */
 #define __L4UTIL_BITOPS_HAVE_ARCH_BIT_TEST_AND_SET
-L4_INLINE int 
+L4_INLINE int
 l4util_bts(int b, volatile l4_umword_t * dest)
 {
   l4_int8_t bit;
@@ -188,7 +188,7 @@ l4util_bsr(l4_umword_t word)
   return tmp;
 }
 
-/* bit scan forwad */
+/* bit scan forward */
 #define __L4UTIL_BITOPS_HAVE_ARCH_BIT_SCAN_FORWARD
 L4_INLINE int
 l4util_bsf(l4_umword_t word)
@@ -229,7 +229,7 @@ l4util_find_first_set_bit(const void * dest, l4_size_t size)
      :
      "=a" (res), "=c" (dummy0), "=D" (dummy1)
      :
-     "a"(0), "c" ((size+31) >> 5), "D" (dest), "S" (dest)
+     "a" (0), "c" ((size + 31) >> 5), "D" (dest), "S" (dest)
      :
      "cc", "memory");
 
@@ -259,7 +259,7 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
      :
      "=d" (res), "=c" (dummy0), "=D" (dummy1), "=a" (dummy2)
      :
-     "a" (~0), "c" ((size+31) >> 5), "d"(0), "D" (dest), "S" (dest)
+     "a" (~0), "c" ((size + 31) >> 5), "d" (0), "D" (dest), "S" (dest)
      :
      "cc", "memory");
 

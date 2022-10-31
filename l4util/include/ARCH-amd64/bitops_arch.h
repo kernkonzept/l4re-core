@@ -19,12 +19,13 @@
 /*****************************************************************************/
 #pragma once
 
-EXTERN_C_BEGIN
-
 /*****************************************************************************
  *** Implementation
  *****************************************************************************/
 
+EXTERN_C_BEGIN
+
+/* set bit */
 #define __L4UTIL_BITOPS_HAVE_ARCH_SET_BIT
 L4_INLINE void
 l4util_set_bit(int b, volatile l4_umword_t * dest)
@@ -97,7 +98,6 @@ l4util_test_bit(int b, const volatile l4_umword_t * dest)
 
   return (int)bit;
 }
-
 
 /* bit test and set */
 #define __L4UTIL_BITOPS_HAVE_ARCH_BIT_TEST_AND_SET
@@ -190,7 +190,7 @@ l4util_bsr(l4_umword_t word)
   return tmp;
 }
 
-/* bit scan forwad */
+/* bit scan forward */
 #define __L4UTIL_BITOPS_HAVE_ARCH_BIT_SCAN_FORWARD
 L4_INLINE int
 l4util_bsf(l4_umword_t word)
@@ -251,16 +251,16 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
   __asm__ __volatile__
     (
      "mov   $-1,%%rax           \n\t"
-     "xor   %%rdx,%%rdx \n\t"
+     "xor   %%rdx,%%rdx         \n\t"
      "repe;  scasl              \n\t"
      "je     1f                 \n\t"
      "xor   -4(%%rdi),%%rax     \n\t"
      "sub   $4,%%rdi            \n\t"
-     "bsf   %%rax,%%rdx \n"
+     "bsf   %%rax,%%rdx         \n"
      "1:                        \n\t"
      "sub   %[dest],%%rdi       \n\t"
      "shl   $3,%%rdi            \n\t"
-     "add   %%rdi,%%rdx \n\t"
+     "add   %%rdi,%%rdx         \n\t"
      :
      "=d" (res), "=&c" (dummy0), "=&D" (dummy1), "=&a" (dummy2)
      :
