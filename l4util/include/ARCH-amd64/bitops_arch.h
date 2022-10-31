@@ -221,15 +221,15 @@ l4util_find_first_set_bit(const void * dest, l4_size_t size)
 
   __asm__ __volatile__
     (
-     "xor  %%rax,%%rax		\n\t"
-     "repe; scasl		\n\t"
-     "jz    1f			\n\t"
-     "lea  -4(%%rdi),%%rdi	\n\t"
-     "bsfq  (%%rdi),%%rax	\n"
-     "1:			\n\t"
-     "sub  %%rbx,%%rdi		\n\t"
-     "shl  $3,%%rdi		\n\t"
-     "add  %%rdi,%%rax		\n\t"
+     "xor  %%rax,%%rax          \n\t"
+     "repe; scasl               \n\t"
+     "jz    1f                  \n\t"
+     "lea  -4(%%rdi),%%rdi      \n\t"
+     "bsfq  (%%rdi),%%rax       \n"
+     "1:                        \n\t"
+     "sub  %%rbx,%%rdi          \n\t"
+     "shl  $3,%%rdi             \n\t"
+     "add  %%rdi,%%rax          \n\t"
      :
      "=a" (res), "=&c" (dummy0), "=&D" (dummy1)
      :
@@ -251,17 +251,17 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
 
   __asm__ __volatile__
     (
-     "mov   $-1,%%rax		\n\t"
-     "xor   %%rdx,%%rdx	\n\t"
-     "repe;  scasl		\n\t"
-     "je     1f			\n\t"
-     "xor   -4(%%rdi),%%rax	\n\t"
-     "sub   $4,%%rdi		\n\t"
-     "bsf   %%rax,%%rdx	\n"
-     "1:			\n\t"
-     "sub   %[dest],%%rdi	\n\t"
-     "shl   $3,%%rdi		\n\t"
-     "add   %%rdi,%%rdx	\n\t"
+     "mov   $-1,%%rax           \n\t"
+     "xor   %%rdx,%%rdx \n\t"
+     "repe;  scasl              \n\t"
+     "je     1f                 \n\t"
+     "xor   -4(%%rdi),%%rax     \n\t"
+     "sub   $4,%%rdi            \n\t"
+     "bsf   %%rax,%%rdx \n"
+     "1:                        \n\t"
+     "sub   %[dest],%%rdi       \n\t"
+     "shl   $3,%%rdi            \n\t"
+     "add   %%rdi,%%rdx \n\t"
      :
      "=d" (res), "=&c" (dummy0), "=&D" (dummy1), "=&a" (dummy2)
      :
