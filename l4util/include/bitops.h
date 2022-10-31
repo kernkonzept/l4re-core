@@ -156,7 +156,8 @@ l4util_bsf(l4_umword_t word);
  * \ingroup l4util_bitops
  *
  * \param  dest          bit string
- * \param  size          size of string in bits (must be a multiple of 32!)
+ * \param  size          size of string in bits (must be a multiple of
+ *                       L4_MWORD_BITS!)
  *
  * \return number of the first set bit,
  *         >= size if no bit is set
@@ -169,7 +170,8 @@ l4util_find_first_set_bit(const void * dest, l4_size_t size);
  * \ingroup l4util_bitops
  *
  * \param  dest          bit string
- * \param  size          size of string in bits (must be a multiple of 32!)
+ * \param  size          size of string in bits (must be a multiple of
+ *                       L4_MWORD_BITS!)
  *
  * \return number of the first zero bit,
  *         >= size if no bit is set
