@@ -77,14 +77,13 @@ l4util_test_bit(int b, const volatile l4_umword_t * dest)
   __asm__ __volatile__
     (
      "btl   %2,%1   \n\t"
-     "setc  %0      \n\t"
      :
-     "=q"  (bit)      /* 0,     old bit value */
+     "=@ccc" (bit)    /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
      "Ir"  (b)        /* 2,     bit number */
      :
-     "memory", "cc"
+     "memory"
      );
 
   return bit;
@@ -100,14 +99,13 @@ l4util_bts(int b, volatile l4_umword_t * dest)
   __asm__ __volatile__
     (
      "lock; btsl  %2,%1   \n\t"
-     "setc  %0      \n\t"
      :
-     "=q"  (bit)      /* 0,     old bit value */
+     "=@ccc" (bit)    /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
      "Ir"  (b)        /* 2,     bit number */
      :
-     "memory", "cc"
+     "memory"
      );
 
   return bit;
@@ -123,14 +121,13 @@ l4util_btr(int b, volatile l4_umword_t * dest)
   __asm__ __volatile__
     (
      "lock; btrl  %2,%1   \n\t"
-     "setc  %0      \n\t"
      :
-     "=q"  (bit)      /* 0,     old bit value */
+     "=@ccc" (bit)    /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
      "Ir"  (b)        /* 2,     bit number */
      :
-     "memory", "cc"
+     "memory"
      );
 
   return bit;
@@ -146,14 +143,13 @@ l4util_btc(int b, volatile l4_umword_t * dest)
   __asm__ __volatile__
     (
      "lock; btcl  %2,%1   \n\t"
-     "setc  %0      \n\t"
      :
-     "=q"  (bit)      /* 0,     old bit value */
+     "=@ccc" (bit)    /* 0,     old bit value */
      :
      "m"   (*dest),   /* 1 mem, destination operand */
      "Ir"  (b)        /* 2,     bit number */
      :
-     "memory", "cc"
+     "memory"
      );
 
   return bit;
