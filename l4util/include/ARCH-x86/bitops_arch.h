@@ -94,7 +94,7 @@ l4util_test_bit(int b, const volatile l4_umword_t * dest)
      "memory", "cc"
      );
 
-  return (int)bit;
+  return bit;
 }
 
 /* bit test and set */
@@ -117,7 +117,7 @@ l4util_bts(int b, volatile l4_umword_t * dest)
      "memory", "cc"
      );
 
-  return (int)bit;
+  return bit;
 }
 
 /* bit test and reset */
@@ -140,7 +140,7 @@ l4util_btr(int b, volatile l4_umword_t * dest)
      "memory", "cc"
      );
 
-  return (int)bit;
+  return bit;
 }
 
 /* bit test and complement */
@@ -163,7 +163,7 @@ l4util_btc(int b, volatile l4_umword_t * dest)
      "memory", "cc"
      );
 
-  return (int)bit;
+  return bit;
 }
 
 /* bit scan reverse */
