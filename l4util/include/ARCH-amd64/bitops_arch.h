@@ -220,7 +220,6 @@ l4util_find_first_set_bit(const void * dest, l4_size_t size)
 
   __asm__ __volatile__
     (
-     "xor  %%rax,%%rax          \n\t"
      "repe; scasl               \n\t"
      "jz    1f                  \n\t"
      "lea  -4(%%rdi),%%rdi      \n\t"
@@ -232,7 +231,7 @@ l4util_find_first_set_bit(const void * dest, l4_size_t size)
      :
      "=a" (res), "=c" (dummy0), "=D" (dummy1)
      :
-     "c" ((size + 31) >> 5), "D" (dest), "b" (dest)
+     "a" (0), "c" ((size + 31) >> 5), "D" (dest), "b" (dest)
      :
      "cc", "memory");
 
@@ -250,8 +249,6 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
 
   __asm__ __volatile__
     (
-     "mov   $-1,%%rax           \n\t"
-     "xor   %%rdx,%%rdx         \n\t"
      "repe;  scasl              \n\t"
      "je     1f                 \n\t"
      "xor   -4(%%rdi),%%rax     \n\t"
@@ -264,7 +261,7 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
      :
      "=d" (res), "=c" (dummy0), "=D" (dummy1), "=a" (dummy2)
      :
-     "c" ((size + 31) >> 5), "D" (dest), "S" (dest)
+     "a" (~0UL), "c" ((size + 31) >> 5), "d" (0), "D" (dest), "S" (dest)
      :
      "cc", "memory");
 
