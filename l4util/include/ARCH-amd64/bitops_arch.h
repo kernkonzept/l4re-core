@@ -17,8 +17,7 @@
  */
 
 /*****************************************************************************/
-#ifndef __L4UTIL__INCLUDE__ARCH_AMD64__BITOPS_ARCH_H__
-#define __L4UTIL__INCLUDE__ARCH_AMD64__BITOPS_ARCH_H__
+#pragma once
 
 EXTERN_C_BEGIN
 
@@ -273,5 +272,3 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
 }
 
 EXTERN_C_END
-
-#endif /* ! __L4UTIL__INCLUDE__ARCH_AMD64__BITOPS_ARCH_H__ */
