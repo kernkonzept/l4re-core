@@ -67,7 +67,7 @@ l4_tsc_to_us (l4_cpu_time_t tsc);
  * ticks. Just calls l4_tsc_init().
  */
 L4_INLINE l4_uint32_t
-l4_calibrate_tsc (l4_kernel_info_t *kip);
+l4_calibrate_tsc(l4_kernel_info_t const *kip);
 
 /**
  * \brief Initialitze scaler for TSC calicaltions.
@@ -83,13 +83,13 @@ l4_calibrate_tsc (l4_kernel_info_t *kip);
  *         function of the Linux kernel.
  */
 L4_CV l4_uint32_t
-l4_tsc_init (l4_kernel_info_t *kip);
+l4_tsc_init(l4_kernel_info_t const *kip);
 /**@}*/
 
 EXTERN_C_END
 
 L4_INLINE l4_uint32_t
-l4_calibrate_tsc (l4_kernel_info_t *kip)
+l4_calibrate_tsc(l4_kernel_info_t const *kip)
 {
   return l4_tsc_init(kip);
 }

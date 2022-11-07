@@ -82,7 +82,7 @@ enum {
 };
 
 static inline struct l4_vhw_descriptor *
-l4_vhw_get(l4_kernel_info_t *kip) L4_NOTHROW
+l4_vhw_get(l4_kernel_info_t const *kip) L4_NOTHROW
 {
   struct l4_vhw_descriptor *v
     = (struct l4_vhw_descriptor *)(((unsigned long)kip) + kip->vhw_offset);

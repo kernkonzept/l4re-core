@@ -30,7 +30,7 @@ EXTERN_C_BEGIN
  *
  * \return  1 when running under UX, 0 if not running under UX.
  */
-L4_CV int l4util_kip_kernel_is_ux(l4_kernel_info_t *);
+L4_CV int l4util_kip_kernel_is_ux(l4_kernel_info_t const *);
 
 /**
  * Check if kernel supports a feature.
@@ -41,14 +41,14 @@ L4_CV int l4util_kip_kernel_is_ux(l4_kernel_info_t *);
  *
  * Checks the feature field in the KIP for the given string.
  */
-L4_CV int l4util_kip_kernel_has_feature(l4_kernel_info_t *, const char *str);
+L4_CV int l4util_kip_kernel_has_feature(l4_kernel_info_t const *, const char *str);
 
 /**
  * Return kernel ABI version.
  *
  * \return  Kernel ABI version.
  */
-L4_CV unsigned long l4util_kip_kernel_abi_version(l4_kernel_info_t *);
+L4_CV unsigned long l4util_kip_kernel_abi_version(l4_kernel_info_t const *);
 
 EXTERN_C_END
 

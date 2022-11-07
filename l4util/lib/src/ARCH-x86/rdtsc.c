@@ -35,7 +35,7 @@ muldiv (l4_uint32_t a, l4_uint32_t mul, l4_uint32_t div)
  * Return 2^32 / (TSC clocks per usec).
  */
 L4_CV l4_uint32_t
-l4_tsc_init(l4_kernel_info_t *kip)
+l4_tsc_init(l4_kernel_info_t const *kip)
 {
   if (!l4_scaler_tsc_linux)
     {

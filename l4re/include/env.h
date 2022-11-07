@@ -149,7 +149,7 @@ L4_INLINE l4re_env_t *l4re_env(void) L4_NOTHROW;
  * \ingroup api_l4re_env
  * \return Pointer to Kernel Info Page (KIP) structure.
  */
-L4_INLINE l4_kernel_info_t *l4re_kip(void) L4_NOTHROW;
+L4_INLINE l4_kernel_info_t const *l4re_kip(void) L4_NOTHROW;
 
 
 /**
@@ -191,10 +191,10 @@ l4re_env_t *l4re_env() L4_NOTHROW
 { return l4re_global_env; }
 
 L4_INLINE
-l4_kernel_info_t *l4re_kip() L4_NOTHROW
+l4_kernel_info_t const *l4re_kip() L4_NOTHROW
 {
   extern char __L4_KIP_ADDR__[];
-  return (l4_kernel_info_t *)__L4_KIP_ADDR__;
+  return (l4_kernel_info_t const *)__L4_KIP_ADDR__;
 }
 
 L4_INLINE l4re_env_cap_entry_t const *

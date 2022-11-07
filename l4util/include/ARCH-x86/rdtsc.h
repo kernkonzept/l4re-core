@@ -128,7 +128,7 @@ l4_busy_wait_us (l4_uint64_t us);
  * ticks. Just calls l4_tsc_init().
  */
 L4_INLINE l4_uint32_t
-l4_calibrate_tsc (l4_kernel_info_t *kip);
+l4_calibrate_tsc(l4_kernel_info_t const *kip);
 
 /**
  * Initialize scaler for TSC calibrations from the kernel.
@@ -144,7 +144,7 @@ l4_calibrate_tsc (l4_kernel_info_t *kip);
  *         function of the Linux kernel.
  */
 L4_CV l4_uint32_t
-l4_tsc_init (l4_kernel_info_t *kip);
+l4_tsc_init(l4_kernel_info_t const *kip);
 
 /**
  * \brief Get CPU frequency in Hz
@@ -160,7 +160,7 @@ EXTERN_C_END
 /* implementation */
 
 L4_INLINE l4_uint32_t
-l4_calibrate_tsc (l4_kernel_info_t *kip)
+l4_calibrate_tsc(l4_kernel_info_t const *kip)
 {
   return l4_tsc_init(kip);
 }
