@@ -15,7 +15,7 @@
    defined in globals.c */
 
 #include <l4/sys/ipc.h>
-
+#include <l4/sys/scheduler>
 #include <l4/cxx/iostream>
 
 #include "globals.h"
@@ -67,6 +67,12 @@ init(l4_kernel_info_t *info)
 
   L4::cout << "  allocated " << Page_alloc_base::total()/1024
            << "KB for maintenance structures\n";
+
+  auto sched = L4::Cap<L4::Scheduler>(L4_BASE_SCHEDULER_CAP);
+  l4_msgtag_t res = sched->run_thread(L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP),
+                                      l4_sched_param(0xff));
+  if (l4_error(res) < 0)
+    L4::cout << PROG_NAME": could not set scheduling priority\n";
 
   if (debug_memory_maps)
     dump_all();
