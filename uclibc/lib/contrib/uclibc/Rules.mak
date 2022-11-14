@@ -296,7 +296,9 @@ ifneq ($(TARGET_ARCH),c6x)
 ifneq ($(TARGET_ARCH),h8300)
 ifneq ($(TARGET_ARCH),arc)
 ifneq ($(TARGET_ARCH),aarch64)
+ifneq ($(TARGET_ARCH),riscv32)
 CPU_CFLAGS-y += -msoft-float
+endif
 endif
 endif
 endif

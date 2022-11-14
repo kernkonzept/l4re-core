@@ -39,6 +39,7 @@ choice
 	default TARGET_or1k if DESIRED_TARGET_ARCH = "or1k"
 	default TARGET_powerpc if DESIRED_TARGET_ARCH = "powerpc"
 	default TARGET_riscv64 if DESIRED_TARGET_ARCH = "riscv64"
+	default TARGET_riscv32 if DESIRED_TARGET_ARCH = "riscv32"
 	default TARGET_sh if DESIRED_TARGET_ARCH = "sh"
 	default TARGET_sparc if DESIRED_TARGET_ARCH = "sparc"
 	default TARGET_sparc64 if DESIRED_TARGET_ARCH = "sparc64"
@@ -124,6 +125,9 @@ config TARGET_powerpc
 
 config TARGET_riscv64
 	bool "riscv64"
+
+config TARGET_riscv32
+	bool "riscv32"
 
 config TARGET_sh
 	bool "superh"
@@ -258,6 +262,10 @@ endif
 
 if TARGET_riscv64
 source "extra/Configs/Config.riscv64"
+endif
+
+if TARGET_riscv32
+source "extra/Configs/Config.riscv32"
 endif
 
 if TARGET_sh
@@ -563,6 +571,7 @@ config UCLIBC_HAS_LINUXTHREADS
 	select UCLIBC_HAS_REALTIME
 	depends on !TARGET_aarch64 && \
 		   !TARGET_riscv64 && \
+		   !TARGET_riscv32 && \
 		   !TARGET_metag
 	help
 	  If you want to compile uClibc with Linuxthreads support, then answer Y.
