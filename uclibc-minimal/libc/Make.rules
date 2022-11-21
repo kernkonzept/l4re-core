@@ -7,6 +7,7 @@ PC_FILENAME     := libc_minimal
 PC_LIBS         := -luc_c_minimal
 define PC_EXTRA
 Link_Libs=  %{static:-luc_c_minimal}
+Link_Libs_pic=  %{static:-luc_c_minimal.p}
 endef
 
 DEFINES		+= -DL4_MINIMAL_LIBC
