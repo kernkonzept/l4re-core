@@ -181,6 +181,13 @@ PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
 
+FileName: ./l4util/lib/src/base64.c
+SPDXID: SPDXRef-l4util-base64.c
+FileChecksum: SHA1: 99c534b9cb8971828ceaa4637d731d3935de9a64
+LicenseConcluded: MIT
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
 PackageName: ldscripts
 SPDXID: SPDXRef-ldscripts
 PackageFileName: ./ldscripts
@@ -438,3 +445,5 @@ If you require a different licensing scheme please contact us at
 info@kernkonzept.com.
 </text>
 LicenseName: Kernkonzept Custom License
+LicenseComment: <text>If this file is part of a delivery, the license may be
+concretised in a superordinate LICENSE.spdx file.</text>
