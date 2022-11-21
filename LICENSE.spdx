@@ -8,7 +8,7 @@ SPDXVersion: SPDX-2.1
 DataLicense: CC0-1.0
 SPDXID: SPDXRef-DOCUMENT
 DocumentNamespace: spdx:kernkonzept/l4re-core-115109da-9bd9-4dcc-ba3d-45e8f8332c47
-DocumentName: LICENSE.spdx
+DocumentName: l4re-core
 
 Creator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
 
