@@ -60,28 +60,20 @@ char *strchr (const char *s, int c_in)
 
      The 1-bits make sure that carries propagate to the next 0-bit.
      The 0-bits provide holes for carries to fall into.  */
-  switch (sizeof (longword))
-    {
-    case 4: magic_bits = 0x7efefeffL; break;
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wshift-overflow"
-    // Compiler warns about shift overflow, if ‘long int’ only has 32 bits,
-    // even though given that condition this case statement is never going
-    // to be executed.
-    case 8: magic_bits = ((0x7efefefeL << 16) << 16) | 0xfefefeffL; break;
-# pragma GCC diagnostic pop
-    default:
-      abort ();
-    }
 
   /* Set up a longword, each of whose bytes is C.  */
+#if __WORDSIZE == 32
+  magic_bits = 0x7efefeffL;
   charmask = c | (c << 8);
   charmask |= charmask << 16;
-  if (sizeof (longword) > 4)
-    /* Do the shift in two steps to avoid a warning if long has 32 bits.  */
-    charmask |= (charmask << 16) << 16;
-  if (sizeof (longword) > 8)
-    abort ();
+#elif __WORDSIZE == 64
+  magic_bits = ((0x7efefefeL << 16) << 16) | 0xfefefeffL;
+  charmask = c | (c << 8);
+  charmask |= charmask << 16;
+  charmask |= (charmask << 16) << 16;
+#else
+  #error unexpected integer size strchr()
+#endif
 
   /* Instead of the traditional loop which tests each character,
      we will test a longword at a time.  The tricky part is testing
