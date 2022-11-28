@@ -715,7 +715,11 @@ namespace
   print_address(PrintContext& ctx, const char* fmt, const void* address)
   {
     char buf[128];
+#ifdef L4_CLANG_FIXES
+    int written = sprintf(buf, fmt, address);
+#else
     int written = __builtin_sprintf(buf, fmt, address);
+#endif
     print_word(ctx, buf, written);
   }
 
@@ -727,7 +731,11 @@ namespace
   print_integer(PrintContext& ctx, long integer)
   {
     char buf[64];
+#ifdef L4_CLANG_FIXES
+    int written = sprintf(buf, "%ld", integer);
+#else
     int written = __builtin_sprintf(buf, "%ld", integer);
+#endif
     print_word(ctx, buf, written);
   }
 

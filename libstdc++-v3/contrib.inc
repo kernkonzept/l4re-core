@@ -65,5 +65,10 @@ CPU_H_arch     = config/cpu/$(CPU_H_$(BUILD_ARCH))
 
 CPU_file = $(word 1, $(wildcard $(STDCXX_CONTRIB_DIR)/$(CPU_H_arch)/$(strip $(1)) $(STDCXX_CONTRIB_DIR)/$(CPU_H_generic)/$(strip $(1))))
 
+ifeq ($(BID_COMPILER_TYPE),clang)
+  CCXX_FLAGS += -fsized-deallocation
+  DEFINES += -DL4_CLANG_FIXES
+endif
+
 #$(info GCC: $(STDCXX_CONTRIB_DIR))
 

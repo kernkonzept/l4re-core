@@ -61,4 +61,4 @@ crti.o: crti_s.o kip_addr.o
 %.ld: $(PKGDIR)/ARCH-$(ARCH)/%.ld $(SRC_DIR)/Makefile $(SRC_DIR)/generic.h
 	@$(GEN_MESSAGE)
 	$(VERBOSE)$(CPP) -nostdinc -include $(SRC_DIR)/generic.h \
-	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P $$CPP_ARGS $< $@
+	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P $$CPP_ARGS $< -o $@

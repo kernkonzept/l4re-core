@@ -1913,7 +1913,7 @@ namespace std
 #define _GLIBCXX_VERBOSE 1
 
 /* Defined if as can handle rdrand. */
-#if defined(ARCH_x86) || defined(ARCH_amd64)
+#if (defined(ARCH_x86) || defined(ARCH_amd64)) && !defined(L4_CLANG_FIXES)
 #define _GLIBCXX_X86_RDRAND 1
 
 /* Defined if as can handle rdseed. */
