@@ -67,11 +67,15 @@ private:
   char const *const _component;
   char const *const _subsys;
 
+# ifndef __clang__
+
   int printf_impl(char const *fmt, ...) const
     __attribute__((format(printf, 2, 3)));
 
   int cprintf_impl(char const *fmt, ...) const
     __attribute__((format(printf, 2, 3)));
+
+# endif
 
 public:
   static unsigned long level;
@@ -79,6 +83,16 @@ public:
   static void set_level(unsigned long l) { level = l; }
 
   bool is_active() const { return _m & level; }
+
+# ifdef __clang__
+
+  int printf(char const *fmt, ...) const
+    __attribute__((format(printf, 2, 3)));
+
+  int cprintf(char const *fmt, ...) const
+    __attribute__((format(printf, 2, 3)));
+
+# else
 
   int __attribute__((always_inline, format(printf, 2, 3)))
   printf(char const *fmt, ...) const
@@ -97,6 +111,8 @@ public:
 
     return cprintf_impl(fmt, __builtin_va_arg_pack());
   }
+
+# endif
 
   explicit
   Dbg() : _m(1), _component(0), _subsys(0) { };

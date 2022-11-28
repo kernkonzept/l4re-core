@@ -37,6 +37,43 @@ Dbg::tag() const
     cprintf("%s: ", _component);
 }
 
+# ifdef __clang__
+
+int
+Dbg::printf(char const *fmt, ...) const
+{
+  if (!(level & _m))
+    return 0;
+
+  tag();
+
+  int n;
+  va_list args;
+
+  va_start    (args, fmt);
+  n = vfprintf (out, fmt, args);
+  va_end      (args);
+
+  return n;
+}
+
+int
+Dbg::cprintf(char const *fmt, ...) const
+{
+  if (!(level & _m))
+    return 0;
+
+  int n;
+  va_list args;
+
+  va_start    (args, fmt);
+  n = vfprintf (out, fmt, args);
+  va_end      (args);
+
+  return n;
+}
+
+# else
 
 int
 Dbg::printf_impl(char const *fmt, ...) const
@@ -65,6 +102,9 @@ Dbg::cprintf_impl(char const *fmt, ...) const
 
   return n;
 }
+
+# endif
+
 #endif /* NDEBUG */
 
 
