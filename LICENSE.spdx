@@ -175,16 +175,44 @@ PackageName: l4util
 SPDXID: SPDXRef-l4util
 PackageFileName: ./l4util
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: (LGPL-2.1-only OR LicenseRef-kk-custom)
+PackageLicenseConcluded: (LGPL-2.1-only OR LicenseRef-kk-custom)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
+
+FileName: ./l4util/include/ARCH-mips/thread.h
+SPDXID: SPDXRef-l4util-mips-thread.h
+FileChecksum: SHA1: c99f106b6bc6c64450ecb7319b32acba414f7475
+LicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+FileName: ./l4util/include/l4mod.h
+SPDXID: SPDXRef-l4util-l4mod.h
+FileChecksum: SHA1: 19d71f447e4164a6eb8bdf59959a7ba98941f8e6
+LicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+FileName: ./l4util/include/llulc.h
+SPDXID: SPDXRef-l4util-llulc.h
+FileChecksum: SHA1: 05937606dad83184f03b96cd650cfec38db815b7
+LicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
 
 FileName: ./l4util/lib/src/base64.c
 SPDXID: SPDXRef-l4util-base64.c
 FileChecksum: SHA1: 99c534b9cb8971828ceaa4637d731d3935de9a64
 LicenseConcluded: MIT
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+FileName: ./l4util/lib/src/llulc.cc
+SPDXID: SPDXRef-l4util-llulc.cc
+FileChecksum: SHA1: da09ebf1f1949493ab2931dc6fa93528285f3fad
+LicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
 LicenseInfoInFile: NOASSERTION
 FileCopyrightText: NOASSERTION
 
