@@ -6,6 +6,7 @@
 __asm__(
 	".macro call_via register\n"
 	"	.global	_call_via_\\register\n"
+	"	.weak	_call_via_\\register\n"
 	"	.hidden	_call_via_\\register\n"
 	"	.type	_call_via_\\register, %function\n"
 	"	.thumb_func\n"
