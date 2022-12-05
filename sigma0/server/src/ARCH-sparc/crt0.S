@@ -7,7 +7,7 @@
  * Please see the COPYING-GPL-2 file for details.
  */
 
-.section .text.init,#alloc,#execinstr
+.section .text.init, "ax"
 .type _start,#function
 .globl _start
 _start:
