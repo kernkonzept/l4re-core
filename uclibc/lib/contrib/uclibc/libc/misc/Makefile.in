@@ -5,7 +5,9 @@
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
 
+
 include $(top_srcdir)libc/misc/assert/Makefile.in
+include $(top_srcdir)libc/misc/auxvt/Makefile.in
 include $(top_srcdir)libc/misc/ctype/Makefile.in
 include $(top_srcdir)libc/misc/dirent/Makefile.in
 include $(top_srcdir)libc/misc/error/Makefile.in

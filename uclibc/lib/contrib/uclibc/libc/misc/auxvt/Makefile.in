@@ -1,0 +1,23 @@
+# Makefile for uClibc
+#
+# Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
+#
+# Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
+#
+
+subdirs += libc/misc/auxvt
+
+CSRC-y := getauxval.c
+
+MISC_AUXVT_DIR := $(top_srcdir)libc/misc/auxvt
+MISC_AUXVT_OUT := $(top_builddir)libc/misc/auxvt
+
+MISC_AUXVT_SRC := $(patsubst %.c,$(MISC_AUXVT_DIR)/%.c,$(CSRC-y))
+MISC_AUXVT_OBJ := $(patsubst %.c,$(MISC_AUXVT_OUT)/%.o,$(CSRC-y))
+
+libc-y += $(MISC_AUXVT_OBJ)
+
+objclean-y += CLEAN_libc/misc/auxvt
+
+CLEAN_libc/misc/auxvt:
+	$(do_rm) $(addprefix $(MISC_AUXVT_OUT)/*., o os)

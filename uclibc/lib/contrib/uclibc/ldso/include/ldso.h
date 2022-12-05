@@ -142,6 +142,7 @@ extern int   _dl_debug_file;
 #define NULL ((void *) 0)
 #endif
 
+
 extern void *_dl_malloc(size_t size);
 extern void *_dl_calloc(size_t __nmemb, size_t __size);
 extern void *_dl_realloc(void *__ptr, size_t __size);
@@ -176,7 +177,7 @@ extern void _dl_setup_malloc(ElfW(auxv_t) auxvt[AT_EGID + 1]);
 #endif
 
 extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
-		ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
+		char **envp, char **argv
 		DL_GET_READY_TO_RUN_EXTRA_PARMS);
 
 #ifdef HAVE_DL_INLINES_H
@@ -185,6 +186,11 @@ extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE loa
 
 #else /* __ARCH_HAS_NO_SHARED__ */
 #include <dl-defs.h>
+#include <dl-elf.h>
+
 #endif
+
+#define AUX_MAX_AT_ID 40
+extern ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID];
 
 #endif /* _LDSO_H */

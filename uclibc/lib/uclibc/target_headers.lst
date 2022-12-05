@@ -192,6 +192,7 @@ stdio.h
 stdlib.h
 string.h
 strings.h
+sys/auxv.h
 sys/bitypes.h
 sys/cdefs.h
 sys/dir.h

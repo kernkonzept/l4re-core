@@ -282,6 +282,7 @@ SRC_libc/string_arm := _memcpy
 
 define SRC_libc/misc
   assert/__assert
+  auxvt/getauxval
   ctype/ctype
   ctype/isalnum
   ctype/isalpha
@@ -319,7 +320,6 @@ define SRC_libc/misc
   dirent/telldir
   error/err
   fnmatch/fnmatch
-  getauxval
   glob/glob
   internals/errno
   internals/h_errno

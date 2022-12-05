@@ -394,11 +394,10 @@ static void trace_objects(struct elf_resolve *tpnt, char *str_name)
 static struct elf_resolve * add_ldso(struct elf_resolve *tpnt,
 									 DL_LOADADDR_TYPE load_addr,
 									 ElfW(Addr) ldso_mapaddr,
-									 ElfW(auxv_t) auxvt[AT_EGID + 1],
 									 struct dyn_elf *rpnt)
 {
 		(void) load_addr;
-		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) auxvt[AT_BASE].a_un.a_val;
+		ElfW(Ehdr) *epnt = (ElfW(Ehdr) *) _dl_auxvt[AT_BASE].a_un.a_val;
 		ElfW(Phdr) *myppnt = (ElfW(Phdr) *)
 				DL_RELOC_ADDR(DL_GET_RUN_ADDR(load_addr, ldso_mapaddr),
 							  epnt->e_phoff);
@@ -457,10 +456,10 @@ static ptrdiff_t _dl_build_local_scope (struct elf_resolve **list,
  * This function is extracted from _dl_get_ready_to_run below
  * so we can call it before running the init function of ldso
  */
-void _dl_setup_malloc(ElfW(auxv_t) auxvt[AT_EGID + 1])
+void _dl_setup_malloc(ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID])
 {
 	/* Store the page size for later use */
-	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+	_dl_pagesize = (_dl_auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) _dl_auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 	/* Make it so _dl_malloc can use the page of memory we have already
 	 * allocated.  We shouldn't need to grab any more memory.  This must
 	 * be first since things like _dl_dprintf() use _dl_malloc()...
@@ -487,7 +486,7 @@ static void _dl_setup_progname(const char *argv0)
 #endif
 
 void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
-			  ElfW(auxv_t) auxvt[AT_EGID + 1], char **envp, char **argv
+			  char **envp, char **argv
 			  DL_GET_READY_TO_RUN_EXTRA_PARMS)
 {
 	ElfW(Addr) app_mapaddr = 0, ldso_mapaddr = 0;
@@ -523,7 +522,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	/* This code is moved to the function _dl_setup_malloc, so we can call
 	 * it before running the init functions of ldso */
 	/* Store the page size for later use */
-	_dl_pagesize = (auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+	_dl_pagesize = (_dl_auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) _dl_auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 	/* Make it so _dl_malloc can use the page of memory we have already
 	 * allocated.  We shouldn't need to grab any more memory.  This must
 	 * be first since things like _dl_dprintf() use _dl_malloc()...
@@ -553,7 +552,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 #endif
 
 #ifndef __LDSO_STANDALONE_SUPPORT__
-	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
+	if (_start == (void *) _dl_auxvt[AT_ENTRY].a_un.a_val) {
 		_dl_dprintf(2, "Standalone execution is not enabled\n");
 		_dl_exit(1);
 	}
@@ -572,10 +571,10 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 	 * Note that for SUID programs we ignore the settings in
 	 * LD_LIBRARY_PATH.
 	 */
-	if ((auxvt[AT_UID].a_un.a_val == (size_t)-1 && _dl_suid_ok()) ||
-	    (auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
-	     auxvt[AT_UID].a_un.a_val == auxvt[AT_EUID].a_un.a_val &&
-	     auxvt[AT_GID].a_un.a_val == auxvt[AT_EGID].a_un.a_val)) {
+	if ((_dl_auxvt[AT_UID].a_un.a_val == (size_t)-1 && _dl_suid_ok()) ||
+	    (_dl_auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
+	     _dl_auxvt[AT_UID].a_un.a_val == _dl_auxvt[AT_EUID].a_un.a_val &&
+	     _dl_auxvt[AT_GID].a_un.a_val == _dl_auxvt[AT_EGID].a_un.a_val)) {
 		_dl_secure = 0;
 #ifdef __LDSO_PRELOAD_ENV_SUPPORT__
 		_dl_preload = _dl_getenv("LD_PRELOAD", envp);
@@ -614,7 +613,7 @@ void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 #endif
 
 #ifdef __LDSO_STANDALONE_SUPPORT__
-	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val) {
+	if (_start == (void *) _dl_auxvt[AT_ENTRY].a_un.a_val) {
 		ElfW(Addr) *aux_dat = (ElfW(Addr) *) argv;
 		int argc = (int) aux_dat[-1];
 
@@ -711,11 +710,11 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 */
 	{
 		unsigned int idx;
-		ElfW(Phdr) *phdr = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
+		ElfW(Phdr) *phdr = (ElfW(Phdr) *) _dl_auxvt[AT_PHDR].a_un.a_val;
 
-		for (idx = 0; idx < auxvt[AT_PHNUM].a_un.a_val; idx++, phdr++)
+		for (idx = 0; idx < _dl_auxvt[AT_PHNUM].a_un.a_val; idx++, phdr++)
 			if (phdr->p_type == PT_PHDR) {
-				DL_INIT_LOADADDR_PROG(app_tpnt->loadaddr, auxvt[AT_PHDR].a_un.a_val - phdr->p_vaddr);
+				DL_INIT_LOADADDR_PROG(app_tpnt->loadaddr, _dl_auxvt[AT_PHDR].a_un.a_val - phdr->p_vaddr);
 				break;
 			}
 
@@ -730,8 +729,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 */
 	debug_addr = _dl_zalloc(sizeof(struct r_debug));
 
-	ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
-	for (i = 0; i < auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
+	ppnt = (ElfW(Phdr) *) _dl_auxvt[AT_PHDR].a_un.a_val;
+	for (i = 0; i < _dl_auxvt[AT_PHNUM].a_un.a_val; i++, ppnt++) {
 		if (ppnt->p_type == PT_GNU_RELRO) {
 			relro_addr = ppnt->p_vaddr;
 			relro_size = ppnt->p_memsz;
@@ -753,8 +752,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 				int j;
 				ElfW(Phdr) *ppnt_outer = ppnt;
 				_dl_debug_early("calling mprotect on the application program\n");
-				ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
-				for (j = 0; j < auxvt[AT_PHNUM].a_un.a_val; j++, ppnt++) {
+				ppnt = (ElfW(Phdr) *) _dl_auxvt[AT_PHDR].a_un.a_val;
+				for (j = 0; j < _dl_auxvt[AT_PHNUM].a_un.a_val; j++, ppnt++) {
 					if (ppnt->p_type == PT_LOAD && !(ppnt->p_flags & PF_W))
 						_dl_mprotect((void *) (DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr) & PAGE_ALIGN),
 							     (DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr) & ADDR_ALIGN) +
@@ -781,8 +780,8 @@ of this helper program; chances are you did not intend to run this program.\n\
 					(unsigned long) DL_RELOC_ADDR(app_tpnt->loadaddr, ppnt->p_vaddr),
 					ppnt->p_filesz);
 			_dl_loaded_modules->libtype = elf_executable;
-			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) auxvt[AT_PHDR].a_un.a_val;
-			_dl_loaded_modules->n_phent = auxvt[AT_PHNUM].a_un.a_val;
+			_dl_loaded_modules->ppnt = (ElfW(Phdr) *) _dl_auxvt[AT_PHDR].a_un.a_val;
+			_dl_loaded_modules->n_phent = _dl_auxvt[AT_PHNUM].a_un.a_val;
 			_dl_symbol_tables = rpnt = _dl_zalloc(sizeof(struct dyn_elf));
 			rpnt->dyn = _dl_loaded_modules;
 			app_tpnt->mapaddr = app_mapaddr;
@@ -920,7 +919,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	}
 #endif
 
-	ldso_mapaddr = (ElfW(Addr)) auxvt[AT_BASE].a_un.a_val;
+	ldso_mapaddr = (ElfW(Addr)) _dl_auxvt[AT_BASE].a_un.a_val;
 	/*
 	 * OK, fix one more thing - set up debug_addr so it will point
 	 * to our chain.  Later we may need to fill in more fields, but this
@@ -1110,7 +1109,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 						if (!ldso_tpnt) {
 							/* Insert the ld.so only once */
 							ldso_tpnt = add_ldso(tpnt, load_addr,
-												 ldso_mapaddr, auxvt, rpnt);
+												 ldso_mapaddr, rpnt);
 						} else {
 							ldso_tpnt->init_flag |= DL_OPENED2;
 						}
@@ -1216,7 +1215,7 @@ of this helper program; chances are you did not intend to run this program.\n\
 	 * again once all libs are loaded.
 	 */
 	if (!ldso_tpnt) {
-		tpnt = add_ldso(tpnt, load_addr, ldso_mapaddr, auxvt, rpnt);
+		tpnt = add_ldso(tpnt, load_addr, ldso_mapaddr, rpnt);
 		tpnt->usage_count++;
 		nscope_elem++;
 	} else
@@ -1519,11 +1518,11 @@ of this helper program; chances are you did not intend to run this program.\n\
 	_dl_debug_state();
 
 #ifdef __LDSO_STANDALONE_SUPPORT__
-	if (_start == (void *) auxvt[AT_ENTRY].a_un.a_val)
+	if (_start == (void *) _dl_auxvt[AT_ENTRY].a_un.a_val)
 		return (void *) app_tpnt->l_entry;
 	else
 #endif
-		return (void *) auxvt[AT_ENTRY].a_un.a_val;
+		return (void *) _dl_auxvt[AT_ENTRY].a_un.a_val;
 }
 
 #include "dl-hash.c"
