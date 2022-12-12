@@ -166,11 +166,10 @@ l4_thread_ex_regs_ret_u(l4_cap_idx_t thread, l4_addr_t *ip, l4_addr_t *sp,
  *
  * An example for a sequence of thread control API calls can be found below.
  *
- *  l4_utcb_t *u = l4_utcb(); <br>
- *  \link l4_thread_control_start() l4_thread_control_start(u)\endlink; <br>
- *  \link l4_thread_control_pager() l4_thread_control_pager(u, pager_cap)\endlink; <br>
- *  \link l4_thread_control_bind() l4_thread_control_bind (u, thread_utcb, task)\endlink; <br>
- *  \link l4_thread_control_commit() l4_thread_control_commit(u, thread_cap)\endlink; <br>
+ *  \link l4_thread_control_start() l4_thread_control_start()\endlink; <br>
+ *  \link l4_thread_control_pager() l4_thread_control_pager(pager_cap)\endlink; <br>
+ *  \link l4_thread_control_bind() l4_thread_control_bind (thread_utcb, task)\endlink; <br>
+ *  \link l4_thread_control_commit() l4_thread_control_commit(thread_cap)\endlink; <br>
  *
  */
 
