@@ -273,6 +273,14 @@ public:
   /**
    * Resume from vCPU asynchronous IPC handler, start.
    *
+   * \param utcb  UTCB of the current thread.
+   *
+   * \return Message tag to be used for l4_sndfpage_add() and
+   *         l4_thread_vcpu_resume_commit()
+   *
+   * The vCPU resume functionality is split in multiple functions to allow the
+   * specification of additional send-flex-pages using l4_sndfpage_add().
+   *
    * The asynchronous IPC handling is described at \ref l4_vcpu_api.
    *
    * \see l4_thread_vcpu_resume_start
@@ -282,6 +290,37 @@ public:
 
   /**
    * Resume from vCPU asynchronous IPC handler, commit.
+   *
+   * \param tag   Tag to use, returned by l4_thread_vcpu_resume_start().
+   * \param utcb  UTCB of the current thread.
+   *
+   * \return Syscall return tag containing one of the following return codes.
+   *
+   * \retval 0           Indicates a VM exit, provided that `thread` is in
+   *                     extended vCPU mode with virtual interrupts cleared.
+   * \retval 1           Indicates an incoming IPC message, provided that the
+   *                     `thread` is in extended vCPU mode with virtual
+   *                     interrupts cleared.
+   * \retval -L4_EPERM   The user task capability set in the vCPU state is
+   *                     missing the #L4_CAP_FPAGE_S right.
+   * \retval -L4_ENOENT  The user task capability set in the vCPU state is
+   *                     invalid.
+   * \retval -L4_EINVAL  `thread` is not the current running thread, or does not
+   *                     have the vCPU feature enabled.
+   * \retval <0          A supplied mapping failed.
+   *
+   * All flex pages in the UTCB (added with l4_sndfpage_add() after
+   * l4_thread_vcpu_resume_start()) are unconditionally mapped into the
+   * user task configured in the vCPU state.
+   *
+   * To resume into another address space, the capability to the target \ref
+   * l4_task_api (or L4::Vm) must be set in l4_vcpu_state_t::user_task together
+   * with #L4_VCPU_F_USER_MODE. The capability selector must have all lower bits
+   * clear (see #L4_CAP_MASK). The kernel adds the #L4_SYSF_SEND flag there to
+   * indicate that the capability has been referenced in the kernel. Consecutive
+   * resumes will not reference the task capability again until all lower bits
+   * are cleared again. To release a task use a different task capability or use
+   * an invalid capability with the #L4_SYSF_REPLY flag set.
    *
    * The asynchronous IPC handling is described at \ref l4_vcpu_api.
    *
