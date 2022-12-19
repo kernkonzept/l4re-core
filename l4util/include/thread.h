@@ -64,7 +64,7 @@ EXTERN_C_END
  *
  * L4UTIL_THREAD_FUNC(helper_thread)
  * {
- *   for(;;);
+ *   l4_infinite_loop();
  * }
  *
  * thread_cap->ex_regs((l4_umword_t)helper_thread, stack_addr);

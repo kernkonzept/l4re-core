@@ -4,6 +4,7 @@
 #include <l4/sys/kdebug.h>
 #include <l4/sys/err.h>
 #include <l4/sys/task.h>
+#include <l4/sys/compiler.h>
 #include <l4/re/consts.h>
 #include <l4/re/elf_aux.h>
 
@@ -20,7 +21,7 @@ attribute_hidden call
 
 static inline void
 _dl_exit(int status)
-{ (void)status; while(1) ;/*l4_ipc_sleep(L4_IPC_NEVER);*/ }
+{ (void)status; l4_infinite_loop(); ;/*l4_ipc_sleep(L4_IPC_NEVER);*/ }
 
 static inline int
 _dl_mmap_check_error(void *x)
