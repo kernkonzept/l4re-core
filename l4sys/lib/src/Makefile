@@ -15,7 +15,6 @@ PC_EXTRA_l4sys-l4x           = Link_Libs= %{static:-ll4sys-l4x}
 CXXFLAGS                    += -DL4_NO_RTTI -fno-rtti -fno-exceptions
 
 SRC_CC                       = kobject.cc
-SRC_S_libl4sys-arm          += ARCH-arm/atomic_ops_s.S
 SRC_C_libl4sys-ppc32        += ARCH-ppc32/atomic_ops.c
 SRC_S_libl4sys-sparc        += ARCH-sparc/atomic_ops.S
 
@@ -36,7 +35,6 @@ SRC_S_libl4sys-l4x.so        = $(SRC_S_libl4sys-$(ARCH))
 
 SRC_C_l4lx-arm               = utcb.c
 SRC_C_l4lx-amd64             = utcb.c
-SRC_S_l4lx-arm               = ARCH-arm/atomic_ops_s.S
 SRC_C_l4lx-mips              = utcb.c
 SRC_C_l4lx-ppc32             = utcb.c ARCH-ppc32/atomic_ops.c
 SRC_C_l4lx-x86               = ARCH-x86/utcb-l4x.c
