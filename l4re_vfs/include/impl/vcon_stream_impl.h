@@ -28,22 +28,24 @@
 
 namespace L4Re { namespace Core {
 Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) noexcept
-: Be_file_stream(), _s(s), _irq(L4Re::virt_cap_alloc->alloc<L4::Semaphore>())
+: Be_file_stream(),
+  _s(s), _irq(L4Re::virt_cap_alloc->alloc<L4::Semaphore>()), _irq_bound(false)
 {
-  //printf("VCON: irq cap = %lx\n", _irq.cap());
   int res = l4_error(L4Re::Env::env()->factory()->create(_irq));
-  //printf("VCON: irq create res=%d\n", res);
-
-  if (res < 0)
-    return; // handle errors!!!
-
-  res = l4_error(_s->bind(0, _irq));
-  //printf("VCON: bound irq to con res=%d\n", res);
+  (void)res; // handle errors!
 }
 
 ssize_t
 Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
 {
+  if (!_irq_bound)
+    {
+      bool was_bound = __atomic_exchange_n(&_irq_bound, true, __ATOMIC_SEQ_CST);
+      if (!was_bound)
+        if (l4_error(_s->bind(0, _irq)) < 0)
+          return -EIO;
+    }
+
   ssize_t bytes = 0;
   for (; iovcnt > 0; --iovcnt, ++iovec)
     {

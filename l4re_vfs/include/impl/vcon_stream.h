@@ -30,6 +30,7 @@ class Vcon_stream : public L4Re::Vfs::Be_file_stream
 private:
   L4::Cap<L4::Vcon> _s;
   L4::Cap<L4::Semaphore>  _irq;
+  unsigned _irq_bound;
 
 public:
   explicit Vcon_stream(L4::Cap<L4::Vcon> s) noexcept;
