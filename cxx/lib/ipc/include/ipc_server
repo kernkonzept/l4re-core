@@ -68,7 +68,7 @@ public:
    */
   virtual int dispatch(unsigned long rights, Ipc::Iostream &ios) = 0;
 
-  l4_msgtag_t dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb)
+  l4_msgtag_t dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb) override
   {
     L4::Ipc::Iostream ios(utcb);
     ios.tag() = tag;
@@ -94,7 +94,7 @@ struct Server_object_t : BASE
   typedef IFACE Interface;
 
   /// \return the server-side buffer demand based in \a IFACE.
-  typename BASE::Demand get_buffer_demand() const
+  typename BASE::Demand get_buffer_demand() const override
   { return typename L4::Kobject_typeid<IFACE>::Demand(); }
 
   /**

@@ -117,39 +117,40 @@ public:
 #endif
   }
 
-  int alloc_fd(Ref_ptr<L4Re::Vfs::File> const &f) throw();
-  Ref_ptr<L4Re::Vfs::File> free_fd(int fd) throw();
-  Ref_ptr<L4Re::Vfs::File> get_root() throw();
-  Ref_ptr<L4Re::Vfs::File> get_cwd() throw();
-  void set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) throw();
-  Ref_ptr<L4Re::Vfs::File> get_file(int fd) throw();
+  int alloc_fd(Ref_ptr<L4Re::Vfs::File> const &f) throw() override;
+  Ref_ptr<L4Re::Vfs::File> free_fd(int fd) throw() override;
+  Ref_ptr<L4Re::Vfs::File> get_root() throw() override;
+  Ref_ptr<L4Re::Vfs::File> get_cwd() throw() override;
+  void set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) throw() override;
+  Ref_ptr<L4Re::Vfs::File> get_file(int fd) throw() override;
   cxx::Pair<Ref_ptr<L4Re::Vfs::File>, int>
-    set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f = Ref_ptr<>::Nil) throw();
+    set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f = Ref_ptr<>::Nil) throw()
+      override;
 
   int mmap2(void *start, size_t len, int prot, int flags, int fd,
-            off_t offset, void **ptr) throw();
+            off_t offset, void **ptr) throw() override;
 
-  int munmap(void *start, size_t len) throw();
+  int munmap(void *start, size_t len) throw() override;
   int mremap(void *old, size_t old_sz, size_t new_sz, int flags,
-             void **new_addr) throw();
-  int mprotect(const void *a, size_t sz, int prot) throw();
-  int msync(void *addr, size_t len, int flags) throw();
-  int madvise(void *addr, size_t len, int advice) throw();
+             void **new_addr) throw() override;
+  int mprotect(const void *a, size_t sz, int prot) throw() override;
+  int msync(void *addr, size_t len, int flags) throw() override;
+  int madvise(void *addr, size_t len, int advice) throw() override;
 
-  int register_file_system(L4Re::Vfs::File_system *f) throw();
-  int unregister_file_system(L4Re::Vfs::File_system *f) throw();
-  L4Re::Vfs::File_system *get_file_system(char const *fstype) throw();
+  int register_file_system(L4Re::Vfs::File_system *f) throw() override;
+  int unregister_file_system(L4Re::Vfs::File_system *f) throw() override;
+  L4Re::Vfs::File_system *get_file_system(char const *fstype) throw() override;
 
-  int register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw();
-  int unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw();
-  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(int proto) throw();
-  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(char const *proto_name) throw();
-  int mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) throw();
+  int register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw() override;
+  int unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw() override;
+  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(int proto) throw() override;
+  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(char const *proto_name) throw() override;
+  int mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) throw() override;
 
   void operator delete (void *) {}
 
-  void *malloc(size_t size) noexcept { return Vfs_config::malloc(size); }
-  void free(void *m) noexcept { Vfs_config::free(m); }
+  void *malloc(size_t size) noexcept override { return Vfs_config::malloc(size); }
+  void free(void *m) noexcept override { Vfs_config::free(m); }
 
 private:
   Root_mount_tree _root_mount;

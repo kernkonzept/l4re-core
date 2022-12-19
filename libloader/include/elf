@@ -522,7 +522,7 @@ public:
   typedef typename Base::Dbg_log Dbg_log;
 
   void read_infos(App_model *mm, Const_dataspace bin,
-                  Dbg_log const &ldr)
+                  Dbg_log const &ldr) override
   {
     using L4Re::chksys;
 
@@ -616,7 +616,7 @@ public:
   }
 
   void load(App_model *mm, Const_dataspace bin,
-            Dbg_log const &ldr)
+            Dbg_log const &ldr) override
   {
     load(mm, bin, 0, false, ldr);
   }

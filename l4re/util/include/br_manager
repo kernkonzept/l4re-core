@@ -61,7 +61,7 @@ public:
    * the necessary amount of receive buffers allocated by all calls to this
    * function.
    */
-  int alloc_buffer_demand(Demand const &d)
+  int alloc_buffer_demand(Demand const &d) override
   {
     using L4::Ipc::Small_buf;
 
@@ -92,7 +92,7 @@ public:
   }
 
 
-  L4::Cap<void> get_rcv_cap(int i) const
+  L4::Cap<void> get_rcv_cap(int i) const override
   {
     if (i < 0 || i >= _caps)
       return L4::Cap<void>::Invalid;
@@ -100,7 +100,7 @@ public:
     return L4::Cap<void>(_brs[i] & L4_CAP_MASK);
   }
 
-  int realloc_rcv_cap(int i)
+  int realloc_rcv_cap(int i) override
   {
     using L4::Ipc::Small_buf;
 
@@ -132,11 +132,11 @@ public:
   }
 
   /// No timeouts handled by us.
-  int add_timeout(L4::Ipc_svr::Timeout *, l4_kernel_clock_t)
+  int add_timeout(L4::Ipc_svr::Timeout *, l4_kernel_clock_t) override
   { return -L4_ENOSYS; }
 
   /// No timeouts handled by us.
-  int remove_timeout(L4::Ipc_svr::Timeout *)
+  int remove_timeout(L4::Ipc_svr::Timeout *) override
   { return -L4_ENOSYS; }
 
   /// setup_wait() used the server loop (L4::Server)

@@ -22,7 +22,7 @@ namespace L4 {
   public:
     LogIOBackend();
   protected:
-    void write(char const *str, unsigned len);
+    void write(char const *str, unsigned len) override;
   };
 
   LogIOBackend::LogIOBackend()

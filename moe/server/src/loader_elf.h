@@ -19,8 +19,8 @@ class Elf_loader
 
 {
 public:
-  bool check_file_type(Moe::Dataspace const *file) const;
-  bool launch(App_task *, cxx::String const &, cxx::String const &);
+  bool check_file_type(Moe::Dataspace const *file) const override;
+  bool launch(App_task *, cxx::String const &, cxx::String const &) override;
 };
 
 

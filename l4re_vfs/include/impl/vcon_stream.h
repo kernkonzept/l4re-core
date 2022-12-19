@@ -34,12 +34,12 @@ private:
 public:
   explicit Vcon_stream(L4::Cap<L4::Vcon> s) throw();
 
-  ssize_t readv(const struct iovec*, int iovcnt) throw();
-  ssize_t writev(const struct iovec*, int iovcnt) throw();
-  int fstat64(struct stat64 *buf) const throw();
-  int get_status_flags() const throw() { return O_RDWR; }
-  int set_status_flags(long) throw() { return 0; }
-  int ioctl(unsigned long request, va_list args) throw();
+  ssize_t readv(const struct iovec*, int iovcnt) throw() override;
+  ssize_t writev(const struct iovec*, int iovcnt) throw() override;
+  int fstat64(struct stat64 *buf) const throw() override;
+  int get_status_flags() const throw() override { return O_RDWR; }
+  int set_status_flags(long) throw() override { return 0; }
+  int ioctl(unsigned long request, va_list args) throw() override;
 
   ~Vcon_stream() throw() {}
   void operator delete (void *) {}

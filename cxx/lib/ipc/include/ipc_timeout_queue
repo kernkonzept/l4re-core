@@ -209,7 +209,7 @@ public:
    * \note The timeout is automatically dequeued before the Timeout::expired()
    *       function is called
    */
-  int add_timeout(Timeout *timeout, l4_kernel_clock_t time)
+  int add_timeout(Timeout *timeout, l4_kernel_clock_t time) override
   {
     queue.add(timeout, time);
     return 0;
@@ -222,7 +222,7 @@ public:
    *       currently enqueued.
    * \note in Timeout::expired() the timeout is already dequeued!
    */
-  int remove_timeout(Timeout *timeout)
+  int remove_timeout(Timeout *timeout) override
   {
     queue.remove(timeout);
     return 0;

@@ -188,7 +188,7 @@ public:
    * \copydoc  Server_iface::alloc_buffer_demand()
    * \return success (0) if demand is empty, -L4_ENOMEM else.
    */
-  int alloc_buffer_demand(Demand const &demand)
+  int alloc_buffer_demand(Demand const &demand) override
   {
     if (!demand.no_demand())
       return -L4_ENOMEM;
@@ -196,19 +196,19 @@ public:
   }
 
   /// Returns L4::Cap<void>::Invalid, we have no buffer management
-  L4::Cap<void> get_rcv_cap(int) const
+  L4::Cap<void> get_rcv_cap(int) const override
   { return L4::Cap<void>::Invalid; }
 
   /// Returns -L4_ENOMEM, we have no buffer management
-  int realloc_rcv_cap(int)
+  int realloc_rcv_cap(int) override
   { return -L4_ENOMEM; }
 
   /// Returns -L4_ENOSYS, we have no timeout queue
-  int add_timeout(Timeout *, l4_kernel_clock_t)
+  int add_timeout(Timeout *, l4_kernel_clock_t) override
   { return -L4_ENOSYS; }
 
   /// Returns -L4_ENOSYS, we have no timeout queue
-  int remove_timeout(Timeout *)
+  int remove_timeout(Timeout *) override
   { return -L4_ENOSYS; }
 
 protected:

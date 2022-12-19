@@ -34,15 +34,15 @@ public:
   : _env(env), _current_cap_entry(env->initial_caps())
   {}
 
-  ssize_t readv(const struct iovec*, int) throw() { return -EISDIR; }
-  ssize_t writev(const struct iovec*, int) throw() { return -EISDIR; }
-  ssize_t preadv(const struct iovec*, int, off64_t) throw() { return -EISDIR; }
-  ssize_t pwritev(const struct iovec*, int, off64_t) throw() { return -EISDIR; }
-  int fstat64(struct stat64 *) const throw();
-  int faccessat(const char *path, int mode, int flags) throw();
+  ssize_t readv(const struct iovec*, int) throw() override { return -EISDIR; }
+  ssize_t writev(const struct iovec*, int) throw() override { return -EISDIR; }
+  ssize_t preadv(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
+  ssize_t pwritev(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
+  int fstat64(struct stat64 *) const throw() override;
+  int faccessat(const char *path, int mode, int flags) throw() override;
   int get_entry(const char *path, int flags, mode_t mode,
-                Ref_ptr<L4Re::Vfs::File> *) throw();
-  ssize_t getdents(char *, size_t) throw();
+                Ref_ptr<L4Re::Vfs::File> *) throw() override;
+  ssize_t getdents(char *, size_t) throw() override;
 
   ~Env_dir() throw() {}
 
@@ -61,15 +61,15 @@ public:
   : _ns(ns), _current_dir_pos(0)
   {}
 
-  ssize_t readv(const struct iovec*, int) throw() { return -EISDIR; }
-  ssize_t writev(const struct iovec*, int) throw() { return -EISDIR; }
-  ssize_t preadv(const struct iovec*, int, off64_t) throw() { return -EISDIR; }
-  ssize_t pwritev(const struct iovec*, int, off64_t) throw() { return -EISDIR; }
-  int fstat64(struct stat64 *) const throw();
-  int faccessat(const char *path, int mode, int flags) throw();
+  ssize_t readv(const struct iovec*, int) throw() override { return -EISDIR; }
+  ssize_t writev(const struct iovec*, int) throw() override { return -EISDIR; }
+  ssize_t preadv(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
+  ssize_t pwritev(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
+  int fstat64(struct stat64 *) const throw() override;
+  int faccessat(const char *path, int mode, int flags) throw() override;
   int get_entry(const char *path, int flags, mode_t mode,
-                Ref_ptr<L4Re::Vfs::File> *) throw();
-  ssize_t getdents(char *, size_t) throw();
+                Ref_ptr<L4Re::Vfs::File> *) throw() override;
+  ssize_t getdents(char *, size_t) throw() override;
 
   ~Ns_dir() throw() {}
 

@@ -20,7 +20,7 @@ namespace L4 {
   public:
     LogIOBackend(FILE *stream);
   protected:
-    void write(char const *str, unsigned len);
+    void write(char const *str, unsigned len) override;
   private:
     FILE *stream;
   };

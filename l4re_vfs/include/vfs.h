@@ -456,7 +456,7 @@ public:
                         cxx::Ref_ptr<Mount_tree> *mt = 0) throw();
 
   int openat(const char *path, int flags, mode_t mode,
-             cxx::Ref_ptr<File> *f) throw();
+             cxx::Ref_ptr<File> *f) throw() override;
 
   void add_ref() throw() { ++_ref_cnt; }
   int remove_ref() throw() { return --_ref_cnt; }
@@ -808,7 +808,7 @@ public:
   : File_factory(IFACE::Protocol, L4::kobject_typeid<IFACE>()->name())
   {}
 
-  cxx::Ref_ptr<File> create(L4::Cap<void> file)
+  cxx::Ref_ptr<File> create(L4::Cap<void> file) override
   { return cxx::ref_ptr(new IMPL(L4::cap_cast<IFACE>(file))); }
 };
 

@@ -36,26 +36,26 @@ public:
     _size = _ds->size();
   }
 
-  L4::Cap<L4Re::Dataspace> data_space() const throw() { return _ds; }
+  L4::Cap<L4Re::Dataspace> data_space() const throw() override { return _ds; }
 
-  int fstat64(struct stat64 *buf) const throw();
+  int fstat64(struct stat64 *buf) const throw() override;
 
-  int ioctl(unsigned long, va_list) throw();
+  int ioctl(unsigned long, va_list) throw() override;
 
-  off64_t size() const throw() { return _size; }
+  off64_t size() const throw() override { return _size; }
 
-  int get_status_flags() const throw()
+  int get_status_flags() const throw() override
   { return O_RDONLY; }
 
-  int set_status_flags(long) throw()
+  int set_status_flags(long) throw() override
   { return 0; }
 
   ~Ro_file() throw();
 
 private:
   ssize_t read_single(const struct iovec*, off64_t) throw();
-  ssize_t preadv(const struct iovec *, int, off64_t) throw();
-  ssize_t pwritev(const struct iovec *, int , off64_t) throw();
+  ssize_t preadv(const struct iovec *, int, off64_t) throw() override;
+  ssize_t pwritev(const struct iovec *, int , off64_t) throw() override;
 };
 
 

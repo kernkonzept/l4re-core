@@ -30,7 +30,7 @@ namespace L4 {
   class KdbgIOBackend : public IOBackend
   {
   protected:
-    void write(char const *str, unsigned len);
+    void write(char const *str, unsigned len) override;
   };
 
   void KdbgIOBackend::write(char const *str, unsigned len)

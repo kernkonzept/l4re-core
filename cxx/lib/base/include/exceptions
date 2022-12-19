@@ -162,7 +162,7 @@ namespace L4
           _extra[i < sizeof(_extra) ? i : sizeof(_extra) - 1] = 0;
         }
     }
-    char const *str() const throw ()
+    char const *str() const throw () override
     { return l4sys_errtostr(_errno); }
 
     /**
@@ -220,7 +220,7 @@ namespace L4
   {
   public:
     Unknown_error() throw() {}
-    char const *str() const throw() { return "unknown error"; }
+    char const *str() const throw() override { return "unknown error"; }
     ~Unknown_error() throw() {}
   };
 
@@ -255,7 +255,7 @@ namespace L4
     explicit Invalid_capability(Cap<void> const &o) throw() : _o(o) {}
     template< typename T>
     explicit Invalid_capability(Cap<T> const &o) throw() : _o(o.cap()) {}
-    char const *str() const throw() { return "invalid object"; }
+    char const *str() const throw() override { return "invalid object"; }
 
     /**
      * \brief Get the object that caused the error.
