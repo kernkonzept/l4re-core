@@ -81,8 +81,8 @@ enum L4_utcb_consts_arm
 L4_INLINE l4_utcb_t *l4_utcb_direct(void) L4_NOTHROW
 {
   register l4_utcb_t *utcb __asm__ ("r0");
-  __asm__ ("mov lr, pc          \n"
-           "mov pc, #0xffffff00 \n"
+  __asm__ ("mov lr, pc    \n"
+           "mvn pc, #0xff \n"      // write 0xffffff00 to pc
            : "=r"(utcb) : : "lr");
   return utcb;
 }
