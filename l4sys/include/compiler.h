@@ -248,9 +248,9 @@
  * type on the target machine. This is normally identical to desired stack
  * alignment.
  */
-#if defined(ARCH_x86) || defined(ARCH_amd64) || \
-  defined(ARCH_arm) || defined(ARCH_arm64) || \
-  defined(ARCH_mips) || defined(ARCH_ppc32) || defined(ARCH_sparc)
+#if defined(__i386__) || defined(__amd64__) || \
+  defined(__arm__) || defined(__aarch64__) || \
+  defined(__mips__) || defined(__powerpc__) || defined(__sparc__)
 # define L4_STACK_ALIGN         __BIGGEST_ALIGNMENT__
 #else
 # error Define L4_STACK_ALIGN for this target!
@@ -273,7 +273,7 @@
  *
  * \hideinitializer
  */
-#if defined(ARCH_x86) || defined(ARCH_amd64)
+#if defined(__i386__) || defined(__amd64__)
 L4_INLINE unsigned long l4_align_stack_for_direct_fncall(unsigned long stack)
 {
   if ((stack & (L4_STACK_ALIGN - 1)) == (L4_STACK_ALIGN - sizeof(unsigned long)))
