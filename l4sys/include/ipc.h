@@ -258,6 +258,10 @@ l4_ipc_send(l4_cap_idx_t dest, l4_utcb_t *utcb, l4_msgtag_t tag,
  * server loop in a user-level server that implements user-level objects,
  * see also #l4_ipc_reply_and_wait().
  *
+ * \note In case of multiple senders trying to send to the thread performing
+ *       this system call, the thread receives from a sender with the highest
+ *       priority. In this respect, IRQ sources have the highest priority 255.
+ *
  * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
@@ -338,6 +342,10 @@ l4_ipc_call(l4_cap_idx_t object, l4_utcb_t *utcb, l4_msgtag_t tag,
  *       client and waits for the next incoming request, which may come from
  *       any other client.
  *
+ * \note In case of multiple senders trying to send to the thread performing
+ *       this system call, the thread receives from a sender with the highest
+ *       priority. In this respect, IRQ sources have the highest priority 255.
+ *
  * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
@@ -365,6 +373,10 @@ l4_ipc_reply_and_wait(l4_utcb_t *utcb, l4_msgtag_t tag,
  *
  * \note This is a special-purpose operation and shall not be used in general
  *       applications.
+ *
+ * \note In case of multiple senders trying to send to the thread performing
+ *       this system call, the thread receives from a sender with the highest
+ *       priority. In this respect, IRQ sources have the highest priority 255.
  *
  * \see \ref l4re_concepts_ipc
  */
