@@ -50,7 +50,7 @@
  * flavours available that have a semantics depending on the object.
  *
  * \see \ref l4_kernel_object_gate_api
- *
+ * \see \ref l4re_concepts_ipc
  */
 
 /*****************************************************************************
@@ -230,6 +230,8 @@ L4_INLINE long l4_ipc_to_errno(unsigned long ipc_error_code) L4_NOTHROW;
  *
  * \attention This is a special-purpose message transfer, objects usually
  *            support only invocation via l4_ipc_call().
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_send(l4_cap_idx_t dest, l4_utcb_t *utcb, l4_msgtag_t tag,
@@ -255,6 +257,8 @@ l4_ipc_send(l4_cap_idx_t dest, l4_utcb_t *utcb, l4_msgtag_t tag,
  * The usual usage of this function is to call that function when entering a
  * server loop in a user-level server that implements user-level objects,
  * see also #l4_ipc_reply_and_wait().
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_wait(l4_utcb_t *utcb, l4_umword_t *label,
@@ -282,6 +286,8 @@ l4_ipc_wait(l4_utcb_t *utcb, l4_umword_t *label,
  * \note This operation is usually used to receive messages from a specific IRQ
  *       or thread. However, it is not common to use this operation for normal
  *       applications.
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_receive(l4_cap_idx_t object, l4_utcb_t *utcb,
@@ -305,6 +311,8 @@ l4_ipc_receive(l4_cap_idx_t object, l4_utcb_t *utcb,
  * reply from the object. Messages from other sources are not accepted.
  * \note The send-to-receive transition needs no time, the object can reply
  *       with a send timeout of zero.
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_call(l4_cap_idx_t object, l4_utcb_t *utcb, l4_msgtag_t tag,
@@ -329,6 +337,8 @@ l4_ipc_call(l4_cap_idx_t object, l4_utcb_t *utcb, l4_msgtag_t tag,
  * \note This is the standard server operation: it sends a reply to the actual
  *       client and waits for the next incoming request, which may come from
  *       any other client.
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_reply_and_wait(l4_utcb_t *utcb, l4_msgtag_t tag,
@@ -355,6 +365,8 @@ l4_ipc_reply_and_wait(l4_utcb_t *utcb, l4_msgtag_t tag,
  *
  * \note This is a special-purpose operation and shall not be used in general
  *       applications.
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_send_and_wait(l4_cap_idx_t dest, l4_utcb_t *utcb, l4_msgtag_t tag,
@@ -400,6 +412,8 @@ l4_ipc_wait_next_period(l4_utcb_t *utcb,
  * \param      timeout  Timeout pair (see #l4_timeout_t).
  *
  * \return return tag
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_ALWAYS_INLINE l4_msgtag_t
 l4_ipc(l4_cap_idx_t dest,
@@ -423,6 +437,8 @@ l4_ipc(l4_cap_idx_t dest,
  *
  * The invoking thread waits until the timeout
  * is expired or the wait was aborted by another thread by l4_thread_ex_regs().
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_sleep(l4_timeout_t timeout) L4_NOTHROW;
@@ -438,6 +454,8 @@ l4_ipc_sleep(l4_timeout_t timeout) L4_NOTHROW;
  *                    all other values in the tag will be retained.
  *
  * \return 0 on success, negative error code otherwise
+ *
+ * \see \ref l4re_concepts_ipc
  */
 L4_INLINE int
 l4_sndfpage_add(l4_fpage_t const snd_fpage, unsigned long snd_base,
