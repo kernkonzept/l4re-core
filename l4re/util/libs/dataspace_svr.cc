@@ -72,21 +72,21 @@ Dataspace_svr::map(Dataspace::Offset offs,
     {
       l4_addr_t map_base = l4_trunc_size(addr, order + 1);
       if (map_base < _ds_start)
-	break;
+        break;
 
-      if (map_base + (1UL << (order + 1)) -1 > (_ds_start + round_size() - 1))
-	break;
+      if (map_base + (1UL << (order + 1)) - 1 > (_ds_start + round_size() - 1))
+        break;
 
       map_base = l4_trunc_size(hot_spot, order + 1);
       if (map_base < min)
-	break;
+        break;
 
-      if (map_base + (1UL << (order + 1)) -1 > max -1)
-	break;
+      if (map_base + (1UL << (order + 1)) - 1 > max - 1)
+        break;
 
       l4_addr_t mask = ~(~0UL << (order + 1));
       if (hot_spot == ~0UL || ((addr ^ hot_spot) & mask))
-	break;
+        break;
 
       ++order;
     }
