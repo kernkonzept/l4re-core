@@ -317,6 +317,11 @@ L4_INLINE void l4_mb(void);
  */
 L4_INLINE void l4_wmb(void);
 
+/**
+ * Infinite loop. Will never return. Use #l4_sleep_forever() if at all possible.
+ */
+L4_INLINE L4_NORETURN void l4_infinite_loop(void);
+
 
 /* Implementations */
 L4_INLINE void l4_barrier(void)
@@ -332,6 +337,12 @@ L4_INLINE void l4_mb(void)
 L4_INLINE void l4_wmb(void)
 {
   __asm__ __volatile__ ("" : : : "memory");
+}
+
+L4_INLINE L4_NORETURN void l4_infinite_loop(void)
+{
+  while (1)
+    l4_barrier();
 }
 #endif
 
