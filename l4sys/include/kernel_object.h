@@ -42,7 +42,7 @@
  * \ingroup l4_kernel_object_api
  * \param obj        The capability of the object to invoke.
  * \param tag        Message tag.
- * \param utcb       UTCB of the caller.
+ * \utcb{utcb}
  *
  * \return System call return tag
  */

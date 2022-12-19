@@ -58,7 +58,7 @@ public:
    *                   memory mappings, #L4_obj_fpage_ctl for object mappings,
    *                   and #L4_MAP_ITEM_GRANT; also see l4_map_control() and
    *                   l4_map_obj_control()).
-   * \param utcb       UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag.
    *
@@ -96,7 +96,7 @@ public:
    * \param fpage     Flexpage that describes an area in one capability space
    *                  of `this` task
    * \param map_mask  Unmap mask, see #l4_unmap_flags_t
-   * \param utcb      UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag
    *
@@ -124,7 +124,7 @@ public:
    *                    one capability space of `this` task.
    * \param num_fpages  Number of fpages in the `fpages` array.
    * \param map_mask    Unmap mask, see #l4_unmap_flags_t.
-   * \param utcb        UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * Revoke rights for an array of flexpages, see #unmap for details.
    *
@@ -141,7 +141,7 @@ public:
    * Release capability and delete object.
    *
    * \param obj   Capability index of the object to delete.
-   * \param utcb  UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag
    *
@@ -165,7 +165,7 @@ public:
    * Release object capability.
    *
    * \param cap   Capability selector of the object to release.
-   * \param utcb  UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag.
    *
@@ -184,7 +184,7 @@ public:
    * Check whether a capability is present (refers to an object).
    *
    * \param cap   Valid capability to check for presence.
-   * \utcb{utcb}
+   * \utcb_def{utcb}
    *
    * \retval tag.label() > 0   Capability is present (refers to an object).
    * \retval tag.label() == 0  No capability present (void object).
@@ -206,7 +206,7 @@ public:
    *
    * \param cap_a  First capability selector to compare.
    * \param cap_b  Second capability selector to compare.
-   * \param utcb   Optional: UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \retval tag.label() = 1: `cap_a` and `cap_b` point to the same object.
    * \retval tag.label() = 0: The two caps do **not** point to the same
@@ -221,7 +221,7 @@ public:
    * Add kernel-user memory.
    *
    * \param fpage  Flexpage describing the virtual area the memory goes to.
-   * \param utcb   UTCP pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag
    *

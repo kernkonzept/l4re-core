@@ -38,7 +38,7 @@
  * \param	ldt			Pointer to LDT hardware descriptors.
  * \param	num_desc                Number of descriptors.
  * \param	entry_number_start	Entry number to start.
- * \param       utcb                    UTCB of the caller.
+ * \utcb{utcb}
  *
  * \retval -L4_ENOSYS The kernel configuration doesn't support this feature.
  * \retval -L4_EINVAL Invalid descriptor or invalid entry number.
@@ -61,7 +61,7 @@ fiasco_ldt_set(l4_cap_idx_t task, void *ldt, unsigned int num_desc,
  * \param size			Size of the descriptors in bytes
  *				 (multiple of 8).
  * \param entry_number_start	Entry number to start (valid values: 0-2).
- * \param utcb                  UTCB of the caller.
+ * \utcb{utcb}
  *
  * \retval <0 Error.
  * \retval L4_EOK Success.
@@ -73,7 +73,7 @@ fiasco_gdt_set(l4_cap_idx_t thread, void *desc, unsigned int size,
 /**
  * Return the offset of the entry in the GDT.
  * \param  thread    Thread to get info from.
- * \param  utcb      UTCB of the caller.
+ * \utcb{utcb}
  * \ingroup api_calls_fiasco
  */
 L4_INLINE unsigned
@@ -96,7 +96,7 @@ enum L4_task_ldt_x86_consts
  * Set the base address for the FS segment.
  * \param  thread    Thread for which the FS base address shall be modified.
  * \param  base      Base address.
- * \param  utcb      UTCB of the caller.
+ * \utcb{utcb}
  *
  * \retval L4_EOK      Success.
  * \retval -L4_EINVAL  Invalid base address (\p base).
@@ -127,7 +127,7 @@ enum L4_sys_segment
  *                   shall be modified.
  * \param  segr      Segment to modify (one of ::L4_sys_segment).
  * \param  base      Base address.
- * \param  utcb      UTCB of the caller.
+ * \utcb{utcb}
  *
  * \retval L4_EOK      Success.
  * \retval -L4_EINVAL  Invalid segment (\p segr) or base address (\p base).
@@ -144,7 +144,7 @@ fiasco_amd64_set_segment_base(l4_cap_idx_t thread, enum L4_sys_segment segr,
  * \param[out] user_ds    DS segment selector.
  * \param[out] user_cs    64-bit CS segment selector.
  * \param[out] user32_cs  32-bit CS segment selector.
- * \param[in]  utcb       UTCB of the caller.
+ * \utcb{utcb}
  * \return System call error
  */
 L4_INLINE long

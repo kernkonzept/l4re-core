@@ -69,7 +69,7 @@ public:
    * \param sp     New stack pointer, use ~0UL to leave the stack
    *               pointer unchanged.
    * \param flags  Ex-regs flags, see #L4_thread_ex_regs_flags.
-   * \param utcb   UTCB to use for this operation.
+   * \utcb_def{utcb}
    *
    * \return System call return tag.
    *
@@ -102,7 +102,7 @@ public:
    *                       pointer unchanged, returns previous stack pointer.
    * \param[in,out] flags  Ex-regs flags, see #L4_thread_ex_regs_flags, return
    *                       previous CPU flags of the thread.
-   * \param         utcb   UTCB to use for this operation.
+   * \utcb_def{utcb}
    *
    * \return System call return tag. [out] parameters are only valid if the
    *         function returns successfully. Use l4_error() to check.
@@ -150,6 +150,7 @@ public:
       *
       * \param utcb  The UTCB to use for the later L4::Thread::control()
       *              function. Usually this is the UTCB of the calling thread.
+      *              See #l4_utcb().
       */
      explicit Attr(l4_utcb_t *utcb = l4_utcb()) noexcept : _u(utcb)
      { l4_thread_control_start_u(utcb); }
@@ -251,7 +252,7 @@ public:
   /**
    * Switch execution to this thread.
    *
-   * \param utcb the UTCB of the current thread.
+   * \utcb_def{utcb}
    *
    * \note The current time slice is inherited to this thread.
    */
@@ -262,7 +263,7 @@ public:
    * Get consumed time of thread in us.
    *
    * \param[out] us    Consumed time in µs.
-   * \param      utcb  UTCB of the current thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag.
    */
@@ -273,7 +274,7 @@ public:
   /**
    * Resume from vCPU asynchronous IPC handler, start.
    *
-   * \param utcb  UTCB of the current thread.
+   * \utcb_def{utcb}
    *
    * \return Message tag to be used for l4_sndfpage_add() and
    *         l4_thread_vcpu_resume_commit()
@@ -292,7 +293,7 @@ public:
    * Resume from vCPU asynchronous IPC handler, commit.
    *
    * \param tag   Tag to use, returned by l4_thread_vcpu_resume_start().
-   * \param utcb  UTCB of the current thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag containing one of the following return codes.
    *
@@ -336,7 +337,7 @@ public:
     * \param vcpu_state  A virtual address pointing to a l4_vcpu_state_t. It
     *                    must be a valid kernel-user-memory address (see
     *                    L4::Task::add_ku_mem()).
-    * \param utcb        UTCB to use for this operation.
+    * \utcb_def{utcb}
     *
     * \return Syscall return tag.
     *
@@ -361,7 +362,7 @@ public:
     *                        the vCPU state in case of vCPU exits. The address
     *                        must be a valid kernel-user-memory address (see
     *                        L4::Task::add_ku_mem()).
-    * \param utcb            UTCB to use for this operation.
+    * \utcb_def{utcb}
     *
     * \return Syscall return tag.
     *
@@ -391,7 +392,7 @@ public:
    * Register an IRQ that will trigger upon deletion events.
    *
    * \param irq  Capability selector for the IRQ object to be triggered.
-   * \utcb{u}
+   * \utcb_def{u}
    *
    * \return System call return tag containing the return code.
    *

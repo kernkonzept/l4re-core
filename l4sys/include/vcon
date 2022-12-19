@@ -62,7 +62,7 @@ public:
    *
    * \param buf   Pointer to the data buffer.
    * \param size  Size of the data buffer in bytes.
-   * \param utcb  UTBC pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag
    *
@@ -81,7 +81,7 @@ public:
    *
    * \param buf   Pointer to the data buffer.
    * \param size  Size of the data buffer in bytes.
-   * \param utcb  UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \retval <0   Error.
    * \retval >=0  Number of bytes written to the virtual console.
@@ -95,7 +95,7 @@ public:
    *
    * \param[out] buf   Pointer to data buffer.
    * \param      size  Size of the data buffer in bytes.
-   * \param      utcb  UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \retval -L4_EPERM  The Vcon instance requires the #L4_CAP_FPAGE_W right on
    *                    the capability used to invoke this operation and this
@@ -114,7 +114,7 @@ public:
    *
    * \param[out] buf   Pointer to data buffer.
    * \param      size  Size of the data buffer in bytes.
-   * \param      utcb  UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \retval -L4_EPERM  The Vcon instance requires the #L4_CAP_FPAGE_W right on
    *                    the capability used to invoke this operation and this
@@ -141,7 +141,7 @@ public:
    *
    * \param attr  Attribute structure with the attributes for the virtual
    *              console.
-   * \param utcb  UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag.
    */
@@ -154,7 +154,7 @@ public:
    *
    * \param[out] attr  Attribute structure. Contains the attributes after a
    *                   successful call of this function.
-   * \param      utcb  UTCB pointer of the calling thread.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag.
    */

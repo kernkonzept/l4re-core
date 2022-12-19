@@ -127,7 +127,7 @@ public:
      * \param[out] target  The capability selector for the new object. The
      *                     caller must allocate the capability slot. The kernel
      *                     stores the new object's capability into this slot.
-     * \param      utcb    The UTCB to use for the operation.
+     * \utcb{utcb}
      */
     S(l4_cap_idx_t f, long obj, L4::Cap<void> target,
       l4_utcb_t *utcb) noexcept
@@ -264,7 +264,7 @@ public:
    *                     the new objects's capability into this slot.
    * \param      obj     The protocol ID that specifies which kind of object
    *                     shall be created.
-   * \param      utcb    The UTCB to use for the operation.
+   * \utcb_def{utcb}
    *
    * \return A create stream that allows additional arguments to be passed to
    *         the create() call via the left-shift (<<) operator.
@@ -293,7 +293,7 @@ public:
    *
    * \tparam      OBJ     Capability type of the object to be created.
    * \param[out]  target  Capability of type OBJ.
-   * \param       utcb    UTCB to use.
+   * \utcb_def{utcb}
    *
    * \return A create stream that allows additional arguments to be passed to
    *         the create() call via the left-shift (<<) operator.
@@ -337,7 +337,7 @@ public:
    *                         map the kernel-allocated kernel-user memory to.
    *                         The kernel uses the kernel-user memory to store
    *                         UTCBs and vCPU state-save-areas of the new task.
-   * \param      utcb        The UTCB to use for the operation.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag
    *
@@ -364,7 +364,7 @@ public:
    * \param[out] target_cap  The kernel stores the new factory's capability into
    *                         this slot.
    * \param      limit       Limit for the new factory in bytes.
-   * \param      utcb        The UTCB to use for the operation.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag
    *
@@ -402,7 +402,7 @@ public:
    * \param      label       Optional label of the gate (precisely used if
    *                         `thread_cap` is valid). If `thread_cap` is valid,
    *                         `label` must be present.
-   * \param      utcb        The UTCB to use for the operation.
+   * \utcb_def{utcb}
    *
    * \return Syscall return tag containing one of the following return codes.
    *

@@ -63,7 +63,7 @@ public:
    * \copybrief l4_debugger_set_object_name()
    *
    * \param name  Name
-   * \param utcb  The UTCB to use for the operation.
+   * \utcb_def{utcb}
    *
    * \return System call return tag.
    */
@@ -74,7 +74,7 @@ public:
   /**
    * \copybrief l4_debugger_global_id()
    *
-   * \param utcb  The UTCB to use for the operation.
+   * \utcb_def{utcb}
    *
    * \retval ~0UL  The capability is invalid.
    * \retval >=0   The global debugger id.
@@ -86,7 +86,7 @@ public:
    * \copybrief l4_debugger_kobj_to_id()
    *
    * \param kobjp  Kobject pointer
-   * \param utcb   The UTCB to use for the operation.
+   * \utcb{utcb}
    *
    * \retval ~0UL  The capability or the Kobject pointer are invalid.
    * \retval >=0   The globally unique id.
@@ -100,7 +100,7 @@ public:
    *
    * \param name   Name to query for.
    * \param idx    Idx to start searching, start with 0
-   * \param utcb   The UTCB to use for the operation.
+   * \utcb{utcb}
    *
    * \retval >=0  Id
    * \retval <0   Error
@@ -119,7 +119,7 @@ public:
    * \param[out] shortname     Buffer to copy `shortname` to. The buffer must
    *                           be allocated by the caller.
    * \param      shortnamelen  Buffer length of `shortname`.
-   * \param      utcb          The UTCB to use for the operation.
+   * \utcb{utcb}
    *
    * \retval 0   Success
    * \retval <0  Error
@@ -137,7 +137,7 @@ public:
    * \copybrief l4_debugger_switch_log()
    * \param name    Name of the log type.
    * \param on_off  1: turn log on, 0: turn log off
-   * \param utcb    The UTCB to use for the operation.
+   * \utcb{utcb}
    *
    * \return Syscall return tag
    */
@@ -152,7 +152,7 @@ public:
    * \param[out] name  Buffer to copy the name into. The buffer must be
    *                   allocated by the caller.
    * \param      size  Length of the `name` buffer.
-   * \param      utcb  The UTCB to use for the operation.
+   * \utcb{utcb}
    *
    * \return Syscall return tag
    */

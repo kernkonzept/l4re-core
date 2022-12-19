@@ -76,8 +76,7 @@ public:
    * \param[out]    sched_classes  A bitmap of available scheduling classes
    *                               (see L4_scheduler_classes).
    *                               Pass nullptr to omit this information.
-   * \param         utcb           UTCB pointer of the calling thread. This
-   *                               defaults to the UTCB of the current thread.
+   * \utcb_def{utcb}
    *
    * \retval 0           Success.
    * \retval -L4_ERANGE  The given CPU offset is larger than the maximum number
@@ -156,7 +155,7 @@ public:
    * Query if a CPU is online.
    *
    * \param cpu   CPU number whose online status should be queried.
-   * \param utcb  UTCB pointer of the calling thread. Defaults to \a l4_utcb().
+   * \utcb_def{utcb}
    *
    * \retval true   The CPU is online.
    * \retval false  The CPU is offline

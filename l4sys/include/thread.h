@@ -189,9 +189,9 @@ l4_thread_ex_regs_ret_u(l4_cap_idx_t thread, l4_addr_t *ip, l4_addr_t *sp,
  * called in the end.
  *
  * \note The thread control API calls store the parameters for the thread in
- *       the UTCB of the caller, this means between l4_thread_control_start()
- *       and l4_thread_control_commit() no functions that modify the UTCB
- *       contents must be called.
+ *       the UTCB of the caller (see #l4_utcb()), this means between
+ *       l4_thread_control_start() and l4_thread_control_commit() no functions
+ *       that modify the UTCB contents must be called.
  */
 L4_INLINE void
 l4_thread_control_start(void) L4_NOTHROW;
