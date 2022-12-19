@@ -101,6 +101,10 @@
 #include <errno.h>
 #include <locale.h>
 
+#ifdef BID_VARIANT_FLAG_NOFPU
+#include <printf.h>
+#endif
+
 #ifdef __UCLIBC_HAS_THREADS__
 # include <stdio_ext.h>
 # include <pthread.h>

@@ -1659,6 +1659,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #undef __INT_N_U201103
 
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   /// numeric_limits<float> specialization.
   template<>
     struct numeric_limits<float>
@@ -1879,6 +1880,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       static _GLIBCXX_USE_CONSTEXPR float_round_style round_style =
 						      round_to_nearest;
     };
+#endif
 
 #undef __glibcxx_long_double_has_denorm_loss
 #undef __glibcxx_long_double_traps

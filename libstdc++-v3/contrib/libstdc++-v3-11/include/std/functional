@@ -58,7 +58,9 @@
 #include <bits/refwrap.h>	// std::reference_wrapper and _Mem_fn_traits
 #include <bits/std_function.h>	// std::function
 #if __cplusplus > 201402L
+#ifndef BID_VARIANT_FLAG_NOFPU
 # include <unordered_map>
+#endif
 # include <vector>
 # include <array>
 # include <utility>
@@ -1030,6 +1032,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       tuple<_ForwardIterator1, _ForwardIterator1, _BinaryPredicate> _M_m;
     };
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   template<typename _Key, typename _Tp, typename _Hash, typename _Pred>
     struct __boyer_moore_map_base
     {
@@ -1059,6 +1062,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       _GLIBCXX_STD_C::unordered_map<_Key, _Tp, _Hash, _Pred> _M_bad_char;
     };
+#endif
 
   template<typename _Tp, size_t _Len, typename _Pred>
     struct __boyer_moore_array_base
@@ -1097,6 +1101,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       tuple<array<_Tp, _Len>, _Pred> _M_bad_char;
     };
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   // Use __boyer_moore_array_base when pattern consists of narrow characters
   // (or std::byte) and uses std::equal_to as the predicate.
   template<typename _RAIter, typename _Hash, typename _Pred,
@@ -1272,6 +1277,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	}
       return std::make_pair(__last, __last);
     }
+#endif // BID_VARIANT_FLAG_NOFPU
 
 #endif // C++17
 #endif // C++14

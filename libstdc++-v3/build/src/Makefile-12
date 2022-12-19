@@ -1,5 +1,4 @@
-
-SRC_CC += \
+SRC_CC-variant-std += \
   c++98/basic_file.cc \
   codecvt_members.cc \
   ctype_configure_char.cc \
@@ -124,6 +123,25 @@ SRC_CC += \
   c++17/cow-string-inst.cc \
   c++20/sstream-inst.cc
 
+# Only include the following in full libstdc++ builds
+SRC_CC-variant-std += $(if $(filter -DL4_MINIMAL_LIBC,$(DEFINES)),,c_locale.cc)
+
+SRC_CC-variant-nofpu += \
+  c++11/condition_variable.cc \
+  c++11/cow-stdexcept.cc \
+  c++11/cow-string-inst.cc \
+  c++11/cxx11-stdexcept.cc \
+  c++11/functexcept.cc \
+  c++11/functional.cc \
+  c++11/snprintf_lite.cc \
+  c++11/sso_string.cc \
+  c++11/string-inst.cc \
+  c++11/system_error.cc \
+  c++11/thread.cc \
+  c++98/stdexcept.cc \
+  c++98/tree.cc
+
+SRC_CC += $(SRC_CC-variant-$(VARIANT))
 
 CXXFLAGS_c++98/collate_members_cow.cc   += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
 CXXFLAGS_c++98/messages_members_cow.cc  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
@@ -143,9 +161,6 @@ CXXFLAGS        += $(if $(filter c++17/%,$@),-std=gnu++17 -fimplicit-templates)
 CXXFLAGS        += $(if $(filter c++11/%,$@),-std=gnu++11)
 CXXFLAGS        += $(if $(filter c++98/%,$@),-std=gnu++98)
 CXXFLAGS        += $(if $(filter filesystem/%,$@),-std=gnu++17)
-
-# Only include the following in full libstdc++ builds
-SRC_CC       += $(if $(filter -DL4_MINIMAL_LIBC,$(DEFINES)),,c_locale.cc)
 
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/os/generic
 

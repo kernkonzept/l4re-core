@@ -6589,6 +6589,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
   { return __gnu_cxx::__stoa(&std::strtoull, "stoull", __str.c_str(),
 			     __idx, __base); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   // NB: strtof vs strtod.
   inline float
   stof(const string& __str, size_t* __idx = 0)
@@ -6601,6 +6602,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
   inline long double
   stold(const string& __str, size_t* __idx = 0)
   { return __gnu_cxx::__stoa(&std::strtold, "stold", __str.c_str(), __idx); }
+#endif
 #endif // _GLIBCXX_USE_C99_STDLIB
 
   // DR 1261. Insufficent overloads for to_string / to_wstring
@@ -6720,6 +6722,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
   { return __gnu_cxx::__stoa(&std::wcstoull, "stoull", __str.c_str(),
 			     __idx, __base); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   // NB: wcstof vs wcstod.
   inline float
   stof(const wstring& __str, size_t* __idx = 0)
@@ -6732,6 +6735,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
   inline long double
   stold(const wstring& __str, size_t* __idx = 0)
   { return __gnu_cxx::__stoa(&std::wcstold, "stold", __str.c_str(), __idx); }
+#endif
 
 #ifndef _GLIBCXX_HAVE_BROKEN_VSWPRINTF
   // DR 1261.
@@ -6778,6 +6782,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 					    L"%f", __val);
   }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   inline wstring
   to_wstring(double __val)
   {
@@ -6795,6 +6800,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
     return __gnu_cxx::__to_xstring<wstring>(&std::vswprintf, __n,
 					    L"%Lf", __val);
   }
+#endif
 #endif // _GLIBCXX_HAVE_BROKEN_VSWPRINTF
 #endif // _GLIBCXX_USE_WCHAR_T && _GLIBCXX_USE_C99_WCHAR
 

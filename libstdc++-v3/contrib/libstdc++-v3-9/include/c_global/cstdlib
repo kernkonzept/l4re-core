@@ -137,7 +137,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   using ::at_quick_exit;
 # endif
 #endif
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::atof;
+#endif
   using ::atoi;
   using ::atol;
   using ::bsearch;
@@ -163,7 +165,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   using ::rand;
   using ::realloc;
   using ::srand;
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::strtod;
+#endif
   using ::strtol;
   using ::strtoul;
   using ::system;
@@ -228,8 +232,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   using ::strtoll;
   using ::strtoull;
 #endif
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::strtof;
   using ::strtold;
+#endif
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace __gnu_cxx
@@ -246,10 +252,14 @@ namespace std
   using ::__gnu_cxx::lldiv;
 #endif
   using ::__gnu_cxx::atoll;
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::__gnu_cxx::strtof;
+#endif
   using ::__gnu_cxx::strtoll;
   using ::__gnu_cxx::strtoull;
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::__gnu_cxx::strtold;
+#endif
 } // namespace std
 
 #endif // _GLIBCXX_USE_C99_STDLIB

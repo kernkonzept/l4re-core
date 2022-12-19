@@ -64,7 +64,9 @@
 /* Using Little Endian */
 #define __ARCH_HAS_MMU__ 1
 #define __ARCH_USE_MMU__ 1
+#ifndef BID_VARIANT_FLAG_NOFPU
 #define __UCLIBC_HAS_FLOATS__ 1
+#endif
 /* FM3: For arm. Does not influence x86. */
 #define __UCLIBC_HAS_SOFT_FLOAT__ 1
 #define __HAS_FPU__ 1

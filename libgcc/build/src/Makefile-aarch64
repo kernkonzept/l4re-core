@@ -15,7 +15,7 @@ thread_header = $(thread_header-l4api-$(L4API))
 
 # List of extra object files that should be compiled for this target machine.
 # The rules for compiling them should be in the t-* file for the machine.
-EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o crtfastmath.o
+EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o
 
 
 # --- From libgcc/config/t-eh-dw2-dip ---
@@ -30,6 +30,7 @@ LIB2ADD += config/aarch64/sync-cache.c
 $(eval $(call libgcc_include_config,aarch64/t-lse))
 
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # --- From libgcc/config/aarch64/t-softfp ---
 softfp_float_modes := tf
 softfp_int_modes := si di ti
@@ -44,6 +45,7 @@ LIB2ADD += config/aarch64/sfp-exceptions.c
 # --- From libgcc/config/t-softfp ---
 $(eval $(call libgcc_include_config,t-softfp))
 
-
 # -- From libgcc/config/t-crtfm ---
+EXTRA_PARTS += crtfastmath.o
 $(eval $(call libgcc_include_config,t-crtfm))
+endif

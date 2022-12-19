@@ -15,7 +15,7 @@ thread_header = $(thread_header-l4api-$(L4API))
 
 # List of extra object files that should be compiled for this target machine.
 # The rules for compiling them should be in the t-* file for the machine.
-EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o crtfastmath.o
+EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o
 
 HARD_FLOAT:=$(call libgcc_is_predefined,__mips_hard_float)
 
@@ -31,6 +31,7 @@ softfp_exclude_libgcc2 := n
 
 LIB2ADD_ST += config/mips/lib2funcs.c
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 ifdef HARD_FLOAT
 # --- From libgcc/config/t-hardfp-sfdf ---
 $(eval $(call libgcc_include_config,t-hardfp-sfdf))
@@ -67,10 +68,13 @@ $(eval $(call libgcc_include_config,t-eh-dw2-dip))
 
 
 # -- From libgcc/config/t-crtfm ---
+EXTRA_PARTS += crtfastmath.o
 $(eval $(call libgcc_include_config,t-crtfm))
+endif
 
 
 # --- From libgcc/config/mips/t-mips16 ---
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 LIB1ASMSRC = mips/mips16.S
 LIB1ASMFUNCS = _m16addsf3 _m16subsf3 _m16mulsf3 _m16divsf3 \
                _m16eqsf2 _m16nesf2 _m16gtsf2 _m16gesf2 _m16lesf2 _m16ltsf2 \
@@ -92,6 +96,7 @@ LIB1ASMFUNCS = _m16addsf3 _m16subsf3 _m16mulsf3 _m16divsf3 \
                _m16stubsc9 _m16stubsc10 \
                _m16stubdc0 _m16stubdc1 _m16stubdc2 _m16stubdc5 _m16stubdc6 \
                _m16stubdc9 _m16stubdc10
+endif
 
 SYNC = yes
 SYNC_CFLAGS = -mno-mips16

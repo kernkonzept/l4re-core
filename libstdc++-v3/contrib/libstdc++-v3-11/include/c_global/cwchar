@@ -188,7 +188,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   using ::wcsncpy;
   using ::wcsrtombs;
   using ::wcsspn;
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::wcstod;
+#endif
 #if _GLIBCXX_HAVE_WCSTOF
   using ::wcstof;
 #endif
@@ -244,11 +246,15 @@ _GLIBCXX_END_NAMESPACE_VERSION
 namespace __gnu_cxx
 {
 #if _GLIBCXX_USE_C99_CHECK || _GLIBCXX_USE_C99_DYNAMIC
+#ifndef BID_VARIANT_FLAG_NOFPU
   extern "C" long double
     (wcstold)(const wchar_t * __restrict, wchar_t ** __restrict) throw ();
 #endif
+#endif
 #if !_GLIBCXX_USE_C99_DYNAMIC
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::wcstold;
+#endif
 #endif
 #if _GLIBCXX_USE_C99_LONG_LONG_CHECK || _GLIBCXX_USE_C99_LONG_LONG_DYNAMIC
   extern "C" long long int
@@ -264,7 +270,9 @@ namespace __gnu_cxx
 
 namespace std
 {
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::__gnu_cxx::wcstold;
+#endif
   using ::__gnu_cxx::wcstoll;
   using ::__gnu_cxx::wcstoull;
 } // namespace
@@ -293,7 +301,9 @@ namespace std
 #endif
 
 #if _GLIBCXX_USE_C99_WCHAR
+#ifndef BID_VARIANT_FLAG_NOFPU
   using std::wcstold;
+#endif
   using std::wcstoll;
   using std::wcstoull;
 #endif

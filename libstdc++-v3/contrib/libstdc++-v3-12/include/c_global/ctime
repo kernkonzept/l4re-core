@@ -62,7 +62,9 @@ namespace std
   using ::tm;
 
   using ::clock;
+#ifndef BID_VARIANT_FLAG_NOFPU
   using ::difftime;
+#endif
   using ::mktime;
   using ::time;
   using ::asctime;

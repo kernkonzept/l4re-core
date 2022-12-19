@@ -15,7 +15,7 @@ thread_header = $(thread_header-l4api-$(L4API))
 
 # List of extra object files that should be compiled for this target machine.
 # The rules for compiling them should be in the t-* file for the machine.
-EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o crtfastmath.o
+EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o
 
 
 # --- From libgcc/config/t-eh-dw2-dip ---
@@ -27,6 +27,7 @@ $(eval $(call libgcc_include_config,arm/t-arm))
 
 
 # -- From libgcc/config/t-crtfm ---
+EXTRA_PARTS += crtfastmath.o
 $(eval $(call libgcc_include_config,t-crtfm))
 
 
@@ -38,13 +39,15 @@ $(eval $(call libgcc_include_config,t-crtfm))
 LIB1ASMFUNCS += _udivsi3 _divsi3 _umodsi3 _modsi3 _dvmd_tls _bb_init_func \
                 _call_via_rX _interwork_call_via_rX \
                 _lshrdi3 _ashrdi3 _ashldi3 \
-                _arm_negdf2 _arm_addsubdf3 _arm_muldivdf3 _arm_cmpdf2 _arm_unorddf2 \
+                _clzsi2 _clzdi2 _ctzsi2
+
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
+LIB1ASMFUNCS +=  _arm_negdf2 _arm_addsubdf3 _arm_muldivdf3 _arm_cmpdf2 _arm_unorddf2 \
                 _arm_fixdfsi _arm_fixunsdfsi \
                 _arm_truncdfsf2 _arm_negsf2 _arm_addsubsf3 _arm_muldivsf3 \
                 _arm_cmpsf2 _arm_unordsf2 _arm_fixsfsi _arm_fixunssfsi \
-                _arm_floatdidf _arm_floatdisf _arm_floatundidf _arm_floatundisf \
-                _clzsi2 _clzdi2 _ctzsi2
-
+                _arm_floatdidf _arm_floatdisf _arm_floatundidf _arm_floatundisf
+endif
 
 # -- From libgcc/config/arm/t-bpabi ---
 # Prevent make from trying to build bpabi.S from bpabi.c via generic BID rules.
@@ -59,7 +62,9 @@ LIB1ASMFUNCS += _aeabi_lcmp _aeabi_ulcmp _aeabi_ldivmod _aeabi_uldivmod
 LIB2ADD += config/arm/bpabi.c \
            config/arm/unaligned-funcs.c
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 LIB2ADD_ST += config/arm/fp16.c
+endif
 
 LIB2ADDEH = config/arm/unwind-arm.c \
             config/arm/libunwind.S \
@@ -86,6 +91,7 @@ CFLAGS_config/arm/l4-atomic.c = -Wno-builtin-declaration-mismatch
 endif
 
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # --- From libgcc/config/t-softfp-sfdf ---
 $(eval $(call libgcc_include_config,t-softfp-sfdf))
 
@@ -100,3 +106,4 @@ $(eval $(call libgcc_include_config,arm/t-softfp))
 
 # --- From libgcc/config/t-softfp ---
 $(eval $(call libgcc_include_config,t-softfp))
+endif

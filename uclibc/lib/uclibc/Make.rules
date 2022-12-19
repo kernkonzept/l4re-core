@@ -42,14 +42,16 @@ LDFLAGS_libuc_c.so := -init __uClibc_init
 
 DIRS := libc/string libc/inet libc/pwd_grp libc/unistd libc/signal \
         libc/stdlib libc/stdlib/malloc-standard libc/stdio \
-	libc/misc libc/sysdeps/linux libc/termios libm libcrypt
+	libc/misc libc/sysdeps/linux libc/termios $(if $(BID_VARIANT_FLAG_NOFPU),,libm) libcrypt
 
-SUB_MODULES := wchar large_file fp
+SUB_MODULES := wchar large_file $(if $(BID_VARIANT_FLAG_NOFPU),,fp)
 
 # process all sources for the libc
 $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
 # libm stuff
+ifneq ($(BID_VARIANT_FLAG_NOFPU),y)
 $(eval $(call PROCESS_template_src, libm, float double))
+endif
 
 # stack protector handling
 ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR

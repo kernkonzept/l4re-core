@@ -36,7 +36,9 @@
 # include <bits/c++0x_warning.h>
 #else
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 #include <chrono>
+#endif
 #include <bits/move.h> // for std::swap
 #include <bits/std_mutex.h> // for std::defer_lock_t
 
@@ -84,6 +86,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	// XXX calling thread owns mutex
       }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
       template<typename _Clock, typename _Duration>
 	unique_lock(mutex_type& __m,
 		    const chrono::time_point<_Clock, _Duration>& __atime)
@@ -97,6 +100,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	: _M_device(std::__addressof(__m)),
 	  _M_owns(_M_device->try_lock_for(__rtime))
 	{ }
+#endif
 
       ~unique_lock()
       {
@@ -155,6 +159,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  }
       }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
       template<typename _Clock, typename _Duration>
 	bool
 	try_lock_until(const chrono::time_point<_Clock, _Duration>& __atime)
@@ -184,6 +189,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	      return _M_owns;
 	    }
 	 }
+#endif
 
       void
       unlock()

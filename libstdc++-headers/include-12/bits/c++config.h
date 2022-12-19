@@ -1374,7 +1374,9 @@ namespace std
 #define _GLIBCXX_HAVE_WCHAR_H 1
 
 /* Defined if wcstof exists. */
+#ifndef BID_VARIANT_FLAG_NOFPU
 #define _GLIBCXX_HAVE_WCSTOF 1
+#endif /* BID_VARIANT_FLAG_NOFPU */
 
 /* Define to 1 if you have the <wctype.h> header file. */
 #define _GLIBCXX_HAVE_WCTYPE_H 1

@@ -33,6 +33,7 @@
 # error This file should not be compiled for this configuration.
 #endif
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 #ifdef  _GLIBCXX_USE_C99_STDINT_TR1
 #include <random>
 #if defined __i386__ || defined __x86_64__
@@ -94,4 +95,5 @@ namespace std _GLIBCXX_VISIBILITY(default)
 #endif
   }
 } // namespace
+#endif
 #endif

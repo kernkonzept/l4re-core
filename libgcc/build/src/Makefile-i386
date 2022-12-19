@@ -19,7 +19,7 @@ thread_header = $(thread_header-l4api-$(L4API))
 
 # List of extra object files that should be compiled for this target machine.
 # The rules for compiling them should be in the t-* file for the machine.
-EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o crtprec32.o crtprec64.o crtprec80.o crtfastmath.o
+EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o crtprec32.o crtprec64.o crtprec80.o
 
 # TODO:
 # decimal_float = yes
@@ -43,6 +43,7 @@ $(foreach prec,32 64 80,\
 
 
 # -- From libgcc/config/t-crtfm ---
+EXTRA_PARTS += crtfastmath.o
 $(eval $(call libgcc_include_config,t-crtfm))
 
 
@@ -60,6 +61,7 @@ CRTSTUFF_T_CFLAGS += -fno-omit-frame-pointer -fno-asynchronous-unwind-tables
 LIB2ADD += config/i386/cpuinfo.c
 
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # --- From libgcc/config/t-softfp-tf ---
 $(eval $(call libgcc_include_config,t-softfp-tf))
 
@@ -86,3 +88,4 @@ $(eval $(call libgcc_include_config,i386/t-softfp))
 
 # --- From libgcc/config/t-softfp ---
 $(eval $(call libgcc_include_config,t-softfp))
+endif

@@ -78,7 +78,7 @@ endef
 define SRC_libc/stdlib
   __cxa_atexit
   __exit_handler
-  __strtofpmax
+  $(if $(BID_VARIANT_FLAG_NOFPU),,__strtofpmax)
   __uc_malloc
   _stdlib_strto_l
   _stdlib_strto_ll
@@ -90,20 +90,20 @@ define SRC_libc/stdlib
   bsearch
   div
   exit
-  gcvt
+  $(if $(BID_VARIANT_FLAG_NOFPU),,gcvt)
   getenv
-  jrand48
-  jrand48_r
+  $(if $(BID_VARIANT_FLAG_NOFPU),,jrand48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,jrand48_r)
   labs
   ldiv
   llabs
   lldiv
-  lrand48
-  lrand48_r
+  $(if $(BID_VARIANT_FLAG_NOFPU),,lrand48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,lrand48_r)
   mkostemp
   mkstemp
-  nrand48
-  nrand48_r
+  $(if $(BID_VARIANT_FLAG_NOFPU),,nrand48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,nrand48_r)
   on_exit
   posix_memalign
   qsort
@@ -114,8 +114,8 @@ define SRC_libc/stdlib
   random_r
   realpath
   setenv
-  srand48
-  srand48_r
+  $(if $(BID_VARIANT_FLAG_NOFPU),,srand48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,srand48_r)
   stdlib
   strtol
   strtoll
@@ -348,7 +348,7 @@ ifneq ($(CONFIG_BID_PIE),)
 endif
 
 define SRC_libc/misc_fp
-  time/difftime
+  $(if $(BID_VARIANT_FLAG_NOFPU),,time/difftime)
 endef
 
 define SRC_libc/misc_large_file
@@ -404,7 +404,7 @@ define SRC_libc/stdio
   _adjust_pos
   _cs_funcs
   _fopen
-  _fpmaxtostr
+  $(if $(BID_VARIANT_FLAG_NOFPU),,_fpmaxtostr)
   _fwrite
   _READ
   _WRITE

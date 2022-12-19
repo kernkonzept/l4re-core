@@ -35,7 +35,9 @@
 # include <bits/c++0x_warning.h>
 #else
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 #include <chrono>
+#endif
 #include <bits/std_mutex.h>
 #include <bits/unique_lock.h>
 #include <ext/concurrence.h>
@@ -65,8 +67,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   /// condition_variable
   class condition_variable
   {
+#ifndef BID_VARIANT_FLAG_NOFPU
     typedef chrono::system_clock	__clock_t;
     typedef chrono::steady_clock	__steady_clock_t;
+#endif
     typedef __gthread_cond_t		__native_type;
 
 #ifdef __GTHREAD_COND_INIT
@@ -101,6 +105,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  wait(__lock);
       }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     template<typename _Duration>
       cv_status
       wait_until(unique_lock<mutex>& __lock,
@@ -165,12 +170,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	return wait_until(__lock, __steady_clock_t::now() + __reltime,
 			  std::move(__p));
       }
+#endif
 
     native_handle_type
     native_handle()
     { return &_M_cond; }
 
   private:
+#ifndef BID_VARIANT_FLAG_NOFPU
     template<typename _Dur>
       cv_status
       __wait_until_impl(unique_lock<mutex>& __lock,
@@ -191,6 +198,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	return (__clock_t::now() < __atime
 		? cv_status::no_timeout : cv_status::timeout);
       }
+#endif
   };
 
   void
@@ -208,7 +216,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   // Like above, but mutex is not required to have try_lock.
   class condition_variable_any
   {
+#ifndef BID_VARIANT_FLAG_NOFPU
     typedef chrono::system_clock	__clock_t;
+#endif
     condition_variable			_M_cond;
     shared_ptr<mutex>			_M_mutex;
 
@@ -282,6 +292,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  wait(__lock);
       }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     template<typename _Lock, typename _Clock, typename _Duration>
       cv_status
       wait_until(_Lock& __lock,
@@ -320,6 +331,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       wait_for(_Lock& __lock,
 	       const chrono::duration<_Rep, _Period>& __rtime, _Predicate __p)
       { return wait_until(__lock, __clock_t::now() + __rtime, std::move(__p)); }
+#endif
   };
 
   } // end inline namespace

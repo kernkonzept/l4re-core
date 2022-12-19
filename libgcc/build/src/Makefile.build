@@ -124,6 +124,7 @@ LIB2ADDEH += emutls.c
 # Library members defined in libgcc2.c.
 # lib2funcs = Defined in Makevars-<version>
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # The floating-point conversion routines that involve a single-word integer.
 # XX stands for the integer mode.
 swfloatfuncs = $(patsubst %,_fixuns%XX,sf df xf)
@@ -148,6 +149,7 @@ else
   $(foreach func,$(sifuncs) $(difuncs),$(eval CFLAGS_$(func).c += -DLIBGCC2_UNITS_PER_WORD=4))
   $(foreach func,$(tifuncs),$(eval CFLAGS_$(func).c += -DLIBGCC2_UNITS_PER_WORD=8))
   lib2funcs += $(sifuncs) $(difuncs) $(tifuncs)
+endif
 endif
 
 # These might cause a divide overflow trap and so are compiled with

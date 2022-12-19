@@ -37,7 +37,9 @@
 # include <bits/c++0x_warning.h>
 #else
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 #include <bits/chrono.h>
+#endif
 #include <bits/error_constants.h>
 #include <bits/std_mutex.h>
 #include <bits/unique_lock.h>
@@ -69,12 +71,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   /// condition_variable
   class condition_variable
   {
+#ifndef BID_VARIANT_FLAG_NOFPU
     using steady_clock = chrono::steady_clock;
     using system_clock = chrono::system_clock;
 #ifdef _GLIBCXX_USE_PTHREAD_COND_CLOCKWAIT
     using __clock_t = steady_clock;
 #else
     using __clock_t = system_clock;
+#endif
 #endif
 
     __condvar _M_cond;
@@ -105,6 +109,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  wait(__lock);
       }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 #ifdef _GLIBCXX_USE_PTHREAD_COND_CLOCKWAIT
     template<typename _Duration>
       cv_status
@@ -179,12 +184,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 			  chrono::__detail::ceil<__dur>(__rtime),
 			  std::move(__p));
       }
+#endif
 
     native_handle_type
     native_handle()
     { return _M_cond.native_handle(); }
 
   private:
+#ifndef BID_VARIANT_FLAG_NOFPU
 #ifdef _GLIBCXX_USE_PTHREAD_COND_CLOCKWAIT
     template<typename _Dur>
       cv_status
@@ -226,6 +233,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	return (system_clock::now() < __atime
 		? cv_status::no_timeout : cv_status::timeout);
       }
+#endif
   };
 
   void
@@ -243,10 +251,12 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
   // Like above, but mutex is not required to have try_lock.
   class condition_variable_any
   {
+#ifndef BID_VARIANT_FLAG_NOFPU
 #ifdef _GLIBCXX_USE_PTHREAD_COND_CLOCKWAIT
     using __clock_t = chrono::steady_clock;
 #else
     using __clock_t = chrono::system_clock;
+#endif
 #endif
     condition_variable			_M_cond;
     shared_ptr<mutex>			_M_mutex;
@@ -324,6 +334,7 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
 	  wait(__lock);
       }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     template<typename _Lock, typename _Clock, typename _Duration>
       cv_status
       wait_until(_Lock& __lock,
@@ -362,6 +373,7 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
       wait_for(_Lock& __lock,
 	       const chrono::duration<_Rep, _Period>& __rtime, _Predicate __p)
       { return wait_until(__lock, __clock_t::now() + __rtime, std::move(__p)); }
+#endif
 
 #ifdef __glibcxx_jthread
     template <class _Lock, class _Predicate>

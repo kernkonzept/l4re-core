@@ -40,7 +40,9 @@
 #include <tuple>
 #include <exception>
 #include <type_traits>
+#ifndef BID_VARIANT_FLAG_NOFPU
 #include <bits/chrono.h>
+#endif
 #include <bits/error_constants.h>
 #include <bits/std_mutex.h>
 #include <bits/unique_lock.h>
@@ -151,6 +153,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     class __timed_mutex_impl
     {
     protected:
+#ifndef BID_VARIANT_FLAG_NOFPU
       template<typename _Rep, typename _Period>
 	bool
 	_M_try_lock_for(const chrono::duration<_Rep, _Period>& __rtime)
@@ -221,6 +224,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  } while (__atime > __now);
 	  return false;
 	}
+#endif
     };
   /// @endcond
 
@@ -262,6 +266,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       return !__gthread_mutex_trylock(&_M_mutex);
     }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     template <class _Rep, class _Period>
       _GLIBCXX_NODISCARD
       bool
@@ -273,6 +278,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       bool
       try_lock_until(const chrono::time_point<_Clock, _Duration>& __atime)
       { return _M_try_lock_until(__atime); }
+#endif
 
     void
     unlock()
@@ -340,6 +346,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       return !__gthread_recursive_mutex_trylock(&_M_mutex);
     }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     template <class _Rep, class _Period>
       _GLIBCXX_NODISCARD
       bool
@@ -351,6 +358,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       bool
       try_lock_until(const chrono::time_point<_Clock, _Duration>& __atime)
       { return _M_try_lock_until(__atime); }
+#endif
 
     void
     unlock()
