@@ -59,6 +59,7 @@ namespace
                                L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                                L4::Ipc::make_cap_rw(_ds)) >= 0);
       setup(a, Caps, e->first_free_cap() + 1);
+      l4re_env()->first_free_cap += Caps + 1;
     }
   };
 
