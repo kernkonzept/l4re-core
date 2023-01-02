@@ -4,7 +4,7 @@ L4DIR     ?= $(PKGDIR)/../../..
 PC_FILENAME = libl4re-vfs
 TARGET	    = libl4re-vfs.o.a
 SRC_CC	    = vfs.cc
-REQUIRES_LIBS = libsupc++ l4re-util
+REQUIRES_LIBS = l4re-util
 
 include $(L4DIR)/mk/lib.mk
 

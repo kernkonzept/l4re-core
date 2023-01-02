@@ -2,7 +2,7 @@ PKGDIR  ?= ../..
 L4DIR   ?= $(PKGDIR)/../../..
 
 TARGET         = libc_be_l4refile.a libc_be_l4refile.so
-REQUIRES_LIBS  = l4re libsupc++
+REQUIRES_LIBS  = l4re
 PC_FILENAME    = libc_be_l4refile
 PC_LIBS        = -lc_be_l4refile
 PC_EXTRA       = Link_Libs= %{static|static-pie:-lc_be_l4refile}
