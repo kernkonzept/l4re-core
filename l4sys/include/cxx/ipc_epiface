@@ -54,6 +54,9 @@ public:
   /// Data type expressing server-side demand for receive buffers.
   typedef L4::Type_info::Demand Demand;
 
+  Server_iface(Server_iface &&) = delete;
+  Server_iface &operator = (Server_iface &&) = delete;
+
   /// Make a server interface
   Server_iface() {}
 

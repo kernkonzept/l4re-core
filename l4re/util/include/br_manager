@@ -45,8 +45,8 @@ public:
   Br_manager(Br_manager const &) = delete;
   Br_manager &operator = (Br_manager const &) = delete;
 
-  Br_manager(Br_manager &&) = default;
-  Br_manager &operator = (Br_manager &&) = default;
+  Br_manager(Br_manager &&) = delete;
+  Br_manager &operator = (Br_manager &&) = delete;
 
   ~Br_manager()
   {
