@@ -58,5 +58,9 @@ ldso.1.o: ldso.o
 
 CXXFLAGS := -DL4_NO_RTTI -fno-rtti -fno-exceptions
 
+ifeq ($(BID_COMPILER_TYPE),clang)
+WARNINGS += -Wno-gnu-designator
+endif
+
 # Suppress false-positive warnings
-CFLAGS   += -Wno-bad-function-cast
+WARNINGS += -Wno-bad-function-cast
