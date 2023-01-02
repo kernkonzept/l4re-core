@@ -23,6 +23,13 @@ include $(L4DIR)/mk/lib.mk
 
 $(GENERAL_D_LOC): $(STDCXX_PKG_DIR)/build/src/Makefile-$(STDCXX_CONTRIB_VERSION)
 
+ifeq ($(BID_COMPILER_TYPE),clang)
+WARNINGS += -Wno-c++11-inline-namespace \
+            -Wno-null-pointer-arithmetic \
+            -Wno-inline-namespace-reopened-noninline \
+            -Wno-unknown-warning-option
+endif
+
 vpath %.cc $(OBJ_DIR)
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/io
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/locale/generic

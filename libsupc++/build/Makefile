@@ -56,5 +56,10 @@ include $(L4DIR)/mk/lib.mk
 
 $(GENERAL_D_LOC): $(SUPCXX_PKG_DIR)/build/Makefile-$(STDCXX_CONTRIB_VERSION) $(STDCXX_PKG_DIR)/contrib.inc
 
+ifeq ($(BID_COMPILER_TYPE),clang)
+WARNINGS += -Wno-null-pointer-arithmetic \
+            -Wno-unknown-warning-option
+endif
+
 vpath %.cc $(STDCXX_SRC_DIR)
 vpath %.cc $(SRC_DIR)
