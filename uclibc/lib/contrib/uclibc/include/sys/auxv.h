@@ -18,6 +18,9 @@
 #ifndef _SYS_AUXV_H
 #define _SYS_AUXV_H 1
 
+#include <features.h>
+#include <elf.h>
+
 __BEGIN_DECLS
 
 /* Return the value associated with an Elf*_auxv_t type from the auxv list
