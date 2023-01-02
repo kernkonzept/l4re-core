@@ -705,6 +705,45 @@ define SRC_libm
   nan
 endef
 
+define SRC_libm-amd64
+  x86_64/fclrexcpt
+  x86_64/fedisblxcpt
+  x86_64/feenablxcpt
+  x86_64/fegetenv
+  x86_64/fegetexcept
+  x86_64/fegetmode
+  x86_64/fegetround
+  x86_64/feholdexcpt
+  x86_64/fesetenv
+  x86_64/fesetexcept
+  x86_64/fesetmode
+  x86_64/fesetround
+  x86_64/feupdateenv
+  x86_64/fgetexcptflg
+  x86_64/fraiseexcpt
+  x86_64/fsetexcptflg
+  x86_64/ftestexcept
+endef
+
+define SRC_libm-x86
+  i386/fclrexcpt
+  i386/fedisblxcpt
+  i386/feenablxcpt
+  i386/fegetenv
+  i386/fegetexcept
+  i386/fegetround
+  i386/feholdexcpt
+  i386/fesetenv
+  i386/fesetround
+  i386/feupdateenv
+  i386/fgetexcptflg
+  i386/fraiseexcpt
+  i386/fsetexcptflg
+  i386/ftestexcept
+endef
+
+SRC_libm += $(SRC_libm-$(BUILD_ARCH))
+
 SRC_libm_float_src = float_wrappers.c
 define SRC_libm_float
   acos
