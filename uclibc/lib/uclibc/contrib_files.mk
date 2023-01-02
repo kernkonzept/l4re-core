@@ -359,12 +359,12 @@ define SRC_libc/misc_large_file
   glob/glob64
 endef
 
-define SRC_libc/misc_libuc_c.a
+define SRC_libc/misc_libc.a
   elf/dl-support
   elf/dl-core
 endef
 
-SRC_libc/misc_libuc_c_minimal.a = $(SRC_libc/misc_libuc_c.a)
+SRC_libc/misc_libuc_c_minimal.a = $(SRC_libc/misc_libc.a)
 
 define SRC_libc/misc_wchar
   time/wcsftime

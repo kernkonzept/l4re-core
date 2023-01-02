@@ -9,10 +9,10 @@ DEFINES_arm64-l4f += -DUSE_TLS=1
 DEFINES_mips-l4f  += -DUSE_TLS=1
 DEFINES_ppc32-l4f += -DUSE_TLS=1
 DEFINES_sparc-l4f += -DUSE_TLS=1
-TARGET            := libuc_c.a libuc_c.so libuc_c_nonshared.p.a libssp_nonshared.p.a
+TARGET            := libc.a libc.so libuc_c_nonshared.p.a libssp_nonshared.p.a
 PC_FILENAME       := libc
-PC_LIBS           := -luc_c -luc_c_nonshared.p
-PC_EXTRA          := Link_Libs= %{static|static-pie:-luc_c}
+PC_LIBS           := -lc -luc_c_nonshared.p
+PC_EXTRA          := Link_Libs= %{static|static-pie:-lc}
 
 REQUIRES_LIBS     := ldscripts libpthread
 
@@ -38,7 +38,7 @@ LDFLAGS         = -z combreloc -z relro --sort-common \
 LDFLAGS_NONGOLD = --warn-once --sort-section=alignment
 LDFLAGS        += $(LDFLAGS_NONGOLD)
 
-LDFLAGS_libuc_c.so := -init __uClibc_init
+LDFLAGS_libc.so := -init __uClibc_init
 
 DIRS := libc/string libc/inet libc/pwd_grp libc/unistd libc/signal \
         libc/stdlib libc/stdlib/malloc-standard libc/stdio \
@@ -61,39 +61,39 @@ endif
 UCLIBC_SRC_CC             += _exit.cc
 UCLIBC_SRC_CC             += _dl_find_object.cc
 
-SRC_C_libuc_c.so          += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libuc_c.so)
-SRC_C_libuc_c.a           += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libuc_c.a)
-SRC_S_libuc_c.so          += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libuc_c.so)
-SRC_S_libuc_c.a           += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libuc_c.a)
-SRC_CC_libuc_c.so         += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libuc_c.so)
-SRC_CC_libuc_c.a          += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libuc_c.a)
+SRC_C_libc.so          += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libc.so)
+SRC_C_libc.a           += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libc.a)
+SRC_S_libc.so          += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libc.so)
+SRC_S_libc.a           += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libc.a)
+SRC_CC_libc.so         += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc.so)
+SRC_CC_libc.a          += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc.a)
 
-SRC_C_libuc_c.so           += $(PTHOBJ_PFX)/forward.c $(PTHOBJ_PFX)/libc_pthread_init.c
-SRC_CC_libuc_c.a_x86-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
-SRC_C_libuc_c.a_x86-l4f    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
-SRC_CC_libuc_c.a_amd64-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
-SRC_C_libuc_c.a_amd64-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
-SRC_CC_libuc_c.a_arm-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
-SRC_C_libuc_c.a_arm-l4f    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
-SRC_CC_libuc_c.a_arm64-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
-SRC_C_libuc_c.a_arm64-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
-SRC_CC_libuc_c.a_mips-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
-SRC_C_libuc_c.a_mips-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
-SRC_CC_libuc_c.a_ppc32-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
-SRC_C_libuc_c.a_ppc32-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
-SRC_CC_libuc_c.a_sparc-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
-SRC_C_libuc_c.a_sparc-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_C_libc.so           += $(PTHOBJ_PFX)/forward.c $(PTHOBJ_PFX)/libc_pthread_init.c
+SRC_CC_libc.a_x86-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_x86-l4f    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libc.a_amd64-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_amd64-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libc.a_arm-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_arm-l4f    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libc.a_arm64-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_arm64-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libc.a_mips-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_mips-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libc.a_ppc32-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_ppc32-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_CC_libc.a_sparc-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_C_libc.a_sparc-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 
 SRC_C_libuc_c_nonshared.p.a += libc/stdlib/atexit.c
 
-SRC_C_libuc_c.so    += libc/misc/pthread/tsd.c
-SRC_C_libuc_c.a     += libc/misc/pthread/tsd.c
-SRC_S_libuc_c.so_sparc-l4f  += libc/sysdeps/linux/sparc/sdiv.S
+SRC_C_libc.so    += libc/misc/pthread/tsd.c
+SRC_C_libc.a     += libc/misc/pthread/tsd.c
+SRC_S_libc.so_sparc-l4f  += libc/sysdeps/linux/sparc/sdiv.S
 
-SRC_C_libuc_c.so_arm-l4f    += ARCH-arm/aeabi_read_tp_generic.c
-SRC_C_libuc_c.a_arm-l4f     += ARCH-arm/aeabi_read_tp_generic.c
-#SRC_S_libuc_c.so_arm-l4f    += ARCH-arm/aeabi_read_tp-v6p.S
-#SRC_S_libuc_c.a_arm-l4f     += ARCH-arm/aeabi_read_tp-v6p.S
+SRC_C_libc.so_arm-l4f    += ARCH-arm/aeabi_read_tp_generic.c
+SRC_C_libc.a_arm-l4f     += ARCH-arm/aeabi_read_tp_generic.c
+#SRC_S_libc.so_arm-l4f    += ARCH-arm/aeabi_read_tp-v6p.S
+#SRC_S_libc.a_arm-l4f     += ARCH-arm/aeabi_read_tp-v6p.S
 
 SRC_C_libssp_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
 
