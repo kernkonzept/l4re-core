@@ -2,6 +2,7 @@
 #include <l4/re/env>
 
 extern "C" void _exit(int code) noexcept __attribute__ ((__noreturn__, __weak__));
+extern "C" void _Exit(int code) noexcept __attribute__ ((__noreturn__, __weak__));
 
 void _exit(int code) noexcept
 {
@@ -10,4 +11,9 @@ void _exit(int code) noexcept
     e->parent()->signal(0, code);
   for (;;)
     l4_ipc_sleep(L4_IPC_NEVER);
+}
+
+void _Exit(int code) noexcept
+{
+  _exit(code);
 }
