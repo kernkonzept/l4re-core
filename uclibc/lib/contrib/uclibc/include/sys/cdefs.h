@@ -189,7 +189,7 @@
 
 /* We make this a no-op unless it can be used as both a variable and
    a type attribute.  gcc 2.8 is known to support both.  */
-#if __GNUC_PREREQ (2,8)
+#if __GNUC_PREREQ (2,8) && !defined(__clang__)
 # define __attribute_aligned__(size) __attribute__ ((__aligned__ (size)))
 #else
 # define __attribute_aligned__(size) /* Ignore */
