@@ -86,10 +86,19 @@ typedef struct timespec __gthread_time_t;
 # ifndef __gthrw_pragma
 #  define __gthrw_pragma(pragma)
 # endif
+# if L4_CLANG_FIXES
+/* The __copy__ attribute is not supported by Clang but this attribute is not
+ * important here as the pthread_* functions don't have special attributes. */
+# define __gthrw2(name,name2,type) \
+  static __typeof(type) name \
+    __attribute__ ((__weakref__(#name2), unused)); \
+  __gthrw_pragma(weak type)
+# else
 # define __gthrw2(name,name2,type) \
   static __typeof(type) name \
     __attribute__ ((__weakref__(#name2), __copy__ (type))); \
   __gthrw_pragma(weak type)
+# endif
 # define __gthrw_(name) __gthrw_ ## name
 #else
 # define __gthrw2(name,name2,type)
