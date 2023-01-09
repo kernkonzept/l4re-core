@@ -46,14 +46,14 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
 
   __asm__ __volatile__
     ("mov lr, pc    \n"
-     "mov pc, %[sc] \n"
+     "mvn pc, %[sc] \n"
      :
      "+r" (_dest),
      "+r" (_timeout),
      "+r" (_label),
      "+r" (_tag)
      :
-     [sc] "i" (L4_SYSCALL_INVOKE)
+     [sc] "i" (~(L4_SYSCALL_INVOKE))
      :
      "cc", "memory", "lr");
 
