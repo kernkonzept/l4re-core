@@ -75,6 +75,8 @@
  * Apologies for the state of the comments ;-)
  */
 
+.syntax unified
+
 .text
 .global _memcpy
 .hidden _memcpy
@@ -89,8 +91,8 @@
 	ldmiage	r1!, \regs
 	stmiage	r0!, \regs
 #else
-	ldmgeia	r1!, \regs
-	stmgeia	r0!, \regs
+	ldmiage	r1!, \regs
+	stmiage	r0!, \regs
 #endif
 .endm
 
@@ -100,8 +102,8 @@
 	ldmdbge	r1!, \regs
 	stmdbge	r0!, \regs
 #else
-	ldmgedb	r1!, \regs
-	stmgedb	r0!, \regs
+	ldmdbge	r1!, \regs
+	stmdbge	r0!, \regs
 #endif
 .endm
 
@@ -153,7 +155,7 @@ _memcpy:
 #if defined(__thumb2__)
 	subsge	r2, r2, #0x0c         
 #else
-	subges	r2, r2, #0x0c         
+	subsge	r2, r2, #0x0c         
 #endif
 	bge	.Lmemcpy_floop12
 
@@ -178,7 +180,7 @@ _memcpy:
 	ldmeqia	sp!, {r0, r3}		/* done */
 	bxeq	r3
 #else
-	ldmeqia	sp!, {r0, pc}		/* done */
+	ldmiaeq	sp!, {r0, pc}
 #endif
 
 	/* copy the crud byte at a time */
@@ -193,10 +195,10 @@ _memcpy:
 	ldrbgt	r3, [r1], #1
 	strbgt	r3, [r0], #1
 #else
-	ldrgeb	r3, [r1], #1
-	strgeb	r3, [r0], #1
-	ldrgtb	r3, [r1], #1
-	strgtb	r3, [r0], #1
+	ldrbge	r3, [r1], #1
+	strbge	r3, [r0], #1
+	ldrbgt	r3, [r1], #1
+	strbgt	r3, [r0], #1
 #endif
 #if defined(__ARM_ARCH_4T__)
 	ldmia	sp!, {r0, r3}
@@ -221,10 +223,10 @@ _memcpy:
 	ldrbgt	r3, [r1], #1
 	strbgt	r3, [r0], #1
 #else
-	ldrgeb	r3, [r1], #1
-	strgeb	r3, [r0], #1
-	ldrgtb	r3, [r1], #1
-	strgtb	r3, [r0], #1
+	ldrbge	r3, [r1], #1
+	strbge	r3, [r0], #1
+	ldrbgt	r3, [r1], #1
+	strbgt	r3, [r0], #1
 #endif
 	subs	r2, r2, r12
 	blt	.Lmemcpy_fl4		/* less the 4 bytes */
@@ -464,10 +466,10 @@ _memcpy:
 	ldrbgt	r3, [r1, #-1]!
 	strbgt	r3, [r0, #-1]!
 #else
-	ldrgeb	r3, [r1, #-1]!
-	strgeb	r3, [r0, #-1]!
-	ldrgtb	r3, [r1, #-1]!
-	strgtb	r3, [r0, #-1]!
+	ldrbge	r3, [r1, #-1]!
+	strbge	r3, [r0, #-1]!
+	ldrbgt	r3, [r1, #-1]!
+	strbgt	r3, [r0, #-1]!
 #endif
 	BX(lr)
 	/* erg - unaligned destination */
@@ -485,10 +487,10 @@ _memcpy:
 	ldrbgt	r3, [r1, #-1]!
 	strbgt	r3, [r0, #-1]!
 #else
-	ldrgeb	r3, [r1, #-1]!
-	strgeb	r3, [r0, #-1]!
-	ldrgtb	r3, [r1, #-1]!
-	strgtb	r3, [r0, #-1]!
+	ldrbge	r3, [r1, #-1]!
+	strbge	r3, [r0, #-1]!
+	ldrbgt	r3, [r1, #-1]!
+	strbgt	r3, [r0, #-1]!
 #endif
 	subs	r2, r2, r12
 	blt	.Lmemcpy_bl4		/* less than 4 bytes to go */

@@ -20,6 +20,8 @@
 #include <bits/arm_asm.h>
 #include <bits/arm_bx.h>
 
+.syntax unified
+
 .text
 .global memset
 .type memset,%function
@@ -66,43 +68,43 @@ memset:
 #else
 memset:
 	mov	a4, a1
-	cmp	a3, $8		@ at least 8 bytes to do?
+	cmp	a3, #8		@ at least 8 bytes to do?
 	blo	2f
-	orr	a2, a2, a2, lsl $8
-	orr	a2, a2, a2, lsl $16
+	orr	a2, a2, a2, lsl #8
+	orr	a2, a2, a2, lsl #16
 1:
-	tst	a4, $3		@ aligned yet?
+	tst	a4, #3		@ aligned yet?
 #if defined(__thumb2__)
 	itt	ne
-	strbne	a2, [a4], $1
-	subne	a3, a3, $1
+	strbne	a2, [a4], #1
+	subne	a3, a3, #1
 #else
-	strneb	a2, [a4], $1
-	subne	a3, a3, $1
+	strbne	a2, [a4], #1
+	subne	a3, a3, #1
 #endif
 	bne	1b
 	mov	ip, a2
 1:
-	cmp	a3, $8		@ 8 bytes still to do?
+	cmp	a3, #8		@ 8 bytes still to do?
 	blo	2f
 	stmia	a4!, {a2, ip}
-	sub	a3, a3, $8
-	cmp	a3, $8		@ 8 bytes still to do?
+	sub	a3, a3, #8
+	cmp	a3, #8		@ 8 bytes still to do?
 	blo	2f
 	stmia	a4!, {a2, ip}
-	sub	a3, a3, $8
-	cmp	a3, $8		@ 8 bytes still to do?
+	sub	a3, a3, #8
+	cmp	a3, #8		@ 8 bytes still to do?
 	blo	2f
 	stmia	a4!, {a2, ip}
-	sub	a3, a3, $8
-	cmp	a3, $8		@ 8 bytes still to do?
+	sub	a3, a3, #8
+	cmp	a3, #8		@ 8 bytes still to do?
 #if defined(__thumb2__)
 	itt	hs
 	stmiahs	a4!, {a2, ip}
-	subhs	a3, a3, $8
+	subhs	a3, a3, #8
 #else
-	stmhsia	a4!, {a2, ip}
-	subhs	a3, a3, $8
+	stmiahs a4!, {a2, ip}
+	subhs	a3, a3, #8
 #endif
 	bhs	1b
 2:
@@ -116,16 +118,16 @@ memset:
 	bne	1b
 	bx	lr
 #else
-	rsb	a3, a3, $7
-	add	pc, pc, a3, lsl $2
+	rsb	a3, a3, #7
+	add	pc, pc, a3, lsl #2
 	mov	r0, r0
-	strb	a2, [a4], $1
-	strb	a2, [a4], $1
-	strb	a2, [a4], $1
-	strb	a2, [a4], $1
-	strb	a2, [a4], $1
-	strb	a2, [a4], $1
-	strb	a2, [a4], $1
+	strb	a2, [a4], #1
+	strb	a2, [a4], #1
+	strb	a2, [a4], #1
+	strb	a2, [a4], #1
+	strb	a2, [a4], #1
+	strb	a2, [a4], #1
+	strb	a2, [a4], #1
 	BX(lr)
 #endif
 #endif
