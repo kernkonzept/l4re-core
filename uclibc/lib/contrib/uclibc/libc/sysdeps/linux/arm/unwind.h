@@ -271,6 +271,12 @@ typedef _Unwind_Reason_Code (*_Unwind_Trace_Fn)
 
 extern _Unwind_Reason_Code _Unwind_Backtrace (_Unwind_Trace_Fn, void *);
 
+typedef long _sleb128_t;
+typedef unsigned long _uleb128_t;
+
+#define UNWIND_STACK_REG 13
+#define UNWIND_POINTER_REG 12
+
 #ifdef __cplusplus
 }   /* extern "C" */
 #endif

@@ -14,6 +14,7 @@ HEADER_DIR  := $(OBJ_DIR)/install_includes
 # just a few additions, handle them here directly
 DST_HEADERS-arm     := bits/arm_asm.h
 DST_HEADERS-arm     += bits/arm_bx.h
+DST_HEADERS-arm     += $(if $(BID_COMPILER_IS_CLANG),unwind.h)
 DST_HEADERS-sparc   := linux/sockios.h asm/traps.h
 DST_HEADERS-ppc32   := asm/sockios.h asm/ioctl.h
 DST_HEADERS-mips    := asm/sockios.h asm/ioctl.h asm-generic/ioctl.h \

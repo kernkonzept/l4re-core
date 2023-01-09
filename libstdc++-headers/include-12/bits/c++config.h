@@ -995,7 +995,9 @@ namespace std
 //l4/#define _GLIBCXX_HAVE_GETENTROPY 1
 
 /* Define if _Unwind_GetIPInfo is available. */
+#if !defined(L4_CLANG_FIXES) || !defined(__arm__)
 #define _GLIBCXX_HAVE_GETIPINFO 1
+#endif
 
 /* Define if gets is available in <stdio.h> before C++14. */
 #define _GLIBCXX_HAVE_GETS 1

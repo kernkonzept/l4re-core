@@ -99,7 +99,14 @@ get_ttype_entry (lsda_header_info *info, _uleb128_t i)
 				   take the GOT into account.  */
 				(DW_EH_PE_pcrel | DW_EH_PE_indirect),
 #else
+# if defined(L4_CLANG_FIXES) && defined(__arm__)
+                                /* LLVM: See libcxxabi/src/cxa_personality.cpp,
+                                 * get_shim_type_info(): Pretend encoding of
+                                 * GCC 4.7 Linux. */
+                                (DW_EH_PE_pcrel | DW_EH_PE_indirect),
+# else
 				info->ttype_encoding,
+# endif
 #endif
 				info->ttype_base,
 				info->TType - i, &ptr);
@@ -136,7 +143,12 @@ check_exception_spec(lsda_header_info* info, _throw_typet* throw_type,
       if (tmp == 0)
         return false;
 
+#if defined(L4_CLANG_FIXES) && defined(__arm__)
+      // arm/unwind.h from uclibc doesn't have _Unwind_decode_typeinfo_ptr()
+      tmp = _Unwind_decode_target2((_Unwind_Word) e);
+#else
       tmp = _Unwind_decode_typeinfo_ptr(info->ttype_base, (_Unwind_Word) e);
+#endif
 
       // Match a ttype entry.
       catch_type = reinterpret_cast<const std::type_info*>(tmp);

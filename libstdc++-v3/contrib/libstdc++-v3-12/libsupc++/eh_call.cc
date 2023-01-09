@@ -133,7 +133,13 @@ __cxa_call_unexpected(void* exc_obj_in)
 	  _Unwind_Word offset;
 
 	  offset = (_Unwind_Word) &rtti_list[n * (rtti_stride >> 2)];
+#if defined(L4_CLANG_FIXES) && defined(__arm__)
+          // arm/unwind.h from uclibc doesn't have _Unwind_decode_typeinfo_ptr()
+	  offset = _Unwind_decode_target2(offset);
+          (void)rtti_base;
+#else
 	  offset = _Unwind_decode_typeinfo_ptr(rtti_base, offset);
+#endif
 	  catch_type = (const std::type_info*) (offset);
 
 	  if (__cxa_type_match(&new_xh->unwindHeader, catch_type, false,
