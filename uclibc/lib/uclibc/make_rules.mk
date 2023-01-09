@@ -7,7 +7,17 @@ CFLAGS          += -DUCLIBC_INTERNAL
 CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)
 # CFLAGS	+= -std=iso9899:199901
 DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__
-WARNINGS	= -Wall -Wstrict-prototypes -Wno-nonnull-compare
+WARNINGS	= -Wall -Wstrict-prototypes
+ifeq ($(BID_COMPILER_TYPE),clang)
+ WARNINGS	+= -Wno-gnu-designator \
+		   -Wno-tautological-pointer-compare \
+		   -Wno-pointer-bool-conversion
+ # The Clang warning makes sense but we don't want to change the contrib code.
+ $(foreach s,S s.S,$(foreach f,bzero memcpy mempcpy memset strcspn strpbrk,\
+   $(eval ASFLAGS_libc/string/x86_64/$(f).$(s) += -Wno-expansion-to-defined)))
+else
+ WARNINGS	+= -Wno-nonnull-compare
+endif
 
 # for building the C library we access internal headers
 PRIVATE_INCDIR += $(CONTRIB_DIR)/libc/sysdeps/linux/$(UCLIBC_ARCH)
