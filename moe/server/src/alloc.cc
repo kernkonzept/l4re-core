@@ -16,6 +16,7 @@
 
 #include <cstdlib>
 #include <climits>
+#include <limits>
 
 #include "debug.h"
 #include "alloc.h"
@@ -140,6 +141,11 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
           if (!quota.is_of_int() || quota.value<long>() <= 0)
             return -L4_EINVAL;
+          // ensure that 0 cannot be reached by an integer overflow when
+          // converting long to size_t since size_t is used internally
+          static_assert(   std::numeric_limits<long>::max()
+                        <= std::numeric_limits<size_t>::max(),
+                        "size_t must be able to hold the maximum of a long");
           Moe::Quota_guard g(_qalloc.quota(), quota.value<long>());
           cxx::unique_ptr<Allocator>
             o(make_obj<Allocator>(quota.value<long>()));
