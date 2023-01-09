@@ -57,6 +57,13 @@ struct Array_ref
   Array_ref(typename Non_const<ELEM_TYPE>::type const &other)
   : length(other.length), data(other.data)
   {}
+
+  Array_ref &operator = (typename Non_const<ELEM_TYPE>::type const &other)
+  {
+    this->length = other.length;
+    this->data = other.data;
+    return *this;
+  }
 };
 
 /**
@@ -101,6 +108,13 @@ struct Array : Array_ref<ELEM_TYPE , LEN_TYPE>
   Array(typename Non_const<ELEM_TYPE>::type const &other)
   : Array_ref<ELEM_TYPE, LEN_TYPE>(other.length, other.data)
   {}
+
+  Array &operator = (typename Non_const<ELEM_TYPE>::type const &other)
+  {
+    this->length = other.length;
+    this->data = other.data;
+    return *this;
+  }
 };
 
 /**
