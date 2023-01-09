@@ -33,6 +33,8 @@ EXTERN_C_BEGIN
  * \ingroup l4util_api
  */
 
+#if __SIZEOF_LONG__ == 8
+
 /**
  * \brief Atomic compare and exchange (64 bit version)
  * \ingroup l4util_atomic
@@ -45,10 +47,18 @@ EXTERN_C_BEGIN
  *
  * Compare the value in \em dest with \em cmp_val, if equal set \em dest to
  * \em new_val
+ *
+ * \note This function is not available on 32-bit platforms because under
+ *       certain circumstances, gcc does not naturally-align 64-bit variables,
+ *       for example as part of a struct without explicit alignment attribute.
+ *       Actually the System V ABI for i386 requires only a 4-byte alignment
+ *       even for 8-byte variables (Version 1.0, see Table 2.1: Scalar Types).
  */
 L4_INLINE int
 l4util_cmpxchg64(volatile l4_uint64_t * dest,
                  l4_uint64_t cmp_val, l4_uint64_t new_val);
+
+#endif
 
 /**
  * \brief Atomic compare and exchange (32 bit version)
@@ -331,6 +341,8 @@ EXTERN_C_END
  * IMPLEMENTAION *
  *****************/
 
+#if __SIZEOF_LONG__ == 8
+
 L4_INLINE int
 l4util_cmpxchg64(volatile l4_uint64_t * dest,
                  l4_uint64_t cmp_val, l4_uint64_t new_val)
@@ -338,6 +350,8 @@ l4util_cmpxchg64(volatile l4_uint64_t * dest,
   return __atomic_compare_exchange_n(dest, &cmp_val, new_val, 0,
                                      __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST);
 }
+
+#endif
 
 L4_INLINE int
 l4util_cmpxchg32(volatile l4_uint32_t * dest,
