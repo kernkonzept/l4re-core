@@ -1,3 +1,243 @@
+2023-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-12-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/105730
+	* src/c++11/compatibility-condvar.cc (__nothrow_wait_cv::wait):
+	Access private data member of base class and call its wait
+	member.
+
+2023-01-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-08-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/106183
+	* include/bits/atomic_wait.h (__waiter_pool_base::_M_notify):
+	Move increment of _M_ver here.
+	[!_GLIBCXX_HAVE_PLATFORM_WAIT]: Lock mutex around increment.
+	Use relaxed memory order and always notify all waiters.
+	(__waiter_base::_M_do_wait) [!_GLIBCXX_HAVE_PLATFORM_WAIT]:
+	Check value again after locking mutex.
+	(__waiter_base::_M_notify): Remove increment of _M_ver.
+
+2023-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/108265
+	* include/std/chrono (hh_mm_ss): Do not use chrono::abs if
+	duration rep is unsigned. Remove incorrect noexcept-specifier.
+	* testsuite/std/time/hh_mm_ss/1.cc: Check unsigned rep. Check
+	floating-point representations. Check default construction.
+
+2022-12-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-11-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/107814
+	* testsuite/experimental/filesystem/iterators/error_reporting.cc:
+	Use a static buffer with space after it.
+
+2022-12-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-12-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/expected (expected::_M_swap_val_unex): Guard the
+	correct object.
+	(expected::swap): Move is_swappable
+	requirement from static_assert to constraint.
+	(swap): Likewise.
+	(operator==): Remove noexcept-specifier.
+	* testsuite/20_util/expected/swap.cc: Check swapping of
+	types without non-throwing move constructor. Check constraints
+	on swap.
+	* testsuite/20_util/expected/unexpected.cc: Check constraints on
+	swap.
+	* testsuite/20_util/expected/equality.cc: New test.
+
+2022-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/108097
+	* include/std/stacktrace (basic_stracktrace::_Impl): Do not
+	multiply N by sizeof(value_type) when allocating.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-09-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/memory: Do not include <bits/stl_algobase.h>.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-11-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/tuple/swap.cc (MoveOnly::operator==): Add
+	const qualifier.
+	* testsuite/26_numerics/valarray/87641.cc (X::operator==):
+	Likewise.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-11-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/expected (expected::_M_invalid): Remove.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-11-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono.h (duration): Check preconditions on
+	template arguments before using them.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-10-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/fs_path.h (path::filename()): Fix dangling
+	reference.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-09-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/intro.xml: Document LWG 1203.
+	* doc/html/*: Regenerate.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-09-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/barrier: Add missing runtime exception.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-08-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/fs_dir.h (directory_iterator): Add comparison
+	with std::default_sentinel_t. Remove redundant operator!= for
+	C++20.
+	* (recursive_directory_iterator): Likewise.
+	* include/bits/iterator_concepts.h [!__cpp_lib_concepts]
+	(default_sentinel_t, default_sentinel): Define even if concepts
+	are not supported.
+	* include/bits/regex.h (regex_iterator): Add comparison with
+	std::default_sentinel_t. Remove redundant operator!= for C++20.
+	(regex_token_iterator): Likewise.
+	(regex_token_iterator::_M_end_of_seq()): Add noexcept.
+	* testsuite/27_io/filesystem/iterators/lwg3719.cc: New test.
+	* testsuite/28_regex/iterators/regex_iterator/lwg3719.cc:
+	New test.
+	* testsuite/28_regex/iterators/regex_token_iterator/lwg3719.cc:
+	New test.
+
+2022-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-09-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/91456
+	* include/std/type_traits (__is_nothrow_invocable): Remove.
+	(__is_invocable_impl::__nothrow_type): New member type which
+	checks if the conversion can throw.
+	(__is_nt_invocable_impl): Replace class template with alias
+	template to __is_nt_invocable_impl::__nothrow_type.
+	* testsuite/20_util/is_nothrow_invocable/91456.cc: New test.
+	* testsuite/20_util/is_nothrow_convertible/value.cc: Remove
+	macro used by value_ext.cc test.
+	* testsuite/20_util/is_nothrow_convertible/value_ext.cc: Remove
+	test for non-standard __is_nothrow_invocable trait.
+
+2022-11-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/106201
+	* include/bits/fs_path.h (filesystem::swap(path&, path&)):
+	Replace with abbreviated function template.
+	* include/experimental/bits/fs_path.h (filesystem::swap):
+	Likewise.
+	* testsuite/27_io/filesystem/iterators/106201.cc: New test.
+	* testsuite/experimental/filesystem/iterators/106201.cc: New test.
+
+2022-11-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-11-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/107801
+	* src/c++17/memory_resource.cc (pool_sizes): Disable large pools
+	for targets with 16-bit int.
+
+2022-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/mofunc_impl.h (move_only_function::__param_t):
+	Use __is_scalar instead of is_trivially_copyable.
+	* testsuite/20_util/move_only_function/call.cc: Check parameters
+	involving incomplete types.
+
+2022-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-11-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/95048
+	* include/bits/fs_path.h (path::_Codecvt): New class template
+	that selects the kind of code conversion done.
+	(path::_Codecvt<wchar_t>): Select based on sizeof(wchar_t).
+	(_GLIBCXX_CONV_FROM_UTF8): New macro to allow the same code to
+	be used for Windows and POSIX.
+	(path::_S_convert(const EcharT*, const EcharT*)): Simplify by
+	using _Codecvt and _GLIBCXX_CONV_FROM_UTF8 abstractions.
+	(path::_S_str_convert(basic_string_view<value_type>, const A&)):
+	Simplify nested conditions.
+	* include/experimental/bits/fs_path.h (path::_Cvt): Define
+	nested typedef controlling type of code conversion done.
+	(path::_Cvt::_S_wconvert): Use new typedef.
+	(path::string(const A&)): Likewise.
+	* testsuite/27_io/filesystem/path/construct/95048.cc: New test.
+	* testsuite/experimental/filesystem/path/construct/95048.cc: New
+	test.
+
+2022-11-14  Nathaniel Shead  <nathanieloshead@gmail.com>
+
+	Backported from master:
+	2022-11-11  Nathaniel Shead  <nathanieloshead@gmail.com>
+
+	PR libstdc++/103295
+	* include/bits/basic_string.h (_M_use_local_data): Set active
+	member to _M_local_buf.
+
+2022-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2022-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/authors.xml: Remove empty author element.
+	* doc/xml/manual/spine.xml: Likewise.
+	* doc/html/manual/index.html: Regenerate.
+
+2022-10-19  Alexandre Oliva  <oliva@adacore.com>
+
+	Backported from master:
+	2022-06-22  Alexandre Oliva  <oliva@adacore.com>
+
+	* libsupc++/eh_globals.cc [!_GLIBCXX_HAVE_TLS]
+	(__eh_globals_init::~__eh_globals_init): Clear _S_init first.
+
 2022-09-29  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
