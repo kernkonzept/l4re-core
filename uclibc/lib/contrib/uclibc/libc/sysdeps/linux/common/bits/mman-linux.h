@@ -46,6 +46,7 @@
 
 /* Other flags.  */
 #define MAP_FIXED	0x10		/* Interpret addr exactly.  */
+# define MAP_FIXED_NOREPLACE 0x100000 /* Used to solve problem with MAP_FIXED */
 #ifdef __USE_MISC
 # define MAP_FILE	0
 # ifdef __MAP_ANONYMOUS
