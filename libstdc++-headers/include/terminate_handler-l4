@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
 // vi:set ft=cpp: -*- Mode: C++ -*-
 /*
- * Copyright (C) 2020 Kernkonzept GmbH.
+ * Copyright (C) 2020-2021 Kernkonzept GmbH.
  * Author(s): Frank Mehnert <frank.mehnert@kernkonzept.com>
  *
  */

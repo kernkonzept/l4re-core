@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
 /*
  * Copyright (C) 2000-2009 Technische Universität Dresden (Germany)
- * Copyright (C) 2022 Kernkonzept GmbH. All rights reserved.
+ * Copyright (C) 2016, 2022 Kernkonzept GmbH. All rights reserved.
  * Author(s): Lars Reuther <reuther@os.inf.tu-dresden.de>
  *            Torsten Frenzel <frenzel@os.inf.tu-dresden.de>
  *            Frank Mehnert <frank.mehnert@kernkonzept.com>

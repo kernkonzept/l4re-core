@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 Kernkonzept GmbH.
+ * Copyright (C) 2016-2017 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
  *
  * This file is distributed under the terms of the GNU General Public
