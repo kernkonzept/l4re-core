@@ -240,6 +240,8 @@ public:
     operator Bits_type () const { return this->get(); }
     Value &operator = (Bits_type val) { this->set(val); return *this; }
     Value &operator = (Value const &o) { this->set(o.get()); return *this; }
+    // This copy constructor initializes more bits than necessary but this is
+    // usually not a problem.
     Value (Value const &o) = default;
   };
 
@@ -256,6 +258,8 @@ public:
       this->set_unshifted(o.get_unshifted());
       return *this;
     }
+    // This copy constructor initializes more bits than necessary but this is
+    // usually not a problem.
     Value_unshifted(Value_unshifted const &) = default;
   };
 
