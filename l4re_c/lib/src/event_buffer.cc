@@ -21,13 +21,13 @@
 
 using L4Re::Util::Event_buffer_consumer;
 
-static inline Event_buffer_consumer *cast(l4re_event_buffer_consumer_t *e) throw()
+static inline Event_buffer_consumer *cast(l4re_event_buffer_consumer_t *e) noexcept
 {
   (void)sizeof(char[sizeof(e->_obj_buf) - sizeof(Event_buffer_consumer)]);
   return (Event_buffer_consumer *)e->_obj_buf;
 }
 
-inline void *operator new(size_t, void *a) throw() { return a; }
+inline void *operator new(size_t, void *a) noexcept { return a; }
 
 L4_CV long
 l4re_event_buffer_attach(l4re_event_buffer_consumer_t *evbuf,

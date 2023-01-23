@@ -48,13 +48,13 @@ public:
    * \brief Construction by assignment of a normal pointer.
    * \param p The pointer to the object
    */
-  explicit Auto_ptr(T *p = 0) throw() : _p(p) {}
+  explicit Auto_ptr(T *p = 0) noexcept : _p(p) {}
 
   /**
    * \brief Copy construction, releases the original pointer.
    * \param o The smart pointer, which shall be copied and released.
    */
-  Auto_ptr(Auto_ptr const &o) throw()
+  Auto_ptr(Auto_ptr const &o) noexcept
   : _p(const_cast<Auto_ptr<T>&>(o).release())
   {}
 
@@ -62,7 +62,7 @@ public:
    * \brief Assignment from another smart pointer.
    * \param o The source for the assignment (will be released).
    */
-  Auto_ptr &operator = (Auto_ptr const &o) throw()
+  Auto_ptr &operator = (Auto_ptr const &o) noexcept
   {
     if (&o != this)
       {
@@ -73,21 +73,21 @@ public:
   }
 
   /** \brief Destruction, shall delete the object. */
-  ~Auto_ptr() throw()
+  ~Auto_ptr() noexcept
   { if (_p) delete _p; }
 
   /** \brief Dereference the pointer. */
-  T &operator * () const throw() { return *_p; }
+  T &operator * () const noexcept { return *_p; }
 
   /** \brief Member access for the object. */
-  T *operator -> () const throw() { return _p; }
+  T *operator -> () const noexcept { return _p; }
 
   /**
    * \brief Get the normal pointer.
    * \attention This function will not release the object, the
    *            object will be deleted by the smart pointer.
    */
-  T *get() const throw() { return _p; }
+  T *get() const noexcept { return _p; }
 
   /**
    * \brief Release the object and get the normal pointer back.
@@ -95,19 +95,19 @@ public:
    * After calling this function the smart pointer will point to NULL
    * and the object will not be deleted by the pointer anymore.
    */
-  T *release() throw() { T *t = _p; _p = 0; return t; }
+  T *release() noexcept { T *t = _p; _p = 0; return t; }
 
   /**
    * \brief Delete the object and reset the smart pointer to NULL.
    */
-  void reset(T *p = 0) throw()
+  void reset(T *p = 0) noexcept
   {
     if (_p) delete _p;
     _p = p;
   }
 
   /** \brief Operator for `if (!ptr) ...`. */
-  operator Priv_type * () const throw()
+  operator Priv_type * () const noexcept
   { return reinterpret_cast<Priv_type*>(_p); }
 };
 }

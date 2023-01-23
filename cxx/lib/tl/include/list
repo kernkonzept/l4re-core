@@ -45,12 +45,12 @@ public:
   class Iter
   {
   public:
-    Iter(List_item *c, List_item *f) throw() : _c(c), _f(f) {}
-    Iter(List_item *f = 0) throw() : _c(f), _f(f) {}
+    Iter(List_item *c, List_item *f) noexcept : _c(c), _f(f) {}
+    Iter(List_item *f = 0) noexcept : _c(f), _f(f) {}
 
-    List_item *operator * () const throw() { return _c; }
-    List_item *operator -> () const throw() { return _c; }
-    Iter &operator ++ () throw()
+    List_item *operator * () const noexcept { return _c; }
+    List_item *operator -> () const noexcept { return _c; }
+    Iter &operator ++ () noexcept
     {
       if (!_f)
 	_c = 0;
@@ -63,10 +63,10 @@ public:
       return *this;
     }
 
-    Iter operator ++ (int) throw()
+    Iter operator ++ (int) noexcept
     { Iter o = *this; operator ++ (); return o; }
 
-    Iter &operator -- () throw()
+    Iter &operator -- () noexcept
     {
       if (!_f)
 	_c = 0;
@@ -79,11 +79,11 @@ public:
       return *this;
     }
 
-    Iter operator -- (int) throw()
+    Iter operator -- (int) noexcept
     { Iter o = *this; operator -- (); return o; }
 
     /** Remove item pointed to by iterator, and return pointer to element. */
-    List_item *remove_me() throw()
+    List_item *remove_me() noexcept
     {
       if (!_c)
 	return 0;
@@ -122,61 +122,61 @@ public:
     static bool const P = !Conversion<const T*, const List_item *>::exists
       || Poly;
 
-    static List_item *cast_to_li(T *i, Int_to_type<true>) throw()
+    static List_item *cast_to_li(T *i, Int_to_type<true>) noexcept
     { return dynamic_cast<List_item*>(i); }
 
-    static List_item *cast_to_li(T *i, Int_to_type<false>) throw()
+    static List_item *cast_to_li(T *i, Int_to_type<false>) noexcept
     { return i; }
 
-    static T *cast_to_type(List_item *i, Int_to_type<true>) throw()
+    static T *cast_to_type(List_item *i, Int_to_type<true>) noexcept
     { return dynamic_cast<T*>(i); }
 
-    static T *cast_to_type(List_item *i, Int_to_type<false>) throw()
+    static T *cast_to_type(List_item *i, Int_to_type<false>) noexcept
     { return static_cast<T*>(i); }
 
   public:
 
     template< typename O >
-    explicit T_iter(T_iter<O> const &o) throw()
+    explicit T_iter(T_iter<O> const &o) noexcept
     : Iter(o) { dynamic_cast<T*>(*o); }
 
     //TIter(CListItem *f) : Iter(f) {}
-    T_iter(T *f = 0) throw() : Iter(cast_to_li(f, Int_to_type<P>())) {}
-    T_iter(T *c, T *f) throw()
+    T_iter(T *f = 0) noexcept : Iter(cast_to_li(f, Int_to_type<P>())) {}
+    T_iter(T *c, T *f) noexcept
     : Iter(cast_to_li(c, Int_to_type<P>()),
 	cast_to_li(f, Int_to_type<P>()))
     {}
 
-    inline T *operator * () const throw()
+    inline T *operator * () const noexcept
     { return cast_to_type(Iter::operator * (),Int_to_type<P>()); }
-    inline T *operator -> () const throw()
+    inline T *operator -> () const noexcept
     { return operator * (); }
 
-    T_iter<T, Poly> operator ++ (int) throw()
+    T_iter<T, Poly> operator ++ (int) noexcept
     { T_iter<T, Poly> o = *this; Iter::operator ++ (); return o; }
-    T_iter<T, Poly> operator -- (int) throw()
+    T_iter<T, Poly> operator -- (int) noexcept
     { T_iter<T, Poly> o = *this; Iter::operator -- (); return o; }
-    T_iter<T, Poly> &operator ++ () throw()
+    T_iter<T, Poly> &operator ++ () noexcept
     { Iter::operator ++ (); return *this; }
-    T_iter<T, Poly> &operator -- () throw()
+    T_iter<T, Poly> &operator -- () noexcept
     { Iter::operator -- (); return *this; }
-    inline T *remove_me() throw();
+    inline T *remove_me() noexcept;
   };
 
-  List_item() throw() : _n(this), _p(this) {}
+  List_item() noexcept : _n(this), _p(this) {}
 
 protected:
-  List_item(List_item const &) throw() : _n(this), _p(this) {}
+  List_item(List_item const &) noexcept : _n(this), _p(this) {}
 
 public:
   /** Get previous item. */
-  List_item *get_prev_item() const throw() { return _p; }
+  List_item *get_prev_item() const noexcept { return _p; }
 
   /** Get next item. */
-  List_item *get_next_item() const throw() { return _n; }
+  List_item *get_next_item() const noexcept { return _n; }
 
   /** Insert item p before this item. */
-  void insert_prev_item(List_item *p) throw()
+  void insert_prev_item(List_item *p) noexcept
   {
     p->_p->_n = this;
     List_item *pr = p->_p;
@@ -186,7 +186,7 @@ public:
   }
 
   /** Insert item p after this item. */
-  void insert_next_item(List_item *p) throw()
+  void insert_next_item(List_item *p) noexcept
   {
     p->_p->_n = _n;
     p->_p = this;
@@ -195,7 +195,7 @@ public:
   }
 
   /** Remove this item from the list. */
-  void remove_me() throw()
+  void remove_me() noexcept
   {
     if (_p != this)
       {
@@ -214,7 +214,7 @@ public:
    * \return the pointer to the new head.
    */
   template< typename C, typename N >
-  static inline C *push_back(C *head, N *p) throw();
+  static inline C *push_back(C *head, N *p) noexcept;
 
   /**
    * \brief Prepend item to a list.
@@ -225,7 +225,7 @@ public:
    * \return the pointer to the new head.
    */
   template< typename C, typename N >
-  static inline C *push_front(C *head, N *p) throw();
+  static inline C *push_front(C *head, N *p) noexcept;
 
   /**
    * \brief Remove item from a list.
@@ -236,7 +236,7 @@ public:
    * \return the pointer to the new head.
    */
   template< typename C, typename N >
-  static inline C *remove(C *head, N *p) throw();
+  static inline C *remove(C *head, N *p) noexcept;
 
 private:
   List_item *_n, *_p;
@@ -245,7 +245,7 @@ private:
 
 /* IMPLEMENTATION -----------------------------------------------------------*/
 template< typename C, typename N >
-C *List_item::push_back(C *h, N *p) throw()
+C *List_item::push_back(C *h, N *p) noexcept
 {
   if (!p)
     return h;
@@ -256,7 +256,7 @@ C *List_item::push_back(C *h, N *p) throw()
 }
 
 template< typename C, typename N >
-C *List_item::push_front(C *h, N *p) throw()
+C *List_item::push_front(C *h, N *p) noexcept
 {
   if (!p)
     return h;
@@ -266,7 +266,7 @@ C *List_item::push_front(C *h, N *p) throw()
 }
 
 template< typename C, typename N >
-C *List_item::remove(C *h, N *p) throw()
+C *List_item::remove(C *h, N *p) noexcept
 {
   if (!p)
     return h;
@@ -286,7 +286,7 @@ C *List_item::remove(C *h, N *p) throw()
 
 template< typename T, bool Poly >
 inline
-T *List_item::T_iter<T, Poly>::remove_me() throw()
+T *List_item::T_iter<T, Poly>::remove_me() noexcept
 { return cast_to_type(Iter::remove_me(), Int_to_type<P>()); }
 
 
@@ -337,7 +337,7 @@ private:
   class E : public List_item
   {
   public:
-    E(D const &d) throw() : data(d) {}
+    E(D const &d) noexcept : data(d) {}
     D data;
   };
 
@@ -357,26 +357,26 @@ public:
     List_item::T_iter<E> _i;
 
   public:
-    Iter(E *e) throw() : _i(e) {}
+    Iter(E *e) noexcept : _i(e) {}
 
-    D &operator * () const throw() { return (*_i)->data; }
-    D &operator -> () const throw() { return (*_i)->data; }
+    D &operator * () const noexcept { return (*_i)->data; }
+    D &operator -> () const noexcept { return (*_i)->data; }
 
-    Iter operator ++ (int) throw()
+    Iter operator ++ (int) noexcept
     { Iter o = *this; operator ++ (); return o; }
-    Iter operator -- (int) throw()
+    Iter operator -- (int) noexcept
     { Iter o = *this; operator -- (); return o; }
-    Iter &operator ++ () throw() { ++_i; return *this; }
-    Iter &operator -- () throw() { --_i; return *this; }
+    Iter &operator ++ () noexcept { ++_i; return *this; }
+    Iter &operator -- () noexcept { --_i; return *this; }
 
     /** operator for testing validity (syntactically equal to pointers) */
-    operator E* () const throw() { return *_i; }
+    operator E* () const noexcept { return *_i; }
   };
 
-  List(Alloc<Node> const &a = Alloc<Node>()) throw() : _h(0), _l(0), _a(a) {}
+  List(Alloc<Node> const &a = Alloc<Node>()) noexcept : _h(0), _l(0), _a(a) {}
 
   /** Add element at the end of the list. */
-  void push_back(D const &d) throw()
+  void push_back(D const &d) noexcept
   {
     void *n = _a.alloc();
     if (!n) return;
@@ -385,7 +385,7 @@ public:
   }
 
   /** Add element at the beginning of the list. */
-  void push_front(D const &d) throw()
+  void push_front(D const &d) noexcept
   {
     void *n = _a.alloc();
     if (!n) return;
@@ -394,22 +394,22 @@ public:
   }
 
   /** Remove element pointed to by the iterator. */
-  void remove(Iter const &i) throw()
+  void remove(Iter const &i) noexcept
   { E *e = i; _h = E::remove(_h, e); --_l; _a.free(e); }
 
   /** Get the length of the list. */
-  unsigned long size() const throw() { return _l; }
+  unsigned long size() const noexcept { return _l; }
 
   /** Random access. Complexity is O(n). */
-  D const &operator [] (unsigned long idx) const throw()
+  D const &operator [] (unsigned long idx) const noexcept
   { Iter i = _h; for (; idx && *i; ++i, --idx) { } return *i; }
 
   /** Random access. Complexity is O(n). */
-  D &operator [] (unsigned long idx) throw()
+  D &operator [] (unsigned long idx) noexcept
   { Iter i = _h; for (; idx && *i; ++i, --idx) { } return *i; }
 
   /** Get iterator for the list elements. */
-  Iter items() throw() { return Iter(_h); }
+  Iter items() noexcept { return Iter(_h); }
 
 private:
   E *_h;

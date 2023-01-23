@@ -43,40 +43,40 @@ public:
     l4_fpage_t fpage;
     l4_addr_t offs;
 
-    Address(long error) throw() : offs(-1UL) { fpage.raw = error; }
+    Address(long error) noexcept : offs(-1UL) { fpage.raw = error; }
 
     Address(l4_addr_t base, l4_addr_t size,
             Flags flags,
-            l4_addr_t offs = 0) throw()
+            l4_addr_t offs = 0) noexcept
     : fpage(l4_fpage(base, size, flags.fpage_rights())),
       offs(offs) {}
 
-    unsigned long bs() const throw() { return fpage.raw & L4_FPAGE_ADDR_MASK; }
-    unsigned long sz() const throw() { return 1 << l4_fpage_size(fpage); }
-    unsigned long of() const throw() { return offs; }
-    l4_fpage_t fp() const throw() { return fpage; }
+    unsigned long bs() const noexcept { return fpage.raw & L4_FPAGE_ADDR_MASK; }
+    unsigned long sz() const noexcept { return 1 << l4_fpage_size(fpage); }
+    unsigned long of() const noexcept { return offs; }
+    l4_fpage_t fp() const noexcept { return fpage; }
 
     template< typename T >
-    T adr() const throw() { return (T)(bs() + offs); }
+    T adr() const noexcept { return (T)(bs() + offs); }
 
-    void *adr() const throw() { return (void*)(bs() + offs); }
+    void *adr() const noexcept { return (void*)(bs() + offs); }
 
-    bool is_nil() const throw() { return offs == -1UL; }
+    bool is_nil() const noexcept { return offs == -1UL; }
     /**
      * \brief Get the error code that led to the invalid address.
      * \pre is_nil() must return true.
      */
-    long error() const throw() { return fpage.raw; }
+    long error() const noexcept { return fpage.raw; }
 
   };
 
   Dataspace(unsigned long size, Flags flags,
-            unsigned char page_shift) throw()
+            unsigned char page_shift) noexcept
     : _size(size), _flags(flags), _page_shift(page_shift)
   {}
 
 
-  unsigned long size() const throw() { return _size; }
+  unsigned long size() const noexcept { return _size; }
   virtual Address address(l4_addr_t ds_offset,
                           Flags flags = L4Re::Dataspace::F::RWX,
                           l4_addr_t hot_spot = 0,
@@ -101,21 +101,21 @@ public:
 
   virtual ~Dataspace() {}
 
-  unsigned long page_shift() const throw() { return _page_shift; }
-  unsigned long page_size() const throw() { return 1UL << _page_shift; }
+  unsigned long page_shift() const noexcept { return _page_shift; }
+  unsigned long page_size() const noexcept { return 1UL << _page_shift; }
 
-  virtual bool is_static() const throw() = 0;
-  virtual long clear(unsigned long offs, unsigned long size) const throw();
+  virtual bool is_static() const noexcept = 0;
+  virtual long clear(unsigned long offs, unsigned long size) const noexcept;
 
 protected:
-  void size(unsigned long size) throw() { _size = size; }
+  void size(unsigned long size) noexcept { _size = size; }
 
 public:
-  unsigned long round_size() const throw()
+  unsigned long round_size() const noexcept
   { return l4_round_size(size(), page_shift()); }
-  bool check_limit(l4_addr_t offset) const throw()
+  bool check_limit(l4_addr_t offset) const noexcept
   { return offset < round_size(); }
-  bool check_range(l4_addr_t offset, unsigned long sz) const throw()
+  bool check_range(l4_addr_t offset, unsigned long sz) const noexcept
   { return offset < round_size() && size() - offset >= sz; }
 
 public:

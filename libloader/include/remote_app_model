@@ -53,7 +53,7 @@ public:
   typedef STD_CAPS Caps;
   typedef PRIOS Prios;
 
-  virtual ~Remote_app_model() throw() {}
+  virtual ~Remote_app_model() noexcept {}
 
   template< typename A1, typename A2, typename A3 >
   Remote_app_model(A1 const &a1, A2 const &a2, A3 const & a3)

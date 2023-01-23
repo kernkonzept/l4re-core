@@ -93,7 +93,7 @@ public:
   int index(lua_State *l) const;
   int get_method_table(lua_State *l, char const *typ) const;
 
-  void *operator new (size_t, void *p) throw() { return p; }
+  void *operator new (size_t, void *p) noexcept { return p; }
   void operator delete (void *) {}
 
   void assign(Cap *o)

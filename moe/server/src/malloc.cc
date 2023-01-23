@@ -54,7 +54,7 @@ public:
   void reparent(Moe::Malloc_container *c)
   { _container = c; }
 
-  void *alloc(size_t shift) throw()
+  void *alloc(size_t shift) noexcept
   {
     if (shift != _bin_shift || _used >= _num_bins)
       return 0;
@@ -67,7 +67,7 @@ public:
     return freeptr;
   }
 
-  void free(void *block) throw()
+  void free(void *block) noexcept
   {
     assert(block >= start_data() && block < end_data());
 
@@ -81,7 +81,7 @@ public:
   bool unused() const
   { return _used == 0; }
 
-  static Malloc_page *from_ptr(void const *p) throw()
+  static Malloc_page *from_ptr(void const *p) noexcept
   {
     l4_addr_t caddr = l4_trunc_size(l4_addr_t(p), Malloc_page::Page_shift);
     return reinterpret_cast<Malloc_page *>(caddr);
@@ -110,7 +110,7 @@ private:
 }
 
 void *
-Moe::Malloc_container::alloc(size_t size, size_t align) throw()
+Moe::Malloc_container::alloc(size_t size, size_t align) noexcept
 {
   if (0)
     printf("Malloc[%p]: alloc(%zu, %zu)\n", this, size, align);
@@ -150,7 +150,7 @@ Moe::Malloc_container::alloc(size_t size, size_t align) throw()
 }
 
 void
-Moe::Malloc_container::free(void *block) throw()
+Moe::Malloc_container::free(void *block) noexcept
 {
   if (0)
     printf("Malloc[%p]: free(%p)\n", this, block);
@@ -205,7 +205,7 @@ Moe::Malloc_container::reparent(Malloc_container *new_container)
 }
 
 Moe::Malloc_container *
-Moe::Malloc_container::from_ptr(void const *p) throw()
+Moe::Malloc_container::from_ptr(void const *p) noexcept
 {
   return Malloc_page::from_ptr(p)->container();
 }

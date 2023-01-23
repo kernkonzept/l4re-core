@@ -103,7 +103,7 @@ int __attribute__((weak)) __pthread_sched_rr_prio_max  = 0xf0;
 
 
 int __pthread_setschedparam(pthread_t thread, int policy,
-                            const struct sched_param *param) throw()
+                            const struct sched_param *param) noexcept
 {
   pthread_handle handle = thread_handle(thread);
   pthread_descr th;
@@ -139,7 +139,7 @@ int __pthread_setschedparam(pthread_t thread, int policy,
 strong_alias (__pthread_setschedparam, pthread_setschedparam)
 
 int __pthread_getschedparam(pthread_t thread, int *policy,
-                            struct sched_param *param) throw()
+                            struct sched_param *param) noexcept
 {
   pthread_handle handle = thread_handle(thread);
   int pol, prio;

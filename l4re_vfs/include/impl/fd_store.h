@@ -28,13 +28,13 @@ class Fd_store
 public:
   enum { MAX_FILES = 50 };
 
-  Fd_store() throw() : _fd_hint(0) {}
+  Fd_store() noexcept : _fd_hint(0) {}
 
-  int alloc() throw();
-  void free(int fd) throw();
-  bool check_fd(int fd) throw();
-  Ref_ptr<L4Re::Vfs::File> get(int fd) throw();
-  void set(int fd, Ref_ptr<L4Re::Vfs::File> const &f) throw();
+  int alloc() noexcept;
+  void free(int fd) noexcept;
+  bool check_fd(int fd) noexcept;
+  Ref_ptr<L4Re::Vfs::File> get(int fd) noexcept;
+  void set(int fd, Ref_ptr<L4Re::Vfs::File> const &f) noexcept;
 
 private:
   int _fd_hint;
@@ -43,14 +43,14 @@ private:
 
 inline
 bool
-Fd_store::check_fd(int fd) throw()
+Fd_store::check_fd(int fd) noexcept
 {
   return fd >= 0 && fd < MAX_FILES;
 }
 
 inline
 Ref_ptr<L4Re::Vfs::File>
-Fd_store::get(int fd) throw()
+Fd_store::get(int fd) noexcept
 {
   if (check_fd(fd))
     return _files[fd];
@@ -60,7 +60,7 @@ Fd_store::get(int fd) throw()
 
 inline
 void
-Fd_store::set(int fd, Ref_ptr<L4Re::Vfs::File> const &f) throw()
+Fd_store::set(int fd, Ref_ptr<L4Re::Vfs::File> const &f) noexcept
 {
   _files[fd] = f;
 }

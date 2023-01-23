@@ -25,7 +25,7 @@
 
 namespace L4Re { namespace Core {
 
-Ro_file::~Ro_file() throw()
+Ro_file::~Ro_file() noexcept
 {
   if (_addr)
     L4Re::Env::env()->rm()->detach(l4_addr_t(_addr), 0);
@@ -34,7 +34,7 @@ Ro_file::~Ro_file() throw()
 }
 
 int
-Ro_file::fstat64(struct stat64 *buf) const throw()
+Ro_file::fstat64(struct stat64 *buf) const noexcept
 {
   static int fake = 0;
 
@@ -49,7 +49,7 @@ Ro_file::fstat64(struct stat64 *buf) const throw()
 }
 
 ssize_t
-Ro_file::read_single(const struct iovec *vec, off64_t pos) throw()
+Ro_file::read_single(const struct iovec *vec, off64_t pos) noexcept
 {
   off64_t l = vec->iov_len;
   if (_size - pos < l)
@@ -65,7 +65,7 @@ Ro_file::read_single(const struct iovec *vec, off64_t pos) throw()
 }
 
 ssize_t
-Ro_file::preadv(const struct iovec *vec, int cnt, off64_t offset) throw()
+Ro_file::preadv(const struct iovec *vec, int cnt, off64_t offset) noexcept
 {
   if (!_addr)
     {
@@ -98,13 +98,13 @@ Ro_file::preadv(const struct iovec *vec, int cnt, off64_t offset) throw()
 }
 
 ssize_t
-Ro_file::pwritev(const struct iovec *, int, off64_t) throw()
+Ro_file::pwritev(const struct iovec *, int, off64_t) noexcept
 {
   return -EROFS;
 }
 
 int
-Ro_file::ioctl(unsigned long v, va_list args) throw()
+Ro_file::ioctl(unsigned long v, va_list args) noexcept
 {
   switch (v)
     {

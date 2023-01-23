@@ -60,7 +60,7 @@ private:
     /// Pointer to the slab cache (instance of the slab allocator).
     Base_slab<Obj_size, Slab_size, Max_free, Alloc> *cache;
 
-    inline Slab_head() throw() : num_free(0), free(0), cache(0) 
+    inline Slab_head() noexcept : num_free(0), free(0), cache(0)
     {}
   };
 
@@ -89,7 +89,7 @@ protected:
   struct Slab_store
   {
     char _o[slab_size - sizeof(Slab_head)]; 
-    Free_o *object(unsigned obj) throw()
+    Free_o *object(unsigned obj) noexcept
     { return reinterpret_cast<Free_o*>(_o + object_size * obj); }
   };
 
@@ -118,7 +118,7 @@ private:
   H_list<Slab_i> _empty_slabs;
 
   /// Add a new slab.
-  void add_slab(Slab_i *s) throw()
+  void add_slab(Slab_i *s) noexcept
   {
     s->num_free = objects_per_slab;
     s->cache = this;
@@ -142,7 +142,7 @@ private:
   }
 
   /// Grow the slab cache, by adding a new slab.
-  bool grow() throw()
+  bool grow() noexcept
   {
     Slab_i *s = _alloc.alloc();
     if (!s)
@@ -163,7 +163,7 @@ private:
    * this limit are freed. If `can_free` is set to false, the shrink operation
    * does nothing.
    */
-  void shrink() throw()
+  void shrink() noexcept
   {
     if (!_alloc.can_free)
       return;
@@ -179,12 +179,12 @@ private:
   }
 
 public:
-  Base_slab(Slab_alloc const &alloc = Slab_alloc()) throw()
+  Base_slab(Slab_alloc const &alloc = Slab_alloc()) noexcept
     : _alloc(alloc), _num_free(0), _num_slabs(0), _full_slabs(),
       _partial_slabs(), _empty_slabs()
   {}
 
-  ~Base_slab() throw()
+  ~Base_slab() noexcept
   {
     while (!_empty_slabs.empty())
       {
@@ -215,7 +215,7 @@ public:
    *
    * \note The user is responsible for initializing the object.
    */
-  void *alloc() throw()
+  void *alloc() noexcept
   {
     H_list<Slab_i> *free = &_partial_slabs;
     if (free->empty())
@@ -254,7 +254,7 @@ public:
    *
    * \pre The object must have been allocated with this allocator.
    */
-  void free(void *_o) throw()
+  void free(void *_o) noexcept
   {
     if (!_o)
       return;
@@ -307,7 +307,7 @@ public:
    * \return The number of objects managed by the allocator (including the
    *         free objects).
    */
-  unsigned total_objects() const throw()
+  unsigned total_objects() const noexcept
   { return _num_slabs * objects_per_slab; }
 
   /**
@@ -316,7 +316,7 @@ public:
    *
    * \return The number of free objects in the slab allocator.
    */
-  unsigned free_objects() const throw()
+  unsigned free_objects() const noexcept
   {
     unsigned count = 0;
 
@@ -352,7 +352,7 @@ public:
   typedef Type Obj_type;
 
   Slab(typename Base_type::Slab_alloc const &alloc 
-      = typename Base_type::Slab_alloc()) throw()
+      = typename Base_type::Slab_alloc()) noexcept
     : Base_slab<sizeof(Type), Slab_size, Max_free, Alloc>(alloc) {}
 
 
@@ -363,7 +363,7 @@ public:
    *
    * \note The user is responsible for initializing the object.
    */
-  Type *alloc() throw()
+  Type *alloc() noexcept
   {
     return reinterpret_cast<Type *>(Base_type::alloc());
   }
@@ -374,7 +374,7 @@ public:
    * \param o The pointer to the object to free.
    * \pre The object must have been allocated with this allocator.
    */
-  void free(Type *o) throw()
+  void free(Type *o) noexcept
   { Base_slab<sizeof(Type), Slab_size, Max_free, Alloc>::free(o); }
 };
 
@@ -420,7 +420,7 @@ public:
    *
    * \note The user is responsible for initializing the object.
    */
-  void *alloc() throw() { return _a.alloc(); }
+  void *alloc() noexcept { return _a.alloc(); }
 
   /**
    * Free the given object (`p`).
@@ -428,7 +428,7 @@ public:
    * \param p  The pointer to the object to free.
    * \pre `p` must be a pointer to an object allocated by this allocator.
    */
-  void free(void *p) throw() { _a.free(p); }
+  void free(void *p) noexcept { _a.free(p); }
 
   /**
    * Get the total number of objects managed by the slab allocator.
@@ -438,7 +438,7 @@ public:
    * \note The value is the merged value for all equal parameterized
    *       Base_slab_static instances.
    */
-  unsigned total_objects() const throw() { return _a.total_objects(); }
+  unsigned total_objects() const noexcept { return _a.total_objects(); }
 
   /**
    * Get the number of free objects in the slab allocator.
@@ -448,7 +448,7 @@ public:
    * \note The value is the merged value for all equal parameterized
    *       Base_slab_static instances.
    */
-  unsigned free_objects() const throw() { return _a.free_objects(); }
+  unsigned free_objects() const noexcept { return _a.free_objects(); }
 };
 
 
@@ -486,7 +486,7 @@ public:
    *
    * \note The object is not zeroed out by the slab allocator.
    */
-  Type *alloc() throw()
+  Type *alloc() noexcept
   {
     return reinterpret_cast<Type *>(
       Base_slab_static<sizeof(Type), Slab_size, Max_free, Alloc>::alloc());

@@ -26,7 +26,7 @@
 
 using L4Re::chksys;
 
-inline void *operator new (size_t, void *p) throw() { return p; }
+inline void *operator new (size_t, void *p) noexcept { return p; }
 namespace Lua { namespace {
 
 struct Obs_iface : L4::Kobject_0t<Obs_iface>

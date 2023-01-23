@@ -82,7 +82,7 @@ Moe::Dataspace_cont::copy_address(l4_addr_t offset, Flags, l4_addr_t *addr,
   return 0;
 }
 
-void Moe::Dataspace_cont::unmap() const throw()
+void Moe::Dataspace_cont::unmap() const noexcept
 {
   unsigned long size = round_size();
   l4_addr_t offs = 0;

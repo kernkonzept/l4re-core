@@ -119,7 +119,7 @@ Moe::Dataspace::op_copy_in(L4Re::Dataspace::Rights obj,
 }
 
 long
-Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const throw()
+Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const noexcept
 {
   if (!check_limit(offs))
     return -L4_ERANGE;

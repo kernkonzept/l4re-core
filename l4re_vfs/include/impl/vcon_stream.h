@@ -32,16 +32,16 @@ private:
   L4::Cap<L4::Semaphore>  _irq;
 
 public:
-  explicit Vcon_stream(L4::Cap<L4::Vcon> s) throw();
+  explicit Vcon_stream(L4::Cap<L4::Vcon> s) noexcept;
 
-  ssize_t readv(const struct iovec*, int iovcnt) throw() override;
-  ssize_t writev(const struct iovec*, int iovcnt) throw() override;
-  int fstat64(struct stat64 *buf) const throw() override;
-  int get_status_flags() const throw() override { return O_RDWR; }
-  int set_status_flags(long) throw() override { return 0; }
-  int ioctl(unsigned long request, va_list args) throw() override;
+  ssize_t readv(const struct iovec*, int iovcnt) noexcept override;
+  ssize_t writev(const struct iovec*, int iovcnt) noexcept override;
+  int fstat64(struct stat64 *buf) const noexcept override;
+  int get_status_flags() const noexcept override { return O_RDWR; }
+  int set_status_flags(long) noexcept override { return 0; }
+  int ioctl(unsigned long request, va_list args) noexcept override;
 
-  ~Vcon_stream() throw() {}
+  ~Vcon_stream() noexcept {}
   void operator delete (void *) {}
 };
 

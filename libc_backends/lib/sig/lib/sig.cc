@@ -48,12 +48,12 @@ struct Sig_handling : L4::Epiface_t<Sig_handling, L4::Exception>
   l4_addr_t get_handler(int signum);
   int get_any_async_handler();
   bool is_async_sig(int sig);
-  sighandler_t signal(int signum, sighandler_t handler) throw();
+  sighandler_t signal(int signum, sighandler_t handler) noexcept;
   int sigaction(int signum, const struct sigaction *act,
-                struct sigaction *oldact) throw();
+                struct sigaction *oldact) noexcept;
   int setitimer(__itimer_which_t __which,
                 __const struct itimerval *__restrict __new,
-                struct itimerval *__restrict __old) throw();
+                struct itimerval *__restrict __old) noexcept;
 
 public:
   int op_exception(L4::Exception::Rights, l4_exc_regs_t &exc,
@@ -387,14 +387,14 @@ void libsig_be_add_thread(l4_cap_idx_t t)
 }
 
 inline
-void Sig_handling::ping_exc_handler() throw()
+void Sig_handling::ping_exc_handler() noexcept
 {
   l4_ipc_call(thcap.cap(), l4_utcb(), l4_msgtag(0, 0, 0, 0), L4_IPC_NEVER);
 }
 
 inline
 sighandler_t
-Sig_handling::signal(int signum, sighandler_t handler) throw()
+Sig_handling::signal(int signum, sighandler_t handler) noexcept
 {
   if (signum < _NSIG)
     {
@@ -416,7 +416,7 @@ sighandler_t signal(int signum, sighandler_t handler) L4_NOTHROW
 inline
 int
 Sig_handling::sigaction(int signum, const struct sigaction *act,
-                        struct sigaction *oldact) throw()
+                        struct sigaction *oldact) noexcept
 {
   if (signum == SIGKILL || signum == SIGSTOP)
     return -EINVAL;
@@ -449,7 +449,7 @@ int sigaction(int signum, const struct sigaction *act,
 }
 
 extern "C"
-int sigprocmask(int how, const sigset_t *set, sigset_t *oldset) throw()
+int sigprocmask(int how, const sigset_t *set, sigset_t *oldset) noexcept
 {
   printf("%s(%d, %p, %p): Unimplemented\n", __func__, how, set, oldset);
   errno = EINVAL;
@@ -457,14 +457,14 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset) throw()
 }
 
 extern "C"
-int sigpending(sigset_t *set) throw()
+int sigpending(sigset_t *set) noexcept
 {
   printf("%s(%p): Unimplemented\n", __func__, set);
   errno = EFAULT;
   return -1;
 }
 
-int sigsuspend(const sigset_t *mask) throw()
+int sigsuspend(const sigset_t *mask) noexcept
 {
   printf("%s(%p): Unimplemented\n", __func__, mask);
   errno = EFAULT;
@@ -472,7 +472,7 @@ int sigsuspend(const sigset_t *mask) throw()
 }
 
 extern "C"
-int killpg(int pgrp, int sig) throw()
+int killpg(int pgrp, int sig) noexcept
 {
   printf("%s(%d, %d): Unimplemented\n", __func__, pgrp, sig);
   errno = EPERM;
@@ -518,7 +518,7 @@ inline
 int
 Sig_handling::setitimer(__itimer_which_t __which,
                         __const struct itimerval *__restrict __new,
-                        struct itimerval *__restrict __old) throw()
+                        struct itimerval *__restrict __old) noexcept
 {
   printf("called %s(..)\n", __func__);
 

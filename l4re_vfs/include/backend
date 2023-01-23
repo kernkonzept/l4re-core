@@ -39,204 +39,204 @@ class Mount_tree;
 class Be_file : public File
 {
 public:
-  void *operator new (size_t size) throw()
+  void *operator new (size_t size) noexcept
   { return vfs_ops->malloc(size); }
 
-  void *operator new (size_t, void *m) throw()
+  void *operator new (size_t, void *m) noexcept
   { return m; }
 
   void operator delete (void *m)
   { vfs_ops->free(m); }
 
   // used in close, to unlock all locks of a file (as POSIX says)
-  int unlock_all_locks() throw() override
+  int unlock_all_locks() noexcept override
   { return 0; }
 
   // for mmap
-  L4::Cap<L4Re::Dataspace> data_space() const throw() override
+  L4::Cap<L4Re::Dataspace> data_space() const noexcept override
   { return L4::Cap<L4Re::Dataspace>::Invalid; }
 
   /// Default backend for POSIX read and readv functions.
-  ssize_t readv(const struct iovec*, int) throw() override
+  ssize_t readv(const struct iovec*, int) noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX write and writev functions.
-  ssize_t writev(const struct iovec*, int) throw() override
+  ssize_t writev(const struct iovec*, int) noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX pwrite and pwritev functions.
-  ssize_t pwritev(const struct iovec*, int, off64_t) throw() override
+  ssize_t pwritev(const struct iovec*, int, off64_t) noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX pread and preadv functions.
-  ssize_t preadv(const struct iovec*, int, off64_t) throw() override
+  ssize_t preadv(const struct iovec*, int, off64_t) noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX seek and lseek functions.
-  off64_t lseek64(off64_t, int) throw() override
+  off64_t lseek64(off64_t, int) noexcept override
   { return -ESPIPE; }
 
   /// Default backend for the POSIX truncate, ftruncate and similar functions.
-  int ftruncate64(off64_t) throw() override
+  int ftruncate64(off64_t) noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX fsync.
-  int fsync() const throw() override
+  int fsync() const noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX fdatasync.
-  int fdatasync() const throw() override
+  int fdatasync() const noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX ioctl.
-  int ioctl(unsigned long, va_list) throw() override
+  int ioctl(unsigned long, va_list) noexcept override
   { return -EINVAL; }
 
-  int fstat64(struct stat64 *) const throw() override
+  int fstat64(struct stat64 *) const noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX chmod and fchmod.
-  int fchmod(mode_t) throw() override
+  int fchmod(mode_t) noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX fcntl subfunctions.
-  int get_status_flags() const throw() override
+  int get_status_flags() const noexcept override
   { return 0; }
 
   /// Default backend for POSIX fcntl subfunctions.
-  int set_status_flags(long) throw() override
+  int set_status_flags(long) noexcept override
   { return 0; }
 
   /// Default backend for POSIX fcntl subfunctions.
-  int get_lock(struct flock64 *) throw() override
+  int get_lock(struct flock64 *) noexcept override
   { return -ENOLCK; }
 
   /// Default backend for POSIX fcntl subfunctions.
-  int set_lock(struct flock64 *, bool) throw() override
+  int set_lock(struct flock64 *, bool) noexcept override
   { return -ENOLCK; }
 
   /// Default backend for POSIX access and faccessat functions.
-  int faccessat(const char *, int, int) throw() override
+  int faccessat(const char *, int, int) noexcept override
   { return -ENOTDIR; }
 
   /// Default backend for POSIX fchmodat function.
-  int fchmodat(const char *, mode_t, int) throw() override
+  int fchmodat(const char *, mode_t, int) noexcept override
   { return -ENOTDIR; }
 
   /// Default backend for POSIX utime.
-  int utime(const struct utimbuf *) throw() override
+  int utime(const struct utimbuf *) noexcept override
   { return -EROFS; }
 
   /// Default backend for POSIX utimes.
-  int utimes(const struct timeval [2]) throw() override
+  int utimes(const struct timeval [2]) noexcept override
   { return -EROFS; }
 
   /// Default backend for POSIX utimensat.
-  int utimensat(const char *, const struct timespec [2], int) throw() override
+  int utimensat(const char *, const struct timespec [2], int) noexcept override
   { return -EROFS; }
 
   /// Default backend for POSIX mkdir and mkdirat.
-  int mkdir(const char *, mode_t) throw() override
+  int mkdir(const char *, mode_t) noexcept override
   { return -ENOTDIR; }
 
   /// Default backend for POSIX unlink, unlinkat.
-  int unlink(const char *) throw() override
+  int unlink(const char *) noexcept override
   { return -ENOTDIR; }
 
   /// Default backend for POSIX rename, renameat.
-  int rename(const char *, const char *) throw() override
+  int rename(const char *, const char *) noexcept override
   { return -ENOTDIR; }
 
   /// Default backend for POSIX link, linkat.
-  int link(const char *, const char *) throw() override
+  int link(const char *, const char *) noexcept override
   { return -ENOTDIR; }
 
   /// Default backend for POSIX symlink, symlinkat.
-  int symlink(const char *, const char *) throw() override
+  int symlink(const char *, const char *) noexcept override
   { return -EPERM; }
 
   /// Default backend for POSIX rmdir, rmdirat.
-  int rmdir(const char *) throw() override
+  int rmdir(const char *) noexcept override
   { return -ENOTDIR; }
 
   /// Default backend for POSIX readlink, readlinkat.
   ssize_t readlink(char *, size_t) override
   { return -EINVAL; }
 
-  ssize_t getdents(char *, size_t) throw() override
+  ssize_t getdents(char *, size_t) noexcept override
   { return -ENOTDIR; }
 
 
 
   // Socket interface
-  int bind(sockaddr const *, socklen_t) throw() override
+  int bind(sockaddr const *, socklen_t) noexcept override
   { return -ENOTSOCK; }
 
-  int connect(sockaddr const *, socklen_t) throw() override
+  int connect(sockaddr const *, socklen_t) noexcept override
   { return -ENOTSOCK; }
 
-  ssize_t send(void const *, size_t, int) throw() override
+  ssize_t send(void const *, size_t, int) noexcept override
   { return -ENOTSOCK; }
 
-  ssize_t recv(void *, size_t, int) throw() override
+  ssize_t recv(void *, size_t, int) noexcept override
   { return -ENOTSOCK; }
 
-  ssize_t sendto(void const *, size_t, int, sockaddr const *, socklen_t) throw()
+  ssize_t sendto(void const *, size_t, int, sockaddr const *, socklen_t) noexcept
     override
   { return -ENOTSOCK; }
 
-  ssize_t recvfrom(void *, size_t, int, sockaddr *, socklen_t *) throw() override
+  ssize_t recvfrom(void *, size_t, int, sockaddr *, socklen_t *) noexcept override
   { return -ENOTSOCK; }
 
-  ssize_t sendmsg(msghdr const *, int) throw() override
+  ssize_t sendmsg(msghdr const *, int) noexcept override
   { return -ENOTSOCK; }
 
-  ssize_t recvmsg(msghdr *, int) throw() override
+  ssize_t recvmsg(msghdr *, int) noexcept override
   { return -ENOTSOCK; }
 
-  int getsockopt(int, int, void *, socklen_t *) throw() override
+  int getsockopt(int, int, void *, socklen_t *) noexcept override
   { return -ENOTSOCK; }
 
-  int setsockopt(int, int, void const *, socklen_t) throw() override
+  int setsockopt(int, int, void const *, socklen_t) noexcept override
   { return -ENOTSOCK; }
 
-  int listen(int) throw() override
+  int listen(int) noexcept override
   { return -ENOTSOCK; }
 
-  int accept(sockaddr *, socklen_t *) throw() override
+  int accept(sockaddr *, socklen_t *) noexcept override
   { return -ENOTSOCK; }
 
-  int shutdown(int) throw() override
+  int shutdown(int) noexcept override
   { return -ENOTSOCK; }
 
-  int getsockname(sockaddr *, socklen_t *) throw() override
+  int getsockname(sockaddr *, socklen_t *) noexcept override
   { return -ENOTSOCK; }
 
-  int getpeername(sockaddr *, socklen_t *) throw() override
+  int getpeername(sockaddr *, socklen_t *) noexcept override
   { return -ENOTSOCK; }
 
-  ~Be_file() throw() = 0;
+  ~Be_file() noexcept = 0;
 
 private:
   /// Default backend for POSIX openat, open.
-  int get_entry(const char *, int, mode_t, cxx::Ref_ptr<File> *) throw() override
+  int get_entry(const char *, int, mode_t, cxx::Ref_ptr<File> *) noexcept override
   { return -ENOTDIR; }
 
 protected:
-  const char *get_mount(const char *path, cxx::Ref_ptr<File> *dir) throw();
+  const char *get_mount(const char *path, cxx::Ref_ptr<File> *dir) noexcept;
 };
 
 inline
-Be_file::~Be_file() throw() {}
+Be_file::~Be_file() noexcept {}
 
 class Be_file_pos : public Be_file
 {
 public:
-  Be_file_pos() throw() : Be_file(), _pos(0) {}
+  Be_file_pos() noexcept : Be_file(), _pos(0) {}
 
-  virtual off64_t size() const throw() = 0;
+  virtual off64_t size() const noexcept = 0;
 
-  ssize_t readv(const struct iovec *v, int iovcnt) throw() override
+  ssize_t readv(const struct iovec *v, int iovcnt) noexcept override
   {
     ssize_t r = preadv(v, iovcnt, _pos);
     if (r > 0)
@@ -244,7 +244,7 @@ public:
     return r;
   }
 
-  ssize_t writev(const struct iovec *v, int iovcnt) throw() override
+  ssize_t writev(const struct iovec *v, int iovcnt) noexcept override
   {
     ssize_t r = pwritev(v, iovcnt, _pos);
     if (r > 0)
@@ -252,10 +252,10 @@ public:
     return r;
   }
 
-  ssize_t preadv(const struct iovec *v, int iovcnt, off64_t offset) throw() override = 0;
-  ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t offset) throw() override = 0;
+  ssize_t preadv(const struct iovec *v, int iovcnt, off64_t offset) noexcept override = 0;
+  ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t offset) noexcept override = 0;
 
-  off64_t lseek64(off64_t offset, int whence) throw() override
+  off64_t lseek64(off64_t offset, int whence) noexcept override
   {
     off64_t r;
     switch (whence)
@@ -273,31 +273,31 @@ public:
     return _pos;
   }
 
-  ~Be_file_pos() throw() = 0;
+  ~Be_file_pos() noexcept = 0;
 
 protected:
-  off64_t pos() const throw() { return _pos; }
+  off64_t pos() const noexcept { return _pos; }
 
 private:
   off64_t _pos;
 };
 
-inline Be_file_pos::~Be_file_pos() throw() {}
+inline Be_file_pos::~Be_file_pos() noexcept {}
 
 class Be_file_stream : public Be_file
 {
 public:
-  ssize_t preadv(const struct iovec *v, int iovcnt, off64_t) throw() override
+  ssize_t preadv(const struct iovec *v, int iovcnt, off64_t) noexcept override
   { return readv(v, iovcnt); }
 
-  ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t) throw() override
+  ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t) noexcept override
   { return writev(v, iovcnt); }
 
   ~Be_file_stream() throw () = 0;
 
 };
 
-inline Be_file_stream::~Be_file_stream() throw() {}
+inline Be_file_stream::~Be_file_stream() noexcept {}
 
 /**
  * \brief Boilerplate class for implementing a L4Re::Vfs::File_system.
@@ -319,7 +319,7 @@ public:
    * This constructor takes care of registering the file system
    * in the registry of L4Re::Vfs::vfs_ops.
    */
-  explicit Be_file_system(char const *fstype) throw()
+  explicit Be_file_system(char const *fstype) noexcept
   : File_system(), _fstype(fstype)
   {
     vfs_ops->register_file_system(this);
@@ -331,7 +331,7 @@ public:
    * This destructor takes care of removing this file system
    * from the registry of L4Re::Vfs::vfs_ops.
    */
-  ~Be_file_system() throw()
+  ~Be_file_system() noexcept
   {
     vfs_ops->unregister_file_system(this);
   }
@@ -341,7 +341,7 @@ public:
    *
    * Returns the file-system type given as \a fstype in the constructor.
    */
-  char const *type() const throw() override { return _fstype; }
+  char const *type() const noexcept override { return _fstype; }
 };
 
 /* Make sure filesystems can register before the constructor of libmount

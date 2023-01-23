@@ -57,7 +57,7 @@ cap_to_vfs_object(L4::Cap<void> o, int *err)
 
 
 int
-Ns_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw()
+Ns_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) noexcept
 {
   auto file = L4Re::make_unique_cap<L4Re::Dataspace>(L4Re::virt_cap_alloc);
 
@@ -75,7 +75,7 @@ Ns_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw()
 
 int
 Ns_dir::get_entry(const char *path, int flags, mode_t mode,
-                  Ref_ptr<L4Re::Vfs::File> *f) throw()
+                  Ref_ptr<L4Re::Vfs::File> *f) noexcept
 {
   (void)mode; (void)flags;
   if (!*path)
@@ -100,7 +100,7 @@ Ns_dir::get_entry(const char *path, int flags, mode_t mode,
 }
 
 int
-Ns_dir::faccessat(const char *path, int mode, int flags) throw()
+Ns_dir::faccessat(const char *path, int mode, int flags) noexcept
 {
   (void)flags;
   auto tmpcap = L4Re::make_unique_cap<void>(L4Re::virt_cap_alloc);
@@ -118,7 +118,7 @@ Ns_dir::faccessat(const char *path, int mode, int flags) throw()
 }
 
 int
-Ns_dir::fstat64(struct stat64 *b) const throw()
+Ns_dir::fstat64(struct stat64 *b) const noexcept
 {
   b->st_dev = 1;
   b->st_ino = 1;
@@ -137,7 +137,7 @@ Ns_dir::fstat64(struct stat64 *b) const throw()
 }
 
 ssize_t
-Ns_dir::getdents(char *buf, size_t sz) throw()
+Ns_dir::getdents(char *buf, size_t sz) noexcept
 {
   struct dirent64 *d = (struct dirent64 *)buf;
   ssize_t ret = 0;
@@ -218,7 +218,7 @@ Ns_dir::getdents(char *buf, size_t sz) throw()
 }
 
 int
-Env_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw()
+Env_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) noexcept
 {
   Vfs::Path p(path);
   Vfs::Path first = p.strip_first();
@@ -254,7 +254,7 @@ Env_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw()
 
 int
 Env_dir::get_entry(const char *path, int flags, mode_t mode,
-                   Ref_ptr<L4Re::Vfs::File> *f) throw()
+                   Ref_ptr<L4Re::Vfs::File> *f) noexcept
 {
   (void)mode; (void)flags;
   if (!*path)
@@ -279,7 +279,7 @@ Env_dir::get_entry(const char *path, int flags, mode_t mode,
 }
 
 int
-Env_dir::faccessat(const char *path, int mode, int flags) throw()
+Env_dir::faccessat(const char *path, int mode, int flags) noexcept
 {
   (void)flags;
   Vfs::Path p(path);
@@ -317,14 +317,14 @@ Env_dir::faccessat(const char *path, int mode, int flags) throw()
 }
 
 bool
-Env_dir::check_type(Env::Cap_entry const *e, long protocol) throw()
+Env_dir::check_type(Env::Cap_entry const *e, long protocol) noexcept
 {
   L4::Cap<L4::Meta> m(e->cap);
   return m->supports(protocol).label();
 }
 
 int
-Env_dir::fstat64(struct stat64 *b) const throw()
+Env_dir::fstat64(struct stat64 *b) const noexcept
 {
   b->st_dev = 1;
   b->st_ino = 1;
@@ -343,7 +343,7 @@ Env_dir::fstat64(struct stat64 *b) const throw()
 }
 
 ssize_t
-Env_dir::getdents(char *buf, size_t sz) throw()
+Env_dir::getdents(char *buf, size_t sz) noexcept
 {
   struct dirent64 *d = (struct dirent64 *)buf;
   ssize_t ret = 0;

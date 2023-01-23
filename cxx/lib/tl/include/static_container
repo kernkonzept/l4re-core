@@ -19,7 +19,7 @@ class Static_container
 private:
   struct X : T
   {
-    void *operator new (size_t, void *p) throw() { return p; }
+    void *operator new (size_t, void *p) noexcept { return p; }
     void operator delete (void *) {}
     X() = default;
     template<typename ...Args>

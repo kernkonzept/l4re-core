@@ -22,10 +22,10 @@ public:
                    Flags flags = L4Re::Dataspace::F::RW,
                    unsigned char page_shift = L4_PAGESHIFT)
   : Dataspace_cont(start, size, flags, page_shift) {}
-  virtual ~Dataspace_static() throw() {}
+  virtual ~Dataspace_static() noexcept {}
   int pre_allocate(l4_addr_t, l4_size_t, unsigned) override
   { return 0; }
-  bool is_static() const throw() override { return true; }
+  bool is_static() const noexcept override { return true; }
 };
 
 };

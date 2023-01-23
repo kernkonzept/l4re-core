@@ -24,7 +24,7 @@ public:
                  unsigned char page_shift = L4_PAGESHIFT);
   virtual ~Dataspace_anon();
 
-  bool is_static() const throw() override { return false; }
+  bool is_static() const noexcept override { return false; }
   int pre_allocate(l4_addr_t, l4_size_t, unsigned) override { return 0; }
 };
 

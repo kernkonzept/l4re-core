@@ -10,7 +10,7 @@
 
 #include "quota.h"
 
-void operator delete (void *p) throw()
+void operator delete (void *p) noexcept
 {
   Moe::Malloc_container::from_ptr(p)->free(p);
 }

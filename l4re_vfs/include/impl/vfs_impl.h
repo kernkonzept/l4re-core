@@ -61,7 +61,7 @@ using cxx::Ref_ptr;
 class Fd_store : public L4Re::Core::Fd_store
 {
 public:
-  Fd_store() throw();
+  Fd_store() noexcept;
 };
 
 // for internal Vcon_streams we want to have a placement new operator, so
@@ -72,7 +72,7 @@ public:
   Std_stream(L4::Cap<L4::Vcon> c) : L4Re::Core::Vcon_stream(c) {}
 };
 
-Fd_store::Fd_store() throw()
+Fd_store::Fd_store() noexcept
 {
   // use this strange way to prevent deletion of the stdio object
   // this depends on Fd_store to being a singleton !!!
@@ -117,35 +117,35 @@ public:
 #endif
   }
 
-  int alloc_fd(Ref_ptr<L4Re::Vfs::File> const &f) throw() override;
-  Ref_ptr<L4Re::Vfs::File> free_fd(int fd) throw() override;
-  Ref_ptr<L4Re::Vfs::File> get_root() throw() override;
-  Ref_ptr<L4Re::Vfs::File> get_cwd() throw() override;
-  void set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) throw() override;
-  Ref_ptr<L4Re::Vfs::File> get_file(int fd) throw() override;
+  int alloc_fd(Ref_ptr<L4Re::Vfs::File> const &f) noexcept override;
+  Ref_ptr<L4Re::Vfs::File> free_fd(int fd) noexcept override;
+  Ref_ptr<L4Re::Vfs::File> get_root() noexcept override;
+  Ref_ptr<L4Re::Vfs::File> get_cwd() noexcept override;
+  void set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) noexcept override;
+  Ref_ptr<L4Re::Vfs::File> get_file(int fd) noexcept override;
   cxx::Pair<Ref_ptr<L4Re::Vfs::File>, int>
-    set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f = Ref_ptr<>::Nil) throw()
+    set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f = Ref_ptr<>::Nil) noexcept
       override;
 
   int mmap2(void *start, size_t len, int prot, int flags, int fd,
-            off_t offset, void **ptr) throw() override;
+            off_t offset, void **ptr) noexcept override;
 
-  int munmap(void *start, size_t len) throw() override;
+  int munmap(void *start, size_t len) noexcept override;
   int mremap(void *old, size_t old_sz, size_t new_sz, int flags,
-             void **new_addr) throw() override;
-  int mprotect(const void *a, size_t sz, int prot) throw() override;
-  int msync(void *addr, size_t len, int flags) throw() override;
-  int madvise(void *addr, size_t len, int advice) throw() override;
+             void **new_addr) noexcept override;
+  int mprotect(const void *a, size_t sz, int prot) noexcept override;
+  int msync(void *addr, size_t len, int flags) noexcept override;
+  int madvise(void *addr, size_t len, int advice) noexcept override;
 
-  int register_file_system(L4Re::Vfs::File_system *f) throw() override;
-  int unregister_file_system(L4Re::Vfs::File_system *f) throw() override;
-  L4Re::Vfs::File_system *get_file_system(char const *fstype) throw() override;
+  int register_file_system(L4Re::Vfs::File_system *f) noexcept override;
+  int unregister_file_system(L4Re::Vfs::File_system *f) noexcept override;
+  L4Re::Vfs::File_system *get_file_system(char const *fstype) noexcept override;
 
-  int register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw() override;
-  int unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw() override;
-  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(int proto) throw() override;
-  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(char const *proto_name) throw() override;
-  int mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) throw() override;
+  int register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) noexcept override;
+  int unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) noexcept override;
+  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(int proto) noexcept override;
+  Ref_ptr<L4Re::Vfs::File_factory> get_file_factory(char const *proto_name) noexcept override;
+  int mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) noexcept override;
 
   void operator delete (void *) {}
 
@@ -189,7 +189,7 @@ static inline bool strequal(char const *a, char const *b)
 }
 
 int
-Vfs::register_file_system(L4Re::Vfs::File_system *f) throw()
+Vfs::register_file_system(L4Re::Vfs::File_system *f) noexcept
 {
   using L4Re::Vfs::File_system;
 
@@ -207,7 +207,7 @@ Vfs::register_file_system(L4Re::Vfs::File_system *f) throw()
 }
 
 int
-Vfs::unregister_file_system(L4Re::Vfs::File_system *f) throw()
+Vfs::unregister_file_system(L4Re::Vfs::File_system *f) noexcept
 {
   using L4Re::Vfs::File_system;
 
@@ -228,7 +228,7 @@ Vfs::unregister_file_system(L4Re::Vfs::File_system *f) throw()
 }
 
 L4Re::Vfs::File_system *
-Vfs::get_file_system(char const *fstype) throw()
+Vfs::get_file_system(char const *fstype) noexcept
 {
   bool try_dynamic = true;
   for (;;)
@@ -252,7 +252,7 @@ Vfs::get_file_system(char const *fstype) throw()
 }
 
 int
-Vfs::register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw()
+Vfs::register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) noexcept
 {
   if (!f)
     return -EINVAL;
@@ -267,7 +267,7 @@ Vfs::register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw()
 }
 
 int
-Vfs::unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw()
+Vfs::unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) noexcept
 {
   for (auto p: _file_factories)
     {
@@ -283,7 +283,7 @@ Vfs::unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) throw()
 }
 
 Ref_ptr<L4Re::Vfs::File_factory>
-Vfs::get_file_factory(int proto) throw()
+Vfs::get_file_factory(int proto) noexcept
 {
   for (auto p: _file_factories)
     if (p->f->proto() == proto)
@@ -293,7 +293,7 @@ Vfs::get_file_factory(int proto) throw()
 }
 
 Ref_ptr<L4Re::Vfs::File_factory>
-Vfs::get_file_factory(char const *proto_name) throw()
+Vfs::get_file_factory(char const *proto_name) noexcept
 {
   for (auto p: _file_factories)
     {
@@ -314,7 +314,7 @@ Vfs::get_file_factory(char const *proto_name) throw()
 }
 
 int
-Vfs::alloc_fd(Ref_ptr<L4Re::Vfs::File> const &f) throw()
+Vfs::alloc_fd(Ref_ptr<L4Re::Vfs::File> const &f) noexcept
 {
   int fd = fds.alloc();
   if (fd < 0)
@@ -327,7 +327,7 @@ Vfs::alloc_fd(Ref_ptr<L4Re::Vfs::File> const &f) throw()
 }
 
 Ref_ptr<L4Re::Vfs::File>
-Vfs::free_fd(int fd) throw()
+Vfs::free_fd(int fd) noexcept
 {
   Ref_ptr<L4Re::Vfs::File> f = fds.get(fd);
 
@@ -340,19 +340,19 @@ Vfs::free_fd(int fd) throw()
 
 
 Ref_ptr<L4Re::Vfs::File>
-Vfs::get_root() throw()
+Vfs::get_root() noexcept
 {
   return cxx::ref_ptr(&_root);
 }
 
 Ref_ptr<L4Re::Vfs::File>
-Vfs::get_cwd() throw()
+Vfs::get_cwd() noexcept
 {
   return _cwd;
 }
 
 void
-Vfs::set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) throw()
+Vfs::set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) noexcept
 {
   // FIXME: check for is dir
   if (dir)
@@ -360,13 +360,13 @@ Vfs::set_cwd(Ref_ptr<L4Re::Vfs::File> const &dir) throw()
 }
 
 Ref_ptr<L4Re::Vfs::File>
-Vfs::get_file(int fd) throw()
+Vfs::get_file(int fd) noexcept
 {
   return fds.get(fd);
 }
 
 cxx::Pair<Ref_ptr<L4Re::Vfs::File>, int>
-Vfs::set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f) throw()
+Vfs::set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f) noexcept
 {
   if (!fds.check_fd(fd))
     return cxx::pair(Ref_ptr<L4Re::Vfs::File>(Ref_ptr<>::Nil), EBADF);
@@ -920,7 +920,7 @@ namespace {
 }
 
 int
-Vfs::mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) throw()
+Vfs::mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) noexcept
 {
   using L4Re::Vfs::File;
   using L4Re::Vfs::Mount_tree;

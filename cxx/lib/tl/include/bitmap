@@ -75,11 +75,11 @@ protected:
   };
 
 public:
-  explicit Bitmap_base(void *bits) throw() : _bits((word_type *)bits) {}
+  explicit Bitmap_base(void *bits) noexcept : _bits((word_type *)bits) {}
 
   /** \brief Get the number of \a Words that are used for the bitmap. */
-  static long words(long bits) throw() { return (bits + W_bits -1) / W_bits; }
-  static long bit_buffer_bytes(long bits) throw()
+  static long words(long bits) noexcept { return (bits + W_bits -1) / W_bits; }
+  static long bit_buffer_bytes(long bits) noexcept
   { return words(bits) * W_bits / 8; }
 
   /** \brief Helper abstraction for a word contained in the bitmap. */
@@ -115,32 +115,32 @@ public:
    * \param bit the number of the bit
    * \param on  the boolean value that shall be assigned to the bit.
    */
-  void bit(long bit, bool on) throw();
+  void bit(long bit, bool on) noexcept;
 
   /**
    * \brief Clear bit \a bit.
    * \param bit the number of the bit to clear.
    */
-  void clear_bit(long bit) throw();
+  void clear_bit(long bit) noexcept;
   /**
    * \brief Set bit \a bit.
    * \param bit the number of the bit to set,
    */
-  void set_bit(long bit) throw();
+  void set_bit(long bit) noexcept;
 
   /**
    * \brief Get the truth value of a bit.
    * \param bit the number of the bit to read.
    * \return 0 if \a bit is not set, != 0 if \a bit is set.
    */
-  word_type bit(long bit) const throw();
+  word_type bit(long bit) const noexcept;
 
   /**
    * \brief Get the bit at index \a bit.
    * \param bit the number of the bit to read.
    * \return 0 if \a bit is not set, != 0 if \a bit is set.
    */
-  word_type operator [] (long bit) const throw()
+  word_type operator [] (long bit) const noexcept
   { return this->bit(bit); }
 
   /**
@@ -148,7 +148,7 @@ public:
    * \param bit the number.
    * \return lvalue for \a bit
    */
-  Bit operator [] (long bit) throw()
+  Bit operator [] (long bit) noexcept
   { return Bit(this, bit); }
 
   /**
@@ -162,12 +162,12 @@ public:
    * \retval >= 0  Number of first zero bit found.
    * \retval -1    All bits between `start_bit` and `max_bit` are set.
    */
-  long scan_zero(long max_bit, long start_bit = 0) const throw();
+  long scan_zero(long max_bit, long start_bit = 0) const noexcept;
 
-  void *bit_buffer() const throw() { return _bits; }
+  void *bit_buffer() const noexcept { return _bits; }
 
 protected:
-  static int _bzl(unsigned long w) throw();
+  static int _bzl(unsigned long w) noexcept;
 };
 
 
@@ -184,8 +184,8 @@ private:
 
 public:
   /** \brief Create a bitmap with \a BITS bits. */
-  Bitmap() throw() : Bitmap_base(_bits) {}
-  Bitmap(Bitmap<BITS> const &o) throw() : Bitmap_base(_bits)
+  Bitmap() noexcept : Bitmap_base(_bits) {}
+  Bitmap(Bitmap<BITS> const &o) noexcept : Bitmap_base(_bits)
   { __builtin_memcpy(_bits, o._bits, sizeof(_bits)); }
   /**
    * Scan for the first zero bit.
@@ -199,7 +199,7 @@ public:
    *
    * Compared to Bitmap_base::scan_zero(), the upper bound is set to BITS.
    */
-  long scan_zero(long start_bit = 0) const throw();
+  long scan_zero(long start_bit = 0) const noexcept;
 
   void clear_all()
   { __builtin_memset(_bits, 0, sizeof(_bits)); }
@@ -208,7 +208,7 @@ public:
 
 inline
 void
-Bitmap_base::bit(long bit, bool on) throw()
+Bitmap_base::bit(long bit, bool on) noexcept
 {
   long idx = word_index(bit);
   long b   = bit_index(bit);
@@ -217,7 +217,7 @@ Bitmap_base::bit(long bit, bool on) throw()
 
 inline
 void
-Bitmap_base::clear_bit(long bit) throw()
+Bitmap_base::clear_bit(long bit) noexcept
 {
   long idx = word_index(bit);
   long b   = bit_index(bit);
@@ -226,7 +226,7 @@ Bitmap_base::clear_bit(long bit) throw()
 
 inline
 void
-Bitmap_base::set_bit(long bit) throw()
+Bitmap_base::set_bit(long bit) noexcept
 {
   long idx = word_index(bit);
   long b   = bit_index(bit);
@@ -235,7 +235,7 @@ Bitmap_base::set_bit(long bit) throw()
 
 inline
 Bitmap_base::word_type
-Bitmap_base::bit(long bit) const throw()
+Bitmap_base::bit(long bit) const noexcept
 {
   long idx = word_index(bit);
   long b   = bit_index(bit);
@@ -244,7 +244,7 @@ Bitmap_base::bit(long bit) const throw()
 
 inline
 int
-Bitmap_base::_bzl(unsigned long w) throw()
+Bitmap_base::_bzl(unsigned long w) noexcept
 {
   for (int i = 0; i < W_bits; ++i, w >>= 1)
     {
@@ -256,7 +256,7 @@ Bitmap_base::_bzl(unsigned long w) throw()
 
 inline
 long
-Bitmap_base::scan_zero(long max_bit, long start_bit) const throw()
+Bitmap_base::scan_zero(long max_bit, long start_bit) const noexcept
 {
   if (!(operator [] (start_bit)))
     return start_bit;
@@ -282,7 +282,7 @@ Bitmap_base::scan_zero(long max_bit, long start_bit) const throw()
 
 template<int BITS> inline
 long
-Bitmap<BITS>::scan_zero(long start_bit) const throw()
+Bitmap<BITS>::scan_zero(long start_bit) const noexcept
 {
   return Bitmap_base::scan_zero(BITS, start_bit);
 }

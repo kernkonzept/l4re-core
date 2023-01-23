@@ -71,9 +71,9 @@ namespace L4
      * \brief Create a back trace.
      */
 #if defined(__PIC__)
-    Exception_tracer() throw() : _frame_cnt(0) {}
+    Exception_tracer() noexcept : _frame_cnt(0) {}
 #else
-    Exception_tracer() throw()
+    Exception_tracer() noexcept
     : _frame_cnt(l4util_backtrace(_pc_array, L4_CXX_EXCEPTION_BACKTRACE)) {}
 #endif
 
@@ -81,27 +81,27 @@ namespace L4
     /**
      * \brief Get the array containing the call trace.
      */
-    void const *const *pc_array() const throw() { return _pc_array; }
+    void const *const *pc_array() const noexcept { return _pc_array; }
     /**
      * \brief Get the number of entries that are valid in the call trace.
      */
-    int frame_count() const throw() { return _frame_cnt; }
+    int frame_count() const noexcept { return _frame_cnt; }
 #else
   protected:
     /**
      * \brief Create a back trace.
      */
-    Exception_tracer() throw() {}
+    Exception_tracer() noexcept {}
 
   public:
     /**
      * \brief Get the array containing the call trace.
      */
-    void const *const *pc_array() const throw() { return 0; }
+    void const *const *pc_array() const noexcept { return 0; }
     /**
      * \brief Get the number of entries that are valid in the call trace.
      */
-    int frame_count() const throw() { return 0; }
+    int frame_count() const noexcept { return 0; }
 #endif
   };
 
@@ -117,7 +117,7 @@ namespace L4
   {
   protected:
     /// Create a base exception.
-    Base_exception() throw() {}
+    Base_exception() noexcept {}
 
   public:
     /**
@@ -178,7 +178,7 @@ namespace L4
      *
      * \return  Error value.
      */
-    long err_no() const throw() { return _errno; }
+    long err_no() const noexcept { return _errno; }
   };
 
   /**
@@ -189,10 +189,10 @@ namespace L4
   {
   public:
     /// Create an out-of-memory exception.
-    explicit Out_of_memory(char const *extra = "") throw()
+    explicit Out_of_memory(char const *extra = "") noexcept
     : Runtime_error(-L4_ENOMEM, extra) {}
     /// Destruction
-    ~Out_of_memory() throw() {}
+    ~Out_of_memory() noexcept {}
   };
 
 
@@ -203,9 +203,9 @@ namespace L4
   class Element_already_exists : public Runtime_error
   {
   public:
-    explicit Element_already_exists(char const *e = "") throw()
+    explicit Element_already_exists(char const *e = "") noexcept
     : Runtime_error(-L4_EEXIST, e) {}
-    ~Element_already_exists() throw() {}
+    ~Element_already_exists() noexcept {}
   };
 
   /**
@@ -219,9 +219,9 @@ namespace L4
   class Unknown_error : public Base_exception
   {
   public:
-    Unknown_error() throw() {}
-    char const *str() const throw() override { return "unknown error"; }
-    ~Unknown_error() throw() {}
+    Unknown_error() noexcept {}
+    char const *str() const noexcept override { return "unknown error"; }
+    ~Unknown_error() noexcept {}
   };
 
   /**
@@ -231,7 +231,7 @@ namespace L4
   class Element_not_found : public Runtime_error
   {
   public:
-    explicit Element_not_found(char const *e = "") throw()
+    explicit Element_not_found(char const *e = "") noexcept
     : Runtime_error(-L4_ENOENT, e) {}
   };
 
@@ -252,17 +252,17 @@ namespace L4
      * \brief Create an Invalid_object exception for the Object o.
      * \param o The object that caused the server side error.
      */
-    explicit Invalid_capability(Cap<void> const &o) throw() : _o(o) {}
+    explicit Invalid_capability(Cap<void> const &o) noexcept : _o(o) {}
     template< typename T>
-    explicit Invalid_capability(Cap<T> const &o) throw() : _o(o.cap()) {}
-    char const *str() const throw() override { return "invalid object"; }
+    explicit Invalid_capability(Cap<T> const &o) noexcept : _o(o.cap()) {}
+    char const *str() const noexcept override { return "invalid object"; }
 
     /**
      * \brief Get the object that caused the error.
      * \return The object that caused the error on invocation.
      */
-    Cap<void> const &cap() const throw() { return _o; }
-    ~Invalid_capability() throw() {}
+    Cap<void> const &cap() const noexcept { return _o; }
+    ~Invalid_capability() noexcept {}
   };
 
   /**
@@ -278,9 +278,9 @@ namespace L4
      * \brief Create a Com_error for the given L4 IPC error code.
      * \param err The L4 IPC error code (l4_ipc... return value).
      */
-    explicit Com_error(long err) throw() : Runtime_error(err) {}
+    explicit Com_error(long err) noexcept : Runtime_error(err) {}
 
-    ~Com_error() throw() {}
+    ~Com_error() noexcept {}
   };
 
   /**
@@ -289,9 +289,9 @@ namespace L4
   class Bounds_error : public Runtime_error
   {
   public:
-    explicit Bounds_error(char const *e = "") throw()
+    explicit Bounds_error(char const *e = "") noexcept
     : Runtime_error(-L4_ERANGE, e) {}
-    ~Bounds_error() throw() {}
+    ~Bounds_error() noexcept {}
   };
   /**@}*/
 };

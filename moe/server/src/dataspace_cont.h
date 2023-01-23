@@ -39,7 +39,7 @@ protected:
   void *start() { return _start; }
 
 private:
-  void unmap() const throw();
+  void unmap() const noexcept;
 
   char *_start;
 };

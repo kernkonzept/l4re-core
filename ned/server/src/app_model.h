@@ -133,7 +133,7 @@ struct App_model : public Ldr::Base_app_model<Stack>
   L4::Cap<L4::Factory> _factory;
 #endif
 
-  virtual ~App_model() throw() {}
+  virtual ~App_model() noexcept {}
 
 };
 

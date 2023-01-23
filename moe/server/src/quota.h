@@ -125,7 +125,7 @@ public:
     return g.release(Single_page_alloc_base::_alloc(size, align));
   }
 
-  void free_pages(void *p, unsigned long size) throw()
+  void free_pages(void *p, unsigned long size) noexcept
   {
     Single_page_alloc_base::_free(p, size);
     quota()->free(size);
@@ -175,19 +175,19 @@ class Quota_allocator
 public:
   enum { can_free = true };
 
-  Quota_allocator() throw() {}
-  Quota_allocator(Quota_allocator const &) throw() {}
+  Quota_allocator() noexcept {}
+  Quota_allocator(Quota_allocator const &) noexcept {}
   Quota &operator = (Quota const &) = delete;
 
-  ~Quota_allocator() throw() {}
+  ~Quota_allocator() noexcept {}
 
-  T *alloc() throw()
+  T *alloc() noexcept
   {
     auto *mc = Malloc_container::from_ptr(this);
     return static_cast<T *>(mc->alloc(sizeof (T), alignof(T)));
   }
 
-  void free(T *t) throw()
+  void free(T *t) noexcept
   {
     auto *mc = Malloc_container::from_ptr(t);
     mc->free(t);

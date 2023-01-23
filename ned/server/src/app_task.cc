@@ -28,10 +28,10 @@ static Slab_alloc<App_task> *alloc()
 #endif
 
 #if 0
-void *App_task::operator new (size_t) throw()
+void *App_task::operator new (size_t) noexcept
 { return alloc()->alloc(); }
 
-void App_task::operator delete (void *m) throw()
+void App_task::operator delete (void *m) noexcept
 { alloc()->free((App_task*)m); }
 #endif
 

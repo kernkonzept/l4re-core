@@ -17,8 +17,8 @@
 #include "debug.h"
 #include <stdlib.h>
 
-inline void *operator new (size_t s, cxx::Nothrow const &) throw() { return malloc(s); }
-inline void operator delete (void *p, cxx::Nothrow const &) throw() { return free(p); }
+inline void *operator new (size_t s, cxx::Nothrow const &) noexcept { return malloc(s); }
+inline void operator delete (void *p, cxx::Nothrow const &) noexcept { return free(p); }
 
 class Region_ops;
 

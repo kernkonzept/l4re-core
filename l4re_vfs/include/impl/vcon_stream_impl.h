@@ -27,7 +27,7 @@
 #include <sys/ttydefaults.h>
 
 namespace L4Re { namespace Core {
-Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) throw()
+Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) noexcept
 : Be_file_stream(), _s(s), _irq(L4Re::virt_cap_alloc->alloc<L4::Semaphore>())
 {
   //printf("VCON: irq cap = %lx\n", _irq.cap());
@@ -42,7 +42,7 @@ Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) throw()
 }
 
 ssize_t
-Vcon_stream::readv(const struct iovec *iovec, int iovcnt) throw()
+Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
 {
   ssize_t bytes = 0;
   for (; iovcnt > 0; --iovcnt, ++iovec)
@@ -91,7 +91,7 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) throw()
 }
 
 ssize_t
-Vcon_stream::writev(const struct iovec *iovec, int iovcnt) throw()
+Vcon_stream::writev(const struct iovec *iovec, int iovcnt) noexcept
 {
   l4_msg_regs_t store;
   l4_msg_regs_t *mr = l4_utcb_mr();
@@ -120,7 +120,7 @@ Vcon_stream::writev(const struct iovec *iovec, int iovcnt) throw()
 }
 
 int
-Vcon_stream::fstat64(struct stat64 *buf) const throw()
+Vcon_stream::fstat64(struct stat64 *buf) const noexcept
 {
   buf->st_size = 0;
   buf->st_mode = 0666;
@@ -130,7 +130,7 @@ Vcon_stream::fstat64(struct stat64 *buf) const throw()
 }
 
 int
-Vcon_stream::ioctl(unsigned long request, va_list args) throw()
+Vcon_stream::ioctl(unsigned long request, va_list args) noexcept
 {
   switch (request) {
     case TCGETS:

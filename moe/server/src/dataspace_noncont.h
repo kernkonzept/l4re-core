@@ -34,28 +34,28 @@ public:
     unsigned long p;
 
   public:
-    Page() throw() : p(0) {}
-    void *operator * () const throw() { return (void*)(p & Page_addr_mask); }
-    bool valid() const throw() { return p & Page_addr_mask;}
-    unsigned long flags() const throw() { return p & ~Page_addr_mask; }
+    Page() noexcept : p(0) {}
+    void *operator * () const noexcept { return (void*)(p & Page_addr_mask); }
+    bool valid() const noexcept { return p & Page_addr_mask;}
+    unsigned long flags() const noexcept { return p & ~Page_addr_mask; }
 
-    void set(void *addr, unsigned long flags) throw()
+    void set(void *addr, unsigned long flags) noexcept
     { p = ((unsigned long)addr & Page_addr_mask) | (flags & ~Page_addr_mask); }
 
-    void flags(unsigned long add, unsigned long del = 0) throw()
+    void flags(unsigned long add, unsigned long del = 0) noexcept
     {
       p = (p & Page_addr_mask & ~(del & ~Page_addr_mask))
         | ((unsigned long)add & ~Page_addr_mask);
     }
 
-    void addr(void *a) throw()
+    void addr(void *a) noexcept
     { p = (p & ~Page_addr_mask) | ((unsigned long)a & Page_addr_mask); }
   };
 
-  bool is_static() const throw() override { return false; }
+  bool is_static() const noexcept override { return false; }
 
   Dataspace_noncont(unsigned long size,
-                    Flags flags = L4Re::Dataspace::F::RWX) throw()
+                    Flags flags = L4Re::Dataspace::F::RWX) noexcept
   : Dataspace(size, flags | Flags(Cow_enabled), L4_LOG2_PAGESIZE), _pages(0)
   {}
 
@@ -69,10 +69,10 @@ public:
 
   int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) override;
 
-  virtual Page &page(unsigned long offs) const throw() = 0;
+  virtual Page &page(unsigned long offs) const noexcept = 0;
   virtual Page &alloc_page(unsigned long offs) const = 0;
 
-  unsigned long num_pages() const throw()
+  unsigned long num_pages() const noexcept
   { return (size()+page_size()-1) / page_size(); }
 
 #if 0
@@ -89,11 +89,11 @@ private:
   }
 #endif
 
-  void free_page(Page &p) const throw();
-  void unmap_page(Page const &p, bool ro = false) const throw();
+  void free_page(Page &p) const noexcept;
+  void unmap_page(Page const &p, bool ro = false) const noexcept;
 
 public:
-  long clear(unsigned long offs, unsigned long size) const throw() override;
+  long clear(unsigned long offs, unsigned long size) const noexcept override;
 
   static Dataspace_noncont *create(Q_alloc *q, unsigned long size,
                                    Flags flags = L4Re::Dataspace::F::RWX);

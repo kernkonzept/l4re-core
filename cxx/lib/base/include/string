@@ -46,9 +46,9 @@ public:
   typedef char const *Index;
 
   /// Initialize from a zero-terminated string.
-  String(char const *s) throw() : _start(s), _len(__builtin_strlen(s)) {}
+  String(char const *s) noexcept : _start(s), _len(__builtin_strlen(s)) {}
   /// Initialize from a pointer to first character and a length.
-  String(char const *s, unsigned long len) throw() : _start(s), _len(len) {}
+  String(char const *s, unsigned long len) noexcept : _start(s), _len(len) {}
 
   /**
    * Initialize with start and end pointer.
@@ -56,7 +56,7 @@ public:
    * \param s  first character of the string
    * \param e  pointer to first byte behind the string
    */
-  String(char const *s, char const *e) throw() : _start(s), _len(e - s) {}
+  String(char const *s, char const *e) noexcept : _start(s), _len(e - s) {}
 
   /// Zero-initialize. Create an invalid string.
   String() : _start(0), _len(0) {}

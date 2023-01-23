@@ -20,7 +20,7 @@
 namespace L4Re { namespace Core {
 
 int
-Fd_store::alloc() throw()
+Fd_store::alloc() noexcept
 {
   for (int i = _fd_hint; i < MAX_FILES; ++i)
     {
@@ -35,7 +35,7 @@ Fd_store::alloc() throw()
 }
 
 void
-Fd_store::free(int fd) throw()
+Fd_store::free(int fd) noexcept
 {
   _files[fd] = 0;
   if (fd < _fd_hint)

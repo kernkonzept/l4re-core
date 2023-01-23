@@ -30,32 +30,32 @@ private:
   char const *_addr;
 
 public:
-  explicit Ro_file(L4::Cap<L4Re::Dataspace> ds) throw()
+  explicit Ro_file(L4::Cap<L4Re::Dataspace> ds) noexcept
   : Be_file_pos(), _ds(ds), _addr(0)
   {
     _size = _ds->size();
   }
 
-  L4::Cap<L4Re::Dataspace> data_space() const throw() override { return _ds; }
+  L4::Cap<L4Re::Dataspace> data_space() const noexcept override { return _ds; }
 
-  int fstat64(struct stat64 *buf) const throw() override;
+  int fstat64(struct stat64 *buf) const noexcept override;
 
-  int ioctl(unsigned long, va_list) throw() override;
+  int ioctl(unsigned long, va_list) noexcept override;
 
-  off64_t size() const throw() override { return _size; }
+  off64_t size() const noexcept override { return _size; }
 
-  int get_status_flags() const throw() override
+  int get_status_flags() const noexcept override
   { return O_RDONLY; }
 
-  int set_status_flags(long) throw() override
+  int set_status_flags(long) noexcept override
   { return 0; }
 
-  ~Ro_file() throw();
+  ~Ro_file() noexcept;
 
 private:
-  ssize_t read_single(const struct iovec*, off64_t) throw();
-  ssize_t preadv(const struct iovec *, int, off64_t) throw() override;
-  ssize_t pwritev(const struct iovec *, int , off64_t) throw() override;
+  ssize_t read_single(const struct iovec*, off64_t) noexcept;
+  ssize_t preadv(const struct iovec *, int, off64_t) noexcept override;
+  ssize_t pwritev(const struct iovec *, int , off64_t) noexcept override;
 };
 
 

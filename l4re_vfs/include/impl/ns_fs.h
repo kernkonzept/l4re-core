@@ -34,21 +34,21 @@ public:
   : _env(env), _current_cap_entry(env->initial_caps())
   {}
 
-  ssize_t readv(const struct iovec*, int) throw() override { return -EISDIR; }
-  ssize_t writev(const struct iovec*, int) throw() override { return -EISDIR; }
-  ssize_t preadv(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
-  ssize_t pwritev(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
-  int fstat64(struct stat64 *) const throw() override;
-  int faccessat(const char *path, int mode, int flags) throw() override;
+  ssize_t readv(const struct iovec*, int) noexcept override { return -EISDIR; }
+  ssize_t writev(const struct iovec*, int) noexcept override { return -EISDIR; }
+  ssize_t preadv(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
+  ssize_t pwritev(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
+  int fstat64(struct stat64 *) const noexcept override;
+  int faccessat(const char *path, int mode, int flags) noexcept override;
   int get_entry(const char *path, int flags, mode_t mode,
-                Ref_ptr<L4Re::Vfs::File> *) throw() override;
-  ssize_t getdents(char *, size_t) throw() override;
+                Ref_ptr<L4Re::Vfs::File> *) noexcept override;
+  ssize_t getdents(char *, size_t) noexcept override;
 
-  ~Env_dir() throw() {}
+  ~Env_dir() noexcept {}
 
 private:
-  int get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw();
-  bool check_type(Env::Cap_entry const *e, long protocol) throw();
+  int get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) noexcept;
+  bool check_type(Env::Cap_entry const *e, long protocol) noexcept;
 
   L4Re::Env const *_env;
   Env::Cap_entry const *_current_cap_entry;
@@ -61,20 +61,20 @@ public:
   : _ns(ns), _current_dir_pos(0)
   {}
 
-  ssize_t readv(const struct iovec*, int) throw() override { return -EISDIR; }
-  ssize_t writev(const struct iovec*, int) throw() override { return -EISDIR; }
-  ssize_t preadv(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
-  ssize_t pwritev(const struct iovec*, int, off64_t) throw() override { return -EISDIR; }
-  int fstat64(struct stat64 *) const throw() override;
-  int faccessat(const char *path, int mode, int flags) throw() override;
+  ssize_t readv(const struct iovec*, int) noexcept override { return -EISDIR; }
+  ssize_t writev(const struct iovec*, int) noexcept override { return -EISDIR; }
+  ssize_t preadv(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
+  ssize_t pwritev(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
+  int fstat64(struct stat64 *) const noexcept override;
+  int faccessat(const char *path, int mode, int flags) noexcept override;
   int get_entry(const char *path, int flags, mode_t mode,
-                Ref_ptr<L4Re::Vfs::File> *) throw() override;
-  ssize_t getdents(char *, size_t) throw() override;
+                Ref_ptr<L4Re::Vfs::File> *) noexcept override;
+  ssize_t getdents(char *, size_t) noexcept override;
 
-  ~Ns_dir() throw() {}
+  ~Ns_dir() noexcept {}
 
 private:
-  int get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) throw();
+  int get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) noexcept;
 
   L4::Cap<L4Re::Namespace> _ns;
   size_t _current_dir_pos;

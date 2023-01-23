@@ -62,7 +62,7 @@ class File;
 class Generic_file
 {
 public:
-  virtual ~Generic_file() throw() = 0;
+  virtual ~Generic_file() noexcept = 0;
   /**
    * \brief Unlock all locks on the file.
    * \note All locks means all locks independent of which file
@@ -74,7 +74,7 @@ public:
    *
    * \return 0 on success, or <0 on error.
    */
-  virtual int unlock_all_locks() throw() = 0;
+  virtual int unlock_all_locks() noexcept = 0;
 
   /**
    * \brief Get status information for the file.
@@ -84,14 +84,14 @@ public:
    * \param[out] buf This buffer is filled with the status information.
    * \return 0 on success, or <0 on error.
    */
-  virtual int fstat64(struct stat64 *buf) const throw() = 0;
+  virtual int fstat64(struct stat64 *buf) const noexcept = 0;
 
   /**
    * \brief Change POSIX access rights on the file.
    *
    * Backend for POSIX chmod and fchmod.
    */
-  virtual int fchmod(mode_t) throw() = 0;
+  virtual int fchmod(mode_t) noexcept = 0;
 
   /**
    * \brief Get file status flags (fcntl F_GETFL).
@@ -102,7 +102,7 @@ public:
    * \return flags such as `O_RDONLY`, `O_WRONLY`, `O_RDWR`, `O_DIRECT`,
    *         `O_ASYNC`, `O_NOATIME`, `O_NONBLOCK`, or <0 on error.
    */
-  virtual int get_status_flags() const throw() = 0;
+  virtual int get_status_flags() const noexcept = 0;
 
   /**
    * \brief Set file status flags (fcntl F_SETFL).
@@ -119,15 +119,15 @@ public:
    *
    * \return 0 on success, or <0 on error.
    */
-  virtual int set_status_flags(long flags) throw() = 0;
+  virtual int set_status_flags(long flags) noexcept = 0;
 
-  virtual int utime(const struct utimbuf *) throw() = 0;
-  virtual int utimes(const struct timeval [2]) throw() = 0;
+  virtual int utime(const struct utimbuf *) noexcept = 0;
+  virtual int utimes(const struct timeval [2]) noexcept = 0;
   virtual ssize_t readlink(char *, size_t) = 0;
 };
 
 inline
-Generic_file::~Generic_file() throw()
+Generic_file::~Generic_file() noexcept
 {}
 
 /**
@@ -140,7 +140,7 @@ Generic_file::~Generic_file() throw()
 class Directory
 {
 public:
-  virtual ~Directory() throw() = 0;
+  virtual ~Directory() noexcept = 0;
 
   /**
    * \brief Check access permissions on the given file.
@@ -155,7 +155,7 @@ public:
    *              AT_SYMLINK_NOFOLLOW).
    * \return 0 on success, or <0 on error.
    */
-  virtual int faccessat(const char *path, int mode, int flags) throw() = 0;
+  virtual int faccessat(const char *path, int mode, int flags) noexcept = 0;
 
   /**
    * \brief Create a new subdirectory.
@@ -169,7 +169,7 @@ public:
    * \return 0 on success, or <0 on error. -ENOTDIR if this or some component
    *         in path is not a directory.
    */
-  virtual int mkdir(const char *path, mode_t mode) throw() = 0;
+  virtual int mkdir(const char *path, mode_t mode) noexcept = 0;
 
   /**
    * \brief Unlink the given file from that directory.
@@ -181,7 +181,7 @@ public:
    *             contain subdirectories.
    * \return 0 on success, or <0 on error.
    */
-  virtual int unlink(const char *path) throw() = 0;
+  virtual int unlink(const char *path) noexcept = 0;
 
   /**
    * \brief Rename the given file.
@@ -196,7 +196,7 @@ public:
    *                 directory and may contain subdirectories.
    * \return 0 on success, or <0 on error.
    */
-  virtual int rename(const char *src_path, const char *dst_path) throw() = 0;
+  virtual int rename(const char *src_path, const char *dst_path) noexcept = 0;
 
   /**
    * \brief Create a hard link (second name) for the given file.
@@ -211,7 +211,7 @@ public:
    *                 directory and may contain subdirectories.
    * \return 0 on success, or <0 on error.
    */
-  virtual int link(const char *src_path, const char *dst_path) throw() = 0;
+  virtual int link(const char *src_path, const char *dst_path) noexcept = 0;
 
   /**
    * \brief Create a symbolic link for the given file.
@@ -225,7 +225,7 @@ public:
    *                 directory and may contain subdirectories.
    * \return 0 on success, or <0 on error.
    */
-  virtual int symlink(const char *src_path, const char *dst_path) throw() = 0;
+  virtual int symlink(const char *src_path, const char *dst_path) noexcept = 0;
 
   /**
    * \brief Delete an empty directory.
@@ -237,26 +237,26 @@ public:
    *             directory and may contain subdirectories.
    * \return 0 on success, or <0 on error.
    */
-  virtual int rmdir(const char *path) throw() = 0;
+  virtual int rmdir(const char *path) noexcept = 0;
   virtual int openat(const char *path, int flags, mode_t mode,
-                     cxx::Ref_ptr<File> *f) throw() = 0;
+                     cxx::Ref_ptr<File> *f) noexcept = 0;
 
-  virtual ssize_t getdents(char *buf, size_t sizebytes) throw() = 0;
+  virtual ssize_t getdents(char *buf, size_t sizebytes) noexcept = 0;
 
   virtual int fchmodat(const char *pathname,
-                       mode_t mode, int flags) throw() = 0;
+                       mode_t mode, int flags) noexcept = 0;
 
   virtual int utimensat(const char *pathname,
-                        const struct timespec times[2], int flags) throw() = 0;
+                        const struct timespec times[2], int flags) noexcept = 0;
 
   /**
    * \internal
    */
-  virtual int get_entry(const char *, int, mode_t, cxx::Ref_ptr<File> *) throw() = 0;
+  virtual int get_entry(const char *, int, mode_t, cxx::Ref_ptr<File> *) noexcept = 0;
 };
 
 inline
-Directory::~Directory() throw()
+Directory::~Directory() noexcept
 {}
 
 /**
@@ -267,7 +267,7 @@ Directory::~Directory() throw()
 class Regular_file
 {
 public:
-  virtual ~Regular_file() throw() = 0;
+  virtual ~Regular_file() noexcept = 0;
 
   /**
    * \brief Get an L4Re::Dataspace object for the file.
@@ -279,7 +279,7 @@ public:
    * \return A capability to an L4Re::Dataspace that represents the file
    *         contents in an L4Re way.
    */
-  virtual L4::Cap<L4Re::Dataspace> data_space() const throw() = 0;
+  virtual L4::Cap<L4Re::Dataspace> data_space() const noexcept = 0;
 
   /**
    * \brief Read one or more blocks of data from the file.
@@ -290,7 +290,7 @@ public:
    *
    * \return The number of bytes read from the file, or <0 on error.
    */
-  virtual ssize_t readv(const struct iovec*, int iovcnt) throw() = 0;
+  virtual ssize_t readv(const struct iovec*, int iovcnt) noexcept = 0;
 
   /**
    * \brief Write one or more blocks of data to the file.
@@ -302,10 +302,10 @@ public:
    *
    * \return The number of bytes written to the file, or <0 on error.
    */
-  virtual ssize_t writev(const struct iovec*, int iovcnt) throw() = 0;
+  virtual ssize_t writev(const struct iovec*, int iovcnt) noexcept = 0;
 
-  virtual ssize_t preadv(const struct iovec *iov, int iovcnt, off64_t offset) throw() = 0;
-  virtual ssize_t pwritev(const struct iovec *iov, int iovcnt, off64_t offset) throw() = 0;
+  virtual ssize_t preadv(const struct iovec *iov, int iovcnt, off64_t offset) noexcept = 0;
+  virtual ssize_t pwritev(const struct iovec *iov, int iovcnt, off64_t offset) noexcept = 0;
 
   /**
    * \brief Change the file pointer.
@@ -314,7 +314,7 @@ public:
    *
    * \return The new file position, or <0 on error.
    */
-  virtual off64_t lseek64(off64_t, int) throw() = 0;
+  virtual off64_t lseek64(off64_t, int) noexcept = 0;
 
 
   /**
@@ -324,21 +324,21 @@ public:
    * \param pos The offset at which the file shall be truncated.
    * \return 0 on success, or <0 on error.
    */
-  virtual int ftruncate64(off64_t pos) throw() = 0;
+  virtual int ftruncate64(off64_t pos) noexcept = 0;
 
   /**
    * \brief Sync the data and meta data to persistent storage.
    *
    * This is the backend for POSIX fsync.
    */
-  virtual int fsync() const throw() = 0;
+  virtual int fsync() const noexcept = 0;
 
   /**
    * \brief Sync the data to persistent storage.
    *
    * This is the backend for POSIX fdatasync.
    */
-  virtual int fdatasync() const throw() = 0;
+  virtual int fdatasync() const noexcept = 0;
 
   /**
    * \brief Test if the given lock can be placed in the file.
@@ -349,7 +349,7 @@ public:
    *             could be placed.
    * \return 0 on success, <0 on error.
    */
-  virtual int get_lock(struct flock64 *lock) throw() = 0;
+  virtual int get_lock(struct flock64 *lock) noexcept = 0;
 
   /**
    * \brief Acquire or release the given lock on the file.
@@ -359,37 +359,37 @@ public:
    * \param wait If true, then block if there is a conflicting lock on the file.
    * \return 0 on success, <0 on error.
    */
-  virtual int set_lock(struct flock64 *lock, bool wait) throw() = 0;
+  virtual int set_lock(struct flock64 *lock, bool wait) noexcept = 0;
 };
 
 inline
-Regular_file::~Regular_file() throw()
+Regular_file::~Regular_file() noexcept
 {}
 
 class Socket
 {
 public:
-  virtual ~Socket() throw() = 0;
-  virtual int bind(sockaddr const *, socklen_t) throw() = 0;
-  virtual int connect(sockaddr const *, socklen_t) throw() = 0;
-  virtual ssize_t send(void const *, size_t, int) throw() = 0;
-  virtual ssize_t recv(void *, size_t, int) throw() = 0;
-  virtual ssize_t sendto(void const *, size_t, int, sockaddr const *, socklen_t) throw() = 0;
-  virtual ssize_t recvfrom(void *, size_t, int, sockaddr *, socklen_t *) throw() = 0;
-  virtual ssize_t sendmsg(msghdr const *, int) throw() = 0;
-  virtual ssize_t recvmsg(msghdr *, int) throw() = 0;
-  virtual int getsockopt(int level, int opt, void *, socklen_t *) throw() = 0;
-  virtual int setsockopt(int level, int opt, void const *, socklen_t) throw() = 0;
-  virtual int listen(int) throw() = 0;
-  virtual int accept(sockaddr *addr, socklen_t *) throw() = 0;
-  virtual int shutdown(int) throw() = 0;
+  virtual ~Socket() noexcept = 0;
+  virtual int bind(sockaddr const *, socklen_t) noexcept = 0;
+  virtual int connect(sockaddr const *, socklen_t) noexcept = 0;
+  virtual ssize_t send(void const *, size_t, int) noexcept = 0;
+  virtual ssize_t recv(void *, size_t, int) noexcept = 0;
+  virtual ssize_t sendto(void const *, size_t, int, sockaddr const *, socklen_t) noexcept = 0;
+  virtual ssize_t recvfrom(void *, size_t, int, sockaddr *, socklen_t *) noexcept = 0;
+  virtual ssize_t sendmsg(msghdr const *, int) noexcept = 0;
+  virtual ssize_t recvmsg(msghdr *, int) noexcept = 0;
+  virtual int getsockopt(int level, int opt, void *, socklen_t *) noexcept = 0;
+  virtual int setsockopt(int level, int opt, void const *, socklen_t) noexcept = 0;
+  virtual int listen(int) noexcept = 0;
+  virtual int accept(sockaddr *addr, socklen_t *) noexcept = 0;
+  virtual int shutdown(int) noexcept = 0;
 
-  virtual int getsockname(sockaddr *, socklen_t *) throw() = 0;
-  virtual int getpeername(sockaddr *, socklen_t *) throw() = 0;
+  virtual int getsockname(sockaddr *, socklen_t *) noexcept = 0;
+  virtual int getpeername(sockaddr *, socklen_t *) noexcept = 0;
 };
 
 inline
-Socket::~Socket() throw()
+Socket::~Socket() noexcept
 {}
 
 /**
@@ -400,7 +400,7 @@ Socket::~Socket() throw()
 class Special_file
 {
 public:
-  virtual ~Special_file() throw() = 0;
+  virtual ~Special_file() noexcept = 0;
 
   /**
    * \brief The famous IO control.
@@ -412,11 +412,11 @@ public:
    *             of pointer.
    * \return >=0 on success, or <0 on error.
    */
-  virtual int ioctl(unsigned long cmd, va_list args) throw() = 0;
+  virtual int ioctl(unsigned long cmd, va_list args) noexcept = 0;
 };
 
 inline
-Special_file::~Special_file() throw()
+Special_file::~Special_file() noexcept
 {}
 
 /**
@@ -445,7 +445,7 @@ private:
   void operator = (File const &);
 
 protected:
-  File() throw() : _ref_cnt(0) {}
+  File() noexcept : _ref_cnt(0) {}
   File(File const &)
   : Generic_file(),Regular_file(), Directory(), Special_file(), _ref_cnt(0)
   {}
@@ -453,17 +453,17 @@ protected:
 public:
 
   const char *get_mount(const char *path, cxx::Ref_ptr<File> *dir,
-                        cxx::Ref_ptr<Mount_tree> *mt = 0) throw();
+                        cxx::Ref_ptr<Mount_tree> *mt = 0) noexcept;
 
   int openat(const char *path, int flags, mode_t mode,
-             cxx::Ref_ptr<File> *f) throw() override;
+             cxx::Ref_ptr<File> *f) noexcept override;
 
-  void add_ref() throw() { ++_ref_cnt; }
-  int remove_ref() throw() { return --_ref_cnt; }
+  void add_ref() noexcept { ++_ref_cnt; }
+  int remove_ref() noexcept { return --_ref_cnt; }
 
-  virtual ~File() throw() = 0;
+  virtual ~File() noexcept = 0;
 
-  cxx::Ref_ptr<Mount_tree> mount_tree() const throw()
+  cxx::Ref_ptr<Mount_tree> mount_tree() const noexcept
   { return _mount_tree; }
 
 private:
@@ -473,7 +473,7 @@ private:
 };
 
 inline
-File::~File() throw()
+File::~File() noexcept
 {}
 
 class Path
@@ -483,17 +483,17 @@ private:
   unsigned _l;
 
 public:
-  Path() throw() : _p(0), _l(0) {}
+  Path() noexcept : _p(0), _l(0) {}
 
-  explicit Path(char const *p) throw() : _p(p)
+  explicit Path(char const *p) noexcept : _p(p)
   { for (_l = 0; *p; ++p, ++_l) ; }
 
-  Path(char const *p, unsigned l) throw() : _p(p), _l(l)
+  Path(char const *p, unsigned l) noexcept : _p(p), _l(l)
   {}
 
-  static bool __is_sep(char s) throw();
+  static bool __is_sep(char s) noexcept;
 
-  Path cmp_path(char const *prefix) const throw();
+  Path cmp_path(char const *prefix) const noexcept;
 
   struct Invalid_ptr;
   operator Invalid_ptr const * () const
@@ -545,12 +545,12 @@ class Mount_tree
 {
 public:
 
-  explicit Mount_tree(char *n) throw();
+  explicit Mount_tree(char *n) noexcept;
 
   Path lookup(Path const &path, cxx::Ref_ptr<Mount_tree> *mt,
-              cxx::Ref_ptr<Mount_tree> *mp = 0) throw();
+              cxx::Ref_ptr<Mount_tree> *mp = 0) noexcept;
 
-  Path find(Path const &p, cxx::Ref_ptr<Mount_tree> *t) throw();
+  Path find(Path const &p, cxx::Ref_ptr<Mount_tree> *t) noexcept;
 
   cxx::Ref_ptr<File> mount() const
   { return _mount; }
@@ -563,14 +563,14 @@ public:
 
   static int create_tree(cxx::Ref_ptr<Mount_tree> const &root,
                          char const *path,
-                         cxx::Ref_ptr<File> const &dir) throw();
+                         cxx::Ref_ptr<File> const &dir) noexcept;
 
   void add_child_node(cxx::Ref_ptr<Mount_tree> const &cld);
 
-  virtual ~Mount_tree() throw()  = 0;
+  virtual ~Mount_tree() noexcept  = 0;
 
-  void add_ref() throw() { ++_ref_cnt; }
-  int remove_ref() throw() { return --_ref_cnt; }
+  void add_ref() noexcept { ++_ref_cnt; }
+  int remove_ref() noexcept { return --_ref_cnt; }
 
 private:
   friend class Real_mount_tree;
@@ -583,15 +583,15 @@ private:
 };
 
 inline
-Mount_tree::~Mount_tree() throw()
+Mount_tree::~Mount_tree() noexcept
 {}
 
 inline bool
-Path::__is_sep(char s) throw()
+Path::__is_sep(char s) noexcept
 { return s == '/'; }
 
 inline Path
-Path::cmp_path(char const *n) const throw()
+Path::cmp_path(char const *n) const noexcept
 {
   char const *p = _p;
   for (; *p && !__is_sep(*p) && *n; ++p, ++n)
@@ -605,12 +605,12 @@ Path::cmp_path(char const *n) const throw()
 }
 
 inline
-Mount_tree::Mount_tree(char *n) throw()
+Mount_tree::Mount_tree(char *n) noexcept
 : _ref_cnt(0), _name(n)
 {}
 
 inline Path
-Mount_tree::find(Path const &p, cxx::Ref_ptr<Mount_tree> *t) throw()
+Mount_tree::find(Path const &p, cxx::Ref_ptr<Mount_tree> *t) noexcept
 {
   if (!_cld)
     return Path();
@@ -630,7 +630,7 @@ Mount_tree::find(Path const &p, cxx::Ref_ptr<Mount_tree> *t) throw()
 
 inline Path
 Mount_tree::lookup(Path const &path, cxx::Ref_ptr<Mount_tree> *mt,
-                   cxx::Ref_ptr<Mount_tree> *mp) throw()
+                   cxx::Ref_ptr<Mount_tree> *mp) noexcept
 {
   cxx::Ref_ptr<Mount_tree> x(this);
   Path p = path;
@@ -692,7 +692,7 @@ Mount_tree::add_child_node(cxx::Ref_ptr<Mount_tree> const &cld)
 inline
 const char *
 File::get_mount(const char *path, cxx::Ref_ptr<File> *dir,
-                cxx::Ref_ptr<Mount_tree> *mt) throw()
+                cxx::Ref_ptr<Mount_tree> *mt) noexcept
 {
   if (!_mount_tree)
     {
@@ -716,7 +716,7 @@ File::get_mount(const char *path, cxx::Ref_ptr<File> *dir,
 
 inline int
 File::openat(const char *path, int flags, mode_t mode,
-             cxx::Ref_ptr<File> *f) throw()
+             cxx::Ref_ptr<File> *f) noexcept
 {
   cxx::Ref_ptr<File> dir;
   cxx::Ref_ptr<Mount_tree> mt;
@@ -746,29 +746,29 @@ class Mman
 public:
   /// Backend for the mmap2 system call.
   virtual int mmap2(void *start, size_t len, int prot, int flags, int fd,
-                    off_t offset, void **ptr) throw() = 0;
+                    off_t offset, void **ptr) noexcept = 0;
 
   /// Backend for the munmap system call.
-  virtual int munmap(void *start, size_t len) throw() = 0;
+  virtual int munmap(void *start, size_t len) noexcept = 0;
 
   /// Backend for the mremap system call.
   virtual int mremap(void *old, size_t old_sz, size_t new_sz, int flags,
-                     void **new_addr) throw() = 0;
+                     void **new_addr) noexcept = 0;
 
   /// Backend for the mprotect system call.
-  virtual int mprotect(const void *a, size_t sz, int prot) throw() = 0;
+  virtual int mprotect(const void *a, size_t sz, int prot) noexcept = 0;
 
   /// Backend for the msync system call
-  virtual int msync(void *addr, size_t len, int flags) throw() = 0;
+  virtual int msync(void *addr, size_t len, int flags) noexcept = 0;
 
   /// Backend for the madvice system call
-  virtual int madvise(void *addr, size_t len, int advice) throw() = 0;
+  virtual int madvise(void *addr, size_t len, int advice) noexcept = 0;
 
-  virtual ~Mman() throw() = 0;
+  virtual ~Mman() noexcept = 0;
 };
 
 inline
-Mman::~Mman() throw() {}
+Mman::~Mman() noexcept {}
 
 class File_factory
 {
@@ -778,8 +778,8 @@ private:
   char const *_proto_name = 0;
 
   template<typename T> friend struct cxx::Default_ref_counter;
-  void add_ref() throw() { ++_ref_cnt; }
-  int remove_ref() throw() { return --_ref_cnt; }
+  void add_ref() noexcept { ++_ref_cnt; }
+  int remove_ref() noexcept { return --_ref_cnt; }
 
 public:
   explicit File_factory(int proto) : _proto(proto) {}
@@ -794,11 +794,11 @@ public:
   char const *proto_name() const { return _proto_name; }
   int proto() const { return _proto; }
 
-  virtual ~File_factory() throw() = 0;
+  virtual ~File_factory() noexcept = 0;
   virtual cxx::Ref_ptr<File> create(L4::Cap<void> file) = 0;
 };
 
-inline File_factory::~File_factory() throw() {}
+inline File_factory::~File_factory() noexcept {}
 
 template<typename IFACE, typename IMPL>
 class File_factory_t : public File_factory
@@ -831,13 +831,13 @@ protected:
   File_system *_next;
 
 public:
-  File_system() throw() : _next(0) {}
+  File_system() noexcept : _next(0) {}
   /**
    * \brief Returns the type of the file system used in mount as fstype
    * argument.
    * \note This method is already provided by Be_file_system.
    */
-  virtual char const *type() const throw() = 0;
+  virtual char const *type() const noexcept = 0;
 
   /**
    * \brief Create a directory object \a dir representing \a source
@@ -855,21 +855,21 @@ public:
    *
    */
   virtual int mount(char const *source, unsigned long mountflags,
-                    void const *data, cxx::Ref_ptr<File> *dir) throw() = 0;
+                    void const *data, cxx::Ref_ptr<File> *dir) noexcept = 0;
 
-  virtual ~File_system() throw() = 0;
+  virtual ~File_system() noexcept = 0;
 
   /**
    * \internal
    * \brief Get the next file system in the internal registry.
    */
-  File_system *next() const throw() { return _next; }
-  File_system *&next() throw() { return _next; }
-  void next(File_system *n) throw() { _next = n; }
+  File_system *next() const noexcept { return _next; }
+  File_system *&next() noexcept { return _next; }
+  void next(File_system *n) noexcept { _next = n; }
 };
 
 inline
-File_system::~File_system() throw()
+File_system::~File_system() noexcept
 {}
 
 /**
@@ -885,23 +885,23 @@ public:
    * \param fd The POSIX file descriptor number.
    * \return A pointer to the File object, or 0 if \a fd is not open.
    */
-  virtual cxx::Ref_ptr<File> get_file(int fd) throw() = 0;
+  virtual cxx::Ref_ptr<File> get_file(int fd) noexcept = 0;
 
   /// Get the directory object for the application's root directory.
-  virtual cxx::Ref_ptr<File> get_root() throw() = 0;
+  virtual cxx::Ref_ptr<File> get_root() noexcept = 0;
 
   /// Get the directory object for the application's current working directory.
-  virtual cxx::Ref_ptr<File> get_cwd() throw() { return get_root(); }
+  virtual cxx::Ref_ptr<File> get_cwd() noexcept { return get_root(); }
 
   /// Set the current working directory for the application.
-  virtual void set_cwd(cxx::Ref_ptr<File> const &) throw() {}
+  virtual void set_cwd(cxx::Ref_ptr<File> const &) noexcept {}
 
   /**
    * \brief Allocate the next free file descriptor.
    * \param f The file to assign to that file descriptor.
    * \return The allocated file descriptor, or -EMFILE on error.
    */
-  virtual int alloc_fd(cxx::Ref_ptr<File> const &f = cxx::Ref_ptr<>::Nil) throw() = 0;
+  virtual int alloc_fd(cxx::Ref_ptr<File> const &f = cxx::Ref_ptr<>::Nil) noexcept = 0;
 
   /**
    * \brief Set the file object referenced by the file descriptor \a fd.
@@ -914,14 +914,14 @@ public:
    *         case. On success, `second` contains 0.
    */
   virtual cxx::Pair<cxx::Ref_ptr<File>, int>
-    set_fd(int fd, cxx::Ref_ptr<File> const &f = cxx::Ref_ptr<>::Nil) throw() = 0;
+    set_fd(int fd, cxx::Ref_ptr<File> const &f = cxx::Ref_ptr<>::Nil) noexcept = 0;
 
   /**
    * \brief Free the file descriptor \a fd.
    * \param fd The file descriptor to free.
    * \return A pointer to the file object that was assigned to the fd.
    */
-  virtual cxx::Ref_ptr<File> free_fd(int fd) throw() = 0;
+  virtual cxx::Ref_ptr<File> free_fd(int fd) noexcept = 0;
 
   /**
    * \brief Mount a given file object at the given global path in the VFS.
@@ -930,7 +930,7 @@ public:
    *            at \a path.
    * \return 0 on success, or <0 on error.
    */
-  virtual int mount(char const *path, cxx::Ref_ptr<File> const &dir) throw() = 0;
+  virtual int mount(char const *path, cxx::Ref_ptr<File> const &dir) noexcept = 0;
 
   /**
    * \internal
@@ -939,7 +939,7 @@ public:
    * \param f A pointer to the file system to register.
    * \return 0 on success, or <0 on error.
    */
-  virtual int register_file_system(File_system *f) throw() = 0;
+  virtual int register_file_system(File_system *f) noexcept = 0;
 
   /**
    * \internal
@@ -948,7 +948,7 @@ public:
    * \param f The file system instance to remove from the registry.
    * \return 0 on success, <0 on error.
    */
-  virtual int unregister_file_system(File_system *f) throw() = 0;
+  virtual int unregister_file_system(File_system *f) noexcept = 0;
 
   /**
    * \internal
@@ -957,19 +957,19 @@ public:
    * \param fstype The file-system type (e.g. ext, vfat).
    * \return A pointer to the file-system object, or 0 on error.
    */
-  virtual File_system *get_file_system(char const *fstype) throw() = 0;
+  virtual File_system *get_file_system(char const *fstype) noexcept = 0;
 
   /**
    * \brief Backend for the POSIX mount call.
    */
   int mount(char const *source, char const *target,
             char const *fstype, unsigned long mountflags,
-            void const *data) throw();
+            void const *data) noexcept;
 
-  virtual int register_file_factory(cxx::Ref_ptr<File_factory> f) throw() = 0;
-  virtual int unregister_file_factory(cxx::Ref_ptr<File_factory> f) throw() = 0;
-  virtual cxx::Ref_ptr<File_factory> get_file_factory(int proto) throw() = 0;
-  virtual cxx::Ref_ptr<File_factory> get_file_factory(char const *proto_name) throw() = 0;
+  virtual int register_file_factory(cxx::Ref_ptr<File_factory> f) noexcept = 0;
+  virtual int unregister_file_factory(cxx::Ref_ptr<File_factory> f) noexcept = 0;
+  virtual cxx::Ref_ptr<File_factory> get_file_factory(int proto) noexcept = 0;
+  virtual cxx::Ref_ptr<File_factory> get_file_factory(char const *proto_name) noexcept = 0;
 
   virtual ~Fs() = 0;
 };
@@ -977,7 +977,7 @@ public:
 inline int
 Fs::mount(char const *source, char const *target,
           char const *fstype, unsigned long mountflags,
-          void const *data) throw()
+          void const *data) noexcept
 {
   File_system *fs = get_file_system(fstype);
 
@@ -1008,7 +1008,7 @@ class Ops : public Mman, public Fs
 public:
   virtual void *malloc(size_t bytes) noexcept = 0;
   virtual void free(void *mem) noexcept = 0;
-  virtual ~Ops() throw() = 0;
+  virtual ~Ops() noexcept = 0;
 
   char *strndup(char const *str, unsigned l) noexcept
   {
@@ -1036,7 +1036,7 @@ public:
 };
 
 inline
-Ops::~Ops() throw()
+Ops::~Ops() noexcept
 {}
 
 }}

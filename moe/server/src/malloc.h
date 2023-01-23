@@ -58,8 +58,8 @@ public:
     Malloc_container* _c;
   };
 
-  void *alloc(size_t size, size_t align) throw();
-  void free(void *block) throw();
+  void *alloc(size_t size, size_t align) noexcept;
+  void free(void *block) noexcept;
   virtual void reparent(Malloc_container *new_container);
 
   template <typename T, typename ...ARGS>
@@ -82,7 +82,7 @@ public:
     return q.release<T>();
   }
 
-  static Malloc_container *from_ptr(void const *p) throw();
+  static Malloc_container *from_ptr(void const *p) noexcept;
 
 protected:
   virtual void *get_mem();

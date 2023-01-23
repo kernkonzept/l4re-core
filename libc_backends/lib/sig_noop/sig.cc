@@ -26,27 +26,27 @@ int sigaction(int, const struct sigaction *, struct sigaction *) L4_NOTHROW
 }
 
 extern "C"
-int sigprocmask(int, const sigset_t *, sigset_t *) throw()
+int sigprocmask(int, const sigset_t *, sigset_t *) noexcept
 {
   errno = EINVAL;
   return -1;
 }
 
 extern "C"
-int sigpending(sigset_t *) throw()
+int sigpending(sigset_t *) noexcept
 {
   errno = EFAULT;
   return -1;
 }
 
-int sigsuspend(const sigset_t *) throw()
+int sigsuspend(const sigset_t *) noexcept
 {
   errno = EFAULT;
   return -1;
 }
 
 extern "C"
-int killpg(int, int) throw()
+int killpg(int, int) noexcept
 {
   errno = EPERM;
   return -1;

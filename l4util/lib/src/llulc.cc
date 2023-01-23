@@ -68,10 +68,10 @@ public:
 
   void lock(Lockcap c) { _lock = c; }
 
-  void block() throw()
+  void block() noexcept
   { _lock->down(); add_atomic(&_triggers, -1); }
 
-  void wakeup() throw()
+  void wakeup() noexcept
   {
     if (_triggers < 2)
       {

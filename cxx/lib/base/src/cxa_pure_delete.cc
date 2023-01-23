@@ -18,7 +18,7 @@
 
 #include <l4/cxx/iostream>
 
-void operator delete (void *obj) throw()
+void operator delete (void *obj) noexcept
 {
   L4::cerr << "cxa pure delete operator called for object @"
            << L4::hex << obj << L4::dec << "\n";
