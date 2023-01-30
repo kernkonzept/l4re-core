@@ -137,10 +137,10 @@ EXTERN_C_BEGIN
  *
  * Upon return, argc and argv point to a list of arguments that were not
  * scanned as arguments. See \c getoptlong for details on scanning. */
-L4_CV int parse_cmdline(int *argc, const char***argv, char arg0, ...);
-L4_CV int parse_cmdlinev(int *argc, const char***argv, char arg0, va_list va);
+L4_CV int parse_cmdline(int *argc, const char***argv, int arg0, ...);
+L4_CV int parse_cmdlinev(int *argc, const char***argv, int arg0, va_list va);
 L4_CV int parse_cmdline_extra(const char*argv0, const char*line, char delim,
-			      char arg0,...);
+			      int arg0,...);
 
 EXTERN_C_END
 /**@}*/
