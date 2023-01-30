@@ -52,18 +52,19 @@ fiasco_ldt_set(l4_cap_idx_t task, void *ldt, unsigned int num_desc,
                unsigned int entry_number_start, l4_utcb_t *utcb);
 
 /**
- * Set GDT segment descriptors. Fiasco supports 3 consecutive entries,
- * starting at the value returned by fiasco_gdt_get_entry_offset()
+ * Set GDT segment descriptors. Fiasco supports 4 consecutive entries, starting
+ * at the value returned by fiasco_gdt_get_entry_offset()
  * \ingroup api_calls_fiasco
  *
  * \param thread		Thread to set the GDT entry for.
  * \param desc			Pointer to GDT descriptors.
  * \param size			Size of the descriptors in bytes
  *				 (multiple of 8).
- * \param entry_number_start	Entry number to start (valid values: 0-2).
+ * \param entry_number_start	Entry number to start (valid values: 0-3).
  * \utcb{utcb}
  *
- * \retval <0 Error.
+ * \retval <0 At least one provided GDT descriptor is considered unsafe by the
+ *            kernel, and not all selected GDT descriptors have been updated.
  * \retval L4_EOK Success.
  */
 L4_INLINE long
