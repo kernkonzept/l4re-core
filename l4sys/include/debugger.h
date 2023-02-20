@@ -216,6 +216,7 @@ enum
 #include <l4/sys/kernel_object.h>
 
 /**
+ * \internal
  * Copy a number of characters from the C string \b src to the C string \b dst.
  *
  * The resulting string \b dst is always '\0'-terminated unless \b maxlen is 0.
