@@ -88,8 +88,8 @@ l4_debugger_get_object_name_u(l4_cap_idx_t cap, unsigned id,
  *
  * \param cap    Capability
  *
- * \retval ~0UL  Capability is not valid.
- * \retval >=0   Global debugger id.
+ * \retval ~0UL       Capability is not valid.
+ * \retval otherwise  Global debugger id.
  *
  * This is a debugging facility, the call might be invalid.
  */
@@ -109,8 +109,8 @@ l4_debugger_global_id_u(l4_cap_idx_t cap, l4_utcb_t *utcb) L4_NOTHROW;
  * \param cap    Capability
  * \param kobjp  Kobject pointer
  *
- * \retval ~0UL  The capability or the kobject pointer are invalid.
- * \retval >=0   The globally unique id.
+ * \retval ~0UL       The capability or the kobject pointer are invalid.
+ * \retval otherwise  The globally unique id.
  *
  * This is a debugging facility, the call might be invalid.
  */
