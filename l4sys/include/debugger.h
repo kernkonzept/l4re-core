@@ -61,6 +61,7 @@ l4_debugger_set_object_name_u(l4_cap_idx_t cap, const char *name, l4_utcb_t *utc
 
 /**
  * Get name of the kernel object with Id `id`.
+ * \ingroup l4_debugger_api
  *
  * \param      cap   Capability of the debugger object.
  * \param      id    Global id of the object whose name is asked.
@@ -125,6 +126,7 @@ l4_debugger_kobj_to_id_u(l4_cap_idx_t cap, l4_addr_t kobjp, l4_utcb_t *utcb) L4_
 
 /**
  * Query the log-id for a log type
+ * \ingroup l4_debugger_api
  *
  * \param cap    Debugger capability
  * \param name   Name to query for.
@@ -147,6 +149,7 @@ l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
 
 /**
  * Query the name of a log type given the ID
+ * \ingroup l4_debugger_api
  *
  * \param cap           Debugger capability.
  * \param idx           ID to query.
@@ -176,6 +179,7 @@ l4_debugger_query_log_name_u(l4_cap_idx_t cap, unsigned idx,
 
 /**
  * Set or unset log.
+ * \ingroup l4_debugger_api
  *
  * \param cap     Debugger object.
  * \param name    Name of the log type.
