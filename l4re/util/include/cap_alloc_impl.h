@@ -24,8 +24,7 @@
 
 #pragma once
 
-//#define L4RE_STATIC_CAP_ALLOC
-#if defined(L4RE_STATIC_CAP_ALLOC)
+#if defined(CONFIG_L4RE_BITMAP_CAP_ALLOC)
 
 #include <l4/re/util/bitmap_cap_alloc>
 

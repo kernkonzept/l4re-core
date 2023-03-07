@@ -30,40 +30,41 @@
 #include <l4/re/util/cap_alloc>
 #include <l4/sys/assert.h>
 
-//#define L4RE_STATIC_CAP_ALLOC
-
 namespace
 {
   struct Ca : L4Re::Cap_alloc_t<L4Re::Util::_Cap_alloc>
   {
+    typedef L4Re::Cap_alloc_t<L4Re::Util::_Cap_alloc> Base;
+
 #ifdef CONFIG_MMU
     enum { Caps = 4096 };
 #else
     enum { Caps = 64 };
 #endif
 
-    typedef L4Re::Util::_Cap_alloc::Counter_storage<Caps> Storage;
+    typedef L4Re::Util::_Cap_alloc::Storage<Caps> Storage;
 
-#if defined(L4RE_STATIC_CAP_ALLOC) || !defined(CONFIG_MMU)
-    Ca()
+    static void *_alloc_storage()
     {
+#if !defined(CONFIG_MMU)
       static Storage __cap_storage;
-      setup(&__cap_storage, Caps, L4Re::Env::env()->first_free_cap());
-    }
+      return &__cap_storage;
 #else
-    L4::Cap<L4Re::Dataspace> _ds;
-    Ca() : _ds(L4::Cap<L4Re::Dataspace>::No_init)
-    {
+      L4::Cap<L4Re::Dataspace> ds(L4::Cap<L4Re::Dataspace>::No_init);
       L4Re::Env const *e = L4Re::Env::env();
-      _ds = L4::Cap<L4Re::Dataspace>(e->first_free_cap() << L4_CAP_SHIFT);
-      l4_check(e->mem_alloc()->alloc(sizeof(Storage), _ds) >= 0);
+      ds = L4::Cap<L4Re::Dataspace>(e->first_free_cap() << L4_CAP_SHIFT);
+      l4_check(e->mem_alloc()->alloc(sizeof(Storage), ds) >= 0);
       void *a = 0;
       l4_check(e->rm()->attach(&a, sizeof(Storage),
                                L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                                L4::Ipc::make_cap_rw(_ds)) >= 0);
-      setup(a, Caps, e->first_free_cap() + 1);
     }
 #endif
+    }
+
+    Ca()
+    : Base(Caps, _alloc_storage(), L4Re::Env::env()->first_free_cap() + 1)
+    {}
   };
 
   Ca __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC))) __cap_alloc;

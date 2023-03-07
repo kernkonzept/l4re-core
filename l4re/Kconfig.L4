@@ -1,0 +1,13 @@
+menu "L4Re"
+
+config L4RE_BITMAP_CAP_ALLOC
+	bool "Bitmap capability allocator"
+	help
+          Use a bitmap allocator for capability allocation instead of reference
+          coutners.
+
+          Warning: any code that uses reference counted capabilites (e.g.
+          L4Re::Util::Shared_cap) will lead to capability leaks because
+          reference counting is not possible.
+
+endmenu

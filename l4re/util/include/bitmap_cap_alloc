@@ -42,6 +42,12 @@ private:
   Item_alloc_base _items;
 
 public:
+  template <unsigned COUNT>
+  struct Storage
+  {
+    typename Bitmap_base::Word<COUNT>::Type _bits[Bitmap_base::Word<COUNT>::Size];
+  };
+
   enum State { Free = 0, Allocated, Unknown };
   Cap_alloc_base(long max, void *mem, long bias = 0)
     noexcept : _bias(bias), _items(max, mem) {}
