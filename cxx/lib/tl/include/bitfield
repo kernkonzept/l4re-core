@@ -54,7 +54,7 @@ private:
       unsigned long,
       unsigned long long
     > Unsigned_types;
-    typedef typename cxx::find_type<Unsigned_types, Cmp>::type Type;
+    typedef cxx::find_type_t<Unsigned_types, Cmp> Type;
   };
 
 public:

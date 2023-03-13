@@ -53,7 +53,7 @@ private:
   typedef _unspec* _unspec_ptr_type;
 
 public:
-  typedef typename cxx::remove_extent<T>::type element_type;
+  typedef cxx::remove_extent_t<T> element_type;
   typedef element_type *pointer;
   typedef element_type &reference;
   typedef T_Del deleter_type;
@@ -115,12 +115,12 @@ make_unique_ptr(T *p)
 { return unique_ptr<T>(p); }
 
 template< typename T >
-typename cxx::enable_if<cxx::is_array<T>::value, unique_ptr<T>>::type
+cxx::enable_if_t<cxx::is_array<T>::value, unique_ptr<T>>
 make_unique(unsigned long size)
-{ return cxx::unique_ptr<T>(new typename cxx::remove_extent<T>::type[size]()); }
+{ return cxx::unique_ptr<T>(new cxx::remove_extent_t<T>[size]()); }
 
 template< typename T, typename... Args >
-typename cxx::enable_if<!cxx::is_array<T>::value, unique_ptr<T>>::type
+cxx::enable_if_t<!cxx::is_array<T>::value, unique_ptr<T>>
 make_unique(Args &&... args)
 { return cxx::unique_ptr<T>(new T(cxx::forward<Args>(args)...)); }
 
