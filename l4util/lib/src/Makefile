@@ -5,7 +5,7 @@ TARGET                = libl4util.a libl4util.so
 REQUIRES_LIBS         = l4sys
 PC_EXTRA              = Link_Libs= %{static:-ll4util}
 
-ALL_SRC_C_only_x86    = $(addprefix ARCH-x86/, apic.c perform.c spin.c rdtsc.c)
+ALL_SRC_C_only_x86    = $(addprefix ARCH-x86/, perform.c spin.c rdtsc.c)
 ALL_SRC_C_only_amd64  = $(ALL_SRC_C_only_x86)
 ALL_SRC_C_only_ppc32  = $(addprefix ARCH-ppc32/, rdtsc.c)
 ALL_SRC_C_only_sparc  = ARCH-sparc/atomics.c
