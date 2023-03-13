@@ -107,12 +107,12 @@ private:
     if (err < 0)
       return L4::Cap<L4::Rcv_endpoint>(err | L4_INVALID_CAP_BIT);
 
-    l4_umword_t id = l4_umword_t(o);
-    err = l4_error(ep->bind_thread(_server, id));
+    err = o->set_server(_sif, ep);
     if (err < 0)
       return L4::Cap<L4::Rcv_endpoint>(err | L4_INVALID_CAP_BIT);
 
-    err = o->set_server(_sif, ep);
+    l4_umword_t id = l4_umword_t(o);
+    err = l4_error(ep->bind_thread(_server, id));
     if (err < 0)
       return L4::Cap<L4::Rcv_endpoint>(err | L4_INVALID_CAP_BIT);
 
@@ -169,11 +169,11 @@ private:
     if (err < 0)
       return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
 
-    err = l4_error(cap->bind_thread(_server, id));
+    err = o->set_server(_sif, cap.get(), true);
     if (err < 0)
       return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
 
-    err = o->set_server(_sif, cap.get(), true);
+    err = l4_error(cap->bind_thread(_server, id));
     if (err < 0)
       return L4::Cap<L4::Irq>(err | L4_INVALID_CAP_BIT);
 
