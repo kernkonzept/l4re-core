@@ -153,7 +153,7 @@ l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW;
  * \param tag  System call return message type.
  *
  * \return  In case of IPC error a negative error code in the range of
- *          L4_EIPC_LO to L4_EIPC_HI, otherwise the tag label.
+ *          #L4_EIPC_LO to #L4_EIPC_HI, otherwise the tag label.
  */
 L4_INLINE long
 l4_error(l4_msgtag_t tag) L4_NOTHROW;
@@ -202,7 +202,7 @@ L4_INLINE int l4_ipc_error_code(l4_utcb_t *utcb) L4_NOTHROW;
  * Get a negative error code for the given IPC error code.
  * \param ipc_error_code  IPC error code as delivered by the kernel.
  *                        (or returned by the l4_ipc_error_code() function).
- * \return negative error code in the range of L4_EIPC_LO to L4_EIPC_HI.
+ * \return negative error code in the range of #L4_EIPC_LO to #L4_EIPC_HI.
  */
 L4_INLINE long l4_ipc_to_errno(unsigned long ipc_error_code) L4_NOTHROW;
 
