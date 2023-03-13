@@ -9,6 +9,7 @@
 
 #include <unwind.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #if defined NOT_FOR_L4 && defined __PIC__
 
@@ -59,13 +60,13 @@ __bt_helper(struct _Unwind_Context *ctx, void *a)
 
   /* Skip first function, it is l4util_backtrace ... */
   if (arg->cnt != -1)
-    arg->pc_array[arg->cnt] = (void *)uw_getpc (ctx);
+    arg->pc_array[arg->cnt] = (void *)(uintptr_t)(uw_getpc (ctx));
   if (++arg->cnt == arg->max)
     return _URC_END_OF_STACK;
 
   /* IA32: %ebp is DWARF2 register 5 */
-  arg->last_sp    = (void *)uw_getcfa (ctx);
-  arg->last_frame = (void *)uw_getgr (ctx, 5);
+  arg->last_sp    = (void *)(uintptr_t)(uw_getcfa (ctx));
+  arg->last_frame = (void *)(uintptr_t)(uw_getgr (ctx, 5));
   return _URC_NO_REASON;
 }
 struct Frame

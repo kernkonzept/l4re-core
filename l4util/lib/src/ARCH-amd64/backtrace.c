@@ -54,7 +54,7 @@ __bt_helper(struct _Unwind_Context *ctx, void *a)
 
   /* Skip first function, it is l4util_backtrace ... */
   if (arg->cnt != -1)
-    arg->pc_array[arg->cnt] = (void *)(uintptr_t)uw_getpc (ctx);
+    arg->pc_array[arg->cnt] = (void *)(uintptr_t)(uw_getpc (ctx));
   if (++arg->cnt == arg->max)
     return _URC_END_OF_STACK;
 
