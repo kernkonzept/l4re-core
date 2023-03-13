@@ -78,9 +78,9 @@ l4re_event_get_num_streams(const l4_cap_idx_t server) L4_NOTHROW;
  * \brief Get information on a stream
  * \ingroup api_l4re_c_event
  *
- * \param server   Server to talk to.
- * \param idx      Index value.
- * \retval info    Information buffer.
+ * \param server     Server to talk to.
+ * \param idx        Index value.
+ * \param[out] info  Information buffer.
  *
  * \return 0 for success, <0 on error
  *
@@ -94,9 +94,9 @@ l4re_event_get_stream_info(const l4_cap_idx_t server,
  * \brief Get info for a stream given a stream id
  * \ingroup api_l4re_c_event
  *
- * \param server    Server to talk to.
- * \param stream_id Stream ID.
- * \retval info     Information buffer.
+ * \param server     Server to talk to.
+ * \param stream_id  Stream ID.
+ * \param[out] info  Information buffer.
  *
  * \return 0 for success, <0 on error
  *
