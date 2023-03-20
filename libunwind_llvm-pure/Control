@@ -1,0 +1,4 @@
+provides: libunwind_llvm-pure
+requires: libc-headers ldscripts
+source-pkg: libunwind_llvm
+maintainer: georg.kotheimer@kernkonzept.com

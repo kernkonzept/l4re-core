@@ -1,0 +1,3 @@
+provides: libunwind_llvm
+requires: libc-headers ldscripts l4sys
+maintainer: georg.kotheimer@kernkonzept.com

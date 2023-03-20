@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom
+#
+# Copyright (C) 2023 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES_TF)
+
+BUILTINS_SRC = riscv/save.S riscv/restore.S
+
+ifeq ($(CPU_BITS_riscv),32)
+	BUITINS_FLAGS += -fforce-enable-int128
+	BUILTINS_SRC += riscv/mulsi3.S
+endif
+
+ifeq ($(CPU_BITS_riscv),64)
+  BUILTINS_SRC += riscv/muldi3.S
+endif
+
+# Since clang 16
+ifeq ($(filter 16,$(LIBCLANG_RT_CONTRIB_VERSIONS)),16)
+BUILTINS_SRC += riscv/fp_mode.c
+endif

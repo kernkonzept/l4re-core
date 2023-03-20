@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom
+#
+# Copyright (C) 2023 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES_TF)
+
+BUILTINS_SRC += cpu_model.c aarch64/fp_mode.c
+
+# TODO: Variants of aarch64/lse.S (guarded by defines)
+# Required for outline atomics (-moutline-atomics), currently not
+# supported on L4 as __getauxval(AT_HWCAP) always returns 0 indicating that the
+# required atomic operations are not available, so no point in adding the
+# outline atomics support code here in libclang_rt.

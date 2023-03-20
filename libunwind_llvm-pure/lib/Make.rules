@@ -1,0 +1,11 @@
+TARGET          = libunwind_llvm-pure.a
+PC_FILENAME     = libunwind_llvm-pure
+PC_LIBS         =
+PC_EXTRA        = Link_Libs= -lunwind_llvm-pure
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+UNWIND_LLVM_A       := libunwind_llvm-pure.a
+UNWIND_LLVM_PKG_DIR  = $(PKGDIR)/../libunwind_llvm
+include $(UNWIND_LLVM_PKG_DIR)/build/src/Makefile.build

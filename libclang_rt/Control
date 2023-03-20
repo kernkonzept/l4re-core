@@ -1,0 +1,3 @@
+provides: libclang_rt-builtins
+requires: libc-headers ldscripts l4sys
+maintainer: georg.kotheimer@kernkonzept.com

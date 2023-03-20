@@ -1,0 +1,88 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom 
+#
+# Copyright (C) 2023 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+# Variable LIBCLANG_RT_PKG_DIR must be set correctly!
+
+# Default names for static libraries, might be overriden if multiple variants
+# are to be built.
+LIBCLANG_RT_A    ?= libclang_rt-builtins.a
+
+include $(L4DIR)/mk/Makeconf
+include $(L4DIR)/mk/rules.inc
+
+$(GENERAL_D_LOC): $(LIBCLANG_RT_PKG_DIR)/build/src/Makefile.libclang_rt
+
+# Use warnings flags provided by libclang_rt build.
+WARNINGS       :=
+
+libclang_rt_flags_from_src = $(strip \
+                          $(if $(filter .c,$(suffix $1)),C, \
+                            $(if $(filter .S,$(suffix $1)),AS, \
+                              $(error Unsupported file type: $1))))
+
+libclang_rt_ext_from_src = $(strip \
+                        $(if $(filter .c,$(suffix $1)),C, \
+                          $(if $(filter .S,$(suffix $1)),S, \
+                            $(error Unsupported file type: $1))))
+
+libclang_rt_obj_from_src = $(patsubst %.c,%$2,$(patsubst %.S,%$2,$1))
+
+# Check whether any of the provided macros is predefined.
+# 1: macros to check
+libclang_rt_is_predefined = $(filter $1,$(shell $(callcc) -dM -E - </dev/null))
+
+# Check whether the provided code compiles.
+# 1: code to compile
+libclang_rt_try_compile = $(if $(shell echo "$1" | $(callcc) -c -o /dev/null - 2>&1),,Ok)
+
+# Create a standalone object file
+# 1: target
+# 2: source
+# 3: flags
+define libclang_rt_make_obj
+LIBCLANG_RT_MAKE_OBJS += $1
+LIBCLANG_RT_MAKE_OBJ_SRC_$1 += $2
+$(call BID_MAKE_RULE_template,$1,$2,$(call libclang_rt_flags_from_src, $2))
+$(call libclang_rt_flags_from_src, $2)FLAGS_$1 += $3
+endef
+
+define libclang_rt_include
+include $1
+$(GENERAL_D_LOC): $1
+endef
+
+# Selects the most recent version of a file by testing all -<version> suffixes
+# with the versions from $LIBCLANG_RT_CONTRIB_SUFFIX_VERSIONS. If no sufficient
+# versioned file is found, instead fallback to the file base name without a
+# version suffix.
+# 1: file base name
+libclang_rt_versioned_file = $(firstword $(wildcard $(addprefix $1,$(LIBCLANG_RT_CONTRIB_SUFFIX_VERSIONS))) $1)
+
+libclang_rt_include_versioned = $(call libclang_rt_include,$(call libclang_rt_versioned_file,$1))
+
+$(eval $(call libclang_rt_include,$(LIBCLANG_RT_PKG_DIR)/contrib.inc))
+$(eval $(call libclang_rt_include,$(LIBCLANG_RT_PKG_DIR)/build/src/Makefile.build))
+
+vpath %.c $(LIBCLANG_RT_CONTRIB_SRC_DIR)/lib/builtins
+vpath %.S $(LIBCLANG_RT_CONTRIB_SRC_DIR)/lib/builtins
+vpath %.c $(LIBCLANG_RT_CONTRIB_SRC_DIR)/lib/crt
+vpath %.S $(LIBCLANG_RT_CONTRIB_SRC_DIR)/lib/crt
+
+INSTALL_TARGET := $(TARGET)
+TARGET         := $(filter-out %.o,$(TARGET))
+
+DEL_ON_CLEAN += $(LIBCLANG_RT_MAKE_OBJS)
+
+# Manually add build info of object files that are not part of TARGET OR
+# INSTALL_TARGET to DEPS.
+$(foreach make_obj,$(LIBCLANG_RT_MAKE_OBJS),\
+  $(eval $(if $(filter $(make_obj),$(TARGET) $(INSTALL_TARGET)),,DEPS += $(call BID_dot_fname,$(make_obj)).cmd)) \
+)
+
+include $(L4DIR)/mk/lib.mk
+
+$(foreach make_obj,$(LIBCLANG_RT_MAKE_OBJS),\
+  $(eval $(call make_per_obj_vars,$(make_obj),$(make_obj),$(LIBCLANG_RT_MAKE_OBJ_SRC_$(make_obj)))) \
+)

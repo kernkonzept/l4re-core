@@ -1,0 +1,9 @@
+# Extra standalone object files to build.
+TARGET          = crtbegin.o crtend.o
+PC_LIBS         =
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBCLANG_RT_PKG_DIR       = $(PKGDIR)/../libclang_rt
+include $(LIBCLANG_RT_PKG_DIR)/build/src/Makefile.libclang_rt

@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom
+#
+# Copyright (C) 2023 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+BUILTINS_CFLAGS = -std=c11 -fPIC -fno-builtin \
+                  -fvisibility=hidden -DVISIBILITY_HIDDEN \
+                  -fomit-frame-pointer
+
+ifeq ($(call libclang_rt_try_compile,_Float16 x;),Ok)
+BUILTINS_CFLAGS += -DCOMPILER_RT_HAS_FLOAT16
+endif
+
+CRT_CFLAGS = -std=c11 -fPIC -Wno-pedantic -DCRT_HAS_INITFINI_ARRAY
+
+# Create a standalone object file
+# 1: target
+# 2: source file name
+# 3: object suffix
+# 4: flags
+define libclang_rt_src_generic
+SRC_$(call libclang_rt_ext_from_src,$2)_$1 += $2
+$(call libclang_rt_flags_from_src, $2)FLAGS_$(call libclang_rt_obj_from_src,$2,$3) += $4
+endef
+
+# Prepend BUILTINS_CFLAGS for all source files of libclang_rt-builtins.a.
+# 1: source file name
+# 2: flags
+libclang_rt_src = $(call libclang_rt_src_generic,$(LIBCLANG_RT_A),$1,.o,$(BUILTINS_CFLAGS) $2)
+
+$(eval $(call libclang_rt_include,$(LIBCLANG_RT_PKG_DIR)/build/src/Makevars))
+
+$(eval $(call libclang_rt_include_versioned,$(LIBCLANG_RT_PKG_DIR)/build/src/Makefile-$(CPU_TYPE)))
+
+# Filter out generic source files for that architecture specific overrides are provided.
+BUILTINS_SRC := $(BUILTINS_SRC) $(filter-out $(patsubst %.S,%.c,$(notdir $(BUILTINS_SRC))),$(GENERIC_BUILTINS_SRC))
+
+ifneq ($(BID_VARIANT_FLAG_NOFPU),)
+# Filter out all floating point related files for nofpu variant.
+FP_FILES := $(filter float% fix%,$(notdir $(BUILTINS_SRC)))
+BUILTINS_SRC := $(filter-out $(addprefix %,$(FP_FILES)) %f2.c %f3.c %c3.c %f2.S %f3.S %c3.S,$(BUILTINS_SRC))
+endif
+
+# Build libclang_rt-builtins.a.
+$(foreach src,$(BUILTINS_SRC),\
+  $(eval $(call libclang_rt_src,$(src))) \
+)
+
+# Build the startfiles and endfiles.
+libclang_rt_make_crtstuff = $(call libclang_rt_make_obj,$1,$2,$(CRT_CFLAGS))
+
+$(eval $(call libclang_rt_make_crtstuff,crtbegin.o,crtbegin.c))
+$(eval $(call libclang_rt_make_crtstuff,crtend.o,crtend.c))

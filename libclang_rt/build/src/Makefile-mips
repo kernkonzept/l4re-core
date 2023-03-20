@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom
+#
+# Copyright (C) 2023 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+ifeq ($(CPU_ABI),64)
+GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES_TF)
+endif

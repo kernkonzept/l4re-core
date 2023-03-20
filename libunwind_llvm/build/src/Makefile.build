@@ -1,0 +1,74 @@
+# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom
+#
+# Copyright (C) 2023 Kernkonzept GmbH.
+# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+
+# Variable UNWIND_LLVM_PKG_DIR must be set correctly!
+
+# Default names for static library, might be overriden if multiple variants are
+# to be built.
+UNWIND_LLVM_A     ?= libunwind_llvm.a
+
+include $(L4DIR)/mk/Makeconf
+include $(L4DIR)/mk/rules.inc
+
+$(GENERAL_D_LOC): $(UNWIND_LLVM_PKG_DIR)/build/src/Makefile.build
+
+# Use warnings flags provided by unwind_llvm build.
+WARNINGS       :=
+
+include $(UNWIND_LLVM_PKG_DIR)/contrib.inc
+$(GENERAL_D_LOC): $(UNWIND_LLVM_PKG_DIR)/contrib.inc
+
+BID_ALLOW_CPP_AS_CPLUSPLUS_FILE = y
+
+vpath %.c $(UNWIND_LLVM_CONTRIB_SRC_DIR)/src
+vpath %.cpp $(UNWIND_LLVM_CONTRIB_SRC_DIR)/src
+vpath %.S $(UNWIND_LLVM_CONTRIB_SRC_DIR)/src
+
+PRIVATE_INCDIR += $(UNWIND_LLVM_CONTRIB_SRC_DIR)/include
+
+COMMON_FLAGS = \
+  -funwind-tables \
+  -fno-rtti \
+  -Werror=return-type \
+  -Wno-unused-function \
+  -Wstrict-aliasing=2 \
+  -Wstrict-overflow=4 \
+  -Wwrite-strings \
+  -Wundef \
+  -Wno-suggest-override \
+  -Wno-error \
+
+# Disable cross-platform unwinding support.
+DEFINES += -D_LIBUNWIND_IS_NATIVE_ONLY
+
+# Prevent libunwind from doing Linux-specific stuff (sigreturn, CET).
+DEFINES += -U__linux__
+
+# Threaded (SYSTEMS_ABI) or not-threaded (SYSTEMS_PLAIN -> pure)
+ifeq ($(L4API),l4f)
+DEFINES += -DLIBUNWIND_USE_WEAK_PTHREAD=1
+else
+DEFINES += -D_LIBUNWIND_HAS_NO_THREADS
+endif
+
+# Flags for static library
+$(UNWIND_LLVM_A) : COMMON_FLAGS += -fvisibility=hidden \
+                                   -fvisibility-global-new-delete-hidden \
+                                   -D_LIBUNWIND_HIDE_SYMBOLS \
+                                   -D_LIBUNWIND_USE_DLADDR=0
+# TODO: Only for shared library?
+COMMON_FLAGS += -fPIC
+
+ASFLAGS += $(COMMON_FLAGS)
+CFLAGS += $(COMMON_FLAGS) -std=c99
+CXXFLAGS += $(COMMON_FLAGS) -std=c++11 -fstrict-aliasing -fno-exceptions -nostdinc++
+# These features are used in C++ code, so we need to request them.
+CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS
+
+SRC_C += UnwindLevel1.c UnwindLevel1-gcc-ext.c Unwind-sjlj.c
+SRC_CC += libunwind.cpp Unwind-EHABI.cpp Unwind-seh.cpp
+SRC_S += UnwindRegistersRestore.S UnwindRegistersSave.S
+
+include $(L4DIR)/mk/lib.mk

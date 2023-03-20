@@ -1,0 +1,11 @@
+TARGET          = libclang_rt-builtins.a
+PC_FILENAME     = libclang_rt-builtins
+PC_LIBS         =
+# Need to consume static-libgcc here.
+PC_EXTRA        = Link_Libs= %{static-libgcc:;:} -lclang_rt-builtins
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBCLANG_RT_PKG_DIR  = $(PKGDIR)
+include $(LIBCLANG_RT_PKG_DIR)/build/src/Makefile.libclang_rt

@@ -1,0 +1,11 @@
+TARGET          = libclang_rt-builtins-pure.a
+PC_FILENAME     = libclang_rt-builtins-pure
+PC_LIBS         =
+PC_EXTRA        = Link_Libs= -lclang_rt-builtins-pure
+
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBCLANG_RT_A            := libclang_rt-builtins-pure.a
+LIBCLANG_RT_PKG_DIR       = $(PKGDIR)/../libclang_rt
+include $(LIBCLANG_RT_PKG_DIR)/build/src/Makefile.libclang_rt
