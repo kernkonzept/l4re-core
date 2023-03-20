@@ -155,10 +155,11 @@ public:
    *
    * \retval L4_EOK      Operation successful.
    * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on `src` capability.
-   * \retval -L4_EINVAL
-   * \retval -L4_EEXIST
-   * \retval -L4_ENOMEM
-   * \retval -L4_ERANGE
+   * \retval -L4_EINVAL  The `src` capability is invalid or does not refer to a
+   *                     valid dataspace.
+   * \retval -L4_EEXIST  The specified region overlaps an existing mapping.
+   * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
+   * \retval -L4_ERANGE  `offset` is larger than the size of the dataspace.
    *
    * \caprights{R}
    *
