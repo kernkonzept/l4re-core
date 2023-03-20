@@ -4,7 +4,7 @@ L4DIR		    ?= $(PKGDIR)/../../..
 TARGET		     = sigma0
 MODE		     = sigma0
 REQUIRES_LIBS        = libc_minimal cxx_util cxx_io cxx_base \
-                       cxx_io_kdebug l4sys-direct l4sys libgcc
+                       cxx_io_kdebug l4sys-direct l4sys
 DEFINES             += -DL4_MINIMAL_LIBC
 DEFAULT_RELOC_x86   := 0x00100000
 DEFAULT_RELOC_amd64 := 0x00100000
