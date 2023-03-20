@@ -62,8 +62,8 @@
 #if ! __cpp_constinit
 # if __has_cpp_attribute(clang::require_constant_initialization)
 #  define constinit [[clang::require_constant_initialization]]
-#else // YOLO
-# define constinit
+# else // YOLO
+#  define constinit
 # endif
 #endif
 
@@ -1106,7 +1106,7 @@ namespace std::chrono
 
       tzdata_stream() : istream(nullptr)
       {
-	if (string path = zoneinfo_file("/tzdata.zi"); !path.empty())
+	if (string path = zoneinfo_file(tzdata_file); !path.empty())
 	{
 	  filebuf fbuf;
 	  if (fbuf.open(path, std::ios::in))
@@ -1663,6 +1663,28 @@ namespace std::chrono
 	  if (auto tz = do_locate_zone(this->zones, this->links, name))
 	    return tz;
       }
+
+    if (ifstream tzf{"/etc/sysconfig/clock"})
+      {
+	string line;
+	// Old versions of Suse use TIMEZONE. Old versions of RHEL use ZONE.
+	const string_view keys[] = { "TIMEZONE=" , "ZONE=" };
+	while (std::getline(tzf, line))
+	  for (string_view key : keys)
+	    if (line.starts_with(key))
+	      {
+		string_view name = line;
+		name.remove_prefix(key.size());
+		if (name.size() != 0 && name.front() == '"')
+		  {
+		    name.remove_prefix(1);
+		    if (auto pos = name.find('"'); pos != name.npos)
+		      name = name.substr(0, pos);
+		  }
+		if (auto tz = do_locate_zone(this->zones, this->links, name))
+		  return tz;
+	      }
+      }
 #else
     // AIX stores current zone in $TZ in /etc/environment but the value
     // is typically a POSIX time zone name, not IANA zone.
@@ -1670,18 +1692,15 @@ namespace std::chrono
     // https://www.ibm.com/support/pages/managing-time-zone-variable-posix
     if (const char* env = std::getenv("TZ"))
       {
-	string_view s(env);
-	if (s == "GMT0")
-	  s = "Etc/GMT";
-	else if (s.size() == 4 && s[3] == '0')
-	  s = "Etc/UTC";
-
-	// This will fail unless TZ contains an IANA time zone name,
-	// or one of the special cases above.
-	if (auto tz = do_locate_zone(this->zones, this->links, s))
+	// This will fail unless TZ contains an IANA time zone name.
+	if (auto tz = do_locate_zone(this->zones, this->links, env))
 	  return tz;
       }
 #endif
+
+    // Default to UTC.
+    if (auto tz = do_locate_zone(this->zones, this->links, "UTC"))
+      return tz;
 
     __throw_runtime_error("tzdb: cannot determine current zone");
   }
@@ -1945,6 +1964,22 @@ namespace std::chrono
       return in;
     }
 
+    // Test whether the RULES field of a Zone line is a valid Rule name.
+    inline bool
+    is_rule_name(string_view rules) noexcept
+    {
+      // The NAME field of a Rule line must start with a character that is
+      // neither an ASCII digit nor '-' nor '+'.
+      if (('0' <= rules[0] && rules[0] <= '9') || rules[0] == '-')
+	return false;
+      // However, some older tzdata.zi files (e.g. in tzdata-2018e-3.el6 RPM)
+      // used "+" as a Rule name, so we need to handle that special case.
+      if (rules[0] == '+')
+	return rules.size() == 1; // "+" is a rule name, "+1" is not.
+      // Everything else is the name of a Rule.
+      return true;
+    }
+
     istream& operator>>(istream& in, ZoneInfo& inf)
     {
       // STDOFF  RULES  FORMAT  [UNTIL]
@@ -1954,25 +1989,28 @@ namespace std::chrono
 
       in >> off >> quoted{rules} >> fmt;
       inf.m_offset = off.time;
-      if (rules == "-")
+      if (is_rule_name(rules))
 	{
-	  // Standard time always applies, no DST.
-	  inf.set_abbrev(fmt);
-	}
-      else if (string_view("0123456789-+").find(rules[0]) != string_view::npos)
-	{
-	  // rules specifies the difference from standard time.
-	  at_time rules_time;
-	  istringstream in2(std::move(rules));
-	  in2 >> rules_time;
-	  inf.m_save = duration_cast<minutes>(rules_time.time);
-	  select_std_or_dst_abbrev(fmt, inf.m_save);
-	  inf.set_abbrev(fmt);
+	  // `rules` refers to a named Rule which describes transitions.
+	  inf.set_rules_and_format(rules, fmt);
 	}
       else
 	{
-	  // rules refers to a named Rule which describes transitions.
-	  inf.set_rules_and_format(rules, fmt);
+	  if (rules == "-")
+	    {
+	      // Standard time always applies, no DST.
+	    }
+	  else
+	    {
+	      // `rules` specifies the difference from standard time,
+	      // e.g., "-2:30"
+	      at_time rules_time;
+	      istringstream in2(std::move(rules));
+	      in2 >> rules_time;
+	      inf.m_save = duration_cast<minutes>(rules_time.time);
+	      select_std_or_dst_abbrev(fmt, inf.m_save);
+	    }
+	  inf.set_abbrev(fmt);
 	}
 
       // YEAR [MONTH [DAY [TIME]]]

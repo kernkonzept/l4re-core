@@ -844,9 +844,10 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
       operator=(basic_string&& __str)
       noexcept(_Alloc_traits::_S_nothrow_move())
       {
+	const bool __equal_allocs = _Alloc_traits::_S_always_equal()
+	  || _M_get_allocator() == __str._M_get_allocator();
 	if (!_M_is_local() && _Alloc_traits::_S_propagate_on_move_assign()
-	    && !_Alloc_traits::_S_always_equal()
-	    && _M_get_allocator() != __str._M_get_allocator())
+	    && !__equal_allocs)
 	  {
 	    // Destroy existing storage before replacing allocator.
 	    _M_destroy(_M_allocated_capacity);
@@ -868,16 +869,14 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 		_M_set_length(__str.size());
 	      }
 	  }
-	else if (_Alloc_traits::_S_propagate_on_move_assign()
-	    || _Alloc_traits::_S_always_equal()
-	    || _M_get_allocator() == __str._M_get_allocator())
+	else if (_Alloc_traits::_S_propagate_on_move_assign() || __equal_allocs)
 	  {
 	    // Just move the allocated pointer, our allocator can free it.
 	    pointer __data = nullptr;
 	    size_type __capacity;
 	    if (!_M_is_local())
 	      {
-		if (_Alloc_traits::_S_always_equal())
+		if (__equal_allocs)
 		  {
 		    // __str can reuse our existing storage.
 		    __data = _M_data();
@@ -1118,6 +1117,35 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 
 #if __cplusplus > 202002L
 #define __cpp_lib_string_resize_and_overwrite 202110L
+      /** Resize the string and call a function to fill it.
+       *
+       * @param __n   The maximum size requested.
+       * @param __op  A callable object that writes characters to the string.
+       *
+       * This is a low-level function that is easy to misuse, be careful.
+       *
+       * Calling `str.resize_and_overwrite(n, op)` will reserve at least `n`
+       * characters in `str`, evaluate `n2 = std::move(op)(str.data(), n)`,
+       * and finally set the string length to `n2` (adding a null terminator
+       * at the end). The function object `op` is allowed to write to the
+       * extra capacity added by the initial reserve operation, which is not
+       * allowed if you just call `str.reserve(n)` yourself.
+       *
+       * This can be used to efficiently fill a `string` buffer without the
+       * overhead of zero-initializing characters that will be overwritten
+       * anyway.
+       *
+       * The callable `op` must not access the string directly (only through
+       * the pointer passed as its first argument), must not write more than
+       * `n` characters to the string, must return a value no greater than `n`,
+       * and must ensure that all characters up to the returned length are
+       * valid after it returns (i.e. there must be no uninitialized values
+       * left in the string after the call, because accessing them would
+       * have undefined behaviour). If `op` exits by throwing an exception
+       * the behaviour is undefined.
+       *
+       * @since C++23
+       */
       template<typename _Operation>
 	constexpr void
 	resize_and_overwrite(size_type __n, _Operation __op);
