@@ -61,6 +61,10 @@
 #define _GLIBCXX_END_NAMESPACE_FILESYSTEM }
 #include "../filesystem/ops-common.h"
 
+#ifdef __AVR__
+# define not_supported function_not_supported
+#endif
+
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 
 namespace fs = std::filesystem;
@@ -735,7 +739,7 @@ fs::path
 fs::current_path(error_code& ec)
 {
   path p;
-#ifdef _GLIBCXX_HAVE_UNISTD_H
+#if defined _GLIBCXX_HAVE_UNISTD_H && ! defined __AVR__
 #if defined __GLIBC__ || defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
   if (char_ptr cwd = char_ptr{posix::getcwd(nullptr, 0)})
     {

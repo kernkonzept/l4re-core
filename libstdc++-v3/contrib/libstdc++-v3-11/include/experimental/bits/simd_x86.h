@@ -1422,7 +1422,7 @@ template <typename _Abi>
 		},
 		[&__xf,
 		 &__yf](auto __i) -> _SimdWrapper<_Float, __n_intermediate> {
-#if !defined __clang__ && __GCC_IEC_559 == 0
+#if __GCC_IEC_559 == 0
 		  // If -freciprocal-math is active, using the `/` operator is
 		  // incorrect because it may be translated to an imprecise
 		  // multiplication with reciprocal. We need to use inline
@@ -1477,7 +1477,7 @@ template <typename _Abi>
 	  */
 	return _Base::_S_divides(__x, __y);
       }
-  #endif // _GLIBCXX_SIMD_WORKAROUND_PR90993
+#endif // _GLIBCXX_SIMD_WORKAROUND_PR90993
 
     // }}}
     // _S_modulus {{{
@@ -1524,7 +1524,7 @@ template <typename _Abi>
     // values.
   #ifndef _GLIBCXX_SIMD_NO_SHIFT_OPT
     template <typename _Tp, typename _TVT = _VectorTraits<_Tp>>
-      inline _GLIBCXX_CONST static typename _TVT::type
+      constexpr inline _GLIBCXX_CONST static typename _TVT::type
       _S_bit_shift_left(_Tp __xx, int __y)
       {
 	using _V = typename _TVT::type;
@@ -1629,7 +1629,7 @@ template <typename _Abi>
       }
 
     template <typename _Tp, typename _TVT = _VectorTraits<_Tp>>
-      inline _GLIBCXX_CONST static typename _TVT::type
+      constexpr inline _GLIBCXX_CONST static typename _TVT::type
       _S_bit_shift_left(_Tp __xx, typename _TVT::type __y)
       {
 	using _V = typename _TVT::type;
@@ -1798,7 +1798,7 @@ template <typename _Abi>
     // _S_bit_shift_right {{{
 #ifndef _GLIBCXX_SIMD_NO_SHIFT_OPT
     template <typename _Tp, typename _TVT = _VectorTraits<_Tp>>
-      inline _GLIBCXX_CONST static typename _TVT::type
+      constexpr inline _GLIBCXX_CONST static typename _TVT::type
       _S_bit_shift_right(_Tp __xx, int __y)
       {
 	using _V = typename _TVT::type;
@@ -1848,7 +1848,7 @@ template <typename _Abi>
       }
 
     template <typename _Tp, typename _TVT = _VectorTraits<_Tp>>
-      inline _GLIBCXX_CONST static typename _TVT::type
+      constexpr inline _GLIBCXX_CONST static typename _TVT::type
       _S_bit_shift_right(_Tp __xx, typename _TVT::type __y)
       {
 	using _V = typename _TVT::type;
@@ -2340,15 +2340,16 @@ template <typename _Abi>
 	    else
 	      __assert_unreachable<_Tp>();
 	  }                                                   // }}}
-	else if constexpr (!__builtin_is_constant_evaluated() // {{{
-			   && sizeof(__x) == 8)
+	else if (__builtin_is_constant_evaluated())
+	  return _Base::_S_not_equal_to(__x, __y);
+	else if constexpr (sizeof(__x) == 8)
 	  {
 	    const auto __r128 = __vector_bitcast<_Tp, 16 / sizeof(_Tp)>(__x)
 				!= __vector_bitcast<_Tp, 16 / sizeof(_Tp)>(__y);
 	    _MaskMember<_Tp> __r64;
 	    __builtin_memcpy(&__r64._M_data, &__r128, sizeof(__r64));
 	    return __r64;
-	  } // }}}
+	  }
 	else
 	  return _Base::_S_not_equal_to(__x, __y);
       }
@@ -2447,15 +2448,16 @@ template <typename _Abi>
 	    else
 	      __assert_unreachable<_Tp>();
 	  }                                                   // }}}
-	else if constexpr (!__builtin_is_constant_evaluated() // {{{
-			   && sizeof(__x) == 8)
+	else if (__builtin_is_constant_evaluated())
+	  return _Base::_S_less(__x, __y);
+	else if constexpr (sizeof(__x) == 8)
 	  {
 	    const auto __r128 = __vector_bitcast<_Tp, 16 / sizeof(_Tp)>(__x)
 				< __vector_bitcast<_Tp, 16 / sizeof(_Tp)>(__y);
 	    _MaskMember<_Tp> __r64;
 	    __builtin_memcpy(&__r64._M_data, &__r128, sizeof(__r64));
 	    return __r64;
-	  } // }}}
+	  }
 	else
 	  return _Base::_S_less(__x, __y);
       }
@@ -2554,15 +2556,16 @@ template <typename _Abi>
 	    else
 	      __assert_unreachable<_Tp>();
 	  }                                                   // }}}
-	else if constexpr (!__builtin_is_constant_evaluated() // {{{
-			   && sizeof(__x) == 8)
+	else if (__builtin_is_constant_evaluated())
+	  return _Base::_S_less_equal(__x, __y);
+	else if constexpr (sizeof(__x) == 8)
 	  {
 	    const auto __r128 = __vector_bitcast<_Tp, 16 / sizeof(_Tp)>(__x)
 				<= __vector_bitcast<_Tp, 16 / sizeof(_Tp)>(__y);
 	    _MaskMember<_Tp> __r64;
 	    __builtin_memcpy(&__r64._M_data, &__r128, sizeof(__r64));
 	    return __r64;
-	  } // }}}
+	  }
 	else
 	  return _Base::_S_less_equal(__x, __y);
       }

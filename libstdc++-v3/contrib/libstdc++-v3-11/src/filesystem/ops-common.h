@@ -128,7 +128,7 @@ namespace __gnu_posix
     return ret;
   }
   using char_type = wchar_t;
-#elif defined _GLIBCXX_HAVE_UNISTD_H
+#elif defined _GLIBCXX_HAVE_UNISTD_H && ! defined __AVR__
   using ::open;
   using ::close;
 # ifdef _GLIBCXX_HAVE_SYS_STAT_H
@@ -170,6 +170,10 @@ namespace __gnu_posix
 # endif
   using char_type = char;
 #else // ! _GLIBCXX_FILESYSTEM_IS_WINDOWS && ! _GLIBCXX_HAVE_UNISTD_H
+#ifdef __AVR__
+# define ENOTSUP ENOSYS
+#endif
+
   inline int open(const char*, int, ...) { errno = ENOTSUP; return -1; }
   inline int close(int) { errno = ENOTSUP; return -1; }
   using mode_t = int;
