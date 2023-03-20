@@ -18,8 +18,7 @@ define process_libgcc_arm
       l4-atomic.o l4-atomic-64bit.o atomic_ops_s.o);))
 endef
 
-process_libgcc = $(if $(and $(BID_COMPILER_IS_GCC),\
-		            $(process_libgcc_$(ARCH))), \
+process_libgcc = $(if $(process_libgcc_$(ARCH)), \
                       $(process_libgcc_$(ARCH)), \
                       $(process_libgcc_generic))
 
