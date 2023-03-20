@@ -60,12 +60,14 @@ public:
    *                   l4_map_obj_control()).
    * \utcb_def{utcb}
    *
-   * \return Syscall return tag.
+   * \return Syscall return tag. The function l4_error() shall be used to test
+   *         if the map operation was successful.
    *
-   * \retval L4_EOK      Operation successful.
+   * \retval L4_EOK      Operation successful (but see notes below).
    * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on capability used to invoke
    *                     this operation.
-   * \retval -L4_EINVAL
+   * \retval -L4_EINVAL  Invalid source task capability.
+   * \retval -L4_IPC_SEMAPFAILED The map operation failed due to limited quota.
    *
    * This method allows for asynchronous transfer of capabilities, memory
    * mappings, and IO-port mappings (on IA32) from one task to another.
@@ -78,6 +80,11 @@ public:
    *       right is removed from the transferred capability unless both the
    *       source and destination task capabilities possess the #L4_CAP_FPAGE_S
    *       right themselves.
+   *
+   * \note Even with l4_error() returning L4_EOK there might be cases where not
+   *       all pages of the send flexpage were mapped respectively granted to
+   *       the destination task, for instance, if the corresponding mapping in
+   *       the destination task does already exist.
    *
    * For more information on spaces and mappings, see
    * \ref l4re_concepts_mapping. The flexpage API is described in more detail at
