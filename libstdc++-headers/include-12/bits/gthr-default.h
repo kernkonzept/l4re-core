@@ -93,12 +93,12 @@ typedef struct timespec __gthread_time_t;
   static __typeof(type) name \
     __attribute__ ((__weakref__(#name2), unused)); \
   __gthrw_pragma(weak type)
-# else
+# else // L4_CLANG_FIXES
 # define __gthrw2(name,name2,type) \
   static __typeof(type) name \
     __attribute__ ((__weakref__(#name2), __copy__ (type))); \
   __gthrw_pragma(weak type)
-# endif
+# endif // L4_CLANG_FIXES
 # define __gthrw_(name) __gthrw_ ## name
 #else
 # define __gthrw2(name,name2,type)
