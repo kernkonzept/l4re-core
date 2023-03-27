@@ -17,7 +17,7 @@ MISC_INTERNALS_SRC := $(patsubst %.c,$(MISC_INTERNALS_DIR)/%.c,$(CSRC-y))
 MISC_INTERNALS_OBJ := $(patsubst %.c,$(MISC_INTERNALS_OUT)/%.o,$(CSRC-y))
 
 CFLAGS-__uClibc_main.c := $(SSP_DISABLE_FLAGS)
-
+CFLAGS-reloc_static_pie.c := $(SSP_DISABLE_FLAGS)
 
 libc-y += $(MISC_INTERNALS_OBJ)
 ifneq ($(UCLIBC_FORMAT_SHARED_FLAT),y)

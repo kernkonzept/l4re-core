@@ -128,6 +128,20 @@ _start:
 	mov x29, #0
 	mov x30, #0
 
+#ifdef L_rcrt1
+	/* Save off the atexit pointer */
+	mov     x19, x0
+
+	/* Calculate load address... idk how this works, but it does */
+	adrp    x0, _start
+
+	/* Do relocations */
+	bl reloc_static_pie
+
+	/* restore atexit pointer */
+	mov     x0, x19
+#endif
+
 #ifdef __ARCH_USE_MMU__
 	/* Pop argc off the stack and save a pointer to argv */
         /* XXX: We can't pop argc alone due to stack alignment, so we just read it */
