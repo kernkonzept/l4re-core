@@ -399,8 +399,13 @@ else
 CRTS=$(top_builddir)lib/$(CRT).o
 endif
 
+ifeq ($(STATIC_PIE),y)
+CRTS+=$(top_builddir)lib/r$(CRT).o
+endif
+
 ASFLAGS-$(CRT).o := -DL_$(CRT)
 ASFLAGS-S$(CRT).o := $(PIEFLAG) -DL_S$(CRT)
+ASFLAGS-r$(CRT).o := $(PIEFLAG) -DL_r$(CRT)
 $(CRTS): $(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH)/$(CRT).S
 	$(compile.S)
 	$(Q)$(STRIPTOOL) -x -R .note -R .comment $@

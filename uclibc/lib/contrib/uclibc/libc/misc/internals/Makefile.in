@@ -32,6 +32,7 @@ libc-static-$(UCLIBC_FORMAT_FLAT_SEP_DATA) += \
 libc-static-$(UCLIBC_FORMAT_SHARED_FLAT) += \
   $(MISC_INTERNALS_OUT)/shared_flat_initfini.o \
   $(MISC_INTERNALS_OUT)/shared_flat_add_library.o
+libc-static-$(STATIC_PIE) += $(MISC_INTERNALS_OUT)/reloc_static_pie.o
 libc-shared-$(UCLIBC_FORMAT_SHARED_FLAT) += \
   $(MISC_INTERNALS_OUT)/shared_flat_initfini.os \
   $(MISC_INTERNALS_OUT)/shared_flat_add_library.os

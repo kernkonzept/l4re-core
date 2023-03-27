@@ -274,6 +274,11 @@ config DOPIC
 	  If you wish to build all of uClibc as PIC objects, then answer Y here.
 	  If you are unsure, then you should answer N.
 
+config STATIC_PIE
+	bool "Add support for Static Position Independent Executables (PIE)"
+	default n
+	depends on DOPIC && !UCLIBC_FORMAT_FDPIC_ELF && (TARGET_arm || TARGET_i386 || TARGET_x86_64)
+
 config ARCH_HAS_NO_SHARED
 	bool
 

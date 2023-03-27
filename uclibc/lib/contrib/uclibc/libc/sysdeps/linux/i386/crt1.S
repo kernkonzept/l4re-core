@@ -67,6 +67,9 @@
 #endif
 .type   main,%function
 .type   __uClibc_main,%function
+#ifdef L_rcrt1
+.type	reloc_static_pie,%function
+#endif
 _start:
 	/* Clear the frame pointer.  The ABI suggests this be done, to mark
 	   the outermost frame obviously.  */
@@ -99,6 +102,23 @@ _start:
 .L0:
 	pop %ebx
 	addl $_GLOBAL_OFFSET_TABLE_+[.-.L0],%ebx
+
+#ifdef L_rcrt1
+	/* We cannot rely on _DYNAMIC being usable here due to RELRO.
+	   Instead we calculate the load address based off a symbol
+	   that we know will exist, _start. */
+	pushl %ecx                      /* Save ecx so it won't get clobbered */
+	pushl %ebx                      /* Save ebx so it won't get clobbered */
+	xorl %ecx, %ecx                 /* Clear ecx */
+	addl _start@GOT(%ebx), %ecx     /* Get the offset of _start */
+	movl _start@GOT(%ebx), %eax     /* Get the run time address of _start */
+	subl %ecx, %eax                 /* Subtract to find the load address */
+	pushl %eax                      /* Pass the load address */
+	call reloc_static_pie@PLT
+	popl %eax                       /* Clean up from function call */
+	popl %ebx                       /* Restore the GOT address */
+	popl %ecx                       /* restore ecx */
+#endif
 
 	/* Push address of our own entry points to .fini and .init.  */
 	pushl _fini@GOT(%ebx)

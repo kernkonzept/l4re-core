@@ -78,6 +78,20 @@ _start:
 	   the outermost frame obviously.  */
 	xorl %ebp, %ebp
 
+#ifdef L_rcrt1
+	pushq %rdi                          /* save rdi (but should be 0...) */
+	pushq %rdx                          /* store rdx (rtld_fini) */
+	xorq %rcx, %rcx                     /* ensure rcx is 0 */
+	addq _start@GOTPCREL(%rip), %rcx    /* get offset of _start from beginning of file */
+	movq _start@GOTPCREL(%rip), %rax    /* get run time address of _start */
+	subq %rcx, %rax                     /* calculate run time load offset */
+	movq %rax, %rdi                     /* load offset -> param 1 */
+	call reloc_static_pie               /* relocate dynamic addrs */
+	xorq %rax, %rax                     /* cleanup */
+	popq %rdx
+	popq %rdi
+#endif
+
 	/* Extract the arguments as encoded on the stack and set up
 	   the arguments for __libc_start_main (int (*main) (int, char **, char **),
 		   int argc, char *argv,
@@ -105,7 +119,7 @@ _start:
 	   which grow downwards).  */
 	pushq %rsp
 
-#if defined(L_Scrt1)
+#if defined(L_Scrt1) || defined(L_rcrt1)
 	/* Give address for main() */
 	movq main@GOTPCREL(%rip), %rdi
 

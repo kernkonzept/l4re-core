@@ -13,6 +13,10 @@ subdirs += libpthread/nptl/sysdeps/generic
 libpthread_generic_DIR := $(top_srcdir)libpthread/nptl/sysdeps/generic
 libpthread_generic_OUT := $(top_builddir)libpthread/nptl/sysdeps/generic
 
+ifeq ($(STATIC_PIE),y)
+CFLAGS-libc-tls.c := -DSTATIC_PIE
+endif
+
 libpthread_generic_libc_a_CSRC = libc-tls.c
 libpthread_generic_libc_a_COBJ = $(patsubst %.c,$(libpthread_generic_OUT)/%.o,$(libpthread_generic_libc_a_CSRC))
 libpthread_generic_libc_a_OBJS = $(libpthread_generic_libc_a_COBJ)
