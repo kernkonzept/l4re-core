@@ -59,13 +59,9 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
 static __always_inline Elf64_Addr __attribute__ ((unused))
 elf_machine_dynamic (void)
 {
-  Elf64_Addr addr;
-
-  /* This works because we have our GOT address available in the small PIC
-     model.  */
-  addr = (Elf64_Addr) &_DYNAMIC;
-
-  return addr;
+  /* This produces an IP-relative reloc which is resolved at link time. */
+  extern const ElfW(Addr) _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
+  return _GLOBAL_OFFSET_TABLE_[0];
 }
 
 
@@ -73,28 +69,11 @@ elf_machine_dynamic (void)
 static __always_inline Elf64_Addr __attribute__ ((unused))
 elf_machine_load_address (void)
 {
-  register Elf64_Addr addr, tmp;
-
-  /* The easy way is just the same as on x86:
-       leaq _dl_start, %0
-       leaq _dl_start(%%rip), %1
-       subq %0, %1
-     but this does not work with binutils since we then have
-     a R_X86_64_32S relocation in a shared lib.
-
-     Instead we store the address of _dl_start in the data section
-     and compare it with the current value that we can get via
-     an RIP relative addressing mode.  */
-
-  __asm__ ("movq 1f(%%rip), %1\n"
-       "0:\tleaq _dl_start(%%rip), %0\n\t"
-       "subq %1, %0\n\t"
-       ".section\t.data\n"
-       "1:\t.quad _dl_start\n\t"
-       ".previous\n\t"
-       : "=r" (addr), "=r" (tmp) : : "cc");
-
-  return addr;
+  /* Compute the difference between the runtime address of _DYNAMIC as seen
+     by an IP-relative reference, and the link-time address found in the
+     special unrelocated first GOT entry.  */
+  extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
+  return (ElfW(Addr)) &_DYNAMIC - elf_machine_dynamic ();
 }
 
 static __always_inline void
