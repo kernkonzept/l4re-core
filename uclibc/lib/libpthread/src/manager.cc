@@ -688,7 +688,18 @@ int __pthread_start_manager(pthread_descr mgr)
     }
 
   __pthread_manager_request = mgr->p_th_cap;
-  l4_debugger_set_object_name(__pthread_manager_request, "pthread-mgr");
+
+  char s[15] = "pthread-mgr";
+  if (__progname && __progname[0])
+    {
+      char *t = strstr(__progname, "rom/");
+      s[0] = '~';
+      strncpy(s + 1, t ? t + 4 : __progname, sizeof(s) - 2);
+      s[sizeof(s) - 1] = 0;
+    }
+
+  l4_debugger_set_object_name(__pthread_manager_request, s);
+
   return 0;
 }
 
