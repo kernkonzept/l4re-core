@@ -180,10 +180,8 @@ Moe_app_model::Moe_app_model(App_task *t, cxx::String const &prog,
   if (_info.utcbs_log2size < L4_PAGESHIFT)
     _info.utcbs_log2size  = L4_PAGESHIFT;
 
-  extern char __L4_KIP_ADDR__[];
   // set default values for the application stack
-  _info.kip = (l4_addr_t)__L4_KIP_ADDR__;
-
+  _info.kip = (l4_addr_t)l4re_kip();
 }
 
 
