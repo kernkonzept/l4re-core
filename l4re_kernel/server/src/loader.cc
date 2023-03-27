@@ -72,6 +72,12 @@ void unmap_stack_and_start()
 
 }
 
+L4Re_app_model::L4Re_app_model(L4::Cap<L4Re::Rm> rm, void *)
+: _rm(rm)
+{
+  _info.kip = (l4_addr_t)l4re_kip();
+}
+
 L4Re_app_model::Dataspace
 L4Re_app_model::alloc_ds(unsigned long size) const
 {

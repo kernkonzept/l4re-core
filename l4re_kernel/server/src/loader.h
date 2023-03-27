@@ -70,7 +70,7 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
 
   L4::Cap<L4Re::Rm> _rm;
 
-  L4Re_app_model(L4::Cap<L4Re::Rm> rm, void *) : _rm(rm) {}
+  L4Re_app_model(L4::Cap<L4Re::Rm> rm, void *);
 
   Dataspace alloc_ds(unsigned long size) const;
 
