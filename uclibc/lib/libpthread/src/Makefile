@@ -25,8 +25,8 @@ SRC_C      += spinlock.c mutex.c condvar.c rwlock.c errno.c specific.c \
               cancel.c ptcleanup.c errno-loc.c signals.c \
               sysdeps/$(DIR_$(ARCH))/pspinlock.c
 SRC_C_libpthread.a += libc_pthread_init.c
+SRC_S_libpthread.so += so_init-$(ARCH).S
 SRC_S       = tramp-$(ARCH).S
-SO_INIT     = so_init-$(ARCH)
 WARNINGS    = $(WARNINGS_MEDIUM)
 
 vpath %.c $(SRC_DIR)/sysdeps/generic
@@ -63,8 +63,5 @@ CXXFLAGS  += -include $(CONTRIBDIR)/include/libc-symbols.h
 CXXFLAGS  += -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk
-CRT0 = $(CRTI_so) $(SO_INIT).s.o $(CRTBEGIN_so) $(CRT1_so)
 
 PICFLAGS += -DSHARED
-
-libpthread.so: $(SO_INIT).s.o
