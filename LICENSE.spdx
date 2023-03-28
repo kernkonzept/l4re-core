@@ -16,8 +16,8 @@ Creator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
 PackageName: l4re-core
 SPDXID: SPDXRef-l4re-core
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageLicenseComments: <text>Packages contained in l4re-core may have individual licenses. See the respective package for details.</text>
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
@@ -27,8 +27,8 @@ PackageName: crtn
 SPDXID: SPDXRef-crtn
 PackageFileName: ./crtn
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (LGPL-2.1-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (LGPL-2.1-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -37,8 +37,8 @@ PackageName: cxx
 SPDXID: SPDXRef-cxx
 PackageFileName: ./cxx
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -47,8 +47,8 @@ PackageName: cxx_libc_io
 SPDXID: SPDXRef-cxx_libc_io
 PackageFileName: ./cxx_libc_io
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -57,8 +57,8 @@ PackageName: l4re
 SPDXID: SPDXRef-l4re
 PackageFileName: ./l4re
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -67,8 +67,8 @@ PackageName: l4re-include
 SPDXID: SPDXRef-l4re-include
 PackageFileName: ./l4re/include
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -77,8 +77,8 @@ PackageName: l4re-lib
 SPDXID: SPDXRef-l4re-lib
 PackageFileName: ./l4re/lib
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -87,8 +87,8 @@ PackageName: l4re-util
 SPDXID: SPDXRef-l4re-util
 PackageFileName: ./l4re/util
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -101,8 +101,8 @@ PackageName: l4re_c
 SPDXID: SPDXRef-l4re_c
 PackageFileName: ./l4re_c
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -111,8 +111,8 @@ PackageName: l4re_c-include
 SPDXID: SPDXRef-l4re_c-include
 PackageFileName: ./l4re_c/include
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -121,8 +121,8 @@ PackageName: l4re_c-lib
 SPDXID: SPDXRef-l4re_c-lib
 PackageFileName: ./l4re_c/lib
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -131,8 +131,8 @@ PackageName: l4re_c-util
 SPDXID: SPDXRef-l4re_c-util
 PackageFileName: ./l4re_c/util
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -145,8 +145,8 @@ PackageName: l4re_kernel
 SPDXID: SPDXRef-l4re_kernel
 PackageFileName: ./l4re_kernel
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -155,8 +155,8 @@ PackageName: l4re_vfs
 SPDXID: SPDXRef-l4re_vfs
 PackageFileName: ./l4re_vfs
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -165,8 +165,8 @@ PackageName: l4sys
 SPDXID: SPDXRef-l4sys
 PackageFileName: ./l4sys
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -175,8 +175,8 @@ PackageName: l4util
 SPDXID: SPDXRef-l4util
 PackageFileName: ./l4util
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -195,8 +195,8 @@ PackageName: ldso
 SPDXID: SPDXRef-ldso
 PackageFileName: ./ldso
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (LGPL-2.1-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (LGPL-2.1-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -205,8 +205,8 @@ PackageName: libc_backends
 SPDXID: SPDXRef-libc_backends
 PackageFileName: ./libc_backends
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (LGPL-2.1-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (LGPL-2.1-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -225,8 +225,8 @@ PackageName: libgcc-pure
 SPDXID: SPDXRef-libgcc-pure
 PackageFileName: ./libgcc-pure
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -235,8 +235,8 @@ PackageName: libkproxy
 SPDXID: SPDXRef-libkproxy
 PackageFileName: ./libkproxy
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: (GPL-2.0-only WITH mif-exception)
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -245,8 +245,8 @@ PackageName: libloader
 SPDXID: SPDXRef-libloader
 PackageFileName: ./libloader
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (LGPL-2.1-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (LGPL-2.1-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -255,8 +255,8 @@ PackageName: libsigma0
 SPDXID: SPDXRef-libsigma0
 PackageFileName: ./libsigma0
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (LGPL-2.1-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (LGPL-2.1-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -285,8 +285,8 @@ PackageName: libstdc++-v3-minimal
 SPDXID: SPDXRef-libstdc++-v3-minimal
 PackageFileName: ./libstdc++-v3-minimal
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -295,8 +295,8 @@ PackageName: libsupc++
 SPDXID: SPDXRef-libsupc++
 PackageFileName: ./libsupc++
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -305,8 +305,8 @@ PackageName: libsupc++-minimal
 SPDXID: SPDXRef-libsupc++-minimal
 PackageFileName: ./libsupc++-minimal
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -325,8 +325,8 @@ PackageName: moe
 SPDXID: SPDXRef-moe
 PackageFileName: ./moe
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -335,8 +335,8 @@ PackageName: ned
 SPDXID: SPDXRef-ned
 PackageFileName: ./ned
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -345,8 +345,8 @@ PackageName: prj-config
 SPDXID: SPDXRef-prj-config
 PackageFileName: ./prj-config
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -355,8 +355,8 @@ PackageName: sigma0
 SPDXID: SPDXRef-sigma0
 PackageFileName: ./sigma0
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -379,8 +379,8 @@ PackageName: uclibc-headers
 SPDXID: SPDXRef-uclibc-headers
 PackageFileName: ./uclibc-headers
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -389,8 +389,8 @@ PackageName: uclibc-minimal
 SPDXID: SPDXRef-uclibc-minimal
 PackageFileName: ./uclibc-minimal
 PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
-PackageLicenseDeclared: (GPL-2.0-only OR LicenseRef-kk-custom)
-PackageLicenseConcluded: (GPL-2.0-only OR LicenseRef-kk-custom)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
 PackageCopyrightText: NOASSERTION
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
@@ -428,13 +428,3 @@ Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc-headers
 Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc-minimal
 
 ## License Information
-LicenseID: LicenseRef-kk-custom
-ExtractedText: <text>Kernkonzept Custom License
-
-If you have sought a special licensing agreement with Kernkonzept GmbH the
-terms and conditions from therein apply to this package.
-
-If you require a different licensing scheme please contact us at
-info@kernkonzept.com.
-</text>
-LicenseName: Kernkonzept Custom License
