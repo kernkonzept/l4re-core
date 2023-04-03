@@ -317,6 +317,7 @@ void __uClibc_fini(void)
 
 #ifndef __NOT_FOR_L4__
 extern void *l4re_global_env __attribute__((weak));
+extern void *l4_global_kip __attribute__((weak));
 #endif
 #ifndef SHARED
 extern void __nptl_deallocate_tsd (void) __attribute ((weak));
@@ -381,6 +382,10 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 	if (auxv_entry->a_type == 0xf1 && &l4re_global_env)
 	    {
 	      l4re_global_env = (void*)auxv_entry->a_un.a_val;
+	    }
+	else if (auxv_entry->a_type == 0xf2 && &l4_global_kip)
+	    {
+	      l4_global_kip = (void*)auxv_entry->a_un.a_val;
 	    }
 #endif
 	aux_dat += 2;
