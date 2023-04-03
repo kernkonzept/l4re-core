@@ -122,8 +122,6 @@ CXXFLAGS_c++98/strstream.cc       += -Wno-deprecated
 
 CXXFLAGS_c++11/hashtable_c++0x.o  += -fimplicit-templates
 
-# not all code is C++11
-SRC_CC_IS_CXX11 :=
 CXXFLAGS        += $(if $(filter c++11/%,$@),-std=gnu++11)
 CXXFLAGS        += $(if $(filter c++98/%,$@),-std=gnu++98)
 

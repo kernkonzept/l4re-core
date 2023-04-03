@@ -37,7 +37,6 @@ si_class_type_info.cc \
 vmi_class_type_info.cc \
 vtv_stubs.cc \
 
-SRC_CC_IS_CXX11 :=
 CXXFLAGS += -std=gnu++17
 
 # Use atomicity.cc if the compiler does not support C++11 atomics
