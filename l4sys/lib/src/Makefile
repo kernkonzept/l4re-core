@@ -19,16 +19,21 @@ SRC_CC                       = kobject.cc
 SRC_C_libl4sys-ppc32        += ARCH-ppc32/atomic_ops.c
 SRC_S_libl4sys-sparc        += ARCH-sparc/atomic_ops.S
 
+SRC_S_libl4sys.so-arm64      = ARCH-arm64/syscall.S
+
 SRC_C_libl4sys-direct.a      = kip.c
 SRC_S_libl4sys-direct.so     =
+SRC_S_libl4sys-direct.a-arm64 = ARCH-arm64/syscall.S
 SRC_S_libl4sys-direct.a-x86  = syscalls_direct.S
 SRC_S_libl4sys-direct.a      = $(SRC_S_libl4sys-direct.a-$(ARCH))
 vpath syscalls_direct.S $(SRC_DIR)/ARCH-$(ARCH)
 
 SRC_C_libl4sys.a             = utcb.c errtostr.c kip.c $(SRC_C_libl4sys-$(ARCH))
 SRC_C_libl4sys.so            = utcb.c errtostr.c $(SRC_C_libl4sys-$(ARCH))
-SRC_S_libl4sys.a             = $(SRC_S_libl4sys-$(ARCH))
-SRC_S_libl4sys.so            = $(SRC_S_libl4sys-$(ARCH))
+SRC_S_libl4sys.a             = $(SRC_S_libl4sys.a-$(ARCH)) \
+                               $(SRC_S_libl4sys-$(ARCH))
+SRC_S_libl4sys.so            = $(SRC_S_libl4sys.so-$(ARCH)) \
+                               $(SRC_S_libl4sys-$(ARCH))
 
 SRC_C_libl4sys-l4x.a         = utcb.c errtostr.c kip.c $(SRC_C_libl4sys-$(ARCH))
 SRC_C_libl4sys-l4x.so        = utcb.c errtostr.c $(SRC_C_libl4sys-$(ARCH))

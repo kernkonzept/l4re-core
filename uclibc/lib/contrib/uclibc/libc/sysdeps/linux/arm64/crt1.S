@@ -122,15 +122,14 @@ ARM register quick reference:
 #endif
 
 _start:
-	bl __l4_setup_arm64_exception_vector /* clobbers x1, x2 */
-
 	/* Clear the frame pointer and link register since this is the outermost frame.  */
 	mov x29, #0
 	mov x30, #0
 
 #ifdef L_rcrt1
-	/* Save off the atexit pointer */
+	/* Save off the atexit pointer and syscall insn */
 	mov     x19, x0
+	mov     x20, x1
 
 	/* Calculate load address... subtract link address from real one */
 	adrp    x0, :got:_start
@@ -141,9 +140,12 @@ _start:
 	/* Do relocations */
 	bl reloc_static_pie
 
-	/* restore atexit pointer */
+	/* restore atexit pointer and syscall insn */
 	mov     x0, x19
+	mov     x1, x20
 #endif
+
+	bl __l4_setup_arm64_exception_vector /* clobbers x1, x2 */
 
 #ifdef __ARCH_USE_MMU__
 	/* Pop argc off the stack and save a pointer to argv */

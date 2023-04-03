@@ -21,8 +21,6 @@ PHDRS
 
 SECTIONS
 {
-  L4_DEFINE_ARM64_KERNEL_ENTRY_SYMS
-
   /* Read-only sections, merged into text segment: */
   L4_DEFINE_EXECUTABLE_START(0x00400000);
   .interp         : { *(.interp) } :ro :interp

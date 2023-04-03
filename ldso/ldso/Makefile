@@ -56,7 +56,6 @@ DEFINES_arm64-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
 DEFINES_sparc-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
 DEFINES_mips-l4f  += -DUSE_TLS=1 -DUSE___THREAD=1
 
-LDFLAGS_arm64 += -T $(SRC_DIR)/arm64.ld
 LDFLAGS  =  -nocrt1 -Bsymbolic -Bstatic --warn-common --sort-common \
             --no-undefined -e _start -z defs -z now \
             --discard-locals --discard-all   \
@@ -72,8 +71,6 @@ SRC_C    += ssp-l4.c
 endif
 
 include $(L4DIR)/mk/lib.mk
-
-$(TARGET): $(if $(filter arm64,$(ARCH)),$(SRC_DIR)/arm64.ld)
 
 ldso.1.o: ldso.o
 	$(OBJCOPY) --weaken $< $@

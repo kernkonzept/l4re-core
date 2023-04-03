@@ -10,9 +10,10 @@
 __l4_setup_arm64_exception_vector:
 #ifndef EXCEPTION_EL1_DETECT_X1
         // Other tasks than Moe
-        adrp    x2, :got:__l4_sys_syscall
-        ldr     x2, [x2, #:got_lo12:__l4_sys_syscall]
-        ldr     x1, [x2]
+        adrp    x2, :got:l4_global_kip
+        ldr     x2, [x2, #:got_lo12:l4_global_kip]
+        ldr     x2, [x2]
+        ldr     x1, [x2, #0x800]
 #else
         // Moe
 #endif
