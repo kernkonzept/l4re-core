@@ -240,7 +240,7 @@ struct Phdr_load_min_max
   Phdr_load_min_max() : start(~0UL), end(0) {}
   void operator () (Elf_phdr const &h) const
   {
-    if (h.type() != PT_LOAD && h.type() != PT_L4_KIP)
+    if (h.type() != PT_LOAD)
       return;
 
     l4_addr_t s = l4_trunc_page(h.paddr());
@@ -293,15 +293,6 @@ struct Phdr_load
   void operator () (Elf_phdr const &ph) const
   {
     using L4Re::chksys;
-
-    if (ph.type() == PT_L4_KIP)
-      {
-        char *paddr = (char*)(l4_trunc_page(ph.paddr()) + base);
-        mm->prog_attach_ds(l4_addr_t(paddr), L4_PAGESIZE,
-                           mm->local_kip_ds(), 0, r_flags | L4Re::Rm::F::RX,
-                           "attaching KIP ELF segment");
-        return;
-      }
 
     if (ph.type() != PT_LOAD)
       return;
