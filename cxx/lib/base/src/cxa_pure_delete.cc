@@ -16,6 +16,7 @@
  * the GNU General Public License.
  */
 
+#include <cstddef>
 #include <l4/cxx/iostream>
 
 void operator delete (void *obj) noexcept
@@ -23,3 +24,13 @@ void operator delete (void *obj) noexcept
   L4::cerr << "cxa pure delete operator called for object @"
            << L4::hex << obj << L4::dec << "\n";
 }
+
+#if __cplusplus >= 201400
+void operator delete (void *obj, size_t size) noexcept;
+void operator delete (void *obj, size_t size) noexcept
+{
+  L4::cerr << "cxa pure delete operator called for object @"
+           << L4::hex << obj << L4::dec
+           << " size " << size << "\n";
+}
+#endif
