@@ -92,7 +92,7 @@ void Moe::Dataspace_cont::unmap() const noexcept
 
   while (size)
     {
-      Address addr = address(offs, L4Re::Dataspace::F::RWX, ~0UL);
+      Address addr = address(offs, L4Re::Dataspace::F::RWX);
       fpages[pages_idx++] = addr.fp();
 
       size -= (1UL << l4_fpage_size(addr.fp()));
