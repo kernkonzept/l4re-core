@@ -37,6 +37,7 @@ class Br_manager : public L4::Ipc_svr::Server_iface
 {
 private:
   enum { _mem = 0, _ports = 0 };
+  enum { Brs_per_timeout = sizeof(l4_kernel_clock_t) / sizeof(l4_umword_t) };
 
 public:
   /// Make a buffer-register (BR) manager
@@ -69,8 +70,9 @@ public:
     if (d.mem || d.ports)
       return -L4_EINVAL;
 
-    // take two extra buffers for a possible timeout and a zero terminator
-    if (d.caps + d.mem * 2 + d.ports * 2 + 3 >= L4_UTCB_GENERIC_BUFFERS_SIZE)
+    // take extra buffers for a possible timeout and for a zero terminator
+    if (d.caps + d.mem * 2 + d.ports * 2 + Brs_per_timeout + 1
+        > L4_UTCB_GENERIC_BUFFERS_SIZE)
       return -L4_ERANGE;
 
     if (d.caps > _caps)
@@ -152,10 +154,10 @@ protected:
   /// Used for assigning BRs for a timeout
   unsigned first_free_br() const
   {
-    // we take the last BR here (this is c constant),
-    return L4_UTCB_GENERIC_BUFFERS_SIZE - 1;
-    // could also take _caps + _mem +_ports + 1 (would be dynamic)
-    // return _caps + _mem + _ports + 1;
+    // The last BR (64-bit) or the last two BRs (32-bit); this is constant.
+    return L4_UTCB_GENERIC_BUFFERS_SIZE - Brs_per_timeout;
+    // We could also do the following dynamic approach:
+    // return _caps + _mem + _ports + 1
   }
 
 private:
