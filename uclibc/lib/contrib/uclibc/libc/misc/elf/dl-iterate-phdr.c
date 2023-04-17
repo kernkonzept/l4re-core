@@ -63,6 +63,9 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
       info.dlpi_addr.got_value = NULL;
 #elif defined(__DSBT__)
       info.dlpi_addr.map = NULL;
+#elif defined(STATIC_PIE)
+      extern ElfW(Addr) _dl_load_base;
+      info.dlpi_addr = _dl_load_base;
 #else
       info.dlpi_addr = 0;
 #endif
