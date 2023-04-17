@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief  time stamp counter related functions
+ * Timestamp counter related functions
  *
  * \author  Frank Mehnert <fm3@os.inf.tu-dresden.de>
  * \ingroup l4util_tsc
@@ -44,14 +44,14 @@ extern l4_uint32_t l4_scaler_ns_to_tsc;
 extern l4_uint32_t l4_scaler_tsc_linux;
 
 /**
- * \brief Read current value of CPU-internal time stamp counter.
- * \return 64-bit time stamp
+ * Read current value of CPU-internal timestamp counter.
+ * \return 64-bit timestamp
  */
 L4_INLINE l4_cpu_time_t
 l4_rdtsc (void);
 
 /**
- * \brief Read the lest significant 32 bit of the TSC.
+ * Read the lest significant 32 bit of the TSC.
  *
  * Useful for smaller differences, needs less cycles.
  */
@@ -59,7 +59,7 @@ L4_INLINE
 l4_uint32_t l4_rdtsc_32(void);
 
 /**
- * \brief Return current value of CPU-internal performance measurement counter.
+ * Return current value of CPU-internal performance measurement counter.
  * \param  ecx          ECX value for the rdpmc instruction. For details see
  *                      the Intel IA-32 Architectures Software Developer's
  *                      Manual.
@@ -68,37 +68,37 @@ L4_INLINE l4_uint64_t
 l4_rdpmc (int ecx);
 
 /**
- * \brief Return the least significant 32 bit of a performance counter.
+ * Return the least significant 32 bit of a performance counter.
  *
  * Useful for smaller differences, needs less cycles.
  */
 L4_INLINE
 l4_uint32_t l4_rdpmc_32(int ecx);
 
-/** Convert time stamp to ns value.
+/** Convert timestamp to ns value.
  * \param tsc time value in CPU ticks
  * \return time value in ns
  */
 L4_INLINE l4_uint64_t
 l4_tsc_to_ns (l4_cpu_time_t tsc);
 
-/** Convert time stamp into micro seconds value.
+/** Convert timestamp into micro seconds value.
  * \param tsc time value in CPU ticks
  * \return time value in micro seconds
  */
 L4_INLINE l4_uint64_t
 l4_tsc_to_us (l4_cpu_time_t tsc);
 
-/** Convert time stamp to s.ns value.
- * \param tsc time value in CPU ticks
- * \retval s seconds
- * \retval ns nano seconds
+/** Convert timestamp to s.ns value.
+ * \param      tsc  time value in CPU ticks
+ * \param[out] s    seconds
+ * \param[out] ns   nano seconds
  */
 L4_INLINE void
 l4_tsc_to_s_and_ns (l4_cpu_time_t tsc, l4_uint32_t *s, l4_uint32_t *ns);
 
 /**
- * \brief Convert nano seconds into CPU ticks.
+ * Convert nano seconds into CPU ticks.
  * \param ns nano seconds
  * \return CPU ticks
  */
@@ -106,7 +106,7 @@ L4_INLINE l4_cpu_time_t
 l4_ns_to_tsc (l4_uint64_t ns);
 
 /**
- * \brief Wait busy for a small amount of time.
+ * Wait busy for a small amount of time.
  * \param ns nano seconds to wait
  * \attention Not intended for any use!
  */
@@ -114,7 +114,7 @@ L4_INLINE void
 l4_busy_wait_ns (l4_uint64_t ns);
 
 /**
- * \brief Wait busy for a small amount of time.
+ * Wait busy for a small amount of time.
  * \param us micro seconds to wait
  * \attention Not intended for any use!
  */
@@ -122,7 +122,7 @@ L4_INLINE void
 l4_busy_wait_us (l4_uint64_t us);
 
 /**
- * Determine scalers for time stamp calculations.
+ * Determine scalers for timestamp calculations.
  *
  * Determine some scalers to be able to convert between real time and CPU
  * ticks. Just calls l4_tsc_init().
@@ -147,7 +147,7 @@ L4_CV l4_uint32_t
 l4_tsc_init(l4_kernel_info_t const *kip);
 
 /**
- * \brief Get CPU frequency in Hz
+ * Get CPU frequency in Hz
  * \return frequency in Hz
  */
 L4_CV l4_uint32_t

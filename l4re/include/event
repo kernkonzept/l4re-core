@@ -183,8 +183,8 @@ public:
   /**
    * Get event stream infos.
    *
-   * \param      id    ID of the event stream.
-   * \param[out] info  Event stream info.
+   * \param      stream_id  ID of the event stream.
+   * \param[out] info       Event stream info.
    *
    * \retval 0   Success
    * \retval <0  Error
@@ -194,9 +194,9 @@ public:
   /**
    * Get event stream axis infos.
    *
-   * \param      id    ID of the event stream.
-   * \param      axes  Array of axis IDs.
-   * \param[out] info  Array of axis infos.
+   * \param      stream_id  ID of the event stream.
+   * \param[in]  axes       Array of axis IDs.
+   * \param[out] info       Array of axis infos.
    *
    * \retval >=0  Number of returned axes infos.
    * \retval <0   Error code.
@@ -216,8 +216,8 @@ public:
   /**
    * Get event stream state.
    *
-   * \param      id    ID of the event stream.
-   * \param[out] info  Event stream state.
+   * \param      stream_id  ID of the event stream.
+   * \param[out] state      Event stream state.
    *
    * \retval 0   Success
    * \retval <0  Error

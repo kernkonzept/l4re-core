@@ -171,9 +171,11 @@ l4re_rm_detach_unmap(l4_addr_t addr, l4_cap_idx_t task) L4_NOTHROW;
 /**
  * \ingroup api_l4re_c_rm
  * \brief Detach and unmap in specified task.
- * \param addr   Address of the region to detach.
- * \retval ds    Returns dataspace that is affected.
- * \param task   Task to unmap pages from, specify L4_INVALID_CAP to not unmap
+ *
+ * \param      addr  Address of the region to detach.
+ * \param[out] ds    Returns dataspace that is affected.
+ * \param      task  Task to unmap pages from, specify L4_INVALID_CAP to not unmap
+ *
  * \return 0 on success, <0 on error
  *
  * Also \see L4Re::Rm::detach

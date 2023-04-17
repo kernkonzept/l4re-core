@@ -232,7 +232,7 @@ typedef struct
   l4_uint8_t linear_reserved_field_position;
   /** Maximum pixel clock (in Hz) for graphics mode. */
   l4_uint32_t max_pixel_clock;
-
+  /** Reserved (padding) */
   l4_uint8_t reserved3[190];
   /** @} */
 } __attribute__ ((packed)) l4util_mb_vbe_mode_t;

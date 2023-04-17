@@ -65,6 +65,7 @@ public:
     Msb = MSB,             ///< index of the MSB
   };
 
+  /// Masks for bitswise operation on internal parts of a bitfield
   enum Masks : T
   {
     /** Mask value to get #Bits bits. */

@@ -42,8 +42,15 @@ enum L4_semaphore_op
 /**
  * \ingroup l4_semaphore_api
  * \copybrief L4::Semaphore::up()
+ *
  * \param sem  Semaphore object.
- * \copydetails L4::Semaphore::up()
+ *
+ * \return Send-only IPC message return tag. Use l4_ipc_error() to check for
+ *         errors, do **not** use l4_error().
+ *
+ * Increases the semaphore counter by one if it is smaller than an
+ * unspecified limit. The unspecified limit is guaranteed to be at
+ * least 2^31-1.
  */
 L4_INLINE l4_msgtag_t
 l4_semaphore_up(l4_cap_idx_t sem) L4_NOTHROW
@@ -63,8 +70,20 @@ l4_semaphore_up_u(l4_cap_idx_t sem, l4_utcb_t *utcb) L4_NOTHROW
 /**
  * \ingroup l4_semaphore_api
  * \copybrief L4::Semaphore::down()
+ *
  * \param sem  Semaphore object.
- * \copydetails L4::Semaphore::down()
+ * \param timeout  Timeout for blocking the semaphore down operation.
+ *                 Note: The receive timeout of this timeout-pair is
+ *                 significant for blocking, the send part is usually
+ *                 non-blocking.
+ *
+ * \return Syscall return tag. Use l4_error() to check for errors.
+ * \retval -L4_EPERM  No #L4_CAP_FPAGE_S right on invoked semaphore
+ *                    capability.
+ *
+ * This method decrements the semaphore counter by one, or blocks if the
+ * counter is already zero, until either a timeout or cancel condition hits
+ * or the counter is increased by an `up()` operation.
  */
 L4_INLINE l4_msgtag_t
 l4_semaphore_down(l4_cap_idx_t sem, l4_timeout_t timeout) L4_NOTHROW;

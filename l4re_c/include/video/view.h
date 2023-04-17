@@ -27,7 +27,7 @@
 #include <l4/re/c/video/colors.h>
 
 /**
- * \brief Flags of information on a view.
+ * Flags of information on a view.
  * \ingroup api_l4re_c_video
  */
 enum l4re_video_view_info_flags_t
@@ -53,7 +53,7 @@ enum l4re_video_view_info_flags_t
 };
 
 /**
- * \brief View information structure
+ * View information structure
  * \ingroup api_l4re_c_video
  */
 typedef struct l4re_video_view_info_t
@@ -69,7 +69,7 @@ typedef struct l4re_video_view_info_t
 
 
 /**
- * \brief C representation of a goos view.
+ * C representation of a goos view.
  * \ingroup api_l4re_c_video
  *
  * A view is a visible rectangle that provides a view to the contents of a
@@ -85,8 +85,9 @@ typedef struct l4re_video_view_t
 EXTERN_C_BEGIN
 
 /**
+ * Flush the given rectangle of pixels of the given \a view.
  * \ingroup api_l4re_c_video
- * \brief Flush the given rectangle of pixels of the given \a view.
+ *
  * \param view the target view of the operation.
  * \param x x-coordinate of the upper left corner
  * \param y y-coordinate of the upper left corner
@@ -98,18 +99,20 @@ l4re_video_view_refresh(l4re_video_view_t *view, int x, int y, int w,
                         int h) L4_NOTHROW;
 
 /**
+ * Retrieve information about the given \a view.
  * \ingroup api_l4re_c_video
- * \brief Retrieve information about the given \a view.
- * \param view the target view for the operation.
- * \retval info a buffer receiving the information about the view.
+ *
+ * \param      view  the target view for the operation.
+ * \param[out] info  a buffer receiving the information about the view.
  */
 L4_CV int
 l4re_video_view_get_info(l4re_video_view_t *view,
                          l4re_video_view_info_t *info) L4_NOTHROW;
 
 /**
+ * Set properties of the view.
  * \ingroup api_l4re_c_video
- * \brief Set properties of the view.
+ *
  * \param view the target view of the operation.
  * \param info the parameters to be set on the view.
  *
@@ -122,8 +125,9 @@ l4re_video_view_set_info(l4re_video_view_t *view,
                          l4re_video_view_info_t *info) L4_NOTHROW;
 
 /**
+ * Set the viewport parameters of a view.
  * \ingroup api_l4re_c_video
- * \brief Set the viewport parameters of a view.
+ *
  * \param view the target view of the operation.
  * \param x the x-coordinate of the upper left corner on the screen.
  * \param y the y-coordinate of the upper left corner on the screen.
@@ -141,8 +145,9 @@ l4re_video_view_set_viewport(l4re_video_view_t *view, int x, int y, int w,
                              int h, unsigned long bofs) L4_NOTHROW;
 
 /**
+ * Change the stacking order in the stack of visible views.
  * \ingroup api_l4re_c_video
- * \brief Change the stacking order in the stack of visible views.
+ *
  * \param view the target view for the operation.
  * \param pivot the neighbor view, relative to which \a view shall be stacked.
  *              a NULL value allows top (\a behind = 1) and bottom

@@ -49,8 +49,6 @@ l4re_log_print(char const *string) L4_NOTHROW;
  * \param string     Text to print, null terminated.
  * \param len        Length of string in bytes.
  *
- * \return 0 for success, <0 on error
- *
  * \see L4Re::Log::printn
  */
 L4_CV L4_INLINE void

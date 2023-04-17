@@ -73,7 +73,7 @@ public:
   typedef Rev Rev_iter_ops;
 
   /// \name Iterators
-  ///@{
+  /**@{*/
   /// Forward iterator.
   typedef __Bst_iter<Node, Node, Fwd> Iterator;
   /// Constant forward iterator.
@@ -82,7 +82,7 @@ public:
   typedef __Bst_iter<Node, Node, Rev> Rev_iterator;
   /// Constant backward.
   typedef __Bst_iter<Node, Node const, Rev> Const_rev_iterator;
-  ///@}
+  /**@}*/
 
 protected:
   /**

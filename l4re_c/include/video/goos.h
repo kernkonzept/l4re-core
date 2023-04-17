@@ -70,8 +70,8 @@ EXTERN_C_BEGIN
  * \brief Get information on a goos.
  * \ingroup api_l4re_c_video
  *
- * \param  goos  Goos object
- * \retval ginfo Pointer to goos information structure.
+ * \param      goos   Goos object
+ * \param[out] ginfo  Pointer to goos information structure.
  *
  * \return 0 for success, <0 on error
  *         - -#L4_ENODEV
@@ -136,8 +136,8 @@ l4re_video_goos_get_static_buffer(l4re_video_goos_t goos, unsigned idx,
 /**
  * \ingroup api_l4re_c_video
  * \brief Create a new view (\see l4re_video_view_t)
- * \param goos the goos session to use.
- * \retval view the structure will be initialized for the new view.
+ * \param      goos  the goos session to use.
+ * \param[out] view  structure initialized to the new view.
  */
 L4_CV int
 l4re_video_goos_create_view(l4re_video_goos_t goos,
@@ -158,10 +158,9 @@ l4re_video_goos_delete_view(l4re_video_goos_t goos,
 /**
  * \ingroup api_l4re_c_video
  * \brief Get a view for the given index.
- * \param goos the target goos session.
- * \param idx the index of the view to retrieve.
- * \retval view the structure will be initialized to the
- *              view with the given index.
+ * \param      goos  the target goos session.
+ * \param      idx   the index of the view to retrieve.
+ * \param[out] view  structure initialized to the view with the given index.
  *
  * This function allows to access static views as provided by the
  * VESA framebuffer (the monitor). However, it also allows to access

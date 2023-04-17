@@ -843,14 +843,15 @@ public:
    * \brief Create a directory object \a dir representing \a source
    *        mounted with this file system.
    *
-   * \param source The path to the source device to mount. This may
-   *               also be some URL or anything file-system specific.
-   * \param mountflags The mount flags as specified in the POSIX
-   *                   mount call.
-   * \param data The data as specified in the POSIX mount call. The
-   *             contents are file-system specific.
-   * \retval dir A new directory object representing the file-system
-   *             root directory.
+   * \param      source      The path to the source device to mount. This may
+   *                         also be some URL or anything file-system specific.
+   * \param      mountflags  The mount flags as specified in the POSIX
+   *                         mount call.
+   * \param      data        The data as specified in the POSIX mount call. The
+   *                         contents are file-system specific.
+   * \param[out] dir         A new directory object representing the file-system
+   *                         root directory.
+   *
    * \return 0 on success, and <0 on error (e.g. -EINVAL).
    *
    */

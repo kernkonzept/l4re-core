@@ -261,7 +261,6 @@ class Server :
 public:
   /**
    * Initializes the server loop.
-   * \param utcb The UTCB of the thread running the server loop.
    *
    * Note that this variant is deprecated. The UTCB can be specified with
    * the server loop function (l4_utcb() is the default). (2021-10)

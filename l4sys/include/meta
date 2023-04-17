@@ -40,8 +40,8 @@ public:
   /**
    * Get the number of interfaces implemented by this object.
    *
-   * \retval l4_msgtag_t::label() >= 0  The number of supported interfaces.
-   * \retval l4_msgtag_t::label() < 0   Error code of the occurred error.
+   * \retval "l4_msgtag_t::label() >= 0"  The number of supported interfaces.
+   * \retval "l4_msgtag_t::label() < 0"   Error code of the occurred error.
    */
   L4_INLINE_RPC(l4_msgtag_t, num_interfaces, ());
 
@@ -55,8 +55,8 @@ public:
    * \param[out] proto  The protocol number for interface `idx`.
    * \param[out] name   The protocol name for interface `idx`.
    *
-   * \retval l4_msgtag_t::label() == 0  Successful; see `proto` and `name`.
-   * \retval l4_msgtag_t::label() < 0   Error code.
+   * \retval "l4_msgtag_t::label() == 0"  Successful; see `proto` and `name`.
+   * \retval "l4_msgtag_t::label() < 0"   Error code.
    */
   L4_INLINE_RPC(l4_msgtag_t, interface, (l4_umword_t idx, long *proto,
                                          L4::Ipc::String<char> *name));
@@ -66,8 +66,8 @@ public:
    *
    * \param protocol  The protocol number to check for.
    *
-   * \retval l4_msgtag_t::label() == 1  protocol is supported.
-   * \retval l4_msgtag_t::label() == 0  protocol is not supported.
+   * \retval "l4_msgtag_t::label() == 1"  protocol is supported.
+   * \retval "l4_msgtag_t::label() == 0"  protocol is not supported.
    *
    * This method is intended to be used for statically assigned protocol
    * numbers.

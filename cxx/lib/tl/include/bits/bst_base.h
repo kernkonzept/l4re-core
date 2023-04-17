@@ -63,12 +63,16 @@ struct Direction
   Direction operator ! () const { return Direction(!d); }
 
   /// \name Comparison operators (equality and inequality)
-  ///@{
+  /**@{*/
+  /// Compare for equality.
   bool operator == (Direction_e o) const { return d == o; }
+  /// Compare for inequality.
   bool operator != (Direction_e o) const { return d != o; }
+  /// Compare for equality.
   bool operator == (Direction o) const { return d == o.d; }
+  /// Compare for inequality.
   bool operator != (Direction o) const { return d != o.d; }
-  ///@}
+  /**@}*/
 };
 
 /**

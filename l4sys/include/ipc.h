@@ -459,11 +459,11 @@ l4_ipc_sleep(l4_timeout_t timeout) L4_NOTHROW;
  * Add a flex-page to be sent to the UTCB
  * \ingroup l4_ipc_api
  *
- * \param  snd_fpage  Flex-page.
- * \param  snd_base   Send base.
- * \param  tag        Tag to be modified.
- * \retval tag        Modified tag, the number of items will be increased,
- *                    all other values in the tag will be retained.
+ * \param         snd_fpage  Flex-page.
+ * \param         snd_base   Send base.
+ * \param[in,out] tag        Tag to be updated. Only the number of items is
+ *                           incremented in the updated tag, all other members
+ *                           remain unmodified.
  *
  * \return 0 on success, negative error code otherwise
  *
