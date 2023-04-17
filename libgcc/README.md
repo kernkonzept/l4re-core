@@ -58,7 +58,7 @@ single-threaded, (`libgcc_eh-pure.a`).
 
 
 ## Use libgcc from toolchain
-Optionally, by enabling the BID Kconfig option `BID_USE_TOOLCHAIN_LIBGCC`,
+Optionally, by enabling the Kconfig option `COMPILER_RT_USE_TOOLCHAIN_LIBGCC`,
 instead of building the libgcc for L4Re from source, the libgcc shipped with the
 compiler toolchain can be used.
 On PowerPC and SPARC this option is forcibly enabled, since it seemed
@@ -67,7 +67,7 @@ them.
 
 
 ## Libgcc as shared library
-Optionally, by enabling the BID Kconfig option `BID_LIBGCC_SHARED` it is
+Optionally, by enabling the Kconfig option `COMPILER_RT_LIBGCC_SHARED` it is
 possible to link against a shared variant of libgcc (`libgcc_s.so`).
 This feature is only available when libgcc is built from source, i.e. not when
 using the libgcc shipped with the toolchain.

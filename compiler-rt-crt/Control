@@ -1,0 +1,4 @@
+provides: compiler-rt-crt
+requires: libgcc-crt
+source-pkg: compiler-rt
+maintainer: georg.kotheimer@kernkonzept.com

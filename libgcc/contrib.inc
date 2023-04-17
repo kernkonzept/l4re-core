@@ -11,7 +11,7 @@ $(warning No suitable libgcc version found for gcc $(LIBGCC_CONTRIB_VERSION).)
 $(warning Falling back to libgcc $(LIBGCC_CONTRIB_MAX_VERSION), unexpected errors may occur.)
 $(warning Please update the libgcc package.)
 $(warning In case of errors, as a temporary workaround the libgcc shipped with the toolchain \
-          can be used by enabling the Kconfig option BID_USE_TOOLCHAIN_LIBGCC.)
+          can be used by enabling the Kconfig option COMPILER_RT_USE_TOOLCHAIN_LIBGCC.)
 LIBGCC_CONTRIB_VERSION := $(LIBGCC_CONTRIB_MAX_VERSION)
 endif
 

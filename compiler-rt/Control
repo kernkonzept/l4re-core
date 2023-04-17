@@ -1,0 +1,3 @@
+provides: compiler-rt
+requires: libgcc libgcc_eh libatomic[arch(riscv)]
+maintainer: georg.kotheimer@kernkonzept.com

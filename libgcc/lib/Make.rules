@@ -1,8 +1,8 @@
-TARGET          = libgcc.a $(if $(CONFIG_BID_LIBGCC_SHARED),libgcc_s.so)
+TARGET          = libgcc.a $(if $(CONFIG_COMPILER_RT_LIBGCC_SHARED),libgcc_s.so)
 PC_FILENAME     = libgcc
 # Certain functions are only part of libgcc.a, so link shared objects against
 # both libgcc_s.so and libgcc.a.
-PC_LIBS         = %{static|static-pie|static-libgcc:; :$(if $(CONFIG_BID_LIBGCC_SHARED),-lgcc_s)} -lgcc
+PC_LIBS         = %{static|static-pie|static-libgcc:; :$(if $(CONFIG_COMPILER_RT_LIBGCC_SHARED),-lgcc_s)} -lgcc
 PC_EXTRA        = Link_Libs= -lgcc
 
 REQUIRES_LIBS   = l4sys

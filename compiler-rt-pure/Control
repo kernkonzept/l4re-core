@@ -1,0 +1,4 @@
+provides: compiler-rt-pure
+requires: libgcc-pure libgcc_eh-pure
+source-pkg: compiler-rt
+maintainer: georg.kotheimer@kernkonzept.com

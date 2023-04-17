@@ -1,0 +1,19 @@
+menu "Compiler runtime"
+config COMPILER_RT_LIBGCC_SHARED
+        bool "Use shared libgcc"
+        depends on !COMPILER_RT_USE_TOOLCHAIN_LIBGCC
+        help
+          Say Y if you want to use shared libgcc (libgcc_s.so).
+
+config COMPILER_RT_USE_TOOLCHAIN_LIBGCC
+        bool "Use libgcc from toolchain"
+        default y
+        help
+          Say Y if you want to use the libgcc shipped with your toolchain
+          instead of the one built specifically for L4Re.
+
+# Sparc and PPC32 cannot be build from source.
+config COMPILER_RT_FALLBACK
+        def_bool BUILD_ARCH = "sparc" || BUILD_ARCH = "ppc32"
+        select COMPILER_RT_USE_TOOLCHAIN_LIBGCC
+endmenu

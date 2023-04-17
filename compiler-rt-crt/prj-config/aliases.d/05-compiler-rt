@@ -1,0 +1,1 @@
+compiler-rt-crt := libgcc-crt[build-only]
