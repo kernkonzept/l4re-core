@@ -215,14 +215,22 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           if (p_max.value<l4_mword_t>() <= p_base.value<l4_mword_t>())
             return -L4_EINVAL;
 
-          l4_umword_t cpu_mask = ~0UL;
+          unsigned cpu_mask_offs = 0;
+          Dyn_cpu_set cpu_mask(qalloc());
 
-          if (!cpus.is_of<void>() && cpus.is_of_int())
-            cpu_mask = cpus.value<l4_umword_t>();
+          while (!cpus.is_of<void>())
+            {
+              if (!cpus.is_of_int())
+                return -L4_EINVAL;
+              cpu_mask.update(cpu_mask_offs, cpus.value<l4_umword_t>());
+              cpu_mask_offs += sizeof(l4_umword_t) * 8;
+              cpus = args.pop_front();
+            }
 
-          cxx::unique_ptr<Sched_proxy> o(make_obj<Sched_proxy>());
+          cxx::unique_ptr<Sched_proxy> o(make_obj<Sched_proxy>(qalloc()));
           o->set_prio(p_base.value<l4_mword_t>(), p_max.value<l4_mword_t>());
-          o->restrict_cpus(cpu_mask);
+          if (cpu_mask_offs)
+            o->restrict_cpus(cpu_mask);
           ko = object_pool.cap_alloc()->alloc(o.get(), "moe-sched");
           ko->dec_refcnt(1);
           o.release();

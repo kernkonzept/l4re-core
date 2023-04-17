@@ -11,77 +11,94 @@
 #include "debug.h"
 
 #include <algorithm>
+#include <l4/cxx/minmax>
 #include <l4/re/env>
 #include <l4/sys/scheduler>
 
 //#include <cstdio>
 
-static
-l4_sched_cpu_set_t
-blow_up(l4_sched_cpu_set_t const &src, unsigned char gran)
-{
-  l4_sched_cpu_set_t n;
-  gran &= sizeof(l4_umword_t) * 8 - 1;
-  unsigned char og = src.granularity() & (sizeof(l4_umword_t) * 8 - 1);
-  n.set(gran, src.offset() & (~0UL << og));
-  n.map = 0;
-  for (unsigned i = 0; i < sizeof(l4_umword_t) * 8; ++i)
-    if (src.map & (1UL << (i >> (og - gran))))
-      n.map |= 1UL << i;
+static l4_umword_t kernel_cpu_max;
+static l4_umword_t kernel_sched_classes;
 
-  return n;
+Dyn_cpu_set::Dyn_cpu_set(Moe::Q_alloc *q)
+: Bitmap_base(q->alloc(bit_buffer_bytes(kernel_cpu_max), alignof(word_type)))
+{}
+
+Dyn_cpu_set::~Dyn_cpu_set()
+{
+  void *buf = bit_buffer();
+  Moe::Malloc_container::from_ptr(buf)->free(buf);
 }
 
-static
-l4_sched_cpu_set_t operator & (l4_sched_cpu_set_t const &a, l4_sched_cpu_set_t const &b)
+Dyn_cpu_set& Dyn_cpu_set::operator=(Dyn_cpu_set const &other)
 {
-  l4_sched_cpu_set_t _a, _b;
-  unsigned char const ga = a.granularity() & (sizeof(l4_umword_t) * 8 - 1);
-  unsigned char const gb = b.granularity() & (sizeof(l4_umword_t) * 8 - 1);
-  if (ga < gb)
-    {
-      _b = blow_up(b, ga);
-      _a = a;
-    }
-  else if (ga == gb)
-    {
-      _a = a;
-      _b = b;
-    }
-  else
-    {
-      _a = blow_up(a, gb);
-      _b = b;
-    }
-
-  long ofs_dif = _a.offset() - _b.offset();
-  long unsigned abs_ofs_dif;
-  if (ofs_dif < 0)
-    abs_ofs_dif = -ofs_dif;
-  else
-    abs_ofs_dif = ofs_dif;
-
-  if (abs_ofs_dif >= sizeof(l4_umword_t) * 8)
-    return l4_sched_cpu_set(0, 0, 0);
-
-  if (ofs_dif < 0)
-    {
-      _b.map &= (_a.map >> abs_ofs_dif);
-      return _b;
-    }
-  else
-    {
-      _a.map &= (_b.map >> abs_ofs_dif);
-      return _a;
-    }
+  memcpy(bit_buffer(), other.bit_buffer(), bit_buffer_bytes(kernel_cpu_max));
+  return *this;
 }
+
+void Dyn_cpu_set::update(unsigned offset, l4_umword_t mask)
+{
+  for (unsigned i = 0; i < sizeof(mask) * 8; i++)
+    if (offset + i < kernel_cpu_max)
+      bit(offset + i, mask & (1UL << i));
+}
+
+void Dyn_cpu_set::clear_all()
+{
+  memset(bit_buffer(), 0, bit_buffer_bytes(kernel_cpu_max));
+}
+
+void Dyn_cpu_set::set_all()
+{
+  memset(bit_buffer(), 0xff, bit_buffer_bytes(kernel_cpu_max));
+}
+
+Dyn_cpu_set& Dyn_cpu_set::operator&=(Dyn_cpu_set const &other)
+{
+  word_type *ours = reinterpret_cast<word_type*>(bit_buffer());
+  word_type *theirs = reinterpret_cast<word_type*>(other.bit_buffer());
+
+  for (unsigned i = 0; i < words(kernel_cpu_max); i++)
+    ours[i] &= theirs[i];
+
+  return *this;
+}
+
+l4_sched_cpu_set_t Dyn_cpu_set::operator&(l4_sched_cpu_set_t const &s) const
+{
+  unsigned const base = s.offset();
+  unsigned constexpr map_bits = sizeof(s.map) * 8;
+  unsigned const gran = cxx::min<unsigned>(s.granularity(),
+                                           sizeof(unsigned) * 8 - 1);
+  unsigned limit =
+    cxx::min<unsigned>(kernel_cpu_max,
+                       base + (1U << gran) * map_bits);
+
+  l4_sched_cpu_set_t ret = l4_sched_cpu_set(base, 0, 0);
+  unsigned first = base;
+  for (unsigned off = base; off < limit; ++off)
+    {
+      if (bit(off) && s.map & (1UL << ((off - base) >> gran)))
+        {
+          if (! ret.map)
+            {
+              // First valid CPU found - adapt offset and end of interval
+              first = off;
+              ret.set(0, first);
+              limit = cxx::min<unsigned>(limit, first + map_bits);
+            }
+          ret.map |= 1UL << (off - first);
+        }
+    }
+  return ret;
+}
+
 
 Sched_proxy::List Sched_proxy::_list;
 
-Sched_proxy::Sched_proxy() :
+Sched_proxy::Sched_proxy(Moe::Q_alloc *q) :
   Icu(1, &_scheduler_irq),
-  _real_cpus(l4_sched_cpu_set(0, 0, 0)), _cpu_mask(_real_cpus),
-  _max_cpus(0), _sched_classes(0),
+  _cpus(q), _real_cpus(q), _cpu_mask(q),
   _prio_offset(0), _prio_limit(0)
 {
   rescan_cpus_and_classes();
@@ -91,38 +108,42 @@ Sched_proxy::Sched_proxy() :
 void
 Sched_proxy::rescan_cpus_and_classes()
 {
+  _real_cpus.clear_all();
+
   l4_sched_cpu_set_t c;
-  l4_umword_t max = 0;
-  c.map = 0;
   c.gran_offset = 0;
-  l4_umword_t sc = 0;
 
-  int e = l4_error(L4Re::Env::env()->scheduler()->info(&max, &c, &sc));
-  if (e < 0)
-    return;
+  auto sched = L4Re::Env::env()->scheduler();
+  while (c.offset() < kernel_cpu_max)
+    {
+      c.map = 0;
+      int e = l4_error(sched->info(nullptr, &c, nullptr));
+      if (e < 0)
+        break;
 
-  _max_cpus = std::min<unsigned>(sizeof(l4_umword_t) * 8, max);
-  _real_cpus = c;
-  _sched_classes = sc;
+      _real_cpus.update(c.offset(), c.map);
+      c.set(0, c.offset() + sizeof(l4_umword_t) * 8);
+    }
 
-  _cpus = _real_cpus & _cpu_mask;
+  _cpus = _real_cpus;
+  _cpus &= _cpu_mask;
 }
 
 int
 Sched_proxy::info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
                   l4_umword_t *sched_classes)
 {
-  *cpu_max = _max_cpus;
+  *cpu_max = kernel_cpu_max;
   unsigned char g = cpus->granularity() & (sizeof(l4_umword_t) * 8 - 1);
   l4_umword_t offs = cpus->offset() & (~0UL << g);
-  if (offs >= _max_cpus)
+  if (offs >= kernel_cpu_max)
     return -L4_ERANGE;
 
   cpus->map = 0;
   unsigned b = 0;
-  for (unsigned i = offs; i < _max_cpus && b < sizeof(l4_umword_t) * 8;)
+  for (unsigned i = offs; i < kernel_cpu_max && b < sizeof(l4_umword_t) * 8;)
     {
-      if (_cpus.map & (1UL << i))
+      if (_cpus[i])
 	cpus->map |= 1UL << b;
 
       ++i;
@@ -131,7 +152,7 @@ Sched_proxy::info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
 	++b;
     }
 
-  *sched_classes = _sched_classes;
+  *sched_classes = kernel_sched_classes;
 
   return L4_EOK;
 }
@@ -142,13 +163,12 @@ Sched_proxy::run_thread(L4::Cap<L4::Thread> thread, l4_sched_param_t const &sp)
 {
   l4_sched_param_t s = sp;
   s.prio = std::min<l4_umword_t>(sp.prio + _prio_offset, _prio_limit);
-  s.affinity = sp.affinity & _cpus;
+  s.affinity = _cpus & sp.affinity;
   if (0)
     {
-      printf("loader[%p] run_thread: o=%u scheduler affinity = %lx "
-             "sp.m=%lx sp.o=%u sp.g=%u\n",
-             this, _cpus.offset(), _cpus.map, sp.affinity.map,
-             sp.affinity.offset(), sp.affinity.granularity());
+      printf("loader[%p] run_thread: sp.m=%lx sp.o=%u sp.g=%u\n",
+             this, sp.affinity.map, sp.affinity.offset(),
+             sp.affinity.granularity());
       printf("loader[%p]                                      "
              " s.m=%lx  s.o=%u  s.g=%u\n",
              this, s.affinity.map, s.affinity.offset(),
@@ -172,10 +192,11 @@ Sched_proxy::received_thread(L4::Ipc::Snd_fpage const &fp)
 }
 
 void
-Sched_proxy::restrict_cpus(l4_umword_t cpus)
+Sched_proxy::restrict_cpus(Dyn_cpu_set const &cpus)
 {
-  _cpu_mask = l4_sched_cpu_set(0, 0, cpus);
-  _cpus = _real_cpus & _cpu_mask;
+  _cpu_mask = cpus;
+  _cpus = _real_cpus;
+  _cpus &= _cpu_mask;
 }
 
 
@@ -194,6 +215,15 @@ public:
 
   Cpu_hotplug_server()
   {
+    l4_sched_cpu_set_t c = l4_sched_cpu_set(0, 0, 0);
+    int e = l4_error(L4Re::Env::env()->scheduler()->info(&kernel_cpu_max, &c,
+                                                         &kernel_sched_classes));
+    if (e < 0)
+      {
+        Err(Err::Fatal).printf("Could not query scheduler: %d\n", e);
+        return;
+      }
+
     L4::Cap<L4::Irq> irq = object_pool.cap_alloc()->alloc<L4::Irq>();
     if (!irq)
       {

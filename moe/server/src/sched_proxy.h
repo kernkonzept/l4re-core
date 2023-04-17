@@ -8,12 +8,33 @@
  */
 #pragma once
 
+#include <l4/cxx/bitmap>
 #include <l4/cxx/hlist>
 #include <l4/sys/cxx/ipc_epiface>
 #include <l4/libkproxy/scheduler_svr>
 
 #include "globals.h"
+#include "quota.h"
 #include "server_obj.h"
+
+class Dyn_cpu_set : private cxx::Bitmap_base
+{
+public:
+  Dyn_cpu_set(Moe::Q_alloc *q);
+  Dyn_cpu_set(Dyn_cpu_set const &other) = delete;
+  ~Dyn_cpu_set();
+
+  Dyn_cpu_set& operator=(Dyn_cpu_set const &other);
+
+  void update(unsigned offset, l4_umword_t mask);
+  void clear_all();
+  void set_all();
+
+  using cxx::Bitmap_base::operator[];
+
+  Dyn_cpu_set& operator&=(Dyn_cpu_set const &other);
+  l4_sched_cpu_set_t operator&(l4_sched_cpu_set_t const &s) const;
+};
 
 class Sched_proxy :
   public L4::Epiface_t<Sched_proxy, L4::Scheduler, Moe::Server_object>,
@@ -34,7 +55,7 @@ public:
   static void free_irq_cap(Irq_cap cap)
   { object_pool.cap_alloc()->free(cap); }
 
-  Sched_proxy();
+  Sched_proxy(Moe::Q_alloc *q);
 
   int info(l4_umword_t *cpu_max, l4_sched_cpu_set_t *cpus,
            l4_umword_t *sched_classes);
@@ -50,7 +71,7 @@ public:
   L4::Cap<void> rcv_cap() const
   { return L4::Cap<L4::Thread>(Rcv_cap << L4_CAP_SHIFT); }
 
-  void restrict_cpus(l4_umword_t cpus);
+  void restrict_cpus(Dyn_cpu_set const &cpus);
   void rescan_cpus_and_classes();
 
   Icu::Irq *scheduler_irq() { return &_scheduler_irq; }
@@ -59,9 +80,7 @@ public:
 private:
   friend class Cpu_hotplug_server;
 
-  l4_sched_cpu_set_t _cpus, _real_cpus, _cpu_mask;
-  unsigned _max_cpus;
-  l4_umword_t _sched_classes;
+  Dyn_cpu_set _cpus, _real_cpus, _cpu_mask;
   unsigned _prio_offset, _prio_limit;
   Icu::Irq _scheduler_irq;
 

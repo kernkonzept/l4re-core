@@ -72,10 +72,11 @@
                            `M`, `m`, `C`, `c`, `W`, `w`
  *   - For more details see \ref l4re_moe_log
  * - L4::Scheduler `(l4_mword_t limit, l4_mword_t offset,
-                     l4_umword_t bitmap = ~0UL)`
+                     l4_umword_t bitmap = ~0UL, ...)`
  *   - Argument `limit`: maximum priority
  *   - Argument `offset`: priority offset
- *   - Argument `bitmap`: bitmap of CPUs
+ *   - Argument `bitmap`: bitmap of CPUs - can be repeated to address higher
+ *     order CPUs
  *   - Argument `limit` must be greater than `offset`
  *   - For more details see \ref l4re_moe_scheduler
  * - L4::Factory `(l4_mword_t quota)`
