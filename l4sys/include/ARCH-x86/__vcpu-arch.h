@@ -41,8 +41,8 @@ enum
  */
 typedef struct l4_vcpu_regs_t
 {
-  l4_umword_t es;     /**< gs register */
-  l4_umword_t ds;     /**< fs register */
+  l4_umword_t es;     /**< es register */
+  l4_umword_t ds;     /**< ds register */
   l4_umword_t gs;     /**< gs register */
   l4_umword_t fs;     /**< fs register */
 
