@@ -155,6 +155,10 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 	  memsz = phdr->p_memsz;
 	  filesz = phdr->p_filesz;
 	  initimage = (void *) phdr->p_vaddr;
+#if !defined(SHARED) && defined(STATIC_PIE)
+          extern ElfW(Addr) _dl_load_base;
+          initimage += _dl_load_base;
+#endif
 	  align = phdr->p_align;
 	  if (phdr->p_align > max_align)
 	    max_align = phdr->p_align;
