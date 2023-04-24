@@ -1,1 +1,6 @@
-compiler-rt-crt := libgcc-crt[build-only]
+# Both libgcc-crt and libclang_rt-crt do not provide libraries to link against,
+# therefore no pc file is generated for them. Consequently, they do not need to
+# be considered as link dependencies, only the build order is important.
+compiler-rt-crt-gcc    := libgcc-crt[build-only]
+compiler-rt-crt-clang  := libclang_rt-crt[build-only]
+compiler-rt-crt        := compiler-rt-crt-gcc[config(CONFIG_COMPILER_RT_USE_LIBGCC)] compiler-rt-crt-clang[config(CONFIG_COMPILER_RT_USE_LIBCLANG_RT)]

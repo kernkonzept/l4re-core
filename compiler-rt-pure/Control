@@ -1,4 +1,5 @@
 provides: compiler-rt-pure
 requires: libgcc-pure libgcc_eh-pure
+          libclang_rt-builtins-pure libunwind_llvm-pure
 source-pkg: compiler-rt
 maintainer: georg.kotheimer@kernkonzept.com

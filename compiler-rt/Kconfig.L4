@@ -1,19 +1,53 @@
 menu "Compiler runtime"
+
+config COMPILER_RT_USE_LIBGCC
+  bool
+  # Clang is not able to compile libgcc.
+  select COMPILER_RT_USE_TOOLCHAIN_LIBGCC if $(BID_COMPILER_TYPE) = "clang"
+  # Sparc and PPC32 cannot be build from source.
+  select COMPILER_RT_USE_TOOLCHAIN_LIBGCC if BUILD_ARCH = "sparc" || BUILD_ARCH = "ppc32"
+
+config COMPILER_RT_USE_LIBCLANG_RT
+  # libunwind requires unwind tables also for static binaries.
+  select BID_LD_EMIT_UNWIND
+  bool
+
+choice
+  prompt "Runtime library"
+  default COMPILER_RT_CHOICE_AUTO
+
+config COMPILER_RT_CHOICE_AUTO
+  bool "Determine automatically"
+  select COMPILER_RT_USE_LIBGCC if $(BID_COMPILER_TYPE) = "gcc"
+  select COMPILER_RT_USE_LIBCLANG_RT if $(BID_COMPILER_TYPE) = "clang"
+  help
+    Use libgcc if GCC is used as the compiler and use libclang_rt if Clang is
+    used as the compiler.
+
+config COMPILER_RT_CHOICE_LIBGCC
+  bool "libgcc"
+  select COMPILER_RT_USE_LIBGCC
+
+config COMPILER_RT_CHOICE_LIBCLANG_RT
+  bool "libclang_rt"
+  select COMPILER_RT_USE_LIBCLANG_RT
+  depends on $(BID_COMPILER_TYPE) = "clang"
+
+endchoice
+
 config COMPILER_RT_LIBGCC_SHARED
-        bool "Use shared libgcc"
-        depends on !COMPILER_RT_USE_TOOLCHAIN_LIBGCC
-        help
-          Say Y if you want to use shared libgcc (libgcc_s.so).
+  bool "Use shared libgcc"
+  depends on COMPILER_RT_USE_LIBGCC && !COMPILER_RT_USE_TOOLCHAIN_LIBGCC
+  help
+    Say Y if you want to use shared libgcc (libgcc_s.so).
 
+# force to y if compiler clang, we cannot compile libgcc with clang!
 config COMPILER_RT_USE_TOOLCHAIN_LIBGCC
-        bool "Use libgcc from toolchain"
-        default y
-        help
-          Say Y if you want to use the libgcc shipped with your toolchain
-          instead of the one built specifically for L4Re.
+  bool "Use libgcc from toolchain"
+  depends on COMPILER_RT_USE_LIBGCC
+  default n
+  help
+    Say Y if you want to use the libgcc shipped with your toolchain instead of
+    the one built specifically for L4Re.
 
-# Sparc and PPC32 cannot be build from source.
-config COMPILER_RT_FALLBACK
-        def_bool BUILD_ARCH = "sparc" || BUILD_ARCH = "ppc32"
-        select COMPILER_RT_USE_TOOLCHAIN_LIBGCC
 endmenu

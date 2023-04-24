@@ -14,4 +14,6 @@
 # symbols defined in libgcc (for example outline atomics). The order is
 # important for shared objects, as these are linked without library grouping,
 # i.e. libraries are searched only once in the order they are specified.
-compiler-rt := libgcc_eh libgcc libatomic[arch(riscv)]
+compiler-rt-gcc        := libgcc_eh libgcc libatomic[arch(riscv)]
+compiler-rt-clang      := libclang_rt-builtins libunwind_llvm
+compiler-rt            := compiler-rt-gcc[config(CONFIG_COMPILER_RT_USE_LIBGCC)] compiler-rt-clang[config(CONFIG_COMPILER_RT_USE_LIBCLANG_RT)]
