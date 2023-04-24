@@ -11,6 +11,7 @@
 #include <l4/cxx/hlist>
 #include <l4/sys/task>
 #include <l4/cxx/unique_ptr>
+#include <l4/cxx/minmax>
 
 // TODO:
 //   1. Add the Cache handling for ARM etc.
@@ -75,50 +76,54 @@ private:
   static cxx::H_list_t<Task_mapper> _mappers;
   typedef Mapping::Map Map;
 
-  l4_addr_t min = 1 << 20;
-  l4_addr_t max = ~0UL;
+  l4_addr_t const min = 1 << 20;
+  l4_addr_t const max = ~0UL;
   Map _map;
 
-  l4_addr_t find_free(l4_addr_t start, l4_addr_t end,
-                      unsigned long size, unsigned char align)
+  unsigned msb(l4_size_t size)
+  {
+    return sizeof(long) * 8 - __builtin_clzl(size);
+  }
+
+  /**
+   * Find a free region between `min` and `max` of at least size `size`.
+   *
+   * \param size Minimum size of the free region.
+   *
+   * \return start address of the free region, otherwise L4_INVALID_ADDR.
+   */
+  l4_addr_t find_free(l4_size_t size)
   {
     if (size == 0)
       return L4_INVALID_ADDR;
 
-    l4_addr_t a = start;
-    if (a < min)
-      a = min;
+    // Determine the maximum usable order based on the target size (max. 1GB).
+    unsigned char order
+      = cxx::clamp<unsigned char>(msb(size), L4_PAGESHIFT, 30);
 
-    if (end > max)
-      end = max;
-
-    end = l4_trunc_size(end, align);
-    if (end <= start)
-      return L4_INVALID_ADDR;
-
-    a = l4_round_size(a, align);
-    if (a + size - 1 > end)
-      return L4_INVALID_ADDR;
-
-    for (;;)
+    do
       {
-        auto n = _map.find_node(Region(a, a + size - 1));
-        if (!n)
-          return a;
+        l4_addr_t a = l4_round_size(min, order);
+        l4_addr_t e = l4_trunc_size(max, order);
 
-        a = n->key.end;
-        if (a >= end)
-          return L4_INVALID_ADDR;
+        for (;;)
+          {
+            if (a >= e)
+              break;
 
-        a = a + 1;
-        a = l4_round_size(a, align);
-        if (a >= end)
-          return L4_INVALID_ADDR;
+            if (a + size - 1 > e)
+              break;
 
-        if (a + size - 1 > end)
-          return L4_INVALID_ADDR;
+            auto n = _map.find_node(Region(a, a + size - 1));
+            if (!n)
+              return a;
 
+            a = l4_round_size(n->key.end + 1, order);
+          }
       }
+    while (--order >= L4_PAGESHIFT);
+
+    return L4_INVALID_ADDR;
   }
 
   L4::Cap<L4::Task> _dma_kern_space;
@@ -197,7 +202,7 @@ public:
       *_size = max_sz;
 
     l4_size_t size = *_size + (offset - aligned_offset);
-    l4_addr_t a = find_free(min, max, size, L4_SUPERPAGESHIFT); //ds->page_shift());
+    l4_addr_t a = find_free(size);
     if (a == L4_INVALID_ADDR)
       L4Re::chksys(-L4_ENOMEM);
 
