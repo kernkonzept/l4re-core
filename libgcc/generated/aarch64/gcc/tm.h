@@ -3,7 +3,9 @@
 #ifdef IN_GCC
 # include "config/aarch64/biarchlp64.h"
 # include "config/aarch64/aarch64.h"
+#if L4_LIBGCC_VERSION <= 12
 # include "config/dbxelf.h"
+#endif
 # include "config/elfos.h"
 # include "config/aarch64/aarch64-elf.h"
 #if L4_LIBGCC_VERSION >= 10

@@ -1,0 +1,6 @@
+$(eval $(call libgcc_include_config,riscv/t-softfp32-7))
+
+softfp_extensions += hfsf hfdf hftf
+softfp_truncations += tfhf dfhf sfhf
+softfp_extras += fixhfsi fixhfdi fixunshfsi fixunshfdi \
+                 floatsihf floatdihf floatunsihf floatundihf
