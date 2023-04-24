@@ -14,6 +14,19 @@
 .type _start,#function
 .globl _start
 _start:
+	cmp	x1, #0
+	b.eq	1f
+	adr	x9, __l4_sys_syscall
+	ldr	x2, [x9]
+	cmp	x1, x2
+	b.eq	1f
+	str	x1, [x9]
+	dmb ish
+	isb
+	dc cvac, x9
+	ic ivau, x9
+	isb
+1:
 	adr	x9, crt0_stack_high
 	mov	sp, x9
 	adr	x30, _exit
