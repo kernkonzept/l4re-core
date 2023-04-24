@@ -29,5 +29,3 @@ vpath exception-el1-handler.cc $(PKGDIR)/../uclibc/lib/uclibc/ARCH-arm64
 vpath exception-el1.S $(PKGDIR)/../uclibc/lib/uclibc/ARCH-arm64
 
 include $(L4DIR)/mk/prog.mk
-
-DEFINES_arm64-l4f += $(if $(CONFIG_KERNEL_CPU_VIRT),-DCONFIG_KERNEL_CPU_VIRT=1)

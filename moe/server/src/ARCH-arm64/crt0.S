@@ -15,6 +15,7 @@
  */
 
 #define __ASSEMBLY__
+#include <l4/bid_config.h>
 #include <l4/sys/compiler.h>
 
 /*--- .text (program code) -------------------------*/

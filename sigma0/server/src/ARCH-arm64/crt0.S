@@ -7,6 +7,9 @@
  * Please see the COPYING-GPL-2 file for details.
  */
 
+#define __ASSEMBLY__
+#include <l4/bid_config.h>
+
 .section .text.init, "ax"
 .type _start,#function
 .globl _start
