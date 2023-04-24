@@ -45,4 +45,16 @@ namespace cxx
   inline
   T1 max(T1 a, T1 b)
   { return a > b ? a : b; }
+
+  /**
+   * \ingroup cxx_api
+   * \brief Limit \a v to the range given by \a lo and \a hi.
+   * \param v   The value to clamp.
+   * \param lo  The lower boundary to clamp \a v to.
+   * \param hi  The upper boundary to clamp \a v to.
+   */
+  template< typename T1 >
+  inline
+  T1 clamp(T1 v, T1 lo, T1 hi)
+  { return min(hi, max(lo, v)); }
 };
