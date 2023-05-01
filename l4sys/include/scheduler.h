@@ -273,7 +273,7 @@ l4_sched_cpu_set(l4_umword_t offset, unsigned char granularity,
                  l4_umword_t map) L4_NOTHROW
 {
   l4_sched_cpu_set_t cs;
-  cs.gran_offset = ((l4_umword_t)granularity << 24) | offset;
+  cs.gran_offset = ((l4_umword_t)granularity << 24) | (offset & 0x00ffffff);
   cs.map         = map;
   return cs;
 }
