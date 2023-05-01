@@ -193,8 +193,9 @@ public:
    * \param cap   Valid capability to check for presence.
    * \utcb_def{utcb}
    *
-   * \retval "tag.label() > 0"   Capability is present (refers to an object).
-   * \retval "tag.label() == 0"  No capability present (void object).
+   * \retval "l4_msgtag_t::label() > 0"   Capability is present (refers to an
+   *                                      object).
+   * \retval "l4_msgtag_t::label() == 0"  No capability present (void object).
    *
    * A capability is considered present when it refers to an existing
    * kernel object.
@@ -215,9 +216,10 @@ public:
    * \param cap_b  Second capability selector to compare.
    * \utcb_def{utcb}
    *
-   * \retval "tag.label() = 1"  `cap_a` and `cap_b` point to the same object.
-   * \retval "tag.label() = 0"  The two caps do **not** point to the same
-   *                            object.
+   * \retval "l4_msgtag_t::label() = 1"  `cap_a` and `cap_b` point to the same
+   *                                     object.
+   * \retval "l4_msgtag_t::label() = 0"  The two caps do **not** point to the
+   *                                     same object.
    */
   l4_msgtag_t cap_equal(Cap<void> const &cap_a,
                         Cap<void> const &cap_b,

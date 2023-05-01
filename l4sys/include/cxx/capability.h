@@ -107,9 +107,10 @@ public:
    *
    * \utcb{u}
    *
-   * \retval "tag.label() > 0"   Capability is present (refers to an object).
-   * \retval "tag.label() == 0"  No capability present (void object or invalid
-   *                             capability slot).
+   * \retval "l4_msgtag_t::label() > 0"   Capability is present (refers to an
+   *                                      object).
+   * \retval "l4_msgtag_t::label() == 0"  No capability present (void object or
+   *                                      invalid capability slot).
    *
    * A capability is considered present when it refers to an existing
    * kernel object.
@@ -122,9 +123,10 @@ public:
    * \param task  Task to check the capability in.
    * \utcb{u}
    *
-   * \retval "tag.label() > 0"   Capability is present (refers to an object).
-   * \retval "tag.label() == 0"  No capability present (void object or invalid
-   *                             capability slot).
+   * \retval "l4_msgtag_t::label() > 0"   Capability is present (refers to an
+   *                                      object).
+   * \retval "l4_msgtag_t::label() == 0"  No capability present (void object or
+   *                                      invalid capability slot).
    *
    * A capability is considered present when it refers to an existing
    * kernel object.

@@ -225,8 +225,9 @@ l4_task_release_cap_u(l4_cap_idx_t task, l4_cap_idx_t cap,
  * \param task  Task to check the capability in.
  * \param cap   Valid capability to check for presence.
  *
- * \retval "tag.label() > 0"   Capability is present (refers to an object).
- * \retval "tag.label() == 0"  No capability present (void object).
+ * \retval "l4_msgtag_t::label() > 0"   Capability is present (refers to an
+ *                                      object).
+ * \retval "l4_msgtag_t::label() == 0"  No capability present (void object).
  *
  * A capability is considered present when it refers to an existing
  * kernel object.
