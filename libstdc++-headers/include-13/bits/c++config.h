@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 13
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20230326
+#define __GLIBCXX__ 20230514
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -395,6 +395,13 @@ _GLIBCXX_END_NAMESPACE_VERSION
 // Used to version individual components, e.g. std::_V2::error_category.
 # define _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(X) inline namespace X {
 # define _GLIBCXX_END_INLINE_ABI_NAMESPACE(X)   } // inline namespace X
+#endif
+
+// In the case that we don't have a hosted environment, we can't provide the
+// debugging mode.  Instead, we do our best and downgrade to assertions.
+#if defined(_GLIBCXX_DEBUG) && !__STDC_HOSTED__
+#undef _GLIBCXX_DEBUG
+#define _GLIBCXX_ASSERTIONS 1
 #endif
 
 // Inline namespaces for special modes: debug, parallel.

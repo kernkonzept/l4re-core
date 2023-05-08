@@ -30,14 +30,18 @@
 // Prefer to use std::pmr::string if possible, which requires the cxx11 ABI.
 #define _GLIBCXX_USE_CXX11_ABI 1
 
+#include <algorithm>
 #include <array>
 #include <charconv>
 #include <bit>
+#include <iterator>
+#include <limits>
 #include <string>
 #include <memory_resource>
 #include <cfenv>
 #include <cfloat>
 #include <cmath>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <locale.h>
@@ -1268,6 +1272,13 @@ from_chars(const char* first, const char* last, __ieee128& value,
   // fast_float doesn't support IEEE binary128 format, but we can use strtold.
   return from_chars_strtod(first, last, value, fmt);
 }
+
+extern "C" from_chars_result
+_ZSt10from_charsPKcS0_RDF128_St12chars_format(const char* first,
+					      const char* last,
+					      __ieee128& value,
+					      chars_format fmt) noexcept
+__attribute__((alias ("_ZSt10from_charsPKcS0_Ru9__ieee128St12chars_format")));
 #elif defined(USE_STRTOF128_FOR_FROM_CHARS)
 from_chars_result
 from_chars(const char* first, const char* last, _Float128& value,

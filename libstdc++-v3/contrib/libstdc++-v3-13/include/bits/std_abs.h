@@ -68,7 +68,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #ifndef __CORRECT_ISO_CPP_MATH_H_PROTO
 #ifndef L4_MINIMAL_LIBC
-
   inline _GLIBCXX_CONSTEXPR double
   abs(double __x)
   { return __builtin_fabs(__x); }
