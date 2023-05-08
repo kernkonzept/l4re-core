@@ -29,6 +29,7 @@ struct Prog_start_info
 
   l4_umword_t ldr_flags;
   l4_umword_t l4re_dbg;
+  l4_umword_t ex_regs_flags = 0;
 
   l4_addr_t entry;
   l4_addr_t kip;

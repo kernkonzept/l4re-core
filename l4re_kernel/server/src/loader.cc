@@ -30,6 +30,7 @@
 #include <l4/re/l4aux.h>
 #include <l4/re/error_helper>
 #include <l4/sys/debugger.h>
+#include <l4/util/util.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -51,6 +52,7 @@ struct Entry_data
 {
   l4_addr_t entry;
   l4_addr_t stack;
+  l4_umword_t ex_regs_flags;
   L4::Cap<L4Re::Rm> pager;
 };
 
@@ -67,6 +69,9 @@ void unmap_stack_and_start()
 {
   L4Re::Env::env()->rm()->detach(l4_addr_t(__loader_stack_p) - 1, 0);
   Global::cap_alloc->free(__loader_stack);
+  L4::Cap<Thread> self;
+  chksys(self->ex_regs(~0UL, ~0UL, __loader_entry.ex_regs_flags),
+         "change mode");
   switch_stack(__loader_entry.stack, (void(*)())__loader_entry.entry);
 }
 
@@ -223,6 +228,7 @@ L4Re_app_model::start_prog(L4Re::Env const *)
 {
   __loader_entry.stack = l4_addr_t(_stack.ptr());
   __loader_entry.entry = _info.entry;
+  __loader_entry.ex_regs_flags = _info.ex_regs_flags;
   switch_stack(__loader_entry.stack, &unmap_stack_and_start);
 }
 

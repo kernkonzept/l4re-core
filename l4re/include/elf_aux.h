@@ -96,6 +96,11 @@ enum
    *        for the binaries address space.
    */
   L4RE_ELF_AUX_T_KIP_ADDR,
+
+  /**
+   * \brief Tag for descriptor to override ex_regs() flags.
+   */
+  L4RE_ELF_AUX_T_EX_REGS_FLAGS,
 };
 
 /**

@@ -12,8 +12,10 @@
 
 #include <l4/re/elf_aux.h>
 #include <l4/util/elf.h>
+#include <l4/sys/thread.h>
 #include <l4/sys/types.h>
 #include <l4/re/error_helper>
+#include <l4/libloader/ex_regs_flags>
 #include <l4/libloader/loader>
 
 namespace Ldr {
@@ -345,6 +347,7 @@ struct Phdr_l4re_elf_aux_infos
   mutable l4_size_t stack_size;
   mutable l4_addr_t stack_addr;
   mutable l4_addr_t kip_addr;
+  mutable l4_umword_t ex_regs_flags;
 
   typedef typename App_model::Const_dataspace Const_dataspace;
   App_model const *mm;
@@ -353,7 +356,7 @@ struct Phdr_l4re_elf_aux_infos
   explicit Phdr_l4re_elf_aux_infos(App_model const *mm, Const_dataspace bin,
                                    l4_addr_t kip_addr)
   : stack_size(sizeof(void*) * 0x2000), stack_addr(0x80000000),
-    kip_addr(kip_addr), mm(mm), bin(bin)
+    kip_addr(kip_addr), ex_regs_flags(Default_ex_regs_flags), mm(mm), bin(bin)
   {}
 
   void operator () (Elf_phdr const &h) const
@@ -390,6 +393,12 @@ struct Phdr_l4re_elf_aux_infos
 		    kip_addr = v->value;
 		    break;
 		  }
+	      case L4RE_ELF_AUX_T_EX_REGS_FLAGS:
+	          {
+		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
+		    ex_regs_flags = v->value;
+		    break;
+	          }
 	      default:
 		break;
 	      }
@@ -527,6 +536,9 @@ public:
     mm->stack()->set_target_stack(stack_info.stack_addr, stack_info.stack_size);
 
     mm->prog_info()->kip = stack_info.kip_addr;
+    if (!validate_ex_regs_flags(stack_info.ex_regs_flags))
+      chksys(-L4_EINVAL, "invalid ex_regs flags");
+    mm->prog_info()->ex_regs_flags = stack_info.ex_regs_flags;
     ldr.printf("  STACK: %lx (%zx)    KIP: %lx\n", stack_info.stack_addr,
                stack_info.stack_size, stack_info.kip_addr);
 

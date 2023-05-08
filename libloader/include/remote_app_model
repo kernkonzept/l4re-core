@@ -172,7 +172,8 @@ public:
     chksys(this->run_thread(nthread,
                             l4_sched_param(Prios::Default_thread_prio)));
 
-    nthread->ex_regs(this->_info.entry, this->_stack.target_ptr(), 0);
+    nthread->ex_regs(this->_info.entry, this->_stack.target_ptr(),
+                     this->_info.ex_regs_flags);
   }
 
 
