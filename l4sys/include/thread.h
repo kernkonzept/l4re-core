@@ -757,6 +757,8 @@ enum L4_thread_ex_regs_flags
 {
   L4_THREAD_EX_REGS_CANCEL            = 0x10000UL, /**< Cancel ongoing IPC in the thread. */
   L4_THREAD_EX_REGS_TRIGGER_EXCEPTION = 0x20000UL, /**< Trigger artificial exception in thread. */
+
+  L4_THREAD_EX_REGS_ARCH_MASK         = 0xff000000UL, /**< Arch specific flags */
 };
 
 
