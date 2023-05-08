@@ -1,6 +1,6 @@
 // <expected> -*- C++ -*-
 
-// Copyright The GNU Toolchain Authors
+// Copyright The GNU Toolchain Authors.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -714,7 +714,8 @@ namespace __expected
       {
 	if (_M_has_value) [[likely]]
 	  return _M_val;
-	_GLIBCXX_THROW_OR_ABORT(bad_expected_access<_Er>(_M_unex));
+	const auto& __unex = _M_unex;
+	_GLIBCXX_THROW_OR_ABORT(bad_expected_access<_Er>(__unex));
       }
 
       constexpr const _Tp&&

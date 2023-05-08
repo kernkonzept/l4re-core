@@ -271,7 +271,15 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
       _GLIBCXX20_CONSTEXPR
       bool
       _M_is_local() const
-      { return _M_data() == _M_local_data(); }
+      {
+	if (_M_data() == _M_local_data())
+	  {
+	    if (_M_string_length > _S_local_capacity)
+	      __builtin_unreachable();
+	    return true;
+	  }
+	return false;
+      }
 
       // Create & Destroy
       _GLIBCXX20_CONSTEXPR
@@ -750,7 +758,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 	_GLIBCXX20_CONSTEXPR
         basic_string(_InputIterator __beg, _InputIterator __end,
 		     const _Alloc& __a = _Alloc())
-	: _M_dataplus(_M_local_data(), __a)
+	: _M_dataplus(_M_local_data(), __a), _M_string_length(0)
 	{
 #if __cplusplus >= 201103L
 	  _M_construct(__beg, __end, std::__iterator_category(__beg));
