@@ -145,8 +145,6 @@ _start:
 	mov     x1, x20
 #endif
 
-	bl __l4_setup_arm64_exception_vector /* clobbers x1, x2 */
-
 #ifdef __ARCH_USE_MMU__
 	/* Pop argc off the stack and save a pointer to argv */
         /* XXX: We can't pop argc alone due to stack alignment, so we just read it */

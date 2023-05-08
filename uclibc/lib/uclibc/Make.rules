@@ -95,9 +95,6 @@ SRC_C_libuc_c.a_arm-l4f     += ARCH-arm/aeabi_read_tp_generic.c
 
 SRC_C_libssp_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
 
-SRC_S_arm64-l4f  = ARCH-arm64/exception-el1.S
-SRC_CC_arm64-l4f = ARCH-arm64/exception-el1-handler.cc
-
 CXXFLAGS_libc-tls.cc += -fno-rtti -fno-exceptions
 
 CPPFLAGS_libc-tls.cc += $(LDSO_INC)
