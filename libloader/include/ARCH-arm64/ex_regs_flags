@@ -12,12 +12,12 @@
 
 namespace Ldr {
 
-enum : l4_umword_t { Default_ex_regs_flags = 0 };
+enum : l4_umword_t { Default_ex_regs_flags = L4_THREAD_EX_REGS_ARM64_SET_EL_EL0 };
 
 inline
 bool validate_ex_regs_flags(l4_umword_t flags)
 {
-  return flags == 0;
+  return (flags & ~(l4_umword_t)L4_THREAD_EX_REGS_ARM64_SET_EL_MASK) == 0;
 }
 
 }

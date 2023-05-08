@@ -42,6 +42,23 @@ L4_INLINE l4_msgtag_t
 l4_thread_arm_set_tpidruro_u(l4_cap_idx_t thread, l4_addr_t tpidruro,
                              l4_utcb_t *utcb) L4_NOTHROW;
 
+/**
+ * \brief Arm specific L4::Thread::ex_regs() flags.
+ * \ingroup l4_thread_api
+ * \hideinitializer
+ */
+enum L4_thread_ex_regs_flags_arm
+{
+  /** Exception level set mask. */
+  L4_THREAD_EX_REGS_ARM_SET_EL_MASK     = 0x3 << 24,
+  /** Keep current exception level of thread (default). */
+  L4_THREAD_EX_REGS_ARM_SET_EL_KEEP     = 0x0 << 24,
+  /** Set exception level of thread to EL0 (usr mode). */
+  L4_THREAD_EX_REGS_ARM_SET_EL_EL0      = 0x1 << 24,
+  /** Set exception level of thread to EL1 (sys mode). */
+  L4_THREAD_EX_REGS_ARM_SET_EL_EL1      = 0x2 << 24,
+};
+
 /* IMPLEMENTATION -----------------------------------------------------------*/
 
 L4_INLINE l4_msgtag_t

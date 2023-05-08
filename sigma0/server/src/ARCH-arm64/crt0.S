@@ -14,19 +14,6 @@
 .type _start,#function
 .globl _start
 _start:
-	cmp	x1, #0
-	b.eq	1f
-	adr	x9, __l4_sys_syscall
-	ldr	x2, [x9]
-	cmp	x1, x2
-	b.eq	1f
-	str	x1, [x9]
-	dmb ish
-	isb
-	dc cvac, x9
-	ic ivau, x9
-	isb
-1:
 	adrp    x9, crt0_stack_high
 	add     x9, x9, :lo12:crt0_stack_high
 
@@ -57,11 +44,7 @@ _start:
 .global __l4_sys_syscall
 .type __l4_sys_syscall, @function
 __l4_sys_syscall:
-#ifdef CONFIG_KERNEL_CPU_VIRT
-	hvc #0
-#else
 	svc #0
-#endif
 	ret
 .size __l4_sys_syscall, . - __l4_sys_syscall
 

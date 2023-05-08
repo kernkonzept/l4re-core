@@ -575,8 +575,24 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   *(--_tos) = 0; /* ret addr */
   *(--_tos) = l4_addr_t(f);
 
+  l4_umword_t flags = 0;
+#if defined(__arm__) || defined(__aarch64__)
+  {
+    // Inherit exception level on Arm. By default all threads run in EL0 but if
+    // the executable chose to use EL1 we must inherit the EL!
+    l4_umword_t ip = ~0UL;
+    l4_umword_t sp = ~0UL;
+    err = l4_error(L4::Cap<L4::Thread>()->ex_regs(&ip, &sp, &flags));
+    if (err < 0)
+      {
+        fprintf(stderr, "ERROR: exregs returned error: %d\n", err);
+        return err;
+      }
+  }
+#endif
+
   err = l4_error(_t->ex_regs(l4_addr_t(__pthread_new_thread_entry),
-                             l4_addr_t(_tos), 0));
+                             l4_addr_t(_tos), flags));
 
   if (err < 0)
     {
