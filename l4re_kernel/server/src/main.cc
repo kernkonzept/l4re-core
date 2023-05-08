@@ -35,6 +35,7 @@
 #include "dispatcher.h"
 
 #include <l4/re/elf_aux.h>
+#include <terminate_handler-l4>
 
 L4RE_ELF_AUX_ELEM_T(l4re_elf_aux_mword_t, __stack_addr,
                     L4RE_ELF_AUX_T_STACK_ADDR,
