@@ -461,7 +461,7 @@ int shmdt(const void *shmaddr)
   return -1;
 }
 
-int getrusage(int who, struct rusage* usage)
+int getrusage(__rusage_who_t who, struct rusage* usage)
 {
 	(void)who; (void)usage;
 	errno = EINVAL;
