@@ -10,12 +10,15 @@
 #include <l4/sys/consts.h>
 
 #include <l4/re/dataspace>
+#include <l4/re/dma_space>
 #include <l4/re/video/goos>
 
 #include <l4/sigma0/sigma0.h>
 
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
+
+#include <climits>
 
 #include "dataspace_static.h"
 #include "globals.h"
@@ -58,8 +61,19 @@ Vesa_fb::Vesa_fb(l4util_l4mod_info *mbi)
   if (!vbe || !vbi)
     return;
 
-  base_offset = vbi->phys_base & (L4_SUPERPAGESIZE - 1);
-  unsigned long paddr = vbi->phys_base & ~(L4_SUPERPAGESIZE - 1);
+  // The current bootstrap ABI stores the upper 32 bits of the framebuffer
+  // physical address in the reserved1 member.
+  L4Re::Dma_space::Dma_addr phys_base = vbi->phys_base;
+  phys_base += (L4Re::Dma_space::Dma_addr)vbi->reserved1 << 32;
+
+  if (phys_base > (L4Re::Dma_space::Dma_addr)ULONG_MAX)
+    {
+      L4::cerr << "VESA video memory outside of mappable range\n";
+      return;
+    }
+
+  base_offset = phys_base & (L4_SUPERPAGESIZE - 1);
+  unsigned long paddr = phys_base & ~(L4_SUPERPAGESIZE - 1);
   unsigned long fb_size = 64 * 1024 * vbe->total_memory;
   map_size = (fb_size + base_offset + L4_SUPERPAGESIZE - 1)
              & ~(L4_SUPERPAGESIZE - 1);
@@ -105,7 +119,7 @@ Vesa_fb::Vesa_fb(l4util_l4mod_info *mbi)
   root_name_space()->register_obj("vesa", 0, this);
 
   L4::cout << "  VESAFB: " << obj_cap() << _fb_ds
-    << " @" << (void*)(unsigned long)vbi->phys_base
+    << " @" << (void*)(unsigned long)phys_base
     << " (size=" << L4::hex << 64*1024*vbe->total_memory << ")\n" << L4::dec;
 
 }
