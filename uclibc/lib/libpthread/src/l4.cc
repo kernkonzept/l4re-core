@@ -162,7 +162,7 @@ int __pthread_getschedparam(pthread_t thread, int *policy,
 strong_alias (__pthread_getschedparam, pthread_getschedparam)
 
 int pthread_setaffinity_np(pthread_t __th, size_t __cpusetsize,
-                           const cpu_set_t *__cpuset)
+                           const cpu_set_t *__cpuset) __THROW
 {
   pthread_handle handle = thread_handle(__th);
 
@@ -191,7 +191,7 @@ int pthread_setaffinity_np(pthread_t __th, size_t __cpusetsize,
 }
 
 int
-pthread_getaffinity_np(pthread_t th, size_t cpusetsize, cpu_set_t *cpuset)
+pthread_getaffinity_np(pthread_t th, size_t cpusetsize, cpu_set_t *cpuset) __THROW
 {
   pthread_handle handle = thread_handle(th);
 

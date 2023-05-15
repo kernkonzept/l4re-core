@@ -115,7 +115,7 @@ extern int sched_getaffinity (__pid_t __pid, size_t __cpusetsize,
 
 # ifdef _LIBC
 extern int __clone (int (*__fn) (void *__arg), void *__child_stack,
-		    int __flags, void *__arg, ...);
+		    int __flags, void *__arg, ...) __THROW;
 extern int __clone2 (int (*__fn) (void *__arg), void *__child_stack_base,
 		     size_t __child_stack_size, int __flags, void *__arg, ...);
 # endif

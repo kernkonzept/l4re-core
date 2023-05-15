@@ -744,13 +744,13 @@ noexcept(noexcept(mknod(p, m, d)))
   return -1;
 }
 
-int chown(const char *, uid_t, gid_t)
+int chown(const char *, uid_t, gid_t) __THROW
 {
   errno = EINVAL;
   return -1;
 }
 
-int fchown(int, uid_t, gid_t)
+int fchown(int, uid_t, gid_t) __THROW
 {
   errno = EINVAL;
   return -1;

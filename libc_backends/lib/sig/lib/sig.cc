@@ -44,7 +44,7 @@ struct Sig_handling : L4::Epiface_t<Sig_handling, L4::Exception>
 
   Sig_handling();
 
-  void ping_exc_handler();
+  void ping_exc_handler() noexcept;
   l4_addr_t get_handler(int signum);
   int get_any_async_handler();
   bool is_async_sig(int sig);
@@ -464,7 +464,7 @@ int sigpending(sigset_t *set) noexcept
   return -1;
 }
 
-int sigsuspend(const sigset_t *mask) noexcept
+int sigsuspend(const sigset_t *mask)
 {
   printf("%s(%p): Unimplemented\n", __func__, mask);
   errno = EFAULT;

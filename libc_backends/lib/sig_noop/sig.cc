@@ -39,7 +39,7 @@ int sigpending(sigset_t *) noexcept
   return -1;
 }
 
-int sigsuspend(const sigset_t *) noexcept
+int sigsuspend(const sigset_t *)
 {
   errno = EFAULT;
   return -1;
