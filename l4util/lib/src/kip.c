@@ -24,20 +24,9 @@ l4util_kip_kernel_is_ux(l4_kernel_info_t const *k)
 }
 
 L4_CV int
-l4util_kip_kernel_has_feature(l4_kernel_info_t const *k, const char *str)
+l4util_kip_kernel_has_feature(l4_kernel_info_t const *k, char const *str)
 {
-  const char *s = l4_kip_version_string(k);
-
-  if (!s)
-    return 0;
-
-  l4util_kip_for_each_feature(s)
-    {
-      if (strcmp(s, str) == 0)
-	return 1;
-    }
-
-  return 0;
+  return l4_kip_kernel_has_feature(k, str);
 }
 
 L4_CV unsigned long

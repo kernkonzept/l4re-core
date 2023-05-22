@@ -218,3 +218,38 @@ l4_kip_clock_lw(l4_kernel_info_t const *kip) L4_NOTHROW
   l4_mb();
   return c.l;
 }
+
+/**
+ * Cycle through kernel features given in the KIP.
+ *
+ * Cycles through all KIP kernel feature strings. `s` must be a character
+ * pointer (`char const *`) initialized with l4_kip_version_string().
+ */
+#define l4_kip_for_each_feature(s) \
+        for (s += __builtin_strlen(s) + 1; *s; s += __builtin_strlen(s) + 1)
+
+/**
+ * Check if kernel supports a feature.
+ *
+ * \param kip  Pointer to the kernel info page (KIP).
+ * \param str  Feature name to check.
+ *
+ * \return  1 if the kernel supports the feature, 0 if not.
+ *
+ * Checks the feature field in the KIP for the given string.
+ */
+L4_INLINE int
+l4_kip_kernel_has_feature(l4_kernel_info_t const *kip, char const *str)
+{
+  const char *s = l4_kip_version_string(kip);
+  if (!s)
+    return 0;
+
+  l4_kip_for_each_feature(s)
+    {
+      if (__builtin_strcmp(s, str) == 0)
+        return 1;
+    }
+
+  return 0;
+}
