@@ -181,6 +181,7 @@ private:
                      l4_addr_t *offset);
 
   void align_mmap_start_and_length(void **start, size_t *length);
+  int munmap_regions(void *start, size_t len);
 };
 
 static inline bool strequal(char const *a, char const *b)
@@ -391,7 +392,6 @@ Vfs::set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f) noexcept
   if (!fi)                           \
     return -err;
 
-
 void
 Vfs::align_mmap_start_and_length(void **start, size_t *length)
 {
@@ -403,7 +403,7 @@ Vfs::align_mmap_start_and_length(void **start, size_t *length)
 }
 
 int
-Vfs::munmap(void *start, size_t len) L4_NOTHROW
+Vfs::munmap_regions(void *start, size_t len)
 {
   using namespace L4;
   using namespace L4Re;
@@ -420,9 +420,9 @@ Vfs::munmap(void *start, size_t len) L4_NOTHROW
   while (1)
     {
       DEBUG_LOG(debug_mmap, {
-                outstring("DETACH: ");
+                outstring("DETACH: start = 0x");
                 outhex32(l4_addr_t(start));
-                outstring(" ");
+                outstring(" len = 0x");
                 outhex32(len);
                 outstring("\n");
       });
@@ -450,6 +450,52 @@ Vfs::munmap(void *start, size_t len) L4_NOTHROW
 }
 
 int
+Vfs::munmap(void *start, size_t len) L4_NOTHROW
+{
+  using namespace L4;
+  using namespace L4Re;
+
+  int err = 0;
+  Cap<Rm> r = Env::env()->rm();
+
+  // Fields for obtaining a list of areas for the calling process
+  long area_cnt = -1;           // No. of areas in this process
+  Rm::Area const *area_array;
+  bool matches_area = false;        // true if unmap parameters match an area
+
+  // First check if there are any areas matching the munmap request. Those
+  // might have been created by an mmap call using PROT_NONE as protection
+  // modifier.
+
+  area_cnt = r->get_areas((l4_addr_t) start, &area_array);
+
+  // It is enough to check for the very first entry, since get_areas will
+  // only return areas with a starting address equal or greater to <start>.
+  // However, we intend to unmap at most the area starting exactly at
+  // <start>.
+  if (area_cnt > 0)
+    {
+      size_t area_size = area_array[0].end - area_array[0].start + 1;
+
+      // Only free the area if the munmap parameters describe it exactly.
+      if (area_array[0].start == (l4_addr_t) start && area_size == len)
+        {
+          r->free_area((l4_addr_t) start);
+          matches_area = true;
+        }
+    }
+
+  // After clearing possible area reservations from PROT_NONE mappings, clear
+  // any regions in the address range specified. Note that errors shall be
+  // suppressed if an area was freed but no regions were found.
+  err = munmap_regions(start, len);
+  if (err == -ENOENT && matches_area)
+    return 0;
+
+  return err;
+}
+
+int
 Vfs::alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds)
 {
   *ds = L4Re::make_shared_cap<L4Re::Dataspace>(L4Re::virt_cap_alloc);
@@ -464,7 +510,7 @@ Vfs::alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds)
   DEBUG_LOG(debug_mmap, {
       outstring("ANON DS ALLOCATED: size=");
       outhex32(size);
-      outstring("  cap=");
+      outstring("  cap = 0x");
       outhex32(ds->cap());
       outstring("\n");
       });
@@ -556,7 +602,9 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
   align_mmap_start_and_length(&start, &len);
 
   // special code to just reserve an area of the virtual address space
-  if (flags & 0x1000000)
+  // Same behavior should be exposed when mapping with PROT_NONE. Mind that
+  // PROT_NONE can only be specified exclusively, since it is defined to 0x0.
+  if ((flags & 0x1000000) || (prot == PROT_NONE))
     {
       int err;
       L4::Cap<Rm> r = Env::env()->rm();
@@ -564,6 +612,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       err = r->reserve_area(&area, len, L4Re::Rm::F::Search_addr);
       if (err < 0)
         return err;
+
       *resptr = (void*)area;
 
       DEBUG_LOG(debug_mmap, {
@@ -668,7 +717,10 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 
       rm_flags |= Rm::F::In_area;
 
-      err = munmap(start, len);
+      // Make sure to remove old mappings residing at the respective address 
+      // range. If none exists, we are fine as well, allowing us to ignore
+      // ENOENT here.
+      err = munmap_regions(start, len);
       if (err && err != -ENOENT)
         return err;
     }
