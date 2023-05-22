@@ -101,6 +101,7 @@ public:
   };
 
 
+  /// Region flag shifts.
   enum Region_flag_shifts
   {
     /// Start of Rm cache bits
