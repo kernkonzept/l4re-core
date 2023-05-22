@@ -29,7 +29,21 @@
 //l4/# include <sysdep.h>
 # include <bits/kernel-features.h>
 # include <bits/wordsize.h>
+
+#if 0 // l4
+// See #CD-999:
+//
+// uclibc/glibc define posix_memalign() with a 'throw()' exception specifier.
+// LLVM´ <xmmintrin.h> includes LLVM´s <mm_malloc.h> if __STDC__HOSTED__ is
+// defined containing a posix_memalign() declaration _without_ the 'throw()'
+// exception specifier. Clang >= 16 compiling with -stdc=C++-17 treats both
+// prototypes as incompatible due to the different exception specifier.
+//
+// Actually <xmmintrin.h> is only used for tcbhead_t::rtld_savespace_sse which
+// is never referenced anywhere. Hence, we just mark this tcbhead_t member
+// as "unused", see below.
 # include <xmmintrin.h>
+#endif
 
 
 /* Type for the dtv.  */
@@ -68,8 +82,14 @@ typedef struct
   void *__private_tm[5];
 # if __WORDSIZE == 64
   long int __unused2;
+  // l4 -- rtld_savespace_sse is never used but don't change the layout of
+  //       tcbhead_t to be on the safe side.
+# if 0
   /* Have space for the post-AVX register size.  */
   __m128 rtld_savespace_sse[8][4];
+# else
+  long int __unused3[16][4];
+# endif
 
   void *__padding[8];
 # endif
