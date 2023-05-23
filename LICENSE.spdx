@@ -1,0 +1,469 @@
+## This file states the license of this package and possibly its subpackages
+## in machine and human readable format. The PackageName refers to the package
+## whose license is defined by PackageLicenseConcluded.
+## For more information about this file format visit the SPDX website at
+## https://spdx.org
+
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentNamespace: spdx:kernkonzept/l4re-core-115109da-9bd9-4dcc-ba3d-45e8f8332c47
+DocumentName: l4re-core
+Creator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+Created: 2018-05-17T00:00:00Z
+
+## Package Information
+PackageName: l4re-core
+SPDXID: SPDXRef-l4re-core
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageLicenseComments: <text>Packages contained in l4re-core may have individual licenses. See the respective package for details.</text>
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: crtn
+SPDXID: SPDXRef-crtn
+PackageFileName: ./crtn
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: cxx
+SPDXID: SPDXRef-cxx
+PackageFileName: ./cxx
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: cxx_libc_io
+SPDXID: SPDXRef-cxx-libc-io
+PackageFileName: ./cxx_libc_io
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: l4re
+SPDXID: SPDXRef-l4re
+PackageFileName: ./l4re
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: l4re-util
+SPDXID: SPDXRef-l4re-util
+PackageFileName: ./l4re/util
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+Relationship: SPDXRef-l4re CONTAINS SPDXRef-l4re-util
+
+PackageName: l4re_c
+SPDXID: SPDXRef-l4re-c
+PackageFileName: ./l4re_c
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: l4re_c-util
+SPDXID: SPDXRef-l4re-c-util
+PackageFileName: ./l4re_c/util
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+Relationship: SPDXRef-l4re-c CONTAINS SPDXRef-l4re-c-util
+
+PackageName: l4re_kernel
+SPDXID: SPDXRef-l4re-kernel
+PackageFileName: ./l4re_kernel
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: l4re_vfs
+SPDXID: SPDXRef-l4re-vfs
+PackageFileName: ./l4re_vfs
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: l4sys
+SPDXID: SPDXRef-l4sys
+PackageFileName: ./l4sys
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: l4util
+SPDXID: SPDXRef-l4util
+PackageFileName: ./l4util
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: true
+
+FileName: ./l4util/include/ARCH-mips/thread.h
+SPDXID: SPDXRef-l4util-mips-thread.h
+LicenseConcluded: GPL-2.0-only
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+FileName: ./l4util/include/l4mod.h
+SPDXID: SPDXRef-l4util-l4mod.h
+LicenseConcluded: GPL-2.0-only
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+FileName: ./l4util/include/llulc.h
+SPDXID: SPDXRef-l4util-llulc.h
+LicenseConcluded: GPL-2.0-only
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+FileName: ./l4util/lib/src/base64.c
+SPDXID: SPDXRef-l4util-base64.c
+LicenseConcluded: MIT
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+FileName: ./l4util/lib/src/llulc.cc
+SPDXID: SPDXRef-l4util-llulc.cc
+LicenseConcluded: GPL-2.0-only
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+
+PackageName: ldscripts
+SPDXID: SPDXRef-ldscripts
+PackageFileName: ./ldscripts
+PackageOriginator: Organization: Free Software Foundation, Inc
+PackageLicenseDeclared: FSFAP
+PackageLicenseConcluded: FSFAP
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: ldso
+SPDXID: SPDXRef-ldso
+PackageFileName: ./ldso
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libc_backends
+SPDXID: SPDXRef-libc-backends
+PackageFileName: ./libc_backends
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libgcc
+SPDXID: SPDXRef-libgcc
+PackageFileName: ./libgcc
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-3.0-only
+PackageLicenseConcluded: (GPL-3.0-only WITH GCC-exception-3.1)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libgcc-pure
+SPDXID: SPDXRef-libgcc-pure
+PackageFileName: ./libgcc-pure
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-3.0-only
+PackageLicenseConcluded: (GPL-3.0-only WITH GCC-exception-3.1)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libkproxy
+SPDXID: SPDXRef-libkproxy
+PackageFileName: ./libkproxy
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only WITH GCC-exception-2.0
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libloader
+SPDXID: SPDXRef-libloader
+PackageFileName: ./libloader
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libsigma0
+SPDXID: SPDXRef-libsigma0
+PackageFileName: ./libsigma0
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libstdc++-headers
+SPDXID: SPDXRef-libstdc++-headers
+PackageFileName: ./libstdc++-headers
+PackageOriginator: Organization: Free Software Foundation, Inc
+PackageLicenseDeclared: GPL-3.0-or-later
+PackageLicenseConcluded: (GPL-3.0-or-later WITH GCC-exception-3.1)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libstdc++-v3
+SPDXID: SPDXRef-libstdc++-v3
+PackageFileName: ./libstdc++-v3
+PackageOriginator: Organization: Free Software Foundation, Inc
+PackageLicenseDeclared: GPL-3.0-or-later
+PackageLicenseConcluded: ((GPL-3.0-or-later WITH GCC-exception-3.1) AND GFDL-1.3-or-later)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libstdc++-v3-minimal
+SPDXID: SPDXRef-libstdc++-v3-minimal
+PackageFileName: ./libstdc++-v3-minimal
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-3.0-only
+PackageLicenseConcluded: ((GPL-3.0-or-later WITH GCC-exception-3.1) AND GFDL-1.3-or-later)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libsupc++
+SPDXID: SPDXRef-libsupc++
+PackageFileName: ./libsupc++
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-3.0-only
+PackageLicenseConcluded: ((GPL-3.0-or-later WITH GCC-exception-3.1) AND GFDL-1.3-or-later)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libsupc++-minimal
+SPDXID: SPDXRef-libsupc++-minimal
+PackageFileName: ./libsupc++-minimal
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-3.0-only
+PackageLicenseConcluded: ((GPL-3.0-or-later WITH GCC-exception-3.1) AND GFDL-1.3-or-later)
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: lua
+SPDXID: SPDXRef-lua
+PackageFileName: ./lua
+PackageOriginator: Organization: Pontifical Catholic University of Rio de Janeiro
+PackageLicenseDeclared: MIT
+PackageLicenseConcluded: MIT
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: moe
+SPDXID: SPDXRef-moe
+PackageFileName: ./moe
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: ned
+SPDXID: SPDXRef-ned
+PackageFileName: ./ned
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: prj-config
+SPDXID: SPDXRef-prj-config
+PackageFileName: ./prj-config
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: sigma0
+SPDXID: SPDXRef-sigma0
+PackageFileName: ./sigma0
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: uclibc
+SPDXID: SPDXRef-uclibc
+PackageFileName: ./uclibc
+PackageOriginator: NOASSERTION
+PackageLicenseDeclared: LGPL-2.1-only
+PackageLicenseConcluded: LGPL-2.1-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+PackageLicenseComments: <text>
+This package contains header files that have been copied from the Linux
+kernel. These headers are licensed under GPL-2.0 WITH
+Linux-syscall-note.</text>
+FilesAnalyzed: false
+
+PackageName: uclibc-headers
+SPDXID: SPDXRef-uclibc-headers
+PackageFileName: ./uclibc-headers
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: uclibc-minimal
+SPDXID: SPDXRef-uclibc-minimal
+PackageFileName: ./uclibc-minimal
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: GPL-2.0-only
+PackageLicenseConcluded: GPL-2.0-only
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libclang_rt
+SPDXID: SPDXRef-libclang-rt
+PackageFileName: ./libclang_rt
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: Apache-2.0 WITH LLVM-exception
+PackageLicenseConcluded: Apache-2.0 WITH LLVM-exception
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libclang_rt-crt
+SPDXID: SPDXRef-libclang-rt-crt
+PackageFileName: ./libclang_rt-crt
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: Apache-2.0 WITH LLVM-exception
+PackageLicenseConcluded: Apache-2.0 WITH LLVM-exception
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libclang_rt-pure
+SPDXID: SPDXRef-libclang-rt-pure
+PackageFileName: ./libclang_rt-pure
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: Apache-2.0 WITH LLVM-exception
+PackageLicenseConcluded: Apache-2.0 WITH LLVM-exception
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libunwind_llvm
+SPDXID: SPDXRef-libunwind-llvm
+PackageFileName: ./libunwind_llvm
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: Apache-2.0 WITH LLVM-exception
+PackageLicenseConcluded: Apache-2.0 WITH LLVM-exception
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: libunwind_llvm-pure
+SPDXID: SPDXRef-libunwind-llvm-pure
+PackageFileName: ./libunwind_llvm-pure
+PackageOriginator: Organization: Kernkonzept GmbH (info@kernkonzept.com)
+PackageLicenseDeclared: Apache-2.0 WITH LLVM-exception
+PackageLicenseConcluded: Apache-2.0 WITH LLVM-exception
+PackageCopyrightText: NOASSERTION
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+## Relationships
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-crtn
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-cxx
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-cxx-libc-io
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-l4re
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-l4re-c
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-l4re-kernel
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-l4re-vfs
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-l4sys
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-l4util
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-ldscripts
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-ldso
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libc-backends
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libgcc
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libgcc-pure
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libkproxy
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libloader
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libsigma0
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libstdc++-headers
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libstdc++-v3
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libstdc++-v3-minimal
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libsupc++
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libsupc++-minimal
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-lua
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-moe
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-ned
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-prj-config
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-sigma0
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc-headers
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-uclibc-minimal
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libclang-rt
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libclang-rt-pure
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libunwind-llvm
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libunwind-llvm-pure
+Relationship: SPDXRef-l4re-core CONTAINS SPDXRef-libclang-rt-pure
