@@ -230,7 +230,7 @@ local l = L4.default_loader;
 
 cmd = l:new_channel()
 
-l:start({caps = {log = L4.Env.log, svr = cmd}}, "rom/ned-prompt")
+l:start({ log = L4.Env.log, caps = { svr = cmd} }, "rom/ned-prompt")
 
 L4.server_loop(cmd)
 \endcode
