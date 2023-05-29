@@ -34,7 +34,7 @@ PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
 
 
 TARGET := libld-l4.so
-SRC_C  := ldso.c fixup.c string.c
+SRC_C  := ldso.c dl-vdso.c fixup.c string.c
 SRC_CC := syscalls.cc vfs.cc
 #SRC_S_arm-l4f  += aeabi_read_tp-v6p.S
 SRC_C_arm-l4f   += aeabi_read_tp_generic.c
