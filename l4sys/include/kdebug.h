@@ -18,6 +18,12 @@
 
 #pragma once
 
+/**
+ * \file
+ * Functionality for invoking the kernel debugger.
+ * \ingroup l4_debugger_api
+ */
+
 #ifndef __KDEBUG_H__
 #define __KDEBUG_H__
 
@@ -29,6 +35,10 @@
 L4_INLINE void
 enter_kdebug(char const *text) L4_NOTHROW;
 
+/**
+ * Op-codes for operations that can be invoked on the base debugger capability.
+ * See also __ktrace-impl.h for additional op-codes.
+ */
 enum l4_kdebug_ops_t
 {
   L4_KDEBUG_ENTER      = 0,
@@ -43,6 +53,15 @@ enum l4_kdebug_ops_t
 };
 
 
+/**
+ * Invoke a nullary operation on the base debugger capability.
+ *
+ * \param op  Nullary operation code from #l4_kdebug_ops_t or a value above
+ *            0x200 used by the kernel trace buffer implementation
+ *            (__ktrace-impl.h).
+ *
+ * \retval  Message tag returned from the IPC on the base debugger capability.
+ */
 L4_INLINE l4_msgtag_t
 __kdebug_op(unsigned op) L4_NOTHROW
 {
@@ -59,6 +78,20 @@ __kdebug_op(unsigned op) L4_NOTHROW
   return res;
 }
 
+/**
+ * Invoke a text output operation on the base debugger capability.
+ *
+ * \param op    Text output operation code from #l4_kdebug_ops_t or a value
+ *              above 0x200 used by the kernel trace buffer implementation
+ *              (__ktrace-impl.h).
+ * \param text  Output string.
+ * \param len   Length of the output string. The maximum length is limited
+ *              to #L4_UTCB_GENERIC_DATA_SIZE&nbsp;-&nbsp;2 machine words.
+ *              Output strings longer than this limit will be cropped.
+ *
+ * \retval      Message tag returned from the IPC on the base debugger
+ *              capability.
+ */
 L4_INLINE l4_msgtag_t
 __kdebug_text(unsigned op, char const *text, unsigned len) L4_NOTHROW
 {
@@ -82,6 +115,24 @@ __kdebug_text(unsigned op, char const *text, unsigned len) L4_NOTHROW
   return res;
 }
 
+/**
+ * Invoke a text output operation with 3 additional machine word arguments on
+ * the base debugger capability.
+ *
+ * \param op    Text output operation code from #l4_kdebug_ops_t or a value
+ *              above 0x200 used by the kernel trace buffer implementation
+ *              (__ktrace-impl.h).
+ * \param text  Output string.
+ * \param len   Length of the output string. The maximum length is limited
+ *              to #L4_UTCB_GENERIC_DATA_SIZE&nbsp;-&nbsp;5 machine words.
+ *              Output strings longer than this limit will be cropped.
+ * \param v1    First machine word argument.
+ * \param v2    Second machine word argument.
+ * \param v3    Third machine word argument.
+ *
+ * \retval      Message tag returned from the IPC on the base debugger
+ *              capability.
+ */
 L4_INLINE l4_msgtag_t
 __kdebug_3_text(unsigned op, char const *text, unsigned len,
                 l4_umword_t v1, l4_umword_t v2, l4_umword_t v3) L4_NOTHROW
@@ -109,6 +160,16 @@ __kdebug_3_text(unsigned op, char const *text, unsigned len,
   return res;
 }
 
+/**
+ * Invoke an unary operation on the base debugger capability.
+ *
+ * \param op   Unary operation code from #l4_kdebug_ops_t or a value above
+ *             0x200 used by the kernel trace buffer implementation
+ *             (__ktrace-impl.h).
+ * \param val  Machine word argument to the unary operation.
+ *
+ * \retval  Message tag returned from the IPC on the base debugger capability.
+ */
 L4_INLINE l4_msgtag_t
 __kdebug_op_1(unsigned op, l4_mword_t val) L4_NOTHROW
 {
@@ -129,6 +190,15 @@ __kdebug_op_1(unsigned op, l4_mword_t val) L4_NOTHROW
   return res;
 }
 
+/**
+ * Enter the kernel debugger.
+ *
+ * \param text    Optional message displayed by the kernel debugger when
+ *                entered.
+ *
+ * Enter the kernel debugger, if configured. An optional message can be passed
+ * to the kernel debugger which is printed upon the entering of the debugger.
+ */
 L4_INLINE void enter_kdebug(char const *text) L4_NOTHROW
 {
   /* special case, enter without any text and use of the UTCB */
@@ -143,18 +213,46 @@ L4_INLINE void enter_kdebug(char const *text) L4_NOTHROW
   __kdebug_text(L4_KDEBUG_ENTER, text, __builtin_strlen(text));
 }
 
+/**
+ * Output a fixed-length string via the kernel debugger.
+ *
+ * \param text    Beginning of the output string.
+ * \param len     Length of the output string. The maximum length is limited
+ *                to #L4_UTCB_GENERIC_DATA_SIZE&nbsp;-&nbsp;2 machine words.
+ *                Output strings longer than this limit will be cropped.
+ */
 L4_INLINE void outnstring(char const *text, unsigned len)
 { __kdebug_text(L4_KDEBUG_OUTNSTRING, text, len); }
 
+/**
+ * Output a string via the kernel debugger.
+ *
+ * \param text    Beginning of the output string. The maximum length of the
+ *                output string is limited to
+ *                #L4_UTCB_GENERIC_DATA_SIZE&nbsp;-&nbsp;2 machine words.
+ *                Output strings longer than this limit will be cropped.
+ */
 L4_INLINE void outstring(char const *text)
 { outnstring(text, __builtin_strlen(text)); }
 
-
+/**
+ * Output a single character via the kernel debugger.
+ *
+ * \param c    Output character.
+ */
 L4_INLINE void outchar(char c)
 {
   __kdebug_op_1(L4_KDEBUG_OUTCHAR, c);
 }
 
+/**
+ * Output a hexadecimal unsigned machine word via the kernel debugger.
+ *
+ * \param number    Output machine word.
+ *
+ * If the machine word is 64 bits long, it is printed non-atomically as two
+ * 32-bit numbers.
+ */
 L4_INLINE void outumword(l4_umword_t number)
 {
   if (sizeof(l4_umword_t) == sizeof(l4_uint64_t))
@@ -163,37 +261,74 @@ L4_INLINE void outumword(l4_umword_t number)
   __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
 }
 
+/**
+ * Output a 64-bit unsigned hexadecimal number via the kernel debugger.
+ *
+ * \param number    Output 64-bit number.
+ *
+ * The two 32-bit halves are printed non-atomically.
+ */
 L4_INLINE void outhex64(l4_uint64_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTHEX32, number >> 32);
   __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
 }
 
+/**
+ * Output a 32-bit unsigned hexadecimal number via the kernel debugger.
+ *
+ * \param number    Output 32-bit number.
+ */
 L4_INLINE void outhex32(l4_uint32_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
 }
 
+/**
+ * Output a 20-bit unsigned hexadecimal number via the kernel debugger.
+ *
+ * \param number    Output 20-bit number. Only the 20 LSB bits are used.
+ */
 L4_INLINE void outhex20(l4_uint32_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTHEX20, number);
 }
 
+/**
+ * Output a 16-bit unsigned hexadecimal number via the kernel debugger.
+ *
+ * \param number    Output 16-bit number.
+ */
 L4_INLINE void outhex16(l4_uint16_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTHEX16, number);
 }
 
+/**
+ * Output a 12-bit unsigned hexadecimal number via the kernel debugger.
+ *
+ * \param number    Output 12-bit number. Only the 12 LSB bits are used.
+ */
 L4_INLINE void outhex12(l4_uint16_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTHEX12, number);
 }
 
+/**
+ * Output an 8-bit unsigned hexadecimal number via the kernel debugger.
+ *
+ * \param number    Output 8-bit number.
+ */
 L4_INLINE void outhex8(l4_uint8_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTHEX8, number);
 }
 
+/**
+ * Output a decimal unsigned machine word via the kernel debugger.
+ *
+ * \param number    Output machine word.
+ */
 L4_INLINE void outdec(l4_mword_t number)
 {
   __kdebug_op_1(L4_KDEBUG_OUTDEC, number);
