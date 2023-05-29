@@ -166,8 +166,6 @@ public:
      * Put a single l4_mword_t as next argument.
      *
      * \param i  The value to add as next argument.
-     *
-     * \return  Reference to this stream.
      */
     void put(l4_mword_t i) noexcept
     {
@@ -178,8 +176,6 @@ public:
      * Put a single l4_umword_t as next argument.
      *
      * \param i  The value to add as next argument.
-     *
-     * \return  Reference to this stream.
      */
     void put(l4_umword_t i) noexcept
     {
@@ -190,8 +186,6 @@ public:
      * Add a zero-terminated string as next argument.
      *
      * \param s  The string to add as next argument.
-     *
-     * \return  Reference to this stream.
      *
      * The string will be added with the zero-terminator.
      */
@@ -205,8 +199,6 @@ public:
      *
      * \param s  The string to add as next argument.
      *
-     * \return  Reference to this stream.
-     *
      * The string will be added with the exact length given. It is the
      * responsibility of the caller to make sure that the string is zero-
      * terminated when that is required by the server.
@@ -218,8 +210,6 @@ public:
 
     /**
      * Add an empty argument.
-     *
-     * \return  Reference to this stream.
      */
     void put(Nil) & noexcept
     {
@@ -230,8 +220,6 @@ public:
      * Add a flex page as next argument.
      *
      * \param d  The flex page to add (there will be no map operation).
-     *
-     * \return  Reference to this stream.
      */
     void put(l4_fpage_t d) & noexcept
     {
