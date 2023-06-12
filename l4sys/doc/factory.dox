@@ -20,14 +20,17 @@ The kernel factory creates the following kinds of objects:
 
 - \ref l4_kernel_object_dmar_space
 - L4::Factory
-- L4::Ipc_gate
-- L4::Irq
+- L4::Ipc_gate (\ref L4_PROTO_NONE, \ref L4_PROTO_KOBJECT)
+- L4::Irq (\ref L4_PROTO_IRQ_SENDER)
 - L4::Semaphore
 - L4::Task
 - L4::Thread
 - L4::Vm
 
 The protocol IDs for objects in this list are given in \ref L4_msgtag_protocol.
+Kernel objects whose protocol ID is not immediately clear from the documentation
+of \ref L4_msgtag_protocol have their protocol IDs stated within parenthesis. As
+an exception, L4::Ipc_gate can be identified by more than one protocol IDs.
 The protocol ID shall be used as the second argument for
 L4::Factory.create(Cap<void>, long, l4_utcb_t *).
 
