@@ -22,7 +22,7 @@ ENTRY(start)
 	pop	%rdi		/* ptr to kernel info page is on init stack */
 1:
 	lea	_stack,%rsp	/* reset stack */
-	push	$_exit
+	pushq	$_exit
 	jmp	init
 
 ENTRY(__main)
