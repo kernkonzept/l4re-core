@@ -99,7 +99,7 @@ App_task::App_task(L4Re::Util::Ref_cap<L4::Factory>::Cap const &alloc)
 {
   chksys(alloc->create(_rm.get()), "allocating new region map");
 
-  chkcap(Ned::server.registry()->register_obj(this),
+  chkcap(Ned::server.registry()->register_irq_obj(this),
          "register App_task irq");
 
   chkcap(Ned::foreign_server->registry()->register_obj(&_parent_receiver),
