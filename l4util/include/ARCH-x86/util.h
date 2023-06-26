@@ -26,6 +26,8 @@ EXTERN_C_BEGIN
  *		- 0 - > timeout 0
  *		- ~0U -> timeout NEVER
  * \return the corresponding l4_timeout value
+ *
+ * \deprecated Use l4_timeout_from_us().
  */
 L4_CV l4_timeout_s l4util_micros2l4to(unsigned int mus) L4_NOTHROW;
 

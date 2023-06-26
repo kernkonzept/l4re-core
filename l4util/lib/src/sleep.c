@@ -32,7 +32,7 @@ L4_CV void l4_sleep(int ms)
 
   if (ms != -1)
     /* calculate timeout */
-    to = l4_timeout(L4_IPC_TIMEOUT_NEVER,l4util_micros2l4to(ms * 1000));
+    to = l4_timeout(L4_IPC_TIMEOUT_NEVER, l4_timeout_from_us(ms * 1000));
   else
     to = L4_IPC_NEVER;
 
@@ -50,7 +50,7 @@ L4_CV void l4_usleep(int us)
   l4_utcb_t *u = l4_utcb();
 
   /* calculate timeout */
-  to = l4_timeout(L4_IPC_TIMEOUT_NEVER, l4util_micros2l4to(us));
+  to = l4_timeout(L4_IPC_TIMEOUT_NEVER, l4_timeout_from_us(us));
 
   tag = l4_ipc_sleep(to);
 

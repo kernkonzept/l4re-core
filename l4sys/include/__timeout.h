@@ -178,6 +178,15 @@ unsigned l4_timeout_is_absolute(l4_timeout_s to) L4_NOTHROW;
 L4_INLINE
 l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTHROW;
 
+/**
+ * Create a relative L4 timeout from a waiting period specified in microseconds.
+ *
+ * \param us     Waiting period in microseconds.
+ *
+ * \return Relative L4 timeout according to the specified waiting period.
+ */
+L4_INLINE
+l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW;
 
 /*
  * Implementation
@@ -250,5 +259,63 @@ l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTH
     return cur + l4_timeout_rel_get(to);
 }
 
+L4_INLINE
+l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
+{
+  static_assert(sizeof(us) <= 4,
+                "Verify the correctness of log2(us) and the number of bits for e!");
+  l4_timeout_s t;
+  if (us == 0)
+    t = L4_IPC_TIMEOUT_0;
+  else if (us == ~0U)
+    t = L4_IPC_TIMEOUT_NEVER;
+  else
+    {
+      /* Here it is certain that at least one bit in 'us' is set. */
+
+      unsigned m;
+      int e = (31 - __builtin_clz(us)) - 7;
+      if (e < 0) e = 0;
+
+      /* Here it is certain that '0 <= e <= 24' and '1 <= 2^e <= 2^24'. */
+
+      m = us >> e;
+
+      /* Here it is certain that '1 <= m <= 255. Consider the following cases:
+       *  o    1 <= us <=  255: e = 0; 2^e = 1;   1 <= us/1 <= 255
+       *  o  256 <= us <=  511: e = 1; 2^e = 2; 128 <= us/2 <= 255
+       *  o  512 <= us <= 1023: e = 2; 2^e = 4; 128 <= us/4 <= 255
+       *  o 1024 <= us <= 2047: e = 3; 2^e = 8; 128 <= us/8 <= 255
+       *  ...
+       *  o 2^31 <= us <= 2^32-1: e = 24;       128 <= us/2^24 <= 255
+       *
+       * Dividing by (1<<e) ensures that for all us < 2^32: m < 2^8.
+       *
+       * As we have 10 bits for m we could also use 'e = log2(us) - 9':
+       *  o    1 <= us <= 1023: e = 0; 2^e = 1;   1 <= us/1 <= 1023
+       *  o 1024 <= us <= 2047: e = 1; 2^e = 2; 512 <= us/2 <= 1023
+       *  o 2048 <= us <= 4095: e = 2; 2^e = 4; 512 <= us/4 <= 1023
+       *  ...
+       *  o 2^31 <= us <= 2^32-1: e = 22;       512 <= us/2^22 <= 1023
+       *
+       * What about sizeof(us) == 8? 'e = log2(us) - 7':
+       *  o 2^63 <= us <= 2^64-1: e = 56;       128 <= us/2^56 <= 255.
+       *
+       * That means that this function would even work for 64-bit values of
+       * 'us' as long as __builtin_clz(us) works correctly for that range.
+       * But the number of bits available for the exponent is limited:
+       *  o bits 0..9 (10 bits) are used for 'm'
+       *  o bits 10..14 (5 bits) are used for 'e'
+       *  o bit 15 is used to distinguish between absolute timeouts and
+       *    relative timeouts (see l4_timeout_is_absolute())
+       *
+       * That means 'e <= 31' and thus it's not possible to encode timeouts
+       * represented by 64-bit values.
+       */
+
+      t.t = (e << 10) | m;
+    }
+  return t;
+}
 
 #endif
