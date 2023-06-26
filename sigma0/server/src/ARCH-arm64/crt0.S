@@ -27,7 +27,9 @@ _start:
 	ic ivau, x9
 	isb
 1:
-	adr	x9, crt0_stack_high
+	adrp    x9, crt0_stack_high
+	add     x9, x9, :lo12:crt0_stack_high
+
 	mov	sp, x9
 	adr	x30, _exit
 	b	init
