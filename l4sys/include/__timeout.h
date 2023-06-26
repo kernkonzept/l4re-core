@@ -274,32 +274,24 @@ l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
       /* Here it is certain that at least one bit in 'us' is set. */
 
       unsigned m;
-      int e = (31 - __builtin_clz(us)) - 7;
+      int e = (31 - __builtin_clz(us)) - 9;
       if (e < 0) e = 0;
 
-      /* Here it is certain that '0 <= e <= 24' and '1 <= 2^e <= 2^24'. */
+      /* Here it is certain that '0 <= e <= 22' and '1 <= 2^e <= 2^22'. */
 
       m = us >> e;
 
-      /* Here it is certain that '1 <= m <= 255. Consider the following cases:
-       *  o    1 <= us <=  255: e = 0; 2^e = 1;   1 <= us/1 <= 255
-       *  o  256 <= us <=  511: e = 1; 2^e = 2; 128 <= us/2 <= 255
-       *  o  512 <= us <= 1023: e = 2; 2^e = 4; 128 <= us/4 <= 255
-       *  o 1024 <= us <= 2047: e = 3; 2^e = 8; 128 <= us/8 <= 255
-       *  ...
-       *  o 2^31 <= us <= 2^32-1: e = 24;       128 <= us/2^24 <= 255
-       *
-       * Dividing by (1<<e) ensures that for all us < 2^32: m < 2^8.
-       *
-       * As we have 10 bits for m we could also use 'e = log2(us) - 9':
+      /* Here it is certain that '1 <= m <= 1023. Consider the following cases:
        *  o    1 <= us <= 1023: e = 0; 2^e = 1;   1 <= us/1 <= 1023
        *  o 1024 <= us <= 2047: e = 1; 2^e = 2; 512 <= us/2 <= 1023
        *  o 2048 <= us <= 4095: e = 2; 2^e = 4; 512 <= us/4 <= 1023
        *  ...
        *  o 2^31 <= us <= 2^32-1: e = 22;       512 <= us/2^22 <= 1023
        *
-       * What about sizeof(us) == 8? 'e = log2(us) - 7':
-       *  o 2^63 <= us <= 2^64-1: e = 56;       128 <= us/2^56 <= 255.
+       * Dividing by (1<<e) ensures that for all us < 2^32: m < 2^10.
+       *
+       * What about sizeof(us) == 8? 'e = log2(us) - 9':
+       *  o 2^63 <= us <= 2^64-1: e = 54;       512 <= us/2^54 <= 1023.
        *
        * That means that this function would even work for 64-bit values of
        * 'us' as long as __builtin_clz(us) works correctly for that range.
