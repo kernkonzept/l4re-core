@@ -26,18 +26,8 @@
 
 L4_CV void l4_sleep(int ms)
 {
-  l4_timeout_t to;
-  l4_msgtag_t tag;
   l4_utcb_t *u = l4_utcb();
-
-  if (ms != -1)
-    /* calculate timeout */
-    to = l4_timeout(L4_IPC_TIMEOUT_NEVER, l4_timeout_from_us(ms * 1000));
-  else
-    to = L4_IPC_NEVER;
-
-  tag = l4_ipc_receive(L4_INVALID_CAP, u, to);
-
+  l4_msgtag_t tag = l4_ipc_sleep_ms(ms);
   if (l4_ipc_error(tag, u) != L4_IPC_RETIMEOUT)
     printf("l4_sleep(): IPC error %02x\n", l4_ipc_error_code(u));
 }
@@ -45,15 +35,8 @@ L4_CV void l4_sleep(int ms)
 
 L4_CV void l4_usleep(int us)
 {
-  l4_msgtag_t tag;
-  l4_timeout_t to;
   l4_utcb_t *u = l4_utcb();
-
-  /* calculate timeout */
-  to = l4_timeout(L4_IPC_TIMEOUT_NEVER, l4_timeout_from_us(us));
-
-  tag = l4_ipc_sleep(to);
-
+  l4_msgtag_t tag = l4_ipc_sleep_us(us);
   if (l4_ipc_error(tag, u) != L4_IPC_RETIMEOUT)
     printf("l4_sleep(): IPC error %02x\n", l4_ipc_error_code(u));
 }

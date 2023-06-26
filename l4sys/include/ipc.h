@@ -447,13 +447,51 @@ l4_ipc(l4_cap_idx_t dest,
  *          - #L4_IPC_RECANCELED woken up by a different thread
  *            (l4_thread_ex_regs()).
  *
- * The invoking thread waits until the timeout
- * is expired or the wait was aborted by another thread by l4_thread_ex_regs().
+ * The invoking thread waits until the timeout is expired or the wait was
+ * aborted by another thread by l4_thread_ex_regs().
  *
  * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_sleep(l4_timeout_t timeout) L4_NOTHROW;
+
+/**
+ * Sleep for a certain amount of milliseconds.
+ * \ingroup l4_ipc_api
+ *
+ * \param ms  Number of milliseconds to wait.
+ *
+ * \return  error code:
+ *          - #L4_IPC_RETIMEOUT: success
+ *          - #L4_IPC_RECANCELED woken up by a different thread
+ *            (l4_thread_ex_regs()).
+ *
+ * The invoking thread waits until the timeout is expired or the wait was
+ * aborted by another thread by l4_thread_ex_regs().
+ *
+ * \see \ref l4re_concepts_ipc
+ */
+L4_INLINE l4_msgtag_t
+l4_ipc_sleep_ms(unsigned ms) L4_NOTHROW;
+
+/**
+ * Sleep for a certain amount of microseconds.
+ * \ingroup l4_ipc_api
+ *
+ * \param us  Number of microseconds to wait.
+ *
+ * \return  error code:
+ *          - #L4_IPC_RETIMEOUT: success
+ *          - #L4_IPC_RECANCELED woken up by a different thread
+ *            (l4_thread_ex_regs()).
+ *
+ * The invoking thread waits until the timeout is expired or the wait was
+ * aborted by another thread by l4_thread_ex_regs().
+ *
+ * \see \ref l4re_concepts_ipc
+ */
+L4_INLINE l4_msgtag_t
+l4_ipc_sleep_us(unsigned us) L4_NOTHROW;
 
 /**
  * Add a flex-page to be sent to the UTCB
@@ -543,6 +581,20 @@ l4_ipc_receive(l4_cap_idx_t src, l4_utcb_t *utcb,
 L4_INLINE l4_msgtag_t
 l4_ipc_sleep(l4_timeout_t timeout) L4_NOTHROW
 { return l4_ipc_receive(L4_INVALID_CAP, NULL, timeout); }
+
+L4_INLINE l4_msgtag_t
+l4_ipc_sleep_ms(unsigned ms) L4_NOTHROW
+{
+  return l4_ipc_sleep(l4_timeout(L4_IPC_TIMEOUT_NEVER,
+                                 l4_timeout_from_us(ms * 1000)));
+}
+
+L4_INLINE l4_msgtag_t
+l4_ipc_sleep_us(unsigned us) L4_NOTHROW
+{
+  return l4_ipc_sleep(l4_timeout(L4_IPC_TIMEOUT_NEVER,
+                                 l4_timeout_from_us(us)));
+}
 
 L4_INLINE l4_umword_t
 l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW
