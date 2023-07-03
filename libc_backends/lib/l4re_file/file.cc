@@ -547,8 +547,7 @@ int select(int nfds, fd_set *readfds, fd_set *writefds,
 
 #if 0
   int us = timeout->tv_usec + timeout->tv_sec * 1000000;
-  l4_timeout_t to = l4_timeout(L4_IPC_TIMEOUT_NEVER,
-                               l4util_micros2l4to(us));
+  l4_timeout_t to = l4_timeout(L4_IPC_TIMEOUT_NEVER, l4_timeout_from_us(us));
 #endif
 
   // only the timeout for now

@@ -312,8 +312,9 @@ struct Loop_hooks :
     if (_sig_handling.current_itimerval.it_value.tv_sec == 0
 	&& _sig_handling.current_itimerval.it_value.tv_usec == 0)
       return L4_IPC_NEVER;
+
     return l4_timeout(L4_IPC_TIMEOUT_NEVER,
-	l4util_micros2l4to(_sig_handling.current_itimerval.it_value.tv_sec * 1000000 +
+	l4_timeout_from_us(_sig_handling.current_itimerval.it_value.tv_sec * 1000000 +
 	  _sig_handling.current_itimerval.it_value.tv_usec));
   }
 
