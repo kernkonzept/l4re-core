@@ -309,13 +309,16 @@ struct Loop_hooks :
 	return t;
       }
 
-    if (_sig_handling.current_itimerval.it_value.tv_sec == 0
-	&& _sig_handling.current_itimerval.it_value.tv_usec == 0)
+    struct timeval const tv = _sig_handling.current_itimerval.it_value;
+    if (tv.tv_sec == 0 && tv.tv_usec == 0)
       return L4_IPC_NEVER;
 
-    return l4_timeout(L4_IPC_TIMEOUT_NEVER,
-	l4_timeout_from_us(_sig_handling.current_itimerval.it_value.tv_sec * 1000000 +
-	  _sig_handling.current_itimerval.it_value.tv_usec));
+    l4_uint64_t us = 1000000ULL * tv.tv_sec + tv.tv_usec;
+    // Parameter range of l4_timeout_from_us(): ~0U = L4_IPC_TIMEOUT_NEVER!
+    if (us > L4_TIMEOUT_US_MAX)
+      us = L4_TIMEOUT_US_MAX;
+
+    return l4_timeout(L4_IPC_TIMEOUT_NEVER, l4_timeout_from_us(us));
   }
 
   void error(l4_msgtag_t res, l4_utcb_t *utcb)
