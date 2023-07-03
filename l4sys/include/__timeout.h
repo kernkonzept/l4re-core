@@ -83,6 +83,18 @@ typedef union l4_timeout_t {
 #define L4_IPC_RECV_TIMEOUT_0 ((l4_timeout_t){0x00000400})  /**< 0 receive timeout */
 #define L4_IPC_SEND_TIMEOUT_0 ((l4_timeout_t){0x04000000})  /**< 0 send timeout */
 #define L4_IPC_BOTH_TIMEOUT_0 ((l4_timeout_t){0x04000400})  /**< 0 receive and send timeout */
+
+/**
+ * The waiting period in microseconds which is interpreted as "never" by
+ * l4_timeout_from_us().
+ */
+#define L4_TIMEOUT_US_NEVER (~0U)
+
+/**
+ * The longest waiting period in microseconds accepted by l4_timeout_from_us().
+ */
+#define L4_TIMEOUT_US_MAX   (~0U - 1)
+
 /**@}*/
 
 /**
@@ -267,7 +279,7 @@ l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
   l4_timeout_s t;
   if (us == 0)
     t = L4_IPC_TIMEOUT_0;
-  else if (us == ~0U)
+  else if (us == L4_TIMEOUT_US_NEVER)
     t = L4_IPC_TIMEOUT_NEVER;
   else
     {
