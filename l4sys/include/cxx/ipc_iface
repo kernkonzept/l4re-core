@@ -433,7 +433,8 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
   {                                                                        \
     OBJ *o;                                                                \
     fwd(OBJ *o) noexcept : o(o) {}                                         \
-    template<typename ...ARGS> long call(ARGS ...a) noexcept(noexcept(o->op_##name(a...)))   \
+    template<typename ...ARGS>                                             \
+    decltype(auto) call(ARGS ...a) noexcept(noexcept(o->op_##name(a...)))  \
     { return o->op_##name(a...); }                                         \
   }
 

@@ -9,7 +9,10 @@
 
 #include <l4/sys/cxx/ipc_basics>
 #include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/limits>
 #include <l4/sys/__typeinfo.h>
+#include <l4/sys/assert.h>
+#include <l4/sys/err.h>
 #include <stddef.h>
 
 namespace L4 {
@@ -41,8 +44,43 @@ template<typename ...> struct Arg_pack
   long obj_call(O *o, ARGS ...args)
   {
     typedef typename FUNC::template fwd<O> Fwd;
-    return Fwd(o).template call<ARGS...>(args...);
-    //return o->op_dispatch(args...);
+    using Idl_ret = typename FUNC::result_type;
+    using Svr_ret = decltype(Fwd(o).template call<ARGS...>(args...));
+    auto ret = Fwd(o).template call<ARGS...>(args...);
+
+    using L4::Types::numeric_limits;
+    // Truncating a negative return value which is too small could result in a
+    // positive value pretending "success" to the caller.
+    if constexpr (numeric_limits<Svr_ret>::min() < numeric_limits<Idl_ret>::min())
+      {
+        if (L4_UNLIKELY(ret < numeric_limits<Idl_ret>::min()))
+          return -L4_EMSGERRRANGE;
+      }
+    // Truncating a positive return value which is too large results either in a
+    // positive value different from the original return value (but interpreted
+    // as "success" by the caller) or in a negative value. Trigger an assertion
+    // in these cases but also return an error in case of NDEBUG=y.
+    if constexpr (numeric_limits<Svr_ret>::max() > numeric_limits<Idl_ret>::max())
+      {
+        l4_assert(ret <= numeric_limits<Idl_ret>::max());
+        if (L4_UNLIKELY(ret > numeric_limits<Idl_ret>::max()))
+          return -L4_EMSGERRRANGE;
+      }
+    // The following two checks are required in case the Idl_ret limits exceed
+    // the limits of the 'label' part of l4_msgtag_t.
+    if constexpr (numeric_limits<Svr_ret>::min() < numeric_limits<l4_msgtag_t>::min())
+      {
+        if (L4_UNLIKELY(ret < numeric_limits<l4_msgtag_t>::min()))
+          return -L4_EMSGERRRANGE;
+      }
+    if constexpr (numeric_limits<Svr_ret>::max() > numeric_limits<l4_msgtag_t>::max())
+      {
+        l4_assert(ret <= numeric_limits<l4_msgtag_t>::max());
+        if (L4_UNLIKELY(ret > numeric_limits<l4_msgtag_t>::max()))
+          return -L4_EMSGERRRANGE;
+      }
+
+    return ret;
   }
 };
 
