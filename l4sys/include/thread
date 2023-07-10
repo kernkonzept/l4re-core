@@ -396,6 +396,7 @@ public:
    *
    * \return System call return tag containing the return code.
    *
+   * \retval -L4_BUSY   A deletion IRQ is already bound to this thread.
    * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
    *
    * In case the `irq` is already bound to an interrupt source, it is unbound
