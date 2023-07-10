@@ -10,3 +10,7 @@ l4_atomic_add:
 .globl l4_atomic_cmpxchg
 l4_atomic_cmpxchg:
 	ta 0x0815
+
+.globl __atomic_compare_exchange_1
+__atomic_compare_exchange_1:
+	ta 0x815
