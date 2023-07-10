@@ -783,10 +783,12 @@ protected:
 };
 
 
+/// \cond
 template< typename Derived, typename Base, long PROTO, typename S_DEMAND>
 Type_info const *const
 Kobject_t<Derived, Base, PROTO, S_DEMAND>::
   __Kobject_typeid::_b[] = { &Base::__Kobject_typeid::_m };
+/// \endcond
 
 /**
  * \internal
@@ -887,6 +889,7 @@ public:
 };
 
 
+/// \cond
 template< typename Derived, typename Base1, typename Base2,
           long PROTO, typename S_DEMAND >
 Type_info const *const
@@ -895,6 +898,7 @@ Kobject_2t<Derived, Base1, Base2, PROTO, S_DEMAND>::__Kobject_typeid::_b[] =
   &Base1::__Kobject_typeid::_m,
   &Base2::__Kobject_typeid::_m
 };
+/// \endcond
 
 /**
  * \internal
@@ -1001,6 +1005,7 @@ public:
 };
 
 
+/// \cond
 template< typename Derived, typename Base1, typename Base2, typename Base3,
           long PROTO, typename S_DEMAND >
 Type_info const *const
@@ -1010,6 +1015,7 @@ Kobject_3t<Derived, Base1, Base2, Base3, PROTO, S_DEMAND>::__Kobject_typeid::_b[
   &Base2::__Kobject_typeid::_m,
   &Base3::__Kobject_typeid::_m
 };
+/// \endcond
 
 /**
  * \internal
@@ -1146,12 +1152,14 @@ public:
   { return Base1<BASES...>::type::dec_refcnt(diff, utcb); }
 };
 
+/// \cond
 template< typename Derived, long PROTO, typename S_DEMAND, typename ...BASES>
 Type_info const *const
 __Kobject_base<Derived, PROTO, S_DEMAND, BASES...>::__Kobject_typeid::_b[] =
 {
   (&BASES::__Kobject_typeid::_m)...
 };
+/// \endcond
 
 template< typename Derived, long PROTO, typename S_DEMAND, typename ...BASES>
 L4____GEN_TI(__Kobject_base<Derived, PROTO, S_DEMAND, BASES...>);
