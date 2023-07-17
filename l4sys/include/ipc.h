@@ -133,11 +133,11 @@ enum l4_ipc_tcr_error_t
 
 
 /**
- * Get the error code for an object invocation.
+ * Get the IPC error code for an IPC operation.
  * \ingroup l4_ipc_err_api
  *
- * \param tag   Return value of the invocation.
- * \param utcb  UTCB that was used for the invocation.
+ * \param tag   Message tag returned by the IPC operation.
+ * \param utcb  UTCB that was used for the IPC operation.
  *
  * \return 0 if no error condition is set,
  *         error code otherwise (see #l4_ipc_tcr_error_t).
@@ -147,13 +147,20 @@ l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW;
 
 
 /**
- * Return error code of a system call return message tag or the tag label.
+ * Get IPC error code if any or message tag label otherwise for an IPC call.
  * \ingroup l4_ipc_err_api
  *
- * \param tag  System call return message type.
+ * This function shall only be used if the IPC operation includes a receive
+ * phase (usually a call operation), otherwise no tag label is received and the
+ * return value of this function is undefined.
  *
- * \return  In case of IPC error a negative error code in the range of
- *          #L4_EIPC_LO to #L4_EIPC_HI, otherwise the tag label.
+ * \param tag  Message tag returned by the IPC call.
+ *
+ * \return  In case of an IPC error, a negative error code in the range of
+ *          #L4_EIPC_LO to #L4_EIPC_HI (see l4_ipc_to_errno() and
+ *          #l4_ipc_tcr_error_t), otherwise the tag label. By convention, the
+ *          callee can signal errors via a negative tag label (negated value
+ *          from #l4_error_code_t) and success via a non-negative value.
  */
 L4_INLINE long
 l4_error(l4_msgtag_t tag) L4_NOTHROW;
@@ -223,13 +230,19 @@ L4_INLINE long l4_ipc_to_errno(unsigned long ipc_error_code) L4_NOTHROW;
  * \param tag      Descriptor for the message to be sent.
  * \param timeout  Timeout pair (see #l4_timeout_t) only send part is relevant.
  *
- * \return  result tag
+ * \return Syscall return tag for the send-only operation, this means there
+ *         is no return value except #L4_MSGTAG_ERROR indicating success or
+ *         failure of the send operation. Use l4_ipc_error() to check for
+ *         errors and **do not** use l4_error().
  *
  * A message is sent to the destination object. There is no receive phase
  * included. The invoker continues working after sending the message.
  *
- * \attention This is a special-purpose message transfer, objects usually
- *            support only invocation via l4_ipc_call().
+ * \note This is a special-purpose message transfer. Objects usually support
+ *       only invocation via l4_ipc_call() consisting of a send phase and a
+ *       receive phase for returning the result of the object invocation. For
+ *       example, l4_icu_unmask(), l4_icu_mask() and l4_irq_trigger() use
+ *       send-only IPC operations for object invocation.
  *
  * \see \ref l4re_concepts_ipc
  */

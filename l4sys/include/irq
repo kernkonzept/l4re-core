@@ -58,20 +58,19 @@ public:
    *
    * \param      irqnum  The interrupt line that shall be unmasked. Ignored if
    *                     the object is an IRQ.
-   * \param[out] label   If NULL this is a send-only unmask, if not
-   *                     NULL then this operation enters an open wait
-   *                     and the *protected label* shall be received here.
-   * \param      to      The timeout-pair (send and receive) that shall be
-   *                     used for this operation. The receive timeout
-   *                     is used with a non-NULL `label` only.
+   * \param[out] label   If NULL, this is a send-only unmask. If not NULL, this
+   *                     operation enters an open wait and the *protected
+   *                     label* shall be received here.
+   * \param      to      The timeout-pair (send and receive) that shall be used
+   *                     for this operation. The receive timeout is used with a
+   *                     non-NULL `label` only.
    * \utcb{utcb}
    *
-   * \return Syscall return tag.
-   *
-   * \note If `label` is NULL this function is a send-only operation
-   *       and there is no return value except for a failed send operation.
-   *       In this case use l4_ipc_error() to check for errors, **do not**
-   *       use l4_error(), because l4_error() will always return an error.
+   * \return Syscall return tag. If `label` is NULL, this function performs an
+   *         IPC send-only operation and there is no return value except
+   *         #L4_MSGTAG_ERROR indicating success or failure of the send
+   *         operation. In this case use l4_ipc_error() to check for errors
+   *         and **do not** use l4_error().
    */
   l4_msgtag_t unmask(unsigned irqnum, l4_umword_t *label = 0,
                      l4_timeout_t to = L4_IPC_NEVER,
@@ -95,13 +94,10 @@ struct Triggerable : Kobject_t<Triggerable, Irq_eoi, L4_PROTO_IRQ>
    *
    * \utcb{utcb}
    *
-   * \return Syscall return tag for a send-only operation, use l4_ipc_error()
-   *         to check for errors (**do not** use l4_error()).
-   *
-   * \note This function is a send-only operation, this means there
-   *       is no return value except for a failed send operation. Use
-   *       l4_ipc_error() to check for errors, **do not** use l4_error(),
-   *       because l4_error() will always return an error.
+   * \return Syscall return tag for a send-only operation, this means there
+   *         is no return value except #L4_MSGTAG_ERROR indicating success or
+   *         failure of the send operation. Use l4_ipc_error() to check for
+   *         errors and **do not** use l4_error().
    */
   l4_msgtag_t trigger(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_trigger_u(cap(), utcb); }
@@ -186,19 +182,15 @@ public:
    *
    * \utcb{utcb}
    *
-   * \return Syscall return tag for a send-only operation, use l4_ipc_error()
-   *         to check for errors (**do not** use l4_error()).
-   *
-   * \note This function is a send-only operation, this means there is no
-   *       return value except for a failed send operation. Use l4_ipc_error()
-   *       to check for errors, **do not** use l4_error(), because l4_error()
-   *       will always return an error.
+   * \return Syscall return tag for a send-only operation, this means there
+   *         is no return value except #L4_MSGTAG_ERROR indicating success or
+   *         failure of the send operation. Use l4_ipc_error() to check for
+   *         errors and **do not** use l4_error().
    *
    * Irq::wait() and Irq::receive() operations already include an unmask(), do
    * not use an extra unmask() in these cases.
    *
    * \deprecated Use L4::Irq_eoi::unmask()
-   *
    */
   l4_msgtag_t unmask(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return unmask(-1, 0, L4_IPC_NEVER, utcb); }
@@ -391,15 +383,20 @@ public:
    * Mask an IRQ line.
    *
    * \param irqnum  IRQ line at the ICU.
-   * \param label   If NULL this function is a send-only message to the ICU. If
-   *                not NULL this function will enter an open wait after sending
-   *                the mask message.
+   * \param label   If NULL, this function is a send-only message to the ICU.
+   *                If not NULL, this function will enter an open wait after
+   *                sending the mask message and the received label is returned
+   *                here.
    * \param to      The timeout-pair (send and receive) that shall be used for
    *                this operation. The receive timeout is used with a non-NULL
    *                `label` only.
    * \utcb{utcb}
    *
-   * \return Syscall return tag
+   * \return Syscall return tag. If `label` is NULL, this function performs an
+   *         IPC send-only operation and there is no return value except
+   *         #L4_MSGTAG_ERROR indicating success or failure of the send
+   *         operation. In this case use l4_ipc_error() to check for errors
+   *         and **do not** use l4_error().
    */
   l4_msgtag_t mask(unsigned irqnum,
                    l4_umword_t *label = 0,

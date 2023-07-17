@@ -331,11 +331,16 @@ l4_icu_msi_info_u(l4_cap_idx_t icu, unsigned irqnum, l4_uint64_t source,
  *
  * \param icu     The ICU object where the IRQ line shall be unmasked.
  * \param irqnum  IRQ line at the ICU.
- * \param label   If non-NULL the function also waits for the next message.
- * \param to      Timeout for message to ICU, if unsure use L4_IPC_NEVER.
+ * \param label   If non-NULL, the function also performs an open wait IPC
+ *                operation waiting for the next message, and the received
+ *                label is returned here.
+ * \param to      IPC timeout, if unsure use L4_IPC_NEVER.
  *
- * \return Syscall return tag, the error values therein are undefined because
- *         l4_icu_unmask() is a sender-only IPC.
+ * \return Syscall return tag. If `label` is NULL, this function performs an
+ *         IPC send-only operation and there is no return value except
+ *         #L4_MSGTAG_ERROR indicating success or failure of the send
+ *         operation. In this case use l4_ipc_error() to check for errors
+ *         and **do not** use l4_error().
  */
 L4_INLINE l4_msgtag_t
 l4_icu_unmask(l4_cap_idx_t icu, unsigned irqnum, l4_umword_t *label,
@@ -355,12 +360,18 @@ l4_icu_unmask_u(l4_cap_idx_t icu, unsigned irqnum, l4_umword_t *label,
  * Mask an IRQ line.
  * \ingroup l4_icu_api
  *
- * \param icu     The ICU object where the IRQ line 'irqnum' shall be masked.
+ * \param icu     The ICU object where the IRQ line shall be masked.
  * \param irqnum  IRQ line at the ICU.
- * \param label   If non-NULL the function also waits for the next message.
- * \param to      Timeout for message to ICU, if unsure use L4_IPC_NEVER.
+ * \param label   If non-NULL, the function also performs an open wait IPC
+ *                operation waiting for the next message, and the received
+ *                label is returned here.
+ * \param to      IPC timeout, if unsure use L4_IPC_NEVER.
  *
- * \return Syscall return tag
+ * \return Syscall return tag. If `label` is NULL, this function performs an
+ *         IPC send-only operation and there is no return value except
+ *         #L4_MSGTAG_ERROR indicating success or failure of the send
+ *         operation. In this case use l4_ipc_error() to check for errors
+ *         and **do not** use l4_error().
  */
 L4_INLINE l4_msgtag_t
 l4_icu_mask(l4_cap_idx_t icu, unsigned irqnum, l4_umword_t *label,
@@ -369,7 +380,7 @@ l4_icu_mask(l4_cap_idx_t icu, unsigned irqnum, l4_umword_t *label,
 /**
  * \ingroup l4_icu_api
  * \copybrief L4::Icu::mask
- * \param icu  The ICU object where the IRQ line 'irqnum' shall be masked.
+ * \param icu  The ICU object where the IRQ line shall be masked.
  * \copydetails L4::Icu::mask
  */
 L4_INLINE l4_msgtag_t
