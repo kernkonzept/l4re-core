@@ -398,6 +398,16 @@ public:
   }
 
 #if __cplusplus >= 201103L
+  /**
+   * Unique region
+   *
+   * Capture a single region with automatic detach on destruction and
+   * unique ownership. Stores the start address and the region-mapper
+   * capability internally. A unique region is valid precisely if the
+   * internal region-mapper capability is valid. The features for
+   * unique ownership and automatic detach are only active for valid
+   * unique regions.
+   */
   template< typename T >
   class Unique_region
   {
@@ -409,18 +419,42 @@ public:
     Unique_region(Unique_region const &) = delete;
     Unique_region &operator = (Unique_region const &) = delete;
 
+    /**
+     * Construct an invalid `Unique_region`
+     */
     Unique_region() noexcept
     : _addr(0), _rm(L4::Cap<Rm>::Invalid) {}
 
+    /**
+     * Construct a `Unique_region` from an address. No region manager is set.
+     *
+     * \param addr  The new address
+     */
     explicit Unique_region(T addr) noexcept
     : _addr(addr), _rm(L4::Cap<Rm>::Invalid) {}
 
+    /**
+     * Construct a valid `Unique_region` from an address and a region manager.
+     *
+     * \param addr  The address
+     * \param rm    The region manager
+     */
     Unique_region(T addr, L4::Cap<Rm> const &rm) noexcept
     : _addr(addr), _rm(rm) {}
 
+    /**
+     * Move-Construct a `Unique_region`
+     *
+     * \param o  L-value reference to other region.
+     */
     Unique_region(Unique_region &&o) noexcept : _addr(o.get()), _rm(o._rm)
     { o.release(); }
 
+    /**
+     * Move-assign a `Unique_region`
+     *
+     * \param o  L-value reference to region to assign from
+     */
     Unique_region &operator = (Unique_region &&o) noexcept
     {
       if (&o != this)
@@ -433,21 +467,42 @@ public:
       return *this;
     }
 
+    /**
+     * Destructor.
+     *
+     * If the region is valid, call `detach`.
+     */
     ~Unique_region() noexcept
     {
       if (_rm.is_valid())
         _rm->detach(l4_addr_t(_addr), 0);
     }
 
+    /**
+     * Return the address.
+     *
+     * \return the address
+     */
     T get() const noexcept
     { return _addr; }
 
+    /**
+     * Return the address and invalidate the `Unique_region`
+     *
+     * \return the address
+     */
     T release() noexcept
     {
       _rm = L4::Cap<Rm>::Invalid;
       return _addr;
     }
 
+    /**
+     * Set new address and region manager
+     *
+     * \param addr  The new address
+     * \param rm    The new region manager
+     */
     void reset(T addr, L4::Cap<Rm> const &rm) noexcept
     {
       if (_rm.is_valid())
@@ -457,16 +512,24 @@ public:
       _addr = addr;
     }
 
+    /**
+     * Make the `Unique_region` invalid
+     */
     void reset() noexcept
     { reset(0, L4::Cap<Rm>::Invalid); }
 
+    /**
+     * Check if the `Unique_region` is valid
+     *
+     * \return true iff the `Unique_region` is valid
+     */
     bool is_valid() const noexcept
     { return _rm.is_valid(); }
 
-    /** \brief Dereference the pointer. */
+    /** Dereference the address. */
     T operator * () const noexcept { return _addr; }
 
-    /** \brief Member access for the object. */
+    /** Member access for the address. */
     T operator -> () const noexcept { return _addr; }
   };
 
