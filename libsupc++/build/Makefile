@@ -61,5 +61,9 @@ WARNINGS += -Wno-null-pointer-arithmetic \
             -Wno-unknown-warning-option
 endif
 
+WARNINGS_eh_exception.cc = -Wno-missing-declarations
+WARNINGS_eh_call.cc = -Wno-missing-declarations
+WARNINGS_bad_array_length.cc = -Wno-missing-declarations
+
 vpath %.cc $(STDCXX_SRC_DIR)
 vpath %.cc $(SRC_DIR)

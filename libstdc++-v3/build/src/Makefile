@@ -30,6 +30,8 @@ WARNINGS += -Wno-c++11-inline-namespace \
             -Wno-unknown-warning-option
 endif
 
+WARNINGS_ops.cc = -Wno-unused-variable
+
 vpath %.cc $(OBJ_DIR)
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/io
 vpath %.cc $(STDCXX_CONTRIB_DIR)/config/locale/generic
