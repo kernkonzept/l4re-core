@@ -396,7 +396,7 @@ public:
    *
    * \retval L4_EOK      No error occurred.
    * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
-   * \retval -L4_ENOENT  `thread_cap` is void or points to something that is not
+   * \retval -L4_EINVAL  `thread_cap` is void or points to something that is not
    *                     a thread.
    * \retval -L4_EPERM   The factory instance requires #L4_CAP_FPAGE_S rights on
    *                     the invoked capability or `thread_cap` and
