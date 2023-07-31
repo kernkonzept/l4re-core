@@ -36,6 +36,7 @@
 
 #include <limits.h>
 #include <stdint.h>
+#include <wchar.h>
 
 #if WCHAR_MIN == 0
 typedef wchar_t				__uwchar_t;
