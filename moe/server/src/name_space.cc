@@ -151,8 +151,9 @@ Name_space::find_iter(Entry::Name const &pname) const
             }
         }
 
-      dbg.cprintf(": found object: %p (%s)\n", o->_obj.get(),
-                  o->_obj ? typeid(*(o->_obj.get())).name() : "");
+      auto const *obj = o->_obj.get();
+      dbg.cprintf(": found object: %p (%s)\n",
+                  obj, o->_obj ? typeid(obj).name() : "");
 
       return o;
     }
