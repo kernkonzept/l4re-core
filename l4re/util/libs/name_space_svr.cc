@@ -65,7 +65,8 @@ Name_space::find_iter(Name const &pname) const
 	  return 0;
 	}
 
-      ns = dynamic_cast<Name_space const *>(o->obj()->obj());
+      auto const *obj = o->obj()->obj();
+      ns = dynamic_cast<Name_space const *>(obj);
       if (ns)
 	{
 	  if (!name.eof(sep))
@@ -75,7 +76,8 @@ Name_space::find_iter(Name const &pname) const
 	    }
 	}
 
-      _dbg.cprintf(": found object: %p (%s)\n", o->obj()->obj(), o->obj()->obj()?typeid(*(o->obj()->obj())).name():"");
+      _dbg.cprintf(": found object: %p (%s)\n",
+                   obj, obj ? typeid(*obj).name() : "");
 
       return o;
     }
