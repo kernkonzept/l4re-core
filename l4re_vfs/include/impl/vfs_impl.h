@@ -517,9 +517,22 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
   using namespace L4Re;
   off64_t offset = l4_trunc_page(page4k_offset << 12);
 
-  start = (void*)l4_trunc_page(l4_addr_t(start));
-  len   = l4_round_page(len);
-  l4_umword_t size = (len + L4_PAGESIZE-1) & ~(L4_PAGESIZE-1);
+  if (flags & MAP_FIXED)
+    {
+      if (l4_addr_t(start) & (L4_PAGESIZE - 1))
+        return -EINVAL;
+
+      len = l4_round_page(len);
+    }
+  else
+    {
+      l4_addr_t s = l4_trunc_page(l4_addr_t(start));
+
+      len += l4_addr_t(start) - s;
+      len = l4_round_page(len);
+
+      start = (void *)s;
+    }
 
   // special code to just reserve an area of the virtual address space
   if (flags & 0x1000000)
@@ -527,15 +540,15 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       int err;
       L4::Cap<Rm> r = Env::env()->rm();
       l4_addr_t area = (l4_addr_t)start;
-      err = r->reserve_area(&area, size, L4Re::Rm::F::Search_addr);
+      err = r->reserve_area(&area, len, L4Re::Rm::F::Search_addr);
       if (err < 0)
 	return err;
       *resptr = (void*)area;
       DEBUG_LOG(debug_mmap, {
 	  outstring("MMAP reserved area: ");
 	  outhex32(area);
-	  outstring("  size=");
-	  outhex32(size);
+	  outstring("  length=");
+	  outhex32(len);
 	  outstring("\n");
       });
       return 0;
@@ -549,7 +562,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
     {
       rm_flags |= L4Re::Rm::F::Detach_free;
 
-      int err = alloc_anon_mem(size, &ds, &anon_offset);
+      int err = alloc_anon_mem(len, &ds, &anon_offset);
       if (err)
 	return err;
 
@@ -577,7 +590,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 	  return -EINVAL;
 	}
 
-      if (size + offset > l4_round_page(fds->size()))
+      if (len + offset > l4_round_page(fds->size()))
 	{
 	  return -EINVAL;
 	}
@@ -585,7 +598,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       if (flags & MAP_PRIVATE)
 	{
 	  DEBUG_LOG(debug_mmap, outstring("COW\n"););
-          int err = ds->copy_in(anon_offset, fds, offset, size);
+          int err = ds->copy_in(anon_offset, fds, offset, len);
           if (err < 0)
             return err;
 
@@ -613,7 +626,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
     {
       overmap_area = l4_addr_t(start);
 
-      err = r->reserve_area(&overmap_area, size);
+      err = r->reserve_area(&overmap_area, len);
       if (err < 0)
 	overmap_area = L4_INVALID_ADDR;
 
@@ -629,7 +642,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
   if (prot & PROT_WRITE)     rm_flags |= Rm::F::W;
   if (prot & PROT_EXEC)      rm_flags |= Rm::F::X;
 
-  err = r->attach(&data, size, rm_flags,
+  err = r->attach(&data, len, rm_flags,
                   L4::Ipc::make_cap(ds.get(), (prot & PROT_WRITE)
                                         ? L4_CAP_FPAGE_RW
                                         : L4_CAP_FPAGE_RO),
@@ -641,7 +654,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       outstring("  addr: ");
       outhex32(l4_addr_t(data));
       outstring("  bytes: ");
-      outhex32(size);
+      outhex32(len);
       outstring("  offset: ");
       outhex32(offset);
       outstring("  err=");
