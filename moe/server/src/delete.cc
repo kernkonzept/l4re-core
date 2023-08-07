@@ -15,6 +15,13 @@ void operator delete (void *p) noexcept
   Moe::Malloc_container::from_ptr(p)->free(p);
 }
 
+#if __cplusplus >= 201400
+void operator delete (void *p, size_t) noexcept
+{
+  Moe::Malloc_container::from_ptr(p)->free(p);
+}
+#endif
+
 void * operator new (size_t s)
 {
   // XXX alignment?
