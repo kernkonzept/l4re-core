@@ -389,6 +389,10 @@ View::set_viewport(int scr_x, int scr_y, int w, int h,
   Info i;
   i.flags = F_set_buffer_offset | F_set_position;
   i.buffer_offset = buf_offset;
+  i.buffer_index = 0;
+  i.view_index = 0;
+  i.bytes_per_line = 0;
+  i.pixel_info = Pixel_info();
   i.xpos = scr_x;
   i.ypos = scr_y;
   i.width = w;
