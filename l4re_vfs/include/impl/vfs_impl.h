@@ -179,6 +179,8 @@ private:
   int alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds);
   int alloc_anon_mem(l4_umword_t size, L4Re::Shared_cap<L4Re::Dataspace> *ds,
                      l4_addr_t *offset);
+
+  void align_mmap_start_and_length(void **start, size_t *length);
 };
 
 static inline bool strequal(char const *a, char const *b)
@@ -390,6 +392,16 @@ Vfs::set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f) noexcept
     return -err;
 
 
+void
+Vfs::align_mmap_start_and_length(void **start, size_t *length)
+{
+  l4_addr_t s = l4_addr_t(*start);
+
+  *length += s & (L4_PAGESIZE - 1);    // Add rounding down delta to length
+  *start   = (void *)l4_trunc_page(s); // Make start page aligned
+  *length  = l4_round_page(*length);   // Round length up to page size
+}
+
 int
 Vfs::munmap(void *start, size_t len) L4_NOTHROW
 {
@@ -399,6 +411,11 @@ Vfs::munmap(void *start, size_t len) L4_NOTHROW
   int err;
   Cap<Dataspace> ds;
   Cap<Rm> r = Env::env()->rm();
+
+  if (l4_addr_t(start) & (L4_PAGESIZE - 1))
+    return -EINVAL;
+
+  align_mmap_start_and_length(&start, &len);
 
   while (1)
     {
@@ -518,21 +535,10 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
   off64_t offset = l4_trunc_page(page4k_offset << 12);
 
   if (flags & MAP_FIXED)
-    {
-      if (l4_addr_t(start) & (L4_PAGESIZE - 1))
-        return -EINVAL;
+    if (l4_addr_t(start) & (L4_PAGESIZE - 1))
+      return -EINVAL;
 
-      len = l4_round_page(len);
-    }
-  else
-    {
-      l4_addr_t s = l4_trunc_page(l4_addr_t(start));
-
-      len += l4_addr_t(start) - s;
-      len = l4_round_page(len);
-
-      start = (void *)s;
-    }
+  align_mmap_start_and_length(&start, &len);
 
   // special code to just reserve an area of the virtual address space
   if (flags & 0x1000000)
