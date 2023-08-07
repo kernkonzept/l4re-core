@@ -39,7 +39,7 @@ Goos_fb::init()
 
   if (gi.has_dynamic_views())
     {
-      chksys(_goos->create_view(&_view), "createing dynamic goos view");
+      chksys(_goos->create_view(&_view), "creating dynamic goos view");
       _flags |= F_dyn_view;
     }
   else // we just assume view 0 to be our's and ignore other possible views
