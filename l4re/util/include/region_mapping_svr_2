@@ -126,10 +126,16 @@ public:
     typename DERIVED::Region_handler h;
     int err = rm()->detach((void*)addr, size, flags, &r, &h);
     if (err < 0)
-      return err;
+      {
+        start = rsize = mem_cap = 0;
+        return err;
+      }
 
     if (r.invalid())
-      return -L4_ENOENT;
+      {
+        start = rsize = mem_cap = 0;
+        return -L4_ENOENT;
+      }
 
     start = r.start();
     rsize = r.size();
