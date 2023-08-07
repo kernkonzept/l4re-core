@@ -111,7 +111,8 @@ l4_task_map_u(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
  * page describing IO ports or memory, it also revokes rights from all the
  * tasks that got the rights delegated from the destination task (i.e., this
  * operation does a recursive rights revocation). If the set of rights is empty
- * after the revocation, the capability is unmapped.
+ * after the revocation, the capability is unmapped. It is guaranteed that the
+ * rights revocation is completed before this function returns.
  *
  * \note If the reference counter of a kernel object referenced in `fpage`
  *       goes down to zero (as a result of deleting capabilities), the deletion
