@@ -296,6 +296,26 @@ int name_to_handle_at(int dirfd, const char *pathname,
 int open_by_handle_at(int mount_fd, struct file_handle *handle, int flags);
 #endif
 
+#ifdef __USE_GNU
+# define F_SETOWN_EX	15	/* Get owner (thread receiving SIGIO).  */
+# define F_GETOWN_EX	16	/* Set owner (thread receiving SIGIO).  */
+/* Owner types.  */
+enum __pid_type
+  {
+    F_OWNER_TID = 0,		/* Kernel thread.  */
+    F_OWNER_PID,		/* Process.  */
+    F_OWNER_PGRP,		/* Process group.  */
+    F_OWNER_GID = F_OWNER_PGRP	/* Alternative, obsolete name.  */
+  };
+
+/* Structure to use with F_GETOWN_EX and F_SETOWN_EX.  */
+struct f_owner_ex
+  {
+    enum __pid_type type;	/* Owner type of ID.  */
+    __pid_t pid;		/* ID of owner.  */
+  };
+#endif
+
 __END_DECLS
 
 #endif /* fcntl.h  */
