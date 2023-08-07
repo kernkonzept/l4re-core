@@ -511,11 +511,11 @@ Vfs::alloc_anon_mem(l4_umword_t size, L4Re::Shared_cap<L4Re::Dataspace> *ds,
 }
 
 int
-Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t _offset,
+Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_offset,
            void **resptr) L4_NOTHROW
 {
   using namespace L4Re;
-  off64_t offset = l4_trunc_page(_offset << 12);
+  off64_t offset = l4_trunc_page(page4k_offset << 12);
 
   start = (void*)l4_trunc_page(l4_addr_t(start));
   len   = l4_round_page(len);
