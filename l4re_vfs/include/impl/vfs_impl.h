@@ -585,8 +585,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       if (flags & MAP_PRIVATE)
 	{
 	  DEBUG_LOG(debug_mmap, outstring("COW\n"););
-          int err = ds->copy_in(anon_offset, fds, l4_trunc_page(offset),
-                                l4_round_page(size));
+          int err = ds->copy_in(anon_offset, fds, offset, size);
           if (err < 0)
             return err;
 
