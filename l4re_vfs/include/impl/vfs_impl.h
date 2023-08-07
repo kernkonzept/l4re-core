@@ -786,7 +786,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
       l4_addr_t ta = oa + old_size;
       unsigned long ts = new_size - old_size;
       // check if the current virtual memory area can be expanded
-      int err = new_area.reserve(ta, ts, L4Re::Rm::Flags(0));
+      long err = new_area.reserve(ta, ts, L4Re::Rm::Flags(0));
       if (!maymove && err)
         return -ENOMEM;
 

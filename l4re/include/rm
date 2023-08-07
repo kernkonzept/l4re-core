@@ -578,14 +578,14 @@ public:
    *       region can be determined unambiguously.
    *
    */
-  int find(l4_addr_t *addr, unsigned long *size, Offset *offset,
-           L4Re::Rm::Flags *flags, L4::Cap<Dataspace> *m) noexcept
+  long find(l4_addr_t *addr, unsigned long *size, Offset *offset,
+            L4Re::Rm::Flags *flags, L4::Cap<Dataspace> *m) noexcept
   { return find_t::call(c(), addr, size, flags, offset, m); }
 
-  L4_RPC_NF(int, find, (L4::Ipc::In_out<l4_addr_t *> addr,
-                        L4::Ipc::In_out<unsigned long *> size,
-                        L4Re::Rm::Flags *flags, Offset *offset,
-                        L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
+  L4_RPC_NF(long, find, (L4::Ipc::In_out<l4_addr_t *> addr,
+                         L4::Ipc::In_out<unsigned long *> size,
+                         L4Re::Rm::Flags *flags, Offset *offset,
+                         L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
 
   /**
    * A range of virtual addresses.
