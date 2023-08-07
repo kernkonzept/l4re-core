@@ -32,6 +32,7 @@ bits/getopt_int.h
 bits/huge_valf.h
 bits/huge_val.h
 bits/huge_vall.h
+bits/hwcap.h
 bits/inf.h
 bits/in.h
 bits/ioctls.h

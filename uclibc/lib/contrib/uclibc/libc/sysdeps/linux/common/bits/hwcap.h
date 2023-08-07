@@ -1,5 +1,5 @@
-/* Copyright (C) 2022 uClibc-ng
-   This file is part of the uClibc-ng Library.
+/* Defines for bits in AT_HWCAP.
+   Copyright (C) 2012-2023 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,22 +13,10 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
+   <https://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_AUXV_H
-#define _SYS_AUXV_H 1
+# error "Never include <bits/hwcap.h> directly; use <sys/auxv.h> instead."
+#endif
 
-#include <features.h>
-#include <elf.h>
-#include <bits/hwcap.h>
-
-__BEGIN_DECLS
-
-/* Return the value associated with an Elf*_auxv_t type from the auxv list
-   passed to the program on startup.  If TYPE was not present in the auxv
-   list, returns zero and sets errno to ENOENT.  */
-extern unsigned long int getauxval (unsigned long int __type) __THROW;
-
-__END_DECLS
-
-#endif /* sys/auxv.h */
+/* No bits defined for this architecture.  */
