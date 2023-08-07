@@ -121,14 +121,20 @@ enum l4_ipc_tcr_error_t
   L4_IPC_SEABORTED        = 0x0e, /**< Send operation aborted.
                                    **  \ingroup l4_ipc_api
                                    **/
-  L4_IPC_REMSGCUT         = 0x09, /**< Cut receive message, due to
-                                   **  message buffer is too small.
-                                   **  \ingroup l4_ipc_api
-                                   **/
-  L4_IPC_SEMSGCUT         = 0x08, /**< Cut send message. due to
-                                   **  message buffer is too small,
-                                   **  \ingroup l4_ipc_api
-                                   **/
+  /**
+   * Received message truncated. Usually returned when the typed items to be
+   * sent by the IPC partner exceed the buffer registers of the respective
+   * types.
+   * \ingroup l4_ipc_api
+   */
+  L4_IPC_REMSGCUT         = 0x09,
+
+  /**
+   * Sent message truncated. Usually returned when the typed items to be sent
+   * exceed the IPC partner’s buffer registers of the respective types.
+   * \ingroup l4_ipc_api
+   */
+  L4_IPC_SEMSGCUT         = 0x08,
 };
 
 
