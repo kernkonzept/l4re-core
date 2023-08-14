@@ -137,9 +137,9 @@ Ns_dir::fstat64(struct stat64 *b) const noexcept
 }
 
 ssize_t
-Ns_dir::getdents(char *buf, size_t sz) noexcept
+Ns_dir::getdents(char *buf, size_t dest_sz) noexcept
 {
-  struct dirent64 *d = (struct dirent64 *)buf;
+  struct dirent64 *dest = (struct dirent64 *)buf;
   ssize_t ret = 0;
   l4_addr_t infoaddr;
   size_t infosz;
@@ -163,51 +163,61 @@ Ns_dir::getdents(char *buf, size_t sz) noexcept
   char *p   = (char *)infoaddr + _current_dir_pos;
   char *end = (char *)infoaddr + infosz;
 
-  while (d && p < end)
+  char *current_dirinfo_entry = p;
+  while (dest && p < end)
     {
       // parse lines of dirinfofile
-      long len;
-      for (len = 0; p < end && *p >= '0' && *p <= '9'; ++p)
+      long len = 0;
+      for (; p < end && *p >= '0' && *p <= '9'; ++p)
         {
           len *= 10;
           len += *p - '0';
         }
-      if (len)
-        {
-          // skip colon
-          p++;
-          if (p + len >= end)
-            return 0; // error in dirinfofile
 
-          unsigned l = len + 1;
-          if (l > sizeof(d->d_name))
-            l = sizeof(d->d_name);
+      if (len == 0)
+        break;
 
-          unsigned n = offsetof (struct dirent64, d_name) + l;
-          n = (n + sizeof(long) - 1) & ~(sizeof(long) - 1);
+      if (p == end)
+        break;
 
-          if (n > sz)
-            break;
+      if (*p != ':')
+        break;
+      p++; // skip colon
 
-          d->d_ino = 1;
-          d->d_off = 0;
-          memcpy(d->d_name, p, len);
-          d->d_name[l - 1] = 0;
-          d->d_reclen = n;
-          d->d_type   = DT_REG;
-          ret += n;
-          sz  -= n;
-          d    = (struct dirent64 *)((unsigned long)d + n);
-        }
+      if (p + len >= end)
+        break;
+
+      unsigned l = len + 1;
+      if (l > sizeof(dest->d_name))
+        l = sizeof(dest->d_name);
+
+      unsigned n = offsetof (struct dirent64, d_name) + l;
+      n = (n + sizeof(long) - 1) & ~(sizeof(long) - 1);
+
+      if (n > dest_sz)
+        break;
+
+      dest->d_ino = 1;
+      dest->d_off = 0;
+      memcpy(dest->d_name, p, l - 1);
+      dest->d_name[l - 1] = 0;
+      dest->d_reclen = n;
+      dest->d_type   = DT_REG;
+      ret += n;
+      dest_sz -= n;
+
+      // next entry
+      dest = (struct dirent64 *)((unsigned long)dest + n);
 
       // next infodirfile line
-      while (p < end && *p && *p != '\n' && *p != '\r')
-        p++;
+      p += len;
       while (p < end && *p && (*p == '\n' || *p == '\r'))
         p++;
+
+      current_dirinfo_entry = p;
     }
 
-  _current_dir_pos += p - (char *)infoaddr;
+  _current_dir_pos = current_dirinfo_entry - (char *)infoaddr;
 
   if (!ret) // hack since we should only reset this at open times
     _current_dir_pos = 0;
