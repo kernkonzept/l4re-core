@@ -65,7 +65,7 @@ inline Timeout::~Timeout() {}
 class Timeout_queue
 {
 public:
-  /// Provide a local definition of Timeout for backward compat.
+  /// Provide a local definition of Timeout for backward compatibility.
   typedef L4::Ipc_svr::Timeout Timeout;
 
   /**
@@ -200,7 +200,7 @@ public:
   }
 
   /**
-   * Add a timout to the queue for time \a time.
+   * Add a timeout to the queue for time \a time.
    * \param timeout  The timeout object to add into the queue (must not be in
    *                 any queue currently).
    * \param time     The time when the timeout shall expire.
