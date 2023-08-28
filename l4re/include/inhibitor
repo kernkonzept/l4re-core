@@ -54,7 +54,7 @@ public:
    * \retval 0           Success
    * \retval -L4_ENODEV  The specified `id` does not exist.
    */
-  L4_INLINE_RPC(long, acquire, (l4_umword_t id, L4::Ipc::String<> reason));
+  L4_INLINE_RPC(l4_ret_t, acquire, (l4_umword_t id, L4::Ipc::String<> reason));
 
   /**
    * \brief Release a specific inhibitor lock.
@@ -64,7 +64,7 @@ public:
    * \retval 0           Success
    * \retval -L4_ENODEV  Lock with the given `id` does not exist.
    */
-  L4_INLINE_RPC(long, release, (l4_umword_t id));
+  L4_INLINE_RPC(l4_ret_t, release, (l4_umword_t id));
 
   /**
    * \brief Get information for the next available inhibitor lock.
@@ -81,19 +81,19 @@ public:
    *                     inhibitor lock).
    * \retval -L4_ENODEV  There are no more locks.
    */
-  long next_lock_info(char *name, unsigned len, l4_mword_t current_id = -1,
-                      l4_utcb_t *utcb = l4_utcb())
+  l4_ret_t next_lock_info(char *name, unsigned len, l4_mword_t current_id = -1,
+                          l4_utcb_t *utcb = l4_utcb())
   {
     L4::Ipc::String<char> name_buf(len , name);
-    long r = next_lock_info_t::call(c(), &current_id, name_buf, utcb);
+    l4_ret_t r = next_lock_info_t::call(c(), &current_id, name_buf, utcb);
     if (r < 0)
       return r;
 
     return current_id;
   }
 
-  L4_INLINE_RPC_NF(long, next_lock_info, (L4::Ipc::In_out<l4_mword_t *> current_id,
-                                          L4::Ipc::String<char> &name));
+  L4_INLINE_RPC_NF(l4_ret_t, next_lock_info, (L4::Ipc::In_out<l4_mword_t *> current_id,
+                                              L4::Ipc::String<char> &name));
 
   typedef L4::Typeid::Rpcs<acquire_t, release_t, next_lock_info_t> Rpcs;
 };

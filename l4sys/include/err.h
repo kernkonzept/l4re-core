@@ -12,6 +12,7 @@
 #pragma once
 
 #include <l4/sys/compiler.h>
+#include <l4/sys/types.h>
 
 /**
  * \defgroup l4_error_api Error codes

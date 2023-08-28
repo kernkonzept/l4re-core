@@ -47,7 +47,7 @@ public:
     return m.release();
   }
 
-  int unmap(Dma_addr dma_addr, l4_size_t, Attributes, Direction) override
+  l4_ret_t unmap(Dma_addr dma_addr, l4_size_t, Attributes, Direction) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -255,7 +255,7 @@ public:
     return node.release();
   }
 
-  int unmap(Dma_addr dma_addr, l4_size_t, Attributes, Direction) override
+  l4_ret_t unmap(Dma_addr dma_addr, l4_size_t, Attributes, Direction) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -288,7 +288,7 @@ static Dataspace *_get_ds(L4::Ipc::Snd_fpage src_cap)
   return src;
 }
 
-long
+l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
                   L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
                   l4_size_t &size, Attributes attrs, Direction dir,
@@ -303,7 +303,7 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
   return 0;
 }
 
-long
+l4_ret_t
 Dma_space::op_unmap(L4Re::Dma_space::Rights,
                     Dma_addr dma_addr, l4_size_t size,
                     Attributes attrs, Direction dir)
@@ -314,7 +314,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
   return _mapper->unmap(dma_addr, size, attrs, dir);
 }
 
-long
+l4_ret_t
 Dma_space::op_associate(L4Re::Dma_space::Rights,
                         L4::Ipc::Snd_fpage dma_task,
                         Space_attribs attr)
@@ -356,7 +356,7 @@ Dma_space::op_associate(L4Re::Dma_space::Rights,
     }
 }
 
-long
+l4_ret_t
 Dma_space::op_disassociate(L4Re::Dma_space::Rights)
 {
   if (!_mapper)

@@ -100,7 +100,7 @@ Moe::Dataspace_noncont::address(l4_addr_t offset, Flags flags, l4_addr_t,
                                 l4_addr_t, l4_addr_t) const
 { return map_address(offset, flags); }
 
-int
+l4_ret_t
 Moe::Dataspace_noncont::copy_address(l4_addr_t offset, Flags flags,
                                      l4_addr_t *addr, unsigned long *size) const
 {
@@ -113,7 +113,7 @@ Moe::Dataspace_noncont::copy_address(l4_addr_t offset, Flags flags,
   return 0;
 }
 
-int
+l4_ret_t
 Moe::Dataspace_noncont::pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights)
 {
   if (!check_range(offset, size))
@@ -131,7 +131,7 @@ Moe::Dataspace_noncont::pre_allocate(l4_addr_t offset, l4_size_t size, unsigned 
   return 0;
 }
 
-long
+l4_ret_t
 Moe::Dataspace_noncont::clear(unsigned long offs, unsigned long size) const noexcept
 {
   if (!check_limit(offs))

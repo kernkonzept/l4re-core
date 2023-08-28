@@ -22,7 +22,7 @@ cap_to_vfs_object(L4::Cap<void> o, int *err)
   long proto = 0;
   char name_buf[256];
   L4::Ipc::String<char> name(sizeof(name_buf), name_buf);
-  int r = l4_error(m->interface(0, &proto, &name));
+  l4_ret_t r = l4_error(m->interface(0, &proto, &name));
   *err = -ENOPROTOOPT;
   if (r < 0)
     // could not get type of object so bail out

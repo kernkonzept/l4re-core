@@ -38,23 +38,23 @@ public:
 
   static int color_value(cxx::String const &col);
 
-  int op_bind(L4::Icu::Rights, l4_umword_t,
+  l4_ret_t op_bind(L4::Icu::Rights, l4_umword_t,
               L4::Ipc::Snd_fpage)
   { return -L4_ENOSYS; }
 
-  int op_unbind(L4::Icu::Rights, l4_umword_t,
+  l4_ret_t op_unbind(L4::Icu::Rights, l4_umword_t,
                 L4::Ipc::Snd_fpage)
   { return -L4_ENOSYS; }
-  int op_info(L4::Icu::Rights, L4::Icu::_Info &)
+  l4_ret_t op_info(L4::Icu::Rights, L4::Icu::_Info &)
   { return -L4_ENOSYS; }
-  int op_msi_info(L4::Icu::Rights, l4_umword_t, l4_uint64_t,
+  l4_ret_t op_msi_info(L4::Icu::Rights, l4_umword_t, l4_uint64_t,
                   l4_icu_msi_info_t &)
   { return -L4_ENOSYS; }
-  int op_mask(L4::Icu::Rights, l4_umword_t)
+  l4_ret_t op_mask(L4::Icu::Rights, l4_umword_t)
   { return -L4_ENOSYS; }
-  int op_unmask(L4::Icu::Rights, l4_umword_t)
+  l4_ret_t op_unmask(L4::Icu::Rights, l4_umword_t)
   { return -L4_ENOSYS; }
-  int op_set_mode(L4::Icu::Rights, l4_umword_t, l4_umword_t)
+  l4_ret_t op_set_mode(L4::Icu::Rights, l4_umword_t, l4_umword_t)
   { return -L4_ENOSYS; }
 
   l4_msgtag_t op_dispatch(l4_utcb_t *utcb, l4_msgtag_t tag, L4::Vcon::Rights);

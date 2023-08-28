@@ -23,7 +23,7 @@ L4_RPC_DEF(L4Re::Namespace::unlink);
 
 namespace L4Re {
 
-long
+l4_ret_t
 Namespace::_query(char const *name, unsigned len,
                   L4::Cap<void> const &target,
                   l4_umword_t *local_id, bool iterate) const noexcept
@@ -62,7 +62,7 @@ Namespace::_query(char const *name, unsigned len,
   return _name.length;
 }
 
-long
+l4_ret_t
 Namespace::query(char const *name, unsigned len, L4::Cap<void> const &target,
                  int timeout, l4_umword_t *local_id, bool iterate) const noexcept
 {
@@ -72,7 +72,7 @@ Namespace::query(char const *name, unsigned len, L4::Cap<void> const &target,
   if (L4_UNLIKELY(timeout < 0))
     return -L4_EINVAL;
 
-  long ret;
+  l4_ret_t ret;
   long rem = timeout;
   long to = 0;
 
@@ -110,7 +110,7 @@ Namespace::query(char const *name, unsigned len, L4::Cap<void> const &target,
   while (486);
 }
 
-long
+l4_ret_t
 Namespace::query(char const *name, L4::Cap<void> const &target,
                  int timeout, l4_umword_t *local_id,
                  bool iterate) const noexcept

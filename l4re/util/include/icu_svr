@@ -28,21 +28,21 @@ private:
 public:
   L4_RPC_LEGACY_DISPATCH(L4::Icu);
 
-  int op_bind(L4::Icu::Rights, l4_umword_t irqnum,
-              L4::Ipc::Snd_fpage irq_fp);
-  int op_unbind(L4::Icu::Rights, l4_umword_t irqnum,
-                L4::Ipc::Snd_fpage irq_fp);
-  int op_info(L4::Icu::Rights, L4::Icu::_Info &info);
-  int op_msi_info(L4::Icu::Rights, l4_umword_t irqnum,
-                  l4_uint64_t source, l4_icu_msi_info_t &info);
-  int op_mask(L4::Icu::Rights, l4_umword_t irqnum);
-  int op_unmask(L4::Icu::Rights, l4_umword_t irqnum);
-  int op_set_mode(L4::Icu::Rights, l4_umword_t, l4_umword_t)
+  l4_ret_t op_bind(L4::Icu::Rights, l4_umword_t irqnum,
+                   L4::Ipc::Snd_fpage irq_fp);
+  l4_ret_t op_unbind(L4::Icu::Rights, l4_umword_t irqnum,
+                     L4::Ipc::Snd_fpage irq_fp);
+  l4_ret_t op_info(L4::Icu::Rights, L4::Icu::_Info &info);
+  l4_ret_t op_msi_info(L4::Icu::Rights, l4_umword_t irqnum,
+                       l4_uint64_t source, l4_icu_msi_info_t &info);
+  l4_ret_t op_mask(L4::Icu::Rights, l4_umword_t irqnum);
+  l4_ret_t op_unmask(L4::Icu::Rights, l4_umword_t irqnum);
+  l4_ret_t op_set_mode(L4::Icu::Rights, l4_umword_t, l4_umword_t)
   { return 0; }
 };
 
 template<typename ICU> inline
-int
+l4_ret_t
 Icu_svr<ICU>::op_bind(L4::Icu::Rights, l4_umword_t irqnum,
                       L4::Ipc::Snd_fpage irq_fp)
 {
@@ -54,7 +54,7 @@ Icu_svr<ICU>::op_bind(L4::Icu::Rights, l4_umword_t irqnum,
 }
 
 template<typename ICU> inline
-int
+l4_ret_t
 Icu_svr<ICU>::op_unbind(L4::Icu::Rights, l4_umword_t irqnum,
                         L4::Ipc::Snd_fpage irq_fp)
 {
@@ -66,7 +66,7 @@ Icu_svr<ICU>::op_unbind(L4::Icu::Rights, l4_umword_t irqnum,
 }
 
 template<typename ICU> inline
-int
+l4_ret_t
 Icu_svr<ICU>::op_info(L4::Icu::Rights, L4::Icu::_Info &info)
 {
   l4_icu_info_t i;
@@ -78,7 +78,7 @@ Icu_svr<ICU>::op_info(L4::Icu::Rights, L4::Icu::_Info &info)
 }
 
 template<typename ICU> inline
-int
+l4_ret_t
 Icu_svr<ICU>::op_msi_info(L4::Icu::Rights, l4_umword_t irqnum,
                           l4_uint64_t source, l4_icu_msi_info_t &info)
 {
@@ -89,7 +89,7 @@ Icu_svr<ICU>::op_msi_info(L4::Icu::Rights, l4_umword_t irqnum,
 }
 
 template<typename ICU> inline
-int
+l4_ret_t
 Icu_svr<ICU>::op_mask(L4::Icu::Rights, l4_umword_t irqnum)
 {
   typename ICU::Irq *irq = this_icu()->icu_get_irq(irqnum);
@@ -99,7 +99,7 @@ Icu_svr<ICU>::op_mask(L4::Icu::Rights, l4_umword_t irqnum)
 }
 
 template<typename ICU> inline
-int
+l4_ret_t
 Icu_svr<ICU>::op_unmask(L4::Icu::Rights, l4_umword_t irqnum)
 {
   typename ICU::Irq *irq = this_icu()->icu_get_irq(irqnum);
@@ -135,12 +135,12 @@ public:
         _cap->trigger();
     }
 
-    int bind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);
-    int unbind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);
+    l4_ret_t bind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);
+    l4_ret_t unbind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);
     void mask(bool /*mask*/) const
     { }
 
-    int msi_info(l4_uint64_t, l4_icu_msi_info_t *) const
+    l4_ret_t msi_info(l4_uint64_t, l4_icu_msi_info_t *) const
     { return -L4_EINVAL; }
 
     L4::Cap<L4::Irq> cap() const { return _cap; }
@@ -176,7 +176,7 @@ public:
 };
 
 template< typename ICU >
-int
+l4_ret_t
 Icu_cap_array_svr<ICU>::Irq::bind(ICU *cfb, L4::Ipc::Snd_fpage const &irq_fp)
 {
   if (!irq_fp.cap_received())
@@ -196,7 +196,7 @@ Icu_cap_array_svr<ICU>::Irq::bind(ICU *cfb, L4::Ipc::Snd_fpage const &irq_fp)
 }
 
 template< typename ICU >
-int
+l4_ret_t
 Icu_cap_array_svr<ICU>::Irq::unbind(ICU *, L4::Ipc::Snd_fpage const &/*irq_fp*/)
 {
   ICU::free_irq_cap(_cap);

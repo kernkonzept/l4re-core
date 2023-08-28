@@ -182,12 +182,12 @@ public:
                         l4_utcb_t *thread_utcb,
                         Thread_signal_handler *parent);
 
-  long op_page_fault(L4::Pager::Rights rights, l4_umword_t addr, l4_umword_t pc,
-                     L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
+  l4_ret_t op_page_fault(L4::Pager::Rights rights, l4_umword_t addr, l4_umword_t pc,
+                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
 
-  long op_io_page_fault(L4::Io_pager::Rights,
-                        l4_fpage_t io_pfa, l4_umword_t pc,
-                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
+  l4_ret_t op_io_page_fault(L4::Io_pager::Rights,
+                            l4_fpage_t io_pfa, l4_umword_t pc,
+                            L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
 
   l4_ret_t op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
@@ -212,7 +212,7 @@ public:
 private:
   void return_from_signal(l4_exc_regs_t &regs);
   l4_ret_t deliver_pending_signals(l4_exc_regs_t &regs);
-  long ensure_stack_writable(l4_umword_t pc, l4_addr_t top, l4_addr_t bottom);
+  l4_ret_t ensure_stack_writable(l4_umword_t pc, l4_addr_t top, l4_addr_t bottom);
   cxx::unique_ptr<Pending_signal> fetch_pending_signal();
   l4_ret_t call_default_action(siginfo_t const &si, l4_exc_regs_t const *regs);
   l4_ret_t stack_overflow(l4_addr_t sp);
@@ -314,44 +314,44 @@ public:
                                          l4_utcb_t *thread_utcb,
                                          Thread_signal_handler *parent = nullptr);
 
-  long op_register_thread(L4Re::Itas::Rights,
-                          L4::Ipc::Snd_fpage parent,
-                          L4::Ipc::Snd_fpage thread_cap,
-                          l4_addr_t thread_utcb);
+  l4_ret_t op_register_thread(L4Re::Itas::Rights,
+                              L4::Ipc::Snd_fpage parent,
+                              L4::Ipc::Snd_fpage thread_cap,
+                              l4_addr_t thread_utcb);
 
-  long op_unregister_thread(L4Re::Itas::Rights,
-                            L4::Ipc::Snd_fpage thread);
+  l4_ret_t op_unregister_thread(L4Re::Itas::Rights,
+                                L4::Ipc::Snd_fpage thread);
 
-  long op_sigaction(L4Re::Itas::Rights,
-                    int signum,
-                    const struct sigaction &act,
-                    struct sigaction &oldact);
+  l4_ret_t op_sigaction(L4Re::Itas::Rights,
+                        int signum,
+                        const struct sigaction &act,
+                        struct sigaction &oldact);
 
-  long op_sigaltstack(L4Re::Itas::Rights,
-                      L4::Ipc::Snd_fpage thread,
-                      const struct sigaltstack &ss,
-                      struct sigaltstack &oss);
+  l4_ret_t op_sigaltstack(L4Re::Itas::Rights,
+                          L4::Ipc::Snd_fpage thread,
+                          const struct sigaltstack &ss,
+                          struct sigaltstack &oss);
 
-  long op_sigprocmask(L4Re::Itas::Rights,
-                      L4::Ipc::Snd_fpage thread,
-                      int how, sigset_t const &set, sigset_t &oldset);
+  l4_ret_t op_sigprocmask(L4Re::Itas::Rights,
+                          L4::Ipc::Snd_fpage thread,
+                          int how, sigset_t const &set, sigset_t &oldset);
 
-  long op_sigpending(L4Re::Itas::Rights,
-                     L4::Ipc::Snd_fpage thread,
-                     sigset_t &set);
+  l4_ret_t op_sigpending(L4Re::Itas::Rights,
+                         L4::Ipc::Snd_fpage thread,
+                         sigset_t &set);
 
-  long op_setitimer(L4Re::Itas::Rights,
-                    int which,
-                    const struct itimerval &new_value,
-                    struct itimerval &old_value);
+  l4_ret_t op_setitimer(L4Re::Itas::Rights,
+                        int which,
+                        const struct itimerval &new_value,
+                        struct itimerval &old_value);
 
-  long op_getitimer(L4Re::Itas::Rights,
-                    int which,
-                    struct itimerval &curr_value);
+  l4_ret_t op_getitimer(L4Re::Itas::Rights,
+                        int which,
+                        struct itimerval &curr_value);
 
-  long op_raise(L4Re::Itas::Rights,
-                L4::Ipc::Snd_fpage thread,
-                int sig);
+  l4_ret_t op_raise(L4Re::Itas::Rights,
+                    L4::Ipc::Snd_fpage thread,
+                    int sig);
 
   void stop_all_threads();
 

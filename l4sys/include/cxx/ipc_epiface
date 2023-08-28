@@ -412,10 +412,10 @@ using namespace L4::Typeid;
 template<typename IFACE>
 struct Meta_svr
 {
-  long op_num_interfaces(L4::Meta::Rights)
+  l4_ret_t op_num_interfaces(L4::Meta::Rights)
   { return 1; }
 
-  long op_interface(L4::Meta::Rights, l4_umword_t ifx, long &proto, L4::Ipc::String<char> &name)
+  l4_ret_t op_interface(L4::Meta::Rights, l4_umword_t ifx, long &proto, L4::Ipc::String<char> &name)
   {
     if (ifx > 0)
       return -L4_ERANGE;
@@ -426,7 +426,7 @@ struct Meta_svr
     return 0;
   }
 
-  long op_supports(L4::Meta::Rights, l4_mword_t proto)
+  l4_ret_t op_supports(L4::Meta::Rights, l4_mword_t proto)
   { return L4::kobject_typeid<IFACE>()->has_proto(proto); }
 };
 

@@ -154,9 +154,9 @@ public:
    * \retval -L4_ENOMEM  Not enough memory available.
    * \retval <0          IPC error
    */
-  long alloc(long size, L4::Cap<Dataspace> mem,
-             unsigned long flags = 0, unsigned long align = 0,
-             l4_addr_t paddr = 0) const noexcept;
+  l4_ret_t alloc(long size, L4::Cap<Dataspace> mem,
+                 unsigned long flags = 0, unsigned long align = 0,
+                 l4_addr_t paddr = 0) const noexcept;
 
   /**
    * Get allocator information.

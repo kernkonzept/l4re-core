@@ -15,7 +15,7 @@ Remote_access ra_if;
 static l4_addr_t last_pfn = ~0ul;
 
 // This is an intermediate solution, to be improved.
-static long pagein(l4_addr_t addr, bool with_write, bool with_exec)
+static l4_ret_t pagein(l4_addr_t addr, bool with_write, bool with_exec)
 {
   if (l4_trunc_page(addr) != last_pfn)
     {
@@ -33,7 +33,7 @@ static long pagein(l4_addr_t addr, bool with_write, bool with_exec)
           L4::Ipc::Opt<L4::Ipc::Snd_fpage> fp;
           // We could split op_page_fault function to avoid the find in
           // there which we just did.
-          long ret = Global::local_rm->op_page_fault(0, addr, 0, fp);
+          l4_ret_t ret = Global::local_rm->op_page_fault(0, addr, 0, fp);
           if (ret)
             return ret;
         }
@@ -43,10 +43,10 @@ static long pagein(l4_addr_t addr, bool with_write, bool with_exec)
   return 0;
 }
 
-long Remote_access::op_read_mem(L4Re::Remote_access::Rights,
-                                l4_addr_t addr, char width, l4_uint64_t &val)
+l4_ret_t Remote_access::op_read_mem(L4Re::Remote_access::Rights,
+                                    l4_addr_t addr, char width, l4_uint64_t &val)
 {
-  if (long r = pagein(addr, 0, 0))
+  if (l4_ret_t r = pagein(addr, 0, 0))
     return r;
 
   switch (width)
@@ -66,24 +66,24 @@ long Remote_access::op_read_mem(L4Re::Remote_access::Rights,
   return 0;
 }
 
-long Remote_access::op_write_mem(L4Re::Remote_access::Rights,
-                                 l4_addr_t addr, char width, l4_uint64_t val)
+l4_ret_t Remote_access::op_write_mem(L4Re::Remote_access::Rights,
+                                     l4_addr_t addr, char width, l4_uint64_t val)
 {
   printf("Remote_access::op_write_mem(%lx, %d, %llx): Not yet.\n", addr, width, val);
   return -L4_ENOSYS;
 }
 
-long Remote_access::op_terminate(L4Re::Remote_access::Rights, int exit_code)
+l4_ret_t Remote_access::op_terminate(L4Re::Remote_access::Rights, int exit_code)
 {
   exit(exit_code);
   return 0;
 }
 
-int Remote_access::op_map(L4Re::Dataspace::Rights,
-                          L4Re::Dataspace::Offset offset,
-                          L4Re::Dataspace::Map_addr spot,
-                          [[maybe_unused]] L4Re::Dataspace::Flags flags,
-                          L4::Ipc::Snd_fpage &fp)
+l4_ret_t Remote_access::op_map(L4Re::Dataspace::Rights,
+                               L4Re::Dataspace::Offset offset,
+                               L4Re::Dataspace::Map_addr spot,
+                               [[maybe_unused]] L4Re::Dataspace::Flags flags,
+                               L4::Ipc::Snd_fpage &fp)
 {
   offset = l4_trunc_page(offset);
 
@@ -98,7 +98,7 @@ int Remote_access::op_map(L4Re::Dataspace::Rights,
 
   l4_addr_t last_plus_1_page = offset + (L4_PAGESHIFT << order);
   for (l4_addr_t page = offset; page < last_plus_1_page; page += L4_PAGESIZE)
-    if (long r = pagein(offset, rights & L4_FPAGE_W, 0))
+    if (l4_ret_t r = pagein(offset, rights & L4_FPAGE_W, 0))
       return r;
 
   fp = L4::Ipc::Snd_fpage::mem(l4_trunc_size(offset, order), order,

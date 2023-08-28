@@ -66,7 +66,7 @@ enum l4re_ma_flags {
  *
  * \note This function is using the L4Re::Env::env()->mem_alloc() service.
  */
-L4_CV L4_INLINE long
+L4_CV L4_INLINE l4_ret_t
 l4re_ma_alloc(long size, l4re_ds_t const mem,
               unsigned long flags) L4_NOTHROW;
 
@@ -103,7 +103,7 @@ l4re_ma_alloc(long size, l4re_ds_t const mem,
  *
  * \note This function is using the L4Re::Env::env()->mem_alloc() service.
  */
-L4_CV L4_INLINE long
+L4_CV L4_INLINE l4_ret_t
 l4re_ma_alloc_align(long size, l4re_ds_t const mem,
                     unsigned long flags, unsigned long align) L4_NOTHROW;
 
@@ -125,14 +125,14 @@ l4re_ma_alloc_align(long size, l4re_ds_t const mem,
  *
  * The memory allocator returns a dataspace.
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_ma_alloc_align_srv(l4_cap_idx_t srv, long size,
                         l4re_ds_t const mem, unsigned long flags,
                         unsigned long align) L4_NOTHROW;
 
 /***************** Implementation *****************/
 
-L4_CV L4_INLINE long
+L4_CV L4_INLINE l4_ret_t
 l4re_ma_alloc(long size, l4re_ds_t const mem,
               unsigned long flags) L4_NOTHROW
 {
@@ -140,7 +140,7 @@ l4re_ma_alloc(long size, l4re_ds_t const mem,
                                  flags, 0);
 }
 
-L4_CV L4_INLINE long
+L4_CV L4_INLINE l4_ret_t
 l4re_ma_alloc_align(long size, l4re_ds_t const mem,
                     unsigned long flags, unsigned long align) L4_NOTHROW
 {

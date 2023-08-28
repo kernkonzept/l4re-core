@@ -273,15 +273,15 @@ public:
    * (with \a flags = L4Re::Rm::F::Search_addr), the space between \a start and
    * the end of the virtual address space is searched.
    */
-  long reserve_area(l4_addr_t *start, unsigned long size,
-                    Flags flags = Flags(0),
-                    unsigned char align = L4_PAGESHIFT) const noexcept
+  l4_ret_t reserve_area(l4_addr_t *start, unsigned long size,
+                        Flags flags = Flags(0),
+                        unsigned char align = L4_PAGESHIFT) const noexcept
   { return reserve_area_t::call(c(), start, size, flags, align); }
 
-  L4_RPC_NF(long, reserve_area, (L4::Ipc::In_out<l4_addr_t *> start,
-                                 unsigned long size,
-                                 Flags flags,
-                                 unsigned char align));
+  L4_RPC_NF(l4_ret_t, reserve_area, (L4::Ipc::In_out<l4_addr_t *> start,
+                                     unsigned long size,
+                                     Flags flags,
+                                     unsigned char align));
 
   /**
    * Reserve the given area in the region map.
@@ -301,9 +301,9 @@ public:
    * \see L4Re::Rm::reserve_area.
    */
   template<typename T>
-  long reserve_area(T **start, unsigned long size,
-                    Flags flags = Flags(0),
-                    unsigned char align = L4_PAGESHIFT) const noexcept
+  l4_ret_t reserve_area(T **start, unsigned long size,
+                        Flags flags = Flags(0),
+                        unsigned char align = L4_PAGESHIFT) const noexcept
   {
     return reserve_area_t::call(c(), reinterpret_cast<l4_addr_t*>(start), size,
                                 flags, align);
@@ -322,18 +322,18 @@ public:
    *       this operation.
    * \see reserve_area() for more information about areas.
    */
-  L4_RPC(long, free_area, (l4_addr_t addr));
+  L4_RPC(l4_ret_t, free_area, (l4_addr_t addr));
 
-  L4_RPC_NF(long, attach, (L4::Ipc::In_out<l4_addr_t *> start,
-                           unsigned long size, Flags flags,
-                           L4::Ipc::Opt<L4::Ipc::Cap<Dataspace>> mem,
-                           Offset offs, unsigned char align,
-                           L4::Ipc::Opt<l4_cap_idx_t> client_cap,
-                           L4::Ipc::String<> name, Offset backing_offset));
+  L4_RPC_NF(l4_ret_t, attach, (L4::Ipc::In_out<l4_addr_t *> start,
+                               unsigned long size, Flags flags,
+                               L4::Ipc::Opt<L4::Ipc::Cap<Dataspace>> mem,
+                               Offset offs, unsigned char align,
+                               L4::Ipc::Opt<l4_cap_idx_t> client_cap,
+                               L4::Ipc::String<> name, Offset backing_offset));
 
-  L4_RPC_NF(long, detach, (l4_addr_t addr, unsigned long size, unsigned flags,
-                           l4_addr_t &start, l4_addr_t &rsize,
-                           l4_cap_idx_t &mem_cap));
+  L4_RPC_NF(l4_ret_t, detach, (l4_addr_t addr, unsigned long size, unsigned flags,
+                               l4_addr_t &start, l4_addr_t &rsize,
+                               l4_cap_idx_t &mem_cap));
 
   /**
    * Attach a data space to a region.
@@ -393,25 +393,25 @@ public:
    * \note There is no region object created, instead the region is
    *       defined by a virtual address within this range (see #L4Re::Rm::find).
    */
-  long attach(l4_addr_t *start, unsigned long size, Flags flags,
-              L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT,
-              L4::Cap<L4::Task> const task
-                = L4::Cap<L4::Task>::Invalid,
-              char const *name = nullptr,
-              Offset backing_offset = 0) const noexcept;
+  l4_ret_t attach(l4_addr_t *start, unsigned long size, Flags flags,
+                  L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
+                  unsigned char align = L4_PAGESHIFT,
+                  L4::Cap<L4::Task> const task
+                  = L4::Cap<L4::Task>::Invalid,
+                  char const *name = nullptr,
+                  Offset backing_offset = 0) const noexcept;
 
   /**
    * \copydoc L4Re::Rm::attach
    */
   template<typename T>
-  long attach(T **start, unsigned long size, Flags flags,
-              L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT,
-              L4::Cap<L4::Task> const task
-                = L4::Cap<L4::Task>::Invalid,
-              char const *name = nullptr,
-              Offset backing_offset = 0) const noexcept
+  l4_ret_t attach(T **start, unsigned long size, Flags flags,
+                  L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
+                  unsigned char align = L4_PAGESHIFT,
+                  L4::Cap<L4::Task> const task
+                  = L4::Cap<L4::Task>::Invalid,
+                  char const *name = nullptr,
+                  Offset backing_offset = 0) const noexcept
   {
     union X { l4_addr_t a; T* t; };
     X *x = reinterpret_cast<X*>(start);
@@ -556,13 +556,13 @@ public:
   };
 
   template<typename T>
-  long attach(Unique_region<T> *start, unsigned long size, Flags flags,
-              L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT,
-              L4::Cap<L4::Task> const task
-                = L4::Cap<L4::Task>::Invalid,
-              char const *name = nullptr,
-              Offset backing_offset = 0) const noexcept
+  l4_ret_t attach(Unique_region<T> *start, unsigned long size, Flags flags,
+                  L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
+                  unsigned char align = L4_PAGESHIFT,
+                  L4::Cap<L4::Task> const task
+                  = L4::Cap<L4::Task>::Invalid,
+                  char const *name = nullptr,
+                  Offset backing_offset = 0) const noexcept
   {
     l4_addr_t addr = reinterpret_cast<l4_addr_t>(start->get());
 
@@ -593,14 +593,14 @@ public:
    * Frees a region in the virtual address space given by addr (address type).
    * The corresponding part of the address space is now available again.
    */
-  int detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> const &task = This_task) const noexcept;
+  l4_ret_t detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
+                  L4::Cap<L4::Task> const &task = This_task) const noexcept;
 
   /**
    * \copydoc L4Re::Rm::detach
    */
-  int detach(void *addr, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> const &task = This_task) const noexcept;
+  l4_ret_t detach(void *addr, L4::Cap<Dataspace> *mem,
+                  L4::Cap<L4::Task> const &task = This_task) const noexcept;
 
   /**
    * Detach and unmap all parts of the regions within the specified interval.
@@ -621,8 +621,8 @@ public:
    * detached partly. If the interval is within one region the original region
    * is split up into two separate regions.
    */
-  int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> const &task) const noexcept;
+  l4_ret_t detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
+                  L4::Cap<L4::Task> const &task) const noexcept;
 
   /**
    * Find a region given an address and size.
@@ -668,14 +668,14 @@ public:
    *       region can be determined unambiguously.
    *
    */
-  long find(l4_addr_t *addr, unsigned long *size, Offset *offset,
-            L4Re::Rm::Flags *flags, L4::Cap<Dataspace> *m) noexcept
+  l4_ret_t find(l4_addr_t *addr, unsigned long *size, Offset *offset,
+                L4Re::Rm::Flags *flags, L4::Cap<Dataspace> *m) noexcept
   { return find_t::call(c(), addr, size, flags, offset, m); }
 
-  L4_RPC_NF(long, find, (L4::Ipc::In_out<l4_addr_t *> addr,
-                         L4::Ipc::In_out<unsigned long *> size,
-                         L4Re::Rm::Flags *flags, Offset *offset,
-                         L4::Ipc::As_value<L4::Cap<Dataspace>> *m));
+  L4_RPC_NF(l4_ret_t, find, (L4::Ipc::In_out<l4_addr_t *> addr,
+                             L4::Ipc::In_out<unsigned long *> size,
+                             L4Re::Rm::Flags *flags, Offset *offset,
+                             L4::Ipc::As_value<L4::Cap<Dataspace>> *m));
 
   /**
    * A region is a range of virtual addresses which is backed by content.
@@ -715,7 +715,7 @@ public:
    *       shall use the function repeatedly with a start address one larger
    *       that the end address of the last region from the previous call.
    */
-  L4_RPC(long, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Region> regions));
+  L4_RPC(l4_ret_t, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Region> regions));
 
   /**
    * Return the list of areas whose starting addresses are higher or equal to
@@ -746,11 +746,11 @@ public:
    * \retval -L4_ENOSYS  Function not available.
    * \retval <0          IPC errors
    */
-  L4_RPC(long, get_info, (l4_addr_t addr, L4::Ipc::String<char> &name,
-                          Offset &backing_offset));
+  L4_RPC(l4_ret_t, get_info, (l4_addr_t addr, L4::Ipc::String<char> &name,
+                              Offset &backing_offset));
 
-  int detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
-             L4::Cap<L4::Task> task, unsigned flags) const noexcept;
+  l4_ret_t detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
+                  L4::Cap<L4::Task> task, unsigned flags) const noexcept;
 
   typedef L4::Typeid::Rpcs<attach_t, detach_t, find_t,
                            reserve_area_t, free_area_t,
@@ -758,12 +758,12 @@ public:
                            get_info_t> Rpcs;
 };
 
-inline int
+inline l4_ret_t
 Rm::detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
            L4::Cap<L4::Task> const &task) const noexcept
 {  return detach(addr, 1, mem, task, Detach_overlap); }
 
-inline int
+inline l4_ret_t
 Rm::detach(void *addr, L4::Cap<Dataspace> *mem,
            L4::Cap<L4::Task> const &task) const noexcept
 {
@@ -771,7 +771,7 @@ Rm::detach(void *addr, L4::Cap<Dataspace> *mem,
                 Detach_overlap);
 }
 
-inline int
+inline l4_ret_t
 Rm::detach(l4_addr_t addr, unsigned long size, L4::Cap<Dataspace> *mem,
            L4::Cap<L4::Task> const &task) const noexcept
 {  return detach(addr, size, mem, task, Detach_exact); }

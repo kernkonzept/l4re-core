@@ -23,7 +23,7 @@
 #include <cstring>
 using cxx::min;
 
-int
+l4_ret_t
 Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, Flags flags,
                     l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory)
 {
@@ -61,7 +61,7 @@ Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, Flags flags,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Moe::Dataspace::op_map(L4Re::Dataspace::Rights rights,
                        L4Re::Dataspace::Offset offset,
                        L4Re::Dataspace::Map_addr spot,
@@ -80,7 +80,7 @@ Moe::Dataspace::op_map(L4Re::Dataspace::Rights rights,
   if (!mf.x() && flags.x())
     return -L4_EPERM;
 
-  long ret = map(offset, spot, flags & mf, 0, ~0, fp);
+  l4_ret_t ret = map(offset, spot, flags & mf, 0, ~0, fp);
 
   if (0)
     L4::cout << "MAP: " << L4::hex << reinterpret_cast<unsigned long *>(&fp)[0]
@@ -91,7 +91,7 @@ Moe::Dataspace::op_map(L4Re::Dataspace::Rights rights,
   return ret;
 };
 
-long
+l4_ret_t
 Moe::Dataspace::op_copy_in(L4Re::Dataspace::Rights obj,
                            L4Re::Dataspace::Offset dst_offs,
                            L4::Ipc::Snd_fpage const &src_cap,
@@ -117,7 +117,7 @@ Moe::Dataspace::op_copy_in(L4Re::Dataspace::Rights obj,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Moe::Dataspace::map_info(l4_addr_t &, l4_addr_t &) const noexcept
 {
 #ifdef CONFIG_MMU
@@ -127,13 +127,13 @@ Moe::Dataspace::map_info(l4_addr_t &, l4_addr_t &) const noexcept
 #endif
 }
 
-long
+l4_ret_t
 Moe::Dataspace::op_map_info(L4Re::Dataspace::Rights /*rights*/,
                             l4_addr_t &start_addr,
                             l4_addr_t &end_addr)
 { return map_info(start_addr, end_addr); }
 
-long
+l4_ret_t
 Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const noexcept
 {
   if (!check_limit(offs))
@@ -160,7 +160,7 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const noexcept
   return 0;
 }
 
-int
+l4_ret_t
 Moe::Dataspace::dma_map(Dma_space *, l4_addr_t, l4_size_t *,
                         Dma_attribs, Dma_space::Direction,
                         Dma_space::Dma_addr *)

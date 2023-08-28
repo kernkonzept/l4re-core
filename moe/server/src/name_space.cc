@@ -160,7 +160,7 @@ Name_space::find_iter(Entry::Name const &pname) const
 }
 
 
-int
+l4_ret_t
 Name_space::op_register_obj(L4Re::Namespace::Rights, unsigned flags,
                             Name_buffer const &name, L4::Ipc::Snd_fpage &cap)
 {
@@ -199,7 +199,7 @@ Name_space::op_register_obj(L4Re::Namespace::Rights, unsigned flags,
   return L4_EOK;
 }
 
-int
+l4_ret_t
 Name_space::op_unlink(L4Re::Namespace::Rights, Name_buffer const &name)
 {
   auto *sep = static_cast<char const *>(memchr(name.data, '/', name.length));
@@ -224,7 +224,7 @@ Name_space::op_unlink(L4Re::Namespace::Rights, Name_buffer const &name)
   return L4_EOK;
 }
 
-int
+l4_ret_t
 Name_space::op_query(L4Re::Namespace::Rights,
                      Name_buffer const &name,
                      L4::Ipc::Snd_fpage &snd_cap,

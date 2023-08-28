@@ -7,7 +7,7 @@
 #include <l4/re/c/dma_space.h>
 #include <l4/re/dma_space>
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_map(l4re_dma_space_t dma, l4re_ds_t src,
                    l4re_ds_offset_t offset,
                    l4_size_t * size, unsigned long attrs,
@@ -22,7 +22,7 @@ l4re_dma_space_map(l4re_dma_space_t dma, l4re_ds_t src,
 }
 
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
                      l4_size_t size, unsigned long attrs,
                      enum l4re_dma_space_direction dir) L4_NOTHROW
@@ -33,7 +33,7 @@ l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
                   L4Re::Dma_space::Direction(dir));
 }
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t task,
                          unsigned long attrs) L4_NOTHROW
 {
@@ -46,7 +46,7 @@ l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t task,
                       L4Re::Dma_space::Space_attribs::from_raw(attrs));
 }
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_disassociate(l4re_dma_space_t dma)
 {
   L4::Cap<L4Re::Dma_space> d(dma);

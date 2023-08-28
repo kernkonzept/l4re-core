@@ -126,7 +126,7 @@ Thread_signal_handler::Thread_signal_handler(Signal_manager *mgr,
   _altstack.ss_size = 0;
 }
 
-long
+l4_ret_t
 Thread_signal_handler::op_page_fault(L4::Pager::Rights rights, l4_umword_t addr,
                                      l4_umword_t pc,
                                      L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp)
@@ -136,7 +136,7 @@ Thread_signal_handler::op_page_fault(L4::Pager::Rights rights, l4_umword_t addr,
   return Global::local_rm->op_page_fault(rights, addr, pc, fp);
 }
 
-long
+l4_ret_t
 Thread_signal_handler::op_io_page_fault(L4::Io_pager::Rights rights,
                              l4_fpage_t io_pfa, l4_umword_t pc,
                              L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp)
@@ -276,8 +276,8 @@ Thread_signal_handler::deliver_pending_signals(l4_exc_regs_t &regs)
       // thus requires them to be present. The external region manager of ITAS
       // does not know the stack dataspace and cannot help us in case we
       // trigger a page fault.
-      long ret = ensure_stack_writable(l4_utcb_exc_pc(&regs), sig_stack,
-                                       sig_bottom);
+      l4_ret_t ret = ensure_stack_writable(l4_utcb_exc_pc(&regs), sig_stack,
+                                           sig_bottom);
       if (ret < 0)
         return ret;
 
@@ -324,7 +324,7 @@ Thread_signal_handler::deliver_pending_signals(l4_exc_regs_t &regs)
 /**
  * Make sure the pages between `top` and `bottom` are writable.
  */
-long
+l4_ret_t
 Thread_signal_handler::ensure_stack_writable(l4_umword_t pc, l4_addr_t top,
                                              l4_addr_t bottom)
 {
@@ -332,8 +332,8 @@ Thread_signal_handler::ensure_stack_writable(l4_umword_t pc, l4_addr_t top,
     {
       L4::Ipc::Opt<L4::Ipc::Snd_fpage> rfp;
       // map writable
-      long ret = Global::local_rm->op_page_fault(L4_CAP_FPAGE_W, p | 2, pc,
-                                                 rfp);
+      l4_ret_t ret = Global::local_rm->op_page_fault(L4_CAP_FPAGE_W, p | 2, pc,
+                                                     rfp);
       if (ret < 0)
         return stack_overflow(p);
 
@@ -589,8 +589,8 @@ Thread_signal_handler::dump_stack(L4Re::Util::Err const &err, l4_addr_t sp)
        remain -= L4_PAGESIZE, sp_page += L4_PAGESIZE)
     {
       L4::Ipc::Opt<L4::Ipc::Snd_fpage> rfp;
-      long ret = Global::local_rm->op_page_fault(L4_CAP_FPAGE_W, sp_page, 0,
-                                                 rfp);
+      l4_ret_t ret = Global::local_rm->op_page_fault(L4_CAP_FPAGE_W, sp_page, 0,
+                                                     rfp);
       if (ret < 0)
         {
           err.printf("--- unreadable stack region ---\n");
@@ -730,7 +730,7 @@ Signal_manager::register_thread(L4::Cap<L4::Thread> thread_cap,
   return hdl.release();
 }
 
-long
+l4_ret_t
 Signal_manager::op_register_thread(L4Re::Itas::Rights,
                                    L4::Ipc::Snd_fpage parent,
                                    L4::Ipc::Snd_fpage thread_cap,
@@ -755,7 +755,7 @@ Signal_manager::op_register_thread(L4Re::Itas::Rights,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Signal_manager::op_unregister_thread(L4Re::Itas::Rights,
                                      L4::Ipc::Snd_fpage thread)
 {
@@ -774,7 +774,7 @@ Signal_manager::op_unregister_thread(L4Re::Itas::Rights,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Signal_manager::op_sigaction(L4Re::Itas::Rights,
                              int signum,
                              const struct sigaction &act,
@@ -806,7 +806,7 @@ Signal_manager::op_sigaction(L4Re::Itas::Rights,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Signal_manager::op_sigaltstack(L4Re::Itas::Rights,
                                L4::Ipc::Snd_fpage thread,
                                const struct sigaltstack &ss,
@@ -820,7 +820,7 @@ Signal_manager::op_sigaltstack(L4Re::Itas::Rights,
   return ret;
 }
 
-long
+l4_ret_t
 Signal_manager::op_sigprocmask(L4Re::Itas::Rights,
                                L4::Ipc::Snd_fpage thread,
                                int how, sigset_t const &set, sigset_t &oldset)
@@ -856,7 +856,7 @@ Signal_manager::op_sigprocmask(L4Re::Itas::Rights,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Signal_manager::op_sigpending(L4Re::Itas::Rights,
                               L4::Ipc::Snd_fpage thread,
                               sigset_t &set)
@@ -866,7 +866,7 @@ Signal_manager::op_sigpending(L4Re::Itas::Rights,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Signal_manager::op_setitimer(L4Re::Itas::Rights,
                              int which,
                              const struct itimerval &new_value,
@@ -920,7 +920,7 @@ Signal_manager::op_setitimer(L4Re::Itas::Rights,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Signal_manager::op_getitimer(L4Re::Itas::Rights,
                              int which,
                              struct itimerval &curr_value)
@@ -954,7 +954,7 @@ Signal_manager::op_getitimer(L4Re::Itas::Rights,
   return 0;
 }
 
-long
+l4_ret_t
 Signal_manager::op_raise(L4Re::Itas::Rights, L4::Ipc::Snd_fpage thread, int sig)
 {
   return handler(thread)->raise(sig);

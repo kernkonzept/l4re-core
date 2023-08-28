@@ -54,12 +54,12 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int map(Dataspace::Offset offset,
-          Dataspace::Map_addr local_addr,
-          Dataspace::Flags flags,
-          Dataspace::Map_addr min_addr,
-          Dataspace::Map_addr max_addr,
-          L4::Ipc::Snd_fpage &memory)
+  l4_ret_t map(Dataspace::Offset offset,
+               Dataspace::Map_addr local_addr,
+               Dataspace::Flags flags,
+               Dataspace::Map_addr min_addr,
+               Dataspace::Map_addr max_addr,
+               L4::Ipc::Snd_fpage &memory)
   {
     memory = L4::Ipc::Snd_fpage();
 
@@ -107,8 +107,8 @@ public:
 
     Dataspace::Map_addr b = map_base;
     unsigned send_order = order;
-    int err = map_hook(offset /*map_base - _ds_start*/, order, flags,
-                       &b, &send_order);
+    l4_ret_t err = map_hook(offset /*map_base - _ds_start*/, order, flags,
+                            &b, &send_order);
     if (err < 0)
       return err;
 
@@ -133,11 +133,11 @@ public:
    *
    * \see map
    */
-  virtual int map_hook([[maybe_unused]] Dataspace::Offset offs,
-                       [[maybe_unused]] unsigned order,
-                       [[maybe_unused]] Dataspace::Flags flags,
-                       [[maybe_unused]] Dataspace::Map_addr *base,
-                       [[maybe_unused]] unsigned *send_order)
+  virtual l4_ret_t map_hook([[maybe_unused]] Dataspace::Offset offs,
+                            [[maybe_unused]] unsigned order,
+                            [[maybe_unused]] Dataspace::Flags flags,
+                            [[maybe_unused]] Dataspace::Map_addr *base,
+                            [[maybe_unused]] unsigned *send_order)
   {
     return 0;
   }
@@ -172,10 +172,10 @@ public:
    * \retval <0   An error occured. The error code may depend on the
    *              implementation.
    */
-  virtual long copy([[maybe_unused]] l4_addr_t dst_offs,
-                    [[maybe_unused]] l4_umword_t src_id,
-                    [[maybe_unused]] l4_addr_t src_offs,
-                    [[maybe_unused]] unsigned long size) noexcept
+  virtual l4_ret_t copy([[maybe_unused]] l4_addr_t dst_offs,
+                        [[maybe_unused]] l4_umword_t src_id,
+                        [[maybe_unused]] l4_addr_t src_offs,
+                        [[maybe_unused]] unsigned long size) noexcept
   {
     return -L4_ENODEV;
   }
@@ -189,7 +189,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  virtual long clear(unsigned long offs, unsigned long size) const noexcept
+  virtual l4_ret_t clear(unsigned long offs, unsigned long size) const noexcept
   {
     if (!check_limit(offs))
       return -L4_ERANGE;
@@ -221,9 +221,9 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  virtual long allocate([[maybe_unused]] l4_addr_t offset,
-                        [[maybe_unused]] l4_size_t size,
-                        [[maybe_unused]] unsigned access) noexcept
+  virtual l4_ret_t allocate([[maybe_unused]] l4_addr_t offset,
+                            [[maybe_unused]] l4_size_t size,
+                            [[maybe_unused]] unsigned access) noexcept
   {
     return -L4_ENODEV;
   }
@@ -256,16 +256,16 @@ public:
    *
    * \see L4Re::Dataspace::map_info()
    */
-  virtual long map_info([[maybe_unused]] l4_addr_t &start_addr,
-                        [[maybe_unused]] l4_addr_t &end_addr) noexcept
+  virtual l4_ret_t map_info([[maybe_unused]] l4_addr_t &start_addr,
+                            [[maybe_unused]] l4_addr_t &end_addr) noexcept
   { return -L4_EPERM; }
 
 
-  long op_map(L4Re::Dataspace::Rights rights,
-              L4Re::Dataspace::Offset offset,
-              L4Re::Dataspace::Map_addr spot,
-              L4Re::Dataspace::Flags flags,
-              L4::Ipc::Snd_fpage &fp)
+  l4_ret_t op_map(L4Re::Dataspace::Rights rights,
+                  L4Re::Dataspace::Offset offset,
+                  L4Re::Dataspace::Map_addr spot,
+                  L4Re::Dataspace::Flags flags,
+                  L4::Ipc::Snd_fpage &fp)
   {
     auto rf = map_flags(rights);
     if (!rf.w() && flags.w())
@@ -274,16 +274,16 @@ public:
     return map(offset, spot, flags & rf, 0, ~0, fp);
   }
 
-  long op_allocate(L4Re::Dataspace::Rights rights,
-                   L4Re::Dataspace::Offset offset,
-                   L4Re::Dataspace::Size size)
+  l4_ret_t op_allocate(L4Re::Dataspace::Rights rights,
+                       L4Re::Dataspace::Offset offset,
+                       L4Re::Dataspace::Size size)
   { return allocate(offset, size, rights & 3); }
 
-  long op_copy_in(L4Re::Dataspace::Rights rights,
-                  L4Re::Dataspace::Offset dst_offs,
-                  L4::Ipc::Snd_fpage const &src_cap,
-                  L4Re::Dataspace::Offset src_offs,
-                  L4Re::Dataspace::Size sz)
+  l4_ret_t op_copy_in(L4Re::Dataspace::Rights rights,
+                      L4Re::Dataspace::Offset dst_offs,
+                      L4::Ipc::Snd_fpage const &src_cap,
+                      L4Re::Dataspace::Offset src_offs,
+                      L4Re::Dataspace::Size sz)
   {
     if (!src_cap.id_received())
       return -L4_EINVAL;
@@ -297,7 +297,7 @@ public:
     return copy(dst_offs, src_cap.data(), src_offs, sz);
   }
 
-  long op_info(L4Re::Dataspace::Rights rights, L4Re::Dataspace::Stats &s)
+  l4_ret_t op_info(L4Re::Dataspace::Rights rights, L4Re::Dataspace::Stats &s)
   {
     s.size = size();
     // only return writable if really writable
@@ -307,9 +307,9 @@ public:
     return L4_EOK;
   }
 
-  long op_clear(L4Re::Dataspace::Rights rights,
-                L4Re::Dataspace::Offset offset,
-                L4Re::Dataspace::Size size)
+  l4_ret_t op_clear(L4Re::Dataspace::Rights rights,
+                    L4Re::Dataspace::Offset offset,
+                    L4Re::Dataspace::Size size)
   {
     if (!map_flags(rights).w())
       return -L4_EACCESS;
@@ -317,9 +317,9 @@ public:
     return clear(offset, size);
   }
 
-  long op_map_info(L4Re::Dataspace::Rights,
-                   [[maybe_unused]] l4_addr_t &start_addr,
-                   [[maybe_unused]] l4_addr_t &end_addr)
+  l4_ret_t op_map_info(L4Re::Dataspace::Rights,
+                       [[maybe_unused]] l4_addr_t &start_addr,
+                       [[maybe_unused]] l4_addr_t &end_addr)
   {
 #ifdef CONFIG_MMU
     return 0;

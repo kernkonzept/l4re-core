@@ -300,7 +300,7 @@ protected:
    * not be reallocated as long as the namespace server holds a
    * reference to the epiface.
    */
-  virtual int get_epiface(l4_umword_t data, bool is_local, L4::Epiface **lo) = 0;
+  virtual l4_ret_t get_epiface(l4_umword_t data, bool is_local, L4::Epiface **lo) = 0;
 
   /**
    * Return the receive capability for permanent use.
@@ -314,7 +314,7 @@ protected:
    * Typical implementations return the capability slot in the receive
    * window and allocate a new receive window.
    */
-  virtual int copy_receive_cap(L4::Cap<void> *cap) = 0;
+  virtual l4_ret_t copy_receive_cap(L4::Cap<void> *cap) = 0;
 
   /**
    * Free a capability previously acquired with copy_receive_cap().
@@ -336,7 +336,7 @@ protected:
    */
   virtual void free_epiface(L4::Epiface *epiface) = 0;
 
-  int insert_entry(Name const &name, unsigned flags, Entry **e)
+  l4_ret_t insert_entry(Name const &name, unsigned flags, Entry **e)
   {
     Entry *n = find(name);
     if (n && n->obj()->is_valid())
@@ -385,10 +385,10 @@ protected:
 
 public:
   // server interface ------------------------------------------
-  int op_query(L4Re::Namespace::Rights,
-               L4::Ipc::Array_in_buf<char, unsigned long> const &name,
-               L4::Ipc::Snd_fpage &snd_cap, L4::Ipc::Opt<L4::Opcode> &dummy,
-               L4::Ipc::Opt<L4::Ipc::Array_ref<char, unsigned long> > &out_name)
+  l4_ret_t op_query(L4Re::Namespace::Rights,
+                    L4::Ipc::Array_in_buf<char, unsigned long> const &name,
+                    L4::Ipc::Snd_fpage &snd_cap, L4::Ipc::Opt<L4::Opcode> &dummy,
+                    L4::Ipc::Opt<L4::Ipc::Array_ref<char, unsigned long> > &out_name)
   {
 #if 1
     _dbg.printf("query: [%ld] '%.*s'\n", name.length,
@@ -430,7 +430,7 @@ public:
         // prevent warning about writing uninitialized data in IPC framework
         dummy = 0;
 
-        l4_umword_t result = 0;
+        l4_ret_t result = 0;
 
         out_name.set_valid();
         if (part < name.length)
@@ -447,15 +447,15 @@ public:
         if (n->obj()->is_strong()) flags |= L4_CAP_FPAGE_S;
 
         snd_cap = L4::Ipc::Snd_fpage(n->obj()->cap(), flags);
-        _dbg.printf(" result = %lx flgs=%x strg=%d\n",
+        _dbg.printf(" result = %x flgs=%x strg=%d\n",
                     result, flags, static_cast<int>(n->obj()->is_strong()));
         return result;
       }
   }
 
-  int op_register_obj(L4Re::Namespace::Rights, unsigned flags,
-                      L4::Ipc::Array_in_buf<char, unsigned long> const &name,
-                      L4::Ipc::Snd_fpage &cap)
+  l4_ret_t op_register_obj(L4Re::Namespace::Rights, unsigned flags,
+                           L4::Ipc::Array_in_buf<char, unsigned long> const &name,
+                           L4::Ipc::Snd_fpage &cap)
   {
     if (name.length == 0 || memchr(name.data, '/', name.length))
         return -L4_EINVAL;
@@ -468,7 +468,7 @@ public:
     // anything more.
     if (cap.id_received() || cap.local_id_received())
       {
-        if (int ret = get_epiface(cap.data(), cap.local_id_received(), &src_o))
+        if (l4_ret_t ret = get_epiface(cap.data(), cap.local_id_received(), &src_o))
           return ret;
 
         // Make sure rights are restricted to the mapped rights.
@@ -476,7 +476,7 @@ public:
       }
     else if (cap.cap_received())
       {
-        if (int ret = copy_receive_cap(&reg_cap))
+        if (l4_ret_t ret = copy_receive_cap(&reg_cap))
           return ret;
       }
     else if (!cap.is_valid())
@@ -493,7 +493,7 @@ public:
     Name _name(name.data, name.length);
 
     Entry *n;
-    if (int r = insert_entry(_name, flags, &n))
+    if (l4_ret_t r = insert_entry(_name, flags, &n))
       {
         if (cap.cap_received())
           free_capability(reg_cap);
@@ -511,8 +511,8 @@ public:
     return 0;
   }
 
-  int op_unlink(L4Re::Namespace::Rights,
-                L4::Ipc::Array_in_buf<char, unsigned long> const &name)
+  l4_ret_t op_unlink(L4Re::Namespace::Rights,
+                     L4::Ipc::Array_in_buf<char, unsigned long> const &name)
 
   {
 #if 1

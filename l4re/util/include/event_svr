@@ -41,24 +41,24 @@ public:
   L4_RPC_LEGACY_USING(Icu_svr);
 
   /// Handle L4Re::Event protocol
-  long op_get_buffer(L4Re::Event::Rights, L4::Ipc::Cap<L4Re::Dataspace> &ds)
+  l4_ret_t op_get_buffer(L4Re::Event::Rights, L4::Ipc::Cap<L4Re::Dataspace> &ds)
   {
     static_cast<SVR*>(this)->reset_event_buffer();
     ds = L4::Ipc::Cap<L4Re::Dataspace>(_ds, L4_CAP_FPAGE_RW);
     return 0;
   }
 
-  long op_get_num_streams(L4Re::Event::Rights)
+  l4_ret_t op_get_num_streams(L4Re::Event::Rights)
   { return static_cast<SVR*>(this)->get_num_streams(); }
 
-  long op_get_stream_info(L4Re::Event::Rights, int idx, Event_stream_info &info)
+  l4_ret_t op_get_stream_info(L4Re::Event::Rights, int idx, Event_stream_info &info)
   { return static_cast<SVR*>(this)->get_stream_info(idx, &info); }
 
-  long op_get_stream_info_for_id(L4Re::Event::Rights, l4_umword_t id,
+  l4_ret_t op_get_stream_info_for_id(L4Re::Event::Rights, l4_umword_t id,
                                  Event_stream_info &info)
   { return static_cast<SVR*>(this)->get_stream_info_for_id(id, &info); }
 
-  long op_get_axis_info(L4Re::Event::Rights, l4_umword_t id,
+  l4_ret_t op_get_axis_info(L4Re::Event::Rights, l4_umword_t id,
                         L4::Ipc::Array_in_buf<unsigned, unsigned long> const &axes,
                         L4::Ipc::Array_ref<Event_absinfo, unsigned long> &info)
   {
@@ -78,7 +78,7 @@ public:
     return r;
   }
 
-  long op_get_stream_state_for_id(L4Re::Event::Rights, l4_umword_t stream_id,
+  l4_ret_t op_get_stream_state_for_id(L4Re::Event::Rights, l4_umword_t stream_id,
                                   Event_stream_state &state)
   { return static_cast<SVR*>(this)->get_stream_state_for_id(stream_id, &state); }
 

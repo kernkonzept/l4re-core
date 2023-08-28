@@ -41,7 +41,7 @@ Region_map::init()
 }
 
 
-int
+l4_ret_t
 Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
                 Region const &r, bool writable, l4_umword_t *result)
 {
@@ -87,7 +87,7 @@ Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
   ds->clear(h->offset() + start, size);
 }
 
-int
+l4_ret_t
 Region_ops::map_info(Region_handler const *h,
                      l4_addr_t *start_addr, l4_addr_t *end_addr)
 {
@@ -130,7 +130,7 @@ Region_map::debug_dump(unsigned long /*function*/) const
     }
 }
 
-int
+l4_ret_t
 Region_map::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
                          L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
 {
@@ -142,7 +142,7 @@ Region_map::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
   return -L4_ENOREPLY;
 }
 
-long
+l4_ret_t
 Region_map::op_io_page_fault(L4::Io_pager::Rights,
                              l4_fpage_t io_pfa, l4_umword_t pc,
                              L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)

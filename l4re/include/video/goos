@@ -265,7 +265,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_INLINE_RPC(long, info, (Info *info));
+  L4_INLINE_RPC(l4_ret_t, info, (Info *info));
 
   /**
    * \brief Return a static buffer of a Goos.
@@ -275,8 +275,8 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_RPC(long, get_static_buffer, (unsigned idx,
-                                   L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
+  L4_RPC(l4_ret_t, get_static_buffer, (unsigned idx,
+                                       L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
 
   /**
    * \brief Create a buffer.
@@ -286,8 +286,8 @@ public:
    * \retval >=0  Success, the value returned is the buffer index.
    * \retval <0   Error
    */
-  L4_RPC(long, create_buffer, (unsigned long size,
-                               L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
+  L4_RPC(l4_ret_t, create_buffer, (unsigned long size,
+                                   L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
 
   /**
    * \brief Delete a buffer.
@@ -296,10 +296,10 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_INLINE_RPC(long, delete_buffer, (unsigned idx));
+  L4_INLINE_RPC(l4_ret_t, delete_buffer, (unsigned idx));
 
-  // Use a wrapper for this RPC as we enacapsulate the View
-  L4_INLINE_RPC_NF(long, create_view, ());
+  // Use a wrapper for this RPC as we encapsulate the View
+  L4_INLINE_RPC_NF(l4_ret_t, create_view, ());
 
   /**
    * \brief Create a view.
@@ -309,9 +309,9 @@ public:
    * \retval >=0  Success, the value returned is the view index.
    * \retval <0  Error
    */
-  int create_view(View *view, l4_utcb_t *utcb = l4_utcb()) const noexcept
+  l4_ret_t create_view(View *view, l4_utcb_t *utcb = l4_utcb()) const noexcept
   {
-    long r = create_view_t::call(c(), utcb);
+    l4_ret_t r = create_view_t::call(c(), utcb);
     if (r < 0)
       return r;
     *view = View(cap(), r);
@@ -319,7 +319,7 @@ public:
   }
 
   // Use a wrapper as Views are encapsulated
-  L4_INLINE_RPC_NF(long, delete_view, (unsigned index));
+  L4_INLINE_RPC_NF(l4_ret_t, delete_view, (unsigned index));
 
   /**
    * \brief Delete a view.
@@ -329,7 +329,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  int delete_view(View const &v, l4_utcb_t *utcb = l4_utcb()) const noexcept
+  l4_ret_t delete_view(View const &v, l4_utcb_t *utcb = l4_utcb()) const noexcept
   {
     return delete_view_t::call(c(), v._view_idx, utcb);
   }
@@ -344,13 +344,13 @@ public:
   /**
    * \brief Trigger refreshing of the given area on the virtual screen.
    */
-  L4_INLINE_RPC(long, refresh, (int x, int y, int w, int h));
+  L4_INLINE_RPC(l4_ret_t, refresh, (int x, int y, int w, int h));
 
   // those are used by the View
-  L4_INLINE_RPC(long, view_info, (unsigned index, View::Info *info));
-  L4_INLINE_RPC(long, set_view_info, (unsigned index, View::Info const &info));
-  L4_INLINE_RPC(long, view_stack, (unsigned index, unsigned pivit, bool behind));
-  L4_INLINE_RPC(long, view_refresh, (unsigned index, int x, int y, int w, int h));
+  L4_INLINE_RPC(l4_ret_t, view_info, (unsigned index, View::Info *info));
+  L4_INLINE_RPC(l4_ret_t, set_view_info, (unsigned index, View::Info const &info));
+  L4_INLINE_RPC(l4_ret_t, view_stack, (unsigned index, unsigned pivit, bool behind));
+  L4_INLINE_RPC(l4_ret_t, view_refresh, (unsigned index, int x, int y, int w, int h));
 
   typedef L4::Typeid::Rpcs<
     info_t, get_static_buffer_t, create_buffer_t, create_view_t, delete_buffer_t,

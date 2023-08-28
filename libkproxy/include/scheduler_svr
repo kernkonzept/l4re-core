@@ -41,8 +41,8 @@ public:
   void hotplug_event() const
   { this_svr()->scheduler_irq()->trigger(); }
 
-  long op_info(L4::Scheduler::Rights, l4_umword_t gran_offset,
-               l4_umword_t &map, l4_umword_t &cpu_max, l4_umword_t &sched_classes)
+  l4_ret_t op_info(L4::Scheduler::Rights, l4_umword_t gran_offset,
+                   l4_umword_t &map, l4_umword_t &cpu_max, l4_umword_t &sched_classes)
   {
     l4_sched_cpu_set_t cpus;
     cpus.gran_offset = gran_offset;
@@ -55,14 +55,14 @@ public:
     return ret;
   }
 
-  long op_idle_time(L4::Scheduler::Rights, l4_sched_cpu_set_t const &cpus,
-                    l4_kernel_clock_t &us)
+  l4_ret_t op_idle_time(L4::Scheduler::Rights, l4_sched_cpu_set_t const &cpus,
+                        l4_kernel_clock_t &us)
   {
     return this_svr()->idle_time(cpus, us);
   }
 
-  long op_run_thread(L4::Scheduler::Rights, L4::Ipc::Snd_fpage thread,
-                     l4_sched_param_t const &sp)
+  l4_ret_t op_run_thread(L4::Scheduler::Rights, L4::Ipc::Snd_fpage thread,
+                         l4_sched_param_t const &sp)
   {
     L4::Cap<L4::Thread> t = this_svr()->received_thread(thread);
     if (!t.is_valid())

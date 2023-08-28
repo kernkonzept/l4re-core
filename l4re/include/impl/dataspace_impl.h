@@ -22,7 +22,7 @@ L4_RPC_DEF(L4Re::Dataspace::map_info);
 
 namespace L4Re {
 
-long
+l4_ret_t
 Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
                  Dataspace::Flags flags,
                  Dataspace::Map_addr local_addr,
@@ -33,7 +33,7 @@ Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
   L4::Ipc::Rcv_fpage r = L4::Ipc::Rcv_fpage::mem(base, *size, 0, dst);
 
   L4::Ipc::Snd_fpage fp;
-  long err = map_t::call(c(), offset, spot, flags, r, fp, l4_utcb());
+  l4_ret_t err = map_t::call(c(), offset, spot, flags, r, fp, l4_utcb());
   if (L4_UNLIKELY(err < 0))
     return err;
 
@@ -41,7 +41,7 @@ Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
   return err;
 }
 
-long
+l4_ret_t
 Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
                       Dataspace::Map_addr min_addr,
                       Dataspace::Map_addr max_addr,
@@ -51,7 +51,7 @@ Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
   max_addr   = L4::round_page(max_addr);
   unsigned char order = L4_LOG2_PAGESIZE;
 
-  long err = 0;
+  l4_ret_t err = 0;
 
   while (min_addr < max_addr)
     {
@@ -80,7 +80,7 @@ Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
   return 0;
 }
 
-long
+l4_ret_t
 Dataspace::map(Dataspace::Offset offset, Dataspace::Flags flags,
                Dataspace::Map_addr local_addr,
                Dataspace::Map_addr min_addr,

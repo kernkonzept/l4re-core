@@ -110,7 +110,7 @@ public:
   virtual ~LLog() {}
 };
 
-int
+l4_ret_t
 Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
                      long type, L4::Ipc::Varg_list<> &&args)
 {
@@ -291,7 +291,7 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
     }
 }
 
-long
+l4_ret_t
 Allocator::op_info(L4Re::Mem_alloc::Rights, L4Re::Mem_alloc::Stats &stats)
 {
   Moe::Quota const *q = _qalloc.quota();
@@ -315,7 +315,7 @@ Allocator::op_info(L4Re::Mem_alloc::Rights, L4Re::Mem_alloc::Stats &stats)
 }
 
 #ifndef NDEBUG
-long
+l4_ret_t
 Allocator::op_debug(L4Re::Debug_obj::Rights, unsigned long)
 {
   Dbg out(Dbg::Info, "mem_alloc");

@@ -20,7 +20,7 @@
 namespace L4Re
 {
 
-long
+l4_ret_t
 Mem_alloc::alloc(long size,
                  L4::Cap<Dataspace> mem, unsigned long flags,
                  unsigned long align, l4_addr_t paddr) const noexcept

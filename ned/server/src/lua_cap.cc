@@ -162,7 +162,7 @@ Cap::find_dynamic_type(lua_State *l) const
   long proto = 0;
   char name_buf[256];
   L4::Ipc::String<char> name(sizeof(name_buf), name_buf);
-  int err = l4_error(_meta->interface(0, &proto, &name));
+  l4_ret_t err = l4_error(_meta->interface(0, &proto, &name));
   if (err < 0)
     {
       dbg.printf("Warning: Capability %lx does not support the meta protocol: %d\n",

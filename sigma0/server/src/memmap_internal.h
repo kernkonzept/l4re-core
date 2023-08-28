@@ -29,7 +29,7 @@ public:
 
   Answer(l4_utcb_t *utcb) : utcb(utcb), tag(l4_msgtag(0, 0, 0, 0)) {}
 
-  void error(int err) { tag = l4_msgtag(-err, 0, 0, 0); }
+  void error(l4_ret_t err) { tag = l4_msgtag(-err, 0, 0, 0); }
 
   void snd_fpage(l4_fpage_t const &fp, unsigned long snd_base = 0)
   {

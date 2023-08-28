@@ -27,13 +27,13 @@ class Region_ops
 {
 public:
   typedef l4_umword_t Map_result;
-  static int map(Region_handler const *h, l4_addr_t addr,
-                 L4Re::Util::Region const &r, bool writable,
-                 l4_umword_t *result);
+  static l4_ret_t map(Region_handler const *h, l4_addr_t addr,
+                      L4Re::Util::Region const &r, bool writable,
+                      l4_umword_t *result);
 
   static void free(Region_handler const *h, l4_addr_t start, unsigned long size);
-  static int map_info(Region_handler const *h,
-                      l4_addr_t *start_addr, l4_addr_t *end_addr);
+  static l4_ret_t map_info(Region_handler const *h,
+                           l4_addr_t *start_addr, l4_addr_t *end_addr);
 };
 
 
@@ -52,9 +52,9 @@ private:
 public:
   typedef L4::Cap<L4Re::Dataspace> Dataspace;
   enum { Have_find = true };
-  static int validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
-                         L4Re::Rm::Region_flags,
-                         L4::Cap<L4Re::Dataspace> *ds)
+  static l4_ret_t validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
+                              L4Re::Rm::Region_flags,
+                              L4::Cap<L4Re::Dataspace> *ds)
   {
     // if no cap was sent then the region will be reserved
     if (ds_cap.local_id_received())
@@ -75,12 +75,12 @@ public:
 
   void debug_dump(unsigned long function) const;
 
-  int op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
-                   L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
-  long op_io_page_fault(L4::Io_pager::Rights,
-                        l4_fpage_t io_pfa, l4_umword_t pc,
-                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
-  long op_debug(L4Re::Debug_obj::Rights, unsigned long function)
+  l4_ret_t op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
+                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
+  l4_ret_t op_io_page_fault(L4::Io_pager::Rights,
+                            l4_fpage_t io_pfa, l4_umword_t pc,
+                            L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
+  l4_ret_t op_debug(L4Re::Debug_obj::Rights, unsigned long function)
   { debug_dump(function); return 0; }
 };
 

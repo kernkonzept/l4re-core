@@ -48,7 +48,7 @@ App_task::Parent_receiver::Parent_receiver(App_task &parent)
  * Store the exit information and wake up the main thread to dispatch the exit
  * signal handling there. See App_task::handle_irq().
  */
-int
+l4_ret_t
 App_task::Parent_receiver::op_signal(L4Re::Parent::Rights, unsigned long sig,
                                      unsigned long val)
 {

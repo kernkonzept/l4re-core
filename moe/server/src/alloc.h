@@ -55,13 +55,13 @@ public:
 
   virtual ~Allocator();
 
-  int op_create(L4::Factory::Rights rights, L4::Ipc::Cap<void> &, long,
-                L4::Ipc::Varg_list<> &&args);
+  l4_ret_t op_create(L4::Factory::Rights rights, L4::Ipc::Cap<void> &, long,
+                     L4::Ipc::Varg_list<> &&args);
 
-  long op_info(L4Re::Mem_alloc::Rights right, L4Re::Mem_alloc::Stats &stats);
+  l4_ret_t op_info(L4Re::Mem_alloc::Rights right, L4Re::Mem_alloc::Stats &stats);
 
 #ifndef NDEBUG
-  long op_debug(L4Re::Debug_obj::Rights, unsigned long function);
+  l4_ret_t op_debug(L4Re::Debug_obj::Rights, unsigned long function);
 #endif
 
   static Allocator *root_allocator();

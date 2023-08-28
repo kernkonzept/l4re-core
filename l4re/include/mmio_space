@@ -71,7 +71,7 @@ struct L4_EXPORT Mmio_space
    * \retval -L4_EINVAL  Address does not exist or cannot be accessed
    *                     with the given width.
    */
-  L4_INLINE_RPC(long, mmio_read, (Addr addr, char width, l4_uint64_t *value));
+  L4_INLINE_RPC(l4_ret_t, mmio_read, (Addr addr, char width, l4_uint64_t *value));
 
   /**
    * Write a value to the given address.
@@ -87,7 +87,7 @@ struct L4_EXPORT Mmio_space
    * \retval -L4_EINVAL  Address does not exist or cannot be accessed
    *                     with the given width.
    */
-  L4_INLINE_RPC(long, mmio_write, (Addr addr, char width, l4_uint64_t value));
+  L4_INLINE_RPC(l4_ret_t, mmio_write, (Addr addr, char width, l4_uint64_t value));
 
   typedef L4::Typeid::Rpcs<mmio_read_t, mmio_write_t> Rpcs;
 };

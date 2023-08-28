@@ -87,10 +87,12 @@ public:
   };
 
   L4_RPC_NF(
-      long, query, (L4::Ipc::Array_ref<char const, unsigned long> name,
-                    L4::Ipc::Small_buf cap,
-                    L4::Ipc::Snd_fpage &snd_cap, L4::Ipc::Opt<L4::Opcode &> dummy,
-                    L4::Ipc::Opt<L4::Ipc::Array_ref<char const, unsigned long> &> out_name));
+      l4_ret_t, query, (L4::Ipc::Array_ref<char const, unsigned long> name,
+                        L4::Ipc::Small_buf cap,
+                        L4::Ipc::Snd_fpage &snd_cap,
+                        L4::Ipc::Opt<L4::Opcode &> dummy,
+                        L4::Ipc::Opt<
+                          L4::Ipc::Array_ref<char const, unsigned long> &> out_name));
 
   /**
    * Query the name space for a named object.
@@ -117,9 +119,9 @@ public:
    *                     Try again later.
    * \retval <0          IPC errors, see #l4_error_code_t.
    */
-  long query(char const *name, L4::Cap<void> const &cap,
-             int timeout = To_default,
-             l4_umword_t *local_id = 0, bool iterate = true) const noexcept;
+  l4_ret_t query(char const *name, L4::Cap<void> const &cap,
+                 int timeout = To_default,
+                 l4_umword_t *local_id = 0, bool iterate = true) const noexcept;
 
   /**
    *  Query the name space for a named object.
@@ -130,13 +132,13 @@ public:
    *                      terminating null characters.
    * \copydetails query()
    */
-  long query(char const *name, unsigned len, L4::Cap<void> const &cap,
-             int timeout = To_default,
-             l4_umword_t *local_id = 0, bool iterate = true) const noexcept;
+  l4_ret_t query(char const *name, unsigned len, L4::Cap<void> const &cap,
+                 int timeout = To_default,
+                 l4_umword_t *local_id = 0, bool iterate = true) const noexcept;
 
-  L4_RPC_NF(long, register_obj, (unsigned flags,
-                                L4::Ipc::Array<char const, unsigned long> name,
-                                L4::Ipc::Opt< L4::Ipc::Cap<void> > obj),
+  L4_RPC_NF(l4_ret_t, register_obj, (unsigned flags,
+                                     L4::Ipc::Array<char const, unsigned long> name,
+                                     L4::Ipc::Opt< L4::Ipc::Cap<void> > obj),
             L4::Ipc::Call_t<L4_CAP_FPAGE_W>);
 
   /**
@@ -162,8 +164,8 @@ public:
    * \pre The invoked Namespace capability must have the permission
    *      #L4_CAP_FPAGE_W.
    */
-  long register_obj(char const *name, L4::Ipc::Cap<void> obj,
-                    unsigned flags = Rw) const noexcept
+  l4_ret_t register_obj(char const *name, L4::Ipc::Cap<void> obj,
+                        unsigned flags = Rw) const noexcept
   {
     return register_obj_t::call(c(), flags,
                                 L4::Ipc::Array<char const, unsigned long>(
@@ -172,7 +174,7 @@ public:
   }
 
   L4_RPC_NF_OP(3, // backward compatibility opcode
-               long, unlink, (L4::Ipc::Array<char const, unsigned long> name),
+               l4_ret_t, unlink, (L4::Ipc::Array<char const, unsigned long> name),
                L4::Ipc::Call_t<L4_CAP_FPAGE_W>);
 
   /**
@@ -189,7 +191,7 @@ public:
    * \pre The invoked Namespace capability must have the permission
    *      #L4_CAP_FPAGE_W.
    */
-  long unlink(char const* name)
+  l4_ret_t unlink(char const* name)
   {
     return unlink_t::call(c(), L4::Ipc::Array<char const, unsigned long>(
                                  __builtin_strlen(name), name));
@@ -198,9 +200,9 @@ public:
   typedef L4::Typeid::Rpcs<query_t, register_obj_t, unlink_t> Rpcs;
 
 private:
-  long _query(char const *name, unsigned len,
-              L4::Cap<void> const &target, l4_umword_t *local_id,
-              bool iterate) const noexcept;
+  l4_ret_t _query(char const *name, unsigned len,
+                  L4::Cap<void> const &target, l4_umword_t *local_id,
+                  bool iterate) const noexcept;
 
 };
 

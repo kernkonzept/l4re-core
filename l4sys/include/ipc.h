@@ -174,10 +174,10 @@ l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW;
  *          callee can signal errors via a negative tag label (negated value
  *          from #l4_error_code_t) and success via a non-negative value.
  */
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_error(l4_msgtag_t tag) L4_NOTHROW;
 
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_error_u(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW;
 
 /*****************************************************************************
@@ -223,7 +223,7 @@ L4_INLINE int l4_ipc_error_code(l4_utcb_t *utcb) L4_NOTHROW;
  *                        (or returned by the l4_ipc_error_code() function).
  * \return negative error code in the range of #L4_EIPC_LO to #L4_EIPC_HI.
  */
-L4_INLINE long l4_ipc_to_errno(unsigned long ipc_error_code) L4_NOTHROW;
+L4_INLINE l4_ret_t l4_ipc_to_errno(unsigned long ipc_error_code) L4_NOTHROW;
 
 
 /*****************************************************************************
@@ -560,7 +560,7 @@ l4_sndfpage_add_u(l4_fpage_t const snd_fpage, unsigned long snd_base,
  * Implementations
  **********************/
 
-L4_INLINE long l4_ipc_to_errno(unsigned long ipc_error_code) L4_NOTHROW
+L4_INLINE l4_ret_t l4_ipc_to_errno(unsigned long ipc_error_code) L4_NOTHROW
 { return -(L4_EIPC_LO + ipc_error_code); }
 
 L4_INLINE l4_msgtag_t
@@ -635,7 +635,7 @@ l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW
   return l4_utcb_tcr_u(utcb)->error & L4_IPC_ERROR_MASK;
 }
 
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_error_u(l4_msgtag_t tag, l4_utcb_t *u) L4_NOTHROW
 {
   if (L4_UNLIKELY(l4_msgtag_has_error(tag)))
@@ -644,7 +644,7 @@ l4_error_u(l4_msgtag_t tag, l4_utcb_t *u) L4_NOTHROW
   return l4_msgtag_label(tag);
 }
 
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_error(l4_msgtag_t tag) L4_NOTHROW
 {
   return l4_error_u(tag, l4_utcb());

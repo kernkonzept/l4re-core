@@ -157,11 +157,11 @@ public:
    * (see L4vbus::Vbus::assign_dma_domain()).
    */
   L4_INLINE_RPC(
-      long, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
-                  L4Re::Dataspace::Offset offset,
-                  L4::Ipc::In_out<l4_size_t *> size,
-                  Attributes attrs, Direction dir,
-                  Dma_addr *dma_addr));
+      l4_ret_t, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
+                      L4Re::Dataspace::Offset offset,
+                      L4::Ipc::In_out<l4_size_t *> size,
+                      Attributes attrs, Direction dir,
+                      Dma_addr *dma_addr));
 
   /**
    * Unmap the given part of this data space from the DMA address space.
@@ -174,8 +174,8 @@ public:
    * \return 0 in the case of success, a negative error code otherwise.
    */
   L4_INLINE_RPC(
-      long, unmap, (Dma_addr dma_addr,
-                    l4_size_t size, Attributes attrs, Direction dir));
+      l4_ret_t, unmap, (Dma_addr dma_addr,
+                        l4_size_t size, Attributes attrs, Direction dir));
 
   /**
    * Associate a (kernel) \ref l4_kernel_object_dmar_space for a device to
@@ -200,8 +200,8 @@ public:
    *      #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
-      long, associate, (L4::Ipc::Opt<L4::Ipc::Cap<L4::Task> > dma_task,
-                        Space_attribs attr),
+      l4_ret_t, associate, (L4::Ipc::Opt<L4::Ipc::Cap<L4::Task> > dma_task,
+                            Space_attribs attr),
       L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
   /**
@@ -216,7 +216,7 @@ public:
    *      #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
-      long, disassociate, (),
+      l4_ret_t, disassociate, (),
       L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
   typedef L4::Typeid::Rpcs<map_t, unmap_t, associate_t, disassociate_t> Rpcs;

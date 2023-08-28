@@ -29,11 +29,11 @@ public:
   /**
    * Implementation of L4Re::Rm::_attach
    */
-  long op_attach(L4Re::Rm::Rights, l4_addr_t &_start,
-                 unsigned long size, Rm::Flags flags,
-                 L4::Ipc::Snd_fpage ds_cap, L4Re::Rm::Offset offs,
-                 unsigned char align, l4_cap_idx_t client_cap_idx,
-                 L4::Ipc::String<> name, L4Re::Rm::Offset backing_offset)
+  l4_ret_t op_attach(L4Re::Rm::Rights, l4_addr_t &_start,
+                     unsigned long size, Rm::Flags flags,
+                     L4::Ipc::Snd_fpage ds_cap, L4Re::Rm::Offset offs,
+                     unsigned char align, l4_cap_idx_t client_cap_idx,
+                     L4::Ipc::String<> name, L4Re::Rm::Offset backing_offset)
   {
     typename DERIVED::Dataspace ds;
 
@@ -72,7 +72,7 @@ public:
   /**
    * Implementation of L4Re::Rm::free_area
    */
-  long op_free_area(L4Re::Rm::Rights, l4_addr_t start)
+  l4_ret_t op_free_area(L4Re::Rm::Rights, l4_addr_t start)
   {
     if (!rm()->detach_area(start))
       return -L4_ENOENT;
@@ -83,7 +83,7 @@ public:
   /**
    * Implementation of L4Re::Rm::_find
    */
-  long op_find(L4Re::Rm::Rights, l4_addr_t &addr, unsigned long &size,
+  l4_ret_t op_find(L4Re::Rm::Rights, l4_addr_t &addr, unsigned long &size,
                L4Re::Rm::Flags &flags, L4Re::Rm::Offset &offset,
                L4::Cap<L4Re::Dataspace> &m)
   {
@@ -113,10 +113,10 @@ public:
   /**
    * Implementation of L4Re::Rm::_detach
    */
-  long op_detach(L4Re::Rm::Rights, l4_addr_t addr,
-                 unsigned long size, unsigned flags,
-                 l4_addr_t &start, l4_addr_t &rsize,
-                 l4_cap_idx_t &mem_cap)
+  l4_ret_t op_detach(L4Re::Rm::Rights, l4_addr_t addr,
+                     unsigned long size, unsigned flags,
+                     l4_addr_t &start, l4_addr_t &rsize,
+                     l4_cap_idx_t &mem_cap)
   {
     Region r;
     typename DERIVED::Region_handler h;
@@ -144,8 +144,8 @@ public:
   /**
    * Implementation of L4Re::Rm::_reserve_area
    */
-  long op_reserve_area(L4Re::Rm::Rights, l4_addr_t &start, unsigned long size,
-                       L4Re::Rm::Flags flags, unsigned char align)
+  l4_ret_t op_reserve_area(L4Re::Rm::Rights, l4_addr_t &start, unsigned long size,
+                           L4Re::Rm::Flags flags, unsigned char align)
   {
     start = rm()->attach_area(start, size, flags, align);
     if (start == L4_INVALID_ADDR)
@@ -156,8 +156,8 @@ public:
   /**
    * Implementation of L4Re::Rm::get_regions
    */
-  long op_get_regions(L4Re::Rm::Rights, l4_addr_t addr,
-                      L4::Ipc::Ret_array<L4Re::Rm::Region> regions)
+  l4_ret_t op_get_regions(L4Re::Rm::Rights, l4_addr_t addr,
+                          L4::Ipc::Ret_array<L4Re::Rm::Region> regions)
   {
     typename DERIVED::Node r;
     unsigned num = 0;
@@ -181,8 +181,8 @@ public:
   /**
    * Implementation of L4Re::Rm::get_areas
    */
-  long op_get_areas(L4Re::Rm::Rights, l4_addr_t addr,
-                    L4::Ipc::Ret_array<L4Re::Rm::Area> areas)
+  l4_ret_t op_get_areas(L4Re::Rm::Rights, l4_addr_t addr,
+                        L4::Ipc::Ret_array<L4Re::Rm::Area> areas)
   {
     typename DERIVED::Node r;
     unsigned num = 0;
@@ -217,15 +217,15 @@ public:
   /**
    * Pager API
    */
-  long op_io_page_fault(L4::Io_pager::Rights, l4_fpage_t, l4_umword_t,
-                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
+  l4_ret_t op_io_page_fault(L4::Io_pager::Rights, l4_fpage_t, l4_umword_t,
+                            L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
   {
     // generate exception
     return -L4_ENOMEM;
   }
 
-  long op_page_fault(L4::Pager::Rights, l4_umword_t addr, l4_umword_t pc,
-                     L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp)
+  l4_ret_t op_page_fault(L4::Pager::Rights, l4_umword_t addr, l4_umword_t pc,
+                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp)
   {
     Dbg(Dbg::Server).printf("page fault: %lx pc=%lx\n", addr, pc);
 

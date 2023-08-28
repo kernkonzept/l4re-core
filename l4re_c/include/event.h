@@ -47,7 +47,7 @@ typedef struct
  *
  * \see L4Re::Event::get_buffer
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_buffer(const l4_cap_idx_t server,
                       const l4re_ds_t ds) L4_NOTHROW;
 
@@ -61,7 +61,7 @@ l4re_event_get_buffer(const l4_cap_idx_t server,
  *
  * \see L4Re::Event::get_num_streams
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_num_streams(const l4_cap_idx_t server) L4_NOTHROW;
 
 /**
@@ -76,7 +76,7 @@ l4re_event_get_num_streams(const l4_cap_idx_t server) L4_NOTHROW;
  *
  * \see L4Re::Event::get_stream_info
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_stream_info(const l4_cap_idx_t server,
                            int idx, l4re_event_stream_info_t *info) L4_NOTHROW;
 
@@ -92,7 +92,7 @@ l4re_event_get_stream_info(const l4_cap_idx_t server,
  *
  * \see L4Re::Event::get_stream_info_for_id
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_stream_info_for_id(const l4_cap_idx_t server,
                                   l4_umword_t stream_id,
                                   l4re_event_stream_info_t *info) L4_NOTHROW;
@@ -112,7 +112,7 @@ l4re_event_get_stream_info_for_id(const l4_cap_idx_t server,
  *
  * \see L4Re::Event::get_axis_info
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_axis_info(const l4_cap_idx_t server, l4_umword_t id,
                          unsigned naxes, unsigned const *axis,
                          l4re_event_absinfo_t *info) L4_NOTHROW;

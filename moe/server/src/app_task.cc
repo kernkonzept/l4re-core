@@ -12,7 +12,7 @@
 #include "globals.h"
 
 
-long
+l4_ret_t
 App_task::op_signal(L4Re::Parent::Rights, unsigned long sig, unsigned long val)
 {
   switch (sig)

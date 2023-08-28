@@ -58,7 +58,7 @@ public:
    * the application's return code. For any other value of `sig`, the method
    * just returns successfully.
    */
-  L4_INLINE_RPC(long, signal, (unsigned long sig, unsigned long val));
+  L4_INLINE_RPC(l4_ret_t, signal, (unsigned long sig, unsigned long val));
   typedef L4::Typeid::Rpcs<signal_t> Rpcs;
 };
 };

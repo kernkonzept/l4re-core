@@ -27,12 +27,12 @@ class Region_ops
 {
 public:
   typedef L4::Ipc::Snd_fpage Map_result;
-  static int map(Region_handler const *h, l4_addr_t adr,
-                 L4Re::Util::Region const &r, bool writable,
-                 L4::Ipc::Snd_fpage *result);
+  static l4_ret_t map(Region_handler const *h, l4_addr_t adr,
+                      L4Re::Util::Region const &r, bool writable,
+                      L4::Ipc::Snd_fpage *result);
   static void free(Region_handler const *h, l4_addr_t start, unsigned long size);
-  static int map_info(Region_handler const *h,
-                      l4_addr_t *start_addr, l4_addr_t *end_addr);
+  static l4_ret_t map_info(Region_handler const *h,
+                           l4_addr_t *start_addr, l4_addr_t *end_addr);
 };
 
 class Region_map
@@ -47,15 +47,15 @@ private:
 public:
   typedef cxx::Weak_ref<Moe::Dataspace const> Dataspace;
   enum { Have_find = false };
-  static int validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
-                         L4Re::Rm::Region_flags flags, Dataspace *ds);
+  static l4_ret_t validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
+                              L4Re::Rm::Region_flags flags, Dataspace *ds);
   static l4_umword_t find_res(Dataspace const &) { return 0; }
 
   Region_map();
   virtual ~Region_map() {}
 
-  long op_io_page_fault(L4::Io_pager::Rights,
-                        l4_fpage_t io_pfa, l4_umword_t pc,
-                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
+  l4_ret_t op_io_page_fault(L4::Io_pager::Rights,
+                            l4_fpage_t io_pfa, l4_umword_t pc,
+                            L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
 };
 

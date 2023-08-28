@@ -148,14 +148,14 @@ l4_debugger_kobj_to_id_u(l4_cap_idx_t cap, l4_addr_t kobjp, l4_utcb_t *utcb) L4_
  *
  * This is a debugging facility, the call might be invalid.
  */
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_typeid(l4_cap_idx_t cap, const char *name,
                              unsigned idx) L4_NOTHROW;
 
 /**
  * \internal
  */
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
                                unsigned idx, l4_utcb_t *utcb) L4_NOTHROW;
 
@@ -175,7 +175,7 @@ l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
  *
  * This is a debugging facility, the call might be invalid.
  */
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_name(l4_cap_idx_t cap, unsigned idx,
                            char *name, unsigned namelen,
                            char *shortname, unsigned shortnamelen) L4_NOTHROW;
@@ -183,7 +183,7 @@ l4_debugger_query_log_name(l4_cap_idx_t cap, unsigned idx,
 /**
  * \internal
  */
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_name_u(l4_cap_idx_t cap, unsigned idx,
                              char *name, unsigned namelen,
                              char *shortname, unsigned shortnamelen,
@@ -324,13 +324,13 @@ l4_debugger_kobj_to_id_u(l4_cap_idx_t cap, l4_addr_t kobjp, l4_utcb_t *utcb) L4_
   return l4_utcb_mr_u(utcb)->mr[0];
 }
 
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
                                unsigned idx,
                                l4_utcb_t *utcb) L4_NOTHROW
 {
   unsigned i;
-  long e;
+  l4_ret_t e;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_LOG_QUERY_TYPEID_OP;
   l4_utcb_mr_u(utcb)->mr[1] = idx;
   i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[2], name, 32);
@@ -341,13 +341,13 @@ l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
   return l4_utcb_mr_u(utcb)->mr[0];
 }
 
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_name_u(l4_cap_idx_t cap, unsigned idx,
                              char *name, unsigned namelen,
                              char *shortname, unsigned shortnamelen,
                              l4_utcb_t *utcb) L4_NOTHROW
 {
-  long e;
+  l4_ret_t e;
   char const *n;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_LOG_QUERY_NAME_OP;
   l4_utcb_mr_u(utcb)->mr[1] = idx;
@@ -431,14 +431,14 @@ l4_debugger_kobj_to_id(l4_cap_idx_t cap, l4_addr_t kobjp) L4_NOTHROW
   return l4_debugger_kobj_to_id_u(cap, kobjp, l4_utcb());
 }
 
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_typeid(l4_cap_idx_t cap, const char *name,
                              unsigned idx) L4_NOTHROW
 {
   return l4_debugger_query_log_typeid_u(cap, name, idx, l4_utcb());
 }
 
-L4_INLINE long
+L4_INLINE l4_ret_t
 l4_debugger_query_log_name(l4_cap_idx_t cap, unsigned idx,
                            char *name, unsigned namelen,
                            char *shortname, unsigned shortnamelen) L4_NOTHROW

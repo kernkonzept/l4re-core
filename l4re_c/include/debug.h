@@ -27,7 +27,7 @@ L4_BEGIN_DECLS
  * \param  function  Function to call.
  * \see L4Re::Debug_obj::debug
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_debug_obj_debug(l4_cap_idx_t srv, unsigned long function) L4_NOTHROW;
 
 L4_END_DECLS

@@ -95,7 +95,7 @@ public:
    */
   virtual ~Goos_svr() {}
 
-  long op_view_info(Rights, unsigned idx, L4Re::Video::View::Info &info)
+  l4_ret_t op_view_info(Rights, unsigned idx, L4Re::Video::View::Info &info)
   {
     if (idx != 0)
       return -L4_ERANGE;
@@ -104,14 +104,14 @@ public:
     return L4_EOK;
   }
 
-  long op_info(Rights, L4Re::Video::Goos::Info &info)
+  l4_ret_t op_info(Rights, L4Re::Video::Goos::Info &info)
   {
     info = _screen_info;
     return L4_EOK;
   }
 
-  long op_get_static_buffer(Rights, unsigned idx,
-                            L4::Ipc::Cap<L4Re::Dataspace> &ds)
+  l4_ret_t op_get_static_buffer(Rights, unsigned idx,
+                                L4::Ipc::Cap<L4Re::Dataspace> &ds)
   {
     if (idx != 0)
       return -L4_ERANGE;
@@ -120,10 +120,10 @@ public:
     return L4_EOK;
   }
 
-  long op_refresh(Rights, int x, int y, int w, int h)
+  l4_ret_t op_refresh(Rights, int x, int y, int w, int h)
   { return refresh(x, y, w, h); }
 
-  long op_view_refresh(Rights, unsigned idx, int x, int y, int w, int h)
+  l4_ret_t op_view_refresh(Rights, unsigned idx, int x, int y, int w, int h)
   {
     if (idx != 0)
       return -L4_ERANGE;
@@ -131,23 +131,23 @@ public:
     return refresh(x, y, w, h);
   }
 
-  long op_set_view_info(Rights, unsigned, L4Re::Video::View::Info)
+  l4_ret_t op_set_view_info(Rights, unsigned, L4Re::Video::View::Info)
   { return -L4_ENOSYS; }
 
-  long op_view_stack(Rights, unsigned, unsigned, bool)
+  l4_ret_t op_view_stack(Rights, unsigned, unsigned, bool)
   { return -L4_ENOSYS; }
 
-  long op_delete_view(Rights, unsigned)
+  l4_ret_t op_delete_view(Rights, unsigned)
   { return -L4_ENOSYS; }
 
-  long op_create_view(Rights)
+  l4_ret_t op_create_view(Rights)
   { return -L4_ENOSYS; }
 
-  long op_create_buffer(Rights, unsigned long,
-                        L4::Ipc::Cap<L4Re::Dataspace> &)
+  l4_ret_t op_create_buffer(Rights, unsigned long,
+                            L4::Ipc::Cap<L4Re::Dataspace> &)
   { return -L4_ENOSYS; }
 
-  long op_delete_buffer(Rights, unsigned)
+  l4_ret_t op_delete_buffer(Rights, unsigned)
   { return -L4_ENOSYS; }
 };
 

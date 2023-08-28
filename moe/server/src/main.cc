@@ -316,8 +316,7 @@ public:
 
     Dbg dbg(Dbg::Server);
 
-    dbg.printf("tag=%lx (proto=%lx) obj=%lx", tag.raw,
-               tag.label(), obj);
+    dbg.printf("tag=%lx (proto=%ld) obj=%lx", tag.raw, tag.label(), obj);
 
     if (tag.is_exception())
       {

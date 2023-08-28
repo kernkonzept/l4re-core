@@ -33,7 +33,7 @@ private:
   {
     Parent_receiver(App_task &parent);
 
-    int op_signal(L4Re::Parent::Rights, unsigned long, unsigned long);
+    l4_ret_t op_signal(L4Re::Parent::Rights, unsigned long, unsigned long);
 
     App_task &parent;
     unsigned long exit_code;

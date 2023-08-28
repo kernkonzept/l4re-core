@@ -41,8 +41,8 @@ public:
                        Attributes attrs, Direction dir,
                        Dma_addr *dma_addr) = 0;
 
-  virtual int unmap(Dma_addr dma_addr, l4_size_t size,
-                    Attributes attrs, Direction dir) = 0;
+  virtual l4_ret_t unmap(Dma_addr dma_addr, l4_size_t size,
+                         Attributes attrs, Direction dir) = 0;
 
   virtual void remove(Mapping *m) = 0;
 
@@ -102,20 +102,20 @@ public:
   typedef L4Re::Dma_space::Attributes Attributes;
   typedef L4Re::Dma_space::Space_attribs Space_attribs;
 
-  long op_map(L4Re::Dma_space::Rights rights,
-              L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
-              l4_size_t &size, Attributes attrs, Direction dir,
-              Dma_addr &dma_addr);
+  l4_ret_t op_map(L4Re::Dma_space::Rights rights,
+                  L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
+                  l4_size_t &size, Attributes attrs, Direction dir,
+                  Dma_addr &dma_addr);
 
-  long op_unmap(L4Re::Dma_space::Rights rights,
-                Dma_addr dma_addr,
-                l4_size_t size, Attributes attrs, Direction dir);
+  l4_ret_t op_unmap(L4Re::Dma_space::Rights rights,
+                    Dma_addr dma_addr,
+                    l4_size_t size, Attributes attrs, Direction dir);
 
-  long op_associate(L4Re::Dma_space::Rights rights,
-                    L4::Ipc::Snd_fpage dma_task,
-                    Space_attribs attr);
+  l4_ret_t op_associate(L4Re::Dma_space::Rights rights,
+                        L4::Ipc::Snd_fpage dma_task,
+                        Space_attribs attr);
 
-  long op_disassociate(L4Re::Dma_space::Rights rights);
+  l4_ret_t op_disassociate(L4Re::Dma_space::Rights rights);
 
   /**
    * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space

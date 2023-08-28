@@ -25,7 +25,7 @@ public:
   virtual ~Dataspace_anon();
 
   bool is_static() const noexcept override { return false; }
-  int pre_allocate(l4_addr_t, l4_size_t, unsigned) override { return 0; }
+  l4_ret_t pre_allocate(l4_addr_t, l4_size_t, unsigned) override { return 0; }
 };
 
 };

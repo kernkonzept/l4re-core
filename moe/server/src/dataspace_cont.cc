@@ -72,7 +72,7 @@ Moe::Dataspace_cont::address(l4_addr_t offset,
   return Address(map_base, order, flags & map_flags(), offs);
 }
 
-int
+l4_ret_t
 Moe::Dataspace_cont::copy_address(l4_addr_t offset, Flags, l4_addr_t *addr,
                                   unsigned long *size) const
 {
@@ -114,7 +114,7 @@ void Moe::Dataspace_cont::unmap() const noexcept
                         L4_FP_OTHER_SPACES);
 }
 
-int
+l4_ret_t
 Moe::Dataspace_cont::dma_map(Dma_space * /* dma */, l4_addr_t offset,
                              l4_size_t *size,
                              Dma_attribs /* dma_attr */,
@@ -130,7 +130,7 @@ Moe::Dataspace_cont::dma_map(Dma_space * /* dma */, l4_addr_t offset,
 }
 
 #if !defined(CONFIG_MMU)
-long
+l4_ret_t
 Moe::Dataspace_cont::map_info(l4_addr_t &start_addr,
                               l4_addr_t &end_addr) const noexcept
 {

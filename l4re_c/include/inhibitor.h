@@ -25,7 +25,7 @@ L4_BEGIN_DECLS
  * \return 0 for success, <0 on error.
  * \see L4Re::Inhibitor::acquire().
  */
-L4_CV long L4_EXPORT
+L4_CV l4_ret_t L4_EXPORT
 l4re_inhibitor_acquire(l4_cap_idx_t cap, l4_umword_t id,
                        char const *reason);
 
@@ -36,7 +36,7 @@ l4re_inhibitor_acquire(l4_cap_idx_t cap, l4_umword_t id,
  * \return 0 for success, <0 on error.
  * \see L4Re::Inhibitor::release().
  */
-L4_CV long L4_EXPORT
+L4_CV l4_ret_t L4_EXPORT
 l4re_inhibitor_release(l4_cap_idx_t cap, l4_umword_t id);
 
 /**
@@ -54,7 +54,7 @@ l4re_inhibitor_release(l4_cap_idx_t cap, l4_umword_t id);
  * \retval <0: Any other negative failure value.
  * \see L4Re::Inhibitor::next_lock_info().
  */
-L4_CV long L4_EXPORT
+L4_CV l4_ret_t L4_EXPORT
 l4re_inhibitor_next_lock_info(l4_cap_idx_t cap, char *name,
                               unsigned len, l4_mword_t current_id);
 

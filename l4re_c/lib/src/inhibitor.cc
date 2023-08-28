@@ -9,20 +9,20 @@
 #include <l4/re/inhibitor>
 
 
-L4_CV long L4_EXPORT
+L4_CV l4_ret_t L4_EXPORT
 l4re_inhibitor_acquire(l4_cap_idx_t cap, l4_umword_t id,
                        char const *reason)
 {
   return L4::Cap<L4Re::Inhibitor>(cap)->acquire(id, reason);
 }
 
-L4_CV long L4_EXPORT
+L4_CV l4_ret_t L4_EXPORT
 l4re_inhibitor_release(l4_cap_idx_t cap, l4_umword_t id)
 {
   return L4::Cap<L4Re::Inhibitor>(cap)->release(id);
 }
 
-L4_CV long L4_EXPORT
+L4_CV l4_ret_t L4_EXPORT
 l4re_inhibitor_next_lock_info(l4_cap_idx_t cap, char *name,
                               unsigned len, l4_mword_t current_id)
 {

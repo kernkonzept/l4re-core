@@ -68,7 +68,7 @@ enum l4re_ds_map_flags {
  * \ingroup api_l4re_c_ds
  * \see L4Re::Dataspace::map
  */
-L4_CV int
+L4_CV l4_ret_t
 l4re_ds_map(l4re_ds_t ds,
             l4re_ds_offset_t offset,
             l4re_ds_flags_t flags,
@@ -81,7 +81,7 @@ l4re_ds_map(l4re_ds_t ds,
  * \ingroup api_l4re_c_ds
  * \see L4Re::Dataspace::map_page
  */
-L4_CV int
+L4_CV l4_ret_t
 l4re_ds_map_region(l4re_ds_t ds,
                    l4re_ds_offset_t offset,
                    l4re_ds_flags_t flags,
@@ -94,7 +94,7 @@ l4re_ds_map_region(l4re_ds_t ds,
  * \param ds  Dataspace capability.
  * \copydetails L4Re::Dataspace::clear
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_ds_clear(l4re_ds_t ds, l4re_ds_offset_t offset,
               l4re_ds_size_t size) L4_NOTHROW;
 
@@ -104,7 +104,7 @@ l4re_ds_clear(l4re_ds_t ds, l4re_ds_offset_t offset,
  * \param ds  Dataspace capability.
  * \copydetails L4Re::Dataspace::allocate
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_ds_allocate(l4re_ds_t ds,
                  l4re_ds_offset_t offset,
                  l4re_ds_size_t size) L4_NOTHROW;
@@ -115,7 +115,7 @@ l4re_ds_allocate(l4re_ds_t ds,
  * \param ds  Destination dataspace.
  * \copydetails L4Re::Dataspace::copy_in
  */
-L4_CV int
+L4_CV l4_ret_t
 l4re_ds_copy_in(l4re_ds_t ds, l4re_ds_offset_t dst_offs,
                 l4re_ds_t src, l4re_ds_offset_t src_offs,
                 l4re_ds_size_t size) L4_NOTHROW;
@@ -144,7 +144,7 @@ l4re_ds_flags(l4re_ds_t ds) L4_NOTHROW;
  * \param ds  Dataspace capability.
  * \copydetails L4Re::Dataspace::info
  */
-L4_CV int
+L4_CV l4_ret_t
 l4re_ds_info(l4re_ds_t ds, l4re_ds_stats_t *stats) L4_NOTHROW;
 
 /**
@@ -153,7 +153,7 @@ l4re_ds_info(l4re_ds_t ds, l4re_ds_stats_t *stats) L4_NOTHROW;
  * \param ds  Dataspace capability.
  * \copydetails L4Re::Dataspace::map_info
  */
-L4_CV int
+L4_CV l4_ret_t
 l4re_ds_map_info(l4re_ds_t ds,
                  l4_addr_t *start_addr, l4_addr_t *end_addr) L4_NOTHROW;
 

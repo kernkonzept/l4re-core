@@ -9,7 +9,7 @@
 #include <l4/re/debug>
 #include <l4/re/c/debug.h>
 
-long
+l4_ret_t
 l4re_debug_obj_debug(l4_cap_idx_t srv, unsigned long function) L4_NOTHROW
 {
   L4::Cap<L4Re::Debug_obj> x(srv);

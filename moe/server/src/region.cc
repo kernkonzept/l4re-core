@@ -36,9 +36,9 @@ Region_map::Region_map()
 #endif
 }
 
-int Region_ops::map(Region_handler const *h, l4_addr_t adr,
-                    L4Re::Util::Region const &r, bool need_w,
-                    L4::Ipc::Snd_fpage *result)
+l4_ret_t Region_ops::map(Region_handler const *h, l4_addr_t adr,
+                         L4Re::Util::Region const &r, bool need_w,
+                         L4::Ipc::Snd_fpage *result)
 {
   if (!h->memory())
     return -L4_EADDRNOTAVAIL;
@@ -74,7 +74,7 @@ Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
   h->memory()->clear(h->offset() + start, size);
 }
 
-int
+l4_ret_t
 Region_ops::map_info(Region_handler const *h,
                      l4_addr_t *start_addr, l4_addr_t *end_addr)
 {
@@ -90,7 +90,7 @@ Region_ops::map_info(Region_handler const *h,
 }
 
 
-int
+l4_ret_t
 Region_map::validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
                         L4Re::Rm::Region_flags flags, Dataspace *ds)
 {
@@ -113,7 +113,7 @@ Region_map::validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
   return L4_EOK;
 }
 
-long
+l4_ret_t
 Region_map::op_io_page_fault(L4::Io_pager::Rights,
                              l4_fpage_t io_pfa, l4_umword_t pc,
                              L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)

@@ -46,7 +46,7 @@ public:
     l4_fpage_t fpage;
     l4_addr_t offs;
 
-    Address(long error) noexcept : offs(-1UL) { fpage.raw = error; }
+    Address(l4_ret_t error) noexcept : offs(-1UL) { fpage.raw = error; }
 
     Address(l4_addr_t base, l4_addr_t size,
             Flags flags,
@@ -73,7 +73,7 @@ public:
      * \brief Get the error code that led to the invalid address.
      * \pre is_nil() must return true.
      */
-    long error() const noexcept { return fpage.raw; }
+    l4_ret_t error() const noexcept { return fpage.raw; }
 
   };
 
@@ -88,10 +88,10 @@ public:
                           Flags flags = L4Re::Dataspace::F::RWX,
                           l4_addr_t hot_spot = 0,
                           l4_addr_t min = 0, l4_addr_t max = ~0) const = 0;
-  virtual int copy_address(l4_addr_t ds_offset, Flags flags,
-                           l4_addr_t *copy_addr, unsigned long *copy_size) const = 0;
+  virtual l4_ret_t copy_address(l4_addr_t ds_offset, Flags flags,
+                                l4_addr_t *copy_addr, unsigned long *copy_size) const = 0;
 
-  virtual int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
+  virtual l4_ret_t pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
 
   bool can_cow() const noexcept
   {
@@ -116,10 +116,10 @@ public:
   unsigned long page_size() const noexcept { return 1UL << _page_shift; }
 
   virtual bool is_static() const noexcept = 0;
-  virtual long clear(unsigned long offs, unsigned long size) const noexcept;
+  virtual l4_ret_t clear(unsigned long offs, unsigned long size) const noexcept;
 
-  virtual long map_info(l4_addr_t &start_addr,
-                        l4_addr_t &end_addr) const noexcept;
+  virtual l4_ret_t map_info(l4_addr_t &start_addr,
+                            l4_addr_t &end_addr) const noexcept;
 
 protected:
   void size(unsigned long size) noexcept { _size = size; }
@@ -134,31 +134,31 @@ public:
   { return offset < size() && size() - offset >= sz; }
 
 public:
-  int map(l4_addr_t offs, l4_addr_t spot, Flags flags,
-          l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory);
+  l4_ret_t map(l4_addr_t offs, l4_addr_t spot, Flags flags,
+               l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory);
 
   typedef Dma_space::Attributes Dma_attribs;
-  virtual int dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
-                      Dma_attribs dma_attrs, Dma_space::Direction dir,
-                      Dma_space::Dma_addr *dma_addr);
+  virtual l4_ret_t dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
+                           Dma_attribs dma_attrs, Dma_space::Direction dir,
+                           Dma_space::Dma_addr *dma_addr);
 
-  long op_map(L4Re::Dataspace::Rights rights,
-              L4Re::Dataspace::Offset offset,
-              L4Re::Dataspace::Map_addr spot,
-              L4Re::Dataspace::Flags flags, L4::Ipc::Snd_fpage &fp);
+  l4_ret_t op_map(L4Re::Dataspace::Rights rights,
+                  L4Re::Dataspace::Offset offset,
+                  L4Re::Dataspace::Map_addr spot,
+                  L4Re::Dataspace::Flags flags, L4::Ipc::Snd_fpage &fp);
 
-  long op_allocate(L4Re::Dataspace::Rights rights,
-                   L4Re::Dataspace::Offset offset,
-                   L4Re::Dataspace::Size size)
+  l4_ret_t op_allocate(L4Re::Dataspace::Rights rights,
+                       L4Re::Dataspace::Offset offset,
+                       L4Re::Dataspace::Size size)
   { return pre_allocate(offset, size, rights & 3); }
 
-  long op_copy_in(L4Re::Dataspace::Rights rights,
-                  L4Re::Dataspace::Offset dst_offs,
-                  L4::Ipc::Snd_fpage const &src_cap,
-                  L4Re::Dataspace::Offset src_offs,
-                  L4Re::Dataspace::Size sz);
+  l4_ret_t op_copy_in(L4Re::Dataspace::Rights rights,
+                      L4Re::Dataspace::Offset dst_offs,
+                      L4::Ipc::Snd_fpage const &src_cap,
+                      L4Re::Dataspace::Offset src_offs,
+                      L4Re::Dataspace::Size sz);
 
-  long op_info(L4Re::Dataspace::Rights rights, L4Re::Dataspace::Stats &s)
+  l4_ret_t op_info(L4Re::Dataspace::Rights rights, L4Re::Dataspace::Stats &s)
   {
     s.size = size();
     s.flags = flags();
@@ -169,9 +169,9 @@ public:
     return L4_EOK;
   }
 
-  long op_clear(L4Re::Dataspace::Rights rights,
-                L4Re::Dataspace::Offset offset,
-                L4Re::Dataspace::Size size)
+  l4_ret_t op_clear(L4Re::Dataspace::Rights rights,
+                    L4Re::Dataspace::Offset offset,
+                    L4Re::Dataspace::Size size)
   {
     if (!map_flags(rights).w())
       return -L4_EACCESS;
@@ -179,9 +179,9 @@ public:
     return clear(offset, size);
   }
 
-  long op_map_info(L4Re::Dataspace::Rights rights,
-                   l4_addr_t &start_addr,
-                   l4_addr_t &end_addr);
+  l4_ret_t op_map_info(L4Re::Dataspace::Rights rights,
+                       l4_addr_t &start_addr,
+                       l4_addr_t &end_addr);
 
 private:
   unsigned long  _size;
@@ -191,6 +191,3 @@ private:
 };
 
 }
-
-
-

@@ -34,7 +34,7 @@ public:
   Allocator *allocator() const { return _alloc; }
 
   cxx::Weak_ref<Region_map> const &rm() { return _rm; }
-  long op_signal(L4Re::Parent::Rights, unsigned long, unsigned long);
+  l4_ret_t op_signal(L4Re::Parent::Rights, unsigned long, unsigned long);
 
   void task_cap(L4::Cap<L4::Task> const &c) { _task = c; }
   void thread_cap(L4::Cap<L4::Thread> const &c) { _thread = c; }

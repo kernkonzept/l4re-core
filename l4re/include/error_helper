@@ -46,9 +46,9 @@ namespace L4Re {
     }
 }
 
-[[noreturn]] inline void throw_error_fmt(long err, char const *const fmt, ...)
+[[noreturn]] inline void throw_error_fmt(l4_ret_t err, char const *const fmt, ...)
   __attribute__((format(printf, 2, 3)));
-[[noreturn]] inline void throw_error_fmt(long err, char const *const fmt, ...)
+[[noreturn]] inline void throw_error_fmt(l4_ret_t err, char const *const fmt, ...)
 {
   char extra[80];
   va_list argp;
@@ -69,7 +69,7 @@ namespace L4Re {
  * otherwise returns err.
  */
 inline
-long chksys(long err, char const *extra = "", long ret = 0)
+l4_ret_t chksys(l4_ret_t err, char const *extra = "", l4_ret_t ret = 0)
 {
   if (L4_UNLIKELY(err < 0))
     throw_error(ret ? ret : err, extra);
@@ -90,8 +90,8 @@ long chksys(long err, char const *extra = "", long ret = 0)
  * message tag is returned.
  */
 inline
-long chksys(l4_msgtag_t const &t, char const *extra = "",
-            l4_utcb_t *utcb = l4_utcb(), long ret = 0)
+l4_ret_t chksys(l4_msgtag_t const &t, char const *extra = "",
+                l4_utcb_t *utcb = l4_utcb(), l4_ret_t ret = 0)
 {
   if (L4_UNLIKELY(t.has_error()))
     throw_error(ret ? ret : l4_error_u(t, utcb), extra);
@@ -113,12 +113,12 @@ long chksys(l4_msgtag_t const &t, char const *extra = "",
  * message tag is returned.
  */
 inline
-long chksys(l4_msgtag_t const &t, l4_utcb_t *utcb, char const *extra = "")
+l4_ret_t chksys(l4_msgtag_t const &t, l4_utcb_t *utcb, char const *extra = "")
 { return chksys(t, extra, utcb); }
 
 #if 0
 inline
-long chksys(long ret, long err, char const *extra = "")
+long chksys(l4_ret_t ret, l4_ret_t err, char const *extra = "")
 {
   if (L4_UNLIKELY(ret < 0))
     throw_error(err, extra);
@@ -146,9 +146,9 @@ long chksys(long ret, long err, char const *extra = "")
 template<typename T>
 inline
 #if __cplusplus >= 201103L
-T chkcap(T &&cap, char const *extra = "", long err = -L4_ENOMEM)
+T chkcap(T &&cap, char const *extra = "", l4_ret_t err = -L4_ENOMEM)
 #else
-T chkcap(T cap, char const *extra = "", long err = -L4_ENOMEM)
+T chkcap(T cap, char const *extra = "", l4_ret_t err = -L4_ENOMEM)
 #endif
 {
   if (L4_UNLIKELY(!cap.is_valid()))

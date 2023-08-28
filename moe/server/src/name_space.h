@@ -169,19 +169,19 @@ public:
   Const_iterator end() const { return _tree.end(); }
 
   // server interface ------------------------------------------
-  int op_query(L4Re::Namespace::Rights,
-               Name_buffer const &name,
-               L4::Ipc::Snd_fpage &snd_cap, L4::Ipc::Opt<L4::Opcode> &,
-               L4::Ipc::Opt<L4::Ipc::Array_ref<char, unsigned long> > &out_name);
+  l4_ret_t op_query(L4Re::Namespace::Rights,
+                    Name_buffer const &name,
+                    L4::Ipc::Snd_fpage &snd_cap, L4::Ipc::Opt<L4::Opcode> &,
+                    L4::Ipc::Opt<L4::Ipc::Array_ref<char, unsigned long> > &out_name);
 
-  int op_register_obj(L4Re::Namespace::Rights, unsigned flags,
-                      Name_buffer const &name, L4::Ipc::Snd_fpage &cap);
+  l4_ret_t op_register_obj(L4Re::Namespace::Rights, unsigned flags,
+                           Name_buffer const &name, L4::Ipc::Snd_fpage &cap);
 
-  int op_unlink(L4Re::Namespace::Rights r, Name_buffer const &name);
+  l4_ret_t op_unlink(L4Re::Namespace::Rights r, Name_buffer const &name);
 
   // internally used to register bootfs files, name spaces...
   template <typename T>
-  int register_obj(Entry::Name const &name, unsigned long flags, T cap)
+  l4_ret_t register_obj(Entry::Name const &name, unsigned long flags, T cap)
   {
     cxx::unique_ptr<Entry> n(qalloc()->make_obj<Entry>(name.start(), name.len(),
                                                        flags | Entry::F_static));

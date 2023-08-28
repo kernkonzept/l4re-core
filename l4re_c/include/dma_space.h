@@ -57,7 +57,7 @@ typedef l4_uint64_t l4re_dma_space_dma_addr_t;
  * \copydetails L4Re::Dma_space::map
  * \ingroup api_l4re_c_dma
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_map(l4re_dma_space_t dma, l4re_ds_t src,
                    l4re_ds_offset_t offset,
                    l4_size_t * size, unsigned long attrs,
@@ -71,7 +71,7 @@ l4re_dma_space_map(l4re_dma_space_t dma, l4re_ds_t src,
  * \copydetails L4Re::Dma_space::unmap
  * \ingroup api_l4re_c_dma
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
                      l4_size_t size, unsigned long attrs,
                      enum l4re_dma_space_direction dir) L4_NOTHROW;
@@ -82,7 +82,7 @@ l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
  * \copydetails L4Re::Dma_space::associate
  * \ingroup api_l4re_c_dma
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t dma_task,
                          unsigned long attr) L4_NOTHROW;
 
@@ -92,7 +92,7 @@ l4re_dma_space_associate(l4re_dma_space_t dma, l4_cap_idx_t dma_task,
  * \copydetails L4Re::Dma_space::disassociate
  * \ingroup api_l4re_c_dma
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_dma_space_disassociate(l4re_dma_space_t dma);
 
 

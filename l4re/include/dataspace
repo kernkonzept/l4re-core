@@ -155,7 +155,7 @@ public:
    * invalid or does not overlap the local address, the smallest valid
    * page size is used.
    */
-  long map(Offset offset, Flags flags, Map_addr local_addr,
+  l4_ret_t map(Offset offset, Flags flags, Map_addr local_addr,
            Map_addr min_addr, Map_addr max_addr,
            L4::Cap<L4::Task> dst = L4::Cap<L4::Task>::Invalid) const noexcept;
 
@@ -186,9 +186,9 @@ public:
    * to the page boundary. If the resulting maximum address is less or equal
    * than the minimum address, then the function is a noop.
    */
-  long map_region(Offset offset, Flags flags,
-                  Map_addr min_addr, Map_addr max_addr,
-                  L4::Cap<L4::Task> dst = L4::Cap<L4::Task>::Invalid) const noexcept;
+  l4_ret_t map_region(Offset offset, Flags flags,
+                      Map_addr min_addr, Map_addr max_addr,
+                      L4::Cap<L4::Task> dst = L4::Cap<L4::Task>::Invalid) const noexcept;
 
   /**
    * Clear parts of a dataspace.
@@ -207,7 +207,7 @@ public:
    * the memory could also be deallocated and replaced by
    * a shared zero-page.
    */
-  L4_RPC(long, clear, (Offset offset, Size size));
+  L4_RPC(l4_ret_t, clear, (Offset offset, Size size));
 
   /**
    * Allocate a range in the dataspace.
@@ -228,7 +228,7 @@ public:
    * The memory is allocated with the same rights as the dataspace
    * capability.
    */
-  L4_RPC(long, allocate, (Offset offset, Size size));
+  L4_RPC(l4_ret_t, allocate, (Offset offset, Size size));
 
   /**
    * Copy contents from another dataspace.
@@ -248,8 +248,8 @@ public:
    * also fail if both dataspaces are not from the same dataspace manager
    * or the dataspace managers do not cooperate.
    */
-  L4_RPC(long, copy_in, (Offset dst_offs, L4::Ipc::Cap<Dataspace> src,
-                         Offset src_offs, Size size));
+  L4_RPC(l4_ret_t, copy_in, (Offset dst_offs, L4::Ipc::Cap<Dataspace> src,
+                             Offset src_offs, Size size));
 
   /**
    * Get size of a dataspace.
@@ -276,11 +276,11 @@ public:
    * \retval 0   Success
    * \retval <0  IPC errors
    */
-  L4_RPC(long, info, (Stats *stats));
+  L4_RPC(l4_ret_t, info, (Stats *stats));
 
-  L4_RPC_NF(long, map, (Offset offset, Map_addr spot,
-                        Flags flags, L4::Ipc::Rcv_fpage r,
-                        L4::Ipc::Snd_fpage &fp));
+  L4_RPC_NF(l4_ret_t, map, (Offset offset, Map_addr spot,
+                            Flags flags, L4::Ipc::Rcv_fpage r,
+                            L4::Ipc::Snd_fpage &fp));
 
   /**
    * Get mapping range of dataspace.
@@ -312,8 +312,8 @@ public:
 
 private:
 
-  long __map(Offset offset, unsigned char *order, Flags flags,
-             Map_addr local_addr, L4::Cap<L4::Task> dst) const noexcept;
+  l4_ret_t __map(Offset offset, unsigned char *order, Flags flags,
+                 Map_addr local_addr, L4::Cap<L4::Task> dst) const noexcept;
 
 public:
   typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t,

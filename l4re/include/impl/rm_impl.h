@@ -31,7 +31,7 @@ L4_RPC_DEF(L4Re::Rm::get_info);
 namespace L4Re
 {
 
-long
+l4_ret_t
 Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
            L4::Ipc::Cap<Dataspace> mem, Rm::Offset offs,
            unsigned char align, L4::Cap<L4::Task> const task,
@@ -42,8 +42,8 @@ Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
     mem = L4::Ipc::Cap<L4Re::Dataspace>();
 
   char const n = '\0';
-  long e = attach_t::call(c(), start, size, flags, mem, offs, align,
-                          mem.cap().cap(), name ? name : &n, backing_offset);
+  l4_ret_t e = attach_t::call(c(), start, size, flags, mem, offs, align,
+                              mem.cap().cap(), name ? name : &n, backing_offset);
   if (e < 0)
     return e;
 
@@ -58,13 +58,13 @@ Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
   return e;
 }
 
-int
+l4_ret_t
 Rm::detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
            L4::Cap<L4::Task> task, unsigned flags) const noexcept
 {
   l4_addr_t rstart = 0, rsize = 0;
   l4_cap_idx_t mem_cap = L4_INVALID_CAP;
-  long e = detach_t::call(c(), start, size, flags, rstart, rsize, mem_cap);
+  l4_ret_t e = detach_t::call(c(), start, size, flags, rstart, rsize, mem_cap);
   if (L4_UNLIKELY(e < 0))
     return e;
 

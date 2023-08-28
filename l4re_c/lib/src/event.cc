@@ -9,7 +9,7 @@
 #include <l4/re/event>
 #include <l4/re/c/event.h>
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_buffer(const l4_cap_idx_t server,
                       const l4_cap_idx_t ds) L4_NOTHROW
 {
@@ -18,7 +18,7 @@ l4re_event_get_buffer(const l4_cap_idx_t server,
   return x->get_buffer(_ds);
 }
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_num_streams(const l4_cap_idx_t server) L4_NOTHROW
 {
   L4::Cap<L4Re::Event> x(server);
@@ -26,7 +26,7 @@ l4re_event_get_num_streams(const l4_cap_idx_t server) L4_NOTHROW
 }
 
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_stream_info(const l4_cap_idx_t server,
                            int idx, l4re_event_stream_info_t *info) L4_NOTHROW
 {
@@ -34,7 +34,7 @@ l4re_event_get_stream_info(const l4_cap_idx_t server,
   return x->get_stream_info(idx, static_cast<L4Re::Event_stream_info*>(info));
 }
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_stream_info_for_id(const l4_cap_idx_t server, l4_umword_t id,
                                   l4re_event_stream_info_t *info) L4_NOTHROW
 {
@@ -42,7 +42,7 @@ l4re_event_get_stream_info_for_id(const l4_cap_idx_t server, l4_umword_t id,
   return x->get_stream_info_for_id(id, static_cast<L4Re::Event_stream_info*>(info));
 }
 
-L4_CV long
+L4_CV l4_ret_t
 l4re_event_get_axis_info(const l4_cap_idx_t server, l4_umword_t id,
                          unsigned naxes, unsigned const *axis,
                          l4re_event_absinfo_t *info) L4_NOTHROW

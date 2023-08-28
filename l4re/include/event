@@ -146,7 +146,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_RPC(long, get_buffer, (L4::Ipc::Out<L4::Cap<Dataspace>> ds));
+  L4_RPC(l4_ret_t, get_buffer, (L4::Ipc::Out<L4::Cap<Dataspace>> ds));
 
   /**
    * Get number of event streams.
@@ -154,7 +154,7 @@ public:
    * \retval >=0  Number of streams.
    * \retval <0   Error code.
    */
-  L4_RPC(long, get_num_streams, ());
+  L4_RPC(l4_ret_t, get_num_streams, ());
 
   /**
    * Get event stream infos.
@@ -167,7 +167,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_RPC(long, get_stream_info, (int idx, Event_stream_info *info));
+  L4_RPC(l4_ret_t, get_stream_info, (int idx, Event_stream_info *info));
 
   /**
    * Get event stream infos.
@@ -178,7 +178,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_RPC(long, get_stream_info_for_id, (l4_umword_t stream_id, Event_stream_info *info));
+  L4_RPC(l4_ret_t, get_stream_info_for_id, (l4_umword_t stream_id, Event_stream_info *info));
 
   /**
    * Get event stream axis infos.
@@ -191,11 +191,13 @@ public:
    * \retval >=0  Number of returned axes infos.
    * \retval <0   Error code.
    */
-  L4_RPC_NF(long, get_axis_info, (l4_umword_t stream_id,
-                                  L4::Ipc::Array<unsigned const, unsigned long> axes,
-                                  L4::Ipc::Array<Event_absinfo, unsigned long> &info));
+  L4_RPC_NF(l4_ret_t, get_axis_info, (l4_umword_t stream_id,
+                                      L4::Ipc::Array<unsigned const,
+                                      unsigned long> axes,
+                                      L4::Ipc::Array<Event_absinfo,
+                                      unsigned long> &info));
 
-  long get_axis_info(l4_umword_t stream_id, unsigned naxes,
+  l4_ret_t get_axis_info(l4_umword_t stream_id, unsigned naxes,
                      unsigned const *axis, Event_absinfo *info) const noexcept
   {
     L4::Ipc::Array<Event_absinfo, unsigned long> i(naxes, info);
@@ -212,8 +214,8 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_RPC(long, get_stream_state_for_id, (l4_umword_t stream_id,
-                                         Event_stream_state *state));
+  L4_RPC(l4_ret_t, get_stream_state_for_id, (l4_umword_t stream_id,
+                                             Event_stream_state *state));
 
   typedef L4::Typeid::Rpcs<
     get_buffer_t,

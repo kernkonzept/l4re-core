@@ -63,10 +63,10 @@
  * when used, see the following table for details.
  *
  * ~~~~~~{.cpp}
- * L4_RPC(long, test, (int arg1, char const *arg2, unsigned *ret1));
+ * L4_RPC(l4_ret_t, test, (int arg1, char const *arg2, unsigned *ret1));
  * ~~~~~~
  *
- * The example shows the declaration of a method called `test` with `long`
+ * The example shows the declaration of a method called `test` with `l4_ret_t`
  * as return type, `arg1` is an `int` input, `arg2` a `char` input, and
  * `ret1` an `unsigned` output parameter.
  *
@@ -139,7 +139,7 @@
  * \section l4_cxx_ipc_iface_return_types RPC Return Types
  *
  * On the server side, the return type of an RPC handling function is always
- * `long`. The return value is transmitted via the label field in l4_msgtag_t
+ * `l4_ret_t`. The return value is transmitted via the label field in l4_msgtag_t
  * and is therefore restricted to its length. Per convention, a negative
  * return value is interpreted as an error condition. If the return value
  * is negative, output parameters are not transmitted back to the client.
@@ -149,7 +149,7 @@
  *
  * On the client-side, the return value of the RPC is set as defined in
  * the RPC macro. If `l4_msgtag_t` is given, then the client has access
- * to the full message tag, otherwise the return type should be `long`.
+ * to the full message tag, otherwise the return type should be `l4_ret_t`.
  * Note that the client might not only receive the server return value in
  * response but also an IPC error code.
  *
@@ -229,11 +229,11 @@ namespace L4 { namespace Ipc {
  *
  * Examples:
  * ~~~~~~~~~~~{.cpp}
- * L4_RPC(long, send, (unsigned value), L4::Ipc::Call);
+ * L4_RPC(l4_ret_t, send, (unsigned value), L4::Ipc::Call);
  * ~~~~~~~~~~~
  * which is equivalent to:
  * ~~~~~~~~~~~{.cpp}
- * L4_RPC(long, send, (unsigned value));
+ * L4_RPC(l4_ret_t, send, (unsigned value));
  * ~~~~~~~~~~~
  */
 struct L4_EXPORT Call
@@ -263,7 +263,7 @@ struct L4_EXPORT Call_zero_send_timeout : Call
  *
  * Examples:
  * ~~~~~~~~~~~{.cpp}
- * L4_RPC(long, func, (unsigned value), L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+ * L4_RPC(l4_ret_t, func, (unsigned value), L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
  * ~~~~~~~~~~~
  */
 template<unsigned RIGHTS>
@@ -281,7 +281,7 @@ struct L4_EXPORT Call_t : Call
  *
  * Examples:
  * ~~~~~~~~~~~{.cpp}
- * L4_RPC(long, send, (unsigned value), L4::Ipc::Send_only);
+ * L4_RPC(l4_ret_t, send, (unsigned value), L4::Ipc::Send_only);
  * ~~~~~~~~~~~
  */
 struct L4_EXPORT Send_only
@@ -338,7 +338,7 @@ struct L4_EXPORT Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>
 
   template<typename RES>
   static typename L4::Types::Enable_if< Return_tag, RES >::type
-  return_err(long err) noexcept { return l4_msgtag(err, 0, 0, 0); }
+  return_err(l4_ret_t err) noexcept { return l4_msgtag(err, 0, 0, 0); }
 
   template<typename RES>
   static typename L4::Types::Enable_if< Return_tag, RES >::type
@@ -579,7 +579,7 @@ public:
   { return offset; }
 
   template<typename DIR>
-  static constexpr int read(char *, int offset, int, long) noexcept
+  static constexpr int read(char *, int offset, int, l4_ret_t) noexcept
   { return offset; }
 
   typedef void Base;
@@ -606,7 +606,7 @@ struct Buf<A, M...> : Buf<M...>
 
   template<typename DIR>
   static int
-  read(char *base, int offset, int limit, long ret,
+  read(char *base, int offset, int limit, l4_ret_t ret,
        arg_type a, typename _Elem<M>::arg_type ...m) noexcept
   {
     int r = xmit::from_msg(base, offset, limit, ret, plain::deref(a),
@@ -638,7 +638,7 @@ template <typename ...ARGS> struct _Part
   }
 
   template<typename DIR>
-  static int read(void *b, int offset, int limit, long ret,
+  static int read(void *b, int offset, int limit, l4_ret_t ret,
                        typename _Elem<ARGS>::arg_type ...m) noexcept
   {
     char *buf = static_cast<char *>(b);
@@ -785,7 +785,7 @@ Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>::
     return return_ipc_err<R>(t, utcb);
 
   // take the label as return value
-  long r = t.label();
+  l4_ret_t r = t.label();
 
   // bail out on negative error codes too
   if (L4_UNLIKELY(r < 0))

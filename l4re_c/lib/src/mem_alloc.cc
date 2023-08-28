@@ -14,7 +14,7 @@
 #include <l4/sys/err.h>
 
 
-long
+l4_ret_t
 l4re_ma_alloc_align_srv(l4_cap_idx_t srv, long size,
                         l4re_ds_t const mem, unsigned long flags,
                         unsigned long align) L4_NOTHROW

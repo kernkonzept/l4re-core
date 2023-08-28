@@ -52,7 +52,7 @@ typedef l4_cap_idx_t l4re_namespace_t;
  *                 object has been attached yet.
  * \copydetails l4re_ns_query_srv()
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_ns_query_to_srv(l4re_namespace_t srv, char const *name,
                      l4_cap_idx_t const cap, int timeout) L4_NOTHROW;
 
@@ -72,7 +72,7 @@ l4re_ns_query_to_srv(l4re_namespace_t srv, char const *name,
  *                     Try again later.
  * \retval <0          IPC errors, see #l4_error_code_t.
  */
-L4_CV L4_INLINE long
+L4_CV L4_INLINE l4_ret_t
 l4re_ns_query_srv(l4re_namespace_t srv, char const *name,
                   l4_cap_idx_t const cap) L4_NOTHROW;
 
@@ -83,7 +83,7 @@ l4re_ns_query_srv(l4re_namespace_t srv, char const *name,
  * \param srv  Name space server to use for the query.
  * \copydetails L4Re::Namespace::register_obj
  */
-L4_CV long
+L4_CV l4_ret_t
 l4re_ns_register_obj_srv(l4re_namespace_t srv, char const *name,
                          l4_cap_idx_t const obj, unsigned flags) L4_NOTHROW;
 
@@ -91,7 +91,7 @@ l4re_ns_register_obj_srv(l4re_namespace_t srv, char const *name,
 
 /****** Implementation ***********/
 
-L4_CV L4_INLINE long
+L4_CV L4_INLINE l4_ret_t
 l4re_ns_query_srv(l4re_namespace_t srv, char const *name,
                   l4_cap_idx_t const cap) L4_NOTHROW
 {
