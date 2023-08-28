@@ -14,3 +14,19 @@
 
 #define L4_DEFINE_ARM64_KERNEL_ENTRY_SYMS \
    PROVIDE_HIDDEN(__l4_sys_syscall = __L4_KIP_ADDR__ + 0x800);
+
+#ifdef LD_LLD
+  /* Be compatible with ld.lld´s --image-base option. */
+# define L4_SET_BASE(default_addr) \
+  . += SIZEOF_HEADERS
+# define L4_DEFINE_EXECUTABLE_START(default_addr) \
+  PROVIDE (__executable_start = .); \
+  L4_SET_BASE(default_addr)
+#else
+  /* Default from GNU binutils. */
+# define L4_SET_BASE(default_addr) \
+  . = SEGMENT_START("text-segment", default_addr) + SIZEOF_HEADERS
+# define L4_DEFINE_EXECUTABLE_START(default_addr) \
+  PROVIDE (__executable_start = SEGMENT_START("text-segment", default_addr)); \
+  L4_SET_BASE(default_addr)
+#endif

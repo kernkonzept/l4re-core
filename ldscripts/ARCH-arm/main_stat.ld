@@ -22,7 +22,7 @@ PHDRS
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x00010000)); . = SEGMENT_START("text-segment", 0x00010000) + SIZEOF_HEADERS;
+  L4_DEFINE_EXECUTABLE_START(0x00010000);
   .interp         : { *(.interp) } :ro
   .note.gnu.build-id : { *(.note.gnu.build-id) }
   .hash           : { *(.hash) }

@@ -29,7 +29,7 @@ PHDRS
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x0400000)); . = SEGMENT_START("text-segment", 0x0400000) + SIZEOF_HEADERS;
+  L4_DEFINE_EXECUTABLE_START(0x0400000);
   .interp         : { *(.interp) } :ro
   .MIPS.abiflags        : { *(.MIPS.abiflags) } :ro
   .MIPS.options : { *(.MIPS.options) }

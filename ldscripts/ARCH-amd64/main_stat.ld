@@ -23,7 +23,7 @@ SECTIONS
   /* No program code/data before _stext/_prog_img_start! */
 
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x400000)); . = SEGMENT_START("text-segment", 0x400000) + SIZEOF_HEADERS;
+  L4_DEFINE_EXECUTABLE_START(0x400000);
   .interp         : { *(.interp) } :ro
   .note.gnu.build-id : { *(.note.gnu.build-id) } :ro
   .hash           : { *(.hash) }

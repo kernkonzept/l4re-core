@@ -24,7 +24,7 @@ SECTIONS
   L4_DEFINE_X86_KERNEL_ENTRY_SYMS
 
   /* Read-only sections, merged into text segment: */
-  PROVIDE (__executable_start = SEGMENT_START("text-segment", 0x08048000)); . = SEGMENT_START("text-segment", 0x08048000) + SIZEOF_HEADERS;
+  L4_DEFINE_EXECUTABLE_START(0x08048000);
   .interp         : { *(.interp) } :ro :interp
   .note.gnu.build-id : { *(.note.gnu.build-id) } :ro
   .hash           : { *(.hash) }

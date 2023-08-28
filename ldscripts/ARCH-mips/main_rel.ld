@@ -19,7 +19,7 @@ ENTRY(__start)
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  . = SEGMENT_START("text-segment", 0) + SIZEOF_HEADERS;
+  L4_SET_BASE(0);
   .MIPS.abiflags   : { *(.MIPS.abiflags) }
   .MIPS.options : { *(.MIPS.options) }
   .reginfo         : { *(.reginfo) }
