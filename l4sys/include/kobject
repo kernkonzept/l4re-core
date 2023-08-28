@@ -101,7 +101,7 @@ public:
   { return l4_kobject_dec_refcnt_u(cap(), diff, utcb); }
 };
 
-template<typename Derived, long PROTO = L4::PROTO_ANY,
+template<typename Derived, l4_proto_t PROTO = L4::PROTO_ANY,
          typename S_DEMAND = Type_info::Demand_t<> >
 struct Kobject_0t : Kobject_t<Derived, L4::Kobject, PROTO, S_DEMAND> {};
 

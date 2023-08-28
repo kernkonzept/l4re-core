@@ -27,6 +27,13 @@
  */
 typedef l4_int16_t l4_ret_t;
 
+/**
+ * Prototype value for RPC calls.
+ *
+ * This type must not be larger than the label part of l4_msgtag_t.
+ */
+typedef l4_int16_t l4_proto_t;
+
 
 /**
  * \defgroup l4_msgtag_api Message Tag

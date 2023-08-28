@@ -41,7 +41,7 @@ namespace __I {
   struct Max { enum { Res = A > B ? A : B }; };
 } // namespace __I
 
-enum
+enum : l4_proto_t
 {
   /// Default protocol used by Kobject_t and Kobject_x
   PROTO_ANY   = 0,
@@ -79,7 +79,7 @@ namespace Typeid {
    * \tparam T  The C++ class describing the IPC interface.
    * \ingroup l4_cxx_ipc_internal
    */
-  template<long P, typename T>
+  template<l4_proto_t P, typename T>
   struct Iface
   {
     typedef Iface type;
@@ -97,7 +97,7 @@ namespace Typeid {
   struct Iface_list_end
   {
     typedef Iface_list_end type;
-    static bool contains(long) noexcept { return false; }
+    static bool contains(l4_proto_t) noexcept { return false; }
   };
 
 
@@ -118,7 +118,7 @@ namespace Typeid {
 
     enum { Proto = I::Proto };
 
-    static bool contains(long proto) noexcept
+    static bool contains(l4_proto_t proto) noexcept
     { return (proto == Proto) || Next::contains(proto); }
   };
 
@@ -127,7 +127,7 @@ namespace Typeid {
   struct Iface_list<Iface<PROTO_EMPTY, I>, N> : N {};
 
   // do not insert 'void' type interfaces
-  template<long P, typename N>
+  template<l4_proto_t P, typename N>
   struct Iface_list<Iface<P, void>, N> : N {};
 
 
@@ -267,7 +267,7 @@ namespace Typeid {
   struct _P_dispatch<Iface_list_end>
   {
     template< typename THIS, typename A1, typename A2 >
-    static int f(THIS *, long, A1, A2 &) noexcept
+    static int f(THIS *, l4_proto_t, A1, A2 &) noexcept
     { return -L4_EBADPROTO; }
   };
 
@@ -293,11 +293,11 @@ namespace Typeid {
 
     // dispatch function with switch for meta protocol
     template< typename THIS, typename A1, typename A2 >
-    static int f(THIS *self, long proto, A1 a1, A2 &a2)
+    static int f(THIS *self, l4_proto_t proto, A1 a1, A2 &a2)
     {
       if (I::Proto == proto)
         return _f(self, a1, a2,
-                  Bool<I::Proto == static_cast<long>(L4_PROTO_META)>());
+                  Bool<I::Proto == static_cast<l4_proto_t>(L4_PROTO_META)>());
 
       return _P_dispatch<typename LIST::type>::f(self, proto, a1, a2);
     }
@@ -346,14 +346,14 @@ namespace Typeid {
 
   private:
     template<typename U, U> struct _chk;
-    template<typename U> static long _opc(_chk<int, U::Opcode> *);
+    template<typename U> static l4_proto_t _opc(_chk<int, U::Opcode> *);
     template<typename U> static char _opc(...);
 
     template<unsigned SZ, typename U>
     struct _Opc { enum { value = CODE }; };
 
     template<typename U>
-    struct _Opc<sizeof(long), U> { enum { value = U::Opcode }; };
+    struct _Opc<sizeof(l4_proto_t), U> { enum { value = U::Opcode }; };
 
   public:
     enum { value = _Opc<sizeof(_opc<T>(0)), T>::value };
@@ -579,14 +579,14 @@ struct L4_EXPORT Type_info
   L4_std_type_info_ptr _type;
   Type_info const *const *_bases;
   unsigned _num_bases;
-  long _proto;
+  l4_proto_t _proto;
 
   L4_std_type_info_ptr type() const noexcept { return _type; }
   Type_info const *base(unsigned idx) const noexcept { return _bases[idx]; }
   unsigned num_bases() const noexcept { return _num_bases; }
-  long proto() const noexcept { return _proto; }
+  l4_proto_t proto() const noexcept { return _proto; }
   char const *name() const noexcept { return L4_kobject_type_name(type()); }
-  bool has_proto(long proto) const noexcept
+  bool has_proto(l4_proto_t proto) const noexcept
   {
     if (_proto && _proto == proto)
       return true;
@@ -657,7 +657,7 @@ template<typename T> struct Kobject_typeid
    * by the given protocol number.
    */
   template<typename THIS, typename A1, typename A2>
-  static int proto_dispatch(THIS *self, long proto, A1 a1, A2 &a2)
+  static int proto_dispatch(THIS *self, l4_proto_t proto, A1 a1, A2 &a2)
   { return Typeid::P_dispatch<typename T::__Iface_list>::f(self, proto, a1, a2);  }
   // p_dispatch -----------------------------------------------------------
   // end: to be removed ---------------------------------------
@@ -709,7 +709,7 @@ protected:                                                               \
     static Type_info const _m;                                           \
   };                                                                     \
 public:                                                                  \
-  static long const Protocol = PROTO;                                    \
+  static l4_proto_t const Protocol = PROTO;                                \
   typedef L4::Typeid::Rights<Class> Rights;
 
 /**
@@ -743,7 +743,7 @@ public:                                                                  \
 template<
   typename Derived,
   typename Base,
-  long PROTO = PROTO_ANY,
+  l4_proto_t PROTO = PROTO_ANY,
   typename S_DEMAND = Type_info::Demand_t<>
 >
 class Kobject_t : public Base
@@ -774,7 +774,7 @@ protected:
 
 
 /// \cond
-template< typename Derived, typename Base, long PROTO, typename S_DEMAND>
+template< typename Derived, typename Base, l4_proto_t PROTO, typename S_DEMAND>
 Type_info const *const
 Kobject_t<Derived, Base, PROTO, S_DEMAND>::
   __Kobject_typeid::_b[] = { &Base::__Kobject_typeid::_m };
@@ -784,7 +784,7 @@ Kobject_t<Derived, Base, PROTO, S_DEMAND>::
  * \internal
  * \ingroup l4_kobject_rtti
  */
-template< typename Derived, typename Base, long PROTO, typename S_DEMAND>
+template< typename Derived, typename Base, l4_proto_t PROTO, typename S_DEMAND>
 L4____GEN_TI(Kobject_t<Derived, Base, PROTO, S_DEMAND>);
 
 
@@ -821,7 +821,7 @@ template<
   typename Derived,
   typename Base1,
   typename Base2,
-  long PROTO = PROTO_ANY,
+  l4_proto_t PROTO = PROTO_ANY,
   typename S_DEMAND = Type_info::Demand_t<>
 >
 class Kobject_2t : public Base1, public Base2
@@ -881,7 +881,7 @@ public:
 
 /// \cond
 template< typename Derived, typename Base1, typename Base2,
-          long PROTO, typename S_DEMAND >
+          l4_proto_t PROTO, typename S_DEMAND >
 Type_info const *const
 Kobject_2t<Derived, Base1, Base2, PROTO, S_DEMAND>::__Kobject_typeid::_b[] =
 {
@@ -895,7 +895,7 @@ Kobject_2t<Derived, Base1, Base2, PROTO, S_DEMAND>::__Kobject_typeid::_b[] =
  * \ingroup l4_kobject_rtti
  */
 template< typename Derived, typename Base1, typename Base2,
-          long PROTO, typename S_DEMAND >
+          l4_proto_t PROTO, typename S_DEMAND >
 L4____GEN_TI(Kobject_2t<Derived, Base1, Base2, PROTO, S_DEMAND>);
 
 
@@ -924,7 +924,7 @@ template<
   typename Base1,
   typename Base2,
   typename Base3,
-  long PROTO = PROTO_ANY,
+  l4_proto_t PROTO = PROTO_ANY,
   typename S_DEMAND = Type_info::Demand_t<>
 >
 struct Kobject_3t : Base1, Base2, Base3
@@ -997,7 +997,7 @@ public:
 
 /// \cond
 template< typename Derived, typename Base1, typename Base2, typename Base3,
-          long PROTO, typename S_DEMAND >
+          l4_proto_t PROTO, typename S_DEMAND >
 Type_info const *const
 Kobject_3t<Derived, Base1, Base2, Base3, PROTO, S_DEMAND>::__Kobject_typeid::_b[] =
 {
@@ -1012,7 +1012,7 @@ Kobject_3t<Derived, Base1, Base2, Base3, PROTO, S_DEMAND>::__Kobject_typeid::_b[
  * \ingroup l4_kobject_rtti
  */
 template< typename Derived, typename Base1, typename Base2, typename Base3,
-          long PROTO, typename S_DEMAND >
+          l4_proto_t PROTO, typename S_DEMAND >
 L4____GEN_TI(Kobject_3t<Derived, Base1, Base2, Base3, PROTO, S_DEMAND>);
 
 }
@@ -1085,9 +1085,9 @@ namespace Typeid_xx {
   template< typename T >
   struct Is_demand
   {
-    static long test(Type_info::Demand const *);
+    static l4_proto_t test(Type_info::Demand const *);
     static char test(...);
-    enum { value = sizeof(test(static_cast<T*>(nullptr))) == sizeof(long) };
+    enum { value = sizeof(test(static_cast<T*>(nullptr))) == sizeof(l4_proto_t) };
   };
 
   template< typename T, typename ... >
@@ -1099,7 +1099,7 @@ namespace Typeid_xx {
  * Internal base class for Kobject inheritance, users must use Kobject_x
  * in their software.
  */
-template< typename Derived, long PROTO, typename S_DEMAND, typename ...BASES>
+template< typename Derived, l4_proto_t PROTO, typename S_DEMAND, typename ...BASES>
 struct __Kobject_base : BASES...
 {
 protected:
@@ -1144,7 +1144,7 @@ public:
 };
 
 /// \cond
-template< typename Derived, long PROTO, typename S_DEMAND, typename ...BASES>
+template< typename Derived, l4_proto_t PROTO, typename S_DEMAND, typename ...BASES>
 Type_info const *const
 __Kobject_base<Derived, PROTO, S_DEMAND, BASES...>::__Kobject_typeid::_b[] =
 {
@@ -1152,21 +1152,21 @@ __Kobject_base<Derived, PROTO, S_DEMAND, BASES...>::__Kobject_typeid::_b[] =
 };
 /// \endcond
 
-template< typename Derived, long PROTO, typename S_DEMAND, typename ...BASES>
+template< typename Derived, l4_proto_t PROTO, typename S_DEMAND, typename ...BASES>
 L4____GEN_TI(__Kobject_base<Derived, PROTO, S_DEMAND, BASES...>);
 
 
 // Test if the there is a Demand argument to Kobject_x
-template< typename Derived, long PROTO, bool HAS_DEMAND, typename DEMAND, typename ...ARGS >
+template< typename Derived, l4_proto_t PROTO, bool HAS_DEMAND, typename DEMAND, typename ...ARGS >
 struct __Kobject_x_proto;
 
 // YES: pass it to __Kobject_base
-template< typename Derived, long PROTO, typename DEMAND, typename ...BASES>
+template< typename Derived, l4_proto_t PROTO, typename DEMAND, typename ...BASES>
 struct __Kobject_x_proto<Derived, PROTO, true, DEMAND, BASES...> :
   __Kobject_base<Derived, PROTO, DEMAND, BASES...> {};
 
 // NO: pass it empty Type_info::Demand_t
-template< typename Derived, long PROTO, typename B1, typename ...BASES>
+template< typename Derived, l4_proto_t PROTO, typename B1, typename ...BASES>
 struct __Kobject_x_proto<Derived, PROTO, false, B1, BASES...> :
   __Kobject_base<Derived, PROTO, Type_info::Demand_t<>, B1, BASES...> {};
 
@@ -1177,7 +1177,7 @@ struct __Kobject_x_proto<Derived, PROTO, false, B1, BASES...> :
  * This type must be used when specifying a protocol number with
  * Kobject_x.
  */
-template< long P = PROTO_EMPTY >
+template< l4_proto_t P = PROTO_EMPTY >
 struct Proto_t {};
 
 /**
@@ -1201,7 +1201,7 @@ struct Kobject_x<Derived, A, ARGS...> :
   __Kobject_x_proto<Derived, PROTO_ANY, Typeid_xx::Is_demand<A>::value, A, ARGS...>
 {};
 
-template< typename Derived, long PROTO, typename A, typename ...ARGS >
+template< typename Derived, l4_proto_t PROTO, typename A, typename ...ARGS >
 struct Kobject_x<Derived, Proto_t<PROTO>, A, ARGS...> :
   __Kobject_x_proto<Derived, PROTO, Typeid_xx::Is_demand<A>::value, A, ARGS...>
 {};
