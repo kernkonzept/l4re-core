@@ -56,7 +56,7 @@ DEFINES_arm64-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
 DEFINES_sparc-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
 DEFINES_mips-l4f  += -DUSE_TLS=1 -DUSE___THREAD=1
 
-LDFLAGS_arm64 += -T$(SRC_DIR)/arm64.ld
+LDFLAGS_arm64 += -T $(SRC_DIR)/arm64.ld
 LDFLAGS  =  -nocrt1 -Bsymbolic -Bstatic --warn-common --sort-common \
             --no-undefined -e _start -z defs -z now \
             --discard-locals --discard-all   \
