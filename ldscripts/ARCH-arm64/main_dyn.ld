@@ -183,11 +183,6 @@ SECTIONS
   . = ALIGN(64 / 8);
   __end__ = . ;
   _end = .; PROVIDE (end = .);
-  .stack         0x80000 :
-  {
-    _stack = .;
-    *(.stack)
-  }
   /* Stabs debugging sections.  */
   .stab          0 : { *(.stab) }
   .stabstr       0 : { *(.stabstr) }
