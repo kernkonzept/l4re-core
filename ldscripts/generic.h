@@ -13,5 +13,4 @@
    PROVIDE(__l4sys_debugger_direct = __L4_KIP_ADDR__ + 0x900);
 
 #define L4_DEFINE_ARM64_KERNEL_ENTRY_SYMS \
-   PROVIDE_HIDDEN(__l4_sys_syscall = DEFINED(__l4_sys_syscall) \
-       ? __l4_sys_syscall : __L4_KIP_ADDR__ + 0x800);
+   PROVIDE_HIDDEN(__l4_sys_syscall = __L4_KIP_ADDR__ + 0x800);
