@@ -144,7 +144,7 @@ public:
     ds = new Moe::Dataspace_static((void *)_buf, _size, L4Re::Dataspace::F::R);
 
     object_pool.cap_alloc()->alloc(ds);
-    ns->register_obj(".dirinfo", 0, ds);
+    ns->register_obj(".dirinfo", Moe::Entry::Flags::F_allocated, ds);
   }
 
 private:
