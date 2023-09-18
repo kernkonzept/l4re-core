@@ -298,17 +298,17 @@ public:
 
     if (_items[c].dec() == Counter::unused())
       {
-	if (task != L4_INVALID_CAP)
-	  l4_task_unmap(task, cap.fpage(), unmap_flags);
+        if (task != L4_INVALID_CAP)
+          l4_task_unmap(task, cap.fpage(), unmap_flags);
 
-	if (c < _free_hint)
-	  _free_hint = c;
+        if (c < _free_hint)
+          _free_hint = c;
 
         // Let others allocate this slot only after the l4_task_unmap() has
         // finished.
         _items[c].free();
 
-	return true;
+        return true;
       }
     return false;
   }
