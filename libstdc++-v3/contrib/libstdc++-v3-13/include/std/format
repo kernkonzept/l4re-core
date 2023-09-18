@@ -269,39 +269,26 @@ namespace __format
       if (__first == __last)
 	__builtin_unreachable();
 
-      // TODO: use this loop unconditionally?
-      // Most integers used for arg-id, width or precision will be small.
-      if (is_constant_evaluated())
-	{
-	  auto __next = __first;
-	  unsigned short __val = 0;
-	  while (__next != __last && '0' <= *__next && *__next <= '9')
-	    {
-	      __val = (__val * 10) + (*__next - '0'); // TODO check overflow?
-	      ++__next;
-	    }
-	  if (__next == __first)
-	    return {0, nullptr};
-	  return {__val, __next};
-	}
-
-      unsigned short __val = 0;
       if constexpr (is_same_v<_CharT, char>)
 	{
-	  auto [ptr, ec] = std::from_chars(__first, __last, __val);
-	  if (ec == errc{})
-	    return {__val, ptr};
-	  return {0, nullptr};
+	  const auto __start = __first;
+	  unsigned short __val = 0;
+	  // N.B. std::from_chars is not constexpr in C++20.
+	  if (__detail::__from_chars_alnum<true>(__first, __last, __val, 10)
+		&& __first != __start) [[likely]]
+	    return {__val, __first};
 	}
       else
 	{
+	  unsigned short __val = 0;
 	  constexpr int __n = 32;
 	  char __buf[__n]{};
-	  for (int __i = 0; __i < __n && __first != __last; ++__i)
+	  for (int __i = 0; __i < __n && (__first + __i) != __last; ++__i)
 	    __buf[__i] = __first[__i];
 	  auto [__v, __ptr] = __format::__parse_integer(__buf, __buf + __n);
 	  return {__v, __first + (__ptr - __buf)};
 	}
+      return {0, nullptr};
     }
 
   template<typename _CharT>
@@ -332,7 +319,7 @@ namespace __format
     // Presentation types for integral types (including bool and charT).
     _Pres_d = 1, _Pres_b, _Pres_B, _Pres_o, _Pres_x, _Pres_X, _Pres_c,
     // Presentation types for floating-point types.
-    _Pres_a = 1, _Pres_A, _Pres_e, _Pres_E, _Pres_f, _Pres_g, _Pres_G,
+    _Pres_a = 1, _Pres_A, _Pres_e, _Pres_E, _Pres_f, _Pres_F, _Pres_g, _Pres_G,
     _Pres_p = 0, _Pres_P,   // For pointers.
     _Pres_s = 0,            // For strings and bool.
     _Pres_esc = 0xf,        // For strings and charT.
@@ -534,10 +521,11 @@ namespace __format
 	if (__first[0] != '.')
 	  return __first;
 
-	++__first;
+	iterator __next = ++__first;
 	bool __arg_id = false;
-	auto __next = _S_parse_width_or_precision(__first, __last, _M_prec,
-						  __arg_id, __pc);
+	if (__next != __last)
+	  __next = _S_parse_width_or_precision(__first, __last, _M_prec,
+					       __arg_id, __pc);
 	if (__next == __first)
 	  __throw_format_error("format error: missing precision after '.' in "
 			       "format string");
@@ -623,6 +611,7 @@ namespace __format
     {
       const size_t __buflen = 0x20;
       _CharT __padding_chars[__buflen];
+      __padding_chars[0] = _CharT();
       basic_string_view<_CharT> __padding{__padding_chars, __buflen};
 
       auto __pad = [&__padding] (size_t __n, _Out& __o) {
@@ -830,7 +819,7 @@ namespace __format
 	{
 	  if (_M_spec._M_type == _Pres_esc)
 	    {
-	      // TODO: C++20 escaped string presentation
+	      // TODO: C++23 escaped string presentation
 	    }
 
 	  if (_M_spec._M_width_kind == _WP_none
@@ -1403,8 +1392,11 @@ namespace __format
 	    ++__first;
 	    break;
 	  case 'f':
-	  case 'F':
 	    __spec._M_type = _Pres_f;
+	    ++__first;
+	    break;
+	  case 'F':
+	    __spec._M_type = _Pres_F;
 	    ++__first;
 	    break;
 	  case 'g':
@@ -1461,6 +1453,9 @@ namespace __format
 	      __use_prec = true;
 	      __fmt = chars_format::scientific;
 	      break;
+	    case _Pres_F:
+	      __upper = true;
+	      [[fallthrough]];
 	    case _Pres_f:
 	      __use_prec = true;
 	      __fmt = chars_format::fixed;
@@ -1497,9 +1492,29 @@ namespace __format
 	    {
 	      // If the buffer is too small it's probably because of a large
 	      // precision, or a very large value in fixed format.
-	      size_t __guess =  __prec + sizeof(__buf);
-	      if (__fmt == chars_format::fixed)
-		__guess += max((int)__builtin_log10(__builtin_abs(__v)) / 2, 1);
+	      size_t __guess = 8 + __prec;
+	      if (__fmt == chars_format::fixed) // +ddd.prec
+		{
+		  if constexpr (is_same_v<_Fp, float> || is_same_v<_Fp, double>
+				  || is_same_v<_Fp, long double>)
+		    {
+		      // The number of digits to the left of the decimal point
+		      // is floor(log10(max(abs(__v),1)))+1
+		      int __exp{};
+		      if constexpr (is_same_v<_Fp, float>)
+			__builtin_frexpf(__v, &__exp);
+		      else if constexpr (is_same_v<_Fp, double>)
+			__builtin_frexp(__v, &__exp);
+		      else if constexpr (is_same_v<_Fp, long double>)
+			__builtin_frexpl(__v, &__exp);
+		      if (__exp > 0)
+			__guess += 1U + __exp * 4004U / 13301U; // log10(2) approx.
+		    }
+		  else
+		    __guess += numeric_limits<_Fp>::max_exponent10;
+		}
+	      if (__guess <= sizeof(__buf)) [[unlikely]]
+		__guess = sizeof(__buf) * 2;
 	      __dynbuf.reserve(__guess);
 
 	      do
@@ -1609,8 +1624,8 @@ namespace __format
 
 
 	  _Optional_locale __loc;
-	  basic_string_view<_CharT> __str;
 	  basic_string<_CharT> __wstr;
+	  basic_string_view<_CharT> __str;
 	  if constexpr (is_same_v<_CharT, char>)
 	    __str = __narrow_str;
 	  else
@@ -1633,7 +1648,8 @@ namespace __format
 		__wstr = _M_localize(__str, __expc, __fc.locale());
 	      else
 		__wstr = _M_localize(__str, __expc, __loc.value());
-	      __str = __wstr;
+	      if (!__wstr.empty())
+		__str = __wstr;
 	    }
 
 	  size_t __width = _M_spec._M_get_width(__fc);
@@ -2081,19 +2097,31 @@ namespace __format
 	if (__finished())
 	  return __first;
 
-	// _GLIBCXX_RESOLVE_LIB_DEFECTS
-	// P2519R3 Formatting pointers
+// _GLIBCXX_RESOLVE_LIB_DEFECTS
+// P2510R3 Formatting pointers
+#define _GLIBCXX_P2518R3 (__cplusplus > 202302L || ! defined __STRICT_ANSI__)
+
+#if _GLIBCXX_P2518R3
 	__first = __spec._M_parse_zero_fill(__first, __last);
 	if (__finished())
 	  return __first;
+#endif
 
 	__first = __spec._M_parse_width(__first, __last, __pc);
 
-	if (__first != __last && (*__first == 'p' || *__first == 'P'))
+	if (__first != __last)
 	  {
-	    if (*__first == 'P')
+	    if (*__first == 'p')
+	      ++__first;
+#if _GLIBCXX_P2518R3
+	    else if (*__first == 'P')
+	    {
+	      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+	      // P2510R3 Formatting pointers
 	      __spec._M_type = __format::_Pres_P;
-	    ++__first;
+	      ++__first;
+	    }
+#endif
 	  }
 
 	if (__finished())
@@ -2106,13 +2134,25 @@ namespace __format
 	typename basic_format_context<_Out, _CharT>::iterator
 	format(const void* __v, basic_format_context<_Out, _CharT>& __fc) const
 	{
-	  auto __u = reinterpret_cast<__UINT64_TYPE__>(__v);
+	  auto __u = reinterpret_cast<__UINTPTR_TYPE__>(__v);
 	  char __buf[2 + sizeof(__v) * 2];
 	  auto [__ptr, __ec] = std::to_chars(__buf + 2, std::end(__buf),
 					     __u, 16);
-	  const int __n = __ptr - __buf;
+	  int __n = __ptr - __buf;
 	  __buf[0] = '0';
 	  __buf[1] = 'x';
+#if _GLIBCXX_P2518R3
+	  if (_M_spec._M_type == __format::_Pres_P)
+	    {
+	      __buf[1] = 'X';
+	      for (auto __p = __buf + 2; __p != __ptr; ++__p)
+#if __has_builtin(__builtin_toupper)
+		*__p = __builtin_toupper(*__p);
+#else
+		*__p = std::toupper(*__p);
+#endif
+	    }
+#endif
 
 	  basic_string_view<_CharT> __str;
 	  if constexpr (is_same_v<_CharT, char>)
@@ -2125,6 +2165,24 @@ namespace __format
 	      __ct.widen(__buf, __buf + __n, __p);
 	      __str = wstring_view(__p, __n);
 	    }
+
+#if _GLIBCXX_P2518R3
+	  if (_M_spec._M_zero_fill)
+	    {
+	      size_t __width = _M_spec._M_get_width(__fc);
+	      if (__width <= __str.size())
+		return __format::__write(__fc.out(), __str);
+
+	      auto __out = __fc.out();
+	      // Write "0x" or "0X" prefix before zero-filling.
+	      __out = __format::__write(std::move(__out), __str.substr(0, 2));
+	      __str.remove_prefix(2);
+	      size_t __nfill = __width - __n;
+	      return __format::__write_padded(std::move(__out), __str,
+					      __format::_Align_right,
+					      __nfill, _CharT('0'));
+	    }
+#endif
 
 	  return __format::__write_padded_as_spec(__str, __n, __fc, _M_spec,
 						  __format::_Align_right);
@@ -2341,11 +2399,10 @@ namespace __format
 
       // Replace the current output range.
       void
-      _M_reset(span<_CharT> __s,
-	       typename span<_CharT>::iterator __next) noexcept
+      _M_reset(span<_CharT> __s, size_t __pos = 0) noexcept
       {
 	_M_span = __s;
-	_M_next = __next;
+	_M_next = __s.begin() + __pos;
       }
 
       // Called by the iterator for *it++ = c
@@ -2403,7 +2460,7 @@ namespace __format
   // A sink that fills a sequence (e.g. std::string, std::vector, std::deque).
   // Writes to a buffer then appends that to the sequence when it fills up.
   template<typename _Seq>
-    class _Seq_sink : public _Buf_sink<typename _Seq::value_type>
+    class _Seq_sink final : public _Buf_sink<typename _Seq::value_type>
     {
       using _CharT = typename _Seq::value_type;
 
@@ -2414,6 +2471,8 @@ namespace __format
       _M_overflow() override
       {
 	auto __s = this->_M_used();
+	if (__s.empty())
+	  return;
 	if constexpr (__is_specialization_of<_Seq, basic_string>)
 	  _M_seq.append(__s.data(), __s.size());
 	else
@@ -2422,6 +2481,9 @@ namespace __format
       }
 
     public:
+      // TODO: for SSO string, use SSO buffer as initial span, then switch
+      // to _M_buf if it overflows? Or even do that for all unused capacity?
+
       [[__gnu__::__always_inline__]]
       _Seq_sink() noexcept(is_nothrow_default_constructible_v<_Seq>)
       { }
@@ -2435,7 +2497,8 @@ namespace __format
       _Seq
       get() &&
       {
-	_Seq_sink::_M_overflow();
+	if (this->_M_used().size() != 0)
+	  _Seq_sink::_M_overflow();
 	return std::move(_M_seq);
       }
     };
@@ -2491,7 +2554,8 @@ namespace __format
       format_to_n_result<_OutIter>
       _M_finish() &&
       {
-	_Iter_sink::_M_overflow();
+	if (this->_M_used().size() != 0)
+	  _Iter_sink::_M_overflow();
 	iter_difference_t<_OutIter> __count(_M_count);
 	return { std::move(_M_out), __count };
       }
@@ -2505,6 +2569,7 @@ namespace __format
   // not introduce any invalid pointer arithmetic or overflows that would not
   // have happened anyway.
   template<typename _CharT, contiguous_iterator _OutIter>
+    requires same_as<iter_value_t<_OutIter>, _CharT>
     class _Iter_sink<_CharT, _OutIter> : public _Sink<_CharT>
     {
       using uint64_t = __UINTPTR_TYPE__;
@@ -2517,24 +2582,26 @@ namespace __format
 
     protected:
       void
-      _M_overflow()
+      _M_overflow() override
       {
+	if (this->_M_unused().size() != 0)
+	  return; // No need to switch to internal buffer yet.
+
 	auto __s = this->_M_used();
-	_M_count += __s.size();
 
 	if (_M_max >= 0)
 	  {
+	    _M_count += __s.size();
 	    // Span was already sized for the maximum character count,
 	    // if it overflows then any further output must go to the
 	    // internal buffer, to be discarded.
-	    span<_CharT> __buf{_M_buf};
-	    this->_M_reset(__buf, __buf.begin());
+	    this->_M_reset(this->_M_buf);
 	  }
 	else
 	  {
 	    // No maximum character count. Just extend the span to allow
 	    // writing more characters to it.
-	    this->_M_reset({__s.data(), __s.size() + 1024}, __s.end());
+	    this->_M_reset({__s.data(), __s.size() + 1024}, __s.size());
 	  }
       }
 
@@ -2582,15 +2649,18 @@ namespace __format
       format_to_n_result<_OutIter>
       _M_finish() &&
       {
-	_Iter_sink::_M_overflow();
-	iter_difference_t<_OutIter> __count(_M_count);
 	auto __s = this->_M_used();
-	auto __last = _M_first;
-	if (__s.data() == _M_buf) // Wrote at least _M_max characters.
-	  __last += _M_max;
-	else
-	  __last += iter_difference_t<_OutIter>(__s.size());
-	return { __last, __count };
+	if (__s.data() == _M_buf)
+	  {
+	    // Switched to internal buffer, so must have written _M_max.
+	    iter_difference_t<_OutIter> __count(_M_count + __s.size());
+	    return { _M_first + _M_max, __count };
+	  }
+	else // Not using internal buffer yet
+	  {
+	    iter_difference_t<_OutIter> __count(__s.size());
+	    return { _M_first + __count, __count };
+	  }
       }
     };
 
@@ -3259,6 +3329,7 @@ namespace __format
 
   template<typename _Context>
     template<typename... _Args>
+      inline
       basic_format_args<_Context>::
       basic_format_args(const _Store<_Args...>& __store) noexcept
       {
@@ -3503,7 +3574,9 @@ namespace __format
 	      _M_pc.advance_to(__ptr);
 	  }
 	_M_format_arg(__id);
-	_M_pc.advance_to(_M_pc.begin() + 1); // Move past '}'
+	if (begin() == end() || *begin() != '}')
+	  __format::__unmatched_left_brace_in_format_string();
+	_M_pc.advance_to(begin() + 1); // Move past '}'
       }
 
       constexpr virtual void _M_format_arg(size_t __id) = 0;
@@ -3524,14 +3597,14 @@ namespace __format
 
       using iterator = typename _Scanner<_CharT>::iterator;
 
-      void
+      constexpr void
       _M_on_chars(iterator __last) override
       {
 	basic_string_view<_CharT> __str(this->begin(), __last);
 	_M_fc.advance_to(__format::__write(_M_fc.out(), __str));
       }
 
-      void
+      constexpr void
       _M_format_arg(size_t __id) override
       {
 	using _Context = basic_format_context<_Out, _CharT>;
@@ -3830,18 +3903,15 @@ namespace __format
 {
 #if 1
   template<typename _CharT>
-    class _Counting_sink : public _Iter_sink<_CharT, _CharT*>
+    class _Counting_sink final : public _Iter_sink<_CharT, _CharT*>
     {
     public:
       _Counting_sink() : _Iter_sink<_CharT, _CharT*>(nullptr, 0) { }
 
       [[__gnu__::__always_inline__]]
       size_t
-      count()
-      {
-	_Counting_sink::_M_overflow();
-	return this->_M_count;
-      }
+      count() const
+      { return this->_M_count + this->_M_used().size(); }
     };
 #else
   template<typename _CharT>
