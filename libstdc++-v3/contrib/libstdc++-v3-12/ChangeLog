@@ -1,3 +1,57 @@
+2023-09-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/configure.xml: Use conventional option name.
+	* doc/xml/manual/status_cxx2020.xml: Update.
+	* doc/html/*: Regenerate.
+
+2023-09-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR c++/111357
+	* include/bits/utility.h (make_integer_sequence): Add cast.
+	* testsuite/20_util/integer_sequence/pr111357.cc: New test.
+
+2023-07-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-07-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/95048
+	* testsuite/27_io/filesystem/path/construct/95048.cc: Check
+	conversions to wide strings.
+	* testsuite/experimental/filesystem/path/construct/95048.cc:
+	Likewise.
+
+2023-07-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-07-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/104299
+	* doc/xml/manual/configure.xml: Describe stdio_pure argument to
+	--enable-cstdio.
+	* doc/html/manual/configure.html: Regenerate.
+
+2023-06-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-06-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/evolution.xml: Document removal of implicit
+	allocator rebinding extensions in strict mode and for C++20.
+	* doc/html/*: Regenerate.
+
+2023-06-21  Jason Merrill  <jason@redhat.com>
+
+	PR tree-optimization/105651
+	* include/bits/basic_string.tcc (_M_replace): Add an assert
+	to avoid -Wrestrict false positive.
+
 2023-05-30  Alexandre Oliva  <oliva@adacore.com>
 
 	Backported from master:
