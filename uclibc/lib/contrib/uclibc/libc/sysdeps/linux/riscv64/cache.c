@@ -19,6 +19,10 @@
 #include <atomic.h>
 #include <sys/syscall.h>
 
+#ifndef __NR_riscv_flush_icache
+#define __NR_riscv_flush_icache 259
+#endif
+
 typedef int (*func_type) (void *, void *, unsigned long int);
 
 static int
