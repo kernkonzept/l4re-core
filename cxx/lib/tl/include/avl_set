@@ -204,7 +204,7 @@ public:
     bool valid() const { return _n; }
 
     /// Cast to a real item pointer.
-    operator Item_type const * () { if (_n) return &_n->item; else return 0; }
+    operator Item_type const * () { return _n ? &_n->item : 0; }
   };
 
   /// Type for the node allocator.
