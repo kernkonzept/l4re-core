@@ -291,13 +291,10 @@ public:
    *
    * \retval 0         Success
    * \retval -E_noent  Item does not exist
-   * \retval -E_inval  Internal error
    */
   int remove(Key_type const &item)
   {
     _Node *n = _tree.remove(item);
-    if ((long)n == -E_inval)
-      return -E_inval;
 
     if (n)
       {
