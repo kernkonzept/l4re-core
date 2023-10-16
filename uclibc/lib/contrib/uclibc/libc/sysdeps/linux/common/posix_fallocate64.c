@@ -12,6 +12,7 @@
 #include <fcntl.h>
 #include <bits/kernel-features.h>
 #include <stdint.h>
+#include <errno.h>
 
 #if defined __NR_fallocate
 # if __WORDSIZE == 64
@@ -20,7 +21,9 @@
 extern __typeof(fallocate64) __libc_fallocate64 attribute_hidden;
 int posix_fallocate64(int fd, __off64_t offset, __off64_t len)
 {
-	return __libc_fallocate64(fd, 0, offset, len);
+	if (__libc_fallocate64(fd, 0, offset, len))
+		return errno;
+	return 0;
 }
 # else
 #  error your machine is neither 32 bit or 64 bit ... it must be magical

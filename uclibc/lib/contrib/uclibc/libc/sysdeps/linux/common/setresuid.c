@@ -16,7 +16,7 @@
 # define __NR_setresuid __NR_setresuid32
 
 _syscall3(int, setresuid, uid_t, ruid, uid_t, euid, uid_t, suid)
-libc_hidden_def(setresuid)
+libc_hidden_weak(setresuid)
 
 #elif defined(__NR_setresuid)
 
@@ -34,7 +34,7 @@ int setresuid(uid_t ruid, uid_t euid, uid_t suid)
 	}
 	return (__syscall_setresuid(ruid, euid, suid));
 }
-libc_hidden_def(setresuid)
+libc_hidden_weak(setresuid)
 
 #endif
 

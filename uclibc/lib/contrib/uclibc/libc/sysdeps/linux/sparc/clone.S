@@ -22,7 +22,9 @@
 
 #include <asm/errno.h>
 #include <asm/unistd.h>
+#ifdef RESET_PID
 #include <tcb-offsets.h>
+#endif
 #include <sysdep.h>
 
 #define CLONE_VM	0x00000100

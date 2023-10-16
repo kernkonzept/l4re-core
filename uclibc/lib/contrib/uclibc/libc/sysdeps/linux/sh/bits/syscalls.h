@@ -122,7 +122,7 @@
     __asm__ __volatile__ (SYSCALL_INST_STR##nr SYSCALL_INST_PAD	\
 		  : "=z" (resultvar)									\
 		  : "r" (r3) ASMFMT_##nr								\
-		  : "memory"											\
+		  : "memory", "t"											\
     );															\
     (int) resultvar;											\
    }) \

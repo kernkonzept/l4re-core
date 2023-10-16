@@ -98,8 +98,12 @@
 
 /* Cache handling for not-yet free stacks.  */
 
-/* Maximum size in kB of cache.  */
-static size_t stack_cache_maxsize = 40 * 1024 * 1024; /* 40MiBi by default.  */
+/*
+   Maximum size in kB of cache. GNU libc default is 40MiB
+   embedded systems don't have enough ram for big dirty stack caches,
+   reduce it to 16MiB. 4 does not work, f.e. tst-kill4 segfaults.
+*/
+static size_t stack_cache_maxsize = 16 * 1024 * 1024;
 static size_t stack_cache_actsize;
 
 /* Mutex protecting this variable.  */

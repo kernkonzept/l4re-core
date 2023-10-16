@@ -28,7 +28,9 @@
  * error: can't find a register in class ‘GENERAL_REGS’ while reloading ‘asm’
  */
 int
+#ifndef  __OPTIMIZE__
 attribute_optimize("Os")
+#endif
 pthread_mutex_timedlock (
      pthread_mutex_t *mutex,
      const struct timespec *abstime)

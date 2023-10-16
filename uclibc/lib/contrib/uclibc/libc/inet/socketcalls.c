@@ -31,7 +31,8 @@
 #define SYS_ACCEPT4     18
 #endif
 
-#ifdef __sparc__
+/* exposed on x86 since Linux commit 9dea5dc921b5f4045a18c63eb92e84dc274d17eb */
+#if defined(__sparc__) || defined(__i386__)
 #undef __NR_accept
 #undef __NR_accept4
 #undef __NR_bind

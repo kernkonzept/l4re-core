@@ -16,7 +16,7 @@
 # define __NR_setresgid __NR_setresgid32
 
 _syscall3(int, setresgid, gid_t, rgid, gid_t, egid, gid_t, sgid)
-libc_hidden_def(setresgid)
+libc_hidden_weak(setresgid)
 
 #elif defined(__NR_setresgid)
 
@@ -34,7 +34,7 @@ int setresgid(gid_t rgid, gid_t egid, gid_t sgid)
 	}
 	return (__syscall_setresgid(rgid, egid, sgid));
 }
-libc_hidden_def(setresgid)
+libc_hidden_weak(setresgid)
 
 #endif
 

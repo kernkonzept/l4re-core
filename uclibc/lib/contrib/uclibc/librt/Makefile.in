@@ -42,6 +42,7 @@ librt_filter_SRC += $(if $(UCLIBC_HAS_ADVANCED_REALTIME),, \
 	spawn_faction_init.c)
 
 librt_filter_SRC += $(if $(UCLIBC_HAS_STUBS),,rt_stubs.c)
+librt_filter_SRC += $(if $(HAS_NO_THREADS),dso_handle.c)
 
 librt_SRC := $(filter-out $(librt_filter_SRC),$(librt_SRC))
 librt_OBJ := $(patsubst %.c,$(librt_OUT)/%.o,$(librt_SRC))

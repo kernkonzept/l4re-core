@@ -290,7 +290,7 @@ typedef __socklen_t socklen_t;
 /* Test for access to NAME using the real UID and real GID.  */
 extern int access (const char *__name, int __type) __THROW __nonnull ((1));
 
-#if 0 /*def __USE_GNU*/
+#if defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU
 /* Test for access to NAME using the effective UID and GID
    (as normal file operations use).  */
 extern int euidaccess (const char *__name, int __type)

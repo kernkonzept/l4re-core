@@ -39,12 +39,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <malloc.h>
 
 #define SA_LEN(_x)      __libc_sa_len((_x)->sa_family)
 extern int __libc_sa_len(sa_family_t __af) __THROW attribute_hidden;
 
 /* int rexecoptions; - google does not know it */
-static char ahostbuf[NI_MAXHOST];
+static char *ahostbuf = NULL;
 
 int
 rexec_af(char **ahost, int rport, const char *name, const char *pass, const char *cmd, int *fd2p, sa_family_t af)
@@ -77,8 +78,10 @@ rexec_af(char **ahost, int rport, const char *name, const char *pass, const char
 	}
 
 	if (res0->ai_canonname) {
-		strncpy(ahostbuf, res0->ai_canonname, sizeof(ahostbuf));
-		ahostbuf[sizeof(ahostbuf)-1] = '\0';
+		if (!ahostbuf)
+			ahostbuf = __uc_malloc(NI_MAXHOST);
+		strncpy(ahostbuf, res0->ai_canonname, NI_MAXHOST);
+		ahostbuf[NI_MAXHOST-1] = '\0';
 		*ahost = ahostbuf;
 	}
 	else {

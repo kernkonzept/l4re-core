@@ -157,6 +157,10 @@ make_stub(getpeername)
 make_stub(getpgrp)
 #endif
 
+#if !defined __NR_getrandom && defined __UCLIBC_LINUX_SPECIFIC__
+make_stub(getrandom)
+#endif
+
 #if !defined __NR_getsockname && !defined __NR_socketcall && defined __UCLIBC_HAS_SOCKET__
 make_stub(getsockname)
 #endif

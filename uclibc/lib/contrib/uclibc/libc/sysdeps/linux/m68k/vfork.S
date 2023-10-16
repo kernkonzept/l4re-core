@@ -22,20 +22,23 @@ __vfork:
 	movl	%sp@+, %a1               /* save the return address for later */
 	movl	IMM __NR_vfork,%d0
 	trap	#0
-	movl	IMM -4097, %d1
-	cmpl 	%d0, %d1
-	bcs     fix_errno
-	jmp		%a1@                     /* don't return,  just jmp directly */
-fix_errno:
-	negl	%d0
+	movl	%a1, -(%sp)
+
+	cmpil	#-4096,%d0
+	blss	1f
+
+	neg.l	%d0
 #ifndef __PIC__					/* needs handling as the other archs */
 	movl	errno, %a0
 #else
 	movl	errno@GOT(%a5), %a0
 #endif
 	movl	%d0, %a0@
-	movl	IMM -1, %d0
-	jmp		%a1@                     /* don't return,  just jmp directly */
+	move.l	#-1, %d0
+
+1:
+	move.l	%d0, %a0
+	rts
 
 .size __vfork,.-__vfork
 weak_alias(__vfork,vfork)

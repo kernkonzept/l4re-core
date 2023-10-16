@@ -115,7 +115,8 @@ __netlink_request (struct netlink_handle *h, int type)
 {
   struct netlink_res *nlm_next;
   struct netlink_res **new_nlm_list;
-  static volatile size_t buf_size = 4096;
+  static volatile size_t buf_size = 0;
+  size_t this_buf_size;
   char *buf;
   struct sockaddr_nl nladdr;
   struct nlmsghdr *nlmh;
@@ -126,7 +127,15 @@ __netlink_request (struct netlink_handle *h, int type)
   if (__netlink_sendreq (h, type) < 0)
     return -1;
 
-  size_t this_buf_size = buf_size;
+  if (buf_size)
+	  this_buf_size = buf_size;
+  else {
+#ifdef PAGE_SIZE
+	  this_buf_size = PAGE_SIZE;
+#else
+	  this_buf_size = __pagesize;
+#endif
+  }
   if (__libc_use_alloca (this_buf_size))
     buf = alloca (this_buf_size);
   else

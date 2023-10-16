@@ -79,6 +79,7 @@ while (0)
 #define DL_MAP_SEGMENT(EPNT, PPNT, INFILE, FLAGS) \
   __dl_map_segment (EPNT, PPNT, INFILE, FLAGS)
 
+#if defined(__FDPIC__)
 #include "../fdpic/dl-sysdep.h"
 
 static __always_inline Elf32_Addr
@@ -92,13 +93,6 @@ static __always_inline void
 elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
 		      Elf32_Word relative_count)
 {
-#if 0
-	 Elf32_Rel * rpnt = (void *) rel_addr;
-	--rpnt;
-	do {
-		Elf32_Addr *const reloc_addr = (void *) (load_off + (++rpnt)->r_offset);
-
-		*reloc_addr = DL_RELOC_ADDR (load_off, *reloc_addr);
-	} while (--relative_count);
-#endif
+	return 0;
 }
+#endif

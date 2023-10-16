@@ -13,6 +13,7 @@
 #include <fcntl.h>
 #include <bits/kernel-features.h>
 #include <stdint.h>
+#include <errno.h>
 
 #if defined __NR_fallocate
 
@@ -27,9 +28,11 @@ int attribute_hidden __libc_fallocate64(int fd, int mode, __off64_t offset,
 	INTERNAL_SYSCALL_DECL(err);
 	ret = (int) (INTERNAL_SYSCALL(fallocate, err, 6, fd, mode,
 		OFF64_HI_LO (offset), OFF64_HI_LO (len)));
-	if (unlikely(INTERNAL_SYSCALL_ERROR_P (ret, err)))
-		return INTERNAL_SYSCALL_ERRNO (ret, err);
-	return 0;
+	if (unlikely(INTERNAL_SYSCALL_ERROR_P (ret, err))) {
+		__set_errno(INTERNAL_SYSCALL_ERRNO (ret, err));
+		ret = -1;
+	}
+	return ret;
 }
 
 #  if defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU

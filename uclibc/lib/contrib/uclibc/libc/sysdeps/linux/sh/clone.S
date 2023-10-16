@@ -53,8 +53,24 @@ ENTRY(__clone)
 	mov	#+SYS_ify(clone), r3
 	trapa	#0x15
 	mov     r0, r1
+#ifdef __sh2__
+/* 12 arithmetic shifts for the sh2, because shad doesn't exist! */
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+        shar    r1
+#else
 	mov	#-12, r2
 	shad	r2, r1
+#endif
 	not	r1, r1			// r1=0 means r0 = -1 to -4095
 	tst	r1, r1			// i.e. error in linux
 	bf	.Lclone_end

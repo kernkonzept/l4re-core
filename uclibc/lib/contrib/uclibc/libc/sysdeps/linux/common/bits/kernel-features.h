@@ -507,3 +507,8 @@
 #if defined __x86_64__ && __LINUX_KERNEL_VERSION >= 0x030100
 # define __ASSUME_GETCPU_SYSCALL        1
 #endif
+
+/* getrandom syscall (widely) appeared around 4.0.0 */
+#if __LINUX_KERNEL_VERSION >= 0x040000
+# define __ASSUME_GETRANDOM_SYSCALL 1
+#endif

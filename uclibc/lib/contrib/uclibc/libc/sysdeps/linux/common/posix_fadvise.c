@@ -41,9 +41,17 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 #  if __WORDSIZE == 64
 	ret = INTERNAL_SYSCALL(fadvise64_64, err, 4, fd, offset, len, advice);
 #  else
-#   if defined(__UCLIBC_SYSCALL_ALIGN_64BIT__) || defined(__arm__)
+#   if defined (__arm__) || \
+      (defined(__UCLIBC_SYSCALL_ALIGN_64BIT__) && (defined(__powerpc__) || defined(__xtensa__)))
+	/* arch with 64-bit data in even reg alignment #1: [powerpc/xtensa]
+	 * custom syscall handler (rearranges @advice to avoid register hole punch) */
 	ret = INTERNAL_SYSCALL(fadvise64_64, err, 6, fd, advice,
 			OFF_HI_LO (offset), OFF_HI_LO (len));
+#   elif defined(__UCLIBC_SYSCALL_ALIGN_64BIT__)
+	/* arch with 64-bit data in even reg alignment #2: [arcv2/others-in-future]
+	 * stock syscall handler in kernel (reg hole punched) */
+	ret = INTERNAL_SYSCALL(fadvise64_64, err, 7, fd, 0,
+			OFF_HI_LO (offset), OFF_HI_LO (len), advice);
 #   else
 	ret = INTERNAL_SYSCALL(fadvise64_64, err, 6, fd,
 			OFF_HI_LO (offset), OFF_HI_LO (len), advice);

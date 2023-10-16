@@ -30,6 +30,34 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 			 fd_set *exceptfds, const struct timespec *timeout,
 			 const sigset_t *sigmask)
 {
+#ifdef __NR_pselect6
+	/* The Linux kernel can in some situations update the timeout value.
+	 * We do not want that so use a local variable.
+	 */
+	struct timespec _ts;
+
+	if (timeout != NULL) {
+		_ts = *timeout;
+		timeout = &_ts;
+	}
+	/* Note: the system call expects 7 values but on most architectures
+	   we can only pass in 6 directly.  If there is an architecture with
+	   support for more parameters a new version of this file needs to
+	   be created.  */
+	struct {
+		__kernel_ulong_t ss;
+		__kernel_size_t  ss_len;
+	} data;
+
+	if (sigmask != NULL) {
+		data.ss = (__kernel_ulong_t) sigmask;
+		data.ss_len = __SYSCALL_SIGSET_T_SIZE;
+
+		sigmask = (void *)&data;
+	}
+
+	return INLINE_SYSCALL(pselect6, 6, nfds, readfds, writefds, exceptfds, timeout, sigmask);
+#else
 	struct timeval tval;
 	int retval;
 	sigset_t savemask;
@@ -57,6 +85,7 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 		sigprocmask (SIG_SETMASK, &savemask, NULL);
 
 	return retval;
+#endif
 }
 CANCELLABLE_SYSCALL(int, pselect, (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 				   const struct timespec *timeout, const sigset_t *sigmask),

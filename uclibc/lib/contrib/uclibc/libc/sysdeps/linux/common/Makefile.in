@@ -24,9 +24,12 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	capget.c \
 	capset.c \
 	dup3.c \
+	euidaccess.c \
 	eventfd.c \
 	eventfd_read.c \
 	eventfd_write.c \
+	fanotify.c \
+	getrandom.c \
 	inotify.c \
 	ioperm.c \
 	iopl.c \

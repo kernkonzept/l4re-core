@@ -12,12 +12,15 @@
 #include <fcntl.h>
 #include <bits/kernel-features.h>
 #include <stdint.h>
+#include <errno.h>
 
 #if defined __NR_fallocate
 extern __typeof(fallocate) __libc_fallocate attribute_hidden;
 int posix_fallocate(int fd, __off_t offset, __off_t len)
 {
-	return __libc_fallocate(fd, 0, offset, len);
+	if (__libc_fallocate(fd, 0, offset, len))
+		return errno;
+	return 0;
 }
 # if defined __UCLIBC_HAS_LFS__ && __WORDSIZE == 64
 strong_alias(posix_fallocate,posix_fallocate64)

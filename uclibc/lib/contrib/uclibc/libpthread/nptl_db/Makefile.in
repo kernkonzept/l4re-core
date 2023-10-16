@@ -22,13 +22,13 @@ libthread_db_FULL_NAME := libthread_db-$(VERSION).so
 libthread_db_DIR := $(top_srcdir)libpthread/nptl_db
 libthread_db_OUT := $(top_builddir)libpthread/nptl_db
 
-libthread_db_SRC := $(wildcard $(libthread_db_DIR)/td_*.c)	\
-		    $(libthread_db_DIR)/fetch-value.c
+libthread_db_SRC := $(notdir $(wildcard $(libthread_db_DIR)/td_*.c)	\
+		    $(libthread_db_DIR)/fetch-value.c)
 ifeq ($(UCLIBC_SUSV4_LEGACY),)
 libthread_db_SRC := $(filter-out td_ta_setconcurrency.c,$(libthread_db_SRC))
 endif
 
-libthread_db_OBJ := $(patsubst $(libthread_db_DIR)/%.c,$(libthread_db_OUT)/%.o,$(libthread_db_SRC))
+libthread_db_OBJ := $(addprefix $(libthread_db_OUT)/,$(libthread_db_SRC:.c=.o))
 
 libthread_db-so-y := $(libthread_db_OBJ:.o=.oS)
 ifeq ($(DOPIC),y)
@@ -37,7 +37,7 @@ else
 libthread_db-a-y := $(libthread_db_OBJ)
 endif
 
-libthread_db-multi-y := $(libthread_db_SRC)
+libthread_db-multi-y := $(addprefix $(libthread_db_DIR)/,$(libthread_db_SRC))
 
 lib-a-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.a
 lib-so-$(PTHREADS_DEBUG_SUPPORT) += $(top_builddir)lib/libthread_db.so

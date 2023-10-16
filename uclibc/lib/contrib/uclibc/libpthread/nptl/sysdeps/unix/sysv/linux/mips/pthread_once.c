@@ -35,9 +35,7 @@ clear_once_control (void *arg)
 
 int
 attribute_protected
-__pthread_once (once_control, init_routine)
-     pthread_once_t *once_control;
-     void (*init_routine) (void);
+__pthread_once (pthread_once_t *once_control, void (*init_routine) (void))
 {
   while (1)
     {

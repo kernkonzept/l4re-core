@@ -311,6 +311,7 @@ HEADERS_RM-$(UCLIBC_LINUX_SPECIFIC)          += \
 	sys/perm.h \
 	sys/personality.h \
 	sys/prctl.h \
+	sys/random.h \
 	sys/reboot.h \
 	sys/sendfile.h \
 	bits/signalfd.h \

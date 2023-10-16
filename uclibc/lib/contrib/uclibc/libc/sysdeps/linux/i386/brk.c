@@ -1,6 +1,7 @@
 /* brk system call for Linux/i386.
    Copyright (C) 1995, 1996, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+   Copyright (c) 2015 mirabilos <tg@mirbsd.org>
+   This file is part of uclibc-ng, derived from the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -27,15 +28,18 @@ int brk(void *addr)
 {
 	void *newbrk;
 
-	/* %ebx is used in PIC code, need to save/restore it manually.
-	 * gcc won't do it for us if we will request it in constraints
+	/*
+	 * EBC is used in PIC code, we need to save/restore it manually.
+	 * Unfortunately, GCC won't do that for us even if we use con-
+	 * straints, and we cannot push it either as ESP clobbers are
+	 * silently ignored, but EDX is preserved, so it's scratch space.
 	 */
-	__asm__("pushl	%%ebx\n"
-		"movl	%2, %%ebx\n"
-		"int	$0x80\n"
-		"popl	%%ebx\n"
+	__asm__("xchgl	%%edx,%%ebx"
+	    "\n	int	$0x80"
+	    "\n	xchgl	%%edx,%%ebx"
 		: "=a" (newbrk)
-		: "0" (__NR_brk), "g" (addr)
+		: "0" (__NR_brk), "d" (addr)
+		: "cc"
 	);
 
 	__curbrk = newbrk;

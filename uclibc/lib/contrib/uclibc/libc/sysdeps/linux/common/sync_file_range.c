@@ -24,7 +24,11 @@ static int __NC(sync_file_range)(int fd, off64_t offset, off64_t nbytes, unsigne
 {
 #  if defined __powerpc__ && __WORDSIZE == 64
 	return INLINE_SYSCALL(sync_file_range, 4, fd, flags, offset, nbytes);
-#  elif defined __mips__ && _MIPS_SIM == _ABIO32
+#  elif (defined __mips__ && _MIPS_SIM == _ABIO32) || \
+	(defined(__UCLIBC_SYSCALL_ALIGN_64BIT__) && !(defined(__powerpc__) || defined(__xtensa__)))
+	/* arch with 64-bit data in even reg alignment #2: [arcv2/others-in-future]
+	 * stock syscall handler in kernel (reg hole punched)
+	 * see libc/sysdeps/linux/common/posix_fadvise.c for more details */
 	return INLINE_SYSCALL(sync_file_range, 7, fd, 0,
 			OFF64_HI_LO(offset), OFF64_HI_LO(nbytes), flags);
 #  elif defined __NR_sync_file_range2

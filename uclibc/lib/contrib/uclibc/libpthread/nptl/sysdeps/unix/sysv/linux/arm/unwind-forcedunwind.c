@@ -27,7 +27,8 @@
 #define __libc_fatal(x)         {/*write(STDERR_FILENO, x, strlen(x));*/ abort();}
 
 static void *libgcc_s_handle;
-static void (*libgcc_s_resume) (struct _Unwind_Exception *exc);
+static void (*libgcc_s_resume) (struct _Unwind_Exception *exc)
+  __attribute_used__;
 static _Unwind_Reason_Code (*libgcc_s_personality)
   (_Unwind_State, struct _Unwind_Exception *, struct _Unwind_Context *);
 static _Unwind_Reason_Code (*libgcc_s_forcedunwind)

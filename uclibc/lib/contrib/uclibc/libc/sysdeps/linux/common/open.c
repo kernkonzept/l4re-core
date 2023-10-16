@@ -57,6 +57,12 @@ int open(const char *file, int oflag, ...)
 lt_strong_alias(open)
 lt_libc_hidden(open)
 #if !defined(__NR_open)
-strong_alias_untyped(open,__open2_nocancel)
-strong_alias_untyped(open,__open_nocancel)
+int __open2_nocancel(const char *file, int oflag)
+{
+	return open(file, oflag);
+}
+int __open_nocancel(const char *file, int oflag, mode_t mode)
+{
+	return open(file, oflag, mode);
+}
 #endif

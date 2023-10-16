@@ -9,30 +9,11 @@
  */
 
 #include <stdlib.h>
-#include <limits.h>
 
 #ifdef __USE_GNU
 
-#ifndef PATH_MAX
-# ifdef _POSIX_VERSION
-#  define PATH_MAX _POSIX_PATH_MAX
-# else
-#  ifdef MAXPATHLEN
-#   define PATH_MAX MAXPATHLEN
-#  else
-#   define PATH_MAX 1024
-#  endif
-# endif
-#endif
-
 char * canonicalize_file_name (const char *name)
 {
-	char *buf = (char *) malloc(PATH_MAX);
-
-	if(unlikely(buf == NULL))
-		return NULL;
-
-	*buf='\0';
-	return realpath (name, buf);
+	return realpath (name, NULL);
 }
 #endif

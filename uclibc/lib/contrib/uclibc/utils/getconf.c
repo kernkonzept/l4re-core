@@ -23,6 +23,7 @@
 #include <stdio.h>
 
 #define PACKAGE "getconf regression test"
+#undef VERSION
 #define VERSION ""
 #define _(x) x
 #define error(status, errnum, fmt, ...) \

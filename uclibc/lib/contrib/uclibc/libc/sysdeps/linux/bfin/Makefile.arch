@@ -8,7 +8,7 @@
 CSRC-y := bsdsetjmp.c clone.c \
 	sram-alloc.c sram-free.c dma-memcpy.c
 
-SSRC-y := __longjmp.S setjmp.S bsd-_setjmp.S
+SSRC-y := __longjmp.S setjmp.S bsd-_setjmp.S vfork.S
 
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += cacheflush.c
 

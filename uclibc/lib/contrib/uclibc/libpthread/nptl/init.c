@@ -110,8 +110,8 @@ static const struct pthread_functions pthread_functions =
     .ptr___pthread_key_create = __pthread_key_create_internal,
     .ptr___pthread_getspecific = __pthread_getspecific_internal,
     .ptr___pthread_setspecific = __pthread_setspecific_internal,
-    .ptr__pthread_cleanup_push_defer = _pthread_cleanup_push_defer,
-    .ptr__pthread_cleanup_pop_restore = _pthread_cleanup_pop_restore,
+    .ptr__pthread_cleanup_push_defer = __pthread_cleanup_push_defer,
+    .ptr__pthread_cleanup_pop_restore = __pthread_cleanup_pop_restore,
     .ptr_nthreads = &__nptl_nthreads,
     .ptr___pthread_unwind = &__pthread_unwind,
     .ptr__nptl_deallocate_tsd = __nptl_deallocate_tsd,
@@ -399,6 +399,10 @@ __pthread_initialize_minimal_internal (void)
     /* The system limit is unusably small.
        Use the minimal size acceptable.  */
     limit.rlim_cur = PTHREAD_STACK_MIN;
+
+  /* Do not exceed architecture specific default */
+  if (limit.rlim_cur > ARCH_STACK_DEFAULT_SIZE)
+    limit.rlim_cur = ARCH_STACK_DEFAULT_SIZE;
 
   /* Make sure it meets the minimum size that allocate_stack
      (allocatestack.c) will demand, which depends on the page size.  */

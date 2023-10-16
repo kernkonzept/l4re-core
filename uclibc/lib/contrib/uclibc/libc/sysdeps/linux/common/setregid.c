@@ -37,4 +37,4 @@ int setregid(gid_t rgid, gid_t egid)
 }
 #endif
 
-libc_hidden_def(setregid)
+libc_hidden_weak(setregid)

@@ -32,6 +32,11 @@ typedef int greg_t;
 /* Container for all general registers.  */
 typedef greg_t gregset_t[NGREG];
 
+/* There is no user thread context implementation for bfin, avoid
+   clashing with gcc symbols, see:
+   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=47779
+*/
+#if 0
 /* Number of each register is the `gregset_t' array.  */
 enum
 {
@@ -130,6 +135,7 @@ enum
   REG_SEQSTAT = 46
 #define	REG_SEQSTAT	REG_SEQSTAT
 };
+#endif
 
 /* Context to describe whole processor state.  */
 typedef struct

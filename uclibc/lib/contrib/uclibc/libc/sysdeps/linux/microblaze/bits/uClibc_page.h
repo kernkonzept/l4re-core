@@ -20,23 +20,7 @@
 #ifndef _UCLIBC_PAGE_H
 #define _UCLIBC_PAGE_H
 
-#include <generated/autoconf.h>
-
-#if   defined(CONFIG_MICROBLAZE_32K_PAGES)
-#define PAGE_SHIFT		15
-#elif defined(CONFIG_MICROBLAZE_16K_PAGES)
-#define PAGE_SHIFT		14
-#elif defined(CONFIG_MICROBLAZE_8K_PAGES)
-#define PAGE_SHIFT		13
-#elif defined(CONFIG_MICROBLAZE_4K_PAGES)
-#define PAGE_SHIFT		12
-#else
-#if !defined(CONFIG_MMU)
-#warning Missing CONFIG_MICROBLAZE_nnK_PAGES, assuming 4K
-#endif
-#define PAGE_SHIFT		12
-#endif
-
+#define PAGE_SHIFT	12
 #define PAGE_SIZE	(1UL << PAGE_SHIFT)
 #define PAGE_MASK	(~(PAGE_SIZE-1))
 

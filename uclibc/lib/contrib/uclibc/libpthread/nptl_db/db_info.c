@@ -1,7 +1,7 @@
 /* This file is included by pthread_create.c to define in libpthread
    all the magic symbols required by libthread_db.
 
-   Copyright (C) 2003, 2004 Free Software Foundation, Inc.
+   Copyright (C) 2003, 2004, 2007 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -37,6 +37,8 @@ typedef struct
 
 typedef struct link_map link_map;
 
+/* Actually static in nptl/init.c, but we only need it for typeof.  */
+extern bool __nptl_initial_report_events;
 
 #define schedparam_sched_priority schedparam.sched_priority
 
@@ -58,7 +60,7 @@ typedef struct link_map link_map;
    i.e. at the very end of the area covered by TLS_PRE_TCB_SIZE.  */
 DESC (_thread_db_pthread_dtvp,
       TLS_PRE_TCB_SIZE + offsetof (tcbhead_t, dtv)
-      - (TLS_TCB_SIZE == 0 ? sizeof (tcbhead_t) : 0), union dtv)
+      - (TLS_TCB_SIZE == 0 ? sizeof (tcbhead_t) : 0), union dtv *)
 #endif
 
 
