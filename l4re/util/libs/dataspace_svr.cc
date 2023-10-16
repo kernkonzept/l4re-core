@@ -120,7 +120,7 @@ Dataspace_svr::clear(l4_addr_t offs, unsigned long ds_size) const noexcept
       sz -= b_sz;
     }
 
-  return ds_size;
+  return 0;
 }
 
 }}
