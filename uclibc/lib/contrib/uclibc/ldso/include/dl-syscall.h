@@ -52,7 +52,7 @@ extern int _dl_errno;
 static __always_inline attribute_noreturn __cold void _dl_exit(int status)
 {
 	INLINE_SYSCALL(_dl_exit, 1, status);
-#if defined __GNUC__
+#if defined __GNUC__ && (!__GNUC_PREREQ (4, 4) && !__GNUC_PREREQ (4, 2))
 	__builtin_unreachable(); /* shut up warning: 'noreturn' function does return*/
 #else
 	while (1);
