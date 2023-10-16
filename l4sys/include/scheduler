@@ -90,8 +90,10 @@ public:
     l4_umword_t sc = 0;
     l4_msgtag_t t =
       info_t::call(c(), cpus->gran_offset, &cpus->map, &max, &sc, utcb);
-    if (cpu_max) *cpu_max = max;
-    if (sched_classes) *sched_classes = sc;
+    if (cpu_max)
+      *cpu_max = max;
+    if (sched_classes)
+      *sched_classes = sc;
     return t;
   }
 
