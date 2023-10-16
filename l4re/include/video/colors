@@ -88,7 +88,6 @@ public:
   /**
    * \brief Dump information on the view information to a stream
    * \param s  Stream
-   * \return The stream
    */
   template< typename OUT >
   void dump(OUT &s) const
@@ -254,7 +253,6 @@ public:
   /**
    * \brief Dump information on the pixel to a stream
    * \param s  Stream
-   * \return The stream
    */
   template< typename OUT >
   void dump(OUT &s) const
