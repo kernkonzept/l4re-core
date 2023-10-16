@@ -34,7 +34,7 @@ namespace L4 {
  * \includefile{l4/sys/capability}
  *
  * This is the base class for all remote objects accessible using RPC.
- * However, subclasses doe not directly inherit from L4::Kobject but _must_
+ * However, subclasses do not directly inherit from L4::Kobject but _must_
  * use L4::Kobject_t (L4::Kobject_0t, L4::Kobject_2t, L4::Kobject_3t,
  * or L4::Kobject_x) for inheritance, otherwise these classes cannot be used
  * as RPC interfaces.
