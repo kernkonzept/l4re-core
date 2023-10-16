@@ -38,6 +38,7 @@ bits/in.h
 bits/ioctls.h
 bits/ioctl-types.h
 bits/ipc.h
+bits/jmp_buf_tag.h
 bits/kernel_stat.h
 bits/kernel_types.h
 bits/kernel-features.h

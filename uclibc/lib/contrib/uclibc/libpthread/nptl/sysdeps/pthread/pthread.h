@@ -28,6 +28,7 @@
 #include <signal.h>
 #include <bits/pthreadtypes.h>
 #include <bits/setjmp.h>
+#include <bits/jmp_buf_tag.h>
 #include <bits/wordsize.h>
 #if defined _LIBC && ( defined IS_IN_libc || !defined NOT_IN_libc )
 #include <bits/uClibc_pthread.h>
@@ -726,8 +727,7 @@ extern void __pthread_unwind_next (__pthread_unwind_buf_t *__buf)
 #endif
 
 /* Function used in the macros.  */
-struct __jmp_buf_tag;
-extern int __sigsetjmp (struct __jmp_buf_tag *__env, int __savemask) __THROWNL;
+extern int __sigsetjmp (struct __jmp_buf_tag __env[1], int __savemask) __THROWNL;
 
 
 /* Mutex handling.  */
