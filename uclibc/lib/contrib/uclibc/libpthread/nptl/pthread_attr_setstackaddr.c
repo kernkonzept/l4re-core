@@ -41,6 +41,3 @@ __pthread_attr_setstackaddr (
   return 0;
 }
 strong_alias (__pthread_attr_setstackaddr, pthread_attr_setstackaddr)
-
-link_warning (pthread_attr_setstackaddr,
-              "the use of `pthread_attr_setstackaddr' is deprecated, use `pthread_attr_setstack'")

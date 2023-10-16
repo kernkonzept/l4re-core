@@ -54,6 +54,5 @@ int utime(const char *file, const struct utimbuf *times)
 
 #if (defined __NR_utimensat && !defined __NR_utime) || \
 	defined __NR_utime || defined __NR_utimes
-link_warning(utime, "the use of OBSOLESCENT `utime' is discouraged, use `utimes'")
 libc_hidden_def(utime)
 #endif

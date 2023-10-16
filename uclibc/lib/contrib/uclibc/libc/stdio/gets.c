@@ -7,8 +7,6 @@
 
 #include "_stdio.h"
 
-link_warning(gets, "the 'gets' function is dangerous and should not be used.")
-
 /* UNSAFE FUNCTION -- do not bother optimizing */
 
 /* disable macro, force actual function call */

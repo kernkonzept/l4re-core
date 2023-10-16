@@ -48,5 +48,3 @@ tmpnam (char *s)
 
   return s;
 }
-
-link_warning (tmpnam, "the use of `tmpnam' is dangerous, better use `mkstemp'")

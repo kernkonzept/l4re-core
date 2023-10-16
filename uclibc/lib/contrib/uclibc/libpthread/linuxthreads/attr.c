@@ -172,9 +172,6 @@ int __pthread_attr_setstackaddr(pthread_attr_t *attr, void *stackaddr)
 }
 weak_alias (__pthread_attr_setstackaddr, pthread_attr_setstackaddr)
 
-link_warning (pthread_attr_setstackaddr,
-	      "the use of `pthread_attr_setstackaddr' is deprecated, use `pthread_attr_setstack'")
-
 int __pthread_attr_getstackaddr(const pthread_attr_t *attr, void **stackaddr)
 {
   /* XXX This function has a stupid definition.  The standard specifies
@@ -185,8 +182,6 @@ int __pthread_attr_getstackaddr(const pthread_attr_t *attr, void **stackaddr)
 }
 weak_alias (__pthread_attr_getstackaddr, pthread_attr_getstackaddr)
 
-link_warning (pthread_attr_getstackaddr,
-	      "the use of `pthread_attr_getstackaddr' is deprecated, use `pthread_attr_getstack'")
 #endif
 
 

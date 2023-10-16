@@ -39,6 +39,3 @@ __pthread_attr_getstackaddr (
   return 0;
 }
 strong_alias (__pthread_attr_getstackaddr, pthread_attr_getstackaddr)
-
-link_warning (pthread_attr_getstackaddr,
-              "the use of `pthread_attr_getstackaddr' is deprecated, use `pthread_attr_getstack'")

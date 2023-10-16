@@ -24,6 +24,3 @@ siggetmask (void)
 {
   return sigblock (0);
 }
-
-link_warning (siggetmask,
-	      "warning: `siggetmask' is obsolete; `sigprocmask' is best")

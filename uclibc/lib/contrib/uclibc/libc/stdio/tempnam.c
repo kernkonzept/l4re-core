@@ -40,5 +40,3 @@ tempnam (const char *dir, const char *pfx)
 
   return strdup (buf);
 }
-
-link_warning (tempnam, "the use of OBSOLESCENT `tempnam' is discouraged, use `mkstemp'")

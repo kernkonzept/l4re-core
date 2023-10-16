@@ -12,8 +12,6 @@ extern const char _string_syserrmsgs[] attribute_hidden;
 
 #ifdef __UCLIBC_HAS_SYS_ERRLIST__
 
-link_warning(_sys_errlist, "sys_nerr and sys_errlist are obsolete and uClibc support for them (in at least some configurations) will probably be unavailable in the near future.")
-
 const char *const sys_errlist[] = {
 	[0] =				_string_syserrmsgs + 0,
 	[EPERM] =			_string_syserrmsgs + 8,

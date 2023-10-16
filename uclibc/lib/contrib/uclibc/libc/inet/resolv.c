@@ -2178,7 +2178,6 @@ int gethostbyname_r(const char *name,
 	return i;
 }
 libc_hidden_def(gethostbyname_r)
-link_warning(gethostbyname_r, "gethostbyname_r is obsolescent, use getnameinfo() instead.");
 #endif /* L_gethostbyname_r */
 
 
@@ -2496,7 +2495,6 @@ int gethostbyaddr_r(const void *addr, socklen_t addrlen,
 #undef in6
 }
 libc_hidden_def(gethostbyaddr_r)
-link_warning(gethostbyaddr_r, "gethostbyaddr_r is obsolescent, use getaddrinfo() instead.");
 #endif /* L_gethostbyaddr_r */
 
 
@@ -2616,7 +2614,6 @@ struct hostent *gethostbyname(const char *name)
 #endif
 }
 libc_hidden_def(gethostbyname)
-link_warning(gethostbyname, "gethostbyname is obsolescent, use getnameinfo() instead.");
 #endif /* L_gethostbyname */
 
 
@@ -2638,7 +2635,6 @@ struct hostent *gethostbyaddr(const void *addr, socklen_t len, int type)
 	return hp;
 }
 libc_hidden_def(gethostbyaddr)
-link_warning(gethostbyaddr, "gethostbyaddr is obsolescent, use getaddrinfo() instead.");
 #endif /* L_gethostbyaddr */
 
 
