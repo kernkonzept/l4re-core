@@ -1394,7 +1394,7 @@ static int _do_one_spec(FILE * __restrict stream,
 #ifdef __va_arg_ptr
 	const void * const *argptr;
 #else
-	const void * argptr[MAX_ARGS_PER_SPEC];
+	const void * argptr[MAX_ARGS_PER_SPEC] = {};
 #endif
 	int *argtype;
 #ifdef __UCLIBC_HAS_WCHAR__
