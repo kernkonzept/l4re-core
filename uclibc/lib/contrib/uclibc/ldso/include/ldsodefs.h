@@ -72,9 +72,6 @@ extern void _dl_allocate_static_tls (struct link_map *map)
 extern int _dl_try_allocate_static_tls (struct link_map* map)
      internal_function attribute_hidden;
 
-extern int _dl_try_allocate_static_tls (struct link_map *map)
-     internal_function attribute_hidden;
-
 /* Taken from glibc/elf/dl-reloc.c */
 #define CHECK_STATIC_TLS(sym_map)											\
 	do {																	\
@@ -84,10 +81,6 @@ extern int _dl_try_allocate_static_tls (struct link_map *map)
 #define TRY_STATIC_TLS(sym_map)												\
 	(__builtin_expect ((sym_map)->l_tls_offset != NO_TLS_OFFSET, 1)			\
 		 || _dl_try_allocate_static_tls (sym_map) == 0)
-
-#define TRY_STATIC_TLS(sym_map) \
-       (__builtin_expect ((sym_map)->l_tls_offset != NO_TLS_OFFSET, 1) \
-        || _dl_try_allocate_static_tls(sym_map) == 0)
 
 /* These are internal entry points to the two halves of _dl_allocate_tls,
    only used within rtld.c itself at startup time.  */
