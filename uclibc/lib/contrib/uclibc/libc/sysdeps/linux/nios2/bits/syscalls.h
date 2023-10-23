@@ -4,10 +4,11 @@
 # error "Never use <bits/syscalls.h> directly; include <sys/syscall.h> instead."
 #endif
 
+#define TRAP_ID_SYSCALL	0
+
 #ifndef __ASSEMBLER__
 
 #include <errno.h>
-#include <asm/traps.h>
 
 #define __syscall_return(type, res)					\
 	do {								\

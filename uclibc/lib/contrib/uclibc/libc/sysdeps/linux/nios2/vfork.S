@@ -12,9 +12,7 @@
 
 #include <sys/syscall.h>
 
-#ifndef __NR_vfork
-#define __NR_vfork __NR_fork /* uClinux-2.0 only has fork which is vfork */
-#endif
+#define __NR_vfork 1071
 
 .text
 .global	__vfork

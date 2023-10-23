@@ -58,7 +58,7 @@ dl_iterate_phdr (int (*callback) (struct dl_phdr_info *info,
       /* This entry describes this statically-linked program itself.  */
       struct dl_phdr_info info;
       int ret;
-#if defined(__FDPIC__)
+#if defined(__FRV_FDPIC__) || defined(__BFIN_FDPIC__)
       info.dlpi_addr.map = NULL;
       info.dlpi_addr.got_value = NULL;
 #elif defined(__DSBT__)

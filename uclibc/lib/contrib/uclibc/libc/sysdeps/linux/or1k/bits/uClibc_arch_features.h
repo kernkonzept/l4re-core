@@ -14,9 +14,6 @@
 /* can your target use syscall6() for mmap ? */
 #define __UCLIBC_MMAP_HAS_6_ARGS__
 
-/* does your target use syscall4() for truncate64 ? (32bit arches only) */
-#undef __UCLIBC_TRUNCATE64_HAS_4_ARGS__
-
 /* does your target have a broken create_module() ? */
 #undef __UCLIBC_BROKEN_CREATE_MODULE__
 

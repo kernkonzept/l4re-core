@@ -44,13 +44,10 @@ not, see <http://www.gnu.org/licenses/>.  */
 	.text
 	.global _start
 	.type	_start,%function
-#if defined L_crt0 || defined L_Scrt0 || ! defined __UCLIBC_CTOR_DTOR__
-	.type __uClibc_main,%function
-#else
 	.weak	_init
 	.weak	_fini
-	.type	__uClibc_start_main,%function
-#endif
+	.type	__uClibc_main,%function
+
 _start:
 	/* Make sure the stack pointer is properly aligned.  Save the
 	   original value in gr21 such that we can get to arguments and
@@ -104,7 +101,7 @@ _start:
 	ld.p	@(gr11, gr17), gr11
 	mov	gr17, gr15
 	ld.p	@(gr12, gr17), gr12
-	call	__uClibc_start_main
+	call	__uClibc_main
 #else
 	mov.p	gr17, gr15
 	call	__uClibc_main

@@ -25,6 +25,8 @@ You should have received a copy of the GNU Lesser General Public
 License along with the GNU C Library; see the file COPYING.LIB.  If
 not, see <http://www.gnu.org/licenses/>.  */
 
+#ifdef __FRV_FDPIC__
+
 #include <sys/types.h>
 #include <link.h>
 
@@ -61,7 +63,7 @@ reloc_range_indirect (void ***p, void ***e,
 /* Call __reloc_range_indirect for the given range except for the last
    entry, whose contents are only relocated.  It's expected to hold
    the GOT value.  */
-void* attribute_hidden
+attribute_hidden void*
 __self_reloc (const struct elf32_fdpic_loadmap *map,
 	      void ***p, void ***e)
 {
@@ -72,48 +74,4 @@ __self_reloc (const struct elf32_fdpic_loadmap *map,
 
   return __reloc_pointer (*p, map);
 }
-
-#if 0
-/* These are other functions that might be useful, but that we don't
-   need.  */
-
-/* Remap pointers in [p,e).  */
-static __always_inline void**
-reloc_range (void **p, void **e,
-	     const struct elf32_fdpic_loadmap *map)
-{
-  while (p < e)
-    {
-      *p = __reloc_pointer (*p, map);
-      p++;
-    }
-  return p;
-}
-
-/* Remap p, adjust e by the same offset, then map the pointers in the
-   range determined by them.  */
-void attribute_hidden
-__reloc_range (const struct elf32_fdpic_loadmap *map,
-	       void **p, void **e)
-{
-  void **old = p;
-
-  p = __reloc_pointer (p, map);
-  e += p - old;
-  reloc_range (p, e, map);
-}
-
-/* Remap p, adjust e by the same offset, then map pointers referenced
-   by the (unadjusted) pointers in the range.  Return the relocated
-   value of the last pointer in the range.  */
-void* attribute_hidden
-__reloc_range_indirect (const struct elf32_fdpic_loadmap *map,
-			void ***p, void ***e)
-{
-  void ***old = p;
-
-  p = __reloc_pointer (p, map);
-  e += p - old;
-  return reloc_range_indirect (p, e, map);
-}
-#endif
+#endif /* __FRV_FDPIC__ */

@@ -1,1 +1,1 @@
-#include <linux/a.out.h>
+#define __NO_A_OUT_SUPPORT 1

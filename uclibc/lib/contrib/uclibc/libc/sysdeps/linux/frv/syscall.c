@@ -37,5 +37,5 @@ long syscall(long sysnum, long arg1, long arg2, long arg3,
 			: "+r" (__sc0)
 			: "r" (__scnum), "r" (__sc1), "r" (__sc2),
 			"r" (__sc3), "r" (__sc4), "r" (__sc5));
-  __syscall_return(long,__sc0);
+  return (long) __sc0;
 }

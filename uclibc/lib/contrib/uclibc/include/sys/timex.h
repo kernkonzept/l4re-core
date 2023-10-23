@@ -120,9 +120,7 @@ struct timex
 
 __BEGIN_DECLS
 
-#if 0
 extern int __adjtimex (struct timex *__ntx) __THROW;
-#endif
 extern int adjtimex (struct timex *__ntx) __THROW;
 libc_hidden_proto(adjtimex)
 

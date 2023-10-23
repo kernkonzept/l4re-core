@@ -122,7 +122,7 @@ ENTRY (__sigsetjmp)
 	l32i	a4, a6, 12
 	s32i	a7, a5, 8
 	s32i	a4, a5, 12
-	addi	a5, a6, 16
+	addi	a5, a5, 16
 	addi	a6, a6, 16
 	blt	a6, a8, .Lsjloop
 .Lendsj:

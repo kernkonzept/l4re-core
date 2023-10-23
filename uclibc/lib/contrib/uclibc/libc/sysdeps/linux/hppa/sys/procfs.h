@@ -1,4 +1,4 @@
-/* Copyright (C) 1996, 1997, 1999, 2000 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2015 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,7 +12,7 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
 #ifndef _SYS_PROCFS_H
@@ -28,14 +28,20 @@
    GDB unless you know what you are doing.  */
 
 #include <features.h>
-#include <signal.h>
 #include <sys/time.h>
 #include <sys/types.h>
-#include <sys/ucontext.h>
 #include <sys/user.h>
-#include <asm/elf.h>
 
 __BEGIN_DECLS
+
+typedef unsigned long elf_greg_t;
+#define ELF_NGREG 80    /* We only need 64 at present, but leave space
+			                              for expansion. */
+typedef elf_greg_t elf_gregset_t[ELF_NGREG];
+
+#define ELF_NFPREG 32
+typedef double elf_fpreg_t;
+typedef elf_fpreg_t elf_fpregset_t[ELF_NFPREG];
 
 struct elf_siginfo
   {

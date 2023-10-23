@@ -64,14 +64,14 @@ config TARGET_c6x
 config TARGET_cris
 	bool "cris"
 
-#config TARGET_frv
-#	bool "frv (BROKEN)"
+config TARGET_frv
+	bool "frv"
 
 config TARGET_h8300
 	bool "h8300"
 
-#config TARGET_hppa
-#	bool "hppa"
+config TARGET_hppa
+	bool "hppa"
 
 config TARGET_i386
 	bool "i386"
@@ -546,6 +546,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_bfin && \
 		   !TARGET_c6x && \
 		   !TARGET_cris && \
+		   !TARGET_frv && \
 		   !TARGET_h8300 && \
 		   !TARGET_hppa && \
 		   !TARGET_ia64 && \

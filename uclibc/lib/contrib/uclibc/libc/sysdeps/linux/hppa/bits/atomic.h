@@ -20,7 +20,7 @@
 #include <errno.h>
 #include <bits/kernel-features.h>
 
-#define ABORT_INSTRUCTION __asm__(__UCLIBC_ABORT_INSTRUCTION__)
+#define ABORT_INSTRUCTION __asm__("iitlbp %r0,(%sr0, %r0)")
 
 /* We need EFAULT, ENOSYS */
 #if !defined EFAULT && !defined ENOSYS
@@ -58,7 +58,6 @@ typedef uintmax_t uatomic_max_t;
 #define LWS_CLOBBER "r1", "r26", "r25", "r24", "r23", "r22", "r21", "r20", "r28", "r31", "memory"
 #define ASM_EAGAIN "11" 
 
-#if __ASSUME_LWS_CAS
 /* The only basic operation needed is compare and exchange.  */
 # define atomic_compare_and_exchange_val_acq(mem, newval, oldval) 	\
   ({									\
@@ -94,10 +93,6 @@ typedef uintmax_t uatomic_max_t;
      /* Return 1 if it was already acquired */				\
      (ret != oldval);							\
    })
-#else
-# error __ASSUME_LWS_CAS is required to build uClibc.
-#endif	
-/* __ASSUME_LWS_CAS */
 
 #endif
 /* _BITS_ATOMIC_H */

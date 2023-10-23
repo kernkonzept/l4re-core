@@ -473,14 +473,12 @@ endif
 endif
 
 ifeq ($(TARGET_ARCH),frv)
-	CPU_LDFLAGS-$(CONFIG_FRV)+=-Wl,-melf32frvfd
 	# Using -pie causes the program to have an interpreter, which is
 	# forbidden, so we must make do with -shared.  Unfortunately,
 	# -shared by itself would get us global function descriptors
 	# and calls through PLTs, dynamic resolution of symbols, etc,
 	# which would break as well, but -Bsymbolic comes to the rescue.
-	export LDPIEFLAG:=-shared -Wl,-Bsymbolic
-	UCLIBC_LDSO=ld.so.1
+	CPU_LDFLAGS-y += -Wl,-melf32frvfd -Wl,-Bsymbolic
 endif
 
 ifeq ($(strip $(TARGET_ARCH)),avr32)

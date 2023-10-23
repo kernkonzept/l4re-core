@@ -10,6 +10,7 @@
  * Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
  */
 
+#include <sys/cdefs.h>	    /* __attribute_used__ */
 #include <features.h>
 
 /* Program to load an ELF binary on a linux system, and run it.
@@ -31,34 +32,30 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	ElfW(Sym) *symtab;
 	int symtab_index;
 	char *rel_addr;
-	struct elf_resolve *new_tpnt;
 	char *new_addr;
 	struct funcdesc_value funcval;
 	struct funcdesc_value volatile *got_entry;
 	char *symname;
+	struct symbol_ref sym_ref;
 
-	rel_addr = DL_RELOC_ADDR (tpnt->dynamic_info[DT_JMPREL],
-				  tpnt->loadaddr);
+	rel_addr = (char *)tpnt->dynamic_info[DT_JMPREL];
 
 	this_reloc = (ELF_RELOC *)(intptr_t)(rel_addr + reloc_entry);
 	symtab_index = ELF_R_SYM(this_reloc->r_info);
 
-	symtab = (ElfW(Sym) *)(intptr_t)
-				  DL_RELOC_ADDR (tpnt->dynamic_info[DT_SYMTAB],
-						 tpnt->loadaddr);
-	strtab = DL_RELOC_ADDR (tpnt->dynamic_info[DT_STRTAB], tpnt->loadaddr);
+	symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
+	sym_ref.sym = &symtab[symtab_index];
+	sym_ref.tpnt = NULL;
 	symname= strtab + symtab[symtab_index].st_name;
 
 	/* Address of GOT entry fix up */
-	got_entry = (struct funcdesc_value *)
-	  DL_RELOC_ADDR (this_reloc->r_offset, tpnt->loadaddr);
+	got_entry = (struct funcdesc_value *) DL_RELOC_ADDR(tpnt->loadaddr, this_reloc->r_offset);
 
 	/* Get the address to be used to fill in the GOT entry.  */
-	new_addr = _dl_find_hash_mod(symname, &_dl_loaded_modules->symbol_scope, NULL, 0,
-				     &new_tpnt);
+	new_addr = _dl_find_hash(symname, &_dl_loaded_modules->symbol_scope, NULL, 0, &sym_ref);
 	if (!new_addr) {
-		new_addr = _dl_find_hash_mod(symname, NULL, NULL, 0,
-					     &new_tpnt);
+		new_addr = _dl_find_hash(symname, NULL, NULL, 0, &sym_ref);
 		if (!new_addr) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 				    _dl_progname, symname);
@@ -67,7 +64,7 @@ _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_entry)
 	}
 
 	funcval.entry_point = new_addr;
-	funcval.got_value = new_tpnt->loadaddr.got_value;
+	funcval.got_value = sym_ref.tpnt->loadaddr.got_value;
 
 #if defined (__SUPPORT_LD_DEBUG__)
 		if (_dl_debug_bindings)
@@ -103,14 +100,13 @@ _dl_parse(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	int symtab_index;
 
 	/* Now parse the relocation information */
-	rpnt = (ELF_RELOC *)(intptr_t) DL_RELOC_ADDR (rel_addr, tpnt->loadaddr);
+	rpnt = (ELF_RELOC *) rel_addr;
 	rel_size = rel_size / sizeof(ELF_RELOC);
 
-	symtab = (ElfW(Sym) *)(intptr_t)
-	  DL_RELOC_ADDR (tpnt->dynamic_info[DT_SYMTAB], tpnt->loadaddr);
-	strtab = DL_RELOC_ADDR (tpnt->dynamic_info[DT_STRTAB], tpnt->loadaddr);
+	symtab = (ElfW(Sym) *) tpnt->dynamic_info[DT_SYMTAB];
+	strtab = (char *) tpnt->dynamic_info[DT_STRTAB];
 
-	  for (i = 0; i < rel_size; i++, rpnt++) {
+	for (i = 0; i < rel_size; i++, rpnt++) {
 	        int res;
 
 		symtab_index = ELF_R_SYM(rpnt->r_info);
@@ -161,24 +157,24 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 #if defined (__SUPPORT_LD_DEBUG__)
 	unsigned long old_val;
 #endif
+	struct symbol_ref sym_ref;
 
-	reloc_addr   = (unsigned long *)(intptr_t)
-	  DL_RELOC_ADDR (rpnt->r_offset, tpnt->loadaddr);
+	reloc_addr   = (unsigned long *) DL_RELOC_ADDR (tpnt->loadaddr, rpnt->r_offset);
 	__asm__ ("" : "=r" (reloc_addr_packed) : "0" (reloc_addr));
 	reloc_type   = ELF_R_TYPE(rpnt->r_info);
 	symtab_index = ELF_R_SYM(rpnt->r_info);
 	symbol_addr  = 0;
+	sym_ref.sym =  &symtab[symtab_index];
+	sym_ref.tpnt =  NULL;
 	symname      = strtab + symtab[symtab_index].st_name;
 
 	if (ELF_ST_BIND (symtab[symtab_index].st_info) == STB_LOCAL) {
-		symbol_addr = (unsigned long)
-		  DL_RELOC_ADDR (symtab[symtab_index].st_value,
-				 tpnt->loadaddr);
+		symbol_addr = (unsigned long) DL_RELOC_ADDR(tpnt->loadaddr, symtab[symtab_index].st_value);
 		symbol_tpnt = tpnt;
 	} else {
 
 		symbol_addr = (unsigned long)
-		  _dl_find_hash_mod(symname, scope, NULL, 0, &symbol_tpnt);
+		  _dl_find_hash(symname, scope, NULL, 0, &sym_ref);
 
 		/*
 		 * We want to allow undefined references to weak symbols - this might
@@ -191,6 +187,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 				     _dl_progname, strtab + symtab[symtab_index].st_name);
 			_dl_exit (1);
 		}
+		symbol_tpnt = sym_ref.tpnt;
 	}
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -276,9 +273,9 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 
 static int
 _dl_do_lazy_reloc (struct elf_resolve *tpnt,
-		   struct r_scope_elem *scope __attribute_used__,
-		   ELF_RELOC *rpnt, ElfW(Sym) *symtab __attribute_used__,
-		   char *strtab __attribute_used__)
+		   struct r_scope_elem *scope __attribute__((unused)),
+		   ELF_RELOC *rpnt, ElfW(Sym) *symtab __attribute__((unused)),
+		   char *strtab __attribute__((unused)))
 {
 	int reloc_type;
 	struct funcdesc_value volatile *reloc_addr;
@@ -288,7 +285,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt,
 #endif
 
 	reloc_addr = (struct funcdesc_value *)(intptr_t)
-	  DL_RELOC_ADDR (rpnt->r_offset, tpnt->loadaddr);
+	  DL_RELOC_ADDR (tpnt->loadaddr, rpnt->r_offset);
 	reloc_type = ELF_R_TYPE(rpnt->r_info);
 
 #if defined (__SUPPORT_LD_DEBUG__)
@@ -299,9 +296,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt,
 				break;
 			case R_FRV_FUNCDESC_VALUE:
 				funcval = *reloc_addr;
-				funcval.entry_point =
-				  DL_RELOC_ADDR (funcval.entry_point,
-						 tpnt->loadaddr);
+				funcval.entry_point = (void *) DL_RELOC_ADDR(tpnt->loadaddr, funcval.entry_point);
 				funcval.got_value = tpnt->loadaddr.got_value;
 				*reloc_addr = funcval;
 				break;
@@ -334,14 +329,14 @@ _dl_parse_relocation_information
 
 int
 _dl_parse_copy_information
-(struct dyn_elf *rpnt __attribute_used__,
- unsigned long rel_addr __attribute_used__,
- unsigned long rel_size __attribute_used__)
+(struct dyn_elf *rpnt __attribute__((unused)),
+ unsigned long rel_addr __attribute__((unused)),
+ unsigned long rel_size __attribute__((unused)))
 {
   return 0;
 }
 
-#ifndef LIBDL
+#ifndef IS_IN_libdl
 # include "../../libc/sysdeps/linux/frv/crtreloc.c"
 #endif
 

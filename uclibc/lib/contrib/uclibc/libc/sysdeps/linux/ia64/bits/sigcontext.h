@@ -24,6 +24,8 @@
 #ifndef _BITS_SIGCONTEXT_H
 #define _BITS_SIGCONTEXT_H 1
 
+#define __need_size_t
+#include <stddef.h>
 #include <bits/sigstack.h>
 
 struct ia64_fpreg

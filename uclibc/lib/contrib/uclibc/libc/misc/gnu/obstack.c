@@ -385,11 +385,9 @@ obstack_free (struct obstack *h, void *obj)
     abort ();
 }
 
-# if 0
 /* Older versions of libc used a function _obstack_free intended to be
    called by non-GCC compilers.  */
 strong_alias (obstack_free, _obstack_free)
-# endif
 
 int
 _obstack_memory_used (struct obstack *h)

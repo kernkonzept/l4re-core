@@ -27,9 +27,10 @@
 
 __asm__("" \
 "	.text\n"			\
-"	.global	_dl_boot\n"		\
-"	.type	_dl_boot,@function\n"	\
-"_dl_boot:\n"				\
+"	.global	_start\n"		\
+"	.type	_start,@function\n"	\
+"	.hidden	_start\n"		\
+"_start:\n"				\
 "	call	.Lcall\n"		\
 ".Lcall:\n"				\
 "	movsg	lr, gr4\n"		\
@@ -54,18 +55,18 @@ __asm__("" \
 "	addi.p	sp, #4, gr13\n"		\
 "	addi	sp, #-8, sp\n"		\
 "	mov.p	sp, gr12\n"		\
-"	call	_dl_boot2\n"		\
+"	call	_dl_start\n"		\
 "	ldd.p	@(sp, gr0), gr14\n"	\
 "	addi	sp, #8, sp\n"		\
 "	movgs	gr0, lr\n"		\
 "	jmpl	@(gr14, gr0)\n"		\
-"	.size	_dl_boot,.-_dl_boot\n"	\
+"	.size	_start,.-_start\n"	\
 );
 
-#define _dl_boot _dl_boot2
-#define DL_BOOT(X)   \
+#undef DL_START
+#define DL_START(X)   \
 static void  __attribute__ ((used)) \
-_dl_boot (void *dl_boot_got_pointer, \
+_dl_start (Elf32_Addr dl_boot_got_pointer, \
 	  struct elf32_fdpic_loadmap *dl_boot_progmap, \
 	  struct elf32_fdpic_loadmap *dl_boot_ldsomap, \
 	  Elf32_Dyn *dl_boot_ldso_dyn_pointer, \
@@ -115,6 +116,5 @@ _dl_boot (void *dl_boot_got_pointer, \
   while (exec_mod->libtype != elf_executable)				\
     exec_mod = exec_mod->next;						\
   dl_main_funcdesc->got_value = exec_mod->loadaddr.got_value;		\
-  /* _dl_dprintf(2, "entry point is (%x,%x)\n", dl_main_funcdesc->entry_point, dl_main_funcdesc->got_value); */ \
   return;								\
 } while (0)

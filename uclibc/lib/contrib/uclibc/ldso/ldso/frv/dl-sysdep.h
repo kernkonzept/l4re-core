@@ -40,9 +40,6 @@ extern int _dl_linux_resolve(void) __attribute__((__visibility__("hidden")));
 #define SEND_EARLY_STDERR(S) \
   do { static char __s[] = (S); SEND_STDERR (__s); } while (0)
 
-#define DL_RELOC_ADDR(ADDR, LOADADDR) \
-  (__reloc_pointer ((void*)(ADDR), (LOADADDR).map))
-
 /* Make sure we only load libraries that use the same number of
    general-purpose and floating-point registers the dynamic loader was
    compiled for.  */
@@ -85,3 +82,16 @@ do \
 while (0)
 
 #include "../fdpic/dl-sysdep.h"
+
+static __always_inline Elf32_Addr
+elf_machine_load_address (void)
+{
+	return 0;
+}
+
+static __always_inline void
+elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
+		      Elf32_Word relative_count)
+{
+	;
+}

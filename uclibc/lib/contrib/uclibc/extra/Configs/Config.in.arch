@@ -20,15 +20,15 @@ config UCLIBC_FORMAT_DSBT_ELF
 	select DOPIC
 config UCLIBC_FORMAT_FLAT
 	bool "STATIC FLAT"
-	depends on !ARCH_USE_MMU
+	depends on !ARCH_USE_MMU && !TARGET_frv
 	select ARCH_HAS_NO_LDSO
 config UCLIBC_FORMAT_FLAT_SEP_DATA
 	bool "STATIC FLAT (sep-data)"
-	depends on !ARCH_USE_MMU
+	depends on !ARCH_USE_MMU && !TARGET_frv
 	select ARCH_HAS_NO_LDSO
 config UCLIBC_FORMAT_SHARED_FLAT
 	bool "SHARED FLAT"
-	depends on !ARCH_USE_MMU
+	depends on !ARCH_USE_MMU && !TARGET_frv
 	select ARCH_HAS_NO_LDSO
 	help
 	  Pick this one if you are using uClinux and wish to build

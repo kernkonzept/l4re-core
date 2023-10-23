@@ -4,8 +4,8 @@
  * our private content, and not the kernel header, will win.
  *  -Erik
  */
-#ifndef _ASM_NIOS2_POSIX_TYPES_H
-#define _ASM_NIOS2_POSIX_TYPES_H
+#ifndef __ASM_GENERIC_POSIX_TYPES_H
+#define __ASM_GENERIC_POSIX_TYPES_H
 
 typedef unsigned long	__kernel_dev_t;
 typedef unsigned long	__kernel_ino_t;
@@ -14,8 +14,8 @@ typedef unsigned short	__kernel_nlink_t;
 typedef long		__kernel_off_t;
 typedef int		__kernel_pid_t;
 typedef unsigned short	__kernel_ipc_pid_t;
-typedef unsigned short	__kernel_uid_t;
-typedef unsigned short	__kernel_gid_t;
+typedef unsigned int	__kernel_uid_t;
+typedef unsigned int	__kernel_gid_t;
 typedef unsigned int	__kernel_size_t;
 typedef int		__kernel_ssize_t;
 typedef int		__kernel_ptrdiff_t;
@@ -28,9 +28,9 @@ typedef unsigned short	__kernel_uid16_t;
 typedef unsigned short	__kernel_gid16_t;
 typedef unsigned int	__kernel_uid32_t;
 typedef unsigned int	__kernel_gid32_t;
-typedef unsigned short	__kernel_old_uid_t;
-typedef unsigned short	__kernel_old_gid_t;
-typedef unsigned short	__kernel_old_dev_t;
+typedef unsigned int	__kernel_old_uid_t;
+typedef unsigned int	__kernel_old_gid_t;
+typedef unsigned int	__kernel_old_dev_t;
 typedef long		__kernel_long_t;
 typedef unsigned long	__kernel_ulong_t;
 typedef long long	__kernel_loff_t;
@@ -43,4 +43,4 @@ typedef struct {
 #endif
 } __kernel_fsid_t;
 
-#endif /* _ASM_NIOS2_POSIX_TYPES_H */
+#endif /* __ASM_GENERIC_POSIX_TYPES_H */

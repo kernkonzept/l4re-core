@@ -10,5 +10,3 @@
    containing a local variable at ADDRESS.  */
 #define _JMPBUF_UNWINDS(jmpbuf, address) \
   ((void *) (address) < (void *) (jmpbuf)->__sp)
-
-#endif	/* bits/setjmp.h */

@@ -22,6 +22,9 @@
 
 
 #include <sys/types.h>
+#ifdef __USE_GNU
+# include <bits/uio.h>
+#endif
 
 /* open/fcntl - O_SYNC is only implemented on blocks devices and on files
    located on an ext2 file system */

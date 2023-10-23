@@ -379,7 +379,7 @@ char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_res
 #endif
 			case STB_GLOBAL:
 			case 10: /* DAS IS VON MIR GNU STB UNIQUE aw11 L4 und so, eigentlich muss das anders */
-#ifdef __FDPIC__
+#if defined(__FRV_FDPIC__) || defined(__BFIN_FDPIC__)
 			if (sym_ref)
 				sym_ref->tpnt = tpnt;
 #endif
@@ -388,7 +388,7 @@ char *_dl_find_hash(const char *name, struct r_scope_elem *scope, struct elf_res
 				break;
 		}
 	}
-#ifdef __FDPIC__
+#if defined(__FRV_FDPIC__) || defined(__BFIN_FDPIC__)
 	if (sym_ref)
 		sym_ref->tpnt = tpnt;
 #endif

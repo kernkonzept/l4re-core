@@ -14,6 +14,7 @@
 
 #include <features.h>
 #include <asm/unistd.h>
+#define TRAP_ID_SYSCALL        0
 
     .global _start
     .type   _start,@function

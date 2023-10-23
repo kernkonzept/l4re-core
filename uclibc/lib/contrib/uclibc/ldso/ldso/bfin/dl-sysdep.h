@@ -79,7 +79,7 @@ while (0)
 #define DL_MAP_SEGMENT(EPNT, PPNT, INFILE, FLAGS) \
   __dl_map_segment (EPNT, PPNT, INFILE, FLAGS)
 
-#if defined(__FDPIC__)
+#if defined(__BFIN_FDPIC__)
 #include "../fdpic/dl-sysdep.h"
 
 static __always_inline Elf32_Addr
