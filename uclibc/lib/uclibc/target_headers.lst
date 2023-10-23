@@ -12,6 +12,7 @@ asm/sigcontext.h
 assert.h
 atomic.h
 bits/atomic.h
+bits/byteswap-16.h
 bits/byteswap-common.h
 bits/byteswap.h
 bits/cmathcalls.h
