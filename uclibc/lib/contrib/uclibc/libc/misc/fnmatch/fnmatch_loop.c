@@ -910,7 +910,6 @@ FCT (const CHAR *pattern, const CHAR *string, const CHAR *string_end,
 		  }
 		else if (c == L('[') && *p == L('.'))
 		  {
-		    ++p;
 		    while (1)
 		      {
 			c = *++p;
