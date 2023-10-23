@@ -21,10 +21,18 @@
 #endif
 
 #ifdef __GNUC__
+# if __GNUC_PREREQ (4, 8) || __CLANG_PREREQ (3, 2)
+static __inline unsigned short int
+__bswap_16 (unsigned short int __bsx)
+{
+  return __builtin_bswap16 (__bsx);
+}
+# else
 # define __bswap_16(x) \
     (__extension__							      \
      ({ unsigned short int __bsx = (unsigned short int) (x);		      \
        __bswap_constant_16 (__bsx); }))
+# endif
 #else
 static __inline unsigned short int
 __bswap_16 (unsigned short int __bsx)
