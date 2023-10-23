@@ -26,10 +26,6 @@
 
 #include "bits/type_traits.h"
 
-
-#define CXX_GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
-
-
 namespace cxx {
 
 template< typename T, T V >
