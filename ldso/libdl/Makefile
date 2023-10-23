@@ -19,7 +19,8 @@ vpath %.c $(CON_DIR)/ldso/libdl
 vpath %.S $(CON_DIR)/ldso/ldso/$(DIR_$(ARCH))
 
 PRIVATE_INCDIR-x86 := $(CON_DIR)/libc
-PRIVATE_INCDIR := $(PRIVATE_INCDIR-$(ARCH)) \
+PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
+                  $(OBJ_BASE)/include/uclibc \
                   $(CON_DIR)/ldso/ldso/$(DIR_$(ARCH)) \
 		  $(SRC_DIR)           \
 		  $(CON_DIR)/ldso/include \

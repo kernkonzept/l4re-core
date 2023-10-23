@@ -23,7 +23,8 @@ vpath aeabi_read_tp_generic.c $(UCC_DIR)/ARCH-arm
 vpath ssp-l4.c                $(UCC_DIR)
 
 PRIVATE_INCDIR-x86 := $(CON_DIR)/../libc
-PRIVATE_INCDIR := $(PRIVATE_INCDIR-$(ARCH)) \
+PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
+                  $(OBJ_BASE)/include/uclibc \
                   $(CON_DIR)/ldso/$(DIR_$(ARCH)) \
 		  $(SRC_DIR)           \
 		  $(CON_DIR)/include \
