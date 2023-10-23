@@ -25,6 +25,7 @@
 #include <l4/re/env>
 #include <l4/re/rm>
 #include <l4/re/dataspace>
+#include <l4/sys/assert.h>
 #include <l4/cxx/hlist>
 #include <l4/cxx/pair>
 #include <l4/cxx/std_alloc>
