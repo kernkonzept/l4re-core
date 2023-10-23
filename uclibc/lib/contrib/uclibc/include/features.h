@@ -138,6 +138,18 @@
 # define __GNUC_PREREQ(maj, min) 0
 #endif
 
+/* Convenience macro to test the version of clang.
+   Use like this:
+   #if __CLANG_PREREQ(3,2)
+   ... code requiring clang 3.2 or later ...
+   #endif */
+#if defined __clang__
+# define __CLANG_PREREQ(maj, min) \
+	((__clang_major__ << 16) + __clang_minor__ >= ((maj) << 16) + (min))
+#else
+# define __CLANG_PREREQ(maj, min) 0
+#endif
+
 
 /* If _BSD_SOURCE was defined by the user, favor BSD over POSIX.  */
 #if defined _BSD_SOURCE && \
