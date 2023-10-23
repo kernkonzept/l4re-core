@@ -33,11 +33,11 @@ all:: $(HEADERS_LST)
 
 DST_HEADERS   := $(addprefix $(HEADER_DIR)/,$(DST_HEADERS))
 
-$(DST_HEADERS): $(HEADER_DIR)/%: % FORCE
+$(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(HEADERS_LST)
 	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) -p $(@D)
 	$(VERBOSE)$(LN) -sf $(call absfilename,$<) $@
 
-$(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile
+$(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(HEADERS_LST)
 	$(VERBOSE)$(RM) -r $@
 	$(VERBOSE)install -d $@
 	@$(INSTALL_LINK_MESSAGE)
