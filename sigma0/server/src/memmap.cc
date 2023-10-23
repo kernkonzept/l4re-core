@@ -7,6 +7,7 @@
  * GNU General Public License 2.
  * Please see the COPYING-GPL-2 file for details.
  */
+#include <l4/bid_config.h>
 #include <l4/sys/types.h>
 #include <l4/sys/ipc.h>
 #include <l4/sys/assert.h>
@@ -48,8 +49,12 @@ void dump_all()
 static
 void map_kip(Answer *a)
 {
+#ifdef CONFIG_MMU
   a->snd_fpage(reinterpret_cast<l4_umword_t>(l4_info), L4_LOG2_PAGESIZE,
                L4_FPAGE_RX, true);
+#else
+  a->snd_addr(reinterpret_cast<l4_umword_t>(l4_info));
+#endif
 }
 
 static

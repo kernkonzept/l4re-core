@@ -82,6 +82,7 @@ l4_kernel_info_t const *map_kip()
     }
 
   boot.printf("KIP @%p\n", kip());
+  l4_global_kip = _current_kip;
   return kip();
 }
 

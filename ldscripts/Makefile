@@ -71,7 +71,7 @@ $(eval $(call make_per_obj_vars,crti.o,kip_addr.o,kip_addr.S))
 
 DEFINES_kip_addr.o = -DL4_KIP_ADDR=$(L4_KIP_ADDR)
 
-crti.o: crti_s.o kip_addr.o
+crti.o: crti_s.o $(if $(CONFIG_MMU),kip_addr.o)
 	@$(GEN_MESSAGE)
 	$(VERBOSE)$(LD) -r -o $@ $^
 
