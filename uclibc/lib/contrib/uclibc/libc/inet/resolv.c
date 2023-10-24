@@ -669,11 +669,13 @@ int __decode_dotted(const unsigned char *packet,
 	bool measure = 1;
 	unsigned total = 0;
 	unsigned used = 0;
+	unsigned maxiter = 256;
 
 	if (!packet)
 		return -1;
 
-	while (1) {
+	dest[0] = '\0';
+	while (--maxiter) {
 		if (offset >= packet_len)
 			return -1;
 		b = packet[offset++];
@@ -710,6 +712,8 @@ int __decode_dotted(const unsigned char *packet,
 		else
 			dest[used++] = '\0';
 	}
+	if (!maxiter)
+		return -1;
 
 	/* The null byte must be counted too */
 	if (measure)
@@ -970,7 +974,7 @@ void __open_nameservers(void)
 	if (!__res_sync) {
 		/* Reread /etc/resolv.conf if it was modified.  */
 		struct stat sb;
-		if (stat("/etc/resolv.conf", &sb) != 0)
+		if (stat(_PATH_RESCONF, &sb) != 0)
 			sb.st_mtime = 0;
 		if (resolv_conf_mtime != (uint32_t)sb.st_mtime) {
 			resolv_conf_mtime = sb.st_mtime;
@@ -984,7 +988,7 @@ void __open_nameservers(void)
 	__resolv_timeout = RES_TIMEOUT;
 	__resolv_attempts = RES_DFLRETRY;
 
-	fp = fopen("/etc/resolv.conf", "r");
+	fp = fopen(_PATH_RESCONF, "r");
 #ifdef FALLBACK_TO_CONFIG_RESOLVCONF
 	if (!fp) {
 		/* If we do not have a pre-populated /etc/resolv.conf then
@@ -1260,7 +1264,7 @@ int __dns_lookup(const char *name,
 	int variant = -1;  /* search domain to append, -1: none */
 	int local_ns_num = -1; /* Nth server to use */
 	int local_id = local_id; /* for compiler */
-	int sdomains;
+	int sdomains = 0;
 	bool ends_with_dot;
 	sockaddr46_t sa;
 
@@ -1298,7 +1302,9 @@ int __dns_lookup(const char *name,
 		 * or do other Really Bad Things. */
 		__UCLIBC_MUTEX_LOCK(__resolv_lock);
 		__open_nameservers();
-		sdomains = __searchdomains;
+		if (type != T_PTR) {
+			sdomains = __searchdomains;
+		}
 		lookup[name_len] = '\0';
 		if ((unsigned)variant < sdomains) {
 			/* lookup is name_len + 1 + MAXLEN_searchdomain + 1 long */
@@ -1316,7 +1322,6 @@ int __dns_lookup(const char *name,
 				local_ns_num = last_ns_num;
 			retries_left = __nameservers * __resolv_attempts;
 		}
-		retries_left--;
 		if (local_ns_num >= __nameservers)
 			local_ns_num = 0;
 		local_id++;
@@ -1568,6 +1573,7 @@ int __dns_lookup(const char *name,
 
  try_next_server:
 		/* Try next nameserver */
+		retries_left--;
 		local_ns_num++;
 		variant = -1;
 	} while (retries_left > 0);
