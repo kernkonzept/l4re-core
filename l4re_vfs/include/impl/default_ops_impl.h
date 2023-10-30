@@ -12,7 +12,7 @@ namespace {
 struct Vfs_init
 {
   // The Static_containers are used to prevent automatic destruction during
-  // program shutdown. At least the `vfs` object must never be destructued
+  // program shutdown. At least the `vfs` object must never be destructed
   // because any later attempt to do any kind of file-descriptor access in
   // the program would crash, and we could not be sure that the destructor
   // would really be executed after each possible operation using files or file
