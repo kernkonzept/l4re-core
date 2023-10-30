@@ -328,7 +328,7 @@ public:
    * please do not supply the UTCB pointer, it's not used.
    */
   Registry_server(l4_utcb_t *, L4::Cap<L4::Thread> server,
-                  L4::Cap<L4::Factory> factory)
+                  L4::Cap<L4::Factory> factory) L4_DEPRECATED("Omit UTCB pointer argument")
   : _registry(this, server, factory)
   {}
 
