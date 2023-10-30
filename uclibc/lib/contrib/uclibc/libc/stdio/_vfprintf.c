@@ -1057,6 +1057,8 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 				}
 			}
 			--n;
+			if (n < 0 || n >= MAX_ARGS || i >= MAX_ARGS)
+				continue;
 			/* Record argtype with largest size (current, new). */
 			if (_is_equal_or_bigger_arg(ppfs->argtype[n], argtype[i])) {
 				ppfs->argtype[n] = argtype[i];
