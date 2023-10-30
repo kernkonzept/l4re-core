@@ -1,0 +1,14 @@
+menu "Sigma0 (root pager)"
+	visible if EXPERT
+
+config SIGMA0_PRIORITY
+	int "Priority"
+	range 1 255
+	default 255
+	help
+	  This sets the priority the root pager runs with. The default
+	  is the highest priority and is almost always the best fit.
+
+	  Valid values range from 1 to 255.
+
+endmenu
