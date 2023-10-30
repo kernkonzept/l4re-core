@@ -221,14 +221,16 @@ Moe::Boot_fs::init_stage2()
         {
           rwfs_ns->register_obj(name, Entry::F_rw, rf);
           dirinfo_rw.add(name);
+          L4::cout << "   RWFS";
         }
       else
         {
           rom_ns->register_obj(name, 0, rf);
           dirinfo_ro.add(name);
+          L4::cout << "  ROMFS";
         }
 
-      L4::cout << "  BOOTFS: [" << (void*)(unsigned long)modules[mod].mod_start << "-"
+      L4::cout << ": [" << (void*)(unsigned long)modules[mod].mod_start << "-"
                << (void*)end << "] " << object << " "
                << name << "\n";
     }
