@@ -301,7 +301,7 @@ protected:
   l4_umword_t _data;
 };
 
-/// RPC warpper for a receive item.
+/// RPC wrapper for a receive item.
 class Buf_item
 {
 public:
@@ -771,4 +771,3 @@ template<> struct Is_valid_rpc_type<l4_utcb_t *> : L4::Types::False {};
 } // namespace Msg
 } // namespace Ipc
 } // namespace L4
-
