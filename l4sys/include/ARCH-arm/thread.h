@@ -46,6 +46,9 @@ l4_thread_arm_set_tpidruro_u(l4_cap_idx_t thread, l4_addr_t tpidruro,
  * \brief Arm specific L4::Thread::ex_regs() flags.
  * \ingroup l4_thread_api
  * \hideinitializer
+ *
+ * Only one option must be used in calls to L4::Thread::ex_regs(). Using more
+ * than one option results in undefined behaviour.
  */
 enum L4_thread_ex_regs_flags_arm
 {
