@@ -178,7 +178,7 @@ public:
   { return unmask(-1, label, timeout, utcb); }
 
   /**
-   * Unmask IRQ.
+   * Unmask this IRQ.
    *
    * \utcb{utcb}
    *
@@ -189,8 +189,6 @@ public:
    *
    * Irq::wait() and Irq::receive() operations already include an unmask(), do
    * not use an extra unmask() in these cases.
-   *
-   * \deprecated Use L4::Irq_eoi::unmask()
    */
   l4_msgtag_t unmask(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return unmask(-1, 0, L4_IPC_NEVER, utcb); }
