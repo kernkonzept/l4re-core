@@ -395,6 +395,10 @@ List_alloc::alloc(unsigned long size, unsigned long align)
       if (a_start - n_start >= (*c)->size)
         continue;
 
+      // end address would overflow, next
+      if (size > ~0UL - a_start)
+        continue;
+
       // remaining size after subtracting the padding
       // for the alignment
       unsigned long r_size = (*c)->size - a_start + n_start;
