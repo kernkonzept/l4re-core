@@ -22,6 +22,7 @@
 
 #include <l4/cxx/arith>
 #include <l4/cxx/minmax>
+#include <l4/sys/consts.h>
 
 namespace cxx {
 
