@@ -17,7 +17,7 @@ void *memcpy(void *dst, void const *src, size_t si)
   for (; si > 0; --si, ++s, ++d)
     *d = *s;
 
-  return d;
+  return dst;
 }
 
 size_t strlen(char const *s)
