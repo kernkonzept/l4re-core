@@ -190,7 +190,7 @@ strong_alias (__pthread_getspecific, pthread_getspecific)
 
 void
 attribute_hidden
-__pthread_destroy_specifics()
+__pthread_destroy_specifics(void)
 {
   pthread_descr self = thread_self();
   int i, j, round, found_nonzero;
