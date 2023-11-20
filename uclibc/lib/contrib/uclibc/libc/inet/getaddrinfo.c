@@ -947,8 +947,7 @@ getaddrinfo(const char *name, const char *service,
 					last_i = i;
 					if (hints->ai_family == AF_UNSPEC && (i & GAIH_OKIFUNSPEC))
 						continue;
-					/*if (p) - freeaddrinfo works ok on NULL too */
-						freeaddrinfo(p);
+					freeaddrinfo(p); /* freeaddrinfo works ok on NULL too */
 					return -(i & GAIH_EAI);
 				}
 				if (end)
