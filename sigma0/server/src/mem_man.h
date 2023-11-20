@@ -18,8 +18,10 @@
 #include "globals.h"
 
 
-class Mem_man 
+class Mem_man
 {
+  friend class Mem_man_tester;
+
 private:
   bool add(Region const &r);
   bool alloc_from(Region const *r2, Region const &r);
