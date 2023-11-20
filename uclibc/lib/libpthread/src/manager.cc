@@ -85,7 +85,9 @@ static pthread_descr manager_thread;
 
 /* Flag set in signal handler to record child termination */
 
+#ifdef NOT_FOR_L4
 static __volatile__ int terminated_children;
+#endif
 
 /* Flag set when the initial thread is blocked on pthread_exit waiting
    for all other threads to terminate */
