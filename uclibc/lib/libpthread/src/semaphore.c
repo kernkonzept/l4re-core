@@ -59,7 +59,6 @@ int sem_wait(sem_t * sem)
   __volatile__ pthread_descr self = thread_self();
   pthread_extricate_if extr;
   int already_canceled = 0;
-  int spurious_wakeup_count;
 
   /* Set up extrication interface */
   extr.pu_object = sem;
@@ -88,7 +87,6 @@ int sem_wait(sem_t * sem)
   }
 
   /* Wait for sem_post or cancellation, or fall through if already canceled */
-  spurious_wakeup_count = 0;
   while (1)
     {
       suspend(self);
@@ -96,8 +94,7 @@ int sem_wait(sem_t * sem)
 	  && (THREAD_GETMEM(self, p_woken_by_cancel) == 0
 	      || THREAD_GETMEM(self, p_cancelstate) != PTHREAD_CANCEL_ENABLE))
 	{
-	  /* Count resumes that don't belong to us. */
-	  spurious_wakeup_count++;
+	  /* Resume does not belong to us. */
 	  continue;
 	}
       break;
@@ -216,7 +213,6 @@ int sem_timedwait(sem_t *sem, const struct timespec *abstime)
   pthread_descr self = thread_self();
   pthread_extricate_if extr;
   int already_canceled = 0;
-  int spurious_wakeup_count;
 
   __pthread_lock(&sem->__sem_lock, self);
   if (sem->__sem_value > 0) {
@@ -253,7 +249,6 @@ int sem_timedwait(sem_t *sem, const struct timespec *abstime)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   }
 
-  spurious_wakeup_count = 0;
   while (1)
     {
       if (timedsuspend(self, abstime) == 0) {
@@ -280,8 +275,7 @@ int sem_timedwait(sem_t *sem, const struct timespec *abstime)
 	  && (THREAD_GETMEM(self, p_woken_by_cancel) == 0
 	      || THREAD_GETMEM(self, p_cancelstate) != PTHREAD_CANCEL_ENABLE))
 	{
-	  /* Count resumes that don't belong to us. */
-	  spurious_wakeup_count++;
+	  /* Resume does not belong to us. */
 	  continue;
 	}
       break;
