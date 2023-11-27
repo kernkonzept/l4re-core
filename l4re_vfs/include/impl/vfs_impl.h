@@ -662,10 +662,14 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 	return err;
     }
 
-  if (!(flags & MAP_FIXED))  rm_flags |= Rm::F::Search_addr;
-  if (prot & PROT_READ)      rm_flags |= Rm::F::R;
-  if (prot & PROT_WRITE)     rm_flags |= Rm::F::W;
-  if (prot & PROT_EXEC)      rm_flags |= Rm::F::X;
+  if (!(flags & MAP_FIXED))
+    rm_flags |= Rm::F::Search_addr;
+  if (prot & PROT_READ)
+    rm_flags |= Rm::F::R;
+  if (prot & PROT_WRITE)
+    rm_flags |= Rm::F::W;
+  if (prot & PROT_EXEC)
+    rm_flags |= Rm::F::X;
 
   err = r->attach(&data, len, rm_flags,
                   L4::Ipc::make_cap(ds.get(), (prot & PROT_WRITE)
