@@ -1675,7 +1675,7 @@ int __read_etc_hosts_r(
 found:
 		result_buf->h_name = *(result_buf->h_aliases++);
 		result_buf->h_addr_list = (char**)(buf + HALISTOFF);
-		*(result_buf->h_addr_list + 1) = '\0';
+		*(result_buf->h_addr_list + 1) = 0;
 		h_addr0 = (struct in_addr*)(buf + INADDROFF);
 		result_buf->h_addr = (char*)h_addr0;
 		if (0) /* nothing */;
