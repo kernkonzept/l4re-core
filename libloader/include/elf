@@ -247,8 +247,10 @@ struct Phdr_load_min_max
 
     l4_addr_t s = l4_trunc_page(h.paddr());
     l4_addr_t e = l4_round_page(h.paddr() + h.memsz());
-    if (s < start) start = s;
-    if (e > end)   end   = e;
+    if (s < start)
+      start = s;
+    if (e > end)
+      end = e;
   }
 };
 
