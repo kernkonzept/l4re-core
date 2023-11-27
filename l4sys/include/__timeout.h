@@ -287,7 +287,8 @@ l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
 
       unsigned m;
       int e = (31 - __builtin_clz(us)) - 9;
-      if (e < 0) e = 0;
+      if (e < 0)
+        e = 0;
 
       /* Here it is certain that '0 <= e <= 22' and '1 <= 2^e <= 2^22'. */
 
