@@ -107,15 +107,18 @@ namespace L4Re {
     __attribute__((alias("l4re_vfs_virt_cap_alloc"), visibility("default")));
 }
 
+extern "C" void __cxa_pure_virtual(void);
 extern "C" void __cxa_pure_virtual(void)
 {
   l4_sleep_forever();
 }
 
+extern "C" void __cxa_atexit(void);
 extern "C" void __cxa_atexit(void)
 {}
 
 #ifdef __ARM_EABI__
+extern "C" void __aeabi_atexit(void);
 extern "C" void __aeabi_atexit(void)
 {}
 #endif

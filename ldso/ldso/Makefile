@@ -78,13 +78,8 @@ ldso.1.o: ldso.o
 
 CXXFLAGS := $(filter-out -fno-omit-frame-pointer, $(CXXFLAGS))
 CXXFLAGS := $(filter-out -fno-strict-aliasing, $(CXXFLAGS))
-CXXFLAGS := $(filter-out -Wmissing-declarations, $(CXXFLAGS))
 CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions -fvisibility=hidden \
             -fno-threadsafe-statics -O3
-
-ifeq ($(BID_COMPILER_TYPE),clang)
-WARNINGS += -Wno-gnu-designator
-endif
 
 CPPFLAGS := $(filter-out -DL4SYS_USE_UTCB_WRAP=1, $(CPPFLAGS))
 
