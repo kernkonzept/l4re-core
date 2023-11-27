@@ -138,8 +138,10 @@ static void find_memory()
                 continue;
             }
 
-          if (addr < min_addr) min_addr = addr;
-          if (addr + size > max_addr) max_addr = addr + size;
+          if (addr < min_addr)
+            min_addr = addr;
+          if (addr + size > max_addr)
+            max_addr = addr + size;
 
           Single_page_alloc_base::_free((void*)addr, size, true);
         }

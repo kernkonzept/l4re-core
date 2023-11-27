@@ -276,8 +276,10 @@ Name_space::op_query(L4Re::Namespace::Rights,
     out_name->length = 0;
 
   unsigned flags = L4_CAP_FPAGE_R;
-  if (n->is_rw())     flags |= L4_CAP_FPAGE_W;
-  if (n->is_strong()) flags |= L4_CAP_FPAGE_S;
+  if (n->is_rw())
+    flags |= L4_CAP_FPAGE_W;
+  if (n->is_strong())
+    flags |= L4_CAP_FPAGE_S;
 
   snd_cap = L4::Ipc::Snd_fpage(n->cap(), flags);
   dbg.printf(" result = %lx flgs=%x strg=%d\n",
