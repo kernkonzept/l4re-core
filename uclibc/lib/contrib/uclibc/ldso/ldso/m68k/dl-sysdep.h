@@ -83,3 +83,5 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
 		*reloc_addr = load_off + rpnt->r_addend;
 	} while (--relative_count);
 }
+
+#define DL_UPDATE_LOADADDR_HDR(LOADADDR, ADDR, PHDR)

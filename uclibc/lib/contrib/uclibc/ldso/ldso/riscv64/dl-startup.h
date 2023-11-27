@@ -88,3 +88,5 @@ void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, ElfW(Addr) *reloc_addr,
 			_dl_exit(1);
 	}
 }
+
+#define DL_UPDATE_LOADADDR_HDR(LOADADDR, ADDR, PHDR)

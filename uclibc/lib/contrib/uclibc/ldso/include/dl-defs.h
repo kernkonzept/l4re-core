@@ -72,7 +72,7 @@ typedef struct {
 #endif
 
 #ifdef _LIBC
-#ifndef __ARCH_HAS_NO_SHARED__
+#ifndef __ARCH_HAS_NO_LDSO__
 /* arch specific defines */
 #include <dl-sysdep.h>
 #endif

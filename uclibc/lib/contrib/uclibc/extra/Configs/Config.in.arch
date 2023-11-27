@@ -10,6 +10,14 @@
 if !ARCH_USE_MMU
 choice
 	prompt "Target File Format"
+config UCLIBC_FORMAT_ELF
+	bool "ELF (using ELF_FDPIC loader)"
+	depends on !ARCH_USE_MMU && (TARGET_arm || TARGET_m68k || \
+				     TARGET_riscv64)
+	select DOPIC
+	select STATIC_PIE
+	select ARCH_HAS_NO_SHARED
+	select HAVE_LDSO
 config UCLIBC_FORMAT_FDPIC_ELF
 	bool "FDPIC ELF"
 	depends on !ARCH_USE_MMU && (TARGET_bfin || TARGET_frv || TARGET_arm)

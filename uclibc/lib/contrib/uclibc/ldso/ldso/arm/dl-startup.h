@@ -302,3 +302,5 @@ int raise(int sig)
   _dl_exit(1);
 }
 #endif /* __FDPIC__ */
+
+#define DL_UPDATE_LOADADDR_HDR(LOADADDR, ADDR, PHDR)

@@ -333,8 +333,9 @@ config STATIC_PIE
 	bool "Add support for Static Position Independent Executables (PIE)"
 	default n
 	depends on DOPIC && !UCLIBC_FORMAT_FDPIC_ELF && \
-		(TARGET_arm || TARGET_i386 || TARGET_x86_64 || TARGET_aarch64 || \
-		 TARGET_mips || TARGET_xtensa || TARGET_powerpc)
+		(TARGET_aarch64 || TARGET_arm || TARGET_i386 || \
+		 TARGET_m68k || TARGET_mips || TARGET_powerpc || \
+		 TARGET_riscv64 || TARGET_x86_64 || TARGET_xtensa)
 
 config ARCH_HAS_NO_SHARED
 	bool
@@ -346,9 +347,13 @@ config ARCH_HAS_NO_LDSO
 config ARCH_HAS_UCONTEXT
 	bool
 
+config HAVE_LDSO
+	bool
+
 config HAVE_SHARED
 	bool "Enable shared libraries"
 	depends on !ARCH_HAS_NO_SHARED
+	select HAVE_LDSO
 	default y
 	help
 	  If you wish to build uClibc with support for shared libraries then

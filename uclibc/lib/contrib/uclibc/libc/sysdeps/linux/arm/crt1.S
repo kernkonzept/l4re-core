@@ -245,7 +245,7 @@ _start:
 	mov fp, #0
 	mov lr, #0
 
-#ifdef __ARCH_USE_MMU__
+#if defined(__ARCH_USE_MMU__) || defined(__UCLIBC_FORMAT_ELF__)
 #ifdef L_rcrt1
 	/* We don't need to save a1 since no dynamic linker should have run */
 	ldr a1, .L_GOT          /* Get value at .L_GOT + 0  (offset to GOT)*/

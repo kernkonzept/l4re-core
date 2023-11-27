@@ -78,9 +78,13 @@ _start:
 	sub.l %fp, %fp
 
 #if !defined __ARCH_USE_MMU__ && defined __PIC__
+#ifdef UCLIBC_FORMAT_ELF
+	move.l #_GLOBAL_OFFSET_TABLE_, %a5
+#else
 	/* Set up the global pointer.  The GOT is at the beginning of the
 	   data segment, whose address is in %d5.  */
 	move.l %d5,%a5
+#endif
 	.equ have_current_got, 1
 #endif
 	
@@ -92,11 +96,11 @@ _start:
 	   arguments for `main': argc, argv.  envp will be determined
 	   later in __libc_start_main.  */
 	move.l (%sp)+, %d0	/* Pop the argument count.  */
-#ifndef __ARCH_USE_MMU__
-	move.l (%sp)+, %a0
-#else
+#if defined(__ARCH_USE_MMU__) || defined(__UCLIBC_FORMAT_ELF__)
 	move.l %sp, %a0		/* The argument vector starts just at the
 				   current stack top.  */
+#else
+	move.l (%sp)+, %a0
 #endif
 
 	/* Provide the highest stack address to the user code (for stacks

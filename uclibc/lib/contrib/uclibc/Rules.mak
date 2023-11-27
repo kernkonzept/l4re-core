@@ -167,6 +167,8 @@ endif
 
 ifneq ($(HAVE_SHARED),y)
 libc :=
+endif
+ifneq ($(HAVE_LDSO),y)
 interp :=
 ldso :=
 endif

@@ -22,6 +22,9 @@ ifeq ($(UCLIBC_FORMAT_SHARED_FLAT),y)
 libs: $(lib-gdb-y)
 endif
 libs: $(lib-a-y)
+ifeq ($(HAVE_LDSO),y)
+$(lib-a-y): | $(ldso)
+endif
 endif
 objs: all_objs
 $(lib-so-y) $(lib-a-y): | $(top_builddir)lib

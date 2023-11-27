@@ -48,7 +48,7 @@
 /* Pull in the MIN macro */
 #include <sys/param.h>
 /* Pull in the ldso syscalls and string functions */
-#ifndef __ARCH_HAS_NO_SHARED__
+#if !defined(__ARCH_HAS_NO_SHARED__) || !defined(__ARCH_HAS_NO_LDSO__)
 #include <dl-syscall.h>
 #include <dl-string.h>
 /* Now the ldso specific headers */
