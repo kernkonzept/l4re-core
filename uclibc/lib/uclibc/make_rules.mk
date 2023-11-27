@@ -9,14 +9,20 @@ CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)
 DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__
 WARNINGS	= -Wall -Wstrict-prototypes
 ifeq ($(BID_COMPILER_TYPE),clang)
- WARNINGS	+= -Wno-gnu-designator \
-		   -Wno-tautological-pointer-compare \
-		   -Wno-pointer-bool-conversion
- # The Clang warning makes sense but we don't want to change the contrib code.
- $(foreach s,S s.S,$(foreach f,bzero memcpy mempcpy memset strcspn strpbrk,\
-   $(eval ASFLAGS_libc/string/x86_64/$(f).$(s) += -Wno-expansion-to-defined)))
+  # WARNING EXCEPTION: checking a parameter marked with the nonnull attribute
+  # for NULL is defensive programming.
+  WARNINGS += -Wno-tautological-pointer-compare
+  # WARNING EXCEPTION: dealing with nonnull parameters as if they were not NULL
+  # is defensive programming.
+  WARNINGS += -Wno-pointer-bool-conversion
+  # WARNING EXCEPTION: The warning is useful but the generated code works
+  # anyway as intended
+  $(foreach s,S s.S,$(foreach f,bzero memcpy mempcpy memset strcspn strpbrk,\
+    $(eval ASFLAGS_libc/string/x86_64/$(f).$(s) += -Wno-expansion-to-defined)))
 else
- WARNINGS	+= -Wno-nonnull-compare
+  # WARNING EXCEPTION: checking a parameter marked with the nonnull attribute
+  # for NULL is defensive programming.
+  WARNINGS	+= -Wno-nonnull-compare
 endif
 
 # for building the C library we access internal headers
