@@ -280,10 +280,10 @@ public:
         && _am.find_node(Region(beg, beg + size - 1)))
       return L4_INVALID_PTR;
 
-    if (beg < min_addr() || beg + size -1 > end)
+    if (beg < min_addr() || beg + size - 1 > end)
       return L4_INVALID_PTR;
 
-    if (_rm.insert(Region(beg, beg + size -1), hdlr).second == 0)
+    if (_rm.insert(Region(beg, beg + size - 1), hdlr).second == 0)
       return (void*)beg;
 
     return L4_INVALID_PTR;
@@ -293,7 +293,7 @@ public:
              Region *reg, Hdlr *hdlr) noexcept
   {
     Region dr((l4_addr_t)addr, (l4_addr_t)addr + sz - 1);
-    Region res(~0UL,0);
+    Region res(~0UL, 0);
 
     Node r = find(dr);
     if (!r)
@@ -344,11 +344,12 @@ public:
       {
         // move the end of a region
 
-        if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
+        if (!(flags & L4Re::Rm::Detach_keep)
+            && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
 
         Item *cn = const_cast<Item*>((Item const*)r);
-        cn->first = Region(g.start(), dr.start() -1);
+        cn->first = Region(g.start(), dr.start() - 1);
         if (hdlr)
           *hdlr = Hdlr();
         if (reg)
@@ -373,7 +374,8 @@ public:
 
         // insert a second region for the remaining tail of
         // the old existing region
-        err = _rm.insert(Region(dr.end() + 1, g.end()), h + (dr.end() + 1 - g.start())).second;
+        err = _rm.insert(Region(dr.end() + 1, g.end()),
+                         h + (dr.end() + 1 - g.start())).second;
 
         if (err)
           return err;
