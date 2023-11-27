@@ -141,7 +141,10 @@ public:
     ~Irq() { ICU::free_irq_cap(_cap); }
 
     void trigger() const
-    { if (_cap) _cap->trigger(); }
+    {
+      if (_cap)
+        _cap->trigger();
+    }
 
     int bind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);
     int unbind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);

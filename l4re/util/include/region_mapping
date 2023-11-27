@@ -304,77 +304,85 @@ public:
 
     if (flags & L4Re::Rm::Detach_overlap || dr.contains(g))
       {
-	if (_rm.remove(g))
-	  return -L4_ENOENT;
+        if (_rm.remove(g))
+          return -L4_ENOENT;
 
-	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
-	  h.free(0, g.size());
+        if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
+          h.free(0, g.size());
 
-	if (hdlr) *hdlr = h;
-	if (reg) *reg = g;
+        if (hdlr)
+          *hdlr = h;
+        if (reg)
+          *reg = g;
 
-	if (find(dr))
-	  return Rm::Detached_ds | Rm::Detach_again;
-	else
-	  return Rm::Detached_ds;
+        if (find(dr))
+          return Rm::Detached_ds | Rm::Detach_again;
+        else
+          return Rm::Detached_ds;
       }
     else if (dr.start() <= g.start())
       {
-	// move the start of a region
+        // move the start of a region
 
-	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
-	  h.free(0, dr.end() + 1 - g.start());
+        if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
+          h.free(0, dr.end() + 1 - g.start());
 
-	unsigned long sz = dr.end() + 1 - g.start();
-	Item *cn = const_cast<Item*>((Item const *)r);
-	cn->first = Region(dr.end() + 1, g.end());
-	cn->second = cn->second + sz;
-	if (hdlr) *hdlr = Hdlr();
-	if (reg) *reg = Region(g.start(), dr.end());
-	if (find(dr))
-	  return Rm::Kept_ds | Rm::Detach_again;
-	else
-	  return Rm::Kept_ds;
+        unsigned long sz = dr.end() + 1 - g.start();
+        Item *cn = const_cast<Item*>((Item const *)r);
+        cn->first = Region(dr.end() + 1, g.end());
+        cn->second = cn->second + sz;
+        if (hdlr)
+          *hdlr = Hdlr();
+        if (reg)
+          *reg = Region(g.start(), dr.end());
+        if (find(dr))
+          return Rm::Kept_ds | Rm::Detach_again;
+        else
+          return Rm::Kept_ds;
       }
     else if (dr.end() >= g.end())
       {
-	// move the end of a region
+        // move the end of a region
 
-	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
-	  h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
+        if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
+          h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
 
-	Item *cn = const_cast<Item*>((Item const*)r);
-	cn->first = Region(g.start(), dr.start() -1);
-	if (hdlr) *hdlr = Hdlr();
-	if (reg) *reg = Region(dr.start(), g.end());
+        Item *cn = const_cast<Item*>((Item const*)r);
+        cn->first = Region(g.start(), dr.start() -1);
+        if (hdlr)
+          *hdlr = Hdlr();
+        if (reg)
+          *reg = Region(dr.start(), g.end());
 
-	if (find(dr))
-	  return Rm::Kept_ds | Rm::Detach_again;
-	else
-	  return Rm::Kept_ds;
+        if (find(dr))
+          return Rm::Kept_ds | Rm::Detach_again;
+        else
+          return Rm::Kept_ds;
       }
     else if (g.contains(dr))
       {
-	// split a single region that contains the new region
+        // split a single region that contains the new region
 
-	if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
-	  h.free(dr.start() - g.start(), dr.size());
+        if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
+          h.free(dr.start() - g.start(), dr.size());
 
-	// first move the end off the existing region before the new one
-	const_cast<Item*>((Item const *)r)->first = Region(g.start(), dr.start()-1);
+        // first move the end off the existing region before the new one
+        const_cast<Item*>((Item const *)r)->first = Region(g.start(), dr.start()-1);
 
-	int err;
+        int err;
 
-	// insert a second region for the remaining tail of
-	// the old existing region
-	err = _rm.insert(Region(dr.end() + 1, g.end()), h + (dr.end() + 1 - g.start())).second;
+        // insert a second region for the remaining tail of
+        // the old existing region
+        err = _rm.insert(Region(dr.end() + 1, g.end()), h + (dr.end() + 1 - g.start())).second;
 
-	if (err)
-	  return err;
+        if (err)
+          return err;
 
-	if (hdlr) *hdlr = h;
-	if (reg) *reg = dr;
-	return Rm::Split_ds;
+        if (hdlr)
+          *hdlr = h;
+        if (reg)
+          *reg = dr;
+        return Rm::Split_ds;
       }
     return -L4_ENOENT;
   }
