@@ -79,6 +79,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	      }
 	    else if (__s.length())
 	      {
+		_M_init_local_buf();
 		traits_type::copy(_M_local_buf, __s._M_local_buf,
 				  __s.length() + 1);
 		_M_length(__s.length());
@@ -87,6 +88,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	      }
 	    else if (length())
 	      {
+		__s._M_init_local_buf();
 		traits_type::copy(__s._M_local_buf, _M_local_buf,
 				  length() + 1);
 		__s._M_length(length());
@@ -97,6 +99,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	else
 	  {
 	    const size_type __tmp_capacity = __s._M_allocated_capacity;
+	    __s._M_init_local_buf();
 	    traits_type::copy(__s._M_local_buf, _M_local_buf,
 			      length() + 1);
 	    _M_data(__s._M_data());
@@ -108,6 +111,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  const size_type __tmp_capacity = _M_allocated_capacity;
 	  if (__s._M_is_local())
 	    {
+	      _M_init_local_buf();
 	      traits_type::copy(_M_local_buf, __s._M_local_buf,
 				__s.length() + 1);
 	      __s._M_data(_M_data());
@@ -170,11 +174,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	size_type __len = 0;
 	size_type __capacity = size_type(_S_local_capacity);
 
-	pointer __p = _M_use_local_data();
+	_M_init_local_buf();
 
 	while (__beg != __end && __len < __capacity)
 	  {
-	    __p[__len++] = *__beg;
+	    _M_local_buf[__len++] = *__beg;
 	    ++__beg;
 	  }
 
@@ -226,7 +230,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    _M_capacity(__dnew);
 	  }
 	else
-	  _M_use_local_data();
+	  _M_init_local_buf();
 
 	// Check for out_of_range and length_error exceptions.
 	struct _Guard
@@ -259,7 +263,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  _M_capacity(__n);
 	}
       else
-	_M_use_local_data();
+	_M_init_local_buf();
 
       if (__n)
 	this->_S_assign(_M_data(), __n, __c);
@@ -368,7 +372,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       if (__length <= size_type(_S_local_capacity))
 	{
-	  this->_S_copy(_M_use_local_data(), _M_data(), __length + 1);
+	  _M_init_local_buf();
+	  this->_S_copy(_M_local_buf, _M_data(), __length + 1);
 	  _M_destroy(__capacity);
 	  _M_data(_M_local_data());
 	}
@@ -566,13 +571,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<typename _Operation>
     constexpr void
     basic_string<_CharT, _Traits, _Alloc>::
-    resize_and_overwrite(size_type __n, _Operation __op)
+    resize_and_overwrite(const size_type __n, _Operation __op)
     {
       const size_type __capacity = capacity();
       _CharT* __p;
       if (__n > __capacity)
 	{
-	  __p = _M_create(__n, __capacity);
+	  auto __new_capacity = __n; // Must not allow _M_create to modify __n.
+	  __p = _M_create(__new_capacity, __capacity);
 	  this->_S_copy(__p, _M_data(), length()); // exclude trailing null
 #if __cpp_lib_is_constant_evaluated
 	  if (std::is_constant_evaluated())
@@ -580,7 +586,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
 	  _M_dispose();
 	  _M_data(__p);
-	  _M_capacity(__n);
+	  _M_capacity(__new_capacity);
 	}
       else
 	__p = _M_data();

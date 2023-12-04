@@ -1,3 +1,732 @@
+2023-12-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/111826
+	* include/std/format (__cpp_lib_format): Update value.
+	* include/std/version (__cpp_lib_format): Likewise.
+	* testsuite/std/format/functions/format.cc: Update expected
+	value.
+
+2023-12-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format (_Iter_sink<charT, contiguous_iterator>):
+	Remove uint64_t local type.
+
+2023-12-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_wait.h: Include <cstdint> instead of
+	<stdint.h>.
+
+2023-12-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/111948
+	* include/bits/ranges_util.h (subrange): Add constructor to
+	_Size to avoid setting member in constructor.
+	* testsuite/std/ranges/subrange/111948.cc: New test.
+
+2023-12-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112480
+	* include/std/optional (_Optional_payload_base::_M_reset): Set
+	_M_engaged to false unconditionally.
+
+2023-12-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112473
+	* include/bits/utility.h (integer_sequence): Add static_assert.
+	* testsuite/20_util/integer_sequence/112473.cc: New test.
+
+2023-12-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112832
+	* include/std/format (formatter::set_debug_format): Ensure this
+	member is defined conditionally for all specializations.
+	* testsuite/std/format/formatter/112832.cc: New test.
+
+2023-12-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/110133
+	* include/std/system_error (system_error::system_error): Group
+	arguments so that concatenation can reuse rvalue's capacity.
+	* src/c++11/system_error.cc (strerror_string): New function.
+	[_GLIBCXX_HAVE_STRERROR_R] (use_strerror_result): New functions.
+	(generic_error_category::message): Use strerror_string.
+	(system_error_category::message): Likewise.
+
+2023-12-05  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2023-10-13  Jakub Jelinek  <jakub@redhat.com>
+
+	* testsuite/tr1/8_c_compatibility/cstdio/functions.cc (test01):
+	Initialize stream to va_arg(ap, FILE*) rather than 0.
+	* testsuite/tr1/8_c_compatibility/cwchar/functions.cc (test01):
+	Likewise.
+
+2023-11-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112607
+	* include/std/format (basic_format_arg::_S_to_arg_type): Check
+	value_type for basic_string_view and basic_string
+	specializations.
+	* testsuite/std/format/arguments/112607.cc: New test.
+
+2023-11-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_wait.h: Include <stdint.h>.
+
+2023-11-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/utility (in_range): Rename _Up parameter to _Res.
+
+2023-11-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112491
+	* python/libstdcxx/v6/xmethods.py (DequeWorkerBase.index):
+	Correctly handle unused capacity at the start of the first node.
+	* testsuite/libstdc++-xmethods/deque.cc: Check index operator
+	when elements have been removed from the front.
+
+2023-11-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/stacktrace (basic_stacktrace::at): Fix class name
+	in exception message.
+	* testsuite/19_diagnostics/stacktrace/hash.cc: Do not fail if
+	current() returns a non-empty stacktrace.
+
+2023-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112348
+	* include/std/stacktrace (hash<basic_stacktrace<Alloc>>): Fix
+	type of hash function for entries.
+	* testsuite/19_diagnostics/stacktrace/hash.cc: New test.
+
+2023-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112491
+	* python/libstdcxx/v6/xmethods.py (DequeWorkerBase.size): Fix
+	calculation to use _M_start._M_cur.
+	* testsuite/libstdc++-xmethods/deque.cc: Check failing cases.
+
+2023-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/std/time/clock/file/io.cc: Double timeout using
+	dg-timeout-factor.
+	* testsuite/std/time/clock/gps/io.cc: Likewise.
+	* testsuite/std/time/clock/system/io.cc: Likewise.
+	* testsuite/std/time/clock/tai/io.cc: Likewise.
+	* testsuite/std/time/clock/utc/io.cc: Likewise.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-10-04  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py
+	(StdExpAnyPrinter.__init__): Qualify call to
+	_string_types.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-10-04  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py: Assume that
+	_versioned_namespace is non-None.
+	* python/libstdcxx/v6/xmethods.py (is_specialization_of):
+	Assume that _versioned_namespace is non-None.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-10-04  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/xmethods.py (_versioned_namespace):
+	Define.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-09-28  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py (Printer.add_version)
+	(add_one_template_type_printer)
+	(FilteringTypePrinter.add_one_type_printer): Use Python
+	"not in" operator.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-09-28  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py (std_ratio_t_tuple):
+	Remove.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-09-28  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py
+	(StdExpOptionalPrinter.__init__, lookup_node_type):
+	Remove unused variables.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-09-28  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py: Don't import 'os'.
+	* python/libstdcxx/v6/__init__.py: Don't import 'gdb'.
+
+2023-11-13  Tom Tromey  <tromey@adacore.com>
+
+	Backported from master:
+	2023-09-28  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py: Use gdb.ValuePrinter
+	everywhere.  Rename members to start with "_".
+
+2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/xmethods.py (is_specialization_of): Define
+	new function.
+	(ArrayMethodsMatcher, DequeMethodsMatcher)
+	(ForwardListMethodsMatcher, ListMethodsMatcher)
+	(VectorMethodsMatcher, AssociativeContainerMethodsMatcher)
+	(UniquePtrGetWorker, UniquePtrMethodsMatcher)
+	(SharedPtrSubscriptWorker, SharedPtrMethodsMatcher): Use
+	is_specialization_of instead of re.match.
+
+2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py: Break long lines. Use raw
+	strings for regular expressions. Add whitespace around
+	operators.
+	(is_member_of_namespace): Use isinstance to check type.
+	(is_specialization_of): Likewise. Adjust template_name
+	for versioned namespace instead of duplicating the re.match
+	call.
+	(StdExpAnyPrinter._string_types): New static method.
+	(StdExpAnyPrinter.to_string): Use _string_types.
+
+2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py: Format docstrings according
+	to PEP 257.
+	* python/libstdcxx/v6/xmethods.py: Likewise.
+
+2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (StdChronoTimeZoneRulePrinter):
+	Fix incorrect number of replacement fields.
+
+2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py: Reformat.
+	* python/libstdcxx/v6/xmethods.py: Likewise.
+
+2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/printers.py (StdLocalePrinter): New
+	printer class.
+	* testsuite/libstdc++-prettyprinters/locale.cc: New test.
+
+2023-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/110944
+	* python/libstdcxx/v6/printers.py (StdExpOptionalPrinter): Do
+	not show template arguments.
+	(StdVariantPrinter): Likewise.
+	* testsuite/libstdc++-prettyprinters/compat.cc: Adjust expected
+	output.
+	* testsuite/libstdc++-prettyprinters/cxx17.cc: Likewise.
+	* testsuite/libstdc++-prettyprinters/libfundts.cc: Likewise.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/29_atomics/headers/atomic/types_std_c++2a_neg.cc:
+	Fix test to work for C++23 and C++26 too.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/24_iterators/move_iterator/p2520r0.cc: Add no_pch.
+	* testsuite/std/format/functions/format.cc: Likewise.
+	* testsuite/std/format/functions/format_c++23.cc: Likewise.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/basic_string.tcc (resize_and_overwrite): Invoke
+	the callable with the same size as resize_and_overwrite was
+	called with.
+	* testsuite/21_strings/basic_string/capacity/char/resize_and_overwrite.cc:
+	Check with small values for the new size.
+	* testsuite/std/format/functions/format.cc: Check wide
+	formatting of double values that produce small strings.
+	* testsuite/std/format/functions/format_c++23.cc: New test.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/lib/dg-options.exp (add_options_for_no_pch): Remove
+	any "-include bits/stdc++.h" from options and add the macro to
+	the existing options instead of replacing them.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/shared_ptr_atomic.h (atomic): Change class-head
+	to struct.
+	* include/bits/stl_tree.h (_Rb_tree_merge_helper): Change
+	class-head to struct in friend declaration.
+	* include/std/chrono (tzdb_list::_Node): Likewise.
+	* include/std/future (_Task_state_base, _Task_state): Likewise.
+	* include/std/scoped_allocator (__inner_type_impl): Likewise.
+	* include/std/valarray (_BinClos, _SClos, _GClos, _IClos)
+	(_ValFunClos, _RefFunClos): Change class-head to struct.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/alloc_traits.h (allocate): Add [[maybe_unused]]
+	attribute.
+	* include/bits/regex_executor.tcc: Remove name of unused
+	parameter.
+	* include/bits/shared_ptr_atomic.h (atomic_is_lock_free):
+	Likewise.
+	* include/bits/stl_uninitialized.h: Likewise.
+	* include/bits/streambuf_iterator.h (operator==): Likewise.
+	* include/bits/uses_allocator.h: Likewise.
+	* include/c_global/cmath (isfinite, isinf, isnan): Likewise.
+	* include/std/chrono (zoned_time): Likewise.
+	* include/std/future (__future_base::_S_allocate_result):
+	Likewise.
+	(packaged_task): Likewise.
+	* include/std/optional (_Optional_payload_base): Likewise.
+	* include/std/scoped_allocator (__inner_type_impl): Likewise.
+	* include/std/tuple (_Tuple_impl): Likewise.
+
+2023-11-09  Pekka Seppänen  <pexu@gcc.mail.kapsi.fi>
+
+	Backported from master:
+	2023-09-11  Pekka Seppänen  <pexu@gcc.mail.kapsi.fi>
+
+	* src/c++11/cow-locale_init.cc: Add [[maybe_unused]] attribute.
+	* src/c++17/fs_path.cc (path::_S_convert_loc): Likewise.
+	* src/filesystem/path.cc (path::_S_convert_loc): Likewise.
+
+2023-11-09  Alexey Lapshin  <alexey.lapshin@espressif.com>
+
+	Backported from master:
+	2023-09-08  Alexey Lapshin  <alexey.lapshin@espressif.com>
+
+	* src/libbacktrace/Makefile.am: Remove -Werror.
+	* src/libbacktrace/Makefile.in: Regenerate.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/23_containers/unordered_map/operations/1.cc: Add
+	dg-options for C++20 mode.
+	* testsuite/23_containers/unordered_multimap/operations/1.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_multiset/operations/1.cc:
+	Likewise.
+	* testsuite/23_containers/unordered_set/operations/1.cc:
+	Likewise.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/new_allocator.h (__new_allocator): Define copy
+	assignment operator as defaulted.
+	* include/std/complex (complex<float>, complex<double>)
+	(complex<long double>): Define copy constructor as defaulted.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* acinclude.m4 (GLIBCXX_CHECK_FILESYSTEM_DEPS): Check for mkdir,
+	chmod, chdir, and getcwd.
+	* config.h.in: Regenerate.
+	* configure: Regenerate.
+	* src/c++17/fs_ops.cc (create_dir): Use USE_MKDIR macro.
+	(fs::current_path): Use USE_GETCWD and USE_CHDIR macros.
+	(fs::permissions): Use USE_CHMOD macro.
+	* src/filesystem/ops-common.h [FILESYSTEM_IS_WINDOWS]
+	(chmod, mkdir, getcwd, chdir): Define new macros.
+	[FILESYSTEM_IS_WINDOWS] (chmod, mkdir, getcwd, chdir): Use
+	new macros.
+	* src/filesystem/ops.cc (create_dir): Use USE_MKDIR macro.
+	(fs::current_path): Use USE_GETCWD and USE_CHDIR macros.
+	(fs::permissions): Use USE_CHMOD macro.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/111172
+	* include/std/variant (get<T>): Remove !is_void static
+	assertions.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++11/debug.cc (acquire_sequence_ptr_for_lock): New
+	function.
+	(reset_sequence_ptr): New function.
+	(_Safe_iterator_base::_M_detach)
+	(_Safe_local_iterator_base::_M_detach): Replace bare atomic_load
+	with acquire_sequence_ptr_for_lock.
+	(_Safe_iterator_base::_M_reset): Replace bare atomic_store with
+	reset_sequence_ptr.
+
+2023-11-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++11/Makefile.am: Add new file.
+	* src/c++11/Makefile.in: Regenerate.
+	* src/c++11/debug.cc (__glibcxx_assert_fail): Move to ...
+	* src/c++11/assert_fail.cc: New file.
+
+2023-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/expected (expected::and_then, expected::or_else):
+	Add string literals to static assertions.
+	* include/std/optional (optional::and_then, optional::or_else):
+	Likewise.
+
+2023-11-08  Feng Jisen  <J1senn@outlook.com>
+
+	Backported from master:
+	2023-11-04  Feng Jisen  <J1senn@outlook.com>
+
+	* include/bits/utility.h (_Nth_type): Remove redundant partial
+	specialization.
+
+2023-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112314
+	* include/std/string_view (string_view::remove_suffix): Add
+	debug assertion.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_prefix/debug.cc:
+	New test.
+	* testsuite/21_strings/basic_string_view/modifiers/remove_suffix/debug.cc:
+	New test.
+
+2023-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* acinclude.m4 (GLIBCXX_ENABLE_C99): Fix snprintf checks.
+	* configure: Regenerate.
+
+2023-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-10-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112089
+	* include/std/shared_mutex (shared_lock::unlock): Change errc
+	constant to operation_not_permitted.
+	* testsuite/30_threads/shared_lock/locking/112089.cc: New test.
+
+2023-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-10-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/duration/io.cc: Double timeout using
+	dg-timeout-factor.
+	* testsuite/std/time/day/io.cc: Likewise.
+	* testsuite/std/time/format.cc: Likewise.
+	* testsuite/std/time/hh_mm_ss/io.cc: Likewise.
+	* testsuite/std/time/month/io.cc: Likewise.
+	* testsuite/std/time/month_day/io.cc: Likewise.
+	* testsuite/std/time/month_day_last/io.cc: Likewise.
+	* testsuite/std/time/month_weekday/io.cc: Likewise.
+	* testsuite/std/time/month_weekday_last/io.cc: Likewise.
+	* testsuite/std/time/weekday/io.cc: Likewise.
+	* testsuite/std/time/weekday_indexed/io.cc: Likewise.
+	* testsuite/std/time/weekday_last/io.cc: Likewise.
+	* testsuite/std/time/year/io.cc: Likewise.
+	* testsuite/std/time/year_month/io.cc: Likewise.
+	* testsuite/std/time/year_month_day/io.cc: Likewise.
+	* testsuite/std/time/year_month_day_last/io.cc: Likewise.
+	* testsuite/std/time/year_month_weekday/io.cc: Likewise.
+	* testsuite/std/time/year_month_weekday_last/io.cc: Likewise.
+	* testsuite/std/time/zoned_time/io.cc: Likewise.
+
+2023-11-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-10-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/basic_string.h (_M_init_local_buf()): New
+	function.
+	(_M_use_local_data()): Use _M_init_local_buf.
+	(basic_string(), basic_string(const Alloc&))
+	(basic_string(basic_string&&))
+	(basic_string(basic_string&&, const Alloc&)): Use
+	_M_init_local_buf instead of _M_use_local_data().
+	* include/bits/basic_string.tcc (swap(basic_string&))
+	(_M_construct(InIter, InIter, input_iterator_tag))
+	(_M_construct(InIter, InIter, forward_iterator_tag))
+	(_M_construct(size_type, CharT), reserve()): Likewise.
+
+2023-11-06  Ian Lance Taylor  <iant@golang.org>
+
+	PR libbacktrace/111315
+	PR libbacktrace/112263
+	* acinclude.m4: Set -D_GNU_SOURCE in BACKTRACE_CPPFLAGS and when
+	grepping link.h for dl_iterate_phdr.
+	* configure: Regenerate.
+
+2023-10-30  François Dumont  <fdumont@gcc.gnu.org>
+
+	* src/experimental/contract.cc
+	[_GLIBCXX_INLINE_VERSION](handle_contract_violation): Provide symbol
+	without version namespace decoration for gcc.
+
+2023-10-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-10-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/111936
+	* src/libbacktrace/Makefile.am: Add -prefer-pic to libtool
+	compile commands.
+	* src/libbacktrace/Makefile.in: Regenerate.
+
+2023-10-25  Paul M. Bendixen  <paulbendixen@gmail.com>
+
+	Backported from master:
+	2023-10-24  Paul M. Bendixen  <paulbendixen@gmail.com>
+
+	* include/Makefile.am: Move cstdarg, cstdalign and cstdbool to
+	freestanding.
+	* include/Makefile.in: Regenerate.
+
+2023-10-23  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/bits/hashtable_policy.h
+	(_Hash_code_base::_M_hash_code(const _Hash&, const _Hash_node_value<>&)): Remove.
+	(_Hash_code_base::_M_hash_code<_H2>(const _H2&, const _Hash_node_value<>&)): Remove.
+	* include/bits/hashtable.h
+	(_M_src_hash_code<_H2>(const _H2&, const key_type&, const __node_value_type&)): New.
+	(_M_merge_unique<>, _M_merge_multi<>): Use latter.
+	* testsuite/23_containers/unordered_map/modifiers/merge.cc
+	(test04, test05, test06): New test cases.
+
+2023-10-21  Benjamin Brock  <brock@cs.berkeley.edu>
+
+	Backported from master:
+	2023-10-21  Benjamin Brock  <brock@cs.berkeley.edu>
+
+	* include/std/ranges (zip_view, adjacent_view): Implement
+	workaround for LLVM-61763.
+
+2023-10-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-10-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/fs_dir.h (operator==(default_sentinel_t)): Fix
+	indentation.
+
+2023-10-21  Nathaniel Shead  <nathanieloshead@gmail.com>
+
+	Backported from master:
+	2023-09-29  Nathaniel Shead  <nathanieloshead@gmail.com>
+
+	* include/bits/basic_string.h: (basic_string(basic_string&&)):
+	Activate _M_local_buf when needed.
+	(basic_string(basic_string&&, const _Alloc&)): Likewise.
+	* include/bits/basic_string.tcc: (basic_string::swap): Likewise.
+	* include/std/variant: (__detail::__variant::__construct_n): New.
+	(__detail::__variant::__emplace): Use __construct_n.
+
+2023-10-02  Tim Song  <t.canens.cpp@gmail.com>
+
+	Backported from master:
+	2023-09-28  Tim Song  <t.canens.cpp@gmail.com>
+
+	PR libstdc++/111050
+	* include/bits/hashtable_policy.h
+	(_Hash_node_value_base<>::_M_valptr(), _Hash_node_value_base<>::_M_v())
+	Add [[__gnu__::__always_inline__]].
+
+2023-09-27  Paul Dreik  <gccpatches@pauldreik.se>
+
+	Backported from master:
+	2023-08-24  Paul Dreik  <gccpatches@pauldreik.se>
+
+	PR libstdc++/111102
+	* testsuite/std/format/string.cc: Check wide character format
+	strings with out-of-range widths.
+
+2023-09-27  François Dumont  <fdumont@gcc.gnu.org>
+
+	Backported from master:
+	2023-09-13  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/std/format (std::__format::_Arg_store): Explicit version
+	namespace on make_format_args friend declaration.
+
+2023-09-27  Paul Dreik  <gccpatches@pauldreik.se>
+
+	Backported from master:
+	2023-08-24  Paul Dreik  <gccpatches@pauldreik.se>
+
+	PR libstdc++/111102
+	* include/std/format (__format::__parse_integer): Check for
+	non-null pointer.
+
+2023-09-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format: Fix some warnings.
+	(__format::__write(Ctx&, basic_string_view<CharT>)): Remove
+	unused function template.
+
+2023-09-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-07-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/108046
+	* include/std/format (__formatter_fp::format): Ensure __expc is
+	always set for all presentation types. Set __z correctly for
+	zero precision.
+	* testsuite/std/format/functions/format.cc: Check problem cases.
+
+2023-09-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono.h (duration_cast): Do not use braces
+	around statements for C++11 constexpr rules.
+	* include/bits/stl_algobase.h (__lg): Rewrite as a single
+	statement for C++11 constexpr rules.
+	* include/experimental/bits/fs_path.h (path::string): Use
+	_GLIBCXX17_CONSTEXPR not _GLIBCXX_CONSTEXPR for 'if constexpr'.
+	* include/std/charconv (__to_chars_8): Initialize variable for
+	C++17 constexpr rules.
+
+2023-09-26  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/111511
+	PR c++/111512
+	* include/std/array (to_array): Qualify calls to __to_array.
+	* testsuite/23_containers/array/creation/111512.cc: New test.
+
 2023-09-18  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:

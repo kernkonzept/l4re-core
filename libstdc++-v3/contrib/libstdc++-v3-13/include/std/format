@@ -64,7 +64,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 // 202106 std::format improvements.
 // 202110 Fixing locale handling in chrono formatters, generator-like types.
 // 202207 Encodings in localized formatting of chrono, basic-format-string.
-#define __cpp_lib_format 202106L
+#define __cpp_lib_format 202110L
 
 #if __cplusplus > 202002L
 // 202207 P2286R8 Formatting Ranges
@@ -79,7 +79,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 namespace __format
 {
   // Type-erased character sink.
-  template<typename _CharT> struct _Sink;
+  template<typename _CharT> class _Sink;
   // Output iterator that writes to a type-erase character sink.
   template<typename _CharT>
     class _Sink_iter;
@@ -280,13 +280,13 @@ namespace __format
 	}
       else
 	{
-	  unsigned short __val = 0;
 	  constexpr int __n = 32;
 	  char __buf[__n]{};
 	  for (int __i = 0; __i < __n && (__first + __i) != __last; ++__i)
 	    __buf[__i] = __first[__i];
 	  auto [__v, __ptr] = __format::__parse_integer(__buf, __buf + __n);
-	  return {__v, __first + (__ptr - __buf)};
+	  if (__ptr) [[likely]]
+	    return {__v, __first + (__ptr - __buf)};
 	}
       return {0, nullptr};
     }
@@ -1434,22 +1434,24 @@ namespace __format
 	  chars_format __fmt{};
 	  bool __upper = false;
 	  bool __trailing_zeros = false;
-	  char __expc = 0;
+	  char __expc = 'e';
 
 	  switch (_M_spec._M_type)
 	  {
 	    case _Pres_A:
 	      __upper = true;
+	      __expc = 'P';
 	      [[fallthrough]];
 	    case _Pres_a:
-	      __expc = 'p';
+	      if (_M_spec._M_type != _Pres_A)
+		__expc = 'p';
 	      __fmt = chars_format::hex;
 	      break;
 	    case _Pres_E:
 	      __upper = true;
+	      __expc = 'E';
 	      [[fallthrough]];
 	    case _Pres_e:
-	      __expc = 'e';
 	      __use_prec = true;
 	      __fmt = chars_format::scientific;
 	      break;
@@ -1462,10 +1464,10 @@ namespace __format
 	      break;
 	    case _Pres_G:
 	      __upper = true;
+	      __expc = 'E';
 	      [[fallthrough]];
 	    case _Pres_g:
 	      __trailing_zeros = true;
-	      __expc = 'e';
 	      __use_prec = true;
 	      __fmt = chars_format::general;
 	      break;
@@ -1473,6 +1475,8 @@ namespace __format
 	      if (__use_prec)
 		__fmt = chars_format::general;
 	      break;
+	    default:
+	      __builtin_unreachable();
 	  }
 
 	  // Write value into buffer using std::to_chars.
@@ -1538,7 +1542,6 @@ namespace __format
 	    {
 	      for (char* __p = __start; __p != __res.ptr; ++__p)
 		*__p = std::toupper(*__p);
-	      __expc = std::toupper(__expc);
 	    }
 
 	  // Add sign for non-negative values.
@@ -1572,15 +1575,15 @@ namespace __format
 		  __p = __s.find(__expc);
 		  if (__p == __s.npos)
 		    __p = __s.size();
-		  __d = __p;
+		  __d = __p; // Position where '.' should be inserted.
 		  __sigfigs = __d;
 		}
 
-	      if (__trailing_zeros)
+	      if (__trailing_zeros && __prec != 0)
 		{
 		  if (!__format::__is_xdigit(__s[0]))
 		    --__sigfigs;
-		  __z = __prec - __sigfigs;
+		  __z = __prec - __sigfigs; // Number of zeros to insert.
 		}
 
 	      if (size_t __extras = int(__d == __p) + __z)
@@ -1820,9 +1823,11 @@ namespace __format
 	    return _M_f.format(__u, __fc);
 	}
 
+#if __cpp_lib_format_ranges
       constexpr void
       set_debug_format() noexcept
       { _M_f._M_spec._M_type = __format::_Pres_esc; }
+#endif
 
     private:
       __format::__formatter_int<wchar_t> _M_f;
@@ -1847,7 +1852,9 @@ namespace __format
 	format(_CharT* __u, basic_format_context<_Out, _CharT>& __fc) const
 	{ return _M_f.format(__u, __fc); }
 
+#if __cpp_lib_format_ranges
       constexpr void set_debug_format() noexcept { _M_f.set_debug_format(); }
+#endif
 
     private:
       __format::__formatter_str<_CharT> _M_f;
@@ -1870,7 +1877,9 @@ namespace __format
 	       basic_format_context<_Out, _CharT>& __fc) const
 	{ return _M_f.format(__u, __fc); }
 
+#if __cpp_lib_format_ranges
       constexpr void set_debug_format() noexcept { _M_f.set_debug_format(); }
+#endif
 
     private:
       __format::__formatter_str<_CharT> _M_f;
@@ -1892,7 +1901,9 @@ namespace __format
 	       basic_format_context<_Out, _CharT>& __fc) const
 	{ return _M_f.format({__u, _Nm}, __fc); }
 
+#if __cpp_lib_format_ranges
       constexpr void set_debug_format() noexcept { _M_f.set_debug_format(); }
+#endif
 
     private:
       __format::__formatter_str<_CharT> _M_f;
@@ -2099,7 +2110,11 @@ namespace __format
 
 // _GLIBCXX_RESOLVE_LIB_DEFECTS
 // P2510R3 Formatting pointers
-#define _GLIBCXX_P2518R3 (__cplusplus > 202302L || ! defined __STRICT_ANSI__)
+#if __cplusplus > 202302L || ! defined __STRICT_ANSI__
+#define _GLIBCXX_P2518R3 1
+#else
+#define _GLIBCXX_P2518R3 0
+#endif
 
 #if _GLIBCXX_P2518R3
 	__first = __spec._M_parse_zero_fill(__first, __last);
@@ -2572,7 +2587,6 @@ namespace __format
     requires same_as<iter_value_t<_OutIter>, _CharT>
     class _Iter_sink<_CharT, _OutIter> : public _Sink<_CharT>
     {
-      using uint64_t = __UINTPTR_TYPE__;
       _OutIter _M_first;
       iter_difference_t<_OutIter> _M_max = -1;
     protected:
@@ -2631,7 +2645,7 @@ namespace __format
 	  return {__ptr, __bytes / sizeof(_CharT)};
 #endif
 	// Avoid forming a pointer to a different memory page.
-	uint64_t __off = reinterpret_cast<uint64_t>(__ptr) % 1024;
+	const auto __off = reinterpret_cast<__UINTPTR_TYPE__>(__ptr) % 1024;
 	__n = (1024 - __off) / sizeof(_CharT);
 	if (__n > 0) [[likely]]
 	return {__ptr, static_cast<size_t>(__n)};
@@ -2668,7 +2682,7 @@ namespace __format
     _Arg_none, _Arg_bool, _Arg_c, _Arg_i, _Arg_u, _Arg_ll, _Arg_ull,
     _Arg_flt, _Arg_dbl, _Arg_ldbl, _Arg_str, _Arg_sv, _Arg_ptr, _Arg_handle,
     _Arg_i128, _Arg_u128,
-    _Arg_bf16, _Arg_f16, _Arg_f32, _Arg_f64,
+    _Arg_bf16, _Arg_f16, _Arg_f32, _Arg_f64, // These are unused.
 #ifdef _GLIBCXX_LONG_DOUBLE_ALT128_COMPAT
     _Arg_next_value_,
     _Arg_f128 = _Arg_ldbl,
@@ -2969,10 +2983,14 @@ namespace __format
 	    return type_identity<__format::__float128_t>();
 # endif
 #endif
-	  else if constexpr (__is_specialization_of<_Td, basic_string_view>)
-	    return type_identity<basic_string_view<_CharT>>();
-	  else if constexpr (__is_specialization_of<_Td, basic_string>)
-	    return type_identity<basic_string_view<_CharT>>();
+	  else if constexpr (__is_specialization_of<_Td, basic_string_view>
+			    || __is_specialization_of<_Td, basic_string>)
+	    {
+	      if constexpr (is_same_v<typename _Td::value_type, _CharT>)
+		return type_identity<basic_string_view<_CharT>>();
+	      else
+		return type_identity<handle>();
+	    }
 	  else if constexpr (is_same_v<decay_t<_Td>, const _CharT*>)
 	    return type_identity<const _CharT*>();
 	  else if constexpr (is_same_v<decay_t<_Td>, _CharT*>)
@@ -3133,14 +3151,16 @@ namespace __format
 	    case _Arg_u128:
 	      return std::forward<_Visitor>(__vis)(_M_val._M_u128);
 #endif
-	      // TODO _Arg_f16 etc.
 
 #if _GLIBCXX_FORMAT_F128 == 2
 	    case _Arg_f128:
 	      return std::forward<_Visitor>(__vis)(_M_val._M_f128);
 #endif
+
+	    default:
+	      // _Arg_f16 etc.
+	      __builtin_unreachable();
 	  }
-	  __builtin_unreachable();
 	}
     };
 
@@ -3290,7 +3310,13 @@ namespace __format
 
       template<typename _Ctx, typename... _Argz>
 	friend auto
-	std::make_format_args(_Argz&&...) noexcept;
+#if _GLIBCXX_INLINE_VERSION
+	// Needed for PR c++/59526
+	std::__8::
+#else
+	std::
+#endif
+	make_format_args(_Argz&&...) noexcept;
 
       // For a sufficiently small number of arguments we only store values.
       // basic_format_args can get the types from the _Args pack.
@@ -3450,15 +3476,6 @@ namespace __format
 /// @cond undocumented
 namespace __format
 {
-  template<typename _Ctx, typename _CharT>
-    [[__gnu__::__always_inline__]]
-    inline void
-    __write(_Ctx& __ctx, basic_string_view<_CharT> __str)
-    requires requires { { __ctx.out() } -> output_iterator<const _CharT&>; }
-    {
-      __ctx.advance_to(__format::__write(__ctx.out()));
-    }
-
   // Abstract base class defining an interface for scanning format strings.
   // Scan the characters in a format string, dividing it up into strings of
   // ordinary characters, escape sequences, and replacement fields.
