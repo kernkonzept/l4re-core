@@ -45,6 +45,9 @@
 #include <bits/utility.h>      // std::index_sequence, std::tuple_size
 #include <debug/assertions.h>
 
+#define __glibcxx_want_array_constexpr
+#define __glibcxx_want_freestanding_array
+#define __glibcxx_want_nonmember_container_access
 #define __glibcxx_want_to_array
 #include <bits/version.h>
 
@@ -432,7 +435,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    {
 	      array<remove_cv_t<_Tp>, _Nm> __arr;
 	      if (!__is_constant_evaluated() && _Nm != 0)
-		__builtin_memcpy(__arr.data(), __a, sizeof(__a));
+		__builtin_memcpy((void*)__arr.data(), (void*)__a, sizeof(__a));
 	      else
 		for (size_t __i = 0; __i < _Nm; ++__i)
 		  __arr._M_elems[__i] = __a[__i];
@@ -461,7 +464,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    {
 	      array<remove_cv_t<_Tp>, _Nm> __arr;
 	      if (!__is_constant_evaluated() && _Nm != 0)
-		__builtin_memcpy(__arr.data(), __a, sizeof(__a));
+		__builtin_memcpy((void*)__arr.data(), (void*)__a, sizeof(__a));
 	      else
 		for (size_t __i = 0; __i < _Nm; ++__i)
 		  __arr._M_elems[__i] = __a[__i];

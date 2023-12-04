@@ -130,6 +130,7 @@ bits_freestanding = \
 	${bits_srcdir}/max_size_type.h \
 	${bits_srcdir}/memoryfwd.h \
 	${bits_srcdir}/move.h \
+	${bits_srcdir}/out_ptr.h \
 	${bits_srcdir}/predefined_ops.h \
 	${bits_srcdir}/parse_numbers.h \
 	${bits_srcdir}/ptr_traits.h \
@@ -141,6 +142,7 @@ bits_freestanding = \
 	${bits_srcdir}/ranges_uninitialized.h \
 	${bits_srcdir}/ranges_util.h \
 	${bits_srcdir}/refwrap.h \
+	${bits_srcdir}/sat_arith.h \
 	${bits_srcdir}/stl_algo.h \
 	${bits_srcdir}/stl_algobase.h \
 	${bits_srcdir}/stl_construct.h \
@@ -850,6 +852,9 @@ c_base_builddir = .
 c_base_freestanding = \
 	${c_base_srcdir}/cfloat \
 	${c_base_srcdir}/climits \
+	${c_base_srcdir}/cstdalign \
+	${c_base_srcdir}/cstdarg \
+	${c_base_srcdir}/cstdbool \
 	${c_base_srcdir}/cstddef \
 	${c_base_srcdir}/cstdint \
 	${c_base_srcdir}/cstdlib
@@ -870,9 +875,6 @@ c_base_headers = \
 	${c_base_srcdir}/cmath \
 	${c_base_srcdir}/csetjmp \
 	${c_base_srcdir}/csignal \
-	${c_base_srcdir}/cstdalign \
-	${c_base_srcdir}/cstdarg \
-	${c_base_srcdir}/cstdbool \
 	${c_base_srcdir}/cstdio \
 	${c_base_srcdir}/cstring \
 	${c_base_srcdir}/ctgmath \

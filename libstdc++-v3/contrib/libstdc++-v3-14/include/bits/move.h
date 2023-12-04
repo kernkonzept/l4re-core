@@ -37,9 +37,6 @@
 # include <type_traits> // Brings in std::declval too.
 #endif
 
-#define __glibcxx_want_addressof_constexpr
-#include <bits/version.h>
-
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
@@ -88,6 +85,32 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  "std::forward must not be used to convert an rvalue to an lvalue");
       return static_cast<_Tp&&>(__t);
     }
+
+#if __glibcxx_forward_like // C++ >= 23
+  template<typename _Tp, typename _Up>
+  [[nodiscard]]
+  constexpr decltype(auto)
+  forward_like(_Up&& __x) noexcept
+  {
+    constexpr bool __as_rval = is_rvalue_reference_v<_Tp&&>;
+
+    if constexpr (is_const_v<remove_reference_t<_Tp>>)
+      {
+	using _Up2 = remove_reference_t<_Up>;
+	if constexpr (__as_rval)
+	  return static_cast<const _Up2&&>(__x);
+	else
+	  return static_cast<const _Up2&>(__x);
+      }
+    else
+      {
+	if constexpr (__as_rval)
+	  return static_cast<remove_reference_t<_Up>&&>(__x);
+	else
+	  return static_cast<_Up&>(__x);
+      }
+  }
+#endif
 
   /**
    *  @brief  Convert a value to an rvalue.
