@@ -34,7 +34,7 @@
 #define _GLIBCXX_RELEASE 11
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20230917
+#define __GLIBCXX__ 20231210
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -848,6 +848,9 @@ namespace std
 /* Define to 1 if you have the <dirent.h> header file. */
 #define _GLIBCXX_HAVE_DIRENT_H 1
 
+/* Define if dirfd is available in <dirent.h>. */
+//l4/#define _GLIBCXX_HAVE_DIRFD 1
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define _GLIBCXX_HAVE_DLFCN_H 1
 
@@ -874,6 +877,9 @@ namespace std
 
 /* Define to 1 if you have the <fcntl.h> header file. */
 #define _GLIBCXX_HAVE_FCNTL_H 1
+
+/* Define if fdopendir is available in <dirent.h>. */
+//l4/#define _GLIBCXX_HAVE_FDOPENDIR 1
 
 /* Define to 1 if you have the <fenv.h> header file. */
 #define _GLIBCXX_HAVE_FENV_H 1
@@ -1067,6 +1073,9 @@ namespace std
 
 /* Define if <math.h> defines obsolete isnan function. */
 /* #undef _GLIBCXX_HAVE_OBSOLETE_ISNAN */
+
+/* Define if openat is available in <fcntl.h>. */
+#define _GLIBCXX_HAVE_OPENAT 1
 
 /* Define if poll is available in <poll.h>. */
 //l4/#define _GLIBCXX_HAVE_POLL 1
@@ -1263,6 +1272,9 @@ namespace std
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #define _GLIBCXX_HAVE_UNISTD_H 1
+
+/* Define if unlinkat is available in <fcntl.h>. */
+//l4/#define _GLIBCXX_HAVE_UNLINKAT 1
 
 /* Define to 1 if you have the `uselocale' function. */
 #define _GLIBCXX_HAVE_USELOCALE 1
