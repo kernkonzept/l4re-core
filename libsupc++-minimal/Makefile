@@ -13,7 +13,11 @@ DEFINES        += -DL4_MINIMAL_LIBC
 
 include $(PKGDIR)/../libsupc++/build/Makefile
 
+# WARNING EXCEPTION: Since we do not want to modify the libsupc++ code, the
+# warnings have been manually evaluated and found to not be problematic.
 WARNINGS_eh_call.cc = -Wno-missing-declarations
+# WARNING EXCEPTION: Since we do not want to modify the libsupc++ code, the
+# warnings have been manually evaluated and found to not be problematic.
 WARNINGS_bad_array_length.cc = -Wno-missing-declarations
 
 vpath %.cc $(SUPCXX_PKG_DIR)/build

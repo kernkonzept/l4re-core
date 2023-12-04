@@ -57,12 +57,21 @@ include $(L4DIR)/mk/lib.mk
 $(GENERAL_D_LOC): $(SUPCXX_PKG_DIR)/build/Makefile-$(STDCXX_CONTRIB_VERSION) $(STDCXX_PKG_DIR)/contrib.inc
 
 ifeq ($(BID_COMPILER_TYPE),clang)
-WARNINGS += -Wno-null-pointer-arithmetic \
-            -Wno-unknown-warning-option
+# WARNING EXCEPTION: Only one occurrence in which the resulting pointer is
+# never dereferenced but only used as a marker for comparison
+WARNINGS += -Wno-null-pointer-arithmetic
+# WARNING EXCEPTION: libsupc++ uses warning pragmas that clang does not support
+WARNINGS += -Wno-unknown-warning-option
 endif
 
+# WARNING EXCEPTION: Since we do not want to modify the libsupc++ code, the
+# warnings have been manually evaluated and found to not be problematic.
 WARNINGS_eh_exception.cc = -Wno-missing-declarations
+# WARNING EXCEPTION: Since we do not want to modify the libsupc++ code, the
+# warnings have been manually evaluated and found to not be problematic.
 WARNINGS_eh_call.cc = -Wno-missing-declarations
+# WARNING EXCEPTION: Since we do not want to modify the libsupc++ code, the
+# warnings have been manually evaluated and found to not be problematic.
 WARNINGS_bad_array_length.cc = -Wno-missing-declarations
 
 vpath %.cc $(STDCXX_SRC_DIR)
