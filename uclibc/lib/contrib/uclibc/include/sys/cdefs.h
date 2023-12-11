@@ -58,9 +58,15 @@
 #  define __NTH(fct)	__attribute__ ((__nothrow__ __LEAF)) fct
 # else
 #  if defined __cplusplus && __GNUC_PREREQ (2,8)
-#   define __THROW	throw ()
-#   define __THROWNL	throw ()
-#   define __NTH(fct)	__LEAF_ATTR fct throw ()
+/* Dynamic exception specification is deprecated since C++11, so
+   we only use it when compiling for an earlier standard.  */
+#    if __cplusplus < 201103UL
+#     define __THROW	throw ()
+#    else
+#     define __THROW	noexcept
+#    endif
+#    define __THROWNL	__THROW
+#    define __NTH(fct)	__LEAF_ATTR fct __THROW
 #  else
 #   define __THROW
 #   define __THROWNL
