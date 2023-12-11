@@ -98,8 +98,6 @@ l4_irq_mux_chain_u(l4_cap_idx_t irq, l4_cap_idx_t slave,
  *
  * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
  *                     to invoke this operation.
- *         -L4_EBUSY   A detach operation on this IRQ object by another
- *                     thread was in progress.
  */
 L4_INLINE l4_msgtag_t
 l4_irq_detach(l4_cap_idx_t irq) L4_NOTHROW;
