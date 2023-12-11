@@ -134,7 +134,6 @@ CXXFLAGS_c++98/concept-inst.cc     += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templ
 CXXFLAGS_c++98/locale_init.cc      += -std=gnu++11
 CXXFLAGS_c++98/localename.cc       += -std=gnu++11
 PRIVATE_INCDIR_c++98/strstream.cc  += $(STDCXX_CONTRIB_DIR)/include/backward
-CXXFLAGS_c++98/strstream.cc        += -Wno-deprecated
 
 
 CXXFLAGS_c++11/hashtable_c++0x.cc  += -fimplicit-templates
@@ -144,9 +143,6 @@ CXXFLAGS        += $(if $(filter c++17/%,$@),-std=gnu++17 -fimplicit-templates)
 CXXFLAGS        += $(if $(filter c++11/%,$@),-std=gnu++11)
 CXXFLAGS        += $(if $(filter c++98/%,$@),-std=gnu++98)
 CXXFLAGS        += $(if $(filter filesystem/%,$@),-std=gnu++17)
-
-# -Wmissing-declarations triggers
-WARNINGS = $(WARNINGS_MINIMAL)
 
 # Only include the following in full libstdc++ builds
 SRC_CC       += $(if $(filter -DL4_MINIMAL_LIBC,$(DEFINES)),,c_locale.cc)
