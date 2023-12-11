@@ -493,5 +493,29 @@ public:
   {
     return l4_ipc_call(cap(), todo.utcb, l4_msgtag(L4_PROTO_THREAD, todo.cnt, 0, 0), L4_IPC_NEVER);
   }
+
+  /**
+   * Register an IRQ that will trigger when a forwarded virtual interrupt is
+   * pending.
+   *
+   * \param irq  Capability selector for the IRQ object to be triggered.
+   * \utcb_def{u}
+   *
+   * \return System call return tag containing the return code.
+   *
+   * \retval -L4_BUSY   A doorbell IRQ is already bound to this thread.
+   * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+   *
+   * See Irq::bind_vcpu() for more details about how interrupts can be
+   * forwarded directly by the kernel to extended vCPU user mode.
+   *
+   * In case the `irq` is already bound to an interrupt source, it is unbound
+   * first. When `irq` is deleted, it will be deregistered first. A registered
+   * doorbell Irq can only be deregistered by deleting the Irq or the thread.
+   *
+   * \see l4_thread_register_doorbell_irq
+   */
+  l4_msgtag_t register_doorbell_irq(Cap<Irq> irq, l4_utcb_t *u = l4_utcb()) noexcept
+  { return l4_thread_register_doorbell_irq_u(cap(), irq.cap(), u); }
 };
 }

@@ -664,6 +664,38 @@ L4_INLINE l4_msgtag_t
 l4_thread_modify_sender_commit_u(l4_cap_idx_t thread, l4_msgtag_t tag,
                                  l4_utcb_t *u) L4_NOTHROW;
 
+
+/**
+ * \copybrief L4::Thread::register_doorbell_irq
+ * \ingroup l4_thread_api
+ *
+ * \param thread  Thread to register IRQ for.
+ * \param irq     Capability selector for the IRQ object to be triggered.
+ *
+ * \return System call return tag containing the return code.
+ *
+ * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+ *
+ * See l4_irq_bind_vcpu() for more details about how interrupts can be
+ * forwarded directly by the kernel to extended vCPU user mode.
+ *
+ * In case the `irq` is already bound to an interrupt source, it is unbound
+ * first. When `irq` is deleted, it will be deregistered first. A registered
+ * deletion Irq can only be deregistered by deleting the Irq or the thread.
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_register_doorbell_irq(l4_cap_idx_t thread,
+                                l4_cap_idx_t irq) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_thread_api
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_register_doorbell_irq_u(l4_cap_idx_t thread, l4_cap_idx_t irq,
+                                  l4_utcb_t *u) L4_NOTHROW;
+
+
 /**
  * Operations on thread objects.
  * \ingroup l4_protocol_ops
@@ -681,6 +713,7 @@ enum L4_thread_ops
   L4_THREAD_MODIFY_SENDER_OP          = 6UL,    /**< Modify all senders IDs that match the given pattern */
   L4_THREAD_VCPU_CONTROL_OP           = 7UL,    /**< Enable / disable VCPU feature */
   L4_THREAD_VCPU_CONTROL_EXT_OP       = L4_THREAD_VCPU_CONTROL_OP | 0x10000,
+  L4_THREAD_REGISTER_DOORBELL_IRQ_OP  = 8UL,    /**< Register direct IRQ injection doorbell IRQ */
   L4_THREAD_X86_GDT_OP                = 0x10UL, /**< Gdt */
   L4_THREAD_ARM_TPIDRURO_OP           = 0x10UL, /**< Set TPIDRURO register */
   L4_THREAD_AMD64_SET_SEGMENT_BASE_OP = 0x12UL, /**< Set segment base */
@@ -1067,4 +1100,24 @@ L4_INLINE l4_msgtag_t
 l4_thread_modify_sender_commit(l4_cap_idx_t thread, l4_msgtag_t tag) L4_NOTHROW
 {
   return l4_thread_modify_sender_commit_u(thread, tag, l4_utcb());
+}
+
+
+L4_INLINE l4_msgtag_t
+l4_thread_register_doorbell_irq_u(l4_cap_idx_t thread, l4_cap_idx_t irq,
+                                  l4_utcb_t *u) L4_NOTHROW
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(u);
+  m->mr[0] = L4_THREAD_REGISTER_DOORBELL_IRQ_OP;
+  m->mr[1] = l4_map_obj_control(0,0);
+  m->mr[2] = l4_obj_fpage(irq, 0, L4_CAP_FPAGE_RWS).raw;
+  return l4_ipc_call(thread, u, l4_msgtag(L4_PROTO_THREAD, 1, 1, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_register_doorbell_irq(l4_cap_idx_t thread,
+                                l4_cap_idx_t irq) L4_NOTHROW
+{
+  return l4_thread_register_doorbell_irq_u(thread, irq, l4_utcb());
 }
