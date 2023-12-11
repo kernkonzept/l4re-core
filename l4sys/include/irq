@@ -134,6 +134,41 @@ public:
   using Triggerable::unmask;
 
   /**
+   * Bind a thread to this Irq for vCPU interrupt forwarding.
+   *
+   * If the interrupt is triggered, the kernel will directly inject the
+   * interrupt into the guest. This requires that the thread is currently in
+   * extended vCPU user mode. Otherwise the interrupt will stay pending and
+   * gets injected on the next vCPU user mode transition. Optionally a doorbell
+   * Irq can be registered on the thread (see Thread::register_doorbell_irq())
+   * that is triggered in this case.
+   *
+   * If a guest has acknowledged the interrupt but has not yet issued an EOI
+   * (i.e. the interrupt is in "active" state), it is not possible to bind the
+   * Irq to a new thread object. Either wait for the guest to issue the EOI or
+   * detach() from the current thread. In this case the interrupt will stay
+   * active in the guest and it is the responsibility of the VMM to handle the
+   * eventual EOI of the guest.
+   *
+   * \param thread  Thread object that shall be bound to this Irq.
+   * \param cfg     Architecture specific interrupt configuration.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   *
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
+   *                     to invoke this operation.
+   * \retval -L4_EBUSY   Cannot bind to new thread because interrupt is active
+   *                     on previous thread and guest has to issue
+   *                     end-of-interrupt first.
+   * \retval -L4_ENOSYS  The kernel does not support direct interrupt
+   *                     forwarding.
+   */
+  l4_msgtag_t bind_vcpu(L4::Cap<Thread> const &thread, l4_umword_t cfg,
+                        l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_irq_bind_vcpu_u(cap(), thread.cap(), cfg, utcb); }
+
+  /**
    * Detach from this interrupt.
    *
    * \utcb{utcb}
@@ -142,6 +177,7 @@ public:
    *
    * \retval 0           Successfully detached, there was no interrupt pending.
    * \retval 1           Successfully detached, there was an interrupt pending.
+   * \retval 2           Successfully detached, an active vIRQ was abandoned.
    * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
    *                     to invoke this operation.
    */
