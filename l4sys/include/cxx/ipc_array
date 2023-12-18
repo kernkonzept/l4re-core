@@ -226,8 +226,10 @@ struct Clnt_val_ops_d_in : Clnt_noops<ARRAY>
 
     // we do not correctly handle overlaps
     if (!REF || data != a.data)
-      for (LEN i = 0; i < a.length; ++i)
-        data[i] = a.data[i];
+      {
+        for (LEN i = 0; i < a.length; ++i)
+          data[i] = a.data[i];
+      }
 
     return offset + a.length * sizeof(A);
   }
