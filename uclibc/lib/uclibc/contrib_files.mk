@@ -102,7 +102,6 @@ define SRC_libc/stdlib
   lrand48_r
   mkostemp
   mkstemp
-  mkstemp64
   nrand48
   nrand48_r
   on_exit
