@@ -140,6 +140,7 @@ public:
   int register_file_system(L4Re::Vfs::File_system *f) noexcept override;
   int unregister_file_system(L4Re::Vfs::File_system *f) noexcept override;
   L4Re::Vfs::File_system *get_file_system(char const *fstype) noexcept override;
+  L4Re::Vfs::File_system_list file_system_list() noexcept override;
 
   int register_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) noexcept override;
   int unregister_file_factory(cxx::Ref_ptr<L4Re::Vfs::File_factory> f) noexcept override;
@@ -182,6 +183,8 @@ private:
 
   void align_mmap_start_and_length(void **start, size_t *length);
   int munmap_regions(void *start, size_t len);
+
+  L4Re::Vfs::File_system *find_fs_from_type(char const *fstype) noexcept;
 };
 
 static inline bool strequal(char const *a, char const *b)
@@ -223,35 +226,44 @@ Vfs::unregister_file_system(L4Re::Vfs::File_system *f) noexcept
     if (*p == f)
       {
         *p = f->next();
-	f->next() = 0;
-	return 0;
+        f->next() = 0;
+        return 0;
       }
 
   return -ENOENT;
 }
 
 L4Re::Vfs::File_system *
+Vfs::find_fs_from_type(char const *fstype) noexcept
+{
+  L4Re::Vfs::File_system_list fsl(_fs_registry);
+  for (L4Re::Vfs::File_system_list::Iterator c = fsl.begin();
+       c != fsl.end(); ++c)
+    if (strequal(c->type(), fstype))
+      return *c;
+  return 0;
+}
+
+L4Re::Vfs::File_system_list
+Vfs::file_system_list() noexcept
+{
+  return L4Re::Vfs::File_system_list(_fs_registry);
+}
+
+L4Re::Vfs::File_system *
 Vfs::get_file_system(char const *fstype) noexcept
 {
-  bool try_dynamic = true;
-  for (;;)
-    {
-      using L4Re::Vfs::File_system;
-      for (File_system *c = _fs_registry; c; c = c->next())
-        if (strequal(c->type(), fstype))
-          return c;
+  L4Re::Vfs::File_system *fs;
+  if ((fs = find_fs_from_type(fstype)))
+    return fs;
 
-      if (!try_dynamic)
-        return 0;
+  // Try to load a file system module dynamically
+  int res = Vfs_config::load_module(fstype);
+  if (res < 0)
+    return 0;
 
-      // try to load a file system module dynamically
-      int res = Vfs_config::load_module(fstype);
-
-      if (res < 0)
-        return 0;
-
-      try_dynamic = false;
-    }
+  // Try again
+  return find_fs_from_type(fstype);
 }
 
 int
