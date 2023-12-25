@@ -36,7 +36,7 @@ public:
     _size = _ds->size();
   }
 
-  L4::Cap<L4Re::Dataspace> data_space() const noexcept override { return _ds; }
+  L4::Cap<L4Re::Dataspace> data_space() noexcept override { return _ds; }
 
   int fstat64(struct stat64 *buf) const noexcept override;
 

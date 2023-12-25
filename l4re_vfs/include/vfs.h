@@ -279,7 +279,7 @@ public:
    * \return A capability to an L4Re::Dataspace that represents the file
    *         contents in an L4Re way.
    */
-  virtual L4::Cap<L4Re::Dataspace> data_space() const noexcept = 0;
+  virtual L4::Cap<L4Re::Dataspace> data_space() noexcept = 0;
 
   /**
    * \brief Read one or more blocks of data from the file.
