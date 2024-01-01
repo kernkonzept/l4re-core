@@ -9,11 +9,11 @@ CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)
 DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__
 WARNINGS	= -Wall -Wstrict-prototypes
 ifeq ($(BID_COMPILER_TYPE),clang)
-  # WARNING EXCEPTION: checking a parameter marked with the nonnull attribute
-  # for NULL is defensive programming.
+  # WARNING EXCEPTION: only warnings are about checking parameters marked with
+  # the nonnull attribute for NULL, but this is defensive programming.
   WARNINGS += -Wno-tautological-pointer-compare
-  # WARNING EXCEPTION: dealing with nonnull parameters as if they were not NULL
-  # is defensive programming.
+  # WARNING EXCEPTION: only warnings are that converting a nonnull pointer to
+  # bool always evaluates to true, but checking again is defensive programming.
   WARNINGS += -Wno-pointer-bool-conversion
   # WARNING EXCEPTION: The warning is useful but the generated code works
   # anyway as intended
