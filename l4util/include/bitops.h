@@ -309,7 +309,7 @@ l4util_bsr(l4_umword_t word)
     if ((1UL << i) & word)
       return i;
 
-  return -1;
+  __builtin_unreachable();
 }
 #endif
 
@@ -326,7 +326,7 @@ l4util_bsf(l4_umword_t word)
     if ((1UL << i) & word)
       return i;
 
-  return -1;
+  __builtin_unreachable();
 }
 #endif
 
