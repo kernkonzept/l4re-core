@@ -16,21 +16,11 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
-#if 0
-#define ABS_FUNC(s,value) \
-.global s;          \
-.type s, #function; \
-.size s, 12;        \
-s = value
 
-ABS_FUNC(l4_atomic_add,     0xffffe000)
-ABS_FUNC(l4_atomic_cmpxchg, 0xffffe100)
-ABS_FUNC(l4_atomic_xchg,    0xffffe200)
+#if __ARM_ARCH < 6
 
-#else
-
-/* Using the above gives problems when using it in shared libs
- * due to relocation which actually shouldn't happen */
+/* Jump to kernel lib page which provides appropriate helpers. Because the code
+ * is used in shared libs we must be careful to not emit any relocation! */
 
 #define JUMP_CODE(name)			\
 	.global name;			\
@@ -48,4 +38,46 @@ JUMP_CODE(l4_atomic_xchg)
 .LCl4_atomic_add:         .word 0xffffe000
 .LCl4_atomic_cmpxchg:     .word 0xffffe100
 .LCl4_atomic_xchg:        .word 0xffffe200
+
+#else
+
+/* Use the proper instructions on contemporary Arm architectures. */
+
+.global l4_atomic_add
+.type l4_atomic_add, #function
+l4_atomic_add:
+1:	ldrex r2, [r0]
+	add   r2, r2, r1
+	strex r3, r2, [r0]
+	teq r3, #0
+	bne 1b
+	mov r0, r2
+	mov pc, lr
+.size l4_atomic_add, .-l4_atomic_add
+
+.global l4_atomic_cmpxchg
+.type l4_atomic_cmpxchg, #function
+l4_atomic_cmpxchg:
+1:	ldrex r3, [r0]
+	cmp r3, r1
+	movne r0, #0
+	movne pc, lr
+	strex r3, r2, [r0]
+	teq r3, #0
+	bne 1b
+	mov r0, #1
+	mov pc, lr
+.size l4_atomic_cmpxchg, .-l4_atomic_cmpxchg
+
+.global l4_atomic_xchg
+.type l4_atomic_xchg, #function
+l4_atomic_xchg:
+1:	ldrex r2, [r0]
+	strex r3, r1, [r0]
+	cmp r3, #0
+	bne 1b
+	mov r0, r2
+	mov pc, lr
+.size l4_atomic_xchg, .-l4_atomic_xchg
+
 #endif
