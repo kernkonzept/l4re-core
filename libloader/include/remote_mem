@@ -29,7 +29,9 @@ public:
     Mem_check::check_access(p - sz, sz);
   }
 
-  explicit Remote_stack(char *p = 0) : _target_top(0), _top(p), _p(p) {}
+  explicit Remote_stack(char *p = 0) : _target_top(0), _size(0), _top(p), _p(p)
+  {}
+
   char *ptr() const { return _p; }
   void ptr(char *p) { _p = p; }
   void set_target_stack(l4_addr_t addr, l4_size_t size)

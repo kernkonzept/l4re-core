@@ -38,7 +38,7 @@ public:
    *
    * Creates an element that is not in any list.
    */
-  H_list_item_t() : _pn(0) {}
+  H_list_item_t() : _n(0), _pn(0) {}
   /**
    * Destructor.
    *

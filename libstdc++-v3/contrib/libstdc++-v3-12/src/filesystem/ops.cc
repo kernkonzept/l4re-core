@@ -815,7 +815,7 @@ fs::file_size(const path& p, error_code& ec) noexcept
   struct S
   {
     S(const stat_type& st) : type(make_file_type(st)), size(st.st_size) { }
-    S() : type(file_type::not_found) { }
+    S() : type(file_type::not_found), size(0) { }
     file_type type;
     uintmax_t size;
   };

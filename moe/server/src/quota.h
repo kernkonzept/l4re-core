@@ -65,7 +65,7 @@ struct Quota_guard
   Quota *q;
   size_t amount;
 
-  Quota_guard() : q(0) {}
+  Quota_guard() : q(0), amount(0) {}
 
   Quota_guard(Quota *q, size_t amount) : q(q), amount(amount)
   {

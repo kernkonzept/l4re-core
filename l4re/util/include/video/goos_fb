@@ -47,7 +47,9 @@ private:
   void operator = (Goos_fb const &);
 
 public:
-  Goos_fb() : _goos(L4_INVALID_CAP), _buffer(L4_INVALID_CAP), _flags(0) {}
+  Goos_fb()
+  : _goos(L4_INVALID_CAP), _buffer(L4_INVALID_CAP), _flags(0), _buffer_index(0)
+  {}
 
   explicit Goos_fb(L4::Cap<L4Re::Video::Goos> goos);
   explicit Goos_fb(char const *name);

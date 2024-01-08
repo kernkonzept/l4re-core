@@ -35,7 +35,7 @@ void App_task::operator delete (void *m) noexcept
 #endif
 
 App_task::Parent_receiver::Parent_receiver(App_task &parent)
-: parent(parent)
+: parent(parent), exit_code(0)
 {
   wait = L4Re::Util::make_unique_cap<L4::Semaphore>();
   chksys(L4Re::Env::env()->factory()->create(wait.get()),

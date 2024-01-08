@@ -93,17 +93,17 @@ public:
    */
   struct Info
   {
-    unsigned flags;                 ///< Flags, see #Flags and #V_flags
-    unsigned view_index;            ///< Index of the view
+    unsigned flags               = 0;  ///< Flags, see #Flags and #V_flags
+    unsigned view_index          = 0;  ///< Index of the view
 
-    unsigned long xpos;             ///< X position in pixels of the view in the Goos
-    unsigned long ypos;             ///< Y position in pixels of the view in the Goos
-    unsigned long width;            ///< Width of the view in pixels
-    unsigned long height;           ///< Height of the view in pixels
-    unsigned long buffer_offset;    ///< Offset in the memory buffer in bytes
-    unsigned long bytes_per_line;   ///< Bytes per line
-    Pixel_info pixel_info;          ///< Pixel information
-    unsigned buffer_index;          ///< Number of the buffer used for this view
+    unsigned long xpos           = 0;  ///< X position in pixels of the view in the Goos
+    unsigned long ypos           = 0;  ///< Y position in pixels of the view in the Goos
+    unsigned long width          = 0;  ///< Width of the view in pixels
+    unsigned long height         = 0;  ///< Height of the view in pixels
+    unsigned long buffer_offset  = 0;  ///< Offset in the memory buffer in bytes
+    unsigned long bytes_per_line = 0;  ///< Bytes per line
+    Pixel_info pixel_info;             ///< Pixel information
+    unsigned buffer_index        = 0;  ///< Number of the buffer used for this view
 
     /** Return whether the view has a static buffer */
     bool has_static_buffer() const { return !(flags & F_set_buffer); }

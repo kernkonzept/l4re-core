@@ -207,7 +207,7 @@ public:
   /**
    * \brief Constructor.
    */
-  Pixel_info() = default;
+  Pixel_info() : _bpp(0) {};
 
   /**
    * \brief Constructor.

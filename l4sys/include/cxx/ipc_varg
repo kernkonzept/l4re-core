@@ -272,7 +272,7 @@ private:
 
   public:
     /// default (invalid/empty/end) state
-    Iter_state() : _c(nullptr) {}
+  Iter_state() : _c(nullptr), _e(nullptr) {}
 
     /// create a state for varg at c, end at e
     Iter_state(Mp c, Mp e) : _c(c), _e(e)

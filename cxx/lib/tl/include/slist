@@ -27,6 +27,7 @@ class S_list_item
 {
 public:
   S_list_item() : _n(0) {}
+  // BSS allocation
   explicit S_list_item(bool) {}
 
 private:
