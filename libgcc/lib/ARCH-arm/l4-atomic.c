@@ -33,9 +33,19 @@ static inline int __kernel_cmpxchg(int oldval, int newval, int *ptr)
   return !l4_atomic_cmpxchg((long *)ptr, oldval, newval);
 }
 
-/* Kernel helper for memory barrier.  */
-typedef void (__kernel_dmb_t) (void);
-#define __kernel_dmb (*(__kernel_dmb_t *) 0xffffff40)
+/* L4 helper for memory barrier.  */
+static inline void __kernel_dmb(void)
+{
+  __asm__ __volatile__(
+#if __ARM_ARCH >= 7
+    "dmb"
+#elif __ARM_ARCH == 6
+    "mcr p15, 0, r0, cr7, cr10, 5"  // CP15DMB
+#else
+    ""
+#endif
+    : : : "memory");
+}
 
 #else
 typedef int (__kernel_cmpxchg_t) (int oldval, int newval, int *ptr);
