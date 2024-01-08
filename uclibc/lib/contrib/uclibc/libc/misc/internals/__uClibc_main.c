@@ -191,10 +191,10 @@ size_t __pagesize = 0;
 # define O_NOFOLLOW	0
 #endif
 
+#ifdef __NOT_FOR_L4__
 #ifndef __ARCH_HAS_NO_LDSO__
 static void __check_one_fd(int fd, int mode)
 {
-#ifdef __NOT_FOR_L4__
     /* Check if the specified fd is already open */
     if (fcntl(fd, F_GETFD) == -1)
     {
@@ -208,13 +208,11 @@ static void __check_one_fd(int fd, int mode)
 		abort();
 	}
     }
-#endif
 }
 
 #ifndef SHARED
 static int __check_suid(void)
 {
-#ifdef __NOT_FOR_L4__
     uid_t uid, euid;
     gid_t gid, egid;
 
@@ -226,11 +224,10 @@ static int __check_suid(void)
     egid = getegid();
     if (gid != egid)
 	return 1;
-#endif
-    return 0; /* we are not suid */
 }
 #endif
 #endif
+#endif // __NOT_FOR_L4__
 
 /* __uClibc_init completely initialize uClibc so it is ready to use.
  *
@@ -426,6 +423,8 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
      * _dl_pagesize is defined into ld.so if SHARED or into libc.a otherwise. */
     __pagesize = _dl_pagesize;
 
+#ifdef __NOT_FOR_L4__
+//We are never setuid on L4
 #ifndef SHARED
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */
@@ -444,6 +443,7 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
     }
     else
 	_pe_secure = 0 ;
+#endif
 #endif
 
     __uclibc_progname = *argv;
