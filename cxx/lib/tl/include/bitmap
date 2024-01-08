@@ -95,7 +95,7 @@ public:
   };
 
   /** \brief Get the number of chars that are used for the bitmap. */
-  static long chars(long bits) throw ()
+  static long chars(long bits) noexcept
   { return (bits + C_bits -1) / C_bits; }
 
   /** \brief Helper abstraction for a byte contained in the bitmap. */

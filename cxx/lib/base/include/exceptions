@@ -123,10 +123,10 @@ namespace L4
     /**
      * Return a human readable string for the exception.
      */
-    virtual char const *str() const throw () = 0;
+    virtual char const *str() const noexcept = 0;
 
     /// Destruction
-    virtual ~Base_exception() throw () {}
+    virtual ~Base_exception() noexcept {}
   };
 
   /**
@@ -149,7 +149,7 @@ namespace L4
      * \param err_no  Error value for this runtime error.
      * \param extra   Description of what was happening while the error occured.
      */
-    explicit Runtime_error(long err_no, char const *extra = 0) throw ()
+    explicit Runtime_error(long err_no, char const *extra = 0) noexcept
       : _errno(err_no)
     {
       if (!extra)
@@ -162,7 +162,7 @@ namespace L4
           _extra[i < sizeof(_extra) ? i : sizeof(_extra) - 1] = 0;
         }
     }
-    char const *str() const throw () override
+    char const *str() const noexcept override
     { return l4sys_errtostr(_errno); }
 
     /**
@@ -171,7 +171,7 @@ namespace L4
      * \return  Pointer to the description string.
      */
     char const *extra_str() const { return _extra; }
-    ~Runtime_error() throw () {}
+    ~Runtime_error() noexcept {}
 
     /**
      * Get the error value for this runtime error.

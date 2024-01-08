@@ -293,7 +293,7 @@ public:
   ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t) noexcept override
   { return writev(v, iovcnt); }
 
-  ~Be_file_stream() throw () = 0;
+  ~Be_file_stream() noexcept = 0;
 
 };
 
