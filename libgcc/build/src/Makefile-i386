@@ -13,7 +13,9 @@ enable_execute_stack = enable-execute-stack-empty.c
 unwind_header = unwind-generic.h
 md_unwind_header = no-unwind.h
 sfp_machine_header = i386/sfp-machine.h
-thread_header = $(if $(L4API),gthr-posix.h,gthr-single.h)
+thread_header-l4api-plain := gthr-single.h
+thread_header-l4api-l4f   := gthr-posix.h
+thread_header = $(thread_header-l4api-$(L4API))
 
 # List of extra object files that should be compiled for this target machine.
 # The rules for compiling them should be in the t-* file for the machine.

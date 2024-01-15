@@ -5,7 +5,7 @@ TARGET          = l4re
 SRC_CC         := main.cc globals.cc region.cc loader.cc \
                   loader_elf.cc mem.cc dispatcher.cc
 
-SRC_S_mips     := loader_mips.S
+SRC_S_mips     := ARCH-mips/loader_mips.S
 CXXFLAGS_mips  += -mplt -mno-shared -DL4_LOADER_USE_ASM_STUB=1
 #CXXFLAGS_arm64 += -mcmodel=large
 
@@ -27,10 +27,4 @@ REQUIRES_LIBS  := libc_be_minimal_log_io cxx_io cxx_libc_io libc_minimal l4re \
 
 CXXFLAGS += $(CXXFLAGS_LOW_LEVEL)
 
-CXXFLAGS += $(CXXFLAGS_$(ARCH))
-SRC_S += $(SRC_S_$(ARCH))
-
-vpath %.S $(SRC_DIR)/ARCH-$(ARCH)
-
 include $(L4DIR)/mk/prog.mk
-
