@@ -66,7 +66,7 @@ _dl_make_tlsdesc_dynamic(struct elf_resolve *map, size_t ti_offset)
 {
   __rtld_lock_lock_recursive(GL(dl_load_lock));
 
-  struct hashtab *ht = map->l_arch.tlsdesc_htab;
+  struct funcdesc_ht *ht = map->l_arch.tlsdesc_htab;
   if (!ht)
     {
       ht = htab_create();
