@@ -809,7 +809,7 @@ public:
   {}
 
   cxx::Ref_ptr<File> create(L4::Cap<void> file) override
-  { return cxx::ref_ptr(new IMPL(L4::cap_cast<IFACE>(file))); }
+  { return cxx::make_ref_obj<IMPL>(L4::cap_cast<IFACE>(file)); }
 };
 
 /**

@@ -1048,7 +1048,7 @@ Vfs::mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) noexcept
       if (!name)
         return -ENOMEM;
 
-      cxx::Ref_ptr<Mount_tree> nt(new Real_mount_tree(name));
+      auto nt = cxx::make_ref_obj<Real_mount_tree>(name);
       if (!nt)
         {
           __rtld_l4re_env_posix_vfs_ops->free(name);
