@@ -29,6 +29,8 @@
 #include <l4/cxx/type_traits>
 #include <l4/cxx/avl_tree>
 
+struct Avl_set_tester;
+
 namespace cxx {
 namespace Bits {
 /**
@@ -130,6 +132,8 @@ template< typename ITEM_TYPE, class COMPARE,
           typename GET_KEY>
 class Base_avl_set
 {
+  friend struct ::Avl_set_tester;
+
 public:
   /**
    * Return status constants.

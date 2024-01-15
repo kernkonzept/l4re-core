@@ -30,6 +30,8 @@
 #include "bits/bst.h"
 #include "bits/bst_iter.h"
 
+struct Avl_set_tester;
+
 namespace cxx {
 
 /**
@@ -37,6 +39,8 @@ namespace cxx {
  */
 class Avl_tree_node : public Bits::Bst_node
 {
+  friend struct ::Avl_set_tester;
+
 private:
   template< typename Node, typename Get_key, typename Compare >
   friend class Avl_tree;

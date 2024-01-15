@@ -27,6 +27,8 @@
 #include "bst_base.h"
 #include "bst_iter.h"
 
+struct Avl_set_tester;
+
 namespace cxx { namespace Bits {
 
 /**
@@ -39,6 +41,8 @@ namespace cxx { namespace Bits {
 template< typename Node, typename Get_key, typename Compare >
 class Bst
 {
+  friend struct ::Avl_set_tester;
+
 private:
   typedef Direction Dir;
   /// Ops for forward iterators
