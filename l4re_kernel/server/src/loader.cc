@@ -248,7 +248,8 @@ loader_thread()
 {
   if (!__loader->__start(__binary, __rm))
     {
-      Err(Err::Fatal).printf("could not load binary\n");
+      Err(Err::Fatal).printf("Could not load binary '%s'.\n",
+                             Global::l4re_aux->binary);
       exit(1);
     }
 }
@@ -260,7 +261,8 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 
   if (!__loader_stack.is_valid())
     {
-      Err(Err::Fatal).printf("could not allocate loader stack\n");
+      Err(Err::Fatal).printf("Could not allocate loader stack (%s).\n",
+                             Global::l4re_aux->binary);
       return false;
     }
 
@@ -274,7 +276,8 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 
   if (__loader_stack_p == L4_INVALID_PTR)
     {
-      Err(Err::Fatal).printf("could not attach loader stack\n");
+      Err(Err::Fatal).printf("Could not attach loader stack (%s).\n",
+                             Global::l4re_aux->binary);
       return false;
     }
 
@@ -290,7 +293,9 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
       // between the actual remote region map and our model of it. Something
       // running in the l4re_kernel must have attached a memory region there,
       // which is a bug, and must be fixed.
-      Err(Err::Fatal).printf("could not attach loader stack to remote region map\n");
+      Err(Err::Fatal)
+        .printf("Could not attach loader stack to remote region map (%s).\n",
+                Global::l4re_aux->binary);
       return false;
     }
 
