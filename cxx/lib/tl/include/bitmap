@@ -75,7 +75,7 @@ protected:
   };
 
 public:
-  explicit Bitmap_base(void *bits) noexcept : _bits((word_type *)bits) {}
+  explicit Bitmap_base(void *bits) noexcept : _bits(reinterpret_cast<word_type *>(bits)) {}
 
   /** \brief Get the number of \a Words that are used for the bitmap. */
   static long words(long bits) noexcept { return (bits + W_bits -1) / W_bits; }
@@ -212,7 +212,7 @@ Bitmap_base::bit(long bit, bool on) noexcept
 {
   long idx = word_index(bit);
   long b   = bit_index(bit);
-  _bits[idx] = (_bits[idx] & ~(1UL << b)) | ((unsigned long)on << b);
+  _bits[idx] = (_bits[idx] & ~(1UL << b)) | (static_cast<unsigned long>(on) << b);
 }
 
 inline
@@ -288,4 +288,3 @@ Bitmap<BITS>::scan_zero(long start_bit) const noexcept
 }
 
 };
-

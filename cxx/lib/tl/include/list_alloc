@@ -209,9 +209,9 @@ List_alloc::merge()
   Mem_block *c = _first;
   while (c && c->next)
     {
-      unsigned long f_start = (unsigned long)c;
+      unsigned long f_start = reinterpret_cast<unsigned long>(c);
       unsigned long f_end   = f_start + c->size;
-      unsigned long n_start = (unsigned long)c->next;
+      unsigned long n_start = reinterpret_cast<unsigned long>(c->next);
 
       if (f_end == n_start)
         {
@@ -234,9 +234,11 @@ List_alloc::free(void *block, unsigned long size, bool initial_free)
   if (initial_free)
     {
       // enforce alignment constraint on initial memory
-      unsigned long nblock = ((unsigned long)block + mb_align) & ~mb_align;
-      size = (size - (nblock - (unsigned long)block)) & ~mb_align;
-      block = (void*)nblock;
+      unsigned long nblock = (reinterpret_cast<unsigned long>(block) + mb_align)
+                             & ~mb_align;
+      size = (size - (nblock - reinterpret_cast<unsigned long>(block)))
+             & ~mb_align;
+      block = reinterpret_cast<void*>(nblock);
     }
   else
     // blow up size to the minimum aligned size
@@ -255,7 +257,7 @@ List_alloc::free(void *block, unsigned long size, bool initial_free)
       next = *c;
     }
 
-  *c = (Mem_block*)block;
+  *c = reinterpret_cast<Mem_block*>(block);
 
   (*c)->next = next;
   (*c)->size = size;
@@ -295,7 +297,7 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
   for (; *c; c = &(*c)->next)
     {
       // address of free memory block
-      unsigned long n_start = (unsigned long)(*c);
+      unsigned long n_start = reinterpret_cast<unsigned long>(*c);
 
       // block too small, next
       // XXX: maybe we can skip this and just do the test below
@@ -334,7 +336,7 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
 
   if (fit)
     {
-      unsigned long n_start = (unsigned long)(*fit);
+      unsigned long n_start = reinterpret_cast<unsigned long>(*fit);
       unsigned long a_start = (n_start + almask) & ~almask;
       unsigned long r_size = (*fit)->size - a_start + n_start;
 
@@ -348,13 +350,13 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
 
       *max = max_fit;
       if (r_size == max_fit)
-          return (void *)a_start;
+        return reinterpret_cast<void *>(a_start);
 
-      Mem_block *m = (Mem_block*)(a_start + max_fit);
+      Mem_block *m = reinterpret_cast<Mem_block*>(a_start + max_fit);
       m->next = *fit;
       m->size = r_size - max_fit;
       *fit = m;
-      return (void *)a_start;
+      return reinterpret_cast<void *>(a_start);
     }
 
   return 0;
@@ -365,7 +367,8 @@ List_alloc::alloc(unsigned long size, unsigned long align)
 {
   List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
 
-  unsigned long const mb_align = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
+  unsigned long const mb_align
+    = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
 
   // blow up size to the minimum aligned size
   size = (size + mb_align) & ~mb_align;
@@ -381,7 +384,7 @@ List_alloc::alloc(unsigned long size, unsigned long align)
   for (; *c; c=&(*c)->next)
     {
       // address of free memory block
-      unsigned long n_start = (unsigned long)(*c);
+      unsigned long n_start = reinterpret_cast<unsigned long>(*c);
 
       // block too small, next
       // XXX: maybe we can skip this and just do the test below
@@ -422,14 +425,14 @@ List_alloc::alloc(unsigned long size, unsigned long align)
 
       // allocated the whole remaining space
       if (r_size == size)
-        return (void*)a_start;
+        return reinterpret_cast<void*>(a_start);
 
       // add a new free block behind the allocated block
-      Mem_block *m = (Mem_block*)(a_start + size);
+      Mem_block *m = reinterpret_cast<Mem_block*>(a_start + size);
       m->next = *c;
       m->size = r_size - size;
       *c = m;
-      return (void *)a_start;
+      return reinterpret_cast<void *>(a_start);
     }
 
   return 0;
@@ -476,7 +479,8 @@ List_alloc::dump_free_list(DBG &out)
           unit = "MB";
         }
 
-      out.printf("%12p - %12p (%u %s)\n", c, (char *) c + c->size - 1, sz, unit);
+      out.printf("%12p - %12p (%u %s)\n", c,
+                 reinterpret_cast<char *>(c) + c->size - 1, sz, unit);
 
       c = c->next;
     }

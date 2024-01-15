@@ -259,11 +259,11 @@ public:
     if (!_o)
       return;
 
-    unsigned long addr = (unsigned long)_o;
+    unsigned long addr = reinterpret_cast<unsigned long>(_o);
 
     // find out the slab the object is in
     addr = (addr / slab_size) * slab_size;
-    Slab_i *s = (Slab_i*)addr;
+    Slab_i *s = reinterpret_cast<Slab_i*>(addr);
 
     if (s->cache != this)
       return;

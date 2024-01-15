@@ -88,7 +88,8 @@ public:
   /// Default constructor creates a pointer with no managed object.
   Ref_ptr() noexcept : _p(0) {}
 
-  Ref_ptr(Ref_ptr_base::Default_value v) : _p((T*)v) {}
+  Ref_ptr(Ref_ptr_base::Default_value v)
+  : _p(reinterpret_cast<T*>(static_cast<unsigned long>(v))) {}
 
   /**
    * Create a shared pointer from a weak pointer.

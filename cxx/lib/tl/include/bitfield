@@ -69,7 +69,7 @@ public:
   enum Masks : T
   {
     /** Mask value to get #Bits bits. */
-    Low_mask = ((T)~0ULL) >> (sizeof(T)*8 - Bits),
+    Low_mask = (static_cast<T>(~0ULL)) >> (sizeof(T)*8 - Bits),
     /** Mask value to the bits out of a `T`. */
     Mask     = Low_mask << Lsb,
   };

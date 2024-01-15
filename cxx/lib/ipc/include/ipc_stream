@@ -608,7 +608,9 @@ public:
   Istream_copy(Istream const &o) : Istream(o), _mrs(*l4_utcb_mr_u(o.utcb()))
   {
     // do some reverse mr to utcb trickery
-    _utcb = (l4_utcb_t *)((l4_addr_t)&_mrs - (l4_addr_t)l4_utcb_mr_u((l4_utcb_t *)0));
+    _utcb = reinterpret_cast<l4_utcb_t *>
+      (reinterpret_cast<l4_addr_t>(&_mrs)
+       - reinterpret_cast<l4_addr_t>(l4_utcb_mr_u(nullptr)));
     _current_msg = reinterpret_cast<char*>(l4_utcb_mr_u(_utcb)->mr);
   }
 
