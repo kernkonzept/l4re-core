@@ -59,7 +59,7 @@ public:
     sp = (char *)p;
   }
 
-  char const *ptr() const { return sp; }
+  char *ptr() const { return sp; }
   void ptr(char *p) { sp = p; }
 };
 

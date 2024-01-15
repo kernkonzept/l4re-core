@@ -74,10 +74,9 @@ Ns_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) noexcept
 }
 
 int
-Ns_dir::get_entry(const char *path, int flags, mode_t mode,
+Ns_dir::get_entry(const char *path, int /*flags*/, mode_t /*mode*/,
                   Ref_ptr<L4Re::Vfs::File> *f) noexcept
 {
-  (void)mode; (void)flags;
   if (!*path)
     {
       *f = cxx::ref_ptr(this);
@@ -100,9 +99,8 @@ Ns_dir::get_entry(const char *path, int flags, mode_t mode,
 }
 
 int
-Ns_dir::faccessat(const char *path, int mode, int flags) noexcept
+Ns_dir::faccessat(const char *path, int mode, int /*flags*/) noexcept
 {
-  (void)flags;
   auto tmpcap = L4Re::make_unique_cap<void>(L4Re::virt_cap_alloc);
 
   if (!tmpcap.is_valid())
@@ -139,7 +137,7 @@ Ns_dir::fstat64(struct stat64 *b) const noexcept
 ssize_t
 Ns_dir::getdents(char *buf, size_t dest_sz) noexcept
 {
-  struct dirent64 *dest = (struct dirent64 *)buf;
+  struct dirent64 *dest = reinterpret_cast<struct dirent64 *>(buf);
   ssize_t ret = 0;
   l4_addr_t infoaddr;
   size_t infosz;
@@ -160,8 +158,8 @@ Ns_dir::getdents(char *buf, size_t dest_sz) noexcept
   if (err < 0)
     return 0;
 
-  char *p   = (char *)infoaddr + _current_dir_pos;
-  char *end = (char *)infoaddr + infosz;
+  char *p   = reinterpret_cast<char *>(infoaddr) + _current_dir_pos;
+  char *end = reinterpret_cast<char *>(infoaddr) + infosz;
 
   char *current_dirinfo_entry = p;
   while (dest && p < end)
@@ -207,7 +205,8 @@ Ns_dir::getdents(char *buf, size_t dest_sz) noexcept
       dest_sz -= n;
 
       // next entry
-      dest = (struct dirent64 *)((unsigned long)dest + n);
+      dest = reinterpret_cast<struct dirent64 *>
+               (reinterpret_cast<unsigned long>(dest) + n);
 
       // next infodirfile line
       p += len;
@@ -217,7 +216,7 @@ Ns_dir::getdents(char *buf, size_t dest_sz) noexcept
       current_dirinfo_entry = p;
     }
 
-  _current_dir_pos = current_dirinfo_entry - (char *)infoaddr;
+  _current_dir_pos = current_dirinfo_entry - reinterpret_cast<char *>(infoaddr);
 
   if (!ret) // hack since we should only reset this at open times
     _current_dir_pos = 0;
@@ -263,10 +262,9 @@ Env_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) noexcep
 }
 
 int
-Env_dir::get_entry(const char *path, int flags, mode_t mode,
+Env_dir::get_entry(const char *path, int /*flags*/, mode_t /*mode*/,
                    Ref_ptr<L4Re::Vfs::File> *f) noexcept
 {
-  (void)mode; (void)flags;
   if (!*path)
     {
       *f = cxx::ref_ptr(this);
@@ -289,9 +287,8 @@ Env_dir::get_entry(const char *path, int flags, mode_t mode,
 }
 
 int
-Env_dir::faccessat(const char *path, int mode, int flags) noexcept
+Env_dir::faccessat(const char *path, int mode, int /*flags*/) noexcept
 {
-  (void)flags;
   Vfs::Path p(path);
   Vfs::Path first = p.strip_first();
 
@@ -355,7 +352,7 @@ Env_dir::fstat64(struct stat64 *b) const noexcept
 ssize_t
 Env_dir::getdents(char *buf, size_t sz) noexcept
 {
-  struct dirent64 *d = (struct dirent64 *)buf;
+  struct dirent64 *d = reinterpret_cast<struct dirent64 *>(buf);
   ssize_t ret = 0;
 
   while (d
@@ -384,7 +381,8 @@ Env_dir::getdents(char *buf, size_t sz) noexcept
             d->d_type = DT_UNKNOWN;
           ret += n;
           sz  -= n;
-          d    = (struct dirent64 *)((unsigned long)d + n);
+          d    = reinterpret_cast<struct dirent64 *>
+                   (reinterpret_cast<unsigned long>(d) + n);
           _current_cap_entry++;
         }
       else

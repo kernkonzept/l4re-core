@@ -69,15 +69,15 @@ Ro_file::preadv(const struct iovec *vec, int cnt, off64_t offset) noexcept
 {
   if (!_addr)
     {
-      void const *file = (void*)L4_PAGESIZE;
+      void const *file = reinterpret_cast<void*>(L4_PAGESIZE);
       long err = L4Re::Env::env()->rm()->attach(&file, _size,
                                                 Rm::F::Search_addr | Rm::F::R,
                                                 _ds, 0);
 
       if (err < 0)
-	return err;
+        return err;
 
-      _addr = (char const *)file;
+      _addr = static_cast<char const *>(file);
     }
 
   ssize_t l = 0;
@@ -88,8 +88,8 @@ Ro_file::preadv(const struct iovec *vec, int cnt, off64_t offset) noexcept
       offset += r;
       l += r;
 
-      if ((size_t)r < vec->iov_len)
-	return l;
+      if (static_cast<size_t>(r) < vec->iov_len)
+        return l;
 
       ++vec;
       --cnt;

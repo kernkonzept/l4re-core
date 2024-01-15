@@ -292,12 +292,12 @@ Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin, Dbg_ const 
   am->push_envp();
   am->push_argv();
 
-  const char *p = stack.ptr();
+  char *p = stack.ptr();
   l4_umword_t offs;
-  stack.ptr(adjust_sp((char *)p, &offs));
+  stack.ptr(adjust_sp(p, &offs));
 
   if (p != stack.ptr() + offs)
-    memmove((char *)stack.ptr() + offs, p, stack_before_auxv - p);
+    memmove(stack.ptr() + offs, p, stack_before_auxv - p);
 
   // the stack is now ready for the app
   am->start_prog(env);

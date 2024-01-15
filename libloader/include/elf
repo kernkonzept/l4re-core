@@ -28,8 +28,14 @@ private:
 
 public:
   Elf_phdr(void const *hdr, bool _64) : _hdr(hdr), _64(_64) {}
-  Elf32_Phdr const *hdr32() const { return (Elf32_Phdr const*)(_hdr); }
-  Elf64_Phdr const *hdr64() const { return (Elf64_Phdr const*)(_hdr); }
+  Elf32_Phdr const *hdr32() const
+  {
+    return static_cast<Elf32_Phdr const*>(_hdr);
+  }
+  Elf64_Phdr const *hdr64() const
+  {
+    return static_cast<Elf64_Phdr const*>(_hdr);
+  }
 
   char const *phdr_type() const;
   unsigned long type() const { return _64?hdr64()->p_type:hdr32()->p_type; }
@@ -54,12 +60,14 @@ private:
 public:
   template< typename T >
   T element(unsigned long offset) const
-  { return reinterpret_cast<T>((unsigned long)this + offset); }
+  {
+    return reinterpret_cast<T>(reinterpret_cast<unsigned long>(this) + offset);
+  }
 
   bool is_valid() const
   {
-    return    l4util_elf_check_magic((ElfW(Ehdr) *)this)
-           && l4util_elf_check_arch((ElfW(Ehdr) *)this);
+    ElfW(Ehdr) const *t = reinterpret_cast<ElfW(Ehdr) const *>(this);
+    return l4util_elf_check_magic(t) && l4util_elf_check_arch(t);
   }
 
   bool is_64() const
@@ -68,8 +76,14 @@ public:
   }
 
 private:
-  Elf64_Ehdr const *hdr64() const { return (Elf64_Ehdr*)this; }
-  Elf32_Ehdr const *hdr32() const { return (Elf32_Ehdr*)this; }
+  Elf64_Ehdr const *hdr64() const
+  {
+    return reinterpret_cast<Elf64_Ehdr const*>(this);
+  }
+  Elf32_Ehdr const *hdr32() const
+  {
+    return reinterpret_cast<Elf32_Ehdr const*>(this);
+  }
 
 public:
 
@@ -123,7 +137,7 @@ private:
     if (!_eh)
       return;
 
-    _mm->local_detach_ds((l4_addr_t)_eh, L4_PAGESIZE);
+    _mm->local_detach_ds(reinterpret_cast<l4_addr_t>(_eh), L4_PAGESIZE);
     _eh = nullptr;
   }
 
@@ -219,7 +233,7 @@ public:
 
     if (_ph_size)
       {
-        _mm->local_detach_ds((l4_addr_t)_ph, _ph_size);
+        _mm->local_detach_ds(reinterpret_cast<l4_addr_t>(_ph), _ph_size);
         _ph_size = 0;
       }
 
@@ -304,7 +318,7 @@ struct Phdr_load
     if (!ph.memsz())
       return;
 
-    char *paddr = (char*)(l4_trunc_page(ph.paddr()) + base);
+    l4_addr_t paddr = l4_trunc_page(ph.paddr()) + base;
     l4_umword_t offs = l4_trunc_page(ph.offset());
     l4_umword_t page_offs = ph.offset() & (L4_PAGESIZE-1);
     l4_umword_t fsz  = ph.filesz();
@@ -338,8 +352,7 @@ struct Phdr_load
     if (ph.flags() & PF_X)
       rf |= L4Re::Rm::F::X;
 
-    mm->prog_attach_ds(l4_addr_t(paddr), size, ds, o, rf,
-                       "attaching ELF segment");
+    mm->prog_attach_ds(paddr, size, ds, o, rf, "attaching ELF segment");
   }
 };
 
@@ -369,46 +382,39 @@ struct Phdr_l4re_elf_aux_infos
 
     if (h.filesz())
       {
-	l4_addr_t addr = mm->local_attach_ds(bin, h.filesz(), h.offset());
+        l4_addr_t addr = mm->local_attach_ds(bin, h.filesz(), h.offset());
 
-	l4re_elf_aux_t const *e = (l4re_elf_aux_t const *)addr;
-	l4re_elf_aux_t const *end = (l4re_elf_aux_t const *)(addr + h.filesz());
-	while (e < end && e->type)
-	  {
-	    switch (e->type)
-	      {
-	      case L4RE_ELF_AUX_T_STACK_SIZE:
-		  {
-		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
-		    stack_size = v->value;
-		    break;
-		  }
-	      case L4RE_ELF_AUX_T_STACK_ADDR:
-		  {
-		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
-		    stack_addr = v->value;
-		    break;
-		  }
-	      case L4RE_ELF_AUX_T_KIP_ADDR:
-		  {
-		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
-		    kip_addr = v->value;
-		    break;
-		  }
-	      case L4RE_ELF_AUX_T_EX_REGS_FLAGS:
-	          {
-		    l4re_elf_aux_mword_t const *v = (l4re_elf_aux_mword_t const *)e;
-		    ex_regs_flags = v->value;
-		    break;
-	          }
-	      default:
-		break;
-	      }
+        l4_addr_t a = addr;
+        while (a < addr + h.filesz())
+          {
+            auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
+            if (!e->type)
+              break;
 
-	    e = (l4re_elf_aux_t const *)((char const *)e + e->length);
-	  }
+            auto v = reinterpret_cast<l4re_elf_aux_mword_t const *>(e);
 
-	mm->local_detach_ds(addr, h.filesz());
+            switch (e->type)
+              {
+              case L4RE_ELF_AUX_T_STACK_SIZE:
+                stack_size = v->value;
+                break;
+              case L4RE_ELF_AUX_T_STACK_ADDR:
+                stack_addr = v->value;
+                break;
+              case L4RE_ELF_AUX_T_KIP_ADDR:
+                kip_addr = v->value;
+                break;
+              case L4RE_ELF_AUX_T_EX_REGS_FLAGS:
+                ex_regs_flags = v->value;
+                break;
+              default:
+                break;
+              }
+
+            a += e->length;
+          }
+
+        mm->local_detach_ds(addr, h.filesz());
       }
   }
 };
@@ -429,10 +435,13 @@ struct Phdr_dynamic
   : mm(mm), bin(bin), base(base), phdrs(0),
     is_dynamic(false)
   {
-    static char const *const addr = "rom/libld-l4.so";
-    unsigned i;
-    for (i = 0; i < sizeof(interp)-1 && addr[i]; ++i)
-      interp[i] = addr[i];
+    set_interp("rom/libld-l4.so");
+  }
+
+  void set_interp(char const *name) const
+  {
+    interp[0] = '\0';
+    strncat(interp, name, sizeof(interp) - 1);
   }
 
   void operator () (Elf_phdr const &ph) const
@@ -440,26 +449,22 @@ struct Phdr_dynamic
     switch (ph.type())
       {
       default:
-	return;
+        return;
       case PT_INTERP:
-	  {
-	    char const *addr = (char const *)mm->local_attach_ds(bin, ph.filesz(), ph.offset());
-	    unsigned i;
-	    for (i = 0; i < sizeof(interp)-1 && addr[i]; ++i)
-	      interp[i] = addr[i];
-
-	    interp[i] = 0;
-	    mm->local_detach_ds(l4_addr_t(addr), ph.filesz());
-	    is_dynamic = true;
-	  }
-	//ldr.printf("  found interpreter PHDR: interp='%s'\n", interp);
-	break;
+        {
+          char const *addr = reinterpret_cast<char const *>
+            (mm->local_attach_ds(bin, ph.filesz(), ph.offset()));
+          set_interp(addr);
+          mm->local_detach_ds(l4_addr_t(addr), ph.filesz());
+          is_dynamic = true;
+          break;
+        }
       case PT_PHDR:
-	phdrs = base + ph.paddr();
-	break;
+        phdrs = base + ph.paddr();
+        break;
       case PT_DYNAMIC:
-	//is_dynamic = true;
-	break;
+        //is_dynamic = true;
+        break;
       }
   }
 };
@@ -483,32 +488,35 @@ struct Phdr_l4re_elf_aux
 
     if (h.filesz())
       {
-	l4_addr_t addr = am->local_attach_ds(bin, h.filesz(), h.offset());
+        l4_addr_t addr = am->local_attach_ds(bin, h.filesz(), h.offset());
 
-	l4re_elf_aux_t const *e = (l4re_elf_aux_t const *)addr;
-	l4re_elf_aux_t const *end = (l4re_elf_aux_t const *)(addr + h.filesz());
+        l4_addr_t a = addr;
+        while (a < addr + h.filesz())
+          {
+            auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
+            if (!e->type)
+              break;
 
-	while (e < end && e->type)
-	  {
-	    switch (e->type)
-	      {
-	      case L4RE_ELF_AUX_T_VMA:
-		  {
-		    l4re_elf_aux_vma_t const *v = (l4re_elf_aux_vma_t const *)e;
-		    l4_addr_t start = v->start;
-		    chksys(am->prog_reserve_area(&start, v->end - v->start + 1,
-                                                 L4Re::Rm::Flags(0), 0));
-		    break;
-		  }
-	      default:
-		break;
-	      }
+            auto v = reinterpret_cast<l4re_elf_aux_vma_t const *>(e);
 
-	    e = (l4re_elf_aux_t const *)((char const *)e + e->length);
-	  }
+            switch (e->type)
+              {
+              case L4RE_ELF_AUX_T_VMA:
+                {
+                  l4_addr_t start = v->start;
+                  chksys(am->prog_reserve_area(&start, v->end - v->start + 1,
+                                               L4Re::Rm::Flags(0), 0));
+                  break;
+                }
+              default:
+                break;
+              }
 
-	am->local_detach_ds(addr, h.filesz());
-	// L4::cap_reinterpret_cast<L4Re::Debug_obj>(r)->debug(0);
+            a += e->length;
+          }
+
+        am->local_detach_ds(addr, h.filesz());
+        // L4::cap_reinterpret_cast<L4Re::Debug_obj>(r)->debug(0);
       }
   }
 
@@ -556,34 +564,34 @@ public:
     Elf_binary<App_model> elf(mm, bin);
     if (!elf.is_valid())
       {
-	ldr.printf("file is not an ELF binary\n");
-	chksys(-L4_EINVAL, "not an ELF binary");
+        ldr.printf("file is not an ELF binary\n");
+        chksys(-L4_EINVAL, "not an ELF binary");
       }
 
     L4Re::Rm::Flags r_flags(0);
     l4_addr_t _base = 0;
     if (base)
       {
-	Phdr_load_min_max b_func;
-	ldr.printf("  relocate PIC/PIE binary\n");
-	/* figure out size of the binary, if PIC */
-	elf.iterate_phdr(b_func);
+        Phdr_load_min_max b_func;
+        ldr.printf("  relocate PIC/PIE binary\n");
+        /* figure out size of the binary, if PIC */
+        elf.iterate_phdr(b_func);
 
-	ldr.printf("   all PHDRs: [0x%lx-0x%lx]\n", b_func.start, b_func.end);
-	_base = *base;
+        ldr.printf("   all PHDRs: [0x%lx-0x%lx]\n", b_func.start, b_func.end);
+        _base = *base;
 
-	l4_addr_t lib = _base + b_func.start;
-	chksys(mm->prog_reserve_area(&lib, b_func.end - b_func.start,
-	      L4Re::Rm::F::Search_addr, L4_SUPERPAGESHIFT));
+        l4_addr_t lib = _base + b_func.start;
+        chksys(mm->prog_reserve_area(&lib, b_func.end - b_func.start,
+        L4Re::Rm::F::Search_addr, L4_SUPERPAGESHIFT));
 
-	ldr.printf("   relocate to %p\n", (void*)lib);
+        ldr.printf("   relocate to 0x%lx\n", lib);
 
-	_base = l4_addr_t(lib) - b_func.start;
+        _base = lib - b_func.start;
 
-	ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
-	elf.iterate_phdr(Phdr_print<Dbg_log>(ldr));
-	*base = _base;
-	r_flags |= L4Re::Rm::F::In_area;
+        ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
+        elf.iterate_phdr(Phdr_print<Dbg_log>(ldr));
+        *base = _base;
+        r_flags |= L4Re::Rm::F::In_area;
       }
 
     elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags, ldr));
@@ -596,25 +604,25 @@ public:
 
     if (!interpreter && dyn_info.phdrs)
       {
-	Prog_start_info *i = mm->prog_info();
-	i->dyn_phdrs = dyn_info.phdrs;
-	i->dyn_num_phdrs = elf.num_phdrs();
+        Prog_start_info *i = mm->prog_info();
+        i->dyn_phdrs = dyn_info.phdrs;
+        i->dyn_num_phdrs = elf.num_phdrs();
       }
 
     // Load the interpreter
     if (!interpreter && dyn_info.is_dynamic)
       {
-	ldr.printf("  dynamically linked executable, load interpreter '%s'\n", dyn_info.interp);
+        ldr.printf("  dynamically linked executable, load interpreter '%s'\n", dyn_info.interp);
 
-	Const_dataspace file = mm->open_file(dyn_info.interp);
-	l4_addr_t base = 0x400000;
+        Const_dataspace file = mm->open_file(dyn_info.interp);
+        l4_addr_t base = 0x400000;
 
-	load(mm, file, &base, true, ldr);
+        load(mm, file, &base, true, ldr);
 
-	Prog_start_info *i = mm->prog_info();
+        Prog_start_info *i = mm->prog_info();
 
-	i->dyn_exec_entry = elf.entry() + _base;
-	i->dyn_interp_base = base;
+        i->dyn_exec_entry = elf.entry() + _base;
+        i->dyn_interp_base = base;
       }
 
     ldr.printf(" done...\n");
@@ -631,5 +639,3 @@ public:
 };
 
 }
-
-

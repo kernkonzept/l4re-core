@@ -407,11 +407,11 @@ Vfs::set_fd(int fd, Ref_ptr<L4Re::Vfs::File> const &f) noexcept
 void
 Vfs::align_mmap_start_and_length(void **start, size_t *length)
 {
-  l4_addr_t s = l4_addr_t(*start);
+  l4_addr_t const s = reinterpret_cast<l4_addr_t>(*start);
+  size_t const o = s & (L4_PAGESIZE - 1);
 
-  *length += s & (L4_PAGESIZE - 1);    // Add rounding down delta to length
-  *start   = (void *)l4_trunc_page(s); // Make start page aligned
-  *length  = l4_round_page(*length);   // Round length up to page size
+  *start   = reinterpret_cast<void *>(l4_trunc_page(s));
+  *length  = l4_round_page(*length + o);
 }
 
 int
@@ -712,9 +712,9 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 
 
   if (!(flags & MAP_FIXED) && start == 0)
-    start = (void*)L4_PAGESIZE;
+    start = reinterpret_cast<void*>(L4_PAGESIZE);
 
-  char *data = (char *)start;
+  char *data = static_cast<char *>(start);
   L4::Cap<Rm> r = Env::env()->rm();
   l4_addr_t overmap_area = L4_INVALID_ADDR;
 
@@ -836,7 +836,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
   if (flags & MREMAP_FIXED && !(flags & MREMAP_MAYMOVE))
     return -EINVAL;
 
-  l4_addr_t oa = l4_trunc_page((l4_addr_t)old_addr);
+  l4_addr_t oa = l4_trunc_page(reinterpret_cast<l4_addr_t>(old_addr));
   if (oa != (l4_addr_t)old_addr)
     return -EINVAL;
 
@@ -854,7 +854,8 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
       if (new_size < old_size)
         {
           *new_addr = old_addr;
-          return munmap((void*)(oa + new_size), old_size - new_size);
+          return munmap(reinterpret_cast<void*>(oa + new_size),
+                        old_size - new_size);
         }
 
       if (new_size == old_size)
@@ -873,7 +874,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
   Auto_area new_area(r);
   if (fixed)
     {
-      l4_addr_t na = l4_trunc_page((l4_addr_t)*new_addr);
+      l4_addr_t na = l4_trunc_page(reinterpret_cast<l4_addr_t>(*new_addr));
       if (na != (l4_addr_t)*new_addr)
         return -EINVAL;
 
@@ -917,7 +918,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
             return -ENOMEM;
 
           pad_addr = new_area.a + old_size;
-          *new_addr = (void *)new_area.a;
+          *new_addr = reinterpret_cast<void *>(new_area.a);
         }
     }
 

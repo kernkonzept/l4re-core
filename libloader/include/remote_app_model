@@ -166,7 +166,7 @@ public:
     L4::Thread::Attr th_attr;
     th_attr.pager(env->rm());
     th_attr.exc_handler(env->rm());
-    th_attr.bind((l4_utcb_t*)this->_info.utcbs_start, ntask);
+    th_attr.bind(reinterpret_cast<l4_utcb_t*>(this->_info.utcbs_start), ntask);
     chksys(nthread->control(th_attr));
 
     chksys(this->run_thread(nthread,

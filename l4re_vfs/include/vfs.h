@@ -1095,7 +1095,7 @@ public:
 
     ++len;
 
-    char *b = (char *)this->malloc(len);
+    char *b = static_cast<char *>(this->malloc(len));
     if (b == nullptr)
       return nullptr;
 

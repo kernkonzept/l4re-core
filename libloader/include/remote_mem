@@ -39,7 +39,11 @@ public:
 
   template < typename T >
   T relocate(T src) const
-  { return (T)(l4_addr_t(src) + (_target_top - l4_addr_t(_top))); }
+  {
+    l4_addr_t src_addr = reinterpret_cast<l4_addr_t>(src);
+    l4_addr_t top_addr = reinterpret_cast<l4_addr_t>(_top);
+    return reinterpret_cast<T>(src_addr + (_target_top - top_addr));
+  }
 
   char const *push_str(char const *s, size_t len);
   char *push_object(void const *o, unsigned long size);
@@ -62,7 +66,7 @@ public:
       ;
 
     p &= ~0UL << bits;
-    _p = (char *)p;
+    _p = reinterpret_cast<char *>(p);
   }
 
   void const **push_local_ptr(void const *p)

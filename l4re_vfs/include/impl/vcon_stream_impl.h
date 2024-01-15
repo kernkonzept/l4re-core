@@ -31,8 +31,9 @@ Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) noexcept
 : Be_file_stream(),
   _s(s), _irq(L4Re::virt_cap_alloc->alloc<L4::Semaphore>()), _irq_bound(false)
 {
-  int res = l4_error(L4Re::Env::env()->factory()->create(_irq));
-  (void)res; // handle errors!
+  // [[maybe_unused]] int res =
+  l4_error(L4Re::Env::env()->factory()->create(_irq));
+  // (void)res; // handle errors!
 }
 
 ssize_t
@@ -52,7 +53,7 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
       if (iovec->iov_len == 0)
 	continue;
 
-      char *buf = (char *)iovec->iov_base;
+      char *buf = static_cast<char *>(iovec->iov_base);
       size_t len = iovec->iov_len;
 
       while (1)
@@ -104,7 +105,7 @@ Vcon_stream::writev(const struct iovec *iovec, int iovcnt) noexcept
   while (iovcnt)
     {
       size_t sl = iovec->iov_len;
-      char const *b = (char const *)iovec->iov_base;
+      char const *b = static_cast<char const *>(iovec->iov_base);
 
       for (; sl > L4_VCON_WRITE_SIZE
            ; sl -= L4_VCON_WRITE_SIZE, b += L4_VCON_WRITE_SIZE)
