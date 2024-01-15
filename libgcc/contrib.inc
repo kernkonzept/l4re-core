@@ -1,3 +1,4 @@
+# vim:se ft=make:
 include $(L4DIR)/mk/Makeconf
 
 LIBGCC_CONTRIB_MIN_VERSION := 9
