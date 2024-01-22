@@ -26,10 +26,6 @@
 #define TARGET_CPU_CPP_BUILTINS()	\
   aarch64_cpu_cpp_builtins (pfile)
 
-/* Target hooks for D language.  */
-#define TARGET_D_CPU_VERSIONS aarch64_d_target_versions
-#define TARGET_D_REGISTER_CPU_TARGET_INFO aarch64_d_register_target_info
-
 
 
 #define REGISTER_TARGET_PRAGMAS() aarch64_register_pragmas ()
@@ -260,7 +256,8 @@ extern unsigned aarch64_architecture_version;
 #define AARCH64_FL_FOR_ARCH8_2			\
   (AARCH64_FL_FOR_ARCH8_1 | AARCH64_FL_V8_2)
 #define AARCH64_FL_FOR_ARCH8_3			\
-  (AARCH64_FL_FOR_ARCH8_2 | AARCH64_FL_V8_3 | AARCH64_FL_PAUTH)
+  (AARCH64_FL_FOR_ARCH8_2 | AARCH64_FL_V8_3 | AARCH64_FL_PAUTH \
+   | AARCH64_FL_RCPC)
 #define AARCH64_FL_FOR_ARCH8_4			\
   (AARCH64_FL_FOR_ARCH8_3 | AARCH64_FL_V8_4 | AARCH64_FL_F16FML \
    | AARCH64_FL_DOTPROD | AARCH64_FL_RCPC8_4 | AARCH64_FL_FLAGM)
@@ -305,6 +302,7 @@ extern unsigned aarch64_architecture_version;
 #define AARCH64_ISA_SM4	           (aarch64_isa_flags & AARCH64_FL_SM4)
 #define AARCH64_ISA_SHA3	   (aarch64_isa_flags & AARCH64_FL_SHA3)
 #define AARCH64_ISA_F16FML	   (aarch64_isa_flags & AARCH64_FL_F16FML)
+#define AARCH64_ISA_RCPC	   (aarch64_isa_flags & AARCH64_FL_RCPC)
 #define AARCH64_ISA_RCPC8_4	   (aarch64_isa_flags & AARCH64_FL_RCPC8_4)
 #define AARCH64_ISA_RNG		   (aarch64_isa_flags & AARCH64_FL_RNG)
 #define AARCH64_ISA_V8_5	   (aarch64_isa_flags & AARCH64_FL_V8_5)
@@ -956,6 +954,7 @@ struct GTY (()) aarch64_frame
   bool is_scs_enabled;
 };
 
+#ifdef hash_set_h
 typedef struct GTY (()) machine_function
 {
   struct aarch64_frame frame;
@@ -964,7 +963,11 @@ typedef struct GTY (()) machine_function
   /* One entry for each general purpose register.  */
   rtx call_via[SP_REGNUM];
   bool label_is_assembled;
+  /* A set of all decls that have been passed to a vld1 intrinsic in the
+     current function.  This is used to help guide the vector cost model.  */
+  hash_set<tree> *vector_load_decls;
 } machine_function;
+#endif
 #endif
 
 /* Which ABI to use.  */

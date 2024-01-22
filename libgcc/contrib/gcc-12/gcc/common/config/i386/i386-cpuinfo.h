@@ -33,8 +33,10 @@ enum processor_vendor
   VENDOR_CENTAUR,
   VENDOR_CYRIX,
   VENDOR_NSC,
-  BUILTIN_VENDOR_MAX = VENDOR_OTHER,
-  VENDOR_MAX
+
+  /* Maximum values must be at the end of this enum.  */
+  VENDOR_MAX,
+  BUILTIN_VENDOR_MAX = VENDOR_OTHER
 };
 
 /* Any new types or subtypes have to be inserted at the end. */
@@ -89,6 +91,7 @@ enum processor_subtypes
   INTEL_COREI7_ALDERLAKE,
   AMDFAM19H_ZNVER3,
   INTEL_COREI7_ROCKETLAKE,
+  AMDFAM19H_ZNVER4,
   CPU_SUBTYPE_MAX
 };
 
