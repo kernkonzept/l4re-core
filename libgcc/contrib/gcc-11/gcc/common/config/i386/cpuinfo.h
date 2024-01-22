@@ -606,8 +606,6 @@ get_available_features (struct __processor_model *cpu_model,
     set_feature (FEATURE_MOVBE);
   if (ecx & bit_AES)
     set_feature (FEATURE_AES);
-  if (ecx & bit_F16C)
-    set_feature (FEATURE_F16C);
   if (ecx & bit_RDRND)
     set_feature (FEATURE_RDRND);
   if (ecx & bit_XSAVE)
@@ -618,6 +616,8 @@ get_available_features (struct __processor_model *cpu_model,
 	set_feature (FEATURE_AVX);
       if (ecx & bit_FMA)
 	set_feature (FEATURE_FMA);
+      if (ecx & bit_F16C)
+	set_feature (FEATURE_F16C);
     }
 
   /* Get Advanced Features at level 7 (eax = 7, ecx = 0/1). */
@@ -638,6 +638,8 @@ get_available_features (struct __processor_model *cpu_model,
 	    set_feature (FEATURE_AVX2);
 	  if (ecx & bit_VPCLMULQDQ)
 	    set_feature (FEATURE_VPCLMULQDQ);
+	  if (ecx & bit_VAES)
+	    set_feature (FEATURE_VAES);
 	}
       if (ebx & bit_BMI2)
 	set_feature (FEATURE_BMI2);
@@ -660,8 +662,6 @@ get_available_features (struct __processor_model *cpu_model,
 	set_feature (FEATURE_PKU);
       if (ecx & bit_RDPID)
 	set_feature (FEATURE_RDPID);
-      if (ecx & bit_VAES)
-	set_feature (FEATURE_VAES);
       if (ecx & bit_GFNI)
 	set_feature (FEATURE_GFNI);
       if (ecx & bit_MOVDIRI)
@@ -882,6 +882,10 @@ cpu_indicator_init (struct __processor_model *cpu_model,
   extended_model = (eax >> 12) & 0xf0;
   extended_family = (eax >> 20) & 0xff;
 
+  /* Find available features. */
+  get_available_features (cpu_model, cpu_model2, cpu_features2,
+			  ecx, edx);
+
   if (vendor == signature_INTEL_ebx)
     {
       /* Adjust model and family for Intel CPUS. */
@@ -896,9 +900,6 @@ cpu_indicator_init (struct __processor_model *cpu_model,
       cpu_model2->__cpu_family = family;
       cpu_model2->__cpu_model = model;
 
-      /* Find available features. */
-      get_available_features (cpu_model, cpu_model2, cpu_features2,
-			      ecx, edx);
       /* Get CPU type.  */
       get_intel_cpu (cpu_model, cpu_model2, cpu_features2);
       cpu_model->__cpu_vendor = VENDOR_INTEL;
@@ -915,9 +916,6 @@ cpu_indicator_init (struct __processor_model *cpu_model,
       cpu_model2->__cpu_family = family;
       cpu_model2->__cpu_model = model;
 
-      /* Find available features. */
-      get_available_features (cpu_model, cpu_model2, cpu_features2,
-			      ecx, edx);
       /* Get CPU type.  */
       get_amd_cpu (cpu_model, cpu_model2, cpu_features2);
       cpu_model->__cpu_vendor = VENDOR_AMD;
