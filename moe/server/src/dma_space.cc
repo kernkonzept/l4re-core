@@ -68,12 +68,19 @@ public:
 };
 
 
+/**
+ * #Task_mapper instances are associated with L4::Task objects (see
+ * #_dma_kern_space). There shall be at most one #Task_mapper instance per
+ * L4::Task object (see find_mapper()).
+ */
 class Task_mapper :
   public Mapper,
   public cxx::H_list_item_t<Task_mapper>
 {
 private:
+  /// List of all #Task_mapper instances.
   static cxx::H_list_t<Task_mapper> _mappers;
+
   typedef Mapping::Map Map;
 
   l4_addr_t const min = 1 << 20;

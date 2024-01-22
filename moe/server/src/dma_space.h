@@ -119,13 +119,25 @@ public:
 
   long op_disassociate(L4Re::Dma_space::Rights rights);
 
+  /**
+   * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space
+   * instance.
+   */
   void delete_all_mappings();
 
   ~Dma_space() { delete_all_mappings(); }
 
 private:
   Space_attribs _attr = Space_attribs::None;
+
+  /// The Dma::Mapper instance (if any) associated with this Moe::Dma_space
+  /// instance.
+  /// \note Several Moe::Dma_space instances might share the same Dma::Mapper
+  ///       instance.
   cxx::Ref_ptr<Dma::Mapper> _mapper;
+
+  /// List of mappings (see Dma::Mapping) created via this Moe::Dma_space
+  /// instance.
   Dma::Mapping::List _mappings;
 };
 
