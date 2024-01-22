@@ -13,8 +13,6 @@
 #include "app_task.h"
 #include "globals.h"
 
-using L4Re::Dataspace;
-
 
 long
 App_task::op_signal(L4Re::Parent::Rights, unsigned long sig, unsigned long val)
