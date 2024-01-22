@@ -55,7 +55,7 @@ void Pbuf::flush()
 void Pbuf::checknflush(int n)
 {
   char *x = 0;
-  x = (char*)memchr(_b, '\n', _p + n);
+  x = static_cast<char *>(memchr(_b, '\n', _p + n));
 
   if (x)
     {
@@ -140,13 +140,13 @@ Moe::Log::op_dispatch(l4_utcb_t *utcb, l4_msgtag_t tag, L4::Vcon::Rights)
         }
 
       long i;
-      for (i = 0; i < (long)len_msg; ++i)
+      for (i = 0; i < static_cast<long>(len_msg); ++i)
         if (msg[i] == '\n' || msg[i] == 0)
           break;
 
       ob.outnstring(msg, i);
 
-      if (i < (long)len_msg && msg[i] == '\n')
+      if (i < static_cast<long>(len_msg) && msg[i] == '\n')
         {
           if (color())
             ob.printf("\033[0m\n");

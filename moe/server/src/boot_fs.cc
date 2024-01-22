@@ -83,9 +83,9 @@ static bool options_contains(cxx::String const &opts, cxx::String const &opt)
 void
 Moe::Boot_fs::init_stage1()
 {
-  l4util_l4mod_info const *mbi = (l4util_l4mod_info const *)kip()->user_ptr;
+  auto *mbi = reinterpret_cast<l4util_l4mod_info const *>(kip()->user_ptr);
 
-  l4_touch_ro(mbi,10);
+  l4_touch_ro(mbi, 10);
 }
 
 static long
@@ -116,8 +116,9 @@ public:
                                     name.len(), name.len(), name.start());
         if (written > left)
           {
-            char *n = (char *)Single_page_alloc_base::_alloc(_space + L4_PAGESIZE,
-                                                             L4_PAGESHIFT);
+            char *n = static_cast<char *>(
+                        Single_page_alloc_base::_alloc(_space + L4_PAGESIZE,
+                                                       L4_PAGESHIFT));
             memcpy(n, _buf, _space);
             Single_page_alloc_base::_free(_buf, _space, true);
             _buf = n;
@@ -141,7 +142,7 @@ public:
       return;
 
     Moe::Dataspace_static *ds;
-    ds = new Moe::Dataspace_static((void *)_buf, _size, L4Re::Dataspace::F::R);
+    ds = new Moe::Dataspace_static(_buf, _size, L4Re::Dataspace::F::R);
 
     object_pool.cap_alloc()->alloc(ds);
     ns->register_obj(".dirinfo", Moe::Entry::Flags::F_allocated, ds);
@@ -150,7 +151,8 @@ public:
 private:
   unsigned _space = L4_PAGESIZE;
   unsigned _size = 0;
-  char *_buf = (char *)Single_page_alloc_base::_alloc(_space, L4_PAGESHIFT);
+  char *_buf
+    = static_cast<char *>(Single_page_alloc_base::_alloc(_space, L4_PAGESHIFT));
 };
 
 void
@@ -167,13 +169,14 @@ Moe::Boot_fs::init_stage2()
   root_name_space()->register_obj("rwfs", 0, rwfs_ns);
 
   L4::Cap<void> object;
-  l4util_l4mod_info const *mbi = (l4util_l4mod_info const *)kip()->user_ptr;
+  auto *mbi = reinterpret_cast<l4util_l4mod_info const *>(kip()->user_ptr);
 
   //dump_mbi(mbi);
 
   Dirinfo dirinfo_ro, dirinfo_rw;
 
-  l4util_l4mod_mod const *modules = (l4util_l4mod_mod const *)(unsigned long)mbi->mods_addr;
+  auto *modules = reinterpret_cast<l4util_l4mod_mod const *>(
+                    static_cast<unsigned long>(mbi->mods_addr));
   unsigned num_modules = mbi->mods_count;
 
   l4_addr_t m_low = -1;
@@ -190,32 +193,35 @@ Moe::Boot_fs::init_stage2()
         default: break;
         }
 
-      l4_addr_t s = modules[mod].mod_start;
-      if (s != m_high + 1 && m_low != (l4_addr_t)-1)
+      l4_addr_t const mod_start = modules[mod].mod_start;
+      if (mod_start != m_high + 1 && m_low != (l4_addr_t)-1)
         {
           l4util_splitlog2_hdl(m_low, m_high, s0_request_ram);
           m_low = -1;
           m_high = 0;
         }
 
-      if (m_low > s)
-        m_low = s;
+      if (m_low > mod_start)
+        m_low = mod_start;
 
       //l4_addr_t end = l4_round_page(modules[mod].mod_end);
-      l4_addr_t end = modules[mod].mod_end;
+      l4_addr_t const mod_end = modules[mod].mod_end;
 
-      if (m_high < l4_round_page(end) - 1)
-        m_high = l4_round_page(end) - 1;
+      if (m_high < l4_round_page(mod_end) - 1)
+        m_high = l4_round_page(mod_end) - 1;
+
+      l4_addr_t const mod_cmdline = modules[mod].cmdline;
 
       cxx::String opts;
-      cxx::String name = cmdline_to_name((char const *)(unsigned long)modules[mod].cmdline, &opts);
+      cxx::String name = cmdline_to_name(
+                           reinterpret_cast<char const *>(mod_cmdline), &opts);
       Dataspace::Flags flags = Dataspace::Flags(Dataspace::Cow_enabled) | L4Re::Dataspace::F::RX;
       if (options_contains(opts, cxx::String(":rw")))
         flags = L4Re::Dataspace::F::RWX;
 
       Moe::Dataspace_static *rf;
-      rf = new Moe::Dataspace_static((void*)(unsigned long)modules[mod].mod_start,
-                                     end - modules[mod].mod_start, flags);
+      rf = new Moe::Dataspace_static(reinterpret_cast<void*>(mod_start),
+                                     mod_end - mod_start, flags);
       object = object_pool.cap_alloc()->alloc(rf);
       if (flags.w())
         {
@@ -230,8 +236,8 @@ Moe::Boot_fs::init_stage2()
           L4::cout << "  ROMFS";
         }
 
-      L4::cout << ": [" << (void*)(unsigned long)modules[mod].mod_start << "-"
-               << (void*)end << "] " << object << " "
+      L4::cout << ": [" << reinterpret_cast<void*>(mod_start) << "-"
+               << reinterpret_cast<void*>(mod_end) << "] " << object << " "
                << name << "\n";
     }
 

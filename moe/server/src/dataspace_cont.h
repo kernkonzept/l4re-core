@@ -35,7 +35,7 @@ public:
               Dma_space::Dma_addr *dma_addr) override;
 
 protected:
-  void start(void *start) { _start = (char*)start; }
+  void start(void *start) { _start = static_cast<char*>(start); }
   void *start() { return _start; }
 
 private:

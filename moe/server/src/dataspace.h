@@ -56,10 +56,14 @@ public:
     unsigned long of() const noexcept { return offs; }
     l4_fpage_t fp() const noexcept { return fpage; }
 
+    /**
+     * Get the start address of the dataspace. Requires `T` to be a pointer
+     * type.
+     */
     template< typename T >
-    T adr() const noexcept { return (T)(bs() + offs); }
+    T adr() const noexcept { return reinterpret_cast<T>(bs() + offs); }
 
-    void *adr() const noexcept { return (void*)(bs() + offs); }
+    void *adr() const noexcept { return reinterpret_cast<void*>(bs() + offs); }
 
     bool is_nil() const noexcept { return offs == -1UL; }
     /**
@@ -86,7 +90,11 @@ public:
 
   virtual int pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
 
-  bool can_cow() const noexcept { return (bool)(_flags & Flags(Cow_enabled)); }
+  bool can_cow() const noexcept
+  {
+    return !!(_flags & Flags(Cow_enabled));
+  }
+
   Flags flags() const noexcept { return _flags; }
 
   Flags map_flags(L4Re::Dataspace::Rights rights = L4_CAP_FPAGE_W) const noexcept

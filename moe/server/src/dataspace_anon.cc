@@ -36,13 +36,13 @@ Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
       a = cxx::min(l - qalloc()->quota()->used(), a);
 
       // not enough memory left
-      if (a <= (unsigned long)(-size))
+      if (a <= static_cast<unsigned long>(-size))
         L4Re::chksys(-L4_ENOMEM);
 
       if (l == ~0UL)
         l = LONG_MAX;
 
-      if (l <= (unsigned long)(-size))
+      if (l <= static_cast<unsigned long>(-size))
         L4Re::chksys(-L4_ENOMEM);
 
       size = cxx::min(a + size, l + size);
@@ -74,7 +74,8 @@ Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
   memset(m.get(), 0, m.size());
   // No need for I cache coherence, as we just zero fill and assume that
   // this is no executable code
-  l4_cache_clean_data((l4_addr_t)m.get(), (l4_addr_t)m.get() + m.size());
+  l4_cache_clean_data(reinterpret_cast<l4_addr_t>(m.get()),
+                      reinterpret_cast<l4_addr_t>(m.get()) + m.size());
 
   start(m.release());
   this->size(size);

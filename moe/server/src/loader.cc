@@ -60,7 +60,8 @@ __alloc_app_stack(Allocator *a, Moe::Stack *_stack, unsigned long size)
 {
   cxx::unique_ptr<Moe::Dataspace> stack(a->alloc(size));
 
-  _stack->set_local_top(stack->address(size - L4_PAGESIZE).adr<char*>() + L4_PAGESIZE);
+  _stack->set_local_top(stack->address(size - L4_PAGESIZE).adr<char *>()
+                        + L4_PAGESIZE);
   return stack.release();
 }
 
@@ -117,7 +118,7 @@ Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                               Const_dataspace ds, unsigned long offset,
                               L4Re::Rm::Flags flags, char const *what)
 {
-  void *x = _task->rm()->attach((void*)addr, size,
+  void *x = _task->rm()->attach(reinterpret_cast<void*>(addr), size,
                                 Region_handler(ds, L4_INVALID_CAP,
                                                offset, flags.region_flags()),
                                 flags);
@@ -150,7 +151,7 @@ l4_addr_t
 Moe_app_model::local_attach_ds(Const_dataspace ds, unsigned long /*size*/,
                                unsigned long offset) const
 {
-  return (l4_addr_t)ds->address(offset).adr();
+  return reinterpret_cast<l4_addr_t>(ds->address(offset).adr());
 }
 
 void
@@ -181,7 +182,7 @@ Moe_app_model::Moe_app_model(App_task *t, cxx::String const &prog,
     _info.utcbs_log2size  = L4_PAGESHIFT;
 
   // set default values for the application stack
-  _info.kip = (l4_addr_t)l4re_kip();
+  _info.kip = reinterpret_cast<l4_addr_t>(l4re_kip());
 }
 
 

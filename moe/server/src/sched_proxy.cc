@@ -141,7 +141,7 @@ int
 Sched_proxy::run_thread(L4::Cap<L4::Thread> thread, l4_sched_param_t const &sp)
 {
   l4_sched_param_t s = sp;
-  s.prio = std::min(sp.prio + _prio_offset, (l4_umword_t)_prio_limit);
+  s.prio = std::min<l4_umword_t>(sp.prio + _prio_offset, _prio_limit);
   s.affinity = sp.affinity & _cpus;
   if (0)
     {

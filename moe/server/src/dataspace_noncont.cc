@@ -27,7 +27,7 @@ Moe::Dataspace_noncont::unmap_page(Page const &p, bool ro) const noexcept
 {
   if (p.valid())
     l4_task_unmap(L4_BASE_TASK_CAP,
-                  l4_fpage((unsigned long)*p, page_shift(),
+                  l4_fpage(reinterpret_cast<unsigned long>(*p), page_shift(),
                   ro ? L4_FPAGE_W : L4_FPAGE_RWX), L4_FP_OTHER_SPACES);
 }
 
@@ -73,8 +73,10 @@ Moe::Dataspace_noncont::map_address(l4_addr_t offset, Flags flags) const
           // And we should provide a single API with opcode bits to allow
           // a combination of cache clean and I cache coherency in a single
           // operation.
-          l4_cache_coherent((l4_addr_t)np, (l4_addr_t)np + page_size());
-          l4_cache_clean_data((l4_addr_t)np, (l4_addr_t)np + page_size());
+          l4_cache_coherent(reinterpret_cast<l4_addr_t>(np),
+                            reinterpret_cast<l4_addr_t>(np) + page_size());
+          l4_cache_clean_data(reinterpret_cast<l4_addr_t>(np),
+                              reinterpret_cast<l4_addr_t>(np) + page_size());
           unmap_page(p);
           Moe::Pages::unshare(*p);
           p.set(np, 0);
@@ -88,7 +90,8 @@ Moe::Dataspace_noncont::map_address(l4_addr_t offset, Flags flags) const
       memset(*p, 0, page_size());
       // No need for I cache coherence, as we just zero fill and assume that
       // this is no executable code
-      l4_cache_clean_data((l4_addr_t)*p, (l4_addr_t)(*p) + page_size());
+      l4_cache_clean_data(reinterpret_cast<l4_addr_t>(*p),
+                          reinterpret_cast<l4_addr_t>(*p) + page_size());
     }
 
   return Address(l4_addr_t(*p), page_shift(), flags, offset & (page_size()-1));
@@ -107,7 +110,7 @@ Moe::Dataspace_noncont::copy_address(l4_addr_t offset, Flags flags,
   if (a.is_nil())
     return -L4_ERANGE;
 
-  *addr = (l4_addr_t)a.adr();
+  *addr = reinterpret_cast<l4_addr_t>(a.adr());
   *size = a.sz() - a.of();
   return 0;
 }
@@ -197,8 +200,9 @@ namespace {
     Mem_small(unsigned long size, Flags flags)
     : Moe::Dataspace_noncont(size, flags)
     {
-      _pages = (Page *)qalloc()->alloc_pages(meta_size(), Meta_align);
-      memset((void *)_pages, 0, meta_size());
+      void *p = qalloc()->alloc_pages(meta_size(), Meta_align);
+      memset(p, 0, meta_size());
+      _pages = static_cast<Page *>(p);
     }
 
     ~Mem_small() noexcept
@@ -235,18 +239,21 @@ namespace {
       unsigned long p;
 
     public:
-      Page *l2() const noexcept { return (Page*)(p & ~0xfffUL); }
+      Page *l2() const noexcept { return reinterpret_cast<Page*>(p & ~0xfffUL); }
+
       Page &operator [] (unsigned idx) noexcept
       { return l2()[idx]; }
       Page *operator * () const noexcept { return l2(); }
       unsigned long cnt() const noexcept { return p & 0xfffUL; }
       void inc() noexcept { p = (p & ~0xfffUL) | (((p & 0xfffUL)+1) & 0xfffUL); }
       void dec() noexcept { p = (p & ~0xfffUL) | (((p & 0xfffUL)-1) & 0xfffUL); }
-      void set(void* _p) noexcept { p = (unsigned long)_p; }
+      void set(void* _p) noexcept { p = reinterpret_cast<unsigned long>(_p); }
     };
 
     L1 &__p(unsigned long offs) const noexcept
-    { return ((L1*)_pages)[(offs >> page_shift()) / entries2()]; }
+    {
+      return reinterpret_cast<L1*>(_pages)[(offs >> page_shift()) / entries2()];
+    }
 
     unsigned l2_idx(unsigned long offs) const
     { return (offs >> page_shift()) & (entries2() - 1); }
@@ -261,8 +268,9 @@ namespace {
     Mem_big(unsigned long size, Flags flags)
     : Moe::Dataspace_noncont(size, flags)
     {
-      _pages = (Page *)qalloc()->alloc_pages(meta1_size(), 1024);
-      memset((void *)_pages, 0, meta1_size());
+      void *p = qalloc()->alloc_pages(meta1_size(), 1024);
+      memset(p, 0, meta1_size());
+      _pages = static_cast<Page *>(p);
     }
 
     ~Mem_big() noexcept
@@ -270,7 +278,8 @@ namespace {
       for (unsigned long i = 0; i < size(); i += page_size())
         free_page(page(i));
 
-      for (L1 *p = (L1 *)_pages; p != (L1 *)_pages + entries1(); ++p)
+      for (L1 *p = reinterpret_cast<L1 *>(_pages);
+           p != reinterpret_cast<L1 *>(_pages) + entries1(); ++p)
         {
           if (**p)
             qalloc()->free_pages(**p, meta2_size());

@@ -42,7 +42,8 @@ __do_real_copy(Dataspace *dst, unsigned long &dst_offs,
       if (!b_sz)
         return;
 
-      memcpy((void*)dst_addr, (void const *)src_addr, b_sz);
+      memcpy(reinterpret_cast<void*>(dst_addr),
+             reinterpret_cast<void const *>(src_addr), b_sz);
       // FIXME: we should change the API to pass a flag for executable target pages,
       // and do the I cache coherence only in this case.
       // And we should change the cache API to allow for a single call to handle
@@ -65,7 +66,8 @@ __do_cow_copy(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_s
       Dataspace::Address src_a = src->address(src_offs, L4Re::Dataspace::F::R);
       Dataspace_noncont::Page &dst_p = dst->alloc_page(dst_offs);
       dst->free_page(dst_p);
-      void *src_p = (void*)trunc_page(dst_pg_sz,src_a.adr<unsigned long>());
+      void *src_p = reinterpret_cast<void*>(
+                      trunc_page(dst_pg_sz, src_a.adr<unsigned long>()));
       Moe::Pages::share(src_p);
       dst_p.set(src_p, Dataspace_noncont::Page_cow);
 

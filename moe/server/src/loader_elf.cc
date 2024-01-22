@@ -27,6 +27,6 @@ Elf_loader::launch(App_task *t, cxx::String const &prog,
 bool
 Elf_loader::check_file_type(Moe::Dataspace const *file) const
 {
-  char const *data = file->address(0).adr<char const*>();
+  char const *data = file->address(0).adr<char const *>();
   return memcmp(data, "\177ELF", 4) == 0;
 }

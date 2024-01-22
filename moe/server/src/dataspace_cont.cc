@@ -15,13 +15,15 @@
 Moe::Dataspace_cont::Dataspace_cont(void *start, unsigned long size,
                                     Flags flags,
                                     unsigned char page_shift)
-: Dataspace(size, flags, page_shift), _start((char*)start)
+: Dataspace(size, flags, page_shift), _start(static_cast<char*>(start))
 {
   if (!can_cow())
     return;
 
   char *end = _start + l4_round_page(this->size());
-  for (char *x = (char *)l4_trunc_page((l4_addr_t)_start); x < end;
+  for (char *x = reinterpret_cast<char *>(
+                   l4_trunc_page(reinterpret_cast<l4_addr_t>(_start)));
+       x < end;
        x += L4_PAGESIZE)
     Moe::Pages::share(x);
 }
@@ -113,18 +115,16 @@ void Moe::Dataspace_cont::unmap() const noexcept
 }
 
 int
-Moe::Dataspace_cont::dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
-                             Dma_attribs dma_attr, Dma_space::Direction dir,
+Moe::Dataspace_cont::dma_map(Dma_space * /* dma */, l4_addr_t offset,
+                             l4_size_t *size,
+                             Dma_attribs /* dma_attr */,
+                             Dma_space::Direction /* dir */,
                              Dma_space::Dma_addr *dma_addr)
 {
-  (void)dma;
-  (void)dma_attr;
-  (void)dir;
-
   if (offset >= this->size())
     return -L4_ERANGE;
 
-  *dma_addr = (l4_addr_t)start() + offset;
-  *size = cxx::min(*size, (l4_size_t)(this->size() - offset));
+  *dma_addr = reinterpret_cast<l4_addr_t>(start()) + offset;
+  *size = cxx::min<l4_size_t>(*size, this->size() - offset);
   return 0;
 }

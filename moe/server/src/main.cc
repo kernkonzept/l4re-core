@@ -87,21 +87,23 @@ l4_kernel_info_t const *map_kip()
 static
 char *my_cmdline()
 {
-  l4util_l4mod_info const *_mbi_ = (l4util_l4mod_info const *)kip()->user_ptr;
+  auto *_mbi_ = reinterpret_cast<l4util_l4mod_info const *>(kip()->user_ptr);
   boot.printf("mbi @%p\n", _mbi_);
-  l4util_l4mod_mod const *modules = (l4util_l4mod_mod const *)_mbi_->mods_addr;
+  auto  *modules = reinterpret_cast<l4util_l4mod_mod const *>(_mbi_->mods_addr);
   unsigned num_modules = _mbi_->mods_count;
   char *cmdline = 0;
 
   for (unsigned mod = 0; mod < num_modules; ++mod)
     if ((modules[mod].flags & L4util_l4mod_mod_flag_mask) == L4util_l4mod_mod_flag_roottask)
       {
-        cmdline = (char *)(unsigned long)modules[mod].cmdline;
+        cmdline = reinterpret_cast<char *>(
+                    static_cast<unsigned long>(modules[mod].cmdline));
         break;
       }
 
   if (!cmdline)
-    cmdline = (char *)(unsigned long)_mbi_->cmdline;
+    cmdline = reinterpret_cast<char *>(
+                static_cast<unsigned long>(_mbi_->cmdline));
 
   static char default_cmdline[] = "";
 
@@ -143,7 +145,8 @@ static void find_memory()
           if (addr + size > max_addr)
             max_addr = addr + size;
 
-          Single_page_alloc_base::_free((void*)addr, size, true);
+          Single_page_alloc_base::_free(reinterpret_cast<void*>(addr), size,
+                                        true);
         }
     }
 
@@ -182,7 +185,8 @@ static void find_memory()
 
   assert(total_pages);
 
-  pages = (__typeof(pages))Single_page_alloc_base::_alloc(sizeof(*pages) * total_pages);
+  pages = static_cast<__typeof(pages)>(
+            Single_page_alloc_base::_alloc(sizeof(*pages) * total_pages));
 
   if (pages == 0)
     {
@@ -495,7 +499,7 @@ static void init_env()
 }
 
 static __attribute__((used, section(".preinit_array")))
-   const void *pre_init_env = (void *)init_env;
+   const void *pre_init_env = reinterpret_cast<void *>(init_env);
 
 static void init_emergency_memory()
 {
@@ -505,18 +509,18 @@ static void init_emergency_memory()
   static __attribute__((aligned(L4_PAGESIZE))) char buf[3 * L4_PAGESIZE];
   Single_page_alloc_base::_free(buf, sizeof(buf), true);
   // make sure the emergency memory is RWX for future reuse
-  int err = l4sigma0_map_mem(Sigma0_cap, (l4_addr_t) buf, (l4_addr_t) buf,
-                             sizeof(buf));
+  int err = l4sigma0_map_mem(Sigma0_cap, reinterpret_cast<l4_addr_t>(buf),
+                             reinterpret_cast<l4_addr_t>(buf), sizeof(buf));
   l4_assert(!err);
-  (void)err;
+  static_cast<void>(err);
 }
 
 static __attribute__((used, section(".preinit_array")))
-   const void *pre_init_emergency_memory = (void *)init_emergency_memory;
+   const void *pre_init_emergency_memory
+     = reinterpret_cast<void *>(init_emergency_memory);
 
-int main(int argc, char**argv)
+int main(int /* argc */, char** /* argv */)
 {
-  (void)argc; (void)argv;
   Dbg::set_level(Dbg::Info | Dbg::Warn);
   //Dbg::set_level(Dbg::Info | Dbg::Warn | Dbg::Boot);
 

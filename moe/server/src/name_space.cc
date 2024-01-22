@@ -204,7 +204,7 @@ Name_space::op_register_obj(L4Re::Namespace::Rights, unsigned flags,
 int
 Name_space::op_unlink(L4Re::Namespace::Rights, Name_buffer const &name)
 {
-  auto *sep = (char const *)memchr(name.data, '/', name.length);
+  auto *sep = static_cast<char const *>(memchr(name.data, '/', name.length));
   unsigned long part;
   if (sep)
     part = sep - name.data;
@@ -237,7 +237,7 @@ Name_space::op_query(L4Re::Namespace::Rights,
   dbg.printf("query: [%ld] '%.*s'\n", name.length, (int)name.length, name.data);
 #endif
 
-  auto *sep = (char const *)memchr(name.data, '/', name.length);
+  auto *sep = static_cast<char const *>(memchr(name.data, '/', name.length));
   unsigned long part;
   if (sep)
     part = sep - name.data;
