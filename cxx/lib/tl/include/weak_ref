@@ -30,6 +30,12 @@ protected:
   void const *_obj;
 
 public:
+  /**
+   * The list type for keeping all weak references to an object.
+   *
+   * On destrunction of a list, all weak references to the respective object are
+   * set to `nullptr`.
+   */
   struct List : H_list_t<Weak_ref_base>
   {
     void reset()
@@ -54,14 +60,37 @@ public:
  *
  * A weak reference is a reference that is invalidated when the referenced
  * object is about to be deleted.  All weak references to an object are kept in
- * a linked list and all the weak references are iterated and reset by the
- * Weak_ref_base::List destructor or Weak_ref_base::reset().
+ * a linked list (see Weak_ref_base::List) and all the weak references are
+ * iterated and reset by the Weak_ref_base::List destructor or
+ * Weak_ref_base::List::reset().
  *
  * The type `T` must provide two methods that handle the housekeeping of weak
- * references: remove_weak_ref(Weak_ref_base *) and add_weak_ref(Weak_ref_base *).
- * These functions must handle the insertion and removal of the weak reference
- * into the respective Weak_ref_base::List object.  For convenience one can use the
- * cxx::Weak_ref_obj as a base class that handles weak references for you.
+ * references: `remove_weak_ref(Weak_ref_base *)` and
+ * `add_weak_ref(Weak_ref_base *)`. These functions must handle the insertion
+ * and removal of the weak reference into the respective Weak_ref_base::List
+ * object.  For convenience one can use the cxx::Weak_ref_obj as a base class
+ * that handles weak references for you.
+ *
+ * For example:
+ * ```{.cpp}
+ * class C : public cxx::Weak_ref_obj {};
+ *
+ * int main()
+ * {
+ *   cxx::Weak_ref<C> r;  // r is nullptr
+ *   {
+ *     C c;
+ *     r = &c;  // now r points to c
+ *   }  // c is destructed, which implies resetting all weak references to c
+ *   // now r is nullptr
+ *   return 0;
+ * }
+ * ```
+ *
+ * \note Weak references have no effect on the lifetime of the referenced
+ *       object. Hence, a referenced object is *not* deleted when all weak
+ *       references for it are gone. If automatic deletion is needed, see
+ *       cxx::Ref_ptr.
  */
 template <typename T>
 class Weak_ref : public Weak_ref_base
