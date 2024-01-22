@@ -26,6 +26,7 @@
 #define L4_SYS_TIMEOUT_H__
 
 #include <l4/sys/l4int.h>
+#include <l4/sys/compiler.h>
 
 /**
  * \defgroup l4_timeout_api Timeouts
@@ -56,7 +57,8 @@ typedef struct l4_timeout_s {
  * For IPC there are usually a send and a receive timeout.
  * So this structure contains a pair of timeouts.
  */
-typedef union l4_timeout_t {
+typedef union l4_timeout_t
+{
   l4_uint32_t raw;                 /**< raw value */
   struct
   {
@@ -106,7 +108,7 @@ typedef union l4_timeout_t {
  *
  * \return timeout value
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_s l4_timeout_rel(unsigned man, unsigned exp) L4_NOTHROW;
 
 
@@ -119,7 +121,7 @@ l4_timeout_s l4_timeout_rel(unsigned man, unsigned exp) L4_NOTHROW;
  * \param  rcv_man    Mantissa of receive timeout.
  * \param  rcv_exp    Exponent of receive timeout.
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_t l4_ipc_timeout(unsigned snd_man, unsigned snd_exp,
                             unsigned rcv_man, unsigned rcv_exp) L4_NOTHROW;
 
@@ -132,7 +134,7 @@ l4_timeout_t l4_ipc_timeout(unsigned snd_man, unsigned snd_exp,
  *
  * \return L4 timeout
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_t l4_timeout(l4_timeout_s snd, l4_timeout_s rcv) L4_NOTHROW;
 
 /**
@@ -142,7 +144,7 @@ l4_timeout_t l4_timeout(l4_timeout_s snd, l4_timeout_s rcv) L4_NOTHROW;
  * \param snd      Send timeout
  * \param[out] to  L4 timeout
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 void l4_snd_timeout(l4_timeout_s snd, l4_timeout_t *to) L4_NOTHROW;
 
 /**
@@ -152,7 +154,7 @@ void l4_snd_timeout(l4_timeout_s snd, l4_timeout_t *to) L4_NOTHROW;
  * \param      rcv    Receive timeout
  * \param[out] to     L4 timeout
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 void l4_rcv_timeout(l4_timeout_s rcv, l4_timeout_t *to) L4_NOTHROW;
 
 /**
@@ -163,7 +165,7 @@ void l4_rcv_timeout(l4_timeout_s rcv, l4_timeout_t *to) L4_NOTHROW;
  *
  * \return Clock value
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_kernel_clock_t l4_timeout_rel_get(l4_timeout_s to) L4_NOTHROW;
 
 
@@ -175,7 +177,7 @@ l4_kernel_clock_t l4_timeout_rel_get(l4_timeout_s to) L4_NOTHROW;
  *
  * \return != 0 if absolute, 0 if relative
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 unsigned l4_timeout_is_absolute(l4_timeout_s to) L4_NOTHROW;
 
 /**
@@ -187,7 +189,7 @@ unsigned l4_timeout_is_absolute(l4_timeout_s to) L4_NOTHROW;
  *
  * \return Clock sum
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTHROW;
 
 /**
@@ -197,56 +199,52 @@ l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTH
  *
  * \return Relative L4 timeout according to the specified waiting period.
  */
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW;
 
 /*
  * Implementation
  */
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_t l4_ipc_timeout(unsigned snd_man, unsigned snd_exp,
-    unsigned rcv_man, unsigned rcv_exp) L4_NOTHROW
+                            unsigned rcv_man, unsigned rcv_exp) L4_NOTHROW
 {
-  l4_timeout_t t;
-  t.p.snd.t = (snd_man & 0x3ff) | ((snd_exp << 10) & 0x7c00);
-  t.p.rcv.t = (rcv_man & 0x3ff) | ((rcv_exp << 10) & 0x7c00);
-  return t;
+  l4_uint16_t snd = (snd_man & 0x3ff) | ((snd_exp << 10) & 0x7c00);
+  l4_uint16_t rcv = (rcv_man & 0x3ff) | ((rcv_exp << 10) & 0x7c00);
+  return l4_timeout((l4_timeout_s){snd}, (l4_timeout_s){rcv});
 }
 
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_t l4_timeout(l4_timeout_s snd, l4_timeout_s rcv) L4_NOTHROW
 {
-  l4_timeout_t t;
-  t.p.snd = snd;
-  t.p.rcv = rcv;
-  return t;
+  return (l4_timeout_t){ ((l4_uint32_t){snd.t} << 16) | rcv.t };
 }
 
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 void l4_snd_timeout(l4_timeout_s snd, l4_timeout_t *to) L4_NOTHROW
 {
   to->p.snd = snd;
 }
 
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 void l4_rcv_timeout(l4_timeout_s rcv, l4_timeout_t *to) L4_NOTHROW
 {
   to->p.rcv = rcv;
 }
 
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_s l4_timeout_rel(unsigned man, unsigned exp) L4_NOTHROW
 {
   return (l4_timeout_s){(l4_uint16_t)((man & 0x3ff) | ((exp << 10) & 0x7c00))};
 }
 
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_kernel_clock_t l4_timeout_rel_get(l4_timeout_s to) L4_NOTHROW
 {
   if (to.t == 0)
@@ -255,14 +253,14 @@ l4_kernel_clock_t l4_timeout_rel_get(l4_timeout_s to) L4_NOTHROW
 }
 
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 unsigned l4_timeout_is_absolute(l4_timeout_s to) L4_NOTHROW
 {
   return to.t & 0x8000;
 }
 
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTHROW
 {
   if (l4_timeout_is_absolute(to))
@@ -271,21 +269,21 @@ l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTH
     return cur + l4_timeout_rel_get(to);
 }
 
-L4_INLINE
+L4_CONSTEXPR L4_INLINE
 l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
 {
   static_assert(sizeof(us) <= 4,
                 "Verify the correctness of log2(us) and the number of bits for e!");
-  l4_timeout_s t;
   if (us == 0)
-    t = L4_IPC_TIMEOUT_0;
+    return L4_IPC_TIMEOUT_0;
   else if (us == L4_TIMEOUT_US_NEVER)
-    t = L4_IPC_TIMEOUT_NEVER;
+    return L4_IPC_TIMEOUT_NEVER;
   else
     {
       /* Here it is certain that at least one bit in 'us' is set. */
 
-      unsigned m;
+      l4_uint16_t m = 0; // initialization required by constexpr, optimized away
+      l4_uint16_t v = 0; // initialization required by constexpr, optimized away
       int e = (31 - __builtin_clz(us)) - 9;
       if (e < 0)
         e = 0;
@@ -315,12 +313,14 @@ l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
        *    relative timeouts (see l4_timeout_is_absolute())
        *
        * That means 'e <= 31' and thus it's not possible to encode timeouts
-       * represented by 64-bit values.
-       */
+       * represented by 64-bit values. */
 
-      t.t = (e << 10) | m;
+      /* Without introducing 'v' we had to type-cast the expression to
+       * l4_uint16_t. This cannot be avoided by declaring m and e_pow_10 as
+       * l4_uint16_t due to C++ integer promotion. */
+      v = (e << 10) | m;
+      return (l4_timeout_s){v};
     }
-  return t;
 }
 
 #endif
