@@ -71,7 +71,6 @@ namespace Types {
     typedef Flags<BITS_ENUM, UNDERLYING> type;
 
   private:
-    struct Private_bool;
     value_type _v;
     explicit Flags(value_type v) : _v(v) {}
 
@@ -100,7 +99,7 @@ namespace Types {
      * Test_flags f = Do_strong_tests;
      * ~~~
      */
-    Flags(BITS_ENUM e) : _v(((value_type)1) << e) {}
+    Flags(BITS_ENUM e) : _v((value_type{1}) << e) {}
 
     /**
      * Make flags from a raw value of \a value_type.
@@ -110,8 +109,8 @@ namespace Types {
     static type from_raw(value_type v) { return type(v); }
 
     /// Support for `if (flags)` syntax (test for non-empty flags).
-    operator Private_bool * () const
-    { return _v != 0 ? (Private_bool *)1 : 0; }
+    explicit operator bool () const
+    { return _v != 0; }
 
     /// Support for `if (!flags)` syntax (test for empty flags).
     bool operator ! () const { return _v == 0; }

@@ -31,7 +31,7 @@ static void *mc_err_msg(long bytes, char const *msg)
 {
   L4::cout << "l4re_kernel: ERROR: more-mem(" << L4::hex << bytes << "): " << msg << ".\n";
   errno = ENOMEM;
-  return (void *)-1;
+  return reinterpret_cast<void *>(-1UL);
 }
 
 void *uclibc_morecore(long bytes)

@@ -46,7 +46,8 @@ extern void *__dso_handle __attribute__((weak));
 
 int atexit(void (*f)(void))
 {
-  return __cxa_atexit((void (*)(void*))f, 0, (!&__dso_handle)?0:__dso_handle);
+  void (*fct)(void *) = reinterpret_cast<void (*)(void*)>(f);
+  return __cxa_atexit(fct, 0, (!&__dso_handle) ? nullptr : __dso_handle);
 }
 
 void __cxa_finalize(void *dso_handle)

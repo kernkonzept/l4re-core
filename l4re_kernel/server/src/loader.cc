@@ -72,7 +72,8 @@ void unmap_stack_and_start()
   L4::Cap<Thread> self;
   chksys(self->ex_regs(~0UL, ~0UL, __loader_entry.ex_regs_flags),
          "change mode");
-  switch_stack(__loader_entry.stack, (void(*)())__loader_entry.entry);
+  switch_stack(__loader_entry.stack,
+               reinterpret_cast<void(*)()>(__loader_entry.entry));
 }
 
 }
@@ -174,7 +175,7 @@ L4Re_app_model::alloc_app_stack()
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_EAGER_MAP)
     flags |= L4Re::Rm::F::Eager_map;
 
-  void *_s = (void*)(_stack.target_addr());
+  void *_s = reinterpret_cast<void*>(_stack.target_addr());
   chksys(_rm->attach(&_s, _stack.stack_size(), flags,
                      L4::Ipc::make_cap_rw(stack), 0));
   _stack.set_target_stack(l4_addr_t(_s), _stack.stack_size());
@@ -266,9 +267,9 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
       return false;
     }
 
+  void *vma_start = reinterpret_cast<void *>(Mem_layout::Loader_vma_start);
   __loader_stack_p
-    = Global::local_rm->attach((void*)Mem_layout::Loader_vma_start,
-                               Loader_stack_size,
+    = Global::local_rm->attach(vma_start, Loader_stack_size,
                                Region_handler(__loader_stack,
                                               __loader_stack.cap(),
                                               0, L4Re::Rm::F::RW),
@@ -299,7 +300,9 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
       return false;
     }
 
-  l4_umword_t *sp = (l4_umword_t*)((char*)__loader_stack_p + Loader_stack_size);
+  char *stack_addr = reinterpret_cast<char *>(__loader_stack_p)
+                   + Loader_stack_size;
+  l4_umword_t *sp = reinterpret_cast<l4_umword_t *>(stack_addr);
 
   *(--sp) = 0;
 
@@ -311,8 +314,8 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
   __binary = bin;
 
   if (0)
-    L4::cout << "l4re: start file " << bin
-             << " entry=" << (void *)__loader_entry.entry << '\n';
+    L4::cout << "l4re: start file " << bin << " entry="
+             << reinterpret_cast<void *>(__loader_entry.entry) << '\n';
 
   Env *const env = const_cast<Env *>(Env::env());
 
@@ -334,14 +337,17 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
   Thread::Attr attr;
   attr.pager(__loader_entry.pager);
   attr.exc_handler(__loader_entry.pager);
-  attr.bind((l4_utcb_t*)env->first_free_utcb(), L4Re::This_task);
+  attr.bind(reinterpret_cast<l4_utcb_t*>(env->first_free_utcb()),
+            L4Re::This_task);
 
   env->first_free_utcb(env->first_free_utcb() + L4_UTCB_OFFSET);
 
   chksys(app_thread->control(attr), "setup app thread");
-  chksys(env->scheduler()->run_thread(app_thread, l4_sched_param(L4RE_MAIN_THREAD_PRIO)));
-  chksys(app_thread->ex_regs((unsigned long)&loader_thread,
-                             l4_align_stack_for_direct_fncall((unsigned long)__loader_stack_p), 0),
+  chksys(env->scheduler()->run_thread(app_thread,
+                                      l4_sched_param(L4RE_MAIN_THREAD_PRIO)));
+  unsigned long stack = reinterpret_cast<unsigned long>(__loader_stack_p);
+  chksys(app_thread->ex_regs(reinterpret_cast<unsigned long>(&loader_thread),
+                             l4_align_stack_for_direct_fncall(stack), 0),
                              "start app thread");
 
 
@@ -369,4 +375,3 @@ Loader::__start(Cap<Dataspace> bin, Region_map *)
 
   return true;
 }
-

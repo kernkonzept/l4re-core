@@ -99,7 +99,10 @@ typedef struct l4_sched_cpu_set_t
    * \param offset       Offset. Must be a multiple of 2^granularity.
    */
   void set(unsigned char granularity, unsigned offset)
-  { gran_offset = ((l4_umword_t)granularity << 24) | (offset & 0x00ffffff); }
+  {
+    gran_offset = (static_cast<l4_umword_t>(granularity) << 24)
+      | (offset & 0x00ffffff);
+  }
 #endif
 } l4_sched_cpu_set_t;
 

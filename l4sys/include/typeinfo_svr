@@ -33,8 +33,9 @@ long handle_meta_request(IOS &ios)
 {
   using L4::Ipc::Msg::dispatch_call;
   typedef L4::Ipc::Detail::Meta_svr<KO> Msvr;
-  l4_msgtag_t tag = dispatch_call<L4::Meta::Rpcs>((Msvr *)0, ios.ios_utcb(),
-                                                  ios.ios_tag(), 0);
+  typedef L4::Meta::Rpcs Rpcs;
+  Msvr *svr = static_cast<Msvr *>(nullptr);
+  l4_msgtag_t tag = dispatch_call<Rpcs>(svr, ios.ios_utcb(), ios.ios_tag(), 0);
   ios.set_ipc_params(tag);
   return tag.label();
 }

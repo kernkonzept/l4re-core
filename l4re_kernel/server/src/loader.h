@@ -26,7 +26,7 @@ private:
 
 public:
   void set_local_addr(l4_addr_t addr)
-  { sp = (char *)addr + _size; }
+  { sp = reinterpret_cast<char *>(addr) + _size; }
 
   void set_target_stack(l4_addr_t addr, l4_size_t size)
   { _addr = addr; _size = size; }
@@ -50,13 +50,13 @@ public:
 
   void align(unsigned long size)
   {
-    l4_addr_t p = l4_addr_t(sp);
+    l4_addr_t p = reinterpret_cast<l4_addr_t>(sp);
     unsigned bits;
     for (bits = 0; (1UL << bits) <= size; ++bits)
       ;
 
     p &= ~0UL << bits;
-    sp = (char *)p;
+    sp = reinterpret_cast<char *>(p);
   }
 
   char *ptr() const { return sp; }

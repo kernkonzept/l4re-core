@@ -89,9 +89,10 @@ static void insert_regions()
       for (int i = 0; i < n; ++i)
         {
           Rm::Region const *r = &rl[i];
-          auto pager = L4::cap_reinterpret_cast<L4Re::Dataspace>(Env::env()->rm());
+          auto pager = L4::cap_reinterpret_cast<L4Re::Dataspace>
+            (Env::env()->rm());
           void *x = Global::local_rm
-            ->attach((void*)r->start, r->end - r->start +1,
+            ->attach(reinterpret_cast<void*>(r->start), r->end - r->start + 1,
                      Region_handler(pager, L4_INVALID_CAP, 0,
                                     Rm::F::Pager | Rm::F::RWX), Rm::Flags(0));
           if (x == L4_INVALID_PTR)

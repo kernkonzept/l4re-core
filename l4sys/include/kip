@@ -90,10 +90,10 @@ namespace L4
       unsigned long _l, _h;
 
       static unsigned long &memory_info(void *kip) noexcept
-      { return *((unsigned long *)kip + 21); }
+      { return *(reinterpret_cast<unsigned long *>(kip) + 21); }
 
       static unsigned long memory_info(void const *kip) noexcept
-      { return *((unsigned long const *)kip + 21); }
+      { return *(reinterpret_cast<unsigned long const *>(kip) + 21); }
 
     public:
       /**
@@ -105,14 +105,15 @@ namespace L4
        */
       static Mem_desc *first(void *kip) noexcept
       {
-        return (Mem_desc *)((char *)kip
+        return reinterpret_cast<Mem_desc *>(reinterpret_cast<char *>(kip)
                + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8)));
       }
 
       static Mem_desc const *first(void const *kip) noexcept
       {
-        return (Mem_desc const *)((char const *)kip
-               + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8)));
+        char const *addr = reinterpret_cast<char const *>(kip)
+          + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8));
+        return reinterpret_cast<Mem_desc const *>(addr);
       }
 
       /**
@@ -204,7 +205,10 @@ namespace L4
        *
        * \return Type of the memory descriptor
        */
-      Mem_type type() const noexcept { return (Mem_type)(_l & 0x0f); }
+      Mem_type type() const noexcept
+      {
+        return static_cast<Mem_type>(_l & 0x0f);
+      }
 
       /**
        * Return sub-type of the memory descriptor.
