@@ -167,12 +167,6 @@ public:
       c.invalidate();
   }
 
-  static L4::Cap_base copy(L4::Cap_base const &src)
-  {
-    L4::Cap_base r = src;
-    invalidate(const_cast<L4::Cap_base &>(src));
-    return r;
-  }
 };
 
 /**
