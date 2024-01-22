@@ -171,7 +171,7 @@ public:
 
     friend constexpr Dataspace::Flags map_flags(Region_flags rf)
     {
-      return Dataspace::Flags((l4_uint16_t)rf & Ds_map_mask);
+      return Dataspace::Flags(static_cast<l4_uint16_t>(rf) & Ds_map_mask);
     }
 
     struct Flags : L4::Types::Flags_ops_t<Flags>
@@ -179,8 +179,8 @@ public:
       l4_uint32_t raw;
       Flags() = default;
       explicit constexpr Flags(l4_uint32_t f) : raw(f) {}
-      constexpr Flags(Attach_flags rf) : raw((l4_uint32_t)rf) {}
-      constexpr Flags(Region_flags rf) : raw((l4_uint32_t)rf) {}
+      constexpr Flags(Attach_flags rf) : raw(static_cast<l4_uint32_t>(rf)) {}
+      constexpr Flags(Region_flags rf) : raw(static_cast<l4_uint32_t>(rf)) {}
 
       friend constexpr Dataspace::Flags map_flags(Flags f)
       {
@@ -304,7 +304,10 @@ public:
   long reserve_area(T **start, unsigned long size,
                     Flags flags = Flags(0),
                     unsigned char align = L4_PAGESHIFT) const noexcept
-  { return reserve_area_t::call(c(), (l4_addr_t*)start, size, flags, align); }
+  {
+    return reserve_area_t::call(c(), reinterpret_cast<l4_addr_t*>(start), size,
+                                flags, align);
+  }
 
   /**
    * Free an area from the region map.
@@ -460,7 +463,7 @@ public:
       if (&o != this)
         {
           if (_rm.is_valid())
-            _rm->detach(l4_addr_t(_addr), 0);
+            _rm->detach(reinterpret_cast<l4_addr_t>(_addr), 0);
           _rm = o._rm;
           _addr = o.release();
         }
@@ -475,7 +478,7 @@ public:
     ~Unique_region() noexcept
     {
       if (_rm.is_valid())
-        _rm->detach(l4_addr_t(_addr), 0);
+        _rm->detach(reinterpret_cast<l4_addr_t>(_addr), 0);
     }
 
     /**
@@ -538,13 +541,13 @@ public:
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT) const noexcept
   {
-    l4_addr_t addr = (l4_addr_t)start->get();
+    l4_addr_t addr = reinterpret_cast<l4_addr_t>(start->get());
 
     long res = attach(&addr, size, flags, mem, offs, align);
     if (res < 0)
       return res;
 
-    start->reset((T)addr, L4::Cap<Rm>(cap()));
+    start->reset(reinterpret_cast<T>(addr), L4::Cap<Rm>(cap()));
     return res;
   }
 #endif
@@ -726,7 +729,10 @@ Rm::detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,
 inline int
 Rm::detach(void *addr, L4::Cap<Dataspace> *mem,
            L4::Cap<L4::Task> const &task) const noexcept
-{  return detach((l4_addr_t)addr, 1, mem, task, Detach_overlap); }
+{
+  return detach(reinterpret_cast<l4_addr_t>(addr), 1, mem, task,
+                Detach_overlap);
+}
 
 inline int
 Rm::detach(l4_addr_t addr, unsigned long size, L4::Cap<Dataspace> *mem,

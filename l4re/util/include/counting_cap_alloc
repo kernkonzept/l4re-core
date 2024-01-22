@@ -174,7 +174,7 @@ protected:
    */
   void setup(void *m, long capacity, long bias) noexcept
   {
-    _items = (Counter*)m;
+    _items = static_cast<Counter*>(m);
     _capacity = capacity;
     _bias = bias;
   }
@@ -335,4 +335,3 @@ private:
 };
 
 }}
-

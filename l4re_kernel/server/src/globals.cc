@@ -39,7 +39,7 @@ namespace Global
     while (*auxp)
       {
         if (*auxp == 0xf0)
-          l4re_aux = (l4re_aux_t*)auxp[1];
+          l4re_aux = reinterpret_cast<l4re_aux_t *>(auxp[1]);
         auxp += 2;
       }
 

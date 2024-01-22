@@ -148,8 +148,8 @@ public:
 
     int bind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);
     int unbind(ICU *, L4::Ipc::Snd_fpage const &irq_fp);
-    void mask(bool mask) const
-    { (void)mask; }
+    void mask(bool /*mask*/) const
+    { }
 
     int msi_info(l4_uint64_t, l4_icu_msi_info_t *) const
     { return -L4_EINVAL; }

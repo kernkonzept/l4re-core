@@ -38,9 +38,20 @@ struct Generic_va_type : B<T>
 
   static unsigned size(void const *) { return sizeof(T); }
 
-  static L4_varg_type unsigned_id() { return (L4_varg_type)(Id & ~L4_VARG_TYPE_SIGN); }
-  static L4_varg_type signed_id() { return (L4_varg_type)(Id | L4_VARG_TYPE_SIGN); }
-  static L4_varg_type id() { return (L4_varg_type)Id; }
+  static L4_varg_type unsigned_id()
+  {
+    return static_cast<L4_varg_type>(Id & ~L4_VARG_TYPE_SIGN);
+  }
+
+  static L4_varg_type signed_id()
+  {
+    return static_cast<L4_varg_type>(Id | L4_VARG_TYPE_SIGN);
+  }
+
+  static L4_varg_type id()
+  {
+    return static_cast<L4_varg_type>(Id);
+  }
 };
 
 template< typename T > struct Va_type_id;
@@ -87,7 +98,7 @@ template<> struct Va_type<char const *>
     return l;
   }
 
-  static Ret_value value(void const *d) { return (char const *)d; }
+  static Ret_value value(void const *d) { return static_cast<char const *>(d); }
 };
 
 /**
@@ -106,7 +117,7 @@ public:
   typedef l4_umword_t Tag;
 
   /// \return the type field of the tag
-  L4_varg_type type() const { return (L4_varg_type)(_tag & 0xff); }
+  L4_varg_type type() const { return static_cast<L4_varg_type>(_tag & 0xff); }
   /**
    * Get the size of the RPC argument
    * \return  The size of the RPC argument
@@ -138,8 +149,9 @@ public:
 #endif
 
   /// Make an indirect varg
-  Varg(L4_varg_type t, void const  *v, int len)
-  : _tag(t | ((l4_mword_t)len << 16)), _d((char const *)v)
+  Varg(L4_varg_type t, void const *v, int len)
+  : _tag(t | (static_cast<l4_mword_t>(len) << 16)),
+    _d(static_cast<char const *>(v))
   {}
 
   static Varg nil() { return Varg(L4_VARG_TYPE_NIL, 0, 0); }
@@ -196,7 +208,7 @@ public:
   {
     typedef Va_type<T> Vt;
     _tag = Vt::id() | (Vt::size(d) << 16);
-    _d = (char const *)d;
+    _d = static_cast<char const *>(d);
   }
 
   /// Set to directly stored value of type T

@@ -49,7 +49,9 @@ public:
 
     if (!(flags & Rm::F::Reserved))
       {
-        if (long r = rm()->validate_ds(static_cast<DERIVED*>(this)->server_iface(), ds_cap, flags.region_flags(), &ds))
+        if (long r = rm()->validate_ds
+            (static_cast<DERIVED*>(this)->server_iface(), ds_cap,
+             flags.region_flags(), &ds))
           return r;
       }
 
@@ -62,9 +64,9 @@ public:
     Rm::Region_flags r_flags = flags.region_flags();
     Rm::Attach_flags a_flags = flags.attach_flags();
 
-    start = l4_addr_t(rm()->attach((void*)start, size,
-                                   typename DERIVED::Region_handler(ds, client_cap_idx, offs, r_flags),
-                                   a_flags, align));
+    typename DERIVED::Region_handler handler(ds, client_cap_idx, offs, r_flags);
+    start = l4_addr_t(rm()->attach(reinterpret_cast<void*>(start), size,
+                                   handler, a_flags, align));
 
     if (start == L4_INVALID_ADDR)
       return -L4_EADDRNOTAVAIL;
@@ -124,7 +126,7 @@ public:
   {
     Region r;
     typename DERIVED::Region_handler h;
-    int err = rm()->detach((void*)addr, size, flags, &r, &h);
+    int err = rm()->detach(reinterpret_cast<void*>(addr), size, flags, &r, &h);
     if (err < 0)
       {
         start = rsize = mem_cap = 0;

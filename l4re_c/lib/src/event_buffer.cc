@@ -23,8 +23,9 @@ using L4Re::Util::Event_buffer_consumer;
 
 static inline Event_buffer_consumer *cast(l4re_event_buffer_consumer_t *e) noexcept
 {
-  (void)sizeof(char[sizeof(e->_obj_buf) - sizeof(Event_buffer_consumer)]);
-  return (Event_buffer_consumer *)e->_obj_buf;
+  static_assert(sizeof(e->_obj_buf) >= sizeof(Event_buffer_consumer),
+                "Argument event buffer too small");
+  return reinterpret_cast<Event_buffer_consumer *>(&e->_obj_buf);
 }
 
 inline void *operator new(size_t, void *a) noexcept { return a; }
@@ -68,7 +69,7 @@ l4re_event_buffer_consumer_foreach_available_event
 {
   typedef void Cb(L4Re::Event_buffer::Event*, void *);
 
-  Cb *_cb = (Cb*)cb;
+  Cb *_cb = reinterpret_cast<Cb*>(cb);
   cast(evbuf)->foreach_available_event(_cb, data);
 }
 
@@ -77,9 +78,11 @@ l4re_event_buffer_consumer_process(l4re_event_buffer_consumer_t *evbuf,
                                    l4_cap_idx_t irq, l4_cap_idx_t thread, void *data,
                                    l4re_event_buffer_cb_t *cb)
 {
+  typedef void Cb(L4Re::Event_buffer::Event*, void *);
+
   L4::Cap<L4::Irq> i(irq);
   L4::Cap<L4::Thread> t(thread);
-  void (*_cb)(L4Re::Event_buffer::Event*, void *)
-    = (void (*)(L4Re::Event_buffer::Event*, void *))cb;
+
+  Cb *_cb = reinterpret_cast<Cb*>(cb);
   cast(evbuf)->process(i, t, _cb, data);
 }

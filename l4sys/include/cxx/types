@@ -204,22 +204,22 @@ namespace Types {
    * This allows to use the enum type as bitmask type with '&',
    * '|', and '~' operators that keep the enum type as result.
    */
-#define L4_TYPES_FLAGS_OPS_DEF(T)                                 \
-    friend constexpr T operator ~ (T f)                           \
-    {                                                             \
-      return T(~((typename L4::Types::Int_for_type<T>::type)f));  \
-    }                                                             \
-                                                                  \
-    friend constexpr T operator | (T l, T r)                      \
-    {                                                             \
-      return T(((typename L4::Types::Int_for_type<T>::type)l)     \
-               | ((typename L4::Types::Int_for_type<T>::type)r)); \
-    }                                                             \
-                                                                  \
-    friend constexpr T operator & (T l, T r)                      \
-    {                                                             \
-      return T(((typename L4::Types::Int_for_type<T>::type)l)     \
-               & ((typename L4::Types::Int_for_type<T>::type)r)); \
+#define L4_TYPES_FLAGS_OPS_DEF(T)                                            \
+    friend constexpr T operator ~ (T f)                                      \
+    {                                                                        \
+      return T(~static_cast<typename L4::Types::Int_for_type<T>::type>(f));  \
+    }                                                                        \
+                                                                             \
+    friend constexpr T operator | (T l, T r)                                 \
+    {                                                                        \
+      return T(static_cast<typename L4::Types::Int_for_type<T>::type>(l)     \
+               | static_cast<typename L4::Types::Int_for_type<T>::type>(r)); \
+    }                                                                        \
+                                                                             \
+    friend constexpr T operator & (T l, T r)                                 \
+    {                                                                        \
+      return T(static_cast<typename L4::Types::Int_for_type<T>::type>(l)     \
+               & static_cast<typename L4::Types::Int_for_type<T>::type>(r)); \
     }
 
   /**

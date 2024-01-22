@@ -116,7 +116,7 @@ Dataspace_svr::clear(l4_addr_t offs, unsigned long ds_size) const noexcept
       unsigned long b_addr = _ds_start + offs;
       unsigned long b_sz = cxx::min(ds_size - offs, sz);
 
-      memset((void *)b_addr, 0, b_sz);
+      memset(reinterpret_cast<void *>(b_addr), 0, b_sz);
 
       offs += b_sz;
       sz -= b_sz;

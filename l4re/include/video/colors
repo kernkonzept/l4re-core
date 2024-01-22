@@ -73,8 +73,7 @@ public:
    */
   int get(unsigned long v) const
   {
-    return ((v >> (unsigned long)_shift)
-      & ~(~0UL << (unsigned long)_bits)) << (unsigned long)(16 - _bits);
+    return ((v >> _shift) & ~(~0UL << _bits)) << (16UL - _bits);
   }
 
   /**
@@ -83,7 +82,7 @@ public:
    * return Converted value.
    */
   long unsigned set(int v) const
-  { return (v >> (unsigned long)(16 - _bits)) << (unsigned long)_shift; }
+  { return (static_cast<unsigned long>(v) >> (16UL - _bits)) << _shift; }
 
   /**
    * \brief Dump information on the view information to a stream
@@ -92,7 +91,7 @@ public:
   template< typename OUT >
   void dump(OUT &s) const
   {
-    s.printf("%d(%d)", (int)size(), (int)shift());
+    s.printf("%d(%d)", static_cast<int>(size()), static_cast<int>(shift()));
   }
 } __attribute__((packed));
 
@@ -258,11 +257,11 @@ public:
   void dump(OUT &s) const
   {
     s.printf("RGBA(%d):%d(%d):%d(%d):%d(%d):%d(%d)",
-             (int)bytes_per_pixel(),
-             (int)r().size(), (int)r().shift(),
-             (int)g().size(), (int)g().shift(),
-             (int)b().size(), (int)b().shift(),
-             (int)a().size(), (int)a().shift());
+             static_cast<int>(bytes_per_pixel()),
+             static_cast<int>(r().size()), static_cast<int>(r().shift()),
+             static_cast<int>(g().size()), static_cast<int>(g().shift()),
+             static_cast<int>(b().size()), static_cast<int>(b().shift()),
+             static_cast<int>(a().size()), static_cast<int>(a().shift()));
   }
 };
 

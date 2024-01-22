@@ -301,8 +301,8 @@ public:
    * \param size     Size of buffer in bytes.
    */
   Event_buffer_t(void *buffer, l4_addr_t size)
-    : _current((Event*)buffer), _begin(_current),
-      _end(_begin + size / sizeof(Event))
+  : _current(static_cast<Event*>(buffer)), _begin(_current),
+    _end(_begin + size / sizeof(Event))
   { reset(); }
 
   /**
@@ -344,5 +344,3 @@ public:
 typedef Event_buffer_t<Default_event_payload> Event_buffer;
 
 }
-
-

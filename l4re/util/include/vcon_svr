@@ -60,19 +60,23 @@ public:
         if (tag.words() < 3)
           return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
 
-        this_vcon()->vcon_write((char const *)&m->mr[2], m->mr[1]);
+        this_vcon()->vcon_write(reinterpret_cast<char const *>(&m->mr[2]),
+                                m->mr[1]);
         return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
 
       case L4_VCON_SET_ATTR_OP:
-        if (tag.words() < 4)
-          return l4_msgtag(-L4_EINVAL, 0, 0, 0);
+        {
+          if (tag.words() < 4)
+            return l4_msgtag(-L4_EINVAL, 0, 0, 0);
 
-        return l4_msgtag(this_vcon()->vcon_set_attr((l4_vcon_attr_t const *)&m->mr[1]),
-                         0, 0, 0);
-
+          auto attr = reinterpret_cast<l4_vcon_attr_t const *>(&m->mr[1]);
+          return l4_msgtag(this_vcon()->vcon_set_attr(attr), 0, 0, 0);
+        }
       case L4_VCON_GET_ATTR_OP:
-        return l4_msgtag(this_vcon()->vcon_get_attr((l4_vcon_attr_t *)&m->mr[1]),
-                         4, 0, 0);
+        {
+          auto attr = reinterpret_cast<l4_vcon_attr_t *>(&m->mr[1]);
+          return l4_msgtag(this_vcon()->vcon_get_attr(attr), 4, 0, 0);
+        }
 
       default:
         break;

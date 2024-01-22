@@ -616,7 +616,8 @@ template <typename ...ARGS> struct _Part
   static int write(void *b, int offset, int limit,
                         typename _Elem<ARGS>::arg_type ...m) noexcept
   {
-    int r = Data::template write<DIR>((char *)b, offset, limit, m...);
+    char *buf = static_cast<char *>(b);
+    int r = Data::template write<DIR>(buf, offset, limit, m...);
     if (L4_LIKELY(r >= offset))
       return r - offset;
     return r;
@@ -626,7 +627,8 @@ template <typename ...ARGS> struct _Part
   static int read(void *b, int offset, int limit, long ret,
                        typename _Elem<ARGS>::arg_type ...m) noexcept
   {
-    int r = Data::template read<DIR>((char *)b, offset, limit, ret, m...);
+    char *buf = static_cast<char *>(b);
+    int r = Data::template read<DIR>(buf, offset, limit, ret, m...);
     if (L4_LIKELY(r >= offset))
       return r - offset;
     return r;
@@ -655,7 +657,8 @@ struct Part<R (ARGS...), void> : _Part<ARGS...>
                       int /*placeholder for op*/,
                       typename _Elem<ARGS>::arg_type ...m) noexcept
   {
-    int r = Data::template write<DIR>((char *)b, offset, limit, m...);
+    char *buf = static_cast<char *>(b);
+    int r = Data::template write<DIR>(buf, offset, limit, m...);
     if (L4_LIKELY(r >= offset))
       return r - offset;
     return r;
@@ -675,7 +678,8 @@ struct Part<R (ARGS...), OPCODE> : _Part<ARGS...>
   static int write_op(void *b, int offset, int limit,
                       opcode_type op, typename _Elem<ARGS>::arg_type ...m) noexcept
   {
-    int r = Data::template write<DIR>((char *)b, offset, limit, op, m...);
+    char *buf = static_cast<char *>(b);
+    int r = Data::template write<DIR>(buf, offset, limit, op, m...);
     if (L4_LIKELY(r >= offset))
       return r - offset;
     return r;
@@ -796,5 +800,3 @@ Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>::
 } // namespace Msg
 } // namespace Ipc
 } // namespace L4
-
-

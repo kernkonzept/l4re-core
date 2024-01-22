@@ -258,15 +258,15 @@ public:
       return L4_INVALID_PTR;
 
     l4_addr_t end = max_addr();
-    l4_addr_t beg = (l4_addr_t)addr;
+    l4_addr_t beg = reinterpret_cast<l4_addr_t>(addr);
 
     if (flags & L4Re::Rm::F::In_area)
       {
-	Node r = _am.find_node(Region(beg, beg + size - 1));
-	if (!r || (r->second.flags() & L4Re::Rm::F::Reserved))
-	  return L4_INVALID_PTR;
+        Node r = _am.find_node(Region(beg, beg + size - 1));
+        if (!r || (r->second.flags() & L4Re::Rm::F::Reserved))
+          return L4_INVALID_PTR;
 
-	end = r->first.end();
+        end = r->first.end();
       }
 
     if (flags & L4Re::Rm::F::Search_addr)
@@ -284,7 +284,7 @@ public:
       return L4_INVALID_PTR;
 
     if (_rm.insert(Region(beg, beg + size - 1), hdlr).second == 0)
-      return (void*)beg;
+      return reinterpret_cast<void*>(beg);
 
     return L4_INVALID_PTR;
   }
@@ -292,7 +292,8 @@ public:
   int detach(void *addr, unsigned long sz, unsigned flags,
              Region *reg, Hdlr *hdlr) noexcept
   {
-    Region dr((l4_addr_t)addr, (l4_addr_t)addr + sz - 1);
+    l4_addr_t a = reinterpret_cast<l4_addr_t>(addr);
+    Region dr(a, a + sz - 1);
     Region res(~0UL, 0);
 
     Node r = find(dr);
@@ -328,9 +329,9 @@ public:
           h.free(0, dr.end() + 1 - g.start());
 
         unsigned long sz = dr.end() + 1 - g.start();
-        Item *cn = const_cast<Item*>((Item const *)r);
-        cn->first = Region(dr.end() + 1, g.end());
-        cn->second = cn->second + sz;
+        Item &cn = const_cast<Item &>(*r);
+        cn.first = Region(dr.end() + 1, g.end());
+        cn.second = cn.second + sz;
         if (hdlr)
           *hdlr = Hdlr();
         if (reg)
@@ -348,8 +349,8 @@ public:
             && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
 
-        Item *cn = const_cast<Item*>((Item const*)r);
-        cn->first = Region(g.start(), dr.start() - 1);
+        Item &cn = const_cast<Item &>(*r);
+        cn.first = Region(g.start(), dr.start() - 1);
         if (hdlr)
           *hdlr = Hdlr();
         if (reg)
@@ -368,7 +369,8 @@ public:
           h.free(dr.start() - g.start(), dr.size());
 
         // first move the end off the existing region before the new one
-        const_cast<Item*>((Item const *)r)->first = Region(g.start(), dr.start()-1);
+        Item &cn = const_cast<Item &>(*r);
+        cn.first = Region(g.start(), dr.start()-1);
 
         int err;
 

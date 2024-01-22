@@ -307,7 +307,8 @@ namespace Typeid {
     static int f(THIS *self, long proto, A1 a1, A2 &a2)
     {
       if (I::Proto == proto)
-        return _f(self, a1, a2, Bool<I::Proto == (long)L4_PROTO_META>());
+        return _f(self, a1, a2,
+                  Bool<I::Proto == static_cast<long>(L4_PROTO_META)>());
 
       return _P_dispatch<typename LIST::type>::f(self, proto, a1, a2);
     }
@@ -884,7 +885,7 @@ public:
 
   // Provide non-ambiguous access of dec_refcnt()
   l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
-    noexcept(noexcept(((Base1*)0)->dec_refcnt(diff, utcb)))
+    noexcept(noexcept(static_cast<Base1*>(nullptr)->dec_refcnt(diff, utcb)))
   { return Base1::dec_refcnt(diff, utcb); }
 };
 
@@ -1000,7 +1001,7 @@ public:
 
   // Provide non-ambiguous access of dec_refcnt()
   l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
-    noexcept(noexcept(((Base1*)0)->dec_refcnt(diff, utcb)))
+    noexcept(noexcept(static_cast<Base1*>(nullptr)->dec_refcnt(diff, utcb)))
   { return Base1::dec_refcnt(diff, utcb); }
 };
 
@@ -1097,7 +1098,7 @@ namespace Typeid_xx {
   {
     static long test(Type_info::Demand const *);
     static char test(...);
-    enum { value = sizeof(test((T*)0)) == sizeof(long) };
+    enum { value = sizeof(test(static_cast<T*>(nullptr))) == sizeof(long) };
   };
 
   template< typename T, typename ... >
@@ -1148,7 +1149,8 @@ public:
 
   // Provide non-ambiguous access of dec_refcnt()
   l4_msgtag_t dec_refcnt(l4_mword_t diff, l4_utcb_t *utcb = l4_utcb())
-    noexcept(noexcept(((typename Base1<BASES...>::type *)0)->dec_refcnt(diff, utcb)))
+    noexcept(noexcept(static_cast<typename Base1<BASES...>::type *>(nullptr)
+                      ->dec_refcnt(diff, utcb)))
   { return Base1<BASES...>::type::dec_refcnt(diff, utcb); }
 };
 
@@ -1220,4 +1222,3 @@ struct Kobject_x<Derived, Proto_t<PROTO>, A, ARGS...> :
 
 #undef L4____GEN_TI
 #undef L4____GEN_TI_MEMBERS
-

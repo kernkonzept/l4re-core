@@ -465,7 +465,7 @@ struct _Dispatch<IFACE, Iface_list<I, LIST> >
     using L4::Ipc::Msg::dispatch_call;
     typedef L4::Meta::Rpcs Meta;
     typedef Meta_svr<IFACE> Msvr;
-    return dispatch_call<Meta>((Msvr *)0, utcb, tag, r);
+    return dispatch_call<Meta>(static_cast<Msvr *>(nullptr), utcb, tag, r);
   }
 
   // normal dispatch to the op_<func> methods of \a self.
@@ -483,7 +483,8 @@ struct _Dispatch<IFACE, Iface_list<I, LIST> >
                        l4_utcb_t *utcb)
   {
     if (I::Proto == tag.label())
-      return _f(self, tag, r, utcb, Bool<I::Proto == (long)L4_PROTO_META>());
+      return _f(self, tag, r, utcb,
+                Bool<I::Proto == static_cast<long>(L4_PROTO_META)>());
 
     return _Dispatch<IFACE, typename LIST::type>::f(self, tag, r, utcb);
   }
@@ -570,4 +571,3 @@ public:
 
 
 } // namespace L4
-

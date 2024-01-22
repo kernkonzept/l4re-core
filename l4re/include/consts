@@ -29,5 +29,5 @@
 
 namespace L4Re {
   static L4::Cap<L4::Task>::Cap_type const This_task
-    = (L4::Cap<L4::Task>::Cap_type)(L4RE_THIS_TASK_CAP);
+    = static_cast<L4::Cap<L4::Task>::Cap_type>(L4RE_THIS_TASK_CAP);
 }

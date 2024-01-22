@@ -288,7 +288,8 @@ public:
     // make sure unhandled ipc ends up with the null handler
     L4::Thread::Modify_senders todo;
     todo.add(~3UL, reinterpret_cast<l4_umword_t>(o),
-             ~0UL, reinterpret_cast<l4_umword_t>((L4::Epiface*)&_null_handler));
+             ~0UL, reinterpret_cast<l4_umword_t>
+                   (static_cast<L4::Epiface *>(&_null_handler)));
     _server->modify_senders(todo);
 
     // we use bit 4 to indicated an internally allocated cap

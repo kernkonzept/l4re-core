@@ -64,7 +64,8 @@ public:
     if (r < 0)
       return r;
 
-    *(L4Re::Event_buffer_t<PAYLOAD>*)this = L4Re::Event_buffer_t<PAYLOAD>(_buf, sz);
+    *static_cast<L4Re::Event_buffer_t<PAYLOAD> *>(this)
+      = L4Re::Event_buffer_t<PAYLOAD>(_buf, sz);
     return 0;
   }
 

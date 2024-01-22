@@ -161,13 +161,15 @@ struct Svr_arg_pack<R (ARGS...)> : Detail::Arg_pack<ARGS...>
   template<typename DIR>
   int get(void *msg, unsigned offset, unsigned limit)
   {
-    return Base::template get<DIR>((char *)msg, offset, limit);
+    char *buf = static_cast<char *>(msg);
+    return Base::template get<DIR>(buf, offset, limit);
   }
 
   template<typename DIR>
   int set(void *msg, unsigned offset, unsigned limit, long ret)
   {
-    return Base::template set<DIR>((char *)msg, offset, limit, ret);
+    char *buf = static_cast<char *>(msg);
+    return Base::template set<DIR>(buf, offset, limit, ret);
   }
 };
 
@@ -308,8 +310,8 @@ struct Dispatch_call
     OPCODE_TYPE op;
     unsigned limit = tag.words() * Word_bytes;
     typedef Svr_xmit<OPCODE_TYPE> S;
-    int err = S::to_svr((char *)l4_utcb_mr_u(utcb)->mr, 0, limit, op,
-                        Dir_in(), Cls_data());
+    int err = S::to_svr(reinterpret_cast<char *>(l4_utcb_mr_u(utcb)->mr), 0,
+                        limit, op, Dir_in(), Cls_data());
     if (L4_UNLIKELY(err < 0))
       return l4_msgtag(-L4_EMSGTOOSHORT, 0, 0, 0);
 
@@ -346,5 +348,3 @@ dispatch_call(OBJ *o, l4_utcb_t *utcb, l4_msgtag_t tag, unsigned rights, ARGS ..
 } // namespace Msg
 } // namesapce Ipc
 } // namespace L4
-
-
