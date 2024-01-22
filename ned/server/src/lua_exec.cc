@@ -526,7 +526,7 @@ static int exec(lua_State *l)
 
   am.set_task(app_task.get());
 
-  app_task->running();
+  app_task->running(app_task);
 
   am.launch_loader();
 

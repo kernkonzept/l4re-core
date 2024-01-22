@@ -84,8 +84,7 @@ App_task::handle_irq()
       reset();
       dispatch_exit_signal();
 
-      if (remove_ref() == 0)
-        delete this;
+      _self->reset();  // keep at end; might delete current instance
     }
 }
 
@@ -132,9 +131,9 @@ App_task::terminate()
   if (_state == Running)
     {
       _state = Zombie;
-      remove_ref(); // the caller of this method still holds a reference
       reset();
       dispatch_exit_signal();
+      _self->reset();  // keep at end; might delete current instance
     }
 }
 
