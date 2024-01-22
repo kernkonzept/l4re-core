@@ -1,4 +1,46 @@
-# TODO: Required for outline atomics (-moutline-atomics), currently not
-# supported on L4 as __getauxval(AT_HWCAP) always returns 0 indicating that the
-# required atomic operations are not available, so no point in adding the
-# outline atomics support code here in libgcc.
+# Out-of-line LSE atomics for AArch64 architecture.
+# Copyright (C) 2019-2023 Free Software Foundation, Inc.
+# Contributed by Linaro Ltd.
+#
+# This file is part of GCC.
+#
+# GCC is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3, or (at your option)
+# any later version.
+#
+# GCC is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with GCC; see the file COPYING3.  If not see
+# <http://www.gnu.org/licenses/>.
+
+# Build a LSE function from config/aarch64/lse.S.
+# 1: func
+# 2: size
+# 3: model
+define libgcc_lse_rule
+$(call libgcc_link_rule,lse_$1_$2_$3.S,$(LIBGCC_CONTRIB_SRC_DIR)/config/aarch64/lse.S)
+$(call libgcc_src,lse_$1_$2_$3.S,-DL_$1 -DSIZE=$2 -DMODEL=$3)
+endef
+
+# Compare-and-swap has 5 sizes and 5 memory models.
+$(foreach size, 1 2 4 8 16, \
+  $(foreach model, 1 2 3 4 5, \
+    $(eval $(call libgcc_lse_rule,cas,$(size),$(model))) \
+  ) \
+)
+
+# Swap, Load-and-operate have 4 sizes and 5 memory models.
+$(foreach func, swp ldadd ldclr ldeor ldset, \
+  $(foreach size, 1 2 4 8, \
+    $(foreach model, 1 2 3 4 5, \
+      $(eval $(call libgcc_lse_rule,$(func),$(size),$(model))) \
+    ) \
+  ) \
+)
+
+$(eval $(call libgcc_src,config/aarch64/lse-init.c,-Wno-prio-ctor-dtor))
