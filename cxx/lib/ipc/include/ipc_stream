@@ -760,16 +760,14 @@ public:
    */
   unsigned long tell() const
   {
-    unsigned w = (_pos + sizeof(l4_umword_t)-1) / sizeof(l4_umword_t);
-    w -= _current_item * 2;
+    unsigned w = l4_bytes_to_mwords(_pos) - _current_item * 2;
     _tag = l4_msgtag(0, w, _current_item, 0);
   }
 #endif
 public:
   l4_msgtag_t prepare_ipc(long proto = 0, unsigned flags = 0)
   {
-    unsigned w = (_pos + sizeof(l4_umword_t) - 1) / sizeof(l4_umword_t);
-    w -= _current_item * 2;
+    unsigned w = l4_bytes_to_mwords(_pos) - _current_item * 2;
     return l4_msgtag(proto, w, _current_item, flags);
   }
 
