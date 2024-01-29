@@ -45,6 +45,8 @@ namespace L4 {
  * L4::Thread::ex_regs() operation with the #L4_THREAD_EX_REGS_CANCEL
  * flag set.
  *
+ * A semaphore object is initialized with counter value 0.
+ *
  * The main reason for using a semaphore instead of an L4::Irq is to ensure
  * that incoming trigger signals do not interfere with any open-wait
  * operations, as used for example in a server loop.
