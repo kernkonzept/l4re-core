@@ -24,7 +24,8 @@
   int dispatch(unsigned rights, IOS &ios)                             \
   {                                                                   \
     typedef ::L4::Ipc::Detail::Dispatch<IFACE> Dispatch;              \
-    l4_msgtag_t r = Dispatch::f(this, ios.tag(), rights, ios.utcb()); \
+    l4_msgtag_t r =                                                   \
+      Dispatch::f(this, ios.ios_tag(), rights, ios.ios_utcb());       \
     ios.set_ipc_params(r);                                            \
     return r.label();                                                 \
   }                                                                   \
