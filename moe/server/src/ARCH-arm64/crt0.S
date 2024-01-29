@@ -35,7 +35,8 @@
  *	0x30	?		<number of PHDRs>
  *	0x38	NULL		(auxv termination)
  *
- * This is required for C++ exceptions to work in relocated (PIE) executables!
+ * This is required for C++ exceptions to work in relocated (PIE) executables
+ * and with libunwind (LLVM)!
  *
  * ATTENTION: the following code assumes that the executable starts directly
  * with the ELF header! For regularly loaded executables the aux vector is
@@ -59,7 +60,7 @@ _real_start:
 	mov	x17, #5			// AT_PHNUM
 	str	x17, [sp, #0x28]
 	ldurh	w17, [x16, #0x38]	// e_phnum
-	str	x17, [sp, 0x30]
+	str	x17, [sp, #0x30]
 
 	b	_start
 
