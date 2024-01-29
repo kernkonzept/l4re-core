@@ -76,7 +76,7 @@ public:
     return ios.prepare_ipc(r);
   }
 
-  Cap<Kobject> obj_cap() const
+  Cap<Kobject> srv_obj_cap() const
   { return cap_cast<Kobject>(Epiface::obj_cap()); }
 };
 
