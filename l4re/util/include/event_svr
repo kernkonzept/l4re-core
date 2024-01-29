@@ -77,7 +77,7 @@ public:
 
     info.length = 0;
 
-    Event_absinfo _info[naxes];
+    Event_absinfo _info[L4RE_ABS_MAX];
     int r = static_cast<SVR*>(this)->get_axis_info(id, naxes, axes.data, _info);
     if (r < 0)
       return r;
