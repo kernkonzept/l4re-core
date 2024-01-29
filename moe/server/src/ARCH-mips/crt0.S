@@ -26,7 +26,6 @@ _real_start:
 	/* Mind the argc that is popped off the stack! */
 	PTR_LA	$29, _stack_top-8
 	PTR_LA	$25, __start
-	PTR_SUBU  $29, (NARGSAVE * SZREG)
 	jalr $25
 	   nop
 1:
