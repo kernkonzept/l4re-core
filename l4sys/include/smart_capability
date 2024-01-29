@@ -71,17 +71,17 @@ public:
    */
   template< typename O >
   Smart_cap(Cap<O> const &p) noexcept : Cap_base(p.cap())
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   template< typename O >
   Smart_cap(Cap<O> const &p, SMART const &smart) noexcept
   : Cap_base(p.cap()), SMART(smart)
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   template< typename O >
   Smart_cap(Smart_cap<O, SMART> const &o) noexcept
   : Cap_base(SMART::copy(o)), SMART(o.smart())
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   Smart_cap(Smart_cap const &o) noexcept
   : Cap_base(SMART::copy(o)), SMART(o.smart())
@@ -89,7 +89,7 @@ public:
 
   template< typename O >
   Smart_cap(typename Cap<O>::Cap_type cap) noexcept : Cap_base(cap)
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   void operator = (typename Cap<T>::Cap_type cap) noexcept
   {
@@ -121,7 +121,7 @@ public:
   template< typename O >
   Smart_cap(Smart_cap<O, SMART> &&o) noexcept
   : Cap_base(o.release()), SMART(o.smart())
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   Smart_cap(Smart_cap &&o) noexcept
   : Cap_base(o.release()), SMART(o.smart())
@@ -166,17 +166,17 @@ public:
 
   template< typename O >
   Weak_cap(typename Cap<O>::Cap_type t) noexcept : Cap_base(t)
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   template< typename O, typename S >
   Weak_cap(Smart_cap<O, S> const &c) noexcept : Cap_base(c.cap())
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   Weak_cap(Weak_cap const &o) noexcept : Cap_base(o) {}
 
   template< typename O >
   Weak_cap(Weak_cap<O> const &o) noexcept : Cap_base(o)
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
 };
 
@@ -202,7 +202,7 @@ template< typename T, typename F, typename SMART >
 inline
 Smart_cap<T, SMART> cap_cast(Smart_cap<F, SMART> const &c) noexcept
 {
-  (void)static_cast<T const *>(reinterpret_cast<F const *>(100));
+  Cap<T>::template check_castable_from<F>();
   return Smart_cap<T, SMART>(Cap<T>(SMART::copy(c).cap()));
 }
 
@@ -226,4 +226,3 @@ Smart_cap<T, SMART> cap_reinterpret_cast(Smart_cap<F, SMART> const &c) noexcept
 
 
 }
-

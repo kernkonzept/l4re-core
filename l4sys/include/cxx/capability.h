@@ -237,12 +237,39 @@ private:
 public:
 
   /**
+   * Perform the type conversion that needs to compile in order for a capability
+   * of type From to be convertible to one of type T.
+   *
+   * \tparam From  Type to convert from
+   */
+  template< typename From >
+  static void check_convertible_from() noexcept
+  {
+    using To = T;
+    To* t = static_cast<From*>(nullptr);
+    static_cast<void>(t);
+  }
+
+  /**
+   * Perform the type conversion that needs to compile in order for a capability
+   * of type From te be castable (via the correct cap_cast) to one of type T.
+   *
+   * \tparam From  Type to convert from
+   */
+  template< typename From >
+  static void check_castable_from() noexcept
+  {
+    using To = T;
+    static_cast<void>(static_cast<To *>(static_cast<From *>(nullptr)));
+  }
+
+  /**
    * \brief Create a copy from `o`, supporting implicit type casting.
    * \param o  The source selector that shall be copied (and casted).
    */
   template< typename O >
   Cap(Cap<O> const &o) noexcept : Cap_base(o.cap())
-  { T* __t = ((O*)100); (void)__t; }
+  { check_convertible_from<O>(); }
 
   /**
    * Constructor to create an invalid capability selector.
@@ -332,6 +359,12 @@ public:
   explicit Cap(l4_cap_idx_t idx = L4_INVALID_CAP) noexcept : Cap_base(idx) {}
   explicit Cap(No_init_type) noexcept {}
 
+  template< typename From >
+  static void check_convertible_from() noexcept {}
+
+  template< typename From >
+  static void check_castable_from() noexcept {}
+
   /**
    * \brief Move a capability to this cap slot.
    * \param src the source capability slot.
@@ -378,7 +411,7 @@ template< typename T, typename F >
 inline
 Cap<T> cap_cast(Cap<F> const &c) noexcept
 {
-  (void)static_cast<T const *>(reinterpret_cast<F const *>(100));
+  Cap<T>::template check_castable_from<F>();
   return Cap<T>(c.cap());
 }
 

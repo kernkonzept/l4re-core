@@ -92,7 +92,7 @@ public:
   template<typename O>
   Unique_cap_impl(Unique_cap_impl<O, IMPL> &&o) noexcept
   : Base(o.release(), Base::impl(o))
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   Unique_cap_impl &operator = (Unique_cap_impl &&o) noexcept
   {
@@ -108,7 +108,7 @@ public:
   template<typename O>
   Unique_cap_impl &operator = (Unique_cap_impl<O, IMPL> &&o) noexcept
   {
-    T* __t = ((O*)100); (void)__t;
+    Cap<T>::template check_convertible_from<O>();
 
     IMPL::free(*this);
     this->_c = o.release().cap();
@@ -134,7 +134,7 @@ public:
   template<typename O>
   Shared_cap_impl(Shared_cap_impl<O, IMPL> &&o) noexcept
   : Base(o.release())
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   Shared_cap_impl &operator = (Shared_cap_impl &&o) noexcept
   {
@@ -150,7 +150,7 @@ public:
   template<typename O>
   Shared_cap_impl &operator = (Shared_cap_impl<O, IMPL> &&o) noexcept
   {
-    T* __t = ((O*)100); (void)__t;
+    Cap<T>::template check_convertible_from<O>();
 
     IMPL::free(*this);
     this->_c = o.release().cap();
@@ -165,7 +165,7 @@ public:
   template<typename O>
   Shared_cap_impl(Shared_cap_impl<O, IMPL> const &o) noexcept
   : Base(IMPL::copy(o))
-  { T* __t = ((O*)100); (void)__t; }
+  { Cap<T>::template check_convertible_from<O>(); }
 
   Shared_cap_impl &operator = (Shared_cap_impl const &o) noexcept
   {
@@ -181,7 +181,7 @@ public:
   template<typename O>
   Shared_cap_impl &operator = (Shared_cap_impl<O, IMPL> const &o) noexcept
   {
-    T* __t = ((O*)100); (void)__t;
+    Cap<T>::template check_convertible_from<O>();
     IMPL::free(*this);
     this->IMPL::operator = (static_cast<IMPL const &>(o));
     this->_c = this->IMPL::copy(o).cap();
