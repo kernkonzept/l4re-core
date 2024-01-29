@@ -22,7 +22,7 @@ ENTRY(start)
 	jne	1f
 	pop	%rdi		/* ptr to kernel info page is on init stack */
 1:
-	lea	_stack(%rip),%rsp	/* reset stack */
+	lea	_stack_top(%rip),%rsp
 
 #ifdef CONFIG_BID_PIE
 	movq %rdi, %r12                     /* save KIP ptr */
@@ -35,6 +35,9 @@ ENTRY(start)
 	movq %r12, %rdi                     /* restore KIP ptr */
 #endif
 
+	/* The x86_64 System V ABI requires the stack pointer to be 16-byte
+	 * aligned just before the call instruction is executed.
+	 * 'push' + 'jmp' emulate 'call'. */
 	lea	_exit(%rip),%rax
 	pushq	%rax
 	jmp	init@PLT
@@ -46,4 +49,4 @@ ENTRY(__main)
 
 	.balign	16
 	.space	4096
-ENTRY(_stack)
+_stack_top:

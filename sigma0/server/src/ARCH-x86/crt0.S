@@ -20,8 +20,12 @@ ENTRY(start)
 	jne 1f
 	popl	%ecx		/* ptr to kernel info page is on init stack */
 1:
-	leal	_stack,%esp	/* reset stack */
+	leal	_stack_top-12, %esp
 	pushl	%ecx		/* push args to init() */
+
+	/* The i386 System V ABI requires the stack pointer to be 16-byte
+	 * aligned just before the call instruction is executed.
+         * 'push' + 'jmp' emulate 'call'. */
 	pushl	$_exit
 	jmp	init
 
@@ -32,4 +36,4 @@ ENTRY(__main)
 
 	.balign	16
 	.space	2048
-ENTRY(_stack)
+_stack_top:
