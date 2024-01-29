@@ -24,9 +24,6 @@ template< typename T > class L4_EXPORT Cap;
  */
 class L4_EXPORT Cap_base
 {
-private:
-  struct Invalid_conversion;
-
 public:
   /// Special value for uninitialized capability objects.
   enum No_init_type
@@ -59,8 +56,8 @@ public:
    */
   bool is_valid() const noexcept { return !(_c & L4_INVALID_CAP_BIT); }
 
-  operator Invalid_conversion * () const noexcept
-  { return (Invalid_conversion*)(!(_c & L4_INVALID_CAP_BIT)); }
+  explicit operator bool () const noexcept
+  { return !(_c & L4_INVALID_CAP_BIT); }
 
   /**
    * Return flex-page for the capability.
