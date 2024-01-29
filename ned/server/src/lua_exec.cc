@@ -515,7 +515,7 @@ static int exec(lua_State *l)
   Am am(l);
   am.parse_cfg();
 
-  App_ptr app_task(new Lua_app_task(l, am.rm_fab()));
+  App_ptr app_task = cxx::make_ref_obj<Lua_app_task>(l, am.rm_fab());
 
   if (!app_task)
     {
