@@ -48,7 +48,9 @@ LIB1ASMFUNCS += _udivsi3 _divsi3 _umodsi3 _modsi3 _dvmd_tls _bb_init_func \
 
 # -- From libgcc/config/arm/t-bpabi ---
 # Prevent make from trying to build bpabi.S from bpabi.c via generic BID rules.
-$(LIBGCC_CONTRIB_DIR)/libgcc/config/arm/bpabi.S: ;
+# Match on any version in case old dependency info still points to
+# another/older version.
+$(LIBGCC_PKG_DIR)/contrib/gcc-%/libgcc/config/arm/bpabi.S: ;
 
 # Add the bpabi.S functions.
 LIB1ASMFUNCS += _aeabi_lcmp _aeabi_ulcmp _aeabi_ldivmod _aeabi_uldivmod
