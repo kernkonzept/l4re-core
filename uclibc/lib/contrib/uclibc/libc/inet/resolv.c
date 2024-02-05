@@ -2809,7 +2809,7 @@ libc_hidden_def(gethostbyaddr)
  * 'exp_dn' is a pointer to a buffer of size 'length' for the result.
  * Return size of compressed name or -1 if there was an error.
  */
-int dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
+int weak_function dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
 				char *dst, int dstsiz)
 {
 	int n = ns_name_uncompress(msg, eom, src, dst, (size_t)dstsiz);
@@ -2818,14 +2818,14 @@ int dn_expand(const u_char *msg, const u_char *eom, const u_char *src,
 		dst[0] = '\0';
 	return n;
 }
-libc_hidden_def(dn_expand)
+libc_hidden_weak(dn_expand)
 
 /*
  * Pack domain name 'exp_dn' in presentation form into 'comp_dn'.
  * Return the size of the compressed name or -1.
  * 'length' is the size of the array pointed to by 'comp_dn'.
  */
-int
+int weak_function
 dn_comp(const char *src, u_char *dst, int dstsiz,
 		u_char **dnptrs, u_char **lastdnptr)
 {
@@ -2833,7 +2833,7 @@ dn_comp(const char *src, u_char *dst, int dstsiz,
 			(const u_char **) dnptrs,
 			(const u_char **) lastdnptr);
 }
-libc_hidden_def(dn_comp)
+libc_hidden_weak(dn_comp)
 #endif /* L_res_comp */
 
 
@@ -2873,7 +2873,7 @@ static int special(int ch)
  * note:
  *      Root domain returns as "." not "".
  */
-int ns_name_uncompress(const u_char *msg, const u_char *eom,
+int weak_function ns_name_uncompress(const u_char *msg, const u_char *eom,
 		const u_char *src, char *dst, size_t dstsiz)
 {
 	u_char tmp[NS_MAXCDNAME];
@@ -2886,7 +2886,7 @@ int ns_name_uncompress(const u_char *msg, const u_char *eom,
 		return -1;
 	return n;
 }
-libc_hidden_def(ns_name_uncompress)
+libc_hidden_weak(ns_name_uncompress)
 
 /*
  * ns_name_ntop(src, dst, dstsiz)
@@ -2897,7 +2897,7 @@ libc_hidden_def(ns_name_uncompress)
  *      The root is returned as "."
  *      All other domains are returned in non absolute form
  */
-int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz)
+int weak_function ns_name_ntop(const u_char *src, char *dst, size_t dstsiz)
 {
 	const u_char *cp;
 	char *dn, *eom;
@@ -2967,7 +2967,7 @@ int ns_name_ntop(const u_char *src, char *dst, size_t dstsiz)
 	*dn++ = '\0';
 	return (dn - dst);
 }
-libc_hidden_def(ns_name_ntop)
+libc_hidden_weak(ns_name_ntop)
 
 static int encode_bitstring(const char **bp, const char *end,
 							unsigned char **labelp,
@@ -3081,7 +3081,7 @@ static int encode_bitstring(const char **bp, const char *end,
 	return 0;
 }
 
-int ns_name_pton(const char *src, u_char *dst, size_t dstsiz)
+int weak_function ns_name_pton(const char *src, u_char *dst, size_t dstsiz)
 {
 	static const char digits[] = "0123456789";
 	u_char *label, *bp, *eom;
@@ -3202,7 +3202,7 @@ int ns_name_pton(const char *src, u_char *dst, size_t dstsiz)
 	errno = EMSGSIZE;
 	return -1;
 }
-libc_hidden_def(ns_name_pton)
+libc_hidden_weak(ns_name_pton)
 
 /*
  * __hnbad(dotted)
@@ -3218,7 +3218,7 @@ libc_hidden_def(ns_name_pton)
  * return:
  *	0 if the name is ok
  */
-int __hnbad(const char *dotted)
+int weak_function __hnbad(const char *dotted)
 {
 	unsigned char c, n, *cp;
 	unsigned char buf[NS_MAXCDNAME];
@@ -3255,7 +3255,7 @@ int __hnbad(const char *dotted)
  * return:
  *      -1 if it fails, or consumed octets if it succeeds.
  */
-int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
+int weak_function ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
                u_char *dst, size_t dstsiz)
 {
 	const u_char *srcp, *dstlim;
@@ -3322,7 +3322,7 @@ int ns_name_unpack(const u_char *msg, const u_char *eom, const u_char *src,
 		len = srcp - src;
 	return len;
 }
-libc_hidden_def(ns_name_unpack)
+libc_hidden_weak(ns_name_unpack)
 
 static int labellen(const unsigned char *lp)
 {
@@ -3416,7 +3416,7 @@ next:
 	return -1;
 }
 
-int ns_name_pack(const unsigned char *src,
+int weak_function ns_name_pack(const unsigned char *src,
 				 unsigned char *dst, int dstsiz,
 				 const unsigned char **dnptrs,
 				 const unsigned char **lastdnptr)
@@ -3525,9 +3525,9 @@ cleanup:
 
 	return dstp - dst;
 }
-libc_hidden_def(ns_name_pack)
+libc_hidden_weak(ns_name_pack)
 
-int ns_name_compress(const char *src,
+int weak_function ns_name_compress(const char *src,
 					 unsigned char *dst, size_t dstsiz,
 					 const unsigned char **dnptrs,
 					 const unsigned char **lastdnptr)
@@ -3539,9 +3539,9 @@ int ns_name_compress(const char *src,
 
 	return ns_name_pack(tmp, dst, dstsiz, dnptrs, lastdnptr);
 }
-libc_hidden_def(ns_name_compress)
+libc_hidden_weak(ns_name_compress)
 
-int ns_name_skip(const unsigned char **ptrptr,
+int weak_function ns_name_skip(const unsigned char **ptrptr,
 				 const unsigned char *eom)
 {
 	const unsigned char *cp;
@@ -3583,9 +3583,9 @@ int ns_name_skip(const unsigned char **ptrptr,
 
 	return 0;
 }
-libc_hidden_def(ns_name_skip)
+libc_hidden_weak(ns_name_skip)
 
-int dn_skipname(const unsigned char *ptr, const unsigned char *eom)
+int weak_function dn_skipname(const unsigned char *ptr, const unsigned char *eom)
 {
 	const unsigned char *saveptr = ptr;
 
@@ -3594,7 +3594,7 @@ int dn_skipname(const unsigned char *ptr, const unsigned char *eom)
 
 	return ptr - saveptr;
 }
-libc_hidden_def(dn_skipname)
+libc_hidden_weak(dn_skipname)
 #endif /* L_ns_name */
 
 

@@ -5,4 +5,6 @@
  */
 
 #define L_encodeq
+#define L_ns_name
+#define L_res_comp
 #include RESOLVER
