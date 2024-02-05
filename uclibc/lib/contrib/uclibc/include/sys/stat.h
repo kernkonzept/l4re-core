@@ -117,7 +117,8 @@ __BEGIN_DECLS
 # ifdef __S_IFLNK
 #  define S_IFLNK	__S_IFLNK
 # endif
-# if (defined __USE_BSD || defined __USE_MISC || defined __USE_UNIX98) \
+# if (defined __USE_BSD || defined __USE_MISC || defined __USE_UNIX98 \
+      || defined __USE_XOPEN2K) \
      && defined __S_IFSOCK
 #  define S_IFSOCK	__S_IFSOCK
 # endif
@@ -142,7 +143,7 @@ __BEGIN_DECLS
 # define S_ISLNK(mode)  0
 #endif
 
-#if (defined __USE_BSD || defined __USE_UNIX98) \
+#if (defined __USE_BSD || defined __USE_UNIX98 || defined __USE_XOPEN2K) \
     && defined __S_IFSOCK
 # define S_ISSOCK(mode) __S_ISTYPE((mode), __S_IFSOCK)
 #endif
