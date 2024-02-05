@@ -137,6 +137,7 @@ PRIVATE_INCDIR_c++98/strstream.cc  += $(STDCXX_CONTRIB_DIR)/include/backward
 
 CXXFLAGS_c++11/hashtable_c++0x.cc  += -fimplicit-templates
 
+CXXFLAGS        += -std=c++14
 CXXFLAGS        += $(if $(filter c++17/%,$@),-std=gnu++17 -fimplicit-templates)
 CXXFLAGS        += $(if $(filter c++11/%,$@),-std=gnu++11)
 CXXFLAGS        += $(if $(filter c++98/%,$@),-std=gnu++98)
