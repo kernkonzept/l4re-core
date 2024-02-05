@@ -61,7 +61,7 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
 	  int ret = _s->read(buf, len);
 
 	  // BS: what is this ??
-	  if (ret > (int)len)
+          if (ret > static_cast<int>(len))
 	    ret = len;
 
 	  if (ret < 0)
