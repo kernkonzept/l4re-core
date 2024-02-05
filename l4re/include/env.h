@@ -69,7 +69,7 @@ typedef struct l4re_env_cap_entry_t
   /**
    * Create an invalid entry.
    */
-  l4re_env_cap_entry_t() L4_NOTHROW : cap(L4_INVALID_CAP), flags(~0) {}
+  l4re_env_cap_entry_t() L4_NOTHROW : cap(L4_INVALID_CAP), flags(~0UL) {}
 
   /**
    * Create an entry with the name \a n, capability \a c, and flags \a f.
