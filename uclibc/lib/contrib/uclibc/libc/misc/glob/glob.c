@@ -628,6 +628,7 @@ glob (
   filename = strrchr (pattern, '/');
   if (filename == NULL)
     {
+#if defined ENABLE_GLOB_TILDE_EXPANSION
       /* This can mean two things: a simple name or "~name".  The latter
 	 case is nothing but a notation for a directory.  */
       if ((flags & (GLOB_TILDE|GLOB_TILDE_CHECK)) && pattern[0] == '~')
@@ -646,6 +647,11 @@ glob (
 	  dirname = ".";
 	  dirlen = 0;
 	}
+#else
+      filename = pattern;
+      dirname = ".";
+      dirlen = 0;
+#endif
     }
   else if (filename == pattern)
     {
