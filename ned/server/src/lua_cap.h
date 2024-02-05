@@ -142,7 +142,7 @@ register_cap(lua_State *l, char const *name, L4::Cap<void> i, long proto = 0);
 inline
 Cap *
 check_cap(lua_State *l, int idx)
-{ return (Cap*)luaL_checkudata(l, idx, CAP_TYPE); }
+{ return reinterpret_cast<Cap*>(luaL_checkudata(l, idx, CAP_TYPE)); }
 
 void get_cap_cast_table(lua_State *l);
 

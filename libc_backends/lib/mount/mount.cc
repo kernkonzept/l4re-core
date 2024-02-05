@@ -41,7 +41,7 @@ struct String
   }
 
   bool empty() const { return !(_e - _s); }
-  const char *dupnultermstr() const
+  char *dupnultermstr() const
   { return strndup(s(), l()); }
 
   const char *_s, *_e, *_p;
@@ -87,10 +87,10 @@ static void parse_fstab_line(const char *fn, int line_nr,
       return;
     }
 
-  const char *s1 = from.dupnultermstr();
-  const char *s2 = mountpoint.dupnultermstr();
-  const char *s3 = fsname.dupnultermstr();
-  const char *s5 = data.dupnultermstr();
+  char *s1 = from.dupnultermstr();
+  char *s2 = mountpoint.dupnultermstr();
+  char *s3 = fsname.dupnultermstr();
+  char *s5 = data.dupnultermstr();
   if (s1 && s2 && s3 && s5)
     {
       int r = mount(s1, *s2 == '/' ? s2 + 1 : s2, s3, 0, s5);
@@ -104,10 +104,10 @@ static void parse_fstab_line(const char *fn, int line_nr,
     }
   else
     fprintf(stderr, "libmount: %s.%d: memory allocation error\n", fn, line_nr);
-  free((void *)s5);
-  free((void *)s3);
-  free((void *)s2);
-  free((void *)s1);
+  free(s5);
+  free(s3);
+  free(s2);
+  free(s1);
 }
 
 static void parse_fstab(const char *fn, char *fstab, size_t sz)
@@ -157,14 +157,16 @@ static void libmount_init()
       return;
     }
 
-  char *fstab = (char *)mmap(0, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
-  if (fstab == MAP_FAILED)
+  void *fstab_mem = mmap(0, st.st_size, PROT_READ, MAP_SHARED, fd, 0);
+  if (fstab_mem == MAP_FAILED)
     {
       if (verbose)
         printf("libmount: Could not mmap '%s'.\n", fstab_path);
       close(fd);
       return;
     }
+
+  char *fstab = reinterpret_cast<char *>(fstab_mem);
 
   parse_fstab(fstab_path, fstab, st.st_size);
 

@@ -72,9 +72,11 @@ namespace Vfs_config {
   {
     if (!_dl_open)
       {
-        _dl_open = (Dl_open*)_dl_find_hash("dlopen", _dl_symbol_tables, NULL, ELF_RTYPE_CLASS_PLT, NULL);
-	if (!_dl_open)
-	  return -1;
+        char *open = _dl_find_hash("dlopen", _dl_symbol_tables, NULL,
+                                   ELF_RTYPE_CLASS_PLT, NULL);
+        _dl_open = reinterpret_cast<Dl_open*>(open);
+        if (!_dl_open)
+          return -1;
       }
 
     if (fstype[0] == '\0')

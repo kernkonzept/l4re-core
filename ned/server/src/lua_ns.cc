@@ -30,7 +30,7 @@ __lookup(lua_State *l)
   char const *s = lua_tolstring(l, lua_upvalueindex(2), &len);
   Cap *_ns = Lua::check_cap(l, lua_upvalueindex(1));
   L4_cap_fpage_rights rights
-    = (L4_cap_fpage_rights)lua_tointeger(l, lua_upvalueindex(3));
+    = static_cast<L4_cap_fpage_rights>(lua_tointeger(l, lua_upvalueindex(3)));
 
   L4::Cap<L4Re::Namespace> ns(_ns->cap<L4Re::Namespace>().get());
 

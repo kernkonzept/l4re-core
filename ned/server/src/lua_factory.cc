@@ -58,7 +58,8 @@ __alloc(lua_State *l)
   for (int i = 3; i <= argc; ++i)
     {
       if (lua_isnumber(l, i))
-        args[i-3] = L4::Ipc::Varg((l4_mword_t)luaL_checkinteger(l, i));
+        args[i-3] = L4::Ipc::Varg(static_cast<l4_mword_t>
+                                  (luaL_checkinteger(l, i)));
       else if (lua_isstring(l, i))
         args[i-3] = L4::Ipc::Varg(luaL_checkstring(l, i));
       else if (lua_isnil(l, i))

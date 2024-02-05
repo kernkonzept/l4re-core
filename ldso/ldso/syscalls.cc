@@ -123,7 +123,7 @@ L4RE_CALL(int _dl_write(int fd, char const *str, size_t len))
 
   struct iovec v;
   v.iov_len = len;
-  v.iov_base = (char*)str;
+  v.iov_base = const_cast<char*>(str);
 
   if (len <= 0)
     return 0;
@@ -136,7 +136,7 @@ L4RE_CALL(int _dl_write(int fd, char const *str, size_t len))
 
 L4RE_CALL(int _dl_mprotect(void const *addr, size_t len, int prot))
 {
-  return L4RE_VFS->mprotect((void *)addr, len, prot);
+  return L4RE_VFS->mprotect(addr, len, prot);
 }
 
 

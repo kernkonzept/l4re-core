@@ -162,7 +162,7 @@ private:
         return R_cap();
       }
 
-    Cap *c = (Cap *)luaL_testudata(_lua, -1, Lua::CAP_TYPE);
+    Cap *c = reinterpret_cast<Cap *>(luaL_testudata(_lua, -1, Lua::CAP_TYPE));
     if (!c)
       {
         lua_pop(_lua, 1);
@@ -363,7 +363,8 @@ typedef cxx::Ref_ptr<Lua_app_task> App_ptr;
 static
 App_ptr &check_at(lua_State *l, int i)
 {
-  App_ptr *t = (App_ptr*)luaL_checkudata(l, i, APP_TASK_TYPE);
+  App_ptr *t = reinterpret_cast<App_ptr*>
+    (luaL_checkudata(l, i, APP_TASK_TYPE));
   return *t;
 }
 

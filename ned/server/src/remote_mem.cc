@@ -21,6 +21,5 @@ Stack::set_stack(L4Re::Util::Ref_cap<L4Re::Dataspace>::Cap const &ds, unsigned s
                                               0),
                "attaching stack vma");
   _stack_ds = ds;
-  set_local_top((char*)(_vma.get() + size));
+  set_local_top(_vma.get() + size);
 }
-

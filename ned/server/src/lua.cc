@@ -109,7 +109,8 @@ public:
   {
     if (luaL_loadbuffer(_lua, cmd.data, cmd.length - 1, "argument"))
       {
-        fprintf(stderr, "lua couldn't parse '%.*s': %s.\n", (int)cmd.length - 1,
+        fprintf(stderr, "lua couldn't parse '%.*s': %s.\n",
+                static_cast<int>(cmd.length) - 1,
                 cmd.data, lua_tostring(_lua, -1));
         lua_pop(_lua, 1);
 
@@ -124,7 +125,8 @@ public:
         if (lua_istable(_lua, -1))
           lua_getfield(_lua, -1, "msg");
 
-        fprintf(stderr, "lua couldn't execute '%.*s': %s.\n", (int)cmd.length - 1,
+        fprintf(stderr, "lua couldn't execute '%.*s': %s.\n",
+                static_cast<int>(cmd.length) - 1,
                 cmd.data, lua_tostring(_lua, -1));
         lua_pop(_lua, 1);
 
