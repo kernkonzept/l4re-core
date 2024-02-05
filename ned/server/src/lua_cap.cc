@@ -77,10 +77,13 @@ tostring(lua_State *l)
     }
 
   if (n->cap<void>().is_valid())
-    lua_pushfstring(l, "L4::Cap<%s>[%lx] r=%x f=%x", type,
-                    (n->cap<void>().cap()), n->all_rights(), n->flags());
+    lua_pushfstring(l, "L4::Cap<%s>[%p] r=%p f=%p", type,
+                    reinterpret_cast<void *>(n->cap<void>().cap()),
+                    reinterpret_cast<void* >(static_cast<l4_addr_t>(n->all_rights())),
+                    reinterpret_cast<void* >(static_cast<l4_addr_t>(n->flags())));
   else
     lua_pushfstring(l, "L4::Cap<%s>::Invalid", type);
+
   return 1;
 }
 
