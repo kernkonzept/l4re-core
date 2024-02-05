@@ -22,8 +22,7 @@
 namespace cxx {
 
 /**
- * \ingroup cxx_api
- * \brief Basic bitmap abstraction.
+ * Basic bitmap abstraction.
  *
  * This abstraction keeps a pointer to a memory area that is used as bitmap.
  */
@@ -31,7 +30,7 @@ class Bitmap_base
 {
 protected:
   /**
-   * \brief Data type for each element of the bit buffer.
+   * Data type for each element of the bit buffer.
    */
   typedef unsigned long word_type;
 
@@ -42,26 +41,30 @@ protected:
   };
 
   /**
-   * \brief Pointer to the buffer storing the bits.
+   * Pointer to the buffer storing the bits.
    */
   word_type *_bits;
 
   /**
-   * \brief Get the word index for the given bit.
-   * \param bit the index of the bit in question.
+   * Get the word index for the given bit.
+   *
+   * \param bit  The index of the bit in question.
+   *
    * \return the index in Bitmap_base::_bits for the given bit (bit / W_bits).
    */
   static unsigned word_index(unsigned bit) { return bit / W_bits; }
 
   /**
-   * \brief Get the bit index within word_type for the given bit.
-   * \param bit the bit index in the bitmap.
+   * Get the bit index within word_type for the given bit.
+   *
+   * \param bit  The bit index in the bitmap.
+   *
    * \return the bit index within word_type (bit % W_bits).
    */
   static unsigned bit_index(unsigned bit) { return bit % W_bits; }
 
   /**
-   * \brief A writeable bit in a bitmap.
+   * A writeable bit in a bitmap.
    */
   class Bit
   {
@@ -77,12 +80,12 @@ protected:
 public:
   explicit Bitmap_base(void *bits) noexcept : _bits(reinterpret_cast<word_type *>(bits)) {}
 
-  /** \brief Get the number of \a Words that are used for the bitmap. */
+  /** Get the number of `Words` that are used for the bitmap. */
   static long words(long bits) noexcept { return (bits + W_bits -1) / W_bits; }
   static long bit_buffer_bytes(long bits) noexcept
   { return words(bits) * W_bits / 8; }
 
-  /** \brief Helper abstraction for a word contained in the bitmap. */
+  /** Helper abstraction for a word contained in the bitmap. */
   template< long BITS >
   class Word
   {
@@ -94,11 +97,11 @@ public:
     };
   };
 
-  /** \brief Get the number of chars that are used for the bitmap. */
+  /** Get the number of chars that are used for the bitmap. */
   static long chars(long bits) noexcept
   { return (bits + C_bits -1) / C_bits; }
 
-  /** \brief Helper abstraction for a byte contained in the bitmap. */
+  /** Helper abstraction for a byte contained in the bitmap. */
   template< long BITS >
   class Char
   {
@@ -111,42 +114,53 @@ public:
   };
 
   /**
-   * \brief Set the value of bit \a bit to \a on.
-   * \param bit the number of the bit
-   * \param on  the boolean value that shall be assigned to the bit.
+   * Set the value of bit `bit` to `on`.
+   *
+   * \param bit  The number of the bit.
+   * \param on   The boolean value that shall be assigned to the bit.
    */
   void bit(long bit, bool on) noexcept;
 
   /**
-   * \brief Clear bit \a bit.
-   * \param bit the number of the bit to clear.
+   * Clear bit `bit`.
+   *
+   * \param bit  The number of the bit to clear.
    */
   void clear_bit(long bit) noexcept;
   /**
-   * \brief Set bit \a bit.
-   * \param bit the number of the bit to set,
+   * Set bit `bit`.
+   *
+   * \param bit  The number of the bit to set.
    */
   void set_bit(long bit) noexcept;
 
   /**
-   * \brief Get the truth value of a bit.
-   * \param bit the number of the bit to read.
-   * \return 0 if \a bit is not set, != 0 if \a bit is set.
+   * Get the truth value of a bit.
+   *
+   * \param bit  The number of the bit to read.
+   *
+   * \retval 0     Bit is not set.
+   * \retval != 0  Bit is set.
    */
   word_type bit(long bit) const noexcept;
 
   /**
-   * \brief Get the bit at index \a bit.
-   * \param bit the number of the bit to read.
-   * \return 0 if \a bit is not set, != 0 if \a bit is set.
+   * Get the bit at index `bit`.
+   *
+   * \param bit  The number of the bit to read.
+   *
+   * \retval 0     Bit is not set.
+   * \retval != 0  Bit is set.
    */
   word_type operator [] (long bit) const noexcept
   { return this->bit(bit); }
 
   /**
-   * \brief Get the lvalue for the bit at index \a bit.
-   * \param bit the number.
-   * \return lvalue for \a bit
+   * Get the lvalue for the bit at index `bit`.
+   *
+   * \param bit  The number.
+   *
+   * \return lvalue for `bit`
    */
   Bit operator [] (long bit) noexcept
   { return Bit(this, bit); }
@@ -172,9 +186,9 @@ protected:
 
 
 /**
- * \ingroup cxx_api
- * \brief A static bit map.
- * \param BITS the number of bits that shall be in the bitmap.
+ * A static bitmap.
+ *
+ * \tparam BITS  The number of bits that shall be in the bitmap.
  */
 template<int BITS>
 class Bitmap : public Bitmap_base
@@ -183,7 +197,7 @@ private:
   char _bits[Bitmap_base::Char<BITS>::Size];
 
 public:
-  /** \brief Create a bitmap with \a BITS bits. */
+  /** Create a bitmap with `BITS` bits. */
   Bitmap() noexcept : Bitmap_base(_bits) {}
   Bitmap(Bitmap<BITS> const &o) noexcept : Bitmap_base(_bits)
   { __builtin_memcpy(_bits, o._bits, sizeof(_bits)); }
