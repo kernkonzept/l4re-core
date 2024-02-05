@@ -218,7 +218,8 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind, int flags,
 			    /* Give up now. */
 			    return -1;
 		    } else
-			fd = 0;
+			/* File already exists, so return with non-zero value */
+			return -1;
 		}
 	    case __GT_FILE:
 		fd = open (tmpl, O_RDWR | O_CREAT | O_EXCL | flags, mode);
