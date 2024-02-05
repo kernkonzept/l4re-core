@@ -365,7 +365,7 @@ Mem_man::morecore()
   Region a = Region::bs(l4_round_page(n->end() - L4_PAGESIZE - 1),
                         L4_PAGESIZE, sigma0_taskno);
 
-  Page_alloc_base::free((void*)a.start());
+  Page_alloc_base::free(reinterpret_cast<void*>(a.start()));
 
   alloc_from(n, a);
 

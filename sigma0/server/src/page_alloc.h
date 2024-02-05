@@ -42,14 +42,14 @@ class Page_alloc : public Page_alloc_base
 public:
   enum { can_free = 1 };
   T *alloc()
-  { return (T *)_alloc.alloc(L4_PAGESIZE,L4_PAGESIZE); }
+  { return static_cast<T *>(_alloc.alloc(L4_PAGESIZE,L4_PAGESIZE)); }
 
   void free(T *b)
   { _alloc.free(b, L4_PAGESIZE); }
 };
 
 template< typename Type >
-class Slab_alloc 
+class Slab_alloc
 : public cxx::Slab_static<Type, L4_PAGESIZE, 2, Page_alloc>
 {};
 

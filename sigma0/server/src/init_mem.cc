@@ -72,8 +72,8 @@ init_memory(l4_kernel_info_t *info)
           if (!iomem.reserve(Region(start, end, sigma0_taskno, L4_FPAGE_RW))
               || !Mem_man::ram()->reserve(
                    Region(start, end, root_taskno,
-                          (L4_fpage_rights)(md.sub_type()
-                                            & L4_FPAGE_RIGHTS_MASK))))
+                          static_cast<L4_fpage_rights>(md.sub_type()
+                                                       & L4_FPAGE_RIGHTS_MASK))))
             mismatch = Region(start, end, root_taskno);
           break;
         case Mem_desc::Info:

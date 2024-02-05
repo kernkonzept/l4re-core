@@ -48,7 +48,8 @@ void dump_all()
 static
 void map_kip(Answer *a)
 {
-  a->snd_fpage((l4_umword_t) l4_info, L4_LOG2_PAGESIZE, L4_FPAGE_RX, true);
+  a->snd_fpage(reinterpret_cast<l4_umword_t>(l4_info), L4_LOG2_PAGESIZE,
+               L4_FPAGE_RX, true);
 }
 
 static
@@ -178,7 +179,7 @@ handle_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 static
 void handle_service_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 {
-  if ((long)l4_utcb_mr_u(utcb)->mr[0] != L4_PROTO_SIGMA0)
+  if (static_cast<long>(l4_utcb_mr_u(utcb)->mr[0]) != L4_PROTO_SIGMA0)
     {
       answer->error(L4_ENODEV);
       return;
@@ -189,13 +190,14 @@ void handle_service_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 static
 void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 {
-  if (!SIGMA0_IS_MAGIC_REQ(l4_utcb_mr_u(utcb)->mr[0]))
+  l4_msg_regs_t const *const m = l4_utcb_mr_u(utcb);
+  if (!SIGMA0_IS_MAGIC_REQ(m->mr[0]))
     {
       answer->error(L4_ENOSYS);
       return;
     }
 
-  switch (l4_utcb_mr_u(utcb)->mr[0] & SIGMA0_REQ_ID_MASK)
+  switch (m->mr[0] & SIGMA0_REQ_ID_MASK)
     {
     case SIGMA0_REQ_ID_DEBUG_DUMP:
         {
@@ -218,20 +220,19 @@ void handle_sigma0_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
         }
       break;
     case SIGMA0_REQ_ID_FPAGE_RAM:
-      map_mem((l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[1], Ram, t, answer);
+      map_mem(l4_fpage_t{m->mr[1]}, Ram, t, answer);
       break;
     case SIGMA0_REQ_ID_FPAGE_IOMEM:
-      map_mem((l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[1], Io_mem, t, answer);
+      map_mem(l4_fpage_t{m->mr[1]}, Io_mem, t, answer);
       break;
     case SIGMA0_REQ_ID_FPAGE_IOMEM_CACHED:
-      map_mem((l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[1], Io_mem_cached, t, answer);
+      map_mem(l4_fpage_t{m->mr[1]}, Io_mem_cached, t, answer);
       break;
     case SIGMA0_REQ_ID_KIP:
       map_kip(answer);
       break;
     case SIGMA0_REQ_ID_FPAGE_ANY:
-      map_free_page(l4_fpage_size(*(l4_fpage_t*)(&l4_utcb_mr_u(utcb)->mr[1])),
-                    t, answer);
+      map_free_page(l4_fpage_size(l4_fpage_t{m->mr[1]}), t, answer);
       break;
     default:
       answer->error(L4_ENOSYS);
