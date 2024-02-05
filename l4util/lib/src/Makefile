@@ -25,9 +25,9 @@ ARCH-x86/perform.o ARCH-x86/perform.s.o: ARCH-x86/pmc_events.h
 ARCH-x86/pmc_events.h: pmc_events.in
 	@$(GEN_MESSAGE)
 	$(VERBOSE)$(MKDIR) $(dir $@)
-	$(VERBOSE)sort < $^ > $(OBJ_DIR)/$(^F).sorted || rm $(OBJ_DIR)/$(^F).sorted
+	$(VERBOSE)sort < $^ > $(^F).sorted || rm $(^F).sorted
 	$(VERBOSE)echo "/* created automatically from $^, do not edit */" > $@
-	$(VERBOSE)awk '/^[0-9a-fA-F][0-9a-fA-F].*/{print "{0x"toupper($$1)", \""$$2"\"},"}' < $(OBJ_DIR)/$(^F).sorted >> $@ || rm $@
-	$(VERBOSE)rm $(OBJ_DIR)/$(^F).sorted
+	$(VERBOSE)awk '/^[0-9a-fA-F][0-9a-fA-F].*/{print "{0x"toupper($$1)", \""$$2"\"},"}' < $(^F).sorted >> $@ || rm $@
+	$(VERBOSE)rm $(^F).sorted
 
 vpath pmc_events.in $(SRC_DIR)/ARCH-x86
