@@ -112,10 +112,7 @@ l4_touch_rw(const void *addr, unsigned size) L4_NOTHROW
   e = l4_trunc_page((l4_addr_t)addr + size - 1);
 
   for (; b <= e; b += L4_PAGESIZE)
-    {
-      char x = *(volatile char *)b;
-      *(volatile char *)b = x;
-    }
+    *(volatile char *)b |= 0;
 }
 
 EXTERN_C_END
