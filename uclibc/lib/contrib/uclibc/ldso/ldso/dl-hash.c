@@ -221,11 +221,11 @@ _dl_lookup_gnu_hash(struct elf_resolve *tpnt, ElfW(Sym) *symtab, unsigned long h
 
 	const ElfW(Addr) *bitmask = tpnt->l_gnu_bitmask;
 
+	_dl_assert (bitmask != NULL);
 	ElfW(Addr) bitmask_word	= bitmask[(hash / __ELF_NATIVE_CLASS) & tpnt->l_gnu_bitmask_idxbits];
 
 	unsigned int hashbit1 = hash & (__ELF_NATIVE_CLASS - 1);
 	unsigned int hashbit2 = ((hash >> tpnt->l_gnu_shift) & (__ELF_NATIVE_CLASS - 1));
-	_dl_assert (bitmask != NULL);
 
 	if (unlikely((bitmask_word >> hashbit1) & (bitmask_word >> hashbit2) & 1)) {
 		unsigned long rem;

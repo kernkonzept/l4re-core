@@ -75,9 +75,13 @@ static off_t bb_get_chunk_with_continuation(parser_t* parsr)
 			else
 				break;
 		} else if (parsr->allocated) {
+			char *new_data;
 			parsr->line_len += PAGE_SIZE;
-			parsr->data = realloc(parsr->data,
+			new_data = realloc(parsr->data,
 								   parsr->data_len + parsr->line_len);
+			if (!new_data)
+				return -1;
+			parsr->data = new_data;
 			parsr->line = parsr->data + parsr->data_len;
 		} else {
 			/* discard rest of line if not enough space in buffer */
