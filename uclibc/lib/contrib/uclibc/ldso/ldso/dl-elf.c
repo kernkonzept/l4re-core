@@ -1032,6 +1032,11 @@ int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int now_flag)
 		return goof;
 	}
 
+#if !defined(__FDPIC__)
+	/* Process DT_RELR relative relocations */
+	DL_RELOCATE_RELR(tpnt);
+#endif
+
 	reloc_size = tpnt->dynamic_info[DT_RELOC_TABLE_SIZE];
 /* On some machines, notably SPARC & PPC, DT_REL* includes DT_JMPREL in its
    range.  Note that according to the ELF spec, this is completely legal! */

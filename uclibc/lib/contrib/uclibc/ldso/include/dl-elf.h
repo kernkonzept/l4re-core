@@ -248,5 +248,46 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 		    (((X) & PF_W) ? PROT_WRITE : 0) | \
 		    (((X) & PF_X) ? PROT_EXEC : 0))
 
+/* FDPIC ABI don't use relative relocations */
+#if !defined(__FDPIC__)
+/* Apply relocations in DT_RELR format */
+#define DL_DO_RELOCATE_RELR(load_addr, relr_start, relr_end) \
+		do { \
+			const ElfW(Relr) *relr = 0; \
+			ElfW(Addr) *reloc_addr = 0; \
+			for (relr = relr_start; relr < relr_end; relr++) { \
+				ElfW(Relr) relr_entry = *relr; \
+				if (!(relr_entry & 1)) \
+				{ \
+					reloc_addr = (ElfW(Addr) *)DL_RELOC_ADDR(load_addr, relr_entry); \
+					*reloc_addr = (ElfW(Addr))DL_RELOC_ADDR(load_addr, reloc_addr); \
+					reloc_addr++; \
+				} \
+				else \
+				{ \
+					for (long int i = 0; (relr_entry >>= 1) != 0; ++i) { \
+						if ((relr_entry & 1) != 0) \
+							reloc_addr[i] = (ElfW(Addr))DL_RELOC_ADDR(load_addr, reloc_addr[i]); \
+					} \
+					reloc_addr += CHAR_BIT * sizeof(ElfW(Relr)) - 1; \
+				} \
+			} \
+		} while (0);
+
+/* The macro to prepare data for the above DL_DO_RELOCATE_RELR */
+#define DL_RELOCATE_RELR(dyn) \
+		do { \
+			if (dyn->dynamic_info[DT_RELRENT]) \
+				_dl_assert(dyn->dynamic_info[DT_RELRENT] == sizeof(ElfW(Relr))); \
+			if (dyn->dynamic_info[DT_RELR] && \
+				dyn->dynamic_info[DT_RELRSZ]) { \
+				ElfW(Relr) *relr_start = (ElfW(Relr) *)((ElfW(Addr))dyn->loadaddr + (ElfW(Addr))dyn->dynamic_info[DT_RELR]); \
+				ElfW(Relr) *relr_end = (ElfW(Relr) *)((const char *)relr_start + dyn->dynamic_info[DT_RELRSZ]); \
+				_dl_if_debug_dprint("Relocating DT_RELR in %s: start:%p, end:%p\n", \
+						    dyn->libname, (void *)relr_start, (void *)relr_end); \
+				DL_DO_RELOCATE_RELR(dyn->loadaddr, relr_start, relr_end); \
+			} \
+		} while (0);
+#endif /* __FDPIC__ */
 
 #endif /* _DL_ELF_H */

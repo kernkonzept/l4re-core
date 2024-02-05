@@ -53,6 +53,9 @@ reloc_static_pie(ElfW(Addr) load_addr)
 	PERFORM_BOOTSTRAP_GOT(tpnt);
 #endif
 
+#if !defined(__FDPIC__)
+    DL_RELOCATE_RELR(tpnt);
+#endif
 
 #if defined(ELF_MACHINE_PLTREL_OVERLAP)
 # define INDX_MAX 1

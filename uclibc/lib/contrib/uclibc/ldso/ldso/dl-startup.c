@@ -298,6 +298,11 @@ DL_START(unsigned long args)
 	   that once we are done, we have considerably more flexibility. */
 	SEND_EARLY_STDERR_DEBUG("About to do library loader relocations\n");
 
+#if !defined(__FDPIC__)
+	/* Process DT_RELR relative relocations */
+	DL_RELOCATE_RELR(tpnt);
+#endif
+
 	{
 		int indx;
 #if defined(ELF_MACHINE_PLTREL_OVERLAP)
