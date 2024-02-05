@@ -18,6 +18,7 @@
 
 #include <l4/re/env>
 #include <l4/sys/factory>
+#include <l4/cxx/minmax>
 
 #include "vcon_stream.h"
 
@@ -58,11 +59,11 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
 
       while (1)
         {
-          int ret = _s->read(buf, len);
+	  int l = cxx::min<int>(L4_VCON_READ_SIZE, len);
+          int ret = _s->read(buf, l);
 
-          // BS: what is this ??
-          if (ret > static_cast<int>(len))
-            ret = len;
+          if (ret > l)
+            ret = l;
 
           if (ret < 0)
             return ret;
@@ -71,7 +72,7 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
               if (bytes)
                 return bytes;
 
-              ret = _s->read(buf, len);
+              ret = _s->read(buf, l);
               if (ret < 0)
                 return ret;
               else if (ret == 0)
