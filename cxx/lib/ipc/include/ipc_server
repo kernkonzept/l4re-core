@@ -71,7 +71,7 @@ public:
   l4_msgtag_t dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb) override
   {
     L4::Ipc::Iostream ios(utcb);
-    ios.ios_tag() = tag;
+    ios.tag() = tag;
     int r = dispatch(rights, ios);
     return ios.prepare_ipc(r);
   }

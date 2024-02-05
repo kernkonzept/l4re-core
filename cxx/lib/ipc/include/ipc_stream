@@ -813,9 +813,10 @@ public:
   : Istream(utcb), Ostream(utcb)
   {}
 
-  l4_msgtag_t ios_tag() const { return Istream::tag(); }
-  l4_msgtag_t &ios_tag() { return Istream::tag(); }
-  l4_utcb_t *ios_utcb() const { return Istream::utcb(); }
+  // disambiguate those functions
+  l4_msgtag_t tag() const { return Istream::tag(); }
+  l4_msgtag_t &tag() { return Istream::tag(); }
+  l4_utcb_t *utcb() const { return Istream::utcb(); }
 
   /**
    * Reset the stream to its initial state.
