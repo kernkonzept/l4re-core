@@ -600,7 +600,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
             outstring(", flags = 0x");
             outhex32(flags);
             outstring(", offset = 0x");
-            outhex32(_offset);
+            outhex32(page4k_offset);
             outstring("\n");
   });
 
