@@ -51,43 +51,43 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
   for (; iovcnt > 0; --iovcnt, ++iovec)
     {
       if (iovec->iov_len == 0)
-	continue;
+        continue;
 
       char *buf = static_cast<char *>(iovec->iov_base);
       size_t len = iovec->iov_len;
 
       while (1)
-	{
-	  int ret = _s->read(buf, len);
+        {
+          int ret = _s->read(buf, len);
 
-	  // BS: what is this ??
+          // BS: what is this ??
           if (ret > static_cast<int>(len))
-	    ret = len;
+            ret = len;
 
-	  if (ret < 0)
-	    return ret;
-	  else if (ret == 0)
-	    {
-	      if (bytes)
-		return bytes;
+          if (ret < 0)
+            return ret;
+          else if (ret == 0)
+            {
+              if (bytes)
+                return bytes;
 
-	      ret = _s->read(buf, len);
-	      if (ret < 0)
-		return ret;
-	      else if (ret == 0)
-		{
-		  _irq->down();
-		  continue;
-		}
-	    }
+              ret = _s->read(buf, len);
+              if (ret < 0)
+                return ret;
+              else if (ret == 0)
+                {
+                  _irq->down();
+                  continue;
+                }
+            }
 
-	  bytes += ret;
-	  len   -= ret;
-	  buf   += ret;
+          bytes += ret;
+          len   -= ret;
+          buf   += ret;
 
-	  if (len == 0)
-	    break;
-	}
+          if (len == 0)
+            break;
+        }
     }
 
   return bytes;
@@ -137,13 +137,13 @@ Vcon_stream::ioctl(unsigned long request, va_list args) noexcept
 {
   switch (request) {
     case TCGETS:
-	{
-	  //vt100_tcgetattr(term, (struct termios *)argp);
+        {
+          //vt100_tcgetattr(term, (struct termios *)argp);
 
-	  struct termios *t = va_arg(args, struct termios *);
+          struct termios *t = va_arg(args, struct termios *);
 
-	  l4_vcon_attr_t l4a;
-	  if (!l4_error(_s->get_attr(&l4a)))
+          l4_vcon_attr_t l4a;
+          if (!l4_error(_s->get_attr(&l4a)))
             {
               t->c_iflag = l4a.i_flags;
               t->c_oflag = l4a.o_flags; // output flags
@@ -153,46 +153,46 @@ Vcon_stream::ioctl(unsigned long request, va_list args) noexcept
           else
             t->c_iflag = t->c_oflag = t->c_cflag = t->c_lflag = 0;
 #if 0
-	  //t->c_lflag |= ECHO; // if term->echo
-	  t->c_lflag |= ICANON; // if term->term_mode == VT100MODE_COOKED
+          //t->c_lflag |= ECHO; // if term->echo
+          t->c_lflag |= ICANON; // if term->term_mode == VT100MODE_COOKED
 #endif
 
-	  t->c_cc[VEOF]   = CEOF;
-	  t->c_cc[VEOL]   = _POSIX_VDISABLE;
-	  t->c_cc[VEOL2]  = _POSIX_VDISABLE;
-	  t->c_cc[VERASE] = CERASE;
-	  t->c_cc[VWERASE]= CWERASE;
-	  t->c_cc[VKILL]  = CKILL;
-	  t->c_cc[VREPRINT]=CREPRINT;
-	  t->c_cc[VINTR]  = CINTR;
-	  t->c_cc[VQUIT]  = _POSIX_VDISABLE;
-	  t->c_cc[VSUSP]  = CSUSP;
-	  t->c_cc[VSTART] = CSTART;
-	  t->c_cc[VSTOP] = CSTOP;
-	  t->c_cc[VLNEXT] = CLNEXT;
-	  t->c_cc[VDISCARD]=CDISCARD;
-	  t->c_cc[VMIN] = CMIN;
-	  t->c_cc[VTIME] = 0;
+          t->c_cc[VEOF]     = CEOF;
+          t->c_cc[VEOL]     = _POSIX_VDISABLE;
+          t->c_cc[VEOL2]    = _POSIX_VDISABLE;
+          t->c_cc[VERASE]   = CERASE;
+          t->c_cc[VWERASE]  = CWERASE;
+          t->c_cc[VKILL]    = CKILL;
+          t->c_cc[VREPRINT] = CREPRINT;
+          t->c_cc[VINTR]    = CINTR;
+          t->c_cc[VQUIT]    = _POSIX_VDISABLE;
+          t->c_cc[VSUSP]    = CSUSP;
+          t->c_cc[VSTART]   = CSTART;
+          t->c_cc[VSTOP]    = CSTOP;
+          t->c_cc[VLNEXT]   = CLNEXT;
+          t->c_cc[VDISCARD] = CDISCARD;
+          t->c_cc[VMIN]     = CMIN;
+          t->c_cc[VTIME]    = 0;
 
-	}
+        }
 
       return 0;
 
     case TCSETS:
     case TCSETSW:
     case TCSETSF:
-	{
-	  //vt100_tcsetattr(term, (struct termios *)argp);
-	  struct termios const *t = va_arg(args, struct termios const *);
+        {
+          //vt100_tcsetattr(term, (struct termios *)argp);
+          struct termios const *t = va_arg(args, struct termios const *);
 
-	  // XXX: well, we're cheating, get this from the other side!
+          // XXX: well, we're cheating, get this from the other side!
 
-	  l4_vcon_attr_t l4a;
-	  l4a.i_flags = t->c_iflag;
-	  l4a.o_flags = t->c_oflag; // output flags
-	  l4a.l_flags = t->c_lflag; // local flags
-	  _s->set_attr(&l4a);
-	}
+          l4_vcon_attr_t l4a;
+          l4a.i_flags = t->c_iflag;
+          l4a.o_flags = t->c_oflag; // output flags
+          l4a.l_flags = t->c_lflag; // local flags
+          _s->set_attr(&l4a);
+        }
       return 0;
 
     default:
