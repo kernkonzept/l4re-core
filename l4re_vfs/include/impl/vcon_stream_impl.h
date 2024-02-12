@@ -59,10 +59,10 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
 
       while (1)
         {
-	  int l = cxx::min<int>(L4_VCON_READ_SIZE, len);
+          size_t l = cxx::min<size_t>(L4_VCON_READ_SIZE, len);
           int ret = _s->read(buf, l);
 
-          if (ret > l)
+          if (ret > static_cast<int>(l))
             ret = l;
 
           if (ret < 0)
