@@ -70,6 +70,7 @@ int getnetent_r(struct netent *result_buf,
 	char **tok = NULL;
 	const size_t aliaslen = sizeof(char *) * MAXTOKENS;
 	int ret = ERANGE;
+	(void)h_errnop;
 
 	*result = NULL;
 	if (buflen < aliaslen
@@ -148,6 +149,7 @@ int getnetbyname_r(const char *name,
 {
 	register char **cp;
 	int ret, herrnop;
+	(void)h_errnop;
 
 	__UCLIBC_MUTEX_LOCK(mylock);
 	setnetent(net_stayopen);
@@ -182,6 +184,7 @@ int getnetbyaddr_r(uint32_t net, int type,
 					int *h_errnop)
 {
 	int ret, herrnop;
+	(void)h_errnop;
 
 	__UCLIBC_MUTEX_LOCK(mylock);
 	setnetent(net_stayopen);

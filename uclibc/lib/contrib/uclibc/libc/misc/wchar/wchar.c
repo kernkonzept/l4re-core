@@ -804,6 +804,7 @@ size_t wcsnrtombs(char *__restrict dst, const wchar_t **__restrict src,
 	size_t count;
 	int incr;
 	char buf[MB_LEN_MAX];
+	(void)ps;
 
 #ifdef __CTYPE_HAS_UTF_8_LOCALES
 	if (ENCODING == __ctype_encoding_utf8) {

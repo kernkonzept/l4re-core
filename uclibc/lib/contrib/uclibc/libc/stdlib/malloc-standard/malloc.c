@@ -176,6 +176,7 @@ void __do_check_remalloced_chunk(mchunkptr p, size_t s)
     size_t sz = p->size & ~PREV_INUSE;
 #endif
 
+    (void)s;
     __do_check_inuse_chunk(p);
 
     /* Legal size ... */

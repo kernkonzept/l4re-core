@@ -86,7 +86,7 @@ void internal_function _dl_aux_init (ElfW(auxv_t) *av);
  * in or linker will disregard these weaks.
  */
 
-static int __pthread_return_0 (pthread_mutex_t *unused) { return 0; }
+static int __pthread_return_0 (pthread_mutex_t *unused) { (void)unused; return 0; }
 weak_alias (__pthread_return_0, __pthread_mutex_lock)
 weak_alias (__pthread_return_0, __pthread_mutex_trylock)
 weak_alias (__pthread_return_0, __pthread_mutex_unlock)
@@ -94,6 +94,7 @@ weak_alias (__pthread_return_0, __pthread_mutex_unlock)
 int weak_function
 __pthread_mutex_init(pthread_mutex_t *mutex, const pthread_mutexattr_t *attr)
 {
+        (void)mutex; (void)attr;
         return 0;
 }
 
