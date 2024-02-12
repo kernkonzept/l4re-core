@@ -23,7 +23,6 @@
 #include <cstring>
 #include <cstddef>
 #include <l4/sys/types.h>
-#include <l4/cxx/list>
 #include <l4/cxx/minmax>
 #include <l4/re/dataspace>
 #include <l4/re/dataspace-sys.h>
@@ -70,7 +69,65 @@ public:
           Dataspace::Flags flags,
           Dataspace::Map_addr min_addr,
           Dataspace::Map_addr max_addr,
-          L4::Ipc::Snd_fpage &memory);
+          L4::Ipc::Snd_fpage &memory)
+  {
+    memory = L4::Ipc::Snd_fpage();
+
+    offset     = l4_trunc_page(offset);
+    local_addr = l4_trunc_page(local_addr);
+
+    if (!check_limit(offset))
+      {
+#if 0
+        printf("limit failed: off=%lx sz=%lx\n", offset, size());
+#endif
+        return -L4_ERANGE;
+      }
+
+    min_addr = l4_trunc_page(min_addr);
+    max_addr = l4_round_page(max_addr);
+
+    l4_addr_t addr = _ds_start + offset;
+    unsigned char order = L4_PAGESHIFT;
+
+    while (order < 30 /* limit to 1GB flexpage */)
+      {
+        l4_addr_t map_base = l4_trunc_size(addr, order + 1);
+        if (map_base < _ds_start)
+          break;
+
+        if (map_base + (1UL << (order + 1)) -1 > (_ds_start + round_size() - 1))
+          break;
+
+        map_base = l4_trunc_size(local_addr, order + 1);
+        if (map_base < min_addr)
+          break;
+
+        if (map_base + (1UL << (order + 1)) -1 > max_addr -1)
+          break;
+
+        l4_addr_t mask = ~(~0UL << (order + 1));
+        if (local_addr == ~0UL || ((addr ^ local_addr) & mask))
+          break;
+
+        ++order;
+      }
+
+    l4_addr_t map_base = l4_trunc_size(addr, order);
+
+    Dataspace::Map_addr b = map_base;
+    unsigned send_order = order;
+    int err = map_hook(offset /*map_base - _ds_start*/, order, flags,
+                       &b, &send_order);
+    if (err < 0)
+      return err;
+
+    l4_fpage_t fpage = l4_fpage(b, send_order, flags.fpage_rights());
+
+    memory = L4::Ipc::Snd_fpage(fpage, local_addr, _map_flags, _cache_flags);
+
+    return L4_EOK;
+  }
 
   /**
    * A hook that is called for acquiring the data to be mapped.
@@ -142,7 +199,26 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  virtual long clear(unsigned long offs, unsigned long size) const noexcept;
+  virtual long clear(unsigned long offs, unsigned long size) const noexcept
+  {
+    if (!check_limit(offs))
+      return -L4_ERANGE;
+
+    unsigned long sz = size = cxx::min(size, round_size() - offs);
+
+    while (sz)
+      {
+        unsigned long b_addr = _ds_start + offs;
+        unsigned long b_sz = cxx::min(size - offs, sz);
+
+        memset(reinterpret_cast<void *>(b_addr), 0, b_sz);
+
+        offs += b_sz;
+        sz -= b_sz;
+      }
+
+    return 0;
+  }
 
   /**
    * Allocate a region within a dataspace
