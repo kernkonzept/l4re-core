@@ -256,7 +256,7 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 	}
 #endif
 
-	number = 0.;
+	number = (__fpmax_t)0;
 #ifdef _STRTOD_NEED_NUM_DIGITS
 	num_digits = -1;
 #endif
@@ -339,7 +339,7 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 				while ((pos[j] | 0x20) == nan_inf_str[i+1+j]) {
 					++j;
 					if (!nan_inf_str[i+1+j]) {
-						number = i / 0.;
+						number = i / (__fpmax_t)0.;
 						if (negative) {	/* Correct for sign. */
 							number = -number;
 						}
@@ -414,7 +414,7 @@ __fpmax_t attribute_hidden __XL_NPP(__strtofpmax)(const Wchar *str, Wchar **endp
 	}
 
 #ifdef _STRTOD_ZERO_CHECK
-	if (number == 0.) {
+	if (number == (__fpmax_t)0.) {
 		goto DONE;
 	}
 #endif
@@ -515,7 +515,7 @@ float __XL_NPP(strtof)(const Wchar *str, Wchar **endptr   __LOCALE_PARAM )
 	x = __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 	y = (float) x;
 
-	__fp_range_check(y, x);
+	__fp_range_check((__fpmax_t)y, x);
 
 	return y;
 #endif
@@ -549,7 +549,7 @@ double __XL_NPP(strtod)(const Wchar *__restrict str,
 	x = __XL_NPP(__strtofpmax)(str, endptr, 0   __LOCALE_ARG );
 	y = (double) x;
 
-	__fp_range_check(y, x);
+	__fp_range_check((__fpmax_t)y, x);
 
 	return y;
 #endif

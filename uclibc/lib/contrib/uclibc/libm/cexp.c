@@ -38,10 +38,10 @@ libm_hidden_proto(cexpf)
 __complex__ float cexpf(__complex__ float z)
 {
 	__complex__ float ret;
-	double r_exponent = exp(__real__ z);
+	double r_exponent = exp((double)__real__ z);
 
-	__real__ ret = r_exponent * cosf(__imag__ z);
-	__imag__ ret = r_exponent * sinf(__imag__ z);
+	__real__ ret = r_exponent * (double) cosf(__imag__ z);
+	__imag__ ret = r_exponent * (double) sinf(__imag__ z);
 
 	return ret;
 }

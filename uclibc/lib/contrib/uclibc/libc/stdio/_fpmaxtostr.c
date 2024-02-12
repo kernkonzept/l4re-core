@@ -318,8 +318,8 @@ ssize_t _fpmaxtostr(FILE * fp, __fpmax_t x, struct printf_info *info,
 
 #else  /* __UCLIBC_HAS_HEXADECIMAL_FLOATS__ */
 
-#define lower_bnd    1e8
-#define upper_bnd    1e9
+#define lower_bnd    (__fpmax_t)1e8
+#define upper_bnd    (__fpmax_t)1e9
 #define power_table  exp10_table
 #define dpb          DIGITS_PER_BLOCK
 #define base         10

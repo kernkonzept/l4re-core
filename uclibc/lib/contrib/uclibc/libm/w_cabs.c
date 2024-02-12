@@ -17,7 +17,7 @@ libm_hidden_def(cabs)
 libm_hidden_proto(cabsf)
 float cabsf(float _Complex z)
 {
-	return (float) hypot(__real__ z, __imag__ z);
+	return (float) hypot((double)__real__ z, (double)__imag__ z);
 }
 libm_hidden_def(cabsf)
 

@@ -20,6 +20,11 @@ ifeq ($(BID_COMPILER_TYPE),clang)
   # this concerns functions which are not being replaced outside of the library.
   $(foreach f,strchr strrchr strcmp memcmp mempcpy,\
     $(eval WARNINGS_$(f).c += -Wno-ignored-attributes))
+  # WARNING EXCEPTION: only warnings concern possibly reduced performance due to
+  # usage of wrong floating point types, where in fact suitable functions are
+  # chosen according to type sizes.
+  $(foreach f, e_lgamma_r e_scalb s_fdim s_fmax s_fmin s_ldexp, \
+    $(eval WARNINGS_$(f).c += -Wno-double-promotion))
   # WARNING EXCEPTION: The warning is useful but the generated code works
   # anyway as intended
   $(foreach s,S s.S,$(foreach f,bzero memcpy mempcpy memset strcspn strpbrk,\

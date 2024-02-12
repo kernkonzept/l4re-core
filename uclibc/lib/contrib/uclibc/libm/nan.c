@@ -29,7 +29,7 @@ double nan (const char *tagp)
 		sprintf (buf, "NAN(%s)", tagp);
 		return strtod (buf, NULL);
 	}
-	return NAN;
+	return (double)NAN;
 }
 libm_hidden_def(nan)
 
@@ -54,7 +54,7 @@ long double nanl (const char *tagp)
 		sprintf (buf, "NAN(%s)", tagp);
 		return strtold (buf, NULL);
 	}
-	return NAN;
+	return (long double)NAN;
 }
 libm_hidden_def(nanl)
 #endif
