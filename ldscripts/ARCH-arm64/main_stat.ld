@@ -21,8 +21,6 @@ PHDRS
 
 SECTIONS
 {
-  PROVIDE_HIDDEN(__l4_sys_syscall = __L4_KIP_ADDR__ + 0x800);
-
   /* Read-only sections, merged into text segment: */
   L4_DEFINE_EXECUTABLE_START(0x00400000);
   .interp         : { *(.interp) } :ro

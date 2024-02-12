@@ -66,15 +66,6 @@ _real_start:
 /* Mind the argc/argv/env/auxv that needs to be on the stack! */
 .LCstack: .8byte (_stack_top - _real_start - 64)
 
-/* This is not a normal function and must not clobber any register.
- * This is a special syscall stub -- do not add any code! */
-.global __l4_sys_syscall
-.type __l4_sys_syscall, @function
-__l4_sys_syscall:
-	svc #0
-	ret
-.size __l4_sys_syscall, . - __l4_sys_syscall
-
 
 /*--- my stack -------------------------------------*/
 	.bss

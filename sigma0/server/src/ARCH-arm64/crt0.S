@@ -39,15 +39,6 @@ _start:
 	adr	x30, _exit
 	b	init
 
-/* This is not a normal function and must not clobber any register.
- * This is a special syscall stub -- do not add any code! */
-.global __l4_sys_syscall
-.type __l4_sys_syscall, @function
-__l4_sys_syscall:
-	svc #0
-	ret
-.size __l4_sys_syscall, . - __l4_sys_syscall
-
 .section ".bss"
 
 	.balign	16

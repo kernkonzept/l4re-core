@@ -21,7 +21,7 @@ SRC_C_libl4sys-ppc32        += ARCH-ppc32/atomic_ops.c
 SRC_S_libl4sys-sparc        += ARCH-sparc/atomic_ops.S
 
 SRC_S_libl4sys.a-arm         = ARCH-arm/syscall.S
-SRC_S_libl4sys.a-arm64       = $(if $(CONFIG_BID_PIE),ARCH-arm64/syscall.S)
+SRC_S_libl4sys.a-arm64       = ARCH-arm64/syscall.S
 SRC_S_libl4sys.so-arm        = ARCH-arm/syscall.S
 SRC_S_libl4sys.so-arm64      = ARCH-arm64/syscall.S
 
