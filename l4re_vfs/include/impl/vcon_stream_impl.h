@@ -40,6 +40,9 @@ Vcon_stream::Vcon_stream(L4::Cap<L4::Vcon> s) noexcept
 ssize_t
 Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
 {
+  if (iovcnt < 0)
+    return -EINVAL;
+
   if (!_irq_bound)
     {
       bool was_bound = __atomic_exchange_n(&_irq_bound, true, __ATOMIC_SEQ_CST);
@@ -99,6 +102,9 @@ Vcon_stream::writev(const struct iovec *iovec, int iovcnt) noexcept
 {
   l4_msg_regs_t store;
   l4_msg_regs_t *mr = l4_utcb_mr();
+
+  if (iovcnt < 0)
+    return -EINVAL;
 
   Vfs_config::memcpy(&store, mr, sizeof(store));
 
