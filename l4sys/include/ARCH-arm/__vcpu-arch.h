@@ -33,8 +33,31 @@ enum
    * This ID must match the version field in the l4_vcpu_state_t structure
    * after enabling vCPU mode or extended vCPU mode for a thread.
    */
-  L4_VCPU_STATE_VERSION = 0x36
+  L4_VCPU_STATE_VERSION = 0x37,
+
+  L4_VCPU_STATE_SIZE = 0x100,
+  L4_VCPU_STATE_EXT_SIZE = 0x400,
 };
+
+/**
+ * Offsets for vCPU state layouts
+ * \ingroup l4_vcpu_api
+ */
+enum L4_vcpu_state_offset
+{
+  L4_VCPU_OFFSET_EXT_STATE = 0x180, ///< Offset where extended state begins
+  L4_VCPU_OFFSET_EXT_INFOS = 0x100, ///< Offset where extended infos begin
+};
+
+L4_INLINE l4_arm_vcpu_e_info_t const *
+l4_vcpu_e_info(void const *vcpu) L4_NOTHROW
+{
+  return (l4_arm_vcpu_e_info_t const *)((l4_addr_t)vcpu
+                                        + L4_VCPU_OFFSET_EXT_INFOS);
+}
+
+L4_INLINE void *l4_vcpu_e_ptr(void const *vcpu, unsigned id) L4_NOTHROW
+{ return (void *)((l4_addr_t)vcpu + L4_VCPU_OFFSET_EXT_STATE + (id & 0xfff)); }
 
 /**
  * \brief vCPU registers.

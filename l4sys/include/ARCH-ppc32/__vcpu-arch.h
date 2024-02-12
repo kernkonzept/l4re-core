@@ -27,7 +27,20 @@ enum
    * This ID must match the version field in the l4_vcpu_state_t structure
    * after enabling vCPU mode or extended vCPU mode for a thread.
    */
-  L4_VCPU_STATE_VERSION = 0x99
+  L4_VCPU_STATE_VERSION = 0x99,
+
+  L4_VCPU_STATE_SIZE = 0x200,
+  L4_VCPU_STATE_EXT_SIZE = L4_PAGESIZE,
+};
+
+/**
+ * Offsets for vCPU state layouts
+ * \ingroup l4_vcpu_api
+ */
+enum L4_vcpu_state_offset
+{
+  L4_VCPU_OFFSET_EXT_STATE = 0x400, ///< Offset where extended state begins
+  L4_VCPU_OFFSET_EXT_INFOS = 0x200, ///< Offset where extended infos begin
 };
 
 /**
