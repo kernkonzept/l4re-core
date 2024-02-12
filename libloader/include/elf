@@ -374,6 +374,11 @@ struct Phdr_load
 template< typename App_model >
 struct Phdr_l4re_elf_aux_infos
 {
+#ifdef CONFIG_MMU
+  enum { Default_stack_words = 0x40000 };
+#else
+  enum { Default_stack_words = 0x2000 };
+#endif
   mutable l4_size_t stack_size;
   mutable l4_addr_t stack_addr;
   mutable l4_addr_t kip_addr;
@@ -385,7 +390,7 @@ struct Phdr_l4re_elf_aux_infos
 
   explicit Phdr_l4re_elf_aux_infos(App_model const *mm, Const_dataspace bin,
                                    l4_addr_t kip_addr)
-  : stack_size(sizeof(void*) * 0x40000), stack_addr(0x80000000),
+  : stack_size(sizeof(void*) * Default_stack_words), stack_addr(0x80000000),
     kip_addr(kip_addr), ex_regs_flags(Default_ex_regs_flags), mm(mm), bin(bin)
   {}
 
