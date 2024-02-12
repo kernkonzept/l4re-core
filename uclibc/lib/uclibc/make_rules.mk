@@ -7,7 +7,7 @@ CFLAGS          += -DUCLIBC_INTERNAL
 CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)
 # CFLAGS	+= -std=iso9899:199901
 DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__
-WARNINGS	= -Wall -Wstrict-prototypes
+WARNINGS	= -Wall -Wstrict-prototypes $(call bid_flag_variants,WARNINGS)
 ifeq ($(BID_COMPILER_TYPE),clang)
   # WARNING EXCEPTION: only warnings are about checking parameters marked with
   # the nonnull attribute for NULL, but this is defensive programming.
@@ -15,6 +15,11 @@ ifeq ($(BID_COMPILER_TYPE),clang)
   # WARNING EXCEPTION: only warnings are that converting a nonnull pointer to
   # bool always evaluates to true, but checking again is defensive programming.
   WARNINGS += -Wno-pointer-bool-conversion
+  # WARNING EXCEPTION: only warnings are about function aliases that resolve
+  # to the original function, when this original function is overridden, but
+  # this concerns functions which are not being replaced outside of the library.
+  $(foreach f,strchr strrchr strcmp memcmp mempcpy,\
+    $(eval WARNINGS_$(f).c += -Wno-ignored-attributes))
   # WARNING EXCEPTION: The warning is useful but the generated code works
   # anyway as intended
   $(foreach s,S s.S,$(foreach f,bzero memcpy mempcpy memset strcspn strpbrk,\
