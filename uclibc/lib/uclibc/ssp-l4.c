@@ -50,8 +50,9 @@ void __attribute__((noreturn)) __stack_chk_fail(void)
     terminate();
 }
 
-void __attribute__((noreturn)) __stack_smash_handler(char func[], int damaged __attribute__ ((unused)));
-void __attribute__((noreturn)) __stack_smash_handler(char func[], int damaged)
+void __attribute__((noreturn)) __stack_smash_handler(char func[], int damaged);
+void __attribute__((noreturn))
+__stack_smash_handler(char func[], __attribute__ ((unused)) int damaged)
 {
   static const char message[] = ": stack smashing attack in function ";
 

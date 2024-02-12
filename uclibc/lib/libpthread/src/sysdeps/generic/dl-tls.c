@@ -65,12 +65,12 @@ oom (void)
 }
 # endif
 
-
+void *_dl_memalign(size_t alignment, size_t bytes);
 void *_dl_memalign(size_t alignment, size_t bytes)
 {
+	(void)alignment;
 	return _dl_malloc(bytes);
 }
-
 
 /*
  * We are trying to perform a static TLS relocation in MAP, but it was

@@ -3,6 +3,7 @@
 
 unsigned long int __getauxval(unsigned long int type)
 {
+  (void)type;
   __set_errno(ENOENT);
   return 0;
 }

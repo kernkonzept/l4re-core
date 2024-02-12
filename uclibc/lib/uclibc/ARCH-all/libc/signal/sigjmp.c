@@ -33,6 +33,8 @@ int __sigjmp_save (sigjmp_buf env, int savemask)
 #if 0
     env[0].__mask_was_saved = (savemask &&
 	    sigprocmask (SIG_BLOCK, NULL, &env[0].__saved_mask) == 0);
+#else
+    (void)env; (void)savemask;
 #endif
 
     return 0;

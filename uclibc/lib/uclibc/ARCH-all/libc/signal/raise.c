@@ -12,6 +12,7 @@ int raise(int signo)
 #ifdef l4___this_is_the_original_uclibc_needed_with_gnu_linux_compiler
 	return kill(getpid(), signo);
 #else
+        (void)signo;
         __builtin_trap();
 #endif
 }
