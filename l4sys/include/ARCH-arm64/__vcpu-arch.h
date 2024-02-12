@@ -34,7 +34,7 @@ enum
    * This ID must match the version field in the l4_vcpu_state_t structure
    * after enabling vCPU mode or extended vCPU mode for a thread.
    */
-  L4_VCPU_STATE_VERSION = 0x35
+  L4_VCPU_STATE_VERSION = 0x36
 };
 
 /**
@@ -81,6 +81,8 @@ enum L4_vcpu_e_field_ids
 
   L4_VCPU_E_VMPIDR     = 0x8028,
   L4_VCPU_E_VPIDR      = 0x0030,
+
+  L4_VCPU_E_VTCR       = 0x8038,
 
   L4_VCPU_E_GIC_HCR    = 0x0040,
   L4_VCPU_E_GIC_VTR    = 0x0044,
