@@ -51,11 +51,11 @@ Vcon_stream::readv(const struct iovec *iovec, int iovcnt) noexcept
   ssize_t bytes = 0;
   for (; iovcnt > 0; --iovcnt, ++iovec)
     {
-      if (iovec->iov_len == 0)
+      size_t len = cxx::min<size_t>(iovec->iov_len, SSIZE_MAX - bytes);
+      if (len == 0)
         continue;
 
       char *buf = static_cast<char *>(iovec->iov_base);
-      size_t len = iovec->iov_len;
 
       while (1)
         {
@@ -105,16 +105,17 @@ Vcon_stream::writev(const struct iovec *iovec, int iovcnt) noexcept
   ssize_t written = 0;
   while (iovcnt)
     {
-      size_t sl = iovec->iov_len;
+      size_t sl = cxx::min<size_t>(iovec->iov_len, SSIZE_MAX - written);
       char const *b = static_cast<char const *>(iovec->iov_base);
 
       for (; sl > L4_VCON_WRITE_SIZE
-           ; sl -= L4_VCON_WRITE_SIZE, b += L4_VCON_WRITE_SIZE)
+           ; sl -= L4_VCON_WRITE_SIZE, b += L4_VCON_WRITE_SIZE,
+             written += L4_VCON_WRITE_SIZE)
         _s->send(b, L4_VCON_WRITE_SIZE);
 
       _s->send(b, sl);
 
-      written += iovec->iov_len;
+      written += sl;
 
       ++iovec;
       --iovcnt;
