@@ -202,6 +202,16 @@
 #endif /* __cplusplus */
 
 /**
+ * Constexpr function attribute.
+ * \hideinitializer
+ */
+#if defined __cplusplus && __cplusplus >= 201402L
+# define L4_CONSTEXPR constexpr
+#else
+# define L4_CONSTEXPR
+#endif
+
+/**
  * Noreturn function attribute.
  * \hideinitializer
  */
