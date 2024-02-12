@@ -835,7 +835,7 @@ __tls_get_addr (GET_ADDR_ARGS)
 # endif
 
 
-
+void _dl_add_to_slotinfo (struct link_map  *l);
 void
 _dl_add_to_slotinfo (struct link_map  *l)
 {
