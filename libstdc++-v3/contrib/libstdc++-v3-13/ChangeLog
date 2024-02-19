@@ -1,3 +1,413 @@
+2024-02-16  Paul Keir  <paul.keir@uws.ac.uk>
+
+	Backported from master:
+	2024-02-12  Paul Keir  <paul.keir@uws.ac.uk>
+
+	PR libstdc++/113294
+	* include/bits/basic_string.h (basic_string::operator=): Use
+	_M_use_local_data() instead of _M_local_buf on the moved-from
+	string.
+	* testsuite/21_strings/basic_string/modifiers/constexpr.cc
+	(test_move): New test.
+
+2024-02-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99117
+	* include/std/valarray (valarray::operator=(const _Expr&)):
+	Use loop to copy instead of __valarray_copy with _Array.
+	* testsuite/26_numerics/valarray/99117.cc: New test.
+
+2024-02-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++20/tzdata.zi: Import new file from 2024a release.
+	* src/c++20/tzdb.cc (tzdb_list::_Node::_S_read_leap_seconds)
+	Update expiry date for leap seconds list.
+
+2024-02-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/tr2/type_traits (bases, direct_bases): Use
+	__has_builtin to check if required built-ins are supported.
+
+2024-02-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/112467
+	* include/bits/stl_bvector.h (_M_assume_normalized): Do not use
+	statement form of assume attribute for Clang.
+
+2024-02-09  Alexandre Oliva  <oliva@adacore.com>
+
+	Backported from master:
+	2023-11-09  Alexandre Oliva  <oliva@adacore.com>
+
+	PR libstdc++/110807
+	* include/bits/stl_bvector.h (_Bit_iterator_base): Add
+	_M_assume_normalized member function.  Call it in _M_bump_up,
+	_M_bump_down, _M_incr, operator==, operator<=>, operator<, and
+	operator-.
+	(_Bit_iterator): Also call it in operator*.
+	(_Bit_const_iterator): Likewise.
+
+2024-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/113258
+	* libsupc++/new_opa.cc: Prefer to use posix_memalign if
+	available.
+
+2024-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/107466
+	* include/bits/random.tcc (subtract_with_carry_engine::seed):
+	Implement proposed resolution of LWG 4014.
+	* testsuite/26_numerics/random/pr60037-neg.cc: Adjust dg-error
+	line number.
+	* testsuite/26_numerics/random/subtract_with_carry_engine/cons/lwg3809.cc:
+	Check for expected result of 64-bit engine with seed that
+	doesn't fit in 32-bits.
+
+2024-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/internet (network_v6::network): Define.
+	(network_v6::hosts): Finish implementing.
+	(network_v6::to_string): Do not concatenate std::string to
+	arbitrary std::basic_string specialization.
+	* testsuite/experimental/net/internet/network/v6/cons.cc: New
+	test.
+
+2024-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/90276
+	* testsuite/util/pstl/test_utils.h (reverse_invoker): Do not use
+	perfect forwarding for iterator arguments.
+
+2024-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/syncstream (basic_osyncstream::operator=): Remove
+	noexcept, as per LWG 3867.
+
+2024-02-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/string_view (basic_string_view(R&&)): Remove
+	constraint that traits_type must be the same, as per LWG 3857.
+	* testsuite/21_strings/basic_string_view/cons/char/range_c++20.cc:
+	Explicit conversion between different specializations should be
+	allowed.
+	* testsuite/21_strings/basic_string_view/cons/wchar_t/range_c++20.cc:
+	Likewise.
+
+2024-02-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	Backported from master:
+	2023-10-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* testsuite/29_atomics/atomic/compare_exchange_padding.cc,
+	testsuite/29_atomics/atomic_flag/clear/1.cc,
+	testsuite/29_atomics/atomic_flag/cons/value_init.cc,
+	testsuite/29_atomics/atomic_flag/test_and_set/explicit.cc,
+	testsuite/29_atomics/atomic_flag/test_and_set/implicit.cc,
+	testsuite/29_atomics/atomic_ref/compare_exchange_padding.cc,
+	testsuite/29_atomics/atomic_ref/generic.cc,
+	testsuite/29_atomics/atomic_ref/integral.cc,
+	testsuite/29_atomics/atomic_ref/pointer.cc: Replace
+	dg-require-thread-fence with dg-require-atomic-cmpxchg-word.
+
+2024-02-07  Hans-Peter Nilsson  <hp@axis.com>
+
+	Backported from master:
+	2023-10-13  Hans-Peter Nilsson  <hp@axis.com>
+
+	* testsuite/lib/dg-options.exp (dg-require-atomic-cmpxchg-word):
+	New proc.
+	* testsuite/lib/libstdc++.exp (check_v3_target_atomic_cmpxchg_word):
+	Ditto.
+
+2024-02-07  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	Backported from master:
+	2023-09-14  Christophe Lyon  <christophe.lyon@linaro.org>
+
+	* testsuite/29_atomics/atomic/compare_exchange_padding.cc: Likewise.
+	* testsuite/29_atomics/atomic/cons/value_init.cc: Likewise.
+	* testsuite/29_atomics/atomic_float/value_init.cc: Likewise.
+	* testsuite/29_atomics/atomic_integral/cons/value_init.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/compare_exchange_padding.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/generic.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/integral.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/pointer.cc: Likewise.
+
+2024-02-06  Torbjörn SVENSSON  <torbjorn.svensson@foss.st.com>
+
+	Backported from master:
+	2024-02-06  Torbjörn SVENSSON  <torbjorn.svensson@foss.st.com>
+
+	* testsuite/lib/libstdc++.exp: Use "nul" for Windows, "/dev/null"
+	for other environments.
+
+2024-01-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/113500
+	* include/bits/chrono_io.h (__formatter_chrono::_M_S): Fix
+	printing of subseconds with floating-point rep.
+	(__formatter_chrono::_M_format_to_ostream): Do not write
+	time_point specializations directly to the ostream.
+	(formatter<chrono::sys_time<D>, C>::parse): Do not allow an
+	empty chrono-spec if the type fails to meet the constraints for
+	writing to an ostream with operator<<.
+	* testsuite/std/time/clock/file/io.cc: Check formatting
+	non-integral times with empty chrono-specs.
+	* testsuite/std/time/clock/gps/io.cc: Likewise.
+	* testsuite/std/time/clock/utc/io.cc: Likewise.
+	* testsuite/std/time/hh_mm_ss/io.cc: Likewise.
+
+2024-01-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono.h (__file_clock::from_sys)
+	(__file_clock::to_sys, __file_clock::_S_from_sys)
+	(__file_clock::_S_to_sys): Use common_type for return type.
+	* testsuite/std/time/clock/file/members.cc: Check round trip
+	conversion for time with lower precision that seconds.
+
+2024-01-30  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/113512
+	* include/std/format (__formatter_fp::format): Fix logic for
+	alternate forms.
+	* testsuite/std/format/functions/format.cc: Check buggy cases of
+	alternate forms with g presentation type.
+
+2024-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/113450
+	* testsuite/std/format/functions/format.cc: Use signed char
+	instead of int8_t.
+
+2024-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR testsuite/113366
+	* include/std/format (basic_format_arg): Use __formattable
+	variable template instead of __format::__formattable_with
+	concept.
+
+2024-01-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++20/tzdata.zi: Import new file from 2023d release.
+	* src/c++20/tzdb.cc (tzdb_list::_Node::_S_read_leap_seconds)
+	Update expiry date for leap seconds list.
+
+2024-01-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format (__format::_Arg_store): Fix PR number in
+	comment. Simplify preprocessor code.
+
+2024-01-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/evolution.xml: Fix spelling.
+	* doc/html/manual/api.html: Regenerate.
+
+2024-01-11  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/112477
+	* src/c++11/debug.cc
+	(_Safe_iterator_base::_M_attach): Reset _M_version to 0 if attaching to null
+	sequence.
+	(_Safe_iterator_base::_M_attach_single): Likewise.
+	(_Safe_local_iterator_base::_M_attach): Likewise.
+	(_Safe_local_iterator_base::_M_attach_single): Likewise.
+	* testsuite/23_containers/map/debug/112477.cc: New test case.
+
+2024-01-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/evolution.xml: Document addition of
+	libstdc++exp.a.
+	* doc/html/*: Regenerate.
+
+2024-01-11  Ken Matsui  <kmatsui@gcc.gnu.org>
+
+	Backported from master:
+	2024-01-11  Ken Matsui  <kmatsui@gcc.gnu.org>
+
+	PR libstdc++/113250
+	* src/c++17/fs_ops.cc (fs::equivalent): Use || instead of &&.
+	* src/filesystem/ops.cc (fs::equivalent): Likewise.
+	* testsuite/27_io/filesystem/operations/equivalent.cc: Handle
+	error codes.
+	* testsuite/experimental/filesystem/operations/equivalent.cc:
+	Likewise.
+
+2024-01-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-09-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/html/manual/*: Regenerate.
+	* doc/xml/manual/using.xml: Update documentation on linking.
+	* scripts/testsuite_flags.in: Adjust LDFLAGS to find
+	libstdc++exp instead of libstdc++_libbacktrace.
+	* src/c++20/Makefile.am: Fix comment.
+	* src/c++20/Makefile.in: Regenerate.
+	* src/experimental/Makefile.am: Use LIBADD to include other
+	libraries.
+	* src/experimental/Makefile.in: Regenerate.
+	* testsuite/19_diagnostics/stacktrace/current.cc: Adjust
+	dg-options to use -lstdc++exp.
+	* testsuite/19_diagnostics/stacktrace/entry.cc: Likewise.
+	* testsuite/19_diagnostics/stacktrace/stacktrace.cc: Likewise.
+	* testsuite/23_containers/vector/debug/assign4_backtrace_neg.cc:
+	Likewise.
+
+2024-01-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/std/format/functions/format.cc: Add more checks for
+	wstring formatting of arithmetic types.
+
+2024-01-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format (formatter<C, C>::format): Check for
+	_Pres_c and call _M_format_character directly. Cast C to its
+	unsigned equivalent for formatting as an integer.
+	(formatter<char, wchar_t>::format): Likewise.
+	(basic_format_arg(T&)): Store char arguments as unsigned char
+	for formatting to a wide string.
+	(__cpp_lib_format_uchar): Define.
+	* include/std/version (__cpp_lib_format_uchar): Define.
+	* testsuite/std/format/functions/format.cc: Adjust test. Check
+	formatting of characters using all integer presentation types.
+
+2024-01-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/113241
+	* include/std/type_traits (is_convertible_v): Guard use of
+	built-in with preprocessor check.
+
+2024-01-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/113200
+	* include/bits/char_traits.h (__gnu_cxx::char_traits::move): Use
+	__builtin_constant_p to check for unrelated pointers that cannot
+	be compared during constant evaluation.
+	* testsuite/21_strings/char_traits/requirements/113200.cc: New
+	test.
+
+2024-01-03  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2024-01-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR testsuite/113175
+	* testsuite/std/ranges/iota/max_size_type.cc (test02): Reduce
+	'limit' to 100 from 1000 and adjust 'log2_limit' accordingly.
+	(test03): Likewise.
+
+2023-12-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/objects/char/2.cc: Use dg-output.
+	* testsuite/27_io/objects/wchar_t/2.cc: Use dg-output.
+
+2023-12-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono_io.h (__formatter_chrono::_M_S): Fix order
+	of arguments to std::format_to.
+	* testsuite/20_util/duration/io.cc: Test subsecond duration with
+	floating-point rep.
+
+2023-12-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono_io.h (__formatter_chrono::_M_C_y_Y): Do
+	not round century down for %Y formats.
+
+2023-12-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/std/format/functions/format.cc: Check for expected
+	output for char and bool arguments.
+	* testsuite/std/format/string.cc: Check that 0 filling is
+	rejected for character and string formats.
+
+2023-12-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-12-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono_io.h (__formatter_chrono::_M_C_y_Y): Fix
+	rounding for negative centuries.
+	* testsuite/std/time/year/io.cc: Check %C for negative years.
+
 2023-12-09  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
