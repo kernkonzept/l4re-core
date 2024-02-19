@@ -86,17 +86,12 @@ public:
    *
    * \see map
    */
-  virtual int map_hook(Dataspace::Offset offs,
-                       unsigned order,
-                       Dataspace::Flags flags,
-                       Dataspace::Map_addr *base,
-                       unsigned *send_order)
+  virtual int map_hook([[maybe_unused]] Dataspace::Offset offs,
+                       [[maybe_unused]] unsigned order,
+                       [[maybe_unused]] Dataspace::Flags flags,
+                       [[maybe_unused]] Dataspace::Map_addr *base,
+                       [[maybe_unused]] unsigned *send_order)
   {
-    static_cast<void>(offs);
-    static_cast<void>(order);
-    static_cast<void>(flags);
-    static_cast<void>(base);
-    static_cast<void>(send_order);
     return 0;
   }
 
@@ -130,13 +125,11 @@ public:
    * \retval <0   An error occured. The error code may depend on the
    *              implementation.
    */
-  virtual long copy(l4_addr_t dst_offs, l4_umword_t src_id,
-                    l4_addr_t src_offs, unsigned long size) noexcept
+  virtual long copy([[maybe_unused]] l4_addr_t dst_offs,
+                    [[maybe_unused]] l4_umword_t src_id,
+                    [[maybe_unused]] l4_addr_t src_offs,
+                    [[maybe_unused]] unsigned long size) noexcept
   {
-    static_cast<void>(dst_offs);
-    static_cast<void>(src_id);
-    static_cast<void>(src_offs);
-    static_cast<void>(size);
     return -L4_ENODEV;
   }
 
@@ -162,12 +155,10 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  virtual long allocate(l4_addr_t offset, l4_size_t size,
-                        unsigned access) noexcept
+  virtual long allocate([[maybe_unused]] l4_addr_t offset,
+                        [[maybe_unused]] l4_size_t size,
+                        [[maybe_unused]] unsigned access) noexcept
   {
-    static_cast<void>(offset);
-    static_cast<void>(size);
-    static_cast<void>(access);
     return -L4_ENODEV;
   }
 

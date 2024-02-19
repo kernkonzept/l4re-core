@@ -509,10 +509,9 @@ static void init_emergency_memory()
   static __attribute__((aligned(L4_PAGESIZE))) char buf[3 * L4_PAGESIZE];
   Single_page_alloc_base::_free(buf, sizeof(buf), true);
   // make sure the emergency memory is RWX for future reuse
-  int err = l4sigma0_map_mem(Sigma0_cap, reinterpret_cast<l4_addr_t>(buf),
+  [[maybe_unused]] int err = l4sigma0_map_mem(Sigma0_cap, reinterpret_cast<l4_addr_t>(buf),
                              reinterpret_cast<l4_addr_t>(buf), sizeof(buf));
   l4_assert(!err);
-  static_cast<void>(err);
 }
 
 static __attribute__((used, section(".preinit_array")))

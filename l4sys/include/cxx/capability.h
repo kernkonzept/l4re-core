@@ -246,8 +246,7 @@ public:
   static void check_convertible_from() noexcept
   {
     using To = T;
-    To* t = static_cast<From*>(nullptr);
-    static_cast<void>(t);
+    [[maybe_unused]] To* t = static_cast<From*>(nullptr);
   }
 
   /**
@@ -260,7 +259,7 @@ public:
   static void check_castable_from() noexcept
   {
     using To = T;
-    static_cast<void>(static_cast<To *>(static_cast<From *>(nullptr)));
+    [[maybe_unused]] To *t = static_cast<To *>(static_cast<From *>(nullptr));
   }
 
   /**
