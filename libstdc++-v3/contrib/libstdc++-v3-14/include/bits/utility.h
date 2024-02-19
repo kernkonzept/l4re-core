@@ -1,6 +1,6 @@
 // Utilities used throughout the library -*- C++ -*-
 
-// Copyright (C) 2004-2023 Free Software Foundation, Inc.
+// Copyright (C) 2004-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -225,7 +225,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 #endif // C++17
 
-#if __has_builtin(__type_pack_element)
+#if _GLIBCXX_USE_BUILTIN_TRAIT(__type_pack_element)
   template<size_t _Np, typename... _Types>
     struct _Nth_type
     { using type = __type_pack_element<_Np, _Types...>; };
@@ -264,6 +264,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     struct _Nth_type<1, _Tp0, _Tp1, _Tp2, _Rest...>
     { using type = _Tp1; };
 #endif
+#endif
+
+#if __glibcxx_ranges
+  namespace ranges::__detail
+  {
+    template<typename _Range>
+      inline constexpr bool __is_subrange = false;
+  } // namespace __detail
 #endif
 
 _GLIBCXX_END_NAMESPACE_VERSION

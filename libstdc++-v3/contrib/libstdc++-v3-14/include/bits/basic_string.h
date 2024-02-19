@@ -1,6 +1,6 @@
 // Components for manipulating sequences of characters -*- C++ -*-
 
-// Copyright (C) 1997-2023 Free Software Foundation, Inc.
+// Copyright (C) 1997-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -909,7 +909,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CXX11
 		__str._M_capacity(__capacity);
 	      }
 	    else
-	      __str._M_data(__str._M_local_buf);
+	      __str._M_data(__str._M_use_local_data());
 	  }
 	else // Need to do a deep copy
 	  assign(__str);

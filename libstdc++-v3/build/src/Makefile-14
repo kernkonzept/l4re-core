@@ -125,6 +125,7 @@ SRC_CC-variant-std += \
   c++17/string-inst.cc \
   c++17/cow-string-inst.cc \
   c++20/sstream-inst.cc \
+  c++23/print.cc \
   c++23/stacktrace.cc
 
 # Only include the following in full libstdc++ builds
@@ -155,9 +156,11 @@ CXXFLAGS_c++98/numeric_members_cow.cc   += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit
 CXXFLAGS_c++98/concept-inst.cc     += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templates
 CXXFLAGS_c++11/codecvt.cc          += -fchar8_t
 CXXFLAGS_c++11/limits.cc           += -fchar8_t
-CXXFLAGS_c++11/locale_init.cc      += -std=gnu++11 -fchar8_t
-CXXFLAGS_c++11/localename.cc       += -std=gnu++11 -fchar8_t
+CXXFLAGS_c++11/locale_init.cc      += -fchar8_t
+CXXFLAGS_c++11/localename.cc       += -fchar8_t
 PRIVATE_INCDIR_c++98/strstream.cc  += $(STDCXX_CONTRIB_DIR)/include/backward
+
+CXXFLAGS_c++23/print.cc += -std=gnu++26
 
 CXXFLAGS_c++11/hashtable_c++0x.cc  += -fimplicit-templates
 

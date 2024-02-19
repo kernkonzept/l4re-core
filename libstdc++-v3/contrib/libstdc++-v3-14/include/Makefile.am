@@ -1,6 +1,6 @@
 ## Makefile for the include subdirectory of the GNU C++ Standard library.
 ##
-## Copyright (C) 2001-2023 Free Software Foundation, Inc.
+## Copyright (C) 2001-2024 Free Software Foundation, Inc.
 ##
 ## This file is part of the libstdc++ version 3 distribution.
 ## Process this file with automake to produce Makefile.in.
@@ -35,6 +35,7 @@ std_freestanding = \
 	${std_srcdir}/coroutine \
 	${std_srcdir}/expected \
 	${std_srcdir}/functional \
+	${std_srcdir}/generator \
 	${std_srcdir}/iterator \
 	${std_srcdir}/limits \
 	${std_srcdir}/memory \
@@ -85,6 +86,7 @@ std_headers = \
 	${std_srcdir}/memory_resource \
 	${std_srcdir}/mutex \
 	${std_srcdir}/ostream \
+	${std_srcdir}/print \
 	${std_srcdir}/queue \
 	${std_srcdir}/random \
 	${std_srcdir}/regex \
@@ -102,6 +104,7 @@ std_headers = \
 	${std_srcdir}/streambuf \
 	${std_srcdir}/string \
 	${std_srcdir}/system_error \
+	${std_srcdir}/text_encoding \
 	${std_srcdir}/thread \
 	${std_srcdir}/unordered_map \
 	${std_srcdir}/unordered_set \
@@ -122,6 +125,7 @@ bits_freestanding = \
 	${bits_srcdir}/concept_check.h \
 	${bits_srcdir}/char_traits.h \
 	${bits_srcdir}/cpp_type_traits.h \
+	${bits_srcdir}/elements_of.h \
 	${bits_srcdir}/enable_special_members.h \
 	${bits_srcdir}/functexcept.h \
 	${bits_srcdir}/functional_hash.h \
@@ -156,8 +160,11 @@ bits_freestanding = \
 	${bits_srcdir}/stl_raw_storage_iter.h \
 	${bits_srcdir}/stl_relops.h \
 	${bits_srcdir}/stl_uninitialized.h \
+	${bits_srcdir}/text_encoding-data.h \
 	${bits_srcdir}/version.h \
 	${bits_srcdir}/string_view.tcc \
+	${bits_srcdir}/unicode.h \
+	${bits_srcdir}/unicode-data.h \
 	${bits_srcdir}/uniform_int_dist.h \
 	${bits_srcdir}/unique_ptr.h \
 	${bits_srcdir}/uses_allocator.h \

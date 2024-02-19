@@ -1,6 +1,6 @@
 // random number generation (out of line) -*- C++ -*-
 
-// Copyright (C) 2009-2023 Free Software Foundation, Inc.
+// Copyright (C) 2009-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -541,8 +541,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     subtract_with_carry_engine<_UIntType, __w, __s, __r>::
     seed(result_type __value)
     {
+      // _GLIBCXX_RESOLVE_LIB_DEFECTS
+      // 3809. Is std::subtract_with_carry_engine<uint16_t> supposed to work?
+      // 4014. LWG 3809 changes behavior of some existing code
       std::linear_congruential_engine<uint_least32_t, 40014u, 0u, 2147483563u>
-	__lcg(__value == 0u ? default_seed : __value);
+	__lcg(__value == 0u ? default_seed : __value % 2147483563u);
 
       const size_t __n = (__w + 31) / 32;
 

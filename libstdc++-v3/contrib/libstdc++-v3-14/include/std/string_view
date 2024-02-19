@@ -1,6 +1,6 @@
 // Components for manipulating non-owning sequences of characters -*- C++ -*-
 
-// Copyright (C) 2013-2023 Free Software Foundation, Inc.
+// Copyright (C) 2013-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -167,8 +167,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  && (!requires (_DRange& __d) {
 		__d.operator ::std::basic_string_view<_CharT, _Traits>();
 	      })
-	  && (!requires { typename _DRange::traits_type; }
-	      || is_same_v<typename _DRange::traits_type, _Traits>)
 	constexpr explicit
 	basic_string_view(_Range&& __r)
 	noexcept(noexcept(ranges::size(__r)) && noexcept(ranges::data(__r)))

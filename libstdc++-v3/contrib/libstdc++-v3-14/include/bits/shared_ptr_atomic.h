@@ -1,6 +1,6 @@
 // shared_ptr atomic access -*- C++ -*-
 
-// Copyright (C) 2014-2023 Free Software Foundation, Inc.
+// Copyright (C) 2014-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -557,7 +557,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       {
 	__glibcxx_assert(__o != memory_order_release
 			   && __o != memory_order_acq_rel);
-	// Ensure that the correct value of _M_ptr is visible after locking.,
+	// Ensure that the correct value of _M_ptr is visible after locking,
 	// by upgrading relaxed or consume to acquire.
 	if (__o != memory_order_seq_cst)
 	  __o = memory_order_acquire;

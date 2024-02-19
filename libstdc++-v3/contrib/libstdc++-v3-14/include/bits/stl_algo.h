@@ -1,6 +1,6 @@
 // Algorithm implementation -*- C++ -*-
 
-// Copyright (C) 2001-2023 Free Software Foundation, Inc.
+// Copyright (C) 2001-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -1251,6 +1251,12 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
       typedef typename iterator_traits<_RandomAccessIterator>::value_type
 	_ValueType;
 
+#if __cplusplus >= 201103L
+      typedef typename make_unsigned<_Distance>::type _UDistance;
+#else
+      typedef _Distance _UDistance;
+#endif
+
       _Distance __n = __last   - __first;
       _Distance __k = __middle - __first;
 
@@ -1281,7 +1287,7 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
 		  ++__p;
 		  ++__q;
 		}
-	      __n %= __k;
+	      __n = static_cast<_UDistance>(__n) % static_cast<_UDistance>(__k);
 	      if (__n == 0)
 		return __ret;
 	      std::swap(__n, __k);
@@ -1305,7 +1311,7 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
 		  --__q;
 		  std::iter_swap(__p, __q);
 		}
-	      __n %= __k;
+	      __n = static_cast<_UDistance>(__n) % static_cast<_UDistance>(__k);
 	      if (__n == 0)
 		return __ret;
 	      std::swap(__n, __k);

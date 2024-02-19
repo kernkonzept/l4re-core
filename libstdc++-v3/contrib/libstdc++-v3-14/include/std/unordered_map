@@ -1,6 +1,6 @@
 // <unordered_map> -*- C++ -*-
 
-// Copyright (C) 2007-2023 Free Software Foundation, Inc.
+// Copyright (C) 2007-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -51,6 +51,7 @@
 #define __glibcxx_want_node_extract
 #define __glibcxx_want_nonmember_container_access
 #define __glibcxx_want_unordered_map_try_emplace
+#define __glibcxx_want_tuple_like
 #include <bits/version.h>
 
 #if __cplusplus >= 201703L
