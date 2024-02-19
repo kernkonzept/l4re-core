@@ -1,3 +1,36 @@
+2024-01-11  Ken Matsui  <kmatsui@gcc.gnu.org>
+
+	Backported from master:
+	2024-01-11  Ken Matsui  <kmatsui@gcc.gnu.org>
+
+	PR libstdc++/113250
+	* src/c++17/fs_ops.cc (fs::equivalent): Use || instead of &&.
+	* src/filesystem/ops.cc (fs::equivalent): Likewise.
+	* testsuite/27_io/filesystem/operations/equivalent.cc: Handle
+	error codes.
+	* testsuite/experimental/filesystem/operations/equivalent.cc:
+	Likewise.
+
+2024-01-03  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2024-01-03  Patrick Palka  <ppalka@redhat.com>
+
+	PR testsuite/113175
+	* testsuite/std/ranges/iota/max_size_type.cc (test02): Reduce
+	'limit' to 100 from 1000 and adjust 'log2_limit' accordingly.
+	(test03): Likewise.
+
+2023-12-17  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2023-10-13  Jakub Jelinek  <jakub@redhat.com>
+
+	* testsuite/tr1/8_c_compatibility/cstdio/functions.cc (test01):
+	Initialize stream to va_arg(ap, FILE*) rather than 0.
+	* testsuite/tr1/8_c_compatibility/cwchar/functions.cc (test01):
+	Likewise.
+
 2023-12-06  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
