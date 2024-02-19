@@ -232,7 +232,7 @@ static void find_locale_string(locale_entry * loc_rec, char *loc)
 		*loc = '\0';
 	} else {
 		dotcs = (uint16_t) loc_rec->dot_cs;
-		cs = (uint16_t) loc_rec->cs;;
+		cs = (uint16_t) loc_rec->cs;
 		loc = strncpy(loc, GET_LOCALE_NAME(idx), 5);
 
 		if (loc[2] == '_') {

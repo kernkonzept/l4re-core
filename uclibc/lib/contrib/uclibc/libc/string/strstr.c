@@ -22,7 +22,7 @@ Wchar *Wstrstr(const Wchar *s1, const Wchar *s2)
 
 	do {
 		if (!*p) {
-			return (Wchar *) s1;;
+			return (Wchar *) s1;
 		}
 		if (*p == *s) {
 			++p;

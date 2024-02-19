@@ -1315,7 +1315,7 @@ ISO_LOOP:
 
 			j = (i & 128) ? 100: 12;
 			if (i & 64) {
-				field_val /= j;;
+				field_val /= j;
 			}
 			if (i & 32) {
 				field_val %= j;

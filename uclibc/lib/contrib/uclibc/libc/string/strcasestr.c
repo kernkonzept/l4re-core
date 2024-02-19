@@ -16,7 +16,7 @@ char *strcasestr(const char *s1, const char *s2)
 #if 1
 	do {
 		if (!*p) {
-			return (char *) s1;;
+			return (char *) s1;
 		}
 		if ((*p == *s)
 			|| (tolower(*((unsigned char *)p)) == tolower(*((unsigned char *)s)))

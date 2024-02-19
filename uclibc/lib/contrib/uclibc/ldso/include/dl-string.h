@@ -104,7 +104,7 @@ static __always_inline char * _dl_strstr(const char *s1, const char *s2)
 
 	do {
 		if (!*p)
-			return (char *) s1;;
+			return (char *) s1;
 		if (*p == *s) {
 			++p;
 			++s;
