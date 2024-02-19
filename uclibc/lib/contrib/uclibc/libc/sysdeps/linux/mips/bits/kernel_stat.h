@@ -14,7 +14,11 @@ typedef struct {
 } __ktimespec_t;
 #else
 typedef struct {
+#if defined(__UCLIBC_USE_TIME64__)
+	__S32_TYPE tv_sec;
+#else
 	time_t tv_sec;
+#endif
 	unsigned long tv_nsec;
 } __ktimespec_t;
 #endif

@@ -35,6 +35,7 @@
 #define SETALL         17              /* set all semval's */
 
 
+
 /* Data structure describing a set of semaphores.  */
 struct semid_ds
 {
@@ -42,15 +43,30 @@ struct semid_ds
 #if __WORDSIZE == 32
   unsigned int __uclibc_unused1;
 #endif
+#if defined(__UCLIBC_USE_TIME64__)
+  unsigned long int __sem_otime_internal_1; /* last semop() time */
+  unsigned long int __sem_otime_internal_2;
+#else
   __time_t sem_otime;                  /* last semop() time */
+#endif
 #if __WORDSIZE == 32
   unsigned int __uclibc_unused2;
 #endif
+#if defined(__UCLIBC_USE_TIME64__)
+  unsigned long int __sem_ctime_internal_1; /* last time changed by semctl() */
+  unsigned long int __sem_ctime_internal_2;
+#else
   __time_t sem_ctime;                  /* last time changed by semctl() */
+#endif
   unsigned long int sem_nsems;         /* number of semaphores in set */
+#if defined(__UCLIBC_USE_TIME64__)
+  __time_t sem_otime;
+  __time_t sem_ctime;
+#endif
   unsigned long __uclibc_unused3;
   unsigned long __uclibc_unused4;
 };
+
 
 /* The user should define a union like the following to use it for arguments
    for `semctl'.
