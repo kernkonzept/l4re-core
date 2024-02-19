@@ -84,7 +84,7 @@ size_t attribute_hidden __stdio_WRITE(register FILE *stream,
 			if (stodo != 0) {
 				unsigned char *s;
 
-				if (stodo > todo) {
+				if ((size_t)stodo > todo) {
 					stodo = todo;
 				}
 

@@ -93,7 +93,7 @@ char attribute_hidden *_uintmaxtostr(register char * __restrict bufend, uintmax_
 
 	H = (UINT_MAX / base);
 	L = UINT_MAX % base + 1;
-	if (L == base) {
+	if (L == (unsigned int)base) {
 		++H;
 		L = 0;
 	}

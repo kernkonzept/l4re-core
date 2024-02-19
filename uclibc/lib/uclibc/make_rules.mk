@@ -30,6 +30,11 @@ ifeq ($(BID_COMPILER_TYPE),clang)
   $(foreach f,e_lgamma_r e_log e_log2 e_rem_pio2 k_rem_pio2 e_scalb s_log1p\
     s_nextafterf s_nextafter __strtofpmax __fp_range_check _fpmaxtostr,\
     $(eval WARNINGS_$(f).c += -Wno-float-equal))
+  # WARNING EXCEPTION: warnings about comparisons of variables with differently
+  # signed types are left in the math library: the variables are also used
+  # with bitwise arithmetic, so the concrete bitwise layout is important.
+  $(foreach f,e_pow e_sqrt s_ceil s_floor,\
+    $(eval WARNINGS_$(f).c += -Wno-sign-compare))
   # WARNING EXCEPTION: The warning is useful but the generated code works
   # anyway as intended
   $(foreach s,S s.S,$(foreach f,bzero memcpy mempcpy memset strcspn strpbrk,\

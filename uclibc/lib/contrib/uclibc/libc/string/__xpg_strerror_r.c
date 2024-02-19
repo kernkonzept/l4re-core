@@ -187,10 +187,10 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
  GOT_ESTRIDX:
 #else
 	/* No errno to string index translation needed. */
-	i = errnum;
+	i = (unsigned int)errnum;
 #endif
 
-    if (((unsigned int) i) < _SYS_NERR) {
+    if (i < _SYS_NERR) {
 		/* Trade time for space.  This function should rarely be called
 		 * so rather than keeping an array of pointers for the different
 		 * messages, just run through the buffer until we find the
@@ -216,7 +216,7 @@ int __xpg_strerror_r(int errnum, char *strerrbuf, size_t buflen)
 		buflen = 0;
     }
     i = strlen(s) + 1;
-    if (i > buflen) {
+    if ((unsigned int)i > buflen) {
 		i = buflen;
 		retval = ERANGE;
     }

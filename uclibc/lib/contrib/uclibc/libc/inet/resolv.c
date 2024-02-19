@@ -569,7 +569,7 @@ int __encode_dotted(const char *dotted, unsigned char *dest, int maxlen)
 		if (l == 0)
 			return -1;
 
-		if (l >= (maxlen - used - 1))
+		if ((unsigned int)l >= (maxlen - used - 1))
 			return -1;
 
 		dest[used++] = l;
@@ -632,9 +632,9 @@ int __decode_dotted(const unsigned char *packet,
 			continue;
 		}
 
-		if (used + b + 1 >= dest_len)
+		if (used + b + 1 >= (unsigned int)dest_len)
 			return -1;
-		if (offset + b >= packet_len)
+		if (offset + b >= (unsigned int)packet_len)
 			return -1;
 		memcpy(dest + used, packet + offset, b);
 		offset += b;
@@ -1250,7 +1250,7 @@ int __dns_lookup(const char *name,
 		 * For names without domain, act_variant = 0, 1, .., sdomains
 		 *  => Try search domains first, original name last */
 		act_variant = contains_dot ? variant : variant + 1;
-		if (act_variant < sdomains) {
+		if (act_variant < (unsigned int)sdomains) {
 			/* lookup is name_len + 1 + MAXLEN_searchdomain + 1 long */
 			/* __searchdomain[] is not bigger than MAXLEN_searchdomain */
 			lookup[name_len] = '.';
@@ -1266,7 +1266,7 @@ int __dns_lookup(const char *name,
 				local_ns_num = last_ns_num;
 			retries_left = __nameservers * __resolv_attempts;
 		}
-		if (local_ns_num >= __nameservers)
+		if ((unsigned int)local_ns_num >= __nameservers)
 			local_ns_num = 0;
 		local_id++;
 		local_id &= 0xffff;
@@ -2098,7 +2098,7 @@ int gethostbyname_r(const char *name,
 		memcpy(buf, a.rdata, sizeof(struct in_addr));
 
 		/* fill addr_list[] */
-		for (i = 0; i <= a.add_count; i++) {
+		for (i = 0; (unsigned int)i <= a.add_count; i++) {
 			addr_list[i] = (struct in_addr*)buf;
 			buf += sizeof(struct in_addr);
 		}
@@ -2296,7 +2296,7 @@ int gethostbyname2_r(const char *name,
 		memcpy(buf, a.rdata, sizeof(struct in6_addr));
 
 		/* fill addr_list[] */
-		for (i = 0; i <= a.add_count; i++) {
+		for (i = 0; (unsigned int)i <= a.add_count; i++) {
 			addr_list[i] = (struct in6_addr*)buf;
 			buf += sizeof(struct in6_addr);
 		}
@@ -3473,7 +3473,7 @@ __res_vinit(res_state rp, int preinit)
 #endif
 
 	n = __searchdomains;
-	if (n > ARRAY_SIZE(rp->dnsrch))
+	if ((unsigned int)n > ARRAY_SIZE(rp->dnsrch))
 		n = ARRAY_SIZE(rp->dnsrch);
 	for (i = 0; i < n; i++)
 		rp->dnsrch[i] = __searchdomain[i];
@@ -3482,11 +3482,12 @@ __res_vinit(res_state rp, int preinit)
 	i = 0;
 #ifdef __UCLIBC_HAS_IPV4__
 	n = 0;
-	while (n < ARRAY_SIZE(rp->nsaddr_list) && i < __nameservers) {
+        while ((unsigned int)n < ARRAY_SIZE(rp->nsaddr_list)
+               && (unsigned int)i < __nameservers) {
 		if (__nameserver[i].sa.sa_family == AF_INET) {
 			rp->nsaddr_list[n] = __nameserver[i].sa4; /* struct copy */
 #ifdef __UCLIBC_HAS_IPV6__
-			if (m < ARRAY_SIZE(rp->_u._ext.nsaddrs)) {
+			if ((unsigned int)m < ARRAY_SIZE(rp->_u._ext.nsaddrs)) {
 				rp->_u._ext.nsaddrs[m] = (void*) &rp->nsaddr_list[n];
 				m++;
 			}
@@ -3495,7 +3496,7 @@ __res_vinit(res_state rp, int preinit)
 		}
 #ifdef __UCLIBC_HAS_IPV6__
 		if (__nameserver[i].sa.sa_family == AF_INET6
-		 && m < ARRAY_SIZE(rp->_u._ext.nsaddrs)
+		 && (unsigned int)m < ARRAY_SIZE(rp->_u._ext.nsaddrs)
 		) {
 			struct sockaddr_in6 *sa6 = malloc(sizeof(*sa6));
 			if (sa6) {

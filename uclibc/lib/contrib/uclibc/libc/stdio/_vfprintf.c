@@ -825,7 +825,7 @@ int attribute_hidden _ppfs_parsespec(ppfs_t *ppfs)
 			if (buf[i] != (((wchar_t *) ppfs->fmtpos)[i-1])) {
 				return -1;
 			}
-		} while (buf[i++] && (i < sizeof(buf)));
+		} while (buf[i++] && ((unsigned int)i < sizeof(buf)));
 		buf[sizeof(buf)-1] = 0;
 	}
 #else  /* __UCLIBC_HAS_WCHAR__ */
@@ -1158,7 +1158,7 @@ static size_t _fp_out_narrow(FILE *fp, intptr_t type, intptr_t len, intptr_t buf
 		len -= buflen;
 		if (len > 0) {
 			r = _charpad(fp, (type & 0x7f), len);
-			if (r != len) {
+			if (r != (unsigned int)len) {
 				return r;
 			}
 		}
@@ -1223,7 +1223,7 @@ static size_t _fp_out_wide(FILE *fp, intptr_t type, intptr_t len, intptr_t buf)
 		len -= buflen;
 		if (len > 0) {
 			r = _charpad(fp, (type & 0x7f), len);
-			if (r != len) {
+			if (r != (unsigned int)len) {
 				return r;
 			}
 		}
@@ -1510,7 +1510,7 @@ static int _do_one_spec(FILE * __restrict stream,
 				if (ppfs->conv_num == CONV_X) {
 					prefix_num = PREFIX_UPR_X;
 				}
-				if ((ppfs->conv_num == CONV_o) && (numfill <= SLEN)) {
+				if ((ppfs->conv_num == CONV_o) && ((unsigned int)numfill <= SLEN)) {
 					numfill = ((*s == '0') ? 1 : SLEN + 1);
 				}
 			}
@@ -1532,7 +1532,7 @@ static int _do_one_spec(FILE * __restrict stream,
 					slen = 0;
 				}
 			}
-			numfill = ((numfill > SLEN) ? numfill - SLEN : 0);
+			numfill = (((unsigned int)numfill > SLEN) ? numfill - SLEN : 0);
 		} else if (ppfs->conv_num <= CONV_A) {	/* floating point */
 #ifdef __UCLIBC_HAS_FLOATS__
 			ssize_t nf;
@@ -1601,7 +1601,7 @@ static int _do_one_spec(FILE * __restrict stream,
 					s = "(null)";
 					slen = 6;
 					/* Use an empty string rather than truncation if precision is too small. */
-					if (ppfs->info.prec >= 0 && ppfs->info.prec < slen)
+					if (ppfs->info.prec >= 0 && (unsigned int)ppfs->info.prec < slen)
 						slen = 0;
 				}
 			} else {			/* char */
@@ -1657,7 +1657,7 @@ static int _do_one_spec(FILE * __restrict stream,
 					s = "(null)";
 					SLEN = slen = 6;
 					/* Use an empty string rather than truncation if precision is too small. */
-					if (ppfs->info.prec >= 0 && ppfs->info.prec < slen)
+					if (ppfs->info.prec >= 0 && (unsigned int)ppfs->info.prec < slen)
 						SLEN = slen = 0;
 				}
 			} else {			/* char */
@@ -1703,7 +1703,7 @@ static int _do_one_spec(FILE * __restrict stream,
 			if (prefix_num != PREFIX_NONE) {
 				t += ((prefix_num < PREFIX_LWR_X) ? 1 : 2);
 			}
-			numpad = ((ppfs->info.width > t) ? (ppfs->info.width - t) : 0);
+			numpad = ((ppfs->info.width > (int)t) ? (ppfs->info.width - t) : 0);
 			*count += t + numpad;
 		}
 		if (padchar == '0') { /* TODO: check this */
@@ -1713,14 +1713,14 @@ static int _do_one_spec(FILE * __restrict stream,
 
 		/* Now handle the output itself. */
 		if (!PRINT_INFO_FLAG_VAL(&(ppfs->info),left)) {
-			if (_charpad(stream, ' ', numpad) != numpad) {
+			if (_charpad(stream, ' ', numpad) != (unsigned int)numpad) {
 				return -1;
 			}
 			numpad = 0;
 		}
 		OUTPUT(stream, prefix + prefix_num);
 
-		if (_charpad(stream, '0', numfill) != numfill) {
+		if (_charpad(stream, '0', numfill) != (unsigned int)numfill) {
 			return -1;
 		}
 
@@ -1765,7 +1765,7 @@ static int _do_one_spec(FILE * __restrict stream,
 		}
 
 #endif /* L__vfprintf_internal */
-		if (_charpad(stream, ' ', numpad) != numpad) {
+		if (_charpad(stream, ' ', numpad) != (unsigned int)numpad) {
 			return -1;
 		}
 	}

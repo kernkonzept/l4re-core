@@ -189,7 +189,7 @@ int attribute_hidden __gen_tempname (char *tmpl, int kind, int flags,
     len = strlen (tmpl);
     /* This is where the Xs start.  */
     XXXXXX = tmpl + len - 6 - suffixlen;
-    if (len < 6 || suffixlen < 0 || suffixlen > len - 6
+    if (len < 6 || suffixlen < 0 || suffixlen > (ssize_t)len - 6
         || strncmp (XXXXXX, "XXXXXX", 6))
     {
 	__set_errno (EINVAL);

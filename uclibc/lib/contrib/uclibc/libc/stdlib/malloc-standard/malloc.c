@@ -252,7 +252,7 @@ void __do_check_malloc_state(void)
 
     max_fast_bin = fastbin_index(av->max_fast);
 
-    for (i = 0; i < NFASTBINS; ++i) {
+    for (i = 0; (unsigned int)i < NFASTBINS; ++i) {
 	p = av->fastbins[i];
 
 	/* all bins past max_fast are empty */

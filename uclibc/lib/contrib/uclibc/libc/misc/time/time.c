@@ -1000,7 +1000,7 @@ static int load_field(int k, const struct tm *__restrict timeptr)
 		r_max = 9999;
 	}
 
-	if ((((unsigned int) r) > r_max) || ((k == 3) && !r)) {
+	if ((r > r_max) || ((k == 3) && !r)) {
 		r = -1;
 	}
 
@@ -2131,7 +2131,7 @@ SKIP_OFFSET:
 				++s;
 				e = getnumber(e, &f);
 				if (!e
-				 || ((unsigned int)(f - s[1]) > n)
+				 || ((f - s[1]) > n)
 				 || (*s && (*e++ != *s))
 				) {
 					goto ILLEGAL;

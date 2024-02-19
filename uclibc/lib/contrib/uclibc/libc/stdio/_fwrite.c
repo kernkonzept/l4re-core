@@ -37,7 +37,7 @@ size_t attribute_hidden __stdio_fwrite(const unsigned char * __restrict buffer,
 		}
 
 /* 	RETRY: */
-		if (bytes <= __STDIO_STREAM_BUFFER_WAVAIL(stream)) {
+		if ((ssize_t)bytes <= __STDIO_STREAM_BUFFER_WAVAIL(stream)) {
 			memcpy(stream->__bufpos, buffer, bytes);
 			stream->__bufpos += bytes;
 			if (__STDIO_STREAM_IS_LBF(stream)
