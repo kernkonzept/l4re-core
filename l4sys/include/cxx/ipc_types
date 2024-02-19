@@ -585,7 +585,7 @@ public:
   template<typename O>
   Cap(Cap<O> const &o) noexcept : _cap_n_rights(o._cap_n_rights)
   {
-    T* x = reinterpret_cast<O *>(1ul); static_cast<void>(x);
+    L4::Cap<T>::template check_convertible_from<O>();
   }
 
   /// Make a Cap from L4::Cap<T>, with minimal rights
@@ -598,7 +598,7 @@ public:
   Cap(L4::Cap<O> cap) noexcept
   : _cap_n_rights((cap.cap() & Cap_mask) | (cap ? L4_CAP_FPAGE_R : 0))
   {
-    T* x = reinterpret_cast<O *>(1ul); static_cast<void>(x);
+    L4::Cap<T>::template check_convertible_from<O>();
   }
 
   /// Make an invalid cap
