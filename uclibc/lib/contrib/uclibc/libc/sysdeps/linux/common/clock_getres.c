@@ -10,7 +10,10 @@
 #include <sys/syscall.h>
 #include <time.h>
 
-#ifdef __NR_clock_getres
+
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_getres_time64)
+_syscall2_time64(int, clock_getres, clockid_t, clock_id, struct timespec*, res)
+#elif defined(__NR_clock_getres)
 _syscall2(int, clock_getres, clockid_t, clock_id, struct timespec*, res)
 #else
 # include <unistd.h>

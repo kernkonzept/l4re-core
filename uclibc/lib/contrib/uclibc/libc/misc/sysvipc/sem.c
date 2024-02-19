@@ -53,7 +53,12 @@ int semctl(int semid, int semnum, int cmd, ...)
     arg = va_arg (ap, union semun);
     va_end (ap);
 #ifdef __NR_semctl
-    return __semctl(semid, semnum, cmd | __IPC_64, arg.__pad);
+    int __ret = __semctl(semid, semnum, cmd | __IPC_64, arg.__pad);
+#if defined(__UCLIBC_USE_TIME64__)
+    arg.buf->sem_otime = (__time_t)arg.buf->__sem_otime_internal_1 | (__time_t)(arg.buf->__sem_otime_internal_2) << 32;
+    arg.buf->sem_ctime = (__time_t)arg.buf->__sem_ctime_internal_1 | (__time_t)(arg.buf->__sem_ctime_internal_2) << 32;
+#endif
+    return __ret;
 #else
     return __syscall_ipc(IPCOP_semctl, semid, semnum, cmd|__IPC_64, &arg, NULL);
 #endif
@@ -90,7 +95,9 @@ int semop (int semid, struct sembuf *sops, size_t nsops)
 
 #ifdef L_semtimedop
 
-#ifdef __NR_semtimedop
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_semtimedop_time64)
+_syscall4_time64(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout)
+#elif defined(__NR_semtimedop)
 _syscall4(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout)
 
 #else

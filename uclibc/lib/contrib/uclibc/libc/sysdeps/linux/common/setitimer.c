@@ -10,6 +10,38 @@
 #include <sys/time.h>
 
 
+#if defined(__UCLIBC_USE_TIME64__)
+
+struct itimerval32_struct {
+	__S32_TYPE __interval_sec;
+	__S32_TYPE __interval_usec;
+	__S32_TYPE __value_sec;
+	__S32_TYPE __value_usec;
+};
+
+int setitimer(__itimer_which_t which, const struct itimerval *restrict new, struct itimerval *restrict old)
+{
+	struct itimerval32_struct __itv32 = {
+		.__interval_sec = new->it_interval.tv_sec,
+		.__interval_usec = new->it_interval.tv_usec,
+		.__value_sec = new->it_value.tv_sec,
+		.__value_usec = new->it_value.tv_usec
+	};
+	struct itimerval32_struct __itv32_old;
+
+	int __ret = INLINE_SYSCALL(setitimer, 3, which, &__itv32, &__itv32_old);
+	if (__ret == 0 && old) {
+		old->it_interval.tv_sec = __itv32_old.__interval_sec;
+		old->it_interval.tv_usec = __itv32_old.__interval_usec;
+		old->it_value.tv_sec = __itv32_old.__value_sec;
+		old->it_value.tv_usec = __itv32_old.__value_usec;
+	}
+
+	return __ret;
+}
+#else
 _syscall3(int, setitimer, __itimer_which_t, which,
 		  const struct itimerval *, new, struct itimerval *, old)
+
+#endif
 libc_hidden_def(setitimer)

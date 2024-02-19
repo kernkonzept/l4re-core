@@ -10,11 +10,21 @@
 #include <time.h>
 #include <cancel.h>
 
-#define __NR___nanosleep_nocancel __NR_nanosleep
-static _syscall2(int, __NC(nanosleep), const struct timespec *, req,
-		 struct timespec *, rem);
+
+int _NC(nanosleep)(const struct timespec *req, struct timespec *rem)
+{
+	int __ret = clock_nanosleep(CLOCK_REALTIME, 0, req, rem);
+
+	if (__ret != 0) {
+		__set_errno(__ret);
+		return -1;
+	}
+
+	return __ret;
+};
 
 CANCELLABLE_SYSCALL(int, nanosleep,
 		    (const struct timespec *req, struct timespec *rem),
 		    (req, rem))
+
 lt_libc_hidden(nanosleep)

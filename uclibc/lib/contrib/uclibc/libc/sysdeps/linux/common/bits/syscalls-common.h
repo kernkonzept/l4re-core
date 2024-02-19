@@ -99,14 +99,40 @@ type name(C_DECL_ARGS_##nargs(args)) {					\
 	return (type)INLINE_SYSCALL(name, nargs, C_ARGS_##nargs(args));	\
 }
 
+#define SYSCALL_FUNC_TIME64(nargs, type, name, args...)			\
+type name(C_DECL_ARGS_##nargs(args)) {					\
+	return (type)INLINE_SYSCALL(name##_time64, nargs, C_ARGS_##nargs(args));	\
+}
+
+#define SYSCALL_FUNC_64(nargs, type, name, args...)			\
+type name(C_DECL_ARGS_##nargs(args)) {					\
+	return (type)INLINE_SYSCALL(name##64, nargs, C_ARGS_##nargs(args));	\
+}
+
+
 #define SYSCALL_NOERR_FUNC(nargs, type, name, args...)			\
 type name(C_DECL_ARGS_##nargs(args)) {					\
 	return (type)INLINE_SYSCALL_NOERR(name, nargs, C_ARGS_##nargs(args));	\
 }
 
+#define SYSCALL_NOERR_FUNC_TIME64(nargs, type, name, args...)			\
+type name(C_DECL_ARGS_##nargs(args)) {					\
+	return (type)INLINE_SYSCALL_NOERR(name##_time64, nargs, C_ARGS_##nargs(args));	\
+}
+
+#define SYSCALL_NOERR_FUNC_64(nargs, type, name, args...)			\
+type name(C_DECL_ARGS_##nargs(args)) {					\
+	return (type)INLINE_SYSCALL_NOERR(name##64, nargs, C_ARGS_##nargs(args));	\
+}
+
 #define SYSCALL_FUNC_BODY(nargs, type, name, args...)			\
 	return (type)INLINE_SYSCALL(name, nargs, C_ARGS_##nargs(args));
 
+#define SYSCALL_FUNC_BODY_TIME64(nargs, type, name, args...)			\
+	return (type)INLINE_SYSCALL(name##_time64, nargs, C_ARGS_##nargs(args));
+
+#define SYSCALL_FUNC_BODY_64(nargs, type, name, args...)			\
+	return (type)INLINE_SYSCALL(name##64, nargs, C_ARGS_##nargs(args));
 
 #define _syscall0(args...)		SYSCALL_FUNC(0, args)
 #define _syscall_noerr0(args...)	SYSCALL_NOERR_FUNC(0, args)
@@ -118,6 +144,29 @@ type name(C_DECL_ARGS_##nargs(args)) {					\
 #define _syscall4(args...)		SYSCALL_FUNC(4, args)
 #define _syscall5(args...)		SYSCALL_FUNC(5, args)
 #define _syscall6(args...)		SYSCALL_FUNC(6, args)
+
+#define _syscall0_time64(args...)		SYSCALL_FUNC_TIME64(0, args)
+#define _syscall_noerr0_time64(args...)	SYSCALL_NOERR_FUNC_TIME64(0, args)
+#define _syscall1_time64(args...)		SYSCALL_FUNC_TIME64(1, args)
+#define _syscall_noerr1_time64(args...)	SYSCALL_NOERR_FUNC_TIME64(1, args)
+#define _syscall2_time64(args...)		SYSCALL_FUNC_TIME64(2, args)
+#define _syscall2_body_time64(args...)		SYSCALL_FUNC_BODY_TIME64(2, args)
+#define _syscall3_time64(args...)		SYSCALL_FUNC_TIME64(3, args)
+#define _syscall4_time64(args...)		SYSCALL_FUNC_TIME64(4, args)
+#define _syscall5_time64(args...)		SYSCALL_FUNC_TIME64(5, args)
+#define _syscall6_time64(args...)		SYSCALL_FUNC_TIME64(6, args)
+
+#define _syscall0_64(args...)		SYSCALL_FUNC_64(0, args)
+#define _syscall_noerr0_64(args...)	SYSCALL_NOERR_FUNC_64(0, args)
+#define _syscall1_64(args...)		SYSCALL_FUNC_64(1, args)
+#define _syscall_noerr1_64(args...)	SYSCALL_NOERR_FUNC_64(1, args)
+#define _syscall2_64(args...)		SYSCALL_FUNC_64(2, args)
+#define _syscall2_body_64(args...)		SYSCALL_FUNC_BODY_64(2, args)
+#define _syscall3_64(args...)		SYSCALL_FUNC_64(3, args)
+#define _syscall4_64(args...)		SYSCALL_FUNC_64(4, args)
+#define _syscall5_64(args...)		SYSCALL_FUNC_64(5, args)
+#define _syscall6_64(args...)		SYSCALL_FUNC_64(6, args)
+
 
 #endif /* _syscall0 */
 

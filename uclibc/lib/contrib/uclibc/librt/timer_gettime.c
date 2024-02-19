@@ -9,9 +9,13 @@
 
 #include "kernel-posix-timers.h"
 
-#ifdef __NR_timer_gettime
+#if defined(__NR_timer_gettime) || defined(__NR_timer_gettime64)
 
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_timer_gettime64)
+#define __NR___syscall_timer_gettime __NR_timer_gettime64
+#else
 #define __NR___syscall_timer_gettime __NR_timer_gettime
+#endif
 static __inline__ _syscall2(int, __syscall_timer_gettime, kernel_timer_t, ktimerid,
 			void *, value);
 

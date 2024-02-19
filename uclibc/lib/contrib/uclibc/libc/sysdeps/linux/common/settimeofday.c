@@ -10,9 +10,21 @@
 
 #ifdef __USE_BSD
 # include <sys/time.h>
-# ifdef __NR_settimeofday
-_syscall2(int, settimeofday, const struct timeval *, tv,
-	  const struct timezone *, tz)
+# include <time.h>
+
+int settimeofday(const struct timeval *tv, const struct timezone *tz)
+{
+	if (!tv)
+		return 0;
+
+	struct timespec __ts = {
+		.tv_sec = tv->tv_sec,
+		.tv_nsec = tv->tv_usec * 1000
+	};
+
+	return clock_settime(CLOCK_REALTIME, &__ts);
+}
+
 # elif defined __USE_SVID && defined __NR_stime
 #  define __need_NULL
 #  include <stddef.h>
@@ -36,7 +48,6 @@ int settimeofday(const struct timeval *tv, const struct timezone *tz)
 	return stime(&when);
 }
 # endif
-# if defined __NR_settimeofday || (defined __USE_SVID && defined __NR_stime)
+# if defined __NR_settimeofday || defined(__UCLIBC_USE_TIME64__) || (defined __USE_SVID && defined __NR_stime)
 libc_hidden_def(settimeofday)
 # endif
-#endif

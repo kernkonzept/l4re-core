@@ -50,7 +50,11 @@ timer_gettime (
       struct timer *kt = (struct timer *) timerid;
 
       /* Delete the kernel timer object.  */
+# if defined(__UCLIBC_USE_TIME64__) && defined(__NR_timer_gettime64)
+      int res = INLINE_SYSCALL (timer_gettime64, 2, kt->ktimerid, value);
+# else
       int res = INLINE_SYSCALL (timer_gettime, 2, kt->ktimerid, value);
+# endif
 
 # ifndef __ASSUME_POSIX_TIMERS
       if (res != -1 || errno != ENOSYS)

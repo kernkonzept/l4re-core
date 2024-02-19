@@ -11,7 +11,9 @@
 #include <sys/syscall.h>
 #include <time.h>
 
-#ifdef __NR_clock_gettime
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
+_syscall2_64(int, clock_gettime, clockid_t, clock_id, struct timespec*, tp)
+#elif defined(__NR_clock_gettime)
 _syscall2(int, clock_gettime, clockid_t, clock_id, struct timespec*, tp)
 #else
 # include <sys/time.h>

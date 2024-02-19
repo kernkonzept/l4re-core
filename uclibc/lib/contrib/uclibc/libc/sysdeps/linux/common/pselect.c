@@ -56,8 +56,11 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 
 		sigmask = (void *)&data;
 	}
-
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_pselect6_time64)
+	return INLINE_SYSCALL(pselect6_time64, 6, nfds, readfds, writefds, exceptfds, timeout, sigmask);
+#else
 	return INLINE_SYSCALL(pselect6, 6, nfds, readfds, writefds, exceptfds, timeout, sigmask);
+#endif
 #else
 	struct timeval tval;
 	int retval;
@@ -88,6 +91,7 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 	return retval;
 #endif
 }
+
 CANCELLABLE_SYSCALL(int, pselect, (int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 				   const struct timespec *timeout, const sigset_t *sigmask),
 		    (nfds, readfds, writefds, exceptfds, timeout, sigmask))

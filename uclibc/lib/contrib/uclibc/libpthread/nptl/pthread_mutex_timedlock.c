@@ -264,10 +264,17 @@ pthread_mutex_timedlock (
 			   : PTHREAD_MUTEX_PSHARED (mutex));
 	    INTERNAL_SYSCALL_DECL (__err);
 
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+	    int e = INTERNAL_SYSCALL (futex_time64, __err, 4, &mutex->__data.__lock,
+				      __lll_private_flag (FUTEX_LOCK_PI,
+							  private), 1,
+				      abstime);
+#else
 	    int e = INTERNAL_SYSCALL (futex, __err, 4, &mutex->__data.__lock,
 				      __lll_private_flag (FUTEX_LOCK_PI,
 							  private), 1,
 				      abstime);
+#endif
 	    if (INTERNAL_SYSCALL_ERROR_P (e, __err))
 	      {
 		if (INTERNAL_SYSCALL_ERRNO (e, __err) == ETIMEDOUT)
@@ -289,8 +296,13 @@ pthread_mutex_timedlock (
 		    struct timespec reltime;
 		    struct timespec now;
 
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
+		    INTERNAL_SYSCALL (clock_gettime64, __err, 2, CLOCK_REALTIME,
+				      &now);
+#else
 		    INTERNAL_SYSCALL (clock_gettime, __err, 2, CLOCK_REALTIME,
 				      &now);
+#endif
 		    reltime.tv_sec = abstime->tv_sec - now.tv_sec;
 		    reltime.tv_nsec = abstime->tv_nsec - now.tv_nsec;
 		    if (reltime.tv_nsec < 0)
@@ -340,10 +352,17 @@ pthread_mutex_timedlock (
 	    mutex->__data.__count = 0;
 
 	    INTERNAL_SYSCALL_DECL (__err);
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+	    INTERNAL_SYSCALL (futex_time64, __err, 4, &mutex->__data.__lock,
+			      __lll_private_flag (FUTEX_UNLOCK_PI,
+						  PTHREAD_ROBUST_MUTEX_PSHARED (mutex)),
+			      0, 0);
+#else
 	    INTERNAL_SYSCALL (futex, __err, 4, &mutex->__data.__lock,
 			      __lll_private_flag (FUTEX_UNLOCK_PI,
 						  PTHREAD_ROBUST_MUTEX_PSHARED (mutex)),
 			      0, 0);
+#endif
 
 	    THREAD_SETMEM (THREAD_SELF, robust_head.list_op_pending, NULL);
 	    return ENOTRECOVERABLE;

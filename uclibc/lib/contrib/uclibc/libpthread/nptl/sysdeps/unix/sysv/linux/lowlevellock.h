@@ -71,9 +71,32 @@
 # endif	      
 #endif
 
-
 #define lll_futex_wait(futexp, val, private) \
   lll_futex_timed_wait(futexp, val, NULL, private)
+
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+
+#define lll_futex_timed_wait(futexp, val, timespec, private) \
+  ({									      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    long int __ret;							      \
+    __ret = INTERNAL_SYSCALL (futex_time64, __err, 4, (futexp),		      \
+			      __lll_private_flag (FUTEX_WAIT, private),	      \
+			      (val), (timespec));			      \
+    __ret;								      \
+  })
+
+#define lll_futex_wake(futexp, nr, private) \
+  ({									      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    long int __ret;							      \
+    __ret = INTERNAL_SYSCALL (futex_time64, __err, 4, (futexp),		      \
+			      __lll_private_flag (FUTEX_WAKE, private),	      \
+			      (nr), 0);					      \
+    __ret;								      \
+  })
+
+#else
 
 #define lll_futex_timed_wait(futexp, val, timespec, private) \
   ({									      \
@@ -95,6 +118,8 @@
     __ret;								      \
   })
 
+#endif
+
 #define lll_robust_dead(futexv, private) \
   do									      \
     {									      \
@@ -105,6 +130,35 @@
   while (0)
 
 /* Returns non-zero if error happened, zero if success.  */
+
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+
+#define lll_futex_requeue(futexp, nr_wake, nr_move, mutex, val, private) \
+  ({									      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    long int __ret;							      \
+    __ret = INTERNAL_SYSCALL (futex_time64, __err, 6, (futexp),		      \
+			      __lll_private_flag (FUTEX_CMP_REQUEUE, private),\
+			      (nr_wake), (nr_move), (mutex), (val));	      \
+    INTERNAL_SYSCALL_ERROR_P (__ret, __err);				      \
+  })
+
+
+/* Returns non-zero if error happened, zero if success.  */
+#define lll_futex_wake_unlock(futexp, nr_wake, nr_wake2, futexp2, private) \
+  ({									      \
+    INTERNAL_SYSCALL_DECL (__err);					      \
+    long int __ret;							      \
+    __ret = INTERNAL_SYSCALL (futex_time64, __err, 6, (futexp),		      \
+			      __lll_private_flag (FUTEX_WAKE_OP, private),    \
+			      (nr_wake), (nr_wake2), (futexp2),		      \
+			      FUTEX_OP_CLEAR_WAKE_IF_GT_ONE);		      \
+    INTERNAL_SYSCALL_ERROR_P (__ret, __err);				      \
+  })
+
+#else
+
+
 #define lll_futex_requeue(futexp, nr_wake, nr_move, mutex, val, private) \
   ({									      \
     INTERNAL_SYSCALL_DECL (__err);					      \
@@ -127,6 +181,8 @@
 			      FUTEX_OP_CLEAR_WAKE_IF_GT_ONE);		      \
     INTERNAL_SYSCALL_ERROR_P (__ret, __err);				      \
   })
+
+#endif
 
 
 #define lll_trylock(lock)	\

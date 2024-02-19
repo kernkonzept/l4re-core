@@ -1024,6 +1024,15 @@ config UCLIBC_FALLBACK_TO_ETC_LOCALTIME
 
 	  Most people will answer Y.
 
+config UCLIBC_USE_TIME64
+	bool "Use *time64 syscalls instead of 32bit ones (if possible)"
+	depends on TARGET_arm
+	# TODO: add support for other architectures
+	default n
+
+	help
+	  Replace 32bit syscalls to their 64/time64 analog if possible.
+
 endmenu
 
 menu "Advanced Library Settings"

@@ -39,17 +39,22 @@
 struct semid_ds
 {
   struct ipc_perm sem_perm;		/* operation permission struct */
-  __time_t sem_otime;			/* last semop() time */
-#if __WORDSIZE == 32
-  unsigned long int __uclibc_unused1;
+
+  unsigned long int __sem_otime_internal_1;
+  unsigned long int __sem_otime_internal_2;
+  unsigned long int __sem_ctime_internal_1;
+  unsigned long int __sem_ctime_internal_2;
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+  unsigned short int sem_nsems;		/* number of semaphores in set */
+  char __paddind[sizeof(long int) - sizeof(short int)];
+#else
+  char __padding[sizeof(long int) - sizeof(short int)];
+  unsigned short int sem_nsems;		/* number of semaphores in set */
 #endif
-  __time_t sem_ctime;			/* last time changed by semctl() */
-#if __WORDSIZE == 32
-  unsigned long int __uclibc_unused2;
-#endif
-  unsigned long int sem_nsems;		/* number of semaphores in set */
   unsigned long int __uclibc_unused3;
   unsigned long int __uclibc_unused4;
+  __time_t sem_otime;			/* last semop() time */
+  __time_t sem_ctime;			/* last time changed by semctl() */
 };
 
 /* The user should define a union like the following to use it for arguments

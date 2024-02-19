@@ -2478,9 +2478,16 @@ DST_CORRECT:
 							+ p[3]) + p[7])));
 
 DST_CORRECT:
+#if defined(__UCLIBC_USE_TIME64__)
+	if (((unsigned long long)(secs - LLONG_MIN))
+		> (((unsigned long long)LLONG_MAX) - LLONG_MIN)
+		)
+#else
 	if (((unsigned long long)(secs - LONG_MIN))
 		> (((unsigned long long)LONG_MAX) - LONG_MIN)
-		) {
+		)
+#endif
+	{
 		t = ((time_t)(-1));
 		goto DONE;
 	}

@@ -30,7 +30,7 @@
 int
 clock_getcpuclockid (pid_t pid, clockid_t *clock_id)
 {
-#ifdef __NR_clock_getres
+#if defined(__NR_clock_getres) || defined(__NR_clock_getres_time64)
   /* The clockid_t value is a simple computation from the PID.
      But we do a clock_getres call to validate it.  */
 
@@ -47,7 +47,11 @@ clock_getcpuclockid (pid_t pid, clockid_t *clock_id)
 # endif
     {
       INTERNAL_SYSCALL_DECL (err);
+# if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_getres_time64)
+      int r = INTERNAL_SYSCALL (clock_getres_time64, err, 2, pidclock, NULL);
+# else
       int r = INTERNAL_SYSCALL (clock_getres, err, 2, pidclock, NULL);
+# endif
       if (!INTERNAL_SYSCALL_ERROR_P (r, err))
 	{
 	  *clock_id = pidclock;
@@ -66,12 +70,21 @@ clock_getcpuclockid (pid_t pid, clockid_t *clock_id)
 	if (INTERNAL_SYSCALL_ERRNO (r, err) == EINVAL)
 	  {
 # if !(__ASSUME_POSIX_CPU_TIMERS > 0)
+# if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_getres_time64)
+	    if (pidclock == MAKE_PROCESS_CPUCLOCK (0, CPUCLOCK_SCHED)
+		|| INTERNAL_SYSCALL_ERROR_P (INTERNAL_SYSCALL
+					     (clock_getres_time64, err, 2,
+					      MAKE_PROCESS_CPUCLOCK
+					      (0, CPUCLOCK_SCHED), NULL),
+					     err))
+# else
 	    if (pidclock == MAKE_PROCESS_CPUCLOCK (0, CPUCLOCK_SCHED)
 		|| INTERNAL_SYSCALL_ERROR_P (INTERNAL_SYSCALL
 					     (clock_getres, err, 2,
 					      MAKE_PROCESS_CPUCLOCK
 					      (0, CPUCLOCK_SCHED), NULL),
 					     err))
+# endif
 	      /* The kernel doesn't support these clocks at all.  */
 	      __libc_missing_posix_cpu_timers = 1;
 	    else

@@ -222,8 +222,13 @@ __pthread_mutex_unlock_full (pthread_mutex_t *mutex, int decr)
 			 ? PTHREAD_ROBUST_MUTEX_PSHARED (mutex)
 			 : PTHREAD_MUTEX_PSHARED (mutex));
 	  INTERNAL_SYSCALL_DECL (__err);
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+	  INTERNAL_SYSCALL (futex_time64, __err, 2, &mutex->__data.__lock,
+			    __lll_private_flag (FUTEX_UNLOCK_PI, private));
+#else
 	  INTERNAL_SYSCALL (futex, __err, 2, &mutex->__data.__lock,
 			    __lll_private_flag (FUTEX_UNLOCK_PI, private));
+#endif
 	}
 
       THREAD_SETMEM (THREAD_SELF, robust_head.list_op_pending, NULL);

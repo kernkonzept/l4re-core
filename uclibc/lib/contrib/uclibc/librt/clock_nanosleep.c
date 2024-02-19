@@ -37,15 +37,21 @@ clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
     clock_id = MAKE_PROCESS_CPUCLOCK (0, CPUCLOCK_SCHED);
 
   if (SINGLE_THREAD_P)
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_nanosleep_time64)
+    r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, req, rem);
+#else
     r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req, rem);
+#endif
   else
     {
 #ifdef __NEW_THREADS
       int oldstate = LIBC_CANCEL_ASYNC ();
-
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_nanosleep_time64)
+      r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, req, rem);
+#else
       r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req,
 			    rem);
-
+#endif
       LIBC_CANCEL_RESET (oldstate);
 #endif
     }

@@ -234,9 +234,15 @@ __pthread_mutex_trylock (
 			   ? PTHREAD_ROBUST_MUTEX_PSHARED (mutex)
 			   : PTHREAD_MUTEX_PSHARED (mutex));
 	    INTERNAL_SYSCALL_DECL (__err);
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+	    int e = INTERNAL_SYSCALL (futex_time64, __err, 4, &mutex->__data.__lock,
+				      __lll_private_flag (FUTEX_TRYLOCK_PI,
+							  private), 0, 0);
+#else
 	    int e = INTERNAL_SYSCALL (futex, __err, 4, &mutex->__data.__lock,
 				      __lll_private_flag (FUTEX_TRYLOCK_PI,
 							  private), 0, 0);
+#endif
 
 	    if (INTERNAL_SYSCALL_ERROR_P (e, __err)
 		&& INTERNAL_SYSCALL_ERRNO (e, __err) == EWOULDBLOCK)
@@ -276,10 +282,17 @@ __pthread_mutex_trylock (
 	    mutex->__data.__count = 0;
 
 	    INTERNAL_SYSCALL_DECL (__err);
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+	    INTERNAL_SYSCALL (futex_time64, __err, 4, &mutex->__data.__lock,
+			      __lll_private_flag (FUTEX_UNLOCK_PI,
+						  PTHREAD_ROBUST_MUTEX_PSHARED (mutex)),
+			      0, 0);
+#else
 	    INTERNAL_SYSCALL (futex, __err, 4, &mutex->__data.__lock,
 			      __lll_private_flag (FUTEX_UNLOCK_PI,
 						  PTHREAD_ROBUST_MUTEX_PSHARED (mutex)),
 			      0, 0);
+#endif
 
 	    THREAD_SETMEM (THREAD_SELF, robust_head.list_op_pending, NULL);
 	    return ENOTRECOVERABLE;

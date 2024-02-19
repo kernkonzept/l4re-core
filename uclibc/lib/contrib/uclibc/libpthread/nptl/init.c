@@ -195,8 +195,14 @@ __pthread_initialize_minimal_internal (void)
      doing the test once this early is beneficial.  */
   {
     int word = 0;
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+    word = INTERNAL_SYSCALL (futex_time64, err, 3, &word,
+			    FUTEX_WAKE | FUTEX_PRIVATE_FLAG, 1);
+#else
     word = INTERNAL_SYSCALL (futex, err, 3, &word,
 			    FUTEX_WAKE | FUTEX_PRIVATE_FLAG, 1);
+#endif
+
     if (!INTERNAL_SYSCALL_ERROR_P (word, err))
       THREAD_SETMEM (pd, header.private_futex, FUTEX_PRIVATE_FLAG);
   }
@@ -215,9 +221,16 @@ __pthread_initialize_minimal_internal (void)
 	 is irrelevant.  Given that passing six parameters is difficult
 	 on some architectures we just pass whatever random value the
 	 calling convention calls for to the kernel.  It causes no harm.  */
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+      word = INTERNAL_SYSCALL (futex_time64, err, 5, &word,
+			       FUTEX_WAIT_BITSET | FUTEX_CLOCK_REALTIME
+			       | FUTEX_PRIVATE_FLAG, 1, NULL, 0);
+#else
       word = INTERNAL_SYSCALL (futex, err, 5, &word,
 			       FUTEX_WAIT_BITSET | FUTEX_CLOCK_REALTIME
 			       | FUTEX_PRIVATE_FLAG, 1, NULL, 0);
+#endif
+
       assert (INTERNAL_SYSCALL_ERROR_P (word, err));
       if (INTERNAL_SYSCALL_ERRNO (word, err) != ENOSYS)
 	__set_futex_clock_realtime ();

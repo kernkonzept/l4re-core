@@ -272,7 +272,9 @@ lt_libc_hidden(recvmsg)
 static ssize_t __NC(recvmmsg)(int sockfd, struct mmsghdr *msg, size_t vlen,
 			      int flags, struct timespec *tmo)
 {
-# ifdef __NR_recvmmsg
+# if defined(__UCLIBC_USE_TIME64__) && defined(__NR_recvmmsg_time64)
+	return (ssize_t)INLINE_SYSCALL(recvmmsg_time64, 5, sockfd, msg, vlen, flags, tmo);
+# elif defined(__NR_recvmmsg)
 	return (ssize_t)INLINE_SYSCALL(recvmmsg, 5, sockfd, msg, vlen, flags, tmo);
 # elif __NR_socketcall
 	unsigned long args[5];

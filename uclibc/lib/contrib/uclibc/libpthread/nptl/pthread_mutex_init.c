@@ -62,8 +62,13 @@ __pthread_mutex_init (
 	{
 	  int lock = 0;
 	  INTERNAL_SYSCALL_DECL (err);
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_futex_time64)
+	  int ret = INTERNAL_SYSCALL (futex_time64, err, 4, &lock, FUTEX_UNLOCK_PI,
+				      0, 0);
+#else
 	  int ret = INTERNAL_SYSCALL (futex, err, 4, &lock, FUTEX_UNLOCK_PI,
 				      0, 0);
+#endif
 	  assert (INTERNAL_SYSCALL_ERROR_P (ret, err));
 	  tpi_supported = INTERNAL_SYSCALL_ERRNO (ret, err) == ENOSYS ? -1 : 1;
 	}

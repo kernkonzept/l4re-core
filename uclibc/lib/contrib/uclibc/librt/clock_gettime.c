@@ -22,10 +22,15 @@
 #include <sys/time.h>
 #include "kernel-posix-cpu-timers.h"
 
-
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
+#define SYSCALL_GETTIME \
+  retval = INLINE_SYSCALL (clock_gettime64, 2, clock_id, tp); \
+  break
+#else
 #define SYSCALL_GETTIME \
   retval = INLINE_SYSCALL (clock_gettime, 2, clock_id, tp); \
   break
+#endif
 
 /* The REALTIME and MONOTONIC clock are definitely supported in the kernel.  */
 #define SYSDEP_GETTIME							      \

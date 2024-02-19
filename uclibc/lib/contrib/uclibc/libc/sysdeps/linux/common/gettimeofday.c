@@ -8,11 +8,11 @@
 
 #include <sys/syscall.h>
 #include <sys/time.h>
+#include <time.h>
 
 #ifdef __VDSO_SUPPORT__
 #include "ldso.h"
 #endif
-
 
 #ifdef __VDSO_SUPPORT__
 typedef int (*gettimeofday_func)(struct timeval * tv, __timezone_ptr_t tz);
@@ -29,7 +29,14 @@ int gettimeofday(struct timeval * tv, __timezone_ptr_t tz) {
             _syscall2_body(int, gettimeofday, struct timeval *, tv, __timezone_ptr_t, tz)
         }
     #else
-        _syscall2_body(int, gettimeofday, struct timeval *, tv, __timezone_ptr_t, tz)
+        if (!tv)
+            return 0;
+
+        struct timespec __ts;
+        int __ret = clock_gettime(CLOCK_REALTIME, &__ts);
+        tv->tv_sec = __ts.tv_sec;
+        tv->tv_usec = (suseconds_t)__ts.tv_nsec / 1000;
+        return __ret;
     #endif
 }
 

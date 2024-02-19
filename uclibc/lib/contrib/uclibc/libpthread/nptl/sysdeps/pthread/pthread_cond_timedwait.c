@@ -102,10 +102,18 @@ __pthread_cond_timedwait (
 # ifndef __ASSUME_POSIX_TIMERS
 	int ret =
 # endif
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
+	INTERNAL_SYSCALL (clock_gettime64, err, 2,
+				(cond->__data.__nwaiters
+				 & ((1 << COND_NWAITERS_SHIFT) - 1)),
+				&rt);
+#else
 	INTERNAL_SYSCALL (clock_gettime, err, 2,
 				(cond->__data.__nwaiters
 				 & ((1 << COND_NWAITERS_SHIFT) - 1)),
 				&rt);
+#endif
+
 # ifndef __ASSUME_POSIX_TIMERS
 	if (__builtin_expect (INTERNAL_SYSCALL_ERROR_P (ret, err), 0))
 	  {

@@ -8,11 +8,17 @@
 
 /* Pause execution for a number of nanoseconds.  */
 int
-nanosleep (const struct timespec *requested_time,
+_NC(nanosleep) (const struct timespec *requested_time,
              struct timespec *remaining)
 {
-  return _syscall2(int, __NC(nanosleep), const struct timespec*,
-			requested_time, struct timespec* remaining)
+    int __ret = clock_nanosleep(CLOCK_REALTIME, 0, requested_time, remaining);
+
+    if (__ret != 0) {
+      __set_errno(__ret);
+      return -1;
+    }
+
+    return __ret;
 }
 
 CANCELLABLE_SYSCALL(int, nanosleep, (const struct timespec *requested_time,

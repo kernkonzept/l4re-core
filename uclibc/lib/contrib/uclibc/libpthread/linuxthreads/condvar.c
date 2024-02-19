@@ -328,7 +328,11 @@ int pthread_condattr_setclock (pthread_condattr_t *attr, clockid_t clock_id)
 
 	  INTERNAL_SYSCALL_DECL (err);
 	  int val;
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_getres_time64)
+	  val = INTERNAL_SYSCALL (clock_getres_time64, err, 2, CLOCK_MONOTONIC, &ts);
+#else
 	  val = INTERNAL_SYSCALL (clock_getres, err, 2, CLOCK_MONOTONIC, &ts);
+#endif
 	  avail = INTERNAL_SYSCALL_ERROR_P (val, err) ? -1 : 1;
 	}
 

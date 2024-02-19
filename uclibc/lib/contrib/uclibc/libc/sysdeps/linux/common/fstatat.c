@@ -62,6 +62,14 @@ int fstatat(int fd, const char *file, struct stat *buf, int flag)
 		.st_mtim.tv_nsec = tmp.stx_mtime.tv_nsec,
 		.st_ctim.tv_sec = tmp.stx_ctime.tv_sec,
 		.st_ctim.tv_nsec = tmp.stx_ctime.tv_nsec,
+#if defined(__UCLIBC_USE_TIME64__)
+		.__st_atim32.tv_sec = stx.stx_atime.tv_sec,
+		.__st_atim32.tv_nsec = stx.stx_atime.tv_nsec,
+		.__st_mtim32.tv_sec = stx.stx_mtime.tv_sec,
+		.__st_mtim32.tv_nsec = stx.stx_mtime.tv_nsec,
+		.__st_ctim32.tv_sec = stx.stx_ctime.tv_sec,
+		.__st_ctim32.tv_nsec = stx.stx_ctime.tv_nsec,
+#endif
 	};
 
 	return ret;
