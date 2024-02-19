@@ -73,7 +73,7 @@ debug_reloc(ElfW(Sym) const *symtab, char const *strtab, ELF_RELOC const *rpnt)
 		_dl_dprintf(_dl_debug_file, "\n%s\n\t", sym);
 	}
 
-	_dl_dprintf(_dl_debug_file, "%x\toffset=%zx",
+	_dl_dprintf(_dl_debug_file, "%zx\toffset=%zx",
 		ELF_R_TYPE(rpnt->r_info),
 		rpnt->r_offset);
 #ifdef ELF_USES_RELOCA
