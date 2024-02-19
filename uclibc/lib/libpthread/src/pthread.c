@@ -661,10 +661,10 @@ static void pthread_initialize(void)
      keep the lock count from the ld.so implementation.  */
   GL(dl_rtld_lock_recursive) = (void *) __pthread_mutex_lock;
   GL(dl_rtld_unlock_recursive) = (void *) __pthread_mutex_unlock;
-  unsigned int rtld_lock_count = GL(dl_load_lock).mutex.__m_count;
-  GL(dl_load_lock).mutex.__m_count = 0;
+  unsigned int rtld_lock_count = GL(dl_load_lock).__m_count;
+  GL(dl_load_lock).__m_count = 0;
   while (rtld_lock_count-- > 0)
-    __pthread_mutex_lock (&GL(dl_load_lock).mutex);
+    __pthread_mutex_lock (&GL(dl_load_lock));
 #endif
 
 #ifdef USE_TLS

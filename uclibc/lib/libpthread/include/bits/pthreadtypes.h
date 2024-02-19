@@ -1,3 +1,5 @@
+/* Linuxthreads - a simple clone()-based implementation of Posix        */
+/* threads for Linux.                                                   */
 /* Copyright (C) 1996 Xavier Leroy (Xavier.Leroy@inria.fr)              */
 /*                                                                      */
 /* This program is free software; you can redistribute it and/or        */
@@ -10,10 +12,14 @@
 /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        */
 /* GNU Library General Public License for more details.                 */
 
-/* 2008 Alexander Warg --- L4 adaption                                  */
+#if !defined _BITS_TYPES_H && !defined _PTHREAD_H
+# error "Never include <bits/pthreadtypes.h> directly; use <sys/types.h> instead."
+#endif
 
-#pragma once
+#ifndef _BITS_PTHREADTYPES_H
+#define _BITS_PTHREADTYPES_H	1
 
+#define __need_size_t
 #include <stddef.h>
 #include <l4/sys/types.h>
 #include <l4/sys/scheduler.h>
@@ -132,7 +138,7 @@ typedef struct
 
 #ifdef __USE_XOPEN2K
 /* POSIX spinlock data type.  */
-typedef __volatile__ int pthread_spinlock_t;
+typedef volatile int pthread_spinlock_t;
 
 /* POSIX barrier. */
 typedef struct {
@@ -152,3 +158,5 @@ typedef struct {
 
 /* Thread identifiers */
 typedef void *pthread_t;
+
+#endif	/* bits/pthreadtypes.h */
