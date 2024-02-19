@@ -33,7 +33,8 @@ all:: $(HEADERS_LST)
 
 DST_HEADERS   := $(addprefix $(HEADER_DIR)/,$(DST_HEADERS))
 
-$(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(HEADERS_LST)
+$(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(HEADERS_LST) \
+                                         $(LIBCSRC_DIR)/make_vars.mk
 	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) -p $(@D)
 	$(VERBOSE)$(LN) -sf $(call absfilename,$<) $@
 
