@@ -388,7 +388,7 @@ public:
                           Map_type map_type = Map,
                           Continue cont = Last) noexcept
   {
-    return Gen_fpage<T>(Obj, base << 12, order, rights, snd_base, map_type, None, cont);
+    return Gen_fpage<T>(Obj, base, order, rights, snd_base, map_type, None, cont);
   }
 
   static Gen_fpage<T> mem(l4_addr_t base, int order,
