@@ -8,6 +8,6 @@ PC_LIBS        = -lc_be_l4refile
 PC_EXTRA       = Link_Libs= %{static|static-pie:-lc_be_l4refile}
 SRC_CC         = file.cc mmap.cc mount.cc socket.cc
 # No exception information as unwinder code might uses malloc and friends
-CXXFLAGS       := -fno-exceptions
+CXXFLAGS       := -DL4_NO_RTTI -fno-rtti -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk
