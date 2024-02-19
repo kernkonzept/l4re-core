@@ -58,8 +58,8 @@ __asm__(
 
 /* Handle relocation of the symbols in the dynamic loader. */
 static __always_inline
-void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, unsigned long *reloc_addr,
-	unsigned long symbol_addr, unsigned long load_addr, ElfW(Sym) *symtab)
+void PERFORM_BOOTSTRAP_RELOC(ELF_RELOC *rpnt, ElfW(Addr) *reloc_addr,
+	ElfW(Addr) symbol_addr, ElfW(Addr) load_addr, ElfW(Sym) *symtab)
 {
 	(void) symtab;
 

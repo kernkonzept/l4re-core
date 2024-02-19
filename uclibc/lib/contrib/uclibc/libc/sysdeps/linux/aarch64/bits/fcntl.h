@@ -1,6 +1,6 @@
-/* O_*, F_*, FD_* bit values for Linux.
-   Copyright (C) 1995-1998, 2000, 2004, 2006, 2007, 2008
-   Free Software Foundation, Inc.
+/* O_*, F_*, FD_* bit values for the AArch64 Linux ABI.
+   Copyright (C) 2011-2016 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -14,7 +14,7 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
 #ifndef	_FCNTL_H
@@ -26,17 +26,15 @@
 # include <bits/uio.h>
 #endif
 
-
-/* open/fcntl - O_SYNC is only implemented on blocks devices and on files
-   located on an ext2 file system */
+/* open/fcntl.  */
 #define O_ACCMODE	   0003
 #define O_RDONLY	     00
 #define O_WRONLY	     01
 #define O_RDWR		     02
-#define O_CREAT		   0100	/* not fcntl */
-#define O_EXCL		   0200	/* not fcntl */
-#define O_NOCTTY	   0400	/* not fcntl */
-#define O_TRUNC		  01000	/* not fcntl */
+#define O_CREAT		   0100	/* Not fcntl.  */
+#define O_EXCL		   0200	/* Not fcntl.  */
+#define O_NOCTTY	   0400	/* Not fcntl.  */
+#define O_TRUNC		  01000	/* Not fcntl.  */
 #define O_APPEND	  02000
 #define O_NONBLOCK	  04000
 #define O_NDELAY	O_NONBLOCK
@@ -45,11 +43,11 @@
 #define O_ASYNC		 020000
 
 #ifdef __USE_GNU
-# define O_DIRECTORY	 040000	/* Must be a directory.	 */
-# define O_NOFOLLOW	0100000	/* Do not follow links.	 */
-# define O_DIRECT	0200000	/* Direct disk access.	*/
-# define O_NOATIME     01000000 /* Do not set atime.  */
-# define O_CLOEXEC     02000000 /* Set close_on_exec.  */
+# define O_DIRECTORY	 040000
+# define O_NOFOLLOW	0100000
+# define O_DIRECT	0200000
+# define O_NOATIME     01000000
+# define O_CLOEXEC     02000000
 # define O_PATH       010000000
 #endif
 
@@ -94,33 +92,36 @@
 # define F_GETSIG	11	/* Get number of signal to be sent.  */
 #endif
 
+
 #ifdef __USE_GNU
 # define F_SETLEASE	1024	/* Set a lease.	 */
 # define F_GETLEASE	1025	/* Enquire what lease is active.  */
-# define F_NOTIFY	1026	/* Request notfications on a directory.	 */
+# define F_NOTIFY	1026	/* Request notifications on a directory.  */
+# define F_SETPIPE_SZ	1031	/* Set pipe page size array.  */
+# define F_GETPIPE_SZ	1032	/* Set pipe page size array.  */
 # define F_DUPFD_CLOEXEC 1030	/* Duplicate file descriptor with
-				   close-on-exit set on new fd.  */
+				   close-on-exit set.  */
 #endif
 
 /* For F_[GET|SET]FD.  */
-#define FD_CLOEXEC	1	/* actually anything with low bit set goes */
+#define FD_CLOEXEC	1	/* Actually anything with low bit set goes */
 
 /* For posix fcntl() and `l_type' field of a `struct flock' for lockf().  */
-#define F_RDLCK		0	/* Read lock.  */
-#define F_WRLCK		1	/* Write lock.	*/
-#define F_UNLCK		2	/* Remove lock.	 */
+# define F_RDLCK		0	/* Read lock.  */
+# define F_WRLCK		1	/* Write lock.	*/
+# define F_UNLCK		2	/* Remove lock.	 */
 
-/* For old implementation of bsd flock().  */
+/* For old implementation of BSD flock.  */
 #define F_EXLCK		4	/* or 3 */
 #define F_SHLCK		8	/* or 4 */
 
 #ifdef __USE_BSD
-/* Operations for bsd flock(), also used by the kernel implementation.	*/
-# define LOCK_SH	1	/* shared lock */
-# define LOCK_EX	2	/* exclusive lock */
-# define LOCK_NB	4	/* or'd with one of the above to prevent
-				   blocking */
-# define LOCK_UN	8	/* remove lock */
+/* Operations for BSD flock, also used by the kernel implementation.  */
+# define LOCK_SH	1	/* Shared lock.  */
+# define LOCK_EX	2	/* Exclusive lock.  */
+# define LOCK_NB	4	/* Or'd with one of the above to prevent
+				   blocking.  */
+# define LOCK_UN	8	/* Remove lock.  */
 #endif
 
 #ifdef __USE_GNU
@@ -137,7 +138,7 @@
 # define DN_CREATE	0x00000004	/* File created.  */
 # define DN_DELETE	0x00000008	/* File removed.  */
 # define DN_RENAME	0x00000010	/* File renamed.  */
-# define DN_ATTRIB	0x00000020	/* File changed attibutes.  */
+# define DN_ATTRIB	0x00000020	/* File changed attributes.  */
 # define DN_MULTISHOT	0x80000000	/* Don't remove notifier.  */
 #endif
 
@@ -216,20 +217,34 @@ __BEGIN_DECLS
 extern ssize_t readahead (int __fd, __off64_t __offset, size_t __count)
     __THROW;
 
-/* Selective file content synch'ing.  */
-extern int sync_file_range (int __fd, __off64_t __from, __off64_t __to,
+
+/* Selective file content synch'ing.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
+extern int sync_file_range (int __fd, __off64_t __offset, __off64_t __count,
 			    unsigned int __flags);
 
-/* Splice address range into a pipe.  */
+
+/* Splice address range into a pipe.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
 extern ssize_t vmsplice (int __fdout, const struct iovec *__iov,
 			 size_t __count, unsigned int __flags);
 
-/* Splice two files together.  */
+/* Splice two files together.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
 extern ssize_t splice (int __fdin, __off64_t *__offin, int __fdout,
 		       __off64_t *__offout, size_t __len,
 		       unsigned int __flags);
 
-/* In-kernel implementation of tee for pipe buffers.  */
+/* In-kernel implementation of tee for pipe buffers.
+
+   This function is a possible cancellation point and therefore not
+   marked with __THROW.  */
 extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 		    unsigned int __flags);
 

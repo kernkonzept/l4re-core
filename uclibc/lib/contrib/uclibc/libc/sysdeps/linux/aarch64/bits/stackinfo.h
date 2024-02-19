@@ -1,10 +1,11 @@
-/* Copyright (C) 2001 Free Software Foundation, Inc.
+/* Copyright (C) 2001-2016 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -21,7 +22,7 @@
 #ifndef _STACKINFO_H
 #define _STACKINFO_H	1
 
-/* On Arm the stack grows down.  */
+/* On AArch64 the stack grows down.  */
 #define _STACK_GROWS_DOWN	1
 
 #endif	/* stackinfo.h */

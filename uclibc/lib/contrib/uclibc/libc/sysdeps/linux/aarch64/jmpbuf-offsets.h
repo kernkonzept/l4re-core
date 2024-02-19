@@ -1,11 +1,11 @@
-/* Private macros for accessing __jmp_buf contents.  ARM version.
-   Copyright (C) 2006 Free Software Foundation, Inc.
+/* Copyright (C) 2006-2016 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -13,7 +13,7 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
 #define JB_X19            0
@@ -28,18 +28,18 @@
 #define JB_X28            9
 #define JB_X29           10
 #define JB_LR            11
-#define JB_SP            13
-#define JB_D8            14
-#define JB_D9            15
-#define JB_D10           16
-#define JB_D11           17
-#define JB_D12           18
-#define JB_D13           19
-#define JB_D14           20
-#define JB_D15           21
+#define JB_SP		 13
+
+#define JB_D8		 14
+#define JB_D9		 15
+#define JB_D10		 16
+#define JB_D11		 17
+#define JB_D12		 18
+#define JB_D13		 19
+#define JB_D14		 20
+#define JB_D15		 21
 
 #ifndef  __ASSEMBLER__
-
 #include <setjmp.h>
 #include <stdint.h>
 

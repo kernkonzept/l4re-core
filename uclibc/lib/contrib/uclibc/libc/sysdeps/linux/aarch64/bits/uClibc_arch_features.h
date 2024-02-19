@@ -42,17 +42,4 @@
 /* only weird assemblers generally need this */
 #undef __UCLIBC_ASM_LINE_SEP__
 
-#ifdef NOT_FOR_L4 // must disable this check below because it blows l4-lic-symbols.h
-#ifdef __GNUC__
-# define __need_uClibc_config_h
-# include <bits/uClibc_config.h>
-# undef __need_uClibc_config_h
-# if defined __CONFIG_ARM_EABI__ && !defined __ARM_EABI__
-#  error Your toolchain does not support EABI
-# elif !defined __CONFIG_ARM_EABI__ && defined __ARM_EABI__
-#  error Your toolchain was built for EABI, but you have chosen OABI
-# endif
-#endif
-#endif
-
 #endif /* _BITS_UCLIBC_ARCH_FEATURES_H */

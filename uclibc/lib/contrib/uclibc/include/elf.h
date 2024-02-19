@@ -728,6 +728,31 @@ typedef struct
 #define NT_LWPSTATUS	16		/* Contains copy of lwpstatus struct */
 #define NT_LWPSINFO	17		/* Contains copy of lwpinfo struct */
 #define NT_PRFPXREG	20		/* Contains copy of fprxregset struct*/
+#define NT_SIGINFO	0x53494749	/* Contains copy of siginfo_t,
+					   size might increase */
+#define NT_FILE		0x46494c45	/* Contains information about mapped
+					   files */
+#define NT_PRXFPREG	0x46e62b7f	/* Contains copy of user_fxsr_struct */
+#define NT_PPC_VMX	0x100		/* PowerPC Altivec/VMX registers */
+#define NT_PPC_SPE	0x101		/* PowerPC SPE/EVR registers */
+#define NT_PPC_VSX	0x102		/* PowerPC VSX registers */
+#define NT_386_TLS	0x200		/* i386 TLS slots (struct user_desc) */
+#define NT_386_IOPERM	0x201		/* x86 io permission bitmap (1=deny) */
+#define NT_X86_XSTATE	0x202		/* x86 extended state using xsave */
+#define NT_S390_HIGH_GPRS	0x300	/* s390 upper register halves */
+#define NT_S390_TIMER	0x301		/* s390 timer register */
+#define NT_S390_TODCMP	0x302		/* s390 TOD clock comparator register */
+#define NT_S390_TODPREG	0x303		/* s390 TOD programmable register */
+#define NT_S390_CTRS	0x304		/* s390 control registers */
+#define NT_S390_PREFIX	0x305		/* s390 prefix register */
+#define NT_S390_LAST_BREAK	0x306	/* s390 breaking event address */
+#define NT_S390_SYSTEM_CALL	0x307	/* s390 system call restart data */
+#define NT_S390_TDB	0x308		/* s390 transaction diagnostic block */
+#define NT_ARM_VFP	0x400		/* ARM VFP/NEON registers */
+#define NT_ARM_TLS	0x401		/* ARM TLS register */
+#define NT_ARM_HW_BREAK	0x402		/* ARM hardware breakpoint registers */
+#define NT_ARM_HW_WATCH	0x403		/* ARM hardware watchpoint registers */
+#define NT_ARM_SYSTEM_CALL	0x404	/* ARM system call number */
 
 /* Legal values for the note segment descriptor types for object files.  */
 
@@ -2363,65 +2388,8 @@ typedef Elf32_Addr Elf32_Conflict;
 /* Processor specific values for the Phdr p_type field.  */
 #define PT_ARM_EXIDX	0x70000001	/* .ARM.exidx segment */
 
-/* ARM relocs.  */
-
-#define R_ARM_NONE		0	/* No reloc */
-#define R_ARM_PC24		1	/* PC relative 26 bit branch */
-#define R_ARM_ABS32		2	/* Direct 32 bit  */
-#define R_ARM_REL32		3	/* PC relative 32 bit */
-#define R_ARM_PC13		4
-#define R_ARM_ABS16		5	/* Direct 16 bit */
-#define R_ARM_ABS12		6	/* Direct 12 bit */
-#define R_ARM_THM_ABS5		7
-#define R_ARM_ABS8		8	/* Direct 8 bit */
-#define R_ARM_SBREL32		9
-#define R_ARM_THM_PC22		10
-#define R_ARM_THM_PC8		11
-#define R_ARM_AMP_VCALL9	12
-#define R_ARM_SWI24		13
-#define R_ARM_THM_SWI8		14
-#define R_ARM_XPC25		15
-#define R_ARM_THM_XPC22		16
-#define R_ARM_TLS_DTPMOD32	17
-#define R_ARM_TLS_DTPOFF32	18
-#define R_ARM_TLS_TPOFF32	19
-#define R_ARM_COPY		20	/* Copy symbol at runtime */
-#define R_ARM_GLOB_DAT		21	/* Create GOT entry */
-#define R_ARM_JUMP_SLOT		22	/* Create PLT entry */
-#define R_ARM_RELATIVE		23	/* Adjust by program base */
-#define R_ARM_GOTOFF		24	/* 32 bit offset to GOT */
-#define R_ARM_GOTPC		25	/* 32 bit PC relative offset to GOT */
-#define R_ARM_GOT32		26	/* 32 bit GOT entry */
-#define R_ARM_PLT32		27	/* 32 bit PLT address */
-#define R_ARM_ALU_PCREL_7_0	32
-#define R_ARM_ALU_PCREL_15_8	33
-#define R_ARM_ALU_PCREL_23_15	34
-#define R_ARM_LDR_SBREL_11_0	35
-#define R_ARM_ALU_SBREL_19_12	36
-#define R_ARM_ALU_SBREL_27_20	37
-#define R_ARM_GNU_VTENTRY	100
-#define R_ARM_GNU_VTINHERIT	101
-#define R_ARM_THM_PC11		102	/* thumb unconditional branch */
-#define R_ARM_THM_PC9		103	/* thumb conditional branch */
-#define R_ARM_TLS_GD32		104
-#define R_ARM_TLS_LDM32		105
-#define R_ARM_TLS_LDO32		106
-#define R_ARM_TLS_IE32		107
-#define R_ARM_TLS_LE32		108
-#define R_ARM_TLS_LDO12		109
-#define R_ARM_TLS_LE12		110
-#define R_ARM_TLS_IE12GP	111
-#define R_ARM_RXPC25		249
-#define R_ARM_RSBREL32		250
-#define R_ARM_THM_RPC22		251
-#define R_ARM_RREL32		252
-#define R_ARM_RABS22		253
-#define R_ARM_RPC24		254
-#define R_ARM_RBASE		255
-/* Keep this the last entry.  */
-#define R_ARM_NUM		256
-
 /* AArch64 relocs.  */
+
 #define R_AARCH64_NONE            0	/* No relocation.  */
 
 /* ILP32 AArch64 relocs.  */
@@ -2559,6 +2527,64 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_AARCH64_TLS_TPREL    1030	/* TP-relative offset, 64 bit.  */
 #define R_AARCH64_TLSDESC      1031	/* TLS Descriptor.  */
 #define R_AARCH64_IRELATIVE	1032	/* STT_GNU_IFUNC relocation.  */
+
+/* ARM relocs.  */
+
+#define R_ARM_NONE		0	/* No reloc */
+#define R_ARM_PC24		1	/* PC relative 26 bit branch */
+#define R_ARM_ABS32		2	/* Direct 32 bit  */
+#define R_ARM_REL32		3	/* PC relative 32 bit */
+#define R_ARM_PC13		4
+#define R_ARM_ABS16		5	/* Direct 16 bit */
+#define R_ARM_ABS12		6	/* Direct 12 bit */
+#define R_ARM_THM_ABS5		7
+#define R_ARM_ABS8		8	/* Direct 8 bit */
+#define R_ARM_SBREL32		9
+#define R_ARM_THM_PC22		10
+#define R_ARM_THM_PC8		11
+#define R_ARM_AMP_VCALL9	12
+#define R_ARM_SWI24		13
+#define R_ARM_THM_SWI8		14
+#define R_ARM_XPC25		15
+#define R_ARM_THM_XPC22		16
+#define R_ARM_TLS_DTPMOD32	17
+#define R_ARM_TLS_DTPOFF32	18
+#define R_ARM_TLS_TPOFF32	19
+#define R_ARM_COPY		20	/* Copy symbol at runtime */
+#define R_ARM_GLOB_DAT		21	/* Create GOT entry */
+#define R_ARM_JUMP_SLOT		22	/* Create PLT entry */
+#define R_ARM_RELATIVE		23	/* Adjust by program base */
+#define R_ARM_GOTOFF		24	/* 32 bit offset to GOT */
+#define R_ARM_GOTPC		25	/* 32 bit PC relative offset to GOT */
+#define R_ARM_GOT32		26	/* 32 bit GOT entry */
+#define R_ARM_PLT32		27	/* 32 bit PLT address */
+#define R_ARM_ALU_PCREL_7_0	32
+#define R_ARM_ALU_PCREL_15_8	33
+#define R_ARM_ALU_PCREL_23_15	34
+#define R_ARM_LDR_SBREL_11_0	35
+#define R_ARM_ALU_SBREL_19_12	36
+#define R_ARM_ALU_SBREL_27_20	37
+#define R_ARM_GNU_VTENTRY	100
+#define R_ARM_GNU_VTINHERIT	101
+#define R_ARM_THM_PC11		102	/* thumb unconditional branch */
+#define R_ARM_THM_PC9		103	/* thumb conditional branch */
+#define R_ARM_TLS_GD32		104
+#define R_ARM_TLS_LDM32		105
+#define R_ARM_TLS_LDO32		106
+#define R_ARM_TLS_IE32		107
+#define R_ARM_TLS_LE32		108
+#define R_ARM_TLS_LDO12		109
+#define R_ARM_TLS_LE12		110
+#define R_ARM_TLS_IE12GP	111
+#define R_ARM_RXPC25		249
+#define R_ARM_RSBREL32		250
+#define R_ARM_THM_RPC22		251
+#define R_ARM_RREL32		252
+#define R_ARM_RABS22		253
+#define R_ARM_RPC24		254
+#define R_ARM_RBASE		255
+/* Keep this the last entry.  */
+#define R_ARM_NUM		256
 
 /* IA-64 specific declarations.  */
 
