@@ -452,8 +452,8 @@ _GLIBCXX_BEGIN_NAMESPACE_FILESYSTEM
 	return false;
       }
 
-    size_t count = from_st->st_size;
 #if defined _GLIBCXX_USE_SENDFILE && ! defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
+    size_t count = from_st->st_size;
     off_t offset = 0;
     ssize_t n = ::sendfile(out.fd, in.fd, &offset, count);
     if (n < 0 && errno != ENOSYS && errno != EINVAL)
