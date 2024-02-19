@@ -15,17 +15,19 @@
 # define __NR_select __NR__newselect
 #endif
 
-#if !defined __NR_select && defined __NR_pselect6
+#if defined(__NR_pselect6) || defined(__NR_pselect6_time64)
 # include <stdint.h>
 # define USEC_PER_SEC 1000000L
+#endif
+
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
 #endif
 
 int __NC(select)(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 		 struct timeval *timeout)
 {
-#ifdef __NR_select
-	return INLINE_SYSCALL(select, 5, n, readfds, writefds, exceptfds, timeout);
-#elif defined __NR_pselect6
+#if defined(__NR_pselect6) || defined(__NR_pselect6_time64)
 	struct timespec _ts, *ts = 0;
 	if (timeout) {
 		uint32_t usec;
@@ -47,7 +49,13 @@ int __NC(select)(int n, fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
 
 		ts = &_ts;
 	}
+#if defined(__UCLIBC_USE_TIME64__) && defined(__NR_pselect6_time64)
+	return INLINE_SYSCALL(pselect6_time64, 6, n, readfds, writefds, exceptfds, TO_TS64_P(ts), 0);
+#else
 	return INLINE_SYSCALL(pselect6, 6, n, readfds, writefds, exceptfds, ts, 0);
+#endif
+#elif defined(__NR_select)
+	return INLINE_SYSCALL(select, 5, n, readfds, writefds, exceptfds, ts);
 #endif
 }
 /* we should guard it, but we need it in other files, so let it fail

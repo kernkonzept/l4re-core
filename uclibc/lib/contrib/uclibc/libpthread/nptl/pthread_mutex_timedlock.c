@@ -23,6 +23,10 @@
 #include <lowlevellock.h>
 #include <not-cancel.h>
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
+
 /* We need to build this function with optimization to avoid
  * lll_timedlock erroring out with
  * error: can't find a register in class ‘GENERAL_REGS’ while reloading ‘asm’
@@ -268,7 +272,7 @@ pthread_mutex_timedlock (
 	    int e = INTERNAL_SYSCALL (futex_time64, __err, 4, &mutex->__data.__lock,
 				      __lll_private_flag (FUTEX_LOCK_PI,
 							  private), 1,
-				      abstime);
+				      TO_TS64_P(abstime));
 #else
 	    int e = INTERNAL_SYSCALL (futex, __err, 4, &mutex->__data.__lock,
 				      __lll_private_flag (FUTEX_LOCK_PI,

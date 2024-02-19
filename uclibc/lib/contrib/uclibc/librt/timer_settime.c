@@ -12,10 +12,16 @@
 #if defined(__NR_timer_settime) || defined(__NR_timer_settime64)
 
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_timer_settime64)
-#define __NR___syscall_timer_settime __NR_timer_settime64
+#include "internal/time64_helpers.h"
+
+int timer_settime(timer_t timerid, int flags, const struct itimerspec *value, struct itimerspec *ovalue)
+{
+	struct timer *kt = (struct timer *)timerid;
+
+	return INLINE_SYSCALL(timer_settime64, 4, kt->ktimerid, flags, TO_ITS64_P(value), ovalue);
+}
 #else
 #define __NR___syscall_timer_settime __NR_timer_settime
-#endif
 
 static __inline__ _syscall4(int, __syscall_timer_settime, kernel_timer_t, ktimerid,
 			int, flags, const void *, value, void *, ovalue);
@@ -30,4 +36,5 @@ int timer_settime(timer_t timerid, int flags, const struct itimerspec *value,
 	return __syscall_timer_settime(kt->ktimerid, flags, value, ovalue);
 }
 
+#endif
 #endif

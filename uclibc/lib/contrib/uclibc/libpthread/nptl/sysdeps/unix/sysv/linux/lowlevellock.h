@@ -24,6 +24,10 @@
 #include <sysdep.h>
 #include <bits/kernel-features.h>
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
+
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 #define FUTEX_REQUEUE		3
@@ -82,7 +86,7 @@
     long int __ret;							      \
     __ret = INTERNAL_SYSCALL (futex_time64, __err, 4, (futexp),		      \
 			      __lll_private_flag (FUTEX_WAIT, private),	      \
-			      (val), (timespec));			      \
+			      (val), (TO_TS64_P(timespec)));			      \
     __ret;								      \
   })
 

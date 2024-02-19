@@ -9,7 +9,7 @@
 
 #include <sys/syscall.h>
 
-#ifdef __NR_rt_sigtimedwait
+#if defined(__NR_rt_sigtimedwait) || (defined(__NR_rt_sigtimedwait_time64) && defined(__UCLIBC_USE_TIME64__))
 # include <signal.h>
 # include <cancel.h>
 # ifdef __UCLIBC_HAS_THREADS_NATIVE__
@@ -20,6 +20,10 @@
 #  include <stddef.h>
 #  include <string.h>
 # endif
+
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
 
 int __NC(sigtimedwait)(const sigset_t *set, siginfo_t *info,
 		       const struct timespec *timeout)
@@ -54,7 +58,7 @@ int __NC(sigtimedwait)(const sigset_t *set, siginfo_t *info,
 	/* on uClibc we use the kernel sigset_t size */
 # if defined(__UCLIBC_USE_TIME64__) && defined(__NR_rt_sigtimedwait_time64)
 	result = INLINE_SYSCALL(rt_sigtimedwait_time64, 4, set, info,
-				    timeout, __SYSCALL_SIGSET_T_SIZE);
+				    TO_TS64_P(timeout), __SYSCALL_SIGSET_T_SIZE);
 # else
 	result = INLINE_SYSCALL(rt_sigtimedwait, 4, set, info,
 				    timeout, __SYSCALL_SIGSET_T_SIZE);
@@ -72,7 +76,7 @@ int __NC(sigtimedwait)(const sigset_t *set, siginfo_t *info,
 	/* on uClibc we use the kernel sigset_t size */
 # if defined(__UCLIBC_USE_TIME64__) && defined(__NR_rt_sigtimedwait_time64)
 	return INLINE_SYSCALL(rt_sigtimedwait_time64, 4, set, info,
-			      timeout, __SYSCALL_SIGSET_T_SIZE);
+			      TO_TS64_P(timeout), __SYSCALL_SIGSET_T_SIZE);
 # else
 	return INLINE_SYSCALL(rt_sigtimedwait, 4, set, info,
 			      timeout, __SYSCALL_SIGSET_T_SIZE);

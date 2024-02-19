@@ -23,6 +23,9 @@
 
 #include "ipc.h"
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
 
 #ifdef L_semctl
 /* Return identifier for array of NSEMS semaphores associated with
@@ -96,7 +99,11 @@ int semop (int semid, struct sembuf *sops, size_t nsops)
 #ifdef L_semtimedop
 
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_semtimedop_time64)
-_syscall4_time64(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout)
+int semtimedop(int semid, struct sembuf *sops, size_t nsops, const struct timespec *timeout)
+{
+    return INLINE_SYSCALL(semtimedop_time64, 4, semid, sops, nsops, TO_TS64_P(timeout));
+}
+
 #elif defined(__NR_semtimedop)
 _syscall4(int, semtimedop, int, semid, struct sembuf *, sops, size_t, nsops, const struct timespec *, timeout)
 

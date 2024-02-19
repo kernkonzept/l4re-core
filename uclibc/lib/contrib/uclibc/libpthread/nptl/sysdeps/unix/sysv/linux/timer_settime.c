@@ -23,6 +23,9 @@
 #include <bits/kernel-features.h>
 #include "kernel-posix-timers.h"
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
 
 #ifdef __NR_timer_settime
 # ifndef __ASSUME_POSIX_TIMERS
@@ -56,7 +59,7 @@ timer_settime (
       /* Delete the kernel timer object.  */
 # if defined(__UCLIBC_USE_TIME64__) && defined(__NR_timer_settime64)
       int res = INLINE_SYSCALL (timer_settime64, 4, kt->ktimerid, flags,
-				value, ovalue);
+				TO_ITS64_P(value), ovalue);
 # else
       int res = INLINE_SYSCALL (timer_settime, 4, kt->ktimerid, flags,
 				value, ovalue);

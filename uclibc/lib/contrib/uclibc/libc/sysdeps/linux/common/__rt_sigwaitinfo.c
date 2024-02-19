@@ -9,7 +9,7 @@
 
 #include <sys/syscall.h>
 
-#ifdef __NR_rt_sigtimedwait
+#if defined(__NR_rt_sigtimedwait) || (defined(__UCLIBC_USE_TIME64__) && defined(__NR_rt_sigtimedwait_time64))
 # define __need_NULL
 # include <stddef.h>
 # include <signal.h>

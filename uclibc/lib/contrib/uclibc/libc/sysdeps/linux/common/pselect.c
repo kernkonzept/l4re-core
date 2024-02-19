@@ -26,6 +26,10 @@
 #include <signal.h>
 #include <cancel.h>
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
+
 static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 			 fd_set *exceptfds, const struct timespec *timeout,
 			 const sigset_t *sigmask)
@@ -57,7 +61,7 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 		sigmask = (void *)&data;
 	}
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_pselect6_time64)
-	return INLINE_SYSCALL(pselect6_time64, 6, nfds, readfds, writefds, exceptfds, timeout, sigmask);
+	return INLINE_SYSCALL(pselect6_time64, 6, nfds, readfds, writefds, exceptfds, TO_TS64_P(timeout), sigmask);
 #else
 	return INLINE_SYSCALL(pselect6, 6, nfds, readfds, writefds, exceptfds, timeout, sigmask);
 #endif

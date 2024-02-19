@@ -12,7 +12,19 @@
 #include <time.h>
 
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
-_syscall2_64(int, clock_gettime, clockid_t, clock_id, struct timespec*, tp)
+#include "internal/time64_helpers.h"
+
+int clock_gettime(clockid_t clock_id, struct timespec *tp)
+{
+	struct __ts64_struct __ts64;
+	int __ret = INLINE_SYSCALL(clock_gettime64, 2, clock_id, &__ts64);
+	if (tp) {
+		tp->tv_sec = __ts64.tv_sec;
+		tp->tv_nsec = __ts64.tv_nsec;
+	}
+
+	return __ret;
+}
 #elif defined(__NR_clock_gettime)
 _syscall2(int, clock_gettime, clockid_t, clock_id, struct timespec*, tp)
 #else

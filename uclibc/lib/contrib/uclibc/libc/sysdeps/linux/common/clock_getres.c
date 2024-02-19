@@ -10,9 +10,20 @@
 #include <sys/syscall.h>
 #include <time.h>
 
-
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_getres_time64)
-_syscall2_time64(int, clock_getres, clockid_t, clock_id, struct timespec*, res)
+#include "internal/time64_helpers.h"
+
+int clock_getres(clockid_t clock_id, struct timespec *res)
+{
+	struct __ts64_struct __ts64;
+	int __ret = INLINE_SYSCALL(clock_getres_time64, 2, clock_id, &__ts64);
+	if (__ret == 0 && res) {
+		res->tv_sec = __ts64.tv_sec;
+		res->tv_nsec = __ts64.tv_nsec;
+	};
+
+	return __ret;
+}
 #elif defined(__NR_clock_getres)
 _syscall2(int, clock_getres, clockid_t, clock_id, struct timespec*, res)
 #else

@@ -9,7 +9,7 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#ifdef __NR_alarm && !defined(__UCLIBC_USE_TIME64__)
+#if defined(__NR_alarm) && !defined(__UCLIBC_USE_TIME64__)
 _syscall1(unsigned int, alarm, unsigned int, seconds)
 #else
 # include <sys/time.h>

@@ -9,7 +9,7 @@
 #include <sys/syscall.h>
 #include <time.h>
 
-#ifdef __NR_time
+#if defined(__NR_time) && !defined(__UCLIBC_USE_TIME64__)
 _syscall_noerr1(time_t, time, time_t *, t)
 #else
 # include <sys/time.h>

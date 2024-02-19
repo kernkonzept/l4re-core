@@ -10,6 +10,10 @@
 #include <cancel.h>
 #include <bits/kernel-features.h>
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
+
 #ifdef __NR_socketcall
 /* Various socketcall numbers */
 #define SYS_SOCKET      1
@@ -273,7 +277,7 @@ static ssize_t __NC(recvmmsg)(int sockfd, struct mmsghdr *msg, size_t vlen,
 			      int flags, struct timespec *tmo)
 {
 # if defined(__UCLIBC_USE_TIME64__) && defined(__NR_recvmmsg_time64)
-	return (ssize_t)INLINE_SYSCALL(recvmmsg_time64, 5, sockfd, msg, vlen, flags, tmo);
+	return (ssize_t)INLINE_SYSCALL(recvmmsg_time64, 5, sockfd, msg, vlen, flags, TO_TS64_P(tmo));
 # elif defined(__NR_recvmmsg)
 	return (ssize_t)INLINE_SYSCALL(recvmmsg, 5, sockfd, msg, vlen, flags, tmo);
 # elif __NR_socketcall

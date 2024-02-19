@@ -22,10 +22,21 @@
 #include <sys/time.h>
 #include "kernel-posix-cpu-timers.h"
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
+
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
-#define SYSCALL_GETTIME \
-  retval = INLINE_SYSCALL (clock_gettime64, 2, clock_id, tp); \
-  break
+#define SYSCALL_GETTIME           \
+  {                               \
+  struct __ts64_struct __ts64;    \
+  retval = INLINE_SYSCALL (clock_gettime64, 2, clock_id, &__ts64); \
+  if (tp) {                       \
+    tp->tv_sec = __ts64.tv_sec;   \
+    tp->tv_nsec = __ts64.tv_nsec; \
+  }                               \
+  break;                          \
+  }
 #else
 #define SYSCALL_GETTIME \
   retval = INLINE_SYSCALL (clock_gettime, 2, clock_id, tp); \

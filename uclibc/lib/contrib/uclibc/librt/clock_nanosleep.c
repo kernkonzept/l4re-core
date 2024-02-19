@@ -21,6 +21,9 @@
 
 #include "kernel-posix-cpu-timers.h"
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
 
 /* We can simply use the syscall.  The CPU clocks are not supported
    with this function.  */
@@ -38,7 +41,7 @@ clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
 
   if (SINGLE_THREAD_P)
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_nanosleep_time64)
-    r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, req, rem);
+    r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, TO_TS64_P(req), rem);
 #else
     r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req, rem);
 #endif
@@ -47,7 +50,7 @@ clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
 #ifdef __NEW_THREADS
       int oldstate = LIBC_CANCEL_ASYNC ();
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_nanosleep_time64)
-      r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, req, rem);
+      r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, TO_TS64_P(req), rem);
 #else
       r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req,
 			    rem);

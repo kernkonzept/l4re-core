@@ -26,6 +26,10 @@
 #include <sys/poll.h>
 #include <cancel.h>
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
+
 static int
 __NC(ppoll)(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
 	    const sigset_t *sigmask)
@@ -38,7 +42,7 @@ __NC(ppoll)(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
 		timeout = &tval;
 	}
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_ppoll_time64)
-	return INLINE_SYSCALL(ppoll_time64, 5, fds, nfds, timeout, sigmask, __SYSCALL_SIGSET_T_SIZE);
+	return INLINE_SYSCALL(ppoll_time64, 5, fds, nfds, TO_TS64_P(timeout), sigmask, __SYSCALL_SIGSET_T_SIZE);
 #else
 	return INLINE_SYSCALL(ppoll, 5, fds, nfds, timeout, sigmask, __SYSCALL_SIGSET_T_SIZE);
 #endif
