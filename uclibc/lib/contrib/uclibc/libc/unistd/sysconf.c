@@ -46,7 +46,7 @@
 long int get_phys_pages(void)
 {
 	struct sysinfo si;
-	int ps = getpagesize();;
+	int ps = getpagesize();
 
 	sysinfo(&si);
 
@@ -59,7 +59,7 @@ long int get_phys_pages(void)
 long int get_avphys_pages(void)
 {
 	struct sysinfo si;
-	int ps = getpagesize();;
+	int ps = getpagesize();
 
 	sysinfo(&si);
 
