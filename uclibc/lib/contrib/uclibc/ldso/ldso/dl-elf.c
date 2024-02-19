@@ -904,7 +904,8 @@ struct elf_resolve *_dl_load_elf_shared_library(unsigned int rflags,
 		_dl_memset(*rpnt, 0, sizeof(struct dyn_elf));
 	}
 #endif
-	(*rpnt)->dyn = tpnt;
+	if (*rpnt)
+		(*rpnt)->dyn = tpnt;
 	tpnt->usage_count++;
 	if (tpnt->rtld_flags & RTLD_NODELETE)
 		tpnt->usage_count++;
