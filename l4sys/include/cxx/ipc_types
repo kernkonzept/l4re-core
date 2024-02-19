@@ -459,28 +459,38 @@ public:
 class Rcv_fpage : public Gen_fpage
 {
 public:
-  Rcv_fpage() noexcept : Gen_fpage(0, 0) {}
-  Rcv_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0) noexcept
-  : Gen_fpage(L4_ITEM_MAP | (snd_base & (~0UL << 12)), fp.raw)
+  Rcv_fpage() noexcept : Gen_fpage(0, 0), _rcv_task(L4_INVALID_CAP) {}
+  Rcv_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
+            l4_cap_idx_t rcv_task = L4_INVALID_CAP) noexcept
+  : Gen_fpage(L4_ITEM_MAP | (snd_base & (~0UL << 12))
+                | (l4_is_valid_cap(rcv_task) ? Compound : 0),
+              fp.raw),
+    _rcv_task(rcv_task)
   {}
 
-  static Rcv_fpage obj(l4_cap_idx_t base, int order,
-                       l4_addr_t snd_base = 0) noexcept
+  static Rcv_fpage obj(l4_cap_idx_t base, int order, l4_addr_t snd_base = 0,
+                      L4::Cap<void> rcv_task = L4::Cap<void>::Invalid) noexcept
   {
-    return Rcv_fpage(l4_obj_fpage(base, order, 0), snd_base);
+    return Rcv_fpage(l4_obj_fpage(base, order, 0), snd_base,
+                     rcv_task.cap());
   }
 
-  static Rcv_fpage mem(l4_addr_t base, int order,
-                       l4_addr_t snd_base = 0) noexcept
+  static Rcv_fpage mem(l4_addr_t base, int order, l4_addr_t snd_base = 0,
+                       L4::Cap<void> rcv_task = L4::Cap<void>::Invalid) noexcept
   {
-    return Rcv_fpage(l4_fpage(base, order, 0), snd_base);
+    return Rcv_fpage(l4_fpage(base, order, 0), snd_base, rcv_task.cap());
   }
 
-  static Rcv_fpage io(unsigned long base, int order,
-                      l4_addr_t snd_base = 0) noexcept
+  static Rcv_fpage io(unsigned long base, int order, l4_addr_t snd_base = 0,
+                      L4::Cap<void> rcv_task = L4::Cap<void>::Invalid) noexcept
   {
-    return Rcv_fpage(l4_iofpage(base, order), snd_base);
+    return Rcv_fpage(l4_iofpage(base, order), snd_base, rcv_task.cap());
   }
+
+  l4_cap_idx_t rcv_task() const { return _rcv_task; }
+
+protected:
+  l4_cap_idx_t _rcv_task;
 };
 
 
@@ -491,6 +501,29 @@ template<> struct Class<L4::Ipc::Snd_fpage> : Cls_item {};
 
 // Rcv_fpage are buffer items
 template<> struct Class<L4::Ipc::Rcv_fpage> : Cls_buffer {};
+
+template<>
+struct Clnt_val_ops<L4::Ipc::Rcv_fpage, Dir_in, Cls_buffer>
+  : Clnt_noops<L4::Ipc::Rcv_fpage>
+{
+  using Clnt_noops<L4::Ipc::Rcv_fpage>::to_msg;
+
+  static int to_msg(char *msg, unsigned offs, unsigned limit,
+                    L4::Ipc::Rcv_fpage arg, Dir_in, Cls_buffer) noexcept
+  {
+    offs = align_to<l4_umword_t>(offs);
+    unsigned words = arg.is_compound() ? 3 : 2;
+    if (L4_UNLIKELY(!check_size<l4_umword_t>(offs, limit, words)))
+      return -L4_EMSGTOOLONG;
+    auto *buf = reinterpret_cast<l4_umword_t*>(msg + offs);
+    *buf++ = arg.base_x();
+    *buf++ = arg.data();
+    if (arg.is_compound())
+      *buf++ = arg.rcv_task();
+    return offs + sizeof(l4_umword_t) * words;
+  }
+};
+
 
 // Remove receive buffers from server-side arguments
 template<> struct Elem<L4::Ipc::Rcv_fpage>

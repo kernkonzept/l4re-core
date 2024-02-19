@@ -935,13 +935,19 @@ Ostream::put_snd_item(Snd_fpage const &v)
 inline bool
 Istream::put(Rcv_fpage const &item)
 {
-  if (_current_buf >= L4_UTCB_GENERIC_BUFFERS_SIZE - 3)
+  unsigned words = item.is_compound() ? 3 : 2;
+  if (_current_buf >= L4_UTCB_GENERIC_BUFFERS_SIZE - words - 1)
     return false;
 
   l4_utcb_br_u(_utcb)->bdr &= ~L4_BDR_OFFSET_MASK;
 
-  reinterpret_cast<Rcv_fpage&>(l4_utcb_br_u(_utcb)->br[_current_buf]) = item;
-  _current_buf += 2;
+  l4_umword_t *buf
+    = reinterpret_cast<l4_umword_t *>(&l4_utcb_br_u(_utcb)->br[_current_buf]);
+  *buf++ = item.base_x();
+  *buf++ = item.data();
+  if (item.is_compound())
+    *buf++ = item.rcv_task();
+  _current_buf += words;
   return true;
 }
 
