@@ -272,7 +272,7 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 					relr_reloc_addr += CHAR_BIT * sizeof(ElfW(Relr)) - 1; \
 				} \
 			} \
-		} while (0);
+		} while (0)
 
 /* The macro to prepare data for the above DL_DO_RELOCATE_RELR */
 #define DL_RELOCATE_RELR(dyn) \
@@ -287,7 +287,7 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 						    dyn->libname, (void *)relr_start, (void *)relr_end); \
 				DL_DO_RELOCATE_RELR(dyn->loadaddr, relr_start, relr_end); \
 			} \
-		} while (0);
+		} while (0)
 #endif /* __FDPIC__ */
 
 #endif /* _DL_ELF_H */
