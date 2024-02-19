@@ -542,24 +542,18 @@
   ({ __typeof (x) __x; __asm__ ("" : "=r" (__x) : "0" (x)); __x; })
 #endif
 
-/* This is equal to 1 iff the architecture supports 64b atomic operations.  */
-#define __HAVE_64B_ATOMICS 0 /* TODO: not yet used - Add these to arch bits! */
-#ifndef __HAVE_64B_ATOMICS
-#error Unable to determine if 64-bit atomics are present.
-#endif
-
 /* The following functions are a subset of the atomic operations provided by
    C11.  Usually, a function named atomic_OP_MO(args) is equivalent to C11's
    atomic_OP_explicit(args, memory_order_MO); exceptions noted below.  */
 
 /* Each arch can request to use compiler built-ins for C11 atomics.  If it
    does, all atomics will be based on these.  */
-#if 0 /* not yet used USE_ATOMIC_COMPILER_BUILTINS */
+#if defined USE_ATOMIC_COMPILER_BUILTINS
 
 /* We require 32b atomic operations; some archs also support 64b atomic
    operations.  */
 void __atomic_link_error (void);
-# if __HAVE_64B_ATOMICS == 1
+# if defined(__HAVE_64B_ATOMICS) && __HAVE_64B_ATOMICS
 #  define __atomic_check_size(mem) \
    if ((sizeof (*mem) != 4) && (sizeof (*mem) != 8))			      \
      __atomic_link_error ();
