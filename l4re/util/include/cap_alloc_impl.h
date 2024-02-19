@@ -24,8 +24,9 @@
 
 #pragma once
 
-//#define L4RE_STATIC_CAP_ALLOC
-#if defined(L4RE_STATIC_CAP_ALLOC)
+#include <l4/bid_config.h>
+
+#if defined(CONFIG_L4RE_BITMAP_CAP_ALLOC)
 
 #include <l4/re/util/bitmap_cap_alloc>
 
@@ -35,7 +36,8 @@ typedef Cap_alloc_base _Cap_alloc;
 
 }}
 
-#else
+#elif defined(CONFIG_L4RE_COUNTING_CAP_ALLOC)
+
 #include <l4/re/util/counting_cap_alloc>
 #include <l4/re/util/debug>
 
@@ -56,6 +58,7 @@ typedef Counting_cap_alloc<L4Re::Util::Counter<unsigned char>,
 #endif
 
 }}
+
+#else
+#error "No supported capability allocator selected"
 #endif
-
-

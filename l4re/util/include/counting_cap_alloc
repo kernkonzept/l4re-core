@@ -214,7 +214,7 @@ private:
 public:
 
   template <unsigned COUNT>
-  struct Counter_storage
+  struct Storage
   {
     COUNTERTYPE _buf[COUNT];
     typedef COUNTERTYPE Buf_type[COUNT];
@@ -230,6 +230,11 @@ protected:
    */
   Counting_cap_alloc() noexcept
   : _items(0), _free_hint(0), _bias(0), _capacity(0)
+  {}
+
+  Counting_cap_alloc(long capacity, void *m, long bias, Dbg *dbg) noexcept
+  : _items((Counter*)m), _free_hint(0), _bias(bias), _capacity(capacity),
+    _dbg(dbg)
   {}
 
   /**

@@ -8,4 +8,28 @@ config L4RE_CAP_MAX
 	  The allocation of capability slots is managed in lib4re. It requires
 	  static storage proportional to the number of supported allocations.
 
+choice
+	prompt "Capability allocator"
+	default L4RE_COUNTING_CAP_ALLOC
+
+config L4RE_COUNTING_CAP_ALLOC
+	bool "Reference counters"
+	help
+	  Reference counting allocator for capability slots.
+
+	  This is the default allocator. Should not be changed except for
+	  feature and resource constrained systems.
+
+config L4RE_BITMAP_CAP_ALLOC
+	bool "Bitmap allocator"
+	help
+	  Simple bitmap allocator for capability slots.
+
+	  Attention: any code that uses reference counted capabilites (e.g.
+	  L4Re::Util::Shared_cap) will lead to capability leaks because
+	  reference counting is not possible. Only use it on small systems
+	  without dynamic workloads.
+
+endchoice
+
 endmenu

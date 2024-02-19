@@ -29,19 +29,18 @@
 
 namespace
 {
-  struct Ca : L4Re::Cap_alloc_t<L4Re::Util::_Cap_alloc>
+  struct Ca
   {
     enum { Caps = CONFIG_L4RE_CAP_MAX };
-    typedef L4Re::Util::_Cap_alloc::Counter_storage<Caps> Storage;
 
+    L4Re::Util::_Cap_alloc::Storage<Caps> storage;
     L4Re::Util::Dbg _dbg;
+    L4Re::Cap_alloc_t<L4Re::Util::_Cap_alloc> alloc;
 
-    Ca() : _dbg(0xffUL, "Cap_alloc", 0)
-    {
-      static Storage __cap_storage;
-      setup(&__cap_storage, Caps, L4Re::Env::env()->first_free_cap(), &_dbg);
-      l4re_env()->first_free_cap += Caps;
-    }
+    Ca()
+    : _dbg{0xffUL, "Cap_alloc", 0},
+      alloc{Caps, &storage, L4Re::Env::env()->first_free_cap(), &_dbg}
+    { l4re_env()->first_free_cap += Caps; }
   };
 
   Ca __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC))) __cap_alloc;
@@ -49,10 +48,10 @@ namespace
 
 namespace L4Re {
   namespace Util {
-    _Cap_alloc &cap_alloc = __cap_alloc;
+    _Cap_alloc &cap_alloc = __cap_alloc.alloc;
   }
 #ifndef SHARED
-  Cap_alloc *virt_cap_alloc = &__cap_alloc;
+  Cap_alloc *virt_cap_alloc = &__cap_alloc.alloc;
 #else
   // defined in ldso in the case of shared libs
   extern Cap_alloc *__rtld_l4re_virt_cap_alloc __attribute__((weak));
@@ -63,7 +62,7 @@ namespace L4Re {
   setup()
   {
     if (&__rtld_l4re_virt_cap_alloc)
-      __rtld_l4re_virt_cap_alloc = &__cap_alloc;
+      __rtld_l4re_virt_cap_alloc = &__cap_alloc.alloc;
   }
 #endif
 }
