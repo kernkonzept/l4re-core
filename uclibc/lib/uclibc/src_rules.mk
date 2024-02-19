@@ -11,7 +11,7 @@ LIBC_SRC_DIRS += $(CONTRIB_DIR)/libm \
 LIBC_DST_DIR  := $(OBJ_DIR)/src
 
 $(LIBC_DST_DIR)/.links-done: $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/src_rules.mk \
-                             $(LIBCSRC_DIR)/contrib_files.mk
+                             $(LIBCSRC_DIR)/contrib_files.mk $(LIBCSRC_DIR)/make_vars.mk
 	$(VERBOSE)$(MKDIR) $(LIBC_DST_DIR)
 	$(VERBOSE)$(CP) -sfr $(LIBC_SRC_DIRS) $(LIBC_DST_DIR)
 	$(VERBOSE)touch $@
