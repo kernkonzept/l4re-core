@@ -39,17 +39,15 @@ namespace L4Re { namespace Util {
  */
 class Dataspace_svr
 {
-private:
-  typedef L4::Ipc::Gen_fpage<L4::Ipc::Snd_item> Snd_fpage;
 public:
   L4_RPC_LEGACY_DISPATCH(L4Re::Dataspace);
 
-  typedef Snd_fpage::Map_type Map_type;
-  typedef Snd_fpage::Cacheopt Cache_type;
+  typedef L4::Ipc::Snd_fpage::Map_type Map_type;
+  typedef L4::Ipc::Snd_fpage::Cacheopt Cache_type;
 
   Dataspace_svr() noexcept
-  : _ds_start(0), _ds_size(0), _map_flags(Snd_fpage::Map),
-    _cache_flags(Snd_fpage::Cached)
+  : _ds_start(0), _ds_size(0), _map_flags(L4::Ipc::Snd_fpage::Map),
+    _cache_flags(L4::Ipc::Snd_fpage::Cached)
   {}
 
   virtual ~Dataspace_svr() noexcept {}

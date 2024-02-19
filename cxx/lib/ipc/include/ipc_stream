@@ -533,7 +533,7 @@ public:
    * \internal
    * Put a receive item into the stream's buffer registers.
    */
-  inline bool put(Buf_item const &);
+  inline bool put(Rcv_fpage const &);
 
   /**
    * \internal
@@ -729,7 +729,7 @@ public:
    * \internal
    * Put a send item into the stream's message buffer.
    */
-  inline bool put_snd_item(Snd_item const &);
+  inline bool put_snd_item(Snd_fpage const &);
 
 
   /**
@@ -918,10 +918,10 @@ public:
 
 
 inline bool
-Ostream::put_snd_item(Snd_item const &v)
+Ostream::put_snd_item(Snd_fpage const &v)
 {
-  typedef Snd_item T;
-  _pos = cxx::Type_traits<Snd_item>::align(_pos);
+  typedef Snd_fpage T;
+  _pos = cxx::Type_traits<Snd_fpage>::align(_pos);
   if (Utcb_stream_check::check_utcb_data_offset(_pos + sizeof(T)))
     return false;
 
@@ -933,14 +933,14 @@ Ostream::put_snd_item(Snd_item const &v)
 
 
 inline bool
-Istream::put(Buf_item const &item)
+Istream::put(Rcv_fpage const &item)
 {
   if (_current_buf >= L4_UTCB_GENERIC_BUFFERS_SIZE - 3)
     return false;
 
   l4_utcb_br_u(_utcb)->bdr &= ~L4_BDR_OFFSET_MASK;
 
-  reinterpret_cast<Buf_item&>(l4_utcb_br_u(_utcb)->br[_current_buf]) = item;
+  reinterpret_cast<Rcv_fpage&>(l4_utcb_br_u(_utcb)->br[_current_buf]) = item;
   _current_buf += 2;
   return true;
 }
@@ -1058,13 +1058,13 @@ inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, unsigned short int &v
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, char &v) { s.get(v); return s; }
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, unsigned char &v) { s.get(v); return s; }
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, signed char &v) { s.get(v); return s; }
-inline L4::Ipc::Istream &operator << (L4::Ipc::Istream &s, L4::Ipc::Buf_item const &v) { s.put(v); return s; }
+inline L4::Ipc::Istream &operator << (L4::Ipc::Istream &s, L4::Ipc::Rcv_fpage const &v) { s.put(v); return s; }
 inline L4::Ipc::Istream &operator << (L4::Ipc::Istream &s, L4::Ipc::Small_buf const &v) { s.put(v); return s; }
-inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Snd_item &v)
+inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Snd_fpage &v)
 {
   l4_umword_t b, d;
   s >> b >> d;
-  v = L4::Ipc::Snd_item(b, d);
+  v = L4::Ipc::Snd_fpage(b, d);
   return s;
 }
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Varg &v)
@@ -1211,7 +1211,7 @@ inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, unsigned short int v)
 inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, char v) { s.put(v); return s; }
 inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, unsigned char v) { s.put(v); return s; }
 inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, signed char v) { s.put(v); return s; }
-inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Snd_item const &v) { s.put_snd_item(v); return s; }
+inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Ipc::Snd_fpage const &v) { s.put_snd_item(v); return s; }
 template< typename T >
 inline L4::Ipc::Ostream &operator << (L4::Ipc::Ostream &s, L4::Cap<T> const &v)
 { s << L4::Ipc::Snd_fpage(v.fpage()); return s; }

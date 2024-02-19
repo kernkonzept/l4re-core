@@ -60,7 +60,7 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
       L4::Ipc::Snd_fpage rfp;
       return l4_error(L4::cap_reinterpret_cast<L4::Pager>(h->memory())
                       ->page_fault(local_addr, -3UL,
-                                   L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE, 0),
+                                   L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE),
                                    rfp));
     }
   else

@@ -40,7 +40,7 @@ Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
   Map_addr spot = local_addr & ~(~0ULL << l4_umword_t(*size));
   Map_addr base = local_addr & (~0ULL << l4_umword_t(*size));
   L4::Ipc::Rcv_fpage r;
-  r = L4::Ipc::Rcv_fpage::mem(base, *size, 0);
+  r = L4::Ipc::Rcv_fpage::mem(base, *size);
 
   L4::Ipc::Snd_fpage fp;
   long err = map_t::call(c(), offset, spot, flags, r, fp, l4_utcb());
