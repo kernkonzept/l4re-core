@@ -254,22 +254,22 @@ unsigned int __dl_parse_dynamic_info(ElfW(Dyn) *dpnt, unsigned long dynamic_info
 #define DL_DO_RELOCATE_RELR(load_addr, relr_start, relr_end) \
 		do { \
 			const ElfW(Relr) *relr = 0; \
-			ElfW(Addr) *reloc_addr = 0; \
+			ElfW(Addr) *relr_reloc_addr = 0; \
 			for (relr = relr_start; relr < relr_end; relr++) { \
 				ElfW(Relr) relr_entry = *relr; \
 				if (!(relr_entry & 1)) \
 				{ \
-					reloc_addr = (ElfW(Addr) *)DL_RELOC_ADDR(load_addr, relr_entry); \
-					*reloc_addr = (ElfW(Addr))DL_RELOC_ADDR(load_addr, reloc_addr); \
-					reloc_addr++; \
+					relr_reloc_addr = (ElfW(Addr) *)DL_RELOC_ADDR(load_addr, relr_entry); \
+					*relr_reloc_addr = (ElfW(Addr))DL_RELOC_ADDR(load_addr, relr_reloc_addr); \
+					relr_reloc_addr++; \
 				} \
 				else \
 				{ \
 					for (long int i = 0; (relr_entry >>= 1) != 0; ++i) { \
 						if ((relr_entry & 1) != 0) \
-							reloc_addr[i] = (ElfW(Addr))DL_RELOC_ADDR(load_addr, reloc_addr[i]); \
+							relr_reloc_addr[i] = (ElfW(Addr))DL_RELOC_ADDR(load_addr, relr_reloc_addr[i]); \
 					} \
-					reloc_addr += CHAR_BIT * sizeof(ElfW(Relr)) - 1; \
+					relr_reloc_addr += CHAR_BIT * sizeof(ElfW(Relr)) - 1; \
 				} \
 			} \
 		} while (0);
