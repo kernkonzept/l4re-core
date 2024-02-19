@@ -12,13 +12,17 @@
 
 #pragma once
 
+/**
+ * \defgroup api_l4re_c_parent Parent interface
+ * \ingroup api_l4re_c
+ */
+
 #include <l4/sys/types.h>
 
 EXTERN_C_BEGIN
 
 /**
  * \brief Send a signal using the parent protocol.
- * \ingroup api_l4re_c_parent
  *
  * \param parent  Capability index of parent to send signal to.
  * \param sig     Signal to send
