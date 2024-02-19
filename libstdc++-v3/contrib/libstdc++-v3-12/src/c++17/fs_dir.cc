@@ -57,9 +57,7 @@ struct fs::_Dir : _Dir_base
       path = p;
   }
 
-  _Dir(_Dir_base&& d, const path& p)
-    : _Dir_base(std::move(d)), path(p), entry(directory_entry())
-  { }
+  _Dir(_Dir_base&& d, const path& p) : _Dir_base(std::move(d)), path(p) { }
 
   _Dir(_Dir&&) = default;
 
@@ -263,7 +261,7 @@ fs::directory_iterator::increment(error_code& ec)
 struct fs::recursive_directory_iterator::_Dir_stack : std::stack<_Dir>
 {
   _Dir_stack(directory_options opts, _Dir&& dir)
-  : orig(""), options(opts), pending(true)
+  : options(opts), pending(true)
   {
     this->push(std::move(dir));
   }

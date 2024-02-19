@@ -897,7 +897,7 @@ fs::equivalent(const path& p1, const path& p2, error_code& ec) noexcept
       return st1.st_dev == st2.st_dev && st1.st_ino == st2.st_ino;
 #endif
     }
-  else if (!exists(s1) && !exists(s2))
+  else if (!exists(s1) || !exists(s2))
     ec = std::make_error_code(std::errc::no_such_file_or_directory);
   else if (err)
     ec.assign(err, std::generic_category());
@@ -949,7 +949,7 @@ fs::file_size(const path& p, error_code& ec) noexcept
   struct S
   {
     S(const stat_type& st) : type(make_file_type(st)), size(st.st_size) { }
-    S() : type(file_type::not_found), size(0) { }
+    S() : type(file_type::not_found) { }
     file_type type;
     uintmax_t size;
   };
