@@ -159,7 +159,7 @@ double expm1(double x)
 		else
 		    {hi = x + ln2_hi; lo = -ln2_lo;  k = -1;}
 	    } else {
-		k  = invln2*x+((xsb==0)?0.5:-0.5);
+		k  = (int32_t)(invln2*x+((xsb==0)?0.5:-0.5));
 		t  = k;
 		hi = x - t*ln2_hi;	/* t*ln2_hi is exact here */
 		lo = t*ln2_lo;
