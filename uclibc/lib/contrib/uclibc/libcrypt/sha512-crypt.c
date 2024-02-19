@@ -104,24 +104,24 @@ __sha512_crypt_r (const char *key,
   salt_len = MIN (strcspn (salt, "$"), SALT_LEN_MAX);
   key_len = strlen (key);
 
-  if ((key - (char *) 0) % __alignof__ (uint64_t) != 0)
+  if ((uintptr_t)key % __alignof__ (uint64_t) != 0)
     {
       char *tmp = (char *) alloca (key_len + __alignof__ (uint64_t));
       key = copied_key =
 	memcpy (tmp + __alignof__ (uint64_t)
-		- (tmp - (char *) 0) % __alignof__ (uint64_t),
+		- (uintptr_t)tmp % __alignof__ (uint64_t),
 		key, key_len);
-      assert ((key - (char *) 0) % __alignof__ (uint64_t) == 0);
+      assert ((uintptr_t)key % __alignof__ (uint64_t) == 0);
     }
 
-  if ((salt - (char *) 0) % __alignof__ (uint64_t) != 0)
+  if ((uintptr_t)salt % __alignof__ (uint64_t) != 0)
     {
       char *tmp = (char *) alloca (salt_len + __alignof__ (uint64_t));
       salt = copied_salt =
 	memcpy (tmp + __alignof__ (uint64_t)
-		- (tmp - (char *) 0) % __alignof__ (uint64_t),
+		- (uintptr_t)tmp % __alignof__ (uint64_t),
 		salt, salt_len);
-      assert ((salt - (char *) 0) % __alignof__ (uint64_t) == 0);
+      assert ((uintptr_t)salt % __alignof__ (uint64_t) == 0);
     }
 
   struct sha512_ctx ctx;
