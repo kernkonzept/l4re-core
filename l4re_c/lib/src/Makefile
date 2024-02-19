@@ -17,5 +17,6 @@ SRC_CC := namespace.cc \
           goos.cc \
           inhibitor.cc \
           dma_space.cc \
+          parent.cc
 
 include $(L4DIR)/mk/lib.mk
