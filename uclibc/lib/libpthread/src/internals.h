@@ -420,7 +420,7 @@ extern int __pthread_mutexattr_gettype (const pthread_mutexattr_t *__attr,
 					int *__kind);
 extern void __pthread_kill_other_threads_np (void);
 extern int __pthread_mutex_init (pthread_mutex_t *__mutex,
-				 __const pthread_mutexattr_t *__mutex_attr);
+				 const pthread_mutexattr_t *__mutex_attr);
 extern int __pthread_mutex_destroy (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_lock (pthread_mutex_t *__mutex);
 extern int __pthread_mutex_trylock (pthread_mutex_t *__mutex);
@@ -454,14 +454,14 @@ extern int __pthread_setcancelstate (int state, int * oldstate);
 extern int __pthread_setcanceltype (int type, int * oldtype);
 
 extern int __pthread_rwlock_timedrdlock (pthread_rwlock_t *__restrict __rwlock,
-					 __const struct timespec *__restrict
+					 const struct timespec *__restrict
 					 __abstime);
 extern int __pthread_rwlock_timedwrlock (pthread_rwlock_t *__restrict __rwlock,
-					 __const struct timespec *__restrict
+					 const struct timespec *__restrict
 					 __abstime);
 extern int __pthread_rwlockattr_destroy (pthread_rwlockattr_t *__attr);
 
-extern int __pthread_barrierattr_getpshared (__const pthread_barrierattr_t *
+extern int __pthread_barrierattr_getpshared (const pthread_barrierattr_t *
 					     __restrict __attr,
 					     int *__restrict __pshared);
 

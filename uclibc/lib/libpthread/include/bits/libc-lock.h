@@ -299,7 +299,7 @@ __BEGIN_DECLS
 // Aw11: end
 
 extern int __pthread_mutex_init (pthread_mutex_t *__mutex,
-				 __const pthread_mutexattr_t *__mutex_attr);
+				 const pthread_mutexattr_t *__mutex_attr);
 
 extern int __pthread_mutex_destroy (pthread_mutex_t *__mutex);
 
@@ -318,7 +318,7 @@ extern int __pthread_mutexattr_settype (pthread_mutexattr_t *__attr,
 
 #ifdef __USE_UNIX98
 extern int __pthread_rwlock_init (pthread_rwlock_t *__rwlock,
-				  __const pthread_rwlockattr_t *__attr);
+				  const pthread_rwlockattr_t *__attr);
 
 extern int __pthread_rwlock_destroy (pthread_rwlock_t *__rwlock);
 
@@ -337,7 +337,7 @@ extern int __pthread_key_create (pthread_key_t *__key,
 				 void (*__destr_function) (void *));
 
 extern int __pthread_setspecific (pthread_key_t __key,
-				  __const void *__pointer);
+				  const void *__pointer);
 
 extern void *__pthread_getspecific (pthread_key_t __key);
 

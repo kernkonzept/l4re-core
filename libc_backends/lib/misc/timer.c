@@ -27,7 +27,7 @@ int timer_gettime(timer_t timer_id, struct itimerspec *setting)
 }
 
 int timer_settime(timer_t timer_id, int __flags,
-                  __const struct itimerspec *__restrict __value,
+                  const struct itimerspec *__restrict __value,
                   struct itimerspec *__restrict __ovalue)
 {
   printf("Unimplemented: %s(timer_id)\n", __func__);

@@ -52,7 +52,7 @@ struct Sig_handling : L4::Epiface_t<Sig_handling, L4::Exception>
   int sigaction(int signum, const struct sigaction *act,
                 struct sigaction *oldact) noexcept;
   int setitimer(__itimer_which_t __which,
-                __const struct itimerval *__restrict __new,
+                const struct itimerval *__restrict __new,
                 struct itimerval *__restrict __old) noexcept;
 
 public:
@@ -521,7 +521,7 @@ int getitimer(__itimer_which_t __which,
 inline
 int
 Sig_handling::setitimer(__itimer_which_t __which,
-                        __const struct itimerval *__restrict __new,
+                        const struct itimerval *__restrict __new,
                         struct itimerval *__restrict __old) noexcept
 {
   printf("called %s(..)\n", __func__);
@@ -552,7 +552,7 @@ Sig_handling::setitimer(__itimer_which_t __which,
 }
 
 int setitimer(__itimer_which_t __which,
-              __const struct itimerval *__restrict __new,
+              const struct itimerval *__restrict __new,
               struct itimerval *__restrict __old) L4_NOTHROW
 {
   int err = _sig_handling.setitimer(__which, __new, __old);

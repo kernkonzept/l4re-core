@@ -11,9 +11,9 @@
 #include <sys/mount.h>
 #include <l4/l4re_vfs/backend>
 
-int mount(__const char *__special_file, __const char *__dir,
-	  __const char *__fstype, unsigned long int __rwflag,
-	  __const void *__data)
+int mount(const char *__special_file, const char *__dir,
+	  const char *__fstype, unsigned long int __rwflag,
+	  const void *__data)
 noexcept(noexcept(mount(__special_file, __dir, __fstype, __rwflag, __data)))
 {
   int e = L4Re::Vfs::vfs_ops->mount(__special_file, __dir, __fstype, __rwflag, __data);
