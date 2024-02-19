@@ -149,6 +149,8 @@ public:
    *                    (Rounded down to page size.)
    * \param max_addr    Defines end of receive window.
    *                    (Rounded up to page size.)
+   * \param dst         Optional destination task of the mapping. If invalid,
+   *                    the callers task is implicitly the destination.
    *
    * \retval L4_EOK      Success
    * \retval -L4_ERANGE  Invalid offset.
@@ -162,7 +164,8 @@ public:
    * page size is used.
    */
   long map(Offset offset, Flags flags, Map_addr local_addr,
-           Map_addr min_addr, Map_addr max_addr) const noexcept;
+           Map_addr min_addr, Map_addr max_addr,
+           L4::Cap<L4::Task> dst = L4::Cap<L4::Task>::Invalid) const noexcept;
 
   /**
    * Map a part of a dataspace into a local memory area.
@@ -171,6 +174,8 @@ public:
    * \param flags       Dataspace flags, see #L4Re::Dataspace::F::Flags.
    * \param min_addr    (Inclusive) start of the receive area.
    * \param max_addr    (Exclusive) end of receive area.
+   * \param dst         Optional destination task of the mapping. If invalid,
+   *                    the callers task is implicitly the destination.
    *
    * \retval L4_EOK      Success
    * \retval -L4_ERANGE  Invalid offset or receive area larger than
@@ -190,7 +195,8 @@ public:
    * than the minimum address, then the function is a noop.
    */
   long map_region(Offset offset, Flags flags,
-                  Map_addr min_addr, Map_addr max_addr) const noexcept;
+                  Map_addr min_addr, Map_addr max_addr,
+                  L4::Cap<L4::Task> dst = L4::Cap<L4::Task>::Invalid) const noexcept;
 
   /**
    * Clear parts of a dataspace.
@@ -287,7 +293,7 @@ public:
 private:
 
   long __map(Offset offset, unsigned char *order, Flags flags,
-             Map_addr local_addr) const noexcept;
+             Map_addr local_addr, L4::Cap<L4::Task> dst) const noexcept;
 
 public:
   typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t,

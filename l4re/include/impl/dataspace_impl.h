@@ -35,12 +35,13 @@ namespace L4Re {
 long
 Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
                  Dataspace::Flags flags,
-                 Dataspace::Map_addr local_addr) const noexcept
+                 Dataspace::Map_addr local_addr,
+                 L4::Cap<L4::Task> dst) const noexcept
 {
   Map_addr spot = local_addr & ~(~0ULL << l4_umword_t(*size));
   Map_addr base = local_addr & (~0ULL << l4_umword_t(*size));
   L4::Ipc::Rcv_fpage r;
-  r = L4::Ipc::Rcv_fpage::mem(base, *size);
+  r = L4::Ipc::Rcv_fpage::mem(base, *size, dst.cap());
 
   L4::Ipc::Snd_fpage fp;
   long err = map_t::call(c(), offset, spot, flags, r, fp, l4_utcb());
@@ -54,7 +55,8 @@ Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
 long
 Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
                       Dataspace::Map_addr min_addr,
-                      Dataspace::Map_addr max_addr) const noexcept
+                      Dataspace::Map_addr max_addr,
+                      L4::Cap<L4::Task> dst) const noexcept
 {
   min_addr   = L4::trunc_page(min_addr);
   max_addr   = L4::round_page(max_addr);
@@ -68,7 +70,7 @@ Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
       order_mapped = order
         = L4::max_order(order, min_addr, min_addr, max_addr, min_addr);
 
-      err = __map(offset, &order_mapped, flags, min_addr);
+      err = __map(offset, &order_mapped, flags, min_addr, dst);
       if (L4_UNLIKELY(err < 0))
         return err;
 
@@ -94,7 +96,8 @@ long
 Dataspace::map(Dataspace::Offset offset, Dataspace::Flags flags,
                Dataspace::Map_addr local_addr,
                Dataspace::Map_addr min_addr,
-               Dataspace::Map_addr max_addr) const noexcept
+               Dataspace::Map_addr max_addr,
+               L4::Cap<L4::Task> dst) const noexcept
 {
   min_addr   = L4::trunc_page(min_addr);
   max_addr   = L4::round_page(max_addr);
@@ -102,7 +105,7 @@ Dataspace::map(Dataspace::Offset offset, Dataspace::Flags flags,
   unsigned char order
     = L4::max_order(L4_LOG2_PAGESIZE, local_addr, min_addr, max_addr, local_addr);
 
-  return __map(offset, &order, flags, local_addr);
+  return __map(offset, &order, flags, local_addr, dst);
 }
 
 Dataspace::Size
