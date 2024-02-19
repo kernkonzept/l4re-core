@@ -1,29 +1,11 @@
-/* Startup code for ARM & ELF
-   Copyright (C) 1995, 1996, 1997, 1998, 2001, 2002, 2005
-   Free Software Foundation, Inc.
+/* Copyright (C) 1995-2016 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   In addition to the permissions in the GNU Lesser General Public
-   License, the Free Software Foundation gives you unlimited
-   permission to link the compiled version of this file with other
-   programs, and to distribute those programs without any restriction
-   coming from the use of this file. (The GNU Lesser General Public
-   License restrictions do apply in other respects; for example, they
-   cover modification of the file, and distribution when not linked
-   into another program.)
-
-   Note that people who make modified versions of this file are not
-   obligated to grant this special exception for their modified
-   versions; it is their choice whether to do so. The GNU Lesser
-   General Public License gives permission to release a modified
-   version without this exception; this exception also makes it
-   possible to release a modified version which carries forward this
-   exception.
+   modify it under the terms of the GNU Lesser General Public License as
+   published by the Free Software Foundation; either version 2.1 of the
+   License, or (at your option) any later version.
 
    The GNU C Library is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -31,20 +13,19 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
+   License along with the GNU C Library.  If not, see
+   <http://www.gnu.org/licenses/>.  */
 
 /* This is the canonical entry point, usually the first thing in the text
    segment.
 
-	Note that the code in the .init section has already been run.
-	This includes _init and _libc_init
+   Note that the code in the .init section has already been run.
+   This includes _init and _libc_init
 
 
-	At this entry point, most registers' values are unspecified, except:
+   At this entry point, most registers' values are unspecified, except:
 
-   a1		Contains a function pointer to be registered with `atexit'.
+   x0		Contains a function pointer to be registered with `atexit'.
 		This is how the dynamic linker arranges to have DT_FINI
 		functions called for shared libraries that have been loaded
 		before this code runs.
@@ -122,9 +103,9 @@ ARM register quick reference:
 #endif
 
 _start:
-	/* Clear the frame pointer and link register since this is the outermost frame.  */
-	mov x29, #0
-	mov x30, #0
+	/* Create an initial frame with 0 LR and FP */
+	mov	x29, #0
+	mov	x30, #0
 
 #ifdef L_rcrt1
 	/* Save off the atexit pointer and syscall insn */
@@ -193,9 +174,9 @@ _start:
 #endif
 
 	/* should never get here....*/
-	bl abort
+	bl	abort
 
-/* Define a symbol for the first piece of initialized data.  */
+	/* Define a symbol for the first piece of initialized data.  */
 	.data
 	.globl __data_start
 __data_start:

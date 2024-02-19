@@ -9,11 +9,19 @@
 
 #include <_lfs_64.h>
 #include <sys/syscall.h>
+#include <unistd.h>
+#include <sys/stat.h>
 
-# include <unistd.h>
-# include <sys/stat.h>
+#if defined __NR_fstatat64 && !defined __NR_lstat
+# include <fcntl.h>
 
-#if defined __NR_fstatat64 && !defined __NR_lstat64
+int lstat64(const char *file_name, struct stat64 *buf)
+{
+	return fstatat64(AT_FDCWD, file_name, buf, AT_SYMLINK_NOFOLLOW);
+}
+libc_hidden_def(lstat64)
+
+#elif __WORDSIZE == 64 && defined __NR_newfstatat
 # include <fcntl.h>
 
 int lstat64(const char *file_name, struct stat64 *buf)

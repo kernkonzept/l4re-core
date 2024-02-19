@@ -1,4 +1,5 @@
-/* Copyright (C) 1998, 1999, 2001, 2006 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2016 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -22,11 +23,8 @@
 
 #include <features.h>
 #include <signal.h>
-#include <sys/procfs.h>
 
-/* We need the signal context definitions even if they are not used
-   included in <signal.h>.  */
-#include <bits/sigcontext.h>
+#include <sys/procfs.h>
 
 typedef elf_greg_t greg_t;
 

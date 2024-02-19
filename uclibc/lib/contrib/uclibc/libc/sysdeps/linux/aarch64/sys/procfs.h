@@ -1,4 +1,5 @@
-/* Copyright (C) 1996, 1997, 1999, 2001 Free Software Foundation, Inc.
+/* Copyright (C) 1996-2016 Free Software Foundation, Inc.
+
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -38,14 +39,14 @@ __BEGIN_DECLS
 typedef unsigned long elf_greg_t;
 
 /* And the whole bunch of them.  We could have used `struct
-   user_regs' directly in the typedef, but tradition says that
+   pt_regs' directly in the typedef, but tradition says that
    the register set is an array, which does have some peculiar
    semantics, so leave it that way.  */
 #define ELF_NGREG (sizeof (struct user_regs_struct) / sizeof(elf_greg_t))
 typedef elf_greg_t elf_gregset_t[ELF_NGREG];
 
 /* Register set for the floating-point registers.  */
-typedef struct user_fpregs elf_fpregset_t;
+typedef struct user_fpsimd_struct elf_fpregset_t;
 
 /* Signal info.  */
 struct elf_siginfo
@@ -90,8 +91,8 @@ struct elf_prpsinfo
     char pr_zomb;			/* Zombie.  */
     char pr_nice;			/* Nice val.  */
     unsigned long int pr_flag;		/* Flags.  */
-    unsigned short int pr_uid;
-    unsigned short int pr_gid;
+    unsigned int pr_uid;
+    unsigned int pr_gid;
     int pr_pid, pr_ppid, pr_pgrp, pr_sid;
     /* Lots missing */
     char pr_fname[16];			/* Filename of executable.  */

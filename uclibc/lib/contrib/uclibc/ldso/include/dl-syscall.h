@@ -97,6 +97,16 @@ static __always_inline int _dl_stat(const char *file_name,
 {
 	return _dl_fstatat64(AT_FDCWD, file_name, buf, 0);
 }
+#elif defined __NR_newfstatat && !defined __NR_stat
+# define __NR__dl_newfstatat __NR_newfstatat
+static __always_inline _syscall4(int, _dl_newfstatat, int, fd, const char *,
+				 fn, struct stat *, stat, int, flags)
+
+static __always_inline int _dl_stat(const char *file_name,
+                        struct stat *buf)
+{
+	return _dl_newfstatat(AT_FDCWD, file_name, buf, 0);
+}
 #elif defined __NR_stat
 # define __NR__dl_stat __NR_stat
 static __always_inline _syscall2(int, _dl_stat, const char *, file_name,

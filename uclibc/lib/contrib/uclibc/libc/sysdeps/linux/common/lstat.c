@@ -20,6 +20,15 @@ int lstat(const char *file_name, struct stat *buf)
 }
 libc_hidden_def(lstat)
 
+#elif __WORDSIZE == 64 && defined __NR_newfstatat
+# include <fcntl.h>
+
+int lstat(const char *file_name, struct stat *buf)
+{
+	return fstatat(AT_FDCWD, file_name, buf, AT_SYMLINK_NOFOLLOW);
+}
+libc_hidden_def(lstat)
+
 /* For systems which have both, prefer the old one */
 #else
 # include "xstatconv.h"
