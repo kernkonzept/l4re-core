@@ -362,7 +362,7 @@ private:
             l4_addr_t snd_base,
             Map_type map_type,
             Cacheopt cache, Continue cont) noexcept
-  : T(L4_ITEM_MAP | (snd_base & (~0UL << 10)) | l4_umword_t(map_type) | l4_umword_t(cache)
+  : T(L4_ITEM_MAP | (snd_base & (~0UL << 12)) | l4_umword_t(map_type) | l4_umword_t(cache)
       | l4_umword_t(cont),
       base | l4_umword_t(type) | rights | (l4_umword_t(order) << 6))
   {}
@@ -372,7 +372,7 @@ public:
   Gen_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
             Map_type map_type = Map,
             Cacheopt cache = None, Continue cont = Last) noexcept
-  : T(L4_ITEM_MAP | (snd_base & (~0UL << 10)) | l4_umword_t(map_type) | l4_umword_t(cache)
+  : T(L4_ITEM_MAP | (snd_base & (~0UL << 12)) | l4_umword_t(map_type) | l4_umword_t(cache)
       | l4_umword_t(cont),
       fp.raw)
   {}
@@ -405,7 +405,7 @@ public:
                            unsigned char rights, unsigned cap_br) noexcept
   {
     return Gen_fpage<T>(
-        L4_ITEM_MAP | (snd_base & (~0UL << 10)) | l4_umword_t(Map)
+        L4_ITEM_MAP | (snd_base & (~0UL << 12)) | l4_umword_t(Map)
         | l4_umword_t(None) | l4_umword_t(Compound) | (cap_br << 8),
 
         base | l4_umword_t(Memory) | rights | (l4_umword_t(order) << 6));
@@ -424,8 +424,8 @@ public:
   unsigned snd_order() const noexcept { return (T::_data >> 6) & 0x3f; }
   unsigned rcv_order() const noexcept { return (T::_base >> 6) & 0x3f; }
   l4_addr_t base() const noexcept { return T::_data & (~0UL << 12); }
-  l4_addr_t snd_base() const noexcept { return T::_base & (~0UL << 10); }
-  void snd_base(l4_addr_t b) noexcept { T::_base = (T::_base & ~(~0UL << 10)) | (b & (~0UL << 10)); }
+  l4_addr_t snd_base() const noexcept { return T::_base & (~0UL << 12); }
+  void snd_base(l4_addr_t b) noexcept { T::_base = (T::_base & ~(~0UL << 12)) | (b & (~0UL << 12)); }
 
   /// Check if the capability is valid.
   bool is_valid() const noexcept { return T::_base & L4_ITEM_MAP; }
