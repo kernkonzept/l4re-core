@@ -35,6 +35,9 @@ ifeq ($(BID_COMPILER_TYPE),clang)
   # with bitwise arithmetic, so the concrete bitwise layout is important.
   $(foreach f,e_pow e_sqrt s_ceil s_floor,\
     $(eval WARNINGS_$(f).c += -Wno-sign-compare))
+  # WARNING EXCEPTION: only warning is due to a macro expansion where zero
+  # is added to a null-pointer.
+  WARNINGS__stdio.c += -Wno-null-pointer-arithmetic
   # WARNING EXCEPTION: The warning is useful but the generated code works
   # anyway as intended
   $(foreach s,S s.S,$(foreach f,bzero memcpy mempcpy memset strcspn strpbrk,\
