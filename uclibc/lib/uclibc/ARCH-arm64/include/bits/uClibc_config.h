@@ -12,7 +12,7 @@
 /* Sun Feb 10 18:15:17 2008 */
 #undef __TARGET_alpha__
 #undef __TARGET_arm__
-#define __TARGET_arm64__ 1
+#define __TARGET_aarch64__ 1
 #undef __TARGET_avr32__
 #undef __TARGET_bfin__
 #undef __TARGET_cris__
@@ -38,7 +38,7 @@
 #undef __TARGET_xtensa__
 
 /* Target Architecture Features and Options */
-#define __TARGET_ARCH__ "arm64"
+#define __TARGET_ARCH__ "aarch64"
 #define __FORCE_OPTIONS_FOR_ARCH__ 1
 #undef __CONFIG_GENERIC_386__
 #undef __CONFIG_386__

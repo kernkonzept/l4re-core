@@ -14,7 +14,7 @@ LDSODIR    = $(CONTRIBDIR)/ldso/ldso
 DIR_amd64 := x86_64
 DIR_x86   := i386
 DIR_arm   := arm
-DIR_arm64 := arm64
+DIR_arm64 := aarch64
 DIR_mips  := mips
 DIR_ppc32 := powerpc
 DIR_sparc := sparc
@@ -37,7 +37,7 @@ INCDIR-x86   = $(SRC_DIR)/sysdeps/i386/i686 $(SRC_DIR)/sysdeps/i386 \
                $(LDSODIR)/$(DIR_$(ARCH))
 INCDIR-amd64 = $(SRC_DIR)/sysdeps/$(DIR_$(ARCH))
 INCDIR-arm   = $(SRC_DIR)/sysdeps/arm
-INCDIR-arm64 = $(SRC_DIR)/sysdeps/arm64
+INCDIR-arm64 = $(SRC_DIR)/sysdeps/aarch64
 INCDIR-mips  = $(SRC_DIR)/sysdeps/mips
 INCDIR-ppc32 = $(SRC_DIR)/sysdeps/powerpc \
                $(CONTRIBDIR)/libpthread/linuxthreads/sysdeps/powerpc

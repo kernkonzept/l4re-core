@@ -25,7 +25,7 @@ PC_LIBS        :=
 # to find the uclibc files
 UCLIBC_ARCH_x86   := i386
 UCLIBC_ARCH_arm   := arm
-UCLIBC_ARCH_arm64 := arm64
+UCLIBC_ARCH_arm64 := aarch64
 UCLIBC_ARCH_amd64 := x86_64
 UCLIBC_ARCH_mips  := mips
 UCLIBC_ARCH_ppc32 := powerpc
