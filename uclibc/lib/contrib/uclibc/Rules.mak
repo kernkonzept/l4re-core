@@ -300,6 +300,7 @@ ifneq ($(TARGET_ARCH),sh)
 ifneq ($(TARGET_ARCH),c6x)
 ifneq ($(TARGET_ARCH),h8300)
 ifneq ($(TARGET_ARCH),arc)
+ifneq ($(TARGET_ARCH),aarch64)
 CPU_CFLAGS-y += -msoft-float
 endif
 endif
@@ -309,6 +310,11 @@ endif
 endif
 endif
 endif
+endif
+endif
+
+ifeq ($(TARGET_ARCH),aarch64)
+CPU_CFLAGS-y += -ftls-model=initial-exec
 endif
 
 $(eval $(call check-gcc-var,-std=gnu99))

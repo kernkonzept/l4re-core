@@ -15,6 +15,7 @@ config VERSION
 
 choice
 	prompt "Target Architecture"
+	default TARGET_aarch64 if DESIRED_TARGET_ARCH = "aarch64"
 	default TARGET_alpha if DESIRED_TARGET_ARCH = "alpha"
 	default TARGET_arc if DESIRED_TARGET_ARCH = "arc"
 	default TARGET_arm if DESIRED_TARGET_ARCH = "arm"
@@ -41,6 +42,9 @@ choice
 	default TARGET_xtensa if DESIRED_TARGET_ARCH = "xtensa"
 	help
 	  The architecture of your target.
+
+config TARGET_aarch64
+	bool "aarch64"
 
 config TARGET_alpha
 	bool "alpha"
@@ -123,6 +127,10 @@ endchoice
 
 
 menu "Target Architecture Features and Options"
+
+if TARGET_aarch64
+source "extra/Configs/Config.aarch64"
+endif
 
 if TARGET_alpha
 source "extra/Configs/Config.alpha"
@@ -505,7 +513,8 @@ config UCLIBC_HAS_LINUXTHREADS
 	bool "Linuxthreads"
 	# linuxthreads need nanosleep()
 	select UCLIBC_HAS_REALTIME
-	depends on !TARGET_metag
+	depends on !TARGET_aarch64 && \
+		   !TARGET_metag
 	help
 	  If you want to compile uClibc with Linuxthreads support, then answer Y.
 

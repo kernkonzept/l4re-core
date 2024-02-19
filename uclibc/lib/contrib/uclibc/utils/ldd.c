@@ -15,6 +15,11 @@
 
 #include "porting.h"
 
+#if defined(__aarch64__)
+#define MATCH_MACHINE(x) (x == EM_AARCH64)
+#define ELFCLASSM	ELFCLASS64
+#endif
+
 #if defined(__alpha__)
 #define MATCH_MACHINE(x) (x == EM_ALPHA)
 #define ELFCLASSM	ELFCLASS64
