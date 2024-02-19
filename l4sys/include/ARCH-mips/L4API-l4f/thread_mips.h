@@ -2,6 +2,7 @@
 
 #include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
+#include <l4/sys/ipc.h>
 
 /**
  * Set the user-local register (ULR) for a given `thread`.

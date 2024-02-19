@@ -25,7 +25,7 @@
 # include <stddef.h>
 # include <stdint.h>
 # include <l4/sys/thread_mips.h>
-
+# include <l4/sys/utcb.h>
 /* Type for the dtv.  */
 typedef union dtv
 {
