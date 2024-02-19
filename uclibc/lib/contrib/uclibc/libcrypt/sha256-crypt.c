@@ -109,7 +109,7 @@ __sha256_crypt_r (const char *key,
       char *tmp = (char *) alloca (key_len + __alignof__ (uint32_t));
       key = copied_key =
 	memcpy (tmp + __alignof__ (uint32_t)
-		- (uintptr_t)tmp % __alignof__ (uint32_t),
+		- (uintptr_t)tmp  % __alignof__ (uint32_t),
 		key, key_len);
       assert ((uintptr_t)key % __alignof__ (uint32_t) == 0);
     }
