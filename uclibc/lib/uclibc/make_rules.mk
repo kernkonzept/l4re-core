@@ -51,6 +51,13 @@ else
   # case then the loops will initialize fq and iq and there will never be an
   # unitialized access to element 0 of fq.
   WARNINGS_k_rem_pio2.c += -Wno-maybe-uninitialized
+  # WARNING EXCEPTION: the only two instances where the warning triggers are
+  # well documented intentional uses of aliasing to convey library internal
+  # information. The pointers are used for signaling a special condition and one
+  # of them is replaced in the called function, so no aliasing use of the
+  # pointers occurs.
+  $(foreach f,_vfprintf _vfprintf_internal _vfwprintf_internal,\
+    $(eval WARNINGS_$(f).c += -Wno-restrict))
 endif
 
 # for building the C library we access internal headers
