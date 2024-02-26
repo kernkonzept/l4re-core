@@ -43,6 +43,9 @@
 #include <stdio.h>
 #include <errno.h>
 #include <atomic.h>
+#if defined __UCLIBC_HAS_THREADS__ && defined __UCLIBC_HAS_THREADS_NATIVE__
+// L4 // # include <fork.h>
+#endif
 
 #include <bits/uClibc_mutex.h>
 __UCLIBC_MUTEX_EXTERN(__atexit_lock) attribute_hidden;
@@ -214,8 +217,8 @@ void __cxa_finalize(void *dso_handle)
      * unregister anything if the program is going to terminate anyway.
      */
 #ifdef UNREGISTER_ATFORK
-    if (d != NULL) {
-        UNREGISTER_ATFORK(d);
+    if (dso_handle != NULL) {
+        UNREGISTER_ATFORK(dso_handle);
     }
 #endif
 #endif
@@ -257,7 +260,7 @@ struct exit_function attribute_hidden *__new_exitfn(void)
         efp = realloc(__exit_function_table,
                     (__exit_slots+20)*sizeof(struct exit_function));
         if (efp == NULL) {
-            __set_errno(ENOMEM);
+            /* __set_errno(ENOMEM); */
 	    goto DONE;
         }
         __exit_function_table = efp;
