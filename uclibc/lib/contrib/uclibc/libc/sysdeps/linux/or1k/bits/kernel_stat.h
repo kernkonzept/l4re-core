@@ -1,10 +1,6 @@
 #ifndef _BITS_STAT_STRUCT_H
 #define _BITS_STAT_STRUCT_H
 
-#if defined(__UCLIBC_USE_TIME64__)
-#include "internal/time64_helpers.h"
-#endif
-
 struct kernel_stat {
 	unsigned long	st_dev;		/* Device.  */
 	unsigned long	st_ino;		/* File serial number.  */
@@ -18,15 +14,9 @@ struct kernel_stat {
 	int		st_blksize;	/* Optimal block size for I/O.  */
 	int		__pad2;
 	long		st_blocks;	/* Number 512-byte blocks allocated. */
-#if defined(__UCLIBC_USE_TIME64__)
-	struct __ts32_struct __st_atim32;
-	struct __ts32_struct __st_mtim32;
-	struct __ts32_struct __st_ctim32;
-#else
 	struct timespec st_atim;
 	struct timespec st_mtim;
 	struct timespec st_ctim;
-#endif
 	unsigned int	__unused4;
 	unsigned int	__unused5;
 };

@@ -5,11 +5,6 @@
 #include <time.h>
 #include <stddef.h>
 
-struct __ts32_struct {
-   __S32_TYPE tv_sec;
-   __S32_TYPE tv_nsec;
-};
-
 struct __ts64_struct {
    __S64_TYPE tv_sec;
    __S64_TYPE tv_nsec;
