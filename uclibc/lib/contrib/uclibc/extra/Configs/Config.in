@@ -1030,6 +1030,7 @@ config UCLIBC_USE_TIME64
 		   (TARGET_mips && !CONFIG_MIPS_N64_ABI) || \
 		   TARGET_or1k                           || \
 		   TARGET_powerpc                        || \
+		   TARGET_riscv32                        || \
 		   TARGET_sparc                          || \
 		   TARGET_xtensa
 	# TODO: add support for other architectures
