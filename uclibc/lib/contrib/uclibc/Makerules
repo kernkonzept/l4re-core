@@ -334,7 +334,7 @@ define link.so
 		-Wl,-soname=$(notdir $@).$(2) \
 		$(CFLAG_-nostdlib) $(CFLAG_-nostartfiles) \
 		-o $(dir $@)$(1) $(START_FILE-$(notdir $@)) \
-		-Wl,--whole-archive $(firstword $^) -Wl,--no-whole-archive \
+		-Wl,--whole-archive $(firstword $^) -Wl,--no-whole-archive -shared \
 		$(LIBS-$(notdir $@)) $(LIBGCC) $(END_FILE-$(notdir $@))
 	$(Q)$(LN) -sf $(1) $@.$(2)
 	$(Q)$(LN) -sf $(1) $@

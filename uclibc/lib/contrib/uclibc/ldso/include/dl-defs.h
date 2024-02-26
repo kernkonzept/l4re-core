@@ -76,9 +76,6 @@ typedef struct {
 /* arch specific defines */
 #include <dl-sysdep.h>
 #endif
-#ifdef __TARGET_c6x__
-#include <dl-sysdep.h>
-#endif
 #endif
 
 /* Provide a means for a port to pass additional arguments to the _dl_start

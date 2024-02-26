@@ -147,11 +147,11 @@ __sem_search (const void *a, const void *b)
 
   if (as->ino != bs->ino)
     /* Cannot return the difference the type is larger than int.  */
-    return as->ino < bs->ino ? -1 : (as->ino == bs->ino ? 0 : 1);
+    return as->ino < bs->ino ? -1 : 1;
 
   if (as->dev != bs->dev)
     /* Cannot return the difference the type is larger than int.  */
-    return as->dev < bs->dev ? -1 : (as->dev == bs->dev ? 0 : 1);
+    return as->dev < bs->dev ? -1 : 1;
 
   return strcmp (as->name, bs->name);
 }
