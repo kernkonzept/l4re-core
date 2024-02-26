@@ -12,9 +12,6 @@
 /* can your target use syscall6() for mmap ? */
 #define __UCLIBC_MMAP_HAS_6_ARGS__
 
-/* does your target use statx */
-#undef __UCLIBC_HAVE_STATX__
-
 /* does your target align 64bit values in register pairs ? (32bit arches only) */
 #if _MIPS_SIM == _ABIO32
 #define __UCLIBC_SYSCALL_ALIGN_64BIT__

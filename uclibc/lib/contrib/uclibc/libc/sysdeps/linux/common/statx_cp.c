@@ -24,7 +24,7 @@
 
 #include <statx_cp.h>
 
-#if !defined(__NR_fstat64) || !defined(__NR_fstatat64)
+#if (!defined(__NR_fstat64) || !defined(__NR_fstatat64)) || defined(__UCLIBC_USE_TIME64__)
 void
 __cp_stat64_statx (struct stat64 *to, struct statx *from)
 {

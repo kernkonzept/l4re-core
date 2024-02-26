@@ -298,11 +298,19 @@ pthread_mutex_timedlock (
 		    /* Delay the thread until the timeout is reached.
 		       Then return ETIMEDOUT.  */
 		    struct timespec reltime;
-		    struct timespec now;
+#if defined(__UCLIBC_USE_TIME64__)
+		    struct __ts64_struct __now64;
+#endif
+		    struct timespec now = {.tv_sec = 0, .tv_nsec = 0};
 
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
-		    INTERNAL_SYSCALL (clock_gettime64, __err, 2, CLOCK_REALTIME,
-				      &now);
+		    int __r = INTERNAL_SYSCALL (clock_gettime64, __err, 2, CLOCK_REALTIME,
+				      &__now64);
+
+		    if (__r == 0) {
+			now.tv_sec = __now64.tv_sec;
+			now.tv_nsec = __now64.tv_nsec;
+		    }
 #else
 		    INTERNAL_SYSCALL (clock_gettime, __err, 2, CLOCK_REALTIME,
 				      &now);

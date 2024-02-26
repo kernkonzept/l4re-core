@@ -46,9 +46,21 @@
 #define	__FSFILCNT64_T_TYPE	__UQUAD_TYPE
 #define	__ID_T_TYPE		__U32_TYPE
 #define __CLOCK_T_TYPE		__SLONGWORD_TYPE
+
+#ifdef __UCLIBC_USE_TIME64__
+#define __TIME_T_TYPE		__S64_TYPE
+#else
 #define __TIME_T_TYPE		__SLONGWORD_TYPE
+#endif
+
 #define __USECONDS_T_TYPE	__U32_TYPE
+
+#ifdef __UCLIBC_USE_TIME64__
+#define __SUSECONDS_T_TYPE	__S64_TYPE
+#else
 #define __SUSECONDS_T_TYPE	__S32_TYPE
+#endif
+
 #define __DADDR_T_TYPE		__S32_TYPE
 #define __SWBLK_T_TYPE		__SLONGWORD_TYPE
 #define __KEY_T_TYPE		__S32_TYPE

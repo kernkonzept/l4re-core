@@ -9,7 +9,7 @@
 #include <_lfs_64.h>
 #include <sys/syscall.h>
 
-#ifdef __NR_fstat64
+#if defined(__NR_fstat64) && !defined(__UCLIBC_USE_TIME64__)
 # include <unistd.h>
 # include <sys/stat.h>
 # include "xstatconv.h"
@@ -45,7 +45,7 @@ int fstat64(int fd, struct stat64 *buf)
       int rc = INLINE_SYSCALL (statx, 5, fd, "", AT_EMPTY_PATH,
                                STATX_BASIC_STATS, &tmp);
       if (rc == 0)
-        __cp_stat_statx ((struct stat64 *)buf, &tmp);
+        __cp_stat64_statx ((struct stat64 *)buf, &tmp);
 
       return rc;
 }

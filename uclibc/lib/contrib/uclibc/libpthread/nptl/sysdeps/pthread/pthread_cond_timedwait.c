@@ -95,18 +95,27 @@ __pthread_cond_timedwait (
 
   while (1)
     {
-      struct timespec rt;
+      struct timespec rt = {.tv_sec = 0, .tv_nsec = 0};
+#if defined(__UCLIBC_USE_TIME64__)
+      struct __ts64_struct __rt64;
+#endif
       {
 #ifdef __NR_clock_gettime
 	INTERNAL_SYSCALL_DECL (err);
-# ifndef __ASSUME_POSIX_TIMERS
+# if !defined(__ASSUME_POSIX_TIMERS) || defined(__UCLIBC_USE_TIME64__)
 	int ret =
 # endif
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_gettime64)
 	INTERNAL_SYSCALL (clock_gettime64, err, 2,
 				(cond->__data.__nwaiters
 				 & ((1 << COND_NWAITERS_SHIFT) - 1)),
-				&rt);
+				&__rt64);
+
+  if (ret == 0) {
+    rt.tv_sec = __rt64.tv_sec;
+    rt.tv_nsec = __rt64.tv_nsec;
+  }
+
 #else
 	INTERNAL_SYSCALL (clock_gettime, err, 2,
 				(cond->__data.__nwaiters

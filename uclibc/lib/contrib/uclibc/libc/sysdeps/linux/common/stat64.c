@@ -10,7 +10,7 @@
 #include <sys/syscall.h>
 #include <sys/stat.h>
 
-#if defined __NR_fstatat64 && !defined __NR_stat64
+#if defined __NR_fstatat64 && !defined __NR_stat64 && !defined(__UCLIBC_USE_TIME64__)
 #include <fcntl.h>
 #include <unistd.h>
 
@@ -30,7 +30,7 @@ int stat64(const char *file_name, struct stat64 *buf)
 	int rc = INLINE_SYSCALL (statx, 5, AT_FDCWD, file_name, AT_NO_AUTOMOUNT,
                                 STATX_BASIC_STATS, &tmp);
 	if (rc == 0)
-		__cp_stat_statx ((struct stat64 *)buf, &tmp);
+		__cp_stat64_statx ((struct stat64 *)buf, &tmp);
 
 	return rc;
 }

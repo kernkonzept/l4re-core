@@ -10,10 +10,11 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <bits/uClibc_arch_features.h>
 
 #include "xstatconv.h"
 
-#if defined __NR_fstat64 && !defined __NR_fstat
+#if defined __NR_fstat64 && !defined __NR_fstat && !defined(__UCLIBC_USE_TIME64__)
 int fstat(int fd, struct stat *buf)
 {
 	return INLINE_SYSCALL(fstat64, 2, fd, buf);
@@ -29,7 +30,7 @@ int fstat(int fd, struct stat *buf)
 }
 libc_hidden_def(fstat)
 
-#elif __NR_statx && defined __UCLIBC_HAVE_STATX__
+#elif defined __NR_statx && defined __UCLIBC_HAVE_STATX__
 # include <fcntl.h>
 # include <statx_cp.h>
 

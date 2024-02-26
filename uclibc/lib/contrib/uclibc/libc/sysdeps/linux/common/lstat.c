@@ -9,8 +9,9 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <bits/uClibc_arch_features.h>
 
-#if defined __NR_fstatat64 && !defined __NR_lstat
+#if defined __NR_fstatat64 && !defined __NR_lstat && !defined(__UCLIBC_USE_TIME64__)
 # include <fcntl.h>
 
 int lstat(const char *file_name, struct stat *buf)

@@ -14,9 +14,6 @@
 /* can your target use syscall6() for mmap ? */
 #define __UCLIBC_MMAP_HAS_6_ARGS__
 
-/* does your target use statx */
-#undef __UCLIBC_HAVE_STATX__
-
 /* does your target have a broken create_module() ? */
 #undef __UCLIBC_BROKEN_CREATE_MODULE__
 

@@ -39,18 +39,33 @@ clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
   if (clock_id == CLOCK_PROCESS_CPUTIME_ID)
     clock_id = MAKE_PROCESS_CPUCLOCK (0, CPUCLOCK_SCHED);
 
-  if (SINGLE_THREAD_P)
+  if (SINGLE_THREAD_P) {
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_nanosleep_time64)
-    r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, TO_TS64_P(req), rem);
+    struct __ts64_struct __req, __rem;
+    __req.tv_sec = req->tv_sec;
+    __req.tv_nsec = req->tv_nsec;
+    r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, &__req, &__rem);
+    if (rem) {
+      rem->tv_sec = (time_t) __rem.tv_sec;
+      rem->tv_nsec = __rem.tv_nsec;
+    }
 #else
     r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req, rem);
 #endif
+  }
   else
     {
 #ifdef __NEW_THREADS
       int oldstate = LIBC_CANCEL_ASYNC ();
 #if defined(__UCLIBC_USE_TIME64__) && defined(__NR_clock_nanosleep_time64)
-      r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, TO_TS64_P(req), rem);
+      struct __ts64_struct __req, __rem;
+      __req.tv_sec = req->tv_sec;
+      __req.tv_nsec = req->tv_nsec;
+      r = INTERNAL_SYSCALL (clock_nanosleep_time64, err, 4, clock_id, flags, &__req, &__rem);
+      if (rem) {
+        rem->tv_sec = (time_t) __rem.tv_sec;
+        rem->tv_nsec = __rem.tv_nsec;
+      }
 #else
       r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req,
 			    rem);

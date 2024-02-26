@@ -5,6 +5,10 @@
  * struct kernel_stat should look like...  It turns out each arch has a
  * different opinion on the subject... */
 
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
+
 struct kernel_stat {
     unsigned short	st_dev;
     unsigned long	st_ino;
@@ -14,9 +18,15 @@ struct kernel_stat {
     unsigned short	st_gid;
     unsigned short	st_rdev;
     long		st_size;
+#if defined(__UCLIBC_USE_TIME64__)
+    struct __ts32_struct __st_atim32;
+    struct __ts32_struct __st_mtim32;
+    struct __ts32_struct __st_ctim32;
+#else
     struct timespec	st_atim;
     struct timespec	st_mtim;
     struct timespec	st_ctim;
+#endif
     long		st_blksize;
     long		st_blocks;
     unsigned long	__unused4[2];
@@ -35,9 +45,15 @@ struct kernel_stat64 {
 	unsigned int	st_blksize;
 	unsigned char	__pad4[8];
 	unsigned int	st_blocks;
+#if defined(__UCLIBC_USE_TIME64__)
+	struct __ts32_struct __st_atim32;
+	struct __ts32_struct __st_mtim32;
+	struct __ts32_struct __st_ctim32;
+#else
 	struct timespec	st_atim;
 	struct timespec	st_mtim;
 	struct timespec	st_ctim;
+#endif
 	unsigned int	__unused4;
 	unsigned int	__unused5;
 };

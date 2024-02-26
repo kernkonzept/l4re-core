@@ -38,10 +38,24 @@ struct semid_ds
 {
   struct ipc_perm sem_perm;		/* operation permission struct */
   unsigned int __pad1;
-  __time_t sem_otime;			/* last semop() time */
+#if defined(__UCLIBC_USE_TIME64__)
+  unsigned long int __sem_otime_internal_1; /* last semop() time */
+  unsigned long int __sem_otime_internal_2;
+#else
+  __time_t sem_otime;                  /* last semop() time */
+#endif
   unsigned int __pad2;
-  __time_t sem_ctime;			/* last time changed by semctl() */
+#if defined(__UCLIBC_USE_TIME64__)
+  unsigned long int __sem_ctime_internal_1; /* last time changed by semctl() */
+  unsigned long int __sem_ctime_internal_2;
+#else
+  __time_t sem_ctime;                  /* last time changed by semctl() */
+#endif
   unsigned long int sem_nsems;		/* number of semaphores in set */
+#if defined(__UCLIBC_USE_TIME64__)
+  __time_t sem_otime;
+  __time_t sem_ctime;
+#endif
   unsigned long int __uclibc_unused1;
   unsigned long int __uclibc_unused2;
 };
