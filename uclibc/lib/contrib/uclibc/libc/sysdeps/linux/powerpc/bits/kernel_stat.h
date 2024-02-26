@@ -6,13 +6,7 @@
  * different opinion on the subject... */
 
 #if defined(__UCLIBC_USE_TIME64__)
-#include <bits/types.h>
-
-struct ts32_struct {
-	__S32_TYPE tv_sec;
-	__S32_TYPE tv_nsec;
-};
-
+#include "internal/time64_helpers.h"
 #endif
 
 #if __WORDSIZE == 64
@@ -30,9 +24,9 @@ struct kernel_stat {
 	unsigned long  	st_blksize;
 	unsigned long  	st_blocks;
 #if defined(__UCLIBC_USE_TIME64__)
-	struct ts32_struct __st_atim32;
-	struct ts32_struct __st_mtim32;
-	struct ts32_struct __st_ctim32;
+	struct __ts32_struct __st_atim32;
+	struct __ts32_struct __st_mtim32;
+	struct __ts32_struct __st_ctim32;
 #else
 	struct timespec	st_atim;
 	struct timespec	st_mtim;
@@ -56,9 +50,9 @@ struct kernel_stat64 {
 	long st_blksize;		/* Optimal block size for I/O.  */
 	long long st_blocks;		/* Number 512-byte blocks allocated. */
 #if defined(__UCLIBC_USE_TIME64__)
-	struct ts32_struct __st_atim32;
-	struct ts32_struct __st_mtim32;
-	struct ts32_struct __st_ctim32;
+	struct __ts32_struct __st_atim32;
+	struct __ts32_struct __st_mtim32;
+	struct __ts32_struct __st_ctim32;
 #else
 	struct timespec	st_atim;
 	struct timespec	st_mtim;

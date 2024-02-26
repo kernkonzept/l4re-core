@@ -5,6 +5,11 @@
 #include <time.h>
 #include <stddef.h>
 
+struct __ts32_struct {
+   __S32_TYPE tv_sec;
+   __S32_TYPE tv_nsec;
+};
+
 struct __ts64_struct {
    __S64_TYPE tv_sec;
    __S64_TYPE tv_nsec;
@@ -21,7 +26,7 @@ struct __its64_struct {
     __S64_TYPE value_tv_nsec;
 };
 
-#define TO_ITS64_P(__its) (((struct itimerspec *)(__its)) ? \ 
+#define TO_ITS64_P(__its) (((struct itimerspec *)(__its)) ? \
                           (&(struct __its64_struct) {.interval_tv_sec = ((struct itimerspec *)(__its))->it_interval.tv_sec, \
                                                      .interval_tv_nsec = ((struct itimerspec *)(__its))->it_interval.tv_nsec, \
                                                      .value_tv_sec = ((struct itimerspec *)(__its))->it_value.tv_sec, \
