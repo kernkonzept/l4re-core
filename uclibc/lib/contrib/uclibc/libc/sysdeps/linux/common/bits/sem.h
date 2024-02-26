@@ -39,22 +39,33 @@
 struct semid_ds
 {
   struct ipc_perm sem_perm;		/* operation permission struct */
-
+#if defined(__UCLIBC_USE_TIME64__)
   unsigned long int __sem_otime_internal_1;
   unsigned long int __sem_otime_internal_2;
+#else
+  __time_t sem_otime;			/* last semop() time */
+#endif
+#if (__WORDSIZE == 32 && !defined(__arm__) && !defined(__or1k__) && !defined(__xtensa__)) || \
+    ((defined(__arm__) || defined(__or1k__) || defined(__xtensa__)) && !defined(__UCLIBC_USE_TIME64__))
+  unsigned long int __uclibc_unused1;
+#endif
+#if defined(__UCLIBC_USE_TIME64__)
   unsigned long int __sem_ctime_internal_1;
   unsigned long int __sem_ctime_internal_2;
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-  unsigned short int sem_nsems;		/* number of semaphores in set */
-  char __paddind[sizeof(long int) - sizeof(short int)];
 #else
-  char __padding[sizeof(long int) - sizeof(short int)];
-  unsigned short int sem_nsems;		/* number of semaphores in set */
+  __time_t sem_ctime;			/* last time changed by semctl() */
+#endif
+#if (__WORDSIZE == 32 && !defined(__arm__) && !defined(__or1k__) && !defined(__xtensa__)) || \
+    ((defined(__arm__) || defined(__or1k__) || defined(__xtensa__)) && !defined(__UCLIBC_USE_TIME64__))
+  unsigned long int __uclibc_unused2;
+#endif
+  unsigned long int sem_nsems;		/* number of semaphores in set */
+#if defined(__UCLIBC_USE_TIME64__)
+  __time_t sem_otime;			/* last semop() time */
+  __time_t sem_ctime;			/* last time changed by semctl() */
 #endif
   unsigned long int __uclibc_unused3;
   unsigned long int __uclibc_unused4;
-  __time_t sem_otime;			/* last semop() time */
-  __time_t sem_ctime;			/* last time changed by semctl() */
 };
 
 /* The user should define a union like the following to use it for arguments
