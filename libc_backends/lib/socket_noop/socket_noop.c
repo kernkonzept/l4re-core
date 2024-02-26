@@ -36,15 +36,6 @@ int W accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen)
   return -1;
 }
 
-int accept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags);
-int W accept4(int sockfd, struct sockaddr *addr, socklen_t *addrlen, int flags)
-{
-  printf("Unimplemented: %s(%d, %p, %p, %d)\n",
-         __func__, sockfd, addr, addrlen, flags);
-  errno = EBADF;
-  return -1;
-}
-
 int W bind(int sockfd, const struct sockaddr *addr, socklen_t addrlen)
 {
   printf("Unimplemented: %s(%d, %p, %d)\n", __func__, sockfd, addr, addrlen);
