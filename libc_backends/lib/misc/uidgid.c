@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <grp.h>
 
 uid_t getuid(void) { return 123; }
 uid_t getgid(void) { return 123; }
@@ -47,5 +48,14 @@ pid_t setsid(void)
 int setgid(gid_t gid)
 {
   printf("Unimplemented: %s(%d)\n", __func__, gid);
+  return -1;
+}
+
+int setgroups(size_t size, const gid_t *list)
+{
+  (void)size;
+  (void)list;
+  printf("Unimplemented: %s\n", __func__);
+  errno = EPERM;
   return -1;
 }
