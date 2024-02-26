@@ -8,7 +8,8 @@ PC_LIBS      := -lc_be_l4re
 REQUIRES_LIBS = l4re
 SRC_C         = nanosleep.c sched_yield.c usleep.c \
                 gettimeofday.c clock_gettime.c clock.c \
-                clock_settime.c settimeofday.c time.c
+                clock_settime.c settimeofday.c time.c \
+                clock_getres.c
 CFLAGS        = -ffunction-sections
 
 include $(L4DIR)/mk/lib.mk
