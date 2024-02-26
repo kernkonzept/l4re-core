@@ -84,7 +84,7 @@ App_task::handle_irq()
       reset();
       dispatch_exit_signal();
 
-      _self->reset();  // keep at end; might delete current instance
+      _self = nullptr;  // keep at end; might delete current instance
     }
 }
 
@@ -133,7 +133,7 @@ App_task::terminate()
       _state = Zombie;
       reset();
       dispatch_exit_signal();
-      _self->reset();  // keep at end; might delete current instance
+      _self = nullptr;  // keep at end; might delete current instance
     }
 }
 
