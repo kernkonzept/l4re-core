@@ -161,10 +161,22 @@ define SRC_libc/stdlib/malloc-simple
 endef
 
 define SRC_libc/stdlib_wchar
+  $(if $(BID_VARIANT_FLAG_NOFPU),,__wcstofpmax)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,wcstod)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,wcstof)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,wcstold)
   _stdlib_mb_cur_max
-  wcstombs
+  _stdlib_wcsto_l
+  _stdlib_wcsto_ll
   mblen
   mbstowcs
+  wcstol
+  wcstoll
+  wcstombs
+  wcstoul
+  wcstoull
+  wctomb
+  mbtowc
 endef
 
 define SRC_libc/string
