@@ -12,6 +12,7 @@
 #include <l4/sys/cxx/ipc_epiface>
 #include <l4/sys/irq>
 #include <l4/sys/semaphore>
+#include <l4/cxx/unique_ptr>
 
 namespace Ned {
 
@@ -45,10 +46,10 @@ class Foreign_server : public L4::Server<L4Re::Util::Br_manager_hooks>,
 public:
   Foreign_server();
 
-  L4Re::Util::Object_registry *registry() const { return _r; }
+  L4Re::Util::Object_registry *registry() const;
 
 private:
-  L4Re::Util::Object_registry *_r = nullptr;
+  cxx::unique_ptr<Foreign_registry> _r;
   pthread_t _th;
   pthread_mutex_t _start_mutex; ///< Synchronize start of thread
 
