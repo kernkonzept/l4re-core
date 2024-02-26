@@ -110,6 +110,8 @@ Foreign_server::Foreign_server()
   pthread_mutex_destroy(&_start_mutex);
 }
 
+Foreign_server::~Foreign_server() = default;
+
 void *
 Foreign_server::__run(void *a)
 {

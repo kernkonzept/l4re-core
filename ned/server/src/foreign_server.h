@@ -45,6 +45,7 @@ class Foreign_server : public L4::Server<L4Re::Util::Br_manager_hooks>,
 
 public:
   Foreign_server();
+  ~Foreign_server();
 
   L4Re::Util::Object_registry *registry() const;
 
