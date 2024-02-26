@@ -30,6 +30,7 @@ SRC_C       = daemon.c \
               uidgid.c \
               umask.c \
               uname.c \
+              wait.c \
               wait3.c \
               waitpid.c
 
