@@ -13,6 +13,7 @@ SRC_C       = daemon.c \
               getrusage.c \
               kill.c \
               limit.c \
+              lockf.c \
               pathconf.c \
               pipe.c \
               posix_fadvise.c \
