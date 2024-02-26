@@ -46,6 +46,11 @@ else
   # WARNING EXCEPTION: checking a parameter marked with the nonnull attribute
   # for NULL is defensive programming.
   WARNINGS	+= -Wno-nonnull-compare
+  # WARNING EXCEPTION: the function is only ever invoked with prec = 2 and thus
+  # the values of jk (and by extension jz) are always positive. If that is the
+  # case then the loops will initialize fq and iq and there will never be an
+  # unitialized access to element 0 of fq.
+  WARNINGS_k_rem_pio2.c += -Wno-maybe-uninitialized
 endif
 
 # for building the C library we access internal headers
