@@ -113,7 +113,7 @@ Ro_file::ioctl(unsigned long v, va_list args) noexcept
       *available = _size - pos();
       return 0;
     };
-  return -EINVAL;
+  return -ENOTTY;
 }
 
 }}

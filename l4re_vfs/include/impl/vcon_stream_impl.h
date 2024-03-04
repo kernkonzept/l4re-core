@@ -206,7 +206,7 @@ Vcon_stream::ioctl(unsigned long request, va_list args) noexcept
     default:
       break;
   };
-  return -EINVAL;
+  return -ENOTTY;
 }
 
 }}
