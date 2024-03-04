@@ -33,24 +33,22 @@ EXTERN_C_BEGIN
  *
  * \deprecated Use l4_timeout_from_us().
  */
-L4_CV l4_timeout_s l4util_micros2l4to(unsigned int mus) L4_NOTHROW;
+L4_CV l4_timeout_s l4util_micros2l4to(unsigned us) L4_NOTHROW;
 
 /**
  * Suspend thread for a period of \a ms milliseconds
  * \param ms Time in milliseconds
  * \ingroup l4util_api
  */
-L4_CV void l4_sleep(int ms) L4_NOTHROW;
+L4_CV void l4_sleep(l4_uint32_t ms) L4_NOTHROW;
 
 /**
  * Suspend thread for a period of \a us microseconds.
  * \param us Time in microseconds
  * \ingroup l4util_api
- *
- * WARNING: This function is mostly bogus since the timer resolution of
- *          current L4 implementations is about 1ms!
+ * \note The timer resolution of L4 kernels is usually 1ms.
  */
-L4_CV void l4_usleep(int us) L4_NOTHROW;
+L4_CV void l4_usleep(l4_uint32_t us) L4_NOTHROW;
 
 /**
  * Go sleep and never wake up.

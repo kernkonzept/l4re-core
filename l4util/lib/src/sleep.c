@@ -24,7 +24,7 @@
 #include <l4/sys/kernel_object.h>
 #include <l4/util/util.h>
 
-L4_CV void l4_sleep(int ms)
+L4_CV void l4_sleep(l4_uint32_t ms)
 {
   l4_utcb_t *u = l4_utcb();
   l4_msgtag_t tag = l4_ipc_sleep_ms(ms);
@@ -33,7 +33,7 @@ L4_CV void l4_sleep(int ms)
 }
 
 
-L4_CV void l4_usleep(int us)
+L4_CV void l4_usleep(l4_uint32_t us)
 {
   l4_utcb_t *u = l4_utcb();
   l4_msgtag_t tag = l4_ipc_sleep_us(us);

@@ -13,7 +13,7 @@
 #include <dlfcn.h>
 
 inline
-void l4_sleep(int) L4_NOTHROW
+void l4_sleep(l4_uint32_t) L4_NOTHROW
 {}
 
 

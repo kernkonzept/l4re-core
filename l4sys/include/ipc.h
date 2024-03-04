@@ -491,7 +491,7 @@ l4_ipc_sleep(l4_timeout_t timeout) L4_NOTHROW;
  * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
-l4_ipc_sleep_ms(unsigned ms) L4_NOTHROW;
+l4_ipc_sleep_ms(l4_uint32_t ms) L4_NOTHROW;
 
 /**
  * Sleep for a certain amount of microseconds.
@@ -510,7 +510,7 @@ l4_ipc_sleep_ms(unsigned ms) L4_NOTHROW;
  * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
-l4_ipc_sleep_us(unsigned us) L4_NOTHROW;
+l4_ipc_sleep_us(l4_uint32_t us) L4_NOTHROW;
 
 /**
  * Add a flex-page to be sent to the UTCB
@@ -602,14 +602,16 @@ l4_ipc_sleep(l4_timeout_t timeout) L4_NOTHROW
 { return l4_ipc_receive(L4_INVALID_CAP, NULL, timeout); }
 
 L4_INLINE l4_msgtag_t
-l4_ipc_sleep_ms(unsigned ms) L4_NOTHROW
+l4_ipc_sleep_ms(l4_uint32_t ms) L4_NOTHROW
 {
-  return l4_ipc_sleep(l4_timeout(L4_IPC_TIMEOUT_NEVER,
-                                 l4_timeout_from_us(ms * 1000)));
+  l4_uint32_t us = ms <= (L4_TIMEOUT_US_MAX / 1000)
+                    ? ms * 1000
+                    : L4_TIMEOUT_US_NEVER;
+  return l4_ipc_sleep(l4_timeout(L4_IPC_TIMEOUT_NEVER, l4_timeout_from_us(us)));
 }
 
 L4_INLINE l4_msgtag_t
-l4_ipc_sleep_us(unsigned us) L4_NOTHROW
+l4_ipc_sleep_us(l4_uint32_t us) L4_NOTHROW
 {
   return l4_ipc_sleep(l4_timeout(L4_IPC_TIMEOUT_NEVER,
                                  l4_timeout_from_us(us)));
