@@ -1,7 +1,7 @@
 # Rules.mak for uClibc-ng
 #
 # Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
-# Copyright (C) 2015-2023 Waldemar Brodkorb <wbx@uclibc-ng.org>
+# Copyright (C) 2015-2024 Waldemar Brodkorb <wbx@uclibc-ng.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -128,7 +128,7 @@ export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS MULTILIB_DIR
 # Now config hard core
 MAJOR_VERSION := 1
 MINOR_VERSION := 0
-SUBLEVEL      := 45
+SUBLEVEL      := 46
 EXTRAVERSION  :=
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 ABI_VERSION   := $(MAJOR_VERSION)
