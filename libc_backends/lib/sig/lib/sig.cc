@@ -413,7 +413,7 @@ Sig_handling::signal(int signum, sighandler_t handler) noexcept
       return old;
     }
 
-  return reinterpret_cast<sighandler_t>(SIG_ERR);
+  return SIG_ERR;
 }
 
 extern "C"
