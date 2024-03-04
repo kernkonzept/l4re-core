@@ -200,7 +200,7 @@ Ns_dir::getdents(char *buf, size_t dest_sz) noexcept
       memcpy(dest->d_name, p, l - 1);
       dest->d_name[l - 1] = 0;
       dest->d_reclen = n;
-      dest->d_type   = DT_REG;
+      dest->d_type   = DT_UNKNOWN;
       ret += n;
       dest_sz -= n;
 
