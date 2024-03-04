@@ -16,6 +16,7 @@
 /* Condition variables */
 
 #include <errno.h>
+#include <sched.h>
 #include <stddef.h>
 #include <sys/time.h>
 #include "pthread.h"
@@ -49,7 +50,7 @@ strong_alias (__pthread_cond_destroy, pthread_cond_destroy)
 
 static int cond_extricate_func(void *obj, pthread_descr th)
 {
-  __volatile__ pthread_descr self = thread_self();
+  volatile pthread_descr self = thread_self();
   pthread_cond_t *cond = obj;
   int did_remove = 0;
 
@@ -64,7 +65,7 @@ int
 attribute_hidden
 __pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
-  __volatile__ pthread_descr self = thread_self();
+  volatile pthread_descr self = thread_self();
   pthread_extricate_if extr;
   int already_canceled = 0;
   int spurious_wakeup_count;
