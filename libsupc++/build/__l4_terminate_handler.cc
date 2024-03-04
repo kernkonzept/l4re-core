@@ -15,10 +15,16 @@
 
 namespace std { namespace L4 {
 
-void terminate_handler();
-
-// Verbose terminate handler being aware of the std::L4 exceptions.
-void terminate_handler()
+// Verbose terminate handler being aware of the std::L4 exceptions. We have to
+// consider the different layout of L4 exceptions depending on the definition of
+// L4_CXX_EXCEPTION_BACKTRACE.
+#ifdef L4_CXX_EXCEPTION_BACKTRACE
+void terminate_handler_exc_backtrace();
+void terminate_handler_exc_backtrace()
+#else
+void terminate_handler_no_exc_backtrace();
+void terminate_handler_no_exc_backtrace()
+#endif
 {
   static bool terminating;
   if (terminating)

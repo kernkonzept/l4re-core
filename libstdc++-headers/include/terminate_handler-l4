@@ -12,13 +12,21 @@
 
 namespace std { namespace L4 {
 
-void terminate_handler();
+#ifdef L4_CXX_EXCEPTION_BACKTRACE
+void terminate_handler_exc_backtrace();
+#else
+void terminate_handler_no_exc_backtrace();
+#endif
 
 namespace {
 
 static const auto install_terminate_handler
 {
-  std::set_terminate(&terminate_handler)
+#ifdef L4_CXX_EXCEPTION_BACKTRACE
+  std::set_terminate(&terminate_handler_exc_backtrace)
+#else
+  std::set_terminate(&terminate_handler_no_exc_backtrace)
+#endif
 };
 
 } } }

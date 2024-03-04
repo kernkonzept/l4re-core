@@ -46,7 +46,8 @@ tinfo.cc \
 vec.cc \
 vterminate.cc \
 demangle.cc \
-l4_terminate_handler.cc
+l4_terminate_handler-exc-backtrace.cc \
+l4_terminate_handler-no-exc-backtrace.cc
 
 SUPCXX_PKG_DIR ?= $(PKGDIR)
 
