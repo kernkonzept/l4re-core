@@ -30,11 +30,9 @@
 #define __sched_get_priority_max(x) (L4_SCHED_MAX_PRIO)
 #define __sched_get_priority_min(x) (1)
 
-int
-attribute_hidden
-__pthread_attr_init(pthread_attr_t *attr)
+int __pthread_attr_init(pthread_attr_t *attr)
 {
-  size_t ps = L4_PAGESIZE;
+  size_t ps = __getpagesize ();
 
   attr->__detachstate = PTHREAD_CREATE_JOINABLE;
   attr->__schedpolicy = SCHED_OTHER;
@@ -57,17 +55,13 @@ __pthread_attr_init(pthread_attr_t *attr)
 }
 strong_alias (__pthread_attr_init, pthread_attr_init)
 
-int
-attribute_hidden
-__pthread_attr_destroy(pthread_attr_t *attr)
+int __pthread_attr_destroy(pthread_attr_t *attr)
 {
   return 0;
 }
 strong_alias (__pthread_attr_destroy, pthread_attr_destroy)
 
-int
-attribute_hidden
-__pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
+int __pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
 {
   if (detachstate < PTHREAD_CREATE_JOINABLE ||
       detachstate > PTHREAD_CREATE_DETACHED)
@@ -77,18 +71,14 @@ __pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
 }
 strong_alias (__pthread_attr_setdetachstate, pthread_attr_setdetachstate)
 
-int
-attribute_hidden
-__pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate)
+int __pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate)
 {
   *detachstate = attr->__detachstate;
   return 0;
 }
 strong_alias (__pthread_attr_getdetachstate, pthread_attr_getdetachstate)
 
-int
-attribute_hidden
-__pthread_attr_setschedparam(pthread_attr_t *attr,
+int __pthread_attr_setschedparam(pthread_attr_t *attr,
                                  const struct sched_param *param)
 {
   int max_prio = __sched_get_priority_max(attr->__schedpolicy);
@@ -101,9 +91,7 @@ __pthread_attr_setschedparam(pthread_attr_t *attr,
 }
 strong_alias (__pthread_attr_setschedparam, pthread_attr_setschedparam)
 
-int
-attribute_hidden
-__pthread_attr_getschedparam(const pthread_attr_t *attr,
+int __pthread_attr_getschedparam(const pthread_attr_t *attr,
                                  struct sched_param *param)
 {
   memcpy (param, &attr->__schedparam, sizeof (struct sched_param));
@@ -111,9 +99,7 @@ __pthread_attr_getschedparam(const pthread_attr_t *attr,
 }
 strong_alias (__pthread_attr_getschedparam, pthread_attr_getschedparam)
 
-int
-attribute_hidden
-__pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
+int __pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
 {
   if (policy != SCHED_OTHER && policy != SCHED_FIFO && policy != SCHED_RR
       && policy != SCHED_L4)
@@ -123,18 +109,14 @@ __pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
 }
 strong_alias (__pthread_attr_setschedpolicy, pthread_attr_setschedpolicy)
 
-int
-attribute_hidden
-__pthread_attr_getschedpolicy(const pthread_attr_t *attr, int *policy)
+int __pthread_attr_getschedpolicy(const pthread_attr_t *attr, int *policy)
 {
   *policy = attr->__schedpolicy;
   return 0;
 }
 strong_alias (__pthread_attr_getschedpolicy, pthread_attr_getschedpolicy)
 
-int
-attribute_hidden
-__pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
+int __pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
 {
   if (inherit != PTHREAD_INHERIT_SCHED && inherit != PTHREAD_EXPLICIT_SCHED)
     return EINVAL;
@@ -143,18 +125,14 @@ __pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
 }
 strong_alias (__pthread_attr_setinheritsched, pthread_attr_setinheritsched)
 
-int
-attribute_hidden
-__pthread_attr_getinheritsched(const pthread_attr_t *attr, int *inherit)
+int __pthread_attr_getinheritsched(const pthread_attr_t *attr, int *inherit)
 {
   *inherit = attr->__inheritsched;
   return 0;
 }
 strong_alias (__pthread_attr_getinheritsched, pthread_attr_getinheritsched)
 
-int
-attribute_hidden
-__pthread_attr_setscope(pthread_attr_t *attr, int scope)
+int __pthread_attr_setscope(pthread_attr_t *attr, int scope)
 {
   switch (scope) {
   case PTHREAD_SCOPE_SYSTEM:
@@ -168,18 +146,14 @@ __pthread_attr_setscope(pthread_attr_t *attr, int scope)
 }
 strong_alias (__pthread_attr_setscope, pthread_attr_setscope)
 
-int
-attribute_hidden
-__pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
+int __pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
 {
   *scope = attr->__scope;
   return 0;
 }
 strong_alias (__pthread_attr_getscope, pthread_attr_getscope)
 
-int
-attribute_hidden
-__pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
+int __pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
 {
   /* The guard size must not be larger than the stack itself */
   if (guardsize >= attr->__stacksize) return EINVAL;
@@ -190,9 +164,7 @@ __pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
 }
 weak_alias (__pthread_attr_setguardsize, pthread_attr_setguardsize)
 
-int
-attribute_hidden
-__pthread_attr_getguardsize(const pthread_attr_t *attr, size_t *guardsize)
+int __pthread_attr_getguardsize(const pthread_attr_t *attr, size_t *guardsize)
 {
   *guardsize = attr->__guardsize;
   return 0;
@@ -226,9 +198,7 @@ link_warning (pthread_attr_getstackaddr,
 #endif
 
 
-int
-attribute_hidden
-__pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
+int __pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
 {
   /* We have to check against the maximum allowed stack size.  This is no
      problem if the manager is already started and we determined it.  If
@@ -255,9 +225,7 @@ versioned_symbol (libpthread, __pthread_attr_setstacksize,
 
 # if SHLIB_COMPAT(libpthread, GLIBC_2_1, GLIBC_2_3_3)
 
-int
-attribute_hidden
-__old_pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
+int __old_pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
 {
   /* We have to check against the maximum allowed stack size.  This is no
      problem if the manager is already started and we determined it.  If
@@ -281,18 +249,14 @@ compat_symbol (libpthread, __old_pthread_attr_setstacksize,
 #endif
 
 
-int
-attribute_hidden
-__pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stacksize)
+int __pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stacksize)
 {
   *stacksize = attr->__stacksize;
   return 0;
 }
 weak_alias (__pthread_attr_getstacksize, pthread_attr_getstacksize)
 
-int
-attribute_hidden
-__pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
+int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
 			     size_t stacksize)
 {
   int err;
@@ -321,9 +285,7 @@ weak_alias (__pthread_attr_setstack, pthread_attr_setstack)
 versioned_symbol (libpthread, __pthread_attr_setstack, pthread_attr_setstack,
                   GLIBC_2_3_3);
 # if SHLIB_COMPAT(libpthread, GLIBC_2_2, GLIBC_2_3_3)
-int
-attribute_hidden
-__old_pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
+int __old_pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
 				 size_t stacksize)
 {
   int err;
@@ -352,9 +314,7 @@ compat_symbol (libpthread, __old_pthread_attr_setstack, pthread_attr_setstack,
 # endif
 #endif
 
-int
-attribute_hidden
-__pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
+int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
 			     size_t *stacksize)
 {
   /* XXX This function has a stupid definition.  The standard specifies

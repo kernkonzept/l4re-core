@@ -15,7 +15,6 @@
 /* Thread cancellation */
 
 #include <errno.h>
-#include <libc-internal.h>
 #include "pthread.h"
 #include "internals.h"
 #include "spinlock.h"
