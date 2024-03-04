@@ -3,7 +3,9 @@ PC_FILENAME     = libgcc
 # Certain functions are only part of libgcc.a, so link shared objects against
 # both libgcc_s.so and libgcc.a.
 PC_LIBS         = %{static|static-pie|static-libgcc:; :$(if $(CONFIG_COMPILER_RT_LIBGCC_SHARED),-lgcc_s)} -lgcc
-PC_EXTRA        = Link_Libs= -lgcc
+PC_LIBS_PIC     = $(PC_LIBS)
+PC_LINK_LIBS    = -lgcc
+PC_LINK_LIBS_PIC = $(PC_LINK_LIBS)
 
 REQUIRES_LIBS   = l4sys
 # Avoid circular dependency, as this package is part of the compiler runtime.

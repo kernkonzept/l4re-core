@@ -2,7 +2,8 @@ TARGET          = libclang_rt-builtins.a
 PC_FILENAME     = libclang_rt-builtins
 PC_LIBS         =
 # Need to consume static-libgcc here.
-PC_EXTRA        = Link_Libs= %{static-libgcc:;:} -lclang_rt-builtins
+PC_LINK_LIBS    = %{static-libgcc:;:} -lclang_rt-builtins
+PC_LINK_LIBS_PIC = $(PC_LINK_LIBS)
 
 # Avoid circular dependency, as this package is part of the compiler runtime.
 COMPILER_RT     =

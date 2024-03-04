@@ -1,7 +1,8 @@
 TARGET          = libunwind_llvm-pure.a
 PC_FILENAME     = libunwind_llvm-pure
 PC_LIBS         =
-PC_EXTRA        = Link_Libs= -lunwind_llvm-pure
+PC_LINK_LIBS    = -lunwind_llvm-pure
+PC_LINK_LIBS_PIC = $(PC_LINK_LIBS)
 
 # Avoid circular dependency, as this package is part of the compiler runtime.
 COMPILER_RT     =

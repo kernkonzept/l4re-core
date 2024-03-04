@@ -1,8 +1,8 @@
 TARGET          = libgcc_eh-pure.a
 CONTRIB_INCDIR  = libgcc_eh
 PC_FILENAME     = libgcc_eh-pure
-PC_LIBS         =
-PC_EXTRA        = Link_Libs= -lgcc_eh-pure
+PC_LINK_LIBS    = -lgcc_eh-pure
+PC_LINK_LIBS_PIC = $(PC_LINK_LIBS)
 
 # Avoid circular dependency, as this package is part of the compiler runtime.
 COMPILER_RT     =

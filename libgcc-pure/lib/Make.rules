@@ -1,7 +1,8 @@
 TARGET          = libgcc-pure.a
 PC_FILENAME     = libgcc-pure
 PC_LIBS         =
-PC_EXTRA        = Link_Libs= -lgcc-pure
+PC_LINK_LIBS    = -lgcc-pure
+PC_LINK_LIBS_PIC = $(PC_LINK_LIBS)
 
 # Avoid circular dependency, as this package is part of the compiler runtime.
 COMPILER_RT     =
