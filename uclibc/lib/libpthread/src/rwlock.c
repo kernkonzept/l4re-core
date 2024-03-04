@@ -604,7 +604,7 @@ pthread_rwlockattr_init (pthread_rwlockattr_t *attr)
 
 
 int
-__pthread_rwlockattr_destroy (pthread_rwlockattr_t *attr)
+__pthread_rwlockattr_destroy (pthread_rwlockattr_t *attr attribute_unused)
 {
   return 0;
 }

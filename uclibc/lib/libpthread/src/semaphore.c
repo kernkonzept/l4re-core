@@ -190,19 +190,19 @@ int sem_destroy(sem_t * sem)
   return 0;
 }
 
-sem_t *sem_open(const char *name, int oflag, ...)
+sem_t *sem_open(const char *name attribute_unused, int oflag attribute_unused, ...)
 {
   __set_errno (ENOSYS);
   return SEM_FAILED;
 }
 
-int sem_close(sem_t *sem)
+int sem_close(sem_t *sem attribute_unused)
 {
   __set_errno (ENOSYS);
   return -1;
 }
 
-int sem_unlink(const char *name)
+int sem_unlink(const char *name attribute_unused)
 {
   __set_errno (ENOSYS);
   return -1;

@@ -55,7 +55,7 @@ int __pthread_attr_init(pthread_attr_t *attr)
 }
 strong_alias (__pthread_attr_init, pthread_attr_init)
 
-int __pthread_attr_destroy(pthread_attr_t *attr)
+int __pthread_attr_destroy(pthread_attr_t *attr attribute_unused)
 {
   return 0;
 }

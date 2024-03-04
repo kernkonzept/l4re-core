@@ -1154,7 +1154,7 @@ static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
 #if 0
 /* Handler for __pthread_sig_cancel in thread manager thread */
 
-void __pthread_manager_sighandler(int sig)
+void __pthread_manager_sighandler(int sig attribute_unused)
 {
   int kick_manager = terminated_children == 0 && main_thread_exiting;
   terminated_children = 1;
