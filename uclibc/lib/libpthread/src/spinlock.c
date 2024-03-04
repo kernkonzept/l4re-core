@@ -15,7 +15,7 @@
 /* Internal locks */
 
 #include <errno.h>
-//l4/#include <sched.h>
+#include <sched.h>
 #include <time.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -24,8 +24,6 @@
 #include "spinlock.h"
 #include "restart.h"
 
-#include <l4/sys/thread.h>
-#include <l4/util/util.h>
 
 static void __pthread_acquire(int * spinlock);
 
@@ -721,15 +719,18 @@ int __pthread_compare_and_swap(long * ptr, long oldval, long newval,
 static void __pthread_acquire(int * spinlock)
 {
   int cnt = 0;
+  struct timespec tm;
 
   READ_MEMORY_BARRIER();
 
   while (testandset(spinlock)) {
     if (cnt < MAX_SPIN_COUNT) {
-      l4_thread_yield();
+      sched_yield();
       cnt++;
     } else {
-      l4_usleep(SPIN_SLEEP_DURATION / 1000);
+      tm.tv_sec = 0;
+      tm.tv_nsec = SPIN_SLEEP_DURATION;
+      nanosleep(&tm, NULL);
       cnt = 0;
     }
   }
