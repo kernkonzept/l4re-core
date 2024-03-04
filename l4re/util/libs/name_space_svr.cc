@@ -187,11 +187,10 @@ Name_space::insert_entry(Name const &name, unsigned flags, Entry **e)
 	return -L4_ENOMEM;
       else
 	{
-	  int err = insert(n);
-	  if (err < 0)
+	  if (!insert(n))
 	    {
 	      free_dynamic_entry(n);
-	      return err;
+	      return -L4_EEXIST;
 	    }
 	}
     }
