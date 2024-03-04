@@ -273,7 +273,7 @@ int pthread_cond_broadcast(pthread_cond_t *cond)
 }
 libpthread_hidden_def(pthread_cond_broadcast)
 
-int pthread_condattr_init(pthread_condattr_t *attr attribute_unused)
+int pthread_condattr_init(pthread_condattr_t *attr)
 {
   memset (attr, '\0', sizeof (*attr));
   return 0;
