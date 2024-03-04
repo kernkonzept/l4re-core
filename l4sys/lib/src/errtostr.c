@@ -32,6 +32,7 @@ static char const *const _l4sys_errortab[L4_ERRNOMAX] = {
     [L4_EBUSY]         = "Function busy",
     [L4_EEXIST]        = "Object exists",
     [L4_ENODEV]        = "No such device",
+    [L4_ENOTDIR]       = "Not a directory",
     [L4_EINVAL]        = "Invalid argument",
     [L4_ERANGE]        = "Argument out of range",
     [L4_ENAMETOOLONG]  = "Name too long",

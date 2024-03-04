@@ -53,6 +53,7 @@ enum l4_error_code_t
   L4_EBUSY         = 16,     /**< Object currently busy, try later. */
   L4_EEXIST        = 17,     /**< Already exists. */
   L4_ENODEV        = 19,     /**< No such thing. */
+  L4_ENOTDIR       = 20,     /**< Not a directory */
   L4_EINVAL        = 22,     /**< Invalid argument. */
   L4_ENOSPC        = 28,     /**< No space left on device */
   L4_ERANGE        = 34,     /**< Range error. */
