@@ -40,7 +40,7 @@ struct Sig_handling : L4::Epiface_t<Sig_handling, L4::Exception>
   pthread_t pthread;
 
   struct itimerval current_itimerval;
-  l4_cpu_time_t alarm_timeout;
+  l4_cpu_time_t alarm_timeout = 0;
 
   Sig_handling();
 

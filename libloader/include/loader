@@ -59,8 +59,9 @@ protected:
 
   struct Arg_array
   {
-    char const *a0, *al;
-    Arg_array() : a0(0) {}
+    char const *a0 = nullptr;
+    char const *al = nullptr;
+    Arg_array() {};
     int push(Base_app_model *am, bool basename);
   };
 
