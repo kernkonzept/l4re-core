@@ -273,10 +273,4 @@ __pthread_perform_cleanup(char *currentframe)
       if (FRAME_LEFT (last, c))
 	break;
     }
-
-#ifdef __UCLIBC_HAS_RPC__
-  /* And the TSD which needs special help.  */
-  if (THREAD_GETMEM(self, p_libc_specific[_LIBC_TSD_KEY_RPC_VARS]) != NULL)
-      __rpc_thread_destroy ();
-#endif
 }
