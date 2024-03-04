@@ -15,28 +15,34 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <time.h>
+#include <limits.h>
 
 #include <l4/util/util.h>
 
 int nanosleep(const struct timespec *req, struct timespec *rem)
 {
-    int milis;
+  // l4_timeout_from_us allows a maximum timeout of 610d 14m 35s.
+  l4_uint64_t us;
 
-    (void)rem;
-    if (req == NULL)
+  (void)rem;
+  if (req == NULL)
     {
-        errno = EFAULT; // or maybe EINVAL ???
-        return -1;
+      errno = EFAULT; // or maybe EINVAL ???
+      return -1;
     }
 
-    if (req->tv_nsec < 0 || req->tv_nsec > 999999999 || req->tv_sec < 0)
+  if (req->tv_nsec < 0 || req->tv_nsec > 999999999 || req->tv_sec < 0)
     {
-        errno = EINVAL;
-        return -1;
+      errno = EINVAL;
+      return -1;
     }
 
-    milis = (req->tv_sec * 1000) + (req->tv_nsec / 1000000);
-    l4_sleep(milis);
+  // __time_t could be 32-bit as well as 64-bit!
+  if ((l4_uint64_t)req->tv_sec > (~0ULL / 1000000) - 1)
+    us = L4_TIMEOUT_US_MAX;
+  else
+    us = ((l4_uint64_t)req->tv_sec * 1000000) + (req->tv_nsec / 1000);
+  l4_usleep(us);
 
-    return 0;
+  return 0;
 }
