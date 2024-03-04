@@ -932,11 +932,10 @@ static void pthread_free(pthread_descr th)
   pthread_handle handle;
   pthread_readlock_info *iter, *next;
 
-  ASSERT(th->p_exited);
   /* Make the handle invalid */
   handle =  thread_handle(th->p_tid);
   __pthread_lock(handle_to_lock(handle), NULL);
-  ASSERT(th->p_tid != NULL);
+  assert(th->p_tid != NULL);
   th->p_tid = NULL;
   mgr_free_utcb(handle);
   __pthread_unlock(handle_to_lock(handle));
@@ -1019,7 +1018,7 @@ static int pthread_handle_thread_exit(pthread_descr th)
   if (th->p_exited)
     return 0;
 
-  ASSERT(th->p_terminated);
+  assert(th->p_terminated);
 
   int detached;
   /* Remove thread from list of active threads */

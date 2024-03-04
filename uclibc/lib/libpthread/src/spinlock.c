@@ -624,8 +624,6 @@ void __pthread_alt_unlock(struct _pthread_fastlock *lock)
     if (maxprio == INT_MIN)
       continue;
 
-    ASSERT (p_max_prio != (struct wait_node *) 1);
-
     /* Now we want to to remove the max priority thread's wait node from
        the list. Before we can do this, we must atomically try to change the
        node's abandon state from zero to nonzero. If we succeed, that means we

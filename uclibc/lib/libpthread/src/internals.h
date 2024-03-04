@@ -277,23 +277,10 @@ static __inline__ int nonexisting_handle(pthread_handle h, pthread_t id)
 extern int __libc_multiple_threads L4_HIDDEN;
 extern int __librt_multiple_threads;
 
-/* Debugging */
-
-#ifdef DEBUG
-#include <assert.h>
-#define ASSERT assert
-#define MSG __pthread_message
-#else
-#define ASSERT(x)
-#define MSG(msg,arg...)
-#endif
-
 # define INIT_THREAD_SELF(descr, nr) do {				\
 		l4_utcb_tcr()->user[0] = (l4_umword_t)descr;		\
 		l4_utcb_tcr()->user[2] = 0;				\
 	} while (0)
-
-
 
 /* Internal global functions */
 __BEGIN_DECLS

@@ -21,7 +21,6 @@
 static __inline__ void enqueue(pthread_descr * q, pthread_descr th)
 {
   int prio = th->p_priority;
-  ASSERT(th->p_nextwaiting == NULL);
   for (; *q != NULL; q = &((*q)->p_nextwaiting)) {
     if (prio > (*q)->p_priority) {
       th->p_nextwaiting = *q;
