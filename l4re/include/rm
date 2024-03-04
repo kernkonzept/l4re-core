@@ -126,6 +126,7 @@ public:
 
     L4_TYPES_FLAGS_OPS_DEF(Attach_flags);
 
+    /// Region flags (permissions, cacheability, special).
     enum Region_flags : l4_uint16_t
     {
       /// Region rights
