@@ -217,7 +217,7 @@ l4_kip_clock(l4_kernel_info_t const *kip) L4_NOTHROW
   // Use kernel-provided code to determine the current clock.
   typedef l4_uint64_t (*kip_time_fn_read_us)(void);
   kip_time_fn_read_us read_us =
-    (kip_time_fn_read_us)((l4_uint8_t*)kip + L4_KIP_OFFS_READ_US);
+    (kip_time_fn_read_us)((l4_uint8_t const*)kip + L4_KIP_OFFS_READ_US);
   return read_us();
 }
 
@@ -226,7 +226,7 @@ l4_kip_clock_ns(l4_kernel_info_t const *kip) L4_NOTHROW
 {
   typedef l4_uint64_t (*kip_time_fn_read_ns)(void);
   kip_time_fn_read_ns read_ns =
-    (kip_time_fn_read_ns)((l4_uint8_t*)kip + L4_KIP_OFFS_READ_NS);
+    (kip_time_fn_read_ns)((l4_uint8_t const*)kip + L4_KIP_OFFS_READ_NS);
   return read_ns();
 }
 
