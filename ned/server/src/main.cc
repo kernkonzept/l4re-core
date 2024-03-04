@@ -20,7 +20,7 @@
 
 static Dbg info(Dbg::Info);
 static Dbg boot_info(Dbg::Boot);
-l4re_aux_t* l4re_aux;
+l4re_aux_t const* l4re_aux;
 
 Ned::Foreign_server *Ned::foreign_server;
 
@@ -38,7 +38,7 @@ run(int argc, char const *const *argv)
     boot_info.cprintf("%s ", argv[i]);
   boot_info.cprintf("\n");
 
-  l4_umword_t *auxp = (l4_umword_t*)&argv[argc] + 1;
+  auto auxp = reinterpret_cast<l4_umword_t const*>(&argv[argc]) + 1;
   while (*auxp)
     ++auxp;
   ++auxp;
@@ -48,7 +48,7 @@ run(int argc, char const *const *argv)
   while (*auxp)
     {
       if (*auxp == 0xf0)
-	l4re_aux = (l4re_aux_t*)auxp[1];
+        l4re_aux = reinterpret_cast<l4re_aux_t const*>(auxp[1]);
       auxp += 2;
     }
 

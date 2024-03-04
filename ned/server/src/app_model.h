@@ -86,7 +86,7 @@ struct App_model : public Ldr::Base_app_model<Stack>
 
   static Dataspace local_kip_ds()
   {
-    extern l4re_aux_t* l4re_aux;
+    extern l4re_aux_t const* l4re_aux;
     return L4::Cap<L4Re::Dataspace>(l4re_aux->kip_ds);
   }
 
