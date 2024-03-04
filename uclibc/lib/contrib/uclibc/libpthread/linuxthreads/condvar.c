@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <sched.h>
 #include <stddef.h>
+#include <string.h>
 #include <sys/time.h>
 #include "pthread.h"
 #include "internals.h"
