@@ -132,7 +132,6 @@ class Loader
 {
 public:
   bool start(L4::Cap<L4Re::Dataspace> bin, Region_map *rm, l4re_aux_t *aux);
-  bool __start(L4::Cap<L4Re::Dataspace> bin, Region_map *rm);
   virtual bool launch(L4::Cap<L4Re::Dataspace> bin, L4::Cap<L4Re::Rm>) = 0;
   virtual ~Loader() {}
 };

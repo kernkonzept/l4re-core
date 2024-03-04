@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <cstdio>
 
 #include "region.h"
 #include "globals.h"
@@ -126,7 +127,7 @@ static void insert_regions()
     }
 }
 
-static int run(int argc, char const *argv[], char const *envp[])
+int main(int argc, char const *argv[], char const *envp[])
 {
   Dbg::set_level(Dbg::Info | Dbg::Warn);
 
@@ -190,26 +191,4 @@ static int run(int argc, char const *argv[], char const *envp[])
 
   boot.printf("Start server loop\n");
   server.loop<L4::Runtime_error>(Dispatcher());
-}
-
-int main(int argc, char const *argv[], char const *envp[])
-{
-  try
-    {
-      return run(argc, argv, envp);
-    }
-  catch (L4::Runtime_error const &e)
-    {
-      Err(Err::Fatal).printf("Exception %s: '%s'\n", e.str(), e.extra_str());
-      L4::cerr << e;
-      return 1;
-    }
-  catch (L4::Base_exception const &e)
-    {
-      Err(Err::Fatal).printf("Exception %s\n", e.str());
-      L4::cerr << e;
-      return 1;
-    }
-
-  return 0;
 }

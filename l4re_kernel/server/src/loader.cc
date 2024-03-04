@@ -248,7 +248,7 @@ static void
 loader_thread()
 #endif
 {
-  if (!__loader->__start(__binary, __rm))
+  if (!__loader->launch(__binary, __loader_entry.pager))
     {
       Err(Err::Fatal).printf("Could not load binary '%s'.\n",
                              Global::l4re_aux->binary);
@@ -352,28 +352,6 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
   chksys(app_thread->ex_regs(reinterpret_cast<unsigned long>(&loader_thread),
                              l4_align_stack_for_direct_fncall(stack), 0),
                              "l4re_kernel: Start app thread.");
-
-  return true;
-}
-
-
-bool
-Loader::__start(Cap<Dataspace> bin, Region_map *)
-{
-  try
-    {
-      launch(bin, __loader_entry.pager);
-    }
-  catch (L4::Runtime_error const &e)
-    {
-      L4::cerr << e;
-      return false;
-    }
-  catch (L4::Base_exception const &e)
-    {
-      L4::cerr << e;
-      return false;
-    }
 
   return true;
 }
