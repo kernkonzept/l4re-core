@@ -65,32 +65,6 @@ __pthread_setcanceltype(int type, int * oldtype)
 }
 strong_alias (__pthread_setcanceltype, pthread_setcanceltype)
 
-
-/* The next two functions are similar to pthread_setcanceltype() but
-   more specialized for the use in the cancelable functions like write().
-   They do not need to check parameters etc.  */
-int
-attribute_hidden
-__pthread_enable_asynccancel (void)
-{
-  pthread_descr self = thread_self();
-  int oldtype = THREAD_GETMEM(self, p_canceltype);
-  THREAD_SETMEM(self, p_canceltype, PTHREAD_CANCEL_ASYNCHRONOUS);
-  if (__builtin_expect (THREAD_GETMEM(self, p_canceled), 0) &&
-      THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE)
-    __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
-  return oldtype;
-}
-
-void
-internal_function attribute_hidden
-__pthread_disable_asynccancel (int oldtype)
-{
-  pthread_descr self = thread_self();
-  THREAD_SETMEM(self, p_canceltype, oldtype);
-}
-
-
 #ifdef ARCH_mips
 void pthread_handle_sigcancel(void);
 void _pthread_handle_sigcancel(void);

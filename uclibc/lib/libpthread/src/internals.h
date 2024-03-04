@@ -503,19 +503,6 @@ extern int __pthread_sigaction (int sig, const struct sigaction *act,
 extern int __pthread_sigwait (const sigset_t *set, int *sig);
 extern int __pthread_raise (int sig);
 #endif
-/* Cancellation.  */
-extern int __pthread_enable_asynccancel (void) L4_HIDDEN;
-extern void __pthread_disable_asynccancel (int oldtype)
-  internal_function L4_HIDDEN;
-
-/* The two functions are in libc.so and not exported.  */
-extern int __libc_enable_asynccancel (void) L4_HIDDEN;
-extern void __libc_disable_asynccancel (int oldtype)
-  internal_function L4_HIDDEN;
-
-/* The two functions are in libc.so and are exported.  */
-extern int __librt_enable_asynccancel (void);
-extern void __librt_disable_asynccancel (int oldtype) internal_function;
 
 extern void __pthread_cleanup_upto (__jmp_buf target,
 				    char *targetframe) L4_HIDDEN;
