@@ -51,7 +51,7 @@ l4re_event_buffer_detach(l4re_event_buffer_consumer_t *evbuf,
 L4_CV void
 l4re_event_free(l4re_event_t *e) L4_NOTHROW
 {
-  L4Re::Event_buffer::Event *ev = (L4Re::Event_buffer::Event *)e;
+  auto *ev = reinterpret_cast<L4Re::Event_buffer::Event *>(e);
 
   ev->free();
 }
@@ -59,7 +59,7 @@ l4re_event_free(l4re_event_t *e) L4_NOTHROW
 L4_CV l4re_event_t *
 l4re_event_buffer_next(l4re_event_buffer_consumer_t *evbuf) L4_NOTHROW
 {
-  return (l4re_event_t*)cast(evbuf)->next();
+  return reinterpret_cast<l4re_event_t*>(cast(evbuf)->next());
 }
 
 L4_CV void

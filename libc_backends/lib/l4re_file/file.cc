@@ -109,11 +109,9 @@ static Ref_ptr<File> __internal_get_dir(int dirfd, char const **path) L4_NOTHROW
 }
 
 static char const *
-__internal_resolvedir(int dirfd, const char *path, int flags, mode_t mode,
-                      Ref_ptr<File> *f) L4_NOTHROW
+__internal_resolvedir(int dirfd, const char *path, int /* flags */,
+                      mode_t /* mode */, Ref_ptr<File> *f) L4_NOTHROW
 {
-  (void)flags;
-  (void)mode;
   Ref_ptr<File> dir = __internal_get_dir(dirfd, &path);
   if (!dir)
     return 0;
@@ -310,11 +308,8 @@ noexcept(noexcept(ftruncate(fd, length)))
   return ftruncate64(fd, length);
 }
 
-int lockf(int fd, int cmd, off_t len)
+int lockf(int /* fd */, int /* cmd */, off_t /* len */)
 {
-  (void)fd;
-  (void)cmd;
-  (void)len;
   errno = EINVAL;
   return -1;
 }
@@ -539,10 +534,9 @@ L4B_REDIRECT_4(int, utimensat, int, const char *,
 //#include <stdio.h>
 #include <l4/util/util.h>
 
-int select(int nfds, fd_set *readfds, fd_set *writefds,
-           fd_set *exceptfds, struct timeval *timeout)
+int select(int /* nfds */, fd_set * /* readfds */, fd_set * /* writefds */,
+           fd_set * /* exceptfds */, struct timeval *timeout)
 {
-  (void)nfds; (void)readfds; (void)writefds; (void)exceptfds;
   //printf("Call: %s(%d, %p, %p, %p, %p[%ld])\n", __func__, nfds, readfds, writefds, exceptfds, timeout, timeout->tv_usec + timeout->tv_sec * 1000000);
 
 #if 0
@@ -621,7 +615,7 @@ extern "C" int chdir(const char *path) noexcept(noexcept(chdir(path)))
     {
       unsigned len_cwd = strlen(_current_working_dir);
       unsigned len_path = strlen(path);
-      char *new_cwd = (char *)malloc(len_cwd + len_path + 2);
+      char *new_cwd = static_cast<char *>(malloc(len_cwd + len_path + 2));
       if (!new_cwd)
         {
           errno = ENOMEM;
@@ -709,7 +703,7 @@ noexcept(noexcept(getcwd(buf, size)))
     }
 
   if (buf == 0)
-    buf = (char *)malloc(size);
+    buf = static_cast<char *>(malloc(size));
 
   if (buf == 0)
     {

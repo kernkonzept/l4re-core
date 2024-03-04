@@ -620,12 +620,12 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
     {
       int err;
       L4::Cap<Rm> r = Env::env()->rm();
-      l4_addr_t area = (l4_addr_t)start;
+      l4_addr_t area = reinterpret_cast<l4_addr_t>(start);
       err = r->reserve_area(&area, len, L4Re::Rm::F::Search_addr);
       if (err < 0)
         return err;
 
-      *resptr = (void*)area;
+      *resptr = reinterpret_cast<void*>(area);
 
       DEBUG_LOG(debug_mmap, {
                 outstring("  MMAP reserved area: 0x");
@@ -837,7 +837,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
     return -EINVAL;
 
   l4_addr_t oa = l4_trunc_page(reinterpret_cast<l4_addr_t>(old_addr));
-  if (oa != (l4_addr_t)old_addr)
+  if (oa != reinterpret_cast<l4_addr_t>(old_addr))
     return -EINVAL;
 
   bool const fixed = flags & MREMAP_FIXED;
@@ -875,7 +875,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
   if (fixed)
     {
       l4_addr_t na = l4_trunc_page(reinterpret_cast<l4_addr_t>(*new_addr));
-      if (na != (l4_addr_t)*new_addr)
+      if (na != reinterpret_cast<l4_addr_t>(*new_addr))
         return -EINVAL;
 
       // check if the current virtual memory area can be expanded
@@ -1002,10 +1002,8 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
 }
 
 int
-Vfs::mprotect(const void *a, size_t sz, int prot) L4_NOTHROW
+Vfs::mprotect(const void * /* a */, size_t /* sz */, int prot) L4_NOTHROW
 {
-  (void)a;
-  (void)sz;
   return (prot & PROT_WRITE) ? -1 : 0;
 }
 

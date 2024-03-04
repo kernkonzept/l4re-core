@@ -93,10 +93,12 @@ Name_space::op_query(L4Re::Namespace::Rights,
                      L4::Ipc::Opt<L4::Ipc::Array_ref<char, unsigned long> > &out_name)
 {
 #if 1
-  _dbg.printf("query: [%ld] '%.*s'\n", name.length, (int)name.length, name.data);
+  _dbg.printf("query: [%ld] '%.*s'\n", name.length,
+              static_cast<int>(name.length), name.data);
 #endif
 
-  char const *sep = (char const*)memchr(name.data, '/', name.length);
+  char const *sep
+    = static_cast<char const*>(memchr(name.data, '/', name.length));
   unsigned long part;
   if (sep)
     part = sep - name.data;
@@ -146,7 +148,7 @@ Name_space::op_query(L4Re::Namespace::Rights,
 
       snd_cap = L4::Ipc::Snd_fpage(n->obj()->cap(), flags);
       _dbg.printf(" result = %lx flgs=%x strg=%d\n",
-                  result, flags, (int)n->obj()->is_strong());
+                  result, flags, static_cast<int>(n->obj()->is_strong()));
       return result;
     }
 }
@@ -234,7 +236,8 @@ Name_space::op_register_obj(L4Re::Namespace::Rights, unsigned flags,
     return -L4_EINVAL;
 
   // got a valid entry to register
-  _dbg.printf("register: '%.*s' flags=%x\n", (int)name.length, name.data, flags);
+  _dbg.printf("register: '%.*s' flags=%x\n", static_cast<int>(name.length),
+              name.data, flags);
 
   Name _name(name.data, name.length);
 
@@ -263,10 +266,12 @@ Name_space::op_unlink(L4Re::Namespace::Rights,
 
 {
 #if 1
-  _dbg.printf("unlink: [%ld] '%.*s'\n", name.length, (int)name.length, name.data);
+  _dbg.printf("unlink: [%ld] '%.*s'\n", name.length,
+              static_cast<int>(name.length), name.data);
 #endif
 
-  char const *sep = (char const*)memchr(name.data, '/', name.length);
+  char const *sep
+    = static_cast<char const*>(memchr(name.data, '/', name.length));
   unsigned long part;
   if (sep)
     part = sep - name.data;

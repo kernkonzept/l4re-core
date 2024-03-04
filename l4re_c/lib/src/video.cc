@@ -36,5 +36,5 @@ l4re_video_goos_info(l4re_video_goos_t goos,
                 == offsetof(__typeof(*ginfo), pixel_info),
                 "Structure alignment mismatch");
   L4::Cap<Goos> g(goos);
-  return g->info((Goos::Info *)ginfo);
+  return g->info(reinterpret_cast<Goos::Info *>(ginfo));
 }

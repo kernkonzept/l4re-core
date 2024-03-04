@@ -72,9 +72,9 @@ Sig_handling::get_handler(int signum)
     return 0;
   if (   (sigactions[signum].sa_flags & SA_SIGINFO)
       && sigactions[signum].sa_sigaction)
-    return (l4_addr_t)sigactions[signum].sa_sigaction;
+    return reinterpret_cast<l4_addr_t>(sigactions[signum].sa_sigaction);
   else if (sigactions[signum].sa_handler)
-    return (l4_addr_t)sigactions[signum].sa_handler;
+    return reinterpret_cast<l4_addr_t>(sigactions[signum].sa_handler);
   return 0;
 }
 
@@ -150,44 +150,48 @@ static bool setup_sig_frame(l4_exc_regs_t *u, int signum)
 {
 #if defined(ARCH_mips)
   // put state + pointer to it on stack
-  ucontext_t *ucf = (ucontext_t *)(u->r[29] - sizeof(*ucf));
+  ucontext_t *ucf = reinterpret_cast<ucontext_t *>(u->r[29] - sizeof(*ucf));
 #else
   // put state + pointer to it on stack
-  ucontext_t *ucf = (ucontext_t *)(u->sp - sizeof(*ucf));
+  ucontext_t *ucf = reinterpret_cast<ucontext_t *>(u->sp - sizeof(*ucf));
 #endif
 
   /* Check if memory access is fine */
-  if (!range_ok((l4_addr_t)ucf, sizeof(*ucf)))
+  if (!range_ok(reinterpret_cast<l4_addr_t>(ucf), sizeof(*ucf)))
     return false;
 
   fill_ucontext_frame(ucf, u);
 
 #ifdef ARCH_arm
-  u->sp = (l4_umword_t)ucf;
+  u->sp = reinterpret_cast<l4_umword_t>(ucf);
   u->r[0] = signum;
   u->r[1] = 0; // siginfo_t pointer, we do not have one right currently
-  u->r[2] = (l4_umword_t)ucf;
-  u->ulr  = (unsigned long)libc_be_sig_return_trap;
+  u->r[2] = reinterpret_cast<l4_umword_t>(ucf);
+  u->ulr  = reinterpret_cast<unsigned long>(libc_be_sig_return_trap);
 #elif defined(ARCH_mips)
-  u->r[29] = (l4_umword_t)ucf;
+  u->r[29] = reinterpret_cast<l4_umword_t>(ucf);
   u->r[0] = signum;
   u->r[1] = 0; // siginfo_t pointer, we do not have one right currently
-  u->r[2] = (l4_umword_t)ucf;
-  u->epc  = (unsigned long)libc_be_sig_return_trap;
+  u->r[2] = reinterpret_cast<l4_umword_t>(ucf);
+  u->epc  = reinterpret_cast<unsigned long>(libc_be_sig_return_trap);
 #else
-  u->sp = (l4_umword_t)ucf - sizeof(void *);
-  *(l4_umword_t *)u->sp = (l4_umword_t)ucf;
+  u->sp = reinterpret_cast<l4_umword_t>(ucf) - sizeof(void *);
+  l4_umword_t *sp = reinterpret_cast<l4_umword_t *>(u->sp);
+  *sp = reinterpret_cast<l4_umword_t>(ucf);
 
   // siginfo_t pointer, we do not have one right currently
   u->sp -= sizeof(siginfo_t *);
-  *(l4_umword_t *)u->sp = 0;
+  sp = reinterpret_cast<l4_umword_t *>(u->sp);
+  *sp = 0;
 
   // both types get the signum as the first argument
   u->sp -= sizeof(l4_umword_t);
-  *(l4_umword_t *)u->sp = signum;
+  sp = reinterpret_cast<l4_umword_t *>(u->sp);
+  *sp = signum;
 
   u->sp -= sizeof(l4_umword_t);
-  *(unsigned long *)u->sp = (unsigned long)libc_be_sig_return_trap;
+  sp = reinterpret_cast<l4_umword_t *>(u->sp);
+  *sp = reinterpret_cast<l4_umword_t>(libc_be_sig_return_trap);
 #endif
 
   return true;
@@ -239,20 +243,22 @@ int Sig_handling::op_exception(L4::Exception::Rights, l4_exc_regs_t &exc,
     }
 
   // x86: trap6
-  if (l4_utcb_exc_pc(u) + pc_delta == (l4_addr_t)libc_be_sig_return_trap)
+  if (l4_utcb_exc_pc(u) + pc_delta
+      == reinterpret_cast<l4_addr_t>(libc_be_sig_return_trap))
     {
       // sig-return
       //printf("Sigreturn\n");
 
 #if defined(ARCH_arm)
-      ucontext_t *ucf = (ucontext_t *)u->sp;
+      ucontext_t *ucf = reinterpret_cast<ucontext_t *>(u->sp);
 #elif defined(ARCH_mips)
-      ucontext_t *ucf = (ucontext_t *)u->r[29];
+      ucontext_t *ucf = reinterpret_cast<ucontext_t *>(u->r[29]);
 #else
-      ucontext_t *ucf = (ucontext_t *)(u->sp + sizeof(l4_umword_t) * 3);
+      ucontext_t *ucf
+        = reinterpret_cast<ucontext_t *>(u->sp + sizeof(l4_umword_t) * 3);
 #endif
 
-      if (!range_ok((l4_addr_t)ucf, sizeof(*ucf)))
+      if (!range_ok(reinterpret_cast<l4_addr_t>(ucf), sizeof(*ucf)))
         {
           dump_rm();
           printf("Invalid memory...\n");
@@ -407,7 +413,7 @@ Sig_handling::signal(int signum, sighandler_t handler) noexcept
       return old;
     }
 
-  return SIG_ERR;
+  return reinterpret_cast<sighandler_t>(SIG_ERR);
 }
 
 extern "C"

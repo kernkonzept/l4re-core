@@ -31,8 +31,9 @@ using L4Re::Video::View;
 
 static inline Goos_fb *gcast(l4re_util_video_goos_fb_t *goosfb)
 {
-  (void)sizeof(char[sizeof(goosfb->_obj_buf) - sizeof(Goos_fb)]);
-  return (Goos_fb *)goosfb->_obj_buf;
+  static_assert(sizeof(goosfb->_obj_buf) >= sizeof(Goos_fb),
+                "buffer must be large enough to hold a Goos_fb");
+  return reinterpret_cast<Goos_fb *>(goosfb->_obj_buf);
 }
 
 inline void *operator new(size_t, void *addr)
@@ -70,7 +71,8 @@ L4_CV int
 l4re_util_video_goos_fb_view_info(l4re_util_video_goos_fb_t *goosfb,
                                   l4re_video_view_info_t *info) L4_NOTHROW
 {
-  return gcast(goosfb)->view_info((L4Re::Video::View::Info *)info);
+  return gcast(goosfb)
+           ->view_info(reinterpret_cast<L4Re::Video::View::Info *>(info));
 }
 
 L4_CV void
