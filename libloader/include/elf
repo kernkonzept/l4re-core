@@ -370,7 +370,7 @@ struct Phdr_l4re_elf_aux_infos
 
   explicit Phdr_l4re_elf_aux_infos(App_model const *mm, Const_dataspace bin,
                                    l4_addr_t kip_addr)
-  : stack_size(sizeof(void*) * 0x2000), stack_addr(0x80000000),
+  : stack_size(sizeof(void*) * 0x40000), stack_addr(0x80000000),
     kip_addr(kip_addr), ex_regs_flags(Default_ex_regs_flags), mm(mm), bin(bin)
   {}
 
