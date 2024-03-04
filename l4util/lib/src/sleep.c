@@ -33,7 +33,7 @@ L4_CV void l4_sleep(l4_uint32_t ms)
 }
 
 
-L4_CV void l4_usleep(l4_uint32_t us)
+L4_CV void l4_usleep(l4_uint64_t us)
 {
   l4_utcb_t *u = l4_utcb();
   l4_msgtag_t tag = l4_ipc_sleep_us(us);

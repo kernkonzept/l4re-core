@@ -22,7 +22,7 @@
 #include <l4/util/util.h>
 
 L4_CV l4_timeout_s
-l4util_micros2l4to(unsigned int mus)
+l4util_micros2l4to(l4_uint64_t us)
 {
-  return l4_timeout_from_us(mus);
+  return l4_timeout_from_us(us);
 }

@@ -90,12 +90,13 @@ typedef union l4_timeout_t
  * The waiting period in microseconds which is interpreted as "never" by
  * l4_timeout_from_us().
  */
-#define L4_TIMEOUT_US_NEVER (~0U)
+#define L4_TIMEOUT_US_NEVER (~0ULL)
 
 /**
  * The longest waiting period in microseconds accepted by l4_timeout_from_us().
+ * See l4_timeout_from_us() for an explanation.
  */
-#define L4_TIMEOUT_US_MAX   (~0U - 1)
+#define L4_TIMEOUT_US_MAX   ((1ULL << 41) - 1)
 
 /**@}*/
 
@@ -200,7 +201,7 @@ l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTH
  * \return Relative L4 timeout according to the specified waiting period.
  */
 L4_CONSTEXPR L4_INLINE
-l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW;
+l4_timeout_s l4_timeout_from_us(l4_uint64_t us) L4_NOTHROW;
 
 /*
  * Implementation
@@ -270,13 +271,11 @@ l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTH
 }
 
 L4_CONSTEXPR L4_INLINE
-l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
+l4_timeout_s l4_timeout_from_us(l4_uint64_t us) L4_NOTHROW
 {
-  static_assert(sizeof(us) <= 4,
-                "Verify the correctness of log2(us) and the number of bits for e!");
   if (us == 0)
     return L4_IPC_TIMEOUT_0;
-  else if (us == L4_TIMEOUT_US_NEVER)
+  else if (us == L4_TIMEOUT_US_NEVER || us > L4_TIMEOUT_US_MAX)
     return L4_IPC_TIMEOUT_NEVER;
   else
     {
@@ -284,11 +283,13 @@ l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
 
       l4_uint16_t m = 0; // initialization required by constexpr, optimized away
       l4_uint16_t v = 0; // initialization required by constexpr, optimized away
-      int e = (31 - __builtin_clz(us)) - 9;
+      int e = (63 - __builtin_clzll(us)) - 9;
       if (e < 0)
         e = 0;
 
-      /* Here it is certain that '0 <= e <= 22' and '1 <= 2^e <= 2^22'. */
+      /* Here it is certain that '0 <= e <= 31' and '1 <= 2^e <= 2^31':
+       * L4_TIMEOUT_US_MAX = 2^41-1 = 0x000001ffffffffff => e = 31.
+       * Note: 2^41-1 (0x000001ffffffffff) > 1023*2^31 (0x00001ff800000000). */
 
       m = us >> e;
 
@@ -298,22 +299,13 @@ l4_timeout_s l4_timeout_from_us(l4_uint32_t us) L4_NOTHROW
        *  o 2048 <= us <= 4095: e = 2; 2^e = 4; 512 <= us/4 <= 1023
        *  ...
        *  o 2^31 <= us <= 2^32-1: e = 22;       512 <= us/2^22 <= 1023
+       *  o 2^40 <= us <= 2^41-1: e = 31;       512 <= us/2^31 <= 1023
        *
-       * Dividing by (1<<e) ensures that for all us < 2^32: m < 2^10.
+       * Dividing by (1<<e) ensures that for all us < 2^41: m < 2^10.
        *
-       * What about sizeof(us) == 8? 'e = log2(us) - 9':
-       *  o 2^63 <= us <= 2^64-1: e = 54;       512 <= us/2^54 <= 1023.
-       *
-       * That means that this function would even work for 64-bit values of
-       * 'us' as long as __builtin_clz(us) works correctly for that range.
-       * But the number of bits available for the exponent is limited:
-       *  o bits 0..9 (10 bits) are used for 'm'
-       *  o bits 10..14 (5 bits) are used for 'e'
-       *  o bit 15 is used to distinguish between absolute timeouts and
-       *    relative timeouts (see l4_timeout_is_absolute())
-       *
-       * That means 'e <= 31' and thus it's not possible to encode timeouts
-       * represented by 64-bit values. */
+       * Maximum possible timeout using this format: L4_TIMEOUT_US_MAX = 2^41-1:
+       *  e = 31, m = 1023 => 2'196'875'771'904 us = 610h 14m 35s.
+       */
 
       /* Without introducing 'v' we had to type-cast the expression to
        * l4_uint16_t. This cannot be avoided by declaring m and e_pow_10 as

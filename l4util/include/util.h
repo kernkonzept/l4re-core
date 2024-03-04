@@ -26,14 +26,14 @@ EXTERN_C_BEGIN
 /**
  * Calculate l4 timeouts
  * \ingroup l4util_api
- * \param mus   time in microseconds. Special cases:
+ * \param us    time in microseconds. Special cases:
  *              - 0 - > timeout 0
  *              - ~0U -> timeout NEVER
  * \return the corresponding l4_timeout value
  *
  * \deprecated Use l4_timeout_from_us().
  */
-L4_CV l4_timeout_s l4util_micros2l4to(unsigned us) L4_NOTHROW;
+L4_CV l4_timeout_s l4util_micros2l4to(l4_uint64_t us) L4_NOTHROW;
 
 /**
  * Suspend thread for a period of \a ms milliseconds
@@ -48,7 +48,7 @@ L4_CV void l4_sleep(l4_uint32_t ms) L4_NOTHROW;
  * \ingroup l4util_api
  * \note The timer resolution of L4 kernels is usually 1ms.
  */
-L4_CV void l4_usleep(l4_uint32_t us) L4_NOTHROW;
+L4_CV void l4_usleep(l4_uint64_t us) L4_NOTHROW;
 
 /**
  * Go sleep and never wake up.
