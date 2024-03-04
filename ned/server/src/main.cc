@@ -52,7 +52,7 @@ run(int argc, char const *const *argv)
       auxp += 2;
     }
 
-  Ned::Foreign_server svr;
+  static Ned::Foreign_server svr;
   Ned::foreign_server = &svr;
 
   lua(argc, argv);
