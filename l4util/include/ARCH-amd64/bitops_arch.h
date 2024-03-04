@@ -10,7 +10,7 @@
 /**
  * \file
  * amd64 bit manipulation functions
- * \ingroup bitops
+ * \ingroup l4util_bitops
  */
 
 #pragma once

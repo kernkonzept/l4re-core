@@ -9,7 +9,7 @@
 /**
  * \file
  * x86 bit manipulation functions
- * \ingroup bitops
+ * \ingroup l4util_bitops
  */
 
 #pragma once
