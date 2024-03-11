@@ -124,7 +124,7 @@ public:
   bool check_limit(l4_addr_t offset) const noexcept
   { return offset < round_size(); }
   bool check_range(l4_addr_t offset, unsigned long sz) const noexcept
-  { return offset < round_size() && size() - offset >= sz; }
+  { return offset < size() && size() - offset >= sz; }
 
 public:
   int map(l4_addr_t offs, l4_addr_t spot, Flags flags,
