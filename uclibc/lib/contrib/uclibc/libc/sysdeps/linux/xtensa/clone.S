@@ -81,11 +81,17 @@ ENTRY (__clone)
 	callx4	a2
 #elif defined(__XTENSA_CALL0_ABI__)
 	mov	a2, a9			/* load up the 'arg' parameter */
+#ifdef __FDPIC__
+	mov	a12, a11
+	l32i	a11, a7, 4
+	l32i	a7, a7, 0
+#endif
 	callx0	a7			/* call the user's function */
 
 	/* Call _exit.  Note that any return parameter from the user's
 	   function in a2 is seen as inputs to _exit.  */
 	movi	a0, JUMPTARGET(_exit)
+	FDPIC_LOAD_JUMPTARGET(a0, a12, a0)
 	callx0	a0
 #else
 #error Unsupported Xtensa ABI

@@ -8,6 +8,7 @@
 
 #include <sys/syscall.h>
 #include <sys/stat.h>
+#include <stdint.h>
 
 #if defined(__UCLIBC_USE_TIME64__)
 #include "internal/time64_helpers.h"
@@ -28,7 +29,7 @@ int utimensat(int fd, const char *path, const struct timespec times[2], int flag
         }
     };
 
-    return INLINE_SYSCALL(utimensat_time64, 4, fd, path, times ? &__times64 : 0, flags);
+    return INLINE_SYSCALL(utimensat_time64, 4, fd, path, times ? (uintptr_t) &__times64 : 0, flags);
 }
 #else
 _syscall4(int, utimensat, int, fd, const char *, path, const struct timespec *, times, int, flags)

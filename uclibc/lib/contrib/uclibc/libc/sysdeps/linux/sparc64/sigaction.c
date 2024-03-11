@@ -26,7 +26,7 @@
 
 /* SPARC 64bit userland requires a kernel that has rt signals anyway. */
 
-static void __rt_sigreturn_stub (void);
+void __rt_sigreturn_stub (void);
 
 int __libc_sigaction (int sig, const struct sigaction *act, struct sigaction *oact)
 {
@@ -67,11 +67,3 @@ libc_hidden_weak(sigaction)
 # endif
 #endif
 
-static void
-__rt_sigreturn_stub (void)
-{
-  __asm__ ("mov %0, %%g1\n\t"
-	   "ta	0x6d\n\t"
-	   : /* no outputs */
-	   : "i" (__NR_rt_sigreturn));
-}

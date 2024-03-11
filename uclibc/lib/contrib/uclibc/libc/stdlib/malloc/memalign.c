@@ -11,6 +11,7 @@
  * Written by Miles Bader <miles@gnu.org>
  */
 
+#include <errno.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/mman.h>
@@ -37,6 +38,11 @@ memalign (size_t alignment, size_t size)
   void *mem, *base;
   unsigned long tot_addr, tot_end_addr, addr, end_addr;
   struct heap_free_area **heap = &__malloc_heap;
+
+  if (unlikely(size > PTRDIFF_MAX)) {
+    __set_errno(ENOMEM);
+    return NULL;
+  }
 
   /* Make SIZE something we like.  */
   size = HEAP_ADJUST_SIZE (size);

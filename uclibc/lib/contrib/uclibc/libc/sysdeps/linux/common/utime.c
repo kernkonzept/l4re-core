@@ -9,7 +9,7 @@
 #include <sys/syscall.h>
 #include <utime.h>
 
-#if defined __NR_utimensat && !defined __NR_utime
+#if (defined(__NR_utimensat) || defined(__NR_utimensat_time64)) && !defined __NR_utime
 # include <fcntl.h>
 # include <stddef.h>
 
@@ -51,7 +51,7 @@ int utime(const char *file, const struct utimbuf *times)
 }
 #endif
 
-#if (defined __NR_utimensat && !defined __NR_utime) || \
+#if ((defined(__NR_utimensat) || defined(__NR_utimensat_time64)) && !defined __NR_utime) || \
 	defined __NR_utime || defined __NR_utimes
 libc_hidden_def(utime)
 #endif

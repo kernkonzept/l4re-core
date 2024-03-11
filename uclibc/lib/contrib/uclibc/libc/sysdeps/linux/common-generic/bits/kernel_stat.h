@@ -18,7 +18,7 @@
  * However that requires more #ifndef in relevant wrappers,
  * further uglifying them
  */
-#define kernel_stat64	stat
+#define kernel_stat64	stat64
 
 #endif	/*  _BITS_STAT_STRUCT_H */
 

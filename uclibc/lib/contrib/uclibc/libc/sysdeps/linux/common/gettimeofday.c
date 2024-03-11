@@ -14,30 +14,18 @@
 #include "ldso.h"
 #endif
 
-#ifdef __VDSO_SUPPORT__
-typedef int (*gettimeofday_func)(struct timeval * tv, __timezone_ptr_t tz);
-#endif
-
 int gettimeofday(struct timeval * tv, __timezone_ptr_t tz) {
-
-    #ifdef __VDSO_SUPPORT__
-        if ( _dl__vdso_gettimeofday != 0 ){
-            gettimeofday_func func= _dl__vdso_gettimeofday;
-            return func( tv, tz );
-
-        }else{
-            _syscall2_body(int, gettimeofday, struct timeval *, tv, __timezone_ptr_t, tz)
-        }
-    #else
-        if (!tv)
-            return 0;
-
-        struct timespec __ts;
-        int __ret = clock_gettime(CLOCK_REALTIME, &__ts);
-        tv->tv_sec = __ts.tv_sec;
-        tv->tv_usec = (suseconds_t)__ts.tv_nsec / 1000;
-        return __ret;
-    #endif
+    if (!tv)
+        return 0;
+#if defined(__VDSO_SUPPORT__) && defined(ARCH_VDSO_GETTIMEOFDAY)
+    return ARCH_VDSO_GETTIMEOFDAY(tv, tz);
+#else
+    struct timespec __ts;
+    int __ret = clock_gettime(CLOCK_REALTIME, &__ts);
+    tv->tv_sec = __ts.tv_sec;
+    tv->tv_usec = (suseconds_t)__ts.tv_nsec / 1000;
+    return __ret;
+#endif
 }
 
 

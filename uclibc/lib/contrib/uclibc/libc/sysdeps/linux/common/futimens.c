@@ -8,7 +8,7 @@
 
 #include <sys/syscall.h>
 #include <time.h>
-#ifdef __NR_utimensat
+#if defined(__NR_utimensat) || defined(__NR_utimensat_time64)
 /* To avoid superfluous warnings about passing NULL to the non-null annotated
  * 2nd param "__path" below, we bypass inclusion of sys/stat.h and use
  * a non annotated, local decl.

@@ -433,7 +433,7 @@ DL_START(unsigned long args)
 					     DL_GET_READY_TO_RUN_EXTRA_ARGS);
 
 
-	load_vdso(_dl_auxvt[AT_SYSINFO_EHDR].a_un.a_val, envp);
+	load_vdso((void *)_dl_auxvt[AT_SYSINFO_EHDR].a_un.a_val, envp);
 
 	/* Transfer control to the application.  */
 	SEND_STDERR_DEBUG("transfering control to application @ ");

@@ -27,7 +27,7 @@
 #include "internal/time64_helpers.h"
 #endif
 
-#ifdef __NR_timer_settime
+#if defined(__NR_timer_settime) || defined(__NR_timer_settime64)
 # ifndef __ASSUME_POSIX_TIMERS
 static int compat_timer_settime (timer_t timerid, int flags,
 				 const struct itimerspec *value,

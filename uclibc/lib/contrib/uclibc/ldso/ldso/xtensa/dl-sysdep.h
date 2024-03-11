@@ -26,6 +26,7 @@
    in l_info array.  */
 #define DT_XTENSA(x) (DT_XTENSA_##x - DT_LOPROC + DT_NUM + OS_NUM)
 
+#ifndef __FDPIC__
 typedef struct xtensa_got_location_struct {
   Elf32_Off offset;
   Elf32_Word length;
@@ -86,6 +87,7 @@ typedef struct xtensa_got_location_struct {
     else if (dpnt->d_tag == DT_XTENSA_GOT_LOC_SZ)			\
       dynamic[DT_XTENSA (GOT_LOC_SZ)] = dpnt->d_un.d_val;		\
   } while (0)
+#endif
 
 /* Here we define the magic numbers that this dynamic loader should accept. */
 #define MAGIC1 EM_XTENSA
@@ -115,10 +117,41 @@ elf_machine_dynamic (void)
   return (Elf32_Addr) &_DYNAMIC;
 }
 
+#ifdef __FDPIC__
+
+#define DL_CHECK_LIB_TYPE(epnt, piclib, _dl_progname, libname) \
+do \
+{ \
+  (piclib) = 2; \
+} \
+while (0)
+
+/* We must force strings used early in the bootstrap into the data
+   segment.  */
+#undef SEND_EARLY_STDERR
+#define SEND_EARLY_STDERR(S) \
+  do { /* FIXME: implement */; } while (0)
+
+#undef INIT_GOT
+#include "../fdpic/dl-sysdep.h"
+#undef INIT_GOT
+#define INIT_GOT(GOT_BASE,MODULE) \
+{				\
+  (MODULE)->loadaddr.got_value = (GOT_BASE); \
+  GOT_BASE[0] = ((unsigned long *)&_dl_linux_resolve)[0]; \
+  GOT_BASE[1] = ((unsigned long *)&_dl_linux_resolve)[1]; \
+  GOT_BASE[2] = (unsigned long) MODULE; \
+}
+
+#endif /* __FDPIC__ */
+
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr
 elf_machine_load_address (void)
 {
+#ifdef __FDPIC__
+  return 0;
+#else
   Elf32_Addr addr, tmp;
 
   /* At this point, the runtime linker is being bootstrapped and the GOT
@@ -135,11 +168,41 @@ elf_machine_load_address (void)
 	   : "=a" (addr), "=a" (tmp));
 
   return addr - 3;
+#endif
 }
 
+#ifdef __FDPIC__
+
+/* Need bootstrap relocations */
+#define ARCH_NEEDS_BOOTSTRAP_RELOCS
+
+#define PERFORM_BOOTSTRAP_RELOC(RELP,REL,SYMBOL,LOAD,SYMTAB)	\
+	switch (ELF_R_TYPE((RELP)->r_info)){			\
+	case R_XTENSA_SYM32:					\
+		*(REL)  = (SYMBOL) + (RELP)->r_addend;		\
+		break;						\
+	case R_XTENSA_RELATIVE:					\
+	case R_XTENSA_NONE:					\
+	default:						\
+		break;						\
+	}
+
+static __always_inline void
+elf_machine_relative (DL_LOADADDR_TYPE load_off, const Elf32_Addr rel_addr,
+		      Elf32_Word relative_count)
+{
+  Elf32_Rela *rpnt = (Elf32_Rela *) rel_addr;
+  while (relative_count--)
+    {
+      Elf32_Addr *const reloc_addr = (Elf32_Addr *) DL_RELOC_ADDR(load_off, rpnt->r_offset);
+      *reloc_addr = DL_RELOC_ADDR(load_off, *reloc_addr);
+      rpnt++;
+    }
+}
+#else
 static __always_inline void
 elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
-		      Elf32_Word relative_count)
+                     Elf32_Word relative_count)
 {
   Elf32_Rela *rpnt = (Elf32_Rela *) rel_addr;
   while (relative_count--)
@@ -149,3 +212,4 @@ elf_machine_relative (Elf32_Addr load_off, const Elf32_Addr rel_addr,
       rpnt++;
     }
 }
+#endif

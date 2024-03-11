@@ -34,7 +34,7 @@ static int __NC(pselect)(int nfds, fd_set *readfds, fd_set *writefds,
 			 fd_set *exceptfds, const struct timespec *timeout,
 			 const sigset_t *sigmask)
 {
-#ifdef __NR_pselect6
+#if defined(__NR_pselect6) || defined(__NR_pselect6_time64)
 	/* The Linux kernel can in some situations update the timeout value.
 	 * We do not want that so use a local variable.
 	 */

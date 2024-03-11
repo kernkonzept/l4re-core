@@ -24,7 +24,7 @@
 #include "kernel-posix-timers.h"
 
 
-#ifdef __NR_timer_gettime
+#if defined(__NR_timer_gettime) || defined(__NR_timer_gettime64)
 # ifndef __ASSUME_POSIX_TIMERS
 static int compat_timer_gettime (timer_t timerid, struct itimerspec *value);
 #  define timer_gettime static compat_timer_gettime

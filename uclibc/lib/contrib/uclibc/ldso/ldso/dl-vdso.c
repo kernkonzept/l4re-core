@@ -1,12 +1,16 @@
 
 #include <elf.h>
-//#include <stdio.h>
 #include <string.h>
-
 #include "sys/auxv.h"
-//#include <linux/time.h>
-//#include <time.h>
 
+#define __ARCH_VDSO_GETTIMEOFDAY_NAME    "__vdso_gettimeofday"
+#define __ARCH_VDSO_CLOCK_GETTIME_NAME   "__vdso_clock_gettime"
+
+#if defined(__UCLIBC_USE_TIME64__)
+#define __ARCH_VDSO_CLOCK_GETTIME64_NAME "__vdso_clock_gettime64"
+#endif
+
+/* Maybe override default vDSO functions names by arch-specific */
 #include "ldso.h"
 #include "generated/autoconf.h"
 
@@ -24,8 +28,8 @@
 
 
 #ifndef __VDSO_SUPPORT__
-    void load_vdso( uint32_t sys_info_ehdr attribute_unused,
-                    char **envp attribute_unused ){
+    void load_vdso(void *sys_info_ehdr attribute_unused,
+                   char **envp attribute_unused ){
 #ifdef __SUPPORT_LD_DEBUG__
         if ( _dl_debug_vdso != 0 ){
             _dl_dprintf(2,"_dl_vdso support not enabled\n" );
@@ -35,21 +39,34 @@
     }
 #else
 
+void *_dl__vdso_gettimeofday  = 0;
+void *_dl__vdso_clock_gettime = 0;
 
+#if defined(__UCLIBC_USE_TIME64__)
+void *_dl__vdso_clock_gettime64 = 0;
+#endif
 
-   
+void *_get__dl__vdso_clock_gettime(void);
+void *_get__dl__vdso_clock_gettime(void)
+{
+    return _dl__vdso_clock_gettime;
+}
 
+#if defined(__UCLIBC_USE_TIME64__)
+void *_get__dl__vdso_clock_gettime64(void);
+void *_get__dl__vdso_clock_gettime64(void)
+{
+    return _dl__vdso_clock_gettime64;
+}
+#endif
 
-//typedef long (*gtod_t)(struct timeval *tv, struct timezone *tz);
-void* _dl__vdso_gettimeofday  = 0;
+void *_get__dl__vdso_gettimeofday(void);
+void *_get__dl__vdso_gettimeofday(void)
+{
+    return _dl__vdso_gettimeofday;
+}
 
-
-//typedef long (*clock_gettime_t)(int clk_id, struct timespec *tp);
-void* _dl__vdso_clock_gettime = 0;
-
-
-
-typedef struct{
+typedef struct {
 
     void* base_addr;
 
@@ -76,7 +93,7 @@ typedef struct{
     char* vers_strings[10];
 
 
-}elf_infos;
+} elf_infos;
 
 /*
  * the raise() dummy function is needed because of divisons in this code
@@ -112,13 +129,10 @@ static ELF(Shdr) *vdso_get_sec_header( elf_infos* elf, int index ){
     
 }
 
-
-void load_vdso( uint32_t sys_info_ehdr, char **envp ){
+void load_vdso(void *sys_info_ehdr, char **envp ){
 
     elf_infos vdso_infos;
-    
-    
-    
+
     if ( sys_info_ehdr == 0 ){
 #ifdef __SUPPORT_LD_DEBUG__
         if ( _dl_debug_vdso != 0 ){
@@ -138,22 +152,16 @@ void load_vdso( uint32_t sys_info_ehdr, char **envp ){
 #endif
         return;
     }
-    
-    
+
     _dl_memset( &vdso_infos, 0 , sizeof( elf_infos ) );
-    
-    
+
     vdso_infos.base_addr = (void*)sys_info_ehdr;
     vdso_infos.hdr = (ELF(Ehdr)*)vdso_infos.base_addr;
-    
-    //printf("base : %p\n",vdso_infos.base_addr);
-    
+
     if ( 0 != vdso_check_elf_header( &vdso_infos ) ){
         return;
     }
-    
-    
-    
+
     ELF(Shdr) *sec_header = vdso_get_sec_header( &vdso_infos, vdso_infos.hdr->e_shstrndx);
     vdso_infos.section_header_strtab = ( vdso_infos.base_addr + sec_header->sh_offset );
     
@@ -308,10 +316,7 @@ void load_vdso( uint32_t sys_info_ehdr, char **envp ){
         if (ELF64_ST_TYPE(sym->st_info) != STT_FUNC)
             continue;
 
-
-
         char* name = vdso_infos.dynstr_table + sym->st_name;
-        char* vers = vdso_infos.vers_strings[ vdso_infos.versym_table[i] ];
         void* func_addr = (void*)( vdso_infos.base_addr + sym->st_value );
         
         // the function name is patched to zero if the kernel has no timer which is
@@ -325,10 +330,7 @@ void load_vdso( uint32_t sys_info_ehdr, char **envp ){
             continue;
         }
 
-        //printf("   %s@@%s\n", name , vers );
-        
-        //print_sym( sym );
-        if ( 0 == _dl_strcmp( name, "__vdso_gettimeofday" ) ){
+        if ( 0 == _dl_strcmp( name, __ARCH_VDSO_GETTIMEOFDAY_NAME ) ){
             _dl__vdso_gettimeofday = func_addr;
 #ifdef __SUPPORT_LD_DEBUG__
             if ( _dl_debug_vdso != 0 ){
@@ -337,8 +339,7 @@ void load_vdso( uint32_t sys_info_ehdr, char **envp ){
 #endif
             continue;
         }
-        
-        if ( 0 == _dl_strcmp( name, "__vdso_clock_gettime" ) ){
+        if ( 0 == _dl_strcmp( name, __ARCH_VDSO_CLOCK_GETTIME_NAME ) ){
             _dl__vdso_clock_gettime = func_addr;
 #ifdef __SUPPORT_LD_DEBUG__
             if ( _dl_debug_vdso != 0 ){
@@ -347,17 +348,26 @@ void load_vdso( uint32_t sys_info_ehdr, char **envp ){
 #endif
             continue;
         }
+
+#if defined(__UCLIBC_USE_TIME64__)
+        if ( 0 == _dl_strcmp( name, __ARCH_VDSO_CLOCK_GETTIME64_NAME ) ){
+            _dl__vdso_clock_gettime64 = func_addr;
+#ifdef __SUPPORT_LD_DEBUG__
+            if ( _dl_debug_vdso != 0 ){
+                _dl_dprintf(2,"   %s at address %p\n", name, func_addr );
+            }
+#endif
+            continue;
+        }
+#endif  /* defined(__UCLIBC_USE_TIME64__) */
         
 #ifdef __SUPPORT_LD_DEBUG__
         if ( _dl_debug_vdso != 0 ){
             _dl_dprintf(2,"   <%s> not handled\n", name );
         }
 #endif
-        
-        
-    }
     
- 
+    }
 }
 
 #endif // __VDSO_SUPPORT__

@@ -5,9 +5,9 @@
 #ifndef _BITS_UCLIBC_ARCH_FEATURES_H
 #define _BITS_UCLIBC_ARCH_FEATURES_H
 
-#undef __UCLIBC_ABORT_INSTRUCTION__
+#define __UCLIBC_ABORT_INSTRUCTION__ "unimp"
 
-#define __UCLIBC_SYSCALL_ALIGN_64BIT__
+#undef __UCLIBC_SYSCALL_ALIGN_64BIT__
 
 /* does your target have a broken create_module() ? */
 #define __UCLIBC_BROKEN_CREATE_MODULE__

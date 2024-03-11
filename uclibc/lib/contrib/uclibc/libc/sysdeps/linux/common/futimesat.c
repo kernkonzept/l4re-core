@@ -7,6 +7,7 @@
  */
 
 #include <sys/syscall.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 
 #ifdef __NR_futimesat

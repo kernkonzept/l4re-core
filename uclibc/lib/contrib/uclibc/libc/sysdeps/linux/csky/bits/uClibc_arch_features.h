@@ -17,9 +17,6 @@
 /* can your target use syscall6() for mmap ? */
 #undef __UCLIBC_MMAP_HAS_6_ARGS__
 
-/* does your target use statx */
-#define __UCLIBC_HAVE_STATX__
-
 #ifdef __CSKYABIV2__
 #undef __UCLIBC_SYSCALL_ALIGN_64BIT__
 #else

@@ -11,8 +11,11 @@
  * been dynamicly linked in yet. */
 #include "sys/syscall.h"
 extern int _dl_errno;
+
+#ifdef UCLIBC_LDSO
 #undef __set_errno
 #define __set_errno(X) {(_dl_errno) = (X);}
+#endif
 
 /* Pull in the arch specific syscall implementation */
 #include <dl-syscalls.h>

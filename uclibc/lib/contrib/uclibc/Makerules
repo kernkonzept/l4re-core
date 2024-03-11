@@ -276,7 +276,7 @@ cmd_compile.mi= $(cmd_compile.m:-c=-E -dD) $(UCLIBC_EXTRA_CPPFLAGS)
 cmd_compile-m = $(CC) $^ -c -o $@ $(CFLAGS) $(CFLAGS-$(suffix $@)) $(CFLAGS-$(notdir $(@D))) $(CFLAGS-$(notdir $@)) $(sort $(foreach d,$(^:$(top_srcdir)=),$(collect_multi_flags)))
 cmd_strip     = $(STRIPTOOL) $(STRIP_FLAGS) $^
 cmd_t_strip   = $(STRIPTOOL) $(STRIP_FLAGS) $@
-cmd_ar        = $(AR) $(ARFLAGS) $@ $(call objects_with_syms,,$^)
+cmd_ar        = $(AR) $(ARFLAGS) $@ @$@.list
 
 define do_ln
 	@$(disp_ln)
@@ -317,6 +317,7 @@ hcompile.u= @$(disp_hcompile.u); $(cmd_hcompile.u)
 hcompile.o= @$(disp_hcompile.o); $(cmd_hcompile.o)
 
 define do_ar
+	@$(file >$@.list,$(call objects_with_syms,,$^))
 	@$(disp_ar) ; $(cmd_ar)
 	@$(do_t_strip)
 endef

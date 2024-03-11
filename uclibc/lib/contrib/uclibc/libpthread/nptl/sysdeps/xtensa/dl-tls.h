@@ -28,6 +28,29 @@ typedef struct
 
 extern void *__tls_get_addr (tls_index *ti);
 
+/* Type used as the argument in a TLS descriptor for a symbol that
+   needs dynamic TLS offsets.  */
+struct tlsdesc_dynamic_arg
+{
+  tls_index tlsinfo;
+  size_t gen_count;
+};
+
+#ifdef __FDPIC__
+/* Type used to represent a TLS descriptor.  */
+struct tlsdesc
+{
+  ptrdiff_t (*entry)(struct tlsdesc *);
+  void *argument;
+};
+
+extern ptrdiff_t attribute_hidden
+  _dl_tlsdesc_return(struct tlsdesc *);
+
+extern void *_dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset);
+extern ptrdiff_t attribute_hidden
+  _dl_tlsdesc_dynamic(struct tlsdesc *);
+#else
 /* Type used to represent a TLS descriptor.  */
 struct tlsdesc
 {
@@ -39,19 +62,11 @@ struct tlsdesc
   ptrdiff_t (*entry)(struct tlsdesc *);
 };
 
-/* Type used as the argument in a TLS descriptor for a symbol that
-   needs dynamic TLS offsets.  */
-struct tlsdesc_dynamic_arg
-{
-  tls_index tlsinfo;
-  size_t gen_count;
-};
-
 extern ptrdiff_t attribute_hidden
   _dl_tlsdesc_return(struct tlsdesc_dynamic_arg *);
 
 extern void *_dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset);
 extern ptrdiff_t attribute_hidden
   _dl_tlsdesc_dynamic(struct tlsdesc_dynamic_arg *);
-
+#endif
 #endif

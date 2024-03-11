@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <sys/resource.h>
 
+#if defined(__NR_wait4)
 # define __NR___syscall_wait4 __NR_wait4
 static __always_inline _syscall4(int, __syscall_wait4, __kernel_pid_t, pid,
 				 int *, status, int, opts, struct rusage *, rusage)
@@ -32,6 +33,59 @@ pid_t __wait4_nocancel(pid_t pid, int *status, int opts, struct rusage *rusage)
 	return __syscall_wait4(pid, status, opts, rusage);
 #endif
 }
+
+#else
+pid_t __wait4_nocancel(pid_t pid, int *status, int opts, struct rusage *rusage)
+{
+	idtype_t type;
+	int __res;
+	siginfo_t info;
+
+	info.si_pid = 0;
+
+	if (pid < -1) {
+		type = P_PGID;
+		pid = -pid;
+	} else if (pid == -1) {
+		type = P_ALL;
+	} else if (pid == 0) {
+		type = P_PGID;
+	} else {
+		type = P_PID;
+	}
+
+	__res = INLINE_SYSCALL(waitid, 5, type, pid, &info, opts|WEXITED, rusage);
+
+	if ( __res < 0 )
+		return __res;
+
+	if (info.si_pid && status) {
+			int sw = 0;
+			switch (info.si_code) {
+			case CLD_CONTINUED:
+				sw = 0xffff;
+				break;
+			case CLD_DUMPED:
+				sw = (info.si_status & 0x7f) | 0x80;
+				break;
+			case CLD_EXITED:
+				sw = (info.si_status & 0xff) << 8;
+				break;
+			case CLD_KILLED:
+				sw = info.si_status & 0x7f;
+				break;
+			case CLD_STOPPED:
+			case CLD_TRAPPED:
+				sw = (info.si_status << 8) + 0x7f;
+				break;
+			}
+			*status = sw;
+	}
+
+	return info.si_pid;
+}
+#endif
+
 #ifdef __USE_BSD
 strong_alias(__wait4_nocancel,wait4)
 #endif

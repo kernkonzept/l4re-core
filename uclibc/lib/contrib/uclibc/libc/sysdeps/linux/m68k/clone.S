@@ -35,12 +35,14 @@
 
 __clone:
 	/* Sanity check arguments.  */
-	movel	#-EINVAL, %d0
-	movel	4(%sp), %a0		/* no NULL function pointers */
-	tstl	%a0
+	movel   #-EINVAL, %d0
+	movel   4(%sp), %d1             /* no NULL function pointers */
+	movel   %d1, %a0
+	tstl    %d1
 	beq.w	__syscall_error_trampoline
-	movel	8(%sp), %a1		/* no NULL stack pointers */
-	tstl	%a1
+	movel   8(%sp), %d1             /* no NULL stack pointers */
+	movel   %d1, %a1
+	tstl    %d1
 	beq.w   __syscall_error_trampoline
 
 	/* Allocate space and copy the argument onto the new stack.  */

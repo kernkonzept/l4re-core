@@ -336,8 +336,6 @@ $(eval $(call check-gcc-var,-ffunction-sections))
 
 # Some nice CPU specific optimizations
 ifeq ($(TARGET_ARCH),i386)
-$(eval $(call check-gcc-var,-fomit-frame-pointer))
-	OPTIMIZATION += $(CFLAG_-fomit-frame-pointer)
 
 ifeq ($(CONFIG_386)$(CONFIG_486)$(CONFIG_586),y)
 	# TODO: Change this to a gcc version check.  This bug
@@ -522,6 +520,10 @@ ifeq ($(TARGET_ARCH),c6x)
 	CPU_LDFLAGS-y += $(CPU_CFLAGS)
 endif
 
+ifeq ($(TARGET_ARCH),xtensa)
+	CPU_CFLAGS-$(UCLIBC_FORMAT_FDPIC_ELF) += -mfdpic
+endif
+
 $(eval $(call check-gcc-var,$(PIEFLAG_NAME)))
 PIEFLAG := $(CFLAG_$(PIEFLAG_NAME))
 ifeq ($(PIEFLAG),)
@@ -606,6 +608,7 @@ CFLAGS := $(XWARNINGS) $(CPU_CFLAGS) $(SSP_CFLAGS) \
 	-nostdinc -I$(top_builddir)include \
 	-I$(top_srcdir)include -include libc-symbols.h \
 	-I$(top_srcdir)libc/sysdeps/linux/$(TARGET_ARCH) \
+	-I$(top_builddir)libc/sysdeps/linux/$(TARGET_ARCH) \
 	-I$(top_srcdir)libc/sysdeps/linux \
 	-I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) \
 	-I$(top_srcdir)ldso/include -I.
@@ -661,6 +664,9 @@ endif
 
 ifneq ($(strip $(UCLIBC_EXTRA_CFLAGS)),"")
 CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
+endif
+ifeq ($(TARGET_ARCH),i386)
+CFLAGS += -fno-omit-frame-pointer
 endif
 ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
 LDFLAGS += $(call qstrip,$(UCLIBC_EXTRA_LDFLAGS))

@@ -35,6 +35,86 @@
 
 #include <features.h>
 
+#if defined(__FDPIC__)
+
+/* This is the canonical entry point, usually the first thing in the text
+   segment.  When the entry point runs, most register values are unspecified,
+   except for:
+
+	a6	Address of .dynamic section
+	a5	Interpreter map
+	a4	Executable map
+
+	a2	Contains a function pointer to be registered with `atexit'.
+		This is how the dynamic linker arranges to have DT_FINI
+		functions called for shared libraries that have been loaded
+		before this code runs.
+
+	a1	The stack (i.e., a1+16) contains the arguments and environment:
+		a1+0			argc
+		a1+4			argv[0]
+		...
+		a1+(4*argc)		NULL
+		a1+(4*(argc+1))		envp[0]
+		...
+					NULL
+ */
+	.text
+	.align	4
+	.literal_position
+	.global	_start
+	.type	_start, @function
+_start:
+#if defined(__XTENSA_CALL0_ABI__)
+
+	.begin	no-transform
+	call0	1f
+2:
+	.end	no-transform
+	.align	4
+	.literal_position
+1:
+	movi	a15, 2b
+	sub	a15, a0, a15
+
+	mov	a12, a4
+	mov	a13, a5
+	mov	a14, a6
+	mov	a2, a4
+	movi	a3, __ROFIXUP_LIST__
+	add	a3, a3, a15
+	movi	a4, __ROFIXUP_END__
+	add	a4, a4, a15
+	movi	a0, __self_reloc
+	add	a0, a0, a15
+	callx0	a0
+
+	mov	a11, a2
+	movi	a2, main@GOTOFFFUNCDESC
+	add	a2, a2, a11
+	l32i	a3, sp, 0	/* argc */
+	addi	a4, sp, 4	/* argv */
+	/* a5 is either 0 when static or set by the RTLD to the rtld_fini */
+	mov	a7, a13
+	/* unused stack_end argument is what used to be argc */
+	movi	a5, _init@GOTOFFFUNCDESC
+	add	a5, a5, a11
+	movi	a6, _fini@GOTOFFFUNCDESC
+	add	a6, a6, a11
+
+	movi	a0, __uClibc_main@GOTOFFFUNCDESC
+	add	a0, a0, a11
+	l32i	a11, a0, 4
+	l32i	a0, a0, 0
+	callx0	a0
+	ill
+
+#else
+#error Unsupported Xtensa ABI
+#endif
+
+#else /* defined(__FDPIC__) */
+
 #ifndef __UCLIBC_CTOR_DTOR__
         .weak _init
         .weak _fini
@@ -173,3 +253,4 @@ __data_start:
 	.long	0
 	.weak	data_start
 	data_start = __data_start
+#endif /* defined(__FDPIC__) */

@@ -200,10 +200,6 @@ extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE loa
 #define AUX_MAX_AT_ID 40
 extern ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID];
 
-void load_vdso( uint32_t sys_info_ehdr, char **envp );
-
-#ifdef __VDSO_SUPPORT__
-extern void* _dl__vdso_gettimeofday;
-#endif
+void load_vdso(void *sys_info_ehdr, char **envp );
 
 #endif /* _LDSO_H */

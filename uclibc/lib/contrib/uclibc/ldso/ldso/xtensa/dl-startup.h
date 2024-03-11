@@ -7,6 +7,68 @@
  * Parts taken from glibc/sysdeps/xtensa/dl-machine.h.
  */
 
+#if defined(__FDPIC__)
+__asm__ (
+    "	.text\n"
+    "	.align  4\n"
+    "   .literal_position\n"
+    "	.global _start\n"
+    "	.type   _start, @function\n"
+    "	.hidden _start\n"
+    "_start:\n"
+    "	.begin	no-transform\n"
+    "	_call0  1f\n"
+    "2:\n"
+    "	.end	no-transform\n"
+    "	.align  4\n"
+    "1:\n"
+#if defined(__XTENSA_CALL0_ABI__)
+    "	movi	a15, 2b\n"
+    "	sub	a15, a0, a15\n"
+
+    /* Save FDPIC pointers in callee-saved registers */
+    "	mov	a12, a4\n"
+    "	mov	a13, a5\n"
+    "	mov	a14, a6\n"
+
+    /* Call __self_reloc */
+    "	mov	a2, a5\n"
+    "	movi	a3, __ROFIXUP_LIST__\n"
+    "	add	a3, a3, a15\n"
+    "	movi	a4, __ROFIXUP_END__\n"
+    "	add	a4, a4, a15\n"
+    "	movi    a0, __self_reloc\n"
+    "	add     a0, a0, a15\n"
+    "	callx0  a0\n"
+
+    /* call _dl_start */
+    "	mov	a3, a12\n"
+    "	mov	a4, a13\n"
+    "	mov	a5, a14\n"
+    "	mov	a7, sp\n"
+    "	addi	sp, sp, -16\n"
+    "	mov	a6, sp\n"
+    "	mov	a11, a2\n"
+    /* a13, interpreter map is no longer needed, save interpreter GOT there */
+    "	mov	a13, a2\n"
+    "	movi	a0, _dl_start\n"
+    "	add	a0, a0, a15\n"
+    "	callx0	a0\n"
+
+    /* call main */
+    "	l32i	a0, sp, 0\n"
+    "	l32i	a11, sp, 4\n"
+    "	addi	sp, sp, 16\n"
+    "	mov	a4, a12\n"
+    "	movi	a5, _dl_fini@GOTOFFFUNCDESC\n"
+    "	add	a5, a5, a13\n"
+    "	mov	a6, a14\n"
+    "	jx	a0\n"
+#else
+#error Unsupported Xtensa ABI
+#endif
+   );
+#else /* __FDPIC__ */
 #ifndef L_rcrt1
 __asm__ (
     "	.text\n"
@@ -83,6 +145,7 @@ __asm__ (
     "	bnez    a6, 3b\n"
     "	j      .Lfixup_stack_ret");
 #endif
+#endif /* __FDPIC__ */
 
 /* Get a pointer to the argv value.  */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long *) ARGS) + 1)
@@ -90,7 +153,7 @@ __asm__ (
 /* Function calls are not safe until the GOT relocations have been done.  */
 #define NO_FUNCS_BEFORE_BOOTSTRAP
 
-#if defined(__ARCH_USE_MMU__)
+#if defined(__ARCH_USE_MMU__) && !defined(__FDPIC__)
 #define PERFORM_BOOTSTRAP_GOT(tpnt) \
 do { \
 	xtensa_got_location *got_loc; \
@@ -128,3 +191,29 @@ do { \
 	} \
 } while (0)
 #endif
+
+#ifdef __FDPIC__
+#undef DL_START
+#define DL_START(X)   \
+static void  __attribute__ ((used)) \
+_dl_start (Elf32_Addr dl_boot_got_pointer, \
+          struct elf32_fdpic_loadmap *dl_boot_progmap, \
+          struct elf32_fdpic_loadmap *dl_boot_ldsomap, \
+          Elf32_Dyn *dl_boot_ldso_dyn_pointer, \
+          struct funcdesc_value *dl_main_funcdesc, \
+          X)
+
+/*
+ * Transfer control to the user's application, once the dynamic loader
+ * is done.  We return the address of the function's entry point to
+ * _dl_boot, see boot1_arch.h.
+ */
+#define START()	do {							\
+  struct elf_resolve *exec_mod = _dl_loaded_modules;			\
+  dl_main_funcdesc->entry_point = _dl_elf_main;				\
+  while (exec_mod->libtype != elf_executable)				\
+    exec_mod = exec_mod->next;						\
+  dl_main_funcdesc->got_value = exec_mod->loadaddr.got_value;		\
+  return;								\
+} while (0)
+#endif /* __FDPIC__ */

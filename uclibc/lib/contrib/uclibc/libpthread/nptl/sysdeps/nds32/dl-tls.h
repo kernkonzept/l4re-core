@@ -50,7 +50,7 @@ struct tlsdesc_dynamic_arg
 extern void *__tls_get_addr (tls_index *ti);
 
 extern ptrdiff_t attribute_hidden
-  _dl_tlsdesc_return(struct tlsdesc_dynamic_arg *);
+  _dl_tlsdesc_return(struct tlsdesc *);
 
 extern void *_dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset);
 extern ptrdiff_t attribute_hidden

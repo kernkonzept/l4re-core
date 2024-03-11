@@ -14,6 +14,7 @@ config FORCE_OPTIONS_FOR_ARCH
 	select ARCH_HAS_MMU
 	select ARCH_HAS_UCONTEXT
 	select ARCH_HAS_DEPRECATED_SYSCALLS
+	select ARCH_VDSO_SUPPORT
 
 choice
 	prompt "Target x86 Processor Family"

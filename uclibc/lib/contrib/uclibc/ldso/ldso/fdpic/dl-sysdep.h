@@ -108,7 +108,7 @@ struct funcdesc_ht;
    && ELF32_ST_TYPE((SYM)->st_info) == STT_FUNC \
    ? _dl_funcdesc_for ((void *)DL_RELOC_ADDR ((TPNT)->loadaddr, (SYM)->st_value), \
  		       (TPNT)->loadaddr.got_value)			     \
-   : DL_RELOC_ADDR ((TPNT)->loadaddr, (SYM)->st_value))
+   : (void*)DL_RELOC_ADDR ((TPNT)->loadaddr, (SYM)->st_value))
 
 #define DL_GET_READY_TO_RUN_EXTRA_PARMS \
     , struct elf32_fdpic_loadmap *dl_boot_progmap, Elf32_Addr dl_boot_got_pointer

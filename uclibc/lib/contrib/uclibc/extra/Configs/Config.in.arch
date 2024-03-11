@@ -20,7 +20,7 @@ config UCLIBC_FORMAT_ELF
 	select HAVE_LDSO
 config UCLIBC_FORMAT_FDPIC_ELF
 	bool "FDPIC ELF"
-	depends on !ARCH_USE_MMU && (TARGET_bfin || TARGET_frv || TARGET_arm)
+	depends on !ARCH_USE_MMU && (TARGET_bfin || TARGET_frv || TARGET_arm || TARGET_xtensa)
 	select DOPIC
 config UCLIBC_FORMAT_DSBT_ELF
 	bool "DBST ELF"
@@ -34,13 +34,6 @@ config UCLIBC_FORMAT_FLAT_SEP_DATA
 	bool "STATIC FLAT (sep-data)"
 	depends on !ARCH_USE_MMU && !TARGET_frv
 	select ARCH_HAS_NO_LDSO
-config UCLIBC_FORMAT_SHARED_FLAT
-	bool "SHARED FLAT"
-	depends on !ARCH_USE_MMU && !TARGET_frv
-	select ARCH_HAS_NO_LDSO
-	help
-	  Pick this one if you are using uClinux and wish to build
-	  uClibc as a flat-format shared library.
 endchoice
 endif
 if ARCH_USE_MMU
@@ -54,24 +47,6 @@ config ARCH_HAS_DEPRECATED_SYSCALLS
 	  these system calls are needed to build linuxthreads so
 	  this symbol controls whether there is support for these threading libraries
 	  or not.
-
-config UCLIBC_SHARED_FLAT_ID
-	int "Shared library ID"
-	default 1
-	depends on UCLIBC_FORMAT_SHARED_FLAT
-	help
-	  When using flat shared libraries, every library has a unique
-	  system-wide identifier.  Identifier 0 is reserved for
-	  executables and true shared libraries have identifiers
-	  starting at 1.  The maximum shared library identifier is
-	  determined by the kernel and is usually 3.  Shared library
-	  N must be available on the target system as "/lib/libN.so".
-
-	  When a shared C library is used, it usually has identifier 1,
-	  but you can use this option to select a different identifier
-	  if you need to.
-
-
 
 #
 # Endian Format

@@ -5,7 +5,7 @@
 
 CSRC-y := __syscall_error.c sigaction.c
 SSRC-y := __longjmp.S setjmp.S bsd-setjmp.S bsd-_setjmp.S brk.S fork.S \
-	syscall.S pipe.S vfork.S clone.S
+	syscall.S pipe.S vfork.S clone.S sigreturn_stub.S
 
 CSRC-y += $(addprefix soft-fp/, \
 	qp_add.c qp_cmp.c qp_cmpe.c qp_div.c qp_dtoq.c qp_feq.c qp_fge.c \

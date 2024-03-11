@@ -32,21 +32,41 @@
    macros.  */
 
 #undef XCHAL_HAVE_NSA
+#ifdef __XCHAL_HAVE_NSA
+#define XCHAL_HAVE_NSA			__XCHAL_HAVE_NSA
+#else
 #define XCHAL_HAVE_NSA			1
+#endif
 
 #undef XCHAL_HAVE_LOOPS
+#ifdef __XCHAL_HAVE_LOOPS
+#define XCHAL_HAVE_LOOPS		__XCHAL_HAVE_LOOPS
+#else
 #define XCHAL_HAVE_LOOPS		1
+#endif
 
 /* Assume the maximum number of AR registers.  This currently only affects
    the __window_spill function, and it is always safe to flush extra.  */
 
 #undef XCHAL_NUM_AREGS
+#ifdef __XCHAL_NUM_AREGS
+#define XCHAL_NUM_AREGS			__XCHAL_NUM_AREGS
+#else
 #define XCHAL_NUM_AREGS			64
+#endif
 
 #undef XCHAL_HAVE_S32C1I
+#ifdef __XCHAL_HAVE_S32C1I
+#define XCHAL_HAVE_S32C1I		__XCHAL_HAVE_S32C1I
+#else
 #define XCHAL_HAVE_S32C1I		1
+#endif
 
 #undef XCHAL_HAVE_EXCLUSIVE
+#ifdef __XCHAL_HAVE_EXCLUSIVE
+#define XCHAL_HAVE_EXCLUSIVE		__XCHAL_HAVE_EXCLUSIVE
+#else
 #define XCHAL_HAVE_EXCLUSIVE		0
+#endif
 
 #endif /* !XTENSA_CONFIG_H */

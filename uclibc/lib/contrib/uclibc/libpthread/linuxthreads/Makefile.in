@@ -16,6 +16,8 @@ libpthread_OUT := $(top_builddir)libpthread/linuxthreads
 
 -include $(libpthread_DIR)/sysdeps/$(TARGET_ARCH)/Makefile.arch
 
+CFLAGS-signals.c = -fexceptions -fasynchronous-unwind-tables
+
 libpthread_SRC := \
 	attr.c cancel.c condvar.c errno.c events.c join.c lockfile.c manager.c \
 	mutex.c pt-machine.c ptfork.c pthread.c ptlongjmp.c \

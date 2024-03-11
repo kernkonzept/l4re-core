@@ -73,7 +73,12 @@ __makecontext (ucontext_t *ucp, void (*func) (void), int argc, ...)
     sp -= 4 * (argc + 2);
   sp &= -16;
 
+#ifdef __FDPIC__
+  ucp->uc_mcontext.sc_pc = ((unsigned long *) __start_context)[0];
+  ucp->uc_mcontext.sc_a[15] = ((unsigned long *) __start_context)[1];
+#else
   ucp->uc_mcontext.sc_pc = (unsigned long) __start_context;
+#endif
   ucp->uc_mcontext.sc_a[1] = sp;
   ucp->uc_mcontext.sc_a[12] = (unsigned long) func;
   ucp->uc_mcontext.sc_a[13] = (unsigned long) ucp->uc_link;

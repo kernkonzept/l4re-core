@@ -33,6 +33,7 @@ ENTRY(__getcontext)
 	addi	a4, a2, UCONTEXT_SIGMASK
 	movi	a2, SIG_BLOCK
 	movi	a5, JUMPTARGET (sigprocmask)
+	FDPIC_LOAD_JUMPTARGET (a5, a11, a5)
 	jx	a5
 END(__getcontext)
 #elif defined(__XTENSA_WINDOWED_ABI__)

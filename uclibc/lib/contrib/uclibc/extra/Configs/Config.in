@@ -545,8 +545,8 @@ config LDSO_LD_LIBRARY_PATH
 	  If unsure, simply say Y here.
 
 config UCLIBC_CTOR_DTOR
-	bool
-	default y if !TARGET_riscv64 && !TARGET_lm32
+	bool "Support global constructors and destructors"
+	default y
 	help
 	  If you wish to build uClibc with support for global constructor
 	  (ctor) and global destructor (dtor) support, then answer Y here.
@@ -615,7 +615,7 @@ config UCLIBC_HAS_THREADS_NATIVE
 		   !TARGET_h8300 && \
 		   !TARGET_hppa && \
 		   !TARGET_ia64 && \
-		   (ARCH_USE_MMU || TARGET_arm)
+		   (ARCH_USE_MMU || TARGET_arm || TARGET_xtensa)
 	help
 	  If you want to compile uClibc with NPTL support, then answer Y.
 
@@ -1028,6 +1028,7 @@ config UCLIBC_USE_TIME64
 	bool "Use *time64 syscalls instead of 32bit ones (if possible)"
 	depends on TARGET_arc                            || \
 		   TARGET_arm                            || \
+		   TARGET_csky                           || \
 		   TARGET_i386                           || \
 		   TARGET_m68k                           || \
 		   TARGET_microblaze                     || \
@@ -1039,7 +1040,7 @@ config UCLIBC_USE_TIME64
 		   TARGET_sh                             || \
 		   TARGET_xtensa
 	# TODO: add support for other architectures
-	default n
+	default y
 
 	help
 	  Replace 32bit syscalls to their 64/time64 analog if possible.

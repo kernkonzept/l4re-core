@@ -30,8 +30,8 @@
 
 
 _syscall5(int, rt_sigaction, int, a, int, b, int, c, int, d, int, e)
-static void __rt_sigreturn_stub(void);
-static void __sigreturn_stub(void);
+void __rt_sigreturn_stub(void);
+void __sigreturn_stub(void);
 
 int __libc_sigaction(int sig, const struct sigaction *act, struct sigaction *oact)
 {
@@ -75,24 +75,3 @@ libc_hidden_weak(sigaction)
 # endif
 #endif
 
-
-static void
-__rt_sigreturn_stub(void)
-{
-	__asm__(
-		"mov %0, %%g1\n\t"
-		"ta  0x10\n\t"
-		: /* no outputs */
-		: "i" (__NR_rt_sigreturn)
-	);
-}
-static void
-__sigreturn_stub(void)
-{
-	__asm__(
-		"mov %0, %%g1\n\t"
-		"ta  0x10\n\t"
-		: /* no outputs */
-		: "i" (__NR_sigreturn)
-	);
-}

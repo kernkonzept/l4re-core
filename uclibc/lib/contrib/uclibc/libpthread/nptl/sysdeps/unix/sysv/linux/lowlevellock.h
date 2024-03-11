@@ -17,17 +17,6 @@
 #ifndef _LOWLEVELLOCK_H
 #define _LOWLEVELLOCK_H	1
 
-#include <time.h>
-#include <sys/param.h>
-#include <bits/pthreadtypes.h>
-#include <atomic.h>
-#include <sysdep.h>
-#include <bits/kernel-features.h>
-
-#if defined(__UCLIBC_USE_TIME64__)
-#include "internal/time64_helpers.h"
-#endif
-
 #define FUTEX_WAIT		0
 #define FUTEX_WAKE		1
 #define FUTEX_REQUEUE		3
@@ -43,6 +32,19 @@
 #define FUTEX_CLOCK_REALTIME	256
 
 #define FUTEX_BITSET_MATCH_ANY	0xffffffff
+
+#ifndef __ASSEMBLER__
+
+#include <time.h>
+#include <sys/param.h>
+#include <bits/pthreadtypes.h>
+#include <atomic.h>
+#include <sysdep.h>
+#include <bits/kernel-features.h>
+
+#if defined(__UCLIBC_USE_TIME64__)
+#include "internal/time64_helpers.h"
+#endif
 
 /* Values for 'private' parameter of locking macros.  Yes, the
    definition seems to be backwards.  But it is not.  The bit will be
@@ -336,5 +338,7 @@ extern int __lll_timedwait_tid (int *, const struct timespec *)
       __res = __lll_timedwait_tid (&(tid), (abstime));	\
     __res;						\
   })
+
+#endif /* __ASSEMBLER__ */
 
 #endif	/* lowlevellock.h */

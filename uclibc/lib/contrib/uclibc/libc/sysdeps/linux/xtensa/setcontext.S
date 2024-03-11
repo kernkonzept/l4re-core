@@ -28,6 +28,7 @@ ENTRY(__setcontext)
 	movi	a4, 0
 	movi	a2, SIG_SETMASK
 	movi	a5, JUMPTARGET (sigprocmask)
+	FDPIC_LOAD_JUMPTARGET (a5, a11, a5)
 	callx0	a5
 	bnez	a2, .Lerror
 

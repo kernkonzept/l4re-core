@@ -21,7 +21,7 @@
 #include <dl-elf.h>
 
 #include <ldso.h>
-#if defined(__mips__) || defined(__xtensa__)
+#if defined(__m68k__) || defined(__mips__) || defined(__xtensa__)
 #include <dl-startup.h>
 #endif
 

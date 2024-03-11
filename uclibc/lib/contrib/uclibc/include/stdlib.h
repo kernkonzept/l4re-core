@@ -985,6 +985,8 @@ extern int getpt (void);
    three, but may be less than NELEM), or -1 if an error occurred.  */
 extern int getloadavg (double __loadavg[], int __nelem)
      __THROW __nonnull ((1));
+
+extern void *reallocarray (void *__ptr, size_t __m, size_t __n);
 #endif
 
 #ifdef _LIBC

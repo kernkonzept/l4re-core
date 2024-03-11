@@ -36,10 +36,10 @@ typedef struct sigcontext mcontext_t;
 
 
 /* Userlevel context.  */
-typedef struct ucontext_t
+typedef struct ucontext
   {
-    unsigned long int __uc_flags;
-    struct ucontext_t *uc_link;
+    unsigned long int uc_flags;
+    struct ucontext *uc_link;
     stack_t uc_stack;
     mcontext_t uc_mcontext;
     __sigset_t uc_sigmask;

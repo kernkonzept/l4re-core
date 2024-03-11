@@ -9,3 +9,5 @@ CFLAGS-OMIT-fork.c = -DNOT_IN_libc -DIS_IN_libpthread
 
 ASFLAGS-syscall.S = -D_LIBC_REENTRANT
 ASFLAGS-mmap.S = -D_LIBC_REENTRANT
+
+ASFLAGS += -DUSE___THREAD

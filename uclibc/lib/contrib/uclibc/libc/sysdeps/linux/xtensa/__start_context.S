@@ -22,9 +22,10 @@
  * There's no entry instruction, makecontext sets up ucontext_t as if
  * getcontext was called above and is about to return here.
  * Registers on entry to this function:
- *   a12: func to call
+ *   a12: func to call (function descriptor in case of FDPIC)
  *   a13: ucp->uc_link, next context to activate if func returns
  *   a14: func argc
+ *   a15: current GOT pointer (in case of FDPIC)
  */
 	.literal_position
 
@@ -46,14 +47,17 @@ ENTRY_PREFIX(__start_context)
 	addi	a1, a1, 16
 	/* func arguments 6..argc - 1 are now at the top of the stack */
 1:
+	FDPIC_LOAD_FUNCDESC (a12, a12)
 	callx0	a12
 	beqz	a13, 1f
 	mov	a2, a13
 	movi	a4, JUMPTARGET (setcontext)
+	FDPIC_LOAD_JUMPTARGET (a4, a15, a4)
 	callx0	a4
 1:
 	movi	a4, JUMPTARGET (_exit)
 	movi	a2, 0
+	FDPIC_LOAD_JUMPTARGET (a4, a15, a4)
 	callx0	a4
 	ill
 END(__start_context)

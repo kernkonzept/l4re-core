@@ -75,13 +75,27 @@
 #define LITERAL_POSITION .literal_position
 
 #undef JUMPTARGET
-#ifdef __PIC__
+#if defined(__FDPIC__)
+#define JUMPTARGET(name) name##@GOTOFFFUNCDESC
+#define FDPIC_LOAD_FUNCDESC(call_target, funcdesc)		\
+	l32i	a11, funcdesc, 4;				\
+	l32i	call_target, funcdesc, 0
+
+#define FDPIC_LOAD_JUMPTARGET(call_target, got_base, jumptarget)\
+	add	call_target, got_base, jumptarget;		\
+	FDPIC_LOAD_FUNCDESC(call_target, call_target)
+
+#elif defined(__PIC__)
 /* The "@PLT" suffix is currently a no-op for non-shared linking, but
    it doesn't hurt to use it conditionally for PIC code in case that
    changes someday.  */
 #define JUMPTARGET(name) name##@PLT
+#define FDPIC_LOAD_FUNCDESC(call_target, funcdesc)
+#define FDPIC_LOAD_JUMPTARGET(call_target, got_base, jumptarget)
 #else
 #define JUMPTARGET(name) name
+#define FDPIC_LOAD_FUNCDESC(call_target, funcdesc)
+#define FDPIC_LOAD_JUMPTARGET(call_target, got_base, jumptarget)
 #endif
 
 #ifndef FRAMESIZE
@@ -153,6 +167,21 @@
 
 #if defined _LIBC_REENTRANT
 # if defined USE___THREAD
+#ifdef __FDPIC__
+#   define SYSCALL_ERROR_ERRNO errno
+#  define SYSCALL_ERROR_HANDLER						      \
+0:	rur	a4, THREADPTR;						      \
+	movi	a3, SYSCALL_ERROR_ERRNO@GOTTPOFF;			      \
+	.reloc	., R_XTENSA_TLS_TPOFF_PTR, SYSCALL_ERROR_ERRNO;		      \
+	add	a3, a3, a11;						      \
+	.reloc	., R_XTENSA_TLS_TPOFF_LOAD, SYSCALL_ERROR_ERRNO;	      \
+	l32i	a3, a3, 0;						      \
+	neg	a2, a2;							      \
+	add	a4, a4, a3;						      \
+	s32i	a2, a4, 0;						      \
+	movi	a2, -1;							      \
+	j	.Lpseudo_end;
+#else
 #   define SYSCALL_ERROR_ERRNO errno
 #  define SYSCALL_ERROR_HANDLER						      \
 0:	rur	a4, THREADPTR;						      \
@@ -162,13 +191,14 @@
 	s32i	a2, a4, 0;						      \
 	movi	a2, -1;							      \
 	j	.Lpseudo_end;
+#endif
 # else /* !USE___THREAD */
 
 #if defined(__XTENSA_WINDOWED_ABI__)
 #  define SYSCALL_ERROR_HANDLER						      \
 0:	neg	a2, a2;							      \
 	mov	a6, a2;							      \
-	movi	a4, __errno_location@PLT;				      \
+	movi	a4, JUMPTARGET(__errno_location);			      \
 	callx4	a4;						              \
 	s32i	a2, a6, 0;						      \
 	movi	a2, -1;							      \
@@ -179,7 +209,8 @@
 	addi	a1, a1, -16;						      \
 	s32i	a0, a1, 0;						      \
 	s32i	a2, a1, 4;						      \
-	movi	a0, __errno_location@PLT;				      \
+	movi	a0, JUMPTARGET(__errno_location);			      \
+	FDPIC_LOAD_JUMPTARGET(a0, a11, a0);				      \
 	callx0	a0;						              \
 	l32i	a0, a1, 0;						      \
 	l32i	a3, a1, 4;						      \
@@ -193,12 +224,23 @@
 
 # endif /* !USE___THREAD */
 #else /* !_LIBC_REENTRANT */
+#ifdef __FDPIC__
+#define SYSCALL_ERROR_HANDLER						      \
+0:	movi	a4, errno@GOT;						      \
+	add	a4, a4, a11;						      \
+	l32i	a4, a4, 0;						      \
+	neg	a2, a2;							      \
+	s32i	a2, a4, 0;						      \
+	movi	a2, -1;							      \
+	j	.Lpseudo_end;
+#else
 #define SYSCALL_ERROR_HANDLER						      \
 0:	movi	a4, errno;						      \
 	neg	a2, a2;							      \
 	s32i	a2, a4, 0;						      \
 	movi	a2, -1;							      \
 	j	.Lpseudo_end;
+#endif /* __FDPIC__ */
 #endif /* _LIBC_REENTRANT */
 
 #endif	/* __ASSEMBLER__ */

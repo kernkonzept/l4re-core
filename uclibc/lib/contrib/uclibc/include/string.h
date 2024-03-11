@@ -344,6 +344,7 @@ extern void __bzero (void *__s, size_t __n) __THROW __nonnull ((1));
 #endif
 
 #ifdef __USE_BSD
+extern void explicit_bzero (void *__d, size_t __n);
 # ifdef __UCLIBC_SUSV3_LEGACY__
 /* Copy N bytes of SRC to DEST (like memmove, but args reversed).  */
 extern void bcopy (const void *__src, void *__dest, size_t __n)

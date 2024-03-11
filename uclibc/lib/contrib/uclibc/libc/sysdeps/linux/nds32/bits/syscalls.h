@@ -37,7 +37,8 @@
 #define Y(x) X(x)
 #define        LIB_SYSCALL    __NR_syscall
 
-#define __issue_syscall(syscall_name) "syscall  0x0;\n"
+#define __issue_syscall(syscall_name)                   		\
+"       syscall  "  Y(syscall_name) ";	\n"
 
 #undef INTERNAL_SYSCALL_ERROR_P
 #define INTERNAL_SYSCALL_ERROR_P(val, err) ((unsigned int) (val) >= 0xfffff001u)

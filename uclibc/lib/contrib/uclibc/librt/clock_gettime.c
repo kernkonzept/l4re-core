@@ -22,6 +22,10 @@
 #include <sys/time.h>
 #include "kernel-posix-cpu-timers.h"
 
+#ifdef __VDSO_SUPPORT__
+#include "ldso.h"
+#endif
+
 #if defined(__UCLIBC_USE_TIME64__)
 #include "internal/time64_helpers.h"
 #endif
@@ -68,9 +72,8 @@ realtime_gettime (struct timespec *tp)
   return retval;
 }
 
-/* Get current value of CLOCK and store it in TP.  */
 int
-clock_gettime (clockid_t clock_id, struct timespec *tp)
+__libc_clock_gettime (clockid_t clock_id, struct timespec *tp)
 {
   int retval = -1;
 #ifndef HANDLED_REALTIME
@@ -100,4 +103,15 @@ clock_gettime (clockid_t clock_id, struct timespec *tp)
     }
 
   return retval;
+}
+
+/* Get current value of CLOCK and store it in TP.  */
+int
+clock_gettime (clockid_t clock_id, struct timespec *tp)
+{
+#if defined(__VDSO_SUPPORT__) && defined(ARCH_VDSO_CLOCK_GETTIME)
+  return ARCH_VDSO_CLOCK_GETTIME(clock_id, tp);
+#else
+  return __libc_clock_gettime(clock_id, tp);
+#endif
 }

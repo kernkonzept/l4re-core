@@ -20,7 +20,7 @@
 static inline uintptr_t __attribute__ ((unused))
 _jmpbuf_sp (__jmp_buf regs)
 {
-  uintptr_t sp = &(regs)[0].__regs[__JMP_BUF_SP];
+  uintptr_t sp = (uintptr_t) &(regs)[0].__regs[__JMP_BUF_SP];
   return sp;
 }
 

@@ -8,7 +8,7 @@
 
 #include <mqueue.h>
 
-#ifdef __NR_mq_timedsend
+#if defined(__NR_mq_timedsend) || defined(__NR_mq_timedsend_time64)
 int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned int msg_prio)
 {
 	return mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, NULL);

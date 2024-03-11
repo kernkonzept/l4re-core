@@ -155,7 +155,8 @@ ENTRY (__sigsetjmp)
 	s32i	a14, a2, 16
 	s32i	a15, a2, 20
 	mov	a12, a2
-	movi	a0, __sigjmp_save
+	movi	a0, JUMPTARGET(__sigjmp_save)
+	FDPIC_LOAD_JUMPTARGET(a0, a11, a0)
 	callx0	a0
 	l32i	a0, a12, 0
 	l32i	a12, a12, 8

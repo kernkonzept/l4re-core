@@ -3592,8 +3592,12 @@ typedef Elf32_Addr Elf32_Conflict;
 #define R_XTENSA_TLSDESC_FN	50
 #define R_XTENSA_TLSDESC_ARG	51
 #define R_XTENSA_TLS_TPOFF	53
+#define R_XTENSA_SYM32		63
+#define R_XTENSA_FUNCDESC	68
+#define R_XTENSA_FUNCDESC_VALUE	69
+#define R_XTENSA_TLSDESC	72
 /* Keep this the last entry.  */
-#define R_XTENSA_NUM		54
+#define R_XTENSA_NUM		77
 
 /* C6X specific relocs */
 #define R_C6000_NONE		0

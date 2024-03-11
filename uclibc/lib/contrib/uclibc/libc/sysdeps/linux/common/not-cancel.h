@@ -113,9 +113,9 @@ extern __typeof(pause) __pause_nocancel;
 #ifdef __NR_nanosleep
 # define nanosleep_not_cancel(requested_time, remaining) \
   INLINE_SYSCALL (nanosleep, 2, requested_time, remaining)
-/*#else
+#else
 # define nanosleep_not_cancel(requested_time, remaining) \
-  __nanosleep_nocancel (requested_time, remaining)*/
+  __nanosleep_nocancel (requested_time, remaining)
 #endif
 
 #if 0
