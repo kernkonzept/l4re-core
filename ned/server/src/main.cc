@@ -38,16 +38,17 @@ run(int argc, char const *const *argv)
     boot_info.cprintf("%s ", argv[i]);
   boot_info.cprintf("\n");
 
-  auto auxp = reinterpret_cast<l4_umword_t const*>(&argv[argc]) + 1;
+  auto auxp = &argv[argc] + 1;
   while (*auxp)
     ++auxp;
   ++auxp;
 
   l4re_aux = 0;
 
+  auto *sentinel = reinterpret_cast<char const*>(0xf0);
   while (*auxp)
     {
-      if (*auxp == 0xf0)
+      if (*auxp == sentinel)
         l4re_aux = reinterpret_cast<l4re_aux_t const*>(auxp[1]);
       auxp += 2;
     }
