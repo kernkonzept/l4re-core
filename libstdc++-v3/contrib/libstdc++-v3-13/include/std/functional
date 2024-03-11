@@ -60,7 +60,9 @@
 #endif
 #if __cplusplus >= 201703L
 # if _GLIBCXX_HOSTED
+#ifndef BID_VARIANT_FLAG_NOFPU
 #  include <unordered_map>
+#endif
 #  include <vector>
 #  include <array>
 # endif
@@ -1206,6 +1208,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #if _GLIBCXX_HOSTED
 #define __cpp_lib_boyer_moore_searcher 201603L
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   template<typename _Key, typename _Tp, typename _Hash, typename _Pred>
     struct __boyer_moore_map_base
     {
@@ -1235,6 +1238,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       _GLIBCXX_STD_C::unordered_map<_Key, _Tp, _Hash, _Pred> _M_bad_char;
     };
+#endif
 
   template<typename _Tp, size_t _Len, typename _Pred>
     struct __boyer_moore_array_base
@@ -1273,6 +1277,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       tuple<array<_Tp, _Len>, _Pred> _M_bad_char;
     };
 
+#ifndef BID_VARIANT_FLAG_NOFPU
   // Use __boyer_moore_array_base when pattern consists of narrow characters
   // (or std::byte) and uses std::equal_to as the predicate.
   template<typename _RAIter, typename _Hash, typename _Pred,
@@ -1448,6 +1453,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	}
       return std::make_pair(__last, __last);
     }
+#endif // BID_VARIANT_FLAG_NOFPU
 #endif // HOSTED
 
 #endif // C++17
