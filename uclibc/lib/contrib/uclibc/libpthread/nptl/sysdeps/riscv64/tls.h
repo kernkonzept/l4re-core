@@ -1,6 +1,5 @@
 /* Definition for thread-local data handling.  NPTL/RISCV64 version.
    Copyright (C) 2005, 2007, 2011 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -35,15 +34,6 @@ typedef union dtv
   } pointer;
 } dtv_t;
 
-typedef struct
-{
-  dtv_t *dtv;
-} tcbhead_t;
-
-register tcbhead_t *__thread_self __asm__("tp");
-
-# define TLS_MULTIPLE_THREADS_IN_TCB 1
-
 #else /* __ASSEMBLER__ */
 # include <tcb-offsets.h>
 #endif /* __ASSEMBLER__ */
@@ -58,71 +48,56 @@ register tcbhead_t *__thread_self __asm__("tp");
 
 #ifndef __ASSEMBLER__
 
+register void *__thread_self __asm__("tp");
+# define READ_THREAD_POINTER() ({ __thread_self; })
+
 /* Get system call information.  */
 # include <sysdep.h>
 
-/* The TP points to the start of the TLS block.
- * As I understand it, this isn't strictly that "TP points to DTV" - it's
- * more where to place the TCB in the TLS block. This will place it in 
- * the beginning.
- *
- * Layout:
- *  ------------------------------------
- *  | PRE | TCB | TLS MEMORY ..        |
- *  ------------------------------------
- *              ^ x4 / TP
- *
- * PRE is the struct pthread described below
- * TCB is tcbhead_t
- * TLS memory is where the TLS program sections are loaded
- *
- * See _dl_allocate_tls_storage and __libc_setup_tls for more information.
- */
+/* The TP points to the start of the TLS block.  */
 # define TLS_DTV_AT_TP  1
 
 /* Get the thread descriptor definition.  */
 # include <../../descr.h>
 
-/* Requirements for the TCB.  */
-# define TLS_INIT_TCB_SIZE    sizeof (tcbhead_t)
-# define TLS_INIT_TCB_ALIGN   __alignof__ (tcbhead_t)
+typedef struct
+{
+  dtv_t *dtv;
+  void *private;
+} tcbhead_t;
 
-# define TLS_TCB_SIZE         sizeof (tcbhead_t)
-# define TLS_TCB_ALIGN        __alignof__ (tcbhead_t)
+/* This is the size of the initial TCB.  Because our TCB is before the thread
+   pointer, we don't need this.  */
+# define TLS_INIT_TCB_SIZE    0
+# define TLS_INIT_TCB_ALIGN   __alignof__ (struct pthread)
 
-/* This is the size of the TCB.  */
+/* This is the size of the TCB.  Because our TCB is before the thread
+   pointer, we don't need this.  */
+# define TLS_TCB_SIZE         0
+# define TLS_TCB_ALIGN        __alignof__ (struct pthread)
 
-/* This is the size we need before TCB.
- * To support THREAD_GETMEM with friends we want to have a
- * struct pthread available.
- * Yank it in infront of everything, I'm sure nobody will mind.
- *
- * This memory is really allocated PRE the TLS block, so it's possible
- * to do ((char*)tlsblock) - TLS_PRE_TCB_SIZE to access it.
- * This is done for THREAD_SELF. */
-# define TLS_PRE_TCB_SIZE sizeof (struct pthread)
+/* This is the size we need before TCB - actually, it includes the TCB.  */
+# define TLS_PRE_TCB_SIZE \
+    (sizeof (struct pthread)                                                  \
+   + ((sizeof (tcbhead_t) + __alignof (struct pthread) - 1)                   \
+      & ~(__alignof (struct pthread) - 1)))
 
+/* The thread pointer tp points to the end of the TCB.
+   The pthread_descr structure is immediately in front of the TCB.  */
+# define TLS_TCB_OFFSET 0
 
-/* Install the dtv pointer.
- * When called, dtvp is a pointer not the DTV per say (which should start
- * with the generation counter) but to the length of the DTV.
- * We can always index with -1, so we store dtvp[1]
- */
+/* Install the dtv pointer.  The pointer passed is to the element with
+   index -1 which contain the length.  */
 # define INSTALL_DTV(tcbp, dtvp) \
-  (((tcbhead_t *) (tcbp))->dtv = (dtvp) + 1)
+  (((tcbhead_t *) (tcbp))[-1].dtv = (dtvp) + 1)
 
-/* Install new dtv for current thread
- * In a logicial world dtv here would also point to the length of the DTV.
- * However it does not, this time it points to the generation counter,
- * so just store it.
- *
- * Note: -1 is still valid and contains the length. */
+/* Install new dtv for current thread  */
 # define INSTALL_NEW_DTV(dtv) \
   (THREAD_DTV() = (dtv))
 
 /* Return dtv of given thread descriptor.  */
 # define GET_DTV(tcbp) \
-  (((tcbhead_t *) (tcbp))->dtv)
+  (((tcbhead_t *) (tcbp))[-1].dtv)
 
 /* Code to initially initialize the thread pointer.
  *
@@ -136,31 +111,21 @@ register tcbhead_t *__thread_self __asm__("tp");
  * It's hard to fail this, so return NULL always.
  */
 # define TLS_INIT_TP(tcbp, secondcall) \
-  ({__thread_self = ((tcbhead_t *)tcbp + 1); NULL;})
+  ({ __thread_self = (char*)tcbp + TLS_TCB_OFFSET; NULL; })
 
-/* Return the address of the dtv for the current thread.
- *
- * Dereference TP, offset to dtv - really straightforward.
- * Remember that we made TP point to after tcb, so we need to reverse that.
- */
+/* Return the address of the dtv for the current thread.  */
 #  define THREAD_DTV() \
-  ((((tcbhead_t *)__thread_self)-1)->dtv)
+  (((tcbhead_t *) (READ_THREAD_POINTER () - TLS_TCB_OFFSET))[-1].dtv)
 
-/* Return the thread descriptor for the current thread. 
- *
- * Return a pointer to the TLS_PRE area where we allocated space for
- * a struct pthread. Again, TP points to after tcbhead_t, compensate with
- * TLS_INIT_TCB_SIZE.
- *
- * I regard this is a seperate system from the "normal" TLS.
- */
+/* Return the thread descriptor for the current thread.  */
 # define THREAD_SELF \
-  ((struct pthread *) ((char *) __thread_self - TLS_INIT_TCB_SIZE \
-    - TLS_PRE_TCB_SIZE))
+  ((struct pthread *) (READ_THREAD_POINTER ()                         \
+                       - TLS_TCB_OFFSET - TLS_PRE_TCB_SIZE))
 
-/* Magic for libthread_db to know how to do THREAD_SELF.  */
+/* Informs libthread_db that the thread pointer is register 4, which is used
+ * to know how to do THREAD_SELF.  */
 # define DB_THREAD_SELF \
-  CONST_THREAD_AREA (64, sizeof (struct pthread))
+  REGISTER (64, 64, 4 * 8, - TLS_TCB_OFFSET - TLS_PRE_TCB_SIZE)
 
 /* Access to data in the thread descriptor is easy.  */
 #define THREAD_GETMEM(descr, member) \
@@ -171,6 +136,10 @@ register tcbhead_t *__thread_self __asm__("tp");
   descr->member = (value)
 #define THREAD_SETMEM_NC(descr, member, idx, value) \
   descr->member[idx] = (value)
+
+/* l_tls_offset == 0 is perfectly valid, so we have to use some different
+   value to mean unset l_tls_offset.  */
+# define NO_TLS_OFFSET          -1
 
 /* Get and set the global scope generation counter in struct pthread.  */
 #define THREAD_GSCOPE_FLAG_UNUSED 0

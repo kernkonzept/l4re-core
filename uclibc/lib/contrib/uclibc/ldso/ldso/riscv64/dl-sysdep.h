@@ -58,23 +58,20 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
      || (__WORDSIZE == 64 && (type) == R_RISCV_TLS_TPREL64)))   \
    | (ELF_RTYPE_CLASS_COPY * ((type) == R_RISCV_COPY)))
 
+/* Return the run-time load address of the shared object.  */
+static inline ElfW(Addr)
+elf_machine_load_address (void)
+{
+  extern const ElfW(Ehdr) __ehdr_start attribute_hidden;
+  return (ElfW(Addr)) &__ehdr_start;
+}
 
 /* Return the link-time address of _DYNAMIC.  */
 static inline ElfW(Addr)
 elf_machine_dynamic (void)
 {
-  extern ElfW(Addr) _GLOBAL_OFFSET_TABLE_ __attribute__ ((visibility ("hidden")));
-  return _GLOBAL_OFFSET_TABLE_;
-}
-
-
-/* Return the run-time load address of the shared object.  */
-static __always_inline ElfW(Addr) __attribute__ ((unused))
-elf_machine_load_address (void)
-{
-  ElfW(Addr) load_addr;
-  __asm__ ("lla %0, _DYNAMIC" : "=r" (load_addr));
-  return load_addr - elf_machine_dynamic ();
+  extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
+  return (ElfW(Addr)) _DYNAMIC - elf_machine_load_address ();
 }
 
 static __always_inline void
