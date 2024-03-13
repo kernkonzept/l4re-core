@@ -56,6 +56,9 @@ Ro_file::read_single(const struct iovec *vec, off64_t pos) noexcept
 ssize_t
 Ro_file::preadv(const struct iovec *vec, int cnt, off64_t offset) noexcept
 {
+  if (!_size)
+    return 0;
+
   if (!_addr)
     {
       void const *file = reinterpret_cast<void*>(L4_PAGESIZE);
