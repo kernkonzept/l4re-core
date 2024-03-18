@@ -491,11 +491,18 @@ define SRC_libc/stdio_wchar
   fputwc.__DO_UNLOCKED
   fgetwc
   fgetwc.__DO_UNLOCKED
+  fgetws
+  fgetws.__DO_UNLOCKED
   fputws
   fputws.__DO_UNLOCKED
+  fwide
   fwprintf
   fwscanf
   ungetwc
+  getwchar
+  getwchar.__DO_UNLOCKED
+  putwchar
+  putwchar.__DO_UNLOCKED
   swprintf
   swscanf
   _vfwprintf_internal
