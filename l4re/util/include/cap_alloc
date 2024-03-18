@@ -41,14 +41,11 @@ namespace L4Re { namespace Util {
  * Capability allocator.
  *
  * This is the instance of the capability allocator that is used
- * by usual applications.  The actual implementation of the allocator
- * depends on the configuration of the system.
+ * by usual applications.
  *
- * Per default we use Counting_cap_alloc, a reference-counting
- * capability allocator, that
- * keeps a reference counter for each managed capability selector.
- *
- * \note This capability allocator is not thread-safe.
+ * The capability allocator uses the Counting_cap_alloc, a
+ * reference-counting thread-safe capability allocator, that keeps a
+ * reference counter for each managed capability selector.
  */
 extern _Cap_alloc &cap_alloc;
 
