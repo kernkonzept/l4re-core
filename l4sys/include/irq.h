@@ -96,6 +96,8 @@ l4_irq_mux_chain_u(l4_cap_idx_t irq, l4_cap_idx_t slave,
  *
  * \return Syscall return tag
  *
+ * \retval 0           Successfully detached, there was no interrupt pending.
+ * \retval 1           Successfully detached, there was an interrupt pending.
  * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
  *                     to invoke this operation.
  */
