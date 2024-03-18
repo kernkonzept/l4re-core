@@ -275,7 +275,6 @@ static __inline__ int nonexisting_handle(pthread_handle h, pthread_t id)
 
 /* Defined and used in libc.so.  */
 extern int __libc_multiple_threads L4_HIDDEN;
-extern int __librt_multiple_threads;
 
 # define INIT_THREAD_SELF(descr, nr) do {				\
 		l4_utcb_tcr()->user[0] = (l4_umword_t)descr;		\

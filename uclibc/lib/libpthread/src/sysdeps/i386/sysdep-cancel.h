@@ -134,8 +134,6 @@
 # define __local_multiple_threads __libc_multiple_threads
 #elif defined IS_IN_libpthread
 # define __local_multiple_threads __pthread_multiple_threads
-#else
-# define __local_multiple_threads __librt_multiple_threads
 #endif
 
 # ifndef __ASSEMBLER__
