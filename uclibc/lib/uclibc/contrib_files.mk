@@ -592,6 +592,7 @@ define SRC_libc/pwd_grp
 endef
 
 define SRC_libc/unistd
+  confstr
   getlogin
   getopt
   sleep
