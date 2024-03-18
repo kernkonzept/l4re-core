@@ -42,9 +42,11 @@ $(foreach prec,32 64 80,\
 )
 
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # -- From libgcc/config/t-crtfm ---
 EXTRA_PARTS += crtfastmath.o
 $(eval $(call libgcc_include_config,t-crtfm))
+endif
 
 
 # -- From libgcc/config/i386/t-crtstuff ---

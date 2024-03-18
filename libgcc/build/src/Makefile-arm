@@ -26,9 +26,11 @@ $(eval $(call libgcc_include_config,t-eh-dw2-dip))
 $(eval $(call libgcc_include_config,arm/t-arm))
 
 
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # -- From libgcc/config/t-crtfm ---
 EXTRA_PARTS += crtfastmath.o
 $(eval $(call libgcc_include_config,t-crtfm))
+endif
 
 
 # -- From libgcc/config/arm/t-elf ---
