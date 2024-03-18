@@ -85,3 +85,6 @@ crti.o: crti_s.o kip_addr.o
 				-DCONFIG_BID_LD_EMIT_UNWIND=$(if $(CONFIG_BID_LD_EMIT_UNWIND),1,0) \
 	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P \
 	      $(if $(filter lld,$(BID_LD_TYPE)),-DLD_LLD=1) $< -o $@
+
+clean::
+	$(VERBOSE)$(RM) *.ld
