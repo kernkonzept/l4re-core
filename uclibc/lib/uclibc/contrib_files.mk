@@ -435,8 +435,10 @@ define SRC_libc/stdio
   fwrite
   fwrite.__DO_UNLOCKED
   getchar
+  getchar.__DO_UNLOCKED
   getdelim
   getline
+  gets
   perror
   printf
   putchar
