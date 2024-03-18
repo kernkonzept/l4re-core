@@ -494,13 +494,19 @@ define SRC_libc/stdio_wchar
   fputws
   fputws.__DO_UNLOCKED
   fwprintf
+  fwscanf
   ungetwc
   swprintf
+  swscanf
   _vfwprintf_internal
   vfwprintf
+  vfwscanf
   vswprintf
+  vswscanf
   vwprintf
+  vwscanf
   wprintf
+  wscanf
 endef
 
 define SRC_libc/inet
