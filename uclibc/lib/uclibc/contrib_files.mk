@@ -285,6 +285,7 @@ define SRC_libc/misc
   locale/localeconv
   locale/nl_langinfo
   locale/setlocale
+  mntent/mntent
   regex/regex
   search/hcreate_r
   search/hdestroy_r

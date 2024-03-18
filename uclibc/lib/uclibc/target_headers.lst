@@ -148,6 +148,7 @@ locale.h
 malloc.h
 math.h
 memory.h
+mntent.h
 netdb.h
 net/ethernet.h
 net/if_arp.h
