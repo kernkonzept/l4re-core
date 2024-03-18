@@ -23,8 +23,8 @@
 
 /* Test if longjmp to JMPBUF would unwind the frame
    containing a local variable at ADDRESS.  */
-#define _JMPBUF_UNWINDS(jmpbuf, address, demangle)		\
-  ((void *) (address) < (void *) demangle ((jmpbuf)[0].__sp))
+#define _JMPBUF_UNWINDS(jmpbuf, address)		\
+  ((void *) (address) < (void *) ((jmpbuf)[0].__sp))
 
 #define _JMPBUF_CFA_UNWINDS_ADJ(_jmpbuf, _context, _adj) \
   _JMPBUF_UNWINDS_ADJ (_jmpbuf, (void *) _Unwind_GetCFA (_context), _adj)
@@ -33,9 +33,6 @@ static inline uintptr_t __attribute__ ((unused))
 _jmpbuf_sp (__jmp_buf regs)
 {
   uintptr_t sp = regs[0].__sp;
-#ifdef PTR_DEMANGLE
-  PTR_DEMANGLE (sp);
-#endif
   return sp;
 }
 

@@ -164,6 +164,7 @@ config TARGET_ARCH_BITS
 	default 64 if TARGET_aarch64
 	default 64 if TARGET_ia64
 	default 64 if TARGET_powerpc64
+	default 64 if TARGET_riscv64
 	default 64 if TARGET_sparc64
 	default 64 if TARGET_x86_64
 	default 64 if TARGET_kvx
@@ -593,7 +594,6 @@ config UCLIBC_HAS_LINUXTHREADS
 	# linuxthreads need nanosleep()
 	select UCLIBC_HAS_REALTIME
 	depends on !TARGET_aarch64 && \
-		   !TARGET_riscv64 && \
 		   !TARGET_riscv32 && \
 		   !TARGET_metag
 	help

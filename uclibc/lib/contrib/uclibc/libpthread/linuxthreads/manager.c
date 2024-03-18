@@ -455,7 +455,7 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
        * the kernel chokes on a non-aligned stack frame. Choose the lower
        * available word boundary.
        */
-      new_thread = ((pthread_descr) ((int)(new_thread_bottom + stacksize) & -sizeof(void*))) - 1;
+      new_thread = ((pthread_descr) ((long)(new_thread_bottom + stacksize) & -sizeof(void*))) - 1;
       guardaddr = NULL;
       guardsize = 0;
 
