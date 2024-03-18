@@ -9,8 +9,8 @@
    l4re_aux   0x60000014;
 
 #define L4_DEFINE_X86_KERNEL_ENTRY_SYMS \
-   PROVIDE(__l4sys_invoke_direct = __L4_KIP_ADDR__ + 0x800); \
-   PROVIDE(__l4sys_debugger_direct = __L4_KIP_ADDR__ + 0x900);
+   PROVIDE(__l4sys_invoke_direct = 0xeacff000 + 0x000); \
+   PROVIDE(__l4sys_debugger_direct = 0xeacff000 + 0x200);
 
 #ifdef LD_LLD
   /* Be compatible with ld.lld´s --image-base option. */
