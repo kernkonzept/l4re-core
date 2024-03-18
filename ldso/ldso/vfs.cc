@@ -56,7 +56,7 @@ namespace Vfs_config {
     // small ldso-internal cap allocator for the first libs
     typedef L4Re::Cap_alloc_t<L4Re::Util::Cap_alloc<256> > Cap_alloc;
 
-    // compiltime version
+    // compile-time version
     Cap_alloc __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC)))
       __cap_alloc(256); //L4Re::Env::env()->first_free_cap() - 256);
   }
