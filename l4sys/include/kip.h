@@ -190,14 +190,7 @@ l4_kip_clock_ns(l4_kernel_info_t const *kip) L4_NOTHROW;
 
 L4_INLINE l4_kernel_info_t const*
 l4_kip(void) L4_NOTHROW
-{
-#ifdef __PIC__
-  return l4_global_kip;
-#else
-  extern char __L4_KIP_ADDR__[];
-  return (l4_kernel_info_t const *)__L4_KIP_ADDR__;
-#endif
-}
+{ return l4_global_kip; }
 
 L4_INLINE l4_umword_t
 l4_kip_version(l4_kernel_info_t const *kip) L4_NOTHROW
