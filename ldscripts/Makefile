@@ -81,7 +81,7 @@ crti.o: crti_s.o kip_addr.o
 
 %.ld: $(PKGDIR)/ARCH-$(ARCH)/%.ld $(SRC_DIR)/Makefile $(SRC_DIR)/generic.h .ldscripts-change-tracker
 	@$(GEN_MESSAGE)
-	$(VERBOSE)$(CPP) -nostdinc -include $(SRC_DIR)/generic.h \
+	$(VERBOSE)$(CPP) -x c -nostdinc -include $(SRC_DIR)/generic.h \
 				-DCONFIG_BID_LD_EMIT_UNWIND=$(if $(CONFIG_BID_LD_EMIT_UNWIND),1,0) \
 	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P \
 	      $(if $(filter lld,$(BID_LD_TYPE)),-DLD_LLD=1) $< -o $@
