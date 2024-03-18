@@ -29,6 +29,9 @@
 	.text
 LEAF (clone)
 
+	/* Align stack to a 128-bit boundary as per RISC-V ABI.  */
+	andi            a1,a1,ALMASK
+
 	/* Sanity check arguments.  */
 	beqz		a0,L (invalid)	/* No NULL function pointers.  */
 	beqz		a1,L (invalid)	/* No NULL stack pointers.  */
@@ -57,7 +60,7 @@ L (invalid):
 	li		a0, -EINVAL
 	/* Something bad happened -- no child created.  */
 L (error):
-	j		__syscall_error
+	tail		__syscall_error
 	END (clone)
 
 /* Load up the arguments to the function.  Put this block of code in
@@ -66,6 +69,9 @@ L (error):
 
 ENTRY (__thread_start)
 L (thread_start):
+	.cfi_label .Ldummy
+	cfi_undefined (ra)
+
 	/* Restore the arg for user's function.  */
 	REG_L		a1,0(sp)	/* Function pointer.  */
 	REG_L		a0,SZREG(sp)	/* Argument pointer.  */

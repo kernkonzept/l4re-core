@@ -214,11 +214,11 @@ _dl_do_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 			*reloc_addr = tls_tpnt->l_tls_modid;
 			break;
 		case R_RISCV_TLS_DTPREL32:
-			*reloc_addr = symbol_addr + rpnt->r_addend;
+			*reloc_addr = symbol_addr -TLS_DTV_OFFSET + rpnt->r_addend;
 			break;
 		case R_RISCV_TLS_TPREL32:
 			CHECK_STATIC_TLS ((struct link_map *) tls_tpnt);
-			*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend - TLS_TCB_SIZE;
+			*reloc_addr = tls_tpnt->l_tls_offset + symbol_addr + rpnt->r_addend;
 			break;
 #endif
 		default:
