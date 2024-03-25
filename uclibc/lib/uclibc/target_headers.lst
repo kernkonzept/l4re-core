@@ -124,6 +124,7 @@ fpu_control.h
 getopt.h
 uchar.h
 glob.h
+gnu-versions.h
 grp.h
 ieee754.h
 ifaddrs.h
