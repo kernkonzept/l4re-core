@@ -1,6 +1,6 @@
-// <filesystem> -*- C++ -*-
+// Debugging mode support code -*- C++ -*-
 
-// Copyright (C) 2014-2022 Free Software Foundation, Inc.
+// Copyright (C) 2021-2023 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -22,34 +22,23 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file include/filesystem
- *  This is a Standard C++ Library header.
- *  @ingroup filesystem
- */
+#include <cstdio>	// for std::fprintf, stderr
+#include <cstdlib>	// for std::abort
 
-#ifndef _GLIBCXX_FILESYSTEM
-#define _GLIBCXX_FILESYSTEM 1
-
-#pragma GCC system_header
-
-#if __cplusplus >= 201703L
-
-/**
- * @defgroup filesystem File System
- *
- * Utilities for performing operations on file systems and their components,
- * such as paths, regular files, and directories.
- *
- * @since C++17
- */
-
-#include <bits/fs_fwd.h>
-#include <bits/fs_path.h>
-#include <bits/fs_dir.h>
-#include <bits/fs_ops.h>
-
-#define __cpp_lib_filesystem 201703L
-
-#endif // C++17
-
-#endif // _GLIBCXX_FILESYSTEM
+#ifdef _GLIBCXX_VERBOSE_ASSERT
+namespace std
+{
+  [[__noreturn__]]
+  void
+  __glibcxx_assert_fail(const char* file, int line,
+			const char* function, const char* condition) noexcept
+  {
+    if (file && function && condition)
+      fprintf(stderr, "%s:%d: %s: Assertion '%s' failed.\n",
+	      file, line, function, condition);
+    else if (function)
+      fprintf(stderr, "%s: Undefined behavior detected.\n", function);
+    abort();
+  }
+}
+#endif
