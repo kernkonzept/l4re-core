@@ -7,13 +7,21 @@ OUTPUT_FORMAT("elf64-littleaarch64", "elf64-bigaarch64",
 	      "elf64-littleaarch64")
 OUTPUT_ARCH(aarch64)
 ENTRY(_start)
+PHDRS
+{
+  phdr_readexec PT_LOAD;
+  phdr_writable PT_LOAD;
+  phdr_dynamic PT_DYNAMIC;
+  phdr_tls 0x7 FLAGS(4);
+  phdr_ehframe 0x6474e550;
+}
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
   L4_SET_BASE(0);
   .note.gnu.build-id : { *(.note.gnu.build-id) }
-  .hash           : { *(.hash) }
-  .gnu.hash       : { *(.gnu.hash) }
+  .hash           : { *(.hash) } :phdr_readexec
+  .gnu.hash       : { *(.gnu.hash) } :phdr_readexec
   .dynsym         : { *(.dynsym) }
   .dynstr         : { *(.dynstr) }
   .gnu.version    : { *(.gnu.version) }
@@ -29,7 +37,7 @@ SECTIONS
   .rela.tbss	  : { *(.rela.tbss .rela.tbss.* .rela.gnu.linkonce.tb.*) }
   .rela.ctors     : { *(.rela.ctors) }
   .rela.dtors     : { *(.rela.dtors) }
-  .rela.got       : { *(.rela.got) }
+  .rela.got       : { *(.rela.got) } :phdr_readexec
   .rela.bss       : { *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*) }
   .rela.ifunc     : { *(.rela.ifunc) }
   .rela.plt       :
@@ -40,7 +48,7 @@ SECTIONS
   .init           :
   {
     KEEP (*(SORT_NONE(.init)))
-  } =0
+  } :phdr_readexec =0
   .plt            : { *(.plt) *(.iplt) }
   .text           :
   {
@@ -51,7 +59,7 @@ SECTIONS
     *(.text .stub .text.* .gnu.linkonce.t.*)
     /* .gnu.warning sections are handled specially by elf32.em.  */
     *(.gnu.warning)
-  } =0
+  } :phdr_readexec =0
   .fini           :
   {
     KEEP (*(SORT_NONE(.fini)))
@@ -61,8 +69,8 @@ SECTIONS
   PROVIDE (etext = .);
   .rodata         : { *(.rodata .rodata.* .gnu.linkonce.r.*) }
   .rodata1        : { *(.rodata1) }
-  .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) }
-  .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) *(.eh_frame.*) }
+  .eh_frame_hdr : { *(.eh_frame_hdr) *(.eh_frame_entry .eh_frame_entry.*) } :phdr_readexec :phdr_ehframe
+  .eh_frame       : ONLY_IF_RO { KEEP (*(.eh_frame)) *(.eh_frame.*) } :phdr_readexec
   .gcc_except_table   : ONLY_IF_RO { *(.gcc_except_table
   .gcc_except_table.*) }
   .gnu_extab   : ONLY_IF_RO { *(.gnu_extab*) }
@@ -80,8 +88,8 @@ SECTIONS
   .gcc_except_table   : ONLY_IF_RW { *(.gcc_except_table .gcc_except_table.*) }
   .exception_ranges   : ONLY_IF_RW { *(.exception_ranges .exception_ranges*) }
   /* Thread Local Storage sections  */
-  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) }
-  .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) }
+  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) } :phdr_tls
+  .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) } :phdr_tls
   .preinit_array     :
   {
     KEEP (*(.preinit_array))
@@ -90,12 +98,12 @@ SECTIONS
   {
     KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
     KEEP (*(.init_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .ctors))
-  }
+  } :phdr_writable
   .fini_array     :
   {
     KEEP (*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
     KEEP (*(.fini_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
-  }
+  } :phdr_writable
   .ctors          :
   {
     /* gcc uses crtbegin.o to find the start of
@@ -127,15 +135,15 @@ SECTIONS
   }
   .jcr            : { KEEP (*(.jcr)) }
   .data.rel.ro : { *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*) *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*) }
-  .dynamic        : { *(.dynamic) }
-  .got            : { *(.got) *(.igot) }
-  .got.plt        : { *(.got.plt)  *(.igot.plt) }
+  .dynamic        : { *(.dynamic) } :phdr_writable :phdr_dynamic
+  .got            : { *(.got) *(.igot) } :phdr_writable
+  .got.plt        : { *(.got.plt)  *(.igot.plt) } :phdr_writable
   .data           :
   {
     __data_start = . ;
     *(.data .data.* .gnu.linkonce.d.*)
     SORT(CONSTRUCTORS)
-  }
+  } :phdr_writable
   .data1          : { *(.data1) }
   _edata = .; PROVIDE (edata = .);
   . = .;
@@ -152,7 +160,7 @@ SECTIONS
       FIXME: Why do we need it? When there is no .bss section, we don't
       pad the .data section.  */
    . = ALIGN(. != 0 ? 64 / 8 : 1);
-  }
+  } :phdr_writable
   _bss_end__ = . ; __bss_end__ = . ;
   . = ALIGN(64 / 8);
   . = SEGMENT_START("ldata-segment", .);
