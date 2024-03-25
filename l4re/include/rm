@@ -364,6 +364,11 @@ public:
    * \param          align  Alignment of the virtual region, log2-size, default:
    *                        a page (#L4_PAGESHIFT). This is only meaningful if
    *                        the #L4Re::Rm::F::Search_addr flag is used.
+   * \param          task   Optional destination task of mapping if
+   *                        `F::Eager_map` flag was passed. If invalid, the
+   *                        mapping is established in the current task. This
+   *                        parameter is only useful if the region manager is
+   *                        for a foreign task.
    *
    * \retval 0                  Success
    * \retval -L4_ENOENT         No area could be found (see
@@ -386,7 +391,9 @@ public:
    */
   long attach(l4_addr_t *start, unsigned long size, Flags flags,
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT) const noexcept;
+              unsigned char align = L4_PAGESHIFT,
+              L4::Cap<L4::Task> const task
+                = L4::Cap<L4::Task>::Invalid) const noexcept;
 
   /**
    * \copydoc L4Re::Rm::attach
@@ -394,11 +401,13 @@ public:
   template< typename T >
   long attach(T **start, unsigned long size, Flags flags,
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT) const noexcept
+              unsigned char align = L4_PAGESHIFT,
+              L4::Cap<L4::Task> const task
+                = L4::Cap<L4::Task>::Invalid) const noexcept
   {
     union X { l4_addr_t a; T* t; };
     X *x = reinterpret_cast<X*>(start);
-    return attach(&x->a, size, flags, mem, offs, align);
+    return attach(&x->a, size, flags, mem, offs, align, task);
   }
 
 #if __cplusplus >= 201103L
@@ -540,11 +549,13 @@ public:
   template< typename T >
   long attach(Unique_region<T> *start, unsigned long size, Flags flags,
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
-              unsigned char align = L4_PAGESHIFT) const noexcept
+              unsigned char align = L4_PAGESHIFT,
+              L4::Cap<L4::Task> const task
+                = L4::Cap<L4::Task>::Invalid) const noexcept
   {
     l4_addr_t addr = reinterpret_cast<l4_addr_t>(start->get());
 
-    long res = attach(&addr, size, flags, mem, offs, align);
+    long res = attach(&addr, size, flags, mem, offs, align, task);
     if (res < 0)
       return res;
 
