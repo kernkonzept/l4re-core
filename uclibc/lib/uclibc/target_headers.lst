@@ -73,6 +73,7 @@ bits/socket.h
 bits/socket_type.h
 bits/stackinfo.h
 bits/statfs.h
+bits/statvfs.h
 bits/stat.h
 bits/stdio_lim.h
 bits/syscalls.h
@@ -215,6 +216,7 @@ sys/signal.h
 sys/socket.h
 sys/soundcard.h
 sys/statfs.h
+sys/statvfs.h
 sys/stat.h
 sys/syscall.h
 sys/syslog.h
