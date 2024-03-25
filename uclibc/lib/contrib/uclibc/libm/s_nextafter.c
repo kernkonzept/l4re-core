@@ -18,6 +18,7 @@
 
 #include "math.h"
 #include "math_private.h"
+#include <float.h>
 
 double nextafter(double x, double y)
 {
@@ -68,5 +69,13 @@ double nextafter(double x, double y)
 	return x;
 }
 libm_hidden_def(nextafter)
+#if LDBL_MANT_DIG == DBL_MANT_DIG
 strong_alias_untyped(nextafter, nexttoward)
 libm_hidden_def(nexttoward)
+#else
+double nexttoward(double x, long double y)
+{
+       return nextafter(x, y);
+}
+libm_hidden_def(nexttoward)
+#endif
