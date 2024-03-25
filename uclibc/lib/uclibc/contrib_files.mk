@@ -73,6 +73,7 @@ define SRC_libc/stdlib
   mkostemp
   mkstemp
   mkstemp64
+  mktemp
   $(if $(BID_VARIANT_FLAG_NOFPU),,nrand48)
   $(if $(BID_VARIANT_FLAG_NOFPU),,nrand48_r)
   on_exit
