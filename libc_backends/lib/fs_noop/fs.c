@@ -21,13 +21,6 @@ char *tmpnam(char *s)
 
 #include <sys/vfs.h>
 
-int statfs(const char *path, struct statfs *buf)
-{
-  printf("%s(%s, %p): unimplemented\n", __func__, path, buf);
-  errno = ENOENT;
-  return -1;
-}
-
 int fstatfs(int fd, struct statfs *buf)
 {
   printf("%s(%d, %p): unimplemented\n", __func__, fd, buf);

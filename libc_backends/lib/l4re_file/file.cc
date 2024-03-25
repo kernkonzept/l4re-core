@@ -27,6 +27,7 @@
 #include <sys/mman.h>
 #include <sys/uio.h>
 #include <sys/time.h>
+#include <sys/statfs.h>
 #include <l4/l4re_vfs/backend>
 #include <string.h>
 #include <stdio.h>
@@ -389,6 +390,26 @@ noexcept(noexcept(lstat(path, buf)))
 
   copy_stat64_to_stat(buf, &sb64);
   return r;
+}
+
+int statfs([[maybe_unused]] const char *path, struct statfs *buf)
+noexcept(noexcept(statfs(path, buf)))
+{
+  // Just stubbed for now, to be continued
+  printf("l4re-statfs(%s, ...): to be implemented\n", path);
+  buf->f_type = 0x6552344c;
+  buf->f_bsize = L4_PAGESIZE;
+  buf->f_blocks = 2;
+  buf->f_bfree = 0;
+  buf->f_bavail = 0;
+  buf->f_files = 2;
+  buf->f_ffree = 0;
+  buf->f_fsid.__val[0] = 0;
+  buf->f_fsid.__val[1] = 0;
+  buf->f_namelen = 16;
+  buf->f_frsize = 16;
+  buf->f_flags = 0;
+  return 0;
 }
 
 int close(int fd)
