@@ -28,4 +28,3 @@ __l4sys_direct_syscalls = 0xeacff000
 
 
 	direct_syscall	__l4sys_invoke_direct,    0x000
-	direct_syscall	__l4sys_debugger_direct,  0x200
