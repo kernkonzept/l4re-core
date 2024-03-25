@@ -1,6 +1,6 @@
 // Predefined symbols and macros -*- C++ -*-
 
-// Copyright (C) 1997-2023 Free Software Foundation, Inc.
+// Copyright (C) 1997-2024 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -36,7 +36,7 @@
 #define _GLIBCXX_RELEASE 14
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20231210
+#define __GLIBCXX__ 20240330
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -566,15 +566,6 @@ namespace std
 # define _GLIBCXX_EXTERN_TEMPLATE -1
 #endif
 
-
-#if _GLIBCXX_HAVE_IS_CONSTANT_EVALUATED
-# define __glibcxx_constexpr_assert(cond) \
-  if (std::__is_constant_evaluated() && !bool(cond))	\
-    __builtin_unreachable() /* precondition violation detected! */
-#else
-# define __glibcxx_constexpr_assert(unevaluated)
-#endif
-
 #define _GLIBCXX_VERBOSE_ASSERT 1
 
 // Assert.
@@ -852,10 +843,6 @@ namespace __gnu_cxx
 
 #if _GLIBCXX_HAS_BUILTIN(__is_aggregate)
 # define _GLIBCXX_HAVE_BUILTIN_IS_AGGREGATE 1
-#endif
-
-#if _GLIBCXX_HAS_BUILTIN(__is_same)
-#  define _GLIBCXX_HAVE_BUILTIN_IS_SAME 1
 #endif
 
 #if _GLIBCXX_HAS_BUILTIN(__builtin_launder)

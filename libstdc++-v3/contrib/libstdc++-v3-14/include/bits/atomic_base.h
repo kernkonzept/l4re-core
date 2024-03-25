@@ -100,13 +100,13 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   /// @endcond
 
   constexpr memory_order
-  operator|(memory_order __m, __memory_order_modifier __mod)
+  operator|(memory_order __m, __memory_order_modifier __mod) noexcept
   {
     return memory_order(int(__m) | int(__mod));
   }
 
   constexpr memory_order
-  operator&(memory_order __m, __memory_order_modifier __mod)
+  operator&(memory_order __m, __memory_order_modifier __mod) noexcept
   {
     return memory_order(int(__m) & int(__mod));
   }
@@ -1283,7 +1283,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       constexpr
       __atomic_float(_Fp __t) : _M_fp(__t)
-      { }
+      { __atomic_impl::__clear_padding(_M_fp); }
 
       __atomic_float(const __atomic_float&) = delete;
       __atomic_float& operator=(const __atomic_float&) = delete;
