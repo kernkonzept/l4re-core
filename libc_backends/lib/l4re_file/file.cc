@@ -574,6 +574,34 @@ int select(int /* nfds */, fd_set * /* readfds */, fd_set * /* writefds */,
   return 0;
 }
 
+#include <sys/select.h>
+
+int pselect(int nfds, fd_set *__restrict readfds,
+            fd_set *__restrict writefds,
+            fd_set *__restrict exceptfds,
+            const struct timespec *__restrict __timeout,
+            [[maybe_unused]] const __sigset_t *__restrict __sigmask)
+{
+  printf("pselect: WARNING: Stubbed\n");
+
+  struct timeval to;
+  to.tv_sec = __timeout->tv_sec;
+  to.tv_usec = __timeout->tv_nsec / 1000;
+  return select(nfds, readfds, writefds, exceptfds, &to);
+}
+
+#include <poll.h>
+
+int poll([[maybe_unused]] struct pollfd *fds, [[maybe_unused]] nfds_t nfds,
+         [[maybe_unused]] int timeout)
+{
+  if (1)
+    printf("Call: poll(...): Implementation to come\n");
+
+  return -EOPNOTSUPP;
+}
+
+
 #undef L4B_REDIRECT
 
 #define L4B_REDIRECT(ret, func, ptlist, plist) \
