@@ -35,6 +35,7 @@ endif
 define SRC_libc/termios
   isatty
   speed
+  tcflow
   tcflush
   tcgetattr
   tcgetpgrp
