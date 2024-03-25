@@ -88,6 +88,10 @@ struct exit_function {
 	} funcs;
 };
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
+// L4: Need a single spare cxa_atexit() slot for registering the destructor of
+// the cap allocator which is registered _before_ __vfs_init() initializes mmap
+// to make malloc()/free()/realloc() working.
+extern struct exit_function __spare_cxa_atexit_fn attribute_hidden; // L4
 extern struct exit_function *__exit_function_table attribute_hidden;
 #else
 extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT] attribute_hidden;
@@ -157,6 +161,13 @@ int __cxa_atexit(cxaefuncp func, void *arg, void *dso_handle)
         return 0;
     }
 
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+    // L4
+    if (__spare_cxa_atexit_fn.type == ef_free)
+        efp = &__spare_cxa_atexit_fn;
+    else
+#endif
+
     efp = __new_exitfn();
     if (efp == NULL) {
         return -1;
@@ -203,6 +214,16 @@ void __cxa_finalize(void *dso_handle)
         }
     }
 
+#ifdef __UCLIBC_DYNAMIC_ATEXIT__
+    // L4: __cxa_finalize is currently not provided by L4Re
+    if (__spare_cxa_atexit_fn.type != ef_free
+        && (dso_handle == NULL || dso_handle == __spare_cxa_atexit_fn.funcs)
+        && !atomic_compare_and_exchange_bool_acq(&__spare_cxa_atexit_fn.type,
+                                                 ef_free, ef_cxa_atexit)) {
+        (__spare_cxa_atexit_fn.func)(__spare_cxa_atexit_fn.cxa_atexit.arg);
+    }
+#endif
+
 #if 0 /* haven't looked into this yet... */
     /*
      * Remove the registered fork handlers. We do not have to
@@ -222,6 +243,7 @@ int __exit_count = 0; /* Number of registered exit functions */
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 struct exit_function *__exit_function_table = NULL;
 int __exit_slots = 0; /* Size of __exit_function_table */
+struct exit_function __spare_cxa_atexit_fn = { ef_free }; // L4
 #else
 struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
 #endif
@@ -310,6 +332,14 @@ void __exit_handler(int status)
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
 	/* Free up memory used by the __exit_function_table structure */
 	free(__exit_function_table);
+
+        // L4
+	if (__spare_cxa_atexit_fn.type != ef_free) {
+            efp = &__spare_cxa_atexit_fn;
+            void (*f)(void *a, int status) = (void *)efp->funcs.cxa_atexit.func;
+            f(efp->funcs.cxa_atexit.arg, status);
+            efp->type = ef_free;
+	}
 #endif
 }
 #endif

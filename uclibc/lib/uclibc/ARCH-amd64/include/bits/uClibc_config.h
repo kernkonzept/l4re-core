@@ -226,7 +226,11 @@
 #undef __MALLOC_SIMPLE__
 #define __MALLOC_STANDARD__ 1
 #undef __MALLOC_GLIBC_COMPAT__
+#ifdef L4_MINIMAL_LIBC
 #undef __UCLIBC_DYNAMIC_ATEXIT__
+#else
+#define __UCLIBC_DYNAMIC_ATEXIT__ 1
+#endif
 #define __UCLIBC_SUSV3_LEGACY__
 #define __UCLIBC_SUSV3_LEGACY_MACROS__
 #define __UCLIBC_SUSV4_LEGACY__ 1
