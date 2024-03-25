@@ -493,6 +493,9 @@ public:
    * See Modify_senders for a detailed description when applying sender
    * modification rules is required.
    *
+   * \note Modifying the senders of a thread running on a different CPU core is
+   *       not supported.
+   *
    * \see l4_thread_modify_sender_commit()
    */
   l4_msgtag_t modify_senders(Modify_senders const &todo) noexcept

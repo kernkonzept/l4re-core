@@ -667,6 +667,9 @@ l4_thread_modify_sender_add_u(l4_umword_t match_mask,
  * directly or by IPC gate) that are already in flight, that is that the sender
  * is already blocking on.
  *
+ * \note Modifying the senders of a thread running on a different CPU core is
+ *       not supported.
+ *
  * \see l4_thread_modify_sender_start
  * \see l4_thread_modify_sender_add
  */
