@@ -364,6 +364,8 @@ define SRC_libc/misc_wchar
   wchar/wcrtomb
   wchar/wcsnrtombs
   wchar/wcsrtombs
+  wchar/wcwidth
+  wchar/wcswidth
   wctype/iswctype
   wctype/wctype
   wctype/_wctype
