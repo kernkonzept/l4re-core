@@ -5033,6 +5033,23 @@ gd:
 	  [Define if your assembler supports mfcr field.])])
 
     case $target in
+      *-*-aix*) conftest_s='	.machine "pwr10"
+	.csect .text[[PR]]
+	tend. 0';;
+      *-*-darwin*) conftest_s='	.text
+	tend. 0';;
+      *) conftest_s='	.machine power10
+	.text
+	tend. 0';;
+    esac
+
+    gcc_GAS_CHECK_FEATURE([htm support on Power10],
+      gcc_cv_as_power10_htm,,
+      [$conftest_s],,
+      [AC_DEFINE(HAVE_AS_POWER10_HTM, 1,
+	  [Define if your assembler supports htm insns on power10.])])
+
+    case $target in
       *-*-aix*) conftest_s='	.csect .text[[PR]]
 LCF..0:
 	addis 11,30,_GLOBAL_OFFSET_TABLE_-LCF..0@ha';;
@@ -5319,6 +5336,20 @@ x:
 	.dtprelword x+0x8000],,
       [AC_DEFINE(HAVE_AS_DTPRELWORD, 1,
 	  [Define if your assembler supports .dtprelword.])])
+    gcc_GAS_CHECK_FEATURE([-mrelax option], gcc_cv_as_loongarch_relax,
+      [-mrelax], [.text],,
+      [AC_DEFINE(HAVE_AS_MRELAX_OPTION, 1,
+		[Define if your assembler supports -mrelax option.])])
+    gcc_GAS_CHECK_FEATURE([conditional branch relaxation support],
+      gcc_cv_as_loongarch_cond_branch_relax,
+      [--fatal-warnings],
+      [a:
+       .rept 32769
+       nop
+       .endr
+       beq $a0,$a1,a],,
+      [AC_DEFINE(HAVE_AS_COND_BRANCH_RELAXATION, 1,
+		[Define if your assembler supports conditional branch relaxation.])])
     ;;
     s390*-*-*)
     gcc_GAS_CHECK_FEATURE([.gnu_attribute support],
