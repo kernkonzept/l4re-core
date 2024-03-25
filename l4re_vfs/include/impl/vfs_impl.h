@@ -924,13 +924,15 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
 
   if (old_area.is_valid())
     {
+      unsigned long size = old_size;
+
       l4_addr_t a = old_area.a;
-      unsigned long s = old_size;
+      unsigned long s = 1;
       L4Re::Rm::Offset o;
       L4Re::Rm::Flags f;
       L4::Cap<L4Re::Dataspace> ds;
 
-      for (; r->find(&a, &s, &o, &f, &ds) >= 0 && (!(f & Rm::F::In_area));)
+      while (r->find(&a, &s, &o, &f, &ds) >= 0 && !(f & Rm::F::In_area))
         {
           if (a < old_area.a)
             {
@@ -946,8 +948,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
           l4_addr_t x = a - old_area.a + new_area.a;
 
           int err = r->attach(&x, s, Rm::F::In_area | f,
-                              L4::Ipc::make_cap(ds, f.cap_rights()),
-                              o);
+                              L4::Ipc::make_cap(ds, f.cap_rights()), o);
           if (err < 0)
             return err;
 
@@ -973,7 +974,14 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
             default:
               break;
             }
+
+          if (size <= s)
+            break;
+          a += s;
+          size -= s;
+          s = 1;
         }
+
       old_area.free();
     }
 
