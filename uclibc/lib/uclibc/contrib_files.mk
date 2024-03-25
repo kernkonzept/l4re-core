@@ -578,6 +578,7 @@ endef
 
 define SRC_libc/pwd_grp
   pwd_grp
+  getgrent
   getgrent_r
   getgrgid
   getgrgid_r
