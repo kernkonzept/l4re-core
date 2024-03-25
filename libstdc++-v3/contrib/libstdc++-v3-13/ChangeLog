@@ -1,3 +1,298 @@
+2024-03-20  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/std/iterator (__cpp_lib_null_iterators): Define regardless of
+	_GLIBCXX_DEBUG.
+	* include/std/version (__cpp_lib_null_iterators): Likewise.
+
+2024-03-20  François Dumont  <fdumont@gcc.gnu.org>
+
+	Backported from master:
+	2024-03-18  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/debug/safe_iterator.tcc (_Safe_iterator<>::_M_can_advance):
+	Accept 0 offset advance on value-initialized iterator.
+	* testsuite/23_containers/vector/debug/n3644.cc: New test case.
+
+2024-03-20  François Dumont  <fdumont@gcc.gnu.org>
+
+	Backported from master:
+	2024-03-18  François Dumont  <fdumont@gcc.gnu.org>
+
+	* include/debug/safe_local_iterator.tcc
+	(_Safe_local_iterator::_M_valid_range): Add _M_value_initialized and
+	_M_singular checks.
+	* testsuite/23_containers/unordered_set/debug/114316.cc: New test case.
+
+2024-03-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-03-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/66146
+	* doc/xml/manual/status_cxx2011.xml: Remove mention of Linux in
+	note about std::call_once.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Likewise.
+	* doc/html/manual/status.html: Regenerate.
+
+2024-03-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-03-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/libstdc++-prettyprinters/cxx11.cc: Move custom_cat
+	to namespace scope.
+
+2024-03-17  François Dumont  <fdumont@gcc.gnu.org>
+
+	Backported from master:
+	2024-03-17  François Dumont  <fdumont@gcc.gnu.org>
+
+	PR libstdc++/114316
+	* include/debug/safe_iterator.tcc (_Safe_iterator<>::_M_valid_range):
+	First check if both iterators are value-initialized before checking if
+	singular.
+	* testsuite/23_containers/set/debug/114316.cc: New test case.
+	* testsuite/23_containers/vector/debug/114316.cc: New test case.
+
+2024-03-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono_io.h (__units_suffix_misc): Remove.
+	(__units_suffix): Return a known suffix as string view, do not
+	write unknown suffixes to a buffer.
+	(__fmt_units_suffix): New function that formats the suffix using
+	std::format_to.
+	(operator<<, __chrono_formatter::_M_q): Use __fmt_units_suffix.
+	(__chrono_formatter::_M_Z): Correct lifetime of wstring.
+
+2024-03-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-03-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/114147
+	* include/std/tuple (tuple::tuple(allocator_arg_t, const Alloc&)):
+	Add missing overload of allocator-extended default constructor.
+	(tuple<T1,T2>::tuple(allocator_arg_t, const Alloc&)): Likewise.
+	* testsuite/20_util/tuple/cons/114147.cc: New test.
+
+2024-03-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2023.xml: Close parenthesis.
+	* doc/html/manual/status.html: Regenerate.
+
+2024-03-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-03-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/chrono (__get_leap_second_info): Update expiry
+	time for hardcoded list of leap seconds.
+	* testsuite/std/time/tzdb/leap_seconds.cc: Update comment.
+
+2024-03-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format (basic_format_arg::handle::__maybe_const_t):
+	Fix condition to check if const type is formattable.
+	(basic_format_arg::handle::handle(T&)): Remove redundant
+	static_assert.
+	* testsuite/std/format/formatter/basic.cc: New test.
+
+2024-03-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-01-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono_io.h (__formatter_chrono): Always use
+	lvalue arguments to make_format_args.
+	* include/std/format (make_format_args): Change parameter pack
+	from forwarding references to lvalue references. Remove use of
+	remove_reference_t which is now unnecessary.
+	(format_to, formatted_size): Remove incorrect forwarding of
+	arguments.
+	* testsuite/20_util/duration/io.cc: Use lvalues as arguments to
+	make_format_args.
+	* testsuite/std/format/arguments/args.cc: Likewise.
+	* testsuite/std/format/arguments/lwg3810.cc: Likewise.
+	* testsuite/std/format/functions/format.cc: Likewise.
+	* testsuite/std/format/functions/vformat_to.cc: Likewise.
+	* testsuite/std/format/string.cc: Likewise.
+	* testsuite/std/time/day/io.cc: Likewise.
+	* testsuite/std/time/month/io.cc: Likewise.
+	* testsuite/std/time/weekday/io.cc: Likewise.
+	* testsuite/std/time/year/io.cc: Likewise.
+	* testsuite/std/time/year_month_day/io.cc: Likewise.
+	* testsuite/std/format/arguments/args_neg.cc: New test.
+
+2024-03-12  Cassio Neri  <cassio.neri@gmail.com>
+
+	Backported from master:
+	2024-01-05  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono: Fix + and - for months and weekdays.
+	* testsuite/std/time/month/1.cc: Add constexpr tests against overflow.
+	* testsuite/std/time/month/2.cc: New test for extreme values.
+	* testsuite/std/time/weekday/1.cc: Add constexpr tests against overflow.
+	* testsuite/std/time/weekday/2.cc: New test for extreme values.
+
+2024-03-12  Cassio Neri  <cassio.neri@gmail.com>
+
+	Backported from master:
+	2023-11-14  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (operator-(const weekday&, const weekday&)):
+	Optimize.
+
+2024-03-12  Cassio Neri  <cassio.neri@gmail.com>
+
+	Backported from master:
+	2023-11-14  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year::is_leap): Clear code.
+
+2024-03-12  Cassio Neri  <cassio.neri@gmail.com>
+
+	Backported from master:
+	2023-11-14  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (year_month_day_last::day): Remove &1.
+
+2024-03-12  Cassio Neri  <cassio.neri@gmail.com>
+
+	Backported from master:
+	2023-11-14  Cassio Neri  <cassio.neri@gmail.com>
+
+	* include/std/chrono (weekday::_S_from_days): Fix UB.
+	* testsuite/std/time/weekday/1.cc: Add test for overflow.
+
+2024-03-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/span (span, as_bytes, as_writable_bytes): Add
+	[[nodiscard]] attribute on all non-void functions.
+	* testsuite/23_containers/span/back_assert_neg.cc: Suppress
+	nodiscard warning.
+	* testsuite/23_containers/span/back_neg.cc: Likewise.
+	* testsuite/23_containers/span/first_2_assert_neg.cc: Likewise.
+	* testsuite/23_containers/span/first_assert_neg.cc: Likewise.
+	* testsuite/23_containers/span/first_neg.cc: Likewise.
+	* testsuite/23_containers/span/front_assert_neg.cc: Likewise.
+	* testsuite/23_containers/span/front_neg.cc: Likewise.
+	* testsuite/23_containers/span/index_op_assert_neg.cc: Likewise.
+	* testsuite/23_containers/span/index_op_neg.cc: Likewise.
+	* testsuite/23_containers/span/last_2_assert_neg.cc: Likewise.
+	* testsuite/23_containers/span/last_assert_neg.cc: Likewise.
+	* testsuite/23_containers/span/last_neg.cc: Likewise.
+	* testsuite/23_containers/span/subspan_2_assert_neg.cc:
+	Likewise.
+	* testsuite/23_containers/span/subspan_3_assert_neg.cc:
+	Likewise.
+	* testsuite/23_containers/span/subspan_4_assert_neg.cc:
+	Likewise.
+	* testsuite/23_containers/span/subspan_5_assert_neg.cc:
+	Likewise.
+	* testsuite/23_containers/span/subspan_6_assert_neg.cc:
+	Likewise.
+	* testsuite/23_containers/span/subspan_assert_neg.cc: Likewise.
+	* testsuite/23_containers/span/subspan_neg.cc: Likewise.
+	* testsuite/23_containers/span/nodiscard.cc: New test.
+
+2024-03-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-08-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/list.tcc (list::sort(Cmp)): Fix -Wsign-compare
+	warning for loop condition.
+
+2024-03-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-06-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/110167
+	* include/std/array (to_array): Initialize arrays of trivial
+	types using memcpy. For non-trivial types, use lambda
+	expressions instead of a separate helper function.
+	(__to_array): Remove.
+	* testsuite/23_containers/array/creation/110167.cc: New test.
+
+2024-03-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/113960
+	* include/bits/stl_algobase.h (__is_byte_iter): Replace with ...
+	(__memcmp_ordered_with): New concept.
+	(lexicographical_compare_three_way): Use __memcmp_ordered_with
+	instead of __is_byte_iter. Use correct length for memcmp.
+	* testsuite/25_algorithms/lexicographical_compare_three_way/113960.cc:
+	New test.
+
+2024-03-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/appendix_contributing.xml: Change URLs to use
+	https.
+	* doc/html/manual/*: Regenerate.
+
+2024-03-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/appendix_contributing.xml: Replace outdated
+	info on ChangeLog entries.
+	* doc/html/manual/appendix_contributing.html: Regenerate.
+
+2024-03-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/tr2/dynamic_bitset (dynamic_bitset): Pass zero and one
+	characters to _M_copy_from_string.
+	* testsuite/tr2/dynamic_bitset/string.cc: New test.
+
+2024-03-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/charconv (__from_chars_pow2_base): Convert base to
+	unsigned for call to __countr_zero.
+	(__from_chars_alnum): Likewise for call to __bit_width.
+
+2024-03-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-11-23  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/testsuite_allocator.h (uneq_allocator): Fix
+	equality operator for heterogeneous comparisons.
+
+2024-03-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/114152
+	* include/experimental/scope (scope_exit scope_fail): Make
+	destructor unconditionally noexcept.
+	(scope_sucess): Fix noexcept-specifier.
+	* testsuite/experimental/scopeguard/114152.cc: New test.
+
 2024-02-16  Paul Keir  <paul.keir@uws.ac.uk>
 
 	Backported from master:
