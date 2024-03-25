@@ -10,6 +10,7 @@
 
 #include <errno.h>
 #include <signal.h>
+#include <unistd.h>
 
 extern "C"
 sighandler_t signal(int, sighandler_t) L4_NOTHROW
@@ -52,3 +53,8 @@ int killpg(int, int) noexcept
   return -1;
 }
 
+extern "C"
+unsigned int alarm(unsigned int) noexcept
+{
+  return 0;
+}
