@@ -14,7 +14,6 @@ SRC_C                 = getopt2.c micros2l4to.c rand.c sleep.c \
                         ARCH-$(ARCH)/backtrace.c thread.c \
                         $(ALL_SRC_C_only_$(ARCH)) parse_cmdline.c \
                         list_alloc.c
-SRC_CC                = llulc.cc
 CXXFLAGS              = -DL4_NO_RTTI -fno-exceptions -fno-rtti
 
 PRIVATE_INCDIR_ARCH-x86/perform.c = ARCH-x86
