@@ -11,15 +11,6 @@
 #include <sched.h>
 #include <unistd.h>
 
-int __ctype_b_loc(void);
-
-/* Implementations */
-int __ctype_b_loc(void)
-{
-  printf("%s: implement me \n", __func__);
-  return 0;
-}
-
 int __sched_cpucount(size_t __setsize, const cpu_set_t *__setp)
 {
   (void)__setsize;

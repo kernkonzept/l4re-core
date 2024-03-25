@@ -5,7 +5,6 @@
 // L4 added
 #include <bits/l4-libc-symbols.h>
 
-
 #define __UCLIBC_MAJOR__ 0
 #define __UCLIBC_MINOR__ 9
 #define __UCLIBC_SUBLEVEL__ 29
@@ -114,7 +113,10 @@
 #undef __UCLIBC_HAS_CTYPE_CHECKED__
 #undef __UCLIBC_HAS_CTYPE_ENFORCED__
 #define __UCLIBC_HAS_WCHAR__ 1
-#undef __UCLIBC_HAS_LOCALE__
+#ifndef L4_MINIMAL_LIBC
+#define __UCLIBC_HAS_LOCALE__
+#define __UCLIBC_HAS_XLOCALE__
+#endif /* L4_MINIMAL_LIBC */
 #undef __UCLIBC_HAS_HEXADECIMAL_FLOATS__
 #undef __UCLIBC_HAS_GLIBC_CUSTOM_PRINTF__
 #undef __USE_OLD_VFPRINTF__

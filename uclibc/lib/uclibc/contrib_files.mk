@@ -95,13 +95,23 @@ define SRC_libc/stdlib
   strtoull
 endef
 
+define SRC_libc/stdlib_locale
+  _stdlib_strto_l_l
+  _stdlib_strto_ll_l
+  $(if $(BID_VARIANT_FLAG_NOFPU),,__strtofpmax_l)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,__wcstofpmax_l)
+  strtol_l
+  strtoll_l
+  strtoul_l
+  strtoull_l
+endef
+
 define SRC_libc/stdlib_large_file
   mkostemp64
 endef
 
 define SRC_libc/stdlib_fp
   __fp_range_check
-  _strtod
   atof
   drand48-iter
   drand48
@@ -109,8 +119,11 @@ define SRC_libc/stdlib_fp
   erand48
   erand48_r
   strtod
+  $(if $(UCLIBC_BUILD_MINIMAL),,strtod_l)
   strtof
+  $(if $(UCLIBC_BUILD_MINIMAL),,strtof_l)
   strtold
+  $(if $(UCLIBC_BUILD_MINIMAL),,strtold_l)
 endef
 
 define SRC_libc/stdlib/malloc-standard
@@ -141,14 +154,25 @@ define SRC_libc/stdlib_wchar
   _stdlib_wcsto_l
   _stdlib_wcsto_ll
   mblen
+  wcstombs
   mbstowcs
   wcstol
   wcstoll
-  wcstombs
   wcstoul
   wcstoull
   wctomb
   mbtowc
+endef
+
+define SRC_libc/stdlib_wchar_locale
+  $(if $(BID_VARIANT_FLAG_NOFPU),,wcstod_l)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,wcstof_l)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,wcstold_l)
+  _stdlib_wcsto_l_l
+  _stdlib_wcsto_ll_l
+  wcstoll_l
+  wcstoul_l
+  wcstoull_l
 endef
 
 define SRC_libc/string
@@ -206,7 +230,13 @@ define SRC_libc/string
   strpbrk
 endef
 
+define SRC_libc/string_locale
+  strcasecmp_l
+  strncasecmp_l
+endef
+
 define SRC_libc/string_wchar
+  strxfrm
   wcscmp
   wcsnlen
   wcslen
@@ -232,7 +262,15 @@ define SRC_libc/string_wchar
   wmemchr
   wmemcmp
   wmemmove
+  wmempcpy
   wmemset
+endef
+
+define SRC_libc/string_wchar_locale
+  strxfrm_l
+  wcscasecmp_l
+  wcsncasecmp_l
+  wcsxfrm_l
 endef
 
 SRC_libc/string_arm := _memcpy
@@ -254,6 +292,7 @@ define SRC_libc/misc
   ctype/isupper
   ctype/isxdigit
   ctype/tolower
+  ctype/toascii
   ctype/toupper
   ctype/__C_ctype_b
   ctype/__C_ctype_tolower
@@ -284,10 +323,6 @@ define SRC_libc/misc
   internals/__uClibc_main
   internals/parse_config
   internals/tempname
-  locale/locale
-  locale/localeconv
-  locale/nl_langinfo
-  locale/setlocale
   mntent/mntent
   regex/regex
   search/hcreate_r
@@ -328,6 +363,36 @@ define SRC_libc/misc
   elf/dl-iterate-phdr
 endef
 
+define SRC_libc/misc_locale
+  ctype/isalnum_l
+  ctype/isalpha_l
+  ctype/isascii_l
+  ctype/isblank_l
+  ctype/iscntrl_l
+  ctype/isdigit_l
+  ctype/isgraph_l
+  ctype/islower_l
+  ctype/isprint_l
+  ctype/ispunct_l
+  ctype/isspace_l
+  ctype/isupper_l
+  ctype/isxdigit_l
+  ctype/tolower_l
+  ctype/toascii_l
+  ctype/toupper_l
+  locale/locale
+  locale/localeconv
+  locale/newlocale
+  locale/nl_langinfo
+  locale/setlocale
+  locale/_locale_init
+  locale/__curlocale
+  locale/__locale_mbrtowc_l
+  locale/nl_langinfo_l
+  time/strftime_l
+  time/strptime_l
+endef
+
 ifneq ($(CONFIG_BID_PIE),)
   SRC_libc/misc += internals/reloc_static_pie
 endif
@@ -366,9 +431,10 @@ define SRC_libc/misc_wchar
   wchar/wcsrtombs
   wchar/wcwidth
   wchar/wcswidth
+  wchar/_wchar_utf8sntowcs
+  wchar/_wchar_wcsntoutf8s
   wctype/iswctype
   wctype/wctype
-  wctype/_wctype
   wctype/towlower
   wctype/towupper
   wctype/towctrans
@@ -385,6 +451,28 @@ define SRC_libc/misc_wchar
   wctype/iswblank
   wctype/iswalpha
   wctype/iswalnum
+endef
+
+define SRC_libc/misc_wchar_locale
+  time/wcsftime_l
+  wctype/iswctype_l
+  wctype/wctype_l
+  wctype/towlower_l
+  wctype/towupper_l
+  wctype/towctrans_l
+  wctype/wctrans_l
+  wctype/iswxdigit_l
+  wctype/iswupper_l
+  wctype/iswlower_l
+  wctype/iswspace_l
+  wctype/iswpunct_l
+  wctype/iswprint_l
+  wctype/iswgraph_l
+  wctype/iswdigit_l
+  wctype/iswcntrl_l
+  wctype/iswblank_l
+  wctype/iswalpha_l
+  wctype/iswalnum_l
 endef
 
 define SRC_libc/stdio

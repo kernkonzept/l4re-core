@@ -44,7 +44,8 @@ DIRS := libc/string libc/inet libc/pwd_grp libc/unistd libc/signal \
         libc/stdlib libc/stdlib/malloc-standard libc/stdio \
 	libc/misc libc/sysdeps/linux libc/termios $(if $(BID_VARIANT_FLAG_NOFPU),,libm) libcrypt
 
-SUB_MODULES := wchar large_file $(if $(BID_VARIANT_FLAG_NOFPU),,fp)
+SUB_MODULES := wchar large_file $(if $(BID_VARIANT_FLAG_NOFPU),,fp) \
+               $(if $(UCLIBC_BUILD_MINIMAL),,locale wchar_locale)
 
 # process all sources for the libc
 $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
@@ -101,6 +102,10 @@ CXXFLAGS += -fno-rtti -fno-exceptions
 
 CPPFLAGS_libc-tls.cc += $(LDSO_INC)
 CPPFLAGS_dl-tls.c += $(LDSO_INC)
+
+UCLIBC_SRC_C += locale/locale_data.c
+CPPFLAGS_locale/locale_data.c += -D__WCHAR_ENABLED -I$(LIBCSRC_DIR)/locale \
+                                 -I$(LIBCSRC_DIR)/../contrib/uclibc/extra/locale
 
 $(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
                   $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk

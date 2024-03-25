@@ -13,6 +13,8 @@ endef
 DEFINES		+= -DL4_MINIMAL_LIBC
 LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
 
+UCLIBC_BUILD_MINIMAL = 1
+
 include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/make_rules.mk
 include $(LIBCSRC_DIR)/contrib_files.mk

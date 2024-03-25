@@ -85,6 +85,7 @@ bits/uClibc_clk_tck.h
 bits/uClibc_config.h
 bits/uClibc_fpmax.h
 bits/uClibc_locale.h
+bits/uClibc_locale_data.h
 bits/uClibc_local_lim.h
 bits/uClibc_mutex.h
 bits/uClibc_page.h
@@ -234,3 +235,4 @@ utmp.h
 wchar.h
 wctype.h
 wordexp.h
+xlocale.h
