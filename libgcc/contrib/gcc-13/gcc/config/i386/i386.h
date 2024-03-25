@@ -403,10 +403,10 @@ extern unsigned char ix86_tune_features[X86_TUNE_LAST];
 	ix86_tune_features[X86_TUNE_USE_GATHER_4PARTS]
 #define TARGET_USE_SCATTER_4PARTS \
 	ix86_tune_features[X86_TUNE_USE_SCATTER_4PARTS]
-#define TARGET_USE_GATHER \
-	ix86_tune_features[X86_TUNE_USE_GATHER]
-#define TARGET_USE_SCATTER \
-	ix86_tune_features[X86_TUNE_USE_SCATTER]
+#define TARGET_USE_GATHER_8PARTS \
+	ix86_tune_features[X86_TUNE_USE_GATHER_8PARTS]
+#define TARGET_USE_SCATTER_8PARTS \
+	ix86_tune_features[X86_TUNE_USE_SCATTER_8PARTS]
 #define TARGET_FUSE_CMP_AND_BRANCH_32 \
 	ix86_tune_features[X86_TUNE_FUSE_CMP_AND_BRANCH_32]
 #define TARGET_FUSE_CMP_AND_BRANCH_64 \
@@ -2214,7 +2214,7 @@ extern int const svr4_debugger_register_map[FIRST_PSEUDO_REGISTER];
 #define DEFAULT_LARGE_SECTION_THRESHOLD 65536
 
 /* Which processor to tune code generation for.  These must be in sync
-   with processor_target_table in i386.cc.  */ 
+   with processor_cost_table in i386-options.cc.  */
 
 enum processor_type
 {
@@ -2251,6 +2251,7 @@ enum processor_type
   PROCESSOR_ALDERLAKE,
   PROCESSOR_ROCKETLAKE,
   PROCESSOR_GRANITERAPIDS,
+  PROCESSOR_GRANITERAPIDS_D,
   PROCESSOR_INTEL,
   PROCESSOR_LUJIAZUI,
   PROCESSOR_GEODE,
@@ -2364,7 +2365,7 @@ constexpr wide_int_bitmask PTA_GRANITERAPIDS = PTA_SAPPHIRERAPIDS | PTA_AMX_FP16
   | PTA_PREFETCHI;
 constexpr wide_int_bitmask PTA_GRANITERAPIDS_D = PTA_GRANITERAPIDS
   | PTA_AMX_COMPLEX;
-constexpr wide_int_bitmask PTA_GRANDRIDGE = PTA_SIERRAFOREST | PTA_RAOINT;
+constexpr wide_int_bitmask PTA_GRANDRIDGE = PTA_SIERRAFOREST;
 constexpr wide_int_bitmask PTA_KNM = PTA_KNL | PTA_AVX5124VNNIW
   | PTA_AVX5124FMAPS | PTA_AVX512VPOPCNTDQ;
 constexpr wide_int_bitmask PTA_ZNVER1 = PTA_64BIT | PTA_MMX | PTA_SSE | PTA_SSE2

@@ -1,3 +1,34 @@
+2024-02-16  Matteo Italia  <matteo@mitalia.net>
+
+	Backported from master:
+	2024-02-16  Matteo Italia  <matteo@mitalia.net>
+
+	PR libgcc/113850
+	* config/i386/gthr-win32-cond.c (__gthr_win32_abs_to_rel_time):
+	fix absolute timespec to relative milliseconds count
+	conversion (it incorrectly returned seconds instead of
+	milliseconds); this avoids spurious wakeups in
+	__gthr_win32_cond_timedwait
+
+2024-01-12  Sandra Loosemore  <sandra@codesourcery.com>
+
+	Backported from master:
+	2024-01-12  Sandra Loosemore  <sandra@codesourcery.com>
+
+	* unwind-dw2-fde-dip.c (_Unwind_Find_FDE): Do not try to use
+	_dl_find_object on nios2; it doesn't work.
+
+2023-08-11  Thomas Neumann  <thomas.neumann@in.tum.de>
+
+	PR libgcc/110956
+	* unwind-dw2-fde.c: Associate object with address of unwinding
+	table.
+
+2023-07-31  Patrick O'Neill  <patrick@rivosinc.com>
+
+	* config/riscv/atomic.c: Change LR.aq/SC.rl pairs into
+	sequentially consistent LR.aqrl/SC.rl pairs.
+
 2023-07-27  Release Manager
 
 	* GCC 13.2.0 released.

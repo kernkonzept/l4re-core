@@ -1846,6 +1846,23 @@ if test $force_sjlj_exceptions = yes; then
     [Define 0/1 to force the choice for exception handling model.])
 fi
 
+# Windows32 UTF-8 manifest support for running the driver and compiler
+# executables with the UTF-8 active code page on mingw hosts.
+# Non-mingw hosts ignore this option.
+# The shell variables this sets are picked up from the mingw branches
+# of config.host so they have to be set before it gets sourced.
+AC_ARG_ENABLE(win32-utf8-manifest,
+[AS_HELP_STRING([--disable-win32-utf8-manifest],
+                [disable embedding a utf8 manifest on mingw hosts])
+AS_HELP_STRING([--enable-win32-utf8-manifest],
+               [enable embedding a utf8 manifest on mingw hosts (default)])],,)
+
+if test "x$enable_win32_utf8_manifest" != xno; then
+  host_xmake_mingw=i386/x-mingw32-utf8
+  host_extra_gcc_objs_mingw=utf8rc-mingw32.o
+  host_extra_objs_mingw=utf8-mingw32.o
+fi
+
 # --------------------------------------------------------
 # Build, host, and target specific configuration fragments
 # --------------------------------------------------------
@@ -5033,6 +5050,23 @@ gd:
 	  [Define if your assembler supports mfcr field.])])
 
     case $target in
+      *-*-aix*) conftest_s='	.machine "pwr10"
+	.csect .text[[PR]]
+	tend. 0';;
+      *-*-darwin*) conftest_s='	.text
+	tend. 0';;
+      *) conftest_s='	.machine power10
+	.text
+	tend. 0';;
+    esac
+
+    gcc_GAS_CHECK_FEATURE([htm support on Power10],
+      gcc_cv_as_power10_htm,,
+      [$conftest_s],,
+      [AC_DEFINE(HAVE_AS_POWER10_HTM, 1,
+	  [Define if your assembler supports htm insns on power10.])])
+
+    case $target in
       *-*-aix*) conftest_s='	.csect .text[[PR]]
 LCF..0:
 	addis 11,30,_GLOBAL_OFFSET_TABLE_-LCF..0@ha';;
@@ -5332,6 +5366,20 @@ x:
        .cfi_endproc],,
       [AC_DEFINE(HAVE_AS_EH_FRAME_PCREL_ENCODING_SUPPORT, 1,
 	  [Define if your assembler supports eh_frame pcrel encoding.])])
+    gcc_GAS_CHECK_FEATURE([-mrelax option], gcc_cv_as_loongarch_relax,
+      [-mrelax], [.text],,
+      [AC_DEFINE(HAVE_AS_MRELAX_OPTION, 1,
+		[Define if your assembler supports -mrelax option.])])
+    gcc_GAS_CHECK_FEATURE([conditional branch relaxation support],
+      gcc_cv_as_loongarch_cond_branch_relax,
+      [--fatal-warnings],
+      [a:
+       .rept 32769
+       nop
+       .endr
+       beq $a0,$a1,a],,
+      [AC_DEFINE(HAVE_AS_COND_BRANCH_RELAXATION, 1,
+		[Define if your assembler supports conditional branch relaxation.])])
     ;;
     s390*-*-*)
     gcc_GAS_CHECK_FEATURE([.gnu_attribute support],

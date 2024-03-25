@@ -373,6 +373,12 @@
 #endif
 
 
+/* Define if your assembler supports conditional branch relaxation. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_COND_BRANCH_RELAXATION
+#endif
+
+
 /* Define if your assembler supports the --debug-prefix-map option. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_DEBUG_PREFIX_MAP
@@ -636,6 +642,12 @@
 #endif
 
 
+/* Define if your assembler supports -mrelax option. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_MRELAX_OPTION
+#endif
+
+
 /* Define if your assembler supports .mspabi_attribute. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_MSPABI_ATTRIBUTE
@@ -675,6 +687,12 @@
 /* Define if your assembler supports R_PPC*_PLTSEQ relocations. */
 #ifndef USED_FOR_TARGET
 #undef HAVE_AS_PLTSEQ
+#endif
+
+
+/* Define if your assembler supports htm insns on power10. */
+#ifndef USED_FOR_TARGET
+#undef HAVE_AS_POWER10_HTM
 #endif
 
 
