@@ -135,12 +135,14 @@ L4_INLINE int
 l4_cache_dma_coherent(unsigned long start,
                       unsigned long end) L4_NOTHROW;
 
+#if !defined(ARCH_arm64)
 /**
  * Make memory coherent for use with external memory; writes back to PoC.
  * \ingroup l4_cache_api
  */
 L4_INLINE int
 l4_cache_dma_coherent_full(void) L4_NOTHROW;
+#endif
 
 EXTERN_C_END
 
