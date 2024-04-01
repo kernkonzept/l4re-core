@@ -340,6 +340,7 @@ define SRC_libc/misc
   search/tfind
   search/tsearch
   search/twalk
+  syslog/syslog
   time/time
   time/asctime
   time/asctime_r
