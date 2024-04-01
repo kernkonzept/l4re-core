@@ -65,7 +65,33 @@ __cxxabiv1::__cxa_get_globals() _GLIBCXX_NOTHROW
 #else
 
 #if __has_cpp_attribute(clang::require_constant_initialization)
+# ifdef NOT_FOR_L4
+// Clang:
+//
+// ...eh_globals.cc:77:32: error: variable does not have a constant initializer
+//    __constinit __cxa_eh_globals eh_globals;
+//                                 ^~~~~~~~~~
+// ...eh_globals.cc:77:3: note: required by 'require_constant_initialization'
+//                              attribute here
+//    __constinit __cxa_eh_globals eh_globals;
+//                                 ^~~~~~~~~~~
+// ...eh_globals.cc:70:25: note: expanded from macro '__constinit'
+// #  define __constinit [[clang::require_constant_initialization]]
+//                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// ...eh_globals.cc:77:32: note: non-constexpr constructor '__cxa_eh_globals'
+//                               cannot be used in a constant expression
+//    __constinit __cxa_eh_globals eh_globals;
+//                                 ^
+// ...unwind-cxx.h:155:8: note: declared here
+//    struct __cxa_eh_globals
+//           ^
+//
+// Introduced by https://gcc.gnu.org/bugzilla/show_bug.cgi?id=107500
+//
 #  define __constinit [[clang::require_constant_initialization]]
+# else
+#  define __constinit
+# endif
 #endif
 
 namespace
