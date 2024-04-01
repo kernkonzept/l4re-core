@@ -6,14 +6,10 @@
  */
 
 #include <stdio.h>
-//#include <sys/prctl.h>
+#include <sys/prctl.h>
 
-int prctl(int option, unsigned long arg2, unsigned long arg3,
-          unsigned long arg4, unsigned long arg5);
-int prctl(int option, unsigned long arg2, unsigned long arg3,
-          unsigned long arg4, unsigned long arg5)
+int prctl(int __option, ...)
 {
-  printf("prctl(%d, %lx, %lx, %lx, %lx): void\n",
-         option, arg2, arg3, arg4, arg5);
+  printf("prctl(%d, ...): void\n", __option);
   return 0;
 }

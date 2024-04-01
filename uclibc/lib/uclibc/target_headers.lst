@@ -146,6 +146,8 @@ linux/errno.h
 linux/limits.h
 linux/if_ether.h
 linux/param.h
+linux/prctl.h
+linux/types.h
 locale.h
 malloc.h
 math.h

@@ -19,9 +19,7 @@
 #define _SYS_PRCTL_H	1
 
 #include <features.h>
-#ifdef NOT_FOR_L4
 #include <linux/prctl.h>  /*  The magic values come from here  */
-#endif
 
 __BEGIN_DECLS
 
