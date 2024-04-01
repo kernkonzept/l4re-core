@@ -83,7 +83,7 @@ struct Counter_atomic
   bool try_alloc()
   {
     Type expected = nil();
-    // Use "aquire" memory ordering. Any operations tied to the capability slot
+    // Use "acquire" memory ordering. Any operations tied to the capability slot
     // must only be observable after the slot has been occupied.
     return __atomic_compare_exchange_n(&_cnt, &expected, 2, false,
                                        __ATOMIC_ACQUIRE, __ATOMIC_RELAXED);
