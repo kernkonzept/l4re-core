@@ -1,2 +1,2 @@
-$(eval $(call libgcc_include_config,riscv/t-softfp64-7))
+$(eval $(call libgcc_include_config,riscv/t-softfp64-9))
 softfp_extras += fixhfti fixunshfti floattihf floatuntihf
