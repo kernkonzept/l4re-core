@@ -8,6 +8,7 @@ define SRC_libc/sysdeps/linux
   __longjmp
   getdents
   getsid
+  common/context
   common/cmsg_nxthdr
   common/gethostname
   common/getdirname
