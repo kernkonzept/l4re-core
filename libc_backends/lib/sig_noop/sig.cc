@@ -46,6 +46,13 @@ int sigsuspend(const sigset_t *)
   return -1;
 }
 
+int sigwait([[maybe_unused]] const sigset_t *set,
+            [[maybe_unused]] int *sig)
+{
+  errno = EINVAL;
+  return -1;
+}
+
 extern "C"
 int killpg(int, int) noexcept
 {
