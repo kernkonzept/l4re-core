@@ -88,13 +88,13 @@ struct exit_function {
 	} funcs;
 };
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
-// L4: Need spare cxa_atexit() slots at least for
+// L4: Need statically allocated atexit() slots at least for
 // - registering the destructor of the cap allocator
 // - constructing ios_base::Init __ioinit (libstdc++-v3 >= 13 ios_base_init.h)
 // These invocations are performed _before_ __vfs_init() initializes mmap() to
 // make malloc()/free()/realloc() working.
 # define L4_NUM_SPARE_ATEXIT 32
-extern struct exit_function __spare_cxa_atexit_fn[L4_NUM_SPARE_ATEXIT] attribute_hidden; // L4
+extern struct exit_function __static_exit_function_table[L4_NUM_SPARE_ATEXIT] attribute_hidden; // L4
 extern struct exit_function *__exit_function_table attribute_hidden;
 #else
 extern struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT] attribute_hidden;
@@ -164,17 +164,6 @@ int __cxa_atexit(cxaefuncp func, void *arg, void *dso_handle)
         return 0;
     }
 
-#ifdef __UCLIBC_DYNAMIC_ATEXIT__
-    // L4
-    efp = NULL;
-    for (unsigned i = 0; efp == NULL && i < L4_NUM_SPARE_ATEXIT; ++i) {
-        if (__spare_cxa_atexit_fn[i].type == ef_free) {
-            efp = &__spare_cxa_atexit_fn[i];
-        }
-    }
-    if (efp == NULL)
-#endif
-
     efp = __new_exitfn();
     if (efp == NULL) {
         return -1;
@@ -224,7 +213,7 @@ void __cxa_finalize(void *dso_handle)
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
     // L4: __cxa_finalize is currently not provided by L4Re
     for (unsigned i = L4_NUM_SPARE_ATEXIT; i > 0; --i) {
-        efp = &__spare_cxa_atexit_fn[i - 1];
+        efp = &__static_exit_function_table[i - 1];
         if (efp->type != ef_free
             && (dso_handle == NULL || dso_handle == efp.funcs)
             && !atomic_compare_and_exchange_bool_acq(&efp->type,
@@ -251,9 +240,9 @@ void __cxa_finalize(void *dso_handle)
 #ifdef L___exit_handler
 int __exit_count = 0; /* Number of registered exit functions */
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
+struct exit_function __static_exit_function_table[L4_NUM_SPARE_ATEXIT]; // L4
 struct exit_function *__exit_function_table = NULL;
 int __exit_slots = 0; /* Size of __exit_function_table */
-struct exit_function __spare_cxa_atexit_fn[L4_NUM_SPARE_ATEXIT]; // L4
 #else
 struct exit_function __exit_function_table[__UCLIBC_MAX_ATEXIT];
 #endif
@@ -279,6 +268,16 @@ struct exit_function attribute_hidden *__new_exitfn(void)
 	}
 
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
+    // L4
+    for (unsigned i = 0; i < L4_NUM_SPARE_ATEXIT; ++i) {
+        if (__static_exit_function_table[i].type == ef_free) {
+            efp = &__static_exit_function_table[i];
+            efp->type = ef_in_use;
+            __exit_cleanup = __exit_handler; /* enable cleanup */
+            goto DONE;
+        }
+    }
+
     /* If we are out of function table slots, make some more */
     if (__exit_slots < __exit_count+1) {
         efp = realloc(__exit_function_table,
@@ -345,12 +344,19 @@ void __exit_handler(int status)
 
         // L4
         for (unsigned i = L4_NUM_SPARE_ATEXIT; i > 0; --i) {
-            efp = &__spare_cxa_atexit_fn[i - 1];
-	    if (efp->type != ef_free) {
-                void (*f)(void *a, int status) = (void *)efp->funcs.cxa_atexit.func;
-                f(efp->funcs.cxa_atexit.arg, status);
-                efp->type = ef_free;
+            efp = &__static_exit_function_table[i - 1];
+            switch (efp->type) {
+            case ef_on_exit:
+                (efp->funcs.on_exit.func)(status, efp->funcs.on_exit.arg);
+                break;
+            case ef_cxa_atexit:
+                {
+                    void (*f)(void *a, int status) = (void *)efp->funcs.cxa_atexit.func;
+                    f(efp->funcs.cxa_atexit.arg, status);
+                }
+                break;
             }
+            efp->type = ef_free;
 	}
 #endif
 }
