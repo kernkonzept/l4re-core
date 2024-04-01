@@ -20,7 +20,6 @@
 #include "jmpbuf-offsets.h"
 
 .global __sigsetjmp
-.hidden __sigsetjmp
 .type __sigsetjmp,%function
 
 __sigsetjmp:
