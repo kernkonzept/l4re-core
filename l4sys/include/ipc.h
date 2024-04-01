@@ -336,6 +336,14 @@ l4_ipc_receive(l4_cap_idx_t object, l4_utcb_t *utcb,
  * \note The send-to-receive transition needs no time, the object can reply
  *       with a send timeout of zero.
  *
+ * \note If a finite receive timeout is specified, the IPC receive operation
+ *       could abort before the partner was able to send the reply message.
+ *       Under certain circumstances the partner may still have the temporary
+ *       reply capability to the calling thread and may use this capability to
+ *       reply to the caller at a later, unexpected time specifying an arbitrary
+ *       IPC label. This case is relevant for servers which call another,
+ *       possibly untrusted, server while serving a client request.
+ *
  * \see \ref l4re_concepts_ipc
  */
 L4_INLINE l4_msgtag_t
