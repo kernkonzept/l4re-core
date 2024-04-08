@@ -51,6 +51,23 @@
  *
  * \see \ref l4_kernel_object_gate_api
  * \see \ref l4re_concepts_ipc
+ *
+ *
+ * \subsection ipc_timeouts Timeouts during IPC
+ *
+ * IPC operation between two communication partners may consist of up to two
+ * phases (send phase and receive phase). For both phases, a timeout may be
+ * specified (send timeout and receive timeout).
+ *
+ * \note When IPC communication happens across CPU cores and a timeout is
+ *       specified, then the counting of the timeout only begins after the
+ *       target thread has been scheduled at least once. In particular, this
+ *       means that an IPC timeout, including a timeout of zero, may be delayed
+ *       depending on the scheduling on the target CPU core. If a higher
+ *       priority thread on the target core is executing a busy loop, that delay
+ *       may even be indefinitely.
+ *
+ * \see \ref l4_timeout_api
  */
 
 /*****************************************************************************
