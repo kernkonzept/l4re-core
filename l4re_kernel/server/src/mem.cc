@@ -13,6 +13,7 @@
 #include <errno.h>
 
 
+#include <l4/bid_config.h>
 #include <l4/re/mem_alloc>
 #include <l4/re/dataspace>
 #include <l4/re/error_helper>
@@ -55,8 +56,14 @@ void *uclibc_morecore(long bytes)
       if (Global::allocator->alloc(Heap_max, heap) < 0)
         return mc_err_msg(bytes, "Failed to allocate memory");
 
+      L4Re::Rm::Flags rm_flags(L4Re::Rm::F::RW);
+#if defined(CONFIG_MMU)
       void *hp = __executable_start + 0x100000;
-      if (L4Re::Env::env()->rm()->attach(&hp, Heap_max, L4Re::Rm::F::RW,
+#else
+      void *hp = 0;
+      rm_flags |= L4Re::Rm::F::Search_addr;
+#endif
+      if (L4Re::Env::env()->rm()->attach(&hp, Heap_max, rm_flags,
                                          L4::Ipc::make_cap_rw(heap), 0) < 0)
         return mc_err_msg(bytes, "Failed to attach memory");
 

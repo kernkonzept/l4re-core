@@ -15,6 +15,7 @@
 #include "mem_layout.h"
 #include "switch_stack.h"
 
+#include <l4/bid_config.h>
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
 #include <l4/sys/types.h>
@@ -87,13 +88,21 @@ L4Re_app_model::L4Re_app_model(L4::Cap<L4Re::Rm> rm, void *)
 
 L4Re_app_model::Dataspace
 L4Re_app_model::alloc_ds(unsigned long size) const
+{ return alloc_ds(size, 0, 0); }
+
+L4Re_app_model::Dataspace
+L4Re_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
+{ return alloc_ds(size, paddr, L4Re::Mem_alloc::Fixed_paddr); }
+
+L4Re_app_model::Dataspace
+L4Re_app_model::alloc_ds(unsigned long size, l4_addr_t paddr,
+                         unsigned long flags) const
 {
   Dataspace mem = chkcap(Global::cap_alloc->alloc<L4Re::Dataspace>(),
       "l4re_kernel: ELF loader: could not allocate capability");
-  unsigned long flags = 0UL;
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_PINNED_SEGS)
-    flags = L4Re::Mem_alloc::Pinned;
-  chksys(Global::allocator->alloc(size, mem, flags),
+    flags |= L4Re::Mem_alloc::Pinned;
+  chksys(Global::allocator->alloc(size, mem, flags, 0, paddr),
          "l4re_kernel: Loading writable ELF segment.");
   return mem;
 }
@@ -175,7 +184,11 @@ L4Re_app_model::alloc_app_stack()
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_EAGER_MAP)
     flags |= L4Re::Rm::F::Eager_map;
 
+#ifdef CONFIG_MMU
   void *_s = reinterpret_cast<void*>(_stack.target_addr());
+#else
+  void *_s = nullptr;
+#endif
   chksys(_rm->attach(&_s, _stack.stack_size(), flags,
                      L4::Ipc::make_cap_rw(stack), 0),
          "l4re_kernel: Attach application stack.");
@@ -268,7 +281,12 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
       return false;
     }
 
-  void *vma_start = reinterpret_cast<void *>(Mem_layout::Loader_vma_start);
+  void *vma_start
+#ifdef CONFIG_MMU
+    = reinterpret_cast<void *>(Mem_layout::Loader_vma_start);
+#else
+    = nullptr;
+#endif
   __loader_stack_p
     = Global::local_rm->attach(vma_start, Loader_stack_size,
                                Region_handler(__loader_stack,

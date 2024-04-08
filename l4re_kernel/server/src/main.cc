@@ -7,6 +7,7 @@
  * GNU General Public License 2.
  * Please see the COPYING-GPL-2 file for details.
  */
+#include <l4/bid_config.h>
 #include <l4/re/namespace>
 #include <l4/re/dataspace>
 #include <l4/re/mem_alloc>
@@ -38,9 +39,16 @@
 #include <l4/re/elf_aux.h>
 #include <terminate_handler-l4>
 
+/*
+ * Move loader stack out of the way of the default stack address. On no-MMU
+ * systems this is not required because there is no address remapping and the
+ * stack address is tied to the allocated buffer physical address.
+ */
+#ifdef CONFIG_MMU
 L4RE_ELF_AUX_ELEM_T(l4re_elf_aux_mword_t, __stack_addr,
                     L4RE_ELF_AUX_T_STACK_ADDR,
                     L4_LOADER_RELOC_BASE + 0x1000000);
+#endif
 
 using L4::Cap;
 using L4Re::Dataspace;
