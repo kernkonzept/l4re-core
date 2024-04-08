@@ -45,8 +45,44 @@ struct Counter
 
   void free() { _cnt = 0; }
   bool is_free() const { return _cnt == 0; }
-  void inc() { ++_cnt; }
-  Type dec() { return --_cnt; }
+  bool is_saturated() const { return static_cast<Type>(_cnt + 1) == 0; }
+
+  /**
+   * Increment counter if not yet saturated.
+   *
+   * Once the counter reached the saturated state, the counter value isn't
+   * changed.
+   *
+   * \retval false  The counter just went saturated after it was increased.
+   * \retval true   Either the counter was already saturated -- in that case the
+   *                counter value was not changed, or the counter was not
+   *                saturated -- in that case the counter was increased.
+   */
+  bool inc()
+  {
+    if (is_saturated())
+      return true; // no change and no warning
+    ++_cnt;
+    if (is_saturated())
+      return false; // warn caller that counter is now saturated
+    else
+      return true; // success
+  }
+
+  /**
+   * Decrement counter if not saturated.
+   *
+   * Once the counter reached the saturated state, the counter value isn't
+   * changed.
+   */
+  Type dec()
+  {
+    if (is_saturated())
+      return _cnt; // no change
+    else
+      return --_cnt; // success
+  }
+
   bool try_alloc()
   {
     if (_cnt == 0)
@@ -79,6 +115,7 @@ struct Counter_atomic
   static Type unused() { return 1; }
 
   bool is_free() const { return __atomic_load_n(&_cnt, __ATOMIC_RELAXED) == 0; }
+  static bool is_saturated(Type cnt) { return static_cast<Type>(cnt + 1) == 0; }
 
   bool try_alloc()
   {
@@ -89,8 +126,44 @@ struct Counter_atomic
                                        __ATOMIC_ACQUIRE, __ATOMIC_RELAXED);
   }
 
-  void inc() { __atomic_add_fetch(&_cnt, 1, __ATOMIC_RELAXED); }
-  Type dec() { return __atomic_sub_fetch(&_cnt, 1, __ATOMIC_RELAXED); }
+  /**
+   * \copydoc Counter::inc
+   */
+  bool inc()
+  {
+    Type old_cnt = __atomic_load_n(&_cnt, __ATOMIC_RELAXED);
+    Type new_cnt;
+    do
+      {
+        if (is_saturated(old_cnt))
+          return true; // no change and no warning
+        new_cnt = old_cnt + 1;
+      }
+    while (!__atomic_compare_exchange_n(&_cnt, &old_cnt, new_cnt, false,
+                                        __ATOMIC_RELAXED, __ATOMIC_RELAXED));
+    if (is_saturated(new_cnt))
+      return false; // warn caller that counter is now saturated
+    else
+      return true; // success
+  }
+
+  /**
+   * \copydoc Counter::dec
+   */
+  Type dec()
+  {
+    Type old_cnt = __atomic_load_n(&_cnt, __ATOMIC_RELAXED);
+    Type new_cnt;
+    do
+      {
+        if (is_saturated(old_cnt))
+          return old_cnt; // no change
+        new_cnt = old_cnt - 1;
+      }
+    while (!__atomic_compare_exchange_n(&_cnt, &old_cnt, new_cnt, false,
+                                        __ATOMIC_RELAXED, __ATOMIC_RELAXED));
+    return new_cnt; // success
+  }
 
   void free()
   {
@@ -125,7 +198,7 @@ struct Counter_atomic
  *
  * \ingroup api_l4re_util
  */
-template <typename COUNTERTYPE>
+template <typename COUNTERTYPE, typename Dbg>
 class Counting_cap_alloc
 {
 private:
@@ -136,7 +209,7 @@ private:
   long _free_hint;
   long _bias;
   long _capacity;
-
+  Dbg *_dbg;
 
 public:
 
@@ -166,17 +239,19 @@ protected:
    * \param m        Pointer to backing memory.
    * \param capacity Number of capabilities that can be stored.
    * \param bias     First capability id to use by this allocator.
+   * \param dbg      Logger for warnings if counter got saturated.
    *
    * The allocator will manage the capability slots between `bias`
    * and `bias` + `capacity` - 1 (inclusive). It is the
    * responsibility of the user to ensure that these slots are not
    * used otherwise.
    */
-  void setup(void *m, long capacity, long bias) noexcept
+  void setup(void *m, long capacity, long bias, Dbg *dbg) noexcept
   {
     _items = static_cast<Counter*>(m);
     _capacity = capacity;
     _bias = bias;
+    _dbg = dbg;
   }
 
 public:
@@ -223,8 +298,7 @@ public:
    * \param cap Capability, whose reference counter should be increased.
    *
    * If the capability was still free, it will be automatically allocated.
-   * Silently does nothing if the capability is not
-   * managed by this allocator.
+   * Silently does nothing if the capability is not managed by this allocator.
    */
   void take(L4::Cap<void> cap) noexcept
   {
@@ -232,7 +306,9 @@ public:
     if (!range_check_and_get_idx(cap, &c))
       return;
 
-    _items[c].inc();
+    if (!L4_UNLIKELY(_items[c].inc()))
+      _dbg->printf("Warning: Reference counter of cap 0x%lx now saturated!\n",
+                   cap.cap() >> L4_CAP_SHIFT);
   }
 
 

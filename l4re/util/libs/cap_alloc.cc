@@ -49,7 +49,9 @@ namespace
     typedef L4Re::Util::_Cap_alloc::Counter_storage<Caps> Storage;
 
     L4::Cap<L4Re::Dataspace> _ds;
-    Ca() : _ds(L4::Cap<L4Re::Dataspace>::No_init)
+    L4Re::Util::Dbg _dbg;
+
+    Ca() : _ds(L4::Cap<L4Re::Dataspace>::No_init), _dbg(0xffUL, "Cap_alloc", 0)
     {
       L4Re::Env const *e = L4Re::Env::env();
       _ds = L4::Cap<L4Re::Dataspace>(e->first_free_cap() << L4_CAP_SHIFT);
@@ -58,7 +60,7 @@ namespace
       l4_check(e->rm()->attach(&a, sizeof(Storage),
                                L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
                                L4::Ipc::make_cap_rw(_ds)) >= 0);
-      setup(a, Caps, e->first_free_cap() + 1);
+      setup(a, Caps, e->first_free_cap() + 1, &_dbg);
       l4re_env()->first_free_cap += Caps + 1;
     }
   };
