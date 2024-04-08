@@ -306,8 +306,7 @@ public:
   inline L4_NORETURN void loop(R r, l4_utcb_t *u = l4_utcb())
   {
     internal_loop(Ipc_svr::Exc_dispatch<R, EXC>(r), u);
-    while(1)
-      ;
+    // function will never return
   }
 #endif
 protected:
