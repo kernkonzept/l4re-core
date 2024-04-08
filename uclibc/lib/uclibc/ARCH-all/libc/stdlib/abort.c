@@ -7,7 +7,6 @@ void abort(void)
 {
   // enter_kdebug("ABORT");
   _exit(127);
-  while (1)
-    ;
+  // _exit() will never return
 }
 libc_hidden_def(abort)
