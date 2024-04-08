@@ -10,6 +10,7 @@ define SRC_libc/sysdeps/linux
   getsid
   common/context
   common/cmsg_nxthdr
+  common/flock
   common/gethostname
   common/getdirname
   common/getpagesize
