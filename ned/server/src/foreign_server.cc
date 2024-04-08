@@ -97,6 +97,7 @@ Foreign_server::Foreign_server()
   pthread_attr_setschedpolicy(&attr, SCHED_L4);
   pthread_attr_setschedparam(&attr, &sp);
   pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+  pthread_attr_setstacksize(&attr, 0x1000);
 
   int r = pthread_create(&_th, &attr, &__run, this);
   if (r)
