@@ -65,3 +65,12 @@ unsigned int alarm(unsigned int) noexcept
 {
   return 0;
 }
+
+#include <l4/util/util.h>
+
+int pause(void)
+{
+  l4_sleep_forever();
+  errno = EINTR;
+  return -1;
+}
