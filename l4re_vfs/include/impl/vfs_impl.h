@@ -952,7 +952,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
           if (err < 0)
             return err;
 
-          // cout the new attached ds reference
+          // count the new attached ds reference
           L4Re::virt_cap_alloc->take(ds);
 
           err = r->detach(a, s, &ds, This_task,
