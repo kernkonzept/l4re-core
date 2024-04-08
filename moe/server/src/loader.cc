@@ -19,6 +19,7 @@
 #include "dataspace_util.h"
 #include "region.h"
 
+#include <l4/bid_config.h>
 #include <l4/cxx/unique_ptr>
 #include <l4/cxx/iostream>
 #include <l4/cxx/l4iostream>
@@ -60,8 +61,15 @@ __alloc_app_stack(Allocator *a, Moe::Stack *_stack, unsigned long size)
 {
   cxx::unique_ptr<Moe::Dataspace> stack(a->alloc(size));
 
+#ifdef CONFIG_MMU
   _stack->set_local_top(stack->address(size - L4_PAGESIZE).adr<char *>()
                         + L4_PAGESIZE);
+#else
+  char *base = stack->address(0).adr<char *>();
+  _stack->set_target_stack(reinterpret_cast<l4_addr_t>(base), size);
+  _stack->set_local_top(base + size);
+#endif
+
   return stack.release();
 }
 
@@ -80,6 +88,16 @@ Moe_app_model::Dataspace
 Moe_app_model::alloc_ds(unsigned long size) const
 {
   Dataspace mem =_task->allocator()->alloc(size);
+  if (!mem)
+    chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
+  return mem;
+}
+
+Moe_app_model::Dataspace
+Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
+{
+  Single_page_alloc_base::Config cfg{paddr, paddr+size-1U};
+  Dataspace mem =_task->allocator()->alloc(size, 0, 0, cfg);
   if (!mem)
     chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
   return mem;
@@ -122,8 +140,23 @@ Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                                 Region_handler(ds, L4_INVALID_CAP,
                                                offset, flags.region_flags()),
                                 flags);
+
   if (x == L4_INVALID_PTR)
     chksys(-L4_ENOMEM, what);
+
+#ifndef CONFIG_MMU
+  // Eagerly map region on systems without MMU to prevent MPU region
+  // fragmentation.
+  if (ds)
+    {
+      size = l4_round_page(size);
+      size >>= L4_PAGESHIFT;
+      auto rights = map_flags(flags).fpage_rights();
+      for (l4_addr_t a = l4_trunc_page(addr); size; size--, a += L4_PAGESIZE)
+        _task->task_cap()->map(L4Re::This_task,
+                               l4_fpage(a, L4_PAGESHIFT, rights), a);
+    }
+#endif
 }
 
 int

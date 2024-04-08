@@ -37,6 +37,7 @@ struct Moe_app_model : public Ldr::Base_app_model<Moe::Stack>
   Moe_app_model(App_task *t, cxx::String const &prog, cxx::String const &args);
 
   Dataspace alloc_ds(unsigned long size) const;
+  Dataspace alloc_ds(unsigned long size, l4_addr_t paddr) const;
 
   static Const_dataspace open_file(char const *name);
 
