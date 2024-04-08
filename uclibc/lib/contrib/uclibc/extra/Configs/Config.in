@@ -336,7 +336,8 @@ config STATIC_PIE
 	depends on DOPIC && !UCLIBC_FORMAT_FDPIC_ELF && \
 		(TARGET_aarch64 || TARGET_arm || TARGET_i386 || \
 		 TARGET_m68k || TARGET_mips || TARGET_powerpc || \
-		 TARGET_riscv64 || TARGET_x86_64 || TARGET_xtensa)
+		 TARGET_riscv32 || TARGET_riscv64 || TARGET_x86_64 \
+		|| TARGET_xtensa)
 
 config ARCH_HAS_NO_SHARED
 	bool

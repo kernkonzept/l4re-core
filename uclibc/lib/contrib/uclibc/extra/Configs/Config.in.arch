@@ -13,7 +13,7 @@ choice
 config UCLIBC_FORMAT_ELF
 	bool "ELF (using ELF_FDPIC loader)"
 	depends on !ARCH_USE_MMU && (TARGET_arm || TARGET_m68k || \
-				     TARGET_riscv64)
+				     TARGET_riscv32 || TARGET_riscv64)
 	select DOPIC
 	select STATIC_PIE
 	select ARCH_HAS_NO_SHARED
