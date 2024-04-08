@@ -11,7 +11,7 @@ namespace L4 {
  * Interface for IO-MMUs used for DMA remapping.
  *
  * \note This interface is only present in the kernel if the kernel
- * recognized an IOMMU during boot.
+ * detected an IOMMU during boot.
  *
  * This interface allows to associate a DMA address space
  * with a platform dependent set of devices. The kernel automatically
@@ -39,7 +39,7 @@ public:
 
   /**
    * Remove the association of the given DMA address space from the
-   * device(s) specified by `src_id`. Clear the respective page stable 
+   * device(s) specified by `src_id`. Clear the respective page stable
    * structures in the IOMMU.
    *
    * \param src_id     Platform dependent source ID specifying the set of
