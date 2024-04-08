@@ -126,6 +126,7 @@ uchar.h
 glob.h
 gnu-versions.h
 grp.h
+iconv.h
 ieee754.h
 ifaddrs.h
 internal/parse_config.h
