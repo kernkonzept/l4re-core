@@ -13,9 +13,6 @@
 #include <l4/sys/factory.h>
 #include <l4/sys/types.h>
 #include <l4/sys/thread>
-#ifdef CONFIG_MOE_DEBUG_NAMES
-#include <l4/sys/debugger.h>
-#endif
 
 #include <l4/re/util/bitmap_cap_alloc>
 #include <l4/re/error_helper>
@@ -30,6 +27,11 @@
 #include <cstring>
 #include <cassert>
 #include <cstdio>
+
+#include <l4/bid_config.h>
+#ifdef CONFIG_MOE_DEBUG_NAMES
+# include <l4/sys/debugger.h>
+#endif
 
 #define DEBUG_CAP_ALLOC 0
 
