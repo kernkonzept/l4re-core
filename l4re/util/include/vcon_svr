@@ -91,7 +91,7 @@ public:
     l4_umword_t v = this_vcon()->vcon_read(buf, size);
     unsigned bytes = v & L4_VCON_READ_SIZE_MASK;
 
-    if (bytes < size)
+    if (bytes <= size)
       v |= L4_VCON_READ_STAT_DONE;
 
     m->mr[0] = v;
