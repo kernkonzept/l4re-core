@@ -14,7 +14,6 @@ void _exit(int) __attribute__((noreturn));
 void _exit(int x)
 {
   (void)x;
-  l4_ipc_sleep(L4_IPC_NEVER);
-  while (1)
-    ;
+  for (;;)
+    l4_ipc_sleep(L4_IPC_NEVER);
 }
