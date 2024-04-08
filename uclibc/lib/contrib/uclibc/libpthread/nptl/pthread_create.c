@@ -551,11 +551,11 @@ pthread_create (
 
   return 0;
 }
-
+
 /* Information for libthread_db.  */
 
 #include "../nptl_db/db_info.c"
-
+
 /* If pthread_create is present, libgcc_eh.a and libsupc++.a expects some other POSIX thread
    functions to be present as well.  */
 PTHREAD_STATIC_FN_REQUIRE (pthread_mutex_lock)

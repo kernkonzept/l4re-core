@@ -371,7 +371,7 @@ extern int mkfifo (const char *__path, __mode_t __mode)
 extern int mkfifoat (int __fd, const char *__path, __mode_t __mode)
      __THROW __nonnull ((2));
 #endif
-
+
 #ifdef __USE_ATFILE
 /* Set file access and modification times relative to directory file
    descriptor.  */
@@ -386,7 +386,7 @@ libc_hidden_proto(utimensat)
 /* Set file access and modification times of the file associated with FD.  */
 extern int futimens (int __fd, const struct timespec __times[2]) __THROW;
 #endif
-
+
 /* on uClibc we have unversioned struct stat and mknod.
  * bits/stat.h is filled with wrong info, so we undo it here.  */
 #undef _STAT_VER
