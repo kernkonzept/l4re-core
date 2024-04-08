@@ -109,7 +109,7 @@ class Dirinfo
 public:
   void add(cxx::String const &name)
   {
-    do
+    for (;;)
       {
         unsigned left = _space - _size;
         unsigned written = snprintf(_buf + _size, left, "%d:%.*s\n",
@@ -130,7 +130,6 @@ public:
             break;
           }
       }
-    while (1);
   }
 
   bool empty() const
