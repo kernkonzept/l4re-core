@@ -2,11 +2,11 @@ menu "Moe"
 	visible if EXPERT
 
 config MOE_DEBUG_NAMES
-	bool "Set jdb names for created objects"
+	bool "Set jdb names for created kernel objects"
 	help
-          With this option enabled, Moe will register names in jdb for all
-          objects it creates.
+	  With this option enabled, Moe will register names in jdb for all
+	  objects it creates.
 
-          This is a debugging and development feature.
+	  This is a debugging and development feature.
 
 endmenu
