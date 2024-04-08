@@ -330,8 +330,9 @@ l4_ipc_receive(l4_cap_idx_t object, l4_utcb_t *utcb,
  *
  * \return  result tag
  *
- * A message is sent to the object and the invoker waits for a
- * reply from the object. Messages from other sources are not accepted.
+ * A message is sent to the object and the invoker waits for a reply from the
+ * object. Messages from other sources are not accepted.
+ *
  * \note The send-to-receive transition needs no time, the object can reply
  *       with a send timeout of zero.
  *
