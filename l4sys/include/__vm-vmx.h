@@ -51,6 +51,7 @@ enum L4_vm_vmx_caps_regs
   L4_VM_VMX_VMCS_ENUM_REG           = 0xa,  /**< VMCS enumeration info */
   L4_VM_VMX_PROCBASED_CTLS2_REG     = 0xb,  /**< Processor based control 2 caps */
   L4_VM_VMX_EPT_VPID_CAP_REG        = 0xc,  /**< EPT and VPID caps */
+  L4_VM_VMX_NESTED_REVISION         = 0xd,  /**< Nested VMCS revision */
   L4_VM_VMX_NUM_CAPS_REGS                   /**< Total number of VMX capability registers */
 };
 
@@ -112,6 +113,14 @@ enum L4_vm_vmx_sw_fields
    *       compatible kernel.
    */
   L4_VM_VMX_VMCS_CR2                = 0x683e,
+  // Custom argument passed from kernel to user space
+  L4_VM_VMX_VMCS_NAT_ARG0           = 0x6840,
+  // Custom argument passed from kernel to user space
+  L4_VM_VMX_VMCS_NAT_ARG1           = 0x6842,
+  // Custom argument passed from kernel to user space
+  L4_VM_VMX_VMCS_NAT_ARG2           = 0x6844,
+  // Custom argument passed from kernel to user space
+  L4_VM_VMX_VMCS_NAT_ARG3           = 0x6846,
   /// VMCS offset of extended control register XCR0
   L4_VM_VMX_VMCS_XCR0               = 0x2840,
   /// VMCS offset of system call flag mask MSR
