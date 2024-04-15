@@ -51,6 +51,7 @@ SRC_CC-variant-std += \
   c++98/strstream.cc \
   c++98/tree.cc \
   c++98/valarray.cc \
+  c++11/assert_fail.cc \
   c++11/chrono.cc \
   c++11/codecvt.cc \
   c++11/compatibility-atomic-c++0x.cc \
