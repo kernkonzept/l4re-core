@@ -339,6 +339,27 @@ default_loader = Loader.new({factory = Env.factory, mem = Env.mem_alloc});
 Cpu_set = {}
 Cpu_set.__index = Cpu_set
 
+function Cpu_set:__tostring()
+  if self.all then
+     return "{ all }"
+  else
+     local s = "{"
+     local sep = ""
+
+     local max_cpu = 0
+     for n, _ in pairs(self.set) do
+        if n > max_cpu then max_cpu = n end
+     end
+     for n = 0, max_cpu do
+        if self.set[n] then
+           s = s .. sep .. n
+           sep = ", "
+        end
+     end
+     return s .. "}"
+  end
+end
+
 function Cpu_set:new(cpus)
   local obj = { all = true, set = {} }
   setmetatable(obj, self)
@@ -347,10 +368,10 @@ function Cpu_set:new(cpus)
     obj.all = false
     if type(cpus) == "table" then
       for _, n in ipairs(cpus) do
-        obj:add(n)
+        obj:add(n, 1)
       end
     else
-      obj:add(cpus)
+      obj:add(cpus, 1)
     end
   end
 
@@ -358,20 +379,28 @@ function Cpu_set:new(cpus)
 end
 
 -- Add a single or range of CPUs
-function Cpu_set:add(cpu)
+function Cpu_set:add(cpu, lvl)
   if self.all then
     return
   end
 
-  if type(cpu) == "number" then
+  lvl = lvl or 0
+  arg_type = type(cpu)
+  if arg_type == "number" then
     self.set[cpu] = true
-  elseif type(cpu) == "string" then
-    from, to = string.match(cpu, "(%d+)-(%d+)")
-    for i = tonumber(from), tonumber(to) do
-      self.set[i] = true
+  elseif arg_type == "string" then
+    sfrom, sto = string.match(cpu, "(%d+)-(%d+)")
+    from = tonumber(sfrom)
+    to = tonumber(sto)
+    if from and to and from <= to then
+      for i = tonumber(from), tonumber(to) do
+        self.set[i] = true
+      end
+    else
+      error("Invalid CPU range \"" .. cpu .. "\"", lvl + 2)
     end
   else
-    error("Invalid argument")
+    error("Invalid argument type: " .. arg_type, lvl + 2)
   end
 end
 
