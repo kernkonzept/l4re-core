@@ -47,6 +47,12 @@ public:
     return 1;
   }
 
+  static int mword_bits(lua_State *l)
+  {
+    lua_pushinteger(l, sizeof(l4_umword_t) * 8);
+    return 1;
+  }
+
   void init(lua_State *l)
   {
     lua_require_module(l, package);
@@ -67,6 +73,10 @@ public:
     // L4.Info.platform()
     lua_pushcfunction(l, platformstr);
     lua_setfield(l, -2, "platform");
+
+    // L4.Info.mword_size()
+    lua_pushcfunction(l, mword_bits);
+    lua_setfield(l, -2, "mword_bits");
 
     lua_setfield(l, -2, "Info");
 

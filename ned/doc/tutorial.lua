@@ -109,9 +109,10 @@ L4 and L4Re objects.
 
 The L4.Info table contains the following functions:
 
-  Kip.str()   The banner string found in the kernel info page
-  arch()      Architecture name, such as: x86, amd64, arm, ppc32
-  platform()  Platform name, such as: pc, ux, realview, beagleboard
+  Kip.str()    The banner string found in the kernel info page
+  arch()       Architecture name, such as: x86, amd64, arm, ppc32
+  platform()   Platform name, such as: pc, ux, realview, beagleboard
+  mword_bits() Number of native machine word bits (32, 64)
 
 
 Support for starting L4 programs
