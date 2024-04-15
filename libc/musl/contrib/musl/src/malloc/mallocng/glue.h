@@ -70,15 +70,15 @@ __attribute__((__visibility__("hidden")))
 extern int __malloc_lock[1];
 
 #define LOCK_OBJ_DEF \
-int __malloc_lock[1]; \
-void __malloc_atfork(int who) { malloc_atfork(who); }
+void __malloc_atfork(int who) { malloc_atfork(who); } \
+int __malloc_lock[1]
 #else
 
 extern libc_lock_t __malloc_lock;
 
 #define LOCK_OBJ_DEF \
-libc_lock_t __malloc_lock; \
-void __malloc_atfork(int who) { malloc_atfork(who); }
+void __malloc_atfork(int who) { malloc_atfork(who); } \
+libc_lock_t __malloc_lock
 #endif
 
 static inline void rdlock()
