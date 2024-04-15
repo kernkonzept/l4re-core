@@ -13,6 +13,7 @@ EXTRA_TARGET	+= capability kip task factory irq icu thread vcon \
                    semaphore           \
                    iommu               \
                    arm_smccc           \
+                   vcpu_context        \
                    cxx/ipc_array       \
                    cxx/ipc_basics      \
                    cxx/ipc_client      \

@@ -1,0 +1,23 @@
+/**
+ * \file
+ * Hardware vCPU context interface.
+ */
+
+#pragma once
+
+#include <l4/sys/vcpu_context.h>
+
+namespace L4 {
+
+class Vcpu_context :
+  public Kobject_t<Vcpu_context, Kobject, L4_PROTO_VCPU_CONTEXT>
+{
+public:
+  Vcpu_context(Vcpu_context const &) = delete;
+  void operator = (Vcpu_context const &) = delete;
+
+protected:
+  Vcpu_context();
+};
+
+};

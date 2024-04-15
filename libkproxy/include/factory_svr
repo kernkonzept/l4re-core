@@ -54,6 +54,8 @@ public:
 
   virtual int create_vm(L4::Cap<L4::Vm>const &target_cap) = 0;
 
+  virtual int create_vcpu_context(L4::Cap<L4::Vcpu_context> const &target_cap) = 0;
+
   virtual ~Factory_interface() {}
 };
 

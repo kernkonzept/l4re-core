@@ -110,6 +110,18 @@ public:
         ios << i;
       return r;
     }
+
+  static int handle_vcpu_context(Factory_svr *svr, Factory_interface *fi,
+                                 L4::Ipc::Iostream &ios)
+    {
+      L4::Cap<L4::Vcpu_context> i = svr->cap_alloc<L4::Vcpu_context>();
+      if (!i.is_valid())
+        return -L4_ENOMEM;
+      int r = fi->create_vcpu_context(i);
+      if (r == 0)
+        ios << i;
+      return r;
+    }
 };
 
 int Factory_svr::factory_dispatch(l4_umword_t, L4::Ipc::Iostream &ios)
@@ -130,6 +142,8 @@ int Factory_svr::factory_dispatch(l4_umword_t, L4::Ipc::Iostream &ios)
       return Factory_hndl::handle_irq(this, _factory, ios);
     case L4_PROTO_VM:
       return Factory_hndl::handle_vm(this, _factory, ios);
+    case L4_PROTO_VCPU_CONTEXT:
+      return Factory_hndl::handle_vcpu_context(this, _factory, ios);
     default:
       return -L4_ENOSYS;
     };

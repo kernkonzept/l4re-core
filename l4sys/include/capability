@@ -40,6 +40,7 @@ class Factory;
 class Irq;
 class Log;
 class Vm;
+class Vcpu_context;
 class Kobject;
 
 /**

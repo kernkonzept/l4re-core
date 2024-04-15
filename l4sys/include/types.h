@@ -74,6 +74,7 @@ enum L4_msgtag_protocol
   L4_PROTO_IOMMU         = -22L, ///< Protocol ID for IO-MMUs
   L4_PROTO_DEBUGGER      = -23L, ///< Protocol ID for the debugger
   L4_PROTO_SMCCC         = -24L, ///< Protocol ID for ARM SMCCC calls
+  L4_PROTO_VCPU_CONTEXT  = -25L, ///< Protocol for hardware vCPU contexts
 };
 
 enum L4_varg_type

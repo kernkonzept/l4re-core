@@ -254,12 +254,43 @@ l4_factory_create_vm(l4_cap_idx_t factory,
                      l4_cap_idx_t target_cap) L4_NOTHROW;
 
 /**
+ * \ingroup l4_factory_api
+ * Create a new hardware vCPU context. A hardware vCPU context typically
+ * represents a hardware vCPU control structure (e.g. VMX VMCS).
+ *
+ * \param      factory     Capability selector for factory to use for creation.
+ * \param[out] target_cap  The kernel stores the new hardware vCPU context's
+ *                         capability into this slot.
+ *
+ * \return Syscall return tag
+ *
+ * \retval L4_EOK     No error occurred.
+ * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
+ *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval <0         Error code.
+ *
+ * \see \ref l4_vm_api
+ */
+L4_INLINE l4_msgtag_t
+l4_factory_create_vcpu_context(l4_cap_idx_t factory,
+                               l4_cap_idx_t target_cap) L4_NOTHROW;
+
+/**
  * \internal
  * \ingroup l4_factory_api
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create_vm_u(l4_cap_idx_t factory,
                        l4_cap_idx_t target_cap, l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_factory_api
+ */
+L4_INLINE l4_msgtag_t
+l4_factory_create_vcpu_context_u(l4_cap_idx_t factory,
+                                 l4_cap_idx_t target_cap,
+                                 l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
  * \internal
@@ -423,6 +454,14 @@ l4_factory_create_vm_u(l4_cap_idx_t factory,
   return l4_factory_create_u(factory, L4_PROTO_VM, target_cap, u);
 }
 
+L4_INLINE l4_msgtag_t
+l4_factory_create_vcpu_context_u(l4_cap_idx_t factory,
+                                 l4_cap_idx_t target_cap,
+                                 l4_utcb_t *u) L4_NOTHROW
+{
+  return l4_factory_create_u(factory, L4_PROTO_VCPU_CONTEXT, target_cap, u);
+}
+
 
 
 
@@ -469,6 +508,13 @@ l4_factory_create_vm(l4_cap_idx_t factory,
                      l4_cap_idx_t target_cap) L4_NOTHROW
 {
   return l4_factory_create_vm_u(factory, target_cap, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_factory_create_vcpu_context(l4_cap_idx_t factory,
+                               l4_cap_idx_t target_cap) L4_NOTHROW
+{
+  return l4_factory_create_vcpu_context_u(factory, target_cap, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t
