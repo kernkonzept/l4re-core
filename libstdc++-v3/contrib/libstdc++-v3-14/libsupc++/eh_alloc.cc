@@ -37,7 +37,9 @@
 #include <bits/stl_function.h> // std::less
 #include "unwind-cxx.h"
 #if _GLIBCXX_HOSTED
+# ifdef L4_MINIMAL_LIBC
 # include <string_view>        // std::string_view
+# endif
 # include <cstring>            // std::strchr, std::memset
 # include <ext/concurrence.h>  // __gnu_cxx::__mutex, __gnu_cxx::__scoped_lock
 #endif
@@ -190,6 +192,7 @@ namespace
       int obj_size = EMERGENCY_OBJ_SIZE;
       int obj_count = EMERGENCY_OBJ_COUNT;
 
+#ifdef L4_MINIMAL_LIBC
 #if _GLIBCXX_HOSTED
 #if _GLIBCXX_HAVE_SECURE_GETENV
       const char* str = ::secure_getenv("GLIBCXX_TUNABLES");
@@ -228,6 +231,7 @@ namespace
       if (tunables[0].second != 0)
 	obj_size = tunables[0].second;
 #endif // HOSTED
+#endif // L4_MINIMAL_LIBC
 
       arena_size = buffer_size_in_bytes(obj_count, obj_size);
       if (arena_size == 0)
