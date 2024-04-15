@@ -1,10 +1,12 @@
 -- vim:set ft=lua:
 local require = require
+local ipairs = ipairs
 local pairs = pairs
 local setmetatable = setmetatable
 local getmetatable = getmetatable
 local error = error
 local type = type
+local tonumber = tonumber
 
 local _ENV = require "L4"
 local string = require "string"
@@ -80,6 +82,7 @@ Dbg = {
 --  * A factory used for name-space creation (ns_fab)
 --  * A factory used for region-map creation (rm_fab)
 --  * A factory used for log creation (log_fab)
+--  * A factory used for sched_proxy creation (sched_fab)
 
 Loader = {};
 Loader.__index = Loader;
@@ -100,6 +103,7 @@ function Loader.new(proto)
     f.log_fab = f.log_fab or lfab;
     f.ns_fab = f.ns_fab or lfab;
     f.rm_fab = f.rm_fab or lfab;
+    f.sched_fab = f.sched_fab or lfab;
     f.factory = f.factory or Env.factory;
   end
 
@@ -301,6 +305,18 @@ function Loader:new_channel()
   return self.factory:create(Proto.Ipc_gate);
 end
 
+function Loader:create_sched_proxy(props)
+  Class.check(self, Loader);
+
+  local sched_fab = props.fab or self.sched_fab;
+  local cset = props.cpus or Cpu_set:new();
+
+  local prio_offset = props.prio_offset or 0
+  local prio_limit = props.prio_limit or prio_offset + 10
+  return sched_fab:create(Proto.Scheduler, prio_limit,
+                          prio_offset, cset:factory_args());
+end
+
 function Loader.split_args(cmd, posix_env)
   local a = {};
   local i = 1;
@@ -318,5 +334,120 @@ function Loader:start(env, cmd, posix_env)
 end
 
 default_loader = Loader.new({factory = Env.factory, mem = Env.mem_alloc});
+
+
+Cpu_set = {}
+Cpu_set.__index = Cpu_set
+
+function Cpu_set:new(cpus)
+  local obj = { all = true, set = {} }
+  setmetatable(obj, self)
+
+  if cpus then
+    obj.all = false
+    if type(cpus) == "table" then
+      for _, n in ipairs(cpus) do
+        obj:add(n)
+      end
+    else
+      obj:add(cpus)
+    end
+  end
+
+  return obj
+end
+
+-- Add a single or range of CPUs
+function Cpu_set:add(cpu)
+  if self.all then
+    return
+  end
+
+  if type(cpu) == "number" then
+    self.set[cpu] = true
+  elseif type(cpu) == "string" then
+    from, to = string.match(cpu, "(%d+)-(%d+)")
+    for i = tonumber(from), tonumber(to) do
+      self.set[i] = true
+    end
+  else
+    error("Invalid argument")
+  end
+end
+
+-- CPU set union - return all CPUs from `self` and `other`
+function Cpu_set:__bor(other)
+  local ret = {
+    all = self.all or other.all,
+    set = {}
+  }
+  setmetatable(ret, Cpu_set)
+
+  if not ret.all then
+    for n, _ in pairs(self.set) do
+      ret.set[n] = true
+    end
+    for n, _ in pairs(other.set) do
+      ret.set[n] = true
+    end
+  end
+
+  return ret
+end
+
+-- CPU set intersection - return only CPUs that are common to `self` and `other`
+function Cpu_set:__band(other)
+  local ret = {
+    all = self.all and other.all,
+    set = {}
+  }
+  setmetatable(ret, Cpu_set)
+
+  if ret.all then
+  elseif self.all then
+    for n, _ in pairs(other.set) do
+      ret.set[n] = true
+    end
+  elseif other.all then
+    for n, _ in pairs(self.set) do
+      ret.set[n] = true
+    end
+  else
+    ret.set = {}
+    for n, _ in pairs(other.set) do
+      if self.set[n] then
+        ret.set[n] = true
+      end
+    end
+  end
+
+  return ret
+end
+
+-- Return cpu mask arguments for user factory scheduler proxy
+function Cpu_set:factory_args()
+  if self.all then
+    return  -- no CPU mask words imply all CPUs
+  end
+
+  local cpu_masks = {}
+  local mword_bits = Info.mword_bits()
+  local max_cpu = 0
+  for n, _ in pairs(self.set) do
+    if n > max_cpu then max_cpu = n end
+  end
+
+  for word = 0, max_cpu // mword_bits do
+    local mask = 0
+    for i = 0, mword_bits - 1 do
+      if self.set[word * mword_bits + i] then
+        mask = mask | (1 << i)
+      end
+    end
+    table.insert(cpu_masks, mask)
+  end
+
+  return table.unpack(cpu_masks)
+end
 
 return _ENV

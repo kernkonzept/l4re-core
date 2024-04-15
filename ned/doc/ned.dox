@@ -205,6 +205,40 @@ exit_handler() will be called during this time, nor will the \ref
 l4re_ned_interactive "remote command interface" be able to execute commands
 either.
 
+\subsection l4re_ned_sched Control scheduling
+
+Scheduling of L4Re applications is controlled by creating scheduler proxies.
+The proxy restricts the threads of an application to run on a subset of the
+available CPUs and to set their minimum and maximum priority. Use the loader
+factory function to create the proxy and pass it to the application:
+
+\code{.lua}
+sched_proxy = L4.default_loader:create_sched_proxy{ cpus=L4.Cpu_set:new("0-3") }
+L4.default_loader:start({ scheduler = sched_proxy }, ...)
+\endcode
+
+The `create_sched_proxy` function takes the following table arguments. All
+arguments are optional:
+
+* `cpus`: Set of allowed CPUs. Default: all CPUs.
+* `prio_offset`: Base priority of all threads. Default: `0`.
+* `prio_limit`: Maximum priority of all threads. Default `priority + 10`.
+* `fab`: Scheduler proxy factory capability. Default: loader `sched_fab`.
+
+The `Cpu_set` constructor takes any number of CPU numbers or ranges:
+
+\code{.lua}
+Cpu_set:new()          -- all CPUs (because no argument was passed)
+Cpu_set:new{}          -- empty CPU set (because an empty table was passed)
+Cpu_set:new(42)        -- single CPU: 42
+Cpu_set:new("0-3")     -- 4 CPUs: 0..3
+Cpu_set:new{"0-3", 42} -- 5 CPUs: 0..3, 42
+\endcode
+
+A limited number of operations are defined on CPU sets. To compute the union
+of two sets (all CPUs of both sets), use the `|` operator. To compute the
+intersection of two sets (all CPUs common to both sets), use the `&` operator.
+
 \subsection l4re_ned_jdb Access to the kernel debugger
 
 Applications can enrich the kernel debugger with information using the API
