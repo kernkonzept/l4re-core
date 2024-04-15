@@ -27,7 +27,7 @@ public:
     l4_addr_t physmin;
     l4_addr_t physmax;
 
-    Config() : physmin(0), physmax(~0UL) {}
+    constexpr Config() : physmin(0), physmax(~0UL) {}
 
     explicit Config(l4_addr_t physmin, l4_addr_t physmax)
     : physmin(physmin), physmax(physmax) {}
