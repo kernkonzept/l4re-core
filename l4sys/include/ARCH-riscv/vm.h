@@ -68,6 +68,7 @@ typedef struct l4_vm_state_t
   l4_umword_t vscause;
   l4_umword_t vstval;
   l4_umword_t vsatp;
+  l4_uint64_t vstimecmp;
 
   // Indicates that a hypervisor load/store instruction failed. VMM is
   // responsible for resetting this value before executing a hypervisor/load

@@ -38,6 +38,8 @@ typedef enum L4_riscv_isa_ext
   // extensions are added.
   L4_riscv_isa_ext_base = 26,
 
+  L4_riscv_isa_ext_sstc = 27, // stimecmp / vstimecmp
+
   // Maximum number of extensions that can be represented, corresponds to the
   // size of the `l4_kip_platform_info_arch.isa_ext` bitmap.
   L4_riscv_isa_ext_max  = 224,
