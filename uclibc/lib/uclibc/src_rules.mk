@@ -6,7 +6,8 @@ LIBC_SRC_DIRS := $(CONTRIB_DIR)/libc \
                  $(LIBCSRC_DIR_ABS)/ARCH-all/libc #$(LIBCSRC_DIR)/ARCH-$(BUILD_ARCH)/libc
 
 LIBC_SRC_DIRS += $(CONTRIB_DIR)/libm \
-                 $(CONTRIB_DIR)/libcrypt
+                 $(CONTRIB_DIR)/libcrypt \
+                 $(CONTRIB_DIR)/libiconv
 
 LIBC_DST_DIR  := $(OBJ_DIR)/src
 

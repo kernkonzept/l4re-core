@@ -722,6 +722,10 @@ define SRC_libcrypt
   sha512-crypt
 endef
 
+define SRC_libiconv
+  iconv
+endef
+
 define _MATH_FUNCTIONS
   acos
   acosh
