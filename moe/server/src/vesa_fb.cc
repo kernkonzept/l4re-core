@@ -78,6 +78,7 @@ Vesa_fb::Vesa_fb(l4util_l4mod_info *mbi)
   map_size = (fb_size + base_offset + L4_SUPERPAGESIZE - 1)
              & ~(L4_SUPERPAGESIZE - 1);
 
+#ifdef CONFIG_MMU
   unsigned long vaddr
       = l4_round_size(Moe::Pages::max_addr, L4_SUPERPAGESHIFT);
   if (vaddr >= Moe::Virt_limit::end - map_size - L4_SUPERPAGESIZE)
@@ -87,6 +88,9 @@ Vesa_fb::Vesa_fb(l4util_l4mod_info *mbi)
       L4::cerr << "Failed to get memory for VESA video memory\n";
       return;
     }
+#else
+  unsigned long vaddr = paddr;
+#endif
 
   switch (l4sigma0_map_iomem(Sigma0_cap, paddr, vaddr, map_size, 1))
     {
