@@ -110,6 +110,7 @@ Sched_proxy::Sched_proxy(Moe::Q_alloc *q) :
   _cpus(q), _real_cpus(q), _cpu_mask(q),
   _prio_offset(0), _prio_limit(0)
 {
+  _cpu_mask.set_all();
   rescan_cpus_and_classes();
   _list.push_front(this);
 }
