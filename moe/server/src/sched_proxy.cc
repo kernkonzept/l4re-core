@@ -68,8 +68,17 @@ l4_sched_cpu_set_t Dyn_cpu_set::operator&(l4_sched_cpu_set_t const &s) const
 {
   unsigned const base = s.offset();
   unsigned constexpr map_bits = sizeof(s.map) * 8;
+
+  // Cap the granularity at a value where the `limit` calculation below does
+  // not overflow the range of an unsigned int. Strictly speaking we would have
+  // to calculate
+  //
+  //   sizeof(unsigned) * 8 - log2(map_bits + 24)
+  //
+  // with the 24 being the bits coming from `s.offset(). To keep things simple,
+  // we assume map_bits == 64. In any case we will never have that many CPUs.
   unsigned const gran = cxx::min<unsigned>(s.granularity(),
-                                           sizeof(unsigned) * 8 - 1);
+                                           sizeof(unsigned) * 8 - 6 - 1);
   unsigned limit =
     cxx::min<unsigned>(kernel_cpu_max,
                        base + (1U << gran) * map_bits);
