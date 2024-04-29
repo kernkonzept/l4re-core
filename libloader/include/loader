@@ -220,6 +220,8 @@ Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin, Dbg_ const 
 
   void const *l4aux_ptr;
     {
+      am->alloc_prog();
+
       // load the program into memory, prepare all the VMAs
       // and stuff on the application stack
       load(am, bin, dbg);
