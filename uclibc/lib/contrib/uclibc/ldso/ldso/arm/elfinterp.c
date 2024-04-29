@@ -92,7 +92,7 @@ unsigned long _dl_linux_resolver (struct elf_resolve *tpnt, int reloc_offet)
 	*got_entry = funcval;
 #endif
 
-	return got_entry;
+	return (unsigned long)got_entry;
 }
 #else
 unsigned long _dl_linux_resolver(struct elf_resolve *tpnt, int reloc_entry)
@@ -362,7 +362,7 @@ _dl_do_reloc (struct elf_resolve *tpnt,struct r_scope_elem *scope,
 				  unsigned long reloc_value = *reloc_addr;
 
 				  if (symbol_addr)
-					reloc_value = (unsigned long) _dl_funcdesc_for(symbol_addr + reloc_value, sym_ref.tpnt->loadaddr.got_value);
+					reloc_value = (unsigned long) _dl_funcdesc_for((void *)(symbol_addr + reloc_value), sym_ref.tpnt->loadaddr.got_value);
 				  else
 					/* Relocation against an
 					   undefined weak symbol:
@@ -433,7 +433,7 @@ _dl_do_lazy_reloc (struct elf_resolve *tpnt, struct r_scope_elem *scope,
 				{
 					struct funcdesc_value *dst = (struct funcdesc_value *) reloc_addr;
 
-					dst->entry_point = DL_RELOC_ADDR(tpnt->loadaddr, dst->entry_point);
+					dst->entry_point = (void *)DL_RELOC_ADDR(tpnt->loadaddr, dst->entry_point);
 					dst->got_value = tpnt->loadaddr.got_value;
 				}
 				break;
