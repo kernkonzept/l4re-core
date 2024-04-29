@@ -11,7 +11,7 @@ __longjmp:
 	ldp	x25, x26, [x0, #JB_X25<<3]
 	ldp	x27, x28, [x0, #JB_X27<<3]
 	ldp	x29, x30, [x0, #JB_X29<<3]
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__ && ! defined BID_VARIANT_FLAG_NOFPU
 	ldp	 d8,  d9, [x0, #JB_D8<<3]
 	ldp	d10, d11, [x0, #JB_D10<<3]
 	ldp	d12, d13, [x0, #JB_D12<<3]

@@ -37,7 +37,7 @@ void __longjmp (__jmp_buf env, int val_arg)
     register int val __asm__ ("a1");
 
     /* Pull back the floating point callee-saved registers.  */
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__ && ! defined BID_VARIANT_FLAG_NOFPU
 #if _MIPS_SIM == _MIPS_SIM_ABI64
     __asm__ __volatile__ ("l.d $f24, %0" : : "m" (env[0].__fpregs[0]));
     __asm__ __volatile__ ("l.d $f25, %0" : : "m" (env[0].__fpregs[1]));

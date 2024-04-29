@@ -27,7 +27,7 @@
 ENTRY(__setcontext)
 	mov	r4, r0
 
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__ && ! defined BID_VARIANT_FLAG_NOFPU
 # ifdef __VFP_FP__
 	/* Following instruction is vldmia r0!, {d8-d15}.  */
 	ldc     p11, cr8, [r0], #64

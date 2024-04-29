@@ -52,7 +52,7 @@ __sigsetjmp:
 	/* Save registers */
 	stmia	ip!, {v1-v6, sl, fp, sp, lr}
 #endif
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__ && ! defined BID_VARIANT_FLAG_NOFPU
 # ifdef __VFP_FP__
 	/* Store the VFP registers.  */
 	/* Following instruction is fstmiax ip!, {d8-d15}.  */

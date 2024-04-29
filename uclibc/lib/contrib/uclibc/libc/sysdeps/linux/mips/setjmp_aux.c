@@ -33,7 +33,7 @@ __sigsetjmp_aux (jmp_buf env, int savemask, long long sp, long long fp, long lon
 __sigsetjmp_aux (jmp_buf env, int savemask, int sp, int fp)
 #endif /* O32 || N32 */
 {
-#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__
+#if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__ && ! defined BID_VARIANT_FLAG_NOFPU
   /* Store the floating point callee-saved registers...  */
 #if _MIPS_SIM == _MIPS_SIM_ABI64
   __asm__ __volatile__ ("s.d $f24, %0" : : "m" (env[0].__jmpbuf[0].__fpregs[0]));
