@@ -264,7 +264,7 @@ L4_CV void base64_encode( const char *infile, unsigned int in_size, char **outfi
   unsigned char in[3], out[4];
   int i, len = 0;
   unsigned int in_count=0, out_count=0;
-  char *temp=malloc(in_size*2);//to be on the safe side;
+  char *temp=malloc(in_size < 5 ? 9 : in_size*2);//to be on the safe side;
   if (!temp)
     {
       *outfile = NULL;
