@@ -142,7 +142,7 @@ struct stateful_cd {
 
 static iconv_t combine_to_from(size_t t, size_t f)
 {
-	return (void *)(f<<16 | t<<1 | 1);
+	return (iconv_t)(f<<16 | t<<1 | 1);
 }
 
 static size_t extract_from(iconv_t cd)
@@ -382,7 +382,11 @@ size_t iconv(iconv_t cd, char **restrict in, size_t *restrict inb, char **restri
 		switch (type) {
 		case UTF_8:
 			if (c < 128) break;
-			l = utf8dec_wchar(&c, *in, *inb);
+			else {
+				wchar_t wc;
+				l = utf8dec_wchar(&wc, *in, *inb);
+				c = wc;
+			}
 			if (!l) l++;
 			else if (l == (size_t)-1) goto ilseq;
 			else if (l == (size_t)-2) goto starved;
