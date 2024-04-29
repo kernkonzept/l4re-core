@@ -58,7 +58,7 @@ Dyn_cpu_set& Dyn_cpu_set::operator&=(Dyn_cpu_set const &other)
   word_type *ours = reinterpret_cast<word_type*>(bit_buffer());
   word_type *theirs = reinterpret_cast<word_type*>(other.bit_buffer());
 
-  for (unsigned i = 0; i < words(kernel_cpu_max); i++)
+  for (long i = 0; i < words(kernel_cpu_max); i++)
     ours[i] &= theirs[i];
 
   return *this;
