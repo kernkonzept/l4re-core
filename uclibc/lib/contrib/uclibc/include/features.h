@@ -449,4 +449,8 @@
 # include <libc-internal.h>
 #endif
 
+#if defined(__UCLIBC_USE_TIME64__) || __TARGET_ARCH_BITS__ == 64
+#define __USE_TIME_BITS64 1
+#endif
+
 #endif	/* features.h  */
