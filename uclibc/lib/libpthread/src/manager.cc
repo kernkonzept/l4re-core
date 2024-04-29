@@ -634,6 +634,8 @@ static l4_utcb_t *l4pthr_allocate_more_utcbs_and_claim_utcb()
   l4_addr_t kumem = 0;
   Env const *e = Env::env();
 
+#ifdef CONFIG_MMU
+  // On MMU systems, user space chooses the spot in the virtual address space.
   if (e->rm()->reserve_area(&kumem, L4_PAGESIZE,
                             Rm::F::Reserved | Rm::F::Search_addr))
     return nullptr;
@@ -644,6 +646,21 @@ static l4_utcb_t *l4pthr_allocate_more_utcbs_and_claim_utcb()
       e->rm()->free_area(kumem);
       return nullptr;
     }
+#else
+  // On systems without MMU the kernel determines the actual location.
+  l4_fpage_t fp = l4_fpage(0, L4_PAGESHIFT, L4_FPAGE_RW);
+  if (l4_error(e->task()->add_ku_mem(&fp)))
+    return nullptr;
+  kumem = l4_fpage_memaddr(fp);
+
+  // The kernel allocated the address so it is known to be valid. The
+  // reservation should never fail, unless something is really broken.
+  long err = e->rm()->reserve_area(&kumem, L4_PAGESIZE, Rm::F::Reserved);
+  if (err < 0)
+    fprintf(stderr,
+            "ERROR: could not reserve ku_mem area, reserve_area returned %ld\n",
+            err);
+#endif
 
   __l4_add_utcbs(kumem, kumem + L4_PAGESIZE);
 
