@@ -58,8 +58,8 @@ typedef struct l4_vcpu_arch_state_t
 typedef struct l4_vcpu_ipc_regs_t
 {
   l4_msgtag_t tag;
-  l4_umword_t _d1[3];
   l4_umword_t label;
+  l4_umword_t _d1[3];
 } l4_vcpu_ipc_regs_t;
 
 /**

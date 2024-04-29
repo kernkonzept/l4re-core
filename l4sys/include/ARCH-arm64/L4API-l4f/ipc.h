@@ -29,6 +29,22 @@
 
 #include <l4/sys/compiler.h>
 
+EXTERN_C_BEGIN
+
+struct __l4_sys_syscall_res
+{
+  l4_mword_t tag;
+  l4_umword_t label;
+};
+
+extern struct __l4_sys_syscall_res
+__l4_sys_syscall(l4_mword_t tag,
+                 l4_umword_t slabel,
+                 l4_umword_t dest,
+                 l4_umword_t timeout) L4_NOTHROW;
+
+EXTERN_C_END
+
 L4_INLINE l4_msgtag_t
 l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
        l4_umword_t flags,
@@ -37,26 +53,17 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
        l4_umword_t *rlabel,
        l4_timeout_t timeout) L4_NOTHROW
 {
-  register l4_umword_t _dest     __asm__("x2") = dest | flags;
-  register l4_umword_t _timeout  __asm__("x3") = timeout.raw;
-  register l4_mword_t _tag       __asm__("x0") = tag.raw;
-  register l4_umword_t _label    __asm__("x4") = slabel;
   (void)utcb;
 
-  __asm__ __volatile__
-    ("bl __l4_sys_syscall"
-     :
-     "+r" (_dest),
-     "+r" (_timeout),
-     "+r" (_label),
-     "+r" (_tag)
-     :
-     :
-     "cc", "memory", "x16", "x17", "x30");
+  // No need for memory clobbers. The compiler has to assume that all global
+  // data is read/written because __l4_sys_syscall is implemented in a
+  // different translation unit.
+  struct __l4_sys_syscall_res res
+    = __l4_sys_syscall(tag.raw, slabel, dest | flags, timeout.raw);
 
   if (rlabel)
-    *rlabel = _label;
-  tag.raw = _tag;
+    *rlabel = res.label;
+  tag.raw = res.tag;
 
   return tag;
 }
