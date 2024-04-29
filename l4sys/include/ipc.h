@@ -53,7 +53,7 @@
  * \see \ref l4re_concepts_ipc
  *
  *
- * \subsection ipc_timeouts Timeouts during IPC
+ * \section ipc_timeouts Timeouts during IPC
  *
  * IPC operation between two communication partners may consist of up to two
  * phases (send phase and receive phase). For both phases, a timeout may be
