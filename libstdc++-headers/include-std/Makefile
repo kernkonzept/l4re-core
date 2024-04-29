@@ -31,8 +31,8 @@ LIBSUPC_H           += initializer_list bits/exception_ptr.h bits/nested_excepti
 
 STDCXX_CSTD_HEADERS := \
   cassert cctype cerrno cfloat ciso646 climits clocale cmath csetjmp csignal \
-  cstdarg cstddef cstdio cstdlib cstring ctime cwchar cwctype cstdint
-
+  cstdarg cstddef cstdio cstdlib cstring ctime cwchar cwctype cstdint \
+  ccomplex cfenv cinttypes cstdalsign cstdbool ctgmath cuchar
 
 STDCXX_CSTD_HEADERS += $(patsubst std_%.h,%,$(notdir $(wildcard $(INCSRC_DIR)/std/*)))
 
