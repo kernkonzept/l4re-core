@@ -644,7 +644,7 @@ l4_ipc_sleep_us(l4_uint64_t us) L4_NOTHROW
 L4_INLINE l4_umword_t
 l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW
 {
-  if (!l4_msgtag_has_error(tag))
+  if (L4_LIKELY(!l4_msgtag_has_error(tag)))
     return 0;
   return l4_utcb_tcr_u(utcb)->error & L4_IPC_ERROR_MASK;
 }
@@ -652,7 +652,7 @@ l4_ipc_error(l4_msgtag_t tag, l4_utcb_t *utcb) L4_NOTHROW
 L4_INLINE long
 l4_error_u(l4_msgtag_t tag, l4_utcb_t *u) L4_NOTHROW
 {
-  if (l4_msgtag_has_error(tag))
+  if (L4_UNLIKELY(l4_msgtag_has_error(tag)))
     return l4_ipc_to_errno(l4_utcb_tcr_u(u)->error & L4_IPC_ERROR_MASK);
 
   return l4_msgtag_label(tag);
