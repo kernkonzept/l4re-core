@@ -35,6 +35,8 @@ kumem_alloc(l4_addr_t *v, unsigned pages_order,
   unsigned long sz = (1 << pages_order) * L4_PAGESIZE;
   unsigned sh = pages_order + L4_PAGESHIFT;
 
+#ifdef CONFIG_MMU
+  // On MMU systems, user space chooses the spot in the virtual address space.
   *v = 0;
   if ((r = rm->reserve_area(v, sz,
                             L4Re::Rm::F::Reserved | L4Re::Rm::F::Search_addr,
@@ -46,6 +48,18 @@ kumem_alloc(l4_addr_t *v, unsigned pages_order,
       rm->free_area(*v);
       return r;
     }
+#else
+  // On systems without MMU the kernel determines the actual location.
+  auto fp = l4_fpage(0, sh, L4_FPAGE_RW);
+  if ((r = l4_error(task->add_ku_mem(&fp))))
+    return r;
+
+  *v = l4_fpage_memaddr(fp);
+  // There is no point in checking the result of the region manager. The kernel
+  // allocated the address so it is known to be valid. And there is no facility
+  // to release the allocated ku_mem anyway.
+  rm->reserve_area(v, sz, L4Re::Rm::F::Reserved);
+#endif
 
   return 0;
 }
