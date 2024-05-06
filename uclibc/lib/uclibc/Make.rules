@@ -9,9 +9,9 @@ DEFINES_arm64-l4f += -DUSE_TLS=1
 DEFINES_mips-l4f  += -DUSE_TLS=1
 DEFINES_ppc32-l4f += -DUSE_TLS=1
 DEFINES_sparc-l4f += -DUSE_TLS=1
-TARGET            := libc.a libc.so libuc_c_nonshared.p.a libssp_nonshared.p.a
+TARGET            := libc.a libc.so libc_nonshared.p.a libssp_nonshared.p.a
 PC_FILENAME       := libc
-PC_LIBS           := -lc -luc_c_nonshared.p
+PC_LIBS           := -lc -lc_nonshared.p
 PC_EXTRA          := Link_Libs= %{static|static-pie:-lc}
 
 REQUIRES_LIBS     := ldscripts libpthread
@@ -87,7 +87,7 @@ SRC_C_libc.a_riscv-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 SRC_CC_libc.a_sparc-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
 SRC_C_libc.a_sparc-l4f  += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 
-SRC_C_libuc_c_nonshared.p.a += libc/stdlib/atexit.c
+SRC_C_libc_nonshared.p.a += libc/stdlib/atexit.c
 
 SRC_C_libc.so    += libc/misc/pthread/tsd.c
 SRC_C_libc.a     += libc/misc/pthread/tsd.c
