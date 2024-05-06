@@ -38,8 +38,8 @@ namespace L4
    * \utcb{utcb}
    */
   inline void
-  throw_ipc_exception(L4::Cap<void> const &/*o*/, l4_msgtag_t const &err,
-                      l4_utcb_t *utcb)
+  throw_ipc_exception([[maybe_unused]] L4::Cap<void> const &o,
+                      l4_msgtag_t const &err, l4_utcb_t *utcb)
   {
     if (err.has_error())
       throw (L4::Com_error(l4_error_u(err, utcb)));
