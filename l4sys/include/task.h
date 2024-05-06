@@ -273,7 +273,7 @@ l4_task_add_ku_mem_u(l4_cap_idx_t task, l4_fpage_t *ku_mem,
  * \ingroup l4_task_api
  *
  * \param task            Capability selector of the task to add the memory to.
- * \param ku_mem[in,out]  Flexpage describing the virtual area the memory goes
+ * \param[in,out] ku_mem  Flexpage describing the virtual area the memory goes
  *                        to. On systems without MMU, the flexpage is adjusted
  *                        to reflect the acually allocated physical address.
  *

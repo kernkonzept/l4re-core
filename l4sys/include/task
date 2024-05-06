@@ -230,7 +230,7 @@ public:
   /**
    * Add kernel-user memory.
    *
-   * \param fpage[in,out]  Flexpage describing the virtual area the memory goes
+   * \param[in,out] fpage  Flexpage describing the virtual area the memory goes
    *                       to. On systems without MMU, the flexpage is adjusted
    *                       to reflect the acually allocated physical address.
    * \utcb_def{utcb}
