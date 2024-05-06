@@ -28,7 +28,7 @@ void *uclibc_morecore(long bytes)
 }
 
 extern "C" void *__libc_alloc_initial_tls(unsigned long size) __attribute__ ((__nothrow__));
-void *__libc_alloc_initial_tls(unsigned long size)
+void * __attribute__ ((__nothrow__)) __libc_alloc_initial_tls(unsigned long size)
 {
   return uclibc_morecore(size);
 }
