@@ -26,6 +26,10 @@
 #include <l4/cxx/exceptions>
 #include <l4/sys/utcb.h>
 
+/**
+ * \defgroup helper IPC Helpers
+ */
+
 namespace L4
 {
 #ifdef __EXCEPTIONS
