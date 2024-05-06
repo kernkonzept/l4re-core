@@ -53,13 +53,13 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
        l4_umword_t *rlabel,
        l4_timeout_t timeout) L4_NOTHROW
 {
-  (void)utcb;
-
   // No need for memory clobbers. The compiler has to assume that all global
   // data is read/written because __l4_sys_syscall is implemented in a
   // different translation unit.
   struct __l4_sys_syscall_res res
     = __l4_sys_syscall(tag.raw, slabel, dest | flags, timeout.raw);
+
+  (void)utcb;
 
   if (rlabel)
     *rlabel = res.label;
