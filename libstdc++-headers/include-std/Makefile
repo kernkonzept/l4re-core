@@ -65,7 +65,10 @@ choose_std_header = $(word 1, $(wildcard $(foreach DIR,$(STDCXX_STD_DIRS),$(addp
 
 $(STDCXX_CSTD_HEADERS_ABS): %: $(BID_ROOT_CONF) | $(INSTALL_INCDIR_X)
 	@$(INSTALL_LINK_MESSAGE) $@
-	$(VERBOSE)$(LN) -sf $(call choose_std_header,$(notdir $@)) $@
+	$(VERBOSE)src_hdr="$(call choose_std_header,$(notdir $@))"; \
+	  [ -e "$$src_hdr" ] || \
+	    { echo "Source file \"$$src_hdr\" for \"$@\" not found."; exit 1; }; \
+	  $(LN) -sf "$$src_hdr" $@
 
 $(LIBSUPC_HI): %: $(BID_ROOT_CONF) | $(INSTALL_INCDIR_X)
 	@$(INSTALL_LINK_MESSAGE) $@
