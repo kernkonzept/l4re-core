@@ -47,7 +47,7 @@ public:
   int cprintf(char const *fmt, ...) const
     __attribute__((format(printf,2,3)));
 
-  Err(Level l, char const *component) : _l(l), _component(component)
+  constexpr Err(Level l, char const *component) : _l(l), _component(component)
   {}
 
 private:
@@ -114,10 +114,10 @@ public:
 
 # endif
 
-  explicit
+  explicit constexpr
   Dbg() : _m(1), _component(0), _subsys(0) { };
 
-  explicit
+  explicit constexpr
   Dbg(unsigned long mask, char const *comp, char const *subs)
   : _m(mask), _component(comp), _subsys(subs)
   {}
@@ -136,10 +136,10 @@ public:
     __attribute__((format(printf, 2, 3)))
   { return 0; }
 
-  explicit
+  explicit constexpr
   Dbg() {}
 
-  explicit
+  explicit constexpr
   Dbg(unsigned long, char const *, char const *) {}
 
 #endif
