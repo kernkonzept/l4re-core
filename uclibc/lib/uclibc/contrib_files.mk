@@ -15,6 +15,7 @@ define SRC_libc/sysdeps/linux
   common/getdirname
   common/getpagesize
   common/makedev
+  common/setgroups
 endef
 
 define SRC_libc/sysdeps/linux_large_file
@@ -675,7 +676,6 @@ define SRC_libc/inet
 endef
 
 define SRC_libc/pwd_grp
-  pwd_grp
   getgrent
   getgrent_r
   getgrgid
@@ -688,6 +688,8 @@ define SRC_libc/pwd_grp
   getpwnam_r
   getpwent
   getpwent_r
+  initgroups
+  __getgrouplist_internal
   __parsepwent
   __parsegrent
   __pgsreader

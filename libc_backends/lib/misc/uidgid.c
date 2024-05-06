@@ -51,15 +51,6 @@ int setgid(gid_t gid)
   return -1;
 }
 
-int setgroups(size_t size, const gid_t *list)
-{
-  (void)size;
-  (void)list;
-  printf("Unimplemented: %s\n", __func__);
-  errno = EPERM;
-  return -1;
-}
-
 int setreuid(uid_t ruid, uid_t euid)
 {
   (void)ruid; (void)euid;
