@@ -651,6 +651,7 @@ define SRC_libc/inet
   getservice
   herror
   if_index
+  ifaddrs
   inet_addr
   inet_aton
   inet_lnaof

@@ -166,6 +166,7 @@ netinet/ip.h
 netinet/ip_icmp.h
 netinet/tcp.h
 netinet/udp.h
+netpacket/packet.h
 net/route.h
 nl_types.h
 not-cancel.h
