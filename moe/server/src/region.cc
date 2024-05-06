@@ -33,7 +33,11 @@ Region_map::Region_map()
       attach_area(start, end - start + 1, L4Re::Rm::F::Reserved);
     }
 
+#ifdef CONFIG_MMU
+  // Prevent NULL pointer accesses on MMU systems. On systems without MMU there
+  // might actually be valid memory on this address.
   attach_area(0, L4_PAGESIZE);
+#endif
 }
 
 int Region_ops::map(Region_handler const *h, l4_addr_t adr,
