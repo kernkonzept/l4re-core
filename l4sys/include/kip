@@ -172,6 +172,9 @@ namespace L4
        * \param st     Memory subtype, defaults to 0
        * \param virt   True for virtual memory, false for physical memory,
        *               defaults to physical
+       * \param eager  The region shall be eligible for eager mapping in sigma0
+       *               or the root task. This is just an optimization to prevent
+       *               on-demand paging.
        */
       Mem_desc(unsigned long start, unsigned long end,
                Mem_type t, unsigned char st = 0, bool virt = false,
@@ -226,6 +229,10 @@ namespace L4
        */
       unsigned is_virtual() const noexcept { return _l & 0x200; }
 
+      /**
+       * Return whether the region shall be eligible for eager mapping in sigma0
+       * or the root task.
+       */
       unsigned eager_map() const noexcept { return _l & 0x100; }
 
       /**
@@ -236,6 +243,9 @@ namespace L4
        * \param t      Memory type
        * \param st     Sub-type, defaults to 0
        * \param virt   Virtual or physical memory region, defaults to physical
+       * \param eager  The region shall be eligible for eager mapping in sigma0
+       *               or the root task. This is just an optimization to prevent
+       *               on-demand paging.
        */
       void set(unsigned long start, unsigned long end,
                Mem_type t, unsigned char st = 0, bool virt = false,
