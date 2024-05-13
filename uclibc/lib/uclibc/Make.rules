@@ -111,6 +111,9 @@ CPPFLAGS_locale/locale_data.c += -D__WCHAR_ENABLED -I$(LIBCSRC_DIR)/locale \
 
 CPPFLAGS_libiconv/iconv.c += -I$(LIBCSRC_DIR)/../contrib/uclibc/libiconv/include
 
+# for internal/utmp.h
+CPPFLAGS_libc/misc/utmp/utent.c += -I$(LIBCSRC_DIR)/../contrib/uclibc/include
+
 $(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
                   $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk
 

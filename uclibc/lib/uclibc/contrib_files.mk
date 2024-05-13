@@ -367,6 +367,7 @@ define SRC_libc/misc
   time/_time_mktime_tzi
   time/_time_localtime_tzi
   ttyent/getttyent
+  $(if $(UCLIBC_BUILD_MINIMAL),,utmp/utent)
   elf/dl-iterate-phdr
 endef
 
