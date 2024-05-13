@@ -39,6 +39,18 @@ int setuid(uid_t uid)
   return -1;
 }
 
+int seteuid(uid_t euid)
+{
+  printf("Unimplemented: %s(%d)\n", __func__, euid);
+  return -1;
+}
+
+int setegid(gid_t egid)
+{
+  printf("Unimplemented: %s(%d)\n", __func__, egid);
+  return -1;
+}
+
 pid_t setsid(void)
 {
   printf("Unimplemented: %s()\n", __func__);
