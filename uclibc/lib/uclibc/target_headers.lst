@@ -234,6 +234,7 @@ termio.h
 termios.h
 time.h
 tls.h
+ttyent.h
 ucontext.h
 unistd.h
 utime.h
