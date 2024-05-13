@@ -11,3 +11,9 @@
 
 #define close_not_cancel_no_status(fd) \
         close(fd)
+
+#define read_not_cancel(fd, buf, n) \
+        read(fd, buf, n)
+
+#define write_not_cancel(fd, buf, n) \
+        write(fd, buf, n)
