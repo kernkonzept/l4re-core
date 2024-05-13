@@ -45,10 +45,10 @@ typedef elf_fpregset_t	fpregset_t;
 typedef struct sigcontext mcontext_t;
 
 /* Userlevel context.  */
-typedef struct ucontext_t
+typedef struct ucontext
   {
     unsigned long uc_flags;
-    struct ucontext_t *uc_link;
+    struct ucontext *uc_link;
     stack_t uc_stack;
     __sigset_t uc_sigmask;
     unsigned char __reserved[128];
