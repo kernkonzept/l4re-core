@@ -27,8 +27,15 @@ public:
   {
     typedef Env::Cap_entry Cap_entry;
 
+    // Skip possible first slash
+    if (len && name[0] == '/')
+      {
+        ++name;
+        --len;
+      }
+
     char const *n = name;
-    for (; len && *n != '/'; ++n, --len)
+    for (; len && *n != '/'; ++n, --len) // Count first path element
       ;
 
     Cap_entry const *e = _env->get(name, n - name);
