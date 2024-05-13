@@ -98,6 +98,7 @@ bits/uClibc_uwchar.h
 bits/uClibc_va_copy.h
 bits/uio.h
 bits/utmp.h
+bits/utmpx.h
 bits/utsname.h
 bits/waitflags.h
 bits/waitstatus.h
@@ -239,6 +240,7 @@ ucontext.h
 unistd.h
 utime.h
 utmp.h
+utmpx.h
 wchar.h
 wctype.h
 wordexp.h
