@@ -21,6 +21,7 @@ SRC_C       = daemon.c \
               ptsname.c \
               sched.c \
               secure_getenv.c \
+              shadow.c \
               shm.c \
               sysconf.c \
               system.c \
