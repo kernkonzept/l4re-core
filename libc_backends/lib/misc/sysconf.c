@@ -32,6 +32,8 @@ long sysconf(int name)
     return 200112L;
   case _SC_OPEN_MAX:
     return 512;
+  case _SC_CHILD_MAX:
+    return 2000;
   default:
     break;
   }
