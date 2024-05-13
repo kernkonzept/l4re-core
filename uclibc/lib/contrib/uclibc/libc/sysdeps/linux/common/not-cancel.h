@@ -19,6 +19,7 @@
 
 #include <sys/types.h>
 #include <sysdep.h>
+#include <time.h>
 
 #ifdef NOT_IN_libc
 
@@ -114,6 +115,7 @@ extern __typeof(pause) __pause_nocancel;
 # define nanosleep_not_cancel(requested_time, remaining) \
   INLINE_SYSCALL (nanosleep, 2, requested_time, remaining)
 #else
+extern int __nanosleep_nocancel (const struct timespec *requested_time, struct timespec *remaining);
 # define nanosleep_not_cancel(requested_time, remaining) \
   __nanosleep_nocancel (requested_time, remaining)
 #endif
