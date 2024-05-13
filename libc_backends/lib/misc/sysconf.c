@@ -30,6 +30,8 @@ long sysconf(int name)
     return 1000;
   case _SC_MONOTONIC_CLOCK:
     return 200112L;
+  case _SC_OPEN_MAX:
+    return 512;
   default:
     break;
   }
