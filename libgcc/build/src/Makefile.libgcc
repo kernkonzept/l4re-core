@@ -49,6 +49,10 @@ libgcc_obj_from_src = $(patsubst %.c,%$2,$(patsubst %.S,%$2,$1))
 # 1. macros to check
 libgcc_is_predefined = $(filter $1,$(shell $(callcc) -dM -E - </dev/null))
 
+# Check whether the provided code compiles.
+# 1: code to compile
+libgcc_try_compile = $(if $(shell echo "$1" | $(callcc) -x c -c -o /dev/null - 2>&1),,Ok)
+
 # Create a standalone object file
 # 1: target
 # 2: source
@@ -71,6 +75,11 @@ ifneq ($(CONFIG_COMPILER_RT_USE_TOOLCHAIN_LIBGCC),y)
 PRIVATE_INCDIR += $(LIBGCC_GENERATED_DIR)/$(CPU_TYPE)/gcc $(LIBGCC_GENERATED_DIR)/$(CPU_TYPE)/libgcc \
                   $(LIBGCC_CONTRIB_DIR)/include $(LIBGCC_CONTRIB_DIR)/gcc $(LIBGCC_CONTRIB_DIR)/libgcc \
                   $(LIBGCC_CONTRIB_DIR)/libgcc/config/$(CPU_TYPE) $(LIBGCC_LINK_DIR)
+
+# Returns the version if it is not newer than the current gcc version, otherwise
+# returns empty string.
+# 1: version to check for
+libgcc_if_min_version = $(filter $1,$(LIBGCC_CONTRIB_VERSIONS))
 
 # Selects the most recent version of a file by testing all -<version> suffixes
 # with the versions from $LIBGCC_CONTRIB_VERSIONS. If no sufficient versioned

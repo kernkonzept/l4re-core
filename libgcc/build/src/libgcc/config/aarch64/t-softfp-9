@@ -3,4 +3,6 @@ softfp_int_modes := si di ti
 softfp_extensions := sftf dftf hftf
 softfp_truncations := tfsf tfdf tfhf
 softfp_exclude_libgcc2 := n
-softfp_extras := fixhfti fixunshfti floattihf floatuntihf
+softfp_extras += fixhfti fixunshfti floattihf floatuntihf
+
+LIB2ADD += config/aarch64/sfp-exceptions.c

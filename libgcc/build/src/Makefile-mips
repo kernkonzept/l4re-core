@@ -31,6 +31,13 @@ softfp_exclude_libgcc2 := n
 
 LIB2ADD_ST += config/mips/lib2funcs.c
 
+# GCC >= 14
+ifneq ($(call libgcc_if_min_version,14),)
+LIB1ASMSRC = mips/lib1funcs.S
+LIB1ASMFUNCS = _speculation_barrier
+endif
+
+
 ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 ifdef HARD_FLOAT
 # --- From libgcc/config/t-hardfp-sfdf ---
@@ -75,7 +82,10 @@ endif
 
 # --- From libgcc/config/mips/t-mips16 ---
 ifeq ($(BID_VARIANT_FLAG_NOFPU),)
+# GCC < 14
+ifeq ($(call libgcc_if_min_version,14),)
 LIB1ASMSRC = mips/mips16.S
+endif
 LIB1ASMFUNCS = _m16addsf3 _m16subsf3 _m16mulsf3 _m16divsf3 \
                _m16eqsf2 _m16nesf2 _m16gtsf2 _m16gesf2 _m16lesf2 _m16ltsf2 \
                _m16unordsf2 \

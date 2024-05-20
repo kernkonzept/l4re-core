@@ -16,3 +16,9 @@ endif
 # unwinder info.
 LIB2_DIVMOD_FUNCS = _divdi3 _moddi3 _divmoddi4 \
                     _udivdi3 _umoddi3 _udivmoddi4 _udiv_w_sdiv
+
+# GCC >= 14
+ifneq ($(call libgcc_if_min_version,14),)
+lib2funcs += _mulbitint3
+LIB2_DIVMOD_FUNCS += _divmodbitint4
+endif

@@ -14,6 +14,10 @@ GCC_CFLAGS = -g -O2 -DIN_GCC -DCROSS_DIRECTORY_STRUCTURE \
 # Make target libgcc version available in source files
 GCC_CFLAGS += -DL4_LIBGCC_VERSION=$(LIBGCC_CONTRIB_VERSION)
 
+ifeq ($(call libgcc_try_compile,int main() { asm (\".variant_pcs foobar\"); return 0; }),Ok)
+GCC_CFLAGS += -DHAVE_AS_VARIANT_PCS
+endif
+
 # Do not include headers from libc.
 ifeq ($(LIBGCC_INHIBIT_LIBC),y)
 INHIBIT_LIBC_CFLAGS = -Dinhibit_libc
@@ -112,6 +116,18 @@ $(eval $(call libgcc_link_rule,unwind.h,$(LIBGCC_CONTRIB_SRC_DIR)/$(unwind_heade
 $(eval $(call libgcc_link_rule,md-unwind-support.h,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(md_unwind_header)))
 $(eval $(call libgcc_link_rule,sfp-machine.h,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(sfp_machine_header)))
 $(eval $(call libgcc_link_rule,gthr-default.h,$(LIBGCC_CONTRIB_SRC_DIR)/$(thread_header)))
+
+# GCC >= 14
+ifneq ($(call libgcc_if_min_version,14),)
+# Control Flow Redundancy hardening out-of-line checker.
+LIB2ADD += hardcfr.c
+
+# HAVE_STRUB_SUPPORT
+ifeq ($(call libgcc_try_compile,void __attribute__ ((__strub__)) fn (void) {}),Ok)
+# Stack scrubbing infrastructure.
+LIB2ADD += strub.c
+endif
+endif
 
 LIB2ADD += enable-execute-stack.c
 

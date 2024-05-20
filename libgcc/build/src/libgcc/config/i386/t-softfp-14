@@ -1,0 +1,43 @@
+LIB2ADD += config/i386/sfp-exceptions.c
+
+# Replace _divhc3 and _mulhc3.
+libgcc2-hf-functions = _divhc3 _mulhc3
+LIB2FUNCS_EXCLUDE += $(libgcc2-hf-functions)
+libgcc2-hf-extras = $(addsuffix .c, $(libgcc2-hf-functions))
+LIB2ADD += $(addprefix config/i386/, $(libgcc2-hf-extras))
+
+softfp_extensions := hfsf hfdf hftf hfxf sfdf sftf dftf xftf bfsf
+softfp_truncations := tfhf xfhf dfhf sfhf tfsf dfsf tfdf tfxf \
+                      tfbf xfbf dfbf sfbf hfbf
+
+softfp_extras += eqhf2 fixxfbitint $(foreach m,hf bf xf,floatbitint$(m))
+
+CFLAGS_extendhfsf2.c += -msse2
+CFLAGS_extendhfdf2.c += -msse2
+CFLAGS_extendhftf2.c += -msse2
+CFLAGS_extendhfxf2.c += -msse2
+CFLAGS_extendbfsf2.c += -msse2
+
+CFLAGS_truncsfhf2.c += -msse2
+CFLAGS_truncdfhf2.c += -msse2
+CFLAGS_truncxfhf2.c += -msse2
+CFLAGS_trunctfhf2.c += -msse2
+CFLAGS_truncsfbf2.c += -msse2
+CFLAGS_truncdfbf2.c += -msse2
+CFLAGS_truncxfbf2.c += -msse2
+CFLAGS_trunctfbf2.c += -msse2
+CFLAGS_trunchfbf2.c += -msse2
+
+CFLAGS_floatbitintbf.c += -msse2
+CFLAGS_floatbitinthf.c += -msse2
+
+CFLAGS_eqhf2.c += -msse2
+CFLAGS__divhc3.c += -msse2
+CFLAGS__mulhc3.c += -msse2
+
+CFLAGS__hf_to_sd.c += -msse2
+CFLAGS__hf_to_dd.c += -msse2
+CFLAGS__hf_to_td.c += -msse2
+CFLAGS__sd_to_hf.c += -msse2
+CFLAGS__dd_to_hf.c += -msse2
+CFLAGS__td_to_hf.c += -msse2

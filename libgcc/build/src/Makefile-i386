@@ -91,3 +91,11 @@ $(eval $(call libgcc_include_config,i386/t-softfp))
 # --- From libgcc/config/t-softfp ---
 $(eval $(call libgcc_include_config,t-softfp))
 endif
+
+
+# GCC >= 14
+ifneq ($(call libgcc_if_min_version,14),)
+# --- From libgcc/config/i386/t-heap-trampoline ---
+LIB2ADDEH += config/i386/heap-trampoline.c
+LIB2ADDEHSHARED += config/i386/heap-trampoline.c
+endif

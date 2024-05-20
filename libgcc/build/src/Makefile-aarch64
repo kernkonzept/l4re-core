@@ -25,6 +25,19 @@ $(eval $(call libgcc_include_config,t-eh-dw2-dip))
 # --- From libgcc/config/aarch64/t-aarch64 ---
 LIB2ADD += config/aarch64/sync-cache.c
 
+# GCC >= 14
+ifneq ($(call libgcc_if_min_version,14),)
+LIB2ADD += config/aarch64/cpuinfo.c
+
+# Add sme runtime to shared libgcc
+LIB2ADDEH += \
+  config/aarch64/__aarch64_have_sme.c \
+  config/aarch64/__arm_sme_state.S \
+  config/aarch64/__arm_tpidr2_restore.S \
+  config/aarch64/__arm_tpidr2_save.S \
+  config/aarch64/__arm_za_disable.S
+endif
+
 
 # --- From libgcc/config/aarch64/t-lse ---
 $(eval $(call libgcc_include_config,aarch64/t-lse))
@@ -32,20 +45,22 @@ $(eval $(call libgcc_include_config,aarch64/t-lse))
 
 ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # --- From libgcc/config/aarch64/t-softfp ---
-softfp_float_modes := tf
-softfp_int_modes := si di ti
-softfp_extensions := sftf dftf hftf
-softfp_truncations := tfsf tfdf tfhf
-softfp_exclude_libgcc2 := n
-softfp_extras := fixhfti fixunshfti floattihf floatuntihf
-
-LIB2ADD += config/aarch64/sfp-exceptions.c
+$(eval $(call libgcc_include_config,aarch64/t-softfp))
 
 
 # --- From libgcc/config/t-softfp ---
 $(eval $(call libgcc_include_config,t-softfp))
 
+
 # -- From libgcc/config/t-crtfm ---
 EXTRA_PARTS += crtfastmath.o
 $(eval $(call libgcc_include_config,t-crtfm))
+endif
+
+
+# GCC >= 14
+ifneq ($(call libgcc_if_min_version,14),)
+# -- From libgcc/config/aarch64/t-heap-trampoline ---
+LIB2ADDEH += config/aarch64/heap-trampoline.c
+LIB2ADDEHSHARED += config/aarch64/heap-trampoline.c
 endif

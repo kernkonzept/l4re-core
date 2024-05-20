@@ -18,6 +18,7 @@ Copy the following files from your GCC source tree into a new contrib directory:
 libgcc/
 
 # Aarch64
+gcc/common/config/aarch64/cpuinfo.h
 gcc/config/aarch64/aarch64-arches.def
 gcc/config/aarch64/aarch64-cores.def
 gcc/config/aarch64/aarch64-elf.h

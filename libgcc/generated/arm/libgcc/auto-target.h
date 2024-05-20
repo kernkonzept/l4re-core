@@ -14,6 +14,9 @@
 /* Define to 1 if the assembler supports LSE. */
 #define HAVE_AS_LSE 1
 
+/* Define to 1 if the assembler supports .variant_pcs. */
+/* #undef HAVE_AS_VARIANT_PCS */
+
 /* Define to 1 if the target assembler supports thread-local storage. */
 /* #undef HAVE_CC_TLS */
 
@@ -61,6 +64,9 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 /* #undef HAVE_UNISTD_H */
+
+/* Define to 1 if __getauxval is available. */
+#undef HAVE___GETAUXVAL
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT ""
