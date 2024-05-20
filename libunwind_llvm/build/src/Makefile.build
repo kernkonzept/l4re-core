@@ -55,9 +55,7 @@ endif
 
 # Flags for static library
 $(UNWIND_LLVM_A) : COMMON_FLAGS += -fvisibility=hidden \
-                                   $(if $(filter 15 16 17,$(GCCVERSION)),\
-                                     -fvisibility-global-new-delete-hidden,\
-                                     -fvisibility-global-new-delete=force-hidden) \
+                                   $(CLANGVISNEWDELETEHIDDEN) \
                                    -D_LIBUNWIND_HIDE_SYMBOLS \
                                    -D_LIBUNWIND_USE_DLADDR=0
 # TODO: Only for shared library?
