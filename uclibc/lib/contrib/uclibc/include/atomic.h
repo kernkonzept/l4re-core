@@ -54,15 +54,15 @@
    and following args.  */
 #define __atomic_val_bysize(pre, post, mem, ...)			      \
   ({									      \
-    __typeof (*mem) __atg1_result;					      \
+    __typeof ((__typeof (*(mem))) *(mem)) __atg1_result;					                                        \
     if (sizeof (*mem) == 1)						      \
-      __atg1_result = pre##_8_##post (mem, __VA_ARGS__);		      \
+      __atg1_result = (__typeof ((__typeof (*(mem))) *(mem))) pre##_8_##post (mem, __VA_ARGS__);		      \
     else if (sizeof (*mem) == 2)					      \
-      __atg1_result = pre##_16_##post (mem, __VA_ARGS__);		      \
+      __atg1_result = (__typeof ((__typeof (*(mem))) *(mem))) pre##_16_##post (mem, __VA_ARGS__);		      \
     else if (sizeof (*mem) == 4)					      \
-      __atg1_result = pre##_32_##post (mem, __VA_ARGS__);		      \
+      __atg1_result = (__typeof ((__typeof (*(mem))) *(mem))) pre##_32_##post (mem, __VA_ARGS__);		      \
     else if (sizeof (*mem) == 8)					      \
-      __atg1_result = pre##_64_##post (mem, __VA_ARGS__);		      \
+      __atg1_result = (__typeof ((__typeof (*(mem))) *(mem))) pre##_64_##post (mem, __VA_ARGS__);		      \
     else								      \
       abort ();								      \
     __atg1_result;							      \
@@ -71,13 +71,13 @@
   ({									      \
     int __atg2_result;							      \
     if (sizeof (*mem) == 1)						      \
-      __atg2_result = pre##_8_##post (mem, __VA_ARGS__);		      \
+      __atg2_result = (int) pre##_8_##post (mem, __VA_ARGS__);		      \
     else if (sizeof (*mem) == 2)					      \
-      __atg2_result = pre##_16_##post (mem, __VA_ARGS__);		      \
+      __atg2_result = (int) pre##_16_##post (mem, __VA_ARGS__);		      \
     else if (sizeof (*mem) == 4)					      \
-      __atg2_result = pre##_32_##post (mem, __VA_ARGS__);		      \
+      __atg2_result = (int) pre##_32_##post (mem, __VA_ARGS__);		      \
     else if (sizeof (*mem) == 8)					      \
-      __atg2_result = pre##_64_##post (mem, __VA_ARGS__);		      \
+      __atg2_result = (int) pre##_64_##post (mem, __VA_ARGS__);		      \
     else								      \
       abort ();								      \
     __atg2_result;							      \
