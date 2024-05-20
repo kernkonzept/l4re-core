@@ -35,7 +35,7 @@ libclang_rt_is_predefined = $(filter $1,$(shell $(callcc) -dM -E - </dev/null))
 
 # Check whether the provided code compiles.
 # 1: code to compile
-libclang_rt_try_compile = $(if $(shell echo "$1" | $(callcc) -c -o /dev/null - 2>&1),,Ok)
+libclang_rt_try_compile = $(if $(shell echo "$1" | $(callcc) -x c -c -o /dev/null - 2>&1),,Ok)
 
 # Create a standalone object file
 # 1: target
