@@ -43,6 +43,10 @@
 /**
  * Enter suspend to RAM.
  *
+ * \pre Must only be invoked on the boot CPU. Furthermore it must be ensured
+ *      that the invoking thread is not migrated to a different CPU during the
+ *      suspend.
+ *
  * \param pfc     Capability selector for the platform-control object.
  * \param extras  Some extra platform-specific information needed to enter
  *                suspend to RAM. On x86 platforms and when using the
