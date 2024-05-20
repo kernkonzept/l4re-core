@@ -20,6 +20,13 @@ sighandler_t signal(int, sighandler_t) L4_NOTHROW
 }
 
 extern "C"
+sighandler_t bsd_signal(int, sighandler_t) L4_NOTHROW
+{
+  errno = EINVAL;
+  return SIG_ERR;
+}
+
+extern "C"
 int sigaction(int, const struct sigaction *, struct sigaction *) L4_NOTHROW
 {
   errno = EINVAL;

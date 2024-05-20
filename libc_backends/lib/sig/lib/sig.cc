@@ -427,6 +427,13 @@ sighandler_t signal(int signum, sighandler_t handler) L4_NOTHROW
   return _sig_handling.signal(signum, handler);
 }
 
+extern "C"
+sighandler_t bsd_signal(int signum, sighandler_t handler) L4_NOTHROW
+{
+  return _sig_handling.signal(signum, handler);
+}
+
+
 inline
 int
 Sig_handling::sigaction(int signum, const struct sigaction *act,
