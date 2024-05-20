@@ -1,3 +1,30 @@
+2024-05-21  Release Manager
+
+	* GCC 13.3.0 released.
+
+2024-05-08  Andrew Pinski  <apinski@marvell.com>
+
+	Backported from master:
+	2023-07-23  Andrew Pinski  <apinski@marvell.com>
+
+	* config.host (riscv*-*-linux*): Add t-crtstuff to tmake_file.
+	(riscv*-*-freebsd*): Likewise.
+	* config/riscv/t-crtstuff: New file.
+
+2024-04-21  Georg-Johann Lay  <avr@gjlay.de>
+
+	Backported from master:
+	2024-04-21  Georg-Johann Lay  <avr@gjlay.de>
+
+	PR target/114794
+	* config/avr/lib1funcs.S (__udivmodqi4): Tweak.
+
+2024-04-02  Thomas Neumann  <tneumann@users.sourceforge.net>
+
+	PR libgcc/111731
+	* unwind-dw2-fde.c: Split unwind ranges if they contain the
+	unwind table.
+
 2024-02-16  Matteo Italia  <matteo@mitalia.net>
 
 	Backported from master:

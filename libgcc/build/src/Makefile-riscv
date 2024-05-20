@@ -24,6 +24,10 @@ EXTRA_PARTS = crtbegin.o crtbeginS.o crtbeginT.o crtend.o crtendS.o
 $(eval $(call libgcc_include_config,t-eh-dw2-dip))
 
 
+# --- From libgcc/config/riscv/t-crtstuff ---
+$(eval $(call libgcc_include_config,riscv/t-crtstuff))
+
+
 ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 # --- From libgcc/config/riscv/t-softfp32 ---
 $(eval $(call libgcc_include_config,riscv/t-softfp32))
