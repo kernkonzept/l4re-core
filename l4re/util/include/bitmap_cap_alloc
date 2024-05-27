@@ -26,6 +26,7 @@
 #pragma once
 
 #include <l4/re/util/item_alloc>
+#include <l4/sys/assert.h>
 #include <l4/sys/capability>
 #include <l4/sys/task.h>
 
@@ -72,6 +73,9 @@ public:
       return Unknown;
 
     idx -= _bias;
+    if (idx >= _items.size())
+      return Unknown;
+
     return _items.is_allocated(idx) ? Allocated : Free;
   }
 
@@ -87,6 +91,10 @@ public:
       return;
 
     idx -= _bias;
+    if (idx >= _items.size())
+      return;
+
+    l4_assert(_items.is_allocated(idx));
 
     if (l4_is_valid_cap(task))
       l4_task_unmap(task, cap.fpage(), unmap_flags | 2);
