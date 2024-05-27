@@ -244,12 +244,21 @@ input and output of ned and the prompt appear on the same console.
 
 Ned's command line syntax is:
 
-    [--execute|-e STATEMENT] <lua script> [options passed to lua script]
+    [--exit|--wait-and-exit] [--execute|-e STATEMENT] <lua script> [options passed to lua script]
 
 Ned interprets the first non-option argument `<lua script>` as the Lua script
 which it should load and run. All arguments following the first non-option
 argument are passed as arguments to the Lua script via Lua's global `arg`
 table.
+
+- Exit Options: **exit**, **wait-and-exit** (must be first if used)
+
+  **exit*: terminates the application after the script has run through even if
+           there are still tasks running. `wait` for tasks at the end of the
+           script to ensure they do not die forcefully.
+
+  **exit-and-wait**: terminates the application after the script has run through
+                     and all tasks started by ned have signaled their exit.
 
 - Execute Statement Option: **execute**, **e**
 

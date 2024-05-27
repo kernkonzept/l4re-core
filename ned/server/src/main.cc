@@ -56,9 +56,23 @@ run(int argc, char const *const *argv)
   static Ned::Foreign_server svr;
   Ned::foreign_server = &svr;
 
+  bool exit_opt = false;
+  bool wait_opt = false;
+  if (argc > 1)
+    {
+      exit_opt = !strcmp(argv[1], "--exit");
+      wait_opt = !strcmp(argv[1], "--wait-and-exit");
+      if (exit_opt || wait_opt)
+        {
+          argv++;
+          argc--;
+        }
+    }
+
   lua(argc, argv);
 
-  Ned::server_loop();
+  if (!exit_opt)
+    Ned::server_loop(wait_opt);
 
   return 0;
 };
@@ -75,6 +89,11 @@ main(int argc, char const *const *argv)
       L4::cerr << "FATAL: " << e;
       l4_sleep_forever();
     }
+  catch (Ned::App_termination)
+    {
+      return 0;
+    }
+
 
   l4_sleep_forever();
   return 0;

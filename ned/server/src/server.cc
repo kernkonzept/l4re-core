@@ -14,9 +14,11 @@
 
 namespace Ned {
 
-L4Re::Util::Registry_server<L4Re::Util::Br_manager_timeout_hooks> server;
+L4Re::Util::Registry_server<Termination_loop_hooks> server;
 
-void server_loop()
+bool Termination_loop_hooks::wait_for_apps = false;
+
+void server_loop(bool wait_for_apps)
 {
   static bool once;
 
@@ -24,6 +26,7 @@ void server_loop()
     return;
   once = true;
 
+  Termination_loop_hooks::wait_for_apps = wait_for_apps;
   server.loop();
 }
 

@@ -40,6 +40,7 @@ App_task::Parent_receiver::Parent_receiver(App_task &parent)
   wait = L4Re::Util::make_unique_cap<L4::Semaphore>();
   chksys(L4Re::Env::env()->factory()->create(wait.get()),
          "Parent_receiver wait sem");
+  ++apps_running;
 }
 
 /**
@@ -83,6 +84,7 @@ App_task::handle_irq()
       _exit_code_valid = true;
       reset();
       dispatch_exit_signal();
+      --apps_running;
 
       _self = nullptr;  // keep at end; might delete current instance
     }
@@ -133,6 +135,7 @@ App_task::terminate()
       _state = Zombie;
       reset();
       dispatch_exit_signal();
+      --apps_running;
       _self = nullptr;  // keep at end; might delete current instance
     }
 }

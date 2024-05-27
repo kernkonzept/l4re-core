@@ -24,6 +24,7 @@ class App_task :
 {
 private:
   long _ref_cnt;
+  inline static l4_uint32_t apps_running = 0;
 
   /**
    * Helper to receive the task exit signal in a separate thread.
@@ -78,6 +79,7 @@ public:
   State state() const { return _state; }
   unsigned long exit_code() const { return _exit_code; }
   bool exit_code_valid() const { return _exit_code_valid; }
+  static bool has_apps_running() { return apps_running != 0; }
 
   // Instance is passed via `Ref_ptr` to hamper accidental usage of this
   // function on stack allocated objects.

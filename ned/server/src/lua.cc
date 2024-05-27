@@ -163,7 +163,7 @@ static int __server_loop(lua_State *l)
                                                     n->cap<L4::Ipc_gate>().get()),
                "Register command dispatcher endpoint.");
 
-  Ned::server_loop();
+  Ned::server_loop(false); // explicit server loops do not terminate
 
   Ned::server.registry()->unregister_obj(&cmd_dispatch);
 
