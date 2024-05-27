@@ -133,25 +133,19 @@ struct remove_all_extents<T[N]> { typedef typename remove_all_extents<T>::type t
 template< typename T >
 using remove_all_extents_t = typename remove_all_extents<T>::type;
 
-#if __cplusplus >= 201103L
-
 template< typename T >
-inline T &&
+constexpr T &&
 forward(cxx::remove_reference_t<T> &t)
 { return static_cast<T &&>(t); }
 
 template< typename T >
-inline T &&
+constexpr T &&
 forward(cxx::remove_reference_t<T> &&t)
 { return static_cast<T &&>(t); }
 
 template< typename T >
-inline cxx::remove_reference_t<T> &&
+constexpr cxx::remove_reference_t<T> &&
 move(T &&t) { return static_cast<cxx::remove_reference_t<T> &&>(t); }
-#else
-template< typename T >
-inline T move(T t) { return t; }
-#endif
 
 template< bool, typename T = void >
 struct enable_if {};
