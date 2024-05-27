@@ -41,8 +41,8 @@
  * functionality is not available.
  */
 #define l4_assert(expr) \
-  l4_assert_fn(expr, __FILE__ ":" L4_stringify(__LINE__) ": Assertion \"" \
-                     L4_stringify(expr) "\" failed.\n")
+  l4_assert_fn(!!(expr), __FILE__ ":" L4_stringify(__LINE__) ": Assertion \"" \
+                         L4_stringify(expr) "\" failed.\n")
 
 #define l4_check(expr) l4_assert(expr)
 
@@ -50,7 +50,7 @@
  * \internal
  */
 L4_ALWAYS_INLINE
-void l4_assert_fn(bool expr, const char *text) L4_NOTHROW;
+void l4_assert_fn(unsigned expr, const char *text) L4_NOTHROW;
 
 /**
  * \internal
@@ -71,7 +71,7 @@ void l4_assert_abort(const char *text) L4_NOTHROW
 }
 
 L4_ALWAYS_INLINE
-void l4_assert_fn(bool expr, const char *text) L4_NOTHROW
+void l4_assert_fn(unsigned expr, const char *text) L4_NOTHROW
 {
   if (L4_LIKELY(expr))
     return;
