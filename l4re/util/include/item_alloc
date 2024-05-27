@@ -42,28 +42,26 @@ private:
   long _free_hint;
   Bitmap_base _bits;
 
+  void hint(long hint)
+  { __atomic_store_n(&_free_hint, hint, __ATOMIC_RELAXED); }
+
 public:
   bool is_allocated(long item) const noexcept
   { return _bits[item]; }
 
-  long hint() const { return _free_hint; }
+  long hint() const { return __atomic_load_n(&_free_hint, __ATOMIC_RELAXED); }
 
   bool alloc(long item) noexcept
   {
-    if (!_bits[item])
-      {
-	_bits.set_bit(item);
-	return true;
-      }
-    return false;
+    return !_bits.atomic_get_and_set(item);
   }
 
   void free(long item) noexcept
   {
-    if (item < _free_hint)
-      _free_hint = item;
+    if (item < hint())
+      hint(item);
 
-    _bits.clear_bit(item);
+    _bits.atomic_clear_bit(item);
   }
 
   Item_alloc_base(long size, void *mem) noexcept
@@ -72,16 +70,25 @@ public:
 
   long alloc() noexcept
   {
-    if (_free_hint >= _capacity)
-      return -1;
+    long free_hint = hint();
 
-    long free = _bits.scan_zero(_capacity, _free_hint);
-    if (free >= 0)
-      {
-	_bits.set_bit(free);
-	_free_hint += 1;
-      }
-    return free;
+    for (long i = free_hint; i < _capacity; ++i)
+      if (alloc(i))
+        {
+          hint(i + 1);
+          return i;
+        }
+
+    // _free_hint is not necessarily correct in case of multi-threading! Make
+    // sure we don't miss any potentially free slots.
+    for (long i = 0; i < free_hint && i < _capacity; ++i)
+      if (alloc(i))
+        {
+          hint(i + 1);
+          return i;
+        }
+
+    return -1;
   }
 
   long size() const noexcept
