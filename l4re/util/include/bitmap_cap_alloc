@@ -88,10 +88,10 @@ public:
 
     idx -= _bias;
 
-    _items.free(idx);
-
     if (l4_is_valid_cap(task))
       l4_task_unmap(task, cap.fpage(), unmap_flags | 2);
+
+    _items.free(idx);
   }
 
   // since we have no counters assume counter always > 0
