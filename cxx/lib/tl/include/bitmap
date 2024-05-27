@@ -127,12 +127,49 @@ public:
    * \param bit  The number of the bit to clear.
    */
   void clear_bit(long bit) noexcept;
+
+  /**
+   * Clear bit `bit` atomically.
+   *
+   * Use this function for multi-threaded access to the bitmap.
+   *
+   * \param bit  The number of the bit to clear.
+   */
+  void atomic_clear_bit(long bit) noexcept;
+
+  /**
+   * Clear bit `bit` atomically and return old state.
+   *
+   * Use this function for multi-threaded access to the bitmap.
+   *
+   * \param bit  The number of the bit to clear.
+   */
+  word_type atomic_get_and_clear(long bit) noexcept;
+
   /**
    * Set bit `bit`.
    *
    * \param bit  The number of the bit to set.
    */
   void set_bit(long bit) noexcept;
+
+  /**
+   * Set bit `bit` atomically.
+   *
+   * Use this function for multi-threaded access to the bitmap.
+   *
+   * \param bit  The number of the bit to set.
+   */
+  void atomic_set_bit(long bit) noexcept;
+
+  /**
+   * Set bit `bit` atomically and return old state.
+   *
+   * Use this function for multi-threaded access to the bitmap.
+   *
+   * \param bit  The number of the bit to set.
+   */
+  word_type atomic_get_and_set(long bit) noexcept;
 
   /**
    * Get the truth value of a bit.
@@ -240,11 +277,51 @@ Bitmap_base::clear_bit(long bit) noexcept
 
 inline
 void
+Bitmap_base::atomic_clear_bit(long bit) noexcept
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  word_type mask = 1UL << b;
+  __atomic_and_fetch(&_bits[idx], ~mask, __ATOMIC_RELAXED);
+}
+
+inline
+Bitmap_base::word_type
+Bitmap_base::atomic_get_and_clear(long bit) noexcept
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  word_type mask = 1UL << b;
+  return __atomic_fetch_and(&_bits[idx], ~mask, __ATOMIC_RELAXED) & mask;
+}
+
+inline
+void
 Bitmap_base::set_bit(long bit) noexcept
 {
   long idx = word_index(bit);
   long b   = bit_index(bit);
   _bits[idx] |= (1UL << b);
+}
+
+inline
+void
+Bitmap_base::atomic_set_bit(long bit) noexcept
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  word_type mask = 1UL << b;
+  __atomic_or_fetch(&_bits[idx], mask, __ATOMIC_RELAXED);
+}
+
+inline
+Bitmap_base::word_type
+Bitmap_base::atomic_get_and_set(long bit) noexcept
+{
+  long idx = word_index(bit);
+  long b   = bit_index(bit);
+  word_type mask = 1UL << b;
+  return __atomic_fetch_or(&_bits[idx], mask, __ATOMIC_RELAXED) & mask;
 }
 
 inline
