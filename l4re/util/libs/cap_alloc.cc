@@ -31,7 +31,7 @@ namespace
 {
   struct Ca
   {
-    enum { Caps = CONFIG_L4RE_CAP_MAX };
+    enum { Caps = CONFIG_L4RE_CAP_DFL_ALLOCATOR_MAX };
 
     L4Re::Util::_Cap_alloc::Storage<Caps> storage;
     L4Re::Util::Dbg _dbg;

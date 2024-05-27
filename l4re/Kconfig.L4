@@ -1,7 +1,7 @@
 menu "L4Re"
 
-config L4RE_CAP_MAX
-	int "Maximum number of allocatable capabilities"
+config L4RE_CAP_DFL_ALLOCATOR_MAX
+	int "Maximum number of default allocator cap slots"
 	default 4096 if MMU
 	default 64 if !MMU
 	help
