@@ -126,11 +126,13 @@ SECTIONS
   .exception_ranges*) }
   /* Adjust the address for the data segment.  We want to adjust up to
      the same address within the page on the next page up.  */
+  /* A hard page alignment would generate fill bytes in the image. */
 #if CONFIG_MMU
   . = DATA_SEGMENT_ALIGN (CONSTANT (MAXPAGESIZE), CONSTANT (COMMONPAGESIZE));
 #else
   . = ALIGN (CONSTANT(COMMONPAGESIZE));
 #endif
+  . = ALIGN (8);
   /* Exception handling  */
   .eh_frame       : ONLY_IF_RW { KEEP (*(.eh_frame)) *(.eh_frame.*) } :rw
   .gnu_extab      : ONLY_IF_RW { *(.gnu_extab) } :rw
@@ -139,26 +141,26 @@ SECTIONS
   /* Thread Local Storage sections  */
   .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) } :rw : tls
   .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) }
+  PROVIDE_HIDDEN (__preinit_array_start = .);
   .preinit_array     :
   {
-    PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array))
-    PROVIDE_HIDDEN (__preinit_array_end = .);
   } : rw
+  PROVIDE_HIDDEN (__preinit_array_end = .);
+  PROVIDE_HIDDEN (__init_array_start = .);
   .init_array     :
   {
-    PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
     KEEP (*(.init_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .ctors))
-    PROVIDE_HIDDEN (__init_array_end = .);
   }
+  PROVIDE_HIDDEN (__init_array_end = .);
+  PROVIDE_HIDDEN (__fini_array_start = .);
   .fini_array     :
   {
-    PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT_BY_INIT_PRIORITY(.fini_array.*) SORT_BY_INIT_PRIORITY(.dtors.*)))
     KEEP (*(.fini_array EXCLUDE_FILE (*crtbegin.o *crtbegin?.o *crtend.o *crtend?.o ) .dtors))
-    PROVIDE_HIDDEN (__fini_array_end = .);
   }
+  PROVIDE_HIDDEN (__fini_array_end = .);
   .ctors          :
   {
     /* gcc uses crtbegin.o to find the start of
