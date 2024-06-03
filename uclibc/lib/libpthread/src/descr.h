@@ -215,7 +215,7 @@ extern int __pthread_nonstandard_stacks;
 /* Get some notion of the current stack.  Need not be exactly the top
    of the stack, just something somewhere in the current frame.  */
 #ifndef CURRENT_STACK_FRAME
-#define CURRENT_STACK_FRAME  ({ char __csf; &__csf; })
+#define CURRENT_STACK_FRAME  __builtin_frame_address (0)
 #endif
 
 /* Recover thread descriptor for the current thread */
