@@ -422,7 +422,7 @@ define SRC_libc/misc_libc.a
   elf/dl-core
 endef
 
-SRC_libc/misc_libuc_c_minimal.a = $(SRC_libc/misc_libc.a)
+SRC_libc/misc_libc_minimal.a = $(SRC_libc/misc_libc.a)
 
 define SRC_libc/misc_wchar
   time/wcsftime

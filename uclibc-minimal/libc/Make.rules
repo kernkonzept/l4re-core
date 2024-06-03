@@ -2,12 +2,12 @@
 PKGDIR		?= ..
 L4DIR		?= $(PKGDIR)/../..
 
-TARGET          := libuc_c_minimal.a libuc_c_minimal.p.a
+TARGET          := libc_minimal.a libc_minimal.p.a
 PC_FILENAME     := libc_minimal
-PC_LIBS         := -luc_c_minimal
+PC_LIBS         := -lc_minimal
 define PC_EXTRA
-Link_Libs=  %{static|static-pie:-luc_c_minimal}
-Link_Libs_pic=  %{static|static-pie:-luc_c_minimal.p}
+Link_Libs=  %{static|static-pie:-lc_minimal}
+Link_Libs_pic=  %{static|static-pie:-lc_minimal.p}
 endef
 
 DEFINES		+= -DL4_MINIMAL_LIBC
@@ -40,10 +40,10 @@ $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
 # libm stuff
 
 define GEN_SRC_VARS
-SRC_C_$(1)  += $(UCLIBC_SRC_C)  $(UCLIBC_SRC_C_libuc_c_minimal.a) \
+SRC_C_$(1)  += $(UCLIBC_SRC_C)  $(UCLIBC_SRC_C_libc_minimal.a) \
                     libc/stdlib/atexit.c
-SRC_CC_$(1) += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libuc_c_minimal.a)
-SRC_S_$(1)  += $(UCLIBC_SRC_S)  $(UCLIBC_SRC_S_libuc_c_minimal.a)
+SRC_CC_$(1) += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc_minimal.a)
+SRC_S_$(1)  += $(UCLIBC_SRC_S)  $(UCLIBC_SRC_S_libc_minimal.a)
 endef
 
 vpath _dl_find_object.cc $(LIBCSRC_DIR)
