@@ -928,6 +928,8 @@ FCT (const CHAR *pattern, const CHAR *string, const CHAR *string_end,
 		      }
 		    p += 2;
 		    c = *p++;
+		    if (c == '\0')
+		      return FNM_NOMATCH;
 		  }
 	      }
 	    while (c != L(']'));
