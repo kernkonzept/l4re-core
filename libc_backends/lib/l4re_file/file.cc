@@ -430,6 +430,23 @@ int statvfs([[maybe_unused]] const char *path, struct statvfs *buf) noexcept
   return 0;
 }
 
+int fstatvfs([[maybe_unused]] int fd, struct statvfs *buf) noexcept
+{
+  printf("l4re-fstatvfs(%d, ...): to be implemented\n", fd);
+  buf->f_bsize = L4_PAGESIZE;
+  buf->f_frsize = 16;
+  buf->f_blocks = 2;
+  buf->f_bfree = 0;
+  buf->f_bavail = 0;
+  buf->f_files = 2;
+  buf->f_ffree = 0;
+  buf->f_favail = 0;
+  buf->f_fsid = 0;
+  buf->f_flag= 0;
+  buf->f_namemax = 16;
+  return 0;
+}
+
 
 int close(int fd)
 noexcept(noexcept(close(fd)))
