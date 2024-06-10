@@ -76,13 +76,13 @@ private:
 
 extern "C" int __attribute__((weak))
 pthread_create(pthread_t *thread, const pthread_attr_t *attr,
-               void *(*start_routine)(void *), void *arg);
+               void *(*start_routine)(void *), void *arg) noexcept;
 extern "C" int __attribute__((weak))
-pthread_rwlock_rdlock(pthread_rwlock_t *lock);
+pthread_rwlock_rdlock(pthread_rwlock_t *lock) noexcept;
 extern "C" int __attribute__((weak))
-pthread_rwlock_wrlock(pthread_rwlock_t *lock);
+pthread_rwlock_wrlock(pthread_rwlock_t *lock) noexcept;
 extern "C" int __attribute__((weak))
-pthread_rwlock_unlock(pthread_rwlock_t *lock);
+pthread_rwlock_unlock(pthread_rwlock_t *lock) noexcept;
 
 // Calls to the locking functions are gated on pthread_create, and not the
 // functions themselves, because the data structure should only be locked if
