@@ -1298,7 +1298,7 @@ iconv_t weak_function iconv_open(const char *tocode, const char *fromcode)
 
 int weak_function iconv_close(iconv_t cd)
 {
-	free(cd);
+	free((void *) cd);
 
 	return 0;
 }
