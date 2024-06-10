@@ -1052,6 +1052,7 @@ namespace {
   };
 }
 
+/// \relates L4Re::Vfs::Fs
 int
 Vfs::mount(char const *path, cxx::Ref_ptr<L4Re::Vfs::File> const &dir) noexcept
 {
