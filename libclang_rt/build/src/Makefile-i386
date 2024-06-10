@@ -4,7 +4,6 @@
 # Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
 
 define x86_ARCH_SOURCES
-  cpu_model.c
   i386/fp_mode.c
 endef
 
@@ -22,6 +21,15 @@ define x86_80_BIT_SOURCES
   mulxc3.c
   powixf2.c
 endef
+
+# Clang < 18
+ifeq ($(call libclang_rt_if_min_version,18),)
+x86_ARCH_SOURCES += cpu_model.c
+# Clang >= 18
+else
+x86_ARCH_SOURCES += cpu_model/x86.c
+x86_80_BIT_SOURCES += extendxftf2.c trunctfxf2.c
+endif
 
 ifeq ($(BUILD_ARCH),x86)
 
