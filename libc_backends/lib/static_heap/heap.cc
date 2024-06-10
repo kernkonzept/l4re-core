@@ -32,3 +32,18 @@ void * __attribute__ ((__nothrow__)) __libc_alloc_initial_tls(unsigned long size
 {
   return uclibc_morecore(size);
 }
+
+void * __attribute__((weak))
+mmap(void *start, size_t length, int prot, int flags, int fd, off_t offset)
+noexcept(noexcept(mmap(start, length, prot, flags, fd, offset)))
+{
+  errno = ENOMEM;
+  return MAP_FAILED;
+}
+
+int __attribute__((weak))
+munmap(void *start, size_t length) noexcept(noexcept(munmap(start, length)))
+{
+  errno = EINVAL;
+  return -1;
+}
