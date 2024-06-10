@@ -430,7 +430,7 @@ int statvfs([[maybe_unused]] const char *path, struct statvfs *buf) noexcept
   return 0;
 }
 
-int statvfs64([[maybe_unused]] const char *path, struct statvfs64 *buf)
+int statvfs64([[maybe_unused]] const char *path, struct statvfs64 *buf) noexcept
 {
   printf("l4re-statvfs64(%s, ...): to be implemented\n", path);
   buf->f_bsize = L4_PAGESIZE;
