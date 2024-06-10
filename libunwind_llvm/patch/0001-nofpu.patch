@@ -1,0 +1,62 @@
+diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
+index 951189ea5..b18bc2216 100644
+--- a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
++++ b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
+@@ -655,6 +655,7 @@ DEFINE_LIBUNWIND_FUNCTION(__libunwind_Registers_arm64_jumpto)
+   ldp    x28,x29, [x0, #0x0E0]
+   ldr    x30,     [x0, #0x100]  // restore pc into lr
+ 
++#ifndef BID_VARIANT_FLAG_NOFPU
+   ldp    d0, d1,  [x0, #0x110]
+   ldp    d2, d3,  [x0, #0x120]
+   ldp    d4, d5,  [x0, #0x130]
+@@ -672,6 +673,7 @@ DEFINE_LIBUNWIND_FUNCTION(__libunwind_Registers_arm64_jumpto)
+   ldp    d28,d29, [x0, #0x1F0]
+   ldr    d30,     [x0, #0x200]
+   ldr    d31,     [x0, #0x208]
++#endif
+ 
+   // Finally, restore sp. This must be done after the the last read from the
+   // context struct, because it is allocated on the stack, and an exception
+diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S
+index 79f5696a9..97e1bf6ec 100644
+--- a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S
++++ b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S
+@@ -708,6 +708,8 @@ DEFINE_LIBUNWIND_FUNCTION(__unw_getcontext)
+   str    x1,      [x0, #0x0F8]
+   str    x30,     [x0, #0x100]    // store return address as pc
+   // skip cpsr
++
++#ifndef BID_VARIANT_FLAG_NOFPU
+   stp    d0, d1,  [x0, #0x110]
+   stp    d2, d3,  [x0, #0x120]
+   stp    d4, d5,  [x0, #0x130]
+@@ -725,6 +727,8 @@ DEFINE_LIBUNWIND_FUNCTION(__unw_getcontext)
+   stp    d28,d29, [x0, #0x1F0]
+   str    d30,     [x0, #0x200]
+   str    d31,     [x0, #0x208]
++#endif
++
+   mov    x0, #0                   // return UNW_ESUCCESS
+   ret
+ 
+diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp b/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp
+index 0faea2b78..b2589b373 100644
+--- a/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp
++++ b/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp
+@@ -141,6 +141,7 @@ _LIBUNWIND_HIDDEN int __unw_set_reg(unw_cursor_t *cursor, unw_regnum_t regNum,
+ }
+ _LIBUNWIND_WEAK_ALIAS(__unw_set_reg, unw_set_reg)
+ 
++#ifndef BID_VARIANT_FLAG_NOFPU
+ /// Get value of specified float register at cursor position in stack frame.
+ _LIBUNWIND_HIDDEN int __unw_get_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
+                                       unw_fpreg_t *value) {
+@@ -155,6 +156,7 @@ _LIBUNWIND_HIDDEN int __unw_get_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
+   return UNW_EBADREG;
+ }
+ _LIBUNWIND_WEAK_ALIAS(__unw_get_fpreg, unw_get_fpreg)
++#endif
+ 
+ /// Set value of specified float register at cursor position in stack frame.
+ _LIBUNWIND_HIDDEN int __unw_set_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,

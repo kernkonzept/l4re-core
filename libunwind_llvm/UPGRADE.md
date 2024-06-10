@@ -3,28 +3,25 @@ The purpose of this document is to describe what to consider when updating
 libunwind_llvm.
 
 ## Versioning
-The current minor version of libunwind_llvm for each supported major LLVM
-version is tracked in a file named `VERSION` in the corresponding contrib
-directory.
+The current version of libunwind_llvm is tracked in a file named `VERSION` in
+the contrib directory. Unlike with libclang_rt, where we maintain one version
+for each LLVM major version, we use a common version of libunwind_llvm for all
+LLVM versions.
 
 ## Upgrade steps
 
 #### 1. Copy contrib files
-Copy the following files from your LLVM source tree into a new contrib directory:
+Copy the following files from your LLVM source tree into the contrib directory:
 
 ```
 libunwind/
 ```
 
 #### 2. Diff against baseline
-Diff your new contrib directory with an existing contrib directory that you
-want to use as the baseline, that is, for minor version updates, the contrib
-directory of the same major version, and for major version updates, the
-contrib directory of the previous major version.
+Diff the changes in the contrib directory and adjust `Makefile.build`
+accordingly. If you need to make L4 specific modification in the contrib
+directory, please create a corresponding patch file in the `patch` directory to
+document that change.
 
-#### 3. Bump max version
-If you added a new major version, bump `UNWIND_LLVM_CONTRIB_MAX_VERSION` in
-`contrib.inc`.
-
-#### 4. Create or update version file
-Create or update a `VERSION` file in the (new) contrib directory.
+#### 3. Update version file
+Update a `VERSION` file in the contrib directory.
