@@ -134,7 +134,7 @@ struct Direct_dispatch<R*>
 /**
  * Dispatch helper wrapping try {} catch {} around the dispatch call.
  * \tparam R    Data type of the registry used for dispatching to objects.
- * \tparam Exc  Data type of the exceptions that shall be catched.
+ * \tparam Exc  Data type of the exceptions that shall be caught.
  *              This data type must provide a member err_no() that returns
  *              the negative integer (int) error code for the exception.
  *
