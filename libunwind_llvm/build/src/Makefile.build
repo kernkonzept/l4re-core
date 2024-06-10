@@ -15,7 +15,21 @@ include $(L4DIR)/mk/rules.inc
 $(GENERAL_D_LOC): $(UNWIND_LLVM_PKG_DIR)/build/src/Makefile.build
 
 # Use warnings flags provided by unwind_llvm build.
-WARNINGS       :=
+WARNINGS       := -Wall \
+                  -Wextra \
+                  -Wnewline-eof \
+                  -Wshadow \
+                  -Wwrite-strings \
+                  -Wno-unused-parameter \
+                  -Wno-long-long \
+                  -Werror=return-type \
+                  -Wextra-semi \
+                  -Wundef \
+                  -Wunused-template \
+                  -Wformat-nonliteral \
+                  -Wno-user-defined-literals \
+                  -Wno-covered-switch-default \
+                  -Wno-suggest-override
 
 include $(UNWIND_LLVM_PKG_DIR)/contrib.inc
 $(GENERAL_D_LOC): $(UNWIND_LLVM_PKG_DIR)/contrib.inc
@@ -63,7 +77,7 @@ COMMON_FLAGS += -fPIC
 
 ASFLAGS += $(COMMON_FLAGS)
 CFLAGS += $(COMMON_FLAGS) -std=c99
-CXXFLAGS += $(COMMON_FLAGS) -std=c++11 -fstrict-aliasing -fno-exceptions -nostdinc++
+CXXFLAGS += $(COMMON_FLAGS) -std=c++17 -fstrict-aliasing -fno-exceptions -nostdinc++
 # These features are used in C++ code, so we need to request them.
 CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS
 
