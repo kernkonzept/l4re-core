@@ -54,6 +54,10 @@ public:
 
   virtual ~Remote_app_model() noexcept {}
 
+  template< typename A1, typename A2, typename A3, typename A4>
+  Remote_app_model(A1 const &a1, A2 const &a2, A3 const & a3, A4 const & a4)
+  : Base(a1, a2, a3, a4) {}
+
   template< typename A1, typename A2, typename A3 >
   Remote_app_model(A1 const &a1, A2 const &a2, A3 const & a3)
   : Base(a1, a2, a3) {}
