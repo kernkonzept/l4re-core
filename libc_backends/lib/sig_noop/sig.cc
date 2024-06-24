@@ -11,6 +11,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
+#include <sys/time.h>
 
 extern "C"
 sighandler_t signal(int, sighandler_t) L4_NOTHROW
@@ -79,5 +80,16 @@ int pause(void)
 {
   l4_sleep_forever();
   errno = EINTR;
+  return -1;
+}
+
+int setitimer(__itimer_which_t __which,
+              const struct itimerval *__restrict __new,
+              struct itimerval *__restrict __old) L4_NOTHROW
+{
+  (void)__which;
+  (void)__new;
+  (void)__old;
+  errno = EINVAL;
   return -1;
 }
