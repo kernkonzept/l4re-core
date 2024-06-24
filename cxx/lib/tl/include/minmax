@@ -18,33 +18,95 @@
  */
 #pragma once
 
+#include "type_traits"
+
 /**
  * \ingroup cxx_api
  * \brief Various kinds of C++ utilities.
  */
 namespace cxx
 {
-  /**
-   * \ingroup cxx_api
-   * \brief Get the minimum of \a a and \a b.
-   * \param a the first value.
-   * \param b the second value.
-   */
-  template< typename T1 >
-  inline
-  T1 min(T1 a, T1 b)
-  { return a < b ? a : b; }
+  // trivial, used to terminate the variadic recursion
+  template<typename A>
+  constexpr A const &
+  min(A const &a)
+  { return a; }
 
   /**
    * \ingroup cxx_api
-   * \brief Get the maximum of \a a and \a b.
-   * \param a the first value.
-   * \param b the second value.
+   * Get the minimum of `a1` and `a2` upt to `aN`.
+   *
+   * \param a1     The first value.
+   * \param a2     The second value.
+   * \param ...a   Arbitrary number of additional parameters.
+   *
+   * Matches with automatic argument type deduction.
    */
-  template< typename T1 >
-  inline
-  T1 max(T1 a, T1 b)
-  { return a > b ? a : b; }
+  template<typename A, typename ...ARGS>
+  constexpr A const &
+  min(A const &a1, A const &a2, ARGS const &...a)
+  {
+    return min((a1 <= a2) ? a1 : a2, a...);
+  }
+
+  /**
+   * \ingroup cxx_api
+   * Get the minimum of `a1` and `a2` upt to `aN`.
+   *
+   * \param a1     The first value.
+   * \param a2     The second value.
+   * \param ...a   Arbitrary number of additional parameters.
+   *
+   * Matches with explicit template type A.
+   */
+  template<typename A, typename ...ARGS>
+  constexpr A const &
+  min(cxx::identity_t<A> const &a1,
+      cxx::identity_t<A> const &a2,
+      ARGS const &...a)
+  {
+    return min<A>((a1 <= a2) ? a1 : a2, a...);
+  }
+
+  // trivial, used to terminate the variadic recursion
+  template<typename A>
+  constexpr A const &
+  max(A const &a)
+  { return a; }
+
+  /**
+   * \ingroup cxx_api
+   * Get the maximum of `a1` and `a2` upt to `aN`.
+   *
+   * \param a1     The first value.
+   * \param a2     The second value.
+   * \param ...a   Arbitrary number of additional parameters.
+   *
+   * Matches with automatic argument type deduction.
+   */
+  template<typename A, typename ...ARGS>
+  constexpr A const &
+  max(A const &a1, A const &a2, ARGS const &...a)
+  { return max((a1 >= a2) ? a1 : a2, a...); }
+
+  /**
+   * \ingroup cxx_api
+   * Get the maximum of `a1` and `a2` upt to `aN`.
+   *
+   * \param a1     The first value.
+   * \param a2     The second value.
+   * \param ...a   Arbitrary number of additional parameters.
+   *
+   * Matches with explicit template type A.
+   */
+  template<typename A, typename ...ARGS>
+  constexpr A const &
+  max(cxx::identity_t<A> const &a1,
+      cxx::identity_t<A> const &a2,
+      ARGS const &...a)
+  {
+    return max<A>((a1 >= a2) ? a1 : a2, a...);
+  }
 
   /**
    * \ingroup cxx_api
