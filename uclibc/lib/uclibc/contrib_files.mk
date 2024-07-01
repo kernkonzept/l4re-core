@@ -131,6 +131,17 @@ define SRC_libc/stdlib_fp
   $(if $(UCLIBC_BUILD_MINIMAL),,strtold_l)
 endef
 
+define SRC_libc/stdlib/malloc
+  calloc
+  free
+  malloc
+  memalign
+  realloc
+  heap_alloc
+  heap_alloc_at
+  heap_free
+endef
+
 define SRC_libc/stdlib/malloc-standard
   calloc
   free
