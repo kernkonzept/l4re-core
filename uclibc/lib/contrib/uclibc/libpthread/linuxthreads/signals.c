@@ -134,6 +134,7 @@ int sigaction(int sig, const struct sigaction * act,
 {
   struct sigaction newact;
   struct sigaction *newactp;
+  void *save = NULL;
 
 #ifdef DEBUG_PT
 printf(__FUNCTION__": pthreads wrapper!\n");
@@ -142,6 +143,8 @@ printf(__FUNCTION__": pthreads wrapper!\n");
       sig == __pthread_sig_cancel ||
       (sig == __pthread_sig_debug && __pthread_sig_debug > 0))
     return EINVAL;
+  if (sig > 0 && sig < NSIG)
+    save = sighandler[sig].old;
   if (act)
     {
       newact = *act;
@@ -154,22 +157,24 @@ printf(__FUNCTION__": pthreads wrapper!\n");
 	    newact.sa_handler = (__sighandler_t) pthread_sighandler;
 	}
       newactp = &newact;
+      if (sig > 0 && sig < NSIG)
+	sighandler[sig].old = (arch_sighandler_t) act->sa_handler;
     }
   else
     newactp = NULL;
   if (__libc_sigaction(sig, newactp, oact) == -1)
-    return -1;
+    {
+      if (act && sig > 0 && sig < NSIG)
+	sighandler[sig].old = save;
+      return -1;
+    }
 #ifdef DEBUG_PT
 printf(__FUNCTION__": sighandler installed, sigaction successful\n");
 #endif
   if (sig > 0 && sig < NSIG)
     {
       if (oact != NULL)
-	oact->sa_handler = (__sighandler_t) sighandler[sig].old;
-      if (act)
-	/* For the assignment is does not matter whether it's a normal
-	   or real-time signal.  */
-	sighandler[sig].old = (arch_sighandler_t) act->sa_handler;
+	oact->sa_handler = save;
     }
   return 0;
 }

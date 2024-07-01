@@ -47,6 +47,15 @@
 # define USE_SELECT
 #endif
 
+/* MAP_FIXED_NOREPLACE is not supported in kernel <= 4.17
+ * If it's not already defined, define it to 0.
+ * We check the results of mmap to ensure the correct
+ * results, and error out otherwise.
+ */
+#ifndef MAP_FIXED_NOREPLACE
+#define MAP_FIXED_NOREPLACE 0
+#endif
+
 /* Array of active threads. Entry 0 is reserved for the initial thread. */
 struct pthread_handle_struct __pthread_handles[PTHREAD_THREADS_MAX] =
 { { __LOCK_INITIALIZER, &__pthread_initial_thread, 0},
@@ -371,12 +380,19 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       /* Allocate space for stack and thread descriptor at default address */
       new_thread = default_new_thread;
       new_thread_bottom = (char *) (new_thread + 1) - stacksize;
-      if (mmap((caddr_t)((char *)(new_thread + 1) - INITIAL_STACK_SIZE),
+      void * new_stack_addr = NULL;
+      new_stack_addr = mmap((caddr_t)((char *)(new_thread + 1) - INITIAL_STACK_SIZE),
                INITIAL_STACK_SIZE, PROT_READ | PROT_WRITE | PROT_EXEC,
-               MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED | MAP_GROWSDOWN,
-               -1, 0) == MAP_FAILED)
+               MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED_NOREPLACE | MAP_GROWSDOWN,
+               -1, 0);
+      if (new_stack_addr == MAP_FAILED){
         /* Bad luck, this segment is already mapped. */
         return -1;
+      } else if ( new_stack_addr != (caddr_t)((char *)(new_thread + 1) - INITIAL_STACK_SIZE)) {
+        /* Worse luck, we almost overwrote an existing page */
+        munmap(new_stack_addr, INITIAL_STACK_SIZE);
+        return -2;
+      }
       /* We manage to get a stack.  Now see whether we need a guard
          and allocate it if necessary.  Notice that the default
          attributes (stack_size = STACK_SIZE - pagesize) do not need
@@ -496,9 +512,10 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
 	return EAGAIN;
       if (__pthread_handles[sseg].h_descr != NULL)
 	continue;
-      if (pthread_allocate_stack(attr, thread_segment(sseg), pagesize,
+      int res = pthread_allocate_stack(attr, thread_segment(sseg), pagesize,
                                  &new_thread, &new_thread_bottom,
-                                 &guardaddr, &guardsize) == 0)
+                                 &guardaddr, &guardsize);
+      if ( res == 0)
         break;
 #ifndef __ARCH_USE_MMU__
       else
@@ -506,6 +523,14 @@ static int pthread_handle_create(pthread_t *thread, const pthread_attr_t *attr,
          * segment is already mapped, we should continue to see if we can
          * use the next one. However, when there is no MMU, malloc () is used.
          * It's waste of CPU cycles to continue to try if it fails.  */
+        return EAGAIN;
+#else
+      else if (res == -2)
+        /*  When there is an MMU, if pthread_allocate_stack failed with -2,
+         *  it indicates that we are attempting to mmap in address space which
+         *  is already allocated. Any additional attempts will result in failure
+         *  since we have exhausted our stack area.
+         */
         return EAGAIN;
 #endif
     }

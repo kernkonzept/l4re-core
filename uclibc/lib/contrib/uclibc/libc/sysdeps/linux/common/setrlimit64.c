@@ -17,15 +17,31 @@
 
 #include <_lfs_64.h>
 #include <bits/wordsize.h>
+#include <sys/resource.h>
+#include <sys/syscall.h>
+#include <stddef.h> // needed for NULL to be defined
 
-/* the regular setrlimit will work just fine for 64bit users */
-#if __WORDSIZE == 32
 
-# include <sys/resource.h>
+#if defined(__NR_prlimit64)
+
+int setrlimit64 (__rlimit_resource_t resource, const struct rlimit64 *rlimits)
+{
+	return INLINE_SYSCALL (prlimit64, 4, 0, resource, rlimits, NULL);
+}
+
+# if !defined(__NR_usetrlimit) && (__WORDSIZE == 64 || defined (__USE_FILE_OFFSET64))
+/* If setrlimit is not implemented through the __NR_usetrlimit and size of
+   rlimit_t == rlimit64_t then use setrlimit as an alias to setrlimit64 */
+strong_alias_untyped(setrlimit64, setrlimit)
+libc_hidden_def(setrlimit)
+# endif
+
+#else
 
 /* Set the soft and hard limits for RESOURCE to *RLIMITS.
    Only the super-user can increase hard limits.
-   Return 0 if successful, -1 if not (and sets errno).  */
+   Return 0 if successful, -1 if not (and sets errno).
+   The regular setrlimit will work just fine for 64bit users  */
 int setrlimit64 (__rlimit_resource_t resource, const struct rlimit64 *rlimits)
 {
     struct rlimit rlimits32;

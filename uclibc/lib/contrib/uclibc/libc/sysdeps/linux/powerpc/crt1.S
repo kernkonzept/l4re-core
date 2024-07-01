@@ -41,6 +41,9 @@
 	.weak _init
 	.weak _fini
 #endif
+#ifdef L_rcrt1
+	.type reloc_static_pie,%function
+#endif
 	.type	main,%function
 	.type	__uClibc_main,%function
 
@@ -61,6 +64,22 @@ _start:
 # ifdef PPC_HAS_SECUREPLT
 	mr	30,31
 # endif
+#ifdef L_rcrt1
+	stwu r3, -4(r1)					/* Save r3 */
+	stwu r9, -16(r1)				/* Save r9 */
+	bcl 20,31,2f					/* Jump to label 2 */
+2:	mflr r3							/* Load lr into r3 */
+	addis r3, r3, _DYNAMIC-2b@ha	/* Add high half of _DYNAMIC to r3 */
+	addi r3,r3,_DYNAMIC-2b@l		/* Add low half of _DYNAMIC */
+	lwz r4, 0(r31)					/* load _DYNAMIC from the GOT */
+	subf r3, r4, r3					/* sub _DYNAMIC@got and it's actual address */
+	bl reloc_static_pie				/* Call reloc_static_pie */
+	lwzu r9, 0(r1)					/* restore r9 */
+	addi r1, r1, 16					/* update stack pointer */
+	lwzu r3, 0(r1)					/* restore r3 */
+	addi r1, r1, 4					/* update stack pointer */
+	li r5, 0						/* zero r5 */
+#endif
 #endif
 	/* Set up the small data pointer in r13.  */
 #ifdef __PIC__

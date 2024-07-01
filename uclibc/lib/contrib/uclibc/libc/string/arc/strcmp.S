@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013, 2014-2015, 2017 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2013, 2014-2015, 2017, 2022 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2007 ARC International (UK) LTD
  *
  * Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
@@ -7,14 +7,11 @@
 
 #include <features.h>
 #include <sysdep.h>
-
-#if !defined(__ARC700__) && !defined(__ARCHS__)
-#error "Neither ARC700 nor ARCHS is defined!"
-#endif
+#include <asm.h>
 
 ENTRY(strcmp)
 
-#ifdef __ARC700__
+#if defined(__ARC700__) || defined(__ARC64_ARCH32__)
 /* This is optimized primarily for the ARC700.
    It would be possible to speed up the loops by one cycle / word
    respective one cycle / byte by forcing double source 1 alignment, unrolling
@@ -38,7 +35,7 @@ ENTRY(strcmp)
 	breq	r2,r3,.Lwordloop
 #ifdef	__LITTLE_ENDIAN__
 	xor	r0,r2,r3	; mask for difference
-	sub_s	r1,r0,1
+	SUBR_S	r1,r0,1
 	bic_s	r0,r0,r1	; mask for least significant difference bit
 	sub	r1,r5,r0
 	xor	r0,r5,r1	; mask for least significant difference byte
@@ -55,7 +52,7 @@ ENTRY(strcmp)
 .Lfound0:
 	xor	r0,r2,r3	; mask for difference
 	or	r0,r0,r4	; or in zero indicator
-	sub_s	r1,r0,1
+	SUBR_S	r1,r0,1
 	bic_s	r0,r0,r1	; mask for least significant difference bit
 	sub	r1,r5,r0
 	xor	r0,r5,r1	; mask for least significant difference byte
@@ -99,31 +96,28 @@ ENTRY(strcmp)
 .Lcmpend:
 	j_s.d	[blink]
 	sub	r0,r2,r3
-#endif /* __ARC700__ */
 
-#ifdef __ARCHS__
+#elif defined(__ARCHS__)
 	or	r2, r0, r1
 	bmsk_s	r2, r2, 1
 	brne	r2, 0, @.Lcharloop
 
 ;;; s1 and s2 are word aligned
-	ld.ab	r2, [r0, 4]
 
 	mov_s	r12, 0x01010101
 	ror	r11, r12
 	.align  4
 .LwordLoop:
+	ld.ab	r2, [r0, 4]
+	sub	r4, r2, r12
 	ld.ab	r3, [r1, 4]
 	;; Detect NULL char in str1
-	sub	r4, r2, r12
-	ld.ab	r5, [r0, 4]
 	bic	r4, r4, r2
 	and	r4, r4, r11
 	brne.d.nt	r4, 0, .LfoundNULL
 	;; Check if the read locations are the same
 	cmp	r2, r3
-	beq.d	.LwordLoop
-	mov.eq	r2, r5
+	beq	.LwordLoop
 
 	;; A match is found, spot it out
 #ifdef __LITTLE_ENDIAN__
@@ -168,7 +162,10 @@ ENTRY(strcmp)
 .Lcmpend:
 	j_s.d	[blink]
 	sub	r0, r2, r3
-#endif /* __ARCHS__ */
+
+#else
+#error "Unsupported ARC CPU type"
+#endif
 
 END(strcmp)
 libc_hidden_def(strcmp)

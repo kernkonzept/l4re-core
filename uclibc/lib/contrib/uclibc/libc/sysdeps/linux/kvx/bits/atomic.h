@@ -1,6 +1,7 @@
-/* Copyright (C) 2010-2012 Free Software Foundation, Inc.
+/* Copyright (C) 2003-2017 Free Software Foundation, Inc.
+   Copyright (C) 2023 Kalray Inc.
+
    This file is part of the GNU C Library.
-   Contributed by Maxim Kuvyrkov <maxim@codesourcery.com>, 2010.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -16,10 +17,15 @@
    License along with the GNU C Library.  If not, see
    <http://www.gnu.org/licenses/>.  */
 
+/* Mostly copied from aarch64 atomic.h */
+
 #ifndef _KVX_BITS_ATOMIC_H
 #define _KVX_BITS_ATOMIC_H
 
+#define typeof __typeof__
+
 #include <stdint.h>
+#include <sysdep.h>
 
 typedef int8_t atomic8_t;
 typedef uint8_t uatomic8_t;
@@ -60,82 +66,130 @@ typedef uintmax_t uatomic_max_t;
 # define atomic_write_barrier() __builtin_kvx_fence()
 #endif
 
-/*
- * On kvx, we have a boolean compare and swap which means that the operation
- * returns only the success of operation.
- * If operation succeeds, this is simple, we just need to return the provided
- * old value. However, if it fails, we need to load the value to return it for
- * the caller. If the loaded value is different from the "old" provided by the
- * caller, we can return it since it will mean it failed.
- * However, if for some reason the value we read is equal to the old value
- * provided by the caller, we can't simply return it or the caller will think it
- * succeeded. So if the value we read is the same as the "old" provided by
- * the caller, we try again until either we succeed or we fail with a different
- * value than the provided one.
- */
-#define __cmpxchg(ptr, old, new, op_suffix, load_suffix)		\
-({									\
-	register unsigned long __rn __asm__("r62");			\
-	register unsigned long __ro __asm__("r63");			\
-	__asm__ __volatile__ (						\
-		/* Fence to guarantee previous store to be committed */	\
-		"fence\n"						\
-		/* Init "expect" with previous value */			\
-		"copyd $r63 = %[rOld]\n"				\
-		";;\n"							\
-		"1:\n"							\
-		/* Init "update" value with new */			\
-		"copyd $r62 = %[rNew]\n"				\
-		";;\n"							\
-		"acswap" #op_suffix " 0[%[rPtr]], $r62r63\n"		\
-		";;\n"							\
-		/* if acswap succeeds, simply return */			\
-		"cb.dnez $r62? 2f\n"					\
-		";;\n"							\
-		/* We failed, load old value */				\
-		"l"  #op_suffix  #load_suffix" $r63 = 0[%[rPtr]]\n"	\
-		";;\n"							\
-		/* Check if equal to "old" one */			\
-		"compd.ne $r62 = $r63, %[rOld]\n"			\
-		";;\n"							\
-		/* If different from "old", return it to caller */	\
-		"cb.deqz $r62? 1b\n"					\
-		";;\n"							\
-		"2:\n"							\
-		: "+r" (__rn), "+r" (__ro)				\
-		: [rPtr] "r" (ptr), [rOld] "r" (old), [rNew] "r" (new)	\
-		: "memory");						\
-	(__ro);								\
-})
+#define __HAVE_64B_ATOMICS 1
+#define USE_ATOMIC_COMPILER_BUILTINS 1
 
-#define cmpxchg(ptr, o, n)						\
-({									\
-	unsigned long __cmpxchg__ret;					\
-	switch (sizeof(*(ptr))) {					\
-	case 4:								\
-		__cmpxchg__ret = __cmpxchg((ptr), (o), (n), w, s);	\
-		break;							\
-	case 8:								\
-		__cmpxchg__ret = __cmpxchg((ptr), (o), (n), d, );	\
-		break;							\
-	}								\
-	(__typeof(*(ptr))) (__cmpxchg__ret);				\
-})
+/* Compare and exchange.
+   For all "bool" routines, we return FALSE if exchange succesful.  */
 
-#define atomic_compare_and_exchange_val_acq(mem, newval, oldval)	\
-	cmpxchg((mem), (oldval), (newval))
+# define __arch_compare_and_exchange_bool_8_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    !__atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				  model, __ATOMIC_RELAXED);		\
+  })
+
+# define __arch_compare_and_exchange_bool_16_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    !__atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				  model, __ATOMIC_RELAXED);		\
+  })
+
+# define __arch_compare_and_exchange_bool_32_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    !__atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				  model, __ATOMIC_RELAXED);		\
+  })
+
+#  define __arch_compare_and_exchange_bool_64_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    !__atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				  model, __ATOMIC_RELAXED);		\
+  })
+
+# define __arch_compare_and_exchange_val_8_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    __atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				 model, __ATOMIC_RELAXED);		\
+    __oldval;								\
+  })
+
+# define __arch_compare_and_exchange_val_16_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    __atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				 model, __ATOMIC_RELAXED);		\
+    __oldval;								\
+  })
+
+# define __arch_compare_and_exchange_val_32_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    __atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				 model, __ATOMIC_RELAXED);		\
+    __oldval;								\
+  })
+
+#  define __arch_compare_and_exchange_val_64_int(mem, newval, oldval, model) \
+  ({									\
+    typeof (*mem) __oldval = (oldval);					\
+    __atomic_compare_exchange_n (mem, (void *) &__oldval, newval, 0,	\
+				 model, __ATOMIC_RELAXED);		\
+    __oldval;								\
+  })
 
 
-#define atomic_exchange_acq(mem, newval)				\
-({									\
-	unsigned long __aea__ret, __aea__old;					\
-	volatile __typeof((mem)) __aea__m = (mem);				\
-	do {								\
-		__aea__old = *__aea__m;						\
-		__aea__ret = atomic_compare_and_exchange_val_acq((mem),	\
-						(newval), (__aea__old));\
-	} while (__aea__old != __aea__ret);					\
-	(__aea__old);							\
-})
+/* Compare and exchange with "acquire" semantics, ie barrier after.  */
+
+# define atomic_compare_and_exchange_bool_acq(mem, new, old)	\
+  __atomic_bool_bysize (__arch_compare_and_exchange_bool, int,	\
+			mem, new, old, __ATOMIC_ACQUIRE)
+
+# define atomic_compare_and_exchange_val_acq(mem, new, old)	\
+  __atomic_val_bysize (__arch_compare_and_exchange_val, int,	\
+		       mem, new, old, __ATOMIC_ACQUIRE)
+
+/* Compare and exchange with "release" semantics, ie barrier before.  */
+
+# define atomic_compare_and_exchange_val_rel(mem, new, old)	 \
+  __atomic_val_bysize (__arch_compare_and_exchange_val, int,    \
+                       mem, new, old, __ATOMIC_RELEASE)
+
+
+/* Atomic exchange (without compare).  */
+
+# define __arch_exchange_8_int(mem, newval, model)	\
+  __atomic_exchange_n (mem, newval, model)
+
+# define __arch_exchange_16_int(mem, newval, model)	\
+  __atomic_exchange_n (mem, newval, model)
+
+# define __arch_exchange_32_int(mem, newval, model)	\
+  __atomic_exchange_n (mem, newval, model)
+
+#  define __arch_exchange_64_int(mem, newval, model)	\
+  __atomic_exchange_n (mem, newval, model)
+
+# define atomic_exchange_acq(mem, value)				\
+  __atomic_val_bysize (__arch_exchange, int, mem, value, __ATOMIC_ACQUIRE)
+
+# define atomic_exchange_rel(mem, value)				\
+  __atomic_val_bysize (__arch_exchange, int, mem, value, __ATOMIC_RELEASE)
+
+
+/* Atomically add value and return the previous (unincremented) value.  */
+
+# define __arch_exchange_and_add_8_int(mem, value, model)	\
+  __atomic_fetch_add (mem, value, model)
+
+# define __arch_exchange_and_add_16_int(mem, value, model)	\
+  __atomic_fetch_add (mem, value, model)
+
+# define __arch_exchange_and_add_32_int(mem, value, model)	\
+  __atomic_fetch_add (mem, value, model)
+
+#  define __arch_exchange_and_add_64_int(mem, value, model)	\
+  __atomic_fetch_add (mem, value, model)
+
+# define atomic_exchange_and_add_acq(mem, value)			\
+  __atomic_val_bysize (__arch_exchange_and_add, int, mem, value,	\
+		       __ATOMIC_ACQUIRE)
+
+# define atomic_exchange_and_add_rel(mem, value)			\
+  __atomic_val_bysize (__arch_exchange_and_add, int, mem, value,	\
 
 #endif

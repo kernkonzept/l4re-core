@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2013, 2022 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2007 ARC International (UK) LTD
  *
  * Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
@@ -17,6 +17,8 @@
 #endif
 
 ENTRY(memcmp)
+
+#if defined(__ARC700__) || defined(__ARCHS__)
 	or	r12,r0,r1
 	asl_s	r12,r12,30
 	sub	r3,r2,1
@@ -149,6 +151,96 @@ ENTRY(memcmp)
 .Lnil:
 	j_s.d	[blink]
 	mov	r0,0
+
+#elif (__ARC64_ARCH32__)
+	;; Based on Synopsys code from newlib's arc64/memcmp.S
+	cmp		r2, 32
+	bls.d	@.L_compare_1_bytes
+	mov		r3, r0	; "r0" will be used as return value
+
+	lsr		r12, r2, 4	; counter for 16-byte chunks
+	xor		r13, r13, r13	; the mask showing inequal registers
+
+.L_compare_16_bytes:
+	ld.ab	r4, [r3, +4]
+	ld.ab	r5, [r1, +4]
+	ld.ab	r6, [r3, +4]
+	ld.ab	r7, [r1, +4]
+	ld.ab	r8, [r3, +4]
+	ld.ab	r9, [r1, +4]
+	ld.ab	r10, [r3, +4]
+	ld.ab	r11, [r1, +4]
+	xor.f	0, r4, r5
+	xor.ne	r13, r13, 0b0001
+	xor.f	0, r6, r7
+	xor.ne	r13, r13, 0b0010
+	xor.f	0, r8, r9
+	xor.ne	r13, r13, 0b0100
+	xor.f	0, r10, r11
+	xor.ne	r13, r13, 0b1000
+	brne	r13, 0, @.L_unequal_find
+	dbnz	r12, @.L_compare_16_bytes
+
+	;; Adjusting the pointers because of the extra loads in the end
+	sub		r1, r1, 4
+	sub		r3, r3, 4
+	bmsk_s	  r2, r2, 3	; any remaining bytes to compare
+
+.L_compare_1_bytes:
+	cmp		r2, 0
+	jeq.d	[blink]
+	xor_s	r0, r0, r0
+
+2:
+	ldb.ab	r4, [r3, +1]
+	ldb.ab	r5, [r1, +1]
+	sub.f	r0, r4, r5
+	jne		[blink]
+	dbnz	r2, @2b
+	j_s		[blink]
+
+	;; At this point, we want to find the _first_ comparison that marked the
+	;; inequality of "lhs" and "rhs"
+.L_unequal_find:
+	ffs		r13, r13
+	asl		r13, r13, 2
+	bi		[r13]
+.L_unequal_r4r5:
+	mov		r1, r4
+	b.d		@.L_diff_byte_in_regs
+	mov		r2, r5
+	nop
+.L_unequal_r6r7:
+	mov		r1, r6
+	b.d		@.L_diff_byte_in_regs
+	mov		r2, r7
+	nop
+.L_unequal_r8r9:
+	mov		r1, r8
+	b.d		@.L_diff_byte_in_regs
+	mov		r2, r9
+	nop
+.L_unequal_r10r11:
+	mov		r1, r10
+	mov		r2, r11
+
+	;; fall-through
+	;; If we're here, that means the two operands are not equal.
+.L_diff_byte_in_regs:
+	xor		r0, r1, r2
+	ffs		r0, r0
+	and		r0, r0, 0x18
+	lsr		r1, r1, r0
+	lsr		r2, r2, r0
+	bmsk_s	r1, r1, 7
+	bmsk_s	r2, r2, 7
+	j_s.d	[blink]
+	sub		r0, r1, r2
+
+#else
+#error "Unsupported ARC CPU type"
+#endif
+
 END(memcmp)
 libc_hidden_def(memcmp)
 

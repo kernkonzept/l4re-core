@@ -12,6 +12,8 @@ you are hacking on.
    the shared library loader work requires you first have basic architecture
    support working.  Thus you should add ARCH_HAS_NO_SHARED and
    ARCH_HAS_NO_LDSO to Config.ARCH's TARGET_ARCH
+- When static pie support is added this TARGET_arch can be appended to the 
+   list in extra/Configs/Config.in
 
 ====================
 === libc sysdeps ===
@@ -55,6 +57,15 @@ you are hacking on.
     __longjmp  bsd-_setjmp  bsd-setjmp  brk  clone  setjmp  syscall  vfork
   usually these are written in assembler, but you may be able to cheat and
   write them in C ... see other ports for more information
+
+- Once static and pie executables are stable, static-pie support can be 
+  added by modifying crt1.S to calculate the address that the kernel loaded 
+  the main elf. Once the elf load address is found, call reloc_static_pie to
+  perform all the dynamic relocations normally handled by ldso. This new
+  code should be placed at the begining of _start and surrounded by defines
+  so that it is only compiled into rcrt1.o and not the static or shared 
+  versions. This is usually done by using the special L_rcrt1 preprocessor 
+  define. i386 and x86_64 have good reference implementations.
 
 ====================
 === ldso sysdeps ===

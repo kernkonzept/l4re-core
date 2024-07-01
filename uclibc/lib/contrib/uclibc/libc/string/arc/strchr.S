@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2013, 2022 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2007 ARC International (UK) LTD
  *
  * Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
@@ -7,6 +7,7 @@
 
 #include <sysdep.h>
 #include <features.h>
+#include <asm.h>
 
 /* ARC700 has a relatively long pipeline and branch prediction, so we want
    to avoid branches that are hard to predict.  On the other hand, the
@@ -21,7 +22,7 @@ ENTRY(strchr)
 	mov_s	r3,0x01010101
 	breq.d	r2,r0,.Laligned
 	asl	r4,r5,16
-	sub_s	r0,r0,r2
+	SUBR_S	r0,r0,r2
 	asl	r7,r2,3
 	ld_s	r2,[r0]
 #ifdef __LITTLE_ENDIAN__
@@ -77,10 +78,10 @@ ENTRY(strchr)
 	sub	r3,r7,1
 	bic	r3,r3,r7
 	norm	r2,r3
-	sub_s	r0,r0,1
-	asr_s	r2,r2,3
+	SUBR_S	r0,r0,1
+	ASRR_S	r2,r2,3
 	j.d	[blink]
-	sub_s	r0,r0,r2
+	SUBR_S	r0,r0,r2
 
 	.balign	4
 .Lfound0_ua:
@@ -90,13 +91,13 @@ ENTRY(strchr)
 	bic	r3,r3,r6
 	and	r2,r3,r4
 	or_s	r12,r12,r2
-	sub_s	r3,r12,1
+	SUBR_S	r3,r12,1
 	bic_s	r3,r3,r12
 	norm	r3,r3
-	add_s	r0,r0,3
-	asr_s	r12,r3,3
+	ADDR_S	r0,r0,3
+	ASRR_S	r12,r3,3
 	asl.f	0,r2,r3
-	sub_s	r0,r0,r12
+	SUBR_S	r0,r0,r12
 	j_s.d	[blink]
 	mov.pl	r0,0
 #else /* BIG ENDIAN */
@@ -106,10 +107,10 @@ ENTRY(strchr)
 	bic	r2,r7,r6
 .Lfound_char_b:
 	norm	r2,r2
-	sub_s	r0,r0,4
+	SUBR_S	r0,r0,4
 	asr_s	r2,r2,3
 	j.d	[blink]
-	add_s	r0,r0,r2
+	ADDR_S	r0,r0,r2
 
 .Lfound0_ua:
 	mov_s	r3,r7
@@ -126,7 +127,7 @@ ENTRY(strchr)
 	add.pl	r3,r3,1
 	asr_s	r12,r3,3
 	asl.f	0,r2,r3
-	add_s	r0,r0,r12
+	ADDR_S	r0,r0,r12
 	j_s.d	[blink]
 	mov.mi	r0,0
 #endif /* ENDIAN */

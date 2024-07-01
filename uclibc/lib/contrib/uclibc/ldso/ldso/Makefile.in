@@ -38,7 +38,8 @@ CFLAGS-ldso.c	+= -DLDSO_MULTILIB_DIR=\"$(MULTILIB_DIR)\"
 endif
 
 ifeq ($(TARGET_ARCH),arc)
-CFLAGS-ldso.c += -mno-long-calls
+$(eval $(call check-gcc-var,-mno-long-calls))
+CFLAGS-ldso.c += $(CFLAGS_-mno-long-calls)
 endif
 
 LDFLAGS-$(UCLIBC_FORMAT_DSBT_ELF)-$(UCLIBC_LDSO_NAME).so := -Wl,--dsbt-index=1

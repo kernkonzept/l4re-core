@@ -40,7 +40,9 @@ __start:
 	ld_s	r1, [sp]	; argc
 
 	mov_s	r5, r0		; rltd_fini
-	add_s	r2, sp, 4	; argv
+	/* Use the universal 32-bit add instruction as 16-bit add_s was excluded from
+	   ARCv3 ISA */
+	add	r2, sp, 4	; argv
 #ifdef L_Scrt1
 	ld	r0, [pcl, @main@gotpc]
 	ld	r3, [pcl, @_init@gotpc]

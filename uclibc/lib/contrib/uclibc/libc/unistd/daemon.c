@@ -63,7 +63,7 @@
 /* use clone() to get fork() like behavior here -- we just want to disassociate
  * from the controlling terminal
  */
-pid_t _fork_parent(void)
+static inline pid_t _fork_parent(void)
 {
 	INTERNAL_SYSCALL_DECL(err);
 	register long ret = INTERNAL_SYSCALL(clone, err, 2, CLONE_VM, 0);

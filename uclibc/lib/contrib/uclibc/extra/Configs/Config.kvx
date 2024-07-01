@@ -7,6 +7,24 @@ config TARGET_ARCH
 	string
 	default "kvx"
 
+choice
+	prompt "Target architecture variant"
+	help
+		Select CPU variant to use
+
+config CONFIG_KVX_COOLIDGE_V1
+        bool "Coolidge V1"
+
+config CONFIG_KVX_COOLIDGE_V2
+        bool "Coolidge V2"
+
+endchoice
+
+config TARGET_MARCH
+	string
+	default "kv3-1" if CONFIG_KVX_COOLIDGE_V1
+	default "kv3-2" if CONFIG_KVX_COOLIDGE_V2
+
 config FORCE_OPTIONS_FOR_ARCH
 	bool
 	default y

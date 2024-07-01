@@ -34,10 +34,6 @@ __attribute_used__ static int ret_enosys_stub(void)
 	link_warning(stub, #stub ": this function is not implemented") \
 	strong_alias(ret_enosys_stub, stub)
 
-#ifndef __ARCH_USE_MMU__
-# undef __NR_fork
-#endif
-
 #ifdef __arm__
 # define __NR_fadvise64_64 __NR_arm_fadvise64_64
 # define __NR_fadvise64 __NR_arm_fadvise64_64
@@ -120,7 +116,7 @@ make_stub(fgetxattr)
 make_stub(flistxattr)
 #endif
 
-#if !defined __NR_fork && !defined __NR_clone
+#if !defined __ARCH_USE_MMU__ || (!defined __NR_fork && !defined __NR_clone)
 make_stub(fork)
 #endif
 

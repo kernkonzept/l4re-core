@@ -53,7 +53,7 @@ ENTRY(memcpy)
 	;;
 	cb.deqz $r7? .Lstreaming_loop_end
 	;;
-	loopdo $r7? .Lstreaming_loop_end
+	loopdo $r7, .Lstreaming_loop_end
 		;;
 		sq 0[$r0] = $r32r33
 		addd $r2 = $r2, -256
@@ -162,7 +162,7 @@ ENTRY(memcpy)
 	;;
 	cb.deqz $r7? .Lloop_32_end
 	;;
-	loopdo $r7? .Lloop_32_end
+	loopdo $r7, .Lloop_32_end
 		;;
 		lo $r32r33r34r35 = 0[$r1]
 		addd $r1 = $r1, 32

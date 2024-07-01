@@ -36,18 +36,19 @@ clock_nanosleep (clockid_t clock_id, int flags, const struct timespec *req,
   if (clock_id == CLOCK_PROCESS_CPUTIME_ID)
     clock_id = MAKE_PROCESS_CPUCLOCK (0, CPUCLOCK_SCHED);
 
-#if defined(SINGLE_THREAD_P)
+  if (SINGLE_THREAD_P)
     r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req, rem);
-#else
+  else
     {
+#ifdef __NEW_THREADS
       int oldstate = LIBC_CANCEL_ASYNC ();
 
       r = INTERNAL_SYSCALL (clock_nanosleep, err, 4, clock_id, flags, req,
 			    rem);
 
       LIBC_CANCEL_RESET (oldstate);
-    }
 #endif
+    }
 
   return (INTERNAL_SYSCALL_ERROR_P (r, err)
 	  ? INTERNAL_SYSCALL_ERRNO (r, err) : 0);

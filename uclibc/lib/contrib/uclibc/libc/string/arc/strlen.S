@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2013, 2022 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2007 ARC International (UK) LTD
  *
  * Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
@@ -7,6 +7,7 @@
 
 
 #include <sysdep.h>
+#include <asm.h>
 
 ENTRY(strlen)
 	or	r3,r0,7
@@ -15,7 +16,7 @@ ENTRY(strlen)
 	mov	r4,0x01010101
 	; uses long immediate
 #ifdef __LITTLE_ENDIAN__
-	asl_s	r1,r0,3
+	ASLR_S	r1,r0,3
 	btst_s	r0,2
 	asl	r7,r4,r1
 	ror	r5,r4
@@ -59,7 +60,7 @@ ENTRY(strlen)
 	sub.ne	r3,r3,4
 	mov.eq	r1,r12
 #ifdef __LITTLE_ENDIAN__
-	sub_s	r2,r1,1
+	SUBR_S	r2,r1,1
 	bic_s	r2,r2,r1
 	norm	r1,r2
 	sub_s	r0,r0,3

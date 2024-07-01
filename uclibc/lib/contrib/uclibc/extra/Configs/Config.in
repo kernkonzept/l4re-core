@@ -332,7 +332,9 @@ config DOPIC
 config STATIC_PIE
 	bool "Add support for Static Position Independent Executables (PIE)"
 	default n
-	depends on DOPIC && !UCLIBC_FORMAT_FDPIC_ELF && (TARGET_arm || TARGET_i386 || TARGET_x86_64 || TARGET_aarch64 || TARGET_mips)
+	depends on DOPIC && !UCLIBC_FORMAT_FDPIC_ELF && \
+		(TARGET_arm || TARGET_i386 || TARGET_x86_64 || TARGET_aarch64 || \
+		 TARGET_mips || TARGET_xtensa || TARGET_powerpc)
 
 config ARCH_HAS_NO_SHARED
 	bool
@@ -537,7 +539,7 @@ config LDSO_LD_LIBRARY_PATH
 
 config UCLIBC_CTOR_DTOR
 	bool
-	default y if !TARGET_riscv64
+	default y if !TARGET_riscv64 && !TARGET_lm32
 	help
 	  If you wish to build uClibc with support for global constructor
 	  (ctor) and global destructor (dtor) support, then answer Y here.
@@ -642,6 +644,15 @@ config PTHREADS_DEBUG_SUPPORT
 	  If you are doing development and want to debug applications using
 	  uClibc's pthread library, answer Y.  Otherwise, answer N.
 
+config PTHREADS_STACK_DEFAULT_SIZE
+	int "Default thread stack size"
+	default 4194304 if TARGET_alpha # 4 MiB
+	default 4194304 if TARGET_powerpc # 4 MiB
+	default 2097152 # 2 MiB
+	help
+	  Set the default thread stack size. This option is useful on MMU-less
+	  systems where the stack size is fixed and the default stack size may
+	  be excessively large and waste memory.
 
 config UCLIBC_HAS_SYSLOG
 	bool "Syslog support"

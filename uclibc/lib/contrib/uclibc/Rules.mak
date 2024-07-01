@@ -459,7 +459,8 @@ ifeq ($(TARGET_ARCH),csky)
 endif
 
 ifeq ($(TARGET_ARCH),kvx)
-	CPU_CFLAGS-$(CONFIG_KVX) += -march=kvx
+	CPU_CFLAGS-y += -march=$(call qstrip,$(TARGET_MARCH))
+	CPU_LDFLAGS-y += -march=$(call qstrip,$(TARGET_MARCH))
 endif
 
 ifeq ($(TARGET_ARCH),m68k)

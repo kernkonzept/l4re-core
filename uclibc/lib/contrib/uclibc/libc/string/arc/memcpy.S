@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013, 2014-2015, 2017 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2013, 2014-2015, 2017, 2022 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2007 ARC International (UK) LTD
  *
  * Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
@@ -7,13 +7,9 @@
 
 #include <sysdep.h>
 
-#if !defined(__ARC700__) && !defined(__ARCHS__)
-#error "Neither ARC700 nor ARCHS is defined!"
-#endif
-
 ENTRY(memcpy)
 
-#ifdef __ARC700__
+#if defined(__ARC700__)
 /* This memcpy implementation does not support objects of 1GB or larger -
    the check for alignment does not work then.  */
 /* We assume that most sources and destinations are aligned, and
@@ -73,9 +69,9 @@ ENTRY(memcpy)
 .Lendbloop:
 	j_s.d	[blink]
 	stb	r12,[r5,0]
-#endif /* __ARC700__ */
 
-#ifdef __ARCHS__
+#elif defined(__ARCHS__)
+
 #ifdef __LITTLE_ENDIAN__
 # define SHIFT_1(RX,RY,IMM)	asl	RX, RY, IMM	; <<
 # define SHIFT_2(RX,RY,IMM)	lsr	RX, RY, IMM	; >>
@@ -299,7 +295,58 @@ ENTRY(memcpy)
 	stb.ab	r6, [r3,1]
 .Lcopybytewise_3:
 	j	[blink]
-#endif /* __ARCHS__ */
+
+#elif defined(__ARC64_ARCH32__)
+	;; Based on Synopsys code from newlib's arc64/memcpy.S
+	lsr.f	r11, r2, 4		; counter for 16-byte chunks
+	beq.d	@.L_write_15_bytes
+	mov	r3, r0			; work on a copy of "r0"
+
+.L_write_16_bytes:
+#if defined(__ARC64_LL64__)
+	ldd.ab	r4, [r1, 8]
+	ldd.ab	r6, [r1, 8]
+	std.ab	r4, [r3, 8]
+	std.ab	r6, [r3, 8]
+	dbnz	r11, @.L_write_16_bytes
+#else
+	ld.ab	r4, [r1, 4]
+	ld.ab	r5, [r1, 4]
+	ld.ab	r6, [r1, 4]
+	ld.ab	r7, [r1, 4]
+	st.ab	r4, [r3, 4]
+	st.ab	r5, [r3, 4]
+	st.ab	r6, [r3, 4]
+	dbnz.d	r11, @.L_write_16_bytes
+	st.ab	r7, [r3, 4]
+#endif
+	bmsk_s	r2, r2, 3
+
+.L_write_15_bytes:
+	bbit0.d	r2, 1, @1f
+	lsr	r11, r2, 2
+	ldh.ab	r4, [r1, 2]
+	sth.ab	r4, [r3, 2]
+1:
+	bbit0.d	r2, 0, @1f
+	xor	r11, r11, 3
+	ldb.ab	r4, [r1, 1]
+	stb.ab	r4, [r3, 1]
+1:
+	asl	r11, r11, 1
+	bi	[r11]
+	ld.ab	r4,[r1, 4]
+	st.ab	r4,[r3, 4]
+	ld.ab	r4,[r1, 4]
+	st.ab	r4,[r3, 4]
+	ld	r4,[r1]
+	st	r4,[r3]
+
+	j_s	[blink]
+
+#else
+#error "Unsupported ARC CPU type"
+#endif
 
 END(memcpy)
 libc_hidden_def(memcpy)

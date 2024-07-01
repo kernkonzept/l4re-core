@@ -94,9 +94,6 @@ typedef struct xtensa_got_location_struct {
 /* Used for error messages. */
 #define ELF_TARGET "Xtensa"
 
-/* Need bootstrap relocations */
-#define ARCH_NEEDS_BOOTSTRAP_RELOCS
-
 struct elf_resolve;
 extern unsigned long _dl_linux_resolver (struct elf_resolve *, int);
 

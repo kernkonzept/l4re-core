@@ -10,6 +10,7 @@
 *.oS
 *.a
 *.i
+*.s
 *.o
 *.depend
 lib/

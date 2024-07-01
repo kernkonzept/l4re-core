@@ -128,11 +128,11 @@ enum __rlimit_resource
 #ifndef __USE_FILE_OFFSET64
 # define RLIM_INFINITY ((long int)(~0UL >> 1))
 #else
-# define RLIM_INFINITY 0x7fffffffffffffffLL
+# define RLIM_INFINITY 0xffffffffffffffffULL
 #endif
 
 #ifdef __USE_LARGEFILE64
-# define RLIM64_INFINITY 0x7fffffffffffffffLL
+# define RLIM64_INFINITY 0xffffffffffffffffULL
 #endif
 
 #endif

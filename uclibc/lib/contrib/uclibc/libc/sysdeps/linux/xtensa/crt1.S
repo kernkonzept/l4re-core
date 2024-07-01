@@ -76,9 +76,26 @@
 	.global	_start
 	.type	_start, @function
 _start:
+#ifdef L_rcrt1
+	.begin	no-transform
+	call0	1f
+.Lret_addr:
+	.end	no-transform
+	.align	4
+1:
+#endif
 #if defined(__XTENSA_WINDOWED_ABI__)
+#ifdef L_rcrt1
+	movi	a6, .Lret_addr
+	sub	a6, a0, a6
+	movi	a0, 0
+	movi	a4, reloc_static_pie
+	add	a4, a4, a6
+	callx4	a4
+#else
 	/* Clear a0 to obviously mark the outermost frame.  */
 	movi	a0, 0
+#endif
 
 	/* Load up the user's main function.  */
 	movi	a6, main
@@ -106,8 +123,18 @@ _start:
 	movi	a4, __uClibc_main
 	callx4	a4
 #elif defined(__XTENSA_CALL0_ABI__)
+#ifdef L_rcrt1
+	mov	a12, a2
+	movi	a2, .Lret_addr
+	sub	a2, a0, a2
+	movi	a0, reloc_static_pie
+	add	a0, a0, a2
+	callx0	a0
+	mov	a7, a12
+#else
 	/* Setup the shared library termination function.  */
 	mov	a7, a2
+#endif
 
 	/* Load up the user's main function.  */
 	movi	a2, main

@@ -100,7 +100,7 @@ extern long __syscall_error (int);
 
 #ifdef __A7__
 #define ARC_TRAP_INSN	"trap0		\n\t"
-#elif defined(__HS__)
+#else
 #define ARC_TRAP_INSN	"trap_s 0	\n\t"
 #endif
 
@@ -182,7 +182,7 @@ extern long __syscall_error (int);
 
 #ifdef __A7__
 #define ARC_TRAP_INSN	trap0
-#elif defined(__HS__)
+#else
 #define ARC_TRAP_INSN	trap_s 0
 #endif
 

@@ -104,11 +104,16 @@ type name(C_DECL_ARGS_##nargs(args)) {					\
 	return (type)INLINE_SYSCALL_NOERR(name, nargs, C_ARGS_##nargs(args));	\
 }
 
+#define SYSCALL_FUNC_BODY(nargs, type, name, args...)			\
+	return (type)INLINE_SYSCALL(name, nargs, C_ARGS_##nargs(args));
+
+
 #define _syscall0(args...)		SYSCALL_FUNC(0, args)
 #define _syscall_noerr0(args...)	SYSCALL_NOERR_FUNC(0, args)
 #define _syscall1(args...)		SYSCALL_FUNC(1, args)
 #define _syscall_noerr1(args...)	SYSCALL_NOERR_FUNC(1, args)
 #define _syscall2(args...)		SYSCALL_FUNC(2, args)
+#define _syscall2_body(args...)		SYSCALL_FUNC_BODY(2, args)
 #define _syscall3(args...)		SYSCALL_FUNC(3, args)
 #define _syscall4(args...)		SYSCALL_FUNC(4, args)
 #define _syscall5(args...)		SYSCALL_FUNC(5, args)

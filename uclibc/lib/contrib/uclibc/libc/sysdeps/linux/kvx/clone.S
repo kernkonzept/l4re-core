@@ -59,10 +59,10 @@ ENTRY (__clone)
 	scall SYS_ify(clone)
 	;;
 	/* If 0, then we are the child */
-	cb.deqz $r0, L(child_start)
+	cb.deqz $r0? L(child_start)
 	;;
 	/* Else we are the parent, and we need to check for errors */
-	cb.dltz $r0, L(clone_error)
+	cb.dltz $r0? L(clone_error)
 	;;
 	/* No error ! Yeepa ! */
 	ret

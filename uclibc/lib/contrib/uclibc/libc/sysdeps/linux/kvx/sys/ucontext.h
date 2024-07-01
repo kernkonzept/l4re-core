@@ -12,11 +12,10 @@
 #include <signal.h>
 #include <bits/sigcontext.h>
 
+#define NGREG	70
+
 /* Type for general register.  */
 typedef unsigned long greg_t;
-
-/* Number of general registers.  */
-#define NGREG	64
 
 typedef struct ucontext {
 	unsigned long	  uc_flags;

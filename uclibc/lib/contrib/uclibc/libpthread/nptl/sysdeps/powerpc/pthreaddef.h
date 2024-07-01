@@ -15,9 +15,6 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-/* Default stack size.  */
-#define ARCH_STACK_DEFAULT_SIZE	(4 * 1024 * 1024)
-
 /* Required stack pointer alignment at beginning.  The ABI requires 16
    bytes (for both 32-bit and 64-bit PowerPC).  */
 #define STACK_ALIGN		16

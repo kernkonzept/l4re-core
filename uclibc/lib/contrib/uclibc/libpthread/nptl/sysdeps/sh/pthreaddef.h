@@ -17,9 +17,6 @@
 
 #include <sysdep.h>
 
-/* Default stack size.  */
-#define ARCH_STACK_DEFAULT_SIZE	(2 * 1024 * 1024)
-
 /* Required stack pointer alignment at beginning.  */
 #define STACK_ALIGN		8
 

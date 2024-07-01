@@ -31,5 +31,44 @@ int fstatat(int fd, const char *file, struct stat *buf, int flag)
 }
 libc_hidden_def(fstatat)
 #else
+
+#if defined(__NR_statx) && defined __UCLIBC_HAVE_STATX__
+#include <sys/sysmacros.h> // for makedev
+
+int fstatat(int fd, const char *file, struct stat *buf, int flag)
+{
+	int ret;
+	struct statx tmp;
+
+	ret = INLINE_SYSCALL(statx, 5, fd, file, flag,
+			     STATX_BASIC_STATS, &tmp);
+	if (ret != 0)
+		return ret;
+
+	*buf = (struct stat) {
+		.st_dev = makedev(tmp.stx_dev_major, tmp.stx_dev_minor),
+		.st_ino = tmp.stx_ino,
+		.st_mode = tmp.stx_mode,
+		.st_nlink = tmp.stx_nlink,
+		.st_uid = tmp.stx_uid,
+		.st_gid = tmp.stx_gid,
+		.st_rdev = makedev(tmp.stx_rdev_major, tmp.stx_rdev_minor),
+		.st_size = tmp.stx_size,
+		.st_blksize = tmp.stx_blksize,
+		.st_blocks = tmp.stx_blocks,
+		.st_atim.tv_sec = tmp.stx_atime.tv_sec,
+		.st_atim.tv_nsec = tmp.stx_atime.tv_nsec,
+		.st_mtim.tv_sec = tmp.stx_mtime.tv_sec,
+		.st_mtim.tv_nsec = tmp.stx_mtime.tv_nsec,
+		.st_ctim.tv_sec = tmp.stx_ctime.tv_sec,
+		.st_ctim.tv_nsec = tmp.stx_ctime.tv_nsec,
+	};
+
+	return ret;
+}
+libc_hidden_def(fstatat)
+
+#endif
+
 /* should add emulation with fstat() and /proc/self/fd/ ... */
 #endif

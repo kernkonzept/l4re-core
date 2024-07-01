@@ -31,20 +31,15 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/user.h>
+#include <sys/ucontext.h>
 
-__BEGIN_DECLS
+#define ELF_NGREG	NGREG
 
-/* Type for a general-purpose register.  */
 typedef unsigned long elf_greg_t;
-/* No FP registers for kvx. */
+typedef elf_greg_t elf_gregset_t[ELF_NGREG];
 typedef struct {} elf_fpregset_t;
 
-/* And the whole bunch of them.  We could have used `struct
-   pt_regs' directly in the typedef, but tradition says that
-   the register set is an array, which does have some peculiar
-   semantics, so leave it that way.  */
-#define ELF_NGREG (sizeof (struct user_regs_struct) / sizeof(elf_greg_t))
-typedef elf_greg_t elf_gregset_t[ELF_NGREG];
+__BEGIN_DECLS
 
 /* Signal info.  */
 struct elf_siginfo

@@ -278,17 +278,17 @@ __pthread_initialize_minimal_internal (void)
   struct rlimit limit;
   if (getrlimit (RLIMIT_STACK, &limit) != 0
       || limit.rlim_cur == RLIM_INFINITY)
-    /* The system limit is not usable.  Use an architecture-specific
-       default.  */
-    limit.rlim_cur = ARCH_STACK_DEFAULT_SIZE;
-  else if (limit.rlim_cur < PTHREAD_STACK_MIN)
+    /* The system limit is not usable.  Use a user-specified or
+       architecture-specific default.  */
+    limit.rlim_cur = __PTHREADS_STACK_DEFAULT_SIZE__;
+  if (limit.rlim_cur < PTHREAD_STACK_MIN)
     /* The system limit is unusably small.
        Use the minimal size acceptable.  */
     limit.rlim_cur = PTHREAD_STACK_MIN;
 
-  /* Do not exceed architecture specific default */
-  if (limit.rlim_cur > ARCH_STACK_DEFAULT_SIZE)
-    limit.rlim_cur = ARCH_STACK_DEFAULT_SIZE;
+  /* Do not exceed the user-specified or architecture-specific default */
+  if (limit.rlim_cur > __PTHREADS_STACK_DEFAULT_SIZE__)
+    limit.rlim_cur = __PTHREADS_STACK_DEFAULT_SIZE__;
 
   /* Make sure it meets the minimum size that allocate_stack
      (allocatestack.c) will demand, which depends on the page size.  */

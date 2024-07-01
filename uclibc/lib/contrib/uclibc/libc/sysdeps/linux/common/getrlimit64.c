@@ -17,14 +17,31 @@
 
 #include <_lfs_64.h>
 #include <bits/wordsize.h>
+#include <sys/resource.h>
+#include <sys/syscall.h>
+#include <stddef.h> // needed for NULL to be defined
 
-/* the regular getrlimit will work just fine for 64bit users */
-#if __WORDSIZE == 32
 
-# include <sys/resource.h>
+#if defined(__NR_prlimit64)
+
+/* the regular prlimit64 will work just fine for 64-bit users */
+int getrlimit64 (__rlimit_resource_t resource, struct rlimit64 *rlimits)
+{
+	return INLINE_SYSCALL (prlimit64, 4, 0, resource, NULL, rlimits);
+}
+
+# if !defined(__NR_ugetrlimit) && (__WORDSIZE == 64 || defined (__USE_FILE_OFFSET64))
+/* If getrlimit is not implemented through the __NR_ugetrlimit and size of
+   rlimit_t == rlimit64_t then use getrlimit as an alias to getrlimit64 */
+strong_alias_untyped(getrlimit64, getrlimit)
+libc_hidden_def(getrlimit)
+# endif
+
+#else
 
 /* Put the soft and hard limits for RESOURCE in *RLIMITS.
-   Returns 0 if successful, -1 if not (and sets errno).  */
+   Returns 0 if successful, -1 if not (and sets errno).  
+   The regular getrlimit will work just fine for 64-bit users */
 int getrlimit64 (__rlimit_resource_t resource, struct rlimit64 *rlimits)
 {
     struct rlimit rlimits32;
@@ -44,3 +61,4 @@ int getrlimit64 (__rlimit_resource_t resource, struct rlimit64 *rlimits)
     return 0;
 }
 #endif
+

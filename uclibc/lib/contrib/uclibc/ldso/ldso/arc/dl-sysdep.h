@@ -75,6 +75,9 @@ do {									\
 #elif defined(__HS__)
 #define MAGIC1 EM_ARCV2
 #define ELF_TARGET "ARCv2"	/* For error messages */
+#elif defined(__ARC64_ARCH32__)
+#define MAGIC1 EM_ARCV3_32
+#define ELF_TARGET "ARCv3_32"	/* For error messages */
 #endif
 
 #undef  MAGIC2

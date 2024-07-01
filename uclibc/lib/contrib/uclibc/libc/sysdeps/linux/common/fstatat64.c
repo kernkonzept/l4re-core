@@ -43,5 +43,28 @@ int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
 }
 libc_hidden_def(fstatat64)
 #else
+
+#if defined(__NR_statx) && defined(__UCLIBC_HAVE_STATX__)
+# include <sys/stat.h>
+# include <statx_cp.h>
+# include <fcntl.h> // for AT_NO_AUTOMOUNT
+
+int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)
+{
+	struct statx tmp;
+
+	int r = INLINE_SYSCALL(statx, 5, fd, file, AT_NO_AUTOMOUNT | flag,
+			       STATX_BASIC_STATS, &tmp);
+
+	if (r != 0)
+		return r;
+
+	__cp_stat_statx ((struct stat *)buf, &tmp);
+
+	return 0;
+}
+libc_hidden_def(fstatat64)
+#endif
+
 /* should add emulation with fstat64() and /proc/self/fd/ ... */
 #endif

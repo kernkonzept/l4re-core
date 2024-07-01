@@ -16,9 +16,6 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-/* Default stack size.  */
-#define ARCH_STACK_DEFAULT_SIZE (2 * 1024 * 1024)
-
 /* Required stack pointer alignment at beginning.  */
 #define STACK_ALIGN 16
 

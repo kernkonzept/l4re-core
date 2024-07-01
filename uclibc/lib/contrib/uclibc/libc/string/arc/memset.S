@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013, 2014-2015, 2017 Synopsys, Inc. (www.synopsys.com)
+ * Copyright (C) 2013, 2014-2015, 2017, 2022 Synopsys, Inc. (www.synopsys.com)
  * Copyright (C) 2007 ARC International (UK) LTD
  *
  * Licensed under the LGPL v2.1 or later, see the file COPYING.LIB in this tarball.
@@ -7,13 +7,9 @@
 
 #include <sysdep.h>
 
-#if !defined(__ARC700__) && !defined(__ARCHS__)
-#error "Neither ARC700 nor ARCHS is defined!"
-#endif
-
 ENTRY(memset)
 
-#ifdef __ARC700__
+#if defined(__ARC700__)
 #define SMALL	7 /* Must be at least 6 to deal with alignment/loop issues.  */
 
 	mov_s	r4,r0
@@ -52,9 +48,8 @@ ENTRY(memset)
 	stb.ab	r1,[r4,1]
 .Ltiny_end:
 	j_s	[blink]
-#endif /* __ARC700__ */
 
-#ifdef __ARCHS__
+#elif defined(__ARCHS__)
 #ifdef DONT_USE_PREALLOC
 #define PREWRITE(A,B)	prefetchw [(A),(B)]
 #else
@@ -156,7 +151,55 @@ ENTRY(memset)
 .Lcopy3bytes:
 
 	j	[blink]
-#endif /* __ARCHS__ */
+
+#elif defined(__ARC64_ARCH32__)
+	;; Based on Synopsys code from newlib's arc64/memset.S
+
+	;; Assemble the bytes to 32bit words
+	bmsk_s	r1, r1, 7		; treat it like unsigned char
+	lsl8	r3, r1
+	or_s	r1, r1, r3
+	lsl16	r3, r1
+	or	r6, r1, r3
+	mov r7,r6
+
+	lsr.f	r5, r2, 4		; counter for 16-byte chunks
+	beq.d	@.L_write_15_bytes
+	mov	r4, r0			; work on a copy of "r0"
+
+.L_write_16_bytes:
+#if defined(__ARC64_LL64__)
+	std.ab	r6, [r4, 8]
+	std.ab	r6, [r4, 8]
+	dbnz	r5, @.L_write_16_bytes
+#else
+	st.ab	r6, [r4, 4]
+	st.ab	r6, [r4, 4]
+	st.ab	r6, [r4, 4]
+	dbnz.d	r5, @.L_write_16_bytes
+	st.ab	r6, [r4, 4]
+#endif
+	bmsk_s	r2, r2, 3
+
+.L_write_15_bytes:
+	bbit0.d	r2, 1, @1f
+	lsr	r3, r2, 2
+	sth.ab	r6, [r4, 2]
+1:
+	bbit0.d	r2, 0, @1f
+	xor	r3, r3, 3
+	stb.ab	r6, [r4, 1]
+1:
+	bi	[r3]
+	st.ab	r6,[r4, 4]
+	st.ab	r6,[r4, 4]
+	st.ab	r6,[r4, 4]
+
+	j_s	[blink]
+
+#else
+#error "Unsupported ARC CPU type"
+#endif
 
 END(memset)
 libc_hidden_def(memset)

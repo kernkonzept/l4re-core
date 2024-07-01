@@ -40,6 +40,8 @@ int fstat(int fd, struct stat *buf)
                                STATX_BASIC_STATS, &tmp);
       if (rc == 0)
         __cp_stat_statx ((struct stat *)buf, &tmp);
+
+      return rc;
 }
 libc_hidden_def(fstat)
 

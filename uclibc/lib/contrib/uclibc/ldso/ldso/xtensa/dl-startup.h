@@ -7,6 +7,7 @@
  * Parts taken from glibc/sysdeps/xtensa/dl-machine.h.
  */
 
+#ifndef L_rcrt1
 __asm__ (
     "	.text\n"
     "	.align  4\n"
@@ -81,6 +82,7 @@ __asm__ (
     "	addi    a5, a5, 8\n"
     "	bnez    a6, 3b\n"
     "	j      .Lfixup_stack_ret");
+#endif
 
 /* Get a pointer to the argv value.  */
 #define GET_ARGV(ARGVP, ARGS) ARGVP = (((unsigned long *) ARGS) + 1)
@@ -88,6 +90,7 @@ __asm__ (
 /* Function calls are not safe until the GOT relocations have been done.  */
 #define NO_FUNCS_BEFORE_BOOTSTRAP
 
+#if defined(__ARCH_USE_MMU__)
 #define PERFORM_BOOTSTRAP_GOT(tpnt) \
 do { \
 	xtensa_got_location *got_loc; \
@@ -124,3 +127,4 @@ do { \
 					  PROT_READ | PROT_WRITE | PROT_EXEC); \
 	} \
 } while (0)
+#endif
