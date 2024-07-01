@@ -312,6 +312,12 @@ L4_INLINE unsigned long l4_align_stack_for_direct_fncall(unsigned long stack)
 #define L4_stringify_helper(x) #x                       ///< stringify helper. \hideinitializer
 #define L4_stringify(x)        L4_stringify_helper(x)   ///< stringify. \hideinitializer
 
+#ifdef __has_builtin
+#define L4_HAS_BUILTIN(def) __has_builtin(def)
+#else
+#define L4_HAS_BUILTIN(def) 0
+#endif
+
 #ifndef __ASSEMBLER__
 /**
  * Memory barrier.
