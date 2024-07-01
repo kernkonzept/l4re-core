@@ -365,13 +365,13 @@ __UCLIBC_MUTEX_EXTERN(__malloc_lock)
 #endif
 
 #ifdef __ARCH_USE_MMU__
-# define _MAP_UNINITIALIZE 0
+# define _MAP_UNINITIALIZED 0
 #else
-# define _MAP_UNINITIALIZE MAP_UNINITIALIZE
+# define _MAP_UNINITIALIZED MAP_UNINITIALIZED
 #endif
 
 #define MMAP(addr, size, prot) \
- (mmap((addr), (size), (prot), MAP_PRIVATE|MAP_ANONYMOUS|_MAP_UNINITIALIZE, 0, 0))
+ (mmap((addr), (size), (prot), MAP_PRIVATE|MAP_ANONYMOUS|_MAP_UNINITIALIZED, 0, 0))
 
 
 /* -----------------------  Chunk representations ----------------------- */
