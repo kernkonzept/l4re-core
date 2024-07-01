@@ -24,7 +24,8 @@
 
 
 #ifndef __VDSO_SUPPORT__
-    void load_vdso( uint32_t sys_info_ehdr, char **envp ){
+    void load_vdso( uint32_t sys_info_ehdr attribute_unused,
+                    char **envp attribute_unused ){
 #ifdef __SUPPORT_LD_DEBUG__
         if ( _dl_debug_vdso != 0 ){
             _dl_dprintf(2,"_dl_vdso support not enabled\n" );
