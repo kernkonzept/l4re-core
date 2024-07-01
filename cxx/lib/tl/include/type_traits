@@ -24,6 +24,7 @@
 
 #pragma GCC system_header
 
+#include <l4/sys/compiler.h>
 #include "bits/type_traits.h"
 
 namespace cxx {
@@ -66,16 +67,17 @@ struct is_same : false_type {};
 template< typename T >
 struct is_same<T, T> : true_type {};
 
+template< typename T1, typename T2 >
+inline constexpr bool is_same_v = is_same<T1, T2>::value;
+
 template< typename T >
 struct remove_reference { typedef T type; };
 
 template< typename T >
 struct remove_reference<T &> { typedef T type; };
 
-#if __cplusplus >= 201103L
 template< typename T >
 struct remove_reference<T &&> { typedef T type; };
-#endif
 
 template< typename T >
 using remove_reference_t = typename remove_reference<T>::type;
@@ -94,6 +96,11 @@ struct remove_cv { typedef remove_const_t<remove_volatile_t<T>> type; };
 template< typename T >
 using remove_cv_t = typename remove_cv<T>::type;
 
+template<class T>
+struct remove_cvref { using type = remove_cv_t<remove_reference_t<T>>; };
+
+template< typename T >
+using remove_cvref_t = typename remove_cvref<T>::type;
 
 template< typename T, typename >
 struct __remove_pointer_h { typedef T type; };
@@ -162,6 +169,42 @@ struct is_const : false_type {};
 template< typename T >
 struct is_const<T const> : true_type {};
 
+template< typename T >
+inline constexpr bool is_const_v = is_const<T>::value;
+
+template< typename T >
+struct is_volatile : false_type {};
+
+template< typename T >
+struct is_volatile<T volatile> : true_type {};
+
+template< typename T >
+inline constexpr bool is_volatile_v = is_volatile<T>::value;
+
+template< typename T >
+struct is_pointer : false_type {};
+
+template< typename T >
+struct is_pointer<T *> : true_type {};
+
+template< typename T >
+inline constexpr bool is_pointer_v = is_pointer<T>::value;
+
+template<class T>
+inline constexpr bool is_null_pointer_v = is_same_v<decltype(nullptr), remove_cv_t<T>>;
+
+template< typename T >
+struct is_reference : false_type {};
+
+template< typename T >
+struct is_reference<T &> : true_type {};
+
+template< typename T >
+struct is_reference<T &&> : true_type {};
+
+template< typename T >
+inline constexpr bool is_reference_v = is_reference<T>::value;
+
 template< bool, typename, typename >
 struct conditional;
 
@@ -176,6 +219,9 @@ using conditional_t = typename conditional<C, T_TRUE, T_FALSE>::type;
 
 template<typename T>
 struct is_enum : integral_constant<bool, __is_enum(T)> {};
+
+template< typename T >
+inline constexpr bool is_enum_v = is_enum<T>::value;
 
 template<typename T>
 struct is_polymorphic : cxx::integral_constant<bool, __is_polymorphic(T)> {};
@@ -196,7 +242,10 @@ template<> struct is_integral<unsigned long> : true_type {};
 template<> struct is_integral<long long> : true_type {};
 template<> struct is_integral<unsigned long long> : true_type {};
 
-template< typename T, bool = is_integral<T>::value || is_enum<T>::value >
+template< typename T >
+inline constexpr bool is_integral_v = is_integral<T>::value;
+
+template< typename T, bool = is_integral_v<T> || is_enum_v<T> >
 struct __is_signed_helper : integral_constant<bool, static_cast<bool>(T(-1) < T(0))> {};
 
 template< typename T >
@@ -204,6 +253,9 @@ struct __is_signed_helper<T, false> : integral_constant<bool, false> {};
 
 template< typename T >
 struct is_signed : __is_signed_helper<T> {};
+
+template< typename T >
+inline constexpr bool is_signed_v = is_signed<T>::value;
 
 
 template< typename >
@@ -214,6 +266,9 @@ struct is_array<T[]> : true_type {};
 
 template< typename T, unsigned long N >
 struct is_array<T[N]> : true_type {};
+
+template< typename T >
+inline constexpr bool is_array_v = is_array<T>::value;
 
 template< typename T, unsigned N >
 constexpr unsigned array_size(T const (&)[N]) { return N; }
@@ -256,9 +311,9 @@ using int_type_for_size_t = typename int_type_for_size<SIZE, SIGN>::type;
 template< typename T, class Enable = void > struct underlying_type {};
 
 template< typename T >
-struct underlying_type<T, typename enable_if<is_enum<T>::value>::type >
+struct underlying_type<T, typename enable_if<is_enum_v<T>>::type >
 {
-  typedef typename int_type_for_size<sizeof(T), is_signed<T>::value>::type type;
+  typedef int_type_for_size_t<sizeof(T), is_signed_v<T>> type;
 };
 
 template< typename T >
@@ -307,6 +362,28 @@ public:
 
   typedef bool value_type;
 };
+
+template<typename From, typename To>
+inline constexpr bool is_convertible_v = is_convertible<From, To>::value;
+
+template< typename T >
+struct is_empty : integral_constant<bool, __is_empty(T)> {};
+
+template< typename T >
+inline constexpr bool is_empty_v = is_empty<T>::value;
+
+
+#if L4_HAS_BUILTIN(__is_function)
+  template < typename T >
+  struct is_function : integral_constant<bool, __is_function(T)> {};
+#else
+  template < typename T >
+  struct is_function : integral_constant<bool,    !is_reference_v<T>
+                                               && !is_const_v<const T>> {};
+#endif
+
+template< typename T >
+inline constexpr bool is_function_v = is_function<T>::value;
 
 }
 
