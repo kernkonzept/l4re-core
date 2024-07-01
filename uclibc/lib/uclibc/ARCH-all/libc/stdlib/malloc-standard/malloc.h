@@ -30,7 +30,11 @@
 #endif
 
 
-__UCLIBC_MUTEX_EXTERN(__malloc_lock);
+__UCLIBC_MUTEX_EXTERN(__malloc_lock)
+#if defined __UCLIBC_HAS_THREADS__ && !defined __UCLIBC_HAS_LINUXTHREADS__
+	attribute_hidden
+#endif
+	;
 #define __MALLOC_LOCK		__UCLIBC_MUTEX_LOCK(__malloc_lock)
 #define __MALLOC_UNLOCK		__UCLIBC_MUTEX_UNLOCK(__malloc_lock)
 
@@ -925,7 +929,7 @@ typedef struct malloc_state *mstate;
    malloc relies on the property that malloc_state is initialized to
    all zeroes (as is true of C statics).
 */
-extern struct malloc_state __malloc_state;  /* never directly referenced */
+extern struct malloc_state __malloc_state attribute_hidden;  /* never directly referenced */
 
 /*
    All uses of av_ are via get_malloc_state().
@@ -962,12 +966,12 @@ void   __malloc_consolidate(mstate) attribute_hidden;
 #define check_malloced_chunk(P,N)   __do_check_malloced_chunk(P,N)
 #define check_malloc_state()        __do_check_malloc_state()
 
-extern void __do_check_chunk(mchunkptr p);
-extern void __do_check_free_chunk(mchunkptr p);
-extern void __do_check_inuse_chunk(mchunkptr p);
-extern void __do_check_remalloced_chunk(mchunkptr p, size_t s);
-extern void __do_check_malloced_chunk(mchunkptr p, size_t s);
-extern void __do_check_malloc_state(void);
+extern void __do_check_chunk(mchunkptr p) attribute_hidden;
+extern void __do_check_free_chunk(mchunkptr p) attribute_hidden;
+extern void __do_check_inuse_chunk(mchunkptr p) attribute_hidden;
+extern void __do_check_remalloced_chunk(mchunkptr p, size_t s) attribute_hidden;
+extern void __do_check_malloced_chunk(mchunkptr p, size_t s) attribute_hidden;
+extern void __do_check_malloc_state(void) attribute_hidden;
 
 #include <assert.h>
 
