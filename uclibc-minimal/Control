@@ -1,4 +1,4 @@
 provides: libc_minimal 
-requires: libc-headers ldscripts compiler-rt-pure
+requires: libc-headers ldscripts compiler-rt-pure l4sys
 source-pkg: uclibc
 Maintainer: adam@os.inf.tu-dresden.de
