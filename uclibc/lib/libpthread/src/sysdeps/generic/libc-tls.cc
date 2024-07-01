@@ -285,16 +285,4 @@ __pthread_initialize_minimal (void)
   __libc_setup_tls (TLS_INIT_TCB_SIZE, TLS_INIT_TCB_ALIGN);
 }
 
-#elif defined NONTLS_INIT_TP
-
-/* This is the minimal initialization function used when libpthread is
-   not used.  */
-extern "C"
-void
-__attribute__ ((weak))
-__pthread_initialize_minimal (void)
-{
-  NONTLS_INIT_TP;
-}
-
 #endif
