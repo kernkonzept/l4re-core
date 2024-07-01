@@ -45,7 +45,10 @@ extern "C"
 __attribute__ ((weak))
 void *__libc_alloc_initial_tls(unsigned long size) __THROW;
 
-static dtv_t static_dtv[2 + TLS_SLOTINFO_SURPLUS];
+#ifdef SHARED
+static
+#endif
+dtv_t static_dtv[2 + TLS_SLOTINFO_SURPLUS];
 
 
 static struct
