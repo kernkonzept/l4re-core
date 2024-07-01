@@ -36,6 +36,7 @@
 #undef __TARGET_vax__
 #undef __TARGET_x86_64__
 #undef __TARGET_xtensa__
+#define __TARGET_ARCH_BITS__ __riscv_xlen
 
 /* Target Architecture Features and Options */
 #define __TARGET_ARCH__ "riscv"

@@ -35,6 +35,7 @@
 #undef __TARGET_vax__
 #undef __TARGET_x86_64__
 #undef __TARGET_xtensa__
+#define __TARGET_ARCH_BITS__ 32
 
 /* Target Architecture Features and Options */
 #define __TARGET_ARCH__ "arm"
