@@ -8,6 +8,7 @@ REQUIRES_LIBS= libsupc++_minimal
 
 STDCXX_PKG_DIR = $(PKGDIR)/../libstdc++-v3
 DEFINES += -DL4_MINIMAL_LIBC
+STDCXX_IS_MINIMAL = y
 
 include $(PKGDIR)/../libstdc++-v3/build/src/Makefile
 
