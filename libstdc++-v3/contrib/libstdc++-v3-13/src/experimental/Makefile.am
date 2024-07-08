@@ -25,7 +25,7 @@ include $(top_srcdir)/fragment.am
 toolexeclib_LTLIBRARIES = libstdc++exp.la
 
 if ENABLE_FILESYSTEM_TS
-filesystem_lib = $(top_builddir)/src/filesystem/libstdc++fs.la
+filesystem_lib = $(top_builddir)/src/filesystem/libstdc++fsconvenience.la
 else
 filesystem_lib =
 endif
@@ -65,6 +65,15 @@ AM_CXXFLAGS = \
 
 AM_MAKEFLAGS = \
 	"gxx_include_dir=$(gxx_include_dir)"
+
+if ENABLE_BACKTRACE
+install-exec-local:
+	-cd '$(DESTDIR)$(toolexeclibdir)' && \
+	$(LN_S) libstdc++exp.a libstdc++_libbacktrace.a
+uninstall-local:
+	-cd '$(DESTDIR)$(toolexeclibdir)' && \
+	rm -f libstdc++_libbacktrace.a
+endif
 
 # Libtool notes
 
