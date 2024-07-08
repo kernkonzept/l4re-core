@@ -1809,7 +1809,11 @@ namespace __gnu_cxx
 
 /* Define if C99 functions in <fenv.h> should be imported in <tr1/cfenv> in
    namespace std::tr1. */
-#define _GLIBCXX_USE_C99_FENV_TR1 1
+#if defined(__x86_64) || defined(i386)
+  #define _GLIBCXX_USE_C99_FENV_TR1 1
+#else
+  #undef _GLIBCXX_USE_C99_FENV_TR1
+#endif
 
 /* Define if C99 functions in <inttypes.h> should be imported in
    <tr1/cinttypes> in namespace std::tr1. */
