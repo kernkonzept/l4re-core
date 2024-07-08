@@ -149,7 +149,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
   void *tlsblock;
   size_t memsz = 0;
   size_t filesz = 0;
-  void *initimage = NULL;
+  char *initimage = NULL;
   size_t align = 0;
   size_t max_align = tcbalign;
   size_t tcb_offset;
@@ -162,7 +162,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
 	  /* Remember the values we need.  */
 	  memsz = phdr->p_memsz;
 	  filesz = phdr->p_filesz;
-	  initimage = (void *) phdr->p_vaddr;
+	  initimage = (char *) phdr->p_vaddr;
 #if !defined(SHARED) && defined(STATIC_PIE)
 	  initimage += _dl_load_base;
 #endif
