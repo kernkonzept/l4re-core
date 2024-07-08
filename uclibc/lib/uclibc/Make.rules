@@ -57,6 +57,7 @@ endif
 # stack protector handling
 ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
 UCLIBC_SRC_C              += ssp-l4.c
+SRC_C_libssp_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
 endif
 
 UCLIBC_SRC_CC             += _exit.cc
@@ -97,8 +98,6 @@ SRC_C_libc.so_arm-l4f    += ARCH-arm/aeabi_read_tp_generic.c
 SRC_C_libc.a_arm-l4f     += ARCH-arm/aeabi_read_tp_generic.c
 #SRC_S_libc.so_arm-l4f    += ARCH-arm/aeabi_read_tp-v6p.S
 #SRC_S_libc.a_arm-l4f     += ARCH-arm/aeabi_read_tp-v6p.S
-
-SRC_C_libssp_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
 
 CXXFLAGS += -fno-rtti -fno-exceptions
 
