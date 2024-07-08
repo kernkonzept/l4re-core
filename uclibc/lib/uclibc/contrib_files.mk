@@ -401,11 +401,13 @@ define SRC_libc/misc_locale
   ctype/tolower_l
   ctype/toascii_l
   ctype/toupper_l
+  locale/freelocale
   locale/locale
   locale/localeconv
   locale/newlocale
   locale/nl_langinfo
   locale/setlocale
+  locale/uselocale
   locale/_locale_init
   locale/__curlocale
   locale/__locale_mbrtowc_l
