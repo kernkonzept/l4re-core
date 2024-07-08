@@ -1106,31 +1106,6 @@ template <typename _Abi>
 		else
 		  _mm512_mask_storeu_pd(__mem, __k, __vi);
 	      }
-#if 0 // with KNL either sizeof(_Tp) >= 4 or sizeof(_vi) <= 32
-      // with Skylake-AVX512, __have_avx512bw is true
-	  else if constexpr (__have_sse2)
-	    {
-	      using _M   = __vector_type_t<_Tp, _Np>;
-	      using _MVT = _VectorTraits<_M>;
-	      _mm_maskmoveu_si128(__auto_bitcast(__extract<0, 4>(__v._M_data)),
-				  __auto_bitcast(_MaskImpl::template _S_convert<_Tp, _Np>(__k._M_data)),
-				  reinterpret_cast<char*>(__mem));
-	      _mm_maskmoveu_si128(__auto_bitcast(__extract<1, 4>(__v._M_data)),
-				  __auto_bitcast(_MaskImpl::template _S_convert<_Tp, _Np>(
-				    __k._M_data >> 1 * _MVT::_S_full_size)),
-				  reinterpret_cast<char*>(__mem) + 1 * 16);
-	      _mm_maskmoveu_si128(__auto_bitcast(__extract<2, 4>(__v._M_data)),
-				  __auto_bitcast(_MaskImpl::template _S_convert<_Tp, _Np>(
-				    __k._M_data >> 2 * _MVT::_S_full_size)),
-				  reinterpret_cast<char*>(__mem) + 2 * 16);
-	      if constexpr (_Np > 48 / sizeof(_Tp))
-		_mm_maskmoveu_si128(
-		  __auto_bitcast(__extract<3, 4>(__v._M_data)),
-		  __auto_bitcast(_MaskImpl::template _S_convert<_Tp, _Np>(
-		    __k._M_data >> 3 * _MVT::_S_full_size)),
-		  reinterpret_cast<char*>(__mem) + 3 * 16);
-	    }
-#endif
 	    else
 	      __assert_unreachable<_Tp>();
 	  }
@@ -1233,8 +1208,8 @@ template <typename _Abi>
 	    else if constexpr (__have_avx && sizeof(_Tp) == 8)
 	      _mm_maskstore_pd(reinterpret_cast<double*>(__mem), __ki,
 			       __vector_bitcast<double>(__vi));
-	    else if constexpr (__have_sse2)
-	      _mm_maskmoveu_si128(__vi, __ki, reinterpret_cast<char*>(__mem));
+	    else
+	      _Base::_S_masked_store_nocvt(__v, __mem, __k);
 	  }
 	else if constexpr (sizeof(__v) == 32)
 	  {
@@ -1259,13 +1234,8 @@ template <typename _Abi>
 	    else if constexpr (__have_avx && sizeof(_Tp) == 8)
 	      _mm256_maskstore_pd(reinterpret_cast<double*>(__mem), __ki,
 				  __vector_bitcast<double>(__v));
-	    else if constexpr (__have_sse2)
-	      {
-		_mm_maskmoveu_si128(__lo128(__vi), __lo128(__ki),
-				    reinterpret_cast<char*>(__mem));
-		_mm_maskmoveu_si128(__hi128(__vi), __hi128(__ki),
-				    reinterpret_cast<char*>(__mem) + 16);
-	      }
+	    else
+	      _Base::_S_masked_store_nocvt(__v, __mem, __k);
 	  }
 	else
 	  __assert_unreachable<_Tp>();
@@ -2369,29 +2339,29 @@ template <typename _Abi>
 		  __assert_unreachable<_Tp>();
 	      }
 	    else if constexpr (sizeof(__xi) == 64 && sizeof(_Tp) == 8)
-	      return ~_mm512_mask_cmpeq_epi64_mask(__k1, __xi, __yi);
+	      return _mm512_mask_cmpneq_epi64_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 64 && sizeof(_Tp) == 4)
-	      return ~_mm512_mask_cmpeq_epi32_mask(__k1, __xi, __yi);
+	      return _mm512_mask_cmpneq_epi32_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 64 && sizeof(_Tp) == 2)
-	      return ~_mm512_mask_cmpeq_epi16_mask(__k1, __xi, __yi);
+	      return _mm512_mask_cmpneq_epi16_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 64 && sizeof(_Tp) == 1)
-	      return ~_mm512_mask_cmpeq_epi8_mask(__k1, __xi, __yi);
+	      return _mm512_mask_cmpneq_epi8_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 32 && sizeof(_Tp) == 8)
-	      return ~_mm256_mask_cmpeq_epi64_mask(__k1, __xi, __yi);
+	      return _mm256_mask_cmpneq_epi64_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 32 && sizeof(_Tp) == 4)
-	      return ~_mm256_mask_cmpeq_epi32_mask(__k1, __xi, __yi);
+	      return _mm256_mask_cmpneq_epi32_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 32 && sizeof(_Tp) == 2)
-	      return ~_mm256_mask_cmpeq_epi16_mask(__k1, __xi, __yi);
+	      return _mm256_mask_cmpneq_epi16_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 32 && sizeof(_Tp) == 1)
-	      return ~_mm256_mask_cmpeq_epi8_mask(__k1, __xi, __yi);
+	      return _mm256_mask_cmpneq_epi8_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 16 && sizeof(_Tp) == 8)
-	      return ~_mm_mask_cmpeq_epi64_mask(__k1, __xi, __yi);
+	      return _mm_mask_cmpneq_epi64_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 16 && sizeof(_Tp) == 4)
-	      return ~_mm_mask_cmpeq_epi32_mask(__k1, __xi, __yi);
+	      return _mm_mask_cmpneq_epi32_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 16 && sizeof(_Tp) == 2)
-	      return ~_mm_mask_cmpeq_epi16_mask(__k1, __xi, __yi);
+	      return _mm_mask_cmpneq_epi16_mask(__k1, __xi, __yi);
 	    else if constexpr (sizeof(__xi) == 16 && sizeof(_Tp) == 1)
-	      return ~_mm_mask_cmpeq_epi8_mask(__k1, __xi, __yi);
+	      return _mm_mask_cmpneq_epi8_mask(__k1, __xi, __yi);
 	    else
 	      __assert_unreachable<_Tp>();
 	  }                                                   // }}}
@@ -3537,6 +3507,9 @@ template <typename _Abi>
 #ifdef __clang__
 	    return __movm<_Np, _Tp>(__k._M_data) ? __v._M_data - __pm_one : __v._M_data;
 #else // __clang__
+	    using _TV = __vector_type_t<_Tp, _Np>;
+	    constexpr size_t __bytes = sizeof(__v) < 16 ? 16 : sizeof(__v);
+	    constexpr size_t __width = __bytes / sizeof(_Tp);
 	    if constexpr (is_integral_v<_Tp>)
 	      {
 		constexpr bool __lp64 = sizeof(long) == sizeof(long long);
@@ -3546,11 +3519,11 @@ template <typename _Abi>
 			      std::conditional_t<__lp64, long long, int>,
 			      std::conditional_t<
 				std::is_same_v<_Ip, signed char>, char, _Ip>>;
-		const auto __value = __vector_bitcast<_Up>(__v._M_data);
+		const auto __value = __intrin_bitcast<__vector_type_t<_Up, __width>>(__v._M_data);
 #define _GLIBCXX_SIMD_MASK_SUB(_Sizeof, _Width, _Instr)                        \
-  if constexpr (sizeof(_Tp) == _Sizeof && sizeof(__v) == _Width)               \
-    return __vector_bitcast<_Tp>(__builtin_ia32_##_Instr##_mask(__value,       \
-	     __vector_broadcast<_Np>(_Up(__pm_one)), __value, __k._M_data))
+  if constexpr (sizeof(_Tp) == _Sizeof && sizeof(__value) == _Width)           \
+    return __intrin_bitcast<_TV>(__builtin_ia32_##_Instr##_mask(__value,       \
+	     __vector_broadcast<__width>(_Up(__pm_one)), __value, __k._M_data))
 		_GLIBCXX_SIMD_MASK_SUB(1, 64, psubb512);
 		_GLIBCXX_SIMD_MASK_SUB(1, 32, psubb256);
 		_GLIBCXX_SIMD_MASK_SUB(1, 16, psubb128);
@@ -3567,17 +3540,24 @@ template <typename _Abi>
 	      }
 	    else
 	      {
-#define _GLIBCXX_SIMD_MASK_SUB(_Sizeof, _Width, _Instr)                        \
-  if constexpr (sizeof(_Tp) == _Sizeof && sizeof(__v) == _Width)               \
+		const auto __value = __intrin_bitcast<__vector_type_t<_Tp, __width>>(__v._M_data);
+#define _GLIBCXX_SIMD_MASK_SUB_512(_Sizeof, _Width, _Instr)                    \
+  if constexpr (sizeof(_Tp) == _Sizeof && sizeof(__value) == _Width)           \
     return __builtin_ia32_##_Instr##_mask(                                     \
-	     __v._M_data, __vector_broadcast<_Np>(_Tp(__pm_one)), __v._M_data, \
+	     __value, __vector_broadcast<__width>(_Tp(__pm_one)), __value,     \
 	     __k._M_data, _MM_FROUND_CUR_DIRECTION)
-		_GLIBCXX_SIMD_MASK_SUB(4, 64, subps512);
+#define _GLIBCXX_SIMD_MASK_SUB(_Sizeof, _Width, _Instr)                        \
+  if constexpr (sizeof(_Tp) == _Sizeof && sizeof(__value) == _Width)           \
+    return __intrin_bitcast<_TV>(__builtin_ia32_##_Instr##_mask(               \
+	     __value, __vector_broadcast<__width>(_Tp(__pm_one)), __value,     \
+	     __k._M_data))
+		_GLIBCXX_SIMD_MASK_SUB_512(4, 64, subps512);
 		_GLIBCXX_SIMD_MASK_SUB(4, 32, subps256);
 		_GLIBCXX_SIMD_MASK_SUB(4, 16, subps128);
-		_GLIBCXX_SIMD_MASK_SUB(8, 64, subpd512);
+		_GLIBCXX_SIMD_MASK_SUB_512(8, 64, subpd512);
 		_GLIBCXX_SIMD_MASK_SUB(8, 32, subpd256);
 		_GLIBCXX_SIMD_MASK_SUB(8, 16, subpd128);
+#undef _GLIBCXX_SIMD_MASK_SUB_512
 #undef _GLIBCXX_SIMD_MASK_SUB
 	      }
 #endif // __clang__
@@ -5311,7 +5291,7 @@ template <typename _Abi>
       _S_find_last_set(simd_mask<_Tp, _Abi> __k)
       {
 	if constexpr (__is_avx512_abi<_Abi>())
-	  return std::__bit_width(__k._M_data._M_data) - 1;
+	  return std::__bit_width(_Abi::_S_masked(__k._M_data)._M_data) - 1;
 	else
 	  return _Base::_S_find_last_set(__k);
       }
