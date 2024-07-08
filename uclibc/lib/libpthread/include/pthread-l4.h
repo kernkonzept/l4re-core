@@ -46,7 +46,3 @@ static inline
 l4_utcb_t *
 pthread_l4_utcb(pthread_t t)
 { return (l4_utcb_t *) t; }
-
-/* Deprecated version of pthread_l4_cap() */
-static inline l4_cap_idx_t pthread_getl4cap(pthread_t t)
-{ return pthread_l4_cap(t); }
