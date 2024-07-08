@@ -320,12 +320,7 @@
    inline semantics, unless -fgnu89-inline is used.
    For -std=gnu99, forcing gnu_inline attribute does not change behavior,
    but may silence spurious warnings (such as in GCC 4.2).  */
-/* start L4: add clang */
-#if !defined __cplusplus || __GNUC_PREREQ (4,3) || defined __clang__
-/* L4: original code
-#if !defined __cplusplus || __GNUC_PREREQ (4,3)
-*/
-/* end L4: */
+#if !defined __cplusplus || __GNUC_PREREQ (4,3) || __CLANG_PREREQ(8,0)
 # if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__ || defined __cplusplus
 #  define __extern_inline extern __inline __attribute__ ((__gnu_inline__))
 #  if __GNUC_PREREQ (4,3)
