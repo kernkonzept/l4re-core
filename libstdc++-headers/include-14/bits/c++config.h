@@ -36,7 +36,7 @@
 #define _GLIBCXX_RELEASE 14
 
 // The datestamp of the C++ library in compressed ISO date format.
-#define __GLIBCXX__ 20240330
+#define __GLIBCXX__ 20240714
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -1755,6 +1755,9 @@ namespace __gnu_cxx
 
 /* Define if NLS translations are to be used. */
 //l4/#define _GLIBCXX_USE_NLS 1
+
+/* Define if nl_langinfo_l should be used for std::text_encoding. */
+//l4/#define _GLIBCXX_USE_NL_LANGINFO_L 1
 
 /* Define if pthreads_num_processors_np is available in <pthread.h>. */
 /* #undef _GLIBCXX_USE_PTHREADS_NUM_PROCESSORS_NP */

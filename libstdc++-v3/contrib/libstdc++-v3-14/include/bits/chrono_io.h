@@ -1607,7 +1607,10 @@ namespace __format
 	format(const chrono::duration<_Rep, _Period>& __d,
 	       basic_format_context<_Out, _CharT>& __fc) const
 	{
-	  return _M_f._M_format(chrono::abs(__d), __fc, __d < __d.zero());
+	  if constexpr (numeric_limits<_Rep>::is_signed)
+	    if (__d < __d.zero())
+	      return _M_f._M_format(-__d, __fc, true);
+	  return _M_f._M_format(__d, __fc, false);
 	}
 
     private:
@@ -3685,6 +3688,7 @@ namespace __detail
 		      if (!__is_failed(__err)) [[likely]]
 			{
 			  long double __val{};
+#if __cpp_lib_to_chars
 			  string __str = std::move(__buf).str();
 			  auto __first = __str.data();
 			  auto __last = __first + __str.size();
@@ -3694,6 +3698,9 @@ namespace __detail
 			  if ((bool)ec || ptr != __last) [[unlikely]]
 			    __err |= ios_base::failbit;
 			  else
+#else
+			  if (__buf >> __val)
+#endif
 			    {
 			      duration<long double> __fs(__val);
 			      if constexpr (__is_floating)
