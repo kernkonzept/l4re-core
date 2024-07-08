@@ -16,11 +16,11 @@ static char *heap_pos = __heap_start;
 
 void *uclibc_morecore(long bytes)
 {
-  if (bytes <= 0)
-    return heap_pos;
-
   if (__heap_end - heap_pos < bytes)
-    return (void*)-1;
+    {
+      errno = ENOMEM;
+      return reinterpret_cast<void *>(-1);
+    }
 
   void *ret = heap_pos;
   heap_pos += bytes;
