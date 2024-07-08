@@ -1,5 +1,6 @@
 /* Save and set current context.
    Copyright (C) 2009-2018 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -19,7 +20,7 @@
 
 /* int swapcontext (ucontext_t *oucp, const ucontext_t *ucp) */
 
-LEAF (swapcontext)
+LEAF (__swapcontext)
 	mv	t0, a1			/* Save ucp into t0.  */
 
 	SAVE_INT_REG (ra,   0, a0)
@@ -119,4 +120,6 @@ LEAF (swapcontext)
 
 99:	j	__syscall_error
 
-PSEUDO_END (swapcontext)
+PSEUDO_END (__swapcontext)
+
+weak_alias (__swapcontext, swapcontext)

@@ -12,6 +12,9 @@
 # include <sys/time.h>
 # include <time.h>
 
+extern int clock_settime (clockid_t __clock_id, const struct timespec *__tp)
+     __THROW;
+
 int settimeofday(const struct timeval *tv, const struct timezone *tz)
 {
 	if (!tv)

@@ -1036,7 +1036,7 @@ int _dl_fixup(struct dyn_elf *rpnt, struct r_scope_elem *scope, int now_flag)
 		return goof;
 	}
 
-#if !defined(__FDPIC__) && !defined(__DSBT__)
+#if !defined(__FDPIC__) && !defined(__FRV_FDPIC__) && !defined(__DSBT__)
 	/* Process DT_RELR relative relocations */
 	DL_RELOCATE_RELR(tpnt);
 #endif

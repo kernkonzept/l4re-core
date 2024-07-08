@@ -45,8 +45,6 @@
    to allow dynamic loading of modules defining IE-model TLS data.  */
 # define TLS_STATIC_SURPLUS	64 + DL_NNS * 100
 
-/* Value used for dtv entries for which the allocation is delayed.  */
-# define TLS_DTV_UNALLOCATED	((void *) -1l)
 
 #ifndef SHARED
 extern dtv_t static_dtv;

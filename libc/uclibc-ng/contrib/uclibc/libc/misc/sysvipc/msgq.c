@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <sys/msg.h>
+#include <stddef.h>
 #include "ipc.h"
 #ifdef __UCLIBC_HAS_THREADS_NATIVE__
 #include "sysdep-cancel.h"
@@ -7,6 +8,12 @@
 #define SINGLE_THREAD_P 1
 #endif
 
+#if defined(__UCLIBC_USE_TIME64__)
+union msqun {
+    struct msqid_ds* buff;
+    void *__pad;
+};
+#endif
 
 #ifdef L_msgctl
 
@@ -18,9 +25,19 @@ static __inline__ _syscall3(int, __libc_msgctl, int, msqid, int, cmd, struct msq
 int msgctl(int msqid, int cmd, struct msqid_ds *buf)
 {
 #ifdef __NR_msgctl
-	return __libc_msgctl(msqid, cmd | __IPC_64, buf);
+	int __ret = __libc_msgctl(msqid, cmd | __IPC_64, buf);
+#if (__WORDSIZE == 32) && defined(__UCLIBC_USE_TIME64__) && (defined(__mips) || defined(__riscv))
+	union msqun arg = {.buff = buf};
+	// When cmd is IPC_RMID, buf should be NULL.
+	if (arg.__pad != NULL) {
+		arg.buff->msg_stime = (__time_t)arg.buff->msg_stime_internal_1 | (__time_t)(arg.buff->msg_stime_internal_2) << 32;
+		arg.buff->msg_rtime = (__time_t)arg.buff->msg_rtime_internal_1 | (__time_t)(arg.buff->msg_rtime_internal_2) << 32;
+		arg.buff->msg_ctime = (__time_t)arg.buff->msg_ctime_internal_1 | (__time_t)(arg.buff->msg_ctime_internal_2) << 32;
+	}
+#endif
+	return __ret;
 #else
-    return __syscall_ipc(IPCOP_msgctl, msqid, cmd | __IPC_64, 0, buf, 0);
+	return __syscall_ipc(IPCOP_msgctl, msqid, cmd | __IPC_64, 0, buf, 0);
 #endif
 }
 #endif

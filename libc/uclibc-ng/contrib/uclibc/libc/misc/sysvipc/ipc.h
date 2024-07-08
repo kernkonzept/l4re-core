@@ -1,12 +1,19 @@
 #ifndef IPC_H
 #define IPC_H
 #include <syscall.h>
+#include <bits/kernel-features.h>
 #include <bits/wordsize.h>
 
 #ifndef __ARCH_HAS_DEPRECATED_SYSCALLS__
 #  define __IPC_64	0x0
+#elif defined __mips__ || defined __m68k__
+# if __LINUX_KERNEL_VERSION < 0x050100
+#  define __IPC_64      0x100
+# else
+#  define __IPC_64      0x0
+# endif
 #else
-# if __WORDSIZE == 32 || defined __alpha__ || defined __mips__
+# if __WORDSIZE == 32 || defined __alpha__
 #  define __IPC_64	0x100
 # else
 #  define __IPC_64	0x0

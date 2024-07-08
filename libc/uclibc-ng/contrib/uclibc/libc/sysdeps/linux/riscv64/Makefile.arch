@@ -1,2 +1,4 @@
 CSRC-y := __syscall_error.c cache.c
 SSRC-y := __longjmp.S setjmp.S vfork.S clone.S
+CSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.c
+SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += getcontext.S setcontext.S swapcontext.S

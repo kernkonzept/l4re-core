@@ -40,6 +40,8 @@ off_t __NC(lseek)(int fd, off_t offset attribute_unused, int whence)
 		case SEEK_SET:
 		case SEEK_CUR:
 		case SEEK_END:
+		case SEEK_DATA:
+		case SEEK_HOLE:
 			break;
 		default:
 			__set_errno(EINVAL);

@@ -1,5 +1,6 @@
 /* Set current context.
    Copyright (C) 2009-2018 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -27,7 +28,7 @@
   other than the PRESERVED state.  */
 
 	.text
-LEAF (setcontext)
+LEAF (__setcontext)
 
 	mv	t0, a0	/* Save ucp into t0.  */
 
@@ -93,9 +94,10 @@ LEAF (setcontext)
 
 99:	j	__syscall_error
 
-PSEUDO_END (setcontext)
+PSEUDO_END (__setcontext)
+weak_alias (__setcontext, setcontext)
 
-LEAF (start_context)
+LEAF (__start_context)
 
 	/* Terminate call stack by noting ra == 0.  Happily, s0 == 0 here.  */
 	cfi_register (ra, s0)
@@ -106,7 +108,7 @@ LEAF (start_context)
 	/* Invoke subsequent context if present, else exit(0).  */
 	mv	a0, s2
 	beqz	s2, 1f
-	jal	setcontext
+	jal	__setcontext
 1:	j	exit
 
-PSEUDO_END (start_context)
+PSEUDO_END (__start_context)

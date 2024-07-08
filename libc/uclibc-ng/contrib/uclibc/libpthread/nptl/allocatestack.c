@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <sys/mman.h>
 #include <sys/param.h>
+#include <dl-tls.h>
 #include <tls.h>
 #include <lowlevellock.h>
 #include <link.h>
@@ -241,6 +242,10 @@ get_cached_stack (size_t *sizep, void **memp)
 
   /* Clear the DTV.  */
   dtv_t *dtv = GET_DTV (TLS_TPADJ (result));
+  for (size_t cnt = 0; cnt < dtv[-1].counter; ++cnt)
+    if (! dtv[1 + cnt].pointer.is_static
+	      && dtv[1 + cnt].pointer.val != TLS_DTV_UNALLOCATED)
+      free (dtv[1 + cnt].pointer.val);
   memset (dtv, '\0', (dtv[-1].counter + 1) * sizeof (dtv_t));
 
   /* Re-initialize the TLS.  */

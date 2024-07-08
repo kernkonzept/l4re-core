@@ -304,7 +304,7 @@ DL_START(unsigned long args)
 	   that once we are done, we have considerably more flexibility. */
 	SEND_EARLY_STDERR_DEBUG("About to do library loader relocations\n");
 
-#if !defined(__FDPIC__) && !defined(__DSBT__)
+#if !defined(__FDPIC__) && !defined(__FRV_FDPIC__) && !defined(__DSBT__)
 	/* Process DT_RELR relative relocations */
 	DL_RELOCATE_RELR(tpnt);
 #endif

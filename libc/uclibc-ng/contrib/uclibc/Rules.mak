@@ -1,7 +1,7 @@
 # Rules.mak for uClibc-ng
 #
 # Copyright (C) 2000-2008 Erik Andersen <andersen@uclibc.org>
-# Copyright (C) 2015-2024 Waldemar Brodkorb <wbx@uclibc-ng.org>
+# Copyright (C) 2015-2026 Waldemar Brodkorb <wbx@uclibc-ng.org>
 #
 # Licensed under the LGPL v2.1, see the file COPYING.LIB in this tarball.
 #
@@ -128,7 +128,7 @@ export RUNTIME_PREFIX DEVEL_PREFIX KERNEL_HEADERS MULTILIB_DIR
 # Now config hard core
 MAJOR_VERSION := 1
 MINOR_VERSION := 0
-SUBLEVEL      := 49
+SUBLEVEL      := 57
 EXTRAVERSION  :=
 VERSION       := $(MAJOR_VERSION).$(MINOR_VERSION).$(SUBLEVEL)
 ABI_VERSION   := $(MAJOR_VERSION)
@@ -312,10 +312,6 @@ endif
 endif
 endif
 
-ifeq ($(TARGET_ARCH),aarch64)
-CPU_CFLAGS-y += -ftls-model=initial-exec
-endif
-
 $(eval $(call check-gcc-var,-std=gnu99))
 CPU_CFLAGS-y += $(CFLAG_-std=gnu99)
 
@@ -387,6 +383,7 @@ endif
 ifeq ($(TARGET_ARCH),sparc)
 	CPU_CFLAGS-$(CONFIG_SPARC_V7)+=-mcpu=v7
 	CPU_CFLAGS-$(CONFIG_SPARC_V8)+=-mcpu=v8
+	CPU_CFLAGS-$(CONFIG_SPARC_LEON3)+=-mcpu=leon3
 	CPU_CFLAGS-$(CONFIG_SPARC_V9)+=-mcpu=v9
 	CPU_CFLAGS-$(CONFIG_SPARC_V9B)+=$(call check_gcc,-mcpu=v9b,-mcpu=ultrasparc)
 endif
@@ -667,6 +664,12 @@ CFLAGS += $(call qstrip,$(UCLIBC_EXTRA_CFLAGS))
 endif
 ifeq ($(TARGET_ARCH),i386)
 CFLAGS += -fno-omit-frame-pointer
+endif
+ifeq ($(TARGET_ARCH),bfin)
+CFLAGS += -Wno-implicit-function-declaration
+endif
+ifeq ($(TARGET_ARCH),frv)
+CFLAGS += -Wno-implicit-function-declaration
 endif
 ifneq ($(strip $(UCLIBC_EXTRA_LDFLAGS)),"")
 LDFLAGS += $(call qstrip,$(UCLIBC_EXTRA_LDFLAGS))

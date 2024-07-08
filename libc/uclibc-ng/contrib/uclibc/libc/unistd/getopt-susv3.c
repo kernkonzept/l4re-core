@@ -46,6 +46,15 @@ int getopt(int argc, char * const argv[], const char *optstring)
 	optopt = 0;
 	optarg = NULL;
 
+	/*
+	 * POSIX says behavior when optind == 0 is unspecified, but other
+	 * libcs use this wiggle room to allow reseting getopt; we can too
+	 */
+	if (!optind) {
+		o = NULL;
+		optind = 1;
+	}
+
 	if (!o) {				/* Not in a multi-option arg. */
 		if ((optind >= argc)	/* No more args? */
 			|| ((p = argv[optind]) == NULL) /* Missing? */
@@ -93,7 +102,7 @@ int getopt(int argc, char * const argv[], const char *optstring)
 #ifdef __BCC__
 					fprintf(stderr, "%s: %s -- %c\n", argv[0], s, *o);
 #else
-					fprintf(stderr, _(s), argv[0], *o);
+					fprintf(stderr, s, argv[0], *o);
 #endif
 				}
 			}

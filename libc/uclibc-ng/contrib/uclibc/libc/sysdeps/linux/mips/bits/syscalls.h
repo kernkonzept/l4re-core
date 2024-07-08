@@ -184,7 +184,7 @@
 ({									\
 	long _sys_result;						\
 									\
-	FORCE_FRAME_POINTER;						\
+	int* array = FORCE_FRAME_POINTER;				\
 	{								\
 	register long __v0 __asm__("$2") ncs_init;			\
 	register long __a0 __asm__("$4") = (long) arg1;			\
@@ -193,15 +193,16 @@
 	register long __a3 __asm__("$7") = (long) arg4;			\
 	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
-	"subu\t$29, 32\n\t"						\
+	"subu\t$29, 32\n\t"                                             \
 	"sw\t%6, 16($29)\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
-	"addiu\t$29, 32\n\t"						\
-	".set\treorder"						\
+	"addiu\t$29, 32\n\t"                                            \
+	"addiu\t%7, %7, 0\n\t"						\
+	".set\treorder"						        \
 	: "=r" (__v0), "+r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2),			\
-	  "r" ((long)arg5)						\
+	  "r" ((long)arg5), "r" (array)					\
 	: __SYSCALL_CLOBBERS);						\
 	err = __a3;							\
 	_sys_result = __v0;						\
@@ -213,7 +214,7 @@
 ({									\
 	long _sys_result;						\
 									\
-	FORCE_FRAME_POINTER;						\
+	int* array = FORCE_FRAME_POINTER;				\
 	{								\
 	register long __v0 __asm__("$2") ncs_init;			\
 	register long __a0 __asm__("$4") = (long) arg1;			\
@@ -221,17 +222,18 @@
 	register long __a2 __asm__("$6") = (long) arg3;			\
 	register long __a3 __asm__("$7") = (long) arg4;			\
 	__asm__ __volatile__ (						\
-	".set\tnoreorder\n\t"						\
-	"subu\t$29, 32\n\t"						\
+	".set\tnoreorder\n\t"                                           \
+	"subu\t$29, 32\n\t"                                             \
 	"sw\t%6, 16($29)\n\t"						\
 	"sw\t%7, 20($29)\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
-	"addiu\t$29, 32\n\t"						\
-	".set\treorder"						\
+	"addiu\t$29, 32\n\t"                                            \
+	"addiu\t%8, %8, 0\n\t"						\
+	".set\treorder"						        \
 	: "=r" (__v0), "+r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2),			\
-	  "r" ((long)arg5), "r" ((long)arg6)				\
+	  "r" ((long)arg5), "r" ((long)arg6), "r" (array)		\
 	: __SYSCALL_CLOBBERS);						\
 	err = __a3;							\
 	_sys_result = __v0;						\
@@ -243,7 +245,7 @@
 ({									\
 	long _sys_result;						\
 									\
-	FORCE_FRAME_POINTER;						\
+	int* array = FORCE_FRAME_POINTER;				\
 	{								\
 	register long __v0 __asm__("$2") ncs_init;			\
 	register long __a0 __asm__("$4") = (long) arg1;			\
@@ -252,17 +254,19 @@
 	register long __a3 __asm__("$7") = (long) arg4;			\
 	__asm__ __volatile__ (						\
 	".set\tnoreorder\n\t"						\
-	"subu\t$29, 32\n\t"						\
+	"subu\t$29, 32\n\t"                                             \
 	"sw\t%6, 16($29)\n\t"						\
 	"sw\t%7, 20($29)\n\t"						\
 	"sw\t%8, 24($29)\n\t"						\
 	cs_init								\
 	"syscall\n\t"							\
-	"addiu\t$29, 32\n\t"						\
-	".set\treorder"						\
+	"addiu\t$29, 32\n\t"                                            \
+	"addiu\t%9, %9, 0\n\t"						\
+	".set\treorder"							\
 	: "=r" (__v0), "+r" (__a3)					\
 	: input, "r" (__a0), "r" (__a1), "r" (__a2),			\
-	  "r" ((long)arg5), "r" ((long)arg6), "r" ((long)arg7)		\
+	  "r" ((long)arg5), "r" ((long)arg6), "r" ((long)arg7),		\
+	  "r" (array)							\
 	: __SYSCALL_CLOBBERS);						\
 	err = __a3;							\
 	_sys_result = __v0;						\

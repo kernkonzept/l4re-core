@@ -13,7 +13,7 @@
 #if defined __NR_pipe2 && !defined __NR_pipe
 int pipe(int filedes[2])
 {
-	return pipe2(filedes, 0);
+	return INLINE_SYSCALL(pipe2, 2, filedes, 0);
 }
 /* If both are defined then use the pipe syscall */
 #else

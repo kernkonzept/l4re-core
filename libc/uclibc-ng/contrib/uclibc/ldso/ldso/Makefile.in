@@ -19,6 +19,11 @@ ifeq ($(TARGET_ARCH),arm)
 CFLAGS-rtld += -fno-unwind-tables -fno-asynchronous-unwind-tables
 endif
 
+ifeq ($(TARGET_ARCH),bfin)
+# for gcc 10.5.0 and above we need to use -ffreestanding
+CFLAGS-rtld += -ffreestanding
+endif
+
 CFLAGS-rtld += -I$(top_srcdir)ldso/ldso/$(TARGET_ARCH) -I$(top_srcdir)ldso/include -I$(top_srcdir)ldso/ldso
 CFLAGS-rtld += -DUCLIBC_RUNTIME_PREFIX=\"$(RUNTIME_PREFIX)\" -DUCLIBC_LDSO=\"$(UCLIBC_LDSO)\"
 

@@ -54,7 +54,17 @@ struct statx
   __uint32_t stx_rdev_minor;
   __uint32_t stx_dev_major;
   __uint32_t stx_dev_minor;
-  __uint64_t __statx_pad2[14];
+  __uint64_t stx_mnt_id;
+  __uint32_t stx_dio_mem_align;
+  __uint32_t stx_dio_offset_align;
+  __uint64_t stx_subvol;
+  __uint32_t stx_atomic_write_unit_min;
+  __uint32_t stx_atomic_write_unit_max;
+  __uint32_t stx_atomic_write_segments_max;
+  __uint32_t stx_dio_read_offset_align;
+  __uint32_t stx_atomic_write_unit_max_opt;
+  __uint32_t __statx_pad2;
+  __uint64_t __statx_pad3[8];
 };
 
 #ifndef STATX_TYPE
@@ -72,6 +82,12 @@ struct statx
 # define STATX_BASIC_STATS 0x07ffU
 # define STATX_ALL 0x0fffU
 # define STATX_BTIME 0x0800U
+# define STATX_MNT_ID 0x1000U
+# define STATX_DIOALIGN 0x2000U
+# define STATX_MNT_ID_UNIQUE 0x4000U
+# define STATX_SUBVOL 0x8000U
+# define STATX_WRITE_ATOMIC 0x00010000U
+# define STATX_DIO_READ_ALIGN 0x00020000U
 # define STATX__RESERVED 0x80000000U
 
 # define STATX_ATTR_COMPRESSED 0x0004
@@ -80,6 +96,10 @@ struct statx
 # define STATX_ATTR_NODUMP 0x0040
 # define STATX_ATTR_ENCRYPTED 0x0800
 # define STATX_ATTR_AUTOMOUNT 0x1000
+# define STATX_ATTR_MOUNT_ROOT 0x2000
+# define STATX_ATTR_VERITY 0x100000
+# define STATX_ATTR_DAX 0x200000
+# define STATX_ATTR_WRITE_ATOMIC 0x00400000
 #endif /* !STATX_TYPE */
 
 __BEGIN_DECLS

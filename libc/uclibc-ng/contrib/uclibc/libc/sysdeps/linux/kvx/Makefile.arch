@@ -8,3 +8,5 @@
 CSRC-y := __syscall_error.c
 CSRC-$(UCLIBC_LINUX_SPECIFIC) += cachectl.c
 SSRC-y := setjmp.S bsd-setjmp.S bsd-_setjmp.S __longjmp.S clone.S vfork.S
+CSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += makecontext.c
+SSRC-$(UCLIBC_HAS_CONTEXT_FUNCS) += getcontext.S setcontext.S swapcontext.S

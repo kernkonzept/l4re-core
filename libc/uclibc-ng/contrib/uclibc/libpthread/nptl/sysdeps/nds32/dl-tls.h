@@ -56,4 +56,6 @@ extern void *_dl_make_tlsdesc_dynamic (struct link_map *map, size_t ti_offset);
 extern ptrdiff_t attribute_hidden
   _dl_tlsdesc_dynamic(struct tlsdesc *);
 
+#define TLS_DTV_UNALLOCATED ((void *) -1l)
+
 #endif //_NDS32_DL_TLS_H

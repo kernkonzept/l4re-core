@@ -30,6 +30,7 @@ config FORCE_OPTIONS_FOR_ARCH
 	default y
 	select ARCH_LITTLE_ENDIAN
         select ARCH_HAS_MMU
+	select ARCH_HAS_UCONTEXT
 	select UCLIBC_HAS_FPU
 	select UCLIBC_HAS_FENV
 	select UCLIBC_HAS_WCHAR

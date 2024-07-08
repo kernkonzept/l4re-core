@@ -120,7 +120,7 @@ __spawni(pid_t *pid, const char *file,
 	short int flags = attrp ? attrp->__flags : 0;
 
 	pid_t new_pid;
-	if (is_vfork_safe(flags) && !fa)
+	if (is_vfork_safe(flags))
 		new_pid = vfork();
 	else {
 #ifdef __ARCH_USE_MMU__

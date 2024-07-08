@@ -86,7 +86,7 @@ SHELL_SET_X := set +x
 define rel_srcdir
 	$(shell $(CONFIG_SHELL) $(top_srcdir)/extra/scripts/relative_path.sh $(@D) .)
 endef
-ifneq ($(findstring s,$(MAKEFLAGS)),)
+ifneq (,$(filter -s,$(wordlist 1,$(words $(MAKEFLAGS)),$(MAKEFLAGS))))
 export MAKE_IS_SILENT := y
 SECHO := -@false
 DISP := sil

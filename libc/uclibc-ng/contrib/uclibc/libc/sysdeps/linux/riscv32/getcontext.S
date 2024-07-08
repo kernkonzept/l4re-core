@@ -1,5 +1,6 @@
 /* Save current context.
    Copyright (C) 2009-2018 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -20,7 +21,7 @@
 /* int getcontext (ucontext_t *ucp) */
 
 	.text
-LEAF (getcontext)
+LEAF (__getcontext)
 	SAVE_INT_REG (ra,   0, a0)
 	SAVE_INT_REG (ra,   1, a0)
 	SAVE_INT_REG (sp,   2, a0)
@@ -71,4 +72,6 @@ LEAF (getcontext)
 
 99:	j	__syscall_error
 
-PSEUDO_END (getcontext)
+PSEUDO_END (__getcontext)
+
+weak_alias (__getcontext, getcontext)

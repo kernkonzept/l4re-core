@@ -25,6 +25,13 @@
 #include <syscall.h>
 #include "ipc.h"
 
+#if defined(__UCLIBC_USE_TIME64__)
+union shmun {
+    struct shmid_ds* buff;
+    void *__pad;
+};
+#endif
+
 #ifdef L_shmat
 /* Attach the shared memory segment associated with SHMID to the data
    segment of the calling process.  SHMADDR and SHMFLG determine how
@@ -59,7 +66,17 @@ static __always_inline _syscall3(int, __syscall_shmctl, int, shmid, int, cmd, st
 int shmctl(int shmid, int cmd, struct shmid_ds *buf)
 {
 #ifdef __NR_shmctl
-	return __syscall_shmctl(shmid, cmd | __IPC_64, buf);
+	int __ret = __syscall_shmctl(shmid, cmd | __IPC_64, buf);
+#if (__WORDSIZE == 32) && defined(__mips) && defined(__UCLIBC_USE_TIME64__)
+	union shmun arg = {.buff = buf};
+	// When cmd is IPC_RMID, buf should be NULL.
+        if (arg.__pad != NULL) {
+		arg.buff->shm_atime = (__time_t)arg.buff->shm_atime_internal_1 | (__time_t)(arg.buff->shm_atime_internal_2) << 32;
+		arg.buff->shm_dtime = (__time_t)arg.buff->shm_dtime_internal_1 | (__time_t)(arg.buff->shm_dtime_internal_2) << 32;
+		arg.buff->shm_ctime = (__time_t)arg.buff->shm_ctime_internal_1 | (__time_t)(arg.buff->shm_ctime_internal_2) << 32;
+	}
+#endif
+	return __ret;
 #else
     return __syscall_ipc(IPCOP_shmctl, shmid, cmd | __IPC_64, 0, buf, 0);
 #endif

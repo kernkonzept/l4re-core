@@ -47,7 +47,14 @@
 
 _start:
 	call  .Lload_gp
-	mv    a5, a0  /* rtld_fini.  */
+	mv    s0, a0  /* rtld_fini.  */
+#ifdef L_rcrt1
+1:
+	auipc a0, %pcrel_hi(__ehdr_start)
+	addi  a0, a0, %pcrel_lo(1b)
+	call  reloc_static_pie
+#endif
+	mv    a5, s0  /* rtld_fini.  */
 	/* main may be in a shared library.  */
 	la   a0, main
 	REG_L a1, 0(sp)      /* argc.  */

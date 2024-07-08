@@ -14,6 +14,8 @@
 #include "ldso.h"
 #endif
 
+extern int clock_gettime (clockid_t __clock_id, struct timespec *__tp) __THROW;
+
 int gettimeofday(struct timeval * tv, __timezone_ptr_t tz) {
     if (!tv)
         return 0;

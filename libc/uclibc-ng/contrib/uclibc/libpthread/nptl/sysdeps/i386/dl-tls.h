@@ -59,3 +59,6 @@ strong_alias (___tls_get_addr, ___tls_get_addr_internal)
 
 # endif
 #endif
+
+/* Value used for dtv entries for which the allocation is delayed.  */
+#define TLS_DTV_UNALLOCATED    ((void *) -1l)

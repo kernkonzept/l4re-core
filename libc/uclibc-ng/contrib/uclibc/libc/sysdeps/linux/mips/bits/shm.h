@@ -46,14 +46,32 @@ struct shmid_ds
   {
     struct ipc_perm shm_perm;		/* operation permission struct */
     size_t shm_segsz;			/* size of segment in bytes */
-    __time_t shm_atime;			/* time of last shmat() */
-    __time_t shm_dtime;			/* time of last shmdt() */
-    __time_t shm_ctime;			/* time of last change by shmctl() */
+#if (__WORDSIZE == 32) && defined(__UCLIBC_USE_TIME64__)
+    unsigned long int shm_atime_internal_1;		/* time of last shmat() */
+    unsigned long int shm_dtime_internal_1;		/* time of last shmdt() */
+    unsigned long int shm_ctime_internal_1;		/* time of last change by shmctl() */
+#else
+    __time_t shm_atime;
+    __time_t shm_dtime;
+    __time_t shm_ctime;
+#endif
     __pid_t shm_cpid;			/* pid of creator */
     __pid_t shm_lpid;			/* pid of last shmop */
     shmatt_t shm_nattch;		/* number of current attaches */
-    unsigned long int __uclibc_unused1;
-    unsigned long int __uclibc_unused2;
+#if (__WORDSIZE == 32) && defined(__UCLIBC_USE_TIME64__)
+    unsigned short int shm_atime_internal_2;		/* time of last shmat() */
+    unsigned short int shm_dtime_internal_2;		/* time of last shmdt() */
+    unsigned short int shm_ctime_internal_2;		/* time of last change by shmctl() */
+    unsigned short int __uclibc_unused1;
+    __time_t shm_atime;
+    __time_t shm_dtime;
+    __time_t shm_ctime;
+#else
+    unsigned short int __uclibc_unused1;
+    unsigned short int __uclibc_unused2;
+    unsigned short int __uclibc_unused3;
+    unsigned short int __uclibc_unused4;
+#endif
   };
 
 #ifdef __USE_MISC

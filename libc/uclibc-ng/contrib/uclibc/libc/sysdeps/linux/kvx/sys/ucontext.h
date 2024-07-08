@@ -17,11 +17,13 @@
 /* Type for general register.  */
 typedef unsigned long greg_t;
 
+typedef struct sigcontext mcontext_t;
+
 typedef struct ucontext {
 	unsigned long	  uc_flags;
 	struct ucontext  *uc_link;
 	stack_t		  uc_stack;
-	struct sigcontext uc_mcontext;
+	mcontext_t	  uc_mcontext;
 	sigset_t	  uc_sigmask;	/* mask last for extensibility */
 } ucontext_t;
 

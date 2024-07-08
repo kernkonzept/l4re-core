@@ -15,5 +15,5 @@ _syscall2_64(int, clock_adjtime, clockid_t, clock_id, struct timex*, ntx)
 #elif defined(__NR_clock_adjtime)
 _syscall2(int, clock_adjtime, clockid_t, clock_id, struct timex*, ntx)
 #else
-#error "clock_adjtime syscall is not defined!"
+#warning "clock_adjtime syscall is not defined!"
 #endif

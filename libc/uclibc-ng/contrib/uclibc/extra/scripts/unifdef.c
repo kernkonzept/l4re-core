@@ -201,7 +201,7 @@ static int              depth;			/* current #if nesting */
 static int              delcount;		/* count of deleted lines */
 static unsigned         blankcount;		/* count of blank lines */
 static unsigned         blankmax;		/* maximum recent blankcount */
-static bool             constexpr;		/* constant #if expression */
+static bool             const_expr;		/* constant #if expression */
 static bool             zerosyms;		/* to format symdepth output */
 static bool             firstsym;		/* ditto */
 
@@ -951,7 +951,7 @@ static long prec(const struct ops *ops)
 /*
  * Function for evaluating the innermost parts of expressions,
  * viz. !expr (expr) number defined(symbol) symbol
- * We reset the constexpr flag in the last two cases.
+ * We reset the const_expr flag in the last two cases.
  */
 static Linetype
 eval_unary(const struct ops *ops, long *valp, const char **cpp)
@@ -1011,7 +1011,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
 			*valp = (value[sym] != NULL);
 			lt = *valp ? LT_TRUE : LT_FALSE;
 		}
-		constexpr = false;
+		const_expr = false;
 	} else if (!endsym(*cp)) {
 		debug("eval%d symbol", prec(ops));
 		sym = findsym(&cp);
@@ -1028,7 +1028,7 @@ eval_unary(const struct ops *ops, long *valp, const char **cpp)
 			lt = *valp ? LT_TRUE : LT_FALSE;
 			cp = skipargs(cp);
 		}
-		constexpr = false;
+		const_expr = false;
 	} else {
 		debug("eval%d bad expr", prec(ops));
 		return (LT_ERROR);
@@ -1088,10 +1088,10 @@ ifeval(const char **cpp)
 	long val = 0;
 
 	debug("eval %s", *cpp);
-	constexpr = killconsts ? false : true;
+	const_expr = killconsts ? false : true;
 	ret = eval_table(eval_ops, &val, cpp);
 	debug("eval = %d", val);
-	return (constexpr ? LT_IF : ret == LT_ERROR ? LT_IF : ret);
+	return (const_expr ? LT_IF : ret == LT_ERROR ? LT_IF : ret);
 }
 
 /*

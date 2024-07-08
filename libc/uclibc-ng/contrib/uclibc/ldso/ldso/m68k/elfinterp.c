@@ -193,7 +193,7 @@ _dl_do_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 #endif
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	old_val = *reloc_addr;
+	old_val = reloc_addr ? *reloc_addr : 0;
 #endif
 
 	switch (reloc_type) {
@@ -292,7 +292,7 @@ _dl_do_lazy_reloc(struct elf_resolve *tpnt, struct r_scope_elem *scope,
 	reloc_type = ELF_R_TYPE(rpnt->r_info);
 
 #if defined (__SUPPORT_LD_DEBUG__)
-	old_val = *reloc_addr;
+	old_val = reloc_addr ? *reloc_addr : 0;
 #endif
 
 	switch (reloc_type) {

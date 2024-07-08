@@ -37,17 +37,31 @@ typedef unsigned long int msglen_t;
 struct msqid_ds
 {
   struct ipc_perm msg_perm;	/* structure describing operation permission */
+#if (__WORDSIZE == 32 && defined(__riscv) && defined(__UCLIBC_USE_TIME64__))
+  unsigned long int msg_stime_internal_1;
+  unsigned long int msg_stime_internal_2;
+  unsigned long int msg_rtime_internal_1;
+  unsigned long int msg_rtime_internal_2;
+  unsigned long int msg_ctime_internal_1;
+  unsigned long int msg_ctime_internal_2;
+#else
   __time_t msg_stime;		/* time of last msgsnd command */
   unsigned long int __uclibc_unused1;
   __time_t msg_rtime;		/* time of last msgrcv command */
   unsigned long int __uclibc_unused2;
   __time_t msg_ctime;		/* time of last change */
   unsigned long int __uclibc_unused3;
+#endif
   unsigned long int __msg_cbytes; /* current number of bytes on queue */
   msgqnum_t msg_qnum;		/* number of messages currently on queue */
   msglen_t msg_qbytes;		/* max number of bytes allowed on queue */
   __pid_t msg_lspid;		/* pid of last msgsnd() */
   __pid_t msg_lrpid;		/* pid of last msgrcv() */
+#if (__WORDSIZE == 32 && defined(__riscv) && defined(__UCLIBC_USE_TIME64__))
+  __time_t msg_stime;		/* time of last msgsnd command */
+  __time_t msg_rtime;		/* time of last msgrcv command */
+  __time_t msg_ctime;		/* time of last change */
+#endif
   unsigned long int __uclibc_unused4;
   unsigned long int __uclibc_unused5;
 };
