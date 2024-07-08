@@ -28,15 +28,14 @@
 
 
 #ifndef __VDSO_SUPPORT__
-    void load_vdso(void *sys_info_ehdr attribute_unused,
-                   char **envp attribute_unused ){
+void load_vdso( void *sys_info_ehdr attribute_unused,
+                char **envp attribute_unused ){
 #ifdef __SUPPORT_LD_DEBUG__
-        if ( _dl_debug_vdso != 0 ){
-            _dl_dprintf(2,"_dl_vdso support not enabled\n" );
-        }
-
-#endif
+    if ( _dl_debug_vdso != 0 ){
+        _dl_dprintf(2,"_dl_vdso support not enabled\n" );
     }
+#endif
+}
 #else
 
 void *_dl__vdso_gettimeofday  = 0;
