@@ -30,6 +30,8 @@ libclang_rt_src = $(call libclang_rt_src_generic,$(LIBCLANG_RT_A),$1,.o,$(BUILTI
 
 $(eval $(call libclang_rt_include,$(LIBCLANG_RT_PKG_DIR)/build/src/Makevars))
 
+GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES)
+
 $(eval $(call libclang_rt_include_versioned,$(LIBCLANG_RT_PKG_DIR)/build/src/Makefile-$(CPU_TYPE)))
 
 # Filter out generic source files for that architecture specific overrides are provided.

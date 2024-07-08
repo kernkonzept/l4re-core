@@ -136,7 +136,7 @@ GENERIC_SOURCES += truncdfbf2.c truncsfbf2.c
 endif
 
 # TODO: Reimplement for L4Re
-# GENERIC_BUILTINS_SRC += clear_cache.c
+# GENERIC_SOURCES += clear_cache.c
 
 define GENERIC_SOURCES_TF
   addtf3.c
