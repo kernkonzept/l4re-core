@@ -125,7 +125,10 @@ SRC_CC-variant-std += \
   c++20/sstream-inst.cc
 
 # Only include the following in full libstdc++ builds
-SRC_CC-variant-std-$(STDCXX_IS_FULL) += c_locale.cc
+SRC_CC-variant-std-$(STDCXX_IS_FULL) += \
+  c_locale.cc \
+  c++17/floating_from_chars.cc \
+  c++17/floating_to_chars.cc
 
 SRC_CC-variant-nofpu += \
   c++11/condition_variable.cc \
