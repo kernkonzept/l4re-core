@@ -64,6 +64,13 @@ __longjmp:
 
 #if defined __UCLIBC_HAS_FLOATS__ && ! defined __UCLIBC_HAS_SOFT_FLOAT__ && ! defined BID_VARIANT_FLAG_NOFPU
 #ifdef __VFP_FP__
+#  if __ARM_ARCH >= 8
+	/* Restore the VFP registers.  */
+	fldmiax ip!, {d8-d15}
+	/* Restore the floating-point status register.  */
+	ldr     r1, [ip], #4
+	fmxr    fpscr, r1
+#  else
 	/* Restore the VFP registers.  */
 	/* Following instruction is fldmiax ip!, {d8-d15}.  */
 	ldc	p11, cr8, [r12], #68
@@ -71,6 +78,7 @@ __longjmp:
 	ldr     r1, [ip], #4
 	/* Following instruction is fmxr fpscr, r1.  */
 	mcr	p10, 7, r1, cr1, cr0, 0
+#  endif
 # elif defined __MAVERICK__
 	cfldrd	mvd4,  [ip], #8 ; nop
 	cfldrd	mvd5,  [ip], #8 ; nop
