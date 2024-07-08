@@ -13,10 +13,16 @@
 #ifndef LIBUNWIND_CONFIG_H
 #define LIBUNWIND_CONFIG_H
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+
+
+#ifdef _LIBUNWIND_NO_STDIO
+#define assert(x)
+#else
+#include <assert.h>
+#endif
 
 #include <__libunwind_config.h>
 
@@ -146,7 +152,7 @@
 #define _LIBUNWIND_REMEMBER_CLEANUP_NEEDED
 #endif
 
-#if defined(NDEBUG) && defined(_LIBUNWIND_IS_BAREMETAL)
+#if defined(NDEBUG) || defined(_LIBUNWIND_IS_BAREMETAL) || defined(_LIBUNWIND_NO_STDIO)
 #define _LIBUNWIND_ABORT(msg)                                                  \
   do {                                                                         \
     abort();                                                                   \
@@ -160,7 +166,7 @@
   } while (0)
 #endif
 
-#if defined(NDEBUG) && defined(_LIBUNWIND_IS_BAREMETAL)
+#if defined(NDEBUG) || defined(_LIBUNWIND_IS_BAREMETAL) || defined(_LIBUNWIND_NO_STDIO)
 #define _LIBUNWIND_LOG0(msg)
 #define _LIBUNWIND_LOG(msg, ...)
 #else
@@ -174,7 +180,7 @@
   } while (0)
 #endif
 
-#if defined(NDEBUG)
+#if defined(NDEBUG) || defined(_LIBUNWIND_NO_STDIO)
   #define _LIBUNWIND_LOG_IF_FALSE(x) x
 #else
   #define _LIBUNWIND_LOG_IF_FALSE(x)                                           \
@@ -186,7 +192,7 @@
 #endif
 
 // Macros that define away in non-Debug builds
-#ifdef NDEBUG
+#if defined(NDEBUG) || defined(_LIBUNWIND_NO_STDIO)
   #define _LIBUNWIND_DEBUG_LOG(msg, ...)
   #define _LIBUNWIND_TRACE_API(msg, ...)
   #define _LIBUNWIND_TRACING_UNWINDING (0)

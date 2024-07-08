@@ -60,6 +60,10 @@ DEFINES += -D_LIBUNWIND_IS_NATIVE_ONLY
 # Prevent libunwind from doing Linux-specific stuff (sigreturn, CET).
 DEFINES += -U__linux__
 
+# Disable debug output as a workaround for use with libc_minimal, which does not
+# support printing.
+DEFINES += -D_LIBUNWIND_NO_STDIO
+
 # Threaded (SYSTEMS_ABI) or not-threaded (SYSTEMS_PLAIN -> pure)
 ifeq ($(L4API),l4f)
 DEFINES += -DLIBUNWIND_USE_WEAK_PTHREAD=1
