@@ -1,3 +1,393 @@
+2024-07-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-07-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/115807
+	* include/c_compatibility/stdatomic.h (_Atomic): Ensure it
+	refers to std::atomic in the global namespace.
+	* testsuite/29_atomics/headers/stdatomic.h/115807.cc: New test.
+
+2024-06-27  Alexandre Oliva  <oliva@adacore.com>
+
+	Backported from master:
+	2024-06-27  Alexandre Oliva  <oliva@adacore.com>
+
+	PR libstdc++/115454
+	* testsuite/experimental/simd/pr115454_find_last_set.cc: Defer
+	to check_vect_support_and_set_flags's default dg-do action.
+
+2024-06-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2023.xml: Change reference from
+	mainline GCC to the release branch.
+	* doc/xml/manual/status_cxx1998.xml: Remove confusing "not in
+	any particular release" text.
+	* doc/xml/manual/status_cxx2011.xml: Likewise.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Likewise.
+	* doc/xml/manual/status_cxx2020.xml: Likewise.
+	* doc/xml/manual/status_cxxtr1.xml: Likewise.
+	* doc/xml/manual/status_cxxtr24733.xml: Likewise.
+	* doc/html/manual/status.html: Regenerate.
+
+2024-06-21  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-06-21  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/115575
+	* testsuite/experimental/simd/pr115454_find_last_set.cc: Require
+	avx512f_runtime. Don't memcpy fixed_size masks.
+
+2024-06-21  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-06-20  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/115454
+	* include/experimental/bits/simd_x86.h (_S_not_equal_to): Use
+	neq comparison instead of bitwise negation after eq.
+	(_S_find_last_set): Clear unused high bits before computing
+	bit_width.
+	* testsuite/experimental/simd/pr115454_find_last_set.cc: New
+	test.
+
+2024-06-20  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-06-04  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/115308
+	* include/experimental/bits/simd.h (__int_for_sizeof): Remove
+	special cases for __clang__.
+	(_SimdWrapper): Change constructor overload set to allow
+	conversion from vector types with integral conversions via bit
+	reinterpretation.
+
+2024-06-20  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-05-29  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/115247
+	* include/experimental/bits/simd.h (__as_vector): Don't use
+	vector_size(8) on __i386__.
+	(__vec_shuffle): Never return MMX vectors, widen to 16 bytes
+	instead.
+	(concat): Fix padding calculation to pick up widening logic from
+	__as_vector.
+
+2024-06-20  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-05-13  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/114958
+	* include/experimental/bits/simd.h (__as_vector): Return scalar
+	simd as one-element vector. Return vector from single-vector
+	fixed_size simd.
+	(__vec_shuffle): New.
+	(__extract_part): Adjust return type signature.
+	(split): Use __extract_part for any split into non-fixed_size
+	simds.
+	(concat): If the return type stores a single vector, use
+	__vec_shuffle (which calls __builtin_shufflevector) to produce
+	the return value.
+	* include/experimental/bits/simd_builtin.h
+	(__shift_elements_right): Removed.
+	(__extract_part): Return single elements directly. Use
+	__vec_shuffle (which calls __builtin_shufflevector) to for all
+	non-trivial cases.
+	* include/experimental/bits/simd_fixed_size.h (__extract_part):
+	Return single elements directly.
+	* testsuite/experimental/simd/pr114958.cc: New test.
+
+2024-06-20  Release Manager
+
+	* GCC 12.4.0 released.
+
+2024-06-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-06-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* libsupc++/new_opa.cc [!_GLIBCXX_HOSTED]: Fix declaration of
+	posix_memalign.
+
+2024-06-11  Tianqiang Shuai  <1101282468@qq.com>
+
+	Backported from master:
+	2023-07-06  Tianqiang Shuai  <1101282468@qq.com>
+
+	* config/io/basic_file_stdio.cc (xwrite) [USE_STDIO_PURE]: Fix
+	first argument.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-03-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/utility (__cpp_lib_constexpr_algorithms): Define,
+	as per LWG 3792.
+	* testsuite/20_util/exchange/constexpr.cc: Check for it.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-02-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/fs_ops.h (create_directory): Use reserved name
+	for parameter.
+	* include/bits/regex_automaton.h (_State_base::_M_print):
+	Likewise.
+	* include/bits/regex_automaton.tcc(_State_base::_M_print):
+	Likewise.
+	* include/bits/regex_scanner.tcc(_Scanner::_M_print): Likewise.
+	* include/experimental/bits/fs_ops.h (create_directory):
+	Likewise.
+	* include/std/mutex (timed_mutex::_M_clocklock): Likewise.
+	(recursive_timed_mutex:_M_clocklock): Likewise.
+	* libsupc++/cxxabi_init_exception.h
+	(__cxa_init_primary_exception): Likewise.
+	* testsuite/17_intro/names.cc: Add checks.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-02-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/experimental/internet (network_v6::network): Define.
+	(network_v6::hosts): Finish implementing.
+	(network_v6::to_string): Do not concatenate std::string to
+	arbitrary std::basic_string specialization.
+	* testsuite/experimental/net/internet/network/v6/cons.cc: New
+	test.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-06-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/100285
+	* include/experimental/internet [IPPROTO_TCP || IPPROTO_UDP]
+	(basic_endpoint, basic_resolver_entry, resolver_base)
+	(basic_resolver_results, basic_resolver): Only define if the tcp
+	or udp protocols will be defined.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2023-07-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/110542
+	* include/bits/stl_uninitialized.h (__uninitialized_default_n):
+	Do not use std::fill_n during constant evaluation.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-04-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/27_io/manipulators/extended/get_time/char/2.cc:
+	Adjust input string so that it matches %a with or without a
+	trailing period.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-03-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/114359
+	* include/bits/random.tcc (binomial_distribution::param_type):
+	Ensure arithmetic is done as type double.
+	* testsuite/26_numerics/random/binomial_distribution/114359.cc: New test.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-03-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/114367
+	* include/bits/stl_bvector.h (_M_allocate): Use allocator's
+	construct function to begin lifetime of words.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-04-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/104606
+	* include/std/optional (operator<=>(const optional<T>&, const U&)):
+	Reverse order of three_way_comparable_with template arguments.
+	* testsuite/20_util/optional/relops/104606.cc: New test.
+
+2024-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-03-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/114401
+	* include/bits/hashtable.h (_Hashtable::_M_reinsert_node): Call
+	release() on node handle instead of just zeroing its pointer.
+	(_Hashtable::_M_reinsert_node_multi): Likewise.
+	(_Hashtable::_M_merge_unique): Likewise.
+	(_Hashtable::_M_merge_multi): Likewise.
+	* include/bits/node_handle.h (_Node_handle_common::release()):
+	New member function.
+	(_Node_handle_common::_Optional_alloc::_M_empty): Remove
+	unnecessary union member.
+	(_Node_handle_common): Declare _Hashtable as a friend.
+	* include/bits/stl_tree.h (_Rb_tree::_M_reinsert_node_unique):
+	Call release() on node handle instead of just zeroing its
+	pointer.
+	(_Rb_tree::_M_reinsert_node_equal): Likewise.
+	(_Rb_tree::_M_reinsert_node_hint_unique): Likewise.
+	(_Rb_tree::_M_reinsert_node_hint_equal): Likewise.
+	* testsuite/23_containers/multiset/modifiers/114401.cc: New test.
+	* testsuite/23_containers/set/modifiers/114401.cc: New test.
+	* testsuite/23_containers/unordered_multiset/modifiers/114401.cc: New test.
+	* testsuite/23_containers/unordered_set/modifiers/114401.cc: New test.
+
+2024-06-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-06-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/115269
+	* doc/xml/manual/using.xml: Replace link to gcc-4.3.2 docs.
+	Replace list of -std=... options with a single entry for -std.
+	* doc/html/manual/using.html: Regenerate.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-04-22  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/114803
+	* include/experimental/bits/simd_builtin.h
+	(_SimdBase2::operator __vector_type_t): There is no __builtin()
+	function in _SimdWrapper, instead use its conversion operator.
+	* testsuite/experimental/simd/pr114803_vecbuiltin_cvt.cc: New
+	test.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-04-22  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/experimental/bits/simd.h: Ignore -Wnarrowing for
+	arm_neon.h.
+	(__int_for_sizeof): Replace tautological compare with checking
+	for invalid template parameter value.
+	* include/experimental/bits/simd_builtin.h (__extract_part):
+	Remove tautological compare by combining two static_assert.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-04-17  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/experimental/bits/numeric_traits.h: Add include guard.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-04-17  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/114750
+	* include/experimental/bits/simd_builtin.h
+	(_SimdImplBuiltin::_S_load, _S_store): Fall back to copying
+	scalars if the memory type cannot be vectorized for the target.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-03-27  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/experimental/bits/simd_x86.h (_S_masked_unary):
+	Cast inputs < 16 bytes to 16 byte vectors before calling the
+	right subtraction builtin. Before returning, truncate to the
+	return vector type.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2024-03-27  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/experimental/bits/simd_x86.h (_S_masked_unary): Call
+	the 4- and 8-byte variants of __builtin_ia32_subp[ds] without
+	rounding direction argument.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2023-06-06  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/109822
+	* include/experimental/bits/simd_builtin.h (_S_store): Rewrite
+	to avoid casts to other vector types. Implement store as
+	succession of power-of-2 sized memcpy to avoid PR90424.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2023-06-06  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/110054
+	* include/experimental/bits/simd_builtin.h (_S_masked_store):
+	Call into deduced ABI's SimdImpl after conversion.
+	* include/experimental/bits/simd_x86.h (_S_masked_store_nocvt):
+	Don't use _mm_maskmoveu_si128. Use the generic fall-back
+	implementation. Also fix masked stores without SSE2, which
+	were not doing anything before.
+
+2024-05-08  Matthias Kretz  <m.kretz@gsi.de>
+
+	Backported from master:
+	2023-06-06  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/experimental/bits/simd.h (__bit_cast): Use
+	__gnu__::__vector_size__ instead of gnu::vector_size.
+
+2024-04-21  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2024-02-19  Iain Sandoe  <iain@sandoe.co.uk>
+		    Jonathan Wakely  <jwakely@redhat.com>
+
+	PR target/112397
+	* configure: Regenerate.
+	* configure.ac: Detect if we are building for Darwin.
+	* libsupc++/Makefile.am: If we are building for Darwin, then
+	suppress hot/cold partitioning for the array allocators.
+	* libsupc++/Makefile.in: Regenerated.
+
+2024-04-21  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2024-03-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* testsuite/lib/dg-options.exp (atomic_link_flags): Emit a -B
+	option for the path to the uninstalled libatomic.
+
+2024-04-21  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2024-03-19  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* testsuite/lib/libstdc++.exp (v3_target_compile): Instead of
+	/dev/null, use a temporary file for test executables on Darwin.
+
+2024-04-18  Iain Sandoe  <iain@sandoe.co.uk>
+
+	Backported from master:
+	2022-12-04  Iain Sandoe  <iain@sandoe.co.uk>
+
+	* config/os/bsd/darwin/os_defines.h
+	(_GTHREAD_USE_RECURSIVE_MUTEX_INIT_FUNC): Limit use of this macro
+	to OS versions that need it.
+
 2024-03-18  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
