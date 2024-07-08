@@ -22,7 +22,7 @@ include $(LIBCSRC_DIR)/contrib_files.mk
 DEFINES-$(CONFIG_BID_PIE) += -DSTATIC_PIE
 
 DIRS := libc/string libc/stdlib libc/stdio libc/unistd libc/signal \
-        libc/misc libc/stdlib/malloc-standard libc/sysdeps/linux
+        libc/misc libc/stdlib/malloc libc/sysdeps/linux
 
 CFLAGS_arm64 += -mstrict-align
 CXXFLAGS_arm64 += -mstrict-align
