@@ -514,7 +514,7 @@ _GLIBCXX_BEGIN_NAMESPACE_FILESYSTEM
       }
 
 #if defined _GLIBCXX_USE_SENDFILE && ! defined _GLIBCXX_FILESYSTEM_IS_WINDOWS
-    size_t count = from_st->st_size;
+    size_t count = from_st->st_size; // L4 change: Moved here to avoid unused variable warning
     ssize_t n = 0;
     if (count != 0)
       {
