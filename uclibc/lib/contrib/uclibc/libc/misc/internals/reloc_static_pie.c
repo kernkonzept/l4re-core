@@ -16,6 +16,8 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 #define IS_IN_rtld      // force inline function calls
+#include <features.h>       // make sure bits/uClibc_config.h is included
+#undef __SUPPORT_LD_DEBUG__ // because we need prevent unresolved _dl_* syms
 #include <link.h>
 #include <elf.h>
 #include <dl-elf.h>
@@ -25,7 +27,12 @@
 #include <dl-startup.h>
 #endif
 
-extern ElfW(Addr) _dl_load_base;
+// Normally _dl_load_base is defined by libc-tls.c. But when building without
+// TLS support, we need to define it here instead.
+#if defined(USE_TLS)
+extern
+#endif
+ElfW(Addr) _dl_load_base;
 
 void
 reloc_static_pie (ElfW(Addr) load_addr);
