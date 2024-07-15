@@ -43,6 +43,7 @@ INSTALL_INCDIR_X = $(INSTALLDIR_LOCAL)/$(INSTALL_INC_PREFIX)
 SRCDIR_X         = $(STDCXX_CONTRIB_DIR)
 
 CTYPE_HEADERS := $(filter-out %/os_defines.h,$(wildcard $(SRCDIR_X)/config/os/generic/*))
+BACKWARD_HEADERS := $(filter-out %.h,$(wildcard $(SRCDIR_X)/include/backward/*))
 
 install_header_x = $(MKDIR) $(dir $(INSTALL_INCDIR_X)/$(strip $(2))) && $(LN) -sf $(call absfilename,$(strip $(1)) $(INSTALL_INCDIR_X)/$(strip $(2)))
 install_header   = $(MKDIR) $(dir $(INSTALL_INCDIR_X)/$(strip $(2))) && $(LN) -sf $(SRCDIR_X)/$(strip $(1)) $(INSTALL_INCDIR_X)/$(strip $(2))
@@ -87,6 +88,7 @@ all:: $(LIBSUPC_HI) $(STDCXX_CSTD_HEADERS_ABS) $(BID_ROOT_CONF) | $(INSTALL_INCD
 	$(call install_cpu_header, cxxabi_tweaks.h)
 	$(call install_cpu_header, opt/bits/opt_random.h)
 	$(VERBOSE)$(foreach H,$(CTYPE_HEADERS), $(call install_header_x, $(H), bits/$(notdir $(H))); )
+	$(VERBOSE)$(foreach H,$(BACKWARD_HEADERS), $(call install_header_x, $(H), ext/$(notdir $(H))); )
 	$(VERBOSE)$(call install_config_header, $(TIME_MEMBERS_H),  time_members.h)
 	$(VERBOSE)$(call install_config_header, $(MESSAGES_MEMBERS_H),  messages_members.h)
 	$(VERBOSE)$(call install_config_header, $(BASIC_FILE_H), basic_file.h)
