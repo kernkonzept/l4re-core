@@ -9,6 +9,7 @@
 #include <_lfs_64.h>
 #include <bits/wordsize.h>
 #include <sys/syscall.h>
+#include <linux/version.h>
 
 #if defined __mips__
 # include <sgidefs.h>
@@ -23,7 +24,7 @@
 # define __NR_fstatat64 __NR_newfstatat
 #endif
 
-#if defined(__NR_fstatat64) && !defined(__UCLIBC_USE_TIME64__)
+#if defined(__NR_fstatat64) && (!defined(__UCLIBC_USE_TIME64__)  || LINUX_VERSION_CODE <= KERNEL_VERSION(5,1,0))
 # include <sys/stat.h>
 # include "xstatconv.h"
 int fstatat64(int fd, const char *file, struct stat64 *buf, int flag)

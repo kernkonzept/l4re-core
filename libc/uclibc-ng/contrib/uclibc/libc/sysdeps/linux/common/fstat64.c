@@ -8,8 +8,9 @@
 
 #include <_lfs_64.h>
 #include <sys/syscall.h>
+#include <linux/version.h>
 
-#if defined(__NR_fstat64) && !defined(__UCLIBC_USE_TIME64__)
+#if defined(__NR_fstat64) && (!defined(__UCLIBC_USE_TIME64__) || LINUX_VERSION_CODE <= KERNEL_VERSION(5,1,0))
 # include <unistd.h>
 # include <sys/stat.h>
 # include "xstatconv.h"
