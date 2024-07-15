@@ -50,3 +50,11 @@ int execlp(const char *file, const char *arg, ...)
   errno = EINVAL;
   return -1;
 }
+
+int execle(const char *file, const char *arg, ...)
+{
+  printf("Unimplemented: %s(%s)\n", __func__, file);
+  (void)arg;
+  errno = EINVAL;
+  return -1;
+}
