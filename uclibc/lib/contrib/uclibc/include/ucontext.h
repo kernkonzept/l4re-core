@@ -23,10 +23,10 @@
 
 #include <features.h>
 
-#ifdef __UCLIBC_HAS_CONTEXT_FUNCS__
-
 /* Get machine dependent definition of data structures.  */
 #include <sys/ucontext.h>
+
+#ifdef __UCLIBC_HAS_CONTEXT_FUNCS__
 
 __BEGIN_DECLS
 
