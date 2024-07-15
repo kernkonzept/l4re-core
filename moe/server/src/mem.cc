@@ -39,31 +39,3 @@ void *uclibc_morecore(long bytes)
   current_morecore_end = static_cast<char *>(b) + s;
   return b;
 }
-
-void *
-mmap(void *start, size_t length, int prot,
-     int flags, int fd, off_t offset)
-noexcept(noexcept(mmap(start, length, prot, flags, fd, offset)))
-{
-  L4::cout << "mmap() called: unimplemented!\n";
-  errno = EINVAL;
-  return MAP_FAILED;
-}
-
-int
-munmap(void *start, size_t  length) noexcept(noexcept(munmap(start, length)))
-{
-  L4::cout << "munmap() called: unimplemented!\n";
-  errno = EINVAL;
-  return -1;
-}
-
-void *
-mremap(void *old_address, size_t old_size, size_t new_size,
-       int may_move, ...)
-noexcept(noexcept(mremap(old_address, old_size, new_size, may_move)))
-{
-  L4::cout << "mremap() called: unimplemented!\n";
-  errno = EINVAL;
-  return MAP_FAILED;
-}
