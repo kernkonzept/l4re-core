@@ -154,8 +154,10 @@ CXXFLAGS_c++98/monetary_members_cow.cc  += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit
 CXXFLAGS_c++98/numeric_members_cow.cc   += -D_GLIBCXX_USE_CXX11_ABI=0 -fimplicit-templates
 
 CXXFLAGS_c++98/concept-inst.cc     += -D_GLIBCXX_CONCEPT_CHECKS -fimplicit-templates
-CXXFLAGS_c++98/locale_init.cc      += -std=gnu++11
-CXXFLAGS_c++98/localename.cc       += -std=gnu++11
+CXXFLAGS_c++11/codecvt.cc          += -fchar8_t
+CXXFLAGS_c++11/limits.cc           += -fchar8_t
+CXXFLAGS_c++98/locale_init.cc      += -std=gnu++11 -fchar8_t
+CXXFLAGS_c++98/localename.cc       += -std=gnu++11 -fchar8_t
 PRIVATE_INCDIR_c++98/strstream.cc  += $(STDCXX_CONTRIB_DIR)/include/backward
 
 
