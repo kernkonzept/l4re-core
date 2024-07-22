@@ -160,11 +160,14 @@ l4_kip_clock(l4_kernel_info_t const *kip) L4_NOTHROW;
  *
  * \return Lower machine word of clock value from the KIP.
  *
+ * \deprecated Use l4_kip_clock() instead.
+ *
  * This function will always provide the least significant machine word of the
  * clock value from the KIP, regardless of the kernel configuration.
  */
 L4_INLINE l4_umword_t
-l4_kip_clock_lw(l4_kernel_info_t const *kip) L4_NOTHROW;
+l4_kip_clock_lw(l4_kernel_info_t const *kip) L4_NOTHROW
+  L4_DEPRECATED("Use l4_kip_clock() instead");
 
 /**
  * Return current clock using the KIP in nanoseconds.
@@ -226,14 +229,7 @@ l4_kip_clock_ns(l4_kernel_info_t const *kip) L4_NOTHROW
 L4_INLINE l4_umword_t
 l4_kip_clock_lw(l4_kernel_info_t const *kip) L4_NOTHROW
 {
-  union Clock_field
-  {
-    l4_cpu_time_t t;
-    unsigned long l;
-  };
-  union Clock_field c = { kip->_clock_val };
-  l4_mb();
-  return c.l;
+  return l4_kip_clock(kip);
 }
 
 /**
