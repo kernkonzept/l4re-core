@@ -337,14 +337,17 @@ public:
 
     if (flags & L4Re::Rm::Detach_overlap || dr.contains(g))
       {
+        // successful removal of the AVL tree item also frees the node
+        Hdlr h_copy = h;
+
         if (_rm.remove(g))
           return -L4_ENOENT;
 
-        if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
-          h.free(0, g.size());
+        if (!(flags & L4Re::Rm::Detach_keep) && (h_copy.flags() & L4Re::Rm::F::Detach_free))
+          h_copy.free(0, g.size());
 
         if (hdlr)
-          *hdlr = h;
+          *hdlr = h_copy;
         if (reg)
           *reg = g;
 
