@@ -60,7 +60,7 @@ struct stat
     long int st_pad2[2];
     __off64_t st_size;		/* Size of file, in bytes.  */
 #endif
-#ifdef __USE_MISC
+#if defined(__USE_MISC) || defined(__USE_XOPEN2K8)
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -103,7 +103,7 @@ struct stat {
     unsigned int st_rdev;	/* Device number, if device.  */
     int st_pad2[3];
     __off_t st_size;		/* Size of file, in bytes.  */
-#ifdef __USE_MISC
+#if defined(__USE_MISC) || defined(__USE_XOPEN2K8)
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -145,7 +145,7 @@ struct stat64
     __dev_t st_rdev;	/* Device number, if device.  */
     long int st_pad2[2];
     __off64_t st_size;		/* Size of file, in bytes.  */
-#ifdef __USE_MISC
+#if defined(__USE_MISC) || defined(__USE_XOPEN2K8)
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
@@ -184,7 +184,7 @@ struct stat64 {
     unsigned int st_rdev;	/* Device number, if device.  */
     int st_pad2[3];
     __off_t st_size;		/* Size of file, in bytes.  */
-#ifdef __USE_MISC
+#if defined(__USE_MISC) || defined(__USE_XOPEN2K8)
     /* Nanosecond resolution timestamps are stored in a format
        equivalent to 'struct timespec'.  This is the type used
        whenever possible but the Unix namespace rules do not allow the
