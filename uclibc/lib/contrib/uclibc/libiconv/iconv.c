@@ -242,7 +242,7 @@ static inline int utf8enc_wchar(char *outb, wchar_t c)
 	}
 }
 
-static inline int utf8seq_is_overlong(char *s, int n)
+static inline int utf8seq_is_overlong(unsigned char *s, int n)
 {
 	switch (n)
 	{
@@ -268,12 +268,12 @@ static inline int utf8seq_is_overlong(char *s, int n)
 	return 0;
 }
 
-static inline int utf8seq_is_surrogate(char *s, int n)
+static inline int utf8seq_is_surrogate(unsigned char *s, int n)
 {
 	return ((n == 3) && (*s == 0xED) && (*(s+1) >= 0xA0) && (*(s+1) <= 0xBF));
 }
 
-static inline int utf8seq_is_illegal(char *s, int n)
+static inline int utf8seq_is_illegal(unsigned char *s, int n)
 {
 	return ((n == 3) && (*s == 0xEF) && (*(s+1) == 0xBF) &&
 	        (*(s+2) >= 0xBE) && (*(s+2) <= 0xBF));
