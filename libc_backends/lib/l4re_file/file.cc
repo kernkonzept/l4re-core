@@ -413,6 +413,26 @@ noexcept(noexcept(statfs(path, buf)))
   return 0;
 }
 
+int statfs64([[maybe_unused]] const char *path, struct statfs64 *buf)
+noexcept(noexcept(statfs64(path, buf)))
+{
+  // Just stubbed for now, to be continued
+  printf("l4re-statfs64(%s, ...): to be implemented\n", path);
+  buf->f_type = 0x6552344c;
+  buf->f_bsize = L4_PAGESIZE;
+  buf->f_blocks = 2;
+  buf->f_bfree = 0;
+  buf->f_bavail = 0;
+  buf->f_files = 2;
+  buf->f_ffree = 0;
+  buf->f_fsid.__val[0] = 0;
+  buf->f_fsid.__val[1] = 0;
+  buf->f_namelen = 16;
+  buf->f_frsize = 16;
+  buf->f_flags = 0;
+  return 0;
+}
+
 int statvfs([[maybe_unused]] const char *path, struct statvfs *buf) noexcept
 {
   printf("l4re-statvfs(%s, ...): to be implemented\n", path);

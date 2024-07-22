@@ -28,3 +28,10 @@ int fstatfs(int fd, struct statfs *buf)
   return -1;
 }
 
+int fstatfs64(int fd, struct statfs64 *buf)
+{
+  printf("%s(%d, %p): unimplemented\n", __func__, fd, buf);
+  errno = ENOENT;
+  return -1;
+}
+
