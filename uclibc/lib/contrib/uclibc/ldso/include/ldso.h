@@ -178,11 +178,6 @@ extern void _dl_dprintf(int, const char *, ...) __attribute__((format(printf, 2,
 # define DL_GET_READY_TO_RUN_EXTRA_ARGS
 #endif
 
-#ifndef __NOT_FOR_L4__
-/* function to be called before running the init functions of ldso */
-extern void _dl_setup_malloc(ElfW(auxv_t) auxvt[AT_EGID + 1]);
-#endif
-
 extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE load_addr,
 		char **envp, char **argv
 		DL_GET_READY_TO_RUN_EXTRA_PARMS);
@@ -201,5 +196,10 @@ extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE loa
 extern ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID];
 
 void load_vdso(void *sys_info_ehdr, char **envp );
+
+#ifndef __NOT_FOR_L4__
+/* function to be called before running the init functions of ldso */
+extern void _dl_setup_malloc(ElfW(auxv_t) auxvt[AUX_MAX_AT_ID]);
+#endif
 
 #endif /* _LDSO_H */
