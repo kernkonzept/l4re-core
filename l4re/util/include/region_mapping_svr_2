@@ -129,13 +129,15 @@ public:
     int err = rm()->detach(reinterpret_cast<void*>(addr), size, flags, &r, &h);
     if (err < 0)
       {
-        start = rsize = mem_cap = 0;
+        start = rsize = 0;
+        mem_cap = L4_INVALID_CAP;
         return err;
       }
 
     if (r.invalid())
       {
-        start = rsize = mem_cap = 0;
+        start = rsize = 0;
+        mem_cap = L4_INVALID_CAP;
         return -L4_ENOENT;
       }
 
