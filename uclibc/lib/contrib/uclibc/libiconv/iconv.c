@@ -384,7 +384,7 @@ size_t iconv(iconv_t cd, char **restrict in, size_t *restrict inb, char **restri
 			if (c < 128) break;
 			else {
 				wchar_t wc;
-				l = utf8dec_wchar(&wc, *in, *inb);
+				l = utf8dec_wchar(&wc, (unsigned char*)(*in), *inb);
 				c = wc;
 			}
 			if (!l) l++;
