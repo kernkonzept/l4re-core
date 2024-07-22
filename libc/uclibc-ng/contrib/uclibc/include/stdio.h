@@ -110,7 +110,10 @@ typedef __STDIO_fpos64_t fpos64_t;
 #define SEEK_SET	0	/* Seek from beginning of file.  */
 #define SEEK_CUR	1	/* Seek from current position.  */
 #define SEEK_END	2	/* Seek from end of file.  */
-
+#ifdef __USE_GNU
+# define SEEK_DATA      3       /* Seek to next data.  */
+# define SEEK_HOLE      4       /* Seek to next hole.  */
+#endif
 
 #if defined __USE_SVID || defined __USE_XOPEN
 /* Default path prefix for `mkstemp'.  */
