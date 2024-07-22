@@ -1984,6 +1984,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	= round_to_nearest; 						\
     }; 									\
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 #ifdef __STDCPP_FLOAT16_T__
 __glibcxx_float_n(16)
 #endif
@@ -1995,6 +1996,7 @@ __glibcxx_float_n(64)
 #endif
 #ifdef __FLT128_DIG__
 __glibcxx_float_n(128)
+#endif
 #endif
 #undef __glibcxx_float_n
 #undef __glibcxx_concat3
