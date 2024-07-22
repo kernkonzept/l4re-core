@@ -34,5 +34,6 @@ SRC_C       = daemon.c \
               wait.c \
               wait3.c \
               waitpid.c
+CFLAGS      = -DNOT_IN_libc -include libc-symbols.h
 
 include $(L4DIR)/mk/lib.mk
