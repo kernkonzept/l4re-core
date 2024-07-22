@@ -989,11 +989,11 @@ static int do_dlclose(void *vhandle, int need_fini)
 			end = (end + ADDR_ALIGN) & PAGE_ALIGN;
 			start = start & ~ADDR_ALIGN;
 			if (end > start) {
-				_dl_if_debug_print("unmapping: %s at %p with length: '%p' until %p\n", tpnt->libname, tpnt->mapaddr, end - start, tpnt->mapaddr + (end - start));
+				_dl_if_debug_print("unmapping: %s at %p with length: '%p' until %p\n", tpnt->libname, (void *)tpnt->mapaddr, (void *)(end - start), (void *)(tpnt->mapaddr + (end - start)));
 				DL_LIB_UNMAP (tpnt, end - start);
 			}
 			else {
-				_dl_if_debug_print("NOT unmapping: %s at %p. start<end ('%p'<'%p')", tpnt->libname, tpnt->mapaddr, start, end);
+				_dl_if_debug_print("NOT unmapping: %s at %p. start<end ('%p'<'%p')", tpnt->libname, (void *)tpnt->mapaddr, (void *)start, (void *)end);
 			}
 			/* Free elements in RTLD_LOCAL scope list */
 			for (runp = tpnt->rtld_local; runp; runp = tmp) {
