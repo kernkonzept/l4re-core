@@ -1273,6 +1273,13 @@ noexcept(noexcept(mkfifo(p, m)))
   return -1;
 }
 
+extern "C" int memfd_create(const char *name, unsigned int flags)
+noexcept(noexcept(memfd_create(name, flags)))
+{
+  errno = EPERM;
+  return -1;
+}
+
 extern "C" int mknod(const char *p, mode_t m, dev_t d)
 noexcept(noexcept(mknod(p, m, d)))
 {

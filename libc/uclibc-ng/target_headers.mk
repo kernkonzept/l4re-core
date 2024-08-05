@@ -59,6 +59,7 @@ define HDR_common
   bits/environments.h
   bits/errno.h
   bits/fcntl.h
+  bits/fcntl-linux.h
   bits/fenv.h
   bits/fenvinline.h
   bits/getopt.h

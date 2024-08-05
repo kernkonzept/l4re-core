@@ -295,3 +295,5 @@ extern int fallocate64 (int __fd, int __mode, __off64_t __offset,
 
 __END_DECLS
 
+/* Include generic Linux declarations.  */
+#include <bits/fcntl-linux.h>

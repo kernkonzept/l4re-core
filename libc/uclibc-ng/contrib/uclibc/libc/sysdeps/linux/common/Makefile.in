@@ -30,6 +30,7 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	inotify.c \
 	ioperm.c \
 	iopl.c \
+	memfd_create.c \
 	modify_ldt.c \
 	module.c \
 	name_to_handle_at.c \

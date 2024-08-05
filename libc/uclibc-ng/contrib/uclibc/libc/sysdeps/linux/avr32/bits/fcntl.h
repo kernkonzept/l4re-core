@@ -218,3 +218,6 @@ extern ssize_t tee (int __fdin, int __fdout, size_t __len,
 
 __END_DECLS
 #endif
+
+/* Include generic Linux declarations.  */
+#include <bits/fcntl-linux.h>

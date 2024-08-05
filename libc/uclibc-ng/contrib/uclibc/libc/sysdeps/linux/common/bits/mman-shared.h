@@ -40,11 +40,9 @@
 
 __BEGIN_DECLS
 
-#if 0
 /* Create a new memory file descriptor.  NAME is a name for debugging.
    FLAGS is a combination of the MFD_* constants.  */
 int memfd_create (const char *__name, unsigned int __flags) __THROW;
-#endif
 
 /* Lock pages from ADDR (inclusive) to ADDR + LENGTH (exclusive) into
    memory.  FLAGS is a combination of the MLOCK_* flags above.  */
