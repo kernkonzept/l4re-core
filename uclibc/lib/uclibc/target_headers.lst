@@ -166,11 +166,13 @@ netdb.h
 net/ethernet.h
 net/if_arp.h
 net/if.h
+netinet/icmp6.h
 netinet/ether.h
 netinet/if_ether.h
 netinet/in.h
 netinet/in_systm.h
 netinet/ip.h
+netinet/ip6.h
 netinet/ip_icmp.h
 netinet/tcp.h
 netinet/udp.h
