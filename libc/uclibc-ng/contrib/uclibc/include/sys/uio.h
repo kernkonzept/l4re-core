@@ -74,6 +74,25 @@ extern ssize_t pwritev (int __fd, const struct iovec *__iovec, int __count,
 			__off64_t __offset) __wur;
 #endif	/* Use misc.  */
 
+#ifdef __USE_GNU
+/* Read from another process' address space.  */
+extern ssize_t process_vm_readv (pid_t __pid, const struct iovec *__lvec,
+				 unsigned long int __liovcnt,
+				 const struct iovec *__rvec,
+				 unsigned long int __riovcnt,
+				 unsigned long int __flags)
+  __THROW;
+
+/* Write to another process' address space.  */
+extern ssize_t process_vm_writev (pid_t __pid, const struct iovec *__lvec,
+				  unsigned long int __liovcnt,
+				  const struct iovec *__rvec,
+				  unsigned long int __riovcnt,
+				  unsigned long int __flags)
+  __THROW;
+
+#endif
+
 __END_DECLS
 
 #endif /* sys/uio.h */

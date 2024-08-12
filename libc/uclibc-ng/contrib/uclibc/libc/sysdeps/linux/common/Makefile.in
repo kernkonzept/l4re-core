@@ -40,6 +40,8 @@ CSRC-$(UCLIBC_LINUX_SPECIFIC) += \
 	ppoll.c \
 	prctl.c \
 	prlimit.c \
+	process_vm_readv.c \
+	process_vm_writev.c \
 	readahead.c \
 	reboot.c \
 	remap_file_pages.c \
