@@ -11,4 +11,5 @@ include $(L4DIR)/mk/lib.mk
 CFLAGS   += -fvisibility=hidden
 CXXFLAGS += -fvisibility=hidden
 # No exception information as unwinder code might use malloc and friends
-CXXFLAGS += -fno-exceptions -fno-rtti
+DEFINES += -DNOT_IN_libc
+CXXFLAGS += -include libc-symbols.h -fno-exceptions -fno-rtti
