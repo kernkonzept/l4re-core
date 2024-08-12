@@ -7,5 +7,6 @@ SRC_CC          = sig.cc
 REQUIRES_LIBS   = l4re-util libpthread
 PRIVATE_INCDIR  = $(SRC_DIR)/ARCH-$(ARCH)
 CXXFLAGS        = -fno-exceptions -fno-rtti
+DEFINES         = -DL4_NO_RTTI
 
 include $(L4DIR)/mk/lib.mk

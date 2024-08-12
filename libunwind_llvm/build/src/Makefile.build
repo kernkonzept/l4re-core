@@ -66,6 +66,7 @@ DEFINES += -DLIBUNWIND_USE_WEAK_PTHREAD=1
 else
 DEFINES += -D_LIBUNWIND_HAS_NO_THREADS
 endif
+DEFINES += -DL4_NO_RTTI
 
 # Flags for static library
 $(UNWIND_LLVM_A) : COMMON_FLAGS += -fvisibility=hidden \
