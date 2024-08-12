@@ -52,5 +52,3 @@ include: $(HEADER_DIR)
 	          -f $(SRC_DIR)/Makefile.install
 	$(VERBOSE)PKGDIR=$(LIBCSRC_DIR)/../libpthread/include \
 	  $(MAKE) $(MKFLAGS) -C $(LIBCSRC_DIR)/../libpthread/include
-
-clean cleanall::
