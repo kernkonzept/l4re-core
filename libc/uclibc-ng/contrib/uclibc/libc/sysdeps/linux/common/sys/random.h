@@ -9,7 +9,7 @@
 
 __BEGIN_DECLS
 
-#if 1 // defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU
+#if 1 // defined __UCLIBC_LINUX_SPECIFIC__
 # if 0 /*def __ASSUME_GETRANDOM_SYSCALL */
 #  include <linux/random.h>
 # else
@@ -20,9 +20,11 @@ __BEGIN_DECLS
  *
  * GRND_NONBLOCK	Don't block and return EAGAIN instead
  * GRND_RANDOM		Use the /dev/random pool instead of /dev/urandom
+ * GRND_INSECURE	Write random data that may not be cryptographically secure.
  */
 #  define GRND_NONBLOCK	0x0001
 #  define GRND_RANDOM	0x0002
+#  define GRND_INSECURE 0x0004
 # endif
 /* FIXME: aren't there a couple of __restrict and const missing ? */
 extern int getrandom(void *__buf, size_t count, unsigned int flags)
