@@ -53,4 +53,4 @@ include: $(HEADER_DIR)
 	$(VERBOSE)PKGDIR=$(LIBCSRC_DIR)/../libpthread/include \
 	  $(MAKE) $(MKFLAGS) -C $(LIBCSRC_DIR)/../libpthread/include
 
-clean cleanall:
+clean cleanall::
