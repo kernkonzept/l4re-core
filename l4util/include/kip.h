@@ -26,14 +26,6 @@
 EXTERN_C_BEGIN
 
 /**
- * Return whether the kernel is running natively or under UX.
- *
- * \param k  Pointer to the kernel info page (KIP).
- * \return  1 when running under UX, 0 if not running under UX.
- */
-L4_CV int l4util_kip_kernel_is_ux(l4_kernel_info_t const *k);
-
-/**
  * Check if kernel supports a feature.
  *
  * \param k    Pointer to the kernel info page (KIP).

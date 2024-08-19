@@ -40,10 +40,7 @@ public:
 
   static int platformstr(lua_State *l)
   {
-    if (l4util_kip_kernel_is_ux(l4re_kip()))
-      lua_pushstring(l, "ux");
-    else
-      lua_pushstring(l, l4re_kip()->platform_info.name);
+    lua_pushstring(l, l4re_kip()->platform_info.name);
     return 1;
   }
 

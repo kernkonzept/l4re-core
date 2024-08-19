@@ -14,16 +14,6 @@
 
 
 L4_CV int
-l4util_kip_kernel_is_ux(l4_kernel_info_t const *k)
-{
-  const char *s = l4_kip_version_string(k);
-
-  if (s && strstr(s, "(ux)"))
-    return 1;
-  return 0;
-}
-
-L4_CV int
 l4util_kip_kernel_has_feature(l4_kernel_info_t const *k, char const *str)
 {
   return l4_kip_kernel_has_feature(k, str);
