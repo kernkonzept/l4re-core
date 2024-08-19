@@ -222,15 +222,6 @@ public:
       */
      void alien(int on) noexcept
      { l4_thread_control_alien_u(_u, on); }
-
-     /**
-      * Allow host system calls on Fiasco-UX.
-      *
-      * \pre Running on Fiasco-UX.
-      */
-     void ux_host_syscall(int on) noexcept
-     { l4_thread_control_ux_host_syscall_u(_u, on); }
-
    };
 
   /**

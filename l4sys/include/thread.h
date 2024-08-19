@@ -183,7 +183,6 @@ l4_thread_ex_regs_ret_u(l4_cap_idx_t thread, l4_addr_t *ip, l4_addr_t *sp,
  * - l4_thread_control_exc_handler()
  * - l4_thread_control_bind()
  * - l4_thread_control_alien()
- * - l4_thread_control_ux_host_syscall() (Fiasco-UX only)
  *
  * To commit the changes to the thread l4_thread_control_commit() must be
  * called in the end.
@@ -309,25 +308,6 @@ l4_thread_control_alien(int on) L4_NOTHROW;
 L4_INLINE void
 l4_thread_control_alien_u(l4_utcb_t *utcb, int on) L4_NOTHROW;
 
-/**
- * Enable pass through of native host (Linux) system calls.
- * \ingroup l4_thread_control_api
- * \param   on    Boolean value defining the state of the feature.
- *
- * \pre Running on Fiasco-UX
- *
- * This enables the thread to do host system calls. This feature is only
- * available in Fiasco-UX and ignored in other environments.
- */
-L4_INLINE void
-l4_thread_control_ux_host_syscall(int on) L4_NOTHROW;
-
-/**
- * \internal
- * \ingroup l4_thread_control_api
- */
-L4_INLINE void
-l4_thread_control_ux_host_syscall_u(l4_utcb_t *utcb, int on) L4_NOTHROW;
 
 
 
@@ -726,8 +706,6 @@ enum L4_thread_control_flags
   L4_THREAD_CONTROL_BIND_TASK       = 0x0200000,
   /** Alien state of the thread is set. */
   L4_THREAD_CONTROL_ALIEN           = 0x0400000,
-  /** Fiasco-UX only: pass-through of host system calls is set. */
-  L4_THREAD_CONTROL_UX_NATIVE       = 0x0800000,
   /** The exception handler of the thread will be given. */
   L4_THREAD_CONTROL_SET_EXC_HANDLER = 0x1000000,
 };
@@ -839,14 +817,6 @@ l4_thread_control_alien_u(l4_utcb_t *utcb, int on) L4_NOTHROW
   v->mr[L4_THREAD_CONTROL_MR_IDX_FLAG_VALS] |= on ? L4_THREAD_CONTROL_ALIEN : 0;
 }
 
-L4_INLINE void
-l4_thread_control_ux_host_syscall_u(l4_utcb_t *utcb, int on) L4_NOTHROW
-{
-  l4_msg_regs_t *v = l4_utcb_mr_u(utcb);
-  v->mr[L4_THREAD_CONTROL_MR_IDX_FLAGS]     |= L4_THREAD_CONTROL_UX_NATIVE;
-  v->mr[L4_THREAD_CONTROL_MR_IDX_FLAG_VALS] |= on ? L4_THREAD_CONTROL_UX_NATIVE : 0;
-}
-
 L4_INLINE l4_msgtag_t
 l4_thread_control_commit_u(l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW
 {
@@ -951,12 +921,6 @@ L4_INLINE void
 l4_thread_control_alien(int on) L4_NOTHROW
 {
   l4_thread_control_alien_u(l4_utcb(), on);
-}
-
-L4_INLINE void
-l4_thread_control_ux_host_syscall(int on) L4_NOTHROW
-{
-  l4_thread_control_ux_host_syscall_u(l4_utcb(), on);
 }
 
 L4_INLINE l4_msgtag_t
