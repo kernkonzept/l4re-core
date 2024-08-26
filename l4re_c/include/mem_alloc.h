@@ -32,7 +32,7 @@
  * \brief Memory allocator C interface.
  */
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Flags for requesting memory at the memory allocator.
@@ -158,4 +158,4 @@ l4re_ma_alloc_align(long size, l4re_ds_t const mem,
                                  flags, align);
 }
 
-EXTERN_C_END
+__END_DECLS

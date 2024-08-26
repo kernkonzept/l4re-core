@@ -20,7 +20,7 @@
 #include <l4/sys/l4int.h>
 #include <l4/sys/compiler.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \defgroup l4util_idt Functions to manipulate the local IDT
@@ -80,7 +80,7 @@ l4util_idt_load(l4util_idt_header_t *idt)
   asm volatile ("lidt (%%rax) \n\t" : : "a" (idt));
 }
 /**@}*/
-EXTERN_C_END
+__END_DECLS
 
 #endif
 

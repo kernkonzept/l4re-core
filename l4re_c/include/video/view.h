@@ -82,7 +82,7 @@ typedef struct l4re_video_view_t
 } l4re_video_view_t;
 
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * Flush the given rectangle of pixels of the given \a view.
@@ -158,5 +158,5 @@ L4_CV int
 l4re_video_view_stack(l4re_video_view_t *view, l4re_video_view_t *pivot,
                       int behind) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS
 

@@ -29,7 +29,7 @@
 #include <l4/sys/compiler.h>
 #include <l4/sys/syscall_defs.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \defgroup l4_mem_op_api Memory operations.
@@ -150,6 +150,6 @@ l4_mem_write(unsigned long virtaddress, unsigned width,
   l4_mem_arm_op_call(L4_MEM_OP_MEM_WRITE, virtaddress, width, value);
 }
 
-EXTERN_C_END
+__END_DECLS
 
 #endif /* ! __L4SYS__INCLUDE__ARCH_ARM__MEM_OP_H__ */

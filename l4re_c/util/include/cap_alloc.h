@@ -31,7 +31,7 @@
 #include <l4/sys/types.h>
 #include <l4/sys/linkage.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Get free capability index at capability allocator
@@ -63,4 +63,4 @@ l4re_util_cap_free_um(l4_cap_idx_t cap) L4_NOTHROW;
 L4_CV long
 l4re_util_cap_last(void) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS

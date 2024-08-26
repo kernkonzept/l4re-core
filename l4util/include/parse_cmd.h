@@ -49,7 +49,7 @@ typedef L4_CV void (*parse_cmd_fn_t)(int);
  */
 typedef L4_CV void (*parse_cmd_fn_arg_t)(int, const char*, int);
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /** Parse the command-line for specified arguments and store the values into
  * variables.
@@ -142,7 +142,7 @@ L4_CV int parse_cmdlinev(int *argc, const char***argv, int arg0, va_list va);
 L4_CV int parse_cmdline_extra(const char*argv0, const char*line, char delim,
 			      int arg0,...);
 
-EXTERN_C_END
+__END_DECLS
 /**@}*/
 
 #endif

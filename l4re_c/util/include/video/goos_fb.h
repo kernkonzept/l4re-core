@@ -26,7 +26,7 @@
 #include <l4/sys/err.h>
 #include <l4/re/c/dataspace.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 typedef struct
 {
@@ -57,4 +57,4 @@ l4re_util_video_goos_fb_buffer(l4re_util_video_goos_fb_t *goosfb) L4_NOTHROW;
 L4_CV l4_cap_idx_t
 l4re_util_video_goos_fb_goos(l4re_util_video_goos_fb_t *goosfb) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS

@@ -20,14 +20,14 @@
 #include <l4/util/mb_info.h>
 #include <l4/sys/compiler.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 void l4util_mbi_to_argv(l4_mword_t flag, l4util_mb_info_t *mbi);
 
 extern int  l4util_argc;
 extern char *l4util_argv[];
 
-EXTERN_C_END
+__END_DECLS
 
 #endif
 

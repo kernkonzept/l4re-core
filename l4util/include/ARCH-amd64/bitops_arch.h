@@ -30,7 +30,7 @@
  * for the bit number parameter would be "Ir" instead of "Jr".
  */
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /* set bit */
 #define __L4UTIL_BITOPS_HAVE_ARCH_SET_BIT
@@ -271,4 +271,4 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
   return res;
 }
 
-EXTERN_C_END
+__END_DECLS

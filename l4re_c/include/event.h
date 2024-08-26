@@ -32,7 +32,7 @@
 #include <l4/re/c/dataspace.h>
 #include <l4/re/event.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Event structure used in buffer.
@@ -127,4 +127,4 @@ l4re_event_get_axis_info(const l4_cap_idx_t server, l4_umword_t id,
                          unsigned naxes, unsigned const *axis,
                          l4re_event_absinfo_t *info) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS

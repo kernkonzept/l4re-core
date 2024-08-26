@@ -29,7 +29,7 @@
 
 #include <l4/sys/compiler.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 struct __l4_sys_syscall_res
 {
@@ -43,7 +43,7 @@ __l4_sys_syscall(l4_mword_t tag,
                  l4_umword_t dest,
                  l4_umword_t timeout) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS
 
 L4_INLINE l4_msgtag_t
 l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,

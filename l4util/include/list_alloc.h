@@ -28,7 +28,7 @@ typedef struct l4la_free_t_s
 
 #define L4LA_INITIALIZER  { 0 }
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /** Add free memory to memory pool.
  * \param first   list identifier
@@ -54,6 +54,6 @@ L4_CV void      l4la_init(l4la_free_t **first);
  * \param first   list identifier */
 L4_CV l4_size_t l4la_avail(l4la_free_t **first);
 
-EXTERN_C_END
+__END_DECLS
 
 #endif

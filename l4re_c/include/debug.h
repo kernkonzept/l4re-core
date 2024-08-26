@@ -28,7 +28,7 @@
 
 #include <l4/sys/types.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Call debug function of L4Re service
@@ -40,4 +40,4 @@ EXTERN_C_BEGIN
 L4_CV long
 l4re_debug_obj_debug(l4_cap_idx_t srv, unsigned long function) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS

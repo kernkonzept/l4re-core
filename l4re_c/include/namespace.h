@@ -44,7 +44,7 @@ enum l4re_ns_register_flags {
   L4RE_NS_REGISTER_S   = L4_FPAGE_W,
 };
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * Namespace type
@@ -109,4 +109,4 @@ l4re_ns_query_srv(l4re_namespace_t srv, char const *name,
 }
 
 
-EXTERN_C_END
+__END_DECLS

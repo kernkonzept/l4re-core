@@ -22,7 +22,7 @@
 #include <l4/sys/compiler.h>
 #include <l4/util/atomic.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 typedef l4_uint32_t l4util_simple_lock_t;
 
@@ -64,6 +64,6 @@ l4_simple_lock(l4util_simple_lock_t * lock)
     l4_simple_lock_solid(lock);
 }
 
-EXTERN_C_END
+__END_DECLS
 
 #endif

@@ -29,7 +29,7 @@
 
 #include <l4/re/env.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \ingroup api_l4re_c_log
@@ -99,4 +99,4 @@ l4re_log_printn(char const *string, int len) L4_NOTHROW
   l4re_log_printn_srv(l4re_global_env->log, string, len);
 }
 
-EXTERN_C_END
+__END_DECLS

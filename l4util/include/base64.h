@@ -20,7 +20,7 @@
 
 #include <l4/sys/compiler.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \defgroup l4util_internal Internal functions
@@ -52,7 +52,7 @@ L4_CV void base64_encode( const char *infile, unsigned int in_size, char **outfi
  */
 L4_CV void base64_decode(const char *infile, unsigned int in_size, char **outfile);
 
-EXTERN_C_END
+__END_DECLS
 
 /**@}*/
 #endif //B64_EN_DECODE

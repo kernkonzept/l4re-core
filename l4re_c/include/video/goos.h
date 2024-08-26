@@ -64,7 +64,7 @@ typedef struct
  */
 typedef l4_cap_idx_t l4re_video_goos_t;
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Get information on a goos.
@@ -170,4 +170,4 @@ L4_CV int
 l4re_video_goos_get_view(l4re_video_goos_t goos, unsigned idx,
                          l4re_video_view_t *view) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS

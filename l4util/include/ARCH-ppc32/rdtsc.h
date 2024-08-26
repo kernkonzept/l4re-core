@@ -27,7 +27,7 @@
 #include <l4/sys/kip.h>
 
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 extern l4_uint32_t l4_scaler_tsc_to_us;
 extern l4_uint32_t l4_scaler_timer_to_tsc;
@@ -86,7 +86,7 @@ L4_CV l4_uint32_t
 l4_tsc_init(l4_kernel_info_t const *kip);
 /**@}*/
 
-EXTERN_C_END
+__END_DECLS
 
 L4_INLINE l4_uint32_t
 l4_calibrate_tsc(l4_kernel_info_t const *kip)

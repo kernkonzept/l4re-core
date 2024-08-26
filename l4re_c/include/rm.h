@@ -31,7 +31,7 @@
 #include <l4/re/env.h>
 #include <l4/re/c/dataspace.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Flags for region operations.
@@ -334,4 +334,4 @@ l4re_rm_show_lists(void) L4_NOTHROW
   l4re_rm_show_lists_srv(l4re_global_env->rm);
 }
 
-EXTERN_C_END
+__END_DECLS

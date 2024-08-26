@@ -19,7 +19,7 @@
 #include <l4/sys/types.h>
 #include <l4/sys/scheduler.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \defgroup l4util_thread Low-Level Thread Functions
@@ -50,7 +50,7 @@ l4util_create_thread(l4_cap_idx_t id, l4_utcb_t *thread_utcb,
                      l4_cap_idx_t task,
                      l4_cap_idx_t scheduler, l4_sched_param_t scp) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS
 
 #ifndef L4UTIL_THREAD_FUNC
 /**

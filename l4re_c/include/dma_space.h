@@ -29,7 +29,7 @@
 #include <l4/sys/types.h>
 #include <l4/re/c/dataspace.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \copydoc L4Re::Dma_space::Direction
@@ -106,4 +106,4 @@ L4_CV long
 l4re_dma_space_disassociate(l4re_dma_space_t dma);
 
 
-EXTERN_C_END
+__END_DECLS

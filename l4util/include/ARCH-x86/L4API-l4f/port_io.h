@@ -24,7 +24,7 @@
 
 #include <x86/l4/util/port_io.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Map a range of I/O ports.
@@ -41,7 +41,7 @@ L4_INLINE int
 l4util_ioport_map(l4_cap_idx_t sigma0id,
                   unsigned port_start, unsigned log2size);
 
-EXTERN_C_END
+__END_DECLS
 
 
 /*****************************************************************************

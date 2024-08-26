@@ -8,7 +8,7 @@
 #include <l4/sys/compiler.h>
 
 #define L4UTIL_THREAD_FUNC_RISCV_TEMPLATE(name, locality) \
-EXTERN_C_BEGIN \
+__BEGIN_DECLS \
 locality L4_NORETURN void name(void) \
 { \
   asm( \
@@ -21,7 +21,7 @@ locality L4_NORETURN void name(void) \
   __builtin_unreachable(); \
 } \
 static L4_NORETURN void __attribute__((used)) name ##_riscv_helper_func(void); \
-EXTERN_C_END \
+__END_DECLS \
 static L4_NORETURN void name##_riscv_helper_func(void)
 
 #define L4UTIL_THREAD_STATIC_FUNC(name) \

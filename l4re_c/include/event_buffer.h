@@ -20,7 +20,7 @@
 #include <l4/sys/linkage.h>
 #include <l4/re/c/event.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 typedef struct l4re_event_buffer_consumer_t
 {
@@ -53,4 +53,4 @@ l4re_event_buffer_consumer_process(l4re_event_buffer_consumer_t *evbuf,
                                    l4_cap_idx_t irq, l4_cap_idx_t thread, void *data,
                                    l4re_event_buffer_cb_t *cb);
 
-EXTERN_C_END
+__END_DECLS

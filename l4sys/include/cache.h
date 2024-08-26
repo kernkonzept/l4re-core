@@ -45,7 +45,7 @@
  * it's not necessary to explicitly make caches coherent to PoU.
  */
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * Cache clean a range in D-cache; writes back to PoC.
@@ -144,6 +144,6 @@ L4_INLINE int
 l4_cache_dma_coherent_full(void) L4_NOTHROW;
 #endif
 
-EXTERN_C_END
+__END_DECLS
 
 #endif /* ! __L4SYS__INCLUDE__CACHE_H__ */

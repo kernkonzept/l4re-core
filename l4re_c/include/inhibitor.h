@@ -14,7 +14,7 @@
  */
 #include <l4/sys/types.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Acquire an inhibitor lock.
@@ -59,5 +59,5 @@ L4_CV long L4_EXPORT
 l4re_inhibitor_next_lock_info(l4_cap_idx_t cap, char *name,
                               unsigned len, l4_mword_t current_id);
 
-EXTERN_C_END
+__END_DECLS
 

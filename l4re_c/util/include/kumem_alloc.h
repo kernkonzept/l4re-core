@@ -31,7 +31,7 @@
 #include <l4/sys/types.h>
 #include <l4/sys/linkage.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \copydoc L4Re::Util::kumem_alloc()
@@ -40,4 +40,4 @@ L4_CV int
 l4re_util_kumem_alloc(l4_addr_t *mem, unsigned pages_order,
                       l4_cap_idx_t task, l4_cap_idx_t rm) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS

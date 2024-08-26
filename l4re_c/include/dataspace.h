@@ -30,7 +30,7 @@
 
 #include <l4/sys/types.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Dataspace type
@@ -167,4 +167,4 @@ L4_CV int
 l4re_ds_map_info(l4re_ds_t ds,
                  l4_addr_t *start_addr, l4_addr_t *end_addr) L4_NOTHROW;
 
-EXTERN_C_END
+__END_DECLS

@@ -19,7 +19,7 @@
 
 #include <l4/sys/types.h>
 
-EXTERN_C_BEGIN
+__BEGIN_DECLS
 
 /**
  * \brief Send a signal using the parent protocol.
@@ -36,4 +36,4 @@ EXTERN_C_BEGIN
 L4_CV long L4_EXPORT
 l4re_parent_signal(l4_cap_idx_t parent, unsigned long sig, unsigned long val);
 
-EXTERN_C_END
+__END_DECLS
