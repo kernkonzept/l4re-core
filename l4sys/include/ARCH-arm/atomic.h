@@ -25,11 +25,15 @@
 
 #include <l4/sys/compiler.h>
 
-EXTERN_C long int
+__BEGIN_DECLS
+
+long int
 l4_atomic_add(volatile long int* mem, long int offset) L4_NOTHROW L4_LONG_CALL;
 
-EXTERN_C long int
+long int
 l4_atomic_xchg(volatile long int* mem, long int newval) L4_NOTHROW L4_LONG_CALL;
 
-EXTERN_C long int
+long int
 l4_atomic_cmpxchg(volatile long int* mem, long int oldval, long int newval) L4_NOTHROW L4_LONG_CALL;
+
+__END_DECLS

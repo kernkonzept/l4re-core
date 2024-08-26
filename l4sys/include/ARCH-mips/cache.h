@@ -34,7 +34,11 @@
 #include <l4/sys/consts.h>
 #include <l4/sys/compiler.h>
 
-EXTERN_C void syncICache(unsigned long start, unsigned long size);
+__BEGIN_DECLS
+
+void syncICache(unsigned long start, unsigned long size);
+
+__END_DECLS
 
 L4_INLINE int
 l4_cache_clean_data(unsigned long start,

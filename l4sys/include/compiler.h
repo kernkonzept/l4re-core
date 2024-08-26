@@ -93,11 +93,6 @@
  * \def     EXTERN_C_END
  * \hideinitializer
  */
-/**
- * Mark C types and functions.
- * \def     EXTERN_C
- * \hideinitializer
- */
 
 /**
  * \def L4_NOTHROW
@@ -175,7 +170,6 @@
 #  define L4_NOTHROW
 #  define EXTERN_C_BEGIN
 #  define EXTERN_C_END
-#  define EXTERN_C
 #  ifndef __BEGIN_DECLS
 #    define __BEGIN_DECLS
 #  endif
@@ -191,7 +185,6 @@
 #  endif
 #  define EXTERN_C_BEGIN extern "C" {
 #  define EXTERN_C_END }
-#  define EXTERN_C extern "C"
 #  if !defined __BEGIN_DECLS || defined DOXYGEN
 #    define __BEGIN_DECLS extern "C" {
 #  endif
