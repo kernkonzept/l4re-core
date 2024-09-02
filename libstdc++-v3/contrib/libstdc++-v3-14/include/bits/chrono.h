@@ -1358,10 +1358,12 @@ _GLIBCXX_END_INLINE_ABI_NAMESPACE(_V2)
       }
     /// @endcond
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     /// Literal suffix for durations representing non-integer hours
     constexpr chrono::duration<long double, ratio<3600,1>>
     operator""h(long double __hours)
     { return chrono::duration<long double, ratio<3600,1>>{__hours}; }
+#endif
 
     /// Literal suffix for durations of type `std::chrono::hours`
     template <char... _Digits>
@@ -1369,10 +1371,12 @@ _GLIBCXX_END_INLINE_ABI_NAMESPACE(_V2)
       operator""h()
       { return __check_overflow<chrono::hours, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     /// Literal suffix for durations representing non-integer minutes
     constexpr chrono::duration<long double, ratio<60,1>>
     operator""min(long double __mins)
     { return chrono::duration<long double, ratio<60,1>>{__mins}; }
+#endif
 
     /// Literal suffix for durations of type `std::chrono::minutes`
     template <char... _Digits>
@@ -1380,10 +1384,12 @@ _GLIBCXX_END_INLINE_ABI_NAMESPACE(_V2)
       operator""min()
       { return __check_overflow<chrono::minutes, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     /// Literal suffix for durations representing non-integer seconds
     constexpr chrono::duration<long double>
     operator""s(long double __secs)
     { return chrono::duration<long double>{__secs}; }
+#endif
 
     /// Literal suffix for durations of type `std::chrono::seconds`
     template <char... _Digits>
@@ -1391,10 +1397,12 @@ _GLIBCXX_END_INLINE_ABI_NAMESPACE(_V2)
       operator""s()
       { return __check_overflow<chrono::seconds, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     /// Literal suffix for durations representing non-integer milliseconds
     constexpr chrono::duration<long double, milli>
     operator""ms(long double __msecs)
     { return chrono::duration<long double, milli>{__msecs}; }
+#endif
 
     /// Literal suffix for durations of type `std::chrono::milliseconds`
     template <char... _Digits>
@@ -1402,10 +1410,12 @@ _GLIBCXX_END_INLINE_ABI_NAMESPACE(_V2)
       operator""ms()
       { return __check_overflow<chrono::milliseconds, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     /// Literal suffix for durations representing non-integer microseconds
     constexpr chrono::duration<long double, micro>
     operator""us(long double __usecs)
     { return chrono::duration<long double, micro>{__usecs}; }
+#endif
 
     /// Literal suffix for durations of type `std::chrono::microseconds`
     template <char... _Digits>
@@ -1413,10 +1423,12 @@ _GLIBCXX_END_INLINE_ABI_NAMESPACE(_V2)
       operator""us()
       { return __check_overflow<chrono::microseconds, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     /// Literal suffix for durations representing non-integer nanoseconds
     constexpr chrono::duration<long double, nano>
     operator""ns(long double __nsecs)
     { return chrono::duration<long double, nano>{__nsecs}; }
+#endif
 
     /// Literal suffix for durations of type `std::chrono::nanoseconds`
     template <char... _Digits>
