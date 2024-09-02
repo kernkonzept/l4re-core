@@ -29,6 +29,9 @@
 #include <l4/cxx/type_traits>
 #include <l4/sys/err.h>
 
+#include <cstdarg>
+#include <cstdio>
+
 namespace L4Re {
 
 #ifdef __EXCEPTIONS
@@ -52,6 +55,18 @@ namespace L4Re {
     case -L4_ERANGE: throw (L4::Bounds_error(extra));
     default: throw (L4::Runtime_error(err, extra));
     }
+}
+
+[[noreturn]] inline void throw_error_fmt(long err, char const *const fmt, ...)
+  __attribute__((format(printf, 2, 3)));
+[[noreturn]] inline void throw_error_fmt(long err, char const *const fmt, ...)
+{
+  char extra[80];
+  va_list argp;
+  va_start(argp, fmt);
+  vsnprintf(extra, sizeof(extra), fmt, argp);
+  va_end(argp);
+  throw_error(err, extra);
 }
 
 /**
