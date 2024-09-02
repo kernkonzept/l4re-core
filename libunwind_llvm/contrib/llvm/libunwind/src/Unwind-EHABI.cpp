@@ -925,6 +925,7 @@ _Unwind_VRS_Set(_Unwind_Context *context, _Unwind_VRS_RegClass regclass,
                  ? _UVRSR_OK
                  : _UVRSR_FAILED;
     case _UVRSC_VFP:
+#ifndef BID_VARIANT_FLAG_NOFPU
       if (representation != _UVRSD_VFPX && representation != _UVRSD_DOUBLE)
         return _UVRSR_FAILED;
       if (representation == _UVRSD_VFPX) {
@@ -940,6 +941,9 @@ _Unwind_VRS_Set(_Unwind_Context *context, _Unwind_VRS_RegClass regclass,
                              *(unw_fpreg_t *)valuep) == UNW_ESUCCESS
                  ? _UVRSR_OK
                  : _UVRSR_FAILED;
+#else
+      break;
+#endif
 #if defined(__ARM_WMMX)
     case _UVRSC_WMMXC:
       if (representation != _UVRSD_UINT32 || regno > 3)
@@ -988,6 +992,7 @@ _Unwind_VRS_Get_Internal(_Unwind_Context *context,
                  ? _UVRSR_OK
                  : _UVRSR_FAILED;
     case _UVRSC_VFP:
+#ifndef BID_VARIANT_FLAG_NOFPU
       if (representation != _UVRSD_VFPX && representation != _UVRSD_DOUBLE)
         return _UVRSR_FAILED;
       if (representation == _UVRSD_VFPX) {
@@ -1003,6 +1008,9 @@ _Unwind_VRS_Get_Internal(_Unwind_Context *context,
                              (unw_fpreg_t *)valuep) == UNW_ESUCCESS
                  ? _UVRSR_OK
                  : _UVRSR_FAILED;
+#else
+      break;
+#endif
 #if defined(__ARM_WMMX)
     case _UVRSC_WMMXC:
       if (representation != _UVRSD_UINT32 || regno > 3)
