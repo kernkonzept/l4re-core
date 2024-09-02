@@ -83,16 +83,6 @@
  * \def     __END_DECLS
  * \hideinitializer
  */
-/**
- * Start section with C types and functions.
- * \def     EXTERN_C_BEGIN
- * \hideinitializer
- */
-/**
- * End section with C types and functions.
- * \def     EXTERN_C_END
- * \hideinitializer
- */
 
 /**
  * \def L4_NOTHROW
@@ -168,8 +158,6 @@
 #ifndef __cplusplus
 #  define L4_NOTHROW__A       __attribute__((nothrow))
 #  define L4_NOTHROW
-#  define EXTERN_C_BEGIN
-#  define EXTERN_C_END
 #  ifndef __BEGIN_DECLS
 #    define __BEGIN_DECLS
 #  endif
@@ -183,8 +171,6 @@
 #  else /* C++ < 11 */
 #    define L4_NOTHROW throw()
 #  endif
-#  define EXTERN_C_BEGIN extern "C" {
-#  define EXTERN_C_END }
 #  if !defined __BEGIN_DECLS || defined DOXYGEN
 #    define __BEGIN_DECLS extern "C" {
 #  endif
@@ -193,6 +179,17 @@
 #  endif
 #  define L4_DEFAULT_PARAM(x) = x
 #endif /* __cplusplus */
+
+/* Depration hints during compile -- remove later (2025+) */
+#ifndef EXTERN_C
+#define EXTERN_C DO_NOT_USE_EXTERN_C_ANY_MORE
+#endif
+#ifndef EXTERN_C_BEGIN
+#define EXTERN_C_BEGIN DO_NOT_USE_EXTERN_C_BEGIN_ANY_MORE__USE__BEGIN_DECLS
+#endif
+#ifndef EXTERN_C_END
+#define EXTERN_C_END DO_NOT_USE_EXTERN_C_END_ANY_MORE__USE__END_DECLS
+#endif
 
 /**
  * Constexpr function attribute.
