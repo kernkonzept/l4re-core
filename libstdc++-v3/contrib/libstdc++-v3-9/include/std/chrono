@@ -910,54 +910,66 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	return _Dur(__repval);
       }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     constexpr chrono::duration<long double, ratio<3600,1>>
     operator""h(long double __hours)
     { return chrono::duration<long double, ratio<3600,1>>{__hours}; }
+#endif
 
     template <char... _Digits>
       constexpr chrono::hours
       operator""h()
       { return __check_overflow<chrono::hours, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     constexpr chrono::duration<long double, ratio<60,1>>
     operator""min(long double __mins)
     { return chrono::duration<long double, ratio<60,1>>{__mins}; }
+#endif
 
     template <char... _Digits>
       constexpr chrono::minutes
       operator""min()
       { return __check_overflow<chrono::minutes, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     constexpr chrono::duration<long double>
     operator""s(long double __secs)
     { return chrono::duration<long double>{__secs}; }
+#endif
 
     template <char... _Digits>
       constexpr chrono::seconds
       operator""s()
       { return __check_overflow<chrono::seconds, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     constexpr chrono::duration<long double, milli>
     operator""ms(long double __msecs)
     { return chrono::duration<long double, milli>{__msecs}; }
+#endif
 
     template <char... _Digits>
       constexpr chrono::milliseconds
       operator""ms()
       { return __check_overflow<chrono::milliseconds, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     constexpr chrono::duration<long double, micro>
     operator""us(long double __usecs)
     { return chrono::duration<long double, micro>{__usecs}; }
+#endif
 
     template <char... _Digits>
       constexpr chrono::microseconds
       operator""us()
       { return __check_overflow<chrono::microseconds, _Digits...>(); }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
     constexpr chrono::duration<long double, nano>
     operator""ns(long double __nsecs)
     { return chrono::duration<long double, nano>{__nsecs}; }
+#endif
 
     template <char... _Digits>
       constexpr chrono::nanoseconds
