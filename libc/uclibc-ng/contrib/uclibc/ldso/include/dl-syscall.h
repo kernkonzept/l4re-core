@@ -169,7 +169,7 @@ static __always_inline int _dl_stat(const char *file_name,
 #if defined __NR_fstat64 && !defined __NR_fstat && (!defined(__UCLIBC_USE_TIME64__) || defined(__sparc__))
 # define __NR__dl_fstat __NR_fstat64
 static __always_inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf)
-#elif defined __NR_fstat
+#elif defined __NR_fstat && !defined __UCLIBC_USE_TIME64__ || defined(__sparc__)
 # define __NR__dl_fstat __NR_fstat
 static __always_inline _syscall2(int, _dl_fstat, int, fd, struct stat *, buf)
 #elif defined __NR_statx && defined __UCLIBC_HAVE_STATX__
