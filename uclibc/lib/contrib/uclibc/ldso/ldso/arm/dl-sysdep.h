@@ -124,7 +124,7 @@ elf_machine_dynamic (void)
        ".align  2\n"
         "orr     %1, pc, #1\n"
         "bx      %1\n"
-        ".force_thumb\n"
+        ".thumb\n"
        : "=r" (dynamic), "=&r" (tmp));
 #endif
 
