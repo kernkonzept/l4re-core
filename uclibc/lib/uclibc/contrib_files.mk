@@ -416,10 +416,6 @@ define SRC_libc/misc_locale
   time/strptime_l
 endef
 
-ifneq ($(CONFIG_BID_PIE),)
-  SRC_libc/misc += internals/reloc_static_pie
-endif
-
 define SRC_libc/misc_fp
   $(if $(BID_VARIANT_FLAG_NOFPU),,time/difftime)
 endef
@@ -435,6 +431,7 @@ endef
 define SRC_libc/misc_libc.a
   elf/dl-support
   elf/dl-core
+  $(if $(CONFIG_BID_PIE),internals/reloc_static_pie)
 endef
 
 SRC_libc/misc_libc_minimal.a = $(SRC_libc/misc_libc.a)
