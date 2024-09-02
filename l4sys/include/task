@@ -101,18 +101,40 @@ public:
    * Revoke rights from the task.
    *
    * \param fpage     Flexpage that describes an area in one capability space
-   *                  of `this` task
+   *                  of `this` task and the rights to revoke.
    * \param map_mask  Unmap mask, see #l4_unmap_flags_t
+   *
    * \utcb_def{utcb}
    *
    * \return Syscall return tag
    *
-   * This method allows to revoke rights from the destination task. For a flex
+   * This method allows to revoke rights from the destination task. The rights
+   * to revoke are specified in the flexpage, see l4_fpage_rights(). For a flex
    * page describing IO ports or memory, it also revokes rights from all the
    * tasks that got the rights delegated from the destination task (i.e., this
-   * operation does a recursive rights revocation). If the set of rights is
-   * empty after the revocation, the capability is unmapped. It is guaranteed
+   * operation does a recursive rights revocation). The capability is unmapped
+   * if certain rights are specified, see below for details. It is guaranteed
    * that the rights revocation is completed before this function returns.
+   *
+   * Note that this function cannot be used to revoke the reference counting
+   * permission (see #L4_FPAGE_C_REF_CNT) or the IPC-gate server permission
+   * (see #L4_FPAGE_C_IPCGATE_SVR) from object capabilities.
+   *
+   * It depends on the platform and the object type which rights need to be
+   * specified in the `rights` field of `fpage` to unmap a capability:
+   *  - An object capability is unmapped if and only if the #L4_CAP_FPAGE_R
+   *    right bit is set.
+   *  - An IO port is unmapped if and only if any right bit is set.
+   *  - Memory is unmapped if and only if the #L4_FPAGE_RO right bit is set.
+   *
+   * \note Depending on the page-table features supported by the hardware,
+   *       revocation of certain rights from a memory capability can be a no-op
+   *       (i.e., the rights are not revoked). Further, revocation of certain
+   *       rights may grant other rights which were not present before. For
+   *       instance, on an architecture without support for NX, revoking X does
+   *       nothing. For another example, revoking only X from an execute-only
+   *       page grants read permission (because the mapping remains present in
+   *       the page table).
    *
    * \note If the reference counter of a kernel object referenced in `fpage`
    *       goes down to zero (as a result of deleting capabilities), the
@@ -177,7 +199,9 @@ public:
    *
    * \return Syscall return tag.
    *
-   * This operation unmaps the capability from `this` task.
+   * This operation unmaps the capability from `this` task. This operation is
+   * equivalent to unmapping a single object capability by specifying all object
+   * rights as unmap mask.
    *
    * \note If the reference counter of the kernel object referenced by `cap`
    *       goes down to zero, the deletion of the object is initiated. Objects

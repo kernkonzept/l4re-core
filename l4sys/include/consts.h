@@ -205,6 +205,9 @@ enum l4_unmap_flags_t
    * has the same effect as #L4_FP_ALL_SPACES alone.
    * \hideinitializer
    * \see L4::Task::unmap() l4_task_unmap()
+   *
+   * \note Specifying #L4_FP_DELETE_OBJ ^ #L4_FP_ALL_SPACES is treated as
+   *       #L4_FP_OTHER_SPACES.
    */
   L4_FP_DELETE_OBJ   = 0xc0000000UL,
 
