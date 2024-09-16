@@ -255,10 +255,15 @@ int DwarfInstructions<A, R>::stepWithDwarf(A &addressSpace, pint_t pc,
       for (int i = 0; i <= lastReg; ++i) {
         if (prolog.savedRegisters[i].location !=
             CFI_Parser<A>::kRegisterUnused) {
+#ifndef BID_VARIANT_FLAG_NOFPU
           if (registers.validFloatRegister(i))
             newRegisters.setFloatRegister(
                 i, getSavedFloatRegister(addressSpace, registers, cfa,
                                          prolog.savedRegisters[i]));
+#else
+          if (0)
+            ;
+#endif
           else if (registers.validVectorRegister(i))
             newRegisters.setVectorRegister(
                 i, getSavedVectorRegister(addressSpace, registers, cfa,

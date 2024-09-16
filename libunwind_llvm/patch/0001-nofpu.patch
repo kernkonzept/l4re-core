@@ -1,3 +1,59 @@
+
+diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp b/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp
+index bd9ece60e..ac9bdf196 100644
+--- a/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp
++++ b/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp
+@@ -255,10 +255,15 @@ int DwarfInstructions<A, R>::stepWithDwarf(A &addressSpace, pint_t pc,
+       for (int i = 0; i <= lastReg; ++i) {
+         if (prolog.savedRegisters[i].location !=
+             CFI_Parser<A>::kRegisterUnused) {
++#ifndef BID_VARIANT_FLAG_NOFPU
+           if (registers.validFloatRegister(i))
+             newRegisters.setFloatRegister(
+                 i, getSavedFloatRegister(addressSpace, registers, cfa,
+                                          prolog.savedRegisters[i]));
++#else
++          if (0)
++            ;
++#endif
+           else if (registers.validVectorRegister(i))
+             newRegisters.setVectorRegister(
+                 i, getSavedVectorRegister(addressSpace, registers, cfa,
+diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp
+index 7753936a5..ca3aaa8e1 100644
+--- a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp
++++ b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp
+@@ -439,12 +439,14 @@ public:
+   virtual bool validFloatReg(int) {
+     _LIBUNWIND_ABORT("validFloatReg not implemented");
+   }
++#ifndef BID_VARIANT_FLAG_NOFPU
+   virtual unw_fpreg_t getFloatReg(int) {
+     _LIBUNWIND_ABORT("getFloatReg not implemented");
+   }
+   virtual void setFloatReg(int, unw_fpreg_t) {
+     _LIBUNWIND_ABORT("setFloatReg not implemented");
+   }
++#endif
+   virtual int step(bool = false) { _LIBUNWIND_ABORT("step not implemented"); }
+   virtual void getInfo(unw_proc_info_t *) {
+     _LIBUNWIND_ABORT("getInfo not implemented");
+@@ -1360,6 +1362,7 @@ bool UnwindCursor<A, R>::validFloatReg(int regNum) {
+   return _registers.validFloatRegister(regNum);
+ }
+
++#ifndef BID_VARIANT_FLAG_NOFPU
+ template <typename A, typename R>
+ unw_fpreg_t UnwindCursor<A, R>::getFloatReg(int regNum) {
+   return _registers.getFloatRegister(regNum);
+@@ -1369,6 +1372,7 @@ template <typename A, typename R>
+ void UnwindCursor<A, R>::setFloatReg(int regNum, unw_fpreg_t value) {
+   _registers.setFloatRegister(regNum, value);
+ }
++#endif
+
+ template <typename A, typename R> void UnwindCursor<A, R>::jumpto() {
+   _registers.jumpto();
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
 index 951189ea5..b18bc2216 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
@@ -52,14 +108,25 @@ index 0faea2b78..b2589b373 100644
  /// Get value of specified float register at cursor position in stack frame.
  _LIBUNWIND_HIDDEN int __unw_get_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
                                        unw_fpreg_t *value) {
-@@ -155,6 +156,7 @@ _LIBUNWIND_HIDDEN int __unw_get_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
+@@ -155,8 +156,10 @@
    return UNW_EBADREG;
  }
  _LIBUNWIND_WEAK_ALIAS(__unw_get_fpreg, unw_get_fpreg)
 +#endif
- 
+
  /// Set value of specified float register at cursor position in stack frame.
++#ifndef BID_VARIANT_FLAG_NOFPU
  _LIBUNWIND_HIDDEN int __unw_set_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
+                                       unw_fpreg_t value) {
+ #if defined(_LIBUNWIND_ARM_EHABI)
+@@ -174,6 +177,7 @@
+   return UNW_EBADREG;
+ }
+ _LIBUNWIND_WEAK_ALIAS(__unw_set_fpreg, unw_set_fpreg)
++#endif
+
+ /// Move cursor to next frame.
+ _LIBUNWIND_HIDDEN int __unw_step(unw_cursor_t *cursor) {
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/Unwind-EHABI.cpp b/libunwind_llvm/contrib/llvm/libunwind/src/Unwind-EHABI.cpp
 index 05475c6ac1..9a99f6e948 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/Unwind-EHABI.cpp

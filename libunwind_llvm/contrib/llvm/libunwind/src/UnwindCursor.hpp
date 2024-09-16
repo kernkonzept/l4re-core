@@ -439,12 +439,14 @@ public:
   virtual bool validFloatReg(int) {
     _LIBUNWIND_ABORT("validFloatReg not implemented");
   }
+#ifndef BID_VARIANT_FLAG_NOFPU
   virtual unw_fpreg_t getFloatReg(int) {
     _LIBUNWIND_ABORT("getFloatReg not implemented");
   }
   virtual void setFloatReg(int, unw_fpreg_t) {
     _LIBUNWIND_ABORT("setFloatReg not implemented");
   }
+#endif
   virtual int step(bool = false) { _LIBUNWIND_ABORT("step not implemented"); }
   virtual void getInfo(unw_proc_info_t *) {
     _LIBUNWIND_ABORT("getInfo not implemented");
@@ -1360,6 +1362,7 @@ bool UnwindCursor<A, R>::validFloatReg(int regNum) {
   return _registers.validFloatRegister(regNum);
 }
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 template <typename A, typename R>
 unw_fpreg_t UnwindCursor<A, R>::getFloatReg(int regNum) {
   return _registers.getFloatRegister(regNum);
@@ -1369,6 +1372,7 @@ template <typename A, typename R>
 void UnwindCursor<A, R>::setFloatReg(int regNum, unw_fpreg_t value) {
   _registers.setFloatRegister(regNum, value);
 }
+#endif
 
 template <typename A, typename R> void UnwindCursor<A, R>::jumpto() {
   _registers.jumpto();

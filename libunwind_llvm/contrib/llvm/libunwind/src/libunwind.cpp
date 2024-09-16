@@ -159,6 +159,7 @@ _LIBUNWIND_WEAK_ALIAS(__unw_get_fpreg, unw_get_fpreg)
 #endif
 
 /// Set value of specified float register at cursor position in stack frame.
+#ifndef BID_VARIANT_FLAG_NOFPU
 _LIBUNWIND_HIDDEN int __unw_set_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
                                       unw_fpreg_t value) {
 #if defined(_LIBUNWIND_ARM_EHABI)
@@ -176,6 +177,7 @@ _LIBUNWIND_HIDDEN int __unw_set_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
   return UNW_EBADREG;
 }
 _LIBUNWIND_WEAK_ALIAS(__unw_set_fpreg, unw_set_fpreg)
+#endif
 
 /// Move cursor to next frame.
 _LIBUNWIND_HIDDEN int __unw_step(unw_cursor_t *cursor) {
