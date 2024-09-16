@@ -38,6 +38,17 @@ index 7753936a5..ca3aaa8e1 100644
    virtual int step(bool = false) { _LIBUNWIND_ABORT("step not implemented"); }
    virtual void getInfo(unw_proc_info_t *) {
      _LIBUNWIND_ABORT("getInfo not implemented");
+@@ -940,8 +940,10 @@ public:
+   virtual unw_word_t  getReg(int);
+   virtual void        setReg(int, unw_word_t);
+   virtual bool        validFloatReg(int);
++#ifndef BID_VARIANT_FLAG_NOFPU
+   virtual unw_fpreg_t getFloatReg(int);
+   virtual void        setFloatReg(int, unw_fpreg_t);
++#endif
+   virtual int         step(bool stage2 = false);
+   virtual void        getInfo(unw_proc_info_t *);
+   virtual void        jumpto();
 @@ -1360,6 +1362,7 @@ bool UnwindCursor<A, R>::validFloatReg(int regNum) {
    return _registers.validFloatRegister(regNum);
  }

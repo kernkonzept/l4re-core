@@ -940,8 +940,10 @@ public:
   virtual unw_word_t  getReg(int);
   virtual void        setReg(int, unw_word_t);
   virtual bool        validFloatReg(int);
+#ifndef BID_VARIANT_FLAG_NOFPU
   virtual unw_fpreg_t getFloatReg(int);
   virtual void        setFloatReg(int, unw_fpreg_t);
+#endif
   virtual int         step(bool stage2 = false);
   virtual void        getInfo(unw_proc_info_t *);
   virtual void        jumpto();
