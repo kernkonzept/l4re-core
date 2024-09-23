@@ -50,6 +50,14 @@ namespace L4 {
  * The main reason for using a semaphore instead of an L4::Irq is to ensure
  * that incoming trigger signals do not interfere with any open-wait
  * operations, as used for example in a server loop.
+ *
+ *
+ * Note that this is a kernel-level semaphore primitive that shall be used
+ * to implement user-level, application-usable synchronization primitives.
+ * For example, use pthread_mutex functions in applications if possible.
+ * When implementing a synchronization primitive, please ensure to only use
+ * L4::Semaphore in the case of contention, and use atomic operations for
+ * the non-contended case.
  */
 struct Semaphore : Kobject_t<Semaphore, Triggerable, L4_PROTO_SEMAPHORE>
 {
