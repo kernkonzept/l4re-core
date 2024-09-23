@@ -16,7 +16,7 @@ ifeq ($(CPU_BITS_riscv),64)
   BUILTINS_SRC += riscv/muldi3.S
 endif
 
-# Since clang 16
-ifeq ($(filter 16,$(LIBCLANG_RT_CONTRIB_VERSIONS)),16)
+# Clang >= 16
+ifneq ($(call libclang_rt_if_min_version,16),)
 BUILTINS_SRC += riscv/fp_mode.c
 endif

@@ -132,7 +132,12 @@ endif
 
 # Add only if __bf16 is available.
 ifeq ($(call libclang_rt_try_compile,__bf16 x;),Ok)
-GENERIC_SOURCES += truncdfbf2.c truncsfbf2.c
+  GENERIC_SOURCES += truncdfbf2.c truncsfbf2.c
+
+  # Clang >= 19
+  ifneq ($(call libclang_rt_if_min_version,19),)
+    GENERIC_SOURCES += extendbfsf2.c
+  endif
 endif
 
 # TODO: Reimplement for L4Re
