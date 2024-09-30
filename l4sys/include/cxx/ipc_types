@@ -695,9 +695,9 @@ template<typename T> struct L4_EXPORT Opt< Cap<T> >
   Opt(Cap<T> value) noexcept : _value(value) {}
   Opt(L4::Cap<T> value) noexcept : _value(value) {}
   Opt &operator = (Cap<T> value) noexcept
-  { this->_value = value; }
+  { this->_value = value; return *this; }
   Opt &operator = (L4::Cap<T> value) noexcept
-  { this->_value = value; }
+  { this->_value = value; return *this; }
 
   Cap<T> value() const noexcept { return this->_value; }
   bool is_valid() const noexcept { return this->_value.is_valid(); }
