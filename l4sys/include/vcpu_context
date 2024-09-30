@@ -1,3 +1,4 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
 /**
  * \file
  * Hardware vCPU context interface.
