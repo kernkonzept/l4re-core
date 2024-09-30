@@ -55,6 +55,9 @@
  * The thread control functions are used to control various aspects of a
  * thread. See l4_thread_control_start() for more information.
  *
+ * On ARM newly created threads run in EL0 by default and the exception level
+ * can be changed there with ex_regs().
+ *
  * \includefile{l4/sys/thread.h}
  *
  * For the C++ interface refer to L4::Thread.
@@ -80,7 +83,8 @@
  * to force the thread to raise an artificial exception (see `flags`). If the
  * thread is in an IPC operation or if #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION
  * forces an IPC then changes in IP and SP take effect directly after returning
- * from this IPC.
+ * from this IPC. On ARM this method allows to change the execption level, see
+ * #L4_thread_ex_regs_flags_arm and #L4_thread_ex_regs_flags_arm64.
  *
  * The thread is started using l4_scheduler_run_thread(). However, if at the
  * time l4_scheduler_run_thread() is called, the instruction pointer of the
@@ -122,7 +126,9 @@ l4_thread_ex_regs_u(l4_cap_idx_t thread, l4_addr_t ip, l4_addr_t sp,
  * operations and to force the thread to raise an artificial exception (see
  * `flags`). If the thread is in an IPC operation or if
  * #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION forces an IPC then changes in IP and
- * SP take effect directly after returning from this IPC.
+ * SP take effect directly after returning from this IPC. On ARM this method
+ * allows to change the execption level, see #L4_thread_ex_regs_flags_arm and
+ * #L4_thread_ex_regs_flags_arm64.
  *
  * The thread is started using l4_scheduler_run_thread(). However, if at the
  * time l4_scheduler_run_thread() is called, the instruction pointer of the

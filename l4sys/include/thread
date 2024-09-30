@@ -51,6 +51,9 @@ namespace L4 {
  * - Thread configuration and manipulation
  * - Thread switching.
  *
+ * On ARM newly created threads run in EL0 by default and the exception level
+ * can be changed there with ex_regs().
+ *
  * \includefile{l4/sys/thread}
  *
  * For the C interface see the \ref l4_thread_api API. For more elaborated
@@ -79,8 +82,9 @@ public:
    * operations and to force the thread to raise an artificial exception (see
    * `flags`). If the thread is in an IPC operation or if
    * #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION forces an IPC then changes in IP and
-   * SP take effect directly after returning from this IPC.
-
+   * SP take effect directly after returning from this IPC. On ARM this method
+   * allows to change the execption level, see #L4_thread_ex_regs_flags_arm and
+   * #L4_thread_ex_regs_flags_arm64.
    *
    * The thread is started using L4::Scheduler::run_thread(). However, if at
    * the time L4::Scheduler::run_thread() is called, the instruction pointer of
@@ -113,7 +117,9 @@ public:
    * operations and to force the thread to raise an artificial exception (see
    * `flags`). If the thread is in an IPC operation or if
    * #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION forces an IPC then changes in IP and
-   * SP take effect directly after returning from this IPC.
+   * SP take effect directly after returning from this IPC. On ARM this method
+   * allows to change the execption level, see #L4_thread_ex_regs_flags_arm and
+   * #L4_thread_ex_regs_flags_arm64.
    *
    * The thread is started using L4::Scheduler::run_thread(). However, if at
    * the time L4::Scheduler::run_thread() is called, the instruction pointer of
