@@ -58,7 +58,7 @@ public:
     // Slots for received capabilities are placed at the beginning of the
     // (shadowed) buffer registers. Free those.
     for (unsigned i = 0; i < _caps; ++i)
-      cap_alloc.free(L4::Cap<void>(_brs[i] & L4_CAP_MASK));
+      cap_alloc.free(L4::Cap<void>(_brs[i] & L4_CAP_MASK), L4RE_THIS_TASK_CAP);
 
     if (l4_is_fpage_valid(_mem_fp))
       dispose(_mem_fp);
