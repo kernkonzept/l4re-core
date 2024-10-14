@@ -112,29 +112,29 @@ enum L4_vm_vmx_sw_fields
    *       l4_vm_vmx_get_cr2_index() to make sure you are running on a
    *       compatible kernel.
    */
-  L4_VM_VMX_VMCS_CR2                = 0x683e,
+  L4_VM_VMX_VMCS_CR2                = 0x6880,
   // Custom argument passed from kernel to user space
-  L4_VM_VMX_VMCS_NAT_ARG0           = 0x6840,
+  L4_VM_VMX_VMCS_NAT_ARG0           = 0x6882,
   // Custom argument passed from kernel to user space
-  L4_VM_VMX_VMCS_NAT_ARG1           = 0x6842,
+  L4_VM_VMX_VMCS_NAT_ARG1           = 0x6884,
   // Custom argument passed from kernel to user space
-  L4_VM_VMX_VMCS_NAT_ARG2           = 0x6844,
+  L4_VM_VMX_VMCS_NAT_ARG2           = 0x6886,
   // Custom argument passed from kernel to user space
-  L4_VM_VMX_VMCS_NAT_ARG3           = 0x6846,
+  L4_VM_VMX_VMCS_NAT_ARG3           = 0x6888,
   /// VMCS offset of extended control register XCR0
-  L4_VM_VMX_VMCS_XCR0               = 0x2840,
+  L4_VM_VMX_VMCS_XCR0               = 0x2880,
   /// VMCS offset of system call flag mask MSR
-  L4_VM_VMX_VMCS_MSR_SYSCALL_MASK   = 0x2842,
+  L4_VM_VMX_VMCS_MSR_SYSCALL_MASK   = 0x2882,
   /// VMCS offset of IA32e mode system call target address MSR
-  L4_VM_VMX_VMCS_MSR_LSTAR          = 0x2844,
+  L4_VM_VMX_VMCS_MSR_LSTAR          = 0x2884,
   /// VMCS offset of IA32 mode system call target address MSR
-  L4_VM_VMX_VMCS_MSR_CSTAR          = 0x2846,
+  L4_VM_VMX_VMCS_MSR_CSTAR          = 0x2886,
   /// VMCS offset of auxiliary TSC signature MSR
-  L4_VM_VMX_VMCS_MSR_TSC_AUX        = 0x2848,
+  L4_VM_VMX_VMCS_MSR_TSC_AUX        = 0x2888,
   /// VMCS offset of system call target address MSR
-  L4_VM_VMX_VMCS_MSR_STAR           = 0x284a,
+  L4_VM_VMX_VMCS_MSR_STAR           = 0x288a,
   /// VMCS offset of GS base address swap target MSR
-  L4_VM_VMX_VMCS_MSR_KERNEL_GS_BASE = 0x284c,
+  L4_VM_VMX_VMCS_MSR_KERNEL_GS_BASE = 0x288c,
 };
 
 /**
