@@ -129,6 +129,7 @@ features.h
 fenv.h
 fnmatch.h
 fpu_control.h
+fts.h
 getopt.h
 uchar.h
 glob.h
