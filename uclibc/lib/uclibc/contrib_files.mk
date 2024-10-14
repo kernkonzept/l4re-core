@@ -728,6 +728,18 @@ define SRC_libc/signal
   sigjmp
 endef
 
+define SRC_libuargp
+  argp-ba
+  argp-eexst
+  argp-fmtstream
+  argp-fs-xinl
+  argp-help
+  argp-parse
+  argp-pv
+  argp-pvh
+  argp-xinl
+endef
+
 define SRC_libcrypt
   crypt
   des

@@ -42,7 +42,8 @@ LDFLAGS_libc.so := -init __uClibc_init
 
 DIRS := libc/string libc/inet libc/pwd_grp libc/unistd libc/signal \
         libc/stdlib libc/stdlib/malloc$(if $(CONFIG_BID_STATIC_HEAP),,-standard) libc/stdio libiconv \
-	libc/misc libc/sysdeps/linux libc/termios $(if $(BID_VARIANT_FLAG_NOFPU),,libm) libcrypt
+	libc/misc libc/sysdeps/linux libc/termios $(if $(BID_VARIANT_FLAG_NOFPU),,libm) \
+        libcrypt libuargp
 
 SUB_MODULES := wchar large_file $(if $(BID_VARIANT_FLAG_NOFPU),,fp) \
                $(if $(UCLIBC_BUILD_MINIMAL),,locale wchar_locale)
