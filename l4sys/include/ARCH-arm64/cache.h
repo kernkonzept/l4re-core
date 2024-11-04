@@ -94,6 +94,7 @@ l4_cache_coherent(unsigned long start,
                   unsigned long end) L4_NOTHROW
 {
   L4_ARM_CACHE_LOOP("dc cvau, %0; ic ivau");
+  asm volatile ("isb");
   return 0;
 }
 
