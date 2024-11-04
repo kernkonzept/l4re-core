@@ -54,8 +54,8 @@ enum L4_msgtag_protocol
 
   L4_PROTO_IRQ           =  -1L, ///< IRQ message
   L4_PROTO_PAGE_FAULT    =  -2L, ///< Page fault message
-  L4_PROTO_PREEMPTION    =  -3L, ///< Preemption message
-  L4_PROTO_SYS_EXCEPTION =  -4L, ///< System exception
+  // -3L unused
+  // -4L unused
   L4_PROTO_EXCEPTION     =  -5L, ///< Exception
   L4_PROTO_SIGMA0        =  -6L, ///< Sigma0 protocol
   L4_PROTO_IO_PAGE_FAULT =  -8L, ///< I/O page fault message
@@ -181,10 +181,6 @@ typedef struct l4_msgtag_t
   unsigned flags() const L4_NOTHROW { return raw & 0xf000; }
   /// Test if protocol indicates page-fault protocol.
   bool is_page_fault() const L4_NOTHROW { return label() == L4_PROTO_PAGE_FAULT; }
-  /// Test if protocol indicates preemption protocol.
-  bool is_preemption() const L4_NOTHROW { return label() == L4_PROTO_PREEMPTION; }
-  /// Test if protocol indicates system-exception protocol.
-  bool is_sys_exception() const L4_NOTHROW { return label() == L4_PROTO_SYS_EXCEPTION; }
   /// Test if protocol indicates exception protocol.
   bool is_exception() const L4_NOTHROW { return label() == L4_PROTO_EXCEPTION; }
   /// Test if protocol indicates sigma0 protocol.
@@ -277,25 +273,6 @@ L4_INLINE unsigned l4_msgtag_has_error(l4_msgtag_t t) L4_NOTHROW;
  * \return Boolean value
  */
 L4_INLINE unsigned l4_msgtag_is_page_fault(l4_msgtag_t t) L4_NOTHROW;
-
-/**
- * Test for preemption protocol.
- * \ingroup l4_msgtag_api
- *
- * \param t  The tag
- * \return Boolean value
- */
-L4_INLINE unsigned l4_msgtag_is_preemption(l4_msgtag_t t) L4_NOTHROW;
-
-/**
- * Test for system-exception protocol.
- * \ingroup l4_msgtag_api
- *
- * \param t  The tag
- *
- * \return Boolean value
- */
-L4_INLINE unsigned l4_msgtag_is_sys_exception(l4_msgtag_t t) L4_NOTHROW;
 
 /**
  * Test for exception protocol.
@@ -461,12 +438,6 @@ unsigned l4_msgtag_has_error(l4_msgtag_t t) L4_NOTHROW
 
 L4_INLINE unsigned l4_msgtag_is_page_fault(l4_msgtag_t t) L4_NOTHROW
 { return l4_msgtag_label(t) == L4_PROTO_PAGE_FAULT; }
-
-L4_INLINE unsigned l4_msgtag_is_preemption(l4_msgtag_t t) L4_NOTHROW
-{ return l4_msgtag_label(t) == L4_PROTO_PREEMPTION; }
-
-L4_INLINE unsigned l4_msgtag_is_sys_exception(l4_msgtag_t t) L4_NOTHROW
-{ return l4_msgtag_label(t) == L4_PROTO_SYS_EXCEPTION; }
 
 L4_INLINE unsigned l4_msgtag_is_exception(l4_msgtag_t t) L4_NOTHROW
 { return l4_msgtag_label(t) == L4_PROTO_EXCEPTION; }
