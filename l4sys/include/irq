@@ -231,42 +231,6 @@ public:
 };
 
 /**
- * IRQ multiplexer for shared IRQs.
- *
- * \deprecated IRQ muxer objects are no longer supported by the kernel.
- *
- * This interface allows broadcasting of shared IRQs to multiple triggerables.
- * The IRQ multiplexer is responsible for the correct mask and unmask logic for
- * such shared IRQs.
- *
- * The semantics are that each of the slave IRQs is triggered whenever
- * the multiplexer IRQ is triggered. As shared IRQs are usually
- * level-triggered, the real IRQ source will be masked automatically
- * when an IRQ is delivered and shall be unmasked when all attached slave
- * IRQs are unmasked.
- */
-struct Irq_mux : Kobject_t<Irq_mux, Triggerable, L4_PROTO_IRQ_MUX>
-{
-  /**
-   * Attach an IRQ to this multiplexer.
-   *
-   * \param slave  The slave that shall be attached to the master.
-   * \utcb{utcb}
-   *
-   * \return Syscall return tag
-   *
-   * The chaining feature of IRQ objects allows to deal with shared IRQs. For
-   * chaining IRQs there must be an IRQ multiplexer (Irq_mux) bound to
-   * the real IRQ source. This function allows to add slave IRQs to this
-   * multiplexer.
-   */
-  l4_msgtag_t chain(Cap<Triggerable> const &slave,
-                    l4_utcb_t *utcb = l4_utcb()) noexcept
-  { return l4_irq_mux_chain_u(cap(), slave.cap(), utcb); }
-};
-
-
-/**
  * C++ Icu interface, see \ref l4_icu_api for the C interface.
  *
  * \note "ICU" is short for "interrupt control unit".

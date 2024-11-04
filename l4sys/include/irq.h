@@ -55,40 +55,6 @@
  */
 
 /**
- * Chain an IRQ to another master IRQ source.
- * \ingroup l4_irq_api
- *
- * \deprecated   IRQ muxer objects are no longer supported by the kernel.
- *
- * \param irq    The master IRQ object.
- * \param slave  The slave that shall be attached to the master.
- *
- * \return Syscall return tag
- *
- * The chaining feature of IRQ objects allows to deal with shared IRQs. For
- * chaining IRQs there must be a master IRQ object, bound to the real IRQ
- * source. Note, the master IRQ must not have a thread bound to it.
- *
- * This function allows to add a limited number of slave IRQs to this master
- * IRQ, with the semantics that each of the slave IRQs is triggered whenever
- * the master IRQ is triggered. The master IRQ will be masked automatically
- * when an IRQ is delivered and shall be unmasked when all attached slave IRQs
- * are unmasked.
- */
-L4_INLINE l4_msgtag_t
-l4_irq_mux_chain(l4_cap_idx_t irq, l4_cap_idx_t slave) L4_NOTHROW;
-
-/**
- * \ingroup l4_irq_api
- * \copybrief L4::Irq_mux::chain
- * \param irq  The master IRQ object.
- * \copydetails L4::Irq_mux::chain
- */
-L4_INLINE l4_msgtag_t
-l4_irq_mux_chain_u(l4_cap_idx_t irq, l4_cap_idx_t slave,
-                   l4_utcb_t *utcb) L4_NOTHROW;
-
-/**
  * Detach from an interrupt source.
  * \ingroup l4_irq_api
  *
@@ -269,14 +235,6 @@ enum L4_irq_sender_op
 /**
  * \internal
  */
-enum L4_irq_mux_op
-{
-  L4_IRQ_MUX_OP_CHAIN = 0
-};
-
-/**
- * \internal
- */
 enum L4_irq_op
 {
   L4_IRQ_OP_TRIGGER   = 2,
@@ -286,18 +244,6 @@ enum L4_irq_op
 /**************************************************************************
  * Implementations
  */
-
-L4_INLINE l4_msgtag_t
-l4_irq_mux_chain_u(l4_cap_idx_t irq, l4_cap_idx_t slave,
-                   l4_utcb_t *utcb) L4_NOTHROW
-{
-  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
-  m->mr[0] = L4_IRQ_MUX_OP_CHAIN;
-  m->mr[1] = l4_map_obj_control(0, 0);
-  m->mr[2] = l4_obj_fpage(slave, 0, L4_CAP_FPAGE_RWS).raw;
-  return l4_ipc_call(irq, utcb, l4_msgtag(L4_PROTO_IRQ_MUX, 1, 1, 0),
-                     L4_IPC_NEVER);
-}
 
 L4_INLINE l4_msgtag_t
 l4_irq_detach_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
@@ -350,12 +296,6 @@ l4_irq_unmask_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW
   return l4_ipc_send(irq, utcb, l4_msgtag(L4_PROTO_IRQ, 1, 0, 0), L4_IPC_NEVER);
 }
 
-
-L4_INLINE l4_msgtag_t
-l4_irq_mux_chain(l4_cap_idx_t irq, l4_cap_idx_t slave) L4_NOTHROW
-{
-  return l4_irq_mux_chain_u(irq, slave, l4_utcb());
-}
 
 L4_INLINE l4_msgtag_t
 l4_irq_detach(l4_cap_idx_t irq) L4_NOTHROW

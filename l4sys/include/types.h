@@ -68,7 +68,7 @@ enum L4_msgtag_protocol
   L4_PROTO_VM            = -16L, ///< Protocol for messages to a virtual machine object
   L4_PROTO_DMA_SPACE     = -17L, ///< Protocol for (creating) kernel DMA space objects
   L4_PROTO_IRQ_SENDER    = -18L, ///< Protocol for IRQ senders (IRQ -> IPC)
-  L4_PROTO_IRQ_MUX       = -19L, ///< Protocol for IRQ mux (IRQ -> n x IRQ)
+  // -19L unused
   L4_PROTO_SEMAPHORE     = -20L, ///< Protocol for semaphore objects
   L4_PROTO_META          = -21L, ///< Meta information protocol
   L4_PROTO_IOMMU         = -22L, ///< Protocol ID for IO-MMUs
