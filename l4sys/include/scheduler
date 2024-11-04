@@ -72,7 +72,7 @@ public:
    * \param[in,out] cpus           \a cpus.offset is first CPU of interest.
    *                               \a cpus.granularity (see l4_sched_cpu_set_t).
    *                               \a cpus.map Bitmap of online CPUs.
-   *                               Pass nullptr to omit this information.
+   *                               Must not be nullptr.
    * \param[out]    sched_classes  A bitmap of available scheduling classes
    *                               (see L4_scheduler_classes).
    *                               Pass nullptr to omit this information.
