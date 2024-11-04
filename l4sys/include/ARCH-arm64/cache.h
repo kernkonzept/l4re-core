@@ -59,7 +59,6 @@ l4_cache_dmin_line(void)
   step = l4_cache_dmin_line();                                 \
   start &= ~(step - 1);                                        \
   end = (end + step - 1) & ~(step - 1);                        \
-  asm volatile ("dsb ish" : : "m"(*((unsigned *)start)));      \
   for (; start != end; start += step)                          \
     asm (op ", %1" : "+m"(*((unsigned *)start)) : "r"(start)); \
   asm volatile ("dsb ish");
