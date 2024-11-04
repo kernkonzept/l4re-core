@@ -60,7 +60,7 @@ l4_cache_dmin_line(void)
   start &= ~(step - 1);                                        \
   end = (end + step - 1) & ~(step - 1);                        \
   for (; start != end; start += step)                          \
-    asm (op ", %1" : "+m"(*((unsigned *)start)) : "r"(start)); \
+    asm volatile (op ", %0" : : "r"(start) : "memory");        \
   asm volatile ("dsb ish");
 
 
@@ -93,7 +93,7 @@ L4_INLINE int
 l4_cache_coherent(unsigned long start,
                   unsigned long end) L4_NOTHROW
 {
-  L4_ARM_CACHE_LOOP("dc cvau, %1; ic ivau");
+  L4_ARM_CACHE_LOOP("dc cvau, %0; ic ivau");
   return 0;
 }
 
