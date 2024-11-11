@@ -1,7 +1,8 @@
-/* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
 /*
  * Copyright (C) 2021-2022 Kernkonzept GmbH.
  * Author(s): Adam Lackorzynski <adam@l4re.org>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
 /**

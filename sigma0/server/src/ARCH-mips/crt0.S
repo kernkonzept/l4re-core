@@ -1,10 +1,8 @@
 /*
- * This file is subject to the terms and conditions of the GNU General Public
- * License 2.  See the file "COPYING-GPL-2" in the main directory of this
- * archive for more details.
- *
  * Copyright (C) 2013 Imagination Technologies Ltd.
  * Author: Yann Le Du <ledu@kymasys.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
 #include <sys/asm.h>

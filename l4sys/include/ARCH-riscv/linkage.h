@@ -3,10 +3,11 @@
  * \brief   Linkage
  * \ingroup l4sys_api
  */
-/* SPDX-License-Identifier: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom) */
 /*
  * Copyright (C) 2021 Kernkonzept GmbH.
  * Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 #pragma once
 

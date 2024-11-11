@@ -8,9 +8,7 @@
 /*
  * (c) 2003-2009 Author(s)
  *     economic rights: Technische Universität Dresden (Germany)
- * This file is part of TUD:OS and distributed under the terms of the
- * GNU Lesser General Public License 2.1.
- * Please see the COPYING-LGPL-2.1 file for details.
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
 #ifndef __L4_THREAD_H

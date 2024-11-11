@@ -1,9 +1,7 @@
 /*
  * (c) 2017 Adam Lackorzynski <adam@l4re.org>
  *
- * This file is part of L4Re and distributed under the terms of the
- * GNU General Public License 2.
- * Please see the COPYING-GPL-2 file for details.
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 #pragma once
 

@@ -3,10 +3,11 @@
  * \brief   Common L4 constants, RISC-V version
  * \ingroup l4_api
  */
-/* SPDX-License-Identifier: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom) */
 /*
  * Copyright (C) 2021 Kernkonzept GmbH.
  * Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 #ifndef _L4_SYS_CONSTS_H
 #define _L4_SYS_CONSTS_H

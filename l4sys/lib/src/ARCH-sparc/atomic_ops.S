@@ -1,6 +1,7 @@
-/* SPDX-License-Identifier: GPL-2.0-only or License-Ref-kk-custom */
 /*
  * Copyright (C) 2010 Technische Universität Dresden.
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
 .globl l4_atomic_add

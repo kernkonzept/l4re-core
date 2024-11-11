@@ -3,10 +3,11 @@
  * \brief   Fixed sized integer types, RISC-V version
  * \ingroup l4_basic_types
  */
-/* SPDX-License-Identifier: ((GPL-2.0-only WITH mif-exception) OR LicenseRef-kk-custom) */
 /*
  * Copyright (C) 2021 Kernkonzept GmbH.
  * Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
  */
 #pragma once
 
