@@ -61,37 +61,12 @@ enum L4_vm_vmx_caps_regs
  */
 enum L4_vm_vmx_dfl1_regs
 {
-  L4_VM_VMX_PINBASED_CTLS_DFL1_REG  = 0x1, /**< Default 1 bits in pin-based controls */
-  L4_VM_VMX_PROCBASED_CTLS_DFL1_REG = 0x2, /**< Default 1 bits in processor-based controls */
-  L4_VM_VMX_EXIT_CTLS_DFL1_REG      = 0x3, /**< Default 1 bits in exit controls */
-  L4_VM_VMX_ENTRY_CTLS_DFL1_REG     = 0x4, /**< Default 1 bits in entry controls */
-  L4_VM_VMX_NUM_DFL1_REGS                  /**< Total number of default on registers */
+  L4_VM_VMX_PINBASED_CTLS_DFL1_REG  = 0,  /**< Default 1 bits in pin-based controls */
+  L4_VM_VMX_PROCBASED_CTLS_DFL1_REG = 1,  /**< Default 1 bits in processor-based controls */
+  L4_VM_VMX_EXIT_CTLS_DFL1_REG      = 2,  /**< Default 1 bits in exit controls */
+  L4_VM_VMX_ENTRY_CTLS_DFL1_REG     = 3,  /**< Default 1 bits in entry controls */
+  L4_VM_VMX_NUM_DFL1_REGS                 /**< Total number of default on registers */
 };
-
-/**
- * Get a capability register for VMX.
- * \ingroup l4_vm_vmx_api
- *
- * \param vcpu_state  Pointer to the VCPU state of the VCPU.
- * \param cap_msr     Caps register index (see #L4_vm_vmx_caps_regs).
- * \return The value of the capability register.
- */
-L4_INLINE
-l4_uint64_t
-l4_vm_vmx_get_caps(void const *vcpu_state, unsigned cap_msr) L4_NOTHROW;
-
-/**
- * Get a default to one capability register for VMX.
- * \ingroup l4_vm_vmx_api
- *
- * \param vcpu_state  Pointer to the VCPU state of the VCPU.
- * \param cap_msr     Default 1 caps register index (see #L4_vm_vmx_dfl1_regs).
- * \return The value of the capability register.
- */
-L4_INLINE
-l4_uint32_t
-l4_vm_vmx_get_caps_default1(void const *vcpu_state, unsigned cap_msr) L4_NOTHROW;
-
 
 /**
  * Additional (virtual) VMCS fields.
@@ -175,8 +150,8 @@ enum L4_vm_vmx_sw_fields
  * All offsets/limits/sizes are represented in a 64-byte granule.
  *
  * The offsets (after being multiplied by 64) are indexes in the values array
- * in \ref l4_ext_vcpu_state_vmx_t and bit indexes in the dirty_bitmap array in
- * \ref l4_ext_vcpu_state_vmx_t.
+ * in #l4_vm_vmx_vcpu_vmcs_t and bit indexes in the dirty_bitmap array in
+ * #l4_vm_vmx_vcpu_vmcs_t.
  *
  * The limits (after being multiplied by 64) represent the range of the
  * available indexes.
@@ -207,27 +182,27 @@ enum L4_vm_vmx_vmcs_sizes
 };
 
 /**
- * VMX extended vCPU state.
+ * VMX software VMCS.
  *
  * This data structure represents the following memory layout:
  * - 0x000 - 0x007: Reserved (ignored by the kernel). In the hardware VMCS, the
  *                  revision identifier and the abort indicator are stored
  *                  in this area. Hereby we simply ignore these two entries.
  * - 0x008 - 0x00f: User space data (ignored by the kernel). This currently
- *                  stores the pointer to a different VMX extended vCPU state
- *                  that has been loaded into the given state.
+ *                  stores the pointer to a different user software VMCS that
+ *                  has been loaded to this kernel software VMCS.
  * - 0x010 - 0x013: VMCS field index of the software-defined CR2 field in the
  *                  software VMCS.
  * - 0x014 - 0x017: Reserved.
  * - 0x018 - 0x01f: Capability of the hardware VMCS object (with padding).
- * - 0x020 - 0x047: Software VMCS field offset table \ref l4_vmx_offset_table_t.
+ * - 0x020 - 0x047: Software VMCS field offset table. See #l4_vmx_offset_table_t.
  * - 0x048 - 0x0bf: Reserved.
  * - 0x0c0 - 0xabf: Software VMCS fields (with padding).
  * - 0xac0 - 0xbff: Software VMCS fields dirty bitmap (with padding).
  *
  * \ingroup l4_vm_vmx_api
  */
-typedef struct l4_ext_vcpu_state_vmx_t
+typedef struct l4_vm_vmx_vcpu_vmcs_t
 {
   l4_uint64_t reserved0;
 
@@ -255,8 +230,75 @@ typedef struct l4_ext_vcpu_state_vmx_t
 
   l4_uint8_t values[L4_VM_VMX_VMCS_SIZE_VALUES];
   l4_uint8_t dirty_bitmap[L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP];
-} l4_ext_vcpu_state_vmx_t;
+} l4_vm_vmx_vcpu_vmcs_t;
 
+/**
+ * VMX information members.
+ * \ingroup l4_vm_vmx_api
+ */
+typedef struct l4_vm_vmx_vcpu_infos_t
+{
+  /// Exported VMX capability registers. See #L4_vm_vmx_caps_regs.
+  l4_uint64_t caps[L4_VM_VMX_NUM_CAPS_REGS];
+
+  /// Exported VMX capability registers (default to 1 bits). See
+  /// #L4_vm_vmx_dfl1_regs.
+  l4_uint32_t dfl1[L4_VM_VMX_NUM_DFL1_REGS];
+} l4_vm_vmx_vcpu_infos_t;
+
+/**
+ * VMX vCPU state.
+ *
+ * This is a specialization of the generic vCPU state for VMX. This data
+ * structure represents the following memory layout:
+ *
+ * - 0x000 - 0x1ff: Standard vCPU state (with padding). See #l4_vcpu_state_t.
+ * - 0x200 - 0x3ff: VMX information members (with padding). See
+ *                  #l4_vm_vmx_vcpu_infos_t.
+ * - 0x400 - 0xfff: VMX software VMCS. See #l4_vm_vmx_vcpu_vmcs_t.
+ *
+ * \ingroup l4_vm_vmx_api
+ */
+typedef struct l4_vm_vmx_vcpu_state_t
+{
+  l4_vcpu_state_t vcpu_state;
+  l4_uint8_t padding0[L4_VCPU_OFFSET_EXT_INFOS - sizeof(l4_vcpu_state_t)];
+
+  l4_vm_vmx_vcpu_infos_t infos;
+  l4_uint8_t padding1[L4_VCPU_OFFSET_EXT_STATE - L4_VCPU_OFFSET_EXT_INFOS
+                      - sizeof(l4_vm_vmx_vcpu_infos_t)];
+
+  l4_vm_vmx_vcpu_vmcs_t vmcs;
+} l4_vm_vmx_vcpu_state_t;
+
+/**
+ * Get a capability register for VMX.
+ * \ingroup l4_vm_vmx_api
+ *
+ * \param vcpu_state  Pointer to the vCPU state.
+ * \param caps_reg    Capability register index (see #L4_vm_vmx_caps_regs).
+ *
+ * \return The value of the capability register.
+ */
+L4_INLINE
+l4_uint64_t
+l4_vm_vmx_get_caps(l4_vm_vmx_vcpu_state_t const *vcpu_state,
+                   enum L4_vm_vmx_caps_regs caps_reg) L4_NOTHROW;
+
+/**
+ * Get a default to one capability register for VMX.
+ * \ingroup l4_vm_vmx_api
+ *
+ * \param vcpu_state  Pointer to the vCPU state.
+ * \param dfl1_reg    Default to 1 capability register index
+ *                    (see #L4_vm_vmx_dfl1_regs).
+ *
+ * \return The value of the capability register.
+ */
+L4_INLINE
+l4_uint32_t
+l4_vm_vmx_get_caps_default1(l4_vm_vmx_vcpu_state_t const *vcpu_state,
+                            enum L4_vm_vmx_dfl1_regs dfl1_reg) L4_NOTHROW;
 
 /**
  * Return length in bytes of a VMCS field.
@@ -296,7 +338,7 @@ l4_vm_vmx_field_order(unsigned field) L4_NOTHROW;
  */
 L4_INLINE
 void *
-l4_vm_vmx_field_ptr(void *vmcs, unsigned field) L4_NOTHROW;
+l4_vm_vmx_field_ptr(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW;
 
 /**
  * Saves cached state from the kernel software VMCS to the user software VMCS.
@@ -309,7 +351,8 @@ l4_vm_vmx_field_ptr(void *vmcs, unsigned field) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_clear(void *vmcs, void *user_vmcs) L4_NOTHROW;
+l4_vm_vmx_clear(l4_vm_vmx_vcpu_vmcs_t *vmcs,
+                l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW;
 
 /**
  * Loads the user_vmcs as the current software VMCS.
@@ -322,7 +365,8 @@ l4_vm_vmx_clear(void *vmcs, void *user_vmcs) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_ptr_load(void *vmcs, void *user_vmcs) L4_NOTHROW;
+l4_vm_vmx_ptr_load(l4_vm_vmx_vcpu_vmcs_t *vmcs,
+                   l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW;
 
 /**
  * Get the software VMCS field index of the virtual CR2 register.
@@ -340,7 +384,7 @@ l4_vm_vmx_ptr_load(void *vmcs, void *user_vmcs) L4_NOTHROW;
  */
 L4_INLINE
 l4_uint32_t
-l4_vm_vmx_get_cr2_index(void const *vmcs) L4_NOTHROW;
+l4_vm_vmx_get_cr2_index(l4_vm_vmx_vcpu_vmcs_t const *vmcs) L4_NOTHROW;
 
 /**
  * Read a natural-width software VMCS field.
@@ -353,7 +397,7 @@ l4_vm_vmx_get_cr2_index(void const *vmcs) L4_NOTHROW;
  */
 L4_INLINE
 l4_umword_t
-l4_vm_vmx_read_nat(void *vmcs, unsigned field) L4_NOTHROW;
+l4_vm_vmx_read_nat(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW;
 
 /**
  * Read a 16-bit software VMCS field.
@@ -366,7 +410,7 @@ l4_vm_vmx_read_nat(void *vmcs, unsigned field) L4_NOTHROW;
  */
 L4_INLINE
 l4_uint16_t
-l4_vm_vmx_read_16(void *vmcs, unsigned field) L4_NOTHROW;
+l4_vm_vmx_read_16(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW;
 
 /**
  * Read a 32-bit software VMCS field.
@@ -379,7 +423,7 @@ l4_vm_vmx_read_16(void *vmcs, unsigned field) L4_NOTHROW;
  */
 L4_INLINE
 l4_uint32_t
-l4_vm_vmx_read_32(void *vmcs, unsigned field) L4_NOTHROW;
+l4_vm_vmx_read_32(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW;
 
 /**
  * Read a 64-bit software VMCS field.
@@ -392,7 +436,7 @@ l4_vm_vmx_read_32(void *vmcs, unsigned field) L4_NOTHROW;
  */
 L4_INLINE
 l4_uint64_t
-l4_vm_vmx_read_64(void *vmcs, unsigned field) L4_NOTHROW;
+l4_vm_vmx_read_64(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW;
 
 /**
  * Read any software VMCS field.
@@ -405,7 +449,7 @@ l4_vm_vmx_read_64(void *vmcs, unsigned field) L4_NOTHROW;
  */
 L4_INLINE
 l4_uint64_t
-l4_vm_vmx_read(void *vmcs, unsigned field) L4_NOTHROW;
+l4_vm_vmx_read(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW;
 
 /**
  * Write to a natural-width software VMCS field.
@@ -417,7 +461,8 @@ l4_vm_vmx_read(void *vmcs, unsigned field) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_write_nat(void *vmcs, unsigned field, l4_umword_t val) L4_NOTHROW;
+l4_vm_vmx_write_nat(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                    l4_umword_t val) L4_NOTHROW;
 
 /**
  * Write to a 16-bit software VMCS field.
@@ -429,7 +474,8 @@ l4_vm_vmx_write_nat(void *vmcs, unsigned field, l4_umword_t val) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_write_16(void *vmcs, unsigned field, l4_uint16_t val) L4_NOTHROW;
+l4_vm_vmx_write_16(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                   l4_uint16_t val) L4_NOTHROW;
 
 /**
  * Write to a 32-bit software VMCS field.
@@ -441,7 +487,8 @@ l4_vm_vmx_write_16(void *vmcs, unsigned field, l4_uint16_t val) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_write_32(void *vmcs, unsigned field, l4_uint32_t val) L4_NOTHROW;
+l4_vm_vmx_write_32(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                   l4_uint32_t val) L4_NOTHROW;
 
 /**
  * Write to a 64-bit software VMCS field.
@@ -453,7 +500,8 @@ l4_vm_vmx_write_32(void *vmcs, unsigned field, l4_uint32_t val) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_write_64(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW;
+l4_vm_vmx_write_64(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                   l4_uint64_t val) L4_NOTHROW;
 
 /**
  * Write to an arbitrary software VMCS field.
@@ -465,7 +513,8 @@ l4_vm_vmx_write_64(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_write(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW;
+l4_vm_vmx_write(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                l4_uint64_t val) L4_NOTHROW;
 
 /**
  * Associate the software VMCS with a hardware VMCS object capability.
@@ -494,7 +543,8 @@ l4_vm_vmx_write(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW;
  */
 L4_INLINE
 void
-l4_vm_vmx_set_hw_vmcs(void *vmcs, l4_cap_idx_t vmcs_cap) L4_NOTHROW;
+l4_vm_vmx_set_hw_vmcs(l4_vm_vmx_vcpu_vmcs_t *vmcs,
+                      l4_cap_idx_t vmcs_cap) L4_NOTHROW;
 
 /**
  * Get the hardware VMCS object capability associated with the software VMCS.
@@ -506,7 +556,7 @@ l4_vm_vmx_set_hw_vmcs(void *vmcs, l4_cap_idx_t vmcs_cap) L4_NOTHROW;
  */
 L4_INLINE
 l4_cap_idx_t
-l4_vm_vmx_get_hw_vmcs(void *vmcs) L4_NOTHROW;
+l4_vm_vmx_get_hw_vmcs(l4_vm_vmx_vcpu_vmcs_t *vmcs) L4_NOTHROW;
 
 /* Implementations */
 
@@ -541,34 +591,31 @@ l4_vm_vmx_field_order(unsigned field) L4_NOTHROW
  */
 L4_INLINE
 unsigned
-l4_vm_vmx_field_offset(void const *vmcs, unsigned field) L4_NOTHROW
+l4_vm_vmx_field_offset(l4_vm_vmx_vcpu_vmcs_t const *vmcs,
+                       unsigned field) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t const *state = (l4_ext_vcpu_state_vmx_t const *)vmcs;
-
   unsigned index = field & 0x3feU;
   unsigned size = (field >> 13) & 0x03U;
   unsigned group = (field >> 10) & 0x03U;
 
-  unsigned shifted_index = index << state->offset_table.index_shifts[size];
+  unsigned shifted_index = index << vmcs->offset_table.index_shifts[size];
 
-  if (shifted_index >= (unsigned)state->offset_table.limits[size][group] * 64)
+  if (shifted_index >= (unsigned)vmcs->offset_table.limits[size][group] * 64)
     return ~0U;
 
-  return (unsigned)state->offset_table.offsets[size][group] * 64
+  return (unsigned)vmcs->offset_table.offsets[size][group] * 64
          + shifted_index;
 }
 
 L4_INLINE
 void *
-l4_vm_vmx_field_ptr(void *vmcs, unsigned field) L4_NOTHROW
+l4_vm_vmx_field_ptr(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t *state = (l4_ext_vcpu_state_vmx_t *)vmcs;
-
   unsigned offset = l4_vm_vmx_field_offset(vmcs, field);
   if (offset == ~0U)
     return 0;
 
-  return (void *)(state->values + offset);
+  return (void *)(vmcs->values + offset);
 }
 
 /**
@@ -578,15 +625,14 @@ l4_vm_vmx_field_ptr(void *vmcs, unsigned field) L4_NOTHROW
  */
 L4_INLINE
 void *
-l4_vm_vmx_field_ptr_offset(void *vmcs, unsigned field, unsigned *offset) L4_NOTHROW
+l4_vm_vmx_field_ptr_offset(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                           unsigned *offset) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t *state = (l4_ext_vcpu_state_vmx_t *)vmcs;
-
   *offset = l4_vm_vmx_field_offset(vmcs, field);
   if (*offset == ~0U)
     return 0;
 
-  return (void *)(state->values + *offset);
+  return (void *)(vmcs->values + *offset);
 }
 
 /**
@@ -596,11 +642,10 @@ l4_vm_vmx_field_ptr_offset(void *vmcs, unsigned field, unsigned *offset) L4_NOTH
  */
 L4_INLINE
 void
-l4_vm_vmx_offset_dirty(void *vmcs, unsigned offset) L4_NOTHROW
+l4_vm_vmx_offset_dirty(l4_vm_vmx_vcpu_vmcs_t *vmcs,
+                       unsigned offset) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t *state = (l4_ext_vcpu_state_vmx_t *)vmcs;
-
-  state->dirty_bitmap[offset / 8] |= 1U << (offset % 8);
+  vmcs->dirty_bitmap[offset / 8] |= 1U << (offset % 8);
 }
 
 /**
@@ -609,11 +654,11 @@ l4_vm_vmx_offset_dirty(void *vmcs, unsigned offset) L4_NOTHROW
  */
 L4_INLINE
 void
-l4_vm_vmx_copy_values(l4_ext_vcpu_state_vmx_t const *state, l4_uint8_t *_dst,
+l4_vm_vmx_copy_values(l4_vm_vmx_vcpu_vmcs_t const *vmcs, l4_uint8_t *_dst,
                       l4_uint8_t const *_src) L4_NOTHROW
 {
-  unsigned base_offset = state->offset_table.base_offset * 64;
-  unsigned size = state->offset_table.size * 64;
+  unsigned base_offset = vmcs->offset_table.base_offset * 64;
+  unsigned size = vmcs->offset_table.size * 64;
 
   void *dst = _dst + base_offset;
   void const *src = _src + base_offset;
@@ -622,20 +667,20 @@ l4_vm_vmx_copy_values(l4_ext_vcpu_state_vmx_t const *state, l4_uint8_t *_dst,
 
 L4_INLINE
 void
-l4_vm_vmx_clear(void *vmcs, void *user_vmcs) L4_NOTHROW
+l4_vm_vmx_clear(l4_vm_vmx_vcpu_vmcs_t *vmcs,
+                l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t *state = (l4_ext_vcpu_state_vmx_t *)vmcs;
-  l4_ext_vcpu_state_vmx_t *user_state = (l4_ext_vcpu_state_vmx_t *)user_vmcs;
+  l4_vm_vmx_vcpu_vmcs_t **current_vmcs_ptr
+    = (l4_vm_vmx_vcpu_vmcs_t **)&vmcs->user_data;
 
-  void **current_vmcs_ptr = (void **)&state->user_data;
   if (*current_vmcs_ptr != user_vmcs)
     return;
 
-  l4_vm_vmx_set_hw_vmcs(user_state, l4_vm_vmx_get_hw_vmcs(state));
-  l4_vm_vmx_copy_values(state, user_state->values, state->values);
+  l4_vm_vmx_set_hw_vmcs(user_vmcs, l4_vm_vmx_get_hw_vmcs(vmcs));
+  l4_vm_vmx_copy_values(vmcs, user_vmcs->values, vmcs->values);
 
   /* Due to its size, the dirty bitmap is always compied in its entirety. */
-  __builtin_memcpy(user_state->dirty_bitmap, state->dirty_bitmap,
+  __builtin_memcpy(user_vmcs->dirty_bitmap, vmcs->dirty_bitmap,
     L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP);
 
   *current_vmcs_ptr = 0;
@@ -643,12 +688,11 @@ l4_vm_vmx_clear(void *vmcs, void *user_vmcs) L4_NOTHROW
 
 L4_INLINE
 void
-l4_vm_vmx_ptr_load(void *vmcs, void *user_vmcs) L4_NOTHROW
+l4_vm_vmx_ptr_load(l4_vm_vmx_vcpu_vmcs_t *vmcs,
+                   l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t *state = (l4_ext_vcpu_state_vmx_t *)vmcs;
-  l4_ext_vcpu_state_vmx_t *user_state = (l4_ext_vcpu_state_vmx_t *)user_vmcs;
-
-  void **current_vmcs_ptr = (void **)&state->user_data;
+  l4_vm_vmx_vcpu_vmcs_t **current_vmcs_ptr
+    = (l4_vm_vmx_vcpu_vmcs_t **)&vmcs->user_data;
 
   if (*current_vmcs_ptr == user_vmcs)
     return;
@@ -658,17 +702,17 @@ l4_vm_vmx_ptr_load(void *vmcs, void *user_vmcs) L4_NOTHROW
 
   *current_vmcs_ptr = user_vmcs;
 
-  l4_vm_vmx_set_hw_vmcs(state, l4_vm_vmx_get_hw_vmcs(user_state));
-  l4_vm_vmx_copy_values(state, state->values, user_state->values);
+  l4_vm_vmx_set_hw_vmcs(vmcs, l4_vm_vmx_get_hw_vmcs(user_vmcs));
+  l4_vm_vmx_copy_values(vmcs, vmcs->values, user_vmcs->values);
 
   /* Due to its size, the dirty bitmap is always compied in its entirety. */
-  __builtin_memcpy(state->dirty_bitmap, user_state->dirty_bitmap,
+  __builtin_memcpy(vmcs->dirty_bitmap, user_vmcs->dirty_bitmap,
     L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP);
 }
 
 L4_INLINE
 l4_umword_t
-l4_vm_vmx_read_nat(void *vmcs, unsigned field) L4_NOTHROW
+l4_vm_vmx_read_nat(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW
 {
   l4_umword_t *ptr = (l4_umword_t *)l4_vm_vmx_field_ptr(vmcs, field);
   if (!ptr)
@@ -679,7 +723,7 @@ l4_vm_vmx_read_nat(void *vmcs, unsigned field) L4_NOTHROW
 
 L4_INLINE
 l4_uint16_t
-l4_vm_vmx_read_16(void *vmcs, unsigned field) L4_NOTHROW
+l4_vm_vmx_read_16(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW
 {
   l4_uint16_t *ptr = (l4_uint16_t *)l4_vm_vmx_field_ptr(vmcs, field);
   if (!ptr)
@@ -690,7 +734,7 @@ l4_vm_vmx_read_16(void *vmcs, unsigned field) L4_NOTHROW
 
 L4_INLINE
 l4_uint32_t
-l4_vm_vmx_read_32(void *vmcs, unsigned field) L4_NOTHROW
+l4_vm_vmx_read_32(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW
 {
   l4_uint32_t *ptr = (l4_uint32_t *)l4_vm_vmx_field_ptr(vmcs, field);
   if (!ptr)
@@ -701,7 +745,7 @@ l4_vm_vmx_read_32(void *vmcs, unsigned field) L4_NOTHROW
 
 L4_INLINE
 l4_uint64_t
-l4_vm_vmx_read_64(void *vmcs, unsigned field) L4_NOTHROW
+l4_vm_vmx_read_64(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW
 {
   l4_uint64_t *ptr = (l4_uint64_t *)l4_vm_vmx_field_ptr(vmcs, field);
   if (!ptr)
@@ -712,7 +756,7 @@ l4_vm_vmx_read_64(void *vmcs, unsigned field) L4_NOTHROW
 
 L4_INLINE
 l4_uint64_t
-l4_vm_vmx_read(void *vmcs, unsigned field) L4_NOTHROW
+l4_vm_vmx_read(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW
 {
   unsigned size = (field >> 13) & 0x03U;
 
@@ -729,11 +773,12 @@ l4_vm_vmx_read(void *vmcs, unsigned field) L4_NOTHROW
 
 L4_INLINE
 void
-l4_vm_vmx_write_nat(void *vmcs, unsigned field, l4_umword_t val) L4_NOTHROW
+l4_vm_vmx_write_nat(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                    l4_umword_t val) L4_NOTHROW
 {
   unsigned offset;
-  l4_umword_t *ptr = (l4_umword_t *)l4_vm_vmx_field_ptr_offset(vmcs, field,
-                                                               &offset);
+  l4_umword_t *ptr
+    = (l4_umword_t *)l4_vm_vmx_field_ptr_offset(vmcs, field, &offset);
 
   if ((ptr) && (*ptr != val))
     {
@@ -744,11 +789,12 @@ l4_vm_vmx_write_nat(void *vmcs, unsigned field, l4_umword_t val) L4_NOTHROW
 
 L4_INLINE
 void
-l4_vm_vmx_write_16(void *vmcs, unsigned field, l4_uint16_t val) L4_NOTHROW
+l4_vm_vmx_write_16(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                   l4_uint16_t val) L4_NOTHROW
 {
   unsigned offset;
-  l4_uint16_t *ptr = (l4_uint16_t *)l4_vm_vmx_field_ptr_offset(vmcs, field,
-                                                               &offset);
+  l4_uint16_t *ptr
+    = (l4_uint16_t *)l4_vm_vmx_field_ptr_offset(vmcs, field, &offset);
 
   if ((ptr) && (*ptr != val))
     {
@@ -759,11 +805,12 @@ l4_vm_vmx_write_16(void *vmcs, unsigned field, l4_uint16_t val) L4_NOTHROW
 
 L4_INLINE
 void
-l4_vm_vmx_write_32(void *vmcs, unsigned field, l4_uint32_t val) L4_NOTHROW
+l4_vm_vmx_write_32(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                   l4_uint32_t val) L4_NOTHROW
 {
   unsigned offset;
-  l4_uint32_t *ptr = (l4_uint32_t *)l4_vm_vmx_field_ptr_offset(vmcs, field,
-                                                               &offset);
+  l4_uint32_t *ptr
+    = (l4_uint32_t *)l4_vm_vmx_field_ptr_offset(vmcs, field, &offset);
 
   if ((ptr) && (*ptr != val))
     {
@@ -774,11 +821,12 @@ l4_vm_vmx_write_32(void *vmcs, unsigned field, l4_uint32_t val) L4_NOTHROW
 
 L4_INLINE
 void
-l4_vm_vmx_write_64(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW
+l4_vm_vmx_write_64(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                   l4_uint64_t val) L4_NOTHROW
 {
   unsigned offset;
-  l4_uint64_t *ptr = (l4_uint64_t *)l4_vm_vmx_field_ptr_offset(vmcs, field,
-                                                               &offset);
+  l4_uint64_t *ptr
+    = (l4_uint64_t *)l4_vm_vmx_field_ptr_offset(vmcs, field, &offset);
 
   if ((ptr) && (*ptr != val))
     {
@@ -789,7 +837,8 @@ l4_vm_vmx_write_64(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW
 
 L4_INLINE
 void
-l4_vm_vmx_write(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW
+l4_vm_vmx_write(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
+                l4_uint64_t val) L4_NOTHROW
 {
   unsigned size = (field >> 13) & 0x03U;
 
@@ -804,40 +853,38 @@ l4_vm_vmx_write(void *vmcs, unsigned field, l4_uint64_t val) L4_NOTHROW
 
 L4_INLINE
 l4_uint64_t
-l4_vm_vmx_get_caps(void const *vcpu_state, unsigned cap_msr) L4_NOTHROW
+l4_vm_vmx_get_caps(l4_vm_vmx_vcpu_state_t const *vcpu_state,
+                   enum L4_vm_vmx_caps_regs caps_reg) L4_NOTHROW
 {
-  l4_uint64_t const *caps = (l4_uint64_t const *)((char const *)(vcpu_state) + L4_VCPU_OFFSET_EXT_INFOS);
-  return caps[cap_msr & 0x0fU];
+  return vcpu_state->infos.caps[caps_reg];
 }
 
 L4_INLINE
 l4_uint32_t
-l4_vm_vmx_get_caps_default1(void const *vcpu_state, unsigned cap_msr) L4_NOTHROW
+l4_vm_vmx_get_caps_default1(l4_vm_vmx_vcpu_state_t const *vcpu_state,
+                            enum L4_vm_vmx_dfl1_regs dfl1_reg) L4_NOTHROW
 {
-  l4_uint32_t const *caps = (l4_uint32_t const *)((char const *)(vcpu_state) + L4_VCPU_OFFSET_EXT_INFOS);
-  return caps[L4_VM_VMX_NUM_CAPS_REGS * 2 + ((cap_msr & 0x0fU) - L4_VM_VMX_PINBASED_CTLS_DFL1_REG)];
+  return vcpu_state->infos.dfl1[dfl1_reg];
 }
 
 L4_INLINE
 l4_uint32_t
-l4_vm_vmx_get_cr2_index(void const *vmcs) L4_NOTHROW
+l4_vm_vmx_get_cr2_index(l4_vm_vmx_vcpu_vmcs_t const *vmcs) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t const *state = (l4_ext_vcpu_state_vmx_t const *)vmcs;
-  return state->cr2_index;
+  return vmcs->cr2_index;
 }
 
 L4_INLINE
 void
-l4_vm_vmx_set_hw_vmcs(void *vmcs, l4_cap_idx_t vmcs_cap) L4_NOTHROW
+l4_vm_vmx_set_hw_vmcs(l4_vm_vmx_vcpu_vmcs_t *vmcs,
+                      l4_cap_idx_t vmcs_cap) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t *state = (l4_ext_vcpu_state_vmx_t *)vmcs;
-  state->vmcs = vmcs_cap;
+  vmcs->vmcs = vmcs_cap;
 }
 
 L4_INLINE
 l4_cap_idx_t
-l4_vm_vmx_get_hw_vmcs(void *vmcs) L4_NOTHROW
+l4_vm_vmx_get_hw_vmcs(l4_vm_vmx_vcpu_vmcs_t *vmcs) L4_NOTHROW
 {
-  l4_ext_vcpu_state_vmx_t *state = (l4_ext_vcpu_state_vmx_t *)vmcs;
-  return state->vmcs & L4_CAP_MASK;
+  return vmcs->vmcs & L4_CAP_MASK;
 }
