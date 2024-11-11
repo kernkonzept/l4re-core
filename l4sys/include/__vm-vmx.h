@@ -21,6 +21,7 @@
  * invalidate any other reasons why the executable file might be covered by
  * the GNU General Public License.
  */
+
 #pragma once
 
 #include <l4/sys/vcpu.h>
@@ -31,30 +32,28 @@
  * \ingroup l4_vm_api
  */
 
-
 /**
  * Exported VMX capability registers.
  * \ingroup l4_vm_vmx_api
  */
 enum L4_vm_vmx_caps_regs
 {
-  L4_VM_VMX_BASIC_REG               = 0,    /**< Basic VMX capabilities */
-  L4_VM_VMX_TRUE_PINBASED_CTLS_REG  = 1,    /**< True pin-based control caps */
-  L4_VM_VMX_TRUE_PROCBASED_CTLS_REG = 2,    /**< True processor based control caps */
-  L4_VM_VMX_TRUE_EXIT_CTLS_REG      = 3,    /**< True exit control caps */
-  L4_VM_VMX_TRUE_ENTRY_CTLS_REG     = 4,    /**< True entry control caps */
-  L4_VM_VMX_MISC_REG                = 5,    /**< Misc caps */
-  L4_VM_VMX_CR0_FIXED0_REG          = 6,    /**< Fixed to 0 bits of CR0 */
-  L4_VM_VMX_CR0_FIXED1_REG          = 7,    /**< Fixed to 1 bits of CR0 */
-  L4_VM_VMX_CR4_FIXED0_REG          = 8,    /**< Fixed to 0 bits of CR4 */
-  L4_VM_VMX_CR4_FIXED1_REG          = 9,    /**< Fixed to 1 bits of CR4 */
-  L4_VM_VMX_VMCS_ENUM_REG           = 0xa,  /**< VMCS enumeration info */
-  L4_VM_VMX_PROCBASED_CTLS2_REG     = 0xb,  /**< Processor based control 2 caps */
-  L4_VM_VMX_EPT_VPID_CAP_REG        = 0xc,  /**< EPT and VPID caps */
-  L4_VM_VMX_NESTED_REVISION         = 0xd,  /**< Nested VMCS revision */
-  L4_VM_VMX_NUM_CAPS_REGS                   /**< Total number of VMX capability registers */
+  L4_VM_VMX_BASIC_REG               = 0,   /**< Basic VMX capabilities */
+  L4_VM_VMX_TRUE_PINBASED_CTLS_REG  = 1,   /**< True pin-based control caps */
+  L4_VM_VMX_TRUE_PROCBASED_CTLS_REG = 2,   /**< True processor based control caps */
+  L4_VM_VMX_TRUE_EXIT_CTLS_REG      = 3,   /**< True exit control caps */
+  L4_VM_VMX_TRUE_ENTRY_CTLS_REG     = 4,   /**< True entry control caps */
+  L4_VM_VMX_MISC_REG                = 5,   /**< Misc caps */
+  L4_VM_VMX_CR0_FIXED0_REG          = 6,   /**< Fixed to 0 bits of CR0 */
+  L4_VM_VMX_CR0_FIXED1_REG          = 7,   /**< Fixed to 1 bits of CR0 */
+  L4_VM_VMX_CR4_FIXED0_REG          = 8,   /**< Fixed to 0 bits of CR4 */
+  L4_VM_VMX_CR4_FIXED1_REG          = 9,   /**< Fixed to 1 bits of CR4 */
+  L4_VM_VMX_VMCS_ENUM_REG           = 10,  /**< VMCS enumeration info */
+  L4_VM_VMX_PROCBASED_CTLS2_REG     = 11,  /**< Processor based control 2 caps */
+  L4_VM_VMX_EPT_VPID_CAP_REG        = 12,  /**< EPT and VPID caps */
+  L4_VM_VMX_NESTED_REVISION         = 13,  /**< Nested VMCS revision */
+  L4_VM_VMX_NUM_CAPS_REGS                  /**< Total number of VMX capability registers */
 };
-
 
 /**
  * Exported VMX capability registers (default to 1 bits).
@@ -113,13 +112,13 @@ enum L4_vm_vmx_sw_fields
    *       compatible kernel.
    */
   L4_VM_VMX_VMCS_CR2                = 0x6880,
-  // Custom argument passed from kernel to user space
+  /// Custom argument passed from kernel to user space
   L4_VM_VMX_VMCS_NAT_ARG0           = 0x6882,
-  // Custom argument passed from kernel to user space
+  /// Custom argument passed from kernel to user space
   L4_VM_VMX_VMCS_NAT_ARG1           = 0x6884,
-  // Custom argument passed from kernel to user space
+  /// Custom argument passed from kernel to user space
   L4_VM_VMX_VMCS_NAT_ARG2           = 0x6886,
-  // Custom argument passed from kernel to user space
+  /// Custom argument passed from kernel to user space
   L4_VM_VMX_VMCS_NAT_ARG3           = 0x6888,
   /// VMCS offset of extended control register XCR0
   L4_VM_VMX_VMCS_XCR0               = 0x2880,
@@ -138,28 +137,29 @@ enum L4_vm_vmx_sw_fields
 };
 
 /**
- * Software VMCS field offset table. The memory layout is as follows:
+ * Software VMCS field offset table.
  *
- * 0x00 - 0x02: 3 offsets for 16-bit fields.
- *        0x03: Reserved.
- * 0x04 - 0x06: 3 offsets for 64-bit fields.
- *        0x07: Reserved.
- * 0x08 - 0x0a: 3 offsets for 32-bit fields.
- *        0x0b: Reserved.
- * 0x0c - 0x0e: 3 offsets for natural-width fields.
- *        0x0f: Reserved.
- * 0x10 - 0x12: 3 limits for 16-bit fields.
- *        0x13: Reserved.
- * 0x14 - 0x16: 3 limits for 64-bit fields.
- *        0x17: Reserved.
- * 0x18 - 0x1a: 3 limits for 32-bit fields.
- *        0x1b: Reserved.
- * 0x1c - 0x1e: 3 limits for natural-width fields.
- *        0x1f: Reserved.
- * 0x20 - 0x23: 4 index shifts.
- *        0x24: Offset of the first software VMCS field.
- *        0x25: Size of the software VMCS fields.
- * 0x26 - 0x27: Reserved.
+ * This data structure represents the following memory layout:
+ *  - 0x00 - 0x02: 3 offsets for 16-bit fields.
+ *  -        0x03: Reserved.
+ *  - 0x04 - 0x06: 3 offsets for 64-bit fields.
+ *  -        0x07: Reserved.
+ *  - 0x08 - 0x0a: 3 offsets for 32-bit fields.
+ *  -        0x0b: Reserved.
+ *  - 0x0c - 0x0e: 3 offsets for natural-width fields.
+ *  -        0x0f: Reserved.
+ *  - 0x10 - 0x12: 3 limits for 16-bit fields.
+ *  -        0x13: Reserved.
+ *  - 0x14 - 0x16: 3 limits for 64-bit fields.
+ *  -        0x17: Reserved.
+ *  - 0x18 - 0x1a: 3 limits for 32-bit fields.
+ *  -        0x1b: Reserved.
+ *  - 0x1c - 0x1e: 3 limits for natural-width fields.
+ *  -        0x1f: Reserved.
+ *  - 0x20 - 0x23: 4 index shifts.
+ *  -        0x24: Offset of the first software VMCS field.
+ *  -        0x25: Size of the software VMCS fields.
+ *  - 0x26 - 0x27: Reserved.
  *
  * The offsets/limits in each size category are in the following order:
  *  - Control fields.
@@ -194,37 +194,36 @@ typedef struct l4_vmx_offset_table_t
   l4_uint8_t reserved[2];
 } l4_vmx_offset_table_t;
 
+/**
+ * Sizes of software VMCS members.
+ * \ingroup l4_vm_vmx_api
+ */
 enum L4_vm_vmx_vmcs_sizes
 {
+  /// Size of the software VMCS values member.
   L4_VM_VMX_VMCS_SIZE_VALUES = 2560,
+  /// Size of the software VMCS dirty bitmap member.
   L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP = 320,
 };
 
 /**
  * VMX extended vCPU state.
  *
- * For completeness, this is the overall memory layout of the vCPU:
- *
- * 0x000 - 0x1ff: Standard vCPU state \ref l4_vcpu_state_t (with padding).
- * 0x200 - 0x3ff: VMX capabilities (with padding).
- * 0x400 - 0xfff: VMX extended vCPU state.
- *
- * The memory layout of the VMX extended vCPU state is as follows:
- *
- * 0x000 - 0x007: Reserved (ignored by the kernel). In the hardware VMCS, the
- *                revision identifier and the abort indicator are stored
- *                in this area. Hereby we simply ignore these two entries.
- * 0x008 - 0x00f: User space data (ignored by the kernel). This currently
- *                stores the pointer to a different VMX extended vCPU state
- *                that has been loaded into the given state.
- * 0x010 - 0x013: VMCS field index of the software-defined CR2 field in the
- *                software VMCS.
- * 0x014 - 0x017: Reserved.
- * 0x018 - 0x01f: Capability of the hardware VMCS object (with padding).
- * 0x020 - 0x047: Software VMCS field offset table \ref l4_vmx_offset_table_t.
- * 0x048 - 0x0bf: Reserved.
- * 0x0c0 - 0xabf: Software VMCS fields (with padding).
- * 0xac0 - 0xbff: Software VMCS fields dirty bitmap (with padding).
+ * This data structure represents the following memory layout:
+ * - 0x000 - 0x007: Reserved (ignored by the kernel). In the hardware VMCS, the
+ *                  revision identifier and the abort indicator are stored
+ *                  in this area. Hereby we simply ignore these two entries.
+ * - 0x008 - 0x00f: User space data (ignored by the kernel). This currently
+ *                  stores the pointer to a different VMX extended vCPU state
+ *                  that has been loaded into the given state.
+ * - 0x010 - 0x013: VMCS field index of the software-defined CR2 field in the
+ *                  software VMCS.
+ * - 0x014 - 0x017: Reserved.
+ * - 0x018 - 0x01f: Capability of the hardware VMCS object (with padding).
+ * - 0x020 - 0x047: Software VMCS field offset table \ref l4_vmx_offset_table_t.
+ * - 0x048 - 0x0bf: Reserved.
+ * - 0x0c0 - 0xabf: Software VMCS fields (with padding).
+ * - 0xac0 - 0xbff: Software VMCS fields dirty bitmap (with padding).
  *
  * \ingroup l4_vm_vmx_api
  */
@@ -324,7 +323,6 @@ l4_vm_vmx_clear(void *vmcs, void *user_vmcs) L4_NOTHROW;
 L4_INLINE
 void
 l4_vm_vmx_ptr_load(void *vmcs, void *user_vmcs) L4_NOTHROW;
-
 
 /**
  * Get the software VMCS field index of the virtual CR2 register.
@@ -510,8 +508,14 @@ L4_INLINE
 l4_cap_idx_t
 l4_vm_vmx_get_hw_vmcs(void *vmcs) L4_NOTHROW;
 
-
 /* Implementations */
+
+L4_INLINE
+unsigned
+l4_vm_vmx_field_len(unsigned field) L4_NOTHROW
+{
+  return 1 << l4_vm_vmx_field_order(field);
+}
 
 L4_INLINE
 unsigned
@@ -530,13 +534,11 @@ l4_vm_vmx_field_order(unsigned field) L4_NOTHROW
   __builtin_trap();
 }
 
-L4_INLINE
-unsigned
-l4_vm_vmx_field_len(unsigned field) L4_NOTHROW
-{
-  return 1 << l4_vm_vmx_field_order(field);
-}
-
+/**
+ * Get offset into software VMCS.
+ * \internal
+ * \ingroup l4_vm_vmx_api
+ */
 L4_INLINE
 unsigned
 l4_vm_vmx_field_offset(void const *vmcs, unsigned field) L4_NOTHROW
@@ -570,7 +572,7 @@ l4_vm_vmx_field_ptr(void *vmcs, unsigned field) L4_NOTHROW
 }
 
 /**
- * Get pointer and offset into software VMCS..
+ * Get pointer and offset into software VMCS.
  * \internal
  * \ingroup l4_vm_vmx_api
  */
