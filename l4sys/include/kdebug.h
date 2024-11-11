@@ -36,20 +36,32 @@ L4_INLINE void
 enter_kdebug(char const *text) L4_NOTHROW;
 
 /**
+ * Opcode groups for operations that can be invoked on the base debugger
+ * capability.
+ */
+enum l4_kdebug_group_t
+{
+  L4_KDEBUG_GROUP_JDB   = 0x000,
+  L4_KDEBUG_GROUP_KOBJ  = 0x100,  // see __kernel_object_impl.h
+  L4_KDEBUG_GROUP_TRACE = 0x200,  // see __ktrace-impl.h
+  L4_KDEBUG_GROUP_COV   = 0x400,
+};
+
+/**
  * Op-codes for operations that can be invoked on the base debugger capability.
  * See also __ktrace-impl.h for additional op-codes.
  */
 enum l4_kdebug_ops_t
 {
-  L4_KDEBUG_ENTER      = 0,
-  L4_KDEBUG_OUTCHAR    = 1,
-  L4_KDEBUG_OUTNSTRING = 2,
-  L4_KDEBUG_OUTHEX32   = 3,
-  L4_KDEBUG_OUTHEX20   = 4,
-  L4_KDEBUG_OUTHEX16   = 5,
-  L4_KDEBUG_OUTHEX12   = 6,
-  L4_KDEBUG_OUTHEX8    = 7,
-  L4_KDEBUG_OUTDEC     = 8,
+  L4_KDEBUG_ENTER      = L4_KDEBUG_GROUP_JDB + 0,
+  L4_KDEBUG_OUTCHAR    = L4_KDEBUG_GROUP_JDB + 1,
+  L4_KDEBUG_OUTNSTRING = L4_KDEBUG_GROUP_JDB + 2,
+  L4_KDEBUG_OUTHEX32   = L4_KDEBUG_GROUP_JDB + 3,
+  L4_KDEBUG_OUTHEX20   = L4_KDEBUG_GROUP_JDB + 4,
+  L4_KDEBUG_OUTHEX16   = L4_KDEBUG_GROUP_JDB + 5,
+  L4_KDEBUG_OUTHEX12   = L4_KDEBUG_GROUP_JDB + 6,
+  L4_KDEBUG_OUTHEX8    = L4_KDEBUG_GROUP_JDB + 7,
+  L4_KDEBUG_OUTDEC     = L4_KDEBUG_GROUP_JDB + 8,
 };
 
 
