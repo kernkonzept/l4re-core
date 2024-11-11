@@ -27,7 +27,7 @@ Elf_loader::launch(App_task *t, cxx::String const &prog,
   l4_debugger_add_image_info(am._task->task_cap().cap(), am.prog_info()->base,
                              "l4re");
 #else
-  // We're running position dependent code without an MMU. The l4re_kernel can
+  // We're running position dependent code without an MMU. The l4re_itas can
   // thus be loaded only once. There's no point in using it.
   Ldr::Elf_loader<Moe_x_app_model, Dbg>::launch(&am, prog.start(), ldr);
   l4_debugger_add_image_info(am._task->task_cap().cap(), am.prog_info()->base,

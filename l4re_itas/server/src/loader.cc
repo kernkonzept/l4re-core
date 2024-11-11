@@ -73,7 +73,7 @@ void unmap_stack_and_start()
   L4::Cap<Thread> self;
   if (__loader_entry.ex_regs_flags)
     chksys(self->ex_regs(~0UL, ~0UL, __loader_entry.ex_regs_flags),
-           "l4re_kernel: Change mode according to L4RE_ELF_AUX_T_EX_REGS_FLAGS.");
+           "l4re_itas: Change mode according to L4RE_ELF_AUX_T_EX_REGS_FLAGS.");
   switch_stack(__loader_entry.stack,
                reinterpret_cast<void(*)()>(__loader_entry.entry));
 }
@@ -100,11 +100,11 @@ L4Re_app_model::alloc_ds(unsigned long size, l4_addr_t paddr,
                          unsigned long flags) const
 {
   Dataspace mem = chkcap(Global::cap_alloc->alloc<L4Re::Dataspace>(),
-      "l4re_kernel: ELF loader: could not allocate capability");
+      "l4re_itas: ELF loader: could not allocate capability");
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_PINNED_SEGS)
     flags |= L4Re::Mem_alloc::Pinned;
   chksys(Global::allocator->alloc(size, mem, flags, 0, paddr),
-         "l4re_kernel: Loading writable ELF segment.");
+         "l4re_itas: Loading writable ELF segment.");
   return mem;
 }
 
@@ -140,7 +140,7 @@ L4Re_app_model::copy_ds(Dataspace dst, unsigned long dst_offs,
                         unsigned long size)
 {
   L4Re::chksys(dst->copy_in(dst_offs, src, src_offs, size),
-               "l4re_kernel: Copy-in failed.");
+               "l4re_itas: Copy-in failed.");
 }
 
 l4_addr_t
@@ -153,7 +153,7 @@ L4Re_app_model::local_attach_ds(Const_dataspace ds, unsigned long size,
   l4_addr_t vaddr = 0;
   chksys(_rm->attach(&vaddr, pg_size, L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
                      ds, pg_offset),
-         "l4re_kernel: ELF loader: attach temporary VMA");
+         "l4re_itas: ELF loader: attach temporary VMA");
   return vaddr + in_pg_offset;
 }
 
@@ -161,7 +161,7 @@ void
 L4Re_app_model::local_detach_ds(l4_addr_t addr, unsigned long /*size*/) const
 {
   l4_addr_t pg_addr = l4_trunc_page(addr);
-  chksys(_rm->detach(pg_addr, 0), "l4re_kernel: ELF loader: detach temporary VMA");
+  chksys(_rm->detach(pg_addr, 0), "l4re_itas: ELF loader: detach temporary VMA");
 }
 
 int
@@ -177,7 +177,7 @@ L4Re_app_model::alloc_app_stack()
   // Allocate the stack for the application
   L4::Cap<L4Re::Dataspace> stack
     = chkcap(Global::cap_alloc->alloc<L4Re::Dataspace>(),
-      "l4re_kernel: ELF loader: could not allocate capability");
+      "l4re_itas: ELF loader: could not allocate capability");
 
   chksys(Global::allocator->alloc(_stack.stack_size(), stack));
 
@@ -192,7 +192,7 @@ L4Re_app_model::alloc_app_stack()
 #endif
   chksys(_rm->attach(&_s, _stack.stack_size(), flags,
                      L4::Ipc::make_cap_rw(stack), 0),
-         "l4re_kernel: Attach application stack.");
+         "l4re_itas: Attach application stack.");
   _stack.set_target_stack(l4_addr_t(_s), _stack.stack_size());
   _stack.set_local_addr(l4_addr_t(_s));
   return stack;
@@ -312,7 +312,7 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
       // tried to attach it to the remote region map (e.g. moe) as well, and
       // this failed. This means that there is an unexpected inconsistency
       // between the actual remote region map and our model of it. Something
-      // running in the l4re_kernel must have attached a memory region there,
+      // running in the l4re_itas must have attached a memory region there,
       // which is a bug, and must be fixed.
       Err(Err::Fatal)
         .printf("Could not attach loader stack to remote region map (%ld, %s).\n",
@@ -344,12 +344,12 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 #ifdef L4RE_USE_LOCAL_PAGER_GATE
   __loader_entry.pager = Global::cap_alloc.alloc<Rm>();
   chksys(env->factory()->create_gate(__loader_entry.pager, env->main_thread(), 0),
-         "l4re_kernel: Create pager gate.");
+         "l4re_itas: Create pager gate.");
 #else
   __loader_entry.pager = L4::cap_reinterpret_cast<Rm>(env->main_thread());
 #endif
 
-  chksys(env->factory()->create(app_thread), "l4re_kernel: Create app thread.");
+  chksys(env->factory()->create(app_thread), "l4re_itas: Create app thread.");
 
   l4_debugger_set_object_name(app_thread.cap(),
                               strrchr(aux->binary, '/')
@@ -363,14 +363,14 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 
   env->first_free_utcb(env->first_free_utcb() + L4_UTCB_OFFSET);
 
-  chksys(app_thread->control(attr), "l4re_kernel: Setup app thread.");
+  chksys(app_thread->control(attr), "l4re_itas: Setup app thread.");
   chksys(env->scheduler()->run_thread(app_thread,
                                       l4_sched_param(L4RE_MAIN_THREAD_PRIO)),
-         "l4re_kernel: Set app priority.");
+         "l4re_itas: Set app priority.");
   unsigned long stack = reinterpret_cast<unsigned long>(__loader_stack_p);
   chksys(app_thread->ex_regs(reinterpret_cast<unsigned long>(&loader_thread),
                              l4_align_stack_for_direct_fncall(stack), 0),
-                             "l4re_kernel: Start app thread.");
+                             "l4re_itas: Start app thread.");
 
   return true;
 }
