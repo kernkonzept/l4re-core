@@ -45,6 +45,7 @@ enum l4_kdebug_group_t
   L4_KDEBUG_GROUP_KOBJ  = 0x100,  // see __kernel_object_impl.h
   L4_KDEBUG_GROUP_TRACE = 0x200,  // see __ktrace-impl.h
   L4_KDEBUG_GROUP_COV   = 0x400,
+  L4_KDEBUG_GROUP_DUMP  = 0x500,  // see kdump.h
 };
 
 /**
