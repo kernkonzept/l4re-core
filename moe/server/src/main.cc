@@ -186,7 +186,7 @@ static void find_memory()
         continue;
 
       L4::Kip::Mem_desc::Mem_type type = md.type();
-      unsigned long end = l4_round_page(md.end());
+      unsigned long end = l4_round_page(md.end() + 1);
       unsigned long start = l4_trunc_page(md.start());
       switch (type)
         {

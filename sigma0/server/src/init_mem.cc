@@ -52,7 +52,7 @@ init_memory(l4_kernel_info_t *info)
       else
         {
           start = l4_trunc_page(md.start());
-          end = l4_round_page(md.end()) - 1;
+          end = l4_round_page(md.end() + 1) - 1;
         }
 
       switch (type)
