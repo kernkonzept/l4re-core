@@ -159,13 +159,18 @@ public:
   }
 
   Shared_cap_impl(Shared_cap_impl const &o) noexcept
-  : Base(L4::Cap<T>(IMPL::copy(o).cap()))
-  {}
+  : Base()
+  {
+    this->_c = IMPL::copy(o).cap();
+  }
 
   template<typename O>
   Shared_cap_impl(Shared_cap_impl<O, IMPL> const &o) noexcept
-  : Base(IMPL::copy(o))
-  { Cap<T>::template check_convertible_from<O>(); }
+  : Base()
+  {
+    Cap<T>::template check_convertible_from<O>();
+    this->_c = IMPL::copy(o).cap();
+  }
 
   Shared_cap_impl &operator = (Shared_cap_impl const &o) noexcept
   {
