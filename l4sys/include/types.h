@@ -180,7 +180,7 @@ typedef struct l4_msgtag_t
   ///
   /// If true, the error code is stored in the UTCB, see
   /// l4_utcb_tcr()->[error](#l4_thread_regs_t::error).
-  unsigned has_error() const L4_NOTHROW { return raw & L4_MSGTAG_ERROR; }
+  bool has_error() const L4_NOTHROW { return raw & L4_MSGTAG_ERROR; }
 #endif
 } l4_msgtag_t;
 
