@@ -1822,6 +1822,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     { return _ReturnType(__i); }
 
 #if __cplusplus > 201703L && __glibcxx_concepts
+  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+  // 3736.  move_iterator missing disable_sized_sentinel_for specialization
+  template<typename _Iterator1, typename _Iterator2>
+    requires (!sized_sentinel_for<_Iterator1, _Iterator2>)
+    inline constexpr bool
+    disable_sized_sentinel_for<move_iterator<_Iterator1>,
+			       move_iterator<_Iterator2>> = true;
+
   // [iterators.common] Common iterators
 
   namespace __detail
@@ -2571,7 +2579,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 				      void>;
     };
 
-#if __cplusplus > 202020L
+#if __glibcxx_ranges_as_const // >= C++23
   template<indirectly_readable _It>
     using iter_const_reference_t
       = common_reference_t<const iter_value_t<_It>&&, iter_reference_t<_It>>;
