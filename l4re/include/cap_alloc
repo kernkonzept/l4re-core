@@ -122,6 +122,12 @@ struct Cap_alloc_t : ALLOC, L4Re::Cap_alloc
   L4::Cap<void> alloc() noexcept override { return ALLOC::alloc(); }
   void take(L4::Cap<void> cap) noexcept override { ALLOC::take(cap); }
 
+  template <typename T>
+  L4::Cap<T> alloc() noexcept
+  {
+    return L4::cap_cast<T>(alloc());
+  }
+
   void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
             unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept override
   { ALLOC::free(cap, task, unmap_flags); }
