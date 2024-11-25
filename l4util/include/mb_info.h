@@ -429,6 +429,34 @@ typedef struct
   char data[0];
 } __attribute__((packed)) l4util_mb2_rsdp_tag_t;
 
+
+struct color_info_rgb_t
+{
+  l4_uint8_t framebuffer_red_field_position;
+  l4_uint8_t framebuffer_red_mask_size;
+  l4_uint8_t framebuffer_green_field_position;
+  l4_uint8_t framebuffer_green_mask_size;
+  l4_uint8_t framebuffer_blue_field_position;
+  l4_uint8_t framebuffer_blue_mask_size;
+} __attribute__((packed));
+
+typedef struct
+{
+  l4_uint64_t framebuffer_addr;
+  l4_uint32_t framebuffer_pitch;
+  l4_uint32_t framebuffer_width;
+  l4_uint32_t framebuffer_height;
+  l4_uint8_t  framebuffer_bpp;
+  l4_uint8_t  framebuffer_type;
+  l4_uint8_t  reserved;
+
+  // color_info;
+  union
+  {
+    struct color_info_rgb_t color_info_rgb;
+  };
+} __attribute__((packed)) l4util_mb2_framebuffer_tag_t;
+
 typedef struct
 {
   l4_uint32_t type;
@@ -439,6 +467,7 @@ typedef struct
     l4util_mb2_cmdline_tag_t cmdline;
     l4util_mb2_module_tag_t module;
     l4util_mb2_memmap_tag_t memmap;
+    l4util_mb2_framebuffer_tag_t fb;
     l4util_mb2_rsdp_tag_t rsdp;
   };
 }  __attribute__((packed)) l4util_mb2_tag_t;
@@ -452,6 +481,7 @@ typedef struct
 #define L4UTIL_MB2_TERMINATOR_HEADER_TAG	0
 #define L4UTIL_MB2_INFO_REQUEST_HEADER_TAG	1
 #define L4UTIL_MB2_ENTRY_ADDRESS_HEADER_TAG	3
+#define L4UTIL_MB2_FRAMEBUFFER_HEADER_TAG	5
 #define L4UTIL_MB2_RELOCATABLE_HEADER_TAG	10
 
 #define L4UTIL_MB2_TAG_FLAG_REQUIRED		0
@@ -463,6 +493,7 @@ typedef struct
 #define L4UTIL_MB2_BOOT_CMDLINE_INFO_TAG          1
 #define L4UTIL_MB2_MODULE_INFO_TAG                3
 #define L4UTIL_MB2_MEMORY_MAP_INFO_TAG            6
+#define L4UTIL_MB2_FRAMEBUFFER_INFO_TAG           8
 #define L4UTIL_MB2_RSDP_OLD_INFO_TAG             14
 #define L4UTIL_MB2_RSDP_NEW_INFO_TAG             15
 #define L4UTIL_MB2_IMAGE_LOAD_BASE_PHYS_INFO_TAG 21
