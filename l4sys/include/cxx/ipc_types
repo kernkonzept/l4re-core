@@ -294,6 +294,24 @@ public:
     Obj     = L4_FPAGE_OBJ << 4
   };
 
+  Gen_fpage(l4_umword_t base, l4_umword_t data) noexcept
+  : _base(base), _data(data)
+  {}
+
+  /// Return the raw flexpage descriptor.
+  l4_umword_t data() const noexcept { return _data; }
+  /// Return the raw base descriptor.
+  l4_umword_t base_x() const noexcept { return _base; }
+
+protected:
+  l4_umword_t _base;
+  l4_umword_t _data;
+};
+
+/// Send flexpage
+class Snd_fpage : public Gen_fpage
+{
+public:
   /// Kind of mapping.
   enum Map_type
   {
@@ -318,19 +336,52 @@ public:
     Compound = L4_ITEM_CONT,
   };
 
-  Gen_fpage(l4_umword_t base, l4_umword_t data) noexcept
-  : _base(base), _data(data)
+  Snd_fpage(l4_umword_t base = 0, l4_umword_t data = 0) noexcept
+  : Gen_fpage(base, data)
   {}
 
-  Gen_fpage(Type type, l4_addr_t base, int order,
-            unsigned char rights,
-            l4_addr_t snd_base,
-            Map_type map_type,
-            Cacheopt cache, Continue cont) noexcept
-  : _base(L4_ITEM_MAP | (snd_base & (~0UL << 12)) | l4_umword_t(map_type)
-          | l4_umword_t(cache) | l4_umword_t(cont)),
-    _data(base | l4_umword_t(type) | rights | (l4_umword_t(order) << 6))
+  Snd_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
+            Map_type map_type = Map,
+            Cacheopt cache = None, Continue cont = Last) noexcept
+  : Gen_fpage(L4_ITEM_MAP | (snd_base & (~0UL << 12)) | l4_umword_t(map_type)
+                | l4_umword_t(cache) | l4_umword_t(cont),
+              fp.raw)
   {}
+
+  Snd_fpage(L4::Cap<void> cap, unsigned rights, Map_type map_type = Map) noexcept
+  : Gen_fpage(L4_ITEM_MAP | l4_umword_t(map_type) | (rights & 0xf0),
+              cap.fpage(rights).raw)
+  {}
+
+  static Snd_fpage obj(l4_cap_idx_t base, int order,
+                       unsigned char rights,
+                       l4_addr_t snd_base = 0,
+                       Map_type map_type = Map,
+                       Continue cont = Last) noexcept
+  {
+    return Snd_fpage(l4_obj_fpage(base, order, rights), snd_base,
+                     map_type, None, cont);
+  }
+
+  static Snd_fpage mem(l4_addr_t base, int order,
+                       unsigned char rights,
+                       l4_addr_t snd_base = 0,
+                       Map_type map_type = Map,
+                       Cacheopt cache = None, Continue cont = Last) noexcept
+  {
+    return Snd_fpage(l4_fpage(base, order, rights), snd_base, map_type, cache,
+                     cont);
+  }
+
+  static Snd_fpage io(unsigned long base, int order,
+                      unsigned char rights,
+                      l4_addr_t snd_base = 0,
+                      Map_type map_type = Map,
+                      Continue cont = Last) noexcept
+  {
+    return Snd_fpage(l4_fpage_set_rights(l4_iofpage(base, order), rights),
+                     snd_base, map_type, None, cont);
+  }
 
   unsigned order() const noexcept { return (_data >> 6) & 0x3f; }
   unsigned snd_order() const noexcept { return (_data >> 6) & 0x3f; }
@@ -382,66 +433,6 @@ public:
    * will be mapped to the same receive buffer as this message item.
    */
   bool is_compound() const noexcept { return _base & 1; }
-  /// Return the raw flexpage descriptor.
-  l4_umword_t data() const noexcept { return _data; }
-  /// Return the raw base descriptor.
-  l4_umword_t base_x() const noexcept { return _base; }
-
-protected:
-  l4_umword_t _base;
-  l4_umword_t _data;
-};
-
-/// Send flexpage
-class Snd_fpage : public Gen_fpage
-{
-public:
-  Snd_fpage(l4_umword_t base = 0, l4_umword_t data = 0) noexcept
-  : Gen_fpage(base, data)
-  {}
-
-  Snd_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
-            Map_type map_type = Map,
-            Cacheopt cache = None, Continue cont = Last) noexcept
-  : Gen_fpage(L4_ITEM_MAP | (snd_base & (~0UL << 12)) | l4_umword_t(map_type)
-                | l4_umword_t(cache) | l4_umword_t(cont),
-              fp.raw)
-  {}
-
-  Snd_fpage(L4::Cap<void> cap, unsigned rights, Map_type map_type = Map) noexcept
-  : Gen_fpage(L4_ITEM_MAP | l4_umword_t(map_type) | (rights & 0xf0),
-              cap.fpage(rights).raw)
-  {}
-
-  static Snd_fpage obj(l4_cap_idx_t base, int order,
-                       unsigned char rights,
-                       l4_addr_t snd_base = 0,
-                       Map_type map_type = Map,
-                       Continue cont = Last) noexcept
-  {
-    return Snd_fpage(l4_obj_fpage(base, order, rights), snd_base,
-                     map_type, None, cont);
-  }
-
-  static Snd_fpage mem(l4_addr_t base, int order,
-                       unsigned char rights,
-                       l4_addr_t snd_base = 0,
-                       Map_type map_type = Map,
-                       Cacheopt cache = None, Continue cont = Last) noexcept
-  {
-    return Snd_fpage(l4_fpage(base, order, rights), snd_base, map_type, cache,
-                     cont);
-  }
-
-  static Snd_fpage io(unsigned long base, int order,
-                      unsigned char rights,
-                      l4_addr_t snd_base = 0,
-                      Map_type map_type = Map,
-                      Continue cont = Last) noexcept
-  {
-    return Snd_fpage(l4_fpage_set_rights(l4_iofpage(base, order), rights),
-                     snd_base, map_type, None, cont);
-  }
 };
 
 /// Rcv flexpage
@@ -452,7 +443,7 @@ public:
   Rcv_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
             l4_cap_idx_t rcv_task = L4_INVALID_CAP) noexcept
   : Gen_fpage(L4_ITEM_MAP | (snd_base & (~0UL << 12))
-                | (l4_is_valid_cap(rcv_task) ? Compound : 0),
+               | (l4_is_valid_cap(rcv_task) ? L4_RCV_ITEM_FORWARD_MAPPINGS : 0),
               fp.raw),
     _rcv_task(rcv_task)
   {}
@@ -478,6 +469,12 @@ public:
 
   l4_cap_idx_t rcv_task() const { return _rcv_task; }
 
+  /**
+   * Check if rcv_task() shall be used as destination for received capabilities.
+   */
+  bool forward_mappings() const noexcept
+  { return _base & L4_RCV_ITEM_FORWARD_MAPPINGS; }
+
 protected:
   l4_cap_idx_t _rcv_task;
 };
@@ -501,13 +498,13 @@ struct Clnt_val_ops<L4::Ipc::Rcv_fpage, Dir_in, Cls_buffer>
                     L4::Ipc::Rcv_fpage arg, Dir_in, Cls_buffer) noexcept
   {
     offs = align_to<l4_umword_t>(offs);
-    unsigned words = arg.is_compound() ? 3 : 2;
+    unsigned words = arg.forward_mappings() ? 3 : 2;
     if (L4_UNLIKELY(!check_size<l4_umword_t>(offs, limit, words)))
       return -L4_EMSGTOOLONG;
     auto *buf = reinterpret_cast<l4_umword_t*>(msg + offs);
     *buf++ = arg.base_x();
     *buf++ = arg.data();
-    if (arg.is_compound())
+    if (arg.forward_mappings())
       *buf++ = arg.rcv_task();
     return offs + sizeof(l4_umword_t) * words;
   }

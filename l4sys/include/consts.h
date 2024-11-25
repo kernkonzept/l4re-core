@@ -252,6 +252,18 @@ enum l4_msg_item_consts_t
 
   // receive
   /**
+   * This flag specifies if received capabilities shall be mapped to a
+   * particular task instead of the invoking task.
+   *
+   * This flag may only be used if #L4_RCV_ITEM_LOCAL_ID is unset.
+   *
+   * Setting this flag increases the size of the buffer item by one word. This
+   * word is used to specify a capability index for the task that shall receive
+   * the mappings.
+   */
+  L4_RCV_ITEM_FORWARD_MAPPINGS = 1,
+
+  /**
    * Mark the receive buffer to be a small receive item that describes a buffer
    * for a single object capability.
    */
