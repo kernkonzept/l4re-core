@@ -128,12 +128,12 @@ public:
   Shared_cap_impl() noexcept = default;
 
   Shared_cap_impl(Shared_cap_impl &&o) noexcept
-  : Base(o.release())
+  : Base(o.release(), Base::impl(o))
   {}
 
   template<typename O>
   Shared_cap_impl(Shared_cap_impl<O, IMPL> &&o) noexcept
-  : Base(o.release())
+  : Base(o.release(), Base::impl(o))
   { Cap<T>::template check_convertible_from<O>(); }
 
   Shared_cap_impl &operator = (Shared_cap_impl &&o) noexcept
@@ -161,6 +161,7 @@ public:
   Shared_cap_impl(Shared_cap_impl const &o) noexcept
   : Base()
   {
+    this->IMPL::operator = (Base::impl(o));
     this->_c = IMPL::copy(o).cap();
   }
 
@@ -169,6 +170,7 @@ public:
   : Base()
   {
     Cap<T>::template check_convertible_from<O>();
+    this->IMPL::operator = (Base::impl(o));
     this->_c = IMPL::copy(o).cap();
   }
 
