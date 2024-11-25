@@ -177,6 +177,9 @@ typedef struct l4_msgtag_t
   /// Test if protocol indicates IO-page-fault protocol.
   bool is_io_page_fault() const L4_NOTHROW { return label() == L4_PROTO_IO_PAGE_FAULT; }
   /// Test if flags indicate an error.
+  ///
+  /// If true, the error code is stored in the UTCB, see
+  /// l4_utcb_tcr()->[error](#l4_thread_regs_t::error).
   unsigned has_error() const L4_NOTHROW { return raw & L4_MSGTAG_ERROR; }
 #endif
 } l4_msgtag_t;

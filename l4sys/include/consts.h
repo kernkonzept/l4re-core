@@ -255,7 +255,7 @@ enum l4_msg_item_consts_t
    * This flag specifies if received capabilities shall be mapped to a
    * particular task instead of the invoking task.
    *
-   * This flag may only be used if #L4_RCV_ITEM_LOCAL_ID is unset.
+   * This flag may be used only if #L4_RCV_ITEM_LOCAL_ID is unset.
    *
    * Setting this flag increases the size of the buffer item by one word. This
    * word is used to specify a capability index for the task that shall receive
@@ -266,6 +266,15 @@ enum l4_msg_item_consts_t
   /**
    * Mark the receive buffer to be a small receive item that describes a buffer
    * for a single object capability.
+   *
+   * A receive item needs to specify a *receive window*. The receive window
+   * determines which kind of capabilities (object, memory, I/O ports) may be
+   * received where in the respective space. If this flag is unset, the receive
+   * window is specified in the second word of the receive item via a
+   * [flexpage](#l4_fpage_api). If this flag is set, the receive window consists
+   * of a single capability index in the object space and the capability index
+   * is specified in the most significant bits of the first word of the receive
+   * item (see #L4_CAP_SHIFT).
    */
   L4_RCV_ITEM_SINGLE_CAP = L4_ITEM_MAP | 2,
 
@@ -273,17 +282,19 @@ enum l4_msg_item_consts_t
    * The receiver requests to receive a local ID instead of a mapping whenever
    * possible.
    *
-   * This flag may only be used for small buffers, see #L4_RCV_ITEM_SINGLE_CAP.
+   * This flag may be used only if #L4_RCV_ITEM_SINGLE_CAP is set and
+   * #L4_RCV_ITEM_FORWARD_MAPPINGS is unset.
    *
    * When this flag is set, then,
    *
    * - when sender and receiver are bound to the same task, then no mapping is
-   *   done for this item and just the capability index is transferred,
+   *   done for this item and just the raw flexpage (#l4_fpage_t) is
+   *   transferred,
    * - otherwise, when the sender specified an IPC gate for transfer that is
    *   bound to a thread that is bound to the same task as the receiving thread,
-   *   then no mapping is done for this item and just the label bitwise disjoint
-   *   with the #L4_CAP_FPAGE_W and #L4_CAP_FPAGE_S permissions that would have
-   *   been mapped is transferred,
+   *   then no mapping is done for this item and just the bitwise OR (`|`) of
+   *   the label and the #L4_CAP_FPAGE_W and #L4_CAP_FPAGE_S permissions that
+   *   would have been mapped is transferred,
    * - otherwise a regular mapping is done for this item.
    */
   L4_RCV_ITEM_LOCAL_ID   = 4,

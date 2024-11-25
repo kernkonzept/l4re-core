@@ -37,6 +37,8 @@
  * There exists a special type for defining \em receive \em windows or for
  * the l4_task_unmap() method, that can be used to describe all address
  * spaces (all types) with a single flexpage.
+ *
+ * \includefile{l4/sys/types.h}
  */
 
 /**
@@ -127,8 +129,8 @@ enum L4_fpage_rights
  * Object flexpage rights.
  * \ingroup l4_fpage_api
  *
- * Capabilities are modified or transfered with map and unmap operations. For
- * that capabilities are wrapped into flexpage objects. The flexpage carries
+ * Capabilities are modified or transferred with map and unmap operations. For
+ * that, capabilities are wrapped into flexpage objects. The flexpage carries
  * a set of rights the sender wants to hand over to the receiver along with the
  * capability.
  *
@@ -227,10 +229,12 @@ enum L4_cap_fpage_rights
  */
 enum L4_fpage_type
 {
-  L4_FPAGE_SPECIAL = 0, ///< Special flexpage, either invalid or all spaces.
-  L4_FPAGE_MEMORY  = 1, ///< Memory flexpage.
-  L4_FPAGE_IO      = 2, ///< IO-port flexpage.
-  L4_FPAGE_OBJ     = 3, ///< Object flexpage (capabilities).
+  L4_FPAGE_SPECIAL = 0, ///< Special flexpage, either #l4_fpage_invalid() or
+                        ///  #l4_fpage_all(); only supported by selected
+                        ///  interfaces.
+  L4_FPAGE_MEMORY  = 1, ///< Flexpage for memory spaces.
+  L4_FPAGE_IO      = 2, ///< Flexpage for I/O port spaces.
+  L4_FPAGE_OBJ     = 3, ///< Flexpage for object spaces.
 };
 
 /** Flexpage map control flags
@@ -279,16 +283,20 @@ enum L4_obj_fpage_ctl
  */
 enum l4_fpage_cacheability_opt_t
 {
-  /** Enable the cacheability option in a memory send item. */
+  /// Enable the cacheability option in a memory send item.
+  /// Without this flag, the options are copied from the sender.
   L4_FPAGE_CACHE_OPT   = 0x1,
 
-  /** Cacheability option to enable caches for the mapping. */
+  /// Cacheability option to enable caches for the mapping.
+  /// Implies #L4_FPAGE_CACHE_OPT.
   L4_FPAGE_CACHEABLE   = 0x3,
 
-  /** Cacheability option to enable buffered writes for the mapping. */
+  /// Cacheability option to enable buffered writes for the mapping.
+  /// Implies #L4_FPAGE_CACHE_OPT.
   L4_FPAGE_BUFFERABLE  = 0x5,
 
-  /** Cacheability option to disable caching for the mapping. */
+  /// Cacheability option to disable caching for the mapping.
+  /// Implies #L4_FPAGE_CACHE_OPT.
   L4_FPAGE_UNCACHEABLE = 0x1
 };
 
@@ -397,23 +405,35 @@ l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
  * \ingroup l4_ipc_api
  * Message-item-related functionality.
  *
- * Message items are typed items that can be transferred via IPC
- * operations. Message items are also used to specify receive windows for
- * typed items to be received.
- * Message items are placed in the message registers (MRs) of the UTCB of
- * the sending thread.
- * Receive items are placed in the buffer registers (BRs) of the UTCB
- * of the receiving thread.
+ * Message items are typed items that are used for transferring capabilities
+ * during IPC. There are three sub-types of typed message items with variations
+ * in the layout:
  *
- * Message items are usually two-word data structures. The first 
- * word denotes the type of the message item (for example a memory flexpage,
- * io flexpage or object flexpage) and the second word contains
- * information depending on the type. There is actually one exception that is
- * a small (one word) receive buffer item for a single capability.
+ * 1. Typed message items set by the sender in its message registers (MRs) of
+ *    the UTCB for specifying what shall be sent.
+ * 2. Typed message items set by the receiver in its buffer registers (BRs) of
+ *    the UTCB for specifying which types of capabilities may be received at
+ *    which addresses.
+ * 3. Typed message items set by the kernel in the receiver’s message registers
+ *    (MRs) of the UTCB for providing information about the transfer to the
+ *    receiver.
+ *
+ * They are abbreviated by *send item*, *receive item*, and *return item*,
+ * respectively.
+ *
+ * A typed message item in the message registers (case 1 and case 3) always
+ * consists of two words (even if it is a void item). The size of a typed
+ * message item in the buffer registers (case 2) is determined by its first
+ * word. The size is up to three words (see #L4_RCV_ITEM_SINGLE_CAP and
+ * #L4_RCV_ITEM_FORWARD_MAPPINGS). A void item in the buffer registers consists
+ * of a single word.
+ *
+ * \includefile{l4/sys/types.h}
  */
 
 /**
- * Create the first word for a map item for the memory space.
+ * Create the first word for a map item that is a send item for the memory
+ * space.
  * \ingroup l4_msgitem_api
  *
  * \param spot   Hot spot address, used to determine what is actually mapped
@@ -424,13 +444,14 @@ l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
  * \param grant  Indicates if it is a map or a grant item. Allowed values:
  *               #L4_MAP_ITEM_MAP, #L4_MAP_ITEM_GRANT.
  *
- * \return The value to be used as first word in a map item for memory.
+ * \return The value to be used as first word in a send item for memory.
  */
 L4_INLINE l4_umword_t
 l4_map_control(l4_umword_t spot, unsigned char cache, unsigned grant) L4_NOTHROW;
 
 /**
- * Create the first word for a map item for the object space.
+ * Create the first word for a map item that is a send item for the object
+ * space.
  * \ingroup l4_msgitem_api
  *
  * \param spot   Hot spot address, used to determine what is actually mapped
@@ -438,7 +459,7 @@ l4_map_control(l4_umword_t spot, unsigned char cache, unsigned grant) L4_NOTHROW
  * \param grant  Indicates if it is a map item or a grant item. Allowed values:
  *               #L4_MAP_ITEM_MAP, #L4_MAP_ITEM_GRANT.
  *
- * \return The value to be used as first word in a map item for kernel objects
+ * \return The value to be used as first word in a send item for kernel objects
  *         or IO-ports.
  */
 L4_INLINE l4_umword_t

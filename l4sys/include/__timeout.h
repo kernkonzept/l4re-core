@@ -27,8 +27,11 @@
  * Basic timeout specification.
  * \ingroup l4_timeout_api
  *
- * Basically a floating point number with 10 bits mantissa and
+ * If bit 15 == 0, basically a floating point number with 10 bits mantissa and
  * 5 bits exponent (t = m*2^e).
+ *
+ * If the mantissa is zero, the exponent encodes special values, see
+ * #L4_IPC_TIMEOUT_0 and #L4_IPC_TIMEOUT_NEVER.
  *
  * If bit 15 == 1 the timeout is absolute and the lower 6 bits encode the index
  * of the UTCB buffer register(s) holding the absolute 64-bit timeout value. On

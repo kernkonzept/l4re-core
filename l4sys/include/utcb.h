@@ -98,10 +98,27 @@ typedef struct l4_buf_regs_t
  */
 typedef struct l4_thread_regs_t
 {
-  /// System call error codes
+  /// System call error code (see #l4_ipc_tcr_error_t).
+  ///
+  /// If the kernel indicates an error in the message tag (see
+  /// l4_msgtag_has_error() and l4_msgtag_t::has_error()), the kernel writes the
+  /// error code to this field.
   l4_umword_t  error;
+
   /// Kernel free marker
+  ///
+  /// The kernel sets this field to zero as soon as it is guaranteed that the
+  /// kernel does not use the UTCB anymore for the bound thread. This usually
+  /// happens while a thread is deleted. However, it is not defined when exactly
+  /// the kernel sets the field. In particular, the point in time is not
+  /// necessarily related to any IPC.
+  ///
+  /// Userland may use this field for determining if a UTCB can be re-used for
+  /// another thread. Note that, in order to make use of that feature, userland
+  /// has to set this field to a non-zero value when a thread is bound with this
+  /// UTCB.
   l4_umword_t  free_marker;
+
   /// User values (ignored and preserved by the kernel)
   l4_umword_t  user[3];
 } l4_thread_regs_t;

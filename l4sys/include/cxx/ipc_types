@@ -262,7 +262,7 @@ public:
    *
    * \param cap   Capability slot where to save the capability.
    * \param flags Receive buffer flags, see #l4_msg_item_consts_t.
-   *              L4_RCV_ITEM_SINGLE_CAP will always be set.
+   *              #L4_RCV_ITEM_SINGLE_CAP will always be set.
    */
   explicit Small_buf(L4::Cap<void> cap, unsigned long flags = 0) noexcept
   : _data(cap.cap() | L4_RCV_ITEM_SINGLE_CAP | flags) {}
@@ -274,26 +274,28 @@ public:
   explicit Small_buf(l4_cap_idx_t cap, unsigned long flags = 0) noexcept
   : _data(cap | L4_RCV_ITEM_SINGLE_CAP | flags) {}
 
+  /// Return the raw data.
   l4_umword_t raw() const noexcept { return _data; }
 private:
   l4_umword_t _data;
 };
 
 /**
- * Generic RPC base for L4 flexpages.
+ * Generic RPC base for typed message items.
  */
 class L4_EXPORT Gen_fpage
 {
 public:
-  /// Type of mapping object, see L4_fpage_type.
+  /// Type of mapping object, see #L4_fpage_type.
   enum Type
   {
-    Special = L4_FPAGE_SPECIAL << 4,
-    Memory  = L4_FPAGE_MEMORY << 4,
-    Io      = L4_FPAGE_IO << 4,
-    Obj     = L4_FPAGE_OBJ << 4
+    Special = L4_FPAGE_SPECIAL << 4,  ///< \copydoc L4_FPAGE_SPECIAL
+    Memory  = L4_FPAGE_MEMORY  << 4,  ///< \copydoc L4_FPAGE_MEMORY
+    Io      = L4_FPAGE_IO      << 4,  ///< \copydoc L4_FPAGE_IO
+    Obj     = L4_FPAGE_OBJ     << 4   ///< \copydoc L4_FPAGE_OBJ
   };
 
+  /// Construct from raw values.
   Gen_fpage(l4_umword_t base, l4_umword_t data) noexcept
   : _base(base), _data(data)
   {}
@@ -308,38 +310,63 @@ protected:
   l4_umword_t _data;
 };
 
-/// Send flexpage
+/**
+ * Send item or return item.
+ *
+ * This class represents a typed message item in the message registers of the
+ * UTCB. If it is provided by the sender, then it is a *send item*. If it is
+ * provided by the kernel during IPC, it is a *return item*.
+ *
+ * Note that some members are dedicated for send items only or return items
+ * only.
+ */
 class Snd_fpage : public Gen_fpage
 {
 public:
+  /// *(Defined for send items only.)*
   /// Kind of mapping.
   enum Map_type
   {
-    Map   = L4_MAP_ITEM_MAP,
-    Grant = L4_MAP_ITEM_GRANT,
+    Map   = L4_MAP_ITEM_MAP,    ///< \copydoc L4_MAP_ITEM_MAP
+    Grant = L4_MAP_ITEM_GRANT,  ///< \copydoc L4_MAP_ITEM_GRANT
   };
 
-  /// Caching options, see l4_fpage_cacheability_opt_t
+  /// *(Defined for memory send items only.)*
+  /// Caching options, see #l4_fpage_cacheability_opt_t.
   enum Cacheopt
   {
-    None     = 0,
-    Cached   = L4_FPAGE_CACHEABLE << 4,
-    Buffered = L4_FPAGE_BUFFERABLE << 4,
-    Uncached = L4_FPAGE_UNCACHEABLE << 4
+    None     = 0,                          ///< Copy options from sender.
+    Cached   = L4_FPAGE_CACHEABLE   << 4,  ///< \copybrief L4_FPAGE_CACHEABLE
+    Buffered = L4_FPAGE_BUFFERABLE  << 4,  ///< \copybrief L4_FPAGE_BUFFERABLE
+    Uncached = L4_FPAGE_UNCACHEABLE << 4   ///< \copybrief L4_FPAGE_UNCACHEABLE
   };
 
+  /// Specify if the following item is associated with the same receive item as
+  /// this one, see #L4_ITEM_CONT.
   enum Continue
   {
-    Single   = 0,
-    Last     = 0,
-    More     = L4_ITEM_CONT,
-    Compound = L4_ITEM_CONT,
+    Single   = 0,             ///< Inverse of #Compound.
+    Last     = 0,             ///< Inverse of #More.
+    More     = L4_ITEM_CONT,  ///< Alias for #Compound.
+    Compound = L4_ITEM_CONT,  ///< \copydoc L4_ITEM_CONT
   };
 
+  /// Construct from raw values.
   Snd_fpage(l4_umword_t base = 0, l4_umword_t data = 0) noexcept
   : Gen_fpage(base, data)
   {}
 
+  /**
+   * Construct a send item for the memory space.
+   *
+   * \param fp        Memory flexpage defining which range and kind of
+   *                  capabilities shall be sent (see l4_fpage()).
+   * \param snd_base  Position in receive window in case it has a different size
+   *                  than `fp`.
+   * \param map_type  See #Map_type.
+   * \param cache     See #Cacheopt.
+   * \param cont      See #Continue.
+   */
   Snd_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
             Map_type map_type = Map,
             Cacheopt cache = None, Continue cont = Last) noexcept
@@ -348,11 +375,30 @@ public:
               fp.raw)
   {}
 
+  /**
+   * Construct a send item for the object space.
+   *
+   * \param cap       Capability to be sent.
+   * \param rights    Permissions to be transferred. See #L4_cap_fpage_rights
+   *                  and #L4_obj_fpage_ctl.
+   * \param map_type  See #Map_type.
+   */
   Snd_fpage(L4::Cap<void> cap, unsigned rights, Map_type map_type = Map) noexcept
   : Gen_fpage(L4_ITEM_MAP | l4_umword_t(map_type) | (rights & 0xf0),
               cap.fpage(rights).raw)
   {}
 
+  /**
+   * Construct a send item for the object space.
+   *
+   * \param base      Start of flexpage (see l4_obj_fpage()).
+   * \param order     Log₂ size of flexpage (see l4_obj_fpage()).
+   * \param rights    Permissions of flexpage (see l4_obj_fpage()).
+   * \param snd_base  Position in receive window in case it has a different size
+   *                  than `1 << order`.
+   * \param map_type  See #Map_type.
+   * \param cont      See #Continue.
+   */
   static Snd_fpage obj(l4_cap_idx_t base, int order,
                        unsigned char rights,
                        l4_addr_t snd_base = 0,
@@ -363,6 +409,18 @@ public:
                      map_type, None, cont);
   }
 
+  /**
+   * Construct a send item for the memory space.
+   *
+   * \param base      Start of flexpage (see l4_fpage()).
+   * \param order     Log₂ size of flexpage (see l4_fpage()).
+   * \param rights    Permissions of flexpage (see l4_fpage()).
+   * \param snd_base  Position in receive window in case it has a different size
+   *                  than `1 << order`.
+   * \param map_type  See #Map_type.
+   * \param cache     See #Cacheopt.
+   * \param cont      See #Continue.
+   */
   static Snd_fpage mem(l4_addr_t base, int order,
                        unsigned char rights,
                        l4_addr_t snd_base = 0,
@@ -373,6 +431,17 @@ public:
                      cont);
   }
 
+  /**
+   * Construct a send item for the I/O port space.
+   *
+   * \param base      Start of flexpage (see l4_iofpage()).
+   * \param order     Log₂ size of flexpage (see l4_iofpage()).
+   * \param rights    Permissions of flexpage (see #L4_fpage_rights).
+   * \param snd_base  Position in receive window in case it has a different size
+   *                  than `1 << order`.
+   * \param map_type  See #Map_type.
+   * \param cont      See #Continue.
+   */
   static Snd_fpage io(unsigned long base, int order,
                       unsigned char rights,
                       l4_addr_t snd_base = 0,
@@ -383,17 +452,36 @@ public:
                      snd_base, map_type, None, cont);
   }
 
+  /// *(Defined only if send item or if local_id_received() is true.)*
+  /// Get log₂ size.
   unsigned order() const noexcept { return (_data >> 6) & 0x3f; }
+
+  /// *(Defined only if send item or if local_id_received() is true.)*
+  /// Get log₂ size.
   unsigned snd_order() const noexcept { return (_data >> 6) & 0x3f; }
+
+  /// *(Defined for return items only.)*
+  /// Get log₂ size.
   unsigned rcv_order() const noexcept { return (_base >> 6) & 0x3f; }
+
+  /// *(Defined only if send item or if local_id_received() is true.)*
+  /// Get the start of the item (i.e., the start of its flexpage).
   l4_addr_t base() const noexcept { return _data & (~0UL << 12); }
+
+  /// Get the position in receive window for the case that this item has a
+  /// different size than the corresponding receive item.
   l4_addr_t snd_base() const noexcept { return _base & (~0UL << 12); }
+
+  /// Set the position in receive window for the case that this item has a
+  /// different size than the corresponding receive item.
   void snd_base(l4_addr_t b) noexcept { _base = (_base & ~(~0UL << 12)) | (b & (~0UL << 12)); }
 
   /// Check if the capability is valid.
   bool is_valid() const noexcept { return _base & L4_ITEM_MAP; }
+
   /**
-   * Check if at least one capability has been mapped.
+   * *(Defined for return items only.)*
+   * Check if at least one object capability has been mapped for this item.
    *
    * The capabilities themselves can then be retrieved from the cap slots that
    * have been provided in the receive operation.
@@ -401,33 +489,45 @@ public:
    * \note If this function returns `true` and the receive window covers more
    *       than one capability slot, then it is not possible to determine which
    *       slots actually got capabilities mapped from the sender.
+   *
+   * \note If the received capabilities do not have type object (see
+   *       #L4_FPAGE_OBJ), then this function returns `false`.
    */
   bool cap_received() const noexcept { return (_base & 0x3e) == 0x38; }
   /**
-   * Check if a label was received instead of a mapping.
+   * *(Defined for return items only.)*
+   * Check if an IPC gate label has been received instead of a mapping.
    *
-   * For IPC gates, if the L4_RCV_ITEM_LOCAL_ID has been set, then
-   * only the label of the IPC gate will be provided if the gate
-   * is local to the receiver,
-   * i.e. the target thread of the IPC gate is in the same task as the
-   * receiving thread.
+   * If the #L4_RCV_ITEM_LOCAL_ID flag has been set by the receiver, the
+   * conditions for local_id_received() do not apply, the sender sent an IPC
+   * gate capability, and the receiving thread is in the same task as the thread
+   * that is attached to the IPC gate, then no mapping is done for this item and
+   * only the bitwise OR (`|`) of the label of the IPC gate and the special and
+   * write permission (#L4_CAP_FPAGE_S and #L4_CAP_FPAGE_W) that would have been
+   * mapped is received.
    *
-   * The label can be retrieved with Gen_fpage::data().
+   * The bitwise OR of the label and the permissions can be retrieved with
+   * Gen_fpage::data().
    */
   bool id_received() const noexcept { return (_base & 0x3e) == 0x3c; }
   /**
-   * Check if a local capability id has been received.
+   * *(Defined for return items only.)*
+   * Check if a raw object flexpage has been received instead of a mapping.
    *
-   * If the L4_RCV_ITEM_LOCAL_ID flag has been set by the receiver,
-   * and sender and receiver are in the same task, then only
-   * the capability index is transferred.
+   * If the #L4_RCV_ITEM_LOCAL_ID flag has been set by the receiver, and sender
+   * and receiver are in the same task, then no mapping is done for this item
+   * and only the raw flexpage (#l4_fpage_t) is received.
    *
-   * The capability can be retrieved with Gen_fpage::data().
+   * This function checks if this is the case and if it is an object flexpage.
+   *
+   * The flexpage can be retrieved with Gen_fpage::data().
+   *
+   * \note If a raw flexpage was received, but it does not have type object (see
+   *       #L4_FPAGE_OBJ), then this function returns `false`.
    */
   bool local_id_received() const noexcept { return (_base & 0x3e) == 0x3e; }
-
   /**
-   * Check if the received item has the compound bit set.
+   * Check if the item has the compound bit set, see #Continue.
    *
    * A set compound bit means the next message item of the same type
    * will be mapped to the same receive buffer as this message item.
@@ -435,11 +535,29 @@ public:
   bool is_compound() const noexcept { return _base & 1; }
 };
 
-/// Rcv flexpage
+/**
+ * Non-small receive item.
+ *
+ * This class represents a non-small receive item. A receive item is a message
+ * item in the buffer registers of the UTCB of the receiver (see l4_utcb_br()).
+ */
 class Rcv_fpage : public Gen_fpage
 {
 public:
+  /**
+   * Construct a void receive item.
+   */
   Rcv_fpage() noexcept : Gen_fpage(0, 0), _rcv_task(L4_INVALID_CAP) {}
+
+  /**
+   * Construct a non-small receive item.
+   *
+   * \param fp        Flexpage defining where and which kind of capabilities may
+   *                  be received.
+   * \param snd_base  Reserved; should be zero.
+   * \param rcv_task  Optional destination task for received capabilities. If
+   *                  invalid, capabilities are received in the invoking task.
+   */
   Rcv_fpage(l4_fpage_t const &fp, l4_addr_t snd_base = 0,
             l4_cap_idx_t rcv_task = L4_INVALID_CAP) noexcept
   : Gen_fpage(L4_ITEM_MAP | (snd_base & (~0UL << 12))
@@ -448,6 +566,15 @@ public:
     _rcv_task(rcv_task)
   {}
 
+  /**
+   * Construct a non-small receive item for the object space.
+   *
+   * \param base      Start of flexpage (see l4_obj_fpage()).
+   * \param order     Log₂ size of flexpage (see l4_obj_fpage()).
+   * \param snd_base  Reserved; should be zero.
+   * \param rcv_task  Optional destination task for received capabilities. If
+   *                  invalid, capabilities are received in the invoking task.
+   */
   static Rcv_fpage obj(l4_cap_idx_t base, int order, l4_addr_t snd_base = 0,
                       L4::Cap<void> rcv_task = L4::Cap<void>::Invalid) noexcept
   {
@@ -455,18 +582,41 @@ public:
                      rcv_task.cap());
   }
 
+  /**
+   * Construct a receive item for the memory space.
+   *
+   * \param base      Start of flexpage (see l4_fpage()).
+   * \param order     Log₂ size of flexpage (see l4_fpage()).
+   * \param snd_base  Reserved; should be zero.
+   * \param rcv_task  Optional destination task for received capabilities. If
+   *                  invalid, capabilities are received in the invoking task.
+   */
   static Rcv_fpage mem(l4_addr_t base, int order, l4_addr_t snd_base = 0,
                        L4::Cap<void> rcv_task = L4::Cap<void>::Invalid) noexcept
   {
     return Rcv_fpage(l4_fpage(base, order, 0), snd_base, rcv_task.cap());
   }
 
+  /**
+   * Construct a receive item for the I/O port space.
+   *
+   * \param base      Start of flexpage (see l4_iofpage()).
+   * \param order     Log₂ size of flexpage (see l4_iofpage()).
+   * \param snd_base  Reserved; should be zero.
+   * \param rcv_task  Optional destination task for received capabilities. If
+   *                  invalid, capabilities are received in the invoking task.
+   */
   static Rcv_fpage io(unsigned long base, int order, l4_addr_t snd_base = 0,
                       L4::Cap<void> rcv_task = L4::Cap<void>::Invalid) noexcept
   {
     return Rcv_fpage(l4_iofpage(base, order), snd_base, rcv_task.cap());
   }
 
+  /**
+   * Get the capability index of the destination task for received capabilities.
+   *
+   * Only relevant if forward_mappings() is true.
+   */
   l4_cap_idx_t rcv_task() const { return _rcv_task; }
 
   /**
