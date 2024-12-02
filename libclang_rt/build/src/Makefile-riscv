@@ -7,12 +7,12 @@ GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES_TF)
 
 BUILTINS_SRC = riscv/save.S riscv/restore.S
 
-ifeq ($(CPU_BITS_riscv),32)
+ifeq ($(BITS),32)
 	BUITINS_FLAGS += -fforce-enable-int128
 	BUILTINS_SRC += riscv/mulsi3.S
 endif
 
-ifeq ($(CPU_BITS_riscv),64)
+ifeq ($(BITS),64)
   BUILTINS_SRC += riscv/muldi3.S
 endif
 

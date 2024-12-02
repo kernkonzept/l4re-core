@@ -33,7 +33,7 @@ ifeq ($(BID_VARIANT_FLAG_NOFPU),)
 $(eval $(call libgcc_include_config,riscv/t-softfp32))
 
 
-ifeq ($(CPU_BITS_riscv),64)
+ifeq ($(BITS),64)
 # --- From libgcc/config/riscv/t-softfp64 ---
 $(eval $(call libgcc_include_config,riscv/t-softfp64))
 endif
