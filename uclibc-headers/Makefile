@@ -30,9 +30,9 @@ vpath %.h $(CONTRIB_DIR)/libc/sysdeps/linux/$(UCLIBC_ARCH)
 vpath %.h $(CONTRIB_DIR)/libc/sysdeps/linux/common
 vpath %.h $(CONTRIB_DIR)/include
 
-all:: $(HEADERS_LST)
-
 DST_HEADERS   := $(addprefix $(HEADER_DIR)/,$(DST_HEADERS))
+
+all:: $(HEADERS_LST) $(DST_HEADERS)
 
 $(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(HEADERS_LST) \
                                          $(LIBCSRC_DIR)/make_vars.mk
