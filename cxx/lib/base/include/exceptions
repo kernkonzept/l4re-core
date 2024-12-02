@@ -136,7 +136,7 @@ namespace L4
      * Create a new Runtime_error.
      *
      * \param err_no  Error value for this runtime error.
-     * \param extra   Description of what was happening while the error occured.
+     * \param extra   Description of what happened when the error occurred.
      */
     explicit Runtime_error(long err_no, char const *extra = 0) noexcept
       : _errno(err_no)

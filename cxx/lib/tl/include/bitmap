@@ -53,7 +53,7 @@ protected:
   static unsigned bit_index(unsigned bit) { return bit % W_bits; }
 
   /**
-   * A writeable bit in a bitmap.
+   * A writable bit in a bitmap.
    */
   class Bit
   {

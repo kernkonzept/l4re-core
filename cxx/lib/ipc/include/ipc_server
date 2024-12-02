@@ -90,7 +90,7 @@ struct Server_object_t : BASE
    * Implementation of the meta protocol based on \a IFACE.
    * \param ios  The IO stream used for receiving the message.
    *
-   * This function can be used to handle incoming #L4_PROTO_META protcol
+   * This function can be used to handle incoming #L4_PROTO_META protocol
    * requests.  The implementation uses the L4::Type_info of \a IFACE
    * to handle the requests.  Call this function in the implementation of
    * Server_object::dispatch() when the received message tag has protocol

@@ -295,7 +295,7 @@ private:
  * \param[out] v     Pointer to the array within the Ipc::Istream.
  * \param[out] size  The number of elements found in the stream.
  *
- * This routine provdes a possibility to extract an array from an
+ * This routine provides a possibility to extract an array from an
  * Ipc::Istream, without extra copy overhead. In contrast to buf_cp_in()
  * the data is not copied to a buffer, but a pointer to the array is returned.
  * The user must make sure the UTCB is not used for other purposes while the

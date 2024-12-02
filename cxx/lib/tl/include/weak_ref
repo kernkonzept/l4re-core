@@ -2,7 +2,7 @@
 /*
  * Copyright (C) 2015, 2017 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
- *            Alwexander Warg <alexander.warg@kernkonzept.com>
+ *            Alexander Warg <alexander.warg@kernkonzept.com>
  *
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
@@ -32,7 +32,7 @@ public:
   /**
    * The list type for keeping all weak references to an object.
    *
-   * On destrunction of a list, all weak references to the respective object are
+   * On destruction of a list, all weak references to the respective object are
    * set to `nullptr`.
    */
   struct List : H_list_t<Weak_ref_base>

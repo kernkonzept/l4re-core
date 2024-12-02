@@ -450,7 +450,7 @@ Base_avl_set<Item,Compare,Alloc,KEY_TYPE>::emplace(Args&&... args)
 } // namespace Bits
 
 /**
- * \brief AVL set for simple compareable items.
+ * \brief AVL set for simple comparable items.
  *
  * The AVL set can store any kind of items where a partial order is defined.
  * The default relation is defined by the '<' operator.
