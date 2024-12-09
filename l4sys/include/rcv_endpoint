@@ -35,8 +35,8 @@ public:
    * Bind a thread to an IPC receive endpoint.
    *
    * \param t      Thread object that shall be bound to this receive endpoint.
-   * \param label  Label to assign to `this` receive endpoint. The two least
-   *               significant bits should usually be set to zero.
+   * \param label  Label to assign to `this` receive endpoint. For IPC gates,
+   *               the two least significant bits must be set to zero.
    *
    * \return Syscall return tag containing one of the following return codes.
    *

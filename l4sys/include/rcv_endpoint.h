@@ -18,8 +18,8 @@
  *
  * \param ep      The IPC receive endpoint object.
  * \param thread  The thread object that shall be bound to `ep`.
- * \param label   Label to assign to `ep`. The two least significant bits
- *                should usually be set to zero.
+ * \param label   Label to assign to `ep`. For IPC gates, the two least
+ *                significant bits must be set to zero.
  *
  * \return Syscall return tag containing one of the following return codes.
  *

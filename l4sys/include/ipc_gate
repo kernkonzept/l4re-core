@@ -50,16 +50,14 @@ class Thread;
  *
  * When binding a thread to an IPC gate, a user-defined, kernel protected,
  * machine-word sized payload called the IPC gate’s *label* is assigned to the
- * IPC gate (cf. bind_thread()). When a send-only IPC or call IPC is forwarded
- * via an IPC gate, the label provided by the sender is ignored and replaced by
- * the IPC gate’s label where the two least significant bits are the result of
- * bitwise disjunction of the corresponding label bits with the #L4_CAP_FPAGE_S
- * and #L4_CAP_FPAGE_W permissions of the capability used. Hence, the label
- * provided via bind_thread() should usually have its two least significant bits
- * set to zero. The replaced label is only visible to the bound thread upon
- * receive. However, the configured label of an IPC gate can also be queried via
- * get_infos() if the capability used has the #L4_FPAGE_C_IPCGATE_SVR
- * permission.
+ * IPC gate (note that the two least significant bits of the label must be zero;
+ * cf. bind_thread()). When a send-only IPC or call IPC is forwarded via an IPC
+ * gate, the label provided by the sender is ignored and replaced by the IPC
+ * gate’s label where the two least significant bits are set to the
+ * #L4_CAP_FPAGE_S and #L4_CAP_FPAGE_W permissions of the capability used. The
+ * replaced label is only visible to the bound thread upon receive. However, the
+ * configured label of an IPC gate can also be queried via get_infos() if the
+ * capability used has the #L4_FPAGE_C_IPCGATE_SVR permission.
  *
  * When deleting an IPC gate or when unbinding it from a thread, the label of
  * IPC already in flight won't be changed. To ensure that no IPC from this IPC
