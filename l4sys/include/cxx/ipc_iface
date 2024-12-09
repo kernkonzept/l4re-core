@@ -22,9 +22,9 @@
 /**
  * \page l4_cxx_ipc_iface Interface Definition Language
  *
- * An interface definition in L4Re is normally declared as a class
- * derived from L4::Kobject_t. For example, the \link examples/clntsrv/shared.h
- * simple calculator example \endlink declares its interface like that:
+ * An interface definition in L4Re is normally declared as a class derived from
+ * L4::Kobject_t. For example, the \link examples/clntsrv/src/shared.h simple
+ * calculator example \endlink declares its interface like that:
  *
  * ~~~{.cpp}
  * struct Calc : L4::Kobject_t<Calc, L4::Kobject>
