@@ -60,11 +60,11 @@ public:
   { return !(_c & L4_INVALID_CAP_BIT); }
 
   /**
-   * Return flex-page for the capability.
+   * Return flexpage for the capability.
    *
    * \param rights   Rights, defaults to 'rws'
    *
-   * \return flex-page
+   * \return flexpage
    */
   l4_fpage_t fpage(unsigned rights = L4_CAP_FPAGE_RWS) const noexcept
   { return l4_obj_fpage(_c, 0, rights); }

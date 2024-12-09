@@ -430,11 +430,11 @@ L4_INLINE l4_addr_t l4_trunc_page(l4_addr_t address) L4_NOTHROW
 { return address & L4_PAGEMASK; }
 
 /**
- * Round an address down to the next lower flex page with size \a bits.
+ * Round an address down to the next lower flexpage with size \a bits.
  * \ingroup l4_memory_api
  *
  * \param address  The address to round.
- * \param bits     The size of the flex page (log2).
+ * \param bits     The size of the flexpage (log2).
  */
 L4_INLINE l4_addr_t l4_trunc_size(l4_addr_t address, unsigned char bits) L4_NOTHROW;
 L4_INLINE l4_addr_t l4_trunc_size(l4_addr_t address, unsigned char bits) L4_NOTHROW

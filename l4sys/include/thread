@@ -266,7 +266,7 @@ public:
    *         l4_thread_vcpu_resume_commit()
    *
    * The vCPU resume functionality is split in multiple functions to allow the
-   * specification of additional send-flex-pages using l4_sndfpage_add().
+   * specification of additional send-flexpages using l4_sndfpage_add().
    *
    * The asynchronous IPC handling is described at \ref l4_vcpu_api.
    *
@@ -296,7 +296,7 @@ public:
    *                     have the vCPU feature enabled.
    * \retval <0          A supplied mapping failed.
    *
-   * All flex pages in the UTCB (added with l4_sndfpage_add() after
+   * All flexpages in the UTCB (added with l4_sndfpage_add() after
    * l4_thread_vcpu_resume_start()) are unconditionally mapped into the
    * user task configured in the vCPU state.
    *

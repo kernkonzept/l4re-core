@@ -206,9 +206,9 @@ public:
     }
 
     /**
-     * Add a flex page as next argument.
+     * Add a flexpage as next argument.
      *
-     * \param d  The flex page to add (there will be no map operation).
+     * \param d  The flexpage to add (there will be no map operation).
      */
     void put(l4_fpage_t d) & noexcept
     {

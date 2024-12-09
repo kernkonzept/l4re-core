@@ -110,7 +110,7 @@ struct Is_valid_rpc_type< In_out<A> > : L4::Types::False {};
  * \tparam T  The type of the original argument.
  *
  * As_value<T> is used when \a T would be otherwise interpreted specially,
- * for example as flex page.  When using As_value<> then the argument is
+ * for example as flexpage.  When using As_value<> then the argument is
  * transmitted as plain data element.
  */
 template<typename T> struct L4_EXPORT As_value
@@ -280,7 +280,7 @@ private:
 };
 
 /**
- * Generic RPC base for L4 flex-pages.
+ * Generic RPC base for L4 flexpages.
  */
 class L4_EXPORT Gen_fpage
 {
@@ -382,7 +382,7 @@ public:
    * will be mapped to the same receive buffer as this message item.
    */
   bool is_compound() const noexcept { return _base & 1; }
-  /// Return the raw flex page descriptor.
+  /// Return the raw flexpage descriptor.
   l4_umword_t data() const noexcept { return _data; }
   /// Return the raw base descriptor.
   l4_umword_t base_x() const noexcept { return _base; }
@@ -392,7 +392,7 @@ protected:
   l4_umword_t _data;
 };
 
-/// Send flex-page
+/// Send flexpage
 class Snd_fpage : public Gen_fpage
 {
 public:
@@ -444,7 +444,7 @@ public:
   }
 };
 
-/// Rcv flex-page
+/// Rcv flexpage
 class Rcv_fpage : public Gen_fpage
 {
 public:

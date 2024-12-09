@@ -58,7 +58,7 @@
  * proper rights in `snd_fpage` and `snd_base`, it is possible to remove rights
  * during transfer.
  *
- * \note If the send flex page is of type #L4_FPAGE_OBJ, the #L4_CAP_FPAGE_S
+ * \note If the send flexpage is of type #L4_FPAGE_OBJ, the #L4_CAP_FPAGE_S
  *       right is removed from the transferred capability unless both the
  *       source and destination task capabilities possess the #L4_CAP_FPAGE_S
  *       right themselves.
@@ -96,9 +96,9 @@ l4_task_map_u(l4_cap_idx_t dst_task, l4_cap_idx_t src_task,
  *
  * \return Syscall return tag
  *
- * This method allows to revoke rights from the destination task. The rights
- * to revoke are specified in the flexpage, see l4_fpage_rights(). For a flex
- * page describing IO ports or memory, it also revokes rights from all the tasks
+ * This method allows to revoke rights from the destination task. The rights to
+ * revoke are specified in the flexpage, see l4_fpage_rights(). For a flexpage
+ * describing IO ports or memory, it also revokes rights from all the tasks
  * that got the rights delegated from the destination task (i.e., this operation
  * does a recursive rights revocation). The capability is unmapped if certain
  * rights are specified, see below for details. It is guaranteed that the rights

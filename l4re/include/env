@@ -61,7 +61,7 @@ namespace L4Re
    *
    * Additional information found in the initial environment is:
    * - First free entry in capability table
-   * - The \link l4_utcb_api UTCB \endlink area (as flex page)
+   * - The \link l4_utcb_api UTCB \endlink area (as flexpage)
    * - First free UTCB (address in the UTCB area)
    *
    * \includefile{l4/re/env}

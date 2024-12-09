@@ -528,10 +528,10 @@ L4_INLINE l4_msgtag_t
 l4_ipc_sleep_us(l4_uint64_t us) L4_NOTHROW;
 
 /**
- * Add a flex-page to be sent to the UTCB
+ * Add a flexpage to be sent to the UTCB
  * \ingroup l4_ipc_api
  *
- * \param         snd_fpage  Flex-page.
+ * \param         snd_fpage  Flexpage.
  * \param         snd_base   Send base.
  * \param[in,out] tag        Tag to be updated. Only the number of items is
  *                           incremented in the updated tag, all other members

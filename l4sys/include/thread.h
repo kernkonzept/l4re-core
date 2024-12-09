@@ -387,7 +387,7 @@ l4_thread_stats_time_u(l4_cap_idx_t thread, l4_kernel_clock_t *us,
  *         l4_thread_vcpu_resume_commit()
  *
  * The vCPU resume functionality is split in multiple functions to allow the
- * specification of additional send-flex-pages using l4_sndfpage_add().
+ * specification of additional send-flexpages using l4_sndfpage_add().
  */
 L4_INLINE l4_msgtag_t
 l4_thread_vcpu_resume_start(void) L4_NOTHROW;
@@ -422,7 +422,7 @@ l4_thread_vcpu_resume_start_u(l4_utcb_t *utcb) L4_NOTHROW;
  *                     have the vCPU feature enabled.
  * \retval <0          A supplied mapping failed.
  *
- * All flex pages in the UTCB (added with l4_sndfpage_add() after
+ * All flexpages in the UTCB (added with l4_sndfpage_add() after
  * l4_thread_vcpu_resume_start()) are unconditionally mapped into the
  * user task configured in the vCPU state.
  *
@@ -754,7 +754,7 @@ enum L4_thread_control_mr_indices
   L4_THREAD_CONTROL_MR_IDX_EXC_HANDLER = 2, /**< Index for exception handler */
   L4_THREAD_CONTROL_MR_IDX_FLAG_VALS   = 4, /**< Index for feature values */
   L4_THREAD_CONTROL_MR_IDX_BIND_UTCB   = 5, /**< Index for UTCB address for bind */
-  L4_THREAD_CONTROL_MR_IDX_BIND_TASK   = 6, /**< Index for task flex-page for bind */
+  L4_THREAD_CONTROL_MR_IDX_BIND_TASK   = 6, /**< Index for task flexpage for bind */
 };
 
 /**

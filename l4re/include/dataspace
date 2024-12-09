@@ -130,7 +130,7 @@ public:
 
 
   /**
-   * Request a flex-page mapping from the dataspace.
+   * Request a flexpage mapping from the dataspace.
    *
    * \param offset      Offset to start within dataspace
    * \param flags       Dataspace flags, see #L4Re::Dataspace::F::Flags.
@@ -173,7 +173,7 @@ public:
    * \retval -L4_EPERM   Insufficient permission to map with requested rights.
    * \retval <0          IPC errors
    *
-   * This is a convenience function which maps flex-pages consecutively into
+   * This is a convenience function which maps flexpages consecutively into
    * the given memory area in the local task. The area is expected to be filled
    * completely. If the dataspace is not large enough to provide the mappings
    * for the entire size of the area, then an error is returned. Mappings may

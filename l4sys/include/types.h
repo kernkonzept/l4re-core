@@ -189,7 +189,7 @@ typedef struct l4_msgtag_t
  *
  * \param label  The user-defined label
  * \param words  The number of untyped words within the UTCB
- * \param items  The number of typed items (e.g., flex pages) within the UTCB
+ * \param items  The number of typed items (e.g., flexpages) within the UTCB
  * \param flags  The IPC flags for realtime and FPU extensions
  *
  * \return Message tag

@@ -38,7 +38,7 @@ public:
    *
    * \param      regs  Register state of the faulting thread.
    * \param      rwin  Receive window in the address space.
-   * \param[out] fp    Optional flex-page to resolve the exception.
+   * \param[out] fp    Optional flexpage to resolve the exception.
    *
    * \return  Message tag containing error code.
    *

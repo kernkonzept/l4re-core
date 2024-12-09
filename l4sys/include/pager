@@ -54,10 +54,10 @@ public:
   /**
    * IO page fault protocol message.
    *
-   * \param      io_pfa  Flex-page describing the faulting IO-port.
+   * \param      io_pfa  Flexpage describing the faulting IO-port.
    * \param      pc      Faulting program counter.
-   * \param      rwin    The receive window for a flex-page mapping.
-   * \param[out] fp      Optional: flex-page descriptor to send to the task
+   * \param      rwin    The receive window for a flexpage mapping.
+   * \param[out] fp      Optional: flexpage descriptor to send to the task
    *                     raising the page fault.
    *
    * \return System call message tag; use l4_error() to check for errors.
@@ -93,9 +93,9 @@ public:
    *
    * \param      pfa     Faulting address including failure reason: bits [0:2].
    * \param      pc      Faulting program counter.
-   * \param      rwin    Receive window for a flex-page mapping resolving the
+   * \param      rwin    Receive window for a flexpage mapping resolving the
    *                     page fault.
-   * \param[out] fp      Optional: flex-page descriptor to send to the task
+   * \param[out] fp      Optional: flexpage descriptor to send to the task
    *                     raising the page fault.
    *
    * \return System call message tag; use l4_error() to check for errors.

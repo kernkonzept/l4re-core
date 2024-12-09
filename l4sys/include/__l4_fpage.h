@@ -1,7 +1,7 @@
 /**
  * \internal
  * \file
- * Common flex-page definitions.
+ * Common flexpage definitions.
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
@@ -17,26 +17,26 @@
 #include <l4/sys/compiler.h>
 
 /**
- * \defgroup l4_fpage_api Flex pages
+ * \defgroup l4_fpage_api Flexpages
  * \ingroup l4_api
- * Flex-page related API.
+ * Flexpage-related API.
  *
- * A flex page is a page with a variable size, that can describe memory,
+ * A flexpage is a page with a variable size, that can describe memory,
  * IO-Ports (IA32 only), and sets of kernel objects.
  *
- * A flex page describes an always size aligned region of an address space.
+ * A flexpage describes an always size aligned region of an address space.
  * The size is given in a log2 scale. This means the size in elements (bytes
  * for memory, ports for IO-Ports, and capabilities for kernel objects) is
  * always a power of two.
  *
- * A flex page also carries type and access right information for the
+ * A flexpage also carries type and access right information for the
  * described region. The type information selects the address space in which
- * the flex page is valid. Access rights have a meaning depending on the
+ * the flexpage is valid. Access rights have a meaning depending on the
  * specific address space (type).
  *
  * There exists a special type for defining \em receive \em windows or for
  * the l4_task_unmap() method, that can be used to describe all address
- * spaces (all types) with a single flex page.
+ * spaces (all types) with a single flexpage.
  */
 
 /**
@@ -83,25 +83,25 @@ enum
 {
   /**
    * Whole address space size. This value does not only specify the log2 size
-   * of the biggest possible memory flex page. It can be also used as size for
-   * a special flex page to define a flex page which completely covers all
+   * of the biggest possible memory flexpage. It can be also used as size for
+   * a special flexpage to define a flexpage which completely covers all
    * spaces.
    */
   L4_WHOLE_ADDRESS_SPACE = 63
 };
 
 /**
- * Send-flex-page types
+ * Send-flexpage types
  * \ingroup l4_fpage_api
  */
 typedef struct {
   l4_umword_t snd_base;      ///< Offset in receive window (send base)
-  l4_fpage_t fpage;          ///< Source flex-page descriptor
+  l4_fpage_t fpage;          ///< Source flexpage descriptor
 } l4_snd_fpage_t;
 
 
 /**
- * Memory and IO port flex-page rights
+ * Memory and IO port flexpage rights
  * \ingroup l4_fpage_api
  *
  * For IO flexpages, bit 1 and bit 2 are a combined read/write right. In a map
@@ -112,20 +112,20 @@ typedef struct {
  */
 enum L4_fpage_rights
 {
-  L4_FPAGE_X     = 1,                        /**< Executable flex page */
-  L4_FPAGE_W     = 2,                        /**< Writable flex page */
-  L4_FPAGE_RO    = 4,                        /**< Read-only flex page  */
-  L4_FPAGE_RW    = L4_FPAGE_RO | L4_FPAGE_W, /**< Read-write flex page */
-  L4_FPAGE_RX    = L4_FPAGE_RO | L4_FPAGE_X, /**< Read-execute flex page */
-  L4_FPAGE_RWX   = L4_FPAGE_RW | L4_FPAGE_X, /**< Read-write-execute flex page */
+  L4_FPAGE_X     = 1,                        /**< Executable flexpage */
+  L4_FPAGE_W     = 2,                        /**< Writable flexpage */
+  L4_FPAGE_RO    = 4,                        /**< Read-only flexpage  */
+  L4_FPAGE_RW    = L4_FPAGE_RO | L4_FPAGE_W, /**< Read-write flexpage */
+  L4_FPAGE_RX    = L4_FPAGE_RO | L4_FPAGE_X, /**< Read-execute flexpage */
+  L4_FPAGE_RWX   = L4_FPAGE_RW | L4_FPAGE_X, /**< Read-write-execute flexpage */
 };
 
 /**
- * Cap-flex-page rights.
+ * Cap-flexpage rights.
  * \ingroup l4_fpage_api
  *
  * Capabilities are modified or transfered with map and unmap operations. For
- * that capabilities are wrapped into flex-page objects. The flex-page carries
+ * that capabilities are wrapped into flexpage objects. The flexpage carries
  * a set of rights the sender wants to hand over to the receiver along with the
  * capability.
  *
@@ -140,7 +140,7 @@ enum L4_fpage_rights
 enum L4_cap_fpage_rights
 {
   /**
-   * Interface specific 'W' right for capability flex-pages.
+   * Interface specific 'W' right for capability flexpages.
    *
    * The semantics of the 'W' right is defined by the protocol. For example
    * in case of a dataspace cap, the 'W' right is needed to get a writable
@@ -148,26 +148,26 @@ enum L4_cap_fpage_rights
    */
   L4_CAP_FPAGE_W     = 0x1,
   /**
-   * Interface specific 'S' right for capability flex-pages.
+   * Interface specific 'S' right for capability flexpages.
    *
    * The semantics of the 'S' right is defined by the interface. When
    * transferring object capabilities via IPC, the kernel masks this right with
    * the 'S' right of the capability used to address the IPC partner. Thus, the
-   * 'S' right of sent capabilities is only transferred if both the flex-page
+   * 'S' right of sent capabilities is only transferred if both the flexpage
    * and the IPC gate or thread capability specifying the IPC partner have the
    * 'S' right. For L4::Task::map(), the 'S' right is only transferred if the
-   * flex-page, the source and destination task capabilities have the 'S' right.
+   * flexpage, the source and destination task capabilities have the 'S' right.
    */
   L4_CAP_FPAGE_S     = 0x2,
   /**
-   * Read right for capability flex-pages.
+   * Read right for capability flexpages.
    *
    * This is always required, otherwise no capability is mapped.
    */
   L4_CAP_FPAGE_R     = 0x4,
   L4_CAP_FPAGE_RO    = 0x4, /**< \copydoc L4_CAP_FPAGE_R */
   /**
-   * Delete right for capability flex-pages.
+   * Delete right for capability flexpages.
    *
    * This allows the receiver to delete the corresponding kernel object using
    * unmap() regardless of other tasks still holding a capability to the kernel
@@ -176,58 +176,58 @@ enum L4_cap_fpage_rights
    */
   L4_CAP_FPAGE_D     = 0x8,
   /**
-   * Read and interface specific 'W' right for capability flex-pages.
+   * Read and interface specific 'W' right for capability flexpages.
    *
    * The semantics of the 'W' right is defined by the interface.
    * \see L4_CAP_FPAGE_W
    */
   L4_CAP_FPAGE_RW    = L4_CAP_FPAGE_R | L4_CAP_FPAGE_W,
   /**
-   * Read and interface specific 'S' right for capability flex-pages.
+   * Read and interface specific 'S' right for capability flexpages.
    *
    * The semantics of the 'S' right is defined by the interface.
    * \see L4_CAP_FPAGE_S
    */
   L4_CAP_FPAGE_RS    = L4_CAP_FPAGE_R | L4_CAP_FPAGE_S,
   /**
-   * Read, interface specific 'W', and 'S' rights for capability flex-pages.
+   * Read, interface specific 'W', and 'S' rights for capability flexpages.
    *
    * The semantics of the 'W' and 'S' right are defined by the interface.
    * \see L4_CAP_FPAGE_R, L4_CAP_FPAGE_W, and L4_CAP_FPAGE_S
    */
   L4_CAP_FPAGE_RWS   = L4_CAP_FPAGE_RW | L4_CAP_FPAGE_S,
   /**
-   * Full rights for capability flex-pages.
+   * Full rights for capability flexpages.
    *
    * \see L4_CAP_FPAGE_R, L4_CAP_FPAGE_W, L4_CAP_FPAGE_S, and L4_CAP_FPAGE_D
    */
   L4_CAP_FPAGE_RWSD  = L4_CAP_FPAGE_RWS | L4_CAP_FPAGE_D,
   /**
-   * Read, write, and delete right for capability flex-pages.
+   * Read, write, and delete right for capability flexpages.
    *
    * \see L4_CAP_FPAGE_R, L4_CAP_FPAGE_W, and L4_CAP_FPAGE_D
    */
   L4_CAP_FPAGE_RWD  = L4_CAP_FPAGE_RW | L4_CAP_FPAGE_D,
   /**
-   * Read, 'S', and delete right for capability flex-pages.
+   * Read, 'S', and delete right for capability flexpages.
    *
    * \see L4_CAP_FPAGE_R, L4_CAP_FPAGE_S, and L4_CAP_FPAGE_D
    */
   L4_CAP_FPAGE_RSD   = L4_CAP_FPAGE_RS | L4_CAP_FPAGE_D,
 };
 
-/** Flex-page type
+/** Flexpage type
  * \ingroup l4_fpage_api
  */
 enum L4_fpage_type
 {
-  L4_FPAGE_SPECIAL = 0, ///< Special flex page, either invalid or all spaces.
-  L4_FPAGE_MEMORY  = 1, ///< Memory flex page.
-  L4_FPAGE_IO      = 2, ///< IO-port flex page.
-  L4_FPAGE_OBJ     = 3, ///< Object flex page (capabilities).
+  L4_FPAGE_SPECIAL = 0, ///< Special flexpage, either invalid or all spaces.
+  L4_FPAGE_MEMORY  = 1, ///< Memory flexpage.
+  L4_FPAGE_IO      = 2, ///< IO-port flexpage.
+  L4_FPAGE_OBJ     = 3, ///< Object flexpage (capabilities).
 };
 
-/** Flex-page map control flags
+/** Flexpage map control flags
  * \ingroup l4_fpage_api
  */
 enum L4_fpage_control
@@ -241,7 +241,7 @@ enum L4_fpage_control
 };
 
 /**
- * Flex-page map control for capabilities (snd_base)
+ * Flexpage map control for capabilities (snd_base)
  *
  * These rights need to be added to the snd_base when mapping and
  * control internal behavior. The exact meaning depends on the type
@@ -268,12 +268,12 @@ enum L4_obj_fpage_ctl
 };
 
 
-/** Flex-page cacheability option
+/** Flexpage cacheability option
  * \ingroup l4_fpage_api
  */
 enum l4_fpage_cacheability_opt_t
 {
-  /** Enable the cacheability option in a send flex page. */
+  /** Enable the cacheability option in a send flexpage. */
   L4_FPAGE_CACHE_OPT   = 0x1,
 
   /** Cacheability option to enable caches for the mapping. */
@@ -287,14 +287,14 @@ enum l4_fpage_cacheability_opt_t
 };
 
 
-/** Special constants for IO flex pages
+/** Special constants for IO flexpages
  * \ingroup l4_fpage_api
  */
 enum
 {
   /**
    * Whole I/O address space size. In contrast to #L4_WHOLE_ADDRESS_SPACE,
-   * this value forms the log2 size of the biggest possible I/O flex page. */
+   * this value forms the log2 size of the biggest possible I/O flexpage. */
   L4_WHOLE_IOADDRESS_SPACE  = 16,
 
   /** Maximum I/O port address plus 1. */
@@ -304,69 +304,69 @@ enum
 
 
 /**
- * Create a memory flex page.
+ * Create a memory flexpage.
  * \ingroup l4_fpage_api
  *
- * \param   address      Flex-page start address
- * \param   size         Flex-page size (log2), #L4_WHOLE_ADDRESS_SPACE to
+ * \param   address      Flexpage start address
+ * \param   size         Flexpage size (log2), #L4_WHOLE_ADDRESS_SPACE to
  *                       specify the whole address space (with `address` 0).
- *                       The minimum log2 size of a memory flex page is defined
+ *                       The minimum log2 size of a memory flexpage is defined
  *                       by #L4_LOG2_PAGESIZE according to the size of the
  *                       smallest virtual page supported by the MMU.
  * \param   rights       Access rights, see #L4_fpage_rights
  *
- * \return  Memory flex page
+ * \return  Memory flexpage
  */
 L4_INLINE l4_fpage_t
 l4_fpage(l4_addr_t address, unsigned int size, unsigned char rights) L4_NOTHROW;
 
 /**
- * Get a flex page, describing all address spaces at once.
+ * Get a flexpage, describing all address spaces at once.
  * \ingroup l4_fpage_api
  *
- * \return  Special \em all-spaces flex page.
+ * \return  Special \em all-spaces flexpage.
  *
- * \note This flex page can be used to define a receive window where the sender
+ * \note This flexpage can be used to define a receive window where the sender
  *       can send objects of any type, or for an unmap item completely covering
- *       all spaces of the target task. It does not make sense to use this flex
- *       page as send item.
+ *       all spaces of the target task. It does not make sense to use this
+ *       flexpage as send item.
  */
 L4_INLINE l4_fpage_t
 l4_fpage_all(void) L4_NOTHROW;
 
 /**
- * Get an invalid flex page.
+ * Get an invalid flexpage.
  * \ingroup l4_fpage_api
  *
- * \return  Special \em invalid flex page.
+ * \return  Special \em invalid flexpage.
  */
 L4_INLINE l4_fpage_t
 l4_fpage_invalid(void) L4_NOTHROW;
 
 
 /**
- * Create an IO-port flex page.
+ * Create an IO-port flexpage.
  * \ingroup l4_fpage_api
  *
- * \param   port         I/O-flex-page port base
- * \param   size         I/O-flex-page size (log2), #L4_WHOLE_IOADDRESS_SPACE to
+ * \param   port         I/O-flexpage port base
+ * \param   size         I/O-flexpage size (log2), #L4_WHOLE_IOADDRESS_SPACE to
  *                       specify the whole I/O address space (with `port` 0)
  *
- * \return  I/O flex page
+ * \return  I/O flexpage
  */
 L4_INLINE l4_fpage_t
 l4_iofpage(unsigned long port, unsigned int size) L4_NOTHROW;
 
 
 /**
- * Create a kernel-object flex page.
+ * Create a kernel-object flexpage.
  * \ingroup l4_fpage_api
  *
  * \param   obj       Base capability selector.
  * \param   order     Log2 size (number of capabilities).
  * \param   rights    Access rights, see #L4_cap_fpage_rights
  *
- * \return  Flex page for a set of kernel objects.
+ * \return  Flexpage for a set of kernel objects.
  *
  * \note #L4_CAP_FPAGE_R is always required, otherwise no capability is mapped.
  */
@@ -374,13 +374,13 @@ L4_INLINE l4_fpage_t
 l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTHROW;
 
 /**
- * Test if the flex page is writable.
+ * Test if the flexpage is writable.
  * \ingroup l4_fpage_api
  *
- * \param   fp  Flex page.
+ * \param   fp  Flexpage.
  *
- * \retval !=0 if flex page is writable.
- * \retval ==0 if flex pags is not writable.
+ * \retval !=0 if flexpage is writable.
+ * \retval ==0 if flexpage is not writable.
  */
 L4_INLINE int
 l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
@@ -400,8 +400,8 @@ l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
  * of the receiving thread.
  *
  * Message items are usually two-word data structures. The first 
- * word denotes the type of the message item (for example a memory flex-page,
- * io flex-page or object flex-page) and the second word contains
+ * word denotes the type of the message item (for example a memory flexpage,
+ * io flexpage or object flexpage) and the second word contains
  * information depending on the type. There is actually one exception that is
  * a small (one word) receive buffer item for a single capability.
  */
@@ -411,8 +411,8 @@ l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
  * \ingroup l4_msgitem_api
  *
  * \param spot   Hot spot address, used to determine what is actually mapped
- *               when send and receive flex page have differing sizes.
- * \param cache  Cacheability hints for memory flex pages. See
+ *               when send and receive flexpage have differing sizes.
+ * \param cache  Cacheability hints for memory flexpages. See
  *               \link l4_fpage_cacheability_opt_t
  *               Cacheability options\endlink.
  * \param grant  Indicates if it is a map or a grant item. Allowed values:
@@ -428,7 +428,7 @@ l4_map_control(l4_umword_t spot, unsigned char cache, unsigned grant) L4_NOTHROW
  * \ingroup l4_msgitem_api
  *
  * \param spot   Hot spot address, used to determine what is actually mapped
- *               when send and receive flex pages have different size.
+ *               when send and receive flexpages have different size.
  * \param grant  Indicates if it is a map item or a grant item. Allowed values:
  *               #L4_MAP_ITEM_MAP, #L4_MAP_ITEM_GRANT.
  *
@@ -439,34 +439,34 @@ L4_INLINE l4_umword_t
 l4_map_obj_control(l4_umword_t spot, unsigned grant) L4_NOTHROW;
 
 /**
- * Return rights from a flex page.
+ * Return rights from a flexpage.
  * \ingroup l4_fpage_api
  *
- * \param f  Flex page
+ * \param f  Flexpage
  *
- * \return Size part of the given flex page.
+ * \return Size part of the given flexpage.
  */
 L4_INLINE unsigned
 l4_fpage_rights(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return type from a flex page.
+ * Return type from a flexpage.
  * \ingroup l4_fpage_api
  *
- * \param f  Flex page
+ * \param f  Flexpage
  *
- * \return Type part of the given flex page.
+ * \return Type part of the given flexpage.
  */
 L4_INLINE unsigned
 l4_fpage_type(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return size from a flex page.
+ * Return size from a flexpage.
  * \ingroup l4_fpage_api
  *
- * \param f  Flex page
+ * \param f  Flexpage
  *
- * \return Size part of the given flex page.
+ * \return Size part of the given flexpage.
  *
  * \see l4_fpage_memaddr(), l4_fpage_obj(), l4_fpage_ioport()
  */
@@ -474,27 +474,27 @@ L4_INLINE unsigned
 l4_fpage_size(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return the page part from a flex page.
+ * Return the page part from a flexpage.
  * \ingroup l4_fpage_api
  *
- * \param f  Flex page
+ * \param f  Flexpage
  *
- * \return Page part of the given flex page.
+ * \return Page part of the given flexpage.
  *
- * \note The meaning of the page part depends on the flex-page type.
+ * \note The meaning of the page part depends on the flexpage type.
  */
 L4_INLINE unsigned long
 l4_fpage_page(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return the memory address from the memory flex page.
+ * Return the memory address from the memory flexpage.
  * \ingroup l4_fpage_api
  *
- * \param f  Flex page
+ * \param f  Flexpage
  *
- * \return Page address from the given memory flex page.
+ * \return Page address from the given memory flexpage.
  *
- * \pre `f` must be a memory flex page (`l4_fpage_type(f) == L4_FPAGE_MEMORY`).
+ * \pre `f` must be a memory flexpage (`l4_fpage_type(f) == L4_FPAGE_MEMORY`).
  *
  * The function does not enforce size alignment of the read memory address. The
  * caller must ensure the input fpage is correct.
@@ -503,14 +503,14 @@ L4_INLINE l4_addr_t
 l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return the capability index from the object flex page.
+ * Return the capability index from the object flexpage.
  * \ingroup l4_fpage_api
  *
- * \param f  Flex page
+ * \param f  Flexpage
  *
- * \return Capability index from the given object flex page.
+ * \return Capability index from the given object flexpage.
  *
- * \pre `f` must be an object flex page (`l4_fpage_type(f) == L4_FPAGE_OBJ`)
+ * \pre `f` must be an object flexpage (`l4_fpage_type(f) == L4_FPAGE_OBJ`)
  *
  * The function does not enforce size alignment of the read memory address. The
  * caller must ensure the input fpage is correct.
@@ -519,14 +519,14 @@ L4_INLINE l4_cap_idx_t
 l4_fpage_obj(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return the IO port number from the IO flex page.
+ * Return the IO port number from the IO flexpage.
  * \ingroup l4_fpage_api
  *
- * \param f  Flex page
+ * \param f  Flexpage
  *
- * \return IO port number from the given IO flex page.
+ * \return IO port number from the given IO flexpage.
  *
- * \pre `f` must be an IO flex page (`l4_fpage_type(f) == L4_FPAGE_IO`) and
+ * \pre `f` must be an IO flexpage (`l4_fpage_type(f) == L4_FPAGE_IO`) and
  *
  * The function does not enforce size alignment of the read memory address. The
  * caller must ensure the input fpage is correct.
@@ -535,13 +535,13 @@ L4_INLINE unsigned long
 l4_fpage_ioport(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Set new right in a flex page.
+ * Set new right in a flexpage.
  * \ingroup l4_fpage_api
  *
- * \param  src         Flex page
+ * \param  src         Flexpage
  * \param  new_rights  New rights
  *
- * \return Modified flex page with new rights.
+ * \return Modified flexpage with new rights.
  */
 L4_INLINE l4_fpage_t
 l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW;
@@ -550,7 +550,7 @@ l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW;
  * Test whether a given range is completely within an fpage.
  * \ingroup l4_fpage_api
  *
- * \param   fpage    Flex page
+ * \param   fpage    Flexpage
  * \param   addr     Address
  * \param   size     Size of range in log2.
  *
@@ -561,19 +561,19 @@ L4_INLINE int
 l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned size) L4_NOTHROW;
 
 /**
- * Determine maximum flex page size of a region.
+ * Determine maximum flexpage size of a region.
  * \ingroup l4_fpage_api
  *
  * \param order     Order value to start with (e.g. for memory
  *                  L4_LOG2_PAGESIZE would be used)
- * \param addr      Address to be covered by the flex page.
+ * \param addr      Address to be covered by the flexpage.
  * \param min_addr  Start of region / minimal address (including).
  * \param max_addr  End of region / maximal address (excluding).
  * \param hotspot   (Optional) hot spot.
  *
  * \return Maximum order (log2-size) possible.
  *
- * \note The start address of the flex-page can be determined with
+ * \note The start address of the flexpage can be determined with
  *       l4_trunc_size(addr, returnvalue)
  */
 L4_INLINE unsigned char
