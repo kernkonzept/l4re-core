@@ -92,7 +92,7 @@ enum
 
 /**
  * Send-flexpage types
- * \ingroup l4_fpage_api
+ * \ingroup l4_msgitem_api
  */
 typedef struct {
   l4_umword_t snd_base;      ///< Offset in receive window (send base)
@@ -109,6 +109,9 @@ typedef struct {
  * possesses it and at least one of these bits is present. For an unmap
  * operation, the absence of one of those bits is sufficient to unmap the IO
  * port capability.
+ *
+ * Note that more memory attributes can be specified in a send item, see
+ * #l4_fpage_cacheability_opt_t.
  */
 enum L4_fpage_rights
 {
@@ -121,7 +124,7 @@ enum L4_fpage_rights
 };
 
 /**
- * Cap-flexpage rights.
+ * Object flexpage rights.
  * \ingroup l4_fpage_api
  *
  * Capabilities are modified or transfered with map and unmap operations. For
@@ -132,6 +135,9 @@ enum L4_fpage_rights
  * For the user only the 'S' and the 'W' right are visible. Other rights such as
  * the 'D' right are internal to the corresponding kernel object and cannot be
  * evaluated by the receiver.
+ *
+ * Note that additional object attributes and permissions can be specified in a
+ * send item, see #L4_obj_fpage_ctl.
  *
  * \note A thread can also map a capability from its task's capability
  * table with a reduced set of rights into another slot of its own capability
@@ -241,13 +247,13 @@ enum L4_fpage_control
 };
 
 /**
- * Flexpage map control for capabilities (snd_base)
+ * Attributes and additional permissions for object send items.
  *
  * These rights need to be added to the snd_base when mapping and
  * control internal behavior. The exact meaning depends on the type
  * of capability (currently used only with IPC gates).
  *
- * \ingroup l4_fpage_api
+ * \ingroup l4_msgitem_api
  */
 enum L4_obj_fpage_ctl
 {
@@ -268,12 +274,12 @@ enum L4_obj_fpage_ctl
 };
 
 
-/** Flexpage cacheability option
- * \ingroup l4_fpage_api
+/** Cacheability options for memory send items.
+ * \ingroup l4_msgitem_api
  */
 enum l4_fpage_cacheability_opt_t
 {
-  /** Enable the cacheability option in a send flexpage. */
+  /** Enable the cacheability option in a memory send item. */
   L4_FPAGE_CACHE_OPT   = 0x1,
 
   /** Cacheability option to enable caches for the mapping. */
@@ -389,7 +395,7 @@ l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
 /**
  * \defgroup l4_msgitem_api Message Items
  * \ingroup l4_ipc_api
- * Message item related functions.
+ * Message-item-related functionality.
  *
  * Message items are typed items that can be transferred via IPC
  * operations. Message items are also used to specify receive windows for
