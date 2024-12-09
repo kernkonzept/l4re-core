@@ -414,12 +414,21 @@ l4_thread_vcpu_resume_start_u(l4_utcb_t *utcb) L4_NOTHROW;
  * \retval 1           Indicates an incoming IPC message, provided that the
  *                     `thread` is in extended vCPU mode with virtual interrupts
  *                     cleared.
- * \retval -L4_EPERM   The user task capability set in the vCPU state is missing
- *                     the #L4_CAP_FPAGE_S right.
+ * \retval -L4_EPERM   The user task capability set in the vCPU state is
+ *                     missing the #L4_CAP_FPAGE_S right. On Intel's VT-x
+ *                     (VMX): The vCPU context capability set in the extended
+ *                     vCPU state is missing the #L4_CAP_FPAGE_S right.
  * \retval -L4_ENOENT  The user task capability set in the vCPU state is
  *                     invalid.
  * \retval -L4_EINVAL  `thread` is not the current running thread, or does not
- *                     have the vCPU feature enabled.
+ *                     have the vCPU feature enabled. On Intel's VT-x (VMX):
+ *                     No vCPU context associated with the extended vCPU state.
+ * \retval -L4_EBUSY   On Intel's VT-x (VMX): The vCPU context associated with
+ *                     the extended vCPU state is already active on a different
+ *                     CPU.
+ * \retval -L4_ENODEV  On Intel's VT-x (VMX): The vCPU context associated with
+ *                     the extended vCPU state cannot be initialized or
+ *                     activated.
  * \retval <0          A supplied mapping failed.
  *
  * All flexpages in the UTCB (added with l4_sndfpage_add() after

@@ -249,12 +249,12 @@ l4_factory_create_vm(l4_cap_idx_t factory,
 
 /**
  * \ingroup l4_factory_api
- * Create a new hardware vCPU context. A hardware vCPU context typically
- * represents a hardware vCPU control structure (e.g. VMX VMCS).
+ * Create a new vCPU context. A vCPU context typically represents a hardware
+ * structure that captures the state of a vCPU on a CPU (e.g. VMX VMCS).
  *
  * \param      factory     Capability selector for factory to use for creation.
- * \param[out] target_cap  The kernel stores the new hardware vCPU context's
- *                         capability into this slot.
+ * \param[out] target_cap  The kernel stores the new vCPU context's capability
+ *                         into this slot.
  *
  * \return Syscall return tag
  *

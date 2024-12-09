@@ -26,6 +26,7 @@ The kernel factory creates the following kinds of objects:
 - L4::Task
 - L4::Thread
 - L4::Vm
+- L4::Vcpu_context
 
 The protocol IDs for objects in this list are given in \ref L4_msgtag_protocol.
 Kernel objects whose protocol ID is not immediately clear from the documentation
@@ -62,4 +63,5 @@ should be provided to a create stream returned by L4::Factory.create().
    - See L4::Factory.create_task() for details.
  - L4::Thread()
  - L4::Vm()
+ - L4::Vcpu_context()
 */

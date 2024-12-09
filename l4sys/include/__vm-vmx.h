@@ -58,18 +58,18 @@ enum L4_vm_vmx_dfl1_regs
 };
 
 /**
- * Additional (virtual) VMCS fields.
+ * Additional (software-defined) VMCS fields.
  *
  * The VMCS offsets defined here are actually not in the hardware VMCS. However
  * our VMMs run in user mode and need to have access to certain registers
- * available in kernel mode only. So we put them into our version of the VMCS.
+ * available in kernel mode only. So we put them into our software VMCS.
  *
  * \ingroup l4_vm_vmx_api
  */
 enum L4_vm_vmx_sw_fields
 {
   /**
-   * VMCS offset for CR2.
+   * Software VMCS offset for CR2.
    *
    * \note You usually need to check this value against the value you get from
    *       l4_vm_vmx_get_cr2_index() to make sure you are running on a
@@ -145,6 +145,11 @@ enum L4_vm_vmx_sw_fields
  * The limits (after being multiplied by 64) represent the range of the
  * available indexes.
  *
+ * \note The memory layout is documented here for reference purposes. However,
+ *       the users are strongly discouraged from accessing the data structure
+ *       directly. The API functions defined in this file are the preferred way
+ *       of achieving the functionality.
+ *
  * \ingroup l4_vm_vmx_api
  */
 typedef struct l4_vmx_offset_table_t
@@ -178,16 +183,22 @@ enum L4_vm_vmx_vmcs_sizes
  *                  revision identifier and the abort indicator are stored
  *                  in this area. Hereby we simply ignore these two entries.
  * - 0x008 - 0x00f: User space data (ignored by the kernel). This currently
- *                  stores the pointer to a different user software VMCS that
- *                  has been loaded to this kernel software VMCS.
+ *                  stores the pointer to a different software VMCS whose
+ *                  content has been loaded to this software VMCS.
  * - 0x010 - 0x013: VMCS field index of the software-defined CR2 field in the
  *                  software VMCS.
  * - 0x014 - 0x017: Reserved.
- * - 0x018 - 0x01f: Capability of the hardware VMCS object (with padding).
+ * - 0x018 - 0x01f: Capability of the vCPU context, i.e. the hardware VMCS
+ *                  object (with padding).
  * - 0x020 - 0x047: Software VMCS field offset table. See #l4_vmx_offset_table_t.
  * - 0x048 - 0x0bf: Reserved.
  * - 0x0c0 - 0xabf: Software VMCS fields (with padding).
  * - 0xac0 - 0xbff: Software VMCS fields dirty bitmap (with padding).
+ *
+ * \note The memory layout is documented here for reference purposes. However,
+ *       the users are strongly discouraged from accessing the data structure
+ *       directly. The API functions defined in this file are the preferred way
+ *       of achieving the functionality.
  *
  * \ingroup l4_vm_vmx_api
  */
@@ -245,6 +256,11 @@ typedef struct l4_vm_vmx_vcpu_infos_t
  * - 0x200 - 0x3ff: VMX information members (with padding). See
  *                  #l4_vm_vmx_vcpu_infos_t.
  * - 0x400 - 0xfff: VMX software VMCS. See #l4_vm_vmx_vcpu_vmcs_t.
+ *
+ * \note The memory layout is documented here for reference purposes. However,
+ *       the users are strongly discouraged from accessing the data structure
+ *       directly. The API functions defined in this file are the preferred way
+ *       of achieving the functionality.
  *
  * \ingroup l4_vm_vmx_api
  */
@@ -330,44 +346,45 @@ void *
 l4_vm_vmx_field_ptr(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field) L4_NOTHROW;
 
 /**
- * Saves cached state from the kernel software VMCS to the user software VMCS.
+ * Save the content from the software VMCS to a different software VMCS.
  * \ingroup l4_vm_vmx_api
  *
- * \param vmcs       Pointer to the kernel software VMCS.
- * \param user_vmcs  Pointer to the user software VMCS.
+ * \param vmcs       Pointer to the source software VMCS.
+ * \param dest_vmcs  Pointer to the destination software VMCS.
  *
- * This function is comparable to VMX vmclear.
+ * This function is comparable to the VMX VMCLEAR instruction.
  */
 L4_INLINE
 void
 l4_vm_vmx_clear(l4_vm_vmx_vcpu_vmcs_t *vmcs,
-                l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW;
+                l4_vm_vmx_vcpu_vmcs_t *dest_vmcs) L4_NOTHROW;
 
 /**
- * Loads the user_vmcs as the current software VMCS.
+ * Load the content from a different software VMCS to the software VMCS.
  * \ingroup l4_vm_vmx_api
  *
- * \param vmcs       Pointer to the kernel software VMCS.
- * \param user_vmcs  Pointer to the user software VMCS.
+ * \param vmcs      Pointer to the destination software VMCS.
+ * \param src_vmcs  Pointer to the source software VMCS.
  *
- * This function is comparable to VMX vmptrld.
+ * This function is comparable to the VMX VMPTRLD instruction.
  */
 L4_INLINE
 void
 l4_vm_vmx_ptr_load(l4_vm_vmx_vcpu_vmcs_t *vmcs,
-                   l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW;
+                   l4_vm_vmx_vcpu_vmcs_t *src_vmcs) L4_NOTHROW;
 
 /**
  * Get the software VMCS field index of the virtual CR2 register.
  * \ingroup l4_vm_vmx_api
  *
  * \param vmcs  Pointer to the software VMCS.
+ *
  * \return The field index used for the virtual CR2 register as used by the
  *         current Fiasco.OC interface.
  *
  * The CR2 register is actually not in the hardware VMCS, however our VMMs run
  * in user mode and need to have access to this register so we put it into our
- * software version of the VMCS.
+ * software VMCS.
  *
  * \see #L4_VM_VMX_VMCS_CR2
  */
@@ -506,29 +523,50 @@ l4_vm_vmx_write(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
                 l4_uint64_t val) L4_NOTHROW;
 
 /**
- * Associate the software VMCS with a hardware VMCS object capability.
+ * Associate the software VMCS with a vCPU context, i.e. a hardware VMCS object.
  * \ingroup l4_vm_vmx_api
  *
- * The VMX extended vCPU is unable to run unless it is associated with
- * a hardware VMCS object (i.e. a Vcpu_context object).
+ * The VMX extended vCPU state is unable to be resumed unless it is associated
+ * with a vCPU context, i.e. a hardware VMCS object: An L4::Vcpu_context from
+ * the user space point of view with its kernel counterpart `Vmx_vmcs`.
  *
- * \note When replacing the hardware VMCS object, the dirty bitmap of the
- *       software VMCS fields is not touched. This is on purpose, to enable
- *       efficient switching between separate VMs. The user is responsible for
- *       explicitly setting those software VMCS bitmap fields that need to be
- *       synchronized to the hardware VMCS.
+ * \note When replacing the vCPU context, the dirty bitmap of the software VMCS
+ *       is not touched, neither by the kernel nor by the API functions. This
+ *       is on purpose, to enable efficient switching between separate VMs in
+ *       the common case. If there is a logical discrepancy between the content
+ *       of the software VMCS and the replaced vCPU context, the user is
+ *       responsible for explicitly setting the relevant software VMCS fields
+ *       and/or the relevant software VMCS dirty bitmap bits to ensure that the
+ *       discrepancy is rectified on the next vCPU resume. This needs to be
+ *       done regardless of using the API functions (the preferred way) or
+ *       accessing the data structures directly (the discouraged way).
  *
- * \note The kernel might cache the VMCS object internally (i.e. the capability
- *       is not looked up on every vCPU resume). To remove the association
- *       of the current hardware VMCS object, store an invalid capability with
- *       the bit 3 set.
+ * \note Replacing the vCPU context while the vCPU is currently running has no
+ *       immediate effect until the next vCPU resume. In addition to that, the
+ *       kernel might cache the vCPU context internally (in other words, the
+ *       capability is not looked up on every vCPU resume). To remove the
+ *       association of the current vCPU context, simply replace it by an
+ *       another vCPU context. The reference count of the previous vCPU context
+ *       will be decremented accordingly on the next vCPU resume.
  *
- * \note If the hardware limitations of the usage of the hardware VMCS are not
+ * \note To remove the association of the current vCPU context without
+ *       replacing it by an another vCPU context, pass an invalid capability
+ *       with the bit 3 set and trigger a vCPU resume. The vCPU resume will
+ *       fail in this case (due to the missing vCPU context), but the reference
+ *       count of the previous vCPU context will be decremented accordingly.
+ *
+ * \note There is no need to explicitly remove the association of the current
+ *       vCPU context before deleting the software VMCS. Deleting the software
+ *       VMCS automatically disassociates it from the vCPU context and a vCPU
+ *       context with a reference count of 0 will be eventually deleted as
+ *       well.
+ *
+ * \note If the hardware limitations on the usage of the vCPU context are not
  *       observed (i.e. no hardware VMCS being active on more than one physical
  *       CPU), the vCPU will fail to resume.
  *
  * \param vmcs      Pointer to the software VMCS.
- * \param vmcs_cap  Hardware VMCS object capability.
+ * \param vmcs_cap  vCPU context (hardware VMCS object) capability.
  */
 L4_INLINE
 void
@@ -536,12 +574,13 @@ l4_vm_vmx_set_hw_vmcs(l4_vm_vmx_vcpu_vmcs_t *vmcs,
                       l4_cap_idx_t vmcs_cap) L4_NOTHROW;
 
 /**
- * Get the hardware VMCS object capability associated with the software VMCS.
+ * Get the vCPU context (i.e. the hardware VMCS object) associated with the
+ * software VMCS.
  * \ingroup l4_vm_vmx_api
  *
  * \param vmcs  Pointer to the software VMCS.
  *
- * \return Hardware VMCS object capability.
+ * \return vCPU context (hardware VMCS object) capability.
  */
 L4_INLINE
 l4_cap_idx_t
@@ -625,7 +664,7 @@ l4_vm_vmx_field_ptr_offset(l4_vm_vmx_vcpu_vmcs_t *vmcs, unsigned field,
 }
 
 /**
- * Set dirty bit in the software VMCS
+ * Set dirty bit in the software VMCS.
  * \internal
  * \ingroup l4_vm_vmx_api
  */
@@ -638,7 +677,7 @@ l4_vm_vmx_offset_dirty(l4_vm_vmx_vcpu_vmcs_t *vmcs,
 }
 
 /**
- * Copy full software VMCS state
+ * Copy full software VMCS state.
  * \internal
  */
 L4_INLINE
@@ -657,19 +696,19 @@ l4_vm_vmx_copy_values(l4_vm_vmx_vcpu_vmcs_t const *vmcs, l4_uint8_t *_dst,
 L4_INLINE
 void
 l4_vm_vmx_clear(l4_vm_vmx_vcpu_vmcs_t *vmcs,
-                l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW
+                l4_vm_vmx_vcpu_vmcs_t *dest_vmcs) L4_NOTHROW
 {
   l4_vm_vmx_vcpu_vmcs_t **current_vmcs_ptr
     = (l4_vm_vmx_vcpu_vmcs_t **)&vmcs->user_data;
 
-  if (*current_vmcs_ptr != user_vmcs)
+  if (*current_vmcs_ptr != dest_vmcs)
     return;
 
-  l4_vm_vmx_set_hw_vmcs(user_vmcs, l4_vm_vmx_get_hw_vmcs(vmcs));
-  l4_vm_vmx_copy_values(vmcs, user_vmcs->values, vmcs->values);
+  l4_vm_vmx_set_hw_vmcs(dest_vmcs, l4_vm_vmx_get_hw_vmcs(vmcs));
+  l4_vm_vmx_copy_values(vmcs, dest_vmcs->values, vmcs->values);
 
   /* Due to its size, the dirty bitmap is always compied in its entirety. */
-  __builtin_memcpy(user_vmcs->dirty_bitmap, vmcs->dirty_bitmap,
+  __builtin_memcpy(dest_vmcs->dirty_bitmap, vmcs->dirty_bitmap,
     L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP);
 
   *current_vmcs_ptr = 0;
@@ -678,24 +717,24 @@ l4_vm_vmx_clear(l4_vm_vmx_vcpu_vmcs_t *vmcs,
 L4_INLINE
 void
 l4_vm_vmx_ptr_load(l4_vm_vmx_vcpu_vmcs_t *vmcs,
-                   l4_vm_vmx_vcpu_vmcs_t *user_vmcs) L4_NOTHROW
+                   l4_vm_vmx_vcpu_vmcs_t *src_vmcs) L4_NOTHROW
 {
   l4_vm_vmx_vcpu_vmcs_t **current_vmcs_ptr
     = (l4_vm_vmx_vcpu_vmcs_t **)&vmcs->user_data;
 
-  if (*current_vmcs_ptr == user_vmcs)
+  if (*current_vmcs_ptr == src_vmcs)
     return;
 
-  if (*current_vmcs_ptr && *current_vmcs_ptr != user_vmcs)
+  if (*current_vmcs_ptr && *current_vmcs_ptr != src_vmcs)
     l4_vm_vmx_clear(vmcs, *current_vmcs_ptr);
 
-  *current_vmcs_ptr = user_vmcs;
+  *current_vmcs_ptr = src_vmcs;
 
-  l4_vm_vmx_set_hw_vmcs(vmcs, l4_vm_vmx_get_hw_vmcs(user_vmcs));
-  l4_vm_vmx_copy_values(vmcs, vmcs->values, user_vmcs->values);
+  l4_vm_vmx_set_hw_vmcs(vmcs, l4_vm_vmx_get_hw_vmcs(src_vmcs));
+  l4_vm_vmx_copy_values(vmcs, vmcs->values, src_vmcs->values);
 
   /* Due to its size, the dirty bitmap is always compied in its entirety. */
-  __builtin_memcpy(vmcs->dirty_bitmap, user_vmcs->dirty_bitmap,
+  __builtin_memcpy(vmcs->dirty_bitmap, src_vmcs->dirty_bitmap,
     L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP);
 }
 
