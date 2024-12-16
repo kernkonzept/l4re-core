@@ -72,6 +72,7 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
 
   Dataspace alloc_ds(unsigned long size) const;
   Dataspace alloc_ds(unsigned long size, l4_addr_t paddr) const;
+  Dataspace alloc_ds_aligned(unsigned long size, unsigned align) const;
 
   static Const_dataspace open_file(char const *name);
 
@@ -82,6 +83,8 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
   static void copy_ds(Dataspace dst, unsigned long dst_offs,
                       Const_dataspace src, unsigned long src_offs,
                       unsigned long size);
+
+  static void ds_map_info(Const_dataspace ds, l4_addr_t *start);
 
   static bool all_segs_cow();
 
@@ -126,7 +129,7 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
 
 private:
   Dataspace alloc_ds(unsigned long size, l4_addr_t paddr,
-                     unsigned long flags) const;
+                     unsigned long flags, unsigned align) const;
 };
 
 typedef Ldr::Local_app_model<L4Re_app_model> L4Re_x_app_model;

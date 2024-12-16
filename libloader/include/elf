@@ -45,6 +45,7 @@ public:
   unsigned long flags() const { return _64?hdr64()->p_flags:hdr32()->p_flags; }
   unsigned long offset() const
   { return _64?hdr64()->p_offset:hdr32()->p_offset; }
+  unsigned long align() const { return _64?hdr64()->p_align:hdr32()->p_align; }
 
 };
 
@@ -255,8 +256,9 @@ struct Phdr_load_min_max
 {
   mutable l4_addr_t start;
   mutable l4_addr_t end;
+  mutable l4_size_t align;
 
-  Phdr_load_min_max() : start(~0UL), end(0) {}
+  Phdr_load_min_max() : start(~0UL), end(0), align(0) {}
   void operator () (Elf_phdr const &h) const
   {
     if (h.type() != PT_LOAD)
@@ -268,6 +270,8 @@ struct Phdr_load_min_max
       start = s;
     if (e > end)
       end = e;
+    if (h.align() > align)
+      align = h.align();
   }
 };
 
@@ -306,10 +310,14 @@ struct Phdr_load
   App_model *mm;
   Dbg const &dbg;
   Elf_ehdr const *ehdr;
+  Dataspace prealloc_mem;
+  l4_addr_t prealloc_base;
 
   Phdr_load(l4_addr_t base, Const_dataspace bin, App_model *mm,
-            L4Re::Rm::Flags r_flags, Dbg const &dbg, Elf_ehdr const *ehdr)
-  : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg), ehdr(ehdr)
+            L4Re::Rm::Flags r_flags, Dbg const &dbg, Elf_ehdr const *ehdr,
+            Dataspace prealloc_mem, l4_addr_t prealloc_base)
+  : base(base), r_flags(r_flags), bin(bin), mm(mm), dbg(dbg), ehdr(ehdr),
+    prealloc_mem(prealloc_mem), prealloc_base(prealloc_base)
   {}
 
   void operator () (Elf_phdr const &ph) const
@@ -345,15 +353,24 @@ struct Phdr_load
 
     if (cow)
       {
-        // copy section
+        if (prealloc_mem)
+          {
+            o = paddr - prealloc_base;
+            mm->copy_ds(prealloc_mem, o, bin, offs, fsz + page_offs);
+            ds = prealloc_mem;
+          }
+        else
+          {
+            // copy section
 #ifdef CONFIG_MMU
-        Dataspace mem = mm->alloc_ds(size);
+            Dataspace mem = mm->alloc_ds(size);
 #else
-        Dataspace mem = mm->alloc_ds(size, paddr);
+            Dataspace mem = mm->alloc_ds(size, paddr);
 #endif
-        mm->copy_ds(mem, 0, bin, offs, fsz + page_offs);
-        ds = mem;
-        o = 0;
+            mm->copy_ds(mem, 0, bin, offs, fsz + page_offs);
+            ds = mem;
+            o = 0;
+          }
       }
 
     if (ph.flags() & PF_R)
@@ -542,6 +559,14 @@ struct Phdr_l4re_elf_aux
 template< typename App_model, typename Dbg_ >
 class Elf_loader : public Loader<App_model, Dbg_>
 {
+  static unsigned log2(unsigned long val)
+  {
+    if (val == 0)
+      return 0;
+
+    return sizeof(unsigned long) * 8 - 1 - __builtin_clzl(val);
+  }
+
 public:
   typedef Loader<App_model, Dbg_> Base;
 public:
@@ -590,6 +615,8 @@ public:
 
     L4Re::Rm::Flags r_flags(0);
     l4_addr_t _base = 0;
+    typename App_model::Dataspace prealloc_mem{};
+    l4_addr_t prealloc_start = 0;
     if (base && dyn_info.is_pie)
       {
         Phdr_load_min_max b_func;
@@ -615,12 +642,33 @@ public:
       }
     else if (mm->prog_info()->base && dyn_info.is_pie)
       {
-        _base = mm->prog_info()->base;
-        ldr.printf("  relocate PIC/PIE binary by %lx\n", _base);
+        // A load base of ~0UL is interpreted as "choose a suitable region
+        // automatically" on no-MMU systems. On MMU systems it's the same as
+        // zero.
+        if (mm->prog_info()->base + 1U == 0U)
+          {
+#ifndef CONFIG_MMU
+            Phdr_load_min_max load_info;
+            elf.iterate_phdr(load_info);
+            l4_size_t load_size = load_info.end - load_info.start;
+            unsigned align = log2(load_info.align);
+            prealloc_mem = mm->alloc_ds_aligned(load_size, align);
+
+            mm->ds_map_info(prealloc_mem, &prealloc_start);
+            _base = prealloc_start - load_info.start;
+#endif
+          }
+        else
+          _base = mm->prog_info()->base;
+
+        if (_base)
+          ldr.printf("  relocate PIC/PIE binary by %lx\n", _base);
       }
 
     elf.iterate_phdr(Phdr_load<App_model, Dbg_log>(_base, bin, mm, r_flags,
-                                                   ldr, elf.ehdr()));
+                                                   ldr, elf.ehdr(),
+                                                   prealloc_mem,
+                                                   prealloc_start));
     elf.iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
 
     mm->prog_info()->entry = elf.entry() + _base;

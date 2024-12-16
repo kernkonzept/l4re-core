@@ -52,6 +52,7 @@ struct App_model : public Ldr::Base_app_model<Stack>
 
   Dataspace alloc_ds(unsigned long size) const;
   Dataspace alloc_ds(unsigned long size, l4_addr_t paddr) const;
+  Dataspace alloc_ds_aligned(unsigned long size, unsigned align) const;
 
   static Const_dataspace open_file(char const *name);
 
@@ -65,6 +66,8 @@ struct App_model : public Ldr::Base_app_model<Stack>
   static void copy_ds(Dataspace dst, unsigned long dst_offs,
                       Const_dataspace src, unsigned long src_offs,
                       unsigned long size);
+
+  static void ds_map_info(Const_dataspace ds, l4_addr_t *start);
 
   static bool all_segs_cow() { return false; }
 
@@ -136,7 +139,7 @@ struct App_model : public Ldr::Base_app_model<Stack>
 
 private:
   Dataspace alloc_ds(unsigned long size, l4_addr_t paddr,
-                     unsigned long flags) const;
+                     unsigned long flags, unsigned align) const;
 };
 
 typedef Ldr::Remote_app_model<App_model> Rmt_app_model;

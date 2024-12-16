@@ -87,21 +87,25 @@ L4Re_app_model::L4Re_app_model(L4::Cap<L4Re::Rm> rm, void *)
 
 L4Re_app_model::Dataspace
 L4Re_app_model::alloc_ds(unsigned long size) const
-{ return alloc_ds(size, 0, 0); }
+{ return alloc_ds(size, 0, 0, 0); }
 
 L4Re_app_model::Dataspace
 L4Re_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
-{ return alloc_ds(size, paddr, L4Re::Mem_alloc::Fixed_paddr); }
+{ return alloc_ds(size, paddr, L4Re::Mem_alloc::Fixed_paddr, 0); }
+
+L4Re_app_model::Dataspace
+L4Re_app_model::alloc_ds_aligned(unsigned long size, unsigned align) const
+{ return alloc_ds(size, 0, 0, align); }
 
 L4Re_app_model::Dataspace
 L4Re_app_model::alloc_ds(unsigned long size, l4_addr_t paddr,
-                         unsigned long flags) const
+                         unsigned long flags, unsigned align) const
 {
   Dataspace mem = chkcap(Global::cap_alloc->alloc<L4Re::Dataspace>(),
       "l4re_itas: ELF loader: could not allocate capability");
   if (Global::l4re_aux->ldr_flags & L4RE_AUX_LDR_FLAG_PINNED_SEGS)
     flags |= L4Re::Mem_alloc::Pinned;
-  chksys(Global::allocator->alloc(size, mem, flags, 0, paddr),
+  chksys(Global::allocator->alloc(size, mem, flags, align, paddr),
          "l4re_itas: Loading writable ELF segment.");
   return mem;
 }
@@ -139,6 +143,13 @@ L4Re_app_model::copy_ds(Dataspace dst, unsigned long dst_offs,
 {
   L4Re::chksys(dst->copy_in(dst_offs, src, src_offs, size),
                "l4re_itas: Copy-in failed.");
+}
+
+void
+L4Re_app_model::ds_map_info(Const_dataspace ds, l4_addr_t *start)
+{
+  l4_addr_t unused_end;
+  L4Re::chksys(ds->map_info(start, &unused_end), "l4re_itas: ds_map_info");
 }
 
 l4_addr_t

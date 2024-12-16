@@ -101,6 +101,15 @@ Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
   return mem;
 }
 
+Moe_app_model::Dataspace
+Moe_app_model::alloc_ds_aligned(unsigned long size, unsigned align) const
+{
+  Dataspace mem =_task->allocator()->alloc(size, 0, align);
+  if (!mem)
+    chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
+  return mem;
+}
+
 l4_cap_idx_t Moe_app_model::push_initial_caps(l4_cap_idx_t s)
 {
   for (auto const &i : *root_name_space())
@@ -175,6 +184,13 @@ Moe_app_model::copy_ds(Dataspace dst, unsigned long dst_offs,
                        unsigned long size)
 {
   Dataspace_util::copy(dst, dst_offs, src, src_offs, size);
+}
+
+void
+Moe_app_model::ds_map_info(Const_dataspace ds, l4_addr_t *start)
+{
+  l4_addr_t unused_end;
+  chksys(ds->map_info(*start, unused_end), "ds_map_info");
 }
 
 

@@ -17,20 +17,24 @@ using L4Re::chkcap;
 
 App_model::Dataspace
 App_model::alloc_ds(unsigned long size) const
-{ return alloc_ds(size, 0, 0); }
+{ return alloc_ds(size, 0, 0, 0); }
 
 App_model::Dataspace
 App_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
-{ return alloc_ds(size, paddr, L4Re::Mem_alloc::Fixed_paddr); }
+{ return alloc_ds(size, paddr, L4Re::Mem_alloc::Fixed_paddr, 0); }
+
+App_model::Dataspace
+App_model::alloc_ds_aligned(unsigned long size, unsigned align) const
+{ return alloc_ds(size, 0, 0, align); }
 
 App_model::Dataspace
 App_model::alloc_ds(unsigned long size, l4_addr_t paddr,
-                    unsigned long flags) const
+                    unsigned long flags, unsigned align) const
 {
   Dataspace mem = chkcap(L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>(),
                          "allocate capability");
   L4::Cap<L4Re::Mem_alloc> _ma(prog_info()->mem_alloc.raw & L4_FPAGE_ADDR_MASK);
-  chksys(_ma->alloc(size, mem.get(), flags, 0, paddr),
+  chksys(_ma->alloc(size, mem.get(), flags, align, paddr),
          "allocate writable program segment");
   return mem;
 }
@@ -77,6 +81,13 @@ App_model::copy_ds(Dataspace dst, unsigned long dst_offs,
 {
   L4Re::chksys(dst->copy_in(dst_offs, src.get(), src_offs, size),
                "Ned program launch: copy failed");
+}
+
+void
+App_model::ds_map_info(Const_dataspace ds, l4_addr_t *start)
+{
+  l4_addr_t unused_end;
+  L4Re::chksys(ds->map_info(start, &unused_end), "ds_map_info");
 }
 
 
