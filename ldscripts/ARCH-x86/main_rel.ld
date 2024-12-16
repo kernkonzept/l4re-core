@@ -6,7 +6,8 @@
 OUTPUT_FORMAT("elf32-i386", "elf32-i386",
 	      "elf32-i386")
 OUTPUT_ARCH(i386)
-ENTRY(_start)
+/* Set entry address for shared library via -e */
+/* ENTRY(_start) */
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */

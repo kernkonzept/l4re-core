@@ -16,7 +16,8 @@ OUTPUT_FORMAT("elf64-littleriscv", "elf64-littleriscv",
         "elf64-littleriscv")
 #define WORD_SIZE 8
 #endif
-ENTRY(_start)
+/* Set entry address for shared library via -e */
+/* ENTRY(_start) */
 
 SECTIONS
 {

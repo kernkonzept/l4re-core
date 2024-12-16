@@ -15,7 +15,8 @@ OUTPUT_FORMAT("elf32-tradlittlemips", "elf32-tradbigmips",
               "elf32-tradlittlemips")
 #endif
 OUTPUT_ARCH(mips)
-ENTRY(__start)
+/* Set entry address for shared library via -e */
+/* ENTRY(__start) */
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
