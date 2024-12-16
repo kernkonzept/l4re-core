@@ -229,6 +229,7 @@ sys/statfs.h
 sys/statvfs.h
 sys/stat.h
 sys/syscall.h
+sys/sysinfo.h
 sys/syslog.h
 sys/sysmacros.h
 sys/timeb.h

@@ -17,6 +17,7 @@ define SRC_libc/sysdeps/linux
   common/makedev
   common/sethostname
   common/setgroups
+  common/sysinfo
 endef
 
 define SRC_libc/sysdeps/linux_large_file
