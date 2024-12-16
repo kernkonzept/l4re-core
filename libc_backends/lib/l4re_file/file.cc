@@ -689,6 +689,16 @@ int poll([[maybe_unused]] struct pollfd *fds, [[maybe_unused]] nfds_t nfds,
   return -EOPNOTSUPP;
 }
 
+int ppoll([[maybe_unused]] struct pollfd *fds, [[maybe_unused]] nfds_t nfds,
+          [[maybe_unused]] const struct timespec *__timeout,
+          [[maybe_unused]] const __sigset_t *__ss)
+{
+  if (1)
+    printf("Call: ppoll(...): Implementation to come\n");
+
+  return -EOPNOTSUPP;
+}
+
 
 #undef L4B_REDIRECT
 

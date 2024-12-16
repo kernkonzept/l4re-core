@@ -57,7 +57,7 @@ __BEGIN_DECLS
 extern int poll (struct pollfd *__fds, nfds_t __nfds, int __timeout);
 libc_hidden_proto(poll)
 
-#if defined __USE_GNU && defined __UCLIBC_LINUX_SPECIFIC__
+#if defined __USE_GNU && (defined(__UCLIBC_LINUX_SPECIFIC__) || 1)
 /* Like poll, but before waiting the threads signal mask is replaced
    with that specified in the fourth parameter.  For better usability,
    the timeout value is specified using a TIMESPEC object.
