@@ -14,6 +14,7 @@ define SRC_libc/sysdeps/linux
   common/gethostname
   common/getdirname
   common/getpagesize
+  common/getpgid
   common/makedev
   common/sethostname
   common/setgroups
