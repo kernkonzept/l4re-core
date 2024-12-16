@@ -23,6 +23,7 @@ SRC_C       = daemon.c \
               secure_getenv.c \
               shadow.c \
               shm.c \
+              spawn.c \
               sysconf.c \
               system.c \
               termios.c \
