@@ -78,6 +78,7 @@ define SRC_libc/stdlib
   lldiv
   $(if $(BID_VARIANT_FLAG_NOFPU),,lrand48)
   $(if $(BID_VARIANT_FLAG_NOFPU),,lrand48_r)
+  mkdtemp
   mkostemp
   mkstemp
   mkstemp64
