@@ -114,6 +114,8 @@ reloc_static_pie(ElfW(Addr) load_addr)
 					PERFORM_BOOTSTRAP_RELOC(rpnt, reloc_addr, symbol_addr, load_addr, sym);
 				}
 			}
+#else
+			(void)rel_size;
 #endif
     }
     _dl_load_base = load_addr;
