@@ -87,8 +87,7 @@ typedef struct l4_kernel_info_t
 
   /* offset 0xE0 */
   l4_umword_t		 user_ptr;            ///< user_ptr
-  l4_umword_t		 vhw_offset;          ///< offset to vhw structure
-  l4_umword_t            _res07[2];
+  l4_umword_t            _res07[3];
 
   /* offset 0xF0 */
   struct l4_kip_platform_info    platform_info;
