@@ -31,7 +31,7 @@ enum {
 
 extern "C" void L4_NORETURN _exit(int);
 
-inline void L4_NORETURN abort()
+inline void L4_NORETURN abort() noexcept
 {
   L4::cout << "FATAL: Sigma0 terminated!\n";
   _exit(1);
