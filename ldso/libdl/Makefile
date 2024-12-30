@@ -39,12 +39,12 @@ CPPFLAGS := -DNOT_IN_libc -DIS_IN_libdl \
             -include libc-symbols.h -DUCLIBC_LDSO=\"libld-l4.so\" \
             -DUCLIBC_RUNTIME_PREFIX=\"/\"
 
-DEFINES_x86-l4f   += -DUSE_TLS=1 -DUSE___THREAD=1
-DEFINES_amd64-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
-DEFINES_arm-l4f   += -DUSE_TLS=1 -DUSE___THREAD=1
-DEFINES_arm64-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
-DEFINES_mips-l4f  += -DUSE_TLS=1 -DUSE___THREAD=1
-DEFINES_riscv-l4f += -DUSE_TLS=1 -DUSE___THREAD=1
+DEFINES_x86-l4f   += -DUSE_TLS=1
+DEFINES_amd64-l4f += -DUSE_TLS=1
+DEFINES_arm-l4f   += -DUSE_TLS=1
+DEFINES_arm64-l4f += -DUSE_TLS=1
+DEFINES_mips-l4f  += -DUSE_TLS=1
+DEFINES_riscv-l4f += -DUSE_TLS=1
 
 LDFLAGS = -lld-l4
 #LDFLAGS  =  -fini dl_cleanup
