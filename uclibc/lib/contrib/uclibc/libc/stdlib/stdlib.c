@@ -822,6 +822,7 @@ libc_hidden_def(_stdlib_mb_cur_max)
 
 #endif
 
+#if defined(L_mblen) || defined(L_mbtowc) || defined(L_wctomb)
 #ifdef __UCLIBC_HAS_LOCALE__
 /*
  * The following function return 1 if the encoding is stateful, 0 if stateless.
@@ -843,6 +844,7 @@ static __always_inline int is_stateful(unsigned char encoding)
 }
 #else
 #define is_stateful(encoding) 0
+#endif
 #endif
 
 /**********************************************************************/
