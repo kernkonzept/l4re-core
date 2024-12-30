@@ -11,6 +11,8 @@ GCC_CFLAGS = -g -O2 -DIN_GCC -DCROSS_DIRECTORY_STRUCTURE \
              -Wstrict-prototypes -Wmissing-prototypes \
              -Wold-style-definition
 
+md_unwind_def_header = no-unwind.h
+
 # Make target libgcc version available in source files
 GCC_CFLAGS += -DL4_LIBGCC_VERSION=$(LIBGCC_CONTRIB_VERSION)
 
@@ -69,7 +71,7 @@ CRTSTUFF_T_CFLAGS_S = -fPIC
 LIB2ADDEH = unwind-dw2.c unwind-dw2-fde.c unwind-sjlj.c unwind-c.c
 
 # Create links to files specified in config.host.
-LIBGCC_LINKS = unwind.h md-unwind-support.h sfp-machine.h gthr-default.h
+LIBGCC_LINKS = unwind.h md-unwind-def.h md-unwind-support.h sfp-machine.h gthr-default.h
 
 # For -fvisibility=hidden.  We need both a -fvisibility=hidden on
 # the command line, and a #define to prevent libgcc2.h etc from
@@ -113,6 +115,7 @@ $(eval $(call libgcc_include_versioned,$(LIBGCC_PKG_DIR)/build/src/Makevars))
 
 $(eval $(call libgcc_link_rule,enable-execute-stack.c,$(LIBGCC_CONTRIB_SRC_DIR)/$(enable_execute_stack)))
 $(eval $(call libgcc_link_rule,unwind.h,$(LIBGCC_CONTRIB_SRC_DIR)/$(unwind_header)))
+$(eval $(call libgcc_link_rule,md-unwind-def.h,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(md_unwind_def_header)))
 $(eval $(call libgcc_link_rule,md-unwind-support.h,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(md_unwind_header)))
 $(eval $(call libgcc_link_rule,sfp-machine.h,$(LIBGCC_CONTRIB_SRC_DIR)/config/$(sfp_machine_header)))
 $(eval $(call libgcc_link_rule,gthr-default.h,$(LIBGCC_CONTRIB_SRC_DIR)/$(thread_header)))

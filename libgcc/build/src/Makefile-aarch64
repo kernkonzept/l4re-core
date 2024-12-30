@@ -7,6 +7,7 @@
 # --- From libgcc/Makefile.in ---
 enable_execute_stack = enable-execute-stack-empty.c
 unwind_header = unwind-generic.h
+md_unwind_def_header = aarch64/aarch64-unwind-def.h
 $(eval $(call libgcc_include_config,aarch64/md-unwind-header))
 sfp_machine_header = aarch64/sfp-machine.h
 thread_header-l4api-plain := gthr-single.h
