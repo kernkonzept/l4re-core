@@ -1715,7 +1715,7 @@ int attribute_hidden __psfs_do_numeric(psfs_t *psfs, struct scan_cookie *sc)
 #define MAX_DIGITS 65			/* Allow one leading 0. */
 	unsigned char buf[MAX_DIGITS+2+ 100];
 	unsigned char usflag, base;
-	unsigned char nonzero = 0;
+	unsigned char nonzero __attribute__((unused)) = 0;
 	unsigned char seendigit = 0;
 
 #ifndef __UCLIBC_HAS_FLOATS__
