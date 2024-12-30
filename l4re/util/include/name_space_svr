@@ -427,6 +427,8 @@ public:
 
         // make picky clients happy
         dummy.set_valid();
+        // prevent warning about writing uninitialized data in IPC framework
+        dummy = 0;
 
         l4_umword_t result = 0;
 
