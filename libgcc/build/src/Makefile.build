@@ -71,7 +71,9 @@ CRTSTUFF_T_CFLAGS_S = -fPIC
 LIB2ADDEH = unwind-dw2.c unwind-dw2-fde.c unwind-sjlj.c unwind-c.c
 
 # Create links to files specified in config.host.
-LIBGCC_LINKS = unwind.h md-unwind-def.h md-unwind-support.h sfp-machine.h gthr-default.h
+LIBGCC_LINKS = unwind.h \
+               $(if $(filter 9 10 11 12 13 14,$(GCCMAJORVERSION)),,md-unwind-def.h) \
+               md-unwind-support.h sfp-machine.h gthr-default.h
 
 # For -fvisibility=hidden.  We need both a -fvisibility=hidden on
 # the command line, and a #define to prevent libgcc2.h etc from
