@@ -25,7 +25,9 @@
 
 #if __GNUC_PREREQ(3,3)
 
-# define NAN	(__builtin_nanf (""))
+# ifndef NAN
+#  define NAN	(__builtin_nanf (""))
+# endif
 
 #elif defined __GNUC__
 
