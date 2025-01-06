@@ -12,7 +12,7 @@
 #include <l4/re/util/cap_alloc>
 #include <sys/mman.h>
 #include <unistd.h>
-#include <cstdio>
+#include <stdio.h>
 #include <errno.h>
 #include <l4/l4re_vfs/backend>
 #include <bits/l4-malloc.h>

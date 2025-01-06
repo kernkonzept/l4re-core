@@ -7,8 +7,8 @@
 #include <l4/re/util/cap_alloc>
 #include <l4/re/cap_alloc>
 
-#include <cstring>
-#include <cstdlib>
+#include <string.h>
+#include <stdlib.h>
 #include <l4/re/env>
 #include <l4/crtn/initpriorities.h>
 

@@ -5,7 +5,7 @@
  */
 
 #include <stdlib.h>
-#include <cstdio>
+#include <stdio.h>
 #include <unistd.h>
 
 static void set_initial_cwd(void) __attribute__((constructor));

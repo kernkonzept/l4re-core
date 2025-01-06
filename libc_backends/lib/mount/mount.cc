@@ -6,10 +6,10 @@
 
 #include <fcntl.h>
 #include <stdlib.h>
-#include <cstdio>
+#include <stdio.h>
 #include <unistd.h>
 #include <ctype.h>
-#include <cstring>
+#include <string.h>
 #include <errno.h>
 #include <sys/mman.h>
 #include <sys/mount.h>

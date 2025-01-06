@@ -24,7 +24,7 @@
 #include <l4/re/shared_cap>
 
 #include <unistd.h>
-#include <cstdarg>
+#include <stdarg.h>
 #include <errno.h>
 #include <sys/uio.h>
 
