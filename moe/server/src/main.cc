@@ -544,8 +544,10 @@ static void init_emergency_memory()
   static __attribute__((aligned(L4_PAGESIZE))) char buf[3 * L4_PAGESIZE];
   Single_page_alloc_base::_free(buf, sizeof(buf), true);
   // make sure the emergency memory is RWX for future reuse
-  [[maybe_unused]] int err = l4sigma0_map_mem(Sigma0_cap, reinterpret_cast<l4_addr_t>(buf),
-                             reinterpret_cast<l4_addr_t>(buf), sizeof(buf));
+  [[maybe_unused]] int err = l4sigma0_map_mem(Sigma0_cap,
+                                              reinterpret_cast<l4_addr_t>(buf),
+                                              reinterpret_cast<l4_addr_t>(buf),
+                                              sizeof(buf));
   l4_assert(!err);
 }
 
@@ -623,7 +625,8 @@ int main(int /* argc */, char** /* argv */)
       Moe::Boot_fs::init_stage2();
       init_vesa_fb((l4util_l4mod_info *)kip()->user_ptr);
 
-      root_name_space_obj = object_pool.cap_alloc()->alloc(root_name_space(), "moe-root-ns");
+      root_name_space_obj = object_pool.cap_alloc()->alloc(root_name_space(),
+                                                           "moe-root-ns");
 
       init_kip_ds();
 
@@ -640,12 +643,15 @@ int main(int /* argc */, char** /* argv */)
       if (L4::Cap<void>(L4_BASE_IOMMU_CAP).validate().label())
         root_name_space()->register_obj("iommu", Entry::F_rw, L4_BASE_IOMMU_CAP);
       if (L4::Cap<void>(L4_BASE_ARM_SMCCC_CAP).validate().label())
-        root_name_space()->register_obj("arm_smc", Entry::F_rw, L4_BASE_ARM_SMCCC_CAP);
+        root_name_space()->register_obj("arm_smc", Entry::F_rw,
+                                        L4_BASE_ARM_SMCCC_CAP);
       root_name_space()->register_obj("sigma0", Entry::F_trusted | Entry::F_rw,
                                       new_sigma0_cap());
-      root_name_space()->register_obj("mem", Entry::F_trusted | Entry::F_rw, Allocator::root_allocator());
+      root_name_space()->register_obj("mem", Entry::F_trusted | Entry::F_rw,
+                                      Allocator::root_allocator());
       if (L4::Cap<void>(L4_BASE_DEBUGGER_CAP).validate().label())
-        root_name_space()->register_obj("jdb", Entry::F_trusted | Entry::F_rw, L4_BASE_DEBUGGER_CAP);
+        root_name_space()->register_obj("jdb", Entry::F_trusted | Entry::F_rw,
+                                        L4_BASE_DEBUGGER_CAP);
       root_name_space()->register_obj("kip", Entry::F_rw, kip_ds->obj_cap());
 
       // dump name space information
