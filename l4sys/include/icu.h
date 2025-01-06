@@ -70,16 +70,17 @@ enum L4_irq_mode
 {
   /** Flow types */
   L4_IRQ_F_NONE         = 0,     /**< None */
+  L4_IRQ_F_SET_MODE     = 0x1,   /**< Valid flag, if not set, the set_mode operation does nothing. */
   L4_IRQ_F_LEVEL        = 0x2,   /**< Level triggered */
   L4_IRQ_F_EDGE         = 0x0,   /**< Edge triggered */
   L4_IRQ_F_POS          = 0x0,   /**< Positive trigger */
   L4_IRQ_F_NEG          = 0x4,   /**< Negative trigger */
   L4_IRQ_F_BOTH         = 0x8,   /**< Both edges trigger */
-  L4_IRQ_F_LEVEL_HIGH   = 0x3,   /**< Level high trigger */
-  L4_IRQ_F_LEVEL_LOW    = 0x7,   /**< Level low trigger */
-  L4_IRQ_F_POS_EDGE     = 0x1,   /**< Positive edge trigger */
-  L4_IRQ_F_NEG_EDGE     = 0x5,   /**< Negative edge trigger */
-  L4_IRQ_F_BOTH_EDGE    = 0x9,   /**< Both edges trigger */
+  L4_IRQ_F_LEVEL_HIGH   = L4_IRQ_F_SET_MODE | L4_IRQ_F_LEVEL | L4_IRQ_F_POS,   /**< Level high trigger */
+  L4_IRQ_F_LEVEL_LOW    = L4_IRQ_F_SET_MODE | L4_IRQ_F_LEVEL | L4_IRQ_F_NEG,   /**< Level low trigger */
+  L4_IRQ_F_POS_EDGE     = L4_IRQ_F_SET_MODE | L4_IRQ_F_EDGE  | L4_IRQ_F_POS,   /**< Positive edge trigger */
+  L4_IRQ_F_NEG_EDGE     = L4_IRQ_F_SET_MODE | L4_IRQ_F_EDGE  | L4_IRQ_F_NEG,   /**< Negative edge trigger */
+  L4_IRQ_F_BOTH_EDGE    = L4_IRQ_F_SET_MODE | L4_IRQ_F_EDGE  | L4_IRQ_F_BOTH,  /**< Both edges trigger */
   L4_IRQ_F_MASK         = 0xf,   /**< Mask */
 
   /** Wakeup source? */
