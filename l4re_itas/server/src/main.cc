@@ -26,7 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <cstdio>
+#include <stdio.h>
 
 #include "region.h"
 #include "globals.h"

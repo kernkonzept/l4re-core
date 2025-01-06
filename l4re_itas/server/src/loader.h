@@ -11,8 +11,9 @@
 #include <l4/re/env>
 #include <l4/libloader/loader>
 #include <l4/libloader/local_app_model>
-#include <cstring>
 #include <l4/re/l4aux.h>
+
+#include <string.h>
 
 
 class L4Re_stack
