@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Kernkonzept GmbH.
+ * Copyright (C) 2020, 2024 Kernkonzept GmbH.
  * Author(s): Adam Lackorzynski <adam.lackorzynski@kernkonzept.com>
  *            Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
  *

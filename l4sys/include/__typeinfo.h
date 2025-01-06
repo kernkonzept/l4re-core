@@ -3,7 +3,7 @@
  * Type information handling.
  */
 /*
- * Copyright (C) 2014-2017, 2019, 2022 Kernkonzept GmbH.
+ * Copyright (C) 2014-2017, 2019, 2022-2024 Kernkonzept GmbH.
  * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
  */
 /*

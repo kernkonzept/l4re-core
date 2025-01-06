@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 Kernkonzept GmbH.
+ * Copyright (C) 2016-2017, 2023-2024 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
  *
  * License: see LICENSE.spdx (in this directory or the directories above)

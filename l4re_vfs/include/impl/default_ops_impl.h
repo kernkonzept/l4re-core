@@ -1,6 +1,6 @@
 // vi:ft=cpp
 /*
- * Copyright (C) 2016 Kernkonzept GmbH.
+ * Copyright (C) 2016, 2023-2024 Kernkonzept GmbH.
  * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
  *
  * License: see LICENSE.spdx (in this directory or the directories above)

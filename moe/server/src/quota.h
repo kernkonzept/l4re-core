@@ -5,7 +5,7 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 /*
- * Copyright (C) 2014-2015, 2018-2020 Kernkonzept GmbH.
+ * Copyright (C) 2014-2015, 2018-2020, 2023-2024 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
  *
  */

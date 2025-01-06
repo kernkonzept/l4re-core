@@ -3,7 +3,7 @@
  * Implementation of a list of smart-pointer-managed objects.
  */
 /*
- * Copyright (C) 2018, 2022 Kernkonzept GmbH.
+ * Copyright (C) 2018, 2022, 2024 Kernkonzept GmbH.
  * Author(s): Sarah Hoffmann <sarah.hoffmann@kernkonzept.com>
  *
  * License: see LICENSE.spdx (in this directory or the directories above)

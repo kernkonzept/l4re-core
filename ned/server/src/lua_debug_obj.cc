@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Kernkonzept GmbH.
+ * Copyright (C) 2018, 2024 Kernkonzept GmbH.
  * Author: Steffen Liebergeld <steffen.liebergeld@kernkonzept.com>
  *
  * License: see LICENSE.spdx (in this directory or the directories above)

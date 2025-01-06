@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2000-2009 Technische Universität Dresden (Germany)
- * Copyright (C) 2016, 2022 Kernkonzept GmbH. All rights reserved.
+ * Copyright (C) 2016, 2022, 2024 Kernkonzept GmbH. All rights reserved.
  * Author(s): Lars Reuther <reuther@os.inf.tu-dresden.de>
  *            Frank Mehnert <frank.mehnert@kernkonzept.com>
  *
