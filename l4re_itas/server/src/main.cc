@@ -51,8 +51,7 @@ L4RE_ELF_AUX_ELEM_T(l4re_elf_aux_mword_t, __stack_addr,
 using L4::Cap;
 using L4Re::Dataspace;
 
-extern "C" int main(int argc, char const *argv[],
-                    char const *env[]);
+int main(int argc, char const *argv[], char const *env[]);
 
 static Elf_loader loader;
 L4::Cap<void> rcv_cap;
