@@ -29,15 +29,17 @@
    '\0' terminator is found in that many characters, return MAXLEN.  */
 size_t strnlen (const char *str, size_t maxlen)
 {
-  const char *char_ptr, *end_ptr = str + maxlen;
+  const char *char_ptr, *end_ptr;
   const unsigned long int *longword_ptr;
   unsigned long int longword, himagic, lomagic;
 
   if (maxlen == 0)
     return 0;
 
-  if (__builtin_expect (end_ptr < str, 0))
+  if (__builtin_expect ((uintptr_t)str + maxlen < (uintptr_t)str, 0))
     end_ptr = (const char *) ~0UL;
+  else
+    end_ptr = str + maxlen;
 
   /* Handle the first few characters by reading one character at a time.
      Do this until CHAR_PTR is aligned on a longword boundary.  */
