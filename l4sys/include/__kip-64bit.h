@@ -83,7 +83,8 @@ typedef struct l4_kernel_info_t
 
   /* offset 0x1C0 */
   l4_umword_t		 user_ptr;            ///< user_ptr
-  l4_umword_t            _res07[3];
+  l4_umword_t            acpi_rsdp_addr;      ///< ACPI RSDP/XSDP
+  l4_umword_t            _res07[2];
 
   /* offset 0x1E0 */
   struct l4_kip_platform_info    platform_info;
