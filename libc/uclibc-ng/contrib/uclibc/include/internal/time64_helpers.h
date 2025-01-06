@@ -1,9 +1,14 @@
 #ifndef _TIME64_HELPERS_H
 #define _TIME64_HELPERS_H
 
+#include <linux/version.h>
 #include <bits/types.h>
 #include <time.h>
 #include <stddef.h>
+
+#if defined(__UCLIBC_USE_TIME64__) && __TARGET_ARCH_BITS__ == 32 && LINUX_VERSION_CODE < KERNEL_VERSION(5,1,0)
+#error 64bit time on 32bit targets is not supported on Linux < 5.1.0
+#endif
 
 struct __ts64_struct {
    __S64_TYPE tv_sec;
