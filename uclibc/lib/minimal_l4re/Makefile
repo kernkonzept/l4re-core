@@ -8,7 +8,7 @@ define PC_EXTRA
 Link_Libs= %{static|static-pie:-lc_minimal_l4re}
 endef
 
-DEFINES         := -DL4_MINIMAL_LIBC
+DEFINES         := -DL4_MINIMAL_LIBC -DL4_NO_RTTI=1
 SRC_CC          := _exit.cc
 
 vpath _exit.cc $(SRC_DIR)/../uclibc
