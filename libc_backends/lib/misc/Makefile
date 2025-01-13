@@ -1,9 +1,10 @@
 PKGDIR ?= ../..
 L4DIR  ?= $(PKGDIR)/../../..
 
-TARGET      = libc_support_misc.a libc_support_misc.so
+TARGET      = libc_support_misc.ofl libc_support_misc.p.a
 PC_FILENAME = libc_support_misc
-PC_EXTRA    = Link_Libs= %{static|static-pie:-lc_support_misc}
+PC_LIBS        = %{-link-libc:%{shared:--whole-archive -lc_support_misc.p --no-whole-archive;:libc_support_misc.ofl}}
+PC_LIBS_PIC    =
 SRC_C       = daemon.c \
               exec.c \
               fork.c \
