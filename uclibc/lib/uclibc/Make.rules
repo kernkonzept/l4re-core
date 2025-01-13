@@ -33,7 +33,7 @@ endif
 DEFINES-$(CONFIG_BID_PIE) += -DSTATIC_PIE
 
 LDFLAGS         = -z combreloc -z relro --sort-common \
-		  --warn-common -static-libgcc
+		  --warn-common -static-libgcc --link-libc
 
 LDFLAGS_NONGOLD = --warn-once --sort-section=alignment
 LDFLAGS        += $(LDFLAGS_NONGOLD)
@@ -117,3 +117,10 @@ CPPFLAGS_libc/misc/utmp/utent.c += -I$(LIBCSRC_DIR)/../contrib/uclibc/include
 $(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
                   $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk
 
+# Gather all libraries that shall be linked into libc. We need to search them
+# explicitly because no linker is involved here. Only take the first hit, like
+# ld would do.
+LINK_LIBC_LIBNAMES = $(call BID_PKG_CONFIG,$(OBJ_BASE),--libs -- --link-libc,$(REQUIRES_LIBS))
+LINK_LIBC_LIBS = $(foreach l,$(LINK_LIBC_LIBNAMES),$(firstword $(wildcard $(addsuffix /$(l),$(L4LIBDIR)))))
+
+OBJS_libc.a += $(LINK_LIBC_LIBS)
