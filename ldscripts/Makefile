@@ -21,7 +21,7 @@ endef
 LD_SCRIPTS      = main_stat.ld main_rel.ld main_dyn.ld \
                   $(if $(CONFIG_BID_PIE),main_pie.ld)
 PC_FILENAME    := ldscripts
-PC_LIBS        := %{-link-libc:;:}
+PC_LIBS        :=
 
 # Create the wrapper binaries for programs and shared libs from uclibc
 # source files (assembly).
