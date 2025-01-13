@@ -9,7 +9,6 @@
 #pragma once
 
 #include <l4/re/env>
-#include <l4/re/error_helper>
 #include <l4/re/namespace>
 #include <l4/re/rm>
 #include <l4/re/util/cap_alloc>
@@ -37,38 +36,50 @@ private:
   unsigned _buffer_index;
 
 private:
-  void init()
+  long init()
   {
     using namespace L4Re::Video;
-    using L4Re::chksys;
-    using L4Re::chkcap;
 
     Goos::Info gi;
-    chksys(_goos->info(&gi), "requesting goos info");
+    long ret = _goos->info(&gi);
+    if (ret < 0)
+      return ret;
 
     if (gi.has_dynamic_views())
       {
-        chksys(_goos->create_view(&_view), "creating dynamic goos view");
+        ret = _goos->create_view(&_view);
+        if (ret < 0)
+          return ret;
+
         _flags |= F_dyn_view;
       }
     else // we just assume view 0 to be our's and ignore other possible views
       _view = _goos->view(0);
 
     View::Info vi;
-    chksys(_view.info(&vi), "requesting goos view information");
+    ret = _view.info(&vi);
+    if (ret < 0)
+      return ret;
 
-    _buffer = chkcap(cap_alloc.alloc<L4Re::Dataspace>(),
-                     "allocating goos buffer cap");
+    _buffer = cap_alloc.alloc<L4Re::Dataspace>();
+    if (!_buffer)
+      return -L4_ENOMEM;
 
     if (vi.has_static_buffer())
-      chksys(_goos->get_static_buffer(vi.buffer_index, _buffer),
-             "requesting static goos buffer");
+      {
+        ret = _goos->get_static_buffer(vi.buffer_index, _buffer);
+        if (ret < 0)
+          return ret;
+      }
     else
       {
         unsigned long buffer_sz = gi.pixel_info.bytes_per_pixel() * gi.width
                                                                   * gi.height;
-        _buffer_index = chksys(_goos->create_buffer(buffer_sz, _buffer),
-                               "allocating goos buffer");
+        ret = _goos->create_buffer(buffer_sz, _buffer);
+        if (ret < 0)
+          return ret;
+
+        _buffer_index = static_cast<unsigned>(ret);
         _flags |= F_dyn_buffer;
 
         // use the allocated buffer, at offset 0
@@ -83,9 +94,16 @@ private:
         vi.width = gi.width;
         vi.height = gi.height;
 
-        chksys(_view.set_info(vi), "setting up dynamic view");
-        chksys(_view.push_top(), "bringing view to top");
+        ret = _view.set_info(vi);
+        if (ret < 0)
+          return ret;
+
+        ret = _view.push_top();
+        if (ret < 0)
+          return ret;
       }
+
+    return 0;
   }
 
   Goos_fb(Goos_fb const &);
@@ -96,29 +114,22 @@ public:
   : _goos(L4_INVALID_CAP), _buffer(L4_INVALID_CAP), _flags(0), _buffer_index(0)
   {}
 
-  explicit Goos_fb(L4::Cap<L4Re::Video::Goos> goos)
-  : _goos(goos), _buffer(L4_INVALID_CAP), _flags(0)
-  { init(); }
-
-  explicit Goos_fb(char const *name)
-  : _goos(L4_INVALID_CAP), _buffer(L4_INVALID_CAP), _flags(0)
-  { setup(name); }
-
-  void setup(L4::Cap<L4Re::Video::Goos> goos)
+  long init(L4::Cap<L4Re::Video::Goos> goos)
   {
     _goos = goos;
-    init();
+    return init();
   }
 
-  void setup(char const *name)
+  long init(char const *name)
   {
     Env_ns ns;
-    //_goos = chkcap(cap_alloc.alloc<L4Re::Video::Goos>(), "allocating goos cap");
-    _goos = chkcap(ns.query<L4Re::Video::Goos>(name), "requesting goos cap", 0);
+    _goos = ns.query<L4Re::Video::Goos>(name);
+    if (!_goos)
+      return _goos.cap();
+
     _flags |= F_dyn_goos;
 
-    //chksys(L4Re::Env::env()->names()->query(name, _goos), "requesting goos service");
-    init();
+    return init();
   }
 
   ~Goos_fb()
@@ -149,11 +160,16 @@ public:
   void *attach_buffer()
   {
     void *fb_addr = 0;
-    L4Re::chkcap(_goos);
-    L4Re::chksys(L4Re::Env::env()->rm()
+    if (!_goos)
+      return nullptr;
+
+    long ret = L4Re::Env::env()->rm()
         ->attach(&fb_addr, _buffer->size(),
                  L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW, _buffer,
-                 0, L4_SUPERPAGESHIFT), "attaching frame-buffer memory");
+                 0, L4_SUPERPAGESHIFT);
+    if (ret < 0)
+      return nullptr;
+
     return fb_addr;
   }
 

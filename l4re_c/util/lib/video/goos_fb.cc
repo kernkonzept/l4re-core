@@ -11,7 +11,6 @@
 
 #include <l4/re/util/video/goos_fb>
 #include <l4/re/c/util/video/goos_fb.h>
-#include <l4/cxx/exceptions>
 #include <cstddef>
 
 using L4Re::Util::Video::Goos_fb;
@@ -46,14 +45,9 @@ l4re_util_video_goos_fb_setup_name(l4re_util_video_goos_fb_t *goosfb,
   static_assert(   offsetof(Goos::Info, pixel_info)
                 == offsetof(l4re_video_goos_info_t, pixel_info),
                 "Structure alignment mismatch");
-  try
-    {
-      init_goosfb(goosfb);
-      gcast(goosfb)->setup(name);
-    }
-  catch (L4::Runtime_error &e) { return e.err_no(); }
-  catch (...)                  { return -L4_EINVAL; }
-  return 0;
+
+  init_goosfb(goosfb);
+  return gcast(goosfb)->init(name);
 }
 
 L4_CV int
@@ -73,14 +67,7 @@ l4re_util_video_goos_fb_destroy(l4re_util_video_goos_fb_t *goosfb) L4_NOTHROW
 L4_CV void *
 l4re_util_video_goos_fb_attach_buffer(l4re_util_video_goos_fb_t *goosfb) L4_NOTHROW
 {
-  try
-    {
-      return gcast(goosfb)->attach_buffer();
-    }
-  catch (...)
-    {
-      return 0;
-    }
+  return gcast(goosfb)->attach_buffer();
 }
 
 L4_CV int
