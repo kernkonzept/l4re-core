@@ -299,6 +299,7 @@ $(eval $(call libgcc_make_crtstuff,crtbeginT.o,crtstuff.c,$(CRTSTUFF_T_CFLAGS) -
 $(eval $(call libgcc_make_crtstuff,crtoffloadbegin.o,offloadstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_BEGIN))
 $(eval $(call libgcc_make_crtstuff,crtoffloadend.o,offloadstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_END))
 $(eval $(call libgcc_make_crtstuff,crtoffloadtable.o,offloadstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_TABLE))
+$(eval $(call libgcc_make_crtstuff,crtoffloadtableS.o,offloadstuff.c,$(CRTSTUFF_T_CFLAGS) -DCRT_TABLE $(CRTSTUFF_NON_STATIC)))
 
 $(eval $(call libgcc_make_crtstuff,crti.o,config/$(CPU_TYPE)/crti.S))
 $(eval $(call libgcc_make_crtstuff,crtn.o,config/$(CPU_TYPE)/crtn.S))

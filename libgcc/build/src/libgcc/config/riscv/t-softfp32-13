@@ -4,3 +4,10 @@ softfp_extensions += hfsf hfdf hftf
 softfp_truncations += tfhf dfhf sfhf
 softfp_extras += fixhfsi fixhfdi fixunshfsi fixunshfdi \
                  floatsihf floatdihf floatunsihf floatundihf
+
+# GCC >= 15
+ifneq ($(call libgcc_if_min_version,15),)
+softfp_extensions += bfsf
+softfp_truncations += tfbf dfbf sfbf hfbf bfhf
+softfp_extras += floatsibf floatdibf floatunsibf floatundibf
+endif

@@ -1,2 +1,7 @@
 $(eval $(call libgcc_include_config,riscv/t-softfp64-9))
 softfp_extras += fixhfti fixunshfti floattihf floatuntihf
+
+# GCC >= 15
+ifneq ($(call libgcc_if_min_version,15),)
+softfp_extras += floattibf floatuntibf
+endif

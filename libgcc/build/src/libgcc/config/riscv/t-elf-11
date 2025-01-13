@@ -3,6 +3,9 @@ LIB2ADD += config/riscv/save-restore.S \
            config/riscv/multi3.c \
            config/riscv/div.S \
            config/riscv/atomic.c \
+           # TODO: With GCC-15 this was added, but needs an L4Re-specific
+           #       implementation, so ignore it for now.
+           # config/riscv/feature_bits.c \
 
 CFLAGS_config/riscv/atomic.c += -Wno-builtin-declaration-mismatch
 
