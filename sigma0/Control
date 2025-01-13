@@ -1,2 +1,2 @@
-requires: libc_minimal crtn l4sys l4util libsigma0 cxx_io
+requires: libc_minimal crtn l4sys l4util libsigma0 cxx_io l4sys-direct
 Maintainer: warg@os.inf.tu-dresden.de
