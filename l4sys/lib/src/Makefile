@@ -2,7 +2,7 @@ PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../..
 
 TARGET		             = libl4sys.a        libl4sys.so        \
-                               libl4sys-direct.a libl4sys-direct.so \
+                               libl4sys-direct.a \
                                libl4sys-l4x.a    libl4sys-l4x.so
 PC_FILENAMES                 = l4sys l4sys-direct l4sys-l4x
 PC_LIBS_l4sys                = -ll4sys
@@ -25,7 +25,6 @@ SRC_S_libl4sys.a-arm64       = ARCH-arm64/syscall.S
 SRC_S_libl4sys.so-arm        = ARCH-arm/syscall.S
 SRC_S_libl4sys.so-arm64      = ARCH-arm64/syscall.S
 
-SRC_S_libl4sys-direct.so     =
 SRC_S_libl4sys-direct.a-arm  = ARCH-arm/syscall.S
 SRC_S_libl4sys-direct.a-arm64 = ARCH-arm64/syscall.S
 SRC_S_libl4sys-direct.a-x86  = ARCH-x86/syscalls_direct.S
