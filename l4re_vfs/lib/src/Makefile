@@ -3,6 +3,7 @@ L4DIR     ?= $(PKGDIR)/../../..
 
 PC_FILENAME = libl4re-vfs
 TARGET	    = libl4re-vfs.o.a
+PC_LIBS     = %{-link-libc:%{shared:;:libl4re-vfs.o.a}}
 SRC_CC	    = vfs.cc
 REQUIRES_LIBS = l4re-util
 

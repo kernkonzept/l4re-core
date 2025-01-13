@@ -1,3 +1,3 @@
 stdlibs-all := libsupc++ libc libc_be_static_heap[config(CONFIG_BID_STATIC_HEAP)]
-stdlibs     := stdlibs-all libl4re-vfs
+stdlibs     := stdlibs-all
 stdlibs-sh  := stdlibs-all ldso libdl
