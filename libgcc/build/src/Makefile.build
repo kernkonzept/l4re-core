@@ -72,7 +72,7 @@ LIB2ADDEH = unwind-dw2.c unwind-dw2-fde.c unwind-sjlj.c unwind-c.c
 
 # Create links to files specified in config.host.
 LIBGCC_LINKS = unwind.h \
-               $(if $(filter 9 10 11 12 13 14,$(GCCMAJORVERSION)),,md-unwind-def.h) \
+               $(if $(call libgcc_if_min_version,15),md-unwind-def.h) \
                md-unwind-support.h sfp-machine.h gthr-default.h
 
 # For -fvisibility=hidden.  We need both a -fvisibility=hidden on
