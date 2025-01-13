@@ -29,16 +29,8 @@
 int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
 
 
-int * __libc_pthread_init (const struct pthread_functions *functions)
+int * __libc_pthread_init (void)
 {
-#ifdef SHARED
-  /* We copy the content of the variable pointed to by the FUNCTIONS
-     parameter to one in libc.so since this means access to the array
-     can be done with one memory access instead of two.  */
-  memcpy (&__libc_pthread_functions, functions,
-	  sizeof (__libc_pthread_functions));
-#endif
-
 #if !(USE_TLS && HAVE___THREAD)
   /* Initialize thread-locale current locale to point to the global one.
      With __thread support, the variable's initializer takes care of this.  */

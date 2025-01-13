@@ -1,12 +1,11 @@
 PKGDIR     ?= ../../..
 L4DIR      ?= $(PKGDIR)/../../..
 
-TARGET      = libpthread.a libpthread.so
+TARGET      = libpthread.ofl libpthread.p.a
 
 PC_FILENAME = libpthread
-# this will proper work with pkg-config >= 0.28, for older versions
-# pkg-config's reordering will not harm but std::thread will not work
-PC_LIBS_libpthread := --whole-archive -lpthread --no-whole-archive
+PC_LIBS       = %{-link-libc:%{shared:--whole-archive -lpthread.p --no-whole-archive;:libpthread.ofl}}
+PC_LIBS_PIC   =
 
 CONTRIBDIR = $(PKGDIR)/../uclibc/lib/contrib/uclibc
 LDSODIR    = $(CONTRIBDIR)/ldso/ldso
@@ -25,8 +24,7 @@ SRC_C      += spinlock.c mutex.c condvar.c rwlock.c errno.c specific.c \
               semaphore.c attr.c barrier.c join.c pthread.c \
               cancel.c ptcleanup.c errno-loc.c signals.c \
               sysdeps/$(DIR_$(ARCH))/pspinlock.c
-SRC_C_libpthread.a += libc_pthread_init.c
-SRC_S_libpthread.so += so_init-$(ARCH).S
+SRC_C_libpthread.ofl += libc_pthread_init.c
 SRC_S       = tramp-$(ARCH).S
 WARNINGS    = $(WARNINGS_MEDIUM)
 

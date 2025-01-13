@@ -40,7 +40,7 @@
 #include "descr.h"
 
 #include "semaphore.h"
-#include <pthread-functions.h>
+extern int * __libc_pthread_init (void);
 
 #ifndef THREAD_GETMEM
 # define THREAD_GETMEM(descr, member) descr->member
@@ -547,7 +547,6 @@ extern pid_t __pthread_fork (struct fork_block *b) L4_HIDDEN;
 # define LIBC_CANCEL_RESET(val) ((void)(val)) /* Nothing, but evaluate it.  */
 # define LIBC_CANCEL_HANDLED()	/* Nothing.  */
 #endif
-extern int * __libc_pthread_init (const struct pthread_functions *functions);
 __END_DECLS
 
 

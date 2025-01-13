@@ -74,7 +74,7 @@ SRC_S_libc.a           += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libc.a)
 SRC_CC_libc.so         += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc.so)
 SRC_CC_libc.a          += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc.a)
 
-SRC_C_libc.so           += $(PTHOBJ_PFX)/forward.c $(PTHOBJ_PFX)/libc_pthread_init.c
+SRC_C_libc.so           += $(PTHOBJ_PFX)/libc_pthread_init.c
 SRC_CC_libc.a_x86-l4f   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
 SRC_C_libc.a_x86-l4f    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 SRC_CC_libc.a_amd64-l4f += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc

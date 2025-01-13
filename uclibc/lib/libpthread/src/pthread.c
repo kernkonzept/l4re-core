@@ -254,73 +254,6 @@ extern void *__dso_handle __attribute__ ((weak));
 extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
 
-struct pthread_functions __pthread_functions =
-  {
-#if !(USE_TLS && HAVE___THREAD)
-    .ptr_pthread_internal_tsd_set = __pthread_internal_tsd_set,
-    .ptr_pthread_internal_tsd_get = __pthread_internal_tsd_get,
-    .ptr_pthread_internal_tsd_address = __pthread_internal_tsd_address,
-#endif
-#ifdef __NOT_FOR_L4__
-    .ptr_pthread_fork = __pthread_fork,
-#else
-    .ptr_pthread_fork = NULL,
-#endif
-    .ptr_pthread_attr_destroy = __pthread_attr_destroy,
-    .ptr_pthread_attr_init = __pthread_attr_init,
-    .ptr_pthread_attr_getdetachstate = __pthread_attr_getdetachstate,
-    .ptr_pthread_attr_setdetachstate = __pthread_attr_setdetachstate,
-    .ptr_pthread_attr_getinheritsched = __pthread_attr_getinheritsched,
-    .ptr_pthread_attr_setinheritsched = __pthread_attr_setinheritsched,
-    .ptr_pthread_attr_getschedparam = __pthread_attr_getschedparam,
-    .ptr_pthread_attr_setschedparam = __pthread_attr_setschedparam,
-    .ptr_pthread_attr_getschedpolicy = __pthread_attr_getschedpolicy,
-    .ptr_pthread_attr_setschedpolicy = __pthread_attr_setschedpolicy,
-    .ptr_pthread_attr_getscope = __pthread_attr_getscope,
-    .ptr_pthread_attr_setscope = __pthread_attr_setscope,
-    .ptr_pthread_condattr_destroy = __pthread_condattr_destroy,
-    .ptr_pthread_condattr_init = __pthread_condattr_init,
-    .ptr_pthread_cond_broadcast = __pthread_cond_broadcast,
-    .ptr_pthread_cond_destroy = __pthread_cond_destroy,
-    .ptr_pthread_cond_init = __pthread_cond_init,
-    .ptr_pthread_cond_signal = __pthread_cond_signal,
-    .ptr_pthread_cond_wait = __pthread_cond_wait,
-    .ptr_pthread_cond_timedwait = __pthread_cond_timedwait,
-    .ptr_pthread_equal = __pthread_equal,
-    .ptr___pthread_exit = __pthread_exit,
-    .ptr_pthread_getschedparam = __pthread_getschedparam,
-    .ptr_pthread_setschedparam = __pthread_setschedparam,
-    .ptr_pthread_mutex_destroy = __pthread_mutex_destroy,
-    .ptr_pthread_mutex_init = __pthread_mutex_init,
-    .ptr_pthread_mutex_lock = __pthread_mutex_lock,
-    .ptr_pthread_mutex_trylock = __pthread_mutex_trylock,
-    .ptr_pthread_mutex_unlock = __pthread_mutex_unlock,
-    .ptr_pthread_self = __pthread_self,
-    .ptr_pthread_setcancelstate = __pthread_setcancelstate,
-    .ptr_pthread_setcanceltype = __pthread_setcanceltype,
-    .ptr_pthread_do_exit = __pthread_do_exit,
-    .ptr_pthread_thread_self = __pthread_thread_self,
-    .ptr_pthread_cleanup_upto = __pthread_cleanup_upto,
-#ifdef __NOT_FOR_L4__
-    .ptr_pthread_sigaction = __pthread_sigaction,
-    .ptr_pthread_sigwait = __pthread_sigwait,
-    .ptr_pthread_raise = __pthread_raise,
-#else
-    .ptr_pthread_sigaction = NULL,
-    .ptr_pthread_sigwait = NULL,
-    .ptr_pthread_raise = NULL,
-#endif
-    .ptr__pthread_cleanup_push = __pthread_cleanup_push,
-    .ptr__pthread_cleanup_push_defer = __pthread_cleanup_push_defer,
-    .ptr__pthread_cleanup_pop = __pthread_cleanup_pop,
-    .ptr__pthread_cleanup_pop_restore = __pthread_cleanup_pop_restore,
-  };
-#ifdef SHARED
-# define ptr_pthread_functions &__pthread_functions
-#else
-# define ptr_pthread_functions NULL
-#endif
-
 static int *__libc_multiple_threads_ptr;
 l4_utcb_t *__pthread_first_free_utcb attribute_hidden;
 
@@ -503,7 +436,7 @@ cannot allocate TLS data structures for initial thread\n";
 # endif
     exit(1);
 #endif
-  __libc_multiple_threads_ptr = __libc_pthread_init (ptr_pthread_functions);
+  __libc_multiple_threads_ptr = __libc_pthread_init ();
 }
 
 
