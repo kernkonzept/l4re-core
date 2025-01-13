@@ -1,3 +1,2 @@
-requires: libc_minimal libsupc++_minimal libloader libc_be_minimal_log_io 
-          libc_minimal_l4re
+requires: libc_minimal libsupc++_minimal libloader libc_minimal_l4re
 maintainer: warg@os.inf.tu-dresden.de

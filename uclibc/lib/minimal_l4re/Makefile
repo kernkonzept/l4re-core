@@ -10,7 +10,8 @@ endef
 
 DEFINES         := -DL4_MINIMAL_LIBC -DL4_NO_RTTI=1
 SRC_CC          := _exit.cc
-REQUIRES_LIBS   = l4sys l4util l4re l4re-util l4re_c l4re_c-util
+REQUIRES_LIBS   = l4sys l4util l4re l4re-util l4re_c l4re_c-util \
+                  libc_be_minimal_log_io
 LDFLAGS         = --link-libc
 
 vpath _exit.cc $(SRC_DIR)/../uclibc

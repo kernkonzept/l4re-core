@@ -26,7 +26,7 @@ CAN_PIE_arm64   := y
 BID_CAN_PIE      = $(CAN_PIE_$(ARCH))
 
 REQUIRES_LIBS  := libkproxy libloader libsigma0 \
-                  cxx_io cxx_libc_io libc_be_minimal_log_io libsupc++_minimal \
+                  cxx_io cxx_libc_io libsupc++_minimal \
                   libc_minimal libc_minimal_l4re
 DEFINES        += -DL4_CXX_NO_EXCEPTION_BACKTRACE -DL4_MINIMAL_LIBC
 LDFLAGS        += --entry=_real_start
