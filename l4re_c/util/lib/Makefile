@@ -6,4 +6,6 @@ SRC_CC       := cap_alloc.cc video/goos_fb.cc kumem_alloc.cc
 PC_FILENAME   = l4re_c-util
 REQUIRES_LIBS = l4re_c l4re-util
 
+CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions
+
 include $(L4DIR)/mk/lib.mk
