@@ -14,7 +14,8 @@ PC_FILENAME       := libc
 PC_LIBS           := -lc -lc_nonshared.p
 PC_EXTRA          := Link_Libs= %{static|static-pie:-lc}
 
-REQUIRES_LIBS     := ldscripts libpthread l4sys l4util
+REQUIRES_LIBS     := ldscripts libpthread l4sys l4util l4re l4re-util l4re_c \
+                     l4re_c-util
 
 PICFLAGS += -DSHARED=1
 

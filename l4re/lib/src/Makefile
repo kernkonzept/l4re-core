@@ -1,13 +1,14 @@
 PKGDIR?= ../..
 L4DIR ?= $(PKGDIR)/../../..
 
-TARGET	      = lib4re.a lib4re.so
+TARGET	      = lib4re.ofl lib4re.p.a
 REQUIRES_LIBS = l4util l4sys
-PC_EXTRA      = Link_Libs= %{static|static-pie:-l4re}
+PC_LIBS       = %{-link-libc:%{shared:--whole-archive -l4re.p --no-whole-archive;:lib4re.ofl}}
+PC_LIBS_PIC   =
 
 SRC_CC	= namespace.cc dataspace.cc rm.cc mem_alloc.cc \
 	  log.cc event.cc video/goos.cc
-SRC_C_lib4re.a   := env.c
+SRC_C_lib4re.ofl := env.c
 
 CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions
 

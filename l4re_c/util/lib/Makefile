@@ -1,10 +1,11 @@
 PKGDIR ?= ../..
 L4DIR  ?= $(PKGDIR)/../../..
 
-TARGET	      = lib4re-c-util.a lib4re-c-util.so
+TARGET	      = lib4re-c-util.ofl lib4re-c-util.p.a
 SRC_CC       := cap_alloc.cc video/goos_fb.cc kumem_alloc.cc
 PC_FILENAME   = l4re_c-util
-REQUIRES_LIBS = l4re_c l4re-util
+PC_LIBS      := %{-link-libc:%{shared:--whole-archive -l4re-c-util.p --no-whole-archive;:lib4re-c-util.ofl}}
+PC_LIBS_PIC  :=
 
 CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions
 

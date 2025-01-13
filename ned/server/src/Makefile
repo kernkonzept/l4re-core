@@ -11,8 +11,8 @@ SRC_DATA        := ned.lua
 
 SRC_CC          += lua_sleep.cc
 
-REQUIRES_LIBS   := libloader l4re-util l4re lua++ libc_support_misc \
-                   libpthread cxx_libc_io cxx_io
+REQUIRES_LIBS   := libloader lua++ libc_support_misc libpthread cxx_libc_io \
+                   cxx_io
 
 DEFAULT_HEAP_SIZE := 0x20000
 
