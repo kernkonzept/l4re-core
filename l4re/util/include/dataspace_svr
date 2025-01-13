@@ -9,8 +9,8 @@
  */
 #pragma once
 
-#include <cstring>
-#include <cstddef>
+#include <string.h>
+#include <stddef.h>
 #include <l4/bid_config.h>
 #include <l4/sys/types.h>
 #include <l4/cxx/minmax>

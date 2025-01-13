@@ -6,7 +6,7 @@
 #include <l4/re/util/cap_alloc>
 #include <l4/re/namespace>
 #include <l4/re/env>
-#include <cstring>
+#include <string.h>
 
 namespace L4Re { namespace Util {
 

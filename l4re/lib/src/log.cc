@@ -11,7 +11,7 @@
  */
 #include <l4/re/log>
 
-#include <cstring>
+#include <string.h>
 
 namespace L4Re {
 

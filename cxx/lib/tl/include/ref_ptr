@@ -9,7 +9,7 @@
 #pragma once
 
 #include "type_traits"
-#include <cstddef>
+#include <stddef.h>
 #include <l4/sys/compiler.h>
 
 namespace cxx {

@@ -11,7 +11,7 @@
 
 #include <l4/re/util/video/goos_fb>
 #include <l4/re/c/util/video/goos_fb.h>
-#include <cstddef>
+#include <stddef.h>
 
 using L4Re::Util::Video::Goos_fb;
 using L4Re::Video::Goos;

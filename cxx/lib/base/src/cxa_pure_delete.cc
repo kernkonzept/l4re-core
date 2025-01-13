@@ -5,7 +5,7 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
-#include <cstddef>
+#include <stddef.h>
 #include <l4/cxx/iostream>
 
 void operator delete (void *obj) noexcept

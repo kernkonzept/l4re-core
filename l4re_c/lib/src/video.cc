@@ -12,7 +12,6 @@
 #include <l4/re/dataspace>
 #include <l4/sys/err.h>
 
-#include <cassert>
 #include <stddef.h>
 
 using L4Re::Video::Goos;

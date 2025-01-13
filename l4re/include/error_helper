@@ -18,8 +18,8 @@
 #include <l4/cxx/type_traits>
 #include <l4/sys/err.h>
 
-#include <cstdarg>
-#include <cstdio>
+#include <stdarg.h>
+#include <stdio.h>
 
 namespace L4Re {
 

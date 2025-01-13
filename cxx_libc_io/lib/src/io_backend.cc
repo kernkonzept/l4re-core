@@ -4,10 +4,10 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
-#include <cstdio>
 #include <l4/cxx/basic_ostream>
 #include <l4/util/atomic.h>
 #include <stddef.h>
+#include <stdio.h>
 
 inline void *operator new (size_t, void *p) noexcept { return p; }
 
