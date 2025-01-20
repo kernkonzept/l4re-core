@@ -8,8 +8,8 @@
 #pragma once
 
 #include <l4/sys/types.h>
+#include <l4/re/cap_alloc>
 #include <l4/re/mem_alloc>
-#include <l4/re/util/bitmap_cap_alloc>
 #include <l4/re/env>
 #include <l4/re/l4aux.h>
 #include <l4/cxx/static_container>
@@ -23,10 +23,9 @@ namespace Global
     Max_local_rm_caps = 1024,
     Local_task_cap    = 0,
   };
-  typedef L4Re::Util::Cap_alloc<Max_local_rm_caps>  Cap_alloc;
   extern L4::Cap<L4Re::Mem_alloc> allocator;
   extern cxx::Static_container<Region_map> local_rm;
-  extern cxx::Static_container<Cap_alloc> cap_alloc;
+  extern L4Re::Cap_alloc *cap_alloc;
   extern char const *const *argv;
   extern char const *const *envp;
   extern int argc;
