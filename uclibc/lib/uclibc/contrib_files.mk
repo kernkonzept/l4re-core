@@ -725,7 +725,9 @@ define SRC_libc/signal
   sigaddset
   sigandset
   sigdelset
+  sigorset
   sigempty
+  sigisempty
   sigfillset
   sigismem
   sigsetops
