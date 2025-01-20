@@ -3,7 +3,9 @@ L4DIR  ?= $(PKGDIR)/../../..
 
 TARGET          = l4re
 SRC_CC         := main.cc globals.cc region.cc loader.cc \
-                  loader_elf.cc mem.cc dispatcher.cc
+                  loader_elf.cc mem.cc dispatcher.cc signals.cc
+
+SRC_S          := ARCH-$(ARCH)/sig_trampoline.S
 
 SRC_S_mips     := ARCH-mips/loader_mips.S
 SRC_S_riscv    := ARCH-riscv/loader_riscv.S

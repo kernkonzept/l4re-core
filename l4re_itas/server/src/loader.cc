@@ -13,6 +13,7 @@
 #include "mem_layout.h"
 #include "switch_stack.h"
 #include "dispatcher.h"
+#include "signals.h"
 
 #include <l4/bid_config.h>
 #include <l4/cxx/iostream>
@@ -53,7 +54,7 @@ struct Entry_data
   l4_addr_t entry;
   l4_addr_t stack;
   l4_umword_t ex_regs_flags;
-  L4::Cap<L4Re::Rm> pager;
+  L4::Cap<L4Re::Rm> rm;
 };
 
 static Loader *__loader;
@@ -63,6 +64,7 @@ static void *__loader_stack_p;
 static Entry_data __loader_entry;
 static Region_map *__rm;
 static Cap<Thread> app_thread;
+static Signal_manager sigmgr;
 
 static
 void unmap_stack_and_start()
@@ -243,7 +245,7 @@ L4Re_app_model::add_env()
 {
   L4Re::Env *e = const_cast<L4Re::Env *>(L4Re::Env::env());
 
-  e->rm(__loader_entry.pager);
+  e->rm(__loader_entry.rm);
   e->main_thread(app_thread);
   return e;
 
@@ -272,7 +274,7 @@ static void
 loader_thread()
 #endif
 {
-  if (!__loader->launch(__binary, __loader_entry.pager))
+  if (!__loader->launch(__binary, __loader_entry.rm))
     {
       Err(Err::Fatal).printf("Could not load binary '%s'.\n",
                              Global::l4re_aux->binary);
@@ -354,7 +356,11 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 
   L4Re::chkcap(dispatcher.register_obj(Global::local_rm.get()),
                "l4re_itas: could not register Rm");
-  __loader_entry.pager = Global::local_rm->obj_cap();
+  __loader_entry.rm = Global::local_rm->obj_cap();
+
+  L4Re::chkcap(dispatcher.register_obj(&sigmgr),
+               "l4re_itas: could not register Signal_manager");
+  env->itas(sigmgr.obj_cap());
 
   chksys(env->factory()->create(app_thread), "l4re_itas: Create app thread.");
 
@@ -362,13 +368,17 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
                               strrchr(aux->binary, '/')
                                 ? strrchr(aux->binary, '/') + 1 : aux->binary);
 
-  Thread::Attr attr;
-  attr.pager(__loader_entry.pager);
-  attr.exc_handler(__loader_entry.pager);
-  attr.bind(reinterpret_cast<l4_utcb_t*>(env->first_free_utcb()),
-            L4Re::This_task);
-
+  auto *app_utcb = reinterpret_cast<l4_utcb_t*>(env->first_free_utcb());
   env->first_free_utcb(env->first_free_utcb() + L4_UTCB_OFFSET);
+
+  auto *sig_handler = sigmgr.register_thread(app_thread, app_utcb);
+  if (!sig_handler)
+    L4Re::throw_error(-L4_ENOMEM, "l4re_itas: cannot register sighandler");
+
+  Thread::Attr attr;
+  attr.pager(sig_handler->obj_cap());
+  attr.exc_handler(sig_handler->obj_cap());
+  attr.bind(app_utcb, L4Re::This_task);
 
   chksys(app_thread->control(attr), "l4re_itas: Setup app thread.");
   chksys(env->scheduler()->run_thread(app_thread,
