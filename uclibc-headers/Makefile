@@ -37,7 +37,7 @@ all:: $(HEADERS_LST) $(DST_HEADERS)
 $(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(HEADERS_LST) \
                                          $(LIBCSRC_DIR)/make_vars.mk
 	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) -p $(@D)
-	$(VERBOSE)$(LN) -sf $(call absfilename,$<) $@
+	$(VERBOSE)$(LN) -sf $(abspath $<) $@
 
 $(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(HEADERS_LST) \
                $(LIBCSRC_DIR)/make_vars.mk

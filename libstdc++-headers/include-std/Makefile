@@ -45,7 +45,7 @@ SRCDIR_X         = $(STDCXX_CONTRIB_DIR)
 CTYPE_HEADERS := $(filter-out %/os_defines.h,$(wildcard $(SRCDIR_X)/config/os/generic/*))
 BACKWARD_HEADERS := $(filter-out %.h,$(wildcard $(SRCDIR_X)/include/backward/*))
 
-install_header_x = $(MKDIR) $(dir $(INSTALL_INCDIR_X)/$(strip $(2))) && $(LN) -sf $(call absfilename,$(strip $(1)) $(INSTALL_INCDIR_X)/$(strip $(2)))
+install_header_x = $(MKDIR) $(dir $(INSTALL_INCDIR_X)/$(strip $(2))) && $(LN) -sf $(abspath $(strip $(1)) $(INSTALL_INCDIR_X)/$(strip $(2)))
 install_header   = $(MKDIR) $(dir $(INSTALL_INCDIR_X)/$(strip $(2))) && $(LN) -sf $(SRCDIR_X)/$(strip $(1)) $(INSTALL_INCDIR_X)/$(strip $(2))
 
 install_config_header = $(call install_header, $(1), bits/$(strip $(2)))

@@ -1,7 +1,7 @@
 include $(L4DIR)/mk/Makeconf
 
 LIBCSRC_DIR ?= $(SRC_DIR)
-LIBCSRC_DIR_ABS := $(call absfilename,$(LIBCSRC_DIR))
+LIBCSRC_DIR_ABS := $(abspath $(LIBCSRC_DIR))
 
 SYSDEPS          := libc/sysdeps/linux
 
