@@ -31,6 +31,7 @@
 
 #include <l4/sys/ipc.h>
 #include <l4/re/env>
+#include <l4/re/itas>
 #include <l4/re/mem_alloc>
 #include <l4/re/dataspace>
 #include <l4/re/rm>
@@ -582,17 +583,28 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
 
   thread->p_thsem_cap = th_sem.cap();
 
-  L4::Thread::Attr attr;
   l4_utcb_t *nt_utcb = (l4_utcb_t*)thread->p_tid;
 
-  attr.bind(nt_utcb, L4Re::This_task);
-  attr.pager(e->rm());
-  attr.exc_handler(e->rm());
-  if ((err = l4_error(_t->control(attr))) < 0)
-   {
-     fprintf(stderr, "ERROR: thread control returned: %d\n", err);
-     return err;
-   }
+  auto itas = L4Re::Env::env()->itas();
+  pthread_descr self = thread_self();
+  bool registered = itas && itas
+      ->register_thread(L4::Cap<L4::Thread>(self->p_th_cap),
+                        _t.get(),
+                        reinterpret_cast<l4_addr_t>(nt_utcb)) >= 0;
+  if (!registered)
+    {
+      // Without ITAS services, we can still bind the thread ourselves...
+      L4::Thread::Attr attr;
+      attr.bind(nt_utcb, L4Re::This_task);
+      attr.pager(e->rm());
+      attr.exc_handler(e->rm());
+
+      if ((err = l4_error(_t->control(attr))) < 0)
+        {
+          fprintf(stderr, "ERROR: thread control returned: %d\n", err);
+          return err;
+        }
+    }
 
   l4_utcb_tcr_u(nt_utcb)->user[0] = l4_addr_t(thread);
 
@@ -613,6 +625,8 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
     if (err < 0)
       {
         fprintf(stderr, "ERROR: exregs returned error: %d\n", err);
+        if (registered)
+          itas->unregister_thread(_t.get());
         return err;
       }
   }
@@ -624,6 +638,8 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
   if (err < 0)
     {
       fprintf(stderr, "ERROR: exregs returned error: %d\n", err);
+      if (registered)
+        itas->unregister_thread(_t.get());
       return err;
     }
 
@@ -638,6 +654,8 @@ int __pthread_mgr_create_thread(pthread_descr thread, char **tos,
           fprintf(stderr,
                   "ERROR: could not start thread, run_thread returned %d\n",
                   err);
+          if (registered)
+            itas->unregister_thread(_t.get());
           return err;
         }
     }
@@ -982,11 +1000,15 @@ static void pthread_free(pthread_descr th)
   mgr_free_utcb(handle);
   __pthread_unlock(handle_to_lock(handle));
 
-    {
-      // free the semaphore and the thread
-      L4Re::Util::Unique_del_cap<void> s(L4::Cap<void>(th->p_thsem_cap));
-      L4Re::Util::Unique_del_cap<void> t(L4::Cap<void>(th->p_th_cap));
-    }
+  auto itas = L4Re::Env::env()->itas();
+  if (itas)
+    itas->unregister_thread(L4::Cap<L4::Thread>(th->p_th_cap));
+
+  {
+    // free the semaphore and the thread
+    L4Re::Util::Unique_del_cap<void> s(L4::Cap<void>(th->p_thsem_cap));
+    L4Re::Util::Unique_del_cap<void> t(L4::Cap<void>(th->p_th_cap));
+  }
 
   /* One fewer threads in __pthread_handles */
 
