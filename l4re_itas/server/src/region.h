@@ -9,6 +9,7 @@
 
 #include <l4/sys/types.h>
 #include <l4/sys/exception>
+#include <l4/sys/cxx/ipc_epiface>
 #include <l4/re/dataspace>
 #include <l4/re/util/region_mapping_svr_2>
 #include <l4/re/debug>
@@ -36,8 +37,13 @@ public:
 };
 
 
+using Region_map_interface =
+  L4::Kobject_3t<void, L4Re::Rm, L4::Exception, L4Re::Debug_obj>;
+
+
 class Region_map
 : public L4Re::Util::Region_map<Region_handler, cxx::New_allocator>,
+  public L4::Epiface_t<Region_map, Region_map_interface>,
   public L4Re::Util::Rm_server<Region_map, Dbg>
 {
 private:
@@ -45,9 +51,7 @@ private:
 
 public:
   typedef L4::Cap<L4Re::Dataspace> Dataspace;
-  typedef L4::Kobject_3t<void, L4Re::Rm, L4::Exception, L4Re::Debug_obj> Interface;
   enum { Have_find = true };
-  void *server_iface() const { return 0; }
   static int validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
                          L4Re::Rm::Region_flags,
                          L4::Cap<L4Re::Dataspace> *ds)

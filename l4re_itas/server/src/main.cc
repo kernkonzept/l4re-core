@@ -54,22 +54,6 @@ using L4Re::Dataspace;
 int main(int argc, char const *argv[], char const *env[]);
 
 static Elf_loader loader;
-L4::Cap<void> rcv_cap;
-
-class Loop_hooks :
-  public L4::Ipc_svr::Ignore_errors,
-  public L4::Ipc_svr::Default_timeout,
-  public L4::Ipc_svr::Compound_reply
-{
-public:
-  static void setup_wait(l4_utcb_t *utcb, bool)
-  {
-    l4_utcb_br_u(utcb)->br[0] = L4::Ipc::Small_buf(rcv_cap.cap(),
-                                                   L4_RCV_ITEM_LOCAL_ID).raw();
-    l4_utcb_br_u(utcb)->br[1] = 0;
-    l4_utcb_br_u(utcb)->bdr = 0;
-  }
-};
 
 extern "C" void *__libc_alloc_initial_tls(unsigned long size);
 
@@ -80,8 +64,6 @@ void *__libc_alloc_initial_tls(unsigned long)
   assert(0);
   return nullptr;
 }
-
-static L4::Server<Loop_hooks> server;
 
 static void insert_regions()
 {
@@ -184,7 +166,6 @@ int main(int argc, char const *argv[], char const *envp[])
     }
 
   Dbg::set_level(Global::l4re_aux->dbg_lvl);
-  rcv_cap = Global::cap_alloc->alloc<void>();
   boot.printf("adding regions from remote region mapper\n");
   insert_regions();
 
@@ -203,5 +184,5 @@ int main(int argc, char const *argv[], char const *envp[])
                                l4_sched_param(L4_SCHED_MAX_PRIO));
 
   boot.printf("Start server loop\n");
-  server.loop<L4::Runtime_error>(Dispatcher());
+  server.loop<L4::Runtime_error, Dispatcher &>(dispatcher);
 }

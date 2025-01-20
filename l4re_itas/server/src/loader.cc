@@ -12,6 +12,7 @@
 #include "globals.h"
 #include "mem_layout.h"
 #include "switch_stack.h"
+#include "dispatcher.h"
 
 #include <l4/bid_config.h>
 #include <l4/cxx/iostream>
@@ -350,13 +351,10 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 
   app_thread = Cap<Thread>(env->first_free_cap() << L4_CAP_SHIFT);
   env->first_free_cap((app_thread.cap() >> L4_CAP_SHIFT)+1);
-#ifdef L4RE_USE_LOCAL_PAGER_GATE
-  __loader_entry.pager = Global::cap_alloc.alloc<Rm>();
-  chksys(env->factory()->create_gate(__loader_entry.pager, env->main_thread(), 0),
-         "l4re_itas: Create pager gate.");
-#else
-  __loader_entry.pager = L4::cap_reinterpret_cast<Rm>(env->main_thread());
-#endif
+
+  L4Re::chkcap(dispatcher.register_obj(Global::local_rm.get()),
+               "l4re_itas: could not register Rm");
+  __loader_entry.pager = Global::local_rm->obj_cap();
 
   chksys(env->factory()->create(app_thread), "l4re_itas: Create app thread.");
 
