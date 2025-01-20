@@ -1,0 +1,158 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2025 Kernkonzept GmbH.
+ * Author(s): Jan Klötzke <jan.kloetzke@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+
+#pragma once
+
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/cxx/types>
+#include <l4/sys/l4int.h>
+#include <l4/sys/thread>
+#include <l4/sys/types.h>
+
+#include <signal.h>
+#include <sys/time.h>
+
+namespace L4Re
+{
+
+/**
+ * Interface to the ITAS.
+ *
+ * This is an internal interface between libc and the l4re_itas. Do not use
+ * it. It is subject to change.
+ */
+class L4_EXPORT Itas :
+  public L4::Kobject_t<Itas, L4::Kobject,
+                       L4RE_PROTO_ITAS,
+                       L4::Type_info::Demand_t<2> >
+{
+public:
+  /**
+   * Register new thread.
+   *
+   * Makes the newly created thread known to ITAS. The ITAS will do the
+   * `thread_cap->control()` to bind the thread to the task and attach the
+   * gates for pager and exception handler.
+   *
+   * \param parent       The capability of the thread that created the new
+   *                     thread.
+   * \param thread_cap   The capability of the new thread.
+   * \param thread_utcb  The address of the allocated UTCB of the new thread.
+   */
+  L4_INLINE_RPC(int, register_thread, (L4::Ipc::Cap<L4::Thread> parent,
+                                       L4::Ipc::Cap<L4::Thread> thread_cap,
+                                       l4_addr_t thread_utcb));
+
+  /**
+   * Unregister a thread.
+   *
+   * The gates for the thread's pager and exception hander will be destroyed.
+   * Thus, the thread must be destroyed after the call.
+   *
+   * \param thread  The destroyed thread.
+   */
+  L4_INLINE_RPC(int, unregister_thread, (L4::Ipc::Cap<L4::Thread> thread));
+
+  // sigaction.sa_flags is usually `unsigned long`, except for MIPS...
+  enum : unsigned
+  {
+    Ignore_sigaction = ~0U  ///< Ignore new action of `sigaction()` call
+  };
+
+  /**
+   * Examine and change a POSIX signal action.
+   *
+   * See IEEE Std 1003.1-2024 sigaction() for the behaviour of the method.
+   *
+   * If `act->sa_flags` is `Ignore_sigaction`, the new action is ignored.
+   *
+   * \param[in]  signum  Signal number to be examined and/or modified.
+   * \param[in]  act     New signal action.
+   * \param[out] oldact  Old signal action.
+   */
+  L4_INLINE_RPC(int, sigaction, (int signum,
+                                 const struct sigaction *act,
+                                 struct sigaction *oldact));
+
+  /**
+   * Examine or set alternate POSIX signal stack.
+   *
+   * See IEEE Std 1003.1-2024 sigaltstack() for the behaviour of the method.
+   *
+   * If `ss->ss_flags` is -1, the new sigaltstack will be ignored.
+   *
+   * \param[in]  thread  Thread cap of the thread whose sigaltstack is
+   *                     examined and/or modified.
+   * \param[in]  ss      The new sigaltstack.
+   * \param[out] oss     The old sigaltstack.
+   */
+  L4_INLINE_RPC(int, sigaltstack, (L4::Ipc::Cap<L4::Thread> thread,
+                                   const struct sigaltstack *ss,
+                                   struct sigaltstack *oss));
+
+  /**
+   * Examine or set process signal mask.
+   *
+   * See IEEE Std 1003.1-2024 sigprocmask() for the behaviour or the method.
+   *
+   * If `how` is -1, the signal mask is left unchanged.
+   *
+   * \param[in]  thread  Thread cap of the thread whose signal mask is
+   *                     examined and/or modified.
+   * \param[in]  how     Operation (`SIG_BLOCK`, `SIG_UNBLOCK`, `SIG_SETMASK`
+   *                     or -1).
+   * \param[in]  set     The new signal mask.
+   * \param[out] oldset  The old signal mask.
+   */
+  L4_INLINE_RPC(int, sigprocmask, (L4::Ipc::Cap<L4::Thread> thread,
+                                   int how, sigset_t const *set,
+                                   sigset_t *oldset));
+
+  /**
+   * Query pending signals.
+   *
+   * See IEEE Std 1003.1-2024 sigpending() for details.
+   *
+   * \param[in]  thread  Thread cap of the thread whose pending signal are
+   *                     examined.
+   * \param[out] set     Pending signals of thread.
+   */
+  L4_INLINE_RPC(int, sigpending, (L4::Ipc::Cap<L4::Thread> thread,
+                                  sigset_t *set));
+
+  /**
+   * Set process interval timer.
+   *
+   * See IEEE Std 1003.1-2017 setitimer() for details.
+   *
+   * \param[in]  which      Timer type (`ITIMER_REAL`).
+   * \param[in]  new_value  New timer value.
+   * \param[out] old_value  Old timer value.
+   */
+  L4_INLINE_RPC(int, setitimer, (int which,
+                                 const struct itimerval *new_value,
+                                 struct itimerval *old_value));
+
+  /**
+   * Get process interval timer.
+   *
+   * See IEEE Std 1003.1-2017 getitimer() for details.
+   *
+   * \param[in]  which       Timer type (`ITIMER_REAL`).
+   * \param[out] curr_value  Old timer value.
+   */
+  L4_INLINE_RPC(int, getitimer, (int which, struct itimerval *curr_value));
+
+  typedef L4::Typeid::Rpcs<
+    register_thread_t, unregister_thread_t, sigaction_t, sigaltstack_t,
+    sigprocmask_t, sigpending_t, setitimer_t, getitimer_t
+  > Rpcs;
+};
+
+}

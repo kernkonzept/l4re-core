@@ -13,6 +13,7 @@ EXTRA_TARGET += \
   event     \
   log       \
   inhibitor \
+  itas \
   mem_alloc \
   mmio_space \
   namespace \
