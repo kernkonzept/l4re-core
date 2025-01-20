@@ -80,6 +80,7 @@ enum
 };
 #endif
 
+#ifdef __NOT_FOR_L4__
 /* Definitions taken from the kernel headers.  */
 struct _libc_fpreg
 {
@@ -99,6 +100,38 @@ struct _libc_fpstate
   struct _libc_fpreg _st[8];
   unsigned long int status;
 };
+#else
+/* L4Re uses fxsave format */
+struct _libc_fpxreg
+{
+  unsigned short int significand[4];
+  unsigned short int exponent;
+  unsigned short int padding[3];
+};
+
+struct _libc_xmmreg
+{
+  __uint32_t  element[4];
+};
+
+struct _libc_fpstate
+{
+  /* 32-bit FXSAVE format.  */
+  __uint16_t            cwd;
+  __uint16_t            swd;
+  __uint16_t            ftw;
+  __uint16_t            fop;
+  __uint32_t            fip;
+  __uint32_t            fcs;
+  __uint32_t            foo;
+  __uint32_t            fos;
+  __uint32_t            mxcsr;
+  __uint32_t            mxcr_mask;
+  struct _libc_fpxreg   _st[8];
+  struct _libc_xmmreg   _xmm[8];
+  __uint32_t            padding[44];
+} __attribute__((aligned(16)));
+#endif
 
 /* Structure to describe FPU registers.  */
 typedef struct _libc_fpstate *fpregset_t;
