@@ -104,6 +104,7 @@ typedef struct l4re_env_t
   l4_cap_idx_t main_thread;    /**< Object-capability of the first user thread */
   l4_cap_idx_t factory;        /**< Object-capability of the factory available to the task */
   l4_cap_idx_t scheduler;      /**< Object capability for the scheduler set to use */
+  l4_cap_idx_t itas;           /**< ITAS services object-capability */
   l4_cap_idx_t first_free_cap; /**< First capability index available to the application */
   l4_fpage_t utcb_area;        /**< UTCB area of the task */
   l4_addr_t first_free_utcb;   /**< First UTCB within the UTCB area available to the application */

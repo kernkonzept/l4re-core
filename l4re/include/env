@@ -33,6 +33,8 @@ class Scheduler;
  */
 namespace L4Re
 {
+  class Itas;
+
   /**
    * C++ interface of the initial environment that is provided to an L4 task.
    *
@@ -58,6 +60,7 @@ namespace L4Re
    * factory      | L4::Factory     | L4Re::Env::factory()
    * task         | L4::Task        | L4Re::Env::task()
    * scheduler    | L4::Scheduler   | L4Re::Env::scheduler()
+   * itas         | L4Re::Itas      | L4Re::Env::itas()
    *
    * Additional information found in the initial environment is:
    * - First free entry in capability table
@@ -277,6 +280,25 @@ namespace L4Re
      */
     void scheduler(L4::Cap<L4::Scheduler> const &c) noexcept
     { _env.scheduler = c.cap(); }
+
+    /**
+     * Object-capability to the ITAS services.
+     * \return ITAS object-capability
+     *
+     * Attention: this capability might be invalid, depending on the system
+     * configuration. Regular applications must not use it directly as it is
+     * an implementation detail of the L4Re libc that is subject to change
+     * without notice!
+     */
+    L4::Cap<Itas> itas() const noexcept
+    { return L4::Cap<Itas>(_env.itas); }
+
+    /**
+     * Set the ITAS capability.
+     * \param c is the capability to be set as ITAS.
+     */
+    void itas(L4::Cap<Itas> const &c) noexcept
+    { _env.itas = c.cap(); }
 
     /**
      * Set the pointer to the first Cap_entry in the initial objects array.

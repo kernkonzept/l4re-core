@@ -85,6 +85,7 @@ public:
     env->log(L4::Cap<L4Re::Log>(Caps::Log_cap << L4_CAP_SHIFT));
     env->main_thread(L4::Cap<L4::Thread>(Caps::Rm_thread_cap << L4_CAP_SHIFT));
     env->factory(L4::Cap<L4::Factory>(Caps::Factory_cap << L4_CAP_SHIFT));
+    env->itas(L4::Cap<L4Re::Itas>{});
     env->first_free_cap(first_free >> L4_CAP_SHIFT);
     env->utcb_area(l4_fpage(this->_info.utcbs_start, this->_info.utcbs_log2size, 0));
     env->first_free_utcb(this->_info.utcbs_start + L4_UTCB_OFFSET);
