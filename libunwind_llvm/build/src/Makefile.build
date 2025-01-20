@@ -57,7 +57,7 @@ COMMON_FLAGS = \
 # Disable cross-platform unwinding support.
 DEFINES += -D_LIBUNWIND_IS_NATIVE_ONLY
 
-# Prevent libunwind from doing Linux-specific stuff (sigreturn, CET).
+# Prevent libunwind from doing Linux-specific stuff (sigreturn, CET, GCS).
 DEFINES += -U__linux__
 
 # Disable debug output as a workaround for use with libc_minimal, which does not
