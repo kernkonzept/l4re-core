@@ -1,6 +1,8 @@
-TARGET         ?= libatomic.a
-PC_FILENAME    ?= libatomic
-PC_LIBS        ?= -latomic
+TARGET           = libatomic.a
+PC_FILENAME      = libatomic
+PC_LIBS          =
+PC_LINK_LIBS     = -latomic
+PC_LINK_LIBS_PIC = $(PC_LINK_LIBS)
 
 # Avoid circular dependency, as this package is part of the compiler runtime.
 COMPILER_RT     =
