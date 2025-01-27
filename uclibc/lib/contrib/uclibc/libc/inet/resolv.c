@@ -2699,7 +2699,7 @@ int gethostent_r(struct hostent *result_buf, char *buf, size_t buflen,
 		hostp = __open_etc_hosts();
 		if (hostp == NULL) {
 			*result = NULL;
-			ret = TRY_AGAIN;
+			*h_errnop = ret = TRY_AGAIN;
 			goto DONE;
 		}
 	}
