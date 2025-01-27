@@ -18,6 +18,8 @@ __pthread_new_thread_entry:
 
 LEAF(pthread_handle_sigcancel)
 .hidden pthread_handle_sigcancel
+	SETUP_GPX($0)
+	SETUP_GPX64($25, $0)
 	PTR_LA	t9, _pthread_handle_sigcancel
 	jr t9
 	  nop
