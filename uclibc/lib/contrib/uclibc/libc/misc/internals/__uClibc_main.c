@@ -167,6 +167,10 @@ extern void __pthread_initialize_minimal(void);
 #endif
 #endif
 
+#if defined(SHARED) && !defined(__NOT_FOR_L4__)
+extern void _init(void) attribute_hidden;
+#endif
+
 #ifndef SHARED
 extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
@@ -281,6 +285,16 @@ void __uClibc_init(void)
     /* Setup an initial value.  This may not be perfect, but is
      * better than  malloc using __pagesize=0 for atexit, ctors, etc.  */
     __pagesize = PAGE_SIZE;
+
+#if defined(SHARED) && !defined(__NOT_FOR_L4__)
+    /*
+     * L4Re has global constructors in libc. If the compiler emits them in the
+     * .ctor section, we have to call them ourself. In case of .init_array, the
+     * dynamic linker will have already called them for us. Upstream uclibc
+     * does not need this.
+     */
+    _init();
+#endif
 
 #ifdef __UCLIBC_HAS_THREADS__
 
