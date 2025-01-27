@@ -5,8 +5,6 @@
  *
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
-#define _GNU_SOURCE 1  // needed for mremap
-#include <sys/mman.h>
 #include <bits/l4-malloc.h>
 #include <errno.h>
 
