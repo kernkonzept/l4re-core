@@ -161,7 +161,7 @@ enum l4_cap_consts_t
 
 enum l4_sched_consts_t
 {
-  L4_SCHED_MIN_PRIO = 0,
+  L4_SCHED_MIN_PRIO = 1,
   L4_SCHED_MAX_PRIO = 255,
 };
 

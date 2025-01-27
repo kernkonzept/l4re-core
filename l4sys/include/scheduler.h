@@ -172,14 +172,23 @@ l4_scheduler_info_u(l4_cap_idx_t scheduler, l4_umword_t *cpu_max,
  */
 typedef struct l4_sched_param_t
 {
-  l4_sched_cpu_set_t affinity; ///< CPU affinity.
-  l4_umword_t        prio;     ///< Priority for scheduling.
-  l4_umword_t        quantum;  ///< Timeslice in micro seconds.
+  /** CPU affinity. */
+  l4_sched_cpu_set_t affinity;
+  /**
+   * Priority for scheduling.
+   * The kernel supports priorities for userland threads in the range of 1..255.
+   * Priority 0 is reserved for the kernel.
+   */
+  l4_umword_t        prio;
+  /** Timeslice in micro seconds. */
+  l4_umword_t        quantum;
 } l4_sched_param_t;
 
 /**
  * Construct scheduler parameter.
  * \ingroup l4_scheduler_api
+ * \param prio     Thread priority (1-255).
+ * \param quantum  Timeslice in micro seconds.
  *
  * The l4_sched_param_t::affinity of the returned value contains all CPUs.
  */
