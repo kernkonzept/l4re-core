@@ -89,7 +89,7 @@ L(1):	leaq -4(%rdx), %rax	/* prepare loop */
 	/* but it will also align entire function to 16 bytes, */
 	/* potentially creating largish padding at link time. */
 	/* We are aligning to 8 bytes instead: */
-	.p2align 3,,8
+	.p2align 3,,7
 L(3):
 	addq $4, %rax		/* adjust pointer for full loop round */
 

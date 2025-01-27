@@ -102,7 +102,7 @@ ENTRY (strlen)
 
 	/* Align, it is a jump target.  */
 	/* Next 3 insns are 8 bytes total, make sure we decode them in one go */
-	.p2align 3,,8
+	.p2align 3,,7
 3:
 	subq $8,%rax		/* correct pointer increment.  */
 
