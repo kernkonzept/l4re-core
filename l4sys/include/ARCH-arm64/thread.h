@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief ARM-specific thread related definitions.
+ * \brief ARM64-specific thread related definitions.
  */
 /*
  * (c) 2013 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
