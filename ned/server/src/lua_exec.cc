@@ -295,7 +295,7 @@ public:
     if (!_cfg_idx)
       return;
 
-    prog_info()->ldr_base = _cfg_integer("base", 0);
+    prog_info()->ldr_base = _cfg_integer("base", prog_info()->ldr_base);
     prog_info()->base = _cfg_integer("itas_base", prog_info()->ldr_base);
     prog_info()->ldr_flags = _cfg_integer("ldr_flags", prog_info()->ldr_flags);
     prog_info()->l4re_dbg = _cfg_integer("l4re_dbg", prog_info()->l4re_dbg);
