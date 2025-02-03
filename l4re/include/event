@@ -184,7 +184,8 @@ public:
    * Get event stream axis infos.
    *
    * \param      stream_id  ID of the event stream.
-   * \param[in]  axes       Array of axis IDs.
+   * \param[in]  naxes      Number of axis IDs and axis infos.
+   * \param[in]  axis       Array of axis IDs.
    * \param[out] info       Array of axis infos.
    *
    * \retval >=0  Number of returned axes infos.
