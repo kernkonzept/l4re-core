@@ -648,6 +648,7 @@ L4B_REDIRECT_4(int, utimensat, int, const char *,
 #include <signal.h>
 #include <time.h>
 #include <sys/select.h>
+#include <poll.h>
 
 /**
  * Condition variable for signaling file I/O operation/condition readiness.
@@ -706,10 +707,10 @@ int gsignal(int sig) __THROW
  * \retval true   File descriptor checked or not a member of the input set.
  * \retval false  File descriptor is part of the input set, but it is invalid.
  */
-static bool __internal_select_check(File::Ready_type rt,
-                                    cxx::Ref_ptr<L4Re::Vfs::File> &file,
-                                    int fd, fd_set *fds, fd_set &ofds,
-                                    unsigned &ready)
+static bool __internal_pselect_check(File::Ready_type rt,
+                                     cxx::Ref_ptr<L4Re::Vfs::File> &file,
+                                     int fd, fd_set *fds, fd_set &ofds,
+                                     unsigned &ready)
 {
   // Empty input set or non-member file descriptor.
   if (!fds || !FD_ISSET(fd, fds))
@@ -760,15 +761,33 @@ static void __internal_normalize_timespec(struct timespec &ts)
  * \param[in]  timeout  Relative timeout.
  * \param[out] ts       Absolute time.
  */
-static void __internal_select_timespec(struct timeval &timeout,
-                                       struct timespec &ts)
+static void __internal_pselect_timespec(const struct timespec &timeout,
+                                        struct timespec &ts)
 {
   // We assume that clock_gettime(CLOCK_REALTIME, ...) never fails in L4Re.
   clock_gettime(CLOCK_REALTIME, &ts);
 
   // Convert relative timeout into absolute time.
   ts.tv_sec += timeout.tv_sec;
-  ts.tv_nsec += timeout.tv_usec * 1000;
+  ts.tv_nsec += timeout.tv_nsec;
+
+  __internal_normalize_timespec(ts);
+}
+
+/**
+ * Convert relative timeout to absolute time.
+ *
+ * \param[in]  timeout  Relative timeout (in ms).
+ * \param[out] ts       Absolute time.
+ */
+static void __internal_poll_timespec(int timeout, struct timespec &ts)
+{
+  // We assume that clock_gettime(CLOCK_REALTIME, ...) never fails in L4Re.
+  clock_gettime(CLOCK_REALTIME, &ts);
+
+  // Convert relative timeout into absolute time.
+  ts.tv_sec += timeout / 1000;
+  ts.tv_nsec += (timeout % 1000) * 1000000;
 
   __internal_normalize_timespec(ts);
 }
@@ -798,6 +817,51 @@ static void __internal_select_timespec(struct timeval &timeout,
 int select(int nfds, fd_set *__restrict readfds, fd_set *__restrict writefds,
            fd_set *__restrict exceptfds, struct timeval *__restrict timeout)
 {
+  if (timeout)
+    {
+      struct timespec ts;
+
+      ts.tv_sec = timeout->tv_sec;
+      ts.tv_nsec = timeout->tv_usec * 1000;
+
+      return pselect(nfds, readfds, writefds, exceptfds, &ts, nullptr);
+    }
+
+  return pselect(nfds, readfds, writefds, exceptfds, nullptr, nullptr);
+}
+
+/**
+ * Standard-compliant pselect() implementation.
+ *
+ * To comply with standards, only the first #FD_SETSIZE file descriptors are
+ * checked.
+ *
+ * \note The atomic signal masking feature is not implemented yet (pending
+ *       signal support).
+ *
+ * \param[in]     nfds       Upper bound of the file descriptors to check.
+ * \param[in,out] readfds    Input set of file descriptors to check for read
+ *                           readiness and output set of file descriptors ready
+ *                           for read. Ignored if NULL.
+ * \param[in,out] writefds   Input set of file descriptors to check for write
+ *                           readiness and output set of file descriptors ready
+ *                           for write. Ignored if NULL.
+ * \param[in,out] exceptfds  Input set of file descriptors to check for
+ *                           exception condition and output set of file
+ *                           descriptors with an exception condition. Ignored
+ *                           if NULL.
+ * \param[in]     timeout    Waiting timeout. Wait without a timeout if NULL.
+ * \param[in]     sigmask    Signals that are masked during the waiting.
+ *                           Ignored if NULL. Currently not used.
+ *
+ * \return Total number of ready file descriptors in all output sets if
+ *         non-negative. -1 in case of an error (which is indicated in #errno).
+ */
+int pselect(int nfds, fd_set *__restrict readfds, fd_set *__restrict writefds,
+            fd_set *__restrict exceptfds,
+            const struct timespec *__restrict timeout,
+            [[maybe_unused]] const sigset_t *__restrict sigmask)
+{
   if (nfds < 0)
     {
       errno = EINVAL;
@@ -805,6 +869,7 @@ int select(int nfds, fd_set *__restrict readfds, fd_set *__restrict writefds,
     }
 
   bool poll = false;
+  bool wtimeout = false;
 
   struct timespec ts;
   ts.tv_sec = 0;
@@ -813,10 +878,13 @@ int select(int nfds, fd_set *__restrict readfds, fd_set *__restrict writefds,
   if (timeout)
     {
       // Zero timeout indicates a polling request.
-      if (timeout->tv_sec == 0 && timeout->tv_usec == 0)
+      if (timeout->tv_sec == 0 && timeout->tv_nsec == 0)
         poll = true;
-
-      __internal_select_timespec(*timeout, ts);
+      else
+        {
+          __internal_pselect_timespec(*timeout, ts);
+          wtimeout = true;
+        }
     }
 
   fd_set oreadfds;
@@ -838,22 +906,22 @@ int select(int nfds, fd_set *__restrict readfds, fd_set *__restrict writefds,
         {
           auto file = vfs_ops->get_file(fd);
 
-          if (!__internal_select_check(File::Ready_type::Read, file, fd, readfds,
-                                       oreadfds, ready))
+          if (!__internal_pselect_check(File::Ready_type::Read, file, fd, readfds,
+                                        oreadfds, ready))
             {
               errno = EBADFD;
               return -1;
             }
 
-          if (!__internal_select_check(File::Ready_type::Write, file, fd,
-                                       writefds, owritefds, ready))
+          if (!__internal_pselect_check(File::Ready_type::Write, file, fd,
+                                        writefds, owritefds, ready))
             {
               errno = EBADFD;
               return -1;
             }
 
-          if (!__internal_select_check(File::Ready_type::Exception, file, fd,
-                                       exceptfds, oexceptfds, ready))
+          if (!__internal_pselect_check(File::Ready_type::Exception, file, fd,
+                                        exceptfds, oexceptfds, ready))
             {
               errno = EBADFD;
               return -1;
@@ -865,7 +933,7 @@ int select(int nfds, fd_set *__restrict readfds, fd_set *__restrict writefds,
         break;
 
       // Wait for the I/O operation/condition readiness signal.
-      if (timeout)
+      if (wtimeout)
         {
           // Exit in case of a timeout or failure.
           if (pthread_cond_timedwait(&__fnotify_cv, &__fnotify_mtx, &ts) != 0)
@@ -890,41 +958,154 @@ int select(int nfds, fd_set *__restrict readfds, fd_set *__restrict writefds,
   return ready;
 }
 
-int pselect(int nfds, fd_set *__restrict readfds,
-            fd_set *__restrict writefds,
-            fd_set *__restrict exceptfds,
-            const struct timespec *__restrict __timeout,
-            [[maybe_unused]] const __sigset_t *__restrict __sigmask)
+/**
+ * Check array of file descriptors I/O operation/condition readiness.
+ *
+ * Iteratively check whether the files associated with file descriptors in an
+ * array are ready for the given I/O operation/condition readiness.
+ *
+ * \param[in,out] fds       Array of file descriptors.
+ * \param[in]     nfds      Number of array members.
+ * \param[in]     poll      Only run one iteration if true.
+ * \param[in]     wtimeout  Wait with a timeout if true.
+ * \param[in]     ts        Absolute time of timeout.
+ *
+ * \return Number of file descriptors that are ready.
+ */
+static unsigned __internal_ppoll(struct pollfd *fds, nfds_t nfds, bool poll,
+                                 bool wtimeout, const struct timespec &ts)
 {
-  printf("pselect: WARNING: Stubbed\n");
+  unsigned ready;
 
-  struct timeval to;
-  to.tv_sec = __timeout->tv_sec;
-  to.tv_usec = __timeout->tv_nsec / 1000;
-  return select(nfds, readfds, writefds, exceptfds, &to);
+  auto guard = L4::Lock_guard(__fnotify_mtx);
+  assert(guard.status() == 0);
+
+  while (true)
+    {
+      ready = 0;
+
+      for (nfds_t i = 0; i < nfds; ++i)
+        {
+          struct pollfd &cur = fds[i];
+          cur.revents = 0;
+
+          // Ignore negative file descriptors.
+          if (cur.fd < 0)
+            continue;
+
+          auto file = vfs_ops->get_file(cur.fd);
+          if (!file)
+            {
+              // Invalid file descriptor.
+              cur.revents |= POLLNVAL;
+              ++ready;
+              continue;
+            }
+
+          if ((cur.events & POLLIN) != 0
+               && file->check_ready(File::Ready_type::Read))
+            cur.revents |= POLLIN;
+
+          if ((cur.events & POLLOUT) != 0
+               && file->check_ready(File::Ready_type::Write))
+            cur.revents |= POLLOUT;
+
+          if (file->check_ready(File::Ready_type::Exception))
+            cur.revents |= POLLERR;
+
+          if (cur.revents != 0)
+            ++ready;
+        }
+
+      // Exit if at least one file descriptor is ready or polling is requested.
+      if (ready > 0 || poll)
+        break;
+
+      // Wait for the I/O operation/condition readiness signal.
+      if (wtimeout)
+        {
+          // Exit in case of a timeout or failure.
+          if (pthread_cond_timedwait(&__fnotify_cv, &__fnotify_mtx, &ts) != 0)
+            break;
+        }
+      else
+        {
+          // According to the specification, this should never fail.
+          pthread_cond_wait(&__fnotify_cv, &__fnotify_mtx);
+        }
+    }
+
+  return ready;
 }
 
-#include <poll.h>
-
-int poll([[maybe_unused]] struct pollfd *fds, [[maybe_unused]] nfds_t nfds,
-         [[maybe_unused]] int timeout)
+/**
+ * Standard-compliant poll() implementation.
+ *
+ * \param[in,out] fds      Array of file descriptors.
+ * \param[in]     nfds     Number of array members.
+ * \param[in]     timeout  Waiting timeout. Wait without a timeout if negative.
+ *                         Return immediately after the first check if zero.
+ *
+ * \return Number of file descriptors that are ready.
+ */
+int poll(struct pollfd *fds, nfds_t nfds, int timeout)
 {
-  if (1)
-    printf("Call: poll(...): Implementation to come\n");
+  bool poll = false;
+  bool wtimeout = false;
 
-  return -EOPNOTSUPP;
+  struct timespec ts;
+  ts.tv_sec = 0;
+  ts.tv_nsec = 0;
+
+  if (timeout == 0)
+    poll = true;
+  else if (timeout > 0)
+    {
+      __internal_poll_timespec(timeout, ts);
+      wtimeout = true;
+    }
+
+  return __internal_ppoll(fds, nfds, poll, wtimeout, ts);
 }
 
-int ppoll([[maybe_unused]] struct pollfd *fds, [[maybe_unused]] nfds_t nfds,
-          [[maybe_unused]] const struct timespec *__timeout,
-          [[maybe_unused]] const __sigset_t *__ss)
+/**
+ * Standard-compliant ppoll() implementation.
+ *
+ * \note The atomic signal masking feature is not implemented yet (pending
+ *       signal support).
+ *
+ * \param[in,out] fds      Array of file descriptors.
+ * \param[in]     nfds     Number of array members.
+ * \param[in]     timeout  Waiting timeout. Wait without a timeout if NULL.
+ * \param[in]     sigmask  Signals that are masked during the waiting. Ignored
+ *                         if NULL. Currently not used.
+ *
+ * \return Number of file descriptors that are ready.
+ */
+int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
+          [[maybe_unused]] const sigset_t *sigmask)
 {
-  if (1)
-    printf("Call: ppoll(...): Implementation to come\n");
+  bool poll = false;
+  bool wtimeout = false;
 
-  return -EOPNOTSUPP;
+  struct timespec ts;
+  ts.tv_sec = 0;
+  ts.tv_nsec = 0;
+
+  if (timeout)
+    {
+      // Zero timeout indicates a polling request.
+      if (timeout->tv_sec == 0 && timeout->tv_nsec == 0)
+        poll = true;
+      else
+        {
+          __internal_pselect_timespec(*timeout, ts);
+          wtimeout = true;
+        }
+    }
+
+  return __internal_ppoll(fds, nfds, poll, wtimeout, ts);
 }
-
 
 #undef L4B_REDIRECT
 
