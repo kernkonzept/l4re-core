@@ -49,7 +49,7 @@ typedef struct
 
 /**
  * \brief Goos object type
- * \ingroup api_l4re_c_fb
+ * \ingroup api_l4re_c_video
  */
 typedef l4_cap_idx_t l4re_video_goos_t;
 

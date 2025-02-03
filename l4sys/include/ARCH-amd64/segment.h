@@ -1,7 +1,7 @@
 /**
  * \file
  * \brief   Segment handling.
- * \ingroup api_calls
+ * \ingroup api_calls_fiasco
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>

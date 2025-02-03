@@ -2,7 +2,7 @@
  * \internal
  * \file
  * \brief   L4 IPC System Calls, amd64
- * \ingroup api_calls
+ * \ingroup l4_api
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,

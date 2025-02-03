@@ -1,7 +1,7 @@
 /*!
  * \file
  * \brief   L4 IPC System Calls, PPC
- * \ingroup api_calls
+ * \ingroup l4_api
  */
 /*
  * (c) 2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>

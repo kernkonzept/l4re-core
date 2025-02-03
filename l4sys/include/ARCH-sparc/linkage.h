@@ -1,7 +1,7 @@
 /**
  * \file
  * \brief   Linkage
- * \ingroup l4sys_api
+ * \ingroup l4sys_defines
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,

@@ -18,7 +18,7 @@
 #define _L4UTIL_PORT_IO_H
 
 /**
- * \defgroup l4util_portio IA32 Port I/O API
+ * \defgroup l4util_port_io IA32 Port I/O API
  * \ingroup l4util_api
  */
 
@@ -32,7 +32,7 @@
 
 __BEGIN_DECLS
 /**
- * \addtogroup l4util_portio
+ * \addtogroup l4util_port_io
  */
 /**@{*/
 /**

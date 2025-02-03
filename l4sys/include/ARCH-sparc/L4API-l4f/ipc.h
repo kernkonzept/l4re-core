@@ -1,7 +1,7 @@
 /**
  * \file
  * \brief   L4 IPC System Calls, Sparc
- * \ingroup api_calls
+ * \ingroup l4_api
  */
 /*
  * (c) 2010    Adam Lackorzynski <adam@os.inf.tu-dresden.de>

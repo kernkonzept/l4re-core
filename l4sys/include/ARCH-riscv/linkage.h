@@ -1,7 +1,7 @@
 /**
  * \file
  * \brief   Linkage
- * \ingroup l4sys_api
+ * \ingroup l4sys_defines
  */
 /*
  * Copyright (C) 2021, 2024 Kernkonzept GmbH.
