@@ -57,12 +57,6 @@ namespace L4 { };
  */
 
 /**
- * \defgroup api_calls_rt_sched Fiasco real time scheduling extensions
- * \ingroup  api_calls_fiasco
- * \brief    Real time scheduling extension for the Fiasco %L4 implementation
- */
-
-/**
  * \defgroup l4_protocol_ops L4 IPC Opcodes
  * \brief    List of protocol specific opcodes used for communication with L4Re
  *           and Kernel objects.

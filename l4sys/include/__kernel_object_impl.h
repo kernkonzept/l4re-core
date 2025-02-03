@@ -1,4 +1,5 @@
 /**
+ * \internal
  * \file
  * \brief  Low-level kernel debugger functions.
  */

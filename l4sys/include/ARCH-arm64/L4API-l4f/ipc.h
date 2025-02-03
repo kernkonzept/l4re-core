@@ -1,7 +1,7 @@
 /**
+ * \internal
  * \file
- * \brief   L4 IPC System Calls, ARM
- * \ingroup l4_api
+ * \brief   L4 IPC System Calls, ARM64
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,

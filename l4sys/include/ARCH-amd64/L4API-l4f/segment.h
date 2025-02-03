@@ -2,7 +2,7 @@
 
 /**
  * \file
- * \brief   l4f specific fs/gs manipulation
+ * \brief   l4f-specific fs/gs manipulation (AMD64).
  * \ingroup api_calls_fiasco
  */
 /*

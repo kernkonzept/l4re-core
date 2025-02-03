@@ -1,7 +1,7 @@
 /*****************************************************************************/
 /**
  * \file
- * \brief   Common L4 constants, amd64 version.
+ * \brief   Common L4 constants, AMD64 version.
  * \ingroup l4_api
  */
 /*

@@ -1,7 +1,7 @@
 /**
+ * \internal
  * \file
- * \brief   Atomic memory modifications.
- * \ingroup l4_api
+ * \brief   Atomic memory modifications, ARM.
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,

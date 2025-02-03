@@ -1,7 +1,7 @@
 /**
+ * \internal
  * \file
  * \brief   L4 IPC System Calls, RISC-V
- * \ingroup l4_api
  */
 /*
  * Copyright (C) 2021, 2024 Kernkonzept GmbH.

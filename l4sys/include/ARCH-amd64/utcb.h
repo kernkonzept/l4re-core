@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief   UTCB definitions for amd64.
+ * \brief   UTCB definitions for AMD64.
  * \ingroup l4_utcb_api
  */
 /*
@@ -17,7 +17,7 @@
 #include <l4/sys/types.h>
 
 /**
- * \defgroup l4_utcb_api_amd64 amd64 Virtual Registers (UTCB)
+ * \defgroup l4_utcb_api_amd64 AMD64 Virtual Registers (UTCB)
  * \ingroup  l4_utcb_api
  */
 

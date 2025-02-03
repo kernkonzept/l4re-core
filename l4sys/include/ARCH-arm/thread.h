@@ -12,13 +12,10 @@
 
 #include_next <l4/sys/thread.h>
 
+// Use the full documentation from ARM64. Otherwise \parameters and \return
+// would occur twice in the Doxygen documentation of this function.
 /**
  * \brief Set the TPIDRURO thread specific register.
- * \ingroup l4_thread_api
- *
- * \param thread   Thread to manipulate
- * \param tpidruro The value to be set
- * \return System call return tag
  */
 L4_INLINE l4_msgtag_t
 l4_thread_arm_set_tpidruro(l4_cap_idx_t thread, l4_addr_t tpidruro) L4_NOTHROW;

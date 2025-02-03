@@ -2,7 +2,7 @@
 
 /**
  * \file
- * \brief   l4f specific segment manipulation
+ * \brief   l4f-specific segment manipulation (x86).
  * \ingroup api_calls_fiasco
  */
 /*

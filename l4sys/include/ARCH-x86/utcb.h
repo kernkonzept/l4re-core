@@ -1,7 +1,7 @@
 /*****************************************************************************/
 /**
  * \file
- * \brief   UTCB definitions for X86.
+ * \brief   UTCB definitions for x86.
  * \ingroup  l4_utcb_api
  */
 /*

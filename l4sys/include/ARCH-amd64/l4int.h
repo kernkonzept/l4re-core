@@ -1,7 +1,7 @@
 /*****************************************************************************/
 /**
  * \file
- * \brief   Fixed sized integer types, amd64 version
+ * \brief   Fixed sized integer types, AMD64 version
  * \ingroup l4_basic_types
  */
 /*

@@ -1,7 +1,7 @@
 /**
  * \internal
  * \file
- * \brief X86 virtualization interface.
+ * \brief x86 virtualization interface.
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,

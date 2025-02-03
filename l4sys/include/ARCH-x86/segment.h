@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief   Segment handling.
+ * \brief   Segment handling (x86).
  * \ingroup api_calls_fiasco
  */
 /*
