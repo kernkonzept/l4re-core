@@ -51,7 +51,20 @@ class File;
 class Generic_file
 {
 public:
+  /**
+   * \brief Type of I/O operation/condition a file can indicate readiness.
+   *
+   * As defined by select() and similar functions.
+   */
+  enum Ready_type : unsigned
+  {
+    Read = 0,
+    Write,
+    Exception
+  };
+
   virtual ~Generic_file() noexcept = 0;
+
   /**
    * \brief Unlock all locks on the file.
    * \note All locks means all locks independent of which file
@@ -113,6 +126,23 @@ public:
   virtual int utime(const struct utimbuf *) noexcept = 0;
   virtual int utimes(const struct timeval [2]) noexcept = 0;
   virtual ssize_t readlink(char *, size_t) = 0;
+
+  /**
+   * \brief Check whether the file is ready for an I/O operation/condition.
+   *
+   * This method is used by the implementation of select() and similar
+   * functions.
+   *
+   * \param rt  Type of the I/O operation/condition to be ready, as defined
+   *            by the select() and similar functions (#Read, #Write,
+   *            #Exception).
+   *
+   * \retval true   The file is ready for the given type of I/O
+   *                operation/condition.
+   * \retval false  The file is not ready for the given type of I/O
+   *                operation/condition.
+   */
+  virtual bool check_ready(Ready_type rt) noexcept = 0;
 };
 
 inline
@@ -458,7 +488,6 @@ public:
 private:
   int _ref_cnt;
   cxx::Ref_ptr<Mount_tree> _mount_tree;
-
 };
 
 inline

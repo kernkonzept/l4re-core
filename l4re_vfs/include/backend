@@ -204,6 +204,17 @@ public:
   int getpeername(sockaddr *, socklen_t *) noexcept override
   { return -ENOTSOCK; }
 
+  /**
+   * \brief Default implementation of a readiness check.
+   *
+   * By default, we assume a file is not ready for an I/O operation/condition
+   * since the proper semantics of that relies on the backend.
+   *
+   * \return Always false.
+   */
+  bool check_ready(Ready_type) noexcept override
+  { return false; }
+
   ~Be_file() noexcept = 0;
 
 private:

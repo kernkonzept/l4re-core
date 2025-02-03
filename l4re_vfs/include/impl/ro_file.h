@@ -39,6 +39,19 @@ public:
   int set_status_flags(long) noexcept override
   { return 0; }
 
+  /**
+   * Check whether the file is ready for an I/O operation/condition.
+   *
+   * By definition, the read-only file is always ready for reading and not
+   * ready for other I/O operations/conditions.
+   *
+   * \param rt  Type of the I/O operation/condition to be ready.
+   *
+   * \return Always true for reading, always false otherwise.
+   */
+  bool check_ready(Ready_type rt) noexcept override
+  { return rt == Read; }
+
   ~Ro_file() noexcept;
 
 private:

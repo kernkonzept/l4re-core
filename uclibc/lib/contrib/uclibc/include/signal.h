@@ -169,12 +169,17 @@ extern int raise (int __sig) __THROW;
 libc_hidden_proto(raise)
 __END_NAMESPACE_STD
 
-#if 0 /*def __USE_SVID*/
-/* SVID names for the same things.  */
-extern __sighandler_t ssignal (int __sig, __sighandler_t __handler)
-     __THROW;
+/*
+ * L4: System V user space signaling.
+ *
+ * This is a System V user space signaling facility that is deprecated and
+ * unused, but still a de facto standard (thus it is safe to be declared in
+ * signal.h).
+ */
+__BEGIN_NAMESPACE_STD
 extern int gsignal (int __sig) __THROW;
-#endif /* Use SVID.  */
+libc_hidden_proto(gsignal)
+__END_NAMESPACE_STD
 
 /* glibc guards the next two wrong with __USE_XOPEN2K */
 #if defined __USE_MISC || defined __USE_XOPEN2K8
