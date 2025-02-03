@@ -1,7 +1,7 @@
 PKGDIR          ?= ../..
 L4DIR           ?= $(PKGDIR)/../../..
 
-TARGET          := librt.a librt.so
+TARGET          := librt.a
 
 # librt is empty and just provided for compatibility
 
