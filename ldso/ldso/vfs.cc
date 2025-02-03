@@ -5,6 +5,7 @@
 #include <l4/crtn/initpriorities.h>
 #include <l4/util/util.h>
 
+#include <l4/cxx/static_container>
 #include <l4/re/env>
 #include <l4/re/util/bitmap_cap_alloc>
 #include <l4/re/cap_alloc>
@@ -45,6 +46,14 @@ extern "C" attribute_hidden void *__rtld_l4re_global_env;
 extern "C" void _dl_dprintf(int, const char *, ...);
 extern "C" void *_dl_malloc(size_t size);
 extern "C" void _dl_free(void *m);
+
+namespace L4Re {
+  Cap_alloc *virt_cap_alloc asm ("l4re_vfs_virt_cap_alloc");
+
+  extern Cap_alloc *__rtld_l4re_virt_cap_alloc
+    __attribute__((alias("l4re_vfs_virt_cap_alloc"), visibility("default")));
+}
+
 namespace Vfs_config {
 
   using ::memcpy;
@@ -53,12 +62,24 @@ namespace Vfs_config {
 
   namespace
   {
-    // small ldso-internal cap allocator for the first libs
-    typedef L4Re::Cap_alloc_t<L4Re::Util::Cap_alloc<256> > Cap_alloc;
+    enum : unsigned { Num_caps = 256 };
+    typedef L4Re::Cap_alloc_t<L4Re::Util::Cap_alloc<Num_caps> > Cap_alloc;
 
-    // compile-time version
-    Cap_alloc __attribute__((init_priority(INIT_PRIO_L4RE_UTIL_CAP_ALLOC)))
-      __cap_alloc(256); //L4Re::Env::env()->first_free_cap() - 256);
+    // small ldso-internal cap allocator for the first libs
+    cxx::Static_container<Cap_alloc> __cap_alloc;
+
+    static void init()
+    {
+      auto *env = reinterpret_cast<L4Re::Env *>(__rtld_l4re_global_env);
+      __cap_alloc.construct(env->first_free_cap());
+      env->first_free_cap(env->first_free_cap() + Num_caps);
+
+      // Use compile-time version first. Later replaced by
+      // L4Re::Util::cap_alloc during libc initialization.
+      ::L4Re::virt_cap_alloc = __cap_alloc.get();
+    }
+
+    L4_DECLARE_CONSTRUCTOR(init, INIT_PRIO_L4RE_UTIL_CAP_ALLOC);
   }
 
   inline
@@ -100,13 +121,6 @@ namespace Vfs_config {
   inline void *malloc(size_t size) { return _dl_malloc(size); }
   inline void free(void *p) { _dl_free(p); }
 
-}
-namespace L4Re {
-  Cap_alloc *virt_cap_alloc asm ("l4re_vfs_virt_cap_alloc")
-    = &Vfs_config::__cap_alloc;
-
-  extern Cap_alloc *__rtld_l4re_virt_cap_alloc
-    __attribute__((alias("l4re_vfs_virt_cap_alloc"), visibility("default")));
 }
 
 extern "C" void __cxa_pure_virtual(void);
