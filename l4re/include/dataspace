@@ -301,7 +301,8 @@ public:
    */
 #ifdef CONFIG_MMU
   L4_RPC_NF(long, map_info, (l4_addr_t *start_addr, l4_addr_t *end_addr));
-  inline long map_info(l4_addr_t *, l4_addr_t *)
+  inline long map_info([[maybe_unused]] l4_addr_t *start_addr,
+                       [[maybe_unused]] l4_addr_t *end_addr)
   { return 0; }
 #else
   L4_RPC(long, map_info, (l4_addr_t *start_addr, l4_addr_t *end_addr));
