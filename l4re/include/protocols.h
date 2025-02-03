@@ -12,9 +12,14 @@
 #pragma once
 
 /**
- * Fix L4Re Protocol Constants.
  * \defgroup api_l4re_protocols L4Re Protocol identifiers
  * \ingroup api_l4re
+ * Fix L4Re Protocol Constants.
+ */
+
+/**
+ * Common L4Re Protocol Constants.
+ * \ingroup api_l4re_protocols
  */
 enum L4re_protocols
 {
