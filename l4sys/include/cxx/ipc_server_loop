@@ -12,6 +12,12 @@
 namespace L4 {
 
 /**
+ * \defgroup client_server_ipc The L4Re IPC Framework
+ *
+ * The mechanisms for IPC communication between L4Re applications.
+ */
+
+/**
  * \ingroup client_server_ipc
  *
  * Server-Side framework for implementing object-oriented servers.´

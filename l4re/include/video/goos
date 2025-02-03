@@ -15,6 +15,14 @@
 
 namespace L4Re { namespace Video {
 
+/**
+ * \defgroup api_l4re_video Video API
+ * \ingroup api_l4re
+ * \brief API for framebuffer based graphics.
+ *
+ * Contains the basic APIs that abstract framebuffers and views into them for
+ * L4Re applications.
+ */
 class L4_EXPORT Goos;
 
 /**

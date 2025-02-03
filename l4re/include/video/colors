@@ -16,7 +16,7 @@ namespace L4Re { namespace Video {
 
 /**
  * \brief A color component.
- * \ingroup api_l4re_goos
+ * \ingroup api_l4re_video
  */
 class L4_EXPORT Color_component
 {
@@ -86,7 +86,7 @@ public:
 
 /**
  * \brief Pixel information.
- * \ingroup api_l4re_goos
+ * \ingroup api_l4re_video
  *
  * This class wraps the information on a pixel, such as the size and
  * position of each color component in the pixel.
