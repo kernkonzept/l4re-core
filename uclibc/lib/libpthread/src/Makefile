@@ -1,11 +1,15 @@
 PKGDIR     ?= ../../..
 L4DIR      ?= $(PKGDIR)/../../..
 
-TARGET      = libpthread.ofl libpthread.p.a
+# The real code is in libc_pthread which is linked into libc.(a|so). There is
+# an empty libpthread.a to satisfy applications that unconditionally link
+# with libpthread.
+TARGET      = libpthread.a libc_pthread.ofl libc_pthread.p.a
 
-PC_FILENAME = libpthread
-PC_LIBS       = %{-link-libc:%{shared:--whole-archive -lpthread.p --no-whole-archive;:libpthread.ofl}}
-PC_LIBS_PIC   =
+PC_FILENAMES               = libpthread libc_pthread
+PC_LIBS_libpthread         = -lpthread
+PC_LIBS_libc_pthread       = %{-link-libc:%{shared:--whole-archive -lc_pthread.p --no-whole-archive;:libc_pthread.ofl}}
+PC_LIBS_PIC                =
 
 CONTRIBDIR = $(PKGDIR)/../uclibc/lib/contrib/uclibc
 LDSODIR    = $(CONTRIBDIR)/ldso/ldso
@@ -19,13 +23,21 @@ DIR_ppc32 := powerpc
 DIR_riscv := riscv
 DIR_sparc := sparc
 
-SRC_CC      = manager.cc l4.cc
-SRC_C      += spinlock.c mutex.c condvar.c rwlock.c errno.c specific.c \
-              semaphore.c attr.c barrier.c join.c pthread.c \
-              cancel.c ptcleanup.c errno-loc.c signals.c \
-              sysdeps/$(DIR_$(ARCH))/pspinlock.c
-SRC_C_libpthread.ofl += libc_pthread_init.c
-SRC_S       = tramp-$(ARCH).S
+SRC_CC_libc_pthread   = manager.cc l4.cc
+SRC_C_libc_pthread   += spinlock.c mutex.c condvar.c rwlock.c errno.c specific.c \
+                        semaphore.c attr.c barrier.c join.c pthread.c \
+                        cancel.c ptcleanup.c errno-loc.c signals.c \
+                        sysdeps/$(DIR_$(ARCH))/pspinlock.c
+SRC_S_libc_pthread    = tramp-$(ARCH).S
+
+SRC_C_libc_pthread.p.a  += $(SRC_C_libc_pthread)
+SRC_CC_libc_pthread.p.a += $(SRC_CC_libc_pthread)
+SRC_S_libc_pthread.p.a  += $(SRC_S_libc_pthread)
+
+SRC_C_libc_pthread.ofl  += $(SRC_C_libc_pthread) libc_pthread_init.c
+SRC_CC_libc_pthread.ofl += $(SRC_CC_libc_pthread)
+SRC_S_libc_pthread.ofl  += $(SRC_S_libc_pthread)
+
 WARNINGS    = $(WARNINGS_MEDIUM)
 
 vpath %.c $(SRC_DIR)/sysdeps/generic

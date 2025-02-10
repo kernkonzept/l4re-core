@@ -14,7 +14,7 @@ PC_FILENAME       := libc
 PC_LIBS           := -lc -lc_nonshared.p
 PC_EXTRA          := Link_Libs= %{static|static-pie:-lc}
 
-REQUIRES_LIBS     := ldscripts libpthread l4sys l4util l4re l4re-util l4re_c \
+REQUIRES_LIBS     := ldscripts libc_pthread l4sys l4util l4re l4re-util l4re_c \
                      l4re_c-util libc_be_l4re libc_be_l4refile \
                      libc_support_misc libc_be_fs_noop libc_be_sem_noop \
                      libc_be_sig libc_be_socket_noop libl4re-vfs
