@@ -12,6 +12,7 @@
 #include <l4/re/mem_alloc>
 #include <l4/re/env>
 #include <l4/re/l4aux.h>
+#include <l4/re/util/bitmap_cap_alloc>
 #include <l4/cxx/static_container>
 
 class Region_map;
@@ -23,9 +24,12 @@ namespace Global
     Max_local_rm_caps = 1024,
     Local_task_cap    = 0,
   };
+
+  using Cap_alloc = L4Re::Cap_alloc_t<L4Re::Util::Cap_alloc<Max_local_rm_caps>>;
+
   extern L4::Cap<L4Re::Mem_alloc> allocator;
   extern cxx::Static_container<Region_map> local_rm;
-  extern L4Re::Cap_alloc *cap_alloc;
+  extern cxx::Static_container<Cap_alloc> cap_alloc;
   extern char const *const *argv;
   extern char const *const *envp;
   extern int argc;

@@ -117,7 +117,7 @@ L4Re_app_model::Const_dataspace
 L4Re_app_model::open_file(char const *name)
 {
   using L4Re::chkcap;
-  L4Re::Util::Env_ns ens(L4Re::Env::env(), L4Re::Cap_alloc::get_cap_alloc(*Global::cap_alloc));
+  L4Re::Util::Env_ns ens(L4Re::Env::env(), Global::cap_alloc.get());
 
   L4::Cap<L4Re::Dataspace> file;
 

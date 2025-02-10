@@ -10,20 +10,15 @@
 #include <stdlib.h>
 #include <l4/sys/compiler.h>
 #include <l4/crtn/initpriorities.h>
-#include <l4/re/util/bitmap_cap_alloc>
 
 // internal uclibc symbol for ENV
 extern char const **__environ;
 
 namespace Global
 {
-  using Cap_alloc = L4Re::Util::Cap_alloc<Max_local_rm_caps>;
-
   L4::Cap<L4Re::Mem_alloc> allocator(L4::Cap_base::No_init);
   cxx::Static_container<Region_map> local_rm;
-  // Accessed through the `cap_alloc` adapter below.
-  static cxx::Static_container<Cap_alloc> bitmap_cap_alloc;
-  L4Re::Cap_alloc *cap_alloc;
+  cxx::Static_container<Cap_alloc> cap_alloc;
   char const *const *argv;
   char const *const *envp;
   int argc;
@@ -47,8 +42,7 @@ namespace Global
       }
 
     L4Re::Env *env = const_cast<L4Re::Env*>(L4Re::Env::env());
-    bitmap_cap_alloc.construct(env->first_free_cap());
-    cap_alloc = L4Re::Cap_alloc::get_cap_alloc(*bitmap_cap_alloc);
+    cap_alloc.construct(env->first_free_cap());
     env->first_free_cap(env->first_free_cap() + Global::Max_local_rm_caps);
     L4::Cap<L4Re::Mem_alloc> obj = env->mem_alloc();
 
