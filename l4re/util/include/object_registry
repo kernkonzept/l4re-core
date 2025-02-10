@@ -341,11 +341,25 @@ public:
   /**
    * Start the server loop.
    *
-   * \param utcb The UTCB of the thread running the server loop, defaults to
-   *             l4_utcb().
+   * \param utcb  The UTCB of the thread running the server loop, defaults to
+   *              l4_utcb().
    */
   void L4_NORETURN loop(l4_utcb_t *utcb = l4_utcb())
   { Base::template loop<L4::Runtime_error, Object_registry &>(_registry, utcb); }
-};
 
+  /**
+   * Start the server loop with error printing.
+   *
+   * \tparam Printer  The printer type.
+   * \param printer   The printer object on which printf() is called.
+   * \param utcb      The UTCB of the thread running the server loop, defaults
+   *                  to l4_utcb().
+   */
+  template <typename Printer>
+  void L4_NORETURN loop_dbg(Printer printer, l4_utcb_t *utcb = l4_utcb())
+  {
+    Base::template loop_dbg<L4::Runtime_error, Object_registry &, Printer>
+      (_registry, printer, utcb);
+  }
+};
 }}

@@ -165,6 +165,59 @@ struct Exc_dispatch : private Direct_dispatch<R>
       }
   }
 };
+
+/**
+ * Dispatch helper that, in addition to what Exc_dispatch does, prints exception
+ * messages.
+ * \tparam R        Data type of the registry used for dispatching to objects.
+ * \tparam Exc      Data type of the exceptions that shall be caught.
+ *                  This data type must provide a member err_no() that returns
+ *                  the negative integer (int) error code for the exception.
+ *                  In addition, methods str() and extra_str() are required
+ *                  that return a c-string describing the error.
+ * \tparam Printer  A type that provides a printf() member that is used (with
+ *                  the usual format string syntax) to print error messages.
+ *
+ * This dispatcher wraps Direct_dispatch<R> with a try-catch (Exc).
+ */
+template< typename R, typename Exc, typename Printer >
+struct Dbg_dispatch : private Direct_dispatch<R>
+{
+  /// Make an exception handling dispatcher
+  Dbg_dispatch(R r, Printer p) : Direct_dispatch<R>(r), _printer(p) {}
+
+  /**
+   * Dispatch the call via Direct_dispatch<R>(), handle exceptions, and print
+   * the exception message.
+   */
+  l4_msgtag_t operator () (l4_msgtag_t tag, l4_umword_t obj, l4_utcb_t *utcb)
+  {
+    try
+      {
+        return Direct_dispatch<R>::operator () (tag, obj, utcb);
+      }
+    catch (Exc &e)
+      {
+        _printer.printf("Error in handling IPC: %s: %s\n", e.str(),
+                        e.extra_str());
+        return l4_msgtag(e.err_no(), 0, 0, 0);
+      }
+    catch (int err)
+      {
+        _printer.printf("Error in handling IPC: %d (%s)\n", err,
+                        l4sys_errtostr(err));
+        return l4_msgtag(err, 0, 0, 0);
+      }
+    catch (long err)
+      {
+        _printer.printf("Error in handling IPC: %ld (%s)\n", err,
+                        l4sys_errtostr(err));
+        return l4_msgtag(err, 0, 0, 0);
+      }
+  }
+
+  Printer _printer;
+};
 #endif
 
 /**
@@ -302,6 +355,19 @@ public:
   inline L4_NORETURN void loop(R r, l4_utcb_t *u = l4_utcb())
   {
     internal_loop(Ipc_svr::Exc_dispatch<R, EXC>(r), u);
+    // function will never return
+  }
+
+  /**
+   * Server loop with internal exception handling including message printing.
+   *
+   * Exceptions are translated into error codes, just like in loop(). In
+   * addition, error messages are printed using the Printer argument.
+   */
+  template< typename EXC, typename R, typename Printer >
+  inline L4_NORETURN void loop_dbg(R r, Printer p, l4_utcb_t *u = l4_utcb())
+  {
+    internal_loop(Ipc_svr::Dbg_dispatch<R, EXC, Printer>(r, p), u);
     // function will never return
   }
 #endif
