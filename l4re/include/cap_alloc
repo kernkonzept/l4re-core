@@ -68,38 +68,6 @@ public:
    * \brief Destructor.
    */
   virtual ~Cap_alloc() = 0;
-
-  /**
-   * \brief Construct an instance of a capability allocator.
-   * \param ca  Capability allocator
-   * \return Instance of a capability allocator.
-   */
-  template< typename CAP_ALLOC >
-  static inline L4Re::Cap_alloc *
-  get_cap_alloc(CAP_ALLOC &ca)
-  {
-    struct CA : public L4Re::Cap_alloc
-    {
-      CAP_ALLOC &_ca;
-      L4::Cap<void> alloc() noexcept override { return _ca.alloc(); }
-      void take(L4::Cap<void> cap) noexcept override { _ca.take(cap); }
-
-      void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
-            unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept override
-      { _ca.free(cap, task, unmap_flags); }
-
-      bool release(L4::Cap<void> cap, l4_cap_idx_t task,
-                   unsigned unmap_flags) noexcept override
-      { return _ca.release(cap, task, unmap_flags); }
-
-      void operator delete(void *) {}
-
-      CA(CAP_ALLOC &ca) : _ca(ca) {}
-    };
-
-    static CA _ca(ca);
-    return &_ca;
-  }
 };
 
 template<typename ALLOC>
