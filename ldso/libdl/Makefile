@@ -30,6 +30,8 @@ PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
 
 TARGET := libdl.a libdl.so
 
+SOVERSION_libdl.so := 1.0.50
+
 SRC_S_libdl.a := resolve.S
 SRC_C := libdl.c #dl-iterate-phdr.c dl-support.c
 
