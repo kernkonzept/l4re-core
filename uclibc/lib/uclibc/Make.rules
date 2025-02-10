@@ -19,6 +19,8 @@ REQUIRES_LIBS     := ldscripts libc_pthread l4sys l4util l4re l4re-util l4re_c \
                      libc_support_misc libc_be_fs_noop libc_be_sem_noop \
                      libc_be_sig libc_be_socket_noop libl4re-vfs
 
+SOVERSION_libc.so := 1.0.50
+
 PICFLAGS += -DSHARED=1
 
 include $(LIBCSRC_DIR)/make_vars.mk
