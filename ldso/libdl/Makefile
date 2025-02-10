@@ -36,7 +36,7 @@ SRC_C := libdl.c #dl-iterate-phdr.c dl-support.c
 
 CPPFLAGS := -DNOT_IN_libc -DIS_IN_libdl \
             -DLDSO_ELFINTERP=\"../ldso/$(DIR_$(ARCH))/elfinterp.c\" \
-            -include libc-symbols.h -DUCLIBC_LDSO=\"libld-l4.so\" \
+            -include libc-symbols.h -DUCLIBC_LDSO=\"libld-l4.so.1\" \
             -DUCLIBC_RUNTIME_PREFIX=\"/\"
 
 DEFINES_x86-l4f   += -DUSE_TLS=1

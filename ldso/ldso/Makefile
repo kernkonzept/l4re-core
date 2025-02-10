@@ -5,7 +5,7 @@ CON_DIR := $(PKGDIR)/../uclibc/lib/contrib/uclibc/ldso
 PTH_DIR := $(PKGDIR)/../uclibc/lib/libpthread
 UCC_DIR := $(PKGDIR)/../uclibc/lib/uclibc
 
-PC_EXTRA = Link_DynLinker= rom/libld-l4.so
+PC_EXTRA = Link_DynLinker= rom/libld-l4.so.1
 
 DIR_amd64 := x86_64
 DIR_x86   := i386
@@ -46,7 +46,7 @@ CFLAGS_fixup.c = -fvisibility=hidden
 
 CPPFLAGS := -DNOT_IN_libc -DIS_IN_rtld \
             -DLDSO_ELFINTERP=\"$(DIR_$(ARCH))/elfinterp.c\" \
-            -include libc-symbols.h -DUCLIBC_LDSO=\"libld-l4.so\" \
+            -include libc-symbols.h -DUCLIBC_LDSO=\"libld-l4.so.1\" \
             -DUCLIBC_RUNTIME_PREFIX=\"/\" \
 	    -D__LDSO_SEARCH_INTERP_PATH__=1 \
             -DIS_IN_rtld -D__LIBDL_SHARED__ -DSHARED
@@ -64,6 +64,8 @@ LDFLAGS  =  -nocrt1 -Bsymbolic -Bstatic --warn-common --sort-common \
             --discard-locals --discard-all   \
             --gc-sections --whole-archive -ll4sys-direct --no-whole-archive \
             -static-libgcc
+
+SOVERSION = 1
 
 include $(L4DIR)/mk/Makeconf
 
