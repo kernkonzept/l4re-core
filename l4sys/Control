@@ -1,3 +1,3 @@
 provides: l4sys l4sys-l4x l4sys-direct
-requires: ldscripts compiler-rt-pure
+requires: ldscripts compiler-rt-pure libc-headers libstdc++-headers
 Maintainer: adam@os.inf.tu-dresden.de warg@os.inf.tu-dresden.de
