@@ -24,11 +24,12 @@ namespace
 
     L4Re::Util::_Cap_alloc::Storage<Caps> storage;
     L4Re::Util::Dbg _dbg;
-    L4Re::Cap_alloc_t<L4Re::Util::_Cap_alloc> alloc;
+    L4Re::Util::_Cap_alloc alloc;
 
     Ca()
     : _dbg{0xffUL, "Cap_alloc", 0},
-      alloc{Caps, &storage, L4Re::Env::env()->first_free_cap(), &_dbg}
+      alloc{Caps, &storage,
+            static_cast<long>(L4Re::Env::env()->first_free_cap()), &_dbg}
     { l4re_env()->first_free_cap += Caps; }
   };
 

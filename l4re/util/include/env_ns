@@ -18,7 +18,7 @@ private:
 
 public:
   explicit Env_ns(Env const *env = Env::env(),
-                  L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
+                  L4Re::Cap_alloc *ca = &L4Re::Util::cap_alloc)
   : _ca(ca), _env(env) {}
 
   L4::Cap<void>

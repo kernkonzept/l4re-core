@@ -58,7 +58,7 @@ public:
   template<typename IRQ_TYPE>
   int init(L4::Cap<L4Re::Event> event,
            L4Re::Env const *env = L4Re::Env::env(),
-           L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
+           L4Re::Cap_alloc *ca = &L4Re::Util::cap_alloc)
   {
     Unique_cap<L4Re::Dataspace> ev_ds(ca->alloc<L4Re::Dataspace>());
     if (!ev_ds.is_valid())
@@ -111,7 +111,7 @@ public:
    */
   int init_poll(L4::Cap<L4Re::Event> event,
                 L4Re::Env const *env = L4Re::Env::env(),
-                L4Re::Cap_alloc *ca = L4Re::Cap_alloc::get_cap_alloc(L4Re::Util::cap_alloc))
+                L4Re::Cap_alloc *ca = &L4Re::Util::cap_alloc)
   {
     Unique_cap<L4Re::Dataspace> ev_ds(ca->alloc<L4Re::Dataspace>());
     if (!ev_ds.is_valid())
