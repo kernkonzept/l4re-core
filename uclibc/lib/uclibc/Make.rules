@@ -9,7 +9,7 @@ DEFINES_arm64-l4f += -DUSE_TLS=1
 DEFINES_mips-l4f  += -DUSE_TLS=1
 DEFINES_ppc32-l4f += -DUSE_TLS=1
 DEFINES_sparc-l4f += -DUSE_TLS=1
-TARGET            := libc.a libc.so libc_nonshared.p.a libssp_nonshared.p.a
+TARGET            := libc.a libc.so libc_nonshared.p.a
 PC_FILENAME       := libc
 PC_LIBS           := -lc -lc_nonshared.p
 PC_EXTRA          := Link_Libs= %{static|static-pie:-lc}
@@ -30,7 +30,6 @@ include $(LIBCSRC_DIR)/contrib_files.mk
 # stack protector handling
 ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
 DEFINES           += -D__UCLIBC_HAS_SSP__=1
-PC_LIBS           += -lssp_nonshared.p
 # signal BID that uclibc implements infrastructure for stack protector
 PC_CFLAGS         := bid_allow_stack_protector
 endif
@@ -63,7 +62,8 @@ endif
 # stack protector handling
 ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
 UCLIBC_SRC_C              += ssp-l4.c
-SRC_C_libssp_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
+SRC_C_libc.a              += libc/sysdeps/linux/common/ssp-local.c
+SRC_C_libc_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
 endif
 
 UCLIBC_SRC_CC             += _exit.cc
