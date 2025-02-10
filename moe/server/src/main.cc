@@ -538,17 +538,16 @@ static __attribute__((used, section(".preinit_array")))
 
 static void init_emergency_memory()
 {
-  // populate the page allocator with a few pages of static memory to allow for
-  // dynamic allocation of memory arena during static initialization of stdc++'s
-  // emergency_pool in GCC versions 5 and newer
-  static __attribute__((aligned(L4_PAGESIZE))) char buf[3 * L4_PAGESIZE];
-  Single_page_alloc_base::_free(buf, sizeof(buf), true);
-  // make sure the emergency memory is RWX for future reuse
-  [[maybe_unused]] int err = l4sigma0_map_mem(Sigma0_cap,
-                                              reinterpret_cast<l4_addr_t>(buf),
-                                              reinterpret_cast<l4_addr_t>(buf),
-                                              sizeof(buf));
+  // populate the page allocator with a few pages of available memory to allow
+  // for dynamic allocation of memory arena during the static initialization of
+  // stdc++'s emergency_pool in GCC versions 5 and newer
+  unsigned constexpr order = L4_PAGESHIFT + 2;
+  l4_addr_t addr;
+  [[maybe_unused]] int err =
+    l4sigma0_map_anypage(Sigma0_cap, 0, L4_WHOLE_ADDRESS_SPACE, &addr, order);
   l4_assert(!err);
+  Single_page_alloc_base::_free(reinterpret_cast<void *>(addr), 1UL << order,
+                                true);
 }
 
 static __attribute__((used, section(".preinit_array")))
