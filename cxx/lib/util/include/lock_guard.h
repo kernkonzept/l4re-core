@@ -20,7 +20,7 @@ namespace L4 {
 
 /**
  * Basic lock guard implementation that prevents forgotten unlocks on exit
- * paths from a method or a block of code. Targeting #pthread_mutex_t.
+ * paths from a method or a block of code. Targeting `pthread_mutex_t`.
  *
  * An instance of lock guard cannot be copied, but it can be moved.
  *
