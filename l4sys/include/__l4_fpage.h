@@ -322,7 +322,7 @@ enum
  * \ingroup l4_fpage_api
  *
  * \param   address      Flexpage start address
- * \param   size         Flexpage size (log2), #L4_WHOLE_ADDRESS_SPACE to
+ * \param   order        Flexpage size (log2), #L4_WHOLE_ADDRESS_SPACE to
  *                       specify the whole address space (with `address` 0).
  *                       The minimum log2 size of a memory flexpage is defined
  *                       by #L4_LOG2_PAGESIZE according to the size of the
@@ -332,7 +332,7 @@ enum
  * \return  Memory flexpage
  */
 L4_INLINE l4_fpage_t
-l4_fpage(l4_addr_t address, unsigned int size, unsigned char rights) L4_NOTHROW;
+l4_fpage(l4_addr_t address, unsigned int order, unsigned char rights) L4_NOTHROW;
 
 /**
  * Get a flexpage, describing all address spaces at once.
@@ -363,13 +363,13 @@ l4_fpage_invalid(void) L4_NOTHROW;
  * \ingroup l4_fpage_api
  *
  * \param   port         I/O-flexpage port base
- * \param   size         I/O-flexpage size (log2), #L4_WHOLE_IOADDRESS_SPACE to
+ * \param   order        I/O-flexpage size (log2), #L4_WHOLE_IOADDRESS_SPACE to
  *                       specify the whole I/O address space (with `port` 0)
  *
  * \return  I/O flexpage
  */
 L4_INLINE l4_fpage_t
-l4_iofpage(unsigned long port, unsigned int size) L4_NOTHROW;
+l4_iofpage(unsigned long port, unsigned int order) L4_NOTHROW;
 
 
 /**
@@ -488,7 +488,7 @@ L4_INLINE unsigned
 l4_fpage_type(l4_fpage_t f) L4_NOTHROW;
 
 /**
- * Return size from a flexpage.
+ * Return size (log2) from a flexpage.
  * \ingroup l4_fpage_api
  *
  * \param f  Flexpage
@@ -579,13 +579,13 @@ l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW;
  *
  * \param   fpage    Flexpage
  * \param   addr     Address
- * \param   size     Size of range in log2.
+ * \param   order    Size of range in log2.
  *
  * \retval ==0 The range is not completely in the fpage.
  * \retval !=0 The range is within the fpage.
  */
 L4_INLINE int
-l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned size) L4_NOTHROW;
+l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned order) L4_NOTHROW;
 
 /**
  * Determine maximum flexpage size of a region.
@@ -657,16 +657,16 @@ l4_fpage_obj(l4_fpage_t f) L4_NOTHROW
 /** \internal */
 L4_INLINE l4_fpage_t
 __l4_fpage_generic(unsigned long address, unsigned int type,
-                   unsigned int size, unsigned char rights) L4_NOTHROW;
+                   unsigned int order, unsigned char rights) L4_NOTHROW;
 
 L4_INLINE l4_fpage_t
 __l4_fpage_generic(unsigned long address, unsigned int type,
-                   unsigned int size, unsigned char rights) L4_NOTHROW
+                   unsigned int order, unsigned char rights) L4_NOTHROW
 {
   l4_fpage_t t;
   t.raw =   ((rights  << L4_FPAGE_RIGHTS_SHIFT) & L4_FPAGE_RIGHTS_MASK)
           | ((type    << L4_FPAGE_TYPE_SHIFT)   & L4_FPAGE_TYPE_MASK)
-	  | ((size    << L4_FPAGE_SIZE_SHIFT)   & L4_FPAGE_SIZE_MASK)
+	  | ((order   << L4_FPAGE_SIZE_SHIFT)   & L4_FPAGE_SIZE_MASK)
 	  | ((address                       )   & L4_FPAGE_ADDR_MASK);
   return t;
 }
@@ -681,15 +681,15 @@ l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW
 }
 
 L4_INLINE l4_fpage_t
-l4_fpage(l4_addr_t address, unsigned int size, unsigned char rights) L4_NOTHROW
+l4_fpage(l4_addr_t address, unsigned int order, unsigned char rights) L4_NOTHROW
 {
-  return __l4_fpage_generic(address, L4_FPAGE_MEMORY, size, rights);
+  return __l4_fpage_generic(address, L4_FPAGE_MEMORY, order, rights);
 }
 
 L4_INLINE l4_fpage_t
-l4_iofpage(unsigned long port, unsigned int size) L4_NOTHROW
+l4_iofpage(unsigned long port, unsigned int order) L4_NOTHROW
 {
-  return __l4_fpage_generic(port << L4_FPAGE_ADDR_SHIFT, L4_FPAGE_IO, size, L4_FPAGE_RW);
+  return __l4_fpage_generic(port << L4_FPAGE_ADDR_SHIFT, L4_FPAGE_IO, order, L4_FPAGE_RW);
 }
 
 L4_INLINE l4_fpage_t
