@@ -205,42 +205,42 @@ public:
     _p = o.release();
   }
 
-  explicit operator bool () const noexcept { return _p; }
+  [[nodiscard]] explicit operator bool () const noexcept { return _p; }
 
   T *operator -> () const noexcept
   { return _p; }
 
-  bool operator == (Ref_ptr const &o) const noexcept
+  [[nodiscard]] bool operator == (Ref_ptr const &o) const noexcept
   { return _p == o._p; }
 
-  bool operator != (Ref_ptr const &o) const noexcept
+  [[nodiscard]] bool operator != (Ref_ptr const &o) const noexcept
   { return _p != o._p; }
 
-  bool operator < (Ref_ptr const &o) const noexcept
+  [[nodiscard]] bool operator < (Ref_ptr const &o) const noexcept
   { return _p < o._p; }
 
-  bool operator <= (Ref_ptr const &o) const noexcept
+  [[nodiscard]] bool operator <= (Ref_ptr const &o) const noexcept
   { return _p <= o._p; }
 
-  bool operator > (Ref_ptr const &o) const noexcept
+  [[nodiscard]] bool operator > (Ref_ptr const &o) const noexcept
   { return _p > o._p; }
 
-  bool operator >= (Ref_ptr const &o) const noexcept
+  [[nodiscard]] bool operator >= (Ref_ptr const &o) const noexcept
   { return _p >= o._p; }
 
-  bool operator == (T const *o) const noexcept
+  [[nodiscard]] bool operator == (T const *o) const noexcept
   { return _p == o; }
 
-  bool operator < (T const *o) const noexcept
+  [[nodiscard]] bool operator < (T const *o) const noexcept
   { return _p < o; }
 
-  bool operator <= (T const *o) const noexcept
+  [[nodiscard]] bool operator <= (T const *o) const noexcept
   { return _p <= o; }
 
-  bool operator > (T const *o) const noexcept
+  [[nodiscard]] bool operator > (T const *o) const noexcept
   { return _p > o; }
 
-  bool operator >= (T const *o) const noexcept
+  [[nodiscard]] bool operator >= (T const *o) const noexcept
   { return _p >= o; }
 
 private:
