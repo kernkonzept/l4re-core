@@ -122,3 +122,33 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
 
   return Exc_cause::Signal;
 }
+
+static void
+dump_exception_state(L4Re::Util::Err const &err, l4_exc_regs_t const *r)
+{
+  static char const * const modes[16] = {
+    "usr",  "fiq",  "irq",  "svc",
+    "",     "",     "mon",  "abt",
+    "",     "",     "",     "und",
+    "",     "",     "",     "sys",
+  };
+
+  for (int i = 0; i < 12; i += 2)
+    err.printf("r[%2d] = %#10lx  r[%2d] = %#10lx\n", i, r->r[i], i+1,
+               r->r[i+1]);
+
+  err.printf("r[12] = %#10lx  r[13] = %#10lx\n", r->r[12], r->sp);
+  err.printf("r[14] = %#10lx  r[15] = %#10lx\n", r->ulr, r->pc);
+
+  err.printf("\n");
+  err.printf("cpsr     = %#10lx (%c%c%c%c %s %s)\n", r->cpsr,
+             (r->cpsr & (1UL << 31)) ? 'N' : 'n',
+             (r->cpsr & (1UL << 30)) ? 'Z' : 'z',
+             (r->cpsr & (1UL << 29)) ? 'C' : 'c',
+             (r->cpsr & (1UL << 28)) ? 'V' : 'v',
+             (r->cpsr & (1UL <<  5)) ? "T32" : "A32",
+             modes[r->cpsr & 0x0f]);
+  err.printf("err      = %#10lx  pfa      = %#10lx\n", r->err, r->pfa);
+  err.printf("tpidruro = %#10lx  tpidrurw = %#10lx\n", r->tpidruro,
+             r->tpidrurw);
+}

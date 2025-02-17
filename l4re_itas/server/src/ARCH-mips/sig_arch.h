@@ -136,3 +136,18 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
 
   return Exc_cause::Signal;
 }
+
+static void
+dump_exception_state(L4Re::Util::Err const &err, l4_exc_regs_t const *r)
+{
+  for (int i = 0; i < 32; i += 2)
+    err.printf("r[%2d]  = %#18lx  r[%2d] = %#18lx\n", i, r->r[i], i+1,
+               r->r[i+1]);
+  err.printf("\n");
+  err.printf("hi     = %#18lx  lo    = %#18lx\n", r->hi, r->lo);
+  err.printf("status = %#18lx\n", r->status);
+  err.printf("ip     = %#18lx  ulr   = %#18lx\n", r->ip, r->ulr);
+  err.printf("cause  = %#18lx  pfa   = %#18lx\n", r->cause, r->pfa);
+  err.printf("bad_instr_p = %#18lx\n", r->bad_instr_p);
+  err.printf("bad_instr   = %#18lx\n", r->bad_instr);
+}

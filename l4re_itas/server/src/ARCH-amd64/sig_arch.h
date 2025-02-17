@@ -188,3 +188,24 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
 
   return Exc_cause::Signal;
 }
+
+static void
+dump_exception_state(L4Re::Util::Err const &err, l4_exc_regs_t const *r)
+{
+  err.printf("rax = %#18lx  rbx = %#18lx\n", r->rax, r->rbx);
+  err.printf("rcx = %#18lx  rdx = %#18lx\n", r->rcx, r->rdx);
+  err.printf("rsi = %#18lx  rdi = %#18lx\n", r->rsi, r->rdi);
+  err.printf("r8  = %#18lx  r9  = %#18lx\n", r->r8,  r->r9);
+  err.printf("r10 = %#18lx  r11 = %#18lx\n", r->r10, r->r11);
+  err.printf("r12 = %#18lx  r13 = %#18lx\n", r->r12, r->r13);
+  err.printf("r14 = %#18lx  r15 = %#18lx\n", r->r14, r->r15);
+  err.printf("rsp = %#18lx  rbp = %#18lx\n", r->sp,  r->rbp);
+  err.printf("\n");
+  err.printf("rip = %#18lx  rflags = %#15lx\n", r->ip,  r->flags);
+  err.printf("pfa = %#18lx\n", r->pfa);
+  err.printf("trap = %ld / err = %#lx\n", r->trapno, r->err);
+  err.printf("\n");
+  err.printf("ds = %#4x   es = %#4x   fs = %#4x   gs = %#4x   ss = %#4lx\n",
+             r->ds, r->es, r->fs, r->gs, r->ss);
+  err.printf("fs_base = %#14lx  gs_base = %#14lx\n", r->fs_base, r->gs_base);
+}

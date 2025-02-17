@@ -197,3 +197,19 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
 
   return Exc_cause::Signal;
 }
+
+static void
+dump_exception_state(L4Re::Util::Err const &err, l4_exc_regs_t const *r)
+{
+  err.printf("eax = %#10lx  ebx = %#10lx\n", r->eax, r->ebx);
+  err.printf("ecx = %#10lx  edx = %#10lx\n", r->ecx, r->edx);
+  err.printf("esi = %#10lx  edi = %#10lx\n", r->esi, r->edi);
+  err.printf("esp = %#10lx  ebp = %#10lx\n", r->sp,  r->ebp);
+  err.printf("\n");
+  err.printf("eip = %#10lx  eflags = %#7lx\n", r->ip,  r->flags);
+  err.printf("pfa = %#10lx\n", r->pfa);
+  err.printf("trap = %ld / err = %#lx\n", r->trapno, r->err);
+  err.printf("\n");
+  err.printf("ds = %#4lx   es = %#4lx   fs = %#4lx   gs = %#4lx   ss = %#4lx\n",
+             r->ds, r->es, r->fs, r->gs, r->ss);
+}

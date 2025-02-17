@@ -134,3 +134,37 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
 
   return Exc_cause::Signal;
 }
+
+static void
+dump_exception_state(L4Re::Util::Err const &err, l4_exc_regs_t const *r)
+{
+  static char const * const modes[32] = {
+    "EL0t", "",     "",     "",
+    "EL1t", "EL1h", "",     "",
+    "EL2t", "EL2h", "",     "",
+    "EL3t", "EL3h", "",     "",
+    "usr",  "fiq",  "irq",  "svc",
+    "",     "",     "mon",  "abt",
+    "",     "",     "",     "und",
+    "",     "",     "",     "sys",
+  };
+
+  for (int i = 0; i < 30; i += 2)
+    err.printf("r[%2d] = %#18lx  r[%2d] = %#18lx\n", i, r->r[i], i+1,
+               r->r[i+1]);
+
+  err.printf("r[30] = %#18lx\n", r->r[30]);
+  err.printf("pc    = %#18lx  sp    = %#18lx\n", r->pc, r->sp);
+
+  err.printf("\n");
+  err.printf("pstate   = %#18lx (%c%c%c%c %s %s)\n", r->pstate,
+             (r->pstate & (1UL << 31)) ? 'N' : 'n',
+             (r->pstate & (1UL << 30)) ? 'Z' : 'z',
+             (r->pstate & (1UL << 29)) ? 'C' : 'c',
+             (r->pstate & (1UL << 28)) ? 'V' : 'v',
+             (r->pstate & 0x10) ? ((r->pstate & 0x20) ? "T32" : "A32") : "A64",
+             modes[r->pstate & 0x1f]);
+  err.printf("err      = %#18lx  pfa      = %#18lx\n", r->err, r->pfa);
+  err.printf("tpidruro = %#18lx  tpidrurw = %#18lx\n", r->tpidruro,
+             r->tpidrurw);
+}

@@ -46,3 +46,9 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &, siginfo_t *,
   // ...
   return Exc_cause::Unknown;
 }
+
+static void
+dump_exception_state(L4Re::Util::Err const &, l4_exc_regs_t const *)
+{
+  // ...
+}

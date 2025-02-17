@@ -115,3 +115,6 @@ enum class Exc_cause : int
 static inline
 Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
                                   Sig_arch_context *arch);
+
+static inline
+void dump_exception_state(L4Re::Util::Err const &err, l4_exc_regs_t const *r);

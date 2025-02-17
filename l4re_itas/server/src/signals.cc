@@ -170,18 +170,21 @@ Thread_signal_handler::op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
             // ignored or blocked.
             bool ignored = sig_actions[si.si_signo - 1].sa_handler == SIG_IGN;
             if (ignored || _sig_block.has_signal(si.si_signo))
-              call_default_action(si); // Won't return for sync signals
+              call_default_action(si, &regs); // Won't return for sync signals
             else if (!_pending.queue_signal(si, arch, regs.pfa))
-              call_default_action(si); // Cannot happen but be defensive.
+              call_default_action(si, &regs); // Cannot happen but be defensive.
             break;
           }
 
         case Exc_cause::Unknown:
           {
-            Dbg w(Dbg::Warn);
-            w.printf("%s: Unhandled exception: PC=0x%lx PFA=0x%lx LdrFlgs=0x%lx\n",
-                     Global::l4re_aux->binary, l4_utcb_exc_pc(&regs),
-                     l4_utcb_exc_pfa(&regs), Global::l4re_aux->ldr_flags);
+            Err err;
+            err.printf("%s: Unhandled exception: PC=0x%lx PFA=0x%lx LdrFlgs=0x%lx\n",
+                       Global::l4re_aux->binary, l4_utcb_exc_pc(&regs),
+                       l4_utcb_exc_pfa(&regs), Global::l4re_aux->ldr_flags);
+
+            dump_exception_state(err, &regs);
+            dump_stack(err, regs.sp);
 
             // FIXME: is this really the right approach?
             return -L4_ENOREPLY;
@@ -231,7 +234,7 @@ Thread_signal_handler::deliver_pending_signals(l4_exc_regs_t &regs)
 
       if (sa.sa_handler == SIG_DFL)
         {
-          call_default_action(ps->si);
+          call_default_action(ps->si, &regs);
           continue; // in case the default action was "ignore"
         }
 
@@ -422,7 +425,8 @@ Thread_signal_handler::interrupt_thread()
 }
 
 void
-Thread_signal_handler::call_default_action(siginfo_t const &si)
+Thread_signal_handler::call_default_action(siginfo_t const &si,
+                                           l4_exc_regs_t const *regs)
 {
   switch (si.si_signo)
     {
@@ -447,19 +451,28 @@ Thread_signal_handler::call_default_action(siginfo_t const &si)
     case SIGUSR1:
     case SIGUSR2:
     case SIGVTALRM:
-      Err().printf("Fatal signal: %s (si_signo=%d, si_code=%d)\n",
-                   strsignal(si.si_signo), si.si_signo, si.si_code);
+    {
+      Err err(Err::Fatal);
+
+      err.printf("Fatal signal: %s (si_signo=%d, si_code=%d)\n",
+                 strsignal(si.si_signo), si.si_signo, si.si_code);
 
       if (   si.si_signo == SIGILL  || si.si_signo == SIGFPE
           || si.si_signo == SIGSEGV || si.si_signo == SIGBUS)
-        Err().printf("si_addr=%p\n", si.si_addr);
+        err.printf("si_addr=%p\n", si.si_addr);
       else if (si.si_signo == SIGCHLD)
-        Err().printf("si_pid=%ld, si_status=%d, si_uid=%ld\n",
-                     static_cast<long>(si.si_pid), si.si_status,
-                     static_cast<long>(si.si_uid));
+        err.printf("si_pid=%ld, si_status=%d, si_uid=%ld\n",
+                   static_cast<long>(si.si_pid), si.si_status,
+                   static_cast<long>(si.si_uid));
 
+      if (regs)
+        {
+          dump_exception_state(err, regs);
+          dump_stack(err, regs->sp);
+        }
       _exit(128 + si.si_signo);
       break;
+    }
 
     case SIGCONT:
     case SIGSTOP:
@@ -483,8 +496,62 @@ Thread_signal_handler::stack_overflow(l4_addr_t sp)
   si.si_signo = SIGSEGV;
   si.si_code = SEGV_MAPERR;
   si.si_addr = reinterpret_cast<void *>(sp);
-  call_default_action(si); // Won't return
+  call_default_action(si, nullptr); // Won't return
   return -L4_ENOREPLY;
+}
+
+void
+Thread_signal_handler::dump_stack(L4Re::Util::Err const &err, l4_addr_t sp)
+{
+  err.printf("\n");
+  err.printf("Stack dump:\n");
+  if (sp & (sizeof(l4_umword_t) - 1U))
+    {
+      err.printf("WARNING: unaligned stack!\n");
+      sp &= ~l4_addr_t{sizeof(l4_umword_t) - 1};
+    }
+
+  auto stack_region = Global::local_rm->find(L4Re::Util::Region(sp, sp));
+  if (!stack_region)
+    {
+      err.printf("--- invalid stack region ---\n");
+      return;
+    }
+
+  // Dump at most 1k.
+  unsigned long stack_size = stack_region->first.end() + 1U - sp;
+  if (stack_size > 1024)
+    stack_size = 1024;
+
+  // Make sure the stack is readable.
+  l4_addr_t sp_page = l4_trunc_page(sp);
+  for (unsigned long remain = l4_round_page(stack_size + (sp - sp_page));
+       remain >= L4_PAGESIZE;
+       remain -= L4_PAGESIZE, sp_page += L4_PAGESIZE)
+    {
+      L4::Ipc::Opt<L4::Ipc::Snd_fpage> rfp;
+      long ret = Global::local_rm->op_page_fault(L4_CAP_FPAGE_W, sp_page, 0,
+                                                 rfp);
+      if (ret < 0)
+        {
+          err.printf("--- unreadable stack region ---\n");
+          return;
+        }
+    }
+
+  unsigned constexpr word_size = sizeof(l4_umword_t);
+  unsigned constexpr words_per_line = word_size == 4 ? 4 : 2;
+  unsigned field_width = word_size * 2;
+  l4_addr_t p = sp;
+  while (stack_size > 0)
+    {
+      err.printf("%*lx:", field_width, p);
+      for (unsigned i = 0;
+           i < words_per_line && stack_size;
+           i++, p += word_size, stack_size -= word_size)
+        err.cprintf(" %*lx", field_width, *reinterpret_cast<l4_umword_t *>(p));
+      err.cprintf("\n");
+    }
 }
 
 bool
