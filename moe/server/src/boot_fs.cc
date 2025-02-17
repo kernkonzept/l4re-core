@@ -116,7 +116,7 @@ public:
           {
             char *n = static_cast<char *>(
                         Single_page_alloc_base::_alloc(_space + L4_PAGESIZE,
-                                                       L4_PAGESHIFT));
+                                                       L4_PAGESIZE));
             memcpy(n, _buf, _space);
             Single_page_alloc_base::_free(_buf, _space, true);
             _buf = n;
@@ -149,7 +149,7 @@ private:
   unsigned _space = L4_PAGESIZE;
   unsigned _size = 0;
   char *_buf
-    = static_cast<char *>(Single_page_alloc_base::_alloc(_space, L4_PAGESHIFT));
+    = static_cast<char *>(Single_page_alloc_base::_alloc(_space, L4_PAGESIZE));
 };
 
 void
