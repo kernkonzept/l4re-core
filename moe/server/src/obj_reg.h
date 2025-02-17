@@ -48,7 +48,7 @@ class Object_pool
   friend struct L4::Irqep_t<Object_pool>;
 
 public:
-  explicit Object_pool(Cap_alloc *ca);
+  explicit Object_pool(Cap_alloc *ca, L4::Cap<L4::Thread> main_thread);
   Cap_alloc *cap_alloc() const { return _cap_alloc; }
   cxx::H_list_t<Moe::Server_object> life;
   int alloc_buffer_demand(L4::Type_info::Demand const &demand) override
@@ -163,18 +163,21 @@ public:
 
 };
 
-inline Object_pool::Object_pool(Cap_alloc *ca) : _cap_alloc(ca)
+inline Object_pool::Object_pool(Cap_alloc *ca, L4::Cap<L4::Thread> main_thread)
+: _cap_alloc(ca)
 {
+  if (!main_thread.is_valid())
+    return;
+
   // make sure we register an Epiface PTR
   L4::Epiface *self = this;
   auto c = early_chkcap(cap_alloc()->alloc<L4::Irq>(),
                         "Moe::Object_pool: Failed to allocate capability\n");
   early_chksys(L4Re::Env::env()->factory()->create(c),
                "Moe::Object_pool: Failed to create IRQ\n");
-  early_chksys(c->bind_thread(L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP),
-                              l4_umword_t(self)),
+  early_chksys(c->bind_thread(main_thread, l4_umword_t(self)),
                "Moe::Object_pool: Failed to bind IRQ\n");
   set_server(this, c, true);
-  early_chksys(L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP)->register_del_irq(c),
+  early_chksys(main_thread->register_del_irq(c),
                "Moe::Object_pool: Failed to register deletion IRQ\n");
 }
