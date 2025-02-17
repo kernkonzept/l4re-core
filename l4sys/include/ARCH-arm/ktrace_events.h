@@ -155,25 +155,15 @@ typedef struct __attribute__((packed))
     } ipc; /* 64 */
     struct __attribute__((__packed__))
     {
-      char __pre_pad[2];
+      L4_ktrace_t__Unsigned8 _have_snd; /* 34+1 */
+      L4_ktrace_t__Unsigned8 _is_np; /* 35+1 */
       L4_ktrace_t__L4_msg_tag _tag; /* 36+4 */
       L4_ktrace_t__Mword _dword[2]; /* 40+8 */
       L4_ktrace_t__L4_error _result; /* 48+4 */
       L4_ktrace_t__Mword _from; /* 52+4 */
-      L4_ktrace_t__Mword _pair_event; /* 56+4 */
-      L4_ktrace_t__Unsigned8 _have_snd; /* 60+1 */
-      L4_ktrace_t__Unsigned8 _is_np; /* 61+1 */
+      L4_ktrace_t__L4_obj_ref _dst; /* 56+4 */
+      L4_ktrace_t__Mword _pair_event; /* 60+4 */
     } ipc_res; /* 64 */
-    struct __attribute__((__packed__))
-    {
-      char __pre_pad[6];
-      L4_ktrace_t__Unsigned64 _snd_tsc; /* 40+8 */
-      L4_ktrace_t__L4_msg_tag _result; /* 48+4 */
-      L4_ktrace_t__L4_obj_ref _snd_dst; /* 52+4 */
-      L4_ktrace_t__Mword _rcv_dst; /* 56+4 */
-      L4_ktrace_t__Unsigned8 _snd_desc; /* 60+1 */
-      L4_ktrace_t__Unsigned8 _rcv_desc; /* 61+1 */
-    } ipc_trace; /* 64 */
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
@@ -262,8 +252,7 @@ typedef struct __attribute__((packed))
     struct __attribute__((__packed__))
     {
       char __pre_pad[2];
-      L4_ktrace_t__Irq_base *obj; /* 36+4 */
-      L4_ktrace_t__Address user_ip; /* 40+4 */
-    } timer; /* 48 */
+      L4_ktrace_t__Address user_ip; /* 36+4 */
+    } timer; /* 40 */
   } m;
 } l4_tracebuffer_entry_t;
