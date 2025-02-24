@@ -154,7 +154,14 @@ typedef struct l4_msgtag_t
   l4_mword_t raw;   ///< raw value
 #ifdef __cplusplus
   /// Get the protocol value.
-  long label() const L4_NOTHROW { return raw >> 16; }
+  long label() const L4_NOTHROW
+  {
+#if defined(__cplusplus) && (__cplusplus >= 202002L)
+    return raw >> 16;
+#else
+    return raw < 0 ? ~(~raw >> 16) : raw >> 16;
+#endif
+  }
   /// Set the protocol value.
   void label(long v) L4_NOTHROW { raw = (raw & 0x0ffff) | ((l4_umword_t)v << 16); }
   /// Get the number of untyped words.
@@ -407,7 +414,13 @@ l4_msgtag_t l4_msgtag(long label, unsigned words, unsigned items,
 
 L4_INLINE
 long l4_msgtag_label(l4_msgtag_t t) L4_NOTHROW
-{ return t.raw >> 16; }
+{
+#if defined(__cplusplus) && (__cplusplus >= 202002L)
+  return t.raw >> 16;
+#else
+  return t.raw < 0 ? ~(~t.raw >> 16) : t.raw >> 16;
+#endif
+}
 
 L4_INLINE
 unsigned l4_msgtag_words(l4_msgtag_t t) L4_NOTHROW
