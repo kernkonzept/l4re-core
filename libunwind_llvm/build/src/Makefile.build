@@ -66,7 +66,11 @@ DEFINES += -D_LIBUNWIND_NO_STDIO
 
 # Threaded (SYSTEMS_ABI) or not-threaded (SYSTEMS_PLAIN -> pure)
 ifeq ($(L4API),l4f)
-DEFINES += -DLIBUNWIND_USE_WEAK_PTHREAD=1
+# LIBUNWIND_USE_WEAK_PTHREAD does not work with static libpthread if the binary
+# only references pthread_create but not pthread_rwlock_{rdlock,wrlock,unlock}.
+# See RWMutex.hpp. Instead, provide pthread_stubs-nothreads.cc to satisfy the
+# strict references to these functions.
+DEFINES += -ULIBUNWIND_USE_WEAK_PTHREAD
 else
 DEFINES += -D_LIBUNWIND_HAS_NO_THREADS
 endif

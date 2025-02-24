@@ -49,6 +49,8 @@ endef
 vpath _dl_find_object.cc $(LIBCSRC_DIR)
 SRC_CC += _dl_find_object.cc
 
+SRC_CC += pthread_stubs-nothreads.cc
+
 $(foreach target,$(TARGET), $(eval $(call GEN_SRC_VARS,$(target))))
 
 $(GENERAL_D_LOC): $(SRC_DIR)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk
