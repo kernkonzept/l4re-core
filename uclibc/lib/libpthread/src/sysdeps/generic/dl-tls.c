@@ -35,7 +35,6 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#define	_dl_malloc	malloc
 #define _dl_memset	memset
 #define _dl_mempcpy	mempcpy
 #define _dl_dprintf	fprintf
@@ -67,8 +66,11 @@ oom (void)
 void *_dl_memalign(size_t alignment, size_t bytes);
 void *_dl_memalign(size_t alignment, size_t bytes)
 {
-	(void)alignment;
-	return _dl_malloc(bytes);
+  void *ret;
+  if (posix_memalign(&ret, alignment, bytes))
+    return NULL;
+  else
+    return ret;
 }
 
 /*
