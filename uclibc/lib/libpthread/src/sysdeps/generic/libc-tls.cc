@@ -75,7 +75,7 @@ struct dtv_slotinfo_list *_dl_tls_dtv_slotinfo_list;
 /* Number of modules in the static TLS block.  */
 size_t _dl_tls_static_nelem;
 /* Size of the static TLS block.  */
-size_t _dl_tls_static_size __attribute__((weak)) = TLS_TCB_SIZE;
+size_t _dl_tls_static_size __attribute__((weak)) = TLS_STATIC_SURPLUS;
 /* Size actually allocated in the static TLS block.  */
 size_t _dl_tls_static_used;
 /* Alignment requirement of the static TLS block.  */
@@ -113,6 +113,9 @@ init_static_tls (size_t memsz, size_t align)
      surplus that permits dynamic loading of modules with IE-model TLS.  */
   GL(dl_tls_static_size) = roundup (memsz + GL(dl_tls_static_size),
 				    TLS_TCB_ALIGN);
+#if TLS_TCB_AT_TP
+  GL(dl_tls_static_size) += TLS_TCB_SIZE;
+#endif
   GL(dl_tls_static_used) = memsz;
   /* The alignment requirement for the static TLS block.  */
   GL(dl_tls_static_align) = align;
@@ -181,7 +184,7 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
      to request some surplus that permits dynamic loading of modules with
      IE-model TLS.  */
 # if defined(TLS_TCB_AT_TP)
-  tcb_offset = roundup (memsz + GL(dl_tls_static_size), tcbalign);
+  tcb_offset = roundup (memsz + GL(dl_tls_static_size), max_align);
   tlsblock = __libc_alloc_initial_tls(tcb_offset + tcbsize + max_align);
 # elif defined(TLS_DTV_AT_TP)
   tcb_offset = roundup (tcbsize, align ?: 1);
