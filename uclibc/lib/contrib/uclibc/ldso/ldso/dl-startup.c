@@ -100,6 +100,7 @@ extern ElfW(Addr) _begin[] attribute_hidden;
 
 
 ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID];
+ElfW(auxv_t) *_dl_auxv_start;
 
 #ifdef LDSO_NEED_DPNT
 ElfW(Dyn) *_dl_saved_dpnt = 0;
@@ -138,6 +139,7 @@ DL_START(unsigned long args)
 	struct elf_resolve tpnt_tmp;
 	struct elf_resolve *tpnt = &tpnt_tmp;
 	ElfW(auxv_t) _dl_auxvt_tmp[AUX_MAX_AT_ID];
+	ElfW(auxv_t) *_dl_auxv_start_tmp;
 	ElfW(Dyn) *dpnt;
 	uint32_t  *p32;
 #ifndef NOT_FOR_L4
@@ -176,6 +178,7 @@ DL_START(unsigned long args)
 	/* The junk on the stack immediately following the environment is
 	 * the Auxiliary Vector Table.  Read out the elements of the auxvt,
 	 * sort and store them in auxvt for later use. */
+	_dl_auxv_start_tmp = (ElfW(auxv_t) *)aux_dat;
 	while (*aux_dat) {
 		ElfW(auxv_t) *auxv_entry = (ElfW(auxv_t) *) aux_dat;
 
@@ -427,6 +430,7 @@ DL_START(unsigned long args)
 	*  now the globals work. so copy the aux vector
 	*/
 	_dl_memcpy( _dl_auxvt, _dl_auxvt_tmp, sizeof( ElfW(auxv_t) ) * AUX_MAX_AT_ID );
+	_dl_auxv_start = _dl_auxv_start_tmp;
 
 	_dl_elf_main = (int (*)(int, char **, char **))
 			_dl_get_ready_to_run(tpnt, load_addr, envp, argv

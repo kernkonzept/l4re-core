@@ -37,6 +37,7 @@ size_t _dl_phnum;
 size_t _dl_pagesize;
 
 ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID];
+ElfW(auxv_t) *_dl_auxv_start;
 
 #ifndef __NOT_FOR_L4__
 extern void *l4re_global_env __attribute__((weak));
@@ -46,6 +47,8 @@ extern void *l4_global_kip __attribute__((weak));
 void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 void internal_function _dl_aux_init (ElfW(auxv_t) *av)
 {
+   _dl_auxv_start = av;
+
    memset(_dl_auxvt, 0x00, sizeof(_dl_auxvt));
    for (; av->a_type != AT_NULL; av++)
      {

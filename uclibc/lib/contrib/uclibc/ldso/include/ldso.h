@@ -193,7 +193,8 @@ extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE loa
 #endif
 
 #define AUX_MAX_AT_ID 40
-extern ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID];
+extern ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID]; /* Cache frequently accessed auxiliary vector entries */
+extern ElfW(auxv_t) *_dl_auxv_start;          /* Start of the auxiliary vector */
 
 void load_vdso(void *sys_info_ehdr, char **envp );
 

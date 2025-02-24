@@ -17,32 +17,28 @@
  *  <http://www.gnu.org/licenses/>.
  */
 
-#include "errno.h"
-#include "ldso.h"
-#include "sys/auxv.h"
+#include <errno.h>
+#include <ldso.h>
+#include <sys/auxv.h>
 
-
-/*
- *
- * aarch64 gcc 11 uses __getauxval() in init_have_lse_atomics()
- *
- */
 unsigned long int __getauxval (unsigned long int __type)
 {
-	if ( __type >= AUX_MAX_AT_ID ){
+	// Requested value part of cached subset of auxiliary vector?
+	if (__type < AUX_MAX_AT_ID) {
+		if (_dl_auxvt[__type].a_type == __type)
+			return _dl_auxvt[__type].a_un.a_val;
+
 		__set_errno (ENOENT);
 		return 0;
 	}
 
-	if ( _dl_auxvt[__type].a_type == __type){
-		return _dl_auxvt[__type].a_un.a_val;
-	}
+	// Otherwise we have to iterate the auxiliary vector.
+	for (ElfW(auxv_t) *entry = _dl_auxv_start; entry->a_type != AT_NULL; entry++)
+		if (entry->a_type == __type)
+			return entry->a_un.a_val;
 
 	__set_errno (ENOENT);
 	return 0;
 }
 
-unsigned long int getauxval (unsigned long int __type){
-	return __getauxval( __type );
-}
-
+weak_alias(__getauxval, getauxval)
