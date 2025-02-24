@@ -17,6 +17,7 @@ PRIVATE_INCDIR  = $(STDCXX_PKG_DIR)/contrib/gcc-$(STDCXX_CONTRIB_VERSION) \
 		  $(STDCXX_SRC_DIR)
 
 SRC_CC := \
+atexit_thread.cc \
 del_op.cc \
 del_opnt.cc \
 del_opv.cc \

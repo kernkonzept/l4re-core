@@ -1514,7 +1514,9 @@ namespace __gnu_cxx
 /* #undef _GLIBCXX_HAVE___CXA_THREAD_ATEXIT */
 
 /* Define to 1 if you have the `__cxa_thread_atexit_impl' function. */
+#ifdef __NOT_FOR_L4__
 #define _GLIBCXX_HAVE___CXA_THREAD_ATEXIT_IMPL 1
+#endif
 
 /* Define as const if the declaration of iconv() needs const. */
 #define _GLIBCXX_ICONV_CONST 
