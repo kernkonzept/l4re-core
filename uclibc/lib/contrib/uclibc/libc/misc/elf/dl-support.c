@@ -12,6 +12,7 @@
  */
 
 #include <link.h>
+#include <ldso.h>
 #include <elf.h>
 #if defined(__UCLIBC_HAS_THREADS__)
 #include <bits/libc-lock.h>
@@ -35,17 +36,38 @@ ElfW(Phdr) *_dl_phdr;
 size_t _dl_phnum;
 size_t _dl_pagesize;
 
+ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID];
+
+#ifndef __NOT_FOR_L4__
+extern void *l4re_global_env __attribute__((weak));
+extern void *l4_global_kip __attribute__((weak));
+#endif
+
 void internal_function _dl_aux_init (ElfW(auxv_t) *av);
 void internal_function _dl_aux_init (ElfW(auxv_t) *av)
 {
+   memset(_dl_auxvt, 0x00, sizeof(_dl_auxvt));
+   for (; av->a_type != AT_NULL; av++)
+     {
+       if (av->a_type < AUX_MAX_AT_ID)
+         _dl_auxvt[av->a_type] = *av;
+
+#ifndef __NOT_FOR_L4__
+       if (av->a_type == 0xf1 && &l4re_global_env)
+         l4re_global_env = (void *)av->a_un.a_val;
+       else if (av->a_type == 0xf2 && &l4_global_kip)
+         l4_global_kip = (void *)av->a_un.a_val;
+#endif
+     }
+
    /* Get the program headers base address from the aux vect */
-   _dl_phdr = (ElfW(Phdr) *) av[AT_PHDR].a_un.a_val;
+   _dl_phdr = (ElfW(Phdr) *) _dl_auxvt[AT_PHDR].a_un.a_val;
 
    /* Get the number of program headers from the aux vect */
-   _dl_phnum = (size_t) av[AT_PHNUM].a_un.a_val;
+   _dl_phnum = (size_t) _dl_auxvt[AT_PHNUM].a_un.a_val;
 
    /* Get the pagesize from the aux vect */
-   _dl_pagesize = (av[AT_PAGESZ].a_un.a_val) ? (size_t) av[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
+   _dl_pagesize = (_dl_auxvt[AT_PAGESZ].a_un.a_val) ? (size_t) _dl_auxvt[AT_PAGESZ].a_un.a_val : PAGE_SIZE;
 }
 
 #if defined(USE_TLS) && USE_TLS

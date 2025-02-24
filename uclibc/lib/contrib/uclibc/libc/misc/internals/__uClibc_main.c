@@ -43,7 +43,7 @@
 /* Are we in a secure process environment or are we dealing
  * with setuid stuff?  If we are dynamically linked, then we
  * already have _dl_secure, otherwise we need to re-examine
- * auxvt[] below.
+ * _dl_auxvt[] below.
  */
 int _pe_secure = 0;
 libc_hidden_data_def(_pe_secure)
@@ -376,10 +376,6 @@ void __uClibc_fini(void)
 	(__rtld_fini)();
 }
 
-#ifndef __NOT_FOR_L4__
-extern void *l4re_global_env __attribute__((weak));
-extern void *l4_global_kip __attribute__((weak));
-#endif
 #ifndef SHARED
 extern void __nptl_deallocate_tsd (void) __attribute ((weak));
 extern unsigned int __nptl_nthreads __attribute ((weak));
@@ -399,7 +395,6 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 {
 #ifndef SHARED
     unsigned long *aux_dat;
-    ElfW(auxv_t) auxvt[AT_EGID + 1];
 #endif
 
 #if defined HAVE_CLEANUP_JMP_BUF && defined __UCLIBC_HAS_THREADS_NATIVE__
@@ -428,33 +423,14 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 
 #ifndef SHARED
     /* Pull stuff from the ELF header when possible */
-    memset(auxvt, 0x00, sizeof(auxvt));
     aux_dat = (unsigned long*)__environ;
     while (*aux_dat) {
 	aux_dat++;
     }
     aux_dat++;
-    while (*aux_dat) {
-	ElfW(auxv_t) *auxv_entry = (ElfW(auxv_t) *) aux_dat;
-	if (auxv_entry->a_type <= AT_EGID) {
-	    memcpy(&(auxvt[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
-	}
-#ifndef __NOT_FOR_L4__
-	if (auxv_entry->a_type == 0xf1 && &l4re_global_env)
-	    {
-	      l4re_global_env = (void*)auxv_entry->a_un.a_val;
-	    }
-	else if (auxv_entry->a_type == 0xf2 && &l4_global_kip)
-	    {
-	      l4_global_kip = (void*)auxv_entry->a_un.a_val;
-	    }
-#endif
-	aux_dat += 2;
-    }
     /* Get the program headers (_dl_phdr) from the aux vector
        It will be used into __libc_setup_tls. */
-
-    _dl_aux_init (auxvt);
+    _dl_aux_init ((ElfW(auxv_t) *)aux_dat);
 #endif
 
     /* We need to initialize uClibc.  If we are dynamically linked this
@@ -472,10 +448,10 @@ void __uClibc_main(int (*main)(int, char **, char **), int argc,
 #ifndef SHARED
     /* Prevent starting SUID binaries where the stdin. stdout, and
      * stderr file descriptors are not already opened. */
-    if ((auxvt[AT_UID].a_un.a_val == (size_t)-1 && __check_suid()) ||
-	    (auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
-	    (auxvt[AT_UID].a_un.a_val != auxvt[AT_EUID].a_un.a_val ||
-	     auxvt[AT_GID].a_un.a_val != auxvt[AT_EGID].a_un.a_val)))
+    if ((_dl_auxvt[AT_UID].a_un.a_val == (size_t)-1 && __check_suid()) ||
+	    (_dl_auxvt[AT_UID].a_un.a_val != (size_t)-1 &&
+	    (_dl_auxvt[AT_UID].a_un.a_val != _dl_auxvt[AT_EUID].a_un.a_val ||
+	     _dl_auxvt[AT_GID].a_un.a_val != _dl_auxvt[AT_EGID].a_un.a_val)))
 #else
     if (_dl_secure)
 #endif
