@@ -248,7 +248,10 @@ __libc_setup_tls (size_t tcbsize, size_t tcbalign)
   init_slotinfo ();
   // static_slotinfo.si.slotinfo[1].gen = 0; already zero
 # pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wpragmas"
+# pragma GCC diagnostic ignored "-Wunknown-warning-option"
 # pragma GCC diagnostic ignored "-Warray-bounds"
+# pragma GCC diagnostic ignored "-Wzero-length-bounds"
   /* The slotinfo_list in static_slotinfo is guaranteed to have at least two
      entries (see the declaration of static_slotinfo), thus this array access
      is not out of bounds. */
