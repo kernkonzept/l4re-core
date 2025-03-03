@@ -34,7 +34,6 @@
 #include <stdarg.h>
 #include <stddef.h> /* for ptrdiff_t */
 #include <stdbool.h>
-#if !defined(_FCNTL_H)
 #define _FCNTL_H
 /* We need this if arch has only new syscalls defined */
 #ifndef AT_FDCWD
@@ -192,11 +191,8 @@ extern void *_dl_get_ready_to_run(struct elf_resolve *tpnt, DL_LOADADDR_TYPE loa
 #include <dl-elf.h>
 
 #endif
-#endif /* _FCNTL_H */
 
-#define AUX_MAX_AT_ID 40
-extern ElfW(auxv_t) _dl_auxvt[AUX_MAX_AT_ID]; /* Cache frequently accessed auxiliary vector entries */
-extern ElfW(auxv_t) *_dl_auxv_start;          /* Start of the auxiliary vector */
+#include <dl-auxvt.h>
 
 void load_vdso(void *sys_info_ehdr, char **envp );
 
