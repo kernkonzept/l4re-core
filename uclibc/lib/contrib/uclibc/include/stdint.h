@@ -144,11 +144,19 @@ typedef unsigned long long int	uintmax_t;
 
 
 # if __WORDSIZE == 64
+#  ifndef __INT64_C
 #  define __INT64_C(c)	c ## L
+#  endif
+#  ifndef __UINT64_C
 #  define __UINT64_C(c)	c ## UL
+#  endif
 # else
+#  ifndef __INT64_C
 #  define __INT64_C(c)	c ## LL
+#  endif
+#  ifndef __UINT64_C
 #  define __UINT64_C(c)	c ## ULL
+#  endif
 # endif
 
 /* Limits of integral types.  */
