@@ -624,8 +624,8 @@ public:
         /* figure out size of the binary, if PIC */
         elf.iterate_phdr(b_func);
 
-        ldr.printf("   all PHDRs: [0x%lx-0x%lx]\n", b_func.start, b_func.end);
         _base = *base;
+        ldr.printf("   all PHDRs: [0x%lx-0x%lx] base=%lx\n", b_func.start, b_func.end, _base);
 
         l4_addr_t lib = _base + b_func.start;
         chksys(mm->prog_reserve_area(&lib, b_func.end - b_func.start,
