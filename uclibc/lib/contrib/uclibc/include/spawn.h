@@ -103,6 +103,7 @@ int posix_spawnattr_init (posix_spawnattr_t *__attr)
 static inline
 int posix_spawnattr_destroy (posix_spawnattr_t *__attr)
 {
+  (void)__attr;
   return 0;
 }
 
