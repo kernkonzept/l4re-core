@@ -465,6 +465,9 @@ Thread_signal_handler::call_default_action(siginfo_t const &si,
                    static_cast<long>(si.si_pid), si.si_status,
                    static_cast<long>(si.si_uid));
 
+      if (Global::l4re_aux)
+        err.printf("Binary: '%s'\n", Global::l4re_aux->binary);
+
       if (regs)
         {
           dump_exception_state(err, regs);
