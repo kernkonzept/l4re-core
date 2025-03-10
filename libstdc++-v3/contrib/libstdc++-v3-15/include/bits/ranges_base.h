@@ -1,6 +1,6 @@
 // Core concepts and definitions for <ranges> -*- C++ -*-
 
-// Copyright (C) 2019-2024 Free Software Foundation, Inc.
+// Copyright (C) 2019-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -642,11 +642,13 @@ namespace ranges
   namespace __access
   {
 #if __glibcxx_ranges_as_const // >= C++23
-    template<typename _Range>
+    template<input_range _Range>
       constexpr auto&
       __possibly_const_range(_Range& __r) noexcept
       {
-	if constexpr (constant_range<const _Range> && !constant_range<_Range>)
+	// _GLIBCXX_RESOLVE_LIB_DEFECTS
+	// 4027. possibly-const-range should prefer returning const R&
+	if constexpr (input_range<const _Range>)
 	  return const_cast<const _Range&>(__r);
 	else
 	  return __r;

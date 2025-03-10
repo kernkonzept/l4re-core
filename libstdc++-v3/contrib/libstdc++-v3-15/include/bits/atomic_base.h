@@ -1,6 +1,6 @@
 // -*- C++ -*- header.
 
-// Copyright (C) 2008-2024 Free Software Foundation, Inc.
+// Copyright (C) 2008-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -355,7 +355,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __atomic_base& operator=(const __atomic_base&) = delete;
       __atomic_base& operator=(const __atomic_base&) volatile = delete;
 
-      // Requires __int_type convertible to _M_i.
       constexpr __atomic_base(__int_type __i) noexcept : _M_i (__i) { }
 
       operator __int_type() const noexcept
@@ -1210,53 +1209,89 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       { return __atomic_xor_fetch(__ptr, __i, __ATOMIC_SEQ_CST); }
 
     template<typename _Tp>
+      concept __atomic_fetch_addable
+	= requires (_Tp __t) { __atomic_fetch_add(&__t, __t, 0); };
+
+    template<typename _Tp>
       _Tp
       __fetch_add_flt(_Tp* __ptr, _Val<_Tp> __i, memory_order __m) noexcept
       {
-	_Val<_Tp> __oldval = load(__ptr, memory_order_relaxed);
-	_Val<_Tp> __newval = __oldval + __i;
-	while (!compare_exchange_weak(__ptr, __oldval, __newval, __m,
-				      memory_order_relaxed))
-	  __newval = __oldval + __i;
-	return __oldval;
+	if constexpr (__atomic_fetch_addable<_Tp>)
+	  return __atomic_fetch_add(__ptr, __i, int(__m));
+	else
+	  {
+	    _Val<_Tp> __oldval = load (__ptr, memory_order_relaxed);
+	    _Val<_Tp> __newval = __oldval + __i;
+	    while (!compare_exchange_weak (__ptr, __oldval, __newval, __m,
+					   memory_order_relaxed))
+	      __newval = __oldval + __i;
+	    return __oldval;
+	  }
       }
+
+    template<typename _Tp>
+      concept __atomic_fetch_subtractable
+	= requires (_Tp __t) { __atomic_fetch_sub(&__t, __t, 0); };
 
     template<typename _Tp>
       _Tp
       __fetch_sub_flt(_Tp* __ptr, _Val<_Tp> __i, memory_order __m) noexcept
       {
-	_Val<_Tp> __oldval = load(__ptr, memory_order_relaxed);
-	_Val<_Tp> __newval = __oldval - __i;
-	while (!compare_exchange_weak(__ptr, __oldval, __newval, __m,
-				      memory_order_relaxed))
-	  __newval = __oldval - __i;
-	return __oldval;
+	if constexpr (__atomic_fetch_subtractable<_Tp>)
+	  return __atomic_fetch_sub(__ptr, __i, int(__m));
+	else
+	  {
+	    _Val<_Tp> __oldval = load (__ptr, memory_order_relaxed);
+	    _Val<_Tp> __newval = __oldval - __i;
+	    while (!compare_exchange_weak (__ptr, __oldval, __newval, __m,
+					   memory_order_relaxed))
+	      __newval = __oldval - __i;
+	    return __oldval;
+	  }
       }
+
+    template<typename _Tp>
+      concept __atomic_add_fetchable
+	= requires (_Tp __t) { __atomic_add_fetch(&__t, __t, 0); };
 
     template<typename _Tp>
       _Tp
       __add_fetch_flt(_Tp* __ptr, _Val<_Tp> __i) noexcept
       {
-	_Val<_Tp> __oldval = load(__ptr, memory_order_relaxed);
-	_Val<_Tp> __newval = __oldval + __i;
-	while (!compare_exchange_weak(__ptr, __oldval, __newval,
-				      memory_order_seq_cst,
-				      memory_order_relaxed))
-	  __newval = __oldval + __i;
-	return __newval;
+	if constexpr (__atomic_add_fetchable<_Tp>)
+	  return __atomic_add_fetch(__ptr, __i, __ATOMIC_SEQ_CST);
+	else
+	  {
+	    _Val<_Tp> __oldval = load (__ptr, memory_order_relaxed);
+	    _Val<_Tp> __newval = __oldval + __i;
+	    while (!compare_exchange_weak (__ptr, __oldval, __newval,
+					   memory_order_seq_cst,
+					   memory_order_relaxed))
+	      __newval = __oldval + __i;
+	    return __newval;
+	  }
       }
+
+    template<typename _Tp>
+      concept __atomic_sub_fetchable
+	= requires (_Tp __t) { __atomic_sub_fetch(&__t, __t, 0); };
 
     template<typename _Tp>
       _Tp
       __sub_fetch_flt(_Tp* __ptr, _Val<_Tp> __i) noexcept
       {
-	_Val<_Tp> __oldval = load(__ptr, memory_order_relaxed);
-	_Val<_Tp> __newval = __oldval - __i;
-	while (!compare_exchange_weak(__ptr, __oldval, __newval,
-				      memory_order_seq_cst,
-				      memory_order_relaxed))
-	  __newval = __oldval - __i;
-	return __newval;
+	if constexpr (__atomic_sub_fetchable<_Tp>)
+	  return __atomic_sub_fetch(__ptr, __i, __ATOMIC_SEQ_CST);
+	else
+	  {
+	    _Val<_Tp> __oldval = load (__ptr, memory_order_relaxed);
+	    _Val<_Tp> __newval = __oldval - __i;
+	    while (!compare_exchange_weak (__ptr, __oldval, __newval,
+					   memory_order_seq_cst,
+					   memory_order_relaxed))
+	      __newval = __oldval - __i;
+	    return __newval;
+	  }
       }
   } // namespace __atomic_impl
 

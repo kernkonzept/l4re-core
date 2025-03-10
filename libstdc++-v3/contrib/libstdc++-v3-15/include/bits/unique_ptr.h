@@ -1,7 +1,7 @@
 
 // unique_ptr implementation -*- C++ -*-
 
-// Copyright (C) 2008-2024 Free Software Foundation, Inc.
+// Copyright (C) 2008-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -40,7 +40,7 @@
 #if __cplusplus >= 202002L
 # include <compare>
 # if _GLIBCXX_HOSTED
-#  include <ostream>
+#  include <bits/ostream.h>
 # endif
 #endif
 
@@ -445,6 +445,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       typename add_lvalue_reference<element_type>::type
       operator*() const noexcept(noexcept(*std::declval<pointer>()))
       {
+#if _GLIBCXX_USE_BUILTIN_TRAIT(__reference_converts_from_temporary)
+	// _GLIBCXX_RESOLVE_LIB_DEFECTS
+	// 4148. unique_ptr::operator* should not allow dangling references
+	using _ResT = typename add_lvalue_reference<element_type>::type;
+	using _DerefT = decltype(*get());
+	static_assert(!__reference_converts_from_temporary(_ResT, _DerefT),
+		      "operator* must not return a dangling reference");
+#endif
 	__glibcxx_assert(get() != pointer());
 	return *get();
       }

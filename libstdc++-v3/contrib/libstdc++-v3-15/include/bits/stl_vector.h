@@ -1,6 +1,6 @@
 // Vector implementation -*- C++ -*-
 
-// Copyright (C) 2001-2024 Free Software Foundation, Inc.
+// Copyright (C) 2001-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -778,7 +778,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	      // but will not destroy elements. This RAII type destroys them.
 	      struct _Clear
 	      {
-		~_Clear() { if (_M_this) _M_this->clear(); }
+		constexpr ~_Clear() { if (_M_this) _M_this->clear(); }
 		vector* _M_this;
 	      } __guard{this};
 

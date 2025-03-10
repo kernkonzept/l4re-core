@@ -1,6 +1,6 @@
 // Class filesystem::directory_entry etc. -*- C++ -*-
 
-// Copyright (C) 2014-2024 Free Software Foundation, Inc.
+// Copyright (C) 2014-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -144,7 +144,7 @@ struct fs::_Dir : _Dir_base
   }
 
   bool
-  do_unlink(bool is_directory, error_code& ec) const noexcept
+  do_unlink([[maybe_unused]] bool is_directory, error_code& ec) const noexcept
   {
 #if _GLIBCXX_HAVE_UNLINKAT
     const auto atp = current();

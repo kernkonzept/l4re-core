@@ -1,6 +1,6 @@
 // -*- C++ -*-
 
-// Copyright (C) 2007-2024 Free Software Foundation, Inc.
+// Copyright (C) 2007-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the terms
@@ -84,7 +84,7 @@ namespace __parallel
             __gnu_parallel::__find_template(__begin1, __end1, __begin2, __pred,
                                             __gnu_parallel::
                                             __mismatch_selector()).first;
-          return make_pair(__res , __begin2 + (__res - __begin1));
+          return std::make_pair(__res , __begin2 + (__res - __begin1));
         }
       else
         return _GLIBCXX_STD_A::mismatch(__begin1, __end1, __begin2, __pred);
@@ -165,7 +165,7 @@ namespace __parallel
             __gnu_parallel::__find_template(__begin1, __end1, __begin2, __pred,
                                             __gnu_parallel::
                                             __mismatch_selector()).first;
-          return make_pair(__res , __begin2 + (__res - __begin1));
+          return std::make_pair(__res , __begin2 + (__res - __begin1));
         }
       else
         return _GLIBCXX_STD_A::mismatch(__begin1, __end1,

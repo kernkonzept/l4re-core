@@ -35,6 +35,9 @@
 #include <atomic>     // atomic<T*>, atomic<int>
 #include <memory>     // atomic<shared_ptr<T>>
 #include <mutex>      // mutex
+#if defined __GTHREADS && ! defined _GLIBCXX_HAS_GTHREADS
+# include <ext/concurrence.h> // __gnu_cxx::__mutex
+#endif
 #include <filesystem> // filesystem::read_symlink
 
 #ifndef _AIX
@@ -97,11 +100,18 @@ namespace std::chrono
 {
   namespace
   {
-#if ! USE_ATOMIC_SHARED_PTR
 #ifndef __GTHREADS
     // Dummy no-op mutex type for single-threaded targets.
     struct mutex { void lock() { } void unlock() { } };
+#elif ! defined _GLIBCXX_HAS_GTHREADS
+    // Use __gnu_cxx::__mutex if std::mutex isn't available.
+    using mutex = __gnu_cxx::__mutex;
+# if ! USE_ATOMIC_SHARED_PTR && defined __GTHREAD_MUTEX_INIT
+#  error "TODO: __gnu_cxx::__mutex can't be initialized with 'constinit'"
+# endif
 #endif
+
+#if ! USE_ATOMIC_SHARED_PTR
     inline mutex& list_mutex()
     {
 #ifdef __GTHREAD_MUTEX_INIT
@@ -133,6 +143,8 @@ namespace std::chrono
     // of this type gives them access to the private members of time_zone
     // and tzdb, without needing them declared in the <chrono> header.
 
+    // The tzdb_list singleton. This doesn't contain the actual linked list,
+    // but it has member functions that give access to it.
     static tzdb_list _S_the_list;
 
 #if USE_ATOMIC_SHARED_PTR
@@ -177,15 +189,16 @@ namespace std::chrono
   // Implementation of the private constructor used for the singleton object.
   constexpr tzdb_list::tzdb_list(nullptr_t) { }
 
-  // The tzdb_list singleton. This doesn't contain the actual linked list,
-  // but it has member functions that give access to it.
+#pragma GCC diagnostic ignored "-Wprio-ctor-dtor"
+
+  [[gnu::init_priority(98)]]
   constinit tzdb_list tzdb_list::_Node::_S_the_list(nullptr);
 
-  // Shared pointer to the first Node in the list.
+  [[gnu::init_priority(98)]]
   constinit tzdb_list::_Node::head_ptr tzdb_list::_Node::_S_head_owner{nullptr};
 
 #if USE_ATOMIC_LIST_HEAD
-  // Lock-free access to the first Node in the list.
+  [[gnu::init_priority(98)]]
   constinit atomic<tzdb_list::_Node*> tzdb_list::_Node::_S_head_cache{nullptr};
 #endif
 
@@ -1196,8 +1209,8 @@ namespace std::chrono
   pair<vector<leap_second>, bool>
   tzdb_list::_Node::_S_read_leap_seconds()
   {
-    // This list is valid until at least 2024-12-28 00:00:00 UTC.
-    auto expires = sys_days{2024y/12/28};
+    // This list is valid until at least 2025-12-28 00:00:00 UTC.
+    auto expires = sys_days{2025y/12/28};
     vector<leap_second> leaps
     {
       (leap_second)  78796800, // 1 Jul 1972

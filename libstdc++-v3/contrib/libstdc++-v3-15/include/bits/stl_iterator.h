@@ -1,6 +1,6 @@
 // Iterators -*- C++ -*-
 
-// Copyright (C) 2001-2024 Free Software Foundation, Inc.
+// Copyright (C) 2001-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -2881,30 +2881,30 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	&& three_way_comparable_with<_It, _It2>
       { return _M_current <=> __y; }
 
-    template<__detail::__not_a_const_iterator _It2>
+    template<__detail::__not_a_const_iterator _It2, same_as<_It> _It3>
       friend constexpr bool
-      operator<(const _It2& __x, const basic_const_iterator& __y)
+      operator<(const _It2& __x, const basic_const_iterator<_It3>& __y)
       noexcept(noexcept(__x < __y._M_current))
       requires random_access_iterator<_It> && totally_ordered_with<_It, _It2>
       { return __x < __y._M_current; }
 
-    template<__detail::__not_a_const_iterator _It2>
+    template<__detail::__not_a_const_iterator _It2, same_as<_It> _It3>
       friend constexpr bool
-      operator>(const _It2& __x, const basic_const_iterator& __y)
+      operator>(const _It2& __x, const basic_const_iterator<_It3>& __y)
       noexcept(noexcept(__x > __y._M_current))
       requires random_access_iterator<_It> && totally_ordered_with<_It, _It2>
       { return __x > __y._M_current; }
 
-    template<__detail::__not_a_const_iterator _It2>
+    template<__detail::__not_a_const_iterator _It2, same_as<_It> _It3>
       friend constexpr bool
-      operator<=(const _It2& __x, const basic_const_iterator& __y)
+      operator<=(const _It2& __x, const basic_const_iterator<_It3>& __y)
       noexcept(noexcept(__x <= __y._M_current))
       requires random_access_iterator<_It> && totally_ordered_with<_It, _It2>
       { return __x <= __y._M_current; }
 
-    template<__detail::__not_a_const_iterator _It2>
+    template<__detail::__not_a_const_iterator _It2, same_as<_It> _It3>
       friend constexpr bool
-      operator>=(const _It2& __x, const basic_const_iterator& __y)
+      operator>=(const _It2& __x, const basic_const_iterator<_It3>& __y)
       noexcept(noexcept(__x >= __y._M_current))
       requires random_access_iterator<_It> && totally_ordered_with<_It, _It2>
       { return __x >= __y._M_current; }

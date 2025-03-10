@@ -1,6 +1,6 @@
 // <algorithm> Forward declarations  -*- C++ -*-
 
-// Copyright (C) 2007-2024 Free Software Foundation, Inc.
+// Copyright (C) 2007-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -945,10 +945,12 @@ _GLIBCXX_BEGIN_NAMESPACE_ALGO
     sort(_RAIter, _RAIter, _Compare);
 
   template<typename _RAIter>
+    _GLIBCXX26_CONSTEXPR
     void
     stable_sort(_RAIter, _RAIter);
 
   template<typename _RAIter, typename _Compare>
+    _GLIBCXX26_CONSTEXPR
     void
     stable_sort(_RAIter, _RAIter, _Compare);
 

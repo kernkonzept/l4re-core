@@ -1,6 +1,6 @@
 // Definition of the public simd interfaces -*- C++ -*-
 
-// Copyright (C) 2020-2024 Free Software Foundation, Inc.
+// Copyright (C) 2020-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -4634,7 +4634,7 @@ template <template <int> class _Abi, int _Bytes, typename _Tp>
     static constexpr auto
     _S_choose()
     {
-      constexpr int _NextBytes = std::__bit_ceil(_Bytes) / 2;
+      constexpr int _NextBytes = std::__bit_ceil((unsigned)_Bytes) / 2;
       using _NextAbi = _Abi<_NextBytes>;
       if constexpr (_NextBytes < sizeof(_Tp) * 2) // break recursion
 	return _Abi<_Bytes>();

@@ -1,6 +1,6 @@
 // Predefined symbols and macros -*- C++ -*-
 
-// Copyright (C) 1997-2024 Free Software Foundation, Inc.
+// Copyright (C) 1997-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -222,6 +222,14 @@
 # endif
 #endif
 
+#ifndef _GLIBCXX26_CONSTEXPR
+# if __cplusplus >= 202400L
+#  define _GLIBCXX26_CONSTEXPR constexpr
+# else
+#  define _GLIBCXX26_CONSTEXPR
+# endif
+#endif
+
 #ifndef _GLIBCXX17_INLINE
 # if __cplusplus >= 201703L
 #  define _GLIBCXX17_INLINE inline
@@ -253,7 +261,7 @@
 # if __cpp_exceptions
 #  define _GLIBCXX_THROW_OR_ABORT(_EXC) (throw (_EXC))
 # else
-#  define _GLIBCXX_THROW_OR_ABORT(_EXC) (__builtin_abort())
+#  define _GLIBCXX_THROW_OR_ABORT(_EXC) (__builtin_abort(), (void)(_EXC))
 # endif
 #endif
 
@@ -885,7 +893,7 @@ namespace __gnu_cxx
 #ifdef __has_builtin
 # ifdef __is_identifier
 // Intel and older Clang require !__is_identifier for some built-ins:
-#  define _GLIBCXX_HAS_BUILTIN(B) __has_builtin(B) || ! __is_identifier(B)
+#  define _GLIBCXX_HAS_BUILTIN(B) (__has_builtin(B) || ! __is_identifier(B))
 # else
 #  define _GLIBCXX_HAS_BUILTIN(B) __has_builtin(B)
 # endif

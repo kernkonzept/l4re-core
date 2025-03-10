@@ -1,5 +1,5 @@
 // Feature test macro definitions                                  -*- C++ -*-
-// Copyright (C) 2023-2024 Free Software Foundation, Inc.
+// Copyright (C) 2023-2025 Free Software Foundation, Inc.
 
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -522,6 +522,11 @@ ftms = {
 ftms = {
   name = raw_memory_algorithms;
   values = {
+    v = 202411;
+    cxxmin = 26;
+    extra_cond = "__cpp_constexpr >= 202406L";
+  };
+  values = {
     v = 201606;
     cxxmin = 17;
   };
@@ -765,6 +770,7 @@ ftms = {
   values = {
     v = 201911;
     cxxmin = 20;
+    extra_cond = "__cpp_concepts >= 201907L";
   };
 };
 
@@ -1110,6 +1116,10 @@ ftms = {
 
 ftms = {
   name = constexpr_algorithms;
+  values = {
+    v = 202306;
+    cxxmin = 26;
+  };
   values = {
     v = 201806;
     cxxmin = 20;
@@ -1789,6 +1799,11 @@ ftms = {
 ftms = {
   name = tuple_like;
   values = {
+    v = 202311;
+    cxxmin = 26;
+    extra_cond = "__cpp_explicit_this_parameter >= 202110L";
+  };
+  values = {
     v = 202207;
     cxxmin = 23;
   };
@@ -1838,10 +1853,19 @@ ftms = {
 };
 
 ftms = {
+  name = ranges_cache_latest;
+  values = {
+    v = 202411;
+    cxxmin = 26;
+  };
+};
+
+ftms = {
   name = ranges_concat;
   values = {
     v = 202403;
     cxxmin = 26;
+    extra_cond = "__cpp_pack_indexing";
   };
 };
 
@@ -1870,12 +1894,28 @@ ftms = {
 };
 
 ftms = {
+  name = span_initializer_list;
+  values = {
+    v = 202311;
+    cxxmin = 26;
+  };
+};
+
+ftms = {
   name = text_encoding;
   values = {
     v = 202306;
     cxxmin = 26;
     hosted = yes;
     extra_cond = "_GLIBCXX_USE_NL_LANGINFO_L";
+  };
+};
+
+ftms = {
+  name = ranges_to_input;
+  values = {
+    v = 202502;
+    cxxmin = 26;
   };
 };
 

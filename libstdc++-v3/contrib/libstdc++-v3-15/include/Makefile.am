@@ -1,6 +1,6 @@
 ## Makefile for the include subdirectory of the GNU C++ Standard library.
 ##
-## Copyright (C) 2001-2024 Free Software Foundation, Inc.
+## Copyright (C) 2001-2025 Free Software Foundation, Inc.
 ##
 ## This file is part of the libstdc++ version 3 distribution.
 ## Process this file with automake to produce Makefile.in.
@@ -137,6 +137,7 @@ bits_freestanding = \
 	${bits_srcdir}/memoryfwd.h \
 	${bits_srcdir}/monostate.h \
 	${bits_srcdir}/move.h \
+	${bits_srcdir}/ostream.h \
 	${bits_srcdir}/out_ptr.h \
 	${bits_srcdir}/predefined_ops.h \
 	${bits_srcdir}/parse_numbers.h \
@@ -910,6 +911,8 @@ c_compatibility_headers = \
 	${c_compatibility_srcdir}/tgmath.h \
 	${c_compatibility_srcdir}/math.h \
 	${c_compatibility_srcdir}/stdatomic.h \
+	${c_compatibility_srcdir}/stdbit.h \
+	${c_compatibility_srcdir}/stdckdint.h \
 	${c_compatibility_srcdir}/stdlib.h
 endif
 
