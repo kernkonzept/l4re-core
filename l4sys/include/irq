@@ -233,7 +233,9 @@ public:
  *
  * To setup an interrupt line the following steps are required:
  * 1. set_mode() (optional if interrupt has a default mode)
- * 2. L4::Rcv_endpoint::bind_thread() to attach the L4::Irq object to a thread
+ * 2. L4::Rcv_endpoint::bind_thread() or
+ *    L4::Rcv_endpoint::bind_snd_destination() to attach the L4::Irq object
+ *    to a send destination.
  * 3. bind()
  * 4. unmask() to receive the first interrupt
  *

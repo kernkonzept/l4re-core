@@ -817,7 +817,8 @@ Cap<T> make_cap_rws(L4::Cap<T> cap) noexcept
  *
  * \note Full rights (including object-specific rights) are required when mapping
  *       an IPC gate where the receiver should become the server, i.e. where
- *       the receiver wants to call L4::Ipc_gate::bind_thread().
+ *       the receiver wants to call L4::Ipc_gate::bind_thread() or
+ *       L4::Ipc_gate::bind_snd_destination().
  */
 template<typename T>
 Cap<T> make_cap_full(L4::Cap<T> cap) noexcept

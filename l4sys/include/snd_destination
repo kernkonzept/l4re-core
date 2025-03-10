@@ -1,0 +1,25 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/**
+ * \file
+ * The C++ Sender destination interface.
+ */
+/*
+ * (c) 2025 Frank Mehnert <frank.mehnert@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+#pragma once
+
+#include <l4/sys/snd_destination.h>
+#include <l4/sys/types.h>
+#include <l4/sys/capability>
+#include <l4/sys/cxx/ipc_iface>
+
+namespace L4 {
+
+class L4_EXPORT Snd_destination :
+  public Kobject_t<Snd_destination, Kobject, L4_PROTO_KOBJECT>
+{
+};
+
+}

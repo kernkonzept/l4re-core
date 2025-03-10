@@ -15,6 +15,7 @@
 
 #include <l4/sys/factory.h>
 #include <l4/sys/capability>
+#include <l4/sys/snd_destination>
 #include <l4/sys/cxx/ipc_iface>
 #include <l4/sys/cxx/ipc_varg>
 
@@ -406,39 +407,43 @@ public:
   { return l4_factory_create_factory_u(cap(), target_cap.cap(), limit, utcb); }
 
   /**
-   * Create a new IPC gate.
+   * Create a new IPC gate, optionally bound to a send destination (a thread).
    *
-   * \param[out] target_cap  The kernel stores the new IPC gate's capability
-   *                         into this slot.
-   * \param      thread_cap  Optional capability selector of a thread to
-   *                         bind the gate to. Use #L4_INVALID_CAP to create
-   *                         an unbound IPC gate.
-   * \param      label       Optional label of the gate (precisely used if
-   *                         `thread_cap` is valid). If `thread_cap` is valid,
-   *                         `label` must be present.
+   * \param[out] target_cap   The kernel stores the new IPC gate's capability
+   *                          into this slot.
+   * \param      snd_dst_cap  Optional capability selector of a thread to bind
+   *                          the gate to. Use #L4_INVALID_CAP to create an
+   *                          unbound IPC gate.
+   * \param      label        Optional label of the gate (precisely used if
+   *                          `snd_dst_cap` is valid). If `snd_dst_cap` is
+   *                          valid, `label` must be present.
    * \utcb_def{utcb}
    *
    * \return Syscall return tag containing one of the following return codes.
    *
    * \retval L4_EOK      No error occurred.
    * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
-   * \retval -L4_EINVAL  `thread_cap` is void or points to something that is not
-   *                     a thread.
+   * \retval -L4_EINVAL  `snd_dst_cap` is void or points to something that is
+   *                     not a thread.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
    *
    * \pre The invoked Factory capability must have the permission
-   *      #L4_CAP_FPAGE_S. Also `thread_cap` (if [valid](#L4::Cap::is_valid()))
+   *      #L4_CAP_FPAGE_S. Also `snd_dst_cap` (if [valid](#L4::Cap::is_valid()))
    *      must have the permission #L4_CAP_FPAGE_S.
    *
    * An unbound IPC gate can be bound to a thread using
-   * L4::Ipc_gate::bind_thread().
+   * L4::Ipc_gate::bind_thread() or bind_snd_destination().
    *
    * \see L4::Ipc_gate
    */
   l4_msgtag_t create_gate(Cap<void> const &target_cap,
-                          Cap<Thread> const &thread_cap, l4_umword_t label,
+                          Cap<Snd_destination> const &snd_dst_cap,
+                          l4_umword_t label,
                           l4_utcb_t *utcb = l4_utcb()) noexcept
-  { return l4_factory_create_gate_u(cap(), target_cap.cap(), thread_cap.cap(), label, utcb); }
+  {
+    return l4_factory_create_gate_u(cap(), target_cap.cap(), snd_dst_cap.cap(),
+                                    label, utcb);
+  }
 
   typedef L4::Typeid::Rpc_nocode<create_t> Rpcs;
 };

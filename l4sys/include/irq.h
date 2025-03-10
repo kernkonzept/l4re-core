@@ -33,7 +33,8 @@
  *
  * For hardware and virtual device interrupts the Irq object must be bound to
  * an interrupt source, see \ref l4_icu_api. To receive interrupts, the Irq
- * object must be bound to a thread, see l4_rcv_ep_bind_thread().
+ * object must be bound to a thread, see l4_rcv_ep_bind_thread() and
+ * l4_rcv_ep_bind_snd_destination().
  *
  * IRQ objects can be created using a factory, see the \ref l4_factory_api API
  * (use l4_factory_create_irq()).

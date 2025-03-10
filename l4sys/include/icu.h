@@ -30,7 +30,8 @@
  *
  * To setup an IRQ line the following steps are required:
  * 1. #l4_icu_set_mode() (optional if IRQ has a default mode)
- * 2. #l4_rcv_ep_bind_thread() to attach the IRQ object to a thread
+ * 2. #l4_rcv_ep_bind_thread() or #l4_rcv_ep_bind_snd_destination() to attach
+ *    the IRQ object to a thread object.
  * 3. #l4_icu_bind()
  * 4. #l4_icu_unmask() to receive the first IRQ
  *

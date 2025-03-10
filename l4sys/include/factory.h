@@ -165,26 +165,26 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
 /**
  * \ingroup l4_factory_api
  * \copybrief L4::Factory::create_gate
- * \param      factory     Capability selector for factory to use for creation.
- * \param[out] target_cap  The kernel stores the new IPC gate's capability into
- *                         this slot.
- * \param      thread_cap  Optional capability selector of a thread to
- *                         bind the gate to. Use #L4_INVALID_CAP to create
- *                         an unbound IPC gate.
- * \param      label       Optional label of the gate (precisely used if
- *                         `thread_cap` is valid). If `thread_cap` is valid,
- *                         `label` must be present.
+ * \param      factory      Capability selector for factory to use for creation.
+ * \param[out] target_cap   The kernel stores the new IPC gate's capability into
+ *                          this slot.
+ * \param      snd_dst_cap  Optional capability selector of a thread to
+ *                          bind the gate to. Use #L4_INVALID_CAP to create
+ *                          an unbound IPC gate.
+ * \param      label        Optional label of the gate (precisely used if
+ *                          `snd_dst_cap` is valid). If `snd_dst_cap` is valid,
+ *                          `label` must be present.
  *
  * \return Syscall return tag containing one of the following return codes.
  *
  * \retval L4_EOK      No error occurred.
  * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
- * \retval -L4_EINVAL  `thread_cap` is void or points to something that is not
+ * \retval -L4_EINVAL  `snd_dst_cap` is void or points to something that is not
  *                     a thread.
  * \retval -L4_EPERM   Insufficient permissions; see precondition.
  *
  * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S. Also
- *      `thread_cap` (if not #L4_INVALID_CAP) must have the permission
+ *      `snd_dst_cap` (if not #L4_INVALID_CAP) must have the permission
  *      #L4_CAP_FPAGE_S.
  *
  * An unbound IPC gate can be bound to a thread using l4_rcv_ep_bind_thread().
@@ -194,7 +194,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
 L4_INLINE l4_msgtag_t
 l4_factory_create_gate(l4_cap_idx_t factory,
                        l4_cap_idx_t target_cap,
-                       l4_cap_idx_t thread_cap, l4_umword_t label) L4_NOTHROW;
+                       l4_cap_idx_t snd_dst_cap, l4_umword_t label) L4_NOTHROW;
 
 /**
  * \internal
@@ -203,7 +203,7 @@ l4_factory_create_gate(l4_cap_idx_t factory,
 L4_INLINE l4_msgtag_t
 l4_factory_create_gate_u(l4_cap_idx_t factory,
                          l4_cap_idx_t target_cap,
-                         l4_cap_idx_t thread_cap, l4_umword_t label,
+                         l4_cap_idx_t snd_dst_cap, l4_umword_t label,
                          l4_utcb_t *utcb) L4_NOTHROW;
 
 /**
@@ -431,7 +431,7 @@ l4_factory_create_factory_u(l4_cap_idx_t factory,
 L4_INLINE l4_msgtag_t
 l4_factory_create_gate_u(l4_cap_idx_t factory,
                          l4_cap_idx_t target_cap,
-                         l4_cap_idx_t thread_cap, l4_umword_t label,
+                         l4_cap_idx_t snd_dst_cap, l4_umword_t label,
                          l4_utcb_t *u) L4_NOTHROW
 {
   l4_msgtag_t t;
@@ -440,11 +440,11 @@ l4_factory_create_gate_u(l4_cap_idx_t factory,
   t = l4_factory_create_start_u(0, target_cap, u);
   l4_factory_create_add_uint_u(label, &t, u);
   v = l4_utcb_mr_u(u);
-  if (!(thread_cap & L4_INVALID_CAP_BIT))
+  if (!(snd_dst_cap & L4_INVALID_CAP_BIT))
     {
       items = 1;
       v->mr[3] = l4_map_obj_control(0,0);
-      v->mr[4] = l4_obj_fpage(thread_cap, 0, L4_CAP_FPAGE_RWS).raw;
+      v->mr[4] = l4_obj_fpage(snd_dst_cap, 0, L4_CAP_FPAGE_RWS).raw;
     }
   t = l4_msgtag(l4_msgtag_label(t), l4_msgtag_words(t), items, l4_msgtag_flags(t));
   return l4_factory_create_commit_u(factory, t, u);
@@ -502,9 +502,9 @@ l4_factory_create_factory(l4_cap_idx_t factory,
 L4_INLINE l4_msgtag_t
 l4_factory_create_gate(l4_cap_idx_t factory,
                        l4_cap_idx_t target_cap,
-                       l4_cap_idx_t thread_cap, l4_umword_t label) L4_NOTHROW
+                       l4_cap_idx_t snd_dst_cap, l4_umword_t label) L4_NOTHROW
 {
-  return l4_factory_create_gate_u(factory, target_cap, thread_cap, label, l4_utcb());
+  return l4_factory_create_gate_u(factory, target_cap, snd_dst_cap, label, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t

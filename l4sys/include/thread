@@ -14,6 +14,7 @@
 #pragma once
 
 #include <l4/sys/capability>
+#include <l4/sys/snd_destination>
 #include <l4/sys/thread.h>
 
 namespace L4 {
@@ -49,7 +50,7 @@ namespace L4 {
  * documentation on the vCPU feature see \ref l4_vcpu_api.
  */
 class Thread :
-  public Kobject_t<Thread, Kobject, L4_PROTO_THREAD,
+  public Kobject_t<Thread, Snd_destination, L4_PROTO_THREAD,
                    Type_info::Demand_t<1> >
 {
 public:

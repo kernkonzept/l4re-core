@@ -11,6 +11,7 @@
 #pragma once
 
 #include <l4/sys/rcv_endpoint.h>
+#include <l4/sys/snd_destination>
 #include <l4/sys/types.h>
 #include <l4/sys/capability>
 #include <l4/sys/cxx/ipc_iface>
@@ -24,7 +25,7 @@ class Thread;
  *
  * Such an object is for example an Ipc_gate (with server rights) or an Irq.
  * Those objects can be bound to a thread that shall receive IPC from these
- * objects via bind_thread().
+ * objects via bind_thread() or bind_snd_destination().
  */
 class L4_EXPORT Rcv_endpoint :
   public Kobject_t<Rcv_endpoint, Kobject, L4_PROTO_KOBJECT,
@@ -48,6 +49,8 @@ public:
    * \pre The invoked capability and the capability `t` both must have the
    *      permission #L4_CAP_FPAGE_S.
    *
+   * \deprecated Use bind_snd_destination() instead.
+   *
    * \pre If this operation is invoked using an IPC gate capability without the
    *      #L4_FPAGE_C_IPCGATE_SVR right, the kernel will not perform the
    *      operation. Instead, the underlying IPC message will be forwarded to
@@ -62,6 +65,41 @@ public:
    */
   L4_INLINE_RPC_OP(L4_RCV_EP_BIND_OP,
       l4_msgtag_t, bind_thread, (Ipc::Cap<Thread> t, l4_umword_t label));
+
+  /**
+   * Bind a send destination (a thread) to an IPC receive endpoint.
+   *
+   * \param snd_dst     Snd_destination object (a thread) that shall be bound to
+   *                    this receive endpoint. See bind_thread() and
+   *                    bind_snd_destination() for binding a thread object.
+   * \param label       Label to assign to `this` receive endpoint. For IPC
+   *                    gates, the two least significant bits must be set to
+   *                    zero.
+   *
+   * \return Syscall return tag containing one of the following return codes.
+   *
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_EINVAL  `snd_dst` is not a thread object or other arguments
+   *                     were malformed.
+   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on `snd_dst` or the
+   *                     capability used to invoke this operation.
+   *
+   * \pre If this operation is invoked using an IPC gate capability without the
+   *      #L4_FPAGE_C_IPCGATE_SVR right, the kernel will not perform the
+   *      operation. Instead, the underlying IPC message will be forwarded to
+   *      the thread bound to the IPC gate, blocking the caller if no thread is
+   *      bound yet.
+   *
+   * The specified `label` is passed to the receiver of the incoming IPC. It is
+   * possible to re-bind a receive endpoint to the same or a different thread.
+   * In this case, IPC already in flight will be delivered with the old label to
+   * the previously bound thread unless L4::Thread::modify_senders() is used to
+   * change these labels.
+   */
+  l4_msgtag_t bind_snd_destination(Cap<Snd_destination> snd_dst, l4_umword_t label)
+  {
+    return l4_rcv_ep_bind_snd_destination(cap(), snd_dst.cap(), label);
+  }
 
   typedef L4::Typeid::Rpcs_sys<bind_thread_t> Rpcs;
 };
