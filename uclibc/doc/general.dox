@@ -1,6 +1,7 @@
+/* vim:set ft=c: */
 /*!\file doc/general.dox
  *
- * \brief  Mainpage definition and some concept description
+ * \brief Main page definition and some concept description
  */
 
 /*!\mainpage uClibc - basic libc support for L4env

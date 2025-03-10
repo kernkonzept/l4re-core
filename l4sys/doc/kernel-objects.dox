@@ -1,3 +1,4 @@
+/* vim:set ft=c: */
 /*
  * Copyright (C) 2021-2022, 2024 Kernkonzept GmbH.
  *
@@ -15,7 +16,7 @@
  * - No threads can be bound to it.
  * - No objects (and IO ports on IA32) can be mapped to it.
  * - No kernel-user memory can be added to it.
- * - It must be constructed by passing the L4_PROTO_DMA_SPACE protocoll constant
+ * - It must be constructed by passing the L4_PROTO_DMA_SPACE protocol constant
  *   to the kernel factory's L4::Factory.create() call.
  *
  * A DMA space must be bound to an L4::Iommu to enable the address translation

@@ -1,3 +1,4 @@
+/* vim:set ft=c: */
 /**
 \page l4re_concepts Programming for L4Re
 - \subpage l4re_concepts_kernel_factory
