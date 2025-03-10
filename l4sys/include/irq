@@ -139,7 +139,7 @@ public:
    * active in the guest and it is the responsibility of the VMM to handle the
    * eventual EOI of the guest.
    *
-   * \param thread  Thread object that shall be bound to this Irq.
+   * \param thread  Thread object this Irq shall be bound to.
    * \param cfg     Architecture specific interrupt configuration.
    * \utcb{utcb}
    *
@@ -147,8 +147,8 @@ public:
    *
    * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
    *                     to invoke this operation.
-   * \retval -L4_EBUSY   Cannot bind to new thread because interrupt is active
-   *                     on previous thread and guest has to issue
+   * \retval -L4_EBUSY   Cannot bind to the new thread because interrupt
+   *                     is active on previous thread and guest has to issue
    *                     end-of-interrupt first.
    * \retval -L4_ENOSYS  The kernel does not support direct interrupt
    *                     forwarding.
@@ -230,8 +230,7 @@ public:
  *
  * To setup an interrupt line the following steps are required:
  * 1. set_mode() (optional if interrupt has a default mode)
- * 2. L4::Rcv_endpoint::bind_thread() to attach the L4::Irq object to a
- *    thread
+ * 2. L4::Rcv_endpoint::bind_thread() to attach the L4::Irq object to a thread
  * 3. bind()
  * 4. unmask() to receive the first interrupt
  *

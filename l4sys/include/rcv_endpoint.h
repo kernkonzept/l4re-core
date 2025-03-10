@@ -17,7 +17,7 @@
  * \ingroup l4_kernel_object_gate_api
  *
  * \param ep      The IPC receive endpoint object.
- * \param thread  The thread object that shall be bound to `ep`.
+ * \param thread  The thread object `ep` shall be bound to.
  * \param label   Label to assign to `ep`. For IPC gates, the two least
  *                significant bits must be set to zero.
  *
@@ -30,8 +30,8 @@
  *
  * \pre If `ep` is an IPC gate capability without the #L4_FPAGE_C_IPCGATE_SVR
  *      right, the kernel will not perform this operation. Instead, the
- *      underlying IPC message will be forwarded to the thread bound to the IPC
- *      gate, blocking the caller if no thread is bound yet.
+ *      underlying IPC message will be forwarded to the thread the IPC gate is
+ *      bound to, blocking the caller if the IPC gate was not bound yet.
  *
  *  The specified `label` is passed to the receiver of the incoming IPC. It is
  *  possible to re-bind a receive endpoint to the same or a different thread.

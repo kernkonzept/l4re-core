@@ -14,34 +14,35 @@
  * domains. An IPC gate can be created using the \ref l4_factory_api interface.
  *
  * Depending on the permissions of the capability used, an IPC gate forwards IPC
- * to the \ref l4_thread_api that is *bound* to the IPC gate (cf.
+ * to the \ref l4_thread_api the IPC gate is *bound* to (cf.
  * l4_rcv_ep_bind_thread()). If the capability has the #L4_FPAGE_C_IPCGATE_SVR
  * permission, only IPC using a protocol different from the #L4_PROTO_KOBJECT
  * protocol is forwarded. Without the #L4_FPAGE_C_IPCGATE_SVR permission, all
  * IPC is forwarded. The latter is the usual case for a client in a
- * client/server scenario. When no thread is bound yet, the forwarded IPC blocks
- * until a thread is bound or the IPC times out.
+ * client/server scenario. When not bound to a thread yet, the forwarded IPC
+ * blocks until the IPC gate is bound to a thread or the IPC times out.
  *
- * Forwarded IPC is always forwarded to the userland of the bound thread. That
- * means, the \ref l4_thread_api interface of the bound thread is not accessible
- * via an IPC gate. The \ref l4_kernel_object_gate_api of an IPC gate is only
- * accessible if the capability used has the #L4_FPAGE_C_IPCGATE_SVR permission
- * (cf. previous paragraph). Conversely that means, if the capability used lacks
- * the #L4_FPAGE_C_IPCGATE_SVR permission, \ref l4_kernel_object_gate_api calls
- * are forwarded to the bound thread instead of being processed by the IPC gate
- * itself. In a client/server scenario, a client should only get IPC gate
- * capabilities without #L4_FPAGE_C_IPCGATE_SVR permission so the client cannot
- * tamper with the IPC gate.
+ * Forwarded IPC is always forwarded to the userland of the thread the IPC gate
+ * is bound to. That means, the \ref l4_thread_api interface of that thread is
+ * not accessible via an IPC gate. The \ref l4_kernel_object_gate_api of an IPC
+ * gate is only accessible if the capability used has the
+ * #L4_FPAGE_C_IPCGATE_SVR permission (cf. previous paragraph). Conversely that
+ * means, if the capability used lacks the #L4_FPAGE_C_IPCGATE_SVR permission,
+ * \ref l4_kernel_object_gate_api calls are forwarded to the thread the IPC gate
+ * is bound to instead of being processed by the IPC gate itself. In a
+ * client/server scenario, a client should only get IPC gate capabilities
+ * without #L4_FPAGE_C_IPCGATE_SVR permission so the client cannot tamper with
+ * the IPC gate.
  *
- * When binding a thread to an IPC gate, a user-defined, kernel protected,
+ * When binding an IPC gate to a thread, a user-defined, kernel protected,
  * machine-word sized payload called the IPC gate’s *label* is assigned to the
  * IPC gate (note that the two least significant bits of the label must be zero;
  * cf. l4_rcv_ep_bind_thread()). When a send-only IPC or call IPC is forwarded
  * via an IPC gate, the label provided by the sender is ignored and replaced by
  * the IPC gate’s label where the two least significant bits are set to the
  * #L4_CAP_FPAGE_S and #L4_CAP_FPAGE_W permissions of the capability used. The
- * replaced label is only visible to the bound thread upon receive. However, the
- * configured label of an IPC gate can also be queried via
+ * replaced label is only visible to the thread the IPC gate is bound to upon
+ * receive. However, the configured label of an IPC gate can also be queried via
  * l4_ipc_gate_get_infos() if the capability used has the
  * #L4_FPAGE_C_IPCGATE_SVR permission.
  *
@@ -53,10 +54,9 @@
  * bound IPC gate is changed. It is not necessary after binding the IPC gate to
  * a thread for the first time.
  *
- * When binding a new thread to an IPC gate that is currently bound, the same
- * label should be used that was used with the old thread. Otherwise the old
- * and the new thread need to synchronize to avoid IPC messages with unexpected
- * labels.
+ * When binding a currently bound IPC gate to a new thread, the same label
+ * should be used that was used with the old thread. Otherwise the old and the
+ * new thread need to synchronize to avoid IPC messages with unexpected labels.
  *
  * \includefile{l4/sys/ipc_gate.h}
  *
@@ -82,8 +82,8 @@
  *
  * \pre If `gate` does not possess the #L4_FPAGE_C_IPCGATE_SVR right, the kernel
  *      will not perform this operation. Instead, the underlying IPC message
- *      will be forwarded to the thread bound to the IPC gate, blocking the
- *      caller if no thread is bound yet.
+ *      will be forwarded to the thread the IPC gate is bound to, blocking the
+ *      caller if not bound to any thread yet.
  */
 L4_INLINE l4_msgtag_t
 l4_ipc_gate_get_infos(l4_cap_idx_t gate, l4_umword_t *label);

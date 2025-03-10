@@ -428,7 +428,7 @@ public:
    * This mechanism shall be used to change the source object labels of every
    * pending IPC of an IPC gate or an IRQ if the labels in such pending IPC
    * become invalid for the receiving thread, potentially because:
-   *  - a thread was unbound from an IPC gate / IRQ, or
+   *  - an IPC gate / IRQ was unbound from a thread, or
    *  - an IPC gate / IRQ was removed, or
    *  - the label of an IPC gate / IRQ bound to a thread was changed.
    *

@@ -22,9 +22,9 @@ class Thread;
 /**
  * Interface for kernel objects that allow to receive IPC from them.
  *
- * Such an object is for example an Ipc_gate (with server rights) or an
- * Irq. Those objects allow to bind a thread that shall receive IPC from
- * these object via bind_thread().
+ * Such an object is for example an Ipc_gate (with server rights) or an Irq.
+ * Those objects can be bound to a thread that shall receive IPC from these
+ * objects via bind_thread().
  */
 class L4_EXPORT Rcv_endpoint :
   public Kobject_t<Rcv_endpoint, Kobject, L4_PROTO_KOBJECT,
@@ -32,9 +32,9 @@ class L4_EXPORT Rcv_endpoint :
 {
 public:
   /**
-   * Bind a thread to an IPC receive endpoint.
+   * Bind the IPC receive endpoint to a thread.
    *
-   * \param t      Thread object that shall be bound to this receive endpoint.
+   * \param t      Thread object this receive endpoint shall be bound to.
    * \param label  Label to assign to `this` receive endpoint. For IPC gates,
    *               the two least significant bits must be set to zero.
    *
@@ -49,14 +49,14 @@ public:
    * \pre If this operation is invoked using an IPC gate capability without the
    *      #L4_FPAGE_C_IPCGATE_SVR right, the kernel will not perform the
    *      operation. Instead, the underlying IPC message will be forwarded to
-   *      the thread bound to the IPC gate, blocking the caller if no thread is
-   *      bound yet.
+   *      the thread the IPC gate is bound to, blocking the caller if the IPC
+   *      gate was not bound yet.
    *
    * The specified `label` is passed to the receiver of the incoming IPC. It is
    * possible to re-bind a receive endpoint to the same or a different thread.
    * In this case, IPC already in flight will be delivered with the old label
-   * to the previously bound thread unless L4::Thread::modify_senders() is
-   * used to change these labels.
+   * to the previously bound thread unless L4::Thread::modify_senders() is used
+   * to change these labels.
    */
   L4_INLINE_RPC_OP(L4_RCV_EP_BIND_OP,
       l4_msgtag_t, bind_thread, (Ipc::Cap<Thread> t, l4_umword_t label));

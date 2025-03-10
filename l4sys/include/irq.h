@@ -89,7 +89,7 @@ l4_irq_detach_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
  * eventual EOI of the guest.
  *
  * \param irq     The IRQ object that shall be bound.
- * \param thread  Thread object that shall be bound to this Irq.
+ * \param thread  Thread object this Irq shall be bound to.
  * \param cfg     Architecture specific interrupt configuration.
  *
  * \return Syscall return tag

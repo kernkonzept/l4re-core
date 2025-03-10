@@ -277,10 +277,10 @@ l4_thread_control_bind_u(l4_utcb_t *thread_utcb,
  *
  * For a thread in alien mode the kernel produces just an exception IPC for
  * each IPC and exception caused by the alien thread instead of handling these
- * events regularly. (Page faults of alien threads and interrupts occuring
+ * events regularly. (Page faults of alien threads and interrupts occurring
  * while the alien thread is running are always handled regularly.) While the
- * alien thread is blocking, the execption handler can inspect and modify the
- * state of the alien thread and potentially also the systemcall arguments. If
+ * alien thread is blocking, the exception handler can inspect and modify the
+ * state of the alien thread and potentially also the system call arguments. If
  * the exception handler replies with #L4_PROTO_ALLOW_SYSCALL as message tag,
  * the kernel handles the next IPC or exception of the alien thread in a
  * regular way. If the exception handler leaves certain thread state unchanged
@@ -581,8 +581,8 @@ l4_thread_register_del_irq_u(l4_cap_idx_t thread, l4_cap_idx_t irq,
  * This mechanism shall be used to change the source object labels of every
  * pending IPC of an IPC gate or an IRQ if the labels in such pending IPC
  * become invalid for the receiving thread, potentially because:
- *  - a thread was unbound from an IPC gate / IRQ, or
- *  - an IPC gate /IRQ was removed, or
+ *  - an IPC gate / IRQ was unbound from a thread, or
+ *  - an IPC gate / IRQ was removed, or
  *  - the label of an IPC gate /IRQ bound to a thread was changed.
  *
  * It is not required to perform the modify_sender mechanism after an IPC gate
