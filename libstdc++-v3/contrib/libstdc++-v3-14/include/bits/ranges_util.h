@@ -243,7 +243,7 @@ namespace ranges
 
     template<typename _Tp, typename _Up, typename _Vp>
       concept __pair_like_convertible_from
-	= !range<_Tp> && !is_reference_v<_Vp> && __pair_like<_Tp>
+	= !range<_Tp> && !is_reference_v<_Tp> && __pair_like<_Tp>
 	&& constructible_from<_Tp, _Up, _Vp>
 	&& __convertible_to_non_slicing<_Up, tuple_element_t<0, _Tp>>
 	&& convertible_to<_Vp, tuple_element_t<1, _Tp>>;
@@ -733,11 +733,11 @@ namespace ranges
 	auto __result = *__first;
 	while (++__first != __last)
 	  {
-	    auto __tmp = *__first;
+	    auto&& __tmp = *__first;
 	    if (std::__invoke(__comp,
 			      std::__invoke(__proj, __tmp),
 			      std::__invoke(__proj, __result)))
-	      __result = std::move(__tmp);
+	      __result = std::forward<decltype(__tmp)>(__tmp);
 	  }
 	return __result;
       }

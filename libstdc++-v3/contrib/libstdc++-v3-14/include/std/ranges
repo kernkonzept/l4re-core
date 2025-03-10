@@ -1122,7 +1122,7 @@ namespace views::__adaptor
   // which makes overload resolution failure diagnostics more concise.
   template<typename _Adaptor, typename... _Args>
     requires __adaptor_has_simple_extra_args<_Adaptor, _Args...>
-      && (is_trivially_copyable_v<_Args> && ...)
+      && (is_trivially_copy_constructible_v<_Args> && ...)
     struct _Partial<_Adaptor, _Args...> : _RangeAdaptorClosure<_Partial<_Adaptor, _Args...>>
     {
       tuple<_Args...> _M_args;
@@ -1153,7 +1153,7 @@ namespace views::__adaptor
   // where _Adaptor accepts a single extra argument.
   template<typename _Adaptor, typename _Arg>
     requires __adaptor_has_simple_extra_args<_Adaptor, _Arg>
-      && is_trivially_copyable_v<_Arg>
+      && is_trivially_copy_constructible_v<_Arg>
     struct _Partial<_Adaptor, _Arg> : _RangeAdaptorClosure<_Partial<_Adaptor, _Arg>>
     {
       _Arg _M_arg;
@@ -2660,8 +2660,8 @@ namespace views::__adaptor
       begin() const
 	requires random_access_range<const _Vp> && sized_range<const _Vp>
       {
-	return ranges::next(ranges::begin(_M_base), _M_count,
-			    ranges::end(_M_base));
+	return ranges::begin(_M_base) + ranges::min(ranges::distance(_M_base),
+						    _M_count);
       }
 
       constexpr auto
@@ -4547,11 +4547,13 @@ namespace views::__adaptor
     inline constexpr bool enable_borrowed_range<elements_view<_Tp, _Nm>>
       = enable_borrowed_range<_Tp>;
 
+  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+  // 3563. keys_view example is broken
   template<typename _Range>
-    using keys_view = elements_view<views::all_t<_Range>, 0>;
+    using keys_view = elements_view<_Range, 0>;
 
   template<typename _Range>
-    using values_view = elements_view<views::all_t<_Range>, 1>;
+    using values_view = elements_view<_Range, 1>;
 
   namespace views
   {

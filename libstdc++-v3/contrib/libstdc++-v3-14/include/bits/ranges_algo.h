@@ -561,9 +561,12 @@ namespace ranges
 
 	for (auto __scan = __first1; __scan != __last1; ++__scan)
 	  {
-	    auto&& __proj_scan = std::__invoke(__proj1, *__scan);
+	    auto&& __scan_deref = *__scan;
+	    auto&& __proj_scan =
+	      std::__invoke(__proj1, std::forward<decltype(__scan_deref)>(__scan_deref));
 	    auto __comp_scan = [&] <typename _Tp> (_Tp&& __arg) -> bool {
-	      return std::__invoke(__pred, __proj_scan,
+	      return std::__invoke(__pred,
+				   std::forward<decltype(__proj_scan)>(__proj_scan),
 				   std::forward<_Tp>(__arg));
 	    };
 	    if (__scan != ranges::find_if(__first1, __scan,
@@ -2909,11 +2912,11 @@ namespace ranges
 	auto __result = *__first;
 	while (++__first != __last)
 	  {
-	    auto __tmp = *__first;
+	    auto&& __tmp = *__first;
 	    if (std::__invoke(__comp,
 			      std::__invoke(__proj, __result),
 			      std::__invoke(__proj, __tmp)))
-	      __result = std::move(__tmp);
+	      __result = std::forward<decltype(__tmp)>(__tmp);
 	  }
 	return __result;
       }
@@ -2945,9 +2948,13 @@ namespace ranges
 					 std::__invoke(__proj, __hi),
 					 std::__invoke(__proj, __lo))));
 	auto&& __proj_val = std::__invoke(__proj, __val);
-	if (std::__invoke(__comp, __proj_val, std::__invoke(__proj, __lo)))
+	if (std::__invoke(__comp,
+			  std::forward<decltype(__proj_val)>(__proj_val),
+			  std::__invoke(__proj, __lo)))
 	  return __lo;
-	else if (std::__invoke(__comp, std::__invoke(__proj, __hi), __proj_val))
+	else if (std::__invoke(__comp,
+			       std::__invoke(__proj, __hi),
+			       std::forward<decltype(__proj_val)>(__proj_val)))
 	  return __hi;
 	else
 	  return __val;
