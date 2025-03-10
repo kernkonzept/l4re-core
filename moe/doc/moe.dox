@@ -37,7 +37,7 @@
  * \subsubsection l4re_moe_memory_alloc_factory Passing parameters to the create stream
  *
  * L4::Factory.create() returns a [create stream](\ref L4::Factory::S) that
- * allows arguments to be forwarded to the the object creation in Moe.
+ * allows arguments to be forwarded to the object creation in Moe.
  *
  * Objects that support additional parameters on their creation are presented
  * next with a non-empty list of parameters. The parameters are listed in the
