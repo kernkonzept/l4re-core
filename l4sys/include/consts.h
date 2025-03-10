@@ -52,10 +52,6 @@ enum l4_syscall_flags_t
   /**
    * Empty set of flags.
    * \hideinitializer
-   *
-   * \deprecated Default flags (call to a kernel object).
-   * \deprecated Using this value as flags in the capability selector for an
-   *             invocation indicates a call (send and wait for a reply).
    */
   L4_SYSF_NONE      = 0x00,
 
