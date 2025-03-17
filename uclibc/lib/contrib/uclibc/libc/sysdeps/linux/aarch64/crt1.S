@@ -112,8 +112,8 @@ _start:
 	mov     x19, x0
 	mov     x20, x1
 
-	/* Calculate load address... idk how this works, but it does */
-	adrp    x0, _start
+	/* "Calculate" load address. The link address of __ehdr_start is 0. */
+	adrp    x0, __ehdr_start
 
 	/* Do relocations */
 	bl reloc_static_pie
