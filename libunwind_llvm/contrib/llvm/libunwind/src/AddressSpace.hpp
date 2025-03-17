@@ -440,7 +440,7 @@ static bool checkForUnwindInfoSegment(const Elf_Phdr *phdr, size_t image_base,
 static int findUnwindSectionsByPhdr(struct dl_phdr_info *pinfo,
                                     size_t pinfo_size, void *data) {
   auto cbdata = static_cast<dl_iterate_cb_data *>(data);
-  if (pinfo->dlpi_phnum == 0)
+  if (pinfo->dlpi_phnum == 0 || cbdata->targetAddr < pinfo->dlpi_addr)
     return 0;
 #if defined(_LIBUNWIND_USE_FRAME_HEADER_CACHE)
   if (TheFrameHeaderCache.find(pinfo, pinfo_size, data))
