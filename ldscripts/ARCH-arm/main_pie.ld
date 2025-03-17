@@ -24,7 +24,7 @@ PHDRS
 SECTIONS
 {
   /* Read-only sections, merged into text segment: */
-  L4_DEFINE_EXECUTABLE_START(0x00010000);
+  L4_DEFINE_EXECUTABLE_START(0);
   .interp         : { *(.interp) } :ro
   .note.gnu.build-id : { *(.note.gnu.build-id) }
   .hash           : { *(.hash) }

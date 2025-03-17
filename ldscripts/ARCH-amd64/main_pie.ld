@@ -25,7 +25,7 @@ SECTIONS
   /* No program code/data before _stext/_prog_img_start! */
 
   /* Read-only sections, merged into text segment: */
-  L4_DEFINE_EXECUTABLE_START(0x400000);
+  L4_DEFINE_EXECUTABLE_START(0);
   .interp         : { *(.interp) } :ro
   .note.gnu.build-id : { *(.note.gnu.build-id) } :ro
   .hash           : { *(.hash) }
