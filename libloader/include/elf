@@ -643,11 +643,19 @@ public:
         // zero.
         if (mm->prog_info()->base + 1U == 0U)
           {
-#ifndef CONFIG_MMU
             Phdr_load_min_max load_info;
             elf.iterate_phdr(load_info);
             l4_size_t load_size = load_info.end - load_info.start;
             unsigned align = log2(load_info.align);
+
+#ifdef CONFIG_MMU
+            _base = mm->proc_default_reloc();
+            chksys(mm->prog_reserve_area(&_base, load_size,
+                                         L4Re::Rm::F::Search_addr, align),
+                   "Reserve PIE binary space");
+            _base -= load_info.start;
+            r_flags |= L4Re::Rm::F::In_area;
+#else
             prealloc_mem = mm->alloc_ds_aligned(load_size, align);
 
             mm->ds_map_info(prealloc_mem, &prealloc_start);

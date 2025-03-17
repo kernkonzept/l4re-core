@@ -36,6 +36,13 @@ public:
 
   void alloc_prog()
   {}
+
+  constexpr l4_addr_t proc_default_reloc() const
+  {
+    // The first page is reserved. Start searching at the next super page
+    // boundary...
+    return L4_SUPERPAGESIZE;
+  }
 };
 
 

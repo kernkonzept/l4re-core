@@ -191,6 +191,14 @@ public:
                       this->_info.ex_regs_flags);
   }
 
+  constexpr l4_addr_t proc_default_reloc() const
+  {
+    // The Remote_app_model is only used to load the l4re_itas. It must not
+    // collide with the actual executable, though. Putting it below 2GiB should
+    // always be safe.
+    return 0x70000000U;
+  }
+
 private:
     L4::Cap<L4::Task> _ntask;
     L4::Cap<L4::Thread> _nthread;
