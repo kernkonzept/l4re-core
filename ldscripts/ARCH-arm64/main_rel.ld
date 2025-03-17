@@ -10,7 +10,8 @@ OUTPUT_ARCH(aarch64)
 /* ENTRY(_start) */
 PHDRS
 {
-  phdr_readexec PT_LOAD;
+  phdr PT_PHDR PHDRS;
+  phdr_readexec PT_LOAD FILEHDR PHDRS;
   phdr_writable PT_LOAD;
   phdr_dynamic PT_DYNAMIC;
   phdr_tls 0x7 FLAGS(4);
