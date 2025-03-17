@@ -16,6 +16,7 @@
 #ifdef LD_LLD
   /* Be compatible with ld.lld´s --image-base option. */
 # define L4_SET_BASE(default_addr) \
+  . += . ? 0 : default_addr; \
   . += SIZEOF_HEADERS
 # define L4_DEFINE_EXECUTABLE_START(default_addr) \
   PROVIDE (__executable_start = .); \
