@@ -1091,7 +1091,7 @@ Fs::~Fs()
 
 /**
  * \brief Interface for the POSIX backends of an application.
- * \note There usually exists a singe instance of this interface
+ * \note There usually exists a single instance of this interface
  *       available via L4Re::Vfs::vfs_ops that is used for all
  *       kinds of C-Library functions.
  */
