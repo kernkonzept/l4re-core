@@ -229,9 +229,6 @@ public:
     return _register_irq(o, _get_buffer_demand(o));
   }
 
-  // pass access to deprecated register_irq_obj
-  using L4::Registry_iface::register_irq_obj;
-
   /**
    * Register a handler for an already existing interrupt.
    *
