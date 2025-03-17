@@ -44,16 +44,10 @@ static void call_init_array(Ctor **start, Ctor **end)
 }
 
 #ifdef CONFIG_BID_PIE
-static inline unsigned long elf_machine_dynamic()
-{
-  extern const unsigned long _GLOBAL_OFFSET_TABLE_[] __attribute__((visibility ("hidden")));
-  return _GLOBAL_OFFSET_TABLE_[0];
-}
-
 static inline unsigned long elf_machine_load_address()
 {
-  extern char _DYNAMIC[] __attribute__((visibility ("hidden")));
-    return (unsigned long)&_DYNAMIC - elf_machine_dynamic ();
+  extern const char __ehdr_start __attribute__((visibility ("hidden")));
+  return reinterpret_cast<unsigned long>(&__ehdr_start);
 }
 #else
 static inline unsigned long elf_machine_load_address()
