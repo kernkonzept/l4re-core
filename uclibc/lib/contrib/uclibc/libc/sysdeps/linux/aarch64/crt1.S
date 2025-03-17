@@ -112,11 +112,8 @@ _start:
 	mov     x19, x0
 	mov     x20, x1
 
-	/* Calculate load address... subtract link address from real one */
-	adrp    x0, :got:_start
-	ldr     x0, [x0, #:got_lo12:_start]
-	adr     x1, _start
-	sub     x0, x1, x0
+	/* Calculate load address... idk how this works, but it does */
+	adrp    x0, _start
 
 	/* Do relocations */
 	bl reloc_static_pie
