@@ -24,11 +24,7 @@ ENTRY(start)
 
 #ifdef CONFIG_BID_PIE
 	movq %rdi, %r12                     /* save KIP ptr */
-	xorq %rcx, %rcx                     /* ensure rcx is 0 */
-	addq _start@GOTPCREL(%rip), %rcx    /* read link address of _start from GOT */
-	lea  _start(%rip), %rax             /* get run time address of _start */
-	subq %rcx, %rax                     /* calculate run time load offset */
-	movq %rax, %rdi                     /* load offset -> param 1 */
+	lea  __ehdr_start(%rip), %rdi       /* "Calculate" load address... */
 	call reloc_static_pie               /* relocate dynamic addrs */
 	movq %r12, %rdi                     /* restore KIP ptr */
 #endif
