@@ -83,11 +83,7 @@ _start:
 #ifdef L_rcrt1
 	pushq %rdi                          /* save rdi (but should be 0...) */
 	pushq %rdx                          /* store rdx (rtld_fini) */
-	xorq %rcx, %rcx                     /* ensure rcx is 0 */
-	addq _start@GOTPCREL(%rip), %rcx    /* get offset of _start from beginning of file */
-	movq _start@GOTPCREL(%rip), %rax    /* get run time address of _start */
-	subq %rcx, %rax                     /* calculate run time load offset */
-	movq %rax, %rdi                     /* load offset -> param 1 */
+	lea  __ehdr_start(%rip), %rdi       /* "Calculate" load address... */
 	call reloc_static_pie               /* relocate dynamic addrs */
 	xorq %rax, %rax                     /* cleanup */
 	popq %rdx
