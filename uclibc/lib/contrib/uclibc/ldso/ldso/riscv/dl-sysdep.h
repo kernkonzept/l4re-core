@@ -57,24 +57,19 @@ extern ElfW(Addr) _dl_runtime_resolver(struct elf_resolve * tpnt, int reloc_entr
 /* JMPREL relocs are inside the DT_RELA table.  */
 #define ELF_MACHINE_PLTREL_OVERLAP 1
 
+static inline ElfW(Addr) attribute_unused
+elf_machine_load_address (void)
+{
+  extern const ElfW(Ehdr) __ehdr_start attribute_hidden;
+  return (ElfW(Addr)) &__ehdr_start;
+}
+
 /* Return the link-time address of _DYNAMIC.  */
 static inline ElfW(Addr) attribute_unused
 elf_machine_dynamic (void)
 {
-  extern ElfW(Addr) _GLOBAL_OFFSET_TABLE_ attribute_hidden;
-  return _GLOBAL_OFFSET_TABLE_;
-}
-
-static inline ElfW(Addr) attribute_unused
-elf_machine_load_address (void)
-{
-    /* To figure out the load address we use the definition that for any symbol:
-       dynamic_addr(symbol) = static_addr(symbol) + load_addr
-       _DYNAMIC sysmbol is used here as its link-time address stored in
-       the special unrelocated first GOT entry.  */
-
-    extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
-    return (ElfW(Addr)) &_DYNAMIC - elf_machine_dynamic ();
+  extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
+  return (ElfW(Addr)) _DYNAMIC - elf_machine_load_address ();
 }
 
 static __always_inline void

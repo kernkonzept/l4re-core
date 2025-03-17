@@ -35,28 +35,22 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
      || (type) == R_386_TLS_TPOFF) * ELF_RTYPE_CLASS_PLT)				  \
    | (((type) == R_386_COPY) * ELF_RTYPE_CLASS_COPY))
 
-/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
-   first element of the GOT, a special entry that is never relocated.  */
-extern const Elf32_Addr _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
-static __always_inline Elf32_Addr __attribute__ ((unused, const))
-elf_machine_dynamic (void)
-{
-	/* This produces a GOTOFF reloc that resolves to zero at link time, so in
-	   fact just loads from the GOT register directly.  By doing it without
-	   an asm we can let the compiler choose any register.  */
-	return _GLOBAL_OFFSET_TABLE_[0];
-}
 
-
-extern Elf32_Dyn bygotoff[] __asm__ ("_DYNAMIC") attribute_hidden;
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf32_Addr attribute_unused
 elf_machine_load_address (void)
 {
-	/* Compute the difference between the runtime address of _DYNAMIC as seen
-	   by a GOTOFF reference, and the link-time address found in the special
-	   unrelocated first GOT entry.  */
-	return (Elf32_Addr) &bygotoff - elf_machine_dynamic ();
+	extern const Elf32_Ehdr __ehdr_start attribute_hidden;
+	return (Elf32_Addr) &__ehdr_start;
+}
+
+/* Return the link-time address of _DYNAMIC. */
+extern const Elf32_Addr _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
+static __always_inline Elf32_Addr __attribute__ ((unused, const))
+elf_machine_dynamic (void)
+{
+	extern Elf32_Dyn _DYNAMIC[] attribute_hidden;
+	return (Elf32_Addr) _DYNAMIC - elf_machine_load_address ();
 }
 
 static __always_inline void

@@ -52,27 +52,21 @@ extern unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_ent
     * ELF_RTYPE_CLASS_PLT)						      \
    | (((type) == R_X86_64_COPY) * ELF_RTYPE_CLASS_COPY))
 
-/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
-   first element of the GOT.  This must be inlined in a function which
-   uses global data.  */
-static __always_inline Elf64_Addr __attribute__ ((unused))
-elf_machine_dynamic (void)
-{
-  /* This produces an IP-relative reloc which is resolved at link time. */
-  extern const ElfW(Addr) _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
-  return _GLOBAL_OFFSET_TABLE_[0];
-}
-
 
 /* Return the run-time load address of the shared object.  */
 static __always_inline Elf64_Addr __attribute__ ((unused))
 elf_machine_load_address (void)
 {
-  /* Compute the difference between the runtime address of _DYNAMIC as seen
-     by an IP-relative reference, and the link-time address found in the
-     special unrelocated first GOT entry.  */
-  extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
-  return (ElfW(Addr)) &_DYNAMIC - elf_machine_dynamic ();
+  extern const Elf64_Ehdr __ehdr_start attribute_hidden;
+  return (Elf64_Addr) &__ehdr_start;
+}
+
+/* Return the link-time address of _DYNAMIC. */
+static __always_inline Elf64_Addr __attribute__ ((unused))
+elf_machine_dynamic (void)
+{
+  extern Elf64_Dyn _DYNAMIC[] attribute_hidden;
+  return (Elf64_Addr) _DYNAMIC - elf_machine_load_address ();
 }
 
 static __always_inline void

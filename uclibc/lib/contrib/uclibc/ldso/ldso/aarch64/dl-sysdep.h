@@ -70,28 +70,21 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
    | (((type) == R_AARCH64_GLOB_DAT) * ELF_RTYPE_CLASS_EXTERN_PROTECTED_DATA))
 */
 
-/* Return the link-time address of _DYNAMIC.  Conveniently, this is the
-   first element of the GOT. */
-extern const ElfW(Addr) _GLOBAL_OFFSET_TABLE_[] attribute_hidden;
-static __always_inline ElfW(Addr) __attribute__ ((unused))
-elf_machine_dynamic (void)
-{
-  return _GLOBAL_OFFSET_TABLE_[0];
-}
-
 /* Return the run-time load address of the shared object.  */
 
 static __always_inline ElfW(Addr) __attribute__ ((unused))
 elf_machine_load_address (void)
 {
-  /* To figure out the load address we use the definition that for any symbol:
-     dynamic_addr(symbol) = static_addr(symbol) + load_addr
+  extern const ElfW(Ehdr) __ehdr_start attribute_hidden;
+  return (ElfW(Addr)) &__ehdr_start;
+}
 
-    _DYNAMIC sysmbol is used here as its link-time address stored in
-    the special unrelocated first GOT entry.  */
-
-    extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
-    return (ElfW(Addr)) &_DYNAMIC - elf_machine_dynamic ();
+/* Return the link-time address of _DYNAMIC. */
+static __always_inline ElfW(Addr) __attribute__ ((unused))
+elf_machine_dynamic (void)
+{
+  extern ElfW(Dyn) _DYNAMIC[] attribute_hidden;
+  return (ElfW(Addr)) _DYNAMIC - elf_machine_load_address ();
 }
 
 static __always_inline void
