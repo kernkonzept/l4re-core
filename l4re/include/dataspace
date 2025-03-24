@@ -86,7 +86,8 @@ public:
       /// All rights bits available for mappings.
       Rights_mask = 0x0f,
 
-      /// Request normal memory mapping.
+      /// Request normal (cached) memory mapping. This is the default if no
+      /// other cache-related flag was specified.
       Normal        = 0x00,
       /// Request normal memory mapping.
       Cacheable     = Normal,

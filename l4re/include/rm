@@ -152,11 +152,12 @@ public:
 
       /// Mask of all Rm cache bits
       Caching_mask   = Dataspace::F::Caching_mask,
-      /// Cache bits for normal cacheable memory
+      /// Cache bits for normal cacheable memory. This is the default if no
+      /// other cache-related flag was specified.
       Cache_normal   = Dataspace::F::Normal,
-      /// Cache bits for buffered (write combining) memory
+      /// Cache bits for buffered (write combining) memory.
       Cache_buffered = Dataspace::F::Bufferable,
-      /// Cache bits for uncached memory
+      /// Cache bits for uncached memory.
       Cache_uncached = Dataspace::F::Uncacheable,
 
       /// Mask for all bits for cache options and rights.

@@ -279,6 +279,13 @@ enum L4_obj_fpage_ctl
 
 
 /** Cacheability options for memory send items.
+ *
+ * Only the IPC sender and the thread performing the map operation can specify
+ * the caching mode of the target mapping. By default, the caching mode of the
+ * sender is used as caching mode for the target mapping. If L4_FPAGE_CACHE_OPT
+ * is set in the send item, the caching mode is overridden by the respective
+ * mode from below.
+ *
  * \ingroup l4_msgitem_api
  */
 enum l4_fpage_cacheability_opt_t
