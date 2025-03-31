@@ -164,9 +164,15 @@ config UCLIBC_HAS_FENV
 	bool "Enable C99 Floating-point environment"
 	depends on UCLIBC_HAS_FLOATS
 	depends on TARGET_i386 || \
+		   TARGET_aarch64 || \
+		   TARGET_arm || \
 		   TARGET_metag || \
+		   TARGET_mips || \
 		   TARGET_nds32 || \
 		   (TARGET_powerpc && CONFIG_E500) || \
+		   TARGET_riscv32 || \
+		   TARGET_riscv64 || \
+		   TARGET_sparc || \
 		   TARGET_x86_64
 	help
 	  If you want the uClibc math library to contain the C99 floating

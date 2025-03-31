@@ -23,6 +23,7 @@
 #define _FENV_H	1
 
 #include <features.h>
+#include <stdbool.h>
 
 /* Get the architecture dependend definitions.  The following definitions
    are expected to be done:
@@ -129,6 +130,15 @@ extern int fedisableexcept (int __excepts) __THROW;
 /* Return enabled exceptions.  */
 extern int fegetexcept (void) __THROW;
 #endif
+
+/* Rounding mode context.  This allows functions to set/restore rounding mode
+   only when the desired rounding mode is different from the current rounding
+   mode.  */
+struct rm_ctx
+{
+  fenv_t env;
+  bool updated_status;
+};
 
 __END_DECLS
 

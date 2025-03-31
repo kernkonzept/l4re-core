@@ -1,5 +1,4 @@
-/* Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+/* Copyright (C) 2004-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -12,87 +11,77 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
+   License along with the GNU C Library.  If not, see
+   <https://www.gnu.org/licenses/>.  */
 
 #ifndef _FENV_H
 # error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
 #endif
 
-#ifdef __MAVERICK__
-
 /* Define bits representing exceptions in the FPU status word.  */
 enum
   {
-    FE_INVALID = 1,
-#define FE_INVALID FE_INVALID
-    FE_OVERFLOW = 4,
-#define FE_OVERFLOW FE_OVERFLOW
-    FE_UNDERFLOW = 8,
-#define FE_UNDERFLOW FE_UNDERFLOW
-    FE_INEXACT = 16,
-#define FE_INEXACT FE_INEXACT
+    FE_INVALID =
+#define FE_INVALID	1
+      FE_INVALID,
+    FE_DIVBYZERO =
+#define FE_DIVBYZERO	2
+      FE_DIVBYZERO,
+    FE_OVERFLOW =
+#define FE_OVERFLOW	4
+      FE_OVERFLOW,
+    FE_UNDERFLOW =
+#define FE_UNDERFLOW	8
+      FE_UNDERFLOW,
+    FE_INEXACT =
+#define FE_INEXACT	16
+      FE_INEXACT,
   };
 
 /* Amount to shift by to convert an exception to a mask bit.  */
-#define FE_EXCEPT_SHIFT    5
-
-/* All supported exceptions.  */
-#define FE_ALL_EXCEPT  \
-	(FE_INVALID | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
-
-/* IEEE rounding modes.  */
-enum
-  {
-    FE_TONEAREST = 0,
-#define FE_TONEAREST    FE_TONEAREST
-    FE_TOWARDZERO = 0x400,
-#define FE_TOWARDZERO   FE_TOWARDZERO
-    FE_DOWNWARD = 0x800,
-#define FE_DOWNWARD     FE_DOWNWARD
-    FE_UPWARD = 0xc00,
-#define FE_UPWARD       FE_UPWARD
-  };
-
-#define FE_ROUND_MASK (FE_UPWARD)
-
-#else /* !__MAVERICK__ */
-
-/* Define bits representing exceptions in the FPU status word.  */
-enum
-  {
-    FE_INVALID = 1,
-#define FE_INVALID FE_INVALID
-    FE_DIVBYZERO = 2,
-#define FE_DIVBYZERO FE_DIVBYZERO
-    FE_OVERFLOW = 4,
-#define FE_OVERFLOW FE_OVERFLOW
-    FE_UNDERFLOW = 8,
-#define FE_UNDERFLOW FE_UNDERFLOW
-  };
-
-/* Amount to shift by to convert an exception to a mask bit.  */
-#define FE_EXCEPT_SHIFT	16
+#define FE_EXCEPT_SHIFT	8
 
 /* All supported exceptions.  */
 #define FE_ALL_EXCEPT	\
-	(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW)
+	(FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW | FE_INEXACT)
 
-/* The ARM FPU basically only supports round-to-nearest.  Other rounding
-   modes exist, but you have to encode them in the actual instruction.  */
+/* VFP supports all of the four defined rounding modes.  */
+enum
+  {
+    FE_TONEAREST =
 #define FE_TONEAREST	0
-
-#endif /* __MAVERICK__ */
+      FE_TONEAREST,
+    FE_UPWARD =
+#define FE_UPWARD	0x400000
+      FE_UPWARD,
+    FE_DOWNWARD =
+#define FE_DOWNWARD	0x800000
+      FE_DOWNWARD,
+    FE_TOWARDZERO =
+#define FE_TOWARDZERO	0xc00000
+      FE_TOWARDZERO
+  };
 
 /* Type representing exception flags. */
-typedef unsigned long int fexcept_t;
+typedef unsigned int fexcept_t;
 
 /* Type representing floating-point environment.  */
 typedef struct
   {
-    unsigned long int __cw;
+    unsigned int __cw;
   }
 fenv_t;
 
 /* If the default argument is used we use this value.  */
-#define FE_DFL_ENV	((fenv_t *) -1l)
+#define FE_DFL_ENV	((const fenv_t *) -1l)
+
+#ifdef __USE_GNU
+/* Floating-point environment where none of the exceptions are masked.  */
+# define FE_NOMASK_ENV  ((const fenv_t *) -2)
+#endif
+
+/* Type representing floating-point control modes.  */
+typedef unsigned int femode_t;
+
+/* Default floating-point control modes.  */
+# define FE_DFL_MODE	((const femode_t *) -1L)
