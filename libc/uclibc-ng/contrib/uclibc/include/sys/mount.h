@@ -32,54 +32,79 @@
    supported  */
 enum
 {
+#undef MS_RDONLY
   MS_RDONLY = 1,		/* Mount read-only.  */
 #define MS_RDONLY	MS_RDONLY
+#undef MS_NOSUID
   MS_NOSUID = 2,		/* Ignore suid and sgid bits.  */
 #define MS_NOSUID	MS_NOSUID
+#undef MS_NODEV
   MS_NODEV = 4,			/* Disallow access to device special files.  */
 #define MS_NODEV	MS_NODEV
+#undef MS_NOEXEC
   MS_NOEXEC = 8,		/* Disallow program execution.  */
 #define MS_NOEXEC	MS_NOEXEC
+#undef MS_SYNCHRONOUS
   MS_SYNCHRONOUS = 16,		/* Writes are synced at once.  */
 #define MS_SYNCHRONOUS	MS_SYNCHRONOUS
+#undef MS_REMOUNT
   MS_REMOUNT = 32,		/* Alter flags of a mounted FS.  */
 #define MS_REMOUNT	MS_REMOUNT
+#undef MS_MANDLOCK
   MS_MANDLOCK = 64,		/* Allow mandatory locks on an FS.  */
 #define MS_MANDLOCK	MS_MANDLOCK
+#undef MS_DIRSYNC
   MS_DIRSYNC = 128,		/* Directory modifications are synchronous.  */
 #define MS_DIRSYNC	MS_DIRSYNC
+#undef MS_NOATIME
   MS_NOATIME = 1024,		/* Do not update access times.  */
 #define MS_NOATIME	MS_NOATIME
+#undef MS_NODIRATIME
   MS_NODIRATIME = 2048,		/* Do not update directory access times.  */
 #define MS_NODIRATIME	MS_NODIRATIME
+#undef MS_BIND
   MS_BIND = 4096,		/* Bind directory at different place.  */
 #define MS_BIND		MS_BIND
+#undef MS_MOVE
   MS_MOVE = 8192,
 #define MS_MOVE		MS_MOVE
+#undef MS_REC
   MS_REC = 16384,
 #define MS_REC		MS_REC
+#undef MS_SILENT
   MS_SILENT = 32768,
 #define MS_SILENT	MS_SILENT
+#undef MS_POSIXACL
   MS_POSIXACL = 1 << 16,	/* VFS does not apply the umask.  */
 #define MS_POSIXACL	MS_POSIXACL
+#undef MS_UNBINDABLE
   MS_UNBINDABLE = 1 << 17,	/* Change to unbindable.  */
 #define MS_UNBINDABLE	MS_UNBINDABLE
+#undef MS_PRIVATE
   MS_PRIVATE = 1 << 18,		/* Change to private.  */
 #define MS_PRIVATE	MS_PRIVATE
+#undef MS_SLAVE
   MS_SLAVE = 1 << 19,		/* Change to slave.  */
 #define MS_SLAVE	MS_SLAVE
+#undef MS_SHARED
   MS_SHARED = 1 << 20,		/* Change to shared.  */
 #define MS_SHARED	MS_SHARED
+#undef MS_RELATIME
   MS_RELATIME = 1 << 21,	/* Update atime relative to mtime/ctime.  */
 #define MS_RELATIME	MS_RELATIME
+#undef MS_KERNMOUNT
   MS_KERNMOUNT = 1 << 22,	/* This is a kern_mount call.  */
 #define MS_KERNMOUNT	MS_KERNMOUNT
+#undef MS_I_VERSION
   MS_I_VERSION =  1 << 23,	/* Update inode I_version field.  */
 #define MS_I_VERSION	MS_I_VERSION
+#undef MS_STRICTATIME
   MS_STRICTATIME = 1 << 24,	/* Always perform atime updates.  */
 #define MS_STRICTATIME	MS_STRICTATIME
+#undef MS_ACTIVE
   MS_ACTIVE = 1 << 30,
 #define MS_ACTIVE	MS_ACTIVE
+#undef MS_NOUSER
   MS_NOUSER = 1 << 31
 #define MS_NOUSER	MS_NOUSER
 };
