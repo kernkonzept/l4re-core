@@ -86,10 +86,15 @@
  * Array types can be used to transmit arrays of variable length. They can
  * either be stored in a client-provided buffer (L4::Ipc::Array), copied into
  * a server-provided buffer (L4::Ipc::Array_in_buf) or directly read and written
- * into the UTCB (L4::Ipc::Array_ref). For latter type, the start
- * position of an array type needs to be known in advance. That implies that
- * only one such array can be transmitted per direction and it must be the
- * last part in the message.
+ * into the UTCB (L4::Ipc::Array_ref).
+ *
+ * Constraints on L4::Ipc::Array_ref:
+ *   - the start position of this array type needs to be known in advance.
+ *   - it must be the last parameter of a message.
+ *   - the size of the array type is not transmitted to the server, only the
+ *     client side knows the intended size of the input array. The server
+ *     assumes the rest of the UTCB as the actual array. Different sever-side
+ *     behavior must be steered otherwise, e.g. through another parameter.
  *
  * | Type                      | Direction | Client-Type               | Server-Type                       |
  * |:--------------------------|:----------|:--------------------------|:----------------------------------|
