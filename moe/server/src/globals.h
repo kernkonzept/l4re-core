@@ -22,10 +22,15 @@ extern Object_pool object_pool;
 extern char const *const PROG;
 extern char log_buffer[1024];
 
-namespace Moe { namespace Virt_limit {
-  extern l4_addr_t start;
-  extern l4_addr_t end;
-}}
+namespace Moe {
+  namespace Virt_limit {
+    extern l4_addr_t start;
+    extern l4_addr_t end;
+  }
+  namespace Phys_limit {
+    extern l4_size_t avail_ram;
+  }
+}
 
 namespace Moe {
   extern unsigned l4re_dbg;

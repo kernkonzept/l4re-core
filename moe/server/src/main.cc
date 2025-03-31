@@ -129,6 +129,7 @@ char *my_cmdline()
 }
 
 
+l4_size_t Moe::Phys_limit::avail_ram;
 
 static void find_memory()
 {
@@ -166,6 +167,7 @@ static void find_memory()
         }
     }
 
+  Moe::Phys_limit::avail_ram = Single_page_alloc_base::_avail();
   info.printf("found %ld KByte free memory\n",
               Single_page_alloc_base::_avail() / 1024);
   info.printf("found RAM from %lx to %lx\n",
