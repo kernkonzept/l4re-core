@@ -32,7 +32,10 @@ public:
   explicit Quota(size_t limit) : _limit(limit), _used(0) {}
   bool alloc(size_t s)
   {
-    if (_limit && (s > _limit || _used > _limit - s))
+    if (!_limit)
+      return true;
+
+    if (s > _limit || _used > _limit - s)
       return false;
 
     _used += s;
@@ -42,6 +45,9 @@ public:
 
   void free(size_t s)
   {
+    if (!_limit)
+      return;
+
     assert(s <= _used);
     _used -= s;
     //printf("Q: free(%zx) -> %zx\n", s, _used);
