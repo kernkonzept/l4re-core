@@ -34,7 +34,7 @@ DST_HEADERS   := $(addprefix $(HEADER_DIR)/,$(DST_HEADERS))
 
 $(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(HEADERS_LST) \
                                          $(LIBCSRC_DIR)/make_vars.mk
-	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) -p $(@D)
+	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) $(@D)
 	$(VERBOSE)$(LN) -sf $(abspath $<) $@
 
 $(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(HEADERS_LST) \
