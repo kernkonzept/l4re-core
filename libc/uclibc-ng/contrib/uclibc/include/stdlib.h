@@ -986,7 +986,11 @@ extern int getpt (void);
 extern int getloadavg (double __loadavg[], int __nelem)
      __THROW __nonnull ((1));
 
+/* reallocarray() only provided by the malloc-standard implementation */
+#if defined(__MALLOC_STANDARD__)
 extern void *reallocarray (void *__ptr, size_t __m, size_t __n);
+#endif
+
 #endif
 
 #ifdef _LIBC
