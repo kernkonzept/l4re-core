@@ -1250,6 +1250,15 @@ extern void swab (const void *__restrict __from, void *__restrict __to,
 extern char *ctermid (char *__s) __THROW;
 #endif
 
+/* OpenBSD-compatible access to random bytes.
+   May be a cancellation point here, unlike in glibc/musl.  */
+#ifdef _DEFAULT_SOURCE
+# ifndef __getentropy_defined
+extern int getentropy(void *__buf, size_t __len) __nonnull ((1)) __wur;
+#  define __getentropy_defined
+# endif
+#endif
+
 __END_DECLS
 
 

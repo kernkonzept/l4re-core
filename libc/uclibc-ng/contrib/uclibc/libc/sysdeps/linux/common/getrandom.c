@@ -8,6 +8,7 @@
 
 #include <sys/syscall.h>
 #include <sys/random.h>
+
 #ifdef __NR_getrandom
-_syscall3(int, getrandom, void *, buf, size_t, buflen, unsigned int, flags)
+_syscall3(ssize_t, getrandom, void *, buf, size_t, buflen, unsigned int, flags)
 #endif
