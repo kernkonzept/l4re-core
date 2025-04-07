@@ -32,8 +32,8 @@ private:
   long _sched_prio_limit;
 
 public:
-  explicit Allocator(size_t limit, unsigned prio_limit = 0)
-  : _qalloc(limit), _sched_prio_limit(prio_limit)
+  explicit Allocator(Moe::Quota *parent, size_t limit, unsigned prio_limit = 0)
+  : _qalloc(parent, limit), _sched_prio_limit(prio_limit)
   {}
 
   template<typename T, typename ...ARGS>
@@ -50,12 +50,6 @@ public:
                         unsigned long align = 0,
                         Single_page_alloc_base::Config cfg
                           = Single_page_alloc_base::default_mem_cfg);
-
-  /// Return the quota allocator that contains this factory.
-  Moe::Q_alloc *parent_qalloc()
-  {
-    return dynamic_cast<Moe::Q_alloc *>(Moe::Malloc_container::from_ptr(this));
-  }
 
   virtual ~Allocator();
 

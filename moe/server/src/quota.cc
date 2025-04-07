@@ -36,13 +36,5 @@ void Q_alloc::free_mem(void *page)
   _quota.free(L4_PAGESIZE);
 }
 
-void Q_alloc::reparent(Malloc_container *new_container)
-{
-  auto newq = dynamic_cast<Q_alloc *>(new_container);
-  assert(newq != 0);
-  newq->quota()->free(_quota.limit());
-
-}
-
 
 } // namespace

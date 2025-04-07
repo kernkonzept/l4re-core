@@ -86,12 +86,6 @@ Allocator::~Allocator()
   while (it != Obj_list::Iterator()
          && Moe::Malloc_container::from_ptr(*it) == qalloc())
     delete *it;
-
-  if (qalloc()->quota()->used() > 0)
-    dbg.printf("WARNING: destroyed allocator still holds resources.");
-
-  // return our quota to the parant
-  qalloc()->reparent(parent_qalloc());
 }
 
 
@@ -155,13 +149,11 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           static_assert(   std::numeric_limits<long>::max()
                         <= std::numeric_limits<size_t>::max(),
                         "size_t must be able to hold the maximum of a long");
-          Moe::Quota_guard g(_qalloc.quota(), quota.value<long>());
           cxx::unique_ptr<Allocator>
-            o(make_obj<Allocator>(quota.value<long>()));
+            o(make_obj<Allocator>(_qalloc.quota(), quota.value<long>()));
           ko = object_pool.cap_alloc()->alloc(o.get(), "moe-fact");
           ko->dec_refcnt(1);
           o.release();
-          g.release();
           res = L4::Ipc::make_cap(ko, L4_CAP_FPAGE_RWSD);
 
           return L4_EOK;
@@ -330,7 +322,8 @@ Allocator::root_allocator()
   if (_root_alloc)
     return _root_alloc;
 
-  _root_alloc = Moe::Moe_alloc::allocator()->make_obj<Allocator>(~0, 300000);
+  _root_alloc = Moe::Moe_alloc::allocator()
+    ->make_obj<Allocator>(Moe::Moe_alloc::allocator()->quota(), ~0, 300000);
   object_pool.life.push_front(_root_alloc);
   return _root_alloc;
 }

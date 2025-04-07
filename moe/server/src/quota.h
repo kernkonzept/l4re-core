@@ -29,7 +29,28 @@ namespace Moe {
 class Quota
 {
 public:
-  explicit Quota(size_t limit) : _limit(limit), _used(0) {}
+  /**
+   * Create new quota.
+   *
+   * The quota is reserved at the optional parent. If the reservation cannot
+   * be fulfilled, the constructor will throw an Out_of_memory exception.
+   */
+  explicit Quota(Quota *parent, size_t limit)
+  : _parent(parent), _limit(limit)
+  {
+    // Unlimited quotas as child of a limited quota are not allowed.
+    assert(!(parent && parent->_limit && !limit));
+    if (parent && !parent->alloc(limit))
+      throw L4::Out_of_memory();
+  }
+
+  ~Quota()
+  {
+    assert(!_used);
+    if (_parent)
+      _parent->free(_limit);
+  }
+
   bool alloc(size_t s)
   {
     if (!_limit)
@@ -57,8 +78,9 @@ public:
   size_t used() const { return _used; }
 
 private:
+  Quota *_parent;
   size_t _limit;
-  size_t _used;
+  size_t _used = 0;
 };
 
 /**
@@ -119,7 +141,7 @@ struct Quota_guard
 class Q_alloc : public Malloc_container
 {
 public:
-  Q_alloc(size_t limit) : _quota(limit) {}
+  Q_alloc(Quota *parent, size_t limit) : _quota(parent, limit) {}
 
   Quota *quota() { return &_quota; }
 
@@ -135,8 +157,6 @@ public:
     Single_page_alloc_base::_free(p, size);
     quota()->free(size);
   }
-
-  void reparent(Malloc_container *new_container);
 
 protected:
   void *get_mem() override;
@@ -166,7 +186,7 @@ public:
   static Moe_alloc *allocator();
 
 private:
-  Moe_alloc() : Q_alloc(0) {}
+  Moe_alloc() : Q_alloc(nullptr, 0) {}
 };
 
 
