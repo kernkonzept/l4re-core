@@ -11,6 +11,7 @@
 
 #include "vcon_stream.h"
 
+#include <limits.h>
 #include <termios.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
