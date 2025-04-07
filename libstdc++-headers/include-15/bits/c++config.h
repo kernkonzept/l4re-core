@@ -46,7 +46,7 @@
 
 // The datestamp of the C++ library in compressed ISO date format.
 #undef __GLIBCXX__ /* The testsuite defines it to 99999999 to block PCH.  */
-#define __GLIBCXX__ 20250316
+#define __GLIBCXX__ 20250406
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -1868,6 +1868,9 @@ namespace __gnu_cxx
 
 /* Define to restrict std::__basic_file<> to stdio APIs. */
 /* #undef _GLIBCXX_USE_STDIO_PURE */
+
+/* Define if struct tm has a tm_zone member. */
+#define _GLIBCXX_USE_STRUCT_TM_TM_ZONE 1
 
 /* Define if struct stat has timespec members. */
 #define _GLIBCXX_USE_ST_MTIM 1

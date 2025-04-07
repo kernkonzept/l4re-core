@@ -768,6 +768,9 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 
 	  if (__navail >= __n)
 	    {
+	      if (!this->_M_impl._M_finish)
+		__builtin_unreachable();
+
 	      _GLIBCXX_ASAN_ANNOTATE_GROW(__n);
 	      this->_M_impl._M_finish =
 		std::__uninitialized_default_n_a(this->_M_impl._M_finish,
@@ -1094,7 +1097,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	    return begin() + __ins_idx;
 	  }
 	else
-	  return insert_range(__pos, vector(from_range, std::move(__rg),
+	  return insert_range(__pos, vector(from_range, std::forward<_Rg>(__rg),
 					    _M_get_Tp_allocator()));
       }
 #endif // ranges_to_container
@@ -1106,9 +1109,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
     vector<bool, _Alloc>::
     _M_reallocate(size_type __n)
     {
+      const iterator __begin = begin(), __end = end();
+      if (size_type(__end - __begin) > __n)
+	__builtin_unreachable();
       _Bit_pointer __q = this->_M_allocate(__n);
       iterator __start(std::__addressof(*__q), 0);
-      iterator __finish(_M_copy_aligned(begin(), end(), __start));
+      iterator __finish(_M_copy_aligned(__begin, __end, __start));
       this->_M_deallocate();
       this->_M_impl._M_start = __start;
       this->_M_impl._M_finish = __finish;
@@ -1134,11 +1140,12 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	{
 	  const size_type __len = 
 	    _M_check_len(__n, "vector<bool>::_M_fill_insert");
+	  iterator __begin = begin(), __end = end();
 	  _Bit_pointer __q = this->_M_allocate(__len);
 	  iterator __start(std::__addressof(*__q), 0);
-	  iterator __i = _M_copy_aligned(begin(), __position, __start);
+	  iterator __i = _M_copy_aligned(__begin, __position, __start);
 	  std::fill(__i, __i + difference_type(__n), __x);
-	  iterator __finish = std::copy(__position, end(),
+	  iterator __finish = std::copy(__position, __end,
 					__i + difference_type(__n));
 	  this->_M_deallocate();
 	  this->_M_impl._M_end_of_storage = __q + _S_nword(__len);
