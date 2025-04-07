@@ -10,7 +10,7 @@
  */
 #pragma once
 
-#include <sys/cdefs.h>
+#include <l4/sys/compiler.h>
 
 __BEGIN_DECLS
 
