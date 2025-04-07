@@ -59,7 +59,6 @@ public:
 
   void *alloc(size_t size, size_t align) noexcept;
   void free(void *block) noexcept;
-  virtual void reparent(Malloc_container *new_container);
 
   template <typename T, typename ...ARGS>
   T *make_obj(ARGS &&... args)

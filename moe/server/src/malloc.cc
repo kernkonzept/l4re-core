@@ -50,9 +50,6 @@ public:
   Moe::Malloc_container *container() const
   { return _container; }
 
-  void reparent(Moe::Malloc_container *c)
-  { _container = c; }
-
   void *alloc(size_t shift) noexcept
   {
     if (shift != _bin_shift || _used >= _num_bins)
@@ -190,17 +187,6 @@ void
 Moe::Malloc_container::free_mem(void *page)
 {
   Single_page_alloc_base::_free(page, Malloc_page::Page_size);
-}
-
-void
-Moe::Malloc_container::reparent(Malloc_container *new_container)
-{
-  while (!_pages.empty())
-    {
-      auto *front = _pages.pop_front();
-      front->reparent(new_container);
-      new_container->_pages.add(front);
-    }
 }
 
 Moe::Malloc_container *

@@ -136,7 +136,7 @@ public:
     quota()->free(size);
   }
 
-  void reparent(Malloc_container *new_container) override;
+  void reparent(Malloc_container *new_container);
 
 protected:
   void *get_mem() override;
