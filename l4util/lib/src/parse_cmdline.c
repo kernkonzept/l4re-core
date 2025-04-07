@@ -319,7 +319,8 @@ L4_CV int parse_cmdline_extra(const char*argv0, const char*line, char delim,
     va_list va;
 
     if(line && *line){
-	if((line_ = strdupa(line))==0) return -2;
+	void* a = alloca(strlen(line)+1);
+	if((line_ = strcpy(a, line))==0) return -2;
 	argc_++;
 	for(s=line_;*s;s++)if(*s==delim) argc_++;
     }

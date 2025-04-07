@@ -11,4 +11,7 @@ SRC_C         = nanosleep.c sched_yield.c usleep.c \
                 clock_getres.c
 CFLAGS        = -ffunction-sections
 
+DEFINES_settimeofday.c += -D_DEFAULT_SOURCE
+DEFINES_usleep.c += -D_DEFAULT_SOURCE
+
 include $(L4DIR)/mk/lib.mk

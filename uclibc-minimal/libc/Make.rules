@@ -10,7 +10,7 @@ Link_Libs=  %{static|static-pie:-lc_minimal}
 Link_Libs_pic=  %{static|static-pie:-lc_minimal.p}
 endef
 
-DEFINES		+= -DL4_MINIMAL_LIBC
+DEFINES		+= -DL4_MINIMAL_LIBC -D_GNU_SOURCE
 LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
 
 UCLIBC_BUILD_MINIMAL = 1
