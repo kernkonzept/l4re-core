@@ -135,11 +135,11 @@ long chksys(long ret, long err, char const *extra = "")
  *
  * \param cap    Capability value to check.
  * \param extra  Optional text for exception.
- * \param err    Error value for exception or 0 if the capability value
- *               should be used.
+ * \param err    Error value for exception or 0 if the error code stored in the
+ *               invalid capability should be used.
  *
  * This function checks whether the capability is valid. If the capability
- * is invalid an C++ exception is generated, using err if err is not zero,
+ * is invalid, a C++ exception is generated, using err if err is not zero,
  * otherwise the capability value is used. A valid capability will just be
  * returned.
  */
@@ -152,7 +152,7 @@ T chkcap(T cap, char const *extra = "", long err = -L4_ENOMEM)
 #endif
 {
   if (L4_UNLIKELY(!cap.is_valid()))
-    throw_error(err ? err : cap.cap(), extra);
+    throw_error(err ? err : cap.invalid_cap_error(), extra);
 
 #if __cplusplus >= 201103L
   return cxx::forward<T>(cap);

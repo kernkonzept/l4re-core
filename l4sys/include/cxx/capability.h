@@ -56,6 +56,11 @@ public:
    */
   bool is_valid() const noexcept { return !(_c & L4_INVALID_CAP_BIT); }
 
+  /**
+   * Return the transported error code in an invalid capability index.
+   */
+  int invalid_cap_error() const noexcept { return _c & ~L4_INVALID_CAP_BIT; }
+
   explicit operator bool () const noexcept
   { return !(_c & L4_INVALID_CAP_BIT); }
 
