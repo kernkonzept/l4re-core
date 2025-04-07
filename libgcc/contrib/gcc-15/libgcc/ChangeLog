@@ -1,3 +1,119 @@
+2025-04-05  Georg-Johann Lay  <avr@gjlay.de>
+
+	* config/avr/lib1funcs.S (__umulhisi3) [Have MUL]: Reduce call
+	depth by 1.
+
+2025-03-22  Georg-Johann Lay  <avr@gjlay.de>
+
+	* config/avr/t-avr (LIB1ASMFUNCS, LIB2FUNCS_EXCLUDE):
+	Properly handle avrtiny.
+
+2025-03-14  Thomas Schwinge  <thomas@codesourcery.com>
+
+	Revert:
+	2023-12-23  Thomas Schwinge  <thomas@codesourcery.com>
+
+	* c++-minimal/README: New.
+	* c++-minimal/guard.c: New.
+	* config/gcn/t-amdgcn (LIB2ADD): Add it.
+	* config/nvptx/t-nvptx (LIB2ADD): Likewise.
+
+2025-03-13  Wilco Dijkstra  <wilco.dijkstra@arm.com>
+
+	* config/aarch64/cpuinfo.c (__init_cpu_features_constructor):
+	Remove FEAT_PREDRES and FEAT_LS64* support.
+
+2025-03-10  Jakub Jelinek  <jakub@redhat.com>
+	    Michael Leuchtenburg  <michael@slashhome.org>
+
+	PR libgcc/119151
+	* unwind-dw2-btree.h (btree_split_inner): Add size argument.  If
+	left_fence is in the middle of [target,target + size - 1] range,
+	increase it to target + size - 1.
+	(btree_insert): Adjust btree_split_inner caller.  If fence is smaller
+	than base + size - 1, increase it and separator of the slot to
+	base + size - 1.
+
+2025-03-10  Jakub Jelinek  <jakub@redhat.com>
+
+	* unwind-dw2-btree.h: Formatting fixes.
+
+2025-03-01  Jan Dubiec  <jdx@o2.pl>
+
+	PR target/114222
+	* config/h8300/t-h8300: Add __ffshi2().
+	* config/h8300/ffshi2.c: New file.
+
+2025-02-18  Roman Kagan  <rkagan@amazon.de>
+
+	* config/i386/linux-unwind.h: Remove preprocessor
+	condition to enable fallback path for all libc-s.
+
+2025-02-17  Lulu Cheng  <chenglulu@loongson.cn>
+
+	PR target/118844
+	* config/loongarch/t-crtstuff: Add '-mcmodel=extreme'
+	to CRTSTUFF_T_CFLAGS_S.
+
+2025-02-12  Yangyu Chen  <cyy@cyyself.name>
+
+	* config/riscv/feature_bits.c (RISCV_VENDOR_FEATURE_BITS_LENGTH): Drop.
+	(__init_riscv_features_bits_linux): Drop.
+
+2025-02-08  Dimitry Andric  <dimitry@andric.com>
+
+	PR target/118685
+	* config.host (*-*-freebsd*): Add crtbeginT.o to extra_parts.
+
+2025-02-07  Peter Bergner  <bergner@linux.ibm.com>
+
+	PR target/117674
+	* config/rs6000/linux-unwind.h (ppc_backchain_fallback): Add cast to
+	avoid comparison between pointer and integer warning.
+
+2025-01-30  Georg-Johann Lay  <avr@gjlay.de>
+
+	* config/avr/t-avr (LIB1ASMFUNCS): Add _strlen_memx.
+	* config/avr/lib1funcs.S <L_strlen_memx, __strlen_memx>: Implement.
+
+2025-01-28  Richard Earnshaw  <rearnsha@arm.com>
+
+	PR target/118642
+	* config/arm/sync-none.specs (link): Only add the defsym if
+	libgcc will be used.
+	* config/arm/sync-dmb.specs: Likewise.
+	* config/arm/sync-cp15dmb.specs: Likewise.
+
+2025-01-17  Monk Chiang  <monk.chiang@sifive.com>
+
+	* config/riscv/crti.S: Add lpad instructions.
+	* config/riscv/crtn.S: Likewise.
+	* config/riscv/save-restore.S: Likewise.
+	* config/riscv/riscv-asm.h: Add GNU_PROPERTY for ZICFILP,
+	ZICFISS.
+	Co-Developed-by: Jesse Huang <jesse.huang@sifive.com>
+
+2025-01-17  Monk Chiang  <monk.chiang@sifive.com>
+
+	* config/riscv/linux-unwind.h: Include shadow-stack-unwind.h.
+	* config/riscv/shadow-stack-unwind.h
+	(_Unwind_Frames_Extra): Define.
+	(_Unwind_Frames_Increment): Define.
+
+2025-01-07  Keith Packard  <keithp@keithp.com>
+
+	* config/m68k/fpgnulib.c (extenddfxf2): Simplify code by removing code
+	that should never execute.  Fix denorm shift test and insert hidden bit
+	as needed.
+	(__truncxfdf2): Properly compue and shift the significant right.
+	* config/m68k/lb1sf68.S (__fixxfsi): Correct shift counts and simplify.
+	(QUIET_NAN): Make it a positive quiet NaN and fix return values to inject
+	sign properly.
+
+2025-01-06  Stafford Horne  <shorne@gmail.com>
+
+	* config/or1k/lib1funcs.S: Add .note.GNU-stack section on linux.
+
 2024-12-12  Georg-Johann Lay  <avr@gjlay.de>
 
 	PR target/118001
@@ -14143,7 +14259,7 @@
 	shared-object.mk, siditi-object.mk, static-object.mk: New files.
 	* configure: Generated.
 
-Copyright (C) 2007-2024 Free Software Foundation, Inc.
+Copyright (C) 2007-2025 Free Software Foundation, Inc.
 
 Copying and distribution of this file, with or without modification,
 are permitted in any medium without royalty provided the copyright

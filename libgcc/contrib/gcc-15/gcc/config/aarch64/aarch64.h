@@ -1,5 +1,5 @@
 /* Machine description for AArch64 architecture.
-   Copyright (C) 2009-2024 Free Software Foundation, Inc.
+   Copyright (C) 2009-2025 Free Software Foundation, Inc.
    Contributed by ARM Ltd.
 
    This file is part of GCC.
@@ -361,13 +361,13 @@ constexpr auto AARCH64_FL_DEFAULT_ISA_MODE ATTRIBUTE_UNUSED
 #define TARGET_ARMV8_3	AARCH64_HAVE_ISA (V8_3A)
 
 /* Javascript conversion instruction from Armv8.3-a.  */
-#define TARGET_JSCVT	(TARGET_FLOAT && TARGET_ARMV8_3)
+#define TARGET_JSCVT	AARCH64_HAVE_ISA (JSCVT)
 
 /* Armv8.3-a Complex number extension to AdvSIMD extensions.  */
-#define TARGET_COMPLEX (TARGET_SIMD && TARGET_ARMV8_3)
+#define TARGET_COMPLEX AARCH64_HAVE_ISA (FCMA)
 
 /* Floating-point rounding instructions from Armv8.5-a.  */
-#define TARGET_FRINT (AARCH64_HAVE_ISA (V8_5A) && TARGET_FLOAT)
+#define TARGET_FRINT AARCH64_HAVE_ISA (FRINTTS)
 
 /* TME instructions are enabled.  */
 #define TARGET_TME AARCH64_HAVE_ISA (TME)
@@ -427,7 +427,7 @@ constexpr auto AARCH64_FL_DEFAULT_ISA_MODE ATTRIBUTE_UNUSED
 
 /* The RCPC2 extensions from Armv8.4-a that allow immediate offsets to LDAPR
    and sign-extending versions.*/
-#define TARGET_RCPC2 ((AARCH64_HAVE_ISA (V8_4A) && TARGET_RCPC) || TARGET_RCPC3)
+#define TARGET_RCPC2 AARCH64_HAVE_ISA (RCPC2)
 
 /* RCPC3 (Release Consistency) extensions, optional from Armv8.2-a.  */
 #define TARGET_RCPC3 AARCH64_HAVE_ISA (RCPC3)
@@ -472,7 +472,6 @@ constexpr auto AARCH64_FL_DEFAULT_ISA_MODE ATTRIBUTE_UNUSED
 /* Floating Point Absolute Maximum/Minimum extension instructions are
    enabled through +faminmax.  */
 #define TARGET_FAMINMAX AARCH64_HAVE_ISA (FAMINMAX)
-#define TARGET_SVE_FAMINMAX (TARGET_SVE && TARGET_FAMINMAX)
 
 /* Lookup table (LUTI) extension instructions are enabled through +lut.  */
 #define TARGET_LUT AARCH64_HAVE_ISA (LUT)
@@ -485,6 +484,11 @@ constexpr auto AARCH64_FL_DEFAULT_ISA_MODE ATTRIBUTE_UNUSED
 
 /* fp8 instructions are enabled through +fp8.  */
 #define TARGET_FP8 AARCH64_HAVE_ISA (FP8)
+
+/* See the comment above the tuning flag for details.  */
+#define TARGET_CHEAP_FPMR_WRITE \
+  (bool (aarch64_tune_params.extra_tuning_flags \
+	 & AARCH64_EXTRA_TUNE_CHEAP_FPMR_WRITE))
 
 /* Combinatorial tests.  */
 
@@ -924,16 +928,9 @@ enum reg_class
 /* CPU/ARCH option handling.  */
 #include "config/aarch64/aarch64-opts.h"
 
-enum target_cpus
-{
-#define AARCH64_CORE(NAME, INTERNAL_IDENT, SCHED, ARCH, FLAGS, COSTS, IMP, PART, VARIANT) \
-  TARGET_CPU_##INTERNAL_IDENT,
-#include "aarch64-cores.def"
-};
-
 /* If there is no CPU defined at configure, use generic as default.  */
 #ifndef TARGET_CPU_DEFAULT
-# define TARGET_CPU_DEFAULT TARGET_CPU_generic_armv8_a
+# define TARGET_CPU_DEFAULT AARCH64_CPU_generic_armv8_a
 #endif
 
 /* If inserting NOP before a mult-accumulate insn remember to adjust the
@@ -949,7 +946,7 @@ enum target_cpus
     aarch64_final_prescan_insn (INSN);			\
 
 /* The processor for which instructions should be scheduled.  */
-extern enum aarch64_processor aarch64_tune;
+extern enum aarch64_cpu aarch64_tune;
 
 /* RTL generation support.  */
 #define INIT_EXPANDERS aarch64_init_expanders ()
@@ -1477,7 +1474,7 @@ extern const char *host_detect_local_cpu (int argc, const char **argv);
 #define HAVE_LOCAL_CPU_DETECT
 # define EXTRA_SPEC_FUNCTIONS                                           \
   { "local_cpu_detect", host_detect_local_cpu },                        \
-  MCPU_TO_MARCH_SPEC_FUNCTIONS
+  AARCH64_BASE_SPEC_FUNCTIONS
 
 /* Rewrite -m{arch,cpu,tune}=native based on the host system information.
    When rewriting -march=native convert it into an -mcpu option if no other
@@ -1494,7 +1491,7 @@ extern const char *host_detect_local_cpu (int argc, const char **argv);
  { "tune", "%{!mcpu=*:%{!mtune=*:%{!march=native:-mtune=%(VALUE)}}}" },
 #else
 # define MCPU_MTUNE_NATIVE_SPECS ""
-# define EXTRA_SPEC_FUNCTIONS MCPU_TO_MARCH_SPEC_FUNCTIONS
+# define EXTRA_SPEC_FUNCTIONS AARCH64_BASE_SPEC_FUNCTIONS
 # define CONFIG_TUNE_SPEC                                                \
   {"tune", "%{!mcpu=*:%{!mtune=*:-mtune=%(VALUE)}}"},
 #endif
@@ -1509,18 +1506,21 @@ extern const char *host_detect_local_cpu (int argc, const char **argv);
   {"cpu",  "%{!march=*:%{!mcpu=*:-mcpu=%(VALUE)}}" },   \
   CONFIG_TUNE_SPEC
 
-#define MCPU_TO_MARCH_SPEC \
-   " %{mcpu=*:-march=%:rewrite_mcpu(%{mcpu=*:%*})}"
+#define MARCH_REWRITE_SPEC \
+   "%{march=*:-march=%:rewrite_march(%{march=*:%*});" \
+     "mcpu=*:-march=%:rewrite_mcpu(%{mcpu=*:%*})}"
 
+extern const char *aarch64_rewrite_march (int argc, const char **argv);
 extern const char *aarch64_rewrite_mcpu (int argc, const char **argv);
 extern const char *is_host_cpu_not_armv8_base (int argc, const char **argv);
-#define MCPU_TO_MARCH_SPEC_FUNCTIONS		       \
+#define AARCH64_BASE_SPEC_FUNCTIONS		       \
+  { "rewrite_march", aarch64_rewrite_march },          \
   { "rewrite_mcpu",            aarch64_rewrite_mcpu }, \
   { "is_local_not_armv8_base", is_host_cpu_not_armv8_base },
 
 
 #define ASM_CPU_SPEC \
-   MCPU_TO_MARCH_SPEC
+   MARCH_REWRITE_SPEC
 
 #define EXTRA_SPECS						\
   { "asm_cpu_spec",		ASM_CPU_SPEC }
@@ -1651,6 +1651,10 @@ enum class aarch64_tristate_mode : int { NO, YES, MAYBE };
 #define NUM_MODES_FOR_MODE_SWITCHING \
   { int (aarch64_tristate_mode::MAYBE), \
     int (aarch64_local_sme_state::ANY) }
+
+/* Zero terminated list of regnos for which hardreg PRE should be
+   applied.  */
+#define HARDREG_PRE_REGNOS { FPM_REGNUM, 0 }
 
 #endif
 

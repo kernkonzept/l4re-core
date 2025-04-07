@@ -1,6 +1,6 @@
 /* Helper function for function multi-versioning for RISC-V.
 
-   Copyright (C) 2024 Free Software Foundation, Inc.
+   Copyright (C) 2024-2025 Free Software Foundation, Inc.
 
 This file is part of GCC.
 
@@ -29,13 +29,6 @@ struct {
   unsigned length;
   unsigned long long features[RISCV_FEATURE_BITS_LENGTH];
 } __riscv_feature_bits __attribute__ ((visibility ("hidden"), nocommon));
-
-#define RISCV_VENDOR_FEATURE_BITS_LENGTH 1
-
-struct {
-  unsigned length;
-  unsigned long long features[RISCV_VENDOR_FEATURE_BITS_LENGTH];
-} __riscv_vendor_feature_bits __attribute__ ((visibility ("hidden"), nocommon));
 
 struct {
   unsigned mvendorid;
@@ -382,8 +375,6 @@ static void __init_riscv_features_bits_linux ()
     __riscv_feature_bits.features[i] = features[i];
 
   __riscv_feature_bits.length = RISCV_FEATURE_BITS_LENGTH;
-
-  __riscv_vendor_feature_bits.length = 0;
 }
 #endif
 
@@ -402,7 +393,6 @@ __init_riscv_feature_bits ()
 #else
   /* Unsupported, just initialize that into all zeros.  */
   __riscv_feature_bits.length = 0;
-  __riscv_vendor_feature_bits.length = 0;
   __riscv_cpu_model.mvendorid = 0;
   __riscv_cpu_model.marchid = 0;
   __riscv_cpu_model.mimpid = 0;

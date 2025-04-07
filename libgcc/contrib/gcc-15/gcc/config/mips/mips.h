@@ -1,5 +1,5 @@
 /* Definitions of target machine for GNU compiler.  MIPS version.
-   Copyright (C) 1989-2024 Free Software Foundation, Inc.
+   Copyright (C) 1989-2025 Free Software Foundation, Inc.
    Contributed by A. Lichnewsky (lich@inria.inria.fr).
    Changed by Michael Meissner	(meissner@osf.org).
    64-bit r4000 support by Ian Lance Taylor (ian@cygnus.com) and
@@ -1263,6 +1263,10 @@ struct mips_cpu_info {
 					 || ISA_HAS_MIPS16E2)
 
 #define ISA_HAS_FMIN_FMAX	(mips_isa_rev >= 6)
+
+#define ISA_HAS_FRINT		(mips_isa_rev >= 6)
+
+#define ISA_HAS_FCLASS		(mips_isa_rev >= 6)
 
 /* ISA has data indexed prefetch instructions.  This controls use of
    'prefx', along with TARGET_HARD_FLOAT and TARGET_DOUBLE_FLOAT.

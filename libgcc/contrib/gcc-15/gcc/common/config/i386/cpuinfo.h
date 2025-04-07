@@ -1,5 +1,5 @@
 /* Get CPU type and Features for x86 processors.
-   Copyright (C) 2012-2024 Free Software Foundation, Inc.
+   Copyright (C) 2012-2025 Free Software Foundation, Inc.
    Contributed by Sriraman Tallam (tmsriram@google.com)
 
 This file is part of GCC.
@@ -640,7 +640,6 @@ get_intel_cpu (struct __processor_model *cpu_model,
   else if (cpu_model2->__cpu_family == 0x13)
     switch (cpu_model2->__cpu_model)
       {
-      case 0x00:
       case 0x01:
 	/* Diamond Rapids.  */
 	cpu = "diamondrapids";
@@ -1038,32 +1037,20 @@ get_available_features (struct __processor_model *cpu_model,
     {
       __cpuid_count (0x24, 0, eax, ebx, ecx, edx);
       version = ebx & 0xff;
-      if (ebx & bit_AVX10_256)
-	switch (version)
-	  {
-	  case 2:
-	    set_feature (FEATURE_AVX10_2_256);
-	    /* Fall through.  */
-	  case 1:
-	    set_feature (FEATURE_AVX10_1_256);
-	    break;
-	  default:
-	    set_feature (FEATURE_AVX10_1_256);
-	    break;
-	  }
-      if (ebx & bit_AVX10_512)
-	switch (version)
-	  {
-	  case 2:
-	    set_feature (FEATURE_AVX10_2_512);
-	    /* Fall through.  */
-	  case 1:
-	    set_feature (FEATURE_AVX10_1_512);
-	    break;
-	  default:
-	    set_feature (FEATURE_AVX10_1_512);
-	    break;
-	  }
+      switch (version)
+	{
+	case 2:
+	  set_feature (FEATURE_AVX10_2);
+	  /* Fall through.  */
+	case 1:
+	  set_feature (FEATURE_AVX10_1);
+	  set_feature (FEATURE_AVX10_1_256);
+	  break;
+	default:
+	  set_feature (FEATURE_AVX10_1);
+	  set_feature (FEATURE_AVX10_1_256);
+	  break;
+	}
     }
 
   /* Check cpuid level of extended features.  */

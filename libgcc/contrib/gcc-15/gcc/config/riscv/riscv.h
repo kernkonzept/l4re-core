@@ -1,5 +1,5 @@
 /* Definition of RISC-V target for GNU compiler.
-   Copyright (C) 2011-2024 Free Software Foundation, Inc.
+   Copyright (C) 2011-2025 Free Software Foundation, Inc.
    Contributed by Andrew Waterman (andrew@sifive.com).
    Based on MIPS target for GNU compiler.
 
@@ -190,7 +190,8 @@ ASM_MISA_SPEC
 #define PARM_BOUNDARY BITS_PER_WORD
 
 /* Allocation boundary (in *bits*) for the code of a function.  */
-#define FUNCTION_BOUNDARY ((TARGET_RVC || TARGET_ZCA) ? 16 : 32)
+#define FUNCTION_BOUNDARY \
+  (((TARGET_RVC || TARGET_ZCA) && !is_zicfilp_p ()) ? 16 : 32)
 
 /* The smallest supported stack boundary the calling convention supports.  */
 #define STACK_BOUNDARY \
@@ -413,7 +414,8 @@ ASM_MISA_SPEC
 #define RISCV_DWARF_VLENB (4096 + 0xc22)
 
 /* Register in which static-chain is passed to a function.  */
-#define STATIC_CHAIN_REGNUM (GP_TEMP_FIRST + 2)
+#define STATIC_CHAIN_REGNUM \
+  ((is_zicfilp_p ()) ? (GP_TEMP_FIRST + 23) : (GP_TEMP_FIRST + 2))
 
 /* Registers used as temporaries in prologue/epilogue code.
 
@@ -435,6 +437,10 @@ ASM_MISA_SPEC
 #define RISCV_CALL_ADDRESS_TEMP_REGNUM (GP_TEMP_FIRST + 1)
 #define RISCV_CALL_ADDRESS_TEMP(MODE) \
   gen_rtx_REG (MODE, RISCV_CALL_ADDRESS_TEMP_REGNUM)
+
+#define RISCV_CALL_ADDRESS_LPAD_REGNUM (GP_TEMP_FIRST + 2)
+#define RISCV_CALL_ADDRESS_LPAD(MODE) \
+  gen_rtx_REG (MODE, RISCV_CALL_ADDRESS_LPAD_REGNUM)
 
 #define RETURN_ADDR_MASK (1 << RETURN_ADDR_REGNUM)
 #define S0_MASK (1 << S0_REGNUM)
@@ -821,7 +827,8 @@ extern enum riscv_cc get_riscv_cc (const rtx use);
 
 /* Trampolines are a block of code followed by two pointers.  */
 
-#define TRAMPOLINE_CODE_SIZE 16
+#define TRAMPOLINE_CODE_SIZE ((is_zicfilp_p ()) ? 24 : 16)
+
 #define TRAMPOLINE_SIZE		\
   ((Pmode == SImode)		\
    ? TRAMPOLINE_CODE_SIZE	\
@@ -1189,6 +1196,9 @@ extern poly_int64 riscv_v_adjust_nunits (enum machine_mode, int);
 extern poly_int64 riscv_v_adjust_nunits (machine_mode, bool, int, int);
 extern poly_int64 riscv_v_adjust_precision (enum machine_mode, int);
 extern poly_int64 riscv_v_adjust_bytesize (enum machine_mode, int);
+extern bool is_zicfiss_p ();
+extern bool is_zicfilp_p ();
+extern bool need_shadow_stack_push_pop_p ();
 /* The number of bits and bytes in a RVV vector.  */
 #define BITS_PER_RISCV_VECTOR (poly_uint16 (riscv_vector_chunks * riscv_bytes_per_vector_chunk * 8))
 #define BYTES_PER_RISCV_VECTOR (poly_uint16 (riscv_vector_chunks * riscv_bytes_per_vector_chunk))
