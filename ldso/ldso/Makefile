@@ -1,7 +1,7 @@
 PKGDIR ?= ..
 L4DIR  ?= $(PKGDIR)/../../..
 
-LIBCSRC_DIR ?= $(PKGDIR)/../uclibc/lib/uclibc
+LIBCSRC_DIR ?= $(PKGDIR)/../libc/uclibc-ng
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
@@ -11,13 +11,13 @@ PC_EXTRA = Link_DynLinker= rom/libld-l4.so.1
 
 vpath %.c $(CON_DIR)/ldso
 vpath %.S $(CON_DIR)/ldso/$(LIBC_ARCH)
-vpath aeabi_read_tp-v6p.S     $(LIBCSRC_DIR)/ARCH-arm
-vpath aeabi_read_tp_generic.c $(LIBCSRC_DIR)/ARCH-arm
-vpath ssp-l4.c                $(LIBCSRC_DIR)/ARCH-all/libc/misc/internals
+vpath aeabi_read_tp-v6p.S     $(LIBCSRC_DIR)/libc/ARCH-arm
+vpath aeabi_read_tp_generic.c $(LIBCSRC_DIR)/libc/ARCH-arm
+vpath ssp-l4.c                $(LIBCSRC_DIR)/libc/ARCH-all/libc/misc/internals
 
 PRIVATE_INCDIR-x86 := $(CONTRIB_DIR)/libc
 PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
-                  $(OBJ_BASE)/include/uclibc \
+                  $(OBJ_BASE)/include/uclibc-ng \
                   $(CON_DIR)/ldso/$(LIBC_ARCH) \
                   $(SRC_DIR) \
                   $(CON_DIR)/include \

@@ -1,3 +1,3 @@
 Provides: libc-headers
-source-pkg: uclibc
+source-pkg: libc
 Maintainer: adam@os.inf.tu-dresden.de

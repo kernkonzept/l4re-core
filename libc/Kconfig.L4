@@ -1,0 +1,13 @@
+choice
+  prompt "Libc variant" if false
+
+config L4_LIBC_UCLIBC
+  bool "uclibc-ng"
+
+endchoice
+
+config L4_LIBC
+  string
+  default "uclibc-ng" if L4_LIBC_UCLIBC
+
+

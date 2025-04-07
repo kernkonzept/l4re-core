@@ -3,7 +3,9 @@ L4DIR		?= $(PKGDIR)/../../..
 
 SYSTEMS		= $(SYSTEMS_PLAIN)
 
-LIBCSRC_DIR ?= $(PKGDIR)/../uclibc/lib/uclibc
+include $(L4DIR)/mk/Makeconf
+
+LIBCSRC_DIR ?= $(PKGDIR)/../libc/$(CONFIG_L4_LIBC)
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
@@ -29,8 +31,9 @@ PC_LIBS        :=
 
 TARGET            =
 
-LIBCSRC_DIR ?= $(PKGDIR)/../uclibc/libc/uclibc
+include $(L4DIR)/mk/Makeconf
 
+LIBCSRC_DIR ?= $(PKGDIR)/../libc/$(CONFIG_L4_LIBC)
 include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/sources.mk
 

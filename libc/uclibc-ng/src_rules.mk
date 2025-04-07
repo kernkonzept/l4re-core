@@ -3,7 +3,7 @@ LIBCSRC_DIR ?= $(SRC_DIR)
 include $(LIBCSRC_DIR)/make_vars.mk
 
 LIBC_SRC_DIRS := $(CONTRIB_DIR)/libc \
-                 $(LIBCSRC_DIR_ABS)/ARCH-all/libc #$(LIBCSRC_DIR)/ARCH-$(BUILD_ARCH)/libc
+                 $(LIBCSRC_DIR_ABS)/libc/ARCH-all/libc #$(LIBCSRC_DIR)/ARCH-$(BUILD_ARCH)/libc
 
 LIBC_SRC_DIRS += $(CONTRIB_DIR)/libm \
                  $(CONTRIB_DIR)/libcrypt \

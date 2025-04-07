@@ -1,14 +1,14 @@
 PKGDIR ?= .
 L4DIR  ?= $(PKGDIR)/../../..
 
-LIBCSRC_DIR = $(PKGDIR)/../uclibc/lib/uclibc
+LIBCSRC_DIR = $(PKGDIR)/../libc/uclibc-ng
 
 all:: include
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
-vpath %.h $(LIBCSRC_DIR)/ARCH-$(BUILD_ARCH)/include
-vpath %.h $(LIBCSRC_DIR)/ARCH-all/include
+vpath %.h $(LIBCSRC_DIR)/libc/ARCH-$(BUILD_ARCH)/include
+vpath %.h $(LIBCSRC_DIR)/libc/ARCH-all/include
 
 include $(LIBCSRC_DIR)/target_headers.mk
 
@@ -30,6 +30,6 @@ $(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/make_vars.mk 
 
 include: $(HEADER_DIR)
 	$(VERBOSE)INCSRC_DIR=$(HEADER_DIR) $(MAKE) -f $(SRC_DIR)/Makefile.install
-	$(VERBOSE)$(MAKE) -C $(LIBCSRC_DIR)/../libpthread/include
+	$(VERBOSE)$(MAKE) -C $(LIBCSRC_DIR)/libpthread/include
 
 clean cleanall::

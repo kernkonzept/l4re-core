@@ -11,7 +11,7 @@ PC_LIBS_libpthread         = -lpthread
 PC_LIBS_libc_pthread       = %{-link-libc:%{shared:--whole-archive -lc_pthread.p --no-whole-archive;:libc_pthread.ofl}}
 PC_LIBS_PIC                =
 
-LIBCSRC_DIR ?= $(PKGDIR)/lib/uclibc
+LIBCSRC_DIR ?= $(PKGDIR)/uclibc-ng
 
 include $(LIBCSRC_DIR)/make_vars.mk
 

@@ -73,14 +73,14 @@ CPPFLAGS_$(LIBC_DST_DIR)/libc/inet += -DRESOLVER="\"resolv.c\""
 CPPFLAGS_$(LIBC_DST_DIR)/libc/misc/elf += $(LDSO_INC)
 
 # pthread support from libpthread uses libpthread internals
-CPPFLAGS_$(LIBCSRC_DIR_ABS)/../$(PTHOBJ_PFX) += $(addprefix -I,$(PTHREAD_INCDIR))
+CPPFLAGS_$(LIBCSRC_DIR_ABS)/$(PTHOBJ_PFX) += $(addprefix -I,$(PTHREAD_INCDIR))
 
 # setup search paths for our sources
 vpath %.c  $(LIBC_DST_DIR)
 vpath %.cc $(LIBC_DST_DIR)
 vpath %.S  $(LIBC_DST_DIR)
 # libpthread support
-vpath $(PTHOBJ_PFX)/% $(LIBCSRC_DIR_ABS)/..
+vpath $(PTHOBJ_PFX)/% $(LIBCSRC_DIR_ABS)
 
 
 # NOTE the two newlines in the define are essential!!

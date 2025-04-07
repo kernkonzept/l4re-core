@@ -10,8 +10,10 @@ Link_Libs=  %{static|static-pie:-lc_minimal}
 Link_Libs_pic=  %{static|static-pie:-lc_minimal.p}
 endef
 
+include $(L4DIR)/mk/Makeconf
+
 DEFINES		+= -DL4_MINIMAL_LIBC -D_GNU_SOURCE
-LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
+LIBCSRC_DIR	?= $(PKGDIR)/../libc/$(CONFIG_L4_LIBC)
 
 LIBC_BUILD_MODE = minimal
 

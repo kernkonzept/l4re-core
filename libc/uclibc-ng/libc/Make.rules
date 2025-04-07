@@ -1,5 +1,5 @@
 # vi:ft=make
-LIBCSRC_DIR ?= $(SRC_DIR)
+LIBCSRC_DIR ?= $(SRC_DIR)/..
 
 DEFINES           += -DL4_THREAD_SAFE -DL4_NO_RTTI=1 -D_GNU_SOURCE -DUSE_TLS=1
 TARGET            := libc.a libc.so libc_nonshared.p.a
@@ -69,7 +69,7 @@ CXXFLAGS += -fno-rtti -fno-exceptions
 CPPFLAGS_libc-tls.cc += $(LDSO_INC)
 CPPFLAGS_dl-tls.c += $(LDSO_INC)
 
-$(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
+$(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/libc/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
                   $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk
 
 # Gather all libraries that shall be linked into libc. We need to search them

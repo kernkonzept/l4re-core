@@ -1,7 +1,7 @@
 PKGDIR ?= ..
 L4DIR  ?= $(PKGDIR)/../../..
 
-LIBCSRC_DIR ?= $(PKGDIR)/../uclibc/lib/uclibc
+LIBCSRC_DIR ?= $(PKGDIR)/../libc/uclibc-ng
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
@@ -12,7 +12,7 @@ vpath %.S $(CONTRIB_DIR)/ldso/ldso/$(LIBC_ARCH)
 
 PRIVATE_INCDIR-x86 := $(CONTRIB_DIR)/libc
 PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
-                  $(OBJ_BASE)/include/uclibc \
+                  $(OBJ_BASE)/include/uclibc-ng \
                   $(CONTRIB_DIR)/ldso/ldso/$(LIBC_ARCH) \
                   $(SRC_DIR)           \
                   $(CONTRIB_DIR)/ldso/include \

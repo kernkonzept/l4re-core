@@ -4,7 +4,7 @@ LIBCSRC_DIR ?= $(SRC_DIR)
 LIBCSRC_DIR_ABS := $(abspath $(LIBCSRC_DIR))
 
 # directory to the libc contrib files
-CONTRIB_DIR     := $(LIBCSRC_DIR_ABS)/../contrib/uclibc
+CONTRIB_DIR     := $(LIBCSRC_DIR_ABS)/contrib/uclibc
 CONTRIB_SYSDEPS := $(CONTRIB_DIR)/libc/sysdeps/linux
 
 # destination directory for linking libc sources, with our overlay
@@ -14,7 +14,7 @@ LIBC_DST_DIR  := $(OBJ_DIR)/src
 PTHOBJ_PFX    := libpthread/src
 
 # pthread source file directory
-PTHLIB_DIR    := $(LIBCSRC_DIR_ABS)/../libpthread
+PTHLIB_DIR    := $(LIBCSRC_DIR_ABS)/libpthread
 
 # include directory for pthread internals
 PTHREAD_INCDIR = $(PTHLIB_DIR)/src/sysdeps/$(LIBC_ARCH) $(PTHLIB_DIR)/src
