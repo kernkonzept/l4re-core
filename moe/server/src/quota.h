@@ -40,47 +40,96 @@ public:
   {
     // Unlimited quotas as child of a limited quota are not allowed.
     assert(!(parent && parent->_limit && !limit));
-    if (parent && !parent->alloc(limit))
+    if (parent && !parent->reserve(limit))
       throw L4::Out_of_memory();
   }
 
   ~Quota()
   {
-    assert(!_used);
+    assert(!_reserved && !_committed);
     if (_parent)
-      _parent->free(_limit);
+      _parent->relinquish(_limit);
   }
 
+  /**
+   * Allocate from quota.
+   *
+   * Allocations are backed by actual memory pages and are counted towards
+   * committed(). They are also accounted to the reserved quota and propagated
+   * to parent quotas.
+   */
   bool alloc(size_t s)
+  {
+    if (!reserve(s))
+      return false;
+
+    for (Quota *q = this; q; q = q->_parent)
+      if (q->_limit)
+        q->_committed += s;
+
+    return true;
+  }
+
+  /**
+   * Free allocation from quota.
+   *
+   * The inverse operation of alloc().
+   */
+  void free(size_t s)
+  {
+    relinquish(s);
+
+    for (Quota *q = this; q; q = q->_parent)
+      if (q->_limit)
+        q->_committed -= s;
+  }
+
+  /** Quota limit */
+  size_t limit() const { return _limit; }
+  /** Amount of reserved quota */
+  size_t reserved() const { return _reserved; }
+  /** Amount of actually committed memory */
+  size_t committed() const { return _committed; }
+
+private:
+  /**
+   * Reserve portion of quota for sub-quotas and allocations.
+   *
+   * Reservations are not backed by actual pages. They are made to ensure that
+   * future allocations will succeed. As such, they are only accounted in the
+   * object itself. Of course, this requires that this quota is backed by
+   * existing memory and the system is not over committed.
+   */
+  bool reserve(size_t s)
   {
     if (!_limit)
       return true;
 
-    if (s > _limit || _used > _limit - s)
+    if (s > _limit || _reserved > _limit - s)
       return false;
 
-    _used += s;
-    //printf("Q: alloc(%zx) -> %zx\n", s, _used);
+    _reserved += s;
     return true;
   }
 
-  void free(size_t s)
+  /**
+   * Release reservation.
+   *
+   * The inverse operation of reserve().
+   */
+  void relinquish(size_t s)
   {
     if (!_limit)
       return;
 
-    assert(s <= _used);
-    _used -= s;
-    //printf("Q: free(%zx) -> %zx\n", s, _used);
+    assert(s <= _reserved);
+    _reserved -= s;
   }
 
-  size_t limit() const { return _limit; }
-  size_t used() const { return _used; }
-
-private:
   Quota *_parent;
   size_t _limit;
-  size_t _used = 0;
+  size_t _reserved = 0;
+  size_t _committed = 0;
 };
 
 /**

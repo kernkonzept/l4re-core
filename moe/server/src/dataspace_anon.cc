@@ -32,7 +32,7 @@ Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
       unsigned long l = qalloc()->quota()->limit();
       unsigned long a = Single_page_alloc_base::_avail();
 
-      a = cxx::min(l - qalloc()->quota()->used(), a);
+      a = cxx::min(l - qalloc()->quota()->reserved(), a);
 
       // not enough memory left
       if (a <= static_cast<unsigned long>(-size))
