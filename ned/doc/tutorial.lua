@@ -199,7 +199,9 @@ building blocks or set individual factories.
 
 ]==]
 
-l = L4.Loader.new({mem = L4.Env.user_factory:create(L4.Proto.Factory, 512*1024)})
+l = L4.Loader.new({
+  mem = L4.Env.user_factory:create(L4.Proto.Factory, 512*1024):m("rs")
+});
 
 local _doc = [==[
 
@@ -226,7 +228,7 @@ process as well as the kernel factory 'factory', the log capability etc.
 
 local e = L4.App_env.new({
   loader = l,
-  mem = L4.Env.user_factory:create(L4.Proto.Factory, 128*1024)
+  mem = L4.Env.user_factory:create(L4.Proto.Factory, 128*1024):m("rs")
 });
 
 e:start("rom/hello");
