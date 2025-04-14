@@ -440,17 +440,7 @@ Thread_signal_handler::call_default_action(siginfo_t const &si,
     case SIGTRAP:
     case SIGXCPU:
     case SIGXFSZ:
-      // All signals above should abort with a core dump. However, until that
-      // is implemented, we just terminate like the rest below...
-    case SIGALRM:
-    case SIGHUP:
-    case SIGINT:
-    case SIGKILL:
-    case SIGPIPE:
-    case SIGTERM:
-    case SIGUSR1:
-    case SIGUSR2:
-    case SIGVTALRM:
+    // All signals above should abort with a core dump.
     {
       Err err(Err::Fatal);
 
@@ -473,9 +463,22 @@ Thread_signal_handler::call_default_action(siginfo_t const &si,
           dump_exception_state(err, regs);
           dump_stack(err, regs->sp);
         }
+
       _exit(128 + si.si_signo);
       break;
     }
+
+    case SIGALRM:
+    case SIGHUP:
+    case SIGINT:
+    case SIGKILL:
+    case SIGPIPE:
+    case SIGTERM:
+    case SIGUSR1:
+    case SIGUSR2:
+    case SIGVTALRM:
+      _exit(128 + si.si_signo);
+      break;
 
     case SIGCONT:
     case SIGSTOP:
