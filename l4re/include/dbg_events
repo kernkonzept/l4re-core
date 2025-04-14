@@ -1,0 +1,20 @@
+// vim:ft=cpp
+
+#pragma once
+
+#include <l4/sys/cxx/ipc_epiface>
+#include <l4/sys/utcb.h>
+#include <l4/re/remote_access>
+#include <l4/re/rm>
+
+namespace L4Re {
+struct Dbg_events : L4::Kobject_t<Dbg_events, L4::Kobject, 0,
+                                  L4::Type_info::Demand_t<2> >
+{
+  L4_INLINE_RPC(int, request_backtrace, (l4_exc_regs_t regs,
+                                         L4::Ipc::Cap<L4Re::Remote_access> raif,
+                                         L4::Ipc::Cap<L4Re::Rm> rmif));
+
+  typedef L4::Typeid::Rpcs<request_backtrace_t> Rpcs;
+};
+} // L4Re

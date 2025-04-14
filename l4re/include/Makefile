@@ -6,6 +6,7 @@ EXTRA_TARGET += \
   console   \
   consts    \
   dataspace \
+  dbg_events \
   debug     \
   dma_space \
   env       \
