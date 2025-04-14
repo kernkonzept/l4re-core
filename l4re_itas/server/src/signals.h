@@ -21,6 +21,8 @@
 
 #include "sig_arch.h"
 
+typedef long l4_ret_t;
+
 class Signal_manager;
 
 struct Sig_set
@@ -196,11 +198,11 @@ public:
 
 private:
   void return_from_signal(l4_exc_regs_t &regs);
-  long deliver_pending_signals(l4_exc_regs_t &regs);
+  l4_ret_t deliver_pending_signals(l4_exc_regs_t &regs);
   long ensure_stack_writable(l4_umword_t pc, l4_addr_t top, l4_addr_t bottom);
   cxx::unique_ptr<Pending_signal> fetch_pending_signal();
-  void call_default_action(siginfo_t const &si, l4_exc_regs_t const *regs);
-  int stack_overflow(l4_addr_t sp);
+  l4_ret_t call_default_action(siginfo_t const &si, l4_exc_regs_t const *regs);
+  l4_ret_t stack_overflow(l4_addr_t sp);
   void dump_stack(L4Re::Util::Err const &err, l4_addr_t sp);
   bool needs_signal_delivery() const;
 
