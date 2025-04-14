@@ -287,12 +287,12 @@ table.
 
 - Exit Options: **exit**, **wait-and-exit** (must be first if used)
 
-  **exit*: terminates the application after the script has run through even if
-           there are still tasks running. `wait` for tasks at the end of the
-           script to ensure they do not die forcefully.
+  - **exit**: terminates the application after the script has run through even
+              if there are still tasks running. `wait` for tasks at the end of
+              the script to ensure they do not die forcefully.
 
-  **exit-and-wait**: terminates the application after the script has run through
-                     and all tasks started by ned have signaled their exit.
+  - **exit-and-wait**: terminates the application after the script has run
+              through and all tasks started by ned have signaled their exit.
 
 - Execute Statement Option: **execute**, **e**
 
