@@ -30,6 +30,11 @@ Ned provides various bindings for L4Re abstractions.  These bindings are
 located in the 'L4' package (\c require \c "L4").
 
 
+\subsection l4re_ned_lua_tutorial Tutorial
+
+For a verbose example using the Ned Lua bindings, see tutorial.lua.
+
+
 \subsection l4re_ned_lua_caps Capabilities in Lua
 
 Capabilities are handled as normal values in Lua. They can be stored in normal
