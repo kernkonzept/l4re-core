@@ -78,3 +78,10 @@ CXXFLAGS  += -fno-exceptions
 include $(L4DIR)/mk/lib.mk
 
 PICFLAGS += -DSHARED
+
+# 2025-04: libpthread.so is not built anymore and not known anymore
+#          to the build-system but might there from a previous build. Make
+#          sure to remove it such that it is not picked up by the linker
+#          accidentally. This rule can be removed again later.
+all::
+	$(VERBOSE)rm -f libpthread.so
