@@ -60,7 +60,7 @@ void *uclibc_morecore(long bytes)
       rm_flags |= L4Re::Rm::F::Search_addr;
 #endif
       err = L4Re::Env::env()->rm()->attach(&hp, Heap_max, rm_flags,
-                                           L4::Ipc::make_cap_rw(heap), 0);
+                                           L4::Ipc::make_cap_rw(heap));
       if (err < 0)
         {
           Global::cap_alloc->free(heap);
