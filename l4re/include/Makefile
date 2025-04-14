@@ -19,6 +19,7 @@ EXTRA_TARGET += \
   namespace \
   parent    \
   random    \
+  remote_access \
   rm        \
   shared_cap \
   unique_cap \

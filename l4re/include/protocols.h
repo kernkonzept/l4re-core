@@ -35,6 +35,7 @@ enum L4re_protocols
   L4RE_PROTO_MMIO_SPACE,         /**< ID for L4Re::Mmio_space             */
   L4RE_PROTO_ITAS,               /**< ID for L4Re::Itas                   */
   L4RE_PROTO_MEM_ALLOC,          /**< ID for L4Re::Mem_alloc              */
+  L4RE_PROTO_REMOTE_ACCESS,      /**< ID for L4Re::Remote_access          */
 
   L4RE_PROTO_DEBUG = ~0x7fffL    /**< ID for debugging RPCs               */
 };

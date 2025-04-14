@@ -1,0 +1,45 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2025 Adam Lackorzynski <adam@l4re.org>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+
+#pragma once
+
+#include <l4/re/protocols.h>
+#include <l4/sys/cxx/ipc_iface>
+#include <l4/sys/cxx/ipc_types>
+#include <l4/sys/cxx/types>
+#include <l4/sys/l4int.h>
+
+namespace L4Re
+{
+
+struct L4_EXPORT Remote_access
+: public L4::Kobject_t<Remote_access, L4::Kobject, L4RE_PROTO_REMOTE_ACCESS>
+{
+  enum Access_width
+  {
+    Wd_8bit  = 0, ///< Value is a byte.
+    Wd_16bit = 1, ///< Value is a 2-byte word.
+    Wd_32bit = 2, ///< Value is a 4-byte word.
+    Wd_64bit = 3  ///< Value is a 8-byte word.
+  };
+
+  L4_INLINE_RPC(long, read_mem,  (l4_addr_t addr, char width, l4_uint64_t *value));
+  L4_INLINE_RPC(long, write_mem, (l4_addr_t addr, char width, l4_uint64_t value));
+
+  //L4_INLINE_RPC(long, get_regs, (unsigned TBD_THREAD_ID, l4_exc_regs_t *regs));
+  //L4_INLINE_RPC(long, set_regs, (unsigned TBD_THREAD_ID, l4_exc_regs_t regs));
+
+  // !!! sizeof(l4_fpu_regs_t) > sizeof(utcb)
+  //L4_INLINE_RPC(long, get_fpu_regs, (l4_fpu_regs_t *regs));
+  //L4_INLINE_RPC(long, set_fpu_regs, (l4_fpu_regs_t regs));
+
+  L4_INLINE_RPC(long, terminate, (int exit_code), L4::Ipc::Send_only);
+
+  typedef L4::Typeid::Rpcs<read_mem_t, write_mem_t, terminate_t> Rpcs;
+};
+
+}

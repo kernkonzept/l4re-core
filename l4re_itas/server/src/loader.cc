@@ -14,6 +14,7 @@
 #include "switch_stack.h"
 #include "dispatcher.h"
 #include "signals.h"
+#include "remote_access.h"
 
 #include <l4/bid_config.h>
 #include <l4/cxx/iostream>
@@ -370,6 +371,9 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
   L4Re::chkcap(dispatcher.register_obj(&sigmgr),
                "l4re_itas: could not register Signal_manager");
   env->itas(sigmgr.obj_cap());
+
+  L4Re::chkcap(dispatcher.register_obj(&ra_if),
+               "l4re_itas: could not register Remote_access mechanism");
 
   chksys(env->factory()->create(app_thread), "l4re_itas: Create app thread.");
 
