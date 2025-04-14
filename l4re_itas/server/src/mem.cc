@@ -25,10 +25,12 @@ extern char __executable_start[];
 static char *morecore_pos;
 static char *morecore_end;
 
-static void *mc_err_msg(long bytes, char const *msg)
+static void *mc_err_msg(long bytes, char const *msg, long err = 0)
 {
-  L4::cout << "l4re_itas: ERROR: more-mem(" << L4::hex << bytes << "): "
-           << msg << ".\n";
+  L4::cout << "l4re_itas: ERROR: more-mem(" << L4::hex << bytes << "): " << msg;
+  if (err)
+    L4::cout << ": " << l4sys_errtostr(err) << " (" << L4::dec << err << ")";
+  L4::cout << ".\n";
   errno = ENOMEM;
   return reinterpret_cast<void *>(-1UL);
 }
@@ -46,8 +48,9 @@ void *uclibc_morecore(long bytes)
       heap = Global::cap_alloc->alloc<L4Re::Dataspace>();
       if (!heap)
         return mc_err_msg(bytes, "Failed to allocate cap");
-      if (Global::allocator->alloc(Heap_max, heap) < 0)
-        return mc_err_msg(bytes, "Failed to allocate memory");
+      long err = Global::allocator->alloc(Heap_max, heap);
+      if (err < 0)
+        return mc_err_msg(bytes, "Failed to allocate memory", err);
 
       L4Re::Rm::Flags rm_flags(L4Re::Rm::F::RW);
 #if defined(CONFIG_MMU)
@@ -56,11 +59,12 @@ void *uclibc_morecore(long bytes)
       char *hp = 0;
       rm_flags |= L4Re::Rm::F::Search_addr;
 #endif
-      if (L4Re::Env::env()->rm()->attach(&hp, Heap_max, rm_flags,
-                                         L4::Ipc::make_cap_rw(heap), 0) < 0)
+      err = L4Re::Env::env()->rm()->attach(&hp, Heap_max, rm_flags,
+                                           L4::Ipc::make_cap_rw(heap), 0);
+      if (err < 0)
         {
           Global::cap_alloc->free(heap);
-          return mc_err_msg(bytes, "Failed to attach memory");
+          return mc_err_msg(bytes, "Failed to attach memory", err);
         }
 
       morecore_pos = hp;
@@ -78,5 +82,5 @@ void *uclibc_morecore(long bytes)
       return prev_pos;
     }
 
-  return mc_err_msg(bytes, "Cannot provide more memory");
+  return mc_err_msg(bytes, "Cannot provide more memory. Heap_max exhausted");
 }
