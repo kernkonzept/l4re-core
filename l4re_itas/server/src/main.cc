@@ -69,14 +69,35 @@ static void insert_regions()
 {
   using L4Re::Rm;
   using L4Re::Env;
+
+  // Upper limit of a static buffer for storing the returned regions and
+  // areas without doing dynamic memory allocation
+  enum
+  {
+    Max_num_regions = L4_UTCB_GENERIC_DATA_SIZE * sizeof(l4_umword_t)
+                      / sizeof(Rm::Region),
+    Max_num_areas   = L4_UTCB_GENERIC_DATA_SIZE * sizeof(l4_umword_t)
+                      / sizeof(Rm::Area),
+  };
+  union
+  {
+    Rm::Region r[Max_num_regions];
+    Rm::Area a[Max_num_areas];
+  } regions_areas;
+
   int n;
   l4_addr_t addr = 0;
   Rm::Region const *rl;
   while ((n = L4Re::Env::env()->rm()->get_regions(addr, &rl)) > 0)
     {
+      assert(sizeof(regions_areas) >= n * sizeof(Rm::Region));
+      assert(n <= Max_num_regions);
+      // Copy out of UTCB
+      memcpy(regions_areas.r, rl, n * sizeof(Rm::Region));
+
       for (int i = 0; i < n; ++i)
         {
-          Rm::Region const *r = &rl[i];
+          Rm::Region const *r = &regions_areas.r[i];
           auto pager = L4::cap_reinterpret_cast<L4Re::Dataspace>
             (Env::env()->rm());
           void *x = Global::local_rm
@@ -98,9 +119,14 @@ static void insert_regions()
   Rm::Area const *al;
   while ((n = L4Re::Env::env()->rm()->get_areas(addr, &al)) > 0)
     {
+      assert(sizeof(regions_areas) >= n * sizeof(Rm::Area));
+      assert(n <= Max_num_areas);
+      // Copy out of UTCB
+      memcpy(regions_areas.a, al, n * sizeof(Rm::Area));
+
       for (int i = 0; i < n; ++i)
         {
-          Rm::Area const *r = &al[i];
+          Rm::Area const *r = &regions_areas.a[i];
           l4_addr_t x
             = Global::local_rm->attach_area(r->start, r->end - r->start + 1);
           if (x == L4_INVALID_ADDR)
