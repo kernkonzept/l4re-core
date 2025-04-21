@@ -1,5 +1,5 @@
 /**
- * \file   l4re/lib/src/log.cc
+ * \file
  * \brief  Log
  */
 /*

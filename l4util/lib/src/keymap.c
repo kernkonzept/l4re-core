@@ -1,5 +1,5 @@
 /*!
- * \file   keymap.c
+ * \file
  * \brief  convert keyboard value to ascii value
  *
  * \date   Dec 2007

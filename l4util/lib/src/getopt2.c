@@ -1,5 +1,5 @@
 /**
- * \file   l4util/lib/src/getopt2.c
+ * \file
  * \brief  initialize argc/argv from multiboot structure
  *
  * \author Frank Mehnert <fm3@os.inf.tu-dresden.de> */

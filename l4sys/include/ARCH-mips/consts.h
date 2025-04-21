@@ -7,7 +7,7 @@
 
 /*****************************************************************************/
 /*!
- * \file    l4sys/include/ARCH-mips/consts.h
+ * \file
  * \brief   Common L4 constants, mips version
  * \ingroup api_types_mips
  */

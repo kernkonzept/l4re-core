@@ -1,5 +1,5 @@
 /**
- * \file   l4util/lib/src/list_alloc.c
+ * \file
  * \brief  Simple list-based allocator. Taken from the Fiasco kernel.
  *
  * \author Alexander Warg <aw11@os.inf.tu-dresden.de>

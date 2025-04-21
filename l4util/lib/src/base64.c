@@ -1,5 +1,5 @@
-/*! 
- * \file l4util/lib/src/base64.c
+/*!
+ * \file
  * \ingroup utils
  *
  * \date    04/26/2002

@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*!
- * \file    l4sys/include/ARCH-ppc32/consts.h
+ * \file
  * \brief   Common L4 constants, ppc32 version
  * \ingroup api_types_ppc32
  */

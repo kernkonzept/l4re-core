@@ -1,5 +1,5 @@
 /**
- * \file	sigma0/lib/src/iomem.c
+ * \file
  * \brief	map any page using sigma0 protocol
  *
  * \date	02/2006

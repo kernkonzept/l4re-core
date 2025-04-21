@@ -1,6 +1,6 @@
 /*****************************************************************************/
 /*!
- * \file    l4sys/include/ARCH-sparc/consts.h
+ * \file
  * \brief   Common L4 constants, sparc version
  * \ingroup api_types_sparc
  */

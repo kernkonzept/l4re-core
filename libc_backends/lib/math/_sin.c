@@ -1,5 +1,5 @@
 /**
- * \file   _sin.c
+ * \file
  * \brief  sin() wrapper
  *
  * \date   2009-10

@@ -1,5 +1,5 @@
 /**
- * \file   l4re/lib/src/env.c
+ * \file
  * \brief  Environment
  */
 /*

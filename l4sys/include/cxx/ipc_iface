@@ -12,7 +12,8 @@
 #include <l4/sys/__typeinfo.h>
 
 /**
- * \file l4/sys/cxx/ipc_iface  Interface Definition Language
+ * \file
+ * Interface Definition Language
  * \sa L4_RPC, L4_INLINE_RPC, L4::Ipc::Call L4::Ipc::Send_only,
  *     L4::Ipc::Msg::Rpc_call, L4::Ipc::Msg::Rpc_inline_call
  *

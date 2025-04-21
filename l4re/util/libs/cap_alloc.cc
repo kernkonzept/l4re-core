@@ -1,6 +1,6 @@
 /*!
- * \file   l4re/util/libs/cap_alloc.cc
- * \brief  Capability allactor
+ * \file
+ * \brief  Capability allocator
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,

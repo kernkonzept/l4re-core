@@ -1,5 +1,5 @@
 /**
- * \file	sigma0/lib/src/mem.c
+ * \file
  * \brief	map memory-mapped I/O memory using sigma0 protocol
  *
  * \date	02/2006

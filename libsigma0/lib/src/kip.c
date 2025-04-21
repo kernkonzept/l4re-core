@@ -1,5 +1,5 @@
 /**
- * \file	sigma0/lib/src/kip.c
+ * \file
  * \brief	map kernel info page using sigma0 protocol
  *
  * \date	02/2006

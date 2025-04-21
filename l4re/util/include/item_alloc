@@ -1,7 +1,7 @@
 // -*- Mode: C++ -*-
 // vim:ft=cpp
 /*!
- * \file   item_alloc
+ * \file
  * \brief  Item allocator
  */
 /*

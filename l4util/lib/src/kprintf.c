@@ -1,5 +1,5 @@
 /*!
- * \file   l4util/lib/src/kprintf.c
+ * \file
  * \brief  simple(!) -- non threaded -- printf using kernel debugger output
  *
  * \date   04/05/2007

@@ -1,6 +1,6 @@
 /**
- * \file   dietlibc/lib/backends/simple_sleep/sleep.c
- * \brief  
+ * \file
+ * \brief  nanosleep implementation.
  *
  * \date   08/10/2004
  * \author Martin Pohlack  <mp26@os.inf.tu-dresden.de>

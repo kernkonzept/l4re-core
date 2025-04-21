@@ -1,5 +1,5 @@
 /*!
- * \file   l4sys/lib/src/utcb.c
+ * \file
  * \brief  utcb for L4Linux programs
  *
  * \date   2008-02-25

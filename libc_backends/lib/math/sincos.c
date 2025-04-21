@@ -1,5 +1,5 @@
 /**
- * \file   sincos.c
+ * \file
  * \brief  Provide a sincos and sincosf implementation, used implicitly by gcc
  *
  * \date   2008-05-27
