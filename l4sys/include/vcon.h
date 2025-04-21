@@ -108,10 +108,11 @@ enum L4_vcon_size_consts
  * \param[out] buf     Pointer to data buffer.
  * \param      size    Size of buffer in bytes.
  *
- * \retval -L4_EPERM  The Vcon instance requires the #L4_CAP_FPAGE_W right on
- *                    the `vcon` capability and this right is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval >size      More bytes to read, `size` bytes are in the buffer `buf`.
  * \retval <=size     Number of bytes read.
+ *
+ * \pre The capability `vcon` must have the permission #L4_CAP_FPAGE_W.
  *
  * \note Size must not exceed #L4_VCON_READ_SIZE.
  */
@@ -147,10 +148,11 @@ l4_vcon_read_u(l4_cap_idx_t vcon, char *buf, unsigned size, l4_utcb_t *utcb) L4_
  *
  * \note Size must not exceed #L4_VCON_READ_SIZE.
  *
- * \retval -L4_EPERM  The Vcon instance requires the #L4_CAP_FPAGE_W right on
- *                    the `vcon` capability and this right is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval >size      More bytes to read, `size` bytes are in the buffer `buf`.
  * \retval <=size     Number of bytes read.
+ *
+ * \pre The capability `vcon` must have the permission #L4_CAP_FPAGE_W.
  */
 L4_INLINE int
 l4_vcon_read_with_flags(l4_cap_idx_t vcon, char *buf, unsigned size) L4_NOTHROW;

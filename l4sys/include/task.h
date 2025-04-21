@@ -48,9 +48,11 @@
  *         if the map operation was successful.
  *
  * \retval L4_EOK      Operation successful (but see notes below).
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on `dst_task`.
+ * \retval -L4_EPERM   Insufficient permissions; see precondition.
  * \retval -L4_EINVAL  Invalid source task capability.
  * \retval -L4_IPC_SEMAPFAILED The map operation failed due to limited quota.
+ *
+ * \pre The capability `dst_task` must have the permission #L4_CAP_FPAGE_W.
  *
  * This method allows for asynchronous transfer of capabilities, memory
  * mappings, and IO-port mappings (on IA32) from one task to another.

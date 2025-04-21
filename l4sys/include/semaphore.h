@@ -67,8 +67,9 @@ l4_semaphore_up_u(l4_cap_idx_t sem, l4_utcb_t *utcb) L4_NOTHROW
  *                 non-blocking.
  *
  * \return Syscall return tag. Use l4_error() to check for errors.
- * \retval -L4_EPERM  No #L4_CAP_FPAGE_S right on invoked semaphore
- *                    capability.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
+ *
+ * \pre The capability `sem` must have the permission #L4_CAP_FPAGE_S.
  *
  * This method decrements the semaphore counter by one, or blocks if the
  * counter is already zero, until either a timeout or cancel condition hits

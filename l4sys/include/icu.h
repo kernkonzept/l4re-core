@@ -205,8 +205,9 @@ typedef struct l4_icu_msi_info_t
  *         using l4_icu_unmask().
  *
  * \retval -L4_EINVAL  `irq` is bound to an interrupt source.
- * \retval -L4_EPERM   The ICU instance requires #L4_CAP_FPAGE_W on `irq` and
- *                     #L4_CAP_FPAGE_W was not present.
+ * \retval -L4_EPERM   Insufficient permissions; see precondition.
+ *
+ * \pre The capability `irq` must have the permission #L4_CAP_FPAGE_W.
  *
  * In case the `irq` is already bound to an interrupt source, it is unbound
  * first. In case the `irq` is bound and the interrupt source is bound to a

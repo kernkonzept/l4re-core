@@ -54,8 +54,9 @@
  * \retval 0           Successfully detached, there was no interrupt pending.
  * \retval 1           Successfully detached, there was an interrupt pending.
  * \retval 2           Successfully detached, an active vIRQ was abandoned.
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
- *                     to invoke this operation.
+ * \retval -L4_EPERM   Insufficient permissions; see precondition.
+ *
+ * \pre The capability `irq` must have the permission #L4_CAP_FPAGE_S.
  */
 L4_INLINE l4_msgtag_t
 l4_irq_detach(l4_cap_idx_t irq) L4_NOTHROW;
@@ -94,13 +95,15 @@ l4_irq_detach_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
  *
  * \return Syscall return tag
  *
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
- *                     to invoke this operation or the capability `thread`.
+ * \retval -L4_EPERM   Insufficient permissions; see precondition.
  * \retval -L4_EBUSY   Cannot bind to new thread because interrupt is active
  *                     on previous thread and guest has to issue
  *                     end-of-interrupt first.
  * \retval -L4_ENOSYS  The kernel does not support direct interrupt
  *                     forwarding.
+ *
+ * \pre The capabilities `irq` and `thread` both must have the permission
+ *      #L4_CAP_FPAGE_S.
  */
 L4_INLINE l4_msgtag_t
 l4_irq_bind_vcpu(l4_cap_idx_t irq, l4_cap_idx_t thread,

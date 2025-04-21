@@ -72,9 +72,10 @@
  * \return Syscall return tag.
  *
  * \retval L4_EOK     No error occurred.
- * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
- *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval <0         Error code.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S.
  *
  * \note The size of the UTCB area specifies indirectly the number
  *       of UTCBs available for this task. Refer to l4_task_add_ku_mem() for
@@ -105,9 +106,10 @@ l4_factory_create_task_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \return Syscall return tag
  *
  * \retval L4_EOK     No error occurred.
- * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
- *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval <0         Error code.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S.
  *
  * \see \ref l4_thread_api
  */
@@ -134,9 +136,10 @@ l4_factory_create_thread_u(l4_cap_idx_t factory,
  * \return Syscall return tag
  *
  * \retval L4_EOK     No error occurred.
- * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
- *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval <0         Error code.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S.
  *
  * \note The limit of the new factory is subtracted from the available amount
  *       of the factory used for creation.
@@ -178,7 +181,11 @@ l4_factory_create_factory_u(l4_cap_idx_t factory, l4_cap_idx_t target_cap,
  * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
  * \retval -L4_EINVAL  `thread_cap` is void or points to something that is not
  *                     a thread.
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on `factory` or `thread_cap`.
+ * \retval -L4_EPERM   Insufficient permissions; see precondition.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S. Also
+ *      `thread_cap` (if not #L4_INVALID_CAP) must have the permission
+ *      #L4_CAP_FPAGE_S.
  *
  * An unbound IPC gate can be bound to a thread using l4_rcv_ep_bind_thread().
  *
@@ -208,9 +215,10 @@ l4_factory_create_gate_u(l4_cap_idx_t factory,
  *                         slot.
  *
  * \retval L4_EOK     No error occurred.
- * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
- *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval <0         Error code.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S.
  *
  * \see \ref l4_irq_api
  */
@@ -237,9 +245,10 @@ l4_factory_create_irq_u(l4_cap_idx_t factory,
  * \return Syscall return tag
  *
  * \retval L4_EOK     No error occurred.
- * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
- *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval <0         Error code.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S.
  *
  * \see \ref l4_vm_api
  */
@@ -259,9 +268,10 @@ l4_factory_create_vm(l4_cap_idx_t factory,
  * \return Syscall return tag
  *
  * \retval L4_EOK     No error occurred.
- * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
- *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval <0         Error code.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S.
  *
  * \see \ref l4_vm_api
  */
@@ -370,9 +380,10 @@ l4_factory_create_u(l4_cap_idx_t factory, long obj, l4_cap_idx_t target,
  *                         this slot.
  *
  * \retval L4_EOK     No error occurred.
- * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
- *                    `factory` and #L4_CAP_FPAGE_S is not present.
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
  * \retval <0         Error code.
+ *
+ * \pre The capability `factory` must have the permission #L4_CAP_FPAGE_S.
  */
 L4_INLINE l4_msgtag_t
 l4_factory_create(l4_cap_idx_t factory, long obj,

@@ -315,9 +315,12 @@ l4_thread_control_alien_u(l4_utcb_t *utcb, int on) L4_NOTHROW;
  * \return Syscall return tag containing one of the following return codes.
  *
  * \retval L4_EOK      Operation successful.
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on `thread` or the task
- *                     capability set in l4_thread_control_bind().
+ * \retval -L4_EPERM   Insufficient permissions; see precondition.
  * \retval -L4_EINVAL  Malformed thread control parameters.
+ *
+ * \pre The capability `thread` must have the permission #L4_CAP_FPAGE_S. When
+ *      using #l4_thread_control_bind(), also the respective task capability
+ *      must have the permission #L4_CAP_FPAGE_S.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_control_commit(l4_cap_idx_t thread) L4_NOTHROW;
@@ -547,7 +550,9 @@ l4_thread_vcpu_control_ext_u(l4_cap_idx_t thread, l4_addr_t ext_vcpu_state,
  *
  * \return System call return tag containing the return code.
  *
- * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
+ *
+ * \pre The capability `irq` must have the permission #L4_CAP_FPAGE_W.
  *
  * In case the `irq` is already bound to an interrupt source, it is unbound
  * first. When `irq` is deleted, it will be deregistered first. A registered
@@ -678,7 +683,9 @@ l4_thread_modify_sender_commit_u(l4_cap_idx_t thread, l4_msgtag_t tag,
  *
  * \return System call return tag containing the return code.
  *
- * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+ * \retval -L4_EPERM  Insufficient permissions; see precondition.
+ *
+ * \pre The capability `irq` must have the permission #L4_CAP_FPAGE_W.
  *
  * See l4_irq_bind_vcpu() for more details about how interrupts can be
  * forwarded directly by the kernel to extended vCPU user mode.

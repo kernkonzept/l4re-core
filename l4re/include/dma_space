@@ -143,14 +143,14 @@ public:
    *                         device.
    *
    * \retval L4_EOK      Operation successful.
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on `src` capability.
-   * \retval -L4_EINVAL  The `src` capability is invalid or does not refer to a
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
+   * \retval -L4_EINVAL  The capability `src` is invalid or does not refer to a
    *                     valid dataspace.
    * \retval -L4_EEXIST  The specified region overlaps an existing mapping.
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    * \retval -L4_ERANGE  `offset` is larger than the size of the dataspace.
    *
-   * \caprights{R}
+   * \pre The capability `src` must have the permission #L4_CAP_FPAGE_W.
    *
    * \note associate() must be called prior to mapping memory. Usually this is
    * done implicitely when binding the managed Dma_space to a DMA domain
@@ -172,8 +172,6 @@ public:
    * \param dir       The direction of the finished DMA operation.
    *
    * \return 0 in the case of success, a negative error code otherwise.
-   *
-   * \caprights{R}
    */
   L4_INLINE_RPC(
       long, unmap, (Dma_addr dma_addr,
@@ -194,11 +192,12 @@ public:
    *                       L4Re::Dma_space::Space_attrib.
    *
    * \retval L4_EOK      Operation successful.
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on the Dma_space capability.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
    * \retval -L4_EINVAL
    * \retval -L4_ENOENT
    *
-   * \caprights{RW}
+   * \pre The invoked Dma_space capability must have the permission
+   *      #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
       long, associate, (L4::Ipc::Opt<L4::Ipc::Cap<L4::Task> > dma_task,
@@ -210,10 +209,11 @@ public:
    * Dma_space.
    *
    * \retval L4_EOK      Operation successful.
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_W right on the Dma_space capability.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
    * \retval -L4_ENOENT
    *
-   * \caprights{RW}
+   * \pre The invoked Dma_space capability must have the permission
+   *      #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
       long, disassociate, (),

@@ -227,10 +227,12 @@ public:
    * \return Syscall return tag containing one of the following return codes.
    *
    * \retval L4_EOK      Operation successful.
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on the capability used to
-   *                     invoke this operation or the task capability set in
-   *                     Attr::bind().
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
    * \retval -L4_EINVAL  Malformed thread-attributes.
+   *
+   * \pre The invoked Thread capability must have the permission
+   *      #L4_CAP_FPAGE_S. When using #Attr::bind(), also the respective Task
+   *      capability must have the permission #L4_CAP_FPAGE_S.
    */
   l4_msgtag_t control(Attr const &attr) noexcept
   { return l4_thread_control_commit_u(cap(), attr._u); }
@@ -400,7 +402,9 @@ public:
    * \return System call return tag containing the return code.
    *
    * \retval -L4_BUSY   A deletion IRQ is already bound to this thread.
-   * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+   * \retval -L4_EPERM  Insufficient permissions; see precondition.
+   *
+   * \pre The capability `irq` must have the permission #L4_CAP_FPAGE_W.
    *
    * In case the `irq` is already bound to an interrupt source, it is unbound
    * first. When `irq` is deleted, it will be deregistered first. A registered
@@ -516,7 +520,9 @@ public:
    * \return System call return tag containing the return code.
    *
    * \retval -L4_BUSY   A doorbell IRQ is already bound to this thread.
-   * \retval -L4_EPERM  #L4_CAP_FPAGE_W missing on `irq`
+   * \retval -L4_EPERM  Insufficient permissions; see precondition.
+   *
+   * \pre The capability `irq` must have the permission #L4_CAP_FPAGE_W.
    *
    * See Irq::bind_vcpu() for more details about how interrupts can be
    * forwarded directly by the kernel to extended vCPU user mode.

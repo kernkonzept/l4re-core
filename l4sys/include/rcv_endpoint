@@ -43,8 +43,10 @@ public:
    * \retval L4_EOK      Operation successful.
    * \retval -L4_EINVAL  `t` is not a thread object or other arguments were
    *                     malformed.
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on `t` or the capability used
-   *                     to invoke this operation.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
+   *
+   * \pre The invoked capability and the capability `t` both must have the
+   *      permission #L4_CAP_FPAGE_S.
    *
    * \pre If this operation is invoked using an IPC gate capability without the
    *      #L4_FPAGE_C_IPCGATE_SVR right, the kernel will not perform the

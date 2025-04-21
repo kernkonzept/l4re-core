@@ -154,13 +154,13 @@ public:
    *
    * \retval 0           Object was successfully registered with \a name.
    * \retval -L4_EEXIST  Name already registered.
-   * \retval -L4_EPERM   Caller does not have #L4_CAP_FPAGE_W right on the
-   *                     invoked capability.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
    * \retval -L4_ENOMEM  Server has insufficient resources.
    * \retval -L4_EINVAL  Invalid parameter.
    * \retval <0          IPC errors, see #l4_error_code_t.
    *
-   * \caprights{RW}
+   * \pre The invoked Namespace capability must have the permission
+   *      #L4_CAP_FPAGE_W.
    */
   long register_obj(char const *name, L4::Ipc::Cap<void> obj,
                     unsigned flags = Rw) const noexcept
@@ -182,12 +182,12 @@ public:
    *
    * \retval 0            Entry successfully removed.
    * \retval -L4_ENOENT   Given name does not exist.
-   * \retval -L4_EPERM    Caller does not have #L4_CAP_FPAGE_W right on the
-   *                      invoked capability.
+   * \retval -L4_EPERM    Insufficient permissions; see precondition.
    * \retval -L4_EACCESS  Name cannot be removed.
    * \retval <0           IPC errors, see #l4_error_code_t.
    *
-   * \caprights{RW}
+   * \pre The invoked Namespace capability must have the permission
+   *      #L4_CAP_FPAGE_W.
    */
   long unlink(char const* name)
   {

@@ -145,13 +145,15 @@ public:
    *
    * \return Syscall return tag
    *
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
-   *                     to invoke this operation or the capability `thread`.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
    * \retval -L4_EBUSY   Cannot bind to the new thread because interrupt
    *                     is active on previous thread and guest has to issue
    *                     end-of-interrupt first.
    * \retval -L4_ENOSYS  The kernel does not support direct interrupt
    *                     forwarding.
+   *
+   * \pre The invoked Irq capability and the capability `thread` both must have
+   *      the permission #L4_CAP_FPAGE_S.
    */
   l4_msgtag_t bind_vcpu(L4::Cap<Thread> const &thread, l4_umword_t cfg,
                         l4_utcb_t *utcb = l4_utcb()) noexcept
@@ -167,8 +169,9 @@ public:
    * \retval 0           Successfully detached, there was no interrupt pending.
    * \retval 1           Successfully detached, there was an interrupt pending.
    * \retval 2           Successfully detached, an active vIRQ was abandoned.
-   * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
-   *                     to invoke this operation.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
+   *
+   * \pre The invoked Irq capability must have the permission #L4_CAP_FPAGE_S.
    */
   l4_msgtag_t detach(l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_irq_detach_u(cap(), utcb); }
@@ -292,8 +295,9 @@ public:
    *         ICU using L4::Icu::unmask.
    *
    * \retval -L4_EINVAL  `irq` is bound to an interrupt source.
-   * \retval -L4_EPERM   The ICU instance requires #L4_CAP_FPAGE_W on `irq` and
-   *                     #L4_CAP_FPAGE_W was not present.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
+   *
+   * \pre The capability `irq` must have the permission #L4_CAP_FPAGE_W.
    *
    * In case the `irq` is already bound to an interrupt source, it is unbound
    * first. In case the `irq` is bound and the interrupt source is bound to a

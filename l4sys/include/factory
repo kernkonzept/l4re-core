@@ -139,10 +139,11 @@ public:
      * \return The result of the create() operation.
      *
      * \retval L4_EOK     No error occurred.
-     * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights
-     *                    on the invoked capability and #L4_CAP_FPAGE_S is not
-     *                    present.
+     * \retval -L4_EPERM  Insufficient permissions; see precondition.
      * \retval <0         Error code.
+     *
+     * \pre The invoked Factory capability must have the permission
+     *      #L4_CAP_FPAGE_S.
      */
     operator l4_msgtag_t () noexcept
     {
@@ -323,10 +324,11 @@ public:
    * \return Syscall return tag
    *
    * \retval L4_EOK     No error occurred.
-   * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
-   *                    the invoked capability and #L4_CAP_FPAGE_S is not
-   *                    present.
+   * \retval -L4_EPERM  Insufficient permissions; see precondition.
    * \retval <0         Error code.
+   *
+   * \pre The invoked Factory capability must have the permission
+   *      #L4_CAP_FPAGE_S.
    *
    * \note The size of the UTCB area specifies indirectly the number
    *       of UTCBs available for this task. Refer to L4::Task::add_ku_mem for
@@ -350,10 +352,11 @@ public:
    * \return Syscall return tag
    *
    * \retval L4_EOK     No error occurred.
-   * \retval -L4_EPERM  The factory instance requires #L4_CAP_FPAGE_S rights on
-   *                    the invoked capability and #L4_CAP_FPAGE_S is not
-   *                    present.
+   * \retval -L4_EPERM  Insufficient permissions; see precondition.
    * \retval <0         Error code.
+   *
+   * \pre The invoked Factory capability must have the permission
+   *      #L4_CAP_FPAGE_S.
    *
    * \note In addition to memory needed for internal data structures, the
    *       `limit` (quota) of the new factory is counted towards the quota of
@@ -391,9 +394,11 @@ public:
    * \retval -L4_ENOMEM  Out-of-memory during allocation of the Ipc_gate object.
    * \retval -L4_EINVAL  `thread_cap` is void or points to something that is not
    *                     a thread.
-   * \retval -L4_EPERM   The factory instance requires #L4_CAP_FPAGE_S rights on
-   *                     the invoked capability or `thread_cap` and
-   *                     #L4_CAP_FPAGE_S is not present.
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
+   *
+   * \pre The invoked Factory capability must have the permission
+   *      #L4_CAP_FPAGE_S. Also `thread_cap` (if [valid](#L4::Cap::is_valid()))
+   *      must have the permission #L4_CAP_FPAGE_S.
    *
    * An unbound IPC gate can be bound to a thread using
    * L4::Ipc_gate::bind_thread().

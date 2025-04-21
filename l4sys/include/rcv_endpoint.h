@@ -26,7 +26,10 @@
  * \retval L4_EOK      Operation successful.
  * \retval -L4_EINVAL  `thread` is not a thread object or other arguments were
  *                     malformed.
- * \retval -L4_EPERM   No #L4_CAP_FPAGE_S right on `ep` or `thread`.
+ * \retval -L4_EPERM   Insufficient permissions; see precondition.
+ *
+ * \pre The capabilities `ep` and `thread` both must have the permission
+ *      #L4_CAP_FPAGE_S.
  *
  * \pre If `ep` is an IPC gate capability without the #L4_FPAGE_C_IPCGATE_SVR
  *      right, the kernel will not perform this operation. Instead, the
