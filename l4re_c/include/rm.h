@@ -90,15 +90,56 @@ l4re_rm_free_area(l4_addr_t addr) L4_NOTHROW;
 /**
  * \ingroup api_l4re_c_rm
  * \copybrief L4Re::Rm::attach
- * \copydetails L4Re::Rm::attach
+ *
+ * \param[in,out]  start  Virtual start address where the region manager
+ *                        shall attach the data space. Will be rounded down to
+ *                        the nearest start of a page.
+ *                        If #L4Re::Rm::F::Search_addr is given this value is
+ *                        used as the start address to search for a free
+ *                        virtual memory region and the resulting address is
+ *                        returned here.
+ *                        If #L4Re::Rm::F::In_area is given the value is used
+ *                        as a selector for the area (see
+ *                        #L4Re::Rm::reserve_area) to attach the data space
+ *                        to.
+ * \param          size   Size of the data space to attach (in bytes). Will be
+ *                        rounded up to the nearest multiple of the page size.
+ * \param          flags  The flags control how and with which rights the
+ *                        dataspace is attached to the region. See
+ *                        #L4Re::Rm::F::Attach_flags and
+ *                        #L4Re::Rm::F::Region_flags. The caller must specify
+ *                        the desired rights of the attached region
+ *                        explicitly. The default set of rights is empty. If
+ *                        the `F::Eager_map` flag is set this function may
+ *                        also return L4Re::Dataspace::map error codes if the
+ *                        mapping fails.
+ * \param          mem    Data space.
+ * \param          offs   Offset into the data space to use.
+ * \param          align  Alignment of the virtual region, log2-size, default:
+ *                        a page (#L4_PAGESHIFT). This is only meaningful if
+ *                        the #L4Re::Rm::F::Search_addr flag is used.
+ *
+ * \retval 0                  Success
+ * \retval -L4_ENOENT         No area could be found (see
+ *                            #L4Re::Rm::F::In_area)
+ * \retval -L4_EPERM          Operation not allowed.
+ * \retval -L4_EINVAL
+ * \retval -L4_EADDRNOTAVAIL  The given address is not available.
+ * \retval <0                 IPC errors
+ *
+ * Makes the whole or parts of a data space visible in the virtual memory
+ * of the corresponding task. The corresponding region in the virtual
+ * address space is backed with the contents of the dataspace.
+ *
+ * \note When searching for a free place in the virtual address space,
+ * the space between \a start and the end of the virtual address space is
  * \see L4Re::Rm::attach
  *
  * This function is using the L4::Env::env()->rm() service.
  */
 L4_CV L4_INLINE int
 l4re_rm_attach(void **start, unsigned long size, l4re_rm_flags_t flags,
-               l4re_ds_t mem,
-               l4re_rm_offset_t offs,
+               l4re_ds_t mem, l4re_rm_offset_t offs,
                unsigned char align) L4_NOTHROW;
 
 
