@@ -146,7 +146,7 @@ public:
    * \return Syscall return tag
    *
    * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
-   *                     to invoke this operation.
+   *                     to invoke this operation or the capability `thread`.
    * \retval -L4_EBUSY   Cannot bind to the new thread because interrupt
    *                     is active on previous thread and guest has to issue
    *                     end-of-interrupt first.

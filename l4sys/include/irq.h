@@ -95,7 +95,7 @@ l4_irq_detach_u(l4_cap_idx_t irq, l4_utcb_t *utcb) L4_NOTHROW;
  * \return Syscall return tag
  *
  * \retval -L4_EPERM   No #L4_CAP_FPAGE_S rights on the capability used
- *                     to invoke this operation.
+ *                     to invoke this operation or the capability `thread`.
  * \retval -L4_EBUSY   Cannot bind to new thread because interrupt is active
  *                     on previous thread and guest has to issue
  *                     end-of-interrupt first.
