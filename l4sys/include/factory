@@ -90,7 +90,7 @@ public:
     S &operator = (S const &) & = delete;
 
     /**
-     * Move ...
+     * Move constructor.
      *
      * \param o  Instance of S to move.
      */
@@ -117,6 +117,9 @@ public:
      *                     caller must allocate the capability slot. The kernel
      *                     stores the new object's capability into this slot.
      * \utcb{utcb}
+     *
+     * \pre The capability `f` must have the permission #L4_CAP_FPAGE_S,
+     *      otherwise the later factory IPC will fail with #L4_EPERM.
      */
     S(l4_cap_idx_t f, long obj, L4::Cap<void> target,
       l4_utcb_t *utcb) noexcept
@@ -124,8 +127,13 @@ public:
     {}
 
     /**
-     * Commit the operation in the destructor to have a cool syntax for
-     * create().
+     * Commit the create() operation if not already done explicitly via
+     * #operator l4_msgtag_t().
+     *
+     * \warning If the commit is deferred until destruction, potential errors
+     *          are silently ignored. It is therefore recommended to commit
+     *          explicitly via #operator l4_msgtag_t() and check the return
+     *          value.
      */
     ~S() noexcept
     {
@@ -216,6 +224,14 @@ public:
       l4_factory_create_add_fpage_u(d, &t, u);
     }
 
+    /**
+     * Add next argument.
+     *
+     * \tparam T  The argument type. Compilation succeeds only if it is a
+     *            possible argument type for `%S::put()`.
+     *
+     * \param d  The value to add as next argument.
+     */
     template<typename T>
     S &operator << (T const &d) & noexcept
     {
@@ -223,6 +239,14 @@ public:
       return *this;
     }
 
+    /**
+     * Add next argument.
+     *
+     * \tparam T  The argument type. Compilation succeeds only if it is a
+     *            possible argument type for `%S::put()`.
+     *
+     * \param d  The value to add as next argument.
+     */
     template<typename T>
     S &&operator << (T const &d) && noexcept
     {
@@ -245,18 +269,21 @@ public:
    * \utcb_def{utcb}
    *
    * \return A create stream that allows additional arguments to be passed to
-   *         the create() call via the left-shift (<<) operator.
+   *         the `%create()` call via the left-shift (<<) operator (see
+   *         #S::operator <<).
    *
    * This method does not directly invoke the factory. The factory is invoked
    * when the create stream returned by this method is converted to an
-   * `l4_msgtag_t`, or otherwise when the stream goes out of scope.
+   * #l4_msgtag_t (see S::operator l4_msgtag_t()), or otherwise when the stream
+   * goes out of scope (not recommended; see #S::~S()).
    *
-   * \note Refer to `S::operator l4_msgtag_t ()` for description of error codes
-   *       in the returned create stream.
+   * \pre The invoked Factory capability must have the permission
+   *      #L4_CAP_FPAGE_S, otherwise the later factory IPC will fail with
+   *      #L4_EPERM (see S::operator l4_msgtag_t()).
    *
    * \note The create stream uses the UTCB to store parameters for the service
    *       call. During the lifetime of a create stream or, until it is
-   *       converted to a `l4_msgtag_t`, other UTCB-using operations must not
+   *       converted to an #l4_msgtag_t, other UTCB-using operations must not
    *       be used.
    *
    * \see create(Cap<OBJ>, l4_utcb_t *)
@@ -274,18 +301,21 @@ public:
    * \utcb_def{utcb}
    *
    * \return A create stream that allows additional arguments to be passed to
-   *         the create() call via the left-shift (<<) operator.
+   *         the `%create()` call via the left-shift (<<) operator (see
+   *         #S::operator <<).
    *
    * This method does not directly invoke the factory. The factory is invoked
    * when the create stream returned by this method is converted to an
-   * `l4_msgtag_t`, or otherwise when the stream goes out of scope.
+   * #l4_msgtag_t (see S::operator l4_msgtag_t()), or otherwise when the stream
+   * goes out of scope (not rcommended; see #S::~S()).
    *
-   * \note Refer to `S::operator l4_msgtag_t ()` for description of error codes
-   *       in the returned create stream.
+   * \pre The invoked Factory capability must have the permission
+   *      #L4_CAP_FPAGE_S, otherwise the later factory IPC will fail with
+   *      #L4_EPERM (see S::operator l4_msgtag_t()).
    *
    * \note The create stream uses the UTCB to store parameters for the service
    *       call. During the lifetime of a create stream or, until it is
-   *       converted to a `l4_msgtag_t`, other UTCB-using operations must not
+   *       converted to an #l4_msgtag_t, other UTCB-using operations must not
    *       be used.
    *
    * Usage:
