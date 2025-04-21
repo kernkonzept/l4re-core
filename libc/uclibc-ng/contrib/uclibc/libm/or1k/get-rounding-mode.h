@@ -1,5 +1,6 @@
-/* Install given floating-point environment.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Determine floating-point rounding mode within libc.  OpenRISC version.
+
+   Copyright (C) 2024-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -15,18 +16,21 @@
    License along with the GNU C Library; if not, see
    <https://www.gnu.org/licenses/>.  */
 
+#ifndef _OR1K_GET_ROUNDING_MODE_H
+#define _OR1K_GET_ROUNDING_MODE_H	1
+
 #include <fenv.h>
 #include <fpu_control.h>
 
-int
-fesetenv (const fenv_t *envp)
+/* Return the floating-point rounding mode.  */
+
+static inline int
+get_rounding_mode (void)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
-  else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
-  return 0;
+  fpu_control_t cw;
+
+  _FPU_GETCW (cw);
+  return cw & _FPU_FPCSR_RM_MASK;
 }
+
+#endif /* get-rounding-mode.h */

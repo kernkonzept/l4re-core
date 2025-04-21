@@ -1,4 +1,4 @@
-/* Install given floating-point environment.
+/* Set floating-point environment exception handling.
    Copyright (C) 1997-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,17 +16,23 @@
    <https://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
+#include <math.h>
 #include <fpu_control.h>
 
 int
-fesetenv (const fenv_t *envp)
+fesetexceptflag (const fexcept_t *flagp, int excepts)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
-  else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
+  fpu_control_t temp;
+
+  /* Get the current environment.  */
+  _FPU_GETCW (temp);
+
+  /* Set the desired exception mask.  */
+  temp &= ~(excepts & FE_ALL_EXCEPT);
+  temp |= (*flagp & excepts & FE_ALL_EXCEPT);
+
+  /* Save state back to the FPU.  */
+  _FPU_SETCW (temp);
+
   return 0;
 }

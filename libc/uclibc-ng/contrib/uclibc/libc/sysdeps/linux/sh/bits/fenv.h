@@ -1,5 +1,4 @@
-/* Copyright (C) 1999, 2000 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+/* Copyright (C) 1999-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,7 +12,7 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
+   <https://www.gnu.org/licenses/>.  */
 
 #ifndef _FENV_H
 # error "Never use <bits/fenv.h> directly; include <fenv.h> instead."
@@ -24,34 +23,39 @@
    of the appropriate bits in the FPU control word.  */
 enum
   {
-    FE_INEXACT = 0x04,
-#define FE_INEXACT	FE_INEXACT
-    FE_UNDERFLOW = 0x08,
-#define FE_UNDERFLOW	FE_UNDERFLOW
-    FE_OVERFLOW = 0x10,
-#define FE_OVERFLOW	FE_OVERFLOW
-    FE_DIVBYZERO = 0x20,
-#define FE_DIVBYZERO	FE_DIVBYZERO
-    FE_INVALID = 0x40,
-#define FE_INVALID	FE_INVALID
+    FE_INEXACT =
+#define FE_INEXACT	0x04
+      FE_INEXACT,
+    FE_UNDERFLOW =
+#define FE_UNDERFLOW	0x08
+      FE_UNDERFLOW,
+    FE_OVERFLOW =
+#define FE_OVERFLOW	0x10
+      FE_OVERFLOW,
+    FE_DIVBYZERO =
+#define FE_DIVBYZERO	0x20
+      FE_DIVBYZERO,
+    FE_INVALID =
+#define FE_INVALID	0x40
+      FE_INVALID,
   };
 
 #define FE_ALL_EXCEPT \
 	(FE_INEXACT | FE_DIVBYZERO | FE_UNDERFLOW | FE_OVERFLOW | FE_INVALID)
 
-/* The SH FPU supports all of the four defined rounding modes.  We
-   use again the bit positions in the FPU control word as the values
-   for the appropriate macros.  */
+/* The SH FPU supports two of the four defined rounding modes: round to nearest
+   and round to zero.  We use again the bit positions in the FPU control word
+   as the values for the appropriate macros.  */
 enum
   {
-    FE_TONEAREST = 0x0,
-#define FE_TONEAREST	FE_TONEAREST
-    FE_TOWARDZERO = 0x1,
-#define FE_TOWARDZERO	FE_TOWARDZERO
-    FE_UPWARD = 0x2,
-#define FE_UPWARD	FE_UPWARD
-    FE_DOWNWARD = 0x3
-#define FE_DOWNWARD	FE_DOWNWARD
+    __FE_UNDEFINED = -1,
+
+    FE_TONEAREST =
+#define FE_TONEAREST	0x0
+      FE_TONEAREST,
+    FE_TOWARDZERO =
+#define FE_TOWARDZERO	0x1
+      FE_TOWARDZERO,
   };
 
 
@@ -68,4 +72,10 @@ typedef struct
 fenv_t;
 
 /* If the default argument is used we use this value.  */
-#define FE_DFL_ENV	((fenv_t *) -1)
+#define FE_DFL_ENV	((const fenv_t *) -1)
+
+/* Type representing floating-point control modes.  */
+typedef unsigned int femode_t;
+
+/* Default floating-point control modes.  */
+# define FE_DFL_MODE	((const femode_t *) -1L)

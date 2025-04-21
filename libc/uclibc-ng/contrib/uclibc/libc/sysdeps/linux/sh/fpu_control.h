@@ -1,6 +1,5 @@
 /* FPU control word definitions.  SH version.
-   Copyright (C) 1999, 2000, 2009 Free Software Foundation, Inc.
-   This file is part of the GNU C Library.
+   Copyright (C) 1999-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -14,14 +13,23 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
-   <http://www.gnu.org/licenses/>.  */
+   <https://www.gnu.org/licenses/>.  */
 
 #ifndef _FPU_CONTROL_H
 #define _FPU_CONTROL_H
 
-#ifndef __SH4__
-#error This file is only correct for sh4
-#endif
+#if !defined(__SH_FPU_ANY__)
+
+#define _FPU_RESERVED 0xffffffff
+#define _FPU_DEFAULT  0x00000000
+typedef unsigned int fpu_control_t;
+#define _FPU_GETCW(cw) (cw) = 0
+#define _FPU_SETCW(cw) (void) (cw)
+extern fpu_control_t __fpu_control;
+
+#else
+
+#include <features.h>
 
 /* masking of interrupts */
 #define _FPU_MASK_VM	0x0800	/* Invalid operation */
@@ -48,16 +56,20 @@ typedef unsigned int fpu_control_t;
 #define _FPU_GETCW(cw) __asm__ ("sts fpscr,%0" : "=r" (cw))
 
 #if defined __GNUC__
-/* GCC provides this function */
+__BEGIN_DECLS
+
+/* GCC provides this function.  */
 extern void __set_fpscr (unsigned long);
 #define _FPU_SETCW(cw) __set_fpscr ((cw))
 #else
 #define _FPU_SETCW(cw) __asm__ ("lds %0,fpscr" : : "r" (cw))
 #endif
 
-#if 0
 /* Default control word set at startup.	 */
 extern fpu_control_t __fpu_control;
-#endif
+
+__END_DECLS
+
+#endif /* __SH_FPU_ANY__ */
 
 #endif /* _FPU_CONTROL_H */

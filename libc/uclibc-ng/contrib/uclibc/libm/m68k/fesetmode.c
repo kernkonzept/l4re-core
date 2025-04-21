@@ -1,5 +1,5 @@
-/* Install given floating-point environment.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Install given floating-point control modes.  M68K version.
+   Copyright (C) 2016-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,13 @@
 #include <fpu_control.h>
 
 int
-fesetenv (const fenv_t *envp)
+fesetmode (const femode_t *modep)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
+  femode_t mode;
+  if (modep == FE_DFL_MODE)
+    mode = _FPU_DEFAULT;
   else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
+    mode = *modep;
+  _FPU_SETCW (mode);
   return 0;
 }

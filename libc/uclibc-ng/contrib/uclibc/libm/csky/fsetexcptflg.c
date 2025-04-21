@@ -1,5 +1,5 @@
-/* Store current floating-point environment and clear exceptions.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Set floating-point environment exception handling.
+   Copyright (C) 2018-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -12,28 +12,30 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
 #include <fpu_control.h>
+#include "fenv_libc.h"
 
 int
-feholdexcept (fenv_t *envp)
+fesetexceptflag (const fexcept_t *flagp, int excepts)
 {
   fpu_control_t temp;
 
-  /* Store the environment.  */
-  _FPU_GETCW (temp);
-  envp->__fpscr = temp;
+  /* Get the current exceptions.  */
+   _FPU_GETFPSR (temp);
 
-  /* Clear the status flags.  */
-  temp &= ~FE_ALL_EXCEPT;
+  /* Make sure the flags we want restored are legal.  */
+  excepts &= FE_ALL_EXCEPT;
 
-  /* Now set all exceptions to non-stop.  */
-  temp &= ~(FE_ALL_EXCEPT << 5);
+  /* Now clear the bits called for, and copy them in from flagp.  Note that
+     we ignore all non-flag bits from *flagp, so they don't matter.  */
+  temp = ((temp >> CAUSE_SHIFT) & ~excepts) | (*flagp & excepts);
+  temp = temp << CAUSE_SHIFT;
 
-  _FPU_SETCW (temp);
+  _FPU_SETFPSR (temp);
 
   /* Success.  */
   return 0;

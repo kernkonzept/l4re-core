@@ -1,5 +1,5 @@
-/* Install given floating-point environment.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Return current rounding direction.
+   Copyright (C) 1998-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,12 @@
 #include <fpu_control.h>
 
 int
-fesetenv (const fenv_t *envp)
+fegetround (void)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
-  else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
-  return 0;
+  fpu_control_t cw;
+
+  /* Get control word.  */
+  _FPU_GETCW (cw);
+
+  return cw & 0x1;
 }

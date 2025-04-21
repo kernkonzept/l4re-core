@@ -1,5 +1,5 @@
-/* Install given floating-point environment.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Clear given exceptions in current floating-point environment.
+   Copyright (C) 2018-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -12,21 +12,29 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
+#include "fenv_libc.h"
 #include <fpu_control.h>
 
 int
-fesetenv (const fenv_t *envp)
+feclearexcept (int excepts)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
-  else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
+  int fpsr;
+
+  /* Mask out unsupported bits/exceptions.  */
+  excepts &= FE_ALL_EXCEPT;
+
+  /* Read the complete control word.  */
+  _FPU_GETFPSR (fpsr);
+
+  /* Clear the relevant bits.  */
+  fpsr &= ~(excepts | (excepts << CAUSE_SHIFT));
+
+  /* Put the new data in effect.  */
+  _FPU_SETFPSR (fpsr);
+
   return 0;
 }

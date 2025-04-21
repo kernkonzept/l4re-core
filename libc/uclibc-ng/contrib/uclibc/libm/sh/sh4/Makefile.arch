@@ -8,7 +8,7 @@
 
 ifeq ($(UCLIBC_HAS_FENV),y)
 libm_ARCH_CSRC:=$(wildcard $(libm_SUBARCH_DIR)/*.c)
-libm_ARCH_COBJ:=$(patsubst $(libm_SUBARCH_DIR)/%.c,$(libm_SUBARCH_OUT)/%.o,$(libm_ARCH_SRC))
+libm_ARCH_COBJ:=$(patsubst $(libm_SUBARCH_DIR)/%.c,$(libm_SUBARCH_OUT)/%.o,$(libm_ARCH_CSRC))
 libm_ARCH_SSRC:=$(wildcard $(libm_SUBARCH_DIR)/*.S)
 libm_ARCH_SOBJ:=$(patsubst $(libm_SUBARCH_DIR)/%.S,$(libm_SUBARCH_OUT)/%.o,$(libm_ARCH_SSRC))
 endif

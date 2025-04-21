@@ -1,5 +1,5 @@
-/* Install given floating-point environment.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Enable floating-point exceptions.
+   Copyright (C) 2012-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,18 @@
 #include <fpu_control.h>
 
 int
-fesetenv (const fenv_t *envp)
+feenableexcept (int excepts)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
-  else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
-  return 0;
+  fpu_control_t temp, old_flag;
+
+  /* Get current exceptions.  */
+  _FPU_GETCW (temp);
+
+  old_flag = (temp >> 5) & FE_ALL_EXCEPT;
+  excepts &= FE_ALL_EXCEPT;
+
+  temp |= excepts << 5;
+  _FPU_SETCW (temp);
+
+  return old_flag;
 }

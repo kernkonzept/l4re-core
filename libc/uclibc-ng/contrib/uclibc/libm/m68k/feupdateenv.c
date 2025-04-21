@@ -1,4 +1,4 @@
-/* Install given floating-point environment.
+/* Install given floating-point environment and raise exceptions.
    Copyright (C) 1997-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -12,21 +12,28 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
-#include <fpu_control.h>
 
 int
-fesetenv (const fenv_t *envp)
+feupdateenv (const fenv_t *envp)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
-  else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
+  fexcept_t fpsr;
+
+  /* Save current exceptions.  */
+  __asm__ ("fmove%.l %/fpsr,%0" : "=dm" (fpsr));
+  fpsr &= FE_ALL_EXCEPT;
+
+  /* Install new environment.  */
+  fesetenv (envp);
+
+  /* Raise the saved exception.  Incidentally for us the implementation
+     defined format of the values in objects of type fexcept_t is the
+     same as the ones specified using the FE_* constants.  */
+  feraiseexcept ((int) fpsr);
+
+  /* Success.  */
   return 0;
 }

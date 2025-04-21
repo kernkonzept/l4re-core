@@ -12,29 +12,31 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
-#include <fpu_control.h>
 
 int
 feholdexcept (fenv_t *envp)
 {
-  fpu_control_t temp;
+  fexcept_t fpcr, fpsr;
 
   /* Store the environment.  */
-  _FPU_GETCW (temp);
-  envp->__fpscr = temp;
+#ifdef __mcoldfire__
+  __asm__ ("fmove%.l %/fpcr,%0" : "=dm" (envp->__control_register));
+  __asm__ ("fmove%.l %/fpsr,%0" : "=dm" (envp->__status_register));
+  __asm__ ("fmove%.l %/fpiar,%0" : "=dm" (envp->__instruction_address));
+#else
+  __asm__ ("fmovem%.l %/fpcr/%/fpsr/%/fpiar,%0" : "=m" (*envp));
+#endif
 
-  /* Clear the status flags.  */
-  temp &= ~FE_ALL_EXCEPT;
+  /* Now clear all exceptions.  */
+  fpsr = envp->__status_register & ~FE_ALL_EXCEPT;
+  __asm__ __volatile__ ("fmove%.l %0,%/fpsr" : : "dm" (fpsr));
+  /* And set all exceptions to non-stop.  */
+  fpcr = envp->__control_register & ~(FE_ALL_EXCEPT << 6);
+  __asm__ __volatile__ ("fmove%.l %0,%!" : : "dm" (fpcr));
 
-  /* Now set all exceptions to non-stop.  */
-  temp &= ~(FE_ALL_EXCEPT << 5);
-
-  _FPU_SETCW (temp);
-
-  /* Success.  */
   return 0;
 }

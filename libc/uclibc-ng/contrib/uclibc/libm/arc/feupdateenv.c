@@ -1,5 +1,6 @@
-/* Install given floating-point environment.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Install given floating-point environment and raise exceptions,
+   without clearing currently raised exceptions.
+   Copyright (C) 2020-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -12,21 +13,35 @@
    Lesser General Public License for more details.
 
    You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, see
+   License along with the GNU C Library.  If not, see
    <https://www.gnu.org/licenses/>.  */
 
 #include <fenv.h>
-#include <fpu_control.h>
+#include "fpu_control.h"
 
 int
-fesetenv (const fenv_t *envp)
+feupdateenv (const fenv_t *envp)
 {
+  unsigned int fpcr;
+  unsigned int fpsr;
+
+  _FPU_GETS (fpsr);
+
   if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
+    {
+      fpcr = _FPU_DEFAULT;
+    }
   else
     {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
+      fpcr = envp->__fpcr;
+
+      /* currently raised exceptions need to be preserved.  */
+      fpsr |= envp->__fpsr;
     }
+
+  _FPU_SETCW (fpcr);
+  _FPU_SETS (fpsr);
+
+  /* Success.  */
   return 0;
 }

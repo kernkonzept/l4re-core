@@ -1,5 +1,5 @@
-/* Install given floating-point environment.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+/* Clear given exceptions in current floating-point environment.
+   Copyright (C) 1998-2025 Free Software Foundation, Inc.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -19,14 +19,21 @@
 #include <fpu_control.h>
 
 int
-fesetenv (const fenv_t *envp)
+feclearexcept (int excepts)
 {
-  if (envp == FE_DFL_ENV)
-      _FPU_SETCW (_FPU_DEFAULT);
-  else
-    {
-      fpu_control_t temp = envp->__fpscr;
-      _FPU_SETCW (temp);
-    }
+  fpu_control_t cw;
+
+  /* Mask out unsupported bits/exceptions.  */
+  excepts &= FE_ALL_EXCEPT;
+
+  /* Read the complete control word.  */
+  _FPU_GETCW (cw);
+
+  /* Clear exception bits.  */
+  cw &= ~excepts;
+
+  /* Put the new data in effect.  */
+  _FPU_SETCW (cw);
+
   return 0;
 }
