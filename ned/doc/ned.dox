@@ -148,15 +148,27 @@ The main elements of the initial object table are:
        application's output (defaults to Ned's memory allocator).
        The \c create method of the \c log_fab object is called with
        \c log_tag and \c log_color, from this table, as arguments.
-\li \c log_tag The string used for tagging log output of this process (defaults
-       to the program name) (see \c log_fab).
-\li \c log_color The color used for the log tag (defaults to "white").
+\li \c log A table with parameters passed to the \c log_fab:
+       <ul>
+       <li>The first item is a short string defining the tag used for tagging
+           log output of this process (defaults to the program name).</li>
+       <li>The second item is a string defining the color used for the log tag
+           and the log string (defaults to "white").</li>
+       <li>Further parameters might be evaluated by certain implementations of
+           the L4Re::Log interface.</li>
+       </ul>
 \li \c scheduler The scheduler object used for the process' threads (defaults
        to Ned's own scheduler).
 \li \c caps The table with application-specific named capabilities (default is
        an empty table).  If the table does not contain a capability with the
        name 'rom', the 'rom' capability from Ned's initial caps is inserted
        into the table.
+
+Less frequently used parameters:
+\li \c l4re_dbg An integer value overriding the debug level of the ITAS used for
+       this application. Default is 2 (Warn). See _Debugging Flags_ above.
+\li \c ldr_flags An integer value for setting additional flags for attaching
+       regions, see _Loader Flags_ above.
 
 The \c start() and \c startv() calls return a task object that supports a
 number of operations.
