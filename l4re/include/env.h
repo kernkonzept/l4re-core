@@ -44,8 +44,8 @@ typedef struct l4re_env_cap_entry_t
   l4_cap_idx_t cap;
 
   /**
-   * Some flags for the object.
-   * \note Currently unused.
+   * Flags for the object.
+   * \note Currently unused, except as an end marker for the entry list.
    */
   l4_umword_t flags;
 
@@ -111,7 +111,7 @@ typedef struct l4re_env_t
   /**
    * Pointer to the first entry in the initial objects array which contains
    * #l4re_env_cap_entry_t elements. The array is terminated by an invalid
-   * entry with a `flags` value of `~0`.
+   * entry with a `flags` value of `~0ul`.
    */
   l4re_env_cap_entry_t *caps;
 } l4re_env_t;
