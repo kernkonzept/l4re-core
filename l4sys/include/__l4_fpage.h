@@ -615,6 +615,18 @@ l4_fpage_max_order(unsigned char order, l4_addr_t addr,
                    l4_addr_t min_addr, l4_addr_t max_addr,
                    l4_addr_t hotspot L4_DEFAULT_PARAM(0));
 
+/**
+ * Test if the flexpage is valid.
+ * \ingroup l4_fpage_api
+ *
+ * \param   fp  Flexpage.
+ *
+ * \retval !=0 if flexpage is valid.
+ * \retval ==0 if flexpage is not valid.
+ */
+L4_INLINE int
+l4_is_fpage_valid(l4_fpage_t fp) L4_NOTHROW;
+
 /*************************************************************************
  * Implementations
  *************************************************************************/
@@ -770,4 +782,10 @@ l4_fpage_max_order(unsigned char order, l4_addr_t addr,
     }
 
   return order;
+}
+
+L4_INLINE int
+l4_is_fpage_valid(l4_fpage_t fp) L4_NOTHROW
+{
+  return l4_fpage_type(fp) != L4_FPAGE_SPECIAL || l4_fpage_size(fp) != 0;
 }
