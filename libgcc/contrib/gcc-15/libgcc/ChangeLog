@@ -1,3 +1,89 @@
+2025-04-25  Release Manager
+
+	* GCC 15.1.0 released.
+
+2025-04-14  Thomas Schwinge  <tschwinge@baylibre.com>
+
+	PR target/118794
+	* config/gcn/unwind-gcn.c (_Unwind_Resume): New.
+	* config/nvptx/unwind-nvptx.c (_Unwind_Resume): Likewise.
+
+2025-04-14  Eric Botcazou  <ebotcazou@adacore.com>
+
+	PR target/119673
+	* config/i386/gthr-win32.h (__GTHREAD_ALWAYS_INLINE): New macro.
+	(__GTHREAD_INLINE): Likewise.
+	(__GTHR_W32_InterlockedCompareExchange): Delete.
+	(__gthread_active_p): Mark as __GTHREAD_INLINE instead of
+	static inline.
+	(__gthread_create): Likewise.
+	(__gthread_join): Likewise.
+	(__gthread_self): Likewise.
+	(__gthread_detach): Likewise.
+	(__gthread_equal): Likewise.
+	(__gthread_yield): Likewise.
+	(__gthread_once): Likewise.
+	(__gthread_key_create): Likewise.
+	(__gthread_key_delete): Likewise.
+	(__gthread_getspecific): Likewise.
+	(__gthread_setspecific): Likewise.
+	(__gthread_mutex_init_function): Likewise.
+	(__gthread_mutex_destroy): Likewise.
+	(__gthread_mutex_lock): Likewise.
+	(__gthread_mutex_trylock): Likewise.
+	(__gthread_mutex_timedlock): Likewise.
+	(__gthread_mutex_unlock): Likewise.
+	(__gthread_recursive_mutex_trylock): Likewise.
+	(__gthread_cond_init_function): Likewise.
+	(__gthread_cond_broadcast): Likewise.
+	(__gthread_cond_signal): Likewise.
+	(__gthread_cond_wait): Likewise.
+	(__gthread_cond_timedwait): Likewise.
+	(__GTHREAD_WIN32_INLINE): Likewise.
+	(__GTHREAD_WIN32_COND_INLINE): Likewise.
+	(__gthread_recursive_mutex_init_function): Likewise.
+	(__gthread_recursive_mutex_destroy): Likewise.
+	(__gthread_recursive_mutex_lock): Likewise.
+	(__gthread_recursive_mutex_unlock): Likewise.
+	(__gthread_cond_destroy): Likewise.
+	(__gthread_cond_wait_recursive): Likewise.
+
+2025-04-08  Thomas Schwinge  <tschwinge@baylibre.com>
+
+	* config/gcn/unwind-gcn.c (_Unwind_RaiseException)
+	(_Unwind_Resume_or_Rethrow): New.
+	* config/nvptx/unwind-nvptx.c (_Unwind_RaiseException)
+	(_Unwind_Resume_or_Rethrow): Likewise.
+
+2025-04-08  Thomas Schwinge  <tschwinge@baylibre.com>
+
+	* config/gcn/unwind-gcn.c (_Unwind_DeleteException): New.
+	* config/nvptx/unwind-nvptx.c (_Unwind_DeleteException): Likewise.
+
+2025-04-07  Thomas Schwinge  <tschwinge@baylibre.com>
+
+	* config/nvptx/alloca.c: New.
+	* config/nvptx/t-nvptx (LIB2ADD): Add it.
+
+2025-04-07  Georg-Johann Lay  <avr@gjlay.de>
+
+	* config/avr/lib1funcs.S (__mulhisi3, __umulhisi3): Use
+	__mulhisi3_helper for better performance on AVRrc.
+
+2025-04-06  Georg-Johann Lay  <avr@gjlay.de>
+
+	* config/avr/t-avr (LIB1ASMFUNCS): Add (and remove from
+	FUNCS_notiny): _mulhisi3, _umulhisi3, _mulqq3, _mulhq3, _muluhq3,
+	_mulha3, _muluha3 _muluha3_round, _usmuluha3, _ssmulha3,
+	_divqq3, _udivuqq3, _divqq_helper, _divhq3, _udivuhq3.
+	_divha3 _udivuha3, _ssneg_2, _ssabs_1, _ssabs_2,
+	_mask1, _ret, _roundqq3 _rounduqq3,
+	_round_s2, _round_u2, _round_2_const, _addmask_2.
+	* config/avr/lib1funcs.S (__umulhisi3, __mulhisi3): Make
+	work on AVRrc.
+	* config/avr/lib1funcs-fixed.S: Build 8-bit and 16-bit functions
+	on AVRrc, too.
+
 2025-04-05  Georg-Johann Lay  <avr@gjlay.de>
 
 	* config/avr/lib1funcs.S (__umulhisi3) [Have MUL]: Reduce call
