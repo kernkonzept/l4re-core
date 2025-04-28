@@ -334,6 +334,19 @@ function Loader:start(env, cmd, posix_env)
   return self:startv(env, self.split_args(cmd, posix_env));
 end
 
+function Loader:start_backtracer(opts)
+  local o = opts or {};
+  local prog = o.prog or "rom/backtracer";
+  local bt = self:new_channel();
+  self:startv({ caps = { backtracer = bt:svr() },
+                scheduler = Env.user_factory:create(Proto.Scheduler,
+                                               0xff, 0xfc)
+              }, prog, table.unpack(o.args or {}));
+  -- After starting it such that it does not have itself set as a
+  -- backtracer
+  self.dbg_events = bt;
+end
+
 default_loader = Loader.new({factory = Env.factory,
                              mem = Env.mem_alloc,
                              dbg_events = Env.dbg_events});
