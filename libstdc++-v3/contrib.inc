@@ -2,54 +2,29 @@
 
 include $(L4DIR)/mk/Makeconf
 
-__NUMBERS := x x x x x x x x x x x x x x x x x x x x
+ifeq ($(intcmp 0,0),)
+# No intcmp supported (pre Make 4.4)
+cmp = $(shell perl -e 'print [@ARGV[2..4]]->[1+($$ARGV[0]<=>$$ARGV[1])]' "$1" "$2" "$3" "$4" "$5")
+else
+# intcmp supported
+cmp = $(intcmp $1,$2,$3,$4,$5)
+endif
 
-n = $(wordlist 1, $1, $(__NUMBERS))
-max = $(subst xx,x,$(join $1,$2))
-min = $(subst xx,x,$(filter xx,$(join $1,$2)))
-gt = $(filter-out $(words $2),$(words $(call max,$1,$2)))
-eq = $(filter $(words $1),$(words $2))
-gte = $(call gt,$1,$2)$(call eq,$1,$2)
-mul = $(foreach a,$1,$2)
-
-
-__GCCMAJOR = $(wordlist 1, $(GCCMAJORVERSION), $(__NUMBERS))
-__GCCMINOR = $(wordlist 1, $(GCCMINORVERSION), $(__NUMBERS))
-__GCCSUBVER= $(wordlist 1, $(GCCSUBVERSION), $(__NUMBERS))
-
+# Must be numerically sorted
 STDCXX_AVAILABLE_VERSIONS = 9 10 11 12 13 14 15
+_max = $(lastword $(STDCXX_AVAILABLE_VERSIONS))
+_min = $(firstword $(STDCXX_AVAILABLE_VERSIONS))
 
-ifeq ("$(GCCVERSION)", "9")
-  STDCXX_CONTRIB_VERSION := 9
-endif
-ifeq ("$(GCCVERSION)", "10")
-  STDCXX_CONTRIB_VERSION := 10
-  STDCXX_CONTRIB_VERSION_10_PLUS  := y
-endif
-ifeq ("$(GCCVERSION)", "11")
-  STDCXX_CONTRIB_VERSION := 11
-  STDCXX_CONTRIB_VERSION_10_PLUS  := y
-endif
-ifeq ("$(GCCVERSION)", "12")
-  STDCXX_CONTRIB_VERSION := 12
-  STDCXX_CONTRIB_VERSION_10_PLUS  := y
-endif
-ifeq ("$(GCCVERSION)", "13")
-  STDCXX_CONTRIB_VERSION := 13
-  STDCXX_CONTRIB_VERSION_10_PLUS  := y
-endif
-ifeq ("$(GCCVERSION)", "14")
-  STDCXX_CONTRIB_VERSION := 14
-  STDCXX_CONTRIB_VERSION_10_PLUS  := y
-endif
-ifeq ("$(GCCVERSION)", "15")
-  STDCXX_CONTRIB_VERSION := 15
-  STDCXX_CONTRIB_VERSION_10_PLUS  := y
-endif
 ifeq ("$(BID_COMPILER_TYPE)", "clang")
   STDCXX_CONTRIB_VERSION := 12
-  STDCXX_CONTRIB_VERSION_10_PLUS  := y
+else
+  # Choose STDCXX_CONTRIB_VERSION = GCCVERSION if available
+  # Else choose lowest available if lower, choose highest available if higher
+  STDCXX_CONTRIB_VERSION := $(or $(filter $(GCCVERSION),$(STDCXX_AVAILABLE_VERSIONS)),\
+                            $(call cmp,$(GCCVERSION),$(_max),$(_min),$(_max),$(_max)))
 endif
+# Just check if chosen version is 10 or higher
+STDCXX_CONTRIB_VERSION_10_PLUS  := $(call cmp, $(STDCXX_CONTRIB_VERSION),10,,y,y)
 
 STDCXX_CONTRIB_DIR = $(STDCXX_PKG_DIR)/contrib/libstdc++-v3-$(STDCXX_CONTRIB_VERSION)
 DEFINES += -Dlinux
