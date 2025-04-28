@@ -121,7 +121,7 @@ L4Re_app_model::open_file(char const *name)
 
   L4::Cap<L4Re::Dataspace> file;
 
-  file = chkcap(ens.query<L4Re::Dataspace>(name), name, 0);
+  file = chkcap(ens.query<L4Re::Dataspace>(name), name, -L4_ENOENT);
 
   return file;
 }

@@ -43,7 +43,7 @@ App_model::Const_dataspace
 App_model::open_file(char const *name)
 {
   L4Re::Util::Env_ns ens;
-  return L4Re::chkcap(ens.query<L4Re::Dataspace>(name), name, 0);
+  return L4Re::chkcap(ens.query<L4Re::Dataspace>(name), name, -L4_ENOENT);
 }
 
 void
