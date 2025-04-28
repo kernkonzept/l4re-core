@@ -213,6 +213,7 @@ function App_env.new(proto)
   f.loader = f.loader or default_loader;
   f.rm_fab = f.rm_fab or f.loader.rm_fab;
   f.factory = f.factory or f.loader.factory or Env.factory;
+  f.dbg_events = f.dbg_events or f.loader.dbg_events or Env.dbg_events;
   --  f.scheduler = f.scheduler or f.loader.scheduler;
 
   f.mem = f.mem or f.loader.mem;
@@ -333,7 +334,9 @@ function Loader:start(env, cmd, posix_env)
   return self:startv(env, self.split_args(cmd, posix_env));
 end
 
-default_loader = Loader.new({factory = Env.factory, mem = Env.mem_alloc});
+default_loader = Loader.new({factory = Env.factory,
+                             mem = Env.mem_alloc,
+                             dbg_events = Env.dbg_events});
 
 
 Cpu_set = {}

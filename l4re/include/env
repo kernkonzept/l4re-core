@@ -34,6 +34,7 @@ class Scheduler;
 namespace L4Re
 {
   class Itas;
+  class Dbg_events;
 
   /**
    * C++ interface of the initial environment that is provided to an L4 task.
@@ -299,6 +300,25 @@ namespace L4Re
      */
     void itas(L4::Cap<Itas> const &c) noexcept
     { _env.itas = c.cap(); }
+
+    /**
+     * Object-capability to a debugger events service.
+     * \return Dbg_events object-capability
+     *
+     * This capability can be invalid.
+     */
+    L4::Cap<Dbg_events> dbg_events() const noexcept
+    { return L4::Cap<Dbg_events>(_env.dbg_events); }
+
+    /**
+     * Set the dbg_events capability.
+     * \param dbg_events is the capability to be set
+     *                   for the debug events service.
+     *
+     * Note that the capability can be invalid.
+     */
+    void dbg_events(L4::Cap<Dbg_events> const &dbg_events) noexcept
+    { _env.dbg_events = dbg_events.cap(); }
 
     /**
      * Set the pointer to the first Cap_entry in the initial objects array.

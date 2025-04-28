@@ -43,6 +43,7 @@ struct Prog_start_info
   l4_fpage_t rm;
   l4_fpage_t log;
   l4_fpage_t factory;
+  l4_fpage_t dbg_events = l4_fpage_invalid();
 };
 
 template< typename STACK, typename PROG_INFO = Prog_start_info>

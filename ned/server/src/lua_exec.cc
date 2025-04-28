@@ -288,6 +288,8 @@ public:
     prog_info()->factory = L4Re::Env::env()->factory().fpage();
     prog_info()->scheduler = L4Re::Env::env()->scheduler().fpage();
     //  parser.scheduler_cap.set_fpage(&am.prog_info()->scheduler);
+    if (L4Re::Env::env()->dbg_events().is_valid())
+      prog_info()->dbg_events = L4Re::Env::env()->dbg_events().fpage();
 
     prog_info()->ldr_flags = 0;
     prog_info()->l4re_dbg = 0;
@@ -304,6 +306,7 @@ public:
     _cap_stack.push(_cfg_cap<void>("mem", &prog_info()->mem_alloc));
     _cap_stack.push(_cfg_cap<void>("factory", &prog_info()->factory));
     _cap_stack.push(_cfg_cap<void>("scheduler", &prog_info()->scheduler));
+    _cap_stack.push(_cfg_cap<void>("dbg_events", &prog_info()->dbg_events));
 
     auto c = _cfg_cap<L4::Factory>("rm_fab");
     if (c)

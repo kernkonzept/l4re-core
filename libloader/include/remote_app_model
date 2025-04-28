@@ -31,6 +31,7 @@ struct Remote_app_std_caps
     Names_cap,
     Parent_cap,
     Kip_cap,
+    Dbg_events_cap,
     First_free,
   };
 };
@@ -86,6 +87,10 @@ public:
     env->main_thread(L4::Cap<L4::Thread>(Caps::Rm_thread_cap << L4_CAP_SHIFT));
     env->factory(L4::Cap<L4::Factory>(Caps::Factory_cap << L4_CAP_SHIFT));
     env->itas(L4::Cap<L4Re::Itas>{});
+    if (l4_is_fpage_valid(this->_info.dbg_events))
+      env->dbg_events(L4::Cap<L4Re::Dbg_events>(Caps::Dbg_events_cap << L4_CAP_SHIFT));
+    else
+      env->dbg_events(L4::Cap<L4Re::Dbg_events>{});
     env->first_free_cap(first_free >> L4_CAP_SHIFT);
     env->utcb_area(l4_fpage(this->_info.utcbs_start, this->_info.utcbs_log2size, 0));
     env->first_free_utcb(this->_info.utcbs_start + L4_UTCB_OFFSET);
@@ -173,6 +178,9 @@ public:
 	  env->rm().snd_base()));
     chksys(_ntask->map(L4Re::This_task, this->_info.mem_alloc,
 	  env->mem_alloc().snd_base()));
+    if (l4_is_fpage_valid(this->_info.dbg_events))
+      chksys(_ntask->map(L4Re::This_task, this->_info.dbg_events,
+             env->dbg_events().snd_base()));
     chksys(_ntask->map(L4Re::This_task, this->local_kip_cap().fpage(),
 	  prog_kip_ds().snd_base()));
 
