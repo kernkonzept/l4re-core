@@ -130,13 +130,13 @@ public:
     return pos;
   }
 
+protected:
   static T *self_insert(T *e)
   { C::next(e) = C::prev(e) = e; return e; }
 
   static void remove_last(T *e)
   { C::next(e) = 0; }
 
-protected:
   static Iterator __iter(typename C::Item *e) { return Iterator(e); }
 };
 
