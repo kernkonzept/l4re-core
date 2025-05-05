@@ -14,11 +14,12 @@ class D_list_item
 {
 public:
   D_list_item() : _dli_next(0) {}
+
+  D_list_item(D_list_item const &) = delete;
+  void operator = (D_list_item const &) = delete;
+
 private:
   friend class D_list_item_policy;
-
-  D_list_item(D_list_item const &);
-  void operator = (D_list_item const &);
 
   D_list_item *_dli_next, *_dli_prev;
 };
@@ -232,6 +233,9 @@ public:
 
   D_list() { this->self_insert(static_cast<T*>(&_h)); }
 
+  D_list(D_list const &) = delete;
+  void operator = (D_list const &) = delete;
+
   bool empty() const { return C::next(static_cast<T const *>(&_h)) == &_h; }
 
   static void remove(T *e) { Base::remove(e); }
@@ -252,9 +256,6 @@ public:
   Iterator end() const { return this->__iter(const_cast<Internal_type *>(&_h)); }
 
 private:
-  D_list(D_list const &);
-  void operator = (D_list const &);
-
   Internal_type _h;
 };
 
