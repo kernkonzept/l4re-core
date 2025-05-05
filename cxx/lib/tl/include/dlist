@@ -13,20 +13,19 @@ namespace cxx {
 class D_list_item
 {
 public:
-  D_list_item() : _dli_next(0) {}
+  constexpr D_list_item() : _dli_next(nullptr), _dli_prev(nullptr) {}
 
   D_list_item(D_list_item const &) = delete;
   void operator = (D_list_item const &) = delete;
 
 private:
-  friend class D_list_item_policy;
+  friend struct D_list_item_policy;
 
   D_list_item *_dli_next, *_dli_prev;
 };
 
-class D_list_item_policy
+struct D_list_item_policy
 {
-public:
   typedef D_list_item Item;
   static D_list_item *&prev(D_list_item *e) { return e->_dli_prev; }
   static D_list_item *&next(D_list_item *e) { return e->_dli_next; }
@@ -79,7 +78,7 @@ protected:
     Value_type operator * () const { return static_cast<Value_type>(_c); }
     Value_type operator -> () const { return static_cast<Value_type>(_c); }
 
-  private:
+  protected:
     friend class D_list_cyclic;
 
     explicit __Iterator(ITEM *s) : _c(s) {}
@@ -97,7 +96,7 @@ public:
   {
     C::next(C::prev(e)) = C::next(e);
     C::prev(C::next(e)) = C::prev(e);
-    C::next(e) = 0;
+    C::next(e) = nullptr;
   }
 
   static Iterator erase(Iterator const &e)
@@ -135,7 +134,7 @@ protected:
   { C::next(e) = C::prev(e) = e; }
 
   static void remove_last(T *e)
-  { C::next(e) = 0; }
+  { C::next(e) = nullptr; }
 
   /**
    * Splice the elements of `other_list` into the list before `pos`.
@@ -171,11 +170,61 @@ private:
   typedef D_list_cyclic<T, C> Base;
 
 public:
-  typedef typename Base::Iterator Iterator;
+  class Iterator : public Base::Iterator
+  {
+  public:
+    Iterator &operator ++ ()
+    {
+      if (this->_c)
+        Base::Iterator::operator ++ ();
+
+      if (this->_c == _h)
+        this->_c = nullptr;
+
+      return *this;
+    }
+
+    Iterator &operator -- () = delete;
+
+  private:
+    friend class Sd_list;
+
+    explicit Iterator(T *h) : Base::Iterator(h), _h(h) {}
+    typename C::Item *_h;
+  };
+
+  class R_iterator : public Base::Iterator
+  {
+  public:
+    R_iterator &operator ++ ()
+    {
+      if (this->_c)
+        Base::Iterator::operator -- ();
+
+      if (this->_c == _h)
+        this->_c = nullptr;
+
+      return *this;
+    }
+
+    R_iterator &operator -- () = delete;
+
+  private:
+    friend class Sd_list;
+
+    explicit R_iterator(T *h) : Base::Iterator(h), _h(h) {}
+    typename C::Item *_h;
+  };
+
+  //typedef typename Base::Iterator Iterator;
   enum Pos
   { Back, Front };
 
-  Sd_list() { if (!BSS) H::set_head(_f, 0); }
+  Sd_list()
+  {
+    if (!BSS)
+      H::set_head(_f, nullptr);
+  }
 
   bool empty() const { return !H::head(_f); }
   T *front() const { return H::head(_f); }
@@ -186,7 +235,7 @@ public:
     if (e == C::next(e)) // must be the last
       {
         Base::remove_last(e);
-        H::set_head(_f, 0);
+        H::set_head(_f, nullptr);
         return;
       }
 
@@ -198,9 +247,11 @@ public:
 
   Iterator erase(Iterator const &e)
   {
-    typename C::Item *n = C::next(*e);
+    Iterator next = e;
+    ++next;
+
     remove(*e);
-    return __iter(n);
+    return next;
   }
 
   void push(T *e, Pos pos)
@@ -225,6 +276,17 @@ public:
 
   typename H::Head_type const &head() const { return _f; }
   typename H::Head_type &head() { return _f; }
+
+  Iterator begin() { return Iterator(H::head(_f)); }
+  Iterator end() { return Iterator(nullptr); }
+
+  R_iterator rbegin()
+  {
+    if (head())
+      return R_iterator(static_cast<T*>(C::prev(H::head(_f))));
+    return R_iterator(nullptr);
+  }
+  R_iterator rend() { return R_iterator(nullptr); }
 
 private:
   Sd_list(Sd_list const &);
@@ -362,6 +424,12 @@ public:
 
   Iterator begin() const { return this->__iter(C::next(const_cast<Internal_type *>(&_h))); }
   Iterator end() const { return this->__iter(const_cast<Internal_type *>(&_h)); }
+
+  bool has_sibling(T const *e)
+  {
+    return C::next(const_cast<T*>(e)) != &_h
+      || C::prev(const_cast<T*>(e)) != &_h;
+  }
 
 private:
   Internal_type _h;
