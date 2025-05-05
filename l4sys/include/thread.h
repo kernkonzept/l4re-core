@@ -664,6 +664,17 @@ l4_thread_modify_sender_add_u(l4_umword_t match_mask,
  * \note Modifying the senders of a thread running on a different CPU core is
  *       not supported.
  *
+ * \note To ensure that no in-flight senders are missed, either the
+ *       thread itself must execute modify_senders, or the thread executing
+ *       the modify_senders must synchronize with the target thread. This
+ *       synchronization must ensure the following:
+ *       1. Before modify_senders is executed the target thread must execute
+ *          at least shortly (so that pending DRQs are handled).
+ *       2. The target thread must pause its IPC dispatch, until
+ *          modify_senders is completed. In other words, the target thread must
+ *          not be receive ready, because otherwise an IPC message with an
+ *          unmodified label can be transferred to its UTCB or vCPU state.
+ *
  * \see l4_thread_modify_sender_start
  * \see l4_thread_modify_sender_add
  */
