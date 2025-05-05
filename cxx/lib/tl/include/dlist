@@ -114,25 +114,25 @@ public:
 
   static Iterator insert_after(T *e, Iterator const &pos)
   {
-    C::prev(e) = *pos;
-    C::next(e) = C::next(*pos);
-    C::prev(C::next(*pos)) = e;
-    C::next(*pos) = e;
+    C::prev(e) = pos._c;
+    C::next(e) = C::next(pos._c);
+    C::prev(C::next(pos._c)) = e;
+    C::next(pos._c) = e;
     return pos;
   }
 
   static Iterator insert_before(T *e, Iterator const &pos)
   {
-    C::next(e) = *pos;
-    C::prev(e) = C::prev(*pos);
-    C::next(C::prev(*pos)) = e;
-    C::prev(*pos) = e;
+    C::next(e) = pos._c;
+    C::prev(e) = C::prev(pos._c);
+    C::next(C::prev(pos._c)) = e;
+    C::prev(pos._c) = e;
     return pos;
   }
 
 protected:
-  static T *self_insert(T *e)
-  { C::next(e) = C::prev(e) = e; return e; }
+  static void self_insert(typename C::Item *e)
+  { C::next(e) = C::prev(e) = e; }
 
   static void remove_last(T *e)
   { C::next(e) = 0; }
@@ -188,7 +188,10 @@ public:
   {
     T *h = H::head(_f);
     if (!h)
-      H::set_head(_f, Base::self_insert(e));
+      {
+        Base::self_insert(e);
+        H::set_head(_f, e);
+      }
     else
       {
         Base::insert_before(e, this->iter(h));
@@ -231,12 +234,12 @@ public:
   typedef T* value_type;
   typedef T* Value_type;
 
-  D_list() { this->self_insert(static_cast<T*>(&_h)); }
+  D_list() { this->self_insert(&_h); }
 
   D_list(D_list const &) = delete;
   void operator = (D_list const &) = delete;
 
-  bool empty() const { return C::next(static_cast<T const *>(&_h)) == &_h; }
+  bool empty() const { return C::next(&_h) == &_h; }
 
   static void remove(T *e) { Base::remove(e); }
   Iterator erase(Iterator const &e) { return Base::erase(e); }
