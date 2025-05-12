@@ -13,6 +13,7 @@
 #include <l4/sys/capability>
 #include <l4/sys/cxx/ipc_epiface>
 #include <l4/sys/factory>
+#include <l4/sys/err.h>
 
 #include <l4/sigma0/sigma0.h>
 
@@ -56,7 +57,7 @@ void map_kip(Answer *a)
 }
 
 static
-void new_client(l4_umword_t, Answer *a)
+void new_client(Answer *a)
 {
   static l4_cap_idx_t _next_gate = L4_BASE_CAPS_LAST + L4_CAP_OFFSET;
 
@@ -180,14 +181,19 @@ handle_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 }
 
 static
-void handle_service_request(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
+void handle_service_request(l4_umword_t rights, l4_utcb_t *utcb, Answer *answer)
 {
+  if (!(rights & L4_CAP_FPAGE_S))
+    {
+      answer->error(L4_EPERM);
+      return;
+    }
   if (static_cast<long>(l4_utcb_mr_u(utcb)->mr[0]) != L4_PROTO_SIGMA0)
     {
       answer->error(L4_ENODEV);
       return;
     }
-  new_client(t, answer);
+  new_client(answer);
 }
 
 static
@@ -272,6 +278,7 @@ pager(void)
           l4_umword_t pfa;
           if (debug_warnings)
             pfa = l4_utcb_mr_u(utcb)->mr[0];
+          l4_umword_t client_rights = t & (L4_CAP_FPAGE_W | L4_CAP_FPAGE_S);
           t >>= 4;
           /* we received a paging request here */
           /* handle the sigma0 protocol */
@@ -299,7 +306,7 @@ pager(void)
               }
               break;
             case L4::Factory::Protocol:
-              handle_service_request(t, utcb, &answer);
+              handle_service_request(client_rights, utcb, &answer);
               break;
             case L4_PROTO_PAGE_FAULT:
               handle_page_fault(t, utcb, &answer);
