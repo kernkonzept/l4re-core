@@ -12,25 +12,26 @@
 # define __USE_ATFILE 1
 #endif
 
+#include <l4/l4re_vfs/backend>
 #include <l4/re/log>
 #include <l4/re/env>
 
-#include <stdarg.h>
 #include <errno.h>
-#include <unistd.h>
-#include <limits.h>
 #include <fcntl.h>
+#include <limits.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
-#include <sys/uio.h>
-#include <sys/time.h>
 #include <sys/statfs.h>
 #include <sys/statvfs.h>
-#include <l4/l4re_vfs/backend>
-#include <string.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <sys/time.h>
+#include <sys/uio.h>
+#include <unistd.h>
+
 #include "redirect.h"
 
 using namespace L4Re::Vfs;
