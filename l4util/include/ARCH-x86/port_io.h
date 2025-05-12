@@ -103,7 +103,6 @@ l4util_out8(l4_uint8_t value, l4_uint16_t port);
 
 /**
  * \brief Write 16-bit-value to I/O port
- * \ingroup port_io
  *
  * \param  port	   I/O port address
  * \param  value   value to write
@@ -132,7 +131,6 @@ l4util_outs8(l4_uint16_t port, l4_umword_t addr, l4_umword_t count);
 
 /**
  * \brief Write a block of 16-bit-values to I/O port
- * \ingroup port_io
  *
  * \param  port	   I/O port address
  * \param  addr    address of buffer
