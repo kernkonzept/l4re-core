@@ -2,7 +2,6 @@
  * \file
  * \brief   base 64 encoding and decoding functions
  *          adapted from  Bob Trower 08/04/01
- * \ingroup utils
  *
  * \date    04/26/2002
  * \author  Joerg Nothnagel <jn6@os.inf.tu-dresden.de>
