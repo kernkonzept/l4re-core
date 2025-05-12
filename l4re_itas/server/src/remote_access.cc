@@ -15,11 +15,17 @@ Remote_access ra_if;
 long Remote_access::op_read_mem(L4Re::Remote_access::Rights,
                                 l4_addr_t addr, char width, l4_uint64_t &val)
 {
+  static l4_addr_t last_pfn = ~0ul;
+
   // This is an intermediate solution, to be improved.
-  L4::Ipc::Opt<L4::Ipc::Snd_fpage> fp;
-  long ret = Global::local_rm->op_page_fault(0, addr & ~7ul, 0, fp);
-  if (ret)
-    return ret;
+  if (l4_trunc_page(addr) != last_pfn)
+    {
+      L4::Ipc::Opt<L4::Ipc::Snd_fpage> fp;
+      long ret = Global::local_rm->op_page_fault(0, addr & ~7ul, 0, fp);
+      if (ret)
+        return ret;
+      last_pfn = l4_trunc_page(addr);
+    }
 
   switch (width)
     {
