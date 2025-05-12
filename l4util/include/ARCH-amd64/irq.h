@@ -1,7 +1,6 @@
 /**
  * \file
  * \brief    some PIC and hardware interrupt related functions
- * \ingroup  irq
  *
  * \date     2003
  * \author   Jork Loeser <jork.loeser@inf.tu-dresden.de>
@@ -20,6 +19,11 @@
 #include <l4/util/port_io.h>
 
 __BEGIN_DECLS
+
+/**
+ * \addtogroup l4util_cpu
+ */
+/**@{*/
 
 /** Disable all interrupts
  */
@@ -53,6 +57,7 @@ l4util_flags_restore (l4_umword_t *flags)
 {
   __asm__ __volatile__ ("pushq %0 ; popf" : :"g" (*flags) : "memory");
 }
+/**@}*/
 
 __END_DECLS
 
