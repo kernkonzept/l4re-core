@@ -19,8 +19,9 @@
 
 #include <l4/re/env.h>
 #include <l4/re/c/dataspace.h>
+#include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Flags for region operations.
@@ -397,4 +398,4 @@ l4re_rm_get_info(l4_addr_t addr, char *name, unsigned int len,
                               backing_offset);
 }
 
-__END_DECLS
+L4_END_DECLS

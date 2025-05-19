@@ -28,7 +28,7 @@
 #include <l4/sys/l4int.h>
 #include <l4/sys/kip.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /* interface */
 /**
@@ -153,7 +153,7 @@ l4_get_hz (void);
 
 /**@}*/
 
-__END_DECLS
+L4_END_DECLS
 
 /* implementation */
 

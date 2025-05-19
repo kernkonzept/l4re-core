@@ -17,11 +17,11 @@
 
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 L4_CV int l4_kprintf(const char *fmt, ...)
                      __attribute__((format (printf, 1, 2)));
 
-__END_DECLS
+L4_END_DECLS
 
 #endif /* ! __L4UTIL__INCLUDE__KPRINTF_H__ */

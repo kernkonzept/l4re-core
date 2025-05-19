@@ -17,7 +17,7 @@
 
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /* For communication from `getopt' to the caller.
    When `getopt' finds an option that takes an argument,
@@ -100,6 +100,6 @@ L4_CV int _getopt_internal (int argc, char *const *argv,
 		            const struct option *longopts, int *longind,
 			    int long_only);
 
-__END_DECLS
+L4_END_DECLS
 
 #endif /* _GETOPT_H */

@@ -17,9 +17,10 @@
  * \brief Dataspace C interface.
  */
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Dataspace type
@@ -156,4 +157,4 @@ L4_CV int
 l4re_ds_map_info(l4re_ds_t ds,
                  l4_addr_t *start_addr, l4_addr_t *end_addr) L4_NOTHROW;
 
-__END_DECLS
+L4_END_DECLS

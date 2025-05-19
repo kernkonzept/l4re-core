@@ -11,6 +11,7 @@
  */
 #pragma once
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
 #include <l4/re/c/dataspace.h>
 #include <l4/re/c/video/colors.h>
@@ -53,7 +54,7 @@ typedef struct
  */
 typedef l4_cap_idx_t l4re_video_goos_t;
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Get information on a goos.
@@ -159,4 +160,4 @@ L4_CV int
 l4re_video_goos_get_view(l4re_video_goos_t goos, unsigned idx,
                          l4re_video_view_t *view) L4_NOTHROW;
 
-__END_DECLS
+L4_END_DECLS

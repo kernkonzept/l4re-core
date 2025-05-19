@@ -61,8 +61,8 @@ enum l4_error_code_t
   L4_EIPC_HI       = 2000 + 0x1f,   /**< Communication error-range high. */
 };
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 L4_CV char const *l4sys_errtostr(long err) L4_NOTHROW;
-__END_DECLS
+L4_END_DECLS
 
 

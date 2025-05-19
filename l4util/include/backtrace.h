@@ -12,7 +12,7 @@
 
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Fill backtrace structure.
@@ -23,4 +23,4 @@ __BEGIN_DECLS
  */
 int l4util_backtrace(void **pc_array, int max_len);
 
-__END_DECLS
+L4_END_DECLS

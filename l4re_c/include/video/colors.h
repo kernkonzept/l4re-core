@@ -33,7 +33,7 @@ typedef struct l4re_video_pixel_info_t
   unsigned char bytes_per_pixel;           ///< Bytes per pixel
 } l4re_video_pixel_info_t;
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 L4_INLINE L4_CV int
 l4re_video_bits_per_pixel(l4re_video_pixel_info_t *p) L4_NOTHROW;
@@ -47,4 +47,4 @@ l4re_video_bits_per_pixel(l4re_video_pixel_info_t *p) L4_NOTHROW
   return p->r.size + p->b.size + p->g.size + p->a.size;
 }
 
-__END_DECLS
+L4_END_DECLS

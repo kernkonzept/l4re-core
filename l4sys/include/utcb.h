@@ -123,7 +123,7 @@ typedef struct l4_thread_regs_t
   l4_umword_t  user[3];
 } l4_thread_regs_t;
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \internal
@@ -392,6 +392,6 @@ l4_timeout_s l4_timeout_abs(l4_kernel_clock_t val, int pos) L4_NOTHROW
 L4_INLINE unsigned l4_utcb_mr64_idx(unsigned idx) L4_NOTHROW
 { return idx / (sizeof(l4_uint64_t) / sizeof(l4_umword_t)); }
 
-__END_DECLS
+L4_END_DECLS
 
 #endif /* ! _L4_SYS_UTCB_H */

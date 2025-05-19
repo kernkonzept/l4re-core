@@ -30,7 +30,7 @@
  *** Prototypes
  *****************************************************************************/
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \defgroup l4util_bitops Bit Manipulation
@@ -189,7 +189,7 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size);
 L4_INLINE int
 l4util_next_power2(unsigned long val);
 
-__END_DECLS
+L4_END_DECLS
 
 /*****************************************************************************
  *** Implementation of specific version

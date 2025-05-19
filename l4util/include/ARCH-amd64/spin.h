@@ -13,7 +13,7 @@
 
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 L4_CV void l4_spin(int x,int y);
 L4_CV void l4_spin_vga(int x,int y);
@@ -34,6 +34,6 @@ L4_CV void l4_spin_n_text_vga(int x, int y, int len, const char*s);
 #define l4_spin_text_vga(x, y, text) \
 	l4_spin_n_text_vga((x), (y), sizeof(text)-1, "" text)
 
-__END_DECLS
+L4_END_DECLS
 
 #endif

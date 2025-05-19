@@ -20,7 +20,7 @@
 #include <l4/sys/types.h>
 #include <l4/sys/linkage.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Get free capability index at capability allocator
@@ -52,4 +52,4 @@ l4re_util_cap_free_um(l4_cap_idx_t cap) L4_NOTHROW;
 L4_CV long
 l4re_util_cap_last(void) L4_NOTHROW;
 
-__END_DECLS
+L4_END_DECLS

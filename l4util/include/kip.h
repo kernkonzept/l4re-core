@@ -21,7 +21,7 @@
 /**@{*/
 
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * Check if kernel supports a feature.
@@ -45,7 +45,7 @@ L4_CV int l4util_kip_kernel_has_feature(l4_kernel_info_t const *k, char const *s
  */
 L4_CV unsigned long l4util_kip_kernel_abi_version(l4_kernel_info_t const *k);
 
-__END_DECLS
+L4_END_DECLS
 
 /**
  * Cycle through kernel features given in the KIP.

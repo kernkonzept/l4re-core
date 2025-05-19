@@ -18,7 +18,7 @@
 #include <l4/sys/compiler.h>
 #include <l4/util/port_io.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \addtogroup l4util_cpu
@@ -59,6 +59,6 @@ l4util_flags_restore (l4_umword_t *flags)
 }
 /**@}*/
 
-__END_DECLS
+L4_END_DECLS
 
 #endif

@@ -29,7 +29,7 @@
 #endif
 
 #define L4UTIL_THREAD_FUNC_MIPS_TEMPLATE(name, locality) \
-__BEGIN_DECLS \
+L4_BEGIN_DECLS \
 locality L4_NORETURN void name(void) \
 { \
   asm("  .set push \n" \
@@ -43,7 +43,7 @@ locality L4_NORETURN void name(void) \
   __builtin_unreachable(); \
 } \
 static L4_NORETURN void __attribute__((used)) name ##_mips_helper_func(void); \
-__END_DECLS \
+L4_END_DECLS \
 static L4_NORETURN void name##_mips_helper_func(void)
 
 #define L4UTIL_THREAD_STATIC_FUNC(name) \

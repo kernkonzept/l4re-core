@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <l4/sys/compiler.h>
+
 /*
  * Note: The following Assembler statement may produce wrong code:
  *   asm volatile ("btsl %1, %2" : "=@ccc"(r) : "Jr"(63), "m"(m) : "memory");
@@ -31,7 +33,7 @@
  * for the bit number parameter would be "Ir" instead of "Jr".
  */
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /* set bit */
 #define __L4UTIL_BITOPS_HAVE_ARCH_SET_BIT
@@ -272,4 +274,4 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
   return res;
 }
 
-__END_DECLS
+L4_END_DECLS

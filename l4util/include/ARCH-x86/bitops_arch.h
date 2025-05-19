@@ -15,7 +15,7 @@
 
 #pragma once
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /* set bit */
 #define __L4UTIL_BITOPS_HAVE_ARCH_SET_BIT
@@ -256,4 +256,4 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size)
   return res;
 }
 
-__END_DECLS
+L4_END_DECLS

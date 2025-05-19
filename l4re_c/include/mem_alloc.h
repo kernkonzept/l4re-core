@@ -11,6 +11,7 @@
 #pragma once
 
 #include <l4/re/env.h>
+#include <l4/sys/compiler.h>
 #include <l4/sys/consts.h>
 
 #include <l4/re/c/dataspace.h>
@@ -21,7 +22,7 @@
  * \brief Memory allocator C interface.
  */
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Flags for requesting memory at the memory allocator.
@@ -147,4 +148,4 @@ l4re_ma_alloc_align(long size, l4re_ds_t const mem,
                                  flags, align);
 }
 
-__END_DECLS
+L4_END_DECLS

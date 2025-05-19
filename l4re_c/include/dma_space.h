@@ -15,10 +15,11 @@
  * \brief DMA Space C interface.
  */
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
 #include <l4/re/c/dataspace.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \copydoc L4Re::Dma_space::Direction
@@ -95,4 +96,4 @@ L4_CV long
 l4re_dma_space_disassociate(l4re_dma_space_t dma);
 
 
-__END_DECLS
+L4_END_DECLS

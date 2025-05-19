@@ -18,6 +18,7 @@
  */
 
 #include <l4/re/env.h>
+#include <l4/sys/compiler.h>
 
 /**
  * Namespace register flags.
@@ -33,7 +34,7 @@ enum l4re_ns_register_flags {
   L4RE_NS_REGISTER_S   = L4_FPAGE_W,
 };
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * Namespace type
@@ -98,4 +99,4 @@ l4re_ns_query_srv(l4re_namespace_t srv, char const *name,
 }
 
 
-__END_DECLS
+L4_END_DECLS

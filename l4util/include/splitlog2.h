@@ -14,7 +14,7 @@
 #include <l4/sys/err.h>
 #include <l4/util/bitops.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Split a range into log2 base and size aligned chunks.
@@ -43,7 +43,7 @@ l4util_splitlog2_hdl(l4_addr_t start, l4_addr_t end,
 L4_INLINE l4_addr_t
 l4util_splitlog2_size(l4_addr_t start, l4_addr_t end);
 
-__END_DECLS
+L4_END_DECLS
 
 /* Implementation */
 

@@ -23,11 +23,11 @@
 #include <l4/sys/consts.h>
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 void syncICache(unsigned long start, unsigned long size);
 
-__END_DECLS
+L4_END_DECLS
 
 L4_INLINE int
 l4_cache_clean_data(unsigned long start,

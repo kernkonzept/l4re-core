@@ -81,7 +81,7 @@ enum l4sigma0_return_flags_t {
   L4SIGMA0_SMALLERFPAGE, /**< Superpage requested but smaller flexpage received */
 };
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * Map the kernel info page from sigma0 to addr.
@@ -221,6 +221,6 @@ L4_INLINE char const *l4sigma0_map_errstr(int err)
 }
 
 
-__END_DECLS
+L4_END_DECLS
 
 #endif /* ! __L4_SIGMA0_SIGMA0_H */

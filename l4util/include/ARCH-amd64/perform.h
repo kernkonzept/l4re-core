@@ -16,7 +16,7 @@
 #include <l4/sys/types.h>
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 extern const char*strp6pmc_event(l4_uint32_t event);
 
@@ -443,6 +443,6 @@ static inline void l4_i686_select_perfctr0_event(long long *val){
 /* end of not only lib-prototypes section */
 #endif
 
-__END_DECLS
+L4_END_DECLS
 
 #endif

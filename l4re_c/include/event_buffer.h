@@ -6,10 +6,11 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/linkage.h>
 #include <l4/re/c/event.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 typedef struct l4re_event_buffer_consumer_t
 {
@@ -42,4 +43,4 @@ l4re_event_buffer_consumer_process(l4re_event_buffer_consumer_t *evbuf,
                                    l4_cap_idx_t irq, l4_cap_idx_t thread, void *data,
                                    l4re_event_buffer_cb_t *cb);
 
-__END_DECLS
+L4_END_DECLS

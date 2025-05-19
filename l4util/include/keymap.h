@@ -12,11 +12,11 @@
 
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 int l4util_map_event_to_keymap(unsigned value, unsigned shift);
 
-__END_DECLS
+L4_END_DECLS
 
 
 #endif /* __L4UTIL__KEYMAP_H__ */

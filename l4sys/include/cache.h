@@ -34,7 +34,7 @@
  * it's not necessary to explicitly make caches coherent to PoU.
  */
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * Cache clean a range in D-cache; writes back to PoC.
@@ -133,6 +133,6 @@ L4_INLINE int
 l4_cache_dma_coherent_full(void) L4_NOTHROW;
 #endif
 
-__END_DECLS
+L4_END_DECLS
 
 #endif /* ! __L4SYS__INCLUDE__CACHE_H__ */

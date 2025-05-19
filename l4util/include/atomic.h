@@ -24,7 +24,7 @@
  *** Prototypes
  *****************************************************************************/
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /** 
  * \defgroup l4util_atomic Atomic Instructions
@@ -333,7 +333,7 @@ l4util_atomic_add(volatile long *dest, long val);
 L4_INLINE void
 l4util_atomic_inc(volatile long *dest);
 
-__END_DECLS
+L4_END_DECLS
 
 /*****************
  * IMPLEMENTAION *

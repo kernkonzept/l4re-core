@@ -15,6 +15,7 @@
 #include <l4/l4re_vfs/backend>
 #include <l4/re/log>
 #include <l4/re/env>
+#include <l4/sys/compiler.h>
 
 #include <errno.h>
 #include <fcntl.h>
@@ -1124,10 +1125,10 @@ int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
     POST(); \
   }
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 ssize_t preadv(int, const struct iovec *, int, __off64_t);
 ssize_t pwritev(int, const struct iovec *, int, __off64_t);
-__END_DECLS
+L4_END_DECLS
 
 L4B_REDIRECT_2(int,       fstat64,     int, struct stat64 *)
 L4B_REDIRECT_3(ssize_t,   readv,       int, const struct iovec *, int)

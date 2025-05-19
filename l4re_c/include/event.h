@@ -17,11 +17,12 @@
  * \brief Event C interface.
  */
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
 #include <l4/re/c/dataspace.h>
 #include <l4/re/event.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Event structure used in buffer.
@@ -116,4 +117,4 @@ l4re_event_get_axis_info(const l4_cap_idx_t server, l4_umword_t id,
                          unsigned naxes, unsigned const *axis,
                          l4re_event_absinfo_t *info) L4_NOTHROW;
 
-__END_DECLS
+L4_END_DECLS

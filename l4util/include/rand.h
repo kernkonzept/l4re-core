@@ -19,7 +19,7 @@
 #include <l4/sys/compiler.h>
 #include <l4/sys/l4int.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \defgroup l4util_random Random number support
@@ -44,6 +44,6 @@ l4util_rand(void);
 L4_CV void
 l4util_srand (l4_uint32_t seed);
 
-__END_DECLS
+L4_END_DECLS
 
 #endif /* __L4UTIL_RAND_H */

@@ -17,10 +17,11 @@
  * \brief Kumem allocator utility C interface.
  */
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
 #include <l4/sys/linkage.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \copydoc L4Re::Util::kumem_alloc()
@@ -29,4 +30,4 @@ L4_CV int
 l4re_util_kumem_alloc(l4_addr_t *mem, unsigned pages_order,
                       l4_cap_idx_t task, l4_cap_idx_t rm) L4_NOTHROW;
 
-__END_DECLS
+L4_END_DECLS

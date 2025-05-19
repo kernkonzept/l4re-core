@@ -64,12 +64,12 @@
 
 /**
  * Start section with C types and functions.
- * \def     __BEGIN_DECLS
+ * \def     L4_BEGIN_DECLS
  * \hideinitializer
  */
 /**
  * End section with C types and functions.
- * \def     __END_DECLS
+ * \def     L4_END_DECLS
  * \hideinitializer
  */
 
@@ -153,6 +153,8 @@
 #  ifndef __END_DECLS
 #    define __END_DECLS
 #  endif
+#  define L4_BEGIN_DECLS
+#  define L4_END_DECLS
 #  define L4_DEFAULT_PARAM(x)
 #else /* __cplusplus */
 #  if __cplusplus >= 201103L
@@ -160,6 +162,8 @@
 #  else /* C++ < 11 */
 #    define L4_NOTHROW throw()
 #  endif
+#  define L4_BEGIN_DECLS extern "C" {
+#  define L4_END_DECLS }
 #  if !defined __BEGIN_DECLS || defined DOXYGEN
 #    define __BEGIN_DECLS extern "C" {
 #  endif
@@ -174,10 +178,10 @@
 #define EXTERN_C DO_NOT_USE_EXTERN_C_ANY_MORE
 #endif
 #ifndef EXTERN_C_BEGIN
-#define EXTERN_C_BEGIN DO_NOT_USE_EXTERN_C_BEGIN_ANY_MORE__USE__BEGIN_DECLS
+#define EXTERN_C_BEGIN DO_NOT_USE_EXTERN_C_BEGIN_ANY_MORE__USE_L4_BEGIN_DECLS
 #endif
 #ifndef EXTERN_C_END
-#define EXTERN_C_END DO_NOT_USE_EXTERN_C_END_ANY_MORE__USE__END_DECLS
+#define EXTERN_C_END DO_NOT_USE_EXTERN_C_END_ANY_MORE__USE_L4_END_DECLS
 #endif
 
 /**

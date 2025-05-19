@@ -18,7 +18,7 @@
 
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 L4_INLINE void l4util_cli (void);
 L4_INLINE void l4util_sti (void);
@@ -61,7 +61,7 @@ l4util_flags_restore(l4_umword_t *flags)
   __do_not_use_l4util_flags_restore();
 }
 
-__END_DECLS
+L4_END_DECLS
 
 #endif //__GNUC__
 

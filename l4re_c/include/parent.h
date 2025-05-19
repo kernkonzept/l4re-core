@@ -17,9 +17,10 @@
  * \ingroup api_l4re_c
  */
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \brief Send a signal using the parent protocol.
@@ -36,4 +37,4 @@ __BEGIN_DECLS
 L4_CV long L4_EXPORT
 l4re_parent_signal(l4_cap_idx_t parent, unsigned long sig, unsigned long val);
 
-__END_DECLS
+L4_END_DECLS

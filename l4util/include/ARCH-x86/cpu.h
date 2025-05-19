@@ -15,7 +15,7 @@
 
 #include <l4/sys/compiler.h>
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * \defgroup l4util_cpu CPU related functions
@@ -121,7 +121,7 @@ l4util_cpu_capabilities(void)
   return l4util_cpu_capabilities_nocheck();
 }
 
-__END_DECLS
+L4_END_DECLS
 
 #endif
 

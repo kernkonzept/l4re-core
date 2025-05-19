@@ -11,6 +11,7 @@
  */
 #pragma once
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
 #include <l4/re/c/dataspace.h>
 #include <l4/re/c/video/colors.h>
@@ -71,7 +72,7 @@ typedef struct l4re_video_view_t
 } l4re_video_view_t;
 
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * Flush the given rectangle of pixels of the given \a view.
@@ -147,5 +148,5 @@ L4_CV int
 l4re_video_view_stack(l4re_video_view_t *view, l4re_video_view_t *pivot,
                       int behind) L4_NOTHROW;
 
-__END_DECLS
+L4_END_DECLS
 

@@ -19,7 +19,7 @@
  * \defgroup l4util_api Utility Functions
  */
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 /**
  * Calculate l4 timeouts
@@ -113,6 +113,6 @@ l4_touch_rw(const void *addr, unsigned size) L4_NOTHROW
     *(volatile char *)b |= 0;
 }
 
-__END_DECLS
+L4_END_DECLS
 
 #endif /* __L4UTIL__UTIL_H__ */
