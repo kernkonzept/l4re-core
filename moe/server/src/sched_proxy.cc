@@ -20,7 +20,9 @@ static l4_umword_t kernel_sched_classes;
 
 Dyn_cpu_set::Dyn_cpu_set(Moe::Q_alloc *q)
 : Bitmap_base(q->alloc(bit_buffer_bytes(kernel_cpu_max), alignof(word_type)))
-{}
+{
+  clear_all();
+}
 
 Dyn_cpu_set::~Dyn_cpu_set()
 {
