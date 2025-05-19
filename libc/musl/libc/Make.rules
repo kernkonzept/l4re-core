@@ -1,0 +1,70 @@
+# vi:ft=make
+LIBCSRC_DIR ?= $(SRC_DIR)/..
+
+DEFINES           += -DL4_THREAD_SAFE -DL4_NO_RTTI=1 -DUSE_TLS=1
+TARGET            := libc.a libc.so libc_nonshared.p.a
+PC_FILENAME       := libc
+PC_LIBS           := -lc %{static|static-pie:;:-lc_nonshared.p}
+PC_EXTRA          := Link_Libs= %{static|static-pie:-lc}
+
+REQUIRES_LIBS     := ldscripts l4util l4re l4sys l4re-util l4re_c \
+                     l4re_c-util libc_be_l4re libc_be_l4refile \
+                     libc_support_misc libc_be_fs_noop libc_be_sem_noop \
+                     libc_be_sig libc_be_socket_noop libl4re-vfs
+
+SOVERSION_libc.so := 1.2.5
+
+PICFLAGS += -DSHARED=1
+
+LIBC_BUILD_MODE = full
+
+include $(LIBCSRC_DIR)/make_vars.mk
+include $(LIBCSRC_DIR)/make_rules.mk
+include $(LIBCSRC_DIR)/contrib_files.mk
+include $(LIBCSRC_DIR)/sources.mk
+
+DEFINES-$(CONFIG_BID_PIE) += -DSTATIC_PIE
+
+# Needed?
+LDFLAGS         = -z combreloc -z relro --sort-common \
+		  --warn-common -static-libgcc --link-libc
+
+LDFLAGS_NONGOLD = --warn-once --sort-section=alignment
+LDFLAGS        += $(LDFLAGS_NONGOLD)
+
+LDFLAGS_libc.so += --entry=_dlstart
+
+# process all sources for the libc
+$(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
+# process templates for instantiated C files
+#$(eval $(call PROCESS_template_src, $(TMPL_DIRS), $(TMPL_MODULES)))
+
+$(foreach ext,C S CC, \
+  $(eval SRC_$(ext)_libc.so += $(LIBC_SRC_$(ext)) $(LIBC_SRC_$(ext)_libc.so)) \
+  $(eval SRC_$(ext)_libc.a  += $(LIBC_SRC_$(ext)) $(LIBC_SRC_$(ext)_libc.a))  \
+)
+
+SRC_CC += _exit.cc
+vpath _exit.cc $(PKGDIR)/common
+vfs.s.o: PRIVATE_INCDIR :=
+SRC_CC_libc.so += vfs.cc
+
+DEFINES_kip.S += -DL4_KIP_ADDR=$(L4_KIP_ADDR)
+SRC_S_libc.so += kip.S
+vpath kip.S $(PKGDIR)/../l4sys/lib/src/
+
+DEFINES_libc_pthread_init.c += -D_GNU_SOURCE
+
+CXXFLAGS += -fno-rtti -fno-exceptions
+
+$(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/libc/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
+                  $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk \
+                  $(LIBCSRC_DIR)/sources.mk
+
+# Gather all libraries that shall be linked into libc. We need to search them
+# explicitly because no linker is involved here. Only take the first hit, like
+# ld would do.
+LINK_LIBC_LIBNAMES = $(call BID_PKG_CONFIG,$(OBJ_BASE),--libs -- --link-libc,$(REQUIRES_LIBS))
+LINK_LIBC_LIBS = $(foreach l,$(LINK_LIBC_LIBNAMES),$(firstword $(wildcard $(addsuffix /$(l),$(L4LIBDIR)))))
+
+OBJS_libc.a += $(LINK_LIBC_LIBS)

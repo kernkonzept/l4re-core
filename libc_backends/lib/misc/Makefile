@@ -1,6 +1,8 @@
 PKGDIR ?= ../..
 L4DIR  ?= $(PKGDIR)/../../..
 
+include $(L4DIR)/mk/Makeconf
+
 TARGET      = libc_support_misc.ofl libc_support_misc.p.a
 PC_FILENAME = libc_support_misc
 PC_LIBS        = %{-link-libc:%{shared:--whole-archive -lc_support_misc.p --no-whole-archive;:libc_support_misc.ofl}}
@@ -14,7 +16,6 @@ SRC_C       = daemon.c \
               getrusage.c \
               kill.c \
               limit.c \
-              lockf.c \
               pathconf.c \
               pipe.c \
               posix_fadvise.c \
@@ -36,6 +37,9 @@ SRC_C       = daemon.c \
               wait3.c \
               waitpid.c
 
+SRC_C-$(CONFIG_L4_LIBC_UCLIBC) += lockf.c
+
 include $(L4DIR)/mk/lib.mk
 
 CPPFLAGS-$(CONFIG_L4_LIBC_UCLIBC) += -DNOT_IN_libc -include libc-symbols.h
+CPPFLAGS-$(CONFIG_L4_LIBC_MUSL)   += -D_GNU_SOURCE

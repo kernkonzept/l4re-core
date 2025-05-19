@@ -11,7 +11,9 @@
 #include <l4/sys/compiler.h>
 
 #include <sys/types.h>
+#include <sys/uio.h>
 #include <unistd.h>
+#include <stdio.h>
 #include <errno.h>
 
 extern "C" ssize_t write(int fd, const void *buf, size_t count)
@@ -39,4 +41,14 @@ noexcept(noexcept(lseek(fd, offset, whence)))
   return -1;
 }
 
+#ifdef CONFIG_L4_LIBC_MUSL
+extern "C" int __stdio_close(FILE *);
+int __stdio_close(FILE *)
+{
+   return 0;
+}
+#endif
+
+#ifndef CONFIG_L4_LIBC_MUSL
 L4_STRONG_ALIAS(lseek, lseek64)
+#endif

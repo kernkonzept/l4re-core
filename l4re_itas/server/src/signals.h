@@ -64,8 +64,19 @@ struct Sig_set
   {
     sigset_t ret;
     // No public API to do that... :(
-    for (unsigned i = 0; i < _SIGSET_NWORDS; i++)
-      ret.__val[i] = ~sigset.__val[i];
+    // Need to be flexible for different C libs ... currently supports MUSL and
+    // uclibc-ng
+#ifndef _SIGSET_NWORDS
+# define __L4_SIGSET_MEMBER __bits
+# define __L4_SIGSET_NWORDS (128 / (8 * sizeof(*sigset.__bits)))
+#else
+# define __L4_SIGSET_MEMBER __val
+# define __L4_SIGSET_NWORDS _SIGSET_NWORDS
+#endif
+    for (unsigned i = 0; i < __L4_SIGSET_NWORDS; i++)
+      ret.__L4_SIGSET_MEMBER[i] = ~sigset.__L4_SIGSET_MEMBER[i];
+#undef __L4_SIGSET_MEMBER
+#undef __L4_SIGSET_NWORDS
     return ret;
   }
 

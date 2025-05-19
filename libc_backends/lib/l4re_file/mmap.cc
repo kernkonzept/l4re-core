@@ -25,8 +25,8 @@
     POST();                  \
   }
 
-void *mmap2(void *addr, size_t length, int prot, int flags,
-            int fd, off_t pgoffset) noexcept;
+extern "C" void *mmap2(void *addr, size_t length, int prot, int flags,
+                       int fd, off_t pgoffset) noexcept;
 void *mmap2(void *addr, size_t length, int prot, int flags,
             int fd, off_t pgoffset) noexcept
 {
@@ -54,7 +54,9 @@ noexcept(noexcept(mmap(addr, length, prot, flags, fd, offset)))
   return mmap2(addr, length, prot, flags, fd, offset >> 12);
 }
 
+#ifndef CONFIG_L4_LIBC_MUSL
 L4_STRONG_ALIAS(mmap, mmap64)
+#endif
 
 L4B_REDIRECT_2(int, munmap, void*, size_t)
 L4B_REDIRECT_3(int, mprotect, void *, size_t, int);
@@ -173,3 +175,15 @@ noexcept(noexcept(munlockall()))
   return 0;
 }
 
+// Musl syscall wrappers
+#ifdef CONFIG_L4_LIBC_MUSL
+
+#include <bits/syscall.h>
+
+L4_STRONG_ALIAS(mmap2, __l4re_syscall_SYS_mmap2)
+L4_STRONG_ALIAS(mmap, __l4re_syscall_SYS_mmap)
+L4_STRONG_ALIAS(munmap, __l4re_syscall_SYS_munmap)
+L4_STRONG_ALIAS(mremap, __l4re_syscall_SYS_mremap)
+L4_STRONG_ALIAS(mprotect, __l4re_syscall_SYS_mprotect)
+
+#endif

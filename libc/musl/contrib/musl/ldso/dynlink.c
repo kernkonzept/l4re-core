@@ -1114,6 +1114,9 @@ static struct dso *load_library(const char *name, struct dso *needed_by)
 		}
 		if (strlen(name) > NAME_MAX) return 0;
 		fd = -1;
+#ifndef NOT_FOR_L4
+		env_path = "rom";
+#endif
 		if (env_path) fd = path_open(name, env_path, buf, sizeof buf);
 		for (p=needed_by; fd == -1 && p; p=p->needed_by) {
 			if (fixup_rpath(p, buf, sizeof buf) < 0)
@@ -1789,10 +1792,15 @@ void __dls2b(size_t *sp, size_t *auxv)
 	else ((stage3_func)laddr(&ldso, dls3_def.sym->st_value))(sp, auxv);
 }
 
+extern weak hidden void (*const __init_array_start)(void), (*const __init_array_end)(void);
+extern weak hidden void (*const __preinit_array_start)(void), (*const __preinit_array_end)(void);
 /* Stage 3 of the dynamic linker is called with the dynamic linker/libc
  * fully functional. Its job is to load (if not already loaded) and
  * process dependencies and relocations for the main application and
  * transfer control to its entry point. */
+
+__attribute__ ((visibility ("hidden"))) void *__rtld_l4re_global_env;
+extern void *l4re_global_env __attribute__ ((alias ("__rtld_l4re_global_env")));
 
 void __dls3(size_t *sp, size_t *auxv)
 {
@@ -1812,7 +1820,7 @@ void __dls3(size_t *sp, size_t *auxv)
 	__environ = envp;
 	decode_vec(auxv, aux, AUX_CNT);
 	search_vec(auxv, &__sysinfo, AT_SYSINFO);
-	__pthread_self()->sysinfo = __sysinfo;
+	//__pthread_self()->sysinfo = __sysinfo;
 	libc.page_size = aux[AT_PAGESZ];
 	libc.secure = ((aux[0]&0x7800)!=0x7800 || aux[AT_UID]!=aux[AT_EUID]
 		|| aux[AT_GID]!=aux[AT_EGID] || aux[AT_SECURE]);
@@ -1825,6 +1833,23 @@ void __dls3(size_t *sp, size_t *auxv)
 
 	/* Activate error handler function */
 	error = error_impl;
+
+#ifndef NOT_FOR_L4
+	// Must do this after initializing `libc.page_size`, since on architectures
+	// such as arm64, where musl provides no hardcoded PAGESIZE define, it is used
+	// in malloc to detect the page size.
+	size_t tmp;
+	int ret = search_vec(auxv, &tmp, 0xf1);
+	l4re_global_env = (void*)tmp;
+
+	size_t init_array, init_array_sz;
+	search_vec(ldso.dynv, &init_array, DT_INIT_ARRAY);
+	search_vec(ldso.dynv, &init_array_sz, DT_INIT_ARRAYSZ);
+
+	size_t n = init_array_sz/sizeof(size_t);
+	size_t *fn = laddr(&ldso, init_array);
+	while (n--) ((void (*)(void))*fn++)();
+#endif
 
 	/* If the main program was already loaded by the kernel,
 	 * AT_PHDR will point to some location other than the dynamic

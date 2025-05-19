@@ -1,13 +1,19 @@
 PKGDIR ?= ..
 L4DIR  ?= $(PKGDIR)/../../..
 
-LIBCSRC_DIR ?= $(PKGDIR)/../libc/uclibc-ng
+include $(L4DIR)/mk/Makeconf
+
+LIBCSRC_DIR ?= $(PKGDIR)/../libc/$(CONFIG_L4_LIBC)
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
 CON_DIR := $(CONTRIB_DIR)/ldso
 
-PC_EXTRA = Link_DynLinker= rom/libld-l4.so.1
+PC_EXTRA = Link_DynLinker= $(LIBC_DYNLINKER)
+
+ifeq ($(CONFIG_L4_LIBC),uclibc-ng)
+TARGET := libld-l4.so
+SOVERSION = 1
 
 vpath %.c $(CON_DIR)/ldso
 vpath %.S $(CON_DIR)/ldso/$(LIBC_ARCH)
@@ -24,7 +30,6 @@ PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
                   $(PTHREAD_INCDIR)
 
 
-TARGET := libld-l4.so
 SRC_C  := ldso.c dl-vdso.c fixup.c string.c
 SRC_CC := syscalls.cc vfs.cc
 #SRC_S_arm-l4f  += aeabi_read_tp-v6p.S
@@ -35,12 +40,14 @@ CFLAGS += -ffreestanding
 CFLAGS_string.c = -fvisibility=hidden
 CFLAGS_fixup.c = -fvisibility=hidden
 
-CPPFLAGS := -DNOT_IN_libc -DIS_IN_rtld \
+CPPFLAGS-$(CONFIG_L4_LIBC_UCLIBC) += -DIS_IN_rtld -DNOT_IN_libc -include libc-symbols.h
+CPPFLAGS-$(CONFIG_L4_LIBC_MUSL) += -D_GNU_SOURCE
+CPPFLAGS := -DIS_IN_rtld \
             -DLDSO_ELFINTERP=\"$(LIBC_ARCH)/elfinterp.c\" \
-            -include libc-symbols.h -DUCLIBC_LDSO=\"libld-l4.so.1\" \
+            -DUCLIBC_LDSO=\"libld-l4.so.1\" \
             -DUCLIBC_RUNTIME_PREFIX=\"/\" \
             -D__LDSO_SEARCH_INTERP_PATH__=1 \
-            -DIS_IN_rtld -D__LIBDL_SHARED__ -DSHARED
+            -D__LIBDL_SHARED__ -DSHARED
 
 DEFINES += -DUSE_TLS=1
 
@@ -49,10 +56,6 @@ LDFLAGS  =  -nocrt1 -Bsymbolic -Bstatic --warn-common --sort-common \
             --discard-locals --discard-all   \
             --gc-sections --whole-archive -ll4sys-direct --no-whole-archive \
             -static-libgcc
-
-SOVERSION = 1
-
-include $(L4DIR)/mk/Makeconf
 
 # stack protector handling
 ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
@@ -74,3 +77,11 @@ CPPFLAGS := $(filter-out -DL4SYS_USE_UTCB_WRAP=1, $(CPPFLAGS))
 
 # Suppress false-positive warnings
 WARNINGS += -Wno-bad-function-cast
+
+else #MUSL
+
+TARGET :=
+
+include $(L4DIR)/mk/lib.mk
+
+endif

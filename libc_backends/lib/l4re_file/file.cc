@@ -54,6 +54,7 @@ ssize_t write(int fd, const void *buf, size_t count)
   return writev(fd, &iov, 1);
 }
 
+#ifndef fstat64
 static void copy_stat64_to_stat(struct stat *buf, struct stat64 *sb64)
 {
   memset(buf, 0, sizeof(*buf));
@@ -83,6 +84,13 @@ int fstat(int fd, struct stat *buf) noexcept(noexcept(fstat(fd, buf)))
   copy_stat64_to_stat(buf, &sb64);
   return r;
 }
+#endif
+
+#ifdef CONFIG_L4_LIBC_MUSL
+L4_BEGIN_DECLS
+L4_STRONG_ALIAS(fstat, __fstat)
+L4_END_DECLS
+#endif
 
 #define ERRNO_RET(r) do { \
   if ((r) < 0) \
@@ -177,7 +185,17 @@ int openat(int dirfd, const char *name, int flags, ...)
   return __internal_open(dirfd, name, flags, mode);
 }
 
-extern "C" int ioctl(int fd, unsigned long request, ...)
+// Different libc implementations use different types for the request argument.
+// To support both implementations we use template magic to deduce the type of
+// the argument. Beware that it is *not* possible to use the same library binary
+// with headers of different libc implementations in the end.
+#if defined(__GLIBC__) || defined(__UCLIBC__)
+using request_type = unsigned long;
+#else
+using request_type = int;
+#endif
+
+extern "C" int ioctl(int fd, request_type request, ...)
 noexcept(noexcept(ioctl(fd, request)))
 {
   va_list v;
@@ -250,7 +268,9 @@ extern "C" int fcntl(int fd, int cmd, ...)
 }
 
 
-// *64 variants for large file support are equal for us
+// *64 variants for large file support are equal for us, but we cannot define
+// them for musl, since they use macro-hackery to alias the functions.
+#ifndef CONFIG_L4_LIBC_MUSL
 L4_BEGIN_DECLS
 L4_STRONG_ALIAS(open, open64)
 L4_STRONG_ALIAS(openat, openat64)
@@ -258,6 +278,7 @@ L4_STRONG_ALIAS(fcntl, fcntl64)
 L4_STRONG_ALIAS(lseek, lseek64)
 L4_STRONG_ALIAS(ftruncate, ftruncate64)
 L4_END_DECLS
+#endif
 
 int lockf(int /* fd */, int /* cmd */, off_t /* len */)
 {
@@ -316,7 +337,7 @@ noexcept(noexcept(dup(oldfd)))
   return r;
 }
 
-
+#ifndef stat64
 int stat(const char *path, struct stat *buf)
 noexcept(noexcept(stat(path, buf)))
 {
@@ -328,7 +349,9 @@ noexcept(noexcept(stat(path, buf)))
   copy_stat64_to_stat(buf, &sb64);
   return r;
 }
+#endif
 
+#ifndef lstat64
 int lstat(const char *path, struct stat *buf)
 noexcept(noexcept(lstat(path, buf)))
 {
@@ -341,6 +364,7 @@ noexcept(noexcept(lstat(path, buf)))
   copy_stat64_to_stat(buf, &sb64);
   return r;
 }
+#endif
 
 int statfs([[maybe_unused]] const char *path, struct statfs *buf)
 noexcept(noexcept(statfs(path, buf)))
@@ -362,6 +386,9 @@ noexcept(noexcept(statfs(path, buf)))
   return 0;
 }
 
+// Some C library implementations define statfs64 as statfs in the preprocessor
+// guards against this (same for others below)
+#ifndef statfs64
 int statfs64([[maybe_unused]] const char *path, struct statfs64 *buf)
 noexcept(noexcept(statfs64(path, buf)))
 {
@@ -381,6 +408,7 @@ noexcept(noexcept(statfs64(path, buf)))
   buf->f_flags = 0;
   return 0;
 }
+#endif
 
 int statvfs([[maybe_unused]] const char *path, struct statvfs *buf)
 noexcept(noexcept(statvfs(path, buf)))
@@ -400,6 +428,7 @@ noexcept(noexcept(statvfs(path, buf)))
   return 0;
 }
 
+#ifndef statvfs64
 int statvfs64([[maybe_unused]] const char *path, struct statvfs64 *buf) noexcept
 {
   printf("l4re-statvfs64(%s, ...): to be implemented\n", path);
@@ -416,6 +445,7 @@ int statvfs64([[maybe_unused]] const char *path, struct statvfs64 *buf) noexcept
   buf->f_namemax = 16;
   return 0;
 }
+#endif
 
 int fstatvfs([[maybe_unused]] int fd, struct statvfs *buf)
 noexcept(noexcept(fstatvfs(fd, buf)))
@@ -435,6 +465,7 @@ noexcept(noexcept(fstatvfs(fd, buf)))
   return 0;
 }
 
+#ifndef fstatvfs64
 int fstatvfs64([[maybe_unused]] int fd, struct statvfs64 *buf) noexcept
 {
   printf("l4re-fstatvfs(%d, ...): to be implemented\n", fd);
@@ -451,7 +482,7 @@ int fstatvfs64([[maybe_unused]] int fd, struct statvfs64 *buf) noexcept
   buf->f_namemax = 16;
   return 0;
 }
-
+#endif
 
 int close(int fd)
 noexcept(noexcept(close(fd)))
@@ -1167,11 +1198,13 @@ extern "C" int fchdir(int fd) noexcept(noexcept(fchdir(fd)))
   return 0;
 }
 
+#ifndef CONFIG_L4_LIBC_MUSL
 L4_BEGIN_DECLS
 L4_STRONG_ALIAS(pread, pread64)
 L4_STRONG_ALIAS(pwrite, pwrite64)
 L4_STRONG_ALIAS(truncate, truncate64)
 L4_END_DECLS
+#endif
 
 extern "C"
 ssize_t pread(int fd, void *buf, size_t count, off_t offset)
@@ -1268,3 +1301,21 @@ noexcept(noexcept(lchown(p, u, g)))
   errno = EINVAL;
   return -1;
 }
+
+#ifdef CONFIG_L4_LIBC_MUSL
+
+#include <bits/syscall.h>
+
+L4_STRONG_ALIAS(open, __l4re_syscall_SYS_open)
+L4_STRONG_ALIAS(close, __l4re_syscall_SYS_close)
+L4_STRONG_ALIAS(read, __l4re_syscall_SYS_read)
+L4_STRONG_ALIAS(readv, __l4re_syscall_SYS_readv)
+L4_STRONG_ALIAS(writev, __l4re_syscall_SYS_writev)
+L4_STRONG_ALIAS(fcntl, __l4re_syscall_SYS_fcntl)
+L4_STRONG_ALIAS(ioctl, __l4re_syscall_SYS_ioctl)
+L4_STRONG_ALIAS(rename, __l4re_syscall_SYS_rename)
+L4_STRONG_ALIAS(rmdir, __l4re_syscall_SYS_rmdir)
+L4_STRONG_ALIAS(readlink, __l4re_syscall_SYS_readlink)
+L4_STRONG_ALIAS(unlink, __l4re_syscall_SYS_unlink)
+
+#endif

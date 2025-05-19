@@ -177,7 +177,9 @@ void setusershell(void);
 void endusershell(void);
 char *getusershell(void);
 int acct(const char *);
+#ifdef NOT_FOR_L4
 long syscall(long, ...);
+#endif
 int execvpe(const char *, char *const [], char *const []);
 int issetugid(void);
 int getentropy(void *, size_t);

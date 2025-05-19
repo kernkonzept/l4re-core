@@ -34,13 +34,17 @@ static int static_dl_iterate_phdr(int(*callback)(struct dl_phdr_info *info, size
 	info.dlpi_phnum = aux[AT_PHNUM];
 	info.dlpi_adds  = 0;
 	info.dlpi_subs  = 0;
+#ifndef L4_MINIMAL_LIBC
 	if (tls_phdr) {
 		info.dlpi_tls_modid = 1;
 		info.dlpi_tls_data = __tls_get_addr((tls_mod_off_t[]){1,0});
 	} else {
+#endif
 		info.dlpi_tls_modid = 0;
 		info.dlpi_tls_data = 0;
+#ifndef L4_MINIMAL_LIBC
 	}
+#endif
 	return (callback)(&info, sizeof (info), data);
 }
 

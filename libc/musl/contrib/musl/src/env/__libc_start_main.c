@@ -11,11 +11,17 @@ static void dummy(void) {}
 weak_alias(dummy, _init);
 
 extern weak hidden void (*const __init_array_start)(void), (*const __init_array_end)(void);
+extern weak hidden void (*const __preinit_array_start)(void), (*const __preinit_array_end)(void);
 
 static void dummy1(void *p) {}
 weak_alias(dummy1, __init_ssp);
 
 #define AUX_CNT 38
+
+#ifndef NOT_FOR_L4
+extern weak void *l4re_global_env;
+extern weak void *l4_global_kip;
+#endif
 
 #ifdef __GNUC__
 __attribute__((__noinline__))
@@ -26,7 +32,20 @@ void __init_libc(char **envp, char *pn)
 	__environ = envp;
 	for (i=0; envp[i]; i++);
 	libc.auxv = auxv = (void *)(envp+i+1);
+#ifndef NOT_FOR_L4
+	for (i=0; auxv[i]; i+=2)
+          {
+                  if (auxv[i]<AUX_CNT) aux[auxv[i]] = auxv[i+1];
+
+                  if (auxv[i] == 0xf1 && &l4re_global_env)
+                         l4re_global_env = (void *)auxv[i+1];
+                  else if (auxv[i] == 0xf2 && &l4_global_kip)
+                         l4_global_kip = (void *)auxv[i+1];
+
+          }
+#else
 	for (i=0; auxv[i]; i+=2) if (auxv[i]<AUX_CNT) aux[auxv[i]] = auxv[i+1];
+#endif
 	__hwcap = aux[AT_HWCAP];
 	if (aux[AT_SYSINFO]) __sysinfo = aux[AT_SYSINFO];
 	libc.page_size = aux[AT_PAGESZ];
@@ -42,6 +61,7 @@ void __init_libc(char **envp, char *pn)
 	if (aux[AT_UID]==aux[AT_EUID] && aux[AT_GID]==aux[AT_EGID]
 		&& !aux[AT_SECURE]) return;
 
+#ifdef NOT_FOR_L4 // For L4 we assume all FDs to be ready
 	struct pollfd pfd[3] = { {.fd=0}, {.fd=1}, {.fd=2} };
 	int r =
 #ifdef SYS_poll
@@ -53,13 +73,18 @@ void __init_libc(char **envp, char *pn)
 	for (i=0; i<3; i++) if (pfd[i].revents&POLLNVAL)
 		if (__sys_open("/dev/null", O_RDWR)<0)
 			a_crash();
+#endif
 	libc.secure = 1;
 }
 
 static void libc_start_init(void)
 {
 	_init();
-	uintptr_t a = (uintptr_t)&__init_array_start;
+	uintptr_t a = (uintptr_t)&__preinit_array_start;
+	for (; a<(uintptr_t)&__preinit_array_end; a+=sizeof(void(*)()))
+		(*(void (**)(void))a)();
+
+	a = (uintptr_t)&__init_array_start;
 	for (; a<(uintptr_t)&__init_array_end; a+=sizeof(void(*)()))
 		(*(void (**)(void))a)();
 }

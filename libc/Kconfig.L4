@@ -1,13 +1,15 @@
 choice
-  prompt "Libc variant" if false
+  prompt "Libc variant"
 
 config L4_LIBC_UCLIBC
   bool "uclibc-ng"
+
+config L4_LIBC_MUSL
+  bool "musl" if EXPERIMENTAL && BUILD_ARCH_arm64
 
 endchoice
 
 config L4_LIBC
   string
   default "uclibc-ng" if L4_LIBC_UCLIBC
-
-
+  default "musl" if L4_LIBC_MUSL

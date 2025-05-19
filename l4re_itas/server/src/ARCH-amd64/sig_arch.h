@@ -81,17 +81,30 @@ static inline
 void setup_sighandler_frame(l4_exc_regs_t *u, ucontext_t *ucf,
                             siginfo_t const *si, struct sigaction const &sa)
 {
+#ifdef CONFIG_L4_LIBC_UCLIBC
   ucf->uc_mcontext.fpregs = &ucf->__fpregs_mem;
 
   // Make sure there is enough space for fxsave64...
   static_assert(sizeof(ucf->__fpregs_mem) >= 464);
+#else
+  // Make sure there is enough space for fxsave64...
+  // Actually we only need 464, since fxsave64 only writes a max of 464 bytes,
+  // but for the alignment we require +16. as the memory  needs to be 16-byte
+  // aligned, because the fxsave64 instruction requires that, and otherwise
+  // raises an #GP.
+  static_assert(sizeof(ucf->__fpregs_mem) >= 464 + 16);
+#endif
 
   u->ip = reinterpret_cast<l4_umword_t>(&sigenter);
   u->sp = reinterpret_cast<l4_addr_t>(ucf);
   u->rdi = si->si_signo;
   u->rsi = reinterpret_cast<l4_umword_t>(si);
   u->rdx = reinterpret_cast<l4_umword_t>(ucf);
+#ifdef CONFIG_L4_LIBC_UCLIBC
   u->rcx = reinterpret_cast<l4_umword_t>(&ucf->__fpregs_mem);
+#else
+  u->rcx = (reinterpret_cast<l4_umword_t>(&ucf->__fpregs_mem) + 15UL) & ~15UL;
+#endif
   u->r8 = (sa.sa_flags & SA_SIGINFO)
           ? reinterpret_cast<l4_umword_t>(sa.sa_sigaction)
           : reinterpret_cast<l4_umword_t>(sa.sa_handler);

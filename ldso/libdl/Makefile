@@ -7,6 +7,8 @@ include $(LIBCSRC_DIR)/make_vars.mk
 
 PC_FILENAME := libdl
 
+ifeq ($(CONFIG_L4_LIBC),uclibc-ng)
+
 vpath %.c $(CONTRIB_DIR)/ldso/libdl
 vpath %.S $(CONTRIB_DIR)/ldso/ldso/$(LIBC_ARCH)
 
@@ -37,6 +39,11 @@ LDFLAGS = -lld-l4
 #LDFLAGS  =  -fini dl_cleanup
 
 EXTRA_LIBS := -lld-l4
+
+else # Empty for musl
+
+TARGET := libdl.a
+endif
 
 include $(L4DIR)/mk/lib.mk
 PICFLAGS += -DSHARED

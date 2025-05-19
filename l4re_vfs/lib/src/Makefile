@@ -15,3 +15,4 @@ CXXFLAGS += -fvisibility=hidden
 CXXFLAGS += -fno-exceptions -fno-rtti
 
 CPPFLAGS-$(CONFIG_L4_LIBC_UCLIBC) += -DNOT_IN_libc -include libc-symbols.h
+CPPFLAGS-$(CONFIG_L4_LIBC_MUSL)   += -D_GNU_SOURCE

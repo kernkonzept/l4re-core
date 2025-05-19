@@ -207,8 +207,13 @@ struct sigevent {
 int __libc_current_sigrtmin(void);
 int __libc_current_sigrtmax(void);
 
+#ifdef NOT_FOR_L4
 #define SIGRTMIN  (__libc_current_sigrtmin())
 #define SIGRTMAX  (__libc_current_sigrtmax())
+#else
+#define SIGRTMIN 35
+#define SIGRTMAX 62
+#endif
 
 int kill(pid_t, int);
 

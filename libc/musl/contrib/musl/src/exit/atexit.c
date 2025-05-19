@@ -61,6 +61,7 @@ int __cxa_atexit(void (*func)(void *), void *arg, void *dso)
 
 	/* If the current function list is full, add a new one */
 	if (slot==COUNT) {
+#ifndef L4_MINIMAL_LIBC
 		struct fl *new_fl = calloc(sizeof(struct fl), 1);
 		if (!new_fl) {
 			UNLOCK(lock);
@@ -69,6 +70,10 @@ int __cxa_atexit(void (*func)(void *), void *arg, void *dso)
 		new_fl->next = head;
 		head = new_fl;
 		slot = 0;
+#else
+		UNLOCK(lock);
+		return -1;
+#endif
 	}
 
 	/* Append function to the list. */
@@ -85,7 +90,9 @@ static void call(void *p)
 	((void (*)(void))(uintptr_t)p)();
 }
 
+#ifndef L4_MINIMAL_LIBC
 int atexit(void (*func)(void))
 {
 	return __cxa_atexit(call, (void *)(uintptr_t)func, 0);
 }
+#endif

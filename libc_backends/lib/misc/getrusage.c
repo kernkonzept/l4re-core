@@ -8,7 +8,15 @@
 #include <errno.h>
 #include <sys/resource.h>
 
-int getrusage(__rusage_who_t who, struct rusage* usage)
+#ifdef CONFIG_L4_LIBC_UCLIBC
+// uclibc-ng and glibc use a more type-safe but non-standard type for the who
+// paramter
+typedef __rusage_who_t __rusage_type;
+#else
+typedef int __rusage_type;
+#endif
+
+int getrusage(__rusage_type who, struct rusage* usage)
 {
   (void)who; (void)usage;
   errno = EINVAL;

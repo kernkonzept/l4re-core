@@ -11,6 +11,7 @@
 #include <l4/re/env.h>
 #include <l4/sys/kip.h>
 #include <l4/libc_backends/clk.h>
+#include <l4/sys/compiler.h>
 
 #include "clocks.h"
 
@@ -58,3 +59,6 @@ int clock_gettime(clockid_t clk_id, struct timespec *tp)
   return __libc_l4_gettime[clk_id](tp);
 }
 
+L4_BEGIN_DECLS
+L4_STRONG_ALIAS(clock_gettime, __clock_gettime);
+L4_END_DECLS

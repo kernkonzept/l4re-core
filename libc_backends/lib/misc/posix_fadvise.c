@@ -16,4 +16,6 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
   return 0;
 }
 
+#ifndef CONFIG_L4_LIBC_MUSL
 L4_STRONG_ALIAS(posix_fadvise, posix_fadvise64)
+#endif

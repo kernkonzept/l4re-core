@@ -23,6 +23,7 @@
 typedef long syscall_arg_t;
 #endif
 
+#ifdef NOT_FOR_L4
 hidden long __syscall_ret(unsigned long),
 	__syscall_cp(syscall_arg_t, syscall_arg_t, syscall_arg_t, syscall_arg_t,
 	             syscall_arg_t, syscall_arg_t, syscall_arg_t);
@@ -417,5 +418,9 @@ hidden long __emulate_wait4(int, int *, int, void *, int);
 hidden void __procfdname(char __buf[static 15+3*sizeof(int)], unsigned);
 
 hidden void *__vdsosym(const char *, const char *);
+
+#else
+hidden long __syscall_ret(unsigned long);
+#endif // NOT_FOR_L4
 
 #endif

@@ -3,6 +3,8 @@ L4DIR		?= $(PKGDIR)/../../..
 
 SYSTEMS		= $(SYSTEMS_PLAIN)
 
+BID_ASM_FILE_EXTENSIONS = .s .S
+
 include $(L4DIR)/mk/Makeconf
 
 LIBCSRC_DIR ?= $(PKGDIR)/../libc/$(CONFIG_L4_LIBC)
@@ -47,8 +49,15 @@ DEPS += $(foreach file,crti_s.o kip_addr.o, $(call BID_dot_fname,$(file)).cmd)
 
 include $(L4DIR)/mk/lib.mk
 
+ifeq ($(CONFIG_L4_LIBC),uclibc-ng)
 LIBC_SYSDEPS    = $(CONTRIB_SYSDEPS)/$(LIBC_ARCH)
 PRIVATE_INCDIR    = $(PKGDIR) $(LIBC_SYSDEPS)
+else #musl
+LIBC_SYSDEPS = $(LIBCSRC_DIR)/contrib/musl/crt/$(LIBC_ARCH) $(LIBCSRC_DIR)/contrib/musl/crt
+PRIVATE_INCDIR  = $(LIBCSRC_DIR)/contrib/musl/arch/$(LIBC_ARCH)
+PRIVATE_INCDIR += $(LIBCSRC_DIR)/contrib/musl/src/internal
+PRIVATE_INCDIR += $(LIBCSRC_DIR)/contrib/musl/src/include
+endif
 
 define LDSCRIPT_MAKE_RULE_template
   $(call BID_MAKE_RULE_template,$1,$2,$(if $(filter %.c,$2),C,AS))

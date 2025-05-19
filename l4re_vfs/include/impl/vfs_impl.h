@@ -27,6 +27,7 @@
 #include <stdarg.h>
 #include <errno.h>
 #include <sys/uio.h>
+#include <sys/mman.h>
 
 #if 0
 #include <l4/sys/kdebug.h>
