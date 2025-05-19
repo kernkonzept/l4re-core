@@ -12,9 +12,10 @@ ALL_SRC_C_only_ppc32  = $(addprefix ARCH-ppc32/, rdtsc.c)
 ALL_SRC_C_only_sparc  = ARCH-sparc/atomics.c
 SRC_C                 = getopt2.c micros2l4to.c rand.c sleep.c \
                         base64.c kprintf.c kip.c keymap.c \
-                        ARCH-$(ARCH)/backtrace.c thread.c \
-                        $(ALL_SRC_C_only_$(ARCH)) parse_cmdline.c \
-                        list_alloc.c
+                        thread.c $(ALL_SRC_C_only_$(ARCH)) parse_cmdline.c \
+                        list_alloc.c \
+                        $(if $(wildcard $(SRC_DIR)/ARCH-$(ARCH)/backtrace.c), \
+                             ARCH-$(ARCH)/backtrace.c,backtrace_stub.c)
 CXXFLAGS              = -DL4_NO_RTTI -fno-exceptions -fno-rtti
 
 PRIVATE_INCDIR_ARCH-x86/perform.c = ARCH-x86
