@@ -58,9 +58,8 @@ INCDIR-sparc = $(SRC_DIR)/sysdeps/sparc \
 
 PRIVATE_INCDIR = $(SRC_DIR) $(INCDIR-$(ARCH)) $(CONTRIBDIR)/ldso/include
 
-DEFINES   := -DL4_THREAD_SAFE -D__USE_XOPEN2K -D_GNU_SOURCE=1 \
-             -D__NO_WEAK_PTHREAD_ALIASES=1 -D_LIBC=1 -DIS_IN_libpthread=1 \
-             -DNOT_IN_libc=1 -DL4_NO_RTTI=1
+DEFINES   := -DL4_THREAD_SAFE -D_GNU_SOURCE=1 -D__NO_WEAK_PTHREAD_ALIASES=1 \
+             -D_LIBC=1 -DIS_IN_libpthread=1 -DNOT_IN_libc=1 -DL4_NO_RTTI=1
 
 DEFINES_x86-l4f   := -DUSE___THREAD=1 
 DEFINES_amd64-l4f := -DUSE___THREAD=1 
