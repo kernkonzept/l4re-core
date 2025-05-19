@@ -18,6 +18,8 @@ $(GENERAL_D_LOC): $(LIBGCC_PKG_DIR)/build/src/Makefile.libgcc
 # Use warnings flags provided by libgcc build.
 WARNINGS       :=
 
+DEFINES        += -D_DEFAULT_SOURCE
+
 LIBGCC_LINK_DIR = $(OBJ_DIR)/src
 # Create symlink for source file in OBJ_DIR
 # 1: target: will be prefixed with OBJ_DIR
