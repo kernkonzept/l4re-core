@@ -56,7 +56,7 @@ Lua::Lib::run_init(lua_State *l)
 
 static const luaL_Reg libs[] =
 {
-  { "_G", luaopen_base },
+  {LUA_GNAME, luaopen_base },
   {LUA_LOADLIBNAME, luaopen_package},
   {LUA_TABLIBNAME, luaopen_table},
   { LUA_IOLIBNAME, luaopen_io },
