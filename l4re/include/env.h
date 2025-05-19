@@ -33,7 +33,7 @@
  */
 
 /**
- * Entry in the L4Re environment array for the named inital objects.
+ * Entry in the L4Re environment array for the named initial objects.
  * \ingroup api_l4re_env
  */
 typedef struct l4re_env_cap_entry_t

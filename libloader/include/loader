@@ -104,8 +104,8 @@ public:
   }
 
   /**
-   * Get either a new capability index or the fixed index for
-   * the inital capability with the given name.
+   * Get either a new capability index or the fixed index for the initial
+   * capability with the given name.
    *
    * \param name     The name of the initial capability.
    * \param current  A pointer to the next free capability index
