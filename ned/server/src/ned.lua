@@ -340,7 +340,7 @@ function Loader:start_backtracer(opts)
   local bt = self:new_channel();
   self:startv({ caps = { backtracer = bt:svr() },
                 scheduler = Env.user_factory:create(Proto.Scheduler,
-                                               0xff, 0xfc)
+                                                    0xff, 0xfc)
               }, prog, table.unpack(o.args or {}));
   -- After starting it such that it does not have itself set as a
   -- backtracer
