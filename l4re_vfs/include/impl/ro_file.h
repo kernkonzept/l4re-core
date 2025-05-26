@@ -27,7 +27,7 @@ public:
 
   L4::Cap<L4Re::Dataspace> data_space() noexcept override { return _ds; }
 
-  int fstat64(struct stat64 *buf) const noexcept override;
+  int fstat(struct stat64 *buf) const noexcept override;
 
   int ioctl(unsigned long, va_list) noexcept override;
 

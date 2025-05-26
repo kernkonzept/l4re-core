@@ -565,11 +565,11 @@ L4B_REDIRECT_2(int,     utimes,   const char *, const struct timeval *)
 #undef L4B_REDIRECT_FUNC
 
 #define L4B_REDIRECT_FUNC(func) f##func
-L4B_REDIRECT_2(int,       stat64,      const char *, struct stat64 *)
 L4B_REDIRECT_2(int,       chmod,       const char *, mode_t)
 #undef L4B_REDIRECT_FUNC
 
-#define L4B_REDIRECT_FUNC(func) fstat64
+#define L4B_REDIRECT_FUNC(func) fstat
+L4B_REDIRECT_2(int,       stat64,      const char *, struct stat64 *)
 L4B_REDIRECT_2(int,       lstat64,     const char *, struct stat64 *)
 #undef L4B_REDIRECT_FUNC
 #undef L4B_REDIRECT
@@ -610,7 +610,7 @@ L4B_REDIRECT_2(int, symlink, const char *, const char *)
     cxx::Ref_ptr<L4Re::Vfs::File> file;                         \
     int res = __internal_resolve(AT_FDCWD, _a1, 0, 0, &file);   \
     ERRNO_RET(res);                                             \
-    ret r = file->ftruncate64(L4B_STRIP_FIRST(plist));  \
+    ret r = file->ftruncate(L4B_STRIP_FIRST(plist));  \
     POST();                                                     \
   }
 
@@ -1130,16 +1130,34 @@ ssize_t preadv(int, const struct iovec *, int, __off64_t);
 ssize_t pwritev(int, const struct iovec *, int, __off64_t);
 L4_END_DECLS
 
-L4B_REDIRECT_2(int,       fstat64,     int, struct stat64 *)
 L4B_REDIRECT_3(ssize_t,   readv,       int, const struct iovec *, int)
 L4B_REDIRECT_3(ssize_t,   writev,      int, const struct iovec *, int)
 L4B_REDIRECT_4(ssize_t,   preadv,      int, const struct iovec *, int, __off64_t)
 L4B_REDIRECT_4(ssize_t,   pwritev,     int, const struct iovec *, int, __off64_t)
-L4B_REDIRECT_3(__off64_t, lseek64,     int, __off64_t, int)
-L4B_REDIRECT_2(int,       ftruncate64, int, off64_t)
 L4B_REDIRECT_1(int,       fsync,       int)
 L4B_REDIRECT_1(int,       fdatasync,   int)
 L4B_REDIRECT_2(int,       fchmod,      int, mode_t)
+
+#undef L4B_REDIRECT
+
+#define L4B_REDIRECT(ret, func, ptlist, plist) \
+  ret func##64 ptlist noexcept(noexcept(func##64 plist)) \
+  {               \
+    L4Re::Vfs::Ops *o = L4Re::Vfs::vfs_ops; \
+    cxx::Ref_ptr<L4Re::Vfs::File> f = o->get_file(_a1); \
+    if (!f) \
+      { \
+	errno = EBADF; \
+	return -1; \
+      } \
+    ret r = f->func(L4B_STRIP_FIRST(plist)); \
+    POST(); \
+  }
+
+L4B_REDIRECT_2(int,       fstat,     int, struct stat64 *)
+L4B_REDIRECT_2(int,       ftruncate, int, off64_t)
+L4B_REDIRECT_3(__off64_t, lseek,     int, off64_t, int)
+
 
 static char const * const _default_current_working_dir = "/";
 static char *_current_working_dir = const_cast<char *>(_default_current_working_dir);

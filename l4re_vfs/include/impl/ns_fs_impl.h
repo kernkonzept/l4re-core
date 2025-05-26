@@ -105,7 +105,7 @@ Ns_dir::faccessat(const char *path, int mode, int /*flags*/) noexcept
 }
 
 int
-Ns_dir::fstat64(struct stat64 *b) const noexcept
+Ns_dir::fstat(struct stat64 *b) const noexcept
 {
   b->st_dev = 1;
   b->st_ino = 1;
@@ -320,7 +320,7 @@ Env_dir::check_type(Env::Cap_entry const *e, long protocol) noexcept
 }
 
 int
-Env_dir::fstat64(struct stat64 *b) const noexcept
+Env_dir::fstat(struct stat64 *b) const noexcept
 {
   b->st_dev = 1;
   b->st_ino = 1;

@@ -38,7 +38,7 @@ L4RE_CALL(int _dl_stat(const char *p, struct stat *buf))
     return res;
 
   struct stat64 s;
-  res = f->fstat64(&s);
+  res = f->fstat(&s);
 
   if (res < 0)
     return res;
@@ -56,7 +56,7 @@ L4RE_CALL(int _dl_fstat(int fd, struct stat *buf))
     return -EBADF;
 
   struct stat64 s;
-  int res = f->fstat64(&s);
+  int res = f->fstat(&s);
 
   if (res < 0)
     return res;

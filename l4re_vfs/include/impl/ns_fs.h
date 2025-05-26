@@ -27,7 +27,7 @@ public:
   ssize_t writev(const struct iovec*, int) noexcept override { return -EISDIR; }
   ssize_t preadv(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
   ssize_t pwritev(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
-  int fstat64(struct stat64 *) const noexcept override;
+  int fstat(struct stat64 *) const noexcept override;
   int faccessat(const char *path, int mode, int flags) noexcept override;
   int get_entry(const char *path, int flags, mode_t mode,
                 Ref_ptr<L4Re::Vfs::File> *) noexcept override;
@@ -54,7 +54,7 @@ public:
   ssize_t writev(const struct iovec*, int) noexcept override { return -EISDIR; }
   ssize_t preadv(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
   ssize_t pwritev(const struct iovec*, int, off64_t) noexcept override { return -EISDIR; }
-  int fstat64(struct stat64 *) const noexcept override;
+  int fstat(struct stat64 *) const noexcept override;
   int faccessat(const char *path, int mode, int flags) noexcept override;
   int get_entry(const char *path, int flags, mode_t mode,
                 Ref_ptr<L4Re::Vfs::File> *) noexcept override;

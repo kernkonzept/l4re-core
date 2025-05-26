@@ -121,7 +121,7 @@ Vcon_stream::writev(const struct iovec *iovec, int iovcnt) noexcept
 }
 
 int
-Vcon_stream::fstat64(struct stat64 *buf) const noexcept
+Vcon_stream::fstat(struct stat64 *buf) const noexcept
 {
   buf->st_size = 0;
   buf->st_mode = 0666;

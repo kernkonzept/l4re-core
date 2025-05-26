@@ -23,7 +23,7 @@ Ro_file::~Ro_file() noexcept
 }
 
 int
-Ro_file::fstat64(struct stat64 *buf) const noexcept
+Ro_file::fstat(struct stat64 *buf) const noexcept
 {
   static int fake = 0;
 

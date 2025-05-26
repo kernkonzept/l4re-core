@@ -62,11 +62,11 @@ public:
   { return -EINVAL; }
 
   /// Default backend for POSIX seek and lseek functions.
-  off64_t lseek64(off64_t, int) noexcept override
+  off64_t lseek(off64_t, int) noexcept override
   { return -ESPIPE; }
 
   /// Default backend for the POSIX truncate, ftruncate and similar functions.
-  int ftruncate64(off64_t) noexcept override
+  int ftruncate(off64_t) noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX fsync.
@@ -81,7 +81,7 @@ public:
   int ioctl(unsigned long, va_list) noexcept override
   { return -EINVAL; }
 
-  int fstat64(struct stat64 *) const noexcept override
+  int fstat(struct stat64 *) const noexcept override
   { return -EINVAL; }
 
   /// Default backend for POSIX chmod and fchmod.
@@ -255,7 +255,7 @@ public:
   ssize_t preadv(const struct iovec *v, int iovcnt, off64_t offset) noexcept override = 0;
   ssize_t pwritev(const struct iovec *v, int iovcnt, off64_t offset) noexcept override = 0;
 
-  off64_t lseek64(off64_t offset, int whence) noexcept override
+  off64_t lseek(off64_t offset, int whence) noexcept override
   {
     off64_t r;
     switch (whence)

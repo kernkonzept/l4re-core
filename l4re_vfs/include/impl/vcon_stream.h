@@ -26,7 +26,7 @@ public:
 
   ssize_t readv(const struct iovec*, int iovcnt) noexcept override;
   ssize_t writev(const struct iovec*, int iovcnt) noexcept override;
-  int fstat64(struct stat64 *buf) const noexcept override;
+  int fstat(struct stat64 *buf) const noexcept override;
   int get_status_flags() const noexcept override { return O_RDWR; }
   int set_status_flags(long) noexcept override { return 0; }
   int ioctl(unsigned long request, va_list args) noexcept override;

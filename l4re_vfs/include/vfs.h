@@ -86,7 +86,7 @@ public:
    * \param[out] buf This buffer is filled with the status information.
    * \return 0 on success, or <0 on error.
    */
-  virtual int fstat64(struct stat64 *buf) const noexcept = 0;
+  virtual int fstat(struct stat64 *buf) const noexcept = 0;
 
   /**
    * \brief Change POSIX access rights on the file.
@@ -333,7 +333,7 @@ public:
    *
    * \return The new file position, or <0 on error.
    */
-  virtual off64_t lseek64(off64_t, int) noexcept = 0;
+  virtual off64_t lseek(off64_t, int) noexcept = 0;
 
 
   /**
@@ -343,7 +343,7 @@ public:
    * \param pos The offset at which the file shall be truncated.
    * \return 0 on success, or <0 on error.
    */
-  virtual int ftruncate64(off64_t pos) noexcept = 0;
+  virtual int ftruncate(off64_t pos) noexcept = 0;
 
   /**
    * \brief Sync the data and meta data to persistent storage.
