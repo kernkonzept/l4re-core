@@ -221,8 +221,13 @@
 #  endif
 #endif
 #define L4_STRONG_ALIAS(name, aliasname) L4__STRONG_ALIAS(name, aliasname)
+#ifdef __clang__
 #define L4__STRONG_ALIAS(name, aliasname) \
   extern __typeof (name) aliasname __attribute__ ((alias (#name)));
+#else
+#define L4__STRONG_ALIAS(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((alias (#name), copy(name)));
+#endif
 
 /**
  * Specify the desired alignment of the stack pointer.

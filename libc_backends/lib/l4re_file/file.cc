@@ -162,37 +162,7 @@ int open(const char *name, int flags, ...)
   return __internal_open(AT_FDCWD, name, flags, mode);
 }
 
-int open64(const char *name, int flags, ...)
-{
-  mode_t mode = 0;
-
-  if (flags & O_CREAT)
-    {
-      va_list v;
-      va_start(v, flags);
-      mode = va_arg(v, mode_t);
-      va_end(v);
-    }
-
-  return __internal_open(AT_FDCWD, name, flags, mode);
-}
-
 int openat(int dirfd, const char *name, int flags, ...)
-{
-  mode_t mode = 0;
-
-  if (flags & O_CREAT)
-    {
-      va_list v;
-      va_start(v, flags);
-      mode = va_arg(v, mode_t);
-      va_end(v);
-    }
-
-  return __internal_open(dirfd, name, flags, mode);
-}
-
-int openat64(int dirfd, const char *name, int flags, ...)
 {
   mode_t mode = 0;
 
@@ -220,13 +190,7 @@ noexcept(noexcept(ioctl(fd, request)))
   POST();
 }
 
-#if !(defined(__USE_LARGEFILE64) && !defined(__LP64__))
-// Duplicate here as uclibc only defines fcntl64
-// with __USE_LARGEFILE64 && !__LP64__
-extern "C" int fcntl64 (int __fd, int __cmd, ...);
-#endif
-
-extern "C" int fcntl64(int fd, int cmd, ...)
+extern "C" int fcntl(int fd, int cmd, ...)
 {
   Ops *o = L4Re::Vfs::vfs_ops;
   Ref_ptr<File> f = o->get_file(fd);
@@ -285,18 +249,13 @@ extern "C" int fcntl64(int fd, int cmd, ...)
     }
 }
 
-extern "C" int fcntl(int fd, int cmd, ...)
-{
-  unsigned long arg;
-  va_list v;
 
-  va_start(v, cmd);
-  arg = va_arg(v, unsigned long);
-  va_end(v);
-
-  return fcntl64(fd, cmd, arg);
-}
-
+// *64 variants for large file support are equal for us
+L4_BEGIN_DECLS
+L4_STRONG_ALIAS(open, open64)
+L4_STRONG_ALIAS(openat, openat64)
+L4_STRONG_ALIAS(fcntl, fcntl64)
+L4_END_DECLS
 
 off_t lseek(int fd, off_t offset, int whence)
 noexcept(noexcept(lseek(fd, offset, whence)))
