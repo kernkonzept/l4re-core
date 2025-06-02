@@ -13,6 +13,7 @@
 #include <stdarg.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <sys/time.h>
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <utime.h>
