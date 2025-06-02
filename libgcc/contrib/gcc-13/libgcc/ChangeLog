@@ -1,3 +1,45 @@
+2025-06-05  Release Manager
+
+	* GCC 13.4.0 released.
+
+2025-05-28  Mark Mentovai  <mark@mentovai.com>
+
+	Backported from master:
+	2024-09-24  Mark Mentovai  <mark@mentovai.com>
+
+	PR target/116809
+	* config.host: Build legacy libgcc_s.1 on hosts before macOS 10.12.
+	* config/i386/t-darwin: Remove reference to legacy libgcc_s.1
+	* config/rs6000/t-darwin: Likewise.
+	* config/t-darwin-libgccs1: New file.
+
+2025-04-23  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2025-03-10  Jakub Jelinek  <jakub@redhat.com>
+		    Michael Leuchtenburg  <michael@slashhome.org>
+
+	PR libgcc/119151
+	* unwind-dw2-btree.h (btree_split_inner): Add size argument.  If
+	left_fence is in the middle of [target,target + size - 1] range,
+	increase it to target + size - 1.
+	(btree_insert): Adjust btree_split_inner caller.  If fence is smaller
+	than base + size - 1, increase it and separator of the slot to
+	base + size - 1.
+
+2025-02-17  Dimitry Andric  <dimitry@andric.com>
+
+	PR target/118685
+	* config.host (*-*-freebsd*): Add crtbeginT.o to extra_parts.
+
+2024-06-12  Andre Vieira  <andre.simoesdiasvieira@arm.com>
+
+	Backported from master:
+	2024-06-06  Andre Vieira  <andre.simoesdiasvieira@arm.com>
+
+	PR target/115360
+	* config/arm/cmse_nonsecure_call.S: Add .type and .size directives.
+
 2024-05-21  Release Manager
 
 	* GCC 13.3.0 released.
