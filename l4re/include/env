@@ -34,7 +34,7 @@ class Scheduler;
 namespace L4Re
 {
   class Itas;
-  class Dbg_events;
+  struct Dbg_events;
 
   /**
    * C++ interface of the initial environment that is provided to an L4 task.
