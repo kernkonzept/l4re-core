@@ -13,6 +13,7 @@
 #include <errno.h>
 #include <sys/mman.h>
 #include <sys/mount.h>
+#include <sys/stat.h>
 
 static bool verbose;
 
