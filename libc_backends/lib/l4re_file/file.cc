@@ -1126,14 +1126,14 @@ int ppoll(struct pollfd *fds, nfds_t nfds, const struct timespec *timeout,
   }
 
 L4_BEGIN_DECLS
-ssize_t preadv(int, const struct iovec *, int, __off64_t);
-ssize_t pwritev(int, const struct iovec *, int, __off64_t);
+ssize_t preadv(int, const struct iovec *, int, off64_t);
+ssize_t pwritev(int, const struct iovec *, int, off64_t);
 L4_END_DECLS
 
 L4B_REDIRECT_3(ssize_t,   readv,       int, const struct iovec *, int)
 L4B_REDIRECT_3(ssize_t,   writev,      int, const struct iovec *, int)
-L4B_REDIRECT_4(ssize_t,   preadv,      int, const struct iovec *, int, __off64_t)
-L4B_REDIRECT_4(ssize_t,   pwritev,     int, const struct iovec *, int, __off64_t)
+L4B_REDIRECT_4(ssize_t,   preadv,      int, const struct iovec *, int, off64_t)
+L4B_REDIRECT_4(ssize_t,   pwritev,     int, const struct iovec *, int, off64_t)
 L4B_REDIRECT_1(int,       fsync,       int)
 L4B_REDIRECT_1(int,       fdatasync,   int)
 L4B_REDIRECT_2(int,       fchmod,      int, mode_t)
@@ -1154,9 +1154,9 @@ L4B_REDIRECT_2(int,       fchmod,      int, mode_t)
     POST(); \
   }
 
-L4B_REDIRECT_2(int,       fstat,     int, struct stat64 *)
-L4B_REDIRECT_2(int,       ftruncate, int, off64_t)
-L4B_REDIRECT_3(__off64_t, lseek,     int, off64_t, int)
+L4B_REDIRECT_2(int,     fstat,     int, struct stat64 *)
+L4B_REDIRECT_2(int,     ftruncate, int, off64_t)
+L4B_REDIRECT_3(off64_t, lseek,     int, off64_t, int)
 
 
 static char const * const _default_current_working_dir = "/";

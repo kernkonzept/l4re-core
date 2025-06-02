@@ -30,13 +30,13 @@ extern "C" ssize_t read(int, void *, size_t)
   return -1;
 }
 
-extern "C" __off_t lseek(int, __off_t, int) L4_NOTHROW
+extern "C" off_t lseek(int, off_t, int) L4_NOTHROW
 {
   errno = EBADF;
   return -1;
 }
 
-extern "C" __off64_t lseek64(int, __off64_t, int) L4_NOTHROW
+extern "C" off64_t lseek64(int, off64_t, int) L4_NOTHROW
 {
   errno = EBADF;
   return -1;

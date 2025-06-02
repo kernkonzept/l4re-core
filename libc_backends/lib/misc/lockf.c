@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-int lockf64(int fd, int cmd, __off64_t len)
+int lockf64(int fd, int cmd, off64_t len)
 {
   printf("Unimplemented: %s(%d, %d, %lld)\n", __func__, fd, cmd,
          (long long)len);
