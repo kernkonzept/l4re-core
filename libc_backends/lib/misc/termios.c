@@ -25,7 +25,7 @@ void cfmakeraw(struct termios *termios_p)
 }
 
 int openpty(int *amaster, int *aslave, char *name,
-            struct termios *termp, struct winsize *winp)
+            const struct termios *termp, const struct winsize *winp)
 {
   printf("Unimplemented: %s(.., .., %s, ..)\n", __func__, name);
   (void)amaster; (void)aslave;

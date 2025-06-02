@@ -31,13 +31,15 @@ __BEGIN_DECLS
    attributes according to TERMP and WINP and return handles for both
    ends in AMASTER and ASLAVE.  */
 extern int openpty (int *__amaster, int *__aslave, char *__name,
-		    struct termios *__termp, struct winsize *__winp) __THROW;
+		    const struct termios *__termp,
+		    const struct winsize *__winp) __THROW;
 libutil_hidden_proto(openpty)
 
 /* Create child process and establish the slave pseudo terminal as the
    child's controlling terminal.  */
 extern int forkpty (int *__amaster, char *__name,
-		    struct termios *__termp, struct winsize *__winp) __THROW;
+		    const struct termios *__termp,
+		    const struct winsize *__winp) __THROW;
 
 __END_DECLS
 

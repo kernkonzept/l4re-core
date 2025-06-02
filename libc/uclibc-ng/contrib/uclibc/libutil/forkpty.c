@@ -23,7 +23,8 @@
 #include <pty.h>
 
 int
-forkpty (int *amaster, char *name, struct termios *termp, struct winsize *winp)
+forkpty (int *amaster, char *name, const struct termios *termp,
+         const struct winsize *winp)
 {
   int master, slave, pid;
 
