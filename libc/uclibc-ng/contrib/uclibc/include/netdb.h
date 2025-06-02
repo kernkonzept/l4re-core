@@ -689,7 +689,7 @@ extern const char *gai_strerror (int __ecode) __THROW;
 extern int getnameinfo (const struct sockaddr *__restrict __sa,
 			socklen_t __salen, char *__restrict __host,
 			socklen_t __hostlen, char *__restrict __serv,
-			socklen_t __servlen, unsigned int __flags);
+			socklen_t __servlen, int __flags);
 libc_hidden_proto(getnameinfo)
 #endif	/* POSIX */
 

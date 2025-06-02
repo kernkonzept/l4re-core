@@ -1892,7 +1892,7 @@ int getnameinfo(const struct sockaddr *sa,
 		socklen_t hostlen,
 		char *serv,
 		socklen_t servlen,
-		unsigned flags)
+		int flags)
 {
 	int serrno = errno;
 	bool ok = 0;
