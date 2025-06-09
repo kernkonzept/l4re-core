@@ -319,14 +319,14 @@ struct Clnt_val_ops<Array_ref<A, LEN>, Dir_out, Cls_data> :
 
 template<typename A, typename LEN, typename CLASS>
 struct Svr_val_ops<Array_ref<A, LEN>, Dir_out, CLASS> :
-  Svr_noops<Array_ref<L4::Types::Remove_const_t<A>, LEN> &>
+  Svr_noops<Array_ref<L4::Types::Remove_const_t<A>, LEN>>
 {
   using elem_type = L4::Types::Remove_const_t<A>;
-  using svr_type = Array_ref<elem_type, LEN> &;
+  using svr_type = Array_ref<elem_type, LEN>;
 
   using Svr_noops<svr_type>::to_svr;
   static int to_svr(char *msg, unsigned offset, unsigned limit,
-                    svr_type a, Dir_out, Cls_data)
+                    svr_type &a, Dir_out, Cls_data)
   {
     offset = align_to<LEN>(offset);
     if (L4_UNLIKELY(!check_size<LEN>(offset, limit)))

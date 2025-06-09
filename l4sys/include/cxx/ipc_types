@@ -190,16 +190,16 @@ struct Svr_val_ops<Opt<T>, Dir_out, CLASS> : Svr_noops< Opt<T> >
   using svr_type = Opt<T>;
   using Native = Svr_val_ops<T, Dir_out, CLASS>;
 
-  using Svr_noops< Opt<T> >::to_svr;
+  using Svr_noops< svr_type >::to_svr;
   static int to_svr(char *msg, unsigned offset, unsigned limit,
-                    Opt<T> &arg, Dir_out, CLASS) noexcept
+                    svr_type &arg, Dir_out, CLASS) noexcept
   {
     return Native::to_svr(msg, offset, limit, arg.value(), Dir_out(), CLASS());
   }
 
-  using Svr_noops< Opt<T> >::from_svr;
+  using Svr_noops< svr_type >::from_svr;
   static int from_svr(char *msg, unsigned offset, unsigned limit, l4_ret_t ret,
-                      svr_type &arg, Dir_out, CLASS) noexcept
+                      svr_type const &arg, Dir_out, CLASS) noexcept
   {
     if (arg.is_valid())
       return Native::from_svr(msg, offset, limit, ret, arg.value(),
@@ -229,7 +229,7 @@ struct Clnt_val_ops<Opt<T>, Dir_in, CLASS> : Clnt_noops< Opt<T> >
   using arg_type = Opt<T>;
   using Native = Detail::_Clnt_val_ops<typename Elem<T>::arg_type, Dir_in, CLASS>;
 
-  using Clnt_noops< Opt<T> >::to_msg;
+  using Clnt_noops< arg_type >::to_msg;
   static int to_msg(char *msg, unsigned offset, unsigned limit,
                     arg_type arg, Dir_in, CLASS) noexcept
   {
@@ -909,9 +909,9 @@ struct Clnt_val_ops< L4::Cap<A>, Dir_out, Cls_item > :
 
 template<typename A>
 struct Svr_val_ops< L4::Ipc::Cap<A>, Dir_out, Cls_item > :
-  Svr_noops<Cap<A> &>
+  Svr_noops<Cap<A>>
 {
-  using Svr_noops<Cap<A> &>::from_svr;
+  using Svr_noops<Cap<A>>::from_svr;
   static int from_svr(char *msg, unsigned offset, unsigned limit, long,
                       Cap<A> arg, Dir_out, Cls_item) noexcept
   {
