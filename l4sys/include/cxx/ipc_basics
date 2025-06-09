@@ -229,7 +229,7 @@ template<typename T> struct Svr_noops
 
   /// copy data from the message to the client reference
   template<typename A, typename B>
-  static constexpr int to_svr(char *, unsigned offset, unsigned, T, A, B) noexcept
+  static constexpr int to_svr(char *, unsigned offset, unsigned, T const &, A, B) noexcept
   { return offset; }
 };
 
@@ -237,7 +237,7 @@ template<typename MTYPE, typename CLASS>
 struct Clnt_val_ops<MTYPE, Dir_in, CLASS> : Clnt_noops<MTYPE>
 {
   using Clnt_noops<MTYPE>::to_msg;
-  /// Copy a T into the message
+  /// Copy a T into the message (arg must be either MTYPE or MTYPE const &)
   static int to_msg(char *msg, unsigned offset, unsigned limit,
                     MTYPE arg, Dir_in, CLASS) noexcept
   { return msg_add<MTYPE>(msg, offset, limit, arg); }
@@ -248,7 +248,7 @@ template<typename MTYPE, typename CLASS>
 struct Clnt_val_ops<MTYPE, Dir_out, CLASS> : Clnt_noops<MTYPE>
 {
   using Clnt_noops<MTYPE>::from_msg;
-  /// copy data from the message to the client reference
+  /// Copy data from the message to a T client reference (arg must be MTYPE &)
   static int from_msg(char *msg, unsigned offset, unsigned limit, long,
                       MTYPE &arg, Dir_out, CLASS) noexcept
   { return msg_get<MTYPE>(msg, offset, limit, arg); }
@@ -267,7 +267,7 @@ template<typename MTYPE, typename CLASS>
 struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
 {
   using Svr_noops<MTYPE>::to_svr;
-  /// copy data from the message to the client reference
+  /// Copy data from the message to a T server reference (arg must be MTYPE &)
   static int to_svr(char *msg, unsigned offset, unsigned limit,
                     MTYPE &arg, Dir_in, CLASS) noexcept
   { return msg_get<MTYPE>(msg, offset, limit, arg); }
@@ -276,6 +276,7 @@ struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
 template<typename MTYPE, typename CLASS>
 struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
 {
+  /// Prepare a T output operand (arg must be MTYPE &)
   using Svr_noops<MTYPE>::to_svr;
   static int to_svr(char *, unsigned offs, unsigned limit,
                     MTYPE &, Dir_out, CLASS) noexcept
@@ -287,7 +288,7 @@ struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
   }
 
   using Svr_noops<MTYPE>::from_svr;
-  /// Copy a T into the message
+  /// Copy a T into the message (arg must be either MTYPE or MTYPE const &)
   static int from_svr(char *msg, unsigned offset, unsigned limit, long,
                       MTYPE arg, Dir_out, CLASS) noexcept
   { return msg_add<MTYPE>(msg, offset, limit, arg); }
