@@ -469,7 +469,6 @@ enum Elf_PTs
   PT_GNU_RELRO          = PT_LOOS + 0x474e552, /**< Read only after reloc. */
 
   PT_L4_STACK           = PT_LOOS + 0x12, /**< Address of the stack. */
-  PT_L4_KIP             = PT_LOOS + 0x13, /**< Address of the KIP. */
   PT_L4_AUX             = PT_LOOS + 0x14, /**< Address of the AUX structures. */
 };
 

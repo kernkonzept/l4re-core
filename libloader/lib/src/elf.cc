@@ -17,7 +17,6 @@ char const *Ldr::Elf_phdr::phdr_type() const
   switch (type())
     {
     case PT_L4_STACK: return "L4_STACK";
-    case PT_L4_KIP:   return "L4_KIP";
     case PT_L4_AUX:   return "L4_AUX";
     case PT_GNU_EH_FRAME: return "GNU_EH_FRAME";
     case PT_GNU_STACK:    return "GNU_STACK";
