@@ -68,7 +68,7 @@ template< typename T, typename IMPL >
 class Unique_cap_impl final :  public Smart_cap_base<T, IMPL>
 {
 private:
-  typedef Smart_cap_base<T, IMPL> Base;
+  using Base = Smart_cap_base<T, IMPL>;
 
 public:
   using Base::Base;
@@ -110,7 +110,7 @@ template<typename T, typename IMPL>
 class Shared_cap_impl final : public Smart_cap_base<T, IMPL>
 {
 private:
-  typedef Smart_cap_base<T, IMPL> Base;
+  using Base = Smart_cap_base<T, IMPL>;
 
 public:
   using Base::Base;

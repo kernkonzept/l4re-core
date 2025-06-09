@@ -44,7 +44,7 @@ template<typename ...> struct Arg_pack
   auto obj_call(O *o, ARGS ...args)
     -> decltype(typename FUNC::template fwd<O>(o).template call<ARGS...>(args...))
   {
-    typedef typename FUNC::template fwd<O> Fwd;
+    using Fwd = typename FUNC::template fwd<O>;
     using Idl_ret = typename FUNC::result_type;
     using Svr_ret = decltype(Fwd(o).template call<ARGS...>(args...));
     auto ret = Fwd(o).template call<ARGS...>(args...);
@@ -91,17 +91,17 @@ template<typename ...> struct Arg_pack
 template<typename T, typename SVR_TYPE, typename ...M>
 struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
 {
-  typedef Arg_pack<M...> Base;
+  using Base = Arg_pack<M...>;
 
-  typedef SVR_TYPE svr_type;
-  typedef typename _Elem<T>::svr_arg_type svr_arg_type;
+  using svr_type = SVR_TYPE;
+  using svr_arg_type = typename _Elem<T>::svr_arg_type;
 
   svr_type v;
 
   template<typename DIR>
   int get(char *msg, unsigned offset, unsigned limit)
   {
-    typedef Svr_xmit<T> ct;
+    using ct = Svr_xmit<T>;
     int r = ct::to_svr(msg, offset, limit, this->v,
                        typename DIR::dir(), typename DIR::cls());
     if (L4_LIKELY(r >= 0))
@@ -118,7 +118,7 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
   template<typename DIR>
   int set(char *msg, unsigned offset, unsigned limit, l4_ret_t ret)
   {
-    typedef Svr_xmit<T> ct;
+    using ct = Svr_xmit<T>;
     int r = ct::from_svr(msg, offset, limit, ret, this->v,
                          typename DIR::dir(), typename DIR::cls());
     if (L4_UNLIKELY(r < 0))
@@ -146,7 +146,7 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
 template<typename T, typename ...M>
 struct Svr_arg<T, void, M...> : Arg_pack<M...>
 {
-  typedef Arg_pack<M...> Base;
+  using Base = Arg_pack<M...>;
 
   template<typename DIR>
   int get(char *msg, unsigned offset, unsigned limit)
@@ -185,7 +185,7 @@ template<typename IPC_TYPE> struct Svr_arg_pack;
 template<typename R, typename ...ARGS>
 struct Svr_arg_pack<R (ARGS...)> : Detail::Arg_pack<ARGS...>
 {
-  typedef Detail::Arg_pack<ARGS...> Base;
+  using Base = Detail::Arg_pack<ARGS...>;
   template<typename DIR>
   int get(void *msg, unsigned offset, unsigned limit)
   {
@@ -208,7 +208,7 @@ template<typename IPC_TYPE, typename O, typename ...ARGS>
 static l4_msgtag_t
 handle_svr_obj_call(O *o, l4_utcb_t *utcb, l4_msgtag_t tag, ARGS ...args)
 {
-  typedef Svr_arg_pack<typename IPC_TYPE::rpc::ipc_type> Pack;
+  using Pack = Svr_arg_pack<typename IPC_TYPE::rpc::ipc_type>;
   enum
   {
     Do_reply  = IPC_TYPE::rpc::flags_type::Is_call,
@@ -300,7 +300,7 @@ struct Dispatch_call<RPCS, void>
     if ((rights & rmask()) != rmask())
       return l4_msgtag(-L4_EPERM, 0, 0, 0);
 
-    typedef L4::Typeid::Rights<typename RPCS::rpc::class_type> Rights;
+    using Rights = L4::Typeid::Rights<typename RPCS::rpc::class_type>;
     return handle_svr_obj_call<RPCS>(o, utcb, tag,
                                      Rights(rights), a...);
 
@@ -323,7 +323,7 @@ struct Dispatch_call
         if ((rights & rmask()) != rmask())
           return l4_msgtag(-L4_EPERM, 0, 0, 0);
 
-        typedef L4::Typeid::Rights<typename RPCS::rpc::class_type> Rights;
+        using Rights = L4::Typeid::Rights<typename RPCS::rpc::class_type>;
         return handle_svr_obj_call<RPCS>(o, utcb, tag,
                                          Rights(rights), a...);
       }
@@ -337,7 +337,7 @@ struct Dispatch_call
   {
     OPCODE_TYPE op;
     unsigned limit = tag.words() * Word_bytes;
-    typedef Svr_xmit<OPCODE_TYPE> S;
+    using S = Svr_xmit<OPCODE_TYPE>;
     l4_ret_t err = S::to_svr(reinterpret_cast<char *>(l4_utcb_mr_u(utcb)->mr), 0,
                              limit, op, Dir_in(), Cls_data());
     if (L4_UNLIKELY(err < 0))

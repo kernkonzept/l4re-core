@@ -41,7 +41,7 @@ private:
 
 public:
   /// Data type expressing server-side demand for receive buffers.
-  typedef L4::Type_info::Demand Demand;
+  using Demand = L4::Type_info::Demand;
 
   Server_iface(Server_iface &&) = delete;
   Server_iface &operator = (Server_iface &&) = delete;
@@ -148,9 +148,9 @@ struct Epiface
   Epiface &operator = (Epiface const &) = delete;
 
   /// Type for abstract server interface.
-  typedef Ipc_svr::Server_iface Server_iface;
+  using Server_iface = Ipc_svr::Server_iface;
   /// Type for server-side receive buffer demand.
-  typedef Ipc_svr::Server_iface::Demand Demand;
+  using Demand = Ipc_svr::Server_iface::Demand;
 
   class Stored_cap : public Cap<void>
   {
@@ -256,7 +256,7 @@ template<typename RPC_IFACE, typename BASE = Epiface>
 struct Epiface_t0 : BASE
 {
   /// Data type of the IPC interface definition
-  typedef RPC_IFACE Interface;
+  using Interface = RPC_IFACE;
 
   /// Get the server-side buffer demand based in \a IFACE.
   typename Type_info::Demand get_buffer_demand() const
@@ -452,8 +452,8 @@ struct _Dispatch<IFACE, Iface_list<I, LIST> >
                         l4_utcb_t *utcb, True::type)
   {
     using L4::Ipc::Msg::dispatch_call;
-    typedef L4::Meta::Rpcs Meta;
-    typedef Meta_svr<IFACE> Msvr;
+    using Meta = L4::Meta::Rpcs;
+    using Msvr = Meta_svr<IFACE>;
     return dispatch_call<Meta>(static_cast<Msvr *>(nullptr), utcb, tag, r);
   }
 
@@ -505,7 +505,7 @@ struct Epiface_t : Epiface_t0<IFACE, BASE>
   l4_msgtag_t
   dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb) final
   {
-    typedef Ipc::Dispatch<Derived> Dispatch;
+    using Dispatch = Ipc::Dispatch<Derived>;
     return Dispatch::f(static_cast<Derived*>(this), tag, rights, utcb);
   }
 };
@@ -516,7 +516,7 @@ struct Epiface_t<Derived, IFACE, BASE, false> : Epiface_t0<IFACE, BASE>
   l4_msgtag_t
   dispatch(l4_msgtag_t tag, unsigned rights, l4_utcb_t *utcb)
   {
-    typedef Ipc::Dispatch<Derived> Dispatch;
+    using Dispatch = Ipc::Dispatch<Derived>;
     return Dispatch::f(static_cast<Derived*>(this), tag, rights, utcb);
   }
 };
@@ -529,7 +529,7 @@ struct Epiface_t<Derived, IFACE, BASE, false> : Epiface_t0<IFACE, BASE>
 class Basic_registry
 {
 public:
-  typedef Epiface Value;
+  using Value = Epiface;
   /**
    * \brief Get the server object for an Ipc_gate label.
    * \param label The label usually stored in an Ipc_gate.

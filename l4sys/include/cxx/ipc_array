@@ -13,7 +13,7 @@
 namespace L4 { namespace Ipc L4_EXPORT {
 
 /// Default type for passing length of an array.
-typedef unsigned short Array_len_default;
+using Array_len_default = unsigned short;
 
 /**
  * Array reference data type for arrays located in the message.
@@ -27,8 +27,8 @@ typedef unsigned short Array_len_default;
 template< typename ELEM_TYPE, typename LEN_TYPE = Array_len_default >
 struct Array_ref
 {
-  typedef ELEM_TYPE *ptr_type;
-  typedef LEN_TYPE len_type;
+  using ptr_type = ELEM_TYPE *;
+  using len_type = LEN_TYPE;
 
   len_type length;
   ptr_type data;
@@ -38,10 +38,10 @@ struct Array_ref
   {}
 
   template<typename X> struct Non_const
-  { typedef Array_ref<X, LEN_TYPE> type; };
+  { using type = Array_ref<X, LEN_TYPE>; };
 
   template<typename X> struct Non_const<X const>
-  { typedef Array_ref<X, LEN_TYPE> type; };
+  { using type = Array_ref<X, LEN_TYPE>; };
 
   Array_ref(typename Non_const<ELEM_TYPE>::type const &other)
   : length(other.length), data(other.data)
@@ -88,10 +88,10 @@ struct Array : Array_ref<ELEM_TYPE , LEN_TYPE>
   {}
 
   template<typename X> struct Non_const
-  { typedef Array<X, LEN_TYPE> type; };
+  { using type = Array<X, LEN_TYPE>; };
 
   template<typename X> struct Non_const<X const>
-  { typedef Array<X, LEN_TYPE> type; };
+  { using type = Array<X, LEN_TYPE>; };
 
   /// Make a const array from a non-const array
   Array(typename Non_const<ELEM_TYPE>::type const &other)
@@ -125,8 +125,8 @@ template< typename ELEM_TYPE,
                                 sizeof(l4_umword_t)) / sizeof(ELEM_TYPE) >
 struct Array_in_buf
 {
-  typedef Array_ref<ELEM_TYPE, LEN_TYPE> array;
-  typedef Array_ref<ELEM_TYPE const, LEN_TYPE> const_array;
+  using array = Array_ref<ELEM_TYPE, LEN_TYPE>;
+  using const_array = Array_ref<ELEM_TYPE const, LEN_TYPE>;
 
   /// The data elements
   ELEM_TYPE data[MAX];
@@ -158,10 +158,10 @@ template<typename A, typename LEN>
 struct Elem< Array<A, LEN> >
 {
   /// Array<> as argument at the interface
-  typedef Array<A, LEN> arg_type;
+  using arg_type = Array<A, LEN>;
   /// Array_ref<> at the server side
-  typedef Array_ref<A, LEN> svr_type;
-  typedef svr_type svr_arg_type;
+  using svr_type = Array_ref<A, LEN>;
+  using svr_arg_type = svr_type;
   enum { Is_optional = false };
 };
 
@@ -170,11 +170,11 @@ template<typename A, typename LEN>
 struct Elem< Array<A, LEN> & >
 {
   /// Array<> & at the interface
-  typedef Array<A, LEN> &arg_type;
+  using arg_type = Array<A, LEN> &;
   /// Array_ref<> as server storage type
-  typedef Array_ref<A, LEN> svr_type;
+  using svr_type = Array_ref<A, LEN>;
   /// Array_ref<> & at the server side
-  typedef svr_type &svr_arg_type;
+  using svr_arg_type = svr_type &;
   enum { Is_optional = false };
 };
 
@@ -183,11 +183,11 @@ template<typename A, typename LEN>
 struct Elem< Array_ref<A, LEN> & >
 {
   /// Array_ref<> at the interface
-  typedef Array_ref<A, LEN> &arg_type;
+  using arg_type = Array_ref<A, LEN> &;
   /// Array_ref<> as server storage
-  typedef Array_ref<typename L4::Types::Remove_const<A>::type, LEN> svr_type;
+  using svr_type = Array_ref<typename L4::Types::Remove_const<A>::type, LEN>;
   /// Array_ref<> & as server argument
-  typedef svr_type &svr_arg_type;
+  using svr_arg_type = svr_type &;
   enum { Is_optional = false };
 };
 
@@ -210,7 +210,7 @@ struct Clnt_val_ops_d_in : Clnt_noops<ARRAY>
     offset = align_to<A>(offset + sizeof(LEN));
     if (L4_UNLIKELY(!check_size<A>(offset, limit, a.length)))
       return -L4_EMSGTOOLONG;
-    typedef typename L4::Types::Remove_const<A>::type elem_type;
+    using elem_type = typename L4::Types::Remove_const<A>::type;
     elem_type *data = reinterpret_cast<elem_type*>(msg + offset);
 
     // we do not correctly handle overlaps
@@ -237,7 +237,7 @@ template<typename A, typename LEN, typename CLASS>
 struct Svr_val_ops< Array_ref<A, LEN>, Dir_in, CLASS >
 : Svr_noops< Array_ref<A, LEN> >
 {
-  typedef Array_ref<A, LEN> svr_type;
+  using svr_type = Array_ref<A, LEN>;
 
   using Svr_noops<svr_type>::to_svr;
   static int to_svr(char *msg, unsigned offset, unsigned limit,
@@ -261,7 +261,7 @@ struct Svr_xmit< Array<A, LEN> > : Svr_xmit< Array_ref<A, LEN> > {};
 template<typename A, typename LEN>
 struct Clnt_val_ops<Array<A, LEN>, Dir_out, Cls_data> : Clnt_noops<Array<A, LEN> >
 {
-  typedef Array<A, LEN> type;
+  using type = Array<A, LEN>;
 
   using Clnt_noops<type>::from_msg;
   static int from_msg(char *msg, unsigned offset, unsigned limit, long,
@@ -295,7 +295,7 @@ template<typename A, typename LEN>
 struct Clnt_val_ops<Array_ref<A, LEN>, Dir_out, Cls_data> :
   Clnt_noops<Array_ref<A, LEN> >
 {
-  typedef Array_ref<A, LEN> type;
+  using type = Array_ref<A, LEN>;
 
   using Clnt_noops<type>::from_msg;
   static int from_msg(char *msg, unsigned offset, unsigned limit, long,
@@ -321,8 +321,8 @@ template<typename A, typename LEN, typename CLASS>
 struct Svr_val_ops<Array_ref<A, LEN>, Dir_out, CLASS> :
   Svr_noops<Array_ref<typename L4::Types::Remove_const<A>::type, LEN> &>
 {
-  typedef typename L4::Types::Remove_const<A>::type elem_type;
-  typedef Array_ref<elem_type, LEN> &svr_type;
+  using elem_type = typename L4::Types::Remove_const<A>::type;
+  using svr_type = Array_ref<elem_type, LEN> &;
 
   using Svr_noops<svr_type>::to_svr;
   static int to_svr(char *msg, unsigned offset, unsigned limit,

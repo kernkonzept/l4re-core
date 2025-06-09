@@ -16,9 +16,9 @@ template< typename T, template <typename X> class B >
 struct Generic_va_type : B<T>
 {
   enum { Id = B<T>::Id };
-  typedef B<T> ID;
-  typedef T const &Ret_value;
-  typedef T Value;
+  using ID = B<T>;
+  using Ret_value = T const &;
+  using Value = T;
 
   static Ret_value value(void const *d)
   { return *reinterpret_cast<Value const *>(d); }
@@ -58,8 +58,8 @@ template<> struct Va_type<l4_fpage_t> : Generic_va_type<l4_fpage_t, Va_type_id> 
 
 template<> struct Va_type<void>
 {
-  typedef void Ret_value;
-  typedef void Value;
+  using Ret_value = void;
+  using Value = void;
 
   static void const *addr_of(void) { return 0; }
 
@@ -70,8 +70,8 @@ template<> struct Va_type<void>
 
 template<> struct Va_type<char const *>
 {
-  typedef char const *Ret_value;
-  typedef char const *Value;
+  using Ret_value = char const *;
+  using Value = char const *;
 
   static void const *addr_of(Value v) { return v; }
 
@@ -103,7 +103,7 @@ private:
 public:
 
   /// The data type for the tag
-  typedef l4_umword_t Tag;
+  using Tag = l4_umword_t;
 
   /// \return the type field of the tag
   L4_varg_type type() const { return static_cast<L4_varg_type>(_tag & 0xff); }
@@ -195,7 +195,7 @@ public:
   template< typename T >
   void set_value(void const *d)
   {
-    typedef Va_type<T> Vt;
+    using Vt = Va_type<T>;
     _tag = Vt::id() | (Vt::size(d) << 16);
     _d = static_cast<char const *>(d);
   }
@@ -205,7 +205,7 @@ public:
   void set_direct_value(T val, typename L4::Types::Enable_if<sizeof(T) <= sizeof(char const *), bool>::type = true)
   {
     static_assert(sizeof(T) <= sizeof(char const *), "direct Varg value too big");
-    typedef Va_type<T> Vt;
+    using Vt = Va_type<T>;
     _tag = Vt::id() | (sizeof(T) << 16) | Direct_data;
     union X { char const *d; T v; };
     reinterpret_cast<X &>(_d).v = val;
@@ -228,7 +228,7 @@ template<typename T>
 class Varg_t : public Varg
 {
 public:
-  typedef typename Va_type<T>::Value Value;
+  using Value = typename Va_type<T>::Value;
   explicit Varg_t(Value v) : Varg()
   { _data = v; set_value<T>(Va_type<T>::addr_of(_data)); }
 
@@ -433,9 +433,9 @@ public:
 namespace Msg {
 template<> struct Elem<Varg const *>
 {
-  typedef Varg const *arg_type;
-  typedef Varg_list_ref svr_type;
-  typedef Varg_list_ref svr_arg_type;
+  using arg_type = Varg const *;
+  using svr_type = Varg_list_ref;
+  using svr_arg_type = Varg_list_ref;
   enum { Is_optional = false };
 };
 

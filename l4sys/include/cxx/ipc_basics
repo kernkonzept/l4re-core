@@ -142,16 +142,16 @@ inline int msg_get(char *msg, unsigned offs, unsigned limit, T &v) noexcept
 }
 
 /// Marker type for input values
-struct Dir_in { typedef Dir_in type;   typedef Dir_in dir; };
+struct Dir_in { using type = Dir_in;   using dir = Dir_in; };
 /// Marker type for output values
-struct Dir_out { typedef Dir_out type; typedef Dir_out dir; };
+struct Dir_out { using type = Dir_out; using dir = Dir_out; };
 
 /// Marker type for data values
-struct Cls_data { typedef Cls_data type;     typedef Cls_data cls; };
+struct Cls_data { using type = Cls_data;     using cls = Cls_data; };
 /// Marker type for item values
-struct Cls_item { typedef Cls_item type;     typedef Cls_item cls; };
+struct Cls_item { using type = Cls_item;     using cls = Cls_item; };
 /// Marker type for receive buffer values
-struct Cls_buffer { typedef Cls_buffer type; typedef Cls_buffer cls; };
+struct Cls_buffer { using type = Cls_buffer; using cls = Cls_buffer; };
 
 // Typical combinations
 /// Marker for Input data
@@ -170,32 +170,32 @@ namespace Detail {
 
 template<typename T> struct _Plain
 {
-  typedef T type;
+  using type = T;
   static T deref(T v) noexcept { return v; }
 };
 
 template<typename T> struct _Plain<T *>
 {
-  typedef T type;
+  using type = T;
   static T &deref(T *v) noexcept { return *v; }
 };
 
 template<typename T> struct _Plain<T &>
 {
-  typedef T type;
+  using type = T;
   static T &deref(T &v) noexcept { return v; }
 
 };
 
 template<typename T> struct _Plain<T const &>
 {
-  typedef T type;
+  using type = T;
   static T const &deref(T const &v) noexcept { return v; }
 };
 
 template<typename T> struct _Plain<T const *>
 {
-  typedef T type;
+  using type = T;
   static T const &deref(T const *v) noexcept { return *v; }
 };
 }
@@ -296,11 +296,11 @@ struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
 template<typename T> struct Elem
 {
   /// The type used in client argument list
-  typedef T arg_type;
+  using arg_type = T;
   /// The data type used to store the T on the server-side
-  typedef T svr_type;
+  using svr_type = T;
   /// The argument type for the server-side function
-  typedef T svr_arg_type; // might by const & (depending on the size)
+  using svr_arg_type = T; // might by const & (depending on the size)
 
   enum { Is_optional = false };
 
@@ -308,31 +308,31 @@ template<typename T> struct Elem
 
 template<typename T> struct Elem<T &>
 {
-  typedef T &arg_type;
-  typedef T svr_type;
+  using arg_type = T &;
+  using svr_type = T;
   ///< pass a reference to the server-function too
-  typedef T &svr_arg_type;
+  using svr_arg_type = T &;
   enum { Is_optional = false };
 };
 
 template<typename T> struct Elem<T const &>
 {
-  typedef T const &arg_type;
-  typedef T svr_type;
+  using arg_type = T const &;
+  using svr_type = T;
   // as the RPC uses a const reference we use it here too,
   // we could also use pass by value depending on the size
-  typedef T const &svr_arg_type;
+  using svr_arg_type = T const &;
   enum { Is_optional = false };
 };
 
 template<typename T> struct Elem<T *> : Elem<T &>
 {
-  typedef T *arg_type;
+  using arg_type = T *;
 };
 
 template<typename T> struct Elem<T const *> : Elem<T const &>
 {
-  typedef T const *arg_type;
+  using arg_type = T const *;
 };
 
 /// Type trait defining a valid RPC parameter type.

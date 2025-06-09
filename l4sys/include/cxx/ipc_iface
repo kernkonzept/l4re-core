@@ -33,7 +33,7 @@
  *   L4_INLINE_RPC(long, sub, (l4_uint32_t a, l4_uint32_t b, l4_uint32_t *res));
  *   L4_INLINE_RPC(long, neg, (l4_uint32_t a, l4_uint32_t *res));
  *
- *   typedef L4::Typeid::Rpcs<sub_t, neg_t> Rpcs;
+ *   using Rpcs = L4::Typeid::Rpcs<sub_t, neg_t>;
  * };
  * ~~~
  *
@@ -314,27 +314,27 @@ template<typename OP, typename CLASS, typename FLAGS, typename R,
          typename ...ARGS>
 struct L4_EXPORT Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>
 {
-  template<typename T> struct Result { typedef T result_type; };
+  template<typename T> struct Result { using result_type = T; };
   enum
   {
     Return_tag = L4::Types::Same<R, l4_msgtag_t>::value
   };
 
   /// Our type
-  typedef Rpc_inline_call type;
+  using type = Rpc_inline_call;
   /// The type used to uniquely identify the operation
-  typedef OP op_type;
+  using op_type = OP;
   /// The class that contains this operation
-  typedef CLASS class_type;
+  using class_type = CLASS;
   /// The result type of the callable
-  typedef typename Result<R>::result_type result_type;
+  using result_type = typename Result<R>::result_type;
   /// The original signature given to Rpc_call
-  typedef R ipc_type (ARGS...);
+  using ipc_type = R (ARGS...);
   /// The signature of the client callable
-  typedef result_type func_type (typename _Elem<ARGS>::arg_type...);
+  using func_type = result_type (typename _Elem<ARGS>::arg_type...);
 
   /// The RPC flags type (specifying e.g. send-only or call operation)
-  typedef FLAGS flags_type;
+  using flags_type = FLAGS;
 
   template<typename RES>
   static typename L4::Types::Enable_if< Return_tag, RES >::type
@@ -387,8 +387,8 @@ template<typename IPC, typename R, typename ...ARGS>
 struct _Call<IPC, R (ARGS...)>
 {
 public:
-  typedef typename IPC::class_type class_type;
-  typedef typename IPC::result_type result_type;
+  using class_type = typename IPC::class_type;
+  using result_type = typename IPC::result_type;
 
 private:
   L4::Cap<class_type> cap() const noexcept
@@ -454,7 +454,7 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_INLINE_RPC_NF(res, name, args...)                                 \
   struct name##_t : L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> \
   {                                                                          \
-    typedef L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> type;   \
+    using type = L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args>;   \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
 
@@ -467,7 +467,7 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_INLINE_RPC_NF_OP(op, res, name, args...)                          \
   struct name##_t : L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> \
   {                                                                          \
-    typedef L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args> type;   \
+    using type = L4::Ipc::Msg::Rpc_inline_call<name##_t, Class, res args>;   \
     enum { Opcode = (op) };                                                  \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
@@ -511,7 +511,7 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_RPC_NF(res, name, args...)                                        \
   struct name##_t : L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>        \
   {                                                                          \
-    typedef L4::Ipc::Msg::Rpc_call<name##_t, Class, res args> type;          \
+    using type = L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>;          \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
 
@@ -526,7 +526,7 @@ struct L4_EXPORT Rpc_call<OP, CLASS, R (ARGS...), FLAGS> :
 #define L4_RPC_NF_OP(op, res, name, args...)                                 \
   struct name##_t : L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>        \
   {                                                                          \
-    typedef L4::Ipc::Msg::Rpc_call<name##_t, Class, res args> type;          \
+    using type = L4::Ipc::Msg::Rpc_call<name##_t, Class, res args>;          \
     enum { Opcode = (op) };                                                  \
     L4_INLINE_RPC_SRV_FORWARD(name);                                         \
   }
@@ -582,17 +582,17 @@ public:
   static constexpr int read(char *, int offset, int, l4_ret_t) noexcept
   { return offset; }
 
-  typedef void Base;
+  using Base = void;
 };
 
 template<typename A, typename ...M>
 struct Buf<A, M...> : Buf<M...>
 {
-  typedef Buf<M...> Base;
+  using Base = Buf<M...>;
 
-  typedef Clnt_xmit<A> xmit;
-  typedef typename _Elem<A>::arg_type arg_type;
-  typedef Detail::_Plain<arg_type> plain;
+  using xmit = Clnt_xmit<A>;
+  using arg_type = typename _Elem<A>::arg_type;
+  using plain = Detail::_Plain<arg_type>;
 
   template<typename DIR>
   static int
@@ -624,7 +624,7 @@ struct Buf<A, M...> : Buf<M...>
 template <typename ...ARGS> struct _Part
 {
   /// The buffer type with op-code.
-  typedef Buf<ARGS...> Data;
+  using Data = Buf<ARGS...>;
 
   template<typename DIR>
   static int write(void *b, int offset, int limit,
@@ -663,7 +663,7 @@ template<typename R, typename ...ARGS>
 struct Part<R (ARGS...), void> : _Part<ARGS...>
 {
   /// The buffer type with op-code.
-  typedef Buf<ARGS...> Data;
+  using Data = Buf<ARGS...>;
 
   // write arguments, skipping the dummy opcode
   template<typename DIR>
@@ -683,9 +683,9 @@ struct Part<R (ARGS...), void> : _Part<ARGS...>
 template<typename OPCODE, typename R, typename ...ARGS>
 struct Part<R (ARGS...), OPCODE> : _Part<ARGS...>
 {
-  typedef OPCODE opcode_type;
+  using opcode_type = OPCODE;
   /// The buffer type with op-code.
-  typedef Buf<opcode_type, ARGS...> Data;
+  using Data = Buf<opcode_type, ARGS...>;
 
   // write arguments, including the opcode
   template<typename DIR>
@@ -718,9 +718,9 @@ Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>::
 {
   using namespace Ipc::Msg;
 
-  typedef typename Kobject_typeid<CLASS>::Iface::Rpcs Rpcs;
-  typedef typename Rpcs::template Rpc<OP> Opt;
-  typedef Detail::Part<ipc_type, typename Rpcs::opcode_type> Args;
+  using Rpcs = typename Kobject_typeid<CLASS>::Iface::Rpcs;
+  using Opt = typename Rpcs::template Rpc<OP>;
+  using Args = Detail::Part<ipc_type, typename Rpcs::opcode_type>;
 
   l4_msg_regs_t *mrs = l4_utcb_mr_u(utcb);
 

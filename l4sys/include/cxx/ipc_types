@@ -16,7 +16,7 @@
 namespace L4 {
 
 /// Data type for RPC opcodes
-typedef int Opcode;
+using Opcode = int;
 
 namespace Ipc {
 
@@ -115,7 +115,7 @@ struct Is_valid_rpc_type< In_out<A> > : L4::Types::False {};
  */
 template<typename T> struct L4_EXPORT As_value
 {
-  typedef T value_type;
+  using value_type = T;
   T v;
   As_value() noexcept {}
   As_value(T v) noexcept : v(v) {}
@@ -171,15 +171,15 @@ namespace Msg {
 template<typename T> struct Elem< Opt<T &> > : Elem<T &>
 {
   enum { Is_optional = true };
-  typedef Opt<typename Elem<T &>::svr_type> &svr_arg_type;
-  typedef Opt<typename Elem<T &>::svr_type> svr_type;
+  using svr_arg_type = Opt<typename Elem<T &>::svr_type> &;
+  using svr_type = Opt<typename Elem<T &>::svr_type>;
 };
 
 template<typename T> struct Elem< Opt<T *> > : Elem<T *>
 {
   enum { Is_optional = true };
-  typedef Opt<typename Elem<T *>::svr_type> &svr_arg_type;
-  typedef Opt<typename Elem<T *>::svr_type> svr_type;
+  using svr_arg_type = Opt<typename Elem<T *>::svr_type> &;
+  using svr_type = Opt<typename Elem<T *>::svr_type>;
 };
 
 
@@ -187,8 +187,8 @@ template<typename T> struct Elem< Opt<T *> > : Elem<T *>
 template<typename T, typename CLASS>
 struct Svr_val_ops<Opt<T>, Dir_out, CLASS> : Svr_noops< Opt<T> >
 {
-  typedef Opt<T> svr_type;
-  typedef Svr_val_ops<T, Dir_out, CLASS> Native;
+  using svr_type = Opt<T>;
+  using Native = Svr_val_ops<T, Dir_out, CLASS>;
 
   using Svr_noops< Opt<T> >::to_svr;
   static int to_svr(char *msg, unsigned offset, unsigned limit,
@@ -211,13 +211,13 @@ struct Svr_val_ops<Opt<T>, Dir_out, CLASS> : Svr_noops< Opt<T> >
 template<typename T> struct Elem< Opt<T> > : Elem<T>
 {
   enum { Is_optional = true };
-  typedef Opt<T> arg_type;
+  using arg_type = Opt<T>;
 };
 
 template<typename T> struct Elem< Opt<T const *> > : Elem<T const *>
 {
   enum { Is_optional = true };
-  typedef Opt<T const *> arg_type;
+  using arg_type = Opt<T const *>;
 };
 
 template<typename T>
@@ -226,8 +226,8 @@ struct Is_valid_rpc_type< Opt<T const &> > : L4::Types::False {};
 template<typename T, typename CLASS>
 struct Clnt_val_ops<Opt<T>, Dir_in, CLASS> : Clnt_noops< Opt<T> >
 {
-  typedef Opt<T> arg_type;
-  typedef Detail::_Clnt_val_ops<typename Elem<T>::arg_type, Dir_in, CLASS> Native;
+  using arg_type = Opt<T>;
+  using Native = Detail::_Clnt_val_ops<typename Elem<T>::arg_type, Dir_in, CLASS>;
 
   using Clnt_noops< Opt<T> >::to_msg;
   static int to_msg(char *msg, unsigned offset, unsigned limit,
@@ -664,9 +664,9 @@ struct Clnt_val_ops<L4::Ipc::Rcv_fpage, Dir_in, Cls_buffer>
 // Remove receive buffers from server-side arguments
 template<> struct Elem<L4::Ipc::Rcv_fpage>
 {
-  typedef L4::Ipc::Rcv_fpage arg_type;
-  typedef void svr_type;
-  typedef void svr_arg_type;
+  using arg_type = L4::Ipc::Rcv_fpage;
+  using svr_type = void;
+  using svr_arg_type = void;
   enum { Is_optional = false };
 };
 
@@ -676,9 +676,9 @@ template<> struct Class<L4::Ipc::Small_buf> : Cls_buffer {};
 // Remove receive buffers from server-side arguments
 template<> struct Elem<L4::Ipc::Small_buf>
 {
-  typedef L4::Ipc::Small_buf arg_type;
-  typedef void svr_type;
-  typedef void svr_arg_type;
+  using arg_type = L4::Ipc::Small_buf;
+  using svr_type = void;
+  using svr_arg_type = void;
   enum { Is_optional = false };
 };
 } // namespace Msg
@@ -850,9 +850,9 @@ template<typename A> struct Class< Cap<A> > : Cls_item {};
 template<typename A> struct Elem< Cap<A> >
 {
   enum { Is_optional = false };
-  typedef Cap<A> arg_type;
-  typedef L4::Ipc::Snd_fpage svr_type;
-  typedef L4::Ipc::Snd_fpage svr_arg_type;
+  using arg_type = Cap<A>;
+  using svr_type = L4::Ipc::Snd_fpage;
+  using svr_arg_type = L4::Ipc::Snd_fpage;
 };
 
 
@@ -885,9 +885,9 @@ template<typename A>
 struct Elem<Out<L4::Cap<A> > >
 {
   enum { Is_optional = false };
-  typedef L4::Cap<A> arg_type;
-  typedef Ipc::Cap<A> svr_type;
-  typedef svr_type &svr_arg_type;
+  using arg_type = L4::Cap<A>;
+  using svr_type = Ipc::Cap<A>;
+  using svr_arg_type = svr_type &;
 };
 
 template<typename A> struct Direction< Out< L4::Cap<A> > > : Dir_out {};

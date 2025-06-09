@@ -39,7 +39,7 @@ namespace Types {
    *   Do_strong_tests
    * };
    *
-   * typedef L4::Types::Flags<Test_flag> Test_flags;
+   * using Test_flags = L4::Types::Flags<Test_flag>;
    *
    * Test_flags x = Do_weak_tests;
    *
@@ -53,11 +53,11 @@ namespace Types {
   {
   public:
     /// type of the underlying value
-    typedef UNDERLYING value_type;
+    using value_type = UNDERLYING;
     /// enum type defining a name for each bit
-    typedef BITS_ENUM bits_enum_type;
+    using bits_enum_type = BITS_ENUM;
     /// the Flags<> type itself
-    typedef Flags<BITS_ENUM, UNDERLYING> type;
+    using type = Flags<BITS_ENUM, UNDERLYING>;
 
   private:
     value_type _v;
@@ -158,23 +158,23 @@ namespace Types {
   template<unsigned SIZE, bool = true> struct Int_for_size;
 
   template<> struct Int_for_size<sizeof(unsigned char), true>
-  { typedef unsigned char type; };
+  { using type = unsigned char; };
 
   template<> struct Int_for_size<sizeof(unsigned short),
                                  (sizeof(unsigned short) > sizeof(unsigned char))>
-  { typedef unsigned short type; };
+  { using type = unsigned short; };
 
   template<> struct Int_for_size<sizeof(unsigned),
                                  (sizeof(unsigned) > sizeof(unsigned short))>
-  { typedef unsigned type; };
+  { using type = unsigned; };
 
   template<> struct Int_for_size<sizeof(unsigned long),
                                  (sizeof(unsigned long) > sizeof(unsigned))>
-  { typedef unsigned long type; };
+  { using type = unsigned long; };
 
   template<> struct Int_for_size<sizeof(unsigned long long),
                                  (sizeof(unsigned long long) > sizeof(unsigned long))>
-  { typedef unsigned long long type; };
+  { using type = unsigned long long; };
 
   /**
    * Metafunction to get an integral type of the same size as `T`.
@@ -187,7 +187,7 @@ namespace Types {
     /**
      * The resulting unsigned integer type with the size like `T`.
      */
-    typedef typename Int_for_size<sizeof(T)>::type type;
+    using type = typename Int_for_size<sizeof(T)>::type;
   };
 
   /**
@@ -309,7 +309,7 @@ namespace Types {
    */
   template< bool V > struct Bool
   {
-    typedef Bool<V> type; ///< The meta type itself
+    using type = Bool<V>; ///< The meta type itself
     enum { value = V };   ///< The boolean value
   };
 
@@ -386,7 +386,7 @@ namespace Types {
   struct Same<A, A> : True {};
 
   template<bool, typename = void> struct Enable_if {};
-  template<typename T> struct Enable_if<true, T> { typedef T type; };
+  template<typename T> struct Enable_if<true, T> { using type = T; };
 
   /// Helper type for Enable_if.
   template<bool Condition, typename T = void>
@@ -395,20 +395,20 @@ namespace Types {
   template<typename T1, typename T2, typename T = void>
   struct Enable_if_same : Enable_if<Same<T1, T2>::value, T> {};
 
-  template<typename T> struct Remove_const { typedef T type; };
-  template<typename T> struct Remove_const<T const> { typedef T type; };
-  template<typename T> struct Remove_volatile { typedef T type; };
-  template<typename T> struct Remove_volatile<T volatile> { typedef T type; };
+  template<typename T> struct Remove_const { using type = T; };
+  template<typename T> struct Remove_const<T const> { using type = T; };
+  template<typename T> struct Remove_volatile { using type = T; };
+  template<typename T> struct Remove_volatile<T volatile> { using type = T; };
   template<typename T> struct Remove_cv
-  { typedef typename Remove_const<typename Remove_volatile<T>::type>::type type; };
+  { using type = typename Remove_const<typename Remove_volatile<T>::type>::type; };
 
-  template<typename T> struct Remove_pointer { typedef T type; };
-  template<typename T> struct Remove_pointer<T*> { typedef T type; };
-  template<typename T> struct Remove_reference { typedef T type; };
-  template<typename T> struct Remove_reference<T&> { typedef T type; };
-  template<typename T> struct Remove_pr { typedef T type; };
-  template<typename T> struct Remove_pr<T&> { typedef T type; };
-  template<typename T> struct Remove_pr<T*> { typedef T type; };
+  template<typename T> struct Remove_pointer { using type = T; };
+  template<typename T> struct Remove_pointer<T*> { using type = T; };
+  template<typename T> struct Remove_reference { using type = T; };
+  template<typename T> struct Remove_reference<T&> { using type = T; };
+  template<typename T> struct Remove_pr { using type = T; };
+  template<typename T> struct Remove_pr<T&> { using type = T; };
+  template<typename T> struct Remove_pr<T*> { using type = T; };
 } // Types
 
 } // L4

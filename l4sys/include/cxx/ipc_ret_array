@@ -22,7 +22,7 @@ namespace L4 { namespace Ipc L4_EXPORT {
  */
 template<typename T> struct L4_EXPORT Ret_array
 {
-  typedef T const **ptr_type;
+  using ptr_type = T const **;
 
   T *value = nullptr;
   unsigned max = 0;
@@ -35,10 +35,10 @@ namespace Msg {
 template<typename A> struct Elem< Ret_array<A> >
 {
   enum { Is_optional = false };
-  typedef Ret_array<A> type;
-  typedef typename type::ptr_type arg_type;
-  typedef type svr_type;
-  typedef type svr_arg_type;
+  using type = Ret_array<A>;
+  using arg_type = typename type::ptr_type;
+  using svr_type = type;
+  using svr_arg_type = type;
 };
 
 template<typename A>
@@ -73,7 +73,7 @@ template<typename A, typename CLASS>
 struct Svr_val_ops<Ret_array<A>, Dir_out, CLASS> :
   Svr_noops<Ret_array<A> >
 {
-  typedef Ret_array<A> ret_array;
+  using ret_array = Ret_array<A>;
   using Svr_noops<ret_array>::from_svr;
   static int from_svr(char *, unsigned offset, unsigned limit, long ret,
                       ret_array const &, Dir_out, CLASS)

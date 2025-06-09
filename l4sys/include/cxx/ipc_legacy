@@ -13,7 +13,7 @@
   template<typename IOS>                                              \
   int dispatch(unsigned rights, IOS &ios)                             \
   {                                                                   \
-    typedef ::L4::Ipc::Detail::Dispatch<IFACE> Dispatch;              \
+    using Dispatch = ::L4::Ipc::Detail::Dispatch<IFACE>;              \
     l4_msgtag_t r = Dispatch::f(this, ios.tag(), rights, ios.utcb()); \
     ios.set_ipc_params(r);                                            \
     return r.label();                                                 \

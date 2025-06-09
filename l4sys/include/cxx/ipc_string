@@ -47,8 +47,8 @@ template<typename A, typename LEN, typename CLASS>
 struct Svr_val_ops< String<A, LEN>, Dir_in, CLASS >
 : Svr_val_ops< Array_ref<A, LEN>, Dir_in, CLASS >
 {
-  typedef Svr_val_ops< Array_ref<A, LEN>, Dir_in, CLASS > Base;
-  typedef typename Base::svr_type svr_type;
+  using Base = Svr_val_ops< Array_ref<A, LEN>, Dir_in, CLASS >;
+  using svr_type = typename Base::svr_type;
   using Base::to_svr;
   static int to_svr(char *msg, unsigned offset, unsigned limit,
                     svr_type &a, Dir_in dir, Cls_data cls)
@@ -61,7 +61,7 @@ struct Svr_val_ops< String<A, LEN>, Dir_in, CLASS >
     if (a.length < 1)
       return -L4_EMSGTOOSHORT;
 
-    typedef typename L4::Types::Remove_const<A>::type elem_type;
+    using elem_type = typename L4::Types::Remove_const<A>::type;
     const_cast<elem_type*>(a.data)[a.length - 1] = A();
     return r;
   }
@@ -70,7 +70,7 @@ struct Svr_val_ops< String<A, LEN>, Dir_in, CLASS >
 template<typename A, typename LEN>
 struct Clnt_xmit<String<A, LEN> &> : Clnt_xmit<Array<A, LEN> &>
 {
-  typedef Array<A, LEN> &type;
+  using type = Array<A, LEN> &;
 
   using Clnt_xmit<type>::from_msg;
   static int from_msg(char *msg, unsigned offset, unsigned limit, long ret,
