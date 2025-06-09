@@ -27,11 +27,53 @@ struct l4_kip_platform_info
   struct l4_kip_platform_info_arch arch;
 };
 
-#if L4_MWORD_BITS == 32
-#  include <l4/sys/__kip-32bit.h>
-#else
-#  include <l4/sys/__kip-64bit.h>
-#endif
+/**
+ * L4 Kernel Interface Page.
+ * \ingroup l4_kip_api
+ *
+ * 32-bit architecture may assume that the upper 32 bits of addresses is 0
+ */
+typedef struct l4_kernel_info_t
+{
+  /* offset 0x00 */
+  l4_uint32_t            magic;               /**< Kernel Info Page
+                                               **  identifier ("L4µK").
+                                               **/
+  l4_uint32_t            version;             ///< Kernel version
+  l4_uint8_t             offset_version_strings; ///< offset to version string
+  l4_uint8_t             _fill0[3];            ///< reserved \internal
+  l4_uint8_t             kip_sys_calls;       ///< pointer to system calls
+  l4_uint8_t             node;
+  l4_uint8_t             _fill1[2];            ///< reserved \internal
+
+  /* offset 0x10 */
+  l4_uint64_t            sigma0_ip;           ///< Sigma0 instruction pointer
+  l4_uint64_t            root_ip;             ///< Root task instruction pointer
+
+  /* offset 0x20 */
+  volatile l4_cpu_time_t _clock_val;          ///< \internal
+  l4_uint64_t            frequency_cpu;       ///< CPU frequency in kHz
+
+  /* offset 0x30 */
+  l4_uint64_t            acpi_rsdp_addr;      ///< ACPI RSDP/XSDP
+  l4_uint64_t            dt_addr;             ///< Device Tree
+
+  /* offset 0x40 */
+  l4_uint64_t            user_ptr;            ///< user_ptr
+  l4_uint64_t            _res0[1];            ///< \internal
+
+  /* offset 0x50 */
+  l4_uint32_t            scheduler_granularity; ///< for rounding time slices
+  l4_uint32_t            mem_descs;           ///< memory descriptors relative to Kip
+  l4_uint32_t            mem_descs_num;       ///< number of memory descriptors
+  l4_uint32_t            _res1[1];            ///< \internal
+
+  /* offset 0x60 */
+  l4_uint64_t            _res2[2];             ///< internal - spare space
+
+  /* offset 0x70 */
+  struct l4_kip_platform_info    platform_info;
+} l4_kernel_info_t;
 
 /**
  * \addtogroup l4_kip_api

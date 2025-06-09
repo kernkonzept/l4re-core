@@ -178,15 +178,14 @@ L4_INLINE
 l4_kernel_info_mem_desc_t *
 l4_kernel_info_get_mem_descs(l4_kernel_info_t *kip) L4_NOTHROW
 {
-  return (l4_kernel_info_mem_desc_t *)(((l4_addr_t)kip)
-      + (kip->mem_info >> (sizeof(l4_umword_t) * 4)));
+  return (l4_kernel_info_mem_desc_t *)((l4_addr_t)kip + kip->mem_descs);
 }
 
 L4_INLINE
 unsigned
 l4_kernel_info_get_num_mem_descs(l4_kernel_info_t *kip) L4_NOTHROW
 {
-  return kip->mem_info & ((1UL << (sizeof(l4_umword_t)*4)) -1);
+  return kip->mem_descs_num;
 }
 
 L4_INLINE

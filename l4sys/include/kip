@@ -13,10 +13,10 @@
  *
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
-#ifndef L4_SYS_KIP_H__
-#define L4_SYS_KIP_H__
+#pragma once
 
 #include <l4/cxx/static_vector>
+#include <l4/sys/kip.h>
 
 /* C++ version of memory descriptors */
 
@@ -78,12 +78,6 @@ namespace L4
     private:
       unsigned long _l, _h;
 
-      static unsigned long &memory_info(void *kip) noexcept
-      { return *(reinterpret_cast<unsigned long *>(kip) + 21); }
-
-      static unsigned long memory_info(void const *kip) noexcept
-      { return *(reinterpret_cast<unsigned long const *>(kip) + 21); }
-
     public:
       /**
        * Get first memory descriptor.
@@ -92,16 +86,14 @@ namespace L4
        *
        * \return First memory descriptor stored in the kernel info page
        */
-      static Mem_desc *first(void *kip) noexcept
+      static Mem_desc *first(l4_kernel_info_t *kip) noexcept
       {
-        return reinterpret_cast<Mem_desc *>(reinterpret_cast<char *>(kip)
-               + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8)));
+        return reinterpret_cast<Mem_desc *>(reinterpret_cast<char *>(kip) + kip->mem_descs);
       }
 
-      static Mem_desc const *first(void const *kip) noexcept
+      static Mem_desc const *first(l4_kernel_info_t const *kip) noexcept
       {
-        char const *addr = reinterpret_cast<char const *>(kip)
-          + (memory_info(kip) >> ((sizeof(unsigned long) / 2) * 8));
+        char const *addr = reinterpret_cast<char const *>(kip) + kip->mem_descs;
         return reinterpret_cast<Mem_desc const *>(addr);
       }
 
@@ -112,10 +104,9 @@ namespace L4
        *
        * \return Number of memory descriptors in the kernel info page.
        */
-      static unsigned long count(void const *kip) noexcept
+      static unsigned long count(l4_kernel_info_t const *kip) noexcept
       {
-        return memory_info(kip)
-               & ((1UL << ((sizeof(unsigned long) / 2) * 8)) - 1);
+        return kip->mem_descs_num;
       }
 
       /**
@@ -124,10 +115,9 @@ namespace L4
        * \param kip    Pointer to the kernel info page
        * \param count  Number of memory descriptors
        */
-      static void count(void *kip, unsigned count) noexcept
+      static void count(l4_kernel_info_t *kip, unsigned count) noexcept
       {
-        unsigned long &mi = memory_info(kip);
-        mi = (mi & ~((1UL << ((sizeof(unsigned long) / 2) * 8)) - 1)) | count;
+        kip->mem_descs_num = count;
       }
 
       /**
@@ -135,7 +125,7 @@ namespace L4
        *
        * \param kip  Pointer to the kernel info page.
        */
-      static inline cxx::static_vector<Mem_desc const> all(void const *kip)
+      static inline cxx::static_vector<Mem_desc const> all(l4_kernel_info_t const *kip)
       {
         return cxx::static_vector<Mem_desc const>(Mem_desc::first(kip),
                                                   Mem_desc::count(kip));
@@ -146,7 +136,7 @@ namespace L4
        *
        * \param kip  Pointer to the kernel info page.
        */
-      static inline cxx::static_vector<Mem_desc> all(void *kip)
+      static inline cxx::static_vector<Mem_desc> all(l4_kernel_info_t *kip)
       {
         return cxx::static_vector<Mem_desc>(Mem_desc::first(kip),
                                             Mem_desc::count(kip));
@@ -249,5 +239,3 @@ namespace L4
     };
   };
 };
-
-#endif
