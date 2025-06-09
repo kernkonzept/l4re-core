@@ -147,11 +147,32 @@
  * Mask to get only the relevant bits of an l4_cap_idx_t.
  * \hideinitializer
  */
-#define L4_CAP_MASK    (~0UL << (L4_CAP_SHIFT - 1))
+#define L4_CAP_MASK    (~0UL << (L4_CAP_SHIFT - 2))
 /** Invalid capability selector. \hideinitializer */
 #define L4_INVALID_CAP (~0UL << (L4_CAP_SHIFT - 1))
 
 #define L4_INVALID_CAP_BIT (1UL << (L4_CAP_SHIFT - 1))
+
+/**
+ * Mark this capability selector as index into the reply cap space instead of
+ * the regular capability space.
+ *
+ * Send phase: The sender wants to use an explicit reply cap slot from its
+ * reply cap space, instead of the otherwise used per-thread implicit reply
+ * cap slot.
+ *
+ * Receive phase: The receiver wants to store the caller in an explicit
+ * reply cap slot from its reply cap space, instead of the otherwise used
+ * per-thread implicit reply cap slot.
+ *
+ * \note Only valid in combination with #L4_SYSF_REPLY, #L4_SYSF_WAIT and
+ *       #L4_SYSF_REPLY_AND_WAIT.
+ * \hideinitializer
+ */
+#define L4_REPLY_CAP_BIT (1UL << (L4_CAP_SHIFT - 2))
+
+/** Invalid reply capability selector. \hideinitializer */
+#define L4_INVALID_REPLY_CAP (~0UL << (L4_CAP_SHIFT - 2))
 
 enum l4_sched_consts_t
 {

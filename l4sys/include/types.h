@@ -337,13 +337,18 @@ L4_INLINE l4_msgtag_t l4_msgtag(long label, unsigned words, unsigned items,
  * Capability selector type.
  * \ingroup l4_cap_api
  *
- * A capability selector is either a (shifted) capability index or the invalid
- * capability selector #L4_INVALID_CAP.
+ * A capability selector is either a (shifted) capability index, a (shifted)
+ * reply capability index or the invalid capability selector #L4_INVALID_CAP.
  *
  * Usage of the invalid capability selector is defined only for invoking IPC
  * (see \ref l4_ipc_api "Object Invocation"): When IPC is invoked on
  * #L4_INVALID_CAP, then it is resolved to a capability for the current thread
  * with full permissions.
+ *
+ * Reply capability selectors are denoted by the presence of the
+ * #L4_REPLY_CAP_BIT. A reply capability selector is an index into the reply
+ * capability space of the current task. The #L4_INVALID_REPLY_CAP selector is
+ * resolved to the implicit reply capability of the current thread.
  *
  * Otherwise, the API assumes that each argument of type #l4_cap_idx_t is a
  * capability index, i.e., `idx` `<<` #L4_CAP_SHIFT for arbitrary `idx`. The
