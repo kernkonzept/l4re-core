@@ -339,6 +339,7 @@ function Loader:start_backtracer(opts)
   local prog = o.prog or "rom/backtracer";
   local bt = self:new_channel();
   self:startv({ caps = { backtracer = bt:svr() },
+                log = self.log_fab:create(Proto.Log, "backtracer", "n", "show"),
                 scheduler = Env.user_factory:create(Proto.Scheduler,
                                                     0xff, 0xfc)
               }, prog, table.unpack(o.args or {}));
