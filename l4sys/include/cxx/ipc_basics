@@ -209,6 +209,13 @@ template<typename T> struct _Plain<T const *>
  */
 template<typename MTYPE, typename DIR, typename CLASS> struct Clnt_val_ops;
 
+// Provides empty default implementations for the Dir/Cls combinations in which
+// the type does not participate (for the Do_in_items, Do_in_data, ... passes in
+// Rpc_inline_call::call).
+//
+// The Clnt_val_ops specializations derive from Clnt_noops, and pull in the
+// empty default implementations with `using Clnt_noops::{to,from}_msg`, to
+// handle the the other Dir/Cls combinations.
 template<typename T> struct Clnt_noops
 {
   template<typename A, typename B>
@@ -221,6 +228,13 @@ template<typename T> struct Clnt_noops
   { return offset; }
 };
 
+// Provides empty default implementations for the Dir/Class combinations in which
+// the type does not participate (for the Do_in_items, Do_in_data, ... passes in
+// handle_svr_obj_call).
+//
+// The Svr_val_ops specializations derive from Svr_noops, and pull in the
+// empty default implementations with `using Svr_noops::{from,to}_svr`, to
+// handle the the other Dir/Cls combinations.
 template<typename T> struct Svr_noops
 {
   template<typename A, typename B>
@@ -233,6 +247,8 @@ template<typename T> struct Svr_noops
   { return offset; }
 };
 
+// Default implementation, via reinterpret_cast.
+// Overide by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Clnt_val_ops<MTYPE, Dir_in, CLASS> : Clnt_noops<MTYPE>
 {
@@ -243,7 +259,8 @@ struct Clnt_val_ops<MTYPE, Dir_in, CLASS> : Clnt_noops<MTYPE>
   { return msg_add<MTYPE>(msg, offset, limit, arg); }
 };
 
-
+// Default implementation, via reinterpret_cast.
+// Overide by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Clnt_val_ops<MTYPE, Dir_out, CLASS> : Clnt_noops<MTYPE>
 {
@@ -263,6 +280,8 @@ struct Clnt_val_ops<MTYPE, Dir_out, CLASS> : Clnt_noops<MTYPE>
  */
 template<typename MTYPE, typename DIR, typename CLASS> struct Svr_val_ops;
 
+// Default implementation, via reinterpret_cast.
+// Overide by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
 {
@@ -273,6 +292,8 @@ struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
   { return msg_get<MTYPE>(msg, offset, limit, arg); }
 };
 
+// Default implementation, via reinterpret_cast.
+// Overide by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
 {
@@ -394,7 +415,14 @@ template<typename T,
 struct _Svr_xmit : SVR_OPS {};
 
 } //namespace Detail
+
+// Specialize to alias a type X to T in client call signature.
+// Needs to be combined with a matching Elem< X > : Elem< T > specialization.
+// Or alternatively X needs to inherit from T.
 template<typename T> struct Clnt_xmit : Detail::_Clnt_xmit<T> {};
+// Specialize to alias a type X to T in server op_... signature.
+// Needs to be combined with a matching Elem< X > : Elem< T > specialization.
+// Or alternatively X needs to inherit from T.
 template<typename T> struct Svr_xmit : Detail::_Svr_xmit<T> {};
 
 }}} // namespace Msg, Ipc, L4

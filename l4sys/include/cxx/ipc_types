@@ -858,6 +858,7 @@ template<typename A> struct Elem< Cap<A> >
 
 template<typename A, typename CLASS>
 struct Svr_val_ops<Cap<A>, Dir_in, CLASS> :
+  // Uses default Svr_val_ops implementation with L4::Ipc::Snd_fpage.
   Svr_val_ops<L4::Ipc::Snd_fpage, Dir_in, CLASS>
 {};
 
