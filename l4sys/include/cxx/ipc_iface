@@ -317,7 +317,7 @@ struct L4_EXPORT Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>
   template<typename T> struct Result { using result_type = T; };
   enum
   {
-    Return_tag = L4::Types::Same<R, l4_msgtag_t>::value
+    Return_tag = L4::Types::Same_v<R, l4_msgtag_t>
   };
 
   /// Our type
@@ -337,28 +337,28 @@ struct L4_EXPORT Rpc_inline_call<OP, CLASS, R (ARGS...), FLAGS>
   using flags_type = FLAGS;
 
   template<typename RES>
-  static typename L4::Types::Enable_if< Return_tag, RES >::type
+  static L4::Types::Enable_if_t< Return_tag, RES >
   return_err(l4_ret_t err) noexcept { return l4_msgtag(err, 0, 0, 0); }
 
   template<typename RES>
-  static typename L4::Types::Enable_if< Return_tag, RES >::type
+  static L4::Types::Enable_if_t< Return_tag, RES >
   return_ipc_err(l4_msgtag_t tag, l4_utcb_t const *) noexcept { return tag; }
 
   template<typename RES>
-  static typename L4::Types::Enable_if< Return_tag, RES >::type
+  static L4::Types::Enable_if_t< Return_tag, RES >
   return_code(l4_msgtag_t tag) noexcept { return tag; }
 
   template<typename RES>
-  static typename L4::Types::Enable_if< !Return_tag, RES >::type
+  static L4::Types::Enable_if_t< !Return_tag, RES >
   return_err(long err) noexcept { return err; }
 
   template<typename RES>
-  static typename L4::Types::Enable_if< !Return_tag, RES >::type
+  static L4::Types::Enable_if_t< !Return_tag, RES >
   return_ipc_err(l4_msgtag_t, l4_utcb_t *utcb) noexcept
   { return l4_ipc_to_errno(l4_ipc_error_code(utcb)); }
 
   template<typename RES>
-  static typename L4::Types::Enable_if< !Return_tag, RES >::type
+  static L4::Types::Enable_if_t< !Return_tag, RES >
   return_code(l4_msgtag_t tag) noexcept { return tag.label(); }
 
   static R call(L4::Cap<class_type> cap,

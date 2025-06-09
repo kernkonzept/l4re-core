@@ -61,7 +61,7 @@ struct Svr_val_ops< String<A, LEN>, Dir_in, CLASS >
     if (a.length < 1)
       return -L4_EMSGTOOSHORT;
 
-    using elem_type = typename L4::Types::Remove_const<A>::type;
+    using elem_type = L4::Types::Remove_const_t<A>;
     const_cast<elem_type*>(a.data)[a.length - 1] = A();
     return r;
   }

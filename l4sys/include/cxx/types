@@ -385,6 +385,9 @@ namespace Types {
   template<typename A>
   struct Same<A, A> : True {};
 
+  template< typename T1, typename T2 >
+  inline constexpr bool Same_v = Same<T1, T2>::value;
+
   template<bool, typename = void> struct Enable_if {};
   template<typename T> struct Enable_if<true, T> { using type = T; };
 
@@ -393,22 +396,32 @@ namespace Types {
     using Enable_if_t = typename Enable_if<Condition, T>::type;
 
   template<typename T1, typename T2, typename T = void>
-  struct Enable_if_same : Enable_if<Same<T1, T2>::value, T> {};
+  struct Enable_if_same : Enable_if<Same_v<T1, T2>, T> {};
 
   template<typename T> struct Remove_const { using type = T; };
   template<typename T> struct Remove_const<T const> { using type = T; };
+  template<typename T> using Remove_const_t = typename Remove_const<T>::type;
+
   template<typename T> struct Remove_volatile { using type = T; };
   template<typename T> struct Remove_volatile<T volatile> { using type = T; };
+  template<typename T> using Remove_volatile_t = typename Remove_volatile<T>::type;
+
   template<typename T> struct Remove_cv
-  { using type = typename Remove_const<typename Remove_volatile<T>::type>::type; };
+  { using type = Remove_const_t<Remove_volatile_t<T>>; };
+  template<typename T> using Remove_cv_t = typename Remove_cv<T>::type;
 
   template<typename T> struct Remove_pointer { using type = T; };
   template<typename T> struct Remove_pointer<T*> { using type = T; };
+  template<typename T> using Remove_pointer_t = typename Remove_pointer<T>::type;
+
   template<typename T> struct Remove_reference { using type = T; };
   template<typename T> struct Remove_reference<T&> { using type = T; };
+  template<typename T> using Remove_reference_t = typename Remove_reference<T>::type;
+
   template<typename T> struct Remove_pr { using type = T; };
   template<typename T> struct Remove_pr<T&> { using type = T; };
   template<typename T> struct Remove_pr<T*> { using type = T; };
+  template<typename T> using Remove_pr_t = typename Remove_pr<T>::type;
 } // Types
 
 } // L4

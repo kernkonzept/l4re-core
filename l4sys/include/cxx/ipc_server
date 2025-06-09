@@ -317,7 +317,7 @@ struct Dispatch_call
   static l4_msgtag_t
   _call(OBJ *o, l4_utcb_t *utcb, l4_msgtag_t tag, unsigned rights, OPCODE_TYPE op, ARGS ...a)
   {
-    if (L4::Types::Same<typename RPCS::opcode_type, void>::value
+    if (L4::Types::Same_v<typename RPCS::opcode_type, void>
         || RPCS::Opcode == op)
       {
         if ((rights & rmask()) != rmask())

@@ -116,7 +116,7 @@ inline int msg_add(char *msg, unsigned offs, unsigned limit, T v) noexcept
   offs = align_to<T>(offs);
   if (L4_UNLIKELY(!check_size<T>(offs, limit)))
     return -L4_EMSGTOOLONG;
-  *reinterpret_cast<typename L4::Types::Remove_const<T>::type *>(msg + offs) = v;
+  *reinterpret_cast<L4::Types::Remove_const_t<T> *>(msg + offs) = v;
   return offs + sizeof(T);
 }
 

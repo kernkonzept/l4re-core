@@ -185,7 +185,7 @@ struct Elem< Array_ref<A, LEN> & >
   /// Array_ref<> at the interface
   using arg_type = Array_ref<A, LEN> &;
   /// Array_ref<> as server storage
-  using svr_type = Array_ref<typename L4::Types::Remove_const<A>::type, LEN>;
+  using svr_type = Array_ref<L4::Types::Remove_const_t<A>, LEN>;
   /// Array_ref<> & as server argument
   using svr_arg_type = svr_type &;
   enum { Is_optional = false };
@@ -210,7 +210,7 @@ struct Clnt_val_ops_d_in : Clnt_noops<ARRAY>
     offset = align_to<A>(offset + sizeof(LEN));
     if (L4_UNLIKELY(!check_size<A>(offset, limit, a.length)))
       return -L4_EMSGTOOLONG;
-    using elem_type = typename L4::Types::Remove_const<A>::type;
+    using elem_type = L4::Types::Remove_const_t<A>;
     elem_type *data = reinterpret_cast<elem_type*>(msg + offset);
 
     // we do not correctly handle overlaps
@@ -319,9 +319,9 @@ struct Clnt_val_ops<Array_ref<A, LEN>, Dir_out, Cls_data> :
 
 template<typename A, typename LEN, typename CLASS>
 struct Svr_val_ops<Array_ref<A, LEN>, Dir_out, CLASS> :
-  Svr_noops<Array_ref<typename L4::Types::Remove_const<A>::type, LEN> &>
+  Svr_noops<Array_ref<L4::Types::Remove_const_t<A>, LEN> &>
 {
-  using elem_type = typename L4::Types::Remove_const<A>::type;
+  using elem_type = L4::Types::Remove_const_t<A>;
   using svr_type = Array_ref<elem_type, LEN> &;
 
   using Svr_noops<svr_type>::to_svr;

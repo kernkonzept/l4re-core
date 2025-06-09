@@ -202,7 +202,7 @@ public:
 
   /// Set to directly stored value of type T
   template<typename T>
-  void set_direct_value(T val, typename L4::Types::Enable_if<sizeof(T) <= sizeof(char const *), bool>::type = true)
+  void set_direct_value(T val, L4::Types::Enable_if_t<sizeof(T) <= sizeof(char const *), bool> = true)
   {
     static_assert(sizeof(T) <= sizeof(char const *), "direct Varg value too big");
     using Vt = Va_type<T>;
@@ -219,7 +219,7 @@ public:
 
   /// Make Varg from direct value
   template<typename T> explicit
-  Varg(T data, typename L4::Types::Enable_if<sizeof(T) <= sizeof(char const *), bool>::type = true)
+  Varg(T data, L4::Types::Enable_if_t<sizeof(T) <= sizeof(char const *), bool> = true)
   { set_direct_value<T>(data); }
 };
 
