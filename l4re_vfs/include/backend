@@ -11,6 +11,8 @@
 #include <l4/l4re_vfs/vfs.h>
 #include <l4/crtn/initpriorities.h>
 
+extern "C" void l4re_vfs_select_poll_notify(void);
+
 namespace L4Re { namespace Vfs {
 
 /// Reference to the applications L4Re::Vfs::Ops singleton.

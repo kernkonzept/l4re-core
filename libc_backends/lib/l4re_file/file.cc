@@ -659,32 +659,24 @@ static pthread_mutex_t __fnotify_mtx = PTHREAD_MUTEX_INITIALIZER;
 static pthread_cond_t __fnotify_cv = PTHREAD_COND_INITIALIZER;
 
 /**
- * System V user space signaling.
+ * Signal I/O operation/condition readiness.
  *
- * This is a System V user space signaling facility that is deprecated and
- * unused, but still a de facto standard (thus it is safe to be declared in
- * signal.h).
+ * This function is called by a file descriptor backend in case one of its file
+ * descriptors becomes ready for an I/O operation/condition. This potentially
+ * wakes up a thread that might be blocked on a select(), pselect(), poll()
+ * or ppoll() call.
  *
- * We piggy-back on the SIGURG signal (which is defined to be ignored by
- * default) to signal I/O operation/condition readiness.
- *
- * \param sig  User space signal to send.
- *
- * \return 0 on success, non-zero on failure.
+ * \note The implementation should be improved to support selective wake-ups
+ *       when the number of file descriptors that use this signaling mechanism
+ *       and/or the number of blocked threads grows substantially to avoid
+ *       unnecessary wake-ups.
  */
-int gsignal(int sig) __THROW
+void l4re_vfs_select_poll_notify(void)
 {
-  if (sig == SIGURG)
-    {
-      // Signal I/O operation/condition readiness.
-      auto guard = L4::Lock_guard(__fnotify_mtx);
-      assert(guard.status() == 0);
+  auto guard = L4::Lock_guard(__fnotify_mtx);
+  assert(guard.status() == 0);
 
-      pthread_cond_broadcast(&__fnotify_cv);
-      return 0;
-    }
-
-  return -1;
+  pthread_cond_broadcast(&__fnotify_cv);
 }
 
 /**
