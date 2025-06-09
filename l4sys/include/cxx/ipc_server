@@ -40,6 +40,10 @@ template<typename ...> struct Arg_pack
   decltype(auto) call(F f, ARGS ...args)
   { return f(args...); }
 
+  template<typename ...>
+  void reply()
+  {}
+
   template<typename O, typename FUNC, typename ...ARGS>
   auto obj_call(O *o, ARGS ...args)
     -> decltype(typename FUNC::template fwd<O>(o).template call<ARGS...>(args...))
@@ -134,12 +138,30 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
       call<F, ARGS..., svr_arg_type>(f, args..., this->v);
   }
 
+  template<typename ...ARGS>
+  void reply(ARGS &&...args)
+  {
+    // Only consume out parameters.
+    if constexpr (L4::Types::Same_v<typename Direction<T>::type, Dir_out>)
+      reply_consume_arg<ARGS...>(L4::Types::forward<ARGS>(args)...);
+    else
+      Base::template reply<ARGS...>(L4::Types::forward<ARGS>(args)...);
+  }
+
   template<typename O, typename FUNC, typename ...ARGS>
   decltype(auto) obj_call(O *o, ARGS ...args)
   {
     //As_arg<value_type> check;
     return Base::template
       obj_call<O, FUNC, ARGS..., svr_arg_type>(o, args..., this->v);
+  }
+
+private:
+  template<typename A, typename ...ARGS>
+  void reply_consume_arg(A &&a, ARGS &&...args)
+  {
+    this->v = L4::Types::move(a);
+    Base::template reply<ARGS...>(L4::Types::forward<ARGS>(args)...);
   }
 };
 
@@ -252,6 +274,72 @@ handle_svr_obj_call(O *o, l4_utcb_t *utcb, l4_msgtag_t tag, ARGS ...args)
 
   unsigned const items = bytes / Item_bytes;
   return l4_msgtag(ret, words, items, 0);
+}
+
+
+template<typename RPC, typename ...OUT_ARGS>
+static l4_msgtag_t
+pack_svr_reply(l4_utcb_t *utcb, l4_ret_t ret, OUT_ARGS && ...args)
+{
+  static_assert(RPC::flags_type::Is_call, "RPC to reply to must be a call.");
+
+  // our convention says that negative return value means no
+  // reply data
+  if (L4_UNLIKELY(ret < 0))
+    return l4_msgtag(ret, 0, 0, 0);
+
+  // TODO: Could try to filter out Dir_in parameters already in the arg pack.
+  using Pack = Svr_arg_pack<typename RPC::ipc_type>;
+
+  // our whole arguments data structure
+  Pack pack;
+  l4_msg_regs_t *mrs = l4_utcb_mr_u(utcb);
+
+  // Reserves spaces for all data output arguments.
+  if (L4_UNLIKELY(pack.template get<Do_out_data>(mrs->mr, 0, Mr_bytes) < 0))
+    return l4_msgtag(-L4_EMSGTOOSHORT, 0, 0, 0);
+
+  // call the server reply function
+  pack.template reply<OUT_ARGS...>(L4::Types::forward<OUT_ARGS>(args)...);
+
+  // reply with the reply data from the server function
+  int bytes = pack.template set<Do_out_data>(mrs->mr, 0, Mr_bytes, ret);
+  if (L4_UNLIKELY(bytes < 0))
+    return l4_msgtag(-L4_EMSGTOOLONG, 0, 0, 0);
+
+  unsigned words = (bytes + Word_bytes - 1) / Word_bytes;
+  bytes = pack.template set<Do_out_items>(&mrs->mr[words], 0,
+                                          Mr_bytes - words * Word_bytes,
+                                          ret);
+  if (L4_UNLIKELY(bytes < 0))
+    return l4_msgtag(-L4_EMSGTOOLONG, 0, 0, 0);
+
+  unsigned const items = bytes / Item_bytes;
+  return l4_msgtag(ret, words, items, 0);
+}
+
+/**
+ * Reply to a call with an explicit reply capability.
+ *
+ * The function takes the reply capability and all output parameters that are
+ * returned to the client.
+ *
+ * \tparam RPC      The type of the RPC call
+ * \tparam OUT_ARGS The output arguments of the RPC call
+ *
+ * \param reply_cap The explicit reply capability of the call
+ * \param res       The call result code
+ * \param args      The output arguments of the call
+ */
+template<typename RPC, typename ...OUT_ARGS>
+static l4_ret_t
+reply(L4::Reply_cap reply_cap, l4_ret_t res, OUT_ARGS && ...args)
+{
+  l4_utcb_t *u = l4_utcb();
+  return reply_cap.reply(
+    L4::Ipc::Msg::pack_svr_reply<RPC, OUT_ARGS...>(
+      u, res, L4::Types::forward<OUT_ARGS>(args)...),
+    u);
 }
 
 //-------------------------------------------------------------------------
