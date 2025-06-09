@@ -143,31 +143,14 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
   }
 };
 
+/**
+ * For arguments that have no representation (do not appear) in the server
+ * function signature, i.e. `Elem<T>::svr_type == void`, for example
+ * L4::Ipc::Rcv_fpage and L4::Ipc::Small_buf.
+ */
 template<typename T, typename ...M>
 struct Svr_arg<T, void, M...> : Arg_pack<M...>
-{
-  using Base = Arg_pack<M...>;
-
-  template<typename DIR>
-  int get(char *msg, unsigned offset, unsigned limit)
-  { return Base::template get<DIR>(msg, offset, limit); }
-
-  template<typename DIR>
-  int set(char *msg, unsigned offset, unsigned limit, l4_ret_t ret)
-  { return Base::template set<DIR>(msg, offset, limit, ret); }
-
-  template<typename F, typename ...ARGS>
-  decltype(auto) call(F f, ARGS ...args)
-  {
-    return Base::template call<F, ARGS...>(f, args...);
-  }
-
-  template<typename O, typename FUNC, typename ...ARGS>
-  decltype(auto) obj_call(O *o, ARGS ...args)
-  {
-    return Base::template obj_call<O, FUNC, ARGS...>(o, args...);
-  }
-};
+{};
 
 template<typename A, typename ...M>
 struct Arg_pack<A, M...> : Svr_arg<A, typename _Elem<A>::svr_type, M...>
