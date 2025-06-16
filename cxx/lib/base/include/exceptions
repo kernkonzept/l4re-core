@@ -289,9 +289,10 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &o, L4::Base_exception const &e)
 {
-  o << "Exception: " << e.str() << ", backtrace ...\n";
+  o << "Exception: " << e.str() << ".\n";
+  o << "Backtrace:\n";
   for (int i = 0; i < e.frame_count(); ++i)
-    o << L4::n_hex(l4_addr_t(e.pc_array()[i])) << '\n';
+    o << "  " << L4::n_hex(l4_addr_t(e.pc_array()[i])) << '\n';
 
   return o;
 }
@@ -300,12 +301,12 @@ inline
 L4::BasicOStream &
 operator << (L4::BasicOStream &o, L4::Runtime_error const &e)
 {
-  o << "Exception: " << e.str() << ": ";
+  o << "Exception: " << e.str();
   if (e.extra_str())
-    o << e.extra_str() << ": ";
-  o << "backtrace ...\n";
+    o << ": " << e.extra_str();
+  o << "\n" << "Backtrace:\n";
   for (int i = 0; i < e.frame_count(); ++i)
-    o << L4::n_hex(l4_addr_t(e.pc_array()[i])) << '\n';
+    o << "  " << L4::n_hex(l4_addr_t(e.pc_array()[i])) << '\n';
 
   return o;
 }
