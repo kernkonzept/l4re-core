@@ -23,9 +23,12 @@ SOVERSION_libc.so := 1.0.50
 
 PICFLAGS += -DSHARED=1
 
+LIBC_BUILD_MODE = full
+
 include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/make_rules.mk
 include $(LIBCSRC_DIR)/contrib_files.mk
+include $(LIBCSRC_DIR)/sources.mk
 
 # stack protector handling
 ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
@@ -43,14 +46,6 @@ LDFLAGS_NONGOLD = --warn-once --sort-section=alignment
 LDFLAGS        += $(LDFLAGS_NONGOLD)
 
 LDFLAGS_libc.so := -init __uClibc_init
-
-DIRS := libc/string libc/inet libc/pwd_grp libc/unistd libc/signal \
-        libc/stdlib libc/stdlib/malloc$(if $(CONFIG_BID_STATIC_HEAP),,-standard) libc/stdio libiconv \
-	libc/misc libc/sysdeps/linux libc/termios $(if $(BID_VARIANT_FLAG_NOFPU),,libm) \
-        libcrypt libuargp
-
-SUB_MODULES := wchar large_file $(if $(BID_VARIANT_FLAG_NOFPU),,fp) \
-               $(if $(UCLIBC_BUILD_MINIMAL),,locale wchar_locale)
 
 # process all sources for the libc
 $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))

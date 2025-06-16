@@ -13,16 +13,14 @@ endef
 DEFINES		+= -DL4_MINIMAL_LIBC -D_GNU_SOURCE
 LIBCSRC_DIR	?= $(PKGDIR)/../uclibc/lib/uclibc
 
-UCLIBC_BUILD_MINIMAL = 1
+LIBC_BUILD_MODE = minimal
 
 include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/make_rules.mk
 include $(LIBCSRC_DIR)/contrib_files.mk
+include $(LIBCSRC_DIR)/sources.mk
 
 DEFINES-$(CONFIG_BID_PIE) += -DSTATIC_PIE
-
-DIRS := libc/string libc/stdlib libc/stdio libc/unistd libc/signal \
-        libc/misc libc/stdlib/malloc libc/sysdeps/linux
 
 CFLAGS_arm64 += -mstrict-align
 CXXFLAGS_arm64 += -mstrict-align
@@ -32,8 +30,6 @@ CXXFLAGS_clang += -mno-implicit-float
 
 CFLAGS += $(CFLAGS_$(BID_COMPILER_TYPE))
 CXXFLAGS += $(CXXFLAGS_$(BID_COMPILER_TYPE))
-
-SUB_MODULES := large_file
 
 # process all sources for the libc
 $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))

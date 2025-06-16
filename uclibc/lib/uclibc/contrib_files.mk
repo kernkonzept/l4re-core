@@ -1,3 +1,4 @@
+LIBC_BUILD_MINIMAL = $(filter minimal,$(LIBC_BUILD_MODE))
 
 define SRC_libc/sysdeps/linux
   setjmp
@@ -129,11 +130,11 @@ define SRC_libc/stdlib_fp
   erand48
   erand48_r
   strtod
-  $(if $(UCLIBC_BUILD_MINIMAL),,strtod_l)
+  $(if $(LIBC_BUILD_MINIMAL),,strtod_l)
   strtof
-  $(if $(UCLIBC_BUILD_MINIMAL),,strtof_l)
+  $(if $(LIBC_BUILD_MINIMAL),,strtof_l)
   strtold
-  $(if $(UCLIBC_BUILD_MINIMAL),,strtold_l)
+  $(if $(LIBC_BUILD_MINIMAL),,strtold_l)
 endef
 
 define SRC_libc/stdlib/malloc
@@ -386,7 +387,7 @@ define SRC_libc/misc
   time/_time_mktime_tzi
   time/_time_localtime_tzi
   ttyent/getttyent
-  $(if $(UCLIBC_BUILD_MINIMAL),,utmp/utent)
+  $(if $(LIBC_BUILD_MINIMAL),,utmp/utent)
   elf/dl-iterate-phdr
 endef
 

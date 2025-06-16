@@ -13,7 +13,9 @@ LIBC_SRC_DIRS += $(CONTRIB_DIR)/libm \
 LIBC_DST_DIR  := $(OBJ_DIR)/src
 
 $(LIBC_DST_DIR)/.links-done: $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/src_rules.mk \
-                             $(LIBCSRC_DIR)/contrib_files.mk $(LIBCSRC_DIR)/make_vars.mk \
+                             $(LIBCSRC_DIR)/contrib_files.mk \
+                             $(LIBCSRC_DIR)/make_vars.mk \
+                             $(LIBCSRC_DIR)/sources.mk \
                              $(shell find $(LIBC_SRC_DIRS) -type f) \
                              $(if $(wildcard $@),$(file <$@.list))
 	$(VERBOSE)$(RM) -r $(LIBC_DST_DIR)
