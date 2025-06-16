@@ -374,29 +374,48 @@ public:
 protected:
   /// Internal implementation for reply and wait
   inline l4_msgtag_t reply_n_wait(l4_msgtag_t reply, l4_umword_t *p, l4_utcb_t *);
+
+private:
+  template<typename U> static auto _has_setup_reply_cap(int)
+    -> decltype(&U::setup_reply_cap, L4::Types::True());
+  template<typename> static L4::Types::False _has_setup_reply_cap(...);
+
+  // Backwards compatibility check via `if constexpr` in reply_n_wait() if
+  // explicit reply cap mechanism is present. Once we move to C++20, this can
+  // be replaced by `requires{Server::setup_reply_cap();}`.
+  static constexpr bool Has_setup_reply_cap
+    = L4::Types::Same_v<decltype(_has_setup_reply_cap<Server>(0)),
+                        L4::Types::True>;
 };
 
 template< typename L >
 inline l4_msgtag_t
 Server<L>::reply_n_wait(l4_msgtag_t reply, l4_umword_t *p, l4_utcb_t *utcb)
 {
+  l4_cap_idx_t reply_cap = L4_INVALID_REPLY_CAP;
+  if constexpr (Has_setup_reply_cap)
+    reply_cap = this->setup_reply_cap().cap();
+
   if (reply.label() != -L4_ENOREPLY)
     {
       Ipc_svr::Reply_mode m = this->before_reply(reply, utcb);
       if (m == Ipc_svr::Reply_compound)
         {
           this->setup_wait(utcb, m);
-          return l4_ipc_reply_and_wait(utcb, reply, p, this->timeout());
+          return l4_ipc(reply_cap, utcb, L4_SYSF_REPLY_AND_WAIT, 0, reply, p,
+                        this->timeout()); // l4_ipc_reply_and_wait
         }
       else
         {
-          l4_msgtag_t res = l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY, utcb, reply, this->timeout());
+          l4_msgtag_t res = l4_ipc_reply(reply_cap, utcb, reply,
+                                         this->timeout());
           if (res.has_error())
             return res;
         }
     }
   this->setup_wait(utcb, Ipc_svr::Reply_separate);
-  return l4_ipc_wait(utcb, p, this->timeout());
+  return l4_ipc(reply_cap, utcb, L4_SYSF_WAIT, 0, l4_msgtag_t{0}, p,
+                this->timeout()); // l4_ipc_wait
 }
 
 template< typename L >
