@@ -27,12 +27,3 @@ int W socketpair(int domain, int type, int protocol, int sv[2])
   errno = EOPNOTSUPP;
   return -1;
 }
-
-int W getnameinfo(const struct sockaddr *sa, socklen_t salen,
-                char *host, socklen_t hostlen,
-                char *serv, socklen_t servlen, unsigned int flags)
-{
-  printf("Unimplemented: %s(%p, %d, %p, %d, %p, %d, %d)\n", __func__,
-         sa, salen, host, hostlen, serv, servlen, flags);
-  return EAI_FAIL;
-}

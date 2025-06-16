@@ -11,6 +11,7 @@ define SRC_libc/sysdeps/linux
   common/context
   common/cmsg_nxthdr
   common/flock
+  common/getdomainname
   common/gethostname
   common/getdirname
   common/getpagesize
@@ -664,6 +665,7 @@ define SRC_libc/inet
   gethostbyname_r
   gethostent
   gethostent_r
+  getnameinfo
   getnet
   getproto
   getservice
