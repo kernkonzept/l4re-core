@@ -3,6 +3,10 @@ L4DIR		?= $(PKGDIR)/../../..
 
 SYSTEMS		= $(SYSTEMS_PLAIN)
 
+LIBCSRC_DIR ?= $(PKGDIR)/../uclibc/lib/uclibc
+
+include $(LIBCSRC_DIR)/make_vars.mk
+
 # Avoid circular dependency, the other parts of the compiler-runtime require
 # ldscripts, i.e. this package.
 COMPILER_RT = compiler-rt-crt
@@ -29,21 +33,10 @@ PC_LIBS        :=
 # not depend on the whole libc package.
 #
 # to find the uclibc files
-UCLIBC_ARCH_x86   := i386
-UCLIBC_ARCH_arm   := arm
-UCLIBC_ARCH_arm64 := aarch64
-UCLIBC_ARCH_amd64 := x86_64
-UCLIBC_ARCH_mips  := mips
-UCLIBC_ARCH_ppc32 := powerpc
-UCLIBC_ARCH_riscv := riscv
-UCLIBC_ARCH_sparc := sparc
-UCLIBC_BASE       = $(PKGDIR)/../uclibc
-UCLIBC_SYSDEPS    = $(UCLIBC_BASE)/lib/contrib/uclibc/libc/sysdeps/linux/$(UCLIBC_ARCH_$(ARCH))
-
-PRIVATE_INCDIR    = $(PKGDIR) $(UCLIBC_SYSDEPS)
+PRIVATE_INCDIR    = $(PKGDIR) $(CONTRIB_SYSDEPS)/$(LIBC_ARCH)
 TARGET            =
 
-vpath %.S $(UCLIBC_SYSDEPS)
+vpath %.S $(CONTRIB_SYSDEPS)/$(LIBC_ARCH)
 
 INSTALL_TARGET	= $(LD_SCRIPTS) crti.o crtn.o crt1.o crti.s.o crtn.s.o crt1.s.o crt1.p.o
 DEFINES_crt1.s.o = -fPIE -DL_Scrt1
@@ -93,7 +86,7 @@ crti.o: crti_s.o $(if $(CONFIG_MMU),kip_addr.o)
 	      -DCONFIG_BID_STATIC_HEAP=$(if $(CONFIG_BID_STATIC_HEAP),1,0) \
 	      -DCONFIG_BID_STATIC_STACK=$(if $(CONFIG_BID_STATIC_STACK),1,0) \
 	      -DCONFIG_MMU=$(if $(CONFIG_MMU),1,0) \
-	      -Wno-trigraphs -U$(UCLIBC_ARCH_$(ARCH)) $(CFLAGS) -P \
+	      -Wno-trigraphs -U$(LIBC_ARCH) $(CFLAGS) -P \
 	      $(if $(filter lld,$(BID_LD_TYPE)),-DLD_LLD=1) $< -o $@
 
 clean::

@@ -26,8 +26,8 @@ DST_HEADERS += $(DST_HEADERS-$(BUILD_ARCH))
 
 vpath %.h $(LIBCSRC_DIR)/ARCH-$(BUILD_ARCH)/include
 vpath %.h $(LIBCSRC_DIR)/ARCH-all/include
-vpath %.h $(CONTRIB_DIR)/libc/sysdeps/linux/$(UCLIBC_ARCH)
-vpath %.h $(CONTRIB_DIR)/libc/sysdeps/linux/common
+vpath %.h $(CONTRIB_SYSDEPS)/$(LIBC_ARCH)
+vpath %.h $(CONTRIB_SYSDEPS)/common
 vpath %.h $(CONTRIB_DIR)/include
 
 DST_HEADERS   := $(addprefix $(HEADER_DIR)/,$(DST_HEADERS))

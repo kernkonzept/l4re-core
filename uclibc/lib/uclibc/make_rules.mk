@@ -61,8 +61,8 @@ else
 endif
 
 # for building the C library we access internal headers
-PRIVATE_INCDIR += $(CONTRIB_DIR)/libc/sysdeps/linux/$(UCLIBC_ARCH)
-PRIVATE_INCDIR += $(CONTRIB_DIR)/libc/sysdeps/linux
+PRIVATE_INCDIR += $(CONTRIB_SYSDEPS)/$(LIBC_ARCH)
+PRIVATE_INCDIR += $(CONTRIB_SYSDEPS)
 # here we cheat a little and allow ../ includes from internal headers
 PRIVATE_INCDIR += $(LIBC_DST_DIR)/libc $(PTHREAD_INCDIR)
 
@@ -102,9 +102,9 @@ add_source_file = $(if $(filter %.c,$(1)),  $(eval $(call add_source_file_x,C$(2
                   $(error unknown source file: $(1))))))
 
 # generate the search path value for source files
-gen_search_path = $(LIBC_DST_DIR)/$(1)/$(UCLIBC_ARCH) \
-                  $(LIBC_DST_DIR)/$(1)/generic        \
-                  $(LIBC_DST_DIR)/$(1)/common         \
+gen_search_path = $(LIBC_DST_DIR)/$(1)/$(LIBC_ARCH) \
+                  $(LIBC_DST_DIR)/$(1)/generic      \
+                  $(LIBC_DST_DIR)/$(1)/common       \
                   $(LIBC_DST_DIR)/$(1)
 
 # search for a .c, a .S, or a .cc file for the given basename

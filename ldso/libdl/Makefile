@@ -1,32 +1,22 @@
 PKGDIR ?= ..
 L4DIR  ?= $(PKGDIR)/../../..
 
+LIBCSRC_DIR ?= $(PKGDIR)/../uclibc/lib/uclibc
+
+include $(LIBCSRC_DIR)/make_vars.mk
+
 PC_FILENAME := libdl
 
-CON_DIR := $(PKGDIR)/../uclibc/lib/contrib/uclibc
-PTH_DIR := $(PKGDIR)/../uclibc/lib/libpthread
+vpath %.c $(CONTRIB_DIR)/ldso/libdl
+vpath %.S $(CONTRIB_DIR)/ldso/ldso/$(LIBC_ARCH)
 
-DIR_amd64 := x86_64
-DIR_x86   := i386
-DIR_arm   := arm
-DIR_arm64 := aarch64
-DIR_ppc32 := powerpc
-DIR_sparc := sparc
-DIR_mips  := mips
-DIR_riscv := riscv
-
-
-vpath %.c $(CON_DIR)/ldso/libdl
-vpath %.S $(CON_DIR)/ldso/ldso/$(DIR_$(ARCH))
-
-PRIVATE_INCDIR-x86 := $(CON_DIR)/libc
+PRIVATE_INCDIR-x86 := $(CONTRIB_DIR)/libc
 PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \
                   $(OBJ_BASE)/include/uclibc \
-                  $(CON_DIR)/ldso/ldso/$(DIR_$(ARCH)) \
-		  $(SRC_DIR)           \
-		  $(CON_DIR)/ldso/include \
-		  $(PTH_DIR)/src \
-		  $(PTH_DIR)/src/sysdeps/$(DIR_$(ARCH))
+                  $(CONTRIB_DIR)/ldso/ldso/$(LIBC_ARCH) \
+                  $(SRC_DIR)           \
+                  $(CONTRIB_DIR)/ldso/include \
+                  $(PTHREAD_INCDIR)
 
 TARGET := libdl.a libdl.so
 
@@ -37,7 +27,7 @@ SRC_C := libdl.c #dl-iterate-phdr.c dl-support.c
 
 
 CPPFLAGS := -DNOT_IN_libc -DIS_IN_libdl \
-            -DLDSO_ELFINTERP=\"../ldso/$(DIR_$(ARCH))/elfinterp.c\" \
+            -DLDSO_ELFINTERP=\"../ldso/$(LIBC_ARCH)/elfinterp.c\" \
             -include libc-symbols.h -DUCLIBC_LDSO=\"libld-l4.so.1\" \
             -DUCLIBC_RUNTIME_PREFIX=\"/\"
 
