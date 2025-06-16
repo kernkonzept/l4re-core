@@ -130,11 +130,11 @@ define SRC_libc/stdlib_fp
   erand48
   erand48_r
   strtod
-  $(if $(LIBC_BUILD_MINIMAL),,strtod_l)
+  strtod_l
   strtof
-  $(if $(LIBC_BUILD_MINIMAL),,strtof_l)
+  strtof_l
   strtold
-  $(if $(LIBC_BUILD_MINIMAL),,strtold_l)
+  strtold_l
 endef
 
 define SRC_libc/stdlib/malloc
