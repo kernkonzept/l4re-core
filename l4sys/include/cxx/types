@@ -436,6 +436,8 @@ namespace Types {
   template<typename T>
   constexpr Remove_reference_t<T> &&
   move(T &&t) { return static_cast<Remove_reference_t<T> &&>(t); }
+
+  template< typename... > using Void_t = void;
 } // Types
 
 } // L4
