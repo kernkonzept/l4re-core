@@ -42,13 +42,7 @@ CPPFLAGS := -DNOT_IN_libc -DIS_IN_rtld \
             -D__LDSO_SEARCH_INTERP_PATH__=1 \
             -DIS_IN_rtld -D__LIBDL_SHARED__ -DSHARED
 
-DEFINES_x86-l4f   += -DUSE_TLS=1
-DEFINES_amd64-l4f += -DUSE_TLS=1
-DEFINES_arm-l4f   += -DUSE_TLS=1
-DEFINES_arm64-l4f += -DUSE_TLS=1
-DEFINES_sparc-l4f += -DUSE_TLS=1
-DEFINES_mips-l4f  += -DUSE_TLS=1
-DEFINES_riscv-l4f += -DUSE_TLS=1
+DEFINES += -DUSE_TLS=1
 
 LDFLAGS  =  -nocrt1 -Bsymbolic -Bstatic --warn-common --sort-common \
             --no-undefined -e _start -z defs -z now \
