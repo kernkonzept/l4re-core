@@ -7,38 +7,22 @@ all:: include
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
-HEADERS_LST := $(LIBCSRC_DIR_ABS)/target_headers.lst
-DST_HEADERS := $(shell cat $(HEADERS_LST))
-HEADER_DIR  := $(OBJ_DIR)/install_includes
-
-# just a few additions, handle them here directly
-DST_HEADERS-arm     := bits/arm_asm.h
-DST_HEADERS-arm     += bits/arm_bx.h
-DST_HEADERS-arm     += $(if $(BID_COMPILER_IS_CLANG),unwind.h)
-DST_HEADERS-sparc   := linux/sockios.h asm/traps.h
-DST_HEADERS-ppc32   := asm/sockios.h asm/ioctl.h
-DST_HEADERS-mips    := asm/sockios.h asm/ioctl.h asm-generic/ioctl.h \
-                       asm/param.h asm/sgidefs.h sgidefs.h \
-                       sys/asm.h sys/regdef.h sys/tas.h
-DST_HEADERS-riscv   := sys/asm.h
-
-DST_HEADERS += $(DST_HEADERS-$(BUILD_ARCH))
-
 vpath %.h $(LIBCSRC_DIR)/ARCH-$(BUILD_ARCH)/include
 vpath %.h $(LIBCSRC_DIR)/ARCH-all/include
-vpath %.h $(CONTRIB_SYSDEPS)/$(LIBC_ARCH)
-vpath %.h $(CONTRIB_SYSDEPS)/common
-vpath %.h $(CONTRIB_DIR)/include
 
-DST_HEADERS   := $(addprefix $(HEADER_DIR)/,$(DST_HEADERS))
+include $(LIBCSRC_DIR)/target_headers.mk
 
-$(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(HEADERS_LST) \
+
+HEADER_DIR  := $(OBJ_DIR)/install_includes
+DST_HEADERS := $(addprefix $(HEADER_DIR)/,$(HDR_common) $(HDR_$(BUILD_ARCH)))
+
+$(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(LIBCSRC_DIR)/target_headers.mk \
                                          $(LIBCSRC_DIR)/make_vars.mk
 	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) $(@D)
 	$(VERBOSE)$(LN) -sf $(abspath $<) $@
 
-$(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(HEADERS_LST) \
-               $(LIBCSRC_DIR)/make_vars.mk
+$(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/make_vars.mk \
+               $(LIBCSRC_DIR)/target_headers.mk
 	$(VERBOSE)$(RM) -r $@
 	$(VERBOSE)install -d $@
 	@$(INSTALL_LINK_MESSAGE)
