@@ -42,13 +42,10 @@ $(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(HEADERS_LST) \
 	$(VERBOSE)$(RM) -r $@
 	$(VERBOSE)install -d $@
 	@$(INSTALL_LINK_MESSAGE)
-	$(VERBOSE)$(MAKE) $(MKFLAGS) $(DST_HEADERS)
+	$(VERBOSE)$(MAKE) $(DST_HEADERS)
 
 include: $(HEADER_DIR)
-	$(VERBOSE)INCSRC_DIR=$(HEADER_DIR)         \
-	  $(MAKE) $(MKFLAGS)  PKGDIR=$(PKGDIR_ABS) \
-	          -f $(SRC_DIR)/Makefile.install
-	$(VERBOSE)PKGDIR=$(LIBCSRC_DIR)/../libpthread/include \
-	  $(MAKE) $(MKFLAGS) -C $(LIBCSRC_DIR)/../libpthread/include
+	$(VERBOSE)INCSRC_DIR=$(HEADER_DIR) $(MAKE) -f $(SRC_DIR)/Makefile.install
+	$(VERBOSE)$(MAKE) -C $(LIBCSRC_DIR)/../libpthread/include
 
 clean cleanall::

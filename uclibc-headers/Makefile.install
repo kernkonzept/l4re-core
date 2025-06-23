@@ -1,4 +1,5 @@
 # vi:set ft=make:
+PKGDIR ?= .
 L4DIR  ?= $(PKGDIR)/../../..
 
 INSTALL_INC_PREFIX = uclibc
