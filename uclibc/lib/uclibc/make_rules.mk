@@ -91,7 +91,7 @@ endef
 
 
 define add_source_file_x
-  UCLIBC_SRC_$(1)+=$(2)
+  LIBC_SRC_$(1)+=$(2)
 endef
 
 # add a source file to the BID list of sources
@@ -139,7 +139,7 @@ include $(L4DIR)/mk/rules.inc
 #
 define OBJS_FN_templ
   OBJS_FN_$(1)$(2) = $(addprefix $(1)/,$(patsubst %,%.o,$(subst $(NEWLINE), ,$(SRC_$(1)$(2)))))
-  UCLIBC_SRC_C += $$(OBJS_FN_$(1)$(2):.o=.c)
+  LIBC_SRC_C += $$(OBJS_FN_$(1)$(2):.o=.c)
   $(call BID_MAKE_RULE_template,$$(OBJS_FN_$(1)$(2)): %.o,$(1)/$$(SRC_$(1)$(2)_src),C,-DL_$$(patsubst %.o,%,$$(notdir $$@)))
   $(call BID_MAKE_RULE_template,$$(OBJS_FN_$(1)$(2):.o=.s.o): %.s.o,$(1)/$$(SRC_$(1)$(2)_src),C,$$(PICFLAGS) -DL_$$(patsubst %.s.o,%,$$(notdir $$@)))
 endef

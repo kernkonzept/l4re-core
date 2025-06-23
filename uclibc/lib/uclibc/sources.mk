@@ -14,7 +14,14 @@ SUB_MODULES-all     := large_file
 
 SUB_MODULES-minimal := $(SUB_MODULES-all)
 SUB_MODULES-full    := $(SUB_MODULES-all) wchar locale wchar_locale \
-                       $(if $(BID_VARIANT_FLAG_NOFPU),,fp)
+                       $(if $(BID_VARIANT_FLAG_NOFPU),,fp) \
+                       $(if $(CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR),ssp)
 
 SUB_MODULES := $(SUB_MODULES-$(LIBC_BUILD_MODE))
 
+# Template Modules for libm
+TMPL_DIRS-full    := $(if $(BID_VARIANT_FLAG_NOFPU),,libm)
+TMPL_MODULES-full := $(if $(BID_VARIANT_FLAG_NOFPU),,float double)
+
+TMPL_DIRS    := $(TMPL_DIRS-$(LIBC_BUILD_MODE))
+TMPL_MODULES := $(TMPL_MODULES-$(LIBC_BUILD_MODE))

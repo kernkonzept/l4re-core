@@ -42,34 +42,18 @@ LDFLAGS_libc.so := -init __uClibc_init
 
 # process all sources for the libc
 $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
-# libm stuff
-ifneq ($(BID_VARIANT_FLAG_NOFPU),y)
-$(eval $(call PROCESS_template_src, libm, float double))
-endif
+# process templates for instantiated C files
+$(eval $(call PROCESS_template_src, $(TMPL_DIRS), $(TMPL_MODULES)))
 
-# stack protector handling
-ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
-UCLIBC_SRC_C              += ssp-l4.c
-SRC_C_libc.a              += libc/sysdeps/linux/common/ssp-local.c
-SRC_C_libc_nonshared.p.a  += libc/sysdeps/linux/common/ssp-local.c
-endif
-
-UCLIBC_SRC_CC             += _exit.cc
-UCLIBC_SRC_CC             += _dl_find_object.cc
-
-SRC_C_libc.so          += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libc.so)
-SRC_C_libc.a           += $(UCLIBC_SRC_C) $(UCLIBC_SRC_C_libc.a)
-SRC_S_libc.so          += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libc.so)
-SRC_S_libc.a           += $(UCLIBC_SRC_S) $(UCLIBC_SRC_S_libc.a)
-SRC_CC_libc.so         += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc.so)
-SRC_CC_libc.a          += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc.a)
+$(foreach ext,C S CC, \
+  $(eval SRC_$(ext)_libc.so += $(LIBC_SRC_$(ext)) $(LIBC_SRC_$(ext)_libc.so)) \
+  $(eval SRC_$(ext)_libc.a  += $(LIBC_SRC_$(ext)) $(LIBC_SRC_$(ext)_libc.a))  \
+  $(eval SRC_$(ext)_libc_nonshared.p.a += $(LIBC_SRC_$(ext)_libc_nonshared.p.a)) \
+)
 
 SRC_C_libc.so   += $(PTHOBJ_PFX)/libc_pthread_init.c
 SRC_CC_libc.a   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
 SRC_C_libc.a    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
-
-SRC_C_libc.a             += libc/stdlib/atexit.c
-SRC_C_libc_nonshared.p.a += libc/stdlib/atexit.c
 
 SRC_C_libc.so    += libc/misc/pthread/tsd.c
 SRC_C_libc.a     += libc/misc/pthread/tsd.c
@@ -84,15 +68,6 @@ CXXFLAGS += -fno-rtti -fno-exceptions
 
 CPPFLAGS_libc-tls.cc += $(LDSO_INC)
 CPPFLAGS_dl-tls.c += $(LDSO_INC)
-
-UCLIBC_SRC_C += locale/locale_data.c
-CPPFLAGS_locale/locale_data.c += -D__WCHAR_ENABLED -I$(LIBCSRC_DIR)/locale \
-                                 -I$(LIBCSRC_DIR)/../contrib/uclibc/extra/locale
-
-CPPFLAGS_libiconv/iconv.c += -I$(LIBCSRC_DIR)/../contrib/uclibc/libiconv/include
-
-# for internal/utmp.h
-CPPFLAGS_libc/misc/utmp/utent.c += -I$(LIBCSRC_DIR)/../contrib/uclibc/include
 
 $(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
                   $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk

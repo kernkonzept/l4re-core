@@ -13,7 +13,7 @@ vpath %.c $(CON_DIR)/ldso
 vpath %.S $(CON_DIR)/ldso/$(LIBC_ARCH)
 vpath aeabi_read_tp-v6p.S     $(LIBCSRC_DIR)/ARCH-arm
 vpath aeabi_read_tp_generic.c $(LIBCSRC_DIR)/ARCH-arm
-vpath ssp-l4.c                $(LIBCSRC_DIR)
+vpath ssp-l4.c                $(LIBCSRC_DIR)/ARCH-all/libc/misc/internals
 
 PRIVATE_INCDIR-x86 := $(CONTRIB_DIR)/libc
 PRIVATE_INCDIR  = $(PRIVATE_INCDIR-$(ARCH)) \

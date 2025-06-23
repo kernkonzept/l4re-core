@@ -33,17 +33,13 @@ CXXFLAGS += $(CXXFLAGS_$(BID_COMPILER_TYPE))
 
 # process all sources for the libc
 $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
-# libm stuff
+
 
 define GEN_SRC_VARS
-SRC_C_$(1)  += $(UCLIBC_SRC_C)  $(UCLIBC_SRC_C_libc_minimal.a) \
-                    libc/stdlib/atexit.c
-SRC_CC_$(1) += $(UCLIBC_SRC_CC) $(UCLIBC_SRC_CC_libc_minimal.a)
-SRC_S_$(1)  += $(UCLIBC_SRC_S)  $(UCLIBC_SRC_S_libc_minimal.a)
+SRC_C_$(1)  += $(LIBC_SRC_C)  $(LIBC_SRC_C_libc_minimal.a)
+SRC_CC_$(1) += $(LIBC_SRC_CC) $(LIBC_SRC_CC_libc_minimal.a)
+SRC_S_$(1)  += $(LIBC_SRC_S)  $(LIBC_SRC_S_libc_minimal.a)
 endef
-
-vpath _dl_find_object.cc $(LIBCSRC_DIR)
-SRC_CC += _dl_find_object.cc
 
 SRC_CC += pthread_stubs-nothreads.cc
 

@@ -14,7 +14,7 @@ REQUIRES_LIBS   = l4sys l4util l4re l4re-util l4re_c l4re_c-util \
                   libc_be_minimal_log_io
 LDFLAGS         = --link-libc
 
-vpath _exit.cc $(SRC_DIR)/../uclibc
+vpath _exit.cc $(SRC_DIR)/../uclibc/ARCH-all/libc/sysdeps/linux/common
 
 include $(L4DIR)/mk/lib.mk
 

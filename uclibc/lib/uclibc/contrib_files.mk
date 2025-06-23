@@ -1,5 +1,10 @@
 LIBC_BUILD_MINIMAL = $(filter minimal,$(LIBC_BUILD_MODE))
 
+define SRC_libc/sysdeps/linux_libc.a
+  $(if $(CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR),common/ssp-local)
+endef
+SRC_libc/sysdeps/linux_libc_nonshared.p.a = $(SRC_libc/sysdeps/linux_libc.a)
+
 define SRC_libc/sysdeps/linux
   setjmp
   bsd-setjmp
@@ -9,6 +14,7 @@ define SRC_libc/sysdeps/linux
   __longjmp
   getdents
   getsid
+  $(if $(LIBC_BUILD_MINIMAL),,common/_exit)
   common/context
   common/cmsg_nxthdr
   common/flock
@@ -187,6 +193,12 @@ define SRC_libc/stdlib_wchar
   mbtowc
 endef
 
+define SRC_libc/stdlib_libc.a
+  atexit
+endef
+SRC_libc/stdlib_libc_minimal.a = $(SRC_libc/stdlib_libc.a)
+SRC_libc/stdlib_libc_nonshared.p.a = $(SRC_libc/stdlib_libc.a)
+
 define SRC_libc/stdlib_wchar_locale
   $(if $(BID_VARIANT_FLAG_NOFPU),,wcstod_l)
   $(if $(BID_VARIANT_FLAG_NOFPU),,wcstof_l)
@@ -298,6 +310,10 @@ endef
 
 SRC_libc/string_arm := _memcpy
 
+define SRC_libc/misc_ssp
+  internals/ssp-l4
+endef
+
 define SRC_libc/misc
   assert/__assert
   auxvt/getauxval
@@ -389,7 +405,9 @@ define SRC_libc/misc
   ttyent/getttyent
   $(if $(LIBC_BUILD_MINIMAL),,utmp/utent)
   elf/dl-iterate-phdr
+  $(if $(LIBC_BUILD_MINIMAL),,elf/dl-find_object)
 endef
+CPPFLAGS_libc/misc/utmp/utent.c += -I$(CONTRIB_DIR)/include
 
 define SRC_libc/misc_locale
   ctype/isalnum_l
@@ -410,6 +428,7 @@ define SRC_libc/misc_locale
   ctype/toupper_l
   locale/freelocale
   locale/locale
+  locale/locale_data
   locale/localeconv
   locale/newlocale
   locale/nl_langinfo
@@ -422,6 +441,9 @@ define SRC_libc/misc_locale
   time/strftime_l
   time/strptime_l
 endef
+CPPFLAGS_libc/misc/locale/locale_data.c += -D__WCHAR_ENABLED \
+                                           -I$(LIBCSRC_DIR)/locale \
+                                           -I$(CONTRIB_DIR)/extra/locale
 
 define SRC_libc/misc_fp
   $(if $(BID_VARIANT_FLAG_NOFPU),,time/difftime)
@@ -762,6 +784,7 @@ endef
 define SRC_libiconv
   iconv
 endef
+CPPFLAGS_libiconv/iconv.c += -I$(CONTRIB_DIR)/libiconv/include
 
 define _MATH_FUNCTIONS
   acos
