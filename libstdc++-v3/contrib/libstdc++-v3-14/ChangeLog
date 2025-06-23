@@ -1,3 +1,394 @@
+2025-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-06-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/120548
+	* include/std/format (__formatter_fp::_M_localize): Do not
+	include a leading sign character in the string to be grouped.
+	* testsuite/std/format/functions/format.cc: Check grouping when
+	sign is present in the output.
+
+2025-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-09-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format (__formatter_fp::_M_localize): Add comments
+	and micro-optimize string copy.
+
+2025-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-06-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99832
+	* include/bits/chrono.h (system_clock::to_time_t): Add
+	always_inline attribute to be agnostic to the underlying type of
+	time_t.
+	(system_clock::from_time_t): Add always_inline for consistency
+	with to_time_t.
+	* testsuite/20_util/system_clock/99832.cc: New test.
+
+2025-06-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-05-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/faq.xml: Update URL for archived SGI STL docs.
+	* doc/xml/manual/containers.xml: Likewise.
+	* doc/xml/manual/extensions.xml: Likewise.
+	* doc/xml/manual/using.xml: Likewise.
+	* doc/xml/manual/utilities.xml: Likewise.
+	* doc/html/*: Regenerate.
+
+2025-06-05  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	Backported from master:
+	2025-03-14  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	* include/bits/shared_ptr_base.h (lock): Fixed a compile error
+	when calling lock() on a weak_ptr<T[]>, by removing an
+	erroneous usage of element_type from within lock().
+	* testsuite/20_util/shared_ptr/requirements/explicit_instantiation/1.cc:
+	Add more tests for array types.
+	* testsuite/20_util/weak_ptr/requirements/explicit_instantiation/1.cc:
+	Likewise.
+	* testsuite/20_util/shared_ptr/requirements/1.cc: New test.
+	* testsuite/20_util/weak_ptr/requirements/1.cc: New test.
+
+2025-05-23  Release Manager
+
+	* GCC 14.3.0 released.
+
+2025-05-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-05-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/120198
+	* include/bits/version.def (scoped_lock): Do not depend on
+	gthreads or hosted.
+	* include/bits/version.h: Regenerate.
+	* include/std/mutex (scoped_lock): Update comment.
+	* testsuite/30_threads/scoped_lock/requirements/typedefs.cc:
+	Remove dg-require-gthreads and use custom lockable type instead
+	of std::mutex. Check that typedef is only present for a single
+	template argument.
+
+2025-05-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2023.xml: Update status of proposal
+	implemented after GCC 14.2 release.
+	* doc/html/manual/status.html: Regenerate.
+
+2025-05-06  Dhruv Chawla  <dhruvc@nvidia.com>
+
+	Backported from master:
+	2025-05-02  Dhruv Chawla  <dhruvc@nvidia.com>
+
+	* include/std/memory: Define __glibcxx_want_addressof_constexpr.
+	* testsuite/20_util/headers/memory/version.cc: Test for macro
+	value.
+
+2025-04-30  François Dumont  <frs.dumont@gmail.com>
+
+	Backported from master:
+	2025-04-30  François Dumont  <frs.dumont@gmail.com>
+		    Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/lib/libstdc++.exp (v3_target_compile): Strip version namespace
+	from compiler output.
+	* testsuite/20_util/function/cons/70692.cc: Remove now useless __8 namespace
+	pattern.
+	* testsuite/23_containers/map/48101_neg.cc: Likewise.
+	* testsuite/23_containers/multimap/48101_neg.cc: Likewise.
+
+2025-04-29  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-02-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/104606
+	* include/std/optional (operator<=>): Revert r14-9771 change.
+	Add constraint checking the validity of the return type
+	compare_three_way_result_t before the three_way_comparable_with
+	constraint.
+
+2025-04-29  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-02-26  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/118083
+	* include/bits/ranges_base.h
+	(ranges::__access::__possibly_const_range): Mention LWG 4027.
+
+2025-04-29  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-02-25  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/118083
+	* include/bits/ranges_base.h
+	(ranges::__access::__possibly_const_range): Adjust logic as per
+	LWG 4027.  Add missing input_range constraint.
+	* testsuite/std/ranges/access/cbegin.cc (test05): Verify LWG
+	4027 testcases.
+	* testsuite/std/ranges/access/cdata.cc: Adjust, simplify and
+	consolidate some tests after the above.
+	* testsuite/std/ranges/access/cend.cc: Likewise.
+	* testsuite/std/ranges/access/crbegin.cc: Likewise.
+	* testsuite/std/ranges/access/crend.cc: Likewise.
+	* testsuite/std/ranges/adaptors/join.cc: Likewise.
+	* testsuite/std/ranges/adaptors/take_while.cc: Likewise.
+	* testsuite/std/ranges/adaptors/transform.cc: Likewise.
+
+2025-04-17  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	Backported from master:
+	2025-03-12  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/format (formatter<_Float16, _CharT>): Define only if
+	_GLIBCXX_FLOAT_IS_IEEE_BINARY32 macro is defined.
+	(formatter<_Float16, _CharT>): As above.
+	(formatter<__gnu_cxx::__bfloat16_t, _CharT>): As above.
+	(formatter<_Float64, _CharT>): Define only if
+	_GLIBCXX_DOUBLE_IS_IEEE_BINARY64 is defined.
+	(basic_format_arg::_S_to_arg_type): Normalize _Float32 and _Float64
+	only to float and double respectivelly.
+	(basic_format_arg::_S_to_enum): Remove handling of _Float32 and _Float64.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/numeric: Only mention ranges::iota in comment.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/names.cc: Check ranges is not used as an
+	identifier before C++20.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/ranges (__glibcxx_want_ranges_iota): Do not
+	define.
+
+2025-04-16  Michael Levine  <mlevine55@bloomberg.net>
+
+	Backported from master:
+	2024-06-08  Michael Levine  <mlevine55@bloomberg.net>
+
+	PR libstdc++/108760
+	* include/bits/ranges_algo.h (ranges::out_value_result)
+	(ranges::iota_result, ranges::__iota_fn, ranges::iota): Move to
+	<bits/ranges_algobase.h>.
+	* include/bits/ranges_algobase.h (ranges::out_value_result):
+	(ranges::iota_result, ranges::__iota_fn, ranges::iota): Move to
+	here.
+	* include/std/numeric: Include <bits/ranges_algobase.h>.
+	* testsuite/25_algorithms/iota/1.cc: Renamed to ...
+	* testsuite/26_numerics/iota/2.cc: ... here.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-02-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/105609
+	* include/bits/ranges_algobase.h (__detail::__assign_one): New
+	helper function.
+	(__copy_or_move, __copy_or_move_backward): Use new function
+	instead of std::__assign_one.
+	* testsuite/25_algorithms/move/constrained.cc: Check that
+	ADL iter_move is used in preference to std::move.
+	* testsuite/25_algorithms/move_backward/constrained.cc:
+	Likewise.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-10-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_algobase.h (ranges::__assign_one): Remove.
+	(__copy_or_move, __copy_or_move_backward): Use std::__assign_one
+	instead of ranges::__assign_one.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/117121
+	* include/bits/ranges_algobase.h (copy_backward): Decrement
+	output iterator before assigning one element through it.
+	* testsuite/25_algorithms/copy/108846.cc: Ensure the algorithm's
+	effects are correct for a single memcpyable element.
+	* testsuite/25_algorithms/copy_backward/108846.cc: Likewise.
+	* testsuite/25_algorithms/copy_n/108846.cc: Likewise.
+
+2025-04-16  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	Backported from master:
+	2024-09-13  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	PR libstdc++/108846
+	PR libstdc++/116471
+	* include/bits/ranges_algobase.h (__assign_one): New helper
+	function.
+	(__copy_or_move): Remove a spurious static_assert; use
+	__assign_one for memcpyable ranges of length 1.
+	(__copy_or_move_backward): Likewise.
+	* testsuite/25_algorithms/copy/108846.cc: Extend to range-based
+	algorithms, and cover both memcpyable and non-memcpyable
+	cases.
+	* testsuite/25_algorithms/copy_backward/108846.cc: Likewise.
+	* testsuite/25_algorithms/copy_n/108846.cc: Likewise.
+	* testsuite/25_algorithms/move/108846.cc: Likewise.
+	* testsuite/25_algorithms/move_backward/108846.cc: Likewise.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-06-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_algobase.h: Include <bits/stl_algobase.h>.
+
+2025-04-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/21334
+	* doc/xml/manual/using.xml: Document that container data race
+	avoidance rules do not apply to COW std::string.
+	* doc/html/*: Regenerate.
+
+2025-04-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-11-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/115285
+	* include/bits/hashtable.h (_Hashtable::_S_forward_key): Remove.
+	(_Hashtable::_M_insert_unique_aux): Replace _S_forward_key with
+	a static_cast to a type defined using conditional_t.
+	(_Hashtable::_M_insert): Replace _ConvertToValueType with a
+	static_cast to a type defined using conditional_t.
+	* include/bits/hashtable_policy.h (_ConvertToValueType): Remove.
+	* testsuite/23_containers/unordered_map/insert/115285.cc: New test.
+	* testsuite/23_containers/unordered_set/insert/115285.cc: New test.
+	* testsuite/23_containers/unordered_set/96088.cc: Adjust
+	expected number of allocations.
+
+2025-04-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-11-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/stl_pair.h (__is_pair): Define for C++11 and
+	C++14 as well.
+
+2025-04-10  François Dumont  <frs.dumont@gmail.com>
+
+	Backported from master:
+	2024-10-24  François Dumont  <frs.dumont@gmail.com>
+
+	* testsuite/23_containers/unordered_map/96088.cc (test03): Fix increments
+	value when _GLIBCXX_USE_CXX11_ABI is equal to 0.
+
+2025-04-10  François Dumont  <frs.dumont@gmail.com>
+
+	Backported from master:
+	2024-10-23  François Dumont  <frs.dumont@gmail.com>
+
+	PR libstdc++/115285
+	* include/bits/hashtable.h (_S_forward_key<_Kt>): Always return a temporary
+	key_type instance.
+	* testsuite/23_containers/unordered_map/96088.cc: Adapt to additional instanciation.
+	Also check that mapped_type is not instantiated when there is no insertion.
+	* testsuite/23_containers/unordered_multimap/96088.cc: Adapt to additional
+	instanciation.
+	* testsuite/23_containers/unordered_multiset/96088.cc: Likewise.
+	* testsuite/23_containers/unordered_set/96088.cc: Likewise.
+	* testsuite/23_containers/unordered_set/pr115285.cc: New test case.
+
+2025-04-09  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-04-09  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/115046
+	PR libstdc++/112490
+	* include/bits/stl_iterator.h (basic_const_iterator::operator-):
+	Replace non-dependent basic_const_iterator function parameter with
+	a dependent one of type basic_const_iterator<_It2> where _It2
+	matches _It.
+	* testsuite/std/ranges/adaptors/as_const/1.cc (test04): New test.
+
+2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/119671
+	* include/std/format (__formatter_fp::format): Do not invalidate
+	__wstr unless _M_localized returns a valid string.
+	* testsuite/std/format/functions/format.cc: Check wide string
+	formatting of floating-point types with classic locale.
+
+2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/doxygen/user.cfg.in (INPUT): Add text_encoding.
+
+2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101587
+	* include/bits/ranges_uninitialized.h (__detail::__mindist):
+	Remove.
+	(ranges::uninitialized_copy, ranges::uninitialized_copy_n)
+	(ranges::uninitialized_move, ranges::uninitialized_move_n): Use
+	comparison and assignment instead of __mindist.
+	* testsuite/20_util/specialized_algorithms/uninitialized_copy/constrained.cc:
+	Check with ranges that use integer-like class type for
+	difference type.
+	* testsuite/20_util/specialized_algorithms/uninitialized_move/constrained.cc:
+	Likewise.
+
+2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-03-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101587
+	* include/bits/ranges_uninitialized.h (__detail::__mindist):
+	New function object.
+	(ranges::uninitialized_copy, ranges::uninitialized_copy_n)
+	(ranges::uninitialized_move, ranges::uninitialized_move_n): Use
+	__mindist instead of std::min.
+	* testsuite/20_util/specialized_algorithms/uninitialized_copy/constrained.cc:
+	Check ranges with difference difference types.
+	* testsuite/20_util/specialized_algorithms/uninitialized_move/constrained.cc:
+	Likewise.
+
+2025-04-07  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-03-13  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/116440
+	* include/std/tuple (tuple::tuple(const _Elements&...))
+	[C++20]: Turn into a template.
+	* testsuite/20_util/tuple/116440.C: New test.
+
 2025-04-03  Tomasz Kamiński  <tkaminsk@redhat.com>
 
 	Backported from master:
