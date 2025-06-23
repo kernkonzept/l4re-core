@@ -423,7 +423,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	_S_copy_chars(_CharT* __p, _Iterator __k1, _Iterator __k2)
 	{
 	  for (; __k1 != __k2; ++__k1, (void)++__p)
-	    traits_type::assign(*__p, *__k1); // These types are off.
+	    traits_type::assign(*__p, static_cast<_CharT>(*__k1));
 	}
 
       static void
@@ -638,6 +638,48 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  _M_rep()->_M_refcount = 1;
 #endif
       }
+
+#if __glibcxx_containers_ranges // C++ >= 23
+      /**
+       * @brief Construct a string from a range.
+       * @since C++23
+       */
+      template<__detail::__container_compatible_range<_CharT> _Rg>
+	basic_string(from_range_t, _Rg&& __rg, const _Alloc& __a = _Alloc())
+	: basic_string(__a)
+	{
+	  if constexpr (ranges::forward_range<_Rg> || ranges::sized_range<_Rg>)
+	    {
+	      const auto __n = static_cast<size_type>(ranges::distance(__rg));
+	      if (__n == 0)
+		return;
+
+	      reserve(__n);
+	      pointer __p = _M_data();
+	      if constexpr (requires {
+			      requires ranges::contiguous_range<_Rg>;
+			      { ranges::data(std::forward<_Rg>(__rg)) }
+				-> convertible_to<const _CharT*>;
+			    })
+		_M_copy(__p, ranges::data(std::forward<_Rg>(__rg)), __n);
+	      else
+		{
+		  auto __first = ranges::begin(__rg);
+		  const auto __last = ranges::end(__rg);
+		  for (; __first != __last; ++__first)
+		    traits_type::assign(*__p++, static_cast<_CharT>(*__first));
+		}
+	      _M_rep()->_M_set_length_and_sharable(__n);
+	    }
+	  else
+	    {
+	      auto __first = ranges::begin(__rg);
+	      const auto __last = ranges::end(__rg);
+	      for (; __first != __last; ++__first)
+		push_back(*__first);
+	    }
+	}
+#endif
 
       /**
        *  @brief  Construct string from an initializer %list.
@@ -1314,6 +1356,22 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       basic_string&
       append(size_type __n, _CharT __c);
 
+#if __glibcxx_containers_ranges // C++ >= 23
+      /**
+       * @brief Append a range to the string.
+       * @since C++23
+       */
+      template<__detail::__container_compatible_range<_CharT> _Rg>
+	basic_string&
+	append_range(_Rg&& __rg)
+	{
+	  basic_string __s(from_range, std::forward<_Rg>(__rg),
+			   get_allocator());
+	  append(__s);
+	  return *this;
+	}
+#endif
+
 #if __cplusplus >= 201103L
       /**
        *  @brief  Append an initializer_list of characters.
@@ -1485,6 +1543,22 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	assign(_InputIterator __first, _InputIterator __last)
 	{ return this->replace(_M_ibegin(), _M_iend(), __first, __last); }
 
+#if __glibcxx_containers_ranges // C++ >= 23
+      /**
+       * @brief  Set value to a range of characters.
+       * @since C++23
+       */
+      template<__detail::__container_compatible_range<_CharT> _Rg>
+	basic_string&
+	assign_range(_Rg&& __rg)
+	{
+	  basic_string __s(from_range, std::forward<_Rg>(__rg),
+			   get_allocator());
+	  assign(std::move(__s));
+	  return *this;
+	}
+#endif
+
 #if __cplusplus >= 201103L
       /**
        *  @brief  Set value to an initializer_list of characters.
@@ -1561,6 +1635,33 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	void
 	insert(iterator __p, _InputIterator __beg, _InputIterator __end)
 	{ this->replace(__p, __p, __beg, __end); }
+
+#if __glibcxx_containers_ranges // C++ >= 23
+      /**
+       * @brief Insert a range into the string.
+       * @since C++23
+       */
+      template<__detail::__container_compatible_range<_CharT> _Rg>
+	iterator
+	insert_range(const_iterator __p, _Rg&& __rg)
+	{
+	  auto __pos = __p - cbegin();
+
+	  if constexpr (ranges::forward_range<_Rg>)
+	    if (ranges::empty(__rg))
+	      return begin() + __pos;
+
+	  if (__p == cend())
+	    append_range(std::forward<_Rg>(__rg));
+	  else
+	    {
+	      basic_string __s(from_range, std::forward<_Rg>(__rg),
+			       get_allocator());
+	      insert(__pos, __s);
+	    }
+	  return begin() + __pos;
+	}
+#endif
 
 #if __cplusplus >= 201103L
       /**
@@ -2071,6 +2172,27 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	return this->replace(__i1 - _M_ibegin(), __i2 - __i1,
 			     __k1.base(), __k2 - __k1);
       }
+
+#if __glibcxx_containers_ranges // C++ >= 23
+      /**
+       * @brief Replace part of the string with a range.
+       * @since C++23
+       */
+      template<__detail::__container_compatible_range<_CharT> _Rg>
+	basic_string&
+	replace_with_range(const_iterator __i1, const_iterator __i2, _Rg&& __rg)
+	{
+	  if (__i1 == cend())
+	    append_range(std::forward<_Rg>(__rg));
+	  else
+	    {
+	      basic_string __s(from_range, std::forward<_Rg>(__rg),
+			       get_allocator());
+	      replace(__i1 - cbegin(), __i2 - __i1, __s);
+	    }
+	  return *this;
+	}
+#endif
 
 #if __cplusplus >= 201103L
       /**

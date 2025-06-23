@@ -61,7 +61,7 @@
 #if __cplusplus >= 201103L
 # include <bits/uses_allocator.h>
 #endif
-#if __glibcxx_ranges_to_container // C++ >= 23
+#if __glibcxx_containers_ranges // C++ >= 23
 # include <ranges> // ranges::to
 # include <bits/ranges_algobase.h> // ranges::copy
 #endif
@@ -69,6 +69,10 @@
 namespace std _GLIBCXX_VISIBILITY(default)
 {
 _GLIBCXX_BEGIN_NAMESPACE_VERSION
+
+#if __glibcxx_format_ranges
+  template<typename, typename> class formatter;
+#endif
 
   /**
    *  @brief  A standard container giving FILO behavior.
@@ -181,7 +185,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	: c(__first, __last) { }
 #endif
 
-#if __glibcxx_ranges_to_container // C++ >= 23
+#if __glibcxx_containers_ranges // C++ >= 23
       /**
        * @brief Construct a stack from a range.
        * @since C++23
@@ -300,7 +304,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 #endif
 #endif
 
-#if __glibcxx_ranges_to_container // C++ >= 23
+#if __glibcxx_containers_ranges // C++ >= 23
       template<__detail::__container_compatible_range<_Tp> _Rg>
 	void
 	push_range(_Rg&& __rg)
@@ -343,6 +347,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	swap(c, __s.c);
       }
 #endif // __cplusplus >= 201103L
+
+#if __glibcxx_format_ranges
+      friend class formatter<stack<_Tp, _Sequence>, char>;
+      friend class formatter<stack<_Tp, _Sequence>, wchar_t>;
+#endif
     };
 
 #if __cpp_deduction_guides >= 201606
@@ -371,7 +380,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     -> stack<_ValT, deque<_ValT, _Allocator>>;
 #endif
 
-#if __glibcxx_ranges_to_container // C++ >= 23
+#if __glibcxx_containers_ranges // C++ >= 23
   template<ranges::input_range _Rg>
     stack(from_range_t, _Rg&&) -> stack<ranges::range_value_t<_Rg>>;
 
