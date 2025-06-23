@@ -25,3 +25,8 @@ TMPL_MODULES-full := $(if $(BID_VARIANT_FLAG_NOFPU),,float double)
 
 TMPL_DIRS    := $(TMPL_DIRS-$(LIBC_BUILD_MODE))
 TMPL_MODULES := $(TMPL_MODULES-$(LIBC_BUILD_MODE))
+
+# CRT files
+NAME_crt1 = crt1.S
+NAME_crti = crti.S
+NAME_crtn = crtn.S
