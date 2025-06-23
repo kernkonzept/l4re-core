@@ -405,7 +405,7 @@ define SRC_libc/misc
   ttyent/getttyent
   $(if $(LIBC_BUILD_MINIMAL),,utmp/utent)
   elf/dl-iterate-phdr
-  $(if $(LIBC_BUILD_MINIMAL),,elf/dl-find_object)
+  elf/dl-find_object
 endef
 CPPFLAGS_libc/misc/utmp/utent.c += -I$(CONTRIB_DIR)/include
 
