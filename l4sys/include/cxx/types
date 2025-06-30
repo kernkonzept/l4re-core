@@ -61,7 +61,7 @@ namespace Types {
 
   private:
     value_type _v;
-    explicit constexpr Flags(value_type v) : _v(v) {}
+    explicit constexpr Flags(value_type v) noexcept : _v(v) {}
 
   public:
     /// The none type to get an empty bitmap
@@ -75,10 +75,10 @@ namespace Types {
      * Flags x = Flags::None;
      * ~~~
      */
-    constexpr Flags(None_type) : _v(0) {}
+    constexpr Flags(None_type) noexcept : _v(0) {}
 
     /// Make default Flags
-    constexpr Flags() : _v(0) {}
+    constexpr Flags() noexcept : _v(0) {}
 
     /**
      * Make flags from bit name.
@@ -88,40 +88,43 @@ namespace Types {
      * Test_flags f = Do_strong_tests;
      * ~~~
      */
-    constexpr Flags(BITS_ENUM e) : _v((value_type{1}) << e) {}
+    constexpr Flags(BITS_ENUM e) noexcept
+    : _v(static_cast<value_type>(1) << e)
+    {}
 
     /**
      * Make flags from a raw value of \a value_type.
      *
      * This function may be used for example in C wrapper code.
      */
-    static constexpr type from_raw(value_type v) { return type(v); }
+    static constexpr type from_raw(value_type v) noexcept { return type(v); }
 
     /// Support for `if (flags)` syntax (test for non-empty flags).
-    explicit constexpr operator bool () const
+    explicit constexpr operator bool () const noexcept
     { return _v != 0; }
 
     /// Support for `if (!flags)` syntax (test for empty flags).
-    constexpr bool operator ! () const { return _v == 0; }
+    constexpr bool operator ! () const noexcept { return _v == 0; }
 
     /// Support `|` of two compatible Flags types.
-    friend constexpr type operator | (type lhs, type rhs)
+    friend constexpr type operator | (type lhs, type rhs) noexcept
     { return type(lhs._v | rhs._v); }
 
     /// Support `|` of Flags type and bit name.
-    friend constexpr type operator | (type lhs, bits_enum_type rhs)
+    friend constexpr type operator | (type lhs, bits_enum_type rhs) noexcept
     { return lhs | type(rhs); }
 
     /// Support `&` of two compatible Flags types.
-    friend constexpr type operator & (type lhs, type rhs)
+    friend constexpr type operator & (type lhs, type rhs) noexcept
     { return type(lhs._v & rhs._v); }
 
     /// Support `&` of Flags type and bit name.
-    friend constexpr type operator & (type lhs, bits_enum_type rhs)
+    friend constexpr type operator & (type lhs, bits_enum_type rhs) noexcept
     { return lhs & type(rhs); }
 
     /// Support `|=` of two compatible Flags types.
-    constexpr type &operator |= (type rhs) { _v |= rhs._v; return *this; }
+    constexpr type &operator |= (type rhs) noexcept
+    { _v |= rhs._v; return *this; }
 
     /// Support `|=` of Flags type and bit name.
     constexpr type &operator |= (bits_enum_type rhs)
@@ -135,7 +138,7 @@ namespace Types {
     { return operator &= (type(rhs)); }
 
     /// Support `~` for Flags types.
-    constexpr type operator ~ () const { return type(~_v); }
+    constexpr type operator ~ () const noexcept { return type(~_v); }
 
     /**
      * Clear the given flag.
@@ -143,11 +146,11 @@ namespace Types {
      *
      * `flags.clear(The_flag)` is a shortcut for `flags &= ~Flags(The_flag)`.
      */
-    constexpr type &clear(bits_enum_type flag)
+    constexpr type &clear(bits_enum_type flag) noexcept
     { return operator &= (~type(flag)); }
 
     /// Get the underlying value.
-    constexpr value_type as_value() const { return _v; }
+    constexpr value_type as_value() const noexcept { return _v; }
   };
 
   /**
