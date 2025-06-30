@@ -125,11 +125,10 @@ define arm_Thumb1_SOURCES
 endef
 
 ifneq ($(call libclang_rt_is_predefined,__ARM_FP),)
-arm_Thumb1_SOURCES += $(arm_Thumb1_SjLj_EH_SOURCES) $(arm_Thumb1_VFPv2_SP_SOURCES)
+  arm_Thumb1_SOURCES += $(arm_Thumb1_SjLj_EH_SOURCES) $(arm_Thumb1_VFPv2_SP_SOURCES)
 
-# Add double-precision builtins only if VFP is not single-precision-only.
-ifeq ($(call libclang_rt_try_compile,#if !(__ARM_FP & 0x8) #error No VFP DP! #endif),Ok)
-arm_Thumb1_SOURCES += $(arm_Thumb1_VFPv2_DP_SOURCES)
-endif
-
+  # Add double-precision builtins only if VFP is not single-precision-only.
+  ifeq ($(call libclang_rt_try_compile,#if !(__ARM_FP & 0x8) #error No VFP DP! #endif),Ok)
+    arm_Thumb1_SOURCES += $(arm_Thumb1_VFPv2_DP_SOURCES)
+  endif
 endif

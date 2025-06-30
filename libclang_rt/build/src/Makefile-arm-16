@@ -4,9 +4,9 @@
 # Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
 
 ifneq ($(filter armv4 armv5 armv6,$(CPU)),)
-BUILTINS_SRC += $(arm_min_SOURCES)
+  BUILTINS_SRC += $(arm_min_SOURCES)
 else
-BUILTINS_SRC += $(arm_SOURCES)
+  BUILTINS_SRC += $(arm_SOURCES)
 endif
 
 define arm_or_thumb2_base_SOURCES
@@ -141,11 +141,10 @@ define arm_SOURCES
 endef
 
 ifneq ($(call libclang_rt_is_predefined,__ARM_FP),)
-arm_Thumb1_SOURCES += $(arm_Thumb1_SjLj_EH_SOURCES) $(arm_Thumb1_VFPv2_SP_SOURCES)
+  arm_Thumb1_SOURCES += $(arm_Thumb1_SjLj_EH_SOURCES) $(arm_Thumb1_VFPv2_SP_SOURCES)
 
-# Add double-precision builtins only if VFP is not single-precision-only.
-ifeq ($(call libclang_rt_try_compile,#if !(__ARM_FP & 0x8) #error No VFP DP! #endif),Ok)
-arm_Thumb1_SOURCES += $(arm_Thumb1_VFPv2_DP_SOURCES)
-endif
-
+  # Add double-precision builtins only if VFP is not single-precision-only.
+  ifeq ($(call libclang_rt_try_compile,#if !(__ARM_FP & 0x8) #error No VFP DP! #endif),Ok)
+    arm_Thumb1_SOURCES += $(arm_Thumb1_VFPv2_DP_SOURCES)
+  endif
 endif

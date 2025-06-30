@@ -4,5 +4,5 @@
 # Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
 
 ifeq ($(CPU_ABI),64)
-GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES_TF)
+  GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES_TF)
 endif

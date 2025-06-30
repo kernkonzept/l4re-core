@@ -9,20 +9,21 @@ BUILTINS_SRC += aarch64/fp_mode.c
 
 # Clang < 18
 ifeq ($(call libclang_rt_if_min_version,18),)
-BUILTINS_SRC += cpu_model.c
+  BUILTINS_SRC += cpu_model.c
 # Clang >= 18
 else
-BUILTINS_SRC += cpu_model/aarch64.c
-ifeq ($(BID_VARIANT_FLAG_NOFPU),)
-BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-abi-init.c aarch64/sme-libc-routines.c
-endif
+  BUILTINS_SRC += cpu_model/aarch64.c
+
+  ifeq ($(BID_VARIANT_FLAG_NOFPU),)
+    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-abi-init.c aarch64/sme-libc-routines.c
+  endif
 endif
 
 # Clang >= 19
 ifneq ($(call libclang_rt_if_min_version,19),)
-ifeq ($(BID_VARIANT_FLAG_NOFPU),)
-BUILTINS_SRC += aarch64/sme-libc-mem-routines.S aarch64/sme-abi-vg.c
-endif
+  ifeq ($(BID_VARIANT_FLAG_NOFPU),)
+    BUILTINS_SRC += aarch64/sme-libc-mem-routines.S aarch64/sme-abi-vg.c
+  endif
 endif
 
 # TODO: Variants of aarch64/lse.S (guarded by defines)

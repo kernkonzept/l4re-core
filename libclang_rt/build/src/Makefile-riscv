@@ -8,8 +8,8 @@ GENERIC_BUILTINS_SRC += $(GENERIC_SOURCES_TF)
 BUILTINS_SRC = riscv/save.S riscv/restore.S
 
 ifeq ($(BITS),32)
-	BUITINS_FLAGS += -fforce-enable-int128
-	BUILTINS_SRC += riscv/mulsi3.S
+  BUITINS_FLAGS += -fforce-enable-int128
+  BUILTINS_SRC += riscv/mulsi3.S
 endif
 
 ifeq ($(BITS),64)
@@ -18,5 +18,5 @@ endif
 
 # Clang >= 16
 ifneq ($(call libclang_rt_if_min_version,16),)
-BUILTINS_SRC += riscv/fp_mode.c
+  BUILTINS_SRC += riscv/fp_mode.c
 endif

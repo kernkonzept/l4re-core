@@ -8,7 +8,7 @@ BUILTINS_CFLAGS = -std=c11 -fPIC -fno-builtin \
                   -fomit-frame-pointer
 
 ifeq ($(call libclang_rt_try_compile,_Float16 x;),Ok)
-BUILTINS_CFLAGS += -DCOMPILER_RT_HAS_FLOAT16
+  BUILTINS_CFLAGS += -DCOMPILER_RT_HAS_FLOAT16
 endif
 
 CRT_CFLAGS = -std=c11 -fPIC -Wno-pedantic -DCRT_HAS_INITFINI_ARRAY
@@ -38,9 +38,9 @@ $(eval $(call libclang_rt_include_versioned,$(LIBCLANG_RT_PKG_DIR)/build/src/Mak
 BUILTINS_SRC := $(BUILTINS_SRC) $(filter-out $(patsubst %.S,%.c,$(notdir $(BUILTINS_SRC))),$(GENERIC_BUILTINS_SRC))
 
 ifneq ($(BID_VARIANT_FLAG_NOFPU),)
-# Filter out all floating point related files for nofpu variant.
-FP_FILES := $(filter float% fix% fp% restore_vfp% save_vfp%,$(notdir $(BUILTINS_SRC)))
-BUILTINS_SRC := $(filter-out $(addprefix %,$(FP_FILES)) %f2.c %f3.c %c3.c %f2.S %f3.S %c3.S %f2vfp.S %f3vfp.S,$(BUILTINS_SRC))
+  # Filter out all floating point related files for nofpu variant.
+  FP_FILES := $(filter float% fix% fp% restore_vfp% save_vfp%,$(notdir $(BUILTINS_SRC)))
+  BUILTINS_SRC := $(filter-out $(addprefix %,$(FP_FILES)) %f2.c %f3.c %c3.c %f2.S %f3.S %c3.S %f2vfp.S %f3vfp.S,$(BUILTINS_SRC))
 endif
 
 # Build libclang_rt-builtins.a.
