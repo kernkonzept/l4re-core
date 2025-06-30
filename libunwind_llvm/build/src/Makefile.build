@@ -85,7 +85,10 @@ $(UNWIND_LLVM_A) : COMMON_FLAGS += -fvisibility=hidden \
 COMMON_FLAGS += -fPIC
 
 ASFLAGS += $(COMMON_FLAGS)
-CFLAGS += $(COMMON_FLAGS) -std=c99
+# Set `-fexceptions` for C sources to prevent key unwinding functions, like
+# _Unwind_RaiseException, from being marked as `nounwind`, which would break
+# break LTO builds of libunwind.
+CFLAGS += $(COMMON_FLAGS) -std=c99 -fexceptions
 CXXFLAGS += $(COMMON_FLAGS) -std=c++17 -fstrict-aliasing -fno-exceptions -nostdinc++
 # These features are used in C++ code, so we need to request them.
 CXXFLAGS += -D__STDC_LIMIT_MACROS -D__STDC_FORMAT_MACROS

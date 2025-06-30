@@ -1,9 +1,8 @@
-
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp b/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp
-index bd9ece60e..ac9bdf196 100644
+index e7be0d6d5..dfee13c17 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp
 +++ b/libunwind_llvm/contrib/llvm/libunwind/src/DwarfInstructions.hpp
-@@ -255,10 +255,15 @@ int DwarfInstructions<A, R>::stepWithDwarf(A &addressSpace, pint_t pc,
+@@ -274,10 +274,15 @@ int DwarfInstructions<A, R>::stepWithDwarf(A &addressSpace, pint_t pc,
        for (int i = 0; i <= lastReg; ++i) {
          if (prolog.savedRegisters[i].location !=
              CFI_Parser<A>::kRegisterUnused) {
@@ -20,10 +19,10 @@ index bd9ece60e..ac9bdf196 100644
              newRegisters.setVectorRegister(
                  i, getSavedVectorRegister(addressSpace, registers, cfa,
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp
-index 7753936a5..ca3aaa8e1 100644
+index 3831d8e07..5d781c85c 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp
 +++ b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindCursor.hpp
-@@ -439,12 +439,14 @@ public:
+@@ -438,12 +438,14 @@ public:
    virtual bool validFloatReg(int) {
      _LIBUNWIND_ABORT("validFloatReg not implemented");
    }
@@ -38,7 +37,7 @@ index 7753936a5..ca3aaa8e1 100644
    virtual int step(bool = false) { _LIBUNWIND_ABORT("step not implemented"); }
    virtual void getInfo(unw_proc_info_t *) {
      _LIBUNWIND_ABORT("getInfo not implemented");
-@@ -940,8 +940,10 @@ public:
+@@ -937,8 +939,10 @@ public:
    virtual unw_word_t  getReg(int);
    virtual void        setReg(int, unw_word_t);
    virtual bool        validFloatReg(int);
@@ -49,77 +48,75 @@ index 7753936a5..ca3aaa8e1 100644
    virtual int         step(bool stage2 = false);
    virtual void        getInfo(unw_proc_info_t *);
    virtual void        jumpto();
-@@ -1360,6 +1362,7 @@ bool UnwindCursor<A, R>::validFloatReg(int regNum) {
+@@ -1363,6 +1367,7 @@ bool UnwindCursor<A, R>::validFloatReg(int regNum) {
    return _registers.validFloatRegister(regNum);
  }
-
+ 
 +#ifndef BID_VARIANT_FLAG_NOFPU
  template <typename A, typename R>
  unw_fpreg_t UnwindCursor<A, R>::getFloatReg(int regNum) {
    return _registers.getFloatRegister(regNum);
-@@ -1369,6 +1372,7 @@ template <typename A, typename R>
+@@ -1372,6 +1377,7 @@ template <typename A, typename R>
  void UnwindCursor<A, R>::setFloatReg(int regNum, unw_fpreg_t value) {
    _registers.setFloatRegister(regNum, value);
  }
 +#endif
-
+ 
  template <typename A, typename R> void UnwindCursor<A, R>::jumpto() {
    _registers.jumpto();
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
-index 951189ea5..b18bc2216 100644
+index 1702d016c..20e4b4e8e 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
 +++ b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersRestore.S
-@@ -655,6 +655,7 @@ DEFINE_LIBUNWIND_FUNCTION(__libunwind_Registers_arm64_jumpto)
+@@ -658,6 +658,7 @@ DEFINE_LIBUNWIND_FUNCTION(__libunwind_Registers_arm64_jumpto)
+   ldp    x26,x27, [x0, #0x0D0]
    ldp    x28,x29, [x0, #0x0E0]
    ldr    x30,     [x0, #0x100]  // restore pc into lr
- 
 +#ifndef BID_VARIANT_FLAG_NOFPU
+ #if defined(__ARM_FP) && __ARM_FP != 0
    ldp    d0, d1,  [x0, #0x110]
    ldp    d2, d3,  [x0, #0x120]
-   ldp    d4, d5,  [x0, #0x130]
-@@ -672,6 +673,7 @@ DEFINE_LIBUNWIND_FUNCTION(__libunwind_Registers_arm64_jumpto)
+@@ -676,6 +677,7 @@ DEFINE_LIBUNWIND_FUNCTION(__libunwind_Registers_arm64_jumpto)
    ldp    d28,d29, [x0, #0x1F0]
    ldr    d30,     [x0, #0x200]
    ldr    d31,     [x0, #0x208]
 +#endif
- 
-   // Finally, restore sp. This must be done after the the last read from the
+ #endif
+   // Finally, restore sp. This must be done after the last read from the
    // context struct, because it is allocated on the stack, and an exception
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S
-index 79f5696a9..97e1bf6ec 100644
+index a489a8ba6..9aa47a427 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S
 +++ b/libunwind_llvm/contrib/llvm/libunwind/src/UnwindRegistersSave.S
-@@ -708,6 +708,8 @@ DEFINE_LIBUNWIND_FUNCTION(__unw_getcontext)
+@@ -746,6 +746,7 @@ DEFINE_LIBUNWIND_FUNCTION(__unw_getcontext)
    str    x1,      [x0, #0x0F8]
    str    x30,     [x0, #0x100]    // store return address as pc
    // skip cpsr
-+
 +#ifndef BID_VARIANT_FLAG_NOFPU
+ #if defined(__ARM_FP) && __ARM_FP != 0
    stp    d0, d1,  [x0, #0x110]
    stp    d2, d3,  [x0, #0x120]
-   stp    d4, d5,  [x0, #0x130]
-@@ -725,6 +727,8 @@ DEFINE_LIBUNWIND_FUNCTION(__unw_getcontext)
+@@ -764,6 +765,7 @@ DEFINE_LIBUNWIND_FUNCTION(__unw_getcontext)
    stp    d28,d29, [x0, #0x1F0]
    str    d30,     [x0, #0x200]
    str    d31,     [x0, #0x208]
 +#endif
-+
+ #endif
    mov    x0, #0                   // return UNW_ESUCCESS
    ret
- 
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp b/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp
-index 0faea2b78..b2589b373 100644
+index cf39ec5f7..7252ad88a 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp
 +++ b/libunwind_llvm/contrib/llvm/libunwind/src/libunwind.cpp
 @@ -141,6 +141,7 @@ _LIBUNWIND_HIDDEN int __unw_set_reg(unw_cursor_t *cursor, unw_regnum_t regNum,
  }
  _LIBUNWIND_WEAK_ALIAS(__unw_set_reg, unw_set_reg)
- 
+
 +#ifndef BID_VARIANT_FLAG_NOFPU
  /// Get value of specified float register at cursor position in stack frame.
  _LIBUNWIND_HIDDEN int __unw_get_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
                                        unw_fpreg_t *value) {
-@@ -155,8 +156,10 @@
+@@ -155,8 +156,10 @@ _LIBUNWIND_HIDDEN int __unw_get_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
    return UNW_EBADREG;
  }
  _LIBUNWIND_WEAK_ALIAS(__unw_get_fpreg, unw_get_fpreg)
@@ -130,7 +127,7 @@ index 0faea2b78..b2589b373 100644
  _LIBUNWIND_HIDDEN int __unw_set_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
                                        unw_fpreg_t value) {
  #if defined(_LIBUNWIND_ARM_EHABI)
-@@ -174,6 +177,7 @@
+@@ -174,6 +177,7 @@ _LIBUNWIND_HIDDEN int __unw_set_fpreg(unw_cursor_t *cursor, unw_regnum_t regNum,
    return UNW_EBADREG;
  }
  _LIBUNWIND_WEAK_ALIAS(__unw_set_fpreg, unw_set_fpreg)
@@ -139,7 +136,7 @@ index 0faea2b78..b2589b373 100644
  /// Move cursor to next frame.
  _LIBUNWIND_HIDDEN int __unw_step(unw_cursor_t *cursor) {
 diff --git a/libunwind_llvm/contrib/llvm/libunwind/src/Unwind-EHABI.cpp b/libunwind_llvm/contrib/llvm/libunwind/src/Unwind-EHABI.cpp
-index 05475c6ac1..9a99f6e948 100644
+index 05475c6ac..9a99f6e94 100644
 --- a/libunwind_llvm/contrib/llvm/libunwind/src/Unwind-EHABI.cpp
 +++ b/libunwind_llvm/contrib/llvm/libunwind/src/Unwind-EHABI.cpp
 @@ -925,6 +925,7 @@ _Unwind_VRS_Set(_Unwind_Context *context, _Unwind_VRS_RegClass regclass,
