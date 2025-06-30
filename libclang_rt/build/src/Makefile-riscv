@@ -20,3 +20,8 @@ endif
 ifneq ($(call libclang_rt_if_min_version,16),)
   BUILTINS_SRC += riscv/fp_mode.c
 endif
+
+# Clang >= 20
+ifneq ($(call libclang_rt_if_min_version,16),)
+  BUILTINS_SRC += cpu_model/riscv.c
+endif

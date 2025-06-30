@@ -58,6 +58,11 @@ endef
 # 1: version to check for
 libclang_rt_if_min_version = $(filter $1,$(LIBCLANG_RT_CONTRIB_VERSIONS))
 
+# Returns the version if it is exactly the current clang version, otherwise
+# returns empty string.
+# 1: version to check for
+libclang_rt_if_version = $(filter $1,$(LIBCLANG_RT_CONTRIB_VERSION))
+
 # Selects the most recent version of a file by testing all -<version> suffixes
 # with the versions from $LIBCLANG_RT_CONTRIB_SUFFIX_VERSIONS. If no sufficient
 # versioned file is found, instead fallback to the file base name without a

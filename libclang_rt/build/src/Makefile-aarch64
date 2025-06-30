@@ -13,16 +13,24 @@ ifeq ($(call libclang_rt_if_min_version,18),)
 # Clang >= 18
 else
   BUILTINS_SRC += cpu_model/aarch64.c
-
-  ifeq ($(BID_VARIANT_FLAG_NOFPU),)
-    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-abi-init.c aarch64/sme-libc-routines.c
-  endif
 endif
 
-# Clang >= 19
-ifneq ($(call libclang_rt_if_min_version,19),)
-  ifeq ($(BID_VARIANT_FLAG_NOFPU),)
-    BUILTINS_SRC += aarch64/sme-libc-mem-routines.S aarch64/sme-abi-vg.c
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
+  # Clang == 18
+  ifneq ($(call libclang_rt_if_version,18),)
+    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-abi-init.c aarch64/sme-libc-routines.c
+  endif
+
+  # Clang == 19
+  ifneq ($(call libclang_rt_if_version,19),)
+    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-libc-mem-routines.S \
+                    aarch64/sme-abi-init.c aarch64/sme-abi-vg.c aarch64/sme-libc-routines.c
+  endif
+
+  # Clang >= 20
+  ifneq ($(call libclang_rt_if_min_version,20),)
+    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-libc-mem-routines.S \
+                    aarch64/sme-abi-assert.c aarch64/sme-libc-routines.c
   endif
 endif
 

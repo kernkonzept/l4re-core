@@ -31,6 +31,11 @@ else
   x86_80_BIT_SOURCES += extendxftf2.c trunctfxf2.c
 endif
 
+# Clang >= 20
+ifneq ($(call libclang_rt_if_min_version,20),)
+  x86_80_BIT_SOURCES += extendhfxf2.c truncxfhf2.c
+endif
+
 ifeq ($(BUILD_ARCH),x86)
 
   define BUILTINS_SRC
