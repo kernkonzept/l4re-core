@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <limits.h>
 #include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,9 +34,16 @@ int scandir(const char *path, struct dirent ***res,
 			errno = old_errno;
 			if (!sel(de)) continue;
 		}
+		if (cnt >= INT_MAX) {
+			errno = EOVERFLOW;
+			break;
+		}
 		if (cnt >= len) {
 			len = 2*len+1;
-			if (len > SIZE_MAX/sizeof *names) break;
+			if (len > SIZE_MAX/sizeof *names) {
+				errno = ENOMEM;
+				break;
+			}
 			tmp = realloc(names, len * sizeof *names);
 			if (!tmp) break;
 			names = tmp;
