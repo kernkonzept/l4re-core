@@ -517,6 +517,8 @@ enum l4_addr_consts_t {
                             **  \hideinitializer
                             ** NULL
                             **/
+#elif __cplusplus >= 201103L
+# define NULL nullptr
 #else
 # define NULL 0
 #endif
