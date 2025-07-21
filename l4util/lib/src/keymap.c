@@ -3,7 +3,7 @@
  * \brief  convert keyboard value to ascii value
  *
  * \date   Dec 2007
- * \author Adam Lackorznynski <adam@os.inf.tu-dresden.de>
+ * \author Adam Lackorzynski <adam@os.inf.tu-dresden.de>
  *
  */
 /*
