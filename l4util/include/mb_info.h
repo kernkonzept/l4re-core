@@ -248,7 +248,7 @@ typedef struct
 {
   l4_uint32_t flags;		/**< MultiBoot info version number */
   l4_uint32_t mem_lower;	/**< available memory below 1MB */
-  l4_uint32_t mem_upper;	/**< available memory starting from 1MB [kB] */
+  l4_uint32_t mem_upper;	/**< available memory starting from 1MB [KB] */
   l4_uint32_t boot_device;	/**< "root" partition */
   l4_uint32_t cmdline;		/**< Kernel command line */
   l4_uint32_t mods_count;	/**< number of modules */

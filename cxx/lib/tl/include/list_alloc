@@ -506,7 +506,7 @@ List_alloc::dump_free_list(DBG &out)
       else if (c->size < 1 << 20)
         {
           sz = c->size >> 10;
-          unit = "kB";
+          unit = "KB";
         }
       else
         {

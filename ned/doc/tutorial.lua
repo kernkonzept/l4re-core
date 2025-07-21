@@ -205,7 +205,7 @@ l = L4.Loader.new({
 
 local _doc = [==[
 
-Creates a loader instance that uses the newly created 512 Kbyte factory for
+Creates a loader instance that uses the newly created 512 KB factory for
 all building blocks. To set individual factories use the options:
   'mem'       as memory allocator for the new processes and as
               default factory for all objects not explicitely set to a

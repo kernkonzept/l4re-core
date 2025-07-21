@@ -369,8 +369,8 @@ Mem_man::morecore()
 
   if (debug_memory_maps)
     L4::cout << PROG_NAME": morecore: total=" << Page_alloc_base::total() / 1024
-             << "kB avail=" << Page_alloc_base::allocator()->avail() / 1024
-             << "kB: added " << a << '\n';
+             << " KB avail=" << Page_alloc_base::allocator()->avail() / 1024
+             << " KB: added " << a << '\n';
   return true;
 }
 

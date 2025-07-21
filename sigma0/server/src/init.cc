@@ -77,7 +77,7 @@ init(l4_kernel_info_t *info)
   init_io_ports();
 
   L4::cout << "  allocated " << Page_alloc_base::total()/1024
-           << "KB for maintenance structures\n";
+           << " KB for maintenance structures\n";
 
   auto sched = L4::Cap<L4::Scheduler>(L4_BASE_SCHEDULER_CAP);
   l4_msgtag_t res = sched->run_thread(L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP),

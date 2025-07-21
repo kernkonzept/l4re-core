@@ -239,9 +239,8 @@ l4la_dump(l4la_free_t **first)
   printf("List_alloc [first=%p]\n", *first);
   l4la_free_t *c = *first;
   for (;c && c!=c->next ; c = c->next)
-    printf("  mem_block_t [this=%p size=0x%lx (%ldkB) next=%p]\n", c,
-	   (l4_addr_t)c->size, 
-	   (l4_addr_t)(c->size+1023)/1024, c->next);
+    printf("  mem_block_t [this=%p size=0x%lx (%lu KB) next=%p]\n", c,
+           (l4_addr_t)c->size, (l4_addr_t)(c->size+1023)/1024, c->next);
 
   if (c && c == c->next)
     printf("  BUG: loop detected\n");
