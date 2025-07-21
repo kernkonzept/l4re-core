@@ -17,7 +17,11 @@ int scandir(const char *path, struct dirent ***res,
 	if (!d) return -1;
 
 	while ((errno=0), (de = readdir(d))) {
-		if (sel && !sel(de)) continue;
+		if (sel) {
+			/* sel() must not observe that errno was set to 0. */
+			errno = old_errno;
+			if (!sel(de)) continue;
+		}
 		if (cnt >= len) {
 			len = 2*len+1;
 			if (len > SIZE_MAX/sizeof *names) break;
@@ -37,6 +41,7 @@ int scandir(const char *path, struct dirent ***res,
 		free(names);
 		return -1;
 	}
+	/* cmp() and caller must not observe that errno was set to 0. */
 	errno = old_errno;
 
 	if (cmp) qsort(names, cnt, sizeof *names, (int (*)(const void *, const void *))cmp);
