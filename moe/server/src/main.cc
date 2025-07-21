@@ -168,7 +168,7 @@ static void find_memory()
     }
 
   Moe::Phys_limit::avail_ram = Single_page_alloc_base::_avail();
-  info.printf("found %lu KB free memory\n",
+  info.printf("found %lu KiB free memory\n",
               Single_page_alloc_base::_avail() / 1024);
   info.printf("found RAM from %lx to %lx\n", min_addr, max_addr);
 
@@ -220,7 +220,7 @@ static void find_memory()
   Moe::Pages::base_addr = min_addr;
   Moe::Pages::max_addr  = max_addr;
 
-  info.printf("allocated %lu KB for the page array @%p\n",
+  info.printf("allocated %lu KiB for the page array @%p\n",
               sizeof(*pages) * total_pages / 1024, pages);
 #endif
 }

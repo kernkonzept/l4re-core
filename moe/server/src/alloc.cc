@@ -320,18 +320,18 @@ Allocator::op_debug(L4Re::Debug_obj::Rights, unsigned long)
 {
   Dbg out(Dbg::Info, "mem_alloc");
   if (_qalloc.quota()->limit() == (size_t)~0)
-    out.printf("quota: no limit, reserved: %zu bytes (%zu MB)\n",
+    out.printf("quota: no limit, reserved: %zu bytes (%zu MiB)\n",
                _qalloc.quota()->reserved(),
                _qalloc.quota()->reserved() / (1<<20));
   else
-    out.printf("quota: limit: %zu bytes (%zu MB), reserved: %zu bytes (%zu MB), avail: %zu bytes (%zu MB), committed: %zu bytes (%zu MB)\n",
+    out.printf("quota: limit: %zu bytes (%zu MiB), reserved: %zu bytes (%zu MiB), avail: %zu bytes (%zu MiB), committed: %zu bytes (%zu MiB)\n",
                _qalloc.quota()->limit(), _qalloc.quota()->limit() >> 20,
                _qalloc.quota()->reserved(), _qalloc.quota()->reserved() >> 20,
                _qalloc.quota()->limit() - _qalloc.quota()->reserved(),
                (_qalloc.quota()->limit() - _qalloc.quota()->reserved()) >> 20,
                _qalloc.quota()->committed(),
                _qalloc.quota()->committed() >> 20);
-  out.printf("global: avail: %lu bytes (%lu MB)\n",
+  out.printf("global: avail: %lu bytes (%lu MiB)\n",
              Single_page_alloc_base::_avail(),
              Single_page_alloc_base::_avail() / (1<<20));
   out.printf("global physical free list:\n");

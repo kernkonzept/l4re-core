@@ -225,7 +225,7 @@ namespace {
   {
   public:
 
-    // use a 4KB second level for page management
+    // use a 4KiB second level for page management
     static unsigned long meta2_size() noexcept
     { return 1UL << 12; }
 
