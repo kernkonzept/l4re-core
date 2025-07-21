@@ -29,7 +29,7 @@ __UCLIBC_MUTEX_INIT(__malloc_lock, PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP);
 struct malloc_state __malloc_state;  /* never directly referenced */
 
 /* forward declaration */
-static int __malloc_largebin_index(unsigned int sz);
+static int __malloc_largebin_index(unsigned long sz);
 
 #ifdef __UCLIBC_MALLOC_DEBUGGING__
 
@@ -753,10 +753,10 @@ static void* __malloc_alloc(size_t nb, mstate av)
   Compute index for size. We expect this to be inlined when
   compiled with optimization, else not, which works out well.
 */
-static int __malloc_largebin_index(unsigned int sz)
+static int __malloc_largebin_index(unsigned long sz)
 {
-    unsigned int  x = sz >> SMALLBIN_WIDTH;
-    unsigned int m;            /* bit position of highest set bit of m */
+    unsigned long  x = sz >> SMALLBIN_WIDTH;
+    unsigned long m;            /* bit position of highest set bit of m */
 
     if (x >= 0x10000) return NBINS-1;
 
@@ -774,7 +774,7 @@ static int __malloc_largebin_index(unsigned int sz)
 	   S. Warren Jr's book "Hacker's Delight".
 	   */
 
-	unsigned int n = ((x - 0x100) >> 16) & 8;
+	unsigned long n = ((x - 0x100) >> 16) & 8;
 	x <<= n;
 	m = ((x - 0x1000) >> 16) & 4;
 	n += m;
