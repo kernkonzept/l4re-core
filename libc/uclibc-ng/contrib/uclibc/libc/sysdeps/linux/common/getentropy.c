@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/random.h>
+#include <sys/syscall.h>
 
 int
 getentropy(void *__buf, size_t __len)
