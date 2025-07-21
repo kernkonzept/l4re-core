@@ -12,20 +12,30 @@
 
 Remote_access ra_if;
 
-long Remote_access::op_read_mem(L4Re::Remote_access::Rights,
-                                l4_addr_t addr, char width, l4_uint64_t &val)
-{
-  static l4_addr_t last_pfn = ~0ul;
+static l4_addr_t last_pfn = ~0ul;
 
-  // This is an intermediate solution, to be improved.
+// This is an intermediate solution, to be improved.
+static long pagein(l4_addr_t addr, bool with_write, bool with_exec)
+{
   if (l4_trunc_page(addr) != last_pfn)
     {
+      addr &= ~7ul;
+      addr |= with_write ? 2 : 0;
+      addr |= with_exec  ? 4 : 0;
       L4::Ipc::Opt<L4::Ipc::Snd_fpage> fp;
-      long ret = Global::local_rm->op_page_fault(0, addr & ~7ul, 0, fp);
+      long ret = Global::local_rm->op_page_fault(0, addr, 0, fp);
       if (ret)
         return ret;
       last_pfn = l4_trunc_page(addr);
     }
+  return 0;
+}
+
+long Remote_access::op_read_mem(L4Re::Remote_access::Rights,
+                                l4_addr_t addr, char width, l4_uint64_t &val)
+{
+  if (long r = pagein(addr, 0, 0))
+    return r;
 
   switch (width)
     {
@@ -54,5 +64,36 @@ long Remote_access::op_write_mem(L4Re::Remote_access::Rights,
 long Remote_access::op_terminate(L4Re::Remote_access::Rights, int exit_code)
 {
   exit(exit_code);
+  return 0;
+}
+
+int Remote_access::op_map(L4Re::Dataspace::Rights,
+                          L4Re::Dataspace::Offset offset,
+                          L4Re::Dataspace::Map_addr spot,
+                          L4Re::Dataspace::Flags flags,
+                          L4::Ipc::Snd_fpage &fp)
+{
+  (void)flags;
+
+  offset = l4_trunc_page(offset);
+
+  unsigned long sz = L4_PAGESIZE;
+  unsigned char order
+    = l4_fpage_max_order(L4_PAGESHIFT, offset, offset, offset + sz, spot);
+
+  L4::Ipc::Snd_fpage::Cacheopt f = L4::Ipc::Snd_fpage::Cached;
+
+  unsigned char rights = L4_FPAGE_RO;
+  // rights |= L4_FPAGE_W;
+
+  l4_addr_t last_plus_1_page = offset + (L4_PAGESHIFT << order);
+  for (l4_addr_t page = offset; page < last_plus_1_page; page += L4_PAGESIZE)
+    if (long r = pagein(offset, rights & L4_FPAGE_W, 0))
+      return r;
+
+  fp = L4::Ipc::Snd_fpage::mem(l4_trunc_size(offset, order), order,
+                               rights, l4_trunc_page(spot),
+                               L4::Ipc::Snd_fpage::Map,
+                               f);
   return 0;
 }

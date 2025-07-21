@@ -8,6 +8,7 @@
 #pragma once
 
 #include <l4/re/protocols.h>
+#include <l4/re/dataspace>
 #include <l4/sys/cxx/ipc_iface>
 #include <l4/sys/cxx/ipc_types>
 #include <l4/sys/cxx/types>
@@ -17,7 +18,7 @@ namespace L4Re
 {
 
 struct L4_EXPORT Remote_access
-: public L4::Kobject_t<Remote_access, L4::Kobject, L4RE_PROTO_REMOTE_ACCESS>
+: public L4::Kobject_t<Remote_access, Dataspace, L4RE_PROTO_REMOTE_ACCESS>
 {
   enum Access_width
   {
