@@ -472,7 +472,7 @@ struct Phdr_dynamic
   Phdr_dynamic(App_model const *mm, Const_dataspace bin)
   : mm(mm), bin(bin), phdrs(0), is_dynamic(false)
   {
-    set_interp("rom/libld-l4.so");
+    set_interp("rom/libld-l4.so.1");
   }
 
   void set_interp(char const *name) const
