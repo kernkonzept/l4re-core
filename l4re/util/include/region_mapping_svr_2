@@ -254,6 +254,17 @@ public:
         return -L4_EACCESS;
       }
 
+    // This check is optional but avoids doing a map operation that will not
+    // work. We shall never get here from a page-fault but only from
+    // artificial page handling.
+    if (n->second.flags() & (L4Re::Rm::F::Kernel | L4Re::Rm::F::Reserved))
+      {
+        Dbg(Dbg::Warn, "rm").printf("page fault handling in kernel-memory provided region or reserved region at 0x%lx pc=0x%lx\n",
+                                    addr, pc);
+        // generate exception
+        return -L4_ENODEV;
+      }
+
     typename DERIVED::Region_handler::Ops::Map_result map_res;
     if (int err = n->second.map(addr, n->first, need_w, &map_res))
       {
