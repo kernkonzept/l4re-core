@@ -41,6 +41,6 @@ L4_INLINE int l4util_human_readable_size(char *outstr, size_t outsize,
   unsigned long long fract = (bytes - (value << order))
                              / ((1ULL << order) / 10 + 1);
 
-  return snprintf(outstr, outsize, "%llu.%1llu %cB",
+  return snprintf(outstr, outsize, "%llu.%1llu %ciB",
                   value, fract, unitstr[idx]);
 }
