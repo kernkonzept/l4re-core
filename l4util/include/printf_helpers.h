@@ -8,6 +8,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <l4/sys/compiler.h>
 
 /**
  * Print the human-readable size of a given size.
