@@ -279,7 +279,7 @@ public:
   }
 
   void *attach(void *addr, unsigned long size, Hdlr const &hdlr,
-               L4Re::Rm::Flags flags = L4Re::Rm::Flags(0),
+               L4Re::Rm::Flags attach_flags = L4Re::Rm::Flags(0),
                unsigned char align = L4_PAGESHIFT,
                char const *name = nullptr, unsigned name_len = 0,
                L4Re::Rm::Offset backing_offset = 0) noexcept
@@ -299,13 +299,13 @@ public:
 
         // In case of exact mappings, the supplied address must match because
         // we cannot remap.
-        if (!(flags & L4Re::Rm::F::Search_addr)
+        if (!(attach_flags & L4Re::Rm::F::Search_addr)
             && reinterpret_cast<l4_addr_t>(addr) != beg)
           return L4_INVALID_PTR;
 
         // When searching for a suitable address, the start must cover the
         // dataspace beginning to "find" the right spot.
-        if ((flags & L4Re::Rm::F::Search_addr)
+        if ((attach_flags & L4Re::Rm::F::Search_addr)
             && reinterpret_cast<l4_addr_t>(addr) > beg)
           return L4_INVALID_PTR;
       }
@@ -317,7 +317,7 @@ public:
     else if (err < 0)
       return L4_INVALID_PTR;
 
-    if (flags & L4Re::Rm::F::In_area)
+    if (attach_flags & L4Re::Rm::F::In_area)
       {
         Node r = _am.find_node(Region(beg, beg + size - 1));
         if (!r || (r->second.flags() & L4Re::Rm::F::Reserved))
@@ -326,14 +326,14 @@ public:
         end = r->first.end();
       }
 
-    if (flags & L4Re::Rm::F::Search_addr)
+    if (attach_flags & L4Re::Rm::F::Search_addr)
       {
-        beg = find_free(beg, end, size, align, flags);
+        beg = find_free(beg, end, size, align, attach_flags);
         if (beg == L4_INVALID_ADDR)
           return L4_INVALID_PTR;
       }
 
-    if (!(flags & (L4Re::Rm::F::Search_addr | L4Re::Rm::F::In_area))
+    if (!(attach_flags & (L4Re::Rm::F::Search_addr | L4Re::Rm::F::In_area))
         && _am.find_node(Region(beg, beg + size - 1)))
       return L4_INVALID_PTR;
 
@@ -454,7 +454,7 @@ public:
   }
 
   l4_addr_t find_free(l4_addr_t start, l4_addr_t end, l4_addr_t size,
-                      unsigned char align, L4Re::Rm::Flags flags) const noexcept;
+                      unsigned char align, L4Re::Rm::Flags attach_flags) const noexcept;
 
 };
 
@@ -462,7 +462,7 @@ public:
 template< typename Hdlr, template<typename T> class Alloc >
 l4_addr_t
 Region_map<Hdlr, Alloc>::find_free(l4_addr_t start, l4_addr_t end,
-    unsigned long size, unsigned char align, L4Re::Rm::Flags flags) const noexcept
+    unsigned long size, unsigned char align, L4Re::Rm::Flags attach_flags) const noexcept
 {
   l4_addr_t addr = start;
 
@@ -482,7 +482,7 @@ Region_map<Hdlr, Alloc>::find_free(l4_addr_t start, l4_addr_t end,
 
       if (!r)
 	{
-	  if (!(flags & L4Re::Rm::F::In_area) && (r = _am.find_node(c)))
+	  if (!(attach_flags & L4Re::Rm::F::In_area) && (r = _am.find_node(c)))
 	    {
 	      if (r->first.end() > end - size)
 		return L4_INVALID_ADDR;
