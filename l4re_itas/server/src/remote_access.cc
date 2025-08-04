@@ -19,13 +19,25 @@ static long pagein(l4_addr_t addr, bool with_write, bool with_exec)
 {
   if (l4_trunc_page(addr) != last_pfn)
     {
-      addr &= ~7ul;
-      addr |= with_write ? 2 : 0;
-      addr |= with_exec  ? 4 : 0;
-      L4::Ipc::Opt<L4::Ipc::Snd_fpage> fp;
-      long ret = Global::local_rm->op_page_fault(0, addr, 0, fp);
-      if (ret)
-        return ret;
+      L4Re::Util::Region region(addr, addr);
+      Region_map::Node node = Global::local_rm->find(region);
+      if (!node)
+        return -L4_ENOENT;
+
+      if (!(  node->second.flags()
+            & (L4Re::Rm::F::Kernel | L4Re::Rm::F::Reserved)))
+        {
+          addr &= ~7ul;
+          addr |= with_write ? 2 : 0;
+          addr |= with_exec  ? 4 : 0;
+          L4::Ipc::Opt<L4::Ipc::Snd_fpage> fp;
+          // We could split op_page_fault function to avoid the find in
+          // there which we just did.
+          long ret = Global::local_rm->op_page_fault(0, addr, 0, fp);
+          if (ret)
+            return ret;
+        }
+
       last_pfn = l4_trunc_page(addr);
     }
   return 0;
