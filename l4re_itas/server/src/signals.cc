@@ -21,7 +21,8 @@
 #include "remote_access.h"
 #include "signals.h"
 
-static struct sigaction sig_actions[_NSIG];
+// Signal 0 does not really exist and we don't store an action for it...
+static struct sigaction sig_actions[_NSIG - 1];
 static_assert(SIG_DFL == nullptr, "SIG_DFL is a nullptr");
 
 bool
@@ -739,7 +740,7 @@ Signal_manager::op_sigaction(L4Re::Itas::Rights,
                              const struct sigaction &act,
                              struct sigaction &oldact)
 {
-  if (signum <= 0 || signum > _NSIG)
+  if (signum <= 0 || signum >= _NSIG)
     return -EINVAL;
 
   // The SIGKILL and SIGSTOP signals cannot be caught or ignored.
