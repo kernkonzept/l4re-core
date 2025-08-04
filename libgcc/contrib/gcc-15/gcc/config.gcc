@@ -4598,15 +4598,13 @@ case "${target}" in
 
 		for which in arch tune; do
 			eval "val=\$with_$which"
-			case ${val} in
-			"" | gfx900 | gfx906 | gfx908 | gfx90a | gfx90c | gfx1030 | gfx1036 | gfx1100 | gfx1103)
-				# OK
-				;;
-			*)
+			if test x"$val" != x \
+			   && ! grep -q "GCN_DEVICE($val," \
+					"${srcdir}/config/gcn/gcn-devices.def";
+			then
 				echo "Unknown cpu used in --with-$which=$val." 1>&2
 				exit 1
-				;;
-			esac
+			fi
 		done
 		[ "x$with_arch" = x ] && with_arch=gfx900
 
@@ -5643,6 +5641,7 @@ case "${target}" in
 			#TODO 'sm_[...]' list per 'nvptx-sm.def'.
 			sm_30 | sm_35 | sm_37 \
 			| sm_52 | sm_53 \
+			| sm_61 \
 			| sm_70 | sm_75 \
 			| sm_80 | sm_89 )
 				TM_MULTILIB_CONFIG="$TM_MULTILIB_CONFIG $nvptx_multilib"
