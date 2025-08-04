@@ -149,9 +149,17 @@ public:
    */
   L4_INLINE_RPC(int, getitimer, (int which, struct itimerval *curr_value));
 
+  /**
+   * Send a signal to the calling thread.
+   *
+   * \param[in] thread  Thread cap of the calling thread.
+   * \param[in] sig     Signal that shall be raised.
+   */
+  L4_INLINE_RPC(int, raise, (L4::Ipc::Cap<L4::Thread> thread, int sig));
+
   typedef L4::Typeid::Rpcs<
     register_thread_t, unregister_thread_t, sigaction_t, sigaltstack_t,
-    sigprocmask_t, sigpending_t, setitimer_t, getitimer_t
+    sigprocmask_t, sigpending_t, setitimer_t, getitimer_t, raise_t
   > Rpcs;
 };
 

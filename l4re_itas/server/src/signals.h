@@ -194,6 +194,8 @@ public:
 
   Sig_set sigpending() const;
 
+  int raise(int sig);
+
   void interrupt_thread();
 
 private:
@@ -334,6 +336,10 @@ public:
   long op_getitimer(L4Re::Itas::Rights,
                     int which,
                     struct itimerval &curr_value);
+
+  long op_raise(L4Re::Itas::Rights,
+                L4::Ipc::Snd_fpage thread,
+                int sig);
 
 private:
   Thread_signal_handler *handler(L4::Ipc::Snd_fpage thread);

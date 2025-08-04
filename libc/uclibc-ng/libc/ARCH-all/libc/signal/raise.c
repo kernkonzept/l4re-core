@@ -7,13 +7,14 @@
 #include <signal.h>
 #include <sys/types.h>
 
+extern int l4re_raise(int signo);
+
 int raise(int signo)
 {
 #ifdef l4___this_is_the_original_uclibc_needed_with_gnu_linux_compiler
 	return kill(getpid(), signo);
 #else
-        (void)signo;
-        __builtin_trap();
+        return l4re_raise(signo);
 #endif
 }
 libc_hidden_def(raise)

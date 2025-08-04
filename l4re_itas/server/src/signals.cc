@@ -423,6 +423,23 @@ Thread_signal_handler::sigpending() const
   return ret;
 }
 
+int
+Thread_signal_handler::raise(int signum)
+{
+  if (signum <= 0 || signum >= _NSIG)
+    return -EINVAL;
+
+  siginfo_t si;
+  memset(&si, 0, sizeof(si));
+  si.si_signo = signum;
+
+  if (!_pending.queue_signal(si, {}, 0))
+    return -ENOMEM;
+
+  interrupt_thread();
+  return 0;
+}
+
 void
 Thread_signal_handler::interrupt_thread()
 {
@@ -912,6 +929,12 @@ Signal_manager::op_getitimer(L4Re::Itas::Rights,
     }
 
   return 0;
+}
+
+long
+Signal_manager::op_raise(L4Re::Itas::Rights, L4::Ipc::Snd_fpage thread, int sig)
+{
+  return handler(thread)->raise(sig);
 }
 
 Thread_signal_handler *

@@ -228,3 +228,21 @@ int sigaltstack(const struct sigaltstack *ss,
 
   return ret >= 0 ? 0 : -1;
 }
+
+extern "C" int l4re_raise(int sig);
+int l4re_raise(int sig)
+{
+  auto itas = L4Re::Env::env()->itas();
+  if (!itas)
+    {
+      errno = -ENOSYS;
+      return -1;
+    }
+
+  auto self = Pthread::L4::cap(pthread_self());
+  int ret = itas->raise(self, sig);
+  if (ret < 0)
+    errno = -ret;
+
+  return ret >= 0 ? 0 : -1;
+}
