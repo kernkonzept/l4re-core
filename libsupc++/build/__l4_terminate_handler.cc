@@ -5,11 +5,12 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
+#include <cstdio>
 #include <cstdlib>
 #include <exception>
 #include <bits/exception_defines.h>
 #include <cxxabi.h>
-#include <cstdio>
+#include <sysexits.h>
 
 #include <l4/cxx/exceptions>
 
@@ -86,6 +87,9 @@ void terminate_handler_no_exc_backtrace()
           fputs(": ", stderr);
           fputs(es, stderr);
           fputs("\n", stderr);
+
+          // not fatal so quick exit
+          _Exit(EX_SOFTWARE);
         }
       __catch (::L4::Base_exception const &e)
         {
@@ -110,6 +114,7 @@ void terminate_handler_no_exc_backtrace()
       fputs(" without an active exception\n", stderr);
     }
 
+  // unexpected abort -- the abort handler takes care
   abort();
 }
 
