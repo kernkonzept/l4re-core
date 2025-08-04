@@ -142,6 +142,8 @@ public:
       /// Readable, writable and executable region
       RWX       = Dataspace::F::RWX,
 
+      /// Kernel-provided memory (KUMEM)
+      Kernel      = 0x100,
       /// Free the portion of the data space after detach
       Detach_free = 0x200,
       /// Region has a pager
@@ -677,22 +679,16 @@ public:
                          L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
 
   /**
-   * A range of virtual addresses.
-   */
-  struct Range
-  {
-    /// First address of the range.
-    l4_addr_t start;
-    /// Last address of the range.
-    l4_addr_t end;
-  };
-
-  /**
-   * A region is a range of virtual addresses which is backed by a dataspace.
+   * A region is a range of virtual addresses which is backed by content.
    *
    * \see api_l4re_rm
    */
-  using Region = Range;
+  struct Region
+  {
+    l4_addr_t start;
+    l4_addr_t end;
+    F::Region_flags flags;
+  };
 
   /**
    * An area is a range of virtual addresses which is reserved,
@@ -700,7 +696,11 @@ public:
    *
    * \see api_l4re_rm
    */
-  using Area = Range;
+  struct Area
+  {
+    l4_addr_t start;
+    l4_addr_t end;
+  };
 
   /**
    * Return the list of regions whose starting addresses are higher or equal to
@@ -716,7 +716,7 @@ public:
    *       shall use the function repeatedly with a start address one larger
    *       that the end address of the last region from the previous call.
    */
-  L4_RPC(long, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Range> regions));
+  L4_RPC(long, get_regions, (l4_addr_t start, L4::Ipc::Ret_array<Region> regions));
 
   /**
    * Return the list of areas whose starting addresses are higher or equal to
@@ -733,7 +733,7 @@ public:
    *       than the end address of the last area from the previous call.
    */
 
-  L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Range> areas));
+  L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Area> areas));
 
   /**
    * Return auxiliary information of a region. This is a debugging feature

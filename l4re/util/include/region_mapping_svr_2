@@ -37,7 +37,7 @@ public:
   {
     typename DERIVED::Dataspace ds;
 
-    if (!(flags & Rm::F::Reserved))
+    if (!(flags & (Rm::F::Reserved | Rm::F::Kernel)))
       {
         if (long r = rm()->validate_ds
             (static_cast<DERIVED*>(this)->server_iface(), ds_cap,
@@ -163,6 +163,7 @@ public:
         Rm::Region &x = regions.value[num];
         x.start  = r->first.start();
         x.end    = r->first.end();
+        x.flags  = r->second.flags();
 
         if (++num >= regions.max)
           break;

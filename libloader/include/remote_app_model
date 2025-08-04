@@ -114,7 +114,8 @@ public:
   {
     this->prog_attach_ds(this->prog_info()->utcbs_start,
                          1UL << this->prog_info()->utcbs_log2size,
-                         this->reserved_area(), 0, L4Re::Rm::F::RW,
+                         this->reserved_area(), 0,
+                         L4Re::Rm::F::RW | L4Re::Rm::F::Kernel,
                          "[utcb]", 0, "attaching utcb area");
   }
 
@@ -128,7 +129,11 @@ public:
                          this->reserved_area(),
 #endif
                          0,
-                         L4Re::Rm::F::RX,
+                         L4Re::Rm::F::RX
+#ifndef CONFIG_MMU
+                           | L4Re::Rm::F::Kernel
+#endif
+                         ,
                          "[kip]", 0, "attaching KIP segment");
   }
 

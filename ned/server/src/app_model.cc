@@ -59,9 +59,6 @@ App_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
     printf("%s:%s: from ds:%lx+%lx... @%lx+%lx\n",
            __func__, what, ds.cap(), offset, addr, size);
 
-  if (!ds.is_valid())
-    rh_flags |= L4Re::Rm::F::Reserved;
-
   l4_addr_t _addr = addr;
   L4Re::chksys(_task->rm()->attach(&_addr, size, rh_flags,
                                    L4::Ipc::make_cap(ds.get(), flags.cap_rights()),

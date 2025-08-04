@@ -111,11 +111,15 @@ static void insert_regions()
             name.length = 0;
 #endif
 
+          Rm::F::Flags flags = r->flags;
+          if (!(flags & (Rm::F::Reserved | Rm::F::Kernel)))
+            flags |= Rm::F::Pager;
+
           void *x = Global::local_rm
             ->attach(reinterpret_cast<void*>(r->start), r->end - r->start + 1,
                      Region_handler(pager, L4_INVALID_CAP, 0,
-                                    Rm::F::Pager | Rm::F::RWX),
-                     Rm::Flags(0), L4_PAGESHIFT, name.data, name.length);
+                                    flags.region_flags()),
+                     flags.attach_flags(), L4_PAGESHIFT, name.data, name.length);
           if (x == L4_INVALID_PTR)
             {
               L4::cerr << "l4re: error while initializing RM regions\n";
@@ -124,7 +128,6 @@ static void insert_regions()
 
           addr = r->end + 1;
         }
-
     }
 
   addr = 0;
