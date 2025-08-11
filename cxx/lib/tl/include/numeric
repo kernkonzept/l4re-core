@@ -1,0 +1,78 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2025 Kernkonzept GmbH.
+ * Author(s): Martin Decky <martin.decky@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+
+#pragma once
+
+#include <l4/cxx/type_traits>
+
+namespace cxx {
+
+/**
+ * Compute the greatest common divisor of two unsigned values.
+ *
+ * This uses the Euclidean modulo algorithm.
+ *
+ * \note Contrary to the C++17 specification, this implementation requires the
+ *       same unsigned type of both arguments and returns the same type (not
+ *       a common type). This should be fine for most practical use cases.
+ *
+ * \note Contrary to the C++17 specification, this implementation does not
+ *       accept signed arguments and negative literals.
+ *
+ * \tparam T  Unsigned integer type of the values.
+ * \param  a  First input.
+ * \param  b  Second input.
+ *
+ * \return Greatest common divisor of the input values.
+ */
+template <typename T>
+constexpr T gcd(T a, T b)
+{
+  static_assert(Type_traits<T>::is_unsigned, "Type must be unsigned");
+
+  while (b != 0)
+    {
+      T remainder = a % b;
+      a = b;
+      b = remainder;
+    }
+
+  return a;
+}
+
+/**
+ * Compute the least common multiple of two unsigned values.
+ *
+ * This uses the greatest common divisor to compute the least common
+ * multiple.
+ *
+ * \note Contrary to the C++17 specification, this implementation requires the
+ *       same unsigned type of both arguments and returns the same type (not
+ *       a common type). This should be fine for most practical use cases.
+ *
+ * \note Contrary to the C++17 specification, this implementation does not
+ *       accept signed arguments and negative literals.
+ *
+ * \tparam T  Unsigned integer type of the values.
+ * \param  a  First input.
+ * \param  b  Second input.
+ *
+ * \return Least common multiple of the input values.
+ */
+template <typename T>
+constexpr T lcm(T a, T b)
+{
+  static_assert(Type_traits<T>::is_unsigned, "Type must be unsigned");
+
+  if (a == 0 || b == 0)
+    return 0;
+
+  return (a / gcd(a, b)) * b;
+}
+
+}

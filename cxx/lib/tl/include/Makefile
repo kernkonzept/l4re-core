@@ -12,6 +12,7 @@ EXTRA_TARGET := \
   list        \
   list_alloc  \
   minmax      \
+  numeric     \
   observer    \
   pair        \
   ref_ptr     \
