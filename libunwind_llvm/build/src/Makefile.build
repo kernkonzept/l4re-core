@@ -34,8 +34,6 @@ WARNINGS       := -Wall \
 include $(UNWIND_LLVM_PKG_DIR)/contrib.inc
 $(GENERAL_D_LOC): $(UNWIND_LLVM_PKG_DIR)/contrib.inc
 
-BID_ALLOW_CPP_AS_CPLUSPLUS_FILE = y
-
 vpath %.c $(UNWIND_LLVM_CONTRIB_SRC_DIR)/src
 vpath %.cpp $(UNWIND_LLVM_CONTRIB_SRC_DIR)/src
 vpath %.S $(UNWIND_LLVM_CONTRIB_SRC_DIR)/src
