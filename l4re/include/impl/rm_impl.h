@@ -36,7 +36,8 @@ Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
            unsigned char align, L4::Cap<L4::Task> const task,
            char const *name, Rm::Offset backing_offset) const noexcept
 {
-  if (((flags & F::Rights_mask) == Flags(0)) || (flags & F::Reserved))
+  if ((flags & F::Rights_mask) == Flags(0)
+      || (flags & (F::Reserved | F::Kernel)))
     mem = L4::Ipc::Cap<L4Re::Dataspace>();
 
   char const n = '\0';

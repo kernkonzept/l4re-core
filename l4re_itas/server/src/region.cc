@@ -50,7 +50,7 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
   if (!writable)
     r_flags = r_flags & ~L4Re::Rm::F::W;
 
-  if ((r_flags & Rm::F::Reserved) || !h->memory().is_valid())
+  if ((r_flags & (Rm::F::Reserved | Rm::F::Kernel)) || !h->memory().is_valid())
     return -L4_ENOENT;
 
   if (r_flags & Rm::F::Pager)
@@ -76,10 +76,10 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
 void
 Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
 {
-  if ((h->flags() & Rm::F::Reserved) || !h->memory().is_valid())
+  if (h->flags() & (Rm::F::Reserved | Rm::F::Kernel | Rm::F::Pager))
     return;
 
-  if (h->flags() & Rm::F::Pager)
+  if (!h->memory().is_valid())
     return;
 
   L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
@@ -93,7 +93,7 @@ Region_ops::map_info(Region_handler const *h,
   if (!h->memory())
     return 0;
 
-  if (h->flags() & (Rm::F::Pager | Rm::F::Reserved))
+  if (h->flags() & (Rm::F::Pager | Rm::F::Reserved | Rm::F::Kernel))
     return 0;
 
   return h->memory()->map_info(start_addr, end_addr);

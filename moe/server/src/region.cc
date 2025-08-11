@@ -83,7 +83,9 @@ Region_ops::map_info(Region_handler const *h,
   if (!h->memory())
     return 0;
 
-  if (h->flags() & (L4Re::Rm::F::Pager | L4Re::Rm::F::Reserved))
+  if (h->flags() & (  L4Re::Rm::F::Pager
+                    | L4Re::Rm::F::Reserved
+                    | L4Re::Rm::F::Kernel))
     return 0;
 
   return h->memory()->map_info(*start_addr, *end_addr);
