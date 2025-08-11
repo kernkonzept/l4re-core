@@ -50,9 +50,6 @@ char *bindtextdomain(const char *domainname, const char *dirname);
 
 #endif
 
-#include <stdio.h>
-#define gettext_printf(args...) printf(args)
-
 /* to supply LC_MESSAGES and other stuff GNU expects to be exported when
    including libintl.h */
 #include <locale.h>
