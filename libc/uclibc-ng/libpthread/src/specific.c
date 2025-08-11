@@ -41,7 +41,7 @@ static pthread_mutex_t pthread_keys_mutex = PTHREAD_MUTEX_INITIALIZER;
 /* Create a new key */
 
 int
-attribute_hidden
+attribute_protected
 __pthread_key_create(pthread_key_t * key, destr_function destr)
 {
   int i;
