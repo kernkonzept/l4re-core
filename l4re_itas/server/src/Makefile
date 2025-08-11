@@ -28,7 +28,7 @@ PRIVATE_INCDIR      += $(SRC_DIR)/ARCH-$(ARCH)
 DEFINES += -DL4_CXX_NO_EXCEPTION_BACKTRACE -DL4_LOADER_RELOC_BASE=$(DEFAULT_RELOC_$(ARCH))
 
 REQUIRES_LIBS  := cxx_io cxx_libc_io libc_minimal libsupc++_minimal libloader \
-                  libc_minimal_l4re
+                  libc_minimal_l4re libumalloc
 
 CXXFLAGS += $(CXXFLAGS_LOW_LEVEL)
 

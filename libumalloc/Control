@@ -1,0 +1,3 @@
+provides: libumalloc
+requires: libc-headers compiler-rt cxx_util
+maintainer: martin.decky@kernkonzept.com

@@ -94,7 +94,7 @@ define SRC_libc/stdlib
   $(if $(BID_VARIANT_FLAG_NOFPU),,nrand48)
   $(if $(BID_VARIANT_FLAG_NOFPU),,nrand48_r)
   on_exit
-  posix_memalign
+  $(if $(LIBC_BUILD_MINIMAL),,posix_memalign)
   qsort
   qsort_r
   rand

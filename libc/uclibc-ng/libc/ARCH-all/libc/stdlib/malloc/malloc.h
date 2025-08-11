@@ -19,7 +19,10 @@
 
 #include <l4/sys/consts.h>
 
+#ifndef L4_MINIMAL_LIBC
 void *uclibc_morecore(long bytes);
+#endif
+
 #define sbrk(x) uclibc_morecore(x)
 
 #define MALLOC_ALIGNMENT \

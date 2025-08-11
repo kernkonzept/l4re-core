@@ -1,4 +1,4 @@
-provides: libc_minimal 
+provides: libc_minimal
 requires: libc-headers ldscripts compiler-rt-pure l4sys
 source-pkg: libc
 Maintainer: adam@os.inf.tu-dresden.de

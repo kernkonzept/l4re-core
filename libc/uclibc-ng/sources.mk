@@ -2,7 +2,7 @@
 DIRS-all     := libc/string libc/stdlib libc/stdio libc/unistd libc/signal \
                 libc/misc libc/sysdeps/linux
 
-DIRS-minimal := $(DIRS-all) libc/stdlib/malloc
+DIRS-minimal := $(DIRS-all)
 DIRS-full    := $(DIRS-all) libc/inet libc/pwd_grp libiconv libc/termios     \
                 libc/stdlib/malloc$(if $(CONFIG_BID_STATIC_HEAP),,-standard) \
                 $(if $(BID_VARIANT_FLAG_NOFPU),,libm) libcrypt libuargp
