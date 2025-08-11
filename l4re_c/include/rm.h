@@ -35,6 +35,7 @@ enum l4re_rm_flags_values {
   L4RE_RM_F_RW   = L4RE_DS_F_RW,
   L4RE_RM_F_RWX  = L4RE_DS_F_RWX,
 
+  L4RE_RM_F_KERNEL       = 0x100, /**< Kernel-provided memory (KUMEM) */
   L4RE_RM_F_NO_ALIAS     = 0x200, /**< The region contains exclusive memory that is not mapped anywhere else */
   L4RE_RM_F_PAGER        = 0x400, /**< Region has a pager */
   L4RE_RM_F_RESERVED     = 0x800, /**< Region is reserved (blocked) */
