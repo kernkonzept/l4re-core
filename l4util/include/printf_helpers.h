@@ -8,6 +8,7 @@
 #pragma once
 
 #include <stddef.h>
+#include <stdio.h>
 #include <l4/sys/compiler.h>
 
 /**
