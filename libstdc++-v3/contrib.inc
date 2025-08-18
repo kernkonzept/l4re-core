@@ -11,7 +11,7 @@ cmp = $(intcmp $1,$2,$3,$4,$5)
 endif
 
 # Must be numerically sorted
-STDCXX_AVAILABLE_VERSIONS = 9 10 11 12 13 14 15
+STDCXX_AVAILABLE_VERSIONS = 9 10 11 12 13 14 15 16
 _max = $(lastword $(STDCXX_AVAILABLE_VERSIONS))
 _min = $(firstword $(STDCXX_AVAILABLE_VERSIONS))
 
