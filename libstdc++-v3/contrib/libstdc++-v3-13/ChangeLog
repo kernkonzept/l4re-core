@@ -1,3 +1,478 @@
+2025-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-06-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/99832
+	* include/bits/chrono.h (system_clock::to_time_t): Add
+	always_inline attribute to be agnostic to the underlying type of
+	time_t.
+	(system_clock::from_time_t): Add always_inline for consistency
+	with to_time_t.
+	* testsuite/20_util/system_clock/99832.cc: New test.
+
+2025-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-06-05  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/120548
+	* include/std/format (__formatter_fp::_M_localize): Do not
+	include a leading sign character in the string to be grouped.
+	* testsuite/std/format/functions/format.cc: Check grouping when
+	sign is present in the output.
+
+2025-06-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-09-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format (__formatter_fp::_M_localize): Add comments
+	and micro-optimize string copy.
+
+2025-06-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-05-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/faq.xml: Update URL for archived SGI STL docs.
+	* doc/xml/manual/containers.xml: Likewise.
+	* doc/xml/manual/extensions.xml: Likewise.
+	* doc/xml/manual/using.xml: Likewise.
+	* doc/xml/manual/utilities.xml: Likewise.
+	* doc/html/*: Regenerate.
+
+2025-06-06  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	Backported from master:
+	2025-02-07  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	PR libstdc++/118160
+	PR libstdc++/100249
+	* include/bits/ranges_algo.h (__is_permutation_fn): Avoid a
+	dangling reference by storing the result of the iterator
+	dereference and the result of the projection in two distinct
+	variables, in order to lifetime-extend each one.
+	Forward the projected value to the predicate.
+	* testsuite/25_algorithms/is_permutation/constrained.cc: Add a
+	test with a range returning prvalues. Test it in a constexpr
+	context, in order to rely on the compiler to catch UB.
+
+2025-06-05  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	Backported from master:
+	2025-03-14  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	* include/bits/shared_ptr_base.h (lock): Fixed a compile error
+	when calling lock() on a weak_ptr<T[]>, by removing an
+	erroneous usage of element_type from within lock().
+	* testsuite/20_util/shared_ptr/requirements/explicit_instantiation/1.cc:
+	Add more tests for array types.
+	* testsuite/20_util/weak_ptr/requirements/explicit_instantiation/1.cc:
+	Likewise.
+	* testsuite/20_util/shared_ptr/requirements/1.cc: New test.
+	* testsuite/20_util/weak_ptr/requirements/1.cc: New test.
+
+2025-06-05  Release Manager
+
+	* GCC 13.4.0 released.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/112490
+	* testsuite/24_iterators/const_iterator/112490.cc: Add
+	dg-options directive.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2024-10-29  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/112641
+	* include/std/ranges (drop_view::begin): Reimplement const
+	overload so that it's O(1) always.
+	* testsuite/std/ranges/adaptors/drop.cc (test10): New test.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-04-09  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/115046
+	PR libstdc++/112490
+	* include/bits/stl_iterator.h (basic_const_iterator::operator-):
+	Replace non-dependent basic_const_iterator function parameter with
+	a dependent one of type basic_const_iterator<_It2> where _It2
+	matches _It.
+	* testsuite/std/ranges/adaptors/as_const/1.cc (test04): New test.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-02-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/112490
+	* include/bits/stl_iterator.h (basic_const_iterator::operator<):
+	Replace non-dependent basic_const_iterator function parameter with
+	a dependent one of type basic_const_iterator<_It3> where _It3
+	matches _It.
+	(basic_const_iterator::operator>): Likewise.
+	(basic_const_iterator::operator<=): Likewise.
+	(basic_const_iterator::operator>=): Likewise.
+	* testsuite/24_iterators/const_iterator/112490.cc: New test.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-03-13  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/119135
+	* include/std/ranges: Include <utility>.
+	(views::__detail::__is_ref_view): Replace with ...
+	(views::__detail::__is_constable_ref_view): ... this.
+	(views::_AsConst::operator()): Replace bogus use of element_type
+	in the ref_view branch.
+	* testsuite/std/ranges/adaptors/as_const/1.cc (test03): Extend
+	test.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2024-01-17  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (views::_CartesianProduct::operator()):
+	Adjust identity case as per P2540R1.
+	* testsuite/std/ranges/cartesian_product/1.cc (test01):
+	Adjust expected result of the identity case.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2024-01-15  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/stl_iterator.h (const_iterator): Define conversion
+	operators as per P2836R1.
+	* include/std/ranges (__cpp_lib_ranges_as_const): Update value.
+	* include/std/version (__cpp_lib_ranges_as_const): Likewise.
+	* testsuite/24_iterators/const_iterator/1.cc (test04): New test.
+	* testsuite/std/ranges/adaptors/as_const/1.cc: Adjust expected
+	value of __cpp_lib_ranges_as_const.
+	* testsuite/std/ranges/version_c++23.cc: Likewise.
+
+2025-05-27  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2024-10-05  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/ranges_base.h (__distance_fn::operator()):
+	Adjust iterator/sentinel overloads as per LWG 3664.
+	* testsuite/24_iterators/range_operations/distance.cc:
+	Test LWG 3664 example.
+
+2025-05-12  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/status_cxx2023.xml: Update status of proposals
+	implemented for GCC 13.
+	* doc/html/manual/status.html: Regenerate.
+
+2025-05-08  Richard Biener  <rguenther@suse.de>
+
+	Backported from master:
+	2023-11-07  Richard Biener  <rguenther@suse.de>
+
+	PR libstdc++/112351
+	* src/c++98/locale.cc (locale::facet::_S_initialize_once):
+	Check whether _S_c_locale is already initialized.
+	(locale::facet::_S_get_c_locale): Always perform non-threadsafe
+	init when threadsafe init failed.
+
+2025-04-23  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2024-11-04  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/117406
+	* testsuite/26_numerics/headers/cmath/117406.cc: Use
+	std::numeric_limits<int>::max() instead of INT_MAX.
+
+2025-04-23  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2024-11-02  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/117406
+	* include/c_global/cmath (std::ilogb(_Float16), std::llrint(_Float16),
+	std::llround(_Float16), std::lrint(_Float16), std::lround(_Float16)):
+	Don't cast __builtin_* return to _Float16.
+	(std::ilogb(__gnu_cxx::__bfloat16_t),
+	std::llrint(__gnu_cxx::__bfloat16_t),
+	std::llround(__gnu_cxx::__bfloat16_t),
+	std::lrint(__gnu_cxx::__bfloat16_t),
+	std::lround(__gnu_cxx::__bfloat16_t)): Don't cast __builtin_* return to
+	__gnu_cxx::__bfloat16_t.
+	* testsuite/26_numerics/headers/cmath/117406.cc: New test.
+
+2025-04-23  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2024-10-29  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/117321
+	* include/c_global/cmath (nextafter(_Float16, _Float16)): Use
+	if consteval rather than if (std::__is_constant_evaluated()) around
+	the __builtin_nextafterf16 call.
+	(nextafter(__gnu_cxx::__bfloat16_t, __gnu_cxx::__bfloat16_t)): Use
+	if consteval rather than if (std::__is_constant_evaluated()) around
+	the __builtin_nextafterf16b call.
+	* testsuite/26_numerics/headers/cmath/117321.cc: New test.
+
+2025-04-18  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/format (basic_format_arg::_S_to_arg_type): Normalize
+	_Float32 and _Float64 only to float and double respectivelly.
+	(basic_format_arg::_S_to_enum): Remove handling of _Float32 and _Float64.
+	(cherry picked with modifications from commit 445128c12cf22081223f7385196ee3889ef4c4b2)
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/integer_sequence/112473.cc: Compile with
+	-std=gnu++20.
+	* testsuite/21_strings/char_traits/requirements/113200.cc:
+	Likewise.
+	* testsuite/23_containers/array/comparison_operators/106212.cc:
+	Likewise.
+	* testsuite/23_containers/array/creation/115522.cc: Likewise.
+	* testsuite/23_containers/span/117966.cc: Likewise.
+	* testsuite/23_containers/span/nodiscard.cc: Likewise. Remove
+	dg-warning directives for et c++23.
+	* testsuite/23_containers/vector/cons/113841.cc: Compile with
+	-std=gnu++20.
+	* testsuite/24_iterators/common_iterator/101527.cc: Likewise.
+	* testsuite/24_iterators/counted_iterator/101527.cc: Likewise.
+	* testsuite/24_iterators/move_iterator/lwg3736.cc: Likewise.
+	* testsuite/25_algorithms/lexicographical_compare_three_way/113960.cc:
+	Likewise.
+	* testsuite/27_io/filesystem/iterators/lwg3480.cc: Likewise.
+	* testsuite/29_atomics/headers/stdatomic.h/115807.cc: Compile
+	with -std=gnu++23.
+	* testsuite/experimental/scopeguard/114152.cc: Compile with
+	-std=gnu++20.
+	* testsuite/std/format/arguments/112607.cc: Likewise.
+	* testsuite/std/format/arguments/args_neg.cc: Likewise.
+	* testsuite/std/format/context.cc: Likewise.
+	* testsuite/std/format/formatter/112832.cc: Likewise.
+	* testsuite/std/format/formatter/basic.cc: Likewise.
+	* testsuite/std/ranges/subrange/111948.cc: Likewise.
+	* testsuite/std/ranges/subrange/lwg3589.cc: Likewise.
+	* testsuite/std/time/format/pr117085.cc: Likewise.
+	* testsuite/std/time/month/2.cc: Likewise.
+	* testsuite/std/time/time_zone/sys_info_abbrev.cc: Likewise.
+	* testsuite/std/time/tzdb/links.cc: Likewise.
+	* testsuite/std/time/weekday/2.cc: Likewise.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/names.cc: Check ranges is not used as an
+	identifier before C++20.
+
+2025-04-16  Michael Levine  <mlevine55@bloomberg.net>
+
+	Backported from master:
+	2024-06-08  Michael Levine  <mlevine55@bloomberg.net>
+
+	PR libstdc++/108760
+	* include/bits/ranges_algo.h (ranges::out_value_result)
+	(ranges::iota_result, ranges::__iota_fn, ranges::iota): Move to
+	<bits/ranges_algobase.h>.
+	* include/bits/ranges_algobase.h (ranges::out_value_result):
+	(ranges::iota_result, ranges::__iota_fn, ranges::iota): Move to
+	here.
+	* include/std/numeric: Include <bits/ranges_algobase.h>.
+	* testsuite/25_algorithms/iota/1.cc: Renamed to ...
+	* testsuite/26_numerics/iota/2.cc: ... here.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-02-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/105609
+	* include/bits/ranges_algobase.h (__detail::__assign_one): New
+	helper function.
+	(__copy_or_move, __copy_or_move_backward): Use new function
+	instead of std::__assign_one.
+	* testsuite/25_algorithms/move/constrained.cc: Check that
+	ADL iter_move is used in preference to std::move.
+	* testsuite/25_algorithms/move_backward/constrained.cc:
+	Likewise.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-10-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_algobase.h (ranges::__assign_one): Remove.
+	(__copy_or_move, __copy_or_move_backward): Use std::__assign_one
+	instead of ranges::__assign_one.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-10-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/117121
+	* include/bits/ranges_algobase.h (copy_backward): Decrement
+	output iterator before assigning one element through it.
+	* testsuite/25_algorithms/copy/108846.cc: Ensure the algorithm's
+	effects are correct for a single memcpyable element.
+	* testsuite/25_algorithms/copy_backward/108846.cc: Likewise.
+	* testsuite/25_algorithms/copy_n/108846.cc: Likewise.
+
+2025-04-16  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	Backported from master:
+	2024-09-13  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	PR libstdc++/108846
+	PR libstdc++/116471
+	* include/bits/ranges_algobase.h (__assign_one): New helper
+	function.
+	(__copy_or_move): Remove a spurious static_assert; use
+	__assign_one for memcpyable ranges of length 1.
+	(__copy_or_move_backward): Likewise.
+	* testsuite/25_algorithms/copy/108846.cc: Extend to range-based
+	algorithms, and cover both memcpyable and non-memcpyable
+	cases.
+	* testsuite/25_algorithms/copy_backward/108846.cc: Likewise.
+	* testsuite/25_algorithms/copy_n/108846.cc: Likewise.
+	* testsuite/25_algorithms/move/108846.cc: Likewise.
+	* testsuite/25_algorithms/move_backward/108846.cc: Likewise.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-06-07  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ranges_algobase.h: Include <bits/stl_algobase.h>.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-02-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/106612
+	* include/bits/iterator_concepts.h (_IterMove::__iter_ref_t):
+	New alias template.
+	(_IterMove::__result): Use __iter_ref_t instead of
+	std::iter_reference_t.
+	(_IterMove::__type): Remove incorrect __dereferenceable
+	constraint.
+	(_IterMove::operator()): Likewise. Add correct constraints. Use
+	__iter_ref_t instead of std::iter_reference_t. Forward parameter
+	as correct value category.
+	(iter_swap): Add comments.
+	* testsuite/24_iterators/customization_points/iter_move.cc: Test
+	that iter_move is found by ADL and that rvalue arguments are
+	handled correctly.
+
+2025-04-16  Arsen Arsenović  <arsen@aarsen.me>
+
+	Backported from master:
+	2023-12-21  Arsen Arsenović  <arsen@aarsen.me>
+
+	* include/bits/ranges_util.h: Add missing <bits/invoke.h>
+	include.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-01-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/118093
+	* include/bits/atomic_futex.h (_M_load_and_test_until_impl):
+	Return false for times before the epoch.
+	* src/c++11/futex.cc (_M_futex_wait_until): Extend check for
+	negative times to check for subsecond times. Add unlikely
+	attribute.
+	(_M_futex_wait_until_steady): Likewise.
+	* testsuite/30_threads/future/members/118093.cc: New test.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-06-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/104395
+	* include/bits/new_allocator.h: Disable extended alignment
+	support in C++98 mode.
+	* include/ext/bitmap_allocator.h: Likewise.
+	* include/ext/malloc_allocator.h: Likewise.
+	* include/ext/mt_allocator.h: Likewise.
+	* include/ext/pool_allocator.h: Likewise.
+	* testsuite/ext/104395.cc: New test.
+
+2025-04-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-06-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/memory_resource.h (polymorphic_allocator::destroy):
+	Remove deprecated attribute.
+
+2025-04-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/21334
+	* doc/xml/manual/using.xml: Document that container data race
+	avoidance rules do not apply to COW std::string.
+	* doc/html/*: Regenerate.
+
+2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/119671
+	* include/std/format (__formatter_fp::format): Do not invalidate
+	__wstr unless _M_localized returns a valid string.
+	* testsuite/std/format/functions/format.cc: Check wide string
+	formatting of floating-point types with classic locale.
+
+2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101587
+	* include/bits/ranges_uninitialized.h (__detail::__mindist):
+	Remove.
+	(ranges::uninitialized_copy, ranges::uninitialized_copy_n)
+	(ranges::uninitialized_move, ranges::uninitialized_move_n): Use
+	comparison and assignment instead of __mindist.
+	* testsuite/20_util/specialized_algorithms/uninitialized_copy/constrained.cc:
+	Check with ranges that use integer-like class type for
+	difference type.
+	* testsuite/20_util/specialized_algorithms/uninitialized_move/constrained.cc:
+	Likewise.
+
+2025-04-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-03-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/101587
+	* include/bits/ranges_uninitialized.h (__detail::__mindist):
+	New function object.
+	(ranges::uninitialized_copy, ranges::uninitialized_copy_n)
+	(ranges::uninitialized_move, ranges::uninitialized_move_n): Use
+	__mindist instead of std::min.
+	* testsuite/20_util/specialized_algorithms/uninitialized_copy/constrained.cc:
+	Check ranges with difference difference types.
+	* testsuite/20_util/specialized_algorithms/uninitialized_move/constrained.cc:
+	Likewise.
+
 2025-04-02  Jonathan Wakely  <jwakely@redhat.com>
 
 	* include/std/bit (bit_cast): Use library trait instead of
