@@ -34,7 +34,8 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
   (void)utcb;
 
   __asm__ __volatile__
-    ("mov r5, %[sc]         \n"
+    (".type __l4_sys_syscall, #function\n"
+     "mov r5, %[sc]         \n"
      "blx __l4_sys_syscall  \n"
      :
      "+r" (_dest),
