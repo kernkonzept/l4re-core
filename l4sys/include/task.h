@@ -261,15 +261,30 @@ l4_task_cap_valid_u(l4_cap_idx_t task, l4_cap_idx_t cap, l4_utcb_t *utcb) L4_NOT
 
 /**
  * Test whether two capabilities point to the same object with the same
- *        rights.
+ * permissions (only considering selected permissions).
  * \ingroup l4_task_api
  *
- * \param task         Capability selector of the destination task to do the
- *                     lookup in
- * \param cap_a        Capability selector to compare
- * \param cap_b        Capability selector to compare
+ * \param task   Capability selector for the destination task to do the lookup
+ *               in.
+ * \param cap_a  Capability selector for the first capability to compare.
+ * \param cap_b  Capability selector for the second capability to compare.
  *
- * \return label contains 1 if equal, 0 if not equal
+ * \retval "l4_msgtag_t::label() = 1"  The compared capabilities point to the
+ *                                     same object with same considered
+ *                                     permission.
+ * \retval "l4_msgtag_t::label() = 0"  The compared capabilities do **not**
+ *                                     point to the same object or differ in
+ *                                     the considered permission.
+ *
+ * - For L4::Ipc_gate objects, only the permissions #L4_CAP_FPAGE_W,
+ *   #L4_CAP_FPAGE_S, and #L4_FPAGE_C_OBJ_RIGHT1 are considered for the
+ *   comparison. Differences in other permissions are ignored.
+ * - For other objects, only the permissions #L4_CAP_FPAGE_W and
+ *   #L4_CAP_FPAGE_S are considered for the comparison. Differences in other
+ *   permissions are ignored.
+ *
+ * Note that having the #L4_CAP_FPAGE_R permission is implicit in possessing
+ * the capability.
  */
 L4_INLINE l4_msgtag_t
 l4_task_cap_equal(l4_cap_idx_t task, l4_cap_idx_t cap_a,

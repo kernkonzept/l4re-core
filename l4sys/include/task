@@ -225,16 +225,28 @@ public:
 
   /**
    * Test whether two capabilities point to the same object with the same
-   * rights.
+   * permissions (only considering selected permissions).
    *
-   * \param cap_a  First capability selector to compare.
-   * \param cap_b  Second capability selector to compare.
+   * \param cap_a  Capability selector for the first capability to compare.
+   * \param cap_b  Capability selector for the second capability to compare.
    * \utcb_def{utcb}
    *
-   * \retval "l4_msgtag_t::label() = 1"  `cap_a` and `cap_b` point to the same
-   *                                     object.
-   * \retval "l4_msgtag_t::label() = 0"  The two caps do **not** point to the
-   *                                     same object.
+   * \retval "l4_msgtag_t::label() = 1"  The compared capabilities point to the
+   *                                     same object with same considered
+   *                                     permission.
+   * \retval "l4_msgtag_t::label() = 0"  The compared capabilities do **not**
+   *                                     point to the same object or differ in
+   *                                     the considered permission.
+   *
+   * - For L4::Ipc_gate objects, only the permissions #L4_CAP_FPAGE_W,
+   *   #L4_CAP_FPAGE_S, and #L4_FPAGE_C_OBJ_RIGHT1 are considered for the
+   *   comparison. Differences in other permissions are ignored.
+   * - For other objects, only the permissions #L4_CAP_FPAGE_W and
+   *   #L4_CAP_FPAGE_S are considered for the comparison. Differences in other
+   *   permissions are ignored.
+   *
+   * Note that having the #L4_CAP_FPAGE_R permission is implicit in possessing
+   * the capability.
    */
   l4_msgtag_t cap_equal(Cap<void> const &cap_a,
                         Cap<void> const &cap_b,
