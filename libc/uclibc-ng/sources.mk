@@ -27,6 +27,11 @@ TMPL_DIRS    := $(TMPL_DIRS-$(LIBC_BUILD_MODE))
 TMPL_MODULES := $(TMPL_MODULES-$(LIBC_BUILD_MODE))
 
 # CRT files
-NAME_crt1 = crt1.S
-NAME_crti = crti.S
-NAME_crtn = crtn.S
+NAME_crt1        = crt1.S
+NAME_crt1_shared = crt1.S
+NAME_crt1_reloc  = crt1.S
+NAME_crti        = crti.S
+NAME_crtn        = crtn.S
+
+DEFINES_crt1.s.o = -fPIE -DL_Scrt1
+DEFINES_crt1.p.o = -fPIE -DL_rcrt1

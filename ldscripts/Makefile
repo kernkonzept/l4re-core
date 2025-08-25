@@ -38,8 +38,6 @@ include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/sources.mk
 
 INSTALL_TARGET	= $(LD_SCRIPTS) crti.o crtn.o crt1.o crti.s.o crtn.s.o crt1.s.o crt1.p.o
-DEFINES_crt1.s.o = -fPIE -DL_Scrt1
-DEFINES_crt1.p.o = -fPIE -DL_rcrt1
 
 REQUIRES_LIBS_all_lib :=
 
@@ -52,21 +50,23 @@ PRIVATE_INCDIR    = $(PKGDIR) $(LIBC_SYSDEPS)
 
 $(eval $(call BID_MAKE_RULE_template, crti_s.o, $(NAME_crti),AS))
 $(eval $(call BID_MAKE_RULE_template, kip_addr.o, kip_addr.S,AS))
-$(eval $(call BID_MAKE_RULE_template, crt1.p.o, $(NAME_crt1),AS))
+$(eval $(call BID_MAKE_RULE_template, crt1.p.o, $(NAME_crt1_reloc),AS))
 
 $(eval $(call make_per_obj_vars,crti.s.o,crti.s.o,$(NAME_crti)))
 $(eval $(call make_per_obj_vars,crti_s.o,crti_s.o,$(NAME_crti)))
 $(eval $(call make_per_obj_vars,crt1.o,crt1.o,$(NAME_crt1)))
-$(eval $(call make_per_obj_vars,crt1.p.o,crt1.p.o,$(NAME_crt1)))
-$(eval $(call make_per_obj_vars,crt1.s.o,crt1.s.o,$(NAME_crt1)))
+$(eval $(call make_per_obj_vars,crt1.p.o,crt1.p.o,$(NAME_crt1_reloc)))
+$(eval $(call make_per_obj_vars,crt1.s.o,crt1.s.o,$(NAME_crt1_shared)))
 $(eval $(call make_per_obj_vars,crtn.o,crtn.o,$(NAME_crtn)))
 $(eval $(call make_per_obj_vars,crtn.s.o,crtn.s.o,$(NAME_crtn)))
 
 $(eval $(call make_per_obj_vars,crti.o,kip_addr.o,kip_addr.S))
 
-vpath $(NAME_crt1) $(LIBC_SYSDEPS)
-vpath $(NAME_crti) $(LIBC_SYSDEPS)
-vpath $(NAME_crtn) $(LIBC_SYSDEPS)
+vpath $(NAME_crt1)        $(LIBC_SYSDEPS)
+vpath $(NAME_crt1_reloc)  $(LIBC_SYSDEPS)
+vpath $(NAME_crt1_shared) $(LIBC_SYSDEPS)
+vpath $(NAME_crti)        $(LIBC_SYSDEPS)
+vpath $(NAME_crtn)        $(LIBC_SYSDEPS)
 
 DEFINES_kip_addr.o = -DL4_KIP_ADDR=$(L4_KIP_ADDR)
 
