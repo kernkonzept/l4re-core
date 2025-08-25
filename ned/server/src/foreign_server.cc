@@ -5,8 +5,10 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
+#include <limits.h>
 #include <pthread-l4.h>
 
+#include <l4/cxx/minmax>
 #include <l4/re/error_helper>
 #include <l4/sys/debugger.h>
 
@@ -98,7 +100,7 @@ Foreign_server::Foreign_server()
   pthread_attr_setschedpolicy(&attr, SCHED_L4);
   pthread_attr_setschedparam(&attr, &sp);
   pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-  pthread_attr_setstacksize(&attr, 0x1000);
+  pthread_attr_setstacksize(&attr, cxx::max<size_t>(0x1000, PTHREAD_STACK_MIN));
 
   int r = pthread_create(&_th, &attr, &__run, this);
   if (r)
