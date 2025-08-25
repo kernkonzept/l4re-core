@@ -11,7 +11,7 @@
 
 namespace L4Re { namespace Util {
 
-static FILE *&out = stdout;
+static FILE *const &out = stdout;
 #ifndef NDEBUG
 unsigned long Dbg::level = 1;
 
