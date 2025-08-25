@@ -22,6 +22,7 @@ struct Prog_start_info
   l4_umword_t dyn_exec_entry;
   l4_umword_t dyn_phdrs;
   l4_umword_t dyn_num_phdrs;
+  l4_umword_t dyn_phdr_size;
   l4_umword_t dyn_interp_base;
 
   l4_addr_t   ldr_base = -1;      /// Load address forwarded to ITAS aux vec
@@ -285,6 +286,9 @@ Loader<App_model_, Dbg_>::launch(App_model *am, Const_dataspace bin,
 
       stack.push(l4_umword_t(am->prog_info()->dyn_num_phdrs));
       stack.push(l4_umword_t(AT_PHNUM));
+
+      stack.push(l4_umword_t(am->prog_info()->dyn_phdr_size));
+      stack.push(l4_umword_t(AT_PHENT));
     }
 
   if (am->prog_info()->dyn_exec_entry)

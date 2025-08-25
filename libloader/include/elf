@@ -686,6 +686,7 @@ public:
         Prog_start_info *i = mm->prog_info();
         i->dyn_phdrs = dyn_info.phdrs + _base;
         i->dyn_num_phdrs = elf.num_phdrs();
+        i->dyn_phdr_size = elf.ehdr()->phdr_size();
       }
 
     // Load the interpreter
