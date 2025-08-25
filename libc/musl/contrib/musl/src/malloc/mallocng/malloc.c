@@ -71,7 +71,7 @@ struct meta *alloc_meta(void)
 				ctx.brk = -1;
 			} else {
 				if (need_guard) mmap((void *)ctx.brk, pagesize,
-					PROT_NONE, MAP_ANON|MAP_PRIVATE|MAP_FIXED, -1, 0);
+					PROT_READ | PROT_WRITE, MAP_ANON|MAP_PRIVATE|MAP_FIXED, -1, 0);
 				ctx.brk = new;
 				ctx.avail_meta_areas = (void *)(new - pagesize);
 				ctx.avail_meta_area_count = pagesize>>12;
@@ -81,7 +81,7 @@ struct meta *alloc_meta(void)
 #endif
 		if (!ctx.avail_meta_area_count) {
 			size_t n = 2UL << ctx.meta_alloc_shift;
-			p = mmap(0, n*pagesize, PROT_NONE,
+			p = mmap(0, n*pagesize, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE|MAP_ANON, -1, 0);
 			if (p==MAP_FAILED) return 0;
 			ctx.avail_meta_areas = p + pagesize;
