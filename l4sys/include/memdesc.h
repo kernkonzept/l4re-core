@@ -49,7 +49,11 @@ enum l4_mem_type_t
  */
 enum l4_mem_info_sub_type_t
 {
-  l4_mem_info_acpi_rsdp = 0 /**< Physical address of the ACPI root pointer. */
+  l4_mem_info_acpi_rsdp = 0, /**< Physical address of the ACPI root pointer. */
+
+  l4_mem_reserved_kernel = 0, /**< Kernel image. */
+  l4_mem_reserved_heap   = 1, /**< Kernel heap. */
+  l4_mem_reserved_mmio   = 2, /**< MMIO range reserved by kernel. */
 };
 
 /**

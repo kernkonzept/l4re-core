@@ -63,7 +63,11 @@ namespace L4
        */
       enum Info_sub_type
       {
-        Info_acpi_rsdp = 0  ///< Physical address of the ACPI root pointer.
+        Info_acpi_rsdp = 0, ///< Physical address of the ACPI root pointer.
+
+        Reserved_kernel = 0, ///< Kernel image.
+        Reserved_heap   = 1, ///< Kernel heap.
+        Reserved_mmio   = 2, ///< MMIO range reserved by kernel.
       };
 
       /**
