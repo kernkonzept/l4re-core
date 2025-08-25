@@ -1024,7 +1024,7 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
 int
 Vfs::mprotect(const void * /* a */, size_t /* sz */, int prot) L4_NOTHROW
 {
-  return (prot & PROT_WRITE) ? -1 : 0;
+  return (prot & PROT_WRITE) ? -ENOSYS : 0;
 }
 
 int
