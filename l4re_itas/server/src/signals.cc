@@ -200,6 +200,10 @@ Thread_signal_handler::op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
         case Exc_cause::Ex_regs:
           // We interrupted the thread to dispatch pending asynchronous
           // signals.
+
+          if (_thread_stopped)
+            return -L4_ENOREPLY;
+
           break;
         }
     }
@@ -470,6 +474,8 @@ Thread_signal_handler::call_default_action(siginfo_t const &si,
     {
       Err err(Err::Fatal);
 
+      _mgr->stop_all_threads();
+
       err.printf("Fatal signal: %s (si_signo=%d, si_code=%d)\n",
                  strsignal(si.si_signo), si.si_signo, si.si_code);
 
@@ -613,6 +619,14 @@ Thread_signal_handler::needs_signal_delivery() const
   return !pending.empty();
 }
 
+void
+Thread_signal_handler::stop_thread()
+{
+  _thread_stopped = true;
+  _thread->ex_regs(~0UL, ~0UL,
+                   L4_THREAD_EX_REGS_CANCEL | L4_THREAD_EX_REGS_TRIGGER_EXCEPTION);
+}
+
 /***************************************************************************/
 
 void
@@ -656,6 +670,13 @@ Interval_timer::clear_timer()
 }
 
 /***************************************************************************/
+
+void
+Signal_manager::stop_all_threads()
+{
+  for (auto &it : _threads)
+    it.second->stop_thread();
+}
 
 bool
 Signal_manager::send_process_signal(int signum)

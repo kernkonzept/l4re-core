@@ -198,6 +198,8 @@ public:
 
   void interrupt_thread();
 
+  void stop_thread();
+
 private:
   void return_from_signal(l4_exc_regs_t &regs);
   l4_ret_t deliver_pending_signals(l4_exc_regs_t &regs);
@@ -230,6 +232,7 @@ private:
   Sig_set _sig_block;
   Pending_signal_list _pending;
   struct sigaltstack _altstack;
+  bool _thread_stopped = false;
 };
 
 /**
@@ -340,6 +343,8 @@ public:
   long op_raise(L4Re::Itas::Rights,
                 L4::Ipc::Snd_fpage thread,
                 int sig);
+
+  void stop_all_threads();
 
 private:
   Thread_signal_handler *handler(L4::Ipc::Snd_fpage thread);
