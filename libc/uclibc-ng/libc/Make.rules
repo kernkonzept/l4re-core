@@ -70,7 +70,8 @@ CPPFLAGS_libc-tls.cc += $(LDSO_INC)
 CPPFLAGS_dl-tls.c += $(LDSO_INC)
 
 $(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/libc/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
-                  $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk
+                  $(LIBCSRC_DIR)/make_vars.mk $(LIBCSRC_DIR)/make_rules.mk \
+                  $(LIBCSRC_DIR)/sources.mk
 
 # Gather all libraries that shall be linked into libc. We need to search them
 # explicitly because no linker is involved here. Only take the first hit, like
