@@ -48,9 +48,13 @@ include $(L4DIR)/mk/lib.mk
 LIBC_SYSDEPS    = $(CONTRIB_SYSDEPS)/$(LIBC_ARCH)
 PRIVATE_INCDIR    = $(PKGDIR) $(LIBC_SYSDEPS)
 
-$(eval $(call BID_MAKE_RULE_template, crti_s.o, $(NAME_crti),AS))
-$(eval $(call BID_MAKE_RULE_template, kip_addr.o, kip_addr.S,AS))
-$(eval $(call BID_MAKE_RULE_template, crt1.p.o, $(NAME_crt1_reloc),AS))
+define LDSCRIPT_MAKE_RULE_template
+  $(call BID_MAKE_RULE_template,$1,$2,$(if $(filter %.c,$2),C,AS))
+endef
+
+$(eval $(call LDSCRIPT_MAKE_RULE_template, crti_s.o, $(NAME_crti)))
+$(eval $(call LDSCRIPT_MAKE_RULE_template, kip_addr.o, kip_addr.S))
+$(eval $(call LDSCRIPT_MAKE_RULE_template, crt1.p.o, $(NAME_crt1_reloc)))
 
 $(eval $(call make_per_obj_vars,crti.s.o,crti.s.o,$(NAME_crti)))
 $(eval $(call make_per_obj_vars,crti_s.o,crti_s.o,$(NAME_crti)))
