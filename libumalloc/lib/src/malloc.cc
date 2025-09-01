@@ -1001,7 +1001,7 @@ static void *realloc(void *ptr, size_t size)
  *
  * \return Valid allocated memory or nullptr if the allocation failed.
  */
-void *malloc(size_t size) noexcept
+void *malloc(size_t size)
 {
   auto ptr = umalloc::alloc(size);
   if (!ptr)
@@ -1018,7 +1018,7 @@ void *malloc(size_t size) noexcept
  *
  * \return Valid allocated memory or nullptr if the allocation failed.
  */
-void *aligned_alloc(size_t alignment, size_t size) noexcept
+void *aligned_alloc(size_t alignment, size_t size)
 {
   auto ptr = umalloc::alloc(size, alignment);
   if (!ptr)
@@ -1032,7 +1032,7 @@ void *aligned_alloc(size_t alignment, size_t size) noexcept
  *
  * \param ptr  Previously allocated valid memory.
  */
-void free(void *ptr) noexcept
+void free(void *ptr)
 {
   if (ptr)
     umalloc::dealloc(ptr);
@@ -1046,7 +1046,7 @@ void free(void *ptr) noexcept
  *
  * \return Valid allocated memory or nullptr if the allocation failed.
  */
-void *calloc(size_t nmemb, size_t size) noexcept
+void *calloc(size_t nmemb, size_t size)
 {
   // Avoid multiplication overflow.
   if ((size > 0) && (nmemb > std::numeric_limits<typeof(nmemb)>::max() / size))
@@ -1073,7 +1073,7 @@ void *calloc(size_t nmemb, size_t size) noexcept
  * \return Valid reallocated memory or nullptr if the reallocation failed.
  *         (in which case the previously allocated memory is not touched).
  */
-void *realloc(void *ptr, size_t size) noexcept
+void *realloc(void *ptr, size_t size)
 {
   if (!ptr)
     return malloc(size);
