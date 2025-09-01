@@ -62,6 +62,7 @@ static void *__simple_malloc(size_t n)
 	if (n > end-cur) {
 		size_t req = n - (end-cur) + PAGE_SIZE-1 & -PAGE_SIZE;
 
+#ifdef NOT_FOR_L4
 		if (!cur) {
 			brk = __syscall(SYS_brk, 0);
 			brk += -brk & PAGE_SIZE-1;
@@ -72,6 +73,9 @@ static void *__simple_malloc(size_t n)
 		    && !traverses_stack_p(brk, brk+req)
 		    && __syscall(SYS_brk, brk+req)==brk+req) {
 			brk = end += req;
+#else
+		if (0) {
+#endif
 		} else {
 			int new_area = 0;
 			req = n + PAGE_SIZE-1 & -PAGE_SIZE;

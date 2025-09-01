@@ -55,6 +55,7 @@ struct meta *alloc_meta(void)
 	if ((m = dequeue_head(&ctx.free_meta_head))) return m;
 	if (!ctx.avail_meta_count) {
 		int need_unprotect = 1;
+#ifdef NOT_FOR_L4
 		if (!ctx.avail_meta_area_count && ctx.brk!=-1) {
 			uintptr_t new = ctx.brk + pagesize;
 			int need_guard = 0;
@@ -77,6 +78,7 @@ struct meta *alloc_meta(void)
 				need_unprotect = 0;
 			}
 		}
+#endif
 		if (!ctx.avail_meta_area_count) {
 			size_t n = 2UL << ctx.meta_alloc_shift;
 			p = mmap(0, n*pagesize, PROT_NONE,
