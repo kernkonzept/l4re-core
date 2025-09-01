@@ -63,7 +63,7 @@ gen_search_path = $(LIBC_DST_DIR)/src/$(1)/$(LIBC_ARCH) \
                   $(LIBC_DST_DIR)/src/$(1) $(LIBC_DST_DIR)/$(1)
 
 # search for a .c, a .S, or a .cc file for the given basename
-search_source_file = $(or $(firstword $(foreach d,$(1),$(wildcard $(d)/$(2).[cSs] $(d)/$(2).cc))), \
+search_source_file = $(or $(firstword $(foreach d,$(1),$(wildcard $(d)/$(2)) $(wildcard $(d)/$(2).[cSs] $(d)/$(2).cc))), \
                           $(error source file for $(2) not found in '$1'))
 
 # arg 1: directory of the subsystem (e.g., libc/string)
