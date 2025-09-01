@@ -10,7 +10,7 @@
 #include <l4/sys/types.h>
 
 #include <l4/re/util/region_mapping>
-#include <l4/re/util/region_mapping_svr_2>
+#include <l4/re/util/region_mapping_svr>
 #include <l4/sys/cxx/ipc_epiface>
 
 #include "dataspace.h"

@@ -11,7 +11,7 @@
 #include <l4/sys/exception>
 #include <l4/sys/cxx/ipc_epiface>
 #include <l4/re/dataspace>
-#include <l4/re/util/region_mapping_svr_2>
+#include <l4/re/util/region_mapping_svr>
 #include <l4/re/debug>
 #include "debug.h"
 #include <stdlib.h>
