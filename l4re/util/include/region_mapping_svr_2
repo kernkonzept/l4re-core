@@ -57,7 +57,10 @@ public:
     typename DERIVED::Region_handler handler(ds, client_cap_idx, offs, r_flags);
     start = l4_addr_t(rm()->attach(reinterpret_cast<void*>(start), size,
                                    handler, a_flags, align,
-                                   name.data, name.length, backing_offset));
+                                   name.data,
+                                   // L4::Ipc::String includes terminating '\0'
+                                   name.length ? name.length - 1 : 0,
+                                   backing_offset));
 
     if (start == L4_INVALID_ADDR)
       return -L4_EADDRNOTAVAIL;
