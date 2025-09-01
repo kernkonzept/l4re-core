@@ -38,6 +38,8 @@ include $(LIBCSRC_DIR)/make_vars.mk
 include $(LIBCSRC_DIR)/sources.mk
 
 INSTALL_TARGET	= $(LD_SCRIPTS) crti.o crtn.o crt1.o crti.s.o crtn.s.o crt1.s.o crt1.p.o
+DEFINES_crt1.s.o += -fPIE
+DEFINES_crt1.p.o += -fPIE
 
 REQUIRES_LIBS_all_lib :=
 

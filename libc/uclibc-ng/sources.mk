@@ -33,5 +33,5 @@ NAME_crt1_reloc  = crt1.S
 NAME_crti        = crti.S
 NAME_crtn        = crtn.S
 
-DEFINES_crt1.s.o = -fPIE -DL_Scrt1
-DEFINES_crt1.p.o = -fPIE -DL_rcrt1
+DEFINES_crt1.s.o += -DL_Scrt1
+DEFINES_crt1.p.o += -DL_rcrt1
