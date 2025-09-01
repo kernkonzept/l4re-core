@@ -37,4 +37,14 @@
 
 #define __REDIR(x,y) __typeof__(x) x __asm__(#y)
 
+// Until musl provides proper support for _LARGEFILE64_SOURCE, they decided to
+// disable the _GNU_SOURCE -> _LARGEFILE64_SOURCE implication, because they
+// dislike their current hacky macro solution of the LFS functions.
+// For details see musl commit 25e6fee27f4a293728dd15b659170e7b9c7db9bc.
+// We rely on the implication, so we add it here.
+#ifdef _GNU_SOURCE
+#undef _LARGEFILE64_SOURCE
+#define _LARGEFILE64_SOURCE 1
+#endif
+
 #endif
