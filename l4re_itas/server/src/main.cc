@@ -109,6 +109,8 @@ static void insert_regions()
           name.data   = name_buf;
           if (L4Re::Env::env()->rm()->get_info(r->start, name, backing_offset))
             name.length = 0;
+          else if (name.length > 0) // L4::Ipc::String carries a terminating '\0'
+            --name.length;
 #endif
 
           Rm::F::Flags flags = r->flags;
