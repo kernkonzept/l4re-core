@@ -392,7 +392,8 @@ public:
 
         unsigned long sz = dr.end() + 1 - g.start();
         Item &cn = const_cast<Item &>(*r);
-        cn.first = Region(dr.end() + 1, g.end());
+        cn.first = Region(dr.end() + 1, g.end(), g.name(), g.name_len(),
+                          g.backing_offset() + sz);
         cn.second = cn.second + sz;
         if (hdlr)
           *hdlr = Hdlr();
@@ -412,7 +413,8 @@ public:
           h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
 
         Item &cn = const_cast<Item &>(*r);
-        cn.first = Region(g.start(), dr.start() - 1);
+        cn.first = Region(g.start(), dr.start() - 1, g.name(), g.name_len(),
+                          g.backing_offset());
         if (hdlr)
           *hdlr = Hdlr();
         if (reg)
@@ -432,14 +434,17 @@ public:
 
         // first move the end off the existing region before the new one
         Item &cn = const_cast<Item &>(*r);
-        cn.first = Region(g.start(), dr.start()-1);
+        cn.first = Region(g.start(), dr.start()-1, g.name(), g.name_len(),
+                          g.backing_offset());
 
         int err;
 
         // insert a second region for the remaining tail of
         // the old existing region
-        err = _rm.insert(Region(dr.end() + 1, g.end()),
-                         h + (dr.end() + 1 - g.start())).second;
+        auto tail_sz = dr.end() + 1 - g.start();
+        err = _rm.insert(Region(dr.end() + 1, g.end(), g.name(), g.name_len(),
+                                g.backing_offset() + tail_sz),
+                         h + tail_sz).second;
 
         if (err)
           return err;
