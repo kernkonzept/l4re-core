@@ -69,30 +69,6 @@ typedef struct
   uintptr_t sysinfo;
   uintptr_t stack_guard;
   uintptr_t pointer_guard;
-  unsigned long int vgetcpu_cache[2];
-# ifndef __ASSUME_PRIVATE_FUTEX
-  int private_futex;
-# else
-  int __uclibc_unused1;
-# endif
-# if __WORDSIZE == 64
-  int rtld_must_xmm_save;
-# endif
-  /* Reservation of some values for the TM ABI.  */
-  void *__private_tm[5];
-# if __WORDSIZE == 64
-  long int __uclibc_unused2;
-  // l4 -- rtld_savespace_sse is never used but don't change the layout of
-  //       tcbhead_t to be on the safe side.
-# if 0
-  /* Have space for the post-AVX register size.  */
-  __m128 rtld_savespace_sse[8][4];
-# else
-  long int __uclibc_unused3[16][4];
-# endif
-
-  void *__padding[8];
-# endif
 } tcbhead_t;
 
 #else /* __ASSEMBLER__ */
@@ -432,41 +408,6 @@ static inline char const *TLS_INIT_TP(void *thrdescr, int secondcall)
   THREAD_SETMEM (THREAD_SELF, header.gscope_flag, THREAD_GSCOPE_FLAG_USED)
 # define THREAD_GSCOPE_WAIT() \
   GL(dl_wait_lookup_done) ()
-
-
-# ifdef SHARED
-/* Defined in dl-trampoline.S.  */
-extern void _dl_x86_64_save_sse (void);
-extern void _dl_x86_64_restore_sse (void);
-
-# define RTLD_CHECK_FOREIGN_CALL \
-  (THREAD_GETMEM (THREAD_SELF, header.rtld_must_xmm_save) != 0)
-
-/* NB: Don't use the xchg operation because that would imply a lock
-   prefix which is expensive and unnecessary.  The cache line is also
-   not contested at all.  */
-#  define RTLD_ENABLE_FOREIGN_CALL \
-  int old_rtld_must_xmm_save = THREAD_GETMEM (THREAD_SELF,		      \
-					      header.rtld_must_xmm_save);     \
-  THREAD_SETMEM (THREAD_SELF, header.rtld_must_xmm_save, 1)
-
-#  define RTLD_PREPARE_FOREIGN_CALL \
-  do if (THREAD_GETMEM (THREAD_SELF, header.rtld_must_xmm_save))	      \
-    {									      \
-      _dl_x86_64_save_sse ();						      \
-      THREAD_SETMEM (THREAD_SELF, header.rtld_must_xmm_save, 0);	      \
-    }									      \
-  while (0)
-
-#  define RTLD_FINALIZE_FOREIGN_CALL \
-  do {									      \
-    if (THREAD_GETMEM (THREAD_SELF, header.rtld_must_xmm_save) == 0)	      \
-      _dl_x86_64_restore_sse ();					      \
-    THREAD_SETMEM (THREAD_SELF, header.rtld_must_xmm_save,		      \
-		   old_rtld_must_xmm_save);				      \
-  } while (0)
-# endif
-
 
 #endif /* __ASSEMBLER__ */
 

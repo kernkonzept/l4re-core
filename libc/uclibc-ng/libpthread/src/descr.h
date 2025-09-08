@@ -105,11 +105,6 @@ struct pthread
     {
       int multiple_threads;
       int gscope_flag;
-# ifndef CONFIG_L4
-# ifndef __ASSUME_PRIVATE_FUTEX
-      int private_futex;
-# endif
-# endif
     } header;
 #endif
 
