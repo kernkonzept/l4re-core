@@ -1,4 +1,4 @@
 provides: ldscripts
-requires: compiler-rt-crt
+requires: compiler-rt-crt libc-headers
 source-pkg: libc
 maintainer: warg@os.inf.tu-dresden.de
