@@ -757,7 +757,7 @@ int __pthread_start_manager(pthread_descr mgr)
   int err;
 
   // This succeeds because of adding UTCBs in __pthread_initialize_minimal().
-  mgr->p_tid = claim_unused_utcb();
+  mgr->p_tid = thread_id(claim_unused_utcb());
 
   err = __pthread_mgr_create_thread(mgr, &__pthread_manager_thread_tos,
                                     __pthread_manager, -1, 0, l4_sched_cpu_set(0, ~0, 1));
@@ -833,7 +833,7 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
       return EAGAIN;
     }
 
-  new_thread_id = new_utcb;
+  new_thread_id = thread_id(new_utcb);
 
   if (pthread_allocate_stack(attr, thread_segment(sseg),
                              pagesize, &stack_addr, &new_thread_bottom,
@@ -924,7 +924,7 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
   /* Make the new thread ID available already now.  If any of the later
      functions fail we return an error value and the caller must not use
      the stored thread ID.  */
-  creator->p_retval = new_thread_id;
+  creator->p_retval = reinterpret_cast<void *>(new_thread_id);
   /* Do the cloning.  We have to use two different functions depending
      on whether we are debugging or not.  */
   err =  __pthread_mgr_create_thread(new_thread, &stack_addr,
@@ -997,8 +997,8 @@ static void pthread_free(pthread_descr th)
   /* Make the handle invalid */
   handle =  thread_handle(th->p_tid);
   __pthread_lock(handle_to_lock(handle), NULL);
-  assert(th->p_tid != NULL);
-  th->p_tid = NULL;
+  assert(th->p_tid != 0);
+  th->p_tid = 0;
   mgr_free_utcb(handle);
   __pthread_unlock(handle_to_lock(handle));
 

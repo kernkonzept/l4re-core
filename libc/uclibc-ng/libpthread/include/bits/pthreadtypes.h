@@ -157,6 +157,6 @@ typedef struct {
 
 
 /* Thread identifiers */
-typedef void *pthread_t;
+typedef unsigned long pthread_t;
 
 #endif	/* bits/pthreadtypes.h */

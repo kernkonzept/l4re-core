@@ -187,6 +187,11 @@ static __inline__ pthread_handle thread_handle(pthread_t id)
   return (l4_utcb_t*)id; //&__pthread_handles[id % PTHREAD_THREADS_MAX];
 }
 
+static __inline__ pthread_t thread_id(pthread_handle h)
+{
+  return (pthread_t)h;
+}
+
 static inline pthread_descr handle_to_descr(pthread_handle h)
 { return (pthread_descr)(l4_utcb_tcr_u(h)->user[0]); }
 
@@ -197,7 +202,7 @@ static inline struct _pthread_fastlock *handle_to_lock(pthread_handle h)
 
 static __inline__ int invalid_handle(pthread_handle h, pthread_t id)
 {
-  return h != id || handle_to_descr(h) == NULL
+  return h != thread_handle(id) || handle_to_descr(h) == NULL
     || handle_to_descr(h)->p_tid != id || handle_to_descr(h)->p_terminated;
 }
 
