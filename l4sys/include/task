@@ -258,7 +258,7 @@ public:
    *
    * \param[in,out] fpage  Flexpage describing the virtual area the memory goes
    *                       to. On systems without MMU, the flexpage is adjusted
-   *                       to reflect the acually allocated physical address.
+   *                       to reflect the actually allocated physical address.
    * \utcb_def{utcb}
    *
    * \return Syscall return tag
