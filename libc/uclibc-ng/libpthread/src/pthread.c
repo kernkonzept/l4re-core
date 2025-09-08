@@ -768,54 +768,6 @@ __pthread_equal(pthread_t thread1, pthread_t thread2)
 strong_alias (__pthread_equal, pthread_equal)
 
 #ifdef NOT_FOR_L4
-/* Helper function for thread_self in the case of user-provided stacks */
-
-#ifndef THREAD_SELF
-
-pthread_descr
-attribute_hidden internal_function
-__pthread_find_self(void)
-{
-  char * sp = CURRENT_STACK_FRAME;
-  pthread_handle h;
-
-  /* __pthread_handles[0] is the initial thread, __pthread_handles[1] is
-     the manager threads handled specially in thread_self(), so start at 2 */
-  h = __pthread_handles + 2;
-# ifdef _STACK_GROWS_UP
-  while (! (sp >= (char *) h->h_descr && sp < (char *) h->h_descr->p_guardaddr)) h++;
-# else
-  while (! (sp <= (char *) h->h_descr && sp >= h->h_bottom)) h++;
-# endif
-  return h->h_descr;
-}
-
-#else
-
-pthread_descr
-attribute_hidden internal_function
-__pthread_self_stack(void)
-{
-  char *sp = CURRENT_STACK_FRAME;
-  pthread_handle h;
-
-  if (sp >= __pthread_manager_thread_bos && sp < __pthread_manager_thread_tos)
-    return manager_thread;
-  h = __pthread_handles + 2;
-# ifdef _STACK_GROWS_UP
-  while (h->h_descr == NULL
-	 || ! (sp >= h->h_descr->p_stackaddr && sp < h->h_descr->p_guardaddr))
-    h++;
-# else
-  while (h->h_descr == NULL
-	 || ! (sp <= (char *) h->h_descr->p_stackaddr && sp >= h->h_bottom))
-    h++;
-# endif
-  return h->h_descr;
-}
-
-#endif
-
 /* Thread scheduling */
 
 int

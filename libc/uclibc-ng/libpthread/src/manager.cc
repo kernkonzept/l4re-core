@@ -63,12 +63,6 @@ extern "C" {
 
 extern "C" void __pthread_new_thread_entry(void);
 
-#ifndef THREAD_SELF
-/* Indicate whether at least one thread has a user-defined stack (if 1),
-   or if all threads have stacks supplied by LinuxThreads (if 0). */
-int __pthread_nonstandard_stacks;
-#endif
-
 /* Number of active entries in __pthread_handles (used by gdb) */
 __volatile__ int __pthread_handles_num = 2;
 
@@ -136,9 +130,7 @@ __pthread_manager(void *arg)
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
 #endif
   /* If we have special thread_self processing, initialize it.  */
-#ifdef INIT_THREAD_SELF
   INIT_THREAD_SELF(self, 1);
-#endif
   /* Raise our priority to match that of main thread */
   __pthread_manager_adjust_prio(__pthread_main_thread->p_priority);
 
@@ -248,9 +240,7 @@ int __pthread_manager_event(void *arg)
 {
   pthread_descr self = (pthread_descr)arg;
   /* If we have special thread_self processing, initialize it.  */
-#ifdef INIT_THREAD_SELF
   INIT_THREAD_SELF(self, 1);
-#endif
 
   /* Get the lock the manager will free once all is correctly set up.  */
   __pthread_lock (THREAD_GETMEM(self, p_lock), NULL);
@@ -285,9 +275,8 @@ pthread_start_thread(void *arg)
   hp_timing_t tmpclock;
 #endif
   /* Initialize special thread_self processing, if any.  */
-#ifdef INIT_THREAD_SELF
   INIT_THREAD_SELF(self, self->p_nr);
-#endif
+
 #if HP_TIMING_AVAIL
   HP_TIMING_NOW (tmpclock);
   THREAD_SETMEM (self, p_cpuclock_offset, tmpclock);
@@ -334,9 +323,8 @@ pthread_start_thread_event(void *arg)
 {
   pthread_descr self = (pthread_descr) arg;
 
-#ifdef INIT_THREAD_SELF
   INIT_THREAD_SELF(self, self->p_nr);
-#endif
+
   /* Make sure our pid field is initialized, just in case we get there
      before our father has initialized it. */
   THREAD_SETMEM(self, p_pid, __getpid());
@@ -409,9 +397,6 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       new_thread_bottom = (char *) attr->__stackaddr - attr->__stacksize;
       guardaddr = new_thread_bottom;
       guardsize = 0;
-#endif
-#ifndef THREAD_SELF
-      __pthread_nonstandard_stacks = 1;
 #endif
       stacksize = attr->__stacksize;
     }

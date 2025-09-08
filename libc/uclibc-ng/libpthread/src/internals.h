@@ -614,7 +614,6 @@ static inline pthread_descr
 check_thread_self (void)
 {
   pthread_descr self = thread_self ();
-#if defined THREAD_SELF && defined INIT_THREAD_SELF
   if (self == __manager_thread)
     {
       /* A new thread might get a cancel signal before it is fully
@@ -626,7 +625,6 @@ check_thread_self (void)
 	/* Oops, thread_self() isn't working yet..  */
 	INIT_THREAD_SELF(self, self->p_nr);
     }
-#endif
   return self;
 }
 
