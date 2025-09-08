@@ -35,9 +35,17 @@
 #include <l4/sys/ipc.h>
 
 #ifdef USE_TLS
-#include <tls.h>
+# include <tls.h>
 #endif
+
 #include "descr.h"
+
+#ifndef USE_TLS
+# error "Libpthread without USE_TLS not supported!"
+#endif
+#ifndef HAVE___THREAD
+# error "Libpthread without threads is not supported"
+#endif
 
 #include "semaphore.h"
 extern int * __libc_pthread_init (void);
@@ -555,11 +563,7 @@ extern pid_t __pthread_fork (struct fork_block *b) L4_HIDDEN;
 __END_DECLS
 
 
-#ifndef USE_TLS
-# define __manager_thread (&__pthread_manager_thread)
-#else
-# define __manager_thread __pthread_manager_threadp
-#endif
+#define __manager_thread __pthread_manager_threadp
 
 
 static inline int __pthread_getprio(int policy, int prio);

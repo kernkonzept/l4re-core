@@ -89,11 +89,7 @@ static void pthread_handle_sigcancel(void)
     /* Main thread should accumulate times for thread manager and its
        children, so that timings for main thread account for all threads. */
     if (self == __pthread_main_thread) {
-#ifdef USE_TLS
       waitpid(manager_thread->p_pid, NULL, __WCLONE);
-#else
-      waitpid(__pthread_manager_thread.p_pid, NULL, __WCLONE);
-#endif
     }
 #endif
     _exit(__pthread_exit_code);

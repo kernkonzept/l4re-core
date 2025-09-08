@@ -148,14 +148,6 @@ struct pthread
   char p_canceled;              /* cancellation request pending */
   struct pthread_start_args p_start_args; /* arguments for thread creation */
   void ** p_specific[PTHREAD_KEY_1STLEVEL_SIZE]; /* thread-specific data */
-#if !(USE_TLS && HAVE___THREAD)
-  void * p_libc_specific[_LIBC_TSD_KEY_N]; /* thread-specific data for libc */
-  int * p_errnop;               /* pointer to used errno variable */
-  int p_errno;                  /* error returned by last system call */
-  int * p_h_errnop;             /* pointer to used h_errno variable */
-  int p_h_errno;                /* error returned by last netdb function */
-  struct __res_state *p_resp;	/* Pointer to resolver state */
-#endif
   struct __res_state p_res;	/* per-thread resolver state */
   int p_userstack;		/* nonzero if the user provided the stack */
   void *p_guardaddr;		/* address of guard area or NULL */
@@ -170,9 +162,7 @@ struct pthread
   pthread_readlock_info *p_readlock_free;  /* Free list of structs */
   int p_untracked_readlock_count;	/* Readlocks not tracked by list */
   int p_inheritsched;           /* copied from the thread attribute */
-#ifdef USE_TLS
   char *p_stackaddr;		/* Stack address.  */
-#endif
   size_t p_alloca_cutoff;	/* Maximum size which should be allocated
 				   using alloca() instead of malloc().  */
   /* New elements must be added at the end.  */
@@ -206,9 +196,8 @@ extern pthread_descr __pthread_manager_threadp L4_HIDDEN;
 
 extern int __pthread_nonstandard_stacks;
 
-/* The max size of the thread stack segments.  If the default
-   THREAD_SELF implementation is used, this must be a power of two and
-   a multiple of PAGE_SIZE.  */
+/* The max size of the thread stack segments.  This must be a power of two and a
+   multiple of PAGE_SIZE.  */
 #ifndef STACK_SIZE
 #define STACK_SIZE  (2 * 1024 * 1024)
 #endif

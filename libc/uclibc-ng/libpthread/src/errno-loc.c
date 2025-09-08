@@ -22,32 +22,14 @@
 #include "internals.h"
 #include <pt-machine.h>
 //#include <sysdep-cancel.h>
-#if defined USE_TLS && USE_TLS
-#define USE___THREAD 1
-#endif
 
 #define SINGLE_THREAD_P \
   __builtin_expect (THREAD_GETMEM (thread_self(),				      \
 				   p_header.data.multiple_threads) == 0, 1)
 
-#if ! USE___THREAD && !RTLD_PRIVATE_ERRNO
-#undef errno
-extern int errno;
-#endif
-
 int *
-#if ! USE___THREAD
-weak_const_function
-#endif
 __errno_location (void)
 {
-#if ! USE___THREAD && !defined NOT_IN_libc
-  if (! SINGLE_THREAD_P)
-    {
-      pthread_descr self = thread_self();
-      return LIBC_THREAD_GETMEM (self, p_errnop);
-    }
-#endif
   return &errno;
 }
 libc_hidden_def (__errno_location)

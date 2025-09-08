@@ -299,19 +299,10 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
   attr->__scope = PTHREAD_SCOPE_SYSTEM;
 
 #ifdef _STACK_GROWS_DOWN
-# ifdef USE_TLS
   attr->__stacksize = descr->p_stackaddr - (char *)descr->p_guardaddr
 		      - descr->p_guardsize;
-# else
-  attr->__stacksize = (char *)(descr + 1) - (char *)descr->p_guardaddr
-		      - descr->p_guardsize;
-# endif
 #else
-# ifdef USE_TLS
   attr->__stacksize = (char *)descr->p_guardaddr - descr->p_stackaddr;
-# else
-  attr->__stacksize = (char *)descr->p_guardaddr - (char *)descr;
-# endif
 #endif
   attr->__guardsize = descr->p_guardsize;
   attr->__stackaddr_set = descr->p_userstack;
@@ -323,23 +314,11 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
      otherwise the range of the stack area cannot be computed.  */
   attr->__stacksize += attr->__guardsize;
 #endif
-#ifdef USE_TLS
   attr->__stackaddr = descr->p_stackaddr;
-#else
-# ifndef _STACK_GROWS_UP
-  attr->__stackaddr = (char *)(descr + 1);
-# else
-  attr->__stackaddr = (char *)descr;
-# endif
-#endif
 
 
 #ifdef NOT_FOR_L4 // XXX: fix for initial thread
-#ifdef USE_TLS
   if (attr->__stackaddr == NULL)
-#else
-  if (descr == &__pthread_initial_thread)
-#endif
     {
       /* Stack size limit.  */
       struct rlimit rl;
