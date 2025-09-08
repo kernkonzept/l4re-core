@@ -188,7 +188,7 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
 
     case L4::Scheduler::Protocol:
         {
-          if (!_sched_prio_limit)
+          if (!_is_root)
             return -L4_ENODEV;
 
           L4::Ipc::Varg p_max  = args.pop_front(),
@@ -198,8 +198,8 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           if (!p_max.is_of_int() || !p_base.is_of_int())
             return -L4_EINVAL;
 
-          if (p_max.value<l4_mword_t>() > _sched_prio_limit
-              || p_base.value<l4_mword_t>() > _sched_prio_limit)
+          if (p_max.value<l4_mword_t>() > 300000
+              || p_base.value<l4_mword_t>() > 300000)
             return -L4_ERANGE;
 
           if (p_max.value<l4_mword_t>() <= p_base.value<l4_mword_t>())
@@ -349,7 +349,7 @@ Allocator::root_allocator()
     return _root_alloc;
 
   _root_alloc = Moe::Moe_alloc::allocator()
-    ->make_obj<Allocator>(Moe::Moe_alloc::allocator()->quota(), ~0, 300000);
+    ->make_obj<Allocator>(Moe::Moe_alloc::allocator()->quota(), ~0, true);
   object_pool.life.push_front(_root_alloc);
   return _root_alloc;
 }

@@ -29,11 +29,11 @@ class Allocator :
 {
 private:
   Moe::Q_alloc _qalloc;
-  long _sched_prio_limit;
+  bool _is_root;  ///< Is this the root allocator?
 
 public:
-  explicit Allocator(Moe::Quota *parent, size_t limit, unsigned prio_limit = 0)
-  : _qalloc(parent, limit), _sched_prio_limit(prio_limit)
+  explicit Allocator(Moe::Quota *parent, size_t limit, bool is_root = false)
+  : _qalloc(parent, limit), _is_root(is_root)
   {}
 
   template<typename T, typename ...ARGS>
