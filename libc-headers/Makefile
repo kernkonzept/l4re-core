@@ -29,7 +29,8 @@ $(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(LIBCSRC_DIR)/target_headers.mk \
 	$(VERBOSE)[[ $< -ef $@ ]] || $(LN) -sf $(abspath $<) $@
 
 $(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/make_vars.mk \
-               $(LIBCSRC_DIR)/target_headers.mk $(HEADER_DIR).include_tracker
+               $(LIBCSRC_DIR)/target_headers.mk $(HEADER_DIR).include_tracker \
+               $(foreach g,$(GEN_common) $(GEN_$(BUILD_ARCH)),$(GEN_DEPS_$g))
 	$(VERBOSE)$(RM) -r $@
 	$(VERBOSE)install -d $@
 	@$(INSTALL_LINK_MESSAGE)

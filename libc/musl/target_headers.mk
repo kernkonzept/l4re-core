@@ -1,8 +1,3 @@
-define GEN_common
-  bits/alltypes.h
-  version.h
-endef
-
 define HDR_common
   alloca.h
   arpa/inet.h
@@ -121,12 +116,21 @@ vpath %.h $(CONTRIB_DIR)/arch/$(LIBC_ARCH)
 vpath %.h $(CONTRIB_DIR)/arch/generic
 vpath %.h $(CONTRIB_DIR)/include
 
-$(HEADER_DIR)/bits/alltypes.h: $(CONTRIB_DIR)/arch/$(LIBC_ARCH)/bits/alltypes.h.in \
+define GEN_common
+  bits/alltypes.h
+  version.h
+endef
+
+GEN_DEPS_bits/alltypes.h = $(CONTRIB_DIR)/arch/$(LIBC_ARCH)/bits/alltypes.h.in \
                                $(CONTRIB_DIR)/include/alltypes.h.in \
                                $(CONTRIB_DIR)/tools/mkalltypes.sed
+
+GEN_DEPS_version.h = $(CONTRIB_DIR)/VERSION
+
+$(HEADER_DIR)/bits/alltypes.h: $(GEN_DEPS_bits/alltypes.h)
 	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) -p $(@D)
 	$(VERBOSE) sed -f $(CONTRIB_DIR)/tools/mkalltypes.sed \
 	           $(CONTRIB_DIR)/arch/$(LIBC_ARCH)/bits/alltypes.h.in \
 	           $(CONTRIB_DIR)/include/alltypes.h.in >$@
-$(HEADER_DIR)/version.h: $(CONTRIB_DIR)/VERSION
+$(HEADER_DIR)/version.h: $(GEN_DEPS_version.h)
 	$(VERBOSE)printf '#define VERSION "%s"\n' $(cat $<) >$@
