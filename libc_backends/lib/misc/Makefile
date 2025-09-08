@@ -19,7 +19,6 @@ SRC_C       = daemon.c \
               pipe.c \
               posix_fadvise.c \
               prctl.c \
-              ptsname.c \
               sched.c \
               secure_getenv.c \
               shadow.c \
