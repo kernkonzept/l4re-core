@@ -198,8 +198,8 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
           if (!p_max.is_of_int() || !p_base.is_of_int())
             return -L4_EINVAL;
 
-          if (p_max.value<l4_mword_t>() > 300000
-              || p_base.value<l4_mword_t>() > 300000)
+          if (p_max.value<l4_mword_t>() > Max_priority
+              || p_base.value<l4_mword_t>() > Max_priority)
             return -L4_ERANGE;
 
           if (p_max.value<l4_mword_t>() <= p_base.value<l4_mword_t>())

@@ -28,6 +28,8 @@ class Allocator :
   public L4::Epiface_t<Allocator, Allocator_iface, Moe::Server_object>
 {
 private:
+  enum : l4_mword_t { Max_priority = 255 };
+
   Moe::Q_alloc _qalloc;
   bool _is_root;  ///< Is this the root allocator?
 
