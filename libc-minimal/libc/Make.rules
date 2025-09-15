@@ -12,7 +12,7 @@ endef
 
 include $(L4DIR)/mk/Makeconf
 
-DEFINES		+= -DL4_MINIMAL_LIBC -D_GNU_SOURCE
+DEFINES		+= -DL4_MINIMAL_LIBC
 LIBCSRC_DIR	?= $(PKGDIR)/../libc/$(CONFIG_L4_LIBC)
 
 LIBC_BUILD_MODE = minimal

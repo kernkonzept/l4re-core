@@ -6,7 +6,7 @@ CFLAGS		+= -fno-builtin $(GCCNOSTACKPROTOPT)
 CFLAGS          += -DUCLIBC_INTERNAL
 CXXFLAGS        += -fno-builtin $(GCCNOSTACKPROTOPT)
 # CFLAGS	+= -std=iso9899:199901
-DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__
+DEFINES		+= -DNDEBUG -D_LIBC -D__UCLIBC_CTOR_DTOR__ -D_GNU_SOURCE
 WARNINGS	= -Wall -Wstrict-prototypes $(call bid_flag_variants,WARNINGS)
 ifeq ($(BID_COMPILER_TYPE),clang)
   # WARNING EXCEPTION: only warnings are about checking parameters marked with
