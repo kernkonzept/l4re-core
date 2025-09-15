@@ -746,6 +746,8 @@ static inline void mgr_free_utcb(l4_utcb_t *u)
   if (!u)
     return;
 
+  l4_thread_regs_t *tcr = l4_utcb_tcr_u(u);
+  tcr->user[0] = 0;
   __l4_utcb_set_next_free(u, __pthread_first_free_utcb);
   __pthread_first_free_utcb = u;
 }
