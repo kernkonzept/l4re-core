@@ -35,7 +35,7 @@ static long double wcstox(const wchar_t *s, wchar_t **p, int prec)
 	f.flags = 0;
 	f.rpos = f.rend = f.buf = buf + 4;
 	f.buf_size = sizeof buf - 4;
-	f.lock = -1;
+	f.needs_lock = -1;
 	f.read = do_read;
 	while (iswspace(*t)) t++;
 	f.cookie = (void *)t;

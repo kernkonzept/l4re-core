@@ -3,12 +3,39 @@
 
 #include <stdio.h>
 #include "syscall.h"
+#ifndef NOT_FOR_L4
+// TODO: Do we want to include pthread.h here?
+#include <pthread.h>
+#endif
 
 #define UNGET 8
 
+#ifdef NOT_FOR_L4
+// NOTE: If the application is single-threaded, lock is negative, so no locking required or locking has been disabled for the stream :)
 #define FFINALLOCK(f) ((f)->lock>=0 ? __lockfile((f)) : 0)
 #define FLOCK(f) int __need_unlock = ((f)->lock>=0 ? __lockfile((f)) : 0)
 #define FUNLOCK(f) do { if (__need_unlock) __unlockfile((f)); } while (0)
+#elif defined(L4_MINIMAL_LIBC)
+#define FILE_LOCK_INITIALIZE(f) (f)->needs_lock = -1;
+#define FFINALLOCK(f)
+#define FLOCK(f)
+#define FUNLOCK(f)
+#else
+// TODO: Add optimized implementation, that avoids unnecessary overhead of pthread_mutex, if it has any.
+#define FILE_LOCK_INITIALIZER (pthread_mutex_t) {0, 0, 0, PTHREAD_MUTEX_RECURSIVE_NP, __LOCK_INITIALIZER}
+#define FILE_LOCK_INITIALIZE(f)          \
+  do                                     \
+    {                                    \
+      if (!libc.threaded)                \
+        (f)->needs_lock = -1;            \
+                                         \
+      (f)->lock = FILE_LOCK_INITIALIZER; \
+    }                                    \
+  while (0)
+#define FFINALLOCK(f) ((f)->needs_lock>=0 ? __lockfile((f)) : 0)
+#define FLOCK(f) int __need_unlock = ((f)->needs_lock>=0 ? __lockfile((f)) : 0)
+#define FUNLOCK(f) do { if (__need_unlock) __unlockfile((f)); } while (0)
+#endif
 
 #define F_PERM 1
 #define F_NORD 4
@@ -35,7 +62,12 @@ struct _IO_FILE {
 	int pipe_pid;
 	long lockcount;
 	int mode;
-	volatile int lock;
+	// TODO: Avoid wasting space, integrate into the lock.
+	volatile int needs_lock;
+#ifndef L4_MINIMAL_LIBC
+	// TODO: Need to initialize?!
+	pthread_mutex_t lock;
+#endif
 	int lbf;
 	void *cookie;
 	off_t off;

@@ -19,7 +19,7 @@ int vsscanf(const char *restrict s, const char *restrict fmt, va_list ap)
 {
 	FILE f = {
 		.buf = (void *)s, .cookie = (void *)s,
-		.read = string_read, .lock = -1
+		.read = string_read, .needs_lock = -1
 	};
 	return vfscanf(&f, fmt, ap);
 }

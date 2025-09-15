@@ -11,7 +11,7 @@ hidden FILE __stdin_FILE = {
 	.read = __stdio_read,
 	.seek = __stdio_seek,
 	.close = __stdio_close,
-	.lock = -1,
+	.needs_lock = -1,
 };
 FILE *const stdin = &__stdin_FILE;
 FILE *volatile __stdin_used = &__stdin_FILE;

@@ -121,7 +121,7 @@ FILE *fmemopen(void *restrict buf, size_t size, const char *restrict mode)
 	f->f.seek = mseek;
 	f->f.close = mclose;
 
-	if (!libc.threaded) f->f.lock = -1;
+	FILE_LOCK_INITIALIZE(&f->f);
 
 	return __ofl_add(&f->f);
 }
