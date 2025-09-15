@@ -168,8 +168,7 @@ int pause(void)
   return -1;
 }
 
-int setitimer(__itimer_which_t which,
-              const struct itimerval *__restrict new_val,
+int setitimer(int which, const struct itimerval *__restrict new_val,
               struct itimerval *__restrict old_val) L4_NOTHROW
 {
   auto itas = L4Re::Env::env()->itas();
@@ -189,8 +188,7 @@ int setitimer(__itimer_which_t which,
   return ret >= 0 ? 0 : -1;
 }
 
-int getitimer(__itimer_which_t which,
-              struct itimerval *value) L4_NOTHROW
+int getitimer(int which, struct itimerval *value) L4_NOTHROW
 {
   auto itas = L4Re::Env::env()->itas();
   if (!itas)
