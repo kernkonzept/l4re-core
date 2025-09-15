@@ -46,6 +46,7 @@ $(foreach ext,C S CC, \
 
 SRC_C += impl-libc-api.c
 SRC_C += ARCH-$(LIBC_ARCH)/impl-libc-api-arch.c
+SRC_C += mman-utcb-safe.c
 SRC_CC += _exit.cc
 vpath _exit.cc $(PKGDIR)/common
 vfs.s.o: PRIVATE_INCDIR :=
