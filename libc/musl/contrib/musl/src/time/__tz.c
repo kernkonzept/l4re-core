@@ -35,8 +35,12 @@ static char old_tz_buf[32];
 static char *old_tz = old_tz_buf;
 static size_t old_tz_size = sizeof old_tz_buf;
 
+#ifdef NOT_FOR_L4
 static volatile int lock[1];
 volatile int *const __timezone_lockptr = lock;
+#else
+static libc_lock_t lock;
+#endif
 
 static int getint(const char **p)
 {

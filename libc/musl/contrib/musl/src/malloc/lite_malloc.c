@@ -32,8 +32,12 @@ static int traverses_stack_p(uintptr_t old, uintptr_t new)
 	return 0;
 }
 
+#ifdef NOT_FOR_L4
 static volatile int lock[1];
 volatile int *const __bump_lockptr = lock;
+#else
+static libc_lock_t lock;
+#endif
 
 static void *__simple_malloc(size_t n)
 {

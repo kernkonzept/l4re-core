@@ -475,6 +475,7 @@ define SRC_prng
 endef
 
 define SRC_thread
+  $(if $(LIBC_BUILD_MINIMAL),,__lock)
   $(if $(LIBC_BUILD_MINIMAL),,__tls_get_addr)
   default_attr
   lock_ptc

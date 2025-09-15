@@ -58,12 +58,21 @@ static inline uint64_t get_random_secret()
 
 #define RDLOCK_IS_EXCLUSIVE 1
 
+#ifdef NOT_FOR_L4
 __attribute__((__visibility__("hidden")))
 extern int __malloc_lock[1];
 
 #define LOCK_OBJ_DEF \
 int __malloc_lock[1]; \
 void __malloc_atfork(int who) { malloc_atfork(who); }
+#else
+
+extern libc_lock_t __malloc_lock;
+
+#define LOCK_OBJ_DEF \
+libc_lock_t __malloc_lock; \
+void __malloc_atfork(int who) { malloc_atfork(who); }
+#endif
 
 static inline void rdlock()
 {
@@ -82,7 +91,12 @@ static inline void upgradelock()
 }
 static inline void resetlock()
 {
+#ifdef NOT_FOR_L4
 	__malloc_lock[0] = 0;
+#else
+	__malloc_lock.__status = 0;
+	__malloc_lock.__spinlock = 0;
+#endif
 }
 
 static inline void malloc_atfork(int who)

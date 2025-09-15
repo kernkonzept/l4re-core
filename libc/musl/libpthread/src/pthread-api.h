@@ -60,6 +60,7 @@ L4_BEGIN_DECLS
 L4_HIDDEN void __pthread_initialize_minimal(void *arg);
 
 L4_HIDDEN pthread_t __pthread_self(void);
+L4_HIDDEN pthread_descr __pthread_thread_self(void);
 L4_HIDDEN pthread_t __pthread_descr_to_handle(pthread_descr descr);
 L4_HIDDEN pthread_libc_data_t *__pthread_libc_data(pthread_t id);
 // TODO: Maybe instead give musl direct access to `struct pthread`?

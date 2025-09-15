@@ -28,8 +28,12 @@ static const char envvars[][12] = {
 	"LC_MESSAGES",
 };
 
+#ifdef NOT_FOR_L4
 volatile int __locale_lock[1];
 volatile int *const __locale_lockptr = __locale_lock;
+#else
+libc_lock_t __locale_lock;
+#endif
 
 const struct __locale_map *__get_locale(int cat, const char *val)
 {

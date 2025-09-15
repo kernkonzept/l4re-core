@@ -4,6 +4,7 @@
 #include <locale.h>
 #include <stdlib.h>
 #include "libc.h"
+#include "lock.h"
 #include "pthread_impl.h"
 
 #define LOCALE_NAME_MAX 23
@@ -15,7 +16,11 @@ struct __locale_map {
 	const struct __locale_map *next;
 };
 
+#ifdef NOT_FOR_L4
 extern hidden volatile int __locale_lock[1];
+#else
+extern hidden libc_lock_t __locale_lock;
+#endif
 
 extern hidden const struct __locale_map __c_dot_utf8;
 extern hidden const struct __locale_struct __c_locale;

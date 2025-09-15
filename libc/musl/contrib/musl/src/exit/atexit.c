@@ -21,8 +21,12 @@ static struct fl
 
 static int finished_atexit;
 static int slot;
+#ifdef NOT_FOR_L4
 static volatile int lock[1];
 volatile int *const __atexit_lockptr = lock;
+#else
+libc_lock_t lock;
+#endif
 
 void __funcs_on_exit()
 {
