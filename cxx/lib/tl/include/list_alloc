@@ -38,7 +38,7 @@ private:
 
   inline void check_overlap(void *, unsigned long) const;
   inline void sanity_check_list(char const *, char const *) const;
-  inline void merge();
+  inline void merge(Mem_block *, Mem_block *);
 
 public:
 
@@ -207,12 +207,22 @@ List_alloc::sanity_check_list(char const *func, char const *info) const
 
 #endif
 
+/**
+ * Tries to merge with the previous and with the next block if there are any.
+ */
 void
-List_alloc::merge()
+List_alloc::merge(Mem_block *prev, Mem_block *c)
 {
   List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
-  Mem_block *c = _first;
-  while (c && c->next)
+  int iters = 1;
+  if (prev)
+    {
+      c = prev;
+      // If we have a predecessor, we might need to merge twice.
+      iters = 2;
+    }
+
+  while (c && c->next && iters--)
     {
       unsigned long f_start = reinterpret_cast<unsigned long>(c);
       unsigned long f_end   = f_start + c->size;
@@ -251,13 +261,17 @@ List_alloc::free(void *block, unsigned long size, bool initial_free)
 
   check_overlap(block, size);
 
+  Mem_block *prev = 0;
   Mem_block **c = &_first;
   Mem_block *next = 0;
 
   if (*c)
     {
       while (*c && *c < block)
-        c = &(*c)->next;
+        {
+          prev = *c;
+          c = &prev->next;
+        }
 
       next = *c;
     }
@@ -267,7 +281,7 @@ List_alloc::free(void *block, unsigned long size, bool initial_free)
   (*c)->next = next;
   (*c)->size = size;
 
-  merge();
+  merge(prev, *c);
 }
 
 void *
