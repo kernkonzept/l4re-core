@@ -37,7 +37,8 @@ private:
   Mem_block *_first;
 
   inline void check_overlap(void *, unsigned long) const;
-  inline void sanity_check_list(char const *, char const *) const;
+  inline void sanity_check_list(char const *, char const *,
+                                bool unmerged) const;
   inline void merge(Mem_block *, Mem_block *);
 
 public:
@@ -120,7 +121,7 @@ public:
 class List_alloc_sanity_guard
 {
 public:
-  List_alloc_sanity_guard(List_alloc const *, char const *)
+  List_alloc_sanity_guard(List_alloc const *, char const *, bool)
   {}
 
 };
@@ -131,7 +132,7 @@ List_alloc::check_overlap(void *, unsigned long) const
 {}
 
 void
-List_alloc::sanity_check_list(char const *, char const *) const
+List_alloc::sanity_check_list(char const *, char const *, bool) const
 {}
 
 #else
@@ -143,12 +144,12 @@ private:
   char const *func;
 
 public:
-  List_alloc_sanity_guard(List_alloc const *a, char const *func)
-    : a(a), func(func)
-  { a->sanity_check_list(func, "entry"); }
+  List_alloc_sanity_guard(List_alloc const *a, char const *func, bool unmerged)
+  : a(a), func(func)
+  { a->sanity_check_list(func, "entry", unmerged); }
 
   ~List_alloc_sanity_guard()
-  { a->sanity_check_list(func, "exit"); }
+  { a->sanity_check_list(func, "exit", false); }
 };
 
 void
@@ -183,7 +184,8 @@ List_alloc::check_overlap(void *b, unsigned long s) const
 }
 
 void
-List_alloc::sanity_check_list(char const *func, char const *info) const
+List_alloc::sanity_check_list(char const *func, char const *info,
+                              bool unmerged) const
 {
   Mem_block const *c = _first;
   for (;c ; c = c->next)
@@ -196,7 +198,9 @@ List_alloc::sanity_check_list(char const *func, char const *info) const
                        << "): list order violation\n";
             }
 
-          if (((unsigned long)c) + c->size > (unsigned long)c->next)
+          unsigned long c_end = reinterpret_cast<unsigned long>(c) + c->size;
+          unsigned long n_start = reinterpret_cast<unsigned long>(c->next);
+          if (c_end > n_start || (c_end == n_start && !unmerged))
             {
               L4::cerr << "List_alloc(FATAL): " << func << '(' << info
                        << "): list order violation\n";
@@ -213,7 +217,8 @@ List_alloc::sanity_check_list(char const *func, char const *info) const
 void
 List_alloc::merge(Mem_block *prev, Mem_block *c)
 {
-  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+  // We allow the list to not be merged in the beginning.
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__, true);
   int iters = 1;
   if (prev)
     {
@@ -242,7 +247,7 @@ List_alloc::merge(Mem_block *prev, Mem_block *c)
 void
 List_alloc::free(void *block, unsigned long size, bool initial_free)
 {
-  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__, false);
 
   unsigned long const mb_align = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
 
@@ -289,7 +294,7 @@ List_alloc::alloc_max(unsigned long min, unsigned long *max, unsigned long align
                       unsigned granularity, unsigned long lower,
                       unsigned long upper)
 {
-  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__, false);
 
   unsigned char const mb_bits = arith::Ld<sizeof(Mem_block)>::value;
   unsigned long const mb_align = (1UL << mb_bits) - 1;
@@ -408,7 +413,7 @@ void *
 List_alloc::alloc(unsigned long size, unsigned long align, unsigned long lower,
                   unsigned long upper)
 {
-  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__);
+  List_alloc_sanity_guard __attribute__((unused)) guard(this, __func__, false);
 
   unsigned long const mb_align
     = (1UL << arith::Ld<sizeof(Mem_block)>::value) - 1;
@@ -495,7 +500,8 @@ List_alloc::alloc(unsigned long size, unsigned long align, unsigned long lower,
 unsigned long
 List_alloc::avail() const
 {
-  List_alloc_sanity_guard __attribute__((unused)) guard(this, __FUNCTION__);
+  List_alloc_sanity_guard
+    __attribute__((unused)) guard(this, __FUNCTION__, false);
   Mem_block const *c = _first;
   unsigned long a = 0;
   while (c)
