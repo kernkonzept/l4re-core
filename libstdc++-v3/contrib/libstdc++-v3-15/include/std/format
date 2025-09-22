@@ -1011,7 +1011,9 @@ namespace __format
     __write_escape_seq(_Out __out, uint_least32_t __val,
 		       basic_string_view<_CharT> __prefix)
     {
+#ifdef _GLIBCXX_USE_WCHAR_T
       using _Str_view = basic_string_view<_CharT>;
+#endif
       constexpr size_t __max = 8;
       char __buf[__max];
       const string_view __narrow(
