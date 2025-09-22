@@ -17,6 +17,7 @@ extern "C" {
 #define SEEK_DATA 3
 #define SEEK_HOLE 4
 
+#undef NULL
 #if __cplusplus >= 201103L
 #define NULL nullptr
 #elif defined(__cplusplus)

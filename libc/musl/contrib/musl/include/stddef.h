@@ -1,6 +1,7 @@
 #ifndef _STDDEF_H
 #define _STDDEF_H
 
+#undef NULL
 #if __cplusplus >= 201103L
 #define NULL nullptr
 #elif defined(__cplusplus)

@@ -38,6 +38,7 @@ extern "C" {
 #define WCHAR_MIN (-1-0x7fffffff+L'\0')
 #endif
 
+#undef NULL
 #if __cplusplus >= 201103L
 #define NULL nullptr
 #elif defined(__cplusplus)

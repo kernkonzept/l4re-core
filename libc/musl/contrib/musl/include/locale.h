@@ -7,6 +7,7 @@ extern "C" {
 
 #include <features.h>
 
+#undef NULL
 #if __cplusplus >= 201103L
 #define NULL nullptr
 #elif defined(__cplusplus)
