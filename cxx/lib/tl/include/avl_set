@@ -59,7 +59,7 @@ public:
 
   /**
    * Create an iterator from a BST iterator.
-   * \prarm o  The BST iterator that shall be copied.
+   * \param o  The BST iterator that shall be copied.
    */
   Avl_set_iter(Base const &o) : Base(o) {}
 
