@@ -9,6 +9,8 @@
  * POSIX signal backend.
  */
 
+#define _GNU_SOURCE
+
 #include <errno.h>
 #include <signal.h>
 #include <sys/time.h>
