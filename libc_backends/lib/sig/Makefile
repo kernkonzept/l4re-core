@@ -8,5 +8,6 @@ PC_LIBS_PIC =
 SRC_CC      = sig.cc
 CXXFLAGS    = -fno-rtti -fno-exceptions
 DEFINES     = -DL4_NO_RTTI
+DEFINES_sig.cc += -D_GNU_SOURCE
 
 include $(L4DIR)/mk/lib.mk
