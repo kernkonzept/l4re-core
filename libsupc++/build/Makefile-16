@@ -47,3 +47,4 @@ vpath %.cc $(OBJ_DIR)
 $(OBJ_DIR)/atomicity.cc: $(call CPU_file,atomicity_mutex/atomicity.h)
 	$(VERBOSE)$(LN) -sf $< $@
 
+CXXFLAGS_atomicity.o += -fwrapv

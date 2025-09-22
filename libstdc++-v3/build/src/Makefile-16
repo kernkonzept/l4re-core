@@ -128,8 +128,12 @@ SRC_CC-variant-std += \
   c++20/sstream-inst.cc \
   c++20/atomic.cc \
   c++20/format.cc \
+  c++20/syncbuf.cc \
+  c++20/clock.cc \
   c++23/print.cc \
-  c++23/stacktrace.cc
+  c++23/stacktrace.cc \
+  c++26/debugging.cc \
+  c++26/text_encoding.cc
 
 # Only include the following in full libstdc++ builds
 SRC_CC-variant-std-$(STDCXX_IS_FULL) += \

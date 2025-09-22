@@ -1,6 +1,6 @@
-// <random> -*- C++ -*-
+// Explicit instantiation file.
 
-// Copyright (C) 2007-2025 Free Software Foundation, Inc.
+// Copyright (C) 2020-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -22,38 +22,24 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file include/random
- *  This is a Standard C++ Library header.
- */
+#include <syncstream>
+#include <bits/functional_hash.h>
 
-#ifndef _GLIBCXX_RANDOM
-#define _GLIBCXX_RANDOM 1
+#if _GLIBCXX_HAS_GTHREADS
+namespace std _GLIBCXX_VISIBILITY(default)
+{
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
 
-#ifdef _GLIBCXX_SYSHDR
-#pragma GCC system_header
-#endif
+mutex&
+__syncbuf_get_mutex(void* __t)
+  {
+    const unsigned char __mask = 0xf;
+    static mutex __m[__mask + 1];
 
-#include <bits/requires_hosted.h> // OS-dependent random
+    auto __key = _Hash_impl::hash(__t) & __mask;
+    return __m[__key];
+  }
 
-#if __cplusplus < 201103L
-# include <bits/c++0x_warning.h>
-#else
-
-#define __glibcxx_want_philox_engine
-#include <bits/version.h>
-
-#include <cmath>
-#include <cstdint> // For uint_fast32_t, uint_fast64_t, uint_least32_t
-#include <cstdlib>
-#include <string>
-#include <iosfwd>
-#include <limits>
-#include <debug/debug.h>
-#include <type_traits>
-#include <bits/random.h>
-#include <bits/opt_random.h>
-#include <bits/random.tcc>
-
-#endif // C++11
-
-#endif // _GLIBCXX_RANDOM
+_GLIBCXX_END_NAMESPACE_VERSION
+}
+#endif // GTHREADS

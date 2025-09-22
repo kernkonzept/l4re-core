@@ -1,6 +1,6 @@
-// <random> -*- C++ -*-
+// std::chrono::tai_clock, gps_clock
 
-// Copyright (C) 2007-2025 Free Software Foundation, Inc.
+// Copyright (C) 2021-2025 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -22,38 +22,31 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file include/random
- *  This is a Standard C++ Library header.
- */
+//
+// ISO C++ 14882:2020
+// 27.7.4 [time.clock.tai], 27.7.5 [time.clock.gps]
+// P0355R7
 
-#ifndef _GLIBCXX_RANDOM
-#define _GLIBCXX_RANDOM 1
+#include <chrono>
 
-#ifdef _GLIBCXX_SYSHDR
-#pragma GCC system_header
+namespace std _GLIBCXX_VISIBILITY(default)
+{
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
+
+namespace chrono
+{
+#if defined __glibcxx_chrono_cxx20 && _GLIBCXX_HOSTED
+  // TODO use CLOCK_TAI on linux, add extension point.
+  time_point<tai_clock>
+  tai_clock::now()
+  { return from_utc(utc_clock::now()); }
+
+  // TODO add extension point.
+  time_point<gps_clock>
+  gps_clock::now()
+  { return from_utc(utc_clock::now()); }
 #endif
+}
 
-#include <bits/requires_hosted.h> // OS-dependent random
-
-#if __cplusplus < 201103L
-# include <bits/c++0x_warning.h>
-#else
-
-#define __glibcxx_want_philox_engine
-#include <bits/version.h>
-
-#include <cmath>
-#include <cstdint> // For uint_fast32_t, uint_fast64_t, uint_least32_t
-#include <cstdlib>
-#include <string>
-#include <iosfwd>
-#include <limits>
-#include <debug/debug.h>
-#include <type_traits>
-#include <bits/random.h>
-#include <bits/opt_random.h>
-#include <bits/random.tcc>
-
-#endif // C++11
-
-#endif // _GLIBCXX_RANDOM
+_GLIBCXX_END_NAMESPACE_VERSION
+}
