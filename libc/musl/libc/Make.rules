@@ -7,7 +7,7 @@ PC_FILENAME       := libc
 PC_LIBS           := -lc %{static|static-pie:;:-lc_nonshared.p}
 PC_EXTRA          := Link_Libs= %{static|static-pie:-lc}
 
-REQUIRES_LIBS     := ldscripts l4util l4re l4sys l4re-util l4re_c \
+REQUIRES_LIBS     := ldscripts libc_pthread l4util l4re l4sys l4re-util l4re_c \
                      l4re_c-util libc_be_l4re libc_be_l4refile \
                      libc_support_misc libc_be_fs_noop libc_be_sem_noop \
                      libc_be_sig libc_be_socket_noop libl4re-vfs
@@ -44,6 +44,8 @@ $(foreach ext,C S CC, \
   $(eval SRC_$(ext)_libc.a  += $(LIBC_SRC_$(ext)) $(LIBC_SRC_$(ext)_libc.a))  \
 )
 
+SRC_C += impl-libc-api.c
+SRC_C += ARCH-$(LIBC_ARCH)/impl-libc-api-arch.c
 SRC_CC += _exit.cc
 vpath _exit.cc $(PKGDIR)/common
 vfs.s.o: PRIVATE_INCDIR :=
@@ -52,6 +54,8 @@ SRC_CC_libc.so += vfs.cc
 DEFINES_kip.S += -DL4_KIP_ADDR=$(L4_KIP_ADDR)
 SRC_S_libc.so += kip.S
 vpath kip.S $(PKGDIR)/../l4sys/lib/src/
+
+SRC_C_libc.so   += $(PTHOBJ_PFX)/libc_pthread_init.c
 
 DEFINES_libc_pthread_init.c += -D_GNU_SOURCE
 

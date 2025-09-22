@@ -4,10 +4,13 @@
 #include <errno.h>
 #include <pthread-l4.h>
 #include <l4/sys/thread.h>
-#include <bits/sigthread.h>
 #include "internals.h"
 
 // In case no backend is available
+// TODO: Why is the backend not linked in with musl?!
+// Mhm so somehow the weak override by the function from the lib does not work.
+// Maybe also broken on uclibc?! Check!
+/*
 __attribute__((weak))
 int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
 {
@@ -17,6 +20,7 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
   errno = ENOSYS;
   return -1;
 }
+*/
 
 
 int pthread_sigmask(int how, const sigset_t * newmask, sigset_t * oldmask)

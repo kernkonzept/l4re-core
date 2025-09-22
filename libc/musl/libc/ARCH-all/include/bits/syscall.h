@@ -1,10 +1,11 @@
 #pragma once
 
+#define __NEED_ssize_t
+#define __NEED_size_t
+#define __NEED_off_t
+#define __NEED_uintptr_t
+#include <bits/alltypes.h>
 struct iovec;
-typedef unsigned long uintptr_t;
-typedef unsigned long size_t;
-typedef long ssize_t;
-typedef long off_t;
 
 #ifdef __cplusplus
 extern "C" {

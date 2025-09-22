@@ -35,10 +35,13 @@ _Noreturn void exit(int code)
 	 * machinery and lets us trap recursive calls while supporting
 	 * multiple threads contending to be the one to exit(). */
 	static volatile int exit_lock[1];
+	// TODO: Implement properly...
+	/*
 	int tid =  __pthread_self()->tid;
 	int prev = a_cas(exit_lock, 0, tid);
 	if (prev == tid) a_crash();
 	else if (prev) for (;;) __sys_pause();
+	*/
 
 	__funcs_on_exit();
 	__libc_exit_fini();

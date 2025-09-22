@@ -37,11 +37,14 @@ hidden char *__gettextdomain(void);
 #define C_LOCALE ((locale_t)&__c_locale)
 #define UTF8_LOCALE ((locale_t)&__c_dot_utf8_locale)
 
-#define CURRENT_LOCALE (__pthread_self()->locale)
-
-#define CURRENT_UTF8 (!!__pthread_self()->locale->cat[LC_CTYPE])
-
 #undef MB_CUR_MAX
+#ifndef L4_MINIMAL_LIBC
+#define CURRENT_LOCALE (__pthread_libc_data(__pthread_self())->locale)
+#define CURRENT_UTF8 (!!__pthread_libc_data(__pthread_self())->locale->cat[LC_CTYPE])
 #define MB_CUR_MAX (CURRENT_UTF8 ? 4 : 1)
+#else
+#define CURRENT_LOCALE C_LOCALE
+#define MB_CUR_MAX 1
+#endif
 
 #endif

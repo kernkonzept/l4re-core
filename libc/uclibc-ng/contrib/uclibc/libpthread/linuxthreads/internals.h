@@ -38,6 +38,8 @@
  * from dlopen()'ing glibc's libthread_db library... */
 #define VERSION __stringify(__UCLIBC_MAJOR__) "." __stringify(__UCLIBC_MINOR__) "." __stringify(__UCLIBC_SUBLEVEL__)
 
+// TODO: These must still be abstracted/implemented for all arches, or maybe not
+// necessary, only useful for optimized accesses on x86 directly via gs/fs?!
 #ifndef THREAD_GETMEM
 # define THREAD_GETMEM(descr, member) descr->member
 #endif

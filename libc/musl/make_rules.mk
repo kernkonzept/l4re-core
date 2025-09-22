@@ -19,6 +19,9 @@ PRIVATE_INCDIR += $(CONTRIB_DIR)/include
 
 PRIVATE_INCDIR_vfs.cc += $(CONTRIB_DIR)/include
 
+# Include libpthread internal headers (should go to non-minimal Make.rules?)
+PRIVATE_INCDIR += $(PTHREAD_INCDIR)
+
 BID_ASM_FILE_EXTENSIONS += .s
 
 # setup search paths for our sources
@@ -26,7 +29,8 @@ vpath %.c  $(LIBC_DST_DIR)
 vpath %.cc $(LIBC_DST_DIR)
 vpath %.S  $(LIBC_DST_DIR)
 vpath %.s  $(LIBC_DST_DIR)
-
+# libpthread support (should go to non-minimal Make.rules?)
+vpath $(PTHOBJ_PFX)/% $(LIBCSRC_DIR_ABS)
 
 # for $(newline)
 include $(L4DIR)/mk/util.mk

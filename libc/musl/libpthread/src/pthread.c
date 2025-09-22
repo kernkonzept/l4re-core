@@ -39,10 +39,10 @@
 #include "smp.h"
 #include <not-cancel.h>
 #include <link.h>
-#include <ldsodefs.h>
+#include "libc-api.h"
 
 /* Sanity check.  */
-#if !defined __SIGRTMIN || (__SIGRTMAX - __SIGRTMIN) < 3
+#if !defined SIGRTMIN || (SIGRTMAX - SIGRTMIN) < 3
 # error "This must not happen"
 #endif
 
@@ -88,6 +88,7 @@ int __pthread_exit_code;
 size_t __pthread_max_stacksize;
 
 /* Nozero if the machine has more than one processor.  */
+// NOTE: Always one on L4, might want to remove.
 int __pthread_smp_kernel;
 
 /* Communicate relevant LinuxThreads constants to gdb */
@@ -102,7 +103,7 @@ const char __linuxthreads_version[] = VERSION;
 
 static void pthread_onexit_process(int retcode, void *arg);
 #ifndef HAVE_Z_NODELETE
-static void pthread_atexit_process(void *arg, int retcode);
+static void pthread_atexit_process(void);
 static void pthread_atexit_retcode(void *arg, int retcode);
 #endif
 
@@ -165,7 +166,7 @@ __l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end)
 /* Do some minimal initialization which has to be done during the
    startup of the C library.  */
 void
-__pthread_initialize_minimal(void)
+__pthread_initialize_minimal(void *arg)
 {
   static int initialized;
   if (initialized)
@@ -192,14 +193,15 @@ __pthread_initialize_minimal(void)
   __pthread_handles[0].h_lock = __LOCK_INITIALIZER;
   __pthread_handles[1].h_lock = __LOCK_INITIALIZER;
 #endif
+// TODO: Abstract this entire thing?!
 #ifndef SHARED
   /* Unlike in the dynamically linked case the dynamic linker has not
      taken care of initializing the TLS data structures.  */
-  __libc_setup_tls (TLS_TCB_SIZE, TLS_TCB_ALIGN);
+  ptlc_init_static_tls(arg);
 #elif !USE___THREAD
   if (__builtin_expect (GL(dl_tls_dtv_slotinfo_list) == NULL, 0))
     {
-      tcbhead_t *tcbp;
+      void *tls_tp;
 
       /* There is no actual TLS being used, so the thread register
 	 was not initialized in the dynamic linker.  */
@@ -212,7 +214,7 @@ __pthread_initialize_minimal(void)
       __libc_malloc_pthread_startup (true);
 
       if (__builtin_expect (_dl_tls_setup (), 0)
-	  || __builtin_expect ((tcbp = _dl_allocate_tls (NULL)) == NULL, 0))
+	  || __builtin_expect ((tls_tp = ptlc_allocate_tls()) == NULL, 0))
 	{
 	  static const char msg[] = "\
 cannot allocate TLS data structures for initial thread\n";
@@ -220,7 +222,7 @@ cannot allocate TLS data structures for initial thread\n";
 						msg, sizeof msg - 1));
 	  abort ();
 	}
-      const char *lossage = TLS_INIT_TP (tcbp, 0);
+      const char *lossage = ptlc_set_tp(tls_tp);
       if (__builtin_expect (lossage != NULL, 0))
 	{
 	  static const char msg[] = "cannot set up thread-local storage: ";
@@ -237,13 +239,13 @@ cannot allocate TLS data structures for initial thread\n";
 	 the hooks might not work with that block from the plain malloc.
 	 So we record this block as unfreeable just as the dynamic linker
 	 does when it allocates the DTV before the libc malloc exists.  */
-      GL(dl_initial_dtv) = GET_DTV (tcbp);
+      GL(dl_initial_dtv) = GET_DTV (tls_tp);
 
       __libc_malloc_pthread_startup (false);
     }
 #endif
 
-  self = THREAD_SELF;
+  self = ptlc_thread_descr_self();
 
   /* The memory for the thread descriptor was allocated elsewhere as
      part of the TLS allocation.  We have to initialize the data
@@ -281,7 +283,7 @@ __pthread_init_max_stacksize(void)
   __pthread_max_stacksize = max_stack;
   if (max_stack / 4 < __MAX_ALLOCA_CUTOFF)
     {
-      pthread_descr self = THREAD_SELF;
+      pthread_descr self = ptlc_thread_descr_self();
       self->p_alloca_cutoff = max_stack / 4;
     }
 }
@@ -301,41 +303,6 @@ __libc_dl_error_tsd (void)
 }
 # endif
 #endif
-
-static __inline__ void __attribute__((always_inline))
-init_one_static_tls (pthread_descr descr, struct link_map *map)
-{
-#if defined(TLS_TCB_AT_TP)
-  dtv_t *dtv = GET_DTV (descr);
-  void *dest = (char *) descr - map->l_tls_offset;
-#elif defined(TLS_DTV_AT_TP)
-  dtv_t *dtv = GET_DTV ((pthread_descr) ((char *) descr + TLS_PRE_TCB_SIZE));
-  void *dest = (char *) descr + map->l_tls_offset + TLS_PRE_TCB_SIZE;
-#else
-# error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
-#endif
-
-  /* Fill in the DTV slot so that a later LD/GD access will find it.  */
-  dtv[map->l_tls_modid].pointer.val = dest;
-  dtv[map->l_tls_modid].pointer.is_static = true;
-
-  /* Initialize the memory.  */
-  memset (mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
-	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
-}
-
-static void
-__pthread_init_static_tls (struct link_map *map)
-{
-  pthread_descr th;
-
-  for (th = __pthread_main_thread->p_nextlive;
-       th != __pthread_main_thread;
-       th = th->p_nextlive)
-    {
-      init_one_static_tls(th, map);
-    }
-}
 
 static void pthread_initialize(void)
 {
@@ -358,14 +325,24 @@ static void pthread_initialize(void)
      before pthread_*exit_process. */
 #ifndef HAVE_Z_NODELETE
   if (__builtin_expect (&__dso_handle != NULL, 1))
-    __cxa_atexit ((void (*) (void *)) pthread_atexit_process, NULL,
-		  __dso_handle);
+    // NOTE: Passing the retcode to cxa_atexit is a glibc extension, implemented
+    // neither by uclibc or musl...
+    //__cxa_atexit ((void (*) (void *)) pthread_atexit_process, NULL,
+    //	__dso_handle);
+    ;
   else
 #endif
+
+// NOTE: on_exit is glibc specific, not provided by musl
+#ifdef __UCLIBC__
     __on_exit (pthread_onexit_process, NULL);
+#else
+    atexit (pthread_atexit_process);
+#endif
   /* How many processors.  */
   __pthread_smp_kernel = is_smp_system ();
 
+#ifdef __UCLIBC__
 /* psm: we do not have any ld.so support yet
  *	 remove the USE_TLS guard if nptl is added */
 #if defined SHARED && defined USE_TLS
@@ -395,6 +372,10 @@ static void pthread_initialize(void)
       }
     }
   }
+#endif
+
+// TODO: stdio locking initialize for musl
+
 }
 
 void __pthread_initialize(void)
@@ -405,16 +386,19 @@ void __pthread_initialize(void)
 int __pthread_initialize_manager(void)
 {
   pthread_descr mgr;
-  tcbhead_t *tcbp;
+  void *tls_tp;
 
   __pthread_multiple_threads = 1;
-  __pthread_main_thread->header.multiple_threads = 1;
+  __pthread_main_thread->multiple_threads = 1;
   *__libc_multiple_threads_ptr = 1;
 
 #ifndef HAVE_Z_NODELETE
   if (__builtin_expect (&__dso_handle != NULL, 1))
-    __cxa_atexit ((void (*) (void *)) pthread_atexit_retcode, NULL,
-		  __dso_handle);
+    // NOTE: Passing the retcode to cxa_atexit is a glibc extension, implemented
+    // neither by uclibc or musl...
+    // __cxa_atexit ((void (*) (void *)) pthread_atexit_retcode, NULL,
+    //   __dso_handle);
+    ;
 #endif
 
   if (__pthread_max_stacksize == 0)
@@ -433,26 +417,21 @@ int __pthread_initialize_manager(void)
     (char *)((uintptr_t)__pthread_manager_thread_tos & ~0xfUL);
 
   /* Allocate memory for the thread descriptor and the dtv.  */
-  tcbp = _dl_allocate_tls (NULL);
-  if (tcbp == NULL) {
+  tls_tp = ptlc_allocate_tls();
+  if (tls_tp == NULL) {
     free(__pthread_manager_thread_bos);
     return -1;
   }
 
-#if defined(TLS_TCB_AT_TP)
-  mgr = (pthread_descr) tcbp;
-#elif defined(TLS_DTV_AT_TP)
-  /* pthread_descr is located right below tcbhead_t which _dl_allocate_tls
-     returns.  */
-  mgr = (pthread_descr) ((char *) tcbp - TLS_PRE_TCB_SIZE);
-#endif
+  mgr = ptlc_tls_tp_to_thread_descr(tls_tp);
 
   /* Initialize the descriptor.  */
-#if !TLS_DTV_AT_TP
-  mgr->header.tcb = tcbp;
+#if TLS_TCB_AT_TP
+  // TODO: Abstract or remove? Seems to be x86 specific.
+  mgr->header.tcb = tls_tp;
   mgr->header.self = mgr;
 #endif
-  mgr->header.multiple_threads = 1;
+  mgr->multiple_threads = 1;
   mgr->p_start_args = (struct pthread_start_args) PTHREAD_START_ARGS_INITIALIZER(__pthread_manager);
 #if __LT_SPINLOCK_INIT != 0
   self->p_resume_count = (struct pthread_atomic) __ATOMIC_INITIALIZER;
@@ -463,7 +442,7 @@ int __pthread_initialize_manager(void)
   int err = __pthread_start_manager(mgr);
 
   if (__builtin_expect (err, 0) == -1) {
-    _dl_deallocate_tls (tcbp, true);
+    ptlc_deallocate_tls (tls_tp);
     free(__pthread_manager_thread_bos);
     return -1;
   }
@@ -482,6 +461,9 @@ __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   struct pthread_request request;
   int retval;
   if (__builtin_expect (l4_is_invalid_cap(__pthread_manager_request), 0)) {
+    if ((retval = ptlc_become_threaded()))
+      return retval;
+
     if (__pthread_initialize_manager() < 0)
       return EAGAIN;
   }
@@ -564,14 +546,9 @@ static void pthread_onexit_process(int retcode, void *arg)
 #ifndef HAVE_Z_NODELETE
 static int __pthread_atexit_retcode;
 
-static void pthread_atexit_process(void *arg, int retcode)
+static void pthread_atexit_process()
 {
-  pthread_onexit_process (retcode ?: __pthread_atexit_retcode, arg);
-}
-
-static void pthread_atexit_retcode(void *arg, int retcode)
-{
-  __pthread_atexit_retcode = retcode;
+  pthread_onexit_process (__pthread_atexit_retcode, NULL);
 }
 #endif
 

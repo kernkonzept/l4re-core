@@ -16,18 +16,26 @@
 #define _DESCR_H	1
 
 #define __need_res_state
-#include <resolv.h>
 #include <setjmp.h>
 #include <stdint.h>
 #include <sys/types.h>
-#include <tls.h>
 #include <l4/sys/utcb.h>
 #include <pt-machine.h>
 #include <sched.h>
-/* The type of thread descriptors */
-typedef struct pthread *pthread_descr;
 
+#include "pthread-api.h"
 
+// Workaround after removal of uclibc specific tls.h include, which provided
+// these common defines that apply for all architectures. Eventually remove all
+// #ifdef guards that use these, then remove the defines.
+// ---
+/* We require TLS support in the tools.  */
+#define HAVE_TLS_SUPPORT                1
+#define HAVE_TLS_MODEL_ATTRIBUTE        1
+#define HAVE___THREAD                   1
+/* Signal that TLS support is available.  */
+#define USE_TLS 1
+// ---
 
 /* Arguments passed to thread creation routine */
 struct pthread_start_args {
@@ -95,26 +103,14 @@ union dtv;
 
 struct pthread
 {
-  union
-  {
-#if !defined(TLS_DTV_AT_TP)
-    /* This overlaps the TCB as used for TLS without threads (see tls.h).  */
-    tcbhead_t header;
-#else
-    struct
-    {
-      int multiple_threads;
-      int gscope_flag;
-    } header;
+#ifdef TLS_PTHREAD_LIBC_DATA_AT_HEAD
+  struct pthread_libc_data libc_data;
 #endif
 
-    /* This extra padding has no special purpose, and this structure layout
-       is private and subject to change without affecting the official ABI.
-       We just have it here in case it might be convenient for some
-       implementation-specific instrumentation hack or suchlike.  */
-    void *__padding[24];
-  };
+  int multiple_threads;
+  int gscope_flag;
 
+  // TODO: Like in musl we could move this between dtv and sysinfo in the header.
   pthread_descr p_nextlive, p_prevlive;
                                 /* Double chaining of active threads */
   pthread_descr p_nextwaiting;  /* Next element in the queue holding the thr */
@@ -143,7 +139,7 @@ struct pthread
   char p_canceled;              /* cancellation request pending */
   struct pthread_start_args p_start_args; /* arguments for thread creation */
   void ** p_specific[PTHREAD_KEY_1STLEVEL_SIZE]; /* thread-specific data */
-  struct __res_state p_res;	/* per-thread resolver state */
+  //struct __res_state p_res;	/* per-thread resolver state */
   int p_userstack;		/* nonzero if the user provided the stack */
   void *p_guardaddr;		/* address of guard area or NULL */
   size_t p_guardsize;		/* size of guard area */
@@ -161,6 +157,10 @@ struct pthread
   size_t p_alloca_cutoff;	/* Maximum size which should be allocated
 				   using alloca() instead of malloc().  */
   /* New elements must be added at the end.  */
+
+#ifndef TLS_PTHREAD_LIBC_DATA_AT_HEAD
+  struct pthread_libc_data libc_data;
+#endif
 } __attribute__ ((aligned (TCB_ALIGNMENT)));
 
 
@@ -207,6 +207,7 @@ extern int __pthread_nonstandard_stacks;
 
 extern pthread_descr __pthread_find_self (void) __attribute__ ((pure));
 
+// TODO: Optimize implementation, i.e. directly use tp?
 static __inline__ pthread_descr thread_self (void) __attribute__ ((pure));
 static __inline__ pthread_descr thread_self (void)
 { return (pthread_descr)(l4_utcb_tcr()->user[0]); }

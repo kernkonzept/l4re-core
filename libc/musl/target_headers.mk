@@ -63,7 +63,6 @@ define HDR_common
   nl_types.h
   paths.h
   poll.h
-  pthread.h
   pty.h
   pwd.h
   sched.h

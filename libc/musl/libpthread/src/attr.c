@@ -239,12 +239,7 @@ int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
   return err;
 }
 
-#if PTHREAD_STACK_MIN == 16384 || defined __UCLIBC__
 weak_alias (__pthread_attr_setstack, pthread_attr_setstack)
-#else
-versioned_symbol (libpthread, __pthread_attr_setstack, pthread_attr_setstack,
-                  GLIBC_2_3_3);
-#endif
 
 int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
 			     size_t *stacksize)

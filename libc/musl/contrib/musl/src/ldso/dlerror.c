@@ -12,7 +12,7 @@
 
 char *dlerror()
 {
-	pthread_t self = __pthread_self();
+	pthread_libc_data_t *self = __pthread_libc_data(__pthread_self());
 	if (!self->dlerror_flag) return 0;
 	self->dlerror_flag = 0;
 	char *s = self->dlerror_buf;
@@ -32,7 +32,7 @@ static void *volatile freebuf_queue;
 
 void __dl_thread_cleanup(void)
 {
-	pthread_t self = __pthread_self();
+	pthread_libc_data_t *self = __pthread_libc_data(__pthread_self());
 	if (!self->dlerror_buf || self->dlerror_buf == (void *)-1)
 		return;
 	void *h;
@@ -56,7 +56,7 @@ hidden void __dl_vseterr(const char *fmt, va_list ap)
 
 	va_list ap2;
 	va_copy(ap2, ap);
-	pthread_t self = __pthread_self();
+	pthread_libc_data_t *self = __pthread_libc_data(__pthread_self());
 	if (self->dlerror_buf != (void *)-1)
 		free(self->dlerror_buf);
 	size_t len = vsnprintf(0, 0, fmt, ap2);

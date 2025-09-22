@@ -47,11 +47,9 @@ typedef struct
 			   thread descriptor used by libpthread.  */
   dtv_t *dtv;
   void *self;		/* Pointer to the thread descriptor.  */
-  int multiple_threads;
+  uintptr_t _unused_padding;
   uintptr_t sysinfo;
   uintptr_t stack_guard;
-  uintptr_t pointer_guard;
-  int gscope_flag;
 } tcbhead_t;
 
 # define TLS_MULTIPLE_THREADS_IN_TCB 1
@@ -484,14 +482,14 @@ static inline char const *TLS_INIT_TP(void *thrdescr, int secondcall)
     { int __res;							      \
       __asm__ __volatile__ ("xchgl %0, %%gs:%P1"				      \
 		    : "=r" (__res)					      \
-		    : "i" (offsetof (struct pthread, header.gscope_flag)),    \
+		    : "i" (offsetof (struct pthread, gscope_flag)),    \
 		      "0" (THREAD_GSCOPE_FLAG_UNUSED));			      \
       if (__res == THREAD_GSCOPE_FLAG_WAIT)				      \
-	lll_futex_wake (&THREAD_SELF->header.gscope_flag, 1, LLL_PRIVATE);    \
+	lll_futex_wake (&THREAD_SELF->gscope_flag, 1, LLL_PRIVATE);    \
     }									      \
   while (0)
 #define THREAD_GSCOPE_SET_FLAG() \
-  THREAD_SETMEM (THREAD_SELF, header.gscope_flag, THREAD_GSCOPE_FLAG_USED)
+  THREAD_SETMEM (THREAD_SELF, gscope_flag, THREAD_GSCOPE_FLAG_USED)
 #define THREAD_GSCOPE_WAIT() \
   GL(dl_wait_lookup_done) ()
 

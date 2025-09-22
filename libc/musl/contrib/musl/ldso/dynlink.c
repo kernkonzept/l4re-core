@@ -85,6 +85,7 @@ struct dso {
 	dev_t dev;
 	ino_t ino;
 	char relocated;
+	char relroed;
 	char constructed;
 	char kernel_mapped;
 	char mark;
@@ -125,9 +126,14 @@ typedef void (*stage3_func)(size_t *, size_t *);
 
 static struct builtin_tls {
 	char c;
-	struct pthread pt;
+	// TODO: Give musl access to "struct pthread"?
+	char pt[512];
+	// struct pthread pt;
 	void *space[16];
 } builtin_tls[1];
+// TODO: This breaks with an alignment of >=8, or rather != 1. Investigate why. Probably we and the libpthread are not on the same page then.
+// The crash happens in __pthread_self, because we dereference a null-pointer there.
+//#define MIN_TLS_ALIGN 8 //offsetof(struct builtin_tls, pt)
 #define MIN_TLS_ALIGN offsetof(struct builtin_tls, pt)
 
 #define ADDEND_LIMIT 4096
@@ -530,8 +536,8 @@ static void do_relocs(struct dso *dso, size_t *rel, size_t rel_size, size_t stri
 				reloc_addr[0] = (size_t)__tlsdesc_dynamic;
 				reloc_addr[1] = (size_t)new;
 			} else {
-				reloc_addr[0] = (size_t)__tlsdesc_static;
 #ifdef TLS_ABOVE_TP
+				reloc_addr[0] = (size_t)__tlsdesc_static;
 				reloc_addr[1] = tls_val + def.dso->tls.offset
 					+ TPOFF_K + addend;
 #else
@@ -1423,6 +1429,24 @@ static void reloc_all(struct dso *p)
 		if (!DL_FDPIC)
 			do_relr_relocs(p, laddr(p, dyn[DT_RELR]), dyn[DT_RELRSZ]);
 
+		p->relocated = 1;
+	}
+}
+
+// Due to copy relocations we need to apply relro in a separate pass on L4Re,
+// since our mprotect implementation relies on l4re_global_env. But that variable
+// unusuable in the following in-between state:
+// 1. l4re_global_env symbol in libc.so (ldso) is relocated (in second
+//    relocation pass in dls3) to point to the COPY in the application.
+// 2. We call mprotect to apply relro -> l4re_global_env now points to
+//    unitialized variable in application, because the COPY relocations of the
+//    application binary have not yet been applied.
+// 3. Only then envetually the COPY relocations in the application get applied.
+static void relro_all(struct dso *p)
+{
+	for (; p; p=p->next) {
+		if (p->relroed) continue;
+		p->relroed = 1;
 		if (head != &ldso && p->relro_start != p->relro_end) {
 			long ret = __syscall(SYS_mprotect, laddr(p, p->relro_start),
 				p->relro_end-p->relro_start, PROT_READ);
@@ -1432,8 +1456,6 @@ static void reloc_all(struct dso *p)
 				if (runtime) longjmp(*rtld_fail, 1);
 			}
 		}
-
-		p->relocated = 1;
 	}
 }
 
@@ -1567,7 +1589,7 @@ static struct dso **queue_ctors(struct dso *dso)
 	queue[qpos] = 0;
 	for (i=0; i<qpos; i++) queue[i]->mark = 0;
 	for (i=0; i<qpos; i++)
-		if (queue[i]->ctor_visitor && queue[i]->ctor_visitor->tid < 0) {
+		if (queue[i]->ctor_visitor /* L4TODO && queue[i]->ctor_visitor->tid < 0*/) {
 			error("State of %s is inconsistent due to multithreaded fork\n",
 				queue[i]->name);
 			free(queue);
@@ -1642,7 +1664,7 @@ static void update_tls_size()
 	libc.tls_size = ALIGN(
 		(1+tls_cnt) * sizeof(void *) +
 		tls_offset +
-		sizeof(struct pthread) +
+		__pthread_struct_size() +
 		tls_align * 2,
 	tls_align);
 }
@@ -1655,6 +1677,7 @@ static void install_new_tls(void)
 	uintptr_t (*newdtv)[tls_cnt+1] = (void *)dtv_provider->new_dtv;
 	struct dso *p;
 	size_t i, j;
+#ifdef TODO
 	size_t old_cnt = self->dtv[0];
 
 	__block_app_sigs(&set);
@@ -1695,6 +1718,7 @@ static void install_new_tls(void)
 
 	__tl_unlock();
 	__restore_sigs(&set);
+#endif
 }
 
 /* Stage 1 of the dynamic linker is defined in dlstart.c. It calls the
@@ -1757,6 +1781,7 @@ hidden void __dls2(unsigned char *base, size_t *sp)
 
 	head = &ldso;
 	reloc_all(&ldso);
+	relro_all(&ldso);
 
 	ldso.relocated = 0;
 
@@ -2050,6 +2075,7 @@ void __dls3(size_t *sp, size_t *auxv)
 	 * copy relocations which depend on libraries' relocations. */
 	reloc_all(app.next);
 	reloc_all(&app);
+	relro_all(&app);
 
 	/* Actual copying to new TLS needs to happen after relocations,
 	 * since the TLS images might have contained relocated addresses. */
@@ -2217,6 +2243,7 @@ void *dlopen(const char *file, int mode)
 	}
 	if (!p->relocated) {
 		reloc_all(p);
+		relro_all(p);
 	}
 
 	/* If RTLD_GLOBAL was not specified, undo any new additions

@@ -107,6 +107,7 @@ typedef struct
      INTERNAL_SYSCALL_ERROR_P (result_var, err)				\
        ? "unknown error" : NULL; })
 
+// TODO: Why to we set `l4_utcb_tcr()->user[0]` explicitly? We do not do that on other architectures...
 # define TLS_INIT_TP_generic(tcbp, secondcall) \
   ({ \
     l4_utcb_tcr()->user[0] = (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE; \
@@ -159,16 +160,16 @@ typedef struct
 #define THREAD_GSCOPE_RESET_FLAG() \
   do									     \
     { int __res								     \
-	= atomic_exchange_rel (&THREAD_SELF->header.gscope_flag,	     \
+	= atomic_exchange_rel (&THREAD_SELF->gscope_flag,	     \
 			       THREAD_GSCOPE_FLAG_UNUSED);		     \
       if (__res == THREAD_GSCOPE_FLAG_WAIT)				     \
-	lll_futex_wake (&THREAD_SELF->header.gscope_flag, 1, LLL_PRIVATE);   \
+	lll_futex_wake (&THREAD_SELF->gscope_flag, 1, LLL_PRIVATE);   \
     }									     \
   while (0)
 #define THREAD_GSCOPE_SET_FLAG() \
   do									     \
     {									     \
-      THREAD_SELF->header.gscope_flag = THREAD_GSCOPE_FLAG_USED;	     \
+      THREAD_SELF->gscope_flag = THREAD_GSCOPE_FLAG_USED;	     \
       atomic_write_barrier ();						     \
     }									     \
   while (0)

@@ -15,6 +15,8 @@
 #ifndef _SEMAPHORE_H
 #define _SEMAPHORE_H	1
 
+#include "bits/glue.h"
+#include <pthread.h>
 #include <features.h>
 #include <sys/types.h>
 #ifdef __USE_XOPEN2K
@@ -41,11 +43,8 @@ typedef struct
 /* Value returned if `sem_open' failed.  */
 #define SEM_FAILED	((sem_t *) 0)
 
-/* Maximum value the semaphore can have.  */
-#define SEM_VALUE_MAX	(2147483647)
-
-
-__BEGIN_DECLS
+#include <l4/sys/compiler.h>
+L4_BEGIN_DECLS
 
 /* Initialize semaphore object SEM to VALUE.  If PSHARED then share it
    with other processes.  */
@@ -89,6 +88,6 @@ extern int sem_getvalue (sem_t *__restrict __sem, int *__restrict __sval)
      __THROW;
 
 
-__END_DECLS
+L4_END_DECLS
 
 #endif	/* semaphore.h */

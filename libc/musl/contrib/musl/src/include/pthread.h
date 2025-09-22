@@ -1,7 +1,7 @@
 #ifndef PTHREAD_H
 #define PTHREAD_H
 
-#include "../../include/pthread.h"
+#include <musl/pthread.h>
 
 hidden int __pthread_once(pthread_once_t *, void (*)(void));
 hidden void __pthread_testcancel(void);

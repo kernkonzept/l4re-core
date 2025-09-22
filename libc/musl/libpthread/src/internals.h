@@ -15,7 +15,7 @@
 #ifndef _INTERNALS_H
 #define _INTERNALS_H	1
 
-#include "uClibc-glue.h"
+#include "libc-glue.h"
 
 /* Internal data structures */
 
@@ -26,17 +26,12 @@
 #include <stdbool.h>
 #include <unistd.h>
 //l4/#include <signal.h>
-#include <bits/stackinfo.h>
 //l4/#include <bits/sigcontextinfo.h>
 #include <bits/pthreadtypes.h>
 
 #include <bits/libc-lock.h>
 
 #include <l4/sys/ipc.h>
-
-#ifdef USE_TLS
-# include <tls.h>
-#endif
 
 #include "descr.h"
 
@@ -369,7 +364,7 @@ extern void __flockfilelist (void);
 extern void __funlockfilelist (void);
 extern void __fresetlockfiles (void);
 extern void __pthread_manager_adjust_prio (int thread_prio);
-extern void __pthread_initialize_minimal (void);
+extern void __pthread_initialize_minimal (void *arg);
 
 extern int __pthread_attr_setguardsize (pthread_attr_t *__attr,
 					size_t __guardsize);

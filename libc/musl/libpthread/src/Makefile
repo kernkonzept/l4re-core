@@ -20,8 +20,8 @@ LDSODIR    = $(CONTRIB_DIR)/ldso/ldso
 SRC_CC_libc_pthread   = manager.cc l4.cc
 SRC_C_libc_pthread   += spinlock.c mutex.c condvar.c rwlock.c errno.c specific.c \
                         semaphore.c attr.c barrier.c join.c pthread.c \
-                        cancel.c ptcleanup.c errno-loc.c signals.c \
-                        sysdeps/$(LIBC_ARCH)/pspinlock.c
+                        cancel.c ptcleanup.c signals.c \
+                        sysdeps/$(LIBC_ARCH)/pspinlock.c impl-musl.c
 SRC_S_libc_pthread    = tramp-$(ARCH).S
 
 SRC_C_libc_pthread.p.a  += $(SRC_C_libc_pthread)
@@ -48,14 +48,12 @@ INCDIR-ppc32 = $(SRC_DIR)/sysdeps/powerpc \
                $(CONTRIB_DIR)/libpthread/linuxthreads/sysdeps/powerpc
 INCDIR-riscv = $(SRC_DIR)/sysdeps/riscv
 
-PRIVATE_INCDIR = $(SRC_DIR) $(INCDIR-$(ARCH)) $(CONTRIB_DIR)/ldso/include
+PRIVATE_INCDIR = $(SRC_DIR) $(INCDIR-$(ARCH)) $(CONTRIB_DIR)/arch/$(LIBC_ARCH)
 
 DEFINES   := -DL4_THREAD_SAFE -D_GNU_SOURCE=1 -D__NO_WEAK_PTHREAD_ALIASES=1 \
              -D_LIBC=1 -DIS_IN_libpthread=1 -DNOT_IN_libc=1 -DL4_NO_RTTI=1 \
              -DUSE___THREAD=1
 
-CFLAGS    += -include $(CONTRIB_DIR)/include/libc-symbols.h
-CXXFLAGS  += -include $(CONTRIB_DIR)/include/libc-symbols.h
 CXXFLAGS  += -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk

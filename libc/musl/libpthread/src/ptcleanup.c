@@ -18,12 +18,14 @@
 #include <setjmp.h>
 #include "pthread.h"
 #include "internals.h"
-#include <jmpbuf-unwind.h>
+// TODO: musl
+//#include <jmpbuf-unwind.h>
 
 void
 attribute_hidden
 __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
 {
+#if __UCLIBC__
   pthread_descr self = thread_self();
   struct _pthread_cleanup_buffer * c;
 
@@ -38,4 +40,7 @@ __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
 	}
     }
   THREAD_SETMEM(self, p_cleanup, c);
+#endif
+
+// TODO: Call and implement for musl
 }
