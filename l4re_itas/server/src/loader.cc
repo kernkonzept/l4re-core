@@ -7,8 +7,6 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
-#define _GNU_SOURCE
-
 #include "loader.h"
 #include "region.h"
 #include "debug.h"

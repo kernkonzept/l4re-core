@@ -14,6 +14,9 @@ CXXFLAGS_mips  += -mplt -mno-shared -DL4_LOADER_USE_ASM_STUB=1
 CXXFLAGS_riscv += -DL4_LOADER_USE_ASM_STUB=1
 #CXXFLAGS_arm64 += -mcmodel=large
 
+DEFINES_signals.cc += -D_GNU_SOURCE
+DEFINES_loader.cc  += -D_GNU_SOURCE
+
 DEFAULT_RELOC_x86   := 0xb0000000
 DEFAULT_RELOC_arm   := 0xb0000000
 DEFAULT_RELOC_arm64 := 0xc0000000
