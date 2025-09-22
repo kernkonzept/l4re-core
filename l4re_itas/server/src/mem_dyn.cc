@@ -12,7 +12,7 @@
 #include <l4/re/dataspace>
 #include <l4/re/mem_alloc>
 #include <l4/re/error_helper>
-#include <l4/re//unique_cap>
+#include <l4/re/unique_cap>
 #include <l4/cxx/iostream>
 #include <l4/libumalloc/umalloc.h>
 #include "globals.h"
