@@ -423,21 +423,64 @@ template<typename IFACE>
 struct Meta_svr
 {
   l4_ret_t op_num_interfaces(L4::Meta::Rights)
-  { return 1; }
-
-  l4_ret_t op_interface(L4::Meta::Rights, l4_umword_t ifx, long &proto, L4::Ipc::String<char> &name)
   {
-    if (ifx > 0)
-      return -L4_ERANGE;
-    proto = L4::kobject_typeid<IFACE>()->proto();
-    if (auto *n = L4::kobject_typeid<IFACE>()->name())
-      name.copy_in(n);
+    l4_ret_t ret = 0;
+    auto iter = [&ret](L4::Type_info const *)
+      {
+        ++ret;
+        return false;
+      };
+    _iter_interfaces(iter);
+    return ret;
+  }
 
-    return 0;
+  l4_ret_t op_interface(L4::Meta::Rights, l4_umword_t idx, long &proto,
+                        L4::Ipc::String<char> &name)
+  {
+    auto iter =
+      [idx, &proto, &name, num = 0U](L4::Type_info const *t) mutable
+      {
+        if (idx == num)
+          {
+            proto = t->proto();
+            if (auto *n = t->name())
+              name.copy_in(n);
+            else
+              name.copy_in("");
+
+            return true;
+          }
+
+        ++num;
+        return false;
+      };
+
+    return _iter_interfaces(iter) ? 0 : -L4_ERANGE;
   }
 
   l4_ret_t op_supports(L4::Meta::Rights, l4_mword_t proto)
   { return L4::kobject_typeid<IFACE>()->has_proto(proto); }
+
+private:
+  template<typename F>
+  static bool _iter_interfaces(F &f)
+  { return _iter_interfaces<F>(L4::kobject_typeid<IFACE>(), f); }
+
+  template<typename F>
+  static bool _iter_interfaces(L4::Type_info const *t, F &f)
+  {
+    // Don't report L4::Kobject (no base) or L4::PROTO_EMPTY. The latter
+    // interfaces are not dispatched and shall remain invisible.
+    if (t->num_bases() && t->proto() != L4::PROTO_EMPTY)
+      if (f(t))
+        return true;
+
+    for (unsigned i = 0; i < t->num_bases(); ++i)
+      if (_iter_interfaces(t->base(i), f))
+        return true;
+
+    return false;
+  }
 };
 
 template<typename IFACE, typename LIST>
