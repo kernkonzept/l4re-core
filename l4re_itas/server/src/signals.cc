@@ -5,6 +5,8 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
+#define _GNU_SOURCE
+
 #include <errno.h>
 #include <limits.h>
 #include <string.h>
