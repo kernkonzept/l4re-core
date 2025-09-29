@@ -62,6 +62,9 @@ DEFINES += -U__linux__
 # support printing.
 DEFINES += -D_LIBUNWIND_NO_STDIO
 
+# for struct dl_phdr_info
+DEFINES += -D_GNU_SOURCE
+
 # Threaded (SYSTEMS_ABI) or not-threaded (SYSTEMS_PLAIN -> pure)
 ifeq ($(L4API),l4f)
 # LIBUNWIND_USE_WEAK_PTHREAD does not work with static libpthread if the binary
