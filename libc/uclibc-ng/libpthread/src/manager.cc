@@ -78,12 +78,6 @@ static pthread_descr manager_thread;
 
 # define thread_segment(seq) NULL
 
-/* Flag set in signal handler to record child termination */
-
-#ifdef NOT_FOR_L4
-static __volatile__ int terminated_children;
-#endif
-
 /* Flag set when the initial thread is blocked on pthread_exit waiting
    for all other threads to terminate */
 
@@ -99,12 +93,7 @@ static int main_thread_exiting;
 static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *attr,
                                  void * (*start_routine)(void *), void *arg);
 static void pthread_handle_free(pthread_t th_id);
-#ifdef NOT_FOR_L4
-static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
-     __attribute__ ((noreturn));
-#else
 static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
-#endif
 //l4/static void pthread_kill_all_threads(int main_thread_also);
 static void pthread_for_each_thread(void *arg,
     void (*fn)(void *, pthread_descr));
@@ -191,14 +180,7 @@ __pthread_manager(void *arg)
 	  sem_post((sem_t*)request.req_args.post);
 	  break;
 	case REQ_DEBUG:
-#ifdef NOT_FOR_L4
-	  /* Make gdb aware of new thread and gdb will restart the
-	     new thread when it is ready to handle the new thread. */
-	  if (__pthread_threads_debug && __pthread_sig_debug > 0)
-	    raise(__pthread_sig_debug);
-#else
 	  do_reply = 1;
-#endif
 	  break;
 	case REQ_KICK:
 	  /* This is just a prod to get the manager to reap some
@@ -267,9 +249,6 @@ pthread_start_thread(void *arg)
 #  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
 #endif
 
-#ifdef NOT_FOR_L4
-  struct pthread_request request;
-#endif
   void * outcome;
 #if HP_TIMING_AVAIL
   hp_timing_t tmpclock;
@@ -282,61 +261,12 @@ pthread_start_thread(void *arg)
   THREAD_SETMEM (self, p_cpuclock_offset, tmpclock);
 #endif
 
-#ifdef NOT_FOR_L4
-  /* Set the scheduling policy and priority for the new thread, if needed */
-  if (THREAD_GETMEM(self, p_start_args.schedpolicy) >= 0)
-    /* Explicit scheduling attributes were provided: apply them */
-    __sched_setscheduler(THREAD_GETMEM(self, p_pid),
-			 THREAD_GETMEM(self, p_start_args.schedpolicy),
-                         &self->p_start_args.schedparam);
-  else if (manager_thread->p_priority > 0)
-    /* Default scheduling required, but thread manager runs in realtime
-       scheduling: switch new thread to SCHED_OTHER policy */
-    {
-      struct sched_param default_params;
-      default_params.sched_priority = 0;
-      __sched_setscheduler(THREAD_GETMEM(self, p_pid),
-                           SCHED_OTHER, &default_params);
-    }
-  /* Initialize __resp.  */
-  __resp = &self->p_res;
-  /* Make gdb aware of new thread */
-  if (__pthread_threads_debug && __pthread_sig_debug > 0) {
-    request.req_thread = self;
-    request.req_kind = REQ_DEBUG;
-    TEMP_FAILURE_RETRY(write_not_cancel(__pthread_manager_request,
-					(char *) &request, sizeof(request)));
-    suspend(self);
-  }
-#endif
   /* Run the thread code */
   outcome = self->p_start_args.start_routine(THREAD_GETMEM(self,
 							   p_start_args.arg));
   /* Exit with the given return value */
   __pthread_do_exit(outcome, (char *)CURRENT_STACK_FRAME);
 }
-
-#ifdef NOT_FOR_L4
-static int
-__attribute__ ((noreturn))
-pthread_start_thread_event(void *arg)
-{
-  pthread_descr self = (pthread_descr) arg;
-
-  INIT_THREAD_SELF(self, self->p_nr);
-
-  /* Make sure our pid field is initialized, just in case we get there
-     before our father has initialized it. */
-  THREAD_SETMEM(self, p_pid, __getpid());
-  /* Get the lock the manager will free once all is correctly set up.  */
-  __pthread_lock (THREAD_GETMEM(self, p_lock), NULL);
-  /* Free it immediately.  */
-  __pthread_unlock (THREAD_GETMEM(self, p_lock));
-
-  /* Continue with the real function.  */
-  pthread_start_thread (arg);
-}
-#endif
 
 #ifdef USE_L4RE_FOR_STACK
 static int pthread_l4_free_stack(void *stack_addr, void *guardaddr)
@@ -753,14 +683,6 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
 #if defined(TLS_DTV_AT_TP)
   /* pthread_descr is below TP.  */
   new_thread = (pthread_descr) ((char *) new_thread - TLS_PRE_TCB_SIZE);
-#endif
-#ifdef __NOT_FOR_L4__
-  /* First check whether we have to change the policy and if yes, whether
-     we can  do this.  Normally this should be done by examining the
-     return value of the __sched_setscheduler call in pthread_start_thread
-     but this is hard to implement.  FIXME  */
-  if (attr != NULL && attr->__schedpolicy != SCHED_OTHER && geteuid () != 0)
-    return EPERM;
 #endif
   /* Find a free segment for the thread, and allocate a stack if needed */
 

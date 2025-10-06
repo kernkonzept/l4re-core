@@ -90,28 +90,7 @@ size_t __pthread_max_stacksize;
 /* Nozero if the machine has more than one processor.  */
 int __pthread_smp_kernel;
 
-
-#if !__ASSUME_REALTIME_SIGNALS
-/* Pointers that select new or old suspend/resume functions
-   based on availability of rt signals. */
-
-#ifdef NOT_FOR_L4
-void (*__pthread_restart)(pthread_descr) = __pthread_restart_old;
-void (*__pthread_suspend)(pthread_descr) = __pthread_suspend_old;
-int (*__pthread_timedsuspend)(pthread_descr, const struct timespec *) = __pthread_timedsuspend_old;
-#endif
-#endif	/* __ASSUME_REALTIME_SIGNALS */
-
 /* Communicate relevant LinuxThreads constants to gdb */
-
-#ifdef NOT_FOR_L4
-const int __pthread_threads_max = PTHREAD_THREADS_MAX;
-const int __pthread_sizeof_handle = sizeof(struct pthread_handle_struct);
-const int __pthread_offsetof_descr = offsetof(struct pthread_handle_struct,
-                                              h_descr);
-const int __pthread_offsetof_pid = offsetof(struct _pthread_descr_struct,
-                                            p_pid);
-#endif
 const int __linuxthreads_pthread_sizeof_descr
   = sizeof(struct pthread);
 
@@ -126,11 +105,6 @@ static void pthread_onexit_process(int retcode, void *arg);
 static void pthread_atexit_process(void *arg, int retcode);
 static void pthread_atexit_retcode(void *arg, int retcode);
 #endif
-#ifdef NOT_FOR_L4
-static void pthread_handle_sigcancel(int sig);
-static void pthread_handle_sigrestart(int sig);
-static void pthread_handle_sigdebug(int sig);
-#endif
 
 /* Signal numbers used for the communication.
    In these variables we keep track of the used variables.  If the
@@ -142,35 +116,6 @@ int __pthread_sig_cancel = __SIGRTMIN + 1;
 int __pthread_sig_debug = __SIGRTMIN + 2;
 
 extern int __libc_current_sigrtmin_private (void);
-
-#ifdef NOT_FOR_L4
-#if !__ASSUME_REALTIME_SIGNALS
-static int rtsigs_initialized;
-
-static void
-init_rtsigs (void)
-{
-  if (rtsigs_initialized)
-    return;
-
-  if (__libc_current_sigrtmin_private () == -1)
-    {
-      __pthread_sig_restart = SIGUSR1;
-      __pthread_sig_cancel = SIGUSR2;
-      __pthread_sig_debug = 0;
-    }
-  else
-    {
-      __pthread_restart = __pthread_restart_new;
-      __pthread_suspend = __pthread_wait_for_restart_signal;
-      __pthread_timedsuspend = __pthread_timedsuspend_new;
-    }
-
-  rtsigs_initialized = 1;
-}
-#endif
-#endif
-
 
 /* Initialize the pthread library.
    Initialization is split in two functions:
@@ -314,10 +259,6 @@ cannot allocate TLS data structures for initial thread\n";
      structure by hand.  This initialization must mirror the struct
      definition above.  */
   self->p_nextlive = self->p_prevlive = self;
-#if defined NOT_FOR_L4
-  self->p_tid = PTHREAD_THREADS_MAX;
-  self->p_lock = &__pthread_handles[0].h_lock;
-#endif
   /* self->p_start_args need not be initialized, it's all zero.  */
   self->p_userstack = 1;
 #if __LT_SPINLOCK_INIT != 0
@@ -328,18 +269,12 @@ cannot allocate TLS data structures for initial thread\n";
   /* Another variable which points to the thread descriptor.  */
   __pthread_main_thread = self;
 
-  /* And fill in the pointer the the thread __pthread_handles array.  */
-#ifdef NOT_FOR_L4
-  __pthread_handles[0].h_descr = self;
-#endif
-
 #if HP_TIMING_AVAIL
   self->p_cpuclock_offset = GL(dl_cpuclock_offset);
 #endif
-#ifndef NOT_FOR_L4
   if (__pthread_l4_initialize_main_thread(self))
     exit(1);
-#endif
+
   __libc_multiple_threads_ptr = __libc_pthread_init ();
 }
 
@@ -347,37 +282,7 @@ cannot allocate TLS data structures for initial thread\n";
 void
 __pthread_init_max_stacksize(void)
 {
-#ifdef NOT_FOR_L4
-  struct rlimit limit;
-#endif
   size_t max_stack;
-
-#ifdef NOT_FOR_L4
-  getrlimit(RLIMIT_STACK, &limit);
-#ifdef FLOATING_STACKS
-  if (limit.rlim_cur == RLIM_INFINITY)
-    limit.rlim_cur = ARCH_STACK_MAX_SIZE;
-# ifdef NEED_SEPARATE_REGISTER_STACK
-  max_stack = limit.rlim_cur / 2;
-# else
-  max_stack = limit.rlim_cur;
-# endif
-#else
-  /* Play with the stack size limit to make sure that no stack ever grows
-     beyond STACK_SIZE minus one page (to act as a guard page). */
-# ifdef NEED_SEPARATE_REGISTER_STACK
-  /* STACK_SIZE bytes hold both the main stack and register backing
-     store. The rlimit value applies to each individually.  */
-  max_stack = STACK_SIZE/2 - __getpagesize ();
-# else
-  max_stack = STACK_SIZE - __getpagesize();
-# endif
-  if (limit.rlim_cur > max_stack) {
-    limit.rlim_cur = max_stack;
-    setrlimit(RLIMIT_STACK, &limit);
-  }
-#endif
-#endif
 
   // L4
   max_stack = STACK_SIZE - L4_PAGESIZE;
@@ -457,10 +362,6 @@ static void pthread_initialize(void)
   /* We don't need to know the bottom of the stack.  Give the pointer some
      value to signal that initialization happened.  */
   __pthread_initial_thread_bos = (void *) -1l;
-#ifdef NOT_FOR_L4
-  /* Update the descriptor for the initial thread. */
-  THREAD_SETMEM (((pthread_descr) NULL), p_pid, __getpid());
-#endif
   /* Register an exit function to kill all other threads. */
   /* Do it early so that user-registered atexit functions are called
      before pthread_*exit_process. */
@@ -512,12 +413,6 @@ void __pthread_initialize(void)
 
 int __pthread_initialize_manager(void)
 {
-#ifdef NOT_FOR_L4
-  int manager_pipe[2];
-  int pid;
-  struct pthread_request request;
-  int report_events;
-#endif
   pthread_descr mgr;
   tcbhead_t *tcbp;
 
@@ -545,22 +440,11 @@ int __pthread_initialize_manager(void)
   // L4: force 16-byte stack alignment
   __pthread_manager_thread_tos =
     (char *)((uintptr_t)__pthread_manager_thread_tos & ~0xfUL);
-#ifdef NOT_FOR_L4
-  /* Setup pipe to communicate with thread manager */
-  if (pipe(manager_pipe) == -1) {
-    free(__pthread_manager_thread_bos);
-    return -1;
-  }
-#endif
 
   /* Allocate memory for the thread descriptor and the dtv.  */
   tcbp = _dl_allocate_tls (NULL);
   if (tcbp == NULL) {
     free(__pthread_manager_thread_bos);
-#ifdef NOT_FOR_L4
-    close_not_cancel(manager_pipe[0]);
-    close_not_cancel(manager_pipe[1]);
-#endif
     return -1;
   }
 
@@ -571,9 +455,6 @@ int __pthread_initialize_manager(void)
      returns.  */
   mgr = (pthread_descr) ((char *) tcbp - TLS_PRE_TCB_SIZE);
 #endif
-#ifdef NOT_FOR_L4
-  __pthread_handles[1].h_descr = manager_thread = mgr;
-#endif
 
   /* Initialize the descriptor.  */
 #if !TLS_DTV_AT_TP
@@ -581,129 +462,21 @@ int __pthread_initialize_manager(void)
   mgr->header.self = mgr;
 #endif
   mgr->header.multiple_threads = 1;
-#ifdef NOT_FOR_L4
-  mgr->p_lock = &__pthread_handles[1].h_lock;
-#endif
   mgr->p_start_args = (struct pthread_start_args) PTHREAD_START_ARGS_INITIALIZER(__pthread_manager);
-#ifdef NOT_FOR_L4
-  mgr->p_nr = 1;
-#endif
 #if __LT_SPINLOCK_INIT != 0
   self->p_resume_count = (struct pthread_atomic) __ATOMIC_INITIALIZER;
 #endif
   mgr->p_alloca_cutoff = PTHREAD_STACK_MIN / 4;
 
-#ifdef NOT_FOR_L4
-  __pthread_manager_request = manager_pipe[1]; /* writing end */
-  __pthread_manager_reader = manager_pipe[0]; /* reading end */
-#endif
-
   /* Start the thread manager */
-#ifdef NOT_FOR_L4
-  pid = 0;
-  if (__linuxthreads_initial_report_events != 0)
-    THREAD_SETMEM (((pthread_descr) NULL), p_report_events,
-		   __linuxthreads_initial_report_events);
-  report_events = THREAD_GETMEM (((pthread_descr) NULL), p_report_events);
-  if (__builtin_expect (report_events, 0))
-    {
-      /* It's a bit more complicated.  We have to report the creation of
-	 the manager thread.  */
-      int idx = __td_eventword (TD_CREATE);
-      uint32_t mask = __td_eventmask (TD_CREATE);
-      uint32_t event_bits;
-
-      event_bits = THREAD_GETMEM_NC (((pthread_descr) NULL),
-				     p_eventbuf.eventmask.event_bits[idx]);
-
-      if ((mask & (__pthread_threads_events.event_bits[idx] | event_bits))
-	  != 0)
-	{
-	  __pthread_lock(mgr->p_lock, NULL);
-
-#ifdef NEED_SEPARATE_REGISTER_STACK
-	  pid = __clone2(__pthread_manager_event,
-			 (void **) __pthread_manager_thread_bos,
-			 THREAD_MANAGER_STACK_SIZE,
-			 CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM,
-			 mgr);
-#elif _STACK_GROWS_UP
-	  pid = __clone(__pthread_manager_event,
-			(void **) __pthread_manager_thread_bos,
-			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM,
-			mgr);
-#else
-	  pid = __clone(__pthread_manager_event,
-			(void **) __pthread_manager_thread_tos,
-			CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM,
-			mgr);
-#endif
-
-	  if (pid != -1)
-	    {
-	      /* Now fill in the information about the new thread in
-	         the newly created thread's data structure.  We cannot let
-	         the new thread do this since we don't know whether it was
-	         already scheduled when we send the event.  */
-	      mgr->p_eventbuf.eventdata = mgr;
-	      mgr->p_eventbuf.eventnum = TD_CREATE;
-	      __pthread_last_event = mgr;
-	      mgr->p_tid = 2* PTHREAD_THREADS_MAX + 1;
-	      mgr->p_pid = pid;
-
-	      /* Now call the function which signals the event.  */
-	      __linuxthreads_create_event ();
-	    }
-
-	  /* Now restart the thread.  */
-	  __pthread_unlock(mgr->p_lock);
-	}
-    }
-
-  if (__builtin_expect (pid, 0) == 0)
-    {
-#ifdef NEED_SEPARATE_REGISTER_STACK
-      pid = __clone2(__pthread_manager, (void **) __pthread_manager_thread_bos,
-		     THREAD_MANAGER_STACK_SIZE,
-		     CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM, mgr);
-#elif _STACK_GROWS_UP
-      pid = __clone(__pthread_manager, (void **) __pthread_manager_thread_bos,
-		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM, mgr);
-#else
-      pid = __clone(__pthread_manager, (void **) __pthread_manager_thread_tos,
-		    CLONE_VM | CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_SYSVSEM, mgr);
-#endif
-    }
-#else
-  // l4
   int err = __pthread_start_manager(mgr);
-#endif
 
   if (__builtin_expect (err, 0) == -1) {
     _dl_deallocate_tls (tcbp, true);
     free(__pthread_manager_thread_bos);
-#ifdef NOT_FOR_L4
-    close_not_cancel(manager_pipe[0]);
-    close_not_cancel(manager_pipe[1]);
-#endif
     return -1;
   }
-#ifdef NOT_FOR_L4
-  mgr->p_tid = 2* PTHREAD_THREADS_MAX + 1;
-  mgr->p_pid = pid;
-  /* Make gdb aware of new thread manager */
-  if (__builtin_expect (__pthread_threads_debug, 0) && __pthread_sig_debug > 0)
-    {
-      raise(__pthread_sig_debug);
-      /* We suspend ourself and gdb will wake us up when it is
-	 ready to handle us. */
-      __pthread_wait_for_restart_signal(thread_self());
-    }
-  /* Synchronize debugging of the thread manager */
-  request.req_kind = REQ_DEBUG;
-  TEMP_FAILURE_RETRY(write_not_cancel(__pthread_manager_request,
-				      (char *) &request, sizeof(request)));
-#endif
+
   return 0;
 }
 
@@ -726,14 +499,7 @@ __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   request.req_args.create.attr = attr;
   request.req_args.create.fn = start_routine;
   request.req_args.create.arg = arg;
-#ifdef NOT_FOR_L4
-  sigprocmask(SIG_SETMASK, NULL, &request.req_args.create.mask);
-  TEMP_FAILURE_RETRY(write_not_cancel(__pthread_manager_request,
-				      (char *) &request, sizeof(request)));
-  suspend(self);
-#else
   __pthread_send_manager_rq(&request, 1);
-#endif
   retval = THREAD_GETMEM(self, p_retcode);
   if (__builtin_expect (retval, 0) == 0)
     *thread = (pthread_t) THREAD_GETMEM(self, p_retval);
@@ -767,60 +533,6 @@ __pthread_equal(pthread_t thread1, pthread_t thread2)
 }
 strong_alias (__pthread_equal, pthread_equal)
 
-#ifdef NOT_FOR_L4
-/* Thread scheduling */
-
-int
-attribute_hidden internal_function
-__pthread_setschedparam(pthread_t thread, int policy,
-                            const struct sched_param *param)
-{
-  pthread_handle handle = thread_handle(thread);
-  pthread_descr th;
-
-  __pthread_lock(&handle->h_lock, NULL);
-  if (__builtin_expect (invalid_handle(handle, thread), 0)) {
-    __pthread_unlock(&handle->h_lock);
-    return ESRCH;
-  }
-  th = handle->h_descr;
-  if (__builtin_expect (__sched_setscheduler(th->p_pid, policy, param) == -1,
-			0)) {
-    __pthread_unlock(&handle->h_lock);
-    return errno;
-  }
-  th->p_priority = policy == SCHED_OTHER ? 0 : param->sched_priority;
-  __pthread_unlock(&handle->h_lock);
-  if (__pthread_manager_request >= 0)
-    __pthread_manager_adjust_prio(th->p_priority);
-  return 0;
-}
-strong_alias (__pthread_setschedparam, pthread_setschedparam)
-
-int
-attribute_hidden internal_function
-__pthread_getschedparam(pthread_t thread, int *policy,
-                            struct sched_param *param)
-{
-  pthread_handle handle = thread_handle(thread);
-  int pid, pol;
-
-  __pthread_lock(&handle->h_lock, NULL);
-  if (__builtin_expect (invalid_handle(handle, thread), 0)) {
-    __pthread_unlock(&handle->h_lock);
-    return ESRCH;
-  }
-  pid = handle->h_descr->p_pid;
-  __pthread_unlock(&handle->h_lock);
-  pol = __sched_getscheduler(pid);
-  if (__builtin_expect (pol, 0) == -1) return errno;
-  if (__sched_getparam(pid, param) == -1) return errno;
-  *policy = pol;
-  return 0;
-}
-strong_alias (__pthread_getschedparam, pthread_getschedparam)
-#endif
-
 /* Process-wide exit() request */
 
 static void pthread_onexit_process(int retcode, void *arg)
@@ -837,11 +549,6 @@ static void pthread_onexit_process(int retcode, void *arg)
     request.req_thread = self;
     request.req_kind = REQ_PROCESS_EXIT;
     request.req_args.exit.code = retcode;
-#ifdef NOT_FOR_L4
-    TEMP_FAILURE_RETRY(write_not_cancel(__pthread_manager_request,
-					(char *) &request, sizeof(request)));
-    suspend(self);
-#else
     // let pthread-manager kill all pthreads except myself
     // exclude the main thread
     __pthread_send_manager_rq(&request, 1);
@@ -853,26 +560,11 @@ static void pthread_onexit_process(int retcode, void *arg)
         __l4_kill_thread(__pthread_main_thread->p_th_cap);
       }
     return;
-#endif
     /* Main thread should accumulate times for thread manager and its
        children, so that timings for main thread account for all threads. */
     if (self == __pthread_main_thread)
       {
 	UNIMPL();
-#if 0
-	waitpid(manager_thread->p_pid, NULL, __WCLONE);
-	/* Since all threads have been asynchronously terminated
-           (possibly holding locks), free cannot be used any more.
-           For mtrace, we'd like to print something though.  */
-	/* #ifdef USE_TLS
-	   tcbhead_t *tcbp = (tcbhead_t *) manager_thread;
-	   # if defined(TLS_DTV_AT_TP)
-	   tcbp = (tcbhead_t) ((char *) tcbp + TLS_PRE_TCB_SIZE);
-	   # endif
-	   _dl_deallocate_tls (tcbp, true);
-	   #endif
-	   free (__pthread_manager_thread_bos); */
-#endif
 	__pthread_manager_thread_bos = __pthread_manager_thread_tos = NULL;
       }
   }
@@ -890,140 +582,6 @@ static void pthread_atexit_retcode(void *arg, int retcode)
 {
   __pthread_atexit_retcode = retcode;
 }
-#endif
-
-#ifdef NOT_FOR_L4
-/* The handler for the RESTART signal just records the signal received
-   in the thread descriptor, and optionally performs a siglongjmp
-   (for pthread_cond_timedwait). */
-
-static void pthread_handle_sigrestart(int sig)
-{
-  pthread_descr self = check_thread_self();
-  THREAD_SETMEM(self, p_signal, sig);
-  if (THREAD_GETMEM(self, p_signal_jmp) != NULL)
-    siglongjmp(*THREAD_GETMEM(self, p_signal_jmp), 1);
-}
-
-/* The handler for the CANCEL signal checks for cancellation
-   (in asynchronous mode), for process-wide exit and exec requests.
-   For the thread manager thread, redirect the signal to
-   __pthread_manager_sighandler. */
-
-static void pthread_handle_sigcancel(int sig)
-{
-  pthread_descr self = check_thread_self();
-  sigjmp_buf * jmpbuf;
-
-  if (self == manager_thread)
-    {
-      __pthread_manager_sighandler(sig);
-      return;
-    }
-  if (__builtin_expect (__pthread_exit_requested, 0)) {
-    /* Main thread should accumulate times for thread manager and its
-       children, so that timings for main thread account for all threads. */
-    if (self == __pthread_main_thread) {
-      waitpid(manager_thread->p_pid, NULL, __WCLONE);
-    }
-    _exit(__pthread_exit_code);
-  }
-  if (__builtin_expect (THREAD_GETMEM(self, p_canceled), 0)
-      && THREAD_GETMEM(self, p_cancelstate) == PTHREAD_CANCEL_ENABLE) {
-    if (THREAD_GETMEM(self, p_canceltype) == PTHREAD_CANCEL_ASYNCHRONOUS)
-      __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
-    jmpbuf = THREAD_GETMEM(self, p_cancel_jmp);
-    if (jmpbuf != NULL) {
-      THREAD_SETMEM(self, p_cancel_jmp, NULL);
-      siglongjmp(*jmpbuf, 1);
-    }
-  }
-}
-
-/* Handler for the DEBUG signal.
-   The debugging strategy is as follows:
-   On reception of a REQ_DEBUG request (sent by new threads created to
-   the thread manager under debugging mode), the thread manager throws
-   __pthread_sig_debug to itself. The debugger (if active) intercepts
-   this signal, takes into account new threads and continue execution
-   of the thread manager by propagating the signal because it doesn't
-   know what it is specifically done for. In the current implementation,
-   the thread manager simply discards it. */
-
-static void pthread_handle_sigdebug(int sig)
-{
-  /* Nothing */
-}
-#endif
-
-/* Reset the state of the thread machinery after a fork().
-   Close the pipe used for requests and set the main thread to the forked
-   thread.
-   Notice that we can't free the stack segments, as the forked thread
-   may hold pointers into them. */
-
-#ifdef NOT_FOR_L4
-void __pthread_reset_main_thread(void)
-{
-  pthread_descr self = thread_self();
-
-  if (__pthread_manager_request != -1) {
-    /* Free the thread manager stack */
-    free(__pthread_manager_thread_bos);
-    __pthread_manager_thread_bos = __pthread_manager_thread_tos = NULL;
-    /* Close the two ends of the pipe */
-    close_not_cancel(__pthread_manager_request);
-    close_not_cancel(__pthread_manager_reader);
-    __pthread_manager_request = __pthread_manager_reader = -1;
-  }
-
-  /* Update the pid of the main thread */
-  THREAD_SETMEM(self, p_pid, __getpid());
-  /* Make the forked thread the main thread */
-  __pthread_main_thread = self;
-  THREAD_SETMEM(self, p_nextlive, self);
-  THREAD_SETMEM(self, p_prevlive, self);
-
-#ifndef FLOATING_STACKS
-  /* This is to undo the setrlimit call in __pthread_init_max_stacksize.
-     XXX This can be wrong if the user set the limit during the run.  */
- {
-   struct rlimit limit;
-   if (getrlimit (RLIMIT_STACK, &limit) == 0
-       && limit.rlim_cur != limit.rlim_max)
-     {
-       limit.rlim_cur = limit.rlim_max;
-       setrlimit(RLIMIT_STACK, &limit);
-     }
- }
-#endif
-}
-
-/* Process-wide exec() request */
-
-void
-attribute_hidden internal_function
-__pthread_kill_other_threads_np(void)
-{
-  struct sigaction sa;
-  /* Terminate all other threads and thread manager */
-  pthread_onexit_process(0, NULL);
-  /* Make current thread the main thread in case the calling thread
-     changes its mind, does not exec(), and creates new threads instead. */
-  __pthread_reset_main_thread();
-
-  /* Reset the signal handlers behaviour for the signals the
-     implementation uses since this would be passed to the new
-     process.  */
-  memset(&sa, 0, sizeof(sa));
-  if (SIG_DFL) /* if it's constant zero, it's already done */
-    sa.sa_handler = SIG_DFL;
-  __libc_sigaction(__pthread_sig_restart, &sa, NULL);
-  __libc_sigaction(__pthread_sig_cancel, &sa, NULL);
-  if (__pthread_sig_debug > 0)
-    __libc_sigaction(__pthread_sig_debug, &sa, NULL);
-}
-weak_alias (__pthread_kill_other_threads_np, pthread_kill_other_threads_np)
 #endif
 
 /* Concurrency symbol level.  */
@@ -1046,203 +604,6 @@ __pthread_getconcurrency(void)
   return current_level;
 }
 weak_alias (__pthread_getconcurrency, pthread_getconcurrency)
-
-/* Primitives for controlling thread execution */
-
-#ifdef NOT_FOR_L4
-void
-attribute_hidden
-__pthread_wait_for_restart_signal(pthread_descr self)
-{
-  sigset_t mask;
-
-  sigprocmask(SIG_SETMASK, NULL, &mask); /* Get current signal mask */
-  sigdelset(&mask, __pthread_sig_restart); /* Unblock the restart signal */
-  THREAD_SETMEM(self, p_signal, 0);
-  do {
-    __pthread_sigsuspend(&mask);	/* Wait for signal.  Must not be a
-					   cancellation point. */
-  } while (THREAD_GETMEM(self, p_signal) !=__pthread_sig_restart);
-
-  READ_MEMORY_BARRIER(); /* See comment in __pthread_restart_new */
-}
-
-#if !__ASSUME_REALTIME_SIGNALS
-/* The _old variants are for 2.0 and early 2.1 kernels which don't have RT
-   signals.
-   On these kernels, we use SIGUSR1 and SIGUSR2 for restart and cancellation.
-   Since the restart signal does not queue, we use an atomic counter to create
-   queuing semantics. This is needed to resolve a rare race condition in
-   pthread_cond_timedwait_relative. */
-
-void
-attribute_hidden internal_function
-__pthread_restart_old(pthread_descr th)
-{
-  if (pthread_atomic_increment(&th->p_resume_count) == -1)
-    kill(th->p_pid, __pthread_sig_restart);
-}
-
-void
-attribute_hidden internal_function
-__pthread_suspend_old(pthread_descr self)
-{
-  if (pthread_atomic_decrement(&self->p_resume_count) <= 0)
-    __pthread_wait_for_restart_signal(self);
-}
-
-int
-attribute_hidden internal_function
-__pthread_timedsuspend_old(pthread_descr self, const struct timespec *abstime)
-{
-  sigset_t unblock, initial_mask;
-  int was_signalled = 0;
-  sigjmp_buf jmpbuf;
-
-  if (pthread_atomic_decrement(&self->p_resume_count) == 0) {
-    /* Set up a longjmp handler for the restart signal, unblock
-       the signal and sleep. */
-
-    if (sigsetjmp(jmpbuf, 1) == 0) {
-      THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
-      THREAD_SETMEM(self, p_signal, 0);
-      /* Unblock the restart signal */
-      __sigemptyset(&unblock);
-      sigaddset(&unblock, __pthread_sig_restart);
-      sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
-
-      while (1) {
-	struct timeval now;
-	struct timespec reltime;
-
-	/* Compute a time offset relative to now.  */
-	__gettimeofday (&now, NULL);
-	reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
-	reltime.tv_sec = abstime->tv_sec - now.tv_sec;
-	if (reltime.tv_nsec < 0) {
-	  reltime.tv_nsec += 1000000000;
-	  reltime.tv_sec -= 1;
-	}
-
-	/* Sleep for the required duration. If woken by a signal,
-	   resume waiting as required by Single Unix Specification.  */
-	if (reltime.tv_sec < 0 || nanosleep(&reltime, NULL) == 0)
-	  break;
-      }
-
-      /* Block the restart signal again */
-      sigprocmask(SIG_SETMASK, &initial_mask, NULL);
-      was_signalled = 0;
-    } else {
-      was_signalled = 1;
-    }
-    THREAD_SETMEM(self, p_signal_jmp, NULL);
-  }
-
-  /* Now was_signalled is true if we exited the above code
-     due to the delivery of a restart signal.  In that case,
-     we know we have been dequeued and resumed and that the
-     resume count is balanced.  Otherwise, there are some
-     cases to consider. First, try to bump up the resume count
-     back to zero. If it goes to 1, it means restart() was
-     invoked on this thread. The signal must be consumed
-     and the count bumped down and everything is cool. We
-     can return a 1 to the caller.
-     Otherwise, no restart was delivered yet, so a potential
-     race exists; we return a 0 to the caller which must deal
-     with this race in an appropriate way; for example by
-     atomically removing the thread from consideration for a
-     wakeup---if such a thing fails, it means a restart is
-     being delivered. */
-
-  if (!was_signalled) {
-    if (pthread_atomic_increment(&self->p_resume_count) != -1) {
-      __pthread_wait_for_restart_signal(self);
-      pthread_atomic_decrement(&self->p_resume_count); /* should be zero now! */
-      /* woke spontaneously and consumed restart signal */
-      return 1;
-    }
-    /* woke spontaneously but did not consume restart---caller must resolve */
-    return 0;
-  }
-  /* woken due to restart signal */
-  return 1;
-}
-#endif /* __ASSUME_REALTIME_SIGNALS */
-
-void
-attribute_hidden internal_function
-__pthread_restart_new(pthread_descr th)
-{
-  /* The barrier is proabably not needed, in which case it still documents
-     our assumptions. The intent is to commit previous writes to shared
-     memory so the woken thread will have a consistent view.  Complementary
-     read barriers are present to the suspend functions. */
-  WRITE_MEMORY_BARRIER();
-  kill(th->p_pid, __pthread_sig_restart);
-}
-
-/* There is no __pthread_suspend_new because it would just
-   be a wasteful wrapper for __pthread_wait_for_restart_signal */
-
-int
-attribute_hidden internal_function
-__pthread_timedsuspend_new(pthread_descr self, const struct timespec *abstime)
-{
-  sigset_t unblock, initial_mask;
-  int was_signalled = 0;
-  sigjmp_buf jmpbuf;
-
-  if (sigsetjmp(jmpbuf, 1) == 0) {
-    THREAD_SETMEM(self, p_signal_jmp, &jmpbuf);
-    THREAD_SETMEM(self, p_signal, 0);
-    /* Unblock the restart signal */
-    __sigemptyset(&unblock);
-    sigaddset(&unblock, __pthread_sig_restart);
-    sigprocmask(SIG_UNBLOCK, &unblock, &initial_mask);
-
-    while (1) {
-      struct timeval now;
-      struct timespec reltime;
-
-      /* Compute a time offset relative to now.  */
-      __gettimeofday (&now, NULL);
-      reltime.tv_nsec = abstime->tv_nsec - now.tv_usec * 1000;
-      reltime.tv_sec = abstime->tv_sec - now.tv_sec;
-      if (reltime.tv_nsec < 0) {
-	reltime.tv_nsec += 1000000000;
-	reltime.tv_sec -= 1;
-      }
-
-      /* Sleep for the required duration. If woken by a signal,
-	 resume waiting as required by Single Unix Specification.  */
-      if (reltime.tv_sec < 0 || nanosleep(&reltime, NULL) == 0)
-	break;
-    }
-
-    /* Block the restart signal again */
-    sigprocmask(SIG_SETMASK, &initial_mask, NULL);
-    was_signalled = 0;
-  } else {
-    was_signalled = 1;
-  }
-  THREAD_SETMEM(self, p_signal_jmp, NULL);
-
-  /* Now was_signalled is true if we exited the above code
-     due to the delivery of a restart signal.  In that case,
-     everything is cool. We have been removed from whatever
-     we were waiting on by the other thread, and consumed its signal.
-
-     Otherwise we this thread woke up spontaneously, or due to a signal other
-     than restart. This is an ambiguous case  that must be resolved by
-     the caller; the thread is still eligible for a restart wakeup
-     so there is a race. */
-
-  READ_MEMORY_BARRIER(); /* See comment in __pthread_restart_new */
-  return was_signalled;
-}
-#endif
-
 
 /* trampoline function where threads are put before they are destroyed in
    __l4_kill_thread */

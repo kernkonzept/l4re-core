@@ -52,25 +52,6 @@ register char * stack_pointer __asm__ ("r1");
 struct pthread;
 register struct pthread *__thread_self __asm__("r2");
 
-#ifdef NOT_FOR_L4
-/* Return the thread descriptor for the current thread.  */
-#define THREAD_SELF  __thread_self
-
-/* Initialize the thread-unique value.  */
-l4/#define INIT_THREAD_SELF(descr, nr)  (__thread_self = (descr))
-
-/* Access to data in the thread descriptor is easy.  */
-#define THREAD_GETMEM(descr, member) \
-  ((void) (descr), THREAD_SELF->member)
-#define THREAD_GETMEM_NC(descr, member) \
-  ((void) (descr), THREAD_SELF->member)
-#define THREAD_SETMEM(descr, member, value) \
-  ((void) (descr), THREAD_SELF->member = (value))
-#define THREAD_SETMEM_NC(descr, member, value) \
-  ((void) (descr), THREAD_SELF->member = (value))
-
-#endif /* L4 */
-
 /* Compare-and-swap for semaphores. */
 /* note that test-and-set(x) is the same as !compare-and-swap(x, 0, 1) */
 

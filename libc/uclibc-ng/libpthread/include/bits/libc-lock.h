@@ -22,12 +22,6 @@
 
 #include <pthread.h>
 
-#ifdef NOT_FOR_L4
-#if defined _LIBC && !defined NOT_IN_libc
-#include <linuxthreads/internals.h>
-#endif
-#endif
-
 /* Mutex type.  */
 #if defined(_LIBC) || defined(_IO_MTSAFE_IO)
 typedef pthread_mutex_t __libc_lock_t;

@@ -90,18 +90,11 @@ typedef struct
 
 /* Alignment requirements for the TCB.  */
 # define TLS_TCB_ALIGN		__alignof__ (struct pthread)
-#ifdef NOT_FOR_L4
-/* This is the size we need before TCB - actually, it includes the TCB.  */
-# define TLS_PRE_TCB_SIZE \
-  (sizeof (struct pthread)						      \
-   + ((sizeof (tcbhead_t) + TLS_TCB_ALIGN - 1) & ~(TLS_TCB_ALIGN - 1)))
-#else
 /* This is the size we need before TCB - actually, it includes the TCB
  * and the L4 UTCB pointer (sizeof(void)).  */
 # define TLS_PRE_TCB_SIZE \
   (sizeof (struct pthread)						      \
    + ((sizeof (tcbhead_t) + sizeof(void*) + TLS_TCB_ALIGN - 1) & ~(TLS_TCB_ALIGN - 1)))
-#endif
 
 /* The thread pointer (in hardware register $29) points to the end of
    the TCB + 0x7000, as for PowerPC.  The pthread_descr structure is

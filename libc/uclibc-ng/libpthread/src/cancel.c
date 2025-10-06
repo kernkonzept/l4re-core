@@ -85,13 +85,6 @@ static void pthread_handle_sigcancel(void)
       return;
     }
   if (__builtin_expect (__pthread_exit_requested, 0)) {
-#ifdef NOT_FOR_L4
-    /* Main thread should accumulate times for thread manager and its
-       children, so that timings for main thread account for all threads. */
-    if (self == __pthread_main_thread) {
-      waitpid(manager_thread->p_pid, NULL, __WCLONE);
-    }
-#endif
     _exit(__pthread_exit_code);
   }
   if (__builtin_expect (THREAD_GETMEM(self, p_canceled), 0)

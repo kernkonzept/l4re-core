@@ -49,9 +49,4 @@ __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
       c->__routine(c->__arg);
     }
   THREAD_SETMEM(self, p_cleanup, c);
-#ifdef NOT_FOR_L4
-  if (THREAD_GETMEM(self, p_in_sighandler)
-      && _JMPBUF_UNWINDS(target, THREAD_GETMEM(self, p_in_sighandler)))
-    THREAD_SETMEM(self, p_in_sighandler, NULL);
-#endif
 }

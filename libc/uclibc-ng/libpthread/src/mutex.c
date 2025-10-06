@@ -16,9 +16,6 @@
 
 #include <bits/libc-lock.h>
 #include <errno.h>
-#ifdef NOT_FOR_L4
-#include <sched.h>
-#endif
 #include <stddef.h>
 #include <limits.h>
 #include "pthread.h"

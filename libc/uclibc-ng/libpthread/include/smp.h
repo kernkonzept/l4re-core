@@ -15,9 +15,6 @@
    You should have received a copy of the GNU Library General Public
    License along with the GNU C Library; see the file COPYING.LIB.  If not,
    see <http://www.gnu.org/licenses/>.  */
-#ifdef NOT_FOR_L4
-#include <sys/sysctl.h>
-#endif
 
 /* Test whether the machine has more than one processor.  This is not the
    best test but good enough.  More complicated tests would require `malloc'
@@ -25,28 +22,5 @@
 static __inline__ int
 is_smp_system (void)
 {
-#ifdef NOT_FOR_L4
-  static const int sysctl_args[] = { CTL_KERN, KERN_VERSION };
-  char buf[512];
-  size_t reslen = sizeof (buf);
-
-  /* Try reading the number using `sysctl' first.  */
-  if (__sysctl ((int *) sysctl_args,
-		sizeof (sysctl_args) / sizeof (sysctl_args[0]),
-		buf, &reslen, NULL, 0) < 0)
-    {
-      /* This was not successful.  Now try reading the /proc filesystem.  */
-      int fd = __open ("/proc/sys/kernel/version", O_RDONLY);
-      if (__builtin_expect (fd, 0) == -1
-	  || (reslen = __read (fd, buf, sizeof (buf))) <= 0)
-	/* This also didn't work.  We give up and say it's a UP machine.  */
-	buf[0] = '\0';
-
-      __close (fd);
-    }
-
-  return strstr (buf, "SMP") != NULL;
-#else
   return 1;
-#endif
 }
