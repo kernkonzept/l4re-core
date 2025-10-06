@@ -7,7 +7,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-static inline void
+static __attribute__((__noreturn__)) inline void
 _dl_exit(int status) { exit(status); }
 
 static inline int

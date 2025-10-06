@@ -19,7 +19,7 @@ extern attribute_hidden void *__rtld_l4re_env_posix_vfs_ops;
 #define L4RE_CALL(call...) \
 attribute_hidden call
 
-static inline void
+static __attribute__((__noreturn__)) inline void
 _dl_exit(int status)
 { (void)status; l4_infinite_loop(); ;/*l4_ipc_sleep(L4_IPC_NEVER);*/ }
 
