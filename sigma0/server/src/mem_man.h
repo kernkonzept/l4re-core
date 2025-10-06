@@ -28,7 +28,7 @@ private:
   static Mem_man _ram;
 
 public:
-  typedef cxx::Avl_set< Region, cxx::Lt_functor<Region>, Slab_alloc> Tree;
+  typedef cxx::Avl_set<Region, cxx::Lt_functor, Slab_alloc> Tree;
 
 private:
   Tree _tree;
