@@ -128,7 +128,8 @@ struct pthread
 
   int p_priority;               /* Thread priority (== 0 if not realtime) */
   int p_sched_policy;
-  __cpu_mask p_affinity_mask[1]; /* L4 addition; small, more needs dynamic allocations */
+  typeof((cpu_set_t){0}.__bits[0]) p_affinity_mask[1];
+                                /* L4; small, more needs dynamic allocations */
 
 
   l4_cap_idx_t     p_thsem_cap;
