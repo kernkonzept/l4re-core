@@ -30,7 +30,7 @@ int sched_getaffinity(pid_t pid, size_t cpusetsize,
                       cpu_set_t *mask)
 {
   (void)pid;
-  __CPU_SET_S(1, cpusetsize, mask);
+  CPU_SET_S(1, cpusetsize, mask);
   return 0;
 }
 
