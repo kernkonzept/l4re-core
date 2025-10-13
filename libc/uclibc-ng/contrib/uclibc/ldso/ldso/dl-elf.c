@@ -277,12 +277,14 @@ struct elf_resolve *_dl_load_shared_library(unsigned int rflags, struct dyn_elf 
         /*
          * Try the DT_RPATH of the executable itself.
          */
-        pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RPATH];
-        if (pnt) {
-                pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
-                _dl_if_debug_dprint("\tsearching exe's RPATH='%s'\n", pnt);
-                if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
-                        return tpnt1;
+        if (_dl_loaded_modules) {
+            pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RPATH];
+            if (pnt) {
+                    pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
+                    _dl_if_debug_dprint("\tsearching exe's RPATH='%s'\n", pnt);
+                    if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
+                            return tpnt1;
+            }
         }
 #endif
 #endif
@@ -362,20 +364,22 @@ struct elf_resolve *_dl_load_shared_library(unsigned int rflags, struct dyn_elf 
 	 * abusing this bug^Wrelaxed, user-friendly behaviour.
 	 */
 
-	pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RUNPATH];
-	if (pnt) {
-		pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
-		_dl_if_debug_dprint("\tsearching exe's RUNPATH='%s'\n", pnt);
-		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
-			return tpnt1;
-	}
-	pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RPATH];
-	if (pnt) {
-		pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
-		_dl_if_debug_dprint("\tsearching exe's RPATH='%s'\n", pnt);
-		if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
-			return tpnt1;
-	}
+    if (_dl_loaded_modules) {
+        pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RUNPATH];
+        if (pnt) {
+            pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
+            _dl_if_debug_dprint("\tsearching exe's RUNPATH='%s'\n", pnt);
+            if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
+                return tpnt1;
+        }
+        pnt = (char *) _dl_loaded_modules->dynamic_info[DT_RPATH];
+        if (pnt) {
+            pnt += (unsigned long) _dl_loaded_modules->dynamic_info[DT_STRTAB];
+            _dl_if_debug_dprint("\tsearching exe's RPATH='%s'\n", pnt);
+            if ((tpnt1 = search_for_named_library(libname, rflags, pnt, rpnt, NULL)) != NULL)
+                return tpnt1;
+        }
+    }
 #endif
 
 
