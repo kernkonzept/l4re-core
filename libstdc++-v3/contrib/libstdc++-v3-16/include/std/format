@@ -105,6 +105,7 @@ namespace __format
   template<typename _CharT> class _Sink;
   template<typename _CharT> class _Fixedbuf_sink;
   template<typename _Out, typename _CharT> class _Padding_sink;
+  template<typename _Out, typename _CharT> class _Escaping_sink;
 
   // Output iterator that writes to a type-erase character sink.
   template<typename _CharT>
@@ -1068,6 +1069,17 @@ namespace __format
 
   template<typename _Out, typename _CharT>
     _Out
+    __write_escape_seqs(_Out __out, basic_string_view<_CharT> __units)
+    {
+      using _UChar = make_unsigned_t<_CharT>;
+      for (_CharT __c : __units)
+	__out = __format::__write_escape_seq(
+		  __out, static_cast<_UChar>(__c), _Escapes<_CharT>::_S_x());
+      return __out;
+    }
+
+  template<typename _Out, typename _CharT>
+    _Out
     __write_escaped_char(_Out __out, _CharT __c)
     {
       using _UChar = make_unsigned_t<_CharT>;
@@ -1124,12 +1136,10 @@ namespace __format
 
   template<typename _CharT, typename _Out>
     _Out
-    __write_escaped_unicode(_Out __out,
-			    basic_string_view<_CharT> __str,
-			    _Term_char __term)
+    __write_escaped_unicode_part(_Out __out, basic_string_view<_CharT>& __str,
+				 bool& __prev_esc, _Term_char __term)
     {
       using _Str_view = basic_string_view<_CharT>;
-      using _UChar = make_unsigned_t<_CharT>;
       using _Esc = _Escapes<_CharT>;
 
       static constexpr char32_t __replace = U'\uFFFD';
@@ -1143,10 +1153,10 @@ namespace __format
 	}();
 
       __unicode::_Utf_view<char32_t, _Str_view> __v(std::move(__str));
+      __str = {};
+
       auto __first = __v.begin();
       auto const __last = __v.end();
-
-      bool __prev_esc = true;
       while (__first != __last)
 	{
 	  bool __esc_ascii = false;
@@ -1185,15 +1195,32 @@ namespace __format
 	    __out = __format::__write_escaped_char(__out, *__first.base());
 	  else if (__esc_unicode)
 	    __out = __format::__write_escape_seq(__out, *__first, _Esc::_S_u());
-	  else // __esc_replace
-	    for (_CharT __c : _Str_view(__first.base(), __first._M_units()))
-	      __out = __format::__write_escape_seq(__out,
-						   static_cast<_UChar>(__c),
-						   _Esc::_S_x());
+	  // __esc_replace
+	  else if (_Str_view __units(__first.base(), __first._M_units());
+		   __units.end() != __last.base())
+	    __out = __format::__write_escape_seqs(__out, __units);
+	  else
+	    {
+	      __str = __units;
+	      return __out;
+	    }
+
 	  __prev_esc = true;
 	  ++__first;
-
 	}
+
+      return __out;
+    }
+
+  template<typename _CharT, typename _Out>
+    _Out
+    __write_escaped_unicode(_Out __out, basic_string_view<_CharT> __str,
+			    _Term_char __term)
+    {
+      bool __prev_escape = true;
+      __out = __format::__write_escaped_unicode_part(__out, __str,
+						     __prev_escape, __term);
+      __out = __format::__write_escape_seqs(__out, __str);
       return __out;
     }
 
@@ -1399,7 +1426,6 @@ namespace __format
 	_M_format_range(_Rg&& __rg, basic_format_context<_Out, _CharT>& __fc) const
 	{
 	  using _Range = remove_reference_t<_Rg>;
-	  using _String = basic_string<_CharT>;
 	  using _String_view = basic_string_view<_CharT>;
 	  if constexpr (!is_lvalue_reference_v<_Rg>)
 	    return _M_format_range<_Range&>(__rg, __fc);
@@ -1412,55 +1438,28 @@ namespace __format
 				 size_t(ranges::distance(__rg)));
 	      return format(__str, __fc);
 	    }
-	  else if (!_M_spec._M_debug)
+	  else
 	    {
+	      auto __handle_debug = [this, &__rg]<typename _NOut>(_NOut __nout)
+		{
+		  if (!_M_spec._M_debug)
+		    return ranges::copy(__rg, std::move(__nout)).out;
+
+		  _Escaping_sink<_NOut, _CharT>
+		    __sink(std::move(__nout), _Term_quote);
+		  ranges::copy(__rg, __sink.out());
+		  return __sink._M_finish();
+		};
+
 	      const size_t __padwidth = _M_spec._M_get_width(__fc);
 	      if (__padwidth == 0 && _M_spec._M_prec_kind == _WP_none)
-		return ranges::copy(__rg, __fc.out()).out;
+		return __handle_debug(__fc.out());
 
-	      _Padding_sink<_Out, _CharT> __sink(__fc.out(), __padwidth,
-						 _M_spec._M_get_precision(__fc));
-	      ranges::copy(__rg, __sink.out());
+	      _Padding_sink<_Out, _CharT>
+		__sink(__fc.out(), __padwidth, _M_spec._M_get_precision(__fc));
+	      __handle_debug(__sink.out());
 	      return __sink._M_finish(_M_spec._M_align, _M_spec._M_fill);
 	    }
-	  else if constexpr (ranges::forward_range<_Rg> || ranges::sized_range<_Rg>)
-	    {
-	      const size_t __n(ranges::distance(__rg));
-	      size_t __w = __n;
-	      if constexpr (!__unicode::__literal_encoding_is_unicode<_CharT>())
-		if (size_t __max = _M_spec._M_get_precision(__fc); __n > __max)
-		  __w == __max;
-
-	      if (__w <= __format::__stackbuf_size<_CharT>)
-		{
-		  _CharT __buf[__format::__stackbuf_size<_CharT>];
-		  ranges::copy_n(ranges::begin(__rg), __w, __buf);
-		  return _M_format_escaped(_String_view(__buf, __n), __fc);
-		}
-	      else if constexpr (ranges::random_access_range<_Rg>)
-		{
-		  ranges::iterator_t<_Rg> __first = ranges::begin(__rg);
-		  ranges::subrange __sub(__first, ranges::next(__first, __w));
-		  return _M_format_escaped(_String(from_range, __sub), __fc);
-		}
-	      else if (__w <= __n)
-		{
-		  ranges::subrange __sub(
-		    counted_iterator(ranges::begin(__rg), __w),
-		    default_sentinel);
-		  return _M_format_escaped(_String(from_range, __sub), __fc);
-		}
-	      else if constexpr (ranges::sized_range<_Rg>)
-		return _M_format_escaped(_String(from_range, __rg), __fc);
-	      else
-		{
-		  // N.B. preserve the computed size
-		  ranges::subrange __sub(__rg, __n);
-		  return _M_format_escaped(_String(from_range, __sub), __fc);
-		}
-	    }
-	  else
-	    return _M_format_escaped(_String(from_range, __rg), __fc);
 	}
 
       constexpr void
@@ -2599,6 +2598,11 @@ namespace __format
       __format::__formatter_int<_CharT> _M_f;
     };
 
+#if __glibcxx_print >= 202403L
+  template<__format::__char _CharT>
+    constexpr bool enable_nonlocking_formatter_optimization<_CharT> = true;
+#endif
+
 #ifdef _GLIBCXX_USE_WCHAR_T
   /// Format a char value for wide character output.
   template<>
@@ -2660,6 +2664,11 @@ namespace __format
       __format::__formatter_str<_CharT> _M_f;
     };
 
+#if __glibcxx_print >= 202403L
+  template<__format::__char _CharT>
+    constexpr bool enable_nonlocking_formatter_optimization<_CharT*> = true;
+#endif
+
   template<__format::__char _CharT>
     struct formatter<const _CharT*, _CharT>
     {
@@ -2685,6 +2694,12 @@ namespace __format
       __format::__formatter_str<_CharT> _M_f;
     };
 
+#if __glibcxx_print >= 202403L
+  template<__format::__char _CharT>
+    constexpr bool
+    enable_nonlocking_formatter_optimization<const _CharT*> = true;
+#endif
+
   template<__format::__char _CharT, size_t _Nm>
     struct formatter<_CharT[_Nm], _CharT>
     {
@@ -2708,6 +2723,11 @@ namespace __format
     private:
       __format::__formatter_str<_CharT> _M_f;
     };
+
+#if __glibcxx_print >= 202403L
+  template<__format::__char _CharT, size_t _Nm>
+    constexpr bool enable_nonlocking_formatter_optimization<_CharT[_Nm]> = true;
+#endif
 
   template<typename _Traits, typename _Alloc>
     struct formatter<basic_string<char, _Traits, _Alloc>, char>
@@ -2733,6 +2753,13 @@ namespace __format
       __format::__formatter_str<char> _M_f;
     };
 
+#if __glibcxx_print >= 202403L
+  template<typename _Tr, typename _Alloc>
+    constexpr bool
+    enable_nonlocking_formatter_optimization<basic_string<char, _Tr, _Alloc>>
+      = true;
+#endif
+
 #ifdef _GLIBCXX_USE_WCHAR_T
   template<typename _Traits, typename _Alloc>
     struct formatter<basic_string<wchar_t, _Traits, _Alloc>, wchar_t>
@@ -2757,6 +2784,14 @@ namespace __format
     private:
       __format::__formatter_str<wchar_t> _M_f;
     };
+
+#if __glibcxx_print >= 202403L
+  template<typename _Tr, typename _Alloc>
+    constexpr bool
+    enable_nonlocking_formatter_optimization<basic_string<wchar_t, _Tr, _Alloc>>
+      = true;
+#endif
+
 #endif // USE_WCHAR_T
 
   template<typename _Traits>
@@ -2783,6 +2818,13 @@ namespace __format
       __format::__formatter_str<char> _M_f;
     };
 
+#if __glibcxx_print >= 202403L
+  template<typename _Tr>
+    constexpr bool
+    enable_nonlocking_formatter_optimization<basic_string_view<char, _Tr>>
+      = true;
+#endif
+
 #ifdef _GLIBCXX_USE_WCHAR_T
   template<typename _Traits>
     struct formatter<basic_string_view<wchar_t, _Traits>, wchar_t>
@@ -2807,6 +2849,13 @@ namespace __format
     private:
       __format::__formatter_str<wchar_t> _M_f;
     };
+
+#if __glibcxx_print >= 202403L
+  template<typename _Tr>
+    constexpr bool
+    enable_nonlocking_formatter_optimization<basic_string_view<wchar_t, _Tr>>
+      = true;
+#endif
 #endif // USE_WCHAR_T
   /// @}
 
@@ -2831,12 +2880,14 @@ namespace __format
 #endif
   template<> inline constexpr bool __is_formattable_integer<char16_t> = false;
   template<> inline constexpr bool __is_formattable_integer<char32_t> = false;
+
+  template<typename _Tp>
+    concept __formattable_integer = __is_formattable_integer<_Tp>;
 }
 /// @endcond
 
   /// Format an integer.
-  template<typename _Tp, __format::__char _CharT>
-    requires __format::__is_formattable_integer<_Tp>
+  template<__format::__formattable_integer _Tp, __format::__char _CharT>
     struct formatter<_Tp, _CharT>
     {
       formatter() = default;
@@ -2856,6 +2907,12 @@ namespace __format
     private:
       __format::__formatter_int<_CharT> _M_f;
     };
+
+#if __glibcxx_print >= 202403L
+  template<__format::__formattable_integer _Tp>
+    constexpr bool
+    enable_nonlocking_formatter_optimization<_Tp> = true;
+#endif
 
 #if defined __glibcxx_to_chars
   /// Format a floating-point value.
@@ -2877,6 +2934,12 @@ namespace __format
     private:
       __format::__formatter_fp<_CharT> _M_f;
     };
+
+#if __glibcxx_print >= 202403L
+  template<__format::__formattable_float _Tp>
+    constexpr bool
+    enable_nonlocking_formatter_optimization<_Tp> = true;
+#endif
 
 #if __LDBL_MANT_DIG__ == __DBL_MANT_DIG__
   // Reuse __formatter_fp<C>::format<double, Out> for long double.
@@ -3056,6 +3119,12 @@ namespace __format
       __format::__formatter_ptr<_CharT> _M_f;
     };
 
+#if __glibcxx_print >= 202403L
+  template<>
+    inline constexpr bool
+    enable_nonlocking_formatter_optimization<const void*> = true;
+#endif
+
   template<__format::__char _CharT>
     struct formatter<void*, _CharT>
     {
@@ -3074,6 +3143,12 @@ namespace __format
     private:
       __format::__formatter_ptr<_CharT> _M_f;
     };
+
+#if __glibcxx_print >= 202403l
+  template<>
+    inline constexpr bool
+    enable_nonlocking_formatter_optimization<void*> = true;
+#endif
 
   template<__format::__char _CharT>
     struct formatter<nullptr_t, _CharT>
@@ -3094,6 +3169,12 @@ namespace __format
       __format::__formatter_ptr<_CharT> _M_f;
     };
   /// @}
+
+#if __glibcxx_print >= 202403L
+  template<>
+    inline constexpr bool
+    enable_nonlocking_formatter_optimization<nullptr_t> = true;
+#endif
 
 #if defined _GLIBCXX_USE_WCHAR_T && __glibcxx_format_ranges
   // _GLIBCXX_RESOLVE_LIB_DEFECTS
@@ -3912,6 +3993,93 @@ namespace __format
 	const size_t __nfill = _M_padwidth - _M_printwidth;
 	return __format::__write_padded(std::move(_M_out), __str,
 					__align, __nfill, __fill_char);
+      }
+    };
+
+  template<typename _Out, typename _CharT>
+    class _Escaping_sink : public _Buf_sink<_CharT>
+    {
+      using _Esc = _Escapes<_CharT>;
+
+      _Out _M_out;
+      _Term_char _M_term : 2;
+      unsigned _M_prev_escape : 1;
+      unsigned _M_out_discards : 1;
+
+      void
+      _M_sync_discarding()
+      {
+	if constexpr (is_same_v<_Out, _Sink_iter<_CharT>>)
+	  _M_out_discards = _M_out._M_discarding();
+      }
+
+      void
+      _M_write()
+      {
+	span<_CharT> __bytes = this->_M_used();
+	basic_string_view<_CharT> __str(__bytes.data(), __bytes.size());
+
+	size_t __rem = 0;
+	if constexpr (__unicode::__literal_encoding_is_unicode<_CharT>())
+	  {
+	    bool __prev_escape = _M_prev_escape;
+	    _M_out = __format::__write_escaped_unicode_part(
+		       std::move(_M_out), __str, __prev_escape, _M_term);
+	    _M_prev_escape = __prev_escape;
+
+	    __rem = __str.size();
+	    if (__rem > 0 && __str.data() != this->_M_buf) [[unlikely]]
+	      ranges::move(__str, this->_M_buf);
+	  }
+	else
+	  _M_out = __format::__write_escaped_ascii(
+		     std::move(_M_out), __str, _M_term);
+
+	this->_M_reset(this->_M_buf, __rem);
+	_M_sync_discarding();
+      }
+
+      void
+      _M_overflow() override
+      {
+	if (_M_out_discards)
+	  this->_M_rewind();
+	else
+	  _M_write();
+      }
+
+      bool
+      _M_discarding() const override
+      { return _M_out_discards; }
+
+    public:
+      [[__gnu__::__always_inline__]]
+      explicit
+      _Escaping_sink(_Out __out, _Term_char __term)
+      : _M_out(std::move(__out)), _M_term(__term),
+	_M_prev_escape(true), _M_out_discards(false)
+      {
+	_M_out = __format::__write(std::move(_M_out), _Esc::_S_term(_M_term));
+	_M_sync_discarding();
+      }
+
+      _Out
+      _M_finish()
+      {
+	if (_M_out_discards)
+	  return std::move(_M_out);
+
+	if (!this->_M_used().empty())
+	{
+	  _M_write();
+	  if constexpr (__unicode::__literal_encoding_is_unicode<_CharT>())
+	    if (auto __rem = this->_M_used(); !__rem.empty())
+	      {
+		basic_string_view<_CharT> __str(__rem.data(), __rem.size());
+		_M_out = __format::__write_escape_seqs(std::move(_M_out), __str);
+	      }
+	}
+	return __format::__write(std::move(_M_out), _Esc::_S_term(_M_term));
       }
     };
 
@@ -5790,6 +5958,15 @@ namespace __format
 	{ return this->_M_format_elems(__p.first, __p.second, __fc); }
     };
 
+#if __glibcxx_print >= 202406L
+  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+  // 4399. enable_nonlocking_formatter_optimization for pair and tuple needs remove_cvref_t
+  template<typename _Fp, typename _Sp>
+    constexpr bool enable_nonlocking_formatter_optimization<pair<_Fp, _Sp>>
+      = enable_nonlocking_formatter_optimization<remove_cvref_t<_Fp>>
+        && enable_nonlocking_formatter_optimization<remove_cvref_t<_Sp>>;
+#endif
+
   template<__format::__char _CharT, formattable<_CharT>... _Tps>
     struct formatter<tuple<_Tps...>, _CharT>
       : __format::__tuple_formatter<_CharT, remove_cvref_t<_Tps>...>
@@ -5807,6 +5984,14 @@ namespace __format
 	       basic_format_context<_Out, _CharT>& __fc) const
 	{ return this->_M_format(__t, index_sequence_for<_Tps...>(), __fc); }
     };
+
+#if __glibcxx_print >= 202406L
+  // _GLIBCXX_RESOLVE_LIB_DEFECTS
+  // 4399. enable_nonlocking_formatter_optimization for pair and tuple needs remove_cvref_t
+  template<typename... _Tps>
+    constexpr bool enable_nonlocking_formatter_optimization<tuple<_Tps...>>
+      = (enable_nonlocking_formatter_optimization<remove_cvref_t<_Tps>> && ...);
+#endif
 
   // [format.range.formatter], class template range_formatter
   template<typename _Tp, __format::__char _CharT>
@@ -6102,6 +6287,13 @@ namespace __format
 			  range_formatter<_Vt, _CharT>>;
       _Formatter_under _M_under;
     };
+
+#if __glibcxx_print >= 202406L
+  template<ranges::input_range _Rg>
+    requires (format_kind<_Rg> != range_format::disabled)
+    constexpr bool enable_nonlocking_formatter_optimization<_Rg> = false;
+#endif
+
 #endif // C++23 formatting ranges
 #undef _GLIBCXX_WIDEN
 

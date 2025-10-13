@@ -46,7 +46,7 @@
 
 // The datestamp of the C++ library in compressed ISO date format.
 #undef __GLIBCXX__ /* The testsuite defines it to 99999999 to block PCH.  */
-#define __GLIBCXX__ 20250928
+#define __GLIBCXX__ 20251019
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -1114,6 +1114,9 @@ namespace __gnu_cxx
 /* Define to 1 if you have the `frexpl' function. */
 #define _GLIBCXX_HAVE_FREXPL 1
 
+/* Define if fwrite_unlocked can be used for std::print. */
+#define _GLIBCXX_HAVE_FWRITE_UNLOCKED 1
+
 /* Define if getentropy is available in <unistd.h>. */
 //l4/#define _GLIBCXX_HAVE_GETENTROPY 1
 
@@ -1813,6 +1816,9 @@ namespace __gnu_cxx
 /* Define if get_nprocs is available in <sys/sysinfo.h>. */
 //l4/#define _GLIBCXX_USE_GET_NPROCS 1
 
+/* Define if Glibc FILE internals should be used for std::print. */
+//l4/#define _GLIBCXX_USE_GLIBC_STDIO_EXT 1
+
 /* Define if init_priority should be used for iostream initialization. */
 #define _GLIBCXX_USE_INIT_PRIORITY_ATTRIBUTE 1
 
@@ -1879,6 +1885,9 @@ namespace __gnu_cxx
 
 /* Define if sendfile is available in <sys/sendfile.h>. */
 //l4/#define _GLIBCXX_USE_SENDFILE 1
+
+/* Define if flockfile and putc_unlocked should be used for std::print. */
+//l4/#define _GLIBCXX_USE_STDIO_LOCKING 1
 
 /* Define to restrict std::__basic_file<> to stdio APIs. */
 /* #undef _GLIBCXX_USE_STDIO_PURE */

@@ -1869,9 +1869,15 @@ export namespace std
   using std::aligned_accessor;
 #endif
   using std::mdspan;
-  // FIXME layout_left_padded, layout_right_padded, strided_slice,
-  // submdspan_mapping_result, full_extent_t, full_extent, submdspan_extents,
-  // mdsubspan
+#if __glibcxx_padded_layouts
+  using std::layout_left_padded;
+  using std::layout_right_padded;
+  using strided_slice;
+  using full_extent_t;
+  using full_extent;
+  using submdspan_mapping_result;
+#endif
+  // FIXME submdspan_extents, mdsubspan
 }
 #endif
 
@@ -3330,6 +3336,9 @@ export namespace std
 #pragma GCC diagnostic pop
 #if __cpp_lib_unreachable
   using std::unreachable;
+#endif
+#if __cpp_lib_observable_checkpoint
+  using std::observable_checkpoint;
 #endif
 }
 

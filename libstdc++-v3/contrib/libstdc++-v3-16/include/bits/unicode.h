@@ -61,7 +61,7 @@ namespace __unicode
     __is_single_code_unit(char32_t __c)
     {
       if constexpr (__gnu_cxx::__int_traits<_CharT>::__max <= 0xFF)
-	return __c < 0x7F; // ASCII character
+	return __c <= 0x7F; // ASCII character
       else
 	return __c < __gnu_cxx::__int_traits<_CharT>::__max
 		       && __is_scalar_value(__c);
@@ -527,7 +527,7 @@ namespace __unicode
 	  {
 	    // read a low surrogate, expect a high surrogate before it.
 	    uint16_t __u2 = *--_M_curr();
-	    if (__u2 < 0xD800 || __u2 > 0xDC00) [[unlikely]]
+	    if (__u2 < 0xD800 || __u2 >= 0xDC00) [[unlikely]]
 	      __c = _S_error(); // unpaired low surrogate
 	    else
 	      {
