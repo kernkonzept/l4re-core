@@ -64,7 +64,6 @@ static Cap<Dataspace> __binary;
 static Cap<Dataspace> __loader_stack;
 static void *__loader_stack_p;
 static Entry_data __loader_entry;
-static Region_map *__rm;
 static Cap<Thread> app_thread;
 static Signal_manager sigmgr;
 
@@ -291,7 +290,7 @@ loader_thread()
     }
 }
 
-bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
+bool Loader::start(Cap<Dataspace> bin, l4re_aux_t *aux)
 {
   __loader_stack = Global::cap_alloc->alloc<Dataspace>();
   Global::allocator->alloc(Loader_stack_size, __loader_stack);
@@ -353,7 +352,6 @@ bool Loader::start(Cap<Dataspace> bin, Region_map *rm, l4re_aux_t *aux)
 
 
   __loader = this;
-  __rm = rm ;
   __binary = bin;
 
   if (0)

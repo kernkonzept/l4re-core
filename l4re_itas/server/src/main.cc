@@ -220,7 +220,7 @@ int main(int argc, char const *argv[], char const *envp[])
 
   l4_debugger_add_image_info(L4_BASE_TASK_CAP, Global::l4re_aux->ldr_base,
                              base_name(Global::l4re_aux->binary));
-  loader.start(file, Global::local_rm, Global::l4re_aux);
+  loader.start(file, Global::l4re_aux);
 
   // Raise RM prio to its MCP
   env->scheduler()->run_thread(env->main_thread(),

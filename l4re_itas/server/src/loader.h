@@ -140,7 +140,7 @@ typedef Ldr::Local_app_model<L4Re_app_model> L4Re_x_app_model;
 class Loader
 {
 public:
-  bool start(L4::Cap<L4Re::Dataspace> bin, Region_map *rm, l4re_aux_t *aux);
+  bool start(L4::Cap<L4Re::Dataspace> bin, l4re_aux_t *aux);
   virtual bool launch(L4::Cap<L4Re::Dataspace> bin,
                       char const *binname, L4::Cap<L4Re::Rm>) = 0;
   virtual ~Loader() {}
