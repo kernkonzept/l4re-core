@@ -15,4 +15,6 @@ REQUIRES_LIBS   := libloader lua++ libc_support_misc cxx_libc_io cxx_io
 
 DEFAULT_HEAP_SIZE := 0x20000
 
+BID_CAN_PIE      = y
+
 include $(L4DIR)/mk/prog.mk

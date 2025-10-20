@@ -25,7 +25,9 @@ DEFAULT_RELOC_amd64 := 0x70000000
 DEFAULT_RELOC_mips  := 0x70000000
 DEFAULT_RELOC_riscv := 0x70000000
 
-MODE = sigma0
+MODE                = sigma0
+
+BID_CAN_PIE         = y
 
 PRIVATE_INCDIR      += $(SRC_DIR)/ARCH-$(ARCH)
 
