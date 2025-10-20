@@ -185,7 +185,7 @@ int main(int argc, char const *argv[], char const *envp[])
         L4::cout << "  env: '" << *e << "'\n";
     }
 
-  L4Re::Env *const env = const_cast<L4Re::Env*>(L4Re::Env::env());
+  L4Re::Env const *env = L4Re::Env::env();
 
   if (0)
       L4::cout << "AUX=" << Global::l4re_aux << "\n"
