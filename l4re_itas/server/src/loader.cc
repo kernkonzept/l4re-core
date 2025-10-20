@@ -248,6 +248,8 @@ L4Re_app_model::add_env()
 
   e->rm(__loader_entry.rm);
   e->main_thread(app_thread);
+  e->itas(sigmgr.obj_cap());
+
   return e;
 
 }
@@ -362,7 +364,6 @@ bool Loader::start(L4::Cap<L4Re::Dataspace> bin, l4re_aux_t *aux)
 
   L4Re::chkcap(dispatcher.register_obj(&sigmgr),
                "l4re_itas: could not register Signal_manager");
-  env->itas(sigmgr.obj_cap());
 
   L4Re::chkcap(dispatcher.register_obj(&ra_if),
                "l4re_itas: could not register Remote_access mechanism");
