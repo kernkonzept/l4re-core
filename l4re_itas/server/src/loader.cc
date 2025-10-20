@@ -60,7 +60,7 @@ static Signal_manager sigmgr;
 static
 void unmap_stack_and_start()
 {
-  L4Re::Env::env()->rm()->detach(l4_addr_t(__loader_stack_p) - 1, 0);
+  __loader_entry.rm->detach(l4_addr_t(__loader_stack_p) - 1, 0);
   Global::cap_alloc->free(__loader_stack);
   L4::Cap<L4::Thread> self;
   if (__loader_entry.ex_regs_flags)
@@ -244,14 +244,17 @@ L4Re_app_model::all_segs_cow()
 L4Re::Env *
 L4Re_app_model::add_env()
 {
-  L4Re::Env *e = const_cast<L4Re::Env *>(L4Re::Env::env());
+  // Copy the ITAS environment for the application binary. In particular,
+  // L4Re::Env::env()->rm() must keep on pointing to the moe region manager for
+  // us. Otherwise, any future attachments of dataspaces in
+  // umalloc_area_create() would deadlock.
+  L4Re::Env e = *L4Re::Env::env();
 
-  e->rm(__loader_entry.rm);
-  e->main_thread(app_thread);
-  e->itas(sigmgr.obj_cap());
+  e.rm(__loader_entry.rm);
+  e.main_thread(app_thread);
+  e.itas(sigmgr.obj_cap());
 
-  return e;
-
+  return _stack.push(e);
 }
 
 void
