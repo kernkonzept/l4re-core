@@ -11,6 +11,7 @@
 
 #include <l4/cxx/arith>
 #include <l4/cxx/minmax>
+#include <l4/cxx/type_traits>
 #include <l4/sys/consts.h>
 
 namespace cxx {
@@ -495,27 +496,16 @@ List_alloc::dump_free_list(DBG &out)
   Mem_block *c = _first;
   while (c)
     {
-      unsigned sz;
-      const char *unit;
+      static constexpr char const *const unitstr[4] =
+      { "Byte", "KiB", "MiB", "GiB" };
 
-      if (c->size < 1024)
-        {
-          sz = c->size;
-          unit = "Byte";
-        }
-      else if (c->size < 1 << 20)
-        {
-          sz = c->size >> 10;
-          unit = "KB";
-        }
-      else
-        {
-          sz = c->size >> 20;
-          unit = "MB";
-        }
+      unsigned sz = c->size;
+      unsigned i;
+      for (i = 0; i < cxx::array_size(unitstr) && sz > 8 << 10; ++i)
+        sz >>= 10;
 
-      out.printf("%12p - %12p (%u %s)\n", c,
-                 reinterpret_cast<char *>(c) + c->size - 1, sz, unit);
+      out.printf("%12p - %12p (%u %s)\n",
+                 c, reinterpret_cast<char *>(c) + c->size - 1, sz, unitstr[i]);
 
       c = c->next;
     }
