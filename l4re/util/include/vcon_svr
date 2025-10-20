@@ -71,7 +71,7 @@ public:
         break;
       }
 
-    unsigned const max_size = sizeof(l4_utcb_mr()->mr) - sizeof(l4_utcb_mr()->mr[0]);
+    unsigned const max_size = L4_VCON_READ_SIZE;
     char buf[max_size];
 
     unsigned size = cxx::min<unsigned>(op >> 16, max_size);
@@ -82,6 +82,10 @@ public:
 
     if (bytes <= size)
       v |= L4_VCON_READ_STAT_DONE;
+    else
+      // In case of size == max_size, the returned bytes value is greater than
+      // the buffer.
+      bytes = size;
 
     m->mr[0] = v;
     __builtin_memcpy(&m->mr[1], buf, bytes);
