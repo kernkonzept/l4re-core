@@ -280,6 +280,13 @@ struct Phdr_print
 {
   Dbg const &ldr;
   Phdr_print(Dbg const &ldr) : ldr(ldr) {}
+
+  void header()
+  {
+    ldr.printf(
+      "  PHDRs:     type   offset       paddr       vaddr    filesz     memsz rights\n");
+  }
+
   void operator () (Elf_phdr const &ph) const
   {
     char const *pt = ph.phdr_type();
@@ -288,9 +295,8 @@ struct Phdr_print
     else
       ldr.printf("   [%12lx]", ph.type());
 
-    ldr.cprintf(" 0x%lx\t0x%lx\t0x%lx\t0x%lx\t0x%lx\t%c%c%c\n",
-                ph.offset(), ph.paddr(), ph.vaddr(), ph.filesz(),
-                ph.memsz(),
+    ldr.cprintf("%#9lx %#11lx %#11lx %#9lx %#9lx %c%c%c\n",
+                ph.offset(), ph.paddr(), ph.vaddr(), ph.filesz(), ph.memsz(),
                 (ph.flags() & PF_R) ? 'r' : '-',
                 (ph.flags() & PF_W) ? 'w' : '-',
                 (ph.flags() & PF_X) ? 'x' : '-');
@@ -594,7 +600,7 @@ public:
     ldr.printf("  STACK: %lx (%zx)    KIP: %lx\n", stack_info.stack_addr,
                stack_info.stack_size, stack_info.kip_addr);
 
-    ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
+    Phdr_print<Dbg_log>(ldr).header();
     elf.iterate_phdr(Phdr_print<Dbg_log>(ldr));
   }
 
@@ -635,7 +641,7 @@ public:
 
         _base = lib - b_func.start;
 
-        ldr.printf("  PHDRs: type  offset\tpaddr\tvaddr\tfilesz\tmemsz\trights\n");
+        Phdr_print<Dbg_log>(ldr).header();
         elf.iterate_phdr(Phdr_print<Dbg_log>(ldr));
         *base = _base;
         r_flags |= L4Re::Rm::F::In_area;
