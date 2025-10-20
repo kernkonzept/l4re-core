@@ -39,8 +39,6 @@
 #include <stdio.h>
 #include <string.h>
 
-//#define L4RE_USE_LOCAL_PAGER_GATE 1
-
 namespace {
 
 struct Entry_data
