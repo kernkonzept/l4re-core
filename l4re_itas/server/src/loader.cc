@@ -360,8 +360,8 @@ bool Loader::start(Cap<Dataspace> bin, l4re_aux_t *aux)
 
   Env *const env = const_cast<Env *>(Env::env());
 
-  app_thread = Cap<Thread>(env->first_free_cap() << L4_CAP_SHIFT);
-  env->first_free_cap((app_thread.cap() >> L4_CAP_SHIFT)+1);
+  app_thread =  L4Re::chkcap(Global::cap_alloc->alloc<L4::Thread>(),
+                             "l4re_itas: cannot alloc thread cap");
 
   L4Re::chkcap(dispatcher.register_obj(Global::local_rm.get()),
                "l4re_itas: could not register Rm");
