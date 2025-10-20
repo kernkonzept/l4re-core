@@ -138,8 +138,8 @@ static void find_memory()
   l4_addr_t min_addr = ~0UL;
   l4_addr_t max_addr = 0;
 
-  Single_page_alloc_base::can_free = l4util_kip_kernel_has_feature(
-    const_cast<l4_kernel_info_t*>(kip()), "mapdb");
+  Single_page_alloc_base::can_free =
+    l4util_kip_kernel_has_feature(kip(), "mapdb");
   if (!Single_page_alloc_base::can_free)
     info.printf("Fiasco mapdb not available! Memory cannot be given back!\n");
 
