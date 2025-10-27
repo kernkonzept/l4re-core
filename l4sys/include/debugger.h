@@ -210,15 +210,25 @@ l4_debugger_add_image_info_u(l4_cap_idx_t cap, l4_addr_t base, const char *name,
 
 enum
 {
-  L4_DEBUGGER_NAME_SET_OP         = 0UL,
-  L4_DEBUGGER_GLOBAL_ID_OP        = 1UL,
-  L4_DEBUGGER_KOBJ_TO_ID_OP       = 2UL,
-  L4_DEBUGGER_QUERY_LOG_TYPEID_OP = 3UL,
-  L4_DEBUGGER_SWITCH_LOG_OP       = 4UL,
-  L4_DEBUGGER_NAME_GET_OP         = 5UL,
-  L4_DEBUGGER_QUERY_LOG_NAME_OP   = 6UL,
-  L4_DEBUGGER_ADD_IMAGE_INFO_OP   = 7UL,
-  L4_DEBUGGER_OBJ_INFO_OP         = 16UL,
+  /// Set debug name of kernel object.
+  L4_DEBUGGER_KOBJ_SET_NAME_OP = 0UL,
+  /// Get debug ID of kernel object.
+  L4_DEBUGGER_KOBJ_GET_GLOBAL_ID_OP = 1UL,
+  /// Get debug ID of kernel object by pointer.
+  L4_DEBUGGER_KOBJ_PTR_GET_GLOBAL_ID_OP = 2UL,
+  /// Query log-id for log type.
+  L4_DEBUGGER_LOG_QUERY_TYPEID_OP = 3UL,
+  /// Enable / disable log.
+  L4_DEBUGGER_LOG_SWITCH_OP = 4UL,
+  /// Get debug name of kernel object by debug ID.
+  L4_DEBUGGER_GLOBAL_ID_GET_NAME_OP = 5UL,
+  /// Get name of log type for given log-id.
+  L4_DEBUGGER_LOG_QUERY_NAME_OP = 6UL,
+  /// Add image information for task.
+  L4_DEBUGGER_TASK_ADD_IMAGE_INFO_OP = 7UL,
+
+  /// Query information about all kernel objects.
+  L4_DEBUGGER_OBJ_INFO_OP = 16UL,
 };
 
 enum
@@ -263,7 +273,7 @@ l4_debugger_set_object_name_u(l4_cap_idx_t cap,
                               const char *name, l4_utcb_t *utcb) L4_NOTHROW
 {
   unsigned i;
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_NAME_SET_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_KOBJ_SET_NAME_OP;
   i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[1], name,
                       (L4_UTCB_GENERIC_DATA_SIZE - 2) * sizeof(l4_umword_t));
   i = l4_bytes_to_mwords(i);
@@ -273,7 +283,7 @@ l4_debugger_set_object_name_u(l4_cap_idx_t cap,
 L4_INLINE unsigned long
 l4_debugger_global_id_u(l4_cap_idx_t cap, l4_utcb_t *utcb) L4_NOTHROW
 {
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_GLOBAL_ID_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_KOBJ_GET_GLOBAL_ID_OP;
   if (l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 1, 0, 0), utcb), utcb))
     return ~0UL;
   return l4_utcb_mr_u(utcb)->mr[0];
@@ -282,7 +292,7 @@ l4_debugger_global_id_u(l4_cap_idx_t cap, l4_utcb_t *utcb) L4_NOTHROW
 L4_INLINE unsigned long
 l4_debugger_kobj_to_id_u(l4_cap_idx_t cap, l4_addr_t kobjp, l4_utcb_t *utcb) L4_NOTHROW
 {
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_KOBJ_TO_ID_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_KOBJ_PTR_GET_GLOBAL_ID_OP;
   l4_utcb_mr_u(utcb)->mr[1] = kobjp;
   if (l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb), utcb))
     return ~0UL;
@@ -296,7 +306,7 @@ l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
 {
   unsigned i;
   long e;
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_QUERY_LOG_TYPEID_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_LOG_QUERY_TYPEID_OP;
   l4_utcb_mr_u(utcb)->mr[1] = idx;
   i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[2], name, 32);
   i = l4_bytes_to_mwords(i);
@@ -314,7 +324,7 @@ l4_debugger_query_log_name_u(l4_cap_idx_t cap, unsigned idx,
 {
   long e;
   char const *n;
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_QUERY_LOG_NAME_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_LOG_QUERY_NAME_OP;
   l4_utcb_mr_u(utcb)->mr[1] = idx;
   e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb), utcb);
   if (e < 0)
@@ -331,7 +341,7 @@ l4_debugger_switch_log_u(l4_cap_idx_t cap, const char *name, int on_off,
                          l4_utcb_t *utcb) L4_NOTHROW
 {
   unsigned i;
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_SWITCH_LOG_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_LOG_SWITCH_OP;
   l4_utcb_mr_u(utcb)->mr[1] = on_off;
   i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[2], name, 32);
   i = l4_bytes_to_mwords(i);
@@ -344,7 +354,7 @@ l4_debugger_get_object_name_u(l4_cap_idx_t cap, unsigned id,
                               l4_utcb_t *utcb) L4_NOTHROW
 {
   l4_msgtag_t t;
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_NAME_GET_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_GLOBAL_ID_GET_NAME_OP;
   l4_utcb_mr_u(utcb)->mr[1] = id;
   t = l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb);
   __strcpy_maxlen(name, (char const *)&l4_utcb_mr_u(utcb)->mr[0], size);
@@ -356,7 +366,7 @@ l4_debugger_add_image_info_u(l4_cap_idx_t cap, l4_addr_t base,
                              const char *name, l4_utcb_t *utcb) L4_NOTHROW
 {
   unsigned i;
-  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_ADD_IMAGE_INFO_OP;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_TASK_ADD_IMAGE_INFO_OP;
   l4_utcb_mr_u(utcb)->mr[1] = base;
   i = __strcpy_maxlen((char *)&l4_utcb_mr_u(utcb)->mr[2], name,
                       (L4_UTCB_GENERIC_DATA_SIZE - 3) * sizeof(l4_umword_t));
