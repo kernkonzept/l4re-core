@@ -273,12 +273,40 @@ namespace Types {
   {
     /// Raw integral value.
     T raw;
-    /// Default (uninitializing) costructor
+    /// Default (uninitializing) constructor
     Flags_t() = default;
     /// Explicit initialization from the underlying type.
     explicit constexpr Flags_t(T f) : raw(f) {}
   };
 
+  /// Map a sequence of any types to the void type.
+  template<typename...> using Void = void;
+
+  /// Helper template for Add_rvalue_reference.
+  template<typename T, typename = void> struct __Add_rvalue_reference_helper
+  { using type = T; };
+
+  /// Helper template for Add_rvalue_reference.
+  template<typename T> struct __Add_rvalue_reference_helper<T, Void<T &&>>
+  { using type = T &&; };
+
+  /// Create an rvalue reference of the given type.
+  template<typename T> struct Add_rvalue_reference
+  { using type = typename __Add_rvalue_reference_helper<T>::type; };
+
+  /// Helper type for the Add_rvalue_reference.
+  template<typename T> using Add_rvalue_reference_t
+    = typename Add_rvalue_reference<T>::type;
+
+  /**
+   * Template for writing typed expressions in unevaluated contexts.
+   *
+   * In unevaluated contexts, the template converts a type (possibly an
+   * incomplete type) to an expression of that type.
+   *
+   * \tparam T  Type to be converted to an expression of that type.
+   */
+  template<typename T> Add_rvalue_reference_t<T> declval() noexcept;
 
   /**
    * Boolean meta type
@@ -299,6 +327,55 @@ namespace Types {
   /// \ingroup l4_cxx_ipc_internal
   struct True : Bool<true> {};
 
+  /// Wrapper for a static constant of the given type.
+  template<typename T, T Value>
+  struct Integral_constant
+  {
+    static T const value = Value;
+
+    typedef T value_type;
+    typedef Integral_constant<T, Value> type;
+  };
+
+  /**
+   * Check whether the given type is an enumeration type.
+   *
+   * \note The implementation relies on the intrinsic __is_enum() compiler type
+   *       trait that is provided by the mainstream C++ compilers. There is no
+   *       fully portable and future-proof way of implementing this template
+   *       (the only fragile and unmaintainable possibility is to exclude all
+   *       other types to identify the enumeration type).
+   *
+   * \tparam T  Type to check whether it is an enumeration type.
+   */
+  template<typename T>
+  struct Is_enum : Integral_constant<bool, __is_enum(T)> {};
+
+  /**
+   * Helper template for Underlying_type.
+   *
+   * \note The implementation relies on the intrinsic __underlying_type()
+   *       compiler type trait that is provided by the mainstream C++
+   *       compilers. There is no fully portable and future-proof way of
+   *       implementing this template (the only fragile and unmaintainable
+   *       possibility is to evaluate all possible underlying types).
+   *
+   * \tparam T  Enumeration type to get the underlying type of.
+   */
+  template<typename T, bool = Is_enum<T>::value>
+  struct __Underlying_type_helper { using type = __underlying_type(T); };
+
+  /// Helper template for Underlying_type.
+  template<typename T> struct __Underlying_type_helper<T, false> {};
+
+  /// Get an underlying type of an enumeration type.
+  template<typename T> struct Underlying_type
+    : public __Underlying_type_helper<T> {};
+
+  /// Helper type for Underlying_type.
+  template<typename T> using Underlying_type_t
+    = typename Underlying_type<T>::type;
+
   /*********************/
   /**
    * Compare two data types for equality
@@ -314,8 +391,12 @@ namespace Types {
   template<typename A>
   struct Same<A, A> : True {};
 
-  template<bool EXP, typename T = void> struct Enable_if {};
+  template<bool, typename = void> struct Enable_if {};
   template<typename T> struct Enable_if<true, T> { typedef T type; };
+
+  /// Helper type for Enable_if.
+  template<bool Condition, typename T = void>
+    using Enable_if_t = typename Enable_if<Condition, T>::type;
 
   template<typename T1, typename T2, typename T = void>
   struct Enable_if_same : Enable_if<Same<T1, T2>::value, T> {};
