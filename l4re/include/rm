@@ -183,8 +183,8 @@ public:
       constexpr Flags(Attach_flags af) : raw(static_cast<l4_uint32_t>(af)) {}
       constexpr Flags(Region_flags rf) : raw(static_cast<l4_uint32_t>(rf)) {}
 
-      friend constexpr Dataspace::Flags map_flags(Flags f)
-      { return Dataspace::Flags(f.raw & Ds_map_mask); }
+      constexpr Dataspace::Flags map_flags() const
+      { return Dataspace::Flags(raw & Ds_map_mask); }
 
       constexpr Region_flags region_flags() const
       { return Region_flags(raw & Region_flags_mask); }

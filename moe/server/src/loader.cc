@@ -161,7 +161,7 @@ Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
     {
       size = l4_round_page(size);
       size >>= L4_PAGESHIFT;
-      auto rights = map_flags(flags).fpage_rights();
+      auto rights = flags.map_flags().fpage_rights();
       for (l4_addr_t a = l4_trunc_page(addr); size; size--, a += L4_PAGESIZE)
         _task->task_cap()->map(L4Re::This_task,
                                l4_fpage(a, L4_PAGESHIFT, rights), a);

@@ -52,7 +52,7 @@ Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
 #else
   if (!(flags & F::No_eager_map) && mem.is_valid())
 #endif
-    e = mem.cap()->map_region(offs, map_flags(flags), *start, *start + size,
+    e = mem.cap()->map_region(offs, flags.map_flags(), *start, *start + size,
                               task);
 
   return e;
