@@ -48,7 +48,7 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
   *result = 0;
   auto r_flags = h->flags();
   if (!writable)
-    r_flags = r_flags & ~L4Re::Rm::F::W;
+    r_flags -= L4Re::Rm::F::W;
 
   if ((r_flags & (Rm::F::Reserved | Rm::F::Kernel)) || !h->memory().is_valid())
     return -L4_ENOENT;

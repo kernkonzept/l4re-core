@@ -122,7 +122,7 @@ public:
       Attach_mask  = 0x1f0000,
     };
 
-    L4_TYPES_FLAGS_OPS_DEF(Attach_flags);
+    friend void enum_bitops_enable(Attach_flags);
 
     /// Region flags (permissions, cacheability, special).
     enum Region_flags : l4_uint16_t
@@ -169,7 +169,7 @@ public:
       Region_flags_mask = 0xffff,
     };
 
-    L4_TYPES_FLAGS_OPS_DEF(Region_flags);
+    friend void enum_bitops_enable(Region_flags);
 
     friend constexpr Dataspace::Flags map_flags(Region_flags rf)
     {

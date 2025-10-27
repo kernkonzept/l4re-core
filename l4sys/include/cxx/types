@@ -186,31 +186,6 @@ namespace Types {
   };
 
   /**
-   * Helper macro to define a set of bitwise operators on an
-   * enum type.
-   *
-   * This allows to use the enum type as bitmask type with '&',
-   * '|', and '~' operators that keep the enum type as result.
-   */
-#define L4_TYPES_FLAGS_OPS_DEF(T)                                            \
-    friend constexpr T operator ~ (T f)                                      \
-    {                                                                        \
-      return T(~static_cast<typename L4::Types::Int_for_type<T>::type>(f));  \
-    }                                                                        \
-                                                                             \
-    friend constexpr T operator | (T l, T r)                                 \
-    {                                                                        \
-      return T(static_cast<typename L4::Types::Int_for_type<T>::type>(l)     \
-               | static_cast<typename L4::Types::Int_for_type<T>::type>(r)); \
-    }                                                                        \
-                                                                             \
-    friend constexpr T operator & (T l, T r)                                 \
-    {                                                                        \
-      return T(static_cast<typename L4::Types::Int_for_type<T>::type>(l)     \
-               & static_cast<typename L4::Types::Int_for_type<T>::type>(r)); \
-    }
-
-  /**
    * Mixin class to define a set of friend bitwise operators on `DT`.
    *
    * \tparam DT  The type usually inheriting from Flags_ops_t
@@ -416,4 +391,103 @@ namespace Types {
   template<typename T> struct Remove_pr<T&> { typedef T type; };
   template<typename T> struct Remove_pr<T*> { typedef T type; };
 } // Types
+
 } // L4
+
+/**
+ * Mechanism to opt-in for enum bitwise operators.
+ *
+ * For an enumeration type T to opt-in for bitwise operators, there needs to be
+ * a declaration of a function
+ *
+ *   void enum_bitops_enable(T)
+ *
+ * available for the argument-dependent lookup (the function is never actually
+ * called, thus no definition is required and no code is generated).
+ */
+namespace Enum_bitops {
+  using namespace L4::Types;
+
+  /// Marker for the opt-in ADL function.
+  template<typename, typename = void> struct Has_marker : False {};
+
+  /// Marker for the opt-in ADL function.
+  template<typename T>
+  struct Has_marker<T, Void<decltype(enum_bitops_enable(declval<T>()))>>
+    : True {};
+
+  /// Check whether the given enum type opts in for the bitwise operators.
+  template<typename T>
+  struct Enable
+    : Integral_constant<bool, Is_enum<T>::value && Has_marker<T>::value> {};
+} // Enum_bitops
+
+/**
+ * Bitwise operators on enumeration types.
+ *
+ * These operators allow to use the enum type as a bitmask type with '~', '&'
+ * and '|' operators that keep the enum type as result. The compound assignment
+ * operators '&=' and '|=' are also provided.
+ *
+ * The set-difference '-' and '-=' operators (a shorthand for intersection with
+ * a negated second argument) can be used to clear specific bits from the enum
+ * value. There is also the to_underlying() helper function.
+ */
+inline namespace Enum_bitops_impl {
+  /// Convert enum value to its underlying type value.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<L4::Types::Is_enum<T>::value>>
+  constexpr L4::Types::Underlying_type_t<T> to_underlying(T const arg) noexcept
+  { return static_cast<L4::Types::Underlying_type_t<T>>(arg); }
+
+  /// Negate enum value.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<Enum_bitops::Enable<T>::value>>
+  constexpr T operator ~ (T const a) noexcept
+  { return static_cast<T>(~to_underlying(a)); }
+
+  /// Intersect enum values.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<Enum_bitops::Enable<T>::value>>
+  constexpr T operator & (T l, T r) noexcept
+  { return static_cast<T>(to_underlying(l) & to_underlying(r)); }
+
+  /// Intersect and assign enum values.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<Enum_bitops::Enable<T>::value>>
+  constexpr T &operator &= (T &a, T const b) noexcept
+  {
+    a = a & b;
+    return a;
+  }
+
+  /// Union enum values.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<Enum_bitops::Enable<T>::value>>
+  constexpr T operator | (T l, T r) noexcept
+  { return static_cast<T>(to_underlying(l) | to_underlying(r)); }
+
+  /// Union and assign enum values.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<Enum_bitops::Enable<T>::value>>
+  constexpr T &operator |= (T &a, T const b) noexcept
+  {
+    a = a | b;
+    return a;
+  }
+
+  /// Difference (intersect with negation, clear bits) enum values.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<Enum_bitops::Enable<T>::value>>
+  constexpr T operator - (T l, T r) noexcept
+  { return static_cast<T>(to_underlying(l) & ~to_underlying(r)); }
+
+  /// Difference (intersect with negation, clear bits) and assign enum values.
+  template<typename T,
+           typename = L4::Types::Enable_if_t<Enum_bitops::Enable<T>::value>>
+  constexpr T &operator -= (T &a, T const b) noexcept
+  {
+    a = a - b;
+    return a;
+  }
+} // Enum_bitops_impl

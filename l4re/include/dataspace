@@ -99,7 +99,7 @@ public:
       Caching_mask  = 0x30,
     };
 
-    L4_TYPES_FLAGS_OPS_DEF(Flags);
+    friend void enum_bitops_enable(Flags);
   };
 
   struct Flags : L4::Types::Flags_ops_t<Flags>
