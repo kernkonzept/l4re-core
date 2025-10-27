@@ -30,15 +30,17 @@ Pending_signal_list::queue_signal(siginfo_t const &si,
                                   Sig_arch_context const &arch,
                                   l4_umword_t pfa)
 {
+  auto sigrtmin = SIGRTMIN;
+
   // We follow the Linux implementation here. Only RT signals need to be queued
   // more than once. Standard signals only have two states: pending or
   // not-pending. The signal info of standard signals is not overwritten if
   // made pending a second time.
-  if (si.si_signo < __SIGRTMIN && _sig_pending_set.has_signal(si.si_signo))
+  if (si.si_signo < sigrtmin && _sig_pending_set.has_signal(si.si_signo))
     return true;
 
   // Limit the number of RT signals to prevent resource exhaustion.
-  if (si.si_signo >= __SIGRTMIN && _num_rt_pending >= _POSIX_SIGQUEUE_MAX)
+  if (si.si_signo >= sigrtmin && _num_rt_pending >= _POSIX_SIGQUEUE_MAX)
     return false;
 
   auto it = _sig_pending_list.begin();
@@ -48,7 +50,7 @@ Pending_signal_list::queue_signal(siginfo_t const &si,
   _sig_pending_list.insert_before(new Pending_signal(si, arch, pfa), it);
   _sig_pending_set.add_signal(si.si_signo);
 
-  if (si.si_signo >= __SIGRTMIN)
+  if (si.si_signo >= sigrtmin)
     _num_rt_pending++;
 
   return true;
@@ -94,7 +96,7 @@ Pending_signal_list::fetch_pending_signal(Sig_set const &blocked,
 void
 Pending_signal_list::recalc_pending(int removed_signo)
 {
-  if (removed_signo >= __SIGRTMIN)
+  if (removed_signo >= SIGRTMIN)
     {
       _num_rt_pending--;
 

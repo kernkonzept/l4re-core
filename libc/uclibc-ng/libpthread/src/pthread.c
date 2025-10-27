@@ -106,15 +106,6 @@ static void pthread_atexit_process(void *arg, int retcode);
 static void pthread_atexit_retcode(void *arg, int retcode);
 #endif
 
-/* Signal numbers used for the communication.
-   In these variables we keep track of the used variables.  If the
-   platform does not support any real-time signals we will define the
-   values to some unreasonable value which will signal failing of all
-   the functions below.  */
-int __pthread_sig_restart = __SIGRTMIN;
-int __pthread_sig_cancel = __SIGRTMIN + 1;
-int __pthread_sig_debug = __SIGRTMIN + 2;
-
 extern int __libc_current_sigrtmin_private (void);
 
 /* Initialize the pthread library.

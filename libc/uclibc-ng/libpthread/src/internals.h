@@ -170,10 +170,6 @@ extern __volatile__ int __pthread_threads_debug;
 /* Flag which tells whether we are executing on SMP kernel. */
 extern int __pthread_smp_kernel;
 
-extern int __pthread_sig_restart;
-extern int __pthread_sig_cancel;
-extern int __pthread_sig_debug;
-
 inline static void __pthread_send_manager_rq(struct pthread_request *r, int block)
 {
   if (l4_is_invalid_cap(__pthread_manager_request))

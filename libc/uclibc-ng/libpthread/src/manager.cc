@@ -1004,35 +1004,6 @@ static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
   pthread_descr th;
   __pthread_exit_requested = 1;
   __pthread_exit_code = exitcode;
-#if 0
-  /* A forced asynchronous cancellation follows.  Make sure we won't
-     get stuck later in the main thread with a system lock being held
-     by one of the cancelled threads.  Ideally one would use the same
-     code as in pthread_atfork(), but we can't distinguish system and
-     user handlers there.  */
-  __flockfilelist();
-  /* Send the CANCEL signal to all running threads, including the main
-     thread, but excluding the thread from which the exit request originated
-     (that thread must complete the exit, e.g. calling atexit functions
-     and flushing stdio buffers). */
-  for (th = issuing_thread->p_nextlive;
-       th != issuing_thread;
-       th = th->p_nextlive) {
-    kill(th->p_pid, __pthread_sig_cancel);
-  }
-  /* Now, wait for all these threads, so that they don't become zombies
-     and their times are properly added to the thread manager's times. */
-  for (th = issuing_thread->p_nextlive;
-       th != issuing_thread;
-       th = th->p_nextlive) {
-    waitpid(th->p_pid, NULL, __WCLONE);
-  }
-  __fresetlockfiles();
-#endif
-#ifdef THIS_IS_THE_ORIGINAL
-  restart(issuing_thread);
-  _exit(0);
-#else
   for (th = issuing_thread->p_nextlive;
        th != issuing_thread;
        th = th->p_nextlive)
@@ -1047,33 +1018,8 @@ static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode)
                            L4_IPC_SEND_TIMEOUT_0)))
     // assume caller has quit (and will not continue exit())
     _exit(0);
-#endif
 }
 
-#if 0
-/* Handler for __pthread_sig_cancel in thread manager thread */
-
-void __pthread_manager_sighandler(int sig attribute_unused)
-{
-  int kick_manager = terminated_children == 0 && main_thread_exiting;
-  terminated_children = 1;
-
-  /* If the main thread is terminating, kick the thread manager loop
-     each time some threads terminate. This eliminates a two second
-     shutdown delay caused by the thread manager sleeping in the
-     call to __poll(). Instead, the thread manager is kicked into
-     action, reaps the outstanding threads and resumes the main thread
-     so that it can complete the shutdown. */
-
-  if (kick_manager) {
-    struct pthread_request request;
-    request.req_thread = 0;
-    request.req_kind = REQ_KICK;
-    TEMP_FAILURE_RETRY(write_not_cancel(__pthread_manager_request,
-					(char *) &request, sizeof(request)));
-  }
-}
-#endif
 /* Adjust priority of thread manager so that it always run at a priority
    higher than all threads */
 
