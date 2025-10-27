@@ -55,8 +55,6 @@ extern "C" {
 
 #include <pthread-l4.h>
 
-#define USE_L4RE_FOR_STACK
-
 #ifndef MIN
 # define MIN(a,b) (((a) < (b)) ? (a) : (b))
 #endif
@@ -268,7 +266,6 @@ pthread_start_thread(void *arg)
   __pthread_do_exit(outcome, (char *)CURRENT_STACK_FRAME);
 }
 
-#ifdef USE_L4RE_FOR_STACK
 static int pthread_l4_free_stack(void *stack_addr, void *guardaddr)
 {
   L4Re::Env const *e = L4Re::Env::env();
@@ -284,7 +281,6 @@ static int pthread_l4_free_stack(void *stack_addr, void *guardaddr)
 
   return e->rm()->free_area((l4_addr_t)guardaddr);
 }
-#endif
 
 static int pthread_allocate_stack(const pthread_attr_t *attr,
                                   pthread_descr default_new_thread,
@@ -305,14 +301,6 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 
   if (attr != NULL && attr->__stackaddr_set)
     {
-#ifdef _STACK_GROWS_UP
-      /* The user provided a stack. */
-      /* This value is not needed.  */
-      new_thread = (pthread_descr) attr->__stackaddr;
-      new_thread_bottom = (char *) new_thread;
-      guardaddr = attr->__stackaddr + attr->__stacksize;
-      guardsize = 0;
-#else
       /* The user provided a stack.  For now we interpret the supplied
 	 address as 1 + the highest addr. in the stack segment.  If a
 	 separate register stack is needed, we place it at the low end
@@ -327,7 +315,6 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       new_thread_bottom = (char *) attr->__stackaddr - attr->__stacksize;
       guardaddr = new_thread_bottom;
       guardsize = 0;
-#endif
       stacksize = attr->__stacksize;
     }
   else
@@ -349,7 +336,6 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	  stacksize = __pthread_max_stacksize - guardsize;
 	}
 
-#ifdef USE_L4RE_FOR_STACK
       map_addr = 0;
       L4Re::Env const *e = L4Re::Env::env();
       long err;
@@ -408,20 +394,6 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 
       guardaddr = static_cast<char *>(map_addr) - guardsize;
       new_thread_bottom = static_cast<char *>(map_addr);
-#endif
-#else
-      map_addr = mmap(NULL, stacksize + guardsize,
-                      PROT_READ | PROT_WRITE | PROT_EXEC,
-                      MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-      if (map_addr == MAP_FAILED)
-        /* No more memory available.  */
-        return -1;
-
-      guardaddr = (char *)map_addr;
-      if (guardsize > 0)
-        mprotect (guardaddr, guardsize, PROT_NONE);
-
-      new_thread_bottom = (char *) map_addr + guardsize;
 #endif
 
       new_thread = ((pthread_descr) (new_thread_bottom + stacksize));
@@ -793,23 +765,8 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
     /* Free the stack if we allocated it */
     if (attr == NULL || !attr->__stackaddr_set)
       {
-#ifdef NEED_SEPARATE_REGISTER_STACK
-	size_t stacksize = ((char *)(new_thread->p_guardaddr)
-			    - new_thread_bottom);
-	munmap((caddr_t)new_thread_bottom,
-	       2 * stacksize + new_thread->p_guardsize);
-#elif _STACK_GROWS_UP
-	size_t stacksize = guardaddr - stack_addr;
-	munmap(stack_addr, stacksize + guardsize);
-#else
-#ifdef USE_L4RE_FOR_STACK
         if (pthread_l4_free_stack(new_thread_bottom, guardaddr))
           fprintf(stderr, "ERROR: failed to free stack\n");
-#else
-	size_t stacksize = stack_addr - new_thread_bottom;
-	munmap(new_thread_bottom - guardsize, guardsize + stacksize);
-#endif
-#endif
       }
 #if defined(TLS_DTV_AT_TP)
     new_thread = (pthread_descr) ((char *) new_thread + TLS_PRE_TCB_SIZE);
@@ -879,25 +836,10 @@ static void pthread_free(pthread_descr th)
       size_t guardsize = th->p_guardsize;
       /* Free the stack and thread descriptor area */
       char *guardaddr = (char*)th->p_guardaddr;
-#ifdef _STACK_GROWS_UP
-      size_t stacksize = guardaddr - th->p_stackaddr;
-      guardaddr = (char *)th;
-#else
       /* Guardaddr is always set, even if guardsize is 0.  This allows
 	 us to compute everything else.  */
       //l4/size_t stacksize = th->p_stackaddr - guardaddr - guardsize;
-# ifdef NEED_SEPARATE_REGISTER_STACK
-      /* Take account of the register stack, which is below guardaddr.  */
-      guardaddr -= stacksize;
-      stacksize *= 2;
-# endif
-#endif
-#ifdef USE_L4RE_FOR_STACK
       pthread_l4_free_stack(guardaddr + guardsize, guardaddr);
-#else
-      munmap(guardaddr, stacksize + guardsize);
-#endif
-
     }
 
 # if defined(TLS_DTV_AT_TP)

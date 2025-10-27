@@ -39,11 +39,7 @@ int __pthread_attr_init(pthread_attr_t *attr)
   attr->__schedparam.sched_priority = 0;
   attr->__inheritsched = PTHREAD_INHERIT_SCHED;
   attr->__scope = PTHREAD_SCOPE_SYSTEM;
-#ifdef NEED_SEPARATE_REGISTER_STACK
-  attr->__guardsize = ps + ps;
-#else
   attr->__guardsize = ps;
-#endif
   attr->__stackaddr = NULL;
   attr->__stackaddr_set = 0;
   attr->__stacksize = STACK_SIZE - ps;
@@ -236,11 +232,7 @@ int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
     err = __pthread_attr_setstacksize (attr, stacksize);
   if (err == 0)
     {
-#ifndef _STACK_GROWS_UP
       attr->__stackaddr = (char *) stackaddr + stacksize;
-#else
-      attr->__stackaddr = stackaddr;
-#endif
       attr->__stackaddr_set = 1;
     }
 
@@ -260,11 +252,7 @@ int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
   /* XXX This function has a stupid definition.  The standard specifies
      no error value but what is if no stack address was set?  We simply
      return the value we have in the member.  */
-#ifndef _STACK_GROWS_UP
   *stackaddr = (char *) attr->__stackaddr - attr->__stacksize;
-#else
-  *stackaddr = attr->__stackaddr;
-#endif
   *stacksize = attr->__stacksize;
   return 0;
 }
@@ -298,22 +286,10 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
   attr->__inheritsched = descr->p_inheritsched;
   attr->__scope = PTHREAD_SCOPE_SYSTEM;
 
-#ifdef _STACK_GROWS_DOWN
   attr->__stacksize = descr->p_stackaddr - (char *)descr->p_guardaddr
 		      - descr->p_guardsize;
-#else
-  attr->__stacksize = (char *)descr->p_guardaddr - descr->p_stackaddr;
-#endif
   attr->__guardsize = descr->p_guardsize;
   attr->__stackaddr_set = descr->p_userstack;
-#ifdef NEED_SEPARATE_REGISTER_STACK
-  if (descr->p_userstack == 0)
-    attr->__stacksize *= 2;
-  /* XXX This is awkward.  The guard pages are in the middle of the
-     two stacks.  We must count the guard size in the stack size since
-     otherwise the range of the stack area cannot be computed.  */
-  attr->__stacksize += attr->__guardsize;
-#endif
   attr->__stackaddr = descr->p_stackaddr;
 
 
@@ -359,17 +335,12 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
 		{
 		  /* Found the entry.  Now we have the info we need.  */
 		  attr->__stacksize = rl.rlim_cur;
-#ifdef _STACK_GROWS_UP
-		  /* Don't check to enforce a limit on the __stacksize */
-		  attr->__stackaddr = (void *) from;
-#else
 		  attr->__stackaddr = (void *) to;
 
 		  /* The limit might be too high.  */
 		  if ((size_t) attr->__stacksize
 		      > (size_t) attr->__stackaddr - last_to)
 		    attr->__stacksize = (size_t) attr->__stackaddr - last_to;
-#endif
 
 		  /* We succeed and no need to look further.  */
 		  ret = 0;

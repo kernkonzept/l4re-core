@@ -22,14 +22,10 @@
 
 #include <l4/sys/kdebug.h>
 
-#ifdef _STACK_GROWS_DOWN
-# define FRAME_LEFT(frame, other) ((char *) frame >= (char *) other)
-#elif _STACK_GROWS_UP
-# define FRAME_LEFT(frame, other) ((char *) frame <= (char *) other)
-#else
-# error "Define either _STACK_GROWS_DOWN or _STACK_GROWS_UP"
+#define FRAME_LEFT(frame, other) ((char *) frame >= (char *) other)
+#ifndef _STACK_GROWS_DOWN
+#error "L4Re libpthread only supports downward growing stack!"
 #endif
-
 
 int
 attribute_hidden
