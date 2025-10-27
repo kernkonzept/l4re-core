@@ -42,7 +42,7 @@ __check_overlap(l4la_free_t **first, void *b, l4_size_t s)
 	  printf("trying to free memory that is already free: \n"
 	         "  [%lx-%lx) overlaps [%lx-%lx)\n",
 		 x_s, x_e, b_s, b_e );
-	  enter_kdebug("l4la");
+	  l4_kd_enter("l4la");
 	}
     }
 }
@@ -59,14 +59,14 @@ __sanity_check_list(l4la_free_t **first, char const *func, char const *info)
 	    {
 	      printf("%s: %s(%s): list order violation\n",
 		     __FILE__, func, info);
-	      enter_kdebug("l4la");
+	      l4_kd_enter("l4la");
 	    }
 
 	  if (((l4_addr_t)c) + c->size > (l4_addr_t)c->next)
 	    {
 	      printf("%s: %s(%s): overlapping blocks\n",
 		     __FILE__, func, info);
-	      enter_kdebug("l4la");
+	      l4_kd_enter("l4la");
 	    }
 	}
     }

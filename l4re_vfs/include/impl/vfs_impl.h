@@ -423,11 +423,11 @@ Vfs::munmap_regions(void *start, size_t len)
   while (1)
     {
       DEBUG_LOG(debug_mmap, {
-                outstring("DETACH: start = 0x");
-                outhex32(l4_addr_t(start));
-                outstring(" len = 0x");
-                outhex32(len);
-                outstring("\n");
+                l4_kd_outstring("DETACH: start = 0x");
+                l4_kd_outhex32(l4_addr_t(start));
+                l4_kd_outstring(" len = 0x");
+                l4_kd_outhex32(len);
+                l4_kd_outstring("\n");
       });
       err = r->detach(l4_addr_t(start), len, &ds, This_task);
       if (err < 0)
@@ -511,11 +511,11 @@ Vfs::alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds)
     return err;
 
   DEBUG_LOG(debug_mmap, {
-      outstring("ANON DS ALLOCATED: size=");
-      outhex32(size);
-      outstring("  cap = 0x");
-      outhex32(ds->cap());
-      outstring("\n");
+      l4_kd_outstring("ANON DS ALLOCATED: size=");
+      l4_kd_outhex32(size);
+      l4_kd_outstring("  cap = 0x");
+      l4_kd_outhex32(ds->cap());
+      l4_kd_outstring("\n");
       });
 
   return 0;
@@ -589,18 +589,18 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
            void **resptr) L4_NOTHROW
 {
   DEBUG_LOG(debug_mmap, {
-            outstring("MMAP params: ");
-            outstring("start = 0x");
-            outhex32(l4_addr_t(start));
-            outstring(", len = 0x");
-            outhex32(len);
-            outstring(", prot = 0x");
-            outhex32(prot);
-            outstring(", flags = 0x");
-            outhex32(flags);
-            outstring(", offset = 0x");
-            outhex32(page4k_offset);
-            outstring("\n");
+            l4_kd_outstring("MMAP params: ");
+            l4_kd_outstring("start = 0x");
+            l4_kd_outhex32(l4_addr_t(start));
+            l4_kd_outstring(", len = 0x");
+            l4_kd_outhex32(len);
+            l4_kd_outstring(", prot = 0x");
+            l4_kd_outhex32(prot);
+            l4_kd_outstring(", flags = 0x");
+            l4_kd_outhex32(flags);
+            l4_kd_outstring(", offset = 0x");
+            l4_kd_outhex32(page4k_offset);
+            l4_kd_outstring("\n");
   });
 
   using namespace L4Re;
@@ -627,11 +627,11 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       *resptr = reinterpret_cast<void*>(area);
 
       DEBUG_LOG(debug_mmap, {
-                outstring("  MMAP reserved area: 0x");
-                outhex32(area);
-                outstring("  length= 0x");
-                outhex32(len);
-                outstring("\n");
+                l4_kd_outstring("  MMAP reserved area: 0x");
+                l4_kd_outhex32(area);
+                l4_kd_outstring("  length= 0x");
+                l4_kd_outhex32(len);
+                l4_kd_outstring("\n");
       });
 
       return 0;
@@ -650,11 +650,11 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
         return err;
 
       DEBUG_LOG(debug_mmap, {
-                outstring("  USE ANON MEM: 0x");
-                outhex32(ds.cap());
-                outstring(" offs = 0x");
-                outhex32(anon_offset);
-                outstring("\n");
+                l4_kd_outstring("  USE ANON MEM: 0x");
+                l4_kd_outhex32(ds.cap());
+                l4_kd_outstring(" offs = 0x");
+                l4_kd_outhex32(anon_offset);
+                l4_kd_outstring("\n");
       });
     }
 
@@ -678,7 +678,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 
       if (flags & MAP_PRIVATE)
         {
-          DEBUG_LOG(debug_mmap, outstring("COW\n"););
+          DEBUG_LOG(debug_mmap, l4_kd_outstring("COW\n"););
           int err = ds->copy_in(anon_offset, fds, offset, len);
           file_offset = offset;
           if (err == -L4_EINVAL)
@@ -765,17 +765,17 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
                   region_name, file_offset);
 
   DEBUG_LOG(debug_mmap, {
-            outstring("  MAPPED: 0x");
-            outhex32(ds.cap());
-            outstring("  addr: 0x");
-            outhex32(l4_addr_t(data));
-            outstring("  bytes: 0x");
-            outhex32(len);
-            outstring("  offset: 0x");
-            outhex32(offset);
-            outstring("  err = ");
-            outdec(err);
-            outstring("\n");
+            l4_kd_outstring("  MAPPED: 0x");
+            l4_kd_outhex32(ds.cap());
+            l4_kd_outstring("  addr: 0x");
+            l4_kd_outhex32(l4_addr_t(data));
+            l4_kd_outstring("  bytes: 0x");
+            l4_kd_outhex32(len);
+            l4_kd_outstring("  offset: 0x");
+            l4_kd_outhex32(offset);
+            l4_kd_outstring("  err = ");
+            l4_kd_outdec(err);
+            l4_kd_outstring("\n");
   });
 
 
@@ -836,13 +836,13 @@ Vfs::mremap(void *old_addr, size_t old_size, size_t new_size, int flags,
   using namespace L4Re;
 
   DEBUG_LOG(debug_mmap, {
-            outstring("Mremap: addr = 0x");
-            outhex32((l4_umword_t)old_addr);
-            outstring(" old_size = 0x");
-            outhex32(old_size);
-            outstring("  new_size = 0x");
-            outhex32(new_size);
-            outstring("\n");
+            l4_kd_outstring("Mremap: addr = 0x");
+            l4_kd_outhex32((l4_umword_t)old_addr);
+            l4_kd_outstring(" old_size = 0x");
+            l4_kd_outhex32(old_size);
+            l4_kd_outstring("  new_size = 0x");
+            l4_kd_outhex32(new_size);
+            l4_kd_outstring("\n");
             });
 
   if (flags & MREMAP_FIXED && !(flags & MREMAP_MAYMOVE))

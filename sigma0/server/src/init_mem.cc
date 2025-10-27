@@ -22,7 +22,7 @@ init_memory(l4_kernel_info_t *info)
   if (info->version >> 24 != 0x87 /*KIP_VERSION_FIASCO*/ )
     {
       L4::cout << PROG_NAME": is designed to run on FIASCO only\n";
-      enter_kdebug("FATAL");
+      l4_kd_enter("FATAL");
     }
 
 #ifdef ARCH_x86

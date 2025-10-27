@@ -32,7 +32,7 @@ L4_CV int l4_kprintf(const char *fmt, ...)
   err = vsnprintf(buffer, sizeof(buffer), fmt, list);
   va_end(list);
 
-  outstring(buffer);
+  l4_kd_outstring(buffer);
 
   return err;
 }

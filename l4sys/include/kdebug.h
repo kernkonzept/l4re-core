@@ -22,7 +22,7 @@
 
 
 L4_INLINE void
-enter_kdebug(char const *text) L4_NOTHROW;
+l4_kd_enter(char const *text) L4_NOTHROW;
 
 /**
  * Opcode groups for operations that can be invoked on the base debugger
@@ -65,7 +65,7 @@ enum l4_kdebug_ops_t
  * \retval  Message tag returned from the IPC on the base debugger capability.
  */
 L4_INLINE l4_msgtag_t
-__kdebug_op(unsigned op) L4_NOTHROW
+__l4_kdebug_op(unsigned op) L4_NOTHROW
 {
   l4_msgtag_t res;
   l4_utcb_t *u = l4_utcb();
@@ -95,7 +95,7 @@ __kdebug_op(unsigned op) L4_NOTHROW
  *              capability.
  */
 L4_INLINE l4_msgtag_t
-__kdebug_text(unsigned op, char const *text, unsigned len) L4_NOTHROW
+__l4_kdebug_text(unsigned op, char const *text, unsigned len) L4_NOTHROW
 {
   l4_msg_regs_t store;
   l4_msgtag_t res;
@@ -136,8 +136,8 @@ __kdebug_text(unsigned op, char const *text, unsigned len) L4_NOTHROW
  *              capability.
  */
 L4_INLINE l4_msgtag_t
-__kdebug_3_text(unsigned op, char const *text, unsigned len,
-                l4_umword_t v1, l4_umword_t v2, l4_umword_t v3) L4_NOTHROW
+__l4_kdebug_3_text(unsigned op, char const *text, unsigned len,
+                   l4_umword_t v1, l4_umword_t v2, l4_umword_t v3) L4_NOTHROW
 {
   l4_msg_regs_t store;
   l4_msgtag_t res;
@@ -173,7 +173,7 @@ __kdebug_3_text(unsigned op, char const *text, unsigned len,
  * \retval  Message tag returned from the IPC on the base debugger capability.
  */
 L4_INLINE l4_msgtag_t
-__kdebug_op_1(unsigned op, l4_mword_t val) L4_NOTHROW
+__l4_kdebug_op_1(unsigned op, l4_mword_t val) L4_NOTHROW
 {
   l4_umword_t m[2];
   l4_msgtag_t res;
@@ -201,7 +201,7 @@ __kdebug_op_1(unsigned op, l4_mword_t val) L4_NOTHROW
  * Enter the kernel debugger, if configured. An optional message can be passed
  * to the kernel debugger which is printed upon the entering of the debugger.
  */
-L4_INLINE void enter_kdebug(char const *text) L4_NOTHROW
+L4_INLINE void l4_kd_enter(char const *text) L4_NOTHROW
 {
   /* special case, enter without any text and use of the UTCB */
   if (!text)
@@ -212,7 +212,7 @@ L4_INLINE void enter_kdebug(char const *text) L4_NOTHROW
       return;
     }
 
-  __kdebug_text(L4_KDEBUG_ENTER, text, __builtin_strlen(text));
+  __l4_kdebug_text(L4_KDEBUG_ENTER, text, __builtin_strlen(text));
 }
 
 /**
@@ -223,8 +223,8 @@ L4_INLINE void enter_kdebug(char const *text) L4_NOTHROW
  *                to #L4_UTCB_GENERIC_DATA_SIZE&nbsp;-&nbsp;2 machine words.
  *                Output strings longer than this limit will be cropped.
  */
-L4_INLINE void outnstring(char const *text, unsigned len)
-{ __kdebug_text(L4_KDEBUG_OUTNSTRING, text, len); }
+L4_INLINE void l4_kd_outnstring(char const *text, unsigned len)
+{ __l4_kdebug_text(L4_KDEBUG_OUTNSTRING, text, len); }
 
 /**
  * Output a string via the kernel debugger.
@@ -234,17 +234,17 @@ L4_INLINE void outnstring(char const *text, unsigned len)
  *                #L4_UTCB_GENERIC_DATA_SIZE&nbsp;-&nbsp;2 machine words.
  *                Output strings longer than this limit will be cropped.
  */
-L4_INLINE void outstring(char const *text)
-{ outnstring(text, __builtin_strlen(text)); }
+L4_INLINE void l4_kd_outstring(char const *text)
+{ l4_kd_outnstring(text, __builtin_strlen(text)); }
 
 /**
  * Output a single character via the kernel debugger.
  *
  * \param c    Output character.
  */
-L4_INLINE void outchar(char c)
+L4_INLINE void l4_kd_outchar(char c)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTCHAR, c);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTCHAR, c);
 }
 
 /**
@@ -255,12 +255,12 @@ L4_INLINE void outchar(char c)
  * If the machine word is 64 bits long, it is printed non-atomically as two
  * 32-bit numbers.
  */
-L4_INLINE void outumword(l4_umword_t number)
+L4_INLINE void l4_kd_outumword(l4_umword_t number)
 {
   if (sizeof(l4_umword_t) == sizeof(l4_uint64_t))
-    __kdebug_op_1(L4_KDEBUG_OUTHEX32, (l4_uint64_t)number >> 32);
+    __l4_kdebug_op_1(L4_KDEBUG_OUTHEX32, (l4_uint64_t)number >> 32);
 
-  __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
 }
 
 /**
@@ -270,10 +270,10 @@ L4_INLINE void outumword(l4_umword_t number)
  *
  * The two 32-bit halves are printed non-atomically.
  */
-L4_INLINE void outhex64(l4_uint64_t number)
+L4_INLINE void l4_kd_outhex64(l4_uint64_t number)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTHEX32, number >> 32);
-  __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX32, number >> 32);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
 }
 
 /**
@@ -281,9 +281,9 @@ L4_INLINE void outhex64(l4_uint64_t number)
  *
  * \param number    Output 32-bit number.
  */
-L4_INLINE void outhex32(l4_uint32_t number)
+L4_INLINE void l4_kd_outhex32(l4_uint32_t number)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX32, number);
 }
 
 /**
@@ -291,9 +291,9 @@ L4_INLINE void outhex32(l4_uint32_t number)
  *
  * \param number    Output 20-bit number. Only the 20 LSB bits are used.
  */
-L4_INLINE void outhex20(l4_uint32_t number)
+L4_INLINE void l4_kd_outhex20(l4_uint32_t number)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTHEX20, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX20, number);
 }
 
 /**
@@ -301,9 +301,9 @@ L4_INLINE void outhex20(l4_uint32_t number)
  *
  * \param number    Output 16-bit number.
  */
-L4_INLINE void outhex16(l4_uint16_t number)
+L4_INLINE void l4_kd_outhex16(l4_uint16_t number)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTHEX16, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX16, number);
 }
 
 /**
@@ -311,9 +311,9 @@ L4_INLINE void outhex16(l4_uint16_t number)
  *
  * \param number    Output 12-bit number. Only the 12 LSB bits are used.
  */
-L4_INLINE void outhex12(l4_uint16_t number)
+L4_INLINE void l4_kd_outhex12(l4_uint16_t number)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTHEX12, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX12, number);
 }
 
 /**
@@ -321,9 +321,9 @@ L4_INLINE void outhex12(l4_uint16_t number)
  *
  * \param number    Output 8-bit number.
  */
-L4_INLINE void outhex8(l4_uint8_t number)
+L4_INLINE void l4_kd_outhex8(l4_uint8_t number)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTHEX8, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTHEX8, number);
 }
 
 /**
@@ -331,9 +331,9 @@ L4_INLINE void outhex8(l4_uint8_t number)
  *
  * \param number    Output machine word.
  */
-L4_INLINE void outdec(l4_mword_t number)
+L4_INLINE void l4_kd_outdec(l4_mword_t number)
 {
-  __kdebug_op_1(L4_KDEBUG_OUTDEC, number);
+  __l4_kdebug_op_1(L4_KDEBUG_OUTDEC, number);
 }
 
 #endif //__KDEBUG_H__

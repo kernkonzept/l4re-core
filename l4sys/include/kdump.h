@@ -38,5 +38,5 @@ L4_INLINE long
 fiasco_dump_kmem_stats(void)
 {
   enum { DUMP_KMEM_STATS = L4_KDEBUG_GROUP_DUMP + 0x00 };
-  return l4_error(__kdebug_op(DUMP_KMEM_STATS));
+  return l4_error(__l4_kdebug_op(DUMP_KMEM_STATS));
 }

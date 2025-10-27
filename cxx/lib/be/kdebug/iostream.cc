@@ -24,7 +24,7 @@ namespace L4 {
 
   void KdbgIOBackend::write(char const *str, unsigned len)
   {
-    outnstring(str,len);
+    l4_kd_outnstring(str,len);
   }
 
   typedef char Fake_iobackend[sizeof(KdbgIOBackend)]

@@ -332,7 +332,7 @@ public:
 
         // L4::cout << "ROOT: obj=" << o << "\n";
 
-        // enter_kdebug("a");
+        // l4_kd_enter("a");
 
         if (!o)
           {

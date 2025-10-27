@@ -77,7 +77,7 @@ L4RE_CALL(int _dl_read(int fd, void *buf, size_t len))
   v.iov_len = len;
   v.iov_base = buf;
 #if 0
-  outstring("### DL: read: "); outhex32(fd); outstring("\n");
+  l4_kd_outstring("### DL: read: "); l4_kd_outhex32(fd); l4_kd_outstring("\n");
 #endif
   int res = f->readv(&v, 1);
   return res;
@@ -96,7 +96,7 @@ L4RE_CALL(int _dl_close(int fd))
 
 
 L4RE_CALL(int _dl_open(char const *path, int flags, int mode))
-{ //outstring("### DL: open: '"); outstring(path); outstring ("'\n");
+{ //l4_kd_outstring("### DL: open: '"); l4_kd_outstring(path); l4_kd_outstring ("'\n");
 #if 0
   if (!_dl_init_auxvp())
     return -L4_ENOSYS;
@@ -150,14 +150,14 @@ L4RE_CALL(int _dl_munmap(void *start, size_t len))
 L4RE_CALL(void *_dl_mmap(void *start, size_t len, int prot, int flags, int fd, off_t offset))
 {
 #if 0
-  outstring("### DL: _dl_mmap(");
-    outhex64((unsigned long)start); outstring(", ");
-    outhex32((int)len); outstring(", ");
-    outhex32((int)prot); outstring(", ");
-    outhex32((int)flags); outstring(", ");
-    outhex32((int)fd); outstring(", ");
-    outhex32((int)offset); outstring("); from=");
-  outhex64((unsigned long)__builtin_return_address(0)); outstring("\n");
+  l4_kd_outstring("### DL: _dl_mmap(");
+    l4_kd_outhex64((unsigned long)start); l4_kd_outstring(", ");
+    l4_kd_outhex32((int)len); l4_kd_outstring(", ");
+    l4_kd_outhex32((int)prot); l4_kd_outstring(", ");
+    l4_kd_outhex32((int)flags); l4_kd_outstring(", ");
+    l4_kd_outhex32((int)fd); l4_kd_outstring(", ");
+    l4_kd_outhex32((int)offset); l4_kd_outstring("); from=");
+  l4_kd_outhex64((unsigned long)__builtin_return_address(0)); l4_kd_outstring("\n");
 #endif
   void *resptr;
   int res = L4RE_VFS->mmap2(start, len, prot, flags, fd, offset >> 12, &resptr);

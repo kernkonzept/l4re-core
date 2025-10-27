@@ -78,7 +78,7 @@ static void pthread_handle_sigcancel(void)
 
   if (self == __manager_thread)
     {
-      enter_kdebug("cancel of the manager hooooo");
+      l4_kd_enter("cancel of the manager hooooo");
 #if 0
       __pthread_manager_sighandler(sig);
 #endif

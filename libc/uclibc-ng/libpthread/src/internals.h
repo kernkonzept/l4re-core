@@ -80,7 +80,7 @@ struct pthread_key_struct {
 };
 
 #include <l4/sys/kdebug.h>
-#define UNIMPL(x...) do { outstring("UNIMPL: " x "\n"); } while(0)
+#define UNIMPL(x...) do { l4_kd_outstring("UNIMPL: " x "\n"); } while(0)
 
 
 #define PTHREAD_START_ARGS_INITIALIZER(fct) \
