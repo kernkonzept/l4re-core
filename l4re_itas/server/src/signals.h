@@ -180,6 +180,7 @@ public:
   Thread_signal_handler(Signal_manager *mgr,
                         L4::Cap<L4::Thread> thread_cap,
                         l4_utcb_t *thread_utcb,
+                        l4_pf_trampoline_t *tramp,
                         Thread_signal_handler *parent);
 
   l4_ret_t op_page_fault(L4::Pager::Rights rights, l4_umword_t addr, l4_umword_t pc,
@@ -208,6 +209,9 @@ public:
   void interrupt_thread();
 
   void stop_thread();
+
+  l4_pf_trampoline_t *tramp() const
+  { return _tramp; }
 
 private:
   void return_from_signal(l4_exc_regs_t &regs);
@@ -242,6 +246,7 @@ private:
   Pending_signal_list _pending;
   struct sigaltstack _altstack;
   bool _thread_stopped = false;
+  l4_pf_trampoline_t *_tramp = nullptr;
 };
 
 /**
@@ -312,7 +317,10 @@ public:
 
   Thread_signal_handler *register_thread(L4::Cap<L4::Thread> thread_cap,
                                          l4_utcb_t *thread_utcb,
+                                         l4_pf_trampoline_t *tramp,
                                          Thread_signal_handler *parent = nullptr);
+
+  l4_ret_t unregister_thread(L4::Cap<L4::Thread> thread_cap);
 
   l4_ret_t op_register_thread(L4Re::Itas::Rights,
                               L4::Ipc::Snd_fpage parent,

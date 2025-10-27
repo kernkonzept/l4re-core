@@ -7,15 +7,18 @@
  */
 #pragma once
 
-#include <l4/sys/types.h>
-#include <l4/sys/exception>
-#include <l4/sys/cxx/ipc_epiface>
-#include <l4/re/dataspace>
-#include <l4/re/util/region_mapping_svr>
-#include <l4/re/debug>
-#include "debug.h"
 #include <stdlib.h>
 
+#include <l4/re/dataspace>
+#include <l4/re/debug>
+#include <l4/re/util/region_mapping_svr>
+#include <l4/sys/cxx/ipc_epiface>
+#include <l4/sys/exception>
+#include <l4/sys/types.h>
+#include <l4/sys/pf_trampoline.h>
+#include <l4/util/thread.h>
+
+#include "debug.h"
 #include "lock.h"
 
 inline void *operator new (size_t s, cxx::Nothrow const &) noexcept { return malloc(s); }
@@ -27,6 +30,7 @@ class Region_handler
   L4::Cap<L4Re::Dataspace> _mem;
   l4_cap_idx_t _client_cap = L4_INVALID_CAP;
   L4Re::Rm::Region_flags _flags = L4Re::Rm::Region_flags(0);
+  bool _attached = false;
 
 public:
   typedef l4_umword_t Map_result;
@@ -64,10 +68,8 @@ public:
 
   l4_ret_t map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexcept;
 
-  void attached(l4_addr_t, l4_addr_t) const noexcept
-  {}
-  void detached(l4_addr_t, l4_addr_t) const noexcept
-  {}
+  void attached(l4_addr_t beg, l4_addr_t end) noexcept;
+  void detached(l4_addr_t beg, l4_addr_t end) const noexcept;
 };
 
 
@@ -157,6 +159,9 @@ public:
 
   Read_access read_access() const
   { return Read_access(_region_map, _lock); }
+
+  L4UTIL_THREAD_CXX_FUNC_PROTO(thread_pf_handler,
+                               l4_pf_trampoline_t *tramp, l4_addr_t addr);
 
   // L4Re::Rm API
 

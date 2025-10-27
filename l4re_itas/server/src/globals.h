@@ -34,4 +34,5 @@ namespace Global
   extern char const *const *envp;
   extern int argc;
   extern l4re_aux_t *l4re_aux;
+  extern bool has_pf_tramp;
 };

@@ -332,26 +332,6 @@ bool Loader::start(L4::Cap<L4Re::Dataspace> bin, l4re_aux_t *aux)
       return false;
     }
 
-  long ret
-    = L4Re::Env::env()->rm()->attach(&__loader_stack_p, Loader_stack_size,
-                                     L4Re::Rm::F::RW,
-                                     L4::Ipc::make_cap_rw(__loader_stack), 0,
-                                     L4_PAGESHIFT, L4::Cap<L4::Task>::Invalid,
-                                     "[loader-stack]");
-  if (ret)
-    {
-      // The loader stack is already attached to the local region map. We
-      // tried to attach it to the remote region map (e.g. moe) as well, and
-      // this failed. This means that there is an unexpected inconsistency
-      // between the actual remote region map and our model of it. Something
-      // running in the l4re_itas must have attached a memory region there,
-      // which is a bug, and must be fixed.
-      Err(Err::Fatal)
-        .printf("Could not attach loader stack to remote region map (%ld, %s).\n",
-                ret, Global::l4re_aux->binary);
-      return false;
-    }
-
   char *stack_addr = reinterpret_cast<char *>(__loader_stack_p)
                    + Loader_stack_size;
   l4_umword_t *sp = reinterpret_cast<l4_umword_t *>(stack_addr);
@@ -390,19 +370,44 @@ bool Loader::start(L4::Cap<L4Re::Dataspace> bin, l4re_aux_t *aux)
                               strrchr(aux->binary, '/')
                                 ? strrchr(aux->binary, '/') + 1 : aux->binary);
 
-  auto *app_utcb = reinterpret_cast<l4_utcb_t*>(env->first_free_utcb());
-  env->first_free_utcb(env->first_free_utcb() + L4_UTCB_OFFSET);
+  l4_addr_t avail_utcb_addr = env->first_free_utcb();
 
-  auto *sig_handler = sigmgr.register_thread(app_thread, app_utcb);
+  auto *app_utcb = reinterpret_cast<l4_utcb_t *>(avail_utcb_addr);
+  avail_utcb_addr += L4_UTCB_OFFSET;
+
+  l4_pf_trampoline_t *tramp = nullptr;
+  if (Global::has_pf_tramp)
+    {
+      tramp = reinterpret_cast<l4_pf_trampoline_t *>(avail_utcb_addr);
+      // Keep the UTCBs at least 16-byte aligned for all architectures!
+      avail_utcb_addr += L4::round_order(sizeof(l4_pf_trampoline_t), 4);
+      tramp->handler_ip = reinterpret_cast<l4_umword_t>(&Region_map_svr::thread_pf_handler);
+    }
+
+  env->first_free_utcb(avail_utcb_addr);
+
+  auto *sig_handler = sigmgr.register_thread(app_thread, app_utcb, tramp);
   if (!sig_handler)
     L4Re::throw_error(-L4_ENOMEM, "l4re_itas: cannot register sighandler");
 
   L4::Thread::Attr attr;
-  attr.pager(sig_handler->obj_cap());
+  if (Global::has_pf_tramp)
+    attr.pager(env->rm());
+  else
+    attr.pager(sig_handler->obj_cap());
   attr.exc_handler(sig_handler->obj_cap());
   attr.bind(app_utcb, L4Re::This_task);
-
   L4Re::chksys(app_thread->control(attr), "l4re_itas: Setup app thread.");
+
+  if (Global::has_pf_tramp)
+    {
+      auto tramp_addr = reinterpret_cast<l4_addr_t>(tramp);
+      L4Re::chksys(app_thread->pf_trampoline_setup(tramp_addr),
+                   "l4re_itas: Setup pf trampoline");
+    }
+  else
+    Dbg(Dbg::Loader).printf("PF trampoline interface not available!\n");
+
   L4Re::chksys(env->scheduler()->run_thread(app_thread,
                                             l4_sched_param(L4RE_MAIN_THREAD_PRIO)),
                "l4re_itas: Set app priority.");

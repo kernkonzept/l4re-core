@@ -8,6 +8,7 @@
 #include "region.h"
 #include "globals.h"
 #include <stdlib.h>
+#include <l4/sys/kip.h>
 #include <l4/sys/compiler.h>
 #include <l4/crtn/initpriorities.h>
 #include <l4/util/elf.h>
@@ -24,6 +25,7 @@ namespace Global
   char const *const *envp;
   int argc;
   l4re_aux_t *l4re_aux;
+  bool has_pf_tramp;
 
   void init();
   void init()
@@ -56,6 +58,8 @@ namespace Global
     allocator = obj;
     local_rm.construct();
     local_rm->init();
+
+    has_pf_tramp = l4_kip_kernel_has_feature(l4re_kip(), "pf_tramp");
   }
 
   // Must be initialized as early as possible. Newer gcc versions require

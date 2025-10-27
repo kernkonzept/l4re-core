@@ -25,6 +25,81 @@
 static struct sigaction sig_actions[_NSIG - 1];
 static_assert(SIG_DFL == nullptr, "SIG_DFL is a nullptr");
 
+
+class Pf_tramp_alloc
+{
+public:
+  l4_pf_trampoline_t *alloc() noexcept
+  {
+    if (!_next)
+      allocate_more_ku_mem();
+
+    if (_next)
+      {
+        auto *ret = _next;
+        _next = reinterpret_cast<l4_pf_trampoline_t *>(ret->user_data[0]);
+        return ret;
+      }
+
+    return nullptr;
+  }
+
+  void free(l4_pf_trampoline_t *pft)
+  {
+    if (!pft)
+      return;
+
+    pft->user_data[0] = reinterpret_cast<l4_umword_t>(_next);
+    _next = pft;
+  }
+
+private:
+  void allocate_more_ku_mem()
+  {
+    using namespace L4Re;
+    l4_addr_t kumem = 0;
+
+#ifdef CONFIG_MMU
+    // On MMU systems, user space chooses the spot in the virtual address space.
+    kumem = Global::local_rm->attach_area(0, L4_PAGESIZE,
+                              Rm::F::Reserved | Rm::F::Search_addr);
+    if (kumem == L4_INVALID_ADDR)
+      return;
+
+    l4_fpage_t fp = l4_fpage(kumem, L4_PAGESHIFT, L4_FPAGE_RW);
+    if (l4_error(L4::Cap<L4::Task>(L4Re::This_task)->add_ku_mem(&fp)))
+      {
+        Global::local_rm->detach_area(kumem);
+        return;
+      }
+#else
+    // On systems without MMU the kernel determines the actual location.
+    l4_fpage_t fp = l4_fpage(0, L4_PAGESHIFT, L4_FPAGE_RW);
+    if (l4_error(L4::Cap<L4::Task>(L4Re::This_task)->add_ku_mem(&fp)))
+      return;
+    kumem = l4_fpage_memaddr(fp);
+
+    // The kernel allocated the address so it is known to be valid. The
+    // reservation should never fail, unless something is really broken.
+    Global::local_rm->attach_area(kumem, L4_PAGESIZE, Rm::F::Reserved);
+#endif
+
+    auto *i = reinterpret_cast<l4_pf_trampoline_t *>(kumem);
+    _next = i;
+    l4_pf_trampoline_t *prev = nullptr;
+    for (unsigned size = L4_PAGESIZE; size > sizeof(*i); prev = i, i++, size -= sizeof(*i))
+      {
+        i->user_data[0] = 0;
+        if (prev)
+          prev->user_data[0] = reinterpret_cast<l4_umword_t>(i);
+      }
+  }
+
+  l4_pf_trampoline_t *_next = nullptr;
+};
+
+static Pf_tramp_alloc tramp_alloc;
+
 bool
 Pending_signal_list::queue_signal(siginfo_t const &si,
                                   Sig_arch_context const &arch,
@@ -113,8 +188,9 @@ Pending_signal_list::recalc_pending(int removed_signo)
 Thread_signal_handler::Thread_signal_handler(Signal_manager *mgr,
                                              L4::Cap<L4::Thread> thread_cap,
                                              l4_utcb_t *thread_utcb,
+                                             l4_pf_trampoline_t *tramp,
                                              Thread_signal_handler *parent)
-: _mgr(mgr), _thread(thread_cap), _utcb(thread_utcb)
+: _mgr(mgr), _thread(thread_cap), _utcb(thread_utcb), _tramp(tramp)
 {
   if (parent)
     // POSIX requires that newly created threads inherit the signal mask from
@@ -717,6 +793,7 @@ Signal_manager::send_process_signal(int signum)
 Thread_signal_handler *
 Signal_manager::register_thread(L4::Cap<L4::Thread> thread_cap,
                                 l4_utcb_t *thread_utcb,
+                                l4_pf_trampoline_t *tramp,
                                 Thread_signal_handler *parent)
 {
   auto node = _threads.find_node(thread_cap.cap());
@@ -724,7 +801,7 @@ Signal_manager::register_thread(L4::Cap<L4::Thread> thread_cap,
     return node->second;
 
   auto hdl = cxx::make_unique<Thread_signal_handler>(this, thread_cap,
-                                                     thread_utcb, parent);
+                                                     thread_utcb, tramp, parent);
   if (!dispatcher.register_obj(hdl.get()))
     return nullptr;
 
@@ -738,6 +815,21 @@ Signal_manager::register_thread(L4::Cap<L4::Thread> thread_cap,
 }
 
 l4_ret_t
+Signal_manager::unregister_thread(L4::Cap<L4::Thread> thread_cap)
+{
+  auto node = _threads.find_node(thread_cap.cap());
+  if (!node)
+    return -L4_EINVAL;
+
+  tramp_alloc.free(node->second->tramp());
+  dispatcher.unregister_obj(node->second);
+  delete node->second;
+  _threads.remove(node->first);
+
+  return L4_EOK;
+}
+
+l4_ret_t
 Signal_manager::op_register_thread(L4Re::Itas::Rights,
                                    L4::Ipc::Snd_fpage parent,
                                    L4::Ipc::Snd_fpage thread_cap,
@@ -746,39 +838,63 @@ Signal_manager::op_register_thread(L4Re::Itas::Rights,
   if (!thread_cap.local_id_received())
     return -L4_EINVAL;
 
+  l4_pf_trampoline_t *tramp = nullptr;
+  if (Global::has_pf_tramp)
+    {
+      tramp = tramp_alloc.alloc();
+      if (!tramp)
+        return -L4_ENOMEM;
+
+      tramp->handler_ip
+        = reinterpret_cast<l4_umword_t>(&Region_map_svr::thread_pf_handler);
+    }
+
   auto child_cap = L4::Cap<L4::Thread>(thread_cap.base());
   l4_utcb_t *child_utcb = reinterpret_cast<l4_utcb_t *>(thread_utcb);
   Thread_signal_handler *sig_handler = register_thread(child_cap, child_utcb,
-                                                       handler(parent));
-  if (!sig_handler)
-    return -L4_ENOMEM;
+                                                       tramp, handler(parent));
+  l4_ret_t ret;
+  if (sig_handler)
+    {
+      L4::Thread::Attr attr;
+      attr.bind(child_utcb, L4Re::This_task);
+      if (Global::has_pf_tramp)
+        attr.pager(L4Re::Env::env()->rm());
+      else
+        attr.pager(sig_handler->obj_cap());
+      attr.exc_handler(sig_handler->obj_cap());
+      if (ret = l4_error(child_cap->control(attr)); ret >= 0)
+        {
+          if (Global::has_pf_tramp)
+            {
+              auto tramp_addr = reinterpret_cast<l4_addr_t>(tramp);
+              ret = l4_error(child_cap->pf_trampoline_setup(tramp_addr));
+              if (ret >= 0)
+                return ret;
+            }
+          else
+            return ret;
+        }
 
-  L4::Thread::Attr attr;
-  attr.bind(child_utcb, L4Re::This_task);
-  attr.pager(sig_handler->obj_cap());
-  attr.exc_handler(sig_handler->obj_cap());
-  L4Re::chksys(child_cap->control(attr), "l4re_itas: Setup child thread.");
+      unregister_thread(child_cap);
+    }
+  else
+    ret = -L4_ENOMEM;
 
-  return L4_EOK;
+  tramp_alloc.free(tramp);
+
+  return ret;
 }
 
 l4_ret_t
 Signal_manager::op_unregister_thread(L4Re::Itas::Rights,
-                                     L4::Ipc::Snd_fpage thread)
+                                     L4::Ipc::Snd_fpage thread_cap)
 {
-  if (!thread.local_id_received())
+  if (!thread_cap.local_id_received())
     return -L4_EINVAL;
 
-  auto caller = L4::Cap<L4::Thread>(thread.base());
-  auto node = _threads.find_node(caller.cap());
-  if (!node)
-    return -L4_EINVAL;
-
-  dispatcher.unregister_obj(node->second);
-  delete node->second;
-  _threads.remove(node->first);
-
-  return L4_EOK;
+  auto child_cap = L4::Cap<L4::Thread>(thread_cap.base());
+  return unregister_thread(child_cap);
 }
 
 l4_ret_t
