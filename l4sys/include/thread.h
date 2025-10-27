@@ -722,6 +722,120 @@ L4_INLINE l4_msgtag_t
 l4_thread_register_doorbell_irq_u(l4_cap_idx_t thread, l4_cap_idx_t irq,
                                   l4_utcb_t *u) L4_NOTHROW;
 
+/**
+ * \copybrief L4::Thread::pf_trampoline_setup
+ * \ingroup l4_thread_api
+ *
+ * \param thread          Thread to setup page fault trampoline for.
+ * \param pf_tramp_state  State of the faulting thread at entry of page fault
+ *                        handler, see l4_pf_trampoline_t.
+ * Instead of sending a page fault IPC to the pager, the kernel makes a single
+ * attempt to handle the page fault in the context of the faulting thread. For
+ * that purpose, the kernel saves the state of the faulting thread to the
+ * preallocated kernel-user memory `pf_tramp_state` and returns directly to
+ * the address of the page fault trampoline handler which is specified in
+ * l4_pf_trampoline_t::handler_ip. The page fault trampoline handler uses the
+ * stack and the stack pointer of the preempted context.
+ *
+ * If the handler was able to resolve the page fault, it finishes using
+ * pf_trampoline_resume to resume to the preempted context.
+ *
+ * If the page fault couldn't be resolved, the handler calls
+ * pf_trampoline_reflect which reflects the page fault to the exception
+ * handler of the thread.
+ *
+ * If any page fault is triggered while the trampoline page fault handler is
+ * executed, a page fault IPC to the pager is generated.
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_setup(l4_cap_idx_t thread,
+                              l4_addr_t pf_tramp_state) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_thread_api
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_setup_u(l4_cap_idx_t thread, l4_addr_t pf_tramp_state,
+                                l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * \copybrief L4::Thread::pf_trampoline_resume
+ * \ingroup l4_thread_api
+ *
+ * \param thread  Thread to resume after handling page fault.
+ *
+ * Called by the trampoline page fault handler after successfully resolving
+ * the page fault.
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_resume(l4_cap_idx_t thread) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_thread_api
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_resume_u(l4_cap_idx_t thread,
+                                 l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * \copybrief L4::Thread::pf_trampoline_reflect
+ * \ingroup l4_thread_api
+ *
+ * \param thread  Thread to reflect page fault to exception handler.
+ *
+ * Called by the trampoline page fault handler in case a page fault could not
+ * be resolved. The kernel will reflect the page fault as exception IPC to the
+ * exception handler of the faulting thread.
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_reflect(l4_cap_idx_t thread) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_thread_api
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_reflect_u(l4_cap_idx_t thread,
+                                  l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * \copybrief L4::Thread::pf_trampoline_disable
+ * \ingroup l4_thread_api
+ *
+ * \param      thread       Thread to disable page fault trampoline handling.
+ * \param[out] was_enabled  != 0 if page fault trampoline handling was enabled,
+ *                          0 if not. Optional, can be NULL.
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_disable(l4_cap_idx_t thread, int *was_enabled) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_thread_api
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_disable_u(l4_cap_idx_t thread, int *was_enabled,
+                                  l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * \copybrief L4::Thread::pf_trampoline_enable
+ * \ingroup l4_thread_api
+ *
+ * \param thread  Thread to re-enable page fault trampoline handling.
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_enable(l4_cap_idx_t thread) L4_NOTHROW;
+
+/**
+ * \internal
+ * \ingroup l4_thread_api
+ */
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_enable_u(l4_cap_idx_t thread,
+                                 l4_utcb_t *utcb) L4_NOTHROW;
+
 
 /**
  * Operations on thread objects.
@@ -741,6 +855,7 @@ enum L4_thread_ops
   L4_THREAD_VCPU_CONTROL_OP           = 7UL,    /**< Enable / disable VCPU feature */
   L4_THREAD_VCPU_CONTROL_EXT_OP       = L4_THREAD_VCPU_CONTROL_OP | 0x10000,
   L4_THREAD_REGISTER_DOORBELL_IRQ_OP  = 8UL,    /**< Register direct IRQ injection doorbell IRQ */
+  L4_THREAD_PF_TRAMP_CONTROL_OP       = 9UL,    /**< Page fault trampoline control operation */
   L4_THREAD_X86_GDT_OP                = 0x10UL, /**< Gdt */
   L4_THREAD_ARM_TPIDRURO_OP           = 0x10UL, /**< Set TPIDRURO register */
   L4_THREAD_AMD64_SET_SEGMENT_BASE_OP = 0x12UL, /**< Set segment base */
@@ -802,6 +917,35 @@ enum L4_thread_ex_regs_flags
   L4_THREAD_EX_REGS_ARCH_MASK         = 0xff000000UL, /**< Arch specific flags */
 };
 
+/**
+ * Sub-opcodes for L4_THREAD_PF_TRAMP_CONTROL_OP.
+ * \ingroup l4_thread_api
+ * \hideinitializer
+ */
+enum L4_pf_tramp_control_op
+{
+  /** Setup PF trampoline handler. */
+  L4_THREAD_PF_TRAMP_CONTROL_OP_SETUP   = (L4_THREAD_PF_TRAMP_CONTROL_OP | 0x00000UL),
+  /** Normal resume from PF trampoline handler to userland. */
+  L4_THREAD_PF_TRAMP_CONTROL_OP_RESUME  = (L4_THREAD_PF_TRAMP_CONTROL_OP | 0x10000UL),
+  /** Resume from PF trampoline handler -- trigger exception. */
+  L4_THREAD_PF_TRAMP_CONTROL_OP_REFLECT = (L4_THREAD_PF_TRAMP_CONTROL_OP | 0x20000UL),
+  /**
+   * Disable PF trampoline handler.
+   *
+   * The ITAS will usually enable PF trampoline handling for all threads. A
+   * thread can decide to install its own pager and will disable the PF
+   * trampoline handling in that case.
+  */
+  L4_THREAD_PF_TRAMP_CONTROL_OP_DISABLE = (L4_THREAD_PF_TRAMP_CONTROL_OP | 0x30000UL),
+  /**
+   * Re-enable PF trampoline handler.
+   *
+   * Re-enable the PF trampoline handling for a thread where the handling was
+   * explicitly disabled before.
+  */
+  L4_THREAD_PF_TRAMP_CONTROL_OP_ENABLE = (L4_THREAD_PF_TRAMP_CONTROL_OP | 0x40000UL),
+};
 
 /* IMPLEMENTATION -----------------------------------------------------------*/
 
@@ -1147,6 +1291,92 @@ l4_thread_register_doorbell_irq(l4_cap_idx_t thread,
                                 l4_cap_idx_t irq) L4_NOTHROW
 {
   return l4_thread_register_doorbell_irq_u(thread, irq, l4_utcb());
+}
+
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_setup(l4_cap_idx_t thread,
+                              l4_addr_t pf_tramp_state) L4_NOTHROW
+{
+  return l4_thread_pf_trampoline_setup_u(thread, pf_tramp_state, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_setup_u(l4_cap_idx_t thread, l4_addr_t pf_tramp_state,
+                                l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  m->mr[0] = L4_THREAD_PF_TRAMP_CONTROL_OP_SETUP;
+  m->mr[1] = pf_tramp_state;
+  return l4_ipc_call(thread, utcb, l4_msgtag(L4_PROTO_THREAD, 2, 0, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_resume(l4_cap_idx_t thread) L4_NOTHROW
+{
+  return l4_thread_pf_trampoline_resume_u(thread, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_resume_u(l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  m->mr[0] = L4_THREAD_PF_TRAMP_CONTROL_OP_RESUME;
+  return l4_ipc_call(thread, utcb, l4_msgtag(L4_PROTO_THREAD, 1, 0, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_reflect(l4_cap_idx_t thread) L4_NOTHROW
+{
+  return l4_thread_pf_trampoline_reflect_u(thread, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_reflect_u(l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  m->mr[0] = L4_THREAD_PF_TRAMP_CONTROL_OP_REFLECT;
+  return l4_ipc_call(thread, utcb, l4_msgtag(L4_PROTO_THREAD, 1, 0, 0),
+                     L4_IPC_NEVER);
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_disable(l4_cap_idx_t thread, int *was_enabled) L4_NOTHROW
+{
+  return l4_thread_pf_trampoline_disable_u(thread, was_enabled, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_disable_u(l4_cap_idx_t thread, int *was_enabled,
+                                  l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  l4_msgtag_t res;
+
+  m->mr[0] = L4_THREAD_PF_TRAMP_CONTROL_OP_DISABLE;
+  res = l4_ipc_call(thread, utcb, l4_msgtag(L4_PROTO_THREAD, 1, 0, 0),
+                    L4_IPC_NEVER);
+
+  if (was_enabled)
+    *was_enabled = m->mr[0];
+  return res;
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_enable(l4_cap_idx_t thread) L4_NOTHROW
+{
+  return l4_thread_pf_trampoline_enable_u(thread, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_thread_pf_trampoline_enable_u(l4_cap_idx_t thread, l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
+  m->mr[0] = L4_THREAD_PF_TRAMP_CONTROL_OP_ENABLE;
+  return l4_ipc_call(thread, utcb, l4_msgtag(L4_PROTO_THREAD, 1, 0, 0),
+                     L4_IPC_NEVER);
 }
 
 #include <l4/sys/arch/thread.h>

@@ -552,5 +552,80 @@ public:
    */
   l4_msgtag_t register_doorbell_irq(Cap<Irq> irq, l4_utcb_t *u = l4_utcb()) noexcept
   { return l4_thread_register_doorbell_irq_u(cap(), irq.cap(), u); }
+
+
+  /**
+   * Setup page fault trampoline handler.
+   *
+   * Instead of sending a page fault IPC to the pager, the kernel makes a single
+   * attempt to handle the page fault in the context of the faulting thread. For
+   * that purpose, the kernel saves the state of the faulting thread to the
+   * preallocated kernel-user memory `pf_tramp_state` and returns directly to
+   * the address of the page fault trampoline handler which is specified in
+   * l4_pf_trampoline_t::handler_ip. The page fault trampoline handler uses the
+   * stack and the stack pointer of the preempted context.
+   *
+   * If the handler was able to resolve the page fault, it finishes using
+   * pf_trampoline_resume to resume to the preempted context.
+   *
+   * If the page fault couldn't be resolved, the handler calls
+   * pf_trampoline_reflect which reflects the page fault to the exception
+   * handler of the thread.
+   *
+   * If any page fault is triggered while the trampoline page fault handler is
+   * executed, a page fault IPC to the pager is generated.
+   *
+   * \param pf_tramp_state  State of the faulting thread at entry of page fault
+   *                        handler, see l4_pf_trampoline_t.
+   * \utcb_def{u}
+   */
+  l4_msgtag_t pf_trampoline_setup(l4_addr_t pf_tramp_state,
+                                  l4_utcb_t *u = l4_utcb()) noexcept
+  { return l4_thread_pf_trampoline_setup_u(cap(), pf_tramp_state, u); }
+
+  /**
+   * Resume from page fault trampoline handler.
+   *
+   * Called by the trampoline page fault handler after successfully resolving
+   * the page fault.
+   *
+   * \utcb_def{u}
+   */
+  l4_msgtag_t pf_trampoline_resume(l4_utcb_t *u = l4_utcb()) noexcept
+  { return l4_thread_pf_trampoline_resume_u(cap(), u); }
+
+  /**
+   * Page fault trampoline handler reflects page fault to exception handler.
+   *
+   * Called by the trampoline page fault handler in case a page fault could not
+   * be resolved. The kernel will reflect the page fault as exception IPC to the
+   * exception handler of the faulting thread.
+   *
+   * \utcb_def{u}
+   */
+  l4_msgtag_t pf_trampoline_reflect(l4_utcb_t *u = l4_utcb()) noexcept
+  { return l4_thread_pf_trampoline_reflect_u(cap(), u); }
+
+  /**
+   * Disable the page fault trampoline handling for this thread.
+   *
+   * \param[out] was_enabled  != 0 if page fault trampoline handling was
+   *                          enabled, 0 if not. Optional, can be nullptr.
+   * \utcb_def{u}
+   */
+  l4_msgtag_t pf_trampoline_disable(int *was_enabled = nullptr,
+                                    l4_utcb_t *u = l4_utcb()) noexcept
+  { return l4_thread_pf_trampoline_disable_u(cap(), was_enabled, u); }
+
+  /**
+   * Re-enable the page fault trampoline handling for this thread.
+   *
+   * Revert the effect of pf_trampoline_disable().
+   *
+   * \utcb_def{u}
+   */
+  l4_msgtag_t pf_trampoline_enable(l4_utcb_t *u = l4_utcb()) noexcept
+  { return l4_thread_pf_trampoline_enable_u(cap(), u); }
 };
+
 }
