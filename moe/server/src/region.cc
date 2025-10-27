@@ -36,17 +36,17 @@ Region_map::Region_map()
 #endif
 }
 
-l4_ret_t Region_ops::map(Region_handler const *h, l4_addr_t adr,
-                         L4Re::Util::Region const &r, bool need_w,
-                         L4::Ipc::Snd_fpage *result)
+l4_ret_t Region_handler::map(l4_addr_t adr,
+                             L4Re::Util::Region const &r, bool need_w,
+                             Map_result *result) const noexcept
 {
-  if (!h->memory())
+  if (!_mem)
     return -L4_EADDRNOTAVAIL;
 
   using L4::Ipc::Snd_fpage;
   l4_addr_t offs = adr - r.start();
   offs = l4_trunc_page(offs);
-  auto f = map_flags(h->flags());
+  auto f = map_flags(flags());
   if (!need_w)
     f -= L4Re::Dataspace::F::W;
 
@@ -54,39 +54,37 @@ l4_ret_t Region_ops::map(Region_handler const *h, l4_addr_t adr,
     { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
       Snd_fpage::None };
 
-  auto ds_fpage = h->memory()->address(offs + h->offset(), f, adr,
-                                       r.start(), r.end());
+  auto ds_fpage = _mem->address(offs + offset(), f, adr, r.start(), r.end());
   if (ds_fpage.is_nil())
     return -L4_EADDRNOTAVAIL;
 
   *result = Snd_fpage(ds_fpage.fp(), offs + r.start(), Snd_fpage::Map,
-                      cache_map[h->caching() >> L4Re::Rm::Caching_shift]);
+                      cache_map[caching() >> L4Re::Rm::Caching_shift]);
 
   return L4_EOK;
 }
 
 void
-Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
+Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
 {
-  if (h->is_ro() || !h->memory())
+  if (is_ro() || !_mem)
     return;
 
-  h->memory()->clear(h->offset() + start, size);
+  _mem->clear(offset() + start, size);
 }
 
 l4_ret_t
-Region_ops::map_info(Region_handler const *h,
-                     l4_addr_t *start_addr, l4_addr_t *end_addr)
+Region_handler::map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexcept
 {
-  if (!h->memory())
+  if (!_mem)
     return 0;
 
-  if (h->flags() & (  L4Re::Rm::F::Pager
-                    | L4Re::Rm::F::Reserved
-                    | L4Re::Rm::F::Kernel))
+  if (flags() & (  L4Re::Rm::F::Pager
+                 | L4Re::Rm::F::Reserved
+                 | L4Re::Rm::F::Kernel))
     return 0;
 
-  return h->memory()->map_info(*start_addr, *end_addr);
+  return _mem->map_info(*start_addr, *end_addr);
 }
 
 
