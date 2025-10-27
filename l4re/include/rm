@@ -96,7 +96,6 @@ public:
     Detach_again = 4,      ///< Detached data space, more to do.
   };
 
-
   /// Region flag shifts.
   enum Region_flag_shifts
   {
@@ -118,6 +117,7 @@ public:
       Eager_map    =  0x80000,
       /// Prevent eager mapping of the attached data space.
       No_eager_map = 0x100000,
+
       /// Mask of all attach flags.
       Attach_mask  = 0x1f0000,
     };
@@ -172,36 +172,30 @@ public:
     friend void enum_bitops_enable(Region_flags);
 
     friend constexpr Dataspace::Flags map_flags(Region_flags rf)
-    {
-      return Dataspace::Flags(static_cast<l4_uint16_t>(rf) & Ds_map_mask);
-    }
+    { return Dataspace::Flags(static_cast<l4_uint16_t>(rf) & Ds_map_mask); }
 
     struct Flags : L4::Types::Flags_ops_t<Flags>
     {
       l4_uint32_t raw;
+
       Flags() = default;
       explicit constexpr Flags(l4_uint32_t f) : raw(f) {}
-      constexpr Flags(Attach_flags rf) : raw(static_cast<l4_uint32_t>(rf)) {}
+      constexpr Flags(Attach_flags af) : raw(static_cast<l4_uint32_t>(af)) {}
       constexpr Flags(Region_flags rf) : raw(static_cast<l4_uint32_t>(rf)) {}
 
       friend constexpr Dataspace::Flags map_flags(Flags f)
-      {
-        return Dataspace::Flags(f.raw & Ds_map_mask);
-      }
+      { return Dataspace::Flags(f.raw & Ds_map_mask); }
 
       constexpr Region_flags region_flags() const
-      {
-        return Region_flags(raw & Region_flags_mask);
-      }
+      { return Region_flags(raw & Region_flags_mask); }
 
       constexpr Attach_flags attach_flags() const
-      {
-        return Attach_flags(raw & Attach_mask);
-      }
+      { return Attach_flags(raw & Attach_mask); }
 
       constexpr bool r() const { return raw & L4_FPAGE_RO; }
       constexpr bool w() const { return raw & L4_FPAGE_W; }
       constexpr bool x() const { return raw & L4_FPAGE_X; }
+
       constexpr unsigned cap_rights() const
       { return w() ? L4_CAP_FPAGE_RW : L4_CAP_FPAGE_RO; }
     };
@@ -230,6 +224,7 @@ public:
      * This has the effect that parts of regions may stay in the address space.
      */
     Detach_exact   = 1,
+
     /**
      * \brief Do an unmap of all overlapping regions.
      * \internal
@@ -261,6 +256,7 @@ public:
    *                       #L4Re::Rm::F::Region_flags and
    *                       #L4Re::Rm::F::Attach_flags).
    * \param         align  Alignment of area if searched as bits (log2 value).
+   *
    * \retval 0                  Success
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
    * \retval <0                 IPC errors
@@ -288,13 +284,15 @@ public:
                                  unsigned char align));
 
   /**
-   * \brief Reserve the given area in the region map.
+   * Reserve the given area in the region map.
+   *
    * \param[in,out] start  The virtual start address of the area to reserve.
    *                       Returns the start address of the area.
    * \param         size   The size of the area to reserve (in bytes).
    * \param         flags  Flags for the reserved area (see F::Region_flags and
    *                       F::Attach_flags).
    * \param         align  Alignment of area if searched as bits (log2 value).
+   *
    * \retval 0                  Success
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
    * \retval <0                 IPC errors
@@ -302,7 +300,7 @@ public:
    * For more information, please refer to the analogous function
    * \see L4Re::Rm::reserve_area.
    */
-  template< typename T >
+  template<typename T>
   long reserve_area(T **start, unsigned long size,
                     Flags flags = Flags(0),
                     unsigned char align = L4_PAGESHIFT) const noexcept
@@ -315,6 +313,7 @@ public:
    * Free an area from the region map.
    *
    * \param addr  An address within the area to free.
+   *
    * \retval 0           Success
    * \retval -L4_ENOENT  No area found.
    * \retval <0          IPC errors
@@ -327,7 +326,7 @@ public:
 
   L4_RPC_NF(long, attach, (L4::Ipc::In_out<l4_addr_t *> start,
                            unsigned long size, Flags flags,
-                           L4::Ipc::Opt<L4::Ipc::Cap<Dataspace> > mem,
+                           L4::Ipc::Opt<L4::Ipc::Cap<Dataspace>> mem,
                            Offset offs, unsigned char align,
                            L4::Ipc::Opt<l4_cap_idx_t> client_cap,
                            L4::Ipc::String<> name, Offset backing_offset));
@@ -405,7 +404,7 @@ public:
   /**
    * \copydoc L4Re::Rm::attach
    */
-  template< typename T >
+  template<typename T>
   long attach(T **start, unsigned long size, Flags flags,
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT,
@@ -431,7 +430,7 @@ public:
    * unique ownership and automatic detach are only active for valid
    * unique regions.
    */
-  template< typename T >
+  template<typename T>
   class Unique_region
   {
   private:
@@ -556,7 +555,7 @@ public:
     T operator -> () const noexcept { return _addr; }
   };
 
-  template< typename T >
+  template<typename T>
   long attach(Unique_region<T> *start, unsigned long size, Flags flags,
               L4::Ipc::Cap<Dataspace> mem, Offset offs = 0,
               unsigned char align = L4_PAGESHIFT,
@@ -676,7 +675,7 @@ public:
   L4_RPC_NF(long, find, (L4::Ipc::In_out<l4_addr_t *> addr,
                          L4::Ipc::In_out<unsigned long *> size,
                          L4Re::Rm::Flags *flags, Offset *offset,
-                         L4::Ipc::As_value<L4::Cap<Dataspace> > *m));
+                         L4::Ipc::As_value<L4::Cap<Dataspace>> *m));
 
   /**
    * A region is a range of virtual addresses which is backed by content.
@@ -732,7 +731,6 @@ public:
    *       shall use the function repeatedly with a start address one larger
    *       than the end address of the last area from the previous call.
    */
-
   L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Ret_array<Area> areas));
 
   /**
@@ -759,7 +757,6 @@ public:
                            get_regions_t, get_areas_t,
                            get_info_t> Rpcs;
 };
-
 
 inline int
 Rm::detach(l4_addr_t addr, L4::Cap<Dataspace> *mem,

@@ -146,7 +146,7 @@ public:
    * \retval 0   Success
    * \retval <0  Error
    */
-  L4_RPC(long, get_buffer, (L4::Ipc::Out<L4::Cap<Dataspace> > ds));
+  L4_RPC(long, get_buffer, (L4::Ipc::Out<L4::Cap<Dataspace>> ds));
 
   /**
    * Get number of event streams.

@@ -200,6 +200,7 @@ public:
 
         addr = x.end + 1;
       }
+
     return num;
   }
 
@@ -210,6 +211,7 @@ private:
 
   static void pager_set_result(L4::Ipc::Opt<L4::Ipc::Snd_fpage> *, ...)
   {}
+
 public:
 
   /**

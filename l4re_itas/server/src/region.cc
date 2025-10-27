@@ -46,6 +46,7 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
                 Region const &r, bool writable, l4_umword_t *result)
 {
   *result = 0;
+
   auto r_flags = h->flags();
   if (!writable)
     r_flags -= L4Re::Rm::F::W;
@@ -99,7 +100,6 @@ Region_ops::map_info(Region_handler const *h,
   return h->memory()->map_info(start_addr, end_addr);
 }
 
-
 void
 Region_map::debug_dump(unsigned long /*function*/) const
 {
@@ -107,8 +107,8 @@ Region_map::debug_dump(unsigned long /*function*/) const
   printf(" Area map:\n");
   for (Region_map::Const_iterator i = area_begin(); i != area_end(); ++i)
     printf("  [%10lx-%10lx] -> flags=%x\n",
-           i->first.start(), i->first.end(),
-	   i->second.flags());
+           i->first.start(), i->first.end(), i->second.flags());
+
   printf(" Region map:\n");
   for (Region_map::Const_iterator i = begin(); i != end(); ++i)
     {

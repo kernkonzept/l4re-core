@@ -105,9 +105,11 @@ public:
   struct Flags : L4::Types::Flags_ops_t<Flags>
   {
     unsigned long raw;
+
     Flags() = default;
     explicit constexpr Flags(unsigned long f) : raw(f) {}
     constexpr Flags(F::Flags f) : raw(f) {}
+
     constexpr bool r() const { return raw & L4_FPAGE_RO; }
     constexpr bool w() const { return raw & L4_FPAGE_W; }
     constexpr bool x() const { return raw & L4_FPAGE_X; }
@@ -128,7 +130,6 @@ public:
     Size size;    ///< size
     Flags flags;  ///< flags
   };
-
 
   /**
    * Request a flexpage mapping from the dataspace.
@@ -317,8 +318,6 @@ private:
 public:
   typedef L4::Typeid::Rpcs<map_t, clear_t, info_t, copy_in_t,
                            allocate_t, map_info_t> Rpcs;
-
 };
 
 }
-

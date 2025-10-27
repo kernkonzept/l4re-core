@@ -82,11 +82,9 @@ long Remote_access::op_terminate(L4Re::Remote_access::Rights, int exit_code)
 int Remote_access::op_map(L4Re::Dataspace::Rights,
                           L4Re::Dataspace::Offset offset,
                           L4Re::Dataspace::Map_addr spot,
-                          L4Re::Dataspace::Flags flags,
+                          [[maybe_unused]] L4Re::Dataspace::Flags flags,
                           L4::Ipc::Snd_fpage &fp)
 {
-  (void)flags;
-
   offset = l4_trunc_page(offset);
 
   unsigned long sz = L4_PAGESIZE;

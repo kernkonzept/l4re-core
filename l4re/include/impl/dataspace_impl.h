@@ -9,6 +9,7 @@
  *
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
+
 #include <l4/re/dataspace>
 #include <l4/sys/cxx/ipc_client>
 #include <l4/sys/cxx/consts>
@@ -20,7 +21,6 @@ L4_RPC_DEF(L4Re::Dataspace::info);
 L4_RPC_DEF(L4Re::Dataspace::map_info);
 
 namespace L4Re {
-
 
 long
 Dataspace::__map(Dataspace::Offset offset, unsigned char *size,
@@ -80,7 +80,6 @@ Dataspace::map_region(Dataspace::Offset offset, Dataspace::Flags flags,
   return 0;
 }
 
-
 long
 Dataspace::map(Dataspace::Offset offset, Dataspace::Flags flags,
                Dataspace::Map_addr local_addr,
@@ -101,9 +100,11 @@ Dataspace::Size
 Dataspace::size() const noexcept
 {
   Stats stats = Stats();
+
   int err = info(&stats);
   if (err < 0)
     return 0;
+
   return stats.size;
 }
 
@@ -111,9 +112,11 @@ Dataspace::Flags
 Dataspace::flags() const noexcept
 {
   Stats stats = Stats();
+
   int err = info(&stats);
   if (err < 0)
     return Flags(0);
+
   return stats.flags;
 }
 

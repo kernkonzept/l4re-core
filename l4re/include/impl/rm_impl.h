@@ -9,6 +9,7 @@
  *
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
+
 #include <l4/bid_config.h>
 #include <l4/re/rm>
 #include <l4/re/dataspace>
@@ -103,4 +104,5 @@ Rm::detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
 
   return e;
 }
+
 }
