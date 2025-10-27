@@ -61,14 +61,37 @@ l4_debugger_set_object_name_u(l4_cap_idx_t cap, const char *name, l4_utcb_t *utc
  * \return Syscall return tag
  */
 L4_INLINE l4_msgtag_t
-l4_debugger_get_object_name(l4_cap_idx_t cap, unsigned id,
-                            char *name, unsigned size) L4_NOTHROW;
+l4_debugger_query_object_name(l4_cap_idx_t cap, unsigned id,
+                              char *name, unsigned size) L4_NOTHROW;
 
 /**
  * \internal
  */
 L4_INLINE l4_msgtag_t
-l4_debugger_get_object_name_u(l4_cap_idx_t cap, unsigned id,
+l4_debugger_query_object_name_u(l4_cap_idx_t cap, unsigned id,
+                                char *name, unsigned size,
+                                l4_utcb_t *utcb) L4_NOTHROW;
+
+/**
+ * Get name of a kernel object.
+ * \ingroup l4_debugger_api
+ *
+ * \param      cap   Capability which refers to the kernel object.
+ * \param[out] name  Buffer to copy the name into. The buffer must be
+ *                   allocated by the caller.
+ * \param      size  Length of the `name` buffer.
+ *
+ * \return Syscall return tag
+ */
+L4_INLINE l4_msgtag_t
+l4_debugger_get_object_name(l4_cap_idx_t cap,
+                              char *name, unsigned size) L4_NOTHROW;
+
+/**
+ * \internal
+ */
+L4_INLINE l4_msgtag_t
+l4_debugger_get_object_name_u(l4_cap_idx_t cap,
                               char *name, unsigned size,
                               l4_utcb_t *utcb) L4_NOTHROW;
 
@@ -226,6 +249,8 @@ enum
   L4_DEBUGGER_LOG_QUERY_NAME_OP = 6UL,
   /// Add image information for task.
   L4_DEBUGGER_TASK_ADD_IMAGE_INFO_OP = 7UL,
+  /// Get debug name of kernel object.
+  L4_DEBUGGER_KOBJ_GET_NAME_OP = 8UL,
 
   /// Query information about all kernel objects.
   L4_DEBUGGER_OBJ_INFO_OP = 16UL,
@@ -349,14 +374,26 @@ l4_debugger_switch_log_u(l4_cap_idx_t cap, const char *name, int on_off,
 }
 
 L4_INLINE l4_msgtag_t
-l4_debugger_get_object_name_u(l4_cap_idx_t cap, unsigned id,
-                              char *name, unsigned size,
-                              l4_utcb_t *utcb) L4_NOTHROW
+l4_debugger_query_object_name_u(l4_cap_idx_t cap, unsigned id,
+                                char *name, unsigned size,
+                                l4_utcb_t *utcb) L4_NOTHROW
 {
   l4_msgtag_t t;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_GLOBAL_ID_GET_NAME_OP;
   l4_utcb_mr_u(utcb)->mr[1] = id;
   t = l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb);
+  __strcpy_maxlen(name, (char const *)&l4_utcb_mr_u(utcb)->mr[0], size);
+  return t;
+}
+
+L4_INLINE l4_msgtag_t
+l4_debugger_get_object_name_u(l4_cap_idx_t cap,
+                              char *name, unsigned size,
+                              l4_utcb_t *utcb) L4_NOTHROW
+{
+  l4_msgtag_t t;
+  l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_KOBJ_GET_NAME_OP;
+  t = l4_invoke_debugger(cap, l4_msgtag(0, 1, 0, 0), utcb);
   __strcpy_maxlen(name, (char const *)&l4_utcb_mr_u(utcb)->mr[0], size);
   return t;
 }
@@ -418,10 +455,17 @@ l4_debugger_switch_log(l4_cap_idx_t cap, const char *name,
 }
 
 L4_INLINE l4_msgtag_t
-l4_debugger_get_object_name(l4_cap_idx_t cap, unsigned id,
+l4_debugger_query_object_name(l4_cap_idx_t cap, unsigned id,
+                              char *name, unsigned size) L4_NOTHROW
+{
+  return l4_debugger_query_object_name_u(cap, id, name, size, l4_utcb());
+}
+
+L4_INLINE l4_msgtag_t
+l4_debugger_get_object_name(l4_cap_idx_t cap,
                             char *name, unsigned size) L4_NOTHROW
 {
-  return l4_debugger_get_object_name_u(cap, id, name, size, l4_utcb());
+  return l4_debugger_get_object_name_u(cap, name, size, l4_utcb());
 }
 
 L4_INLINE l4_msgtag_t

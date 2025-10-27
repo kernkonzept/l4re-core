@@ -145,9 +145,23 @@ public:
    *
    * \return Syscall return tag
    */
-  l4_msgtag_t get_object_name(unsigned id, char *name, unsigned size,
+  l4_msgtag_t query_object_name(unsigned id, char *name, unsigned size,
                        l4_utcb_t *utcb = l4_utcb()) noexcept
-  { return l4_debugger_get_object_name_u(cap(), id, name, size, utcb); }
+  { return l4_debugger_query_object_name_u(cap(), id, name, size, utcb); }
+
+  /**
+   * Get name of object.
+   *
+   * \param[out] name  Buffer to copy the name into. The buffer must be
+   *                   allocated by the caller.
+   * \param      size  Length of the `name` buffer.
+   * \utcb{utcb}
+   *
+   * \return Syscall return tag
+   */
+  l4_msgtag_t get_object_name(char *name, unsigned size,
+                              l4_utcb_t *utcb = l4_utcb()) noexcept
+  { return l4_debugger_get_object_name_u(cap(), name, size, utcb); }
 
   /**
    * \copybrief l4_debugger_add_image_info()
