@@ -17,6 +17,8 @@
 #
 # ATTENTION: we are "called" with the wrong stack alignment! Per x86 calling
 # convention, %esp & 0x0f == 12 should hold on entry.
+#
+# BID_VARIANT_FLAG_NOFPU: Code runs in contexts of application threads!
 
 sigenter:
   cld

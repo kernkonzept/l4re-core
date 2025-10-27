@@ -10,6 +10,8 @@
   .globl sigenter
   .type sigenter, @function
 
+/* BID_VARIANT_FLAG_NOFPU: Code runs in contexts of application threads! */
+
 sigenter:
   // TODO: save and restore FP state
 

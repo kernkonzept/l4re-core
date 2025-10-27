@@ -9,6 +9,8 @@
   .p2align 2
   .globl sigenter
   .type sigenter, #function
+  /* BID_VARIANT_FLAG_NOFPU: Code runs in contexts of application threads! */
+  .arch_extension fp
 
 sigenter:
   stp   q0, q1,   [x19, #16 *  0]

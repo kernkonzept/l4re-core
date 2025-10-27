@@ -17,6 +17,8 @@
 #
 # ATTENTION: we are "called" with the wrong stack alignment! Per amd64 calling
 # convention, %rsp & 0x0f == 8 should hold on entry.
+#
+# BID_VARIANT_FLAG_NOFPU: Code runs in contexts of application threads!
 
 sigenter:
   sub       $8, %rsp

@@ -2,6 +2,8 @@ PKGDIR ?= ../..
 L4DIR  ?= $(PKGDIR)/../../..
 
 TARGET          = l4re
+VARIANTS        = nofpu
+
 SRC_CC         := main.cc globals.cc region.cc loader.cc \
                   loader_elf.cc dispatcher.cc signals.cc remote_access.cc
 SRC_CC         += $(if $(CONFIG_BID_STATIC_HEAP),mem_stat.cc,mem_dyn.cc)
