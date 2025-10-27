@@ -15,6 +15,7 @@
 #pragma once
 
 #include <l4/sys/compiler.h>
+#include <l4/sys/debugger.h>
 #include <l4/sys/l4int.h>
 
 struct L4_kobj_info
@@ -159,7 +160,7 @@ l4_debugger_query_obj_infos_u(l4_cap_idx_t cap, l4_addr_t ku_mem_addr,
                               l4_umword_t *result_cnt, l4_umword_t *result_all,
                               l4_utcb_t *utcb) L4_NOTHROW
 {
-  l4_utcb_mr()->mr[0] = 16;
+  l4_utcb_mr()->mr[0] = L4_DEBUGGER_OBJ_INFO_OP;
   l4_utcb_mr()->mr[1] = ku_mem_addr;
   l4_utcb_mr()->mr[2] = ku_mem_size;
   l4_utcb_mr()->mr[3] = skip;
