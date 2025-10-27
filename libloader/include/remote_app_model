@@ -207,9 +207,9 @@ public:
   constexpr l4_addr_t proc_default_reloc() const
   {
     // The Remote_app_model is only used to load the l4re_itas. It must not
-    // collide with the actual executable, though. Putting it below 2GiB should
-    // always be safe.
-    return 0x70000000U;
+    // collide with the actual executable, though. Putting it right behind
+    // the stack (see libloader/Phdr_l4re_elf_aux_infos()) should be safe.
+    return 0xa0000000U;
   }
 
 private:
