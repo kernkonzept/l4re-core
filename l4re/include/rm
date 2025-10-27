@@ -153,6 +153,13 @@ public:
       Pager       = 0x400,
       /// Region is reserved (blocked)
       Reserved    = 0x800,
+      /// Attach the dataspace privately with copy-on-write semantics. That is,
+      /// updates to the mapping are not visible in the underlying dataspace.
+      Private     = 0x1000,
+      /// Attach anonymous memory in the region. The caller must not pass a
+      /// dataspace. Instead, the region manager provides anonymous memory for
+      /// the region.
+      Anonymous   = 0x2000,
 
 
       /// Mask of all Rm cache bits
