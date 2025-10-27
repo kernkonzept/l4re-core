@@ -202,6 +202,10 @@ namespace Types {
     friend constexpr DT operator & (DT l, DT r)
     { return DT(l.raw & r.raw); }
 
+    /// Bitwise difference (clear bits) for DT.
+    friend constexpr DT operator - (DT l, DT r)
+    { return DT(l.raw & ~r.raw); }
+
     /// equality for DT
     friend constexpr bool operator == (DT l, DT r)
     { return l.raw == r.raw; }
@@ -211,24 +215,29 @@ namespace Types {
     { return l.raw != r.raw; }
 
     /// bitwise or assignment for DT
-    DT operator |= (DT r)
+    constexpr DT &operator |= (DT const r)
     {
       static_cast<DT *>(this)->raw |= r.raw;
       return *static_cast<DT *>(this);
     }
 
     /// bitwise and assignment for DT
-    DT operator &= (DT r)
+    constexpr DT &operator &= (DT const r)
     {
       static_cast<DT *>(this)->raw &= r.raw;
       return *static_cast<DT *>(this);
     }
 
+    /// Bitwise difference (clear bits) assignment for DT.
+    constexpr DT &operator -= (DT const r)
+    {
+      static_cast<DT *>(this)->raw &= ~r.raw;
+      return *static_cast<DT *>(this);
+    }
+
     /// explicit conversion to bool for tests
     explicit constexpr operator bool () const
-    {
-      return static_cast<DT const *>(this)->raw != 0;
-    }
+    { return static_cast<DT const *>(this)->raw != 0; }
 
     /// bitwise negation for DT
     constexpr DT operator ~ () const

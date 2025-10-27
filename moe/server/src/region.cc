@@ -48,7 +48,7 @@ int Region_ops::map(Region_handler const *h, l4_addr_t adr,
   offs = l4_trunc_page(offs);
   auto f = map_flags(h->flags());
   if (!need_w)
-    f &= ~L4Re::Dataspace::F::W;
+    f -= L4Re::Dataspace::F::W;
 
   static Snd_fpage::Cacheopt const cache_map[] =
     { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,

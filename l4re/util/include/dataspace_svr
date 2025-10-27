@@ -346,7 +346,7 @@ protected:
   {
     auto f = (_rw_flags & L4Re::Dataspace::Flags(0x0f)) | L4Re::Dataspace::F::Caching_mask;
     if (!(rights & L4_CAP_FPAGE_W))
-      f &= ~L4Re::Dataspace::F::W;
+      f -= L4Re::Dataspace::F::W;
 
     return f;
   }

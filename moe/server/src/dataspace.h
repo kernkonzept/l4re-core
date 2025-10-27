@@ -105,7 +105,7 @@ public:
     auto f = (_flags & Flags(L4Re::Dataspace::F::Rights_mask))
              | L4Re::Dataspace::F::Caching_mask;
     if (!(rights & L4_CAP_FPAGE_W))
-      f &= ~L4Re::Dataspace::F::W;
+      f -= L4Re::Dataspace::F::W;
 
     return f;
   }
@@ -164,7 +164,7 @@ public:
     s.flags = flags();
     // only return writable if really writable
     if (!(rights & L4_CAP_FPAGE_W))
-      s.flags &= ~L4Re::Dataspace::F::W;
+      s.flags -= L4Re::Dataspace::F::W;
 
     return L4_EOK;
   }
