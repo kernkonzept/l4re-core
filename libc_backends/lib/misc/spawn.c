@@ -1,4 +1,4 @@
-
+#include <errno.h>
 #include <spawn.h>
 #include <stdio.h>
 
