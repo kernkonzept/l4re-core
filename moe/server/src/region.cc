@@ -7,6 +7,9 @@
  */
 #include "debug.h"
 #include "region.h"
+#include "dataspace_anon.h"
+#include "dataspace_noncont.h"
+#include "dataspace_util.h"
 
 #include <l4/sys/kip>
 #include <l4/sys/utcb.h>
@@ -36,6 +39,40 @@ Region_map::Region_map()
   // might actually be valid memory on this address.
   attach_area(0, L4_PAGESIZE);
 #endif
+}
+
+
+
+int Region_handler::init(Region_map *rm, unsigned long size) noexcept
+{
+  if (!(_flags & (L4Re::Rm::F::Private | L4Re::Rm::F::Anonymous)))
+    return L4_EOK;
+
+  // In case of copy-on-write, the attached region must be fully backed by the
+  // underlying dataspace.
+  if (_mem)
+    {
+      _offs = l4_trunc_page(_offs);
+      if (_offs >= _mem->size() || _mem->size() - _offs < size)
+        return -L4_EINVAL;
+    }
+
+  _anon_mem = cxx::Ref_ptr<Moe::Dataspace>(
+#ifdef CONFIG_MMU
+    Moe::Dataspace_noncont::create(rm->qalloc(), size,
+                                   Single_page_alloc_base::default_mem_cfg)
+#else
+    rm->qalloc()->make_obj<Moe::Dataspace_anon>(size, L4Re::Dataspace::F::RWX)
+#endif
+    );
+
+  if (_mem)
+    Dataspace_util::copy(_anon_mem.get(), 0, _mem.get(), _offs, size);
+
+  _mem = _anon_mem.get();
+  _offs = 0;
+
+  return L4_EOK;
 }
 
 l4_ret_t Region_handler::map(l4_addr_t adr,
@@ -96,7 +133,10 @@ l4_ret_t Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
 void
 Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
 {
-  if (is_ro() || !_mem)
+  if (!_mem)
+    return;
+
+  if (!(_flags & (L4Re::Rm::F::Private | L4Re::Rm::F::Anonymous)) && is_ro())
     return;
 
   _mem->clear(offset() + start, size);
@@ -143,7 +183,13 @@ Region_map::validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
     return -L4_ENOENT;
 
   *ds = moe_ds;
-  if ((map_flags(flags) & moe_ds->map_flags(ds_cap.data())) != map_flags(flags))
+
+  // If F::Private is set, a read-only DS can be mapped writable with CoW.
+  auto ds_map_flags = moe_ds->map_flags(ds_cap.data());
+  if (flags & L4Re::Rm::F::Private)
+    ds_map_flags |= L4Re::Dataspace::F::W;
+
+  if ((map_flags(flags) & ds_map_flags) != map_flags(flags))
     return -L4_EPERM;
 
   return L4_EOK;

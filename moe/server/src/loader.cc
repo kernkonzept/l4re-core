@@ -146,9 +146,11 @@ Moe_app_model::prog_attach_ds(l4_addr_t addr, unsigned long size,
                               char const *name, unsigned long,
                               char const *what)
 {
+  Region_handler handler(ds, L4_INVALID_CAP, offset, flags.region_flags());
+  chksys(handler.init(_task->rm().get(), size), what);
+
   void *x = _task->rm()->attach(reinterpret_cast<void*>(addr), size,
-                                Region_handler(ds, L4_INVALID_CAP,
-                                               offset, flags.region_flags()),
+                                handler,
                                 flags, L4_PAGESHIFT,
                                 name, name ? strlen(name) : 0);
 

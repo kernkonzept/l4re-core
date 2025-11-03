@@ -31,7 +31,8 @@ namespace Moe {
  */
 class Dataspace :
   public L4::Epiface_t<Dataspace, L4Re::Dataspace, Server_object>,
-  public Q_object
+  public Q_object,
+  public cxx::Ref_obj
 {
 public:
   using Flags = L4Re::Dataspace::Flags;

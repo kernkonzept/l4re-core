@@ -167,6 +167,10 @@ static void insert_regions()
                           reinterpret_cast<l4_addr_t>(&safe_memcpy_end),
                           reinterpret_cast<l4_addr_t>(&safe_memcpy_fault)),
     "l4re_itas: cannot register safe_memcpy\n");
+
+  // Now the region map is complete. We can allocate an area where temporary
+  // CoW mappings are placed.
+  Global::local_rm->init_cow();
 }
 
 int main(int argc, char const *argv[], char const *envp[])

@@ -19,7 +19,11 @@ public:
   Dataspace_static(void *start, unsigned long size,
                    Flags flags = L4Re::Dataspace::F::RW,
                    unsigned char page_shift = L4_PAGESHIFT)
-  : Dataspace_cont(start, size, flags, page_shift) {}
+  : Dataspace_cont(start, size, flags, page_shift)
+  {
+    add_ref(); // Prevent deletion forever
+  }
+
   virtual ~Dataspace_static() noexcept {}
   l4_ret_t pre_allocate(L4Re::Dataspace::Offset, L4Re::Dataspace::Size,
                         unsigned) override

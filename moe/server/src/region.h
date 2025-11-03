@@ -19,14 +19,16 @@
 #include "quota.h"
 #include "debug.h"
 
+class Region_map;
 class Region_handler;
 
 class Region_handler
 {
   L4Re::Rm::Offset _offs = 0;
   cxx::Weak_ref<Moe::Dataspace const> _mem;
+  cxx::Ref_ptr<Moe::Dataspace> _anon_mem;
   l4_cap_idx_t _client_cap = L4_INVALID_CAP;
-  L4Re::Rm::Region_flags _flags;
+  L4Re::Rm::Region_flags _flags = L4Re::Rm::Region_flags(0);
 
   constexpr bool is_ro() const noexcept
   {
@@ -42,12 +44,15 @@ public:
   using Map_result = L4::Ipc::Snd_fpage;
   using Dataspace = cxx::Weak_ref<Moe::Dataspace const>;
 
-  Region_handler() noexcept : _flags() {}
-  Region_handler(cxx::Weak_ref<Moe::Dataspace const> const &mem, l4_cap_idx_t client_cap,
-      L4Re::Rm::Offset offset = 0,
-      L4Re::Rm::Region_flags flags = L4Re::Rm::Region_flags(0)) noexcept
+  Region_handler() noexcept = default;
+  Region_handler(cxx::Weak_ref<Moe::Dataspace const> const &mem,
+                 l4_cap_idx_t client_cap,
+                 L4Re::Rm::Offset offset,
+                 L4Re::Rm::Region_flags flags) noexcept
     : _offs(offset), _mem(mem), _client_cap(client_cap), _flags(flags)
   {}
+
+  int init(Region_map *rm, unsigned long size) noexcept;
 
   cxx::Weak_ref<Moe::Dataspace const> const &memory() const noexcept
   {

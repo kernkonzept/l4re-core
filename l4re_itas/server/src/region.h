@@ -9,8 +9,11 @@
 
 #include <stdlib.h>
 
+#include <l4/cxx/bitmap>
+#include <l4/cxx/ref_ptr>
 #include <l4/re/dataspace>
 #include <l4/re/debug>
+#include <l4/re/shared_cap>
 #include <l4/re/util/region_mapping_svr>
 #include <l4/sys/cxx/ipc_epiface>
 #include <l4/sys/exception>
@@ -26,13 +29,53 @@
 inline void *operator new (size_t s, cxx::Nothrow const &) noexcept { return malloc(s); }
 inline void operator delete (void *p, cxx::Nothrow const &) noexcept { return free(p); }
 
+class Page_bitmap : public cxx::Ref_obj, private cxx::Bitmap_base
+{
+  Page_bitmap(unsigned num_bits) noexcept;
+
+  static void *operator new(l4_size_t sz, unsigned num_bits) noexcept
+  {
+    sz += bit_buffer_bytes(num_bits);
+    return malloc(sz);
+  }
+
+public:
+  void operator delete(void *ptr)
+  { free(ptr); }
+
+  static cxx::Ref_ptr<Page_bitmap> create(unsigned num_bits)
+  { return cxx::Ref_ptr<Page_bitmap>(new (num_bits) Page_bitmap(num_bits)); }
+
+  using cxx::Bitmap_base::operator[];
+  using cxx::Bitmap_base::bit;
+  using cxx::Bitmap_base::atomic_set_bit;
+  using cxx::Bitmap_base::atomic_clear_bit;
+
+private:
+  char _storage[];  // flexible array member - extension by gcc/clang
+};
+
+using Page_bitmap_ptr = cxx::Ref_ptr<Page_bitmap>;
+
+class Region_map;
+
 class Region_handler
 {
   L4Re::Rm::Offset _offs = 0;
+  l4_size_t _anon_offs = 0;
   Ds_cap_references::Ds_cap_ref _mem;
+  L4Re::Shared_cap<L4Re::Dataspace> _anon_mem;
+#ifdef CONFIG_MMU
+  Page_bitmap_ptr _anon_pages;
+#endif
   l4_cap_idx_t _client_cap = L4_INVALID_CAP;
   L4Re::Rm::Region_flags _flags = L4Re::Rm::Region_flags(0);
   bool _attached = false;
+
+#ifdef CONFIG_MMU
+  l4_ret_t map_cow_page(L4Re::Util::Region const &r,
+                        L4Re::Dataspace::Flags ds_flags, l4_addr_t addr) const noexcept;
+#endif
 
 public:
   typedef l4_umword_t Map_result;
@@ -45,6 +88,8 @@ public:
                  L4Re::Rm::Region_flags flags) noexcept
   : _offs(offset), _mem(mem), _client_cap(client_cap), _flags(flags)
   {}
+
+  int init(Region_map *rm, unsigned long size) noexcept;
 
   L4::Cap<L4Re::Dataspace> memory() const noexcept
   { return _mem.itas_cap(); }
@@ -60,7 +105,10 @@ public:
 
   Region_handler operator + (l4_int64_t offset) const noexcept
   {
-    Region_handler n = *this; n._offs += offset; return n;
+    Region_handler n = *this;
+    n._offs += offset;
+    n._anon_offs += offset;
+    return n;
   }
 
   void free(l4_addr_t start, unsigned long size) const noexcept;
@@ -88,6 +136,18 @@ class Region_map
 {
 private:
   typedef L4Re::Util::Region_map<Region_handler, cxx::New_allocator> Base;
+
+#ifdef CONFIG_MMU
+  /// Size of pool for anonymous memory allocations
+  static constexpr l4_size_t Ds_pool_size = 256UL << 20;  // 256 MiB
+
+  /// Threshold above which a dedicated dataspace is always allocated
+  static constexpr l4_size_t Ds_threshold = 32UL << 20;   // 32 MiB
+#else
+  // Use much smaller values on no-MMU systems.
+  static constexpr l4_size_t Ds_pool_size = 256UL << 10;  // 256 KiB
+  static constexpr l4_size_t Ds_threshold = 32UL << 10;   // 32 KiB
+#endif
 
 public:
   using Dataspace = Ds_cap_references::Ds_cap_ref;
@@ -120,8 +180,28 @@ public:
   l4_ret_t page_in(l4_addr_t min_addr, l4_addr_t max_addr,
                    L4Re::Rm::Region_flags rights);
 
+  struct Anon_alloc
+  {
+    L4Re::Shared_cap<L4Re::Dataspace> ds;
+    Page_bitmap_ptr page_bm;
+    l4_size_t offs;
+  };
+
+  cxx::Result<Anon_alloc> alloc_anon_mem(l4_size_t size);
+
 private:
+  struct Ds_alloc
+  {
+    L4Re::Shared_cap<L4Re::Dataspace> ds;
+    Page_bitmap_ptr page_bm;
+  };
+
+  cxx::Result<Ds_alloc> alloc_ds(l4_size_t size);
+
   Ds_cap_references _ds_cap_refs;
+  L4Re::Shared_cap<L4Re::Dataspace> _anon_mem;
+  Page_bitmap_ptr _anon_page_bm;
+  l4_addr_t _anon_offset = 0;
 };
 
 class Region_map_svr
@@ -142,6 +222,7 @@ public:
   };
 
   void init() { _region_map.init(); }
+  void init_cow();
 
   bool add_area(l4_addr_t start, l4_addr_t end,
                 L4Re::Rm::F::Region_flags region_flags)
@@ -154,6 +235,8 @@ public:
     L4Re::Util::Region region(start, end, name, name_len, backing_offset);
     Region_handler handler(Ds_cap_references::Ds_cap_ref(mem), mem.cap(), 0,
                            region_flags);
+    if (int err = handler.init(&_region_map, end - start + 1); err < 0)
+      return false;
     return _region_map.add_region(region, handler);
   }
 
@@ -177,10 +260,12 @@ public:
   {
     Rw_lock_write_scope scope(_lock);
 
-    return _region_map.attach(addr, size,
-                              Region_handler(Ds_cap_references::Ds_cap_ref(mem),
-                                             mem.cap(), 0, flags.region_flags()),
-                              flags.attach_flags(), align,
+    Region_handler handler(Ds_cap_references::Ds_cap_ref(mem), mem.cap(), 0,
+                           flags.region_flags());
+    if (handler.init(&_region_map, size) < 0)
+      return L4_INVALID_PTR;
+
+    return _region_map.attach(addr, size, handler, flags.attach_flags(), align,
                               name, name_len, backing_offset);
   }
 

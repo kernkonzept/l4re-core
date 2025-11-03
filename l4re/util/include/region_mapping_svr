@@ -43,12 +43,13 @@ public:
       | Rm::F::No_eager_map
       // Region_flags
       | Rm::F::RWX | Rm::F::Kernel | Rm::F::Detach_free | Rm::F::Pager
-      | Rm::F::Reserved | Rm::F::Caching_mask;
+      | Rm::F::Reserved | Rm::F::Private | Rm::F::Anonymous
+      | Rm::F::Caching_mask;
 
     if (flags & ~Known_flags)
       return -L4_EINVAL;
 
-    if (!(flags & (Rm::F::Reserved | Rm::F::Kernel)))
+    if (!(flags & (Rm::F::Reserved | Rm::F::Kernel | Rm::F::Anonymous)))
       {
         if (l4_ret_t r = rm()->validate_ds(ds_cap, flags.region_flags(), &ds))
           return r;
@@ -71,6 +72,9 @@ public:
     Rm::Attach_flags a_flags = flags.attach_flags();
 
     typename DERIVED::Region_handler handler(ds, client_cap_idx, offs, r_flags);
+    if (int err = handler.init(rm(), size); err < 0)
+      return err;
+
     start = l4_addr_t(rm()->attach(reinterpret_cast<void*>(start), size,
                                    handler, a_flags, align,
                                    name.data,
@@ -320,7 +324,7 @@ public:
 
     typename DERIVED::Node n = rm()->find(addr);
 
-    if (!n || !n->second.memory())
+    if (!n)
       {
         Dbg(Dbg::Warn, "rm").printf("unhandled %s page fault at 0x%lx pc=0x%lx\n",
                                     need_w ? "write" :
