@@ -1,7 +1,9 @@
 PKGDIR ?= .
 L4DIR  ?= $(PKGDIR)/../../..
 
-LIBCSRC_DIR = $(PKGDIR)/../libc/uclibc-ng
+include $(L4DIR)/mk/Makeconf
+
+LIBCSRC_DIR = $(PKGDIR)/../libc/$(CONFIG_L4_LIBC)
 
 all:: include
 
@@ -10,10 +12,11 @@ include $(LIBCSRC_DIR)/make_vars.mk
 vpath %.h $(LIBCSRC_DIR)/libc/ARCH-$(BUILD_ARCH)/include
 vpath %.h $(LIBCSRC_DIR)/libc/ARCH-all/include
 
+HEADER_DIR  := $(OBJ_DIR)/install_includes
+
 include $(LIBCSRC_DIR)/target_headers.mk
 
 
-HEADER_DIR  := $(OBJ_DIR)/install_includes
 DST_HEADERS := $(addprefix $(HEADER_DIR)/,$(HDR_common) $(HDR_$(BUILD_ARCH)))
 GEN_HEADERS := $(addprefix $(HEADER_DIR)/,$(GEN_common) $(GEN_$(BUILD_ARCH)))
 
