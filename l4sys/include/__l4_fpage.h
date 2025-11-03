@@ -350,7 +350,7 @@ enum
  *
  * \return  Memory flexpage
  */
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage(l4_addr_t address, unsigned int order, unsigned char rights) L4_NOTHROW;
 
 /**
@@ -364,7 +364,7 @@ l4_fpage(l4_addr_t address, unsigned int order, unsigned char rights) L4_NOTHROW
  *       all spaces of the target task. It does not make sense to use this
  *       flexpage as send item.
  */
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage_all(void) L4_NOTHROW;
 
 /**
@@ -373,7 +373,7 @@ l4_fpage_all(void) L4_NOTHROW;
  *
  * \return  Special \em invalid flexpage.
  */
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage_invalid(void) L4_NOTHROW;
 
 
@@ -387,7 +387,7 @@ l4_fpage_invalid(void) L4_NOTHROW;
  *
  * \return  I/O flexpage
  */
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_iofpage(unsigned long port, unsigned int order) L4_NOTHROW;
 
 
@@ -403,7 +403,7 @@ l4_iofpage(unsigned long port, unsigned int order) L4_NOTHROW;
  *
  * \note #L4_CAP_FPAGE_R is always required, otherwise no capability is mapped.
  */
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTHROW;
 
 /**
@@ -415,7 +415,7 @@ l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTH
  * \retval !=0 if flexpage is writable.
  * \retval ==0 if flexpage is not writable.
  */
-L4_INLINE int
+L4_INLINE L4_CONSTEXPR int
 l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
 
 
@@ -465,7 +465,7 @@ l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW;
  *
  * \return The value to be used as first word in a send item for memory.
  */
-L4_INLINE l4_umword_t
+L4_INLINE L4_CONSTEXPR l4_umword_t
 l4_map_control(l4_umword_t spot, unsigned char cache, unsigned grant) L4_NOTHROW;
 
 /**
@@ -481,7 +481,7 @@ l4_map_control(l4_umword_t spot, unsigned char cache, unsigned grant) L4_NOTHROW
  * \return The value to be used as first word in a send item for kernel objects
  *         or IO-ports.
  */
-L4_INLINE l4_umword_t
+L4_INLINE L4_CONSTEXPR l4_umword_t
 l4_map_obj_control(l4_umword_t spot, unsigned grant) L4_NOTHROW;
 
 /**
@@ -492,7 +492,7 @@ l4_map_obj_control(l4_umword_t spot, unsigned grant) L4_NOTHROW;
  *
  * \return Size part of the given flexpage.
  */
-L4_INLINE unsigned
+L4_INLINE L4_CONSTEXPR unsigned
 l4_fpage_rights(l4_fpage_t f) L4_NOTHROW;
 
 /**
@@ -503,7 +503,7 @@ l4_fpage_rights(l4_fpage_t f) L4_NOTHROW;
  *
  * \return Type part of the given flexpage.
  */
-L4_INLINE unsigned
+L4_INLINE L4_CONSTEXPR unsigned
 l4_fpage_type(l4_fpage_t f) L4_NOTHROW;
 
 /**
@@ -516,7 +516,7 @@ l4_fpage_type(l4_fpage_t f) L4_NOTHROW;
  *
  * \see l4_fpage_memaddr(), l4_fpage_obj(), l4_fpage_ioport()
  */
-L4_INLINE unsigned
+L4_INLINE L4_CONSTEXPR unsigned
 l4_fpage_size(l4_fpage_t f) L4_NOTHROW;
 
 /**
@@ -529,7 +529,7 @@ l4_fpage_size(l4_fpage_t f) L4_NOTHROW;
  *
  * \note The meaning of the page part depends on the flexpage type.
  */
-L4_INLINE unsigned long
+L4_INLINE L4_CONSTEXPR unsigned long
 l4_fpage_page(l4_fpage_t f) L4_NOTHROW;
 
 /**
@@ -545,7 +545,7 @@ l4_fpage_page(l4_fpage_t f) L4_NOTHROW;
  * The function does not enforce size alignment of the read memory address. The
  * caller must ensure the input fpage is correct.
  */
-L4_INLINE l4_addr_t
+L4_INLINE L4_CONSTEXPR l4_addr_t
 l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW;
 
 /**
@@ -561,7 +561,7 @@ l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW;
  * The function does not enforce size alignment of the read memory address. The
  * caller must ensure the input fpage is correct.
  */
-L4_INLINE l4_cap_idx_t
+L4_INLINE L4_CONSTEXPR l4_cap_idx_t
 l4_fpage_obj(l4_fpage_t f) L4_NOTHROW;
 
 /**
@@ -577,7 +577,7 @@ l4_fpage_obj(l4_fpage_t f) L4_NOTHROW;
  * The function does not enforce size alignment of the read memory address. The
  * caller must ensure the input fpage is correct.
  */
-L4_INLINE unsigned long
+L4_INLINE L4_CONSTEXPR unsigned long
 l4_fpage_ioport(l4_fpage_t f) L4_NOTHROW;
 
 /**
@@ -589,7 +589,7 @@ l4_fpage_ioport(l4_fpage_t f) L4_NOTHROW;
  *
  * \return Modified flexpage with new rights.
  */
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW;
 
 /**
@@ -603,7 +603,7 @@ l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW;
  * \retval ==0 The range is not completely in the fpage.
  * \retval !=0 The range is within the fpage.
  */
-L4_INLINE int
+L4_INLINE L4_CONSTEXPR int
 l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned order) L4_NOTHROW;
 
 /**
@@ -622,7 +622,7 @@ l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned order) L4_NOTHROW;
  * \note The start address of the flexpage can be determined with
  *       l4_trunc_size(addr, returnvalue)
  */
-L4_INLINE unsigned char
+L4_INLINE L4_CONSTEXPR unsigned char
 l4_fpage_max_order(unsigned char order, l4_addr_t addr,
                    l4_addr_t min_addr, l4_addr_t max_addr,
                    l4_addr_t hotspot L4_DEFAULT_PARAM(0));
@@ -636,94 +636,98 @@ l4_fpage_max_order(unsigned char order, l4_addr_t addr,
  * \retval !=0 if flexpage is valid.
  * \retval ==0 if flexpage is not valid.
  */
-L4_INLINE int
+L4_INLINE L4_CONSTEXPR int
 l4_is_fpage_valid(l4_fpage_t fp) L4_NOTHROW;
 
 /*************************************************************************
  * Implementations
  *************************************************************************/
 
-L4_INLINE unsigned
+L4_INLINE L4_CONSTEXPR unsigned
 l4_fpage_rights(l4_fpage_t f) L4_NOTHROW
 {
   return (f.raw & L4_FPAGE_RIGHTS_MASK) >> L4_FPAGE_RIGHTS_SHIFT;
 }
 
-L4_INLINE unsigned
+L4_INLINE L4_CONSTEXPR unsigned
 l4_fpage_type(l4_fpage_t f) L4_NOTHROW
 {
   return (f.raw & L4_FPAGE_TYPE_MASK) >> L4_FPAGE_TYPE_SHIFT;
 }
 
-L4_INLINE unsigned
+L4_INLINE L4_CONSTEXPR unsigned
 l4_fpage_size(l4_fpage_t f) L4_NOTHROW
 {
   return (f.raw & L4_FPAGE_SIZE_MASK) >> L4_FPAGE_SIZE_SHIFT;
 }
 
-L4_INLINE unsigned long
+L4_INLINE L4_CONSTEXPR unsigned long
 l4_fpage_page(l4_fpage_t f) L4_NOTHROW
 {
   return (f.raw & L4_FPAGE_ADDR_MASK) >> L4_FPAGE_ADDR_SHIFT;
 }
 
-L4_INLINE unsigned long
+L4_INLINE L4_CONSTEXPR unsigned long
 l4_fpage_ioport(l4_fpage_t f) L4_NOTHROW
 {
   return (f.raw & L4_FPAGE_ADDR_MASK) >> L4_FPAGE_ADDR_SHIFT;
 }
 
-L4_INLINE l4_addr_t
+L4_INLINE L4_CONSTEXPR l4_addr_t
 l4_fpage_memaddr(l4_fpage_t f) L4_NOTHROW
 {
   return f.raw & L4_FPAGE_ADDR_MASK;
 }
 
-L4_INLINE l4_cap_idx_t
+L4_INLINE L4_CONSTEXPR l4_cap_idx_t
 l4_fpage_obj(l4_fpage_t f) L4_NOTHROW
 {
   return f.raw & L4_FPAGE_ADDR_MASK;
 }
 
 /** \internal */
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 __l4_fpage_generic(unsigned long address, unsigned int type,
                    unsigned int order, unsigned char rights) L4_NOTHROW;
 
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 __l4_fpage_generic(unsigned long address, unsigned int type,
                    unsigned int order, unsigned char rights) L4_NOTHROW
 {
-  l4_fpage_t t;
-  t.raw =   ((rights  << L4_FPAGE_RIGHTS_SHIFT) & L4_FPAGE_RIGHTS_MASK)
+  l4_fpage_t t =
+    {
+            ((rights  << L4_FPAGE_RIGHTS_SHIFT) & L4_FPAGE_RIGHTS_MASK)
           | ((type    << L4_FPAGE_TYPE_SHIFT)   & L4_FPAGE_TYPE_MASK)
 	  | ((order   << L4_FPAGE_SIZE_SHIFT)   & L4_FPAGE_SIZE_MASK)
-	  | ((address                       )   & L4_FPAGE_ADDR_MASK);
+	  | ((address                       )   & L4_FPAGE_ADDR_MASK)
+    };
   return t;
 }
 
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage_set_rights(l4_fpage_t src, unsigned char new_rights) L4_NOTHROW
 {
-  l4_fpage_t f;
-  f.raw = ((L4_FPAGE_TYPE_MASK | L4_FPAGE_SIZE_MASK | L4_FPAGE_ADDR_MASK) & src.raw)
-          | ((new_rights << L4_FPAGE_RIGHTS_SHIFT) & L4_FPAGE_RIGHTS_MASK);
+  l4_fpage_t f =
+    {
+      ((L4_FPAGE_TYPE_MASK | L4_FPAGE_SIZE_MASK | L4_FPAGE_ADDR_MASK) & src.raw)
+      | ((new_rights << L4_FPAGE_RIGHTS_SHIFT) & L4_FPAGE_RIGHTS_MASK)
+    };
   return f;
 }
 
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage(l4_addr_t address, unsigned int order, unsigned char rights) L4_NOTHROW
 {
   return __l4_fpage_generic(address, L4_FPAGE_MEMORY, order, rights);
 }
 
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_iofpage(unsigned long port, unsigned int order) L4_NOTHROW
 {
   return __l4_fpage_generic(port << L4_FPAGE_ADDR_SHIFT, L4_FPAGE_IO, order, L4_FPAGE_RW);
 }
 
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTHROW
 {
   static_assert((unsigned long)L4_CAP_SHIFT >= L4_FPAGE_ADDR_SHIFT,
@@ -731,39 +735,39 @@ l4_obj_fpage(l4_cap_idx_t obj, unsigned int order, unsigned char rights) L4_NOTH
   return __l4_fpage_generic(obj, L4_FPAGE_OBJ, order, rights);
 }
 
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage_all(void) L4_NOTHROW
 {
   return __l4_fpage_generic(0, L4_FPAGE_SPECIAL, L4_WHOLE_ADDRESS_SPACE, 0);
 }
 
-L4_INLINE l4_fpage_t
+L4_INLINE L4_CONSTEXPR l4_fpage_t
 l4_fpage_invalid(void) L4_NOTHROW
 {
   return __l4_fpage_generic(0, L4_FPAGE_SPECIAL, 0, 0);
 }
 
 
-L4_INLINE int
+L4_INLINE L4_CONSTEXPR int
 l4_is_fpage_writable(l4_fpage_t fp) L4_NOTHROW
 {
   return l4_fpage_rights(fp) & L4_FPAGE_W;
 }
 
-L4_INLINE l4_umword_t
+L4_INLINE L4_CONSTEXPR l4_umword_t
 l4_map_control(l4_umword_t snd_base, unsigned char cache, unsigned grant) L4_NOTHROW
 {
   return (snd_base & L4_FPAGE_CONTROL_MASK)
          | ((l4_umword_t)cache << 4) | L4_ITEM_MAP | grant;
 }
 
-L4_INLINE l4_umword_t
+L4_INLINE L4_CONSTEXPR l4_umword_t
 l4_map_obj_control(l4_umword_t snd_base, unsigned grant) L4_NOTHROW
 {
   return l4_map_control(snd_base, 0, grant);
 }
 
-L4_INLINE int
+L4_INLINE L4_CONSTEXPR int
 l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned log2size) L4_NOTHROW
 {
   l4_addr_t fa = l4_fpage_memaddr(fpage);
@@ -771,14 +775,14 @@ l4_fpage_contains(l4_fpage_t fpage, l4_addr_t addr, unsigned log2size) L4_NOTHRO
          && (fa + (1UL << l4_fpage_size(fpage)) >= addr + (1UL << log2size));
 }
 
-L4_INLINE unsigned char
+L4_INLINE L4_CONSTEXPR unsigned char
 l4_fpage_max_order(unsigned char order, l4_addr_t addr,
                    l4_addr_t min_addr, l4_addr_t max_addr,
                    l4_addr_t hotspot)
 {
   while (order < 30 /* limit to 1GB flexpages */)
     {
-      l4_addr_t mask;
+      l4_addr_t mask = ~(~0UL << (order + 1));
       l4_addr_t base = l4_trunc_size(addr, order + 1);
       if (base < min_addr)
         return order;
@@ -786,7 +790,6 @@ l4_fpage_max_order(unsigned char order, l4_addr_t addr,
       if (base + (1UL << (order + 1)) - 1 > max_addr - 1)
         return order;
 
-      mask = ~(~0UL << (order + 1));
       if (hotspot == ~0UL || ((addr ^ hotspot) & mask))
         break;
 
@@ -796,7 +799,7 @@ l4_fpage_max_order(unsigned char order, l4_addr_t addr,
   return order;
 }
 
-L4_INLINE int
+L4_INLINE L4_CONSTEXPR int
 l4_is_fpage_valid(l4_fpage_t fp) L4_NOTHROW
 {
   return l4_fpage_type(fp) != L4_FPAGE_SPECIAL || l4_fpage_size(fp) != 0;
