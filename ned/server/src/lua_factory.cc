@@ -8,6 +8,7 @@
 #include <lauxlib.h>
 #include <lualib.h>
 
+#include <l4/cxx/unique_ptr>
 #include <l4/re/util/cap_alloc>
 #include <l4/re/util/unique_cap>
 #include <l4/re/env>
@@ -52,7 +53,7 @@ __alloc(lua_State *l)
     luaL_error(l, "out of caps");
 
   L4::Cap<L4::Factory> f(n->cap<L4::Factory>().get());
-  L4::Ipc::Varg args[argc-1];
+  auto args = cxx::make_unique<L4::Ipc::Varg[]>(argc-1);
   for (int i = 3; i <= argc; ++i)
     {
       if (lua_isnumber(l, i))
@@ -65,7 +66,7 @@ __alloc(lua_State *l)
     }
   args[argc-2] = L4::Ipc::Varg::nil();
 
-  l4_msgtag_t t = L4::Factory::create_t::call(f, obj.get(), objt, args);
+  l4_msgtag_t t = L4::Factory::create_t::call(f, obj.get(), objt, args.get());
   int r = l4_error(t);
 
   if (r < 0)
