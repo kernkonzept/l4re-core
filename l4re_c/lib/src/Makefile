@@ -20,6 +20,6 @@ SRC_CC := namespace.cc \
           dma_space.cc \
           parent.cc
 
-CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions
+CXXFLAGS += -fno-rtti -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk

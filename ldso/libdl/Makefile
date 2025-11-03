@@ -44,7 +44,7 @@ PICFLAGS += -DSHARED
 ldso.1.o: ldso.o
 	$(OBJCOPY) --weaken $< $@
 
-CXXFLAGS := -DL4_NO_RTTI -fno-rtti -fno-exceptions
+CXXFLAGS := -fno-rtti -fno-exceptions
 
 ifeq ($(BID_COMPILER_TYPE),clang)
 WARNINGS += -Wno-gnu-designator

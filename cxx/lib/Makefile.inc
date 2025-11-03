@@ -9,7 +9,7 @@ PC_FILENAMES             := $(PC_FILENAME) $(PC_FILENAME)_e
 PC_LIBS_$(PC_FILENAME)   := -l$(patsubst lib%,%,$(TARGET_BASENAME))
 PC_LIBS_$(PC_FILENAME)_e := -l$(patsubst lib%,%,$(TARGET_BASENAME))_e
 
-$(foreach src,$(SRC_CC),$(eval CXXFLAGS_$$(src) += -DL4_NO_RTTI -fno-exceptions -fno-rtti))
+$(foreach src,$(SRC_CC),$(eval CXXFLAGS_$$(src) += -fno-exceptions -fno-rtti))
 
 # Prevent the removal of the %.e.cc files. The build system shall not rebuild
 # an unchanged source tree.

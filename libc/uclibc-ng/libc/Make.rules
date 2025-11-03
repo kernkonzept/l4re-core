@@ -1,7 +1,7 @@
 # vi:ft=make
 LIBCSRC_DIR ?= $(SRC_DIR)/..
 
-DEFINES           += -DL4_THREAD_SAFE -DL4_NO_RTTI=1 -DUSE_TLS=1
+DEFINES           += -DL4_THREAD_SAFE -DUSE_TLS=1
 TARGET            := libc.a libc.so libc_nonshared.p.a
 PC_FILENAME       := libc
 PC_LIBS           := -lc %{static|static-pie:;:-lc_nonshared.p}

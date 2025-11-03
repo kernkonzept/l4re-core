@@ -67,7 +67,7 @@ ldso.1.o: ldso.o
 
 CXXFLAGS := $(filter-out -fno-omit-frame-pointer, $(CXXFLAGS))
 CXXFLAGS := $(filter-out -fno-strict-aliasing, $(CXXFLAGS))
-CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions -fvisibility=hidden \
+CXXFLAGS += -fno-rtti -fno-exceptions -fvisibility=hidden \
             -fno-threadsafe-statics -O3
 
 CPPFLAGS := $(filter-out -DL4SYS_USE_UTCB_WRAP=1, $(CPPFLAGS))

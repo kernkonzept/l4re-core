@@ -16,7 +16,7 @@ SRC_C                 = getopt2.c micros2l4to.c rand.c sleep.c \
                         list_alloc.c \
                         $(if $(wildcard $(SRC_DIR)/ARCH-$(ARCH)/backtrace.c), \
                              ARCH-$(ARCH)/backtrace.c,backtrace_stub.c)
-CXXFLAGS              = -DL4_NO_RTTI -fno-exceptions -fno-rtti
+CXXFLAGS              = -fno-exceptions -fno-rtti
 
 PRIVATE_INCDIR_ARCH-x86/perform.c = ARCH-x86
 

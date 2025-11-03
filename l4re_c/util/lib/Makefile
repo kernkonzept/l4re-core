@@ -7,6 +7,6 @@ PC_FILENAME   = l4re_c-util
 PC_LIBS      := %{-link-libc:%{shared:--whole-archive -l4re-c-util.p --no-whole-archive;:lib4re-c-util.ofl}}
 PC_LIBS_PIC  :=
 
-CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions
+CXXFLAGS += -fno-rtti -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk

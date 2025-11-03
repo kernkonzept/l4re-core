@@ -8,6 +8,6 @@ PC_LIBS       := %{-link-libc:%{shared:--whole-archive -l4re-util.p --no-whole-a
 PC_LIBS_PIC   :=
 
 PICFLAGS += -DSHARED=1
-CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions
+CXXFLAGS += -fno-rtti -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk

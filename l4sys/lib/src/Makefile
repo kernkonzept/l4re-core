@@ -13,7 +13,7 @@ PC_EXTRA_l4sys-l4x           = Link_Libs= %{static|static-pie:-ll4sys-l4x}
 
 PC_LIBS_PIC =
 
-CXXFLAGS                    += -DL4_NO_RTTI -fno-rtti -fno-exceptions
+CXXFLAGS                    += -fno-rtti -fno-exceptions
 DEFINES                      = -DL4_KIP_ADDR=$(L4_KIP_ADDR)
 
 SRC_CC                       = kobject.cc

@@ -43,4 +43,4 @@ DEFAULT_STACK_SIZE = 0
 
 include $(L4DIR)/mk/prog.mk
 
-CXXFLAGS	+= -DL4_NO_RTTI -fno-rtti -fno-exceptions -Wall
+CXXFLAGS	+= -fno-rtti -fno-exceptions -Wall

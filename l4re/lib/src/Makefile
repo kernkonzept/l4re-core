@@ -10,7 +10,7 @@ SRC_CC	= namespace.cc dataspace.cc rm.cc mem_alloc.cc \
 	  log.cc event.cc video/goos.cc
 SRC_C_lib4re.ofl := env.c
 
-CXXFLAGS += -DL4_NO_RTTI -fno-rtti -fno-exceptions
+CXXFLAGS += -fno-rtti -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk
 
