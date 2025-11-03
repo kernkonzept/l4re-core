@@ -24,6 +24,14 @@ PRIVATE_INCDIR += $(PTHREAD_INCDIR)
 
 BID_ASM_FILE_EXTENSIONS += .s
 
+# According to the POSIX specification of mmap it shall be possible to map a
+# region of memory that is larger than the backing file. Musl makes use of this
+# feature when loading shared libraries, but unfortunately the current L4Re mmap
+# implementation does not support it.
+# As a workaround, we use the alternative code paths that musl implements for
+# DL_NOMMU_SUPPORT.
+DEFINES_$(LIBC_DST_DIR)/ldso/dynlink.c += -DDL_NOMMU_SUPPORT=1
+
 # setup search paths for our sources
 vpath %.c  $(LIBC_DST_DIR)
 vpath %.cc $(LIBC_DST_DIR)
