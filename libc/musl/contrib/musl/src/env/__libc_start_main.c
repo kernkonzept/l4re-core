@@ -39,9 +39,9 @@ void __init_libc(char **envp, char *pn)
           {
                   if (auxv[i]<AUX_CNT) aux[auxv[i]] = auxv[i+1];
 
-                  if (auxv[i] == 0xf1 && &l4re_global_env)
+                  if (auxv[i] == AT_L4_ENV && &l4re_global_env)
                          l4re_global_env = (void *)auxv[i+1];
-                  else if (auxv[i] == 0xf2 && &l4_global_kip)
+                  else if (auxv[i] == AT_L4_KIP && &l4_global_kip)
                          l4_global_kip = (void *)auxv[i+1];
 
           }

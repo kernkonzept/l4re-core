@@ -56,9 +56,9 @@ void internal_function _dl_aux_init (ElfW(auxv_t) *av)
          _dl_auxvt[av->a_type] = *av;
 
 #ifndef __NOT_FOR_L4__
-       if (av->a_type == 0xf1 && &l4re_global_env)
+       if (av->a_type == AT_L4_ENV && &l4re_global_env)
          l4re_global_env = (void *)av->a_un.a_val;
-       else if (av->a_type == 0xf2 && &l4_global_kip)
+       else if (av->a_type == AT_L4_KIP && &l4_global_kip)
          l4_global_kip = (void *)av->a_un.a_val;
 #endif
      }

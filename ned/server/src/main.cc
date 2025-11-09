@@ -43,7 +43,7 @@ run(int argc, char const *const *argv)
 
   l4re_aux = 0;
 
-  auto *sentinel = reinterpret_cast<char const*>(0xf0);
+  auto *sentinel = reinterpret_cast<char const*>(AT_L4_AUX);
   while (*auxp)
     {
       if (*auxp == sentinel)
