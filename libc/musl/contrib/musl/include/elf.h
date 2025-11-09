@@ -1067,6 +1067,9 @@ typedef struct {
 #define AT_L3_CACHEGEOMETRY	47
 
 #define AT_MINSIGSTKSZ		51
+#define AT_L4_AUX	0xf0
+#define AT_L4_ENV	0xf1
+#define AT_L4_KIP	0xf2
 
 
 typedef struct {

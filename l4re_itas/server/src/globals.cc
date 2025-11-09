@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <l4/sys/compiler.h>
 #include <l4/crtn/initpriorities.h>
+#include <l4/util/elf.h>
 
 // internal uclibc symbol for ENV
 extern char const **__environ;
@@ -36,7 +37,7 @@ namespace Global
 
     while (*auxp)
       {
-        if (*auxp == 0xf0)
+        if (*auxp == AT_L4_AUX)
           l4re_aux = reinterpret_cast<l4re_aux_t *>(auxp[1]);
         auxp += 2;
       }

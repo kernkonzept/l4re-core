@@ -1143,6 +1143,9 @@ typedef struct
 #define AT_L1D_CACHESHAPE	35
 #define AT_L2_CACHESHAPE	36
 #define AT_L3_CACHESHAPE	37
+#define AT_L4_AUX	0xf0
+#define AT_L4_ENV	0xf1
+#define AT_L4_KIP	0xf2
 
 /* Note section contents.  Each entry in the note section begins with
    a header of a fixed form.  */

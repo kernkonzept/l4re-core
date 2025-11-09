@@ -185,8 +185,8 @@ DL_START(unsigned long args)
 		if (auxv_entry->a_type < AUX_MAX_AT_ID) {
 			_dl_memcpy(&(_dl_auxvt_tmp[auxv_entry->a_type]), auxv_entry, sizeof(ElfW(auxv_t)));
 		}
-#ifndef L4_ONLY
-		if (auxv_entry->a_type == 0xf1) {
+#ifndef __NOT_FOR_L4__
+		if (auxv_entry->a_type == AT_L4_ENV) {
 			l4re_env = (void*)auxv_entry->a_un.a_val;
 		}
 #endif
@@ -402,7 +402,7 @@ DL_START(unsigned long args)
 #endif
 	__rtld_stack_end = (void *)(argv - 1);
 
-#ifndef __ONLY_FOR_L4__
+#ifndef __NOT_FOR_L4__
 	_dl_setup_malloc(_dl_auxvt_tmp);
 
 	{
