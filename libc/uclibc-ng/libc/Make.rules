@@ -53,6 +53,8 @@ $(foreach ext,C S CC, \
 
 SRC_C_libc.so   += $(PTHOBJ_PFX)/libc_pthread_init.c
 SRC_CC_libc.a   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+SRC_CC          += _exit.cc
+vpath _exit.cc $(PKGDIR)/common
 SRC_C_libc.a    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
 
 SRC_C_libc.so    += libc/misc/pthread/tsd.c

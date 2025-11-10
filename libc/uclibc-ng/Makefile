@@ -1,9 +1,9 @@
 PKGDIR	?= ..
 L4DIR	?= $(PKGDIR)/../../..
 
-TARGET = libc libpthread minimal_l4re librt libm
+TARGET = libc libpthread librt libm
 
 include $(L4DIR)/mk/subdir.mk
 
-libc minimal_l4re: libpthread
+libc: libpthread
 

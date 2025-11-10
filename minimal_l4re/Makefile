@@ -1,5 +1,5 @@
 # vi:ft=make
-PKGDIR          ?= ../..
+PKGDIR          ?= .
 L4DIR           ?= $(PKGDIR)/../../..
 
 TARGET          := libc_minimal_l4re.a
@@ -10,11 +10,10 @@ endef
 
 DEFINES         := -DL4_MINIMAL_LIBC -DL4_NO_RTTI=1
 SRC_CC          := _exit.cc
+vpath _exit.cc $(PKGDIR)/../libc/common
 REQUIRES_LIBS   = l4sys l4util l4re l4re-util l4re_c l4re_c-util \
                   libc_be_minimal_log_io
 LDFLAGS         = --link-libc
-
-vpath _exit.cc $(SRC_DIR)/../libc/ARCH-all/libc/sysdeps/linux/common
 
 include $(L4DIR)/mk/lib.mk
 

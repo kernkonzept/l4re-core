@@ -1,4 +1,4 @@
-Provides: libc libpthread libc_pthread libc_minimal_l4re
+Provides: libc libpthread libc_pthread
 requires: l4sys l4re l4re-util l4re_c l4re_c-util ldscripts compiler-rt
           libc_be_minimal_log_io libc_be_l4re libc_be_l4refile
           libc_support_misc libc_be_fs_noop libc_be_sem_noop libc_be_sig

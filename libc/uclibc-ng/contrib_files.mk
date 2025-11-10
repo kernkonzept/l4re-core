@@ -14,7 +14,6 @@ define SRC_libc/sysdeps/linux
   __longjmp
   getdents
   getsid
-  $(if $(LIBC_BUILD_MINIMAL),,common/_exit)
   common/context
   common/cmsg_nxthdr
   common/flock
