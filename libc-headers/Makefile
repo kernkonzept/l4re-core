@@ -20,13 +20,16 @@ include $(LIBCSRC_DIR)/target_headers.mk
 DST_HEADERS := $(addprefix $(HEADER_DIR)/,$(HDR_common) $(HDR_$(BUILD_ARCH)))
 GEN_HEADERS := $(addprefix $(HEADER_DIR)/,$(GEN_common) $(GEN_$(BUILD_ARCH)))
 
+$(HEADER_DIR).include_tracker: $(DST_HEADERS)
+	$(if $?,touch $@)
+
 $(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(LIBCSRC_DIR)/target_headers.mk \
                                          $(LIBCSRC_DIR)/make_vars.mk
-	$(VERBOSE)[ -d $(@D) ] || $(MKDIR) $(@D)
-	$(VERBOSE)$(LN) -sf $(abspath $<) $@
+	$(VERBOSE)$(call lessfork_mkdir,$(@D))
+	$(VERBOSE)[[ $< -ef $@ ]] || $(LN) -sf $(abspath $<) $@
 
 $(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/make_vars.mk \
-               $(LIBCSRC_DIR)/target_headers.mk
+               $(LIBCSRC_DIR)/target_headers.mk $(HEADER_DIR).include_tracker
 	$(VERBOSE)$(RM) -r $@
 	$(VERBOSE)install -d $@
 	@$(INSTALL_LINK_MESSAGE)
