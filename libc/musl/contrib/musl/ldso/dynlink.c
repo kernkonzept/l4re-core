@@ -24,6 +24,8 @@
 #include "libc.h"
 #include "dynlink.h"
 
+#include "pthread-l4.h"
+
 static size_t ldso_page_size;
 /* libc.h may have defined a macro for dynamic PAGE_SIZE already, but
  * PAGESIZE is only defined if it's constant for the arch. */
@@ -1215,7 +1217,7 @@ static struct dso *load_library(const char *name, struct dso *needed_by)
 	if (runtime && temp_dso.tls.image) {
 		size_t per_th = temp_dso.tls.size + temp_dso.tls.align
 			+ sizeof(void *) * (tls_cnt+3);
-		n_th = libc.threads_minus_1 + 1;
+		n_th = __atomic_load_n(&libc.threads_minus_1, __ATOMIC_SEQ_CST) + 1;
 		if (n_th > SSIZE_MAX / per_th) alloc_size = SIZE_MAX;
 		else alloc_size += n_th * per_th;
 	}
@@ -1669,22 +1671,20 @@ static void update_tls_size()
 	tls_align);
 }
 
-static void install_new_tls(void)
+static void l4_pthread_manager_install_new_tls(l4_pthread_mgr_iface_t const *mgr, void *arg)
 {
-	sigset_t set;
-	pthread_t self = __pthread_self(), td;
+	pthread_descr td;
 	struct dso *dtv_provider = container_of(tls_tail, struct dso, tls);
 	uintptr_t (*newdtv)[tls_cnt+1] = (void *)dtv_provider->new_dtv;
 	struct dso *p;
 	size_t i, j;
-#ifdef TODO
-	size_t old_cnt = self->dtv[0];
 
-	__block_app_sigs(&set);
-	__tl_lock();
+	pthread_libc_data_t *self_data = arg;
+	size_t old_cnt = self_data->dtv[0];
+
 	/* Copy existing dtv contents from all existing threads. */
-	for (i=0, td=self; !i || td!=self; i++, td=td->next) {
-		memcpy(newdtv+i, td->dtv,
+	for (i=0, td=mgr->first_thread(); td!=NULL; i++, td=mgr->next_thread(td)) {
+		memcpy(newdtv+i, __pthread_descr_libc_data(td)->dtv,
 			(old_cnt+1)*sizeof(uintptr_t));
 		newdtv[i][0] = tls_cnt;
 	}
@@ -1709,13 +1709,37 @@ static void install_new_tls(void)
 	 * fallback emulation using signals for kernels that lack the
 	 * feature at the syscall level. */
 
+#ifdef NOT_FOR_L4
 	__membarrier(MEMBARRIER_CMD_PRIVATE_EXPEDITED, 0);
+#else
+	// NOTE(L4): Write barrier should be sufficient, as the access through the
+	//           thread's new dtv pointer set below, creates a data dependency
+	//           that should ensure proper ordering.
+	__atomic_thread_fence(__ATOMIC_SEQ_CST);
+#endif
 
 	/* Install new dtv for each thread. */
-	for (j=0, td=self; !j || td!=self; j++, td=td->next) {
-		td->dtv = newdtv[j];
+	for (j=0, td=mgr->first_thread(); td!=NULL; j++, td=mgr->next_thread(td)) {
+		__pthread_descr_libc_data(td)->dtv = newdtv[j];
 	}
+}
 
+static void install_new_tls(void)
+{
+	pthread_t self = __pthread_self();
+	sigset_t set;
+
+#ifdef NOT_FOR_L4
+	__block_app_sigs(&set);
+	__tl_lock();
+#endif
+
+	// The following block was part of this function previously, guarded by thread
+	// list lock (__tl_lock() and __tl_unlock()), but on L4Re instead executes in
+	// the pthread manager.
+	pthread_l4_exec_in_manager(l4_pthread_manager_install_new_tls, __pthread_libc_data(self));
+
+#ifdef NOT_FOR_L4
 	__tl_unlock();
 	__restore_sigs(&set);
 #endif

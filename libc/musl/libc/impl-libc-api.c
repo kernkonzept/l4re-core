@@ -121,3 +121,24 @@ ptlc_thread_descr_to_tls_tp(pthread_descr descr)
   return (void *)descr;
 #endif
 }
+
+void
+ptlc_before_create_thread(void)
+{
+  __acquire_ptc();
+}
+
+void
+ptlc_after_create_thread(bool success)
+{
+  if (success)
+    __atomic_add_fetch(&libc.threads_minus_1, 1, __ATOMIC_SEQ_CST);
+
+  __release_ptc();
+}
+
+void
+ptlc_after_exit_thread()
+{
+  __atomic_sub_fetch(&libc.threads_minus_1, 1, __ATOMIC_SEQ_CST);
+}

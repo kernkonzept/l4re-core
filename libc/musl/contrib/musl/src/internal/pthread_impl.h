@@ -33,8 +33,18 @@ hidden int __init_tp(pthread_descr);
 hidden pthread_descr __copy_tls(unsigned char *);
 hidden void __reset_tls();
 
+// Taken from commit dcd60371500a74d489372cac7240674c992c2484:
+// The pthread_create (ptc) lock is a rwlock where the "read"
+// operation is safe atomic modification of the live thread count, which
+// multiple threads can perform at the same time, and the "write"
+// operation is making sure the count does not increase during an
+// operation that depends on it remaining bounded (__synccall or dlopen).
+
+/// Acquire in pthread_create before creating a thread.
 hidden void __acquire_ptc(void);
+/// Release after creating a thread or to end thread creation inhibition.
 hidden void __release_ptc(void);
+/// Inhibit creation of new threads until calling __release_ptc().
 hidden void __inhibit_ptc(void);
 
 extern hidden unsigned __default_stacksize;

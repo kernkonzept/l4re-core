@@ -860,6 +860,9 @@ static int pthread_handle_thread_exit(pthread_descr th)
   th->p_exited = 1;
   detached = th->p_detached;
   __pthread_unlock(th->p_lock);
+
+  ptlc_after_exit_thread();
+
   if (detached)
     pthread_free(th);
   /* If all threads have exited and the main thread is pending on a

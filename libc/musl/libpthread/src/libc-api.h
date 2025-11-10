@@ -94,4 +94,33 @@ ptlc_tls_tp_to_thread_descr(void *tls_tp);
 L4_HIDDEN void *
 ptlc_thread_descr_to_tls_tp(pthread_descr descr);
 
+/**
+ * Called before a thread is created, the thread has not yet been added to the
+ * thread list.
+ *
+ * \note Executes on the thread that called pthread_create.
+ */
+L4_HIDDEN void
+ptlc_before_create_thread(void);
+
+/**
+ * Called after a thread was created, after it was added to the thread list, and
+ * might already have started executing.
+ *
+ * \param success  Whether thread creation was successful.
+ *
+ * \note Executes on the thread that called pthread_create.
+ */
+L4_HIDDEN void
+ptlc_after_create_thread(bool success);
+
+/**
+ * Called when a thread exited, after it was removed from the thread list,
+ * immedaitely before its thread descriptor freed.
+ *
+ * \note Executes on the pthread manager thread.
+ */
+L4_HIDDEN void
+ptlc_after_exit_thread(void);
+
 L4_END_DECLS

@@ -467,6 +467,9 @@ __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     if (__pthread_initialize_manager() < 0)
       return EAGAIN;
   }
+
+  ptlc_before_create_thread();
+
   request.req_thread = self;
   request.req_kind = REQ_CREATE;
   request.req_args.create.attr = attr;
@@ -476,6 +479,7 @@ __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   retval = THREAD_GETMEM(self, p_retcode);
   if (__builtin_expect (retval, 0) == 0)
     *thread = (pthread_t) THREAD_GETMEM(self, p_retval);
+  ptlc_after_create_thread(retval == 0);
   return retval;
 }
 strong_alias (__pthread_create, pthread_create)

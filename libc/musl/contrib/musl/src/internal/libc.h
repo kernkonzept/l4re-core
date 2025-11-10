@@ -22,6 +22,32 @@ struct __libc {
 	char threaded;
 	char secure;
 	volatile signed char need_locks;
+	/**
+	 * Number of alive threads (minus 1).
+	 *
+	 * The -1 is the main thread, which is not part of the count, but part of the
+	 * pthread list.
+	 *
+	 * The L4re-specific pthread manager thread is not accounted for, since
+	 * unlike the main thread it is not part of the pthread list.
+	 *
+	 * Original musl access semantics:
+	 * According to 8f11e6127fe93093f81a52b15bb1537edc3fc8af, writes to
+	 * threads_minus_1 are guarded by tl_lock.
+	 * The read in load_library() from dlopen() is guaranteed to be accurate or an
+	 * overstimate, because dlopen() acquires __inhibit_ptc(), so no new threads
+	 * can be created concurrently.
+	 *
+	 * L4re access semantics:
+	 * Since we have no thread list lock (tl_lock) on L4Re, all accesses to
+	 * threads_minus_1 must be atomic.
+	 * When running under __inhibit_ptc(), threads_minus_1 is guaranteed to
+	 * be accurate or an overstimate.
+	 * When running under __inhibit_ptc() and in addition executing in the
+	 * context of the pthread manager thread (this is our replacement for
+	 * the tl_lock), e.g. through pthread_l4_exec_in_manager, the observed
+	 * threads_minus_1 is guaranteed to be accurate.
+	 */
 	int threads_minus_1;
 	size_t *auxv;
 	struct tls_module *tls_head;
