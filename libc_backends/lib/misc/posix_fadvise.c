@@ -7,13 +7,7 @@
 
 #include <fcntl.h>
 #include <stdio.h>
-
-int posix_fadvise64(int fd, off64_t offset, off64_t len, int advice)
-{
-  printf("posix_fadvise64(%d, %lld, %lld, %d): void\n",
-         fd, (unsigned long long)offset, (unsigned long long)len, advice);
-  return 0;
-}
+#include <l4/sys/compiler.h>
 
 int posix_fadvise(int fd, off_t offset, off_t len, int advice)
 {
@@ -21,3 +15,5 @@ int posix_fadvise(int fd, off_t offset, off_t len, int advice)
          fd, (unsigned long long)offset, (unsigned long long)len, advice);
   return 0;
 }
+
+L4_STRONG_ALIAS(posix_fadvise, posix_fadvise64)
