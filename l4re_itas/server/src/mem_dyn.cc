@@ -28,13 +28,12 @@ static l4_addr_t umalloc_pos = reinterpret_cast<l4_addr_t>(__executable_start)
 
 static void *err_msg(char const *msg, size_t area_size, long err = 0)
 {
-  L4::cout << "l4re_itas: ERROR: umalloc_area_create(" << L4::dec << area_size
-           << "): " << msg;
+  printf("l4re_itas: ERROR: umalloc_area_create(%zd): %s", area_size, msg);
 
   if (err)
-    L4::cout << ": " << l4sys_errtostr(err) << " (" << L4::dec << err << ")";
+    printf(": %s (%ld)", l4sys_errtostr(err), err);;
 
-  L4::cout << "\n";
+  printf("\n");
   return nullptr;
 }
 
