@@ -382,7 +382,8 @@ noexcept(noexcept(statfs64(path, buf)))
   return 0;
 }
 
-int statvfs([[maybe_unused]] const char *path, struct statvfs *buf) noexcept
+int statvfs([[maybe_unused]] const char *path, struct statvfs *buf)
+noexcept(noexcept(statvfs(path, buf)))
 {
   printf("l4re-statvfs(%s, ...): to be implemented\n", path);
   buf->f_bsize = L4_PAGESIZE;
@@ -416,7 +417,8 @@ int statvfs64([[maybe_unused]] const char *path, struct statvfs64 *buf) noexcept
   return 0;
 }
 
-int fstatvfs([[maybe_unused]] int fd, struct statvfs *buf) noexcept
+int fstatvfs([[maybe_unused]] int fd, struct statvfs *buf)
+noexcept(noexcept(fstatvfs(fd, buf)))
 {
   printf("l4re-fstatvfs(%d, ...): to be implemented\n", fd);
   buf->f_bsize = L4_PAGESIZE;
@@ -1245,13 +1247,15 @@ noexcept(noexcept(mknod(p, m, d)))
   return -1;
 }
 
-int chown(const char *, uid_t, gid_t) __THROW
+int chown(const char *pathname, uid_t owner, gid_t group)
+noexcept(noexcept(chown(pathname, owner, group)))
 {
   errno = EINVAL;
   return -1;
 }
 
-int fchown(int, uid_t, gid_t) __THROW
+int fchown(int fd, uid_t owner, gid_t group)
+noexcept(noexcept(fchown(fd, owner, group)))
 {
   errno = EINVAL;
   return -1;

@@ -22,7 +22,8 @@
 
 
 extern "C"
-sighandler_t signal(int signum, sighandler_t handler) L4_NOTHROW
+sighandler_t signal(int signum, sighandler_t handler)
+noexcept(noexcept(signal(signum, handler)))
 {
   auto itas = L4Re::Env::env()->itas();
   if (!itas)
@@ -52,14 +53,16 @@ sighandler_t signal(int signum, sighandler_t handler) L4_NOTHROW
 }
 
 extern "C"
-sighandler_t bsd_signal(int signum, sighandler_t handler) L4_NOTHROW
+sighandler_t bsd_signal(int signum, sighandler_t handler)
+noexcept(noexcept(bsd_signal(signum, handler)))
 {
   return signal(signum, handler);
 }
 
 extern "C"
 int sigaction(int signum, const struct sigaction *act,
-              struct sigaction *oldact) L4_NOTHROW
+              struct sigaction *oldact)
+noexcept(noexcept(sigaction(signum, act, oldact)))
 {
   // Dummy IPC parameter in case the caller passed a NULL pointer.
   struct sigaction sentinel;
@@ -82,7 +85,8 @@ int sigaction(int signum, const struct sigaction *act,
 }
 
 extern "C"
-int sigprocmask(int how, const sigset_t *set, sigset_t *oldset) noexcept
+int sigprocmask(int how, const sigset_t *set, sigset_t *oldset)
+noexcept(noexcept(sigprocmask(how, set, oldset)))
 {
   // Dummy IPC parameter in case the caller passed a NULL pointer.
   sigset_t sentinel;
@@ -106,7 +110,8 @@ int sigprocmask(int how, const sigset_t *set, sigset_t *oldset) noexcept
 }
 
 extern "C"
-int sigpending(sigset_t *set) noexcept
+int sigpending(sigset_t *set)
+noexcept(noexcept(sigpending(set)))
 {
   auto itas = L4Re::Env::env()->itas();
   if (!itas)
@@ -137,14 +142,16 @@ int sigwait([[maybe_unused]] const sigset_t *set,
 }
 
 extern "C"
-int killpg(int, int) noexcept
+int killpg(int pgrp, int sig)
+noexcept(noexcept(killpg(pgrp, sig)))
 {
   errno = EPERM;
   return -1;
 }
 
 extern "C"
-unsigned int alarm(unsigned int seconds) noexcept
+unsigned int alarm(unsigned int seconds)
+noexcept(noexcept(alarm(seconds)))
 {
   struct itimerval val;
 
@@ -169,7 +176,8 @@ int pause(void)
 }
 
 int setitimer(int which, const struct itimerval *__restrict new_val,
-              struct itimerval *__restrict old_val) L4_NOTHROW
+              struct itimerval *__restrict old_val)
+noexcept(noexcept(setitimer(which, new_val, old_val)))
 {
   auto itas = L4Re::Env::env()->itas();
   if (!itas)
@@ -188,7 +196,8 @@ int setitimer(int which, const struct itimerval *__restrict new_val,
   return ret >= 0 ? 0 : -1;
 }
 
-int getitimer(int which, struct itimerval *value) L4_NOTHROW
+int getitimer(int which, struct itimerval *value)
+noexcept(noexcept(getitimer(which, value)))
 {
   auto itas = L4Re::Env::env()->itas();
   if (!itas)
@@ -205,7 +214,8 @@ int getitimer(int which, struct itimerval *value) L4_NOTHROW
 }
 
 int sigaltstack(const struct sigaltstack *ss,
-                struct sigaltstack *oss) L4_NOTHROW
+                struct sigaltstack *oss)
+noexcept(noexcept(sigaltstack(ss, oss)))
 {
   auto itas = L4Re::Env::env()->itas();
   if (!itas)

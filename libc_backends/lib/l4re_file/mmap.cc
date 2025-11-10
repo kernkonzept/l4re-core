@@ -108,7 +108,8 @@ void *uclibc_morecore(long bytes)
 #endif
 
 int mlock2([[maybe_unused]] const void *__addr, [[maybe_unused]] size_t len,
-           [[maybe_unused]] unsigned int flags) noexcept
+           [[maybe_unused]] unsigned int flags)
+noexcept(noexcept(mlock2(__addr, len, flags)))
 {
   /* Implementation:
    * - Search for all regions between __addr and __addr+len
@@ -124,12 +125,14 @@ int mlock2([[maybe_unused]] const void *__addr, [[maybe_unused]] size_t len,
   return 0;
 }
 
-int mlock(const void *__addr, size_t __len) noexcept
+int mlock(const void *__addr, size_t __len)
+noexcept(noexcept(mlock(__addr, __len)))
 {
   return mlock2(__addr, __len, 0);
 }
 
-int munlock([[maybe_unused]] const void *addr, [[maybe_unused]] size_t len) noexcept
+int munlock([[maybe_unused]] const void *addr, [[maybe_unused]] size_t len)
+noexcept(noexcept(munlock(addr, len)))
 {
   /* Implementation:
    * - Search for all regions between __addr and __addr+len
@@ -140,7 +143,8 @@ int munlock([[maybe_unused]] const void *addr, [[maybe_unused]] size_t len) noex
   return 0;
 }
 
-int mlockall([[maybe_unused]] int flags) noexcept
+int mlockall([[maybe_unused]] int flags)
+noexcept(noexcept(mlockall(flags)))
 {
   /* Implementation:
    * - Search for all regions
@@ -157,7 +161,8 @@ int mlockall([[maybe_unused]] int flags) noexcept
   return 0;
 }
 
-int munlockall(void) noexcept
+int munlockall(void)
+noexcept(noexcept(munlockall()))
 {
   /* Implementation:
    * - Search for all regions

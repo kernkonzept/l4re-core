@@ -32,7 +32,8 @@ extern "C" ssize_t read(int, void *, size_t)
   return -1;
 }
 
-extern "C" off_t lseek(int, off_t, int) L4_NOTHROW
+extern "C" off_t lseek(int fd, off_t offset, int whence)
+noexcept(noexcept(lseek(fd, offset, whence)))
 {
   errno = EBADF;
   return -1;
