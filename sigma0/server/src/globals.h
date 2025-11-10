@@ -10,6 +10,7 @@
 
 #include <l4/cxx/iostream>
 #include <l4/sys/types.h>
+#include <stdlib.h>
 
 /* Special options for compatibility reasons */
 
@@ -31,7 +32,8 @@ enum {
 
 extern "C" void L4_NORETURN _exit(int);
 
-inline void L4_NORETURN abort() noexcept
+inline void L4_NORETURN abort()
+noexcept(noexcept(abort()))
 {
   L4::cout << "FATAL: Sigma0 terminated!\n";
   _exit(1);
