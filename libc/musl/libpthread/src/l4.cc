@@ -37,23 +37,49 @@ l4_cap_idx_t pthread_l4_cap(pthread_t thread_id)
   return c;
 }
 
-static void cb(void *arg, pthread_descr th)
+static void cb(l4_pthread_mgr_iface_t const *mgr, void *arg)
 {
   void (*fn)(pthread_t) = (void (*)(pthread_t))arg;
 
-  fn(th->p_tid);
+  for (pthread_descr th = mgr->first_thread(); th != nullptr; th = mgr->next_thread(th))
+    fn(th->p_tid);
+}
+
+static pthread_descr pthread_first_thread(void)
+{
+  return __pthread_main_thread;
+}
+
+static pthread_descr pthread_next_thread(pthread_descr th)
+{
+  return nullptr;
+}
+
+static l4_pthread_mgr_iface_t _pthread_mgr_iface = {
+  .first_thread = pthread_first_thread,
+  .next_thread = pthread_next_thread,
+};
+
+void pthread_l4_exec_in_manager(void (*fn)(l4_pthread_mgr_iface_t const *mgr, void *arg), void *arg)
+{
+  if (l4_is_invalid_cap(__pthread_manager_request))
+    {
+      fn(&_pthread_mgr_iface, arg);
+      return;
+    }
+
+  struct pthread_request request;
+  request.req_thread = thread_self();
+  request.req_kind = REQ_EXEC_IN_MANAGER;
+  request.req_args.exec_in_mgr.arg = arg;
+  request.req_args.exec_in_mgr.fn = fn;
+
+  __pthread_send_manager_rq(&request, 1);
 }
 
 void pthread_l4_for_each_thread(void (*fn)(pthread_t))
 {
-  struct pthread_request request;
-
-  request.req_thread = thread_self();
-  request.req_kind = REQ_FOR_EACH_THREAD;
-  request.req_args.for_each.arg = (void *)fn;
-  request.req_args.for_each.fn = cb;
-
-  __pthread_send_manager_rq(&request, 1);
+  pthread_l4_exec_in_manager(cb, (void *)fn);
 }
 
 /**

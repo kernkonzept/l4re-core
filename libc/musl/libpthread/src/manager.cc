@@ -100,6 +100,22 @@ static int pthread_handle_thread_exit(pthread_descr th);
 
 /* The server thread managing requests for thread creation and termination */
 
+static pthread_descr pthread_first_thread(void)
+{
+  return __pthread_main_thread;
+}
+
+static pthread_descr pthread_next_thread(pthread_descr th)
+{
+  pthread_descr next_th = th->p_nextlive;
+  return next_th != __pthread_main_thread ? next_th : nullptr;
+}
+
+static l4_pthread_mgr_iface_t _pthread_mgr_iface = {
+  .first_thread = pthread_first_thread,
+  .next_thread = pthread_next_thread,
+};
+
 int
 __attribute__ ((noreturn))
 __pthread_manager(void *arg)
@@ -178,9 +194,8 @@ __pthread_manager(void *arg)
 	  /* This is just a prod to get the manager to reap some
 	     threads right away, avoiding a potential delay at shutdown. */
 	  break;
-	case REQ_FOR_EACH_THREAD:
-	  pthread_for_each_thread(request.req_args.for_each.arg,
-	      request.req_args.for_each.fn);
+	case REQ_EXEC_IN_MANAGER:
+	  request.req_args.exec_in_mgr.fn(&_pthread_mgr_iface, request.req_args.exec_in_mgr.arg);
           restart(request.req_thread);
 	  do_reply = 1;
 	  break;

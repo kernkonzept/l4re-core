@@ -77,4 +77,17 @@ L4_HIDDEN pthread_libc_data_t *__pthread_descr_libc_data(pthread_descr descr);
 // TODO: Maybe instead give musl direct access to `struct pthread`?
 L4_HIDDEN size_t __pthread_struct_size(void);
 
+typedef struct l4_pthread_mgr_iface
+{
+  pthread_descr (*first_thread)(void);
+  pthread_descr (*next_thread)(pthread_descr);
+} l4_pthread_mgr_iface_t;
+
+/**
+ * If the manager has not yet been started, i.e. because no thread has been
+ * created yet, this executes the function locally in context of the caller.
+ */
+void pthread_l4_exec_in_manager(void (*fn)(l4_pthread_mgr_iface_t const *mgr, void *arg), void *arg);
+
+
 L4_END_DECLS

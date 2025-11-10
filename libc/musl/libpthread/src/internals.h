@@ -90,7 +90,7 @@ typedef l4_utcb_t *pthread_handle;
 
 enum pthread_request_rq {                        /* Request kind */
     REQ_CREATE, REQ_FREE, REQ_PROCESS_EXIT, REQ_MAIN_THREAD_EXIT,
-    REQ_POST, REQ_DEBUG, REQ_KICK, REQ_FOR_EACH_THREAD,
+    REQ_POST, REQ_DEBUG, REQ_KICK, REQ_EXEC_IN_MANAGER,
     REQ_THREAD_EXIT
 };
 
@@ -110,10 +110,10 @@ struct pthread_request {
       int code;                 /*   exit status */
     } exit;
     void * post;                /* For REQ_POST: the semaphore */
-    struct {			/* For REQ_FOR_EACH_THREAD: callback */
-      void (*fn)(void *, pthread_descr);
+    struct {			/* For REQ_EXEC_IN_MANAGER: callback */
+      void (*fn)(struct l4_pthread_mgr_iface const *, void *);
       void *arg;
-    } for_each;
+    } exec_in_mgr;
   } req_args;
 };
 
