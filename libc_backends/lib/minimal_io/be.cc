@@ -8,6 +8,8 @@
  */
 
 #include <l4/re/env>
+#include <l4/sys/compiler.h>
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
@@ -36,8 +38,4 @@ extern "C" off_t lseek(int, off_t, int) L4_NOTHROW
   return -1;
 }
 
-extern "C" off64_t lseek64(int, off64_t, int) L4_NOTHROW
-{
-  errno = EBADF;
-  return -1;
-}
+L4_STRONG_ALIAS(lseek, lseek64)

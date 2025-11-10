@@ -255,19 +255,9 @@ L4_BEGIN_DECLS
 L4_STRONG_ALIAS(open, open64)
 L4_STRONG_ALIAS(openat, openat64)
 L4_STRONG_ALIAS(fcntl, fcntl64)
+L4_STRONG_ALIAS(lseek, lseek64)
+L4_STRONG_ALIAS(ftruncate, ftruncate64)
 L4_END_DECLS
-
-off_t lseek(int fd, off_t offset, int whence)
-noexcept(noexcept(lseek(fd, offset, whence)))
-{
-  return lseek64(fd, offset, whence);
-}
-
-int ftruncate(int fd, off_t length)
-noexcept(noexcept(ftruncate(fd, length)))
-{
-  return ftruncate64(fd, length);
-}
 
 int lockf(int /* fd */, int /* cmd */, off_t /* len */)
 {
@@ -574,7 +564,6 @@ L4B_REDIRECT_2(int, symlink, const char *, const char *)
   }
 
 L4B_REDIRECT_2(int, truncate, const char *, off_t)
-L4B_REDIRECT_2(int, truncate64, const char *, off64_t)
 
 #undef L4B_REDIRECT
 
@@ -1088,6 +1077,8 @@ L4B_REDIRECT_4(ssize_t,   pwritev,     int, const struct iovec *, int, off64_t)
 L4B_REDIRECT_1(int,       fsync,       int)
 L4B_REDIRECT_1(int,       fdatasync,   int)
 L4B_REDIRECT_2(int,       fchmod,      int, mode_t)
+L4B_REDIRECT_3(off64_t,   lseek,       int, off64_t, int)
+L4B_REDIRECT_2(int,       ftruncate,   int, off64_t)
 
 #undef L4B_REDIRECT
 
@@ -1106,8 +1097,6 @@ L4B_REDIRECT_2(int,       fchmod,      int, mode_t)
   }
 
 L4B_REDIRECT_2(int,     fstat,     int, struct stat64 *)
-L4B_REDIRECT_2(int,     ftruncate, int, off64_t)
-L4B_REDIRECT_3(off64_t, lseek,     int, off64_t, int)
 
 
 static char const * const _default_current_working_dir = "/";
@@ -1176,8 +1165,14 @@ extern "C" int fchdir(int fd) noexcept(noexcept(fchdir(fd)))
   return 0;
 }
 
+L4_BEGIN_DECLS
+L4_STRONG_ALIAS(pread, pread64)
+L4_STRONG_ALIAS(pwrite, pwrite64)
+L4_STRONG_ALIAS(truncate, truncate64)
+L4_END_DECLS
+
 extern "C"
-ssize_t pread64(int fd, void *buf, size_t count, off64_t offset)
+ssize_t pread(int fd, void *buf, size_t count, off_t offset)
 {
   struct iovec iov;
   iov.iov_base = buf;
@@ -1186,24 +1181,12 @@ ssize_t pread64(int fd, void *buf, size_t count, off64_t offset)
 }
 
 extern "C"
-ssize_t pread(int fd, void *buf, size_t count, off_t offset)
-{
-  return pread64(fd, buf, count, offset);
-}
-
-extern "C"
-ssize_t pwrite64(int fd, const void *buf, size_t count, off64_t offset)
+ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
 {
   struct iovec iov;
   iov.iov_base = const_cast<void*>(buf);
   iov.iov_len = count;
   return pwritev(fd, &iov, 1, offset);
-}
-
-extern "C"
-ssize_t pwrite(int fd, const void *buf, size_t count, off_t offset)
-{
-  return pwrite64(fd, buf, count, offset);
 }
 
 extern "C" char *getcwd(char *buf, size_t size)
