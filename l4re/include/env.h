@@ -18,6 +18,10 @@
 
 #include <l4/re/consts.h>
 
+#ifdef __cplusplus
+#include <l4/cxx/string>
+#endif
+
 /**
  * \defgroup api_l4re_env Initial Environment
  * \ingroup api_l4re_c
@@ -85,6 +89,15 @@ typedef struct l4re_env_cap_entry_t
         return false;
 
     return true;
+  }
+
+  cxx::String get_name() const noexcept
+  {
+    unsigned len = 0;
+    while (len < sizeof(name) && name[len] != '\0')
+      ++len;
+
+    return cxx::String(name, len);
   }
 #endif
 } l4re_env_cap_entry_t;
