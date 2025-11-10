@@ -311,7 +311,8 @@ bool Loader::start(L4::Cap<L4Re::Dataspace> bin, l4re_aux_t *aux)
                                Region_handler(__loader_stack,
                                               __loader_stack.cap(),
                                               0, L4Re::Rm::F::RW),
-                               L4Re::Rm::F::Search_addr);
+                               L4Re::Rm::F::Search_addr, L4_PAGESHIFT,
+                               "[loader-stack]", strlen("[loader-stack]"));
 
   if (__loader_stack_p == L4_INVALID_PTR)
     {
