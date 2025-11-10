@@ -11,6 +11,8 @@
 #include <sched.h>
 #include <unistd.h>
 
+#include <l4/sys/consts.h>
+
 int __sched_cpucount(size_t __setsize, const cpu_set_t *__setp)
 {
   (void)__setsize;
