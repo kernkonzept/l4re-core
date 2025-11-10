@@ -107,8 +107,6 @@ void *uclibc_morecore(long bytes)
 }
 #endif
 
-/* should be in mman.h -- will come with uclibc update */
-int mlock2(const void *__addr, size_t len, unsigned int flags) noexcept;
 int mlock2([[maybe_unused]] const void *__addr, [[maybe_unused]] size_t len,
            [[maybe_unused]] unsigned int flags) noexcept
 {
