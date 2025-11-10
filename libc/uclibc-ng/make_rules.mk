@@ -82,13 +82,8 @@ vpath %.S  $(LIBC_DST_DIR)
 # libpthread support
 vpath $(PTHOBJ_PFX)/% $(LIBCSRC_DIR_ABS)
 
-
-# NOTE the two newlines in the define are essential!!
-define NEWLINE
-
-
-endef
-
+# for $(newline)
+include $(L4DIR)/mk/util.mk
 
 define add_source_file_x
   LIBC_SRC_$(1)+=$(2)
@@ -121,7 +116,7 @@ define HANDLE_file
   $(call add_source_file,$(subst $(LIBC_DST_DIR)/,,$(call search_source_file,$(1),$(2))),$(3))
 endef
 
-HANDLE_dir = $(foreach f,$(subst $(NEWLINE), ,$(SRC_$(1)$(2))),$(call HANDLE_file,$(call gen_search_path,$(1)),$(f),$(3)))
+HANDLE_dir = $(foreach f,$(subst $(newline), ,$(SRC_$(1)$(2))),$(call HANDLE_file,$(call gen_search_path,$(1)),$(f),$(3)))
 
 include $(L4DIR)/mk/rules.inc
 
@@ -138,7 +133,7 @@ include $(L4DIR)/mk/rules.inc
 #  SRC_<subsys><module>_src as the source file for the objects
 #
 define OBJS_FN_templ
-  OBJS_FN_$(1)$(2) = $(addprefix $(1)/,$(patsubst %,%.o,$(subst $(NEWLINE), ,$(SRC_$(1)$(2)))))
+  OBJS_FN_$(1)$(2) = $(addprefix $(1)/,$(patsubst %,%.o,$(subst $(newline), ,$(SRC_$(1)$(2)))))
   LIBC_SRC_C += $$(OBJS_FN_$(1)$(2):.o=.c)
   $(call BID_MAKE_RULE_template,$$(OBJS_FN_$(1)$(2)): %.o,$(1)/$$(SRC_$(1)$(2)_src),C,-DL_$$(patsubst %.o,%,$$(notdir $$@)))
   $(call BID_MAKE_RULE_template,$$(OBJS_FN_$(1)$(2):.o=.s.o): %.s.o,$(1)/$$(SRC_$(1)$(2)_src),C,$$(PICFLAGS) -DL_$$(patsubst %.s.o,%,$$(notdir $$@)))
