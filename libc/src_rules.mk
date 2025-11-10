@@ -2,17 +2,7 @@ LIBCSRC_DIR ?= $(SRC_DIR)
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
-LIBC_SRC_DIRS := $(CONTRIB_DIR)/libc \
-                 $(LIBCSRC_DIR_ABS)/libc/ARCH-all/libc #$(LIBCSRC_DIR)/ARCH-$(BUILD_ARCH)/libc
-
-LIBC_SRC_DIRS += $(CONTRIB_DIR)/libm \
-                 $(CONTRIB_DIR)/libcrypt \
-                 $(CONTRIB_DIR)/libiconv \
-                 $(CONTRIB_DIR)/libuargp
-
-LIBC_DST_DIR  := $(OBJ_DIR)/src
-
-$(LIBC_DST_DIR)/.links-done: $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/src_rules.mk \
+$(LIBC_DST_DIR)/.links-done: $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/../src_rules.mk\
                              $(LIBCSRC_DIR)/contrib_files.mk \
                              $(LIBCSRC_DIR)/make_vars.mk \
                              $(LIBCSRC_DIR)/sources.mk \

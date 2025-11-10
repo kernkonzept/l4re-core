@@ -10,6 +10,15 @@ CONTRIB_SYSDEPS := $(CONTRIB_DIR)/libc/sysdeps/linux
 # destination directory for linking libc sources, with our overlay
 LIBC_DST_DIR  := $(OBJ_DIR)/src
 
+# source directories for finding contrib source files (and overrides)
+LIBC_SRC_DIRS := $(CONTRIB_DIR)/libc \
+                 $(LIBCSRC_DIR_ABS)/libc/ARCH-all/libc
+
+LIBC_SRC_DIRS += $(CONTRIB_DIR)/libm \
+                 $(CONTRIB_DIR)/libcrypt \
+                 $(CONTRIB_DIR)/libiconv \
+                 $(CONTRIB_DIR)/libuargp
+
 # build prefix for pthread sources
 PTHOBJ_PFX    := libpthread/src
 
