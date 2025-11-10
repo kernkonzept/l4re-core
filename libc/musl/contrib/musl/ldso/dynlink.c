@@ -1808,9 +1808,12 @@ void __dls2b(size_t *sp, size_t *auxv)
 	libc.auxv = auxv;
 	libc.tls_size = sizeof builtin_tls;
 	libc.tls_align = tls_align;
-	if (__init_tp(__copy_tls((void *)builtin_tls)) < 0) {
+
+	pthread_descr self = __copy_tls((void *)builtin_tls);
+	if (__init_tp(self) < 0) {
 		a_crash();
 	}
+	__pthread_l4_initialize_dynlink_thread(self);
 
 	struct symdef dls3_def = find_sym(&ldso, "__dls3", 0);
 	if (DL_FDPIC) ((stage3_func)&ldso.funcdescs[dls3_def.sym-ldso.syms])(sp, auxv);
@@ -2080,9 +2083,11 @@ void __dls3(size_t *sp, size_t *auxv)
 	/* Actual copying to new TLS needs to happen after relocations,
 	 * since the TLS images might have contained relocated addresses. */
 	if (initial_tls != builtin_tls) {
-		if (__init_tp(__copy_tls(initial_tls)) < 0) {
+		pthread_descr self = __copy_tls(initial_tls);
+		if (__init_tp(self) < 0) {
 			a_crash();
 		}
+		__pthread_l4_initialize_dynlink_thread(self);
 	} else {
 		size_t tmp_tls_size = libc.tls_size;
 		pthread_t self = __pthread_self();

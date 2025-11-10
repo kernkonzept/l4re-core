@@ -95,6 +95,12 @@ int __pthread_l4_initialize_main_thread(pthread_descr th)
   return 0;
 }
 
+void
+__pthread_l4_initialize_dynlink_thread(pthread_descr th)
+{
+  th->p_tid  = thread_id(l4_utcb());
+  l4_utcb_tcr()->user[0] = l4_addr_t(th);
+}
 
 int __attribute__((weak)) __pthread_sched_idle_prio    = 0x01;
 int __attribute__((weak)) __pthread_sched_other_prio   = 0x02;

@@ -59,6 +59,15 @@ L4_BEGIN_DECLS
 // Must be called early on to setup libpthread.
 L4_HIDDEN void __pthread_initialize_minimal(void *arg);
 
+/**
+ * Essential parts of the setup done in __pthread_l4_initialize_main_thread(),
+ * once the first pthread is started. However, since musl alaways uses a
+ * pthread_descr for the main thread, even if libpthread is never used to
+ * start any threads, we need to replicate some of the setup code here, to
+ * make __pthread_self() work.
+ */
+L4_HIDDEN void __pthread_l4_initialize_dynlink_thread(pthread_descr descr);
+
 L4_HIDDEN pthread_t __pthread_self(void);
 L4_HIDDEN pthread_descr __pthread_thread_self(void);
 L4_HIDDEN pthread_t __pthread_descr_to_handle(pthread_descr descr);
