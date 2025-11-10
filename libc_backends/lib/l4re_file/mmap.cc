@@ -43,9 +43,8 @@ void *mmap2(void *addr, size_t length, int prot, int flags,
 
 
 /* Other versions of mmap */
-void *mmap64(void *addr, size_t length, int prot, int flags,
-             int fd, off64_t offset)
-noexcept(noexcept(mmap64(addr, length, prot, flags, fd, offset)))
+void *mmap(void *addr, size_t length, int prot, int flags, int fd, off_t offset)
+noexcept(noexcept(mmap(addr, length, prot, flags, fd, offset)))
 {
   if (offset & ~L4_PAGEMASK)
     {
@@ -55,12 +54,7 @@ noexcept(noexcept(mmap64(addr, length, prot, flags, fd, offset)))
   return mmap2(addr, length, prot, flags, fd, offset >> 12);
 }
 
-void *mmap(void *addr, size_t length, int prot, int flags,
-           int fd, off_t offset)
-noexcept(noexcept(mmap(addr, length, prot, flags, fd, offset)))
-{
-  return mmap64(addr, length, prot, flags, fd, offset);
-}
+L4_STRONG_ALIAS(mmap, mmap64)
 
 L4B_REDIRECT_2(int, munmap, void*, size_t)
 L4B_REDIRECT_3(int, mprotect, void *, size_t, int);
