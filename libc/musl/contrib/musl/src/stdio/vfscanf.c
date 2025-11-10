@@ -298,6 +298,7 @@ int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 			if (t=='p' && dest) *(void **)dest = (void *)(uintptr_t)x;
 			else store_int(dest, size, x);
 			break;
+#ifndef BID_VARIANT_FLAG_NOFPU
 		case 'a': case 'A':
 		case 'e': case 'E':
 		case 'f': case 'F':
@@ -316,6 +317,7 @@ int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 				break;
 			}
 			break;
+#endif
 		}
 
 		pos += shcnt(f);

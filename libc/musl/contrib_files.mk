@@ -88,7 +88,7 @@ endef
 
 define SRC_internal
   defsysinfo
-  floatscan
+  $(if $(BID_VARIANT_FLAG_NOFPU),,floatscan)
   intscan
   libc
   shgetc
@@ -466,9 +466,9 @@ define SRC_passwd
 endef
 
 define SRC_prng
-  __rand48_step
-  __seed48
-  drand48
+  $(if $(BID_VARIANT_FLAG_NOFPU),,__rand48_step)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,__seed48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,drand48)
   rand
   rand_r
   random
@@ -638,13 +638,13 @@ define SRC_stdlib
   lldiv
   qsort
   qsort_nr
-  strtod
+  $(if $(BID_VARIANT_FLAG_NOFPU),,strtod)
   strtol
 endef
 
 define SRC_stdlib_wchar
   wcstol
-  wcstod
+  $(if $(BID_VARIANT_FLAG_NOFPU),,wcstod)
 endef
 
 define SRC_stdlib_fp
@@ -672,12 +672,12 @@ define SRC_string
   memccpy
   memchr
   memcmp
-  $(if $(and $(LIBC_BUILD_MINIMAL), $(filter arm64, $(BUILD_ARCH))), memcpy.c, memcpy)
+  $(if $(and $(LIBC_BUILD_MINIMAL), $(filter arm64, $(BUILD_ARCH)))$(BID_VARIANT_FLAG_NOFPU), memcpy.c, memcpy)
   memmem
   memmove
   mempcpy
   memrchr
-  $(if $(and $(LIBC_BUILD_MINIMAL), $(filter arm64, $(BUILD_ARCH))), memset.c, memset)
+  $(if $(and $(LIBC_BUILD_MINIMAL), $(filter arm64, $(BUILD_ARCH)))$(BID_VARIANT_FLAG_NOFPU), memset.c, memset)
   stpcpy
   stpncpy
   strcasecmp

@@ -125,8 +125,10 @@ static void pop_arg(union arg *arg, int type, va_list *ap)
 	break; case UMAX:	arg->i = va_arg(*ap, uintmax_t);
 	break; case PDIFF:	arg->i = va_arg(*ap, ptrdiff_t);
 	break; case UIPTR:	arg->i = (uintptr_t)va_arg(*ap, void *);
+#ifndef BID_VARIANT_FLAG_NOFPU
 	break; case DBL:	arg->f = va_arg(*ap, double);
 	break; case LDBL:	arg->f = va_arg(*ap, long double);
+#endif
 	}
 }
 
@@ -178,6 +180,7 @@ static char *fmt_u(uintmax_t x, char *s)
 typedef char compiler_defines_long_double_incorrectly[9-(int)sizeof(long double)];
 #endif
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 static int fmt_fp(FILE *f, long double y, int w, int p, int fl, int t, int ps)
 {
 	int max_mant_dig = (ps==BIGLPRE) ? LDBL_MANT_DIG : DBL_MANT_DIG;
@@ -417,6 +420,7 @@ static int fmt_fp(FILE *f, long double y, int w, int p, int fl, int t, int ps)
 
 	return MAX(w, pl+l);
 }
+#endif
 
 static int getint(char **s) {
 	int i;
@@ -621,12 +625,14 @@ static int printf_core(FILE *f, const char *fmt, va_list *ap, union arg *nl_arg,
 			pad(f, ' ', w, p, fl^LEFT_ADJ);
 			l = w>p ? w : p;
 			continue;
+#ifndef BID_VARIANT_FLAG_NOFPU
 		case 'e': case 'f': case 'g': case 'a':
 		case 'E': case 'F': case 'G': case 'A':
 			if (xp && p<0) goto overflow;
 			l = fmt_fp(f, arg.f, w, p, fl, t, ps);
 			if (l<0) goto overflow;
 			continue;
+#endif
 		}
 
 		if (p < z-a) p = z-a;

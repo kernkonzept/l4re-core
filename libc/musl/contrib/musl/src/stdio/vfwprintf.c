@@ -118,8 +118,10 @@ static void pop_arg(union arg *arg, int type, va_list *ap)
 	break; case UMAX:	arg->i = va_arg(*ap, uintmax_t);
 	break; case PDIFF:	arg->i = va_arg(*ap, ptrdiff_t);
 	break; case UIPTR:	arg->i = (uintptr_t)va_arg(*ap, void *);
+#ifndef BID_VARIANT_FLAG_NOFPU
 	break; case DBL:	arg->f = va_arg(*ap, double);
 	break; case LDBL:	arg->f = va_arg(*ap, long double);
+#endif
 	}
 }
 
@@ -318,9 +320,11 @@ static int wprintf_core(FILE *f, const wchar_t *fmt, va_list *ap, union arg *nl_
 			sizeprefix[(t|32)-'a'], t);
 
 		switch (t|32) {
+#ifndef BID_VARIANT_FLAG_NOFPU
 		case 'a': case 'e': case 'f': case 'g':
 			l = fprintf(f, charfmt, w, p, arg.f);
 			break;
+#endif
 		case 'd': case 'i': case 'o': case 'u': case 'x': case 'p':
 			l = fprintf(f, charfmt, w, p, arg.i);
 			break;
