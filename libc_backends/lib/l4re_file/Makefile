@@ -8,6 +8,8 @@ PC_LIBS        = %{-link-libc:%{shared:--whole-archive -lc_be_l4refile.p --no-wh
 PC_LIBS_PIC    =
 SRC_CC         = file.cc mmap.cc mount.cc socket.cc
 # No exception information as unwinder code might uses malloc and friends
-CXXFLAGS       := -fno-rtti -fno-exceptions -DNOT_IN_libc -include libc-symbols.h
+CXXFLAGS       := -fno-rtti -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk
+
+CPPFLAGS-$(CONFIG_L4_LIBC_UCLIBC) += -DNOT_IN_libc -include libc-symbols.h
