@@ -41,6 +41,94 @@ private:
   Server_iface const &operator = (Server_iface const &);
 
 public:
+  /**
+   * Memory receive window.
+   *
+   * Represents a region in the virtual address space in which an IPC call
+   * *potentially* mapped pages.
+   */
+  class Mem_window final
+  {
+  public:
+    class Allocator
+    {
+    public:
+      virtual ~Allocator() = default;
+
+      virtual void dispose(l4_fpage_t fp) noexcept = 0;
+    };
+
+    Mem_window() noexcept = default;
+    Mem_window(l4_fpage_t fp, Allocator *allocator) noexcept
+    : _fp(fp), _allocator(allocator)
+    {}
+
+    ~Mem_window()
+    { reset(); }
+
+    Mem_window(Mem_window const &) = delete;
+    Mem_window &operator=(Mem_window const &) = delete;
+
+    Mem_window(Mem_window &&other) noexcept
+    : _fp(other._fp), _allocator(other._allocator)
+    {
+      other._fp = l4_fpage_invalid();
+      other._allocator = nullptr;
+    }
+
+    Mem_window &operator=(Mem_window &&other) noexcept
+    {
+      if (this == &other)
+        return *this;
+
+      reset();
+      _fp = other._fp;
+      _allocator = other._allocator;
+
+      other._fp = l4_fpage_invalid();
+      other._allocator = nullptr;
+
+      return *this;
+    }
+
+    void reset() noexcept
+    {
+      if (l4_is_fpage_valid(_fp))
+        {
+          _allocator->dispose(_fp);
+          _fp = l4_fpage_invalid();
+          _allocator = nullptr;
+        }
+    }
+
+    l4_fpage_t release() noexcept
+    {
+      l4_fpage_t ret = _fp;
+      _fp = l4_fpage_invalid();
+      _allocator = nullptr;
+      return ret;
+    }
+
+    explicit operator bool() const noexcept
+    { return l4_is_fpage_valid(_fp); }
+
+    l4_fpage_t fp() const noexcept
+    { return _fp; }
+
+    void *get() const noexcept
+    { return reinterpret_cast<void *>(l4_fpage_memaddr(_fp)); }
+
+    unsigned order() const noexcept
+    { return l4_fpage_size(_fp); }
+
+    l4_umword_t size() const noexcept
+    { return l4_umword_t{1} << order(); }
+
+  private:
+    l4_fpage_t _fp = l4_fpage_invalid();
+    Allocator *_allocator = nullptr;
+  };
+
   /// Data type expressing server-side demand for receive buffers.
   using Demand = L4::Type_info::Demand;
 
@@ -91,6 +179,20 @@ public:
    * is allocated for the next call.
    */
   virtual cxx::Result<L4::Reply_cap> take_reply_cap() noexcept
+  { return cxx::Error(-L4_ENOSYS); }
+
+  /**
+   * \brief Take the current memory receive window.
+   *
+   * The caller takes the ownership of the memory receive window. A new
+   * receive window will be allocated for the next call.
+   *
+   * \attention The caller has to ensure that the received IPC call actually
+   *            mapped some memory flexpage. Still, the IPC client can revoke
+   *            the pages at any time. Thus, any access into the memory window
+   *            could create unresolved page faults.
+   */
+  virtual cxx::Result<Mem_window> get_rcv_mem() noexcept
   { return cxx::Error(-L4_ENOSYS); }
 
   /**

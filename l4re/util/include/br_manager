@@ -7,9 +7,11 @@
 
 #pragma once
 
+#include <l4/re/env>
 #include <l4/re/util/cap_alloc>
 #include <l4/sys/cxx/ipc_server_loop>
 #include <l4/cxx/ipc_timeout_queue>
+#include <l4/cxx/minmax>
 #include <l4/sys/assert.h>
 
 namespace L4Re { namespace Util {
@@ -22,15 +24,28 @@ namespace L4Re { namespace Util {
  * server-side receive buffers needed for a set of server objects running
  * within a server.
  */
-class Br_manager : public L4::Ipc_svr::Server_iface
+class Br_manager : public L4::Ipc_svr::Server_iface,
+                   private L4::Ipc_svr::Server_iface::Mem_window::Allocator
 {
 private:
-  enum { _mem = 0, _ports = 0 };
+  enum { _ports = 0 };
   enum { Brs_per_timeout = sizeof(l4_kernel_clock_t) / sizeof(l4_umword_t) };
+
+  void dispose(l4_fpage_t fp) noexcept override
+  {
+    auto *env = L4Re::Env::env();
+
+    env->task()->unmap(fp, L4_FP_ALL_SPACES);
+    env->rm()->free_area(l4_fpage_memaddr(fp));
+  }
 
 public:
   /// Make a buffer-register (BR) manager
-  Br_manager() : _caps(0), _cap_flags(L4_RCV_ITEM_LOCAL_ID) {}
+  Br_manager()
+  {
+    _brs[0] = 0; // obj caps terminating entry
+    _brs[1] = 0; // mem terminating entry
+  }
 
   Br_manager(Br_manager const &) = delete;
   Br_manager &operator = (Br_manager const &) = delete;
@@ -44,6 +59,9 @@ public:
     // (shadowed) buffer registers. Free those.
     for (unsigned i = 0; i < _caps; ++i)
       cap_alloc.free(L4::Cap<void>(_brs[i] & L4_CAP_MASK));
+
+    if (l4_is_fpage_valid(_mem_fp))
+      dispose(_mem_fp);
   }
 
   /*
@@ -55,12 +73,15 @@ public:
   {
     using L4::Ipc::Small_buf;
 
-    // memory and IO port receive windows currently not supported
-    if (d.mem || d.ports)
+    // IO port receive windows currently not supported
+    if (d.ports)
       return -L4_EINVAL;
 
-    // take extra buffers for a possible timeout and for a zero terminator
-    if (d.caps + d.mem * 2 + d.ports * 2 + Brs_per_timeout + 1
+    // Take extra buffers for a possible timeout and for two zero terminators
+    // (caps + mem).
+    if (   cxx::max(d.caps, _caps)              + 1 // obj BRs + terminator
+        + (cxx::max(d.mem, _mem_order) ? 2 : 0) + 1 // mem BRs + terminator
+        + Brs_per_timeout                           // timeout BR(s)
         > L4_UTCB_GENERIC_BUFFERS_SIZE)
       return -L4_ERANGE;
 
@@ -77,6 +98,38 @@ public:
             ++_caps;
           }
         _brs[_caps] = 0;
+      }
+
+    if (d.mem > _mem_order)
+      {
+        l4_addr_t start = 0;
+        int err = L4Re::Env::env()->rm()
+          ->reserve_area(&start, 1UL << d.mem,
+                         L4Re::Rm::F::Search_addr | L4Re::Rm::F::Reserved,
+                         d.mem);
+        if (err < 0)
+          return -L4_ENOMEM;
+
+        if (l4_is_fpage_valid(_mem_fp))
+          dispose(_mem_fp);
+
+        _mem_order = d.mem;
+        _mem_fp = l4_fpage(start, _mem_order, L4_FPAGE_RWX);
+      }
+
+    // Memory receive window is in BRs after object caps...
+    if (l4_is_fpage_valid(_mem_fp))
+      {
+        L4::Ipc::Rcv_fpage rcv_fpage(_mem_fp);
+        _brs[_caps + 1] = rcv_fpage.base_x();
+        _brs[_caps + 2] = rcv_fpage.data();
+        _brs[_caps + 3] = 0;
+        _used_brs = _caps + 4;
+      }
+    else
+      {
+        _brs[_caps + 1] = 0;
+        _used_brs = _caps + 2;
       }
 
     return L4_EOK;
@@ -108,6 +161,35 @@ public:
     return L4_EOK;
   }
 
+  cxx::Result<L4::Ipc_svr::Server_iface::Mem_window>
+  get_rcv_mem() noexcept override
+  {
+    if (!_mem_order)
+      return cxx::Error(-L4_EINVAL);
+
+    l4_addr_t start = 0;
+    int err = L4Re::Env::env()->rm()
+      ->reserve_area(&start, 1UL << _mem_order,
+                     L4Re::Rm::F::Search_addr | L4Re::Rm::F::Reserved,
+                     _mem_order);
+    if (err < 0)
+      {
+        // There might be pages mapped there already. Unmap them because the
+        // caller cannot get hold of them any more.
+        L4Re::Env::env()->task()->unmap(_mem_fp, L4_FP_ALL_SPACES);
+        return cxx::Error(-L4_ENOMEM);
+      }
+
+    l4_fpage_t ret = _mem_fp;
+
+    _mem_fp = l4_fpage(start, _mem_order, L4_FPAGE_RWX);
+    L4::Ipc::Rcv_fpage rcv_fpage(_mem_fp);
+    _brs[_caps + 1] = rcv_fpage.base_x();
+    _brs[_caps + 2] = rcv_fpage.data();
+
+    return L4::Ipc_svr::Server_iface::Mem_window(ret, this);
+  }
+
   /**
    * Set the receive flags for the buffers.
    *
@@ -134,8 +216,8 @@ public:
   void setup_wait(l4_utcb_t *utcb, L4::Ipc_svr::Reply_mode)
   {
     l4_buf_regs_t *br = l4_utcb_br_u(utcb);
-    br->bdr = 0;
-    for (unsigned i = 0; i <= _caps; ++i)
+    br->bdr = l4_bdr(_caps + 1, 0, 0, 0);
+    for (unsigned i = 0; i < _used_brs; ++i)
       br->br[i] = _brs[i];
   }
 
@@ -150,8 +232,11 @@ protected:
   }
 
 private:
-  unsigned short _caps;
-  unsigned long _cap_flags;
+  unsigned char _caps = 0;
+  unsigned char _mem_order = 0;
+  unsigned char _used_brs = 2;  // always at least two terminating entries
+  unsigned long _cap_flags = L4_RCV_ITEM_LOCAL_ID;
+  l4_fpage_t _mem_fp = l4_fpage_invalid();
 
   l4_umword_t _brs[L4_UTCB_GENERIC_BUFFERS_SIZE];
 };
