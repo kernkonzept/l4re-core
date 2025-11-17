@@ -16,6 +16,17 @@
 // internal uclibc symbol for ENV
 extern char const **__environ;
 
+namespace
+{
+  struct Cap_storage
+  {
+    Global::Cap_alloc::Storage<Global::Max_local_rm_caps> storage;
+    L4Re::Util::Dbg dbg;
+  };
+
+  cxx::Static_container<Cap_storage> cap_storage;
+}
+
 namespace Global
 {
   L4::Cap<L4Re::Mem_alloc> allocator(L4::Cap_base::No_init);
@@ -44,8 +55,11 @@ namespace Global
         auxp += 2;
       }
 
+    cap_storage.construct();
+
     L4Re::Env *env = const_cast<L4Re::Env*>(L4Re::Env::env());
-    cap_alloc.construct(env->first_free_cap());
+    cap_alloc.construct(Global::Max_local_rm_caps, &cap_storage->storage,
+                        env->first_free_cap(), &cap_storage->dbg);
     env->first_free_cap(env->first_free_cap() + Global::Max_local_rm_caps);
     L4::Cap<L4Re::Mem_alloc> obj = env->mem_alloc();
 
