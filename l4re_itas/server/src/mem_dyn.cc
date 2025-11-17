@@ -8,6 +8,7 @@
  */
 
 #include <l4/bid_config.h>
+#include <l4/crtn/initpriorities.h>
 #include <l4/sys/consts.h>
 #include <l4/re/dataspace>
 #include <l4/re/mem_alloc>
@@ -15,15 +16,21 @@
 #include <l4/re/unique_cap>
 #include <l4/cxx/iostream>
 #include <l4/libumalloc/umalloc.h>
+
+#include <stdlib.h>
+
 #include "globals.h"
+#include "region.h"
 
 extern char __executable_start[];
 
 size_t umalloc_area_granularity = 64 * L4_PAGESIZE;
 
 #if defined(CONFIG_MMU)
-static l4_addr_t umalloc_pos = reinterpret_cast<l4_addr_t>(__executable_start)
-                               + 0x100000;
+static constexpr size_t Malloc_area_size = 64UL << 20;
+static l4_addr_t umalloc_start = reinterpret_cast<l4_addr_t>(__executable_start)
+                                 + 0x100000;
+static l4_addr_t umalloc_pos;
 #endif
 
 static void *err_msg(char const *msg, size_t area_size, long err = 0)
@@ -52,8 +59,17 @@ void *umalloc_area_create(size_t area_size) noexcept
   L4Re::Rm::Flags flags(L4Re::Rm::F::RW);
 
 #if defined(CONFIG_MMU)
+  // Make sure we did not exhaust our reserved virtual memory area. We cannot
+  // use F::Search_addr on the moe region manager because it is out of sync
+  // with our local region manager!
+  if (Malloc_area_size - (umalloc_pos - umalloc_start) < area_size)
+    return err_msg("Malloc area exhausted", area_size);
+
   l4_addr_t start = umalloc_pos;
+  flags |= L4Re::Rm::F::In_area;
 #else
+  // F::Search_addr is fine because there are no virtual addresses to begin
+  // with. So any successful allocation is guaranteed to have a unique address.
   l4_addr_t start = 0;
   flags |= L4Re::Rm::F::Search_addr;
 #endif
@@ -82,3 +98,20 @@ void *umalloc_area_create(size_t area_size) noexcept
 
   return reinterpret_cast<void *>(start);
 }
+
+#if defined(CONFIG_MMU)
+static void init()
+{
+  long err = L4Re::Env::env()->rm()
+    ->reserve_area(&umalloc_start, Malloc_area_size, L4Re::Rm::F::Search_addr);
+  if (err < 0)
+    {
+      L4::cerr << "l4re_itas: error reserving malloc region: " << err << "\n";
+      exit(1);
+    }
+
+  umalloc_pos = umalloc_start;
+}
+
+L4_DECLARE_CONSTRUCTOR(init, INIT_PRIO_EARLY)
+#endif
