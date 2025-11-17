@@ -78,61 +78,8 @@ public:
 #endif
 };
 
-template<typename DS, typename OPS>
-class Region_handler
-{
-private:
-  L4Re::Rm::Offset _offs;
-  DS _mem;
-  l4_cap_idx_t _client_cap = L4_INVALID_CAP;
-  L4Re::Rm::Region_flags _flags;
 
-public:
-  typedef DS Dataspace;
-  typedef OPS Ops;
-  typedef typename OPS::Map_result Map_result;
-
-  Region_handler() noexcept : _offs(0), _mem(), _flags() {}
-
-  Region_handler(Dataspace const &mem, l4_cap_idx_t client_cap,
-      L4Re::Rm::Offset offset = 0,
-      L4Re::Rm::Region_flags flags = L4Re::Rm::Region_flags(0)) noexcept
-    : _offs(offset), _mem(mem), _client_cap(client_cap), _flags(flags)
-  {}
-
-  Dataspace const &memory() const noexcept
-  { return _mem; }
-
-  l4_cap_idx_t client_cap_idx() const noexcept
-  { return _client_cap; }
-
-  L4Re::Rm::Offset offset() const noexcept
-  { return _offs; }
-
-  constexpr bool is_ro() const noexcept
-  { return !(_flags & L4Re::Rm::F::W); }
-
-  L4Re::Rm::Region_flags caching() const noexcept
-  { return _flags & L4Re::Rm::F::Caching_mask; }
-
-  L4Re::Rm::Region_flags flags() const noexcept
-  { return _flags; }
-
-  Region_handler operator + (l4_int64_t offset) const noexcept
-  { Region_handler n = *this; n._offs += offset; return n; }
-
-  void free(l4_addr_t start, unsigned long size) const noexcept
-  { Ops::free(this, start, size); }
-
-  int map(l4_addr_t addr, Region const &r, bool writable,
-          Map_result *result) const
-  { return Ops::map(this, addr, r, writable, result); }
-
-  int map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const
-  { return Ops::map_info(this, start_addr, end_addr); }
-};
-
-template<typename Hdlr, template<typename T> class Alloc>
+template< typename Hdlr, template<typename T> class Alloc >
 class Region_map
 {
 protected:
