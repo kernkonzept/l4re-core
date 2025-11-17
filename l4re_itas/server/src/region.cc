@@ -42,22 +42,22 @@ Region_map::init()
 
 
 l4_ret_t
-Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
-                Region const &r, bool writable, l4_umword_t *result)
+Region_handler::map(l4_addr_t local_addr, Region const &r, bool writable,
+                    l4_umword_t *result) const noexcept
 {
   *result = 0;
 
-  auto r_flags = h->flags();
+  auto r_flags = _flags;
   if (!writable)
     r_flags -= L4Re::Rm::F::W;
 
-  if ((r_flags & (Rm::F::Reserved | Rm::F::Kernel)) || !h->memory().is_valid())
+  if ((r_flags & (Rm::F::Reserved | Rm::F::Kernel)) || !_mem.is_valid())
     return -L4_ENOENT;
 
   if (r_flags & Rm::F::Pager)
     {
       L4::Ipc::Snd_fpage rfp;
-      return l4_error(L4::cap_reinterpret_cast<L4::Pager>(h->memory())
+      return l4_error(L4::cap_reinterpret_cast<L4::Pager>(_mem)
                       ->page_fault(local_addr, -3UL,
                                    L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE),
                                    rfp));
@@ -67,37 +67,36 @@ Region_ops::map(Region_handler const *h, l4_addr_t local_addr,
       // align to 16byte, some DS implementations are too picky about
       // possible r/w etc. bits in the offset
       local_addr &= ~0x0fUL;
-      l4_addr_t offset = local_addr - r.start() + h->offset();
-      L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
+      l4_addr_t offset = local_addr - r.start() + _offs;
+      L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(_mem);
       L4Re::Dataspace::Flags flags = map_flags(r_flags);
       return ds->map(offset, flags, local_addr, r.start(), r.end());
     }
 }
 
 void
-Region_ops::free(Region_handler const *h, l4_addr_t start, unsigned long size)
+Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
 {
-  if (h->flags() & (Rm::F::Reserved | Rm::F::Kernel | Rm::F::Pager))
+  if (_flags & (Rm::F::Reserved | Rm::F::Kernel | Rm::F::Pager))
     return;
 
-  if (!h->memory().is_valid())
+  if (!_mem.is_valid())
     return;
 
-  L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(h->memory());
-  ds->clear(h->offset() + start, size);
+  L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(_mem);
+  ds->clear(offset() + start, size);
 }
 
 l4_ret_t
-Region_ops::map_info(Region_handler const *h,
-                     l4_addr_t *start_addr, l4_addr_t *end_addr)
+Region_handler::map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexcept
 {
-  if (!h->memory())
+  if (!_mem)
     return 0;
 
-  if (h->flags() & (Rm::F::Pager | Rm::F::Reserved | Rm::F::Kernel))
+  if (_flags & (Rm::F::Pager | Rm::F::Reserved | Rm::F::Kernel))
     return 0;
 
-  return h->memory()->map_info(start_addr, end_addr);
+  return _mem->map_info(start_addr, end_addr);
 }
 
 void
