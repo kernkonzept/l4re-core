@@ -1,6 +1,8 @@
 PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../..
 
+SYSTEMS += $(SYSTEMS_PLAIN)
+
 REQUIRES_LIBS	= cxx_util
 
 TARGET		= libumalloc.a
