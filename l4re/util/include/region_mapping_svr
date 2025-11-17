@@ -270,7 +270,7 @@ public:
         return -L4_ENODEV;
       }
 
-    typename DERIVED::Region_handler::Ops::Map_result map_res;
+    typename DERIVED::Region_handler::Map_result map_res;
     if (int err = n->second.map(addr, n->first, need_w, &map_res))
       {
         Dbg(Dbg::Warn, "rm").printf("mapping for page fault failed with error %d at 0x%lx pc=0x%lx\n",
