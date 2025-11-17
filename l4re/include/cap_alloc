@@ -164,7 +164,7 @@ public:
    */
   L4::Cap_base copy(L4::Cap_base const &src)
   {
-    if (src.is_valid())
+    if (_ca && src.is_valid())
       _ca->take(L4::Cap<void>(src.cap()));
     return src;
   }
