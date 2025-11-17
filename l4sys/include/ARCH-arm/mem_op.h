@@ -21,7 +21,7 @@
 L4_BEGIN_DECLS
 
 /**
- * \defgroup l4_mem_op_api Memory operations.
+ * \defgroup l4_mem_op_api Memory Operations
  * \ingroup l4_api
  * \brief Operations for memory access.
  *

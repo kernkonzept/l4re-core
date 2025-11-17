@@ -50,7 +50,7 @@ enum
 };
 
 /**
- * \defgroup l4_cxx_ipc_ifaces C++ IPC Interface Definition.
+ * \defgroup l4_cxx_ipc_ifaces C++ IPC Interface Definition
  * \ingroup l4_api
  *
  * APIs for defining IPC interfaces using C++ as language.
