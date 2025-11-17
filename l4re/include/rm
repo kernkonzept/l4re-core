@@ -146,7 +146,8 @@ public:
       Kernel      = 0x100,
       /// Free the portion of the data space after detach
       Detach_free = 0x200,
-      /// Region has a pager
+      /// Region has a pager. Page faults in this region are not handled by
+      /// ITAS but rather forwarded to the external region manager / pager.
       Pager       = 0x400,
       /// Region is reserved (blocked)
       Reserved    = 0x800,
