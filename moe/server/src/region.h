@@ -78,6 +78,11 @@ public:
                Map_result *result) const noexcept;
 
   l4_ret_t map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexcept;
+
+  void attached(l4_addr_t, l4_addr_t) const noexcept
+  {}
+  void detached(l4_addr_t, l4_addr_t) const noexcept
+  {}
 };
 
 class Region_map

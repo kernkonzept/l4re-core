@@ -269,7 +269,10 @@ public:
     if (_rm.insert(Region(beg, beg + size - 1,
                           name, name_len, backing_offset), hdlr).second
         == 0)
-      return reinterpret_cast<void*>(beg);
+      {
+        hdlr.attached(beg, beg + size - 1);
+        return reinterpret_cast<void*>(beg);
+      }
 
     return L4_INVALID_PTR;
   }
@@ -299,6 +302,8 @@ public:
         if (!(flags & L4Re::Rm::Detach_keep) && (h_copy.flags() & L4Re::Rm::F::Detach_free))
           h_copy.free(0, g.size());
 
+        h_copy.detached(g.start(), g.end());
+
         if (hdlr)
           *hdlr = h_copy;
         if (reg)
@@ -315,6 +320,8 @@ public:
 
         if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(0, dr.end() + 1 - g.start());
+
+        h.detached(g.start(), dr.end());
 
         unsigned long sz = dr.end() + 1 - g.start();
         Item &cn = const_cast<Item &>(*r);
@@ -338,6 +345,8 @@ public:
             && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
 
+        h.detached(dr.start(), g.end());
+
         Item &cn = const_cast<Item &>(*r);
         cn.first = Region(g.start(), dr.start() - 1, g.name(), g.name_len(),
                           g.backing_offset());
@@ -357,6 +366,8 @@ public:
 
         if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(dr.start() - g.start(), dr.size());
+
+        h.detached(dr.start(), dr.end());
 
         // First move the end off the existing region before the new one.
         Item &cn = const_cast<Item &>(*r);
