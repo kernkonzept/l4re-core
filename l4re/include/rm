@@ -554,6 +554,9 @@ public:
 
     /** Member access for the address. */
     T operator -> () const noexcept { return _addr; }
+
+    explicit operator bool() const noexcept
+    { return is_valid(); }
   };
 
   template<typename T>
