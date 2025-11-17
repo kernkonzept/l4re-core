@@ -168,13 +168,6 @@ private:
 
   cxx::H_list_t<File_factory_item> _file_factories;
 
-  l4_addr_t _anon_offset;
-  L4Re::Shared_cap<L4Re::Dataspace> _anon_ds;
-
-  int alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds);
-  int alloc_anon_mem(l4_umword_t size, L4Re::Shared_cap<L4Re::Dataspace> *ds,
-                     l4_addr_t *offset);
-
   void align_mmap_start_and_length(void **start, size_t *length);
   int munmap_regions(void *start, size_t len);
 
@@ -487,92 +480,6 @@ Vfs::munmap(void *start, size_t len) L4_NOTHROW
 }
 
 int
-Vfs::alloc_ds(unsigned long size, L4Re::Shared_cap<L4Re::Dataspace> *ds)
-{
-  *ds = L4Re::make_shared_cap<L4Re::Dataspace>(L4Re::virt_cap_alloc);
-
-  if (!ds->is_valid())
-    return -ENOMEM;
-
-  int err;
-  if ((err = Vfs_config::allocator()->alloc(size, ds->get())) < 0)
-    return err;
-
-  DEBUG_LOG(debug_mmap, {
-      l4_kd_outstring("ANON DS ALLOCATED: size=");
-      l4_kd_outhex32(size);
-      l4_kd_outstring("  cap = 0x");
-      l4_kd_outhex32(ds->cap());
-      l4_kd_outstring("\n");
-      });
-
-  return 0;
-}
-
-int
-Vfs::alloc_anon_mem(l4_umword_t size, L4Re::Shared_cap<L4Re::Dataspace> *ds,
-                    l4_addr_t *offset)
-{
-#if !defined(CONFIG_MMU)
-  // Small values for !MMU systems. These platforms do not have much memory
-  // typically and the memory must be instantly allocated.
-  enum
-  {
-    ANON_MEM_DS_POOL_SIZE = 256UL << 10, // size of a pool dataspace used for anon memory
-    ANON_MEM_MAX_SIZE     =  32UL << 10, // chunk size that will be allocate a dataspace
-  };
-#elif defined(USE_BIG_ANON_DS)
-  enum
-  {
-    ANON_MEM_DS_POOL_SIZE = 256UL << 20, // size of a pool dataspace used for anon memory
-    ANON_MEM_MAX_SIZE     = 32UL << 20,  // chunk size that will be allocate a dataspace
-  };
-#else
-  enum
-  {
-    ANON_MEM_DS_POOL_SIZE = 256UL << 20, // size of a pool dataspace used for anon memory
-    ANON_MEM_MAX_SIZE     = 0UL << 20,   // chunk size that will be allocate a dataspace
-  };
-#endif
-
-  if (size >= ANON_MEM_MAX_SIZE)
-    {
-      int err;
-      if ((err = alloc_ds(size, ds)) < 0)
-        return err;
-
-      *offset = 0;
-
-      if (!_early_oom)
-        return err;
-
-      return (*ds)->allocate(0, size);
-    }
-
-  if (!_anon_ds.is_valid() || _anon_offset + size >= ANON_MEM_DS_POOL_SIZE)
-    {
-      int err;
-      if ((err = alloc_ds(ANON_MEM_DS_POOL_SIZE, ds)) < 0)
-        return err;
-
-      _anon_offset = 0;
-      _anon_ds = *ds;
-    }
-  else
-    *ds = _anon_ds;
-
-  if (_early_oom)
-    {
-      if (int err = (*ds)->allocate(_anon_offset, size))
-        return err;
-    }
-
-  *offset = _anon_offset;
-  _anon_offset += size;
-  return 0;
-}
-
-int
 Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_offset,
            void **resptr) L4_NOTHROW
 {
@@ -625,32 +532,21 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       return 0;
     }
 
-  L4Re::Shared_cap<L4Re::Dataspace> anon_ds;
   L4::Cap<L4Re::Dataspace> ds;
-  l4_addr_t anon_offset = 0;
   L4Re::Rm::Flags rm_flags(0);
-
-  if (flags & (MAP_ANONYMOUS | MAP_PRIVATE))
-    {
-      rm_flags |= L4Re::Rm::F::Detach_free;
-
-      int err = alloc_anon_mem(len, &anon_ds, &anon_offset);
-      if (err)
-        return err;
-
-      ds = anon_ds.get();
-      DEBUG_LOG(debug_mmap, {
-                l4_kd_outstring("  USE ANON MEM: 0x");
-                l4_kd_outhex32(ds.cap());
-                l4_kd_outstring(" offs = 0x");
-                l4_kd_outhex32(anon_offset);
-                l4_kd_outstring("\n");
-      });
-    }
-
   char const *region_name = "[unknown]";
   l4_addr_t file_offset = 0;
-  if (!(flags & MAP_ANONYMOUS))
+
+  if (flags & MAP_PRIVATE)
+    rm_flags |= L4Re::Rm::F::Private;
+
+  if (flags & MAP_ANONYMOUS)
+    {
+      rm_flags |= L4Re::Rm::F::Anonymous;
+      offset = 0; // Or should we return EINVAL?
+      region_name = "[anon]";
+    }
+  else
     {
       Ref_ptr<L4Re::Vfs::File> fi = fds.get(fd);
       if (!fi)
@@ -658,54 +554,12 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 
       region_name = fi->path();
 
-      L4::Cap<L4Re::Dataspace> fds = fi->data_space();
-
-      if (!fds.is_valid())
+      ds = fi->data_space();
+      if (!ds.is_valid())
         return -EINVAL;
 
-      if (len + offset > l4_round_page(fds->size()))
+      if (len + offset > l4_round_page(ds->size()))
         return -EINVAL;
-
-      if (flags & MAP_PRIVATE)
-        {
-          DEBUG_LOG(debug_mmap, l4_kd_outstring("COW\n"););
-          int err = ds->copy_in(anon_offset, fds, offset, len);
-          file_offset = offset;
-          if (err == -L4_EINVAL)
-            {
-              L4::Cap<Rm> r = Env::env()->rm();
-              Rm::Unique_region<char*> src;
-              Rm::Unique_region<char*> dst;
-              err = r->attach(&src, len,
-                              L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
-                              fds, offset);
-              if (err < 0)
-                return err;
-
-              err = r->attach(&dst, len,
-                              L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
-                              ds, anon_offset);
-              if (err < 0)
-                return err;
-
-              memcpy(dst.get(), src.get(), len);
-
-              region_name = "[mmap-private]";
-              file_offset = (unsigned long)dst.get();
-            }
-          else if (err)
-            return err;
-
-          offset = anon_offset;
-        }
-      else
-        ds = fds;
-    }
-  else
-    {
-      offset = anon_offset;
-      region_name = "[anon]";
-      file_offset = offset;
     }
 
 
