@@ -264,16 +264,16 @@ static int pthread_l4_free_stack(void *stack_addr, void *guardaddr)
 {
   L4Re::Env const *e = L4Re::Env::env();
   int err;
-  L4::Cap<L4Re::Dataspace> ds;
 
-  err = e->rm()->detach(stack_addr, &ds);
+  err = e->rm()->detach(stack_addr, nullptr);
   if (err < 0)
     return err;
 
-  if (err == L4Re::Rm::Detached_ds)
-    L4Re::Util::cap_alloc.free(ds, L4Re::This_task);
+#ifdef CONFIG_MMU
+  err = e->rm()->free_area((l4_addr_t)guardaddr);
+#endif
 
-  return e->rm()->free_area((l4_addr_t)guardaddr);
+  return err;
 }
 
 static int pthread_allocate_stack(const pthread_attr_t *attr,
@@ -340,56 +340,29 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 	return -1;
 
       guardaddr = (char*)map_addr;
-
-      L4::Cap<L4Re::Dataspace> ds = L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>();
-      if (!ds.is_valid())
-	return -1;
-
-      err = e->mem_alloc()->alloc(stacksize, ds);
-
-      if (err < 0)
-	{
-	  L4Re::Util::cap_alloc.free(ds);
-	  e->rm()->free_area(l4_addr_t(map_addr));
-	  return -1;
-	}
-
       new_thread_bottom = (char *) map_addr + guardsize;
       err = e->rm()->attach(&new_thread_bottom, stacksize,
-                            L4Re::Rm::F::In_area | L4Re::Rm::F::RW,
-                            L4::Ipc::make_cap_rw(ds), 0, L4_PAGESHIFT,
+                            L4Re::Rm::F::In_area | L4Re::Rm::F::RW
+                            | L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private,
+                            L4::Cap<L4Re::Dataspace>(), 0, L4_PAGESHIFT,
                             L4::Cap<L4::Task>::Invalid, "manager-stack");
 
       if (err < 0)
 	{
-	  L4Re::Util::cap_alloc.free(ds, L4Re::This_task);
 	  e->rm()->free_area(l4_addr_t(map_addr));
 	  return -1;
 	}
 #else
-      L4::Cap<L4Re::Dataspace> ds = L4Re::Util::cap_alloc.alloc<L4Re::Dataspace>();
-      if (!ds.is_valid())
-        return -1;
-
-      err = e->mem_alloc()->alloc(stacksize, ds);
-      if (err < 0)
-        {
-          L4Re::Util::cap_alloc.free(ds);
-          return -1;
-        }
-
       err = e->rm()->attach(&map_addr, stacksize,
-                            L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
-                            L4::Ipc::make_cap_rw(ds), 0, L4_PAGESHIFT,
+                            L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW
+                            | L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private,
+                            L4::Cap<L4Re::Dataspace>(), 0, L4_PAGESHIFT,
                             L4::Cap<L4::Task>::Invalid, "manager-stack");
       if (err < 0)
-        {
-          L4Re::Util::cap_alloc.free(ds, L4Re::This_task);
-          return -1;
-        }
+        return -1;
 
-      guardaddr = static_cast<char *>(map_addr) - guardsize;
-      new_thread_bottom = static_cast<char *>(map_addr);
+      guardsize = 0;
+      guardaddr = new_thread_bottom = static_cast<char *>(map_addr);
 #endif
 
       new_thread = ((pthread_descr) (new_thread_bottom + stacksize));

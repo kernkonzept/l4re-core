@@ -127,14 +127,12 @@ void *__libc_alloc_initial_tls(unsigned long size) __THROW
 {
   using namespace L4;
   using namespace L4Re;
-  Cap<Dataspace> ds(Env::env()->first_free_cap() << L4_CAP_SHIFT);
-  ::l4re_global_env->first_free_cap += 1;
-  if (Env::env()->mem_alloc()->alloc(size, ds, 0) < 0)
-    return NULL;
 
   void *addr = NULL;
-  if(Env::env()->rm()->attach(&addr, size, Rm::F::Search_addr | Rm::F::RW,
-                              L4::Ipc::make_cap_rw(ds), 0, L4_PAGESHIFT,
+  if(Env::env()->rm()->attach(&addr, size,
+                              Rm::F::Search_addr | Rm::F::RW | Rm::F::Private
+                              | Rm::F::Anonymous,
+                              Cap<Dataspace>(), 0, L4_PAGESHIFT,
                               L4::Cap<L4::Task>::Invalid, "[tls]") < 0)
     return NULL;
 
