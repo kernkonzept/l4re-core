@@ -956,6 +956,7 @@ enum Elf_ATs
 
   AT_L4_AUX      = 0xf0, /**< L4Re AUX section */
   AT_L4_ENV      = 0xf1, /**< L4Re ENV section */
+  AT_L4_KIP      = 0xf2, /**< L4Re KIP section */
 };
 
 /** Auxiliary vector (32-bit). */
