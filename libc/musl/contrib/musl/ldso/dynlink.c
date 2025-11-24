@@ -697,6 +697,9 @@ static void *map_library(int fd, struct dso *dso)
 	size_t phsize;
 	size_t addr_min=SIZE_MAX, addr_max=0, map_len;
 	size_t this_min, this_max;
+#ifndef NOT_FOR_L4
+	size_t this_max_filesz;
+#endif
 	size_t nsegs = 0;
 	off_t off_start;
 	Ehdr *eh;
@@ -839,15 +842,30 @@ static void *map_library(int fd, struct dso *dso)
 		}
 		this_min = ph->p_vaddr & -PAGE_SIZE;
 		this_max = ph->p_vaddr+ph->p_memsz+PAGE_SIZE-1 & -PAGE_SIZE;
+#ifndef NOT_FOR_L4
+		// The current L4Re mmap implementation does not support mmap mappings that
+		// are larger than the backing file. So to avoid the mmap_fixed call from
+		// failing have to use p_filesz instead of p_memsz for non-MAP_ANONYMOUS
+		// mmap call.
+		this_max_filesz = ph->p_vaddr+ph->p_filesz+PAGE_SIZE-1 & -PAGE_SIZE;
+#endif
 		off_start = ph->p_offset & -PAGE_SIZE;
 		prot = (((ph->p_flags&PF_R) ? PROT_READ : 0) |
 			((ph->p_flags&PF_W) ? PROT_WRITE: 0) |
 			((ph->p_flags&PF_X) ? PROT_EXEC : 0));
 		/* Reuse the existing mapping for the lowest-address LOAD */
 		if ((ph->p_vaddr & -PAGE_SIZE) != addr_min || DL_NOMMU_SUPPORT)
-			if (mmap_fixed(base+this_min, this_max-this_min, prot, MAP_PRIVATE|MAP_FIXED, fd, off_start) == MAP_FAILED)
+			if (mmap_fixed(base+this_min, this_max_filesz-this_min, prot, MAP_PRIVATE|MAP_FIXED, fd, off_start) == MAP_FAILED)
 				goto error;
+#ifndef NOT_FOR_L4
+		// Due to the limitations of the L4Re mmap implementation, the above
+		// mmap_fixed call did only changed permissions up to this_max_filesz.
+		// So the remaining memory range from this_max_filesz to this_max always
+		// needs a separate mmap_fixed call with MAP_ANONYMOUS.
+		if (ph->p_memsz > ph->p_filesz) {
+#else
 		if (ph->p_memsz > ph->p_filesz && (ph->p_flags&PF_W)) {
+#endif
 			size_t brk = (size_t)base+ph->p_vaddr+ph->p_filesz;
 			size_t pgbrk = brk+PAGE_SIZE-1 & -PAGE_SIZE;
 			memset((void *)brk, 0, pgbrk-brk & PAGE_SIZE-1);
