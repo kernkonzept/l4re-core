@@ -711,10 +711,23 @@ public:
     Rights_mask = 0xff,
 
     /**
+     * Mask for map vs. grant operation.
+     */
+    Map_type_mask  = 0x100,
+
+    /**
      * Mask for significant capability bits.
      * (incl. the invalid bit to support invalid caps)
      */
     Cap_mask    = L4_CAP_MASK
+  };
+
+  enum Map_type
+  {
+    /// Map capability in RPC operation.
+    Map   = 0,
+    /// Grant capability in RPC operation. \see #L4_MAP_ITEM_GRANT
+    Grant = 0x100,
   };
 
   /// Make copy with conversion
@@ -751,6 +764,19 @@ public:
   : _cap_n_rights((cap.cap() & Cap_mask) | (rights & Rights_mask)) {}
 
   /**
+   *  Make a Cap from L4::Cap<T> with the given rights and map type.
+   *
+   *  \param cap       Capability to be sent.
+   *  \param rights    Rights to be sent. Consists of #L4_fpage_rights
+   *                   and \ref L4_obj_fpage_ctl.
+   *  \param map_type  Indicate if capability is mapped or granted.
+   */
+  Cap(L4::Cap<T> cap, unsigned char rights, Map_type map_type) noexcept
+  : _cap_n_rights((cap.cap() & Cap_mask) | (rights & Rights_mask)
+                  | (static_cast<l4_umword_t>(map_type) & Map_type_mask))
+  {}
+
+  /**
    * Create an IPC capability from a C capability index plus rights.
    * \param c  C capability index with the lowest 8 bits used as rights
    *           for the map operation (see #L4_fpage_rights).
@@ -766,9 +792,16 @@ public:
   unsigned rights() const noexcept
   { return _cap_n_rights & Rights_mask; }
 
+  Map_type map_type() const noexcept
+  { return static_cast<Map_type>(_cap_n_rights & Map_type_mask); }
+
   /// Return the send flexpage for this Cap (see #l4_fpage_t)
   L4::Ipc::Snd_fpage fpage() const noexcept
-  { return L4::Ipc::Snd_fpage(cap(), rights()); }
+  {
+    return L4::Ipc::Snd_fpage(cap(), rights(), map_type() == Map
+                                               ? Snd_fpage::Map
+                                               : Snd_fpage::Grant);
+  }
 
   /// Return true if this Cap is valid
   bool is_valid() const noexcept
@@ -823,6 +856,21 @@ Cap<T> make_cap_rws(L4::Cap<T> cap) noexcept
 template<typename T>
 Cap<T> make_cap_full(L4::Cap<T> cap) noexcept
 { return Cap<T>(cap, L4_CAP_FPAGE_RWSD | L4_FPAGE_C_OBJ_RIGHTS); }
+
+/**
+ * Make an L4::IPC::Cap<T> for the given capability that shall be granted with
+ * full rights.
+ *
+ * \tparam T       (implicit) type of the referenced interface
+ * \param  cap     source capability (L4::Cap<T>)
+ *
+ * \see #L4_MAP_ITEM_GRANT
+ */
+template<typename T>
+Cap<T> make_cap_grant(L4::Cap<T> cap) noexcept
+{
+  return Cap<T>(cap, L4_CAP_FPAGE_RWSD | L4_FPAGE_C_OBJ_RIGHTS, Cap<T>::Grant);
+}
 
 // caps are special the have an invalid representation
 template<typename T> struct L4_EXPORT Opt< Cap<T> >
