@@ -115,6 +115,7 @@ strong_alias(__rtld_stack_end, __libc_stack_end) /* Exported version of __rtld_s
 #ifndef __NOT_FOR_L4__
 attribute_hidden void *__rtld_l4re_global_env;
 strong_alias(__rtld_l4re_global_env, l4re_global_env)
+extern void *l4_global_kip;
 #endif
 
 /* When we enter this piece of code, the program stack looks like this:
@@ -143,7 +144,7 @@ DL_START(unsigned long args)
 	ElfW(Dyn) *dpnt;
 	uint32_t  *p32;
 #ifndef NOT_FOR_L4
-	void *l4re_env = 0;
+	void *l4re_env = 0, *l4_kip = 0;
 #endif
 
 	/* WARNING! -- we cannot make _any_ function calls until we have
@@ -188,6 +189,8 @@ DL_START(unsigned long args)
 #ifndef __NOT_FOR_L4__
 		if (auxv_entry->a_type == AT_L4_ENV) {
 			l4re_env = (void*)auxv_entry->a_un.a_val;
+                } else if (auxv_entry->a_type == 0xf2) {
+                        l4_kip = (void*)auxv_entry->a_un.a_val;
 		}
 #endif
 		
@@ -407,6 +410,7 @@ DL_START(unsigned long args)
 
 	{
 		__rtld_l4re_global_env = l4re_env;
+		l4_global_kip = l4_kip;
 		ElfW(Dyn) *dpnt = tpnt->dynamic_addr;
 		void (**ia)(void) = 0;
 		int ia_sz =  0;
