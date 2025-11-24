@@ -218,6 +218,8 @@ Ns_dir::getdents(char *buf, size_t dest_sz) noexcept
 int
 Env_dir::get_ds(const char *path, L4Re::Unique_cap<L4Re::Dataspace> *ds) noexcept
 {
+  while (*path == '/')
+    ++path;
   Vfs::Path p(path);
   Vfs::Path first = p.strip_first();
 
@@ -278,6 +280,8 @@ Env_dir::get_entry(const char *path, int /*flags*/, mode_t /*mode*/,
 int
 Env_dir::faccessat(const char *path, int mode, int /*flags*/) noexcept
 {
+  while (*path == '/')
+    ++path;
   Vfs::Path p(path);
   Vfs::Path first = p.strip_first();
 
