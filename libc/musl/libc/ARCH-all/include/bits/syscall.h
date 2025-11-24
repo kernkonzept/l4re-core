@@ -5,6 +5,8 @@
 #define __NEED_off_t
 #define __NEED_uintptr_t
 #include <bits/alltypes.h>
+#include <errno.h>
+
 struct iovec;
 
 #ifdef __cplusplus
