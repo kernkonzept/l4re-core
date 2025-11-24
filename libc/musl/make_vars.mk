@@ -19,7 +19,7 @@ PTHLIB_DIR    := $(LIBCSRC_DIR_ABS)/libpthread
 # include directory for pthread internals
 PTHREAD_INCDIR = $(PTHLIB_DIR)/src/sysdeps/$(LIBC_ARCH) $(PTHLIB_DIR)/src
 
-LIBC_DYNLINKER = rom/libc.so.1
+LIBC_DYNLINKER = /rom/libc.so.1
 
 LIBC_ARCH_x86 := i386
 LIBC_ARCH_arm := arm

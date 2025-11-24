@@ -31,7 +31,7 @@ PTHREAD_INCDIR = $(PTHLIB_DIR)/src/sysdeps/$(LIBC_ARCH) $(PTHLIB_DIR)/src
 # include dir for accessing ldso internals
 LDSO_INC = -I$(CONTRIB_DIR)/ldso/ldso/$(LIBC_ARCH) -I$(CONTRIB_DIR)/ldso/include
 
-LIBC_DYNLINKER = rom/libld-l4.so.1
+LIBC_DYNLINKER = /rom/libld-l4.so.1
 
 
 LIBC_ARCH_x86   := i386
