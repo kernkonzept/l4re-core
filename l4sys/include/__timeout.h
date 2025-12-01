@@ -191,6 +191,10 @@ l4_kernel_clock_t l4_timeout_get(l4_kernel_clock_t cur, l4_timeout_s to) L4_NOTH
  * \param us     Waiting period in microseconds.
  *
  * \return Relative L4 timeout according to the specified waiting period.
+ *
+ * \note All timeout values above #L4_TIMEOUT_US_MAX are interpreted as
+ *       #L4_TIMEOUT_US_NEVER.
+ *
  */
 L4_CONSTEXPR L4_INLINE
 l4_timeout_s l4_timeout_from_us(l4_uint64_t us) L4_NOTHROW;
@@ -273,6 +277,8 @@ l4_timeout_s l4_timeout_from_us(l4_uint64_t us) L4_NOTHROW
     {
       /* Here it is certain that at least one bit in 'us' is set. */
 
+      enum { m_max = 0x3ff, e_max = 0x1f, }; // max values also serve as mask
+
       l4_uint16_t m = 0; // initialization required by constexpr, optimized away
       l4_uint16_t v = 0; // initialization required by constexpr, optimized away
       int e = (63 - __builtin_clzll(us)) - 9;
@@ -283,7 +289,19 @@ l4_timeout_s l4_timeout_from_us(l4_uint64_t us) L4_NOTHROW
        * L4_TIMEOUT_US_MAX = 2^41-1 = 0x000001ffffffffff => e = 31.
        * Note: 2^41-1 (0x000001ffffffffff) > 1023*2^31 (0x00001ff800000000). */
 
-      m = us >> e;
+      /* Round up to next aligned timeout value to not retun too early. */
+      m = (us + ((1ULL << e) - 1)) >> e;
+      /* Bounds check */
+      if (m > m_max)
+        {
+          if (e < e_max)
+            {
+              ++e;
+              m >>= 1;
+            }
+          else
+            m = m_max;
+        }
 
       /* Here it is certain that '1 <= m <= 1023. Consider the following cases:
        *  o    1 <= us <= 1023: e = 0; 2^e = 1;   1 <= us/1 <= 1023
