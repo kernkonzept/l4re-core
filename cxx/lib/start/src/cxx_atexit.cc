@@ -5,6 +5,8 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
+#include <atomic>
+
 #include "cxx_atexit.h"
 
 #define NUM_ATEXIT	64
@@ -17,7 +19,7 @@ struct __exit_handler
 };
 
 static __exit_handler __atexitlist[NUM_ATEXIT];
-static volatile unsigned atexit_counter;
+static std::atomic<unsigned> atexit_counter;
 int __cxa_atexit(void (*f)(void*), void *arg, void *dso_handle)
 {
   unsigned c = atexit_counter++;
