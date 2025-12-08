@@ -32,7 +32,8 @@ enum
   SCHED_L4    = 6,
 };
 
-__BEGIN_DECLS
+#include <l4/sys/compiler.h>
+L4_BEGIN_DECLS
 
 /* Initializers.  */
 
@@ -694,6 +695,6 @@ extern int pthread_getaffinity_np (pthread_t __th, size_t __cpusetsize,
                                    cpu_set_t *__cpuset)
      __THROW __nonnull ((3));
 
-__END_DECLS
+L4_END_DECLS
 
 #endif	/* pthread.h */

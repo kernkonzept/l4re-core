@@ -1,7 +1,6 @@
 #pragma once
 
 #include <features.h>
-//#include <sys/cdefs.h>
 //#include <bits/uClibc_page.h>
 
 // TODO: Are all the following necessary?

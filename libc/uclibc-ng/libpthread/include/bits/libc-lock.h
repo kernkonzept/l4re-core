@@ -307,7 +307,8 @@ typedef pthread_key_t __libc_key_t;
    library.  */
 
 // Aw11: made things c++ compatible
-__BEGIN_DECLS
+#include <l4/sys/compiler.h>
+L4_BEGIN_DECLS
 // Aw11: end
 
 extern int __pthread_mutex_init (pthread_mutex_t *__mutex,
@@ -361,7 +362,7 @@ extern int __pthread_atfork (void (*__prepare) (void),
 			     void (*__child) (void));
 
 // Aw11: made things c++ compatible
-__END_DECLS
+L4_END_DECLS
 // Aw11: end
 
 /* We need portable names for some functions.  E.g., when they are

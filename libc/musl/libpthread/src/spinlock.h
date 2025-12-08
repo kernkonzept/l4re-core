@@ -32,7 +32,8 @@
 #endif
 #endif
 
-__BEGIN_DECLS
+#include <l4/sys/compiler.h>
+L4_BEGIN_DECLS
 
 #if defined(TEST_FOR_COMPARE_AND_SWAP)
 extern int __pthread_has_cas;
@@ -219,4 +220,4 @@ __pthread_set_own_extricate_if (pthread_descr self, pthread_extricate_if *peif)
     }
 }
 
-__END_DECLS
+L4_END_DECLS

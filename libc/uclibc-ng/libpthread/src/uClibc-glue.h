@@ -2,7 +2,6 @@
 #define _UCLIBC_GLUE_H 1
 
 #include <features.h>
-#include <sys/cdefs.h>
 #include <bits/uClibc_page.h>
 
 #ifdef IS_IN_libpthread

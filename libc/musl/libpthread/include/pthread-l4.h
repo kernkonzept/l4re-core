@@ -9,7 +9,7 @@ enum
   PTHREAD_L4_ATTR_NO_START = 0x0001,
 };
 
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 
 l4_cap_idx_t pthread_l4_cap(pthread_t t);
 
@@ -19,7 +19,7 @@ static inline l4_utcb_t *pthread_l4_utcb(pthread_t t);
 
 int pthread_l4_start(pthread_t thread, void *(*func)(void *), void *arg);
 
-__END_DECLS
+L4_END_DECLS
 
 #ifdef __cplusplus
 #include <l4/sys/thread>

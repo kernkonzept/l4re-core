@@ -31,6 +31,7 @@
 
 #include <bits/libc-lock.h>
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/ipc.h>
 
 #include "descr.h"
@@ -290,7 +291,7 @@ extern int __libc_multiple_threads L4_HIDDEN;
 	} while (0)
 
 /* Internal global functions */
-__BEGIN_DECLS
+L4_BEGIN_DECLS
 extern int __pthread_l4_initialize_main_thread(pthread_descr th) attribute_hidden;
 extern void __l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end);
 
@@ -551,7 +552,7 @@ extern pid_t __pthread_fork (struct fork_block *b) L4_HIDDEN;
 # define LIBC_CANCEL_RESET(val) ((void)(val)) /* Nothing, but evaluate it.  */
 # define LIBC_CANCEL_HANDLED()	/* Nothing.  */
 #endif
-__END_DECLS
+L4_END_DECLS
 
 
 #define __manager_thread __pthread_manager_threadp
