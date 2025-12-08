@@ -349,7 +349,7 @@ extern void __pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer
 extern void __pthread_do_exit (void *retval, char *currentframe)
      __attribute__ ((__noreturn__));
 extern void __pthread_destroy_specifics (void);
-extern void __pthread_perform_cleanup (char *currentframe) internal_function;
+extern void __pthread_perform_cleanup (char *currentframe);
 extern void __pthread_init_max_stacksize (void);
 extern int __pthread_initialize_manager (void);
 extern void __pthread_message (const char * fmt, ...);

@@ -58,8 +58,7 @@ static __inline__ void __pthread_release(int * spinlock)
    operations -- only the thread that locked the mutex can unlock it. */
 
 
-void internal_function __pthread_lock(struct _pthread_fastlock * lock,
-				      pthread_descr self)
+void __pthread_lock(struct _pthread_fastlock * lock, pthread_descr self)
 {
 #if defined HAS_COMPARE_AND_SWAP
   long oldstatus, newstatus;

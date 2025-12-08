@@ -51,8 +51,6 @@ typedef unsigned long int __cpu_mask;
 #define attribute_noreturn __attribute__ ((__noreturn__))
 #define attribute_unused __attribute__ ((unused))
 
-#define internal_function  /* empty */
-
 /* Define ALIASNAME as a strong alias for NAME.  */
 #ifndef strong_alias
 # define strong_alias(name, aliasname) _strong_alias(name, aliasname)

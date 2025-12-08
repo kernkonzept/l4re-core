@@ -93,8 +93,7 @@ static __inline__ int compare_and_swap(long * ptr, long oldval, long newval,
 
 /* Internal locks */
 
-extern void internal_function __pthread_lock(struct _pthread_fastlock * lock,
-					     pthread_descr self);
+extern void __pthread_lock(struct _pthread_fastlock * lock, pthread_descr self);
 extern int __pthread_unlock(struct _pthread_fastlock *lock);
 
 static __inline__ void __pthread_init_lock(struct _pthread_fastlock * lock)

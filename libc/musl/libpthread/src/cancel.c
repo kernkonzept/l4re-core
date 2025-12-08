@@ -228,7 +228,7 @@ strong_alias(__pthread_cleanup_pop_restore, _pthread_cleanup_pop_restore)
 
 extern void __rpc_thread_destroy(void);
 void
-attribute_hidden internal_function
+attribute_hidden
 __pthread_perform_cleanup(char *currentframe)
 {
   pthread_descr self = thread_self();

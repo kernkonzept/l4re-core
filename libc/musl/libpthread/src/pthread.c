@@ -611,7 +611,7 @@ void __l4_kill_thread(l4_cap_idx_t cap)
 #include <stdarg.h>
 
 void
-attribute_hidden internal_function
+attribute_hidden
 __pthread_message(const char * fmt, ...)
 {
   char buffer[1024];
