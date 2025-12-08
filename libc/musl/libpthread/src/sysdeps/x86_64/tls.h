@@ -378,14 +378,6 @@ static inline char const *TLS_INIT_TP(void *thrdescr, int secondcall)
     ((descr)->header.stack_guard					      \
      = THREAD_GETMEM (THREAD_SELF, header.stack_guard))
 
-
-/* Set the pointer guard field in the TCB head.  */
-# define THREAD_SET_POINTER_GUARD(value) \
-  THREAD_SETMEM (THREAD_SELF, header.pointer_guard, value)
-# define THREAD_COPY_POINTER_GUARD(descr) \
-  ((descr)->header.pointer_guard					      \
-   = THREAD_GETMEM (THREAD_SELF, header.pointer_guard))
-
 #endif /* __ASSEMBLER__ */
 
 #endif	/* tls.h */

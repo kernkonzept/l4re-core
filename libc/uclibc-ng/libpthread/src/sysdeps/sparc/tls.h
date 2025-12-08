@@ -47,7 +47,6 @@ typedef struct
   int multiple_threads;
   uintptr_t sysinfo;
   uintptr_t stack_guard;
-  uintptr_t pointer_guard;
 #ifndef __ASSUME_PRIVATE_FUTEX
   int private_futex;
 #endif
@@ -137,14 +136,6 @@ typedef struct
 # define THREAD_COPY_STACK_GUARD(descr) \
   ((descr)->header.stack_guard \
    = THREAD_GETMEM (THREAD_SELF, header.stack_guard))
-
-/* Get/set the stack guard field in TCB head.  */
-#define THREAD_GET_POINTER_GUARD() \
-  THREAD_GETMEM (THREAD_SELF, header.pointer_guard)
-#define THREAD_SET_POINTER_GUARD(value) \
-  THREAD_SETMEM (THREAD_SELF, header.pointer_guard, value)
-# define THREAD_COPY_POINTER_GUARD(descr) \
-  ((descr)->header.pointer_guard = THREAD_GET_POINTER_GUARD ())
 
 #endif /* !ASSEMBLER */
 #endif	/* tls.h */
