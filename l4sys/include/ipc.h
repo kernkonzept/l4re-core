@@ -298,10 +298,10 @@ l4_ipc_wait(l4_utcb_t *utcb, l4_umword_t *label,
  * Wait for a message from a specific source.
  * \ingroup l4_ipc_api
  *
- * \param object   Object to receive a message from. A value of #L4_INVALID_CAP
- *                 denotes the current thread. It could be used for sleeping
- *                 without busy waiting for the time specified in the \c rcv
- *                 part of the \c timeout parameter.
+ * \param object   Thread or IRQ object to receive a message from. A value of
+ *                 #L4_INVALID_CAP denotes the current thread. This can be used
+ *                 for sleeping without busy waiting for the time specified
+ *                 in the \c rcv part of the \c timeout parameter.
  * \utcb{utcb}
  * \param timeout  Timeout pair (see #l4_timeout_t, only the receive part
  *                 matters).
@@ -310,11 +310,13 @@ l4_ipc_wait(l4_utcb_t *utcb, l4_umword_t *label,
  *
  * This operation waits for a message from the specified object. Messages from
  * other sources are not accepted by this operation. The operation does not
- * include a send phase, this means no message is sent to the object.
+ * include a send phase, this means no message is sent to the object. See
+ * l4_ipc_wait() for general message receiving.
  *
- * \note This operation is usually used to receive messages from a specific IRQ
- *       or thread. However, it is not common to use this operation for normal
- *       applications.
+ * \note This operation is used to receive messages from a specific IRQ or
+ *       thread. Receiving from IPC gates or any other objects does not work.
+ *       It is not common to use the receive-only IPC operation for normal
+ *       client/server communication.
  *
  * \see \ref l4re_concepts_ipc
  */
