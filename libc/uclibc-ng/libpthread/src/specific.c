@@ -25,6 +25,8 @@
 
 #include <stdio.h>
 
+#include <l4/sys/compiler.h>
+
 /* Table of keys. */
 
 static struct pthread_key_struct pthread_keys[PTHREAD_KEYS_MAX] =
@@ -59,7 +61,7 @@ __pthread_key_create(pthread_key_t * key, destr_function destr)
   pthread_mutex_unlock(&pthread_keys_mutex);
   return EAGAIN;
 }
-strong_alias (__pthread_key_create, pthread_key_create)
+L4_STRONG_ALIAS(__pthread_key_create, pthread_key_create)
 
 /* Reset deleted key's value to NULL in each live thread.
  * NOTE: this executes in the context of the thread manager! */
@@ -144,7 +146,7 @@ int pthread_key_delete(pthread_key_t key)
 /* Set the value of a key */
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_setspecific(pthread_key_t key, const void * pointer)
 {
   pthread_descr self = thread_self();
@@ -163,11 +165,11 @@ __pthread_setspecific(pthread_key_t key, const void * pointer)
   THREAD_GETMEM_NC(self, p_specific, idx1st)[idx2nd] = (void *) pointer;
   return 0;
 }
-strong_alias (__pthread_setspecific, pthread_setspecific)
+L4_STRONG_ALIAS(__pthread_setspecific, pthread_setspecific)
 
 /* Get the value of a key */
 
-attribute_hidden
+L4_HIDDEN
 void *
 __pthread_getspecific(pthread_key_t key)
 {
@@ -183,12 +185,12 @@ __pthread_getspecific(pthread_key_t key)
     return NULL;
   return THREAD_GETMEM_NC(self, p_specific, idx1st)[idx2nd];
 }
-strong_alias (__pthread_getspecific, pthread_getspecific)
+L4_STRONG_ALIAS(__pthread_getspecific, pthread_getspecific)
 
 /* Call the destruction routines on all keys */
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_destroy_specifics(void)
 {
   pthread_descr self = thread_self();

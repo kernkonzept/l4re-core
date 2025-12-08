@@ -25,25 +25,27 @@
 #include "queue.h"
 #include "restart.h"
 
+#include <l4/sys/compiler.h>
+
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_cond_init(pthread_cond_t *cond,
-                        const pthread_condattr_t *cond_attr attribute_unused)
+                    const pthread_condattr_t *cond_attr __attribute__((unused)))
 {
   __pthread_init_lock(&cond->__c_lock);
   cond->__c_waiting = NULL;
   return 0;
 }
-strong_alias (__pthread_cond_init, pthread_cond_init)
+L4_STRONG_ALIAS(__pthread_cond_init, pthread_cond_init)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_cond_destroy(pthread_cond_t *cond)
 {
   if (cond->__c_waiting != NULL) return EBUSY;
   return 0;
 }
-strong_alias (__pthread_cond_destroy, pthread_cond_destroy)
+L4_STRONG_ALIAS(__pthread_cond_destroy, pthread_cond_destroy)
 
 /* Function called by pthread_cancel to remove the thread from
    waiting on a condition variable queue. */
@@ -62,7 +64,7 @@ static int cond_extricate_func(void *obj, pthread_descr th)
 }
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
 {
   volatile pthread_descr self = thread_self();
@@ -140,7 +142,7 @@ __pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex)
   pthread_mutex_lock(mutex);
   return 0;
 }
-strong_alias (__pthread_cond_wait, pthread_cond_wait)
+L4_STRONG_ALIAS(__pthread_cond_wait, pthread_cond_wait)
 
 static int
 pthread_cond_timedwait_relative(pthread_cond_t *cond,
@@ -237,17 +239,17 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
 }
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_cond_timedwait(pthread_cond_t *cond, pthread_mutex_t *mutex,
 			     const struct timespec * abstime)
 {
   /* Indirect call through pointer! */
   return pthread_cond_timedwait_relative(cond, mutex, abstime);
 }
-strong_alias (__pthread_cond_timedwait, pthread_cond_timedwait)
+L4_STRONG_ALIAS(__pthread_cond_timedwait, pthread_cond_timedwait)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_cond_signal(pthread_cond_t *cond)
 {
   pthread_descr th;
@@ -262,10 +264,10 @@ __pthread_cond_signal(pthread_cond_t *cond)
   }
   return 0;
 }
-strong_alias (__pthread_cond_signal, pthread_cond_signal)
+L4_STRONG_ALIAS(__pthread_cond_signal, pthread_cond_signal)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_cond_broadcast(pthread_cond_t *cond)
 {
   pthread_descr tosignal, th;
@@ -283,31 +285,33 @@ __pthread_cond_broadcast(pthread_cond_t *cond)
   }
   return 0;
 }
-strong_alias (__pthread_cond_broadcast, pthread_cond_broadcast)
+L4_STRONG_ALIAS(__pthread_cond_broadcast, pthread_cond_broadcast)
 
 int
-attribute_hidden
-__pthread_condattr_init(pthread_condattr_t *attr attribute_unused)
+L4_HIDDEN
+__pthread_condattr_init(pthread_condattr_t *attr __attribute__((unused)))
 {
   return 0;
 }
-strong_alias (__pthread_condattr_init, pthread_condattr_init)
+L4_STRONG_ALIAS(__pthread_condattr_init, pthread_condattr_init)
 
 int
-attribute_hidden
-__pthread_condattr_destroy(pthread_condattr_t *attr attribute_unused)
+L4_HIDDEN
+__pthread_condattr_destroy(pthread_condattr_t *attr __attribute__((unused)))
 {
   return 0;
 }
-strong_alias (__pthread_condattr_destroy, pthread_condattr_destroy)
+L4_STRONG_ALIAS(__pthread_condattr_destroy, pthread_condattr_destroy)
 
-int pthread_condattr_getpshared (const pthread_condattr_t *attr attribute_unused, int *pshared)
+int pthread_condattr_getpshared (const pthread_condattr_t *attr __attribute__((unused)),
+                                 int *pshared)
 {
   *pshared = PTHREAD_PROCESS_PRIVATE;
   return 0;
 }
 
-int pthread_condattr_setpshared (pthread_condattr_t *attr attribute_unused, int pshared)
+int pthread_condattr_setpshared (pthread_condattr_t *attr __attribute__((unused)),
+                                 int pshared)
 {
   if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
     return EINVAL;

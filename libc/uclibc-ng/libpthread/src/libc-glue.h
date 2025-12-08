@@ -1,8 +1,11 @@
-#ifndef _UCLIBC_GLUE_H
-#define _UCLIBC_GLUE_H 1
+#pragma once
 
 #include <features.h>
-#include <bits/uClibc_page.h>
+#include <l4/sys/consts.h>
+
+#define PAGE_SHIFT L4_PAGESHIFT
+#define PAGE_SIZE  L4_PAGESIZE
+#define PAGE_MASK  (~(PAGE_SIZE-1))
 
 #ifdef IS_IN_libpthread
 
@@ -41,5 +44,3 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 #define STRINGIFY(s) STRINGIFY2 (s)
 #define STRINGIFY2(s) #s
 #define VERSION STRINGIFY(__UCLIBC_MAJOR__) "." STRINGIFY(__UCLIBC_MINOR__) "." STRINGIFY(__UCLIBC_SUBLEVEL__)
-
-#endif

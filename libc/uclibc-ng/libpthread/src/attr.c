@@ -26,6 +26,7 @@
 #include "pthread.h"
 #include "internals.h"
 
+#include <l4/sys/compiler.h>
 
 #define __sched_get_priority_max(x) (L4_SCHED_MAX_PRIO)
 #define __sched_get_priority_min(x) (1)
@@ -49,13 +50,13 @@ int __pthread_attr_init(pthread_attr_t *attr)
   attr->create_flags = 0;
   return 0;
 }
-strong_alias (__pthread_attr_init, pthread_attr_init)
+L4_STRONG_ALIAS(__pthread_attr_init, pthread_attr_init)
 
-int __pthread_attr_destroy(pthread_attr_t *attr attribute_unused)
+int __pthread_attr_destroy(pthread_attr_t *attr __attribute__((unused)))
 {
   return 0;
 }
-strong_alias (__pthread_attr_destroy, pthread_attr_destroy)
+L4_STRONG_ALIAS(__pthread_attr_destroy, pthread_attr_destroy)
 
 int __pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
 {
@@ -65,14 +66,14 @@ int __pthread_attr_setdetachstate(pthread_attr_t *attr, int detachstate)
   attr->__detachstate = detachstate;
   return 0;
 }
-strong_alias (__pthread_attr_setdetachstate, pthread_attr_setdetachstate)
+L4_STRONG_ALIAS(__pthread_attr_setdetachstate, pthread_attr_setdetachstate)
 
 int __pthread_attr_getdetachstate(const pthread_attr_t *attr, int *detachstate)
 {
   *detachstate = attr->__detachstate;
   return 0;
 }
-strong_alias (__pthread_attr_getdetachstate, pthread_attr_getdetachstate)
+L4_STRONG_ALIAS(__pthread_attr_getdetachstate, pthread_attr_getdetachstate)
 
 int __pthread_attr_setschedparam(pthread_attr_t *attr,
                                  const struct sched_param *param)
@@ -85,7 +86,7 @@ int __pthread_attr_setschedparam(pthread_attr_t *attr,
   memcpy (&attr->__schedparam, param, sizeof (struct sched_param));
   return 0;
 }
-strong_alias (__pthread_attr_setschedparam, pthread_attr_setschedparam)
+L4_STRONG_ALIAS(__pthread_attr_setschedparam, pthread_attr_setschedparam)
 
 int __pthread_attr_getschedparam(const pthread_attr_t *attr,
                                  struct sched_param *param)
@@ -93,7 +94,7 @@ int __pthread_attr_getschedparam(const pthread_attr_t *attr,
   memcpy (param, &attr->__schedparam, sizeof (struct sched_param));
   return 0;
 }
-strong_alias (__pthread_attr_getschedparam, pthread_attr_getschedparam)
+L4_STRONG_ALIAS(__pthread_attr_getschedparam, pthread_attr_getschedparam)
 
 int __pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
 {
@@ -103,14 +104,14 @@ int __pthread_attr_setschedpolicy(pthread_attr_t *attr, int policy)
   attr->__schedpolicy = policy;
   return 0;
 }
-strong_alias (__pthread_attr_setschedpolicy, pthread_attr_setschedpolicy)
+L4_STRONG_ALIAS(__pthread_attr_setschedpolicy, pthread_attr_setschedpolicy)
 
 int __pthread_attr_getschedpolicy(const pthread_attr_t *attr, int *policy)
 {
   *policy = attr->__schedpolicy;
   return 0;
 }
-strong_alias (__pthread_attr_getschedpolicy, pthread_attr_getschedpolicy)
+L4_STRONG_ALIAS(__pthread_attr_getschedpolicy, pthread_attr_getschedpolicy)
 
 int __pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
 {
@@ -119,14 +120,14 @@ int __pthread_attr_setinheritsched(pthread_attr_t *attr, int inherit)
   attr->__inheritsched = inherit;
   return 0;
 }
-strong_alias (__pthread_attr_setinheritsched, pthread_attr_setinheritsched)
+L4_STRONG_ALIAS(__pthread_attr_setinheritsched, pthread_attr_setinheritsched)
 
 int __pthread_attr_getinheritsched(const pthread_attr_t *attr, int *inherit)
 {
   *inherit = attr->__inheritsched;
   return 0;
 }
-strong_alias (__pthread_attr_getinheritsched, pthread_attr_getinheritsched)
+L4_STRONG_ALIAS(__pthread_attr_getinheritsched, pthread_attr_getinheritsched)
 
 int __pthread_attr_setscope(pthread_attr_t *attr, int scope)
 {
@@ -140,14 +141,14 @@ int __pthread_attr_setscope(pthread_attr_t *attr, int scope)
     return EINVAL;
   }
 }
-strong_alias (__pthread_attr_setscope, pthread_attr_setscope)
+L4_STRONG_ALIAS(__pthread_attr_setscope, pthread_attr_setscope)
 
 int __pthread_attr_getscope(const pthread_attr_t *attr, int *scope)
 {
   *scope = attr->__scope;
   return 0;
 }
-strong_alias (__pthread_attr_getscope, pthread_attr_getscope)
+L4_STRONG_ALIAS(__pthread_attr_getscope, pthread_attr_getscope)
 
 int __pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
 {
@@ -158,14 +159,14 @@ int __pthread_attr_setguardsize(pthread_attr_t *attr, size_t guardsize)
 
   return 0;
 }
-weak_alias (__pthread_attr_setguardsize, pthread_attr_setguardsize)
+L4_WEAK_ALIAS(__pthread_attr_setguardsize, pthread_attr_setguardsize)
 
 int __pthread_attr_getguardsize(const pthread_attr_t *attr, size_t *guardsize)
 {
   *guardsize = attr->__guardsize;
   return 0;
 }
-weak_alias (__pthread_attr_getguardsize, pthread_attr_getguardsize)
+L4_WEAK_ALIAS(__pthread_attr_getguardsize, pthread_attr_getguardsize)
 
 #if 0 /* uClibc: deprecated stuff disabled */
 int __pthread_attr_setstackaddr(pthread_attr_t *attr, void *stackaddr)
@@ -174,7 +175,7 @@ int __pthread_attr_setstackaddr(pthread_attr_t *attr, void *stackaddr)
   attr->__stackaddr_set = 1;
   return 0;
 }
-weak_alias (__pthread_attr_setstackaddr, pthread_attr_setstackaddr)
+L4_WEAK_ALIAS(__pthread_attr_setstackaddr, pthread_attr_setstackaddr)
 
 link_warning (pthread_attr_setstackaddr,
 	      "the use of `pthread_attr_setstackaddr' is deprecated, use `pthread_attr_setstack'")
@@ -187,7 +188,7 @@ int __pthread_attr_getstackaddr(const pthread_attr_t *attr, void **stackaddr)
   *stackaddr = attr->__stackaddr;
   return 0;
 }
-weak_alias (__pthread_attr_getstackaddr, pthread_attr_getstackaddr)
+L4_WEAK_ALIAS(__pthread_attr_getstackaddr, pthread_attr_getstackaddr)
 
 link_warning (pthread_attr_getstackaddr,
 	      "the use of `pthread_attr_getstackaddr' is deprecated, use `pthread_attr_getstack'")
@@ -211,14 +212,14 @@ int __pthread_attr_setstacksize(pthread_attr_t *attr, size_t stacksize)
   attr->__stacksize = stacksize;
   return 0;
 }
-weak_alias (__pthread_attr_setstacksize, pthread_attr_setstacksize)
+L4_WEAK_ALIAS(__pthread_attr_setstacksize, pthread_attr_setstacksize)
 
 int __pthread_attr_getstacksize(const pthread_attr_t *attr, size_t *stacksize)
 {
   *stacksize = attr->__stacksize;
   return 0;
 }
-weak_alias (__pthread_attr_getstacksize, pthread_attr_getstacksize)
+L4_WEAK_ALIAS(__pthread_attr_getstacksize, pthread_attr_getstacksize)
 
 int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
 			     size_t stacksize)
@@ -238,7 +239,7 @@ int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
 
   return err;
 }
-weak_alias (__pthread_attr_setstack, pthread_attr_setstack)
+L4_WEAK_ALIAS(__pthread_attr_setstack, pthread_attr_setstack)
 
 int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
 			     size_t *stacksize)
@@ -250,7 +251,7 @@ int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
   *stacksize = attr->__stacksize;
   return 0;
 }
-weak_alias (__pthread_attr_getstack, pthread_attr_getstack)
+L4_WEAK_ALIAS(__pthread_attr_getstack, pthread_attr_getstack)
 
 int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
 {

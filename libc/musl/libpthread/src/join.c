@@ -22,18 +22,19 @@
 #include "spinlock.h"
 #include "restart.h"
 
+#include <l4/sys/compiler.h>
 #include <l4/util/util.h>
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_exit(void * retval)
 {
   __pthread_do_exit (retval, CURRENT_STACK_FRAME);
 }
-strong_alias (__pthread_exit, pthread_exit)
+L4_STRONG_ALIAS(__pthread_exit, pthread_exit)
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_do_exit(void *retval, char *currentframe)
 {
   pthread_descr self = thread_self();

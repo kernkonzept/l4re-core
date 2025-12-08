@@ -24,8 +24,10 @@
 #include "queue.h"
 #include "restart.h"
 
+#include <l4/sys/compiler.h>
+
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutex_init(pthread_mutex_t * mutex,
                        const pthread_mutexattr_t * mutex_attr)
 {
@@ -36,10 +38,10 @@ __pthread_mutex_init(pthread_mutex_t * mutex,
   mutex->__m_owner = NULL;
   return 0;
 }
-strong_alias (__pthread_mutex_init, pthread_mutex_init)
+L4_STRONG_ALIAS(__pthread_mutex_init, pthread_mutex_init)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutex_destroy(pthread_mutex_t * mutex)
 {
   switch (mutex->__m_kind) {
@@ -57,10 +59,10 @@ __pthread_mutex_destroy(pthread_mutex_t * mutex)
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_destroy, pthread_mutex_destroy)
+L4_STRONG_ALIAS(__pthread_mutex_destroy, pthread_mutex_destroy)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutex_trylock(pthread_mutex_t * mutex)
 {
   pthread_descr self;
@@ -95,10 +97,10 @@ __pthread_mutex_trylock(pthread_mutex_t * mutex)
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_trylock, pthread_mutex_trylock)
+L4_STRONG_ALIAS(__pthread_mutex_trylock, pthread_mutex_trylock)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutex_lock(pthread_mutex_t * mutex)
 {
   pthread_descr self;
@@ -131,11 +133,11 @@ __pthread_mutex_lock(pthread_mutex_t * mutex)
   }
 }
 
-strong_alias (__pthread_mutex_lock, pthread_mutex_lock)
+L4_STRONG_ALIAS(__pthread_mutex_lock, pthread_mutex_lock)
 
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutex_timedlock (pthread_mutex_t *mutex,
 			       const struct timespec *abstime)
 {
@@ -178,10 +180,10 @@ __pthread_mutex_timedlock (pthread_mutex_t *mutex,
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_timedlock, pthread_mutex_timedlock)
+L4_STRONG_ALIAS(__pthread_mutex_timedlock, pthread_mutex_timedlock)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutex_unlock(pthread_mutex_t * mutex)
 {
   switch (mutex->__m_kind) {
@@ -211,27 +213,27 @@ __pthread_mutex_unlock(pthread_mutex_t * mutex)
     return EINVAL;
   }
 }
-strong_alias (__pthread_mutex_unlock, pthread_mutex_unlock)
+L4_STRONG_ALIAS(__pthread_mutex_unlock, pthread_mutex_unlock)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutexattr_init(pthread_mutexattr_t *attr)
 {
   attr->__mutexkind = PTHREAD_MUTEX_TIMED_NP;
   return 0;
 }
-strong_alias (__pthread_mutexattr_init, pthread_mutexattr_init)
+L4_STRONG_ALIAS(__pthread_mutexattr_init, pthread_mutexattr_init)
 
 int
-attribute_hidden
-__pthread_mutexattr_destroy(pthread_mutexattr_t *attr attribute_unused)
+L4_HIDDEN
+__pthread_mutexattr_destroy(pthread_mutexattr_t *attr __attribute__((unused)))
 {
   return 0;
 }
-strong_alias (__pthread_mutexattr_destroy, pthread_mutexattr_destroy)
+L4_STRONG_ALIAS(__pthread_mutexattr_destroy, pthread_mutexattr_destroy)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutexattr_settype(pthread_mutexattr_t *attr, int kind)
 {
   if (kind != PTHREAD_MUTEX_ADAPTIVE_NP
@@ -242,34 +244,35 @@ __pthread_mutexattr_settype(pthread_mutexattr_t *attr, int kind)
   attr->__mutexkind = kind;
   return 0;
 }
-weak_alias (__pthread_mutexattr_settype, pthread_mutexattr_settype)
-strong_alias ( __pthread_mutexattr_settype, __pthread_mutexattr_setkind_np)
-weak_alias (__pthread_mutexattr_setkind_np, pthread_mutexattr_setkind_np)
+L4_WEAK_ALIAS(__pthread_mutexattr_settype, pthread_mutexattr_settype)
+L4_STRONG_ALIAS( __pthread_mutexattr_settype, __pthread_mutexattr_setkind_np)
+L4_WEAK_ALIAS(__pthread_mutexattr_setkind_np, pthread_mutexattr_setkind_np)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_mutexattr_gettype(const pthread_mutexattr_t *attr, int *kind)
 {
   *kind = attr->__mutexkind;
   return 0;
 }
-weak_alias (__pthread_mutexattr_gettype, pthread_mutexattr_gettype)
-strong_alias (__pthread_mutexattr_gettype, __pthread_mutexattr_getkind_np)
-weak_alias (__pthread_mutexattr_getkind_np, pthread_mutexattr_getkind_np)
+L4_WEAK_ALIAS(__pthread_mutexattr_gettype, pthread_mutexattr_gettype)
+L4_STRONG_ALIAS(__pthread_mutexattr_gettype, __pthread_mutexattr_getkind_np)
+L4_WEAK_ALIAS(__pthread_mutexattr_getkind_np, pthread_mutexattr_getkind_np)
 
 int
-attribute_hidden
-__pthread_mutexattr_getpshared (const pthread_mutexattr_t *attr attribute_unused,
-				   int *pshared)
+L4_HIDDEN
+__pthread_mutexattr_getpshared (const pthread_mutexattr_t *attr __attribute__((unused)),
+                                int *pshared)
 {
   *pshared = PTHREAD_PROCESS_PRIVATE;
   return 0;
 }
-weak_alias (__pthread_mutexattr_getpshared, pthread_mutexattr_getpshared)
+L4_WEAK_ALIAS(__pthread_mutexattr_getpshared, pthread_mutexattr_getpshared)
 
 int
-attribute_hidden
-__pthread_mutexattr_setpshared (pthread_mutexattr_t *attr attribute_unused, int pshared)
+L4_HIDDEN
+__pthread_mutexattr_setpshared (pthread_mutexattr_t *attr __attribute__((unused)),
+                                int pshared)
 {
   if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
     return EINVAL;
@@ -280,7 +283,7 @@ __pthread_mutexattr_setpshared (pthread_mutexattr_t *attr attribute_unused, int 
 
   return 0;
 }
-weak_alias (__pthread_mutexattr_setpshared, pthread_mutexattr_setpshared)
+L4_WEAK_ALIAS(__pthread_mutexattr_setpshared, pthread_mutexattr_setpshared)
 
 /* Once-only execution */
 
@@ -305,7 +308,7 @@ static void pthread_once_cancelhandler(void *arg)
 }
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_once(pthread_once_t * once_control, void (*init_routine)(void))
 {
   /* flag for doing the condition broadcast outside of mutex */
@@ -351,7 +354,7 @@ __pthread_once(pthread_once_t * once_control, void (*init_routine)(void))
 
   return 0;
 }
-strong_alias (__pthread_once, pthread_once)
+L4_STRONG_ALIAS(__pthread_once, pthread_once)
 
 /*
  * Handle the state of the pthread_once mechanism across forks.  The
@@ -364,21 +367,21 @@ strong_alias (__pthread_once, pthread_once)
  */
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_once_fork_prepare(void)
 {
   pthread_mutex_lock(&once_masterlock);
 }
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_once_fork_parent(void)
 {
   pthread_mutex_unlock(&once_masterlock);
 }
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_once_fork_child(void)
 {
   pthread_mutex_init(&once_masterlock, NULL);

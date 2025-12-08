@@ -28,6 +28,7 @@
 #include <assert.h>
 
 #include <l4/re/env.h>
+#include <l4/sys/compiler.h>
 #include <l4/sys/task.h>
 #include <l4/util/util.h>
 #include <l4/re/consts.h>
@@ -51,7 +52,7 @@ extern __typeof(sigaction) __libc_sigaction;
 
 /* We need only a few variables.  */
 #define manager_thread __pthread_manager_threadp
-pthread_descr __pthread_manager_threadp attribute_hidden;
+pthread_descr __pthread_manager_threadp L4_HIDDEN;
 
 /* Pointer to the main thread (the father of the thread manager thread) */
 /* Originally, this is the initial thread, but this changes after fork() */
@@ -68,7 +69,7 @@ char *__pthread_initial_thread_bos;
 
 l4_cap_idx_t __pthread_manager_request = L4_INVALID_CAP;
 
-int __pthread_multiple_threads attribute_hidden;
+int __pthread_multiple_threads L4_HIDDEN;
 
 /* Other end of the pipe for sending requests to the thread manager. */
 
@@ -127,7 +128,7 @@ extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
 
 static int *__libc_multiple_threads_ptr;
-l4_utcb_t *__pthread_first_free_utcb attribute_hidden;
+l4_utcb_t *__pthread_first_free_utcb L4_HIDDEN;
 
 /*
  * Add the memory area [utcbs_start, utcbs_end] as chunks of L4_UTCB_OFFSET to
@@ -474,7 +475,7 @@ int __pthread_initialize_manager(void)
 /* Thread creation */
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
 			 void * (*start_routine)(void *), void *arg)
 {
@@ -496,33 +497,33 @@ __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
     *thread = (pthread_t) THREAD_GETMEM(self, p_retval);
   return retval;
 }
-strong_alias (__pthread_create, pthread_create)
+L4_STRONG_ALIAS(__pthread_create, pthread_create)
 
 /* Simple operations on thread identifiers */
 
 pthread_descr
-attribute_hidden
+L4_HIDDEN
 __pthread_thread_self(void)
 {
   return thread_self();
 }
 
 pthread_t
-attribute_hidden
+L4_HIDDEN
 __pthread_self(void)
 {
   pthread_descr self = thread_self();
   return THREAD_GETMEM(self, p_tid);
 }
-strong_alias (__pthread_self, pthread_self)
+L4_STRONG_ALIAS(__pthread_self, pthread_self)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_equal(pthread_t thread1, pthread_t thread2)
 {
   return thread1 == thread2;
 }
-strong_alias (__pthread_equal, pthread_equal)
+L4_STRONG_ALIAS(__pthread_equal, pthread_equal)
 
 /* Process-wide exit() request */
 
@@ -579,22 +580,22 @@ static void pthread_atexit_retcode(void *arg, int retcode)
 static int current_level;
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_setconcurrency(int level)
 {
   /* We don't do anything unless we have found a useful interpretation.  */
   current_level = level;
   return 0;
 }
-weak_alias (__pthread_setconcurrency, pthread_setconcurrency)
+L4_WEAK_ALIAS(__pthread_setconcurrency, pthread_setconcurrency)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_getconcurrency(void)
 {
   return current_level;
 }
-weak_alias (__pthread_getconcurrency, pthread_getconcurrency)
+L4_WEAK_ALIAS(__pthread_getconcurrency, pthread_getconcurrency)
 
 /* trampoline function where threads are put before they are destroyed in
    __l4_kill_thread */
@@ -630,7 +631,7 @@ void __l4_kill_thread(l4_cap_idx_t cap)
 #include <stdarg.h>
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_message(const char * fmt, ...)
 {
   char buffer[1024];

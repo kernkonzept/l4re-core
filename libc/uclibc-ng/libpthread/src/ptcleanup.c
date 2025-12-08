@@ -20,8 +20,10 @@
 #include "internals.h"
 #include <jmpbuf-unwind.h>
 
+#include <l4/sys/compiler.h>
+
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_cleanup_upto (__jmp_buf target, char *targetframe)
 {
   pthread_descr self = thread_self();

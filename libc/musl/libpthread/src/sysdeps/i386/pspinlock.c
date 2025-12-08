@@ -22,6 +22,7 @@
 #include "internals.h"
 #include <bits/kernel-features.h>
 
+#include <l4/sys/compiler.h>
 
 /* This implementation is similar to the one used in the Linux kernel.
    But the kernel is byte instructions for the memory access.  This is
@@ -50,7 +51,7 @@ __pthread_spin_lock (pthread_spinlock_t *lock)
      : "=m" (*lock));
   return 0;
 }
-weak_alias (__pthread_spin_lock, pthread_spin_lock)
+L4_WEAK_ALIAS(__pthread_spin_lock, pthread_spin_lock)
 
 
 int
@@ -64,7 +65,7 @@ __pthread_spin_trylock (pthread_spinlock_t *lock)
      : "0" (0));
   return oldval > 0 ? 0 : EBUSY;
 }
-weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
+L4_WEAK_ALIAS(__pthread_spin_trylock, pthread_spin_trylock)
 
 
 int
@@ -75,7 +76,7 @@ __pthread_spin_unlock (pthread_spinlock_t *lock)
      : "=m" (*lock));
   return 0;
 }
-weak_alias (__pthread_spin_unlock, pthread_spin_unlock)
+L4_WEAK_ALIAS(__pthread_spin_unlock, pthread_spin_unlock)
 
 
 int
@@ -87,7 +88,7 @@ __pthread_spin_init (pthread_spinlock_t *lock, int pshared)
   *lock = 1;
   return 0;
 }
-weak_alias (__pthread_spin_init, pthread_spin_init)
+L4_WEAK_ALIAS(__pthread_spin_init, pthread_spin_init)
 
 
 int
@@ -96,7 +97,7 @@ __pthread_spin_destroy (pthread_spinlock_t *lock)
   /* Nothing to do.  */
   return 0;
 }
-weak_alias (__pthread_spin_destroy, pthread_spin_destroy)
+L4_WEAK_ALIAS(__pthread_spin_destroy, pthread_spin_destroy)
 
 #ifndef __ASSUME_SET_THREAD_AREA_SYSCALL
 int __have_no_set_thread_area;

@@ -28,6 +28,8 @@
 #include "spinlock.h"
 #include "restart.h"
 
+#include <l4/sys/compiler.h>
+
 /* Function called by pthread_cancel to remove the thread from
    waiting inside pthread_rwlock_timedrdlock or pthread_rwlock_timedwrlock. */
 
@@ -234,7 +236,7 @@ __pthread_rwlock_init (pthread_rwlock_t *rwlock,
 
   return 0;
 }
-strong_alias (__pthread_rwlock_init, pthread_rwlock_init)
+L4_STRONG_ALIAS(__pthread_rwlock_init, pthread_rwlock_init)
 
 
 int
@@ -253,7 +255,7 @@ __pthread_rwlock_destroy (pthread_rwlock_t *rwlock)
 
   return 0;
 }
-strong_alias (__pthread_rwlock_destroy, pthread_rwlock_destroy)
+L4_STRONG_ALIAS(__pthread_rwlock_destroy, pthread_rwlock_destroy)
 
 int
 __pthread_rwlock_rdlock (pthread_rwlock_t *rwlock)
@@ -293,7 +295,7 @@ __pthread_rwlock_rdlock (pthread_rwlock_t *rwlock)
 
   return 0;
 }
-strong_alias (__pthread_rwlock_rdlock, pthread_rwlock_rdlock)
+L4_STRONG_ALIAS(__pthread_rwlock_rdlock, pthread_rwlock_rdlock)
 
 int
 __pthread_rwlock_timedrdlock (pthread_rwlock_t *rwlock,
@@ -364,7 +366,7 @@ __pthread_rwlock_timedrdlock (pthread_rwlock_t *rwlock,
 
   return 0;
 }
-strong_alias (__pthread_rwlock_timedrdlock, pthread_rwlock_timedrdlock)
+L4_STRONG_ALIAS(__pthread_rwlock_timedrdlock, pthread_rwlock_timedrdlock)
 
 int
 __pthread_rwlock_tryrdlock (pthread_rwlock_t *rwlock)
@@ -406,7 +408,7 @@ __pthread_rwlock_tryrdlock (pthread_rwlock_t *rwlock)
 
   return retval;
 }
-strong_alias (__pthread_rwlock_tryrdlock, pthread_rwlock_tryrdlock)
+L4_STRONG_ALIAS(__pthread_rwlock_tryrdlock, pthread_rwlock_tryrdlock)
 
 
 int
@@ -430,7 +432,7 @@ __pthread_rwlock_wrlock (pthread_rwlock_t *rwlock)
       suspend (self); /* This is not a cancellation point */
     }
 }
-strong_alias (__pthread_rwlock_wrlock, pthread_rwlock_wrlock)
+L4_STRONG_ALIAS(__pthread_rwlock_wrlock, pthread_rwlock_wrlock)
 
 
 int
@@ -487,7 +489,7 @@ __pthread_rwlock_timedwrlock (pthread_rwlock_t *rwlock,
 	}
     }
 }
-strong_alias (__pthread_rwlock_timedwrlock, pthread_rwlock_timedwrlock)
+L4_STRONG_ALIAS(__pthread_rwlock_timedwrlock, pthread_rwlock_timedwrlock)
 
 
 int
@@ -505,7 +507,7 @@ __pthread_rwlock_trywrlock (pthread_rwlock_t *rwlock)
 
   return result;
 }
-strong_alias (__pthread_rwlock_trywrlock, pthread_rwlock_trywrlock)
+L4_STRONG_ALIAS(__pthread_rwlock_trywrlock, pthread_rwlock_trywrlock)
 
 
 int
@@ -589,7 +591,7 @@ __pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
 
   return 0;
 }
-strong_alias (__pthread_rwlock_unlock, pthread_rwlock_unlock)
+L4_STRONG_ALIAS(__pthread_rwlock_unlock, pthread_rwlock_unlock)
 
 
 
@@ -604,11 +606,11 @@ pthread_rwlockattr_init (pthread_rwlockattr_t *attr)
 
 
 int
-__pthread_rwlockattr_destroy (pthread_rwlockattr_t *attr attribute_unused)
+__pthread_rwlockattr_destroy (pthread_rwlockattr_t *attr __attribute__((unused)))
 {
   return 0;
 }
-strong_alias (__pthread_rwlockattr_destroy, pthread_rwlockattr_destroy)
+L4_STRONG_ALIAS(__pthread_rwlockattr_destroy, pthread_rwlockattr_destroy)
 
 
 int

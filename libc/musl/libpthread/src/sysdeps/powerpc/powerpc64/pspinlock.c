@@ -20,6 +20,8 @@
 #include <pthread.h>
 #include "internals.h"
 
+#include <l4/sys/compiler.h>
+
 int
 __pthread_spin_lock (pthread_spinlock_t *lock)
 {
@@ -27,7 +29,7 @@ __pthread_spin_lock (pthread_spinlock_t *lock)
     ;
   return 0;
 }
-weak_alias (__pthread_spin_lock, pthread_spin_lock)
+L4_WEAK_ALIAS(__pthread_spin_lock, pthread_spin_lock)
 
 
 int
@@ -35,7 +37,7 @@ __pthread_spin_trylock (pthread_spinlock_t *lock)
 {
   return __compare_and_swap32 ((int *)lock, 0, 1) ? 0 : EBUSY;
 }
-weak_alias (__pthread_spin_trylock, pthread_spin_trylock)
+L4_WEAK_ALIAS(__pthread_spin_trylock, pthread_spin_trylock)
 
 
 int
@@ -45,7 +47,7 @@ __pthread_spin_unlock (pthread_spinlock_t *lock)
   *lock = 0;
   return 0;
 }
-weak_alias (__pthread_spin_unlock, pthread_spin_unlock)
+L4_WEAK_ALIAS(__pthread_spin_unlock, pthread_spin_unlock)
 
 
 int
@@ -57,7 +59,7 @@ __pthread_spin_init (pthread_spinlock_t *lock, int pshared)
   *lock = 0;
   return 0;
 }
-weak_alias (__pthread_spin_init, pthread_spin_init)
+L4_WEAK_ALIAS(__pthread_spin_init, pthread_spin_init)
 
 
 int
@@ -66,4 +68,4 @@ __pthread_spin_destroy (pthread_spinlock_t *lock)
   /* Nothing to do.  */
   return 0;
 }
-weak_alias (__pthread_spin_destroy, pthread_spin_destroy)
+L4_WEAK_ALIAS(__pthread_spin_destroy, pthread_spin_destroy)

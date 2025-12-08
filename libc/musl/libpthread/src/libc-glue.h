@@ -1,7 +1,11 @@
 #pragma once
 
 #include <features.h>
-//#include <bits/uClibc_page.h>
+#include <l4/sys/consts.h>
+
+#define PAGE_SHIFT L4_PAGESHIFT
+#define PAGE_SIZE  L4_PAGESIZE
+#define PAGE_MASK  (~(PAGE_SIZE-1))
 
 // TODO: Are all the following necessary?
 #ifdef IS_IN_libpthread
@@ -46,36 +50,11 @@ typedef unsigned long int __cpu_mask;
 #define STRINGIFY2(s) #s
 #define VERSION STRINGIFY(__UCLIBC_MAJOR__) "." STRINGIFY(__UCLIBC_MINOR__) "." STRINGIFY(__UCLIBC_SUBLEVEL__)
 
-#define attribute_hidden __attribute__ ((visibility ("hidden")))
-#define attribute_protected __attribute__ ((visibility ("protected")))
-#define attribute_noreturn __attribute__ ((__noreturn__))
-#define attribute_unused __attribute__ ((unused))
-
-/* Define ALIASNAME as a strong alias for NAME.  */
-#ifndef strong_alias
-# define strong_alias(name, aliasname) _strong_alias(name, aliasname)
-# define _strong_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((alias (#name))) __attribute_copy__ (name);
-#endif
-
-#ifndef weak_alias
-#  define weak_alias(name, aliasname) _weak_alias (name, aliasname)
-#  define _weak_alias(name, aliasname) \
-  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name))) __attribute_copy__ (name);
-#endif
-# define __attribute_copy__(arg) __attribute__ ((__copy__ (arg)))
-
 #ifndef __set_errno
 #define __set_errno(val) (errno = (val))
 #endif
 
 # define __MAX_ALLOCA_CUTOFF  65536
-
-// All our arches grow down
-#define _STACK_GROWS_DOWN 1
-
-/* Forces a function to be always inlined.  */
-# define __always_inline __inline __attribute__ ((__always_inline__))
 
 # if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__ || defined __cplusplus
 #  define __extern_inline extern __inline __attribute__ ((__gnu_inline__))

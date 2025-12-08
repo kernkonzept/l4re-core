@@ -23,8 +23,9 @@
 #include <tls.h>
 #include "internals.h"
 
+#include <l4/sys/compiler.h>
 
-int __libc_multiple_threads attribute_hidden __attribute__((nocommon));
+int __libc_multiple_threads L4_HIDDEN __attribute__((nocommon));
 
 
 int * __libc_pthread_init (void)

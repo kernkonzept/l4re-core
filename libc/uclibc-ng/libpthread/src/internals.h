@@ -15,7 +15,7 @@
 #ifndef _INTERNALS_H
 #define _INTERNALS_H	1
 
-#include "uClibc-glue.h"
+#include "libc-glue.h"
 
 /* Internal data structures */
 
@@ -135,7 +135,7 @@ struct pthread_request {
 
 /* L4Re: Free UTCB list. Members of this list might be still claimed by the
  * kernel on UTCB.free_marker != 0. */
-extern l4_utcb_t *__pthread_first_free_utcb attribute_hidden;
+extern l4_utcb_t *__pthread_first_free_utcb L4_HIDDEN;
 
 /* Descriptor of the main thread */
 
@@ -297,7 +297,7 @@ extern int __libc_multiple_threads L4_HIDDEN;
 
 /* Internal global functions */
 L4_BEGIN_DECLS
-extern int __pthread_l4_initialize_main_thread(pthread_descr th) attribute_hidden;
+extern int __pthread_l4_initialize_main_thread(pthread_descr th) L4_HIDDEN;
 extern void __l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end);
 
 /* L4Re: Interpret user[2] as pointer to the next free UTCB. */
@@ -443,7 +443,7 @@ extern pthread_descr __pthread_self_stack (void) L4_HIDDEN;
 extern int __pthread_equal (pthread_t thread1, pthread_t thread2);
 extern void __pthread_exit (void *retval)
 #if defined NOT_IN_libc && defined IS_IN_libpthread
-	attribute_noreturn
+	__attribute__ ((__noreturn__))
 #endif
 	;
 extern int __pthread_getschedparam (pthread_t thread, int *policy,

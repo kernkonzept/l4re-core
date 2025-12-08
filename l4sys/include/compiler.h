@@ -221,12 +221,17 @@
 #  endif
 #endif
 #define L4_STRONG_ALIAS(name, aliasname) L4__STRONG_ALIAS(name, aliasname)
+#define L4_WEAK_ALIAS(name, aliasname)   L4__WEAK_ALIAS(name, aliasname)
 #ifdef __clang__
 #define L4__STRONG_ALIAS(name, aliasname) \
   extern __typeof (name) aliasname __attribute__ ((alias (#name)));
+#define L4__WEAK_ALIAS(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name)));
 #else
 #define L4__STRONG_ALIAS(name, aliasname) \
   extern __typeof (name) aliasname __attribute__ ((alias (#name), copy(name)));
+#define L4__WEAK_ALIAS(name, aliasname) \
+  extern __typeof (name) aliasname __attribute__ ((weak, alias (#name), copy(name)));
 #endif
 
 /**

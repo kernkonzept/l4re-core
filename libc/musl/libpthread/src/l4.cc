@@ -4,6 +4,7 @@
 
 #include "internals.h"
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/capability>
 #include <l4/sys/thread>
 #include <l4/re/env>
@@ -169,7 +170,7 @@ noexcept(noexcept(__pthread_setschedparam(thread, policy, param)))
 
   return 0;
 }
-strong_alias (__pthread_setschedparam, pthread_setschedparam)
+L4_STRONG_ALIAS(__pthread_setschedparam, pthread_setschedparam)
 
 int __pthread_getschedparam(pthread_t thread, int *policy,
                             struct sched_param *param)
@@ -193,7 +194,7 @@ noexcept(noexcept(__pthread_getschedparam(thread, policy, param)))
 
   return 0;
 }
-strong_alias (__pthread_getschedparam, pthread_getschedparam)
+L4_STRONG_ALIAS(__pthread_getschedparam, pthread_getschedparam)
 
 int pthread_setaffinity_np(pthread_t __th, size_t __cpusetsize,
                            const cpu_set_t *__cpuset) __THROW

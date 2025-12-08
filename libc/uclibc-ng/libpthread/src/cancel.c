@@ -20,15 +20,16 @@
 #include "spinlock.h"
 #include "restart.h"
 
+#include <l4/sys/compiler.h>
 #include <l4/sys/kdebug.h>
 
 #define FRAME_LEFT(frame, other) ((char *) frame >= (char *) other)
-#ifndef _STACK_GROWS_DOWN
+#ifdef _STACK_GROWS_UP
 #error "L4Re libpthread only supports downward growing stack!"
 #endif
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_setcancelstate(int state, int * oldstate)
 {
   pthread_descr self = thread_self();
@@ -42,10 +43,10 @@ __pthread_setcancelstate(int state, int * oldstate)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   return 0;
 }
-strong_alias (__pthread_setcancelstate, pthread_setcancelstate)
+L4_STRONG_ALIAS(__pthread_setcancelstate, pthread_setcancelstate)
 
 int
-attribute_hidden
+L4_HIDDEN
 __pthread_setcanceltype(int type, int * oldtype)
 {
   pthread_descr self = thread_self();
@@ -59,7 +60,7 @@ __pthread_setcanceltype(int type, int * oldtype)
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
   return 0;
 }
-strong_alias (__pthread_setcanceltype, pthread_setcanceltype)
+L4_STRONG_ALIAS(__pthread_setcanceltype, pthread_setcanceltype)
 
 #ifdef ARCH_mips
 void pthread_handle_sigcancel(void);
@@ -164,7 +165,7 @@ void pthread_testcancel(void)
 }
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_cleanup_push(struct _pthread_cleanup_buffer * buffer,
 			   void (*routine)(void *), void * arg)
 {
@@ -177,10 +178,10 @@ __pthread_cleanup_push(struct _pthread_cleanup_buffer * buffer,
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
 
-strong_alias(__pthread_cleanup_push, _pthread_cleanup_push)
+L4_STRONG_ALIAS(__pthread_cleanup_push, _pthread_cleanup_push)
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_cleanup_pop(struct _pthread_cleanup_buffer * buffer,
 			  int execute)
 {
@@ -189,10 +190,10 @@ __pthread_cleanup_pop(struct _pthread_cleanup_buffer * buffer,
   THREAD_SETMEM(self, p_cleanup, buffer->__prev);
 }
 
-strong_alias(__pthread_cleanup_pop, _pthread_cleanup_pop)
+L4_STRONG_ALIAS(__pthread_cleanup_pop, _pthread_cleanup_pop)
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
 				 void (*routine)(void *), void * arg)
 {
@@ -207,10 +208,10 @@ __pthread_cleanup_push_defer(struct _pthread_cleanup_buffer * buffer,
   THREAD_SETMEM(self, p_cleanup, buffer);
 }
 
-strong_alias(__pthread_cleanup_push_defer, _pthread_cleanup_push_defer)
+L4_STRONG_ALIAS(__pthread_cleanup_push_defer, _pthread_cleanup_push_defer)
 
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer * buffer,
 				  int execute)
 {
@@ -224,11 +225,11 @@ __pthread_cleanup_pop_restore(struct _pthread_cleanup_buffer * buffer,
     __pthread_do_exit(PTHREAD_CANCELED, CURRENT_STACK_FRAME);
 }
 
-strong_alias(__pthread_cleanup_pop_restore, _pthread_cleanup_pop_restore)
+L4_STRONG_ALIAS(__pthread_cleanup_pop_restore, _pthread_cleanup_pop_restore)
 
 extern void __rpc_thread_destroy(void);
 void
-attribute_hidden
+L4_HIDDEN
 __pthread_perform_cleanup(char *currentframe)
 {
   pthread_descr self = thread_self();
