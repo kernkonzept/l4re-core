@@ -104,7 +104,6 @@ struct pthread
     struct
     {
       int multiple_threads;
-      int gscope_flag;
     } header;
 #endif
 

@@ -108,7 +108,6 @@ struct pthread
 #endif
 
   int multiple_threads;
-  int gscope_flag;
 
   // TODO: Like in musl we could move this between dtv and sysinfo in the header.
   pthread_descr p_nextlive, p_prevlive;
