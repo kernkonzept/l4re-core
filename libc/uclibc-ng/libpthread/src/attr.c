@@ -238,13 +238,7 @@ int __pthread_attr_setstack (pthread_attr_t *attr, void *stackaddr,
 
   return err;
 }
-
-#if PTHREAD_STACK_MIN == 16384 || defined __UCLIBC__
 weak_alias (__pthread_attr_setstack, pthread_attr_setstack)
-#else
-versioned_symbol (libpthread, __pthread_attr_setstack, pthread_attr_setstack,
-                  GLIBC_2_3_3);
-#endif
 
 int __pthread_attr_getstack (const pthread_attr_t *attr, void **stackaddr,
 			     size_t *stacksize)
@@ -262,9 +256,6 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
 {
   pthread_handle handle = thread_handle (thread);
   pthread_descr descr;
-#ifdef NOT_FOR_L4
-  int ret = 0;
-#endif
 
   if (handle == NULL)
     return ENOENT;
@@ -292,68 +283,5 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
   attr->__stackaddr_set = descr->p_userstack;
   attr->__stackaddr = descr->p_stackaddr;
 
-
-#ifdef NOT_FOR_L4 // XXX: fix for initial thread
-  if (attr->__stackaddr == NULL)
-    {
-      /* Stack size limit.  */
-      struct rlimit rl;
-
-      /* The safest way to get the top of the stack is to read
-	 /proc/self/maps and locate the line into which
-	 __libc_stack_end falls.  */
-      FILE *fp = fopen ("/proc/self/maps", "rc");
-      if (fp == NULL)
-	ret = errno;
-      /* We need the limit of the stack in any case.  */
-      else if (getrlimit (RLIMIT_STACK, &rl) != 0)
-	ret = errno;
-      else
-	{
-	  /* We need no locking.  */
-	  __fsetlocking (fp, FSETLOCKING_BYCALLER);
-
-	  /* Until we found an entry (which should always be the case)
-	     mark the result as a failure.  */
-	  ret = ENOENT;
-
-	  char *line = NULL;
-	  size_t linelen = 0;
-	  uintptr_t last_to = 0;
-
-	  while (! feof_unlocked (fp))
-	    {
-	      if (getdelim (&line, &linelen, '\n', fp) <= 0)
-		break;
-
-	      uintptr_t from;
-	      uintptr_t to;
-	      if (sscanf (line, "%" SCNxPTR "-%" SCNxPTR, &from, &to) != 2)
-		continue;
-	      if (from <= (uintptr_t) __libc_stack_end
-		  && (uintptr_t) __libc_stack_end < to)
-		{
-		  /* Found the entry.  Now we have the info we need.  */
-		  attr->__stacksize = rl.rlim_cur;
-		  attr->__stackaddr = (void *) to;
-
-		  /* The limit might be too high.  */
-		  if ((size_t) attr->__stacksize
-		      > (size_t) attr->__stackaddr - last_to)
-		    attr->__stacksize = (size_t) attr->__stackaddr - last_to;
-
-		  /* We succeed and no need to look further.  */
-		  ret = 0;
-		  break;
-		}
-	      last_to = to;
-	    }
-
-	  fclose (fp);
-	  free (line);
-	}
-    }
-#endif
   return 0;
-
 }
