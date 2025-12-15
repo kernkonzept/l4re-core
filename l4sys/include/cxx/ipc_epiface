@@ -14,6 +14,7 @@
 #include <l4/sys/utcb.h>
 #include <l4/sys/__typeinfo.h>
 #include <l4/sys/meta>
+#include <l4/cxx/result>
 #include <l4/cxx/type_traits>
 
 namespace L4 {
@@ -82,6 +83,15 @@ public:
    * \return 0 on success, < 0 on error.
    */
   virtual int realloc_rcv_cap(int index) = 0;
+
+  /**
+   * \brief Take the currently used reply capability.
+   *
+   * The caller takes ownership of the reply capability. A new reply capability
+   * is allocated for the next call.
+   */
+  virtual cxx::Result<L4::Reply_cap> take_reply_cap() noexcept
+  { return cxx::Error(-L4_ENOSYS); }
 
   /**
    * \brief Add a timeout to the server internal timeout queue.
