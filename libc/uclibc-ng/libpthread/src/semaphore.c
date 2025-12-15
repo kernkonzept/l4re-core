@@ -21,6 +21,7 @@
 #include "spinlock.h"
 #include "restart.h"
 #include "queue.h"
+#include <limits.h>
 
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {

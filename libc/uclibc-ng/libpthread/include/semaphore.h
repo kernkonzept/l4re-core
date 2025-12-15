@@ -41,9 +41,6 @@ typedef struct
 /* Value returned if `sem_open' failed.  */
 #define SEM_FAILED	((sem_t *) 0)
 
-/* Maximum value the semaphore can have.  */
-#define SEM_VALUE_MAX	(2147483647)
-
 #include <l4/sys/compiler.h>
 L4_BEGIN_DECLS
 
