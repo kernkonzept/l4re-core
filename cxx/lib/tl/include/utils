@@ -75,6 +75,9 @@ void write_now(T *a, VAL &&val)
   __asm__ __volatile__ ( "" : : "m"(*a));
 }
 
+struct in_place_t { explicit in_place_t() = default; };
+
+inline constexpr in_place_t in_place {};
 
 }
 
