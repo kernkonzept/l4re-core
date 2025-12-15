@@ -26,7 +26,6 @@
 #include <stdbool.h>
 #include <unistd.h>
 //l4/#include <signal.h>
-#include <bits/stackinfo.h>
 //l4/#include <bits/sigcontextinfo.h>
 #include <bits/pthreadtypes.h>
 
