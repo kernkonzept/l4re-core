@@ -192,7 +192,7 @@ extern pthread_descr __pthread_manager_threadp L4_HIDDEN;
 extern int __pthread_nonstandard_stacks;
 
 /* The max size of the thread stack segments.  This must be a power of two and a
-   multiple of PAGE_SIZE.  */
+   multiple of L4_PAGESIZE.  */
 #ifndef STACK_SIZE
 #define STACK_SIZE  (2 * 1024 * 1024)
 #endif

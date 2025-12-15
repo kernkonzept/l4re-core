@@ -3,10 +3,6 @@
 #include <features.h>
 #include <l4/sys/consts.h>
 
-#define PAGE_SHIFT L4_PAGESHIFT
-#define PAGE_SIZE  L4_PAGESIZE
-#define PAGE_MASK  (~(PAGE_SIZE-1))
-
 #ifdef IS_IN_libpthread
 
 #ifndef __GLIBC_HAVE_LONG_LONG

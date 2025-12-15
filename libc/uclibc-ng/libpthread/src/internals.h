@@ -213,21 +213,15 @@ static __inline__ int nonexisting_handle(pthread_handle h, pthread_t id)
 #define page_roundup(v,p) ((((size_t) (v)) + (p) - 1) & ~((p) - 1))
 #endif
 
-/* The page size we can get from the system.  This should likely not be
-   changed by the machine file but, you never know.  */
-#ifndef PAGE_SIZE
-#define PAGE_SIZE  (L4_PAGESIZE)
-#endif
-
-/* The initial size of the thread stack.  Must be a multiple of PAGE_SIZE.  */
+/* The initial size of the thread stack.  Must be a multiple of L4_PAGESIZE.  */
 #ifndef INITIAL_STACK_SIZE
-#define INITIAL_STACK_SIZE  (4 * PAGE_SIZE)
+#define INITIAL_STACK_SIZE  (4 * L4_PAGESIZE)
 #endif
 
 /* Size of the thread manager stack. The "- 32" avoids wasting space
    with some malloc() implementations. */
 #ifndef THREAD_MANAGER_STACK_SIZE
-#define THREAD_MANAGER_STACK_SIZE  (2 * PAGE_SIZE - 32)
+#define THREAD_MANAGER_STACK_SIZE  (2 * L4_PAGESIZE - 32)
 #endif
 
 /* The base of the "array" of thread stacks.  The array will grow down from
