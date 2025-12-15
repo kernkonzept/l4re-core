@@ -17,6 +17,7 @@ EXTRA_TARGET := \
   observer    \
   pair        \
   ref_ptr     \
+  result      \
   slab_alloc  \
   static_container \
   static_vector \

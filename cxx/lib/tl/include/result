@@ -1,0 +1,189 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+
+#pragma once
+
+#include <assert.h>
+#include <stdlib.h>
+
+#include "type_traits"
+#include "utils"
+
+namespace cxx {
+
+/**
+ * Error value.
+ *
+ * Value class to make error value types explicit. Participates in the
+ * construction of Result objects.
+ */
+class Error
+{
+  int _err;
+
+public:
+  constexpr explicit Error(int err) noexcept : _err(err) {}
+  constexpr Error(Error const &) noexcept = default;
+  constexpr Error(Error &&) noexcept = default;
+
+  constexpr int error() const noexcept
+  { return _err; }
+};
+
+/**
+ * A result of a function call. Either has some resulting value or an error.
+ *
+ * The error is always an integer and, if present, a negative value by
+ * convention. Any access to the value is fatal if the objects holds an error.
+ */
+template <typename T>
+class Result
+{
+  union
+  {
+    T _res;
+    int _err;
+  };
+  bool _has_result;
+
+public:
+  /**
+   * Prevent default construction.
+   *
+   * A Result object either holds a value or an error. There is no third
+   * "empty" state.
+   */
+  Result() = delete;
+
+  Result(Error err) noexcept
+  : _err(err.error()), _has_result(false)
+  {}
+
+  template<typename... Args>
+  explicit Result(in_place_t, Args&&... args)
+  noexcept(noexcept(T(cxx::forward<Args>(args)...)))
+  : _res(cxx::forward<Args>(args)...), _has_result(true)
+  {}
+
+  Result(T &&val)
+  noexcept(noexcept(T(cxx::move(val))))
+  : _res(cxx::move(val)), _has_result(true)
+  {}
+
+  Result(Result const &o)
+  noexcept(noexcept(T(o._res)))
+  : _has_result(o._has_result)
+  {
+    if (_has_result)
+      new (&_res) T(o._res);
+    else
+      _err = o._err;
+  }
+
+  Result(Result &&o)
+  noexcept(noexcept(T(cxx::move(o._res))))
+  : _has_result(o._has_result)
+  {
+    if (_has_result)
+      new (&_res) T(cxx::move(o._res));
+    else
+      _err = o._err;
+  }
+
+  ~Result()
+  {
+    if (_has_result)
+      _res.~T();
+  }
+
+  Result &operator=(Result const &o)
+  noexcept(noexcept(T(o._res)))
+  {
+    if (_has_result)
+      _res.~T();
+
+    _has_result = o._has_result;
+    if (_has_result)
+      new (&_res) T(o._res);
+    else
+      _err = o._err;
+
+    return *this;
+  }
+
+  Result &operator=(Result &&o)
+  {
+    if (_has_result)
+      {
+        if (o._has_result)
+          _res = cxx::move(o._res);
+        else
+          {
+            _res.~T();
+            _has_result = false;
+            _err = o._err;
+          }
+      }
+    else
+      {
+        if (o._has_result)
+          {
+            new (&_res) T(cxx::move(o._res));
+            _has_result = true;
+          }
+        else
+          _err = o._err;
+      }
+
+    return *this;
+  }
+
+  Result &operator=(Error err) noexcept
+  {
+    if (_has_result)
+      _res.~T();
+
+    _has_result = false;
+    _err = err.error();
+
+    return *this;
+  }
+
+  Result &operator=(T &&val)
+  {
+    if (_has_result)
+      _res = cxx::move(val);
+    else
+      {
+        new (&_res) T(cxx::move(val));
+        _has_result = true;
+      }
+
+    return *this;
+  }
+
+  explicit operator bool() const noexcept
+  { return _has_result; }
+
+  int error() const noexcept
+  { return _has_result ? 0 : _err; }
+
+  T const &result() const & noexcept
+  {
+    assert(_has_result);
+    if (!_has_result) [[unlikely]]
+      abort();
+
+    return _res;
+  }
+
+  T&& result() && noexcept
+  {
+    assert(_has_result);
+    if (!_has_result) [[unlikely]]
+      abort();
+
+    return cxx::move(_res);
+  }
+};
+
+}
