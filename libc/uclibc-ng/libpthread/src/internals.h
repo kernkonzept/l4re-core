@@ -34,8 +34,6 @@
 #include <l4/sys/compiler.h>
 #include <l4/sys/ipc.h>
 
-#include <tls.h>
-
 #include "descr.h"
 
 #include "semaphore.h"

@@ -52,6 +52,7 @@ $(foreach ext,C S CC, \
   $(eval SRC_$(ext)_libc_nonshared.p.a += $(LIBC_SRC_$(ext)_libc_nonshared.p.a)) \
 )
 
+SRC_C += impl-libc-api.c
 SRC_CC_libc.a   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
 SRC_CC          += _exit.cc
 vpath _exit.cc $(PKGDIR)/common

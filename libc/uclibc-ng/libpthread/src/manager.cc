@@ -50,7 +50,7 @@ extern "C" {
 #include "restart.h"
 #include "semaphore.h"
 #include "l4.h"
-#include <ldsodefs.h>
+#include "libc-api.h"
 }
 
 #include <pthread-l4.h>
@@ -123,13 +123,7 @@ __pthread_manager(void *arg)
 
   __l4_utcb_mark_used(l4_utcb());
 
-#if defined(TLS_TCB_AT_TP)
-  TLS_INIT_TP(self, 0);
-#elif defined(TLS_DTV_AT_TP)
-  TLS_INIT_TP((char *)self + TLS_PRE_TCB_SIZE, 0);
-#else
-#  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
-#endif
+  ptlc_set_tp(ptlc_thread_descr_to_tls_tp(self));
   /* If we have special thread_self processing, initialize it.  */
   INIT_THREAD_SELF(self, 1);
   /* Raise our priority to match that of main thread */
@@ -199,7 +193,7 @@ __pthread_manager(void *arg)
 	     threads right away, avoiding a potential delay at shutdown. */
 	  break;
 	case REQ_EXEC_IN_MANAGER:
-          request.req_args.exec_in_mgr.fn(&_pthread_mgr_iface,
+	  request.req_args.exec_in_mgr.fn(&_pthread_mgr_iface,
                                           request.req_args.exec_in_mgr.arg);
           restart(request.req_thread);
 	  do_reply = 1;
@@ -253,13 +247,7 @@ pthread_start_thread(void *arg)
   __l4_utcb_mark_used(l4_utcb());
 
   pthread_descr self = (pthread_descr) arg;
-#if defined(TLS_TCB_AT_TP)
-  TLS_INIT_TP(self, 0);
-#elif defined(TLS_DTV_AT_TP)
-  TLS_INIT_TP((char *)self + TLS_PRE_TCB_SIZE, 0);
-#else
-#  error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
-#endif
+  ptlc_set_tp(ptlc_thread_descr_to_tls_tp(self));
 
   void * outcome;
   /* Initialize special thread_self processing, if any.  */
@@ -655,13 +643,11 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
   int pagesize = L4_PAGESIZE;
   int saved_errno = 0;
 
-  new_thread = (pthread*)_dl_allocate_tls (NULL);
-  if (new_thread == NULL)
+  void *tls_tp = ptlc_allocate_tls();
+  if (tls_tp == NULL)
     return EAGAIN;
-#if defined(TLS_DTV_AT_TP)
-  /* pthread_descr is below TP.  */
-  new_thread = (pthread_descr) ((char *) new_thread - TLS_PRE_TCB_SIZE);
-#endif
+  new_thread = ptlc_tls_tp_to_thread_descr(tls_tp);
+
   /* Find a free segment for the thread, and allocate a stack if needed */
 
   l4_utcb_t *new_utcb = claim_unused_utcb();
@@ -669,10 +655,7 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
     new_utcb = l4pthr_allocate_more_utcbs_and_claim_utcb();
   if (!new_utcb)
     {
-# if defined(TLS_DTV_AT_TP)
-	  new_thread = (pthread_descr) ((char *) new_thread + TLS_PRE_TCB_SIZE);
-# endif
-	  _dl_deallocate_tls (new_thread, true);
+      ptlc_deallocate_tls(tls_tp);
       return EAGAIN;
     }
 
@@ -686,10 +669,7 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
     }
   else
     {
-#if defined(TLS_DTV_AT_TP)
-	  new_thread = (pthread_descr) ((char *) new_thread + TLS_PRE_TCB_SIZE);
-#endif
-	  _dl_deallocate_tls (new_thread, true);
+      ptlc_deallocate_tls(tls_tp);
       mgr_free_utcb(new_utcb);
       return EAGAIN;
     }
@@ -697,7 +677,7 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
   /* Allocate new thread identifier */
   /* Initialize the thread descriptor.  Elements which have to be
      initialized to zero already have this value.  */
-#if !TLS_DTV_AT_TP
+#if defined(TLS_TCB_AT_TP)
   new_thread->header.tcb = new_thread;
   new_thread->header.self = new_thread;
 #endif
@@ -771,10 +751,7 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
         if (pthread_l4_free_stack(new_thread_bottom, guardaddr))
           fprintf(stderr, "ERROR: failed to free stack\n");
       }
-#if defined(TLS_DTV_AT_TP)
-    new_thread = (pthread_descr) ((char *) new_thread + TLS_PRE_TCB_SIZE);
-#endif
-    _dl_deallocate_tls (new_thread, true);
+    ptlc_deallocate_tls(tls_tp);
     mgr_free_utcb(new_utcb);
     return saved_errno;
   }
@@ -845,10 +822,7 @@ static void pthread_free(pthread_descr th)
       pthread_l4_free_stack(guardaddr + guardsize, guardaddr);
     }
 
-# if defined(TLS_DTV_AT_TP)
-  th = (pthread_descr) ((char *) th + TLS_PRE_TCB_SIZE);
-# endif
-  _dl_deallocate_tls (th, true);
+  ptlc_deallocate_tls (ptlc_thread_descr_to_tls_tp(th));
 }
 
 /*
@@ -873,6 +847,9 @@ static int pthread_handle_thread_exit(pthread_descr th)
   th->p_exited = 1;
   detached = th->p_detached;
   __pthread_unlock(th->p_lock);
+
+  ptlc_after_exit_thread();
+
   if (detached)
     pthread_free(th);
   /* If all threads have exited and the main thread is pending on a

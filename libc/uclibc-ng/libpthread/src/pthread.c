@@ -38,7 +38,7 @@
 #include "spinlock.h"
 #include "restart.h"
 #include <link.h>
-#include <ldsodefs.h>
+#include "libc-api.h"
 
 /* Sanity check.  */
 #if !defined __SIGRTMIN || (__SIGRTMAX - __SIGRTMIN) < 3
@@ -114,11 +114,6 @@ static void pthread_initialize(void) __attribute__((constructor));
 extern void *__dso_handle __attribute__ ((weak));
 #endif
 
-
-#if !defined SHARED
-extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
-#endif
-
 l4_utcb_t *__pthread_first_free_utcb L4_HIDDEN;
 
 /*
@@ -187,10 +182,10 @@ __pthread_initialize_minimal(void)
 #ifndef SHARED
   /* Unlike in the dynamically linked case the dynamic linker has not
      taken care of initializing the TLS data structures.  */
-  __libc_setup_tls (TLS_TCB_SIZE, TLS_TCB_ALIGN);
+  ptlc_init_static_tls(NULL);
 #endif
 
-  self = THREAD_SELF;
+  self = ptlc_thread_descr_self();
 
   /* The memory for the thread descriptor was allocated elsewhere as
      part of the TLS allocation.  We have to initialize the data
@@ -222,47 +217,6 @@ __pthread_init_max_stacksize(void)
   __pthread_max_stacksize = max_stack;
 }
 
-#if defined SHARED
-/* When using __thread for this, we do it in libc so as not
-   to give libpthread its own TLS segment just for this.  */
-extern void **__libc_dl_error_tsd (void) __attribute__ ((const));
-#endif
-
-static __inline__ void __attribute__((always_inline))
-init_one_static_tls (pthread_descr descr, struct link_map *map)
-{
-#if defined(TLS_TCB_AT_TP)
-  dtv_t *dtv = GET_DTV (descr);
-  void *dest = (char *) descr - map->l_tls_offset;
-#elif defined(TLS_DTV_AT_TP)
-  dtv_t *dtv = GET_DTV ((pthread_descr) ((char *) descr + TLS_PRE_TCB_SIZE));
-  void *dest = (char *) descr + map->l_tls_offset + TLS_PRE_TCB_SIZE;
-#else
-# error "Either TLS_TCB_AT_TP or TLS_DTV_AT_TP must be defined"
-#endif
-
-  /* Fill in the DTV slot so that a later LD/GD access will find it.  */
-  dtv[map->l_tls_modid].pointer.val = dest;
-  dtv[map->l_tls_modid].pointer.is_static = true;
-
-  /* Initialize the memory.  */
-  memset (mempcpy (dest, map->l_tls_initimage, map->l_tls_initimage_size),
-	  '\0', map->l_tls_blocksize - map->l_tls_initimage_size);
-}
-
-static void
-__pthread_init_static_tls (struct link_map *map)
-{
-  pthread_descr th;
-
-  for (th = __pthread_main_thread->p_nextlive;
-       th != __pthread_main_thread;
-       th = th->p_nextlive)
-    {
-      init_one_static_tls(th, map);
-    }
-}
-
 static void pthread_initialize(void)
 {
 #ifdef NOT_USED
@@ -290,33 +244,7 @@ static void pthread_initialize(void)
 #endif
     __on_exit (pthread_onexit_process, NULL);
 
-#if defined SHARED
-  /* Transfer the old value from the dynamic linker's internal location.  */
-  *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
-  GL(dl_error_catch_tsd) = &__libc_dl_error_tsd;
-
-  /* Make __rtld_lock_{,un}lock_recursive use pthread_mutex_{,un}lock,
-     keep the lock count from the ld.so implementation.  */
-  GL(dl_rtld_lock_recursive) = (void *) __pthread_mutex_lock;
-  GL(dl_rtld_unlock_recursive) = (void *) __pthread_mutex_unlock;
-  unsigned int rtld_lock_count = GL(dl_load_lock).__m_count;
-  GL(dl_load_lock).__m_count = 0;
-  while (rtld_lock_count-- > 0)
-    __pthread_mutex_lock (&GL(dl_load_lock));
-#endif
-
-  GL(dl_init_static_tls) = &__pthread_init_static_tls;
-
-  /* uClibc-specific stdio initialization for threads. */
-  {
-    FILE *fp;
-    _stdio_user_locking = 0;       /* 2 if threading not initialized */
-    for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen) {
-      if (fp->__user_locking != 1) {
-        fp->__user_locking = 0;
-      }
-    }
-  }
+  ptlc_after_pthread_initialize();
 }
 
 void __pthread_initialize(void)
@@ -327,7 +255,7 @@ void __pthread_initialize(void)
 int __pthread_initialize_manager(void)
 {
   pthread_descr mgr;
-  tcbhead_t *tcbp;
+  void *tls_tp;
 
 #ifndef HAVE_Z_NODELETE
   if (__builtin_expect (&__dso_handle != NULL, 1))
@@ -351,23 +279,17 @@ int __pthread_initialize_manager(void)
     (char *)((uintptr_t)__pthread_manager_thread_tos & ~0xfUL);
 
   /* Allocate memory for the thread descriptor and the dtv.  */
-  tcbp = _dl_allocate_tls (NULL);
-  if (tcbp == NULL) {
+  tls_tp = ptlc_allocate_tls();
+  if (tls_tp == NULL) {
     free(__pthread_manager_thread_bos);
     return -1;
   }
 
-#if defined(TLS_TCB_AT_TP)
-  mgr = (pthread_descr) tcbp;
-#elif defined(TLS_DTV_AT_TP)
-  /* pthread_descr is located right below tcbhead_t which _dl_allocate_tls
-     returns.  */
-  mgr = (pthread_descr) ((char *) tcbp - TLS_PRE_TCB_SIZE);
-#endif
+  mgr = ptlc_tls_tp_to_thread_descr(tls_tp);
 
   /* Initialize the descriptor.  */
-#if !TLS_DTV_AT_TP
-  mgr->header.tcb = tcbp;
+#if TLS_TCB_AT_TP
+  mgr->header.tcb = tls_tp;
   mgr->header.self = mgr;
 #endif
   mgr->p_start_args = (struct pthread_start_args) PTHREAD_START_ARGS_INITIALIZER(__pthread_manager);
@@ -379,7 +301,7 @@ int __pthread_initialize_manager(void)
   int err = __pthread_start_manager(mgr);
 
   if (__builtin_expect (err, 0) == -1) {
-    _dl_deallocate_tls (tcbp, true);
+    ptlc_deallocate_tls(tls_tp);
     free(__pthread_manager_thread_bos);
     return -1;
   }
@@ -398,9 +320,14 @@ __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   struct pthread_request request;
   int retval;
   if (__builtin_expect (l4_is_invalid_cap(__pthread_manager_request), 0)) {
+    if ((retval = ptlc_become_threaded()))
+      return retval;
     if (__pthread_initialize_manager() < 0)
       return EAGAIN;
   }
+
+  ptlc_before_create_thread();
+
   request.req_thread = self;
   request.req_kind = REQ_CREATE;
   request.req_args.create.attr = attr;
@@ -410,6 +337,7 @@ __pthread_create(pthread_t *thread, const pthread_attr_t *attr,
   retval = THREAD_GETMEM(self, p_retcode);
   if (__builtin_expect (retval, 0) == 0)
     *thread = (pthread_t) THREAD_GETMEM(self, p_retval);
+  ptlc_after_create_thread(retval == 0);
   return retval;
 }
 L4_STRONG_ALIAS(__pthread_create, pthread_create)

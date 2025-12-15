@@ -32,7 +32,7 @@ static void init_file_lock(FILE *f)
 }
 
 int
-ptlc_become_threaded()
+ptlc_become_threaded(void)
 {
   // NOTE: Taken from __pthread_create()
 
@@ -60,7 +60,7 @@ ptlc_become_threaded()
 }
 
 void *
-ptlc_allocate_tls()
+ptlc_allocate_tls(void)
 {
   // TODO: Need to block signals or acquire some lock?!
 
@@ -138,7 +138,13 @@ ptlc_after_create_thread(bool success)
 }
 
 void
-ptlc_after_exit_thread()
+ptlc_after_exit_thread(void)
 {
   __atomic_sub_fetch(&libc.threads_minus_1, 1, __ATOMIC_SEQ_CST);
+}
+
+void
+ptlc_after_pthread_initialize()
+{
+        //TODO: musl stdio locking init!
 }

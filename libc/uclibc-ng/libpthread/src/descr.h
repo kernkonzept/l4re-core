@@ -24,9 +24,6 @@
 #include <l4/sys/utcb.h>
 #include <pt-machine.h>
 #include <sched.h>
-/* The type of thread descriptors */
-typedef struct pthread *pthread_descr;
-
 
 #include "pthread-api.h"
 

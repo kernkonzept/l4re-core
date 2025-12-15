@@ -115,11 +115,6 @@ static void pthread_initialize(void) __attribute__((constructor));
 extern void *__dso_handle __attribute__ ((weak));
 #endif
 
-
-#if !defined SHARED
-extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
-#endif
-
 l4_utcb_t *__pthread_first_free_utcb L4_HIDDEN;
 
 /*
@@ -224,12 +219,6 @@ __pthread_init_max_stacksize(void)
   __pthread_max_stacksize = max_stack;
 }
 
-#if defined SHARED
-/* When using __thread for this, we do it in libc so as not
-   to give libpthread its own TLS segment just for this.  */
-extern void **__libc_dl_error_tsd (void) __attribute__ ((const));
-#endif
-
 static void pthread_initialize(void)
 {
 #ifdef NOT_USED
@@ -266,38 +255,7 @@ static void pthread_initialize(void)
     atexit (pthread_atexit_process);
 #endif
 
-#ifdef __UCLIBC__
-#if defined SHARED
-  /* Transfer the old value from the dynamic linker's internal location.  */
-  *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
-  GL(dl_error_catch_tsd) = &__libc_dl_error_tsd;
-
-  /* Make __rtld_lock_{,un}lock_recursive use pthread_mutex_{,un}lock,
-     keep the lock count from the ld.so implementation.  */
-  GL(dl_rtld_lock_recursive) = (void *) __pthread_mutex_lock;
-  GL(dl_rtld_unlock_recursive) = (void *) __pthread_mutex_unlock;
-  unsigned int rtld_lock_count = GL(dl_load_lock).__m_count;
-  GL(dl_load_lock).__m_count = 0;
-  while (rtld_lock_count-- > 0)
-    __pthread_mutex_lock (&GL(dl_load_lock));
-#endif
-
-  GL(dl_init_static_tls) = &__pthread_init_static_tls;
-
-  /* uClibc-specific stdio initialization for threads. */
-  {
-    FILE *fp;
-    _stdio_user_locking = 0;       /* 2 if threading not initialized */
-    for (fp = _stdio_openlist; fp != NULL; fp = fp->__nextopen) {
-      if (fp->__user_locking != 1) {
-        fp->__user_locking = 0;
-      }
-    }
-  }
-#endif
-
-// TODO: stdio locking initialize for musl
-
+  ptlc_after_pthread_initialize();
 }
 
 void __pthread_initialize(void)
@@ -345,7 +303,6 @@ int __pthread_initialize_manager(void)
 
   /* Initialize the descriptor.  */
 #if TLS_TCB_AT_TP
-  // TODO: Abstract or remove? Seems to be x86 specific.
   mgr->header.tcb = tls_tp;
   mgr->header.self = mgr;
 #endif
@@ -358,7 +315,7 @@ int __pthread_initialize_manager(void)
   int err = __pthread_start_manager(mgr);
 
   if (__builtin_expect (err, 0) == -1) {
-    ptlc_deallocate_tls (tls_tp);
+    ptlc_deallocate_tls(tls_tp);
     free(__pthread_manager_thread_bos);
     return -1;
   }

@@ -2,6 +2,9 @@
 
 #include <l4/sys/compiler.h>
 
+/* The type of thread descriptors */
+typedef struct pthread *pthread_descr;
+
 typedef struct l4_pthread_mgr_iface
 {
   pthread_descr (*first_thread)(void);

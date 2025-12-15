@@ -80,7 +80,7 @@ void pthread_l4_exec_in_manager(void (*fn)(l4_pthread_mgr_iface_t const *mgr, vo
 
 void pthread_l4_for_each_thread(void (*fn)(pthread_t))
 {
-  pthread_l4_exec_in_manager(cb, (void*)fn);
+  pthread_l4_exec_in_manager(cb, (void *)fn);
 }
 
 /**
@@ -130,7 +130,8 @@ int __attribute__((weak)) __pthread_sched_rr_prio_max  = 0xf0;
 
 
 int __pthread_setschedparam(pthread_t thread, int policy,
-                            const struct sched_param *param) noexcept
+                            const struct sched_param *param)
+noexcept(noexcept(__pthread_setschedparam(thread, policy, param)))
 {
   pthread_handle handle = thread_handle(thread);
   pthread_descr th;
@@ -166,7 +167,8 @@ int __pthread_setschedparam(pthread_t thread, int policy,
 L4_STRONG_ALIAS(__pthread_setschedparam, pthread_setschedparam)
 
 int __pthread_getschedparam(pthread_t thread, int *policy,
-                            struct sched_param *param) noexcept
+                            struct sched_param *param)
+noexcept(noexcept(__pthread_getschedparam(thread, policy, param)))
 {
   pthread_handle handle = thread_handle(thread);
   int pol, prio;

@@ -8,10 +8,7 @@
 #define __NEED_pthread_t
 #include <bits/alltypes.h>
 
-#ifndef __DEFINED_pthread_descr
 typedef struct pthread *pthread_descr;
-#define __DEFINED_pthread_descr
-#endif
 
 // This is really hacky, this should be included in pthread_impl.h in musl, but
 // we include it here to get access to TLS_ABOVE_TP. Mhm, maybe move this libc

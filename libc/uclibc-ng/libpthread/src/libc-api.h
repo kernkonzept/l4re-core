@@ -8,7 +8,7 @@
 
 L4_BEGIN_DECLS
 
-extern char *__progname, *__progname_full;
+//extern char *__progname, *__progname_full;
 
 /**
  * Callback that is invoked immediately before the creation of the first

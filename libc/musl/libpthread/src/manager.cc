@@ -677,8 +677,7 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
   /* Allocate new thread identifier */
   /* Initialize the thread descriptor.  Elements which have to be
      initialized to zero already have this value.  */
-#if TLS_TCB_AT_TP
-  // TODO: Abstract or remove? Seems to be x86 specific.
+#if defined(TLS_TCB_AT_TP)
   new_thread->header.tcb = new_thread;
   new_thread->header.self = new_thread;
 #endif
