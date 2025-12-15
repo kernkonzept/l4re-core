@@ -1,0 +1,35 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+
+#pragma once
+
+#include <l4/cxx/result>
+#include <l4/re/util/cap_alloc>
+
+namespace L4Re { namespace Util {
+
+template<typename HOOKS>
+class Reply_cap_hooks : public HOOKS
+{
+public:
+  // Implement L4::Ipc_svr::Server_iface
+  cxx::Result<L4::Reply_cap> take_reply_cap() noexcept override
+  {
+    auto next = reply_cap_alloc.alloc();
+    if (!next)
+      return cxx::Error(-L4_ENOMEM);
+
+    auto ret = cxx::move(_reply_cap);
+    _reply_cap = cxx::move(next);
+    return ret;
+  }
+
+protected:
+  // Required interface for L4::Ipc_svr::Server
+  L4::Reply_cap_idx setup_reply_cap() const noexcept
+  { return _reply_cap.get(); }
+
+private:
+  L4::Reply_cap _reply_cap{reply_cap_alloc.alloc()};
+};
+
+}}

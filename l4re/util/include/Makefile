@@ -20,6 +20,7 @@ EXTRA_TARGET +=      \
   poll_timeout_kipclock \
   region_mapping     \
   region_mapping_svr \
+  reply_cap_hooks    \
   vcon_svr           \
   video/goos_svr     \
   video/goos_fb      \
