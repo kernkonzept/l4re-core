@@ -1,6 +1,2 @@
 #pragma once
-
-// fake bits from nptl pthreadP.h
-
-#define SIGCANCEL SIGRTMIN
-
+// Empty for L4
