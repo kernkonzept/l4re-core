@@ -12,7 +12,7 @@ int clock_getres(clockid_t clock_id, struct timespec * res)
 {
   if (clock_id != CLOCK_REALTIME && clock_id != CLOCK_MONOTONIC)
     {
-      errno = EINVAL;
+      errno = ENOTSUP;
       return -1;
     }
 
