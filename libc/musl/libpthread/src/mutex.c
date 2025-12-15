@@ -260,8 +260,8 @@ L4_WEAK_ALIAS(__pthread_mutexattr_getkind_np, pthread_mutexattr_getkind_np)
 
 int
 L4_HIDDEN
-__pthread_mutexattr_getpshared (const pthread_mutexattr_t *attr a__attribute__((unused)),
-				   int *pshared)
+__pthread_mutexattr_getpshared (const pthread_mutexattr_t *attr __attribute__((unused)),
+                                int *pshared)
 {
   *pshared = PTHREAD_PROCESS_PRIVATE;
   return 0;
