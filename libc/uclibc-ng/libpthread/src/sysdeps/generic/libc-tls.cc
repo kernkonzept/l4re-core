@@ -37,7 +37,6 @@
  #error makefile bug, this file is for static only
 #endif
 
-#if USE_TLS
 extern ElfW(Phdr) *_dl_phdr;
 extern size_t _dl_phnum;
 
@@ -298,4 +297,3 @@ __pthread_initialize_minimal (void)
   __libc_setup_tls (TLS_INIT_TCB_SIZE, TLS_INIT_TCB_ALIGN);
 }
 
-#endif

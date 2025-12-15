@@ -1,4 +1,3 @@
-#ifdef USE_TLS
 static __inline__ void __attribute__((always_inline))
 init_one_static_tls (pthread_descr descr, struct link_map *map)
 {
@@ -33,4 +32,3 @@ __pthread_init_static_tls (struct link_map *map)
       init_one_static_tls(th, map);
     }
 }
-#endif

@@ -40,22 +40,6 @@ typedef union dtv
 # include <tcb-offsets.h>
 #endif /* __ASSEMBLER__ */
 
-/* We require TLS support in the tools.  */
-#define HAVE_TLS_SUPPORT                1
-#define HAVE_TLS_MODEL_ATTRIBUTE        1
-#define HAVE___THREAD                   1
-
-/* Signal that TLS support is available.  */
-#define USE_TLS	1
-
-/* We require TLS support in the tools.  */
-#ifndef HAVE_TLS_SUPPORT
-# error "TLS support is required."
-#endif
-
-/* Signal that TLS support is available.  */
-# define USE_TLS       1
-
 #ifndef __ASSEMBLER__
 
 /* Get system call information.  */

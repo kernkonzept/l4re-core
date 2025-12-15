@@ -36,13 +36,6 @@
 
 #include "descr.h"
 
-#ifndef USE_TLS
-# error "Libpthread without USE_TLS not supported!"
-#endif
-#ifndef HAVE___THREAD
-# error "Libpthread without threads is not supported"
-#endif
-
 #include "semaphore.h"
 extern int * __libc_pthread_init (void);
 

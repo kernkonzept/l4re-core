@@ -124,7 +124,7 @@ extern void *__dso_handle __attribute__ ((weak));
 #endif
 
 
-#if defined USE_TLS && !defined SHARED
+#if !defined SHARED
 extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
 
@@ -199,51 +199,6 @@ __pthread_initialize_minimal(void *arg)
   /* Unlike in the dynamically linked case the dynamic linker has not
      taken care of initializing the TLS data structures.  */
   ptlc_init_static_tls(arg);
-#elif !USE___THREAD
-  if (__builtin_expect (GL(dl_tls_dtv_slotinfo_list) == NULL, 0))
-    {
-      void *tls_tp;
-
-      /* There is no actual TLS being used, so the thread register
-	 was not initialized in the dynamic linker.  */
-
-      /* We need to install special hooks so that the malloc and memalign
-	 calls in _dl_tls_setup and _dl_allocate_tls won't cause full
-	 malloc initialization that will try to set up its thread state.  */
-
-      extern void __libc_malloc_pthread_startup (bool first_time);
-      __libc_malloc_pthread_startup (true);
-
-      if (__builtin_expect (_dl_tls_setup (), 0)
-	  || __builtin_expect ((tls_tp = ptlc_allocate_tls()) == NULL, 0))
-	{
-	  static const char msg[] = "\
-cannot allocate TLS data structures for initial thread\n";
-	  TEMP_FAILURE_RETRY (write_not_cancel (STDERR_FILENO,
-						msg, sizeof msg - 1));
-	  abort ();
-	}
-      const char *lossage = ptlc_set_tp(tls_tp);
-      if (__builtin_expect (lossage != NULL, 0))
-	{
-	  static const char msg[] = "cannot set up thread-local storage: ";
-	  const char nl = '\n';
-	  TEMP_FAILURE_RETRY (write_not_cancel (STDERR_FILENO,
-						msg, sizeof msg - 1));
-	  TEMP_FAILURE_RETRY (write_not_cancel (STDERR_FILENO,
-						lossage, strlen (lossage)));
-	  TEMP_FAILURE_RETRY (write_not_cancel (STDERR_FILENO, &nl, 1));
-	}
-
-      /* Though it was allocated with libc's malloc, that was done without
-	 the user's __malloc_hook installed.  A later realloc that uses
-	 the hooks might not work with that block from the plain malloc.
-	 So we record this block as unfreeable just as the dynamic linker
-	 does when it allocates the DTV before the libc malloc exists.  */
-      GL(dl_initial_dtv) = GET_DTV (tls_tp);
-
-      __libc_malloc_pthread_startup (false);
-    }
 #endif
 
   self = ptlc_thread_descr_self();
@@ -289,20 +244,10 @@ __pthread_init_max_stacksize(void)
     }
 }
 
-/* psm: we do not have any ld.so support yet
- *	 remove the USE_TLS guard if nptl is added */
-#if defined SHARED && defined USE_TLS
-# if USE___THREAD
+#if defined SHARED
 /* When using __thread for this, we do it in libc so as not
    to give libpthread its own TLS segment just for this.  */
 extern void **__libc_dl_error_tsd (void) __attribute__ ((const));
-# else
-static void ** __attribute__ ((const))
-__libc_dl_error_tsd (void)
-{
-  return &thread_self ()->p_libc_specific[_LIBC_TSD_KEY_DL_ERROR];
-}
-# endif
 #endif
 
 static void pthread_initialize(void)
@@ -344,9 +289,7 @@ static void pthread_initialize(void)
   __pthread_smp_kernel = is_smp_system ();
 
 #ifdef __UCLIBC__
-/* psm: we do not have any ld.so support yet
- *	 remove the USE_TLS guard if nptl is added */
-#if defined SHARED && defined USE_TLS
+#if defined SHARED
   /* Transfer the old value from the dynamic linker's internal location.  */
   *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();
   GL(dl_error_catch_tsd) = &__libc_dl_error_tsd;

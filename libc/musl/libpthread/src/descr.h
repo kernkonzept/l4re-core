@@ -25,18 +25,6 @@
 
 #include "pthread-api.h"
 
-// Workaround after removal of uclibc specific tls.h include, which provided
-// these common defines that apply for all architectures. Eventually remove all
-// #ifdef guards that use these, then remove the defines.
-// ---
-/* We require TLS support in the tools.  */
-#define HAVE_TLS_SUPPORT                1
-#define HAVE_TLS_MODEL_ATTRIBUTE        1
-#define HAVE___THREAD                   1
-/* Signal that TLS support is available.  */
-#define USE_TLS 1
-// ---
-
 /* Arguments passed to thread creation routine */
 struct pthread_start_args {
   void *(*start_routine)(void *); /* function to run */

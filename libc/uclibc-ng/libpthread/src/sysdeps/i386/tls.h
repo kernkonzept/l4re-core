@@ -58,16 +58,6 @@ typedef struct
 # include <tcb-offsets.h>
 #endif
 
-
-/* We require TLS support in the tools.  */
-#define HAVE_TLS_SUPPORT
-#define HAVE___THREAD 1
-#define HAVE_TLS_MODEL_ATTRIBUTE 1
-
-/* Signal that TLS support is available.  */
-#define USE_TLS        1
-
-
 /* Alignment requirement for the stack.  For IA-32 this is governed by
    the SSE memory functions.  */
 #define STACK_ALIGN	16

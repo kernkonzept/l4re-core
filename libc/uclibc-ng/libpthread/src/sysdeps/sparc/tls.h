@@ -56,14 +56,6 @@ typedef struct
 # include <tcb-offsets.h>
 #endif /* __ASSEMBLER__ */
 
-/* We require TLS support in the tools.  */
-#define HAVE_TLS_SUPPORT
-#define HAVE___THREAD 1
-#define HAVE_TLS_MODEL_ATTRIBUTE 1
-
-/* Signal that TLS support is available.  */
-#define USE_TLS        1
-
 #ifndef __ASSEMBLER__
 /* Get system call information.  */
 //al//# include <sysdep.h>

@@ -34,18 +34,9 @@
 #include <l4/sys/compiler.h>
 #include <l4/sys/ipc.h>
 
-#ifdef USE_TLS
-# include <tls.h>
-#endif
+#include <tls.h>
 
 #include "descr.h"
-
-#ifndef USE_TLS
-# error "Libpthread without USE_TLS not supported!"
-#endif
-#ifndef HAVE___THREAD
-# error "Libpthread without threads is not supported"
-#endif
 
 #include "semaphore.h"
 extern int * __libc_pthread_init (void);

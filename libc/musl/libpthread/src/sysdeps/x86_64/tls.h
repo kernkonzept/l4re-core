@@ -73,15 +73,6 @@ typedef struct
 # include <tcb-offsets.h>
 #endif
 
-
-/* We require TLS support in the tools.  */
-#define HAVE_TLS_SUPPORT                1
-#define HAVE___THREAD 1
-#define HAVE_TLS_MODEL_ATTRIBUTE 1
-
-/* Signal that TLS support is available.  */
-#define USE_TLS        1
-
 /* Alignment requirement for the stack.  */
 #define STACK_ALIGN	16
 
