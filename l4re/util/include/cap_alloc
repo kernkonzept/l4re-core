@@ -15,6 +15,7 @@
 #pragma once
 
 #include <l4/re/util/cap_alloc_impl.h>
+#include <l4/re/util/item_alloc>
 #include <l4/sys/smart_capability>
 #include <l4/sys/task>
 #include <l4/re/consts>
@@ -26,6 +27,39 @@ namespace L4Re { namespace Util {
  * \ingroup api_l4re_util
  */
 /**@{*/
+
+template<unsigned Num_caps>
+class Reply_cap_alloc final : public L4::Reply_cap_alloc
+{
+public:
+  static constexpr unsigned Capacity = Num_caps;
+
+  explicit Reply_cap_alloc(unsigned bias) noexcept
+  : _bias(bias)
+  {}
+
+  L4::Reply_cap alloc() noexcept override
+  {
+    if (long slot = _alloc.alloc(); slot >= 0) [[likely]]
+      {
+        auto idx = (static_cast<l4_cap_idx_t>(slot) + _bias) << L4_CAP_SHIFT;
+        return L4::Reply_cap(L4::Reply_cap_idx(idx), this);
+      }
+    else
+      return L4::Reply_cap();
+  }
+
+protected:
+  void free(L4::Reply_cap_idx cap) noexcept override
+  { _alloc.free((cap.cap() >> L4_CAP_SHIFT) - _bias); }
+
+private:
+  unsigned _bias;
+  Item_alloc<Capacity> _alloc;
+};
+
+using Def_reply_cap_alloc = Reply_cap_alloc<CONFIG_L4RE_CAP_DFL_ALLOCATOR_MAX>;
+
 /**
  * Capability allocator.
  *
@@ -37,6 +71,14 @@ namespace L4Re { namespace Util {
  * reference counter for each managed capability selector.
  */
 extern _Cap_alloc cap_alloc;
+
+/**
+ * Reply capability allocator.
+ *
+ * This is the default reply capability allocator that is used by usual
+ * applications.
+ */
+extern Def_reply_cap_alloc reply_cap_alloc;
 
 /**
  * Helper for Unique_cap and Unique_del_cap.

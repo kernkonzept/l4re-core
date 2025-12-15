@@ -31,11 +31,20 @@ namespace
     l4re_env()->first_free_cap += Caps;
     return ret;
   }
+
+  unsigned get_free_reply_caps()
+  {
+    unsigned ret = L4Re::Env::env()->first_free_reply_cap();
+    l4re_env()->first_free_reply_cap += decltype(L4Re::Util::reply_cap_alloc)::Capacity;
+    return ret;
+  }
 }
 
 namespace L4Re {
   namespace Util {
     _Cap_alloc INIT_PRIO cap_alloc{Caps, &storage, get_free_caps(), &dbg};
+
+    Def_reply_cap_alloc INIT_PRIO reply_cap_alloc{get_free_reply_caps()};
   }
 #ifndef SHARED
   Cap_alloc *virt_cap_alloc = &Util::cap_alloc;
