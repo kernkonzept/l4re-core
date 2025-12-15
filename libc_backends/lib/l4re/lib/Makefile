@@ -8,7 +8,7 @@ PC_LIBS_PIC   =
 SRC_C         = nanosleep.c sched_yield.c usleep.c \
                 gettimeofday.c clock_gettime.c clock.c \
                 clock_settime.c settimeofday.c time.c \
-                clock_getres.c
+                clock_getres.c clock_nanosleep.c
 CFLAGS        = -ffunction-sections
 
 DEFINES_settimeofday.c += -D_DEFAULT_SOURCE
