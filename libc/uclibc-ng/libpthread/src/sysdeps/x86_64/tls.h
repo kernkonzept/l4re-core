@@ -58,15 +58,15 @@ typedef union dtv
 } dtv_t;
 
 
-typedef struct
+typedef struct // This is compiler ABI! Beware of changing things
 {
   void *tcb;		/* Pointer to the TCB.  Not necessarily the
 			   thread descriptor used by libpthread.  */
   dtv_t *dtv;
   void *self;		/* Pointer to the thread descriptor.  */
-  int multiple_threads;
+  uintptr_t __dummy;
   uintptr_t sysinfo;
-  uintptr_t stack_guard;
+  uintptr_t stack_guard; // Must be at offset 40!
 } tcbhead_t;
 
 #else /* __ASSEMBLER__ */

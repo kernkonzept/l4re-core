@@ -48,9 +48,6 @@ typedef union dtv
 /* The TP points to the start of the thread blocks.  */
 # define TLS_DTV_AT_TP	1
 
-/* We use the multiple_threads field in the pthread struct */
-#define TLS_MULTIPLE_THREADS_IN_TCB	1
-
 /* Get the thread descriptor definition.  */
 # include <../../descr.h>
 

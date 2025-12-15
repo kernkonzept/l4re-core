@@ -28,7 +28,7 @@ SRC_C_libc_pthread.p.a  += $(SRC_C_libc_pthread)
 SRC_CC_libc_pthread.p.a += $(SRC_CC_libc_pthread)
 SRC_S_libc_pthread.p.a  += $(SRC_S_libc_pthread)
 
-SRC_C_libc_pthread.ofl  += $(SRC_C_libc_pthread) libc_pthread_init.c
+SRC_C_libc_pthread.ofl  += $(SRC_C_libc_pthread)
 SRC_CC_libc_pthread.ofl += $(SRC_CC_libc_pthread)
 SRC_S_libc_pthread.ofl  += $(SRC_S_libc_pthread)
 

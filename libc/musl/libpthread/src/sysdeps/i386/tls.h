@@ -52,8 +52,6 @@ typedef struct
   uintptr_t stack_guard;
 } tcbhead_t;
 
-# define TLS_MULTIPLE_THREADS_IN_TCB 1
-
 #else /* __ASSEMBLER__ */
 # include <tcb-offsets.h>
 #endif

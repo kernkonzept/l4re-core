@@ -38,15 +38,15 @@ typedef union dtv
   } pointer;
 } dtv_t;
 
-typedef struct
+typedef struct // This is compiler ABI! Beware of changing things
 {
   void *tcb;		/* Pointer to the TCB.  Not necessary the
 			   thread descriptor used by libpthread.  */
   dtv_t *dtv;
   void *self;
-  int multiple_threads;
+  uintptr_t __dummy;
   uintptr_t sysinfo;
-  uintptr_t stack_guard;
+  uintptr_t stack_guard; // Must be at offset 20!
 #ifndef __ASSUME_PRIVATE_FUTEX
   int private_futex;
 #endif

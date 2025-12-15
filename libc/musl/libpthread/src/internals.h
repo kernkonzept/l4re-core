@@ -37,7 +37,6 @@
 #include "descr.h"
 
 #include "semaphore.h"
-extern int * __libc_pthread_init (void);
 
 #ifndef THREAD_GETMEM
 # define THREAD_GETMEM(descr, member) descr->member
@@ -268,9 +267,6 @@ static __inline__ int nonexisting_handle(pthread_handle h, pthread_t id)
 #ifndef SPIN_SLEEP_DURATION
 #define SPIN_SLEEP_DURATION 2000001
 #endif
-
-/* Defined and used in libc.so.  */
-extern int __libc_multiple_threads L4_HIDDEN;
 
 # define INIT_THREAD_SELF(descr, nr) do {				\
 		l4_utcb_tcr()->user[0] = (l4_umword_t)descr;		\

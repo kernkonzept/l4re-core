@@ -69,8 +69,6 @@ char *__pthread_initial_thread_bos;
 
 l4_cap_idx_t __pthread_manager_request = L4_INVALID_CAP;
 
-int __pthread_multiple_threads L4_HIDDEN;
-
 /* Other end of the pipe for sending requests to the thread manager. */
 
 int __pthread_manager_reader;
@@ -127,7 +125,6 @@ extern void *__dso_handle __attribute__ ((weak));
 extern void __libc_setup_tls (size_t tcbsize, size_t tcbalign);
 #endif
 
-static int *__libc_multiple_threads_ptr;
 l4_utcb_t *__pthread_first_free_utcb L4_HIDDEN;
 
 /*
@@ -218,8 +215,6 @@ __pthread_initialize_minimal(void)
 
   if (__pthread_l4_initialize_main_thread(self))
     exit(1);
-
-  __libc_multiple_threads_ptr = __libc_pthread_init ();
 }
 
 
@@ -348,10 +343,6 @@ int __pthread_initialize_manager(void)
   pthread_descr mgr;
   tcbhead_t *tcbp;
 
-  __pthread_multiple_threads = 1;
-  __pthread_main_thread->header.multiple_threads = 1;
-  *__libc_multiple_threads_ptr = 1;
-
 #ifndef HAVE_Z_NODELETE
   if (__builtin_expect (&__dso_handle != NULL, 1))
     __cxa_atexit ((void (*) (void *)) pthread_atexit_retcode, NULL,
@@ -393,7 +384,6 @@ int __pthread_initialize_manager(void)
   mgr->header.tcb = tcbp;
   mgr->header.self = mgr;
 #endif
-  mgr->header.multiple_threads = 1;
   mgr->p_start_args = (struct pthread_start_args) PTHREAD_START_ARGS_INITIALIZER(__pthread_manager);
 #if __LT_SPINLOCK_INIT != 0
   self->p_resume_count = (struct pthread_atomic) __ATOMIC_INITIALIZER;

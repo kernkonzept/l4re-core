@@ -95,8 +95,6 @@ struct pthread
   struct pthread_libc_data libc_data;
 #endif
 
-  int multiple_threads;
-
   // TODO: Like in musl we could move this between dtv and sysinfo in the header.
   pthread_descr p_nextlive, p_prevlive;
                                 /* Double chaining of active threads */

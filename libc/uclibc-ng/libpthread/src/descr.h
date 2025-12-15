@@ -101,11 +101,6 @@ struct pthread
 #if !defined(TLS_DTV_AT_TP)
     /* This overlaps the TCB as used for TLS without threads (see tls.h).  */
     tcbhead_t header;
-#else
-    struct
-    {
-      int multiple_threads;
-    } header;
 #endif
 
     /* This extra padding has no special purpose, and this structure layout

@@ -56,10 +56,6 @@ DEFINES_kip.S += -DL4_KIP_ADDR=$(L4_KIP_ADDR)
 SRC_S_libc.so += kip.S
 vpath kip.S $(PKGDIR)/../l4sys/lib/src/
 
-SRC_C_libc.so   += $(PTHOBJ_PFX)/libc_pthread_init.c
-
-DEFINES_libc_pthread_init.c += -D_GNU_SOURCE
-
 CXXFLAGS += -fno-rtti -fno-exceptions
 
 $(GENERAL_D_LOC): $(LIBCSRC_DIR_ABS)/libc/Make.rules $(LIBCSRC_DIR)/contrib_files.mk \
