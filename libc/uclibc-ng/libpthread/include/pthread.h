@@ -652,7 +652,7 @@ extern void _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *__buff
 #ifdef __USE_XOPEN2K
 /* Get ID of CPU-time clock for thread THREAD_ID.  */
 extern int pthread_getcpuclockid (pthread_t __thread_id,
-				  __clockid_t *__clock_id) __THROW;
+				  clockid_t *__clock_id) __THROW;
 #endif
 
 
@@ -679,6 +679,7 @@ extern int pthread_atfork (void (*__prepare) (void),
 			   void (*__child) (void)) __THROW;
 #endif
 
+#ifdef _GNU_SOURCE
 /* Terminate all threads in the program except the calling process.
    Should be called just before invoking one of the exec*() functions.  */
 
@@ -694,6 +695,7 @@ extern int pthread_setaffinity_np (pthread_t __th, size_t __cpusetsize,
 extern int pthread_getaffinity_np (pthread_t __th, size_t __cpusetsize,
                                    cpu_set_t *__cpuset)
      __THROW __nonnull ((3));
+#endif
 
 L4_END_DECLS
 
