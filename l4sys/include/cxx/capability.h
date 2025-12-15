@@ -480,4 +480,181 @@ public:
   { return _i != o._i; }
 };
 
+class Reply_cap;
+
+/**
+ * Interface to a reply capability allocator.
+ */
+class Reply_cap_alloc
+{
+  friend class Reply_cap;
+
+public:
+  constexpr Reply_cap_alloc() = default;
+
+  // Attention: do *not* define a destructor! We must keep the class trivially
+  // destructible so that no global destructor is created for
+  // L4Re::Util::reply_cap_alloc.
+  // virtual ~Reply_cap_alloc() = default;
+
+  Reply_cap_alloc(Reply_cap_alloc const &) = delete;
+  Reply_cap_alloc &operator = (Reply_cap_alloc const &) = delete;
+
+  /**
+   * Allocate new reply capability slot.
+   *
+   * \return Reply capability index or invalid index if exhausted.
+   */
+  virtual Reply_cap alloc() noexcept = 0;
+
+protected:
+  /**
+   * Free reply capability slot.
+   *
+   * The slot must have been allocated by the same allocator.
+   *
+   * \param cap The reply cap slot to free.
+   */
+  virtual void free(Reply_cap_idx cap) noexcept = 0;
+};
+
+/**
+ * An explicit reply capability.
+ *
+ * Represents a use-once, explicit reply capability. If valid, the class will
+ * ensure that the caller will always get a reply. Once used, the reply
+ * capability slot will be immediately released to the associated reply
+ * capability allocator.
+ */
+class Reply_cap
+{
+public:
+  /// Construct an invalid reply capability.
+  constexpr Reply_cap() noexcept = default;
+
+  /**
+   * Construct a valid explicit reply capability.
+   *
+   * The object will take ownership of the reply capability slot. It is
+   * returned to the allocator after being used.
+   *
+   * \param cap   The reply capability index
+   * \param alloc The associated reply capability allocator.
+   */
+  constexpr Reply_cap(Reply_cap_idx cap, Reply_cap_alloc *alloc) noexcept
+  : _cap(cap), _alloc(alloc)
+  {}
+
+  /**
+   * Destroy reply capabilits.
+   *
+   * \attention If the reply capability is still valid, an L4_EDROPREPLY error
+   *            reply is sent. See Reply_cap::reset().
+   */
+  ~Reply_cap()
+  { reset(); }
+
+  // not copyable
+  Reply_cap(Reply_cap const &) = delete;
+  Reply_cap &operator=(Reply_cap const &) = delete;
+
+  constexpr Reply_cap(Reply_cap &&o) noexcept
+  : _cap(o._cap), _alloc(o._alloc)
+  {
+    o._cap = Reply_cap_idx();
+    o._alloc = nullptr;
+  }
+
+  Reply_cap &operator=(Reply_cap &&o) noexcept
+  {
+    reset(o._cap, o._alloc);
+    o._cap = Reply_cap_idx();
+    o._alloc = nullptr;
+    return *this;
+  }
+
+  /**
+   * Reply with this reply capability.
+   *
+   * Disposes the reply capability after the reply was sent. Can be used only
+   * once. If the reply object is not valid, no message is sent.
+   *
+   * \param tag   Message tag for reply. The UTCB must have been prepared.
+   * \utcb{utcb}
+   *
+   * \retval  0                                     Success
+   * \retval  -(L4_EIPC_LO + L4_IPC_ENOT_EXISTENT)  Reply capability not valid
+   * \retval  <0                                    Other IPC error
+   */
+  l4_ret_t reply(l4_msgtag_t tag, l4_utcb_t *utcb = l4_utcb()) noexcept
+  {
+    l4_umword_t err = L4_IPC_ENOT_EXISTENT;
+    if (is_valid()) [[likely]]
+      {
+        err = l4_ipc_error(l4_ipc_reply(_cap.cap(), utcb, tag,
+                                        L4_IPC_BOTH_TIMEOUT_0), utcb);
+        _alloc->free(_cap);
+        _cap = Reply_cap_idx();
+      }
+
+    if (err) [[unlikely]]
+      return l4_ipc_to_errno(err);
+    else
+      return 0;
+  }
+
+  /**
+   * Get reply capability index.
+   *
+   * This method must not be used to send a reply. Use Reply_cap::reply()
+   * instead that does the proper reply capability lifetime management.
+   */
+  constexpr Reply_cap_idx get() const noexcept
+  { return _cap; }
+
+  constexpr bool is_valid() const noexcept
+  { return static_cast<bool>(_cap); }
+
+  explicit constexpr operator bool () const noexcept
+  { return is_valid(); }
+
+  constexpr bool operator==(Reply_cap const &o) const noexcept
+  { return _cap == o._cap; }
+
+  constexpr bool operator==(Reply_cap_idx o) const noexcept
+  { return _cap == o; }
+
+  constexpr bool operator!=(Reply_cap const &o) const noexcept
+  { return _cap != o._cap; }
+
+  constexpr bool operator!=(Reply_cap_idx o) const noexcept
+  { return _cap != o; }
+
+  /**
+   * Replace reply capability.
+   *
+   * \attention If the current reply capability is valid, an L4_EDROPREPLY
+   *            error reply is sent to the caller!
+   */
+  void reset(Reply_cap_idx cap = Reply_cap_idx(),
+             Reply_cap_alloc *alloc = nullptr) noexcept
+  {
+    if (is_valid()) [[unlikely]]
+      {
+        // If the reply cap is still valid, reply to the caller that we've
+        // dropped the reply. Should not happen in a well behaved server.
+        auto tag = l4_msgtag(-L4_EDROPREPLY, 0, 0, 0);
+        l4_ipc_reply(_cap.cap(), l4_utcb(), tag, L4_IPC_BOTH_TIMEOUT_0);
+        _alloc->free(_cap);
+      }
+
+    _cap = cap;
+    _alloc = alloc;
+  }
+
+private:
+  Reply_cap_idx _cap = Reply_cap_idx();
+  Reply_cap_alloc *_alloc = nullptr;
+};
+
 }
