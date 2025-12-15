@@ -25,6 +25,7 @@
 #include "restart.h"
 
 #include <l4/sys/compiler.h>
+
 int
 L4_HIDDEN
 __pthread_mutex_init(pthread_mutex_t * mutex,
@@ -270,7 +271,8 @@ L4_WEAK_ALIAS(__pthread_mutexattr_getpshared, pthread_mutexattr_getpshared)
 
 int
 L4_HIDDEN
-__pthread_mutexattr_setpshared (pthread_mutexattr_t *attr __attribute__((unused)), int pshared)
+__pthread_mutexattr_setpshared (pthread_mutexattr_t *attr __attribute__((unused)),
+                                int pshared)
 {
   if (pshared != PTHREAD_PROCESS_PRIVATE && pshared != PTHREAD_PROCESS_SHARED)
     return EINVAL;

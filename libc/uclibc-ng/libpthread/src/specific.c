@@ -83,12 +83,14 @@ static void pthread_key_delete_helper(l4_pthread_mgr_iface_t const *mgr, void *a
     self = args->self = thread_self();
 
   for (pthread_descr th = mgr->first_thread(); th != NULL; th = mgr->next_thread(th))
-    if (!th->p_terminated) {
-      /* pthread_exit() may try to free th->p_specific[idx1st] concurrently. */
-      __pthread_lock(th->p_lock, self);
-      if (th->p_specific[idx1st] != NULL)
-        th->p_specific[idx1st][idx2nd] = NULL;
-      __pthread_unlock(th->p_lock);
+    {
+      if (!th->p_terminated) {
+        /* pthread_exit() may try to free th->p_specific[idx1st] concurrently. */
+        __pthread_lock(th->p_lock, self);
+        if (th->p_specific[idx1st] != NULL)
+          th->p_specific[idx1st][idx2nd] = NULL;
+        __pthread_unlock(th->p_lock);
+      }
     }
 }
 

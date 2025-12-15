@@ -4,7 +4,6 @@
 #include <errno.h>
 #include <pthread-l4.h>
 #include <l4/sys/thread.h>
-#include <bits/sigthread.h>
 #include "internals.h"
 
 // In case no backend is available
