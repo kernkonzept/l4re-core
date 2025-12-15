@@ -18,9 +18,9 @@ include $(LIBCSRC_DIR)/make_vars.mk
 LDSODIR    = $(CONTRIB_DIR)/ldso/ldso
 
 SRC_CC_libc_pthread   = manager.cc l4.cc
-SRC_C_libc_pthread   += spinlock.c mutex.c condvar.c rwlock.c errno.c specific.c \
+SRC_C_libc_pthread   += spinlock.c mutex.c condvar.c rwlock.c specific.c \
                         semaphore.c attr.c barrier.c join.c pthread.c \
-                        cancel.c ptcleanup.c errno-loc.c signals.c \
+                        cancel.c ptcleanup.c signals.c \
                         sysdeps/$(LIBC_ARCH)/pspinlock.c
 SRC_S_libc_pthread    = tramp-$(ARCH).S
 
