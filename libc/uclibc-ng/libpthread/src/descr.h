@@ -28,6 +28,7 @@
 typedef struct pthread *pthread_descr;
 
 
+#include "pthread-api.h"
 
 /* Arguments passed to thread creation routine */
 struct pthread_start_args {

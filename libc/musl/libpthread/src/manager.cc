@@ -93,8 +93,6 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
 static void pthread_handle_free(pthread_t th_id);
 static void pthread_handle_exit(pthread_descr issuing_thread, int exitcode);
 //l4/static void pthread_kill_all_threads(int main_thread_also);
-static void pthread_for_each_thread(void *arg,
-    void (*fn)(void *, pthread_descr));
 
 static int pthread_handle_thread_exit(pthread_descr th);
 
@@ -195,7 +193,8 @@ __pthread_manager(void *arg)
 	     threads right away, avoiding a potential delay at shutdown. */
 	  break;
 	case REQ_EXEC_IN_MANAGER:
-	  request.req_args.exec_in_mgr.fn(&_pthread_mgr_iface, request.req_args.exec_in_mgr.arg);
+	  request.req_args.exec_in_mgr.fn(&_pthread_mgr_iface,
+                                          request.req_args.exec_in_mgr.arg);
           restart(request.req_thread);
 	  do_reply = 1;
 	  break;
@@ -917,20 +916,6 @@ static void pthread_kill_all_threads(int main_thread_also)
 #endif
 }
 #endif
-
-static void pthread_for_each_thread(void *arg,
-    void (*fn)(void *, pthread_descr))
-{
-  pthread_descr th;
-
-  for (th = __pthread_main_thread->p_nextlive;
-       th != __pthread_main_thread;
-       th = th->p_nextlive) {
-    fn(arg, th);
-  }
-
-  fn(arg, __pthread_main_thread);
-}
 
 /* Process-wide exit() */
 

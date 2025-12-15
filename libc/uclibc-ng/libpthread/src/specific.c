@@ -72,7 +72,7 @@ struct pthread_key_delete_helper_args {
   pthread_descr self;
 };
 
-static void pthread_key_delete_helper(void *arg, pthread_descr th)
+static void pthread_key_delete_helper(l4_pthread_mgr_iface_t const *mgr, void *arg)
 {
   struct pthread_key_delete_helper_args *args = arg;
   unsigned int idx1st = args->idx1st;
@@ -82,13 +82,14 @@ static void pthread_key_delete_helper(void *arg, pthread_descr th)
   if (self == 0)
     self = args->self = thread_self();
 
-  if (!th->p_terminated) {
-    /* pthread_exit() may try to free th->p_specific[idx1st] concurrently. */
-    __pthread_lock(th->p_lock, self);
-    if (th->p_specific[idx1st] != NULL)
-      th->p_specific[idx1st][idx2nd] = NULL;
-    __pthread_unlock(th->p_lock);
-  }
+  for (pthread_descr th = mgr->first_thread(); th != NULL; th = mgr->next_thread(th))
+    if (!th->p_terminated) {
+      /* pthread_exit() may try to free th->p_specific[idx1st] concurrently. */
+      __pthread_lock(th->p_lock, self);
+      if (th->p_specific[idx1st] != NULL)
+        th->p_specific[idx1st][idx2nd] = NULL;
+      __pthread_unlock(th->p_lock);
+    }
 }
 
 /* Delete a key */
@@ -122,9 +123,9 @@ int pthread_key_delete(pthread_key_t key)
       args.self = 0;
 
       request.req_thread = self;
-      request.req_kind = REQ_FOR_EACH_THREAD;
-      request.req_args.for_each.arg = &args;
-      request.req_args.for_each.fn = pthread_key_delete_helper;
+      request.req_kind = REQ_EXEC_IN_MANAGER;
+      request.req_args.exec_in_mgr.arg = &args;
+      request.req_args.exec_in_mgr.fn = pthread_key_delete_helper;
 #if 1
       __pthread_send_manager_rq(&request, 1);
 #else
