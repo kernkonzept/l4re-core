@@ -8,13 +8,13 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <time.h>
+#include <l4/libc_backends/clk.h>
 #include <l4/re/env.h>
 #include <l4/sys/kip.h>
 
 #include "clocks.h"
 
 typedef int Get_clock(const struct timespec *);
-extern uint64_t __libc_l4_rt_clock_offset;
 
 static int rt_clock_settime(const struct timespec *tp)
 {
