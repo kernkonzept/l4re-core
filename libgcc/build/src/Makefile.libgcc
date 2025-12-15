@@ -1,8 +1,3 @@
-# SPDX-License-Identifier: GPL-2.0-only OR License-Ref-kk-custom */
-#
-# Copyright (C) 2022 Kernkonzept GmbH.
-# Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
-
 # Variable LIBGCC_PKG_DIR must be set correctly!
 
 # Default names for static libraries, might be overriden if multiple variants
