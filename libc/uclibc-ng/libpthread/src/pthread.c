@@ -216,9 +216,6 @@ __pthread_initialize_minimal(void)
   /* Another variable which points to the thread descriptor.  */
   __pthread_main_thread = self;
 
-#if HP_TIMING_AVAIL
-  self->p_cpuclock_offset = GL(dl_cpuclock_offset);
-#endif
   if (__pthread_l4_initialize_main_thread(self))
     exit(1);
 

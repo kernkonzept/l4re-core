@@ -262,16 +262,8 @@ pthread_start_thread(void *arg)
 #endif
 
   void * outcome;
-#if HP_TIMING_AVAIL
-  hp_timing_t tmpclock;
-#endif
   /* Initialize special thread_self processing, if any.  */
   INIT_THREAD_SELF(self, self->p_nr);
-
-#if HP_TIMING_AVAIL
-  HP_TIMING_NOW (tmpclock);
-  THREAD_SETMEM (self, p_cpuclock_offset, tmpclock);
-#endif
 
   /* Run the thread code */
   outcome = self->p_start_args.start_routine(THREAD_GETMEM(self,
