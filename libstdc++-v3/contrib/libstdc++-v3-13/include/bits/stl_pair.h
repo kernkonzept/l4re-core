@@ -302,7 +302,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       /// Constructor accepting lvalues of `first_type` and `second_type`
       constexpr explicit(!_S_convertible<const _T1&, const _T2&>())
-      pair(const _T1& __x, const _T2& __y)
+      pair(const type_identity_t<_T1>& __x, const _T2& __y)
       noexcept(_S_nothrow_constructible<const _T1&, const _T2&>())
       requires (_S_constructible<const _T1&, const _T2&>())
       : first(__x), second(__y)
@@ -1067,12 +1067,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template <typename _Tp, typename _Up>
     constexpr _Tp&&
     get(pair<_Tp, _Up>&& __p) noexcept
-    { return std::move(__p.first); }
+    { return std::forward<_Tp>(__p.first); }
 
   template <typename _Tp, typename _Up>
     constexpr const _Tp&&
     get(const pair<_Tp, _Up>&& __p) noexcept
-    { return std::move(__p.first); }
+    { return std::forward<const _Tp>(__p.first); }
 
   template <typename _Tp, typename _Up>
     constexpr _Tp&
@@ -1087,12 +1087,12 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template <typename _Tp, typename _Up>
     constexpr _Tp&&
     get(pair<_Up, _Tp>&& __p) noexcept
-    { return std::move(__p.second); }
+    { return std::forward<_Tp>(__p.second); }
 
   template <typename _Tp, typename _Up>
     constexpr const _Tp&&
     get(const pair<_Up, _Tp>&& __p) noexcept
-    { return std::move(__p.second); }
+    { return std::forward<const _Tp>(__p.second); }
 
 #if __cplusplus > 202002L
   template<typename _T1, typename _T2, typename _U1, typename _U2,

@@ -1,3 +1,84 @@
+2025-11-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-11-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122726
+	* src/filesystem/ops-common.h [_GLIBCXX_FILESYSTEM_IS_WINDOWS]
+	(rename): Use __last_system_error to set errno accurately.
+	* testsuite/27_io/filesystem/operations/rename.cc: Test
+	error_code matches errc::no_such_file_or_directory.
+
+2025-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122661
+	* include/bits/forward_list.h (forward_list::assign(I, I)): Fix
+	value category in is_assignable check.
+	* testsuite/23_containers/forward_list/modifiers/122661.cc:
+	New test.
+
+2025-09-09  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	Backported from master:
+	2025-09-05  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* doc/html/manual/status.html: Regenerate.
+	* doc/xml/manual/status_cxx2011.xml: Add entry for bad_function_call.
+	* doc/xml/manual/status_cxx2017.xml: Add entries for bad_any_cast
+	and nullptr_t output. Update entry for sf.cmath. Fix stable name for
+	mem.res.
+
+2025-09-09  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	Backported from master:
+	2025-09-05  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* doc/html/manual/status.html: Regenerate the file.
+	* doc/xml/manual/status_cxx2017.xml: Addd more entires.
+
+2025-09-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-09-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/120698
+	* doc/xml/manual/configure.xml: Do not claim that vtv is enabled
+	by default.
+	* doc/html/manual/configure.html: Regenerate.
+
+2025-09-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-09-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/110853
+	* include/bits/stl_pair.h [C++20] (pair(const T1&, const T2&)):
+	Use std::type_identity_t<T1> for first parameter.
+	* testsuite/20_util/pair/cons/110853.cc: New test.
+
+2025-09-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-09-03  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/121745
+	* include/bits/stl_pair.h (get): Use forward instead of move in
+	std::get<T> overloads for rvalue pairs.
+	* testsuite/20_util/pair/astuple/get_by_type.cc: Check all value
+	categories and cv-qualification.
+
+2025-09-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-07-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/121097
+	* include/c_global/cmath (hypot): Use __promote_3 instead of
+	__promoted.
+
 2025-06-11  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
