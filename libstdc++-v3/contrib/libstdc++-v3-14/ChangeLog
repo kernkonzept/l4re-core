@@ -1,3 +1,129 @@
+2025-11-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-11-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122726
+	* src/filesystem/ops-common.h [_GLIBCXX_FILESYSTEM_IS_WINDOWS]
+	(rename): Use __last_system_error to set errno accurately.
+	* testsuite/27_io/filesystem/operations/rename.cc: Test
+	error_code matches errc::no_such_file_or_directory.
+
+2025-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/any: Add diagnostic pragmas to disable warning
+	about std::aligned_storage being deprecated.
+
+2025-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-09-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_base.h (__atomic_base<T*>::_M_type_size):
+	Replace overloaded functions with static _S_type_size.
+	* include/std/atomic (atomic<T*>): Use is_object_v instead of
+	is_object.
+	* testsuite/29_atomics/atomic/operators/pointer_partial_void.cc:
+	Add dg-warning for -Wpointer-arith warning.
+
+2025-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2024-09-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/20_util/bind/dangling_ref.cc: Add an additional
+	dg-warning for -Wreturn-local-addr warning.
+	* testsuite/30_threads/packaged_task/cons/dangling_ref.cc:
+	Likewise.
+
+2025-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122661
+	* include/bits/forward_list.h (forward_list::assign(I, I)): Fix
+	value category in is_assignable check.
+	* testsuite/23_containers/forward_list/modifiers/122661.cc:
+	New test.
+
+2025-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-07-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/118681
+	* src/c++17/memory_resource.cc (choose_block_size): New
+	function.
+	(synchronized_pool_resource::do_allocate): Use choose_block_size
+	to determine appropriate block size.
+	(synchronized_pool_resource::do_deallocate): Likewise
+	(unsynchronized_pool_resource::do_allocate): Likewise.
+	(unsynchronized_pool_resource::do_deallocate): Likewise
+	* testsuite/20_util/synchronized_pool_resource/118681.cc: New
+	test.
+	* testsuite/20_util/unsynchronized_pool_resource/118681.cc: New
+	test.
+
+2025-10-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-10-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122322
+	* configure.ac (with_newlib) <*-rtems*>: Remove
+	HAVE_SYS_IOCT4YL_H, _GLIBCXX_USE_LINK, _GLIBCXX_USE_READLINK,
+	_GLIBCXX_USE_SYMLINK, _GLIBCXX_USE_TRUNCATE, and
+	_GLIBCXX_USE_FDOPENDIR. Remove duplicates.
+	* configure: Regenerate.
+
+2025-10-15  Joel Sherrill  <joel@rtems.org>
+
+	* configure: Regenerate.
+	* configure.ac (newlib, *-rtems*): Add HAVE_SYS_IOCTL_H,
+	HAVE_SYS_STAT_H, HAVE_SYS_TYPES_H, HAVE_S_ISREG, HAVE_UNISTD_H,
+	HAVE_UNLINKAT, _GLIBCXX_USE_CHMOD, _GLIBCXX_USE_MKDIR,
+	_GLIBCXX_USE_CHDIR, _GLIBCXX_USE_GETCWD, _GLIBCXX_USE_UTIME,
+	_GLIBCXX_USE_LINK, _GLIBCXX_USE_READLINK, _GLIBCXX_USE_SYMLINK,
+	_GLIBCXX_USE_TRUNCATE and _GLIBCXX_USE_FDOPENDIR.
+
+2025-10-14  Jakub Jelinek  <jakub@redhat.com>
+
+	Backported from master:
+	2025-09-08  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/121827
+	* include/precompiled/extc++.h: Don't include ext/cast.h which is an
+	internal header.
+	* include/ext/pointer.h: Include bits/c++config.h before
+	#if _GLIBCXX_HOSTED.
+
+2025-10-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122168
+	* testsuite/20_util/ratio/operations/ops_overflow_neg.cc: Add
+	dg-error for additional error seen with -Wsystem-headers.
+
+2025-10-01  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-09-24  Patrick Palka  <ppalka@redhat.com>
+
+	* testsuite/17_intro/names.cc: Undefine 'u' on s390*-linux.
+
+2025-10-01  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2025-09-17  Patrick Palka  <ppalka@redhat.com>
+
+	* testsuite/20_util/bind/dangling_ref.cc: Compile with
+	-Wsystem-headers.
+	* testsuite/20_util/ratio/operations/ops_overflow_neg.cc: Likewise.
+	* testsuite/29_atomics/atomic/operators/pointer_partial_void.cc:
+	Likewise.
+	* testsuite/30_threads/packaged_task/cons/dangling_ref.cc:
+	Likewise.
+
 2025-09-15  Jonathan Wakely  <jwakely@redhat.com>
 
 	Backported from master:
