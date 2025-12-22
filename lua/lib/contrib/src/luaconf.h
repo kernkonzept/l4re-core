@@ -339,7 +339,7 @@
 /*
 @@ LUA_COMPAT_GLOBAL avoids 'global' being a reserved word
 */
-#define LUA_COMPAT_GLOBAL
+/* #define LUA_COMPAT_GLOBAL */
 
 
 /*
@@ -358,12 +358,14 @@
 ** (Once more, these macros were officially removed in 5.3, but they are
 ** still available here.)
 */
+#if 0
 #define lua_strlen(L,i)		lua_rawlen(L, (i))
 
 #define lua_objlen(L,i)		lua_rawlen(L, (i))
 
 #define lua_equal(L,idx1,idx2)		lua_compare(L,(idx1),(idx2),LUA_OPEQ)
 #define lua_lessthan(L,idx1,idx2)	lua_compare(L,(idx1),(idx2),LUA_OPLT)
+#endif
 
 /* }================================================================== */
 
