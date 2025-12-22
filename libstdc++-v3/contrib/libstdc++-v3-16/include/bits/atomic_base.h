@@ -1561,11 +1561,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       __atomic_ref_base& operator=(const __atomic_ref_base&) = delete;
 
       explicit
-      __atomic_ref_base(const _Tp& __t)
-	: _M_ptr(const_cast<_Tp*>(std::addressof(__t)))
-      {
-	__glibcxx_assert(((__UINTPTR_TYPE__)_M_ptr % required_alignment) == 0);
-      }
+      __atomic_ref_base(const _Tp* __ptr) noexcept
+      : _M_ptr(const_cast<_Tp*>(__ptr))
+      { }
 
       __atomic_ref_base(const __atomic_ref_base&) noexcept = default;
 
@@ -1584,7 +1582,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       wait(value_type __old, memory_order __m = memory_order_seq_cst) const noexcept
       {
 	// TODO remove when volatile is supported
-	static_assert(!is_volatile_v<_Tp>, "atomics waits on volatile are not supported");
+	static_assert(!is_volatile_v<_Tp>,
+		      "atomic waits on volatile are not supported");
 	__atomic_impl::wait(_M_ptr, __old, __m);
       }
 #endif // __glibcxx_atomic_wait
@@ -1606,7 +1605,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       using value_type = typename __atomic_ref_base<const _Tp>::value_type;
 
       explicit
-      __atomic_ref_base(_Tp& __t) : __atomic_ref_base<const _Tp>(__t)
+      __atomic_ref_base(_Tp* __ptr) noexcept
+      : __atomic_ref_base<const _Tp>(__ptr)
       { }
 
       value_type
@@ -1666,7 +1666,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       notify_one() const noexcept
       {
 	// TODO remove when volatile is supported
-	static_assert(!is_volatile_v<_Tp>, "atomics waits on volatile are not supported");
+	static_assert(!is_volatile_v<_Tp>,
+		      "atomic waits on volatile are not supported");
 	__atomic_impl::notify_one(this->_M_ptr);
       }
 
@@ -1674,7 +1675,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       notify_all() const noexcept
       {
 	// TODO remove when volatile is supported
-	static_assert(!is_volatile_v<_Tp>, "atomics waits on volatile are not supported");
+	static_assert(!is_volatile_v<_Tp>,
+		      "atomic waits on volatile are not supported");
 	__atomic_impl::notify_all(this->_M_ptr);
       }
 #endif // __glibcxx_atomic_wait

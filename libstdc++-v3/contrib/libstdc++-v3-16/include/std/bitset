@@ -46,8 +46,8 @@
 #pragma GCC system_header
 #endif
 
-#include <bits/functexcept.h>   // For invalid_argument, out_of_range,
-                                // overflow_error
+#include <bits/stdexcept_throw.h> // For invalid_argument, out_of_range,
+				  // overflow_error
 #include <bits/stl_algobase.h>  // For std::fill
 
 #if _GLIBCXX_HOSTED
@@ -1012,7 +1012,7 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 	}
 #endif // HOSTED
 
-#ifdef __cpp_lib_bitset
+#ifdef __cpp_lib_bitset // C++ >= 23
       /**
        *  Use a subset of a string view.
        *  @param  __s  A `string_view` of a sequence of `0` and `1` characters.
@@ -1549,7 +1549,14 @@ _GLIBCXX_BEGIN_NAMESPACE_CONTAINER
 		       size_t __pos, size_t __n, _CharT __zero, _CharT __one)
       {
 	reset();
-	const size_t __nbits = std::min(_Nb, std::min(__n, size_t(__len - __pos)));
+	const size_t __rlen = std::min(__n, size_t(__len - __pos));
+	const size_t __nbits = std::min(_Nb, __rlen);
+	for (size_t __i = __rlen - __nbits; __i > 0; --__i)
+	  {
+	    const _CharT __c = __s[__pos + __rlen - __i];
+	    if (!_Traits::eq(__c, __zero) && !_Traits::eq(__c, __one))
+	      __throw_invalid_argument(__N("bitset::_M_copy_from_ptr"));
+	  }
 	for (size_t __i = __nbits; __i > 0; --__i)
 	  {
 	    const _CharT __c = __s[__pos + __nbits - __i];

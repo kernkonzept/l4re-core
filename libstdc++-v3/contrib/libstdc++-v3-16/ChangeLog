@@ -1,3 +1,1703 @@
+2025-12-22  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* doc/html/manual/using_macros.html: Regenerate.
+	* doc/xml/manual/using.xml: Add entries for
+	_GLIBCXX_USE_OLD_GENERATE_CANONICAL and
+	_GLIBCXX_USE_VARIANT_CXX17_OLD_ABI.
+
+2025-12-19  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/112591
+	* include/std/variant (_Uninitialized::_M_get, __get_n)
+	(_Uninitialized<_Type, false>): Add _GLIBCXX_USE_VARIANT_CXX17_OLD_ABI
+	check to preprocessor guard.
+	* testsuite/20_util/variant/112591.cc: Updated tests.
+	* testsuite/20_util/variant/112591_compat.cc: New test.
+	* testsuite/20_util/variant/constinit.cc: New test.
+	* testsuite/20_util/variant/constinit_compat.cc: New test.
+
+2025-12-19  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/gencanon_eng.cc:
+	Test __float128 when available.
+
+2025-12-19  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/random.h (__rand_uint128::operator>)
+	(__rand_uint128::operator>=): Define.
+	* include/bits/random.tcc (__generate_canonical_pow2):
+	Adjust for use of __rand_uint128 in C++11.
+	(__gen_can_pow, __gen_can_rng_calls_needed): Replace with
+	__gen_canon_log.
+	(__gen_canon_log_res, __gen_canon_log): Define.
+	(__generate_canonical_any): Reworked how _UInt is determined.
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/gencanon_eng.cc:
+	New test.
+
+2025-12-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/123147
+	* include/bits/chrono_io.h (_Parser::operator()) <%S>: Use a
+	buffer of narrow characters to be parsed by std::from_chars.
+	* testsuite/std/time/parse/parse.cc: Check wchar_t parsing.
+
+2025-12-19  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/debug/helper_functions.h (__gnu_debug::__can_advance):
+	Declare as _GLIBCXX20_CONSTEXPR.
+	* include/debug/safe_iterator.h (__gnu_debug::__can_advance):
+	Define as _GLIBCXX20_CONSTEXPR, and return true for constexpr
+	evaluation.
+	(__gnu_debug::__base): Define as _GLIBCXX20_CONSTEXPR.
+
+2025-12-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++11/mutex.cc [_GLIBCXX_NO_EXTERN_THREAD_LOCAL]
+	(__get_once_call): Use std::add_lvalue_reference.
+
+2025-12-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono_io.h (__formatter_chrono::_M_write): Add
+	maybe_unused attribute to avoid -Wunused-parameter warning.
+	* src/c++20/tzdb.cc (detect_windows_zone): Decay array to
+	pointer to avoid -Warray-compare warning.
+
+2025-12-18  LIU Hao  <lh_mouse@126.com>
+	    Jonathan Wakely  <jwakely@redhat.com>
+
+	* config/os/mingw32-w64/os_defines.h (_GLIBCXX_NO_EXTERN_THREAD_LOCAL):
+	New macro.
+	* include/std/mutex [_GLIBCXX_NO_EXTERN_THREAD_LOCAL]
+	(__get_once_callable, __get_once_call): Declare new functions.
+	* src/c++11/mutex.cc [_GLIBCXX_NO_EXTERN_THREAD_LOCAL]
+	(__get_once_callable, __get_once_call): Define.
+
+2025-12-18  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/123180
+	* include/bits/ranges_algo.h (__stable_sort_fn::operator()): Fix
+	sense of null check. Replace typedef with alias-declaration.
+	* testsuite/25_algorithms/stable_sort/123180.cc: New test.
+
+2025-12-18  Jonathan Wakely  <jwakely@redhat.com>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	* include/bits/random.tcc (__generate_canonical_pow2): Adjust
+	comments. Remove _UInt template parameter and define it in the
+	body using _Select_uint_least_t<__d>. Remove popcount call for
+	getting the width of the _UInt type. Cast floating-point
+	literal to _RealT.
+	(__generate_canonical_any): Remove _UInt template parameter and
+	define it in the body using _Select_uint_least_t<__d * 2>. Use
+	direct-initialization for _UInt variables. Cast floating-point
+	literal to _RealT.
+	(generate_canonical): Remove unused typedef. Remove constexpr-if
+	branches and remove unsigned type from template argument lists.
+
+2025-12-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/version.def (constexpr_exceptions): Add
+	cxx11abi=yes.
+	* include/bits/version.h: Regenerate.
+	* testsuite/18_support/exception/version.cc: Require effectiove
+	target cxx11_abi.
+	* testsuite/18_support/exception_ptr/exception_ptr_cast.cc: Only
+	check for constexpr support in cxx11 ABI.
+	* testsuite/19_diagnostics/headers/stdexcept/version.cc: Require
+	effective target cxx11_abi.
+	* testsuite/19_diagnostics/logic_error/constexpr.cc: Likewise.
+	* testsuite/19_diagnostics/runtime_error/constexpr.cc: Likewise.
+	* testsuite/20_util/expected/version.cc: Only check for
+	__cpp_lib_constexpr_exceptions macro for cxx11 ABI.
+	* testsuite/20_util/optional/version.cc: Likewise.
+	* testsuite/20_util/variant/version.cc: Likewise.
+
+2025-12-17  Jonathan Wakely  <jwakely@redhat.com>
+	    Jakub Jelinek  <jakub@redhat.com>
+
+	* include/bits/random.h [!__SIZEOF_INT128__] (__rand_uint128):
+	Refactor and rename _Select_uint_least_t<128>::type to a new
+	class. Make all members constexpr. Add new member functions for
+	additional arithmetic and bitwise operations, and comparisons.
+	(__detail::_Select_uint_least_t<>::type): Define as an alias of
+	__rand_uint128.
+	* include/bits/random.tcc (philox_engine::_M_mulhi): Use
+	_Select_uint_least_t<w*2>::type instead of __uint128_t.
+	(philox_engine::_M_transition): Likewise.
+	* include/bits/version.def (philox_engine): Remove extra_cond.
+	* include/bits/version.h: Regenerate.
+	* testsuite/26_numerics/random/philox4x32.cc: Remove
+	dg-require-cpp-feature-test directive.
+	* testsuite/26_numerics/random/philox4x64.cc: Likewise.
+	* testsuite/26_numerics/random/philox_engine/cons/copy.cc:
+	Likewise.
+	* testsuite/26_numerics/random/philox_engine/cons/default.cc:
+	Likewise.
+	* testsuite/26_numerics/random/philox_engine/cons/seed.cc:
+	Likewise.
+	* testsuite/26_numerics/random/philox_engine/operators/equal.cc:
+	Likewise.
+	* testsuite/26_numerics/random/philox_engine/operators/serialize.cc:
+	Likewise.
+	* testsuite/26_numerics/random/philox_engine/requirements/constants.cc:
+	Likewise.
+	* testsuite/26_numerics/random/philox_engine/requirements/typedefs.cc:
+	Likewise.
+
+2025-12-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/64351.cc:
+	Add -fexcess-precision=standard to options.
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/gencanon.cc:
+	Likewise.
+
+2025-12-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/64351.cc
+	[_GLIBCXX_USE_OLD_GENERATE_CANONICAL]: Restore test01. Do not discard an
+	extra value in test02.
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/gencanon.cc:
+	Skip if _GLIBCXX_USE_OLD_GENERATE_CANONICAL is defined in options.
+
+2025-12-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/random.h [!_GLIBCXX_USE_OLD_GENERATE_CANONICAL]
+	(generate_canonical): Use inline namespace _V2.
+	* include/bits/random.tcc [!_GLIBCXX_USE_OLD_GENERATE_CANONICAL]
+	(generate_canonical): Likewise.
+	* testsuite/26_numerics/random/pr60037-neg.cc: Remove lineno so
+	that one dg-error matches both diagnostics.
+
+2025-12-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/random.tcc [_GLIBCXX_USE_OLD_GENERATE_CANONICAL]
+	(generate_canonical): Restore braces around statement.
+
+2025-12-17  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/random.tcc (generate_canonical)
+	[!_GLIBCXX_USE_OLD_GENERATE_CANONICAL]: Use static_assert
+	instead of type-constraint on template parameter.
+	* testsuite/26_numerics/random/pr60037-neg.cc: Updated line
+	of error.
+
+2025-12-17  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/random.tcc (generate_canonical): Update
+	error message to match pre-existing one in random.h.
+	* testsuite/26_numerics/random/pr60037-neg.cc: Updated
+	line for error message.
+
+2025-12-17  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/bits/random.tcc (std::generate_canonical): Use
+	__extension__ before __generate_canonical_{pow2,any} calls with
+	unsigned __int128 template arguments.
+
+2025-12-17  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/atomic_base.h
+	(__atomic_ref_base<const _Tp>::__atomic_ref_base): Accept
+	pointer instead of reference. Remove precondition check and
+	mark as noexcept.
+	(__atomic_ref_base<_Tp>::__atomic_ref_base): Accept pointer
+	insted of reference, and mark as noexcept.
+	* include/std/atomic (atomic_ref::atomic_ref(_Tp&)): Add
+	precondition check and take address of argument.
+	(atomic_ref::atomic_ref(_Tp&&)): Define as deleted.
+	(atomic_ref::atomic_ref(atomic_ref<_Up>)): Define.
+	* include/bits/shared_ptr_atomic.h (_Sp_atomic::_Atomic_count):
+	Pass address to __atomic_ref constructor.
+	* include/std/barrier (__tree_barrier_base::_M_arrive)
+	(__tree_barrier::arrive): Pass address to __atomic_ref constructor.
+	* testsuite/29_atomics/atomic_ref/ctor.cc: New test.
+
+2025-12-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/type_traits (_Integer_kind): New enum type.
+	(__is_integral_helper::_S_kind): New static data member in
+	primary template and each explicit specialization.
+	(__is_signed_integer, __is_unsigned_integer): Use _S_kind
+	instead of O(n) disjunction with is_same.
+
+2025-12-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122907
+	* include/bits/cpp_type_traits.h (__memcpyable_integer<bool>):
+	Define as false.
+	* testsuite/25_algorithms/copy/122907.cc: New test.
+
+2025-12-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/lib/libstdc++.exp (dg-v3-runtest) Set default_std to
+	20.
+
+2025-12-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/chrono (chrono::__detail::__get_leap_second_info):
+	Update expiry date for leap seconds list.
+	* src/c++20/tzdb.cc (tzdb_list::_Node::_S_read_leap_seconds):
+	Likewise.
+	* src/c++20/tzdata.zi: Import new file from 2025c release.
+
+2025-12-16  Nathan Myers  <ncm@cantrip.org>
+
+	PR libstdc++/119739
+	* include/bits/random.tcc: Add generate_canonical impl for C++26.
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/64351.cc:
+	Adapt test for both pre- and post- C++26.
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/gencanon.cc:
+	Test for float and double from 32-bit RNG, including 1.0 do-over.
+
+2025-12-16  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/113299
+	* include/bits/deque.tcc (__copy_move_a1): Constrain with
+	__is_any_random_access_iter instead of __is_random_access_iter.
+	(__copy_move_backward_a1): Likewise.
+	(__equal_aux1): Likewise.
+	* include/bits/stl_algo.h (__search_n): Use
+	__iter_concept_or_category instead of __iterator_category
+	or iterator_traits::iterator_category.
+	(find_end): Likewise.
+	(__is_permutation): Likewise.
+	(for_each_n): Likewise.
+	(unique_copy): Likewise, for constant iterators.
+	(sample): Likewise, for constant iterators.
+	* include/bits/stl_algobase.h (__copy_move_a1): Adjust
+	deque-based forward declaration accordingly.
+	(__copy_move_backward_a1): Likewise.
+	(__equal_aux1): Likewise.
+	(__lexicographical_compare_impl): Use
+	__iter_concept_or_category instead of __iterator_category or
+	iterator_traits::iterator_category.
+	(__equal4): Likewise.
+	* include/bits/stl_iterator_base_funcs.h
+	(__iter_concept_or_category): New.
+	(__is_any_random_access_iter): New.
+	(_GLIBCXX_ITER_MOVE): New.
+	* include/bits/stl_uninitialized.h (uninitialized_copy_n):
+	Use __iterator_concept_or_category instead of
+	__iterator_category for the constant iterator __first.
+	(__uninitialized_copy_n_pair): Likewise.
+	* include/bits/version.def (algorithm_iterator_requirements):
+	Define.
+	* include/bits/version.h: Regenerate.
+	* include/std/algorithm: Provide the FTM
+	__cpp_lib_algorithm_iterator_requirements.
+	* include/std/memory: Likewise.
+	* include/std/numeric: Likewise.  Include
+	<bits/stl_iterator_base_funcs.h>.
+	(reduce): Use __is_any_random_access_iter instead of
+	__is_random_access_iter.
+	(transform_reduce): Likewise.
+	(inclusive_scan): Use _GLIBCXX_ITER_MOVE instead of std::move.
+	* testsuite/25_algorithms/find_end/c++20_iter.cc: New test.
+	* testsuite/25_algorithms/sample/c++20_iter.cc: New test.
+	* testsuite/25_algorithms/search_n/c++20_iter.cc: New test.
+	* testsuite/25_algorithms/unique_copy/c++20_iter.cc: New test.
+	* testsuite/26_numerics/inclusive_scan/c++20_iter.cc: New test.
+
+2025-12-12  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	* include/std/mdspan (submdspan): Fix missing '::template'.
+
+2025-12-11  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/121114
+	* include/bits/version.def: Implement C++26 P3378R2 - constexpr
+	exception types.
+	(constexpr_exceptions): Change value from 1 to 202502, remove
+	no_stdname and TODO comments.
+	* include/bits/version.h: Regenerate.
+	* src/c++11/cow-stdexcept.cc (__cow_string(const char*)): New
+	ctor.
+	(__cow_string::c_str()): New method.
+	* config/abi/pre/gnu.ver (GLIBCXX_3.4.35): Export 8 __cow_string
+	symbols.
+	* include/bits/new_except.h: New file.
+	* include/bits/new_throw.h: New file.
+	* include/bits/stdexcept_throw.h: New file.
+	* include/bits/stdexcept_throwdef.h: New file.
+	* include/bits/stdexcept_throwfwd.h: New file.
+	* include/std/stdexcept: Include bits/stdexcept_except.h and move
+	everything after <string> include except for std::range_error into
+	include/bits/stdexcept_except.h.
+	(std::range_error): If __cpp_lib_constexpr_exceptions >= 202502L
+	make all cdtors and methods constexpr.
+	* include/bits/stdexcept_except.h: New file.
+	* include/std/optional (__glibcxx_want_constexpr_exceptions): Define
+	before including bits/version.h.
+	(bad_optional_access::what): Make constexpr for
+	__cpp_lib_constexpr_exceptions >= 202502L.
+	(__throw_bad_optional_access): Likewise.
+	* include/std/expected (__glibcxx_want_constexpr_exceptions): Define
+	before including bits/version.h.
+	(bad_expected_access): Make cdtors and all methods constexpr for
+	__cpp_lib_constexpr_exceptions >= 202502L.
+	* include/std/format (__glibcxx_want_constexpr_exceptions): Define
+	before including bits/version.h.
+	(_GLIBCXX_CONSTEXPR_FORMAT_ERROR): Define and undef later.
+	(format_error): Use _GLIBCXX_CONSTEXPR_FORMAT_ERROR on ctors.
+	* include/std/variant (__glibcxx_want_constexpr_exceptions): Define
+	before including bits/version.h.
+	(_GLIBCXX_CONSTEXPR_BAD_VARIANT_ACCESS): Define and undef later.
+	(bad_variant_access): Use it on ctors and what() method.
+	(__throw_bad_variant_access): Use it here too.
+	* testsuite/18_support/exception/version.cc: Adjust expected
+	__cpp_lib_constexpr_exceptions value.
+	* testsuite/19_diagnostics/runtime_error/constexpr.cc: New test.
+	* testsuite/19_diagnostics/headers/stdexcept/version.cc: New test.
+	* testsuite/19_diagnostics/logic_error/constexpr.cc: New test.
+	* testsuite/20_util/expected/observers.cc (test_value_throw): Change
+	return type to bool from void, return true at the end, add test
+	to dereference what() first character.  Make it constexpr for
+	__cpp_lib_constexpr_exceptions >= 202502L and add static_assert.
+	* testsuite/20_util/expected/version.cc: Add tests for
+	__cpp_lib_constexpr_exceptions value.
+	* testsuite/20_util/variant/constexpr.cc: For
+	__cpp_lib_constexpr_exceptions >= 202502L include <string>.
+	(test_get): New function if __cpp_lib_constexpr_exceptions >= 202502L,
+	assert calling it is true.
+	* testsuite/20_util/variant/version.cc: Add tests for
+	__cpp_lib_constexpr_exceptions value.
+	* testsuite/20_util/optional/constexpr/observers/3.cc: Include
+	testsuite_hooks.h.
+	(eat, test01): New functions.  Assert test01() is true.
+	* testsuite/20_util/optional/version.cc: Add tests for
+	__cpp_lib_constexpr_exceptions value.
+	* include/std/future: Add #include <bits/functexcept.h>.
+	* include/std/shared_mutex: Include <bits/new_throw.h>.
+	* include/std/flat_map: Include <bits/stdexcept_throw.h> instead of
+	<bits/functexcept.h>.
+	* include/std/syncstream: Remove <bits/functexcept.h> include.
+	* include/std/flat_set: Likewise.
+	* include/std/bitset: Include <bits/stdexcept_throw.h> instead of
+	<bits/functexcept.h>.
+	* include/std/string_view: Don't include <bits/functexcept.h>, include
+	<bits/stdexcept_throw.h> early if __glibcxx_exc_in_string is not
+	defined and include <bits/stdexcept_throw.h> at the end of
+	the header again if __glibcxx_exc_in_string is 2 and C++26 constexpr
+	exceptions are enabled.
+	(__glibcxx_exc_in_string): Define if __glibcxx_exc_in_string wasn't
+	defined before including <bits/stdexcept_throw.h>.
+	* include/std/array: Include <bits/stdexcept_throw.h> instead of
+	<bits/functexcept.h>.
+	* include/std/inplace_vector: Likewise.
+	* include/std/string: Include <bits/stdexcept_except.h> and
+	<bits/stdexcept_throw.h> after bits/basic_string.tcc include if
+	C++26 constexpr exceptions are enabled and include
+	<bits/stdexcept_throw.h> instead of <bits/functexcept.h> early.
+	(__glibcxx_exc_in_string): Define early to 1, undefine at the end.
+	* include/std/deque: Include <bits/stdexcept_throw.h>.
+	* include/bits/new_allocator.h: Include <bits/new_throw.h> instead
+	of <bits/functexcept.h>.
+	* include/bits/stl_algobase.h: Remove <bits/functexcept.h> include.
+	* include/bits/stl_vector.h: Include <bits/stdexcept_throw.h> instead
+	of <bits/functexcept.h>.
+	* include/bits/memory_resource.h: Include <bits/new_throw.h> instead
+	of <bits/functexcept.h>.
+	* include/bits/functexcept.h: Guard everything after includes with
+	#if _GLIBCXX_HOSTED.
+	(__throw_bad_alloc, __throw_bad_array_new_length,  __throw_logic_error,
+	__throw_domain_error, __throw_invalid_argument, __throw_length_error,
+	__throw_out_of_range, __throw_out_of_range_fmt, __throw_runtime_error,
+	__throw_overflow_error, __throw_underflow_error): Move declarations to
+	other headers - <bits/new_throw.h> and <bits/stdexcept_throwfwd.h>.
+	* include/bits/stl_map.h: Include <bits/stdexcept_throw.h> instead
+	of <bits/functexcept.h>.
+	* include/bits/hashtable_policy.h: Include <bits/stdexcept_throw.h>
+	instead of <bits/functexcept.h>.
+	* include/bits/formatfwd.h (std::__throw_format_error): Remove
+	declaration.
+	* include/bits/specfun.h: Include <bits/stdexcept_throw.h> instead of
+	<bits/functexcept.h>.
+	* include/bits/basic_ios.h: Include <bits/functexcept.h>.
+	* include/bits/locale_classes.h: Likewise.
+	* include/tr1/cmath: Include <bits/stdexcept_throw.h> instead of
+	<bits/functexcept.h>.
+	* include/tr1/memory: Remove <bits/functexcept.h> include.
+	* include/tr1/array: Include <bits/stdexcept_throw.h>.
+	* include/ext/vstring_util.h: Include <bits/stdexcept_throw.h> instead
+	of <bits/functexcept.h>.
+	* include/ext/bitmap_allocator.h: Include <bits/new_throw.h> instead
+	of <bits/functexcept.h>.
+	* include/ext/mt_allocator.h: Likewise.
+	* include/ext/malloc_allocator.h: Likewise.
+	* include/ext/debug_allocator.h: Include <bits/stdexcept_throw.h>
+	instead of <bits/functexcept.h>.
+	* include/ext/concurrence.h: Include <bits/exception_defines.h>
+	instead of <bits/functexcept.h>.
+	* include/ext/throw_allocator.h: Include <bits/new_throw.h> and
+	<bits/stdexcept_throw.h> instead of <bits/functexcept.h>.
+	* include/ext/string_conversions.h: Include <bits/stdexcept_throw.h>
+	instead of <bits/functexcept.h>.
+	* include/ext/pool_allocator.h: Include <bits/new_throw.h> instead
+	of <bits/functexcept.h>.
+	* include/ext/ropeimpl.h: Include <bits/stdexcept_throw.h> instead of
+	<bits/functexcept.h>.
+	* include/tr2/dynamic_bitset: Likewise.
+	* include/experimental/optional: Include <bits/exception_defines.h>
+	instead of <bits/functexcept.h>.
+	* include/Makefile.am (bits_freestanding): Add
+	${bits_srcdir}/{new,stdexcept}_{except,throw}.h
+	and ${bits_srcdir}/stdexcept_throw{fwd,def}.h.
+	* include/Makefile.in: Regenerate.
+	* src/c++17/floating_from_chars.cc: Remove <bits/functexcept.h>
+	include.
+	* src/c++11/regex.cc: Likewise.
+	* src/c++11/functexcept.cc: Likewise.
+	* src/c++11/snprintf_lite.cc: Include <bits/stdexcept_throw.h> instead
+	of <bits/functexcept.h>.
+	* src/c++11/thread.cc: Include <bits/functexcept.h>.
+	* testsuite/util/testsuite_hooks.h: Include <bits/stdexcept_throw.h>
+	instead of <bits/functexcept.h>.
+	* testsuite/util/io/verified_cmd_line_input.cc: Include
+	<bits/exception_defines.h> instead of <bits/functexcept.h>.
+	* testsuite/20_util/allocator/105975.cc: Expect different diagnostics
+	for C++26.
+	* testsuite/23_containers/inplace_vector/access/capacity.cc: Remove
+	#error, guard if consteval { return; } with
+	#ifndef __cpp_lib_constexpr_exceptions.
+	* testsuite/23_containers/inplace_vector/access/elem.cc: Likewise.
+	* testsuite/23_containers/inplace_vector/cons/1.cc: Likewise.
+	* testsuite/23_containers/inplace_vector/cons/from_range.cc: Likewise.
+	* testsuite/23_containers/inplace_vector/modifiers/single_insert.cc:
+	Likewise.
+	* testsuite/23_containers/inplace_vector/modifiers/assign.cc:
+	Likewise.
+	* testsuite/23_containers/inplace_vector/modifiers/multi_insert.cc:
+	Likewise.
+	* libsupc++/new: Include <bits/new_except.h>.
+	(std::bad_alloc, std::bad_array_new_length): Move defintion to
+	<bits/new_except.h>.
+
+2025-12-11  Jason Merrill  <jason@redhat.com>
+
+	* testsuite/Makefile.am (CLEANFILES): Add gcm.cache.
+	* testsuite/Makefile.in: Regenerate.
+	* testsuite/lib/dg-options.exp (add_options_for_no_pch): Also add
+	-fno-modules.
+	* testsuite/lib/libstdc++.exp (v3_std_list): Handle "modules" std.
+	(v3_modules_std): New global.
+	(v3-build_support): Build gcms for bits/stdc++.h, std, and
+	std.compat.
+
+2025-12-11  Yuao Ma  <c8ef@outlook.com>
+
+	* include/bits/version.def: Add FTM.
+	* include/bits/version.h: Regenerate.
+	* include/std/flat_set: Add constexpr.
+	* testsuite/23_containers/flat_multiset/1.cc: Add constexpr test.
+	* testsuite/23_containers/flat_set/1.cc: Add constexpr test.
+
+2025-12-09  John Ericson  <git@johnericson.me>
+
+	* acinclude.m4: Use GCC_AC_THREAD_MODEL instead, via AC_REQUIRE
+	* configure: Regenerate.
+
+2025-12-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/version.h: Regenerate.
+
+2025-12-09  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	* include/bits/version.def (padded_layouts): Set to 202403.
+	(submdspan): Set to 202411 add dependency.
+	* include/bits/version.h: Regenerate.
+
+2025-12-09  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	PR libstdc++/110352
+	* include/std/mdspan
+	(__mdspan::_SubMdspanMapping<_LayoutSide::__right, true>): Define.
+	(layout_right_padded::submdspan_mapping): New friend function.
+	* testsuite/23_containers/mdspan/submdspan/selections/right_padded.cc:
+	Instantiate tests for layout_right_padded.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_mapping.cc:
+	Ditto.
+
+2025-12-09  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	PR libstdc++/110352
+	* include/std/mdspan (__mdspan::__is_padded_mapping): Define.
+	(__mdspan::_SubMdspanMapping): Add _Padded template parameter.
+	(__mdspan::_SubMdspanMapping<_LayoutSide::__left, true>): Define.
+	(__mdspan::__submdspan_mapping_impl): Updated _Trait alias.
+	(layout_left_padded::submdspan_mapping): New friend method.
+	* testsuite/23_containers/mdspan/layout_traits.h
+	(LayoutTraits::layout_same_padded): New template type alias.
+	* testsuite/23_containers/mdspan/submdspan/selections/left_padded.cc:
+	Instantiate tests for layout_left_padded.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_mapping.cc:
+	Ditto.
+
+2025-12-09  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	PR libstdc++/110352
+	* include/std/mdspan (layout_stride::mapping::submdspan_mapping): New
+	friend function.
+	* testsuite/23_containers/mdspan/submdspan/selections/stride.cc:
+	Instantiate tests for layout_stride.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_neg.cc:
+	Ditto.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_mapping.cc:
+	Add tests for layout_stride.
+
+2025-12-09  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	PR libstdc++/110352
+	* include/std/mdspan
+	(__mdspan::_SubMdspanMapping<_LayoutSide::__right>): Define.
+	(layout_right::mapping::submdspan_mapping): New friend function.
+	* testsuite/23_containers/mdspan/submdspan/selections/right.cc:
+	Instantiate tests for layout_right.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_mapping.cc:
+	Ditto.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_neg.cc:
+	Ditto.
+
+2025-12-09  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	PR libstdc++/110352
+	* include/std/mdspan (__mdspan::__is_submdspan_mapping_result)
+	(__mdspan::__submdspan_mapping_result, __mdspan::__fwd_prod)
+	(__mdspan::__acceptable_slice_type, __mdspan::__slice_begin)
+	(__mdspan::__suboffset, __mdspan::_LayoutSide, __mdspan::__mapping_side)
+	(__mdspan::_StridesTrait, __mdspan::__substrides_generic)
+	(__mdspan::__substrides_standardized, __mdspan::__substrides)
+	(__mdspan::__is_unit_stride_slice, __mdspan::_SliceKind)
+	(__mdspan::__make_slice_kind, __mdspan::__make_slice_kind_array)
+	(__mdspan::__is_block, __mdspan::__padded_block_begin_generic)
+	(__mdspan::__padded_block_begin, __mpdspan::_SubMdspanMapping)
+	(__mdspan::__submdspan_mapping_impl): Define.
+	(__mdspan::__dynamic_slice_extent, __mdspan::__static_slice_extent)
+	(__mdspan::__subextents): Move earlier in the file.
+	(layout_left::mapping::submdspan_mapping, __mdspan::__sliceable_mapping)
+	(__mdspan::__submapping, submdspan): Define.
+	* src/c++23/std.cc.in: Add submdspan.
+	* testsuite/23_containers/mdspan/submdspan/generic.cc: New test.
+	* testsuite/23_containers/mdspan/submdspan/selections/left.cc:
+	Instantiate selection tests for layout_left.
+	* testsuite/23_containers/mdspan/submdspan/selections/testcases.h: Generic
+	tests different selections.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_mapping.cc: New test.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_neg.cc: New test.
+
+2025-12-09  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	* include/std/mdspan (_ExtentsStorage::_M_dynamic_extents):
+	Create span from pointer + size, not begin and end iterators.
+
+2025-12-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122946
+	* include/bits/version.def (concepts): Set value to 202207.
+	* include/bits/version.h: Regenerate.
+	* include/std/concepts (__comparison_common_type_with_impl)
+	(__comparison_common_type_with): New helper concepts.
+	(equality_comparable_with): Use __comparison_common_type_with.
+	* libsupc++/compare (three_way_comparable_with): Likewise.
+	(__glibcxx_want_concepts): Define to get __cpp_lib_concepts
+	here.
+	* testsuite/std/concepts/concepts.compare/move_only.cc: New
+	test.
+
+2025-12-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/intcmp.h: Replace all uses of
+	__is_standard_integer with __is_signed_or_unsigned_integer.
+	* include/bits/max_size_type.h: Fix outdated comment.
+	* include/bits/sat_arith.h: Replace all uses of
+	__is_standard_integer with __is_signed_or_unsigned_integer.
+	* include/c_compatibility/stdckdint.h: Replace all uses of the
+	__cv_unqual_signed_or_unsigned_integer_type concept with
+	__is_signed_or_unsigned_integer.
+	(__cv_unqual_signed_or_unsigned_integer_type): Remove.
+	* include/ext/numeric_traits.h: Fix outdated comment.
+	* include/std/charconv (from_chars): Replace use of
+	__is_standard_integer with __is_signed_or_unsigned_integer.
+	Do not enable for cv-qualified char.
+	* include/std/mdspan: Likewise.
+	* include/std/type_traits (__is_unsigned_integer): Include
+	unsigned __int128 in type list.
+	(__is_signed_integer): Include signed __int128 in type list.
+	(__is_standard_integer): Rename to ...
+	(__is_signed_or_unsigned_integer): ... this.
+	* testsuite/23_containers/mdspan/extents/ctor_ints.cc: Test
+	with 128-bit integers.
+	* testsuite/23_containers/mdspan/submdspan/strided_slice.cc:
+	Likewise.
+	* testsuite/20_util/integer_comparisons/extended.cc: New test.
+	* testsuite/26_numerics/saturation/extended.cc: New test.
+	* testsuite/26_numerics/stdckdint/extended.cc: New test.
+
+2025-12-08  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/112591
+	* include/std/variant (_Variadic_union): Separate specializations for
+	for union of only trivially destructible types (true as first template
+	argument). Unconditionally define destructor for _Variadic_union<false,
+	_First, _Rest...>.
+	* testsuite/20_util/variant/87619.cc: Add limit for the template depth.
+	* testsuite/20_util/variant/112591.cc: New test.
+
+2025-12-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/iterator_concepts.h: Remove diagnostic pragmas.
+
+2025-12-08  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/Makefile.am: Add new header.
+	* include/Makefile.in: Regenerate.
+	* include/std/latch: Include <bits/intcmp.h> instead of
+	<utility>.
+	* include/std/utility: Include <bits/intcmp.h>.
+	(cmp_equal, cmp_not_equal, cmp_less, cmp_greater)
+	(cmp_less_equal, cmp_greater_equal, in_range): Move to ...
+	* include/bits/intcmp.h: New file.
+
+2025-12-06  Jason Merrill  <jason@redhat.com>
+
+	* src/c++23/std.cc.in: Add more #if.
+
+2025-12-06  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/80564
+	* include/std/functional (__cv_like): New.
+	(_Bind::_Res_type): Don't define when not needed.
+	(_Bind::__dependent): Likewise.
+	(_Bind::_Res_type_cv): Likewise.
+	(_Bind::operator()) [_GLIBCXX_EXPLICIT_THIS_PARAMETER]:
+	Define as two instead of four overloads using deducing
+	this.
+	* testsuite/20_util/bind/cv_quals_2.cc: Ignore SFINAE
+	diagnostics inside headers.
+	* testsuite/20_util/bind/ref_neg.cc: Likewise.
+	* testsuite/20_util/bind/80564.cc: New test.
+
+2025-12-06  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_wait.h (__detail::__atomic_eq): Use
+	std::addressof instead of &.
+	* include/std/atomic (atomic::wait, atomic::notify_one)
+	(atomic::notify_all): Likewise.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+	    Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/120446
+	* include/bits/refwrap.h (__detail::__is_ref_wrapper):
+	Define as per P2655R3 for C++20.
+	(__detail::__ref_wrap_common_reference_exists_with): Likewise.
+	(basic_common_reference): Define partial specializations using
+	the above as per P2655R3 for C++20.
+	* include/bits/version.def (common_reference_wrapper): New.
+	* include/bits/version.h: Regenerate.
+	* include/std/functional (__glibcxx_want_common_reference_wrapper):
+	Define.
+	* testsuite/20_util/reference_wrapper/p2655r3.cc: New test.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/120446
+	* include/bits/version.def (common_reference): New.
+	* include/bits/version.h: Regenerate.
+	* include/std/type_traits (__glibcxx_want_common_reference):
+	Define.
+	(__common_reference_impl<T1, T2, 1>): Add pointer convertibility
+	constraints as per P2655R3.
+	* testsuite/20_util/common_reference/p2655r3.cc: New test.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/120446
+	* include/std/type_traits (__common_reference_impl): Rewrite
+	partial specializations to use requires-clause instead of
+	an additional void_t template parameter.  Consolidate the
+	partial specializations corresponding to bullet 1.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	* testsuite/20_util/function_objects/bind_front/111327.cc:
+	Add missing space before } ending a dg-error directive.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/111550
+	* include/std/ranges (views::__adaptor::_Partial::operator())
+	[_GLIBCXX_EXPLICIT_THIS_PARAMETER]: Also use deducing this
+	in C++20 mode when possible.
+	(views::__adaptor::_Pipe::Operator())
+	[_GLIBCXX_EXPLICIT_THIS_PARAMETER]: Likewise.
+	* testsuite/std/ranges/adaptors/take.cc (test07): New test.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/111327
+	* include/bits/binders.h (_Binder::operator())
+	[_GLIBCXX_EXPLICIT_THIS_PARAMETER]: Also use deducing this in
+	C++20 mode when possible.
+	* testsuite/20_util/function_objects/bind_front/111327.cc:
+	Expect error inside header even in C++20 mode.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/111327
+	* include/std/functional (_Not_fn::operator())
+	[_GLIBCXX_EXPLICIT_THIS_PARAMETER]: Define as a single
+	overload using deducing this.
+	* testsuite/20_util/function_objects/not_fn/111327.cc: Extend test.
+
+2025-12-05  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/c++config (_GLIBCXX_EXPLICIT_THIS_PARAMETER):
+	New.
+
+2025-12-04  François Dumont  <frs.dumont@gmail.com>
+
+	* include/debug/deque
+	(std::erase_if<>(std::__debug::deque<>&, _Pred)): New.
+	(std::erase<>(std::__debug::deque<>&, const _Up&)): New.
+	* include/std/deque (std::erase_if(std::deque<>&, _Pred)): Remove
+	_GLIBCXX_DEBUG code.
+	* testsuite/23_containers/deque/debug/erase.cc: New test case.
+	* testsuite/23_containers/deque/debug/invalidation/erase.cc: New test case.
+
+2025-12-04  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/debug/safe_unordered_base.h
+	(_Safe_unordered_container_base::operator=): Define as
+	defaulted, inherit behavior of _Safe_sequence_base.
+
+2025-12-04  Luc Grosheintz  <luc.grosheintz@gmail.com>
+	    Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/mdspan (layout_left): Apply LWG4272.
+	(layout_right, layout_left_padded, layout_right_padded): Ditto.
+	* testsuite/23_containers/mdspan/layouts/ctors.cc: Add
+	test to check ctor uniformity at rank == 0. Update test
+	for new behavior.
+	* testsuite/23_containers/mdspan/layouts/padded.cc: Update test
+	for new behavior.
+
+2025-12-04  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/debug/safe_sequence.h
+	(_Safe_node_sequence::_Safe_node_sequence): Define as defaulted.
+
+2025-12-03  Vladimir Bespalov  <vlad.bespalov@jetstreamsoft.com>
+
+	PR libstdc++/122812
+	* python/libstdcxx/v6/printers.py (lookup_templ_spec): Use
+	gdb.Type.tag if present.
+
+2025-12-03  Yuao Ma  <c8ef@outlook.com>
+
+	* include/bits/basic_string.h: Add subview.
+	* include/bits/cow_string.h: Add subview.
+	* include/std/string: Add FTM.
+	* testsuite/21_strings/basic_string/operations/subview/char.cc: New test.
+	* testsuite/21_strings/basic_string/operations/subview/wchar_t.cc: New test.
+
+2025-12-03  Yuao Ma  <c8ef@outlook.com>
+
+	* include/bits/version.def: Add string_subview FTM.
+	* include/bits/version.h: Regenerate.
+	* include/std/string_view: Add subview.
+	* testsuite/21_strings/basic_string_view/operations/subview/char.cc: New test.
+	* testsuite/21_strings/basic_string_view/operations/subview/wchar_t.cc: New test.
+
+2025-12-03  François Dumont  <frs.dumont@gmail.com>
+
+	* include/Makefile.am (debug_headers): Add inplace_vector.
+	* include/Makefile.in: Regenerate.
+	* include/debug/functions.h (__check_valid_range): Add C++20 constexpr.
+	* include/debug/helper_functions.h (__valid_range): Likewise.
+	* include/debug/inplace_vector: New.
+	* include/debug/safe_base.h (~_Safe_sequence_base()): Add C++11 noexcept.
+	(_Safe_sequence_base::operator=(const _Safe_sequence_base&)): New.
+	(_Safe_sequence_base::operator=(_Safe_sequence_base&&)): New.
+	(_Safe_sequence_base::_M_invalidate_all): Add C++20 constexpr.
+	* include/debug/safe_container.h
+	(_Safe_container<>::operator=(const _Safe_container<>&)): Implement using
+	_Safe_sequence_base same operator.
+	* include/debug/safe_iterator.h (__valid_range): Add C++20 constexpr.
+	* include/debug/safe_sequence.h
+	(_Not_equal_to(const _Type&)): Add C++20 constexpr.
+	(_Equal_to(const _Type&)): Add C++20 constexpr.
+	(_After_nth_from(const difference_type&, const _Iterator&)): Add C++20 constexpr.
+	(_Safe_sequence<>::_M_invalidate_if): Add C++20 constexpr.
+	(_Safe_node_sequence::operator=(const _Safe_node_sequence&)): New.
+	(_Safe_node_sequence::operator=(_Safe_node_sequence&&)): New.
+	(_Safe_node_sequence<>::_M_invalidate_all()): Add C++20 constexpr.
+	* include/debug/safe_sequence.tcc
+	(_Safe_sequence<>::_M_invalidate_if): Add C++20 constexpr.
+	* include/std/inplace_vector [_GLIBCXX_DEBUG](std::inplace_vector<>): Move
+	implementation into __cxx1998 namespace.
+	(erase, erase_if): Limit to non-debug inplace_vector<>, cleanup code.
+	[_GLIBCXX_DEBUG]: Add include <debug/inplace_vector>.
+	* testsuite/23_containers/inplace_vector/cons/1.cc: Adapt, skip several
+	is_trivially_xxx checks when in _GLIBCXX_DEBUG mode.
+	* testsuite/23_containers/inplace_vector/copy.cc: Likewise.
+	* testsuite/23_containers/inplace_vector/move.cc: Likewise.
+	* testsuite/23_containers/inplace_vector/debug/assign1_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/assign2_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/assign3_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/assign4_backtrace_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/assign4_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/construct1_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/construct2_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/construct3_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/construct4_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/debug_functions.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/erase.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/insert1_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/insert2_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/insert3_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/insert4_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/insert5_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/insert7_neg.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/1.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/2.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/3.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/4.cc: New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/append_range.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/erase.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/pop_back.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/push_back.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/swap.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/try_append_range.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/try_emplace_back.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/try_push_back.cc:
+	New test case.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/unchecked_emplace_back.cc:
+	New test case.
+	* testsuite/util/debug/checks.h: Avoid using _GLIBCXX_DEBUG containers in test
+	implementations.
+
+2025-12-02  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	PR libstdc++/110352
+	* include/std/mdspan (submdspan_extents): New function.
+	* src/c++23/std.cc.in: Add submdspan_extents.
+	* testsuite/23_containers/mdspan/int_like.h: Add StructuralInt.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_extents.cc: New test.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_extents_neg.cc: New test.
+
+2025-12-02  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	PR libstdc++/110352
+	* include/std/mdspan (submdspan_canonicalize_slices): New
+	function.
+	* src/c++23/std.cc.in (submdspan_canonicalize_slices): Add.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_canonicalize_slices.cc: New test.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_canonicalize_slices_neg.cc: New test.
+
+2025-12-01  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/122921
+	* include/std/flat_map (_Flat_map_impl::_Iterator::value_type):
+	Remove const from key_type to make consistent with the
+	container's value_type.
+	* testsuite/23_containers/flat_map/1.cc (test09): New test.
+	* testsuite/23_containers/flat_multimap/1.cc (test09): New test.
+
+2025-12-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_timed_wait.h (__wait_until_impl): Use
+	chrono::nanoseconds for parameter.
+	* src/c++20/atomic.cc (__wait_until_impl): Likewise.
+
+2025-12-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122878
+	* src/c++20/atomic.cc (__spin_until_impl): Remove.
+	(__wait_until_impl): Use __spin_impl instead of
+	__spin_until_impl and return if timeout is reached after
+	spinning.
+
+2025-12-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++20/atomic.cc: Document platform wait API.
+	(__futex_wait_flags): Remove enumeration type.
+	(futex_private_flag): Define constant for FUTEX_PRIVATE_FLAG.
+	(__platform_wait): Use local variables for futex op constants.
+	(__platform_notify): Likewise.
+	(__platform_wait_until): Likewise. Adjust parameter types for
+	consistency with __platform_wait.
+
+2025-11-28  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/122842
+	* include/bits/ranges_base.h (__access:_CBegin): Define in
+	terms of const_iterator directly, not const_iterator_t.
+	(__access::_CEnd): Likewise in terms of const_sentinel vs
+	const_sentinel_t.
+	(const_iterator_t): Move down definition and define in terms
+	of ranges::cbegin as per LWG 3946.
+	(const_sentinel_t): Likewise in terms of ranges::cend.
+	* testsuite/24_iterators/const_iterator/1.cc (test02): Correct
+	test for int[], std::array and std::vector.  Also test
+	std::string.
+
+2025-11-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/performance/23_containers/sort_search/list.cc: Cast
+	results to void to suppress -Wunused-result warnings from
+	nodiscard functions.
+	* testsuite/performance/25_algorithms/equal_deque_iterators.cc:
+	Likewise.
+	* testsuite/performance/25_algorithms/search_n.cc: Likewise.
+
+2025-11-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/Makefile.am: Fix typo in comment.
+	* testsuite/Makefile.in: Regenerate.
+
+2025-11-27  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/ranges (__func_handle::__select): Named function
+	extracted from local lambda.
+	(__detail::__func_handle_t): Define using __func_handle::__select.
+	(__func_handle::_Inplace): Raname _M_ptr to _M_fn.
+
+2025-11-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* config/abi/pre/gnu.ver: Adjust exports.
+	* include/bits/atomic_timed_wait.h (_GLIBCXX_HAVE_PLATFORM_TIMED_WAIT):
+	Do not define this macro.
+	(__atomic_wait_address_until_v, __atomic_wait_address_for_v):
+	Adjust assertions to check that __platform_wait_uses_type is
+	true.
+	* include/bits/atomic_wait.h (__waitable): New concept.
+	(__platform_wait_uses_type): Different separately for platforms
+	with and without platform wait.
+	(_GLIBCXX_HAVE_PLATFORM_WAIT): Do not define this macro.
+	(__wait_value_type): New typedef.
+	(__wait_result_type): Change _M_val to __wait_value_type.
+	(__wait_flags): Remove __proxy_wait enumerator. Reduce range
+	reserved for ABI version by the commented-out value.
+	(__wait_args_base::_M_old): Change type to __wait_args_base.
+	(__wait_args_base::_M_obj, __wait_args_base::_M_obj_size): New
+	data members.
+	(__wait_args::__wait_args): Set _M_obj and _M_obj_size on
+	construction.
+	(__wait_args::_M_setup_wait): Change void* parameter to deduced
+	type. Adjust bit_cast to work for types of different sizes.
+	(__wait_args::_M_load_proxy_wait_val): Remove function, replace
+	with ...
+	(__wait_args::_M_setup_proxy_wait): New function.
+	(__wait_args::_S_flags_for): Do not set __proxy_wait flag.
+	(__atomic_wait_address_v): Adjust assertion to check that
+	__platform_wait_uses_type is true.
+	* src/c++20/atomic.cc (_GLIBCXX_HAVE_PLATFORM_WAIT): Define here
+	instead of in header. Check _GLIBCXX_HAVE_PLATFORM_WAIT instead
+	of _GLIBCXX_HAVE_PLATFORM_TIMED_WAIT.
+	(__platform_wait, __platform_notify, __platform_wait_until): Add
+	unused parameter for _M_obj_size.
+	(__spin_impl): Adjust for 64-bit __wait_args_base::_M_old.
+	(use_proxy_wait): New function.
+	(__wait_args::_M_load_proxy_wait_val): Replace with ...
+	(__wait_args::_M_setup_proxy_wait): New function. Call
+	use_proxy_wait to decide at runtime whether to wait on the
+	pointer directly instead of using a proxy. If a proxy is needed,
+	set _M_obj and _M_obj_size to refer to its _M_ver member. Adjust
+	for change to type of _M_old.
+	(__wait_impl): Wait on _M_obj unconditionally. Pass _M_obj_size
+	to __platform_wait.
+	(__notify_impl): Call use_proxy_wait to decide whether to notify
+	on the address parameter or a proxy
+	(__spin_until_impl): Adjust for change to type of _M_val.
+	(__wait_until_impl): Wait on _M_obj unconditionally. Pass
+	_M_obj_size to __platform_wait_until.
+
+2025-11-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/semaphore_base.h (__platform_semaphore::_S_max):
+	Limit to PTRDIFF_MAX to avoid negative values.
+	* testsuite/30_threads/semaphore/least_max_value.cc: New test.
+
+2025-11-26  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/122864
+	* include/std/chrono (chrono::__pack_ints): Replace `<=`
+	with `<<`.
+
+2025-11-26  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/ranges (__detail::__is_std_op_template)
+	(__detail::__is_std_op_wrapper, __func_handle::_Inplace)
+	(__func_handle::_InplaceMemPtr, __func_handle::_ViaPointer)
+	(__func_handle::_StaticCall, __detail::__func_handle_t): Define.
+	(transform_view::_Iterator, zip_transform_view::_Iterator)
+	(adjacent_tranform_view::_Iterator): Replace pointer to view
+	(_M_parent) with pointer to functor (_M_fun). Update constructors
+	to construct _M_fun from *__parent->_M_fun. Define operator* and
+	operator[] in terms of _M_call_deref and _M_call_subscript.
+	* testsuite/std/ranges/adaptors/adjacent_transform/1.cc: New tests.
+	* testsuite/std/ranges/adaptors/transform.cc: New tests.
+	* testsuite/std/ranges/zip_transform/1.cc: New tests.
+
+2025-11-26  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/ranges_cmp.h (std::identity::operator()):
+	(ranges::equal_to:operator(), ranges::not_equal_to:operator())
+	(ranges::greater::operator(), ranges::greater_equal::operator())
+	(ranges::less::operator(), ranges::less_equal::operator()):
+	Declare as static.
+	* libsupc++/compare (std::compare_three_way::operator()):
+	Declare as static.
+
+2025-11-26  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/chrono (chrono::__hash): Rename __packed to
+	__res.
+
+2025-11-26  Tomasz Kamiński  <tkaminsk@redhat.com>
+	    Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+
+	PR libstdc++/110357
+	* include/bits/version.def (chrono, chrono_cxx20): Bump values.
+	* include/bits/version.h: Regenerate.
+	* include/std/chrono (__is_nothrow_copy_hashable)
+	(chrono::__pack_ints, chrono::__as_int, chrono::__int_hash)
+	(chrono::__hash): Define.
+	(std::hash): Define partial specialization for duration, time_point,
+	and zoned_time, and full specializations for calendar types and
+	leap_second.
+	(std::__is_fast_hash): Define partial specializations for duration,
+	time_point, zoned_time.
+	* testsuite/std/time/hash.cc: New test.
+
+2025-11-25  Jonathan Wakely  <jwakely@redhat.com>
+
+	* acinclude.m4 (libtool_VERSION): Bump version.
+	* configure: Regenerate.
+
+2025-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/optional (operator==, operator!=, operator>)
+	(operator>, operator<=, operator>=): Do not use logical
+	&& and || with operands of unknown types.
+	* testsuite/20_util/optional/relops/lwg4370.cc: New test.
+
+2025-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/expected (operator==): Use implicit conversion to
+	bool and do not use logical && and || with operands of unknown
+	types. Add nodiscard attributes.
+	* testsuite/20_util/expected/equality.cc: Test some missing
+	cases which were not covered previously.
+	* testsuite/20_util/expected/lwg4366.cc: New test.
+
+2025-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/xmethods.py (ListMethodsMatcher.match):
+	Fix lookup for node type.
+
+2025-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122821
+	* python/libstdcxx/v6/xmethods.py (_versioned_namespace): Remove
+	global variable.
+	(is_specialization_of): Do not use _versioned_namespace. Add
+	__debug:: to regex.
+
+2025-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/istream (istream::ignore(streamsize, char)): Add
+	always_inline attribute.
+
+2025-11-21  Yuao Ma  <c8ef@outlook.com>
+
+	* doc/html/manual/using_exceptions.html: Replace dead link.
+	* doc/xml/manual/using_exceptions.xml: Likewise.
+
+2025-11-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/expected (expected::value_or): Use remove_cv_t for
+	the return type. Do not use static_cast for return statement.
+	Adjust static_assert conditions to match return statements.
+	* include/std/optional (optional::value_or): Likewise.
+	(optional<T&>::value_or): Likewise.
+
+2025-11-21  Yuao Ma  <c8ef@outlook.com>
+	    Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/istream (ignore): Add an overload for char.
+	* testsuite/27_io/basic_istream/ignore/char/93672.cc: Adjust
+	expected behaviour for C++26 mode.
+	* testsuite/27_io/basic_istream/ignore/char/4.cc: New test.
+
+2025-11-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/faq.xml: Refresh information on _GNU_SOURCE and
+	_XOPEN_SOURCE being predefined.
+	* doc/xml/manual/internals.xml: Remove outdated paragraph about
+	_POSIX_SOURCE in libstdc++ source files.
+	* doc/html/*: Regenerate.
+
+2025-11-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex_automaton.tcc [_GLIBCXX_DEBUG]: Include
+	<ostream> so that _State_base::_M_print etc. can use it.
+
+2025-11-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/23_containers/vector/debug/erase.cc: Remove no_pch
+	option.
+	* testsuite/23_containers/vector/debug/invalidation/erase.cc:
+	Likewise.
+
+2025-11-20  François Dumont  <frs.dumont@gmail.com>
+
+	* include/debug/vector (std::erase_if, std::erase): New overloads for
+	std::__debug::vector instances.
+	* include/std/vector (std::erase_if, std::erase): Make overloads specific
+	to normal std::vector implementation.
+	* testsuite/23_containers/vector/debug/erase.cc: New test case.
+	* testsuite/23_containers/vector/debug/invalidation/erase.cc: New test case.
+
+2025-11-20  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	* include/std/mdspan: Improve formatting and placement.
+	* testsuite/23_containers/mdspan/int_like.h: Optionally,
+	add move- and copy-ctors.
+	* testsuite/23_containers/mdspan/layouts/padded_traits.h: Move to...
+	* testsuite/23_containers/mdspan/layout_traits.h: ...here.
+	* testsuite/23_containers/mdspan/layouts/ctors.cc: Fix include.
+	* testsuite/23_containers/mdspan/layouts/mapping.cc: Ditto.
+	* testsuite/23_containers/mdspan/layouts/padded.cc: Ditto.
+	* testsuite/23_containers/mdspan/layouts/padded_neg.cc: Ditto.
+
+2025-11-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/18_support/headers/new/synopsis.cc: Add constexpr to
+	placement delete for C++26 and up.
+
+2025-11-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/manual/abi.xml: Add versions for GCC 16.
+	* doc/html/manual/abi.html: Regenerate.
+
+2025-11-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122743
+	* doc/xml/manual/abi.xml: Add versions for GCC 15.
+	* doc/html/manual/abi.html: Regenerate.
+
+2025-11-19  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/xml/faq.xml: Remove unwanted whitespace inside
+	programlisting elements.
+	* doc/xml/manual/allocator.xml: Likewise.
+	* doc/xml/manual/auto_ptr.xml: Likewise.
+	* doc/xml/manual/backwards_compatibility.xml: Likewise.
+	* doc/xml/manual/build_hacking.xml: Likewise.
+	* doc/xml/manual/containers.xml: Likewise.
+	* doc/xml/manual/diagnostics.xml: Likewise.
+	* doc/xml/manual/extensions.xml: Likewise.
+	* doc/xml/manual/intro.xml: Likewise.
+	* doc/xml/manual/io.xml: Likewise.
+	* doc/xml/manual/iterators.xml: Likewise.
+	* doc/xml/manual/numerics.xml: Likewise.
+	* doc/xml/manual/policy_data_structures.xml: Likewise.
+	* doc/xml/manual/strings.xml: Likewise.
+	* doc/xml/manual/support.xml: Likewise.
+	* doc/xml/manual/test.xml: Likewise.
+	* doc/xml/manual/using.xml: Likewise.
+	* doc/xml/manual/utilities.xml: Likewise.
+	* doc/html/*: Regenerate.
+
+2025-11-19  Andrew Pinski  <andrew.pinski@oss.qualcomm.com>
+
+	* include/bits/basic_string.h (basic_string::M_set_length): Swap
+	around the order of traits_type::assign and _M_length so that
+	_M_length is at the end.
+
+2025-11-19  Martin Liska  <martin.liska@hey.com>
+
+	* configure: Regenerate.
+
+2025-11-19  Martin Liska  <martin.liska@hey.com>
+
+	* acinclude.m4:: Add detection for wild linker.
+	* configure: Regenerate.
+
+2025-11-19  Luc Grosheintz  <luc.grosheintz@gmail.com>
+
+	* include/std/mdspan (extents::_Storage): Move type alias before
+	its first use.
+	(__mdspan::__static_extents): Add missing noexcept and constexpr
+	to friend declaration in extents.
+	(__mdspan::__dynamic_extents): Ditto.
+
+2025-11-19  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/std/type_traits (constant_wrapper conversion operator):
+	Use decltype(value) instead of decltype(auto).  Resolves LWG4468.
+
+2025-11-19  Jakub Jelinek  <jakub@redhat.com>
+
+	PR libstdc++/122671
+	* libsupc++/new (::operator delete, ::operator delete[]): Implement
+	proposed LWG4477 resolution.  Use _GLIBCXX_PLACEMENT_CONSTEXPR for
+	placement operator deletes.
+
+2025-11-18  Mike Crowe  <mac@mcrowe.com>
+
+	* include/std/shared_mutex (try_lock, try_lock_until)
+	(try_lock_shared_until): Respond consistently to errors and
+	deadlocks.
+	* testsuite/30_threads/shared_timed_mutex/try_lock_until/116586.cc:
+	Test deadlock behaviour if possible.
+
+2025-11-18  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/121858
+	* include/bits/funcref_impl.h
+	(function_ref::function_ref(nontype<__fn>, _Up&&)): Handle.
+	reference_wrapper.
+	* testsuite/20_util/function_ref/call.cc: Call and update
+	test05(). Add new test06() for reference_wrapper.
+
+2025-11-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122726
+	* src/filesystem/ops-common.h [_GLIBCXX_FILESYSTEM_IS_WINDOWS]
+	(rename): Use __last_system_error to set errno accurately.
+	* testsuite/27_io/filesystem/operations/rename.cc: Test
+	error_code matches errc::no_such_file_or_directory.
+
+2025-11-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++23/std.cc.in [!__cpp_lib_syncbuf]: Disable exports for
+	<syncstream> contents when not defined.
+	[!_GLIBCXX_USE_CXX11_ABI]: Disable exports for pmr aliases in
+	<string> when not defined.
+
+2025-11-17  Jason Merrill  <jason@redhat.com>
+
+	* testsuite/util/testsuite_allocator.h: Move importable headers up.
+	* testsuite/util/testsuite_common_types.h: Likewise.
+	* testsuite/util/testsuite_containers.h: Likewise.
+	* testsuite/util/testsuite_error.h: Move includes inside
+	include guard.
+	* testsuite/util/testsuite_greedy_ops.h: #include <cstddef>.
+	* testsuite/util/testsuite_iterators.h: #include <utility>.
+	* testsuite/util/testsuite_new_operators.h: #include <cstdlib>.
+	* testsuite/util/testsuite_random.h: #include <random>.
+
+2025-11-16  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122698
+	* src/c++20/syncbuf.cc (__syncbuf_get_mutex): Include <mutex>.
+	Fix indentation of function body.
+
+2025-11-16  Rainer Orth  <ro@CeBiTec.Uni-Bielefeld.DE>
+
+	* scripts/extract_symvers.pl: Remove ccs from elfdump path.
+
+2025-11-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/atomic_base.h: Tweak grammar of static assert
+	messages for unsupported atomic wait on volatile.
+
+2025-11-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++20/atomic.cc (__wait_impl): Fix outdated comment.
+	(__wait_until_impl): Simplify return statements.
+
+2025-11-14  Tom Tromey  <tromey@adacore.com>
+
+	* python/libstdcxx/v6/printers.py (StdVectorPrinter._bounds):
+	New method.
+	(StdVectorPrinter.to_string): Use it.
+	(StdVectorPrinter.num_children): New method.
+	(StdStackOrQueuePrinter.num_children): New method.
+	(StdMapPrinter.num_children): New method.
+	(StdSetPrinter.num_children): New method.
+	(StdDequePrinter._size): New method.
+	(StdDequePrinter.to_string): Use it.
+	(StdDequePrinter.num_children): New method.
+	(Tr1UnorderedSetPrinter.num_children): New method.
+	(Tr1UnorderedMapPrinter.num_children): New method.
+	(StdSpanPrinter.num_children): New method.
+
+2025-11-14  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/unicode.h (_Utf_view): Rename the template parameter
+	from _Range to _View and constrain it with ranges::view.
+	(_Utf_view::_Utf_view): Accept by value instead of rvalue reference.
+	* include/std/format (__format::__write_padded): Replace _Utf_view
+	over const char32_t(&)[1] with span<const char32_t, 1>.
+	* testsuite/ext/unicode/view.cc: Add checks if specialization
+	of _Utf_view satisfy view. Wrap arrays into std::span before
+	constructing _Utf_view.
+
+2025-11-14  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/bitset: Add comment to feature test macro test.
+
+2025-11-14  Karpalo Toivonen  <arktinenkarpalo@gmail.com>
+	    Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/121054
+	* include/std/bitset: Add string check to constructor.
+	* testsuite/20_util/bitset/121054.cc: New test.
+	* testsuite/20_util/bitset/cons/constexpr_c++23.cc: Fix.
+
+2025-11-14  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/122032
+	* include/std/functional (std::bind_front<f>, std::bind_back<f>):
+	Define in terms of _Bind_front_t/_Bind_back_t.
+	* testsuite/20_util/function_objects/bind_back/nttp.cc: New tests.
+	* testsuite/20_util/function_objects/bind_front/nttp.cc: New tests.
+
+2025-11-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122661
+	* include/bits/forward_list.h (forward_list::assign(I, I)): Fix
+	value category in is_assignable check.
+	* testsuite/23_containers/forward_list/modifiers/122661.cc:
+	New test.
+
+2025-11-13  Xavier Bonaventura  <xavibonaventura@gmail.com>
+
+	* testsuite/18_support/headers/csignal/macros.cc: Check for
+	SIG_IGN.
+
+2025-11-13  Xavier Bonaventura  <xavibonaventura@gmail.com>
+
+	* testsuite/18_support/headers/climits/values.cc: Check for
+	LLONG_MIN, LLONG_MAX, and ULLONG_MAX.
+
+2025-11-13  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/optional (__is_optional_ref): Define.
+	* include/std/ranges (_Take::operator(), _Drop::operator())
+	(_Reverse::operator()):	Handle optional<T> that are view.
+	(_AsConst::operator()): Handle optional<T&>.
+	* testsuite/20_util/optional/range.cc: New tests.
+
+2025-11-13  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/115402
+	PR libstdc++/122584
+	* testsuite/29_atomics/atomic_ref/address.cc: Guard test for
+	volatile with if constexpr.
+	* testsuite/29_atomics/atomic_ref/deduction.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/op_support.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/requirements.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/bool.cc: Use volatile_t alias.
+	* testsuite/29_atomics/atomic_ref/generic.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/integral.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/pointer.cc: Likewise.
+	* testsuite/29_atomics/atomic_ref/float.cc: Likewise, and remove
+	not discarding if constexpr.
+
+2025-11-12  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/122425
+	* include/std/optional
+	(ranges::enable_borrowed_range<optional<_Tp&>>): Define.
+	* testsuite/20_util/optional/range.cc: Update tests.
+
+2025-11-12  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/122396
+	* include/std/optional (__optional_ref_base): Define.
+	(std::optional<_Tp&>): Inherit from __optional_ref_base<_Tp>.
+	(optional<_Tp&>::iterator): Move to base class.
+	(optional<_Tp&>::begin, optional<_Tp&>::end): Use deduced return
+	type and constrain accordingly.
+	* testsuite/20_util/optional/range.cc: Add test for optional<T&>.
+
+2025-11-12  Jason Merrill  <jason@redhat.com>
+
+	* testsuite/18_support/exception_ptr/62258.cc: Use
+	-Wno-deprecated-declarations instead of -Wno-deprecated.
+	* testsuite/18_support/uncaught_exception/14026.cc
+	* testsuite/20_util/headers/functional/synopsis.cc
+	* testsuite/20_util/is_literal_type/requirements/explicit_instantiation.cc
+	* testsuite/20_util/is_literal_type/requirements/typedefs.cc
+	* testsuite/20_util/is_literal_type/value.cc
+	* testsuite/20_util/is_pod/requirements/explicit_instantiation.cc
+	* testsuite/20_util/is_pod/requirements/typedefs.cc
+	* testsuite/20_util/is_pod/value.cc
+	* testsuite/20_util/shared_ptr/assign/auto_ptr.cc
+	* testsuite/20_util/shared_ptr/assign/auto_ptr_neg.cc
+	* testsuite/20_util/shared_ptr/assign/auto_ptr_rvalue.cc
+	* testsuite/20_util/shared_ptr/atomic/1.cc
+	* testsuite/20_util/shared_ptr/atomic/2.cc
+	* testsuite/20_util/shared_ptr/atomic/3.cc
+	* testsuite/20_util/shared_ptr/cons/43820_neg.cc
+	* testsuite/20_util/shared_ptr/cons/auto_ptr.cc
+	* testsuite/20_util/shared_ptr/cons/auto_ptr_neg.cc
+	* testsuite/20_util/shared_ptr/creation/dr925.cc
+	* testsuite/20_util/unique_ptr/cons/auto_ptr.cc
+	* testsuite/20_util/unique_ptr/cons/auto_ptr_neg.cc
+	* testsuite/20_util/variable_templates_for_traits.cc
+	* testsuite/29_atomics/atomic/lwg3220.cc
+	* testsuite/experimental/type_traits/value.cc: Likewise.
+
+2025-11-12  Jason Merrill  <jason@redhat.com>
+
+	* testsuite/lib/prune.exp: Sync with gcc prune.exp.
+
+2025-11-10  Jakub Jelinek  <jakub@redhat.com>
+
+	* libsupc++/compare: Implement final wording of C++26 P3778R0 - Fix
+	for type_order template definition.
+	(std::type_order): Remove type member.
+
+2025-11-03  Sam James  <sam@gentoo.org>
+
+	* configure: Regenerate.
+
+2025-11-03  Jason Merrill  <jason@redhat.com>
+
+	* include/bits/quoted_string.h: Add ADL friends.
+	* libsupc++/exception_ptr.h: Add ADL friend.
+
+2025-11-03  Jason Merrill  <jason@redhat.com>
+
+	* src/c++23/std.cc.in: Move TBB macro shenanigans after
+	bits/stdc++.h.
+
+2025-11-03  Jason Merrill  <jason@redhat.com>
+
+	* include/precompiled/stdc++.h: Remove <cassert>.
+	* testsuite/util/exception/safety.h: Add <cassert>.
+	* testsuite/17_intro/headers/c++1998/stdc++_assert_neg.cc:
+	Don't define _GLIBCXX_NO_ASSERT.
+
+2025-11-03  Jason Merrill  <jason@redhat.com>
+
+	* include/bits/ios_base.h: Add attribs to _Ios_Fmtflags,
+	_Ios_Iostate, _ios_seekdir.
+	* testsuite/27_io/ios_base/types/fmtflags/case_label.cc: Remove
+	unneeded cases.
+	* testsuite/27_io/ios_base/types/iostate/case_label.cc: Likewise.
+	* testsuite/27_io/ios_base/types/openmode/case_label.cc: Likewise.
+	* testsuite/27_io/ios_base/types/seekdir/case_label.cc: Likewise.
+
+2025-11-02  Jason Merrill  <jason@redhat.com>
+
+	* src/c++23/std.cc.in: Uncomment usings for vprint_*_buffered.
+
+2025-10-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/bits/version.def (is_implicit_lifetime): New.
+	* include/bits/version.h: Regenerate.
+	* include/std/type_traits (std::is_implicit_lifetime,
+	std::is_implicit_lifetime_v): New trait.
+	* src/c++23/std.cc.in (std::is_implicit_lifetime,
+	std::is_implicit_lifetime_v): Export.
+	* testsuite/20_util/is_implicit_lifetime/version.cc: New test.
+	* testsuite/20_util/is_implicit_lifetime/value.cc: New test.
+
+2025-10-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex.tcc (regex_traits::value): Use __c instead
+	of __ch.
+
+2025-10-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/headers/c++2011/42319.cc: Include <ios>
+	instead of <bits/char_traits.h>. Add no_pch option. Remove
+	explicit -std=gnu++11 option.
+	* testsuite/30_threads/thread/swap/1.cc: Include <utility>
+	instead of <bits/move.h>.
+
+2025-10-29  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/119721
+	* include/std/tuple (tuple<>::operator=(const _Tuple&) const)
+	[__cpp_lib_ranges_zip]: Define.
+	* testsuite/23_containers/tuple/cons/119721.cc: Test const
+	assignment.
+
+2025-10-29  Osama Abdelkader  <osama.abdelkader@gmail.com>
+	    Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/119721
+	* include/std/tuple (tuple<>::tuple(const tuple&))
+	(tuple<>::operator=(const tuple&)): Define as defaulted.
+	(tuple<>::swap): Moved the defintion after assignments.
+	(tuple<>::tuple(_UTuple&&))
+	(tuple<>::tuple(allocator_arg_t, const _Alloc&, _UTuple&&))
+	(tuple<>::operator=(_UTuple&&)) [__cpp_lib_tuple_like]: Define.
+	(tuple<>::operator==, tuple<>::opeator<=>): Parenthesize
+	constrains individually.
+	* testsuite/23_containers/tuple/cons/119721.cc: New test for
+	constructors and assignments with empty tuple-like types.
+	* testsuite/20_util/tuple/requirements/empty_trivial.cc:
+	New test verifying tuple<> remains trivially copyable.
+
+2025-10-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex.tcc (regex_traits::value): Implement
+	without using istringstream.
+	* include/std/regex: Do not include <sstream>.
+
+2025-10-28  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122401
+	* testsuite/30_threads/shared_timed_mutex/try_lock_until/116586.cc:
+	Do not try to acquire locks on the thread that already holds a
+	lock. Add -pthread for et pthread.
+
+2025-10-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122401
+	* testsuite/20_util/shared_ptr/atomic/pr118757.cc: Add -pthread
+	for et pthread.
+	* testsuite/20_util/weak_ptr/pr118757.cc: Likewise.
+	* testsuite/30_threads/condition_variable/members/116586.cc:
+	Likewise. Only run for hosted targets with gthreads support.
+	* testsuite/30_threads/future/members/116586.cc: Likewise.
+	* testsuite/30_threads/recursive_timed_mutex/try_lock_until/116586.cc:
+	Likewise.
+	* testsuite/30_threads/timed_mutex/try_lock_until/116586.cc:
+	Likewise.
+
+2025-10-27  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/bits/utility.h (_IotaArray): Define.
+	* testsuite/ext/iotaarray.cc: New test.
+
+2025-10-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/108951
+	* include/bits/valarray_array.h( __valarray_get_storage): Use
+	std::__new_allocator.
+	(__valarray_release_memory): Likewise.
+	* include/std/valarray: Pass _M_size to
+	__valarray_release_memory.
+	* testsuite/26_numerics/valarray/108951.cc: New test.
+
+2025-10-27  Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/util/testsuite_iterators.h (test_container): Add
+	iterator and value_type typedefs.
+
+2025-10-24  Eric Pimentel Aguiar  <eric.pimentela@gmail.com>
+
+	* src/c++23/std.cc.in (std::strided_slice, std::full_extent_t)
+	(std::full_extent, std::submdspan_mapping_result): Add std
+	qualification.
+
+2025-10-24  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/122022
+	* include/std/functional (_Bind_fn_t): Use forwarding reference as
+	paremeter.
+	(std::not_fn<f>): Use forwarding reference as lambda parameter.
+	* testsuite/20_util/function_objects/bind_back/nttp.cc: Rework tests.
+	* testsuite/20_util/function_objects/bind_front/nttp.cc: Likewise.
+	* testsuite/20_util/function_objects/not_fn/nttp.cc: Add test for
+	argument forwarding.
+
+2025-10-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122224
+	* include/bits/stl_iterator_base_funcs.h (prev): Compare
+	distance as n > 0 instead of n != 0.
+	* testsuite/24_iterators/range_operations/122224.cc: New test.
+
+2025-10-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/ranges (indices::operator()): Constrain using
+	__can_iota_view concept.
+	* testsuite/std/ranges/indices/1.cc: Check SFINAE-friendliness
+	required by expression equivalence. Replace unused <vector>
+	header with <stddef.h> needed for size_t.
+
+2025-10-22  Giuseppe D'Angelo  <giuseppe.dangelo@kdab.com>
+	    Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/121748
+	* include/bits/version.def: Bump value for optional,
+	* include/bits/version.h: Regenerate.
+	* include/std/optional (std::__is_valid_contained_type_for_optional):
+	Define.
+	(std::optional<T>): Use __is_valid_contained_type_for_optional.
+	(optional<T>(const optional<_Up>&), optional<T>(optional<_Up>&&))
+	(optional<T>::operator=(const optional<_Up>&))
+	(optional<T>::operator=(optional<_Up>&&)): Replacex._M_get() with
+	x._M_fwd(), and std::move(x._M_get()) with std::move(x)._M_fwd().
+	(optional<T>::and_then): Remove uncessary remove_cvref_t.
+	(optional<T>::_M_fwd): Define.
+	(std::optional<T&>): Define new partial specialization.
+	(std::swap(std::optional<T&>, std::optional<T&>)): Define.
+	(std::make_optional(_Tp&&)): Add non-type template parameter.
+	(std::make_optional): Use parenthesis to constructor optional.
+	(std::hash<optional<T>>): Add comment.
+	* testsuite/20_util/optional/make_optional-2.cc: Guarded not longer
+	working example.
+	* testsuite/20_util/optional/relops/constrained.cc: Expand test to
+	cover optionals of reference.
+	* testsuite/20_util/optional/requirements.cc: Ammend for
+	optional<T&>.
+	* testsuite/20_util/optional/requirements_neg.cc: Likewise.
+	* testsuite/20_util/optional/version.cc: Test new value of
+	__cpp_lib_optional.
+	* testsuite/20_util/optional/make_optional_neg.cc: New test.
+	* testsuite/20_util/optional/monadic/ref_neg.cc: New test.
+	* testsuite/20_util/optional/ref/access.cc: New test.
+	* testsuite/20_util/optional/ref/assign.cc: New test.
+	* testsuite/20_util/optional/ref/cons.cc: New test.
+	* testsuite/20_util/optional/ref/internal_traits.cc: New test.
+	* testsuite/20_util/optional/ref/make_optional/1.cc: New test.
+	* testsuite/20_util/optional/ref/make_optional/from_args_neg.cc:
+	New test.
+	* testsuite/20_util/optional/ref/make_optional/from_lvalue_neg.cc:
+	New test.
+	* testsuite/20_util/optional/ref/make_optional/from_rvalue_neg.cc:
+	New test.
+	* testsuite/20_util/optional/ref/monadic.cc: New test.
+	* testsuite/20_util/optional/ref/relops.cc: New test.
+
+2025-10-22  Osama Abdelkader  <osama.abdelkader@gmail.com>
+
+	PR libstdc++/119721
+	* include/std/tuple (tuple<>::operator==, tuple<>::operator<=>):
+	Define.
+	* testsuite/23_containers/tuple/comparison_operators/119721.cc:
+	New test.
+
+2025-10-20  Yuao Ma  <c8ef@outlook.com>
+
+	* include/bits/version.def: Add ranges_indices FTM.
+	* include/bits/version.h: Regenerate.
+	* include/std/ranges: Implement views::indices.
+	* testsuite/std/ranges/indices/1.cc: New test.
+
+2025-10-20  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/funcwrap.h (__polyfunc::__deduce_funcref):
+	Adjust signature produced for member object pointers.
+	* testsuite/20_util/function_ref/deduction.cc: Update tests.
+
+2025-10-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122322
+	* configure.ac (with_newlib) <*-rtems*>: Remove
+	HAVE_SYS_IOCT4YL_H, _GLIBCXX_USE_LINK, _GLIBCXX_USE_READLINK,
+	_GLIBCXX_USE_SYMLINK, _GLIBCXX_USE_TRUNCATE, and
+	_GLIBCXX_USE_FDOPENDIR. Remove duplicates.
+	* configure: Regenerate.
+
 2025-10-18  Iain Sandoe  <iain@sandoe.co.uk>
 
 	PR c++/119060

@@ -27,25 +27,18 @@
 #if __glibcxx_atomic_wait
 #include <atomic>
 #include <bits/atomic_timed_wait.h>
-#include <bits/functional_hash.h>
-#include <cstdint>
+#include <cstdint> // uint32_t, uint64_t
+#include <climits> // INT_MAX
+#include <cerrno>  // errno, ETIMEDOUT, etc.
 #include <bits/std_mutex.h>  // std::mutex, std::__condvar
+#include <bits/functexcept.h> // __throw_system_error
+#include <bits/functional_hash.h>
 
 #ifdef _GLIBCXX_HAVE_LINUX_FUTEX
-# include <cerrno>
-# include <climits>
+# include <sys/syscall.h> // SYS_futex
 # include <unistd.h>
-# include <syscall.h>
-# include <bits/functexcept.h>
-# include <sys/time.h>
-#endif
-
-#ifdef _GLIBCXX_HAVE_PLATFORM_WAIT
-# ifndef _GLIBCXX_HAVE_PLATFORM_TIMED_WAIT
-// __waitable_state assumes that we consistently use the same implementation
-// (i.e. futex vs mutex+condvar) for timed and untimed waiting.
-#  error "This configuration is not currently supported"
-# endif
+# include <sys/time.h> // timespec
+# define _GLIBCXX_HAVE_PLATFORM_WAIT 1
 #endif
 
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
@@ -57,45 +50,93 @@ namespace __detail
 {
 namespace
 {
-#ifdef _GLIBCXX_HAVE_LINUX_FUTEX
-  enum class __futex_wait_flags : int
-  {
-#ifdef _GLIBCXX_HAVE_LINUX_FUTEX_PRIVATE
-    __private_flag = 128,
-#else
-    __private_flag = 0,
-#endif
-    __wait = 0,
-    __wake = 1,
-    __wait_bitset = 9,
-    __wake_bitset = 10,
-    __wait_private = __wait | __private_flag,
-    __wake_private = __wake | __private_flag,
-    __wait_bitset_private = __wait_bitset | __private_flag,
-    __wake_bitset_private = __wake_bitset | __private_flag,
-    __bitset_match_any = -1
-  };
+#ifndef _GLIBCXX_HAVE_PLATFORM_WAIT
+
+  // If _GLIBCXX_HAVE_PLATFORM_WAIT is defined then the following three
+  // functions should be defined in terms of platform-specific wait/wake
+  // primitives. The `obj_size` parameter is the size in bytes of the object
+  // at `*addr` (used if the platform supports waiting on more than one size,
+  // in which case `addr` would be cast to a different type).
+
+  // Deleted definitions are here to give better errors if these functions
+  // are used when _GLIBCXX_HAVE_PLATFORM_WAIT is not defined.
+
+  // Wait until *addr != curr_val.
+  // Once a thread is waiting, it will not unblock and notice the value
+  // has changed unless explicitly notified using `__platform_notify`.
+  void
+  __platform_wait(const __platform_wait_t* addr,
+		  __platform_wait_t curr_val,
+		  int obj_size) = delete;
+
+  // Wake one thread that is waiting for `*addr` to change,
+  // or all waiting threads if `wake_all` is true.
+  void
+  __platform_notify(const __platform_wait_t* addr,
+		    bool wake_all,
+		    int obj_size) = delete;
+
+  // As `__platform_wait` but with timeout.
+  // Returns true if the wait ended before the timeout (which could be because
+  // the value changed and __platform_notify was called, but could be because
+  // the wait was interrupted by a signal, or just a spurious wake).
+  // Returns false if the timeout was reached.
+  bool
+  __platform_wait_until(const __platform_wait_t* addr,
+			__platform_wait_t curr_val,
+			__wait_clock_t::time_point timeout,
+			int obj_size) = delete;
+
+#elif defined _GLIBCXX_HAVE_LINUX_FUTEX
+
+  const int futex_private_flag = 128;
 
   void
-  __platform_wait(const int* __addr, int __val) noexcept
+  __platform_wait(const int* addr, int val, int /* obj_size */) noexcept
   {
-    auto __e = syscall (SYS_futex, __addr,
-			static_cast<int>(__futex_wait_flags::__wait_private),
-			__val, nullptr);
-    if (!__e || errno == EAGAIN)
-      return;
-    if (errno != EINTR)
-      __throw_system_error(errno);
+    const int futex_op_wait = 0;
+    const int futex_op_wait_private = futex_op_wait | futex_private_flag;
+
+    if (syscall(SYS_futex, addr, futex_op_wait_private, val, nullptr))
+      if (errno != EAGAIN && errno != EINTR)
+	__throw_system_error(errno);
   }
 
   void
-  __platform_notify(const int* __addr, bool __all) noexcept
+  __platform_notify(const int* addr, bool all, int /* obj_size */) noexcept
   {
-    syscall (SYS_futex, __addr,
-	     static_cast<int>(__futex_wait_flags::__wake_private),
-	     __all ? INT_MAX : 1);
+    const int futex_op_wake = 1;
+    const int futex_op_wake_private = futex_op_wake | futex_private_flag;
+
+    syscall(SYS_futex, addr, futex_op_wake_private, all ? INT_MAX : 1);
   }
-#endif
+
+  // returns true if wait ended before timeout
+  bool
+  __platform_wait_until(const int* addr, int val,
+			const __wait_clock_t::time_point& abs_time,
+			int /* obj_size */) noexcept
+  {
+    // FUTEX_WAIT expects a relative timeout, so must use FUTEX_WAIT_BITSET
+    // for an absolute timeout.
+    const int futex_op_wait_bitset = 9;
+    const int futex_op_wait_bitset_private
+      = futex_op_wait_bitset | futex_private_flag;
+    const int futex_bitset_match_any = 0xffffffff;
+
+    struct timespec timeout = chrono::__to_timeout_timespec(abs_time);
+
+    if (syscall(SYS_futex, addr, futex_op_wait_bitset_private, val,
+		&timeout, nullptr, futex_bitset_match_any))
+      {
+	if (errno == ETIMEDOUT)
+	  return false;
+	if (errno != EAGAIN && errno != EINTR)
+	  __throw_system_error(errno);
+      }
+    return true;
+  }
+#endif // HAVE_PLATFORM_WAIT
 
   // The state used by atomic waiting and notifying functions.
   struct __waitable_state
@@ -107,7 +148,7 @@ namespace
     // Count of threads blocked waiting on this state.
     alignas(_S_align) __platform_wait_t _M_waiters = 0;
 
-#ifndef _GLIBCXX_HAVE_PLATFORM_TIMED_WAIT
+#ifndef _GLIBCXX_HAVE_PLATFORM_WAIT
     mutex _M_mtx;
 
     // This type meets the Cpp17BasicLockable requirements.
@@ -123,7 +164,7 @@ namespace
     // use this for waiting and notifying functions instead.
     alignas(_S_align) __platform_wait_t _M_ver = 0;
 
-#ifndef _GLIBCXX_HAVE_PLATFORM_TIMED_WAIT
+#ifndef _GLIBCXX_HAVE_PLATFORM_WAIT
     __condvar _M_cv;
 #endif
 
@@ -215,18 +256,18 @@ namespace
   __wait_result_type
   __spin_impl(const __platform_wait_t* __addr, const __wait_args_base& __args)
   {
-    __platform_wait_t __val{};
+    __wait_value_type wval;
     for (auto __i = 0; __i < __atomic_spin_count; ++__i)
       {
-	__atomic_load(__addr, &__val, __args._M_order);
-	if (__val != __args._M_old)
-	  return { ._M_val = __val, ._M_has_val = true, ._M_timeout = false };
+	wval = __atomic_load_n(__addr, __args._M_order);
+	if (wval != __args._M_old)
+	  return { ._M_val = wval, ._M_has_val = true, ._M_timeout = false };
 	if (__i < __atomic_spin_count_relax)
 	  __thread_relax();
 	else
 	  __thread_yield();
       }
-    return { ._M_val = __val, ._M_has_val = true, ._M_timeout = true };
+    return { ._M_val = wval, ._M_has_val = true, ._M_timeout = true };
   }
 
   inline __waitable_state*
@@ -237,32 +278,70 @@ namespace
     return static_cast<__waitable_state*>(args._M_wait_state);
   }
 
+  [[gnu::always_inline]]
+  inline bool
+  use_proxy_wait([[maybe_unused]] const __wait_args_base& args,
+		 [[maybe_unused]] const void* /* addr */)
+  {
+#ifdef _GLIBCXX_HAVE_PLATFORM_WAIT
+    if constexpr (__platform_wait_uses_type<uint32_t>)
+      if (args._M_obj_size == sizeof(uint32_t))
+	return false;
+
+    if constexpr (__platform_wait_uses_type<uint64_t>)
+      if (args._M_obj_size == sizeof(uint64_t))
+	return false;
+
+    // __wait_args::_M_old can only hold 64 bits, so larger types
+    // must always use a proxy wait.
+    if (args._M_obj_size > sizeof(uint64_t))
+      return true;
+
+    // __wait_args::_M_setup_wait only knows how to store 1/2/4/8 byte types,
+    // so anything else must always use a proxy wait.
+    if (__builtin_popcountg(args._M_obj_size) != 1)
+      return true;
+#endif
+
+    // Currently use proxy wait for everything else:
+    return true;
+  }
+
 } // namespace
 
-// Called for a proxy wait
-void
-__wait_args::_M_load_proxy_wait_val(const void* addr)
+// Return false (and don't change any data members) if we can do a non-proxy
+// wait for the object of size `_M_obj_size` at address `addr`.
+// Otherwise, the object at addr needs to use a proxy wait. Set _M_wait_state,
+// set _M_obj and _M_obj_size to refer to the _M_wait_state->_M_ver proxy,
+// load the current value from _M_obj and store it in _M_old, then return true.
+bool
+__wait_args::_M_setup_proxy_wait(const void* addr)
 {
-  // __glibcxx_assert( *this & __wait_flags::__proxy_wait );
+  if (!use_proxy_wait(*this, addr)) // We can wait on this address directly.
+    {
+      // Ensure the caller set _M_obj correctly, as that's what we'll wait on:
+      __glibcxx_assert(_M_obj == addr);
+      return false;
+    }
 
-  // We always need a waitable state for proxy waits.
+  // This will be a proxy wait, so get a waitable state.
   auto state = set_wait_state(addr, *this);
 
+  // The address we will wait on is the version count of the waitable state:
+  _M_obj = &state->_M_ver;
+  // __wait_impl and __wait_until_impl need to know this size:
+  _M_obj_size = sizeof(state->_M_ver);
+
   // Read the value of the _M_ver counter.
-  __atomic_load(&state->_M_ver, &_M_old, __ATOMIC_ACQUIRE);
+  _M_old = __atomic_load_n(&state->_M_ver, __ATOMIC_ACQUIRE);
+
+  return true;
 }
 
 __wait_result_type
-__wait_impl(const void* __addr, __wait_args_base& __args)
+__wait_impl([[maybe_unused]] const void* __addr, __wait_args_base& __args)
 {
-  auto __state = static_cast<__waitable_state*>(__args._M_wait_state);
-
-  const __platform_wait_t* __wait_addr;
-
-  if (__args & __wait_flags::__proxy_wait)
-    __wait_addr = &__state->_M_ver;
-  else
-    __wait_addr = static_cast<const __platform_wait_t*>(__addr);
+  auto* __wait_addr = static_cast<const __platform_wait_t*>(__args._M_obj);
 
   if (__args & __wait_flags::__do_spin)
     {
@@ -277,8 +356,8 @@ __wait_impl(const void* __addr, __wait_args_base& __args)
   if (__args & __wait_flags::__track_contention)
     set_wait_state(__addr, __args); // scoped_wait needs a __waitable_state
   scoped_wait s(__args);
-  __platform_wait(__wait_addr, __args._M_old);
-  // We haven't loaded a new value so return false as first member:
+  __platform_wait(__wait_addr, __args._M_old, __args._M_obj_size);
+  // We haven't loaded a new value so return _M_has_val=false
   return { ._M_val = __args._M_old, ._M_has_val = false, ._M_timeout = false };
 #else
   waiter_lock l(__args);
@@ -286,6 +365,7 @@ __wait_impl(const void* __addr, __wait_args_base& __args)
   __atomic_load(__wait_addr, &__val, __args._M_order);
   if (__val == __args._M_old)
     {
+      auto __state = static_cast<__waitable_state*>(__args._M_wait_state);
       __state->_M_cv.wait(__state->_M_mtx);
       return { ._M_val = __val, ._M_has_val = false, ._M_timeout = false };
     }
@@ -294,24 +374,40 @@ __wait_impl(const void* __addr, __wait_args_base& __args)
 }
 
 void
-__notify_impl(const void* __addr, [[maybe_unused]] bool __all,
+__notify_impl([[maybe_unused]] const void* __addr, [[maybe_unused]] bool __all,
 	      const __wait_args_base& __args)
 {
-  auto __state = static_cast<__waitable_state*>(__args._M_wait_state);
-  if (!__state)
-    __state = &__waitable_state::_S_state_for(__addr);
+  const bool __track_contention = __args & __wait_flags::__track_contention;
+  const bool proxy_wait = use_proxy_wait(__args, __addr);
 
-  [[maybe_unused]] const __platform_wait_t* __wait_addr;
+  [[maybe_unused]] auto* __wait_addr
+    = static_cast<const __platform_wait_t*>(__addr);
+
+#ifdef _GLIBCXX_HAVE_PLATFORM_WAIT
+  // Check whether it would be a non-proxy wait for this object.
+  // This condition must match the one in _M_setup_wait_impl to ensure that
+  // the address used for the notify matches the one used for the wait.
+  if (!proxy_wait)
+    {
+      if (__track_contention)
+	if (!__waitable_state::_S_state_for(__addr)._M_waiting())
+	  return;
+
+      __platform_notify(__wait_addr, __all, __args._M_obj_size);
+      return;
+    }
+#endif
+
+  // Either a proxy wait or we don't have platform wait/wake primitives.
+
+  auto __state = &__waitable_state::_S_state_for(__addr);
 
   // Lock mutex so that proxied waiters cannot race with incrementing _M_ver
   // and see the old value, then sleep after the increment and notify_all().
   lock_guard __l{ *__state };
 
-  if (__args & __wait_flags::__proxy_wait)
+  if (proxy_wait)
     {
-      // Waiting for *__addr is actually done on the proxy's _M_ver.
-      __wait_addr = &__state->_M_ver;
-
       // Increment _M_ver so that waiting threads see something changed.
       // This has to be atomic because the load in _M_load_proxy_wait_val
       // is done without the mutex locked.
@@ -322,18 +418,18 @@ __notify_impl(const void* __addr, [[maybe_unused]] bool __all,
       // they can re-evaluate their conditions to see if they should
       // stop waiting or should wait again.
       __all = true;
-    }
-  else // Use the atomic variable's own address.
-    __wait_addr = static_cast<const __platform_wait_t*>(__addr);
 
-  if (__args & __wait_flags::__track_contention)
+      __wait_addr = &__state->_M_ver;
+    }
+
+  if (__track_contention)
     {
       if (!__state->_M_waiting())
 	return;
     }
 
 #ifdef _GLIBCXX_HAVE_PLATFORM_WAIT
-  __platform_notify(__wait_addr, __all);
+  __platform_notify(__wait_addr, __all, sizeof(__state->_M_ver));
 #else
   __state->_M_cv.notify_all();
 #endif
@@ -343,30 +439,7 @@ __notify_impl(const void* __addr, [[maybe_unused]] bool __all,
 
 namespace
 {
-#ifdef _GLIBCXX_HAVE_LINUX_FUTEX
-// returns true if wait ended before timeout
-bool
-__platform_wait_until(const __platform_wait_t* __addr,
-		      __platform_wait_t __old,
-		      const __wait_clock_t::time_point& __atime) noexcept
-{
-  struct timespec __rt = chrono::__to_timeout_timespec(__atime);
-
-  if (syscall (SYS_futex, __addr,
-	       static_cast<int>(__futex_wait_flags::__wait_bitset_private),
-	       __old, &__rt, nullptr,
-	       static_cast<int>(__futex_wait_flags::__bitset_match_any)))
-    {
-      if (errno == ETIMEDOUT)
-	return false;
-      if (errno != EINTR && errno != EAGAIN)
-	__throw_system_error(errno);
-    }
-  return true;
-}
-#endif // HAVE_LINUX_FUTEX
-
-#ifndef _GLIBCXX_HAVE_PLATFORM_TIMED_WAIT
+#ifndef _GLIBCXX_HAVE_PLATFORM_WAIT
 bool
 __cond_wait_until(__condvar& __cv, mutex& __mx,
 		  const __wait_clock_t::time_point& __atime)
@@ -381,91 +454,43 @@ __cond_wait_until(__condvar& __cv, mutex& __mx,
     __cv.wait_until(__mx, __ts);
   return __wait_clock_t::now() < __atime;
 }
-#endif // ! HAVE_PLATFORM_TIMED_WAIT
-
-// Unlike __spin_impl, does not always return _M_has_val == true.
-// If the deadline has already passed then no fresh value is loaded.
-__wait_result_type
-__spin_until_impl(const __platform_wait_t* __addr,
-		  const __wait_args_base& __args,
-		  const __wait_clock_t::time_point& __deadline)
-{
-  using namespace literals::chrono_literals;
-
-  __wait_result_type __res{};
-  auto __t0 = __wait_clock_t::now();
-  auto __now = __t0;
-  for (; __now < __deadline; __now = __wait_clock_t::now())
-    {
-      auto __elapsed = __now - __t0;
-#ifndef _GLIBCXX_NO_SLEEP
-      if (__elapsed > 128ms)
-	this_thread::sleep_for(64ms);
-      else if (__elapsed > 64us)
-	this_thread::sleep_for(__elapsed / 2);
-      else
-#endif
-      if (__elapsed > 4us)
-	__thread_yield();
-      else
-	{
-	  __res = __detail::__spin_impl(__addr, __args);
-	  if (!__res._M_timeout)
-	    return __res;
-	}
-
-      __atomic_load(__addr, &__res._M_val, __args._M_order);
-      __res._M_has_val = true;
-      if (__res._M_val != __args._M_old)
-	{
-	  __res._M_timeout = false;
-	  return __res;
-	}
-    }
-  __res._M_timeout = true;
-  return __res;
-}
+#endif // ! HAVE_PLATFORM_WAIT
 } // namespace
 
 __wait_result_type
-__wait_until_impl(const void* __addr, __wait_args_base& __args,
-		  const __wait_clock_t::duration& __time)
+__wait_until_impl([[maybe_unused]] const void* __addr, __wait_args_base& __args,
+		  const chrono::nanoseconds& __time)
 {
   const __wait_clock_t::time_point __atime(__time);
-  auto __state = static_cast<__waitable_state*>(__args._M_wait_state);
-  const __platform_wait_t* __wait_addr;
-  if (__args & __wait_flags::__proxy_wait)
-    __wait_addr = &__state->_M_ver;
-  else
-    __wait_addr = static_cast<const __platform_wait_t*>(__addr);
+  auto* __wait_addr = static_cast<const __platform_wait_t*>(__args._M_obj);
 
   if (__args & __wait_flags::__do_spin)
     {
-      auto __res = __detail::__spin_until_impl(__wait_addr, __args, __atime);
+      auto __res = __detail::__spin_impl(__wait_addr, __args);
       if (!__res._M_timeout)
 	return __res;
       if (__args & __wait_flags::__spin_only)
 	return __res;
+      if (__wait_clock_t::now() >= __atime)
+	return __res;
     }
 
-#ifdef _GLIBCXX_HAVE_PLATFORM_TIMED_WAIT
+#ifdef _GLIBCXX_HAVE_PLATFORM_WAIT
   if (__args & __wait_flags::__track_contention)
-    set_wait_state(__addr, __args);
+    set_wait_state(__addr, __args); // scoped_wait needs a __waitable_state
   scoped_wait s(__args);
-  if (__platform_wait_until(__wait_addr, __args._M_old, __atime))
-    return { ._M_val = __args._M_old, ._M_has_val = false, ._M_timeout = false };
-  else
-    return { ._M_val = __args._M_old, ._M_has_val = false, ._M_timeout = true };
+  bool timeout = !__platform_wait_until(__wait_addr, __args._M_old, __atime,
+					__args._M_obj_size);
+  return { ._M_val = __args._M_old, ._M_has_val = false, ._M_timeout = timeout };
 #else
   waiter_lock l(__args);
   __platform_wait_t __val;
   __atomic_load(__wait_addr, &__val, __args._M_order);
   if (__val == __args._M_old)
     {
-      if (__cond_wait_until(__state->_M_cv, __state->_M_mtx, __atime))
-	return { ._M_val = __val, ._M_has_val = false, ._M_timeout = false };
-      else
-	return { ._M_val = __val, ._M_has_val = false, ._M_timeout = true };
+      auto __state = static_cast<__waitable_state*>(__args._M_wait_state);
+      bool timeout = !__cond_wait_until(__state->_M_cv, __state->_M_mtx, __atime);
+      return { ._M_val = __val, ._M_has_val = false, ._M_timeout = timeout };
     }
   return { ._M_val = __val, ._M_has_val = true, ._M_timeout = false };
 #endif

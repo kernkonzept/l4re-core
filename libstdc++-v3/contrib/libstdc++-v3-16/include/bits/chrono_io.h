@@ -919,7 +919,8 @@ namespace __format
     private:
       template<typename _OutIter>
 	_OutIter
-	_M_write(_OutIter __out, const locale& __loc, __string_view __s) const
+	_M_write(_OutIter __out, [[maybe_unused]] const locale& __loc,
+		 __string_view __s) const
 	{
 #if defined _GLIBCXX_USE_NL_LANGINFO_L && __CHAR_BIT__ == 8
 	  __sso_string __buf;
@@ -4976,14 +4977,14 @@ namespace __detail
 		    }
 		  else // Read fractional seconds
 		    {
-		      basic_stringstream<_CharT> __buf;
+		      stringstream __buf;
 		      auto __digit = _S_try_read_digit(__is, __err);
 		      if (__digit != -1)
 			{
-			  __buf.put(_CharT('0') + __digit);
+			  __buf.put('0' + __digit);
 			  __digit = _S_try_read_digit(__is, __err);
 			  if (__digit != -1)
-			    __buf.put(_CharT('0') + __digit);
+			    __buf.put('0' + __digit);
 			}
 
 		      auto __i = __is.peek();
@@ -5008,7 +5009,7 @@ namespace __detail
 				{
 				  __digit = _S_try_read_digit(__is, __err);
 				  if (__digit != -1)
-				    __buf.put(_CharT('0') + __digit);
+				    __buf.put('0' + __digit);
 				  else
 				    break;
 				}

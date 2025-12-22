@@ -594,6 +594,12 @@ ftms = {
 ftms = {
   name = chrono;
   values = {
+    v = 202306;
+    cxxmin = 26;
+    hosted = yes;
+    cxx11abi = yes;
+  };
+  values = {
     v = 201907;
     cxxmin = 20;
     hosted = yes;
@@ -607,8 +613,13 @@ ftms = {
 };
 
 ftms = {
-  // Unofficial macro for C++20 chrono features supported for old string ABI.
+  // Unofficial macro for chrono features supported for old string ABI.
   name = chrono_cxx20;
+  values = {
+    v = 202306;
+    cxxmin = 26;
+    no_stdname = yes;
+  };
   values = {
     v = 201800;
     cxxmin = 20;
@@ -868,8 +879,12 @@ ftms = {
 
 ftms = {
   name = concepts;
+  // 201806 P0898R3 Standard Library Concepts
+  // 201907 P1754R1 Rename concepts to standard_case for C++20
+  // 202002 P1964R2 Wording for boolean-testable
+  // 202207 P2404R3 Move-only types for equality_comparable_with, etc.
   values = {
-    v = 202002;
+    v = 202207;
     cxxmin = 20;
     extra_cond = "__cpp_concepts >= 201907L";
   };
@@ -878,12 +893,17 @@ ftms = {
 // Moved down here (after concepts) by topological sort.
 ftms = {
   name = optional;
-  values = {
+  values = { // optional<T&>
+    v = 202506;
+    cxxmin = 26;
+    extra_cond = "__glibcxx_concepts";
+  };
+  values = { // monadic operations
     v = 202110;
     cxxmin = 23;
     extra_cond = "__glibcxx_concepts";
   };
-  values = {
+  values = { // full constexpr support
     v = 202106;
     cxxmin = 20;
   };
@@ -1074,17 +1094,17 @@ ftms = {
   name = padded_layouts;
   no_stdname = true; // internal
   values = {
-    v = 1;
+    v = 202403;
     cxxmin = 26;
   };
 };
 
 ftms = {
   name = submdspan;
-  no_stdname = true; // TODO: change once complete
   values = {
-    v = 1;
+    v = 202411;
     cxxmin = 26;
+    extra_cond = "__glibcxx_constant_wrapper >= 202506L";
   };
 };
 
@@ -1328,6 +1348,14 @@ ftms = {
     v = 201907;
     cxxmin = 20;
     hosted = yes;
+  };
+};
+
+ftms = {
+  name = constexpr_flat_set;
+  values = {
+    v = 202502;
+    cxxmin = 26;
   };
 };
 
@@ -1755,6 +1783,14 @@ ftms = {
 };
 
 ftms = {
+  name = ranges_indices;
+  values = {
+    v = 202506;
+    cxxmin = 26;
+  };
+};
+
+ftms = {
   name = constexpr_bitset;
   values = {
     v = 202202;
@@ -1794,6 +1830,22 @@ ftms = {
   values = {
     v = 202207;
     cxxmin = 23;
+  };
+};
+
+ftms = {
+  name = common_reference;
+  values = {
+    v = 202302;
+    cxxmin = 20; // We treat P2655R3 as a DR against C++20.
+  };
+};
+
+ftms = {
+  name = common_reference_wrapper;
+  values = {
+    v = 202302;
+    cxxmin = 20; // We treat P2655R3 as a DR against C++20.
   };
 };
 
@@ -1922,6 +1974,14 @@ ftms = {
 };
 
 ftms = {
+  name = string_subview;
+  values = {
+    v = 202506;
+    cxxmin = 26;
+  };
+};
+
+ftms = {
   name = to_underlying;
   values = {
     v = 202102;
@@ -1956,6 +2016,15 @@ ftms = {
     v = 202506;
     cxxmin = 26;
     extra_cond = "__has_builtin(__builtin_observable_checkpoint)";
+  };
+};
+
+ftms = {
+  name = algorithm_iterator_requirements;
+  values = {
+    v = 202207;
+    // P2408R5 is a C++23 feature, but we support it in C++20.
+    cxxmin = 20;
   };
 };
 
@@ -2160,12 +2229,11 @@ ftms = {
 
 ftms = {
   name = constexpr_exceptions;
-  // TODO Remove when PR121114 is resolved
-  no_stdname = true;
   values = {
-    v = 1; // TODO 202411;
+    v = 202502;
     cxxmin = 26;
     extra_cond = "__cpp_constexpr_exceptions >= 202411L";
+    cxx11abi = yes;
   };
 };
 
@@ -2174,7 +2242,15 @@ ftms = {
   values = {
     v = 202406;
     cxxmin = 26;
-    extra_cond = "__SIZEOF_INT128__";
+  };
+};
+
+ftms = {
+  name = is_implicit_lifetime;
+  values = {
+    v =  202302;
+    cxxmin = 23;
+    extra_cond = "__has_builtin(__builtin_is_implicit_lifetime)";
   };
 };
 

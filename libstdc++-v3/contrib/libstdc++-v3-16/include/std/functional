@@ -64,6 +64,7 @@
 #define __glibcxx_want_not_fn
 #define __glibcxx_want_ranges
 #define __glibcxx_want_reference_wrapper
+#define __glibcxx_want_common_reference_wrapper
 #define __glibcxx_want_transparent_operators
 #include <bits/version.h>
 
@@ -495,6 +496,28 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 # define _GLIBCXX_DEPR_BIND
 #endif
 
+#if _GLIBCXX_EXPLICIT_THIS_PARAMETER
+  // Return a _Up that has the same cv-quals as _Tp.
+  template<typename _Tp, typename _Up> // _Up should be cv-unqualified
+    struct __cv_like
+    { using type = _Up; };
+
+  template<typename _Tp, typename _Up>
+    struct __cv_like<const _Tp, _Up>
+    { using type = const _Up; };
+
+  template<typename _Tp, typename _Up>
+    struct __cv_like<volatile _Tp, _Up>
+    { using type = volatile _Up; };
+
+  template<typename _Tp, typename _Up>
+    struct __cv_like<const volatile _Tp, _Up>
+    { using type = const volatile _Up; };
+
+  template<typename _Tp, typename _Up>
+    using __cv_like_t = typename __cv_like<_Tp, _Up>::type;
+#endif
+
   /// Type of the function object returned from bind().
   template<typename _Signature>
     class _Bind;
@@ -564,6 +587,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	using _Res_type_impl
 	  = __invoke_result_t<_Fn&, _Mu_type<_BArgs, _CallArgs>&&...>;
 
+#if !_GLIBCXX_EXPLICIT_THIS_PARAMETER
       template<typename _CallArgs>
 	using _Res_type = _Res_type_impl<_Functor, _CallArgs, _Bound_args...>;
 
@@ -576,6 +600,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  typename __cv_quals<__dependent<_CallArgs>>::type,
 	  _CallArgs,
 	  typename __cv_quals<_Bound_args>::type...>;
+#endif
 
      public:
       template<typename... _Args>
@@ -593,6 +618,63 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _Bind(const _Bind&) = default;
       _Bind(_Bind&&) = default;
 
+#if _GLIBCXX_EXPLICIT_THIS_PARAMETER
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wc++17-extensions" // if constexpr
+# pragma GCC diagnostic ignored "-Wc++23-extensions" // deducing this
+      template<typename... _Args,
+	       typename _Self,
+	       typename _Self_nonref = typename remove_reference<_Self>::type,
+	       __enable_if_t<!is_volatile<_Self_nonref>::value, int> = 0,
+	       typename _Result
+		 = _Res_type_impl<__cv_like_t<_Self_nonref, _Functor>,
+				  tuple<_Args...>,
+				  __cv_like_t<_Self_nonref, _Bound_args>...>>
+	_GLIBCXX20_CONSTEXPR
+	_Result
+	operator()(this _Self&& __self, _Args&&... __args)
+	{
+	  using _Bind_ref = __cv_like_t<_Self_nonref, _Bind>&;
+	  if constexpr (is_const<_Self_nonref>::value)
+	    return _Bind_ref(__self)
+	      .template __call_c<_Result>(std::forward_as_tuple
+					  (std::forward<_Args>(__args)...),
+					  _Bound_indexes());
+	  else
+	    return _Bind_ref(__self)
+	      .template __call<_Result>(std::forward_as_tuple
+					(std::forward<_Args>(__args)...),
+					_Bound_indexes());
+	}
+
+# if defined(_GLIBCXX_VOLATILE_BIND)
+      template<typename... _Args,
+	       typename _Self,
+	       typename _Self_nonref = typename remove_reference<_Self>::type,
+	       __enable_if_t<is_volatile<_Self_nonref>::value, int> = 0,
+	       typename _Result
+		 = _Res_type_impl<__cv_like_t<_Self_nonref, _Functor>,
+				  tuple<_Args...>,
+				  __cv_like_t<_Self_nonref, _Bound_args>...>>
+	_GLIBCXX_DEPR_BIND
+	_Result
+	operator()(this _Self&& __self, _Args&&... __args)
+	{
+	  using _Bind_ref = __cv_like_t<_Self_nonref, _Bind>&;
+	  if constexpr (is_const<_Self_nonref>::value)
+	    return _Bind_ref(__self)
+	      .template __call_c_v<_Result>(std::forward_as_tuple
+					    (std::forward<_Args>(__args)...),
+					    _Bound_indexes());
+	  else
+	    return _Bind_ref(__self)
+	      .template __call_v<_Result>(std::forward_as_tuple
+					  (std::forward<_Args>(__args)...),
+					  _Bound_indexes());
+	}
+# endif
+# pragma GCC diagnostic pop
+#else
       // Call unqualified
       template<typename... _Args,
 	       typename _Result = _Res_type<tuple<_Args...>>>
@@ -642,6 +724,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	      _Bound_indexes());
 	}
 #endif // volatile
+#endif
     };
 
   /// Type of the function object returned from bind<R>().
@@ -928,10 +1011,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     {
       using _Fn = const decltype(__fn)&;
       template <typename... _Args>
+	requires is_invocable_v<_Fn, _Args...>
 	constexpr static decltype(auto)
-	operator()(_Args... __args)
-	  noexcept(is_nothrow_invocable_v<_Fn, _Args...>)
-	  requires is_invocable_v<_Fn, _Args...>
+	operator()(_Args&&... __args)
+	noexcept(is_nothrow_invocable_v<_Fn, _Args...>)
 	{ return std::invoke(__fn, std::forward<_Args>(__args)...); }
     };
 #endif
@@ -957,7 +1040,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     }
 
 #if __cpp_lib_bind_front >= 202306L
-
   /** Create call wrapper by partial application of arguments to function.
    *
    * The result of `std::bind_front<fn>(bind_args...)` is a function object
@@ -970,32 +1052,17 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<auto __fn, typename... _BindArgs>
     constexpr decltype(auto)
     bind_front(_BindArgs&&... __bind_args)
-      noexcept(__and_v<is_nothrow_constructible<_BindArgs>...>)
+    noexcept(__and_v<is_nothrow_constructible<_BindArgs>...>)
     {
       using _Fn = decltype(__fn);
-      static_assert(
-	(is_constructible_v<decay_t<_BindArgs>, _BindArgs> && ...) &&
-	(is_move_constructible_v<decay_t<_BindArgs>> && ...));
       if constexpr (is_pointer_v<_Fn> || is_member_pointer_v<_Fn>)
 	static_assert(__fn != nullptr);
 
       if constexpr (sizeof...(_BindArgs) == 0)
 	return _Bind_fn_t<__fn>{};
-      else {
-	return [... __bound_args(std::forward<_BindArgs>(__bind_args))]
-	  <typename _Self, typename... _CallArgs>
-	  (this _Self&&, _CallArgs&&... __call_args)
-	    noexcept(is_nothrow_invocable_v<
-	      const _Fn&, __like_t<_Self, decay_t<_BindArgs>>..., _CallArgs...>)
-	    -> decltype(auto)
-	    requires is_invocable_v<
-	      const _Fn&, __like_t<_Self, decay_t<_BindArgs>>..., _CallArgs...>
-	  {
-	    return std::invoke(__fn,
-	      std::forward_like<_Self>(__bound_args)...,
-	      std::forward<_CallArgs>(__call_args)...);
-	  };
-      }
+      else
+        return _Bind_front_t<_Bind_fn_t<__fn>, _BindArgs...>(0,
+		 _Bind_fn_t<__fn>{}, std::forward<_BindArgs>(__bind_args)...);
     }
 
 #endif // __cpp_lib_bind_front  // C++26
@@ -1035,36 +1102,18 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   template<auto __fn, typename... _BindArgs>
     constexpr decltype(auto)
     bind_back(_BindArgs&&... __bind_args)
-      noexcept(__and_v<is_nothrow_constructible<_BindArgs>...>)
+    noexcept(__and_v<is_nothrow_constructible<_BindArgs>...>)
     {
       using _Fn = decltype(__fn);
-      static_assert(
-	(is_constructible_v<decay_t<_BindArgs>, _BindArgs> && ...) &&
-	(is_move_constructible_v<decay_t<_BindArgs>> && ...));
       if constexpr (is_pointer_v<_Fn> || is_member_pointer_v<_Fn>)
 	static_assert(__fn != nullptr);
 
       if constexpr (sizeof...(_BindArgs) == 0)
 	return _Bind_fn_t<__fn>{};
       else
-      {
-	// Capture arguments in a lambda and return that.
-	return [... __bound_args(std::forward<_BindArgs>(__bind_args))]
-	  <typename _Self, typename... _CallArgs>
-	  (this _Self&&, _CallArgs&&... __call_args)
-	    noexcept(is_nothrow_invocable_v<
-	      const _Fn&, _CallArgs..., __like_t<_Self, decay_t<_BindArgs>>...>)
-	    -> decltype(auto)
-	    requires is_invocable_v<
-	      const _Fn&, _CallArgs..., __like_t<_Self, decay_t<_BindArgs>>...>
-	  {
-	    return std::invoke(__fn,
-	      std::forward<_CallArgs>(__call_args)...,
-	      std::forward_like<_Self>(__bound_args)...);
-	  };
-      }
+        return _Bind_back_t<_Bind_fn_t<__fn>, _BindArgs...>(0,
+		 _Bind_fn_t<__fn>{}, std::forward<_BindArgs>(__bind_args)...);
     }
-
 #endif // __cpp_lib_bind_back  // C++26, nttp
 #endif // __cpp_lib_bind_back
 
@@ -1090,6 +1139,21 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _Not_fn(_Not_fn&& __fn) = default;
       ~_Not_fn() = default;
 
+#if _GLIBCXX_EXPLICIT_THIS_PARAMETER
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wc++23-extensions" // deducing this
+      template<typename _Self, typename... _Args>
+      _GLIBCXX20_CONSTEXPR
+      decltype(_S_not<__inv_res_t<__like_t<_Self, _Fn>, _Args...>>())
+      operator()(this _Self&& __self, _Args&&... __args)
+      noexcept(__is_nothrow_invocable<__like_t<_Self, _Fn>, _Args...>::value
+	       && noexcept(_S_not<__inv_res_t<__like_t<_Self, _Fn>, _Args...>>()))
+      {
+	return !std::__invoke(__like_t<_Self, _Not_fn>(__self)._M_fn,
+			      std::forward<_Args>(__args)...);
+      }
+# pragma GCC diagnostic pop
+#else
       // Macro to define operator() with given cv-qualifiers ref-qualifiers,
       // forwarding _M_fn and the function arguments with the same qualifiers,
       // and deducing the return type and exception-specification.
@@ -1115,6 +1179,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       _GLIBCXX_NOT_FN_CALL_OP( && )
       _GLIBCXX_NOT_FN_CALL_OP( const && )
 #undef _GLIBCXX_NOT_FN_CALL_OP
+#endif
 
     private:
       _Fn _M_fn;
@@ -1168,7 +1233,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     }
 
 #if __cpp_lib_not_fn >= 202306L
-
   /** Wrap a function type to create a function object that negates its result.
    *
    * The function template `std::not_fn` creates a "forwarding call wrapper",
@@ -1188,7 +1252,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       using _Fn = decltype(__fn);
       if constexpr (is_pointer_v<_Fn> || is_member_pointer_v<_Fn>)
 	static_assert(__fn != nullptr);
-      return []<typename... _Args>(_Args... __args) static
+      return []<typename... _Args>(_Args&&... __args) static
 	  noexcept(noexcept(
 	    !std::invoke(__fn, std::forward<_Args>(__args)...) ))
 	  -> decltype(auto)
@@ -1196,7 +1260,6 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	    !std::invoke(__fn, std::forward<_Args>(__args)...); }
 	{ return !std::invoke(__fn, std::forward<_Args>(__args)...); };
     };
-
 #endif // __cpp_lib_not_fn >= 202306L
 #endif // __cpp_lib_not_fn
 
