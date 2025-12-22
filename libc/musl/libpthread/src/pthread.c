@@ -40,11 +40,6 @@
 #include <link.h>
 #include "libc-api.h"
 
-/* Sanity check.  */
-#if !defined SIGRTMIN || (SIGRTMAX - SIGRTMIN) < 3
-# error "This must not happen"
-#endif
-
 /* mods for uClibc: __libc_sigaction is not in any standard headers */
 extern __typeof(sigaction) __libc_sigaction;
 
@@ -95,10 +90,8 @@ const char __linuxthreads_version[] = VERSION;
 /* Forward declarations */
 
 static void pthread_onexit_process(int retcode, void *arg);
-#ifndef HAVE_Z_NODELETE
 static void pthread_atexit_process(void);
 static void pthread_atexit_retcode(void *arg, int retcode);
-#endif
 
 extern int __libc_current_sigrtmin_private (void);
 
@@ -111,9 +104,7 @@ extern int __libc_current_sigrtmin_private (void);
 
 static void pthread_initialize(void) __attribute__((constructor));
 
-#ifndef HAVE_Z_NODELETE
 extern void *__dso_handle __attribute__ ((weak));
-#endif
 
 l4_utcb_t *__pthread_first_free_utcb L4_HIDDEN;
 
@@ -221,11 +212,6 @@ __pthread_init_max_stacksize(void)
 
 static void pthread_initialize(void)
 {
-#ifdef NOT_USED
-  struct sigaction sa;
-  sigset_t mask;
-#endif
-
   /* If already done (e.g. by a constructor called earlier!), bail out */
   if (__pthread_initial_thread_bos != NULL) return;
 #ifdef TEST_FOR_COMPARE_AND_SWAP
@@ -238,7 +224,6 @@ static void pthread_initialize(void)
   /* Register an exit function to kill all other threads. */
   /* Do it early so that user-registered atexit functions are called
      before pthread_*exit_process. */
-#ifndef HAVE_Z_NODELETE
   if (__builtin_expect (&__dso_handle != NULL, 1))
     // NOTE: Passing the retcode to cxa_atexit is a glibc extension, implemented
     // neither by uclibc or musl...
@@ -246,7 +231,6 @@ static void pthread_initialize(void)
     //	__dso_handle);
     ;
   else
-#endif
 
 // NOTE: on_exit is glibc specific, not provided by musl
 #ifdef __UCLIBC__
@@ -268,14 +252,12 @@ int __pthread_initialize_manager(void)
   pthread_descr mgr;
   void *tls_tp;
 
-#ifndef HAVE_Z_NODELETE
   if (__builtin_expect (&__dso_handle != NULL, 1))
     // NOTE: Passing the retcode to cxa_atexit is a glibc extension, implemented
     // neither by uclibc or musl...
     // __cxa_atexit ((void (*) (void *)) pthread_atexit_retcode, NULL,
     //   __dso_handle);
     ;
-#endif
 
   if (__pthread_max_stacksize == 0)
     __pthread_init_max_stacksize ();
@@ -420,14 +402,12 @@ static void pthread_onexit_process(int retcode, void *arg)
   }
 }
 
-#ifndef HAVE_Z_NODELETE
 static int __pthread_atexit_retcode;
 
 static void pthread_atexit_process()
 {
   pthread_onexit_process (__pthread_atexit_retcode, NULL);
 }
-#endif
 
 /* Concurrency symbol level.  */
 static int current_level;
