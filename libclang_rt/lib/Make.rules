@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 TARGET          = libclang_rt-builtins.a
 PC_FILENAME     = libclang_rt-builtins
 PC_LIBS         =

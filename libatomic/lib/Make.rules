@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 TARGET           = libatomic.a
 PC_FILENAME      = libatomic
 PC_LIBS          =

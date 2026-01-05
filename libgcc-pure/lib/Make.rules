@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 TARGET          = libgcc-pure.a
 PC_FILENAME     = libgcc-pure
 PC_LIBS         =

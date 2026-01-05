@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 TARGET          = libgcc_eh.a
 CONTRIB_INCDIR  = libgcc_eh
 PC_FILENAME     = libgcc_eh

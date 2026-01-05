@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 PC_FILENAME    :=
 
 # Avoid circular dependency, as this package is part of the compiler runtime.

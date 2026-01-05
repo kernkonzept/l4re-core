@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 TARGET          = libgcc.a $(if $(CONFIG_COMPILER_RT_LIBGCC_SHARED),libgcc_s.so)
 PC_FILENAME     = libgcc
 # Certain functions are only part of libgcc.a, so link shared objects against

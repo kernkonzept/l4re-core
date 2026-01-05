@@ -1,4 +1,5 @@
-# vi:ft=make
+# vim:set ft=make:
+
 LIBCSRC_DIR ?= $(SRC_DIR)/..
 
 DEFINES           += -DL4_THREAD_SAFE -DUSE_TLS=1

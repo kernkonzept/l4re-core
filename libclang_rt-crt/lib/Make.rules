@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 # Extra standalone object files to build.
 TARGET          = crtbegin.o crtend.o
 PC_LIBS         =

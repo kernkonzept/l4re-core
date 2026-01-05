@@ -1,3 +1,5 @@
+# vim:set ft=make:
+
 TARGET          = libunwind_llvm.a
 PC_FILENAME     = libunwind_llvm
 PC_LIBS         =

@@ -1,4 +1,5 @@
-# vi:ft=make
+# vim:set ft=make:
+
 PKGDIR		?= ..
 L4DIR		?= $(PKGDIR)/../..
 
