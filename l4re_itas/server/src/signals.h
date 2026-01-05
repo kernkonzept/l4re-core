@@ -191,8 +191,8 @@ public:
                         l4_fpage_t io_pfa, l4_umword_t pc,
                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
 
-  long op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
-                    L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
+  l4_ret_t op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
+                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
 
   int sigaltstack(const struct sigaltstack &ss, struct sigaltstack &oss);
 
