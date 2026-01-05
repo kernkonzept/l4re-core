@@ -497,8 +497,6 @@ extern int __pthread_sigwait (const sigset_t *set, int *sig);
 extern int __pthread_raise (int sig);
 #endif
 
-extern void __pthread_cleanup_upto (__jmp_buf target,
-				    char *targetframe) L4_HIDDEN;
 #if 0
 extern pid_t __pthread_fork (struct fork_block *b) L4_HIDDEN;
 #endif

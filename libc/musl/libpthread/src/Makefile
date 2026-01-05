@@ -20,7 +20,7 @@ LDSODIR    = $(CONTRIB_DIR)/ldso/ldso
 SRC_CC_libc_pthread   = manager.cc l4.cc
 SRC_C_libc_pthread   += spinlock.c mutex.c condvar.c rwlock.c specific.c \
                         semaphore.c attr.c barrier.c join.c pthread.c \
-                        cancel.c ptcleanup.c signals.c \
+                        cancel.c signals.c \
                         sysdeps/$(LIBC_ARCH)/pspinlock.c impl-musl.c
 SRC_S_libc_pthread    = tramp-$(ARCH).S
 
