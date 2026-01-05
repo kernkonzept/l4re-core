@@ -21,8 +21,6 @@
 
 #include "sig_arch.h"
 
-typedef long l4_ret_t;
-
 class Signal_manager;
 
 struct Sig_set

@@ -20,6 +20,12 @@
 #include <l4/sys/compiler.h>
 #include <l4/sys/consts.h>
 
+/**
+ * Return value of an IPC call as well as an RPC call.
+ *
+ * This type must not be larger than the label part of l4_msgtag_t.
+ */
+typedef l4_int16_t l4_ret_t;
 
 /**
  * \defgroup l4_msgtag_api Message Tag

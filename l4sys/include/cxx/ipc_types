@@ -198,7 +198,7 @@ struct Svr_val_ops<Opt<T>, Dir_out, CLASS> : Svr_noops< Opt<T> >
   }
 
   using Svr_noops< Opt<T> >::from_svr;
-  static int from_svr(char *msg, unsigned offset, unsigned limit, long ret,
+  static int from_svr(char *msg, unsigned offset, unsigned limit, l4_ret_t ret,
                       svr_type &arg, Dir_out, CLASS) noexcept
   {
     if (arg.is_valid())

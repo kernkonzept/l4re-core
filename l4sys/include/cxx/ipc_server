@@ -33,15 +33,16 @@ template<typename ...> struct Arg_pack
   { return offset; }
 
   template<typename DIR>
-  unsigned set(char *, unsigned offset, unsigned, long)
+  unsigned set(char *, unsigned offset, unsigned, l4_ret_t)
   { return offset; }
 
   template<typename F, typename ...ARGS>
-  long call(F f, ARGS ...args)
+  decltype(auto) call(F f, ARGS ...args)
   { return f(args...); }
 
   template<typename O, typename FUNC, typename ...ARGS>
-  long obj_call(O *o, ARGS ...args)
+  auto obj_call(O *o, ARGS ...args)
+    -> decltype(typename FUNC::template fwd<O>(o).template call<ARGS...>(args...))
   {
     typedef typename FUNC::template fwd<O> Fwd;
     using Idl_ret = typename FUNC::result_type;
@@ -115,7 +116,7 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
   }
 
   template<typename DIR>
-  int set(char *msg, unsigned offset, unsigned limit, long ret)
+  int set(char *msg, unsigned offset, unsigned limit, l4_ret_t ret)
   {
     typedef Svr_xmit<T> ct;
     int r = ct::from_svr(msg, offset, limit, ret, this->v,
@@ -126,7 +127,7 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
   }
 
   template<typename F, typename ...ARGS>
-  long call(F f, ARGS ...args)
+  decltype(auto) call(F f, ARGS ...args)
   {
     //As_arg<value_type> check;
     return Base::template
@@ -134,11 +135,11 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
   }
 
   template<typename O, typename FUNC, typename ...ARGS>
-  long obj_call(O *o, ARGS ...args)
+  decltype(auto) obj_call(O *o, ARGS ...args)
   {
     //As_arg<value_type> check;
     return Base::template
-      obj_call<O,FUNC,  ARGS..., svr_arg_type>(o, args..., this->v);
+      obj_call<O, FUNC, ARGS..., svr_arg_type>(o, args..., this->v);
   }
 };
 
@@ -152,17 +153,17 @@ struct Svr_arg<T, void, M...> : Arg_pack<M...>
   { return Base::template get<DIR>(msg, offset, limit); }
 
   template<typename DIR>
-  int set(char *msg, unsigned offset, unsigned limit, long ret)
+  int set(char *msg, unsigned offset, unsigned limit, l4_ret_t ret)
   { return Base::template set<DIR>(msg, offset, limit, ret); }
 
   template<typename F, typename ...ARGS>
-  long call(F f, ARGS ...args)
+  decltype(auto) call(F f, ARGS ...args)
   {
     return Base::template call<F, ARGS...>(f, args...);
   }
 
   template<typename O, typename FUNC, typename ...ARGS>
-  long obj_call(O *o, ARGS ...args)
+  decltype(auto) obj_call(O *o, ARGS ...args)
   {
     return Base::template obj_call<O, FUNC, ARGS...>(o, args...);
   }
@@ -193,7 +194,7 @@ struct Svr_arg_pack<R (ARGS...)> : Detail::Arg_pack<ARGS...>
   }
 
   template<typename DIR>
-  int set(void *msg, unsigned offset, unsigned limit, long ret)
+  int set(void *msg, unsigned offset, unsigned limit, l4_ret_t ret)
   {
     char *buf = static_cast<char *>(msg);
     return Base::template set<DIR>(buf, offset, limit, ret);
@@ -244,7 +245,7 @@ handle_svr_obj_call(O *o, l4_utcb_t *utcb, l4_msgtag_t tag, ARGS ...args)
   asm volatile ("" : "=m" (mrs->mr));
 
   // call the server function
-  long ret = pack.template obj_call<O, typename IPC_TYPE::rpc, ARGS...>(o, args...);
+  auto ret = pack.template obj_call<O, typename IPC_TYPE::rpc, ARGS...>(o, args...);
 
   if (!Do_reply)
     return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
@@ -337,8 +338,8 @@ struct Dispatch_call
     OPCODE_TYPE op;
     unsigned limit = tag.words() * Word_bytes;
     typedef Svr_xmit<OPCODE_TYPE> S;
-    int err = S::to_svr(reinterpret_cast<char *>(l4_utcb_mr_u(utcb)->mr), 0,
-                        limit, op, Dir_in(), Cls_data());
+    l4_ret_t err = S::to_svr(reinterpret_cast<char *>(l4_utcb_mr_u(utcb)->mr), 0,
+                             limit, op, Dir_in(), Cls_data());
     if (L4_UNLIKELY(err < 0))
       return l4_msgtag(-L4_EMSGTOOSHORT, 0, 0, 0);
 
