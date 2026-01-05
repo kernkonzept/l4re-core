@@ -52,7 +52,7 @@ typedef union dtv
 # include <../../descr.h>
 
 /* The stack_guard is accessed directly by GCC -fstack-protector code,
-   so it is a part of public ABI. The dtv is private.  */
+   so it is a part of public ABI. The dtv field is private.  */
 typedef struct
 {
   uintptr_t stack_guard;

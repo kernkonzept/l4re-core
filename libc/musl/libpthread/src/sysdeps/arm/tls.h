@@ -98,7 +98,6 @@ typedef struct
      INTERNAL_SYSCALL_ERROR_P (result_var, err)				\
        ? "unknown error" : NULL; })
 
-// TODO: Why to we set `l4_utcb_tcr()->user[0]` explicitly? We do not do that on other architectures...
 # define TLS_INIT_TP_generic(tcbp, secondcall) \
   ({ \
     l4_utcb_tcr()->user[0] = (l4_addr_t)tcbp - TLS_PRE_TCB_SIZE; \
