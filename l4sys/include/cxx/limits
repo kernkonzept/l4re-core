@@ -1,0 +1,81 @@
+// vi:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2026 Kernkonzept GmbH.
+ * Author(s): Frank Mehnert <frank.mehnert@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+
+#pragma once
+#pragma GCC system_header
+
+#include <stddef.h>
+#include <limits.h>
+
+// unfortunately we cannot include <limits>
+namespace L4 { namespace Types {
+
+  template< typename T > struct numeric_limits;
+  template<> struct numeric_limits<bool>
+  {
+    static constexpr bool min() { return false; }
+    static constexpr bool max() { return true; }
+  };
+  template<> struct numeric_limits<char>
+  {
+    static constexpr signed char min() { return SCHAR_MIN; }
+    static constexpr signed char max() { return SCHAR_MAX; }
+  };
+  template<> struct numeric_limits<unsigned char>
+  {
+    static constexpr unsigned char min() { return 0; }
+    static constexpr unsigned char max() { return UCHAR_MAX; }
+  };
+  template<> struct numeric_limits<signed short int>
+  {
+    static constexpr signed short int min() { return SHRT_MIN; }
+    static constexpr signed short int max() { return SHRT_MAX; }
+  };
+  template<> struct numeric_limits<unsigned short int>
+  {
+    static constexpr unsigned short int min() { return 0; }
+    static constexpr unsigned short int max() { return USHRT_MAX; }
+  };
+  template<> struct numeric_limits<signed int>
+  {
+    static constexpr signed int min() { return INT_MIN; }
+    static constexpr signed int max() { return INT_MAX; }
+  };
+  template<> struct numeric_limits<unsigned int>
+  {
+    static constexpr unsigned int min() { return 0U; }
+    static constexpr unsigned int max() { return UINT_MAX; }
+  };
+  template<> struct numeric_limits<signed long int>
+  {
+    static constexpr signed long min() { return LONG_MIN; }
+    static constexpr signed long max() { return LONG_MAX; }
+  };
+  template<> struct numeric_limits<unsigned long int>
+  {
+    static constexpr unsigned long int min() { return 0UL; }
+    static constexpr unsigned long int max() { return ULONG_MAX; }
+  };
+  template<> struct numeric_limits<signed long long int>
+  {
+    static constexpr signed long long min() { return LLONG_MIN; }
+    static constexpr signed long long max() { return LLONG_MAX; }
+  };
+  template<> struct numeric_limits<unsigned long long int>
+  {
+    static constexpr unsigned long long min() { return 0ULL; }
+    static constexpr unsigned long long max() { return ULLONG_MAX; }
+  };
+  template<> struct numeric_limits<l4_msgtag_t>
+  {
+    static constexpr long min() { return -max() - 1L; }
+    static constexpr long max() { return numeric_limits<long>::max() >> 16; }
+  };
+
+}} // namespace Types, namespace L4
+

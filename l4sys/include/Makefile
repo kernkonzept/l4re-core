@@ -28,6 +28,7 @@ EXTRA_TARGET	+= capability kip task factory irq icu thread vcon \
                    cxx/ipc_types       \
                    cxx/ipc_varg        \
                    cxx/ipc_legacy      \
+                   cxx/limits          \
                    cxx/smart_capability_1x \
                    cxx/types           \
                    cxx/consts          \
