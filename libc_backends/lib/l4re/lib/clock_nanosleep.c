@@ -22,20 +22,18 @@ int clock_nanosleep(clockid_t clock_id, int flags,
       return -1;
     }
 
-  l4_timeout_t to;
-
-  l4_kernel_clock_t sleep_val_us = ts->tv_sec * 1000000 + ts->tv_nsec / 1000;
-  l4_msgtag_t tag;
-  if (flags & TIMER_ABSTIME)
+  l4_kernel_clock_t abs_time_us = ts->tv_sec * 1000000 + ts->tv_nsec / 1000;
+  if (flags == TIMER_ABSTIME)
     {
       if (clock_id == CLOCK_REALTIME)
-        sleep_val_us -= __libc_l4_rt_clock_offset;
-      l4_rcv_timeout(l4_timeout_abs(sleep_val_us, 0), &to);
-      tag = l4_ipc_receive(L4_INVALID_CAP, l4_utcb(), to);
+        abs_time_us -= __libc_l4_rt_clock_offset;
     }
   else
-    tag = l4_ipc_sleep_us(sleep_val_us);
+    abs_time_us += l4_kip_clock(l4_kip());
 
+  l4_timeout_t to;
+  l4_rcv_timeout(l4_timeout_abs(abs_time_us, 0), &to);
+  l4_msgtag_t tag = l4_ipc_receive(L4_INVALID_CAP, l4_utcb(), to);
   if (l4_ipc_error(tag, l4_utcb()) != L4_IPC_RETIMEOUT)
     {
       errno = EINTR;

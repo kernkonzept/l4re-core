@@ -15,13 +15,11 @@
 #include <time.h>
 #include <limits.h>
 
+#include <l4/sys/kip.h>
 #include <l4/util/util.h>
 
 int nanosleep(const struct timespec *req, struct timespec *rem)
 {
-  // l4_timeout_from_us allows a maximum timeout of 610d 14m 35s.
-  l4_uint64_t us;
-
   (void)rem;
   if (req == NULL)
     {
@@ -35,12 +33,13 @@ int nanosleep(const struct timespec *req, struct timespec *rem)
       return -1;
     }
 
-  // __time_t could be 32-bit as well as 64-bit!
-  if ((l4_uint64_t)req->tv_sec > (~0ULL / 1000000) - 1)
-    us = L4_TIMEOUT_US_MAX;
-  else
-    us = ((l4_uint64_t)req->tv_sec * 1000000) + (req->tv_nsec / 1000);
-  l4_usleep(us);
+  l4_kernel_clock_t abs_time_us =
+    l4_kip_clock(l4_kip()) + req->tv_sec * 1000000 + req->tv_nsec / 1000;
+
+  l4_timeout_t to;
+  l4_rcv_timeout(l4_timeout_abs(abs_time_us, 0), &to);
+  l4_msgtag_t tag = l4_ipc_receive(L4_INVALID_CAP, l4_utcb(), to);
+  (void)tag;
 
   return 0;
 }
