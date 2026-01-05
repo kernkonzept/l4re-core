@@ -46,8 +46,6 @@ typedef unsigned long int __cpu_mask;
 #define STRINGIFY2(s) #s
 #define VERSION STRINGIFY(__UCLIBC_MAJOR__) "." STRINGIFY(__UCLIBC_MINOR__) "." STRINGIFY(__UCLIBC_SUBLEVEL__)
 
-# define __MAX_ALLOCA_CUTOFF  65536
-
 # if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__ || defined __cplusplus
 #  define __extern_inline extern __inline __attribute__ ((__gnu_inline__))
 #  define __extern_always_inline \

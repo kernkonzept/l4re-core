@@ -207,7 +207,6 @@ __pthread_initialize_minimal(void)
 #if __LT_SPINLOCK_INIT != 0
   self->p_resume_count = (struct pthread_atomic) __ATOMIC_INITIALIZER;
 #endif
-  self->p_alloca_cutoff = __MAX_ALLOCA_CUTOFF;
 
   /* Another variable which points to the thread descriptor.  */
   __pthread_main_thread = self;
@@ -226,11 +225,6 @@ __pthread_init_max_stacksize(void)
   max_stack = STACK_SIZE - L4_PAGESIZE;
 
   __pthread_max_stacksize = max_stack;
-  if (max_stack / 4 < __MAX_ALLOCA_CUTOFF)
-    {
-      pthread_descr self = THREAD_SELF;
-      self->p_alloca_cutoff = max_stack / 4;
-    }
 }
 
 #if defined SHARED
@@ -387,7 +381,6 @@ int __pthread_initialize_manager(void)
 #if __LT_SPINLOCK_INIT != 0
   self->p_resume_count = (struct pthread_atomic) __ATOMIC_INITIALIZER;
 #endif
-  mgr->p_alloca_cutoff = PTHREAD_STACK_MIN / 4;
 
   /* Start the thread manager */
   int err = __pthread_start_manager(mgr);

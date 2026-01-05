@@ -689,8 +689,6 @@ static int pthread_handle_create(pthread_descr creator, const pthread_attr_t *at
   new_thread->p_guardaddr = guardaddr;
   new_thread->p_guardsize = guardsize;
   new_thread->p_inheritsched = attr ? attr->__inheritsched : PTHREAD_INHERIT_SCHED;
-  new_thread->p_alloca_cutoff = stksize / 4 > __MAX_ALLOCA_CUTOFF
-				 ? __MAX_ALLOCA_CUTOFF : stksize / 4;
   /* Initialize the thread handle */
   __pthread_init_lock(handle_to_lock(new_utcb));
   /* Determine scheduling parameters for the thread */

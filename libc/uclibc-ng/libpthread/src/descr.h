@@ -153,8 +153,6 @@ struct pthread
   int p_untracked_readlock_count;	/* Readlocks not tracked by list */
   int p_inheritsched;           /* copied from the thread attribute */
   char *p_stackaddr;		/* Stack address.  */
-  size_t p_alloca_cutoff;	/* Maximum size which should be allocated
-				   using alloca() instead of malloc().  */
   /* New elements must be added at the end.  */
 } __attribute__ ((aligned (TCB_ALIGNMENT)));
 
