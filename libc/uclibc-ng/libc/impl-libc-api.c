@@ -1,5 +1,8 @@
 #include "libc-api.h"
 
+#define IS_IN_libpthread
+#include "libc-glue.h"
+
 #include <tls.h>
 #include <stdio.h>
 #include <string.h>
@@ -53,9 +56,22 @@ __pthread_init_static_tls (struct link_map *map)
     }
 }
 
+static int __pthread_atexit_retcode;
+
+static void pthread_atexit_retcode(void *arg, int retcode)
+{
+  __pthread_atexit_retcode = retcode;
+}
+
+extern void *__dso_handle __attribute__ ((weak));
+
 int
 ptlc_become_threaded(void)
 {
+  if (__builtin_expect (&__dso_handle != NULL, 1))
+    __cxa_atexit ((void (*) (void *)) pthread_atexit_retcode, NULL,
+      __dso_handle);
+
   return 0; // Hook not needed for uclibc-ng
 }
 
@@ -126,9 +142,23 @@ ptlc_set_tp(void *tls_tp)
   return 0;
 }
 
+static void pthread_atexit_process(void *arg, int retcode)
+{
+  pthread_onexit_process (retcode ?: __pthread_atexit_retcode, arg);
+}
+
 void
 ptlc_after_pthread_initialize(void)
 {
+  /* Register an exit function to kill all other threads. */
+  /* Do it early so that user-registered atexit functions are called
+     before pthread_*exit_process. */
+  if (__builtin_expect (&__dso_handle != NULL, 1))
+    __cxa_atexit ((void (*) (void *)) pthread_atexit_process, NULL,
+      __dso_handle);
+  else
+    __on_exit (pthread_onexit_process, NULL);
+
 #if defined SHARED
   /* Transfer the old value from the dynamic linker's internal location.  */
   *__libc_dl_error_tsd () = *(*GL(dl_error_catch_tsd)) ();

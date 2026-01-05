@@ -1,4 +1,7 @@
 #include "libc-api.h"
+#define IS_IN_libpthread
+#include "libc-glue.h"
+
 #include "pthread_impl.h"
 #include "stdio_impl.h"
 
@@ -143,8 +146,22 @@ ptlc_after_exit_thread(void)
   __atomic_sub_fetch(&libc.threads_minus_1, 1, __ATOMIC_SEQ_CST);
 }
 
+// Set through exit implementation in musl, since we do not have return codes
+// in atexit functions.
+static int __pthread_atexit_retcode;
+static void pthread_atexit_process(void *arg)
+{
+  pthread_onexit_process(__pthread_atexit_retcode, arg);
+}
+
 void
 ptlc_after_pthread_initialize()
 {
+  /* Register an exit function to kill all other threads. */
+  /* Do it early so that user-registered atexit functions are called
+     before pthread_*exit_process. */
+
+  __cxa_atexit(pthread_atexit_process, NULL, NULL);
+
         //TODO: musl stdio locking init!
 }

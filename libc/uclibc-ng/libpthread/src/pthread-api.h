@@ -5,13 +5,15 @@
 /* The type of thread descriptors */
 typedef struct pthread *pthread_descr;
 
+L4_BEGIN_DECLS
+
+L4_HIDDEN void pthread_onexit_process(int retcode, void *arg);
+
 typedef struct l4_pthread_mgr_iface
 {
   pthread_descr (*first_thread)(void);
   pthread_descr (*next_thread)(pthread_descr);
 } l4_pthread_mgr_iface_t;
-
-L4_BEGIN_DECLS
 
 /**
  * If the manager has not yet been started, i.e. because no thread has been

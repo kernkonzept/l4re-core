@@ -74,6 +74,9 @@ L4_HIDDEN pthread_libc_data_t *__pthread_descr_libc_data(pthread_descr descr);
 // TODO: Maybe instead give musl direct access to `struct pthread`?
 L4_HIDDEN size_t __pthread_struct_size(void);
 
+
+L4_HIDDEN void pthread_onexit_process(int retcode, void *arg);
+
 typedef struct l4_pthread_mgr_iface
 {
   pthread_descr (*first_thread)(void);

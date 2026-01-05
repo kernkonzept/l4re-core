@@ -89,10 +89,6 @@ const char __linuxthreads_version[] = VERSION;
 
 /* Forward declarations */
 
-static void pthread_onexit_process(int retcode, void *arg);
-static void pthread_atexit_process(void);
-static void pthread_atexit_retcode(void *arg, int retcode);
-
 extern int __libc_current_sigrtmin_private (void);
 
 /* Initialize the pthread library.
@@ -103,8 +99,6 @@ extern int __libc_current_sigrtmin_private (void);
    - a regular function called from pthread_create when needed. */
 
 static void pthread_initialize(void) __attribute__((constructor));
-
-extern void *__dso_handle __attribute__ ((weak));
 
 l4_utcb_t *__pthread_first_free_utcb L4_HIDDEN;
 
@@ -221,23 +215,6 @@ static void pthread_initialize(void)
   /* We don't need to know the bottom of the stack.  Give the pointer some
      value to signal that initialization happened.  */
   __pthread_initial_thread_bos = (void *) -1l;
-  /* Register an exit function to kill all other threads. */
-  /* Do it early so that user-registered atexit functions are called
-     before pthread_*exit_process. */
-  if (__builtin_expect (&__dso_handle != NULL, 1))
-    // NOTE: Passing the retcode to cxa_atexit is a glibc extension, implemented
-    // neither by uclibc or musl...
-    //__cxa_atexit ((void (*) (void *)) pthread_atexit_process, NULL,
-    //	__dso_handle);
-    ;
-  else
-
-// NOTE: on_exit is glibc specific, not provided by musl
-#ifdef __UCLIBC__
-    __on_exit (pthread_onexit_process, NULL);
-#else
-    atexit (pthread_atexit_process);
-#endif
 
   ptlc_after_pthread_initialize();
 }
@@ -251,13 +228,6 @@ int __pthread_initialize_manager(void)
 {
   pthread_descr mgr;
   void *tls_tp;
-
-  if (__builtin_expect (&__dso_handle != NULL, 1))
-    // NOTE: Passing the retcode to cxa_atexit is a glibc extension, implemented
-    // neither by uclibc or musl...
-    // __cxa_atexit ((void (*) (void *)) pthread_atexit_retcode, NULL,
-    //   __dso_handle);
-    ;
 
   if (__pthread_max_stacksize == 0)
     __pthread_init_max_stacksize ();
@@ -367,7 +337,7 @@ L4_STRONG_ALIAS(__pthread_equal, pthread_equal)
 
 /* Process-wide exit() request */
 
-static void pthread_onexit_process(int retcode, void *arg)
+void pthread_onexit_process(int retcode, void *arg)
 {
   //l4/if (__builtin_expect (__pthread_manager_request, 0) >= 0) {
   if (!l4_is_invalid_cap(__pthread_manager_request)) {
@@ -400,13 +370,6 @@ static void pthread_onexit_process(int retcode, void *arg)
 	__pthread_manager_thread_bos = __pthread_manager_thread_tos = NULL;
       }
   }
-}
-
-static int __pthread_atexit_retcode;
-
-static void pthread_atexit_process()
-{
-  pthread_onexit_process (__pthread_atexit_retcode, NULL);
 }
 
 /* Concurrency symbol level.  */
