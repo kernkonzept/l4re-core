@@ -40,7 +40,7 @@ vtv_stubs.cc \
 CXXFLAGS += -std=gnu++17
 
 # Use atomicity.cc if the compiler does not support C++11 atomics
-SRC_CC       += $(if $(GCC_HAS_ATOMICS),,atomicity.cc)
+SRC_CC       += $(if $(GCC_HAS_WORD_ATOMICS),,atomicity.cc)
 
 vpath %.cc $(OBJ_DIR)
 

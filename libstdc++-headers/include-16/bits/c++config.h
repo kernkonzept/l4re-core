@@ -1629,7 +1629,7 @@ namespace __gnu_cxx
 #define _GLIBCXX98_USE_C99_WCHAR 1
 
 /* Define if the compiler supports native atomics for _Atomic_word. */
-#ifdef L4_GCC_HAS_ATOMICS
+#ifdef L4_GCC_HAS_WORD_ATOMICS
 #define _GLIBCXX_ATOMIC_WORD_BUILTINS 1
 #endif
 
