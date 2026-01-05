@@ -17,10 +17,7 @@ int clock_nanosleep(clockid_t clock_id, int flags,
                     struct timespec *rem)
 {
   if (clock_id != CLOCK_REALTIME && clock_id != CLOCK_MONOTONIC)
-    {
-      errno = ENOTSUP;
-      return -1;
-    }
+    return ENOTSUP;
 
   l4_kernel_clock_t abs_time_us = ts->tv_sec * 1000000 + ts->tv_nsec / 1000;
   if (flags == TIMER_ABSTIME)
@@ -35,10 +32,7 @@ int clock_nanosleep(clockid_t clock_id, int flags,
   l4_rcv_timeout(l4_timeout_abs(abs_time_us, 0), &to);
   l4_msgtag_t tag = l4_ipc_receive(L4_INVALID_CAP, l4_utcb(), to);
   if (l4_ipc_error(tag, l4_utcb()) != L4_IPC_RETIMEOUT)
-    {
-      errno = EINTR;
-      return -1;
-    }
+    return EINTR;
 
   if (rem)
     {
