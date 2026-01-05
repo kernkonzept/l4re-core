@@ -26,11 +26,11 @@
 int sem_init(sem_t *sem, int pshared, unsigned int value)
 {
   if (value > SEM_VALUE_MAX) {
-    __set_errno(EINVAL);
+    errno = EINVAL;
     return -1;
   }
   if (pshared) {
-    __set_errno(ENOSYS);
+    errno = ENOSYS;
     return -1;
   }
   __pthread_init_lock(&sem->__sem_lock);
@@ -120,7 +120,7 @@ int sem_trywait(sem_t * sem)
 
   __pthread_lock(&sem->__sem_lock, NULL);
   if (sem->__sem_value == 0) {
-    __set_errno(EAGAIN);
+    errno = EAGAIN;
     retval = -1;
   } else {
     sem->__sem_value--;
@@ -143,7 +143,7 @@ int sem_post(sem_t * sem)
     if (sem->__sem_waiting == NULL) {
       if (sem->__sem_value >= SEM_VALUE_MAX) {
         /* Overflow */
-        __set_errno(ERANGE);
+        errno = ERANGE;
         __pthread_unlock(&sem->__sem_lock);
         return -1;
       }
@@ -163,7 +163,7 @@ int sem_post(sem_t * sem)
        the thread manager. */
     if (__pthread_manager_request < 0) {
       if (__pthread_initialize_manager() < 0) {
-        __set_errno(EAGAIN);
+        errno = EAGAIN;
         return -1;
       }
     }
@@ -185,7 +185,7 @@ int sem_getvalue(sem_t * sem, int * sval)
 int sem_destroy(sem_t * sem)
 {
   if (sem->__sem_waiting != NULL) {
-    __set_errno (EBUSY);
+    errno = EBUSY;
     return -1;
   }
   return 0;
@@ -194,19 +194,19 @@ int sem_destroy(sem_t * sem)
 sem_t *sem_open(const char *name __attribute__((unused)),
                 int oflag __attribute__((unused)), ...)
 {
-  __set_errno (ENOSYS);
+  errno = ENOSYS;
   return SEM_FAILED;
 }
 
 int sem_close(sem_t *sem __attribute__((unused)))
 {
-  __set_errno (ENOSYS);
+  errno = ENOSYS;
   return -1;
 }
 
 int sem_unlink(const char *name __attribute__((unused)))
 {
-  __set_errno (ENOSYS);
+  errno = ENOSYS;
   return -1;
 }
 
@@ -227,7 +227,7 @@ int sem_timedwait(sem_t *sem, const struct timespec *abstime)
     /* The standard requires that if the function would block and the
        time value is illegal, the function returns with an error.  */
     __pthread_unlock(&sem->__sem_lock);
-    __set_errno (EINVAL);
+    errno = EINVAL;
     return -1;
   }
 
@@ -265,7 +265,7 @@ int sem_timedwait(sem_t *sem, const struct timespec *abstime)
 
 	if (was_on_queue) {
 	  __pthread_set_own_extricate_if(self, 0);
-	  __set_errno (ETIMEDOUT);
+	  errno = ETIMEDOUT;
 	  return -1;
 	}
 
