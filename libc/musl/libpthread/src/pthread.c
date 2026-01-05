@@ -38,7 +38,6 @@
 #include "spinlock.h"
 #include "restart.h"
 #include "smp.h"
-#include <not-cancel.h>
 #include <link.h>
 #include "libc-api.h"
 
@@ -551,7 +550,7 @@ __pthread_message(const char * fmt, ...)
   va_start(args, fmt);
   vsnprintf(buffer + 8, sizeof(buffer) - 8, fmt, args);
   va_end(args);
-  TEMP_FAILURE_RETRY(write_not_cancel(2, buffer, strlen(buffer)));
+  TEMP_FAILURE_RETRY(write(2, buffer, strlen(buffer)));
 }
 
 #endif

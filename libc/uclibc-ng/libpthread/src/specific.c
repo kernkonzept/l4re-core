@@ -128,12 +128,7 @@ int pthread_key_delete(pthread_key_t key)
       request.req_kind = REQ_EXEC_IN_MANAGER;
       request.req_args.exec_in_mgr.arg = &args;
       request.req_args.exec_in_mgr.fn = pthread_key_delete_helper;
-#if 1
       __pthread_send_manager_rq(&request, 1);
-#else
-      TEMP_FAILURE_RETRY(write_not_cancel(__pthread_manager_request,
-					  (char *) &request, sizeof(request)));
-#endif
       suspend(self);
     }
   else
