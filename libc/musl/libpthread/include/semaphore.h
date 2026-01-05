@@ -15,8 +15,6 @@
 #ifndef _SEMAPHORE_H
 #define _SEMAPHORE_H	1
 
-#include "bits/glue.h"
-#include <pthread.h>
 #include <features.h>
 #include <sys/types.h>
 #ifdef __USE_XOPEN2K
