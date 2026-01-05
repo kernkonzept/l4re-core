@@ -155,9 +155,6 @@ extern __volatile__ int __pthread_threads_debug;
 /* Pointer to descriptor of thread with last event.  */
 //extern __volatile__ pthread_descr __pthread_last_event;
 
-/* Flag which tells whether we are executing on SMP kernel. */
-extern int __pthread_smp_kernel;
-
 inline static void __pthread_send_manager_rq(struct pthread_request *r, int block)
 {
   if (l4_is_invalid_cap(__pthread_manager_request))

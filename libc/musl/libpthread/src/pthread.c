@@ -37,7 +37,6 @@
 #include "internals.h"
 #include "spinlock.h"
 #include "restart.h"
-#include "smp.h"
 #include <link.h>
 #include "libc-api.h"
 
@@ -84,10 +83,6 @@ int __pthread_exit_code;
 
 /* Maximum stack size.  */
 size_t __pthread_max_stacksize;
-
-/* Nozero if the machine has more than one processor.  */
-// NOTE: Always one on L4, might want to remove.
-int __pthread_smp_kernel;
 
 /* Communicate relevant LinuxThreads constants to gdb */
 const int __linuxthreads_pthread_sizeof_descr
@@ -270,8 +265,6 @@ static void pthread_initialize(void)
 #else
     atexit (pthread_atexit_process);
 #endif
-  /* How many processors.  */
-  __pthread_smp_kernel = is_smp_system ();
 
 #ifdef __UCLIBC__
 #if defined SHARED

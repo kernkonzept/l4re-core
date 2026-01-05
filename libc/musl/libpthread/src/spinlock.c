@@ -13,6 +13,7 @@
 /* GNU Library General Public License for more details.                 */
 
 /* Internal locks */
+#include <l4/sys/kip.h>
 
 #include <errno.h>
 #include <sched.h>
@@ -87,7 +88,7 @@ void __pthread_lock(struct _pthread_fastlock * lock, pthread_descr self)
 
   /* On SMP, try spinning to get the lock. */
 
-  if (__pthread_smp_kernel) {
+  if (l4_kip()->platform_info.is_mp) {
     int max_count = lock->__spinlock * 2 + 10;
 
     if (max_count > MAX_ADAPTIVE_SPIN_COUNT)

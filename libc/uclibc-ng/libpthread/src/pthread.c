@@ -37,7 +37,6 @@
 #include "internals.h"
 #include "spinlock.h"
 #include "restart.h"
-#include "smp.h"
 #include <link.h>
 #include <ldsodefs.h>
 
@@ -85,10 +84,6 @@ int __pthread_exit_code;
 /* Maximum stack size.  */
 size_t __pthread_max_stacksize;
 
-/* Nozero if the machine has more than one processor.  */
-int __pthread_smp_kernel;
-
-/* Communicate relevant LinuxThreads constants to gdb */
 const int __linuxthreads_pthread_sizeof_descr
   = sizeof(struct pthread);
 
@@ -294,8 +289,6 @@ static void pthread_initialize(void)
   else
 #endif
     __on_exit (pthread_onexit_process, NULL);
-  /* How many processors.  */
-  __pthread_smp_kernel = is_smp_system ();
 
 #if defined SHARED
   /* Transfer the old value from the dynamic linker's internal location.  */
