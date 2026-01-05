@@ -39,7 +39,18 @@ int nanosleep(const struct timespec *req, struct timespec *rem)
   l4_timeout_t to;
   l4_rcv_timeout(l4_timeout_abs(abs_time_us, 0), &to);
   l4_msgtag_t tag = l4_ipc_receive(L4_INVALID_CAP, l4_utcb(), to);
-  (void)tag;
+  if (rem && l4_ipc_error(tag, l4_utcb()) != L4_IPC_RETIMEOUT)
+    {
+      l4_kernel_clock_t now = l4_kip_clock(l4_kip());
+      if (now < abs_time_us)
+        {
+          l4_kernel_clock_t remaining = abs_time_us - now;
+          rem->tv_sec = remaining / 1000000;
+          rem->tv_nsec = (remaining % 1000000) * 1000;
+          errno = EINTR;
+          return -1;
+        }
+    }
 
   return 0;
 }
