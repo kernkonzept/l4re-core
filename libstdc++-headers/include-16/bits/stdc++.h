@@ -1,6 +1,6 @@
 // C++ includes used for precompiling -*- C++ -*-
 
-// Copyright (C) 2003-2025 Free Software Foundation, Inc.
+// Copyright (C) 2003-2026 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -29,9 +29,7 @@
 // 17.4.1.2 Headers
 
 // C
-#ifndef _GLIBCXX_NO_ASSERT
-#include <cassert>
-#endif
+// Don't include cassert, it's not suitable for PCH or header unit.
 #include <cctype>
 #include <cfloat>
 #include <climits>
@@ -104,9 +102,6 @@
 
 #if _GLIBCXX_HOSTED
 // C
-#ifndef _GLIBCXX_NO_ASSERT
-#include <cassert>
-#endif
 #include <cctype>
 #include <cerrno>
 #include <cfloat>

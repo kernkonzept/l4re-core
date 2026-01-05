@@ -1,6 +1,6 @@
 // Predefined symbols and macros -*- C++ -*-
 
-// Copyright (C) 1997-2025 Free Software Foundation, Inc.
+// Copyright (C) 1997-2026 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -46,7 +46,7 @@
 
 // The datestamp of the C++ library in compressed ISO date format.
 #undef __GLIBCXX__ /* The testsuite defines it to 99999999 to block PCH.  */
-#define __GLIBCXX__ 20251019
+#define __GLIBCXX__ 20260106
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -927,6 +927,13 @@ namespace __gnu_cxx
 # define _GLIBCXX_USE_BUILTIN_TRAIT(BT) 0
 #endif
 
+// Whether deducing this is usable either officially, if in C++23 mode, or
+// as an extension (Clang doesn't support the latter).
+#if __cpp_explicit_this_parameter \
+  || (__cplusplus >= 201103L && __GNUC__ >= 14 && !defined(_GLIBCXX_CLANG))
+# define _GLIBCXX_EXPLICIT_THIS_PARAMETER 202110L
+#endif
+
 // Mark code that should be ignored by the compiler, but seen by Doxygen.
 #define _GLIBCXX_DOXYGEN_ONLY(X)
 
@@ -1731,11 +1738,7 @@ namespace __gnu_cxx
 
 /* Define if C99 functions in <fenv.h> should be imported in <tr1/cfenv> in
    namespace std::tr1. */
-#if defined(__x86_64) || defined(i386)
-  #define _GLIBCXX_USE_C99_FENV_TR1 1
-#else
-  #undef _GLIBCXX_USE_C99_FENV_TR1
-#endif
+#define _GLIBCXX_USE_C99_FENV_TR1 1
 
 /* Define if C99 functions in <inttypes.h> should be imported in <cinttypes>
    in namespace std in C++11. */
