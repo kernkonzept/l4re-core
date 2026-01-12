@@ -11,7 +11,9 @@ PC_LIBS_libpthread         = -lpthread
 PC_LIBS_libc_pthread       = %{-link-libc:%{shared:--whole-archive -lc_pthread.p --no-whole-archive;:libc_pthread.ofl}}
 PC_LIBS_PIC                =
 
-LIBCSRC_DIR ?= $(PKGDIR)/uclibc-ng
+include $(L4DIR)/mk/Makeconf
+
+LIBCSRC_DIR ?= $(PKGDIR)/$(CONFIG_L4_LIBC)
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
@@ -50,15 +52,13 @@ INCDIR-riscv = $(SRC_DIR)/sysdeps/riscv
 INCDIR-sparc = $(SRC_DIR)/sysdeps/sparc \
                $(CONTRIB_DIR)/libpthread/linuxthreads/sysdeps/sparc
 
-PRIVATE_INCDIR = $(SRC_DIR) $(INCDIR-$(ARCH)) $(CONTRIB_DIR)/ldso/include
+PRIVATE_INCDIR = $(SRC_DIR) $(INCDIR-$(ARCH))
 
 DEFINES   := -DL4_THREAD_SAFE -D_GNU_SOURCE=1 -D__NO_WEAK_PTHREAD_ALIASES=1 \
              -D_LIBC=1 -DIS_IN_libpthread=1 -DNOT_IN_libc=1 -DL4_NO_RTTI=1 \
              -DUSE_TLS=1
 
-CFLAGS    += -include $(CONTRIB_DIR)/include/libc-symbols.h
-CXXFLAGS  += -include $(CONTRIB_DIR)/include/libc-symbols.h
-CXXFLAGS  += -fno-exceptions
+include $(LIBCSRC_DIR)/libpthread_vars.mk
 
 include $(L4DIR)/mk/lib.mk
 

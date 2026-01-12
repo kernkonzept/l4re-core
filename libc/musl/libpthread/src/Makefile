@@ -11,7 +11,9 @@ PC_LIBS_libpthread         = -lpthread
 PC_LIBS_libc_pthread       = %{-link-libc:%{shared:--whole-archive -lc_pthread.p --no-whole-archive;:libc_pthread.ofl}}
 PC_LIBS_PIC                =
 
-LIBCSRC_DIR ?= $(PKGDIR)/musl
+include $(L4DIR)/mk/Makeconf
+
+LIBCSRC_DIR ?= $(PKGDIR)/$(CONFIG_L4_LIBC)
 
 include $(LIBCSRC_DIR)/make_vars.mk
 
@@ -21,7 +23,7 @@ SRC_CC_libc_pthread   = manager.cc l4.cc
 SRC_C_libc_pthread   += spinlock.c mutex.c condvar.c rwlock.c specific.c \
                         semaphore.c attr.c barrier.c join.c pthread.c \
                         cancel.c signals.c \
-                        sysdeps/$(LIBC_ARCH)/pspinlock.c impl-musl.c
+                        sysdeps/$(LIBC_ARCH)/pspinlock.c
 SRC_S_libc_pthread    = tramp-$(ARCH).S
 
 SRC_C_libc_pthread.p.a  += $(SRC_C_libc_pthread)
@@ -47,18 +49,24 @@ INCDIR-mips  = $(SRC_DIR)/sysdeps/mips
 INCDIR-ppc32 = $(SRC_DIR)/sysdeps/powerpc \
                $(CONTRIB_DIR)/libpthread/linuxthreads/sysdeps/powerpc
 INCDIR-riscv = $(SRC_DIR)/sysdeps/riscv
+INCDIR-sparc = $(SRC_DIR)/sysdeps/sparc \
+               $(CONTRIB_DIR)/libpthread/linuxthreads/sysdeps/sparc
 
-PRIVATE_INCDIR = $(SRC_DIR) $(INCDIR-$(ARCH)) $(CONTRIB_DIR)/arch/$(LIBC_ARCH)
+PRIVATE_INCDIR = $(SRC_DIR) $(INCDIR-$(ARCH))
 
 DEFINES   := -DL4_THREAD_SAFE -D_GNU_SOURCE=1 -D__NO_WEAK_PTHREAD_ALIASES=1 \
              -D_LIBC=1 -DIS_IN_libpthread=1 -DNOT_IN_libc=1 -DL4_NO_RTTI=1 \
              -DUSE_TLS=1
 
-CFLAGS    += -include $(CONTRIB_DIR)/src/internal/libc.h
-CXXFLAGS  += -include $(CONTRIB_DIR)/src/internal/libc.h
-DEFINES   += -Dhidden='__attribute__((__visibility__("hidden")))'
-CXXFLAGS  += -fno-exceptions
+include $(LIBCSRC_DIR)/libpthread_vars.mk
 
 include $(L4DIR)/mk/lib.mk
 
 PICFLAGS += -DSHARED
+
+# 2025-04: libpthread.so is not built anymore and not known anymore
+#          to the build-system but might there from a previous build. Make
+#          sure to remove it such that it is not picked up by the linker
+#          accidentally. This rule can be removed again later.
+all::
+	$(VERBOSE)rm -f libpthread.so
