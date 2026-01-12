@@ -180,63 +180,6 @@ int __cxa_atexit(cxaefuncp func, void *arg, void *dso_handle)
 libc_hidden_def(__cxa_atexit)
 #endif
 
-#ifdef L___cxa_finalize
-/*
- * If D is non-NULL, call all functions registered with `__cxa_atexit'
- *  with the same dso handle.  Otherwise, if D is NULL, call all of the
- *  registered handlers.
- */
-void __cxa_finalize(void *dso_handle);
-void __cxa_finalize(void *dso_handle)
-{
-    struct exit_function *efp;
-    int exit_count_snapshot = __exit_count;
-
-    /* In reverse order */
-    while (exit_count_snapshot) {
-        efp = &__exit_function_table[--exit_count_snapshot];
-
-        /*
-         * We check dso_handle match before we verify the type of the union entry.
-         * However, the atomic_exchange will validate that we were really "allowed"
-         * to read dso_handle...
-         */
-        if ((dso_handle == NULL || dso_handle == efp->funcs.cxa_atexit.dso_handle)
-            /* We don't want to run this cleanup more than once. */
-            && !atomic_compare_and_exchange_bool_acq(&efp->type, ef_free, ef_cxa_atexit)
-           ) {
-            /* glibc passes status (0) too, but that's not in the prototype */
-            (*efp->funcs.cxa_atexit.func)(efp->funcs.cxa_atexit.arg);
-        }
-    }
-
-#ifdef __UCLIBC_DYNAMIC_ATEXIT__
-    // L4: __cxa_finalize is currently not provided by L4Re
-    for (unsigned i = L4_NUM_SPARE_ATEXIT; i > 0; --i) {
-        efp = &__static_exit_function_table[i - 1];
-        if (efp->type != ef_free
-            && (dso_handle == NULL || dso_handle == efp.funcs)
-            && !atomic_compare_and_exchange_bool_acq(&efp->type,
-                                                     ef_free, ef_cxa_atexit)) {
-            (efp->func)(efp->cxa_atexit.arg);
-        }
-    }
-#endif
-
-#if 0 /* haven't looked into this yet... */
-    /*
-     * Remove the registered fork handlers. We do not have to
-     * unregister anything if the program is going to terminate anyway.
-     */
-#ifdef UNREGISTER_ATFORK
-    if (dso_handle != NULL) {
-        UNREGISTER_ATFORK(dso_handle);
-    }
-#endif
-#endif
-}
-#endif
-
 #ifdef L___exit_handler
 int __exit_count = 0; /* Number of registered exit functions */
 #ifdef __UCLIBC_DYNAMIC_ATEXIT__
