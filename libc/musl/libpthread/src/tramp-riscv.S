@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: LGPL-2.1-only */
 /*
- * Copyright (C) 2021 Kernkonzept GmbH.
+ * Copyright (C) 2021, 2025 Kernkonzept GmbH.
  * Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
  */
 

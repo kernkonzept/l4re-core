@@ -1,7 +1,7 @@
 /* RISC-V ELF shared library loader suppport
  *
  * Copyright (C) 2011-2017 Free Software Foundation, Inc.
- * Copyright (C) 2021 Kernkonzept GmbH
+ * Copyright (C) 2021, 2025 Kernkonzept GmbH
  *
  * This file is part of the GNU C Library.
  *
