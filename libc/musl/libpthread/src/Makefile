@@ -54,6 +54,9 @@ DEFINES   := -DL4_THREAD_SAFE -D_GNU_SOURCE=1 -D__NO_WEAK_PTHREAD_ALIASES=1 \
              -D_LIBC=1 -DIS_IN_libpthread=1 -DNOT_IN_libc=1 -DL4_NO_RTTI=1 \
              -DUSE_TLS=1
 
+CFLAGS    += -include $(CONTRIB_DIR)/src/internal/libc.h
+CXXFLAGS  += -include $(CONTRIB_DIR)/src/internal/libc.h
+DEFINES   += -Dhidden='__attribute__((__visibility__("hidden")))'
 CXXFLAGS  += -fno-exceptions
 
 include $(L4DIR)/mk/lib.mk
