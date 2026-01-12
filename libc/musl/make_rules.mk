@@ -14,7 +14,6 @@ WARNINGS   += -Wno-strict-prototypes \
               -Wno-unused-but-set-variable
 
 # for building the C library we access internal headers
-PRIVATE_INCDIR += $(LIBCSRC_DIR)/libc/overrides
 PRIVATE_INCDIR += $(CONTRIB_DIR)/arch/$(LIBC_ARCH)
 PRIVATE_INCDIR += $(CONTRIB_DIR)/arch/generic
 # OBJ src internal?
@@ -45,8 +44,6 @@ vpath %.c  $(LIBC_DST_DIR)
 vpath %.cc $(LIBC_DST_DIR)
 vpath %.S  $(LIBC_DST_DIR)
 vpath %.s  $(LIBC_DST_DIR)
-# libpthread support (should go to non-minimal Make.rules?)
-vpath $(PTHOBJ_PFX)/% $(LIBCSRC_DIR_ABS)
 
 # for $(newline)
 include $(L4DIR)/mk/util.mk

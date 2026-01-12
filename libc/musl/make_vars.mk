@@ -10,14 +10,12 @@ CONTRIB_DIR := $(LIBCSRC_DIR_ABS)/contrib/musl
 LIBC_SRC_DIRS := $(CONTRIB_DIR)/ldso $(CONTRIB_DIR)/src $(LIBCSRC_DIR_ABS)/libc/ARCH-all/src
 LIBC_DST_DIR  := $(OBJ_DIR)/src
 
-# build prefix for pthread sources
-PTHOBJ_PFX    := libpthread/src
-
 # pthread source file directory
-PTHLIB_DIR    := $(LIBCSRC_DIR_ABS)/libpthread
+PTHLIB_DIR    := $(PKGDIR)/../libpthread
 
 # include directory for pthread internals
-PTHREAD_INCDIR = $(PTHLIB_DIR)/src/sysdeps/$(LIBC_ARCH) $(PTHLIB_DIR)/src
+PTHREAD_INCDIR  = $(PTHLIB_DIR)/src/sysdeps/$(LIBC_ARCH) $(PTHLIB_DIR)/src
+PRIVATE_INCDIR += $(LIBCSRC_DIR)/libc/includes
 
 LIBC_DYNLINKER = /rom/libc.so.1
 

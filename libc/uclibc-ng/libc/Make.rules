@@ -53,10 +53,16 @@ $(foreach ext,C S CC, \
 )
 
 SRC_C += impl-libc-api.c
-SRC_CC_libc.a   += $(PTHOBJ_PFX)/sysdeps/generic/libc-tls.cc
+CPPFLAGS_impl-libc-api.c += $(addprefix -I,$(PTHREAD_INCDIR))
+SRC_CC_libc.a   += libc-tls.cc
 SRC_CC          += _exit.cc
 vpath _exit.cc $(PKGDIR)/common
-SRC_C_libc.a    += $(PTHOBJ_PFX)/sysdeps/generic/dl-tls.c
+SRC_C_libc.a    += dl-tls.c
+
+# pthread support from libpthread uses libpthread internals
+CPPFLAGS_libc-tls.cc += $(addprefix -I,$(PTHREAD_INCDIR))
+CPPFLAGS_dl-tls.c += $(addprefix -I,$(PTHREAD_INCDIR))
+
 
 SRC_C_libc.so    += libc/misc/pthread/tsd.c
 SRC_C_libc.a     += libc/misc/pthread/tsd.c

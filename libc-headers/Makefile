@@ -38,6 +38,7 @@ $(HEADER_DIR): $(GENERAL_D_LOC) $(SRC_DIR)/Makefile $(LIBCSRC_DIR)/make_vars.mk 
 
 include: $(HEADER_DIR)
 	$(VERBOSE)INCSRC_DIR=$(HEADER_DIR) $(MAKE) -f $(SRC_DIR)/Makefile.install
-	$(VERBOSE)$(MAKE) -C $(LIBCSRC_DIR)/libpthread/include
+	$(VERBOSE)$(MAKE) -C $(LIBCSRC_DIR)/libpthread
+	$(VERBOSE)$(MAKE) -C $(PKGDIR)/../libpthread/include
 
 clean cleanall::

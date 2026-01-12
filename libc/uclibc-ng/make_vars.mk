@@ -19,14 +19,12 @@ LIBC_SRC_DIRS += $(CONTRIB_DIR)/libm \
                  $(CONTRIB_DIR)/libiconv \
                  $(CONTRIB_DIR)/libuargp
 
-# build prefix for pthread sources
-PTHOBJ_PFX    := libpthread/src
-
 # pthread source file directory
-PTHLIB_DIR    := $(LIBCSRC_DIR_ABS)/libpthread
+PTHLIB_DIR    := $(PKGDIR)/../libpthread
 
 # include directory for pthread internals
-PTHREAD_INCDIR = $(PTHLIB_DIR)/src/sysdeps/$(LIBC_ARCH) $(PTHLIB_DIR)/src
+PTHREAD_INCDIR  = $(PTHLIB_DIR)/src/sysdeps/$(LIBC_ARCH) $(PTHLIB_DIR)/src
+PTHREAD_INCDIR += $(LIBCSRC_DIR)/libc/includes
 
 # include dir for accessing ldso internals
 LDSO_INC = -I$(CONTRIB_DIR)/ldso/ldso/$(LIBC_ARCH) -I$(CONTRIB_DIR)/ldso/include

@@ -1,8 +1,6 @@
-PKGDIR		= ../..
-L4DIR		?= $(PKGDIR)/../../..
+PKGDIR = 	../..
+L4DIR ?= 	$(PKGDIR)/../../..
 
-TARGET = include src
+INSTALL_INC_PREFIX = $(CONFIG_L4_LIBC)
 
-include $(L4DIR)/mk/subdir.mk
-
-src: include
+include $(L4DIR)/mk/include.mk
