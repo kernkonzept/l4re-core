@@ -42,12 +42,3 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 #define STRINGIFY(s) STRINGIFY2 (s)
 #define STRINGIFY2(s) #s
 #define VERSION STRINGIFY(__UCLIBC_MAJOR__) "." STRINGIFY(__UCLIBC_MINOR__) "." STRINGIFY(__UCLIBC_SUBLEVEL__)
-
-# if defined __GNUC_STDC_INLINE__ || defined __GNUC_GNU_INLINE__ || defined __cplusplus
-#  define __extern_inline extern __inline __attribute__ ((__gnu_inline__))
-#  define __extern_always_inline \
-     extern __always_inline __attribute__ ((__gnu_inline__, __artificial__))
-# else
-#  define __extern_inline extern __inline
-#  define __extern_always_inline extern __always_inline
-# endif
