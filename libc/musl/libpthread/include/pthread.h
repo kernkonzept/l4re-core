@@ -689,12 +689,12 @@ extern void pthread_kill_other_threads_np (void) __THROW;
    in CPUSET.  */
 extern int pthread_setaffinity_np (pthread_t __th, size_t __cpusetsize,
                                    const cpu_set_t *__cpuset)
-     __THROW __nonnull ((3));
+     __THROW __attribute__ ((__nonnull__ (3)));
 
 /* Get bit set in CPUSET representing the processors TH can run on.  */
 extern int pthread_getaffinity_np (pthread_t __th, size_t __cpusetsize,
                                    cpu_set_t *__cpuset)
-     __THROW __nonnull ((3));
+     __THROW __attribute__ ((__nonnull__ (3)));
 #endif
 
 L4_END_DECLS

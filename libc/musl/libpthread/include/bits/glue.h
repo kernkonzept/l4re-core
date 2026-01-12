@@ -3,9 +3,6 @@
 // TODO: Define to noexcept / throws()?
 #define __THROW
 
-// TODO: Could instead remove from the functions using it.
-# define __nonnull(params) __attribute__ ((__nonnull__ params))
-
 // Feature flags from uclibc-ng, mostly to enable compatibility with pthread.
  /* _DEFAULT_SOURCE is equivalent to defining _BSD_SOURCE, _SVID_SOURCE
  * and _POSIX_C_SOURCE=200809L and vice versa. */
