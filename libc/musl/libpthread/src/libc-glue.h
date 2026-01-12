@@ -3,7 +3,6 @@
 #include <features.h>
 #include <l4/sys/consts.h>
 
-// TODO: Are all the following necessary?
 #ifdef IS_IN_libpthread
 
 #ifndef __GLIBC_HAVE_LONG_LONG
@@ -30,7 +29,6 @@ extern int __cxa_atexit (void (*func) (void *), void *arg, void *d);
 
 #endif /* IS_IN_libpthread */
 
-// TODO: What to do in musl??
 #ifdef __UCLIBC_HAS_XLOCALE__
 # define __uselocale(x) uselocale(x)
 #else
