@@ -124,7 +124,6 @@ struct pthread
   char p_canceled;              /* cancellation request pending */
   struct pthread_start_args p_start_args; /* arguments for thread creation */
   void ** p_specific[PTHREAD_KEY_1STLEVEL_SIZE]; /* thread-specific data */
-  //struct __res_state p_res;	/* per-thread resolver state */
   int p_userstack;		/* nonzero if the user provided the stack */
   void *p_guardaddr;		/* address of guard area or NULL */
   size_t p_guardsize;		/* size of guard area */
