@@ -165,7 +165,6 @@ __pthread_initialize_minimal(void *arg)
   __pthread_handles[0].h_lock = __LOCK_INITIALIZER;
   __pthread_handles[1].h_lock = __LOCK_INITIALIZER;
 #endif
-// TODO: Abstract this entire thing?!
 #ifndef SHARED
   /* Unlike in the dynamically linked case the dynamic linker has not
      taken care of initializing the TLS data structures.  */

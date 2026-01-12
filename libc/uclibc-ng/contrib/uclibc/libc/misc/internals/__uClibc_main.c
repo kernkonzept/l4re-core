@@ -161,9 +161,9 @@ static __always_inline int not_null_ptr(const void *p)
  */
 #ifdef __UCLIBC_HAS_THREADS__
 #if !defined (__UCLIBC_HAS_THREADS_NATIVE__) || defined (SHARED)
-extern void weak_function __pthread_initialize_minimal(void);
+extern void weak_function __pthread_initialize_minimal(char *arg);
 #else
-extern void __pthread_initialize_minimal(void);
+extern void __pthread_initialize_minimal(char *arg);
 #endif
 #endif
 
@@ -311,7 +311,7 @@ void __uClibc_init(void)
 #if !defined (__UCLIBC_HAS_THREADS_NATIVE__) || defined (SHARED)
     if (likely(__pthread_initialize_minimal!=NULL))
 #endif
-	__pthread_initialize_minimal();
+	__pthread_initialize_minimal(NULL);
 #endif
 
 #ifndef SHARED

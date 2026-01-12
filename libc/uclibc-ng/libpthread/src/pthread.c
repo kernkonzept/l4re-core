@@ -79,6 +79,7 @@ int __pthread_exit_code;
 /* Maximum stack size.  */
 size_t __pthread_max_stacksize;
 
+/* Communicate relevant LinuxThreads constants to gdb */
 const int __linuxthreads_pthread_sizeof_descr
   = sizeof(struct pthread);
 
@@ -137,7 +138,7 @@ __l4_add_utcbs(l4_addr_t utcbs_start, l4_addr_t utcbs_end)
 /* Do some minimal initialization which has to be done during the
    startup of the C library.  */
 void
-__pthread_initialize_minimal(void)
+__pthread_initialize_minimal(void *arg)
 {
   static int initialized;
   if (initialized)
@@ -167,7 +168,7 @@ __pthread_initialize_minimal(void)
 #ifndef SHARED
   /* Unlike in the dynamically linked case the dynamic linker has not
      taken care of initializing the TLS data structures.  */
-  ptlc_init_static_tls(NULL);
+  ptlc_init_static_tls(arg);
 #endif
 
   self = ptlc_thread_descr_self();

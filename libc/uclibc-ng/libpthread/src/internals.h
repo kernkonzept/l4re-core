@@ -345,7 +345,7 @@ extern void __flockfilelist (void);
 extern void __funlockfilelist (void);
 extern void __fresetlockfiles (void);
 extern void __pthread_manager_adjust_prio (int thread_prio);
-extern void __pthread_initialize_minimal (void);
+extern void __pthread_initialize_minimal (void *arg);
 
 extern int __pthread_attr_setguardsize (pthread_attr_t *__attr,
 					size_t __guardsize);
