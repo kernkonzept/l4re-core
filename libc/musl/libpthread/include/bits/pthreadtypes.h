@@ -19,22 +19,11 @@
 #ifndef _BITS_PTHREADTYPES_H
 #define _BITS_PTHREADTYPES_H	1
 
-#include "glue.h"
+#include "pthreadtypes-glue.h"
 
 #define __need_size_t
 #include <stddef.h>
 #include <l4/sys/types.h>
-
-#ifdef L4_MINIMAL_LIBC
-// We cannot use scheduler.h in minimal builds as this would pull in ipc stuff
-typedef struct l4_sched_cpu_set_t
-{
-  l4_umword_t gran_offset;
-  l4_umword_t map;
-} l4_sched_cpu_set_t;
-#else
-#include <l4/sys/scheduler.h>
-#endif
 
 /* Fast locks (not abstract because mutexes and conditions aren't abstract). */
 struct _pthread_fastlock
@@ -50,14 +39,12 @@ typedef struct pthread *_pthread_descr;
 # define _PTHREAD_DESCR_DEFINED
 #endif
 
-#include <sched.h>
-
 /* Attributes for threads.  */
 struct __pthread_attr_s
 {
   int __detachstate;
   int __schedpolicy;
-  struct sched_param __schedparam;
+  struct __sched_param __schedparam;
   int __inheritsched;
   int __scope;
   size_t __guardsize;

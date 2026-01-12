@@ -12,20 +12,18 @@
 /* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the        */
 /* GNU Library General Public License for more details.                 */
 
-#if !defined _BITS_TYPES_H && !defined _PTHREAD_H
+#if !defined _BITS_TYPES_H && !defined _PTHREAD_H && !defined _INTERNALS_H
 # error "Never include <bits/pthreadtypes.h> directly; use <sys/types.h> instead."
 #endif
 
 #ifndef _BITS_PTHREADTYPES_H
 #define _BITS_PTHREADTYPES_H	1
 
+#include "pthreadtypes-glue.h"
+
 #define __need_size_t
 #include <stddef.h>
 #include <l4/sys/types.h>
-#include <l4/sys/scheduler.h>
-
-#define __need_schedparam
-#include <bits/sched.h>
 
 /* Fast locks (not abstract because mutexes and conditions aren't abstract). */
 struct _pthread_fastlock
@@ -41,9 +39,8 @@ typedef struct pthread *_pthread_descr;
 # define _PTHREAD_DESCR_DEFINED
 #endif
 
-
 /* Attributes for threads.  */
-typedef struct __pthread_attr_s
+struct __pthread_attr_s
 {
   int __detachstate;
   int __schedpolicy;
@@ -59,8 +56,11 @@ typedef struct __pthread_attr_s
   l4_sched_cpu_set_t affinity;
   unsigned create_flags;
 
-} pthread_attr_t;
-
+};
+#ifndef __DEFINED_pthread_attr_t
+typedef struct __pthread_attr_s pthread_attr_t;
+#define __DEFINED_pthread_attr_t
+#endif
 
 /* Conditions (not abstract because of PTHREAD_COND_INITIALIZER */
 
@@ -157,6 +157,9 @@ typedef struct {
 
 
 /* Thread identifiers */
+#ifndef __DEFINED_pthread_t
 typedef unsigned long pthread_t;
+#define __DEFINED_pthread_t
+#endif
 
 #endif	/* bits/pthreadtypes.h */

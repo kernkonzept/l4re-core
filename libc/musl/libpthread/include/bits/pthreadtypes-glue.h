@@ -1,5 +1,9 @@
 #pragma once
 
+// Musl does not have an internal typename and in fact does not need one for
+// the sched_param type
+#define __sched_param sched_param
+
 // TODO: Define to noexcept / throws()?
 #define __THROW
 
@@ -157,3 +161,21 @@
 #ifdef  _GNU_SOURCE
 # define __USE_GNU  1
 #endif
+
+
+#include <l4/sys/types.h>
+
+// Musl specific scheduler details
+#ifdef L4_MINIMAL_LIBC
+// We cannot use scheduler.h in minimal builds as this would pull in ipc stuff
+typedef struct l4_sched_cpu_set_t
+{
+  l4_umword_t gran_offset;
+  l4_umword_t map;
+} l4_sched_cpu_set_t;
+#else
+#include <l4/sys/scheduler.h>
+#endif
+
+#include <sched.h>
+
