@@ -10,3 +10,4 @@ SRC_C       = fs.c
 include $(L4DIR)/mk/lib.mk
 
 CPPFLAGS-$(CONFIG_L4_LIBC_UCLIBC) += -DNOT_IN_libc -include libc-symbols.h
+CPPFLAGS-$(CONFIG_L4_LIBC_MUSL)   += -D_GNU_SOURCE
