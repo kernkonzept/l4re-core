@@ -5,7 +5,8 @@ DIRS-all += signal prng
 DIRS-all += $(if $(BID_VARIANT_FLAG_NOFPU),,math fenv)
 
 DIRS-minimal := $(DIRS-all) syscalls
-DIRS-full    := $(DIRS-all) thread unistd malloc temp time dirent regex passwd termios
+DIRS-full    := $(DIRS-all) thread unistd malloc temp time dirent regex passwd
+DIRS-full    += termios network
 
 DIRS         := $(DIRS-$(LIBC_BUILD_MODE))
 

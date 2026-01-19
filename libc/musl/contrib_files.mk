@@ -801,6 +801,13 @@ define SRC_time_wchar
   wcsftime
 endef
 
+define SRC_network
+  ntohl
+  htonl
+  htons
+  inet_pton
+  inet_ntop
+endef
 
 define SRC_legacy
   err
