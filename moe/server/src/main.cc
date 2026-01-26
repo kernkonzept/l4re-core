@@ -173,6 +173,7 @@ static void find_memory()
   l4util_human_readable_size(str, sizeof(str), Single_page_alloc_base::_avail());
   info.printf("found %s RAM in the area %08lx..%08lx\n", str, min_addr, max_addr);
 
+#ifdef CONFIG_MMU
   // adjust min_addr and max_addr to also contain boot modules
   for (auto const &md: L4::Kip::Mem_desc::all(kip()))
     {
@@ -205,7 +206,6 @@ static void find_memory()
 
   assert(total_pages);
 
-#ifdef CONFIG_MMU
   using Moe::Pages::pages;
   pages = static_cast<__typeof(pages)>(
             Single_page_alloc_base::_alloc(sizeof(*pages) * total_pages));
