@@ -329,7 +329,7 @@ Dma_space::associate(cxx::Ref_ptr<Dma::Mapper> const &mapper)
 }
 
 l4_ret_t
-Dma_space::op_disassociate(L4Re::Dma_space::Rights)
+Dma_space::disassociate()
 {
   if (!_mapper)
     return -L4_ENOENT;
@@ -410,6 +410,18 @@ Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
 
   return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(dma_space->qalloc()->make_obj<Dma::Phys_mapper>()));
 }
+
+l4_ret_t
+Dma_space_mgr::op_disassociate(L4Re::Dma_space_mgr::Rights,
+                               L4::Ipc::Snd_fpage dma_space_cap)
+{
+  Dma_space *dma_space;
+  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  if (r != L4_EOK)
+    return r;
+
+  return dma_space->disassociate();
+};
 
 Dma_space_mgr::Dma_space_mgr(Moe::Name_space *ns, char const *name)
 {

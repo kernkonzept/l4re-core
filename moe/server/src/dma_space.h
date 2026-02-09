@@ -112,8 +112,6 @@ public:
                     Dma_addr dma_addr,
                     l4_size_t size, Attributes attrs, Direction dir);
 
-  l4_ret_t op_disassociate(L4Re::Dma_space::Rights rights);
-
   /**
    * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space
    * instance.
@@ -125,6 +123,7 @@ public:
 
   // Dma_space_mgr internal interface
   l4_ret_t associate(cxx::Ref_ptr<Dma::Mapper> const &mapper);
+  l4_ret_t disassociate();
 
 private:
   Space_attribs _attr = Space_attribs::None;
@@ -156,6 +155,9 @@ public:
   l4_ret_t op_associate_phys(L4Re::Dma_space_mgr::Rights rights,
                              L4::Ipc::Snd_fpage dma_space,
                              Space_attribs attr);
+
+  l4_ret_t op_disassociate(L4Re::Dma_space_mgr::Rights rights,
+                           L4::Ipc::Snd_fpage dma_space);
 
 private:
   l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space, Moe::Dma_space **res);

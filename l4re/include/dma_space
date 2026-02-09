@@ -154,17 +154,8 @@ public:
       l4_ret_t, unmap, (Dma_addr dma_addr,
                         l4_size_t size, Attributes attrs, Direction dir));
 
-  /**
-   * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
-   * Dma_space.
-   *
-   * \caprights{RW}
-   */
-  L4_INLINE_RPC(
-      l4_ret_t, disassociate, (), L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
-
-  typedef L4::Typeid::Rpcs<map_t, unmap_t, disassociate_t> Rpcs;
+  typedef L4::Typeid::Rpcs<map_t, unmap_t> Rpcs;
 };
 
 /**
@@ -247,7 +238,26 @@ public:
                                  Space_attribs attr),
       L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
 
-  typedef L4::Typeid::Rpcs<associate_t, associate_phys_t> Rpcs;
+  /**
+   * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
+   * Dma_space.
+   *
+   * \param[in]  dma_space  The Dma_space to de-register.
+   *
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_ENOENT  Invalid `dma_space` was passed or disassociate()
+   *                     called without prior calling
+   *                     associate()/associate_phys().
+   * \retval -L4_EPERM   Insufficient permissions; see precondition.
+   *
+   * \pre The invoked Dma_space_mgr capability and `dma_space` must have the
+   *      permission #L4_CAP_FPAGE_W.
+   */
+  L4_INLINE_RPC(
+      l4_ret_t, disassociate, (L4::Ipc::Cap<Dma_space> dma_space),
+      L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+
+  typedef L4::Typeid::Rpcs<associate_t, associate_phys_t, disassociate_t> Rpcs;
 };
 
 }
