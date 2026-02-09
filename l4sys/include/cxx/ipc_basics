@@ -18,9 +18,6 @@ namespace Ipc {
 /// IPC Message related functionality
 namespace Msg {
 
-using L4::Types::True;
-using L4::Types::False;
-
 /**
  * Pad bytes to the given alignment \a align (in bytes)
  * \param bytes  The input value in bytes
