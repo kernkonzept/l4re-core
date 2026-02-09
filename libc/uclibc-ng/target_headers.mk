@@ -114,6 +114,7 @@ define HDR_common
   bits/statfs.h
   bits/statvfs.h
   bits/stat.h
+  bits/statx.h
   bits/stdio_lim.h
   bits/syscalls.h
   bits/termios.h
