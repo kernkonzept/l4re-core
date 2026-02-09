@@ -12,6 +12,6 @@
 int kill(pid_t pid, int sig)
 {
   printf("Unimplemented: kill(%d, %d)\n", pid, sig);
-  errno = -EINVAL;
+  errno = EINVAL;
   return -1;
 }
