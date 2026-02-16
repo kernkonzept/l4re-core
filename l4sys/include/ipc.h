@@ -454,7 +454,7 @@ l4_ipc_wait_next_period(l4_utcb_t *utcb,
  *                      after the specified timeout and can be used for
  *                      sleeping without busy waiting.
  * \utcb{utcb}
- * \param      flags    Invocation flags (see #l4_syscall_flags_t).
+ * \param      flags    Invocation flags (see #L4_SYSF_NONE).
  * \param      slabel   Send label if applicable (may be seen by the receiver).
  * \param      tag      Sending message tag.
  * \param[out] rlabel   Receiving label.

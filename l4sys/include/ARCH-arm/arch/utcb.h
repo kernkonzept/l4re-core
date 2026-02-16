@@ -39,25 +39,17 @@ struct l4_exc_regs_t
   l4_umword_t tpidrurw;/**< Thread-ID register */
 };
 
-/**
- * \brief UTCB constants for ARM
- * \ingroup l4_utcb_api_arm
- * \hideinitializer
- */
-enum L4_utcb_consts_arm
-{
-  L4_UTCB_EXCEPTION_REGS_SIZE    = sizeof(l4_exc_regs_t) / sizeof(l4_umword_t),
-  L4_UTCB_GENERIC_DATA_SIZE      = 63,
-  L4_UTCB_GENERIC_BUFFERS_SIZE   = 58,
+#define L4_UTCB_EXCEPTION_REGS_SIZE    (sizeof(l4_exc_regs_t) / sizeof(l4_umword_t))
+#define L4_UTCB_GENERIC_DATA_SIZE      63
+#define L4_UTCB_GENERIC_BUFFERS_SIZE   58
 
-  L4_UTCB_MSG_REGS_OFFSET        = 0,
-  L4_UTCB_BUF_REGS_OFFSET        = 64 * sizeof(l4_umword_t),
-  L4_UTCB_THREAD_REGS_OFFSET     = 123 * sizeof(l4_umword_t),
+#define L4_UTCB_MSG_REGS_OFFSET        0
+#define L4_UTCB_BUF_REGS_OFFSET        (64 * sizeof(l4_umword_t))
+#define L4_UTCB_THREAD_REGS_OFFSET     (123 * sizeof(l4_umword_t))
 
-  L4_UTCB_INHERIT_FPU            = 1UL << 24,
+#define L4_UTCB_INHERIT_FPU            (1UL << 24)
 
-  L4_UTCB_OFFSET                 = 512,
-};
+#define L4_UTCB_OFFSET                 512
 
 /*
  * ==================================================================

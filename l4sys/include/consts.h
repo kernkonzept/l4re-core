@@ -48,113 +48,110 @@
  *   reply to caller and receive from any sending partner;
  *   see #L4_SYSF_REPLY_AND_WAIT
  */
-enum l4_syscall_flags_t
-{
-  /**
-   * Empty set of flags.
-   * \hideinitializer
-   */
-  L4_SYSF_NONE      = 0x00,
-
-  /**
-   * Send-phase flag.
-   * \hideinitializer
-   *
-   * Setting this flag in a capability selector induces a send phase,
-   * this means a message is sent to the object denoted by the capability.
-   * For receive phase see #L4_SYSF_RECV.
-   *
-   * In l4_vcpu_state_t::user_task this flag means that the kernel has cached
-   * the user task capability internally, see l4_thread_vcpu_resume_commit().
-   */
-  L4_SYSF_SEND      = 0x01,
-
-  /**
-   * Receive-phase flag.
-   * \hideinitializer
-   *
-   * Setting this flag in a capability selector induces a receive phase,
-   * this means the invoking thread waits for a message from the object
-   * denoted by the capability.
-   * For a send phase see #L4_SYSF_SEND.
-   */
-  L4_SYSF_RECV      = 0x02,
-
-  /**
-   * Open-wait flag.
-   * \hideinitializer
-   *
-   * This flag indicates that the receive operation (see #L4_SYSF_RECV)
-   * shall be an \em open \em wait. \em Open \em wait means that the invoking
-   * thread shall wait for a message from any possible sender and \em not from
-   * the sender denoted by the capability.
-   */
-  L4_SYSF_OPEN_WAIT = 0x04,
-
-  /**
-   * Reply flag.
-   * \hideinitializer
-   *
-   * This flag indicates that the send phase shall use the in-kernel reply
-   * capability instead of the capability denoted by the selector index.
-   */
-  L4_SYSF_REPLY     = 0x08,
-
-  /**
-   * Call flags (combines send and receive).
-   * \hideinitializer
-   *
-   * Combines #L4_SYSF_SEND and #L4_SYSF_RECV.
-   */
-  L4_SYSF_CALL           = L4_SYSF_SEND | L4_SYSF_RECV,
-
-  /**
-   * Wait flags (combines receive and open wait).
-   * \hideinitializer
-   *
-   * Combines #L4_SYSF_RECV and #L4_SYSF_OPEN_WAIT.
-   */
-  L4_SYSF_WAIT           = L4_SYSF_OPEN_WAIT | L4_SYSF_RECV,
-
-  /**
-   * Send-and-wait flags.
-   * \hideinitializer
-   *
-   * Combines #L4_SYSF_SEND and #L4_SYSF_WAIT.
-   */
-  L4_SYSF_SEND_AND_WAIT  = L4_SYSF_OPEN_WAIT | L4_SYSF_CALL,
-
-  /**
-   * Reply-and-wait flags.
-   * \hideinitializer
-   *
-   * Combines #L4_SYSF_SEND, #L4_SYSF_REPLY, and #L4_SYSF_WAIT.
-   */
-  L4_SYSF_REPLY_AND_WAIT = L4_SYSF_WAIT | L4_SYSF_SEND | L4_SYSF_REPLY
-};
+/**
+ * Empty set of flags.
+ * \hideinitializer
+ */
+#define L4_SYSF_NONE      0x00
 
 /**
- * Constants related to capability selectors.
- * \ingroup l4_cap_api
+ * Send-phase flag.
+ * \hideinitializer
+ *
+ * Setting this flag in a capability selector induces a send phase,
+ * this means a message is sent to the object denoted by the capability.
+ * For receive phase see #L4_SYSF_RECV.
+ *
+ * In l4_vcpu_state_t::user_task this flag means that the kernel has cached
+ * the user task capability internally, see l4_thread_vcpu_resume_commit().
  */
-enum l4_cap_consts_t
-{
-  /** Capability index shift. \hideinitializer */
-  L4_CAP_SHIFT   = 12UL,
-  /** \deprecated Superseded by #L4_CAP_OFFSET. */
-  L4_CAP_SIZE    = 1UL << L4_CAP_SHIFT,
-  /** Offset of two consecutive capability selectors. \hideinitializer */
-  L4_CAP_OFFSET  = 1UL << L4_CAP_SHIFT,
-  /**
-   * Mask to get only the relevant bits of an l4_cap_idx_t.
-   * \hideinitializer
-   */
-  L4_CAP_MASK    = ~0UL << (L4_CAP_SHIFT - 1),
-  /** Invalid capability selector. \hideinitializer */
-  L4_INVALID_CAP = ~0UL << (L4_CAP_SHIFT - 1),
+#define L4_SYSF_SEND      0x01
 
-  L4_INVALID_CAP_BIT = 1UL << (L4_CAP_SHIFT - 1),
-};
+/**
+ * Receive-phase flag.
+ * \hideinitializer
+ *
+ * Setting this flag in a capability selector induces a receive phase,
+ * this means the invoking thread waits for a message from the object
+ * denoted by the capability.
+ * For a send phase see #L4_SYSF_SEND.
+ */
+#define L4_SYSF_RECV      0x02
+
+/**
+ * Open-wait flag.
+ * \hideinitializer
+ *
+ * This flag indicates that the receive operation (see #L4_SYSF_RECV)
+ * shall be an \em open \em wait. \em Open \em wait means that the invoking
+ * thread shall wait for a message from any possible sender and \em not from
+ * the sender denoted by the capability.
+ */
+#define L4_SYSF_OPEN_WAIT 0x04
+
+/**
+ * Reply flag.
+ * \hideinitializer
+ *
+ * This flag indicates that the send phase shall use the in-kernel reply
+ * capability instead of the capability denoted by the selector index.
+ */
+#define L4_SYSF_REPLY     0x08
+
+/**
+ * Call flags (combines send and receive).
+ * \hideinitializer
+ *
+ * Combines #L4_SYSF_SEND and #L4_SYSF_RECV.
+ */
+#define L4_SYSF_CALL           (L4_SYSF_SEND | L4_SYSF_RECV)
+
+/**
+ * Wait flags (combines receive and open wait).
+ * \hideinitializer
+ *
+ * Combines #L4_SYSF_RECV and #L4_SYSF_OPEN_WAIT.
+ */
+#define L4_SYSF_WAIT           (L4_SYSF_OPEN_WAIT | L4_SYSF_RECV)
+
+/**
+ * Send-and-wait flags.
+ * \hideinitializer
+ *
+ * Combines #L4_SYSF_SEND and #L4_SYSF_WAIT.
+ */
+#define L4_SYSF_SEND_AND_WAIT  (L4_SYSF_OPEN_WAIT | L4_SYSF_CALL)
+
+/**
+ * Reply-and-wait flags.
+ * \hideinitializer
+ *
+ * Combines #L4_SYSF_SEND, #L4_SYSF_REPLY, and #L4_SYSF_WAIT.
+ */
+#define L4_SYSF_REPLY_AND_WAIT (L4_SYSF_WAIT | L4_SYSF_SEND | L4_SYSF_REPLY)
+
+/**
+ * \ingroup l4_cap_api
+ * Capability index shift. \hideinitializer
+ */
+#define L4_CAP_SHIFT   12UL
+/** \deprecated Superseded by #L4_CAP_OFFSET. */
+#define L4_CAP_SIZE    (1UL << L4_CAP_SHIFT)
+/**
+ * \ingroup l4_cap_api
+ * Offset of two consecutive capability selectors. \hideinitializer
+ */
+#define L4_CAP_OFFSET  (1UL << L4_CAP_SHIFT)
+/**
+ * \ingroup l4_cap_api
+ * Mask to get only the relevant bits of an l4_cap_idx_t.
+ * \hideinitializer
+ */
+#define L4_CAP_MASK    (~0UL << (L4_CAP_SHIFT - 1))
+/** Invalid capability selector. \hideinitializer */
+#define L4_INVALID_CAP (~0UL << (L4_CAP_SHIFT - 1))
+
+#define L4_INVALID_CAP_BIT (1UL << (L4_CAP_SHIFT - 1))
 
 enum l4_sched_consts_t
 {

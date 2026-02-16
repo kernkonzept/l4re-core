@@ -21,23 +21,16 @@
  * \ingroup  l4_utcb_api
  */
 
-/**
- * \brief UTCB constants for AMD64
- * \ingroup l4_utcb_api_amd64
- */
-enum L4_utcb_consts_amd64
-{
-  L4_UTCB_EXCEPTION_REGS_SIZE    = 26,
-  L4_UTCB_GENERIC_DATA_SIZE      = 63,
-  L4_UTCB_GENERIC_BUFFERS_SIZE   = 58,
+#define L4_UTCB_EXCEPTION_REGS_SIZE    26
+#define L4_UTCB_GENERIC_DATA_SIZE      63
+#define L4_UTCB_GENERIC_BUFFERS_SIZE   58
 
-  L4_UTCB_MSG_REGS_OFFSET        = 0,
-  L4_UTCB_BUF_REGS_OFFSET        = 64 * sizeof(l4_umword_t),
-  L4_UTCB_THREAD_REGS_OFFSET     = 123 * sizeof(l4_umword_t),
+#define L4_UTCB_MSG_REGS_OFFSET        0
+#define L4_UTCB_BUF_REGS_OFFSET        (64 * sizeof(l4_umword_t))
+#define L4_UTCB_THREAD_REGS_OFFSET     (123 * sizeof(l4_umword_t))
 
-  L4_UTCB_INHERIT_FPU            = 1UL << 24,
-  L4_UTCB_OFFSET                 = 1024,
-};
+#define L4_UTCB_INHERIT_FPU            (1UL << 24)
+#define L4_UTCB_OFFSET                 1024
 
 /**
  * \brief UTCB structure for exceptions.
