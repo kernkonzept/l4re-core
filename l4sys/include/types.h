@@ -150,20 +150,6 @@ enum L4_msgtag_flags
 typedef struct l4_msgtag_t l4_msgtag_t;
 
 /**
- * Create a message tag from the specified values.
- * \ingroup l4_msgtag_api
- *
- * \param label  The user-defined label
- * \param words  The number of untyped words within the UTCB
- * \param items  The number of typed items (e.g., flexpages) within the UTCB
- * \param flags  The IPC flags for realtime and FPU extensions
- *
- * \return Message tag
- */
-L4_INLINE l4_msgtag_t l4_msgtag(long label, unsigned words, unsigned items,
-                                unsigned flags) L4_NOTHROW;
-
-/**
  * Get the protocol of tag.
  * \ingroup l4_msgtag_api
  *
@@ -313,6 +299,25 @@ struct l4_msgtag_t
   bool has_error() const L4_NOTHROW { return l4_msgtag_has_error(*this); }
 #endif
 };
+
+// The following declaration should be _after_ the definition of struct
+// l4_msgtag_t. Circumvents a clang warning about a *potentially*
+// incompatibility with C if the type is incomplete when the function is
+// declared.
+
+/**
+ * Create a message tag from the specified values.
+ * \ingroup l4_msgtag_api
+ *
+ * \param label  The user-defined label
+ * \param words  The number of untyped words within the UTCB
+ * \param items  The number of typed items (e.g., flexpages) within the UTCB
+ * \param flags  The IPC flags for realtime and FPU extensions
+ *
+ * \return Message tag
+ */
+L4_INLINE l4_msgtag_t l4_msgtag(long label, unsigned words, unsigned items,
+                                unsigned flags) L4_NOTHROW;
 
 
 /**
