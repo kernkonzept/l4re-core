@@ -45,7 +45,7 @@ public:
     return m.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes) override
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -251,7 +251,7 @@ public:
     return node.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes) override
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -301,13 +301,12 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 
 l4_ret_t
 Dma_space::op_unmap(L4Re::Dma_space::Rights,
-                    Dma_addr dma_addr, Dma_size size,
-                    Attributes attrs)
+                    Dma_addr dma_addr, Dma_size size)
 {
   if (!_mapper)
     return -L4_EINVAL;
 
-  return _mapper->unmap(dma_addr, size, attrs);
+  return _mapper->unmap(dma_addr, size);
 }
 
 l4_ret_t

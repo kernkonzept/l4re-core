@@ -151,7 +151,7 @@ public:
    *
    * \param dma_addr  The DMA address (returned by Dma_space::map()).
    * \param size      The size (bytes) of the memory region to unmap.
-   * \param attrs     The attributes for the unmap (currently none).
+   * \param attrs     The attributes for the unmap (currently none, ignored).
    * \param dir       The direction of the finished DMA operation (ignored).
    *
    * \return 0 in the case of success, a negative error code otherwise.
@@ -159,12 +159,12 @@ public:
   l4_ret_t unmap(Dma_addr dma_addr, Dma_size size, Attributes attrs,
                  Direction dir)
   {
+    static_cast<void>(attrs);
     static_cast<void>(dir);
-    return unmap_t::call(c(), dma_addr, size, attrs);
+    return unmap_t::call(c(), dma_addr, size);
   }
 
-  L4_RPC_NF(l4_ret_t, unmap, (Dma_addr dma_addr, Dma_size size,
-                              Attributes attrs));
+  L4_RPC_NF(l4_ret_t, unmap, (Dma_addr dma_addr, Dma_size size));
 
   typedef L4::Typeid::Rpcs<map_t, unmap_t> Rpcs;
 };

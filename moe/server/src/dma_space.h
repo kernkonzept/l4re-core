@@ -41,8 +41,7 @@ public:
                        l4_addr_t offset, Dma_size *size,
                        Dma_addr *dma_addr) = 0;
 
-  virtual l4_ret_t unmap(Dma_addr dma_addr, Dma_size size,
-                         Attributes attrs) = 0;
+  virtual l4_ret_t unmap(Dma_addr dma_addr, Dma_size size) = 0;
 
   virtual void remove(Mapping *m) = 0;
 
@@ -104,8 +103,7 @@ public:
                   Dma_addr &dma_addr);
 
   l4_ret_t op_unmap(L4Re::Dma_space::Rights rights,
-                    Dma_addr dma_addr,
-                    Dma_size size, Attributes attrs);
+                    Dma_addr dma_addr, Dma_size size);
 
   /**
    * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space
