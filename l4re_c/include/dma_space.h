@@ -33,15 +33,6 @@ enum l4re_dma_space_direction
 };
 
 /**
- * \copydoc L4Re::Dma_space_mgr::Space_attrib
- */
-enum l4re_dma_space_space_attribs
-{
-  L4RE_DMA_SPACE_COHERENT   = 1 << 0, ///< \copydoc L4Re::Dma_space_mgr::Coherent
-  L4RE_DMA_SPACE_PHYS_SPACE = 1 << 1, ///< \copydoc L4Re::Dma_space_mgr::Phys_space
-};
-
-/**
  * \brief DMA space capability type
  * \copydoc L4Re::Dma_space
  * \ingroup api_l4re_c_dma

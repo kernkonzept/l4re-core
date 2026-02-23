@@ -186,13 +186,6 @@ public:
    */
   enum Space_attrib
   {
-    /**
-     * The device is connected coherently with the cache.
-     *
-     * This means that the map() and unmap() do not need to sync
-     * CPU caches before and after DMA.
-     */
-    Coherent
   };
 
   /// Attributes used when configuring the DMA space.
