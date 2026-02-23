@@ -249,12 +249,36 @@ public:
    *
    * \retval L4_EOK      Operation successful.
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
+   *
+   * \deprecated Use the overload without `attrs` and `dir` because they are
+   *             ignored.
    */
   l4_ret_t unmap(Dma_addr dma_addr, Dma_size size, Attributes attrs,
                  Direction dir)
   {
     static_cast<void>(attrs);
     static_cast<void>(dir);
+    return unmap(dma_addr, size);
+  }
+
+  /**
+   * Unmap the given part of this data space from the DMA address space.
+   *
+   * The calls to map() and unmap() must be balanced. That is, each page of
+   * a mapping that was established by `map()` previously must be unmapped
+   * exactly once.
+   *
+   * Sub-ranges that do not currently hold a mapping are silently skipped.
+   * That is, unmapping the same region too often, is not treated as an error.
+   *
+   * \param dma_addr  The DMA address (returned by Dma_space::map()).
+   * \param size      The size (bytes) of the memory region to unmap.
+   *
+   * \retval L4_EOK      Operation successful.
+   * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
+   */
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size size)
+  {
     return unmap_t::call(c(), dma_addr, size);
   }
 
