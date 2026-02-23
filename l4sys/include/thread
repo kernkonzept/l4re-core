@@ -237,7 +237,7 @@ public:
    * \retval -L4_EINVAL  Malformed thread-attributes.
    *
    * \pre The invoked Thread capability must have the permission
-   *      #L4_CAP_FPAGE_S. When using #Attr::bind(), also the respective Task
+   *      #L4_CAP_FPAGE_S. When using Attr::bind(), also the respective Task
    *      capability must have the permission #L4_CAP_FPAGE_S.
    */
   l4_msgtag_t control(Attr const &attr) noexcept
