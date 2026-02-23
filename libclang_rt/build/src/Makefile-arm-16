@@ -130,6 +130,7 @@ endef
 
 define arm_SOURCES
   $(arm_or_thumb2_base_SOURCES)
+  ${arm_or_thumb2_optimized_fp_SOURCES}
   $(arm_sync_SOURCES)
   $(arm_EABI_SOURCES)
   $(arm_Thumb1_SOURCES)
@@ -141,5 +142,22 @@ ifneq ($(call libclang_rt_is_predefined,__ARM_FP),)
   # Add double-precision builtins only if VFP is not single-precision-only.
   ifeq ($(call libclang_rt_try_compile,#if !(__ARM_FP & 0x8) #error No VFP DP! #endif),Ok)
     arm_Thumb1_SOURCES += $(arm_Thumb1_VFPv2_DP_SOURCES)
+  endif
+endif
+
+# Option: COMPILER_RT_ARM_OPTIMIZED_FP
+ifeq ($(BID_VARIANT_FLAG_NOFPU),)
+  # Clang >= 22
+  ifneq ($(call libclang_rt_if_min_version,22),)
+    define arm_or_thumb2_optimized_fp_SOURCES
+      arm/mulsf3.S
+      arm/divsf3.S
+      arm/fnan2.c
+      arm/fnorm2.c
+      arm/funder.c
+    endef
+
+    ASFLAGS_arm/mulsf3.S += -mimplicit-it=always
+    ASFLAGS_arm/divsf3.S += -mimplicit-it=always
   endif
 endif
