@@ -1,5 +1,9 @@
 ifeq ($(L4API),l4f)
   ifeq ($(ARCH),arm)
+    # lib1funcs.S: Replace Linux division-by-zero handler (see _dvmd_lnx) by
+    # dummy handler in l4-div0.S (derived from _dvmd_tls in lib1funcs.S).
+    $(eval $(call libgcc_make_obj,l4-div0.o,config/arm/l4-div0.S,))
+    LIBGCC_REPLACE_ARM_DIV0=1
     ifeq ($(BID_COMPILER_TYPE),gcc)
       $(eval $(call libgcc_make_obj,l4-atomic.o,config/arm/l4-atomic.c,-Wno-builtin-declaration-mismatch -fPIC))
       LIBGCC_REPLACE_ARM_ATOMIC=1
@@ -20,11 +24,12 @@ define process_libgcc_generic
 endef
 
 define process_libgcc_arm
-  remove="$(filter linux-atomic.o linux-atomic-64bit.o, \
+  remove="$(filter _dvmd_lnx.o linux-atomic.o linux-atomic-64bit.o, \
                           $(shell $(AR) t $1))"; \
   $(CP) -f $1 $2; \
   $(AR) d $2 $$remove; \
-  $(if $(LIBGCC_REPLACE_ARM_ATOMIC),$(AR) rs $2 l4-atomic.o;)
+  $(if $(LIBGCC_REPLACE_ARM_ATOMIC),$(AR) rs $2 l4-atomic.o;) \
+  $(if $(LIBGCC_REPLACE_ARM_DIV0),$(AR) rs $2 l4-div0.o;)
 endef
 
 process_libgcc = $(if $(process_libgcc_$(ARCH)), \

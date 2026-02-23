@@ -26,6 +26,7 @@ $(LIBGCC_LINK_DIR)/$1: $(realpath $2) $(if $(filter $(realpath $(LIBGCC_LINK_DIR
 endef
 
 vpath %.c $(LIBGCC_PKG_DIR)/build/src/libgcc
+vpath %.S $(LIBGCC_PKG_DIR)/build/src/libgcc
 vpath %.h $(LIBGCC_LINK_DIR)
 vpath %.c $(LIBGCC_LINK_DIR)
 vpath %.S $(LIBGCC_LINK_DIR)
