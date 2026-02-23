@@ -202,6 +202,13 @@ public:
    */
   enum Space_attrib : unsigned
   {
+    /**
+     * Request identity mappings.
+     *
+     * This is needed if some devices are not connected to an IOMMU and need
+     * physical addresses.
+     */
+    Identity_map = 1U << 0,
   };
 
   friend void enum_bitops_enable(Space_attrib);
@@ -243,7 +250,12 @@ public:
    *
    * \retval L4_EOK      Operation successful.
    * \retval -L4_EBUSY   The Dma_space is already associated.
-   * \retval -L4_EINVAL  No `dma_task` capability passed.
+   * \retval -L4_EINVAL  Invalid arguments, e.g. no `dma_task` capability
+   *                     passed. In particular, when Space_attrib::Identity_map
+   *                     is requested, the Dma_space must not have any
+   *                     pre-existing blockings (see
+   *                     Dma_space_mgr::block_area()) and must not have custom
+   *                     address limits set (see Dma_space_mgr::set_limits()).
    * \retval -L4_ENOENT  Invalid `dma_space` was passed.
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.

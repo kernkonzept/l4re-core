@@ -138,6 +138,7 @@ private:
   L4Re::Dma_space::Dma_addr _max = Last_dma_addr;
 
   L4::Cap<L4::Task> _dma_kern_space;
+  bool _identity_map;
 
   /**
    * Find any blocking or mapping in the given region.
@@ -379,8 +380,8 @@ private:
   }
 
 public:
-  explicit Task_mapper(L4::Cap<L4::Task> s)
-  : _dma_kern_space(s)
+  explicit Task_mapper(L4::Cap<L4::Task> s, bool identity_map)
+  : _dma_kern_space(s), _identity_map(identity_map)
   { _mappers.add(this); }
 
   ~Task_mapper() noexcept
@@ -396,6 +397,9 @@ public:
         return m;
     return 0;
   }
+
+  bool is_identity_map() const
+  { return _identity_map; }
 
   l4_ret_t add_dma_space(Dma_space *dma_space) override
   {
@@ -436,31 +440,51 @@ public:
     // Attention: L4Re::Dataspace::Offset is always 64 bits!
     L4Re::Dataspace::Offset aligned_offset = L4::trunc_page(offset);
 
-    unsigned long max_sz = ds->round_size();
-    if (offset >= max_sz)
-      return -L4_ERANGE;
+    // For identity mappings, dma_map() takes care of checking the Dataspace
+    // limits.
+    if (!_identity_map)
+      {
+        unsigned long max_sz = ds->round_size();
+        if (offset >= max_sz)
+          return -L4_ERANGE;
 
-    max_sz -= offset;
+        max_sz -= offset;
 
-    if (*size > max_sz)
-      *size = max_sz;
+        if (*size > max_sz)
+          *size = max_sz;
+      }
 
-    L4Re::Dma_space::Dma_size aligned_size = *size + (offset - aligned_offset);
-    round_dma_size(&aligned_size); // cannot overflow because size <= max_sz
+    L4Re::Dma_space::Dma_addr aligned_addr;
+    L4Re::Dma_space::Dma_size aligned_size;
+    if (_identity_map)
+      {
+        // Will adjust size and dma_addr to underlying buffer.
+        if (l4_ret_t err = ds->dma_map(offset, size, dma_addr); err < 0)
+          return err;
 
-    l4_ret_t ret = find_free(&aligned_size, L4_PAGESHIFT, dma_addr,
-                             Last_dma_addr);
+        aligned_addr = trunc_dma_addr(*dma_addr);
+        aligned_size = *size + (offset - aligned_offset);
+        round_dma_size(&aligned_size); // cannot overflow because size <= max_sz
+      }
+    else
+      {
+        aligned_size = *size + (offset - aligned_offset);
+        round_dma_size(&aligned_size); // cannot overflow because size <= max_sz
 
-    if (ret < 0)
-      return ret;
+        l4_ret_t ret = find_free(&aligned_size, L4_PAGESHIFT, dma_addr,
+                                 Last_dma_addr);
 
-    L4Re::Dma_space::Dma_addr aligned_addr = *dma_addr;
+        if (ret < 0)
+          return ret;
 
-    // Return the address of the requested offset.
-    *dma_addr += (offset - aligned_offset);
+        aligned_addr = *dma_addr;
 
-    ret = map_region(ds, aligned_offset, aligned_addr,
-                     aligned_size, L4Re::Dataspace::F::RW);
+        // Return the address of the requested offset.
+        *dma_addr += (offset - aligned_offset);
+      }
+
+    l4_ret_t ret = map_region(ds, aligned_offset, aligned_addr, aligned_size,
+                              L4Re::Dataspace::F::RW);
     if (ret < 0)
       return ret;
 
@@ -508,6 +532,11 @@ public:
                                L4Re::Dma_space::Dma_size size,
                                bool search, unsigned char align) override
   {
+    // Identity map implies that blockings make no sense. Be consistent
+    // with Phys_mapper. Also guard against rogue entries in _mappings.
+    if (_identity_map)
+      return -L4_EPERM;
+
     if (size == 0)
       return -L4_EINVAL;
 
@@ -979,7 +1008,7 @@ l4_ret_t
 Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
                             L4::Ipc::Snd_fpage dma_space_cap,
                             L4::Ipc::Snd_fpage dma_task,
-                            L4Re::Dma_space_mgr::Space_attribs)
+                            L4Re::Dma_space_mgr::Space_attribs attr)
 {
   Dma_space *dma_space;
   l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
@@ -990,8 +1019,29 @@ Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
   if (!dma_task.cap_received())
     return -L4_EINVAL;
 
+  static constexpr auto Known_flags = L4Re::Dma_space_mgr::Identity_map;
+  if (attr & ~Known_flags)
+    return -L4_EINVAL;
+
+  bool ident_map = static_cast<bool>(attr & L4Re::Dma_space_mgr::Identity_map);
+
+  // No a-priori blockings allowed with identity mappings. They may collide
+  // with RAM.
+  if (ident_map)
+    {
+      if (!dma_space->empty())
+        return -L4_EINVAL;
+      if (!dma_space->unconstrained())
+        return -L4_EINVAL;
+    }
+
   Dma::Task_mapper *mapper = Dma::Task_mapper::find_mapper(rcv_cap);
-  if (!mapper)
+  if (mapper)
+    {
+      if (mapper->is_identity_map() != ident_map)
+        return -L4_EINVAL;
+    }
+  else
     {
       if constexpr (Debug)
         printf("new DMA task assigned, allocate new mapper\n");
@@ -1001,7 +1051,7 @@ Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
         return -L4_ENOMEM;
 
       nc.move(rcv_cap);
-      mapper = new Dma::Task_mapper(nc);
+      mapper = new Dma::Task_mapper(nc, ident_map);
     }
 
   return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(mapper));
