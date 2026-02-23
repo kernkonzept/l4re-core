@@ -13,9 +13,9 @@
 #include <l4/cxx/minmax>
 
 // TODO:
-//   1. Add the Cache handling for ARM etc.
-//   2. check and garbage collect Dma_space_task_mappers when their task capability vanishes
-//      (may be also when the last Dma_space associated with the task vanishes)
+//   1. check and garbage collect Dma_space_task_mappers when their task
+//      capability vanishes (may be also when the last Dma_space associated
+//      with the task vanishes)
 
 namespace Moe {
 namespace Dma {
@@ -28,10 +28,9 @@ private:
 
 public:
   Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               Dma_size *size, Attributes attrs,
-               Dma_addr *dma_addr) override
+               Dma_size *size, Dma_addr *dma_addr) override
   {
-    L4Re::chksys(ds->dma_map(0, offset, size, attrs, dma_addr));
+    L4Re::chksys(ds->dma_map(0, offset, size, dma_addr));
 
     cxx::unique_ptr<Dma::Mapping> m(alloc->make_obj<Dma::Mapping>());
 
@@ -43,7 +42,6 @@ public:
       L4Re::chksys(-L4_EEXIST);
 
     m->mapper = this;
-    m->attrs = attrs;
     return m.release();
   }
 
@@ -188,7 +186,7 @@ public:
   }
 
   Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               Dma_space::Dma_size *_size, Attributes attrs,
+               Dma_space::Dma_size *_size,
                Dma_space::Dma_addr *dma_addr) override
   {
     if (0)
@@ -225,7 +223,6 @@ public:
       }
 
     node->mapper = this;
-    node->attrs = attrs;
 
     // Return the address of the requested offset. This works with unmap
     // below because unmap accepts any address in the region for unmapping.
@@ -290,14 +287,14 @@ static Dataspace *_get_ds(L4::Ipc::Snd_fpage src_cap)
 l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
                   L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
-                  Dma_space::Dma_size &size, Attributes attrs,
+                  Dma_space::Dma_size &size, Attributes,
                   Dma_space::Dma_addr &dma_addr)
 {
   if (!_mapper)
     return -L4_EINVAL;
 
   auto *m =_mapper->map(_get_ds(src_ds), this->qalloc(), offset, &size,
-                        attrs, &dma_addr);
+                        &dma_addr);
   _mappings.add(m);
   return 0;
 }

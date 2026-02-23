@@ -43,12 +43,9 @@ namespace L4Re
  * of the data space visible to the associated device at the returned DMA
  * address. As long as the memory is mapped into a DMA space it is 'pinned'
  * and cannot be subject to dynamic memory management such as swapping.
- * Additionally, map() is responsible for the necessary syncing operations
- * before the DMA.
  *
  * unmap() is the reverse operation to map() and unmaps the given
- * data-space part for the DMA address space. unmap() is responsible for the
- * necessary sync operations after the DMA.
+ * data-space part for the DMA address space.
  */
 class Dma_space :
   public L4::Kobject_0t< Dma_space,
@@ -75,23 +72,11 @@ public:
   };
 
   /**
-   * Attributes used for the memory region during the transfer.
+   * Attributes used for the memory region.
    * \sa Attributes
    */
   enum Attribute
   {
-    /**
-     * Do not sync the memory hierarchy.
-     *
-     * When this flag is _not set_ (default) the memory region shall be made
-     * coherent to the point-of-coherency of the device associated with this
-     * Dma_space.
-     * When using this attribute the client is responsible for syncing the
-     * memory hierarchy for DMA. This can either be done using the cache API
-     * or by another map() or unmap() operation of the same part of the data
-     * space (without the #No_sync attribute).
-     */
-    No_sync
   };
 
   /**

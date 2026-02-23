@@ -117,7 +117,6 @@ void Moe::Dataspace_cont::unmap() const noexcept
 l4_ret_t
 Moe::Dataspace_cont::dma_map(Dma_space * /* dma */, l4_addr_t offset,
                              Dma_space::Dma_size *size,
-                             Dma_attribs /* dma_attr */,
                              Dma_space::Dma_addr *dma_addr)
 {
   if (offset >= this->size())

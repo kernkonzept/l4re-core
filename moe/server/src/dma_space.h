@@ -39,7 +39,6 @@ public:
 
   virtual Mapping *map(Dataspace *ds, Q_alloc *,
                        l4_addr_t offset, Dma_size *size,
-                       Attributes attrs,
                        Dma_addr *dma_addr) = 0;
 
   virtual l4_ret_t unmap(Dma_addr dma_addr, Dma_size size,
@@ -67,11 +66,9 @@ struct Mapping : cxx::H_list_item_t<Mapping>, cxx::Avl_tree_node
   typedef Region Key_type;
   typedef cxx::Avl_tree<Mapping, Mapping, cxx::Lt_functor<Region>> Map;
   typedef cxx::H_list_t<Dma::Mapping> List;
-  typedef L4Re::Dma_space::Attributes Attributes;
 
   Region key;
   Mapper *mapper = 0;
-  Attributes attrs = Attributes::None;
 
   static Key_type key_of(Mapping const *m) { return m->key; }
 
