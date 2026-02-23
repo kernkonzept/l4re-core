@@ -96,8 +96,10 @@ class Phys_mapper final : public Mapper
 {
 public:
   l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
-               L4Re::Dma_space::Dma_size *size,
-               L4Re::Dma_space::Dma_addr *dma_addr) override
+               L4Re::Dma_space::Dma_size *size, unsigned char,
+               L4Re::Dma_space::Attributes,
+               L4Re::Dma_space::Dma_addr *dma_addr,
+               L4Re::Dma_space::Dma_addr) override
   {
     if (l4_ret_t err = ds->dma_map(offset, size, dma_addr); err < 0)
       return err;
@@ -430,8 +432,10 @@ public:
   }
 
   l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
-               L4Re::Dma_space::Dma_size *size,
-               L4Re::Dma_space::Dma_addr *dma_addr) override
+               L4Re::Dma_space::Dma_size *size, unsigned char align,
+               L4Re::Dma_space::Attributes attrs,
+               L4Re::Dma_space::Dma_addr *dma_addr,
+               L4Re::Dma_space::Dma_addr  dma_max) override
   {
     if (*size == 0)
       return -L4_EINVAL;
@@ -471,8 +475,12 @@ public:
         aligned_size = *size + (offset - aligned_offset);
         round_dma_size(&aligned_size); // cannot overflow because size <= max_sz
 
-        l4_ret_t ret = find_free(&aligned_size, L4_PAGESHIFT, dma_addr,
-                                 Last_dma_addr);
+        l4_ret_t ret;
+
+        if (attrs & L4Re::Dma_space::Search_addr)
+          ret = find_free(&aligned_size, align, dma_addr, dma_max);
+        else
+          ret = verify_free(&aligned_size, *dma_addr, dma_max, false);
 
         if (ret < 0)
           return ret;
@@ -597,13 +605,25 @@ l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
                   L4::Ipc::Snd_fpage src_ds, L4Re::Dataspace::Offset offset,
                   L4Re::Dma_space::Dma_size &size,
-                  L4Re::Dma_space::Attributes,
-                  L4Re::Dma_space::Dma_addr &dma_addr)
+                  unsigned char align,
+                  L4Re::Dma_space::Attributes attrs,
+                  L4Re::Dma_space::Dma_addr &dma_addr,
+                  L4Re::Dma_space::Dma_addr dma_max)
 {
   if (!_mapper)
     return -L4_EINVAL;
 
-  l4_ret_t res = _mapper->map(_get_ds(src_ds), offset, &size, &dma_addr);
+  static constexpr auto Known_flags = L4Re::Dma_space::Search_addr;
+  if (attrs & ~Known_flags)
+    return -L4_EINVAL;
+
+  Dataspace *ds = _get_ds(src_ds);
+  if constexpr (Debug)
+    printf("DMA %p: map: ds=%p offs=0x%llx sz=0x%llx align=%d attrs=0x%x dma_addr=0x%llx dma_max=0x%llx\n",
+           this, ds, offset, size, align, attrs.raw, dma_addr, dma_max);
+
+  l4_ret_t res = _mapper->map(ds, offset, &size, align, attrs, &dma_addr,
+                              dma_max);
   if (res < 0)
     return res;
 

@@ -33,6 +33,14 @@ enum l4re_dma_space_direction
 };
 
 /**
+ * \copydoc L4Re::Dma_space::Attribute
+ */
+enum l4re_dma_space_attributes
+{
+  L4RE_DMA_SPACE_SEARCH_ADDR = 1U << 0, ///< \copydoc L4Re::Dma_space::Search_addr
+};
+
+/**
  * \brief DMA space capability type
  * \copydoc L4Re::Dma_space
  * \ingroup api_l4re_c_dma

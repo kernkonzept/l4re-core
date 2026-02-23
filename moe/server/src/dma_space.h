@@ -52,8 +52,10 @@ public:
   virtual void remove_dma_space(Dma_space *dma_space);
 
   virtual l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
-                       L4Re::Dma_space::Dma_size *size,
-                       L4Re::Dma_space::Dma_addr *dma_addr) = 0;
+                       L4Re::Dma_space::Dma_size *size, unsigned char align,
+                       L4Re::Dma_space::Attributes attrs,
+                       L4Re::Dma_space::Dma_addr *dma_addr,
+                       L4Re::Dma_space::Dma_addr dma_max) = 0;
 
   virtual void unmap(L4Re::Dma_space::Dma_addr start,
                      L4Re::Dma_space::Dma_size size) = 0;
@@ -156,9 +158,10 @@ public:
   l4_ret_t op_map(L4Re::Dma_space::Rights rights,
                   L4::Ipc::Snd_fpage src_ds,
                   L4Re::Dataspace::Offset offset,
-                  L4Re::Dma_space::Dma_size &size,
+                  L4Re::Dma_space::Dma_size &size, unsigned char align,
                   L4Re::Dma_space::Attributes attrs,
-                  L4Re::Dma_space::Dma_addr &dma_addr);
+                  L4Re::Dma_space::Dma_addr &dma_addr,
+                  L4Re::Dma_space::Dma_addr dma_max);
 
   l4_ret_t op_unmap(L4Re::Dma_space::Rights rights,
                     L4Re::Dma_space::Dma_addr dma_addr,

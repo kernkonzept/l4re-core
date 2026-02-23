@@ -77,6 +77,18 @@ public:
    */
   enum Attribute : unsigned
   {
+    /**
+     * Search for suitable address.
+     *
+     * A spot for the whole mapping is searched, starting from the passed start
+     * address. Without this flag, the start address is taken literally. Can be
+     * combined with Attribute::Partial_map.
+     *
+     * If no address remapping is possible (i.e., the Dma_space was associated
+     * by Dma_space_mgr::associate_phys()), the flag has no effect. The
+     * Dma_space::map() call will always return the physical address.
+     */
+    Search_addr = 1U << 0,
   };
 
   friend void enum_bitops_enable(Attribute);
@@ -91,6 +103,8 @@ public:
   /**
    * Map the given part of this data space into the DMA address space.
    *
+   * A suitable address in the DMA task will be chosen automatically.
+   *
    * \param[in]     src      Source data space (that describes the memory).
    *                         Caller needs write right to the data space.
    * \param[in]     offset   The offset (bytes) within `src`.
@@ -103,6 +117,8 @@ public:
    *                         remaining size.
    * \param[in]     attrs    The attributes used for this DMA mapping
    *                         (a combination of Dma_space::Attribute values).
+   *                         The Search_addr attribute is forced by this
+   *                         overload!
    * \param[in]     dir      The direction of the DMA transfer issued with
    *                         this mapping. The same value must later be passed
    *                         to unmap(). (ignored)
@@ -126,6 +142,8 @@ public:
    * be called prior to mapping memory.  Usually this is done implicitly when
    * binding the managed Dma_space to a DMA domain (see
    * L4vbus::Vbus::assign_dma_domain()).
+   *
+   * \deprecated Use the other overload without `dir` parameter.
    */
   l4_ret_t map(L4::Ipc::Cap<L4Re::Dataspace> src,
                L4Re::Dataspace::Offset offset,
@@ -135,21 +153,84 @@ public:
   {
     static_cast<void>(dir);
 
+    Dma_addr a = 0;
     Dma_size sz = *size;
 
-    l4_ret_t ret = map_t::call(c(), src, offset, &sz, attrs, dma_addr);
+    l4_ret_t ret = map(src, offset, &sz, &a, -1, attrs | Search_addr);
     if (ret >= 0)
-      *size = sz;
+      {
+        *dma_addr = a;
+        *size = sz;
+      }
 
     return ret;
+  }
+
+  /**
+   * Map the given part of this data space into the DMA address space.
+   *
+   * \param[in]     src      Source data space (that describes the memory).
+   * \param[in]     offset   The offset (bytes) within `src`.
+   * \param[in,out] size     The size (bytes) of the region to be mapped
+   *                         for DMA, after successful mapping the size
+   *                         returned is the size mapped for DMA as a single
+   *                         block. This size might be smaller than the
+   *                         original input size, in this case the caller might
+   *                         call map() again with a new offset and the
+   *                         remaining size.
+   * \param[in,out] dma_addr The DMA address to use for DMA with the associated
+   *                         device. Either taken literally (in which case it
+   *                         must be page aligned) or used as starting
+   *                         address if Attribute::Search_addr is passed.
+   * \param[in]     dma_max  Highest allowed DMA address of the mapping
+   *                         (inclusive).
+   * \param[in]     attrs    The attributes used for this DMA mapping
+   *                         (a combination of Dma_space::Attribute values).
+   * \param[in]     align    Alignment of mapping (log2 based). Only used
+   *                         if Attribute::Search_addr is passed.
+   *
+   * \retval L4_EOK             Operation successful.
+   * \retval -L4_EADDRNOTAVAIL  The specified region overlaps an existing
+   *                            mapping/blocking or no space left in search
+   *                            area.
+   * \retval -L4_EPERM          Insufficient permissions; see precondition.
+   * \retval -L4_EINVAL         The capability `src` is invalid or does not
+   *                            refer to a valid dataspace.
+   * \retval -L4_ENOMEM         Not enough memory to allocate internal
+   *                            datastructures.
+   * \retval -L4_ERANGE         `offset` is larger than the size of the
+   *                            dataspace.
+   *
+   * The DMA mapping is created writable if capability `src` has the permission
+   * #L4_CAP_FPAGE_W. Otherwise, a read-only DMA mapping is established.
+   *
+   * If no address remapping is possible (i.e., the Dma_space was associated
+   * by Dma_space_mgr::associate_phys()), Dma_space::map() will always return
+   * the physical address. The caller should therefore be prepared that a
+   * desired DMA address is ignored.
+   *
+   * \note Dma_space_mgr::associate() or Dma_space_mgr::associate_phys() must
+   * be called prior to mapping memory.  Usually this is done implicitly when
+   * binding the managed Dma_space to a DMA domain (see
+   * L4vbus::Vbus::assign_dma_domain()).
+   */
+  l4_ret_t map(L4::Ipc::Cap<L4Re::Dataspace> src,
+               L4Re::Dataspace::Offset offset,
+               Dma_size *size,
+               Dma_addr *dma_addr,
+               Dma_addr dma_max = -1,
+               Attributes attrs = Search_addr,
+               unsigned char align = L4_SUPERPAGESHIFT)
+  {
+    return map_t::call(c(), src, offset, size, align, attrs, dma_addr, dma_max);
   }
 
   L4_RPC_NF(
       l4_ret_t, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
                       L4Re::Dataspace::Offset offset,
-                      L4::Ipc::In_out<Dma_size *> size,
-                      Attributes attrs,
-                      Dma_addr *dma_addr));
+                      L4::Ipc::In_out<Dma_size *> size, unsigned char align,
+                      Attributes attrs, L4::Ipc::In_out<Dma_addr *> dma_addr,
+                      Dma_addr dma_max));
 
   /**
    * Unmap the given part of this data space from the DMA address space.
