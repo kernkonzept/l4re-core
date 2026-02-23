@@ -36,13 +36,14 @@ public:
   typedef L4Re::Dma_space::Attributes Attributes;
   typedef L4Re::Dma_space::Direction Direction;
   typedef L4Re::Dma_space::Dma_addr Dma_addr;
+  typedef L4Re::Dma_space::Dma_size Dma_size;
 
   virtual Mapping *map(Dataspace *ds, Q_alloc *,
-                       l4_addr_t offset, l4_size_t *size,
+                       l4_addr_t offset, Dma_size *size,
                        Attributes attrs, Direction dir,
                        Dma_addr *dma_addr) = 0;
 
-  virtual l4_ret_t unmap(Dma_addr dma_addr, l4_size_t size,
+  virtual l4_ret_t unmap(Dma_addr dma_addr, Dma_size size,
                          Attributes attrs, Direction dir) = 0;
 
   virtual void remove(Mapping *m) = 0;
@@ -99,18 +100,19 @@ class Dma_space :
 {
 public:
   typedef L4Re::Dma_space::Dma_addr Dma_addr;
+  typedef L4Re::Dma_space::Dma_size Dma_size;
   typedef L4Re::Dma_space::Direction Direction;
   typedef L4Re::Dma_space::Attributes Attributes;
   typedef L4Re::Dma_space_mgr::Space_attribs Space_attribs;
 
   l4_ret_t op_map(L4Re::Dma_space::Rights rights,
                   L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
-                  l4_size_t &size, Attributes attrs, Direction dir,
+                  Dma_size &size, Attributes attrs, Direction dir,
                   Dma_addr &dma_addr);
 
   l4_ret_t op_unmap(L4Re::Dma_space::Rights rights,
                     Dma_addr dma_addr,
-                    l4_size_t size, Attributes attrs, Direction dir);
+                    Dma_size size, Attributes attrs, Direction dir);
 
   /**
    * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space

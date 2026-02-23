@@ -116,7 +116,7 @@ void Moe::Dataspace_cont::unmap() const noexcept
 
 l4_ret_t
 Moe::Dataspace_cont::dma_map(Dma_space * /* dma */, l4_addr_t offset,
-                             l4_size_t *size,
+                             Dma_space::Dma_size *size,
                              Dma_attribs /* dma_attr */,
                              Dma_space::Direction /* dir */,
                              Dma_space::Dma_addr *dma_addr)
@@ -125,7 +125,7 @@ Moe::Dataspace_cont::dma_map(Dma_space * /* dma */, l4_addr_t offset,
     return -L4_ERANGE;
 
   *dma_addr = reinterpret_cast<l4_addr_t>(start()) + offset;
-  *size = cxx::min<l4_size_t>(*size, this->size() - offset);
+  *size = cxx::min<L4Re::Dma_space::Dma_size>(*size, this->size() - offset);
   return 0;
 }
 

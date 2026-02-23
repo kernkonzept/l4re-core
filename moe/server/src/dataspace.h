@@ -138,7 +138,8 @@ public:
                l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory);
 
   typedef Dma_space::Attributes Dma_attribs;
-  virtual l4_ret_t dma_map(Dma_space *dma, l4_addr_t offset, l4_size_t *size,
+  virtual l4_ret_t dma_map(Dma_space *dma, l4_addr_t offset,
+                           Dma_space::Dma_size *size,
                            Dma_attribs dma_attrs, Dma_space::Direction dir,
                            Dma_space::Dma_addr *dma_addr);
 

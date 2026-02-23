@@ -28,7 +28,7 @@ private:
 
 public:
   Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               l4_size_t *size, Attributes attrs, Direction dir,
+               Dma_size *size, Attributes attrs, Direction dir,
                Dma_addr *dma_addr) override
   {
     L4Re::chksys(ds->dma_map(0, offset, size, attrs, dir, dma_addr));
@@ -48,7 +48,7 @@ public:
     return m.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, l4_size_t, Attributes, Direction) override
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes, Direction) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -189,11 +189,11 @@ public:
   }
 
   Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               l4_size_t *_size, Attributes attrs, Direction dir,
+               Dma_space::Dma_size *_size, Attributes attrs, Direction dir,
                Dma_space::Dma_addr *dma_addr) override
   {
     if (0)
-      printf("DMA %p: map: offs=%lx sz=%zx ...\n", this, offset, *_size);
+      printf("DMA %p: map: offs=%lx sz=%llx ...\n", this, offset, *_size);
 
     // Only full pages can be mapped, so work with a rounded offset internally.
     l4_addr_t aligned_offset = l4_trunc_page(offset);
@@ -256,7 +256,7 @@ public:
     return node.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, l4_size_t, Attributes, Direction) override
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes, Direction) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -292,7 +292,7 @@ static Dataspace *_get_ds(L4::Ipc::Snd_fpage src_cap)
 l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
                   L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
-                  l4_size_t &size, Attributes attrs, Direction dir,
+                  Dma_space::Dma_size &size, Attributes attrs, Direction dir,
                   Dma_space::Dma_addr &dma_addr)
 {
   if (!_mapper)
@@ -306,7 +306,7 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 
 l4_ret_t
 Dma_space::op_unmap(L4Re::Dma_space::Rights,
-                    Dma_addr dma_addr, l4_size_t size,
+                    Dma_addr dma_addr, Dma_size size,
                     Attributes attrs, Direction dir)
 {
   if (!_mapper)

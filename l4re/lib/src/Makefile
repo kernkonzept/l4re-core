@@ -7,7 +7,7 @@ PC_LIBS       = %{-link-libc:%{shared:--whole-archive -l4re.p --no-whole-archive
 PC_LIBS_PIC   =
 
 SRC_CC	= namespace.cc dataspace.cc rm.cc mem_alloc.cc \
-	  log.cc event.cc video/goos.cc
+	  log.cc event.cc video/goos.cc dma_space.cc
 SRC_C_lib4re.ofl := env.c
 
 CXXFLAGS += -fno-rtti -fno-exceptions
