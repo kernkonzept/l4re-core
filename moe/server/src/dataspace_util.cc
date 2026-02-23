@@ -23,8 +23,8 @@ unsigned long trunc_page(unsigned long page_size, unsigned long addr)
 { return addr & ~(page_size-1); }
 
 inline void
-__do_real_copy(Dataspace *dst, unsigned long &dst_offs,
-    Dataspace const *src, unsigned long &src_offs, unsigned long sz)
+__do_real_copy(Dataspace *dst, L4Re::Dataspace::Offset &dst_offs,
+    Dataspace const *src, L4Re::Dataspace::Offset &src_offs, unsigned long sz)
 {
   while (sz)
     {
@@ -56,8 +56,9 @@ __do_real_copy(Dataspace *dst, unsigned long &dst_offs,
 }
 
 inline void
-__do_cow_copy(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_sz,
-    Dataspace const *src, unsigned long &src_offs, unsigned long sz)
+__do_cow_copy(Dataspace_noncont *dst, L4Re::Dataspace::Offset &dst_offs,
+              unsigned dst_pg_sz, Dataspace const *src,
+              L4Re::Dataspace::Offset &src_offs, unsigned long sz)
 {
   while (sz)
     {
@@ -76,8 +77,9 @@ __do_cow_copy(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_s
 }
 
 inline void
-__do_cow_copy2(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_sz,
-    Dataspace_noncont const *src, unsigned long &src_offs, unsigned long sz)
+__do_cow_copy2(Dataspace_noncont *dst, L4Re::Dataspace::Offset &dst_offs,
+               unsigned dst_pg_sz, Dataspace_noncont const *src,
+               L4Re::Dataspace::Offset &src_offs, unsigned long sz)
 {
   //L4::cout << "real COW\n";
   while (sz)
@@ -109,8 +111,9 @@ __do_cow_copy2(Dataspace_noncont *dst, unsigned long &dst_offs, unsigned dst_pg_
 }
 
 unsigned long
-__do_eager_copy(Dataspace *dst, unsigned long dst_offs,
-    Dataspace const *src, unsigned long src_offs, unsigned long size)
+__do_eager_copy(Dataspace *dst, L4Re::Dataspace::Offset dst_offs,
+    Dataspace const *src, L4Re::Dataspace::Offset src_offs,
+    L4Re::Dataspace::Size size)
 {
   unsigned long dst_sz = dst->size();
   unsigned long src_sz = src->round_size();
@@ -125,8 +128,9 @@ __do_eager_copy(Dataspace *dst, unsigned long dst_offs,
 
 
 bool
-__do_lazy_copy(Dataspace_noncont *dst, unsigned long dst_offs,
-    Dataspace const *src, unsigned long src_offs, unsigned long &size)
+__do_lazy_copy(Dataspace_noncont *dst, L4Re::Dataspace::Offset dst_offs,
+    Dataspace const *src, L4Re::Dataspace::Offset src_offs,
+    L4Re::Dataspace::Size &size)
 {
   unsigned long dst_sz = dst->size();
   unsigned long src_sz = src->round_size();
@@ -184,8 +188,9 @@ __do_lazy_copy(Dataspace_noncont *dst, unsigned long dst_offs,
 }
 
 bool
-__do_lazy_copy2(Dataspace_noncont *dst, unsigned long dst_offs,
-    Dataspace_noncont const *src, unsigned long src_offs, unsigned long &size)
+__do_lazy_copy2(Dataspace_noncont *dst, L4Re::Dataspace::Offset dst_offs,
+    Dataspace_noncont const *src, L4Re::Dataspace::Offset src_offs,
+    L4Re::Dataspace::Offset &size)
 {
   unsigned long dst_sz = dst->size();
   unsigned long src_sz = src->round_size();
@@ -246,8 +251,9 @@ __do_lazy_copy2(Dataspace_noncont *dst, unsigned long dst_offs,
 }; // and local anon namespace
 
 unsigned long
-Dataspace_util::copy(Dataspace *dst, unsigned long dst_offs,
-    Dataspace const *src, unsigned long src_offs, unsigned long size)
+Dataspace_util::copy(Dataspace *dst, L4Re::Dataspace::Offset dst_offs,
+    Dataspace const *src, L4Re::Dataspace::Offset src_offs,
+    L4Re::Dataspace::Size size)
 {
   if (src->can_cow() && dst->can_cow())
     {

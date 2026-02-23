@@ -74,7 +74,8 @@ public:
   l4_ret_t copy_address(l4_addr_t offset, Flags flags, l4_addr_t *copy_addr,
                         unsigned long *copy_size) const override;
 
-  l4_ret_t pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) override;
+  l4_ret_t pre_allocate(L4Re::Dataspace::Offset offset,
+                        L4Re::Dataspace::Size size, unsigned rights) override;
 
   virtual Page &page(unsigned long offs) const noexcept = 0;
   virtual Page &alloc_page(unsigned long offs) const = 0;
@@ -100,7 +101,8 @@ private:
   void unmap_page(Page const &p, bool ro = false) const noexcept;
 
 public:
-  l4_ret_t clear(unsigned long offs, unsigned long size) const noexcept override;
+  l4_ret_t clear(L4Re::Dataspace::Offset offs,
+                 L4Re::Dataspace::Size size) const noexcept override;
 
   static Dataspace_noncont *create(Q_alloc *q, unsigned long size,
                                    Single_page_alloc_base::Config cfg,

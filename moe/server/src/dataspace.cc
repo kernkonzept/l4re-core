@@ -17,6 +17,7 @@
 #include <l4/cxx/minmax>
 
 #include <l4/sys/capability>
+#include <l4/sys/cxx/consts>
 #include <l4/sys/err.h>
 #include <l4/sys/cache.h>
 
@@ -24,16 +25,14 @@
 using cxx::min;
 
 l4_ret_t
-Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, Flags flags,
-                    l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory)
+Moe::Dataspace::map(L4Re::Dataspace::Offset offs, l4_addr_t hot_spot,
+                    Flags flags, l4_addr_t min, l4_addr_t max,
+                    L4::Ipc::Snd_fpage &memory)
 {
   using L4Re::Dataspace;
   using L4::Ipc::Snd_fpage;
 
   memory = L4::Ipc::Snd_fpage();
-
-  offs     = l4_trunc_page(offs);
-  hot_spot = l4_trunc_page(hot_spot);
 
   if (!check_limit(offs))
     {
@@ -43,6 +42,9 @@ Moe::Dataspace::map(l4_addr_t offs, l4_addr_t hot_spot, Flags flags,
 
       return -L4_ERANGE;
     }
+
+  offs     = L4::trunc_page(offs);
+  hot_spot = L4::trunc_page(hot_spot);
 
   Address adr = address(offs, flags, hot_spot, min, max);
   if (adr.is_nil())
@@ -134,7 +136,8 @@ Moe::Dataspace::op_map_info(L4Re::Dataspace::Rights /*rights*/,
 { return map_info(start_addr, end_addr); }
 
 l4_ret_t
-Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const noexcept
+Moe::Dataspace::clear(L4Re::Dataspace::Offset offs,
+                      L4Re::Dataspace::Size size) const noexcept
 {
   if (!check_limit(offs))
     return -L4_ERANGE;
@@ -161,8 +164,9 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const noexcept
 }
 
 l4_ret_t
-Moe::Dataspace::dma_map(l4_addr_t, Dma_space::Dma_size *,
-                        Dma_space::Dma_addr *)
+Moe::Dataspace::dma_map(L4Re::Dataspace::Offset,
+                        L4Re::Dma_space::Dma_size *,
+                        L4Re::Dma_space::Dma_addr *)
 {
   return -L4_EINVAL;
 }

@@ -38,7 +38,7 @@ public:
   typedef L4Re::Dma_space::Dma_size Dma_size;
 
   virtual Mapping *map(Dataspace *ds, Q_alloc *,
-                       l4_addr_t offset, Dma_size *size,
+                       L4Re::Dataspace::Offset offset, Dma_size *size,
                        Dma_addr *dma_addr) = 0;
 
   virtual l4_ret_t unmap(Dma_addr dma_addr, Dma_size size) = 0;
@@ -98,7 +98,7 @@ public:
   typedef L4Re::Dma_space_mgr::Space_attribs Space_attribs;
 
   l4_ret_t op_map(L4Re::Dma_space::Rights rights,
-                  L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
+                  L4::Ipc::Snd_fpage src_ds, L4Re::Dataspace::Offset offset,
                   Dma_size &size, Attributes attrs,
                   Dma_addr &dma_addr);
 

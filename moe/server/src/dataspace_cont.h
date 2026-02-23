@@ -31,8 +31,9 @@ public:
   l4_ret_t copy_address(l4_addr_t offset, Flags flags,
                         l4_addr_t *addr, unsigned long *size) const override;
 
-  l4_ret_t dma_map(l4_addr_t offset, Dma_space::Dma_size *size,
-                   Dma_space::Dma_addr *dma_addr) override;
+  l4_ret_t dma_map(L4Re::Dataspace::Offset offset,
+                   L4Re::Dma_space::Dma_size *size,
+                   L4Re::Dma_space::Dma_addr *dma_addr) override;
 
 #if !defined(CONFIG_MMU)
   l4_ret_t map_info(l4_addr_t &start_addr,

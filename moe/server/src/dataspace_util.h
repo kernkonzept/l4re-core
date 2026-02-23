@@ -10,8 +10,9 @@
 
 namespace Dataspace_util
 {
-  unsigned long copy(Moe::Dataspace *dst, unsigned long dst_offs,
-      Moe::Dataspace const*src, unsigned long src_offs, unsigned long size);
+  unsigned long copy(Moe::Dataspace *dst, L4Re::Dataspace::Offset dst_offs,
+      Moe::Dataspace const*src, L4Re::Dataspace::Offset src_offs,
+      L4Re::Dataspace::Size size);
 
 };
 

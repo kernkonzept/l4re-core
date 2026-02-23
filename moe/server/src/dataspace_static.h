@@ -21,7 +21,8 @@ public:
                    unsigned char page_shift = L4_PAGESHIFT)
   : Dataspace_cont(start, size, flags, page_shift) {}
   virtual ~Dataspace_static() noexcept {}
-  l4_ret_t pre_allocate(l4_addr_t, l4_size_t, unsigned) override
+  l4_ret_t pre_allocate(L4Re::Dataspace::Offset, L4Re::Dataspace::Size,
+                        unsigned) override
   { return 0; }
   bool is_static() const noexcept override { return true; }
 };

@@ -91,7 +91,8 @@ public:
   virtual l4_ret_t copy_address(l4_addr_t ds_offset, Flags flags,
                                 l4_addr_t *copy_addr, unsigned long *copy_size) const = 0;
 
-  virtual l4_ret_t pre_allocate(l4_addr_t offset, l4_size_t size, unsigned rights) = 0;
+  virtual l4_ret_t pre_allocate(L4Re::Dataspace::Offset offset,
+                                L4Re::Dataspace::Size size, unsigned rights) = 0;
 
   bool can_cow() const noexcept
   {
@@ -116,7 +117,8 @@ public:
   unsigned long page_size() const noexcept { return 1UL << _page_shift; }
 
   virtual bool is_static() const noexcept = 0;
-  virtual l4_ret_t clear(unsigned long offs, unsigned long size) const noexcept;
+  virtual l4_ret_t clear(L4Re::Dataspace::Offset offs,
+                         L4Re::Dataspace::Size size) const noexcept;
 
   virtual l4_ret_t map_info(l4_addr_t &start_addr,
                             l4_addr_t &end_addr) const noexcept;
@@ -128,18 +130,19 @@ protected:
 public:
   unsigned long round_size() const noexcept
   { return l4_round_size(size(), page_shift()); }
-  bool check_limit(l4_addr_t offset) const noexcept
+  bool check_limit(L4Re::Dataspace::Offset offset) const noexcept
   { return offset < round_size(); }
-  bool check_range(l4_addr_t offset, unsigned long sz) const noexcept
+  bool check_range(L4Re::Dataspace::Offset offset,
+                   L4Re::Dataspace::Size   sz) const noexcept
   { return offset < size() && size() - offset >= sz; }
 
 public:
-  l4_ret_t map(l4_addr_t offs, l4_addr_t spot, Flags flags,
+  l4_ret_t map(L4Re::Dataspace::Offset offs, l4_addr_t spot, Flags flags,
                l4_addr_t min, l4_addr_t max, L4::Ipc::Snd_fpage &memory);
 
-  virtual l4_ret_t dma_map(l4_addr_t offset,
-                           Dma_space::Dma_size *size,
-                           Dma_space::Dma_addr *dma_addr);
+  virtual l4_ret_t dma_map(L4Re::Dataspace::Offset offset,
+                           L4Re::Dma_space::Dma_size *size,
+                           L4Re::Dma_space::Dma_addr *dma_addr);
 
   l4_ret_t op_map(L4Re::Dataspace::Rights rights,
                   L4Re::Dataspace::Offset offset,

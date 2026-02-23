@@ -6,11 +6,13 @@
 #include "dma_space.h"
 #include "dataspace.h"
 #include "name_space.h"
-#include <l4/re/error_helper>
+
 #include <l4/cxx/hlist>
-#include <l4/sys/task>
-#include <l4/cxx/unique_ptr>
 #include <l4/cxx/minmax>
+#include <l4/cxx/unique_ptr>
+#include <l4/re/error_helper>
+#include <l4/sys/cxx/consts>
+#include <l4/sys/task>
 
 // TODO:
 //   1. check and garbage collect Dma_space_task_mappers when their task
@@ -27,7 +29,7 @@ private:
   Map _map;
 
 public:
-  Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
+  Mapping *map(Dataspace *ds, Q_alloc *alloc, L4Re::Dataspace::Offset offset,
                Dma_size *size, Dma_addr *dma_addr) override
   {
     L4Re::chksys(ds->dma_map(offset, size, dma_addr));
@@ -185,15 +187,16 @@ public:
     return 0;
   }
 
-  Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
+  Mapping *map(Dataspace *ds, Q_alloc *alloc, L4Re::Dataspace::Offset offset,
                Dma_space::Dma_size *_size,
                Dma_space::Dma_addr *dma_addr) override
   {
     if (0)
-      printf("DMA %p: map: offs=%lx sz=%llx ...\n", this, offset, *_size);
+      printf("DMA %p: map: offs=%llx sz=%llx ...\n", this, offset, *_size);
 
     // Only full pages can be mapped, so work with a rounded offset internally.
-    l4_addr_t aligned_offset = l4_trunc_page(offset);
+    // Attention: L4Re::Dataspace::Offset is always 64 bits!
+    L4Re::Dataspace::Offset aligned_offset = L4::trunc_page(offset);
 
     unsigned long max_sz = ds->round_size();
     if (offset >= max_sz)
@@ -286,7 +289,7 @@ static Dataspace *_get_ds(L4::Ipc::Snd_fpage src_cap)
 
 l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
-                  L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
+                  L4::Ipc::Snd_fpage src_ds, L4Re::Dataspace::Offset offset,
                   Dma_space::Dma_size &size, Attributes,
                   Dma_space::Dma_addr &dma_addr)
 {
