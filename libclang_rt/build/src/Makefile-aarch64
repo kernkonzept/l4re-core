@@ -11,22 +11,41 @@ else
 endif
 
 ifeq ($(BID_VARIANT_FLAG_NOFPU),)
-  # Clang == 18
-  ifneq ($(call libclang_rt_if_version,18),)
-    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-abi-init.c aarch64/sme-libc-routines.c
+  # Clang < 21
+  ifeq ($(call libclang_rt_if_min_version,21),)
+    # Clang == 18
+    ifneq ($(call libclang_rt_if_version,18),)
+      BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-abi-init.c aarch64/sme-libc-routines.c
+    endif
+
+    # Clang == 19
+    ifneq ($(call libclang_rt_if_version,19),)
+      BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-libc-mem-routines.S \
+                      aarch64/sme-abi-init.c aarch64/sme-abi-vg.c aarch64/sme-libc-routines.c
+    endif
+
+    # Clang >= 20
+    ifneq ($(call libclang_rt_if_min_version,20),)
+      BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-libc-mem-routines.S \
+                      aarch64/sme-abi-assert.c aarch64/sme-libc-routines.c
+    endif
+  # Clang >= 21
+  else
+    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-abi-assert.c
+
+    # TODO: Strictly aligned memory access fallback for SME compatible
+    #       memset/memchr/memcpy/memmove implementations, i.e. they do not
+    #       interfere with SME state.
+    #       For now just always use the fallback. These only become relevant
+    #       once we support SME.
+    # if COMPILER_RT_HAS_ARM_UNALIGNED AND COMPILER_RT_HAS_ARM_FP
+    # BUILTINS_SRC += aarch64/sme-libc-opt-memset-memchr.S aarch64/sme-libc-opt-memcpy-memmove.S
+    # elif if COMPILER_RT_HAS_ARM_UNALIGNED
+    # -> aarch64/sme-libc-memset-memchr.c aarch64/sme-libc-opt-memcpy-memmove.S
+    # else
+    BUILTINS_SRC += aarch64/sme-libc-memset-memchr.c aarch64/sme-libc-memcpy-memmove.c
   endif
 
-  # Clang == 19
-  ifneq ($(call libclang_rt_if_version,19),)
-    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-libc-mem-routines.S \
-                    aarch64/sme-abi-init.c aarch64/sme-abi-vg.c aarch64/sme-libc-routines.c
-  endif
-
-  # Clang >= 20
-  ifneq ($(call libclang_rt_if_min_version,20),)
-    BUILTINS_SRC += aarch64/sme-abi.S aarch64/sme-libc-mem-routines.S \
-                    aarch64/sme-abi-assert.c aarch64/sme-libc-routines.c
-  endif
 endif
 
 # TODO: Variants of aarch64/lse.S (guarded by defines)
@@ -34,3 +53,6 @@ endif
 # supported on L4 as __getauxval(AT_HWCAP) always returns 0 indicating that the
 # required atomic operations are not available, so no point in adding the
 # outline atomics support code here in libclang_rt.
+
+# Clang >= 21
+# TODO: aarch64/emupac.cpp

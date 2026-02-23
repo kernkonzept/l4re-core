@@ -145,6 +145,11 @@ ifeq ($(call libclang_rt_try_compile,__bf16 x;),Ok)
   endif
 endif
 
+# Clang >= 21
+ifneq ($(call libclang_rt_if_min_version,21),)
+  GENERIC_SOURCES += extendhfdf2.c
+endif
+
 # TODO: Reimplement for L4Re
 # GENERIC_SOURCES += clear_cache.c
 
