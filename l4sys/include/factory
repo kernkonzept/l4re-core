@@ -271,12 +271,12 @@ public:
    *
    * \return A create stream that allows additional arguments to be passed to
    *         the `%create()` call via the left-shift (<<) operator (see
-   *         #S::operator <<).
+   *         S::operator <<).
    *
    * This method does not directly invoke the factory. The factory is invoked
    * when the create stream returned by this method is converted to an
    * #l4_msgtag_t (see S::operator l4_msgtag_t()), or otherwise when the stream
-   * goes out of scope (not recommended; see #S::~S()).
+   * goes out of scope (not recommended; see S::~S()).
    *
    * \pre The invoked Factory capability must have the permission
    *      #L4_CAP_FPAGE_S, otherwise the later factory IPC will fail with
@@ -303,12 +303,12 @@ public:
    *
    * \return A create stream that allows additional arguments to be passed to
    *         the `%create()` call via the left-shift (<<) operator (see
-   *         #S::operator <<).
+   *         S::operator <<).
    *
    * This method does not directly invoke the factory. The factory is invoked
    * when the create stream returned by this method is converted to an
    * #l4_msgtag_t (see S::operator l4_msgtag_t()), or otherwise when the stream
-   * goes out of scope (not rcommended; see #S::~S()).
+   * goes out of scope (not rcommended; see S::~S()).
    *
    * \pre The invoked Factory capability must have the permission
    *      #L4_CAP_FPAGE_S, otherwise the later factory IPC will fail with
