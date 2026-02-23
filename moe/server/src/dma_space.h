@@ -49,14 +49,15 @@ public:
 
 struct Region
 {
-  l4_addr_t start;
-  l4_addr_t end;
+  L4Re::Dma_space::Dma_addr start;
+  L4Re::Dma_space::Dma_addr end;
   bool operator < (Region const &r) const
   { return end < r.start; }
 
   Region() = default;
-  Region(l4_addr_t s) : start(s), end(s) {}
-  Region(l4_addr_t s, l4_addr_t e) : start(s), end(e) {}
+  Region(L4Re::Dma_space::Dma_addr s) : start(s), end(s) {}
+  Region(L4Re::Dma_space::Dma_addr s, L4Re::Dma_space::Dma_addr e)
+  : start(s), end(e) {}
 };
 
 struct Mapping : cxx::H_list_item_t<Mapping>, cxx::Avl_tree_node
@@ -80,7 +81,7 @@ struct Mapping : cxx::H_list_item_t<Mapping>, cxx::Avl_tree_node
       mapper->remove(this);
 
     if (0)
-      printf("DMA: del mapping: map=%p %lx %lx\n", mapper, key.start, key.end);
+      printf("DMA: del mapping: map=%p %llx %llx\n", mapper, key.start, key.end);
   }
 };
 
