@@ -119,8 +119,6 @@ public:
   l4_ret_t disassociate();
 
 private:
-  Space_attribs _attr = Space_attribs::None;
-
   /// The Dma::Mapper instance (if any) associated with this Moe::Dma_space
   /// instance.
   /// \note Several Moe::Dma_space instances might share the same Dma::Mapper
