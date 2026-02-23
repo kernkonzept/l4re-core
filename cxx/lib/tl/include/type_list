@@ -51,4 +51,3 @@ template<typename TYPELIST, template <typename T> class PREDICATE>
 using find_type_t = typename find_type<TYPELIST, PREDICATE>::type;
 
 }
-

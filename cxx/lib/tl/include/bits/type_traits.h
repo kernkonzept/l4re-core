@@ -209,7 +209,7 @@ public:
   static unsigned long align(unsigned long a)
   {
     return (a + static_cast<unsigned long>(alignment) - 1UL)
-      & ~(static_cast<unsigned long>(alignment) - 1UL);
+            & ~(static_cast<unsigned long>(alignment) - 1UL);
   }
 };
 
