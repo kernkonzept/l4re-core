@@ -108,7 +108,7 @@ public:
 
   // BSS allocation
   explicit Basic_list(bool) {}
-  Basic_list() : _f(0) {}
+  Basic_list() : _f(nullptr) {}
 
   Basic_list(Basic_list &&o) : _f(o._f)
   {
@@ -132,7 +132,7 @@ public:
    *
    * After the operation the state of the elements is undefined.
    */
-  void clear() { _f = 0; }
+  void clear() { _f = nullptr; }
 
   /// Return an iterator to the beginning of the list.
   Iterator begin() { return Iterator(&_f); }
