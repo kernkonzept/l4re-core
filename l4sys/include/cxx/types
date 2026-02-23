@@ -261,11 +261,16 @@ namespace Types {
   struct Flags_t : Flags_ops_t<Flags_t<DT, T>>
   {
     /// Raw integral value.
-    T raw;
+    T raw = 0;
     /// Default (uninitializing) constructor
-    Flags_t() = default;
+    constexpr Flags_t() = default;
+    /// Initialization from determinator type
+    constexpr Flags_t(DT f) : raw(static_cast<T>(f)) {}
     /// Explicit initialization from the underlying type.
     explicit constexpr Flags_t(T f) : raw(f) {}
+
+    /// Empty flags literal.
+    static constexpr Flags_t None = Flags_t();
   };
 
   /// Map a sequence of any types to the void type.
