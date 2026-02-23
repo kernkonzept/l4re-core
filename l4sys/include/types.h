@@ -147,66 +147,7 @@ enum L4_msgtag_flags
   L4_MSGTAG_FLAGS        = 0xf000,
 };
 
-
-/**
- * Message tag data structure.
- * \ingroup l4_msgtag_api
- *
- * \includefile{l4/sys/types.h}
- *
- * Describes the details of an IPC operation, in particular
- * which parts of the UTCB have to be transmitted, and also flags
- * to enable real-time and FPU extensions.
- *
- * The message tag also contains a user-defined label that could be used
- * to specify a protocol ID. Some negative values are reserved for kernel
- * protocols such as page faults and exceptions.
- *
- * The type must be treated completely opaque.
- */
-typedef struct l4_msgtag_t
-{
-  l4_mword_t raw;   ///< raw value
-#ifdef __cplusplus
-  /// Get the protocol value.
-  long label() const L4_NOTHROW
-  {
-#if defined(__cplusplus) && (__cplusplus >= 202002L)
-    return raw >> 16;
-#else
-    return raw < 0 ? ~(~raw >> 16) : raw >> 16;
-#endif
-  }
-  /// Set the protocol value.
-  void label(long v) L4_NOTHROW { raw = (raw & 0x0ffff) | ((l4_umword_t)v << 16); }
-  /// Get the number of untyped words.
-  unsigned words() const L4_NOTHROW { return raw & 0x3f; }
-  /// Get the number of typed items.
-  unsigned items() const L4_NOTHROW { return (raw >> 6) & 0x3f; }
-  /**
-   * Get the flags value.
-   *
-   * The flags are a combination of the flags defined by
-   * #L4_msgtag_flags.
-   */
-  unsigned flags() const L4_NOTHROW { return raw & 0xf000; }
-  /// Test if protocol indicates page-fault protocol.
-  bool is_page_fault() const L4_NOTHROW { return label() == L4_PROTO_PAGE_FAULT; }
-  /// Test if protocol indicates exception protocol.
-  bool is_exception() const L4_NOTHROW { return label() == L4_PROTO_EXCEPTION; }
-  /// Test if protocol indicates sigma0 protocol.
-  bool is_sigma0() const L4_NOTHROW { return label() == L4_PROTO_SIGMA0; }
-  /// Test if protocol indicates IO-page-fault protocol.
-  bool is_io_page_fault() const L4_NOTHROW { return label() == L4_PROTO_IO_PAGE_FAULT; }
-  /// Test if flags indicate an error.
-  ///
-  /// If true, the error code is stored in the UTCB, see
-  /// l4_utcb_tcr()->[error](#l4_thread_regs_t::error).
-  bool has_error() const L4_NOTHROW { return raw & L4_MSGTAG_ERROR; }
-#endif
-} l4_msgtag_t;
-
-
+typedef struct l4_msgtag_t l4_msgtag_t;
 
 /**
  * Create a message tag from the specified values.
@@ -317,6 +258,66 @@ L4_INLINE unsigned l4_msgtag_is_sigma0(l4_msgtag_t t) L4_NOTHROW;
  * \return Boolean value
  */
 L4_INLINE unsigned l4_msgtag_is_io_page_fault(l4_msgtag_t t) L4_NOTHROW;
+
+
+/**
+ * Message tag data structure.
+ * \ingroup l4_msgtag_api
+ *
+ * \includefile{l4/sys/types.h}
+ *
+ * Describes the details of an IPC operation, in particular
+ * which parts of the UTCB have to be transmitted, and also flags
+ * to enable real-time and FPU extensions.
+ *
+ * The message tag also contains a user-defined label that could be used
+ * to specify a protocol ID. Some negative values are reserved for kernel
+ * protocols such as page faults and exceptions.
+ *
+ * The type must be treated completely opaque.
+ */
+struct l4_msgtag_t
+{
+  l4_mword_t raw;   ///< raw value
+#ifdef __cplusplus
+  /// Get the protocol value.
+  long label() const L4_NOTHROW
+  {
+#if defined(__cplusplus) && (__cplusplus >= 202002L)
+    return raw >> 16;
+#else
+    return raw < 0 ? ~(~raw >> 16) : raw >> 16;
+#endif
+  }
+  /// Set the protocol value.
+  void label(long v) L4_NOTHROW { raw = (raw & 0x0ffff) | ((l4_umword_t)v << 16); }
+  /// Get the number of untyped words.
+  unsigned words() const L4_NOTHROW { return raw & 0x3f; }
+  /// Get the number of typed items.
+  unsigned items() const L4_NOTHROW { return (raw >> 6) & 0x3f; }
+  /**
+   * Get the flags value.
+   *
+   * The flags are a combination of the flags defined by
+   * #L4_msgtag_flags.
+   */
+  unsigned flags() const L4_NOTHROW { return raw & 0xf000; }
+  /// Test if protocol indicates page-fault protocol.
+  bool is_page_fault() const L4_NOTHROW { return label() == L4_PROTO_PAGE_FAULT; }
+  /// Test if protocol indicates exception protocol.
+  bool is_exception() const L4_NOTHROW { return label() == L4_PROTO_EXCEPTION; }
+  /// Test if protocol indicates sigma0 protocol.
+  bool is_sigma0() const L4_NOTHROW { return label() == L4_PROTO_SIGMA0; }
+  /// Test if protocol indicates IO-page-fault protocol.
+  bool is_io_page_fault() const L4_NOTHROW { return label() == L4_PROTO_IO_PAGE_FAULT; }
+  /// Test if flags indicate an error.
+  ///
+  /// If true, the error code is stored in the UTCB, see
+  /// l4_utcb_tcr()->[error](#l4_thread_regs_t::error).
+  bool has_error() const L4_NOTHROW { return raw & L4_MSGTAG_ERROR; }
+#endif
+};
+
 
 /**
  * \defgroup l4_cap_api Capabilities
