@@ -17,7 +17,7 @@ l4re_dma_space_map(l4re_dma_space_t dma, l4re_ds_t src,
   L4::Cap<L4Re::Dma_space> d(dma);
   return d->map(L4::Ipc::Cap<L4Re::Dataspace>::from_ci(src),
                 offset, size,
-                L4Re::Dma_space::Attributes::from_raw(attrs),
+                L4Re::Dma_space::Attributes(attrs),
                 L4Re::Dma_space::Direction(dir), dma_addr);
 }
 
@@ -29,7 +29,7 @@ l4re_dma_space_unmap(l4re_dma_space_t dma, l4re_dma_space_dma_addr_t dma_addr,
 {
   L4::Cap<L4Re::Dma_space> d(dma);
   return d->unmap(dma_addr, size,
-                  L4Re::Dma_space::Attributes::from_raw(attrs),
+                  L4Re::Dma_space::Attributes(attrs),
                   L4Re::Dma_space::Direction(dir));
 }
 

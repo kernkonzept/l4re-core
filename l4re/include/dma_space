@@ -75,16 +75,18 @@ public:
    * Attributes used for the memory region.
    * \sa Attributes
    */
-  enum Attribute
+  enum Attribute : unsigned
   {
   };
+
+  friend void enum_bitops_enable(Attribute);
 
   /**
    * Attributes for DMA mappings.
    *
    * \sa Attribute
    */
-  typedef L4::Types::Flags<Attribute> Attributes;
+  using Attributes = L4::Types::Flags_t<Attribute, unsigned>;
 
   /**
    * Map the given part of this data space into the DMA address space.
@@ -184,12 +186,14 @@ public:
    * specific device.
    * \sa Space_attribs
    */
-  enum Space_attrib
+  enum Space_attrib : unsigned
   {
   };
 
+  friend void enum_bitops_enable(Space_attrib);
+
   /// Attributes used when configuring the DMA space.
-  typedef L4::Types::Flags<Space_attrib> Space_attribs;
+  using Space_attribs = L4::Types::Flags_t<Space_attrib, unsigned>;
 
   /**
    * Associate a (kernel) \ref l4_kernel_object_dmar_space for a device to
