@@ -357,7 +357,8 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
       new_thread_bottom = (char *) map_addr + guardsize;
       err = e->rm()->attach(&new_thread_bottom, stacksize,
                             L4Re::Rm::F::In_area | L4Re::Rm::F::RW,
-                            L4::Ipc::make_cap_rw(ds), 0);
+                            L4::Ipc::make_cap_rw(ds), 0, L4_PAGESHIFT,
+                            L4::Cap<L4::Task>::Invalid, "manager-stack");
 
       if (err < 0)
 	{
@@ -379,7 +380,8 @@ static int pthread_allocate_stack(const pthread_attr_t *attr,
 
       err = e->rm()->attach(&map_addr, stacksize,
                             L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
-                            L4::Ipc::make_cap_rw(ds), 0);
+                            L4::Ipc::make_cap_rw(ds), 0, L4_PAGESHIFT,
+                            L4::Cap<L4::Task>::Invalid, "manager-stack");
       if (err < 0)
         {
           L4Re::Util::cap_alloc.free(ds, L4Re::This_task);

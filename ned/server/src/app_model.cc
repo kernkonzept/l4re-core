@@ -102,7 +102,8 @@ App_model::local_attach_ds(Const_dataspace ds, unsigned long size,
   l4_addr_t vaddr = 0;
   chksys(rm->attach(&vaddr, pg_size,
                     L4Re::Rm::F::Search_addr | L4Re::Rm::F::R,
-                    ds.get(), pg_offset),
+                    ds.get(), pg_offset, 0, L4::Cap<L4::Task>::Invalid,
+                    "local-attach-vma"),
          "attach temporary VMA");
   return vaddr + in_pg_offset;
 }

@@ -134,7 +134,8 @@ void *__libc_alloc_initial_tls(unsigned long size) __THROW
 
   void *addr = NULL;
   if(Env::env()->rm()->attach(&addr, size, Rm::F::Search_addr | Rm::F::RW,
-                              L4::Ipc::make_cap_rw(ds), 0, 0) < 0)
+                              L4::Ipc::make_cap_rw(ds), 0, 0,
+                              L4::Cap<L4::Task>::Invalid, "[tls]") < 0)
     return NULL;
 
   return addr;
