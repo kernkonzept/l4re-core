@@ -410,7 +410,7 @@ enum Elf_SHFs
   SHF_EXECINSTR         = 0x4,  /**< code section */
   SHF_MERGE             = 0x10, /**< Might be merged */
   SHF_STRINGS           = 0x20, /**< Contains nul-terminated strings */
-  SHF_INFO_LINK         = 0x40, /**< `sh_info' contains SHT index */
+  SHF_INFO_LINK         = 0x40, /**< 'sh_info' contains SHT index */
   SHF_LINK_ORDER        = 0x80, /**< Preserve order after combining */
   SHF_OS_NONCONFORMING  = 0x100, /**< Non-standard OS-specific handling
                                       required */
