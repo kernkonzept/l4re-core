@@ -36,9 +36,9 @@ class Dataspace :
 public:
   using Flags = L4Re::Dataspace::Flags;
 #ifdef CONFIG_MMU
-  enum { Cow_enabled = 0x100 };
+  static constexpr unsigned Cow_enabled = 0x100;
 #else
-  enum { Cow_enabled = 0 }; // !MMU systems do not support CoW
+  static constexpr unsigned Cow_enabled = 0; // !MMU systems do not support CoW
 #endif
 
   struct Address
