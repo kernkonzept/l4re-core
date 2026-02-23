@@ -436,13 +436,38 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
       if (!m)
         break;
 
-      _mapper->unmap(m->key);
+      if (m->key.start < addr)
+        {
+          cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
+          if (!node)
+            return -L4_ENOMEM;
 
-      if (m->key.end - addr + 1 >= size)
-        size = 0;
-      else
-        size -= m->key.end - addr + 1;
+          node->key = Dma::Region(m->key.start, addr - 1);
+
+          m->key.start = addr;
+          assert(_mappings.insert(node.get()).second);
+
+          node.release();
+        }
+
+      if (m->key.end > addr + size - 1)
+        {
+          cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
+          if (!node)
+            return -L4_ENOMEM;
+
+          node->key = Dma::Region(addr + size, m->key.end);
+
+          m->key.end = addr + size - 1;
+          assert(_mappings.insert(node.get()).second);
+
+          node.release();
+        }
+
+      size -= m->key.end - addr + 1;
       addr = m->key.end + 1;
+
+      _mapper->unmap(m->key);
 
       _mappings.remove(m->key);
       delete m;
