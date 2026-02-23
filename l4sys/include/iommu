@@ -33,9 +33,13 @@ public:
    * \param dma_space  The DMA space (L4::Task created with
    *                   L4_PROTO_DMA_SPACE) providing the mappings that
    *                   shall be used for the device(s).
+   * \param[out] min_addr  Minimum address supported by IOMMU for this device.
+   * \param[out] max_addr  Maximum address (inclusive) supported by IOMMU for
+   *                       this device.
    */
   L4_INLINE_RPC(
-      l4_msgtag_t, bind, (l4_uint64_t src_id, Ipc::Cap<Task> dma_space));
+      l4_msgtag_t, bind, (l4_uint64_t src_id, Ipc::Cap<Task> dma_space,
+                          l4_uint64_t *min_addr, l4_uint64_t *max_addr));
 
   /**
    * Remove the association of the given DMA address space from the
