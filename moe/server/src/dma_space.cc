@@ -30,7 +30,8 @@ private:
 
 public:
   Mapping *map(Dataspace *ds, Q_alloc *alloc, L4Re::Dataspace::Offset offset,
-               Dma_size *size, Dma_addr *dma_addr) override
+               L4Re::Dma_space::Dma_size *size,
+               L4Re::Dma_space::Dma_addr *dma_addr) override
   {
     L4Re::chksys(ds->dma_map(offset, size, dma_addr));
 
@@ -47,7 +48,8 @@ public:
     return m.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, Dma_size) override
+  l4_ret_t unmap(L4Re::Dma_space::Dma_addr dma_addr,
+                 L4Re::Dma_space::Dma_size) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -188,8 +190,8 @@ public:
   }
 
   Mapping *map(Dataspace *ds, Q_alloc *alloc, L4Re::Dataspace::Offset offset,
-               Dma_space::Dma_size *_size,
-               Dma_space::Dma_addr *dma_addr) override
+               L4Re::Dma_space::Dma_size *_size,
+               L4Re::Dma_space::Dma_addr *dma_addr) override
   {
     if (0)
       printf("DMA %p: map: offs=%llx sz=%llx ...\n", this, offset, *_size);
@@ -254,7 +256,8 @@ public:
     return node.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, Dma_size) override
+  l4_ret_t unmap(L4Re::Dma_space::Dma_addr dma_addr,
+                 L4Re::Dma_space::Dma_size) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -290,8 +293,9 @@ static Dataspace *_get_ds(L4::Ipc::Snd_fpage src_cap)
 l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
                   L4::Ipc::Snd_fpage src_ds, L4Re::Dataspace::Offset offset,
-                  Dma_space::Dma_size &size, Attributes,
-                  Dma_space::Dma_addr &dma_addr)
+                  L4Re::Dma_space::Dma_size &size,
+                  L4Re::Dma_space::Attributes,
+                  L4Re::Dma_space::Dma_addr &dma_addr)
 {
   if (!_mapper)
     return -L4_EINVAL;
@@ -304,7 +308,8 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 
 l4_ret_t
 Dma_space::op_unmap(L4Re::Dma_space::Rights,
-                    Dma_addr dma_addr, Dma_size size)
+                    L4Re::Dma_space::Dma_addr dma_addr,
+                    L4Re::Dma_space::Dma_size size)
 {
   if (!_mapper)
     return -L4_EINVAL;
@@ -362,12 +367,11 @@ Dma_space_mgr::check_dma_space(L4::Ipc::Snd_fpage const &dma_space,
   return L4_EOK;
 }
 
-
 l4_ret_t
 Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
                             L4::Ipc::Snd_fpage dma_space_cap,
                             L4::Ipc::Snd_fpage dma_task,
-                            Space_attribs)
+                            L4Re::Dma_space_mgr::Space_attribs)
 {
   Dma_space *dma_space;
   l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
@@ -398,7 +402,7 @@ Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
 l4_ret_t
 Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
                                  L4::Ipc::Snd_fpage dma_space_cap,
-                                 Space_attribs)
+                                 L4Re::Dma_space_mgr::Space_attribs)
 {
   Dma_space *dma_space;
   l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);

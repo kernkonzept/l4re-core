@@ -33,15 +33,14 @@ public:
   Mapper() = default;
   Mapper &operator = (Mapper const &) = delete;
 
-  typedef L4Re::Dma_space::Attributes Attributes;
-  typedef L4Re::Dma_space::Dma_addr Dma_addr;
-  typedef L4Re::Dma_space::Dma_size Dma_size;
 
   virtual Mapping *map(Dataspace *ds, Q_alloc *,
-                       L4Re::Dataspace::Offset offset, Dma_size *size,
-                       Dma_addr *dma_addr) = 0;
+                       L4Re::Dataspace::Offset offset,
+                       L4Re::Dma_space::Dma_size *size,
+                       L4Re::Dma_space::Dma_addr *dma_addr) = 0;
 
-  virtual l4_ret_t unmap(Dma_addr dma_addr, Dma_size size) = 0;
+  virtual l4_ret_t unmap(L4Re::Dma_space::Dma_addr dma_addr,
+                         L4Re::Dma_space::Dma_size size) = 0;
 
   virtual void remove(Mapping *m) = 0;
 
@@ -92,18 +91,16 @@ class Dma_space :
   public Q_object
 {
 public:
-  typedef L4Re::Dma_space::Dma_addr Dma_addr;
-  typedef L4Re::Dma_space::Dma_size Dma_size;
-  typedef L4Re::Dma_space::Attributes Attributes;
-  typedef L4Re::Dma_space_mgr::Space_attribs Space_attribs;
-
   l4_ret_t op_map(L4Re::Dma_space::Rights rights,
-                  L4::Ipc::Snd_fpage src_ds, L4Re::Dataspace::Offset offset,
-                  Dma_size &size, Attributes attrs,
-                  Dma_addr &dma_addr);
+                  L4::Ipc::Snd_fpage src_ds,
+                  L4Re::Dataspace::Offset offset,
+                  L4Re::Dma_space::Dma_size &size,
+                  L4Re::Dma_space::Attributes attrs,
+                  L4Re::Dma_space::Dma_addr &dma_addr);
 
   l4_ret_t op_unmap(L4Re::Dma_space::Rights rights,
-                    Dma_addr dma_addr, Dma_size size);
+                    L4Re::Dma_space::Dma_addr dma_addr,
+                    L4Re::Dma_space::Dma_size size);
 
   /**
    * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space
@@ -136,23 +133,22 @@ class Dma_space_mgr :
 public:
   Dma_space_mgr(Moe::Name_space *ns, char const *name);
 
-  typedef L4Re::Dma_space_mgr::Space_attribs Space_attribs;
+  l4_ret_t op_associate(L4Re::Dma_space_mgr::Rights         rights,
+                        L4::Ipc::Snd_fpage                  dma_space,
+                        L4::Ipc::Snd_fpage                  dma_task,
+                        L4Re::Dma_space_mgr::Space_attribs  attr);
 
-  l4_ret_t op_associate(L4Re::Dma_space_mgr::Rights rights,
-                        L4::Ipc::Snd_fpage dma_space,
-                        L4::Ipc::Snd_fpage dma_task,
-                        Space_attribs attr);
+  l4_ret_t op_associate_phys(L4Re::Dma_space_mgr::Rights        rights,
+                             L4::Ipc::Snd_fpage                 dma_space,
+                             L4Re::Dma_space_mgr::Space_attribs attr);
 
-  l4_ret_t op_associate_phys(L4Re::Dma_space_mgr::Rights rights,
-                             L4::Ipc::Snd_fpage dma_space,
-                             Space_attribs attr);
+  l4_ret_t op_disassociate(L4Re::Dma_space_mgr::Rights  rights,
+                           L4::Ipc::Snd_fpage           dma_space);
 
-  l4_ret_t op_disassociate(L4Re::Dma_space_mgr::Rights rights,
-                           L4::Ipc::Snd_fpage dma_space);
 
 private:
-  l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space, Moe::Dma_space **res);
-
+  l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space,
+                           Moe::Dma_space **res);
 };
 
 
