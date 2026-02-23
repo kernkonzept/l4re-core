@@ -85,6 +85,29 @@ struct Mapping : cxx::Avl_tree_node
   Region key;
 
   /**
+   * Number of claims that own a kernel DMA mapping.
+   *
+   * When this counter reaches 0, the underlying kernel DMA mapping (if any)
+   * must be released via Mapper::unmap().
+   */
+  unsigned mapcnt = 0;
+
+  bool add_mapping()
+  {
+    if (mapcnt + 1U < mapcnt) // prevent overflow
+      return false;
+    ++mapcnt;
+    return true;
+  }
+
+  bool del_mapping()
+  {
+    if (mapcnt == 0)  // prevent underflow
+      return false;
+    return --mapcnt == 0;
+  }
+
+  /**
    * Indicator if region is blocked from all mappings or reservations.
    *
    * Blockings cannot be removed. So this counter saturates at two. The reason
@@ -111,6 +134,8 @@ struct Mapping : cxx::Avl_tree_node
     return false;
   }
 
+  bool is_referenced() const    { return blocked || mapcnt; }
+  bool has_mappings() const     { return mapcnt > 0; }
   bool is_blocked() const       { return blocked > 0; }
 
   static Key_type key_of(Mapping const *m) { return m->key; }

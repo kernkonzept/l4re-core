@@ -470,7 +470,37 @@ public:
   void unmap(L4Re::Dma_space::Dma_addr start,
              L4Re::Dma_space::Dma_size size) override
   {
-    unmap_region(start, size);
+    Region region(start, start + size - 1);
+
+    // Only unmap pages that are not still referenced by other Dma_space's
+    // that use this mapper...
+    for (;;)
+      {
+        Region chunk = region;
+        if (auto *m = find_first_mapping(region))
+          {
+            // Beginning of region covered by other mapping?
+            if (m->key.start <= region.start)
+              {
+                // Yes. Does the mapping cover the whole region?
+                if (m->key.end >= region.end)
+                  break;
+
+                // Some tail is left...
+                region.start = m->key.end + 1;
+                continue;
+              }
+            else
+              // No. Some prefix is left. Unmap it...
+              chunk.end = m->key.start - 1;
+          }
+
+        unmap_region(chunk.start, chunk.end - chunk.start + 1);
+        if (chunk.end >= region.end)
+          break;
+
+        region.start = chunk.end + 1;
+      }
   }
 
   l4_ret_t check_blocking_area(L4Re::Dma_space::Dma_addr *dma_addr,
@@ -585,62 +615,83 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
 
   L4Re::Dma_space::Dma_addr end = addr + size - 1;
 
-  // First pass: verify that no blocked region intersects the range
+  // First pass: verify that no blocked region intersects the range and
+  // determine the leftmost and rightmost intersecting regions so that any
+  // required split nodes can be pre-allocated.
+  Dma::Mapping *first_in_range = nullptr;
+  Dma::Mapping *last_in_range = nullptr;
   {
     Dma::Region scan(addr, end);
     while (auto *m = find_first_region(scan))
       {
         if (m->is_blocked())
           return -L4_EPERM;
+        if (!first_in_range)
+          first_in_range = m;
+        last_in_range = m;
         if (m->key.end >= end)
           break;
         scan.start = m->key.end + 1;
       }
   }
 
+  // Split partially intersecting nodes at start or end. Splitting is not
+  // visible to the caller so we can do it one after the other, even if the
+  // second split fails.
+  if (first_in_range && first_in_range->key.start < addr)
+    {
+      cxx::unique_ptr<Dma::Mapping> fsplit(qalloc()->make_obj<Dma::Mapping>());
+      if (!fsplit)
+        return -L4_ENOMEM;
+
+      fsplit->key = Dma::Region(first_in_range->key.start, addr - 1);
+      fsplit->blocked = first_in_range->blocked;
+      fsplit->mapcnt = first_in_range->mapcnt;
+
+      first_in_range->key.start = addr;
+      assert(_mappings.insert(fsplit.get()).second);
+      fsplit.release();
+    }
+
+  if (last_in_range && last_in_range->key.end > end)
+    {
+      cxx::unique_ptr<Dma::Mapping> lsplit(qalloc()->make_obj<Dma::Mapping>());
+      if (!lsplit)
+        return -L4_ENOMEM;
+
+      lsplit->key = Dma::Region(addr + size, last_in_range->key.end);
+      lsplit->blocked = last_in_range->blocked;
+      lsplit->mapcnt = last_in_range->mapcnt;
+
+      last_in_range->key.end = addr + size - 1;
+      assert(_mappings.insert(lsplit.get()).second);
+      lsplit.release();
+    }
+
+  // Second pass: decrement counters and unmap. All checks and allocations
+  // have succeeded, so this pass cannot fail.
   while (size)
     {
       auto *m = find_first_region(Dma::Region(addr, addr + size - 1));
       if (!m)
         break;
 
-      if (m->key.start < addr)
-        {
-          cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
-          if (!node)
-            return -L4_ENOMEM;
-
-          node->key = Dma::Region(m->key.start, addr - 1);
-          node->blocked = m->blocked;
-
-          m->key.start = addr;
-          assert(_mappings.insert(node.get()).second);
-
-          node.release();
-        }
-
-      if (m->key.end > addr + size - 1)
-        {
-          cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
-          if (!node)
-            return -L4_ENOMEM;
-
-          node->key = Dma::Region(addr + size, m->key.end);
-          node->blocked = m->blocked;
-
-          m->key.end = addr + size - 1;
-          assert(_mappings.insert(node.get()).second);
-
-          node.release();
-        }
+      assert(m->key.start >= addr && m->key.end <= addr + size - 1);
 
       size -= m->key.end - addr + 1;
       addr = m->key.end + 1;
+      if (m->del_mapping())
+        {
+          Dma::Region chunk = m->key;
 
-      _mapper->unmap(m->key);
+          // Remove from region map before calling Mapper::unmap(). The
+          // Task_mapper unmap() will look into all associated Dma_space's to
+          // unmap only truely free regions.
+          _mappings.remove(m->key);
+          delete m;
 
-      _mappings.remove(m->key);
-      delete m;
+          _mapper->unmap(chunk);
+        }
     }
 
   return 0;
@@ -788,6 +839,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
 
         node->key = Dma::Region(start, front->key.end);
         node->blocked = front->blocked;
+        node->mapcnt = front->mapcnt;
 
         front->key.end = start - 1;
         assert(_mappings.insert(node.get()).second);
@@ -804,6 +856,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
 
         node->key = Dma::Region(tail->key.start, end);
         node->blocked = tail->blocked;
+        node->mapcnt = tail->mapcnt;
 
         tail->key.start = end + 1;
         assert(_mappings.insert(node.get()).second);
@@ -821,14 +874,13 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
       while (auto *m = find_first_region(range))
         {
           auto end = m->key.end;
-          bool remove = false;
           switch (type)
             {
-            case Add::Mapping: remove = true; break;
-            case Add::Block: remove = m->del_block(); break;
+            case Add::Mapping: m->del_mapping(); break;
+            case Add::Block: m->del_block(); break;
             }
 
-          if (remove)
+          if (!m->is_referenced())
             {
               _mappings.remove(m->key);
               delete m;
@@ -841,7 +893,8 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         }
     };
 
-  // Iterate over range, filling the gaps with new regions.
+  // Iterate over range, incrementing reference count of existing regions or
+  // filling the gaps with new regions.
   L4Re::Dma_space::Dma_addr addr = start;
   L4Re::Dma_space::Dma_size remaining = end - start + 1;
   while (remaining)
@@ -852,15 +905,23 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         {
           if (existing->key.start == addr)
             {
+              bool ok = false;
               switch (type)
                 {
                 case Add::Mapping:
                   assert(!existing->is_blocked());
+                  ok = existing->add_mapping();
                   break;
                 case Add::Block:
                   assert(existing->is_blocked());
-                  existing->add_block();
+                  ok = existing->add_block();
                   break;
+                }
+
+              if (!ok)
+                {
+                  undo(addr);
+                  return -L4_ERANGE;
                 }
 
               remaining -= existing->key.end - addr + 1;
@@ -879,7 +940,11 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         }
 
       node->key = new_reg;
-      node->blocked = type == Add::Block ? 1 : 0;
+      switch (type)
+        {
+        case Add::Mapping: node->mapcnt = 1; break;
+        case Add::Block: node->blocked = 1; break;
+        }
       assert(_mappings.insert(node.get()).second);
       node.release();
 
