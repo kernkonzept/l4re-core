@@ -24,6 +24,8 @@ class Name_space;
 
 namespace Dma {
 
+static constexpr L4Re::Dma_space::Dma_addr Last_dma_addr = -1;
+
 struct Mapping;
 
 struct Region
@@ -58,6 +60,11 @@ public:
   void unmap(Region const &r)
   { unmap(r.start, r.end - r.start + 1); }
 
+  virtual l4_ret_t check_blocking_area(L4Re::Dma_space::Dma_addr *start,
+                                       L4Re::Dma_space::Dma_addr max,
+                                       L4Re::Dma_space::Dma_size size,
+                                       bool search, unsigned char align) = 0;
+
   virtual ~Mapper() = default;
 
 protected:
@@ -72,6 +79,35 @@ struct Mapping : cxx::Avl_tree_node
   typedef cxx::Avl_tree<Mapping, Mapping, cxx::Lt_functor<Region>> Map;
 
   Region key;
+
+  /**
+   * Indicator if region is blocked from all mappings or reservations.
+   *
+   * Blockings cannot be removed. So this counter saturates at two. The reason
+   * why it is a counter in the first place is Dma_space::add_region(). If the
+   * allocation of a new node fails, the previously added nodes must be removed
+   * but existing blockings shall be retained.
+   */
+  unsigned char blocked = 0;
+
+  bool add_block()
+  {
+    if (blocked < 2)
+      ++blocked;
+    return true;
+  }
+
+  bool del_block()
+  {
+    if (blocked == 1)
+      {
+        blocked = 0;
+        return true;
+      }
+    return false;
+  }
+
+  bool is_blocked() const       { return blocked > 0; }
 
   static Key_type key_of(Mapping const *m) { return m->key; }
 
@@ -125,13 +161,19 @@ public:
   // Dma_space_mgr internal interface
   l4_ret_t associate(cxx::Ref_ptr<Dma::Mapper> const &mapper);
   l4_ret_t disassociate();
+  l4_ret_t block_area(L4Re::Dma_space::Dma_addr *start,
+                      L4Re::Dma_space::Dma_addr max,
+                      L4Re::Dma_space::Dma_size size,
+                      bool search, unsigned char align);
 
   bool empty() const
   { return _mappings.begin() == _mappings.end(); }
 
 private:
+  enum class Add { Mapping, Block };
   l4_ret_t add_region(L4Re::Dma_space::Dma_addr start,
-                      L4Re::Dma_space::Dma_addr end);
+                      L4Re::Dma_space::Dma_addr end,
+                      Add type);
 
   /// The Dma::Mapper instance (if any) associated with this Moe::Dma_space
   /// instance.
@@ -162,6 +204,13 @@ public:
   l4_ret_t op_disassociate(L4Re::Dma_space_mgr::Rights  rights,
                            L4::Ipc::Snd_fpage           dma_space);
 
+  l4_ret_t op_block_area(L4Re::Dma_space_mgr::Rights        rights,
+                         L4::Ipc::Snd_fpage                 dma_space_cap,
+                         L4Re::Dma_space_mgr::Dma_addr      &start,
+                         L4Re::Dma_space_mgr::Dma_size      size,
+                         L4Re::Dma_space_mgr::Dma_addr      max,
+                         L4Re::Dma_space_mgr::Block_flags   flags,
+                         unsigned char                      align);
 
 private:
   l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space,

@@ -4,3 +4,4 @@
 
 L4_RPC_DEF(L4Re::Dma_space::map);
 L4_RPC_DEF(L4Re::Dma_space::unmap);
+L4_RPC_DEF(L4Re::Dma_space_mgr::block_area);

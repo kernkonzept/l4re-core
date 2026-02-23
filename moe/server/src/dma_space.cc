@@ -107,6 +107,12 @@ public:
 
   void unmap(L4Re::Dma_space::Dma_addr, L4Re::Dma_space::Dma_size) override
   {}
+
+  l4_ret_t check_blocking_area(L4Re::Dma_space::Dma_addr *,
+                               L4Re::Dma_space::Dma_addr,
+                               L4Re::Dma_space::Dma_size ,
+                               bool , unsigned char) override
+  { return -L4_EPERM; }
 };
 
 
@@ -129,7 +135,7 @@ private:
   L4::Cap<L4::Task> _dma_kern_space;
 
   /**
-   * Find any mapping in the given region.
+   * Find any blocking or mapping in the given region.
    *
    * If there are multiple potential matches, it is unspecified which matching
    * region is returned.
@@ -143,7 +149,7 @@ private:
     return nullptr;
   }
 
-  /// Find first mapping in given region.
+  /// Find first blocking or mapping in given region.
   Mapping const *find_first_region(Region r)
   {
     Mapping const *ret = nullptr;
@@ -156,16 +162,59 @@ private:
     return ret;
   }
 
-  l4_ret_t find_free(L4Re::Dma_space::Dma_size *size,
-                     L4Re::Dma_space::Dma_addr *dma_addr)
+  /// Find first blocking or mapping in given region.
+  Mapping const *find_first(Region r, bool find_blocked)
   {
+    Mapping const *ret = nullptr;
+
+    for (auto dma_space : _dma_spaces)
+      {
+        Region search = ret ? Region(r.start, ret->key.start - 1) : r;
+        // We need to loop in case we find a region that does not match the
+        // `find_blocked` criteria.
+        while (auto const *m = dma_space->find_first_region(search))
+          {
+            if (m->is_blocked() == find_blocked)
+              {
+                if (m->key.start <= r.start)
+                  return m;
+                if (!ret || m->key.start < ret->key.start)
+                  ret = m;
+              }
+            else
+              {
+                // Found a region but it does not match our criteria. Constrain
+                // the search region and try again (if possible).
+                if (m->key.end >= search.end)
+                  break;
+                search.start = m->key.end + 1;
+              }
+          }
+      }
+
+    return ret;
+  }
+
+  Mapping const *find_first_mapping(Region r)
+  { return find_first(r, false); }
+
+  l4_ret_t find_free(L4Re::Dma_space::Dma_size *size, unsigned char align,
+                     L4Re::Dma_space::Dma_addr *dma_addr,
+                     L4Re::Dma_space::Dma_addr dma_max)
+  {
+    if (*size == 0)
+      return -L4_EINVAL;
+
     assert(trunc_dma_addr(*size) == *size);
 
-    L4Re::Dma_space::Dma_addr addr = _min;
+    L4Re::Dma_space::Dma_addr addr = cxx::max(_min, *dma_addr);
+    dma_max = cxx::min(_max, dma_max);
+    if (!align_start_chk(&addr, align) || !align_end_chk(&dma_max, align))
+      return -L4_EINVAL;
 
     for (;;)
       {
-        if (addr > _max || _max - addr < *size - 1)
+        if (addr > dma_max || dma_max - addr < *size - 1)
           break;
 
         auto const *n = find_any_region(Region(addr, addr + *size - 1));
@@ -176,11 +225,42 @@ private:
           }
 
         addr = n->key.end;
-        if (!align_start_chk(&addr))
+        if (!align_start_chk(&addr, align))
           break;
       }
 
     return -L4_EADDRNOTAVAIL;
+  }
+
+  l4_ret_t verify_free(L4Re::Dma_space::Dma_size *size,
+                       L4Re::Dma_space::Dma_addr dma_addr,
+                       L4Re::Dma_space::Dma_addr dma_max,
+                       bool ignore_blocked)
+  {
+    if (*size == 0)
+      return -L4_EINVAL;
+
+    assert(trunc_dma_addr(*size) == *size);
+    if (dma_addr != trunc_dma_addr(dma_addr))
+      return -L4_EINVAL;
+
+    dma_max = cxx::min(_max, dma_max);
+    if (!align_end_chk(&dma_max))
+      return -L4_EINVAL;
+
+    if (dma_addr > dma_max || dma_max - dma_addr < *size - 1)
+      return -L4_EADDRNOTAVAIL;
+
+    if (dma_addr < _min)
+      return -L4_EADDRNOTAVAIL;
+
+    Region r(dma_addr, dma_addr + *size - 1);
+    Mapping const *collision = ignore_blocked ? find_first_mapping(r)
+                                              : find_first_region(r);
+    if (collision)
+      return -L4_EADDRNOTAVAIL;
+
+    return 0;
   }
 
   l4_ret_t map_region(Dataspace *ds, L4Re::Dataspace::Offset aligned_offset,
@@ -335,7 +415,8 @@ public:
     L4Re::Dma_space::Dma_size aligned_size = *size + (offset - aligned_offset);
     round_dma_size(&aligned_size); // cannot overflow because size <= max_sz
 
-    l4_ret_t ret = find_free(&aligned_size, dma_addr);
+    l4_ret_t ret = find_free(&aligned_size, L4_PAGESHIFT, dma_addr,
+                             Last_dma_addr);
 
     if (ret < 0)
       return ret;
@@ -357,6 +438,19 @@ public:
              L4Re::Dma_space::Dma_size size) override
   {
     unmap_region(start, size);
+  }
+
+  l4_ret_t check_blocking_area(L4Re::Dma_space::Dma_addr *dma_addr,
+                               L4Re::Dma_space::Dma_addr dma_max,
+                               L4Re::Dma_space::Dma_size size,
+                               bool search, unsigned char align) override
+  {
+    if (size == 0)
+      return -L4_EINVAL;
+
+    // We allow blocking areas that are already blocked...
+    return search ? find_free(&size, align, dma_addr, dma_max)
+                  : verify_free(&size, *dma_addr, dma_max, true);
   }
 };
 
@@ -403,7 +497,7 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
       // expand the region accordingly.
       L4Re::Dma_space::Dma_addr start = trunc_dma_addr(dma_addr);
       L4Re::Dma_space::Dma_addr end = L4::round_page(dma_addr + size) - 1;
-      if ((res = add_region(start, end)) < 0)
+      if ((res = add_region(start, end, Add::Mapping)) < 0)
         {
           _mapper->unmap(dma_addr, size);
           return res;
@@ -421,7 +515,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
   if (!_mapper)
     return -L4_EINVAL;
 
-  if (size == 0 || L4Re::Dma_space::Dma_addr(-1) - addr < size - 1)
+  if (size == 0 || Dma::Last_dma_addr - addr < size - 1)
     return -L4_EINVAL;
 
   // Expand to page granularity
@@ -429,6 +523,21 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
   if (!round_dma_size(&size))
     return -L4_EINVAL;
   addr = trunc_dma_addr(addr);
+
+  L4Re::Dma_space::Dma_addr end = addr + size - 1;
+
+  // First pass: verify that no blocked region intersects the range
+  {
+    Dma::Region scan(addr, end);
+    while (auto *m = find_first_region(scan))
+      {
+        if (m->is_blocked())
+          return -L4_EPERM;
+        if (m->key.end >= end)
+          break;
+        scan.start = m->key.end + 1;
+      }
+  }
 
   while (size)
     {
@@ -443,6 +552,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
             return -L4_ENOMEM;
 
           node->key = Dma::Region(m->key.start, addr - 1);
+          node->blocked = m->blocked;
 
           m->key.start = addr;
           assert(_mappings.insert(node.get()).second);
@@ -457,6 +567,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
             return -L4_ENOMEM;
 
           node->key = Dma::Region(addr + size, m->key.end);
+          node->blocked = m->blocked;
 
           m->key.end = addr + size - 1;
           assert(_mappings.insert(node.get()).second);
@@ -479,8 +590,19 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
 l4_ret_t
 Dma_space::associate(cxx::Ref_ptr<Dma::Mapper> const &mapper)
 {
+  // Reject instead of replacing the mapper. We want to keep all pre-associated
+  // blockings (op_block_area)!
   if (_mapper)
-    disassociate();
+    return -L4_EBUSY;
+
+  // Verify that a-priori blockings cause no collisions.
+  for (auto &i : _mappings)
+    if (l4_ret_t err = mapper->check_blocking_area(&i.key.start,
+                                                   Dma::Last_dma_addr,
+                                                   i.key.end - i.key.start + 1,
+                                                   false, 0);
+        err < 0)
+      return err;
 
   _mapper = mapper;
   return _mapper->add_dma_space(this);
@@ -491,8 +613,13 @@ Dma_space::disassociate()
 {
   _mappings.remove_all([this](Dma::Mapping *m)
     {
-      assert(_mapper);
-      _mapper->unmap(m->key);
+      // Only entries that actually own a kernel DMA mapping need a
+      // Mapper::unmap() call; blocked areas do not.
+      if (!m->is_blocked())
+        {
+          assert(_mapper);
+          _mapper->unmap(m->key);
+        }
       delete m;
     });
 
@@ -506,18 +633,172 @@ Dma_space::disassociate()
 };
 
 l4_ret_t
-Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
-                      L4Re::Dma_space::Dma_addr end)
+Dma_space::block_area(L4Re::Dma_space::Dma_addr *start,
+                      L4Re::Dma_space::Dma_addr dma_max,
+                      L4Re::Dma_space::Dma_size size,
+                      bool search, unsigned char align)
 {
-  cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
-  if (!node)
-    return -L4_ENOMEM;
+  if constexpr (Debug)
+    printf("DMA %p: block_area: start=0x%llx sz=%llx\n", this, *start, size);
 
-  node->key = Dma::Region(start, end);
-  if (!_mappings.insert(node.get()).second)
-    return -L4_EADDRNOTAVAIL;
+  if (size == 0)
+    return -L4_EINVAL;
 
-  node.release();
+  if (trunc_dma_addr(size) != size)
+    return -L4_EINVAL;
+
+  // It is allowed to register blocked areas before a mapper is associated.
+  // This is required to have no time window between associate() and map()
+  // where potentially blocked regions could be used.
+  if (_mapper)
+    {
+      l4_ret_t err = _mapper->check_blocking_area(start, dma_max, size, search,
+                                                  align);
+      if (err < 0)
+        return err;
+    }
+  else if (search)
+    // Without mapper, we cannot search for suitable addresses.
+    return -L4_EINVAL;
+  else
+    {
+      // Verify all input parameters. Because there might be no _mapper yet, we
+      // must not store incorrect values.
+      if (trunc_dma_addr(*start) != *start)
+        return -L4_EINVAL;
+
+      if (!align_end_chk(&dma_max))
+        return -L4_EINVAL;
+
+      if (*start > dma_max)
+        return -L4_EADDRNOTAVAIL;
+
+      if (dma_max - *start < size - 1)
+        return -L4_EADDRNOTAVAIL;
+    }
+
+  if (l4_ret_t err = add_region(*start, *start + size - 1, Add::Block);
+      err < 0)
+    return err;
+
+  return L4_EOK;
+}
+
+l4_ret_t
+Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
+                      L4Re::Dma_space::Dma_addr end,
+                      Add type)
+{
+  // Split partially overlapping regions at start and end. The loop below
+  // relies on the property that existing regions are fully covered.
+  if (auto *front = _mappings.find_node(start))
+    if (front->key.start < start)
+      {
+        cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
+        if (!node)
+          return -L4_ENOMEM;
+
+        node->key = Dma::Region(start, front->key.end);
+        node->blocked = front->blocked;
+
+        front->key.end = start - 1;
+        assert(_mappings.insert(node.get()).second);
+
+        node.release();
+      }
+
+  if (auto *tail = _mappings.find_node(end))
+    if (tail->key.end > end)
+      {
+        cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
+        if (!node)
+          return -L4_ENOMEM;
+
+        node->key = Dma::Region(tail->key.start, end);
+        node->blocked = tail->blocked;
+
+        tail->key.start = end + 1;
+        assert(_mappings.insert(node.get()).second);
+
+        node.release();
+      }
+
+  // Helper to undo additions in case things go wrong...
+  auto undo = [this, start, type](L4Re::Dma_space::Dma_addr until)
+    {
+      if (until <= start)
+        return;
+
+      Dma::Region range(start, until - 1);
+      while (auto *m = find_first_region(range))
+        {
+          auto end = m->key.end;
+          bool remove = false;
+          switch (type)
+            {
+            case Add::Mapping: remove = true; break;
+            case Add::Block: remove = m->del_block(); break;
+            }
+
+          if (remove)
+            {
+              _mappings.remove(m->key);
+              delete m;
+            }
+
+          if (end >= range.end)
+            break;
+
+          range.start = end + 1;
+        }
+    };
+
+  // Iterate over range, filling the gaps with new regions.
+  L4Re::Dma_space::Dma_addr addr = start;
+  L4Re::Dma_space::Dma_size remaining = end - start + 1;
+  while (remaining)
+    {
+      Dma::Region new_reg(addr, addr + remaining - 1);
+      auto *existing = find_first_region(new_reg);
+      if (existing)
+        {
+          if (existing->key.start == addr)
+            {
+              switch (type)
+                {
+                case Add::Mapping:
+                  assert(!existing->is_blocked());
+                  break;
+                case Add::Block:
+                  assert(existing->is_blocked());
+                  existing->add_block();
+                  break;
+                }
+
+              remaining -= existing->key.end - addr + 1;
+              addr = existing->key.end + 1;
+              continue;
+            }
+          else
+            new_reg.end = existing->key.start - 1;
+        }
+
+      cxx::unique_ptr<Dma::Mapping> node(qalloc()->make_obj<Dma::Mapping>());
+      if (!node)
+        {
+          undo(addr);
+          return -L4_ENOMEM;
+        }
+
+      node->key = new_reg;
+      node->blocked = type == Add::Block ? 1 : 0;
+      assert(_mappings.insert(node.get()).second);
+      node.release();
+
+      remaining -= new_reg.end - new_reg.start + 1;
+      addr = new_reg.end + 1;
+    }
+
   return 0;
 }
 
@@ -583,7 +864,12 @@ Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
   if (r != L4_EOK)
     return r;
 
-  return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(dma_space->qalloc()->make_obj<Dma::Phys_mapper>()));
+  // No a-priori blockings allowed with physical mappings.
+  if (!dma_space->empty())
+    return -L4_EINVAL;
+
+  return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(
+    dma_space->qalloc()->make_obj<Dma::Phys_mapper>()));
 }
 
 l4_ret_t
@@ -597,6 +883,28 @@ Dma_space_mgr::op_disassociate(L4Re::Dma_space_mgr::Rights,
 
   return dma_space->disassociate();
 };
+
+l4_ret_t
+Dma_space_mgr::op_block_area(L4Re::Dma_space_mgr::Rights,
+                             L4::Ipc::Snd_fpage                 dma_space_cap,
+                             L4Re::Dma_space::Dma_addr          &start,
+                             L4Re::Dma_space::Dma_size          size,
+                             L4Re::Dma_space::Dma_addr          max,
+                             L4Re::Dma_space_mgr::Block_flags   flags,
+                             unsigned char                      align)
+{
+  Dma_space *dma_space;
+  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  if (r != L4_EOK)
+    return r;
+
+  static constexpr auto Known_flags = L4Re::Dma_space_mgr::Search_addr;
+  if (flags & ~Known_flags)
+    return -L4_EINVAL;
+
+  bool search = static_cast<bool>(flags & L4Re::Dma_space_mgr::Search_addr);
+  return dma_space->block_area(&start, max, size, search, align);
+}
 
 Dma_space_mgr::Dma_space_mgr(Moe::Name_space *ns, char const *name)
 {

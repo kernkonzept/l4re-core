@@ -192,6 +192,9 @@ class Dma_space_mgr :
                          L4::Type_info::Demand_t<2> >
 {
 public:
+  using Dma_addr = Dma_space::Dma_addr;
+  using Dma_size = Dma_space::Dma_size;
+
   /**
    * Attributes assigned to the DMA space when associated with a
    * specific device.
@@ -203,8 +206,28 @@ public:
 
   friend void enum_bitops_enable(Space_attrib);
 
-  /// Attributes used when configuring the DMA space.
+  /// Attributes used when associating the DMA space.
   using Space_attribs = L4::Types::Flags_t<Space_attrib, unsigned>;
+
+  /**
+   * Attributes used when blocking an area.
+   * \sa Block_flags
+   */
+  enum Block_flag : unsigned
+  {
+    /**
+     * Search suitable address.
+     *
+     * With this flag, the start address is taken as a lower bound. Without
+     * the flag, `start` and `size` are taken literally.
+     */
+    Search_addr = 1U << 0,
+  };
+
+  friend void enum_bitops_enable(Block_flag);
+
+  /// Attributes used when blocking an area.
+  using Block_flags = L4::Types::Flags_t<Block_flag, unsigned>;
 
   /**
    * Associate a (kernel) \ref l4_kernel_object_dmar_space for a device to
@@ -219,6 +242,7 @@ public:
    *                       L4Re::Dma_space::Space_attrib.
    *
    * \retval L4_EOK      Operation successful.
+   * \retval -L4_EBUSY   The Dma_space is already associated.
    * \retval -L4_EINVAL  No `dma_task` capability passed.
    * \retval -L4_ENOENT  Invalid `dma_space` was passed.
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
@@ -244,6 +268,10 @@ public:
    *                        Space_attribs() value.
    *
    * \retval L4_EOK      Operation successful.
+   * \retval -L4_EBUSY   The Dma_space is already associated.
+   * \retval -L4_EINVAL  Invalid arguments, for example a non-zero `attr` or
+   *                     pre-existing blockings on `dma_space` (see
+   *                     Dma_space_mgr::block_area()).
    * \retval -L4_ENOENT  Invalid `dma_space` was passed.
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
@@ -266,12 +294,73 @@ public:
    *                     associate()/associate_phys().
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
    *
+   * \attention This will remove all mappings and blockings from `dma_space`.
+   *
    * \pre The `dma_space` capability must have the permission #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
       l4_ret_t, disassociate, (L4::Ipc::Cap<Dma_space> dma_space));
 
-  typedef L4::Typeid::Rpcs<associate_t, associate_phys_t, disassociate_t> Rpcs;
+  /**
+   * Block an area in a Dma_space.
+   *
+   * The blocked area cannot be used for mappings in the given `dma_space`
+   * after the call. The call will fail if there are already mappings in
+   * the requested range. It is allowed to add block areas before
+   * associate() or associate_phys() has been called.
+   *
+   * Blocked areas are allowed to overlap.
+   *
+   * \param[in]     dma_space The Dma_space to add blocked areas.
+   * \param[in,out] addr      The DMA address of the blocked area. Either taken
+   *                          literally (in which case it must be page aligned)
+   *                          or as start address if Block_flag::Search_addr is
+   *                          passed.
+   * \param[in]     size      Size of the blocked region. Must be page aligned.
+   * \param[in]     max_addr  Highest allowed DMA address of the region
+   *                          (inclusive).
+   * \param[in]     flags     The attributes used for this blocking
+   *                          (a combination of Dma_space_mgr::Block_flag
+   *                          values).
+   * \param[in]     align     The log2 alignment of the blocked area. Only used
+   *                          if Block_flag::Search_addr is passed.
+   *
+   * \retval L4_EOK             Operation successful.
+   * \retval -L4_EADDRNOTAVAIL  The specified region overlaps an existing
+   *                            mapping or no space left for the blocking.
+   * \retval -L4_EINVAL         Invalid address, alignment or flag passed.
+   *                            Block_flag::Search_addr passed but `dma_space`
+   *                            is not associated yet.
+   * \retval -L4_EPERM          Dma_space is associated with physical DMA
+   *                            domain or insufficient permissions; see
+   *                            precondition.
+   * \retval -L4_ENOMEM         There is not enough memory to allocate internal
+   *                            data structures.
+   *
+   * \pre The `dma_space` capability must have the permission #L4_CAP_FPAGE_W.
+   */
+  l4_ret_t block_area(L4::Ipc::Cap<Dma_space>     dma_space,
+                      L4::Ipc::In_out<Dma_addr *> addr,
+                      Dma_size                    size,
+                      Dma_addr                    max_addr = -1,
+                      Block_flags                 flags = Block_flags(),
+                      unsigned char               align = L4_SUPERPAGESHIFT)
+  {
+    return block_area_t::call(c(), dma_space, addr, size, max_addr, flags,
+                              align);
+  }
+
+  L4_RPC_NF(
+      l4_ret_t, block_area, (L4::Ipc::Cap<Dma_space>      dma_space,
+                             L4::Ipc::In_out<Dma_addr *>  addr,
+                             Dma_size                     size,
+                             Dma_addr                     max_addr,
+                             Block_flags                  flags,
+                             unsigned char                align));
+
+
+  typedef L4::Typeid::Rpcs<associate_t, associate_phys_t, disassociate_t,
+                           block_area_t> Rpcs;
 };
 
 }
