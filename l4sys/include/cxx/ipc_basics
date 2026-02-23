@@ -201,7 +201,7 @@ template<typename T> struct _Plain<T const *>
 }
 
 /**
- * Defines client-side handling of `MTYPE' as RPC argument.
+ * Defines client-side handling of 'MTYPE' as RPC argument.
  * \tparam MTYPE  Elem<T>::arg_type (where T is the type used in the RPC
  *                definition)
  * \tparam DIR    Dir_in (client -> server), or Dir_out (server -> client)
