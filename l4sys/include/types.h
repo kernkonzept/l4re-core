@@ -281,40 +281,36 @@ struct l4_msgtag_t
   l4_mword_t raw;   ///< raw value
 #ifdef __cplusplus
   /// Get the protocol value.
-  long label() const L4_NOTHROW
-  {
-#if defined(__cplusplus) && (__cplusplus >= 202002L)
-    return raw >> 16;
-#else
-    return raw < 0 ? ~(~raw >> 16) : raw >> 16;
-#endif
-  }
+  long label() const L4_NOTHROW { return l4_msgtag_label(*this); }
   /// Set the protocol value.
   void label(long v) L4_NOTHROW { raw = (raw & 0x0ffff) | ((l4_umword_t)v << 16); }
   /// Get the number of untyped words.
-  unsigned words() const L4_NOTHROW { return raw & 0x3f; }
+  unsigned words() const L4_NOTHROW { return l4_msgtag_words(*this); }
   /// Get the number of typed items.
-  unsigned items() const L4_NOTHROW { return (raw >> 6) & 0x3f; }
+  unsigned items() const L4_NOTHROW { return l4_msgtag_items(*this); }
   /**
    * Get the flags value.
    *
    * The flags are a combination of the flags defined by
    * #L4_msgtag_flags.
    */
-  unsigned flags() const L4_NOTHROW { return raw & 0xf000; }
+  unsigned flags() const L4_NOTHROW { return l4_msgtag_flags(*this); }
   /// Test if protocol indicates page-fault protocol.
-  bool is_page_fault() const L4_NOTHROW { return label() == L4_PROTO_PAGE_FAULT; }
+  bool is_page_fault() const L4_NOTHROW
+  { return l4_msgtag_is_page_fault(*this); }
   /// Test if protocol indicates exception protocol.
-  bool is_exception() const L4_NOTHROW { return label() == L4_PROTO_EXCEPTION; }
+  bool is_exception() const L4_NOTHROW
+  { return l4_msgtag_is_exception(*this); }
   /// Test if protocol indicates sigma0 protocol.
-  bool is_sigma0() const L4_NOTHROW { return label() == L4_PROTO_SIGMA0; }
+  bool is_sigma0() const L4_NOTHROW { return l4_msgtag_is_sigma0(*this); }
   /// Test if protocol indicates IO-page-fault protocol.
-  bool is_io_page_fault() const L4_NOTHROW { return label() == L4_PROTO_IO_PAGE_FAULT; }
+  bool is_io_page_fault() const L4_NOTHROW
+  { return l4_msgtag_is_io_page_fault(*this); }
   /// Test if flags indicate an error.
   ///
   /// If true, the error code is stored in the UTCB, see
   /// l4_utcb_tcr()->[error](#l4_thread_regs_t::error).
-  bool has_error() const L4_NOTHROW { return raw & L4_MSGTAG_ERROR; }
+  bool has_error() const L4_NOTHROW { return l4_msgtag_has_error(*this); }
 #endif
 };
 
