@@ -30,7 +30,7 @@ public:
   Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
                Dma_size *size, Dma_addr *dma_addr) override
   {
-    L4Re::chksys(ds->dma_map(0, offset, size, dma_addr));
+    L4Re::chksys(ds->dma_map(offset, size, dma_addr));
 
     cxx::unique_ptr<Dma::Mapping> m(alloc->make_obj<Dma::Mapping>());
 

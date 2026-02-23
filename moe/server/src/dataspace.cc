@@ -161,7 +161,7 @@ Moe::Dataspace::clear(l4_addr_t offs, unsigned long size) const noexcept
 }
 
 l4_ret_t
-Moe::Dataspace::dma_map(Dma_space *, l4_addr_t, Dma_space::Dma_size *,
+Moe::Dataspace::dma_map(l4_addr_t, Dma_space::Dma_size *,
                         Dma_space::Dma_addr *)
 {
   return -L4_EINVAL;
