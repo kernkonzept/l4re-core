@@ -380,7 +380,7 @@ public:
    *
    * \param cap       Capability to be sent.
    * \param rights    Permissions to be transferred. See #L4_cap_fpage_rights
-   *                  and #L4_obj_fpage_ctl.
+   *                  and \ref L4_obj_fpage_ctl.
    * \param map_type  See #Map_type.
    */
   Snd_fpage(L4::Cap<void> cap, unsigned rights, Map_type map_type = Map) noexcept
@@ -745,7 +745,7 @@ public:
    *
    *  \param cap    Capability to be sent.
    *  \param rights Rights to be sent. Consists of #L4_fpage_rights
-   *                and #L4_obj_fpage_ctl.
+   *                and \ref L4_obj_fpage_ctl.
    */
   Cap(L4::Cap<T> cap, unsigned char rights) noexcept
   : _cap_n_rights((cap.cap() & Cap_mask) | (rights & Rights_mask)) {}
@@ -813,7 +813,7 @@ Cap<T> make_cap_rws(L4::Cap<T> cap) noexcept
  * \param  cap     source capability (L4::Cap<T>)
  *
  * \see L4_cap_fpage_rights
- * \see L4_obj_fpage_ctl
+ * \see \ref L4_obj_fpage_ctl
  *
  * \note Full rights (including object-specific rights) are required when mapping
  *       an IPC gate where the receiver should become the server, i.e. where

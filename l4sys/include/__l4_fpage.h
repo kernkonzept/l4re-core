@@ -139,7 +139,7 @@ enum L4_fpage_rights
  * evaluated by the receiver.
  *
  * Note that additional object attributes and permissions can be specified in a
- * send item, see #L4_obj_fpage_ctl.
+ * send item, see \ref L4_obj_fpage_ctl.
  *
  * \note A thread can also map a capability from its task's capability
  * table with a reduced set of rights into another slot of its own capability
@@ -251,31 +251,43 @@ enum L4_fpage_control
 };
 
 /**
- * Attributes and additional permissions for object send items.
+ * \defgroup L4_obj_fpage_ctl \
+ *   Attributes and additional permissions for object send items
  *
- * These rights need to be added to the snd_base when mapping and
- * control internal behavior. The exact meaning depends on the type
- * of capability (currently used only with IPC gates).
+ * These rights need to be added to the snd_base when mapping and control
+ * internal behavior. The exact meaning depends on the type of capability
+ * (currently used only with IPC gates).
  *
  * \ingroup l4_msgitem_api
+ * @{
  */
-enum L4_obj_fpage_ctl
-{
-  L4_FPAGE_C_REF_CNT    = 0x00,  ///< Mapping is reference-counted (default).
-  L4_FPAGE_C_NO_REF_CNT = 0x10,  ///< Don't increase the reference counter.
 
-  L4_FPAGE_C_OBJ_RIGHT1 = 0x20,  ///< Object-type specific right.
-  L4_FPAGE_C_OBJ_RIGHT2 = 0x40,  ///< Object-type specific right.
-  L4_FPAGE_C_OBJ_RIGHT3 = 0x80,  ///< Object-type specific right.
-  L4_FPAGE_C_OBJ_RIGHTS = 0xe0,  ///< All Object-type specific right bits.
+/** Mapping is reference-counted (default). */
+#define L4_FPAGE_C_REF_CNT      0x00
 
-  /**
-   * The receiver may invoke IPC-gate-specific functions on the capability,
-   * e.g. bind a thread to the gate and modify the label. Needed if the
-   * receiver implements the server side of an IPC gate.
-   */
-  L4_FPAGE_C_IPCGATE_SVR = L4_FPAGE_C_OBJ_RIGHT1
-};
+/** Don't increase the reference counter. */
+#define L4_FPAGE_C_NO_REF_CNT   0x10
+
+/** Object-type specific right. */
+#define L4_FPAGE_C_OBJ_RIGHT1   0x20
+
+/** Object-type specific right. */
+#define L4_FPAGE_C_OBJ_RIGHT2   0x40
+
+/** Object-type specific right. */
+#define L4_FPAGE_C_OBJ_RIGHT3   0x80
+
+/** All Object-type specific right bits. */
+#define L4_FPAGE_C_OBJ_RIGHTS   0xe0
+
+/**
+ * The receiver may invoke IPC-gate-specific functions on the capability, for
+ * example, bind a thread to the gate and modify the label.
+ * Needed if the receiver implements the server side of an IPC gate.
+ */
+#define L4_FPAGE_C_IPCGATE_SVR L4_FPAGE_C_OBJ_RIGHT1
+
+/** @} */
 
 
 /** Cacheability options for memory send items.
