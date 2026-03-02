@@ -517,7 +517,7 @@ public:
     // limits.
     if (!_identity_map)
       {
-        L4Re::Dataspace::Offset max_sz = ds ? ds->round_size()
+        L4Re::Dataspace::Offset max_sz = ds ? ds->size()
                                             : -L4Re::Dataspace::Offset{1};
         if (offset >= max_sz)
           return -L4_ERANGE;
