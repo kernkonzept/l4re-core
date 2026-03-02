@@ -97,6 +97,7 @@ class Phys_mapper final : public Mapper
 public:
   l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
                L4Re::Dma_space::Dma_size *size, unsigned char,
+               L4Re::Dataspace::Flags,
                L4Re::Dma_space::Attributes attrs,
                L4Re::Dma_space::Dma_addr *dma_addr,
                L4Re::Dma_space::Dma_addr) override
@@ -500,6 +501,7 @@ public:
 
   l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
                L4Re::Dma_space::Dma_size *size, unsigned char align,
+               L4Re::Dataspace::Flags flags,
                L4Re::Dma_space::Attributes attrs,
                L4Re::Dma_space::Dma_addr *dma_addr,
                L4Re::Dma_space::Dma_addr  dma_max) override
@@ -575,7 +577,7 @@ public:
       }
 
     l4_ret_t ret = ds ? map_region(ds, aligned_offset, aligned_addr,
-                                   aligned_size, L4Re::Dataspace::F::RW)
+                                   aligned_size, flags)
                       : 0 /* reservation - no mapping */;
     if (ret < 0)
       return ret;
@@ -668,23 +670,6 @@ cxx::H_list_t<Task_mapper> Task_mapper::_mappers(true);
 
 } // namespace Dma
 
-static Dataspace *_get_ds(L4::Ipc::Snd_fpage src_cap)
-{
-  if (!src_cap.id_received())
-    L4Re::chksys(-L4_EINVAL);
-
-  if (!(src_cap.data() & L4_CAP_FPAGE_W))
-    L4Re::chksys(-L4_EPERM);
-
-  Dataspace *src
-    = dynamic_cast<Dataspace*>(object_pool.find(src_cap.data()));
-
-  if (!src)
-    L4Re::chksys(-L4_EINVAL);
-
-  return src;
-}
-
 l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
                   L4::Ipc::Snd_fpage src_ds, L4Re::Dataspace::Offset offset,
@@ -708,15 +693,30 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
       && (attrs & (L4Re::Dma_space::Search_addr | L4Re::Dma_space::Partial_map)))
     return -L4_EINVAL;
 
-  Dataspace *ds = attrs & L4Re::Dma_space::Reserve ? nullptr : _get_ds(src_ds);
-  if (!ds && offset != 0)
+  L4Re::Dataspace::Flags flags(0);
+  Dataspace *ds = nullptr;
+
+  if (!(attrs & L4Re::Dma_space::Reserve))
+    {
+      if (!src_ds.id_received())
+        return -L4_EINVAL;
+
+      ds = dynamic_cast<Dataspace *>(object_pool.find(src_ds.data()));
+      if (!ds)
+        return -L4_EINVAL;
+
+      flags = (src_ds.data() & L4_CAP_FPAGE_W) ? L4Re::Dataspace::F::RW
+                                               : L4Re::Dataspace::F::R;
+      flags &= ds->flags();
+    }
+  else if (offset != 0)
     return -L4_EINVAL;
 
   if constexpr (Debug)
     printf("DMA %p: map: ds=%p offs=0x%llx sz=0x%llx align=%d attrs=0x%x dma_addr=0x%llx dma_max=0x%llx\n",
            this, ds, offset, size, align, attrs.raw, dma_addr, dma_max);
 
-  l4_ret_t res = _mapper->map(ds, offset, &size, align, attrs, &dma_addr,
+  l4_ret_t res = _mapper->map(ds, offset, &size, align, flags, attrs, &dma_addr,
                               dma_max);
   if (res < 0)
     return res;

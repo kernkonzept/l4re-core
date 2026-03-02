@@ -53,6 +53,7 @@ public:
 
   virtual l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
                        L4Re::Dma_space::Dma_size *size, unsigned char align,
+                       L4Re::Dataspace::Flags flags,
                        L4Re::Dma_space::Attributes attrs,
                        L4Re::Dma_space::Dma_addr *dma_addr,
                        L4Re::Dma_space::Dma_addr dma_max) = 0;
