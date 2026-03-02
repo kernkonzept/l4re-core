@@ -28,10 +28,10 @@ private:
 
 public:
   Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               Dma_size *size, Attributes attrs, Direction dir,
+               Dma_size *size, Attributes attrs,
                Dma_addr *dma_addr) override
   {
-    L4Re::chksys(ds->dma_map(0, offset, size, attrs, dir, dma_addr));
+    L4Re::chksys(ds->dma_map(0, offset, size, attrs, dma_addr));
 
     cxx::unique_ptr<Dma::Mapping> m(alloc->make_obj<Dma::Mapping>());
 
@@ -44,11 +44,10 @@ public:
 
     m->mapper = this;
     m->attrs = attrs;
-    m->dir = dir;
     return m.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes, Direction) override
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -189,7 +188,7 @@ public:
   }
 
   Mapping *map(Dataspace *ds, Q_alloc *alloc, l4_addr_t offset,
-               Dma_space::Dma_size *_size, Attributes attrs, Direction dir,
+               Dma_space::Dma_size *_size, Attributes attrs,
                Dma_space::Dma_addr *dma_addr) override
   {
     if (0)
@@ -227,7 +226,6 @@ public:
 
     node->mapper = this;
     node->attrs = attrs;
-    node->dir = dir;
 
     // Return the address of the requested offset. This works with unmap
     // below because unmap accepts any address in the region for unmapping.
@@ -256,7 +254,7 @@ public:
     return node.release();
   }
 
-  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes, Direction) override
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size, Attributes) override
   {
     auto *m = _map.find_node(dma_addr);
     if (!m)
@@ -292,14 +290,14 @@ static Dataspace *_get_ds(L4::Ipc::Snd_fpage src_cap)
 l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
                   L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
-                  Dma_space::Dma_size &size, Attributes attrs, Direction dir,
+                  Dma_space::Dma_size &size, Attributes attrs,
                   Dma_space::Dma_addr &dma_addr)
 {
   if (!_mapper)
     return -L4_EINVAL;
 
   auto *m =_mapper->map(_get_ds(src_ds), this->qalloc(), offset, &size,
-                        attrs, dir, &dma_addr);
+                        attrs, &dma_addr);
   _mappings.add(m);
   return 0;
 }
@@ -307,12 +305,12 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 l4_ret_t
 Dma_space::op_unmap(L4Re::Dma_space::Rights,
                     Dma_addr dma_addr, Dma_size size,
-                    Attributes attrs, Direction dir)
+                    Attributes attrs)
 {
   if (!_mapper)
     return -L4_EINVAL;
 
-  return _mapper->unmap(dma_addr, size, attrs, dir);
+  return _mapper->unmap(dma_addr, size, attrs);
 }
 
 l4_ret_t

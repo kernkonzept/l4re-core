@@ -62,6 +62,9 @@ public:
 
   /**
    * Direction of the DMA transfers
+   *
+   * \deprecated Ignored by the API. Use function overloads without the
+   *             direction parameter instead.
    */
   enum Direction
   {
@@ -115,7 +118,7 @@ public:
    *                         (a combination of Dma_space::Attribute values).
    * \param[in]     dir      The direction of the DMA transfer issued with
    *                         this mapping. The same value must later be passed
-   *                         to unmap().
+   *                         to unmap(). (ignored)
    * \param[out]    dma_addr The DMA address to use for DMA with the associated
    *                         device.
    *
@@ -140,9 +143,11 @@ public:
                Attributes attrs, Direction dir,
                Dma_addr *dma_addr)
   {
+    static_cast<void>(dir);
+
     Dma_size sz = *size;
 
-    l4_ret_t ret = map_t::call(c(), src, offset, &sz, attrs, dir, dma_addr);
+    l4_ret_t ret = map_t::call(c(), src, offset, &sz, attrs, dma_addr);
     if (ret >= 0)
       *size = sz;
 
@@ -153,7 +158,7 @@ public:
       l4_ret_t, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
                       L4Re::Dataspace::Offset offset,
                       L4::Ipc::In_out<Dma_size *> size,
-                      Attributes attrs, Direction dir,
+                      Attributes attrs,
                       Dma_addr *dma_addr));
 
   /**
@@ -162,14 +167,19 @@ public:
    * \param dma_addr  The DMA address (returned by Dma_space::map()).
    * \param size      The size (bytes) of the memory region to unmap.
    * \param attrs     The attributes for the unmap (currently none).
-   * \param dir       The direction of the finished DMA operation.
+   * \param dir       The direction of the finished DMA operation (ignored).
    *
    * \return 0 in the case of success, a negative error code otherwise.
    */
-  L4_INLINE_RPC(
-      l4_ret_t, unmap, (Dma_addr dma_addr,
-                        Dma_size size, Attributes attrs, Direction dir));
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size size, Attributes attrs,
+                 Direction dir)
+  {
+    static_cast<void>(dir);
+    return unmap_t::call(c(), dma_addr, size, attrs);
+  }
 
+  L4_RPC_NF(l4_ret_t, unmap, (Dma_addr dma_addr, Dma_size size,
+                              Attributes attrs));
 
   typedef L4::Typeid::Rpcs<map_t, unmap_t> Rpcs;
 };

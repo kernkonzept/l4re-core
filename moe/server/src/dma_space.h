@@ -34,17 +34,16 @@ public:
   Mapper &operator = (Mapper const &) = delete;
 
   typedef L4Re::Dma_space::Attributes Attributes;
-  typedef L4Re::Dma_space::Direction Direction;
   typedef L4Re::Dma_space::Dma_addr Dma_addr;
   typedef L4Re::Dma_space::Dma_size Dma_size;
 
   virtual Mapping *map(Dataspace *ds, Q_alloc *,
                        l4_addr_t offset, Dma_size *size,
-                       Attributes attrs, Direction dir,
+                       Attributes attrs,
                        Dma_addr *dma_addr) = 0;
 
   virtual l4_ret_t unmap(Dma_addr dma_addr, Dma_size size,
-                         Attributes attrs, Direction dir) = 0;
+                         Attributes attrs) = 0;
 
   virtual void remove(Mapping *m) = 0;
 
@@ -68,13 +67,11 @@ struct Mapping : cxx::H_list_item_t<Mapping>, cxx::Avl_tree_node
   typedef Region Key_type;
   typedef cxx::Avl_tree<Mapping, Mapping, cxx::Lt_functor<Region>> Map;
   typedef cxx::H_list_t<Dma::Mapping> List;
-  typedef L4Re::Dma_space::Direction Direction;
   typedef L4Re::Dma_space::Attributes Attributes;
 
   Region key;
   Mapper *mapper = 0;
   Attributes attrs = Attributes::None;
-  Direction dir = Direction::None;
 
   static Key_type key_of(Mapping const *m) { return m->key; }
 
@@ -101,18 +98,17 @@ class Dma_space :
 public:
   typedef L4Re::Dma_space::Dma_addr Dma_addr;
   typedef L4Re::Dma_space::Dma_size Dma_size;
-  typedef L4Re::Dma_space::Direction Direction;
   typedef L4Re::Dma_space::Attributes Attributes;
   typedef L4Re::Dma_space_mgr::Space_attribs Space_attribs;
 
   l4_ret_t op_map(L4Re::Dma_space::Rights rights,
                   L4::Ipc::Snd_fpage src_ds, l4_addr_t offset,
-                  Dma_size &size, Attributes attrs, Direction dir,
+                  Dma_size &size, Attributes attrs,
                   Dma_addr &dma_addr);
 
   l4_ret_t op_unmap(L4Re::Dma_space::Rights rights,
                     Dma_addr dma_addr,
-                    Dma_size size, Attributes attrs, Direction dir);
+                    Dma_size size, Attributes attrs);
 
   /**
    * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space

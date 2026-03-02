@@ -140,7 +140,7 @@ public:
   typedef Dma_space::Attributes Dma_attribs;
   virtual l4_ret_t dma_map(Dma_space *dma, l4_addr_t offset,
                            Dma_space::Dma_size *size,
-                           Dma_attribs dma_attrs, Dma_space::Direction dir,
+                           Dma_attribs dma_attrs,
                            Dma_space::Dma_addr *dma_addr);
 
   l4_ret_t op_map(L4Re::Dataspace::Rights rights,

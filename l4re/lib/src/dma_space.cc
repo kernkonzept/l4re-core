@@ -3,3 +3,4 @@
 #include <l4/sys/cxx/consts>
 
 L4_RPC_DEF(L4Re::Dma_space::map);
+L4_RPC_DEF(L4Re::Dma_space::unmap);
