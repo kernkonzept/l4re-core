@@ -30,11 +30,12 @@ namespace L4Re {
  *       allocator; otherwise use L4Re::Util::Shared_cap.
  */
 template< typename T >
-using Shared_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_ALL_SPACES>>;
+using Shared_cap
+  = L4::Detail::Shared_cap_impl<T, L4Re::Smart_count_cap<L4_FP_ALL_SPACES>>;
 /// Deprecated; use L4Re::Shared_cap. \deprecated Use L4Re::Shared_cap.
 template< typename T >
 using shared_cap [[deprecated("Use L4Re::Shared_cap.")]]
-  = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_ALL_SPACES>>;
+  = L4::Detail::Shared_cap_impl<T, L4Re::Smart_count_cap<L4_FP_ALL_SPACES>>;
 
 /**
  * Allocate a capability slot and wrap it in a Shared_cap.
@@ -67,11 +68,12 @@ make_shared_cap(L4Re::Cap_alloc *ca)
  *       allocator; otherwise use L4Re::Util::Shared_del_cap.
  */
 template< typename T >
-using Shared_del_cap = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_DELETE_OBJ>>;
+using Shared_del_cap
+  = L4::Detail::Shared_cap_impl<T, L4Re::Smart_count_cap<L4_FP_DELETE_OBJ>>;
 /// Deprecated; use L4Re::Shared_del_cap. \deprecated Use L4Re::Shared_del_cap.
 template<typename T>
 using shared_del_cap [[deprecated("Use L4Re::Shared_del_cap.")]]
-  = L4::Detail::Shared_cap_impl<T, Smart_count_cap<L4_FP_DELETE_OBJ>>;
+  = L4::Detail::Shared_cap_impl<T, L4Re::Smart_count_cap<L4_FP_DELETE_OBJ>>;
 
 /**
  * Allocate a capability slot and wrap it in a Shared_del_cap.
