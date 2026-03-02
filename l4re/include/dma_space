@@ -89,6 +89,14 @@ public:
      * Dma_space::map() call will always return the physical address.
      */
     Search_addr = 1U << 0,
+
+    /**
+     * Truncate mapping if it does not fit.
+     *
+     * If there is not enough room after the chosen start address, truncate the
+     * mapping instead of failing.
+     */
+    Partial_map = 1U << 1,
   };
 
   friend void enum_bitops_enable(Attribute);

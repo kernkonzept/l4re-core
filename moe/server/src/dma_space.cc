@@ -208,7 +208,8 @@ private:
 
   l4_ret_t find_free(L4Re::Dma_space::Dma_size *size, unsigned char align,
                      L4Re::Dma_space::Dma_addr *dma_addr,
-                     L4Re::Dma_space::Dma_addr dma_max)
+                     L4Re::Dma_space::Dma_addr dma_max,
+                     bool trunc)
   {
     if (*size == 0)
       return -L4_EINVAL;
@@ -222,13 +223,29 @@ private:
 
     for (;;)
       {
-        if (addr > dma_max || dma_max - addr < *size - 1)
+        if (addr > dma_max)
           break;
 
-        auto const *n = find_any_region(Region(addr, addr + *size - 1));
+        if (dma_max - addr < *size - 1)
+          {
+            if (!trunc)
+              break;
+            *size = dma_max - addr + 1;
+          }
+
+        Region r(addr, addr + *size - 1);
+        auto const *n = trunc ? find_first_region(r) : find_any_region(r);
         if (!n)
           {
             *dma_addr = addr;
+            return L4_EOK;
+          }
+
+        if (trunc && n->key.start > addr
+                  && (n->key.start - addr) >= (1UL << align))
+          {
+            *dma_addr = addr;
+            *size = trunc_dma_addr(n->key.start - addr, align);
             return L4_EOK;
           }
 
@@ -243,7 +260,8 @@ private:
   l4_ret_t verify_free(L4Re::Dma_space::Dma_size *size,
                        L4Re::Dma_space::Dma_addr dma_addr,
                        L4Re::Dma_space::Dma_addr dma_max,
-                       bool ignore_blocked)
+                       bool ignore_blocked,
+                       bool trunc)
   {
     if (*size == 0)
       return -L4_EINVAL;
@@ -256,8 +274,15 @@ private:
     if (!align_end_chk(&dma_max))
       return -L4_EINVAL;
 
-    if (dma_addr > dma_max || dma_max - dma_addr < *size - 1)
+    if (dma_addr > dma_max)
       return -L4_EADDRNOTAVAIL;
+
+    if (dma_max - dma_addr < *size - 1)
+      {
+        if (!trunc)
+          return -L4_EADDRNOTAVAIL;
+        *size = dma_max - dma_addr + 1;
+      }
 
     if (dma_addr < _min)
       return -L4_EADDRNOTAVAIL;
@@ -266,7 +291,15 @@ private:
     Mapping const *collision = ignore_blocked ? find_first_mapping(r)
                                               : find_first_region(r);
     if (collision)
-      return -L4_EADDRNOTAVAIL;
+      {
+        if (!trunc)
+          return -L4_EADDRNOTAVAIL;
+
+        if (collision->key.start <= dma_addr)
+          return -L4_EADDRNOTAVAIL;
+
+        *size = collision->key.start - dma_addr;
+      }
 
     return 0;
   }
@@ -477,13 +510,22 @@ public:
 
         l4_ret_t ret;
 
+        bool trunc = static_cast<bool>(attrs & L4Re::Dma_space::Partial_map);
         if (attrs & L4Re::Dma_space::Search_addr)
-          ret = find_free(&aligned_size, align, dma_addr, dma_max);
+          ret = find_free(&aligned_size, align, dma_addr, dma_max, trunc);
         else
-          ret = verify_free(&aligned_size, *dma_addr, dma_max, false);
+          ret = verify_free(&aligned_size, *dma_addr, dma_max, false, trunc);
 
         if (ret < 0)
           return ret;
+
+        // Propagate any truncation done by find_free()/verify_free() back to
+        // *size so that the caller (and op_map's add_region()) see the
+        // shortened mapping range.
+        L4Re::Dma_space::Dma_size avail = aligned_size
+                                          - (offset - aligned_offset);
+        if (*size > avail)
+          *size = avail;
 
         aligned_addr = *dma_addr;
 
@@ -549,8 +591,8 @@ public:
       return -L4_EINVAL;
 
     // We allow blocking areas that are already blocked...
-    return search ? find_free(&size, align, dma_addr, dma_max)
-                  : verify_free(&size, *dma_addr, dma_max, true);
+    return search ? find_free(&size, align, dma_addr, dma_max, false)
+                  : verify_free(&size, *dma_addr, dma_max, true, false);
   }
 
   l4_ret_t set_limits(Dma_space *dma_space,
@@ -613,7 +655,8 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
   if (!_mapper)
     return -L4_EINVAL;
 
-  static constexpr auto Known_flags = L4Re::Dma_space::Search_addr;
+  static constexpr auto Known_flags = L4Re::Dma_space::Search_addr
+                                      | L4Re::Dma_space::Partial_map;
   if (attrs & ~Known_flags)
     return -L4_EINVAL;
 
