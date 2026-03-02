@@ -411,19 +411,38 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 
 l4_ret_t
 Dma_space::op_unmap(L4Re::Dma_space::Rights,
-                    L4Re::Dma_space::Dma_addr dma_addr,
-                    L4Re::Dma_space::Dma_size)
+                    L4Re::Dma_space::Dma_addr addr,
+                    L4Re::Dma_space::Dma_size size)
 {
   if (!_mapper)
     return -L4_EINVAL;
 
-  auto *m = find_first_region(dma_addr);
-  if (!m)
-    return -L4_ENOENT;
+  if (size == 0 || L4Re::Dma_space::Dma_addr(-1) - addr < size - 1)
+    return -L4_EINVAL;
 
-  _mapper->unmap(m->key);
-  _mappings.remove(m->key);
-  delete m;
+  // Expand to page granularity
+  size += addr - trunc_dma_addr(addr);
+  if (!round_dma_size(&size))
+    return -L4_EINVAL;
+  addr = trunc_dma_addr(addr);
+
+  while (size)
+    {
+      auto *m = find_first_region(Dma::Region(addr, addr + size - 1));
+      if (!m)
+        break;
+
+      _mapper->unmap(m->key);
+
+      if (m->key.end - addr + 1 >= size)
+        size = 0;
+      else
+        size -= m->key.end - addr + 1;
+      addr = m->key.end + 1;
+
+      _mappings.remove(m->key);
+      delete m;
+    }
 
   return 0;
 }
