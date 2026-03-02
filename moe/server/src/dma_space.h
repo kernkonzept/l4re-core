@@ -109,6 +109,24 @@ struct Mapping : cxx::Avl_tree_node
     return --mapcnt == 0;
   }
 
+  /// Number of reservations covering that region.
+  unsigned rsvcnt = 0;
+
+  bool add_reservation()
+  {
+    if (rsvcnt + 1U < rsvcnt) // prevent overflow
+      return false;
+    ++rsvcnt;
+    return true;
+  }
+
+  bool del_reservation()
+  {
+    if (rsvcnt == 0)  // prevent underflow
+      return false;
+    return --rsvcnt == 0;
+  }
+
   /**
    * Indicator if region is blocked from all mappings or reservations.
    *
@@ -136,8 +154,9 @@ struct Mapping : cxx::Avl_tree_node
     return false;
   }
 
-  bool is_referenced() const    { return blocked || mapcnt; }
+  bool is_referenced() const    { return blocked || mapcnt || rsvcnt; }
   bool has_mappings() const     { return mapcnt > 0; }
+  bool has_reservations() const { return rsvcnt > 0; }
   bool is_blocked() const       { return blocked > 0; }
 
   static Key_type key_of(Mapping const *m) { return m->key; }
@@ -165,7 +184,8 @@ public:
 
   l4_ret_t op_unmap(L4Re::Dma_space::Rights rights,
                     L4Re::Dma_space::Dma_addr dma_addr,
-                    L4Re::Dma_space::Dma_size size);
+                    L4Re::Dma_space::Dma_size size,
+                    L4Re::Dma_space::Unmap_flags flags);
 
   ~Dma_space() { disassociate(); }
 
@@ -210,7 +230,7 @@ public:
   L4Re::Dma_space::Dma_addr max_addr() const { return _max; }
 
 private:
-  enum class Add { Mapping, Block };
+  enum class Add { Mapping, Reservation, Block };
   l4_ret_t add_region(L4Re::Dma_space::Dma_addr start,
                       L4Re::Dma_space::Dma_addr end,
                       Add type);

@@ -97,6 +97,19 @@ public:
      * mapping instead of failing.
      */
     Partial_map = 1U << 1,
+
+    /**
+     * Reserve a region instead of mapping pages.
+     *
+     * If set, the dataspace argument of Dma_space::map() is ignored. The
+     * reservation is released with Dma_space::unmap() carrying
+     * Unmap_flag::Cancel_reservation.
+     *
+     * If no address remapping is possible (i.e., the Dma_space was associated
+     * by Dma_space_mgr::associate_phys()), Dma_space::map() will always fail
+     * with -L4_EPERM if this flag is present.
+     */
+    Reserve = 1U << 2,
   };
 
   friend void enum_bitops_enable(Attribute);
@@ -178,7 +191,8 @@ public:
    * Map the given part of this data space into the DMA address space.
    *
    * \param[in]     src      Source data space (that describes the memory).
-   * \param[in]     offset   The offset (bytes) within `src`.
+   * \param[in]     offset   The offset (bytes) within `src`. Must be zero in
+   *                         case Attribute::Reserve is passed in `attrs`.
    * \param[in,out] size     The size (bytes) of the region to be mapped
    *                         for DMA, after successful mapping the size
    *                         returned is the size mapped for DMA as a single
@@ -234,11 +248,38 @@ public:
   }
 
   L4_RPC_NF(
-      l4_ret_t, map, (L4::Ipc::Cap<L4Re::Dataspace> src,
+      l4_ret_t, map, (L4::Ipc::Opt<L4::Ipc::Cap<L4Re::Dataspace>> src,
                       L4Re::Dataspace::Offset offset,
                       L4::Ipc::In_out<Dma_size *> size, unsigned char align,
                       Attributes attrs, L4::Ipc::In_out<Dma_addr *> dma_addr,
                       Dma_addr dma_max));
+
+  /**
+   * Flags used by Dma_space::unmap().
+   * \sa Unmap_flags
+   */
+  enum Unmap_flag : unsigned
+  {
+    /**
+     * Cancel a prior Attribute::Reserve claim instead of unmapping a
+     * dataspace mapping.
+     *
+     * Without this flag, unmap() releases one dataspace mapping that was
+     * previously established by map() (with or without Attribute::Replace).
+     * With this flag, unmap() releases one previous Attribute::Reserve
+     * claim and does not touch any active dataspace mappings in the range.
+     */
+    Cancel_reservation = 1U << 0,
+  };
+
+  friend void enum_bitops_enable(Unmap_flag);
+
+  /**
+   * Flags for Dma_space::unmap().
+   *
+   * \sa Unmap_flag
+   */
+  using Unmap_flags = L4::Types::Flags_t<Unmap_flag, unsigned>;
 
   /**
    * Unmap the given part of this data space from the DMA address space.
@@ -274,23 +315,33 @@ public:
    *
    * The calls to map() and unmap() must be balanced. That is, each page of
    * a mapping that was established by `map()` previously must be unmapped
-   * exactly once.
+   * exactly once. Likewise, every Attribute::Reserve claim must be released by
+   * exactly one unmap() call carrying Unmap_flag::Cancel_reservation.
    *
-   * Sub-ranges that do not currently hold a mapping are silently skipped.
-   * That is, unmapping the same region too often, is not treated as an error.
+   * Sub-ranges that do not currently hold a claim of the requested kind are
+   * silently skipped. That is, unmapping the same region too often, is not
+   * treated as an error. This behaviour applies both to actual mappings, as
+   * well as reservations.
    *
    * \param dma_addr  The DMA address (returned by Dma_space::map()).
    * \param size      The size (bytes) of the memory region to unmap.
+   * \param flags     A combination of Dma_space::Unmap_flag values.
    *
    * \retval L4_EOK      Operation successful.
+   * \retval -L4_EPERM   The range overlaps with a privileged
+   *                     Dma_space_mgr::block_area() claim.
+   * \retval -L4_EINVAL  Invalid arguments. Can be caused by unknown `flags`,
+   *                     size of 0 or an address overflow.
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    */
-  l4_ret_t unmap(Dma_addr dma_addr, Dma_size size)
+  l4_ret_t unmap(Dma_addr dma_addr, Dma_size size,
+                 Unmap_flags flags = Unmap_flags())
   {
-    return unmap_t::call(c(), dma_addr, size);
+    return unmap_t::call(c(), dma_addr, size, flags);
   }
 
-  L4_RPC_NF(l4_ret_t, unmap, (Dma_addr dma_addr, Dma_size size));
+  L4_RPC_NF(l4_ret_t, unmap, (Dma_addr dma_addr, Dma_size size,
+                              Unmap_flags flags));
 
   typedef L4::Typeid::Rpcs<map_t, unmap_t> Rpcs;
 };
@@ -421,7 +472,8 @@ public:
    *                     associate()/associate_phys().
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
    *
-   * \attention This will remove all mappings and blockings from `dma_space`.
+   * \attention This will remove all mappings, reservations and blockings
+   *            from `dma_space`.
    *
    * \pre The `dma_space` capability must have the permission #L4_CAP_FPAGE_W.
    */

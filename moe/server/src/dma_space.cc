@@ -97,10 +97,14 @@ class Phys_mapper final : public Mapper
 public:
   l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
                L4Re::Dma_space::Dma_size *size, unsigned char,
-               L4Re::Dma_space::Attributes,
+               L4Re::Dma_space::Attributes attrs,
                L4Re::Dma_space::Dma_addr *dma_addr,
                L4Re::Dma_space::Dma_addr) override
   {
+    // With physical mappings you cannot choose your address layout.
+    if (attrs & L4Re::Dma_space::Reserve)
+      return -L4_EPERM;
+
     if (l4_ret_t err = ds->dma_map(offset, size, dma_addr); err < 0)
       return err;
 
@@ -143,7 +147,7 @@ private:
   bool _identity_map;
 
   /**
-   * Find any blocking or mapping in the given region.
+   * Find any blocking, mapping or reservation in the given region.
    *
    * If there are multiple potential matches, it is unspecified which matching
    * region is returned.
@@ -157,7 +161,7 @@ private:
     return nullptr;
   }
 
-  /// Find first blocking or mapping in given region.
+  /// Find first blocking, mapping or reservation in given region.
   Mapping const *find_first_region(Region r)
   {
     Mapping const *ret = nullptr;
@@ -170,7 +174,7 @@ private:
     return ret;
   }
 
-  /// Find first blocking or mapping in given region.
+  /// Find first blocking or mapping/reservation in given region.
   Mapping const *find_first(Region r, bool find_blocked)
   {
     Mapping const *ret = nullptr;
@@ -481,7 +485,8 @@ public:
     // limits.
     if (!_identity_map)
       {
-        unsigned long max_sz = ds->round_size();
+        L4Re::Dataspace::Offset max_sz = ds ? ds->round_size()
+                                            : -L4Re::Dataspace::Offset{1};
         if (offset >= max_sz)
           return -L4_ERANGE;
 
@@ -490,6 +495,9 @@ public:
         if (*size > max_sz)
           *size = max_sz;
       }
+    else if (attrs & L4Re::Dma_space::Reserve)
+      // With physical mappings you cannot choose your address layout.
+      return -L4_EPERM;
 
     L4Re::Dma_space::Dma_addr aligned_addr;
     L4Re::Dma_space::Dma_size aligned_size;
@@ -501,12 +509,13 @@ public:
 
         aligned_addr = trunc_dma_addr(*dma_addr);
         aligned_size = *size + (offset - aligned_offset);
-        round_dma_size(&aligned_size); // cannot overflow because size <= max_sz
+        round_dma_size(&aligned_size); // cannot overflow, limited by ds size
       }
     else
       {
         aligned_size = *size + (offset - aligned_offset);
-        round_dma_size(&aligned_size); // cannot overflow because size <= max_sz
+        if (!round_dma_size(&aligned_size))
+          return -L4_EINVAL;
 
         l4_ret_t ret;
 
@@ -533,8 +542,9 @@ public:
         *dma_addr += (offset - aligned_offset);
       }
 
-    l4_ret_t ret = map_region(ds, aligned_offset, aligned_addr, aligned_size,
-                              L4Re::Dataspace::F::RW);
+    l4_ret_t ret = ds ? map_region(ds, aligned_offset, aligned_addr,
+                                   aligned_size, L4Re::Dataspace::F::RW)
+                      : 0 /* reservation - no mapping */;
     if (ret < 0)
       return ret;
 
@@ -656,11 +666,15 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
     return -L4_EINVAL;
 
   static constexpr auto Known_flags = L4Re::Dma_space::Search_addr
-                                      | L4Re::Dma_space::Partial_map;
+                                      | L4Re::Dma_space::Partial_map
+                                      | L4Re::Dma_space::Reserve;
   if (attrs & ~Known_flags)
     return -L4_EINVAL;
 
-  Dataspace *ds = _get_ds(src_ds);
+  Dataspace *ds = attrs & L4Re::Dma_space::Reserve ? nullptr : _get_ds(src_ds);
+  if (!ds && offset != 0)
+    return -L4_EINVAL;
+
   if constexpr (Debug)
     printf("DMA %p: map: ds=%p offs=0x%llx sz=0x%llx align=%d attrs=0x%x dma_addr=0x%llx dma_max=0x%llx\n",
            this, ds, offset, size, align, attrs.raw, dma_addr, dma_max);
@@ -670,6 +684,8 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
   if (res < 0)
     return res;
 
+  auto add_type = ds ? Add::Mapping : Add::Reservation;
+
   // Only track regions if mapper needs that.
   if (res > 0)
     {
@@ -678,7 +694,7 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
       // expand the region accordingly.
       L4Re::Dma_space::Dma_addr start = trunc_dma_addr(dma_addr);
       L4Re::Dma_space::Dma_addr end = L4::round_page(dma_addr + size) - 1;
-      if ((res = add_region(start, end, Add::Mapping)) < 0)
+      if ((res = add_region(start, end, add_type)) < 0)
         {
           _mapper->unmap(dma_addr, size);
           return res;
@@ -691,9 +707,14 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 l4_ret_t
 Dma_space::op_unmap(L4Re::Dma_space::Rights,
                     L4Re::Dma_space::Dma_addr addr,
-                    L4Re::Dma_space::Dma_size size)
+                    L4Re::Dma_space::Dma_size size,
+                    L4Re::Dma_space::Unmap_flags flags)
 {
   if (!_mapper)
+    return -L4_EINVAL;
+
+  static constexpr auto Known_flags = L4Re::Dma_space::Cancel_reservation;
+  if (flags & ~Known_flags)
     return -L4_EINVAL;
 
   if (size == 0 || Dma::Last_dma_addr - addr < size - 1)
@@ -739,6 +760,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
       fsplit->key = Dma::Region(first_in_range->key.start, addr - 1);
       fsplit->blocked = first_in_range->blocked;
       fsplit->mapcnt = first_in_range->mapcnt;
+      fsplit->rsvcnt = first_in_range->rsvcnt;
 
       first_in_range->key.start = addr;
       assert(_mappings.insert(fsplit.get()).second);
@@ -754,6 +776,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
       lsplit->key = Dma::Region(addr + size, last_in_range->key.end);
       lsplit->blocked = last_in_range->blocked;
       lsplit->mapcnt = last_in_range->mapcnt;
+      lsplit->rsvcnt = last_in_range->rsvcnt;
 
       last_in_range->key.end = addr + size - 1;
       assert(_mappings.insert(lsplit.get()).second);
@@ -772,7 +795,14 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
 
       size -= m->key.end - addr + 1;
       addr = m->key.end + 1;
-      if (m->del_mapping())
+
+      bool unmap = false;
+      if (flags & L4Re::Dma_space::Cancel_reservation)
+        m->del_reservation();
+      else if (m->del_mapping())
+        unmap = true;
+
+      if (!m->is_referenced())
         {
           Dma::Region chunk = m->key;
 
@@ -782,7 +812,8 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
           _mappings.remove(m->key);
           delete m;
 
-          _mapper->unmap(chunk);
+          if (unmap)
+            _mapper->unmap(chunk);
         }
     }
 
@@ -816,8 +847,8 @@ Dma_space::disassociate()
   _mappings.remove_all([this](Dma::Mapping *m)
     {
       // Only entries that actually own a kernel DMA mapping need a
-      // Mapper::unmap() call; blocked areas do not.
-      if (!m->is_blocked())
+      // Mapper::unmap() call; pure Reserve claims and blocked areas do not.
+      if (!m->is_blocked() && m->has_mappings())
         {
           assert(_mapper);
           _mapper->unmap(m->key);
@@ -969,6 +1000,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
           switch (type)
             {
             case Add::Mapping: m->del_mapping(); break;
+            case Add::Reservation: m->del_reservation(); break;
             case Add::Block: m->del_block(); break;
             }
 
@@ -1004,6 +1036,10 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
                   assert(!existing->is_blocked());
                   ok = existing->add_mapping();
                   break;
+                case Add::Reservation:
+                  assert(!existing->is_blocked());
+                  ok = existing->add_reservation();
+                  break;
                 case Add::Block:
                   assert(existing->is_blocked());
                   ok = existing->add_block();
@@ -1035,6 +1071,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
       switch (type)
         {
         case Add::Mapping: node->mapcnt = 1; break;
+        case Add::Reservation: node->rsvcnt = 1; break;
         case Add::Block: node->blocked = 1; break;
         }
       assert(_mappings.insert(node.get()).second);
