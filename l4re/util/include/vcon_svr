@@ -41,7 +41,7 @@ public:
   l4_msgtag_t op_dispatch(l4_utcb_t *utcb, l4_msgtag_t tag, L4::Vcon::Rights)
   {
     l4_msg_regs_t *m = l4_utcb_mr_u(utcb);
-    L4::Opcode op = m->mr[0];
+    L4::Opcode op = m->mr[0] & 0xFFFF;
 
     switch (op)
       {
@@ -66,15 +66,17 @@ public:
           auto attr = reinterpret_cast<l4_vcon_attr_t *>(&m->mr[1]);
           return l4_msgtag(this_vcon()->vcon_get_attr(attr), 4, 0, 0);
         }
+      case L4_VCON_READ_OP:
+        break;
 
       default:
-        break;
+        return l4_msgtag(-L4_ENOSYS, 0, 0, 0);
       }
 
     unsigned const max_size = L4_VCON_READ_SIZE;
     char buf[max_size];
 
-    unsigned size = cxx::min<unsigned>(op >> 16, max_size);
+    unsigned size = cxx::min<unsigned>(m->mr[0] >> 16, max_size);
 
     // Hmm, could we avoid the double copy here?
     l4_umword_t v = this_vcon()->vcon_read(buf, size);
