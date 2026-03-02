@@ -1197,12 +1197,15 @@ Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
 l4_ret_t
 Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
                                  L4::Ipc::Snd_fpage dma_space_cap,
-                                 L4Re::Dma_space_mgr::Space_attribs)
+                                 L4Re::Dma_space_mgr::Space_attribs attr)
 {
   Dma_space *dma_space;
   l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
   if (r != L4_EOK)
     return r;
+
+  if (attr)
+    return -L4_EINVAL;
 
   // No a-priori blockings allowed with physical mappings.
   if (!dma_space->empty() || !dma_space->unconstrained())
