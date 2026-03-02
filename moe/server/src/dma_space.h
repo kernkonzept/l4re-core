@@ -26,27 +26,6 @@ namespace Dma {
 
 struct Mapping;
 
-class Mapper : public cxx::Ref_obj
-{
-public:
-  Mapper(Mapper const &) = delete;
-  Mapper() = default;
-  Mapper &operator = (Mapper const &) = delete;
-
-
-  virtual Mapping *map(Dataspace *ds, Q_alloc *,
-                       L4Re::Dataspace::Offset offset,
-                       L4Re::Dma_space::Dma_size *size,
-                       L4Re::Dma_space::Dma_addr *dma_addr) = 0;
-
-  virtual l4_ret_t unmap(L4Re::Dma_space::Dma_addr dma_addr,
-                         L4Re::Dma_space::Dma_size size) = 0;
-
-  virtual void remove(Mapping *m) = 0;
-
-  virtual ~Mapper() = default;
-};
-
 struct Region
 {
   L4Re::Dma_space::Dma_addr start;
@@ -60,35 +39,52 @@ struct Region
   : start(s), end(e) {}
 };
 
-struct Mapping : cxx::H_list_item_t<Mapping>, cxx::Avl_tree_node
+class Mapper : public cxx::Ref_obj
+{
+public:
+  Mapper(Mapper const &) = delete;
+  Mapper() = default;
+  Mapper &operator = (Mapper const &) = delete;
+
+  virtual l4_ret_t add_dma_space(Dma_space *dma_space);
+  virtual void remove_dma_space(Dma_space *dma_space);
+
+  virtual l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
+                       L4Re::Dma_space::Dma_size *size,
+                       L4Re::Dma_space::Dma_addr *dma_addr) = 0;
+
+  virtual void unmap(L4Re::Dma_space::Dma_addr start,
+                     L4Re::Dma_space::Dma_size size) = 0;
+  void unmap(Region const &r)
+  { unmap(r.start, r.end - r.start + 1); }
+
+  virtual ~Mapper() = default;
+
+protected:
+  typedef cxx::H_list_t<Dma_space> Dma_space_list;
+
+  Dma_space_list _dma_spaces;
+};
+
+struct Mapping : cxx::Avl_tree_node
 {
   typedef Region Key_type;
   typedef cxx::Avl_tree<Mapping, Mapping, cxx::Lt_functor<Region>> Map;
-  typedef cxx::H_list_t<Dma::Mapping> List;
 
   Region key;
-  Mapper *mapper = 0;
 
   static Key_type key_of(Mapping const *m) { return m->key; }
 
   Mapping(Mapping const &) = delete;
   Mapping &operator = (Mapping const &) = delete;
   Mapping() = default;
-
-  ~Mapping()
-  {
-    if (mapper)
-      mapper->remove(this);
-
-    if (0)
-      printf("DMA: del mapping: map=%p %llx %llx\n", mapper, key.start, key.end);
-  }
 };
 
 }
 
 class Dma_space :
   public L4::Epiface_t<Dma_space, L4Re::Dma_space, Server_object>,
+  public cxx::H_list_item_t<Dma_space>,
   public Q_object
 {
 public:
@@ -103,20 +99,40 @@ public:
                     L4Re::Dma_space::Dma_addr dma_addr,
                     L4Re::Dma_space::Dma_size size);
 
+  ~Dma_space() { disassociate(); }
+
   /**
-   * Delete all mappings (see Dma::Mapping) created via *this* Moe::Dma_space
-   * instance.
+   * Return the Dma::Mapping with the lowest address that intersects with the
+   * regions `r`.
    */
-  void delete_all_mappings();
+  Dma::Mapping *find_first_region(Dma::Region r)
+  {
+    auto *m = _mappings.lower_bound_node(Dma::Region(r.start));
+    if (m && m->key.start <= r.end)
+      return m;
+    else
+      return nullptr;
+  }
 
-  ~Dma_space() { delete_all_mappings(); }
-
+  /**
+   * Return the Dma::Mapping node that intersects with region `r`.
+   *
+   * If multiple regions intersect, it is unspecified which region is returned.
+   */
+  Dma::Mapping *find_any_region(Dma::Region r)
+  { return _mappings.find_node(r); }
 
   // Dma_space_mgr internal interface
   l4_ret_t associate(cxx::Ref_ptr<Dma::Mapper> const &mapper);
   l4_ret_t disassociate();
 
+  bool empty() const
+  { return _mappings.begin() == _mappings.end(); }
+
 private:
+  l4_ret_t add_region(L4Re::Dma_space::Dma_addr start,
+                      L4Re::Dma_space::Dma_addr end);
+
   /// The Dma::Mapper instance (if any) associated with this Moe::Dma_space
   /// instance.
   /// \note Several Moe::Dma_space instances might share the same Dma::Mapper
@@ -125,7 +141,7 @@ private:
 
   /// List of mappings (see Dma::Mapping) created via this Moe::Dma_space
   /// instance.
-  Dma::Mapping::List _mappings;
+  Dma::Mapping::Map _mappings;
 };
 
 class Dma_space_mgr :
