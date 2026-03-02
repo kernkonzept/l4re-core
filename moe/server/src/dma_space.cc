@@ -350,7 +350,7 @@ public:
     if (ret < 0)
       return ret;
 
-    return L4_EOK;
+    return 1; // Let Dma_space remember the mapping
   }
 
   void unmap(L4Re::Dma_space::Dma_addr start,
@@ -395,15 +395,19 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
   if (res < 0)
     return res;
 
-  // map() returns unaligned addresses if `offset` was not page aligned. All
-  // mapping and tracking is done on page granularity so we have to expand the
-  // region accordingly.
-  L4Re::Dma_space::Dma_addr start = trunc_dma_addr(dma_addr);
-  L4Re::Dma_space::Dma_addr end = L4::round_page(dma_addr + size) - 1;
-  if ((res = add_region(start, end)) < 0)
+  // Only track regions if mapper needs that.
+  if (res > 0)
     {
-      _mapper->unmap(dma_addr, size);
-      return res;
+      // map() returns unaligned addresses if `offset` was not page aligned.
+      // All mapping and tracking is done on page granularity so we have to
+      // expand the region accordingly.
+      L4Re::Dma_space::Dma_addr start = trunc_dma_addr(dma_addr);
+      L4Re::Dma_space::Dma_addr end = L4::round_page(dma_addr + size) - 1;
+      if ((res = add_region(start, end)) < 0)
+        {
+          _mapper->unmap(dma_addr, size);
+          return res;
+        }
     }
 
   return 0;
