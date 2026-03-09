@@ -89,7 +89,7 @@ Region_handler::map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexc
 
 
 l4_ret_t
-Region_map::validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
+Region_map::validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
                         L4Re::Rm::Region_flags flags, Dataspace *ds)
 {
   if (flags & L4Re::Rm::F::Pager)

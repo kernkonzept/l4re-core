@@ -84,7 +84,7 @@ private:
 public:
   typedef L4::Cap<L4Re::Dataspace> Dataspace;
   enum { Have_find = true };
-  static l4_ret_t validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
+  static l4_ret_t validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
                               L4Re::Rm::Region_flags,
                               L4::Cap<L4Re::Dataspace> *ds)
   {

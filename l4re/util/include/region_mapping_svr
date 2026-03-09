@@ -39,9 +39,7 @@ public:
 
     if (!(flags & (Rm::F::Reserved | Rm::F::Kernel)))
       {
-        if (long r = rm()->validate_ds
-            (static_cast<DERIVED*>(this)->server_iface(), ds_cap,
-             flags.region_flags(), &ds))
+        if (l4_ret_t r = rm()->validate_ds(ds_cap, flags.region_flags(), &ds))
           return r;
       }
 

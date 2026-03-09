@@ -97,7 +97,7 @@ private:
 public:
   typedef cxx::Weak_ref<Moe::Dataspace const> Dataspace;
   enum { Have_find = false };
-  static l4_ret_t validate_ds(void *, L4::Ipc::Snd_fpage const &ds_cap,
+  static l4_ret_t validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
                               L4Re::Rm::Region_flags flags, Dataspace *ds);
   static l4_umword_t find_res(Dataspace const &) { return 0; }
 
