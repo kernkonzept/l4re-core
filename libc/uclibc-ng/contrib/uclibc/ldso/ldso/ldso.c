@@ -330,49 +330,6 @@ static void __attribute__ ((destructor)) __attribute_used__ _dl_fini(void)
 	}
 }
 
-#ifndef __AW11_LIB_DEP_SORT__
-static int _dl_lib_deps_cmp(struct elf_resolve *a, struct elf_resolve *b)
-{
-	struct init_fini_list *runp = a->init_fini;
-	for (; runp; runp = runp->next)
-		if (runp->tpnt == b)
-			return 1;
-	return 0;
-}
-
-static void _dl_lib_deps_swap(struct elf_resolve **x, int a, int b)
-{
-	struct elf_resolve *tmp;
-
-	_dl_if_debug_dprint("Swap %s at %d and %s at %d in INIT/FINI list\n", x[a]->libname, a, x[b]->libname, b);
-	
-	tmp = x[a];
-	x[a] = x[b];
-	x[b] = tmp;
-}
-
-static void _dl_lib_deps_sort(struct elf_resolve **a, int len)
-{
-	if (!len)
-		return;
-
-	do {
-		int min = len - 1;
-		int i;
-		for (i = len - 2; i > 0; --i)
-			if (_dl_lib_deps_cmp(a[min], a[i])) {
-				min = i;
-				i = len - 1;
-			}
-
-		if (min != len - 1)
-			_dl_lib_deps_swap(a, min, len - 1);
-
-		--len;
-	} while (len);
-}
-#endif
-
 #ifdef __LDSO_PRELINK_SUPPORT__
 static void trace_objects(struct elf_resolve *tpnt, char *str_name)
 {
@@ -1180,9 +1137,6 @@ of this helper program; chances are you did not intend to run this program.\n\
 		init_fini_list[i++] = tcurr;
 
 	/* Sort the INIT/FINI list in dependency order. */
-#ifndef __AW11_LIB_DEP_SORT__
-	_dl_lib_deps_sort(init_fini_list, nlist);
-#else
 	for (tcurr = _dl_loaded_modules->next; tcurr; tcurr = tcurr->next) {
 		unsigned int j, k;
 
@@ -1204,7 +1158,6 @@ of this helper program; chances are you did not intend to run this program.\n\
 			}
 		}
 	}
-#endif
 #ifdef __SUPPORT_LD_DEBUG__
 	if (_dl_debug) {
 		_dl_dprintf(_dl_debug_file, "\nINIT/FINI order and dependencies:\n");
