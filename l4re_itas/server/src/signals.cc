@@ -503,7 +503,7 @@ Thread_signal_handler::call_default_action(siginfo_t const &si,
       if (!dbg_events.is_valid())
         {
           err.printf("No backtrace service available!\n");
-          Global::local_rm->debug_dump(0);
+          Global::local_rm->op_debug(L4Re::Debug_obj::Rights(0), 0);
         }
       else
         {
@@ -573,7 +573,11 @@ Thread_signal_handler::dump_stack(L4Re::Util::Err const &err, l4_addr_t sp)
       sp &= ~l4_addr_t{sizeof(l4_umword_t) - 1};
     }
 
-  auto stack_region = Global::local_rm->find(L4Re::Util::Region(sp, sp));
+  // Get read-only access to region map. Needs to be stored in variable to
+  // retain read-lock until end of scope!
+  auto rm = Global::local_rm->read_access();
+
+  auto stack_region = rm->find(L4Re::Util::Region(sp, sp));
   if (!stack_region)
     {
       err.printf("--- invalid stack region ---\n");

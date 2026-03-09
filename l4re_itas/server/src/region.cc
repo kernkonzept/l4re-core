@@ -130,8 +130,8 @@ Region_map::debug_dump(unsigned long /*function*/) const
 }
 
 l4_ret_t
-Region_map::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
-                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
+Region_map_svr::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
+                             L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
 {
   Dbg w(Dbg::Warn);
   w.printf("%s: Unhandled exception: PC=0x%lx PFA=0x%lx LdrFlgs=0x%lx\n",
@@ -142,9 +142,9 @@ Region_map::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
 }
 
 l4_ret_t
-Region_map::op_io_page_fault(L4::Io_pager::Rights,
-                             l4_fpage_t io_pfa, l4_umword_t pc,
-                             L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
+Region_map_svr::op_io_page_fault(L4::Io_pager::Rights,
+                                 l4_fpage_t io_pfa, l4_umword_t pc,
+                                 L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
 {
   Err().printf("IO-port-fault: port=0x%lx size=%d pc=0x%lx\n",
                l4_fpage_ioport(io_pfa), 1 << l4_fpage_size(io_pfa), pc);

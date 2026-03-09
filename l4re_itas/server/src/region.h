@@ -16,6 +16,8 @@
 #include "debug.h"
 #include <stdlib.h>
 
+#include "lock.h"
+
 inline void *operator new (size_t s, cxx::Nothrow const &) noexcept { return malloc(s); }
 inline void operator delete (void *p, cxx::Nothrow const &) noexcept { return free(p); }
 
@@ -75,7 +77,6 @@ using Region_map_interface =
 
 class Region_map
 : public L4Re::Util::Region_map<Region_handler, cxx::New_allocator>,
-  public L4::Epiface_t<Region_map, Region_map_interface>,
   public L4Re::Util::Rm_server<Region_map, Dbg>
 {
 private:
@@ -106,14 +107,154 @@ public:
   void init();
 
   void debug_dump(unsigned long function) const;
+};
 
-  l4_ret_t op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
-                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
+class Region_map_svr
+: public L4::Epiface_t<Region_map_svr, Region_map_interface>
+{
+public:
+  class Read_access
+  {
+    Region_map const &_rm;
+    Rw_lock_read_scope _read_scope;
+
+  public:
+    explicit Read_access(Region_map const &rm, Rw_lock &lock)
+    : _rm(rm), _read_scope(lock)
+    {}
+
+    Region_map const *operator->() const { return &_rm; }
+  };
+
+  void init() { _region_map.init(); }
+
+  l4_addr_t attach_area(l4_addr_t addr, unsigned long size,
+                   L4Re::Rm::Flags flags = L4Re::Rm::Flags(0)) noexcept
+  {
+    Rw_lock_write_scope scope(_lock);
+    return _region_map.attach_area(addr, size, flags);
+  }
+
+  bool detach_area(l4_addr_t addr) noexcept
+  {
+    Rw_lock_write_scope scope(_lock);
+    return _region_map.detach_area(addr);
+  }
+
+  void *attach(void *addr, l4_size_t size, L4::Cap<L4Re::Dataspace> mem,
+               L4Re::Rm::Flags flags, char align = L4_PAGESHIFT,
+               char const *name = nullptr, unsigned name_len = 0,
+               L4Re::Rm::Offset backing_offset = 0)
+  {
+    Rw_lock_write_scope scope(_lock);
+
+    return _region_map.attach(addr, size,
+                              Region_handler(mem, mem.cap(), 0,
+                                             flags.region_flags()),
+                              flags.attach_flags(), align,
+                              name, name_len, backing_offset);
+  }
+
+  Read_access read_access() const
+  { return Read_access(_region_map, _lock); }
+
+  // L4Re::Rm API
+
+  long op_attach(L4Re::Rm::Rights rights, l4_addr_t &start,
+                 unsigned long size, L4Re::Rm::Flags flags,
+                 L4::Ipc::Snd_fpage ds_cap, L4Re::Rm::Offset offs,
+                 unsigned char align, l4_cap_idx_t client_cap_idx,
+                 L4::Ipc::String<> name, L4Re::Rm::Offset backing_offset)
+  {
+    Rw_lock_write_scope scope(_lock);
+    return _region_map.op_attach(rights, start, size, flags, ds_cap, offs,
+                                 align, client_cap_idx, name, backing_offset);
+  }
+
+  long op_free_area(L4Re::Rm::Rights rights, l4_addr_t start)
+  {
+    Rw_lock_write_scope scope(_lock);
+    return _region_map.op_free_area(rights, start);
+  }
+
+  long op_find(L4Re::Rm::Rights rights, l4_addr_t &addr, unsigned long &size,
+               L4Re::Rm::Flags &flags, L4Re::Rm::Offset &offset,
+               L4::Cap<L4Re::Dataspace> &m)
+  {
+    Rw_lock_read_scope scope(_lock);
+    return _region_map.op_find(rights, addr, size, flags, offset, m);
+  }
+
+  long op_detach(L4Re::Rm::Rights rights, l4_addr_t addr,
+                 unsigned long size, unsigned flags,
+                 l4_addr_t &start, l4_addr_t &rsize,
+                 l4_cap_idx_t &mem_cap)
+  {
+    Rw_lock_write_scope scope(_lock);
+    return _region_map.op_detach(rights, addr, size, flags, start, rsize,
+                                 mem_cap);
+  }
+
+  long op_reserve_area(L4Re::Rm::Rights rights, l4_addr_t &start,
+                       unsigned long size, L4Re::Rm::Flags flags,
+                       unsigned char align)
+  {
+    Rw_lock_write_scope scope(_lock);
+    return _region_map.op_reserve_area(rights, start, size, flags, align);
+  }
+
+  long op_get_regions(L4Re::Rm::Rights rights, l4_addr_t addr,
+                      L4::Ipc::Ret_array<L4Re::Rm::Region> regions)
+  {
+    Rw_lock_read_scope scope(_lock);
+    return _region_map.op_get_regions(rights, addr, regions);
+  }
+
+  long op_get_areas(L4Re::Rm::Rights rights, l4_addr_t addr,
+                    L4::Ipc::Ret_array<L4Re::Rm::Area> areas)
+  {
+    Rw_lock_read_scope scope(_lock);
+    return _region_map.op_get_areas(rights, addr, areas);
+  }
+
+  long op_get_info(L4Re::Rm::Rights rights, l4_addr_t addr,
+                   L4::Ipc::String<char> &name,
+                   L4Re::Rm::Offset &backing_offset)
+  {
+    Rw_lock_read_scope scope(_lock);
+    return _region_map.op_get_info(rights, addr, name, backing_offset);
+  }
+
+  // L4::Pager API
+
+  l4_ret_t op_page_fault(L4::Pager::Rights rights, l4_umword_t addr,
+                         l4_umword_t pc, L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp)
+  {
+    Rw_lock_read_scope scope(_lock);
+    return _region_map.op_page_fault(rights, addr, pc, fp);
+  }
+
   l4_ret_t op_io_page_fault(L4::Io_pager::Rights,
                             l4_fpage_t io_pfa, l4_umword_t pc,
                             L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
+
+  // L4::Exception API
+
+  l4_ret_t op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
+                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
+
+  // L4Re::Debug_obj API
+
   l4_ret_t op_debug(L4Re::Debug_obj::Rights, unsigned long function)
-  { debug_dump(function); return 0; }
+  {
+    Rw_lock_read_scope scope(_lock);
+    _region_map.debug_dump(function);
+    return 0;
+  }
+
+private:
+  Region_map _region_map;
+  mutable Rw_lock _lock;
 };
 
 

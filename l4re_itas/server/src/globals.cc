@@ -18,7 +18,7 @@ extern char const **__environ;
 namespace Global
 {
   L4::Cap<L4Re::Mem_alloc> allocator(L4::Cap_base::No_init);
-  cxx::Static_container<Region_map> local_rm;
+  cxx::Static_container<Region_map_svr> local_rm;
   cxx::Static_container<Cap_alloc> cap_alloc;
   char const *const *argv;
   char const *const *envp;

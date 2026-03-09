@@ -19,8 +19,11 @@ static l4_ret_t pagein(l4_addr_t addr, bool with_write, bool with_exec)
 {
   if (l4_trunc_page(addr) != last_pfn)
     {
-      L4Re::Util::Region region(addr, addr);
-      Region_map::Node node = Global::local_rm->find(region);
+      // Get read-only access to region map. Needs to be stored in variable to
+      // retain read-lock until end of scope!
+      auto rm = Global::local_rm->read_access();
+
+      Region_map::Node node = rm->find(addr);
       if (!node)
         return -L4_ENOENT;
 

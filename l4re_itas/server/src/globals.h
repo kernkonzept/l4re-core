@@ -15,7 +15,7 @@
 #include <l4/re/util/bitmap_cap_alloc>
 #include <l4/cxx/static_container>
 
-class Region_map;
+class Region_map_svr;
 
 namespace Global
 {
@@ -28,7 +28,7 @@ namespace Global
   using Cap_alloc = L4Re::Cap_alloc_t<L4Re::Util::Cap_alloc<Max_local_rm_caps>>;
 
   extern L4::Cap<L4Re::Mem_alloc> allocator;
-  extern cxx::Static_container<Region_map> local_rm;
+  extern cxx::Static_container<Region_map_svr> local_rm;
   extern cxx::Static_container<Cap_alloc> cap_alloc;
   extern char const *const *argv;
   extern char const *const *envp;
