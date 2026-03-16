@@ -9,7 +9,7 @@
 
 #include <cstddef>
 #include <l4/sys/consts.h>
-#include <l4/libumalloc/umalloc.h>
+#include <l4/umalloc/umalloc.h>
 #include "page_alloc.h"
 
 size_t umalloc_area_granularity = L4_PAGESIZE;

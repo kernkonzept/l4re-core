@@ -7,7 +7,7 @@
 
 #include <l4/bid_config.h>
 #include <l4/cxx/iostream>
-#include <l4/libumalloc/umalloc.h>
+#include <l4/umalloc/umalloc.h>
 
 extern char __heap_start[];
 extern char __heap_end[];

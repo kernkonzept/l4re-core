@@ -45,7 +45,7 @@
 #include <limits>
 #include <l4/cxx/numeric>
 #include <l4/cxx/type_traits>
-#include <l4/libumalloc/umalloc.h>
+#include <l4/umalloc/umalloc.h>
 
 namespace umalloc {
 

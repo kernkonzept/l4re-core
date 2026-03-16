@@ -15,7 +15,7 @@
 #include <l4/re/error_helper>
 #include <l4/re/unique_cap>
 #include <l4/cxx/iostream>
-#include <l4/libumalloc/umalloc.h>
+#include <l4/umalloc/umalloc.h>
 
 #include <stdlib.h>
 
