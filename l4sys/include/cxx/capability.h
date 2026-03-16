@@ -449,4 +449,35 @@ Cap<T> cap_reinterpret_cast(Cap<F> const &c) noexcept
   return Cap<T>(c.cap());
 }
 
+/**
+ * Value class for a reply capability index.
+ *
+ * Ensures that the L4_REPLY_CAP_BIT is always set to make this an index into
+ * the reply capability space.
+ */
+class Reply_cap_idx
+{
+  l4_cap_idx_t _i;
+
+public:
+  constexpr explicit Reply_cap_idx() noexcept : _i(L4_INVALID_REPLY_CAP) {}
+  constexpr explicit Reply_cap_idx(l4_cap_idx_t i) noexcept
+  : _i(i | L4_REPLY_CAP_BIT) {}
+
+  constexpr l4_cap_idx_t cap() const noexcept
+  { return _i; }
+
+  explicit constexpr operator l4_cap_idx_t() const noexcept
+  { return _i; }
+
+  explicit constexpr operator bool() const noexcept
+  { return !(_i & L4_INVALID_CAP_BIT); }
+
+  constexpr bool operator==(Reply_cap_idx o) const noexcept
+  { return _i == o._i; }
+
+  constexpr bool operator!=(Reply_cap_idx o) const noexcept
+  { return _i != o._i; }
+};
+
 }
