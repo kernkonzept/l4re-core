@@ -359,6 +359,29 @@ L4_INLINE l4_msgtag_t
 l4_ipc_call(l4_cap_idx_t object, l4_utcb_t *utcb, l4_msgtag_t tag,
             l4_timeout_t timeout) L4_NOTHROW;
 
+/**
+ * Reply operation (uses a *reply* capability).
+ * \ingroup l4_ipc_api
+ *
+ * \param reply_cap Reply capability selector. A value of #L4_INVALID_CAP
+ *                  denotes the implicit reply capability of the current
+ *                  thread. Otherwise, to use an explicit reply capability, the
+ *                  L4_REPLY_CAP_BIT must be set.
+ * \utcb{utcb}
+ * \param tag       Describes the message to be sent as reply.
+ * \param timeout   Timeout pair (see #l4_timeout_t).
+ *
+ * \return  result tag
+ *
+ * A message is sent to a previous caller using the given reply capability.
+ * The reply capability is always invalidated by the call, even if the IPC
+ * operation fails.
+ *
+ * \see \ref l4re_concepts_ipc
+ */
+L4_INLINE l4_msgtag_t
+l4_ipc_reply(l4_cap_idx_t reply_cap, l4_utcb_t *utcb, l4_msgtag_t tag,
+             l4_timeout_t timeout) L4_NOTHROW;
 
 /**
  * Reply and wait operation (uses the *reply* capability).
@@ -570,6 +593,14 @@ l4_ipc_call(l4_cap_idx_t object, l4_utcb_t *utcb, l4_msgtag_t tag,
             l4_timeout_t timeout) L4_NOTHROW
 {
   return l4_ipc(object, utcb, L4_SYSF_CALL, 0, tag, 0, timeout);
+}
+
+L4_INLINE l4_msgtag_t
+l4_ipc_reply(l4_cap_idx_t reply_cap, l4_utcb_t *utcb, l4_msgtag_t tag,
+             l4_timeout_t timeout) L4_NOTHROW
+{
+  return l4_ipc(reply_cap, utcb, L4_SYSF_REPLY | L4_SYSF_SEND, 0, tag, 0,
+                timeout);
 }
 
 L4_INLINE l4_msgtag_t
