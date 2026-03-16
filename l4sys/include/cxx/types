@@ -432,6 +432,10 @@ namespace Types {
   constexpr T &&
   forward(Remove_reference_t<T> &&t)
   { return static_cast<T &&>(t); }
+
+  template<typename T>
+  constexpr Remove_reference_t<T> &&
+  move(T &&t) { return static_cast<Remove_reference_t<T> &&>(t); }
 } // Types
 
 } // L4
