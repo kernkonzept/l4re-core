@@ -80,7 +80,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   inline _GLIBCXX_CONSTEXPR long double
   abs(long double __x)
   { return __builtin_fabsl(__x); }
-#endif
+#endif /* BID_VARIANT_FLAG_NOFPU */
 #endif /* L4_MINIMAL_LIBC */
 #endif
 
@@ -153,7 +153,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   }
 #endif
 #endif /* L4_MINIMAL_LIBC */
-#endif
+#endif /* BID_VARIANT_FLAG_NOFPU */
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace
