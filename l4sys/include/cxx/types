@@ -422,6 +422,16 @@ namespace Types {
   template<typename T> struct Remove_pr<T&> { using type = T; };
   template<typename T> struct Remove_pr<T*> { using type = T; };
   template<typename T> using Remove_pr_t = typename Remove_pr<T>::type;
+
+  template<typename T>
+  constexpr T &&
+  forward(Remove_reference_t<T> &t)
+  { return static_cast<T &&>(t); }
+
+  template<typename T>
+  constexpr T &&
+  forward(Remove_reference_t<T> &&t)
+  { return static_cast<T &&>(t); }
 } // Types
 
 } // L4
