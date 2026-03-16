@@ -37,7 +37,7 @@
 #include <mutex>      // mutex
 #include <filesystem> // filesystem::read_symlink
 
-#ifndef _AIX
+#ifdef _AIX
 # include <cstdlib>   // getenv
 #endif
 
