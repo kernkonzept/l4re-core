@@ -95,6 +95,7 @@ public:
     else
       env->dbg_events(L4::Cap<L4Re::Dbg_events>{});
     env->first_free_cap(first_free >> L4_CAP_SHIFT);
+    env->first_free_reply_cap(0);
     env->utcb_area(l4_fpage(this->_info.utcbs_start, this->_info.utcbs_log2size, 0));
     env->first_free_utcb(this->_info.utcbs_start + L4_UTCB_OFFSET);
     env->initial_caps(this->_stack.relocate(caps));

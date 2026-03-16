@@ -156,6 +156,14 @@ namespace L4Re
     l4_cap_idx_t first_free_cap() const noexcept
     { return _env.first_free_cap; }
     /**
+     * First available reply capability index.
+     * \return First reply capability index.
+     *
+     * First reply capability selector index for use for in the application.
+     */
+    l4_umword_t first_free_reply_cap() const noexcept
+    { return _env.first_free_reply_cap; }
+    /**
      * UTCB area of the task.
      * \return UTCB area
      */
@@ -258,6 +266,12 @@ namespace L4Re
      */
     void first_free_cap(l4_cap_idx_t c) noexcept
     { _env.first_free_cap = c; }
+    /**
+     * Set first available reply capability index.
+     * \param c First reply capability index available to the application.
+     */
+    void first_free_reply_cap(l4_umword_t c) noexcept
+    { _env.first_free_reply_cap = c; }
     /**
      * Set UTCB area of the task.
      * \param utcbs  UTCB area
