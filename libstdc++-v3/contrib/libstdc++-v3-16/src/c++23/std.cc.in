@@ -1384,6 +1384,9 @@ export namespace std
   using std::range_format;
   using std::range_formatter;
 #endif
+#if __glibcxx_print >= 202403L
+  using std::enable_nonlocking_formatter_optimization;
+#endif
 }
 
 // <forward_list>
@@ -1915,8 +1918,8 @@ export namespace std
   using std::full_extent_t;
   using std::full_extent;
   using std::submdspan_mapping_result;
-  using std::submdspan_canonicalize_slices;
-  using std::submdspan_extents;
+  using std::canonical_slices;
+  using std::subextents;
   using std::submdspan;
 #endif
 }
@@ -2054,6 +2057,9 @@ export namespace std
 #if __cpp_lib_start_lifetime_as
   using std::start_lifetime_as;
   using std::start_lifetime_as_array;
+#endif
+#ifdef __glibcxx_allocate_at_least
+  using std::allocation_result;
 #endif
 }
 
@@ -2556,6 +2562,11 @@ export namespace std
   using std::uniform_random_bit_generator;
   using std::uniform_real_distribution;
   using std::weibull_distribution;
+#if __cpp_lib_philox_engine
+  using std::philox_engine;
+  using std::philox4x32;
+  using std::philox4x64;
+#endif
 }
 
 // <ranges>
@@ -2786,6 +2797,9 @@ export namespace std
 #if __glibcxx_ranges_to_input // C++ >= 26
     using ranges::to_input_view;
     namespace views { using views::to_input; }
+#endif
+#ifdef __cpp_lib_ranges_indices // C++ >= 26
+    namespace views { using views::indices; }
 #endif
   }
 #if __glibcxx_ranges_to_container // C++ >= 23
@@ -3551,6 +3565,14 @@ export namespace std
 #if __cpp_lib_is_implicit_lifetime
   using std::is_implicit_lifetime;
   using std::is_implicit_lifetime_v;
+#endif
+#if __cpp_impl_reflection >= 202506L
+  using std::is_reflection;
+  using std::is_reflection_v;
+#if _GLIBCXX_USE_BUILTIN_TRAIT(__builtin_is_consteval_only)
+  using std::is_consteval_only;
+  using std::is_consteval_only_v;
+#endif
 #endif
 }
 

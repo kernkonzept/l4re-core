@@ -1,6 +1,6 @@
-// <filesystem> -*- C++ -*-
+// <simd> -*- C++ -*-
 
-// Copyright (C) 2014-2026 Free Software Foundation, Inc.
+// Copyright The GNU Toolchain Authors.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -22,40 +22,27 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/** @file include/filesystem
+/** @file simd
  *  This is a Standard C++ Library header.
- *  @ingroup filesystem
  */
 
-#ifndef _GLIBCXX_FILESYSTEM
-#define _GLIBCXX_FILESYSTEM 1
+#ifndef _GLIBCXX_SIMD
+#define _GLIBCXX_SIMD 1
 
 #ifdef _GLIBCXX_SYSHDR
 #pragma GCC system_header
 #endif
 
-#include <bits/requires_hosted.h>
-
-#define __glibcxx_want_filesystem
-#define __glibcxx_want_format_path
+#define __glibcxx_want_simd
 #include <bits/version.h>
 
-#ifdef __cpp_lib_filesystem // C++ >= 17 && HOSTED
+#ifdef __glibcxx_simd
 
-/**
- * @defgroup filesystem File System
- *
- * Utilities for performing operations on file systems and their components,
- * such as paths, regular files, and directories.
- *
- * @since C++17
- */
+#include "bits/simd_vec.h"
+#include "bits/simd_loadstore.h"
+#include "bits/simd_mask_reductions.h"
+#include "bits/simd_reductions.h"
+#include "bits/simd_alg.h"
 
-#include <bits/fs_fwd.h>
-#include <bits/fs_path.h>
-#include <bits/fs_dir.h>
-#include <bits/fs_ops.h>
-
-#endif // __cpp_lib_filesystem
-
-#endif // _GLIBCXX_FILESYSTEM
+#endif
+#endif

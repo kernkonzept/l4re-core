@@ -89,6 +89,14 @@ ftms = {
 };
 
 ftms = {
+  name = allocate_at_least;
+  values = {
+    v = 202302;
+    cxxmin = 23;
+  };
+};
+
+ftms = {
   name = is_null_pointer;
   values = {
     v = 201309;
@@ -1562,6 +1570,16 @@ ftms = {
 };
 
 ftms = {
+  name = format_path;
+  // 202403 P2845R8 Formatting of std::filesystem::path
+  values = {
+    v = 202403;
+    cxxmin = 26;
+    hosted = yes;
+  };
+};
+
+ftms = {
   name = freestanding_algorithm;
   values = {
     v = 202311;
@@ -1638,6 +1656,14 @@ ftms = {
   values = {
     v = 202110;
     cxxmin = 23;
+  };
+};
+
+ftms = {
+  name = associative_heterogeneous_insertion;
+  values = {
+    v = 202306;
+    cxxmin = 26;
   };
 };
 
@@ -2304,6 +2330,19 @@ ftms = {
     v = 202502;
     cxxmin = 26;
     extra_cond = "__cpp_contracts >= 202502L";
+  };
+};
+
+ftms = {
+  name = simd;
+  values = {
+    no_stdname = true; // TODO: change once complete
+    v = 202506;
+    cxxmin = 26;
+    extra_cond = "__cpp_structured_bindings >= 202411L "
+    "&& __cpp_expansion_statements >= 202411L "
+    "&& (__x86_64__ || __i386__)"; // TODO: lift initial restriction to x86
+    hosted = yes;
   };
 };
 

@@ -46,7 +46,7 @@
 
 // The datestamp of the C++ library in compressed ISO date format.
 #undef __GLIBCXX__ /* The testsuite defines it to 99999999 to block PCH.  */
-#define __GLIBCXX__ 20260208
+#define __GLIBCXX__ 20260322
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -1896,10 +1896,6 @@ namespace __gnu_cxx
 /* #undef _GLIBCXX_USE_STDIO_PURE */
 
 /* Define if struct tm has a tm_zone member. */
-/* If we enable this then each time we include <chrono> we need to define
- * _BSD_SOURCE, otherwise uclibc/include/time.h wouldn't define tm_zone
- * which is used by <bits/chrono_io.h>.
- * <chrono> depends on <bits/chroni_io.h> if C++20 is enabled. */
 /* #undef _GLIBCXX_USE_STRUCT_TM_TM_ZONE */
 
 /* Define if struct stat has timespec members. */
