@@ -46,7 +46,8 @@ static char const *const _l4sys_ipc_errortab[L4_EIPC_HI - L4_EIPC_LO] = {
     [L4_IPC_SEABORTED]     = "Send operation aborted",
     [L4_IPC_REABORTED]     = "Receive operation aborted",
     [L4_IPC_SEMAPFAILED]   = "Map operation failed (send phase)",
-    [L4_IPC_REMAPFAILED]   = "Map operation failed (receive phase)"
+    [L4_IPC_REMAPFAILED]   = "Map operation failed (receive phase)",
+    [L4_IPC_NO_REPLY_CAP]  = "Reply capability slot not available",
 };
 
 static char const *const _l4sys_ipc_errortab2[] = {

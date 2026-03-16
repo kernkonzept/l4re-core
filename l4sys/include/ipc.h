@@ -141,6 +141,13 @@ enum l4_ipc_tcr_error_t
    * \ingroup l4_ipc_api
    */
   L4_IPC_SEMSGCUT         = 0x08,
+
+  /**
+   * Receive operation using explicit reply capability failed. Either the reply
+   * capability index was too large or the callers memory quota was exhausted.
+   * \ingroup l4_ipc_api
+   */
+  L4_IPC_NO_REPLY_CAP     = 0x13,
 };
 
 
