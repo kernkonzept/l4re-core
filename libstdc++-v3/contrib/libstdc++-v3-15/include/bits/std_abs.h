@@ -159,7 +159,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   }
 #endif
 #endif /* L4_MINIMAL_LIBC */
-#endif
+#endif /* BID_VARIANT_FLAG_NOFPU */
 
 _GLIBCXX_END_NAMESPACE_VERSION
 } // namespace

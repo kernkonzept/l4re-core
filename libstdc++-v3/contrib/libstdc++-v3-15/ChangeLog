@@ -1,3 +1,222 @@
+2026-03-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-03-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++20/tzdb.cc [_AIX]: Change #ifndef to #ifdef.
+
+2026-03-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-03-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124568
+	* testsuite/24_iterators/istreambuf_iterator/105580.cc: Add
+	no_pch option.
+
+2026-03-16  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	Backported from master:
+	2026-03-05  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/124124
+	* testsuite/29_atomics/atomic/cons/zero_padding.cc: Limit size of
+	test types to four bytes.
+
+2026-03-16  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/105580
+	* include/std/streambuf (streambuf::gptr, streambuf::egptr)
+	(streambuf::gbump): Surround with pragma disabling -Wnull-dereference.
+	* testsuite/24_iterators/istreambuf_iterator/105580.cc: New test.
+	(cherry picked from commits
+	8758503918a91dacff4dbc7126eced21787fbfc9
+	bfc2b87f8244a13ab00e8e3fe2af1d6d18fcaa36
+	a523d1ecc89dcb7ea205e3de22d00443d4a0d91d)
+
+2026-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-02-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124015
+	* include/bits/regex.tcc (regex_traits::lookup_classname): Fix
+	handling of icase parameter.
+
+2026-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-02-11  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124015
+	* testsuite/28_regex/traits/char/lookup_classname.cc: Check for
+	correct result for unrecognized classname. Check that lookup is
+	case insensitive. Check that all required classnames are
+	recognized. Check that icase flag only affects "lower" and
+	"upper".
+	* testsuite/28_regex/traits/wchar_t/lookup_classname.cc:
+	Likewise.
+
+2026-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-02-13  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/121771
+	* include/std/tuple (tuple::tuple(const Elements&...)): Use
+	type_identity_t to prevent constructor being used for CTAD.
+	(tuple::tuple(allocator_arg_t, const A&, const Elements&...)):
+	Likewise.
+	* testsuite/20_util/tuple/cons/121771.cc: New test.
+
+2026-03-09  Xi Ruoyao  <xry111@xry111.site>
+
+	Backported from master:
+	2026-02-12  Xi Ruoyao  <xry111@xry111.site>
+		    Jonathan Wakely  <jwakely@redhat.com>
+
+	* testsuite/17_intro/badnames.cc (__unused): Do not define.
+	* testsuite/17_intro/names.cc [glibc == 2.43] (__unused): Undef.
+
+2026-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-10-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex.tcc (regex_traits::value): Use __c instead
+	of __ch.
+
+2026-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-11-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex_automaton.tcc [_GLIBCXX_DEBUG]: Include
+	<ostream> so that _State_base::_M_print etc. can use it.
+
+2026-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-10-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex.tcc (regex_traits::value): Implement
+	without using istringstream.
+	* include/std/regex: Do not include <sstream>.
+
+2026-03-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-04-29  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex_compiler.h: Replace _GLIBCXX17_CONSTEXPR
+	with constexpr and disable diagnostics with pragmas.
+	(_AnyMatcher::operator()): Use constexpr-if instead of tag
+	dispatching. Postpone calls to _M_translate until after checking
+	result of earlier calls.
+	(_AnyMatcher::_M_apply): Remove both overloads.
+	(_BracketMatcher::operator(), _BracketMatcher::_M_ready):
+	Replace tag dispatching with 'if constexpr'.
+	(_BracketMatcher::_M_apply(_CharT, true_type)): Remove.
+	(_BracketMatcher::_M_apply(_CharT, false_type)): Remove second
+	parameter.
+	(_BracketMatcher::_M_make_cache): Remove both overloads.
+	* include/bits/regex_compiler.tcc (_BracketMatcher::_M_apply):
+	Remove second parameter.
+	* include/bits/regex_executor.tcc: Replace _GLIBCXX17_CONSTEXPR
+	with constexpr and disable diagnostics with pragmas.
+	(_Executor::_M_handle_backref): Replace __glibcxx_assert with
+	static_assert.
+	(_Executor::_M_handle_accept): Mark _S_opcode_backref case as
+	unreachable for non-DFS mode and do not instantiate
+	_M_handle_backref for that case.
+
+2026-03-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-03-04  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124363
+	* include/std/string_view: Adjust comment on #endif to match #if
+	condition. Likewise for header guard.
+
+2026-03-03  Patrick Palka  <ppalka@redhat.com>
+
+	Backported from master:
+	2026-02-12  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/114865
+	* include/std/atomic (atomic<_Tp>::atomic(_Tp)) [C++11]:
+	Enable __builtin_clear_padding logic.
+	* testsuite/29_atomics/atomic/compare_exchange_padding.cc: Enable
+	this test in earlier modes, including C++11.
+	* testsuite/29_atomics/atomic/cons/zero_padding.cc [C++11]:
+	Enable tests verifying cleared padding bits for a non-static-init
+	std::atomic object.
+
+2026-02-26  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	PR libstdc++/123875
+	* include/bits/atomic_base.h (__atomic_impl::__clear_padding):
+	Use if constexpr unconditionally.
+	(__atomic_float<_Fp>::__atomic_float(_Fp)): Skip __clear_padding
+	call for constant evaluation.
+	* include/std/atomic (atomic<_Tp>::atomic(_Tp)): Likewise.
+	* testsuite/29_atomics/atomic/cons/zero_padding.cc: New test.
+	* testsuite/29_atomics/atomic_float/zero_padding.cc: New test.
+	(cherry picked from commits
+	6b550d69fe7cb62ea6e240ce7a4ba29ce33aa1b1
+	682c95b808724e6f876ea709b873ac6771704d7b
+	060d7c2a9c1fe16d23d98a74287fdb7c73ddb784
+	f3ba5ad088cebe117f857329a35b95d18d97a808)
+
+2026-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	* python/libstdcxx/v6/xmethods.py (ListMethodsMatcher.match):
+	Fix lookup for node type.
+
+2026-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2025-11-24  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/122821
+	* python/libstdcxx/v6/xmethods.py (_versioned_namespace): Remove
+	global variable.
+	(is_specialization_of): Do not use _versioned_namespace. Add
+	__debug:: to regex.
+
+2026-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-02-10  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/123991
+	* include/bits/basic_string.h (compare(size_type, size_type, T)):
+	Remove noexcept-specifier.
+	(compare(size_type, size_type, T, size_type, size_type)):
+	Likewise.
+	* include/bits/cow_string.h (compare(size_type, size_type, T)):
+	Remove noexcept-specifier.
+	(compare(size_type, size_type, T, size_type, size_type)):
+	Likewise.
+	* testsuite/21_strings/basic_string/operations/compare/char/123991.cc:
+	New test.
+	* testsuite/21_strings/basic_string/operations/compare/wchar_t/123991.cc:
+	New test.
+
+2026-02-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	Backported from master:
+	2026-02-09  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124024
+	* include/bits/out_ptr.h (out_ptr): Fix doxygen comment to refer
+	to the right function.
+	(inout_ptr): Improve markup in doxygen comment.
+
 2026-02-06  Tomasz Kamiński  <tkaminsk@redhat.com>
 
 	Backported from master:
