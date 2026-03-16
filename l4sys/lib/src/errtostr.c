@@ -54,6 +54,8 @@ static char const *const _l4sys_ipc_errortab2[] = {
     [L4_EMSGTOOSHORT - 1000] = "Message too short",
     [L4_EMSGTOOLONG  - 1000] = "Message too long",
     [L4_EMSGMISSARG  - 1000] = "Message is missing (an) argument(s)",
+    [L4_EMSGERRRANGE - 1000] = "Error code range error",
+    [L4_EDROPREPLY   - 1000] = "Server dropped reply capability",
 };
 
 L4_CV char const *l4sys_errtostr(long err)
@@ -66,7 +68,7 @@ L4_CV char const *l4sys_errtostr(long err)
     return _l4sys_errortab[err];
   else if (err >= L4_EIPC_LO && err < L4_EIPC_HI)
     return _l4sys_ipc_errortab[err - L4_EIPC_LO];
-  else if (err >= L4_ENOREPLY && err <= L4_EMSGMISSARG)
+  else if (err >= L4_ENOREPLY && err <= L4_EDROPREPLY)
     return _l4sys_ipc_errortab2[err - 1000];
   else
     return "bad, unknown runtime error";

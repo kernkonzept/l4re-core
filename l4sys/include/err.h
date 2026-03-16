@@ -58,6 +58,7 @@ enum l4_error_code_t
   L4_EMSGTOOLONG   = 1002,   /**< Message too long. */
   L4_EMSGMISSARG   = 1003,   /**< Message has invalid capability. */
   L4_EMSGERRRANGE  = 1004,   /**< Error code range error. */
+  L4_EDROPREPLY    = 1005,   /**< Server dropped reply capability. */
 
   L4_EIPC_LO       = 2000,   /**< Communication error-range low. */
   L4_EIPC_HI       = 2000 + 0x1f,   /**< Communication error-range high. */
