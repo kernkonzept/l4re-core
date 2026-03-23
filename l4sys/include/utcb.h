@@ -146,7 +146,7 @@ typedef union l4_msg_regs_t
  */
 typedef struct l4_buf_regs_t
 {
-  /// Buffer descriptor
+  /// Buffer descriptor \see l4_bdr()
   l4_umword_t bdr;
 
   /// Buffer registers
@@ -280,6 +280,19 @@ L4_INLINE void l4_utcb_inherit_fpu(int switch_on) L4_NOTHROW;
 L4_INLINE void l4_utcb_inherit_fpu_u(l4_utcb_t *u, int switch_on) L4_NOTHROW;
 
 /**
+ * Create a buffer descriptor.
+ *
+ * \param mem   Index of the first memory receive buffer.
+ * \param io    Index of the first IO-port receive buffer.
+ * \param obj   Index of the first object receive buffer.
+ * \param flags Flags (only #L4_UTCB_INHERIT_FPU so far).
+ *
+ * \ingroup l4_utcb_br_api
+ */
+L4_INLINE l4_umword_t l4_bdr(l4_umword_t mem, l4_umword_t io, l4_umword_t obj,
+                             l4_umword_t flags) L4_NOTHROW;
+
+/**
  * \internal
  *
  * Set an absolute timeout.
@@ -344,6 +357,13 @@ L4_INLINE void l4_utcb_inherit_fpu_u(l4_utcb_t *u, int switch_on) L4_NOTHROW
     l4_utcb_br_u(u)->bdr |= L4_UTCB_INHERIT_FPU;
   else
     l4_utcb_br_u(u)->bdr &= ~L4_UTCB_INHERIT_FPU;
+}
+
+L4_INLINE l4_umword_t l4_bdr(l4_umword_t mem, l4_umword_t io, l4_umword_t obj,
+                             l4_umword_t flags) L4_NOTHROW
+{
+  // flags (bits 24..31) are already shifted!
+  return (mem << 0) | (io << 5) | (obj << 10) | flags;
 }
 
 L4_INLINE l4_utcb_t *l4_utcb(void) L4_NOTHROW
