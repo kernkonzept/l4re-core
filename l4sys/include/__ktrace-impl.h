@@ -15,10 +15,15 @@
 
 #include <l4/sys/types.h>
 #include <l4/sys/kdebug.h>
+#include <l4/sys/task.h>
 
 /*****************************************************************************
  *** Implementation
  *****************************************************************************/
+
+L4_INLINE l4_msgtag_t
+fiasco_tbuf_validate(void)
+{ return l4_task_cap_valid(L4_BASE_TASK_CAP, L4_BASE_DEBUGGER_CAP); }
 
 L4_INLINE l4_umword_t
 fiasco_tbuf_log(const char *text)
@@ -57,3 +62,40 @@ fiasco_tbuf_log_binary(const unsigned char *data)
   return l4_error(__l4_kdebug_text(TBUF_LOG_BIN, (const char *)data, 24));
 }
 
+L4_INLINE l4_msgtag_t
+fiasco_tbuf_map_status(l4_fpage_t *ku_mem)
+{
+  enum { TBUF_MAP_STATUS = L4_KDEBUG_GROUP_TRACE + 0x10 };
+
+  l4_utcb_t *utcb = l4_utcb();
+  l4_msg_regs_t *mr = l4_utcb_mr_u(utcb);
+  l4_msgtag_t ret;
+
+  mr->mr[0] = TBUF_MAP_STATUS;
+  mr->mr[1] = ku_mem->raw;
+  ret = l4_ipc_call(L4_BASE_DEBUGGER_CAP, utcb,
+                    l4_msgtag(L4_PROTO_DEBUGGER, 2, 0, 0), L4_IPC_NEVER);
+  if (!l4_msgtag_has_error(ret))
+    ku_mem->raw = mr->mr[0];
+
+  return ret;
+}
+
+L4_INLINE l4_msgtag_t
+fiasco_tbuf_map_slots(l4_fpage_t *ku_mem)
+{
+  enum { TBUF_MAP_SLOTS = L4_KDEBUG_GROUP_TRACE + 0x11 };
+
+  l4_utcb_t *utcb = l4_utcb();
+  l4_msg_regs_t *mr = l4_utcb_mr_u(utcb);
+  l4_msgtag_t ret;
+
+  mr->mr[0] = TBUF_MAP_SLOTS;
+  mr->mr[1] = ku_mem->raw;
+  ret = l4_ipc_call(L4_BASE_DEBUGGER_CAP, utcb,
+                    l4_msgtag(L4_PROTO_DEBUGGER, 2, 0, 0), L4_IPC_NEVER);
+  if (!l4_msgtag_has_error(ret))
+    ku_mem->raw = mr->mr[0];
+
+  return ret;
+}

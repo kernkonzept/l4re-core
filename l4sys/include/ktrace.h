@@ -32,6 +32,16 @@
  */
 
 /**
+ * Validate the kernel base debugger capability.
+ * \ingroup fiasco_trace_api
+ *
+ * \retval true   The base debugger capability is valid and accessible.
+ * \retval false  The base debugger capability is not valid or not accessible.
+ */
+L4_INLINE l4_msgtag_t
+fiasco_tbuf_validate(void);
+
+/**
  * Create new trace-buffer entry with describing \<text\>.
  * \ingroup fiasco_trace_api
  *
@@ -78,6 +88,30 @@ fiasco_tbuf_clear(void);
  */
 L4_INLINE void
 fiasco_tbuf_dump(void);
+
+/**
+ * Map kernel trace-buffer status page.
+ * \ingroup fiasco_trace_api
+ *
+ * \param ku_mem  Flexpage where to map the trace-buffer status page. Expected
+ *                to be exactly one page in size.
+ *
+ * \return IPC message tag.
+ */
+L4_INLINE l4_msgtag_t
+fiasco_tbuf_map_status(l4_fpage_t *ku_mem);
+
+/**
+ * Map kernel trace-buffer slots.
+ * \ingroup fiasco_trace_api
+ *
+ * \param ku_mem  Flexpage where to map the trace-buffer slots. Expected be
+ *                the exact size as defined by the status page.
+ *
+ * \return IPC message tag.
+ */
+L4_INLINE l4_msgtag_t
+fiasco_tbuf_map_slots(l4_fpage_t *ku_mem);
 
 #include <l4/sys/__ktrace-impl.h>
 
