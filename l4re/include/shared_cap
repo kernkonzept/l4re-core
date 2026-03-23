@@ -13,6 +13,7 @@
 
 #include <l4/re/cap_alloc>
 #include <l4/sys/cxx/smart_capability_1x>
+#include <l4/sys/cxx/types>
 
 namespace L4Re {
 
@@ -52,6 +53,120 @@ make_shared_cap(L4Re::Cap_alloc *ca)
 { return Shared_cap<T>(ca->alloc<T>(), ca); }
 
 /**
+ * Create a new shared capability by an explicit cast from another shared
+ * capability.
+ *
+ * Type `U` must be convertible to type `T`.
+ *
+ * \see L4::cap_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_cap<T> shared_cap_cast(Shared_cap<U> const &from) noexcept
+{
+  auto to = L4::cap_cast<T>(from.get());
+  return Shared_cap<T>(from, to);
+}
+
+/**
+ * Create a new shared capability by an explicit cast from another shared
+ * capability with move semantics.
+ *
+ * Type `U` must be convertible to type `T`. After the call, `from` is empty.
+ *
+ * \see L4::cap_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_cap<T> shared_cap_cast(Shared_cap<U> &&from) noexcept
+{
+  auto to = L4::cap_cast<T>(from.get());
+  return Shared_cap<T>(L4::Types::move(from), to);
+}
+
+/**
+ * Create a new shared capability by a reinterpret cast from another shared
+ * capability.
+ *
+ * \see L4::cap_reinterpret_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_cap<T> shared_cap_reinterpret_cast(Shared_cap<U> const &from) noexcept
+{
+  auto to = L4::cap_reinterpret_cast<T>(from.get());
+  return Shared_cap<T>(from, to);
+}
+
+/**
+ * Create a new shared capability by a reinterpret cast from another shared
+ * capability with move semantics.
+ *
+ * After the call, `from` is empty.
+ *
+ * \see L4::cap_reinterpret_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_cap<T> shared_cap_reinterpret_cast(Shared_cap<U> &&from) noexcept
+{
+  auto to = L4::cap_reinterpret_cast<T>(from.get());
+  return Shared_cap<T>(L4::Types::move(from), to);
+}
+
+/**
+ * Create a new shared capability by a dynamic cast from another shared
+ * capability.
+ *
+ * \see L4::cap_dynamic_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_cap<T> shared_cap_dynamic_cast(Shared_cap<U> const &from) noexcept
+{
+  if (auto to = L4::cap_dynamic_cast<T>(from.get()))
+    return Shared_cap<T>(from, to);
+  else
+    return Shared_cap<T>();
+}
+
+/**
+ * Create a new shared capability by an dynamic cast from another shared
+ * capability with move semantics.
+ *
+ * \see L4::cap_dynamic_cast
+ *
+ * After the call, `from` is empty, unless the L4::cap_dynamic_cast fails.
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_cap<T> shared_cap_dynamic_cast(Shared_cap<U> &&from) noexcept
+{
+  if (auto to = L4::cap_dynamic_cast<T>(from.get()))
+    return Shared_cap<T>(L4::Types::move(from), to);
+  else
+    return Shared_cap<T>();
+}
+
+/**
  * Shared capability that implements automatic free and unmap+delete of the
  * capability selector.
  *
@@ -88,5 +203,123 @@ template< typename T >
 Shared_del_cap<T>
 make_shared_del_cap(L4Re::Cap_alloc *ca)
 { return Shared_del_cap<T>(ca->alloc<T>(), ca); }
+
+/**
+ * Create a new shared capability by an explicit cast from another shared
+ * capability.
+ *
+ * Type `U` must be convertible to type `T`.
+ *
+ * \see L4::cap_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_del_cap<T> shared_del_cap_cast(Shared_del_cap<U> const &from) noexcept
+{
+  auto to = L4::cap_cast<T>(from.get());
+  return Shared_del_cap<T>(from, to);
+}
+
+/**
+ * Create a new shared capability by an explicit cast from another shared
+ * capability with move semantics.
+ *
+ * Type `U` must be convertible to type `T`. After the call, `from` is empty.
+ *
+ * \see L4::cap_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_del_cap<T> shared_del_cap_cast(Shared_del_cap<U> &&from) noexcept
+{
+  auto to = L4::cap_cast<T>(from.get());
+  return Shared_del_cap<T>(L4::Types::move(from), to);
+}
+
+/**
+ * Create a new shared capability by a reinterpret cast from another shared
+ * capability.
+ *
+ * \see L4::cap_reinterpret_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_del_cap<T>
+shared_del_cap_reinterpret_cast(Shared_del_cap<U> const &from) noexcept
+{
+  auto to = L4::cap_reinterpret_cast<T>(from.get());
+  return Shared_del_cap<T>(from, to);
+}
+
+/**
+ * Create a new shared capability by a reinterpret cast from another shared
+ * capability with move semantics.
+ *
+ * After the call, `from` is empty.
+ *
+ * \see L4::cap_reinterpret_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_del_cap<T>
+shared_del_cap_reinterpret_cast(Shared_del_cap<U> &&from) noexcept
+{
+  auto to = L4::cap_reinterpret_cast<T>(from.get());
+  return Shared_del_cap<T>(L4::Types::move(from), to);
+}
+
+/**
+ * Create a new shared capability by a dynamic cast from another shared
+ * capability.
+ *
+ * \see L4::cap_dynamic_cast
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_del_cap<T>
+shared_del_cap_dynamic_cast(Shared_del_cap<U> const &from) noexcept
+{
+  if (auto to = L4::cap_dynamic_cast<T>(from.get()))
+    return Shared_del_cap<T>(from, to);
+  else
+    return Shared_del_cap<T>();
+}
+
+/**
+ * Create a new shared capability by an dynamic cast from another shared
+ * capability with move semantics.
+ *
+ * \see L4::cap_dynamic_cast
+ *
+ * After the call, `from` is empty, unless the L4::cap_dynamic_cast fails.
+ *
+ * \tparam T    Type of the object the capability refers to.
+ * \tparam U    Type of the source shared capability.
+ * \param from  Source shared capability.
+ */
+template<typename T, typename U>
+Shared_del_cap<T>
+shared_del_cap_dynamic_cast(Shared_del_cap<U> &&from) noexcept
+{
+  if (auto to = L4::cap_dynamic_cast<T>(from.get()))
+    return Shared_del_cap<T>(L4::Types::move(from), to);
+  else
+    return Shared_del_cap<T>();
+}
 
 } // namespace L4Re
