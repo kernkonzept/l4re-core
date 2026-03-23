@@ -263,17 +263,19 @@ namespace Types {
   template<typename DT, typename T>
   struct Flags_t : Flags_ops_t<Flags_t<DT, T>>
   {
+    /// The none type to get an empty value
+    enum None_type { None /**< Use this to get an empty value */ };
+
     /// Raw integral value.
     T raw = 0;
-    /// Default (uninitializing) constructor
+    /// Default constructor with no flag set.
     constexpr Flags_t() = default;
+    /// Constructor to create an empty value
+    constexpr Flags_t(None_type) {}
     /// Initialization from determinator type
     constexpr Flags_t(DT f) : raw(static_cast<T>(f)) {}
     /// Explicit initialization from the underlying type.
     explicit constexpr Flags_t(T f) : raw(f) {}
-
-    /// Empty flags literal.
-    static constexpr Flags_t None = Flags_t();
   };
 
   /// Map a sequence of any types to the void type.
