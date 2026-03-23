@@ -38,6 +38,7 @@ endchoice
 config COMPILER_RT_LIBGCC_SHARED
   bool "Use shared libgcc"
   depends on COMPILER_RT_USE_LIBGCC && !COMPILER_RT_USE_TOOLCHAIN_LIBGCC
+  depends on MMU
   help
     Say Y if you want to use shared libgcc (libgcc_s.so).
 
