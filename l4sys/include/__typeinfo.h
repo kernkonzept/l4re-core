@@ -513,14 +513,14 @@ struct L4_EXPORT Type_info
   public:
     unsigned char caps;  ///< number of capability receive buffers.
     unsigned char flags; ///< flags, such as the need for timeouts (TBD).
-    unsigned char mem;   ///< number of memory receive buffers.
+    unsigned char mem;   ///< size (2^mem bytes) of memory receive buffer.
     unsigned char ports; ///< number of IO-port receive buffers.
 
     /**
      * Make Demand object.
      * \param caps    number of capability receive buffers
      * \param flags   flags, such as the need for timeouts (TBD).
-     * \param mem     number of memory receive windows.
+     * \param mem     size (2^mem bytes) of memory receive window.
      * \param ports   number of IO-port receive windows.
      */
     explicit
@@ -544,7 +544,7 @@ struct L4_EXPORT Type_info
    * Template type statically describing demand of receive buffers.
    * \tparam CAPS   number of capability receive buffers needed.
    * \tparam FLAGS  flags, such as the need for timeouts (TBD).
-   * \tparam MEM    number of memory receive windows needed.
+   * \tparam MEM    size (2^MEM bytes) of memory receive window needed.
    * \tparam PORTS  number of IO-port receive windwows needed.
    * \headerfile l4/sys/capability
    */
@@ -556,7 +556,7 @@ struct L4_EXPORT Type_info
     {
       Caps  = CAPS,  ///< number of capability receive buffers.
       Flags = FLAGS, ///< flags, such as the need for timeouts.
-      Mem   = MEM,   ///< number of memory receive windows.
+      Mem   = MEM,   ///< size (2^MEM bytes) of memory receive window.
       Ports = PORTS  ///< number of IO-port receive windows.
     };
     Demand_t() noexcept : Demand(CAPS, FLAGS, MEM, PORTS) {}
