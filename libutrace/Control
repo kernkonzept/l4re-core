@@ -1,0 +1,3 @@
+provides: libutrace
+requires: l4sys compiler-rt l4re
+maintainer: martin.decky@kernkonzept.com

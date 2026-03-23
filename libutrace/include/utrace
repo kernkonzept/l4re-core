@@ -1,0 +1,233 @@
+// vim:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2026 Kernkonzept GmbH.
+ * Author(s): Martin Decky <martin.decky@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+
+/**
+ * \file
+ * L4Re tracebuffer access.
+ *
+ * This is an abstraction for processing the L4Re tracebuffer events. In the
+ * current implementation, there is only a single global tracebuffer available
+ * via the base debugger (JDB) capability.
+ */
+
+#pragma once
+
+#include <version>
+#include <bit>
+#include <string>
+#include <optional>
+#include <l4/sys/ktrace_events.h>
+#include <l4/sys/consts.h>
+#include <l4/sys/capability>
+#include <l4/sys/debugger>
+#include <l4/utrace/ring_buffer>
+
+#if defined(__cpp_lib_generator)
+#include <generator>
+#else
+#include <vector>
+#endif
+
+namespace utrace {
+
+/**
+ * Tracebuffer abstraction.
+ *
+ * Since there is only a single global tracebuffer available in the current
+ * implementation, this is a singleton class.
+ */
+class Tracebuffer
+{
+public:
+  using Sequence = L4_ktrace_t__Mword;
+  using Item = l4_tracebuffer_entry_t;
+
+  using Buffer = Ring_buffer_consumer<Sequence, Item, &Item::_number>;
+  using Drop_policy = Buffer::Drop_policy;
+  using Status = Buffer::Status;
+  using Slot = Buffer::Slot;
+
+  static_assert(sizeof(Status) <= L4_PAGESIZE);
+
+  /// Mapping of the dynamic tracebuffer log indexes to names.
+  struct Index_desc
+  {
+    unsigned index;
+    std::string name;
+    std::string shortname;
+  };
+
+  /**
+   * Check that the base debugger (JDB) capability is valid and accessible.
+   *
+   * The base debugger (JDB) capability is used to access the single global
+   * tracebuffer in the current implementation.
+   *
+   * \throw std::invalid_argument  If the base debugger (JDB) capability is
+   *                               invalid or inaccessible.
+   */
+  static void validate();
+
+  /// Get the tracebuffer format version supported by this class.
+  static unsigned version();
+
+  /// Get the endianness supported by this class.
+  static std::endian endianness();
+
+  /**
+   * Map a dynamic tracebuffer log index to names.
+   *
+   * \param idx  Dynamic tracebuffer log index to map.
+   *
+   * \return Mapping of the dynamic tracebuffer index to names.
+   * \retval std::nullopt  The dynamic tracebuffer log index is not defined.
+   */
+  static std::optional<Index_desc> index(unsigned idx);
+
+  /**
+   * Get all mappings of dynamic tracebuffer log indexes to names.
+   *
+   * \return Generator (if available) or a vector of all defined mappings
+   *         of dynamic tracebuffer log indexes to names.
+   */
+#if defined(__cpp_lib_generator)
+  static std::generator<Index_desc> indexes();
+#else
+  static std::vector<Index_desc> indexes();
+#endif
+
+  /// Get the singleton instance of this class.
+  static Tracebuffer &instance();
+
+  /// Get the capacity (in items) of the tracebuffer ring buffer.
+  size_t items() const;
+
+  /**
+   * Dequeue items from the tracebuffer.
+   *
+   * Dequeue multiple items from the tracebuffer. The goal is to dequeue as
+   * many items as available from the tracebuffer in a single call to avoid
+   * overhead. This operation blocks until at least \a burst items have been
+   * dequeued (but returns immediately if an item is dropped).
+   *
+   * \param[out] items     Array to dequeue the next items from the tracebuffer
+   *                       into (as copies).
+   * \param      capacity  Capacity of \a items (in items).
+   * \param      burst     Minimal number of items that should be collected
+   *                       before returning in case of waiting for items.
+   * \param      policy    Item drop policy.
+   * \param[out] drops     Pointer to store the number of items that have been
+   *                       dropped. Can be nullptr.
+   *
+   * \return Number of items dequeued and stored into \a items.
+   */
+  size_t dequeue(Item *items, size_t capacity, size_t burst, Drop_policy policy,
+                 Sequence *drops = nullptr);
+
+private:
+  static constexpr unsigned tracebuffer_version = 0;
+  static constexpr size_t yield_cycles = 100;
+
+  /**
+   * Singleton factory class for accessing the tracebuffer ring buffer status
+   * area and slots.
+   */
+  class Factory
+  {
+  public:
+    /// Get the singleton instance of this class.
+    static Factory &instance();
+
+    /// Get the tracebuffer ring buffer status area.
+    Status &status();
+
+    /// Get the tracebuffer ring buffer slots.
+    Slot *slots();
+
+  private:
+    /**
+     * Map the tracebuffer ring buffer status area and slots.
+     *
+     * \throw std::runtime_error     If the tracebuffer version or the stable
+     *                               cache alignment is unsupported.
+     * \throw std::invalid_argument  If the tracebuffer ring buffer item count
+     *                               is unsupported.
+     * \throw L4::Runtime_error      If the mapping of the ring buffer status
+     *                               area or slots failed.
+     */
+    Factory();
+
+    /**
+     * Unmap the tracebuffer ring buffer status area and slots.
+     *
+     * \throw L4::Runtime_error  If the unmapping or unreservation of the ring
+     *                           buffer status area or slots failed.
+     */
+    ~Factory();
+
+    /**
+     * Reserve a memory area in the Region Manager.
+     *
+     * The reserved memory area is later used to map the tracebuffer ring
+     * buffer status area and slots, respectively.
+     *
+     * \param size   Size of the memory area to reserve (in bytes).
+     *
+     * \return Reserved flexpage suitable for mapping.
+     *
+     * \throw L4::Runtime_error  If the reservation of the memory area in the
+     *                           Region Manager has failed.
+     */
+    static l4_fpage_t reserve(size_t size);
+
+    /**
+     * Map tracebuffer ring buffer status area.
+     *
+     * \param fpage  Previously reserved flexpage suitable for mapping.
+     *
+     * \return Ring buffer status area.
+     *
+     * \throw L4::Runtime_error  If the mapping of the ring buffer status area
+     *                           failed.
+     */
+    static Status *map_status(l4_fpage_t fpage);
+
+    /**
+     * Map tracebuffer ring buffer status slots.
+     *
+     * \param fpage  Previously reserved flexpage suitable for mapping.
+     * \param items  Number of slots to map.
+     *
+     * \return Ring buffer slots.
+     *
+     * \throw L4::Runtime_error  If the mapping of the ring buffer slots
+     *                           failed.
+     */
+    static Slot *map_slots(l4_fpage_t fpage, size_t items);
+
+    l4_fpage_t _fpage_status;
+    l4_fpage_t _fpage_slots;
+
+    Status *_status;
+    Slot *_slots;
+  };
+
+  Tracebuffer() = delete;
+
+  /**
+   * Construct the tracebuffer abstraction.
+   *
+   * \param factory  Factory for accessing the tracebuffer ring buffer.
+   */
+  Tracebuffer(Factory &factory);
+
+  static L4::Cap<L4::Debugger> _jdb;
+  Buffer _buffer;
+};
+
+}; // namespace utrace
