@@ -722,6 +722,7 @@ public:
     Cap_mask    = L4_CAP_MASK
   };
 
+  /// Kind of mapping.
   enum Map_type
   {
     /// Map capability in RPC operation.
