@@ -865,6 +865,7 @@ define SRC_libm
   s_tan
   s_tanh
   s_trunc
+  sincos
   w_cabs
   nan
   $(foreach f,$(_MATH_FUNCTIONS),e_$(f) w_$(f) w_$(f)f w_$(f)l)
