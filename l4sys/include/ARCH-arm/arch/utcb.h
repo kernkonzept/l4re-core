@@ -33,7 +33,7 @@ struct l4_exc_regs_t
   l4_umword_t sp;      /**< stack pointer */
   l4_umword_t ulr;     /**< ulr */
   l4_umword_t _dummy1; /**< dummy \internal */
-  l4_umword_t pc;      /**< pc */
+  union { l4_umword_t ip; l4_umword_t pc; }; /**< aliases for PC */
   l4_umword_t cpsr;    /**< cpsr */
   l4_umword_t tpidruro;/**< Thread-ID register */
   l4_umword_t tpidrurw;/**< Thread-ID register */
