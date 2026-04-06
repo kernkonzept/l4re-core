@@ -394,7 +394,7 @@ bool Loader::start(L4::Cap<L4Re::Dataspace> bin, l4re_aux_t *aux)
   L4Re::chksys(app_thread->control(attr), "l4re_itas: Setup app thread.");
   L4Re::chksys(env->scheduler()->run_thread(app_thread,
                                             l4_sched_param(L4RE_MAIN_THREAD_PRIO)),
-         "l4re_itas: Set app priority.");
+               "l4re_itas: Set app priority.");
   unsigned long stack = reinterpret_cast<unsigned long>(__loader_stack_p);
   L4Re::chksys(app_thread->ex_regs(reinterpret_cast<unsigned long>(&loader_thread),
                                    l4_align_stack_for_direct_fncall(stack), 0),
