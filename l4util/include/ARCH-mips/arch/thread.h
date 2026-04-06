@@ -15,36 +15,63 @@
 #endif
 
 #if _MIPS_SIM == _ABIO32
+
 # define L4UTIL_THREAD_START_SETUP_GP \
 "  bal 10f \n" \
 "   nop    \n" \
 "10:       \n" \
 "  .cpload $31 \n"
+
+# define L4UTIL_THREAD_MIPS_STACK_RESERVE " add $sp, $sp, -32 \n"
+
 #else
+
 # define L4UTIL_THREAD_START_SETUP_GP \
 " bal 10f \n" \
 "  nop    \n" \
 "10:      \n" \
 "  .cpsetup $31, $25, 10b \n"
+
+# define L4UTIL_THREAD_MIPS_STACK_RESERVE
+
 #endif
+
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(helper_name) \
+  "  .set push          \n" \
+  "  .set noreorder     \n" \
+  L4UTIL_THREAD_START_SETUP_GP \
+  L4UTIL_THREAD_START_LOAD_FUNC_ADDR(L4_stringify(helper_name)) \
+  "  jal $t9            \n" \
+  "   nop               \n" \
+  "  .set pop"
+
+/* Similar to signal handler: Align stack pointer and (for MIPS-32), skip
+ * reserved stack area. */
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(helper_name) \
+  "  .set push          \n" \
+  "  .set noreorder     \n" \
+  L4UTIL_THREAD_START_SETUP_GP \
+  L4UTIL_THREAD_START_LOAD_FUNC_ADDR(L4_stringify(helper_name)) \
+  "  li $s0, ~0xf       \n" \
+  L4UTIL_THREAD_MIPS_STACK_RESERVE \
+  "  and $sp, $sp, $s0  \n" \
+  "  jal $t9            \n" \
+  "   nop               \n" \
+  "  .set pop"
 
 #define L4UTIL_THREAD_FUNC_MIPS_TEMPLATE(name, locality) \
 L4_BEGIN_DECLS \
 locality L4_NORETURN void name(void) \
 { \
-  asm("  .set push \n" \
-      "  .set noreorder \n" \
-      L4UTIL_THREAD_START_SETUP_GP \
-      L4UTIL_THREAD_START_LOAD_FUNC_ADDR(#name "_mips_helper_func") \
-      "  jal $t9 \n" \
-      "   nop    \n"\
-      "  .set pop" \
+  asm ( \
+  L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(name ## _helper) \
   ); \
-  __builtin_unreachable(); \
+  __builtin_trap(); \
 } \
-static L4_NORETURN void __attribute__((used)) name ##_mips_helper_func(void); \
+static L4_NORETURN void __attribute__((used)) \
+        name ## _helper(void); \
 L4_END_DECLS \
-static L4_NORETURN void name##_mips_helper_func(void)
+static L4_NORETURN void name ## _helper(void)
 
 #define L4UTIL_THREAD_STATIC_FUNC(name) \
         L4UTIL_THREAD_FUNC_MIPS_TEMPLATE(name, static)

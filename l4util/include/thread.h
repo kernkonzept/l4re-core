@@ -11,8 +11,7 @@
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
 
-#ifndef __L4_THREAD_H
-#define __L4_THREAD_H
+#pragma once
 
 #include <l4/sys/compiler.h>
 #include <l4/sys/types.h>
@@ -55,25 +54,148 @@ L4_END_DECLS
 
 #ifndef L4UTIL_THREAD_FUNC
 /**
- * Defines a wrapper function that sets up the registers according
- * to the calling conventions for the architecture.
+ * Defines a wrapper function that sets up the registers according to the
+ * calling conventions for the architecture.
  *
- * Use this as a function header when starting a low-level thread
- * where only stack and instruction pointer are in a well-defined state.
+ * Use this as a function header when starting a low-level thread where only
+ * stack and instruction pointer are in a well-defined state.
  *
  * Example:
  *
+ * \code
  * L4UTIL_THREAD_FUNC(helper_thread)
  * {
  *   l4_infinite_loop();
  * }
  *
  * thread_cap->ex_regs((l4_umword_t)helper_thread, stack_addr);
+ * \endcode
  */
-#define __L4UTIL_THREAD_FUNC(name) void L4_NORETURN name(void)
-#define L4UTIL_THREAD_FUNC(name) __L4UTIL_THREAD_FUNC(name)
-#define __L4UTIL_THREAD_STATIC_FUNC(name) static L4_NORETURN void name(void)
-#define L4UTIL_THREAD_STATIC_FUNC(name) __L4UTIL_THREAD_STATIC_FUNC(name)
+# define __L4UTIL_THREAD_FUNC(name) void L4_NORETURN name(void)
+# define L4UTIL_THREAD_FUNC(name) __L4UTIL_THREAD_FUNC(name)
+# define __L4UTIL_THREAD_STATIC_FUNC(name) static L4_NORETURN void name(void)
+# define L4UTIL_THREAD_STATIC_FUNC(name) __L4UTIL_THREAD_STATIC_FUNC(name)
 #endif
 
-#endif /* __L4_THREAD_H */
+#ifndef L4UTIL_THREAD_CXX_FUNC_HELPER_PROTO_ATTR
+# define L4UTIL_THREAD_CXX_FUNC_HELPER_PROTO_ATTR
+#endif
+#ifndef L4UTIL_THREAD_CXX_FUNC_INTERRUPT_HELPER_PROTO_ATTR
+# define L4UTIL_THREAD_CXX_FUNC_INTERRUPT_HELPER_PROTO_ATTR
+#endif
+
+#define _L4UTIL_THREAD_STUB_NAME(name) name ## _stub
+
+/**
+ * Implement stub and helper function.
+ *
+ * For 'foo(int a, int b)' this macro expands into:
+ *
+ * \code
+ * asm (".global foo_stub  \n"
+ *      "foo_stub:         \n"
+ *      ... align stack pointer ...
+ *      "<call> foo_helper \n");
+ *
+ * [[noreturn]] static void
+ * foo_helper(int a, int b) asm ("foo_helper");
+ *
+ * [[noreturn]] static void __attribute__((used))
+ * foo_helper(int a, int b)
+ * \endcode
+ */
+#define _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, helper_name, ...)       \
+  asm (".global " L4_stringify(_L4UTIL_THREAD_STUB_NAME(fn_name)) "\n"         \
+       L4_stringify(_L4UTIL_THREAD_STUB_NAME(fn_name)) ":          \n"         \
+  L4UTIL_THREAD_CXX_FUNC_IMPL ## suffix ## _STUB(helper_name)                  \
+      );                                                                       \
+                                                                               \
+  [[noreturn]] static void                                                     \
+  L4UTIL_THREAD_CXX_FUNC ## suffix ## _HELPER_PROTO_ATTR                       \
+  helper_name(__VA_ARGS__) asm (L4_stringify(helper_name));                    \
+                                                                               \
+  [[noreturn]] static void __attribute__((used)) helper_name(__VA_ARGS__)
+
+#define _L4UTIL_THREAD_CXX_FUNC_IMPL(suffix, class, fn_name, ...)              \
+  _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, fn_name ## _helper,           \
+                                ##__VA_ARGS__)
+
+#ifndef L4UTIL_THREAD_CXX_FUNC_PROTO
+
+/**
+ * Declare static C++ class method which can be called as handler were only
+ * stack and instruction pointer are in a well-defined state.
+ *
+ * Architecture-specific implementations may override this macro to use certain
+ * function attributes (e.g. __attribute__((regparm(3))) on x86).
+ *
+ * \note Use together with L4UTIL_THREAD_CXX_FUNC_IMPL() or
+ *       L4UTIL_THREAD_CXX_FUNC_IMPL_SAME_STACK().
+ */
+# define L4UTIL_THREAD_CXX_FUNC_PROTO(fn_name, ...) \
+   [[noreturn]] static void fn_name(__VA_ARGS__) \
+   asm (L4_stringify(_L4UTIL_THREAD_STUB_NAME(fn_name)))
+
+#endif
+
+/**
+ * Implement static C++ class method which can be called as handler were only
+ * stack and instruction pointer are in a well-defined state.
+ *
+ * This is important for certain architectures defining global registers or for
+ * architectures like AMD64 defining a "red zone" (a reserved fixed-size area
+ * below the current stack pointer to be used for temporary data).
+ *
+ * The first two parameters of this macro define class name and method name,
+ * followed by up to three function parameters.
+ *
+ * Use these macros like follows:
+ *
+ * \code
+ * class Foo
+ * {
+ *   L4UTIL_THREAD_CXX_FUNC_PROTO(handler, int param1, long param2);
+ * };
+ *
+ * L4UTIL_THREAD_CXX_FUNC_IMPL(Foo, handler, int param1, long param2)
+ * {
+ *   printf("param1 = %d, param2 = %ld\n", param1, param2);
+ * }
+ * \endcode
+ *
+ * to declare the method
+ *
+ * \code
+ * [[noreturn]] void Foo::handler(int param1, long param2);
+ * \endcode
+ *
+ * \note Use together with L4UTIL_THREAD_CXX_FUNC_PROTO().
+ */
+
+#ifdef L4UTIL_THREAD_CXX_FUNC_IMPL_STUB
+
+# define L4UTIL_THREAD_CXX_FUNC_IMPL(class, fn_name, ...) \
+   _L4UTIL_THREAD_CXX_FUNC_IMPL(, class, fn_name, ##__VA_ARGS__)
+
+#else /* !L4UTIL_THREAD_CXX_FUNC_IMPL_STUB */
+
+# define L4UTIL_THREAD_CXX_FUNC_IMPL(class, fn_name, ...) \
+   [[noreturn]] void class::fn_name(__VA_ARGS__)
+
+#endif
+
+/**
+ * Implement static C++ class method which can be called as handler were only
+ * stack and instruction pointer are in a well-defined state.
+ *
+ * In contrast to L4UTIL_THREAD_CXX_FUNC_IMPL(), assume that this function may
+ * interrupt code executed at another user-level context and there are adaptions
+ * required to the stack pointer (alignment, consider the "red zone" on AMD64,
+ * etc.)
+ */
+#ifndef L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB
+# error architecture-specific L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB missing
+#endif
+
+#define L4UTIL_THREAD_CXX_FUNC_INTERRUPT_IMPL(class, fn_name, ...) \
+  _L4UTIL_THREAD_CXX_FUNC_IMPL(_INTERRUPT, class, fn_name, ##__VA_ARGS__)
