@@ -30,29 +30,26 @@ int __READDIR_R(DIR *dir, __DIRENT_TYPE *entry, __DIRENT_TYPE **result)
 
 	__UCLIBC_MUTEX_LOCK(dir->dd_lock);
 
-	do {
-	    if (dir->dd_size <= dir->dd_nextloc) {
-		/* read dir->dd_max bytes of directory entries. */
-		bytes = __GETDENTS(dir->dd_fd, dir->dd_buf, dir->dd_max);
-		if (bytes <= 0) {
-		    de = NULL;
-		    *result = NULL;
-		    ret = (bytes==0)? 0 : errno;
-		    goto all_done;
-		}
-		dir->dd_size = bytes;
-		dir->dd_nextloc = 0;
+	if (dir->dd_size <= dir->dd_nextloc) {
+	    /* read dir->dd_max bytes of directory entries. */
+	    bytes = __GETDENTS(dir->dd_fd, dir->dd_buf, dir->dd_max);
+	    if (bytes <= 0) {
+		de = NULL;
+		*result = NULL;
+		ret = (bytes==0)? 0 : errno;
+		goto all_done;
 	    }
+	    dir->dd_size = bytes;
+	    dir->dd_nextloc = 0;
+	}
 
-	    de = (__DIRENT_TYPE *) (((char *) dir->dd_buf) + dir->dd_nextloc);
+	de = (__DIRENT_TYPE *) (((char *) dir->dd_buf) + dir->dd_nextloc);
 
-	    /* Am I right? H.J. */
-	    dir->dd_nextloc += de->d_reclen;
+	/* Am I right? H.J. */
+	dir->dd_nextloc += de->d_reclen;
 
-	    /* We have to save the next offset here. */
-	    dir->dd_nextoff = de->d_off;
-	    /* Skip deleted files.  */
-	} while (de->d_ino == 0);
+	/* We have to save the next offset here. */
+	dir->dd_nextoff = de->d_off;
 
 	if (de == NULL) {
 	    *result = NULL;
