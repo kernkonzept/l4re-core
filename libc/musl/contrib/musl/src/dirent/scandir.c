@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <errno.h>
-#include <stddef.h>
 
 static int wrapper_cmp(const void *v1, const void *v2, void *cmp)
 {
