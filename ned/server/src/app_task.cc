@@ -58,7 +58,10 @@ App_task::Parent_receiver::op_signal(L4Re::Parent::Rights, unsigned long sig,
       exit_code = val;
       wait->up();
       parent.obj_cap()->trigger();
-      return -L4_ENOREPLY;
+      // On one hand we don't need to reply because the client expects to be
+      // killed. But this reply operation will "consume" the reply cap to the
+      // client preventing the kernel from printing a warning.
+      break;
     default: break;
     }
   return L4_EOK;
