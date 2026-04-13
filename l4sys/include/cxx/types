@@ -391,6 +391,16 @@ namespace Types {
   template< typename T1, typename T2 >
   inline constexpr bool Same_v = Same<T1, T2>::value;
 
+  /// Check if a type T is an instantiation of a given template.
+  template <typename T, template <typename...> typename Template>
+  struct Same_template : False {};
+
+  template <template <typename...> typename Template, typename... Args>
+  struct Same_template<Template<Args...>, Template> : True {};
+
+  template <typename T, template <typename...> typename Template>
+  inline constexpr bool Same_template_v = Same_template<T, Template>::value;
+
   template<bool, typename = void> struct Enable_if {};
   template<typename T> struct Enable_if<true, T> { using type = T; };
 
