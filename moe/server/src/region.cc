@@ -11,6 +11,7 @@
 #include <l4/sys/kip>
 
 #include <l4/re/rm>
+#include <l4/re/util/cap>
 
 #include <l4/cxx/iostream>
 #include <l4/cxx/exceptions>
@@ -96,15 +97,20 @@ Region_map::validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
     return -L4_EINVAL;
 
   if (!ds_cap.id_received())
-    return -L4_ENOENT;
+    {
+      // Release object reference to dataspace now. Otherwise, this has to wait
+      // until the next received capability overwrites this dataspace capability
+      // at the receive buffer.
+      // This should/could be actually done by the RPC framework.
+      L4Re::Util::cap_release(L4::Cap<void>(Rcv_cap << L4_CAP_SHIFT));
+      return -L4_ENOENT;
+    }
 
   auto *moe_ds = dynamic_cast<Moe::Dataspace*>(object_pool.find(ds_cap.data()));
-
   if (!moe_ds)
     return -L4_ENOENT;
 
   *ds = moe_ds;
-
   if ((map_flags(flags) & moe_ds->map_flags(ds_cap.data())) != map_flags(flags))
     return -L4_EPERM;
 
