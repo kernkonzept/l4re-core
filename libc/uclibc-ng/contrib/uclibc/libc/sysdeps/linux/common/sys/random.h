@@ -9,7 +9,7 @@
 
 __BEGIN_DECLS
 
-#if defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU
+#if 1 // defined __UCLIBC_LINUX_SPECIFIC__ && defined __USE_GNU
 # if 0 /*def __ASSUME_GETRANDOM_SYSCALL */
 #  include <linux/random.h>
 # else

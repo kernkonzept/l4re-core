@@ -100,6 +100,7 @@ define SRC_libc/stdlib
   rand_r
   random
   random_r
+  random_sys
   realpath
   setenv
   $(if $(BID_VARIANT_FLAG_NOFPU),,srand48)

@@ -252,6 +252,7 @@ define HDR_common
   sys/prctl.h
   sys/procfs.h
   sys/queue.h
+  sys/random.h
   sys/resource.h
   sys/select.h
   sys/sem.h
