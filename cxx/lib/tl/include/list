@@ -111,17 +111,21 @@ public:
     static bool const P = !Conversion<const T*, const List_item *>::exists
       || Poly;
 
-    static List_item *cast_to_li(T *i, Int_to_type<true>) noexcept
-    { return dynamic_cast<List_item*>(i); }
+    static List_item *cast_to_li(T *i) noexcept
+    {
+      if constexpr (P)
+        return dynamic_cast<List_item*>(i);
+      else
+        return i;
+    }
 
-    static List_item *cast_to_li(T *i, Int_to_type<false>) noexcept
-    { return i; }
-
-    static T *cast_to_type(List_item *i, Int_to_type<true>) noexcept
-    { return dynamic_cast<T*>(i); }
-
-    static T *cast_to_type(List_item *i, Int_to_type<false>) noexcept
-    { return static_cast<T*>(i); }
+    static T *cast_to_type(List_item *i) noexcept
+    {
+      if constexpr (P)
+        return dynamic_cast<T*>(i);
+      else
+        return static_cast<T*>(i);
+    }
 
   public:
 
@@ -130,14 +134,13 @@ public:
     : Iter(o) { dynamic_cast<T*>(*o); }
 
     //TIter(CListItem *f) : Iter(f) {}
-    T_iter(T *f = 0) noexcept : Iter(cast_to_li(f, Int_to_type<P>())) {}
+    T_iter(T *f = 0) noexcept : Iter(cast_to_li(f)) {}
     T_iter(T *c, T *f) noexcept
-    : Iter(cast_to_li(c, Int_to_type<P>()),
-	cast_to_li(f, Int_to_type<P>()))
+    : Iter(cast_to_li(c), cast_to_li(f))
     {}
 
     inline T *operator * () const noexcept
-    { return cast_to_type(Iter::operator * (),Int_to_type<P>()); }
+    { return cast_to_type(Iter::operator * ()); }
     inline T *operator -> () const noexcept
     { return operator * (); }
 
@@ -276,7 +279,7 @@ C *List_item::remove(C *h, N *p) noexcept
 template< typename T, bool Poly >
 inline
 T *List_item::T_iter<T, Poly>::remove_me() noexcept
-{ return cast_to_type(Iter::remove_me(), Int_to_type<P>()); }
+{ return cast_to_type(Iter::remove_me()); }
 
 
 template< typename T >
