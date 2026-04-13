@@ -141,8 +141,9 @@ struct Svr_arg : Svr_xmit<T>, Arg_pack<M...>
   template<typename ...ARGS>
   void reply(ARGS &&...args)
   {
-    // Only consume out parameters.
-    if constexpr (L4::Types::Same_v<typename Direction<T>::type, Dir_out>)
+    // Only consume out parameters or parameters of type In_out.
+    if constexpr (L4::Types::Same_v<typename Direction<T>::type, Dir_out>
+                  || L4::Types::Same_template_v<T, In_out>)
       reply_consume_arg<ARGS...>(L4::Types::forward<ARGS>(args)...);
     else
       Base::template reply<ARGS...>(L4::Types::forward<ARGS>(args)...);
