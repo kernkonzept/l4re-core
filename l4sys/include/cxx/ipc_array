@@ -352,6 +352,13 @@ struct Svr_val_ops<Array_ref<A, LEN>, Dir_out, CLASS> :
     if (L4_UNLIKELY(!check_size<A>(offset, limit, a.length)))
       return -L4_EMSGTOOLONG;
 
+    // In case of deferred replies, the Array_ref is pointing to a server
+    // provided buffer instead of the UTCB.
+    elem_type *data = reinterpret_cast<elem_type *>(msg + offset);
+    if (data != a.data)
+      for (LEN i = 0; i < a.length; ++i)
+        data[i] = a.data[i];
+
     return offset + a.length * sizeof(A);
   }
 };

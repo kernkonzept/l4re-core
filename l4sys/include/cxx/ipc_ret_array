@@ -75,14 +75,21 @@ struct Svr_val_ops<Ret_array<A>, Dir_out, CLASS> :
 {
   using ret_array = Ret_array<A>;
   using Svr_noops<ret_array>::from_svr;
-  static int from_svr(char *, unsigned offset, unsigned limit, long ret,
-                      ret_array const &, Dir_out, CLASS)
+  static int from_svr(char *msg, unsigned offset, unsigned limit, long ret,
+                      ret_array const &arg, Dir_out, CLASS)
   {
     offset = align_to<A>(offset);
     if (L4_UNLIKELY(!check_size<A>(offset, limit, ret)))
       return -1;
-    offset += sizeof(A) * ret;
-    return offset;
+
+    // In case of deferred replies, the Ret_array is pointing to a server
+    // provided buffer instead of the UTCB.
+    A *data = reinterpret_cast<A *>(msg + offset);
+    if (data != arg.value)
+      for (long i = 0; i < ret; ++i)
+        data[i] = arg.value[i];
+
+    return offset + sizeof(A) * ret;
   }
 
   using Svr_noops<ret_array>::to_svr;
