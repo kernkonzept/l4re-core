@@ -105,8 +105,6 @@ public:
     return -L4_ENOENT;
   }
 
-  static l4_umword_t find_res(L4::Cap<void> const &ds) { return ds.cap(); }
-
   Region_map();
   virtual ~Region_map() {}
 

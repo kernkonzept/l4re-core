@@ -125,7 +125,7 @@ public:
 
     flags = r->second.flags() | flag_area;
     offset = r->second.offset();
-    m = L4::Cap<L4Re::Dataspace>(DERIVED::find_res(r->second.memory()));
+    m = L4::Cap<L4Re::Dataspace>(r->second.client_cap_idx());
     return L4_EOK;
   }
 

@@ -108,7 +108,6 @@ public:
   enum { Have_find = false };
   static l4_ret_t validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
                               L4Re::Rm::Region_flags flags, Dataspace *ds);
-  static l4_umword_t find_res(Dataspace const &) { return 0; }
 
   Region_map();
   virtual ~Region_map() {}
