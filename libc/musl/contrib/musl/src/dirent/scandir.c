@@ -7,6 +7,14 @@
 #include <errno.h>
 #include <stddef.h>
 
+static int wrapper_cmp(const void *v1, const void *v2, void *cmp)
+{
+	const struct dirent *de1 = *(struct dirent *const *){v1};
+	const struct dirent *de2 = *(struct dirent *const *){v2};
+	return ((int (*)(const struct dirent **, const struct dirent **))cmp)(
+		&de1, &de2);
+}
+
 int scandir(const char *path, struct dirent ***res,
 	int (*sel)(const struct dirent *),
 	int (*cmp)(const struct dirent **, const struct dirent **))
@@ -71,7 +79,7 @@ int scandir(const char *path, struct dirent ***res,
 	/* cmp() and caller must not observe that errno was set to 0. */
 	errno = old_errno;
 
-	if (cmp) qsort(names, cnt, sizeof *names, (int (*)(const void *, const void *))cmp);
+	if (cmp) __qsort_r(names, cnt, sizeof *names, wrapper_cmp, (void *)cmp);
 	*res = names;
 	return cnt;
 }
