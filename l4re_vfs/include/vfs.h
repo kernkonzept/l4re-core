@@ -781,10 +781,6 @@ public:
   /// Backend for the munmap system call.
   virtual int munmap(void *start, size_t len) noexcept = 0;
 
-  /// Backend for the mremap system call.
-  virtual int mremap(void *old, size_t old_sz, size_t new_sz, int flags,
-                     void **new_addr) noexcept = 0;
-
   /// Backend for the mprotect system call.
   virtual int mprotect(const void *a, size_t sz, int prot) noexcept = 0;
 

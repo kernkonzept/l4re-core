@@ -63,29 +63,6 @@ L4B_REDIRECT_3(int, mprotect, void *, size_t, int);
 L4B_REDIRECT_3(int, madvise, void *, size_t, int);
 L4B_REDIRECT_3(int, msync, void *, size_t, int);
 
-void *mremap(void *old_addr, size_t old_size, size_t new_size,
-             int flags, ...)
-noexcept(noexcept(mremap(old_addr, old_size, new_size, flags)))
-{
-  void *resptr;
-  if (flags & MREMAP_FIXED)
-    {
-      va_list a;
-      va_start(a, flags);
-      resptr = va_arg(a, void *);
-      va_end(a);
-    }
-
-  int r = L4B(mremap(old_addr, old_size, new_size, flags, &resptr));
-  if (r < 0)
-    {
-      errno = -r;
-      return MAP_FAILED;
-    }
-
-  return resptr;
-}
-
 /* Use mmap from VFS unless the heap is provided by libc_be_static_heap. */
 #ifndef CONFIG_BID_STATIC_HEAP
 static void *current_morecore_end;
@@ -183,7 +160,6 @@ noexcept(noexcept(munlockall()))
 L4_STRONG_ALIAS(mmap2, __l4re_syscall_SYS_mmap2)
 L4_STRONG_ALIAS(mmap, __l4re_syscall_SYS_mmap)
 L4_STRONG_ALIAS(munmap, __l4re_syscall_SYS_munmap)
-L4_STRONG_ALIAS(mremap, __l4re_syscall_SYS_mremap)
 L4_STRONG_ALIAS(mprotect, __l4re_syscall_SYS_mprotect)
 
 #endif
