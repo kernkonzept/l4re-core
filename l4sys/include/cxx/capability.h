@@ -204,6 +204,26 @@ protected:
   }
 
   /**
+   * Test whether this capability points to the same object with the same
+   * permissions as `other`.
+   *
+   * As an extension, invalid capabilities are considered equal by this
+   * function. See l4_task_cap_equal() for further details.
+   *
+   * \param other  The capability to comapre to.
+   */
+  bool is_equal(Cap_base const &other) const noexcept
+  {
+    if (!is_valid())
+      return !other.is_valid();
+
+    if (other.is_valid())
+      return l4_task_cap_equal(L4_BASE_TASK_CAP, _c, other._c).label() > 0;
+    else
+      return false;
+  }
+
+  /**
    * \brief The C representation of a capability selector. */
   l4_cap_idx_t _c;
 };
@@ -316,6 +336,12 @@ public:
   { return Cap_base::copy(src); }
 
   /**
+   * \copydoc Cap_base::is_equal
+   */
+  bool is_equal(Cap const &other) const noexcept
+  { return Cap_base::is_equal(other); }
+
+  /**
    * \brief Member access of a `T`.
    */
   T *operator -> () const noexcept { return reinterpret_cast<T*>(_c); }
@@ -375,6 +401,12 @@ public:
    */
   bool copy(Cap const &src) const noexcept
   { return Cap_base::copy(src); }
+
+  /**
+   * \copydoc Cap_base::is_equal
+   */
+  bool is_equal(Cap const &other) const noexcept
+  { return Cap_base::is_equal(other); }
 
   template< typename T >
   Cap(Cap<T> const &o) noexcept : Cap_base(o.cap()) {}
