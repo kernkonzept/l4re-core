@@ -1,4 +1,5 @@
 #include <dirent.h>
+#include <pthread.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -9,7 +10,17 @@ int scandir(const char *path, struct dirent ***res,
 	int (*sel)(const struct dirent *),
 	int (*cmp)(const struct dirent **, const struct dirent **))
 {
+	/* opendir() and closedir() are cancellation points. scandir() is also
+	 * allowed to be a cancellation point but we choose not to make it one.
+	 * To avoid calling sel() and cmp() with altered thread state,
+	 * cancellation is not explicitly disabled for those calls. This means
+	 * if either of the callbacks acts upon a cancellation request, there
+	 * can be memory and file descriptor leaks. */
+	int cs;
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 	DIR *d = opendir(path);
+	pthread_setcancelstate(cs, 0);
+
 	struct dirent *de, **names=0, **tmp;
 	size_t cnt=0, len=0;
 	int old_errno = errno;
@@ -39,7 +50,9 @@ int scandir(const char *path, struct dirent ***res,
 	 * "failure" of closedir() as a failure of scandir(). */
 	int err = errno;
 
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 	closedir(d);
+	pthread_setcancelstate(cs, 0);
 
 	if (err) {
 		if (names) while (cnt-->0) free(names[cnt]);
