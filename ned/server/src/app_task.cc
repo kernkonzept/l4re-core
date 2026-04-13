@@ -55,13 +55,31 @@ App_task::Parent_receiver::op_signal(L4Re::Parent::Rights, unsigned long sig,
   switch (sig)
     {
     case 0: // exit
-      exit_code = val;
-      wait->up();
-      parent.obj_cap()->trigger();
-      // On one hand we don't need to reply because the client expects to be
-      // killed. But this reply operation will "consume" the reply cap to the
-      // client preventing the kernel from printing a warning.
-      break;
+      {
+        exit_code = val;
+
+        // Immediately reap the child. The ned main thread may be blocked in
+        // Lua code so it can take very long until App_task::reset() would be
+        // called. Also, one of the child's threads is actively engaged with us
+        // in a call. We don't want to leave a stale reply cap behind.
+        l4_fpage_t fpages[3] =
+        {
+          parent.task_cap().fpage(L4_CAP_FPAGE_RWSD),
+          parent.thread_cap().fpage(L4_CAP_FPAGE_RWSD),
+          parent.rm().fpage(L4_CAP_FPAGE_RWSD)
+        };
+
+        L4::Cap<L4::Task>(L4Re::This_task)
+          ->unmap_batch(fpages, 3, L4_FP_ALL_SPACES | L4_FP_DELETE_OBJ);
+
+        wait->up();
+        parent.obj_cap()->trigger();
+
+        // On one hand we don't need to reply because the client expects to be
+        // killed. But this reply operation will "consume" the reply cap to the
+        // client preventing the kernel from printing a warning.
+        break;
+      }
     default: break;
     }
   return L4_EOK;
@@ -116,12 +134,16 @@ App_task::~App_task()
 void
 App_task::reset()
 {
+  // Attention: first de-register from the foreign_server! The code in
+  // App_task::Parent_receiver::op_signal() might otherwise run concurrently.
+  Ned::foreign_server->registry()->unregister_obj(&_parent_receiver);
+  Ned::server.registry()->unregister_obj(this);
+
+  // Now it is safe to delete the capabilities and free the cap slots. If
+  // the child exited voluntarily, the capabilities are already deleted.
   _task.reset();
   _thread.reset();
   _rm.reset();
-
-  Ned::foreign_server->registry()->unregister_obj(&_parent_receiver);
-  Ned::server.registry()->unregister_obj(this);
 }
 
 void
