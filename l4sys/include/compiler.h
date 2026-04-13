@@ -295,7 +295,7 @@ L4_INLINE unsigned long l4_align_stack_for_direct_fncall(unsigned long stack)
 
 #ifndef static_assert
 # if !defined(__cplusplus)
-#  define static_assert(x, y) _Static_assert(x, y)
+#  define static_assert _Static_assert
 # elif __cplusplus < 201103L
 #  define static_assert(x, y) \
    extern int l4_static_assert[-(!(x))] __attribute__((unused))
