@@ -467,9 +467,11 @@ SRC_libc/misc_libc_minimal.a = $(SRC_libc/misc_libc.a)
 define SRC_libc/misc_wchar
   time/wcsftime
   wchar/btowc
+  wchar/c32rtomb
   wchar/mbsinit
   wchar/mbrlen
   wchar/mbrtowc
+  wchar/mbrtoc32
   wchar/mbsnrtowcs
   wchar/mbsrtowcs
   wchar/wchar

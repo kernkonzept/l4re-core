@@ -313,6 +313,23 @@ libc_hidden_def(mbrtowc)
 
 #endif
 /**********************************************************************/
+#ifdef L_mbrtoc32
+
+#include <uchar.h>
+
+size_t mbrtoc32(char32_t *restrict pc32, const char *restrict s, size_t n, mbstate_t *restrict ps)
+{
+        static mbstate_t internal_state;
+        if (!ps) ps = (void *)&internal_state;
+        if (!s) return mbrtoc32(0, "", 1, ps);
+        wchar_t wc;
+        size_t ret = mbrtowc(&wc, s, n, ps);
+        if (ret <= 4 && pc32) *pc32 = wc;
+        return ret;
+}
+libc_hidden_def(mbrtoc32)
+#endif
+/**********************************************************************/
 #ifdef L_wcrtomb
 
 
@@ -340,6 +357,17 @@ size_t wcrtomb(register char *__restrict s, wchar_t wc,
 }
 libc_hidden_def(wcrtomb)
 
+#endif
+/**********************************************************************/
+#ifdef L_c32rtomb
+
+#include <uchar.h>
+
+size_t c32rtomb(char *restrict s, char32_t c32, mbstate_t *restrict ps)
+{
+        return wcrtomb(s, c32, ps);
+}
+libc_hidden_def(c32rtomb)
 #endif
 /**********************************************************************/
 #ifdef L_mbsrtowcs

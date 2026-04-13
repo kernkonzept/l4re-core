@@ -27,7 +27,7 @@
 
 #define __need_size_t
 #include <stddef.h>
-#define __need_mbstate_t
+
 #include <wchar.h>
 
 #ifndef __mbstate_t_defined
@@ -39,7 +39,8 @@ __END_NAMESPACE_C99
 #endif
 
 
-#if defined __GNUC__ && !defined __USE_ISOCXX11
+//#if defined __GNUC__ && !defined __USE_ISOCXX11
+#if defined __GNUC__ && !defined __cplusplus
 /* Define the 16-bit and 32-bit character types.  Use the information
    provided by the compiler.  */
 # if !defined __CHAR16_TYPE__ || !defined __CHAR32_TYPE__
@@ -52,5 +53,10 @@ __END_NAMESPACE_C99
 typedef __CHAR16_TYPE__ char16_t;
 typedef __CHAR32_TYPE__ char32_t;
 #endif
+
+size_t c32rtomb(char *__restrict, char32_t, mbstate_t *__restrict);
+libc_hidden_proto(c32rtomb);
+size_t mbrtoc32(char32_t *__restrict, const char *__restrict, size_t, mbstate_t *__restrict);
+libc_hidden_proto(mbrtoc32);
 
 #endif	/* uchar.h */
