@@ -173,13 +173,16 @@ protected:
    * to by the source capability `src`, and the source capability no longer
    * refers to an object.
    */
-  void move(Cap_base const &src) const
+  bool move(Cap_base const &src) const noexcept
   {
     if (!is_valid() || !src.is_valid())
-      return;
+      return false;
 
-    l4_task_map(L4_BASE_TASK_CAP, L4_BASE_TASK_CAP, src.fpage(L4_CAP_FPAGE_RWSD),
-                snd_base(L4_MAP_ITEM_GRANT) | L4_FPAGE_C_OBJ_RIGHTS);
+    l4_msgtag_t res
+      = l4_task_map(L4_BASE_TASK_CAP, L4_BASE_TASK_CAP,
+                    src.fpage(L4_CAP_FPAGE_RWSD),
+                    snd_base(L4_MAP_ITEM_GRANT) | L4_FPAGE_C_OBJ_RIGHTS);
+    return l4_error(res) >= 0;
   }
 
   /**
@@ -189,13 +192,15 @@ protected:
    * After this operation this capability refers to the same object
    * as `src`.
    */
-  void copy(Cap_base const &src) const
+  bool copy(Cap_base const &src) const noexcept
   {
     if (!is_valid() || !src.is_valid())
-      return;
+      return false;
 
-    l4_task_map(L4_BASE_TASK_CAP, L4_BASE_TASK_CAP, src.fpage(L4_CAP_FPAGE_RWSD),
-                snd_base() | L4_FPAGE_C_OBJ_RIGHTS);
+    l4_msgtag_t res = l4_task_map(L4_BASE_TASK_CAP, L4_BASE_TASK_CAP,
+                                  src.fpage(L4_CAP_FPAGE_RWSD),
+                                  snd_base() | L4_FPAGE_C_OBJ_RIGHTS);
+    return l4_error(res) >= 0;
   }
 
   /**
@@ -299,26 +304,16 @@ public:
   explicit Cap(No_init_type) noexcept {}
 
   /**
-   * \brief Move a capability to this cap slot.
-   * \param src the source capability slot.
-   *
-   * After this operation the source slot is no longer valid.
+   * \copydoc Cap_base::move
    */
-  Cap move(Cap const &src) const
-  {
-    Cap_base::move(src);
-    return *this;
-  }
+  bool move(Cap const &src) const noexcept
+  { return Cap_base::move(src); }
 
   /**
-   * \brief Copy a capability to this cap slot.
-   * \param src the source capability slot.
+   * \copydoc Cap_base::copy
    */
-  Cap copy(Cap const &src) const
-  {
-    Cap_base::copy(src);
-    return *this;
-  }
+  bool copy(Cap const &src) const noexcept
+  { return Cap_base::copy(src); }
 
   /**
    * \brief Member access of a `T`.
@@ -370,26 +365,16 @@ public:
   static void check_castable_from() noexcept {}
 
   /**
-   * \brief Move a capability to this cap slot.
-   * \param src the source capability slot.
-   *
-   * After this operation the source slot is no longer valid.
+   * \copydoc Cap_base::move
    */
-  Cap move(Cap const &src) const
-  {
-    Cap_base::move(src);
-    return *this;
-  }
+  bool move(Cap const &src) const noexcept
+  { return Cap_base::move(src); }
 
   /**
-   * \brief Copy a capability to this cap slot.
-   * \param src the source capability slot.
+   * \copydoc Cap_base::copy
    */
-  Cap copy(Cap const &src) const
-  {
-    Cap_base::copy(src);
-    return *this;
-  }
+  bool copy(Cap const &src) const noexcept
+  { return Cap_base::copy(src); }
 
   template< typename T >
   Cap(Cap<T> const &o) noexcept : Cap_base(o.cap()) {}
