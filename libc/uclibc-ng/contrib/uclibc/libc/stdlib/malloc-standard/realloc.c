@@ -185,8 +185,10 @@ void* realloc(void* oldmem, size_t bytes)
     else {
 	size_t offset = oldp->prev_size;
 	size_t pagemask = av->pagesize - 1;
+#ifdef __NOT_FOR_L4__
 	char *cp;
 	unsigned long  sum;
+#endif
 
 	/* Note the extra (sizeof(size_t)) overhead */
 	newsize = (nb + offset + (sizeof(size_t)) + pagemask) & ~pagemask;
@@ -197,6 +199,7 @@ void* realloc(void* oldmem, size_t bytes)
 	    goto DONE;
 	}
 
+#ifdef __NOT_FOR_L4__
 	cp = (char*)mremap((char*)oldp - offset, oldsize + offset, newsize, 1);
 
 	if (cp != (char*)MORECORE_FAILURE) {
@@ -218,6 +221,7 @@ void* realloc(void* oldmem, size_t bytes)
 	    retval = chunk2mem(newp);
 	    goto DONE;
 	}
+#endif
 
 	/* Note the extra (sizeof(size_t)) overhead. */
 	if ((unsigned long)(oldsize) >= (unsigned long)(nb + (sizeof(size_t))))

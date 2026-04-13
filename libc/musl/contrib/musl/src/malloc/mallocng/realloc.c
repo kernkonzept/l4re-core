@@ -25,6 +25,7 @@ void *realloc(void *p, size_t n)
 		return p;
 	}
 
+#ifdef __NOT_FOR_L4__
 	// use mremap if old and new size are both mmap-worthy
 	if (g->sizeclass>=48 && n>=MMAP_THRESHOLD) {
 		assert(g->sizeclass==63);
@@ -42,6 +43,7 @@ void *realloc(void *p, size_t n)
 			return p;
 		}
 	}
+#endif
 
 	new = malloc(n);
 	if (!new) return 0;
