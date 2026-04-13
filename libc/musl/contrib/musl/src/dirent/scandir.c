@@ -33,12 +33,18 @@ int scandir(const char *path, struct dirent ***res,
 		if (!names[cnt]) break;
 		memcpy(names[cnt++], de, de->d_reclen);
 	}
+	/* closedir() might set errno via __aio_close(). It might also "fail"
+	 * (return -1 and set errno). But even then, the file descriptor is
+	 * closed and memory is freed, so there is no reason to report the
+	 * "failure" of closedir() as a failure of scandir(). */
+	int err = errno;
 
 	closedir(d);
 
-	if (errno) {
+	if (err) {
 		if (names) while (cnt-->0) free(names[cnt]);
 		free(names);
+		errno = err;
 		return -1;
 	}
 	/* cmp() and caller must not observe that errno was set to 0. */
