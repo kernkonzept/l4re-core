@@ -19,6 +19,7 @@
 #include <l4/util/thread.h>
 
 #include "debug.h"
+#include "ds_cap_ref.h"
 #include "ffi.h"
 #include "lock.h"
 
@@ -28,17 +29,17 @@ inline void operator delete (void *p, cxx::Nothrow const &) noexcept { return fr
 class Region_handler
 {
   L4Re::Rm::Offset _offs = 0;
-  L4::Cap<L4Re::Dataspace> _mem;
+  Ds_cap_references::Ds_cap_ref _mem;
   l4_cap_idx_t _client_cap = L4_INVALID_CAP;
   L4Re::Rm::Region_flags _flags = L4Re::Rm::Region_flags(0);
   bool _attached = false;
 
 public:
   typedef l4_umword_t Map_result;
-  using Dataspace = L4::Cap<L4Re::Dataspace>;
+  using Dataspace = Ds_cap_references::Ds_cap_ref;
 
   Region_handler() noexcept = default;
-  Region_handler(L4::Cap<L4Re::Dataspace> mem,
+  Region_handler(Ds_cap_references::Ds_cap_ref mem,
                  l4_cap_idx_t client_cap,
                  L4Re::Rm::Offset offset,
                  L4Re::Rm::Region_flags flags) noexcept
@@ -46,7 +47,7 @@ public:
   {}
 
   L4::Cap<L4Re::Dataspace> memory() const noexcept
-  { return _mem; }
+  { return _mem.itas_cap(); }
 
   l4_cap_idx_t client_cap_idx() const noexcept
   { return _client_cap; }
@@ -89,20 +90,25 @@ private:
   typedef L4Re::Util::Region_map<Region_handler, cxx::New_allocator> Base;
 
 public:
-  typedef L4::Cap<L4Re::Dataspace> Dataspace;
+  using Dataspace = Ds_cap_references::Ds_cap_ref;
   enum { Have_find = true };
-  static l4_ret_t validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
+
+  l4_ret_t validate_ds(L4::Ipc::Snd_fpage const &ds_cap,
                               L4Re::Rm::Region_flags,
-                              L4::Cap<L4Re::Dataspace> *ds)
+                              Ds_cap_references::Ds_cap_ref *ds)
   {
-    // if no cap was sent then the region will be reserved
-    if (ds_cap.local_id_received())
-      {
-	// we received a local capability index, get it with cap.base()
-	*ds = L4::Cap<L4Re::Dataspace>(ds_cap.base());
-	return L4_EOK;
-      }
-    return -L4_ENOENT;
+    if (!ds_cap.local_id_received())
+      return -L4_ENOENT;
+
+    // We received a local capability index, get it with cap.base(). Get an
+    // ITAS holding reference to the cap slot so that the underlying capapility
+    // does not vanish until the region is detached.
+    Ds_cap_references::Ds_cap_ref ref = _ds_cap_refs.lookup(ds_cap.base());
+    if (!ref)
+      return -L4_ENOMEM;
+
+    *ds = cxx::move(ref);
+    return L4_EOK;
   }
 
   Region_map();
@@ -113,6 +119,9 @@ public:
   void debug_dump(unsigned long function) const;
   l4_ret_t page_in(l4_addr_t min_addr, l4_addr_t max_addr,
                    L4Re::Rm::Region_flags rights);
+
+private:
+  Ds_cap_references _ds_cap_refs;
 };
 
 class Region_map_svr
@@ -143,7 +152,8 @@ public:
                   unsigned name_len, L4Re::Rm::Offset backing_offset)
   {
     L4Re::Util::Region region(start, end, name, name_len, backing_offset);
-    Region_handler handler(mem, mem.cap(), 0, region_flags);
+    Region_handler handler(Ds_cap_references::Ds_cap_ref(mem), mem.cap(), 0,
+                           region_flags);
     return _region_map.add_region(region, handler);
   }
 
@@ -168,8 +178,8 @@ public:
     Rw_lock_write_scope scope(_lock);
 
     return _region_map.attach(addr, size,
-                              Region_handler(mem, mem.cap(), 0,
-                                             flags.region_flags()),
+                              Region_handler(Ds_cap_references::Ds_cap_ref(mem),
+                                             mem.cap(), 0, flags.region_flags()),
                               flags.attach_flags(), align,
                               name, name_len, backing_offset);
   }

@@ -90,13 +90,13 @@ Region_handler::map(l4_addr_t local_addr, Region const &r, bool writable,
   if (!writable)
     r_flags -= L4Re::Rm::F::W;
 
-  if ((r_flags & (Rm::F::Reserved | Rm::F::Kernel)) || !_mem.is_valid())
+  if ((r_flags & (Rm::F::Reserved | Rm::F::Kernel)) || !_mem)
     return -L4_ENOENT;
 
   if (r_flags & Rm::F::Pager)
     {
       L4::Ipc::Snd_fpage rfp;
-      return l4_error(L4::cap_reinterpret_cast<L4::Pager>(_mem)
+      return l4_error(L4::cap_reinterpret_cast<L4::Pager>(_mem.itas_cap())
                       ->page_fault(local_addr, -3UL,
                                    L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE),
                                    rfp));
@@ -107,7 +107,7 @@ Region_handler::map(l4_addr_t local_addr, Region const &r, bool writable,
       // possible r/w etc. bits in the offset
       local_addr &= ~0x0fUL;
       l4_addr_t offset = local_addr - r.start() + _offs;
-      L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(_mem);
+      L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(_mem.itas_cap());
       L4Re::Dataspace::Flags flags = map_flags(r_flags);
       return ds->map(offset, flags, local_addr, r.start(), r.end());
     }
@@ -131,8 +131,9 @@ Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
                                   | rights;
   L4Re::Dataspace::Flags ds_flags = map_flags(rm_flags);
 
+  L4::Cap<L4Re::Dataspace> ds = _mem.itas_cap();
   l4_addr_t offset = start - r.start() + _offs;
-  return _mem->map_region(offset, ds_flags, start, end + 1);
+  return ds->map_region(offset, ds_flags, start, end + 1);
 }
 
 void
@@ -141,10 +142,10 @@ Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
   if (_flags & (Rm::F::Reserved | Rm::F::Kernel | Rm::F::Pager))
     return;
 
-  if (!_mem.is_valid())
+  if (!_mem)
     return;
 
-  L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(_mem);
+  L4::Cap<L4Re::Dataspace> ds = L4::cap_cast<L4Re::Dataspace>(_mem.itas_cap());
   ds->clear(offset() + start, size);
 }
 
@@ -157,7 +158,7 @@ Region_handler::map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexc
   if (_flags & (Rm::F::Pager | Rm::F::Reserved | Rm::F::Kernel))
     return 0;
 
-  return _mem->map_info(start_addr, end_addr);
+  return _mem.itas_cap()->map_info(start_addr, end_addr);
 }
 
 bool
@@ -180,7 +181,7 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
   // Moe must not free the dataspace region on detach.
   auto flags = _flags & ~Rm::F::Detach_free;
   l4_ret_t res = moe_rm->attach(&beg, end - beg + 1, flags,
-                                L4::Ipc::make_cap_rw(_mem), _offs);
+                                L4::Ipc::make_cap_rw(_mem.itas_cap()), _offs);
   if (res < 0)
     {
       // If this was not a moe dataspace, we'll get an L4_ENOENT error. This is
