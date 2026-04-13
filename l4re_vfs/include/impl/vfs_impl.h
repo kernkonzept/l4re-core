@@ -415,7 +415,6 @@ Vfs::munmap_regions(void *start, size_t len)
   using namespace L4Re;
 
   int err;
-  Cap<Dataspace> ds;
   Cap<Rm> r = Env::env()->rm();
 
   if (l4_addr_t(start) & (L4_PAGESIZE - 1))
@@ -432,23 +431,9 @@ Vfs::munmap_regions(void *start, size_t len)
                 l4_kd_outhex32(len);
                 l4_kd_outstring("\n");
       });
-      err = r->detach(l4_addr_t(start), len, &ds, This_task);
+      err = r->detach(l4_addr_t(start), len, nullptr, This_task);
       if (err < 0)
         return err;
-
-      switch (err & Rm::Detach_result_mask)
-        {
-        case Rm::Split_ds:
-          if (ds.is_valid())
-            L4Re::virt_cap_alloc->take(ds);
-          return 0;
-        case Rm::Detached_ds:
-          if (ds.is_valid())
-            L4Re::virt_cap_alloc->release(ds);
-          break;
-        default:
-          break;
-        }
 
       if (!(err & Rm::Detach_again))
         return 0;
@@ -640,7 +625,8 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
       return 0;
     }
 
-  L4Re::Shared_cap<L4Re::Dataspace> ds;
+  L4Re::Shared_cap<L4Re::Dataspace> anon_ds;
+  L4::Cap<L4Re::Dataspace> ds;
   l4_addr_t anon_offset = 0;
   L4Re::Rm::Flags rm_flags(0);
 
@@ -648,10 +634,11 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
     {
       rm_flags |= L4Re::Rm::F::Detach_free;
 
-      int err = alloc_anon_mem(len, &ds, &anon_offset);
+      int err = alloc_anon_mem(len, &anon_ds, &anon_offset);
       if (err)
         return err;
 
+      ds = anon_ds.get();
       DEBUG_LOG(debug_mmap, {
                 l4_kd_outstring("  USE ANON MEM: 0x");
                 l4_kd_outhex32(ds.cap());
@@ -697,7 +684,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 
               err = r->attach(&dst, len,
                               L4Re::Rm::F::Search_addr | L4Re::Rm::F::RW,
-                              ds.get(), anon_offset);
+                              ds, anon_offset);
               if (err < 0)
                 return err;
 
@@ -712,10 +699,7 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
           offset = anon_offset;
         }
       else
-        {
-          L4Re::virt_cap_alloc->take(fds);
-          ds = L4Re::Shared_cap<L4Re::Dataspace>(fds, L4Re::virt_cap_alloc);
-        }
+        ds = fds;
     }
   else
     {
@@ -760,8 +744,9 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
   if (prot & PROT_EXEC)
     rm_flags |= Rm::F::X;
 
+  // Region manager takes a reference to the ds cap...
   err = r->attach(&data, len, rm_flags,
-                  L4::Ipc::make_cap(ds.get(), (prot & PROT_WRITE)
+                  L4::Ipc::make_cap(ds, (prot & PROT_WRITE)
                                         ? L4_CAP_FPAGE_RW
                                         : L4_CAP_FPAGE_RO),
                   offset, L4_PAGESHIFT, L4::Cap<L4::Task>::Invalid,
@@ -790,8 +775,6 @@ Vfs::mmap2(void *start, size_t len, int prot, int flags, int fd, off_t page4k_of
 
   l4_assert (!(start && !data));
 
-  // release ownership of the attached DS
-  ds.release();
   *resptr = data;
 
   return 0;
