@@ -6,6 +6,7 @@
  */
 #include <l4/re/env>
 #include <l4/re/error_helper>
+#include <l4/sys/debugger.h>
 
 #include "lock.h"
 #include "globals.h"
@@ -16,11 +17,13 @@ Rw_lock::Rw_lock()
   L4Re::chkcap(_rd_sem.get(), "Rw_lock: alloc _rd_sem");
   L4Re::chksys(L4Re::Env::env()->factory()->create(_rd_sem.get()),
                "Rw_lock: create _rd_sem");
+  l4_debugger_set_object_name(_rd_sem.cap(), "rd lock sem");
 
   _wr_sem = L4Re::make_unique_cap<L4::Semaphore>(Global::cap_alloc);
   L4Re::chkcap(_wr_sem.get(), "Rw_lock: alloc _wr_sem");
   L4Re::chksys(L4Re::Env::env()->factory()->create(_wr_sem.get()),
                "Rw_lock: create _wr_sem");
+  l4_debugger_set_object_name(_wr_sem.cap(), "wr lock sem");
 }
 
 void Rw_lock::lock_read() noexcept
