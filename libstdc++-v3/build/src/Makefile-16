@@ -126,10 +126,13 @@ SRC_CC-variant-std += \
   c++17/string-inst.cc \
   c++17/cow-string-inst.cc \
   c++20/atomic.cc \
+  c++20/cow-string-inst.cc \
   c++20/clock.cc \
   c++20/format.cc \
+  c++20/format-inst.cc \
   c++20/syncbuf.cc \
   c++20/sstream-inst.cc \
+  c++20/string-inst.cc \
   c++20/tzdb.cc \
   c++23/print.cc \
   c++23/stacktrace.cc \

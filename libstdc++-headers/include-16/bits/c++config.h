@@ -46,7 +46,7 @@
 
 // The datestamp of the C++ library in compressed ISO date format.
 #undef __GLIBCXX__ /* The testsuite defines it to 99999999 to block PCH.  */
-#define __GLIBCXX__ 20260322
+#define __GLIBCXX__ 20260423
 
 // Macros for various attributes.
 //   _GLIBCXX_PURE
@@ -1552,28 +1552,28 @@ namespace __gnu_cxx
 #define _GLIBCXX_LT_OBJDIR ".libs/"
 
 /* Name of package */
-/* #undef _GLIBCXX_PACKAGE */
+// /* #undef PACKAGE */
 
 /* Define to the address where bug reports for this package should be sent. */
-#define _GLIBCXX_PACKAGE_BUGREPORT ""
+// #define PACKAGE_BUGREPORT ""
 
 /* Define to the full name of this package. */
-#define _GLIBCXX_PACKAGE_NAME "package-unused"
+// #define PACKAGE_NAME "package-unused"
 
 /* Define to the full name and version of this package. */
-#define _GLIBCXX_PACKAGE_STRING "package-unused version-unused"
+// #define PACKAGE_STRING "package-unused version-unused"
 
 /* Define to the one symbol short name of this package. */
-#define _GLIBCXX_PACKAGE_TARNAME "libstdc++"
+// #define PACKAGE_TARNAME "libstdc++"
 
 /* Define to the home page for this package. */
-#define _GLIBCXX_PACKAGE_URL ""
+// #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define _GLIBCXX_PACKAGE__GLIBCXX_VERSION "version-unused"
+// #define PACKAGE_VERSION "version-unused"
 
 /* Define to 1 if you have the ANSI C header files. */
-#define _GLIBCXX_STDC_HEADERS 1
+// #define STDC_HEADERS 1
 
 /* Version number of package */
 /* #undef _GLIBCXX_VERSION */

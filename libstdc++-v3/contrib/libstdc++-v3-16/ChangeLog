@@ -1,3 +1,888 @@
+2026-04-22  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/html/manual/status.html: Regenerate.
+	* doc/xml/manual/status_cxx1998.xml: Replace references to
+	mainline GCC.
+	* doc/xml/manual/status_cxx2011.xml: Likewise.
+	* doc/xml/manual/status_cxx2014.xml: Likewise.
+	* doc/xml/manual/status_cxx2017.xml: Likewise.
+	* doc/xml/manual/status_cxx2020.xml: Likewise.
+	* doc/xml/manual/status_cxx2023.xml: Likewise.
+	* doc/xml/manual/status_cxxtr1.xml: Likewise.
+	* doc/xml/manual/status_cxxtr24733.xml: Likewise.
+
+2026-04-22  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/bits/version.def (reflection): Bump 202506L to 202603L
+	for both v and in extra_cond.
+	* include/bits/version.h: Regenerate.
+	* include/std/meta: Compare __glibcxx_reflection against
+	202603L rather than 202506L.
+	* src/c++23/std.cc.in: Likewise.
+
+2026-04-22  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/align.h (is_sufficiently_aligned): Mandate
+	that _Align is power of two.
+	* testsuite/20_util/is_sufficiently_aligned/2_neg.cc: New test.
+
+2026-04-22  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/mdspan (mdspan): Remove reference from
+	_AccessorType::data_handle_type parameteter of deduction
+	guide.
+	* testsuite/23_containers/mdspan/mdspan.cc: New test.
+
+2026-04-22  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/chrono_io.h: Add comment for LWG3831.
+	* include/bits/print.h: Add comment for LWG4549.
+	* include/std/condition_variable: Add comment for LWG3504.
+	* include/std/format: Add comments for LWG4522.
+	* include/std/mdspan: Add comment for LWG4314.
+	* include/std/optional: Add comment for LWG2746.
+
+2026-04-21  Nathan Myers  <ncm@cantrip.org>
+
+	* include/bits/alloc_traits.h (allocate_at_least):
+	Take allocator argument by reference, per Standard.
+
+2026-04-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	* src/c++23/print.cc (__open_terminal): Fix comment.
+
+2026-04-21  Marek Polacek  <polacek@redhat.com>
+
+	PR c++/124950
+	* include/std/meta (std::meta::data_member_options): Initialize
+	alignment, bit_width, and annotations members.
+
+2026-04-21  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/120527
+	* include/bits/atomic_wait.h [__OpenBSD__ || __DragonFly]: Use
+	unsigned int for __platform_wait_t.
+
+2026-04-21  Jonathan Wakely  <jwakely@redhat.com>
+	    Iain Sandoe  <iain@sandoe.co.uk>
+
+	PR libstdc++/120527
+	* include/bits/atomic_wait.h:
+	* src/c++20/atomic.cc (__ulock_wait): Enable supported Darwin versions.
+	(__ulock_wake): Likewise.
+	(UL_COMPARE_AND_WAIT): New.
+	(UL_COMPARE_AND_WAIT64): New.
+	(ULF_WAKE_ALL): New.
+	(_GLIBCXX_HAVE_PLATFORM_WAIT): Enable for suppported Darwin versions.
+
+2026-04-21  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/bits/simd_details.h (__value_preserving_cast): Remove.
+	* include/bits/simd_mask.h (basic_mask): Replace plain 0 and 1
+	literals with cw<0> and cw<1>. Replace explicit basic_vec
+	construction from 0 and 1 with default init and broadcast from
+	_Up(1).
+	(_M_to_uint): Replace 1 with cw<1>.
+	* include/bits/simd_vec.h (basic_vec): Remove consteval
+	broadcast overload. Remove explicit broadcast from
+	non-value-preserving types.
+	* testsuite/std/simd/arithmetic.cc: Replace ill-formed integer
+	literals with explicit cast to T or use cw.
+	* testsuite/std/simd/mask.cc: Likewise.
+	* testsuite/std/simd/simd_alg.cc: Likewise.
+	* testsuite/std/simd/traits_common.cc: Adjust for resulting
+	traits changes.
+	* testsuite/std/simd/traits_math.cc: Likewise.
+
+2026-04-21  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/124910
+	* include/std/optional (_Optional_payload_base::_M_destroy):
+	Restrict r16-8748 workaround to Clang, and adjust comment.
+
+2026-04-20  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/print.h: Fix spelling of macro.
+
+2026-04-18  Patrick Palka  <ppalka@redhat.com>
+
+	PR c++/124910
+	* include/std/optional (_Optional_payload_base::_M_destroy)
+	[__cpp_lib_optional >= 202106L]: During constant evaluation,
+	after invoking destructor of _M_value, use construct_at to
+	activate _M_empty.
+	* testsuite/20_util/optional/constexpr/124910.cc: New test.
+
+2026-04-17  Patrick Palka  <ppalka@redhat.com>
+
+	PR libstdc++/124890
+	PR libstdc++/119714
+	PR libstdc++/112490
+	* include/bits/indirect.h (indirect::operator==): Replace
+	non-dependent std::indirect function parameter with a
+	dependent one of type indirect<_Vp> where _Vp matches _Tp.
+	* testsuite/std/memory/indirect/124890.cc: New test.
+
+2026-04-17  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/abi/post/ia64-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/m68k-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/powerpc64-linux-gnu/32/baseline_symbols.txt: Update.
+	* config/abi/post/powerpc-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/sparc64-linux-gnu/32/baseline_symbols.txt: Update.
+	* config/abi/post/sparc64-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/x86_64-linux-gnu/x32/baseline_symbols.txt: Update.
+
+2026-04-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/print.h (_File_sink): Add comments.
+
+2026-04-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124410
+	* doc/html/*: Regenerate.
+	* doc/xml/manual/using.xml (_GLIBCXX_NO_INLINE_PRINT): Document
+	macro.
+	* include/Makefile.am: Add bits/print.h and bits/ostream_print.h
+	headers.
+	* include/Makefile.in: Regenerate.
+	* include/std/ostream (vprint_nonunicode, vprint_unicode): Move
+	definitions to new bits/ostream_print.h header.
+	* include/std/print (__format::_File_sink, vprint_nonunicode)
+	(vprint_nonunicode_buffered, vprint_unicode)
+	(vprint_unicode_buffered): Move definitions to new bits/print.h
+	header.
+	* src/c++23/print.cc: Include new headers to define symbols for
+	inline print functions.
+	* include/bits/ostream_print.h: New file.
+	* include/bits/print.h: New file.
+
+2026-04-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* config/abi/post/i386-solaris/baseline_symbols.txt: Regenerate.
+	* config/abi/post/i386-solaris/amd64/baseline_symbols.txt:
+	Likewise.
+	* config/abi/post/sparc-solaris/baseline_symbols.txt: Likewise.
+	* config/abi/post/sparc-solaris/sparcv9/baseline_symbols.txt:
+	Likewise.
+
+2026-04-17  Jakub Jelinek  <jakub@redhat.com>
+
+	* config/abi/post/x86_64-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/x86_64-linux-gnu/32/baseline_symbols.txt: Update.
+	* config/abi/post/i386-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/i486-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/aarch64-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/s390x-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/powerpc64-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/powerpc64le-linux-gnu/baseline_symbols.txt: Update.
+	* config/abi/post/riscv64-linux-gnu/baseline_symbols.txt: Update.
+
+2026-04-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/chrono: Improve Doxygen comments.
+
+2026-04-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124268
+	* config/abi/pre/gnu.ver: Export symbols.
+	* src/Makefile.am: Add libmodulesconvenience.la to libstdc++
+	link.
+	* src/Makefile.in: Regenerate.
+	* src/c++23/Makefile.am: Create libmodulesconvenience.la
+	and populate it with std.o and std.compat.o interface units,
+	with empty fallback objects if compiling the interface units
+	fails. Add clean-local target.
+	* src/c++23/Makefile.in: Regenerate.
+
+2026-04-17  Jonathan Wakely  <jwakely@redhat.com>
+
+	PR libstdc++/124540
+	* testsuite/26_numerics/random/uniform_real_distribution/operators/gencanon.cc:
+	Skip long double tests for IBM long double format.
+
+2026-04-16  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* config/abi/pre/gnu.ver (GLIBCXX_3.4): Exclude exports
+	of std::basic_fo* (matching basic_format_context).
+	(GLIBCXX_3.4.35): Export __format::__do_vformat_to
+	specializations for _Sink_iter and char/wchar_t.
+	* include/std/format: (__format::__do_vformat_to):
+	Extract overload accepting _Sink_iter and provide extern
+	explicit specialization for char/wchar_t in C++20 mode.
+	* src/c++20/Makefile.am: Add format-inst.cc.
+	* src/c++20/Makefile.in: Regenerate.
+	* src/c++20/format-inst.cc: New file defining explicit
+	instantiation.
+
+2026-04-15  Elena Tyuleneva  <elena.tyuleneva@intel.com>
+
+	* include/bits/random.tcc (philox_engine::_M_transtiion): Fix
+	counter increment to propagate carry correctly.
+	* testsuite/26_numerics/random/philox_engine/operators/counter_carry.cc:
+	New test.
+
+2026-04-15  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/random.tcc (philox_engine::_M_transition): Cast
+	intermediate values to result_type for n=2 case.
+
+2026-04-15  Matthias Kretz  <m.kretz@gsi.de>
+
+	* include/bits/simd_vec.h (basic_vec deduction guide): Explicit
+	cast to simd-size-type from range size type.
+
+2026-04-15  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/std/meta (define_static_object): Adjust for LWG4483 changes
+	- handle unions and arrays differently.
+
+2026-04-14  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (stdbit_h, stdckdint_h): Define.
+	* include/bits/version.h: Regenerate.
+	* include/c_compatibility/stdbit.h (__cpp_lib_stdbit_h): Define
+	and use it in guards.
+	* include/c_compatibility/stdckdint.h (__cpp_lib_stdckdint_h):
+	Define and use it in guards.
+
+2026-04-14  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* testsuite/std/format/fill.cc: New test.
+	* testsuite/std/format/fill_nonunicode.cc: New test.
+
+2026-04-14  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* testsuite/20_util/constant_wrapper/generic.cc: Replace
+	std::std::invalid_argument with NegativeArgument and
+	removed <stdexcept> include.
+
+2026-04-14  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (constant_wrapped): Updated to 202603L.
+	* include/bits/version.h: Regenerate.
+	* include/bits/utility.h (_CwOperators::operator())
+	(_CwOperators:operator[]): Delete, they are now provided by...
+	(constant_wrapper::operator(), constant_wrapper::operator[]):
+	Define.
+	* testsuite/20_util/constant_wrapper/generic.cc: Add additional
+	test cases for invoke and subscript.
+	* testsuite/20_util/constant_wrapper/version.cc: Update tested
+	value.
+
+2026-04-14  Matthias Wippich  <mfwippich@gmail.com>
+	    Ivan Lazaric  <ivan.lazaric1@gmail.com>
+
+	* include/bits/utility.h (std::tuple_size, std::tuple_element):
+	Add partial specializations for integer_sequence.
+	(std::get(integer_sequence<_Tp, _Idx...>)): Define.
+	* include/bits/version.def (integer_sequence): Bump to 202511L.
+	* include/bits/version.h: Regenerate.
+	* testsuite/20_util/integer_sequence/tuple_access.cc: New test.
+	* testsuite/20_util/integer_sequence/tuple_access_neg.cc: New test.
+	* testsuite/experimental/feat-cxx14.cc: Updated check for
+	__cpp_lib_integer_sequence value.
+
+2026-04-13  François Dumont  <frs.dumont@gmail.com>
+
+	* include/bits/hashtable.h: Replace usages of std::__addressof with
+	std::addressof.
+	* include/bits/hashtable_policy.h: Likewise.
+
+2026-04-13  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (replaceable_contract_violation_handler)
+	[(__cplusplus > 202302L) && (__cpp_contracts >= 202502L)]:
+	Define to 202603 for ELF targets, and 0 otherwise.
+	* include/bits/version.h: Regenerate.
+	* include/std/contracts: Define
+	__cpp_lib_replaceable_contract_violation_handler.
+
+2026-04-13  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* config/abi/pre/gnu.ver (GLIBCXX_3.4): Remove _ZNKSs11_[MS]_*
+	and _ZNKSbIwSt11char_traitsIwESaIwEE11_[MS]_* patterns.
+
+2026-04-13  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (function_ref): Bump to 202603L.
+	* include/bits/version.h: Regenerate.
+	* testsuite/20_util/function_ref/assign.cc: Remove repeated
+	check for feature test macro.
+	* testsuite/20_util/function_ref/cons.cc: Updated checked
+	value.
+
+2026-04-10  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (lazy_split_view::begin): Add
+	const _Pattern constraint on const overload as per LWG 3599.
+	(lazy_split_view::end): Likewise.
+	* testsuite/std/ranges/adaptors/lazy_split.cc (test14): New
+	test.
+
+2026-04-10  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (ranges_to_input): Rename to...
+	(ranges_as_input): Rename from ranges_as_input.
+	* include/bits/version.h: Regenerate.
+	* include/std/ranges (ranges::to_input_view, views::to_input)
+	(__detail::__can_to_input, views::_ToInput): Rename to...
+	(ranges::as_input_view, views::as_input, __detail::__can_as_input)
+	(views::_AsInput): Rename from above...
+	* src/c++23/std.cc.in: Rename views::to_input and to_input_view
+	export.
+	* testsuite/25_algorithms/contains/1.cc: Replace views::to_input
+	with views::as_input.
+	* testsuite/std/ranges/adaptors/to_input/1.cc: Move to...
+	* testsuite/std/ranges/adaptors/as_input/1.cc: ...here, and replace
+	views::to_input with views::as_input.
+
+2026-04-10  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (span_initializer_list): Remove.
+	* include/bits/version.h: Regenerate.
+	* include/std/span (span::span(initializer_list<value_type>)):
+	Remove.
+	* testsuite/23_containers/span/init_list_cons.cc: Removed.
+	* testsuite/23_containers/span/init_list_cons_neg.cc: Removed.
+	* testsuite/23_containers/inplace_vector/copy.cc: Replace span
+	with initializer_list in eq helper.
+	* testsuite/23_containers/inplace_vector/erasure.cc: Likewise.
+	* testsuite/23_containers/inplace_vector/move.cc: Likewise.
+
+2026-04-10  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/ranges_uninitialized.h
+	(__uninitialized_fill_fn::operator())
+	(__uninitialized_fill_fn_n::operator()): Add default argument
+	for _Tp parameter.
+	* include/bits/stl_uninitialized.h (std::unitialized_fill)
+	(std::unitialized_fill_n): Likewise.
+	* include/pstl/glue_memory_defs.h (std::unitialized_fill)
+	(std::unitialized_fill_n): Likewise.
+	* include/bits/version.def (algorithm_default_value_type):
+	Bump to 202603.
+	* include/bits/version.h: Regenerate.
+	* testsuite/25_algorithms/default_template_value.cc:
+	Test for new algorithms.
+
+2026-04-08  Matthias Kretz  <m.kretz@gsi.de>
+	    Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/funcref_impl.h (function_ref::function_ref):
+	Change nontype_t parameter to constant_wrapper, and adjust
+	accordingly. Add static_assert detecting ambigous semantics.
+	(function_ref::operator=): Detect constant_wrapper rather than
+	nontype_t.
+	* include/bits/funcwrap.h (function_ref): Change nontype_t
+	parameter to constant_wrapper in deduction guides.
+	* include/bits/utility.h (std::nontype_t, std::nontype)
+	(std::__is_nontype_v): Remove.
+	(std::__is_constant_wrapper_v): Define.
+	* src/c++23/std.cc.in (std::nontype_t, std::nontype):
+	Remove exports.
+	* testsuite/20_util/function_ref/cw_cons_neg.cc: New tests
+	for ambiguity check.
+	* testsuite/20_util/function_ref/assign.cc: Replace nontype_t
+	with constant_wrapper and nontype with std::cw.
+	* testsuite/20_util/function_ref/call.cc: Likewise.
+	* testsuite/20_util/function_ref/cons.cc: Likewise.
+	* testsuite/20_util/function_ref/cons_neg.cc: Likewise.
+	* testsuite/20_util/function_ref/dangling.cc: Likewise.
+	* testsuite/20_util/function_ref/deduction.cc: Likewise.
+	* testsuite/20_util/function_ref/mutation.cc: Likewise.
+
+2026-04-08  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/utility.h (std::_CwFixedValue, std::_ConstExprParam)
+	(std::_CwOperators, std::constant_wrapper): Moved from...
+	* include/std/type_traits (std::_CwFixedValue, std::_ConstExprParam)
+	(std::_CwOperators, std::constant_wrapper): Moved to bits/utility.h.
+	Disable __cpp_lib_constant_wrapper defintion.
+	* include/std/utility: Define __cpp_lib_constant_wrapper.
+	* testsuite/20_util/constant_wrapper/adl.cc: Updated header includes.
+	* testsuite/20_util/constant_wrapper/ex.cc: Likewise.
+	* testsuite/20_util/constant_wrapper/generic.cc: Likewise.
+	* testsuite/20_util/constant_wrapper/instantiate.cc: Likewise.
+	* testsuite/20_util/constant_wrapper/op_comma_neg.cc: Likewise.
+	* testsuite/20_util/constant_wrapper/other_wrappers.cc: Likewise.
+	* testsuite/20_util/constant_wrapper/version.cc: Likewise.
+
+2026-04-08  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/std/type_traits (std::is_consteval_only,
+	std::is_consteval_only_v): Remove.
+	* include/std/meta (std::meta::is_consteval_only_type): Remove.
+	* src/c++23/std.cc.in: Don't export std::is_consteval_only,
+	std::is_consteval_only_v and std::meta::is_consteval_only_type.
+	* testsuite/20_util/is_consteval_only/requirements/explicit_instantiation.cc:
+	Remove.
+	* testsuite/20_util/is_consteval_only/requirements/typedefs.cc:
+	Remove.
+	* testsuite/20_util/is_consteval_only/value.cc: Remove.
+	* testsuite/20_util/variable_templates_for_traits.cc: Remove
+	is_consteval_only_v tests.
+
+2026-04-07  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* config/abi/pre/gnu.ver (GLIBCXX_3.4): Make string exports
+	less greedy.
+	(GLIBCXX_3.4.35): Export basic_string default constructor and
+	starts_with and ends_with members.
+	* include/bits/basic_string.h: Update __cpluplus checks for C++20.
+	* include/bits/cow_string.h: Likewise.
+	* include/bits/basic_string.tcc: Declare explicit instantiations
+	for C++20 as well as earlier dialects.
+	* src/c++20/Makefile.am: Add cow-string-inst.cc and
+	string-inst.cc source files.
+	* src/c++20/Makefile.in: Regenerate.
+	* src/c++20/string-inst.cc: New file defining explicit
+	instantiations for basic_string default constructor and starts_with,
+	ends_with methods added in C++20
+	* src/c++20/cow-string-inst.cc: Version of above for cow-stings.
+
+2026-04-07  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/124722
+	* testsuite/std/simd/traits_impl.cc (test): Make test() a
+	function template and instantiate it.
+
+2026-04-06  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/124722
+	* include/bits/version.def: Check for __SSE2__ rather than x86.
+	* include/bits/version.h: Regenerate.
+	* testsuite/std/simd/arithmetic.cc: Build with -msse2.
+	* testsuite/std/simd/arithmetic_expensive.cc: Likewise.
+	* testsuite/std/simd/creation.cc: Likewise.
+	* testsuite/std/simd/creation_expensive.cc: Likewise.
+	* testsuite/std/simd/loads.cc: Likewise.
+	* testsuite/std/simd/loads_expensive.cc: Likewise.
+	* testsuite/std/simd/mask.cc: Likewise.
+	* testsuite/std/simd/mask2.cc: Likewise.
+	* testsuite/std/simd/mask2_expensive.cc: Likewise.
+	* testsuite/std/simd/mask_expensive.cc: Likewise.
+	* testsuite/std/simd/reductions.cc: Likewise.
+	* testsuite/std/simd/reductions_expensive.cc: Likewise.
+	* testsuite/std/simd/shift_left.cc: Likewise.
+	* testsuite/std/simd/shift_left_expensive.cc: Likewise.
+	* testsuite/std/simd/shift_right.cc: Likewise.
+	* testsuite/std/simd/shift_right_expensive.cc: Likewise.
+	* testsuite/std/simd/simd_alg.cc: Likewise.
+	* testsuite/std/simd/simd_alg_expensive.cc: Likewise.
+	* testsuite/std/simd/sse_intrin.cc: Likewise.
+	* testsuite/std/simd/stores.cc: Likewise.
+	* testsuite/std/simd/stores_expensive.cc: Likewise.
+	* testsuite/std/simd/traits_common.cc: Likewise.
+	* testsuite/std/simd/traits_math.cc: Likewise.
+
+2026-04-04  Matthias Kretz  <m.kretz@gsi.de>
+
+	PR libstdc++/124722
+	* testsuite/std/simd/traits_impl.cc: Add __STDCPP_FLOAT16_T__
+	and __STDCPP_BFLOAT16_T__ guards.
+
+2026-04-04  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* testsuite/20_util/optional/ref/access.cc: Provide
+	definition for foo().
+
+2026-04-03  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/bits/version.def (is_structural): New.
+	* include/bits/version.h: Regenerate.
+	* include/std/type_traits (__glibcxx_want_is_structural): Define.
+	(std::is_structural): New type trait.
+	(std::is_structural_v): New type trait variable template.
+	* include/std/meta (std::meta::is_structural_type): New declaration.
+	* src/c++23/std.cc.in: Export std::is_structural, std::is_structural_v
+	and std::meta::is_structural_type.
+	* testsuite/20_util/is_structural/requirements/explicit_instantiation.cc: New test.
+	* testsuite/20_util/is_structural/requirements/typedefs.cc: New test.
+	* testsuite/20_util/is_structural/value.cc: New test.
+	* testsuite/20_util/variable_templates_for_traits.cc: Test
+	is_structural_v.
+
+2026-04-03  Jakub Jelinek  <jakub@redhat.com>
+
+	* libsupc++/exception_ptr.h (std::make_exception_ptr): Use
+	__builtin_current_exception() instead of current_exception() if
+	the builtin exists.
+	* libsupc++/nested_exception.h: Revert 2026-01-07 and 2025-07-10
+	changes.
+	* testsuite/18_support/exception_ptr/exception_ptr_cast.cc (test01):
+	Use __builtin_current_exception instead of std::current_exception
+	if __has_builtin(__builtin_current_exception).  Otherwise don't
+	try to constant evaluate test01.
+
+2026-04-02  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (zip_view::size): Uglify 'sizes'
+	parameter.
+
+2026-04-02  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (inplace_vector): Bump to 202603.
+	* include/bits/version.h: Regenerate.
+	* include/std/inplace_vector (inplace_vector::try_emplace_back)
+	(inplace_vector::try_push_back): Change return type to optional<_Tp&>
+	and adjust implementation accordingly.
+	(inplace_vector::try_append_range): Remove.
+	* include/debug/inplace_vector (inplace_vector::try_emplace_back)
+	(inplace_vector::try_push_back, inplace_vector::try_append_range):
+	Likewise.
+	* testsuite/23_containers/inplace_vector/modifiers/single_insert.cc:
+	Updated check for the optional<T&> return. Added test for type
+	convertible to optional<T&>
+	* testsuite/23_containers/inplace_vector/debug/invalidation/try_emplace_back.cc:
+	Use has_value() to check if engaged optional is returned.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/try_push_back.cc:
+	Likewise.
+	* testsuite/23_containers/inplace_vector/modifiers/multi_insert.cc:
+	Remove try_append_range tests.
+	* testsuite/23_containers/inplace_vector/debug/invalidation/try_append_range.cc:
+	Removed.
+	* testsuite/23_containers/inplace_vector/version.cc: Updated expected
+	feature test macro value.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/version: Add Doxygen documentation comment.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/regex_constants.h (format_default): Simplify
+	description of $n in Doxygen comment.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/stl_pair.h (pair): Adjust Doxygen comment.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono.h (floor, ceil, round): Fix Doxygen
+	comments to use correct parameter name and describe return value
+	more accurately.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/unordered_map.h (unordered_map::erase(K&&)):
+	Change parameter name to __x.
+	* include/bits/unordered_set.h (unordered_set::erase(K&&))
+	(unordered_multiset::erase(K&&)): Likewise.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/ostream.h (operator<<): Do not include deleted
+	overloads in @{ group.
+	* include/bits/stl_queue.h (priority_queue): Add @{ group around
+	constructors.
+	* include/bits/unordered_map.h: Remove stray @{. Move #endif to
+	encompass @} that is within the #if group.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/move.h (swap): Remove @return from Doxygen
+	comment.
+	* include/bits/stl_algo.h (inplace_merge, shuffle)
+	(random_shuffle, partial_sort, nth_element, sort)
+	(stable_sort): Likewise.
+	* include/bits/stl_algobase.h (iter_swap, fill): Likewise.
+	* include/bits/stl_deque.h (_Deque_base::_M_initialize_map)
+	(deque::_M_range_initialize, deque::_M_fill_initialize):
+	Likewise.
+	* include/bits/stl_iterator_base_funcs.h (advance): Likewise.
+	* include/bits/stl_numeric.h (iota): Likewise.
+	* include/bits/stl_tempbuf.h (return_temporary_buffer):
+	Likewise.
+	* include/bits/stl_uninitialized.h (uninitialized_fill):
+	Likewise.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/ext/pb_ds/detail/gp_hash_table_map_/find_no_store_hash_fn_imps.hpp:
+	Add missing #endif.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/doxygen/doxygroups.cc: Define variable_templates group.
+	* include/bits/binders.h: Fix @file name.
+	* include/bits/formatfwd.h: Add missing @cond
+	* include/bits/forward_list.h: Add closing backtick in comment.
+	* include/bits/out_ptr.h (out_ptr, inout_ptr): Fix names in
+	@param comments.
+	* include/bits/regex_constants.h: Escape backtick in comment.
+	* include/bits/stl_map.h: Add missing @{.
+	* include/bits/stl_set.h: Likewise.
+	* include/bits/stl_pair.h: Move declaration of complex into #if
+	group where it's used. Fix nesting of @cond and @endcond in #if
+	groups.
+	* include/std/functional: Move @cond inside #if group.
+	* include/std/type_traits: Likewise.
+	* libsupc++/exception: Fix typo'd backtick.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/doxygen/user.cfg.in (INPUT): Add <debugging> header.
+	(EXCLUDE_SYMBOLS): Exclude include guards and other internal
+	macros from generated documentation.
+	(PREDEFINED): Update __cplusplus to C++26 value. Remove
+	unnecessary spaces in macro expansions. Add missing
+	_GLIBCXX_ABI_TAG_CXX11 macro.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* doc/doxygen/user.cfg.in: Update Doxygen config.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/stl_map.h (map::try_emplace): Move #endif and use
+	Doxygen's @{ to document all three overloads.
+	(map::insert_or_assign): Use relevant feature test macro.
+
+2026-04-02  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/version.def (submdspan): Update to 202603,
+	and list all papers in comment.
+	* include/bits/version.h: Regenerate.
+	* include/std/mdspan: Replaced std::strided_stride to
+	std::extent_slice, __is_strided_slice to __is_extent_slice,
+	_SliceKind::__unit_strided_slice to __unit_stride_slice.
+	* src/c++23/std.cc.in (std::extent_slice): Replaced
+	std::strided_slice to std::extent_slice.
+	* testsuite/23_containers/mdspan/submdspan/canonical_slices.cc:
+	Replaced all occurences of strided_slice to extent_slice.
+	* testsuite/23_containers/mdspan/submdspan/canonical_slices_neg.cc:
+	Likewise.
+	* testsuite/23_containers/mdspan/submdspan/strided_slice.cc: Move to...
+	* testsuite/23_containers/mdspan/submdspan/extent_slice.cc: ...here
+	and handle rename.
+	* testsuite/23_containers/mdspan/submdspan/strided_slice_neg.cc: Move to...
+	* testsuite/23_containers/mdspan/submdspan/extent_slice_neg.cc: ...here
+	and handle rename.
+	* testsuite/23_containers/mdspan/submdspan/selections/testcases.h:
+	Replaced all occurences of strided_slice to extent_slice.
+	* testsuite/23_containers/mdspan/submdspan/subextents.cc: Likewise.
+	* testsuite/23_containers/mdspan/submdspan/subextents_neg.cc:
+	Likewise.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_mapping.cc:
+	Likewise.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_neg.cc: Likewise.
+
+2026-04-02  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/std/mdspan (__mdspan::__static_slice_extent)
+	(__mdspan::__dynamic_slice_extent): Return unmodified extent
+	value for strided_slice.
+	(__mdspan::__substrides_generic, __mdspan::__substrides_standardized):
+	Multipliy stride, if more than one element is requested.
+	(__mdspan::__canonical_range_slice): Define.
+	(__mdspan::__slice_cast): Use __canonical_range_slice for range_slice
+	and two elements tuples.
+	(__mdspan::__check_inrange_index): Define.
+	(__mdspan::__check_valid_slice): Validate if slice.offset +
+	(slice.extent - 1) * slice.stride fits into extent of given
+	dimension. Check stride if slice.extent > 1.
+	* testsuite/23_containers/mdspan/submdspan/canonical_slices.cc:
+	Add test for range_slice.
+	* testsuite/23_containers/mdspan/submdspan/canonical_slices_neg.cc:
+	Add tests validating new conditions.
+	* testsuite/23_containers/mdspan/submdspan/selections/testcases.h:
+	Adjusted for change of meaing of strided_slice::extent.
+	* testsuite/23_containers/mdspan/submdspan/subextents.cc:
+	Adjusted for change of meaing of strided_slice::extent. And expanded
+	range_slice tests.
+	* testsuite/23_containers/mdspan/submdspan/subextents_neg.cc:
+	Adjusted for change of meaing of strided_slice::extent.
+	* testsuite/23_containers/mdspan/submdspan/submdspan_neg.cc:
+	Adjust test for stride value.
+
+2026-04-02  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* src/c++23/std.cc.in (range_slice): Export.
+	* include/std/mdspan (range_slice, __mdspan::__is_range_slice):
+	Define.
+	(__mdspan::__slice_cast): Handle strided_slice.
+	* testsuite/23_containers/mdspan/submdspan/subextents.cc:
+	Sanity tests for range_slice.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* Makefile.am (new-abi-baseline): New target.
+	* Makefile.in: Regenerate.
+
+2026-04-02  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/std/format (dynamic_format): Check new value for
+	feature test macro.
+
+2026-04-02  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* src/c++23/std.cc.in (std::saturatint_cast): Fixed typo...
+	(std::saturating_cast): ...by exporting this.
+
+2026-04-02  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* src/c++23/std.cc.in (std::runtime_format, std::add_sat)
+	(std::sub_sat, std::mul_sat, std::div_sat, std::saturate_cast):
+	Replace exports with...
+	(std::dynamic_format, std::saturating_add, std::saturating_sub)
+	(std::saturating_mul, std::saturating_div, std::saturating_cast):
+	...exports of new names.
+
+2026-04-01  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/std/meta (std::meta::__detail::__statically_sized): New
+	concept.
+	(std::meta::define_static_array): Change return type to auto.  If
+	__statically_sized<_Rg>, return span with ranges::size(__r) as
+	second argument.
+
+2026-04-01  François Dumont  <frs.dumont@gmail.com>
+	    Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/cow_string.h
+	(basic_string::replace(iterator, iterator, _InputIte, _InputIte)): Move
+	__glibcxx_requires_valid_range to...
+	(basic_string::_M_replace_dispatch(iterator, iterator, _InputIte,
+	_InputIte, __fase_type)): ...here.
+	* testsuite/21_strings/basic_string/debug/append_neg.cc: New test case.
+	* testsuite/21_strings/basic_string/debug/assign_neg.cc: New test case.
+	* testsuite/21_strings/basic_string/debug/construct_neg.cc: New test case.
+	* testsuite/21_strings/basic_string/debug/insert_neg.cc: New test case.
+	* testsuite/21_strings/basic_string/debug/replace_neg.cc: New test case.
+
+2026-04-01  Patrick Palka  <ppalka@redhat.com>
+
+	* include/std/ranges (iota_view::_Sentinel): Remove _M_equal and
+	_M_distance_from.  Inline logic into friend operators.
+	(basic_istream_view::_Iterator): Remove _M_at_end.  Inline logic
+	into operator==.
+	(transform_view::_Sentinel): Remove __distance_from and __equal.
+	Inline logic into friend operators.
+	(join_view::_Sentinel): Remove __equal.  Inline logic into operator==.
+	(lazy_split_view::_OuterIter): Remove __at_end.  Inline logic into
+	operator==.
+	(split_view::_Sentinel): Remove _M_equal.  Inline logic into operator==.
+	(elements_view::_Sentinel): Remove _M_equal and _M_distance_from.
+	Inline logic into friend operators.
+
+2026-04-01  Patrick Palka  <ppalka@redhat.com>
+
+	* include/bits/version.def (ranges_filter): Define for C++20.
+	* include/bits/version.h: Regenerate.
+	* include/std/ranges: Provide __cpp_lib_ranges_filter.
+	(filter_view::_Iterator): Add _Const template parameter.
+	(filter_view::_Iterator::_S_iter_concept): Return
+	input_iterator_tag if _Const.
+	(filter_view::_Iterator::_Parent): New.
+	(filter_view::_Iterator::_Base): New.
+	(filter_view::_Iterator::_Vp_iter): Replace with ...
+	(filter_view::_Iterator::_Base_iter): ... this.
+	(filter_view::_Iterator::_M_current): Adjust to consider _Const.
+	(filter_view::_Iterator::_M_parent): Likewise.
+	(filter_view::_Iterator::value_type): Likewise.
+	(filter_view::_Iterator::difference_type): Likewise.
+	(filter_view::_Iterator::_Iterator): Likewise.  Add
+	const-converting overload.
+	(filter_view::_Iterator::base): Adjust to consider _Const.
+	(filter_view::_Iterator::operator*): Likewise.
+	(filter_view::_Iterator::operator->): Likewise.
+	(filter_view::_Iterator::operator++): Likewise.
+	(filter_view::_Iterator::operator--): Likewise.
+	(filter_view::_Iterator::iter_move): Likewise.
+	(filter_view::_Iterator::iter_swap): Likewise.
+	(filter_view::_Sentinel): Add _Const template parameter.
+	(filter_view::_Sentinel::_Parent): New.
+	(filter_view::_Sentinel::_Base): New.
+	(filter_view::_Sentinel::_M_end): Adjust to consider _Const.
+	(filter_view::_Sentinel::_Sentinel): Likewise.  Add
+	const-converting overload.
+	(filter_view::_Sentinel::base): Adjust to consider _Const.
+	(filter_view::_Sentinel::operator==): Likewise.  Inline the
+	helper member function __equal.
+	(filter_view::begin): Adjust return type of non-const overload.
+	New const overload.
+	(filter_view::end): Likewise.
+	* testsuite/std/ranges/adaptors/filter.cc: Verify value of
+	__cpp_lib_ranges_filter.
+	(test08): New test.
+
+2026-04-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/chrono_io.h (__formatter_chrono::_S_empty_fs)
+	(__formatter_chrono::_M_C_y_Y, __formatter_chrono::_M_D_x)
+	(__formatter_chrono::_M_F, __formatter_chrono::_M_subsecs)
+	(__formatter_chrono_info::_M_format_to): Use
+	_Dynamic_format_string instead of _Runtime_format_string.
+	* include/bits/version.def (format): Bump value.
+	* include/bits/version.h: Regenerate.
+	* include/std/format (_Runtime_format_string): Rename to
+	_Dynamic_format_string.
+	(runtime_format): Rename to dynamic_format.
+	* include/std/print (println): Adjust comment to refer to
+	dynamic_format instead of runtime_format.
+	* testsuite/std/format/runtime_format.cc: Move to...
+	* testsuite/std/format/dynamic_format.cc: ...here.
+
+2026-04-01  Jonathan Wakely  <jwakely@redhat.com>
+
+	* include/bits/sat_arith.h (add_sat, sub_sat, mul_sat, div_sat)
+	(saturate_cast): Rename to saturating_xxx as per P4052R0.
+	* include/bits/version.def (saturation_arithmetic): Bump value.
+	* include/bits/version.h: Regenerate.
+	* testsuite/26_numerics/saturation/add.cc: Use new name.
+	* testsuite/26_numerics/saturation/cast.cc: Likewise.
+	* testsuite/26_numerics/saturation/div.cc: Likewise.
+	* testsuite/26_numerics/saturation/extended.cc: Likewise.
+	* testsuite/26_numerics/saturation/mul.cc: Likewise.
+	* testsuite/26_numerics/saturation/sub.cc: Likewise.
+	* testsuite/26_numerics/saturation/version.cc: Check for updated
+	value.
+
+2026-03-31  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/std/meta (std::meta::data_member_options): Add annotations
+	member.
+
+2026-03-31  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/std/meta (std::meta::current_function,
+	std::meta::current_class, std::meta::current_namespace): New
+	declarations.
+	* src/c++23/std.cc.in: Export those 3.
+
+2026-03-30  Tomasz Kamiński  <tkaminsk@redhat.com>
+
+	* include/bits/atomic_base.h (__atomic_ref_base::_Address_return_t):
+	Define.
+	(__atomic_ref_base::address): Change return type to _Address_return_t.
+	* include/bits/version.def (atomic_ref): Bump to 202603.
+	* include/bits/version.h: Regenerate.
+	* testsuite/29_atomics/atomic_ref/address.cc: Update check for
+	return type.
+
+2026-03-30  Jakub Jelinek  <jakub@redhat.com>
+
+	* include/std/meta (has_ellipsis_parameter): Rename to ...
+	(is_vararg_function): ... this.  New declaration.
+	* src/c++23/std.cc.in: Remove std::meta::has_ellipsis_parameter
+	export, add std::meta::is_vararg_function export.
+
+2026-03-28  Alexandre Oliva  <oliva@adacore.com>
+
+	* include/experimental/bits/simd.h (__intrinsic_type): Accept
+	64-bit long doubles on x86 SSE.
+
+2026-03-27  Nathan Myers  <ncm@cantrip.org>
+
+	* include/bits/stl_tree.h: Delete comment.
+
+2026-03-25  Alexandre Oliva  <oliva@adacore.com>
+
+	* testsuite/30_threads/condition_variable_any/stop_token/wait_on.cc
+	(test_wait_until): Extend the timeout for a stop request.
+
 2026-03-21  Matthias Kretz  <m.kretz@gsi.de>
 
 	* include/Makefile.am: Add simd headers.

@@ -69,6 +69,27 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     inline constexpr bool __platform_wait_uses_type
       = __detail::__waitable<_Tp>
 	  && sizeof(_Tp) == sizeof(int) && alignof(_Tp) >= 4;
+#elif defined __APPLE__ \
+      && __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 101200
+  namespace __detail
+  {
+    using __platform_wait_t = __INT32_TYPE__;
+    inline constexpr size_t __platform_wait_alignment = 4;
+  }
+  // Defined to true for a subset of __waitable types which are statically
+  // known to definitely be able to use __ulock_wait, not a proxy wait.
+  // We know that OS Versions later than 10.15 support 64b wait types even
+  // though we must make the __platform_wait_t 32b for compatibility with
+  // earlier versions of __ulock_xxxx.
+  template<typename _Tp>
+    inline constexpr bool __platform_wait_uses_type
+      = __detail::__waitable<_Tp>
+#  if __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ < 101500
+	  && sizeof(_Tp) == 4 && alignof(_Tp) >= 4;
+#  else
+	  && ((sizeof(_Tp) == 4 && alignof(_Tp) >= 4)
+		|| (sizeof(_Tp) == 8 && alignof(_Tp) >= 8));
+#  endif
 #elif defined __FreeBSD__ && __SIZEOF_LONG__ == 8
   namespace __detail
   {
@@ -87,7 +108,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 // a mutex/condvar based wait.
   namespace __detail
   {
-# if ATOMIC_LONG_LOCK_FREE == 2
+# if defined __OpenBSD__ || defined __DragonFly__
+    // These targets provide 32-bit futex-like syscalls.
+    // We don't currently make use of them, but we want to in future.
+    using __platform_wait_t = unsigned int;
+# elif ATOMIC_LONG_LOCK_FREE == 2
     using __platform_wait_t = unsigned long;
 # else
     using __platform_wait_t = unsigned int;

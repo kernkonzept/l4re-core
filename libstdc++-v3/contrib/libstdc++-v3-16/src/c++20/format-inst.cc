@@ -1,6 +1,6 @@
-// Reference-counted COW string instantiations -*- C++ -*-
+// Definitions for <format> -*- C++ -*-
 
-// Copyright (C) 2014-2026 Free Software Foundation, Inc.
+// Copyright The GNU Toolchain Authors.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -22,28 +22,24 @@
 // see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-//
-// ISO C++ 14882: 21  Strings library
-//
+#include <format>
 
-#define _GLIBCXX_USE_CXX11_ABI 0
-#include "string-inst.cc"
-
-#if ! _GLIBCXX_USE_DUAL_ABI
-# error This file should not be compiled for this configuration.
-#endif
-
-#ifndef BID_VARIANT_FLAG_NOFPU
-#include <random>
-
-namespace std _GLIBCXX_VISIBILITY(default)
+namespace std
 {
-  void
-  random_device::_M_init(const std::string& token)
-  { _M_init(token.c_str(), token.length()); }
+_GLIBCXX_BEGIN_NAMESPACE_VERSION
+namespace __format
+{
 
-  void
-  random_device::_M_init_pretr1(const std::string& token)
-  { _M_init(token.c_str(), token.length()); }
-} // namespace
-#endif // BID_VARIANT_FLAG_NOFPU
+ template _Sink_iter<char>
+   __do_vformat_to<char, 1>(_Sink_iter<char>, string_view,
+			    format_context&);
+
+# ifdef _GLIBCXX_USE_WCHAR_T
+ template _Sink_iter<wchar_t>
+   __do_vformat_to<wchar_t, 1>(_Sink_iter<wchar_t>, wstring_view,
+			       wformat_context&);
+# endif
+
+} // namespace __format
+_GLIBCXX_END_NAMESPACE_VERSION
+} // namespace std

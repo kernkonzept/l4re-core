@@ -403,11 +403,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    *  @param  __first  A forward iterator.
    *  @param  __last   A forward iterator.
    *  @param  __x      The source value.
-   *  @return   Nothing.
    *
    *  Like std::fill, but does not require an initialized output range.
   */
-  template<typename _ForwardIterator, typename _Tp>
+  template<typename _ForwardIterator,
+	   typename _Tp _GLIBCXX26_ALGO_DEF_VAL_T(_ForwardIterator)>
     _GLIBCXX26_CONSTEXPR
     inline void
     uninitialized_fill(_ForwardIterator __first, _ForwardIterator __last,
@@ -543,7 +543,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
    *
    *  Like std::fill_n, but does not require an initialized output range.
   */
-  template<typename _ForwardIterator, typename _Size, typename _Tp>
+  template<typename _ForwardIterator, typename _Size,
+	   typename _Tp _GLIBCXX26_ALGO_DEF_VAL_T(_ForwardIterator)>
     _GLIBCXX26_CONSTEXPR
     inline _ForwardIterator
     uninitialized_fill_n(_ForwardIterator __first, _Size __n, const _Tp& __x)

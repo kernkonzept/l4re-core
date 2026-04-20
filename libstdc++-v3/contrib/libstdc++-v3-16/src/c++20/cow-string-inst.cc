@@ -1,6 +1,6 @@
-// Reference-counted COW string instantiations -*- C++ -*-
+// Reference-counted COW string instantiations for C++20 -*- C++ -*-
 
-// Copyright (C) 2014-2026 Free Software Foundation, Inc.
+// Copyright (C) 2026 Free Software Foundation, Inc.
 //
 // This file is part of the GNU ISO C++ Library.  This library is free
 // software; you can redistribute it and/or modify it under the
@@ -23,7 +23,7 @@
 // <http://www.gnu.org/licenses/>.
 
 //
-// ISO C++ 14882: 21  Strings library
+// ISO C++ 14882:2020 21  Strings library
 //
 
 #define _GLIBCXX_USE_CXX11_ABI 0
@@ -32,18 +32,3 @@
 #if ! _GLIBCXX_USE_DUAL_ABI
 # error This file should not be compiled for this configuration.
 #endif
-
-#ifndef BID_VARIANT_FLAG_NOFPU
-#include <random>
-
-namespace std _GLIBCXX_VISIBILITY(default)
-{
-  void
-  random_device::_M_init(const std::string& token)
-  { _M_init(token.c_str(), token.length()); }
-
-  void
-  random_device::_M_init_pretr1(const std::string& token)
-  { _M_init(token.c_str(), token.length()); }
-} // namespace
-#endif // BID_VARIANT_FLAG_NOFPU

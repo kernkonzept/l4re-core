@@ -37,7 +37,7 @@
 #define __glibcxx_want_define_static
 #include <bits/version.h>
 
-#if __glibcxx_reflection >= 202506L // C++ >= 26 && __cpp_impl_reflection
+#if __glibcxx_reflection >= 202603L // C++ >= 26 && __cpp_impl_reflection
 
 #include <array>
 #include <initializer_list>
@@ -273,7 +273,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     consteval bool is_function_parameter(info);
     consteval bool is_explicit_object_parameter(info);
     consteval bool has_default_argument(info);
-    consteval bool has_ellipsis_parameter(info);
+    consteval bool is_vararg_function(info);
 
     consteval bool is_template(info);
     consteval bool is_function_template(info);
@@ -341,6 +341,11 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 							   access_context);
     consteval bool has_inaccessible_bases(info, access_context);
     consteval bool has_inaccessible_subobjects(info, access_context);
+
+    // [meta.reflection.scope], scope identification
+    consteval info current_function();
+    consteval info current_class();
+    consteval info current_namespace();
 
     // [meta.reflection.member.queries], reflection member queries
     consteval vector<info> members_of(info, access_context);
@@ -419,9 +424,10 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       };
 
       optional<_Name> name;
-      optional<int> alignment;
-      optional<int> bit_width;
+      optional<int> alignment = {};
+      optional<int> bit_width = {};
       bool no_unique_address = false;
+      vector<info> annotations = {};
     };
     consteval info data_member_spec(info, data_member_options);
     consteval bool is_data_member_spec(info);
@@ -464,7 +470,9 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     consteval bool is_abstract_type(info);
     consteval bool is_final_type(info);
     consteval bool is_aggregate_type(info);
-    consteval bool is_consteval_only_type(info);
+#if __glibcxx_is_structural >= 202603L
+    consteval bool is_structural_type(info);
+#endif
     consteval bool is_signed_type(info);
     consteval bool is_unsigned_type(info);
     consteval bool is_bounded_array_type(info);
@@ -632,18 +640,41 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       return meta::extract<const ranges::range_value_t<_Rg>*>(__str);
     }
 
+  namespace __detail
+  {
+    template<typename _Rg>
+    concept __statically_sized
+      = requires(_Rg&& __r) {
+	static_cast<char(*)[static_cast<size_t>(ranges::size(__r))
+			    >= 0]>(nullptr);
+      };
+  } // namespace __detail
+
   template<ranges::input_range _Rg>
-    consteval span<const ranges::range_value_t<_Rg>>
+    consteval auto
     define_static_array(_Rg&& __r)
     {
       using _Tp = ranges::range_value_t<_Rg>;
       auto __array = meta::reflect_constant_array(__r);
       auto __type = meta::type_of(__array);
-      if (meta::is_array_type(__type))
-	return span<const _Tp>(meta::extract<const _Tp*>(__array),
-			       meta::extent(__type, 0U));
+      if constexpr (__detail::__statically_sized<_Rg>)
+	{
+	  constexpr size_t __extent = static_cast<size_t>(ranges::size(__r));
+	  if constexpr (__extent)
+	    return span<const _Tp,
+			__extent>(meta::extract<const _Tp*>(__array),
+				  meta::extent(__type, 0U));
+	  else
+	    return span<const _Tp, 0>();
+	}
       else
-	return span<const _Tp>();
+	{
+	  if (meta::is_array_type(__type))
+	    return span<const _Tp>(meta::extract<const _Tp*>(__array),
+				   meta::extent(__type, 0U));
+	  else
+	    return span<const _Tp>();
+	}
     }
 
   template<class _Tp>
@@ -651,9 +682,14 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
     define_static_object(_Tp&& __t)
     {
       using _Up = remove_cvref_t<_Tp>;
-      if constexpr (meta::is_class_type(^^_Up))
+      if constexpr (meta::is_class_type(^^_Up) || meta::is_union_type(^^_Up))
 	{
 	  auto __cst = meta::reflect_constant(std::forward<_Tp>(__t));
+	  return std::addressof(meta::extract<const _Up&>(__cst));
+	}
+      else if constexpr (meta::is_array_type(^^_Up))
+	{
+	  auto __cst = meta::reflect_constant_array(std::forward<_Tp>(__t));
 	  return std::addressof(meta::extract<const _Up&>(__cst));
 	}
       else

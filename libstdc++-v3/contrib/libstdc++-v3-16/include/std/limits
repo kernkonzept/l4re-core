@@ -1892,7 +1892,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       static _GLIBCXX_USE_CONSTEXPR float_round_style round_style =
 						      round_to_nearest;
     };
-#endif
+#endif // BID_VARIANT_FLAG_NOFPU
 
 #undef __glibcxx_long_double_has_denorm_loss
 #undef __glibcxx_long_double_traps
@@ -2003,7 +2003,7 @@ __glibcxx_float_n(64)
 #ifdef __FLT128_DIG__
 __glibcxx_float_n(128)
 #endif
-#endif
+#endif // BID_VARIANT_FLAG_NOFPU
 #undef __glibcxx_float_n
 #undef __glibcxx_concat3
 #undef __glibcxx_concat3_

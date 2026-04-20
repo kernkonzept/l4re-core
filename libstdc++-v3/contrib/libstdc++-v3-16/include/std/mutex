@@ -44,7 +44,7 @@
 #include <errno.h>	      // EAGAIN, EDEADLK
 #ifndef BID_VARIANT_FLAG_NOFPU
 #include <bits/chrono.h>      // duration, time_point, is_clock_v
-#endif
+#endif // BID_VARIANT_FLAG_NOFPU
 #include <bits/functexcept.h> // __throw_system_error
 #include <bits/invoke.h>      // __invoke
 #include <bits/move.h>	      // std::forward
@@ -217,7 +217,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 	  } while (__atime > __now);
 	  return false;
 	}
-#endif
+#endif // BID_VARIANT_FLAG_NOFPU
     };
   /// @endcond
 
@@ -271,7 +271,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       bool
       try_lock_until(const chrono::time_point<_Clock, _Duration>& __atime)
       { return _M_try_lock_until(__atime); }
-#endif
+#endif // BID_VARIANT_FLAG_NOFPU
 
     void
     unlock()
@@ -351,7 +351,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
       bool
       try_lock_until(const chrono::time_point<_Clock, _Duration>& __atime)
       { return _M_try_lock_until(__atime); }
-#endif
+#endif // BID_VARIANT_FLAG_NOFPU
 
     void
     unlock()
