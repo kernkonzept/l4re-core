@@ -2,6 +2,25 @@
 
 #define L4_EXPORT
 
+// Don't create references to L4Re::Util::Dbg implementations. Logging is not
+// used here, therefore libld-l4.so is not linked against lib4re-util.
+//
+// Unfortunately gcc-16 is unable to remove unused code dragged in by
+// <l4/re/util/env_ns> dragged in by <l4/l4re_vfs/impl/ns_fs_impl.h> unless
+// -fno-devirtualize-speculatively is passed to the compiler. See
+//
+//   https://gcc.gnu.org/bugzilla/show_bug.cgi?id=124182.
+//
+// The actual trigger is
+//
+//   L4Re::Util::Env:ns::Env_ns(Env const *env = Env::env(),
+//                              L4Re::Cap_alloc *ca = &L4Re::Util::cap_alloc)
+//
+// which drags in L4Re::Util::cap_alloc (Counting_cap_alloc) although this
+// allocator is not needed.
+#undef NDEBUG
+#define NDEBUG
+
 #include <l4/crtn/initpriorities.h>
 #include <l4/util/util.h>
 
@@ -138,6 +157,13 @@ extern "C" void __aeabi_atexit(void);
 extern "C" void __aeabi_atexit(void)
 {}
 #endif
+
+// Another workaround for gcc-16 being unable to remove dead code under certain
+// conditions, see explanations on top of this file.
+void operator delete (void *) noexcept
+{ __builtin_trap(); }
+void operator delete (void *, size_t) noexcept
+{ __builtin_trap(); }
 
 #include <l4/l4re_vfs/impl/ns_fs_impl.h>
 #include <l4/l4re_vfs/impl/ro_file_impl.h>
