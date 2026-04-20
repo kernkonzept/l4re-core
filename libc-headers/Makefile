@@ -21,7 +21,7 @@ DST_HEADERS := $(addprefix $(HEADER_DIR)/,$(HDR_common) $(HDR_$(BUILD_ARCH)))
 GEN_HEADERS := $(addprefix $(HEADER_DIR)/,$(GEN_common) $(GEN_$(BUILD_ARCH)))
 
 $(HEADER_DIR).include_tracker: $(DST_HEADERS)
-	$(if $?,touch $@)
+	$(VERBOSE)$(if $?,touch $@)
 
 $(DST_HEADERS): $(HEADER_DIR)/%: % FORCE $(LIBCSRC_DIR)/target_headers.mk \
                                          $(LIBCSRC_DIR)/make_vars.mk
