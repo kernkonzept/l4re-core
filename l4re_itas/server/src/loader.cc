@@ -16,6 +16,7 @@
 #include "dispatcher.h"
 #include "signals.h"
 #include "remote_access.h"
+#include "switch_mode.h"
 
 #include <l4/bid_config.h>
 #include <l4/cxx/iostream>
@@ -62,10 +63,8 @@ void unmap_stack_and_start()
 {
   __loader_entry.rm->detach(l4_addr_t(__loader_stack_p) - 1, 0);
   Global::cap_alloc->free(__loader_stack);
-  L4::Cap<L4::Thread> self;
   if (__loader_entry.ex_regs_flags)
-    L4Re::chksys(self->ex_regs(~0UL, ~0UL, __loader_entry.ex_regs_flags),
-                 "l4re_itas: Change mode according to L4RE_ELF_AUX_T_EX_REGS_FLAGS.");
+    switch_mode(__loader_entry.ex_regs_flags);
   switch_stack(__loader_entry.stack,
                reinterpret_cast<void(*)()>(__loader_entry.entry));
 }
