@@ -392,6 +392,7 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
       return true;
     }
 
+# ifndef BID_VARIANT_FLAG_NOFPU
     template <class _Lock, class _Clock, class _Duration, class _Predicate>
     bool wait_until(_Lock& __lock,
                     stop_token __stoken,
@@ -439,6 +440,7 @@ _GLIBCXX_BEGIN_INLINE_ABI_NAMESPACE(_V2)
                         __abst,
                         std::move(__p));
     }
+# endif
 #endif
   };
 
