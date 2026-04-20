@@ -41,6 +41,20 @@ l4re_rm_attach_srv(l4_cap_idx_t rm, void **start, unsigned long size,
   return x->attach(start, size, L4Re::Rm::Flags(flags), _mem, offs, align);
 }
 
+int
+l4re_rm_attach_w_info_srv(l4_cap_idx_t rm, void **start, unsigned long size,
+                          l4re_rm_flags_t flags, l4re_ds_t mem,
+                          l4re_rm_offset_t offs,
+                          unsigned char align,
+                          char const *name,
+                          l4re_ds_offset_t backing_offset) L4_NOTHROW
+{
+  L4::Cap<L4Re::Rm> x(rm);
+  auto _mem = L4::Ipc::Cap<L4Re::Dataspace>::from_ci(mem);
+  return x->attach(start, size, L4Re::Rm::Flags(flags), _mem, offs, align,
+                   L4::Cap<L4::Task>::Invalid, name, backing_offset);
+}
+
 
 int
 l4re_rm_detach_srv(l4_cap_idx_t rm, l4_addr_t addr, l4re_ds_t *ds,
