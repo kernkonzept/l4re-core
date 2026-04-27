@@ -73,6 +73,7 @@
 #undef __UCLIBC_HAS_SOFT_FLOAT__
 #define __HAS_FPU__ 1
 #define __DO_C99_MATH__ 1
+#define __DO_XSI_MATH__ 1
 #define __UCLIBC_HAS_LONG_DOUBLE_MATH__ 1
 #define __KERNEL_SOURCE__ "/home/linux"
 #define __C_SYMBOL_PREFIX__ ""
