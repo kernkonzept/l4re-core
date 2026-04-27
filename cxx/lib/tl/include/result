@@ -38,9 +38,24 @@ public:
 template <typename T>
 class Result
 {
+  // Wrapper providing a placement-new operator. Avoids depending on a global
+  // placement-new overload (which is not available without <new>).
+  struct Holder
+  {
+    T value;
+
+    void *operator new (size_t, void *p) noexcept { return p; }
+    void operator delete (void *) {}
+
+    template<typename... Args>
+    Holder(Args&&... args)
+    noexcept(noexcept(T(cxx::forward<Args>(args)...)))
+    : value(cxx::forward<Args>(args)...) {}
+  };
+
   union
   {
-    T _res;
+    Holder _res;
     int _err;
   };
   bool _has_result;
@@ -70,21 +85,21 @@ public:
   {}
 
   Result(Result const &o)
-  noexcept(noexcept(T(o._res)))
+  noexcept(noexcept(T(o._res.value)))
   : _has_result(o._has_result)
   {
     if (_has_result)
-      new (&_res) T(o._res);
+      new (&_res) Holder(o._res.value);
     else
       _err = o._err;
   }
 
   Result(Result &&o)
-  noexcept(noexcept(T(cxx::move(o._res))))
+  noexcept(noexcept(T(cxx::move(o._res.value))))
   : _has_result(o._has_result)
   {
     if (_has_result)
-      new (&_res) T(cxx::move(o._res));
+      new (&_res) Holder(cxx::move(o._res.value));
     else
       _err = o._err;
   }
@@ -92,18 +107,18 @@ public:
   ~Result()
   {
     if (_has_result)
-      _res.~T();
+      _res.~Holder();
   }
 
   Result &operator=(Result const &o)
-  noexcept(noexcept(T(o._res)))
+  noexcept(noexcept(T(o._res.value)))
   {
     if (_has_result)
-      _res.~T();
+      _res.~Holder();
 
     _has_result = o._has_result;
     if (_has_result)
-      new (&_res) T(o._res);
+      new (&_res) Holder(o._res.value);
     else
       _err = o._err;
 
@@ -115,10 +130,10 @@ public:
     if (_has_result)
       {
         if (o._has_result)
-          _res = cxx::move(o._res);
+          _res.value = cxx::move(o._res.value);
         else
           {
-            _res.~T();
+            _res.~Holder();
             _has_result = false;
             _err = o._err;
           }
@@ -127,7 +142,7 @@ public:
       {
         if (o._has_result)
           {
-            new (&_res) T(cxx::move(o._res));
+            new (&_res) Holder(cxx::move(o._res.value));
             _has_result = true;
           }
         else
@@ -140,7 +155,7 @@ public:
   Result &operator=(Error err) noexcept
   {
     if (_has_result)
-      _res.~T();
+      _res.~Holder();
 
     _has_result = false;
     _err = err.error();
@@ -151,10 +166,10 @@ public:
   Result &operator=(T &&val)
   {
     if (_has_result)
-      _res = cxx::move(val);
+      _res.value = cxx::move(val);
     else
       {
-        new (&_res) T(cxx::move(val));
+        new (&_res) Holder(cxx::move(val));
         _has_result = true;
       }
 
@@ -173,7 +188,7 @@ public:
     if (!_has_result) [[unlikely]]
       abort();
 
-    return _res;
+    return _res.value;
   }
 
   T&& result() && noexcept
@@ -182,7 +197,7 @@ public:
     if (!_has_result) [[unlikely]]
       abort();
 
-    return cxx::move(_res);
+    return cxx::move(_res.value);
   }
 };
 
