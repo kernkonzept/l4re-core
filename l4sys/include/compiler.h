@@ -55,7 +55,13 @@
  * Always inline a function
  * \hideinitializer
  */
+#ifdef __OPTIMIZE__
 #define L4_ALWAYS_INLINE L4_INLINE __attribute__((__always_inline__))
+#elif defined(__cplusplus)
+#define L4_ALWAYS_INLINE inline __attribute__((__always_inline__))
+#else
+#define L4_ALWAYS_INLINE static inline __attribute__((__always_inline__))
+#endif
 
 
 #define L4_DECLARE_CONSTRUCTOR(func, prio) \
