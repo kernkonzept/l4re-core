@@ -66,9 +66,6 @@ unsigned long _dl_linux_resolver(struct elf_resolve * tpnt, int reloc_entry);
      || (type) == R_AARCH64_TLS_TPREL					\
      || (type) == R_AARCH64_TLSDESC) * ELF_RTYPE_CLASS_PLT)		\
    | (((type) == R_AARCH64_COPY) * ELF_RTYPE_CLASS_COPY))
-/* aw11: disable this feature for now
-   | (((type) == R_AARCH64_GLOB_DAT) * ELF_RTYPE_CLASS_EXTERN_PROTECTED_DATA))
-*/
 
 /* Return the run-time load address of the shared object.  */
 
