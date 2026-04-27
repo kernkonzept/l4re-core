@@ -40,6 +40,7 @@ enum l4re_dma_space_attributes
   L4RE_DMA_SPACE_SEARCH_ADDR = 1U << 0, ///< \copydoc L4Re::Dma_space::Search_addr
   L4RE_DMA_SPACE_PARTIAL_MAP = 1U << 1, ///< \copydoc L4Re::Dma_space::Partial_map
   L4RE_DMA_SPACE_RESERVE     = 1U << 2, ///< \copydoc L4Re::Dma_space::Reserve
+  L4RE_DMA_SPACE_REPLACE     = 1U << 3, ///< \copydoc L4Re::Dma_space::Replace
 };
 
 /**

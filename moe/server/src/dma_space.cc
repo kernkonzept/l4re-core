@@ -207,6 +207,9 @@ private:
     return ret;
   }
 
+  Mapping const *find_any_blocking(Region r)
+  { return find_first(r, true); }
+
   Mapping const *find_first_mapping(Region r)
   { return find_first(r, false); }
 
@@ -304,6 +307,33 @@ private:
 
         *size = collision->key.start - dma_addr;
       }
+
+    return 0;
+  }
+
+  l4_ret_t verify_not_blocked(L4Re::Dma_space::Dma_size size,
+                              L4Re::Dma_space::Dma_addr dma_addr,
+                              L4Re::Dma_space::Dma_addr dma_max)
+  {
+    if (size == 0)
+      return -L4_EINVAL;
+
+    assert(trunc_dma_addr(size) == size);
+    if (dma_addr != trunc_dma_addr(dma_addr))
+      return -L4_EINVAL;
+
+    dma_max = cxx::min(_max, dma_max);
+    if (!align_end_chk(&dma_max))
+      return -L4_EINVAL;
+
+    if (dma_addr > dma_max || dma_max - dma_addr < size - 1)
+      return -L4_EADDRNOTAVAIL;
+
+    if (dma_addr < _min)
+      return -L4_EADDRNOTAVAIL;
+
+    if (find_any_blocking(Region(dma_addr, dma_addr + size - 1)))
+      return -L4_EADDRNOTAVAIL;
 
     return 0;
   }
@@ -522,6 +552,8 @@ public:
         bool trunc = static_cast<bool>(attrs & L4Re::Dma_space::Partial_map);
         if (attrs & L4Re::Dma_space::Search_addr)
           ret = find_free(&aligned_size, align, dma_addr, dma_max, trunc);
+        else if (attrs & L4Re::Dma_space::Replace)
+          ret = verify_not_blocked(aligned_size, *dma_addr, dma_max);
         else
           ret = verify_free(&aligned_size, *dma_addr, dma_max, false, trunc);
 
@@ -667,8 +699,13 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 
   static constexpr auto Known_flags = L4Re::Dma_space::Search_addr
                                       | L4Re::Dma_space::Partial_map
-                                      | L4Re::Dma_space::Reserve;
+                                      | L4Re::Dma_space::Reserve
+                                      | L4Re::Dma_space::Replace;
   if (attrs & ~Known_flags)
+    return -L4_EINVAL;
+
+  if (   (attrs & L4Re::Dma_space::Replace)
+      && (attrs & (L4Re::Dma_space::Search_addr | L4Re::Dma_space::Partial_map)))
     return -L4_EINVAL;
 
   Dataspace *ds = attrs & L4Re::Dma_space::Reserve ? nullptr : _get_ds(src_ds);

@@ -101,8 +101,9 @@ public:
     /**
      * Reserve a region instead of mapping pages.
      *
-     * If set, the dataspace argument of Dma_space::map() is ignored. The
-     * reservation is released with Dma_space::unmap() carrying
+     * If set, the dataspace argument of Dma_space::map() is ignored. Use the
+     * Attribute::Replace flag to place dataspace mappings in a reserved region
+     * later. The reservation is released with Dma_space::unmap() carrying
      * Unmap_flag::Cancel_reservation.
      *
      * If no address remapping is possible (i.e., the Dma_space was associated
@@ -110,6 +111,27 @@ public:
      * with -L4_EPERM if this flag is present.
      */
     Reserve = 1U << 2,
+
+    /**
+     * Replace mappings.
+     *
+     * The pages in the map region are replaced with mappings from the
+     * dataspace. Without this flag, existing mappings cause Dma_space::map()
+     * to fail. Areas previously claimed by Dma_space_mgr::block_area() are
+     * never replaced and still cause Dma_space::map() to fail.
+     *
+     * If combined with Attribute::Reserve, no dataspace mapping is
+     * established. Instead, the reservation reference count is increased. Only
+     * after the matching number of Dma_space::unmap(Cancel_reservation) calls,
+     * the reservation is released.
+     *
+     * If no address remapping is possible (i.e., the Dma_space was associated
+     * by Dma_space_mgr::associate_phys()), the flag has no effect. The
+     * Dma_space::map() call will always return the physical address.
+     *
+     * Cannot be combined with Attribute::Search_addr or Attribute::Partial_map.
+     */
+    Replace = 1U << 3,
   };
 
   friend void enum_bitops_enable(Attribute);
