@@ -148,7 +148,7 @@ public:
   /**
    * Get the stable alignment of the ring buffer status members.
    *
-   * This is relevant for the #_mask and #_tail members.
+   * This is relevant for the _mask and _tail members.
    *
    * \return Stable alignment of the ring buffer status members.
    */
@@ -170,7 +170,7 @@ private:
   /// Stable cache alignment.
   size_t _alignment;
 
-  /// Irem mask.
+  /// Item mask.
   alignas(stable_cache_alignment) size_t _mask;
 
   /// Tail item.

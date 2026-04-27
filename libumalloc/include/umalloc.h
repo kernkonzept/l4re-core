@@ -7,7 +7,7 @@
 
 /**
  * \file
- * \brief Public API for the basic next-fit memory allocator
+ * Public API for the basic next-fit memory allocator.
  *
  * The user of this allocator is required to provide the implementation of the
  * #umalloc_area_create() function and provide the #umalloc_area_granularity
@@ -41,7 +41,7 @@ extern size_t umalloc_area_granularity;
  *
  * \return Pointer to the successfully created heap area of (at least) the
  *         requested size. It is assumed that the pointer satisfies at least
- *         the #umalloc:Base_alignment alignment. If the value is nullptr, then
+ *         the umalloc::Base_alignment alignment. If the value is nullptr, then
  *         it is assumed that the creation of the heap area failed.
  */
 void *umalloc_area_create(size_t area_size) L4_NOTHROW;

@@ -7,7 +7,7 @@
 
 /**
  * \file
- * \brief Basic next-fit memory allocator
+ * Basic next-fit memory allocator.
  *
  * This is a basic next-fit memory allocator that maintains multiple heap areas
  * using an embedded linked list. Each heap area contains adjacent aligned
