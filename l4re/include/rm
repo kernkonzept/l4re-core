@@ -757,13 +757,51 @@ public:
   L4_RPC(l4_ret_t, get_info, (l4_addr_t addr, L4::Ipc::String<char> &name,
                               Offset &backing_offset));
 
+  /**
+   * Register a rescue jump for a range of program counters.
+   *
+   * If a synchronous exception (e.g. a SIGSEGV with SEGV_MAPERR) is raised by
+   * an instruction whose program counter lies in the half-open range
+   * `[pc_begin, pc_end)`, execution is diverted to `rescue_pc` instead of
+   * delivering the signal to the application.
+   *
+   * The registered rescue jumps must not overlap.
+   *
+   * \param pc_begin   Inclusive start of the instruction range.
+   * \param pc_end     Exclusive end of the instruction range.
+   * \param rescue_pc  Program counter to jump to on a fault in the range.
+   *
+   * \retval 0          Success
+   * \retval -L4_EINVAL Invalid arguments (e.g. `pc_begin >= pc_end`).
+   * \retval -L4_EEXIST The given range overlaps with an already registered
+   *                    rescue jump.
+   * \retval -L4_ENOMEM Out of memory.
+   * \retval <0         IPC errors
+   */
+  L4_RPC(l4_ret_t, add_rescue_jump, (l4_addr_t pc_begin, l4_addr_t pc_end,
+                                     l4_addr_t rescue_pc));
+
+  /**
+   * Remove a previously registered rescue jump.
+   *
+   * The rescue jump whose instruction range contains `pc` is removed.
+   *
+   * \param pc  Any program counter inside the registered range.
+   *
+   * \retval 0           Success
+   * \retval -L4_ENOENT  No rescue jump covers `pc`.
+   * \retval <0          IPC errors
+   */
+  L4_RPC(l4_ret_t, remove_rescue_jump, (l4_addr_t pc));
+
   l4_ret_t detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
                   L4::Cap<L4::Task> task, unsigned flags) const noexcept;
 
   typedef L4::Typeid::Rpcs<attach_t, detach_t, find_t,
                            reserve_area_t, free_area_t,
                            get_regions_t, get_areas_t,
-                           get_info_t> Rpcs;
+                           get_info_t, add_rescue_jump_t,
+                           remove_rescue_jump_t> Rpcs;
 };
 
 inline l4_ret_t

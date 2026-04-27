@@ -12,6 +12,8 @@
 #include <l4/re/util/region_mapping>
 #include <l4/re/util/region_mapping_svr>
 #include <l4/sys/cxx/ipc_epiface>
+#include <l4/sys/exception>
+#include <l4/cxx/ref_ptr>
 
 #include "dataspace.h"
 #include "quota.h"
@@ -85,9 +87,12 @@ public:
   { return false; }
 };
 
+using Region_map_interface =
+  L4::Kobject_2t<void, L4Re::Rm, L4::Exception>;
+
 class Region_map
 : public L4Re::Util::Region_map<Region_handler, Moe::Quota_allocator>,
-  public L4::Epiface_t<Region_map, L4Re::Rm, Moe::Server_object>,
+  public L4::Epiface_t<Region_map, Region_map_interface, Moe::Server_object>,
   public L4Re::Util::Rm_server<Region_map, Dbg>,
   public Moe::Q_object
 {
@@ -107,5 +112,8 @@ public:
   l4_ret_t op_io_page_fault(L4::Io_pager::Rights,
                             l4_fpage_t io_pfa, l4_umword_t pc,
                             L4::Ipc::Opt<L4::Ipc::Snd_fpage> &);
+
+  l4_ret_t op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
+                        L4::Ipc::Opt<L4::Ipc::Snd_fpage> &fp);
 };
 

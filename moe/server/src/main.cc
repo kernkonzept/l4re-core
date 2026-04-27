@@ -322,44 +322,27 @@ public:
 
     dbg.printf("tag=%lx (proto=%ld) obj=%lx", tag.raw, tag.label(), obj);
 
-    if (tag.is_exception())
+    o = r.find(obj & ~3UL);
+
+    if (!o)
       {
-        dbg.cprintf("\n");
-        Dbg(Dbg::Exceptions).printf("unhandled exception...\n");
-        return l4_msgtag(-L4_ENOREPLY, 0, 0, 0);
-      }
-    else
-      {
-        // L4::cout << "ROOT: CALL(" << (void*)obj<< "): " << op << "...\n";
-        o = r.find(obj & ~3UL);
-
-        // L4::cout << "ROOT: obj=" << o << "\n";
-
-        // l4_kd_enter("a");
-
-        if (!o)
-          {
-            dbg.cprintf(": invalid object\n");
-            return l4_msgtag(-L4_ENOENT, 0, 0, 0);
-          }
-
-        dbg.cprintf(": object is a %s\n", typeid(*o).name());
-        try
-          {
-            l4_msgtag_t res = o->dispatch(tag, obj, utcb);
-            dbg.printf("reply = %ld\n", res.label());
-            return res;
-          }
-        catch (L4::Runtime_error &e)
-          {
-            int res = e.err_no();
-            dbg.printf("reply(exception) = %d\n", res);
-            return l4_msgtag(res, 0, 0, 0);
-          }
+        dbg.cprintf(": invalid object\n");
+        return l4_msgtag(-L4_ENOENT, 0, 0, 0);
       }
 
-    Dbg(Dbg::Warn).printf("Invalid message (tag.label=%ld)\n", tag.label());
-    return l4_msgtag(-L4_ENOSYS, 0, 0, 0);
+    dbg.cprintf(": object is a %s\n", typeid(*o).name());
+    try
+      {
+        l4_msgtag_t res = o->dispatch(tag, obj, utcb);
+        dbg.printf("reply = %ld\n", res.label());
+        return res;
+      }
+    catch (L4::Runtime_error &e)
+      {
+        int res = e.err_no();
+        dbg.printf("reply(exception) = %d\n", res);
+        return l4_msgtag(res, 0, 0, 0);
+      }
   }
 
 };

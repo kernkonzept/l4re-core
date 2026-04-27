@@ -84,9 +84,11 @@ class Region_map
 {
 protected:
   typedef cxx::Avl_map<Region, Hdlr, cxx::Lt_functor, Alloc> Tree;
+  typedef cxx::Avl_map<Region, l4_addr_t, cxx::Lt_functor, Alloc> Rescue_tree;
 
   Tree _rm; ///< Region map
   Tree _am; ///< Area map
+  Rescue_tree _rescue_map; ///< Map of registered rescue jump ranges
 
 private:
   l4_addr_t _start;
@@ -428,6 +430,59 @@ public:
 
   l4_addr_t find_free(l4_addr_t start, l4_addr_t end, l4_addr_t size,
                       unsigned char align, L4Re::Rm::Flags attach_flags) const noexcept;
+
+  /**
+   * Register a rescue jump for the half-open instruction range
+   * [pc_begin, pc_end).
+   *
+   * \retval 0           Success
+   * \retval -L4_EEXIST  Range overlaps with an already registered range.
+   * \retval -L4_ENOMEM  Out of memory.
+   */
+  l4_ret_t add_rescue_jump(l4_addr_t pc_begin, l4_addr_t pc_end,
+                           l4_addr_t rescue_pc) noexcept
+  {
+    if (pc_begin >= pc_end)
+      return -L4_EINVAL;
+
+    Region key(pc_begin, pc_end - 1);
+    if (_rescue_map.find_node(key))
+      return -L4_EEXIST;
+    if (_rescue_map.insert(key, rescue_pc).second)
+      return -L4_ENOMEM;
+
+    return L4_EOK;
+  }
+
+  /**
+   * Look up a rescue jump for a given program counter.
+   *
+   * \param pc  Faulting program counter.
+   *
+   * \return The registered rescue PC for `pc`, or 0 if no rescue jump matches.
+   */
+  l4_addr_t find_rescue_jump(l4_addr_t pc) const noexcept
+  {
+    auto n = _rescue_map.find_node(Region(pc));
+    if (!n)
+      return 0;
+    return n->second;
+  }
+
+  /**
+   * Remove the rescue jump that covers `pc`.
+   *
+   * \param pc  Any program counter inside a registered rescue range.
+   *
+   * \retval 0           Success
+   * \retval -L4_ENOENT  No rescue jump covers `pc`.
+   */
+  l4_ret_t remove_rescue_jump(l4_addr_t pc) noexcept
+  {
+    if (_rescue_map.remove(Region(pc)))
+      return -L4_ENOENT;
+    return L4_EOK;
+  }
 };
 
 template<typename Hdlr, template<typename T> class Alloc>

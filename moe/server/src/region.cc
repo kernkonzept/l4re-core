@@ -9,6 +9,7 @@
 #include "region.h"
 
 #include <l4/sys/kip>
+#include <l4/sys/utcb.h>
 
 #include <l4/re/rm>
 #include <l4/re/util/cap>
@@ -125,4 +126,20 @@ Region_map::op_io_page_fault(L4::Io_pager::Rights,
   Dbg(Dbg::Warn).printf("IO-port-fault: port=0x%lx size=%d pc=0x%lx\n",
                         l4_fpage_ioport(io_pfa), 1 << l4_fpage_size(io_pfa), pc);
   return -L4_ENOMEM;
+}
+
+l4_ret_t
+Region_map::op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
+                         L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
+{
+  l4_addr_t pc = l4_utcb_exc_pc(&regs);
+  if (l4_addr_t rescue = find_rescue_jump(pc))
+    {
+      l4_utcb_exc_pc_set(&regs, rescue);
+      return L4_EOK;
+    }
+
+  Dbg(Dbg::Exceptions).printf("unhandled exception: PC=0x%lx PFA=0x%lx\n",
+                              pc, l4_utcb_exc_pfa(&regs));
+  return -L4_ENOREPLY;
 }

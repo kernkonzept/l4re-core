@@ -27,6 +27,8 @@ L4_RPC_DEF(L4Re::Rm::get_regions);
 L4_RPC_DEF(L4Re::Rm::get_areas);
 L4_RPC_DEF(L4Re::Rm::find);
 L4_RPC_DEF(L4Re::Rm::get_info);
+L4_RPC_DEF(L4Re::Rm::add_rescue_jump);
+L4_RPC_DEF(L4Re::Rm::remove_rescue_jump);
 
 namespace L4Re
 {

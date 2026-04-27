@@ -246,6 +246,23 @@ public:
     return num;
   }
 
+  /**
+   * Implementation of L4Re::Rm::add_rescue_jump
+   */
+  l4_ret_t op_add_rescue_jump(L4Re::Rm::Rights, l4_addr_t pc_begin,
+                              l4_addr_t pc_end, l4_addr_t rescue_pc)
+  {
+    return rm()->add_rescue_jump(pc_begin, pc_end, rescue_pc);
+  }
+
+  /**
+   * Implementation of L4Re::Rm::remove_rescue_jump
+   */
+  l4_ret_t op_remove_rescue_jump(L4Re::Rm::Rights, l4_addr_t pc)
+  {
+    return rm()->remove_rescue_jump(pc);
+  }
+
 private:
   static void pager_set_result(L4::Ipc::Opt<L4::Ipc::Snd_fpage> *fp,
                                L4::Ipc::Snd_fpage const &f)

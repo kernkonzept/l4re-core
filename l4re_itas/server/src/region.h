@@ -173,6 +173,19 @@ public:
   Read_access read_access() const
   { return Read_access(_region_map, _lock); }
 
+  l4_ret_t add_rescue_jump(l4_addr_t pc_begin, l4_addr_t pc_end,
+                           l4_addr_t rescue_pc)
+  {
+    // No locking necessary. Always accessed from ITAS main thread.
+    return _region_map.add_rescue_jump(pc_begin, pc_end, rescue_pc);
+  }
+
+  l4_addr_t find_rescue_jump(l4_addr_t pc) const noexcept
+  {
+    // No locking necessary. Always accessed from ITAS main thread.
+    return _region_map.find_rescue_jump(pc);
+  }
+
   L4UTIL_THREAD_CXX_FUNC_PROTO(thread_pf_handler,
                                l4_pf_trampoline_t *tramp, l4_addr_t addr);
 
@@ -241,6 +254,19 @@ public:
   {
     Rw_lock_read_scope scope(_lock);
     return _region_map.op_get_info(rights, addr, name, backing_offset);
+  }
+
+  l4_ret_t op_add_rescue_jump(L4Re::Rm::Rights rights, l4_addr_t pc_begin,
+                              l4_addr_t pc_end, l4_addr_t rescue_pc)
+  {
+    // No locking necessary. Always accessed from ITAS main thread.
+    return _region_map.op_add_rescue_jump(rights, pc_begin, pc_end, rescue_pc);
+  }
+
+  l4_ret_t op_remove_rescue_jump(L4Re::Rm::Rights rights, l4_addr_t pc)
+  {
+    // No locking necessary. Always accessed from ITAS main thread.
+    return _region_map.op_remove_rescue_jump(rights, pc);
   }
 
   // L4::Pager API
