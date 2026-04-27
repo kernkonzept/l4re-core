@@ -28,11 +28,12 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "region.h"
-#include "globals.h"
-#include "loader_elf.h"
 #include "debug.h"
 #include "dispatcher.h"
+#include "globals.h"
+#include "loader_elf.h"
+#include "region.h"
+#include "safe_memcpy.h"
 
 #include <l4/re/elf_aux.h>
 #include <terminate_handler-l4>
@@ -150,6 +151,22 @@ static void insert_regions()
           addr = r->end + 1;
         }
     }
+
+  // Register our safe_memcpy with the moe region manager and our local one.
+  // The former is a safety net in case a caller directly invokes the page
+  // fault IPC.
+  L4Re::chksys(
+    L4Re::Env::env()->rm()
+        ->add_rescue_jump(reinterpret_cast<l4_addr_t>(&safe_memcpy),
+                          reinterpret_cast<l4_addr_t>(&safe_memcpy_end),
+                          reinterpret_cast<l4_addr_t>(&safe_memcpy_fault)),
+    "l4re_itas: cannot register safe_memcpy\n");
+  L4Re::chksys(
+    Global::local_rm
+        ->add_rescue_jump(reinterpret_cast<l4_addr_t>(&safe_memcpy),
+                          reinterpret_cast<l4_addr_t>(&safe_memcpy_end),
+                          reinterpret_cast<l4_addr_t>(&safe_memcpy_fault)),
+    "l4re_itas: cannot register safe_memcpy\n");
 }
 
 int main(int argc, char const *argv[], char const *envp[])

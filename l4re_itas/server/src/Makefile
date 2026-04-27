@@ -12,7 +12,7 @@ SRC_CC         += $(if $(CONFIG_BID_STATIC_HEAP),mem_stat.cc,mem_dyn.cc)
 SRC_CC_arm     := ARCH-arm/switch_mode.cc
 SRC_CC_arm64   := ARCH-arm64/switch_mode.cc
 
-SRC_S          := ARCH-$(ARCH)/sig_trampoline.S
+SRC_S          := ARCH-$(ARCH)/sig_trampoline.S ARCH-$(ARCH)/safe_memcpy.S
 
 SRC_S_mips     := ARCH-mips/loader_mips.S
 SRC_S_riscv    := ARCH-riscv/loader_riscv.S
