@@ -213,14 +213,13 @@ public:
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
    *
-   * \pre The invoked Dma_space_mgr capability, `dma_space` and `dma_task` must
-   *      have the permission #L4_CAP_FPAGE_W.
+   * \pre The `dma_space` and `dma_task` capabilities must have the permission
+   *      #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
       l4_ret_t, associate, (L4::Ipc::Cap<Dma_space> dma_space,
                             L4::Ipc::Cap<L4::Task> dma_task,
-                            Space_attribs attr),
-      L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+                            Space_attribs attr));
 
   /**
    * Register a Dma_space to use for DMA.
@@ -238,13 +237,11 @@ public:
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
    *
-   * \pre The invoked Dma_space_mgr capability and `dma_space` must have the
-   *      permission #L4_CAP_FPAGE_W.
+   * \pre The `dma_space` capability must have the permission #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
       l4_ret_t, associate_phys, (L4::Ipc::Cap<Dma_space> dma_space,
-                                 Space_attribs attr),
-      L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+                                 Space_attribs attr));
 
   /**
    * Disassociate the (kernel) \ref l4_kernel_object_dmar_space from this
@@ -258,12 +255,10 @@ public:
    *                     associate()/associate_phys().
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
    *
-   * \pre The invoked Dma_space_mgr capability and `dma_space` must have the
-   *      permission #L4_CAP_FPAGE_W.
+   * \pre The `dma_space` capability must have the permission #L4_CAP_FPAGE_W.
    */
   L4_INLINE_RPC(
-      l4_ret_t, disassociate, (L4::Ipc::Cap<Dma_space> dma_space),
-      L4::Ipc::Call_t<L4_CAP_FPAGE_RW>);
+      l4_ret_t, disassociate, (L4::Ipc::Cap<Dma_space> dma_space));
 
   typedef L4::Typeid::Rpcs<associate_t, associate_phys_t, disassociate_t> Rpcs;
 };
