@@ -99,10 +99,12 @@ int __res_msend_rc(int nqueries, const unsigned char *const *queries,
 	int r;
 	unsigned long t0, t1, t2;
 
-	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
-
 	timeout = 1000*conf->timeout;
 	attempts = conf->attempts;
+	if (!attempts)
+		return -1;
+
+	pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &cs);
 
 	for (nns=0; nns<conf->nns; nns++) {
 		const struct address *iplit = &conf->ns[nns];
