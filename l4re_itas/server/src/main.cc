@@ -102,9 +102,9 @@ static void insert_regions()
             (Env::env()->rm());
 
           L4::Ipc::String<char> name(0, nullptr);
+          L4Re::Rm::Offset backing_offset = 0;
 #ifdef CONFIG_L4RE_REGION_INFO
           char name_buf[50];
-          L4Re::Rm::Offset backing_offset;
           name.length = sizeof(name_buf);
           name.data   = name_buf;
           if (L4Re::Env::env()->rm()->get_info(r->start, name, backing_offset))
