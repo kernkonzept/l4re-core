@@ -546,7 +546,7 @@ public:
   {}
 
   /**
-   * Destroy reply capabilits.
+   * Destroy reply capability.
    *
    * \attention If the reply capability is still valid, an L4_EDROPREPLY error
    *            reply is sent. See Reply_cap::reset().

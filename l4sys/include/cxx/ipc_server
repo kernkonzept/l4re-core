@@ -446,5 +446,5 @@ dispatch_call(OBJ *o, l4_utcb_t *utcb, l4_msgtag_t tag, unsigned rights, ARGS ..
 }
 
 } // namespace Msg
-} // namesapce Ipc
+} // namespace Ipc
 } // namespace L4

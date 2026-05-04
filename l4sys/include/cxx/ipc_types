@@ -23,7 +23,7 @@ namespace Ipc {
 /**
  * Mark an argument as a output value in an RPC signature.
  * \tparam T  The original type of the argument.
- * \note The use of Out<> is usually not needed, because typical out-put data
+ * \note The use of Out<> is usually not needed, because typical output data
  * types in C++ (pointers to non-const objects or non-const references are
  * interpreted as output values anyway. However, there are some data types,
  * such as returned capabilities that can be marked as such by using Out<>.
@@ -873,7 +873,7 @@ Cap<T> make_cap_grant(L4::Cap<T> cap) noexcept
   return Cap<T>(cap, L4_CAP_FPAGE_RWSD | L4_FPAGE_C_OBJ_RIGHTS, Cap<T>::Grant);
 }
 
-// caps are special the have an invalid representation
+// caps are special, they have an invalid representation
 template<typename T> struct L4_EXPORT Opt< Cap<T> >
 {
   Cap<T> _value;

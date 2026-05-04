@@ -20,7 +20,7 @@ namespace L4 {
 /**
  * \ingroup client_server_ipc
  *
- * Server-Side framework for implementing object-oriented servers.´
+ * Server-Side framework for implementing object-oriented servers.
  * \defgroup cxx_ipc_server Server-Side IPC framework
  */
 /**
@@ -60,7 +60,7 @@ struct Ignore_errors
 /**
  * \ingroup cxx_ipc_server
  *
- * Mix in for LOOP_HOOKS to use a 0 send and a infinite receive timeout.
+ * Mix in for LOOP_HOOKS to use a 0 send and an infinite receive timeout.
  */
 struct Default_timeout
 { static l4_timeout_t timeout() { return L4_IPC_SEND_TIMEOUT_0; } };

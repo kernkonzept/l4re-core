@@ -215,7 +215,7 @@ template<typename MTYPE, typename DIR, typename CLASS> struct Clnt_val_ops;
 //
 // The Clnt_val_ops specializations derive from Clnt_noops, and pull in the
 // empty default implementations with `using Clnt_noops::{to,from}_msg`, to
-// handle the the other Dir/Cls combinations.
+// handle the other Dir/Cls combinations.
 template<typename T> struct Clnt_noops
 {
   template<typename A, typename B>
@@ -234,7 +234,7 @@ template<typename T> struct Clnt_noops
 //
 // The Svr_val_ops specializations derive from Svr_noops, and pull in the
 // empty default implementations with `using Svr_noops::{from,to}_svr`, to
-// handle the the other Dir/Cls combinations.
+// handle the other Dir/Cls combinations.
 template<typename T> struct Svr_noops
 {
   template<typename A, typename B>
@@ -248,7 +248,7 @@ template<typename T> struct Svr_noops
 };
 
 // Default implementation, via reinterpret_cast.
-// Overide by partially specializing Clnt_val_ops.
+// Override by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Clnt_val_ops<MTYPE, Dir_in, CLASS> : Clnt_noops<MTYPE>
 {
@@ -260,7 +260,7 @@ struct Clnt_val_ops<MTYPE, Dir_in, CLASS> : Clnt_noops<MTYPE>
 };
 
 // Default implementation, via reinterpret_cast.
-// Overide by partially specializing Clnt_val_ops.
+// Override by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Clnt_val_ops<MTYPE, Dir_out, CLASS> : Clnt_noops<MTYPE>
 {
@@ -281,7 +281,7 @@ struct Clnt_val_ops<MTYPE, Dir_out, CLASS> : Clnt_noops<MTYPE>
 template<typename MTYPE, typename DIR, typename CLASS> struct Svr_val_ops;
 
 // Default implementation, via reinterpret_cast.
-// Overide by partially specializing Clnt_val_ops.
+// Override by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
 {
@@ -293,7 +293,7 @@ struct Svr_val_ops<MTYPE, Dir_in, CLASS> : Svr_noops<MTYPE>
 };
 
 // Default implementation, via reinterpret_cast.
-// Overide by partially specializing Clnt_val_ops.
+// Override by partially specializing Clnt_val_ops.
 template<typename MTYPE, typename CLASS>
 struct Svr_val_ops<MTYPE, Dir_out, CLASS> : Svr_noops<MTYPE>
 {
@@ -322,7 +322,7 @@ template<typename T> struct Elem
   /// The data type used to store the T on the server-side
   using svr_type = T;
   /// The argument type for the server-side function
-  using svr_arg_type = T; // might by const & (depending on the size)
+  using svr_arg_type = T; // might be const & (depending on the size)
 
   enum { Is_optional = false };
 
@@ -361,7 +361,7 @@ template<typename T> struct Elem<T const *> : Elem<T const &>
 template<typename T> struct Is_valid_rpc_type : L4::Types::True {};
 
 // Static assertions outside functions work only properly from C++11
-// onewards. On earlier version make sure the compiler fails on an ugly
+// onwards. On earlier version make sure the compiler fails on an ugly
 // undefined struct instead.
 template<typename T, bool B> struct Error_invalid_rpc_parameter_used;
 template<typename T> struct Error_invalid_rpc_parameter_used<T, true> {};

@@ -247,7 +247,7 @@ inline Server_iface::~Server_iface() {}
  * Base class for interface implementations.
  *
  * An Epiface is the base interface of objects registered in the server loop.
- * Incomming IPC gets dispatched to the appropriate Epiface object where
+ * Incoming IPC gets dispatched to the appropriate Epiface object where
  * the call is then handled appropriately.
  *
  * \note Server loops are allowed to internally keep raw pointers to Epiface
@@ -288,7 +288,7 @@ struct Epiface
    * \param tag The message tag for this invocation.
    * \param rights The rights bits in the invoked capability.
    * \param utcb The UTCB used for the invocation.
-   * \retval -L4_ENOREPLY  No reply message is send.
+   * \retval -L4_ENOREPLY  No reply message is sent.
    * \retval <0            Error, reply with error code.
    * \retval >=0           Success, reply with return value.
    *

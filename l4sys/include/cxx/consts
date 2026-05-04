@@ -24,7 +24,7 @@ namespace L4 {
    * Round a value up so the given number of lsb is zero.
    *
    * \tparam T     The type of the value (shall be some integral type.
-   * \param val    The value to rund up to the next multiple of 2^order.
+   * \param val    The value to round up to the next multiple of 2^order.
    * \param order  order (2^order) to round up to.
    * \return val rounded up to the next 2^order.
    */

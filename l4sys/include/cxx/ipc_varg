@@ -391,7 +391,7 @@ public:
     L4_DEPRECATED("Use range for or pop_front.")
   { return _s.pop(); }
 
-  /// Returns an interator to the first Varg
+  /// Returns an iterator to the first Varg
   Iterator begin() const
   { return Iterator(_s); }
 

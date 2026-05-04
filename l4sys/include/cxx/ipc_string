@@ -80,7 +80,7 @@ struct Clnt_xmit<String<A, LEN> &> : Clnt_xmit<Array<A, LEN> &>
     if (r < 0)
       return r;
 
-    // check for a bad servers
+    // check for a bad server
     if (a.length < 1)
       return -L4_EMSGTOOSHORT;
 

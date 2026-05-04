@@ -94,7 +94,7 @@
  *   - it must be the last parameter of a message.
  *   - the size of the array type is not transmitted to the server, only the
  *     client side knows the intended size of the input array. The server
- *     assumes the rest of the UTCB as the actual array. Different sever-side
+ *     assumes the rest of the UTCB as the actual array. Different server-side
  *     behavior must be steered otherwise, e.g. through another parameter.
  *
  * | Type                      | Direction | Client-Type               | Server-Type                       |

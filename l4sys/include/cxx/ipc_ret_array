@@ -98,12 +98,12 @@ struct Svr_val_ops<Ret_array<A>, Dir_out, CLASS> :
   {
     // there can be actually no limit check here, as this
     // is variably sized output array
-    // FIXME: we could somehow makesure that this is the last
+    // FIXME: we could somehow make sure that this is the last
     //        output value...
     offset = align_to<A>(offset);
     arg = ret_array(reinterpret_cast<A*>(msg + offset),
                     (limit - offset) / sizeof(A));
-    // FIXME: we dont know the length of the array here so, cheat
+    // FIXME: we don't know the length of the array here so, cheat
     return offset;
   }
 };
