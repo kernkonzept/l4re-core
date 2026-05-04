@@ -113,6 +113,11 @@ public:
                                L4Re::Dma_space::Dma_size ,
                                bool , unsigned char) override
   { return -L4_EPERM; }
+
+  l4_ret_t set_limits(Dma_space *,
+                      L4Re::Dma_space::Dma_addr,
+                      L4Re::Dma_space::Dma_addr) override
+  { return -L4_EPERM; }
 };
 
 
@@ -129,8 +134,8 @@ private:
   /// List of all #Task_mapper instances.
   static cxx::H_list_t<Task_mapper> _mappers;
 
-  L4Re::Dma_space::Dma_addr _min = 1 << 20;
-  L4Re::Dma_space::Dma_addr _max = ~0UL;
+  L4Re::Dma_space::Dma_addr _min = 0;
+  L4Re::Dma_space::Dma_addr _max = Last_dma_addr;
 
   L4::Cap<L4::Task> _dma_kern_space;
 
@@ -392,6 +397,34 @@ public:
     return 0;
   }
 
+  l4_ret_t add_dma_space(Dma_space *dma_space) override
+  {
+    L4Re::Dma_space::Dma_addr min = cxx::max(_min, dma_space->min_addr());
+    L4Re::Dma_space::Dma_addr max = cxx::min(_max, dma_space->max_addr());
+    if (l4_ret_t err = set_limits(dma_space, dma_space->min_addr(),
+                                  dma_space->max_addr());
+        err < 0)
+      return err;
+
+    _min = min;
+    _max = max;
+
+    return Mapper::add_dma_space(dma_space);
+  }
+
+  void remove_dma_space(Dma_space *dma_space) override
+  {
+    Mapper::remove_dma_space(dma_space);
+
+    _min = 0;
+    _max = Last_dma_addr;
+    for (auto i : _dma_spaces)
+      {
+        _min = cxx::max(_min, i->min_addr());
+        _max = cxx::min(_max, i->max_addr());
+      }
+  }
+
   l4_ret_t map(Dataspace *ds, L4Re::Dataspace::Offset offset,
                L4Re::Dma_space::Dma_size *size,
                L4Re::Dma_space::Dma_addr *dma_addr) override
@@ -451,6 +484,32 @@ public:
     // We allow blocking areas that are already blocked...
     return search ? find_free(&size, align, dma_addr, dma_max)
                   : verify_free(&size, *dma_addr, dma_max, true);
+  }
+
+  l4_ret_t set_limits(Dma_space *dma_space,
+                      L4Re::Dma_space::Dma_addr min_addr,
+                      L4Re::Dma_space::Dma_addr max_addr) override
+  {
+    for (auto i : _dma_spaces)
+      if (i != dma_space)
+        {
+          min_addr = cxx::max(min_addr, i->min_addr());
+          max_addr = cxx::min(max_addr, i->max_addr());
+        }
+
+    if (min_addr > max_addr)
+      return -L4_EINVAL;
+
+    if (min_addr > 0 && find_any_region(Region(0, min_addr - 1)))
+      return -L4_EADDRNOTAVAIL;
+
+    if (max_addr < Last_dma_addr
+        && find_any_region(Region(max_addr + 1, Last_dma_addr)))
+      return -L4_EADDRNOTAVAIL;
+
+    _min = min_addr;
+    _max = max_addr;
+    return L4_EOK;
   }
 };
 
@@ -667,10 +726,11 @@ Dma_space::block_area(L4Re::Dma_space::Dma_addr *start,
       if (trunc_dma_addr(*start) != *start)
         return -L4_EINVAL;
 
+      dma_max = cxx::min(_max, dma_max);
       if (!align_end_chk(&dma_max))
         return -L4_EINVAL;
 
-      if (*start > dma_max)
+      if (*start > dma_max || *start < _min)
         return -L4_EADDRNOTAVAIL;
 
       if (dma_max - *start < size - 1)
@@ -680,6 +740,34 @@ Dma_space::block_area(L4Re::Dma_space::Dma_addr *start,
   if (l4_ret_t err = add_region(*start, *start + size - 1, Add::Block);
       err < 0)
     return err;
+
+  return L4_EOK;
+}
+
+l4_ret_t
+Dma_space::set_limits(L4Re::Dma_space::Dma_addr min_addr,
+                      L4Re::Dma_space::Dma_addr max_addr)
+{
+  if (trunc_dma_addr(min_addr) != min_addr)
+    return -L4_EINVAL;
+  if (trunc_dma_addr(max_addr + 1) != max_addr + 1)
+    return -L4_EINVAL;
+
+  if (min_addr > max_addr)
+    return -L4_EINVAL;
+
+  if constexpr (Debug)
+    printf("DMA %p: set_limits: min=%llx max=%llx\n", this, min_addr, max_addr);
+
+  if (_mapper)
+    {
+      l4_ret_t err = _mapper->set_limits(this, min_addr, max_addr);
+      if (err < 0)
+        return err;
+    }
+
+  _min = min_addr;
+  _max = max_addr;
 
   return L4_EOK;
 }
@@ -865,7 +953,7 @@ Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
     return r;
 
   // No a-priori blockings allowed with physical mappings.
-  if (!dma_space->empty())
+  if (!dma_space->empty() || !dma_space->unconstrained())
     return -L4_EINVAL;
 
   return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(
@@ -904,6 +992,20 @@ Dma_space_mgr::op_block_area(L4Re::Dma_space_mgr::Rights,
 
   bool search = static_cast<bool>(flags & L4Re::Dma_space_mgr::Search_addr);
   return dma_space->block_area(&start, max, size, search, align);
+}
+
+l4_ret_t
+Dma_space_mgr::op_set_limits(L4Re::Dma_space_mgr::Rights,
+                             L4::Ipc::Snd_fpage        dma_space_cap,
+                             L4Re::Dma_space::Dma_addr min_addr,
+                             L4Re::Dma_space::Dma_addr max_addr)
+{
+  Dma_space *dma_space;
+  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  if (r != L4_EOK)
+    return r;
+
+  return dma_space->set_limits(min_addr, max_addr);
 }
 
 Dma_space_mgr::Dma_space_mgr(Moe::Name_space *ns, char const *name)

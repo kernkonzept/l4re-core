@@ -65,6 +65,10 @@ public:
                                        L4Re::Dma_space::Dma_size size,
                                        bool search, unsigned char align) = 0;
 
+  virtual l4_ret_t set_limits(Dma_space *dma_space,
+                              L4Re::Dma_space::Dma_addr min_addr,
+                              L4Re::Dma_space::Dma_addr max_addr) = 0;
+
   virtual ~Mapper() = default;
 
 protected:
@@ -165,9 +169,17 @@ public:
                       L4Re::Dma_space::Dma_addr max,
                       L4Re::Dma_space::Dma_size size,
                       bool search, unsigned char align);
+  l4_ret_t set_limits(L4Re::Dma_space::Dma_addr min_addr,
+                      L4Re::Dma_space::Dma_addr max_addr);
 
   bool empty() const
   { return _mappings.begin() == _mappings.end(); }
+
+  bool unconstrained() const
+  { return _min == 0 && _max == Dma::Last_dma_addr; }
+
+  L4Re::Dma_space::Dma_addr min_addr() const { return _min; }
+  L4Re::Dma_space::Dma_addr max_addr() const { return _max; }
 
 private:
   enum class Add { Mapping, Block };
@@ -184,6 +196,8 @@ private:
   /// List of mappings (see Dma::Mapping) created via this Moe::Dma_space
   /// instance.
   Dma::Mapping::Map _mappings;
+  L4Re::Dma_space::Dma_addr _min = 0;
+  L4Re::Dma_space::Dma_addr _max = Dma::Last_dma_addr;
 };
 
 class Dma_space_mgr :
@@ -211,6 +225,11 @@ public:
                          L4Re::Dma_space_mgr::Dma_addr      max,
                          L4Re::Dma_space_mgr::Block_flags   flags,
                          unsigned char                      align);
+
+  l4_ret_t op_set_limits(L4Re::Dma_space_mgr::Rights    rights,
+                         L4::Ipc::Snd_fpage             dma_space_cap,
+                         L4Re::Dma_space_mgr::Dma_addr  min_addr,
+                         L4Re::Dma_space_mgr::Dma_addr  max_addr);
 
 private:
   l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space,

@@ -269,9 +269,11 @@ public:
    *
    * \retval L4_EOK      Operation successful.
    * \retval -L4_EBUSY   The Dma_space is already associated.
-   * \retval -L4_EINVAL  Invalid arguments, for example a non-zero `attr` or
+   * \retval -L4_EINVAL  Invalid arguments, for example a non-zero `attr`,
    *                     pre-existing blockings on `dma_space` (see
-   *                     Dma_space_mgr::block_area()).
+   *                     Dma_space_mgr::block_area()), or custom address
+   *                     limits set on `dma_space` (see
+   *                     Dma_space_mgr::set_limits()).
    * \retval -L4_ENOENT  Invalid `dma_space` was passed.
    * \retval -L4_ENOMEM  Not enough memory to allocate internal datastructures.
    * \retval -L4_EPERM   Insufficient permissions; see precondition.
@@ -358,9 +360,43 @@ public:
                              Block_flags                  flags,
                              unsigned char                align));
 
+  /**
+   * Set lower and upper bound of DMA addresses.
+   *
+   * Mappings and blockings are only allowed in the given range.
+   *
+   * If multiple Dma_spaces share the same kernel
+   * \ref l4_kernel_object_dmar_space (i.e., were associated by passing the
+   * same `dma_task` to associate()), all DMA address allocations, reservations
+   * and blockings performed through any of these Dma_spaces use the
+   * intersection of all their individual limits. Tightening the limits on
+   * one Dma_space therefore also constrains all other Dma_spaces sharing the
+   * same DMA task; loosening the limits on one Dma_space has no effect
+   * beyond what the most-restrictive peer Dma_space allows.
+   *
+   * \param[in]  dma_space  The Dma_space whose limits shall be changed.
+   * \param[in]  min_addr   The lowest usable address in the Dma_space.
+   * \param[in]  max_addr   The highest usable address in the Dma_space
+   *                        (inclusive).
+   *
+   * \retval L4_EOK             Operation successful.
+   * \retval -L4_EADDRNOTAVAIL  There are existing mappings or blocking outside
+   *                            the bounds.
+   * \retval -L4_EPERM          Dma_space is associated with physical DMA
+   *                            domain or insufficient permissions; see
+   *                            precondition.
+   * \retval -L4_EINVAL         Invalid address passed.
+   *
+   * \pre The `dma_space` capability must have the permission #L4_CAP_FPAGE_W.
+   */
+  L4_INLINE_RPC(
+      l4_ret_t, set_limits, (L4::Ipc::Cap<Dma_space> dma_space,
+                             Dma_addr min_addr,
+                             Dma_addr max_addr));
+
 
   typedef L4::Typeid::Rpcs<associate_t, associate_phys_t, disassociate_t,
-                           block_area_t> Rpcs;
+                           block_area_t, set_limits_t> Rpcs;
 };
 
 }
