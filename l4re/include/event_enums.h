@@ -486,7 +486,7 @@ enum L4Re_events_syn
   L4RE_SYN_CONFIG    = 1,
   L4RE_SYN_MT_REPORT = 2,
 
-  L4RE_SYN_STREAM_CFG    = 0x80, ///< cfg stream (L4Re specififc syn code)
+  L4RE_SYN_STREAM_CFG    = 0x80, ///< cfg stream (L4Re specific syn code)
 };
 
 enum L4Re_stream_cfg

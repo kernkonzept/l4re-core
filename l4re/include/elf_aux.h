@@ -82,7 +82,7 @@ enum
 
   /**
    * \brief Tag for descriptor that defines the KIP address
-   *        for the binaries address space.
+   *        for the binary's address space.
    */
   L4RE_ELF_AUX_T_KIP_ADDR,
 

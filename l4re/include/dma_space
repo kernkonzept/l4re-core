@@ -153,7 +153,7 @@ public:
    * \pre The capability `src` must have the permission #L4_CAP_FPAGE_W.
    *
    * \note associate() must be called prior to mapping memory. Usually this is
-   * done implicitely when binding the managed Dma_space to a DMA domain
+   * done implicitly when binding the managed Dma_space to a DMA domain
    * (see L4vbus::Vbus::assign_dma_domain()).
    */
   L4_INLINE_RPC(

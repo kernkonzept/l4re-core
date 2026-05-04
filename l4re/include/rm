@@ -88,9 +88,9 @@ public:
   /// Result values for detach operation.
   enum Detach_result
   {
-    Detached_ds  = 0,      ///< Detached data sapce.
+    Detached_ds  = 0,      ///< Detached data space.
     Kept_ds      = 1,      ///< Kept data space.
-    Split_ds     = 2,      ///< Splitted data space, and done.
+    Split_ds     = 2,      ///< Split data space, and done.
     Detach_result_mask = 3,
 
     Detach_again = 4,      ///< Detached data space, more to do.

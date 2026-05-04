@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief   Dataspace protocol defintion
+ * \brief   Dataspace protocol definition
  */
 /*
  * (c) 2008-2009 Adam Lackorzynski <adam@os.inf.tu-dresden.de>,
