@@ -25,7 +25,7 @@ config L4RE_BITMAP_CAP_ALLOC
 	help
 	  Simple bitmap allocator for capability slots.
 
-	  Attention: any code that uses reference counted capabilites (e.g.
+	  Attention: any code that uses reference counted capabilities (e.g.
 	  L4Re::Util::Shared_cap) will lead to capability leaks because
 	  reference counting is not possible. Only use it on small systems
 	  without dynamic workloads.
