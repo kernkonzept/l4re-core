@@ -157,9 +157,6 @@ public:
                         L4Re::Rm::Flags flags = L4Re::Rm::Flags(0),
                         unsigned char align = L4_PAGESHIFT) noexcept
   {
-    if (size < 2)
-      return L4_INVALID_ADDR;
-
     Region c;
 
     if (!(flags & L4Re::Rm::F::Search_addr))
@@ -210,9 +207,6 @@ public:
                char const *name = nullptr, unsigned name_len = 0,
                L4Re::Rm::Offset backing_offset = 0) noexcept
   {
-    if (size < 2)
-      return L4_INVALID_PTR;
-
     l4_addr_t beg, end;
     int err = hdlr.map_info(&beg, &end);
     if (err > 0)
