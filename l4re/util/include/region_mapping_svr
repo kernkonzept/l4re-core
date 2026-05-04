@@ -46,6 +46,11 @@ public:
     if (size == 0)
       return -L4_EINVAL;
 
+    constexpr unsigned Max_align = sizeof(l4_addr_t) * 8 - 1;
+    if (flags & Rm::F::Search_addr && (   align < L4_PAGESHIFT
+                                       || align > Max_align))
+      return -L4_EINVAL;
+
     size  = l4_round_page(size);
     l4_addr_t start = l4_trunc_page(_start);
 
@@ -156,9 +161,14 @@ public:
     if (size == 0)
       return -L4_EINVAL;
 
+    constexpr unsigned Max_align = sizeof(l4_addr_t) * 8 - 1;
+    if (flags & Rm::F::Search_addr && align > Max_align)
+      return -L4_EINVAL;
+
     start = rm()->attach_area(start, size, flags, align);
     if (start == L4_INVALID_ADDR)
       return -L4_EADDRNOTAVAIL;
+
     return L4_EOK;
   }
 
