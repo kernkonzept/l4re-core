@@ -159,7 +159,12 @@ public:
   {
     Region c;
 
-    if (!(flags & L4Re::Rm::F::Search_addr))
+    if (flags & L4Re::Rm::F::Search_addr)
+      {
+        if (addr < min_addr())
+          addr = min_addr();
+      }
+    else
       {
         c = Region(addr, addr + size - 1);
         Node r = _am.find_node(c);
@@ -169,8 +174,8 @@ public:
 
     while (flags & L4Re::Rm::F::Search_addr)
       {
-        if (addr < min_addr() || (addr + size - 1) > max_addr())
-          addr = min_addr();
+        if (addr > max_addr() || (max_addr() - addr + 1) < size)
+          return L4_INVALID_ADDR;
 
         addr = find_free(addr, max_addr(), size, align, flags);
         if (addr == L4_INVALID_ADDR)
