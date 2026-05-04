@@ -360,10 +360,10 @@ _dl_tlsdesc_resolver_rela(struct tlsdesc *td, struct elf_resolve *tpnt)
 	if (ELFW(ST_BIND)(sym_ref.sym->st_info) != STB_LOCAL
 	    && ELFW(ST_VISIBILITY)(sym_ref.sym->st_other) == 0)
 	{
-		unsigned long new_addr
-			= (unsigned long)_dl_find_hash(symname, &_dl_loaded_modules->symbol_scope,
-			                               tpnt, ELF_RTYPE_CLASS_PLT, &sym_ref);
-		if (unlikely(!new_addr)) {
+		sym_ref.sym = NULL; // necessary for the check below if _dl_find_hash succeeded
+		(void)_dl_find_hash(symname, &_dl_loaded_modules->symbol_scope,
+			                  tpnt, ELF_RTYPE_CLASS_PLT, &sym_ref);
+		if (unlikely(!sym_ref.sym)) {
 			_dl_dprintf(2, "%s: can't resolve symbol '%s'\n",
 				_dl_progname, symname);
 			_dl_exit(1);
