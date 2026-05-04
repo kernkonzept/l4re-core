@@ -53,8 +53,7 @@ public:
 
     size  = l4_round_page(size);
     l4_addr_t start = l4_trunc_page(_start);
-
-    if (size < L4_PAGESIZE)
+    if (size == 0 || start + size - 1 < start)
       return -L4_EINVAL;
 
     Rm::Region_flags r_flags = flags.region_flags();
@@ -135,6 +134,8 @@ public:
 
     l4_addr_t aligned_addr = l4_trunc_page(addr);
     size = l4_round_page(addr - aligned_addr + size);
+    if (size == 0 || aligned_addr + size - 1 < aligned_addr)
+      return -L4_EINVAL;
 
     Region r;
     typename DERIVED::Region_handler h;
@@ -158,7 +159,7 @@ public:
   l4_ret_t op_reserve_area(L4Re::Rm::Rights, l4_addr_t &start, unsigned long size,
                            L4Re::Rm::Flags flags, unsigned char align)
   {
-    if (size == 0)
+    if (size == 0 || start + size - 1 < start)
       return -L4_EINVAL;
 
     constexpr unsigned Max_align = sizeof(l4_addr_t) * 8 - 1;
