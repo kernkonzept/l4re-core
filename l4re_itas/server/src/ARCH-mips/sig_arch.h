@@ -12,15 +12,17 @@
 enum : l4_addr_t
 {
 #ifdef __mips64
-  Sig_stack_align = 16
+  Sig_stack_align = 16,
+  Sig_reserved_area = 0,
 #else
-  Sig_stack_align = 8
+  Sig_stack_align = 8,
+  Sig_reserved_area = 16,
 #endif
 };
 
 static inline
 l4_addr_t sig_adjust_stack(l4_addr_t sp)
-{ return sp & ~(Sig_stack_align - 1U); }
+{ return (sp - Sig_reserved_area) & ~(Sig_stack_align - 1U); }
 
 struct Sig_arch_context
 {
