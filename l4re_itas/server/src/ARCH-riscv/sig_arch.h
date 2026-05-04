@@ -68,8 +68,8 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
       si->si_addr = reinterpret_cast<void *>(regs.pfa);
       break;
     case L4_riscv_exc_inst_access:
-    case L4_riscv_exc_load_acesss:
-    case L4_riscv_exc_store_acesss:
+    case L4_riscv_exc_load_access:
+    case L4_riscv_exc_store_access:
       si->si_signo = SIGSEGV;
       si->si_code = SEGV_ACCERR;
       si->si_addr = reinterpret_cast<void *>(regs.pfa);

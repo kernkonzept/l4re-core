@@ -24,8 +24,8 @@ enum L4_riscv_exc_cause
   L4_riscv_exc_inst_access            = 1,
   L4_riscv_exc_illegal_inst           = 2,
   L4_riscv_exc_breakpoint             = 3,
-  L4_riscv_exc_load_acesss            = 5,
-  L4_riscv_exc_store_acesss           = 7,
+  L4_riscv_exc_load_access            = 5,
+  L4_riscv_exc_store_access           = 7,
   L4_riscv_exc_ecall                  = 8,
   L4_riscv_exc_hcall                  = 10,
   L4_riscv_exc_inst_page_fault        = 12,
@@ -119,8 +119,8 @@ L4_INLINE int l4_utcb_exc_is_pf(l4_exc_regs_t const *u) L4_NOTHROW
   switch(u->cause)
     {
     case L4_riscv_exc_inst_access:
-    case L4_riscv_exc_load_acesss:
-    case L4_riscv_exc_store_acesss:
+    case L4_riscv_exc_load_access:
+    case L4_riscv_exc_store_access:
     case L4_riscv_exc_inst_page_fault:
     case L4_riscv_exc_load_page_fault:
     case L4_riscv_exc_store_page_fault:
