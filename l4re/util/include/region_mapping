@@ -222,7 +222,12 @@ public:
     if (res != 0)
       return false;
 
-    it->second.attached(region.start(), region.end());
+    if (!it->second.attached(region.start(), region.end()))
+      {
+        _rm.erase(it->first);
+        return false;
+      }
+
     return true;
   }
 

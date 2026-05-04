@@ -97,7 +97,7 @@ Region_handler::map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexc
   return _mem->map_info(start_addr, end_addr);
 }
 
-void
+bool
 Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
 {
   // Stack regions must be attached with the moe region manager. The page fault
@@ -108,10 +108,10 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
   // as stack memory. To be on the safe side, attach all regions that are
   // backed by a real dataspace.
   if (!_mem || _flags & (Rm::F::Pager | Rm::F::Kernel | Rm::F::Reserved))
-    return;
+    return true;
 
   if (_attached)
-    return;
+    return true;
 
   auto moe_rm = L4Re::Env::env()->rm();
   // Moe must not free the dataspace region on detach.
@@ -128,12 +128,17 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
       // model of it. Something running in the l4re_itas must have attached a
       // memory region there, which is a bug, and must be fixed.
       if (res != -L4_ENOENT)
-        Err(Err::Fatal)
-          .printf("%s: Could not attach DS [0x%lx..0x%lx] to remote region map (%d).\n",
-                  Global::l4re_aux->binary, beg, end, res);
+        {
+          Err(Err::Fatal)
+            .printf("%s: Could not attach DS [0x%lx..0x%lx] to remote region map (%d).\n",
+                    Global::l4re_aux->binary, beg, end, res);
+          return false;
+        }
     }
   else
     _attached = true;
+
+  return true;
 }
 
 void
