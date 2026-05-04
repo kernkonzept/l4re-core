@@ -128,9 +128,13 @@ public:
     if (size == 0)
       return -L4_EINVAL;
 
+    l4_addr_t aligned_addr = l4_trunc_page(addr);
+    size = l4_round_page(addr - aligned_addr + size);
+
     Region r;
     typename DERIVED::Region_handler h;
-    int err = rm()->detach(reinterpret_cast<void*>(addr), size, flags, &r, &h);
+    int err = rm()->detach(reinterpret_cast<void*>(aligned_addr), size, flags,
+                           &r, &h);
     if (err < 0)
       return err;
 
