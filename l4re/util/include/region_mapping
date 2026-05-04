@@ -322,7 +322,9 @@ public:
         if (!(flags & L4Re::Rm::Detach_keep) && (h_copy.flags() & L4Re::Rm::F::Detach_free))
           h_copy.free(0, g.size());
 
-        h_copy.detached(g.start(), g.end());
+        int ret = Rm::Detached_ds;
+        if (h_copy.detached(g.start(), g.end()))
+          ret |= Rm::Unmapped_range;
 
         if (hdlr)
           *hdlr = h_copy;
@@ -330,9 +332,9 @@ public:
           *reg = g;
 
         if (find(dr))
-          return Rm::Detached_ds | Rm::Detach_again;
-        else
-          return Rm::Detached_ds;
+          ret |= Rm::Detach_again;
+
+        return ret;
       }
     else if (dr.start() <= g.start())
       {
@@ -341,7 +343,9 @@ public:
         if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(0, dr.end() + 1 - g.start());
 
-        h.detached(g.start(), dr.end());
+        int ret = Rm::Kept_ds;
+        if (h.detached(g.start(), dr.end()))
+          ret |= Rm::Unmapped_range;
 
         unsigned long sz = dr.end() + 1 - g.start();
         Item &cn = const_cast<Item &>(*r);
@@ -352,10 +356,11 @@ public:
           *hdlr = Hdlr();
         if (reg)
           *reg = Region(g.start(), dr.end());
+
         if (find(dr))
-          return Rm::Kept_ds | Rm::Detach_again;
-        else
-          return Rm::Kept_ds;
+          ret |= Rm::Detach_again;
+
+        return ret;
       }
     else if (dr.end() >= g.end())
       {
@@ -365,7 +370,9 @@ public:
             && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
 
-        h.detached(dr.start(), g.end());
+        int ret = Rm::Kept_ds;
+        if (h.detached(dr.start(), g.end()))
+          ret |= Rm::Unmapped_range;
 
         Item &cn = const_cast<Item &>(*r);
         cn.first = Region(g.start(), dr.start() - 1, g.name(), g.name_len(),
@@ -376,9 +383,9 @@ public:
           *reg = Region(dr.start(), g.end());
 
         if (find(dr))
-          return Rm::Kept_ds | Rm::Detach_again;
-        else
-          return Rm::Kept_ds;
+          ret |= Rm::Detach_again;
+
+        return ret;
       }
     else if (g.contains(dr))
       {
@@ -387,7 +394,9 @@ public:
         if (!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
           h.free(dr.start() - g.start(), dr.size());
 
-        h.detached(dr.start(), dr.end());
+        int ret = Rm::Split_ds;
+        if (h.detached(dr.start(), dr.end()))
+          ret |= Rm::Unmapped_range;
 
         // First move the end off the existing region before the new one.
         Item &cn = const_cast<Item &>(*r);
@@ -410,7 +419,8 @@ public:
           *hdlr = h;
         if (reg)
           *reg = dr;
-        return Rm::Split_ds;
+
+        return ret;
       }
 
     return -L4_ENOENT;

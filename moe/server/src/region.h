@@ -81,8 +81,8 @@ public:
 
   bool attached(l4_addr_t, l4_addr_t) const noexcept
   { return true; }
-  void detached(l4_addr_t, l4_addr_t) const noexcept
-  {}
+  bool detached(l4_addr_t, l4_addr_t) const noexcept
+  { return false; }
 };
 
 class Region_map

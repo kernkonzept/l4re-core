@@ -24,6 +24,47 @@ using L4Re::Rm;
 using L4Re::Dataspace;
 using L4Re::Util::Region;
 
+
+namespace {
+
+/**
+ * Unmap a range of pages.
+ *
+ * \pre `start` and `size` must be page aligned.
+ */
+void unmap_page_range(l4_addr_t start, l4_addr_t size) noexcept
+{
+  unsigned order = L4_LOG2_PAGESIZE;
+  l4_addr_t fp_size = (1UL << order);
+  for (l4_addr_t p = start; size; p += fp_size, size -= fp_size)
+    {
+      while (fp_size > size)
+        {
+          --order;
+          fp_size >>= 1;
+        }
+
+      for (;;)
+        {
+          unsigned long m = fp_size << 1;
+          if (m > size)
+            break;
+
+          if (p & (m - 1))
+            break;
+
+          ++order;
+          fp_size <<= 1;
+        }
+
+      L4::Cap<L4::Task> task(L4Re::This_task);
+      task->unmap(l4_fpage(p, order, L4_FPAGE_RWX),
+                  L4_FP_ALL_SPACES);
+    }
+}
+
+}
+
 Region_map::Region_map()
   : Base(0,0)
 {}
@@ -141,24 +182,24 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
   return true;
 }
 
-void
+bool
 Region_handler::detached(l4_addr_t beg, l4_addr_t end) const noexcept
 {
-  if (!_mem || _flags & (Rm::F::Pager | Rm::F::Kernel | Rm::F::Reserved))
-    return;
-
-  if (!_attached)
-    return;
-
-  auto moe_rm = L4Re::Env::env()->rm();
-  l4_ret_t res = moe_rm->detach(beg, end - beg + 1, nullptr,
-                                L4::Cap<L4::Task>::Invalid);
-  if (res < 0)
+  if (_attached)
     {
-      Dbg warn(Dbg::Warn);
-      warn.printf("%s: Could not detach DS [0x%lx..0x%lx] from remote region map (%d)\n",
-                  Global::l4re_aux->binary, beg, end, res);
+      auto moe_rm = L4Re::Env::env()->rm();
+      l4_ret_t res = moe_rm->detach(beg, end - beg + 1, nullptr,
+                                    L4::Cap<L4::Task>::Invalid);
+      if (res < 0)
+        {
+          Dbg warn(Dbg::Warn);
+          warn.printf("%s: Could not detach DS [0x%lx..0x%lx] from remote region map (%d)\n",
+                      Global::l4re_aux->binary, beg, end, res);
+        }
     }
+
+  unmap_page_range(beg, end - beg + 1);
+  return true;
 }
 
 void

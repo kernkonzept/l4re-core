@@ -94,6 +94,8 @@ public:
     Detach_result_mask = 3,
 
     Detach_again = 4,      ///< Detached data space, more to do.
+
+    Unmapped_range = 8,    ///< The region mananager has already unmapped the pages
   };
 
   /// Region flag shifts.

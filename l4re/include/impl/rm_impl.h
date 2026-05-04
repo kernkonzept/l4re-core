@@ -71,6 +71,11 @@ Rm::detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
   if (mem)
     *mem = L4::Cap<L4Re::Dataspace>(mem_cap);
 
+  if (e & Unmapped_range)
+    // Hide Unmapped_range bit. Some callers incorrectly treat anything except
+    // zero as failure.
+    return e & ~Unmapped_range;
+
   if (!task.is_valid())
     return e;
 
