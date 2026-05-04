@@ -624,8 +624,8 @@ template<typename T> struct Kobject_typeid
   typedef typename T::__Iface_list Iface_list;
 
   /**
-   * Get a pointer to teh Kobject type information of T.
-   * \return a pointer to the Kobject typeinfor of T.
+   * Get a pointer to the Kobject type information of T.
+   * \return a pointer to the Kobject typeinfo of T.
    */
   static Type_info const *id() noexcept { return &T::__Kobject_typeid::_m; }
 

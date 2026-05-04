@@ -251,7 +251,7 @@ L4_INLINE l4_thread_regs_t *l4_utcb_tcr_u(l4_utcb_t *u) L4_NOTHROW L4_PURE;
 /**
  * \defgroup l4_utcb_exc_api Exception registers
  * \ingroup l4_utcb_mr_api
- * Overly definition of the MRs for exception messages.
+ * Overlay definition of the MRs for exception messages.
  */
 
 /**

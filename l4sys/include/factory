@@ -264,7 +264,7 @@ public:
    *
    * \param[out] target  Capability selector for the new object. The caller
    *                     must allocate the capability slot. The kernel stores
-   *                     the new objects's capability into this slot.
+   *                     the new object's capability into this slot.
    * \param      obj     The protocol ID that specifies which kind of object
    *                     shall be created.
    * \utcb_def{utcb}
@@ -308,7 +308,7 @@ public:
    * This method does not directly invoke the factory. The factory is invoked
    * when the create stream returned by this method is converted to an
    * #l4_msgtag_t (see S::operator l4_msgtag_t()), or otherwise when the stream
-   * goes out of scope (not rcommended; see S::~S()).
+   * goes out of scope (not recommended; see S::~S()).
    *
    * \pre The invoked Factory capability must have the permission
    *      #L4_CAP_FPAGE_S, otherwise the later factory IPC will fail with
@@ -348,7 +348,7 @@ public:
    *                           UTCBs and vCPU state-save-areas of the new task.
    *
    *                           On systems without MMU, the flexpage is adjusted
-   *                           to reflect the acually allocated physical
+   *                           to reflect the actually allocated physical
    *                           address.
    * \utcb_def{utcb}
    *

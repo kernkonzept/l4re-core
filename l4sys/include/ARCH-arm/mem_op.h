@@ -53,7 +53,7 @@ enum L4_mem_op_widths
  *                       \see L4_mem_op_widths
  * \return Read value.
  *
- * Upon an given invalid address or invalid width value the function does
+ * Upon a given invalid address or invalid width value the function does
  * nothing.
  */
 L4_INLINE unsigned long
@@ -68,7 +68,7 @@ l4_mem_read(unsigned long virtaddress, unsigned width);
  *                       (i.e. allowed values: 0, 1, 2)
  * \param value        Value to write.
  *
- * Upon an given invalid address or invalid width value the function does
+ * Upon a given invalid address or invalid width value the function does
  * nothing.
  */
 L4_INLINE void

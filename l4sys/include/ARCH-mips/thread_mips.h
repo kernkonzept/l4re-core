@@ -25,7 +25,7 @@ l4_thread_mips_set_ulr(l4_cap_idx_t thread, l4_umword_t ulr) L4_NOTHROW;
  *                       state shall be saved to the l4_vm_state_t. The bits
  *                       are defined in `L4_vm_state_modified_bits`.
  *
- * After a successfull operation the `clean_cp0_map` indicates which state is
+ * After a successful operation the `clean_cp0_map` indicates which state is
  * now in sync with the VM. Note, this might be more than the requested state.
  */
 L4_INLINE l4_msgtag_t

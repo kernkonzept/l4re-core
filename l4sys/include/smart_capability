@@ -54,7 +54,7 @@ public:
    * Internal constructor, use to generate a capability from a `this` pointer.
    *
    * \attention This constructor is only useful to generate a capability
-   *            from the `this` pointer of an objected that is an L4::Kobject.
+   *            from the `this` pointer of an object that is an L4::Kobject.
    *            Do `never` use this constructor for something else!
    * \param p  The `this` pointer of the Kobject or derived object
    */

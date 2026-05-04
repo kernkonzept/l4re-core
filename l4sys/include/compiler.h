@@ -179,7 +179,7 @@
 #  define L4_DEFAULT_PARAM(x) = x
 #endif /* __cplusplus */
 
-/* Depration hints during compile -- remove later (2025+) */
+/* Deprecation hints during compile -- remove later (2025+) */
 #ifndef EXTERN_C
 #define EXTERN_C DO_NOT_USE_EXTERN_C_ANY_MORE
 #endif

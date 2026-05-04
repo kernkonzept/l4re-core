@@ -136,7 +136,7 @@ static_assert(sizeof(L4_kobj_info) == 64, "Size of Jobj_info");
  *
  * \param cap              Capability of the debugger object.
  * \param ku_mem_addr      Address of the KU memory for writing the information.
- * \param ku_mem_size      Size of the KU memory to writing the information.
+ * \param ku_mem_size      Size of the KU memory for writing the information.
  * \param skip             Number of objects to skip.
  * \param[out] result_cnt  Number of objects in the mapping database.
  * \param[out] result_all  Number of objects written to the KU memory.

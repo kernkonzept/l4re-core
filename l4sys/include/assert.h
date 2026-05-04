@@ -23,7 +23,7 @@
 /**
  * Low-level assert.
  *
- * \param expr  Expression to be evaluate for the assertion.
+ * \param expr  Expression to be evaluated for the assertion.
  *
  * This assertion is a low-level implementation that directly uses
  * kernel primitives. Only use l4_assert() when the standard assert()

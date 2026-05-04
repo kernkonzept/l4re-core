@@ -70,7 +70,7 @@ L4_INLINE unsigned
 fiasco_gdt_get_entry_offset(l4_cap_idx_t thread, l4_utcb_t *utcb);
 
 /**
- * \brief Contants for LDT handling.
+ * \brief Constants for LDT handling.
  */
 enum L4_task_ldt_x86_consts
 {

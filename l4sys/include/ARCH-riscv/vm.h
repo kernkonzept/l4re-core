@@ -10,7 +10,7 @@
 
 enum
 {
-  /// Endianness of excplicit guest memory accesses
+  /// Endianness of explicit guest memory accesses
   L4_vm_hstatus_vsbe       = 1UL << 5,
   /// Guest Virtual Address
   L4_vm_hstatus_gva        = 1UL << 6,

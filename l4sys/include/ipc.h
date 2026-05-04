@@ -342,7 +342,7 @@ l4_ipc_receive(l4_cap_idx_t object, l4_utcb_t *utcb,
  *                 \c timeout parameter has expired.
  * \utcb{utcb}
  * \param tag      Message tag to describe the message to be sent.
- * \param timeout  Timeout pair for send an receive phase (see #l4_timeout_t).
+ * \param timeout  Timeout pair for send and receive phase (see #l4_timeout_t).
  *
  * \return  result tag
  *

@@ -707,7 +707,7 @@ l4_vm_vmx_clear(l4_vm_vmx_vcpu_vmcs_t *vmcs,
   l4_vm_vmx_set_hw_vmcs(dest_vmcs, l4_vm_vmx_get_hw_vmcs(vmcs));
   l4_vm_vmx_copy_values(vmcs, dest_vmcs->values, vmcs->values);
 
-  /* Due to its size, the dirty bitmap is always compied in its entirety. */
+  /* Due to its size, the dirty bitmap is always copied in its entirety. */
   __builtin_memcpy(dest_vmcs->dirty_bitmap, vmcs->dirty_bitmap,
     L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP);
 
@@ -733,7 +733,7 @@ l4_vm_vmx_ptr_load(l4_vm_vmx_vcpu_vmcs_t *vmcs,
   l4_vm_vmx_set_hw_vmcs(vmcs, l4_vm_vmx_get_hw_vmcs(src_vmcs));
   l4_vm_vmx_copy_values(vmcs, vmcs->values, src_vmcs->values);
 
-  /* Due to its size, the dirty bitmap is always compied in its entirety. */
+  /* Due to its size, the dirty bitmap is always copied in its entirety. */
   __builtin_memcpy(vmcs->dirty_bitmap, src_vmcs->dirty_bitmap,
     L4_VM_VMX_VMCS_SIZE_DIRTY_BITMAP);
 }

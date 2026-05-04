@@ -289,7 +289,7 @@ l4_timeout_s l4_timeout_from_us(l4_uint64_t us) L4_NOTHROW
        * L4_TIMEOUT_US_MAX = 2^41-1 = 0x000001ffffffffff => e = 31.
        * Note: 2^41-1 (0x000001ffffffffff) > 1023*2^31 (0x00001ff800000000). */
 
-      /* Round up to next aligned timeout value to not retun too early. */
+      /* Round up to next aligned timeout value to not return too early. */
       m = (us + ((1ULL << e) - 1)) >> e;
       /* Bounds check */
       if (m > m_max)

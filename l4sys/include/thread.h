@@ -72,7 +72,7 @@
  * to force the thread to raise an artificial exception (see `flags`). If the
  * thread is in an IPC operation or if #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION
  * forces an IPC then changes in IP and SP take effect directly after returning
- * from this IPC. On ARM this method allows to change the execption level, see
+ * from this IPC. On ARM this method allows to change the exception level, see
  * #L4_thread_ex_regs_flags_arm and #L4_thread_ex_regs_flags_arm64.
  *
  * The thread is started using l4_scheduler_run_thread(). However, if at the
@@ -116,7 +116,7 @@ l4_thread_ex_regs_u(l4_cap_idx_t thread, l4_addr_t ip, l4_addr_t sp,
  * `flags`). If the thread is in an IPC operation or if
  * #L4_THREAD_EX_REGS_TRIGGER_EXCEPTION forces an IPC then changes in IP and
  * SP take effect directly after returning from this IPC. On ARM this method
- * allows to change the execption level, see #L4_thread_ex_regs_flags_arm and
+ * allows to change the exception level, see #L4_thread_ex_regs_flags_arm and
  * #L4_thread_ex_regs_flags_arm64.
  *
  * The thread is started using l4_scheduler_run_thread(). However, if at the
@@ -624,7 +624,7 @@ l4_thread_modify_sender_start_u(l4_utcb_t *u) L4_NOTHROW;
  * \param del_bits    Bits to be deleted from the label.
  * \param add_bits    Bits to be added to the label.
  *
- * \return 0 on sucess, <0 on error
+ * \return 0 on success, <0 on error
  *
  * In pseudo code:
  *   if ((sender_label & match_mask) == match)

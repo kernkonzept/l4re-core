@@ -39,7 +39,7 @@ public:
 
   /**
    * Remove the association of the given DMA address space from the
-   * device(s) specified by `src_id`. Clear the respective page stable
+   * device(s) specified by `src_id`. Clear the respective page table
    * structures in the IOMMU.
    *
    * \param src_id     Platform dependent source ID specifying the set of

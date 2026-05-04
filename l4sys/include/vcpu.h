@@ -34,7 +34,7 @@
  * l4_vcpu_state_t::entry_sp. IPC redirection works independent of "kernel"
  * and "user" mode, but see l4_vcpu_state_t::entry_sp. When the entry handler is
  * called, the UTCB contains the result of the IPC and content normally found
- * in CPU register is in l4_vcpu_state_t::i.
+ * in CPU registers is in l4_vcpu_state_t::i.
  *
  * Furthermore, the thread can execute in the context of different tasks,
  * called the "kernel" and the "user" mode. The kernel task is the one to which
@@ -108,7 +108,7 @@ enum L4_vcpu_state_flags
    *
    * \note On L4::Thread::vcpu_resume_commit() this flag is automatically
    *       enabled in l4_vcpu_state_t::state if #L4_VCPU_F_USER_MODE is enabled.
-   * \note When the kernel mode is entered, this flags is automatically
+   * \note When the kernel mode is entered, this flag is automatically
    *       disabled in l4_vcpu_state_t::state.
    */
   L4_VCPU_F_IRQ         = 0x01,
@@ -123,7 +123,7 @@ enum L4_vcpu_state_flags
    *       independent of "kernel" and "user" mode.
    * \note On L4::Thread::vcpu_resume_commit() this flag is automatically
    *       enabled in l4_vcpu_state_t::state if #L4_VCPU_F_USER_MODE is enabled.
-   * \note When the kernel mode is entered, this flags is automatically
+   * \note When the kernel mode is entered, this flag is automatically
    *       disabled in l4_vcpu_state_t::state.
    */
   L4_VCPU_F_PAGE_FAULTS = 0x02,
@@ -146,14 +146,14 @@ enum L4_vcpu_state_flags
    * L4::Thread::vcpu_resume_commit(). If clear, the vCPU stays in "kernel"
    * mode.
    *
-   * \note When the kernel mode is entered, this flags is automatically
+   * \note When the kernel mode is entered, this flag is automatically
    *       disabled in l4_vcpu_state_t::state.
    */
   L4_VCPU_F_USER_MODE   = 0x20,
 
   /**
    * FPU enabled. This flag is only relevant if #L4_VCPU_F_USER_MODE is set.
-   * Setting this flag allows code in vCPU mode to use the FPU. IF this flag
+   * Setting this flag allows code in vCPU mode to use the FPU. If this flag
    * is not set, any FPU operation will trigger a corresponding exception
    * (FPU fault).
    */

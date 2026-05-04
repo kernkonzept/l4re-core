@@ -22,7 +22,7 @@
  * \ingroup  l4_utcb_api
  */
 
-/// Number if message registers used for exception IPC
+/// Number of message registers used for exception IPC
 #define L4_UTCB_EXCEPTION_REGS_SIZE    19
 
 /// Total number of message register (MRs) available

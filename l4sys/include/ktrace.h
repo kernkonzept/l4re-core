@@ -105,7 +105,7 @@ fiasco_tbuf_map_status(l4_fpage_t *ku_mem);
  * Map kernel trace-buffer slots.
  * \ingroup fiasco_trace_api
  *
- * \param ku_mem  Flexpage where to map the trace-buffer slots. Expected be
+ * \param ku_mem  Flexpage where to map the trace-buffer slots. Expected to be
  *                the exact size as defined by the status page.
  *
  * \return IPC message tag.

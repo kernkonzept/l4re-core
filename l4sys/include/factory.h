@@ -66,7 +66,7 @@
  *                            vCPU state-save-areas of the new task.
  *
  *                            On systems without MMU, the flexpage is adjusted
- *                            to reflect the acually allocated physical
+ *                            to reflect the actually allocated physical
  *                            address.
  *
  * \return Syscall return tag.
@@ -418,7 +418,7 @@ l4_factory_create_u(l4_cap_idx_t factory, long obj, l4_cap_idx_t target,
  * \param      factory     Factory to use for creation.
  * \param      obj         Protocol ID to describe the type of the object to
  *                         create.
- * \param[out] target      The kernel stores the new objects's capability into
+ * \param[out] target      The kernel stores the new object's capability into
  *                         this slot.
  *
  * \retval L4_EOK     No error occurred.

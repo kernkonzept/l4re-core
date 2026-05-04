@@ -35,7 +35,7 @@ l4_ipc(l4_cap_idx_t dest, l4_utcb_t *utcb,
   register l4_mword_t  _tag      __asm__("s3") = tag.raw;
   register l4_umword_t _label    __asm__("s4") = slabel;
 
-  /* the kernl preserves sp(29), fp(30), and gp(28) */
+  /* the kernel preserves sp(29), fp(30), and gp(28) */
   /* s0 - s4 are in/out arguments */
   __asm__ __volatile__
     ("syscall"
