@@ -99,32 +99,32 @@ private:
 
 public:
   /**
-   * \brief Return the red color compoment of the pixel.
+   * \brief Return the red color component of the pixel.
    * \return Red color component.
    */
   Color_component const &r() const { return _r; }
 
   /**
-   * \brief Return the green color compoment of the pixel.
+   * \brief Return the green color component of the pixel.
    * \return Green color component.
    */
   Color_component const &g() const { return _g; }
 
   /**
-   * \brief Return the blue color compoment of the pixel.
+   * \brief Return the blue color component of the pixel.
    * \return Blue color component.
    */
   Color_component const &b() const { return _b; }
 
   /**
-   * \brief Return the alpha color compoment of the pixel.
+   * \brief Return the alpha color component of the pixel.
    * \return Alpha color component.
    */
   Color_component const &a() const { return _a; }
 
   /**
    * \brief Compute the padding pseudo component.
-   * The padding pseudo component represents the tailing bits that are reserved
+   * The padding pseudo component represents the trailing bits that are reserved
    * in RGB32 and similar pixel formats.
    * \return Padding pseudo component.
    */

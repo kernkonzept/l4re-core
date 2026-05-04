@@ -349,7 +349,7 @@ public:
   // those are used by the View
   L4_INLINE_RPC(l4_ret_t, view_info, (unsigned index, View::Info *info));
   L4_INLINE_RPC(l4_ret_t, set_view_info, (unsigned index, View::Info const &info));
-  L4_INLINE_RPC(l4_ret_t, view_stack, (unsigned index, unsigned pivit, bool behind));
+  L4_INLINE_RPC(l4_ret_t, view_stack, (unsigned index, unsigned pivot, bool behind));
   L4_INLINE_RPC(l4_ret_t, view_refresh, (unsigned index, int x, int y, int w, int h));
 
   typedef L4::Typeid::Rpcs<
