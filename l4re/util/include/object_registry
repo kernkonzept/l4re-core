@@ -278,7 +278,7 @@ public:
                    (static_cast<L4::Epiface *>(&_null_handler)));
     _server->modify_senders(todo);
 
-    // we use bit 4 to indicated an internally allocated cap
+    // we use bit 4 to indicate an internally allocated cap
     if (c.managed())
       cap_alloc.free(c);
 

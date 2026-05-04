@@ -169,7 +169,7 @@ public:
    * \param size      Number of bytes to copy
    *
    * \retval >=0  Number of bytes copied
-   * \retval <0   An error occured. The error code may depend on the
+   * \retval <0   An error occurred. The error code may depend on the
    *              implementation.
    */
   virtual l4_ret_t copy([[maybe_unused]] l4_addr_t dst_offs,

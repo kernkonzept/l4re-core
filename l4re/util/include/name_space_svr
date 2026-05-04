@@ -173,7 +173,7 @@ struct Names_get_key
 /**
  * Abstract server-side implementation of the L4::Namespace interface.
  *
- * \note The derived class is resposible for resource management through the
+ * \note The derived class is responsible for resource management through the
  *       provided interfaces. This includes freeing all resources on
  *       destruction!
  */

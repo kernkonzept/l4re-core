@@ -19,7 +19,7 @@
 namespace L4Re { namespace Util {
 
 /**
- * \defgroup l4re_util_kumem Kumem utiltities
+ * \defgroup l4re_util_kumem Kumem utilities
  * \ingroup api_l4re_util
  */
 /**@{*/
