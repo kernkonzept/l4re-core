@@ -37,6 +37,17 @@ public:
   {
     typename DERIVED::Dataspace ds;
 
+    constexpr auto Known_flags =
+      // Attach_flags
+        Rm::F::Search_addr | Rm::F::In_area | Rm::F::Eager_map
+      | Rm::F::No_eager_map
+      // Region_flags
+      | Rm::F::RWX | Rm::F::Kernel | Rm::F::Detach_free | Rm::F::Pager
+      | Rm::F::Reserved | Rm::F::Caching_mask;
+
+    if (flags & ~Known_flags)
+      return -L4_EINVAL;
+
     if (!(flags & (Rm::F::Reserved | Rm::F::Kernel)))
       {
         if (l4_ret_t r = rm()->validate_ds(ds_cap, flags.region_flags(), &ds))
@@ -129,6 +140,11 @@ public:
     start = rsize = 0;
     mem_cap = L4_INVALID_CAP;
 
+    constexpr unsigned Known_flags =   Rm::Detach_exact | Rm::Detach_overlap
+                                     | Rm::Detach_keep;
+    if (flags & ~Known_flags)
+      return -L4_EINVAL;
+
     if (size == 0)
       return -L4_EINVAL;
 
@@ -159,6 +175,11 @@ public:
   l4_ret_t op_reserve_area(L4Re::Rm::Rights, l4_addr_t &start, unsigned long size,
                            L4Re::Rm::Flags flags, unsigned char align)
   {
+    constexpr auto Known_flags =   Rm::F::Search_addr | Rm::F::Kernel
+                                 | Rm::F::Reserved;
+    if (flags & ~Known_flags)
+      return -L4_EINVAL;
+
     if (size == 0 || start + size - 1 < start)
       return -L4_EINVAL;
 

@@ -253,13 +253,13 @@ public:
    * \param[in,out] start  The virtual start address of the area to reserve.
    *                       Returns the start address of the area.
    * \param         size   The size of the area to reserve (in bytes).
-   * \param         flags  Flags for the reserved area (see
-   *                       #L4Re::Rm::F::Region_flags and
-   *                       #L4Re::Rm::F::Attach_flags).
+   * \param         flags  Flags for the reserved area (see F::Search_addr,
+   *                       F::Kernel and F::Reserved).
    * \param         align  Alignment of area if searched as bits (log2 value).
    *
    * \retval 0                  Success
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
+   * \retval -L4_EINVAL         Invalid parameters
    * \retval <0                 IPC errors
    *
    * This function reserves an area within the virtual address space managed
@@ -290,12 +290,13 @@ public:
    * \param[in,out] start  The virtual start address of the area to reserve.
    *                       Returns the start address of the area.
    * \param         size   The size of the area to reserve (in bytes).
-   * \param         flags  Flags for the reserved area (see F::Region_flags and
-   *                       F::Attach_flags).
+   * \param         flags  Flags for the reserved area (see F::Search_addr,
+   *                       F::Kernel and F::Reserved).
    * \param         align  Alignment of area if searched as bits (log2 value).
    *
    * \retval 0                  Success
    * \retval -L4_EADDRNOTAVAIL  The given area cannot be reserved.
+   * \retval -L4_EINVAL         Invalid parameters
    * \retval <0                 IPC errors
    *
    * For more information, please refer to the analogous function
