@@ -173,8 +173,12 @@ public:
     else
       {
         c = Region(addr, addr + size - 1);
-        Node r = _am.find_node(c);
-        if (r)
+        if (_am.find_node(c))
+          return L4_INVALID_ADDR;
+
+        // Regions cannot be placed in reserved areas. We explicitly allow the
+        // reverse: place areas over regions that are already present.
+        if ((flags & L4Re::Rm::F::Reserved) && _rm.find_node(c))
           return L4_INVALID_ADDR;
       }
 
