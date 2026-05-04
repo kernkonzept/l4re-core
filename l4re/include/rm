@@ -797,11 +797,90 @@ public:
   l4_ret_t detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
                   L4::Cap<L4::Task> task, unsigned flags) const noexcept;
 
+
+  /**
+   * Allocate and map pages for the given region.
+   *
+   * Establish mappings of all pages in a region so that no page faults should
+   * happen after the call returned. Note that dataspace providers may unmap
+   * pages at their own discretion. This call is therefore no guarantee that
+   * page faults cannot happen.
+   *
+   * The whole range must be backed by attached regions. It is not possible to
+   * request more rights than with what the region was attached in the first
+   * place.
+   *
+   * \param start   Start address.
+   * \param size    Size of region.
+   * \param rights  Requested mapping attributes (any combination of F::R, F::W
+   *                and F::X).
+   * \param dst     Optional destination task of mapping. If invalid, the
+   *                mapping is established in the current task. This parameter
+   *                is only useful if the region manager is for a foreign task.
+   *
+   * \retval 0           Success
+   * \retval -L4_EACCESS More rights requested than attached region.
+   * \retval -L4_ENOENT  At least some part of the range was not covered by a
+   *                     region.
+   * \retval -L4_ENODEV  Region was not backed by a dataspace.
+   * \retval <0          IPC errors and other errors from dataspace provider
+   *                     (see L4Re::Dataspace::map).
+   */
+  l4_ret_t page_in(l4_addr_t start, unsigned long size, Region_flags rights,
+                   L4::Cap<L4::Task> dst = L4::Cap<L4::Task>::Invalid) const noexcept;
+
+  /**
+   * In-thread eager paging function.
+   * \internal
+   *
+   * Can be returned by the page_in RPC function. The calling thread must call
+   * this function pointer exactly once for the whole range.
+   *
+   * \param min_addr  First address of eager paging region. Must be page
+   *                  aligned.
+   * \param max_addr  Last address (inclusive) of eager paging region. Must be
+   *                  page aligned.
+   * \param rights    Requested mapping attributes (any combination of F::R,
+   *                  F::W and F::X).
+   *
+   * \return \see page_in()
+   */
+  typedef l4_ret_t (*page_in_fn)(l4_addr_t min_addr, l4_addr_t max_addr,
+                                 Region_flags rights);
+
+  /**
+   * Eager paging RPC call.
+   * \internal
+   *
+   * Can be implemented in two ways by the region manager server. Either the
+   * initial part of the region is mapped (server replies with a memory
+   * flexpage - `fp`) or an in-thread helper function (`helper`) is returned.
+   * In case of the latter, the caller must invoke the helper with the same
+   * parameters once.
+   *
+   * \param      min_addr  First address of eager paging region. Must be page
+   *                       aligned.
+   * \param      max_addr  Last address (inclusive) of eager paging region.
+   *                       Must be page aligned.
+   * \param      rights    Requested mapping attributes (any combination of
+   *                       F::R, F::W and F::X).
+   * \param      rwin      Receive window. Must be the whole address space.
+   * \param[out] fp        Returned memory flexpage mapping.
+   * \param[out] helper    Optional in-thread eager paging function. Will
+   *                       return nullptr if not used.
+   *
+   * \return \see page_in()
+   */
+  L4_RPC_NF(l4_ret_t, page_in, (l4_addr_t min_addr, l4_addr_t max_addr,
+                                Region_flags rights, L4::Ipc::Rcv_fpage rwin,
+                                L4::Ipc::Snd_fpage &fp, page_in_fn *helper));
+
+
   typedef L4::Typeid::Rpcs<attach_t, detach_t, find_t,
                            reserve_area_t, free_area_t,
                            get_regions_t, get_areas_t,
                            get_info_t, add_rescue_jump_t,
-                           remove_rescue_jump_t> Rpcs;
+                           remove_rescue_jump_t, page_in_t> Rpcs;
 };
 
 inline l4_ret_t

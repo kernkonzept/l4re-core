@@ -14,7 +14,7 @@ SRC_CC_arm64   := ARCH-arm64/switch_mode.cc
 
 SRC_S          := ARCH-$(ARCH)/sig_trampoline.S ARCH-$(ARCH)/safe_memcpy.S
 
-SRC_S_mips     := ARCH-mips/loader_mips.S
+SRC_S_mips     := ARCH-mips/loader_mips.S ARCH-mips/ffi.S
 SRC_S_riscv    := ARCH-riscv/loader_riscv.S
 CXXFLAGS_mips  += -mplt -mno-shared -DL4_LOADER_USE_ASM_STUB=1
 CXXFLAGS_riscv += -DL4_LOADER_USE_ASM_STUB=1

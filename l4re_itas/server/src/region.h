@@ -19,6 +19,7 @@
 #include <l4/util/thread.h>
 
 #include "debug.h"
+#include "ffi.h"
 #include "lock.h"
 
 inline void *operator new (size_t s, cxx::Nothrow const &) noexcept { return malloc(s); }
@@ -66,6 +67,9 @@ public:
   l4_ret_t map(l4_addr_t addr, L4Re::Util::Region const &r, bool writable,
                Map_result *result) const noexcept;
 
+  l4_ret_t page_in(L4Re::Util::Region const &r, l4_addr_t start, l4_addr_t end,
+                   L4Re::Rm::Region_flags rights, Map_result *result) const noexcept;
+
   l4_ret_t map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexcept;
 
   bool attached(l4_addr_t beg, l4_addr_t end) noexcept;
@@ -109,6 +113,8 @@ public:
   void init();
 
   void debug_dump(unsigned long function) const;
+  l4_ret_t page_in(l4_addr_t min_addr, l4_addr_t max_addr,
+                   L4Re::Rm::Region_flags rights);
 };
 
 class Region_map_svr
@@ -269,6 +275,14 @@ public:
     return _region_map.op_remove_rescue_jump(rights, pc);
   }
 
+  l4_ret_t op_page_in(L4Re::Rm::Rights, l4_addr_t, l4_addr_t,
+                      L4Re::Rm::Region_flags, L4::Ipc::Snd_fpage &,
+                      L4Re::Rm::page_in_fn &helper)
+  {
+    helper = &thread_page_in_handler;
+    return L4_EOK;
+  }
+
   // L4::Pager API
 
   l4_ret_t op_page_fault(L4::Pager::Rights rights, l4_umword_t addr,
@@ -296,7 +310,14 @@ public:
     return 0;
   }
 
+  l4_ret_t page_in(l4_addr_t min_addr, l4_addr_t max_addr,
+                   L4Re::Rm::Region_flags rights);
+
 private:
+  FFI_DECLARE_CLASS_FN(l4_ret_t, thread_page_in_handler,
+                       l4_addr_t min_addr, l4_addr_t max_addr,
+                       L4Re::Rm::Region_flags rights);
+
   Region_map _region_map;
   mutable Rw_lock _lock;
 };

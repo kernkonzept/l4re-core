@@ -14,6 +14,7 @@
 #include <l4/re/rm>
 #include <l4/re/dataspace>
 
+#include <l4/sys/cxx/consts>
 #include <l4/sys/cxx/ipc_client>
 
 #include <l4/sys/task>
@@ -110,6 +111,52 @@ Rm::detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
     }
 
   return e;
+}
+
+l4_ret_t
+Rm::page_in(l4_addr_t start, unsigned long size, Rm::Region_flags rights,
+            L4::Cap<L4::Task> dst) const noexcept
+{
+  if (rights & ~F::RWX)
+    return -L4_EINVAL;
+
+  if (size == 0 || !(rights & F::R))
+    return 0;
+
+  if (start + size - 1 < start)
+    return -L4_EINVAL;
+
+  auto rwin = L4::Ipc::Rcv_fpage::mem(0, L4_WHOLE_ADDRESS_SPACE, 0, dst);
+
+  l4_addr_t min_addr  = L4::trunc_page(start);
+  l4_addr_t max_addr  = L4::round_page(start + size) - 1;
+
+  while (min_addr < max_addr)
+    {
+      L4::Ipc::Snd_fpage fp;
+      page_in_fn helper = nullptr;
+      if (l4_ret_t err = page_in_t::call(c(), min_addr, max_addr, rights, rwin,
+                                         fp, &helper);
+          err < 0)
+        return err;
+
+      // ITAS, which is in the same task, will let us jump to the hander. That
+      // way, the thread itself will do the work. The helper is supposed to
+      // handle the full range...
+      if (helper)
+        {
+          // The ITAS only pages the current task. Trying to page for a foreign
+          // task is not supported.
+          if (dst)
+            return -L4_EINVAL;
+
+          return helper(min_addr, max_addr, rights);
+        }
+
+      min_addr += l4_addr_t{1} << fp.rcv_order();
+    }
+
+  return 0;
 }
 
 }

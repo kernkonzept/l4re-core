@@ -113,6 +113,28 @@ Region_handler::map(l4_addr_t local_addr, Region const &r, bool writable,
     }
 }
 
+l4_ret_t
+Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
+                        l4_addr_t end, L4Re::Rm::Region_flags rights,
+                        l4_umword_t *) const noexcept
+{
+  if (_flags & (L4Re::Rm::F::Kernel | L4Re::Rm::F::Reserved))
+    return -L4_ENODEV;
+
+  if (_flags & Rm::F::Pager)
+    return L4Re::Env::env()->rm()->page_in(start, end - start + 1, rights);
+
+  if (!_mem)
+    return -L4_ENOENT;
+
+  L4Re::Rm::Region_flags rm_flags = (flags() & ~L4Re::Rm::F::Rights_mask)
+                                  | rights;
+  L4Re::Dataspace::Flags ds_flags = map_flags(rm_flags);
+
+  l4_addr_t offset = start - r.start() + _offs;
+  return _mem->map_region(offset, ds_flags, start, end + 1);
+}
+
 void
 Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
 {
@@ -233,6 +255,39 @@ Region_map::debug_dump(unsigned long /*function*/) const
 }
 
 l4_ret_t
+Region_map::page_in(l4_addr_t min_addr, l4_addr_t max_addr,
+                    L4Re::Rm::Region_flags rights)
+{
+  // Start and end address are inclusive. They must be page aligned.
+  if (   l4_trunc_page(min_addr)     != min_addr
+      || l4_trunc_page(max_addr + 1) != max_addr + 1)
+    return -L4_EINVAL;
+
+  l4_addr_t addr = min_addr;
+  while (addr < max_addr)
+    {
+      auto r = find(Region(addr));
+      if (!r)
+        return -L4_ENOMEM;
+
+      // Cannot request more rights than with what the region was attached in
+      // the first place.
+      if ((r->second.flags() & rights) != rights)
+        return -L4_EACCESS;
+
+      l4_addr_t start = min_addr;
+      l4_addr_t end = cxx::min(max_addr, r->first.end());
+      l4_ret_t err = r->second.page_in(r->first, start, end, rights, nullptr);
+      if (err < 0)
+        return err;
+
+      addr = r->first.end() + 1;
+    }
+
+  return L4_EOK;
+}
+
+l4_ret_t
 Region_map_svr::op_exception(L4::Exception::Rights, l4_exc_regs_t &u,
                              L4::Ipc::Opt<L4::Ipc::Snd_fpage> &)
 {
@@ -295,4 +350,20 @@ L4UTIL_THREAD_CXX_FUNC_INTERRUPT_IMPL(Region_map_svr, thread_pf_handler,
     this_thread->pf_trampoline_reflect();
 
   __builtin_unreachable();
+}
+
+l4_ret_t
+Region_map_svr::page_in(l4_addr_t min_addr, l4_addr_t max_addr,
+                        L4Re::Rm::Region_flags rights)
+{
+  Rw_lock_read_scope scope(_lock);
+  return _region_map.page_in(min_addr, max_addr, rights);
+}
+
+FFI_DEFINE_CLASS_FN(l4_ret_t, Region_map_svr, thread_page_in_handler,
+                    l4_addr_t min_addr, l4_addr_t max_addr,
+                    L4Re::Rm::Region_flags rights)
+{
+  auto self = Global::local_rm.get();
+  return self->page_in(min_addr, max_addr, rights);
 }

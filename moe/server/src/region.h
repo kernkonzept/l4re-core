@@ -79,6 +79,10 @@ public:
   l4_ret_t map(l4_addr_t addr, L4Re::Util::Region const &r, bool writable,
                Map_result *result) const noexcept;
 
+  l4_ret_t page_in(L4Re::Util::Region const &r, l4_addr_t start, l4_addr_t end,
+                   L4Re::Rm::Region_flags flags,
+                   Map_result *result) const noexcept;
+
   l4_ret_t map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexcept;
 
   bool attached(l4_addr_t, l4_addr_t) const noexcept

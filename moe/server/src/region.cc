@@ -66,6 +66,33 @@ l4_ret_t Region_handler::map(l4_addr_t adr,
   return L4_EOK;
 }
 
+l4_ret_t Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
+                                 l4_addr_t end, L4Re::Rm::Region_flags rights,
+                                 Map_result *result) const noexcept
+{
+  if (!_mem)
+    return -L4_EADDRNOTAVAIL;
+
+  using L4::Ipc::Snd_fpage;
+  l4_addr_t offs = l4_trunc_page(start - r.start());
+
+  static Snd_fpage::Cacheopt const cache_map[] =
+    { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
+      Snd_fpage::None };
+
+  L4Re::Rm::Region_flags rm_flags = (flags() & ~L4Re::Rm::F::Rights_mask)
+                                  | rights;
+  auto ds_fpage = _mem->address(offs + offset(), map_flags(rm_flags),
+                                start, start, end);
+  if (ds_fpage.is_nil())
+    return -L4_EADDRNOTAVAIL;
+
+  *result = Snd_fpage(ds_fpage.fp(), offs + r.start(), Snd_fpage::Map,
+                      cache_map[caching() >> L4Re::Rm::Caching_shift]);
+
+  return L4_EOK;
+}
+
 void
 Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
 {

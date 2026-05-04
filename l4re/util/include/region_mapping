@@ -483,6 +483,31 @@ public:
       return -L4_ENOENT;
     return L4_EOK;
   }
+
+  l4_ret_t page_in(l4_addr_t min_addr, l4_addr_t max_addr,
+                   L4Re::Rm::Region_flags rights,
+                   typename Hdlr::Map_result *map_res)
+  {
+    // We'll try to map one flexpage...
+    if (auto r = find(Region(min_addr)))
+      {
+        if (r->second.flags() & (L4Re::Rm::F::Kernel | L4Re::Rm::F::Reserved))
+          return -L4_ENODEV;
+
+        l4_addr_t start = min_addr;
+        l4_addr_t end = cxx::min(max_addr, r->first.end());
+        L4Re::Rm::Region_flags r_flags = r->second.flags();
+
+        // Cannot request more rights than with what the region was attached in
+        // the first place.
+        if ((r_flags & rights) != rights)
+          return -L4_EACCESS;
+
+        return r->second.page_in(r->first, start, end, rights, map_res);
+      }
+    else
+      return -L4_ENOENT;
+  }
 };
 
 template<typename Hdlr, template<typename T> class Alloc>

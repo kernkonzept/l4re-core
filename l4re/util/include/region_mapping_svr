@@ -263,10 +263,37 @@ public:
     return rm()->remove_rescue_jump(pc);
   }
 
+  /**
+   * Implementation of L4Re::Rm::page_in RPC call.
+   */
+  l4_ret_t op_page_in(L4Re::Rm::Rights, l4_addr_t min_addr, l4_addr_t max_addr,
+                      L4Re::Rm::Region_flags rights, L4::Ipc::Snd_fpage &fp,
+                      L4Re::Rm::page_in_fn &helper)
+  {
+    // Start and end address are inclusive. They must be page aligned.
+    if (   l4_trunc_page(min_addr)     != min_addr
+        || l4_trunc_page(max_addr + 1) != max_addr + 1)
+      return -L4_EINVAL;
+
+    // The default implementation assumes it is executed in a dedicated thread.
+    helper = nullptr;
+
+    typename DERIVED::Region_handler::Map_result map_res;
+    l4_ret_t res = rm()->page_in(min_addr, max_addr, rights, &map_res);
+    if (res >= 0)
+      pager_set_result(&fp, map_res);
+
+    return res;
+  }
+
 private:
   static void pager_set_result(L4::Ipc::Opt<L4::Ipc::Snd_fpage> *fp,
                                L4::Ipc::Snd_fpage const &f)
   { *fp = f;  }
+
+  static void pager_set_result(L4::Ipc::Snd_fpage *fp,
+                               L4::Ipc::Snd_fpage const &f)
+  { *fp = f; }
 
   static void pager_set_result(L4::Ipc::Opt<L4::Ipc::Snd_fpage> *, ...)
   {}
