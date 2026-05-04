@@ -43,6 +43,9 @@ public:
           return r;
       }
 
+    if (size == 0)
+      return -L4_EINVAL;
+
     size  = l4_round_page(size);
     l4_addr_t start = l4_trunc_page(_start);
 
@@ -88,6 +91,9 @@ public:
     if (!DERIVED::Have_find)
       return -L4_EPERM;
 
+    if (size == 0)
+      return -L4_EINVAL;
+
     Rm::Flags flag_area { 0 };
 
     typename DERIVED::Node r = rm()->find(Region(addr, addr + size -1));
@@ -116,22 +122,20 @@ public:
                      l4_addr_t &start, l4_addr_t &rsize,
                      l4_cap_idx_t &mem_cap)
   {
+    start = rsize = 0;
+    mem_cap = L4_INVALID_CAP;
+
+    if (size == 0)
+      return -L4_EINVAL;
+
     Region r;
     typename DERIVED::Region_handler h;
     int err = rm()->detach(reinterpret_cast<void*>(addr), size, flags, &r, &h);
     if (err < 0)
-      {
-        start = rsize = 0;
-        mem_cap = L4_INVALID_CAP;
-        return err;
-      }
+      return err;
 
     if (r.invalid())
-      {
-        start = rsize = 0;
-        mem_cap = L4_INVALID_CAP;
-        return -L4_ENOENT;
-      }
+      return -L4_ENOENT;
 
     start = r.start();
     rsize = r.size();
@@ -145,6 +149,9 @@ public:
   l4_ret_t op_reserve_area(L4Re::Rm::Rights, l4_addr_t &start, unsigned long size,
                            L4Re::Rm::Flags flags, unsigned char align)
   {
+    if (size == 0)
+      return -L4_EINVAL;
+
     start = rm()->attach_area(start, size, flags, align);
     if (start == L4_INVALID_ADDR)
       return -L4_EADDRNOTAVAIL;
