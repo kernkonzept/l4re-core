@@ -22,30 +22,6 @@
  * \ingroup  l4_utcb_api
  */
 
-/// Number of message registers used for exception IPC
-#define L4_UTCB_EXCEPTION_REGS_SIZE    19
-
-/// Total number of message register (MRs) available
-#define L4_UTCB_GENERIC_DATA_SIZE      63
-
-/// Total number of buffer registers (BRs) available
-#define L4_UTCB_GENERIC_BUFFERS_SIZE   58
-
-/// Offset of MR[0] relative to the UTCB pointer
-#define L4_UTCB_MSG_REGS_OFFSET        0
-
-/// Offset of BR[0] relative to the UTCB pointer
-#define L4_UTCB_BUF_REGS_OFFSET        (64 * sizeof(l4_umword_t))
-
-/// Offset of TCR[0] relative to the UTCB pointer
-#define L4_UTCB_THREAD_REGS_OFFSET     (123 * sizeof(l4_umword_t))
-
-/// BDR flag to accept reception of FPU state
-#define L4_UTCB_INHERIT_FPU            (1UL << 24)
-
-/// Offset of two consecutive UTCBs
-#define L4_UTCB_OFFSET                 512
-
 /**
  * \brief UTCB structure for exceptions.
  * \ingroup l4_utcb_api_x86
@@ -75,6 +51,30 @@ struct l4_exc_regs_t
   l4_umword_t sp;     /**< stack pointer */
   l4_umword_t ss;     /**< ss register */
 };
+
+/// Number of message registers used for exception IPC
+#define L4_UTCB_EXCEPTION_REGS_SIZE    (sizeof(l4_exc_regs_t) / sizeof(l4_umword_t))
+
+/// Total number of message register (MRs) available
+#define L4_UTCB_GENERIC_DATA_SIZE      63
+
+/// Total number of buffer registers (BRs) available
+#define L4_UTCB_GENERIC_BUFFERS_SIZE   58
+
+/// Offset of MR[0] relative to the UTCB pointer
+#define L4_UTCB_MSG_REGS_OFFSET        0
+
+/// Offset of BR[0] relative to the UTCB pointer
+#define L4_UTCB_BUF_REGS_OFFSET        (64 * sizeof(l4_umword_t))
+
+/// Offset of TCR[0] relative to the UTCB pointer
+#define L4_UTCB_THREAD_REGS_OFFSET     (123 * sizeof(l4_umword_t))
+
+/// BDR flag to accept reception of FPU state
+#define L4_UTCB_INHERIT_FPU            (1UL << 24)
+
+/// Offset of two consecutive UTCBs
+#define L4_UTCB_OFFSET                 512
 
 /*
  * ==================================================================
