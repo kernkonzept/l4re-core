@@ -1,5 +1,6 @@
 /* FPU control word bits.  SPARC version.
-   Copyright (C) 1997-2025 Free Software Foundation, Inc.
+   Copyright (C) 1997, 1998, 1999 Free Software Foundation, Inc.
+   Contributed by Miguel de Icaza
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -13,14 +14,13 @@
 
    You should have received a copy of the GNU Lesser General Public
    License along with the GNU C Library; if not, see
-   <https://www.gnu.org/licenses/>.  */
+   <http://www.gnu.org/licenses/>.  */
 
 #ifndef _FPU_CONTROL_H
 #define _FPU_CONTROL_H	1
 
 
 #include <features.h>
-#include <bits/wordsize.h>
 
 /* masking of interrupts */
 #define _FPU_MASK_IM  0x08000000
@@ -41,7 +41,7 @@
 #define _FPU_RC_ZERO    0x40000000
 #define _FPU_RC_NEAREST 0x0        /* RECOMMENDED */
 
-#define _FPU_RESERVED   0x303e0000  /* Reserved bits in cw */
+#define _FPU_RESERVED   0x30300000  /* Reserved bits in cw */
 
 
 /* Now two recommended cw */
@@ -56,20 +56,12 @@
 /* Type of the control word.  */
 typedef unsigned long int fpu_control_t;
 
-#if __WORDSIZE == 64
-# define _FPU_GETCW(cw) __asm__ __volatile__ ("stx %%fsr,%0" : "=m" (*&cw))
-# define _FPU_SETCW(cw) __asm__ __volatile__ ("ldx %0,%%fsr" : : "m" (*&cw))
-#else
-# ifdef __leon__
-   /* Prevent stfsr from being placed directly after other fp instruction.  */
-#  define _FPU_GETCW(cw) __asm__ __volatile__ ("nop; st %%fsr,%0" : "=m" (*&cw))
-# else
-#  define _FPU_GETCW(cw) __asm__ __volatile__ ("st %%fsr,%0" : "=m" (*&cw))
-# endif
-# define _FPU_SETCW(cw) __asm__ __volatile__ ("ld %0,%%fsr" : : "m" (*&cw))
-#endif
+#define _FPU_GETCW(cw) __asm__ ("st %%fsr,%0" : "=m" (*&cw))
+#define _FPU_SETCW(cw) __asm__ ("ld %0,%%fsr" : : "m" (*&cw))
 
+#if 0
 /* Default control word set at startup.  */
 extern fpu_control_t __fpu_control;
+#endif
 
 #endif	/* fpu_control.h */

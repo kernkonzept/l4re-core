@@ -1,5 +1,6 @@
 /* Floating point environment, RISC-V version.
-   Copyright (C) 1998-2018 Free Software Foundation, Inc.
+   Copyright (C) 1998-2017 Free Software Foundation, Inc.
+   This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
    modify it under the terms of the GNU Lesser General Public
@@ -35,7 +36,7 @@ enum
       FE_DIVBYZERO,
     FE_INVALID   =
 #define FE_INVALID	(0x10)
-      FE_INVALID
+      FE_INVALID,
   };
 
 #define FE_ALL_EXCEPT \
@@ -54,7 +55,7 @@ enum
       FE_DOWNWARD,
     FE_UPWARD     =
 #define FE_UPWARD	(0x3)
-      FE_UPWARD
+      FE_UPWARD,
   };
 
 
@@ -63,9 +64,3 @@ typedef unsigned int fenv_t;
 
 /* If the default argument is used we use this value.  */
 #define FE_DFL_ENV	((__const fenv_t *) -1)
-
-/* Type representing floating-point control modes.  */
-typedef unsigned int femode_t;
-
-/* Default floating-point control modes.  */
-# define FE_DFL_MODE	((const femode_t *) -1L)

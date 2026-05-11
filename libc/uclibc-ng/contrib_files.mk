@@ -883,24 +883,24 @@ define SRC_libm
   w_tgammal
 endef
 
-define SRC_libm-fenv
-  $(LIBC_ARCH)/fclrexcpt
-  $(LIBC_ARCH)/fedisblxcpt
-  $(LIBC_ARCH)/feenablxcpt
-  $(LIBC_ARCH)/fegetenv
-  $(LIBC_ARCH)/fegetexcept
-  $(LIBC_ARCH)/fegetmode
-  $(LIBC_ARCH)/fegetround
-  $(LIBC_ARCH)/feholdexcpt
-  $(LIBC_ARCH)/fesetenv
-  $(LIBC_ARCH)/fesetexcept
-  $(LIBC_ARCH)/fesetmode
-  $(LIBC_ARCH)/fesetround
-  $(LIBC_ARCH)/feupdateenv
-  $(LIBC_ARCH)/fgetexcptflg
-  $(LIBC_ARCH)/fraiseexcpt
-  $(LIBC_ARCH)/fsetexcptflg
-  $(LIBC_ARCH)/ftestexcept
+define SRC_libm-amd64
+  x86_64/fclrexcpt
+  x86_64/fedisblxcpt
+  x86_64/feenablxcpt
+  x86_64/fegetenv
+  x86_64/fegetexcept
+  x86_64/fegetmode
+  x86_64/fegetround
+  x86_64/feholdexcpt
+  x86_64/fesetenv
+  x86_64/fesetexcept
+  x86_64/fesetmode
+  x86_64/fesetround
+  x86_64/feupdateenv
+  x86_64/fgetexcptflg
+  x86_64/fraiseexcpt
+  x86_64/fsetexcptflg
+  x86_64/ftestexcept
 endef
 
 define SRC_libm-x86
@@ -920,25 +920,6 @@ define SRC_libm-x86
   i386/ftestexcept
 endef
 
-define SRC_libm-riscv
-  riscv/fclrexcpt
-  riscv/fegetenv
-  riscv/fegetmode
-  riscv/fegetround
-  riscv/feholdexcpt
-  riscv/fesetenv
-  riscv/fesetexcept
-  riscv/fesetmode
-  riscv/fesetround
-  riscv/feupdateenv
-  riscv/fgetexcptflg
-  riscv/fraiseexcpt
-  riscv/fsetexcptflg
-  riscv/ftestexcept
-endef
-
-_has_full_fenv = $(filter arm64 arm amd64 mips sparc,$(BUILD_ARCH))
-SRC_libm += $(if $(_has_full_fenv),$(SRC_libm-fenv))
 SRC_libm += $(SRC_libm-$(BUILD_ARCH))
 
 SRC_libm_float_src = float_wrappers.c
