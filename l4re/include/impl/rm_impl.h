@@ -55,9 +55,9 @@ Rm::attach(l4_addr_t *start, unsigned long size, Rm::Flags flags,
 #else
   if (!(flags & F::No_eager_map) && mem.is_valid())
 #endif
-    e = page_in(*start, size, flags.region_flags() & F::RWX, task);
+    page_in(*start, size, flags.region_flags() & F::RWX, task);
 
-  return e;
+  return 0;
 }
 
 l4_ret_t
