@@ -103,3 +103,27 @@ void Rw_lock::unlock_write() noexcept
          --i)
       _rd_sem->up();
 }
+
+
+Mutex::Mutex()
+: _waitqueue(L4Re::chkcap(L4Re::make_unique_cap<L4::Semaphore>(Global::cap_alloc),
+                          "Mutex alloc failed"))
+{
+  L4Re::chksys(L4Re::Env::env()->factory()->create(_waitqueue.get()),
+               "Rw_lock: create _rd_sem");
+  l4_debugger_set_object_name(_waitqueue.cap(), "Mutex");
+}
+
+void Mutex::lock() noexcept
+{
+  unsigned status = __atomic_fetch_add(&_status, 1, __ATOMIC_ACQUIRE);
+  if (status != 0)
+    _waitqueue->down();
+}
+
+void Mutex::unlock() noexcept
+{
+  unsigned status = __atomic_sub_fetch(&_status, 1, __ATOMIC_RELEASE);
+  if (status != 0)
+    _waitqueue->up();
+}

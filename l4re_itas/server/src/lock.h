@@ -71,3 +71,39 @@ public:
   Rw_lock_write_scope &operator=(const Rw_lock_write_scope &) = delete;
   Rw_lock_write_scope &operator=(Rw_lock_write_scope &&) = delete;
 };
+
+
+/**
+ * A simple mutex.
+ *
+ * \note A mutex instance can serve up to 2^32-1 threads.
+ */
+class Mutex
+{
+public:
+  Mutex();
+
+  Mutex(Mutex const &) = delete;
+  Mutex &operator=(Mutex const &) = delete;
+
+  void lock() noexcept;
+  void unlock() noexcept;
+
+private:
+  L4Re::Unique_cap<L4::Semaphore> _waitqueue;
+  unsigned _status = 0;
+};
+
+class Mutex_guard
+{
+  Mutex &_mutex;
+
+public:
+  Mutex_guard(Mutex &mutex) : _mutex(mutex) { mutex.lock(); }
+  ~Mutex_guard() { _mutex.unlock(); }
+
+  Mutex_guard(const Mutex_guard &) = delete;
+  Mutex_guard(Mutex_guard &&) = delete;
+  Mutex_guard &operator=(const Mutex_guard &) = delete;
+  Mutex_guard &operator=(Mutex_guard &&) = delete;
+};
