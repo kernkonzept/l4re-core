@@ -100,7 +100,7 @@ SECTIONS
   .gcc_except_table   : ONLY_IF_RW { *(.gcc_except_table .gcc_except_table.*) }
   .exception_ranges   : ONLY_IF_RW { *(.exception_ranges .exception_ranges*) }
   /* Thread Local Storage sections  */
-  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) } :phdr_tls
+  .tdata	  : { *(.tdata .tdata.* .gnu.linkonce.td.*) } :phdr_writable :phdr_tls
   .tbss		  : { *(.tbss .tbss.* .gnu.linkonce.tb.*) *(.tcommon) } :phdr_tls
   .preinit_array     :
   {
