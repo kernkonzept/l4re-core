@@ -153,6 +153,12 @@ public:
     return n;
   }
 
+  bool add_area(Region const &region, L4Re::Rm::F::Region_flags region_flags)
+  {
+    using DS = typename Hdlr::Dataspace;
+    return _am.insert(region, Hdlr(DS(), 0, 0, region_flags)).second == 0;
+  }
+
   l4_addr_t attach_area(l4_addr_t addr, unsigned long size,
                         L4Re::Rm::Flags flags = L4Re::Rm::Flags(0),
                         unsigned char align = L4_PAGESHIFT) noexcept
@@ -192,7 +198,7 @@ public:
         addr = r->first.end() + 1;
       }
 
-    if (_am.insert(c, Hdlr(typename Hdlr::Dataspace(), 0, 0, flags.region_flags())).second == 0)
+    if (add_area(c, flags.region_flags()))
       return addr;
 
     return L4_INVALID_ADDR;
@@ -203,6 +209,16 @@ public:
     if (_am.remove(addr))
       return false;
 
+    return true;
+  }
+
+  bool add_region(Region const &region, Hdlr const &hdlr)
+  {
+    auto [it, res] = _rm.insert(region, hdlr);
+    if (res != 0)
+      return false;
+
+    it->second.attached(region.start(), region.end());
     return true;
   }
 
@@ -265,14 +281,9 @@ public:
     if (beg < min_addr() || beg + size - 1 > end)
       return L4_INVALID_PTR;
 
-    auto [it, res] = _rm.insert(Region(beg, beg + size - 1, name, name_len,
-                                       backing_offset),
-                                hdlr);
-    if (res == 0)
-      {
-        it->second.attached(beg, beg + size - 1);
-        return reinterpret_cast<void*>(beg);
-      }
+    if (add_region(Region(beg, beg + size - 1, name, name_len, backing_offset),
+                   hdlr))
+      return reinterpret_cast<void*>(beg);
 
     return L4_INVALID_PTR;
   }
