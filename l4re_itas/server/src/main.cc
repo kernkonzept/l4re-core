@@ -113,15 +113,13 @@ static void insert_regions()
             --name.length;
 #endif
 
-          Rm::F::Flags flags = r->flags;
+          Rm::F::Region_flags flags = r->flags;
           if (!(flags & (Rm::F::Reserved | Rm::F::Kernel)))
             flags |= Rm::F::Pager;
 
-          void *x = Global::local_rm
-            ->attach(reinterpret_cast<void*>(r->start), r->end - r->start + 1,
-                     pager, flags, L4_PAGESHIFT, name.data, name.length,
-                     backing_offset);
-          if (x == L4_INVALID_PTR)
+          if (!Global::local_rm->add_region(r->start, r->end, pager, flags,
+                                            name.data, name.length,
+                                            backing_offset))
             {
               L4::cerr << "l4re: error while initializing RM regions\n";
               exit(1);
@@ -143,9 +141,8 @@ static void insert_regions()
       for (int i = 0; i < n; ++i)
         {
           Rm::Area const *r = &regions_areas.a[i];
-          l4_addr_t x
-            = Global::local_rm->attach_area(r->start, r->end - r->start + 1);
-          if (x == L4_INVALID_ADDR)
+          if (!Global::local_rm->add_area(r->start, r->end,
+                                          L4Re::Rm::F::Region_flags()))
             {
               L4::cerr << "l4re: error while initializing RM areas\n";
               exit(1);

@@ -130,6 +130,19 @@ public:
 
   void init() { _region_map.init(); }
 
+  bool add_area(l4_addr_t start, l4_addr_t end,
+                L4Re::Rm::F::Region_flags region_flags)
+  { return _region_map.add_area(L4Re::Util::Region(start, end), region_flags); }
+
+  bool add_region(l4_addr_t start, l4_addr_t end, L4::Cap<L4Re::Dataspace> mem,
+                  L4Re::Rm::F::Region_flags region_flags, char const *name,
+                  unsigned name_len, L4Re::Rm::Offset backing_offset)
+  {
+    L4Re::Util::Region region(start, end, name, name_len, backing_offset);
+    Region_handler handler(mem, mem.cap(), 0, region_flags);
+    return _region_map.add_region(region, handler);
+  }
+
   l4_addr_t attach_area(l4_addr_t addr, unsigned long size,
                    L4Re::Rm::Flags flags = L4Re::Rm::Flags(0)) noexcept
   {
