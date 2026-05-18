@@ -141,8 +141,7 @@ static void insert_regions()
       for (int i = 0; i < n; ++i)
         {
           Rm::Area const *r = &regions_areas.a[i];
-          if (!Global::local_rm->add_area(r->start, r->end,
-                                          L4Re::Rm::F::Region_flags()))
+          if (!Global::local_rm->add_area(r->start, r->end, r->flags))
             {
               L4::cerr << "l4re: error while initializing RM areas\n";
               exit(1);
