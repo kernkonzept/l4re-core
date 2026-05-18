@@ -255,6 +255,11 @@ Thread_signal_handler::op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
             else if (!_pending.queue_signal(si, arch, regs.pfa))
               ret = call_default_action(si, &regs); // Cannot happen but be defensive.
 
+            // If Trigger_exception_after_resume was folded into a reflected
+            // exception IPC.
+            if (_thread_stopped)
+              return -L4_ENOREPLY;
+
             if (ret < 0)
               return ret;
 
@@ -281,6 +286,13 @@ Thread_signal_handler::op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
 
           if (_thread_stopped)
             return -L4_ENOREPLY;
+
+          if (tramp() && (tramp()->flags & Page_fault_in_progress))
+            {
+              // PF trampoline handler in progress -- defer signal delivering.
+              tramp()->flags |= Trigger_exception_after_resume;
+              return L4_EOK;
+            }
 
           break;
         }
