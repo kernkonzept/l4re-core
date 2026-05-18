@@ -36,22 +36,22 @@
 
 #endif
 
-#define L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(helper_name) \
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(from_asm_name) \
   "  .set push          \n" \
   "  .set noreorder     \n" \
   L4UTIL_THREAD_START_SETUP_GP \
-  L4UTIL_THREAD_START_LOAD_FUNC_ADDR(L4_stringify(helper_name)) \
+  L4UTIL_THREAD_START_LOAD_FUNC_ADDR(L4_stringify(from_asm_name)) \
   "  jal $t9            \n" \
   "   nop               \n" \
   "  .set pop"
 
 /* Similar to signal handler: Align stack pointer and (for MIPS-32), skip
  * reserved stack area. */
-#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(helper_name) \
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(from_asm_name) \
   "  .set push          \n" \
   "  .set noreorder     \n" \
   L4UTIL_THREAD_START_SETUP_GP \
-  L4UTIL_THREAD_START_LOAD_FUNC_ADDR(L4_stringify(helper_name)) \
+  L4UTIL_THREAD_START_LOAD_FUNC_ADDR(L4_stringify(from_asm_name)) \
   "  li $s0, ~0xf       \n" \
   L4UTIL_THREAD_MIPS_STACK_RESERVE \
   "  and $sp, $sp, $s0  \n" \
@@ -64,14 +64,14 @@ L4_BEGIN_DECLS \
 locality L4_NORETURN void name(void) \
 { \
   asm ( \
-  L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(name ## _helper) \
+  L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(name ## _from_asm) \
   ); \
   __builtin_trap(); \
 } \
 static L4_NORETURN void __attribute__((used)) \
-        name ## _helper(void); \
+        name ## _from_asm(void); \
 L4_END_DECLS \
-static L4_NORETURN void name ## _helper(void)
+static L4_NORETURN void name ## _from_asm(void)
 
 #define L4UTIL_THREAD_STATIC_FUNC(name) \
         L4UTIL_THREAD_FUNC_MIPS_TEMPLATE(name, static)

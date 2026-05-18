@@ -85,37 +85,37 @@ L4_END_DECLS
 #endif
 
 /**
- * Implement stub and helper function.
+ * Implement stub and handler.
  *
  * For 'foo(int a, int b)' this macro expands into:
  *
  * \code
- * asm (".global foo_stub  \n"
- *      "foo_stub:         \n"
+ * asm (".global foo_stub    \n"
+ *      "foo_stub:           \n"
  *      ... align stack pointer ...
- *      "<call> foo_helper \n");
+ *      "<call> foo_from_asm \n");
  *
  * [[noreturn]] static void
- * foo_helper(int a, int b) asm ("foo_helper");
+ * foo_from_asm(int a, int b) asm ("foo_from_asm");
  *
  * [[noreturn]] static void __attribute__((used))
- * foo_helper(int a, int b)
+ * foo_from_asm(int a, int b)
  * \endcode
  */
-#define _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, helper_name, ...)       \
+#define _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, from_asm_name, ...)     \
   asm (".global " L4_stringify(fn_name ## _stub)                  "\n"         \
        L4_stringify(fn_name ## _stub) ":                           \n"         \
-  L4UTIL_THREAD_CXX_FUNC_IMPL ## suffix ## _STUB(helper_name)                  \
+  L4UTIL_THREAD_CXX_FUNC_IMPL ## suffix ## _STUB(from_asm_name)                \
       );                                                                       \
                                                                                \
   [[noreturn]] static void                                                     \
   L4UTIL_THREAD_CXX_FUNC ## suffix ## _HELPER_PROTO_ATTR                       \
-  helper_name(__VA_ARGS__) asm (L4_stringify(helper_name));                    \
+  from_asm_name(__VA_ARGS__) asm (L4_stringify(from_asm_name));                \
                                                                                \
-  [[noreturn]] static void __attribute__((used)) helper_name(__VA_ARGS__)
+  [[noreturn]] static void __attribute__((used)) from_asm_name(__VA_ARGS__)
 
 #define _L4UTIL_THREAD_CXX_FUNC_IMPL(suffix, class, fn_name, ...)              \
-  _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, fn_name ## _helper,           \
+  _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, fn_name ## _from_asm,         \
                                 ##__VA_ARGS__)
 
 #ifndef L4UTIL_THREAD_CXX_FUNC_PROTO

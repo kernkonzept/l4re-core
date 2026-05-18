@@ -8,8 +8,8 @@
 #pragma once
 
 /* Similar to signal handler: Align stack pointer and skip the red zone. */
-#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(helper_name) \
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(from_asm_name) \
   "sub $128, %rsp   \n" \
   "and $~0xf, %rsp  \n" \
   "cld              \n" \
-  "call " L4_stringify(helper_name) "\n"
+  "call " L4_stringify(from_asm_name) "\n"

@@ -8,7 +8,7 @@
 #pragma once
 
 // Similar to signal handler: Align stack pointer.
-#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(helper_name) \
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(from_asm_name) \
   "mov x16, sp        \n" \
   "and sp, x16, #~0xf \n" \
-  "bl " L4_stringify(helper_name) "\n"
+  "bl " L4_stringify(from_asm_name) "\n"

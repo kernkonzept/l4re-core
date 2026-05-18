@@ -6,35 +6,35 @@
  */
 #pragma once
 
-#define L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(helper_name) \
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(from_asm_name) \
   ".option push      \n" \
   ".option norelax   \n" \
   "  la   gp, __global_pointer$ \n" \
   ".option pop       \n" \
-  "jal " L4_stringify(helper_name) " \n"
+  "jal " L4_stringify(from_asm_name) " \n"
 
 /* Similar to signal handler: Align stack pointer. */
-#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(helper_name) \
+#define L4UTIL_THREAD_CXX_FUNC_IMPL_INTERRUPT_STUB(from_asm_name) \
   ".option push      \n" \
   ".option norelax   \n" \
   "  la   gp, __global_pointer$ \n" \
   ".option pop       \n" \
   "andi sp, sp, ~0xf \n" \
-  "jal " L4_stringify(helper_name) " \n"
+  "jal " L4_stringify(from_asm_name) " \n"
 
 #define L4UTIL_THREAD_FUNC_RISCV_TEMPLATE(name, locality) \
 L4_BEGIN_DECLS \
 locality L4_NORETURN void name(void) \
 { \
   asm ( \
-  L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(name ## _helper) \
+  L4UTIL_THREAD_CXX_FUNC_IMPL_STUB(name ## _from_asm) \
   ); \
   __builtin_trap(); \
 } \
 static L4_NORETURN void __attribute__((used)) \
-        name ## _helper(void); \
+        name ## _from_asm(void); \
 L4_END_DECLS \
-static L4_NORETURN void name ## _helper(void)
+static L4_NORETURN void name ## _from_asm(void)
 
 #define L4UTIL_THREAD_STATIC_FUNC(name) \
         L4UTIL_THREAD_FUNC_RISCV_TEMPLATE(name, static)
