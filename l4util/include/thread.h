@@ -84,8 +84,6 @@ L4_END_DECLS
 # define L4UTIL_THREAD_CXX_FUNC_INTERRUPT_HELPER_PROTO_ATTR
 #endif
 
-#define _L4UTIL_THREAD_STUB_NAME(name) name ## _stub
-
 /**
  * Implement stub and helper function.
  *
@@ -105,8 +103,8 @@ L4_END_DECLS
  * \endcode
  */
 #define _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, helper_name, ...)       \
-  asm (".global " L4_stringify(_L4UTIL_THREAD_STUB_NAME(fn_name)) "\n"         \
-       L4_stringify(_L4UTIL_THREAD_STUB_NAME(fn_name)) ":          \n"         \
+  asm (".global " L4_stringify(fn_name ## _stub)                  "\n"         \
+       L4_stringify(fn_name ## _stub) ":                           \n"         \
   L4UTIL_THREAD_CXX_FUNC_IMPL ## suffix ## _STUB(helper_name)                  \
       );                                                                       \
                                                                                \
@@ -134,7 +132,7 @@ L4_END_DECLS
  */
 # define L4UTIL_THREAD_CXX_FUNC_PROTO(fn_name, ...) \
    [[noreturn]] static void fn_name(__VA_ARGS__) \
-   asm (L4_stringify(_L4UTIL_THREAD_STUB_NAME(fn_name)))
+   asm (L4_stringify(fn_name ## _stub))
 
 #endif
 

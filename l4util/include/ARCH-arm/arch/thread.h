@@ -8,7 +8,7 @@
 
 #define L4UTIL_THREAD_CXX_FUNC_PROTO(fn_name, ...) \
   [[noreturn]] static void fn_name(__VA_ARGS__) \
-  asm (L4_stringify(_L4UTIL_THREAD_STUB_NAME(fn_name))) \
+  asm (L4_stringify(fn_name ## _stub)) \
   L4UTIL_THREAD_CXX_FUNC_HELPER_PROTO_ATTR
 
 /* Similar to signal handler: Align stack pointer. */
