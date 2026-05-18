@@ -41,7 +41,7 @@ public:
 
     m->key = Dma::Region(*dma_addr, *dma_addr + *size -1);
     if (!_map.insert(m.get()).second)
-      L4Re::chksys(-L4_EEXIST);
+      L4Re::chksys(-L4_EADDRNOTAVAIL);
 
     m->mapper = this;
     return m.release();
@@ -210,7 +210,7 @@ public:
     l4_size_t size = *_size + (offset - aligned_offset);
     l4_addr_t a = find_free(size);
     if (a == L4_INVALID_ADDR)
-      L4Re::chksys(-L4_ENOMEM);
+      L4Re::chksys(-L4_EADDRNOTAVAIL);
 
     cxx::unique_ptr<Dma::Mapping> node(alloc->make_obj<Dma::Mapping>());
 
@@ -222,7 +222,7 @@ public:
       {
         // This should not really happen if find_free() above found a free
         // region.
-        L4Re::chksys(-L4_EEXIST);
+        L4Re::chksys(-L4_EADDRNOTAVAIL);
       }
 
     node->mapper = this;
