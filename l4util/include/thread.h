@@ -104,6 +104,7 @@ L4_END_DECLS
  */
 #define _L4UTIL_THREAD_CXX_FUNC_IMPL_(suffix, fn_name, from_asm_name, ...)     \
   asm (".global " L4_stringify(fn_name ## _stub)                  "\n"         \
+       ".type " L4_stringify(fn_name ## _stub) " STT_FUNC          \n"         \
        L4_stringify(fn_name ## _stub) ":                           \n"         \
   L4UTIL_THREAD_CXX_FUNC_IMPL ## suffix ## _STUB(from_asm_name)                \
       );                                                                       \
