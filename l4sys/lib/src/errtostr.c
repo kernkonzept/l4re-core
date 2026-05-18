@@ -25,7 +25,7 @@ static char const *const _l4sys_errortab[L4_ERRNOMAX] = {
     [L4_EINVAL]        = "Invalid argument",
     [L4_ERANGE]        = "Argument out of range",
     [L4_ENAMETOOLONG]  = "Name too long",
-    [L4_ENOSYS]        = "Invalid request",
+    [L4_ENOSYS]        = "Function not implemented",
     [L4_EBADPROTO]     = "Invalid protocol",
     [L4_EADDRNOTAVAIL] = "Address not available"
 };
