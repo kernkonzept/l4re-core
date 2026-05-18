@@ -704,6 +704,7 @@ public:
   {
     l4_addr_t start;
     l4_addr_t end;
+    F::Region_flags flags;
   };
 
   /**

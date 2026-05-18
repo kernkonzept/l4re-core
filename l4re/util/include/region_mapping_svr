@@ -232,6 +232,7 @@ public:
         Rm::Area &x = areas.value[num];
         x.start  = r->first.start();
         x.end    = r->first.end();
+        x.flags  = r->second.flags();
 
         if (++num >= areas.max)
           break;
