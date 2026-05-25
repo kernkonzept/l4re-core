@@ -99,6 +99,9 @@ typedef struct l4re_env_cap_entry_t
 
     return cxx::String(name, len);
   }
+
+  explicit operator bool() const noexcept
+  { return flags != ~0UL; }
 #endif
 } l4re_env_cap_entry_t;
 
