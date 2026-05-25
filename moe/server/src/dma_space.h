@@ -178,7 +178,7 @@ class Dma_space :
 {
 public:
   l4_ret_t op_map(L4Re::Dma_space::Rights rights,
-                  L4::Ipc::Snd_fpage src_ds,
+                  L4::Ipc::Snd_fpage src_ds_fp,
                   L4Re::Dataspace::Offset offset,
                   L4Re::Dma_space::Dma_size &size, unsigned char align,
                   L4Re::Dma_space::Attributes attrs,
@@ -258,19 +258,19 @@ public:
   Dma_space_mgr(Moe::Name_space *ns, char const *name);
 
   l4_ret_t op_associate(L4Re::Dma_space_mgr::Rights         rights,
-                        L4::Ipc::Snd_fpage                  dma_space,
-                        L4::Ipc::Snd_fpage                  dma_task,
+                        L4::Ipc::Snd_fpage                  dma_space_fp,
+                        L4::Ipc::Snd_fpage                  dma_task_fp,
                         L4Re::Dma_space_mgr::Space_attribs  attr);
 
   l4_ret_t op_associate_phys(L4Re::Dma_space_mgr::Rights        rights,
-                             L4::Ipc::Snd_fpage                 dma_space,
+                             L4::Ipc::Snd_fpage                 dma_space_fp,
                              L4Re::Dma_space_mgr::Space_attribs attr);
 
   l4_ret_t op_disassociate(L4Re::Dma_space_mgr::Rights  rights,
-                           L4::Ipc::Snd_fpage           dma_space);
+                           L4::Ipc::Snd_fpage           dma_space_fp);
 
   l4_ret_t op_block_area(L4Re::Dma_space_mgr::Rights        rights,
-                         L4::Ipc::Snd_fpage                 dma_space_cap,
+                         L4::Ipc::Snd_fpage                 dma_space_fp,
                          L4Re::Dma_space_mgr::Dma_addr      &start,
                          L4Re::Dma_space_mgr::Dma_size      size,
                          L4Re::Dma_space_mgr::Dma_addr      max,
@@ -278,12 +278,12 @@ public:
                          unsigned char                      align);
 
   l4_ret_t op_set_limits(L4Re::Dma_space_mgr::Rights    rights,
-                         L4::Ipc::Snd_fpage             dma_space_cap,
+                         L4::Ipc::Snd_fpage             dma_space_fp,
                          L4Re::Dma_space_mgr::Dma_addr  min_addr,
                          L4Re::Dma_space_mgr::Dma_addr  max_addr);
 
 private:
-  l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space,
+  l4_ret_t check_dma_space(L4::Ipc::Snd_fpage const &dma_space_fp,
                            Moe::Dma_space **res);
 };
 

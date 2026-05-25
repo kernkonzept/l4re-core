@@ -446,15 +446,15 @@ private:
     return L4_EOK;
   }
 
-  bool is_equal(L4::Cap<L4::Task> s) const
+  bool is_equal(L4::Cap<L4::Task> task_cap) const
   {
     L4::Cap<L4::Task> myself(L4_BASE_TASK_CAP);
-    return myself->cap_equal(s, _dma_kern_space).label();
+    return myself->cap_equal(task_cap, _dma_kern_space).label();
   }
 
 public:
-  explicit Task_mapper(L4::Cap<L4::Task> s, bool identity_map)
-  : _dma_kern_space(s), _identity_map(identity_map)
+  explicit Task_mapper(L4::Cap<L4::Task> task_cap, bool identity_map)
+  : _dma_kern_space(task_cap), _identity_map(identity_map)
   { _mappers.add(this); }
 
   ~Task_mapper() noexcept
@@ -463,10 +463,10 @@ public:
       object_pool.cap_alloc()->free(_dma_kern_space);
   }
 
-  static Task_mapper *find_mapper(L4::Cap<L4::Task> task)
+  static Task_mapper *find_mapper(L4::Cap<L4::Task> task_cap)
   {
     for (auto m: _mappers)
-      if (m->is_equal(task))
+      if (m->is_equal(task_cap))
         return m;
     return 0;
   }
@@ -675,7 +675,7 @@ cxx::H_list_t<Task_mapper> Task_mapper::_mappers(true);
 
 l4_ret_t
 Dma_space::op_map(L4Re::Dma_space::Rights,
-                  L4::Ipc::Snd_fpage src_ds, L4Re::Dataspace::Offset offset,
+                  L4::Ipc::Snd_fpage src_ds_fp, L4Re::Dataspace::Offset offset,
                   L4Re::Dma_space::Dma_size &size,
                   unsigned char align,
                   L4Re::Dma_space::Attributes attrs,
@@ -701,15 +701,15 @@ Dma_space::op_map(L4Re::Dma_space::Rights,
 
   if (!(attrs & L4Re::Dma_space::Reserve))
     {
-      if (!src_ds.id_received())
+      if (!src_ds_fp.id_received())
         return -L4_EINVAL;
 
-      ds = dynamic_cast<Dataspace *>(object_pool.find(src_ds.data()));
+      ds = dynamic_cast<Dataspace *>(object_pool.find(src_ds_fp.data()));
       if (!ds)
         return -L4_EINVAL;
 
-      flags = (src_ds.data() & L4_CAP_FPAGE_W) ? L4Re::Dataspace::F::RW
-                                               : L4Re::Dataspace::F::R;
+      flags = (src_ds_fp.data() & L4_CAP_FPAGE_W) ? L4Re::Dataspace::F::RW
+                                                  : L4Re::Dataspace::F::R;
       flags &= ds->flags();
     }
   else if (offset != 0)
@@ -1126,37 +1126,37 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
 
 
 l4_ret_t
-Dma_space_mgr::check_dma_space(L4::Ipc::Snd_fpage const &dma_space,
+Dma_space_mgr::check_dma_space(L4::Ipc::Snd_fpage const &dma_space_fp,
                                Moe::Dma_space **res)
 {
-  if (!dma_space.id_received())
+  if (!dma_space_fp.id_received())
     return -L4_ENOENT;
 
-  if (!(dma_space.data() & L4_CAP_FPAGE_W))
+  if (!(dma_space_fp.data() & L4_CAP_FPAGE_W))
     return -L4_EPERM;
 
-  auto *moe_dma_space = dynamic_cast<Moe::Dma_space*>(object_pool.find(dma_space.data()));
+  auto *dma_space = dynamic_cast<Moe::Dma_space*>(object_pool.find(dma_space_fp.data()));
 
-  if (!moe_dma_space)
+  if (!dma_space)
     return -L4_ENOENT;
 
-  *res = moe_dma_space;
+  *res = dma_space;
   return L4_EOK;
 }
 
 l4_ret_t
 Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
-                            L4::Ipc::Snd_fpage dma_space_cap,
-                            L4::Ipc::Snd_fpage dma_task,
+                            L4::Ipc::Snd_fpage dma_space_fp,
+                            L4::Ipc::Snd_fpage dma_task_fp,
                             L4Re::Dma_space_mgr::Space_attribs attr)
 {
   Dma_space *dma_space;
-  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  l4_ret_t r = check_dma_space(dma_space_fp, &dma_space);
   if (r != L4_EOK)
     return r;
 
-  L4::Cap<L4::Task> rcv_cap(Rcv_cap2 << L4_CAP_SHIFT);
-  if (!dma_task.cap_received())
+  L4::Cap<L4::Task> dma_task_cap(Rcv_cap2 << L4_CAP_SHIFT);
+  if (!dma_task_fp.cap_received())
     return -L4_EINVAL;
 
   static constexpr auto Known_flags = L4Re::Dma_space_mgr::Identity_map;
@@ -1175,7 +1175,7 @@ Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
         return -L4_EINVAL;
     }
 
-  Dma::Task_mapper *mapper = Dma::Task_mapper::find_mapper(rcv_cap);
+  Dma::Task_mapper *mapper = Dma::Task_mapper::find_mapper(dma_task_cap);
   if (mapper)
     {
       if (mapper->is_identity_map() != ident_map)
@@ -1186,12 +1186,12 @@ Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
       if constexpr (Debug)
         printf("new DMA task assigned, allocate new mapper\n");
 
-      L4::Cap<L4::Task> nc = object_pool.cap_alloc()->alloc<L4::Task>();
-      if (!nc.is_valid())
+      L4::Cap<L4::Task> new_cap = object_pool.cap_alloc()->alloc<L4::Task>();
+      if (!new_cap.is_valid())
         return -L4_ENOMEM;
 
-      nc.move(rcv_cap);
-      mapper = new Dma::Task_mapper(nc, ident_map);
+      new_cap.move(dma_task_cap);
+      mapper = new Dma::Task_mapper(new_cap, ident_map);
     }
 
   return dma_space->associate(cxx::Ref_ptr<Dma::Mapper>(mapper));
@@ -1199,11 +1199,11 @@ Dma_space_mgr::op_associate(L4Re::Dma_space_mgr::Rights,
 
 l4_ret_t
 Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
-                                 L4::Ipc::Snd_fpage dma_space_cap,
+                                 L4::Ipc::Snd_fpage dma_space_fp,
                                  L4Re::Dma_space_mgr::Space_attribs attr)
 {
   Dma_space *dma_space;
-  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  l4_ret_t r = check_dma_space(dma_space_fp, &dma_space);
   if (r != L4_EOK)
     return r;
 
@@ -1220,10 +1220,10 @@ Dma_space_mgr::op_associate_phys(L4Re::Dma_space_mgr::Rights,
 
 l4_ret_t
 Dma_space_mgr::op_disassociate(L4Re::Dma_space_mgr::Rights,
-                               L4::Ipc::Snd_fpage dma_space_cap)
+                               L4::Ipc::Snd_fpage dma_space_fp)
 {
   Dma_space *dma_space;
-  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  l4_ret_t r = check_dma_space(dma_space_fp, &dma_space);
   if (r != L4_EOK)
     return r;
 
@@ -1232,7 +1232,7 @@ Dma_space_mgr::op_disassociate(L4Re::Dma_space_mgr::Rights,
 
 l4_ret_t
 Dma_space_mgr::op_block_area(L4Re::Dma_space_mgr::Rights,
-                             L4::Ipc::Snd_fpage                 dma_space_cap,
+                             L4::Ipc::Snd_fpage                 dma_space_fp,
                              L4Re::Dma_space::Dma_addr          &start,
                              L4Re::Dma_space::Dma_size          size,
                              L4Re::Dma_space::Dma_addr          max,
@@ -1240,7 +1240,7 @@ Dma_space_mgr::op_block_area(L4Re::Dma_space_mgr::Rights,
                              unsigned char                      align)
 {
   Dma_space *dma_space;
-  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  l4_ret_t r = check_dma_space(dma_space_fp, &dma_space);
   if (r != L4_EOK)
     return r;
 
@@ -1254,12 +1254,12 @@ Dma_space_mgr::op_block_area(L4Re::Dma_space_mgr::Rights,
 
 l4_ret_t
 Dma_space_mgr::op_set_limits(L4Re::Dma_space_mgr::Rights,
-                             L4::Ipc::Snd_fpage        dma_space_cap,
+                             L4::Ipc::Snd_fpage        dma_space_fp,
                              L4Re::Dma_space::Dma_addr min_addr,
                              L4Re::Dma_space::Dma_addr max_addr)
 {
   Dma_space *dma_space;
-  l4_ret_t r = check_dma_space(dma_space_cap, &dma_space);
+  l4_ret_t r = check_dma_space(dma_space_fp, &dma_space);
   if (r != L4_EOK)
     return r;
 
