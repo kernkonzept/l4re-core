@@ -1,5 +1,7 @@
 /*
- * (c) 2014 Alexander Warg <alexander.warg@kernkonzept.com>
+ * Copyright (C) 2014, 2026 Kernkonzept GmbH.
+ * Author(s): Alexander Warg <alexander.warg@kernkonzept.com>
+ *            Jan Klötzke <jan.kloetzke@kernkonzept.com>
  *
  * License: see LICENSE.spdx (in this directory or the directories above)
  */
