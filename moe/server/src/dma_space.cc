@@ -13,6 +13,7 @@
 #include <l4/cxx/minmax>
 #include <l4/cxx/unique_ptr>
 #include <l4/re/error_helper>
+#include <l4/sys/assert.h>
 #include <l4/sys/cxx/consts>
 #include <l4/sys/task>
 
@@ -802,7 +803,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
       fsplit->rsvcnt = first_in_range->rsvcnt;
 
       first_in_range->key.start = addr;
-      assert(_mappings.insert(fsplit.get()).second);
+      l4_check(_mappings.insert(fsplit.get()).second);
       fsplit.release();
     }
 
@@ -818,7 +819,7 @@ Dma_space::op_unmap(L4Re::Dma_space::Rights,
       lsplit->rsvcnt = last_in_range->rsvcnt;
 
       last_in_range->key.end = addr + size - 1;
-      assert(_mappings.insert(lsplit.get()).second);
+      l4_check(_mappings.insert(lsplit.get()).second);
       lsplit.release();
     }
 
@@ -1004,7 +1005,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         node->mapcnt = front->mapcnt;
 
         front->key.end = start - 1;
-        assert(_mappings.insert(node.get()).second);
+        l4_check(_mappings.insert(node.get()).second);
 
         node.release();
       }
@@ -1021,7 +1022,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         node->mapcnt = tail->mapcnt;
 
         tail->key.start = end + 1;
-        assert(_mappings.insert(node.get()).second);
+        l4_check(_mappings.insert(node.get()).second);
 
         node.release();
       }
@@ -1113,7 +1114,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         case Add::Reservation: node->rsvcnt = 1; break;
         case Add::Block: node->blocked = 1; break;
         }
-      assert(_mappings.insert(node.get()).second);
+      l4_check(_mappings.insert(node.get()).second);
       node.release();
 
       remaining -= new_reg.end - new_reg.start + 1;
