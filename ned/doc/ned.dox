@@ -39,8 +39,8 @@ For a verbose example using the Ned Lua bindings, see tutorial.lua.
 
 Capabilities are handled as normal values in Lua. They can be stored in normal
 variables or Lua compound structures (tables).  A capability in Lua possesses
-additional information about the access rights that shall be transfered to
-other tasks when the capability is transfered. To support implementation of the
+additional information about the access rights that shall be transferred to
+other tasks when the capability is transferred. To support implementation of the
 Principle of Least Privilege, minimal rights are assigned by default.  Extended
 rights can be added using the method \c mode("...") (short \c m("...")) that
 returns a new reference to the capability with the given rights.
@@ -173,7 +173,7 @@ Less frequently used parameters:
 The \c start() and \c startv() calls return a task object that supports a
 number of operations.
 \li \c state() returns a string with the current task state: "running" or
-    "zombie" if the task has terminated. If the task was alreay reaped (
+    "zombie" if the task has terminated. If the task was already reaped (
     \c wait() returned) or if \c kill() was called, then the function will
     return \c nil.
 \li \c exit_code() returns the exit code if the task has terminated or \c nil
@@ -218,9 +218,8 @@ task:wait()
 
 This method should be used with caution, though. The Ned script will wait until
 the child task has terminated. Neither will any of the registered \c
-exit_handler() will be called during this time, nor will the \ref
-l4re_ned_interactive "remote command interface" be able to execute commands
-either.
+exit_handler() be called during this time, nor will the \ref
+l4re_ned_interactive "remote command interface" be able to execute commands.
 
 \subsection l4re_ned_sched Control scheduling
 
@@ -308,7 +307,7 @@ table.
               if there are still tasks running. `wait` for tasks at the end of
               the script to ensure they do not die forcefully.
 
-  - **exit-and-wait**: terminates the application after the script has run
+  - **wait-and-exit**: terminates the application after the script has run
               through and all tasks started by ned have signaled their exit.
 
 - Execute Statement Option: **execute**, **e**
