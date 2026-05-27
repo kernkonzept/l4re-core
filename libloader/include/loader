@@ -126,6 +126,19 @@ public:
     *current += L4_CAP_OFFSET;
     return c;
   }
+
+  /**
+   * Hook that gets called after loading a binary.
+   *
+   * The intention of this hook is to call l4_debugger_add_image_info with the
+   * final (relocated) base address of the loaded image.
+   *
+   * \param name  The name of the loaded binary.
+   * \param base  The (relocated) base address to which the binary was loaded.
+   */
+  virtual void add_image_info([[maybe_unused]] l4_addr_t base,
+                              [[maybe_unused]] char const *name) const
+  {}
 };
 
 template< typename STACK, typename PROG_INFO >

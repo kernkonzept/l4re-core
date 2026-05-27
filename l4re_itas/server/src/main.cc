@@ -156,12 +156,6 @@ static void insert_regions()
     }
 }
 
-static char const *base_name(char const *s)
-{
-  char *b = strrchr(s, '/');
-  return b ? b + 1 : s;
-}
-
 int main(int argc, char const *argv[], char const *envp[])
 {
   Dbg::set_level(Dbg::Info | Dbg::Warn);
@@ -217,8 +211,6 @@ int main(int argc, char const *argv[], char const *envp[])
 
   file = L4Re_app_model::open_file(Global::l4re_aux->binary);
 
-  l4_debugger_add_image_info(L4_BASE_TASK_CAP, Global::l4re_aux->ldr_base,
-                             base_name(Global::l4re_aux->binary));
   loader.start(file, Global::l4re_aux);
 
   // Raise RM prio to its MCP

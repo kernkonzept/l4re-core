@@ -12,6 +12,7 @@
 #include <l4/libloader/loader>
 #include <l4/libloader/local_app_model>
 #include <l4/re/l4aux.h>
+#include <l4/sys/debugger.h>
 
 #include <string.h>
 
@@ -126,6 +127,8 @@ struct L4Re_app_model : public Ldr::Base_app_model<L4Re_stack>
   void extra_elf_auxv();
   void push_envp();
   void push_argv();
+
+  void add_image_info(l4_addr_t, char const *) const override;
 
   L4Re::Env *add_env();
   void start_prog(L4Re::Env const *env);

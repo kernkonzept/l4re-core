@@ -106,6 +106,8 @@ struct App_model : public Ldr::Base_app_model<Stack>
                      L4::Cap<L4::Task> *task,
                      L4::Cap<L4::Thread> *thread);
 
+  void add_image_info(l4_addr_t, char const *) const override;
+
   l4_msgtag_t run_thread(L4::Cap<L4::Thread> thread,
                          l4_sched_param_t const &sp)
   {

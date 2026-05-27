@@ -30,6 +30,7 @@
 #include <l4/sys/factory>
 #include <l4/sys/task>
 #include <l4/sys/thread>
+#include <l4/sys/debugger.h>
 #include <l4/re/error_helper>
 
 #include <l4/re/env>
@@ -287,3 +288,16 @@ Moe_app_model::get_task_caps(L4::Cap<L4::Factory> *factory,
   *factory = L4Re::Env::env()->factory();
 }
 
+namespace
+{
+  char const *base_name(char const *s)
+  {
+    char *b = strrchr(s, '/');
+    return b ? b + 1 : s;
+  }
+}
+
+void Moe_app_model::add_image_info(l4_addr_t base, char const *name) const
+{
+  l4_debugger_add_image_info(_task->task_cap().cap(), base, base_name(name));
+}

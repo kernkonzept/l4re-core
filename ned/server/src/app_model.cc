@@ -11,6 +11,7 @@
 #include <l4/bid_config.h>
 #include <l4/re/error_helper>
 #include <l4/re/util/env_ns>
+#include <l4/sys/debugger.h>
 
 using L4Re::chksys;
 using L4Re::chkcap;
@@ -191,3 +192,16 @@ App_model::get_task_caps(L4::Cap<L4::Factory> *factory,
   *factory = L4::Cap<L4::Factory>(prog_info()->factory.raw & L4_FPAGE_ADDR_MASK);
 }
 
+namespace
+{
+  char const *base_name(char const *s)
+  {
+    char *b = strrchr(s, '/');
+    return b ? b + 1 : s;
+  }
+}
+
+void App_model::add_image_info(l4_addr_t base, char const *name) const
+{
+  l4_debugger_add_image_info(_task->task_cap().cap(), base, base_name(name));
+}

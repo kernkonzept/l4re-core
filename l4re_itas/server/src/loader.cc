@@ -234,6 +234,20 @@ L4Re_app_model::push_argv()
   _stack.push(l4_umword_t(Global::argc));
 }
 
+namespace
+{
+  char const *base_name(char const *s)
+  {
+    char *b = strrchr(s, '/');
+    return b ? b + 1 : s;
+  }
+}
+
+void L4Re_app_model::add_image_info(l4_addr_t base, char const *name) const
+{
+  l4_debugger_add_image_info(L4_BASE_TASK_CAP, base, base_name(name));
+}
+
 bool
 L4Re_app_model::all_segs_cow()
 {

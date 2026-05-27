@@ -684,6 +684,8 @@ public:
                                                    prealloc_mem,
                                                    prealloc_start));
     elf.iterate_phdr(Phdr_l4re_elf_aux<App_model>(mm, bin));
+    // Pass potentially relocated base back to app model.
+    mm->add_image_info(_base, binname);
 
     mm->prog_info()->entry = elf.entry() + _base;
 
