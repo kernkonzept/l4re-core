@@ -56,7 +56,10 @@ public:
   }
 
   void reset()
-  { IMPL::free(*this); }
+  {
+    IMPL::free(*this);
+    IMPL::invalidate(*this);
+  }
 
   Cap<T> operator -> () const noexcept { return Cap<T>(this->cap()); }
   Cap<T> get() const noexcept { return Cap<T>(this->cap()); }
