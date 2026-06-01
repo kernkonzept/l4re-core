@@ -158,7 +158,11 @@ Region_handler::map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexc
   if (_flags & (Rm::F::Pager | Rm::F::Reserved | Rm::F::Kernel))
     return 0;
 
-  return _mem.itas_cap()->map_info(start_addr, end_addr);
+  l4_ret_t ret = _mem.itas_cap()->map_info(start_addr, end_addr);
+  if (ret > 0)
+    *start_addr += _offs;
+
+  return ret;
 }
 
 bool

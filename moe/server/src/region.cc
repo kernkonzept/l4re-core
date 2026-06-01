@@ -113,7 +113,11 @@ Region_handler::map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexc
                  | L4Re::Rm::F::Kernel))
     return 0;
 
-  return _mem->map_info(*start_addr, *end_addr);
+  l4_ret_t ret = _mem->map_info(*start_addr, *end_addr);
+  if (ret > 0)
+    *start_addr += _offs;
+
+  return ret;
 }
 
 

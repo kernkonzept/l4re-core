@@ -245,7 +245,6 @@ public:
       {
         // Mapping address determined by underlying dataspace. Make sure we
         // prevent any additional alignment. We already know the place!
-        beg += hdlr.offset();
         end = beg + size - 1U;
         align = L4_PAGESHIFT;
 
