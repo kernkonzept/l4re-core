@@ -14,7 +14,7 @@
 
 enum
 {
-  L4RE_THIS_TASK_CAP = 1UL << L4_CAP_SHIFT,
+  L4RE_THIS_TASK_CAP = L4_BASE_TASK_CAP,
 };
 
 /**
