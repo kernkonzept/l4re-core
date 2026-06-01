@@ -42,7 +42,7 @@ public:
         Rm::F::Search_addr | Rm::F::In_area | Rm::F::Eager_map
       | Rm::F::No_eager_map
       // Region_flags
-      | Rm::F::RWX | Rm::F::Kernel | Rm::F::Detach_free | Rm::F::Pager
+      | Rm::F::RWX | Rm::F::Kernel | Rm::F::Pager
       | Rm::F::Reserved | Rm::F::Private | Rm::F::Anonymous
       | Rm::F::Caching_mask;
 
@@ -144,8 +144,7 @@ public:
     start = rsize = 0;
     mem_cap = L4_INVALID_CAP;
 
-    constexpr unsigned Known_flags =   Rm::Detach_exact | Rm::Detach_overlap
-                                     | Rm::Detach_keep;
+    constexpr unsigned Known_flags =   Rm::Detach_exact | Rm::Detach_overlap;
     if (flags & ~Known_flags)
       return -L4_EINVAL;
 

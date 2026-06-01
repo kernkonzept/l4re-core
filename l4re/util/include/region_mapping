@@ -320,8 +320,7 @@ public:
         if (_rm.remove(g))
           return -L4_ENOENT;
 
-        if ((!(flags & L4Re::Rm::Detach_keep) && (h_copy.flags() & L4Re::Rm::F::Detach_free))
-            || (h_copy.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private)))
+        if (h_copy.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private))
           h_copy.free(0, g.size());
 
         int ret = Rm::Detached_ds;
@@ -342,8 +341,7 @@ public:
       {
         // Move the start of a region.
 
-        if ((!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
-            || (h.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private)))
+        if (h.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private))
           h.free(0, dr.end() + 1 - g.start());
 
         int ret = Rm::Kept_ds;
@@ -369,9 +367,7 @@ public:
       {
         // Move the end of a region.
 
-        if ((!(flags & L4Re::Rm::Detach_keep)
-             && (h.flags() & L4Re::Rm::F::Detach_free))
-            || (h.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private)))
+        if (h.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private))
           h.free(dr.start() - g.start(), g.end() + 1 - dr.start());
 
         int ret = Rm::Kept_ds;
@@ -395,8 +391,7 @@ public:
       {
         // Split a single region that contains the new region.
 
-        if ((!(flags & L4Re::Rm::Detach_keep) && (h.flags() & L4Re::Rm::F::Detach_free))
-            || (h.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private)))
+        if (h.flags() & (L4Re::Rm::F::Anonymous | L4Re::Rm::F::Private))
           h.free(dr.start() - g.start(), dr.size());
 
         int ret = Rm::Split_ds;

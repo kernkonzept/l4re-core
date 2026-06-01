@@ -146,8 +146,6 @@ public:
 
       /// Kernel-provided memory (KUMEM)
       Kernel      = 0x100,
-      /// Free the portion of the data space after detach
-      Detach_free = 0x200,
       /// Region has a pager. Page faults in this region are not handled by
       /// ITAS but rather forwarded to the external region manager / pager.
       Pager       = 0x400,
@@ -245,15 +243,6 @@ public:
      * the given region.
      */
     Detach_overlap = 2,
-
-    /**
-     * \brief Do not free the detached data space, ignore the F::Detach_free
-     * \internal
-     *
-     * This flag is useful for _detach().
-     *
-     */
-    Detach_keep = 4,
   };
 
   /**
@@ -633,7 +622,7 @@ public:
    * is split up into two separate regions.
    */
   l4_ret_t detach(l4_addr_t start, unsigned long size, L4::Cap<Dataspace> *mem,
-                  L4::Cap<L4::Task> const &task) const noexcept;
+                  L4::Cap<L4::Task> const &task = This_task) const noexcept;
 
   /**
    * Find a region given an address and size.

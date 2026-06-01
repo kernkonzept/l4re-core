@@ -322,29 +322,20 @@ Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
 void
 Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
 {
-  if (_flags & (Rm::F::Reserved | Rm::F::Kernel | Rm::F::Pager))
-    return;
-
 #ifdef CONFIG_MMU
   // Anonymous mappings are completely handled by the moe region manager.
   if (_flags & Rm::F::Anonymous)
     return;
 
-  if (_flags & Rm::F::Private)
-    // A part of a private mapping was detached. Access to the private pages
-    // has been lost. Evict them to free the memory.
-    _anon_mem->clear(_anon_offs + start, size);
-  else
-    // Detached shared mapping with Detach_free flag...
-    _mem.itas_cap()->clear(offset() + start, size);
+  // A part of a private mapping was detached. Access to the private pages
+  // has been lost. Evict them to free the memory.
+  assert(_flags & Rm::F::Private);
 #else
-  if (_flags & (Rm::F::Anonymous | Rm::F::Private))
-    // Anonymous and/or private mapping was detached...
-    _anon_mem->clear(_anon_offs + start, size);
-  else
-    // Detached shared mapping with Detach_free flag...
-    _mem.itas_cap()->clear(offset() + start, size);
+  // Anonymous and/or private mapping was detached...
+  assert(_flags & (Rm::F::Anonymous | Rm::F::Private));
 #endif
+
+  _anon_mem->clear(_anon_offs + start, size);
 }
 
 l4_ret_t
@@ -396,8 +387,6 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
     return true;
 
   auto moe_rm = L4Re::Env::env()->rm();
-  // Moe must not free the dataspace region on detach.
-  auto flags = _flags & ~Rm::F::Detach_free;
   l4_ret_t res;
 
   if (_anon_mem)
@@ -411,12 +400,12 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
       // but hide Anonymous and Private flags because moe would replicate our
       // work and fail.
       res = moe_rm->attach(&beg, end - beg + 1,
-                           flags & ~(Rm::F::Anonymous | Rm::F::Private),
+                           _flags & ~(Rm::F::Anonymous | Rm::F::Private),
                            L4::Ipc::make_cap_rw(_anon_mem.get()), _anon_offs);
 #endif
     }
   else
-    res = moe_rm->attach(&beg, end - beg + 1, flags,
+    res = moe_rm->attach(&beg, end - beg + 1, _flags,
                          L4::Ipc::make_cap_rw(_mem.itas_cap()), _offs);
 
   if (res < 0)
@@ -475,17 +464,16 @@ Region_map::debug_dump(unsigned long /*function*/) const
   for (Region_map::Const_iterator i = begin(); i != end(); ++i)
     {
       unsigned f = i->second.flags();
-      char r[10];
+      char r[9];
       r[0] = f & L4Re::Rm::F::Anonymous   ? 'A' : '-';
       r[1] = f & L4Re::Rm::F::Private     ? 'P' : '-';
       r[2] = f & L4Re::Rm::F::Reserved    ? 'R' : '-';
       r[3] = f & L4Re::Rm::F::Pager       ? '^' : '-';
-      r[4] = f & L4Re::Rm::F::Detach_free ? 'D' : '-';
-      r[5] = f & L4Re::Rm::F::Kernel      ? 'K' : '-';
-      r[6] = f & L4Re::Rm::F::R ? 'r' : '-';
-      r[7] = f & L4Re::Rm::F::W ? 'w' : '-';
-      r[8] = f & L4Re::Rm::F::X ? 'x' : '-';
-      r[9] = '\0';
+      r[4] = f & L4Re::Rm::F::Kernel      ? 'K' : '-';
+      r[5] = f & L4Re::Rm::F::R ? 'r' : '-';
+      r[6] = f & L4Re::Rm::F::W ? 'w' : '-';
+      r[7] = f & L4Re::Rm::F::X ? 'x' : '-';
+      r[8] = '\0';
       printf("  %010lx-%010lx ds=%04lx@%07llx %s/%04x %07llx: %.*s \n",
              i->first.start(), i->first.end(),
              i->second.memory().cap() >> L4_CAP_SHIFT, i->second.offset(),

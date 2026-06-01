@@ -133,12 +133,7 @@ l4_ret_t Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
 void
 Region_handler::free(l4_addr_t start, unsigned long size) const noexcept
 {
-  if (!_mem)
-    return;
-
-  if (!(_flags & (L4Re::Rm::F::Private | L4Re::Rm::F::Anonymous)) && is_ro())
-    return;
-
+  assert(_flags & (L4Re::Rm::F::Private | L4Re::Rm::F::Anonymous));
   _mem->clear(offset() + start, size);
 }
 
