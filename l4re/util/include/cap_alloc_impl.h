@@ -82,12 +82,12 @@ public:
   void take(L4::Cap<void> cap) noexcept override
   { _Cap_alloc_impl::take(cap); }
 
-  void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+  void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
             unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept override
   { _Cap_alloc_impl::free(cap, task, unmap_flags); }
 
-  bool release(L4::Cap<void> cap, l4_cap_idx_t task,
-               unsigned unmap_flags) noexcept override
+  bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
+               unsigned unmap_flags= L4_FP_ALL_SPACES) noexcept override
   { return _Cap_alloc_impl::release(cap, task, unmap_flags); }
 
   using _Cap_alloc_impl::last;

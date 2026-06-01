@@ -99,7 +99,7 @@ public:
 
   // since we have no counters assume counter always > 0
   void take(L4::Cap<void>) noexcept {}
-  bool release(L4::Cap<void>, l4_cap_idx_t /*task*/ = L4_INVALID_CAP,
+  bool release(L4::Cap<void>, l4_cap_idx_t /*task*/ = L4_BASE_TASK_CAP,
                unsigned /*unmap_flags*/ = L4_FP_ALL_SPACES) noexcept
   { return false; }
 

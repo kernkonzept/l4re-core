@@ -280,7 +280,7 @@ public:
 
     // we use bit 4 to indicate an internally allocated cap
     if (c.managed())
-      cap_alloc.free(c);
+      cap_alloc.free(c, L4_INVALID_CAP);
 
     o->set_server(0, L4::Cap<void>::Invalid);
   }

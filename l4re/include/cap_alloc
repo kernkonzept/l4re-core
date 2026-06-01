@@ -61,9 +61,9 @@ public:
    * \param task         If set, task to unmap the capability from.
    * \param unmap_flags  Flags for unmap, see l4_unmap_flags_t.
    */
-  virtual void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+  virtual void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
                        unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept = 0;
-  virtual bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+  virtual bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
                        unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept = 0;
 };
 
@@ -82,12 +82,12 @@ struct Cap_alloc_t : ALLOC, L4Re::Cap_alloc
     return L4::cap_cast<T>(alloc());
   }
 
-  void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+  void free(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
             unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept override
   { ALLOC::free(cap, task, unmap_flags); }
 
-  bool release(L4::Cap<void> cap, l4_cap_idx_t task,
-               unsigned unmap_flags) noexcept override
+  bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
+               unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept override
   { return ALLOC::release(cap, task, unmap_flags); }
 
   void operator delete(void *) {}

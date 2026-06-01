@@ -112,7 +112,7 @@ void Dispatcher::unregister_obj(L4::Epiface *o)
 
   // we use bit 4 to indicated an internally allocated cap
   if (c.managed())
-    Global::cap_alloc->free(c);
+    Global::cap_alloc->free(c, L4_INVALID_CAP);
 
   o->set_server(0, L4::Cap<void>::Invalid);
 }

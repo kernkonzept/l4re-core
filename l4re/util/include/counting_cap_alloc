@@ -318,7 +318,7 @@ public:
    *
    * \return True, if the capability was managed by this allocator.
    */
-  bool free(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+  bool free(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
             unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept
   {
     long c;
@@ -356,7 +356,7 @@ public:
    * Does nothing apart from returning false if the capability is not
    * managed by this allocator.
    */
-  bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_INVALID_CAP,
+  bool release(L4::Cap<void> cap, l4_cap_idx_t task = L4_BASE_TASK_CAP,
                unsigned unmap_flags = L4_FP_ALL_SPACES) noexcept
   {
     long c;
