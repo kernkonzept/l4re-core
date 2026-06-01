@@ -31,15 +31,36 @@
  * same thread group must belong to the same task.
  */
 
+/**
+ * Operations on the Thread_group object.
+ * \ingroup l4_thread_group_api
+ * \hideinitializer
+ * \internal
+ */
 enum L4_thread_group_ops
 {
-  L4_THREAD_GROUP_ADD_OP = 2UL,
-  L4_THREAD_GROUP_REMOVE_OP = 3UL,
+  L4_THREAD_GROUP_ADD_OP = 2UL,    /**< Add thread to thread group */
+  L4_THREAD_GROUP_REMOVE_OP = 3UL, /**< Remove thread from thread group */
 };
 
+/**
+ * Thread group policy.
+ * \ingroup l4_thread_group_api
+ *
+ * Define how to select a suitable thread from the thread group.
+ */
 enum L4_thread_group_policy
 {
+  /**
+   * Use a thread on the same CPU core.
+   * Fail if no such thread is available.
+   */
   L4_THREAD_GROUP_POLICY_STRICT_CORE_LOCAL = 0,
+
+  /**
+   * Prefer a thread on the same CPU core.
+   * Fall-back to another thread of the group if no such thread is available.
+   */
   L4_THREAD_GROUP_POLICY_SOFT_CORE_LOCAL = 1,
 };
 
