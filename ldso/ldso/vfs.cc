@@ -158,13 +158,6 @@ extern "C" void __aeabi_atexit(void)
 {}
 #endif
 
-// Another workaround for gcc-16 being unable to remove dead code under certain
-// conditions, see explanations on top of this file.
-void operator delete (void *) noexcept
-{ __builtin_trap(); }
-void operator delete (void *, size_t) noexcept
-{ __builtin_trap(); }
-
 #include <l4/l4re_vfs/impl/ns_fs_impl.h>
 #include <l4/l4re_vfs/impl/ro_file_impl.h>
 #include <l4/l4re_vfs/impl/fd_store_impl.h>

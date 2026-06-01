@@ -590,6 +590,7 @@ public:
   void add_child_node(cxx::Ref_ptr<Mount_tree> const &cld);
 
   virtual ~Mount_tree() noexcept  = 0;
+  void operator delete (void *) {}
 
   void add_ref() noexcept { ++_ref_cnt; }
   int remove_ref() noexcept { return --_ref_cnt; }
