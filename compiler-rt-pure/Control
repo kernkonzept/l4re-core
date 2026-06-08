@@ -1,5 +1,7 @@
 provides: compiler-rt-pure
-requires: libgcc-pure libgcc_eh-pure
-          libclang_rt-builtins-pure libunwind_llvm-pure
+requires: libgcc-pure[config(CONFIG_COMPILER_RT_USE_LIBGCC)]
+          libgcc_eh-pure[config(CONFIG_COMPILER_RT_USE_LIBGCC)]
+          libclang_rt-builtins-pure[config(CONFIG_COMPILER_RT_USE_LIBCLANG_RT)]
+          libunwind_llvm-pure[config(CONFIG_COMPILER_RT_USE_LIBCLANG_RT)]
 source-pkg: compiler-rt
 maintainer: georg.kotheimer@kernkonzept.com
