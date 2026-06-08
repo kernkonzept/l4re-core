@@ -133,12 +133,11 @@ typedef struct __attribute__((packed))
     {
       char __pre_pad[2];
       L4_ktrace_t__Context *dst; /* 36+4 */
-      L4_ktrace_t__Context *dst_orig; /* 40+4 */
-      L4_ktrace_t__Address kernel_ip; /* 44+4 */
-      L4_ktrace_t__Mword lock_cnt; /* 48+4 */
-      L4_ktrace_t__Space *from_space; /* 52+4 */
-      L4_ktrace_t__Sched_context *from_sched; /* 56+4 */
-      L4_ktrace_t__Mword from_prio; /* 60+4 */
+      L4_ktrace_t__Address kernel_ip; /* 40+4 */
+      L4_ktrace_t__Mword lock_cnt; /* 44+4 */
+      L4_ktrace_t__Space *from_space; /* 48+4 */
+      L4_ktrace_t__Sched_context *from_sched; /* 52+4 */
+      L4_ktrace_t__Mword from_prio; /* 56+4 */
     } context_switch; /* 64 */
     struct __attribute__((__packed__))
     {
