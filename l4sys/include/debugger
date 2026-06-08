@@ -143,10 +143,11 @@ public:
    * \param      size  Length of the `name` buffer.
    * \utcb{utcb}
    *
-   * \return Syscall return tag
+   * \retval 0   Success
+   * \retval <0  Error
    */
-  l4_msgtag_t query_object_name(unsigned id, char *name, unsigned size,
-                       l4_utcb_t *utcb = l4_utcb()) noexcept
+  l4_ret_t query_object_name(unsigned id, char *name, unsigned size,
+                             l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_debugger_query_object_name_u(cap(), id, name, size, utcb); }
 
   /**
@@ -157,10 +158,11 @@ public:
    * \param      size  Length of the `name` buffer.
    * \utcb{utcb}
    *
-   * \return Syscall return tag
+   * \retval 0   Success
+   * \retval <0  Error
    */
-  l4_msgtag_t get_object_name(char *name, unsigned size,
-                              l4_utcb_t *utcb = l4_utcb()) noexcept
+  l4_ret_t get_object_name(char *name, unsigned size,
+                           l4_utcb_t *utcb = l4_utcb()) noexcept
   { return l4_debugger_get_object_name_u(cap(), name, size, utcb); }
 
   /**

@@ -58,16 +58,17 @@ l4_debugger_set_object_name_u(l4_cap_idx_t cap, const char *name, l4_utcb_t *utc
  *                   allocated by the caller.
  * \param      size  Length of the `name` buffer.
  *
- * \return Syscall return tag
+ * \retval 0   Success
+ * \retval <0  Error
  */
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_query_object_name(l4_cap_idx_t cap, unsigned id,
                               char *name, unsigned size) L4_NOTHROW;
 
 /**
  * \internal
  */
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_query_object_name_u(l4_cap_idx_t cap, unsigned id,
                                 char *name, unsigned size,
                                 l4_utcb_t *utcb) L4_NOTHROW;
@@ -81,16 +82,17 @@ l4_debugger_query_object_name_u(l4_cap_idx_t cap, unsigned id,
  *                   allocated by the caller.
  * \param      size  Length of the `name` buffer.
  *
- * \return Syscall return tag
+ * \retval 0   Success
+ * \retval <0  Error
  */
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_get_object_name(l4_cap_idx_t cap,
                               char *name, unsigned size) L4_NOTHROW;
 
 /**
  * \internal
  */
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_get_object_name_u(l4_cap_idx_t cap,
                               char *name, unsigned size,
                               l4_utcb_t *utcb) L4_NOTHROW;
@@ -338,6 +340,7 @@ l4_debugger_query_log_typeid_u(l4_cap_idx_t cap, const char *name,
   e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2 + i, 0, 0), utcb), utcb);
   if (e < 0)
     return e;
+
   return l4_utcb_mr_u(utcb)->mr[0];
 }
 
@@ -354,6 +357,7 @@ l4_debugger_query_log_name_u(l4_cap_idx_t cap, unsigned idx,
   e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb), utcb);
   if (e < 0)
     return e;
+
   n = (char const *)&l4_utcb_mr_u(utcb)->mr[0];
   __strcpy_maxlen(name, n, namelen);
   __strcpy_maxlen(shortname, n + __builtin_strlen(n) + 1, shortnamelen);
@@ -373,29 +377,35 @@ l4_debugger_switch_log_u(l4_cap_idx_t cap, const char *name, int on_off,
   return l4_invoke_debugger(cap, l4_msgtag(0, 2 + i, 0, 0), utcb);
 }
 
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_query_object_name_u(l4_cap_idx_t cap, unsigned id,
                                 char *name, unsigned size,
                                 l4_utcb_t *utcb) L4_NOTHROW
 {
-  l4_msgtag_t t;
+  l4_ret_t e;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_GLOBAL_ID_GET_NAME_OP;
   l4_utcb_mr_u(utcb)->mr[1] = id;
-  t = l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb);
+  e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 2, 0, 0), utcb), utcb);
+  if (e < 0)
+    return e;
+
   __strcpy_maxlen(name, (char const *)&l4_utcb_mr_u(utcb)->mr[0], size);
-  return t;
+  return 0;
 }
 
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_get_object_name_u(l4_cap_idx_t cap,
                               char *name, unsigned size,
                               l4_utcb_t *utcb) L4_NOTHROW
 {
-  l4_msgtag_t t;
+  l4_ret_t e;
   l4_utcb_mr_u(utcb)->mr[0] = L4_DEBUGGER_KOBJ_GET_NAME_OP;
-  t = l4_invoke_debugger(cap, l4_msgtag(0, 1, 0, 0), utcb);
+  e = l4_error_u(l4_invoke_debugger(cap, l4_msgtag(0, 1, 0, 0), utcb), utcb);
+  if (e < 0)
+    return e;
+
   __strcpy_maxlen(name, (char const *)&l4_utcb_mr_u(utcb)->mr[0], size);
-  return t;
+  return 0;
 }
 
 L4_INLINE l4_msgtag_t
@@ -454,14 +464,14 @@ l4_debugger_switch_log(l4_cap_idx_t cap, const char *name,
   return l4_debugger_switch_log_u(cap, name, on_off, l4_utcb());
 }
 
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_query_object_name(l4_cap_idx_t cap, unsigned id,
                               char *name, unsigned size) L4_NOTHROW
 {
   return l4_debugger_query_object_name_u(cap, id, name, size, l4_utcb());
 }
 
-L4_INLINE l4_msgtag_t
+L4_INLINE l4_ret_t
 l4_debugger_get_object_name(l4_cap_idx_t cap,
                             char *name, unsigned size) L4_NOTHROW
 {
