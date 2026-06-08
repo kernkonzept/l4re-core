@@ -1,4 +1,0 @@
-#ifndef __L4UTIL_BITOPS_ARCH_SPARC_H
-#define __L4UTIL_BITOPS_ARCH_SPARC_H
-
-#endif

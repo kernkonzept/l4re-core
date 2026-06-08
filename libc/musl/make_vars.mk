@@ -24,13 +24,7 @@ LIBC_ARCH_arm := arm
 LIBC_ARCH_arm64 := aarch64
 LIBC_ARCH_amd64 := x86_64
 LIBC_ARCH_mips := mips
-LIBC_ARCH_ppc32 := powerpc
 LIBC_ARCH_riscv := riscv$(BITS)
-
-# SPARC is dead ...
-ifeq ($(BUILD_ARCH),sparc)
-  $(error Musl does not support sparc)
-endif
 
 LIBC_ARCH := $(LIBC_ARCH_$(BUILD_ARCH))
 

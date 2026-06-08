@@ -4,16 +4,6 @@ define HDR_arm
   $(if $(BID_COMPILER_IS_CLANG),unwind.h)
 endef
 
-define HDR_sparc
-  linux/sockios.h
-  asm/traps.h
-endef
-
-define HDR_ppc32
-  asm/sockios.h
-  asm/ioctl.h
-endef
-
 define HDR_mips
  asm/sockios.h
  asm/ioctl.h
