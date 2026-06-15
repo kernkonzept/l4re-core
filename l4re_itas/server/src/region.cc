@@ -389,6 +389,12 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
   auto moe_rm = L4Re::Env::env()->rm();
   l4_ret_t res;
 
+  // The moe region manager call must not map eagerly because it's a decision
+  // by our caller. This is important on no-MMU systems because it defaults to
+  // eager mapping.
+  Rm::F::Flags flags = _flags;
+  flags |= Rm::F::No_eager_map;
+
   if (_anon_mem)
     {
 #ifdef CONFIG_MMU
@@ -400,12 +406,12 @@ Region_handler::attached(l4_addr_t beg, l4_addr_t end) noexcept
       // but hide Anonymous and Private flags because moe would replicate our
       // work and fail.
       res = moe_rm->attach(&beg, end - beg + 1,
-                           _flags & ~(Rm::F::Anonymous | Rm::F::Private),
+                           flags & ~(Rm::F::Anonymous | Rm::F::Private),
                            L4::Ipc::make_cap_rw(_anon_mem.get()), _anon_offs);
 #endif
     }
   else
-    res = moe_rm->attach(&beg, end - beg + 1, _flags,
+    res = moe_rm->attach(&beg, end - beg + 1, flags,
                          L4::Ipc::make_cap_rw(_mem.itas_cap()), _offs);
 
   if (res < 0)
