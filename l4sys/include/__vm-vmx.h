@@ -380,7 +380,7 @@ l4_vm_vmx_ptr_load(l4_vm_vmx_vcpu_vmcs_t *vmcs,
  * \param vmcs  Pointer to the software VMCS.
  *
  * \return The field index used for the virtual CR2 register as used by the
- *         current Fiasco.OC interface.
+ *         current Fiasco interface.
  *
  * The CR2 register is actually not in the hardware VMCS, however our VMMs run
  * in user mode and need to have access to this register so we put it into our

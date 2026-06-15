@@ -21,7 +21,7 @@ namespace L4 {
 /**
  * Io_pager interface.
  *
- * \note This interface is IA32 specific.
+ * \note This interface is x86 specific.
  *
  * This class defines the interface for handling IO page faults. IO page
  * faults happen when a thread tries to access an IO port that it does not
@@ -34,7 +34,8 @@ namespace L4 {
  * interface is not used. Instead, the microkernel sends an exception IPC to
  * the thread's exception handler (L4::Exception), indicating a `GP` (exception
  * number 13). The exception handler must consult the faulting instruction to
- * determine the cause of the exception. This is the default in Fiasco.OC.
+ * determine the cause of the exception. This is the default in the Fiasco
+ * microkernel.
  *
  * In contrast, if the microkernel supports IO page faults, the microkernel
  * will generate an IO page fault message and send it to the thread's page
