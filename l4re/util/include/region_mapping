@@ -186,7 +186,7 @@ public:
 
     while (flags & L4Re::Rm::F::Search_addr)
       {
-        if (addr > max_addr() || (max_addr() - addr + 1) < size)
+        if (addr > max_addr() || (max_addr() - addr) < (size - 1))
           return L4_INVALID_ADDR;
 
         addr = find_free(addr, max_addr(), size, align, flags);
