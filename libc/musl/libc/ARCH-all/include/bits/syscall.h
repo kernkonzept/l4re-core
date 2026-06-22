@@ -35,7 +35,6 @@ int __l4re_syscall_SYS_pause(void);
 void *__l4re_syscall_SYS_mmap(void *addr, size_t len, int prot, int flags, int fd, off_t offset);
 int __l4re_syscall_SYS_munmap(void *addr, size_t len);
 void *__l4re_syscall_SYS_mmap2(void *addr, size_t len, int prot, int flags, int fd, off_t offset) __attribute__((nothrow));
-void *__l4re_syscall_SYS_mremap(void *old_addr, size_t old_size, size_t new_size, int flags, ...);
 int __l4re_syscall_SYS_mprotect(void *addr, size_t len, int prot);
 
 #ifdef __cplusplus

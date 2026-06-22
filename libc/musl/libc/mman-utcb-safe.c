@@ -24,28 +24,6 @@ __mmap_utcb_safe(void *start, size_t len, int prot, int flags, int fd,
   return r;
 }
 
-void *
-__mremap_utcb_safe(void *old_addr, size_t old_len, size_t new_len, int flags,
-                   ...)
-{
-  UTCB_SAVE;
-  void *r;
-  if (flags & MREMAP_FIXED)
-    {
-      va_list ap;
-      void *new_addr;
-
-      va_start(ap, flags);
-      new_addr = va_arg(ap, void *);
-      va_end(ap);
-      r = __mremap(old_addr, old_len, new_len, flags, new_addr);
-    }
-  else
-    r = __mremap(old_addr, old_len, new_len, flags);
-  UTCB_RESTORE;
-  return r;
-}
-
 int
 __munmap_utcb_safe(void *start, size_t len)
 {

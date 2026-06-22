@@ -436,7 +436,6 @@ endef
 
 define SRC_mman
   mmap
-  mremap
   munmap
 endef
 

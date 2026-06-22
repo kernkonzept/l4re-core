@@ -40,10 +40,8 @@
 #define mremap __mremap
 #else
 extern __typeof (__mmap) __mmap_utcb_safe;
-extern __typeof (__mremap) __mremap_utcb_safe;
 extern __typeof (__munmap) __munmap_utcb_safe;
 #define mmap __mmap_utcb_safe
-#define mremap __mremap_utcb_safe
 #define munmap __munmap_utcb_safe
 #endif
 #define madvise __madvise
