@@ -367,7 +367,7 @@ l4_ipc_receive(l4_cap_idx_t object, l4_utcb_t *utcb,
  *
  * \note If a finite receive timeout is specified, the IPC receive operation
  *       could abort before the partner was able to send the reply message.
- *       Under certain circumstances the partner may still have the temporary
+ *       Under certain circumstances the partner may still have a temporary
  *       reply capability to the calling thread and may use this capability to
  *       reply to the caller at a later, unexpected time specifying an arbitrary
  *       IPC label. This case is relevant for servers which call another,
@@ -403,7 +403,7 @@ l4_ipc_reply(l4_cap_idx_t reply_cap, l4_utcb_t *utcb, l4_msgtag_t tag,
              l4_timeout_t timeout) L4_NOTHROW;
 
 /**
- * Reply and wait operation (uses the *reply* capability).
+ * Reply and wait operation (uses a *reply* capability).
  * \ingroup l4_ipc_api
  *
  * \param      reply_cap  Reply capability selector. A value of #L4_INVALID_CAP
