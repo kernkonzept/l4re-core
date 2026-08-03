@@ -250,6 +250,7 @@ int vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 					wcs = malloc(k*sizeof(wchar_t));
 					if (!wcs) goto alloc_fail;
 				} else {
+					if (k < MB_LEN_MAX) k = MB_LEN_MAX;
 					s = malloc(k);
 					if (!s) goto alloc_fail;
 				}
