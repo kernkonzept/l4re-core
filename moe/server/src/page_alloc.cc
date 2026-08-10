@@ -6,6 +6,7 @@
  */
 #include <l4/util/util.h>
 
+#include <l4/cxx/buddy_alloc>
 #include <l4/cxx/iostream>
 #include <l4/cxx/exceptions>
 #include "page_alloc.h"
@@ -17,47 +18,11 @@ enum { page_alloc_debug = 0 };
 unsigned page_alloc_debug = 0;
 #endif
 
-#ifdef CONFIG_MOE_PAGE_ALLOC_TREE
-#include <l4/cxx/tree_alloc>
-using Page_alloc = cxx::Tree_alloc;
-#else
-#include <l4/cxx/list_alloc>
-using Page_alloc = cxx::List_alloc;
-#endif
+using Page_alloc = cxx::Buddy_alloc;
 
-class LA : public Page_alloc
+static Page_alloc *page_alloc()
 {
-#if 0
-public:
-  ~LA()
-    {
-      L4::cout << "~LA(): avail = " << avail() << '\n';
-    }
-#endif
-#if 0
-public:
-  void *alloc(unsigned long size, unsigned long align)
-  {
-    L4::cout << "PA::alloc: " << L4::hex << size << '(' << align << ") -> \n";
-    void *p = cxx::List_alloc::alloc(size, align);
-    L4::cout << p << "\n";
-    return p;
-  }
-#endif
-#if 0
-public:
-  void free(void *p, unsigned long size)
-  {
-    L4::cout << "free: " << p << '(' << size << ") -> ";
-    cxx::List_alloc::free(p, size);
-    L4::cout << avail() << "\n";
-  }
-#endif
-};
-
-static LA *page_alloc()
-{
-  static LA pa;
+  static Page_alloc pa;
   return &pa;
 }
 
@@ -77,8 +42,7 @@ void *
 Single_page_alloc_base::_alloc_max(size_t min, size_t *max, size_t align,
                                    size_t granularity, Config cfg)
 {
-  unsigned long *max_ptr = reinterpret_cast<unsigned long *>(max);
-  void *ret = page_alloc()->alloc_max(min, max_ptr, align, granularity,
+  void *ret = page_alloc()->alloc_max(min, max, align, granularity,
                                       cfg.physmin, cfg.physmax);
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): alloc_max(" << *max << ") @" << ret << '\n';
@@ -110,13 +74,33 @@ Single_page_alloc_base::_add_mem(void *p, size_t size)
 {
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): add_mem(" << size << ") @" << p << '\n';
-  page_alloc()->free(p, size, true);
+  page_alloc()->add_mem(p, size);
+}
+
+size_t
+Single_page_alloc_base::_metadata_bytes(l4_addr_t min_addr, l4_addr_t max_addr)
+{
+  if (page_alloc_debug)
+    L4::cout << "pa(" << __builtin_return_address(0) << "): metadata_bytes("
+             << min_addr << ", " << max_addr << ")" << '\n';
+  return Page_alloc::metadata_bytes(min_addr, max_addr);
+}
+
+void
+Single_page_alloc_base::_init(l4_addr_t min_addr, l4_addr_t max_addr,
+                              unsigned char *metadata_addr, size_t metadata_size)
+{
+  if (page_alloc_debug)
+    L4::cout << "pa(" << __builtin_return_address(0) << "): init(" << min_addr
+             << ", " << max_addr << ", " << metadata_addr << ", " << metadata_size
+             << ")" << '\n';
+  page_alloc()->init(min_addr, max_addr, metadata_addr, metadata_size);
 }
 
 #ifndef NDEBUG
 void
 Single_page_alloc_base::_dump_free(Dbg &dbg)
 {
-  page_alloc()->dump_free_list(dbg);
+  page_alloc()->dump_free(dbg);
 }
 #endif

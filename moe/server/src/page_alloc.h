@@ -55,6 +55,11 @@ public:
 
   static void _add_mem(void *p, size_t size);
 
+  static size_t _metadata_bytes(l4_addr_t min_addr, l4_addr_t max_addr);
+
+  static void _init(l4_addr_t min_addr, l4_addr_t max_addr,
+                    unsigned char *metadata_addr, size_t metadata_size);
+
 #ifndef NDEBUG
   static void _dump_free(Dbg &dbg);
 #endif

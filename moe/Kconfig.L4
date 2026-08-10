@@ -18,28 +18,4 @@ config MOE_BOOT_FB
 
 	  If unsure, say y.
 
-choice
-	prompt "Page allocator"
-	default MOE_PAGE_ALLOC_TREE
-
-config MOE_PAGE_ALLOC_LIST
-	bool "List-based page allocator"
-	help
-	  First-fit page allocator based on a linked list.
-
-	  O(n) worst-case allocation complexity.
-	  O(n) free complexity.
-
-config MOE_PAGE_ALLOC_TREE
-	bool "Tree-based page allocator"
-	help
-	  First-fit page allocator based on an AVL tree.
-
-	  O(n log n) worst-case allocation complexity.
-	  O(log n) free complexity.
-	  It drastically improves page free performance with only minor allocation
-	  performance overhead.
-
-endchoice
-
 endmenu

@@ -36,6 +36,7 @@
 
 #include "dma_space.h"
 #include "boot_fs.h"
+#include "mem_region_list.h"
 #include "globals.h"
 #include "loader_elf.h"
 #include "log.h"
@@ -136,15 +137,18 @@ l4_size_t Moe::Phys_limit::avail_ram;
 
 static void find_memory()
 {
-  l4_addr_t addr;
-  l4_addr_t min_addr = Moe::Max_phys_addr;
-  l4_addr_t max_addr = 0;
-
   Single_page_alloc_base::can_free =
     l4util_kip_kernel_has_feature(kip(), "mapdb");
   if (!Single_page_alloc_base::can_free)
     info.printf("Fiasco mapdb not available! Memory cannot be given back!\n");
 
+  // List of free regions (allocated on stack).
+  Moe::Mem_region_list<Moe::Mem_range, 100> free_map;
+
+  // First scan and map all available memory, and populate the free list.
+  l4_addr_t addr;
+  l4_addr_t min_addr = Moe::Max_phys_addr;
+  l4_addr_t max_addr = 0;
   for (unsigned order = Moe::Max_phys_page_order; order >= L4_LOG2_PAGESIZE; --order)
     {
       while (!l4sigma0_map_anypage(Sigma0_cap, 0, L4_WHOLE_ADDRESS_SPACE,
@@ -168,9 +172,66 @@ static void find_memory()
           if (addr + size > max_addr)
             max_addr = addr + size;
 
-          Single_page_alloc_base::_add_mem(reinterpret_cast<void *>(addr),
-                                           size);
+          Moe::Mem_range range{addr, addr + size - 1};
+          if (free_map.add(range))
+            continue; // success
+
+          // TODO: Initial stack allocated free map is exhausted.
+          //       Need to allocate temporary free map from the free memory we already discovered.
+          //       Must be a region specified as untyped in Moe::root_factory_config.
+          Err(Err::Normal).printf("free map exhausted\n");
+          // For now just ignore the remaining memory.
+          break;
         }
+      if (free_map.full())
+        break;
+    }
+
+  info.printf("Free map:-----------------------\n");
+  free_map.dump(info);
+
+  // Now find the optimal place for buddy allocator free bits.
+  unsigned long metadata_bytes =
+    Single_page_alloc_base::_metadata_bytes(min_addr, max_addr);
+  info.printf("Allocator free map:-------------\n");
+  info.printf("Required bytes: %#lx\n", metadata_bytes);
+
+  Moe::Mem_range metadata_region;
+  // Find smallest region to avoid destroying precious large aligned ram.
+  for (auto const &region : free_map)
+    {
+      if (region.size() < metadata_bytes)
+        continue;
+
+      if (metadata_region.valid() && metadata_region.size() <= region.size())
+        continue;
+
+      metadata_region = region;
+    }
+
+  if (!metadata_region.valid())
+    {
+      Err(Err::Fatal).printf("no suitable region for alloc metadata\n");
+      exit(128);
+    }
+
+  info.printf("Allocator metadata region:\n");
+  metadata_region.dump(info);
+
+  Single_page_alloc_base::_init(
+    min_addr, max_addr, reinterpret_cast<unsigned char *>(metadata_region.start),
+    metadata_bytes);
+
+  // Finally add the memory to the allocator
+  for (auto const &region : free_map)
+    {
+      if (region.start == metadata_region.start)
+        Single_page_alloc_base::_add_mem(reinterpret_cast<void *>(
+                                           region.start + metadata_bytes),
+                                         region.size() - metadata_bytes);
+      else
+        Single_page_alloc_base::_add_mem(reinterpret_cast<void *>(region.start),
+                                         region.size());
     }
 
   Moe::Phys_limit::avail_ram = Single_page_alloc_base::_avail();
