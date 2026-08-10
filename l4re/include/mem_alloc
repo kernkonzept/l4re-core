@@ -66,7 +66,21 @@ public:
     Super_pages  = 0x04,  ///< Allocate super pages
     Fixed_paddr  = 0x08,  ///< Allocate at fixed physical address. Only honored
                           ///< on no-MMU systems. Will fail on MMU systems.
+
+    Dma_mask_bits   = 0x3f0, ///< See Dma_mask(bits).
+    Invert_dma_mask = 0x400, ///< Effectively says to allocate above the Dma_mask(bits)
   };
+
+  /**
+   * Constrain allocations to physical addresses below given bits.
+   *
+   * Requires the Continuous flag to be set.
+   */
+  static L4_INLINE L4_CONSTEXPR unsigned Dma_mask(unsigned bits)
+  {
+    // Implemented as (64 - bits) << 4 for backwards compatibility.
+    return ((64 - bits) << 4) & Dma_mask_bits;
+  }
 
   /**
    * Statistics about memory-allocator.
