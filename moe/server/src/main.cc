@@ -200,15 +200,23 @@ static void find_memory()
 
   Moe::Mem_range metadata_region;
   // Find smallest region to avoid destroying precious large aligned ram.
-  for (auto const &region : free_map)
+  for (auto const &free_region : free_map)
     {
-      if (region.size() < metadata_bytes)
+      if (free_region.size() < metadata_bytes)
         continue;
 
-      if (metadata_region.valid() && metadata_region.size() <= region.size())
-        continue;
+      // Only parts of the region in untyped memory are eligible.
+      for (auto const &untyped_region : Moe::root_factory_config.untyped_regions())
+        {
+          auto intersect = free_region.intersect(untyped_region.range);
+          if (!intersect.valid() || intersect.size() < metadata_bytes)
+            continue;
 
-      metadata_region = region;
+          if (metadata_region.valid() && metadata_region.size() <= intersect.size())
+            continue;
+
+          metadata_region = intersect;
+        }
     }
 
   if (!metadata_region.valid())
@@ -216,6 +224,9 @@ static void find_memory()
       Err(Err::Fatal).printf("no suitable region for alloc metadata\n");
       exit(128);
     }
+
+  // We allocate the metadata at the start of the selected region.
+  metadata_region.end = metadata_region.start + metadata_bytes - 1;
 
   info.printf("Allocator metadata region:\n");
   metadata_region.dump(info);
@@ -227,10 +238,19 @@ static void find_memory()
   // Finally add the memory to the allocator
   for (auto const &region : free_map)
     {
-      if (region.start == metadata_region.start)
-        Single_page_alloc_base::_add_mem(reinterpret_cast<void *>(
-                                           region.start + metadata_bytes),
-                                         region.size() - metadata_bytes);
+      // Carve out metadata region.
+      if (region.contains(metadata_region))
+        {
+          if (metadata_region.start > region.start)
+            Single_page_alloc_base::_add_mem(
+              reinterpret_cast<void *>(region.start),
+              metadata_region.start - region.start);
+
+          if (metadata_region.end < region.end)
+            Single_page_alloc_base::_add_mem(
+              reinterpret_cast<void *>(metadata_region.end + 1),
+              region.end - metadata_region.end);
+        }
       else
         Single_page_alloc_base::_add_mem(reinterpret_cast<void *>(region.start),
                                          region.size());
