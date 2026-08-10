@@ -281,14 +281,29 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
   if (flags_val & L4Re::Mem_alloc::Fixed_paddr)
     base = args.pop_front();
 
-  Single_page_alloc_base::Config ds_config;
-  // Empty untyped regions symbolizes no restriction, if there are
-  // also no typed regions. Otherwise the factory has no untyped regions.
-  if (_config.regions.empty())
-    return -L4_ENOMEM;
+  L4::Ipc::Varg type = args.pop_front();
+  if (!type.is_nil() && !type.is_of<char const *>())
+    return -L4_EINVAL;
 
-  // For untyped allocations the untyped regions of the factory apply.
-  ds_config.regions = _config.untyped_regions();
+  Single_page_alloc_base::Config ds_config;
+  if (type.is_nil())
+    {
+      // For untyped allocations the untyped regions of the factory apply.
+      ds_config.regions = _config.untyped_regions();
+    }
+  else
+    {
+      cxx::String type_str(type.value<char const *>(), type.length() - 1);
+      if (!type_str.starts_with("type="))
+        return -L4_EINVAL;
+      type_str = type_str.substr(5);
+
+      // Lookup regions for given type name. (the Dataspace references
+      // regions in its factory, which is fine because a factory always
+      // outlives the objects it created)
+      ds_config.regions = _config.regions_with_type(type_str);
+    }
+
   if (ds_config.regions.empty())
     return -L4_ENOMEM;
 
