@@ -98,6 +98,10 @@ Moe_app_model::Dataspace
 Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 {
   auto region = Moe::Mem_region::untyped({paddr, paddr + size - 1});
+  if (!Single_page_alloc_base::default_mem_cfg.regions.contains(region.range))
+    chksys(-L4_EINVAL,
+           "ELF loader could not allocate memory at given physical address");
+
   Single_page_alloc_base::Config cfg{{&region, 1}};
   Dataspace mem = _task->allocator()->alloc(size, cfg,
                                             L4Re::Mem_alloc::Continuous, 0);
