@@ -41,14 +41,24 @@ float fmaf(float x, float y, float z)
 	#pragma STDC FENV_ACCESS ON
 	double xy, result;
 	union {double f; uint64_t i;} u;
-	int e;
+	int e, halfway;
 
 	xy = (double)x * y;
 	result = xy + z;
 	u.f = result;
 	e = u.i>>52 & 0x7ff;
+	halfway = (u.i & 0x1fffffff) == 0x10000000;
+
+	/* subnormal range */
+	if (e < 0x3ff-126 && e >= 0x3ff-149) {
+		/* fix halfway for subnormals */
+		uint64_t m = 1;
+		m <<= 52 + 0x3ff-149 - e;
+		halfway = (u.i & m-1) == m/2;
+	}
+
 	/* Common case: The double precision result is fine. */
-	if ((u.i & 0x1fffffff) != 0x10000000 || /* not a halfway case */
+	if (!halfway ||
 		e == 0x7ff ||                   /* NaN */
 		(result - xy == z && result - z == xy) || /* exact */
 		fegetround() != FE_TONEAREST)       /* not round-to-nearest */
