@@ -8,6 +8,7 @@
 
 #include <l4/re/mem_alloc>
 #include <l4/sys/cxx/ipc_epiface>
+#include "factory_config.h"
 #include "quota.h"
 #include "server_obj.h"
 
@@ -31,11 +32,13 @@ private:
   enum : l4_mword_t { Max_priority = 255 };
 
   Moe::Q_alloc _qalloc;
+  Moe::Factory_config _config;
   bool _is_root;  ///< Is this the root allocator?
 
 public:
-  explicit Allocator(Moe::Quota *parent, size_t limit, bool is_root = false)
-  : _qalloc(parent, limit), _is_root(is_root)
+  explicit Allocator(Moe::Quota *parent, size_t limit,
+                     Moe::Factory_config const &config, bool is_root = false)
+  : _qalloc(parent, limit), _config(config), _is_root(is_root)
   {}
 
   template<typename T, typename ...ARGS>

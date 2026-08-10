@@ -24,6 +24,7 @@
 #include "dataspace_noncont.h"
 #include "dma_space.h"
 #include "mem_region_list.h"
+#include "factory_config.h"
 #include "globals.h"
 #include "page_alloc.h"
 #include "quota.h"
@@ -166,13 +167,35 @@ Allocator::create_factory(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 
   if (!quota.is_of_int() || quota.value<long>() <= 0)
     return -L4_EINVAL;
+
+  Moe::Factory_config sub_config;
+  for (L4::Ipc::Varg arg : args)
+    {
+      if (!arg.is_of<char const *>())
+        return -L4_EINVAL; // Unexpected argument.
+
+      cxx::String arg_str = cxx::String(arg.value<char const *>(),
+                                        arg.length() - 1);
+      if (!Moe::parse_factory_config(arg_str, &sub_config))
+        return -L4_EINVAL;
+    }
+
+  if (!sub_config.validate(_config))
+    return -L4_EPERM;
+
+  // Unless explicitly specified, a sub-factory inherits the untyped
+  // allocation regions from the parent factory.
+  if (sub_config.regions.empty())
+    for (auto const &region : _config.untyped_regions())
+      static_cast<void>(sub_config.regions.add(region));
+
   // ensure that 0 cannot be reached by an integer overflow when
   // converting long to size_t since size_t is used internally
   static_assert(   std::numeric_limits<long>::max()
                 <= std::numeric_limits<size_t>::max(),
                 "size_t must be able to hold the maximum of a long");
   cxx::unique_ptr<Allocator>
-    o(make_obj<Allocator>(_qalloc.quota(), quota.value<long>()));
+    o(make_obj<Allocator>(_qalloc.quota(), quota.value<long>(), sub_config));
   res = register_ipc_object(cxx::move(o), "moe-fact");
 
   return L4_EOK;
@@ -206,7 +229,7 @@ Allocator::create_log(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 l4_ret_t
 Allocator::create_scheduler(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 {
-  if (!_is_root)
+  if (!_config.has_permission(Moe::Factory_config::Scheduler_proxy))
     return -L4_ENODEV;
 
   L4::Ipc::Varg p_max  = args.pop_front(),
@@ -259,6 +282,15 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
     base = args.pop_front();
 
   Single_page_alloc_base::Config ds_config;
+  // Empty untyped regions symbolizes no restriction, if there are
+  // also no typed regions. Otherwise the factory has no untyped regions.
+  if (_config.regions.empty())
+    return -L4_ENOMEM;
+
+  // For untyped allocations the untyped regions of the factory apply.
+  ds_config.regions = _config.untyped_regions();
+  if (ds_config.regions.empty())
+    return -L4_ENOMEM;
 
   Moe::Factory_config::Region_list ds_cont_regions;
 #ifdef CONFIG_MMU
@@ -368,8 +400,8 @@ Allocator::root_allocator()
   if (_root_alloc)
     return _root_alloc;
 
-  _root_alloc = Moe::Moe_alloc::allocator()
-    ->make_obj<Allocator>(Moe::Moe_alloc::allocator()->quota(), ~0, true);
+  _root_alloc = Moe::Moe_alloc::allocator()->make_obj<Allocator>(
+    Moe::Moe_alloc::allocator()->quota(), ~0, Moe::root_factory_config, true);
   object_pool.life.push_front(_root_alloc);
   return _root_alloc;
 }
