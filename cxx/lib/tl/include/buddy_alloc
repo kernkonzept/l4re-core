@@ -1,0 +1,1676 @@
+// vim:set ft=cpp: -*- Mode: C++ -*-
+/*
+ * Copyright (C) 2026 Kernkonzept GmbH.
+ * Author(s): Georg Kotheimer <georg.kotheimer@kernkonzept.com>
+ *
+ * License: see LICENSE.spdx (in this directory or the directories above)
+ */
+
+#pragma once
+
+#include <l4/cxx/arith>
+#include <l4/cxx/minmax>
+#include <l4/cxx/type_traits>
+#include <l4/sys/compiler.h>
+#include <l4/sys/consts.h>
+#include <l4/sys/l4int.h>
+
+#include <cassert>
+#include <cstddef>
+#include <cstdio>
+
+namespace cxx
+{
+
+/**
+ * Buddy allocator backed by a perfect binary tree.
+ *
+ * The root node of the tree spans the entire memory area managed by the
+ * allocator and represents the largest block size supported by the allocator.
+ * Each subsequent level of the tree halves the block size until reaching the
+ * minimum block size.
+ *
+ * Each node in the tree stores the largest order of block that can be allocated
+ * at or underneath it:
+ * - A node with a value of 0 is allocated (used).
+ * - A node with a value between 1 and level is split, i.e. has blocks allocated
+ *   underneath it.
+ * - A node with a value of level+1 is free.
+ *
+ * An completely unallocated tree with four levels would look like:
+ * ```
+ *        4
+ *    3       3
+ *  2   2   2   2
+ * 1 1 1 1 1 1 1 1
+ * ```
+ *
+ * After allocating a block of `2 * Min_size`:
+ * ```
+ *        3
+ *    2       3
+ *  0   2   2   2
+ * 1 1 1 1 1 1 1 1
+ * ```
+ */
+class Buddy_alloc
+{
+public:
+  static constexpr bool Debug_alloc = false;
+#ifdef NDEBUG
+  static constexpr bool Print_warnings = false;
+#else
+  static constexpr bool Print_warnings = true;
+#endif
+
+public:
+  static constexpr unsigned Min_order = L4_PAGESHIFT;
+  static constexpr size_t Min_size = 1UL << Min_order;
+
+  // OPTIMIZE: Use only exactly as many bits as necessary per level.
+  using Order_free = l4_uint8_t;
+
+  static constexpr unsigned long Invalid_node_index = 0;
+  static constexpr unsigned long Root_node_index = 1;
+
+  struct Node_ptr
+  {
+    unsigned long index; // 1-based index
+    unsigned level;
+
+    Node_ptr() : index(Invalid_node_index), level(0) {}
+    Node_ptr(unsigned long index, unsigned level) : index(index), level(level)
+    {}
+
+    Node_ptr parent() const
+    {
+      assert(!is_root());
+      return Node_ptr{index / 2, level + 1};
+    }
+
+    Node_ptr left_child() const
+    {
+      assert(!is_leaf());
+      return Node_ptr{index * 2, level - 1};
+    }
+
+    Node_ptr right_child() const
+    {
+      assert(!is_leaf());
+      return Node_ptr{(index * 2) + 1, level - 1};
+    }
+
+    bool valid() const { return index != Invalid_node_index; }
+    bool is_left() const { return index % 2 == 0; }
+    bool is_right() const { return index % 2 == 1; }
+    bool is_root() const { return index == Root_node_index; }
+    bool is_leaf() const { return level == 0; }
+
+    friend constexpr bool operator==(Node_ptr const &lhs,
+                                     Node_ptr const &rhs)
+    { return lhs.index == rhs.index && lhs.level == rhs.level; }
+
+    friend constexpr bool operator!=(Node_ptr const &lhs,
+                                     Node_ptr const &rhs)
+    { return !(lhs == rhs); }
+  };
+
+  /**
+   * Return metadata size in bytes required by the buddy allocator.
+   *
+   * \param min_addr  Minimum address covered by the allocator.
+   * \param max_addr  Maximum address covered by the allocator (inclusive).
+   */
+  static constexpr size_t metadata_bytes(l4_addr_t min_addr, l4_addr_t max_addr)
+  {
+    return num_tree_nodes(min_addr, max_addr) * sizeof(Order_free);
+  }
+
+  bool initialized() const { return _tree != nullptr; }
+
+  /**
+   * Initialize the allocator.
+   *
+   * \param min_addr       Minimum address covered by the allocator.
+   * \param max_addr       Maximum address covered by the allocator (inclusive).
+   * \param metadata_addr  Pointer to metadata memory chunk for the allocator.
+   * \param metadata_size  Size of the metadata memory chunk.
+   */
+  void init(l4_addr_t min_addr, l4_addr_t max_addr,
+            unsigned char *metadata_addr, size_t metadata_size)
+  {
+    assert(metadata_bytes(min_addr, max_addr) <= metadata_size);
+
+    l4_uint64_t max_mem_size;
+    calc_mem_range(min_addr, max_addr, &_base, &max_mem_size);
+    _base = to_min_size_units(_base);
+    _max_mem_size = to_min_size_units(max_mem_size);
+    _max_level = cxx::arith::log2u(_max_mem_size);
+    _tree = metadata_addr;
+    // Initially the entire tree is unavailable.
+    __builtin_memset(_tree, 0, metadata_size);
+
+    if constexpr (Debug_alloc)
+      {
+        printf("Buddy allocator info:\n");
+        printf("  Metadata size: %zu (%zu KiB)\n",
+               metadata_size, metadata_size / 1024);
+        printf("  Base address: %#lx\n", from_min_size_units(_base));
+        printf("  Max mem size: %#llx\n", _max_mem_size * l4_uint64_t{Min_size});
+        printf("  Max mem order: %u\n", _max_level + Min_order);
+        printf("  Range: [%#lx, %#lx]\n", min_addr, max_addr);
+        printf("  Max level: %u\n", _max_level);
+        printf("  Total number of nodes: %lu\n",
+               num_tree_nodes(min_addr, max_addr));
+        printf("  Levels:\n");
+        for (int level = _max_level; level >= 0; level--)
+          {
+            printf("    %2d: size=%#llx start_index=%ld, nodes=%ld\n", level,
+                   block_size_for_level(level) * l4_uint64_t{Min_size},
+                   level_start_index(level), nodes_in_level(level));
+          }
+      }
+  }
+
+  /**
+   * Add memory to the allocator.
+   *
+   * \param mem   Pointer to the memory.
+   * \param size  Size of the memory.
+   *
+   * \pre The memory must be within the memory range passed to init().
+   */
+  inline void add_mem(void *mem, size_t size);
+
+  /**
+   * Allocate a memory block.
+   *
+   * \param size  Size of the memory block.
+   * \param align Alignment constraint (must be a power of two).
+   * \param lower Lower bound of the physical region the memory block should be
+   *              allocated from.
+   * \param upper Upper bound of the physical region the memory block should be
+   *              allocated from, value is inclusive.
+   *
+   * \retval nullptr  Allocation failed.
+   * \return          Pointer to memory block.
+   *
+   * \pre 0 < `size`
+   * \pre `align` <= `size`
+   */
+  inline void *alloc(size_t size, size_t align, l4_addr_t lower = 0,
+                     l4_addr_t upper = ~0UL);
+
+  /**
+   * Allocate a memory block of `min` <= size <= `max`.
+   *
+   * \param         min          Minimal size to allocate (in bytes).
+   * \param[in,out] max          Maximum size to allocate (in bytes). The actual
+   *                             allocated size is returned here.
+   * \param         align        Alignment constraint (must be a power of two).
+   * \param         granularity  Granularity to use for the allocation (power
+   *                             of 2).
+   * \param         lower        Lower bound of the physical region the memory
+   *                             block should be allocated from.
+   * \param         upper        Upper bound of the physical region the memory
+   *                             block should be allocated from, value is
+   *                             inclusive.
+   *
+   * \note The allocated size is always a multiple of `granularity`, thus `min`
+   *       is rounded up to a multiple of `granularity` internally.
+
+   *
+   * \retval nullptr  Allocation failed.
+   * \return          Pointer to memory block
+   *
+   * \pre 0 < `min` <= `max`
+   * \pre 0 < `max`
+   * \pre `align` <= `min`
+   * \pre `granularity` <= `align`
+   */
+  inline void *alloc_max(size_t min, size_t *max, size_t align,
+                         size_t granularity, l4_addr_t lower = 0,
+                         l4_addr_t upper = ~0UL);
+
+  /**
+   * Return a free memory block to the allocator.
+   *
+   * \param block        Pointer to memory block.
+   * \param size         Size of memory block.
+   *
+   * \pre `block` must not be NULL.
+   * \pre `block` must have been obtained through alloc() or alloc_max().
+   */
+  inline void free(void *block, size_t size);
+
+  /**
+   * Get the amount of available memory.
+   *
+   * \return Available memory in bytes
+   */
+  inline size_t avail() const;
+
+  template<typename DBG>
+  void dump_free(DBG &out) const;
+
+private:
+  struct Mem_range
+  {
+    l4_addr_t start;
+    l4_addr_t end; // inclusive
+
+    Mem_range() : start(static_cast<l4_addr_t>(-1)), end(0) {}
+    Mem_range(l4_addr_t start, l4_addr_t end) : start(start), end(end)
+    { assert(valid()); }
+
+    bool valid() const
+    { return start <= end; }
+
+    size_t size() const
+    { return end - start + 1; }
+
+    friend bool operator < (Mem_range const &lhs, Mem_range const &rhs)
+    { return lhs.end < rhs.start; }
+
+    bool overlaps(Mem_range const &o) const
+    { return !(*this < o) && !(o < *this); }
+
+    bool contains(Mem_range const &o) const
+    { return start <= o.start && end >= o.end; }
+
+    Mem_range intersect(Mem_range const &o) const
+    {
+      if (!overlaps(o))
+        return Mem_range();
+
+      return Mem_range{start > o.start ? start : o.start,
+                       end < o.end ? end : o.end};
+    }
+  };
+
+  /// Ceil value to power of two.
+  template<typename T>
+  static constexpr T ceil_power_of_two(T val)
+  {
+    return T{1} << cxx::arith::log2u_ceil(val);
+  }
+
+  template<typename T>
+  static constexpr T trunc_power_of_two(T val)
+  {
+    return T{1} << cxx::arith::log2u(val);
+  }
+
+  template<typename T>
+  static constexpr bool is_power_of_two(T val)
+  {
+    return val > 0 && (val & (val - 1)) == 0;
+  }
+
+  template<typename T, typename B>
+  static constexpr T ceil_to(T val, B boundary)
+  {
+    assert(is_power_of_two(boundary));
+    return (val + boundary - 1) & ~T{boundary - 1};
+  }
+
+  template<typename T, typename B>
+  static constexpr T trunc_to(T val, B boundary)
+  {
+    assert(is_power_of_two(boundary));
+    return val & ~T{boundary - 1};
+  }
+
+  template<typename T, typename B>
+  static constexpr bool is_aligned_to(T val, B boundary)
+  {
+    return trunc_to(val, boundary) == val;
+  }
+
+  static constexpr unsigned trailing_zeroes(unsigned val)
+  {
+    return val ? __builtin_ctz(val) : sizeof(unsigned) * 8;
+  }
+
+  static constexpr unsigned trailing_zeroes(unsigned long val)
+  {
+    return val ? __builtin_ctzl(val) : sizeof(unsigned long) * 8;
+  }
+
+  /// Convert to Min_size units.
+  template<typename T>
+  static constexpr T to_min_size_units(T val)
+  {
+    assert(is_aligned_to(val, Min_size));
+    return val / Min_size;
+  }
+
+  /// Convert from Min_size units.
+  template<typename T>
+  static constexpr T from_min_size_units(T val)
+  {
+    assert((val * Min_size) / Min_size == val);
+    return val * Min_size;
+  }
+
+  /**
+   * Calculate the the maximum block size required by the allocator to cover the
+   * [min_addr, max_addr) memory range.
+   *
+   * \param      min_addr   The minimum address of any memory a area to be
+   *                        handled by the buddy allocator.
+   * \param      max_addr   The maximum address (inclusive) of any memory area
+   *                        handled by the buddy allocator.
+   * \param[out] base_addr  Base address aligned to maximum block size.
+   * \param[out] max_size   Maximum block size required by the allocator.
+   */
+  static constexpr void calc_mem_range(l4_addr_t min_addr, l4_addr_t max_addr,
+                                       l4_addr_t *base_addr,
+                                       l4_uint64_t *max_size)
+  {
+    assert(min_addr < max_addr);
+    l4_uint64_t raw_size = max_addr - min_addr + l4_uint64_t{1};
+    assert(raw_size >= Min_size);
+
+    *max_size = ceil_power_of_two(raw_size);
+    *base_addr = trunc_to(l4_uint64_t{min_addr}, *max_size);
+    // Adjust max block size and base address, until they cover the entire
+    // requested memory area.
+    // The covered range is [base_addr, base_addr + max_size - 1], thus
+    // `max_addr` is only included if `max_size > max_addr - base_addr`.
+    while (*max_size <= max_addr - *base_addr)
+      {
+        // Max address not included after alignment, use next power of two.
+        assert(*max_size < (l4_uint64_t{1} << 63));
+        *max_size *= 2;
+        *base_addr = trunc_to(l4_uint64_t{min_addr}, *max_size);
+      }
+  }
+
+  static constexpr unsigned long num_tree_nodes(l4_addr_t min_addr,
+                                                l4_addr_t max_addr)
+  {
+    l4_addr_t base_addr = 0;
+    l4_uint64_t max_mem_size = 0;
+    calc_mem_range(min_addr, max_addr, &base_addr, &max_mem_size);
+    // OPTIMIZE: Only allocate tree storage for the memory between min_range and
+    //           max_range.
+    auto actual_nodes = ((2 * max_mem_size) - 1) / Min_size;
+    // The tree uses 1-based indexes for efficient parent/child navigation. For
+    // simplicity the node at index 0 is unused.
+    return actual_nodes + 1;
+  }
+
+  unsigned long nodes_in_level(unsigned level) const
+  {
+    return 1UL << (_max_level - level);
+  }
+
+  unsigned long level_start_index(unsigned level) const
+  {
+    return nodes_in_level(level);
+  }
+
+  static unsigned level_for_block_size(size_t size)
+  {
+    assert(is_power_of_two(size)); // power of two, so a block size.
+    return cxx::arith::log2u(size);
+  }
+
+  /**
+   * Calculate block at the given level.
+   *
+   * Returns a l4_size_t because the result cannot overflow even in case
+   * the allocator spans the entire 4G of address space on a 32-bit system,
+   * because all addresses in the buddy allocator are in Min_size units (shifted
+   * by Min_order).
+   */
+  static l4_size_t block_size_for_level(unsigned level)
+  {
+    return l4_size_t{1} << level;
+  }
+
+  Node_ptr node_for_block_level(l4_addr_t addr, unsigned level) const
+  {
+    size_t node_size = block_size_for_level(level);
+
+    assert(addr >= _base);
+    assert(addr + node_size > addr);
+    assert(addr + node_size <= _base + _max_mem_size);
+    assert(is_aligned_to(addr, node_size));
+
+    unsigned long index = level_start_index(level) + ((addr - _base) / node_size);
+    return Node_ptr{index, level};
+  }
+
+  Node_ptr node_for_block(l4_addr_t addr, size_t node_size) const
+  {
+    assert(addr >= _base);
+    assert(addr + node_size > addr);
+    assert(addr + node_size <= _base + _max_mem_size);
+    assert(is_aligned_to(addr, node_size));
+
+    unsigned level = level_for_block_size(node_size);
+    unsigned long index = level_start_index(level) + ((addr - _base) / node_size);
+    return Node_ptr{index, level};
+  }
+
+  l4_addr_t block_start_addr(Node_ptr node) const
+  {
+    size_t size = block_size_for_level(node.level);
+    size_t offset = (node.index - level_start_index(node.level)) * size;
+    return _base + offset;
+  }
+
+  l4_addr_t block_end_addr(Node_ptr node) const
+  {
+    l4_addr_t block_start = block_start_addr(node);
+    size_t block_size = block_size_for_level(node.level);
+    return block_start + block_size - 1;
+  }
+
+  Mem_range block_range(Node_ptr node) const
+  {
+    return Mem_range{block_start_addr(node), block_end_addr(node)};
+  }
+
+  static bool fits_level(Order_free node_order, unsigned level)
+  {
+    // Because 0 marks allocated nodes, the largest free order of node is stored
+    // as level+1.
+    return node_order > level;
+  }
+
+  /**
+   * Returns the minimum level at which an aligned free block must exist for an
+   * allocation of the given size to be possible. Helpful to efficiently search
+   * for non size-aligned allocation opportunities.
+   */
+  static unsigned min_level_required_for_size(size_t size)
+  {
+    // The intuition for this computation comes from looking at the worst case.
+    // In the following example 1 unit corresponds to Min_size.
+    // The "worst" placement that avoids an aligned block of size B is:
+    //   - Start 1 unit after a block boundary.
+    //   - End 1 unit before the block boundary after the next block.
+    // The interval spanned by these two almost complete blocks is `B - 1` each,
+    // so `2B - 2` in total. From that we can derive that each span with a
+    // length `n > 2B - 2` or `n >= 2B - 1` must contain an aligned block of
+    // size B. Solve for B, and arrive at: `min_B = (n + 1) / 2`
+    return cxx::arith::log2u((size + 1) / 2);
+  }
+
+  Order_free node_get(Node_ptr node) const
+  {
+    assert(node.valid());
+    return _tree[node.index];
+  }
+
+  void node_set(Node_ptr node, Order_free largest_order)
+  {
+    _tree[node.index] = largest_order;
+  }
+
+  /**
+   * Determine whether node is free (neither allocated nor split).
+   *
+   * \pre Caller must have checked that all of the node's parents are split,
+   *      because otherwise the node might be shadowed by a used anchestor node.
+   */
+  bool node_is_free(Node_ptr node) const
+  {
+    return node_get(node) == node.level + 1;
+  }
+
+  /// Determine whether node is allocated.
+  bool node_is_used(Node_ptr node) const { return node_get(node) == 0; }
+
+  void node_set_free(Node_ptr node) { node_set(node, node.level + 1); }
+  void node_set_used(Node_ptr node) { node_set(node, 0); }
+
+  Node_ptr root_node() const { return Node_ptr{Root_node_index, _max_level}; }
+
+  bool node_is_seperately_allocated(Node_ptr node)
+  {
+    // If both children of the node are marked as used, the node was not
+    // allocated as a whole, but rather both child nodes separately by
+    // two independent allocations. Freeing it as a single node would leave
+    // the children behind as used and thus corrupt the tree.
+    return !node.is_leaf() && node_is_used(node.left_child())
+           && node_is_used(node.right_child());
+  }
+
+  enum class Walk_dir
+  {
+    Descend, // Descend into the children of the node.
+    Next,    // Go to next node (sibling, or up through parent chain).
+    Stop,    // Stop tree walk.
+  };
+
+  /**
+   * Traverse the tree in pre-order and invoke the callback for each node.
+   *
+   * \param cb    Node callback, returns Walk_dir to steer the tree walk.
+   * \param root  Root node of the (sub)tree to walk.
+   *
+   * \retval false  Walk was stopped early by returning Walk_dir::Stop.
+   * \retval true   Walk reached end of tree.
+   */
+  template<typename CB>
+  bool tree_walk(CB const &cb, Node_ptr root) const
+  {
+    // Invokes callback and returns whether tree walk should descend further.
+    auto handle_node = [&cb](Node_ptr &node)
+      {
+        Walk_dir dir = cb(node);
+        if (dir == Walk_dir::Descend && node.is_leaf())
+          dir = Walk_dir::Next;
+        return dir;
+      };
+
+    if (handle_node(root) != Walk_dir::Descend)
+      return true;
+
+    Node_ptr cur = root.left_child();
+    for (;;)
+      {
+        auto dir = handle_node(cur);
+        if (dir == Walk_dir::Stop)
+          return false;
+
+        if (dir == Walk_dir::Descend)
+          {
+            cur = cur.left_child();
+            continue;
+          }
+
+        // Walk_dir::Next
+        if (cur.is_left())
+          cur = cur.parent().right_child();
+        else if (cur.is_right())
+          {
+            // Bubble up chain of parents to determine next node.
+            Node_ptr parent = cur.parent();
+            while (parent != root && parent.is_right())
+              parent = parent.parent();
+            if (parent == root)
+              return true; // walk done
+            cur = parent.parent().right_child();
+          }
+      }
+  }
+
+  /**
+   * Traverse all non-allocated nodes in the tree.
+   */
+  template<typename CB>
+  void tree_walk_free(CB const &cb) const
+  {
+    tree_walk([this, &cb](Node_ptr const &node)
+      {
+        if (node_is_free(node))
+          {
+            cb(node);
+            return Walk_dir::Next; // encountered free node, bubble up
+          }
+
+        // Descend only if node is split.
+        return node_is_used(node) ? Walk_dir::Next : Walk_dir::Descend;
+      }, root_node());
+  }
+
+  /**
+   * Find smallest node above or at the given level that contains
+   * the entire alloc range.
+   *
+   * The returned node is never shadowed by an allocated ancestor.
+   *
+   * \return Node containing the entire alloc range, or the root node if the
+   *         alloc range exceeds the memory area managed by the allocator.
+   */
+  Node_ptr find_bounded_root(unsigned desired_level,
+                             Mem_range const &alloc_range)
+  {
+    Node_ptr node = root_node();
+    while (node.level > desired_level)
+      {
+        // Must not descend into subtree shadowed by an allocated node.
+        if (node_is_used(node))
+          break;
+
+        auto left = node.left_child();
+        auto right = node.right_child();
+        if (block_range(left).contains(alloc_range))
+          node = left; // Left child contains range.
+        else if (block_range(right).contains(alloc_range))
+          node = right; // Rights child contains range.
+        else
+          break; // Parent node contains range (or is the root of the tree).
+      }
+    return node;
+  }
+
+  static Node_ptr next_node(Node_ptr node, Node_ptr root)
+  {
+    assert(node.valid());
+    if (L4_UNLIKELY(node == root))
+      return Node_ptr();
+
+    if (node.is_left())
+      node = node.parent().right_child();
+    else if (node.is_right())
+      {
+        // Bubble up chain of parents to determine next node.
+        Node_ptr parent = node.parent();
+        while (parent != root && parent.is_right())
+          parent = parent.parent();
+        if (parent == root)
+          return Node_ptr();
+        node = parent.parent().right_child();
+      }
+    return node;
+  }
+
+  static Node_ptr prev_node(Node_ptr node, Node_ptr root)
+  {
+    assert(node.valid());
+    if (L4_UNLIKELY(node == root))
+      return Node_ptr();
+
+    if (node.is_right())
+      node = node.parent().left_child();
+    else if (node.is_left())
+      {
+        // Bubble up chain of parents to determine next node.
+        Node_ptr parent = node.parent();
+        while (parent != root && parent.is_left())
+          parent = parent.parent();
+        if (parent == root)
+          return Node_ptr();
+        node = parent.parent().left_child();
+      }
+    return node;
+  }
+
+  Node_ptr next_adjacent_free(Node_ptr node, Node_ptr root)
+  {
+    Node_ptr next = next_node(node, root);
+    if (!next.valid())
+      return Node_ptr();
+
+    while (!node_is_free(next))
+      {
+        if (next.is_leaf() || node_is_used(next))
+          return Node_ptr();
+        next = next.left_child();
+      }
+    return next;
+  }
+
+  Node_ptr prev_adjacent_free(Node_ptr node, Node_ptr root)
+  {
+    Node_ptr prev = prev_node(node, root);
+    if (!prev.valid())
+      return Node_ptr();
+
+    while (!node_is_free(prev))
+      {
+        if (prev.is_leaf() || node_is_used(prev))
+          return Node_ptr();
+        prev = prev.right_child();
+      }
+    return prev;
+  }
+
+  /**
+   * Walk a consecutive range of nodes, solely based on the start address and
+   * the remaining size until the end of the range, by repeatedly calling this
+   * function.
+   */
+  Node_ptr next_node_in_range(l4_addr_t cur_addr, l4_size_t remaining_size)
+  {
+    unsigned next_level = cxx::min(
+      trailing_zeroes(cur_addr),
+      trailing_zeroes(trunc_power_of_two(remaining_size)));
+    return node_for_block_level(cur_addr, next_level);
+  }
+
+  [[nodiscard]] static bool normalize_size_align(size_t &size, size_t &align)
+  {
+    size = ceil_to(size, Min_size);
+    if (L4_UNLIKELY(size == 0))
+      return false; // Either size was zero, or too large and ceil overflowed.
+
+    if (L4_UNLIKELY(!is_power_of_two(align) || align > size))
+      return false;
+    align = ceil_to(align, Min_size);
+    return true;
+  }
+
+  [[nodiscard]] static bool normalize_bounds(l4_addr_t &lower, l4_addr_t &upper,
+                                             size_t size, size_t align)
+  {
+    // Ceil lower bound to alignment.
+    l4_addr_t aligned_lower = ceil_to(lower, align);
+    if (L4_UNLIKELY(aligned_lower < lower))
+      return false; // Overflow, no aligned address within the bounds.
+    lower = aligned_lower;
+
+    // Truncate upper bound to alignment.
+    if (L4_UNLIKELY(upper < Min_size - 1))
+      return false;
+    // Note that upper + 1 can wrap to zero, still the result is correct.
+    upper = trunc_to(upper + 1, Min_size) - 1;
+
+    if (L4_UNLIKELY(lower > upper))
+      return false;
+
+    return upper - lower >= size - 1;
+  }
+
+  class Alloc_walk
+  {
+  public:
+    Alloc_walk(Buddy_alloc &a, l4_size_t min_size, l4_size_t max_size,
+               l4_size_t align, Mem_range alloc_bounds, Node_ptr base_node)
+    : a(a),
+      min_size(min_size),
+      max_size(max_size),
+      align(align),
+      alloc_bounds(alloc_bounds),
+      base_node(base_node),
+      min_anchor_level(min_level_required_for_size(min_size))
+    {}
+
+    Buddy_alloc &a;
+    l4_size_t const min_size;
+    l4_size_t const max_size;
+    l4_size_t const align;
+    Mem_range const alloc_bounds;
+    Node_ptr const base_node;
+    /// The minimum level at which a free block must exist, see
+    /// min_level_required_for_size(). The eval_alloc() callback in search() may
+    /// raise this dynamically during search.
+    unsigned min_anchor_level;
+    Node_ptr start_node;
+    // The following members are only valid if start_node is valid.
+    Node_ptr end_node;
+    unsigned max_level = 0;
+    Mem_range free_range;
+
+    [[nodiscard]] bool add_free_node(Node_ptr const &node,
+                                     Mem_range const &intersect)
+    {
+      if (!start_node.valid())
+        {
+          // Apply alignment constraints.
+          auto aligned_start = ceil_to(intersect.start, align);
+          if (aligned_start > intersect.end)
+            // Aligned start after end of node.
+            return false;
+
+          start_node = node;
+          end_node = Node_ptr();
+          free_range.start = aligned_start;
+          free_range.end = intersect.end;
+          max_level = node.level;
+        }
+      else
+        {
+          end_node = node;
+          assert(free_range.end + 1 == intersect.start);
+          free_range.end = intersect.end;
+          max_level = cxx::max(max_level, node.level);
+        }
+      return true;
+    }
+
+    void reset_free_range()
+    {
+      start_node = Node_ptr();
+      max_level = 0;
+    }
+
+    /**
+     * Walk the tree, searching for consecutive free blocks with a size
+     * `>= min_anchor_level`. Until their consecutive size is `>= max_size`
+     * or we encounter a non-free node (split or used).
+     * Then call `eval_alloc()` which evaluates whether the found free range
+     * is suitable for the allocation, or if the search shall continue.
+     *
+     * \param eval_alloc  Callback that whether a found free range is suitable
+     *                    for the allocation. Return true to accept the free
+     *                    range and stop the search. Return false, after calling
+     *                    reset_free_range(), to continue the search.
+     */
+    template<typename CB>
+    void search(CB const &eval_alloc);
+
+    /**
+     * Search for optimal allocation range in the around the given free range.
+     *
+     * First expands the start and end of the range, if necessary. And adjusts
+     * the free_range to adhere to the alignment constraints.
+     *
+     * \pre Must only be called from eval_alloc callback.
+     * \return Whether the free range can fulfill the allocation.
+     */
+    inline bool try_alloc();
+
+  private:
+    /**
+     * Test whether searching backwards for adjacent free nodes has a chance to
+     * fulfill the given alignment.
+     *
+     * We assume that this is never called from a tail, i.e. there are no larger
+     * free blocks before this node (we can make this assumption because we
+     * search for free memory from front to back).
+     */
+    static bool may_align(unsigned cur_level, l4_size_t align)
+    {
+      return block_size_for_level(cur_level) > align;
+    }
+
+    inline void expand_start();
+    inline void expand_back();
+  };
+
+
+  /**
+   * Allocate a free block at the given level starting from the given root node.
+   *
+   * \param root           The root node under which the allocation happens.
+   * \param alloc_level    The level to allocate at.
+   *
+   * \retval nullptr  Allocation failed.
+   * \return Pointer to the allocated block.
+   */
+  inline void *alloc_size_aligned(Node_ptr const &root, unsigned alloc_level);
+
+  [[nodiscard]] void *alloc_single_node(Node_ptr node)
+  {
+    assert(node_is_free(node));
+    node_set_used(node);
+    update_parents_after_alloc(node);
+    return reinterpret_cast<void *>(from_min_size_units(block_start_addr(node)));
+  }
+
+  /// Allocate from the node, splitting off the unused tail.
+  void *alloc_partial(Node_ptr node, l4_size_t partial_size)
+  {
+    assert(node_is_free(node));
+    Node_ptr cur_node = node;
+    l4_size_t remaining_size = partial_size;
+    for (;;)
+      {
+        l4_size_t node_size = block_size_for_level(cur_node.level);
+        // Covers entire node.
+        if (remaining_size == node_size)
+          {
+            node_set_used(cur_node);
+            remaining_size -= node_size;
+            update_parents_after_alloc(cur_node);
+            break;
+          }
+        // Covers entire left child of node.
+        else if (remaining_size > node_size / 2)
+          {
+            node_set_used(cur_node.left_child());
+            remaining_size -= node_size / 2;
+            cur_node = cur_node.right_child();
+          }
+        // Covers part of left child of node.
+        else
+          cur_node = cur_node.left_child();
+      }
+    return reinterpret_cast<void *>(from_min_size_units(block_start_addr(node)));
+  }
+
+  /// Allocate a consecutive range of nodes.
+  [[nodiscard]] void *alloc_node_range(Node_ptr node, l4_size_t size)
+  {
+    void *result = nullptr;
+    l4_addr_t cur_addr = block_start_addr(node);
+    l4_size_t remaining_size = size;
+    while (remaining_size > 0)
+      {
+        assert(node_is_free(node));
+        assert(cur_addr == block_start_addr(node));
+        l4_size_t node_size = block_size_for_level(node.level);
+        assert(node_size <= remaining_size);
+
+        void *node_ptr = alloc_single_node(node);
+        if (result == nullptr)
+          result = node_ptr;
+
+        cur_addr += node_size;
+        remaining_size -= node_size;
+        if (remaining_size == 0)
+          break;
+
+        node = next_node_in_range(cur_addr, remaining_size);
+      }
+    return result;
+  }
+
+  /**
+   * Allocate from a consecutive range of nodes masked by a given free range.
+   *
+   * \param start_node  Start node, must be free.
+   * \param end_node    End node, must be free.
+   * \param free_range  Range limiting the allocation, must start within start
+   *                    node (not necessarily at its start) and end within end
+   *                    node (not necessarily at its end).
+   * \param size        Size to allocate, can be smaller than the size of the
+   *                    free range. Still, the allocated memory starts at
+   *                    free_range.start to fulfill alignment constraints.
+   *
+   * \return Pointer to the allocated memory.
+   */
+  inline void *alloc_from_search_range(Node_ptr start_node, Node_ptr end_node,
+                                       Mem_range free_range, l4_size_t size);
+
+  [[nodiscard]] bool free_single_node(Node_ptr node)
+  {
+    // Double-free or free at different level than alloc.
+    if (L4_UNLIKELY(!node_is_used(node) || node_is_seperately_allocated(node)))
+      return false;
+
+    // Mark node as free.
+    node_set_free(node);
+    update_parents_after_free(node);
+    return true;
+  }
+
+  /// Update largest order of parents in tree after marking a node as used.
+  void update_parents_after_alloc(Node_ptr node)
+  {
+    Node_ptr cur = node;
+    while (!cur.is_root())
+      {
+        Node_ptr parent = cur.parent();
+        Order_free largest_order_left = node_get(parent.left_child());
+        Order_free largest_order_right = node_get(parent.right_child());
+        Order_free new_largest_order = cxx::max(largest_order_left,
+                                                largest_order_right);
+        if (new_largest_order == node_get(parent))
+          // Parent largest order unchanged, we can stop.
+          break;
+        node_set(parent, new_largest_order);
+        cur = parent;
+      }
+  }
+
+  /// Update largest order of parents in tree after marking a node as free.
+  void update_parents_after_free(Node_ptr node)
+  {
+    Node_ptr cur = node;
+    // Update parents in tree.
+    while (!cur.is_root())
+      {
+        Node_ptr parent = cur.parent();
+        Order_free largest_order_left = node_get(parent.left_child());
+        Order_free largest_order_right = node_get(parent.right_child());
+        bool left_free = largest_order_left == cur.level + 1;
+        if (largest_order_left == largest_order_right && left_free)
+          {
+            // Both children are free, so mark the parent as free.
+            node_set_free(parent);
+          }
+        else
+          {
+            Order_free new_largest_order = cxx::max(largest_order_left,
+                                                    largest_order_right);
+            if (new_largest_order == node_get(parent))
+              // Parent largest order unchanged, we can stop.
+              break;
+            node_set(parent, new_largest_order);
+          }
+        cur = parent;
+      }
+  }
+
+  /**
+   * Mark the memory covered by the node, i.e. the subtree spanned by it, as
+   * available for allocation.
+   *
+   * \pre The node must be marked as used, i.e. neither free nor split.
+   */
+  void mark_subtree_free(Node_ptr node)
+  {
+    // The nodes of a level are stored consecutively, thus the descendants of a
+    // node are stored as contiguous range on every level.
+    unsigned long first_index = node.index;
+    unsigned long nodes_in_level = 1;
+    for (unsigned level = node.level;; --level)
+      {
+        __builtin_memset(&_tree[first_index], level + 1, nodes_in_level);
+        if (level == 0)
+          break;
+        first_index *= 2;
+        nodes_in_level *= 2;
+      }
+
+    update_parents_after_free(node);
+  }
+
+  l4_addr_t _base;         // in Min_size units
+  l4_size_t _max_mem_size; // in Min_size units
+  unsigned _max_level;
+  l4_uint8_t *_tree = nullptr;
+};
+
+template<typename CB>
+void
+Buddy_alloc::Alloc_walk::search(CB const &eval_alloc)
+{
+  bool completed = a.tree_walk([this, &eval_alloc](Node_ptr &node)
+    {
+      if (!a.node_is_free(node))
+        {
+          // Encountered non-free node, evaluate alloc.
+          if (start_node.valid())
+            {
+              if (eval_alloc())
+                return Walk_dir::Stop;
+
+              if (end_node.valid())
+                {
+                  // Skip free nodes discovered during try_alloc().
+                  node = end_node;
+                  return Walk_dir::Next;
+                }
+            }
+
+          if (!fits_level(a.node_get(node), min_anchor_level))
+            return Walk_dir::Next;
+
+          return Walk_dir::Descend;
+        }
+
+      Mem_range node_range = a.block_range(node);
+      Mem_range intersect = alloc_bounds.intersect(node_range);
+      if (!intersect.valid()
+          || intersect.size() < block_size_for_level(min_anchor_level))
+        return Walk_dir::Next; // out of bounds
+
+      if (!add_free_node(node, intersect))
+        return Walk_dir::Next;
+
+      if (intersect.end < node_range.end)
+        {
+          // The end of the node lies outside the alloc range, we reached the end.
+          eval_alloc();
+          return Walk_dir::Stop;
+        }
+
+      if (free_range.size() >= max_size)
+        {
+          if (eval_alloc())
+            return Walk_dir::Stop;
+
+          if (end_node.valid())
+            // Skip free nodes discovered during try_alloc().
+            node = end_node;
+        }
+
+      return Walk_dir::Next;
+
+      // OPTIMIZE:
+      // Try to not fragment too much, only x-levels below anchor_level.
+      // Take remaining size in relation to min_anchor size into consideration.
+      // Introduce a fragmentation / wasted memory threshold that decides
+      // whether to try size align alloc, or descend further.
+    }, base_node);
+
+  // In case the walk stopped because it reached the end of the tree, we need to
+  // evaluate a pending free range.
+  if (completed && start_node.valid())
+    eval_alloc();
+}
+
+bool
+Buddy_alloc::Alloc_walk::try_alloc()
+{
+  assert(start_node.valid());
+
+  // OPTIMIZE:
+  // How to best position the allocation?
+  // Idea could be to try size-aligned allocation for start and end node to avoid unnecessary splitting.
+  // Or some limits relative to max_level / min_anchor_level.
+  // So in other words, expand start_node and end_node in multiple phases, with different conditions.
+  // 1. Only nodes greater/equal min_anchor_level, front and then back if necessary.
+  // 2. Only nodes greater/equal min_anchor_level - 1, front and then back if necessary.
+  // 3. ...
+  // (if the level available at the front is larger than at the back, but
+  // the later is sufficient to serve the allocation, prefer it)
+
+  // Need to search before (searches for nodes below min_anchor_level).
+  expand_start();
+  assert(is_aligned_to(free_range.start, align));
+  expand_back();
+
+  if (free_range.size() < min_size)
+    {
+      // Failed to alloc...
+      reset_free_range();
+      return false;
+    }
+
+  return true;
+}
+
+void
+Buddy_alloc::Alloc_walk::expand_start()
+{
+  while (free_range.size() < max_size
+         && free_range.start == a.block_start_addr(start_node))
+    {
+      // Searching further back does not make sense, since we know
+      // everything we might find will not align.
+      if (!may_align(start_node.level, align))
+        break;
+
+      // OPTIMIZE: Since we only search levels below min_anchor_level, we
+      // can do some lower bound calculation to figure out if search even
+      // makes sense.
+      Node_ptr prev = a.prev_adjacent_free(start_node, base_node);
+      if (!prev.valid())
+        break;
+
+      Mem_range intersect = alloc_bounds.intersect(a.block_range(prev));
+      if (!intersect.valid())
+        break;
+
+      auto aligned_start = ceil_to(intersect.start, align);
+      if (aligned_start > intersect.end)
+        // Aligned start after end of node.
+        break;
+
+      if (!end_node.valid())
+        end_node = start_node;
+
+      start_node = prev;
+      max_level = cxx::max(max_level, prev.level);
+      free_range.start = aligned_start;
+    }
+}
+
+void
+Buddy_alloc::Alloc_walk::expand_back()
+{
+  while (free_range.size() < max_size
+         && (!end_node.valid() || free_range.end == a.block_end_addr(end_node)))
+    {
+      Node_ptr next = a.next_adjacent_free(
+        !end_node.valid() ? start_node : end_node, base_node);
+      if (!next.valid())
+        break;
+
+      Mem_range intersect = alloc_bounds.intersect(a.block_range(next));
+      if (!intersect.valid())
+        break;
+
+      end_node = next;
+      max_level = cxx::max(max_level, next.level);
+      free_range.end = intersect.end;
+    }
+}
+
+void *
+Buddy_alloc::alloc_size_aligned(Node_ptr const &root, unsigned alloc_level)
+{
+  // Check the largest free order of the root node, mostly to prevent descending
+  // to children shadowed by a fully allocated root node, but also as an early
+  // exit in case it cannot fulfill the allocation.
+  if (!fits_level(node_get(root), alloc_level))
+    return nullptr; // out of memory
+
+  Node_ptr node = root;
+  while (node.level > alloc_level)
+    {
+      auto left = node.left_child();
+      auto right = node.right_child();
+      Order_free largest_order_left = node_get(left);
+      Order_free largest_order_right = node_get(right);
+      if (fits_level(largest_order_left, alloc_level))
+        {
+          if (largest_order_left > largest_order_right
+              && fits_level(largest_order_right, alloc_level))
+            node = right;
+          else
+            node = left;
+        }
+      else if (largest_order_right > alloc_level)
+        node = right;
+      else
+        break;
+    }
+
+  if (!fits_level(node_get(node), alloc_level))
+    return nullptr; // out of memory
+
+  return alloc_single_node(node);
+}
+
+void *
+Buddy_alloc::alloc_from_search_range(Node_ptr start_node, Node_ptr end_node,
+                                     Mem_range free_range, l4_size_t size)
+{
+  if (free_range.start == block_start_addr(start_node) && !end_node.valid())
+    // Allocate from a single node.
+    return alloc_partial(start_node, size);
+
+
+  // Find actual start node, taking intersect into account.
+  while (free_range.start != block_start_addr(start_node))
+    {
+      start_node = block_start_addr(start_node.right_child()) > free_range.start
+                     ? start_node.left_child()
+                     : start_node.right_child();
+    }
+
+  // Allocate multiple nodes, which are descendants of the single original
+  // start_node.
+  if (!end_node.valid())
+    {
+      // Find actual start node, in case the start node is still larger than the
+      // requested size.
+      while (block_size_for_level(start_node.level) > size)
+        start_node = start_node.left_child();
+
+      return alloc_node_range(start_node, size);
+    }
+
+  // Find actual end node, taking intersect into account.
+  while (free_range.end != block_end_addr(end_node))
+    end_node = block_end_addr(end_node.left_child()) >= free_range.end
+                 ? end_node.left_child()
+                 : end_node.right_child();
+
+  assert(free_range.start == block_start_addr(start_node));
+  // min() in case we decided to only allocate a sub-range of the detected
+  // range, for example because of granularity constraints.
+  l4_size_t front_size =
+    cxx::min<l4_size_t>(block_start_addr(end_node) - free_range.start, size);
+  void *mem = alloc_node_range(start_node, front_size);
+
+  // The above alloc_free_range() could take the entire range, including the
+  // tail, but alloc_partial is more efficient due to less
+  // update_parents_after_alloc() calls.
+  if (front_size != size)
+    alloc_partial(end_node, size - front_size);
+  return mem;
+}
+
+void
+Buddy_alloc::add_mem(void *mem, size_t size)
+{
+  assert(initialized());
+
+  l4_addr_t start = reinterpret_cast<l4_addr_t>(mem);
+  l4_addr_t aligned_start = ceil_to(start, Min_size);
+  // Block at address zero must never be handed out by alloc(), because nullptr
+  // represents a failed allocation.
+  if (aligned_start == 0)
+    aligned_start = Min_size;
+
+  size_t skipped_size = aligned_start - start;
+  if (size <= skipped_size)
+    return;
+  size = trunc_to(size - skipped_size, Min_size);
+
+  aligned_start = to_min_size_units(aligned_start);
+  size = to_min_size_units(size);
+
+  while (size > 0)
+    {
+      // Add the largest size-aligned block that fits the remaining size and
+      // mark its entire subtree as free. The naive way of adding Min_size
+      // blocks bottom up, is slow due to the frequent parent updates.
+      Node_ptr node = next_node_in_range(aligned_start, size);
+      size_t block_size = block_size_for_level(node.level);
+
+      if (L4_UNLIKELY(!node_is_used(node)))
+        {
+          // The node is free or split, i.e. at least parts of the memory were
+          // already added before.
+          if constexpr (Print_warnings)
+            printf("Detected addition of already available memory at %#lx (size=%#zx).\n",
+                   from_min_size_units(aligned_start), from_min_size_units(block_size));
+          return;
+        }
+      mark_subtree_free(node);
+
+      aligned_start += block_size;
+      size -= block_size;
+    }
+}
+
+void *
+Buddy_alloc::alloc(size_t size, size_t align, l4_addr_t lower, l4_addr_t upper)
+{
+  if (L4_UNLIKELY(!initialized()))
+    return nullptr;
+
+  if (L4_UNLIKELY(!normalize_size_align(size, align)))
+    return nullptr;
+
+  if (L4_UNLIKELY(!normalize_bounds(lower, upper, size, align)))
+    return nullptr;
+
+  // Convert arguments to Min_size units.
+  size = to_min_size_units(size);
+  align = to_min_size_units(align);
+  lower = to_min_size_units(lower);
+  upper = upper / Min_size; // inclusive, thus not aligned, truncation is fine.
+
+  unsigned size_aligned_level = level_for_block_size(ceil_power_of_two(size));
+  Mem_range alloc_range(lower, upper);
+  Node_ptr base_node = find_bounded_root(size_aligned_level, alloc_range);
+
+  // In case the alloc range contains the base node, so either larger then the
+  // root node or exactly aligning with a subnode, we can use the unbounded
+  // allocation algorithm on the subtree spanned by the base node.
+  if (alloc_range.contains(block_range(base_node)) && is_power_of_two(size))
+    {
+      if (void *block = alloc_size_aligned(base_node, size_aligned_level);
+          L4_LIKELY(block != nullptr))
+        return block;
+
+      if (size == align)
+        return nullptr;
+
+      // Search for non-size-aligned allocation opportunity...
+    }
+
+  Alloc_walk walk(*this, size, size, align, alloc_range, base_node);
+  // OPTIMIZE ideas:
+  //   - Special case for small sizes, where min_anchor_block_size==size.
+  //   - For smaller sizes just try to find a perfect aligned fit. And only if
+  //     that fails try harder.
+  //   - For larger sizes above e.g. 64 MB try harder, with Alloc_walk.
+  //   - If the block we split is much larger than our target size, maybe
+  //     continue searching?
+  walk.search([&]() { return walk.try_alloc(); });
+  if (!walk.start_node.valid())
+    return nullptr;
+
+  return alloc_from_search_range(walk.start_node, walk.end_node,
+                                 walk.free_range, walk.min_size);
+}
+
+void *
+Buddy_alloc::alloc_max(size_t min, size_t *max, size_t align,
+                       size_t granularity, l4_addr_t lower, l4_addr_t upper)
+{
+  if (L4_UNLIKELY(!initialized()))
+    return nullptr;
+
+  if (L4_UNLIKELY(!is_power_of_two(granularity) || granularity > align))
+    return nullptr;
+  granularity = ceil_to(granularity, Min_size);
+
+  if (L4_UNLIKELY(!normalize_size_align(min, align)))
+    return nullptr;
+
+  // The allocation size is truncated to a multiple of the granularity in the
+  // end. Thus also the minimum size must be a multiple of the granularity.
+  // Otherwise the truncation could yield a size below minimum size.
+  min = ceil_to(min, granularity);
+  if (L4_UNLIKELY(min == 0))
+    return nullptr; // Too large, overflow.
+
+  l4_size_t max_ = trunc_to(*max, granularity);
+  if (L4_UNLIKELY(min > max_))
+    return nullptr;
+
+  if (L4_UNLIKELY(!normalize_bounds(lower, upper, min, align)))
+    return nullptr;
+
+  // Convert arguments to Min_size units.
+  min = to_min_size_units(min);
+  max_ = to_min_size_units(max_);
+  align = to_min_size_units(align);
+  granularity = to_min_size_units(granularity);
+  lower = to_min_size_units(lower);
+  upper = upper / Min_size; // inclusive, thus not aligned, truncation is fine.
+
+  unsigned size_aligned_max_level = level_for_block_size(trunc_power_of_two(max_));
+  Mem_range alloc_range(lower, upper);
+  Node_ptr base_node = find_bounded_root(size_aligned_max_level, alloc_range);
+  if (alloc_range.contains(block_range(base_node)) && is_power_of_two(max_))
+    {
+      if (void *block = alloc_size_aligned(base_node, size_aligned_max_level);
+          L4_LIKELY(block != nullptr))
+        {
+          *max = from_min_size_units(max_);
+          return block;
+        }
+
+      // Search for smaller or non-size-aligned allocation opportunity...
+    }
+
+  // Tree walk that only considers nodes within [lower, upper] to search for
+  // suitable free node.
+
+  Node_ptr best_start_node;
+  Node_ptr best_end_node;
+  Mem_range best_free_range;
+
+  Alloc_walk walk(*this, min, max_, align, alloc_range, base_node);
+  walk.search([&]()
+    {
+      if (!walk.try_alloc())
+        return false;
+
+      // OPTIMIZE: Take into account other parameters, such as wasted memory /
+      // splitting of larger blocks.
+      if (!best_start_node.valid()
+          || walk.free_range.size() > best_free_range.size())
+        {
+          best_start_node = walk.start_node;
+          best_end_node = walk.end_node;
+          best_free_range = walk.free_range;
+
+          if (best_free_range.size() >= max_)
+            return true; // found area that can provide max
+
+          // Raise the min_anchor_level dynamically.
+          walk.min_anchor_level = min_level_required_for_size(
+            best_free_range.size());
+        }
+
+      // Continue the scan until we find a range >= max_ or reach the end.
+      walk.reset_free_range();
+      return false;
+    });
+
+  if (!best_start_node.valid())
+    return nullptr;
+
+  max_ = cxx::min(walk.max_size, best_free_range.size());
+  max_ = trunc_to(max_, granularity);
+  *max = from_min_size_units(max_);
+  return alloc_from_search_range(best_start_node, best_end_node,
+                                 best_free_range, max_);
+}
+
+void
+Buddy_alloc::free(void *block, size_t size)
+{
+  if (L4_UNLIKELY(!initialized()))
+    return;
+
+  size = ceil_to(size, Min_size);
+  if (L4_UNLIKELY(size == 0))
+    return; // Either zero size or too large and ceil overflowed.
+
+  if (L4_UNLIKELY(block == nullptr))
+    {
+      // alloc() never hands out a block address of zero.
+      if constexpr (Print_warnings)
+        printf("Invalid free of nullptr (size=%#zx).\n", size);
+      return;
+    }
+
+  l4_addr_t block_addr = reinterpret_cast<l4_addr_t>(block);
+  if (L4_UNLIKELY(!is_aligned_to(block_addr, Min_size)))
+    {
+      if constexpr (Print_warnings)
+        printf("Invalid free of misaligned address %#lx (size=%#zx).\n",
+               block_addr, size);
+      return;
+    }
+
+  // Convert arguments to Min_size units.
+  size = to_min_size_units(size);
+  block_addr = to_min_size_units(block_addr);
+
+  // Reject blocks outside of the memory area managed by the.
+  if (L4_UNLIKELY(block_addr < _base || size > _max_mem_size
+                  || block_addr - _base > _max_mem_size - size))
+    {
+      if constexpr (Print_warnings)
+        printf("Invalid free of %#lx (size=%#zx) outside of the managed area.\n",
+               from_min_size_units(block_addr), from_min_size_units(size));
+      return;
+    }
+
+  // Single size-aligned block.
+  if (is_power_of_two(size) && is_aligned_to(block_addr, size))
+    {
+      Node_ptr node = node_for_block(block_addr, size);
+      if (!free_single_node(node))
+        if constexpr (Print_warnings)
+          printf("Double free of %#lx (size=%#zx) or free with different size.\n",
+                 from_min_size_units(block_addr), from_min_size_units(size));
+      return;
+    }
+
+  // From the alignment of the start address we figure out an upper bound level,
+  // from which we search left until we find a used block at the given address.
+  unsigned base_level = cxx::min(trailing_zeroes(block_addr), _max_level);
+  // Since used nodes never can be shadowed (only free nodes can), it is safe to
+  // start at an arbitrary level of the tree. If we encounter a used node, we
+  // can be sure that it is actually used.
+  Node_ptr node = node_for_block_level(block_addr, base_level);
+
+  // Descend from "upper bound level" to node at the same address marked as used.
+  while (!node_is_used(node) || node_is_seperately_allocated(node))
+    {
+      if (L4_UNLIKELY(node.is_leaf()))
+        {
+          if constexpr (Print_warnings)
+            printf("Double free of %#lx (size=%#zx).\n",
+                   from_min_size_units(block_addr), from_min_size_units(size));
+          return;
+        }
+
+      node = node.left_child();
+    }
+
+  // Now we have the first block of the allocation, now we iterate until we
+  // reached end of allocation.
+  l4_addr_t cur_addr = block_addr;
+  size_t remaining_size = size;
+  for (;;)
+    {
+      l4_size_t block_size = block_size_for_level(node.level);
+      if (L4_UNLIKELY(block_size > remaining_size))
+        {
+          if constexpr (Print_warnings)
+            printf("Free of %#lx with wrong size (block_size=%#zx vs. remaining_size=%#zx).\n",
+                   from_min_size_units(block_addr),
+                   from_min_size_units(block_size),
+                   from_min_size_units(remaining_size));
+          return;
+        }
+
+      // OPTIMIZE: Batch the parent update_parents_after_free() calls?
+      if (!free_single_node(node))
+        if constexpr (Print_warnings)
+          printf("Double free of %#lx (size=%#zx) or free with different size.\n",
+                 from_min_size_units(block_addr), from_min_size_units(size));
+
+      cur_addr += block_size;
+      remaining_size -= block_size;
+      if (remaining_size == 0)
+        break; // we are done :)
+
+      node = next_node_in_range(cur_addr, remaining_size);
+    }
+}
+
+/**
+ * Get the amount of available memory.
+ *
+ * \return Available memory in bytes.
+ */
+size_t
+Buddy_alloc::avail() const
+{
+  if (L4_UNLIKELY(!initialized()))
+    return 0;
+
+  size_t avail = 0;
+  tree_walk_free([&avail](Node_ptr const &node)
+    { avail += block_size_for_level(node.level); });
+  return from_min_size_units(avail);
+}
+
+template<typename DBG>
+void
+Buddy_alloc::dump_free(DBG &out) const
+{
+  if (L4_UNLIKELY(!initialized()))
+    {
+      out.printf("Buddy_alloc [UNITIALIZED]\n");
+      return;
+    }
+
+  l4_uint64_t total = 0;
+  out.printf("Buddy_alloc [%zu,%u]\n", Min_size, _max_level);
+
+  // Stack-allocate entries to cover the maximum possible number of levels.
+  size_t levels_avail[(sizeof(l4_addr_t) * 8) - Min_order + 1] = {};
+  assert(_max_level < cxx::array_size(levels_avail));
+  tree_walk_free([&levels_avail](Node_ptr const &node)
+    { levels_avail[node.level] += 1; });
+
+  auto format_size = [](l4_uint64_t *size, unsigned threshold) -> char const *
+    {
+      static_assert(Min_size >= 1024); // 2^64 == 16 EiB
+      static constexpr char const *const unitstr[7] =
+        { "Byte", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB" };
+
+      unsigned i;
+      for (i = 0; i + 1 < cxx::array_size(unitstr) && *size > (threshold << 10); ++i)
+        *size >>= 10;
+      return unitstr[i];
+    };
+
+  for (unsigned level = 0; level <= _max_level; level++)
+    {
+      l4_uint64_t level_size = block_size_for_level(level) * l4_uint64_t{Min_size};
+      l4_uint64_t size = level_size;
+      char const *unit = format_size(&size, 2);
+      out.printf("  %2u: [%4llu %s]", level, size, unit);
+
+      l4_uint64_t avail = levels_avail[level] * level_size;
+      size_t avail_blocks = levels_avail[level];
+      size = avail;
+      unit = format_size(&size, 8);
+      out.cprintf(" %zu free blocks == %4llu %-4s (%llu bytes)\n",
+                  avail_blocks, size, unit, avail);
+
+      total += avail;
+    }
+
+  l4_uint64_t size = total;
+  char const *unit = format_size(&size, 8);
+  out.printf("sum of available memory: %llu %s (%llu bytes)\n",
+             size, unit, total);
+}
+
+} // namespace cxx
