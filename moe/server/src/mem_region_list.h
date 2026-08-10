@@ -174,6 +174,18 @@ public:
 
   void clear() { _len = 0; }
 
+  void intersect(Region_type const &region)
+  {
+    for (int i = _len; i >= 0; --i)
+      {
+        Region_type intersection = _regions[i].intersect(region);
+        if (intersection.valid())
+          _regions[i] = intersection;
+        else
+          del(i);
+      }
+  }
+
   bool contains(Region_type const &region) const
   {
     for (auto const &candidate : *this)

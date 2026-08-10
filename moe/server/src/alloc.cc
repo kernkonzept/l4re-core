@@ -345,6 +345,58 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
     return -L4_EINVAL;
 #endif
 
+  if (flags_val & L4Re::Mem_alloc::Dma_mask_bits)
+    {
+      if (!(flags_val & L4Re::Mem_alloc::Continuous))
+        return -L4_EINVAL; // DMA mask requires continuous dataspace
+
+      static_assert(L4Re::Mem_alloc::Dma_mask_bits == 0x3f0);
+      unsigned dma_mask_bits = 64 - ((flags_val & 0x3f0) >> 4);
+      // A DMA mask smaller than L4_PAGESHIFT does not make sense.
+      if (dma_mask_bits < L4_PAGESHIFT)
+        return -L4_EINVAL;
+
+      // A DMA mask larger than the maximum physical address can be safely
+      // ignored.
+      if (dma_mask_bits < (sizeof(l4_addr_t) * 8))
+        {
+          l4_addr_t limit_addr = l4_addr_t{1} << dma_mask_bits;
+
+          Moe::Mem_range mask_range;
+          if (flags_val & L4Re::Mem_alloc::Invert_dma_mask)
+            mask_range = {limit_addr, Moe::Max_phys_addr};
+          else
+            mask_range = {0, limit_addr - 1};
+
+          // Filter regions dataspace config by DMA mask region.
+          if (ds_cont_regions.empty())
+            {
+              for (auto const &region : ds_config.regions)
+                {
+                  auto intersect = region.range.intersect(mask_range);
+                  if (intersect.valid())
+                    static_cast<void>(ds_cont_regions.add(
+                      Moe::Mem_region::untyped(intersect)));
+                }
+            }
+          else
+            {
+              assert(ds_config.regions.begin() == ds_cont_regions.begin());
+              ds_cont_regions.intersect(Moe::Mem_region::untyped(mask_range));
+            }
+
+          if (ds_cont_regions.empty())
+            {
+              dbg.printf(
+                "Intersection of DMA mask and dataspace regions is empty.\n");
+              return -L4_ENOMEM;
+            }
+          // Fine to refer to stack-allocated list because we checked above that
+          // it is a continuous allocation.
+          ds_config.regions = {ds_cont_regions.begin(), ds_cont_regions.len()};
+        }
+    }
+
   // L4::cout << "MEM: alloc ... " << size.value<l4_mword_t>()
   //          << "; " << flags.value<l4_umword_t>()
   //          << "; [" << L4::hex << mem_cfg.physmin
