@@ -502,10 +502,12 @@ static void hdl_ldr_flags(cxx::String const &args)
   Moe::ldr_flags = lvl;
 }
 
+Moe::Mem_region all_mem = Moe::Mem_region::untyped({0, Moe::Max_phys_addr});
+
 #ifndef CONFIG_MMU
 static void hdl_brk(cxx::String const &args)
 {
-  if (args.from_hex(&Single_page_alloc_base::default_mem_cfg.physmin) <= 0)
+  if (args.from_hex(&all_mem.range.start) <= 0)
     warn.printf("Invalid brk option: '%.*s'\n", args.len(), args.start());
 }
 #endif
@@ -600,6 +602,11 @@ static cxx::String parse_cmdline()
   return init_args;
 }
 
+static void init_default_mem_cfg()
+{
+  Single_page_alloc_base::default_mem_cfg.regions = {&all_mem, 1};
+}
+
 static cxx::Static_container<Moe::Dma_space_mgr> dma_space_mgr;
 static Elf_loader elf_loader;
 static L4::Server<Loop_hooks> server;
@@ -651,6 +658,8 @@ int main(int /* argc */, char** /* argv */)
       Moe::Boot_fs::init_stage1();
 
       cxx::String init_args = parse_cmdline();
+
+      init_default_mem_cfg();
 
       find_memory();
       init_virt_limits();

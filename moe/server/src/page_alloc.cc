@@ -42,8 +42,17 @@ void *
 Single_page_alloc_base::_alloc_max(size_t min, size_t *max, size_t align,
                                    size_t granularity, Config cfg)
 {
-  void *ret = page_alloc()->alloc_max(min, max, align, granularity,
-                                      cfg.physmin, cfg.physmax);
+  void *ret = nullptr;
+  // TODO: If there are multiple regions an alloc_max might allocate less memory
+  //       than actually would have been possible in a following region.
+  for (auto const &region : cfg.regions)
+    {
+      ret = page_alloc()->alloc_max(min, max, align, granularity,
+                                    region.range.start, region.range.end);
+      if (ret)
+        break; // successful allocation
+    }
+
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): alloc_max(" << *max << ") @" << ret << '\n';
   return ret;
@@ -52,7 +61,14 @@ Single_page_alloc_base::_alloc_max(size_t min, size_t *max, size_t align,
 void *
 Single_page_alloc_base::_alloc(Nothrow, size_t size, size_t align, Config cfg)
 {
-  void *ret = page_alloc()->alloc(size, align, cfg.physmin, cfg.physmax);
+  void *ret = nullptr;
+  for (auto const &region : cfg.regions)
+    {
+      ret = page_alloc()->alloc(size, align, region.range.start, region.range.end);
+      if (ret)
+        break; // successful allocation
+    }
+
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): alloc(" << size << ") @" << ret << '\n';
   return ret;

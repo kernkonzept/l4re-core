@@ -97,7 +97,8 @@ Moe_app_model::alloc_ds(unsigned long size) const
 Moe_app_model::Dataspace
 Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 {
-  Single_page_alloc_base::Config cfg{paddr, paddr+size-1U};
+  auto region = Moe::Mem_region::untyped({paddr, paddr + size - 1});
+  Single_page_alloc_base::Config cfg{{&region, 1}};
   Dataspace mem = _task->allocator()->alloc(size, cfg,
                                             L4Re::Mem_alloc::Continuous, 0);
   if (!mem)

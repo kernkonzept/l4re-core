@@ -48,6 +48,15 @@ public:
 
   Moe::Q_alloc *qalloc() { return &_qalloc; }
 
+  /**
+   * Allocates a dataspace.
+   *
+   * \param size   Size in bytes to be allocated.
+   * \param cfg    Allocator constraints. May refer to stack allocated region
+   *               list for allocations that have the `Continuous` flag set.
+   * \param flags  Dataspace properties, see #L4Re::Mem_alloc::Mem_alloc_flags.
+   * \param align  Log2 alignment of dataspace.
+   */
   Moe::Dataspace *alloc(long size, Single_page_alloc_base::Config cfg,
                         unsigned long flags = 0, unsigned long align = 0);
 

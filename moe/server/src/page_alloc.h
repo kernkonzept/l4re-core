@@ -6,7 +6,10 @@
  */
 #pragma once
 
+#include "factory_config.h"
+
 #include <l4/cxx/exceptions>
+#include <l4/cxx/static_vector>
 
 #include <cstddef>
 
@@ -24,13 +27,12 @@ public:
 
   struct Config
   {
-    l4_addr_t physmin;
-    l4_addr_t physmax;
+    Moe::Factory_config::Region_list_view regions = {nullptr, 0};
 
-    constexpr Config() : physmin(0), physmax(~0UL) {}
-
-    explicit Config(l4_addr_t physmin, l4_addr_t physmax)
-    : physmin(physmin), physmax(physmax) {}
+    Config() = default;
+    constexpr Config(Moe::Factory_config::Region_list_view regions)
+    : regions(regions)
+    {}
   };
 
   static Config default_mem_cfg;

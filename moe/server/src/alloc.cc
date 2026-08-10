@@ -23,6 +23,7 @@
 #include "dataspace_anon.h"
 #include "dataspace_noncont.h"
 #include "dma_space.h"
+#include "mem_region_list.h"
 #include "globals.h"
 #include "page_alloc.h"
 #include "quota.h"
@@ -39,9 +40,6 @@ Allocator::alloc(long size, Single_page_alloc_base::Config cfg,
 {
   if (size == 0)
     throw L4::Bounds_error("stack too small");
-
-  if (cfg.physmin >= cfg.physmax)
-    throw L4::Runtime_error(-L4_EINVAL, "malformed memory range");
 
 #if !defined(CONFIG_MMU)
   flags |= L4Re::Mem_alloc::Continuous | L4Re::Mem_alloc::Pinned;
@@ -260,8 +258,9 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
   if (flags_val & L4Re::Mem_alloc::Fixed_paddr)
     base = args.pop_front();
 
-  Single_page_alloc_base::Config mem_cfg(Single_page_alloc_base::default_mem_cfg);
+  Single_page_alloc_base::Config ds_config;
 
+  Moe::Factory_config::Region_list ds_cont_regions;
 #ifdef CONFIG_MMU
   // On MMU systems, the physical address is none of the clients
   // business.
@@ -273,8 +272,18 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
   // guest RAM allocation won't work.
   if (base.is_of_int())
     {
-      mem_cfg.physmin = base.value<l4_umword_t>();
-      mem_cfg.physmax = mem_cfg.physmin + size.value<l4_umword_t>() - 1U;
+      l4_addr_t physmin = base.value<l4_umword_t>();
+      l4_addr_t physmax = physmin + size.value<l4_umword_t>() - 1U;
+      if (physmin >= physmax)
+        return -L4_EINVAL; // overflow
+
+      Moe::Mem_range alloc_range(physmin, physmax);
+      ds_cont_regions.clear();
+      static_cast<void>(
+        ds_cont_regions.add(Moe::Mem_region::untyped(alloc_range)));
+      // Fine to refer to stack-allocated list because on no-MMU all allocations
+      // are continuous.
+      ds_config.regions = {ds_cont_regions.begin(), ds_cont_regions.len()};
     }
   else if (!base.is_nil())
     return -L4_EINVAL;
@@ -285,7 +294,7 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
   //          << "; [" << L4::hex << mem_cfg.physmin
   //          << " .. " << mem_cfg.physmax << "]\n";
   cxx::unique_ptr<Moe::Dataspace> mo(alloc(size.value<l4_mword_t>(),
-        mem_cfg, flags_val,
+        ds_config, flags_val,
         align.is_of_int() ? align.value<l4_umword_t>() : 0));
 
   // L4::cout << "MO=" << mo.get() << "\n";
