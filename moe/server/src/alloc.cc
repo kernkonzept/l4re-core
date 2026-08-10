@@ -309,7 +309,16 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
       if (physmin >= physmax)
         return -L4_EINVAL; // overflow
 
+      // Check that the requested physical address range is covered by
+      // the factory constraints.
       Moe::Mem_range alloc_range(physmin, physmax);
+      if (!ds_config.regions.contains(alloc_range))
+        {
+          dbg.printf("Requested physical address range not covered by "
+                     "factory constraints.\n");
+          return -L4_ENOMEM;
+        }
+
       ds_cont_regions.clear();
       static_cast<void>(
         ds_cont_regions.add(Moe::Mem_region::untyped(alloc_range)));
