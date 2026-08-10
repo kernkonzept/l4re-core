@@ -148,15 +148,18 @@ public:
    *                    with Super_pages flag set at least L4_SUPERPAGESHIFT
    * \param      paddr  The physical address where the dataspace should be
    *                    allocated if Mem_alloc_flags::Fixed flag is set.
+   * \param      type   Allocate the dataspace from a typed memory with the
+   *                    given name. Otherwise the dataspace is allocated from
+   *                    untyped memory.
    *
    * \retval 0           Success
    * \retval -L4_ERANGE  Given size not supported.
    * \retval -L4_ENOMEM  Not enough memory available.
    * \retval <0          IPC error
    */
-  l4_ret_t alloc(long size, L4::Cap<Dataspace> mem,
-                 unsigned long flags = 0, unsigned long align = 0,
-                 l4_addr_t paddr = 0) const noexcept;
+  l4_ret_t alloc(long size, L4::Cap<Dataspace> mem, unsigned long flags = 0,
+                 unsigned long align = 0, l4_addr_t paddr = 0,
+                 char const *type = nullptr) const noexcept;
 
   /**
    * Get allocator information.
