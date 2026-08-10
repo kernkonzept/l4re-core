@@ -9,6 +9,7 @@
 #include <l4/sys/types.h>
 #include <l4/sys/kip.h>
 
+#include "factory_config.h"
 #include "obj_reg.h"
 
 namespace Moe { class Dataspace; };
@@ -34,6 +35,8 @@ namespace Moe {
   namespace Phys_limit {
     extern l4_size_t avail_ram;
   }
+  // TODO: This should be const once initialized (default_mem_cfg refers to it).
+  extern Factory_config root_factory_config;
 }
 
 namespace Moe {

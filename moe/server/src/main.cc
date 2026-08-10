@@ -37,6 +37,7 @@
 #include "dma_space.h"
 #include "boot_fs.h"
 #include "mem_region_list.h"
+#include "factory_config.h"
 #include "globals.h"
 #include "loader_elf.h"
 #include "log.h"
@@ -66,6 +67,7 @@ void _exit(int status)
 unsigned Moe::l4re_dbg = Dbg::Warn;
 unsigned Moe::ldr_flags;
 
+Moe::Factory_config Moe::root_factory_config;
 
 static Dbg info(Dbg::Info);
 static Dbg boot(Dbg::Boot);
@@ -412,6 +414,8 @@ public:
 };
 
 static cxx::String _init_prog = "rom/ned";
+static cxx::String _root_factory_config;
+static cxx::String _root_factory_brk;
 
 struct Get_opt
 {
@@ -496,19 +500,29 @@ static void hdl_l4re_dbg(cxx::String const &args)
   Moe::l4re_dbg = lvl;
 }
 
+static void hdl_root_factory(cxx::String const &_args)
+{
+  // Fail if the --root-factory option is specified multiple times, to prevent
+  // accidental misconfiguration.
+  if (!_root_factory_config.empty())
+    {
+      Err(Err::Fatal)
+        .printf("The --root-factory option was specified multiple times.\n");
+      exit(1);
+    }
+  _root_factory_config = _args;
+}
+
 static void hdl_ldr_flags(cxx::String const &args)
 {
   unsigned long lvl = parse_flags(args, ldr_flag_bits, "--ldr-flags");
   Moe::ldr_flags = lvl;
 }
 
-Moe::Mem_region all_mem = Moe::Mem_region::untyped({0, Moe::Max_phys_addr});
-
 #ifndef CONFIG_MMU
 static void hdl_brk(cxx::String const &args)
 {
-  if (args.from_hex(&all_mem.range.start) <= 0)
-    warn.printf("Invalid brk option: '%.*s'\n", args.len(), args.start());
+  _root_factory_brk = args;
 }
 #endif
 
@@ -516,6 +530,7 @@ static void hdl_brk(cxx::String const &args)
 static Get_opt const _options[] = {
       {"--debug=",     hdl_debug },
       {"--init=",      hdl_init },
+      {"--root-factory=", hdl_root_factory },
       {"--l4re-dbg=",  hdl_l4re_dbg },
       {"--ldr-flags=", hdl_ldr_flags },
 #ifndef CONFIG_MMU
@@ -602,9 +617,65 @@ static cxx::String parse_cmdline()
   return init_args;
 }
 
+static void init_root_factory_config()
+{
+  if (_root_factory_config.empty())
+    {
+      l4_addr_t physmin = 0;
+      if (!_root_factory_brk.empty() && _root_factory_brk.from_hex(&physmin) <= 0)
+        {
+          Err(Err::Fatal).printf("Invalid --brk option: '%.*s'\n",
+                                 _root_factory_brk.len(),
+                                 _root_factory_brk.start());
+          exit(1);
+        }
+
+      // Use default values if no --root-factory config is provided.
+      Moe::Mem_range all_mem{physmin, Moe::Max_phys_addr};
+      if (!Moe::root_factory_config.regions.add(Moe::Mem_region::untyped(all_mem)))
+        abort(); // should never happen
+      Moe::root_factory_config.permissions = Moe::Factory_config::Scheduler_proxy;
+      return;
+    }
+
+  if (!_root_factory_brk.empty())
+    {
+      Err(Err::Fatal).printf(
+        "The options --brk and --root-factory are are mutually exclusive.\n");
+      exit(1);
+    }
+
+  cxx::String args = _root_factory_config;
+  for (;;)
+  {
+    cxx::String::Index delimiter = args.find(',');
+    cxx::String arg = args.head(delimiter);
+    if (arg.empty())
+      break;
+
+    args = args.substr(delimiter + 1);
+    if (!Moe::parse_factory_config(arg, &Moe::root_factory_config))
+      {
+        Err(Err::Fatal).printf("Unknown argument for --root-factory: '%.*s'\n",
+                               arg.len(), arg.start());
+        exit(1);
+      }
+  }
+
+  if (Moe::root_factory_config.untyped_regions().empty())
+    {
+      Err(Err::Fatal).printf(
+        "The --root-factory option did not specify any untyped regions.\n");
+      exit(1);
+    }
+}
+
 static void init_default_mem_cfg()
 {
-  Single_page_alloc_base::default_mem_cfg.regions = {&all_mem, 1};
+  // Moe internal allocations must only come from memory tagged as untyped in
+  // the root factory config.
+  Single_page_alloc_base::default_mem_cfg.regions =
+    Moe::root_factory_config.untyped_regions();
 }
 
 static cxx::Static_container<Moe::Dma_space_mgr> dma_space_mgr;
@@ -658,6 +729,10 @@ int main(int /* argc */, char** /* argv */)
       Moe::Boot_fs::init_stage1();
 
       cxx::String init_args = parse_cmdline();
+
+      init_root_factory_config();
+      info.printf("Root factory:-------------------\n");
+      Moe::root_factory_config.dump(info);
 
       init_default_mem_cfg();
 
