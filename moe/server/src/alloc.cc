@@ -34,8 +34,8 @@
 static Dbg dbg(Dbg::Warn | Dbg::Server);
 
 Moe::Dataspace *
-Allocator::alloc(long size, unsigned long flags, unsigned long align,
-                 Single_page_alloc_base::Config cfg)
+Allocator::alloc(long size, Single_page_alloc_base::Config cfg,
+                 unsigned long flags, unsigned long align)
 {
   if (size == 0)
     throw L4::Bounds_error("stack too small");
@@ -57,8 +57,8 @@ Allocator::alloc(long size, unsigned long flags, unsigned long align,
       else
         align = cxx::max<unsigned long>(align, L4_PAGESHIFT);
 
-      mo = make_obj<Moe::Dataspace_anon>(size, L4Re::Dataspace::F::RWX, align,
-                                         cfg);
+      mo = make_obj<Moe::Dataspace_anon>(size, cfg, L4Re::Dataspace::F::RWX,
+                                         align);
     }
   else
     {
@@ -285,9 +285,8 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
   //          << "; [" << L4::hex << mem_cfg.physmin
   //          << " .. " << mem_cfg.physmax << "]\n";
   cxx::unique_ptr<Moe::Dataspace> mo(alloc(size.value<l4_mword_t>(),
-        flags_val,
-        align.is_of_int() ? align.value<l4_umword_t>() : 0,
-        mem_cfg));
+        mem_cfg, flags_val,
+        align.is_of_int() ? align.value<l4_umword_t>() : 0));
 
   // L4::cout << "MO=" << mo.get() << "\n";
   res = register_ipc_object(cxx::move(mo), "moe-ds");

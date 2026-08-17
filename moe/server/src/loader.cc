@@ -58,7 +58,8 @@ static
 Moe::Dataspace *
 __alloc_app_stack(Allocator *a, Moe::Stack *_stack, unsigned long size)
 {
-  cxx::unique_ptr<Moe::Dataspace> stack(a->alloc(size));
+  cxx::unique_ptr<Moe::Dataspace> stack(
+    a->alloc(size, Single_page_alloc_base::default_mem_cfg));
 
 #ifdef CONFIG_MMU
   _stack->set_local_top(stack->address(size - L4_PAGESIZE).adr<char *>()
@@ -86,7 +87,8 @@ bool Loader::start(cxx::String const &init_prog, cxx::String const &cmdline)
 Moe_app_model::Dataspace
 Moe_app_model::alloc_ds(unsigned long size) const
 {
-  Dataspace mem =_task->allocator()->alloc(size);
+  Dataspace mem =
+    _task->allocator()->alloc(size, Single_page_alloc_base::default_mem_cfg);
   if (!mem)
     chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
   return mem;
@@ -96,7 +98,7 @@ Moe_app_model::Dataspace
 Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 {
   Single_page_alloc_base::Config cfg{paddr, paddr+size-1U};
-  Dataspace mem =_task->allocator()->alloc(size, 0, 0, cfg);
+  Dataspace mem =_task->allocator()->alloc(size, cfg, 0, 0);
   if (!mem)
     chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
   return mem;
@@ -105,7 +107,8 @@ Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 Moe_app_model::Dataspace
 Moe_app_model::alloc_ds_aligned(unsigned long size, unsigned align) const
 {
-  Dataspace mem =_task->allocator()->alloc(size, 0, align);
+  Dataspace mem = _task->allocator()->alloc(
+    size, Single_page_alloc_base::default_mem_cfg, 0, align);
   if (!mem)
     chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
   return mem;

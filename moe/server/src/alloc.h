@@ -48,10 +48,8 @@ public:
 
   Moe::Q_alloc *qalloc() { return &_qalloc; }
 
-  Moe::Dataspace *alloc(long size, unsigned long flags = 0,
-                        unsigned long align = 0,
-                        Single_page_alloc_base::Config cfg
-                          = Single_page_alloc_base::default_mem_cfg);
+  Moe::Dataspace *alloc(long size, Single_page_alloc_base::Config cfg,
+                        unsigned long flags = 0, unsigned long align = 0);
 
   virtual ~Allocator();
 

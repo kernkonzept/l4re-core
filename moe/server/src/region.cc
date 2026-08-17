@@ -62,7 +62,8 @@ int Region_handler::init(Region_map *rm, unsigned long size) noexcept
     Moe::Dataspace_noncont::create(rm->qalloc(), size,
                                    Single_page_alloc_base::default_mem_cfg)
 #else
-    rm->qalloc()->make_obj<Moe::Dataspace_anon>(size, L4Re::Dataspace::F::RWX)
+    rm->qalloc()->make_obj<Moe::Dataspace_anon>(
+      size, Single_page_alloc_base::default_mem_cfg, L4Re::Dataspace::F::RWX)
 #endif
     );
 

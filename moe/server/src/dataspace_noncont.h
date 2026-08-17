@@ -59,10 +59,8 @@ public:
 
   bool is_static() const noexcept override { return false; }
 
-  Dataspace_noncont(unsigned long size,
-                    Flags flags = L4Re::Dataspace::F::RWX,
-                    Single_page_alloc_base::Config cfg =
-                      Single_page_alloc_base::default_mem_cfg) noexcept
+  Dataspace_noncont(unsigned long size, Single_page_alloc_base::Config cfg,
+                    Flags flags = L4Re::Dataspace::F::RWX) noexcept
   : Dataspace(size, flags | Flags(Cow_enabled), L4_LOG2_PAGESIZE),
     _pages(0), _cfg(cfg)
   {}

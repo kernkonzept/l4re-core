@@ -17,9 +17,8 @@
 #include <cstring>
 #include <climits>
 
-Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
-                                    unsigned char page_shift,
-                                    Single_page_alloc_base::Config cfg)
+Moe::Dataspace_anon::Dataspace_anon(long size, Single_page_alloc_base::Config cfg,
+                                    Flags w, unsigned char page_shift)
 : Moe::Dataspace_cont(0, 0, w, page_shift)
 {
   Quota_guard g;

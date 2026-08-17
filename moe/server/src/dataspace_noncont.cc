@@ -175,7 +175,7 @@ namespace {
   public:
     Mem_one_page(unsigned long size, Flags flags,
                  Single_page_alloc_base::Config cfg) noexcept
-    : Moe::Dataspace_noncont(size, flags, cfg)
+    : Moe::Dataspace_noncont(size, cfg, flags)
     {}
 
     ~Mem_one_page() noexcept
@@ -201,7 +201,7 @@ namespace {
     { return (l4_round_size(num_pages()*sizeof(unsigned long), Meta_align_bits)); }
     Mem_small(unsigned long size, Flags flags,
               Single_page_alloc_base::Config cfg)
-    : Moe::Dataspace_noncont(size, flags, cfg)
+    : Moe::Dataspace_noncont(size, cfg, flags)
     {
       void *p = qalloc()->alloc_pages(meta_size(), Meta_align, cfg);
       memset(p, 0, meta_size());
@@ -270,7 +270,7 @@ namespace {
 
     Mem_big(unsigned long size, Flags flags,
             Single_page_alloc_base::Config cfg)
-    : Moe::Dataspace_noncont(size, flags, cfg)
+    : Moe::Dataspace_noncont(size, cfg, flags)
     {
       void *p = qalloc()->alloc_pages(meta1_size(), 1024, cfg);
       memset(p, 0, meta1_size());

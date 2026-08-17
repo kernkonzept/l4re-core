@@ -18,8 +18,7 @@ class Dataspace_cont : public Dataspace
 {
 public:
   Dataspace_cont(void *start, unsigned long size,
-                 Flags flags,
-                 unsigned char page_shift);
+                 Flags flags, unsigned char page_shift);
 
   ~Dataspace_cont() { unmap(); }
 
