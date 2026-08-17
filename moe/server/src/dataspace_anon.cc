@@ -50,7 +50,7 @@ Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
       if (size == 0L)
         L4Re::chksys(-L4_ENOMEM);
 
-      unsigned long r_size = size;
+      size_t r_size = size;
       void *_m = Single_page_alloc_base::_alloc_max(page_size(), &r_size,
                                                     page_size(), page_size(),
                                                     cfg);

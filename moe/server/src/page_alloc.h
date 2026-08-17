@@ -8,6 +8,8 @@
 
 #include <l4/cxx/exceptions>
 
+#include <cstddef>
+
 class Dbg;
 
 /**
@@ -37,23 +39,21 @@ protected:
   Single_page_alloc_base();
 
 public:
-  static void *_alloc_max(unsigned long min, unsigned long *max,
-                          unsigned align, unsigned granularity,
-                          Config cfg);
-  static void *_alloc(Nothrow, unsigned long size, unsigned long align,
+  static void *_alloc_max(size_t min, size_t *max, size_t align,
+                          size_t granularity, Config cfg);
+  static void *_alloc(Nothrow, size_t size, size_t align,
                       Config cfg = default_mem_cfg);
-  static void *_alloc(unsigned long size, unsigned long align,
-                      Config cfg = default_mem_cfg)
+  static void *_alloc(size_t size, size_t align, Config cfg = default_mem_cfg)
   {
     void *r = _alloc(nothrow, size, align, cfg);
     if (!r)
       throw L4::Out_of_memory();
     return r;
   }
-  static void _free(void *p, unsigned long size);
-  static unsigned long _avail();
+  static void _free(void *p, size_t size);
+  static size_t _avail();
 
-  static void _add_mem(void *p, unsigned long size);
+  static void _add_mem(void *p, size_t size);
 
 #ifndef NDEBUG
   static void _dump_free(Dbg &dbg);
@@ -66,7 +66,7 @@ class Single_page_unique_ptr
 {
 private:
   void *_p = 0;
-  unsigned long _s;
+  size_t _s;
 
 public:
   void *release()
@@ -76,13 +76,13 @@ public:
     return p;
   }
 
-  void reset(void *n = 0, unsigned long size = 0)
+  void reset(void *n = 0, size_t size = 0)
   {
     if (n == _p)
       return;
 
     void *p = _p;
-    unsigned long s = _s;
+    size_t s = _s;
 
     _p = n;
     if (n)
@@ -92,13 +92,13 @@ public:
       Single_page_alloc_base::_free(p, s);
   }
 
-  unsigned long size() const { return _s; }
+  size_t size() const { return _s; }
 
   void *get() const { return _p; }
   void *operator * () const { return _p; }
 
   Single_page_unique_ptr() = default;
-  Single_page_unique_ptr(void *p, unsigned long size) : _p(p), _s(size) {}
+  Single_page_unique_ptr(void *p, size_t size) : _p(p), _s(size) {}
 
   ~Single_page_unique_ptr()
   { reset(); }

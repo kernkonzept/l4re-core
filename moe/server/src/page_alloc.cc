@@ -67,26 +67,26 @@ Single_page_alloc_base::Config Single_page_alloc_base::default_mem_cfg;
 Single_page_alloc_base::Single_page_alloc_base()
 {}
 
-unsigned long Single_page_alloc_base::_avail()
+size_t
+Single_page_alloc_base::_avail()
 {
   return page_alloc()->avail();
 }
 
-void *Single_page_alloc_base::_alloc_max(unsigned long min,
-                                         unsigned long *max,
-                                         unsigned align,
-                                         unsigned granularity,
-                                         Config cfg)
+void *
+Single_page_alloc_base::_alloc_max(size_t min, size_t *max, size_t align,
+                                   size_t granularity, Config cfg)
 {
-  void *ret = page_alloc()->alloc_max(min, max, align, granularity, cfg.physmin,
-                                      cfg.physmax);
+  unsigned long *max_ptr = reinterpret_cast<unsigned long *>(max);
+  void *ret = page_alloc()->alloc_max(min, max_ptr, align, granularity,
+                                      cfg.physmin, cfg.physmax);
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): alloc_max(" << *max << ") @" << ret << '\n';
   return ret;
 }
 
-void *Single_page_alloc_base::_alloc(Nothrow, unsigned long size,
-                                     unsigned long align, Config cfg)
+void *
+Single_page_alloc_base::_alloc(Nothrow, size_t size, size_t align, Config cfg)
 {
   void *ret = page_alloc()->alloc(size, align, cfg.physmin, cfg.physmax);
   if (page_alloc_debug)
@@ -94,7 +94,8 @@ void *Single_page_alloc_base::_alloc(Nothrow, unsigned long size,
   return ret;
 }
 
-void Single_page_alloc_base::_free(void *p, unsigned long size)
+void
+Single_page_alloc_base::_free(void *p, size_t size)
 {
   if (!can_free)
     return;
@@ -104,7 +105,8 @@ void Single_page_alloc_base::_free(void *p, unsigned long size)
   page_alloc()->free(p, size);
 }
 
-void Single_page_alloc_base::_add_mem(void *p, unsigned long size)
+void
+Single_page_alloc_base::_add_mem(void *p, size_t size)
 {
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): add_mem(" << size << ") @" << p << '\n';
@@ -112,7 +114,8 @@ void Single_page_alloc_base::_add_mem(void *p, unsigned long size)
 }
 
 #ifndef NDEBUG
-void Single_page_alloc_base::_dump_free(Dbg &dbg)
+void
+Single_page_alloc_base::_dump_free(Dbg &dbg)
 {
   page_alloc()->dump_free_list(dbg);
 }

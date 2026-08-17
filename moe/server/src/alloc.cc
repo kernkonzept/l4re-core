@@ -343,7 +343,7 @@ Allocator::op_debug(L4Re::Debug_obj::Rights, unsigned long)
                (_qalloc.quota()->limit() - _qalloc.quota()->reserved()) >> 20,
                _qalloc.quota()->committed(),
                _qalloc.quota()->committed() >> 20);
-  out.printf("global: avail: %lu bytes (%lu MiB)\n",
+  out.printf("global: avail: %zu bytes (%zu MiB)\n",
              Single_page_alloc_base::_avail(),
              Single_page_alloc_base::_avail() / (1<<20));
   out.printf("global physical free list:\n");
