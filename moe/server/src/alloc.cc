@@ -401,7 +401,7 @@ Allocator::root_allocator()
     return _root_alloc;
 
   _root_alloc = Moe::Moe_alloc::allocator()->make_obj<Allocator>(
-    Moe::Moe_alloc::allocator()->quota(), ~0, Moe::root_factory_config, true);
+    Moe::Moe_alloc::allocator()->quota(), ~0, Moe::root_factory_config);
   object_pool.life.push_front(_root_alloc);
   return _root_alloc;
 }

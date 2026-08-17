@@ -33,12 +33,11 @@ private:
 
   Moe::Q_alloc _qalloc;
   Moe::Factory_config _config;
-  bool _is_root;  ///< Is this the root allocator?
 
 public:
   explicit Allocator(Moe::Quota *parent, size_t limit,
-                     Moe::Factory_config const &config, bool is_root = false)
-  : _qalloc(parent, limit), _config(config), _is_root(is_root)
+                     Moe::Factory_config const &config)
+  : _qalloc(parent, limit), _config(config)
   {}
 
   template<typename T, typename ...ARGS>
