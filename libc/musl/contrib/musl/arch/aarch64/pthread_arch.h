@@ -1,4 +1,4 @@
-static inline uintptr_t __get_tp()
+static inline uintptr_t __get_tp(void)
 {
 	uintptr_t tp;
 	__asm__ ("mrs %0,tpidr_el0" : "=r"(tp));

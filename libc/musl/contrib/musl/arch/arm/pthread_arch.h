@@ -1,7 +1,7 @@
 #if ((__ARM_ARCH_6K__ || __ARM_ARCH_6KZ__ || __ARM_ARCH_6ZK__) && !__thumb__) \
  || __ARM_ARCH_7A__ || __ARM_ARCH_7R__ || __ARM_ARCH >= 7
 
-static inline uintptr_t __get_tp()
+static inline uintptr_t __get_tp(void)
 {
 	uintptr_t tp;
 	__asm__ ( "mrc p15,0,%0,c13,c0,3" : "=r"(tp) );
@@ -16,7 +16,7 @@ static inline uintptr_t __get_tp()
 #define BLX "blx"
 #endif
 
-static inline uintptr_t __get_tp()
+static inline uintptr_t __get_tp(void)
 {
 	extern hidden uintptr_t __a_gettp_ptr;
 	register uintptr_t tp __asm__("r0");

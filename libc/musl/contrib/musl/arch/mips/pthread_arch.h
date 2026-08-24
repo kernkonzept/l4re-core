@@ -1,4 +1,4 @@
-static inline uintptr_t __get_tp()
+static inline uintptr_t __get_tp(void)
 {
 	register uintptr_t tp __asm__("$3");
 #if __mips_isa_rev < 2

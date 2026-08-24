@@ -1,4 +1,4 @@
-static inline uintptr_t __get_tp()
+static inline uintptr_t __get_tp(void)
 {
 	register uintptr_t tp __asm__("tp");
 	__asm__ ("" : "=r" (tp) );

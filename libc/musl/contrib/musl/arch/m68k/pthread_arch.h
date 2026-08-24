@@ -1,4 +1,4 @@
-static inline uintptr_t __get_tp()
+static inline uintptr_t __get_tp(void)
 {
 	return __syscall(SYS_get_thread_area);
 }
