@@ -827,8 +827,22 @@ define SRC_network
   htonl
   htons
   inet_aton
+  inet_addr
+  inet_ntoa
   inet_pton
   inet_ntop
+  h_errno
+  gethostbyname
+  gethostbyname2
+  gethostbyname2_r
+  lookup_name
+  lookup_ipliteral
+  resolvconf
+  res_mkquery
+  res_msend
+  dns_parse
+  dn_expand
+  if_nametoindex
 endef
 
 define SRC_legacy
