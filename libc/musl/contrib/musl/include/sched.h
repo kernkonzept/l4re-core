@@ -102,8 +102,8 @@ static __inline void __CPU_##func##_S(size_t __size, cpu_set_t *__dest, \
 { \
 	size_t __i; \
 	for (__i=0; __i<__size/sizeof(long); __i++) \
-		((unsigned long *)__dest)[__i] = ((unsigned long *)__src1)[__i] \
-			op ((unsigned long *)__src2)[__i] ; \
+		((unsigned long *)__dest)[__i] = ((const unsigned long *)__src1)[__i] \
+			op ((const unsigned long *)__src2)[__i] ; \
 }
 
 __CPU_op_func_S(AND, &)
