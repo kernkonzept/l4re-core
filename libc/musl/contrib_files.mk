@@ -15,6 +15,7 @@ endef
 
 define SRC_signal
   psignal
+  raise
   sigaddset
   sigandset
   sigdelset
