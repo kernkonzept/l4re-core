@@ -1745,9 +1745,9 @@ static void l4_pthread_manager_install_new_tls(l4_pthread_mgr_iface_t const *mgr
 static void install_new_tls(void)
 {
 	pthread_t self = __pthread_self();
-	sigset_t set;
 
 #ifdef NOT_FOR_L4
+	sigset_t set;
 	__block_app_sigs(&set);
 	__tl_lock();
 #endif

@@ -68,7 +68,9 @@ int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 	int invert;
 	int matches=0;
 	unsigned long long x;
+#ifndef BID_VARIANT_FLAG_NOFPU
 	long double y;
+#endif
 	off_t pos = 0;
 	unsigned char scanset[257];
 	size_t i, k;

@@ -41,7 +41,10 @@ static libc_lock_t lock;
 
 static void *__simple_malloc(size_t n)
 {
-	static uintptr_t brk, cur, end;
+#ifdef NOT_FOR_L4
+	static uintptr_t brk;
+#endif
+	static uintptr_t cur, end;
 	static unsigned mmap_step;
 	size_t align=1;
 	void *p;

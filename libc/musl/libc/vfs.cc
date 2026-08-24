@@ -49,8 +49,6 @@ namespace L4Re {
 namespace Vfs_config {
 
   using ::memcpy;
-  typedef void *Dl_open(const char *libname, int flag);
-  static Dl_open *_dl_open;
 
   namespace
   {

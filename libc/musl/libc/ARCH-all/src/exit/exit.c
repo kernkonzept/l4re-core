@@ -37,9 +37,9 @@ _Noreturn void exit(int code)
 	 * standards. Using a custom lock here avoids pulling in lock
 	 * machinery and lets us trap recursive calls while supporting
 	 * multiple threads contending to be the one to exit(). */
-	static volatile int exit_lock[1];
 	// TODO: Implement properly...
 	/*
+	static volatile int exit_lock[1];
 	int tid =  __pthread_self()->tid;
 	int prev = a_cas(exit_lock, 0, tid);
 	if (prev == tid) a_crash();
