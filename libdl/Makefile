@@ -1,4 +1,4 @@
-PKGDIR ?= ..
+PKGDIR ?= .
 L4DIR  ?= $(PKGDIR)/../../..
 
 LIBCSRC_DIR ?= $(PKGDIR)/../libc/uclibc-ng

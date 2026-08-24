@@ -17,3 +17,4 @@
 compiler-rt-gcc        := libgcc_eh libgcc libatomic[arch(riscv)]
 compiler-rt-clang      := libclang_rt-builtins libunwind_llvm
 compiler-rt            := compiler-rt-gcc[config(CONFIG_COMPILER_RT_USE_LIBGCC)] compiler-rt-clang[config(CONFIG_COMPILER_RT_USE_LIBCLANG_RT)]
+compiler-rt-shared     := compiler-rt libgcc_s[config(CONFIG_COMPILER_RT_USE_LIBGCC)]

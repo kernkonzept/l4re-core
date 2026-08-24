@@ -1,0 +1,4 @@
+provides: libgcc_s
+requires: libc libgcc-headers
+source-pkg: libgcc
+maintainer: adam@l4re.org

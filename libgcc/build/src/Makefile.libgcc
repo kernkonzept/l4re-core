@@ -119,10 +119,7 @@ include $(L4DIR)/mk/lib.mk
 # libgcc_s.so must be linked against libgcc.a as certain functions are only part
 # of libgcc.a, but they must not be undefined in the libgcc_s.so shared object.
 ifneq ($(filter libgcc_s.so,$(TARGET)),)
-libgcc_s.so: $(LIBGCC_A)
-OBJS_libgcc_s.so += $(LIBGCC_A)
-# Prevent libgcc.a from being deleted during clean because it is part of the OBJS variable.
-KEEP_ON_CLEAN += $(LIBGCC_A)
+OBJS_libgcc_s.so += $(wildcard $(addsuffix /libgcc.a,$(L4LIBDIR)))
 endif
 
 $(foreach make_obj,$(LIBGCC_MAKE_OBJS),\

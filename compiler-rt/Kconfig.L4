@@ -35,13 +35,6 @@ config COMPILER_RT_CHOICE_LIBCLANG_RT
 
 endchoice
 
-config COMPILER_RT_LIBGCC_SHARED
-  bool "Use shared libgcc"
-  depends on COMPILER_RT_USE_LIBGCC && !COMPILER_RT_USE_TOOLCHAIN_LIBGCC
-  depends on MMU
-  help
-    Say Y if you want to use shared libgcc (libgcc_s.so).
-
 # force to y if compiler clang, we cannot compile libgcc with clang!
 config COMPILER_RT_USE_TOOLCHAIN_LIBGCC
   bool "Use libgcc from toolchain"

@@ -1,7 +1,7 @@
 PKGDIR		?= ../..
 L4DIR		?= $(PKGDIR)/../../..
 
-TARGET		= libinitcwd.a libinitcwd.so
+TARGET		= libinitcwd.a
 LINK_INCR       = libinitcwd.a
 PC_FILENAME     = libinitcwd
 SRC_CC          = initcwd.cc

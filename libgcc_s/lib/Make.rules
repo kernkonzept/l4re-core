@@ -1,0 +1,11 @@
+# vim:set ft=make:
+
+TARGET          = libgcc_s.so
+PC_FILENAME     = libgcc_s
+
+REQUIRES_LIBS   = libgcc-headers libc
+# Avoid circular dependency, as this package is part of the compiler runtime.
+COMPILER_RT     =
+
+LIBGCC_PKG_DIR  = $(PKGDIR)/../libgcc
+include $(LIBGCC_PKG_DIR)/build/src/Makefile.libgcc

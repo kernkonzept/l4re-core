@@ -64,10 +64,3 @@ compiler toolchain can be used.
 On PowerPC and SPARC this option is forcibly enabled, since it seemed
 unreasonable to invest the effort to maintain the libgcc source package for
 them.
-
-
-## Libgcc as shared library
-Optionally, by enabling the Kconfig option `COMPILER_RT_LIBGCC_SHARED` it is
-possible to link against a shared variant of libgcc (`libgcc_s.so`).
-This feature is only available when libgcc is built from source, i.e. not when
-using the libgcc shipped with the toolchain.

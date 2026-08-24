@@ -1,3 +1,3 @@
 provides: libkproxy
-requires: l4sys cxx_base l4re-util
+requires: l4sys cxx_base l4re-util stdlibs-sh
 Maintainer: adam@os.inf.tu-dresden.de

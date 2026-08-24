@@ -238,8 +238,8 @@ $(foreach file,$(LIB2ADDEH),$(eval $(call libgcc_src_eh,$(file),-fexceptions)))
 $(foreach file,$(LIB2ADDEH),$(eval $(call libgcc_src_so,$(file),-fexceptions)))
 
 # Ensure links are created.
-$(patsubst %.c,%.o,$(SRC_C_$(LIBGCC_A)) $(SRC_C_libgcc_s.so) $(SRC_C_$(LIBGCC_EH_A))): $(LIBGCC_LINKS)
-$(patsubst %.S,%.o,$(SRC_S_$(LIBGCC_A)) $(SRC_S_libgcc_s.so) $(SRC_S_$(LIBGCC_EH_A))): $(LIBGCC_LINKS)
+$(patsubst %.c,%.o,$(SRC_C_$(LIBGCC_A)) $(SRC_C_$(LIBGCC_EH_A))) $(patsubst %.c,%.s.o,$(SRC_C_libgcc_s.so)): $(LIBGCC_LINKS)
+$(patsubst %.S,%.o,$(SRC_S_$(LIBGCC_A)) $(SRC_S_$(LIBGCC_EH_A))) $(patsubst %.S,%.s.o,$(SRC_S_libgcc_s.so)): $(LIBGCC_LINKS)
 
 ifneq ($(HIDE_FLAGS),)
 # Assembler source files used in libgcc.a and libgcc_eh.a for which hiding lists

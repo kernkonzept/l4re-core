@@ -1,0 +1,3 @@
+Provides: libdl
+Requires: ldso libgcc_s
+maintainer: adam@l4re.org
