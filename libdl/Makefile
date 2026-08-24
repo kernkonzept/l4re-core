@@ -43,6 +43,16 @@ EXTRA_LIBS := -lld-l4
 else # Empty for musl
 
 TARGET := libdl.a
+
+STALE_LOCAL_LIBS := libdl.so libdl.so.* libld-l4.so libld-l4.so.*
+
+# Remove stale uclibc libraries, if present.
+all:: remove-stale-local-libs
+
+remove-stale-local-libs:
+	$(VERBOSE)$(RM) $(wildcard \
+	  $(addprefix $(INSTALLDIR_LIB_LOCAL)/,$(STALE_LOCAL_LIBS)) \
+	  $(addprefix $(INSTALLDIR_LIB_LOCAL)/.debug/,$(STALE_LOCAL_LIBS)))
 endif
 
 include $(L4DIR)/mk/lib.mk
