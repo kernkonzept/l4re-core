@@ -354,6 +354,9 @@ define SRC_ldso
   $(if $(filter arm,$(BUILD_ARCH)),find_exidx)
 endef
 
+# Only the 32-bit arches with a time32 ABI (_REDIR_TIME64) provide the
+# dlsym_time64 compat entry point. Newer 32-bit arches like riscv32 have a
+# 64-bit time_t from the start and ship no such file.
 define SRC_ldso_libc.so
   __dlsym
   dladdr
@@ -363,6 +366,7 @@ define SRC_ldso_libc.so
   dlopen
   dlstart
   dlsym
+  $(if $(wildcard $(CONTRIB_DIR)/src/ldso/$(LIBC_ARCH)/dlsym_time64.S),dlsym_time64)
   dynlink
   tlsdesc
 endef
@@ -473,6 +477,9 @@ define SRC_prng
   $(if $(BID_VARIANT_FLAG_NOFPU),,__rand48_step)
   $(if $(BID_VARIANT_FLAG_NOFPU),,__seed48)
   $(if $(BID_VARIANT_FLAG_NOFPU),,drand48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,lrand48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,seed48)
+  $(if $(BID_VARIANT_FLAG_NOFPU),,srand48)
   rand
   rand_r
   random
@@ -490,8 +497,11 @@ DEFINES___lock.c += -D_GNU_SOURCE
 
 define SRC_unistd
   __dup3
+  gethostname
   isatty
   sleep
+  tcgetpgrp
+  tcsetpgrp
 endef
 
 define SRC_regex
@@ -513,8 +523,10 @@ endef
 # - ftrylockfile
 # - funlockfile
 define SRC_stdio
+  __fclose_ca
   __fdopen
   __fmodeflags
+  __fopen_rb_ca
   $(if $(LIBC_BUILD_MINIMAL),,__lockfile)
   __overflow
   $(if $(LIBC_BUILD_MINIMAL),,__stdio_close)
@@ -791,6 +803,7 @@ define SRC_time
   asctime
   asctime_r
   ctime
+  ftime
   gmtime
   gmtime_r
   localtime

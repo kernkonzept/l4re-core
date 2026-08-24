@@ -60,6 +60,7 @@ define HDR_common
   libgen.h
   limits.h
   link.h
+  malloc.h
   math.h
   memory.h
   net/if.h
@@ -102,6 +103,7 @@ define HDR_common
   sys/sysmacros.h
   sys/syscall.h
   sys/time.h
+  sys/timeb.h
   sys/times.h
   sys/ttydefaults.h
   sys/types.h
