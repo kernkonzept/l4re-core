@@ -90,8 +90,8 @@ int vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 	int alloc;
 	const wchar_t *p;
 	int c, t;
-	char *s;
-	wchar_t *wcs;
+	char *s=0;
+	wchar_t *wcs=0;
 	void *dest=NULL;
 	int invert;
 	int matches=0;
@@ -99,7 +99,7 @@ int vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 	static const char size_pfx[][3] = { "hh", "h", "", "l", "L", "ll" };
 	char tmp[3*sizeof(int)+10];
 	const wchar_t *set;
-	size_t i, k;
+	size_t i, k=0;
 
 	FLOCK(f);
 

@@ -61,8 +61,8 @@ int vfscanf(FILE *restrict f, const char *restrict fmt, va_list ap)
 	int base;
 	const unsigned char *p;
 	int c, t;
-	char *s;
-	wchar_t *wcs;
+	char *s=0;
+	wchar_t *wcs=0;
 	mbstate_t st;
 	void *dest=NULL;
 	int invert;

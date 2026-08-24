@@ -390,7 +390,7 @@ static void do_relocs(struct dso *dso, size_t *rel, size_t rel_size, size_t stri
 	Sym *syms = dso->syms;
 	char *strings = dso->strings;
 	Sym *sym;
-	const char *name;
+	const char *name = "";
 	void *ctx;
 	int type;
 	int sym_index;
@@ -568,7 +568,7 @@ static void do_relr_relocs(struct dso *dso, size_t *relr, size_t relr_size)
 {
 	if (dso == &ldso) return; /* self-relocation was done in _dlstart */
 	unsigned char *base = dso->base;
-	size_t *reloc_addr;
+	size_t *reloc_addr = 0;
 	for (; relr_size; relr++, relr_size-=sizeof(size_t))
 		if ((relr[0]&1) == 0) {
 			reloc_addr = laddr(dso, relr[0]);
@@ -701,7 +701,7 @@ static void *map_library(int fd, struct dso *dso)
 	size_t this_max_filesz;
 #endif
 	size_t nsegs = 0;
-	off_t off_start;
+	off_t off_start = 0;
 	Ehdr *eh;
 	Phdr *ph, *ph0;
 	unsigned prot;
