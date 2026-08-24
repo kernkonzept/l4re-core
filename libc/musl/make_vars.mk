@@ -19,6 +19,21 @@ PRIVATE_INCDIR += $(LIBCSRC_DIR)/libc/includes
 
 LIBC_DYNLINKER = /rom/libc.so.1
 
+# Warnings that must be disabled when compiling musl contrib sources. They are
+# either idiomatic in musl (K&R style declarations of generic function
+# pointers) or cannot be fixed in the sources at all (GCC does not implement
+# "#pragma STDC FENV_ACCESS"). Used by the libc build itself and by every other
+# package that compiles musl sources (e.g. ldscripts for the crt files).
+LIBC_MUSL_WARNINGS = -Wno-strict-prototypes \
+                     -Wno-missing-prototypes \
+                     -Wno-missing-declarations \
+                     -Wno-unused-parameter \
+                     -Wno-unused-function \
+                     -Wno-parentheses \
+                     -Wno-unused-but-set-variable \
+                     -Wno-sign-compare \
+                     -Wno-unknown-pragmas
+
 # LIBC_ARCH selects the (ABI-specific) musl contrib arch directory
 # (contrib/musl/arch/<LIBC_ARCH> and contrib/musl/src/*/<LIBC_ARCH>).
 LIBC_ARCH_x86 := i386

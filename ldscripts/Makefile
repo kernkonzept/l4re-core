@@ -63,6 +63,9 @@ LIBC_SYSDEPS = $(LIBCSRC_DIR)/contrib/musl/crt/$(LIBC_ARCH) $(LIBCSRC_DIR)/contr
 PRIVATE_INCDIR  = $(LIBCSRC_DIR)/contrib/musl/arch/$(LIBC_ARCH)
 PRIVATE_INCDIR += $(LIBCSRC_DIR)/contrib/musl/src/internal
 PRIVATE_INCDIR += $(LIBCSRC_DIR)/contrib/musl/src/include
+# The crt files are musl contrib sources. Silence the same warnings as the
+# libc build itself does.
+WARNINGS += $(LIBC_MUSL_WARNINGS)
 endif
 
 define LDSCRIPT_MAKE_RULE_template

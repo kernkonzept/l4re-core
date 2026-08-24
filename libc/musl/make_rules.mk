@@ -6,12 +6,7 @@ CXXFLAGS  += -fno-builtin $(GCCNOSTACKPROTOPT)
 WARNINGS    = -Wall -Wstrict-prototypes $(call bid_flag_variants,WARNINGS)
 
 # Temporary disable noisy musl warnings
-WARNINGS   += -Wno-strict-prototypes \
-              -Wno-missing-prototypes \
-              -Wno-unused-parameter \
-              -Wno-unused-function \
-              -Wno-parentheses \
-              -Wno-unused-but-set-variable
+WARNINGS   += $(LIBC_MUSL_WARNINGS)
 
 # for building the C library we access internal headers
 PRIVATE_INCDIR += $(CONTRIB_DIR)/arch/$(LIBC_ARCH)
