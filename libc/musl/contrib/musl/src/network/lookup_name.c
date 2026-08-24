@@ -133,6 +133,8 @@ static int dns_parse_callback(void *c, int rr, const void *data, int len, const 
 		if (len != 16) return -1;
 		family = AF_INET6;
 		break;
+	default:
+		return 0;
 	}
 	ctx->addrs[ctx->cnt].family = family;
 	ctx->addrs[ctx->cnt].scopeid = 0;
