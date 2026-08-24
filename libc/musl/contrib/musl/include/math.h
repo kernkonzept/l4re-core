@@ -111,9 +111,17 @@ __ISREL_DEF(lessl, <, long double)
 __ISREL_DEF(lessequalf, <=, float_t)
 __ISREL_DEF(lessequal, <=, double_t)
 __ISREL_DEF(lessequall, <=, long double)
-__ISREL_DEF(lessgreaterf, !=, float_t)
-__ISREL_DEF(lessgreater, !=, double_t)
-__ISREL_DEF(lessgreaterl, !=, long double)
+/* islessgreater() is "(x) < (y) || (x) > (y)". Spelling it out that way
+ * instead of using "!=" keeps compilers from complaining about an exact
+ * floating point comparison (-Wfloat-equal). The isunordered() guard still
+ * makes sure that the relational operators never see a NaN. */
+#define __ISLGREL_DEF(rel, type) \
+static __inline int __is##rel(type __x, type __y) \
+{ return !isunordered(__x,__y) && (__x < __y || __x > __y); }
+
+__ISLGREL_DEF(lessgreaterf, float_t)
+__ISLGREL_DEF(lessgreater, double_t)
+__ISLGREL_DEF(lessgreaterl, long double)
 __ISREL_DEF(greaterf, >, float_t)
 __ISREL_DEF(greater, >, double_t)
 __ISREL_DEF(greaterl, >, long double)
