@@ -2,7 +2,7 @@
 #include <string.h>
 #include "rand48.h"
 
-unsigned short *seed48(unsigned short *s)
+unsigned short *seed48(unsigned short s[3])
 {
 	static unsigned short p[3];
 	memcpy(p, __seed48, sizeof p);
