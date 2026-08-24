@@ -6,7 +6,9 @@
 #define START "_dlstart"
 #endif
 
+#ifndef SHARED
 #define SHARED
+#endif
 
 #include "crt_arch.h"
 
