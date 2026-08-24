@@ -5,7 +5,7 @@ config L4_LIBC_UCLIBC
   bool "uclibc-ng"
 
 config L4_LIBC_MUSL
-  bool "musl" if EXPERIMENTAL
+  bool "musl"
 
 endchoice
 
