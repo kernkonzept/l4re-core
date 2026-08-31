@@ -57,7 +57,7 @@ gc_cap(lua_State *l)
 {
   Lua::Cap *n = check_cap(l, 1);
   n->~Cap();
-  return 1;
+  return 0;
 }
 
 
