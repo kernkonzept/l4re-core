@@ -446,6 +446,31 @@ public:
   }
 
   /**
+   * Compute the raw upper bound size of a heap block with allocation prefix.
+   *
+   * To satisfy custom alignment requirements, we need to account for an extra
+   * allocation prefix (including the overhead of an extra free block covering
+   * that prefix) even in freshly created heap areas.
+   *
+   * This method calculates the upper bound size of such allocation request.
+   *
+   * \param raw_size   Raw size of the heap block.
+   * \param alignment  Alignment requirement.
+   *
+   * \return Raw upper bound size of a heap block with allocation prefix.
+   */
+  static size_t aligned_raw_size(const size_t raw_size, const size_t alignment)
+  {
+    // If the required alignment is smaller or equal as the base alignment,
+    // there is no need for an allocation prefix, because it is guaranteed
+    // that all structures already inherently support the base alignment.
+    if (alignment <= Base_alignment)
+      return raw_size;
+
+    return raw_size + alignment + Block::raw_size(0);
+  }
+
+  /**
    * Largest payload size for which a heap block is guaranteed to be valid.
    *
    * A request larger than this cannot be turned into a raw block size, because
@@ -826,10 +851,16 @@ static void *alloc_in_area(Block *first, Block *sentinel, size_t request_size,
 static void *grow_and_alloc(size_t request_size, size_t alignment)
 {
   // The heap area to create needs to accommodate the required raw heap block
-  // size (including the overhead of the heap area itself) and respect the
-  // heap area granularity as defined by the user.
-  auto raw_size = Area::raw_size(request_size);
-  if (raw_size < request_size)
+  // size (including the possible allocation prefix for extra alignment and the
+  // overhead of the heap area itself) and respect the heap area granularity as
+  // defined by the user.
+
+  auto aligned_request_size = Block::aligned_raw_size(request_size, alignment);
+  if (aligned_request_size < request_size)
+    return nullptr;
+
+  auto raw_size = Area::raw_size(aligned_request_size);
+  if (raw_size < aligned_request_size)
     return nullptr;
 
   auto area_size = value::align_up(raw_size, umalloc_area_granularity);
