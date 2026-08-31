@@ -1110,7 +1110,10 @@ void *calloc(size_t nmemb, size_t size)
 {
   // Avoid multiplication overflow.
   if ((size > 0) && (nmemb > std::numeric_limits<typeof(nmemb)>::max() / size))
-    return nullptr;
+    {
+      errno = ENOMEM;
+      return nullptr;
+    }
 
   auto total_size = nmemb * size;
   auto ptr = umalloc::alloc(total_size);
