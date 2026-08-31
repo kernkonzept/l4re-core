@@ -7,34 +7,56 @@
 
 #include <stdint.h>
 
+#if defined(__x86_64__)
+# define R_ARCH_RELATIVE 8    /* R_X86_64_RELATIVE */
+# define ARCH_HAS_RELR 1
+# define ELF_USES_RELA 1
+#elif defined(__aarch64__)
+# define R_ARCH_RELATIVE 1027 /* R_AARCH64_RELATIVE */
+# define ARCH_HAS_RELR 1
+# define ELF_USES_RELA 1
+#elif defined(__arm__)
+# define R_ARCH_RELATIVE 23   /* R_ARM_RELATIVE */
+# define ARCH_HAS_RELR 0
+# define ELF_USES_RELA 0
+#elif defined(__riscv)
+# define R_ARCH_RELATIVE 3    /* R_RISCV_RELATIVE */
+# define ARCH_HAS_RELR 0
+# define ELF_USES_RELA 1
+#else
+# error "reloc_static_pie: unsupported architecture, add R_ARCH_RELATIVE"
+#endif
+
 #if UINTPTR_MAX == 0xffffffffffffffffULL
 
 typedef uint64_t Elf_Addr;
-
-typedef struct
-{
-  Elf_Addr r_offset;
-  uint64_t r_info;
-  int64_t  r_addend;
-} Elf_Rela;
+typedef uint64_t Elf_Xword;
+typedef int64_t  Elf_Sxword;
 
 # define ELF_R_TYPE(info) ((uint32_t)(info))
-# define ELF_USES_RELA 1
 
 #else
 
 typedef uint32_t Elf_Addr;
+typedef uint32_t Elf_Xword;
+typedef int32_t  Elf_Sxword;
+
+# define ELF_R_TYPE(info) ((uint8_t)(info))
+
+#endif
 
 typedef struct
 {
-  Elf_Addr r_offset;
-  uint32_t r_info;
+  Elf_Addr   r_offset;
+  Elf_Xword  r_info;
+  Elf_Sxword r_addend;
+} Elf_Rela;
+
+typedef struct
+{
+  Elf_Addr  r_offset;
+  Elf_Xword r_info;
 } Elf_Rel;
-
-# define ELF_R_TYPE(info) ((uint8_t)(info))
-# define ELF_USES_RELA 0
-
-#endif
 
 typedef struct
 {
@@ -56,22 +78,6 @@ enum
   DT_RELRSZ  = 35,
   DT_RELR    = 36,
 };
-
-#if defined(__x86_64__)
-# define R_ARCH_RELATIVE 8    /* R_X86_64_RELATIVE */
-# define ARCH_HAS_RELR 1
-#elif defined(__aarch64__)
-# define R_ARCH_RELATIVE 1027 /* R_AARCH64_RELATIVE */
-# define ARCH_HAS_RELR 1
-#elif defined(__arm__)
-# define R_ARCH_RELATIVE 23   /* R_ARM_RELATIVE */
-# define ARCH_HAS_RELR 0
-#elif defined(__riscv)
-# define R_ARCH_RELATIVE 3    /* R_RISCV_RELATIVE */
-# define ARCH_HAS_RELR 0
-#else
-# error "reloc_static_pie: unsupported architecture, add R_ARCH_RELATIVE"
-#endif
 
 extern Elf_Dyn _DYNAMIC[] __attribute__((visibility("hidden")));
 
