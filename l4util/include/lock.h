@@ -30,22 +30,22 @@ L4_INLINE int  l4_simple_lock_locked(l4util_simple_lock_t *lock);
 L4_INLINE void l4_simple_lock_solid(register l4util_simple_lock_t *p);
 L4_INLINE void l4_simple_lock(l4util_simple_lock_t * lock);
 
-L4_INLINE int 
+L4_INLINE int
 l4_simple_try_lock(l4util_simple_lock_t *lock)
 {
-  return l4util_xchg32(lock, 1) == 0;
+  return __atomic_exchange_n(lock, 1, __ATOMIC_SEQ_CST) == 0;
 }
- 
-L4_INLINE void 
+
+L4_INLINE void
 l4_simple_unlock(l4util_simple_lock_t *lock)
 {
-  *lock = 0;
+  __atomic_store_n(lock, 0, __ATOMIC_RELEASE);
 }
 
 L4_INLINE int
 l4_simple_lock_locked(l4util_simple_lock_t *lock)
 {
-  return (*lock == 0) ? 0 : 1;
+  return __atomic_load_n(lock, __ATOMIC_RELAXED) == 0 ? 0 : 1;
 }
 
 L4_INLINE void
