@@ -59,9 +59,8 @@ static const luaL_Reg libs[] =
   {LUA_GNAME, luaopen_base },
   {LUA_LOADLIBNAME, luaopen_package},
   {LUA_TABLIBNAME, luaopen_table},
-  { LUA_IOLIBNAME, luaopen_io },
-  { LUA_STRLIBNAME, luaopen_string },
-  {LUA_LOADLIBNAME, luaopen_package},
+  {LUA_IOLIBNAME, luaopen_io },
+  {LUA_STRLIBNAME, luaopen_string },
   {LUA_DBLIBNAME, luaopen_debug},
   { NULL, NULL }
 };
