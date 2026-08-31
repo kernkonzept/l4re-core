@@ -14,13 +14,17 @@
 
 #include <l4/cxx/iostream>
 
-enum { PORT_SHIFT = 12 };
+enum
+{
+  Port_shift = 12,
+  Port_bits = 16,
+};
 
 static Mem_man io_ports;
 
 void init_io_ports()
 {
-  io_ports.add_free(Region::start_order(0, 16 + PORT_SHIFT, 0, L4_FPAGE_RW));
+  io_ports.add_free(Region::start_order(0, Port_bits + Port_shift, 0, L4_FPAGE_RW));
 }
 
 void dump_io_ports()
@@ -37,13 +41,16 @@ void handle_io_page_fault(l4_umword_t t, unsigned words, l4_utcb_t *utcb,
   if (words > 2)
     return answer->error(L4_EMSGTOOLONG);
 
-  unsigned long port, order;
   l4_fpage_t fp = (l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[0];
-  port = l4_fpage_ioport(fp) << PORT_SHIFT;
-  order = l4_fpage_order(fp) + PORT_SHIFT;
+  unsigned long port = l4_fpage_ioport(fp);
+  unsigned order = l4_fpage_order(fp);
 
-  if (io_ports.alloc(Region::start_order(port, order, t, L4_FPAGE_RW)))
-    answer->snd_fpage(l4_iofpage(port >> PORT_SHIFT, order - PORT_SHIFT));
+  if (order > Port_bits || port >= (1UL << Port_bits))
+    return answer->error(L4_EINVAL);
+
+  if (io_ports.alloc(Region::start_order(port << Port_shift, order + Port_shift,
+                                         t, L4_FPAGE_RW)))
+    answer->snd_fpage(l4_iofpage(port, order));
   else
     answer->error(L4_ENOMEM);
 }
