@@ -63,8 +63,8 @@ public:
   { return L4::cap_cast<CT>(_capif->cap_alloc()); }
 
   template< typename CT >
-  void cap_alloc(L4::Cap<CT> x)
-  { _capif->cap_free(L4::cap_cast<CT>(x)); }
+  void cap_free(L4::Cap<CT> x)
+  { _capif->cap_free(L4::cap_cast<void>(x)); }
 
   virtual ~Factory_svr() {}
 

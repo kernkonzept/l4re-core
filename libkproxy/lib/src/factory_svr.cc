@@ -27,7 +27,9 @@ public:
         return -L4_ENOMEM;
       ios >> limit;
       int r = fi->create_factory(f, limit);
-      if (r == 0)
+      if (r < 0)
+        svr->cap_free(f);
+      else
         ios << f;
       return r;
     }
@@ -41,7 +43,9 @@ public:
         return -L4_ENOMEM;
       ios >> utcb_area.raw;
       int r = fi->create_task(t, utcb_area);
-      if (r == 0)
+      if (r < 0)
+        svr->cap_free(t);
+      else
         ios << t;
       return r;
     }
@@ -70,8 +74,9 @@ public:
       ios >> label >> f;
 
       int r = fi->create_gate(g, svr->received_thread(f), label);
-
-      if (r == 0)
+      if (r < 0)
+        svr->cap_free(g);
+      else
         ios << g;
       return r;
     }
@@ -83,7 +88,9 @@ public:
       if (!i.is_valid())
         return -L4_ENOMEM;
       int r = fi->create_irq(i);
-      if (r == 0)
+      if (r < 0)
+        svr->cap_free(i);
+      else
         ios << i;
       return r;
     }
@@ -95,7 +102,9 @@ public:
       if (!i.is_valid())
         return -L4_ENOMEM;
       int r = fi->create_vm(i);
-      if (r == 0)
+      if (r < 0)
+        svr->cap_free(i);
+      else
         ios << i;
       return r;
     }
@@ -107,7 +116,9 @@ public:
       if (!i.is_valid())
         return -L4_ENOMEM;
       int r = fi->create_vcpu_context(i);
-      if (r == 0)
+      if (r < 0)
+        svr->cap_free(i);
+      else
         ios << i;
       return r;
     }
