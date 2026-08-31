@@ -944,7 +944,7 @@ Signal_manager::op_sigaction(L4Re::Itas::Rights,
   auto old = sig_actions[signum - 1];
   old.sa_flags &= ~SA_RESETHAND;
 
-  if (act.sa_flags != L4Re::Itas::Ignore_sigaction)
+  if (act.sa_flags != static_cast<decltype(act.sa_flags)>(L4Re::Itas::Ignore_sigaction))
     {
       // Reject unknown or unhandled flags
       if (act.sa_flags & ~(SA_NOCLDSTOP | SA_NOCLDWAIT | SA_NODEFER
