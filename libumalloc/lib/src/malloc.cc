@@ -446,6 +446,24 @@ public:
   }
 
   /**
+   * Largest payload size for which a heap block is guaranteed to be valid.
+   *
+   * A request larger than this cannot be turned into a raw block size, because
+   * rounding the size up for alignment and adding the header and the footer
+   * would wrap around.
+   *
+   * \param alignment  Requested alignment.
+   *
+   * \return Largest representable payload size.
+   */
+  static constexpr size_t max_size(const size_t alignment)
+  {
+    return std::numeric_limits<size_t>::max()
+           - (alignment - 1)
+           - sizeof(Block) - sizeof(Footer);
+  }
+
+  /**
    * Compute pointer offset within the heap block.
    *
    * \tparam T  Return type.
@@ -811,8 +829,12 @@ static void *grow_and_alloc(size_t request_size, size_t alignment)
   // size (including the overhead of the heap area itself) and respect the
   // heap area granularity as defined by the user.
   auto raw_size = Area::raw_size(request_size);
+  if (raw_size < request_size)
+    return nullptr;
 
   auto area_size = value::align_up(raw_size, umalloc_area_granularity);
+  if (area_size < request_size)
+    return nullptr;
 
   // Create the heap area.
   auto ptr = umalloc_area_create(area_size);
@@ -847,6 +869,9 @@ static void *alloc(size_t size, size_t alignment = Base_alignment)
 
   // Overflow check.
   if (total_alignment < alignment)
+    return nullptr;
+
+  if (size > Block::max_size(total_alignment))
     return nullptr;
 
   // The size of the allocated heap block needs to be aligned, too, because the
@@ -930,6 +955,9 @@ static void dealloc(void *ptr)
  */
 static void *realloc(void *ptr, size_t size)
 {
+  if (size > Block::max_size(Base_alignment))
+    return nullptr;
+
   // Get the corresponding heap block and area.
   auto block = Block::from_payload(ptr);
   auto area = block->area();
