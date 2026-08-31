@@ -114,7 +114,7 @@ __set_mode_call(lua_State *l)
 	rights = lua_tointeger(l, 2);
       else
 	{
-	  for (char const *r = lua_tostring(l, 2); *r; ++r)
+	  for (char const *r = luaL_checkstring(l, 2); *r; ++r)
 	    {
 	      switch (*r)
 		{
