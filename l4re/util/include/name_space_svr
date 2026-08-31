@@ -345,6 +345,9 @@ protected:
             && n->obj()->cap().validate(L4_BASE_TASK_CAP).label() > 0)
           return -L4_EEXIST;
 
+        if (!n->is_dynamic() && !n->obj()->is_replacable())
+          return -L4_EEXIST;
+
         if (n->obj()->is_local())
           free_epiface(n->obj()->obj());
         else
@@ -357,11 +360,7 @@ protected:
             n = 0;
           }
         else
-          {
-            if (!n->obj()->is_replacable())
-              return -L4_EEXIST;
-            n->obj()->reset(Obj::F_rw);
-          }
+          n->obj()->reset(Obj::F_rw);
       }
 
     flags &= L4Re::Namespace::Cap_flags;
@@ -532,18 +531,16 @@ public:
     if (!n || !n->obj()->is_valid())
       return -L4_ENOENT;
 
+    if (!n->is_dynamic())
+      return -L4_EACCESS;
+
     if (n->obj()->is_local())
       free_epiface(n->obj()->obj());
     else
       free_capability(n->obj()->cap());
 
-    if (n->is_dynamic())
-      {
-        remove(n->name());
-        free_dynamic_entry(n);
-      }
-    else
-      return -L4_EACCESS;
+    remove(n->name());
+    free_dynamic_entry(n);
 
     return 0;
   }
