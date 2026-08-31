@@ -1003,6 +1003,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         node->key = Dma::Region(start, front->key.end);
         node->blocked = front->blocked;
         node->mapcnt = front->mapcnt;
+        node->rsvcnt = front->rsvcnt;
 
         front->key.end = start - 1;
         l4_check(_mappings.insert(node.get()).second);
@@ -1020,6 +1021,7 @@ Dma_space::add_region(L4Re::Dma_space::Dma_addr start,
         node->key = Dma::Region(tail->key.start, end);
         node->blocked = tail->blocked;
         node->mapcnt = tail->mapcnt;
+        node->rsvcnt = tail->rsvcnt;
 
         tail->key.start = end + 1;
         l4_check(_mappings.insert(node.get()).second);
