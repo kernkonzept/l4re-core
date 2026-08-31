@@ -14,6 +14,8 @@
 #include <l4/util/bitops.h>
 #include <l4/sys/debugger.h>
 
+#include <cstdio>
+
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -197,11 +199,16 @@ private:
 
 public:
 
-  explicit Am(lua_State *l)
-  : Rmt_app_model(), _lua(l), _argc(lua_gettop(l)), _env_idx(0), _cfg_idx(1),
-    _arg_idx(2)
+  /**
+   * \param l     Lua state.
+   * \param base  Stack index of the configuration table.
+   *              The program arguments follow at `base` + 1.
+   */
+  explicit Am(lua_State *l, int base)
+  : Rmt_app_model(), _lua(l), _argc(lua_gettop(l)), _env_idx(0),
+    _cfg_idx(base), _arg_idx(base + 1)
   {
-    if (_argc > 2 && lua_type(_lua, _argc) == LUA_TTABLE)
+    if (_argc > _arg_idx && lua_type(_lua, _argc) == LUA_TTABLE)
       _env_idx = _argc;
 
     if (_env_idx)
@@ -532,51 +539,69 @@ static const luaL_Reg _task_ops[] = {
 };
 
 
-static int exec(lua_State *l)
+static int launch(lua_State *l)
 {
-  App_ptr app_task;
+  App_ptr *app_task = static_cast<App_ptr *>(lua_touserdata(l, 1));
+  char err_buf[128];
 
   try
     {
-      Am am(l);
+      Am am(l, 2);
       am.parse_cfg();
 
-      app_task = cxx::make_ref_obj<Lua_app_task>(l, am.rm_fab());
+      *app_task = cxx::make_ref_obj<Lua_app_task>(l, am.rm_fab());
+      if (!*app_task)
+        return  luaL_error(l, "could not allocate task control block");
 
-      if (!app_task)
-        {
-          Err().printf("could not allocate task control block\n");
-          return 0;
-        }
+      am.set_task(app_task->get());
 
-      am.set_task(app_task.get());
-
-      app_task->running(app_task);
+      (*app_task)->running(*app_task);
 
       am.launch_loader();
+
+      return 0;
     }
   catch (L4::Runtime_error const &e)
     {
-      if (app_task)
-        {
-          app_task->terminate();
-          app_task = nullptr;
-        }
-
-      // does not return
-      luaL_error(l, "could not create process: %s (%s: %d)",
-                 e.str(), e.extra_str(), e.err_no());
+      // Calling luaL_error from here would leak the exception object.
+      snprintf(err_buf, sizeof(err_buf), "could not create process: %s (%s: %ld)",
+               e.str(), e.extra_str(), e.err_no());
     }
 
-  App_ptr *at = new (lua_newuserdata(l, sizeof(App_ptr))) App_ptr();
-  *at = app_task;
+  return luaL_error(l, "%s", err_buf);
+}
+
+static int exec(lua_State *l)
+{
+  int const nargs = lua_gettop(l);
+  App_ptr app_task;
+
+  luaL_checkstack(l, nargs + 3, "cannot grow stack for L4.exec()");
+
+  lua_pushcfunction(l, launch);
+  lua_pushlightuserdata(l, &app_task);
+  for (int i = 1; i <= nargs; ++i)
+    lua_pushvalue(l, i);
+
+  if (lua_pcall(l, nargs + 1, 0, 0))
+    {
+      if (app_task)
+        app_task->terminate();
+
+      // lua_error() does not return, hence no local object may still own a
+      // reference at this point.
+      app_task = nullptr;
+      return lua_error(l);
+    }
+
+   App_ptr *at = new (lua_newuserdata(l, sizeof(App_ptr))) App_ptr();
+   *at = app_task;
 
   luaL_newmetatable(l, APP_TASK_TYPE);
   lua_setmetatable(l, -2);
 
   return 1;
 }
-
 
 static const luaL_Reg _task_meta_ops[] = {
     { "__gc", __task_gc },
