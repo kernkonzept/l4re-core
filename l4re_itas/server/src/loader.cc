@@ -304,9 +304,15 @@ loader_thread()
 bool Loader::start(L4::Cap<L4Re::Dataspace> bin, l4re_aux_t *aux)
 {
   __loader_stack = Global::cap_alloc->alloc<L4Re::Dataspace>();
-  Global::allocator->alloc(Loader_stack_size, __loader_stack);
-
   if (!__loader_stack.is_valid())
+    {
+      Err(Err::Fatal).printf("Could not allocate loader stack cap (%s).\n",
+                             Global::l4re_aux->binary);
+      return false;
+    }
+
+  if (auto err = Global::allocator->alloc(Loader_stack_size, __loader_stack);
+      err < 0)
     {
       Err(Err::Fatal).printf("Could not allocate loader stack (%s).\n",
                              Global::l4re_aux->binary);
