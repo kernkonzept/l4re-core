@@ -423,44 +423,40 @@ struct Phdr_l4re_elf_aux_infos
   {
     if (h.type() != PT_L4_AUX)
       return;
+    if (!h.filesz())
+      return;
 
-
-    if (h.filesz())
+    l4_addr_t const addr = mm->local_attach_ds(bin, h.filesz(), h.offset());
+    l4_addr_t const end = addr + h.filesz();
+    for (l4_addr_t a = addr; a < end;)
       {
-        l4_addr_t addr = mm->local_attach_ds(bin, h.filesz(), h.offset());
+        auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
+        if (!e->type)
+          break;
 
-        l4_addr_t a = addr;
-        while (a < addr + h.filesz())
+        auto v = reinterpret_cast<l4re_elf_aux_mword_t const *>(e);
+        switch (e->type)
           {
-            auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
-            if (!e->type)
-              break;
-
-            auto v = reinterpret_cast<l4re_elf_aux_mword_t const *>(e);
-
-            switch (e->type)
-              {
-              case L4RE_ELF_AUX_T_STACK_SIZE:
-                stack_size = v->value;
-                break;
-              case L4RE_ELF_AUX_T_STACK_ADDR:
-                stack_addr = v->value;
-                break;
-              case L4RE_ELF_AUX_T_KIP_ADDR:
-                kip_addr = v->value;
-                break;
-              case L4RE_ELF_AUX_T_EX_REGS_FLAGS:
-                ex_regs_flags = v->value;
-                break;
-              default:
-                break;
-              }
-
-            a += e->length;
+          case L4RE_ELF_AUX_T_STACK_SIZE:
+            stack_size = v->value;
+            break;
+          case L4RE_ELF_AUX_T_STACK_ADDR:
+            stack_addr = v->value;
+            break;
+          case L4RE_ELF_AUX_T_KIP_ADDR:
+            kip_addr = v->value;
+            break;
+          case L4RE_ELF_AUX_T_EX_REGS_FLAGS:
+            ex_regs_flags = v->value;
+            break;
+          default:
+            break;
           }
 
-        mm->local_detach_ds(addr, h.filesz());
+        a += e->length;
       }
+
+    mm->local_detach_ds(addr, h.filesz());
   }
 };
 
@@ -522,42 +518,38 @@ struct Phdr_l4re_elf_aux
 
   void operator () (Elf_phdr const &h) const
   {
-    using L4Re::chksys;
     if (h.type() != PT_L4_AUX)
       return;
+    if (!h.filesz())
+      return;
 
-    if (h.filesz())
+    l4_addr_t const addr = am->local_attach_ds(bin, h.filesz(), h.offset());
+    l4_addr_t const end = addr + h.filesz();
+    for (l4_addr_t a = addr; a < end;)
       {
-        l4_addr_t addr = am->local_attach_ds(bin, h.filesz(), h.offset());
+        auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
+        if (!e->type)
+          break;
 
-        l4_addr_t a = addr;
-        while (a < addr + h.filesz())
+        auto v = reinterpret_cast<l4re_elf_aux_vma_t const *>(e);
+        switch (e->type)
           {
-            auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
-            if (!e->type)
+          case L4RE_ELF_AUX_T_VMA:
+            {
+              l4_addr_t start = v->start;
+              L4Re::chksys(am->prog_reserve_area(&start, v->end - v->start + 1,
+                                                 L4Re::Rm::Flags(0), 0));
               break;
-
-            auto v = reinterpret_cast<l4re_elf_aux_vma_t const *>(e);
-
-            switch (e->type)
-              {
-              case L4RE_ELF_AUX_T_VMA:
-                {
-                  l4_addr_t start = v->start;
-                  chksys(am->prog_reserve_area(&start, v->end - v->start + 1,
-                                               L4Re::Rm::Flags(0), 0));
-                  break;
-                }
-              default:
-                break;
-              }
-
-            a += e->length;
+            }
+          default:
+            break;
           }
 
-        am->local_detach_ds(addr, h.filesz());
-        // L4::cap_reinterpret_cast<L4Re::Debug_obj>(r)->debug(0);
+        a += e->length;
       }
+
+    am->local_detach_ds(addr, h.filesz());
+    // L4::cap_reinterpret_cast<L4Re::Debug_obj>(r)->debug(0);
   }
 
 };
