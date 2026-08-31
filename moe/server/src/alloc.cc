@@ -106,10 +106,10 @@ private:
   char _tag[32];
 
 public:
-  LLog(char const *t, int l, unsigned char col) : Log()
+  LLog(char const *t, unsigned l, unsigned char col) : Log()
   {
-    if (l > 32)
-      l = 32;
+    if (l > sizeof(_tag))
+      l = sizeof(_tag);
 
     memcpy(_tag, t, l);
 
@@ -224,13 +224,13 @@ Allocator::create_log(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 {
   L4::Ipc::Varg tag = args.pop_front();
 
-  if (!tag.is_of<char const *>())
+  if (!tag.is_of<char const *>() || tag.length() < 1)
     return -L4_EINVAL;
 
   L4::Ipc::Varg col = args.pop_front();
 
   int color;
-  if (col.is_of<char const *>())
+  if (col.is_of<char const *>() && col.length() >= 1)
     color = LLog::color_value(cxx::String(col.value<char const *>(),
                               col.length() - 1));
   else if (col.is_of_int())
