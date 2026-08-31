@@ -101,7 +101,7 @@ private:
 
 public:
   l4_ret_t clear(L4Re::Dataspace::Offset offs,
-                 L4Re::Dataspace::Size size) const noexcept override;
+                 L4Re::Dataspace::Size size) const override;
 
   static Dataspace_noncont *create(Q_alloc *q, unsigned long size,
                                    Single_page_alloc_base::Config cfg,

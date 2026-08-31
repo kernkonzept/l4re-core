@@ -118,7 +118,7 @@ public:
 
   virtual bool is_static() const noexcept = 0;
   virtual l4_ret_t clear(L4Re::Dataspace::Offset offs,
-                         L4Re::Dataspace::Size size) const noexcept;
+                         L4Re::Dataspace::Size size) const;
 
   virtual l4_ret_t map_info(l4_addr_t &start_addr,
                             l4_addr_t &end_addr) const noexcept;

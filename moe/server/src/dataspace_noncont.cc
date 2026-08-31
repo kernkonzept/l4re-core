@@ -135,7 +135,7 @@ Moe::Dataspace_noncont::pre_allocate(L4Re::Dataspace::Offset offset,
 
 l4_ret_t
 Moe::Dataspace_noncont::clear(L4Re::Dataspace::Offset offs,
-                              L4Re::Dataspace::Size size) const noexcept
+                              L4Re::Dataspace::Size size) const
 {
   if (!check_limit(offs))
     return -L4_ERANGE;

@@ -41,9 +41,7 @@ Region_map::Region_map()
 #endif
 }
 
-
-
-int Region_handler::init(Region_map *rm, unsigned long size) noexcept
+int Region_handler::init(Region_map *rm, unsigned long size)
 {
   if (!(_flags & (L4Re::Rm::F::Private | L4Re::Rm::F::Anonymous)))
     return L4_EOK;
@@ -106,7 +104,7 @@ l4_ret_t Region_handler::map(l4_addr_t adr,
 
 l4_ret_t Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
                                  l4_addr_t end, L4Re::Rm::Region_flags rights,
-                                 Map_result *result) const noexcept
+                                 Map_result *result) const
 {
   if (!_mem)
     return -L4_EADDRNOTAVAIL;

@@ -52,7 +52,7 @@ public:
     : _offs(offset), _mem(mem), _client_cap(client_cap), _flags(flags)
   {}
 
-  int init(Region_map *rm, unsigned long size) noexcept;
+  int init(Region_map *rm, unsigned long size);
 
   cxx::Weak_ref<Moe::Dataspace const> const &memory() const noexcept
   {
@@ -86,7 +86,7 @@ public:
 
   l4_ret_t page_in(L4Re::Util::Region const &r, l4_addr_t start, l4_addr_t end,
                    L4Re::Rm::Region_flags flags,
-                   Map_result *result) const noexcept;
+                   Map_result *result) const;
 
   l4_ret_t map_info(l4_addr_t *start_addr, l4_addr_t *end_addr) const noexcept;
 

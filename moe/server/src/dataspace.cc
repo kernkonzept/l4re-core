@@ -137,7 +137,7 @@ Moe::Dataspace::op_map_info(L4Re::Dataspace::Rights /*rights*/,
 
 l4_ret_t
 Moe::Dataspace::clear(L4Re::Dataspace::Offset offs,
-                      L4Re::Dataspace::Size size) const noexcept
+                      L4Re::Dataspace::Size size) const
 {
   if (!check_limit(offs))
     return -L4_ERANGE;
