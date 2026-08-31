@@ -33,10 +33,12 @@ L4_BEGIN_DECLS
  * \param in_data        Data to be encoded.
  * \param in_size        Length of \a in_data.
  * \param[out] out_data  The base-64-encoded representation of \a in_data.
+ * \param[out] out_size  The size of the data in \a out_data.
  *
  * base-64-encode string \a in_data adding padding as per spec.
  */
-L4_CV void base64_encode(char const *in_data, size_t in_size, char **out_data);
+L4_CV void base64_encode(char const *in_data, size_t in_size, char **out_data,
+                         size_t *out_size);
 
 /*!
  * decode base-64-encoded string \a in_data.
@@ -45,10 +47,12 @@ L4_CV void base64_encode(char const *in_data, size_t in_size, char **out_data);
  * \param in_data        String to be decoded.
  * \param in_size        Length of \a in_data.
  * \param[out] out_data  The decoded representation of \a in_data.
+ * \param[out] out_size  The size of the data in \a out_data.
  *
  * base-64-decode string \a in_data.
  */
-L4_CV void base64_decode(char const *in_data, size_t in_size, char **out_data);
+L4_CV void base64_decode(char const *in_data, size_t in_size, char **out_data,
+                         size_t *out_size);
 
 L4_END_DECLS
 

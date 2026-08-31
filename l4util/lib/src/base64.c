@@ -251,7 +251,7 @@ static void base64_decodeblock(unsigned char in[4], unsigned char out[3]);
 
 
 L4_CV void
-base64_encode(const char *in_data, size_t in_size, char **out_data)
+base64_encode(const char *in_data, size_t in_size, char **out_data, size_t *out_size)
 {
   size_t in_count = 0, out_count = 0;
   char *temp;
@@ -288,15 +288,15 @@ base64_encode(const char *in_data, size_t in_size, char **out_data)
 	}
     }
 
-  temp[out_count] = 0; //null-terminate string
   *out_data = temp;
+  *out_size = out_count;
 }
 
 L4_CV void
-base64_decode(const char*in_data, size_t in_size, char **out_data)
+base64_decode(const char*in_data, size_t in_size, char **out_data, size_t *out_size)
 {
   size_t in_count = 0, out_count = 0;
-  char *temp = malloc(in_size + 1); // +1 for terminating zero
+  char *temp = malloc(in_size);
   if (!temp)
     {
       *out_data = NULL;
@@ -335,8 +335,8 @@ base64_decode(const char*in_data, size_t in_size, char **out_data)
 	}
     }
 
-  temp[out_count] = 0;
   *out_data = temp;
+  *out_size = out_count;
 }
 
 
