@@ -2146,7 +2146,7 @@ void __dls3(size_t *sp, size_t *auxv)
 		__pthread_l4_initialize_dynlink_thread(self);
 	} else {
 		size_t tmp_tls_size = libc.tls_size;
-		pthread_t self = __pthread_self();
+		pthread_descr self = __pthread_thread_self();
 		/* Temporarily set the tls size to the full size of
 		 * builtin_tls so that __copy_tls will use the same layout
 		 * as it did for before. Then check, just to be safe. */
