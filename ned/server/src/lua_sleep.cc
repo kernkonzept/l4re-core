@@ -16,25 +16,39 @@ class Lib_sleep : public Lib
 public:
   static int sleep(lua_State *l)
   {
-    if (lua_gettop(l) >= 1 && !lua_isnil(l, 1)
-        && lua_isnumber(l, 1))
-      {
-        int s = lua_tointeger(l, 1);
-        printf("Ned: Sleeping %ds\n", s);
-        l4_sleep(s * 1000);
-      }
+    if (lua_gettop(l) < 1 || lua_isnil(l, 1) || !lua_isnumber(l, 1))
+      return 0;
+
+    lua_Integer i = lua_tointeger(l, 1);
+    if (i <= 0)
+      return 0;
+
+    printf("Ned: Sleeping %llds\n", static_cast<long long>(i));
+
+    l4_uint64_t us = static_cast<l4_uint64_t>(i) > L4_TIMEOUT_US_MAX / 1000000U
+                        ? L4_TIMEOUT_US_MAX
+                        : i * 1000000ULL;
+    l4_ipc_sleep_us(us);
+
     return 0;
   }
 
   static int msleep(lua_State *l)
   {
-    if (lua_gettop(l) >= 1 && !lua_isnil(l, 1)
-        && lua_isnumber(l, 1))
-      {
-        int s = lua_tointeger(l, 1);
-        printf("Ned: Sleeping %dms\n", s);
-        l4_sleep(s);
-      }
+    if (lua_gettop(l) < 1 || lua_isnil(l, 1) || !lua_isnumber(l, 1))
+      return 0;
+
+    lua_Integer i = lua_tointeger(l, 1);
+    if (i <= 0)
+      return 0;
+
+    printf("Ned: Sleeping %lldms\n", static_cast<long long>(i));
+
+    l4_uint64_t us = static_cast<l4_uint64_t>(i) > L4_TIMEOUT_US_MAX / 1000U
+                       ? L4_TIMEOUT_US_MAX
+                       : i * 1000ULL;
+    l4_ipc_sleep_us(us);
+
     return 0;
   }
 
