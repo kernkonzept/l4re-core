@@ -75,7 +75,7 @@ public:
 
     lua_setfield(l, -2, "Info");
 
-    lua_pop(l, 2);
+    lua_pop(l, 1);
   }
 };
 
