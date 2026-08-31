@@ -540,19 +540,27 @@ __pthread_timedlock_pi_internal(struct _pthread_pi_fastlock *lock,
   if (__pthread_pi_fastlock_try_lock(lock, self))
     return 0; // Acquired lock via fast path :)
 
+  if (L4_UNLIKELY(abstime->tv_sec < 0 || abstime->tv_nsec < 0))
+    return ETIMEDOUT;
+
   struct timespec realtime;
   if (L4_UNLIKELY(clock_gettime(CLOCK_REALTIME, &realtime)))
     return errno;
 
   uint64_t realtime_us = realtime.tv_sec * 1000000ULL + realtime.tv_nsec / 1000;
-  uint64_t abstime_us = abstime->tv_sec * 1000000ULL + abstime->tv_nsec / 1000;
+  uint64_t abs_sec = (uint64_t)abstime->tv_sec;
+  uint64_t abs_usec = (uint64_t)abstime->tv_nsec / 1000;
+  uint64_t abstime_us = abs_sec >= ~0ULL / 1000000ULL
+                          ? ~0ULL : abs_sec * 1000000ULL + abs_usec;
   if (L4_UNLIKELY(realtime_us >= abstime_us))
     return ETIMEDOUT;
 
   // The timeout for pthread_mutex_timedlock() is based on the CLOCK_REALTIME,
   // we need to map the timeout to the kernel clock. We do not account for RTC
   // jumps while waiting in l4_pi_mutex_lock().
-  l4_cpu_time_t clock = l4_kip_clock(l4_kip()) + (abstime_us - realtime_us);
+  l4_cpu_time_t now = l4_kip_clock(l4_kip());
+  uint64_t delta = abstime_us - realtime_us;
+  l4_cpu_time_t clock = delta > ~0ULL - now ? ~0ULL : now + delta;
   l4_timeout_t timeout = L4_IPC_NEVER;
   l4_rcv_timeout(l4_timeout_abs_u(clock, 4, l4_utcb()), &timeout);
 

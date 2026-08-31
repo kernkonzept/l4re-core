@@ -32,13 +32,36 @@ static __inline__ void suspend(pthread_descr self)
   l4_semaphore_down(self->p_thsem_cap, L4_IPC_NEVER);
 }
 
-static __inline__ int timedsuspend(pthread_descr self,
-		const struct timespec *abstime)
+/**
+ * Wait until restart() or until `abstime` has passed.
+ *
+ * \retval 0  The deadline passed.
+ * \retval 1  The thread was restarted.
+ */
+static __inline__
+int timedsuspend(pthread_descr self, const struct timespec *abstime)
 {
   extern uint64_t __attribute__((weak)) __libc_l4_rt_clock_offset;
-  uint64_t clock = abstime->tv_sec * 1000000ULL + abstime->tv_nsec / 1000;
+
+  if (abstime->tv_sec < 0 || abstime->tv_nsec < 0)
+    return 0;
+
+  uint64_t sec = (uint64_t)abstime->tv_sec;
+  uint64_t usec = (uint64_t)abstime->tv_nsec / 1000;
+
+  uint64_t clock;
+  if (sec >= ~0ULL / 1000000ULL)
+    clock = ~0ULL;
+  else
+    clock = sec * 1000000ULL + usec;
+
   if (&__libc_l4_rt_clock_offset)
-    clock -= __libc_l4_rt_clock_offset;
+    {
+      if (clock < __libc_l4_rt_clock_offset)
+        return 0;
+      clock -= __libc_l4_rt_clock_offset;
+    }
+
   l4_timeout_t timeout = L4_IPC_NEVER;
   l4_rcv_timeout(l4_timeout_abs_u(clock, 4, l4_utcb()), &timeout);
   l4_msgtag_t res = l4_semaphore_down(self->p_thsem_cap, timeout);

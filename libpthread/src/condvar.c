@@ -160,6 +160,9 @@ pthread_cond_timedwait_relative(pthread_cond_t *cond,
       && mutex->__m_owner != self)
     return EINVAL;
 
+  if (abstime->tv_nsec < 0 ||  abstime->tv_nsec >= 1000000000)
+    return EINVAL;
+
   /* Set up extrication interface */
   extr.pu_object = cond;
   extr.pu_extricate_func = cond_extricate_func;
