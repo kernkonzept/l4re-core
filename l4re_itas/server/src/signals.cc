@@ -896,18 +896,19 @@ Signal_manager::op_register_thread(L4Re::Itas::Rights,
               auto tramp_addr = reinterpret_cast<l4_addr_t>(tramp);
               ret = l4_error(child_cap->pf_trampoline_setup(tramp_addr));
               if (ret >= 0)
-                return ret;
+                return ret; // success
             }
           else
-            return ret;
+            return ret; // success
         }
 
       unregister_thread(child_cap);
     }
   else
-    ret = -L4_ENOMEM;
-
-  tramp_alloc.free(tramp);
+    {
+      ret = -L4_ENOMEM;
+      tramp_alloc.free(tramp);
+    }
 
   return ret;
 }
