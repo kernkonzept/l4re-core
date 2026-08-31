@@ -29,8 +29,14 @@ void dump_io_ports()
   io_ports.dump();
 }
 
-void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
+void handle_io_page_fault(l4_umword_t t, unsigned words, l4_utcb_t *utcb,
+                          Answer *answer)
 {
+  if (words < 1)
+    return answer->error(L4_EMSGTOOSHORT);
+  if (words > 2)
+    return answer->error(L4_EMSGTOOLONG);
+
   unsigned long port, order;
   l4_fpage_t fp = (l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[0];
   port = l4_fpage_ioport(fp) << PORT_SHIFT;

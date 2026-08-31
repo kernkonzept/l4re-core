@@ -78,7 +78,8 @@ new_client(Answer *answer)
 }
 
 static
-void map_free_page(unsigned order, l4_umword_t client_id, Answer *answer)
+void
+map_free_page(unsigned order, l4_umword_t client_id, Answer *answer)
 {
   if (order < L4_PAGESHIFT)
     return answer->error(L4_EINVAL);
@@ -92,7 +93,8 @@ void map_free_page(unsigned order, l4_umword_t client_id, Answer *answer)
 
 
 static
-void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t client_id, Answer *answer)
+void
+map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t client_id, Answer *answer)
 {
   unsigned long send_addr = l4_fpage_memaddr(fp);
   unsigned send_order = l4_fpage_order(fp);
@@ -146,8 +148,14 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t client_id, Answer *answe
 /* handler for page fault requests */
 static
 void
-handle_page_fault(l4_umword_t client_id, l4_utcb_t *utcb, Answer *answer)
+handle_page_fault(l4_umword_t client_id, unsigned words, l4_utcb_t *utcb,
+                  Answer *answer)
 {
+  if (words < 1)
+    return answer->error(L4_EMSGTOOSHORT);
+  if (words > 2)
+    return answer->error(L4_EMSGTOOLONG);
+
   unsigned long pfa = l4_utcb_mr_u(utcb)->mr[0] & ~7UL;
   bool inst_fetch = l4_utcb_mr_u(utcb)->mr[0] & 4;
   bool write = l4_utcb_mr_u(utcb)->mr[0] & 2;
@@ -167,8 +175,14 @@ handle_page_fault(l4_umword_t client_id, l4_utcb_t *utcb, Answer *answer)
 }
 
 static
-void handle_service_request(l4_umword_t rights, l4_utcb_t *utcb, Answer *answer)
+void handle_service_request(l4_umword_t rights, unsigned words, l4_utcb_t *utcb,
+                            Answer *answer)
 {
+  if (words < 1)
+    return answer->error(L4_EMSGTOOSHORT);
+  if (words > 1)
+    return answer->error(L4_EMSGTOOLONG);
+
   if (!(rights & L4_CAP_FPAGE_S))
     return answer->error(L4_EPERM);
 
@@ -179,15 +193,24 @@ void handle_service_request(l4_umword_t rights, l4_utcb_t *utcb, Answer *answer)
 }
 
 static
-void handle_sigma0_request(l4_umword_t client_id, l4_utcb_t *utcb, Answer *answer)
+void handle_sigma0_request(l4_umword_t client_id, unsigned words, l4_utcb_t *utcb,
+                           Answer *answer)
 {
+  if (words < 1)
+    return answer->error(L4_EMSGTOOSHORT);
+
   l4_msg_regs_t const *const m = l4_utcb_mr_u(utcb);
   if (!SIGMA0_IS_MAGIC_REQ(m->mr[0]))
     return answer->error(L4_ENOSYS);
 
-  switch (m->mr[0] & SIGMA0_REQ_ID_MASK)
+  unsigned long id = m->mr[0] & SIGMA0_REQ_ID_MASK;
+
+  switch (id)
     {
     case SIGMA0_REQ_ID_DEBUG_DUMP:
+      if (words > 1)
+        answer->error(L4_EMSGTOOLONG);
+      else
         {
 #ifndef NDEBUG
           Mem_man::Tree::Node_allocator alloc;
@@ -207,27 +230,59 @@ void handle_sigma0_request(l4_umword_t client_id, l4_utcb_t *utcb, Answer *answe
           answer->error(0);
         }
       break;
+
     case SIGMA0_REQ_ID_FPAGE_RAM:
-      map_mem(l4_fpage_t{m->mr[1]}, Ram, client_id, answer);
+      if (words < 2)
+        answer->error(L4_EMSGTOOSHORT);
+      else if (words > 2)
+        answer->error(L4_EMSGTOOLONG);
+      else
+        map_mem(l4_fpage_t{m->mr[1]}, Ram, client_id, answer);
       break;
+
     case SIGMA0_REQ_ID_FPAGE_IOMEM:
-      map_mem(l4_fpage_t{m->mr[1]}, Io_mem, client_id, answer);
+      if (words < 2)
+        answer->error(L4_EMSGTOOSHORT);
+      else if (words > 2)
+        answer->error(L4_EMSGTOOLONG);
+      else
+        map_mem(l4_fpage_t{m->mr[1]}, Io_mem, client_id, answer);
       break;
+
     case SIGMA0_REQ_ID_FPAGE_IOMEM_CACHED:
-      map_mem(l4_fpage_t{m->mr[1]}, Io_mem_cached, client_id, answer);
+      if (words < 2)
+        answer->error(L4_EMSGTOOSHORT);
+      else if (words > 2)
+        answer->error(L4_EMSGTOOLONG);
+      else
+        map_mem(l4_fpage_t{m->mr[1]}, Io_mem_cached, client_id, answer);
       break;
+
     case SIGMA0_REQ_ID_KIP:
-      map_kip(answer);
+      if (words > 1)
+        answer->error(L4_EMSGTOOLONG);
+      else
+        map_kip(answer);
       break;
+
     case SIGMA0_REQ_ID_FPAGE_ANY:
-      map_free_page(l4_fpage_order(l4_fpage_t{m->mr[1]}), client_id, answer);
+      if (words < 2)
+        answer->error(L4_EMSGTOOSHORT);
+      else if (words > 2)
+        answer->error(L4_EMSGTOOLONG);
+      else
+        map_free_page(l4_fpage_order(l4_fpage_t{m->mr[1]}), client_id, answer);
       break;
+
     case SIGMA0_REQ_ID_COV:
-      if (cov_print)
+      if (words > 1)
+        answer->error(L4_EMSGTOOLONG);
+      else if (cov_print)
         cov_print();
       else
         answer->error(L4_ENOSYS);
       break;
+
     default:
       answer->error(L4_ENOSYS);
       break;
@@ -281,7 +336,7 @@ pager(void)
           switch (tag.label())
             {
             case L4_PROTO_SIGMA0:
-              handle_sigma0_request(client_id, utcb, &answer);
+              handle_sigma0_request(client_id, tag.words(), utcb, &answer);
               break;
             case L4::Meta::Protocol:
               {
@@ -292,13 +347,13 @@ pager(void)
               }
               break;
             case L4::Factory::Protocol:
-              handle_service_request(client_rights, utcb, &answer);
+              handle_service_request(client_rights, tag.words(), utcb, &answer);
               break;
             case L4_PROTO_PAGE_FAULT:
-              handle_page_fault(client_id, utcb, &answer);
+              handle_page_fault(client_id, tag.words(), utcb, &answer);
               break;
             case L4_PROTO_IO_PAGE_FAULT:
-              handle_io_page_fault(client_id, utcb, &answer);
+              handle_io_page_fault(client_id, tag.words(), utcb, &answer);
               break;
             default:
               answer.error(L4_EBADPROTO);

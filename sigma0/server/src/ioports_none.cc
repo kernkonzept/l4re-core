@@ -15,7 +15,7 @@ void init_io_ports()
 {
 }
 
-void handle_io_page_fault(l4_umword_t, l4_utcb_t *, Answer *answer)
+void handle_io_page_fault(l4_umword_t, unsigned, l4_utcb_t *, Answer *answer)
 {
   answer->error(L4_EINVAL);
 }
