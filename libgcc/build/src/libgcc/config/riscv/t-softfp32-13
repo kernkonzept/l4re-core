@@ -1,4 +1,4 @@
-$(eval $(call libgcc_include_config,riscv/t-softfp32-9))
+$(eval $(call libgcc_include_config,riscv/t-softfp32-11))
 
 softfp_extensions += hfsf hfdf hftf
 softfp_truncations += tfhf dfhf sfhf

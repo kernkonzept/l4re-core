@@ -1,4 +1,4 @@
-$(eval $(call libgcc_include_config,riscv/t-softfp64-9))
+$(eval $(call libgcc_include_config,riscv/t-softfp64-11))
 softfp_extras += fixhfti fixunshfti floattihf floatuntihf
 
 # GCC >= 15
