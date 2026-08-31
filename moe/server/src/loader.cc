@@ -98,7 +98,8 @@ Moe_app_model::Dataspace
 Moe_app_model::alloc_ds(unsigned long size, l4_addr_t paddr) const
 {
   Single_page_alloc_base::Config cfg{paddr, paddr+size-1U};
-  Dataspace mem =_task->allocator()->alloc(size, cfg, 0, 0);
+  Dataspace mem = _task->allocator()->alloc(size, cfg,
+                                            L4Re::Mem_alloc::Continuous, 0);
   if (!mem)
     chksys(-L4_ENOMEM, "ELF loader could not allocate memory");
   return mem;
