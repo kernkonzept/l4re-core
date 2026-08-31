@@ -317,11 +317,10 @@ base64_decode(const char*in_data, size_t in_size, char **out_data, size_t *out_s
 	      if (v)
                 v = (unsigned char)((v == '$') ? 0 : v - 61);
 	    }
-	  if (in_count < in_size)
+	  if (v)
 	    {
 	      len++;
-	      if (v)
-                in[i] = (unsigned char)(v - 1);
+              in[i] = (unsigned char)(v - 1);
 	    }
 	  else
             in[i] = 0;
