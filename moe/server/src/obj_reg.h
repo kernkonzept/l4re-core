@@ -56,15 +56,10 @@ public:
   explicit Object_pool(Cap_alloc *ca, L4::Cap<L4::Thread> main_thread);
   Cap_alloc *cap_alloc() const { return _cap_alloc; }
   cxx::H_list_t<Moe::Server_object> life;
-  int alloc_buffer_demand(L4::Type_info::Demand const &demand) override
+  int alloc_buffer_demand(L4::Type_info::Demand const &) override
   {
-    if (demand.caps > 2
-        || demand.ports != 0
-        || demand.mem != 0
-        || demand.flags != 0)
-      return -L4_EINVAL;
-
-    return 0;
+    // Never called by the Object_pool registry implementation.
+    return -L4_EINVAL;
   }
 
   L4::Cap<void> get_rcv_cap(int index) const override
