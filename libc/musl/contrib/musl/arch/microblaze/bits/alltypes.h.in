@@ -3,7 +3,7 @@
 #define _Int64 long long
 #define _Reg int
 
-#if __MICROBLAZEEL__
+#ifdef __MICROBLAZEEL__
 #define __BYTE_ORDER 1234
 #else
 #define __BYTE_ORDER 4321

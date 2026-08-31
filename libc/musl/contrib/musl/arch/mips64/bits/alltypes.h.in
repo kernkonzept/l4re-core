@@ -2,7 +2,7 @@
 #define _Int64 long
 #define _Reg long
 
-#if _MIPSEL || __MIPSEL || __MIPSEL__
+#if defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
 #define __BYTE_ORDER 1234
 #else
 #define __BYTE_ORDER 4321

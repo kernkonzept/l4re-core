@@ -2,7 +2,7 @@
 #define _Int64 long
 #define _Reg long
 
-#if __AARCH64EB__
+#ifdef __AARCH64EB__
 #define __BYTE_ORDER 4321
 #else
 #define __BYTE_ORDER 1234
