@@ -54,7 +54,7 @@ init_memory(l4_kernel_info_t *info)
           Mem_man::ram()->add_free(Region(start, end));
           if (!iomem.reserve(Region(start, end, sigma0_taskno, L4_FPAGE_RW)))
             mismatch = Region(start, end, sigma0_taskno, L4_FPAGE_RW);
-          continue;
+          break;
         case Mem_desc::Reserved:
         case Mem_desc::Dedicated:
           if (!iomem.reserve(Region(start, end, sigma0_taskno, L4_FPAGE_RW))
