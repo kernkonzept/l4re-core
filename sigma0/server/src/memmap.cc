@@ -69,9 +69,13 @@ new_client(Answer *answer)
   if ((_next_gate >> L4_CAP_SHIFT) & ~Region::Owner_mask)
     return answer->error(L4_ENOMEM);
 
-  l4_factory_create_gate_u(L4_BASE_FACTORY_CAP, _next_gate,
-                           L4_BASE_THREAD_CAP, (_next_gate >> L4_CAP_SHIFT) << 4,
-                           answer->utcb);
+  l4_msgtag_t tag = l4_factory_create_gate_u(L4_BASE_FACTORY_CAP, _next_gate,
+                                             L4_BASE_THREAD_CAP,
+                                             (_next_gate >> L4_CAP_SHIFT) << 4,
+                                             answer->utcb);
+  if (l4_error_u(tag, answer->utcb) < 0)
+    return answer->error(L4_ENOMEM);
+
   answer->snd_fpage(l4_obj_fpage(_next_gate, 0, L4_CAP_FPAGE_RWS));
   _next_gate += L4_CAP_OFFSET;
 }
