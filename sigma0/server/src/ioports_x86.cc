@@ -48,6 +48,9 @@ void handle_io_page_fault(l4_umword_t t, unsigned words, l4_utcb_t *utcb,
   if (order > Port_bits || port >= (1UL << Port_bits))
     return answer->error(L4_EINVAL);
 
+  if (l4_trunc_size(port, order) != port)
+    return answer->error(L4_EINVAL);
+
   if (io_ports.alloc(Region::start_order(port << Port_shift, order + Port_shift,
                                          t, L4_FPAGE_RW)))
     answer->snd_fpage(l4_iofpage(port, order));
