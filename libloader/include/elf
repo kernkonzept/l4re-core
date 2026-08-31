@@ -170,6 +170,11 @@ public:
 
     l4_size_t phsize = _eh->phdr_size() * _eh->num_phdrs();
     l4_addr_t phoffset = _eh->phdrs_offset();
+    if (phsize > ~static_cast<l4_addr_t>(0) - phoffset)
+      {
+        detach_eh_ds();
+        return;
+      }
     if (phoffset + phsize > L4_PAGESIZE)
       {
         // need xtra mapping for the PHDRs
