@@ -122,9 +122,9 @@ l4_ret_t Remote_access::op_map(L4Re::Dataspace::Rights,
   unsigned char rights = L4_FPAGE_RO;
   // rights |= L4_FPAGE_W;
 
-  l4_addr_t last_plus_1_page = offset + (L4_PAGESHIFT << order);
+  l4_addr_t last_plus_1_page = offset + (1UL << order);
   for (l4_addr_t page = offset; page < last_plus_1_page; page += L4_PAGESIZE)
-    if (l4_ret_t r = pagein(offset, rights & L4_FPAGE_W, 0))
+    if (l4_ret_t r = pagein(page, rights & L4_FPAGE_W, 0))
       return r;
 
   fp = L4::Ipc::Snd_fpage::mem(l4_trunc_size(offset, order), order,
