@@ -517,25 +517,39 @@ static const luaL_Reg _task_ops[] = {
 
 static int exec(lua_State *l)
 {
-  try {
+  App_ptr app_task;
 
-  Am am(l);
-  am.parse_cfg();
-
-  App_ptr app_task = cxx::make_ref_obj<Lua_app_task>(l, am.rm_fab());
-
-  if (!app_task)
+  try
     {
-      Err().printf("could not allocate task control block\n");
-      return 0;
+      Am am(l);
+      am.parse_cfg();
+
+      app_task = cxx::make_ref_obj<Lua_app_task>(l, am.rm_fab());
+
+      if (!app_task)
+        {
+          Err().printf("could not allocate task control block\n");
+          return 0;
+        }
+
+      am.set_task(app_task.get());
+
+      app_task->running(app_task);
+
+      am.launch_loader();
     }
+  catch (L4::Runtime_error const &e)
+    {
+      if (app_task)
+        {
+          app_task->terminate();
+          app_task = nullptr;
+        }
 
-
-  am.set_task(app_task.get());
-
-  app_task->running(app_task);
-
-  am.launch_loader();
+      // does not return
+      luaL_error(l, "could not create process: %s (%s: %d)",
+                 e.str(), e.extra_str(), e.err_no());
+    }
 
   App_ptr *at = new (lua_newuserdata(l, sizeof(App_ptr))) App_ptr();
   *at = app_task;
@@ -544,11 +558,6 @@ static int exec(lua_State *l)
   lua_setmetatable(l, -2);
 
   return 1;
-  } catch (L4::Runtime_error const &e) {
-    luaL_error(l, "could not create process: %s (%s: %d)", e.str(), e.extra_str(), e.err_no());
-  }
-
-  return 0;
 }
 
 
