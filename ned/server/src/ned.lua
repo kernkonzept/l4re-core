@@ -410,7 +410,7 @@ function Cpu_set:add(cpu, lvl)
     local from = tonumber(sfrom)
     local to = tonumber(sto)
     if from and to and from <= to then
-      for i = tonumber(from), tonumber(to) do
+      for i = from, to do
         self.set[i] = true
       end
     else
