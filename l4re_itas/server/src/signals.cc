@@ -603,12 +603,7 @@ Thread_signal_handler::call_default_action(siginfo_t const &si,
 
       L4::Cap<L4Re::Dbg_events> dbg_events = L4Re::Env::env()->dbg_events();
 
-      if (!dbg_events.is_valid())
-        {
-          err.printf("No backtrace service available!\n");
-          Global::local_rm->op_debug(L4Re::Debug_obj::Rights(0), 0);
-        }
-      else
+      if (regs && dbg_events.is_valid())
         {
           int r = dbg_events->request_backtrace(*regs, ra_if.obj_cap(),
                                                 Global::local_rm->obj_cap());
@@ -619,6 +614,14 @@ Thread_signal_handler::call_default_action(siginfo_t const &si,
 
           err.printf("Backtrace at %lx could not be requested: %d\n",
                      dbg_events.cap(), r);
+        }
+      else
+        {
+          if (regs)
+            err.printf("No backtrace service available!\n");
+          else
+            err.printf("No register state for a backtrace available!\n");
+          Global::local_rm->op_debug(L4Re::Debug_obj::Rights(0), 0);
         }
 
       _exit(128 + si.si_signo);
