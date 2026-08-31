@@ -277,7 +277,10 @@ void handle_sigma0_request(l4_umword_t client_id, unsigned words, l4_utcb_t *utc
       if (words > 1)
         answer->error(L4_EMSGTOOLONG);
       else if (cov_print)
-        cov_print();
+        {
+          cov_print();
+          answer->error(0);
+        }
       else
         answer->error(L4_ENOSYS);
       break;
