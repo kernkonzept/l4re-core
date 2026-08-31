@@ -455,7 +455,8 @@ Thread_signal_handler::sigaltstack(const struct sigaltstack &ss,
     {
       l4_umword_t ip = ~0UL;
       l4_umword_t sp = ~0UL;
-      int err = l4_error(_thread->ex_regs(&ip, &sp, 0));
+      l4_umword_t flags = 0;
+      int err = l4_error(_thread->ex_regs(&ip, &sp, &flags));
       if (err < 0)
         return err;
 
