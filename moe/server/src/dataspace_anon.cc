@@ -20,7 +20,7 @@
 Moe::Dataspace_anon::Dataspace_anon(long size, Flags w,
                                     unsigned char page_shift,
                                     Single_page_alloc_base::Config cfg)
-: Moe::Dataspace_cont(0, 0, w, page_shift, cfg)
+: Moe::Dataspace_cont(0, 0, w, page_shift)
 {
   Quota_guard g;
   Single_page_unique_ptr m;

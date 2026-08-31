@@ -19,9 +19,7 @@ class Dataspace_cont : public Dataspace
 public:
   Dataspace_cont(void *start, unsigned long size,
                  Flags flags,
-                 unsigned char page_shift,
-                 Single_page_alloc_base::Config cfg
-                   = Single_page_alloc_base::default_mem_cfg);
+                 unsigned char page_shift);
 
   ~Dataspace_cont() { unmap(); }
 

@@ -63,7 +63,8 @@ public:
                     Flags flags = L4Re::Dataspace::F::RWX,
                     Single_page_alloc_base::Config cfg =
                       Single_page_alloc_base::default_mem_cfg) noexcept
-  : Dataspace(size, flags | Flags(Cow_enabled), L4_LOG2_PAGESIZE, cfg), _pages(0)
+  : Dataspace(size, flags | Flags(Cow_enabled), L4_LOG2_PAGESIZE),
+    _pages(0), _cfg(cfg)
   {}
 
   virtual ~Dataspace_noncont() {}
@@ -109,6 +110,8 @@ public:
                                    Flags flags = L4Re::Dataspace::F::RWX);
 
 protected:
+  Single_page_alloc_base::Config cfg() const { return _cfg; }
+
   union
   {
     Page *_pages;
@@ -117,5 +120,7 @@ protected:
 
 private:
   Address map_address(l4_addr_t offset, Flags flags) const;
+
+  Single_page_alloc_base::Config _cfg;
 };
 };
