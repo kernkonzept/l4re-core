@@ -103,12 +103,17 @@ Foreign_server::Foreign_server()
   pthread_attr_setstacksize(&attr, cxx::max<size_t>(0x1000, PTHREAD_STACK_MIN));
 
   int r = pthread_create(&_th, &attr, &__run, this);
+  pthread_attr_destroy(&attr);
   if (r)
-    Err().printf("error: could not start server thread: %d\n", r);
+    {
+      Err().printf("error: could not start server thread: %d\n", r);
+      pthread_mutex_unlock(&_start_mutex);
+      pthread_mutex_destroy(&_start_mutex);
+      L4Re::throw_error(-L4_ENOMEM, "start ned server thread");
+    }
 
   l4_debugger_set_object_name(pthread_l4_cap(_th), "ned-svr");
 
-  pthread_attr_destroy(&attr);
   pthread_mutex_lock(&_start_mutex);
   pthread_mutex_unlock(&_start_mutex);
   pthread_mutex_destroy(&_start_mutex);
