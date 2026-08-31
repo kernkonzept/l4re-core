@@ -428,10 +428,12 @@ struct Phdr_l4re_elf_aux_infos
 
     l4_addr_t const addr = mm->local_attach_ds(bin, h.filesz(), h.offset());
     l4_addr_t const end = addr + h.filesz();
-    for (l4_addr_t a = addr; a < end;)
+    for (l4_addr_t a = addr; a + sizeof(l4re_elf_aux_t) <= end;)
       {
         auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
         if (!e->type)
+          break;
+        if (e->length < sizeof(l4re_elf_aux_t) || e->length > end - a)
           break;
 
         auto v = reinterpret_cast<l4re_elf_aux_mword_t const *>(e);
@@ -525,22 +527,25 @@ struct Phdr_l4re_elf_aux
 
     l4_addr_t const addr = am->local_attach_ds(bin, h.filesz(), h.offset());
     l4_addr_t const end = addr + h.filesz();
-    for (l4_addr_t a = addr; a < end;)
+    for (l4_addr_t a = addr; a + sizeof(l4re_elf_aux_t) <= end;)
       {
         auto e = reinterpret_cast<l4re_elf_aux_t const *>(a);
         if (!e->type)
+          break;
+        if (e->length < sizeof(l4re_elf_aux_t) || e->length > end - a)
           break;
 
         auto v = reinterpret_cast<l4re_elf_aux_vma_t const *>(e);
         switch (e->type)
           {
           case L4RE_ELF_AUX_T_VMA:
-            {
-              l4_addr_t start = v->start;
-              L4Re::chksys(am->prog_reserve_area(&start, v->end - v->start + 1,
-                                                 L4Re::Rm::Flags(0), 0));
-              break;
-            }
+            if (e->length >= sizeof(l4re_elf_aux_vma_t))
+              {
+                l4_addr_t start = v->start;
+                L4Re::chksys(am->prog_reserve_area(&start, v->end - v->start + 1,
+                                                   L4Re::Rm::Flags(0), 0));
+              }
+            break;
           default:
             break;
           }
