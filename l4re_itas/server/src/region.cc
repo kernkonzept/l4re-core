@@ -509,7 +509,7 @@ Region_map::page_in(l4_addr_t min_addr, l4_addr_t max_addr,
       if ((r->second.flags() & rights) != rights)
         return -L4_EACCESS;
 
-      l4_addr_t start = min_addr;
+      l4_addr_t start = addr;
       l4_addr_t end = cxx::min(max_addr, r->first.end());
       l4_ret_t err = r->second.page_in(r->first, start, end, rights, nullptr);
       if (err < 0)
