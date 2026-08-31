@@ -68,13 +68,15 @@ L4_CV char const *l4sys_errtostr(long err)
   static_assert(L4_ENOREPLY    == 1000, "L4_ENOREPLY value change");
   static_assert(L4_EMSGMISSARG == 1003, "L4_EMSGMISSARG value change");
 
+  char const *s = 0;
+
   err = -err;
   if (err >= 0 && err < L4_ERRNOMAX)
-    return _l4sys_errortab[err];
+    s = _l4sys_errortab[err];
   else if (err >= L4_EIPC_LO && err < L4_EIPC_HI)
-    return _l4sys_ipc_errortab[err - L4_EIPC_LO];
+    s = _l4sys_ipc_errortab[err - L4_EIPC_LO];
   else if (err >= L4_ENOREPLY && err <= L4_EDROPREPLY)
-    return _l4sys_ipc_errortab2[err - 1000];
-  else
-    return "bad, unknown runtime error";
+    s = _l4sys_ipc_errortab2[err - 1000];
+
+  return s ? s : "bad, unknown runtime error";
 }
