@@ -110,11 +110,9 @@ App_task::handle_irq()
 }
 
 App_task::App_task(L4Re::Util::Ref_cap<L4::Factory>::Cap const &alloc)
-: _ref_cnt(0),
-  _task(chkcap(cap_alloc.alloc<L4::Task>(), "allocating task cap")),
+: _task(chkcap(cap_alloc.alloc<L4::Task>(), "allocating task cap")),
   _thread(chkcap(cap_alloc.alloc<L4::Thread>(), "allocating thread cap")),
   _rm(chkcap(cap_alloc.alloc<L4Re::Rm>(), "allocating region-map cap")),
-  _state(Initializing), _exit_code_valid(false),
   _parent_receiver(*this)
 {
   chksys(alloc->create(_rm.get()), "allocating new region map");

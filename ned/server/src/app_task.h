@@ -21,7 +21,7 @@ class App_task :
   public L4::Irqep_t<App_task>
 {
 private:
-  long _ref_cnt;
+  long _ref_cnt = 0;
   inline static l4_uint32_t apps_running = 0;
 
   /**
@@ -57,9 +57,9 @@ private:
   Unique_del_cap<L4::Thread> _thread;
   Unique_del_cap<L4Re::Rm> _rm;
 
-  State _state;
-  unsigned long _exit_code;
-  bool _exit_code_valid;
+  State _state = Initializing;
+  unsigned long _exit_code = 0;
+  bool _exit_code_valid = false;
 
   Parent_receiver _parent_receiver;
 
