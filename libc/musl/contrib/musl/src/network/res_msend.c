@@ -85,7 +85,7 @@ int __res_msend_rc(int nqueries, const unsigned char *const *queries,
 	union {
 		struct sockaddr_in6 sin6;
 		struct sockaddr_in sin;
-	} sa = {0}, ns[MAXNS] = {{0}};
+	} sa = {{0}}, ns[MAXNS] = {{{0}}};
 	socklen_t sl = sizeof sa.sin;
 	int nns = 0;
 	int family = AF_INET;
