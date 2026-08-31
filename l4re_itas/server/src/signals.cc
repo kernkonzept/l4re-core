@@ -87,7 +87,8 @@ private:
     auto *i = reinterpret_cast<l4_pf_trampoline_t *>(kumem);
     _next = i;
     l4_pf_trampoline_t *prev = nullptr;
-    for (unsigned size = L4_PAGESIZE; size > sizeof(*i); prev = i, i++, size -= sizeof(*i))
+    for (unsigned size = L4_PAGESIZE; size >= sizeof(*i);
+         prev = i, ++i, size -= sizeof(*i))
       {
         i->user_data[0] = 0;
         if (prev)
