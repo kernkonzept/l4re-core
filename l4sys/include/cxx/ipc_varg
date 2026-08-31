@@ -412,6 +412,10 @@ public:
  * Works like Varg_list_ref but contains a full copy of the data.
  * Use this as a parameter in server functions, if the handler function
  * needs to use the UTCB (e.g. while sending further IPC).
+ *
+ * \tparam MAX  Size of the copy, in machine words. A list that does not fit
+ *              is truncated; the default is large enough for any list that
+ *              can arrive in the message registers.
  */
 template<unsigned MAX>
 class Varg_list : public Varg_list_ref
@@ -428,6 +432,11 @@ public:
 
     l4_umword_t const *rs = r._s.begin();
     unsigned c = r._s.end() - rs;
+
+    // The list comes from a message, so its length is up to the sender.
+    if (c > MAX)
+      c = MAX;
+
     for (unsigned i = 0; i < c; ++i)
       data[i] = rs[i];
 
