@@ -27,7 +27,7 @@ public:
    *
    * Creates an element that is not in any list.
    */
-  H_list_item_t() : _n(0), _pn(0) {}
+  constexpr H_list_item_t() : _n(0), _pn(0) {}
   /**
    * Destructor.
    *
@@ -79,7 +79,7 @@ public:
 
   // BSS allocation
   explicit H_list(bool x) : Base(x) {}
-  H_list() : Base() {}
+  constexpr H_list() : Base() {}
 
   /**
    *  Return an iterator for an arbitrary list element
