@@ -95,16 +95,16 @@ template<> struct Va_type<char const *>
  */
 class Varg
 {
-private:
-  enum { Direct_data = 0x8000 };
-  l4_umword_t _tag;
-  char const *_d;
-
 public:
-
   /// The data type for the tag
   using Tag = l4_umword_t;
 
+private:
+  enum { Direct_data = 0x8000 };
+  Tag _tag;
+  char const *_d;
+
+public:
   /// \return the type field of the tag
   L4_varg_type type() const { return static_cast<L4_varg_type>(_tag & 0xff); }
   /**
