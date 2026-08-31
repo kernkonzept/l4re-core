@@ -108,7 +108,7 @@ __register(lua_State *l)
       break;
     default:
       luaL_error(l, "unexpected value to register in namespace (%s)",
-                 lua_typename(l, 3));
+                 luaL_typename(l, 3));
     }
 
   if (0)
