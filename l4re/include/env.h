@@ -85,7 +85,7 @@ typedef struct l4re_env_cap_entry_t
   static bool is_valid_name(char const *n) L4_NOTHROW
   {
     for (unsigned i = 0; *n; ++i, ++n)
-      if (i > sizeof(name))
+      if (i >= sizeof(name))
         return false;
 
     return true;
