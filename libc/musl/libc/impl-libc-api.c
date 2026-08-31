@@ -10,6 +10,11 @@
 #include <l4/sys/kdebug.h>
 
 #include <stdbool.h>
+#include <stdint.h>
+
+// Defined in musl's src/env/__stack_chk_fail.c. Zero if __init_ssp() did not
+// run yet.
+extern uintptr_t __stack_chk_guard;
 
 #define _UNIMPLEMENTED                                   \
   {                                                      \
@@ -86,6 +91,11 @@ ptlc_allocate_tls(void)
   new_libc_data->map_base = map;
   new_libc_data->map_size = libc.tls_size;
   new_libc_data->locale = &libc.global_locale;
+  // Simply use the same stack protector canary in every thread. On i386/x86_64
+  // the compiler generates code that reads it directly from the TCB. On all
+  // other architectures the compiler will use __stack_chk_guard directly. See
+  // __init_ssp().
+  new_libc_data->canary = __stack_chk_guard;
   return ptlc_thread_descr_to_tls_tp(new);
 }
 

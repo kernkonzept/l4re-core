@@ -449,12 +449,12 @@ define SRC_mman
 endef
 
 # TODO:
-# - __init_ssp
 # - secure_getenv: Already defined in libc_be_misc
 define SRC_env
   __environ
   $(if $(LIBC_BUILD_MINIMAL),,__init_tls)
   __libc_start_main
+  __stack_chk_fail
   clearenv
   getenv
   putenv

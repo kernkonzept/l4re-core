@@ -24,6 +24,16 @@ include $(LIBCSRC_DIR)/make_rules.mk
 include $(LIBCSRC_DIR)/contrib_files.mk
 include $(LIBCSRC_DIR)/sources.mk
 
+# stack protector handling
+ifdef CONFIG_BID_GCC_ENABLE_STACK_PROTECTOR
+# signal BID that musl implements the infrastructure for the stack protector
+PC_CFLAGS         := bid_allow_stack_protector
+# Musl provides the hidden __stack_chk_fail_local() alias only in libc.a.
+# Shared objects and dynamically linked programs must get it from
+# libc_nonshared.p.a.
+SRC_C_libc_nonshared.p.a += ssp-local.c
+endif
+
 DEFINES-$(CONFIG_BID_PIE) += -DSTATIC_PIE
 
 # Needed?
