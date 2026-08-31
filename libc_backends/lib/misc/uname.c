@@ -46,5 +46,8 @@ int uname(struct utsname *u)
 #endif
   u->machine[sizeof(u->machine) - 1] = 0;
 
+  strncpy(u->domainname, "(none)", sizeof(u->domainname));
+  u->domainname[sizeof(u->domainname) - 1] = 0;
+
   return 0;
 }
