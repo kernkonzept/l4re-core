@@ -112,6 +112,7 @@ public:
         unsigned left = _space - _size;
         unsigned written = snprintf(_buf + _size, left, "%d:%.*s\n",
                                     name.len(), name.len(), name.start());
+        // written == left is fine because '_buf' is not '\0'-terminated.
         if (written > left)
           {
             char *n = static_cast<char *>(
