@@ -93,6 +93,23 @@ private:
   int _cb;
 };
 
+/**
+ * Return the string key at the top-2 position of the stack.
+ *
+ * Only to be used while iterating a table with lua_next(). The key must not
+ * be converted with lua_tolstring() because that replaces a number key in
+ * place, which confuses the following lua_next() call.
+ *
+ * Hence reject anything but a real string.
+ */
+static char const *check_key(lua_State *l, char const *what, size_t *len = NULL)
+{
+  if (lua_type(l, -2) != LUA_TSTRING)
+    luaL_error(l, "%s must be a string, got %s", what, luaL_typename(l, -2));
+
+  return lua_tolstring(l, -2, len);
+}
+
 class Am : public Rmt_app_model
 {
 private:
@@ -205,7 +222,7 @@ public:
     lua_pushnil(_lua);
     while (lua_next(_lua, tab))
       {
-	char const *r = luaL_checkstring(_lua, -2);
+	char const *r = check_key(_lua, "capability name");
         if (!l4re_env_cap_entry_t::is_valid_name(r))
           luaL_error(_lua, "Capability name '%s' too long", r);
 	while (lua_isfunction(_lua, -1))
@@ -239,7 +256,7 @@ public:
     lua_pushnil(_lua);
     while (lua_next(_lua, tab))
       {
-	char const *r = luaL_checkstring(_lua, -2);
+	char const *r = check_key(_lua, "capability name");
 	while (lua_isfunction(_lua, -1))
 	  {
 	    lua_pushvalue(_lua, tab);
@@ -345,7 +362,7 @@ public:
     while (lua_next(_lua, _env_idx))
       {
 	size_t kl;
-	char const *k = luaL_checklstring(_lua, -2, &kl);
+	char const *k = check_key(_lua, "environment variable name", &kl);
 	size_t vl;
 	char const *v = luaL_checklstring(_lua, -1, &vl);
 
