@@ -78,7 +78,7 @@ l4re_rm_find_srv(l4_cap_idx_t rm, l4_addr_t *addr,
 {
   L4::Cap<L4Re::Rm> x(rm);
   L4::Cap<L4Re::Dataspace> mm(L4_INVALID_CAP);
-  L4Re::Rm::Flags f;
+  L4Re::Rm::Flags f(0);
   int r = x->find(addr, size, offset, &f, &mm);
   *flags = f.raw;
   *m = mm.cap();
