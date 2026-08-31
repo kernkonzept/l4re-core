@@ -27,7 +27,7 @@ public:
    *
    * Creates an element that is not in any list.
    */
-  constexpr H_list_item_t() : _n(0), _pn(0) {}
+  constexpr H_list_item_t() : _n(nullptr), _pn(nullptr) {}
   /**
    * Destructor.
    *
