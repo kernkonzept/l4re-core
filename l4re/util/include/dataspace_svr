@@ -10,6 +10,7 @@
 #pragma once
 
 #include <string.h>
+#include <stdio.h>
 #include <stddef.h>
 #include <l4/bid_config.h>
 #include <l4/sys/types.h>
@@ -193,19 +194,8 @@ public:
     if (!check_limit(offs))
       return -L4_ERANGE;
 
-    unsigned long sz = size = cxx::min(size, round_size() - offs);
-
-    while (sz)
-      {
-        unsigned long b_addr = _ds_start + offs;
-        unsigned long b_sz = cxx::min(size - offs, sz);
-
-        memset(reinterpret_cast<void *>(b_addr), 0, b_sz);
-
-        offs += b_sz;
-        sz -= b_sz;
-      }
-
+    size = cxx::min(size, round_size() - offs);
+    memset(reinterpret_cast<void *>(_ds_start + offs), 0, size);
     return 0;
   }
 
