@@ -502,7 +502,7 @@ Region_map::page_in(l4_addr_t min_addr, l4_addr_t max_addr,
     {
       auto r = find(Region(addr));
       if (!r)
-        return -L4_ENOMEM;
+        return -L4_ENOENT;
 
       // Cannot request more rights than with what the region was attached in
       // the first place.
