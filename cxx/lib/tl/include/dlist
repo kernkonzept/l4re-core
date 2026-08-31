@@ -408,7 +408,9 @@ public:
    */
   T *pop_back()
   {
-    T *ret = *(end()--);
+    Iterator i = end();
+    --i;
+    T *ret = *i;
     remove(ret);
     return ret;
   }
