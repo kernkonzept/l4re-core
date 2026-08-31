@@ -113,9 +113,15 @@ public:
    */
   unsigned length() const { return _tag >> 16; }
   /// \return the tag value (the Direct_data bit masked)
-  Tag tag() const { return _tag & ~Direct_data; }
-  /// Set Varg tag (usually from message)
-  void tag(Tag tag) { _tag = tag; }
+  Tag tag() const { return _tag & ~static_cast<Tag>(Direct_data); }
+  /// Set Varg tag (usually from message).
+  void tag(Tag tag)
+  {
+    // Direct_data bit is not part of the write format. Make sure it cannot be
+    // set by a remote sender. Otherwise we would mistakenly treat the _d
+    // pointer as direct data.
+    _tag = tag & ~static_cast<Tag>(Direct_data);
+  }
   /// Set Varg to indirect data value (usually in UTCB)
   void data(char const *d) { _d = d; }
 
