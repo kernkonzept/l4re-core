@@ -38,7 +38,6 @@ App_task::Parent_receiver::Parent_receiver(App_task &parent)
   wait = L4Re::Util::make_unique_cap<L4::Semaphore>();
   chksys(L4Re::Env::env()->factory()->create(wait.get()),
          "Parent_receiver wait sem");
-  ++apps_running;
 }
 
 /**
@@ -122,10 +121,16 @@ App_task::App_task(L4Re::Util::Ref_cap<L4::Factory>::Cap const &alloc)
 
   chkcap(Ned::foreign_server->registry()->register_obj(&_parent_receiver),
          "register App_task parent rcv");
+
+  ++apps_running;
 }
 
 App_task::~App_task()
 {
+  if (_state == Initializing)
+    --apps_running;
+  // otherwise accounted by handle_irq() or terminate()
+
   reset();
 }
 
