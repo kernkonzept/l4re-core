@@ -1015,6 +1015,28 @@ Signal_manager::op_sigpending(L4Re::Itas::Rights,
   return L4_EOK;
 }
 
+/**
+ * Convert a timeval to the microsecond clock.
+ *
+ * \pre The timeval must be in canonical form, i.e. non-negative with less
+ *      than a million microseconds.
+ *
+ * \retval true   Converted, `us` holds the result.
+ * \retval false  The value does not fit into the microsecond clock.
+ */
+static bool timeval_to_us(struct timeval const &tv, l4_cpu_time_t *us)
+{
+  l4_cpu_time_t const max = ~static_cast<l4_cpu_time_t>(0);
+  l4_cpu_time_t sec = static_cast<l4_cpu_time_t>(tv.tv_sec);
+  l4_cpu_time_t usec = static_cast<l4_cpu_time_t>(tv.tv_usec);
+
+  if (sec > (max - usec) / 1000000)
+    return false;
+
+  *us = sec * 1000000 + usec;
+  return true;
+}
+
 l4_ret_t
 Signal_manager::op_setitimer(L4Re::Itas::Rights,
                              int which,
@@ -1035,6 +1057,12 @@ Signal_manager::op_setitimer(L4Re::Itas::Rights,
     return -EINVAL;
 
   l4_cpu_time_t now = l4_kip_clock(l4re_kip());
+
+  l4_cpu_time_t value_us, interval_us;
+  if (   !timeval_to_us(new_value.it_value, &value_us)
+      || !timeval_to_us(new_value.it_interval, &interval_us)
+      || value_us > ~static_cast<l4_cpu_time_t>(0) - now)
+    return -EINVAL;
 
   if (_itimer.active())
     {
@@ -1057,12 +1085,8 @@ Signal_manager::op_setitimer(L4Re::Itas::Rights,
       old_value.it_interval.tv_usec = 0;
     }
 
-  if (new_value.it_value.tv_sec != 0 || new_value.it_value.tv_usec != 0)
-    _itimer.set_timer(
-      now + static_cast<l4_cpu_time_t>(new_value.it_value.tv_sec) * 1000000
-          + new_value.it_value.tv_usec,
-      static_cast<l4_cpu_time_t>(new_value.it_interval.tv_sec) * 1000000
-        + new_value.it_interval.tv_usec);
+  if (value_us != 0)
+    _itimer.set_timer(now + value_us, interval_us);
   else
     _itimer.clear_timer();
 
