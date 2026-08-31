@@ -1,6 +1,8 @@
 # vim:set ft=make:
 
-TARGET          = libgcc_s.so
+# Usually, shared objects are not build on !CONFIG_MMU. But Makefile.libgcc
+# picks up the dependency before lib.mk can filter it.
+TARGET          = $(if $(CONFIG_MMU),libgcc_s.so)
 PC_FILENAME     = libgcc_s
 
 REQUIRES_LIBS   = libgcc-headers libc
