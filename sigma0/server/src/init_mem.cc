@@ -84,7 +84,7 @@ init_memory(l4_kernel_info_t *info)
           L4::cout << PROG_NAME": Could not reserve memory\n"
             << mismatch << "\n";
           dump_all();
-          abort();
+          panic();
         }
     }
 }

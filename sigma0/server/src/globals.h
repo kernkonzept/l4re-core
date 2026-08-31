@@ -10,7 +10,7 @@
 
 #include <l4/cxx/iostream>
 #include <l4/sys/types.h>
-#include <stdlib.h>
+#include <unistd.h>
 
 /* Special options for compatibility reasons */
 
@@ -30,10 +30,7 @@ enum {
   root_taskno = 4
 };
 
-extern "C" void L4_NORETURN _exit(int);
-
-inline void L4_NORETURN abort()
-noexcept(noexcept(abort()))
+inline void L4_NORETURN panic() noexcept
 {
   L4::cout << "FATAL: Sigma0 terminated!\n";
   _exit(1);
