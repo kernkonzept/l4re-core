@@ -209,39 +209,32 @@ VERSION HISTORY:
 \******************************************************************* */
 
 
-// local includes
-
-#include <l4/util/base64.h> // we implement these functions
-
-// global includes
+#include <l4/util/base64.h>
 
 #include <stdlib.h>
 #include <stdint.h>
-
-// private variables
 
 /*!
  * \ingroup utils_internal
  * Translation Table as described in RFC1113
  */
-static const char cb64[]="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char cb64[]
+  = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 /*!
  * \ingroup utils_internal
  * Translation Table to decode (created by Bob Trower)
  */
-static const char cd64[]="|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
-
-//private functions
+static const char cd64[]
+  = "|$$$}rstuvwxyz{$$$$$$$>?@ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ[\\]^_`abcdefghijklmnopq";
 
 /*!
  * \brief encode 3 8-bit binary bytes as 4 '6-bit' characters
  * \ingroup utils_internal
  *
- * 
  * \param in array of bytes to be encoded
  * \param len real number of bytes to encode
- * \retval out encoded representation of \a in 
+ * \retval out encoded representation of \a in
  * encode 3 8-bit binary bytes as 4 '6-bit' characters
  */
 static void base64_encodeblock(unsigned char in[3], unsigned char out[4], int len);
@@ -250,126 +243,115 @@ static void base64_encodeblock(unsigned char in[3], unsigned char out[4], int le
  * \brief decode 4 '6-bit' characters into 3 8-bit binary bytes
  * \ingroup utils_internal
  *
- * 
  * \param in array of bytes to be decoded
- * \retval out decoded representation of \a in 
+ * \retval out decoded representation of \a in
  * decode 4 '6-bit' characters into 3 8-bit binary bytes
  */
 static void base64_decodeblock(unsigned char in[4], unsigned char out[3]);
 
 
-// implementation of public functions
-
-L4_CV void base64_encode( const char *infile, unsigned int in_size, char **outfile)
+L4_CV void
+base64_encode(const char *in_data, size_t in_size, char **out_data)
 {
-  unsigned char in[3], out[4];
-  int i, len = 0;
-  unsigned int in_count=0, out_count=0;
+  size_t in_count = 0, out_count = 0;
   char *temp;
-  if ((size_t)in_size * 2 > SIZE_MAX)
+  if (in_size * 2 > SIZE_MAX)
     return;
-  temp = malloc(in_size < 5 ? 9 : (size_t)in_size * 2);
+
+  temp = malloc(in_size < 5 ? 9 : in_size * 2);
   if (!temp)
     {
-      *outfile = NULL;
+      *out_data = NULL;
       return;
     }
 
-  while(in_count<in_size)
+  while (in_count < in_size)
     {
-      len = 0;
-      for( i = 0; i < 3; i++ ) 
+      unsigned char in[3];
+      int len = 0;
+      for (int i = 0; i < 3; i++)
 	{
-	  if(in_count<in_size) 
+	  if (in_count < in_size)
 	    {
-	      in[i] = (unsigned char) infile[in_count++];
+	      in[i] = (unsigned char)in_data[in_count++];
 	      len++;
 	    }
 	  else
-	    {
-	      in[i] = 0;
-	    }
+            in[i] = 0;
 	}
-      if( len ) 
+      if (len)
 	{
-	  base64_encodeblock( in, out, len );
-	  for( i = 0; i < 4; i++ ) 
-	    {
-	      temp[out_count++]=out[i];
-	    }
+          unsigned char out[4];
+	  base64_encodeblock(in, out, len);
+	  for (int i = 0; i < 4; i++)
+            temp[out_count++] = out[i];
 	}
     }
-  temp[out_count]=0; //null-terminate string
-  *outfile=temp;
+
+  temp[out_count] = 0; //null-terminate string
+  *out_data = temp;
 }
 
-L4_CV void base64_decode( const char*infile, unsigned int in_size, char **outfile )
+L4_CV void
+base64_decode(const char*in_data, size_t in_size, char **out_data)
 {
-  unsigned char in[4], out[3], v;
-  int i, len;
-  unsigned int in_count=0, out_count=0;
-  char *temp =malloc(in_size); //to be on the safe side;
+  size_t in_count = 0, out_count = 0;
+  char *temp = malloc(in_size + 1); // +1 for terminating zero
   if (!temp)
     {
-      *outfile = NULL;
+      *out_data = NULL;
       return;
     }
 
-  while( in_count<in_size) 
+  while (in_count < in_size)
     {
-      for( len = 0, i = 0; i < 4 && in_count<in_size; i++ ) 
+      unsigned char in[4];
+      int len = 0;
+      for (int i = 0; i < 4 && in_count < in_size; i++)
 	{
-	  v = 0;
-	  while( in_count<in_size && v == 0 ) 
+	  unsigned char v = 0;
+	  while (in_count < in_size && v == 0)
 	    {
-	      v = (unsigned char) infile[in_count++];
-	      v = (unsigned char) ((v < 43 || v > 122) ? 0 : cd64[ v - 43 ]);
-	      if( v ) 
-		{
-		  v = (unsigned char) ((v == '$') ? 0 : v - 61);
-		}
+	      v = (unsigned char)in_data[in_count++];
+	      v = (unsigned char)((v < 43 || v > 122) ? 0 : cd64[v - 43]);
+	      if (v)
+                v = (unsigned char)((v == '$') ? 0 : v - 61);
 	    }
-	  if( in_count<in_size) 
+	  if (in_count < in_size)
 	    {
 	      len++;
-	      if( v ) 
-		{
-		  in[ i ] = (unsigned char) (v - 1);
-		}
+	      if (v)
+                in[i] = (unsigned char)(v - 1);
 	    }
-	  else 
-	    {
-	      in[i] = 0;
-	    }
+	  else
+            in[i] = 0;
 	}
-      if( len ) 
+      if (len)
 	{
-	  base64_decodeblock( in, out );
-	  for( i = 0; i < len - 1; i++ ) 
-	    {
-	      temp[out_count++]=out[i];
-	    }
+          unsigned char out[3];
+	  base64_decodeblock(in, out);
+	  for (int i = 0; i < len - 1; i++)
+            temp[out_count++] = out[i];
 	}
     }
-  temp[out_count]=0;
-  *outfile=temp;
+
+  temp[out_count] = 0;
+  *out_data = temp;
 }
 
 
-// implementation of private functions
-
-void base64_encodeblock( unsigned char in[3], unsigned char out[4], int len )
+static void base64_encodeblock(unsigned char in[3], unsigned char out[4], int len)
 {
-  out[0] = cb64[ in[0] >> 2 ];
-  out[1] = cb64[ ((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4) ];
-  out[2] = (unsigned char) (len > 1 ? cb64[ ((in[1] & 0x0f) << 2) | ((in[2] & 0xc0) >> 6) ] : '=');
-  out[3] = (unsigned char) (len > 2 ? cb64[ in[2] & 0x3f ] : '=');
+  out[0] = cb64[in[0]>> 2];
+  out[1] = cb64[((in[0] & 0x03) << 4) | ((in[1] & 0xf0) >> 4)];
+  out[2] = (unsigned char)(len > 1 ? cb64[((in[1] & 0x0f) << 2)
+                           | ((in[2] & 0xc0) >> 6)] : '=');
+  out[3] = (unsigned char)(len > 2 ? cb64[in[2] & 0x3f] : '=');
 }
 
-static void base64_decodeblock( unsigned char in[4], unsigned char out[3] )
-{   
-  out[ 0 ] = (unsigned char ) (in[0] << 2 | in[1] >> 4);
-  out[ 1 ] = (unsigned char ) (in[1] << 4 | in[2] >> 2);
-  out[ 2 ] = (unsigned char ) (((in[2] << 6) & 0xc0) | in[3]);
+static void base64_decodeblock(unsigned char in[4], unsigned char out[3])
+{
+  out[0] = (unsigned char)(in[0] << 2 | in[1] >> 4);
+  out[1] = (unsigned char)(in[1] << 4 | in[2] >> 2);
+  out[2] = (unsigned char)(((in[2] << 6) & 0xc0) | in[3]);
 }
-

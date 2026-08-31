@@ -16,6 +16,7 @@
 #define B64_EN_DECODE
 
 #include <l4/sys/compiler.h>
+#include <stddef.h>
 
 L4_BEGIN_DECLS
 
@@ -26,28 +27,28 @@ L4_BEGIN_DECLS
 /**@{*/
 
 /*!
- * \brief base-64-encode string \a infile
+ * base-64-encode string \a in_data.
  * \internal
  *
- * \param infile string to be encoded
- * \param in_size length of \a infile 
- * \retval outfile the base-64-encoded representation of \a infile
+ * \param in_data        Data to be encoded.
+ * \param in_size        Length of \a in_data.
+ * \param[out] out_data  The base-64-encoded representation of \a in_data.
  *
- *  base-64-encode string \a infile adding padding as per spec
+ * base-64-encode string \a in_data adding padding as per spec.
  */
-L4_CV void base64_encode( const char *infile, unsigned int in_size, char **outfile);
+L4_CV void base64_encode(char const *in_data, size_t in_size, char **out_data);
 
 /*!
- * \brief decode base-64-encoded string \a infile
+ * decode base-64-encoded string \a in_data.
  * \internal
  *
- * \param infile string to be decoded
- * \param in_size length of \a infile 
- * \retval outfile the decoded representation of \a infile
+ * \param in_data        String to be decoded.
+ * \param in_size        Length of \a in_data.
+ * \param[out] out_data  The decoded representation of \a in_data.
  *
- *  base-64-decode string \a infile discarding padding, line breaks and noise
+ * base-64-decode string \a in_data.
  */
-L4_CV void base64_decode(const char *infile, unsigned int in_size, char **outfile);
+L4_CV void base64_decode(char const *in_data, size_t in_size, char **out_data);
 
 L4_END_DECLS
 
