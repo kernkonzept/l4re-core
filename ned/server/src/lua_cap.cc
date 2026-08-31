@@ -173,7 +173,7 @@ Cap::find_dynamic_type(lua_State *l) const
   get_method_table(l, name.data);
   if (lua_isnil(l, -1))
     { // no lua representation of type found
-      lua_pop(l, -1);
+      lua_pop(l, 1);
       return false;
     }
 
