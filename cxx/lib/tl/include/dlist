@@ -354,6 +354,8 @@ public:
         C::prev(n) = &_h;
         o.self_insert(&o._h);
       }
+
+    return *this;
   }
 
   D_list(D_list const &) = delete;
