@@ -810,8 +810,9 @@ static void *grow_and_alloc(size_t request_size, size_t alignment)
   // The heap area to create needs to accommodate the required raw heap block
   // size (including the overhead of the heap area itself) and respect the
   // heap area granularity as defined by the user.
-  auto area_size = value::align_up(Area::raw_size(request_size),
-                                   umalloc_area_granularity);
+  auto raw_size = Area::raw_size(request_size);
+
+  auto area_size = value::align_up(raw_size, umalloc_area_granularity);
 
   // Create the heap area.
   auto ptr = umalloc_area_create(area_size);
