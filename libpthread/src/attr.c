@@ -25,6 +25,7 @@
 #include <sys/resource.h>
 #include "pthread.h"
 #include "internals.h"
+#include "spinlock.h"
 
 #include <l4/sys/compiler.h>
 
@@ -261,6 +262,13 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
   if (handle == NULL)
     return ENOENT;
 
+  __pthread_lock(handle_to_lock(handle), NULL);
+  if (nonexisting_handle(handle, thread))
+    {
+      __pthread_unlock(handle_to_lock(handle));
+      return ESRCH;
+    }
+
   descr = handle_to_descr(handle);
 
   attr->__detachstate = (descr->p_detached
@@ -268,13 +276,7 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
 			 : PTHREAD_CREATE_JOINABLE);
 
   attr->__schedpolicy = descr->p_sched_policy;
-  if (attr->__schedpolicy == -1)
-    return EINVAL;
   attr->__schedparam.sched_priority = descr->p_priority;
-
-  if (attr->__schedparam.sched_priority < 0)
-    return EINVAL;
-
   attr->__inheritsched = descr->p_inheritsched;
   attr->__scope = PTHREAD_SCOPE_SYSTEM;
 
@@ -283,6 +285,14 @@ int pthread_getattr_np (pthread_t thread, pthread_attr_t *attr)
   attr->__guardsize = descr->p_guardsize;
   attr->__stackaddr_set = descr->p_userstack;
   attr->__stackaddr = descr->p_stackaddr;
+
+  __pthread_unlock(handle_to_lock(handle));
+
+  if (attr->__schedpolicy == -1)
+    return EINVAL;
+
+  if (attr->__schedparam.sched_priority < 0)
+    return EINVAL;
 
   return 0;
 }
