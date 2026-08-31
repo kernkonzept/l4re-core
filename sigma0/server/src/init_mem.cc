@@ -39,6 +39,8 @@ init_memory(l4_kernel_info_t *info)
         {
           start = l4_round_page(md.start());
           end = l4_trunc_page(md.end() + 1) - 1;
+          if (start > end)
+            continue;
         }
       else
         {
