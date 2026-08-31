@@ -54,23 +54,26 @@ l4util_splitlog2_hdl(l4_addr_t start, l4_addr_t end,
   if (end < start)
     return -L4_EINVAL;
 
-  while (start <= end)
+  for (;;)
     {
       long retval;
       int len2 = l4util_splitlog2_size(start, end);
       l4_addr_t len = 1UL << len2;
-      if ((retval = handler(start, start + len - 1, len2)))
-	return retval;
-      start += len;
+      l4_addr_t chunk_end = start + len - 1;
+      if ((retval = handler(start, chunk_end, len2)))
+        return retval;
+      if (chunk_end >= end)
+        return 0;
+      start = chunk_end + 1;
     }
-  return 0;
 }
 
 L4_INLINE l4_addr_t
 l4util_splitlog2_size(l4_addr_t start, l4_addr_t end)
 {
   int start_bits = l4util_bsf(start);
-  int len_bits = l4util_bsr(end - start + 1);
+  l4_addr_t len = end - start + 1; // == 0 for entire address space
+  int len_bits = len ? l4util_bsr(len) : (int)(sizeof(l4_addr_t) * 8 - 1);
   if (start_bits != -1 && len_bits > start_bits)
     len_bits = start_bits;
 
