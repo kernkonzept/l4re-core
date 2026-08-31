@@ -19,10 +19,10 @@
  * i.f <unit>
  * \endcode
  * with
- * - 'i' being the integer part of 'bytes' with 1-3 digits,
+ * - 'i' being the integer part of 'bytes' with 1-4 digits,
  * - 'f' being the fractional part of 'bytes' with always 1 digit,
  * - 'unit' being the unit of 'v.f', for instance "123.4 MiB" or "4.5 GiB".
- * Values < 1024 are printed as 'v B', for instance "1023 B".
+ * Values <= 1024 are printed as 'v B', for instance "1023 B".
  *
  * \param outstr   The string to print the size.
  * \param outsize  The size of the string to print.
@@ -62,10 +62,10 @@ L4_INLINE int l4util_human_readable_size(char *outstr, size_t outsize,
  * i.f <unit>
  * \endcode
  * with
- * - 'i' being the integer part of 'bytes' with 1-3 digits,
+ * - 'i' being the integer part of 'bytes' with 1-4 digits,
  * - 'f' being the fractional part of 'bytes' with always 1 digit,
  * - 'unit' being the unit of 'v.f', for instance "123.4 MiB" or "4.5 GiB".
- * Values < 1024 are printed as 'v B', for instance "1023 B".
+ * Values <= 1024 are printed as 'v B', for instance "1023 B".
  *
  * \param outstr   The string to print the size.
  * \param outsize  The size of the string to print.
