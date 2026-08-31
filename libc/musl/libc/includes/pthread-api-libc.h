@@ -43,6 +43,13 @@ typedef struct pthread_libc_data
    * the end of the structure is external and internal ABI. */
 #ifdef TLS_ABOVE_TP
 #if defined(__mips__) || defined(__riscv)
+  /* struct pthread embeds this structure as its last member and is aligned to
+   * TCB_ALIGNMENT (sizeof(double) == 8). Because the trailing fields are
+   * addressed relative to the end of struct pthread, i.e. relative to the
+   * thread pointer, struct pthread must not gain any tail padding. */
+#if __SIZEOF_POINTER__ != __SIZEOF_DOUBLE__
+  void *__pad;
+#endif
   /* On MIPS and RISC-V the L4 UTCB pointer lives in the TCB area just below the
    * thread pointer. Populated by ptlc_set_tp(). */
   void *__l4_utcb;
