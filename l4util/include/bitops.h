@@ -186,7 +186,7 @@ l4util_find_first_zero_bit(const void * dest, l4_size_t size);
  * 
  * \return next-highest power of 2
  */
-L4_INLINE int
+L4_INLINE unsigned long
 l4util_next_power2(unsigned long val);
 
 L4_END_DECLS
@@ -369,7 +369,7 @@ l4util_complement_bit(int b, volatile l4_umword_t * dest)
  * Adapted from:
  * http://en.wikipedia.org/wiki/Power_of_two#Algorithm_to_find_the_next-highest_power_of_two
  */
-L4_INLINE int
+L4_INLINE unsigned long
 l4util_next_power2(unsigned long val)
 {
   unsigned i;
@@ -381,7 +381,7 @@ l4util_next_power2(unsigned long val)
   for (i=1; i < sizeof(unsigned long)*8; i<<=1)
     val = val | val >> i;
 
-  return val+1;
+  return val + 1;
 }
 
 
