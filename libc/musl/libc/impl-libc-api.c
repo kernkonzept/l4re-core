@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include "libc-api.h"
 #define IS_IN_libpthread
 #include "libc-glue.h"

@@ -5,6 +5,7 @@
 #include "syscall.h"
 #ifndef NOT_FOR_L4
 // TODO: Do we want to include pthread.h here?
+#define _GNU_SOURCE
 #include <pthread.h>
 #endif
 
@@ -22,7 +23,7 @@
 #define FUNLOCK(f)
 #else
 // TODO: Add optimized implementation, that avoids unnecessary overhead of pthread_mutex, if it has any.
-#define FILE_LOCK_INITIALIZER (pthread_mutex_t) {0, 0, 0, PTHREAD_MUTEX_RECURSIVE_NP, __LOCK_INITIALIZER}
+#define FILE_LOCK_INITIALIZER (pthread_mutex_t)PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 #define FILE_LOCK_INITIALIZE(f)          \
   do                                     \
     {                                    \
