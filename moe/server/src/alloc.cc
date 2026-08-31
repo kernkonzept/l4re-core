@@ -42,6 +42,9 @@ Allocator::alloc(long size, Single_page_alloc_base::Config cfg,
   if (size == 0)
     throw L4::Bounds_error("stack too small");
 
+  if (align >= sizeof(unsigned long) * 8)
+    throw L4::Runtime_error(-L4_EINVAL, "unsupported alignment");
+
 #if !defined(CONFIG_MMU)
   flags |= L4Re::Mem_alloc::Continuous | L4Re::Mem_alloc::Pinned;
 #endif
