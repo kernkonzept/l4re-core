@@ -97,19 +97,42 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
       break;
     case 0x20: // Prefetch Abort from a lower Exception level
     case 0x21: // Prefetch Abort taken without a change in Exception level
-      si->si_signo = SIGSEGV;
-      si->si_code = SEGV_ACCERR;
+    case 0x24: // Data Abort exception from a lower Exception level
+    case 0x25: // Data Abort exception taken without a change in Exception level
+      switch (regs.err & 0b111111)
+        {
+        case 0b000100 ... 0b000111:
+          // Translation fault level x
+          si->si_signo = SIGSEGV;
+          si->si_code = SEGV_MAPERR;
+          break;
+        case 0b001000 ... 0b001111:
+          // Access flag / Permission fault
+          si->si_signo = SIGSEGV;
+          si->si_code = SEGV_ACCERR;
+          break;
+        case 0b100001:
+          // Alignment fault
+          si->si_signo = SIGBUS;
+          si->si_code = BUS_ADRALN;
+          break;
+        case 0b100010:
+          // Debug exception
+          si->si_signo = SIGTRAP;
+          si->si_code = TRAP_BRKPT; // FIXME
+          si->si_addr = reinterpret_cast<void *>(regs.ip);
+          break;
+        default:
+          // Synchronous External abort, ECC errors and the rest..
+          si->si_signo = SIGBUS;
+          si->si_code = BUS_ADRERR;
+          break;
+        }
       si->si_addr = reinterpret_cast<void *>(regs.pfa);
       break;
     case 0x22: // PC alignment fault exception
       si->si_signo = SIGBUS;
       si->si_code = BUS_ADRALN;
-      si->si_addr = reinterpret_cast<void *>(regs.pfa);
-      break;
-    case 0x24: // Data Abort exception from a lower Exception level
-    case 0x25: // Data Abort exception taken without a change in Exception level
-      si->si_signo = SIGSEGV;
-      si->si_code = SEGV_ACCERR;
       si->si_addr = reinterpret_cast<void *>(regs.pfa);
       break;
     case 0x3e: // L4_THREAD_EX_REGS_TRIGGER_EXCEPTION
