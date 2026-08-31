@@ -47,10 +47,7 @@ map_mem(l4_cap_idx_t sigma0, l4_addr_t phys, l4_addr_t virt, l4_addr_t size,
 	  b->br[0] = L4_ITEM_MAP;
 	  b->br[1] = l4_fpage(virt, l, L4_FPAGE_RWX).raw;
 	  tag = l4_ipc_call(sigma0, utcb, tag, L4_IPC_NEVER);
-	  if (l4_msgtag_has_error(tag))
-	    error = l4_utcb_tcr_u(utcb)->error;
-	  else
-	    error = 0;
+	  error = l4_ipc_error(tag, utcb);
 	}
       while (error == L4_IPC_SECANCELED || error == L4_IPC_SEABORTED);
 
