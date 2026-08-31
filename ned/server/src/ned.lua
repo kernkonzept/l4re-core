@@ -402,13 +402,13 @@ function Cpu_set:add(cpu, lvl)
   end
 
   lvl = lvl or 0
-  arg_type = type(cpu)
+  local arg_type = type(cpu)
   if arg_type == "number" then
     self.set[cpu] = true
   elseif arg_type == "string" then
-    sfrom, sto = string.match(cpu, "(%d+)-(%d+)")
-    from = tonumber(sfrom)
-    to = tonumber(sto)
+    local sfrom, sto = string.match(cpu, "(%d+)-(%d+)")
+    local from = tonumber(sfrom)
+    local to = tonumber(sto)
     if from and to and from <= to then
       for i = tonumber(from), tonumber(to) do
         self.set[i] = true
