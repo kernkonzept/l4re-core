@@ -14,7 +14,7 @@ int posix_spawn(pid_t *restrict pid, const char *restrict path,
   (void)attrp;
   (void)argv;
   (void)envp;
-  return -ENOTSUP;
+  return ENOTSUP;
 }
 
 int posix_spawnp(pid_t *restrict pid, const char *restrict file,
@@ -29,7 +29,7 @@ int posix_spawnp(pid_t *restrict pid, const char *restrict file,
   (void)attrp;
   (void)argv;
   (void)envp;
-  return -ENOTSUP;
+  return ENOTSUP;
 }
 
 int posix_spawn_file_actions_addclose(posix_spawn_file_actions_t *file_actions,
@@ -37,7 +37,7 @@ int posix_spawn_file_actions_addclose(posix_spawn_file_actions_t *file_actions,
 {
   (void)file_actions;
   (void)fildes;
-  return -ENOTSUP;
+  return ENOTSUP;
 }
 
 int posix_spawn_file_actions_addopen(posix_spawn_file_actions_t *restrict file_actions,
@@ -51,7 +51,7 @@ int posix_spawn_file_actions_addopen(posix_spawn_file_actions_t *restrict file_a
   (void)path;
   (void)oflag;
   (void)mode;
-  return -ENOTSUP;
+  return ENOTSUP;
 }
 
 int posix_spawn_file_actions_adddup2(posix_spawn_file_actions_t *file_actions,
@@ -61,5 +61,5 @@ int posix_spawn_file_actions_adddup2(posix_spawn_file_actions_t *file_actions,
   (void)file_actions;
   (void)fildes;
   (void)newfildes;
-  return -ENOTSUP;
+  return ENOTSUP;
 }
