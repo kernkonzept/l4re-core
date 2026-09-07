@@ -33,14 +33,74 @@ Moe's factory allows allocation of the following objects:
 - L4::Factory, to provide a quota limited allocation for clients
 
 > [!note]
-> L4::Scheduler objects can be only created through the user factory provided by
-> Moe to the initial application. Other factory instances cannot create this
-> object.
+> Creating L4::Scheduler objects requires the `s` permission of the factory (see
+> [Factory configuration](#l4re_moe_factory_config)). By default only the
+> factory that Moe provides to the initial application holds this permission.
 
 #### Passing parameters to the create stream {#l4re_moe_memory_alloc_factory}
 
 L4::Factory.create() returns a [create stream](@ref L4::Factory::S) that allows
 arguments to be forwarded to the object creation in Moe.
+
+#### Factory configuration {#l4re_moe_factory_config}
+
+Every factory in Moe carries a configuration that determines the physical memory
+the factory may hand out and the operations it is allowed to perform. The
+configuration of the root factory, which Moe provides to the init process, is
+set with the [`--root-factory`](#l4re_servers_moe_cmdline_options) command line
+option. The configuration of a sub-factory is provided when [creating the
+factory](#l4re_servers_moe_param_factory).
+
+A configuration consists of a list of physical memory regions and a set of
+permissions. It is described by the following arguments:
+
+- `untyped=<size>@<base>`, or short `ut=<size>@<base>`
+
+  Adds an untyped memory region. Untyped memory backs ordinary dataspace
+  allocations as well as Moe's internal allocations. The root factory
+  configuration must contain at least one untyped region.
+
+- `typed=<name>=<size>@<base>`, or short `t=<name>=<size>@<base>`
+
+  Adds a typed memory region named `<name>`. Typed memory is never used for
+  ordinary allocations. It is handed out only to clients that request it
+  explicitly by passing `type=<name>` when [creating a
+  dataspace](#l4re_servers_moe_param_dataspace). The name must consist of
+  alphanumeric characters only and must not be longer than 23 characters.
+  Multiple regions may carry the same name, in which case they form a single
+  pool.
+
+- `allow=<permissions>`, or short `a=<permissions>`
+
+  Grants permissions to the factory. `<permissions>` is a string built from the
+  following characters:
+    * `p`: The factory may create sub-factories that specify their own memory
+    regions.
+    * `d`: Reserved for DMA constraints. Currently without effect.
+    * `s`: The factory may create L4::Scheduler proxy objects.
+
+  This argument must be given at most once.
+
+`<size>` and `<base>` are unsigned numbers, written either in decimal, in
+hexadecimal with a `0x` prefix or in octal with a leading `0`. Both may carry a
+single `K`, `M` or `G` suffix, which multiplies the value by 1024, 1024^2 or
+1024^3 respectively.
+
+`<size>` must not be zero and a region must not extend beyond the end of the
+physical address space. Regions carrying the same name must neither overlap nor
+exceed the number of 15 regions per configuration. Adjacent regions of the same
+name are merged.
+
+The configuration of a sub-factory must be covered by the configuration of the
+factory that creates it:
+- Specifying any memory region requires the `p` permission in the creating
+factory.
+- Each specified region must be contained in a region of the creating factory.
+- Only permissions held by the creating factory can be granted.
+
+If a sub-factory does not specify any memory region, it inherits the untyped
+regions of the creating factory. Typed regions and permissions are never
+inherited implicitly.
 
 ### Namespace
 Moe provides a name space conforming to the L4Re::Namespace interface (see
@@ -110,6 +170,27 @@ module somemodule :rw
 
   Default: `rom/ned`
 
+* `--root-factory=<config>`
+
+  This option provides the configuration of the root factory, that is the
+  physical memory regions the factory may allocate from and the permissions it
+  holds. The value is a comma separated list of configuration arguments, see
+  [Factory configuration](#l4re_moe_factory_config).
+
+  At least one untyped memory region must be specified. Note that no permission
+  is granted implicitly, in particular `allow=s` is required to let the init
+  process create L4::Scheduler proxy objects.
+
+  The option must be given at most once and is mutually exclusive with the
+  `--brk` option.
+
+  Example: `--root-factory=ut=256M@0x40000000,t=vram=16M@0x80000000,a=ps`
+
+  If the option is not given, the root factory may allocate from the whole
+  physical address space and holds the `s` permission.
+
+  String value.
+
 * `--l4re-dbg=<flags>`
 
   This option allows to set the debug options for the L4Re runtime environment
@@ -146,6 +227,9 @@ module somemodule :rw
   moe from allocating memory in regions that shall later be used by other
   applications or virtual machines.
 
+  This option is obsolete and only kept for backwards compatibility. Use the
+  `--root-factory` option instead, which is mutually exclusive with this option.
+
   Hexadecimal number without '0x' prefix.
 
 * `-- <init_options>`
@@ -179,7 +263,22 @@ Dataspaces allocated via the Moe's factory allow mappings with any combination
 of the read-write-execute (RWX) rights, subject to a possible restriction of the
 writable right for client capabilities lacking the 'W' right.
 
-Call:   `create(L4.Proto.Dataspace, size [, flags, align])`
+The physical memory backing a dataspace is taken from the memory regions of the
+factory the dataspace is created by, see [Factory
+configuration](#l4re_moe_factory_config). By default the untyped regions of the
+factory are used. The optional `type` argument selects the typed regions of the
+given name instead.
+
+Allocations can be further constrained to a range of physical addresses, as
+required by devices with a limited DMA addressing capability. Use
+`L4Re::Mem_alloc::Dma_mask()` to construct the `flags` value that restricts the
+allocation to physical addresses that fit into the given number of bits.
+Together with the `L4Re::Mem_alloc::Invert_dma_mask` flag the allocation is
+restricted to the addresses above that limit instead. Both require the
+`Continuous` flag to be set. A DMA mask of less than
+#L4_PAGESHIFT bits is rejected with -L4_EINVAL.
+
+Call:   `create(L4.Proto.Dataspace, size [, flags, align, base, type])`
 
 * `size`
 
@@ -205,6 +304,22 @@ Call:   `create(L4.Proto.Dataspace, size [, flags, align])`
   Log2 alignment of dataspace if supported by allocator
 
   Numerical value.
+
+* `base`
+
+  Physical base address of the dataspace. Only consumed if the `Fixed physical
+  Address` flag is set. The requested address range must be covered by the
+  memory regions of the factory.
+
+  Numerical value.
+
+* `type`
+
+  Allocate from typed memory. The argument is the string `type=<name>`, where
+  `<name>` refers to the typed memory regions of the factory. Without this
+  argument the dataspace is allocated from untyped memory.
+
+  String value.
 
 
 
@@ -325,7 +440,18 @@ Call:   `create(L4.Proto.Scheduler, limit, offset [, bitmap])`
 
 ## Factory {#l4re_servers_moe_param_factory}
 
-Call:   `create(L4.Proto.Factory [, quota])`
+Creates a sub-factory with a restricted quota and, optionally, a restricted
+[factory configuration](#l4re_moe_factory_config).
+
+The configuration of the sub-factory must be covered by the configuration of the
+factory that creates it. Otherwise the creation fails with -L4_EPERM. Malformed
+configuration arguments are rejected with -L4_EINVAL.
+
+If no memory region is specified, the sub-factory inherits the untyped memory
+regions of the creating factory. Typed memory regions and permissions are never
+inherited implicitly.
+
+Call:   `create(L4.Proto.Factory [, quota, config])`
 
 * `quota`
 
@@ -334,6 +460,14 @@ Call:   `create(L4.Proto.Factory [, quota])`
 
   Numerical value.
     * Must not be zero.
+
+* `config`
+
+  Factory configuration argument, either `untyped=<size>@<base>`,
+  `typed=<name>=<size>@<base>` or `allow=<permissions>` - can be repeated to
+  provide multiple arguments.
+
+  String value.
 
 
 
