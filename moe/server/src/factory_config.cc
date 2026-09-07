@@ -19,23 +19,48 @@ namespace
 Dbg const info(Dbg::Info);
 
 bool
+parse_mem_value(cxx::String const &s, l4_addr_t *val)
+{
+  if (s.empty())
+    return false;
+
+  int consumed = s.from_number(val);
+  if (consumed <= 0)
+    return false;
+
+  auto tail = s.substr(consumed);
+  if (tail.empty())
+    return true;
+  if (tail.len() != 1)
+    return false;
+
+  unsigned shift;
+  switch (*tail.start())
+    {
+    case 'G': shift = 30; break;
+    case 'M': shift = 20; break;
+    case 'K': shift = 10; break;
+    default: return false;
+    }
+
+  if (*val > (static_cast<l4_addr_t>(-1) >> shift))
+    return false; // overflow
+
+  *val <<= shift;
+  return true;
+}
+
+bool
 parse_mem_range(cxx::String const &value, Mem_range *range)
 {
   cxx::String::Index delimiter = value.find("@");
   if (delimiter == value.end())
     return false;
 
-  cxx::String length_str = value.head(delimiter);
-  if (length_str.starts_with("0x"))
-    length_str = length_str.substr(2);
-  cxx::String base_str = value.substr(delimiter + 1);
-  if (base_str.starts_with("0x"))
-    base_str = base_str.substr(2);
-
   l4_addr_t length;
   l4_addr_t base;
-  if (length_str.from_hex(&length) != length_str.len()
-      || base_str.from_hex(&base) != base_str.len())
+  if (   !parse_mem_value(value.head(delimiter), &length)
+      || !parse_mem_value(value.substr(delimiter + 1), &base))
     return false;
 
   // Zero-length or wrap-around are considered invalid
