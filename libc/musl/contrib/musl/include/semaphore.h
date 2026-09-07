@@ -29,7 +29,7 @@ int    sem_trywait(sem_t *);
 int    sem_unlink(const char *);
 int    sem_wait(sem_t *);
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(sem_timedwait, __sem_timedwait_time64);
 #endif
 

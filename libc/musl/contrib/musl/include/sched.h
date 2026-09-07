@@ -19,7 +19,7 @@ extern "C" {
 struct sched_param {
 	int sched_priority;
 	int __reserved1;
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 	long __reserved2[4];
 #else
 	struct {
@@ -137,7 +137,7 @@ __CPU_op_func_S(XOR, ^)
 
 #endif
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(sched_rr_get_interval, __sched_rr_get_interval_time64);
 #endif
 

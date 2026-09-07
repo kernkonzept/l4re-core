@@ -91,7 +91,7 @@ struct timex {
 int adjtimex(struct timex *);
 int clock_adjtime(clockid_t, struct timex *);
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(adjtimex, __adjtimex_time64);
 __REDIR(clock_adjtime, __clock_adjtime64);
 #endif

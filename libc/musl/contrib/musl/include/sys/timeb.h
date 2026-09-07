@@ -18,7 +18,7 @@ struct timeb {
 
 int ftime(struct timeb *);
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(ftime, __ftime64);
 #endif
 

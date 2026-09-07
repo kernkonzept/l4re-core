@@ -35,7 +35,7 @@ int dladdr(const void *, Dl_info *);
 int dlinfo(void *, int, void *);
 #endif
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(dlsym, __dlsym_time64);
 #endif
 

@@ -228,7 +228,7 @@ int pthread_tryjoin_np(pthread_t, void **);
 int pthread_timedjoin_np(pthread_t, void **, const struct timespec *);
 #endif
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(pthread_mutex_timedlock, __pthread_mutex_timedlock_time64);
 __REDIR(pthread_cond_timedwait, __pthread_cond_timedwait_time64);
 __REDIR(pthread_rwlock_timedrdlock, __pthread_rwlock_timedrdlock_time64);

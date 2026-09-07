@@ -18,7 +18,7 @@ struct utimbuf {
 
 int utime (const char *, const struct utimbuf *);
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(utime, __utime64);
 #endif
 

@@ -56,7 +56,7 @@ int adjtime (const struct timeval *, struct timeval *);
 	(void)0 )
 #endif
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(gettimeofday, __gettimeofday_time64);
 __REDIR(getitimer, __getitimer_time64);
 __REDIR(setitimer, __setitimer_time64);

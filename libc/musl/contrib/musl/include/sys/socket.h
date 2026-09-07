@@ -403,7 +403,7 @@ int setsockopt (int, int, int, const void *, socklen_t);
 
 int sockatmark (int);
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 #ifdef _GNU_SOURCE
 __REDIR(recvmmsg, __recvmmsg_time64);
 #endif

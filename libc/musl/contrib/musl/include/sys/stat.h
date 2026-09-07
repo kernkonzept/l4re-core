@@ -190,7 +190,7 @@ int statx(int, const char *__restrict, int, unsigned, struct statx *__restrict);
 #define off64_t off_t
 #endif
 
-#if _REDIR_TIME64
+#if defined(_REDIR_TIME64) && _REDIR_TIME64
 __REDIR(stat, __stat_time64);
 __REDIR(fstat, __fstat_time64);
 __REDIR(lstat, __lstat_time64);
