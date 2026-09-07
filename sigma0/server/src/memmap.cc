@@ -29,6 +29,9 @@
 
 extern "C" void cov_print(void) __attribute__((weak));
 
+// Capability offset ONLY for Unit testing.
+l4_cap_idx_t gate_offs = 0;
+
 l4_kernel_info_t *l4_info;
 
 Mem_man iomem;
@@ -69,14 +72,15 @@ new_client(Answer *answer)
   if ((_next_gate >> L4_CAP_SHIFT) & ~Region::Owner_mask)
     return answer->error(L4_ENOMEM);
 
-  l4_msgtag_t tag = l4_factory_create_gate_u(L4_BASE_FACTORY_CAP, _next_gate,
+  l4_msgtag_t tag = l4_factory_create_gate_u(L4_BASE_FACTORY_CAP,
+                                             _next_gate + gate_offs,
                                              L4_BASE_THREAD_CAP,
                                              (_next_gate >> L4_CAP_SHIFT) << 4,
                                              answer->utcb);
   if (l4_error_u(tag, answer->utcb) < 0)
     return answer->error(L4_ENOMEM);
 
-  answer->snd_fpage(l4_obj_fpage(_next_gate, 0, L4_CAP_FPAGE_RWS));
+  answer->snd_fpage(l4_obj_fpage(_next_gate + gate_offs, 0, L4_CAP_FPAGE_RWS));
   _next_gate += L4_CAP_OFFSET;
 }
 
