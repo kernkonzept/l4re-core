@@ -16,7 +16,7 @@
 namespace L4Re {
 
 void
-Log::printn(char const *string, int len) const noexcept
+Log::printn(char const *string, unsigned len) const noexcept
 {
   l4_msg_regs_t store;
   l4_msg_regs_t *mr = l4_utcb_mr();

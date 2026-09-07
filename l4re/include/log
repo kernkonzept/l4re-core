@@ -40,7 +40,7 @@ public:
    * \param string     string to print
    * \param len        length of string
    */
-  void printn(char const *string, int len) const noexcept;
+  void printn(char const *string, unsigned len) const noexcept;
 
   /**
    * \brief Print NULL-terminated string
