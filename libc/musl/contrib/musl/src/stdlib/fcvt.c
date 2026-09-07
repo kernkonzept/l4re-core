@@ -18,7 +18,7 @@ char *fcvt(double x, int n, int *dp, int *sign)
 		*sign = i;
 		*dp = 1;
 		if (n>14U) n = 14;
-		return "000000000000000"+14-n;
+		return &"000000000000000"[14-n];
 	}
 
 	return ecvt(x, n-lz, dp, sign);
