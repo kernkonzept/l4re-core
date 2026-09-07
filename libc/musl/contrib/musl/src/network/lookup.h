@@ -6,6 +6,7 @@
 #include <features.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <lock.h>
 
 struct aibuf {
 	struct addrinfo ai;
@@ -13,7 +14,7 @@ struct aibuf {
 		struct sockaddr_in sin;
 		struct sockaddr_in6 sin6;
 	} sa;
-	volatile int lock[1];
+	libc_lock_t lock;
 	short slot, ref;
 };
 
