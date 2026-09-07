@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#if __cplusplus < 201103L
+#if !defined(__cplusplus) || __cplusplus < 201103L
 typedef unsigned short char16_t;
 typedef unsigned char32_t;
 #endif

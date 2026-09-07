@@ -114,7 +114,7 @@ long double creall(long double complex);
 #define cimagl(x) __CIMAG(x, long double)
 #endif
 
-#if __STDC_VERSION__ >= 201112L
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #if defined(_Imaginary_I)
 #define __CMPLX(x, y, t) ((t)(x) + _Imaginary_I*(t)(y))
 #elif defined(__clang__)

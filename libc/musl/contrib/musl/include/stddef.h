@@ -2,7 +2,7 @@
 #define _STDDEF_H
 
 #undef NULL
-#if __cplusplus >= 201103L
+#if defined(__cplusplus) && __cplusplus >= 201103L
 #define NULL nullptr
 #elif defined(__cplusplus)
 #define NULL 0L
@@ -13,7 +13,8 @@
 #define __NEED_ptrdiff_t
 #define __NEED_size_t
 #define __NEED_wchar_t
-#if __STDC_VERSION__ >= 201112L || __cplusplus >= 201103L
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) \
+    || (defined(__cplusplus) && __cplusplus >= 201103L)
 #define __NEED_max_align_t
 #endif
 
