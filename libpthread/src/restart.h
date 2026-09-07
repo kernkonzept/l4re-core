@@ -16,6 +16,7 @@
 //#include <kernel-features.h>
 #include <l4/sys/thread.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <l4/sys/types.h>
 #include <l4/sys/semaphore.h>
@@ -24,12 +25,24 @@
 
 static __inline__ void restart(pthread_descr th)
 {
-  l4_semaphore_up(th->p_thsem_cap);
+  l4_umword_t ipc_error = l4_ipc_error(l4_semaphore_up(th->p_thsem_cap), l4_utcb());
+  if (L4_UNLIKELY(ipc_error))
+    {
+      dprintf(STDERR_FILENO, "libpthread: error %s in restart()/l4_semaphore_up()",
+              l4sys_errtostr(l4_ipc_to_errno(ipc_error)));
+      abort();
+    }
 }
 
 static __inline__ void suspend(pthread_descr self)
 {
-  l4_semaphore_down(self->p_thsem_cap, L4_IPC_NEVER);
+  l4_ret_t error = l4_error(l4_semaphore_down(self->p_thsem_cap, L4_IPC_NEVER));
+  if (L4_UNLIKELY(error < 0))
+    {
+      dprintf(STDERR_FILENO, "libpthread: error %s in suspend()/l4_semaphore_down()",
+              l4sys_errtostr(error));
+      abort();
+    }
 }
 
 /**
