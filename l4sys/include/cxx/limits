@@ -12,6 +12,8 @@
 #include <stddef.h>
 #include <limits.h>
 
+typedef struct l4_msgtag_t l4_msgtag_t;
+
 // unfortunately we cannot include <limits>
 namespace L4 { namespace Types {
 
