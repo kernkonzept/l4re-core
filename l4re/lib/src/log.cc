@@ -27,7 +27,7 @@ Log::printn(char const *string, unsigned len) const noexcept
     {
       long l = write(string, len);
       if (l < 0)
-        return;
+        break;
       len -= l;
       string += l;
     }
