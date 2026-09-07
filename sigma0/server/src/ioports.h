@@ -12,7 +12,7 @@
 #include "memmap_internal.h"
 
 void init_io_ports();
-void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *a);
+void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer);
 
 void dump_io_ports();
 

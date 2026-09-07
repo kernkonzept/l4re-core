@@ -29,7 +29,7 @@ void dump_io_ports()
   io_ports.dump();
 }
 
-void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *a)
+void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *answer)
 {
   unsigned long port, order;
   l4_fpage_t fp = (l4_fpage_t&)l4_utcb_mr_u(utcb)->mr[0];
@@ -37,7 +37,7 @@ void handle_io_page_fault(l4_umword_t t, l4_utcb_t *utcb, Answer *a)
   order = l4_fpage_order(fp) + PORT_SHIFT;
 
   if (io_ports.alloc(Region::start_order(port, order, t, L4_FPAGE_RW)))
-    a->snd_fpage(l4_iofpage(port >> PORT_SHIFT, order - PORT_SHIFT));
+    answer->snd_fpage(l4_iofpage(port >> PORT_SHIFT, order - PORT_SHIFT));
   else
-    a->error(L4_ENOMEM);
+    answer->error(L4_ENOMEM);
 }
