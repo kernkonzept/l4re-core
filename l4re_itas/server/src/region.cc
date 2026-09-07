@@ -480,11 +480,18 @@ Region_map::debug_dump(unsigned long /*function*/) const
       r[6] = f & L4Re::Rm::F::W ? 'w' : '-';
       r[7] = f & L4Re::Rm::F::X ? 'x' : '-';
       r[8] = '\0';
-      printf("  %010lx-%010lx ds=%04lx@%07llx %s/%04x %07llx: %.*s \n",
-             i->first.start(), i->first.end(),
-             i->second.memory().cap() >> L4_CAP_SHIFT, i->second.offset(),
-             r, i->second.flags(),
-             i->first.backing_offset(), i->first.name_len(), i->first.name());
+      if (i->second.flags() & L4Re::Rm::F::Anonymous)
+        printf("  %010lx-%010lx %*s %s/%04x %07llx: %.*s \n",
+               i->first.start(), i->first.end(),
+               15, "",
+               r, i->second.flags(),
+               i->first.backing_offset(), i->first.name_len(), i->first.name());
+      else
+        printf("  %010lx-%010lx ds=%04lx@%07llx %s/%04x %07llx: %.*s \n",
+               i->first.start(), i->first.end(),
+               i->second.memory().cap() >> L4_CAP_SHIFT, i->second.offset(),
+               r, i->second.flags(),
+               i->first.backing_offset(), i->first.name_len(), i->first.name());
     }
 }
 
