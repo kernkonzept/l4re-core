@@ -69,7 +69,7 @@ WARNINGS += $(LIBC_MUSL_WARNINGS)
 endif
 
 define LDSCRIPT_MAKE_RULE_template
-  $(call BID_MAKE_RULE_template,$1,$2,$(if $(filter %.c,$2),C,AS))
+  $(call BID_MAKE_RULE_template$(if $(filter %.s,$2),_nocpp),$1,$2,$(if $(filter %.c,$2),C,AS))
 endef
 
 $(eval $(call LDSCRIPT_MAKE_RULE_template, crti_s.o, $(NAME_crti)))
