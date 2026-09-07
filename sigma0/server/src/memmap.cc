@@ -68,27 +68,20 @@ new_client(Answer *answer)
   static l4_cap_idx_t _next_gate = L4_BASE_CAPS_LAST + L4_CAP_OFFSET;
 
   if ((_next_gate >> L4_CAP_SHIFT) & ~Region::Owner_mask)
-    {
-      answer->error(L4_ENOMEM);
-      return;
-    }
+    return answer->error(L4_ENOMEM);
 
   l4_factory_create_gate_u(L4_BASE_FACTORY_CAP, _next_gate,
                            L4_BASE_THREAD_CAP, (_next_gate >> L4_CAP_SHIFT) << 4,
                            answer->utcb);
   answer->snd_fpage(l4_obj_fpage(_next_gate, 0, L4_CAP_FPAGE_RWS));
   _next_gate += L4_CAP_OFFSET;
-  return;
 }
 
 static
 void map_free_page(unsigned order, l4_umword_t client_id, Answer *answer)
 {
   if (order < L4_PAGESHIFT)
-    {
-      answer->error(L4_EINVAL);
-      return;
-    }
+    return answer->error(L4_EINVAL);
 
   unsigned long addr = Mem_man::ram()->alloc_first(order, client_id);
   if (addr != ~0UL)
@@ -107,17 +100,11 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t client_id, Answer *answe
   // Check if send_addr is correctly aligned to send_order since the kernel
   // will otherwise truncate the send address. Fail in case it is not aligned.
   if (l4_trunc_size(send_addr, send_order) != send_addr)
-    {
-      answer->error(L4_EINVAL);
-      return;
-    }
+    return answer->error(L4_EINVAL);
 
   // Isolation is only enforced at page granularity. Deny smaller requests.
   if (send_order < L4_PAGESHIFT)
-    {
-      answer->error(L4_EINVAL);
-      return;
-    }
+    return answer->error(L4_EINVAL);
 
   bool cached = true;
   L4_fpage_rights mem_flags;
@@ -147,15 +134,11 @@ void map_mem(l4_fpage_t fp, Memory_type fn, l4_umword_t client_id, Answer *answe
         break;
       }
     default:
-      answer->error(L4_EINVAL);
-      return;
+      return answer->error(L4_EINVAL);
     }
 
   if (addr == ~0UL)
-    {
-      answer->error(L4_ENOMEM);
-      return;
-    }
+    return answer->error(L4_ENOMEM);
 
   answer->snd_fpage(addr, send_order, mem_flags, cached);
 }
@@ -175,10 +158,7 @@ handle_page_fault(l4_umword_t client_id, l4_utcb_t *utcb, Answer *answer)
   L4_fpage_rights rights;
   Region r = Region::start_order(l4_trunc_page(pfa), L4_PAGESHIFT, client_id, dr);
   if (Mem_man::ram()->alloc_get_rights(r, &rights))
-    {
-      answer->snd_fpage(r.start(), L4_LOG2_PAGESIZE, rights, true);
-      return;
-    }
+    return answer->snd_fpage(r.start(), L4_LOG2_PAGESIZE, rights, true);
 
   if (debug_warnings)
     L4::cout << PROG_NAME ": Page fault, did not find page " << r << "\n";
@@ -190,15 +170,11 @@ static
 void handle_service_request(l4_umword_t rights, l4_utcb_t *utcb, Answer *answer)
 {
   if (!(rights & L4_CAP_FPAGE_S))
-    {
-      answer->error(L4_EPERM);
-      return;
-    }
+    return answer->error(L4_EPERM);
+
   if (static_cast<long>(l4_utcb_mr_u(utcb)->mr[0]) != L4_PROTO_SIGMA0)
-    {
-      answer->error(L4_ENODEV);
-      return;
-    }
+    return answer->error(L4_ENODEV);
+
   new_client(answer);
 }
 
@@ -207,10 +183,7 @@ void handle_sigma0_request(l4_umword_t client_id, l4_utcb_t *utcb, Answer *answe
 {
   l4_msg_regs_t const *const m = l4_utcb_mr_u(utcb);
   if (!SIGMA0_IS_MAGIC_REQ(m->mr[0]))
-    {
-      answer->error(L4_ENOSYS);
-      return;
-    }
+    return answer->error(L4_ENOSYS);
 
   switch (m->mr[0] & SIGMA0_REQ_ID_MASK)
     {
