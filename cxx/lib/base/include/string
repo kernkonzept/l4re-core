@@ -13,6 +13,8 @@
 
 #include <l4/cxx/minmax>
 #include <l4/cxx/basic_ostream>
+#include <l4/sys/cxx/limits>
+#include <l4/sys/err.h>
 
 
 namespace cxx {
@@ -278,6 +280,127 @@ public:
 	*v |= n;
       }
     return c - start();
+  }
+
+  /**
+   * Convert a number string to an integer.
+   *
+   * Converts the initial part of the string to a number, according to the
+   * given `base`. The string may start with an arbitrary amount of white space
+   * followed by a single optional `+` or `-` sign. If base is zero or 16, the
+   * string may then include a "0x" or "0X" prefix, and the number will be read
+   * in base 16; otherwise, a zero base is taken as 10 (decimal) unless the
+   * next character is '0', in which case it is taken as 8 (octal).
+   *
+   * Conversion stops at the first character that is not a valid digit for the
+   * chosen `base`. If the string does not contain any digit at all, zero is
+   * returned and `v` is left unmodified.
+   *
+   * \tparam      INT   result integer type
+   * \param[out]  v     conversion result
+   * \param       base  Base of the number (0, 2..36)
+   *
+   * \retval >0         Success. Position of first character after the number.
+   * \retval 0          The string does not contain a number.
+   * \retval -L4_EINVAL Invalid `base` parameter
+   * \retval -L4_ERANGE Parsed number too large to be stored in `v`
+   */
+  template<typename INT>
+  int from_number(INT *v, unsigned base = 0) const
+  {
+    // Accumulate in the widest unsigned type. This way the magnitude of the
+    // most negative number of a signed INT can be represented too.
+    typedef unsigned long long Acc;
+
+    if (base == 1 || base > 36)
+      return -L4_EINVAL;
+
+    // Value of character `c` in `b`, or -1 if it is not a valid digit.
+    auto to_digit = [](char c, unsigned b) -> int
+      {
+        int d;
+        if (c >= '0' && c <= '9')
+          d = c - '0';
+        else if (c >= 'a' && c <= 'z')
+          d = c - 'a' + 10;
+        else if (c >= 'A' && c <= 'Z')
+          d = c - 'A' + 10;
+        else
+          return -1;
+
+        return d < static_cast<int>(b) ? d : -1;
+      };
+
+    Index i = start();
+    bool negate = false;
+    bool have_digits = false;
+
+    // skip leading space
+    while (!eof(i) && (*i == ' ' || *i == '\t'))
+      ++i;
+
+    // optional sign
+    if (!eof(i) && (*i == '-' || *i == '+'))
+      {
+        negate = *i == '-';
+        ++i;
+      }
+
+    // Optional base prefix. The leading '0' is a valid number of its own, so
+    // the "0x" prefix is only consumed if a hexadecimal digit follows.
+    if ((base == 0 || base == 16) && !eof(i) && *i == '0')
+      {
+        have_digits = true;
+        ++i;
+
+        if (   !eof(i)     && (*i == 'x' || *i == 'X')
+            && !eof(i + 1) && to_digit(i[1], 16) >= 0)
+          {
+            base = 16;
+            ++i;
+          }
+        else if (base == 0)
+          base = 8;
+      }
+    else if (base == 0)
+      base = 10;
+
+    constexpr INT Max = L4::Types::numeric_limits<INT>::max();
+    constexpr INT Min = L4::Types::numeric_limits<INT>::min();
+
+    // Upper bound of the magnitude. For signed types the negative range is one
+    // larger than the positive one. Unsigned types wrap around on negation.
+    Acc const limit = static_cast<Acc>(Max) + ((Min != 0 && negate) ? 1U : 0U);
+    Acc const lim_div = limit / base;
+    Acc const lim_mod = limit % base;
+
+    // feed the numbers
+    Acc acc = 0;
+    while (!eof(i))
+      {
+        int d = to_digit(*i, base);
+        if (d < 0)
+          break;
+
+        if (acc > lim_div || (acc == lim_div && static_cast<Acc>(d) > lim_mod))
+          return -L4_ERANGE;
+
+        acc = acc * base + static_cast<Acc>(d);
+        have_digits = true;
+        ++i;
+      }
+
+    if (!have_digits)
+      return 0;
+
+    if (!negate)
+      *v = static_cast<INT>(acc);
+    else if (Min != 0 && acc == static_cast<Acc>(Max) + 1U)
+      *v = Min;
+    else
+      *v = static_cast<INT>(-static_cast<INT>(acc));
+
+    return i - start();
   }
 
   /// Equality.
