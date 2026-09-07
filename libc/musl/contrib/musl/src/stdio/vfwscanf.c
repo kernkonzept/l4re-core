@@ -271,7 +271,7 @@ int vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 					int l = wctomb(s?s+i:tmp, c);
 					if (l<0) goto input_fail;
 					i += l;
-					if (alloc && i > k-4) {
+					if (alloc && i > k-MB_LEN_MAX) {
 						k += k+1;
 						char *tmp = realloc(s, k);
 						if (!tmp) goto alloc_fail;
