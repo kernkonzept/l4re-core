@@ -245,6 +245,8 @@ int vfwscanf(FILE *restrict f, const wchar_t *restrict fmt, va_list ap)
 			if (alloc) {
 				k = t=='c' ? width+1U : 31;
 				if (size == SIZE_l) {
+					if (k > -1/sizeof(wchar_t))
+						k = -1/sizeof(wchar_t);
 					wcs = malloc(k*sizeof(wchar_t));
 					if (!wcs) goto alloc_fail;
 				} else {
