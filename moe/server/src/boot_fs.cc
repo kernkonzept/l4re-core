@@ -119,7 +119,7 @@ public:
                         Single_page_alloc_base::_alloc(_space + L4_PAGESIZE,
                                                        L4_PAGESIZE));
             memcpy(n, _buf, _space);
-            Single_page_alloc_base::_add_mem(_buf, _space);
+            Single_page_alloc_base::_free(_buf, _space);
             _buf = n;
             _space += L4_PAGESIZE;
           }
