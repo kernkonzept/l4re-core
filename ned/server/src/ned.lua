@@ -62,6 +62,7 @@ Mem_alloc_flags = {
   Continuous  = 1,
   Pinned      = 2,
   Super_pages = 4,
+  Fixed_paddr = 8,
 }
 
 -- L4Re debug constants
