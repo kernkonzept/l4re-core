@@ -75,7 +75,7 @@ desc: |
     the following characters:
       * `p`: The factory may create sub-factories that specify their own
         memory regions.
-      * `d`: Reserved for DMA constraints. Currently without effect.
+      * `d`: The factory may constrain allocations by a DMA mask.
       * `s`: The factory may create L4::Scheduler proxy objects.
 
     This argument must be given at most once.
@@ -263,8 +263,10 @@ factory:
       restricts the allocation to physical addresses that fit into the given
       number of bits. Together with the `L4Re::Mem_alloc::Invert_dma_mask` flag
       the allocation is restricted to the addresses above that limit instead.
-      Both require the `Continuous` flag to be set. A DMA mask of less than
-      #L4_PAGESHIFT bits is rejected with -L4_EINVAL.
+      Both require the `Continuous` flag to be set and the `d` permission of
+      the factory (see [Factory configuration](#l4re_moe_factory_config)),
+      otherwise the allocation is rejected with -L4_EPERM. A DMA mask of less
+      than #L4_PAGESHIFT bits is rejected with -L4_EINVAL.
     params:
       - name: 'size'
         desc: Size in bytes.

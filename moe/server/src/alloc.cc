@@ -353,6 +353,9 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
       if (!(flags_val & L4Re::Mem_alloc::Continuous))
         return -L4_EINVAL; // DMA mask requires continuous dataspace
 
+      if (!_config.has_permission(Moe::Factory_config::Dma))
+        return -L4_EPERM;
+
       static_assert(L4Re::Mem_alloc::Dma_mask_bits == 0x3f0);
       unsigned dma_mask_bits = 64 - ((flags_val & 0x3f0) >> 4);
       // A DMA mask smaller than L4_PAGESHIFT does not make sense.
