@@ -63,7 +63,14 @@ Mem_alloc_flags = {
   Pinned      = 2,
   Super_pages = 4,
   Fixed_paddr = 8,
+  Dma_mask_bits   = 0x3f0,
+  Invert_dma_mask = 0x400,
 }
+
+-- See L4Re::Mem_alloc::Dma_mask
+function Mem_alloc_dma_mask(bits)
+  return ((64 - bits) << 4) & Mem_alloc_flags.Dma_mask_bits;
+end
 
 -- L4Re debug constants
 Dbg = {
