@@ -13,7 +13,9 @@ int __toread(FILE *f)
 	return (f->flags & F_EOF) ? EOF : 0;
 }
 
+#ifndef L4_MINIMAL_LIBC
 hidden void __toread_needs_stdio_exit()
 {
 	__stdio_exit_needed();
 }
+#endif
