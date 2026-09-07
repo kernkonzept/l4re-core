@@ -233,7 +233,7 @@ l4_ret_t
 Allocator::create_scheduler(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 {
   if (!_config.has_permission(Moe::Factory_config::Scheduler_proxy))
-    return -L4_ENODEV;
+    return -L4_EPERM;
 
   L4::Ipc::Varg p_max  = args.pop_front(),
                 p_base = args.pop_front(),
