@@ -682,6 +682,15 @@ static void init_root_factory_config()
       }
   }
 
+  // Similar to sub-factory creation, if no region was specified at all, use
+  // all memory as untyped memory.
+  if (Moe::root_factory_config.regions.empty())
+    {
+      Moe::Mem_range all_mem{0, Moe::Max_phys_addr};
+      if (!Moe::root_factory_config.regions.add(Moe::Mem_region::untyped(all_mem)))
+        abort(); // should never happen
+    }
+
   if (Moe::root_factory_config.untyped_regions().empty())
     {
       Err(Err::Fatal).printf(

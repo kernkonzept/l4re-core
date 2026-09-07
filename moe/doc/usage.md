@@ -57,8 +57,9 @@ permissions. It is described by the following arguments:
 - `untyped=<size>@<base>`, or short `ut=<size>@<base>`
 
   Adds an untyped memory region. Untyped memory backs ordinary dataspace
-  allocations as well as Moe's internal allocations. The root factory
-  configuration must contain at least one untyped region.
+  allocations of a factory. Additionally, moe's internal allocations are
+  governed by the untyped memory of the root factory. If any regions were
+  specified on the root factory, at least one untyped region must be present.
 
 - `typed=<name>=<size>@<base>`, or short `t=<name>=<size>@<base>`
 
@@ -99,8 +100,9 @@ factory.
 - Only permissions held by the creating factory can be granted.
 
 If a sub-factory does not specify any memory region, it inherits the untyped
-regions of the creating factory. Typed regions and permissions are never
-inherited implicitly.
+regions of the creating factory. Likewise, a root factory that does not specify
+any memory region get's all memory of the system as untyped memory. Typed
+regions and permissions are never inherited implicitly.
 
 ### Namespace
 Moe provides a name space conforming to the L4Re::Namespace interface (see
