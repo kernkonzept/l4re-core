@@ -65,9 +65,16 @@ define HDR_common
   memory.h
   net/if.h
   netdb.h
+  netinet/icmp6.h
+  netinet/ether.h
+  netinet/if_ether.h
   netinet/in.h
+  netinet/in_systm.h
   netinet/ip.h
+  netinet/ip6.h
+  netinet/ip_icmp.h
   netinet/tcp.h
+  netinet/udp.h
   nl_types.h
   paths.h
   poll.h

@@ -824,7 +824,13 @@ define SRC_time_wchar
 endef
 
 define SRC_network
+  dns_parse
+  dn_expand
+  if_indextoname
+  if_nametoindex
+  freeaddrinfo
   ntohl
+  ntohs
   htonl
   htons
   inet_aton
@@ -833,17 +839,19 @@ define SRC_network
   inet_pton
   inet_ntop
   h_errno
+  gai_strerror
+  getaddrinfo
   gethostbyname
   gethostbyname2
   gethostbyname2_r
+  getnameinfo
   lookup_name
   lookup_ipliteral
+  lookup_serv
   resolvconf
   res_mkquery
   res_msend
-  dns_parse
-  dn_expand
-  if_nametoindex
+  res_send
 endef
 
 define SRC_legacy
