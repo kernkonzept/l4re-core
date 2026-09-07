@@ -803,6 +803,7 @@ define SRC_time
   asctime
   asctime_r
   ctime
+  ctime_r
   ftime
   gmtime
   gmtime_r
