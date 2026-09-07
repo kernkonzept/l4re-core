@@ -104,6 +104,7 @@ s0_request_ram(l4_addr_t s, l4_addr_t, int order)
 
 class Dirinfo
 {
+  friend struct Dirinfo_tester;
 public:
   void add(cxx::String const &name)
   {
