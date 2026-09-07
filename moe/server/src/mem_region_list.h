@@ -176,7 +176,7 @@ public:
 
   void intersect(Region_type const &region)
   {
-    for (int i = _len; i >= 0; --i)
+    for (int i = static_cast<int>(_len) - 1; i >= 0; --i)
       {
         Region_type intersection = _regions[i].intersect(region);
         if (intersection.valid())
