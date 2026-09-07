@@ -25,6 +25,11 @@ namespace L4 { namespace Types {
   };
   template<> struct numeric_limits<char>
   {
+    static constexpr char min() { return CHAR_MIN; }
+    static constexpr char max() { return CHAR_MAX; }
+  };
+  template<> struct numeric_limits<signed char>
+  {
     static constexpr signed char min() { return SCHAR_MIN; }
     static constexpr signed char max() { return SCHAR_MAX; }
   };
