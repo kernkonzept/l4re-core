@@ -27,7 +27,9 @@ static uint32_t *x = init+1;
 static volatile int lock[1];
 volatile int *const __random_lockptr = lock;
 #else
+# ifndef L4_MINIMAL_LIBC
 static libc_lock_t lock;
+# endif
 #endif
 
 static uint32_t lcg31(uint32_t x) {
