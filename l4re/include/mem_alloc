@@ -79,8 +79,14 @@ public:
    */
   static L4_INLINE L4_CONSTEXPR unsigned Dma_mask(unsigned bits)
   {
+    if (L4_UNLIKELY(bits > 64))
+      return 0;
+
+    if (L4_UNLIKELY(bits == 0))
+      bits = 1; // prevent overflow below
+
     // Implemented as (64 - bits) << 4 for backwards compatibility.
-    return ((64 - bits) << 4) & Dma_mask_bits;
+    return (64 - bits) << 4;
   }
 
   /**

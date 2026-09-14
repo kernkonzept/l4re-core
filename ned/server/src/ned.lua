@@ -69,7 +69,12 @@ Mem_alloc_flags = {
 
 -- See L4Re::Mem_alloc::Dma_mask
 function Mem_alloc_dma_mask(bits)
-  return ((64 - bits) << 4) & Mem_alloc_flags.Dma_mask_bits;
+  if bits > 64 then
+    return 0
+  elseif bits <= 0 then
+    bits = 1
+  end
+  return (64 - bits) << 4;
 end
 
 -- L4Re debug constants
