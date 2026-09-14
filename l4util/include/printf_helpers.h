@@ -80,5 +80,5 @@ L4_INLINE int l4util_human_readable_size_region(char *outstr, size_t outsize,
     return snprintf(outstr, outsize, "%s",
                     sizeof(long) == 4 ? "4.0 GiB" : "16.0 EiB");
   else
-    return l4util_human_readable_size(outstr, outsize, end - begin);
+    return l4util_human_readable_size(outstr, outsize, end - begin + 1);
 }
