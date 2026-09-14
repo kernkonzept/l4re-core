@@ -59,7 +59,7 @@ public:
    * They describe requested properties of the allocated memory.
    * Support of these properties by the dataspace provider is optional.
    */
-  enum Mem_alloc_flags
+  enum Mem_alloc_flags : unsigned long
   {
     Continuous   = 0x01,  ///< Allocate physically contiguous memory
     Pinned       = 0x02,  ///< Deprecated, use L4Re::Dma_space instead
