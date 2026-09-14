@@ -33,9 +33,10 @@ Moe's factory allows allocation of the following objects:
 - L4::Factory, to provide a quota limited allocation for clients
 
 > [!note]
-> Creating L4::Scheduler objects requires the `s` permission of the factory (see
-> [Factory configuration](#l4re_moe_factory_config)). By default only the
-> factory that Moe provides to the initial application holds this permission.
+> Creating L4::Scheduler objects requires the *scheduler* permission of the
+> factory (see [Factory configuration](#l4re_moe_factory_config)). By default
+> only the factory that Moe provides to the initial application holds this
+> permission.
 
 #### Passing parameters to the create stream {#l4re_moe_memory_alloc_factory}
 
@@ -75,10 +76,12 @@ permissions. It is described by the following arguments:
 
   Grants permissions to the factory. `<permissions>` is a string built from the
   following characters:
-    * `p`: The factory may create sub-factories that specify their own memory
-    regions.
-    * `d`: The factory may constrain allocations by a DMA mask.
-    * `s`: The factory may create L4::Scheduler proxy objects.
+    * `p`: *Physical address constraints* permission — the factory may create
+    sub-factories that specify their own memory regions.
+    * `d`: *DMA constraints* permission — the factory may constrain allocations
+    by a DMA mask.
+    * `s`: *Scheduler* permission — the factory may create L4::Scheduler proxy
+    objects.
 
   This argument must be given at most once.
 
@@ -94,8 +97,8 @@ name are merged.
 
 The configuration of a sub-factory must be covered by the configuration of the
 factory that creates it:
-- Specifying any memory region requires the `p` permission in the creating
-factory.
+- Specifying any memory region requires the *physical address constraints*
+permission in the creating factory.
 - Each specified region must be contained in a region of the creating factory.
 - Only permissions held by the creating factory can be granted.
 
@@ -189,7 +192,7 @@ module somemodule :rw
   Example: `--root-factory=ut=256M@0x40000000,t=vram=16M@0x80000000,a=ps`
 
   If the option is not given, the root factory may allocate from the whole
-  physical address space and holds the `s` permission.
+  physical address space and holds the *scheduler* permission.
 
   String value.
 
@@ -277,10 +280,10 @@ required by devices with a limited DMA addressing capability. Use
 allocation to physical addresses that fit into the given number of bits.
 Together with the `L4Re::Mem_alloc::Invert_dma_mask` flag the allocation is
 restricted to the addresses above that limit instead. Both require the
-`Continuous` flag to be set and the `d` permission of the factory (see [Factory
-configuration](#l4re_moe_factory_config)), otherwise the allocation is rejected
-with -L4_EPERM. A DMA mask of less than #L4_PAGESHIFT bits is rejected with
--L4_EINVAL.
+`Continuous` flag to be set and the *DMA constraints* permission of the factory
+(see [Factory configuration](#l4re_moe_factory_config)), otherwise the
+allocation is rejected with -L4_EPERM. A DMA mask of less than #L4_PAGESHIFT
+bits is rejected with -L4_EINVAL.
 
 Call:   `create(L4.Proto.Dataspace, size [, flags, align, base, type])`
 
