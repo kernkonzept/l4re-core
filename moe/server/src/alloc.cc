@@ -49,6 +49,15 @@ Allocator::alloc(long size, Single_page_alloc_base::Config cfg,
   flags |= L4Re::Mem_alloc::Continuous | L4Re::Mem_alloc::Pinned;
 #endif
 
+  constexpr unsigned long Known_flags = L4Re::Mem_alloc::Continuous
+                                      | L4Re::Mem_alloc::Pinned
+                                      | L4Re::Mem_alloc::Super_pages
+                                      | L4Re::Mem_alloc::Fixed_paddr
+                                      | L4Re::Mem_alloc::Dma_mask_bits
+                                      | L4Re::Mem_alloc::Invert_dma_mask;
+  if (flags & ~Known_flags)
+    throw L4::Runtime_error(-L4_EINVAL, "unsupported flags");
+
   //L4::cout << "A: \n";
   Moe::Dataspace *mo;
   if (flags & L4Re::Mem_alloc::Continuous
@@ -129,9 +138,9 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
   switch (type)
     {
     case L4Re::Namespace::Protocol:
-      return create_namespace(res);
+      return create_namespace(res, args);
     case L4Re::Rm::Protocol:
-      return create_rm(res);
+      return create_rm(res, args);
     case L4::Factory::Protocol:
       return create_factory(res, args);
     case L4_PROTO_LOG:
@@ -141,23 +150,29 @@ Allocator::op_create(L4::Factory::Rights, L4::Ipc::Cap<void> &res,
     case L4Re::Dataspace::Protocol:
       return create_dataspace(res, args);
     case L4Re::Dma_space::Protocol:
-      return create_dma_space(res);
+      return create_dma_space(res, args);
     default:
       return -L4_ENODEV;
     }
 }
 
 l4_ret_t
-Allocator::create_namespace(L4::Ipc::Cap<void> &res)
+Allocator::create_namespace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 {
+  if (!args.pop_front().is_nil())
+    return -L4_EINVAL;
+
   cxx::unique_ptr<Moe::Name_space> o(make_obj<Moe::Name_space>());
   res = register_ipc_object(cxx::move(o), "moe-ns");
   return L4_EOK;
 }
 
 l4_ret_t
-Allocator::create_rm(L4::Ipc::Cap<void> &res)
+Allocator::create_rm(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 {
+  if (!args.pop_front().is_nil())
+    return -L4_EINVAL;
+
   cxx::unique_ptr<Region_map> o(make_obj<Region_map>());
   res = register_ipc_object(cxx::move(o), "moe-rm");
   return L4_EOK;
@@ -220,8 +235,14 @@ Allocator::create_log(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
                               col.length() - 1));
   else if (col.is_of_int())
     color = col.value<l4_mword_t>();
-  else
+  else if (col.is_nil())
     color = 7;
+  else
+    return -L4_EINVAL;
+
+  // Do not reject any remaining arguments. The log factory protocol is
+  // variadic, cons defines additional factory arguments and moe historically
+  // ignored them. We need to keep ignoring those to not break existing setups.
 
   cxx::unique_ptr<Moe::Log> l(make_obj<LLog>(tag.value<char const *>(),
                                              tag.length() - 1, color));
@@ -279,6 +300,12 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
   if (!size.is_of_int())
     return -L4_EINVAL;
 
+  if (!flags.is_of_int() && !flags.is_nil())
+    return -L4_EINVAL;
+
+  if (!align.is_of_int() && !align.is_nil())
+    return -L4_EINVAL;
+
   l4_umword_t flags_val = flags.is_of_int() ? flags.value<l4_umword_t>() : 0;
   L4::Ipc::Varg base = L4::Ipc::Varg::nil();
   if (flags_val & L4Re::Mem_alloc::Fixed_paddr)
@@ -286,6 +313,9 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 
   L4::Ipc::Varg type = args.pop_front();
   if (!type.is_nil() && !type.is_of<char const *>())
+    return -L4_EINVAL;
+
+  if (!args.pop_front().is_nil())
     return -L4_EINVAL;
 
   Single_page_alloc_base::Config ds_config;
@@ -418,8 +448,11 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 }
 
 l4_ret_t
-Allocator::create_dma_space(L4::Ipc::Cap<void> &res)
+Allocator::create_dma_space(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
 {
+  if (!args.pop_front().is_nil())
+    return -L4_EINVAL;
+
   cxx::unique_ptr<Moe::Dma_space> o(make_obj<Moe::Dma_space>());
   res = register_ipc_object(cxx::move(o), "moe-dma-space");
   return L4_EOK;

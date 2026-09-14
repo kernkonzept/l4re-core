@@ -76,11 +76,11 @@ public:
   static Allocator *root_allocator();
 
 private:
-  l4_ret_t create_namespace(L4::Ipc::Cap<void> &res);
-  l4_ret_t create_rm(L4::Ipc::Cap<void> &res);
+  l4_ret_t create_namespace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args);
+  l4_ret_t create_rm(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args);
   l4_ret_t create_factory(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args);
   l4_ret_t create_log(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args);
   l4_ret_t create_scheduler(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args);
   l4_ret_t create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args);
-  l4_ret_t create_dma_space(L4::Ipc::Cap<void> &res);
+  l4_ret_t create_dma_space(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args);
 };
