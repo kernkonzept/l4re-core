@@ -12,8 +12,12 @@ extern "C" {
 #include <bits/alltypes.h>
 
 #if 100*__GNUC__+__GNUC_MINOR__ >= 303
+#ifndef NAN
 #define NAN       __builtin_nanf("")
+#endif
+#ifndef INFINITY
 #define INFINITY  __builtin_inff()
+#endif
 #else
 #define NAN       (0.0f/0.0f)
 #define INFINITY  1e5000f
@@ -64,6 +68,9 @@ static __inline unsigned long long __DOUBLE_BITS(double __f)
 	__u.__f = __f;
 	return __u.__i;
 }
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
 
 #define fpclassify(x) ( \
 	sizeof(x) == sizeof(float) ? __fpclassifyf(x) : \
@@ -139,6 +146,8 @@ __ISREL_DEF(greaterequall, >=, long double)
 #define islessgreater(x, y)     __tg_pred_2(x, y, __islessgreater)
 #define isgreater(x, y)         __tg_pred_2(x, y, __isgreater)
 #define isgreaterequal(x, y)    __tg_pred_2(x, y, __isgreaterequal)
+
+#pragma GCC diagnostic pop
 
 double      acos(double);
 float       acosf(float);
