@@ -147,6 +147,9 @@ static char *env_path, *sys_path;
 static unsigned long long gencnt;
 static int runtime;
 static int ldd_mode;
+#ifndef NOT_FOR_L4
+static int ld_debug;
+#endif
 static int ldso_fail;
 static int noload;
 static int shutting_down;
@@ -1873,6 +1876,15 @@ __attribute__ ((visibility ("hidden"))) void *__rtld_l4re_global_env;
 extern void *l4re_global_env __attribute__ ((alias ("__rtld_l4re_global_env")));
 extern void *l4_global_kip;
 
+#ifndef NOT_FOR_L4
+static void ld_debug_print_dsos(struct dso *p)
+{
+	for (; p; p=p->next)
+		dprintf(2, "\t%s (%p)\n",
+			*p->name ? p->name : p->shortname, p->base);
+}
+#endif
+
 void __dls3(size_t *sp, size_t *auxv)
 {
 	static struct dso app, vdso;
@@ -1900,6 +1912,10 @@ void __dls3(size_t *sp, size_t *auxv)
 	if (!libc.secure) {
 		env_path = getenv("LD_LIBRARY_PATH");
 		env_preload = getenv("LD_PRELOAD");
+#ifndef NOT_FOR_L4
+		char *env_debug = getenv("LD_DEBUG");
+		ld_debug = env_debug && *env_debug;
+#endif
 	}
 
 	/* Activate error handler function */
@@ -2094,6 +2110,15 @@ void __dls3(size_t *sp, size_t *auxv)
 		tail->next = &vdso;
 		tail = &vdso;
 	}
+
+#ifndef NOT_FOR_L4
+	/* Do this before relocating so that the addresses are already known
+	 * if a relocation fails. */
+	if (ld_debug) {
+		dprintf(2, "Loaded objects:\n");
+		ld_debug_print_dsos(head);
+	}
+#endif
 
 	for (i=0; app.dynv[i]; i+=2) {
 		if (!DT_DEBUG_INDIRECT && app.dynv[i]==DT_DEBUG)
@@ -2321,6 +2346,12 @@ void *dlopen(const char *file, int mode)
 	update_tls_size();
 	if (tls_cnt != orig_tls_cnt)
 		install_new_tls();
+#ifndef NOT_FOR_L4
+	if (ld_debug && orig_tail->next) {
+		dprintf(2, "Objects loaded by dlopen(\"%s\"):\n", file);
+		ld_debug_print_dsos(orig_tail->next);
+	}
+#endif
 	orig_tail = tail;
 end:
 	debug.state = RT_CONSISTENT;
