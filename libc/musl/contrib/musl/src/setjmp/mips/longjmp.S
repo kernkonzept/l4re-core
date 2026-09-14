@@ -11,7 +11,7 @@ longjmp:
 	nop
 	addu    $2, $2, 1
 1:
-#ifndef __mips_soft_float
+#if !defined __mips_soft_float && !defined BID_VARIANT_FLAG_NOFPU
 	l.d     $f20, 56($4)
 	l.d     $f22, 64($4)
 	l.d     $f24, 72($4)

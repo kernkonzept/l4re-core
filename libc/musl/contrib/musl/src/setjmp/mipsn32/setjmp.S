@@ -20,7 +20,7 @@ setjmp:
 	sd	$22, 72($4)
 	sd	$23, 80($4)
 	sd	$30, 88($4)
-#ifndef __mips_soft_float
+#if !defined __mips_soft_float && !defined BID_VARIANT_FLAG_NOFPU
 	sdc1	$24, 96($4)
 	sdc1	$25, 104($4)
 	sdc1	$26, 112($4)

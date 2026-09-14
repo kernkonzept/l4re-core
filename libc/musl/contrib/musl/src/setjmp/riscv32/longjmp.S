@@ -22,7 +22,7 @@ longjmp:
 	lw sp,    48(a0)
 	lw ra,    52(a0)
 
-#ifndef __riscv_float_abi_soft
+#if !defined __riscv_float_abi_soft && !defined BID_VARIANT_FLAG_NOFPU
 #ifdef __riscv_float_abi_double
 #define FLX fld
 #else

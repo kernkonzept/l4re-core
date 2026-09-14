@@ -21,7 +21,7 @@ setjmp:
 	sw      $23, 36($4)
 	sw      $30, 40($4)
 	sw      $28, 44($4)
-#ifndef __mips_soft_float
+#if !defined __mips_soft_float && !defined BID_VARIANT_FLAG_NOFPU
 	s.d     $f20, 56($4)
 	s.d     $f22, 64($4)
 	s.d     $f24, 72($4)

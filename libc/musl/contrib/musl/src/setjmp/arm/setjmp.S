@@ -14,6 +14,7 @@ setjmp:
 	stmia ip!,{r2,lr}
 	mov r0,#0
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 	adr r1,1f
 	ldr r2,1f
 	ldr r1,[r1,r2]
@@ -45,8 +46,12 @@ setjmp:
 	stcl p1, cr15, [ip], #8
 #endif
 2:
-3:	bx lr
+3:
+#endif
+	bx lr
 
+#ifndef BID_VARIANT_FLAG_NOFPU
 .hidden __hwcap
 .align 2
 1:	.word __hwcap-1b
+#endif

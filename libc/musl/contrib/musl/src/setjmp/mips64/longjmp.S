@@ -11,7 +11,7 @@ longjmp:
 	nop
 	daddu	$2, $2, 1
 1:
-#ifndef __mips_soft_float
+#if !defined __mips_soft_float && !defined BID_VARIANT_FLAG_NOFPU
 	ldc1	$24, 96($4)
 	ldc1	$25, 104($4)
 	ldc1	$26, 112($4)
