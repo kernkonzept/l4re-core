@@ -84,6 +84,14 @@ enum L4_vm_vmx_sw_fields
   L4_VM_VMX_VMCS_NAT_ARG2           = 0x6886,
   /// Custom argument passed from kernel to user space
   L4_VM_VMX_VMCS_NAT_ARG3           = 0x6888,
+  /**
+   * VMCS offset of the virtual TPR (VTPR).
+   *
+   * This field is only valid if the kernel supports TPR shadowing, which is
+   * advertised by the "use TPR shadow" bit in the processor-based execution
+   * control capabilities of the vCPU state.
+   */
+  L4_VM_VMX_VMCS_VTPR               = 0x688a,
   /// VMCS offset of extended control register XCR0
   L4_VM_VMX_VMCS_XCR0               = 0x2880,
   /// VMCS offset of system call flag mask MSR
