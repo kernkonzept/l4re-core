@@ -67,14 +67,15 @@ public:
     Fixed_paddr  = 0x08,  ///< Allocate at fixed physical address. Only honored
                           ///< on no-MMU systems. Will fail on MMU systems.
 
-    Dma_mask_bits   = 0x3f0, ///< See Dma_mask(bits).
-    Invert_dma_mask = 0x400, ///< Effectively says to allocate above the Dma_mask(bits)
+    Dma_mask_bits   = 0x3f0, ///< See Dma_mask().
+    Invert_dma_mask = 0x400, ///< Effectively says to allocate above the Dma_mask()
   };
 
   /**
    * Constrain allocations to physical addresses below given bits.
    *
-   * Requires the Continuous flag to be set.
+   * Requires the Mem_alloc_flags::Continuous flag to be set. Requires a
+   * factory that holds the *DMA constraints* permission.
    */
   static L4_INLINE L4_CONSTEXPR unsigned Dma_mask(unsigned bits)
   {
@@ -167,8 +168,11 @@ public:
    *                    untyped memory.
    *
    * \retval 0           Success
-   * \retval -L4_ERANGE  Given size not supported.
+   * \retval -L4_EINVAL  Invalid `size`, `flags` or `align`.
    * \retval -L4_ENOMEM  Not enough memory available.
+   * \retval -L4_EPERM   Dma_mask() passed in `flags` but factory lacks the
+   *                     *DMA constraints* permission.
+   * \retval -L4_ERANGE  Given size not supported.
    * \retval <0          IPC error
    */
   l4_ret_t alloc(long size, L4::Cap<Dataspace> mem, unsigned long flags = 0,
