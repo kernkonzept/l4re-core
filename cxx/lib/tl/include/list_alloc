@@ -14,6 +14,10 @@
 #include <l4/cxx/type_traits>
 #include <l4/sys/consts.h>
 
+#ifdef CXX_LIST_ALLOC_SANITY
+#include <l4/cxx/iostream>
+#endif
+
 namespace cxx {
 
 /**
