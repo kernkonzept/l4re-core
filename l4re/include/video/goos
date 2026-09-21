@@ -347,9 +347,31 @@ public:
   L4_INLINE_RPC(l4_ret_t, refresh, (int x, int y, int w, int h));
 
   // those are used by the View
+
+  /**
+   * Return information about a view.
+   * \param      index  Index of the view information to return.
+   * \param[out] info   The view information.
+   *
+   * \retval 0   Success.
+   * \retval <0  Error.
+   */
   L4_INLINE_RPC(l4_ret_t, view_info, (unsigned index, View::Info *info));
+
   L4_INLINE_RPC(l4_ret_t, set_view_info, (unsigned index, View::Info const &info));
   L4_INLINE_RPC(l4_ret_t, view_stack, (unsigned index, unsigned pivot, bool behind));
+
+  /**
+   * Perform a refresh / redraw on a view region.
+   * \param index  Index of the view to refresh.
+   * \param x      x value of the view region to refresh.
+   * \param y      y value of the view region to refresh.
+   * \param w      Width of the view region to refresh.
+   * \param h      Height of the view region to refresh.
+   *
+   * \retval 0   Success.
+   * \retval <0  Error.
+   */
   L4_INLINE_RPC(l4_ret_t, view_refresh, (unsigned index, int x, int y, int w, int h));
 
   typedef L4::Typeid::Rpcs<
