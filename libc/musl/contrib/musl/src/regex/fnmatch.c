@@ -168,7 +168,7 @@ static int fnmatch_internal(const char *pat, size_t m, const char *str, size_t n
 	int c, k, kfold;
 
 	if (flags & FNM_PERIOD) {
-		if (*str == '.' && *pat != '.')
+		if (*str == '.' && *pat != '.' && *pat != '\\')
 			return FNM_NOMATCH;
 	}
 	for (;;) {
