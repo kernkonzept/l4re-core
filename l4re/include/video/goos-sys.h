@@ -16,7 +16,7 @@ namespace L4Re { namespace Video {
   namespace Goos_
   {
     /**
-     * \brief Frame buffer communication-protocol opcodes
+     * Frame buffer communication-protocol opcodes
      * \ingroup api_l4re_protocols
      * \internal
      */

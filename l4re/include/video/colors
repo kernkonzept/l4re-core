@@ -15,7 +15,7 @@
 namespace L4Re { namespace Video {
 
 /**
- * \brief A color component.
+ * A color component.
  * \ingroup api_l4re_video
  */
 class L4_EXPORT Color_component
@@ -29,7 +29,7 @@ public:
   Color_component() : _bits(0), _shift(0) {}
 
   /**
-   * \brief Constructor
+   * Constructor
    * \param bits   Number of bits used by the component
    * \param shift  Position in bits of the component in the pixel
    */
@@ -37,26 +37,26 @@ public:
   : _bits(bits), _shift(shift) {}
 
   /**
-   * \brief  Return the number of bits used by the component.
+   * Return the number of bits used by the component.
    * \return Number of bits used by the component
    */
   unsigned char size() const { return _bits; }
 
   /**
-   * \brief  Return the position of the component in the pixel.
+   * Return the position of the component in the pixel.
    * \return Position in bits of the component in the pixel
    */
   unsigned char shift() const { return _shift; }
 
   /**
-   * \brief Compare for equality.
+   * Compare for equality.
    * \return True if the same components are described, false if not.
    */
   bool operator == (Color_component const &o) const
   { return _shift == o._shift && _bits == o._bits; }
 
   /**
-   * \brief Get component from value (normalized to 16bits).
+   * Get component from value (normalized to 16bits).
    * \param v   Value
    * \return Converted value
    */
@@ -66,7 +66,7 @@ public:
   }
 
   /**
-   * \brief Transform 16bit normalized value to the component in the color space.
+   * Transform 16bit normalized value to the component in the color space.
    * \param v  Value
    * return Converted value.
    */
@@ -74,7 +74,7 @@ public:
   { return (static_cast<unsigned long>(v) >> (16UL - _bits)) << _shift; }
 
   /**
-   * \brief Dump information on the view information to a stream
+   * Dump information on the view information to a stream
    * \param s  Stream
    */
   template< typename OUT >
@@ -85,7 +85,7 @@ public:
 } __attribute__((packed));
 
 /**
- * \brief Pixel information.
+ * Pixel information.
  * \ingroup api_l4re_video
  *
  * This class wraps the information on a pixel, such as the size and
@@ -99,31 +99,31 @@ private:
 
 public:
   /**
-   * \brief Return the red color component of the pixel.
+   * Return the red color component of the pixel.
    * \return Red color component.
    */
   Color_component const &r() const { return _r; }
 
   /**
-   * \brief Return the green color component of the pixel.
+   * Return the green color component of the pixel.
    * \return Green color component.
    */
   Color_component const &g() const { return _g; }
 
   /**
-   * \brief Return the blue color component of the pixel.
+   * Return the blue color component of the pixel.
    * \return Blue color component.
    */
   Color_component const &b() const { return _b; }
 
   /**
-   * \brief Return the alpha color component of the pixel.
+   * Return the alpha color component of the pixel.
    * \return Alpha color component.
    */
   Color_component const &a() const { return _a; }
 
   /**
-   * \brief Compute the padding pseudo component.
+   * Compute the padding pseudo component.
    * The padding pseudo component represents the trailing bits that are reserved
    * in RGB32 and similar pixel formats.
    * \return Padding pseudo component.
@@ -144,61 +144,61 @@ public:
   }
 
   /**
-   * \brief Query size of pixel in bytes.
+   * Query size of pixel in bytes.
    * \return Size of pixel in bytes.
    */
   unsigned char bytes_per_pixel() const { return _bpp; }
 
   /**
-   * \brief Number of bits of the pixel.
+   * Number of bits of the pixel.
    * \return Number of bits used by the pixel.
    */
   unsigned char bits_per_pixel() const
   { return _r.size() + _g.size() + _b.size() + _a.size(); }
 
   /**
-   * \brief Return whether the pixel has an alpha channel.
+   * Return whether the pixel has an alpha channel.
    * \return True if the pixel has an alpha channel, false if not.
    */
   bool has_alpha() const { return _a.size() > 0; }
 
   /**
-   * \brief Set the red color component of the pixel.
+   * Set the red color component of the pixel.
    * \param c  Red color component.
    */
   void r(Color_component const &c) { _r = c; }
 
   /**
-   * \brief Set the green color component of the pixel.
+   * Set the green color component of the pixel.
    * \param c  Green color component.
    */
   void g(Color_component const &c) { _g = c; }
 
   /**
-   * \brief Set the blue color component of the pixel.
+   * Set the blue color component of the pixel.
    * \param c  Blue color component.
    */
   void b(Color_component const &c) { _b = c; }
 
   /**
-   * \brief Set the alpha color component of the pixel.
+   * Set the alpha color component of the pixel.
    * \param c  Alpha color component.
    */
   void a(Color_component const &c) { _a = c; }
 
   /**
-   * \brief Set the size of the pixel in bytes.
+   * Set the size of the pixel in bytes.
    * \param bpp   Size of pixel in bytes.
    */
   void bytes_per_pixel(unsigned char bpp) { _bpp = bpp; }
 
   /**
-   * \brief Constructor.
+   * Constructor.
    */
   Pixel_info() : _bpp(0) {};
 
   /**
-   * \brief Constructor.
+   * Constructor.
    * \param bpp   Size of pixel in bytes.
    * \param r     Red component size.
    * \param rs    Red component shift.
@@ -215,7 +215,7 @@ public:
   {}
 
   /**
-   * \brief Convenience constructor.
+   * Convenience constructor.
    * \param vbi   Suitable information structure.
    * Convenience constructor to create the pixel info from
    * a VESA Framebuffer Info.
@@ -229,7 +229,7 @@ public:
   {}
 
   /**
-   * \brief Compare for complete equality of the color space.
+   * Compare for complete equality of the color space.
    * \param o    A Pixel_info to compare to.
    * \return true if the both Pixel_info's are equal, false if not.
    */
@@ -239,7 +239,7 @@ public:
   }
 
   /**
-   * \brief Dump information on the pixel to a stream
+   * Dump information on the pixel to a stream.
    * \param s  Stream
    */
   template< typename OUT >

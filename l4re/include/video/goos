@@ -18,7 +18,7 @@ namespace L4Re { namespace Video {
 /**
  * \defgroup api_l4re_video Video API
  * \ingroup api_l4re
- * \brief API for framebuffer based graphics.
+ * API for framebuffer based graphics.
  *
  * Contains the basic APIs that abstract framebuffers and views into them for
  * L4Re applications.
@@ -54,7 +54,7 @@ public:
   View() : _goos(L4::Cap<Goos>::Invalid), _view_idx(~0U) {}
 
   /**
-   * \brief Flags on a view.
+   * Flags on a view.
    */
   enum Flags
   {
@@ -74,7 +74,7 @@ public:
   };
 
   /**
-   * \brief Property flags of a view.
+   * Property flags of a view.
    *
    * Such flags can be set or deleted with the #F_set_flags operation using
    * the `set_info()` method.
@@ -86,7 +86,7 @@ public:
   };
 
   /**
-   * \brief Information structure of a view.
+   * Information structure of a view.
    */
   struct Info
   {
@@ -137,7 +137,7 @@ public:
   };
 
   /**
-   * \brief Return the view information of the view.
+   * Return the view information of the view.
    * \param[out] info   Information structure pointer.
    *
    * \retval 0   Success
@@ -146,7 +146,7 @@ public:
   int info(Info *info) const noexcept;
 
   /**
-   * \brief Set the information structure for this view.
+   * Set the information structure for this view.
    * \param info  Information structure.
    *
    * \retval 0   Success
@@ -158,7 +158,7 @@ public:
   int set_info(Info const &info) const noexcept;
 
   /**
-   * \brief Set the position of the view in the Goos.
+   * Set the position of the view in the Goos.
    * \param scr_x      X position
    * \param scr_y      Y position
    * \param w          Width
@@ -171,7 +171,7 @@ public:
   int set_viewport(int scr_x, int scr_y, int w, int h, unsigned long buf_offset) const noexcept;
 
   /**
-   * \brief Move this view in the view stack.
+   * Move this view in the view stack.
    * \param pivot   View to move relative to
    * \param behind  When true move the view behind the pivot view, if false
    *                move the view before the pivot view.
@@ -190,7 +190,7 @@ public:
   { return stack(View(), false); }
 
   /**
-   * \brief Refresh/Redraw the view.
+   * Refresh/Redraw the view.
    * \param x  X position.
    * \param y  Y position.
    * \param w  Width.
@@ -201,7 +201,7 @@ public:
    */
   int refresh(int x, int y, int w, int h) const noexcept;
 
-  /** \brief Return whether this view is valid */
+  /** Return whether this view is valid */
   bool valid() const { return _goos.is_valid(); }
 };
 
@@ -259,7 +259,7 @@ public:
   };
 
   /**
-   * \brief Return the Goos information of the Goos.
+   * Return the Goos information of the Goos.
    * \param[out] info   Goos information structure pointer.
    *
    * \retval 0   Success
@@ -268,7 +268,7 @@ public:
   L4_INLINE_RPC(l4_ret_t, info, (Info *info));
 
   /**
-   * \brief Return a static buffer of a Goos.
+   * Return a static buffer of a Goos.
    * \param idx     Index of the static buffer.
    * \param rbuf    Capability slot to point the buffer dataspace to.
    *
@@ -279,7 +279,7 @@ public:
                                        L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
 
   /**
-   * \brief Create a buffer.
+   * Create a buffer.
    * \param size     Size of buffer in bytes.
    * \param rbuf     Capability slot to point the buffer dataspace to.
    *
@@ -290,7 +290,7 @@ public:
                                    L4::Ipc::Out<L4::Cap<L4Re::Dataspace> > rbuf));
 
   /**
-   * \brief Delete a buffer.
+   * Delete a buffer.
    * \param idx      Buffer to delete.
    *
    * \retval 0   Success
@@ -302,7 +302,7 @@ public:
   L4_INLINE_RPC_NF(l4_ret_t, create_view, ());
 
   /**
-   * \brief Create a view.
+   * Create a view.
    * \param[out] view   A view object.
    * \param  utcb  UTCB of the caller. This is a default parameter.
    *
@@ -322,7 +322,7 @@ public:
   L4_INLINE_RPC_NF(l4_ret_t, delete_view, (unsigned index));
 
   /**
-   * \brief Delete a view.
+   * Delete a view.
    * \param  v     The view object to delete.
    * \param  utcb  UTCB of the caller. This is a default parameter.
    *
@@ -335,14 +335,14 @@ public:
   }
 
   /**
-   * \brief Return a view.
+   * Return a view.
    * \param index   Index of the view to return.
    * \return The view.
    */
   View view(unsigned index) const noexcept;
 
   /**
-   * \brief Trigger refreshing of the given area on the virtual screen.
+   * Trigger refreshing of the given area on the virtual screen.
    */
   L4_INLINE_RPC(l4_ret_t, refresh, (int x, int y, int w, int h));
 
