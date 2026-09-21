@@ -58,15 +58,16 @@ $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
 # process templates for instantiated C files
 #$(eval $(call PROCESS_template_src, $(TMPL_DIRS), $(TMPL_MODULES)))
 
+LIBC_SRC_C += impl-libc-api.c
+LIBC_SRC_C += ARCH-$(LIBC_ARCH_FAMILY)/impl-libc-api-arch.c
+LIBC_SRC_C += mman-utcb-safe.c
+LIBC_SRC_CC += _exit.cc
+
 $(foreach ext,C S CC, \
   $(eval SRC_$(ext)_libc.so += $(LIBC_SRC_$(ext)) $(LIBC_SRC_$(ext)_libc.so)) \
   $(eval SRC_$(ext)_libc.a  += $(LIBC_SRC_$(ext)) $(LIBC_SRC_$(ext)_libc.a))  \
 )
 
-SRC_C += impl-libc-api.c
-SRC_C += ARCH-$(LIBC_ARCH_FAMILY)/impl-libc-api-arch.c
-SRC_C += mman-utcb-safe.c
-SRC_CC += _exit.cc
 vpath _exit.cc $(PKGDIR)/common
 vfs.s.o: PRIVATE_INCDIR :=
 SRC_CC_libc.so += vfs.cc
