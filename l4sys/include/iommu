@@ -36,6 +36,10 @@ public:
    * \param[out] min_addr  Minimum address supported by IOMMU for this device.
    * \param[out] max_addr  Maximum address (inclusive) supported by IOMMU for
    *                       this device.
+   *
+   * \note If an association for the source ID already exists, whether
+   *       established through this interface or pre-configured by the kernel,
+   *       it will be replaced.
    */
   L4_INLINE_RPC(
       l4_msgtag_t, bind, (l4_uint64_t src_id, Ipc::Cap<Task> dma_space,
