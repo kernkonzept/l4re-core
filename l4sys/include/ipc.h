@@ -363,7 +363,8 @@ l4_ipc_receive(l4_cap_idx_t object, l4_utcb_t *utcb,
  * object. Messages from other sources are not accepted.
  *
  * \note The send-to-receive transition needs no time, the object can reply
- *       with a send timeout of zero.
+ *       with a send timeout of zero. However, this applies only to replies
+ *       via the reply capability established by the call, not to plain sends.
  *
  * \note If a finite receive timeout is specified, the IPC receive operation
  *       could abort before the partner was able to send the reply message.
