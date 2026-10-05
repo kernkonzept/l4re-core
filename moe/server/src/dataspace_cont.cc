@@ -19,11 +19,10 @@ Moe::Dataspace_cont::Dataspace_cont(void *start, unsigned long size,
   if (!can_cow())
     return;
 
-  char *end = _start + l4_round_page(this->size());
-  for (char *x = reinterpret_cast<char *>(
-                   l4_trunc_page(reinterpret_cast<l4_addr_t>(_start)));
-       x < end;
-       x += L4_PAGESIZE)
+  assert(reinterpret_cast<l4_addr_t>(start) % L4_PAGESIZE == 0U);
+
+  char *end = static_cast<char *>(start) + l4_round_page(size);
+  for (char *x = static_cast<char *>(start); x < end; x += L4_PAGESIZE)
     Moe::Pages::share(x);
 }
 
