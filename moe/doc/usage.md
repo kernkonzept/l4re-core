@@ -458,7 +458,7 @@ If no memory region is specified, the sub-factory inherits the untyped memory
 regions of the creating factory. Typed memory regions and permissions are never
 inherited implicitly.
 
-Call:   `create(L4.Proto.Factory [, quota, config])`
+Call:   `create(L4.Proto.Factory, quota [, config])`
 
 * `quota`
 
