@@ -12,6 +12,12 @@
 
 namespace L4 { namespace Ipc {
 
+/**
+ * String data type providing read-only access to an array of characters.
+ *
+ * \tparam CHAR  Character type, defaults to 'char const'.
+ * \tparam LEN   Length type, defaults to 'unsigned long'.
+ */
 template<typename CHAR = char const, typename LEN = unsigned long>
 struct String : Array<CHAR, LEN>
 {
@@ -19,6 +25,14 @@ struct String : Array<CHAR, LEN>
   String() {}
   String(CHAR *d) : Array<CHAR, LEN>(strlength(d) + 1, d) {}
   String(LEN len, CHAR *d) : Array<CHAR, LEN>(len, d) {}
+  /**
+   * Create String object from C string.
+   *
+   * \param s  Pointer to the C string.
+   *
+   * \note The string is guaranteed to be 0-terminated if the string length
+   *       is not zero.
+   */
   void copy_in(CHAR const *s)
   {
     if (this->length < 1)
@@ -39,12 +53,22 @@ using String_in_buf = Array_in_buf<CHAR, LEN_TYPE, MAX>;
 
 namespace Msg {
 
+/**
+ * Defines server-side handling of strings with a certain length as RPC
+ * argument.
+ */
 template<typename A, typename LEN>
 struct Svr_val_ops< String<A, LEN> > : Svr_val_ops< Array_ref<A, LEN> >
 {
   using Base = Svr_val_ops< Array_ref<A, LEN> >;
   using svr_type = typename Base::svr_type;
 
+  /**
+   * Copy string data (char array and length) from the message to a server
+   * reference.
+   *
+   * \note The target string is guaranteed to be 0-terminated.
+   */
   static int to_svr_data(char *msg, unsigned offset, unsigned limit,
                          svr_type &a)
   {
