@@ -219,6 +219,14 @@ Moe::Boot_fs::init_stage2()
       if (options_contains(opts, cxx::String(":rw")))
         flags = L4Re::Dataspace::F::RWX;
 
+      if (mod_start % L4_PAGESIZE != 0U)
+        {
+          L4::cout << "MOE: Boot module does not start at page boundary:\n";
+          L4::cout << "     [" << reinterpret_cast<void*>(mod_start) << "-"
+                   << reinterpret_cast<void*>(mod_end) << "] " << name << "\n";
+          abort();
+        }
+
       Moe::Dataspace_static *rf;
       rf = new Moe::Dataspace_static(reinterpret_cast<void*>(mod_start),
                                      mod_end - mod_start, flags);
