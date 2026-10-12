@@ -57,10 +57,43 @@ public:
 
   static void _add_mem(void *p, size_t size);
 
-  static size_t _metadata_bytes(l4_addr_t min_addr, l4_addr_t max_addr);
+  /**
+   * Upper bound on the number of allocator banks.
+   *
+   * Bounded so that the banks can live in a fixed array, which matters because
+   * they have to be known before there is an allocator to allocate them from.
+   * Platforms have a handful of memory areas at most; if there are ever more
+   * large holes than this, the cheapest ones are given up again.
+   */
+  static constexpr unsigned Max_ram_banks = 8;
 
-  static void _init(l4_addr_t min_addr, l4_addr_t max_addr,
-                    unsigned char *metadata_addr, size_t metadata_size);
+  /**
+   * A contiguous span of physical memory with an allocator of its own.
+   *
+   * The buddy allocator holds approximately two bytes metadata per L4_PAGESIZE
+   * of the memory range it spans. When the physical address space has large
+   * holes this wastes a lot of memory. To avoid that we split the physical
+   * address space into its contiguous chunks, with a separate allocator each.
+   */
+  using Ram_bank = Moe::Mem_range;
+
+  using Ram_bank_list =
+    Moe::Mem_region_list<Ram_bank, Single_page_alloc_base::Max_ram_banks>;
+
+  /**
+   * Total metadata needed for `banks`, as one chunk.
+   */
+  static size_t _metadata_bytes(Ram_bank_list const &banks);
+
+  /**
+   * Set up one allocator per bank, carving their metadata out of one chunk.
+   *
+   * \param banks          The banks, sorted and non-overlapping.
+   * \param metadata_addr  Chunk for the metadata of all banks.
+   * \param metadata_size  Size of that chunk, at least _metadata_bytes().
+   */
+  static void _init(Ram_bank_list const &banks, unsigned char *metadata_addr,
+                    size_t metadata_size);
 
 #ifndef NDEBUG
   static void _dump_free(Dbg &dbg);

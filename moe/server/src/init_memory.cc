@@ -15,6 +15,7 @@
 #include "page_alloc.h"
 #include "pages.h"
 
+#include <l4/cxx/minmax>
 #include <l4/sigma0/sigma0.h>
 #include <l4/sys/kip>
 #include <l4/util/kip.h>
@@ -72,13 +73,98 @@ void map_all_avail_memory(Free_map &free_map)
   free_map.dump(info);
 }
 
-/// Allocate metadata for allocator and initialize the allocator.
-void init_page_alloc(Free_map const &free_map, l4_addr_t min_addr,
-                     l4_addr_t max_addr)
+/**
+ * Holes smaller than this are not worth a bank of their own.
+ *
+ * A hole costs roughly two bytes of buddy metadata per 4 KiB (L4_PAGESIZE), so
+ * accepting a 64 MiB hole costs about 32 KiB of wasted metadata memory. That is
+ * preferable to dealing with a lot of banks, and negligible compared with the
+ * holes this is here to avoid, which are gigabytes wide.
+ */
+constexpr l4_size_t Bank_split_hole = 64UL << 20;
+
+/**
+ * Add [start, last] to the banks, merging where a split would not pay.
+ *
+ * The regions arrive in ascending order, so a region either extends the last
+ * bank or starts a new one.
+ *
+ * \return The new number of banks.
+ */
+void
+add_bank(Single_page_alloc_base::Ram_bank_list &banks, Moe::Mem_range new_range)
 {
+  auto hole_before = [](Moe::Mem_range const &base, Moe::Mem_range const &next)
+    { return next.start - base.end - 1; };
+
+  if (banks.empty())
+    {
+      banks.push_back(new_range);
+      return;
+    }
+
+  Moe::Mem_range &last_bank = banks.last();
+  if (new_range.start <= last_bank.end)
+    {
+      // Not expected from a sorted, disjoint free map, but never let the end
+      // move backwards if it happens.
+      last_bank.end = cxx::max(last_bank.end, new_range.end);
+      return;
+    }
+
+  if (hole_before(last_bank, new_range) <= Bank_split_hole)
+    {
+      last_bank.end = new_range.end;
+      return;
+    }
+
+  if (!banks.full())
+    {
+      banks.push_back(new_range);
+      return;
+    }
+
+  // Out of banks. Give up the smallest hole, since that is the one whose
+  // metadata costs least - possibly the one in front of the new region, in
+  // which case the new region simply joins the last bank.
+  unsigned victim = banks.len() - 1;
+  l4_size_t smallest = hole_before(banks.last(), new_range);
+  for (unsigned i = 0; i + 1 < banks.len(); ++i)
+    {
+      auto hole = hole_before(banks[i], banks[i + 1]);
+      if (hole < smallest)
+        {
+          smallest = hole;
+          victim = i;
+        }
+    }
+
+  if (victim == banks.len() - 1)
+    {
+      banks[victim].end = new_range.end;
+      return;
+    }
+
+  banks[victim + 1].start = banks[victim].start;
+  banks.del(victim);
+  banks.push_back(new_range);
+}
+
+/// Allocate metadata for allocator and initialize the allocator.
+void init_page_alloc(Free_map const &free_map)
+{
+  // Split the memory into banks so that the buddy allocators do not pay for
+  // the holes between them, and size their metadata.
+  Single_page_alloc_base::Ram_bank_list banks;
+  for (auto const &region : free_map)
+    add_bank(banks, region);
+
+  info.printf("Memory banks:-------------------\n");
+  banks.dump(info);
+
   // Now find the optimal place for buddy allocator free bits.
   unsigned long metadata_bytes =
-    Single_page_alloc_base::_metadata_bytes(min_addr, max_addr);
+    Single_page_alloc_base::_metadata_bytes(banks);
   info.printf("Allocator free map:-------------\n");
   info.printf("Required bytes: %#lx\n", metadata_bytes);
 
@@ -116,7 +202,7 @@ void init_page_alloc(Free_map const &free_map, l4_addr_t min_addr,
   metadata_region.dump(info);
 
   Single_page_alloc_base::_init(
-    min_addr, max_addr, reinterpret_cast<unsigned char *>(metadata_region.start),
+    banks, reinterpret_cast<unsigned char *>(metadata_region.start),
     metadata_bytes);
 
   // Finally add the memory to the allocator
@@ -143,7 +229,8 @@ void init_page_alloc(Free_map const &free_map, l4_addr_t min_addr,
   Moe::Phys_limit::avail_ram = Single_page_alloc_base::_avail();
   char str[64];
   l4util_human_readable_size(str, sizeof(str), Single_page_alloc_base::_avail());
-  info.printf("found %s RAM in the area %08lx..%08lx\n", str, min_addr, max_addr);
+  info.printf("found %s RAM in the area %08lx..%08lx\n", str, free_map[0].start,
+              free_map.last().end);
 }
 
 #ifdef CONFIG_MMU
@@ -217,11 +304,11 @@ void Moe::find_memory()
   Free_map free_map;
   map_all_avail_memory(free_map);
 
-  l4_addr_t min_addr = free_map[0].start;
-  l4_addr_t max_addr = free_map.last().end;
-  init_page_alloc(free_map, min_addr, max_addr);
+  init_page_alloc(free_map);
 
 #ifdef CONFIG_MMU
+  l4_addr_t min_addr = free_map[0].start;
+  l4_addr_t max_addr = free_map.last().end;
   setup_pages(free_map, min_addr, max_addr);
 #endif
 }
