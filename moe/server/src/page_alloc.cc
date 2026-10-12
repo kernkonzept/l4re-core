@@ -47,10 +47,14 @@ Single_page_alloc_base::_alloc_max(size_t min, size_t *max, size_t align,
   //       than actually would have been possible in a following region.
   for (auto const &region : cfg.regions)
     {
-      ret = page_alloc()->alloc_max(min, max, align, granularity,
+      size_t alloc_size = *max;
+      ret = page_alloc()->alloc_max(min, &alloc_size, align, granularity,
                                     region.range.start, region.range.end);
       if (ret)
-        break; // successful allocation
+        {
+          *max = alloc_size;
+          break; // successful allocation
+        }
     }
 
   if (page_alloc_debug)
