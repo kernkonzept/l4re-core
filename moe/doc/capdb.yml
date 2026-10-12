@@ -6,8 +6,7 @@ desc: |
 
   *Moe* is the first task which is usually started in L4Re-based systems. The
   microkernel starts *Moe* as the Root-Task.
-
-
+text-after-cmds: |
   ## Moe objects {#l4re_moe_objects}
 
   Moe provides a default implementation for the basic L4Re abstractions, such as

@@ -12,6 +12,112 @@ Moe is the default root-task implementation for L4Re-based systems.
 microkernel starts *Moe* as the Root-Task.
 
 
+<hr>
+## Capabilities {#l4re_servers_moe_capabilities}
+
+* `svr`
+
+  Server Capability of application. Endpoint for IPC calls
+
+  Mandatory capability.
+
+
+
+<hr>
+## Command Line Options {#l4re_servers_moe_cmdline_options}
+
+* `--debug=<flags>`
+
+  This option enables debug messages from Moe itself.
+
+  Multiple Flags in one string separated through '|', '+' or ','.
+
+  Possible values for `<flags>` are
+    * info
+    * warn
+    * boot
+    * server
+    * exceptions
+    * loader
+    * ns
+    * all
+
+* `--init=<init_process>`
+
+  This options allows to set the init process binary.
+
+  String value.
+
+  Default: `rom/ned`
+
+* `--root-factory=<config>`
+
+  This option provides the configuration of the root factory, that is the
+  physical memory regions the factory may allocate from and the permissions it
+  holds. The value is a comma separated list of configuration arguments, see
+  [Factory configuration](#l4re_moe_factory_config).
+
+  At least one untyped memory region must be specified. Note that no permission
+  is granted implicitly, in particular `allow=s` is required to let the init
+  process create L4::Scheduler proxy objects.
+
+  The option must be given at most once and is mutually exclusive with the
+  `--brk` option.
+
+  Example: `--root-factory=ut=256M@0x40000000,t=vram=16M@0x80000000,a=ps`
+
+  If the option is not given, the root factory may allocate from the whole
+  physical address space and holds the *scheduler* permission.
+
+  String value.
+
+* `--l4re-dbg=<flags>`
+
+  This option allows to set the debug options for the L4Re runtime environment
+  of the init process.
+
+  Multiple Flags in one string separated through '|', '+' or ','.
+
+  Possible values for `<flags>` are
+    * info
+    * warn
+    * boot
+    * server
+    * exceptions
+    * loader
+    * ns
+    * all
+
+* `--ldr-flags=<flags>`
+
+  This option allows setting some loader options for the L4Re runtime
+  environment.
+
+  Multiple Flags in one string separated through '|', '+' or ','.
+
+  Possible values for `<flags>` are
+    * pre_alloc
+    * all_segs_cow
+    * pinned_segs
+
+* `--brk=<address>`
+
+  This option is only present on systems without MMU. It restricts dynamic
+  allocations to addresses equal or higher than `<address>`. Use it to prevent
+  moe from allocating memory in regions that shall later be used by other
+  applications or virtual machines.
+
+  This option is obsolete and only kept for backwards compatibility. Use the
+  `--root-factory` option instead, which is mutually exclusive with this option.
+
+  Hexadecimal number without '0x' prefix.
+
+* `-- <init_options>`
+
+  All command-line parameters after the special `--` option are passed directly
+  to the init process.
+
+<hr>
 ## Moe objects {#l4re_moe_objects}
 
 Moe provides a default implementation for the basic L4Re abstractions, such as
@@ -136,112 +242,6 @@ module somemodule :rw
 > [!note]
 > In order for a client to receive write permissions to the dataspace, the
 > corresponding cap also needs write permissions.
-
-
-<hr>
-## Capabilities {#l4re_servers_moe_capabilities}
-
-* `svr`
-
-  Server Capability of application. Endpoint for IPC calls
-
-  Mandatory capability.
-
-
-
-<hr>
-## Command Line Options {#l4re_servers_moe_cmdline_options}
-
-* `--debug=<flags>`
-
-  This option enables debug messages from Moe itself.
-
-  Multiple Flags in one string separated through '|', '+' or ','.
-
-  Possible values for `<flags>` are
-    * info
-    * warn
-    * boot
-    * server
-    * exceptions
-    * loader
-    * ns
-    * all
-
-* `--init=<init_process>`
-
-  This options allows to set the init process binary.
-
-  String value.
-
-  Default: `rom/ned`
-
-* `--root-factory=<config>`
-
-  This option provides the configuration of the root factory, that is the
-  physical memory regions the factory may allocate from and the permissions it
-  holds. The value is a comma separated list of configuration arguments, see
-  [Factory configuration](#l4re_moe_factory_config).
-
-  At least one untyped memory region must be specified. Note that no permission
-  is granted implicitly, in particular `allow=s` is required to let the init
-  process create L4::Scheduler proxy objects.
-
-  The option must be given at most once and is mutually exclusive with the
-  `--brk` option.
-
-  Example: `--root-factory=ut=256M@0x40000000,t=vram=16M@0x80000000,a=ps`
-
-  If the option is not given, the root factory may allocate from the whole
-  physical address space and holds the *scheduler* permission.
-
-  String value.
-
-* `--l4re-dbg=<flags>`
-
-  This option allows to set the debug options for the L4Re runtime environment
-  of the init process.
-
-  Multiple Flags in one string separated through '|', '+' or ','.
-
-  Possible values for `<flags>` are
-    * info
-    * warn
-    * boot
-    * server
-    * exceptions
-    * loader
-    * ns
-    * all
-
-* `--ldr-flags=<flags>`
-
-  This option allows setting some loader options for the L4Re runtime
-  environment.
-
-  Multiple Flags in one string separated through '|', '+' or ','.
-
-  Possible values for `<flags>` are
-    * pre_alloc
-    * all_segs_cow
-    * pinned_segs
-
-* `--brk=<address>`
-
-  This option is only present on systems without MMU. It restricts dynamic
-  allocations to addresses equal or higher than `<address>`. Use it to prevent
-  moe from allocating memory in regions that shall later be used by other
-  applications or virtual machines.
-
-  This option is obsolete and only kept for backwards compatibility. Use the
-  `--root-factory` option instead, which is mutually exclusive with this option.
-
-  Hexadecimal number without '0x' prefix.
-
-* `-- <init_options>`
-
-  All command-line parameters after the special `--` option are passed directly
-  to the init process.
 
 
 <hr>
