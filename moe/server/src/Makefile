@@ -13,7 +13,8 @@ SRC_CC          = main.cc page_alloc.cc dataspace.cc dataspace_cont.cc \
                   app_task.cc dataspace_noncont.cc pages.cc \
                   name_space.cc mem.cc log.cc sched_proxy.cc \
                   delete.cc server_obj.cc \
-                  dma_space.cc factory_config.cc
+                  dma_space.cc factory_config.cc \
+                  init_root_factory.cc init_memory.cc
 
 SRC_CC-$(CONFIG_MOE_BOOT_FB)  = boot_fb.cc
 
