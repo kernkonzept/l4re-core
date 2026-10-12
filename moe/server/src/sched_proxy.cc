@@ -88,7 +88,7 @@ l4_sched_cpu_set_t Dyn_cpu_set::operator&(l4_sched_cpu_set_t const &s) const
   unsigned first = base;
   for (unsigned off = base; off < limit; ++off)
     {
-      if (bit(off) && s.map & (1UL << ((off - base) >> gran)))
+      if (bit(off) && s.map & (1UL << ((off - base) >> s.granularity())))
         {
           if (! ret.map)
             {
