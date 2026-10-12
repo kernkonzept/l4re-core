@@ -26,20 +26,15 @@ static Dbg info(Dbg::Info);
 
 l4_size_t Moe::Phys_limit::avail_ram;
 
-void Moe::find_memory()
+namespace
 {
-  Single_page_alloc_base::can_free =
-    l4util_kip_kernel_has_feature(kip(), "mapdb");
-  if (!Single_page_alloc_base::can_free)
-    info.printf("Fiasco mapdb not available! Memory cannot be given back!\n");
 
-  // List of free regions (allocated on stack).
-  Moe::Mem_region_list<Moe::Mem_range, 100> free_map;
+using Free_map = Moe::Mem_region_list<Moe::Mem_range, 100>;
 
-  // First scan and map all available memory, and populate the free list.
+/// Map all available memory from sigma0 and populate the free map with it.
+void map_all_avail_memory(Free_map &free_map)
+{
   l4_addr_t addr;
-  l4_addr_t min_addr = Moe::Max_phys_addr;
-  l4_addr_t max_addr = 0;
   for (unsigned order = Moe::Max_phys_page_order; order >= L4_LOG2_PAGESIZE; --order)
     {
       while (!l4sigma0_map_anypage(Sigma0_cap, 0, L4_WHOLE_ADDRESS_SPACE,
@@ -58,11 +53,6 @@ void Moe::find_memory()
                 continue;
             }
 
-          if (addr < min_addr)
-            min_addr = addr;
-          if (addr + size > max_addr)
-            max_addr = addr + size;
-
           Moe::Mem_range range{addr, addr + size - 1};
           if (free_map.add(range))
             continue; // success
@@ -80,7 +70,12 @@ void Moe::find_memory()
 
   info.printf("Free map:-----------------------\n");
   free_map.dump(info);
+}
 
+/// Allocate metadata for allocator and initialize the allocator.
+void init_page_alloc(Free_map const &free_map, l4_addr_t min_addr,
+                     l4_addr_t max_addr)
+{
   // Now find the optimal place for buddy allocator free bits.
   unsigned long metadata_bytes =
     Single_page_alloc_base::_metadata_bytes(min_addr, max_addr);
@@ -149,8 +144,13 @@ void Moe::find_memory()
   char str[64];
   l4util_human_readable_size(str, sizeof(str), Single_page_alloc_base::_avail());
   info.printf("found %s RAM in the area %08lx..%08lx\n", str, min_addr, max_addr);
+}
 
 #ifdef CONFIG_MMU
+/// Allocate and setup reference counter pages.
+void setup_pages(Free_map const &free_map, l4_addr_t min_addr,
+                 l4_addr_t max_addr)
+{
   // adjust min_addr and max_addr to also contain boot modules
   for (auto const &md: L4::Kip::Mem_desc::all(kip()))
     {
@@ -198,8 +198,31 @@ void Moe::find_memory()
   Moe::Pages::base_addr = min_addr;
   Moe::Pages::max_addr  = max_addr;
 
+  char str[64];
   l4util_human_readable_size(str, sizeof(str), sizeof(*pages) * total_pages);
   info.printf("allocated %s for the page array @%p\n", str, pages);
+}
+#endif
+
+} // namespace
+
+void Moe::find_memory()
+{
+  Single_page_alloc_base::can_free =
+    l4util_kip_kernel_has_feature(kip(), "mapdb");
+  if (!Single_page_alloc_base::can_free)
+    info.printf("Fiasco mapdb not available! Memory cannot be given back!\n");
+
+  // List of free regions (allocated on stack).
+  Free_map free_map;
+  map_all_avail_memory(free_map);
+
+  l4_addr_t min_addr = free_map[0].start;
+  l4_addr_t max_addr = free_map.last().end;
+  init_page_alloc(free_map, min_addr, max_addr);
+
+#ifdef CONFIG_MMU
+  setup_pages(free_map, min_addr, max_addr);
 #endif
 }
 
