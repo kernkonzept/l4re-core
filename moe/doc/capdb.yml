@@ -227,7 +227,6 @@ cmds:
       All command-line parameters after the special `--` option are passed
       directly to the init process.
     metavar: init_options
-    delimiter: equals
 
 factory:
   - obj-type: 'L4.Proto.Namespace'
