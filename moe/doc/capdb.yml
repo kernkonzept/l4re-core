@@ -15,6 +15,23 @@ text-after-cmds: |
   (see [L4Re Interface](#api_l4re)). These are described in the following
   subsections.
 
+  ### Initial Moe objects
+
+  Initially, Moe creates the following objects and passes them to the initial
+  application via named initial capabilities:
+
+  - `dma_mgr`: L4Re::Dma_space_mgr, management interface for L4Re::Dma_space
+    objects <!--Moe::Dma_space_mgr-->
+
+  - `fb`: L4Re::Video::Goos, a frame buffer (available only if the Moe
+    configuration option `MOE_BOOT_FB` is enabled) <!--Boot_fb-->
+
+  - `kip`: L4Re::Dataspace wrapping the [kernel interface page](#l4_kip_api)
+
+  - `mem`: L4::Factory, Moe’s root [factory](#l4re_moe_factory) <!--Allocator-->
+
+  - `rom` and `rwfs`: L4Re::Namespace, see [Namespace](#l4re_moe_namespace)
+
   ### Factory {#l4re_moe_factory}
 
   The factory in Moe is responsible for all kinds of dynamic object allocation.
@@ -105,7 +122,7 @@ text-after-cmds: |
   specify any memory region get's all memory of the system as untyped memory.
   Typed regions and permissions are never inherited implicitly.
 
-  ### Namespace
+  ### Namespace {#l4re_moe_namespace}
   Moe provides a name space conforming to the L4Re::Namespace interface
   (see [Namespace](#api_l4re_namespace). Per default Moe creates a single name
   space for the [Boot FS](#l4re_moe_bootfs). That is available as `rom` in the
