@@ -14,13 +14,11 @@
 
 namespace Moe { class Dataspace; };
 
-extern L4::Cap<void> root_name_space_obj;
 extern Moe::Dataspace *kip_ds;
 extern "C" l4_kernel_info_t *_current_kip;
 inline l4_kernel_info_t const *kip() { return _current_kip; }
 
 extern Object_pool object_pool;
-extern char const *const PROG;
 extern char log_buffer[1024];
 
 namespace Moe {

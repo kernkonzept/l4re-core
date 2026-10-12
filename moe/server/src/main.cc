@@ -775,8 +775,7 @@ int main(int /* argc */, char** /* argv */)
       Moe::Boot_fs::init_stage2();
       init_boot_fb((l4util_l4mod_info *)kip()->user_ptr);
 
-      root_name_space_obj = object_pool.cap_alloc()->alloc(root_name_space(),
-                                                           "moe-root-ns");
+      object_pool.cap_alloc()->alloc(root_name_space(), "moe-root-ns");
 
       init_kip_ds();
 
