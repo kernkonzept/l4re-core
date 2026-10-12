@@ -148,6 +148,7 @@ module somemodule :rw
   Mandatory capability.
 
 
+
 <hr>
 ## Command Line Options {#l4re_servers_moe_cmdline_options}
 
@@ -242,7 +243,11 @@ module somemodule :rw
   All command-line parameters after the special `--` option are passed directly
   to the init process.
 
-## Namespace {#l4re_servers_moe_param_namespace}
+
+<hr>
+## Factory Options {#l4re_servers_moe_factory_options}
+
+### Namespace {#l4re_servers_moe_param_namespace}
 
 Call:   `create(L4.Proto.Namespace)`
 
@@ -250,7 +255,7 @@ Call:   `create(L4.Proto.Namespace)`
 
 
 
-## Dataspace {#l4re_servers_moe_param_dataspace}
+### Dataspace {#l4re_servers_moe_param_dataspace}
 
 Dataspaces can be allocated with an arbitrary size. The granularity for memory
 allocation however is the machine page size (#L4_PAGESIZE). A dataspace user
@@ -314,9 +319,9 @@ Call:   `create(L4.Proto.Dataspace, size [, flags, align, base, type])`
 
 * `base`
 
-  Physical base address of the dataspace. Only consumed if the `Fixed physical
-  Address` flag is set. The requested address range must be covered by the
-  memory regions of the factory.
+  Physical base address of the dataspace. Only consumed if the
+  `Fixed physical Address` flag is set. The requested address range must be
+  covered by the memory regions of the factory.
 
   Numerical value.
 
@@ -330,7 +335,7 @@ Call:   `create(L4.Proto.Dataspace, size [, flags, align, base, type])`
 
 
 
-## DMA space {#l4re_servers_moe_param_dma_space}
+### DMA space {#l4re_servers_moe_param_dma_space}
 
 Call:   `create(L4.Proto.Dma_space)`
 
@@ -338,7 +343,7 @@ Call:   `create(L4.Proto.Dma_space)`
 
 
 
-## Region Map {#l4re_servers_moe_param_region_map}
+### Region Map {#l4re_servers_moe_param_region_map}
 
 Call:   `create(L4.Proto.Rm)`
 
@@ -346,7 +351,7 @@ Call:   `create(L4.Proto.Rm)`
 
 
 
-## Virtual console {#l4re_servers_moe_param_virtual_console}
+### Virtual console {#l4re_servers_moe_param_virtual_console}
 
 The logging facility of Moe provides per application tagged and synchronized log
 output.
@@ -413,7 +418,7 @@ Call:   `create(L4.Proto.Log [, label, "color=(string|int)"])`
 
 
 
-## Scheduler {#l4re_servers_moe_param_scheduler}
+### Scheduler {#l4re_servers_moe_param_scheduler}
 
 The scheduler subsystem provides a simple scheduler proxy for scheduling policy
 enforcement.
@@ -445,7 +450,7 @@ Call:   `create(L4.Proto.Scheduler, limit, offset [, bitmap])`
 
 
 
-## Factory {#l4re_servers_moe_param_factory}
+### Factory {#l4re_servers_moe_param_factory}
 
 Creates a sub-factory with a restricted quota and, optionally, a restricted
 [factory configuration](#l4re_moe_factory_config).
