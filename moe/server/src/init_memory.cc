@@ -14,6 +14,7 @@
 #include "mem_region_list.h"
 #include "page_alloc.h"
 #include "pages.h"
+#include "ram_ranges.h"
 
 #include <l4/cxx/minmax>
 #include <l4/sigma0/sigma0.h>
@@ -24,6 +25,7 @@
 #include <cstdlib>
 
 static Dbg info(Dbg::Info);
+static Dbg boot(Dbg::Boot);
 
 l4_size_t Moe::Phys_limit::avail_ram;
 
@@ -80,6 +82,10 @@ void map_all_avail_memory(Free_map &free_map)
  * accepting a 64 MiB hole costs about 32 KiB of wasted metadata memory. That is
  * preferable to dealing with a lot of banks, and negligible compared with the
  * holes this is here to avoid, which are gigabytes wide.
+ *
+ * The same applies for the reference counters, where a hole costs four bytes
+ * per 4 KiB (L4_PAGESIZE), so accepting a 64 MiB hole costs about 64 KiB of
+ * wasted wasted reference counter memory.
  */
 constexpr l4_size_t Bank_split_hole = 64UL << 20;
 
@@ -234,26 +240,28 @@ void init_page_alloc(Free_map const &free_map)
 }
 
 #ifdef CONFIG_MMU
-/// Allocate and setup reference counter pages.
-void setup_pages(Free_map const &free_map, l4_addr_t min_addr,
-                 l4_addr_t max_addr)
+/// Allocate and clear the reference counters for the collected memory ranges.
+void setup_page_banks(Free_map const &free_map)
 {
-  // adjust min_addr and max_addr to also contain boot modules
+  Moe::Ram_ranges ram;
+
+  // Note the memory only after it has been handed to the page allocator, the
+  // ranges are stored in memory from that allocator.
+  for (auto const &region : free_map)
+    ram.add(region);
+
+  // boot modules are handed out as dataspaces as well and thus need
+  // reference counters too
   for (auto const &md: L4::Kip::Mem_desc::all(kip()))
     {
       if (md.is_virtual())
         continue;
 
       L4::Kip::Mem_desc::Mem_type type = md.type();
-      unsigned long end = l4_round_page(md.end() + 1);
-      unsigned long start = l4_trunc_page(md.start());
       switch (type)
         {
         case L4::Kip::Mem_desc::Bootloader:
-          if (start < min_addr)
-            min_addr = start;
-          if (end > max_addr)
-            max_addr = end;
+          ram.add(Moe::Mem_range(md.start(), md.start() + md.size() - 1));
           break;
         case L4::Kip::Mem_desc::Conventional:
         case L4::Kip::Mem_desc::Reserved:
@@ -265,29 +273,40 @@ void setup_pages(Free_map const &free_map, l4_addr_t min_addr,
         }
     }
 
-  assert(max_addr > min_addr);
-  l4_addr_t total_pages = (max_addr - min_addr) >> L4_PAGESHIFT;
+  // All memory is known now, small holes are not worth a memory bank.
+  ram.merge_small_holes(Bank_split_hole);
 
-  assert(total_pages);
+  assert(ram.count() > 0);
 
-  using Moe::Pages::pages;
-  pages = static_cast<decltype(pages)>(Single_page_alloc_base::_alloc(
-    sizeof(*pages) * total_pages, alignof(decltype(*pages))));
+  auto *banks = static_cast<Moe::Pages::Bank *>(
+                  Single_page_alloc_base::_alloc(
+                    ram.count() * sizeof(Moe::Pages::Bank), L4_PAGESIZE));
 
-  if (pages == 0)
+  l4_size_t total = ram.count() * sizeof(Moe::Pages::Bank);
+  unsigned i = 0;
+  for (auto const &ram_range: ram)
     {
-      Err(Err::Fatal).printf("could not allocate page array, halt\n");
-      exit(128);
+      auto &bank = banks[i++];
+      bank.range = ram_range;
+
+      l4_size_t sz = (bank.range.size() >> L4_PAGESHIFT) * sizeof(*bank.ref_counts);
+      bank.ref_counts = static_cast<decltype(bank.ref_counts)>(
+                       Single_page_alloc_base::_alloc(sz, L4_PAGESIZE));
+      memset(bank.ref_counts, 0, sz);
+      total += sz;
+
+      boot.printf("memory bank %u: %08lx..%08lx, page array @%p (%zu bytes)\n",
+                  i, bank.range.start, bank.range.end, bank.ref_counts, sz);
     }
 
-  memset(pages, 0, sizeof(*pages) * total_pages);
-
-  Moe::Pages::base_addr = min_addr;
-  Moe::Pages::max_addr  = max_addr;
+  // Only publish the banks after all of them are ready for use.
+  Moe::Pages::banks     = banks;
+  Moe::Pages::num_banks = ram.count();
 
   char str[64];
-  l4util_human_readable_size(str, sizeof(str), sizeof(*pages) * total_pages);
-  info.printf("allocated %s for the page array @%p\n", str, pages);
+  l4util_human_readable_size(str, sizeof(str), total);
+  info.printf("allocated %s for the page arrays of %u memory bank(s)\n",
+              str, Moe::Pages::num_banks);
 }
 #endif
 
@@ -307,9 +326,7 @@ void Moe::find_memory()
   init_page_alloc(free_map);
 
 #ifdef CONFIG_MMU
-  l4_addr_t min_addr = free_map[0].start;
-  l4_addr_t max_addr = free_map.last().end;
-  setup_pages(free_map, min_addr, max_addr);
+  setup_page_banks(free_map);
 #endif
 }
 

@@ -133,9 +133,13 @@ Single_page_alloc_base::_alloc(Nothrow, size_t size, size_t align, Config cfg)
 void
 Single_page_alloc_base::_free(void *p, size_t size)
 {
-  if (!can_free)
-    return;
+  if (can_free)
+    _free_internal(p, size);
+}
 
+void
+Single_page_alloc_base::_free_internal(void *p, size_t size)
+{
   if (page_alloc_debug)
     L4::cout << "pa(" << __builtin_return_address(0) << "): free(" << size << ") @" << p << '\n';
 

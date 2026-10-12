@@ -53,6 +53,7 @@ public:
     return r;
   }
   static void _free(void *p, size_t size);
+  static void _free_internal(void *p, size_t size);
   static size_t _avail();
 
   static void _add_mem(void *p, size_t size);
