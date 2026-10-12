@@ -418,6 +418,7 @@ factory:
           The limit is deducted from the limit of the factory that creates
           the new factory.
         type: int
+        mandatory: true
         conditions:
           - desc: Must not be zero.
             conditions:
