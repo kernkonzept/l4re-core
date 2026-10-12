@@ -16,6 +16,7 @@
 #include <cstdio>
 #include <stdarg.h>
 
+static char log_buffer[1024];
 static Moe::Log *last_log = 0;
 
 class Pbuf

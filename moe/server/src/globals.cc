@@ -13,5 +13,4 @@ static Cap_alloc _cap_allocator __attribute__((init_priority(1400)));
 Object_pool __attribute__((init_priority(1401)))
   object_pool(&_cap_allocator, L4::Cap<L4::Thread>(L4_BASE_THREAD_CAP));
 
-char log_buffer[1024];
 Moe::Dataspace *kip_ds;

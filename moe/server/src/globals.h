@@ -19,7 +19,6 @@ extern "C" l4_kernel_info_t *_current_kip;
 inline l4_kernel_info_t const *kip() { return _current_kip; }
 
 extern Object_pool object_pool;
-extern char log_buffer[1024];
 
 namespace Moe {
   // The maximum page order supported by moe, e.g. 1GiB on Arm64.
