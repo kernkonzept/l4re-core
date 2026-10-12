@@ -46,7 +46,10 @@ struct Mem_range
 
   /** Test if o is a sub-region of ourselves. */
   bool contains(Mem_range const &o) const
-  { return start <= o.start && end >= o.end; }
+  { return start <= o.start && o.end <= end; }
+
+  bool contains_addr(l4_addr_t addr) const
+  { return start <= addr && addr <= end; }
 
   /** Check for adjacent regions. */
   bool adjacent(Mem_range const &o) const
@@ -55,12 +58,16 @@ struct Mem_range
            || (o.end + 1 > o.end && start == (o.end + 1));
   }
 
+  /** Check for an overlapping or adjacent region. */
+  bool touches(Mem_range const &o) const
+  { return overlaps(o) || adjacent(o); }
+
   void merge(Mem_range const &r)
   {
     assert(overlaps(r) || adjacent(r));
 
-    start = start < r.start ? start : r.start;
-    end = end > r.end ? end : r.end;
+    start = cxx::min(start, r.start);
+    end = cxx::max(end, r.end);
   }
 
   /** Calculate the intersection. */
@@ -207,8 +214,28 @@ public:
   bool empty() const { return _len == 0; }
   bool full() const { return _len == Max_regions; }
   unsigned len() const { return _len; }
-  Region_type const &operator[](unsigned idx) const { return _regions[idx]; }
-  Region_type &operator[](unsigned idx) { return _regions[idx]; }
+
+  Region_type const &operator[](unsigned idx) const
+  {
+    assert(idx < _len);
+    return _regions[idx];
+  }
+  Region_type &operator[](unsigned idx)
+  {
+    assert(idx < _len);
+    return _regions[idx];
+  }
+
+  Region_type &last()
+  {
+    assert(!empty());
+    return _regions[_len - 1];
+  }
+  Region_type const &last() const
+  {
+    assert(!empty());
+    return _regions[_len - 1];
+  }
 
   Region_type *begin() { return _regions; }
   Region_type *end() { return _regions + _len; }
