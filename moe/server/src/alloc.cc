@@ -205,7 +205,7 @@ Allocator::create_factory(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
   // allocation regions from the parent factory.
   if (sub_config.regions.empty())
     for (auto const &region : _config.untyped_regions())
-      static_cast<void>(sub_config.regions.add(region));
+      sub_config.regions.push_back(region);
 
   // ensure that 0 cannot be reached by an integer overflow when
   // converting long to size_t since size_t is used internally
@@ -411,8 +411,7 @@ Allocator::create_dataspace(L4::Ipc::Cap<void> &res, L4::Ipc::Varg_list<> &args)
                 {
                   auto intersect = region.range.intersect(mask_range);
                   if (intersect.valid())
-                    static_cast<void>(ds_cont_regions.add(
-                      Moe::Mem_region::untyped(intersect)));
+                    ds_cont_regions.push_back(Moe::Mem_region::untyped(intersect));
                 }
             }
           else

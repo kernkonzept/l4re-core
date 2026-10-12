@@ -33,8 +33,7 @@ void Moe::init_root_factory_config(cxx::String config, cxx::String brk)
 
       // Use default values if no --root-factory config is provided.
       Moe::Mem_range all_mem{physmin, Moe::Max_phys_addr};
-      if (!Moe::root_factory_config.regions.add(Moe::Mem_region::untyped(all_mem)))
-        abort(); // should never happen
+      Moe::root_factory_config.regions.push_back(Moe::Mem_region::untyped(all_mem));
       Moe::root_factory_config.permissions = Moe::Factory_config::Scheduler_proxy;
       return;
     }
@@ -68,8 +67,7 @@ void Moe::init_root_factory_config(cxx::String config, cxx::String brk)
   if (Moe::root_factory_config.regions.empty())
     {
       Moe::Mem_range all_mem{0, Moe::Max_phys_addr};
-      if (!Moe::root_factory_config.regions.add(Moe::Mem_region::untyped(all_mem)))
-        abort(); // should never happen
+      Moe::root_factory_config.regions.push_back(Moe::Mem_region::untyped(all_mem));
     }
 
   if (Moe::root_factory_config.untyped_regions().empty())

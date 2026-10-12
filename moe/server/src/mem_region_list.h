@@ -170,6 +170,22 @@ public:
     return true;
   }
 
+  /**
+   * Add a region to the end of the list.
+   *
+   * \param  region  Region to add.
+   *
+   * \pre The list must not be `full()`.
+   * \pre The region must be ordered after `last()`.
+   */
+  void push_back(Region_type const &region)
+  {
+    assert(region.valid());
+    assert(empty() || last() < region);
+    assert(!full());
+    _regions[_len++] = region;
+  }
+
   void del(unsigned pos)
   {
     assert(pos < _len);
