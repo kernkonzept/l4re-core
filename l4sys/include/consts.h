@@ -41,11 +41,11 @@
  *   send to specified partner and receive from any sending partner;
  *   see #L4_SYSF_SEND_AND_WAIT
  * - #L4_SYSF_REPLY | #L4_SYSF_SEND:
- *   reply to caller
+ *   reply to a caller
  * - #L4_SYSF_REPLY | #L4_SYSF_SEND | #L4_SYSF_RECV:
- *   call the caller
+ *   call a caller
  * - #L4_SYSF_REPLY | #L4_SYSF_SEND | #L4_SYSF_RECV | #L4_SYSF_OPEN_WAIT:
- *   reply to caller and receive from any sending partner;
+ *   reply to a caller and receive from any sending partner;
  *   see #L4_SYSF_REPLY_AND_WAIT
  *
  * \{
@@ -96,8 +96,8 @@
  * Reply flag.
  * \hideinitializer
  *
- * This flag indicates that the send phase shall use the in-kernel reply
- * capability instead of the capability denoted by the selector index.
+ * This flag indicates that the send phase shall use a reply capability instead
+ * of an object capability. The capability selector is interpreted accordingly.
  */
 #define L4_SYSF_REPLY     0x08
 

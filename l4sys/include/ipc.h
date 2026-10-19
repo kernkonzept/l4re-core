@@ -507,10 +507,8 @@ l4_ipc_wait_next_period(l4_utcb_t *utcb,
  * Generic L4 object invocation.
  * \ingroup l4_ipc_api
  *
- * \param      dest     Destination object. #L4_INVALID_CAP denotes the current
- *                      thread. An IPC to the current thread will always abort
- *                      after the specified timeout and can be used for
- *                      sleeping without busy waiting.
+ * \param      dest     [Capability selector](#l4re_concepts_descr_capidx).
+ *                      Interpretation depends on `flags`.
  * \utcb{utcb}
  * \param      flags    Invocation flags (see #L4_SYSF_NONE).
  * \param      slabel   Send label if applicable (may be seen by the receiver).
