@@ -103,10 +103,20 @@ Exc_cause map_exception_to_signal(l4_exc_regs_t const &regs, siginfo_t *si,
 static void
 dump_exception_state(L4Re::Util::Err const &err, l4_exc_regs_t const *r)
 {
+  static constexpr char const *regnames[30] =
+  {
+    "ra", "sp", "gp", "tp",
+    "t0", "t1", "t2",
+    "s0", "s1",
+    "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7",
+    "s2", "s3", "s4", "s5", "s6", "s7", "s8", "s9", "s10", "s11",
+    "t3", "t4", "t5" /*,"t6"*/
+  };
   for (int i = 0; i < 30; i += 2)
-    err.printf("r[%2d]   = %#18lx  r[%2d] = %#18lx\n", i, r->r[i], i+1,
-               r->r[i+1]);
-  err.printf("r[30]   = %#18lx  pc    = %#18lx\n", r->r[30], r->pc);
+    err.printf("%3s/%sx%d = %#18lx  %3s/%sx%d = %#18lx\n",
+               regnames[i],   i < 9 ? " " : "", i+1, r->r[i],
+               regnames[i+1], i < 8 ? " " : "", i+2, r->r[i+1]);
+  err.printf(" t6/x31 = %#18lx       pc = %#18lx\n", r->r[30], r->pc);
   err.printf("\n");
   err.printf("status  = %#18lx\n", r->status);
   err.printf("cause   = %#18lx  pfa   = %#18lx\n", r->cause, r->pfa);
