@@ -7,13 +7,13 @@
 
 /**
  * \file
- * Page fault trampoline handler definitions for ARM.
+ * ARM-specific definitions for page fault trampoline handlers.
  */
 
 #pragma once
 
 /**
- * \defgroup l4_pf_trampoline_api_arm ARM page fault trampoline handler.
+ * \defgroup l4_pf_trampoline_api_arm ARM-specific definitions for page fault trampoline handlers
  * \ingroup  l4_pf_trampoline_api
  */
 

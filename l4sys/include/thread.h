@@ -727,25 +727,37 @@ l4_thread_register_doorbell_irq_u(l4_cap_idx_t thread, l4_cap_idx_t irq,
  * \ingroup l4_thread_api
  *
  * \param thread          Thread to setup page fault trampoline for.
- * \param pf_tramp_state  State of the faulting thread at entry of page fault
- *                        handler, see l4_pf_trampoline_t.
- * Instead of sending a page fault IPC to the pager, the kernel makes a single
- * attempt to handle the page fault in the context of the faulting thread. For
- * that purpose, the kernel saves the state of the faulting thread to the
- * preallocated kernel-user memory `pf_tramp_state` and returns directly to
- * the address of the page fault trampoline handler which is specified in
- * l4_pf_trampoline_t::handler_ip. The page fault trampoline handler uses the
- * stack and the stack pointer of the preempted context.
+ * \param pf_tramp_state  Address to kernel-user memory for storing state for
+ *                        page fault handling via trampoline handler, see
+ *                        l4_pf_trampoline_t.
  *
- * If the handler was able to resolve the page fault, it finishes using
- * pf_trampoline_resume to resume to the preempted context.
+ * The address of the page fault trampoline handler to be used must be set in
+ * the l4_pf_trampoline_t::handler_ip field of `pf_tramp_state`. After setup,
+ * instead of sending a page fault IPC to the pager, the kernel attempts to
+ * handle the page fault in the context of the faulting thread. For that
+ * purpose, the kernel saves the state of the faulting thread to
+ * `pf_tramp_state` and returns directly to the address of the page fault
+ * trampoline handler which is specified in l4_pf_trampoline_t::handler_ip.
  *
- * If the page fault couldn't be resolved, the handler calls
- * pf_trampoline_reflect which reflects the page fault to the exception
- * handler of the thread.
+ * The page fault trampoline handler uses the stack and the stack pointer of
+ * the preempted context. No additional data is put on the stack. All
+ * necessary state is contained in `pf_tramp_state`.
  *
- * If any page fault is triggered while the trampoline page fault handler is
- * executed, a page fault IPC to the pager is generated.
+ * A page fault trampoline handler must be exited in on of two ways:
+ *
+ * - If the handler was able to resolve the page fault, it must finish using
+ *   l4_thread_pf_trampoline_resume() to resume to the preempted context.
+ * - If the page fault couldn't be resolved, the handler must call
+ *   l4_thread_pf_trampoline_reflect(), which reflects the page fault to the exception
+ *   handler of the thread.
+ *
+ * Until the page fault trampoline handler is exited in one of the above ways,
+ * any additional page faults translate into the usual page fault IPC to the
+ * pager.
+ *
+ * If the thread is a vCPU in kernel mode, the above applies. If the thread is
+ * a vCPU in user mode, either #L4_VCPU_F_PAGE_FAULTS must be set or the page
+ * fault trampoline mechanism must not be used.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_pf_trampoline_setup(l4_cap_idx_t thread,
@@ -765,8 +777,8 @@ l4_thread_pf_trampoline_setup_u(l4_cap_idx_t thread, l4_addr_t pf_tramp_state,
  *
  * \param thread  Thread to resume after handling page fault.
  *
- * Called by the trampoline page fault handler after successfully resolving
- * the page fault.
+ * Must be called by a trampoline page fault handler after successfully
+ * resolving the page fault.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_pf_trampoline_resume(l4_cap_idx_t thread) L4_NOTHROW;
@@ -785,9 +797,9 @@ l4_thread_pf_trampoline_resume_u(l4_cap_idx_t thread,
  *
  * \param thread  Thread to reflect page fault to exception handler.
  *
- * Called by the trampoline page fault handler in case a page fault could not
- * be resolved. The kernel will reflect the page fault as exception IPC to the
- * exception handler of the faulting thread.
+ * Must be called by a trampoline page fault handler in case the page fault
+ * cannot be resolved. The kernel will reflect the page fault as exception IPC
+ * to the exception handler of the faulting thread.
  */
 L4_INLINE l4_msgtag_t
 l4_thread_pf_trampoline_reflect(l4_cap_idx_t thread) L4_NOTHROW;

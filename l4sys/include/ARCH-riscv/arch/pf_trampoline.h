@@ -7,13 +7,13 @@
 
 /**
  * \file
- * Page fault trampoline handler definitions for RISC-V.
+ * RISC-V-specific definitions for page fault trampoline handlers.
  */
 
 #pragma once
 
 /**
- * \defgroup l4_pf_trampoline_api_riscv RISC-V page fault trampoline handler.
+ * \defgroup l4_pf_trampoline_api_riscv RISC-V-specific definitions for page fault trampoline handlers
  * \ingroup  l4_pf_trampoline_api
  */
 

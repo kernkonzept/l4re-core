@@ -117,7 +117,9 @@ enum L4_vcpu_state_flags
    * Page faults enabled. If this flag is set, a page fault switches to kernel
    * mode (potentially causing a VM exit) and calls the entry handler. If this
    * flag is not set, a page fault generates a page fault IPC to the pager of
-   * the vCPU thread.
+   * the vCPU thread. When the page fault trampoline mechanism is used (see
+   * L4::Thread::pf_trampoline_setup()), this flag must not be unset while in
+   * user mode.
    *
    * \note IPC redirection for page faults controlled by this flag works
    *       independent of "kernel" and "user" mode.

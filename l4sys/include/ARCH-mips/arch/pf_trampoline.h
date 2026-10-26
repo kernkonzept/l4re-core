@@ -7,13 +7,13 @@
 
 /**
  * \file
- * Page fault trampoline handler definitions for MIPS.
+ * MIPS-specific definitions for page fault trampoline handlers.
  */
 
 #pragma once
 
 /**
- * \defgroup l4_pf_trampoline_api_mips MIPS page fault trampoline handler.
+ * \defgroup l4_pf_trampoline_api_mips MIPS-specific definitions for page fault trampoline handlers
  * \ingroup  l4_pf_trampoline_api
  */
 

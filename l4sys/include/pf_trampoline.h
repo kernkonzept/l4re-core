@@ -7,7 +7,7 @@
 
 /**
  * \file
- * Page fault trampoline handlers.
+ * Page fault trampoline state.
  */
 
 #pragma once
@@ -17,8 +17,10 @@
 #include <l4/sys/l4int.h>
 
 /**
- * \defgroup l4_pf_trampoline_api Page fault trampoline handlers
+ * \defgroup l4_pf_trampoline_api Page fault trampoline state
  * \ingroup l4_api
+ *
+ * State for a page fault trampoline handler.
  *
  * A page fault trampoline handler is an alternative mechanism to handle page
  * faults. Instead of sending a page fault IPC to the pager of the faulting
@@ -30,6 +32,7 @@
  * information saved by the kernel on entering the kernel page fault handler and
  * restored before leaving the kernel page fault handler.
  *
+ * \see L4::Thread::pf_trampoline_setup() / l4_thread_pf_trampoline_setup()
  * \includefile{l4/sys/pf_trampoline.h}
  */
 
@@ -63,13 +66,13 @@ enum L4_pf_trampoline_flags
 };
 
 /**
- * Opaque type for the page fault trampoline register state.
+ * See l4_pf_trampoline_regs_t.
  * \ingroup l4_pf_trampoline_api
  */
 typedef struct l4_pf_trampoline_regs_t l4_pf_trampoline_regs_t;
 
 /**
- * Opaque type for the page fault trampoline state.
+ * See l4_pf_trampoline_t.
  * \ingroup l4_pf_trampoline_api
  */
 typedef struct l4_pf_trampoline_t l4_pf_trampoline_t;
@@ -81,11 +84,33 @@ typedef struct l4_pf_trampoline_t l4_pf_trampoline_t;
  * State for page fault trampoline handler.
  * \ingroup l4_pf_trampoline_api
  */
-typedef struct l4_pf_trampoline_t
+struct l4_pf_trampoline_t
 {
-  l4_umword_t   handler_ip;   /**< instruction pointer of trampoline handler */
-  l4_umword_t   user_data[2]; /**< for userland maintenance */
-  l4_umword_t   saved_mr0;    /**< MR[0] at entry of page fault handler */
-  l4_umword_t   flags;        /**< See L4_pf_trampoline_flags */
-  l4_pf_trampoline_regs_t state; /**< register state at entry of PF handler */
-} l4_pf_trampoline_t;
+  /// Instruction pointer of trampoline handler;
+  /// must be set by userland, read by kernel.
+  l4_umword_t handler_ip;
+
+  /// Userland data; may be set and read by userland, ignored by kernel.
+  l4_umword_t user_data[2];
+
+  /// MR[0] at entry of page fault handler;
+  /// set and read by kernel, must be ignored by userland.
+  ///
+  /// The kernel saves MR[0] (see l4_utcb_mr()) before entering the page fault
+  /// trampoline handler and restores it from this value after
+  /// L4::Thread::pf_trampoline_resume() or L4::Thread::pf_trampoline_reflect().
+  ///
+  /// Other parts of the UTCB must be the same when leaving the handler as they
+  /// were when the handler was entered. The handler may do changes in the
+  /// meantime (usually for doing IPC for handling the page fault), however, the
+  /// handler is responsible for restoring the original state before the handler
+  /// is left.
+  l4_umword_t saved_mr0;
+
+  /// See L4_pf_trampoline_flags.
+  l4_umword_t flags;
+
+  /// Register state at entry of PF handler;
+  /// set by kernel, may be partially read by userland.
+  l4_pf_trampoline_regs_t state;
+};
