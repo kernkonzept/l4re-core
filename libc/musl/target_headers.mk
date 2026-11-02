@@ -101,6 +101,7 @@ define HDR_common
   sys/poll.h
   sys/prctl.h
   sys/queue.h
+  sys/random.h
   sys/resource.h
   sys/select.h
   sys/sem.h

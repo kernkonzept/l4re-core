@@ -38,7 +38,8 @@ SRC_C       = daemon.c \
 
 SRC_C-$(CONFIG_L4_LIBC_UCLIBC) += lockf.c
 
-SRC_CC      = sysconf.cc
+SRC_CC      = getrandom.cc \
+              sysconf.cc
 
 include $(L4DIR)/mk/lib.mk
 
