@@ -203,21 +203,21 @@ public:
   { return l4_task_release_cap_u(this->cap(), cap.cap(), utcb); }
 
   /**
-   * Check whether a capability is present (refers to an object).
+   * Check whether an object capability is present (i.e., refers to an object).
    *
-   * \param cap   Valid capability to check for presence.
+   * \param cap   Capability to check for presence.
    * \utcb_def{utcb}
    *
    * \retval "l4_msgtag_t::label() > 0"   Capability is present (refers to an
    *                                      object).
    * \retval "l4_msgtag_t::label() == 0"  No capability present (void object).
    *
-   * A capability is considered present when it refers to an existing
+   * An object capability is considered present when it refers to an existing
    * kernel object.
    *
-   * \pre `cap` must be a valid capability (i.e. `cap.is_valid() == true`).
-   *      If you are unsure about the validity of your capability use
-   *      L4::Cap.validate() instead.
+   * \pre `%cap` must wrap a valid capability index (i.e., L4::Cap.is_valid()
+   *      for `%cap` must return `true`). If you are unsure about the validity
+   *      of your `%cap`, use L4::Cap.validate() instead.
    */
   l4_msgtag_t cap_valid(Cap<void> const &cap,
                         l4_utcb_t *utcb = l4_utcb()) noexcept
