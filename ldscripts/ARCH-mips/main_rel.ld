@@ -146,6 +146,7 @@ SECTIONS
   }
   .ctors          :
   {
+    PROVIDE (_ctors_begin = .);
     /* gcc uses crtbegin.o to find the start of
        the constructors, so we make sure it is
        first.  Because this is a wildcard, it
@@ -164,14 +165,21 @@ SECTIONS
     KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .ctors))
     KEEP (*(SORT(.ctors.*)))
     KEEP (*(.ctors))
+    PROVIDE (_ctors_end = .);
+    ASSERT (_ctors_begin == _ctors_end,
+            ".ctors section not supported, use .init_array instead!");
   }
   .dtors          :
   {
+    PROVIDE (_dtors_begin = .);
     KEEP (*crtbegin.o(.dtors))
     KEEP (*crtbegin?.o(.dtors))
     KEEP (*(EXCLUDE_FILE (*crtend.o *crtend?.o ) .dtors))
     KEEP (*(SORT(.dtors.*)))
     KEEP (*(.dtors))
+    PROVIDE (_dtors_end = .);
+    ASSERT (_dtors_begin == _dtors_end,
+            ".dtors section not supported, use .fini_array instead!");
   }
   .jcr            : { KEEP (*(.jcr)) }
   .data.rel.ro : { *(.data.rel.ro.local* .gnu.linkonce.d.rel.ro.local.*) *(.data.rel.ro .data.rel.ro.* .gnu.linkonce.d.rel.ro.*) }
