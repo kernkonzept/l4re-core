@@ -4,6 +4,7 @@ define SRC_misc
   basename
   dirname
   ffs
+  getentropy
   getopt
   getopt_long
   realpath

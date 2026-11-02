@@ -20,6 +20,7 @@ define SRC_libc/sysdeps/linux
   common/getdomainname
   common/gethostname
   common/getdirname
+  common/getentropy
   common/getpagesize
   common/getpgid
   common/makedev
