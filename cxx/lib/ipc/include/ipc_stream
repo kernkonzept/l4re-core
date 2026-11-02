@@ -1175,9 +1175,9 @@ L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s,
   unsigned long sz;
   s.get(sz);
   unsigned long rsz = s.get(v.buf(), cxx::min(v.size(), sz));
-  if (rsz < v.size() && v.buf()[rsz - 1])
-    ++rsz; // add the zero termination behind the received data
 
+  // The transmitted string ought to be zero terminated. Make sure that's the
+  // case.
   if (rsz != 0)
     v.buf()[rsz - 1] = 0;
 
