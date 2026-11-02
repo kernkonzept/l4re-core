@@ -1,8 +1,21 @@
+#include "pthread-api.h"
+
 #include <netdb.h>
 
-static __thread int __h_errno __attribute__((tls_model("initial-exec")));
+#ifdef L4_MINIMAL_LIBC
+
+static int _h_errnoval;
 
 int *__h_errno_location(void)
 {
-  return &__h_errno;
+  return &_h_errnoval;
 }
+
+#else
+
+int *__h_errno_location(void)
+{
+  return &__pthread_libc_data(__pthread_self())->h_errno_val;
+}
+
+#endif

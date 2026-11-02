@@ -31,6 +31,7 @@ typedef struct pthread_libc_data
 #endif
 
   int errno_val;
+  int h_errno_val;
   unsigned char dlerror_flag : 1;
   // NOTE: For deallocation of TLS block, maybe not strictly necessary, we might
   // be able to compute it from tp pointer.
