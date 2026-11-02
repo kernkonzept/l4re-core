@@ -192,17 +192,24 @@ public:
   { return Bit(this, bit); }
 
   /**
-   * Scan for the first zero bit.
+   * Scan for a zero bit, starting at the word that contains bit `hint`.
    *
-   * \param max_bit    Upper bound (exclusive) for the scanning operation.
-   * \param start_bit  Hint at the number of the first bit to look at.
-   *                   Zero bits below `start_bit` may or may not be
-   *                   taken into account by the implementation.
+   * The scan looks at whole words: it starts with the word containing bit
+   * `hint` (including the bits of that word below the bit `hint`) and proceeds
+   * towards `max_bit`. If no zero bit is found there, the scan wraps around
+   * and continues at bit 0 up to and including the word preceding the word
+   * containing bit `hint`. Hence every bit below `max_bit` is considered and
+   * -1 is returned only if all of them are set.
    *
-   * \retval >= 0  Number of first zero bit found.
-   * \retval -1    All bits between `start_bit` and `max_bit` are set.
+   * \param max_bit  Upper bound (exclusive) for the scanning operation.
+   * \param hint     Hint at which bit to start scanning.
+   *
+   * \pre `0 <= hint < max_bit`. The arguments are not checked.
+   *
+   * \retval >= 0  Number of the first zero bit found.
+   * \retval -1    All bits below `max_bit` are set.
    */
-  long scan_zero(long max_bit, long start_bit = 0) const noexcept;
+  long scan_zero(long max_bit, long hint = 0) const noexcept;
 
   void *bit_buffer() const noexcept { return _bits; }
 
@@ -228,18 +235,18 @@ public:
   Bitmap(Bitmap<BITS> const &o) noexcept : Bitmap_base(_bits)
   { __builtin_memcpy(_bits, o._bits, sizeof(_bits)); }
   /**
-   * Scan for the first zero bit.
+   * Scan for a zero bit, starting at the word that contains bit `hint`.
    *
-   * \param start_bit  Hint at the number of the first bit to look at.
-   *                   Zero bits below `start_bit` may or may not be
-   *                   taken into account by the implementation.
+   * \param hint  Hint at which bit to start scanning.
    *
-   * \retval >= 0  Number of first zero bit found.
-   * \retval -1    All bits at `start_bit` or higher are set.
+   * \pre `0 <= hint < BITS`. The argument is not checked.
    *
-   * Compared to Bitmap_base::scan_zero(), the upper bound is set to BITS.
+   * \retval >= 0  Number of the first zero bit found.
+   * \retval -1    All bits of the bitmap are set.
+   *
+   * Same as Bitmap_base::scan_zero() with the upper bound set to BITS.
    */
-  long scan_zero(long start_bit = 0) const noexcept;
+  long scan_zero(long hint = 0) const noexcept;
 
   void clear_all()
   { __builtin_memset(_bits, 0, sizeof(_bits)); }
@@ -336,25 +343,24 @@ Bitmap_base::_bzl(unsigned long w) noexcept
 
 inline
 long
-Bitmap_base::scan_zero(long max_bit, long start_bit) const noexcept
+Bitmap_base::scan_zero(long max_bit, long hint) const noexcept
 {
-  if (!(operator [] (start_bit)))
-    return start_bit;
+  long const nwords = words(max_bit);
+  long idx = word_index(hint);
 
-  long idx = word_index(start_bit);
-
-  max_bit -= start_bit & ~(W_bits - 1);
-
-  for (; max_bit > 0; max_bit -= W_bits, ++idx)
+  for (long i = 0; i < nwords; ++i, ++idx)
     {
-      if (_bits[idx] == 0)
-        return idx * W_bits;
+      if (idx == nwords)
+        idx = 0;
 
-      if (_bits[idx] != ~0UL)
-        {
-          long zbit = _bzl(_bits[idx]);
-          return zbit < max_bit ? idx * W_bits + zbit : -1;
-        }
+      if (_bits[idx] == ~0UL)
+        continue;
+
+      // Only the last word can contain bits at or beyond `max_bit`. If its
+      // lowest zero bit is beyond `max_bit`, all its valid bits are set.
+      long zbit = idx * W_bits + _bzl(_bits[idx]);
+      if (zbit < max_bit)
+        return zbit;
     }
 
   return -1;
@@ -362,9 +368,9 @@ Bitmap_base::scan_zero(long max_bit, long start_bit) const noexcept
 
 template<int BITS> inline
 long
-Bitmap<BITS>::scan_zero(long start_bit) const noexcept
+Bitmap<BITS>::scan_zero(long hint) const noexcept
 {
-  return Bitmap_base::scan_zero(BITS, start_bit);
+  return Bitmap_base::scan_zero(BITS, hint);
 }
 
 };
