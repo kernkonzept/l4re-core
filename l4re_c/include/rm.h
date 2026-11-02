@@ -39,6 +39,11 @@ enum l4re_rm_flags_values {
   L4RE_RM_F_DETACH_FREE  = 0x200, /**< Free the portion of the data space after detach */
   L4RE_RM_F_PAGER        = 0x400, /**< Region has a pager */
   L4RE_RM_F_RESERVED     = 0x800, /**< Region is reserved (blocked) */
+  /** Attach the dataspace privately with copy-on-write semantics. */
+  L4RE_RM_F_PRIVATE      = 0x1000,
+  /** Attach anonymous memory provided by the region manager. The caller
+   *  must pass #L4_INVALID_CAP as dataspace. */
+  L4RE_RM_F_ANONYMOUS    = 0x2000,
 
   L4RE_RM_CACHING_SHIFT    = 4, /**< Start of region mapper cache bits */
 
