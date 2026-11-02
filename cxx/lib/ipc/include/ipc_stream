@@ -348,7 +348,7 @@ public:
   Istream(l4_utcb_t *utcb)
   : _tag(), _utcb(utcb),
     _current_msg(reinterpret_cast<char*>(l4_utcb_mr_u(utcb)->mr)),
-    _pos(0), _current_buf(0)
+    _pos(0), _current_buf(0), _current_item(0)
   {}
 
   /**
@@ -359,6 +359,7 @@ public:
   {
     _pos = 0;
     _current_buf = 0;
+    _current_item = 0;
     _current_msg = reinterpret_cast<char*>(l4_utcb_mr_u(_utcb)->mr);
   }
 
@@ -494,6 +495,33 @@ public:
   }
 
   /**
+   * Extract the next item of the message.
+   *
+   * \param[out] v  The item.
+   *
+   * \retval true   An item was successfully extracted.
+   * \retval false  There are no more items in the message.
+   *
+   * Items are located behind the untyped words of the message. They are
+   * extracted in order, independently of the untyped words.
+   */
+  bool get_snd_item(Snd_fpage &v)
+  {
+    unsigned pos = _tag.words() + _current_item * Msg::Item_words;
+    if (L4_UNLIKELY(_current_item >= _tag.items()
+                    || pos + Msg::Item_words > Msg::Mr_words))
+      {
+        v = Snd_fpage();
+        return false;
+      }
+
+    l4_umword_t const *mr = reinterpret_cast<l4_umword_t const *>(_current_msg);
+    v = Snd_fpage(mr[pos], mr[pos + 1]);
+    ++_current_item;
+    return true;
+  }
+
+  /**
    * Get the message tag of a received IPC.
    *
    * \return  The L4 message tag for the received IPC.
@@ -586,6 +614,7 @@ protected:
   char *_current_msg;
   unsigned _pos;
   unsigned char _current_buf;
+  unsigned char _current_item;
 };
 
 class Istream_copy : public Istream
@@ -969,6 +998,7 @@ Iostream::call(l4_cap_idx_t dst, l4_timeout_t timeout, long label)
   tag = l4_ipc_call(dst, Ostream::_utcb, tag, timeout);
   Istream::tag() = tag;
   Istream::_pos = 0;
+  Istream::_current_item = 0;
   return tag;
 }
 
@@ -984,6 +1014,7 @@ Iostream::reply_and_wait(l4_umword_t *src_dst, l4_timeout_t timeout, long proto)
   tag = l4_ipc_reply_and_wait(Ostream::_utcb, tag, src_dst, timeout);
   Istream::tag() = tag;
   Istream::_pos = 0;
+  Istream::_current_item = 0;
   return tag;
 }
 
@@ -996,6 +1027,7 @@ Iostream::send_and_wait(l4_cap_idx_t dest, l4_umword_t *src,
   tag = l4_ipc_send_and_wait(dest, Ostream::_utcb, tag, src, timeout);
   Istream::tag() = tag;
   Istream::_pos = 0;
+  Istream::_current_item = 0;
   return tag;
 }
 
@@ -1006,6 +1038,7 @@ Iostream::reply(l4_timeout_t timeout, long proto)
   tag = l4_ipc_send(L4_INVALID_CAP | L4_SYSF_REPLY, Ostream::_utcb, tag, timeout);
   Istream::tag() = tag;
   Istream::_pos = 0;
+  Istream::_current_item = 0;
   return tag;
 }
 
@@ -1016,6 +1049,7 @@ Istream::wait(l4_umword_t *src, l4_timeout_t timeout)
   res = l4_ipc_wait(_utcb, src, timeout);
   tag() = res;
   _pos = 0;
+  _current_item = 0;
   return res;
 }
 
@@ -1027,6 +1061,7 @@ Istream::receive(l4_cap_idx_t src, l4_timeout_t timeout)
   res = l4_ipc_receive(src, _utcb, timeout);
   tag() = res;
   _pos = 0;
+  _current_item = 0;
   return res;
 }
 
@@ -1057,9 +1092,7 @@ inline L4::Ipc::Istream &operator << (L4::Ipc::Istream &s, L4::Ipc::Rcv_fpage co
 inline L4::Ipc::Istream &operator << (L4::Ipc::Istream &s, L4::Ipc::Small_buf const &v) { s.put(v); return s; }
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Snd_fpage &v)
 {
-  l4_umword_t b, d;
-  s >> b >> d;
-  v = L4::Ipc::Snd_fpage(b, d);
+  s.get_snd_item(v);
   return s;
 }
 inline L4::Ipc::Istream &operator >> (L4::Ipc::Istream &s, L4::Ipc::Varg &v)
