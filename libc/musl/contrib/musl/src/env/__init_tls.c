@@ -43,6 +43,11 @@ static struct builtin_tls {
 
 static struct tls_module main_tls;
 
+#ifndef NOT_FOR_L4
+extern void *l4re_global_env;
+hidden void *__l4re_early_tls_alloc(void *env, size_t size);
+#endif
+
 pthread_descr __copy_tls(unsigned char *mem)
 {
 	pthread_descr td;
@@ -140,6 +145,11 @@ static void static_init_tls(size_t *aux)
 		+ MIN_TLS_ALIGN-1 & -MIN_TLS_ALIGN;
 
 	if (libc.tls_size > sizeof builtin_tls) {
+#ifndef NOT_FOR_L4
+		/* The VFS is not initialized yet, mmap() does not work. */
+		mem = __l4re_early_tls_alloc(l4re_global_env, libc.tls_size);
+		if (!mem) a_crash();
+#else
 #ifndef SYS_mmap2
 #define SYS_mmap2 SYS_mmap
 #endif
@@ -150,6 +160,7 @@ static void static_init_tls(size_t *aux)
 		/* -4095...-1 cast to void * will crash on dereference anyway,
 		 * so don't bloat the init code checking for error codes and
 		 * explicitly calling a_crash(). */
+#endif
 	} else {
 		mem = builtin_tls;
 	}

@@ -61,6 +61,7 @@ $(eval $(call PROCESS_src_lists, $(DIRS), $(SUB_MODULES)))
 LIBC_SRC_C += impl-libc-api.c
 LIBC_SRC_C += ARCH-$(LIBC_ARCH_FAMILY)/impl-libc-api-arch.c
 LIBC_SRC_C += mman-utcb-safe.c
+LIBC_SRC_C += early_tls.c
 LIBC_SRC_CC += _exit.cc
 
 $(foreach ext,C S CC, \
