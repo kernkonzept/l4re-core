@@ -227,7 +227,7 @@ template<int BITS>
 class Bitmap : public Bitmap_base
 {
 private:
-  char _bits[Bitmap_base::Char<BITS>::Size];
+  word_type _bits[Bitmap_base::Word<BITS>::Size];
 
 public:
   /** Create a bitmap with `BITS` bits. */
