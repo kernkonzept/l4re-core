@@ -104,12 +104,14 @@ public:
                       L4::Ipc::String_in_buf<> cmd,
                       L4::Ipc::Array_ref<char> &res)
   {
+    int const top = lua_gettop(_lua);
+
     if (luaL_loadbuffer(_lua, cmd.data, cmd.length - 1, "argument"))
       {
         fprintf(stderr, "lua couldn't parse '%.*s': %s.\n",
                 static_cast<int>(cmd.length) - 1,
                 cmd.data, lua_tostring(_lua, -1));
-        lua_pop(_lua, 1);
+        lua_settop(_lua, top);
 
         return -L4_EINVAL;
       }
@@ -125,7 +127,7 @@ public:
         fprintf(stderr, "lua couldn't execute '%.*s': %s.\n",
                 static_cast<int>(cmd.length) - 1,
                 cmd.data, lua_tostring(_lua, -1));
-        lua_pop(_lua, 1);
+        lua_settop(_lua, top);
 
         return -L4_EIO;
       }
@@ -139,7 +141,7 @@ public:
     res.length = len;
 
     // drop the return value
-    lua_pop(_lua, lua_gettop(_lua));
+    lua_settop(_lua, top);
 
     return L4_EOK;
   }
