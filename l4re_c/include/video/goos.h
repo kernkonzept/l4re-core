@@ -20,6 +20,7 @@
 /**
  * \defgroup api_l4re_c_video Video API
  * \ingroup api_l4re_c
+ * \see \ref api_l4re_video (C++)
  */
 
 /**

@@ -13,7 +13,10 @@
 #include <l4/re/video/colors>
 #include <l4/sys/cxx/ipc_iface>
 
-namespace L4Re { namespace Video {
+namespace L4Re {
+/// \copybrief api_l4re_video
+/// \see \ref api_l4re_video
+namespace Video {
 
 /**
  * \defgroup api_l4re_video Video API
@@ -22,11 +25,15 @@ namespace L4Re { namespace Video {
  *
  * Contains the basic APIs that abstract framebuffers and views into them for
  * L4Re applications.
+ *
+ * \see \ref api_l4re_c_video (C)
  */
+
 class L4_EXPORT Goos;
 
 /**
  * View of a framebuffer.
+ * \ingroup api_l4re_video
  *
  * A view is a rectangular subset of a framebuffer managed by a Goos object.
  * The Goos orders multiple views in a stack which determines which view is on
@@ -208,6 +215,7 @@ public:
 
 /**
  * Class that abstracts framebuffers.
+ * \ingroup api_l4re_video
  *
  * A framebuffer is the pixel data that is displayed on a screen and a Goos
  * object lets the user manipulate that data. A Goos makes use of two kinds of
