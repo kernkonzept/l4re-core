@@ -247,10 +247,10 @@ Thread_signal_handler::op_exception(L4::Exception::Rights, l4_exc_regs_t &regs,
         {
         case Exc_cause::Signal:
           {
-            // If a SIGSEGV/SEGV_MAPERR was caused by an instruction in a
+            // If a SIGSEGV/SIGBUS was caused by an instruction in a
             // registered rescue range, divert execution to the rescue PC
             // instead of delivering the signal.
-            if (si.si_signo == SIGSEGV && si.si_code == SEGV_MAPERR)
+            if (si.si_signo == SIGSEGV || si.si_signo == SIGBUS)
               {
                 l4_addr_t pc = l4_utcb_exc_pc(&regs);
                 if (l4_addr_t rescue = Global::local_rm->find_rescue_jump(pc))
