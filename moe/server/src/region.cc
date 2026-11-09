@@ -82,8 +82,8 @@ l4_ret_t Region_handler::map(l4_addr_t adr,
     return -L4_EADDRNOTAVAIL;
 
   using L4::Ipc::Snd_fpage;
+  adr = l4_trunc_page(adr);
   l4_addr_t offs = adr - r.start();
-  offs = l4_trunc_page(offs);
   auto f = map_flags(flags());
   if (!need_w)
     f -= L4Re::Dataspace::F::W;
@@ -110,7 +110,8 @@ l4_ret_t Region_handler::page_in(L4Re::Util::Region const &r, l4_addr_t start,
     return -L4_EADDRNOTAVAIL;
 
   using L4::Ipc::Snd_fpage;
-  l4_addr_t offs = l4_trunc_page(start - r.start());
+  start = l4_trunc_page(start);
+  l4_addr_t offs = start - r.start();
 
   static Snd_fpage::Cacheopt const cache_map[] =
     { Snd_fpage::None, Snd_fpage::Buffered, Snd_fpage::Uncached,
