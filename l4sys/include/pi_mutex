@@ -24,8 +24,12 @@ namespace L4 {
  *
  * A priority inheritance mutex (PI mutex) object provides the slow path for a
  * priority-inheritance-aware mutex. Here, priority inheritance means that the
- * mutex owner temporarily takes on the priority of the highest-priority waiting
- * thread, if that priority is higher than its own.
+ * mutex owner temporarily takes on the [priority](#l4_sched_param_t::prio) of
+ * the highest-priority waiting thread, if that priority is higher than its own.
+ * The mutex owner’s [quantum](#l4_sched_param_t::quantum) remains unchanged.
+ * Also, the mutex owner does not take over partial timeslices from waiting
+ * threads. When the priority is changed, the mutex owner is enqueued at the
+ * front of the scheduler queue of the respective priority.
  *
  * A PI mutex can be used only by threads within a single task. This task is
  * defined when a PI mutex is created. Also, during creation, some kernel-user
