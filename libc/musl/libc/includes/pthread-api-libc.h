@@ -42,11 +42,16 @@ typedef struct pthread_libc_data
   /* non x86 - the positions of these fields relative to
    * the end of the structure is external and internal ABI. */
 #ifdef TLS_ABOVE_TP
-#if defined(__mips__) || defined(__riscv)
   /* struct pthread embeds this structure as its last member and is aligned to
    * TCB_ALIGNMENT (sizeof(double) == 8). Because the trailing fields are
    * addressed relative to the end of struct pthread, i.e. relative to the
-   * thread pointer, struct pthread must not gain any tail padding. */
+   * thread pointer, neither this structure nor struct pthread must gain any
+   * tail padding. Start the trailing fields at a TCB_ALIGNMENT boundary, so
+   * this holds independently of the fields above and of the offset of this
+   * structure in struct pthread. The trailing fields themselves must add up
+   * to a multiple of TCB_ALIGNMENT. */
+  char __tail_align[0] __attribute__((aligned(sizeof(double))));
+#if defined(__mips__) || defined(__riscv)
 #if __SIZEOF_POINTER__ != __SIZEOF_DOUBLE__
   void *__pad;
 #endif
