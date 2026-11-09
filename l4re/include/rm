@@ -750,8 +750,7 @@ public:
   L4_RPC(long, get_areas, (l4_addr_t start, L4::Ipc::Array_ref<Area> &areas));
 
   /**
-   * Return auxiliary information of a region. This is a debugging feature
-   * and might not be available.
+   * Return auxiliary information of a region.
    *
    * \param       addr           Virtual address of the region.
    * \param[out]  name           Name of the region.
@@ -761,6 +760,14 @@ public:
    * \retval -L4_ENOENT  Region not found.
    * \retval -L4_ENOSYS  Function not available.
    * \retval <0          IPC errors
+   *
+   * This is a debugging feature and might not be available. The
+   * L4Re::Util::Rm_server implementation provides it only if compiled with the
+   * configuration option `L4RE_REGION_INFO`; otherwise it returns #L4_ENOSYS.
+   * ITAS and Moe both use this implementation.
+   *
+   * When a value ≤ 0 is returned, the values of the out parameters are
+   * undefined.
    */
   L4_RPC(l4_ret_t, get_info, (l4_addr_t addr, L4::Ipc::String<char> &name,
                               Offset &backing_offset));
